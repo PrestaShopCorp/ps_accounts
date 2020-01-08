@@ -1,0 +1,27 @@
+{
+  "config": {
+    "preferred-install": "dist",
+    "platform": {
+      "php": "5.6"
+    },
+    "optimize-autoloader": true,
+    "prepend-autoloader": false
+  },
+  "require-dev": {
+    "php": ">=5.6",
+    "phpunit/phpunit": "~5.7",
+    "prestashop/php-dev-tools": "^2.2",
+    "friendsofphp/php-cs-fixer": "^2.16"
+  },
+  "autoload": {
+    "psr-4": {
+      "PrestaShop\\Module\\PsAccounts\\": "classes/"
+    },
+    "classmap": [
+      "ps_accounts.php"
+    ]
+  },
+  "require": {
+    "symfony/dotenv": "^3.4"
+  }
+}

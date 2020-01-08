@@ -1,0 +1,23 @@
+### Composer ###
+composer.phar
+/vendor/
+/node_modules/
+docker-compose.override.yml
+.env
+.php_cs.cache
+install.lock
+
+### Vuejs ignore build files ###
+/views/js/index.js
+/views/js/index.js.map
+/views/js/chunk-vendors.js
+/views/js/chunk-vendors.js.map
+/views/css/index.css
+/views/css/chunk-vendors.css
+/views/favicon.ico
+/views/index.html
+
+# Log files
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
