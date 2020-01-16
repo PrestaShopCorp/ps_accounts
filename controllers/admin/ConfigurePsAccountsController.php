@@ -23,6 +23,7 @@
 *  @license   http://opensource.org/licenses/afl-3.0.php  Academic Free License (AFL 3.0)
 *  International Registered Trademark & Property of PrestaShop SA
 */
+use PrestaShop\Module\PsAccounts\Service\SshKey;
 
 class ConfigurePsAccountsController extends ModuleAdminController
 {
@@ -52,8 +53,21 @@ class ConfigurePsAccountsController extends ModuleAdminController
         ));
         Media::addJsDef([
             'ajax_controller_url' => $this->context->link->getAdminLink('AdminAjaxPsAccounts'),
-        ]);        
-
+        ]);
+        $this->manageSshKey();
         $this->setTemplate('configure.tpl');
+    }
+
+    private function manageSshKey()
+    {
+        if (
+            !Configuration::get('PS_ACCOUNT_RSA_PUBLIC_KEY')
+            && !Configuration::get('PS_ACCOUNT_RSA_PRIVATE_KEY')
+        ) {
+            $sshKey = new SshKey();
+            $sshKey->generate();
+            Configuration::updateValue('PS_ACCOUNT_RSA_PUBLIC_KEY', $sshKey->getPublicKey());
+            Configuration::updateValue('PS_ACCOUNT_RSA_PRIVATE_KEY', $sshKey->getPrivateKey());
+        }
     }
 }

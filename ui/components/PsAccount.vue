@@ -1,9 +1,6 @@
 <template>
   <div class="ps_account text-center">
-    <button 
-      @click.stop.prevent="connectSSO()" 
-      class="btn btn-primary"
-    >
+    <button @click.stop.prevent="connectSSO()" class="btn btn-primary">
       {{ buttonText }}
     </button>
   </div>
