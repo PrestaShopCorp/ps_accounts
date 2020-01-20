@@ -17,19 +17,18 @@
  * @license   https://opensource.org/licenses/AFL-3.0 Academic Free License 3.0 (AFL-3.0)
  * International Registered Trademark & Property of PrestaShop SA
  */
+use PHPUnit\Framework\TestCase;
+use PrestaShop\Module\PsAccounts\Service\SshKey;
 
-namespace PrestaShop\Module\PsAccounts\Service;
-
-use phpseclib\Crypt\RSA;
-
-class SshKey
+class SshKeyTest extends TestCase
 {
-    public function generate()
+    public function testGenerate()
     {
-        $rsa = new RSA();
-        $rsa->setPrivateKeyFormat(RSA::PRIVATE_FORMAT_PKCS1);
-        $rsa->setPublicKeyFormat(RSA::PUBLIC_FORMAT_OPENSSH);
-
-        return $rsa->createKey();
+        $sshKey = new SshKey();
+        $key = $sshKey->generate();
+        $this->assertArrayHasKey('privatekey', $key, "Key 'privatekey' don't exist in Array");
+        $this->assertArrayHasKey('publickey', $key, "Key 'publickey' don't exist in Array");
+        $this->assertEquals('string', gettype($key['privatekey']), "'privatekey' isn't string");
+        $this->assertEquals('string', gettype($key['publickey']), "'privatekey' isn't string");
     }
 }

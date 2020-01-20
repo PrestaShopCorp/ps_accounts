@@ -65,9 +65,9 @@ class ConfigurePsAccountsController extends ModuleAdminController
             && !Configuration::get('PS_ACCOUNT_RSA_PRIVATE_KEY')
         ) {
             $sshKey = new SshKey();
-            $sshKey->generate();
-            Configuration::updateValue('PS_ACCOUNT_RSA_PUBLIC_KEY', $sshKey->getPublicKey());
-            Configuration::updateValue('PS_ACCOUNT_RSA_PRIVATE_KEY', $sshKey->getPrivateKey());
+            $key = $sshKey->generate();
+            Configuration::updateValue('PS_ACCOUNT_RSA_PRIVATE_KEY', $key['privatekey']);
+            Configuration::updateValue('PS_ACCOUNT_RSA_PUBLIC_KEY', $key['publickey']);
         }
     }
 }
