@@ -26,12 +26,11 @@
 if (!defined('_PS_VERSION_')) {
     exit;
 }
+require_once __DIR__.'/vendor/autoload.php';
 
 use PrestaShop\Module\PsAccounts\Module\Install;
 use PrestaShop\Module\PsAccounts\Module\Uninstall;
 use Symfony\Component\Dotenv\Dotenv;
-
-require_once __DIR__.'/vendor/autoload.php';
 
 class Ps_accounts extends Module
 {
@@ -73,7 +72,7 @@ class Ps_accounts extends Module
             'ajax' => 'AdminAjaxPsAccounts',
         ];
         $dotenv = new Dotenv();
-        $dotenv->load($this->local_path . '.env');
+        $dotenv->load($this->local_path.'.env');
     }
 
     /**

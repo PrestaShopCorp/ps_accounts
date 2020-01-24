@@ -23,7 +23,7 @@
 /* eslint-disable no-console */
 
 import ps_account from './components/PsAccount'
-import { request } from "./api/ajax.js";
+import { request } from './api/ajax.js'
 
 export default {
   name: 'app',
@@ -58,15 +58,15 @@ export default {
         action: 'StandAliveUserConnexion',
         controller: 'AdminAjaxPsAccounts',
       })
-      .then((response) => {
-        console.log(response.data)
-        if (response !== false && response.state != 0) {
-          this.showChunk(response)
-        }
-      })
-      .catch(error => {
-        console.log(error)
-      });
+        .then(response => {
+          console.log(response.data)
+          if (response !== false && response.state != 0) {
+            this.showChunk(response)
+          }
+        })
+        .catch(error => {
+          console.log(error)
+        })
     },
 
     loadingCompleted() {

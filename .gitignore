@@ -5,6 +5,7 @@ composer.phar
 docker-compose.override.yml
 .env
 .php_cs.cache
+.php_cs
 install.lock
 
 ### Vuejs ignore build files ###
