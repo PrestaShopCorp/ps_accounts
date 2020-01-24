@@ -14,7 +14,7 @@
       </div>
     </div>
     <div class="app-footer">
-      <ps_account buttonText="valider"></ps_account>
+      <ps_account buttonText="valider" :vue_app_svc_ui_url=svc_ui_url></ps_account>
     </div>
   </div>
 </template>
@@ -34,14 +34,13 @@ export default {
     return {
       fact: null,
       api_url: null,
-      sso_url: null,
+      svc_ui_url: null,
       loaded: false,
       ready: {
         loading: false,
       },
     }
   },
-  coed: {},
   watch: {
     ready: {
       deep: true,
@@ -59,7 +58,6 @@ export default {
         controller: 'AdminAjaxPsAccounts',
       })
         .then(response => {
-          console.log(response.data)
           if (response !== false && response.state != 0) {
             this.showChunk(response)
           }
@@ -80,7 +78,7 @@ export default {
     },
   },
   created() {
-    this.sso_url = process.env.VUE_APP_SSO_URL
+    this.svc_ui_url = process.env.VUE_APP_SVC_UI_URL
     this.api_url = process.env.VUE_APP_API_URL
     window.setTimeout(this.loadingCompleted, 2000)
   },
@@ -93,7 +91,7 @@ export default {
 }
 </script>
 
-<style>
+<style scoped>
 body {
   background: #eff1f2 !important;
 }

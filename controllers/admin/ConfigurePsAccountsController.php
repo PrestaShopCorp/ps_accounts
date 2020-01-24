@@ -47,6 +47,12 @@ class ConfigurePsAccountsController extends ModuleAdminController
     {
         parent::initContent();
         $this->module->loadAsset();
+        $this->manageSshKey();
+        Media::addJsDef([
+            'publicKey' => Configuration::get('PS_ACCOUNTS_RSA_PUBLIC_KEY'),
+            'shopName' => Configuration::get('PS_ACCOUNTS_RSA_PUBLIC_KEY'),
+            'boUrl' => Configuration::get('PS_SHOP_NAME'),
+        ]);
         $this->context->smarty->assign(array(
             'appLink' => Tools::getShopDomainSsl(true).$this->module->getPath().'views/js/index.js',
             'chunkVendorsLink' => Tools::getShopDomainSsl(true).$this->module->getPath().'views/js/chunk-vendors.js',
@@ -54,20 +60,20 @@ class ConfigurePsAccountsController extends ModuleAdminController
         Media::addJsDef([
             'ajax_controller_url' => $this->context->link->getAdminLink('AdminAjaxPsAccounts'),
         ]);
-        $this->manageSshKey();
+
         $this->setTemplate('configure.tpl');
     }
 
     private function manageSshKey()
     {
         if (
-            !Configuration::get('PS_ACCOUNT_RSA_PUBLIC_KEY')
-            && !Configuration::get('PS_ACCOUNT_RSA_PRIVATE_KEY')
+            !Configuration::get('PS_ACCOUNTS_RSA_PUBLIC_KEY')
+            && !Configuration::get('PS_ACCOUNTS_RSA_PRIVATE_KEY')
         ) {
             $sshKey = new SshKey();
             $key = $sshKey->generate();
-            Configuration::updateValue('PS_ACCOUNT_RSA_PRIVATE_KEY', $key['privatekey']);
-            Configuration::updateValue('PS_ACCOUNT_RSA_PUBLIC_KEY', $key['publickey']);
+            Configuration::updateValue('PS_ACCOUNTS_RSA_PRIVATE_KEY', $key['privatekey']);
+            Configuration::updateValue('PS_ACCOUNTS_RSA_PUBLIC_KEY', $key['publickey']);
         }
     }
 }

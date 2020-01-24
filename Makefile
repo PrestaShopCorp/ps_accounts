@@ -1,6 +1,5 @@
 DKC=docker-compose -f docker-compose.yml -f docker-compose.override.yml
 
-
 .PHONY: help
 
 help:
@@ -14,7 +13,7 @@ yarn_start: ## Start VueJs
 	$(MAKE) yarn_install
 	$(MAKE) yarn_watch
 
-start: ## Start app
+start: ## Start app, force rebuild all containers 
 	$(DKC) up -d --build
 	$(MAKE) yarn_start
 
