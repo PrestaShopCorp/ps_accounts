@@ -14,7 +14,10 @@
       </div>
     </div>
     <div class="app-footer">
-      <ps_account buttonText="valider" :vue_app_svc_ui_url=svc_ui_url></ps_account>
+      <ps_account
+        buttonText="valider"
+        :vue_app_svc_ui_url="svc_ui_url"
+      ></ps_account>
     </div>
   </div>
 </template>
