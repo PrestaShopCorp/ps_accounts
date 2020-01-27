@@ -1,11 +1,11 @@
 <template>
   <div>
-    <div v-if="params_loaded" class="ps_account text-center" >
+    <div v-if="params_loaded" class="ps_account text-center">
       <button @click.stop.prevent="connectSvcUi()" class="btn btn-primary">
         {{ buttonText }}
       </button>
     </div>
-    <div v-else class="forbidden text-center" > 
+    <div v-else class="forbidden text-center">
       Restart onboarding
     </div>
   </div>
@@ -19,7 +19,7 @@ export default {
 
   props: {
     buttonText: String,
-    vue_app_svc_ui_url: String
+    vue_app_svc_ui_url: String,
   },
 
   data() {
@@ -30,16 +30,21 @@ export default {
         publicKey: null,
         shopName: null,
         boUrl: null,
-      }
+      },
     }
   },
 
   mounted() {
     this.svc_ui_url = this.vue_app_svc_ui_url
 
-    this.queryParams.publicKey = ("string" === typeof window.publicKey) ? slugify(window.publicKey, '_') : null
-    this.queryParams.shopName = ("string" === typeof window.shopName) ? slugify(window.shopName, '_') : null
-    this.queryParams.boUrl = ("string" === typeof window.boUrl) ? slugify(window.boUrl, '_') : null
+    this.queryParams.publicKey =
+      'string' === typeof window.publicKey
+        ? slugify(window.publicKey, '_')
+        : null
+    this.queryParams.shopName =
+      'string' === typeof window.shopName ? slugify(window.shopName, '_') : null
+    this.queryParams.boUrl =
+      'string' === typeof window.boUrl ? slugify(window.boUrl, '_') : null
 
     this.queryParamsLoaded()
   },
@@ -57,7 +62,7 @@ export default {
       return this.params_loaded
     },
 
-    queryParamsLoaded(){
+    queryParamsLoaded() {
       const countInitQueryParams = Object.keys(this.queryParams).length
 
       let counterValideParams = 0
@@ -70,11 +75,11 @@ export default {
         }
       }
 
-      if (countInitQueryParams === counterValideParams) { 
-        this.params_loaded = true 
-        this.svc_ui_url = this.svc_ui_url.slice(0, -1);
+      if (countInitQueryParams === counterValideParams) {
+        this.params_loaded = true
+        this.svc_ui_url = this.svc_ui_url.slice(0, -1)
       }
-    }
+    },
   },
 }
 </script>

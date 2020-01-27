@@ -1,0 +1,23 @@
+name: CI
+on: [pull_request]
+
+jobs:
+  prettier:
+    runs-on: ubuntu-16.04
+    name: prettier
+    steps:
+      - uses: actions/checkout@v1
+      - name: Setup node
+        uses: actions/setup-node@v1
+      - run: yarn install
+      - run: yarn prettier-check
+
+  js-unit-test:
+    name: JS-UNIT-TEST
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v1
+      - name: Setup node
+        uses: actions/setup-node@v1
+      - run: yarn install && yarn add --dev jsdom jsdom-global
+      - run: yarn test
