@@ -12,8 +12,6 @@
 </template>
 
 <script>
-const slugify = require('slugify')
-
 export default {
   name: 'PsAccount',
 
@@ -39,12 +37,14 @@ export default {
 
     this.queryParams.publicKey =
       'string' === typeof window.publicKey
-        ? slugify(window.publicKey, '_')
+        ? encodeURIComponent(window.publicKey)
         : null
     this.queryParams.shopName =
-      'string' === typeof window.shopName ? slugify(window.shopName, '_') : null
+      'string' === typeof window.shopName
+        ? encodeURIComponent(window.shopName)
+        : null
     this.queryParams.boUrl =
-      'string' === typeof window.boUrl ? slugify(window.boUrl, '_') : null
+      'string' === typeof window.boUrl ? encodeURIComponent(window.boUrl) : null
 
     this.queryParamsLoaded()
   },
