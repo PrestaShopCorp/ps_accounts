@@ -24,12 +24,30 @@ use phpseclib\Crypt\RSA;
 
 class SshKey
 {
+    public function __construct()
+    {
+        $this->rsa = new RSA();
+    }
+
     public function generate()
     {
-        $rsa = new RSA();
-        $rsa->setPrivateKeyFormat(RSA::PRIVATE_FORMAT_PKCS1);
-        $rsa->setPublicKeyFormat(RSA::PUBLIC_FORMAT_OPENSSH);
+        $this->rsa->setPrivateKeyFormat(RSA::PRIVATE_FORMAT_PKCS1);
+        $this->rsa->setPublicKeyFormat(RSA::PUBLIC_FORMAT_OPENSSH);
 
-        return $rsa->createKey();
+        return $this->rsa->createKey();
+    }
+
+    public function signData($privateKey, $data)
+    {
+        $this->rsa->loadKey($privateKey);
+
+        return base64_encode($this->rsa->sign($data));
+    }
+
+    public function verifySignature($publicKey, $signature, $data)
+    {
+        $this->rsa->loadKey($publicKey);
+
+        return  $this->rsa->verify($data, base64_decode($signature));
     }
 }
