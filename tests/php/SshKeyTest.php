@@ -53,7 +53,7 @@ class SshKeyTest extends TestCase
          -----END RSA PRIVATE KEY-----';
 
         $publicKey = 'ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAAAgQCeksA2G79u1InvLc8tKcerLCLa66be0h/CD9RhDnQh5CXQxe5HURMyTWy6DpyFyddg6cnOh1RavMWUvdvjwtcgxVmmwtBA7kS8sKuxRUBFHjxB7i9NcLlbhBTQl15zjpHcI7ggBulqTS1b5jwEuZSv8d+NW0pCTZk/4Xm4d2i+9Q== phpseclib-generated-key';
-        $data = '..........';
+        $data = 'hmac';
         $signature = $sshKey->signData($privateKey, $data);
 
         $this->assertEquals(1, $sshKey->verifySignature($publicKey, $signature, $data), "Data doesn't signed");

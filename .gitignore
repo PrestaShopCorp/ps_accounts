@@ -11,6 +11,11 @@ docker-compose.override.yml
 .php_cs
 install.lock
 
+### Module files ###
+!views/files
+views/files/*
+!views/files/.gitkeep
+
 ### Vuejs ignore build files ###
 /views/js/index.js
 /views/js/index.js.map

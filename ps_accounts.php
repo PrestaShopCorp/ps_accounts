@@ -69,6 +69,7 @@ class Ps_accounts extends Module
         $this->js_path = $this->_path.'views/js/';
         $this->controllers = [
             'configure' => 'ConfigurePsAccounts',
+            'hmac' => 'ConfigureHmacPsAccounts',
             'ajax' => 'AdminAjaxPsAccounts',
         ];
         $dotenv = new Dotenv();
