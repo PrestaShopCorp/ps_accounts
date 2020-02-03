@@ -8,7 +8,7 @@ describe('PsAccount.vue', () => {
     delete window.shopName
     delete window.boUrl
   })
-  
+
   it('should generate uri for redirecting later and set loaded', () => {
     window.publicKey="test"
     window.shopName="shopName"
@@ -22,7 +22,7 @@ describe('PsAccount.vue', () => {
     })
 
     expect(wrapper.vm.getLoaded()).toBe(true)
-    expect(wrapper.vm.getSvcUiUrl()).toBe('http://exemple.com?publicKey=test&shopName=shopName&boUrl=boUrl')
+    expect(wrapper.vm.getSvcUiUrl()).toBe('http://exemple.com/link-shop/boUrl/to/PSXEmoji.Deluxe.Fake.Service?publicKey=test&shopName=shopName')
   })
 
   it('should not generate uri for redirecting later and set loaded', () => {
@@ -37,6 +37,6 @@ describe('PsAccount.vue', () => {
     })
 
     expect(wrapper.vm.getLoaded()).toBe(false)
-    expect(wrapper.vm.getSvcUiUrl()).toBe('http://exemple.com?shopName=shopName&boUrl=boUrl&')
+    expect(wrapper.vm.getSvcUiUrl()).toBe('http://exemple.com/link-shop/boUrl/to/PSXEmoji.Deluxe.Fake.Service?shopName=shopName&')
   })
 })
