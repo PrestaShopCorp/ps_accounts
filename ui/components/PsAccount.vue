@@ -27,14 +27,12 @@ export default {
       queryParams: {
         publicKey: null,
         shopName: null,
-        boUrl: null,
       },
     }
   },
 
   mounted() {
-    this.svc_ui_url = this.vue_app_svc_ui_url
-
+    this.svc_ui_url = this.vue_app_svc_ui_url + '/link-shop/' + window.boUrl + '/to/PSXEmoji.Deluxe.Fake.Service'
     this.queryParams.publicKey =
       'string' === typeof window.publicKey
         ? encodeURIComponent(window.publicKey)
@@ -43,8 +41,6 @@ export default {
       'string' === typeof window.shopName
         ? encodeURIComponent(window.shopName)
         : null
-    this.queryParams.boUrl =
-      'string' === typeof window.boUrl ? encodeURIComponent(window.boUrl) : null
 
     this.queryParamsLoaded()
   },

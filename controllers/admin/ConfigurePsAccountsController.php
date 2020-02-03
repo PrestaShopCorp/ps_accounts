@@ -50,8 +50,8 @@ class ConfigurePsAccountsController extends ModuleAdminController
         $this->manageSshKey();
         Media::addJsDef([
             'publicKey' => Configuration::get('PS_ACCOUNTS_RSA_PUBLIC_KEY'),
-            'shopName' => Configuration::get('PS_ACCOUNTS_RSA_PUBLIC_KEY'),
-            'boUrl' => Configuration::get('PS_SHOP_NAME'),
+            'boUrl' => Configuration::get('PS_SHOP_DOMAIN_SSL'),
+            'shopName' => Configuration::get('PS_SHOP_NAME'),
         ]);
         $this->context->smarty->assign(array(
             'appLink' => Tools::getShopDomainSsl(true).$this->module->getPath().'views/js/index.js',
