@@ -67,7 +67,7 @@ class Ps_accounts extends Module
         $this->ps_versions_compliancy = array('min' => '1.6', 'max' => _PS_VERSION_);
         $this->css_path = $this->_path.'views/css/';
         $this->js_path = $this->_path.'views/js/';
-        $this->controllers = [
+        $this->adminControllers = [
             'configure' => 'ConfigurePsAccounts',
             'hmac' => 'ConfigureHmacPsAccounts',
             'ajax' => 'AdminAjaxPsAccounts',
@@ -94,7 +94,7 @@ class Ps_accounts extends Module
     public function getContent()
     {
         Tools::redirectAdmin(
-            $this->context->link->getAdminLink($this->controllers['configure'])
+            $this->adminControllers->link->getAdminLink($this->adminControllers['configure'])
         );
     }
 

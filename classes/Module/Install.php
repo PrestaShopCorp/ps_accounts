@@ -36,7 +36,7 @@ class Install
      */
     public function installInMenu()
     {
-        $tabId = (int) \Tab::getIdFromClassName($this->module->controllers['configure']);
+        $tabId = (int) \Tab::getIdFromClassName($this->module->adminControllers['configure']);
 
         if (!$tabId) {
             $tabId = null;
@@ -44,7 +44,7 @@ class Install
 
         $tab = new \Tab($tabId);
         $tab->active = 1;
-        $tab->class_name = $this->module->controllers['configure'];
+        $tab->class_name = $this->module->adminControllers['configure'];
         $tab->name = array();
 
         foreach (\Language::getLanguages(true) as $lang) {

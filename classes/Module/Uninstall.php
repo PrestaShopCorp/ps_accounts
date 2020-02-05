@@ -34,7 +34,7 @@ class Uninstall
      */
     public function uninstallMenu()
     {
-        $tabId = (int) Tab::getIdFromClassName($this->module->controllers['configure']);
+        $tabId = (int) Tab::getIdFromClassName($this->module->adminControllers['configure']);
 
         if (!$tabId) {
             return true;
