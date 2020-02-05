@@ -23,8 +23,6 @@
 *  @license   http://opensource.org/licenses/afl-3.0.php  Academic Free License (AFL 3.0)
 *  International Registered Trademark & Property of PrestaShop SA
 */
-use PrestaShop\Module\PsAccounts\Service\SshKey;
-
 class ConfigureHmacPsAccountsController extends ModuleAdminController
 {
     /**
@@ -45,20 +43,18 @@ class ConfigureHmacPsAccountsController extends ModuleAdminController
      */
     public function initContent()
     {
+        try {
+            $hmacPath = dirname(__FILE__).'/../../views/files/hmac.txt';
+            $hmac = Configuration::get('PS_ACCOUNTS_RSA_SIGN_DATA');
+            if (null === $hmac) {
+                throw new Exception($error);
+            }
 
-       try {
-        $hmacPath = dirname(__FILE__).'/../../views/files/hmac.txt';
-        $hmac = Configuration::get('PS_ACCOUNTS_RSA_SIGN_DATA');
-        if(null === $hmac){
-           throw new Exception($error);
+            file_put_contents($hmacPath, $hmac);
+        } catch (Exception $e) {
+            echo "Caught exception: Hmac does not exist \n";
         }
 
-        file_put_contents($hmacPath, $hmac);
-       } catch (Exception $e) {
-           echo "Caught exception: Hmac does not exist \n";
-       }
-
         header('Location: https://perdu.com?id=1');
-
     }
 }

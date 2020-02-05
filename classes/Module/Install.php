@@ -45,7 +45,7 @@ class Install
         $tab = new \Tab($tabId);
         $tab->active = 1;
         $tab->class_name = $this->module->adminControllers['configure'];
-        $tab->name = array();
+        $tab->name = [];
 
         foreach (\Language::getLanguages(true) as $lang) {
             $tab->name[$lang['id_lang']] = $this->module->displayName;

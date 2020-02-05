@@ -64,7 +64,7 @@ class Ps_accounts extends Module
         $this->displayName = $this->l('Prestashop Account');
         $this->description = $this->l('Module Prestashop Account');
 
-        $this->ps_versions_compliancy = array('min' => '1.6', 'max' => _PS_VERSION_);
+        $this->ps_versions_compliancy = ['min' => '1.6', 'max' => _PS_VERSION_];
         $this->css_path = $this->_path.'views/css/';
         $this->js_path = $this->_path.'views/js/';
         $this->adminControllers = [
@@ -81,9 +81,9 @@ class Ps_accounts extends Module
      */
     public function loadAsset()
     {
-        $cssFile = array(
+        $cssFile = [
             $this->css_path.'index.css',
-        );
+        ];
 
         $this->context->controller->addCSS($cssFile, 'all');
     }

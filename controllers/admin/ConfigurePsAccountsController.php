@@ -59,10 +59,10 @@ class ConfigurePsAccountsController extends ModuleAdminController
             'protocolDomainToValidate' => 'http',
             'domainNamDomainToValidate' => 'drawsheep.com',
         ]);
-        $this->context->smarty->assign(array(
+        $this->context->smarty->assign([
             'appLink' => Tools::getShopDomainSsl(true).$this->module->getPath().'views/js/index.js',
             'chunkVendorsLink' => Tools::getShopDomainSsl(true).$this->module->getPath().'views/js/chunk-vendors.js',
-        ));
+        ]);
         Media::addJsDef([
             'ajax_controller_url' => $this->context->link->getAdminLink('AdminAjaxPsAccounts'),
         ]);
@@ -84,11 +84,11 @@ class ConfigurePsAccountsController extends ModuleAdminController
             $data = 'hmac';
             Configuration::updateValue(
                 'PS_ACCOUNTS_RSA_SIGN_DATA',
-                 $sshKey->signData(
+                $sshKey->signData(
                     Configuration::get('PS_ACCOUNTS_RSA_PRIVATE_KEY'),
-                     $data
-                 )
-             );
+                    $data
+                )
+            );
         }
     }
 }

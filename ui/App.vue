@@ -32,6 +32,5 @@ export default {
   created() {
     this.sso_url = process.env.VUE_APP_SSO_URL
   },
-
 }
 </script>
