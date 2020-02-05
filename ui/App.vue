@@ -29,13 +29,6 @@ export default {
       },
     }
   },
-  watch: {
-    ready: {
-      deep: true,
-      handler: 'isFullLoaded',
-    },
-  },
-
   created() {
     this.sso_url = process.env.VUE_APP_SSO_URL
   },

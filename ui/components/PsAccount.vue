@@ -12,7 +12,9 @@
 </template>
 
 <script>
-export default {
+  /* eslint-disable no-console */
+
+  export default {
   name: 'PsAccount',
 
   props: {
@@ -25,23 +27,36 @@ export default {
       svc_ui_url: null,
       params_loaded: false,
       queryParams: {
-        publicKey: null,
-        shopName: null,
+        pubKey: null,
+        name: null,
+        bo: null,
+        next: null,
       },
     }
   },
 
   mounted() {
-    this.svc_ui_url = this.vue_app_svc_ui_url + '/link-shop/' + window.boUrl + '/to/PSXEmoji.Deluxe.Fake.Service'
-    this.queryParams.publicKey =
-      'string' === typeof window.publicKey
-        ? encodeURIComponent(window.publicKey)
+    console.log(this.svc_ui_url)
+    console.log(window.location.href.split('://'))
+
+
+      this.svc_ui_url = this.$parent.sso_url + '/link-shop/'+ window.protocolDomainToValidate + '/' + window.domainNamDomainToValidate +  '/'+ window.location.protocol + '/' + window.location.host +  encodeURIComponent('/to/PSXEmoji.Deluxe.Fake.Service')
+    this.queryParams.pubKey =
+      'string' === typeof window.pubKey
+        ? encodeURIComponent(window.pubKey)
         : null
-    this.queryParams.shopName =
+    this.queryParams.name =
       'string' === typeof window.shopName
         ? encodeURIComponent(window.shopName)
         : null
-
+    this.queryParams.bo =
+      'string' === typeof window.location.pathname || 'string' === typeof window.location.search
+        ? encodeURIComponent(window.location.pathname + window.location.search)
+        : null
+    this.queryParams.next =
+      'string' === typeof window.nextStep
+        ? encodeURIComponent(window.nextStep)
+        : null
     this.queryParamsLoaded()
   },
 

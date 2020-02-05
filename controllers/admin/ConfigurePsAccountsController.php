@@ -49,9 +49,15 @@ class ConfigurePsAccountsController extends ModuleAdminController
         $this->module->loadAsset();
         $this->manageSshKey();
         Media::addJsDef([
-            'publicKey' => Configuration::get('PS_ACCOUNTS_RSA_PUBLIC_KEY'),
+            'pubKey' => Configuration::get('PS_ACCOUNTS_RSA_PUBLIC_KEY'),
             'boUrl' => Configuration::get('PS_SHOP_DOMAIN_SSL'),
             'shopName' => Configuration::get('PS_SHOP_NAME'),
+            'boPath' => 'bababa',
+            'nextStep' => Configuration::get('PS_SHOP_NAME'),
+            'protocolBo' => 'http',
+            'domainNameBo' => 'bodrawsheep.com',
+            'protocolDomainToValidate' => 'http',
+            'domainNamDomainToValidate' => 'drawsheep.com',
         ]);
         $this->context->smarty->assign(array(
             'appLink' => Tools::getShopDomainSsl(true).$this->module->getPath().'views/js/index.js',
