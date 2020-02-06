@@ -31,7 +31,7 @@ describe('PsAccount.vue', () => {
       'pubKey',
       'shopName',
       'nextStep'
-    )).toBe('sso_url/link-shop/protocolDomainToValidate/domainNameDomainToValidate/protocolBo/domainNameBo%2Fto%2FPSXEmoji.Deluxe.Fake.Service?pubKey=pubKey&name=shopName&bo=boPath&next=nextStep')
+    )).toBe('sso_url/link-shop/protocolDomainToValidate/domainNameDomainToValidate/protocolBo/domainNameBo/PSXEmoji.Deluxe.Fake.Service?pubKey=pubKey&name=shopName&bo=boPath&next=nextStep')
   })
   it('should not generate uri for redirecting later and set loaded', () => {
 
@@ -51,6 +51,6 @@ describe('PsAccount.vue', () => {
       'pubKey',
       'shopName',
       'nextStep'
-    )).toBe('sso_url/link-shop/protocolDomainToValidate/domainNameDomainToValidate/protocolBo/domainNameBo%2Fto%2FPSXEmoji.Deluxe.Fake.Service?pubKey=pubKey&bo=boPath&next=nextStep&')
+    )).toBe('sso_url/link-shop/protocolDomainToValidate/domainNameDomainToValidate/protocolBo/domainNameBo/PSXEmoji.Deluxe.Fake.Service?pubKey=pubKey&bo=boPath&next=nextStep&')
   })
 })

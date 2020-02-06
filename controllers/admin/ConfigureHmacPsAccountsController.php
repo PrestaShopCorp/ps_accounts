@@ -52,7 +52,7 @@ class ConfigureHmacPsAccountsController extends ModuleAdminController
             );
             $hmacPath = dirname(__FILE__).'/../../../../upload/';
 
-            foreach (['hmac','uid','slug'] as $key){
+            foreach (['hmac','uid','slug'] as $key) {
                 if (!array_key_exists($key, $queryParams)) {
                     throw new Exception("Missing query params \n");
                 }
@@ -66,18 +66,17 @@ class ConfigureHmacPsAccountsController extends ModuleAdminController
             }
 
             file_put_contents($hmacPath.'hmac.txt', $queryParams['hmac']);
-
         } catch (Exception $e) {
             var_dump($e);
             die;
         }
         $url = $_ENV['SSO_URL'].'/verify-shop/'.$queryParams['uid'].'?hmacPath='.urlencode(
-                '/upload/hmac.txt&shopKey='.substr(
-                    Configuration::get('PS_ACCOUNTS_RSA_SIGN_DATA')
-                    , 0,
-                    16
-                )
-            );
+            '/upload/hmac.txt&shopKey='.substr(
+                Configuration::get('PS_ACCOUNTS_RSA_SIGN_DATA'),
+                0,
+                16
+            )
+        );
 
         header('Location: '. $url);
     }
