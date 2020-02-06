@@ -32,7 +32,7 @@ export default {
   },
   mounted() {
     this.getSvcUiUrl(
-      this.$parent.sso_url,
+      process.env.VUE_APP_SSO_URL,
       window.protocolDomainToValidate,
       window.domainNameDomainToValidate,
       window.location.protocol.slice(0, -1),
@@ -45,7 +45,7 @@ export default {
   },
   methods: {
     connectSvcUi() {
-      window.location.assign(this.svc_ui_url)
+      window.location.replace(this.svc_ui_url)
     },
     getSvcUiUrl(
       sso_url,
@@ -68,7 +68,7 @@ export default {
         protocolBo +
         '/' +
         domainNameBo +
-        encodeURIComponent('/to/PSXEmoji.Deluxe.Fake.Service')
+        '/PSXEmoji.Deluxe.Fake.Service'
       this.queryParams.bo =
         'string' === typeof boPath ? encodeURIComponent(boPath) : null
       this.queryParams.pubKey =
@@ -83,23 +83,18 @@ export default {
 
       return this.svc_ui_url
     },
-    getLoaded() {
-      return this.params_loaded
-    },
+
     queryParamsLoaded() {
       const countInitQueryParams = Object.keys(this.queryParams).length
       let counterValideParams = 0
       this.svc_ui_url += '?'
       for (let [key, value] of Object.entries(this.queryParams)) {
-        console.log(key, value)
-
         if (null !== value) {
           counterValideParams++
           this.svc_ui_url += `${key}=${value}&`
         }
       }
-      console.log(countInitQueryParams)
-      console.log(counterValideParams)
+
       if (countInitQueryParams === counterValideParams) {
         this.params_loaded = true
         this.svc_ui_url = this.svc_ui_url.slice(0, -1)

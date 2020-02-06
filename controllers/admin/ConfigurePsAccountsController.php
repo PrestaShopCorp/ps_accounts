@@ -52,12 +52,11 @@ class ConfigurePsAccountsController extends ModuleAdminController
             'pubKey' => Configuration::get('PS_ACCOUNTS_RSA_PUBLIC_KEY'),
             'boUrl' => Configuration::get('PS_SHOP_DOMAIN_SSL'),
             'shopName' => Configuration::get('PS_SHOP_NAME'),
-            'boPath' => 'bababa',
             'nextStep' => Configuration::get('PS_SHOP_NAME'),
             'protocolBo' => 'http',
-            'domainNameBo' => 'bodrawsheep.com',
+            'domainNameBo' => 'bo.com',
             'protocolDomainToValidate' => 'http',
-            'domainNamDomainToValidate' => 'drawsheep.com',
+            'domainNameDomainToValidate' => 'myurl.com',
         ]);
         $this->context->smarty->assign([
             'appLink' => Tools::getShopDomainSsl(true).$this->module->getPath().'views/js/index.js',
@@ -81,7 +80,7 @@ class ConfigurePsAccountsController extends ModuleAdminController
             $key = $sshKey->generate();
             Configuration::updateValue('PS_ACCOUNTS_RSA_PRIVATE_KEY', $key['privatekey']);
             Configuration::updateValue('PS_ACCOUNTS_RSA_PUBLIC_KEY', $key['publickey']);
-            $data = 'hmac';
+            $data = 'data';
             Configuration::updateValue(
                 'PS_ACCOUNTS_RSA_SIGN_DATA',
                 $sshKey->signData(

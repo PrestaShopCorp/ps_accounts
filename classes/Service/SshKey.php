@@ -27,6 +27,7 @@ class SshKey
     public function __construct()
     {
         $this->rsa = new RSA();
+        $this->rsa->setHash('sha256');
     }
 
     public function generate()

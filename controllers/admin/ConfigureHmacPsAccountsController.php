@@ -44,17 +44,41 @@ class ConfigureHmacPsAccountsController extends ModuleAdminController
     public function initContent()
     {
         try {
-            $hmacPath = dirname(__FILE__).'/../../views/files/hmac.txt';
-            $hmac = Configuration::get('PS_ACCOUNTS_RSA_SIGN_DATA');
-            if (null === $hmac) {
-                throw new Exception($error);
+            $queryParams = $_GET;
+            $queryParams = array(
+                'hmac' => 'hmac',
+                'uid' => 'uid',
+                'slug' => 'slug',
+            );
+            $hmacPath = dirname(__FILE__).'/../../../../upload/';
+
+            foreach (['hmac','uid','slug'] as $key){
+                if (!array_key_exists($key, $queryParams)) {
+                    throw new Exception("Missing query params \n");
+                }
+            }
+            if (!is_dir($hmacPath)) {
+                mkdir($hmacPath);
+                echo "Directory created";
+            }
+            if (null === $queryParams['hmac']) {
+                throw new Exception("Caught exception: Hmac does not exist \n");
             }
 
-            file_put_contents($hmacPath, $hmac);
-        } catch (Exception $e) {
-            echo "Caught exception: Hmac does not exist \n";
-        }
+            file_put_contents($hmacPath.'hmac.txt', $queryParams['hmac']);
 
-        header('Location: https://perdu.com?id=1');
+        } catch (Exception $e) {
+            var_dump($e);
+            die;
+        }
+        $url = $_ENV['SSO_URL'].'/verify-shop/'.$queryParams['uid'].'?hmacPath='.urlencode(
+                '/upload/hmac.txt&shopKey='.substr(
+                    Configuration::get('PS_ACCOUNTS_RSA_SIGN_DATA')
+                    , 0,
+                    16
+                )
+            );
+
+        header('Location: '. $url);
     }
 }

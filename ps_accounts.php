@@ -45,7 +45,7 @@ class Ps_accounts extends Module
     public $css_path;
     public $js_path;
     protected $config_form = false;
-    public $controllers;
+    public $adminControllers;
 
     /**
      * __construct.
@@ -70,7 +70,6 @@ class Ps_accounts extends Module
         $this->adminControllers = [
             'configure' => 'ConfigurePsAccounts',
             'hmac' => 'ConfigureHmacPsAccounts',
-            'ajax' => 'AdminAjaxPsAccounts',
         ];
         $dotenv = new Dotenv();
         $dotenv->load($this->local_path.'.env');

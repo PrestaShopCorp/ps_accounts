@@ -19,18 +19,5 @@ export default {
   components: {
     ps_account,
   },
-  data() {
-    return {
-      fact: null,
-      sso_url: null,
-      loaded: false,
-      ready: {
-        loading: false,
-      },
-    }
-  },
-  created() {
-    this.sso_url = process.env.VUE_APP_SSO_URL
-  },
 }
 </script>
