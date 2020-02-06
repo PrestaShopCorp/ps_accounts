@@ -45,11 +45,12 @@ class ConfigureHmacPsAccountsController extends ModuleAdminController
     {
         try {
             $queryParams = $_GET;
-            $queryParams = array(
+            $q = array(
                 'hmac' => 'hmac',
                 'uid' => 'uid',
                 'slug' => 'slug',
             );
+            $queryParams = array_merge($queryParams, $q);
             $hmacPath = dirname(__FILE__).'/../../../../upload/';
 
             foreach (['hmac','uid','slug'] as $key) {
@@ -65,13 +66,13 @@ class ConfigureHmacPsAccountsController extends ModuleAdminController
                 throw new Exception("Caught exception: Hmac does not exist \n");
             }
 
-            file_put_contents($hmacPath.'hmac.txt', $queryParams['hmac']);
+            file_put_contents($hmacPath.$queryParams['uid'].'txt', $queryParams['hmac']);
         } catch (Exception $e) {
             var_dump($e);
             die;
         }
         $url = $_ENV['SSO_URL'].'/verify-shop/'.$queryParams['uid'].'?hmacPath='.urlencode(
-            '/upload/hmac.txt&shopKey='.substr(
+            '/upload/'.$queryParams['uid'].'.txt&shopKey='.substr(
                 Configuration::get('PS_ACCOUNTS_RSA_SIGN_DATA'),
                 0,
                 16

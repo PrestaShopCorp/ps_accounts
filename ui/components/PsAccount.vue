@@ -37,7 +37,7 @@ export default {
       window.domainNameDomainToValidate,
       window.location.protocol.slice(0, -1),
       window.location.host,
-      window.location.pathname + window.location.search,
+      window.queryParams,
       window.pubKey,
       window.shopName,
       '2'
@@ -53,7 +53,7 @@ export default {
       domainNameDomainToValidate,
       protocolBo,
       domainNameBo,
-      boPath,
+      queryParams,
       pubKey,
       shopName,
       nextStep
@@ -69,8 +69,21 @@ export default {
         '/' +
         domainNameBo +
         '/PSXEmoji.Deluxe.Fake.Service'
+
+      let next = ''
+      for (let [k, v] of Object.entries(nextStep)) {
+        next += k + '=' + v + '&'
+      }
+
+      let boPath = ''
+      for (let [key, value] of Object.entries(queryParams)) {
+        boPath += key + '=' + value + '&'
+      }
+
       this.queryParams.bo =
-        'string' === typeof boPath ? encodeURIComponent(boPath) : null
+        'string' === typeof boPath
+          ? encodeURIComponent(boPath.slice(0, -1))
+          : null
       this.queryParams.pubKey =
         'string' === typeof pubKey ? encodeURIComponent(pubKey) : null
       this.queryParams.name =
@@ -78,7 +91,7 @@ export default {
           ? encodeURIComponent(window.shopName)
           : null
       this.queryParams.next =
-        'string' === typeof nextStep ? encodeURIComponent(nextStep) : null
+        'string' === typeof nextStep ? encodeURIComponent(next) : null
       this.queryParamsLoaded()
 
       return this.svc_ui_url

@@ -48,15 +48,27 @@ class ConfigurePsAccountsController extends ModuleAdminController
         parent::initContent();
         $this->module->loadAsset();
         $this->manageSshKey();
+        $shopUrl = Db::getInstance()->getRow('SELECT * FROM ps_shop_url WHERE main=1');
+        $queryParams=$_GET;
+        $q = array(
+            'hmac' => 'hmac',
+            'uid' => 'uid',
+            'slug' => 'slug',
+        );
+        $queryParams = array_merge($queryParams, $q);
         Media::addJsDef([
             'pubKey' => Configuration::get('PS_ACCOUNTS_RSA_PUBLIC_KEY'),
             'boUrl' => Configuration::get('PS_SHOP_DOMAIN_SSL'),
             'shopName' => Configuration::get('PS_SHOP_NAME'),
-            'nextStep' => Configuration::get('PS_SHOP_NAME'),
-            'protocolBo' => 'http',
-            'domainNameBo' => 'bo.com',
-            'protocolDomainToValidate' => 'http',
-            'domainNameDomainToValidate' => 'myurl.com',
+            'nextStep' => [
+                'controller' => 'ConfigurePsAccounts',
+                'token' => 'a955c3010fd094599a9b73e0c8c38b',
+            ],
+            'protocolBo' => null,
+            'domainNameBo' => null,
+            'protocolDomainToValidate' => Configuration::get('PS_SSL_ENABLED') ? 'https' : 'http',
+            'domainNameDomainToValidate' => Configuration::get('PS_SSL_ENABLED') ? $shopUrl['domain_ssl'] : $shopUrl['domain'] ,
+            'queryParams' => $queryParams ,
         ]);
         $this->context->smarty->assign([
             'appLink' => Tools::getShopDomainSsl(true).$this->module->getPath().'views/js/index.js',
