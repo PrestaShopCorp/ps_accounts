@@ -13,6 +13,7 @@ describe('PsAccount.vue', () => {
     window.shopName="shopName";
     window.protocolDomainToValidate="http";
     window.domainNameDomainToValidate="/admin-dev/index.php";
+    window.queryParams={'hmac': 'hmac', 'uid': 'uid', 'slug': 'slug'};
 
     const wrapper = testUtils.mount(PsAccount, {
       propsData: {
@@ -31,9 +32,15 @@ describe('PsAccount.vue', () => {
       'pubKey',
       'shopName',
       'nextStep'
-    )).toBe('sso_url/link-shop/protocolDomainToValidate/domainNameDomainToValidate/protocolBo/domainNameBo/PSXEmoji.Deluxe.Fake.Service?pubKey=pubKey&name=shopName&bo=boPath&next=nextStep')
+    )).toBe('sso_url/link-shop/protocolDomainToValidate/domainNameDomainToValidate/protocolBo/domainNameBo/PSXEmoji.Deluxe.Fake.Service?pubKey=pubKey&name=shopName&bo=0%3Db%261%3Do%262%3DP%263%3Da%264%3Dt%265%3Dh&next=nextStep')
   })
+
   it('should not generate uri for redirecting later and set loaded', () => {
+    window.pubKey="test";
+    window.shopName="shopName";
+    window.protocolDomainToValidate="http";
+    window.domainNameDomainToValidate="/admin-dev/index.php";
+    window.queryParams={'hmac': 'hmac', 'uid': 'uid', 'slug': 'slug'};
 
     const wrapper = testUtils.mount(PsAccount, {
       propsData: {
@@ -48,9 +55,6 @@ describe('PsAccount.vue', () => {
       'protocolBo',
       'domainNameBo',
       'boPath',
-      'pubKey',
-      'shopName',
-      'nextStep'
-    )).toBe('sso_url/link-shop/protocolDomainToValidate/domainNameDomainToValidate/protocolBo/domainNameBo/PSXEmoji.Deluxe.Fake.Service?pubKey=pubKey&bo=boPath&next=nextStep&')
+    )).toBe('sso_url/link-shop/protocolDomainToValidate/domainNameDomainToValidate/protocolBo/domainNameBo/PSXEmoji.Deluxe.Fake.Service?name=shopName&bo=0%3Db%261%3Do%262%3DP%263%3Da%264%3Dt%265%3Dh&')
   })
 })

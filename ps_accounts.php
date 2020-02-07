@@ -57,7 +57,7 @@ class Ps_accounts extends Module
         $this->version = '1.0.0';
         $this->author = 'PrestaShop';
         $this->need_instance = 1;
-        $this->bootstrap = true;
+        $this->bootstrap = false;
 
         parent::__construct();
 

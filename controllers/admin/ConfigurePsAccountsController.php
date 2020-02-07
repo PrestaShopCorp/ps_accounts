@@ -23,6 +23,7 @@
 *  @license   http://opensource.org/licenses/afl-3.0.php  Academic Free License (AFL 3.0)
 *  International Registered Trademark & Property of PrestaShop SA
 */
+
 use PrestaShop\Module\PsAccounts\Service\SshKey;
 
 class ConfigurePsAccountsController extends ModuleAdminController
@@ -50,20 +51,12 @@ class ConfigurePsAccountsController extends ModuleAdminController
         $this->manageSshKey();
         $shopUrl = Db::getInstance()->getRow('SELECT * FROM ps_shop_url WHERE main=1');
         $queryParams=$_GET;
-        $q = array(
-            'hmac' => 'hmac',
-            'uid' => 'uid',
-            'slug' => 'slug',
-        );
-        $queryParams = array_merge($queryParams, $q);
+        $queryParams = array_merge($queryParams, array('hmac' => 'hmac', 'uid' => 'uid', 'slug' => 'slug'));
         Media::addJsDef([
             'pubKey' => Configuration::get('PS_ACCOUNTS_RSA_PUBLIC_KEY'),
             'boUrl' => Configuration::get('PS_SHOP_DOMAIN_SSL'),
             'shopName' => Configuration::get('PS_SHOP_NAME'),
-            'nextStep' => [
-                'controller' => 'ConfigurePsAccounts',
-                'token' => 'a955c3010fd094599a9b73e0c8c38b',
-            ],
+            'nextStep' => $this->context->link->getAdminLink('ConfigureHmacPsAccounts'),
             'protocolBo' => null,
             'domainNameBo' => null,
             'protocolDomainToValidate' => Configuration::get('PS_SSL_ENABLED') ? 'https' : 'http',
@@ -75,7 +68,7 @@ class ConfigurePsAccountsController extends ModuleAdminController
             'chunkVendorsLink' => Tools::getShopDomainSsl(true).$this->module->getPath().'views/js/chunk-vendors.js',
         ]);
         Media::addJsDef([
-            'ajax_controller_url' => $this->context->link->getAdminLink('AdminAjaxPsAccounts'),
+            'ajax_controller_url' => $this->context->link->getAdminLink('AdminssAjaxPsAccounts'),
         ]);
 
         $this->setTemplate('configure.tpl');
@@ -83,6 +76,8 @@ class ConfigurePsAccountsController extends ModuleAdminController
 
     private function manageSshKey()
     {
+        $data = 'data';
+
         if (
             !Configuration::get('PS_ACCOUNTS_RSA_PUBLIC_KEY')
             && !Configuration::get('PS_ACCOUNTS_RSA_PRIVATE_KEY')

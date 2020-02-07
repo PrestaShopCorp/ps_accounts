@@ -28,12 +28,13 @@ class SshKey
     {
         $this->rsa = new RSA();
         $this->rsa->setHash('sha256');
+        $this->rsa->setSignatureMode(RSA::SIGNATURE_PKCS1);
     }
 
     public function generate()
     {
         $this->rsa->setPrivateKeyFormat(RSA::PRIVATE_FORMAT_PKCS1);
-        $this->rsa->setPublicKeyFormat(RSA::PUBLIC_FORMAT_OPENSSH);
+        $this->rsa->setPublicKeyFormat(RSA::PUBLIC_FORMAT_PKCS1);
 
         return $this->rsa->createKey();
     }

@@ -70,11 +70,6 @@ export default {
         domainNameBo +
         '/PSXEmoji.Deluxe.Fake.Service'
 
-      let next = ''
-      for (let [k, v] of Object.entries(nextStep)) {
-        next += k + '=' + v + '&'
-      }
-
       let boPath = ''
       for (let [key, value] of Object.entries(queryParams)) {
         boPath += key + '=' + value + '&'
@@ -91,7 +86,7 @@ export default {
           ? encodeURIComponent(window.shopName)
           : null
       this.queryParams.next =
-        'string' === typeof nextStep ? encodeURIComponent(next) : null
+        'string' === typeof nextStep ? encodeURIComponent(nextStep) : null
       this.queryParamsLoaded()
 
       return this.svc_ui_url
