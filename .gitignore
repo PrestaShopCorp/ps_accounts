@@ -4,7 +4,7 @@
 ### Composer ###
 composer.phar
 /vendor/
-/node_modules/
+node_modules/
 docker-compose.override.yml
 .env
 .php_cs.cache
