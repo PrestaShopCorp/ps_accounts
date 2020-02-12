@@ -17,21 +17,20 @@
  * International Registered Trademark & Property of PrestaShop SA
  */
 import Vue from 'vue';
-import BootstrapVue from 'bootstrap-vue';
-import VueCollapse from 'vue2-collapse';
-import i18n from './lib/i18n';
-import App from './App.vue';
-import router from './router';
-import store from './store';
+import Router from 'vue-router';
 
-Vue.use(BootstrapVue);
-Vue.use(VueCollapse);
+import PsAccount from '@/pages/PsAccount';
 
-Vue.config.productionTip = process.env.NODE_ENV === 'production';
+Vue.use(Router);
 
-new Vue({
-  router,
-  store,
-  i18n,
-  render: (h) => h(App),
-}).$mount('#app');
+const router = new Router({
+  routes: [
+    {
+      path: '/ps-account',
+      name: 'PsAccount',
+      component: PsAccount,
+    },
+  ],
+});
+
+export default router;

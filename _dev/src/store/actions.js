@@ -16,22 +16,23 @@
  * @license   https://opensource.org/licenses/AFL-3.0 Academic Free License 3.0 (AFL-3.0)
  * International Registered Trademark & Property of PrestaShop SA
  */
-import Vue from 'vue';
-import BootstrapVue from 'bootstrap-vue';
-import VueCollapse from 'vue2-collapse';
-import i18n from './lib/i18n';
-import App from './App.vue';
-import router from './router';
-import store from './store';
+import * as types from './mutation-types';
+import ajax from '@/requests/ajax.js';
 
-Vue.use(BootstrapVue);
-Vue.use(VueCollapse);
-
-Vue.config.productionTip = process.env.NODE_ENV === 'production';
-
-new Vue({
-  router,
-  store,
-  i18n,
-  render: (h) => h(App),
-}).$mount('#app');
+export default {
+  psxSendData({commit, getters}, payload) {
+    return ajax({
+      url: getters.adminController,
+      action: 'PsxSendData',
+      data: {
+        payload: JSON.stringify(payload),
+      },
+    }).then((response) => {
+      commit(types.UPDATE_FORM_DATA, payload);
+      return Promise.resolve(response);
+    });
+  },
+  psxOnboarding({commit}, payload) {
+    commit(types.UPDATE_ONBOARDING_STATUS, payload);
+  },
+};

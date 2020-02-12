@@ -30,6 +30,7 @@ require_once __DIR__.'/vendor/autoload.php';
 
 use PrestaShop\Module\PsAccounts\Module\Install;
 use PrestaShop\Module\PsAccounts\Module\Uninstall;
+use PrestaShop\Module\PsAccounts\Presenter\Store\StorePresenter;
 use Symfony\Component\Dotenv\Dotenv;
 
 class Ps_accounts extends Module
@@ -83,7 +84,9 @@ class Ps_accounts extends Module
         $cssFile = [
             $this->css_path.'index.css',
         ];
-
+        Media::addJsDef([
+            'store' => json_encode((new StorePresenter($this, $this->context))->present()),
+        ]);
         $this->context->controller->addCSS($cssFile, 'all');
     }
 
@@ -92,6 +95,8 @@ class Ps_accounts extends Module
      */
     public function getContent()
     {
+
+
         Tools::redirectAdmin(
             $this->adminControllers->link->getAdminLink($this->adminControllers['configure'])
         );

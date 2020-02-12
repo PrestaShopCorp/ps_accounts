@@ -49,20 +49,7 @@ class ConfigurePsAccountsController extends ModuleAdminController
         parent::initContent();
         $this->module->loadAsset();
         $this->manageSshKey();
-        $shopUrl = Db::getInstance()->getRow('SELECT * FROM ps_shop_url WHERE main=1');
-        $queryParams=$_GET;
-        $queryParams = array_merge($queryParams, array('hmac' => 'hmac', 'uid' => 'uid', 'slug' => 'slug'));
-        Media::addJsDef([
-            'pubKey' => Configuration::get('PS_ACCOUNTS_RSA_PUBLIC_KEY'),
-            'boUrl' => Configuration::get('PS_SHOP_DOMAIN_SSL'),
-            'shopName' => Configuration::get('PS_SHOP_NAME'),
-            'nextStep' => $this->context->link->getAdminLink('ConfigureHmacPsAccounts'),
-            'protocolBo' => null,
-            'domainNameBo' => null,
-            'protocolDomainToValidate' => Configuration::get('PS_SSL_ENABLED') ? 'https' : 'http',
-            'domainNameDomainToValidate' => Configuration::get('PS_SSL_ENABLED') ? $shopUrl['domain_ssl'] : $shopUrl['domain'] ,
-            'queryParams' => $queryParams ,
-        ]);
+
         $this->context->smarty->assign([
             'appLink' => Tools::getShopDomainSsl(true).$this->module->getPath().'views/js/index.js',
             'chunkVendorsLink' => Tools::getShopDomainSsl(true).$this->module->getPath().'views/js/chunk-vendors.js',

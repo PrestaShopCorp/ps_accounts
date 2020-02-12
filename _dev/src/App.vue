@@ -4,7 +4,7 @@
       <h2>ps account</h2>
     </div>
     <div class="app-body">
-      <ps_account buttonText="valider"></ps_account>
+      <ps_account buttonText="valider" />
     </div>
   </div>
 </template>
@@ -12,10 +12,10 @@
 <script>
 /* eslint-disable no-console */
 
-  import psAccount from './components/PsAccount';
+  import psAccount from './pages/PsAccount';
 
   export default {
-    name: 'app',
+    name: 'App',
     components: {
       // eslint-disable-next-line vue/no-unused-components
       psAccount,

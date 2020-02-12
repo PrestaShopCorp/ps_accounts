@@ -17,21 +17,16 @@
  * International Registered Trademark & Property of PrestaShop SA
  */
 import Vue from 'vue';
-import BootstrapVue from 'bootstrap-vue';
-import VueCollapse from 'vue2-collapse';
-import i18n from './lib/i18n';
-import App from './App.vue';
-import router from './router';
-import store from './store';
+import Vuex from 'vuex';
+import mutations from './mutations';
+import actions from './actions';
+import getters from './getters';
 
-Vue.use(BootstrapVue);
-Vue.use(VueCollapse);
+Vue.use(Vuex);
 
-Vue.config.productionTip = process.env.NODE_ENV === 'production';
-
-new Vue({
-  router,
-  store,
-  i18n,
-  render: (h) => h(App),
-}).$mount('#app');
+export default new Vuex.Store({
+  state,
+  mutations,
+  actions,
+  getters,
+});

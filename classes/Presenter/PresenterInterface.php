@@ -1,3 +1,4 @@
+<?php
 /**
  * 2007-2019 PrestaShop and Contributors
  *
@@ -16,22 +17,18 @@
  * @license   https://opensource.org/licenses/AFL-3.0 Academic Free License 3.0 (AFL-3.0)
  * International Registered Trademark & Property of PrestaShop SA
  */
-import Vue from 'vue';
-import BootstrapVue from 'bootstrap-vue';
-import VueCollapse from 'vue2-collapse';
-import i18n from './lib/i18n';
-import App from './App.vue';
-import router from './router';
-import store from './store';
 
-Vue.use(BootstrapVue);
-Vue.use(VueCollapse);
+namespace PrestaShop\Module\PsAccounts\Presenter;
 
-Vue.config.productionTip = process.env.NODE_ENV === 'production';
-
-new Vue({
-  router,
-  store,
-  i18n,
-  render: (h) => h(App),
-}).$mount('#app');
+/**
+ * Interface StorePresenter defines methods for store presenter.
+ */
+interface PresenterInterface
+{
+    /**
+     * Present store
+     *
+     * @return array
+     */
+    public function present();
+}

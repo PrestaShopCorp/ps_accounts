@@ -17,21 +17,15 @@
  * International Registered Trademark & Property of PrestaShop SA
  */
 import Vue from 'vue';
-import BootstrapVue from 'bootstrap-vue';
-import VueCollapse from 'vue2-collapse';
-import i18n from './lib/i18n';
-import App from './App.vue';
-import router from './router';
-import store from './store';
+import VueI18n from 'vue-i18n';
+import store from '../store';
 
-Vue.use(BootstrapVue);
-Vue.use(VueCollapse);
+Vue.use(VueI18n);
 
-Vue.config.productionTip = process.env.NODE_ENV === 'production';
+const {locale} = store.getters;
+const messages = store.getters.translations;
 
-new Vue({
-  router,
-  store,
-  i18n,
-  render: (h) => h(App),
-}).$mount('#app');
+export default new VueI18n({
+  locale,
+  messages,
+});

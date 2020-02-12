@@ -16,22 +16,13 @@
  * @license   https://opensource.org/licenses/AFL-3.0 Academic Free License 3.0 (AFL-3.0)
  * International Registered Trademark & Property of PrestaShop SA
  */
-import Vue from 'vue';
-import BootstrapVue from 'bootstrap-vue';
-import VueCollapse from 'vue2-collapse';
-import i18n from './lib/i18n';
-import App from './App.vue';
-import router from './router';
-import store from './store';
+import * as types from './mutation-types';
 
-Vue.use(BootstrapVue);
-Vue.use(VueCollapse);
-
-Vue.config.productionTip = process.env.NODE_ENV === 'production';
-
-new Vue({
-  router,
-  store,
-  i18n,
-  render: (h) => h(App),
-}).$mount('#app');
+export default {
+  [types.UPDATE_ONBOARDING_STATUS](state, payload) {
+    state.onboardingCompleted = payload;
+  },
+  [types.UPDATE_FORM_DATA](state, payload) {
+    state.psxFormData = payload;
+  },
+};
