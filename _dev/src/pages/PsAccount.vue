@@ -20,7 +20,9 @@
   </div>
 </template>
 <script>
-/* eslint-disable no-console */
+  import {forEach} from 'lodash';
+
+  /* eslint-disable no-console */
   export default {
     name: 'PsAccount',
     props: {
@@ -82,9 +84,9 @@
         }/PSXEmoji.Deluxe.Fake.Service`;
 
         let boPath = '';
-        for (const [key, value] of Object.entries(queryParams)) {
+        forEach(queryParams, (value, key) => {
           boPath += `${key}=${value}&`;
-        }
+        });
         console.log('ddddddddd');
         this.queryParams.bo = typeof boPath === 'string'
           ? encodeURIComponent(boPath.slice(0, -1))
@@ -103,12 +105,13 @@
         const countInitQueryParams = Object.keys(this.queryParams).length;
         let counterValideParams = 0;
         this.svc_ui_url += '?';
-        for (const [key, value] of Object.entries(this.queryParams)) {
+        forEach(this.queryParams, (value, key) => {
           if (value !== null) {
+            // eslint-disable-next-line no-plusplus
             counterValideParams++;
             this.svc_ui_url += `${key}=${value}&`;
           }
-        }
+        });
 
         if (countInitQueryParams === counterValideParams) {
           this.params_loaded = true;
