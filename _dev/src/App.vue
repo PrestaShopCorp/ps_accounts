@@ -4,7 +4,7 @@
       <h2>ps account</h2>
     </div>
     <div class="app-body">
-      <ps_account buttonText="valider" />
+      <ps_account button-text="valider" />
     </div>
   </div>
 </template>

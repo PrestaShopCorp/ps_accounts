@@ -16,23 +16,24 @@
  * @license   https://opensource.org/licenses/AFL-3.0 Academic Free License 3.0 (AFL-3.0)
  * International Registered Trademark & Property of PrestaShop SA
  */
-import ajax from '@/requests/ajax.js';
-import * as types from './mutation-types';
 
-export default {
-  psxSendData({commit, getters}, payload) {
-    return ajax({
-      url: getters.adminController,
-      action: 'PsxSendData',
-      data: {
-        payload: JSON.stringify(payload),
-      },
-    }).then((response) => {
-      commit(types.UPDATE_FORM_DATA, payload);
-      return Promise.resolve(response);
-    });
+const modulePath = __dirname.split('/');
+
+module.exports = {
+  chainWebpack: (config) => {
+    config.optimization.delete('splitChunks');
+    config.plugins.delete('html');
+    config.plugins.delete('preload');
+    config.plugins.delete('prefetch');
   },
-  psxOnboarding({commit}, payload) {
-    commit(types.UPDATE_ONBOARDING_STATUS, payload);
+  css: {
+    extract: false,
   },
+  productionSourceMap: false,
+  filenameHashing: false,
+  outputDir: '../views/',
+  assetsDir: '',
+  publicPath: process.env.NODE_ENV === 'production'
+    ? `../modules/${modulePath[modulePath.length - 2]}/views/`'
+    : './',
 };
