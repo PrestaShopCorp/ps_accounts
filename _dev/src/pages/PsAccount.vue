@@ -24,7 +24,10 @@
   export default {
     name: 'PsAccount',
     props: {
-      buttonText: String,
+      buttonText: {
+        type: String,
+        default: '',
+      },
     },
     data() {
       return {

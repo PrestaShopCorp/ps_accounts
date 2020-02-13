@@ -1,10 +1,11 @@
 <template>
   <div class="app-container">
+    test
     <div class="app-header">
       <h2>ps account</h2>
     </div>
     <div class="app-body">
-      <ps_account button-text="valider" />
+      <PsAccount button-text="valider" />
     </div>
   </div>
 </template>
@@ -12,13 +13,13 @@
 <script>
 /* eslint-disable no-console */
 
-  import psAccount from './pages/PsAccount';
+  import PsAccount from './pages/PsAccount';
 
   export default {
     name: 'App',
     components: {
       // eslint-disable-next-line vue/no-unused-components
-      psAccount,
+      PsAccount,
     },
   };
 </script>

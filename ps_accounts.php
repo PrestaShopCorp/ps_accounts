@@ -57,7 +57,7 @@ class Ps_accounts extends Module
         $this->tab = 'administration';
         $this->version = '1.0.0';
         $this->author = 'PrestaShop';
-        $this->need_instance = 1;
+        $this->need_instance = 0;
         $this->bootstrap = false;
 
         parent::__construct();
@@ -77,29 +77,22 @@ class Ps_accounts extends Module
     }
 
     /**
-     * Loads asset resources.
-     */
-    public function loadAsset()
-    {
-        $cssFile = [
-            $this->css_path.'index.css',
-        ];
-        Media::addJsDef([
-            'store' => json_encode((new StorePresenter($this, $this->context))->present()),
-        ]);
-        $this->context->controller->addCSS($cssFile, 'all');
-    }
-
-    /**
      * Load the configuration form.
      */
     public function getContent()
     {
+        Media::addJsDef([
+            'store' => (new StorePresenter($this, $this->context))->present(),
+        ]);
 
+        $this->context->smarty->assign([
+            'pathApp' => $this->_path . 'views/js/app.js',
+        ]);
 
-        Tools::redirectAdmin(
-            $this->adminControllers->link->getAdminLink($this->adminControllers['configure'])
-        );
+        return $this->display(__FILE__, '/views/templates/admin/configure.tpl');
+        // Tools::redirectAdmin(
+        //     $this->adminControllers->link->getAdminLink($this->adminControllers['configure'])
+        // );
     }
 
     public function install()

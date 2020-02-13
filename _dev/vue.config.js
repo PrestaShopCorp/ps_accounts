@@ -33,7 +33,5 @@ module.exports = {
   filenameHashing: false,
   outputDir: '../views/',
   assetsDir: '',
-  publicPath: process.env.NODE_ENV === 'production'
-    ? `../modules/${modulePath[modulePath.length - 2]}/views/`'
-    : './',
+  publicPath: `../modules/${modulePath[modulePath.length - 2]}/views/`,
 };

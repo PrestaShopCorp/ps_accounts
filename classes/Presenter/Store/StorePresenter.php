@@ -60,8 +60,6 @@ class StorePresenter implements PresenterInterface
      */
     public function present()
     {
-        $shopUrl = \Db::getInstance()->getRow('SELECT * FROM ps_shop_url WHERE main=1');
-
        return [
             'pubKey' => \Configuration::get('PS_ACCOUNTS_RSA_PUBLIC_KEY'),
             'boUrl' => \Configuration::get('PS_SHOP_DOMAIN_SSL'),
@@ -69,9 +67,9 @@ class StorePresenter implements PresenterInterface
             'nextStep' => $this->context->link->getAdminLink('ConfigureHmacPsAccounts'),
             'protocolBo' => null,
             'domainNameBo' => null,
-            'protocolDomainToValidate' => \Configuration::get('PS_SSL_ENABLED') ? 'https' : 'http',
-            'domainNameDomainToValidate' => \Configuration::get('PS_SSL_ENABLED') ? $shopUrl['domain_ssl'] : $shopUrl['domain'] ,
-            'queryParams' => $_GET ,
+            'protocolDomainToValidate' => \Tools::getProtocol(\Configuration::get('PS_SSL_ENABLED')),
+            'domainNameDomainToValidate' => \Tools::getShopDomainSsl(true),
+            'queryParams' => $_GET,
         ];
     }
 }
