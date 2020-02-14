@@ -55,7 +55,7 @@ class ConfigurePsAccountsController extends ModuleAdminController
         ]);
         $this->context->smarty->assign([
             'pathApp' => Tools::getShopDomainSsl(true).$this->module->getPath().'views/js/app.js',
-            'chunkVendorsLink' => Tools::getShopDomainSsl(true).$this->module->getPath().'views/js/chunk-vendors.js',
+//            'chunkVendorsLink' => Tools::getShopDomainSsl(true).$this->module->getPath().'views/js/chunk-vendors.js',
         ]);
         Media::addJsDef([
             'ajax_controller_url' => $this->context->link->getAdminLink('AdminssAjaxPsAccounts'),

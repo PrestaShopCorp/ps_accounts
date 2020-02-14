@@ -30,8 +30,8 @@ services:
     command: "tail -f /dev/null"
     env_file: _dev/.env
     volumes:
-      - ./_dev:/app
-    working_dir: /app
+      - .:/var/www/html/modules/ps_accounts
+    working_dir: /var/www/html/modules/ps_accounts/_dev
 
 networks:
   account-net:
