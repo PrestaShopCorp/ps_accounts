@@ -81,17 +81,18 @@ class Ps_accounts extends Module
      */
     public function getContent()
     {
-        echo ´main´;die;
+        echo ´main´;
+        die;
         Media::addJsDef([
             'store' => (new StorePresenter($this, $this->context))->present(),
         ]);
 
         $this->context->smarty->assign([
-            'pathApp' => $this->_path . 'views/js/app.js',
+            'pathApp' => $this->_path.'views/js/app.js',
         ]);
 
         return $this->display(__FILE__, '/views/templates/admin/configure.tpl');
-         Tools::redirectAdmin(
+        Tools::redirectAdmin(
              $this->adminControllers->link->getAdminLink($this->adminControllers['configure'])
          );
     }

@@ -1,6 +1,6 @@
 <?php
 /**
- * 2007-2019 PrestaShop and Contributors
+ * 2007-2019 PrestaShop and Contributors.
  *
  * NOTICE OF LICENSE
  *
@@ -26,7 +26,7 @@ namespace PrestaShop\Module\PsAccounts\Presenter;
 interface PresenterInterface
 {
     /**
-     * Present store
+     * Present store.
      *
      * @return array
      */

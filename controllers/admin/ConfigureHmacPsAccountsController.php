@@ -45,22 +45,22 @@ class ConfigureHmacPsAccountsController extends ModuleAdminController
     {
         try {
             $queryParams = $_GET;
-            $q = array(
+            $q = [
                 'hmac' => 'hmac',
                 'uid' => 'uid',
                 'slug' => 'slug',
-            );
+            ];
             $queryParams = array_merge($queryParams, $q);
             $hmacPath = dirname(__FILE__).'/../../../../upload/';
 
-            foreach (['hmac','uid','slug'] as $key) {
+            foreach (['hmac', 'uid', 'slug'] as $key) {
                 if (!array_key_exists($key, $queryParams)) {
                     throw new Exception("Missing query params \n");
                 }
             }
             if (!is_dir($hmacPath)) {
                 mkdir($hmacPath);
-                echo "Directory created";
+                echo 'Directory created';
             }
             if (null === $queryParams['hmac']) {
                 throw new Exception("Caught exception: Hmac does not exist \n");
@@ -79,6 +79,6 @@ class ConfigureHmacPsAccountsController extends ModuleAdminController
             )
         );
 
-        header('Location: '. $url);
+        header('Location: '.$url);
     }
 }
