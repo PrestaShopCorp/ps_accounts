@@ -9,8 +9,8 @@ jobs:
       - uses: actions/checkout@v1
       - name: Setup node
         uses: actions/setup-node@v1
-      - run: yarn install
-      - run: yarn prettier-check
+      - run: yarn --cwd _dev/ install
+      - run: yarn --cwd _dev/ lint
 
   js-unit-test:
     name: JS-UNIT-TEST
@@ -19,5 +19,5 @@ jobs:
       - uses: actions/checkout@v1
       - name: Setup node
         uses: actions/setup-node@v1
-      - run: cd _dev && yarn install && yarn add --dev jsdom jsdom-global
-      - run: cd _dev && yarn test
+      - run: yarn --cwd _dev/ install
+      - run: yarn --cwd _dev/ yarn test
