@@ -19,10 +19,11 @@
 import * as types from './mutation-types';
 
 export default {
-  [types.UPDATE_ONBOARDING_STATUS](state, payload) {
-    state.onboardingCompleted = payload;
+  [types.UPDATE_SVC_UI_URL](state, payload) {
+    state.svcUiUrl = payload;
+    state.paramsLoaded = true;
   },
-  [types.UPDATE_FORM_DATA](state, payload) {
-    state.psxFormData = payload;
+  [types.UPDATE_QUERY_PARAMS](state, queryParams) {
+    state.queryParams = queryParams;
   },
 };

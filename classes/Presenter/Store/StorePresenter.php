@@ -60,16 +60,16 @@ class StorePresenter implements PresenterInterface
      */
     public function present()
     {
-       return [
-            'pubKey' => \Configuration::get('PS_ACCOUNTS_RSA_PUBLIC_KEY'),
-            'boUrl' => \Configuration::get('PS_SHOP_DOMAIN_SSL'),
-            'shopName' => \Configuration::get('PS_SHOP_NAME'),
-            'nextStep' => $this->context->link->getAdminLink('ConfigureHmacPsAccounts'),
-            'protocolBo' => null,
-            'domainNameBo' => null,
-            'protocolDomainToValidate' => \Tools::getProtocol(\Configuration::get('PS_SSL_ENABLED')),
-            'domainNameDomainToValidate' => \Tools::getShopDomainSsl(true),
-            'queryParams' => $_GET,
+        return [
+            'pubKey'                     => \Configuration::get('PS_ACCOUNTS_RSA_PUBLIC_KEY'),
+            'boUrl'                      => \Configuration::get('PS_SHOP_DOMAIN_SSL'),
+            'shopName'                   => \Configuration::get('PS_SHOP_NAME'),
+            'nextStep'                   => $this->context->link->getAdminLink('ConfigureHmacPsAccounts'),
+            'protocolBo'                 => null,
+            'domainNameBo'               => null,
+            'protocolDomainToValidate'   => str_replace('://', '', \Tools::getProtocol(\Configuration::get('PS_SSL_ENABLED'))),
+            'domainNameDomainToValidate' => str_replace(\Tools::getProtocol(\Configuration::get('PS_SSL_ENABLED')), '', \Tools::getShopDomainSsl(true)),
+            'queryParams'                => $_GET,
         ];
     }
 }

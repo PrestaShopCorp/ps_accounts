@@ -16,6 +16,6 @@
  * @license   https://opensource.org/licenses/AFL-3.0 Academic Free License 3.0 (AFL-3.0)
  * International Registered Trademark & Property of PrestaShop SA
  */
-// eslint-disable-next-line
-export const UPDATE_ONBOARDING_STATUS = 'UPDATE_ONBOARDING_STATUS';
-export const UPDATE_FORM_DATA = 'UPDATE_FORM_DATA';
+// eslint-disable-next-line import/prefer-default-export
+export const UPDATE_SVC_UI_URL = 'UPDATE_SVC_UI_URL';
+export const UPDATE_QUERY_PARAMS = 'UPDATE_QUERY_PARAMS';

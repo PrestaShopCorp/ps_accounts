@@ -17,6 +17,12 @@
  * International Registered Trademark & Property of PrestaShop SA
  */
 export default {
-  psxOnboardingIsCompleted: (state) => state.onboardingCompleted,
-  getBusinessCategories: (state) => state.businessDetails.business_categories,
+  getSvcUiUrl: (state) => state.svcUiUrl,
+  getPubKey: (state) => state.pubKey,
+  getShopName: (state) => state.shopName,
+  getNextStep: (state) => state.nextStep,
+  getQueryParams: (state) => state.queryParams,
+  getProtocolDomainToValidateQueryParams: (state) => state.protocolDomainToValidate,
+  getDomainNameDomainToValidate: (state) => state.domainNameDomainToValidate,
+  isParamsLoaded: (state) => state.paramsLoaded,
 };

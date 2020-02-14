@@ -48,7 +48,6 @@ class ConfigurePsAccountsController extends ModuleAdminController
     public function initContent()
     {
         parent::initContent();
-
         $this->manageSshKey();
         Media::addJsDef([
             'store' => (new StorePresenter($this->module, $this->context))->present(),

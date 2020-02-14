@@ -1,7 +1,7 @@
 <template>
   <div>
     <div
-      v-if="params_loaded"
+      v-if="isParamsLoaded"
       class="ps_account text-center"
     >
       <button
@@ -20,7 +20,7 @@
   </div>
 </template>
 <script>
-  import {forEach} from 'lodash';
+  import Vuex from 'vuex';
 
   /* eslint-disable no-console */
   export default {
@@ -31,92 +31,25 @@
         default: '',
       },
     },
-    data() {
-      return {
-        svc_ui_url: null,
-        params_loaded: false,
-        queryParams: {
-          pubKey: null,
-          name: null,
-          bo: null,
-          next: null,
-        },
-      };
+    computed: {
+      ...Vuex.mapGetters([
+        'getSvcUiUrl',
+        'isParamsLoaded',
+      ]),
     },
     mounted() {
-      this.getSvcUiUrl(
-        process.env.VUE_APP_SSO_URL,
-        window.protocolDomainToValidate,
-        window.domainNameDomainToValidate,
-        window.location.protocol.slice(0, -1),
-        window.location.host,
-        window.queryParams,
-        window.pubKey,
-        window.shopName,
-        '2',
-      );
+      this.setSvcUiUrl({
+        svcUiDomainName: process.env.VUE_APP_SSO_URL,
+        protocolBo: window.location.protocol.slice(0, -1),
+        domainNameBo: window.location.host,
+      });
     },
-
     methods: {
+      ...Vuex.mapActions([
+        'setSvcUiUrl',
+      ]),
       connectSvcUi() {
-        window.location.replace(this.svc_ui_url);
-      },
-      getSvcUiUrl(
-        ssoUrl,
-        protocolDomainToValidate,
-        domainNameDomainToValidate,
-        protocolBo,
-        domainNameBo,
-        queryParams,
-        pubKey,
-        shopName,
-        nextStep,
-      ) {
-        this.svc_ui_url = `${ssoUrl
-        }/link-shop/${
-          protocolDomainToValidate
-        }/${
-          domainNameDomainToValidate
-        }/${
-          protocolBo
-        }/${
-          domainNameBo
-        }/PSXEmoji.Deluxe.Fake.Service`;
-
-        let boPath = '';
-        forEach(queryParams, (value, key) => {
-          boPath += `${key}=${value}&`;
-        });
-        console.log('ddddddddd');
-        this.queryParams.bo = typeof boPath === 'string'
-          ? encodeURIComponent(boPath.slice(0, -1))
-          : null;
-        this.queryParams.pubKey = typeof pubKey === 'string' ? encodeURIComponent(pubKey) : null;
-        this.queryParams.name = typeof window.shopName === 'string'
-          ? encodeURIComponent(window.shopName)
-          : null;
-        this.queryParams.next = typeof nextStep === 'string' ? encodeURIComponent(nextStep) : null;
-        this.queryParamsLoaded();
-
-        return this.svc_ui_url;
-      },
-
-      queryParamsLoaded() {
-        const countInitQueryParams = Object.keys(this.queryParams).length;
-        let counterValideParams = 0;
-        this.svc_ui_url += '?';
-        forEach(this.queryParams, (value, key) => {
-          if (value !== null) {
-            // eslint-disable-next-line no-plusplus
-            counterValideParams++;
-            this.svc_ui_url += `${key}=${value}&`;
-          }
-        });
-
-        if (countInitQueryParams === counterValideParams) {
-          this.params_loaded = true;
-          this.svc_ui_url = this.svc_ui_url.slice(0, -1);
-        }
+        window.location.replace(this.getSvcUiUrl);
       },
     },
   };

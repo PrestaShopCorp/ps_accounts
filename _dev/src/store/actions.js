@@ -1,3 +1,5 @@
+import {forEach} from 'lodash';
+
 /**
  * 2007-2019 PrestaShop and Contributors
  *
@@ -16,23 +18,43 @@
  * @license   https://opensource.org/licenses/AFL-3.0 Academic Free License 3.0 (AFL-3.0)
  * International Registered Trademark & Property of PrestaShop SA
  */
-import ajax from '@/requests/ajax.js';
-import * as types from './mutation-types';
+// import ajax from '@/requests/ajax.js';
 
 export default {
-  psxSendData({commit, getters}, payload) {
-    return ajax({
-      url: getters.adminController,
-      action: 'PsxSendData',
-      data: {
-        payload: JSON.stringify(payload),
-      },
-    }).then((response) => {
-      commit(types.UPDATE_FORM_DATA, payload);
-      return Promise.resolve(response);
+  setSvcUiUrl: (store, data) => {
+    console.log(data);
+    console.log(data);
+    console.log(data);
+
+    let svcUiUrl = `http://${data.svcUiDomainName}/link-shop/${store.getters.getProtocolDomainToValidateQueryParams}/${store.getters.getDomainNameDomainToValidate}/${data.protocolBo}/${data.domainNameBo}/PSXEmoji.Deluxe.Fake.Service`;
+
+    let boPath = '';
+    forEach(store.getters.getQueryParams, (value, key) => {
+      boPath += `${key}=${value}&`;
     });
-  },
-  psxOnboarding({commit}, payload) {
-    commit(types.UPDATE_ONBOARDING_STATUS, payload);
+
+    const queryParams = {};
+    queryParams.bo = boPath.length > 0 ? encodeURIComponent(boPath.slice(0, -1)) : null;
+    queryParams.pubKey = typeof store.getters.getPubKey === 'string' ? encodeURIComponent(store.getters.getPubKey) : null;
+    queryParams.name = typeof store.getters.getShopName === 'string' ? encodeURIComponent(store.getters.getShopName) : null;
+    queryParams.next = typeof store.getters.getNextStep === 'string' ? encodeURIComponent(store.getters.getNextStep) : null;
+
+    const countInitQueryParams = Object.keys(queryParams).length;
+    let counterValideParams = 0;
+    svcUiUrl += '?';
+    forEach(queryParams, (value, key) => {
+      if (value !== null) {
+        // eslint-disable-next-line no-plusplus
+        counterValideParams++;
+        svcUiUrl += `${key}=${value}&`;
+      }
+    });
+
+    store.commit('UPDATE_QUERY_PARAMS', queryParams);
+
+    if (countInitQueryParams === counterValideParams) {
+      svcUiUrl = svcUiUrl.slice(0, -1);
+      store.commit('UPDATE_SVC_UI_URL', svcUiUrl);
+    }
   },
 };
