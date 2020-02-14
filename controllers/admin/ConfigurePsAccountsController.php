@@ -24,6 +24,7 @@
 *  International Registered Trademark & Property of PrestaShop SA
 */
 
+use PrestaShop\Module\PsAccounts\Presenter\Store\StorePresenter;
 use PrestaShop\Module\PsAccounts\Service\SshKey;
 
 class ConfigurePsAccountsController extends ModuleAdminController
@@ -47,11 +48,13 @@ class ConfigurePsAccountsController extends ModuleAdminController
     public function initContent()
     {
         parent::initContent();
-        $this->module->loadAsset();
-        $this->manageSshKey();
 
+        $this->manageSshKey();
+        Media::addJsDef([
+            'store' => (new StorePresenter($this->module, $this->context))->present(),
+        ]);
         $this->context->smarty->assign([
-            'appLink' => Tools::getShopDomainSsl(true).$this->module->getPath().'views/js/index.js',
+            'pathApp' => Tools::getShopDomainSsl(true).$this->module->getPath().'views/js/app.js',
             'chunkVendorsLink' => Tools::getShopDomainSsl(true).$this->module->getPath().'views/js/chunk-vendors.js',
         ]);
         Media::addJsDef([

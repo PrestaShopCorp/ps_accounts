@@ -81,6 +81,7 @@ class Ps_accounts extends Module
      */
     public function getContent()
     {
+        echo ´main´;die;
         Media::addJsDef([
             'store' => (new StorePresenter($this, $this->context))->present(),
         ]);
@@ -90,9 +91,9 @@ class Ps_accounts extends Module
         ]);
 
         return $this->display(__FILE__, '/views/templates/admin/configure.tpl');
-        // Tools::redirectAdmin(
-        //     $this->adminControllers->link->getAdminLink($this->adminControllers['configure'])
-        // );
+         Tools::redirectAdmin(
+             $this->adminControllers->link->getAdminLink($this->adminControllers['configure'])
+         );
     }
 
     public function install()
