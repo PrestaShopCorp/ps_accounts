@@ -60,11 +60,13 @@ class StorePresenter implements PresenterInterface
      */
     public function present()
     {
+        $next = explode('?', $this->context->link->getAdminLink('ConfigureHmacPsAccounts'));
+
         return [
             'pubKey' => \Configuration::get('PS_ACCOUNTS_RSA_PUBLIC_KEY'),
             'boUrl' => \Configuration::get('PS_SHOP_DOMAIN_SSL'),
             'shopName' => \Configuration::get('PS_SHOP_NAME'),
-            'nextStep' => $this->context->link->getAdminLink('ConfigureHmacPsAccounts'),
+            'nextStep' => $next[1],
             'protocolBo' => null,
             'domainNameBo' => null,
             'protocolDomainToValidate' => str_replace('://', '', \Tools::getProtocol(\Configuration::get('PS_SSL_ENABLED'))),

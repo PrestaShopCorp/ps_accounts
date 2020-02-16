@@ -22,10 +22,6 @@ import {forEach} from 'lodash';
 
 export default {
   setSvcUiUrl: (store, data) => {
-    console.log(data);
-    console.log(data);
-    console.log(data);
-
     let svcUiUrl = `http://${data.svcUiDomainName}/link-shop/${store.getters.getProtocolDomainToValidateQueryParams}/${store.getters.getDomainNameDomainToValidate}/${data.protocolBo}/${data.domainNameBo}/PSXEmoji.Deluxe.Fake.Service`;
 
     let boPath = '';
