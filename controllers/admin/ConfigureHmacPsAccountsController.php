@@ -66,13 +66,11 @@ class ConfigureHmacPsAccountsController extends ModuleAdminController
             var_dump($e);
             die;
         }
-        $url = $_ENV['SSO_URL'].'/verify-shop/'.$queryParams['uid'].'?hmacPath='.urlencode(
-            '/upload/'.$queryParams['uid'].'.txt&shopKey='.substr(
-                Configuration::get('PS_ACCOUNTS_RSA_SIGN_DATA'),
-                0,
-                16
-            )
-        );
+        $url = $_ENV['SSO_URL'].'/verify-shop/'.$queryParams['uid']
+            .'?hmacPath='
+            .urlencode('/upload/'.$queryParams['uid'].'.txt')
+            .'&shopKey='
+            .urlencode(Configuration::get('PS_ACCOUNTS_RSA_SIGN_DATA'));
 
         header('Location: '.$url);
     }
