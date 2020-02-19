@@ -18,6 +18,7 @@
  */
 export default {
   getSvcUiUrl: (state) => state.svcUiUrl,
+  getBoUrl: (state) => state.boUrl,
   getPubKey: (state) => state.pubKey,
   getShopName: (state) => state.shopName,
   getNextStep: (state) => state.nextStep,

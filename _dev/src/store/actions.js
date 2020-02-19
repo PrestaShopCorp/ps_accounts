@@ -22,15 +22,11 @@ import {forEach} from 'lodash';
 
 export default {
   setSvcUiUrl: (store, data) => {
-    let svcUiUrl = `http://${data.svcUiDomainName}/link-shop/${store.getters.getProtocolDomainToValidateQueryParams}/${store.getters.getDomainNameDomainToValidate}/${data.protocolBo}/${data.domainNameBo}/PSXEmoji.Deluxe.Fake.Service`;
+    let svcUiUrl = `${data.svcUiDomainName}/link-shop/${store.getters.getProtocolDomainToValidateQueryParams}/${store.getters.getDomainNameDomainToValidate}/${data.protocolBo}/${data.domainNameBo}/PSXEmoji.Deluxe.Fake.Service`;
 
-    let boPath = '';
-    forEach(store.getters.getQueryParams, (value, key) => {
-      boPath += `${key}=${value}&`;
-    });
 
     const queryParams = {};
-    queryParams.bo = boPath.length > 0 ? encodeURIComponent(boPath.slice(0, -1)) : null;
+    queryParams.bo = typeof store.getters.getBoUrl === 'string' ? encodeURIComponent(store.getters.getBoUrl) : null;
     queryParams.pubKey = typeof store.getters.getPubKey === 'string' ? encodeURIComponent(store.getters.getPubKey) : null;
     queryParams.name = typeof store.getters.getShopName === 'string' ? encodeURIComponent(store.getters.getShopName) : null;
     queryParams.next = typeof store.getters.getNextStep === 'string' ? encodeURIComponent(store.getters.getNextStep) : null;
