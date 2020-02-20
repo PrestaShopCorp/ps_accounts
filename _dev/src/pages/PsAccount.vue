@@ -39,7 +39,7 @@
     },
     mounted() {
       this.setSvcUiUrl({
-        svcUiDomainName: process.env.VUE_APP_SSO_URL,
+        svcUiDomainName: process.env.VUE_APP_UI_SVC_URL,
         protocolBo: window.location.protocol.slice(0, -1),
         domainNameBo: window.location.host,
       });

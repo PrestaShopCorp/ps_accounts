@@ -66,7 +66,7 @@ class ConfigureHmacPsAccountsController extends ModuleAdminController
             var_dump($e);
             die;
         }
-        $url = $_ENV['SSO_URL'].'/verify-shop/'.$queryParams['uid']
+        $url = $_ENV['VUE_APP_UI_SVC_URL'].'/verify-shop/'.$queryParams['uid']
             .'?hmacPath='
             .urlencode('/upload/'.$queryParams['uid'].'.txt')
             .'&shopKey='

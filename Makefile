@@ -7,7 +7,7 @@ help:
 
 init: ## Init project
 	cp -n .env.dist .env || true
-	cp -n _dev/.env.dist _dev/.env || true
+	ln -s $$(pwd)/.env $$(pwd)/_dev/.env || true
 	cp -n docker-compose.override.yml.dist docker-compose.override.yml || true
 
 yarn_start: ## Start VueJs
