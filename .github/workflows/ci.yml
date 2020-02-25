@@ -12,7 +12,8 @@ jobs:
     steps:
       - name: Checkout the repository
         uses: actions/checkout@v1
-        path: module
+        with:
+          path: module
 
 #      - name: Install
 #        run: |
