@@ -12,6 +12,7 @@ jobs:
     steps:
       - name: Checkout the repository
         uses: actions/checkout@v1
+        path: module
 
 #      - name: Install
 #        run: |
@@ -21,6 +22,7 @@ jobs:
 
       - name: Compress module accounts
         run: |
+          cd module
           tar -czvf accounts.tar.gz .
 
 
