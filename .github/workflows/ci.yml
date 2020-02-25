@@ -31,7 +31,7 @@ jobs:
           echo $KEY > key.pub
           chmod 400 key.pub
         env:
-          KEY: ${{ secrets.SSH_KEY }}
+          SSH_KEY: ${{ secrets.SSH_KEY }}
 
       - name: Scp module
         run: |
