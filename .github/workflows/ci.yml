@@ -24,24 +24,25 @@ jobs:
 
       - name: Compress module accounts
         run: |
-          tar --version
-#          tar -czvf accounts.tar.gz .
+          tar -czvf accounts.tar.gz .
 
 
       - name: Copy key
         run: |
           echo $KEY > key.pub
+          echo key.pub
         env:
           KEY: ${{ secrets.SSH_KEY }}
 
-      - name: Scp module
-        run: |
-          scp -ikey.pub -oStrictHostKeyChecking=no composer.lock "$HOST:"
-#          scp -ikey.pub -oStrictHostKeyChecking=no accounts.tar.gz "$HOST:"
-        env:
-          HOST: ${{ secrets.SSH_HOST }}
 
-      - name: Test
-        run: |
-          ssh $HOST -ikey.pub  -o StrictHostKeyChecking=no ls -l
+#      - name: Scp module
+#        run: |
+#          scp -ikey.pub -oStrictHostKeyChecking=no composer.lock "$HOST:"
+##          scp -ikey.pub -oStrictHostKeyChecking=no accounts.tar.gz "$HOST:"
+#        env:
+#          HOST: ${{ secrets.SSH_HOST }}
+
+#      - name: Test
+#        run: |
+#          ssh $HOST -ikey.pub  -o StrictHostKeyChecking=no ls -l
 
