@@ -18,30 +18,42 @@
  * International Registered Trademark & Property of PrestaShop SA
  */
 
-namespace PrestaShop\Module\PsAccounts\Module;
+namespace PrestaShop\Module\PsAccounts\Environment;
 
-class Uninstall
+/**
+ * Allow to set the differents api key / api link depending on.
+ */
+class FirebaseEnv extends Env
 {
-    private $module;
+    /**
+     * Firebase public api key.
+     *
+     * @var string
+     */
+    private $firebaseApiKey;
 
-    public function __construct(\Module $module)
+    public function __construct()
     {
-        $this->module = $module;
+        parent::__construct();
+
+        $this->setFirebaseApiKey($_ENV['FIREBASE_API_KEY']);
     }
 
     /**
-     * uninstallMenu.
+     * getter for firebaseApiKey.
      */
-    public function uninstallMenu()
+    public function getFirebaseApiKey()
     {
-        $tabId = (int) Tab::getIdFromClassName($this->module->adminControllers['configure']);
+        return $this->firebaseApiKey;
+    }
 
-        if (!$tabId) {
-            return true;
-        }
-
-        $tab = new Tab($tabId);
-
-        return $tab->delete();
+    /**
+     * setter for firebaseApiKey.
+     *
+     * @param string $apiKey
+     */
+    private function setFirebaseApiKey($apiKey)
+    {
+        $this->firebaseApiKey = $apiKey;
     }
 }

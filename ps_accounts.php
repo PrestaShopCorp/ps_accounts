@@ -28,9 +28,6 @@ if (!defined('_PS_VERSION_')) {
 }
 require_once __DIR__.'/vendor/autoload.php';
 
-use PrestaShop\Module\PsAccounts\Module\Install;
-use PrestaShop\Module\PsAccounts\Module\Uninstall;
-use PrestaShop\Module\PsAccounts\Presenter\Store\StorePresenter;
 use Symfony\Component\Dotenv\Dotenv;
 
 class Ps_accounts extends Module
@@ -81,32 +78,9 @@ class Ps_accounts extends Module
      */
     public function getContent()
     {
-        echo ´main´;
-        die;
-        Media::addJsDef([
-            'store' => (new StorePresenter($this, $this->context))->present(),
-        ]);
-
-        $this->context->smarty->assign([
-            'pathApp' => $this->_path.'views/js/app.js',
-        ]);
-
-        return $this->display(__FILE__, '/views/templates/admin/configure.tpl');
         Tools::redirectAdmin(
-             $this->adminControllers->link->getAdminLink($this->adminControllers['configure'])
+             $this->context->link->getAdminLink($this->adminControllers['configure'])
          );
-    }
-
-    public function install()
-    {
-        return (new Install($this))->installInMenu()
-            && parent::install();
-    }
-
-    public function uninstall()
-    {
-        return (new Uninstall($this))->uninstallMenu()
-            && parent::uninstall();
     }
 
     public function getPath()

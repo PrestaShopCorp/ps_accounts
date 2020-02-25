@@ -17,6 +17,4 @@
  * International Registered Trademark & Property of PrestaShop SA
  *}
 
-<div id="psaccounts"></div>
-
-<script src="{$pathApp|escape:'htmlall':'UTF-8'}"></script>
+alreadyOndoarded

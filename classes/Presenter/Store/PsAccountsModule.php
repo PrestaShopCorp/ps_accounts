@@ -18,55 +18,49 @@
  * International Registered Trademark & Property of PrestaShop SA
  */
 
-namespace PrestaShop\Module\PsAccounts\Presenter\Store;
+namespace PrestaShop\Module\PsAccounts\Presenter\Store\Modules;
 
 use PrestaShop\Module\PsAccounts\Presenter\PresenterInterface;
-use PrestaShop\Module\PsAccounts\Presenter\Store\Modules\FirebaseModule;
-use PrestaShop\Module\PsAccounts\Presenter\Store\Modules\PsAccountsModule;
 
 /**
- * Present the store to the vuejs app (vuex).
+ * Construct the psaccounts module.
  */
-class StorePresenter implements PresenterInterface
+class PsAccountsModule implements PresenterInterface
 {
     /**
      * @var \Context
      */
     private $context;
-
     /**
      * @var \Module
      */
     private $module;
 
-    /**
-     * @var array
-     */
-    private $store;
-
-    public function __construct(\Module $module, \Context $context, array $store = null)
+    public function __construct(\Module $module, \Context $context)
     {
-        // Allow to set a custom store for tests purpose
-        if (null !== $store) {
-            $this->store = $store;
-        }
-
         $this->module = $module;
         $this->context = $context;
     }
 
     /**
-     * Build the store required by vuex.
+     * Present the Firebase module (vuex).
      *
      * @return array
      */
     public function present()
     {
-        $this->store = array_merge(
-            (new PsAccountsModule($this->module, $this->context))->present(),
-            (new FirebaseModule())->present()
-        );
-
-        return $this->store;
+        return [
+            'psaccounts' => [
+                'pubKey' => \Configuration::get('PS_ACCOUNTS_RSA_PUBLIC_KEY'),
+                'boUrl' => preg_replace('/^https?:\/\/[^\/]+/', '', $this->context->link->getAdminLink('ConfigurePsAccounts')),
+                'shopName' => \Configuration::get('PS_SHOP_NAME'),
+                'nextStep' => preg_replace('/^https?:\/\/[^\/]+/', '', $this->context->link->getAdminLink('ConfigureHmacPsAccounts')),
+                'protocolBo' => null,
+                'domainNameBo' => null,
+                'protocolDomainToValidate' => str_replace('://', '', \Tools::getProtocol(\Configuration::get('PS_SSL_ENABLED'))),
+                'domainNameDomainToValidate' => str_replace(\Tools::getProtocol(\Configuration::get('PS_SSL_ENABLED')), '', \Tools::getShopDomainSsl(true)),
+                'queryParams' => $_GET,
+            ],
+        ];
     }
 }

@@ -13,10 +13,10 @@ make start
 ```
 
 Wait container be to state `healthy`  
-For watch docker-compose status run `watch docker-compose ps`  
-![](doc/healthy.png)
 
-Add `127.0.0.1	 ps-accounts.local` to `/etc/hosts`
+For watch docker-compose status run `watch docker-compose ps`    
+
+![](doc/healthy.png)
 
 ## How to connect ?
 

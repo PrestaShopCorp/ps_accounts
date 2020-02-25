@@ -18,13 +18,10 @@ import {forEach} from 'lodash';
  * @license   https://opensource.org/licenses/AFL-3.0 Academic Free License 3.0 (AFL-3.0)
  * International Registered Trademark & Property of PrestaShop SA
  */
-// import ajax from '@/requests/ajax.js';
 
 export default {
   setSvcUiUrl: (store, data) => {
     let svcUiUrl = `${data.svcUiDomainName}/link-shop/${store.getters.getProtocolDomainToValidateQueryParams}/${store.getters.getDomainNameDomainToValidate}/${data.protocolBo}/${data.domainNameBo}/PSXEmoji.Deluxe.Fake.Service`;
-
-
     const queryParams = {};
     queryParams.bo = typeof store.getters.getBoUrl === 'string' ? encodeURIComponent(store.getters.getBoUrl) : null;
     queryParams.pubKey = typeof store.getters.getPubKey === 'string' ? encodeURIComponent(store.getters.getPubKey) : null;

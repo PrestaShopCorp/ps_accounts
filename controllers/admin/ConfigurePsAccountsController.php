@@ -23,6 +23,7 @@
 *  @license   http://opensource.org/licenses/afl-3.0.php  Academic Free License (AFL 3.0)
 *  International Registered Trademark & Property of PrestaShop SA
 */
+use PrestaShop\Module\PsAccounts\Api\Firebase\Token;
 use PrestaShop\Module\PsAccounts\Presenter\Store\StorePresenter;
 use PrestaShop\Module\PsAccounts\Service\SshKey;
 
@@ -47,42 +48,71 @@ class ConfigurePsAccountsController extends ModuleAdminController
     public function initContent()
     {
         parent::initContent();
-        $this->manageSshKey();
+
+        $tplName = $this->dispatch();
+
         Media::addJsDef([
             'store' => (new StorePresenter($this->module, $this->context))->present(),
         ]);
         $this->context->smarty->assign([
             'pathApp' => Tools::getShopDomainSsl(true).$this->module->getPath().'views/js/app.js',
-//            'chunkVendorsLink' => Tools::getShopDomainSsl(true).$this->module->getPath().'views/js/chunk-vendors.js',
-        ]);
-        Media::addJsDef([
-            'ajax_controller_url' => $this->context->link->getAdminLink('AdminssAjaxPsAccounts'),
         ]);
 
-        $this->setTemplate('configure.tpl');
+        $this->setTemplate($tplName);
+    }
+
+    private function firstStepisDone()
+    {
+        return  Configuration::get('PS_ACCOUNTS_RSA_PUBLIC_KEY')
+            &&  Configuration::get('PS_ACCOUNTS_RSA_PRIVATE_KEY')
+            &&  Configuration::get('PS_ACCOUNTS_RSA_SIGN_DATA');
+    }
+
+    /**
+     * @return string
+     */
+    private function dispatch()
+    {
+        if (
+            $this->firstStepisDone()
+        ) {
+            if (isset($_GET['step']) && 4 == $_GET['step'] && isset($_GET['adminToken'])) {
+                $this->getRefreshTokenWithAdminToken();
+
+                return 'onboardingFinished.tpl';
+            }
+            $token = new Token();
+            $token->refresh();
+
+            return 'alreadyOnboarded.tpl';
+        }
+
+        $this->manageSshKey();
+
+        return 'configure.tpl';
+    }
+
+    private function getRefreshTokenWithAdminToken()
+    {
+        Configuration::updateValue('PS_PSX_FIREBASE_ADMIN_TOKEN', $_GET['adminToken']);
+        $token = new Token();
+        $token->getRefreshTokenWithAdminToken($_GET['adminToken']);
+        $token->refresh();
     }
 
     private function manageSshKey()
     {
+        $sshKey = new SshKey();
+        $key    = $sshKey->generate();
+        Configuration::updateValue('PS_ACCOUNTS_RSA_PRIVATE_KEY', $key['privatekey']);
+        Configuration::updateValue('PS_ACCOUNTS_RSA_PUBLIC_KEY', $key['publickey']);
         $data = 'data';
-
-        if (
-            !Configuration::get('PS_ACCOUNTS_RSA_PUBLIC_KEY')
-            && !Configuration::get('PS_ACCOUNTS_RSA_PRIVATE_KEY')
-            && !Configuration::get('PS_ACCOUNTS_RSA_SIGN_DATA')
-        ) {
-            $sshKey = new SshKey();
-            $key = $sshKey->generate();
-            Configuration::updateValue('PS_ACCOUNTS_RSA_PRIVATE_KEY', $key['privatekey']);
-            Configuration::updateValue('PS_ACCOUNTS_RSA_PUBLIC_KEY', $key['publickey']);
-            $data = 'data';
-            Configuration::updateValue(
-                'PS_ACCOUNTS_RSA_SIGN_DATA',
-                $sshKey->signData(
-                    Configuration::get('PS_ACCOUNTS_RSA_PRIVATE_KEY'),
-                    $data
-                )
-            );
-        }
+        Configuration::updateValue(
+            'PS_ACCOUNTS_RSA_SIGN_DATA',
+            $sshKey->signData(
+                Configuration::get('PS_ACCOUNTS_RSA_PRIVATE_KEY'),
+                $data
+            )
+        );
     }
 }

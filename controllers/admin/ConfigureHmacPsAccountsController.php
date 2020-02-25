@@ -30,7 +30,6 @@ class ConfigureHmacPsAccountsController extends ModuleAdminController
      */
     public function __construct()
     {
-        $this->bootstrap = true;
         parent::__construct();
     }
 
@@ -44,34 +43,31 @@ class ConfigureHmacPsAccountsController extends ModuleAdminController
     public function initContent()
     {
         try {
-            $queryParams = $_GET;
-
+            if (null === $_GET['hmac']) {
+                throw new Exception("Caught exception: Hmac does not exist \n");
+            }
             $hmacPath = dirname(__FILE__).'/../../../../upload/';
             foreach (['hmac', 'uid', 'slug'] as $key) {
-                if (!array_key_exists($key, $queryParams)) {
+                if (!array_key_exists($key, $_GET)) {
                     throw new Exception("Missing query params \n");
                 }
             }
 
             if (!is_dir($hmacPath)) {
                 mkdir($hmacPath);
-                echo 'Directory created';
-            }
-            if (null === $queryParams['hmac']) {
-                throw new Exception("Caught exception: Hmac does not exist \n");
             }
 
-            file_put_contents($hmacPath.$queryParams['uid'].'.txt', $queryParams['hmac']);
+            file_put_contents($hmacPath.$_GET['uid'].'.txt', $_GET['hmac']);
         } catch (Exception $e) {
             var_dump($e);
             die;
         }
-        $url = $_ENV['VUE_APP_UI_SVC_URL'].'/verify-shop/'.$queryParams['uid']
-            .'?hmacPath='
-            .urlencode('/upload/'.$queryParams['uid'].'.txt')
-            .'&shopKey='
-            .urlencode(Configuration::get('PS_ACCOUNTS_RSA_SIGN_DATA'));
 
-        header('Location: '.$url);
+        header('Location: '.$_ENV['VUE_APP_UI_SVC_URL'].'/verify-shop/'.$_GET['uid']
+            .'?hmacPath='
+            .urlencode('/upload/'.$_GET['uid'].'.txt')
+            .'&shopKey='
+            .urlencode(Configuration::get('PS_ACCOUNTS_RSA_SIGN_DATA'))
+        );
     }
 }

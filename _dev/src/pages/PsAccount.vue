@@ -19,10 +19,8 @@
     </div>
   </div>
 </template>
-<script>
-  import Vuex from 'vuex';
 
-  /* eslint-disable no-console */
+<script>
   export default {
     name: 'PsAccount',
     props: {
@@ -32,29 +30,29 @@
       },
     },
     computed: {
-      ...Vuex.mapGetters([
-        'getSvcUiUrl',
-        'isParamsLoaded',
-      ]),
+      getSvcUiUrl() {
+        return this.$store.state.psaccounts.svcUiUrl;
+      },
+      isParamsLoaded() {
+        return this.$store.state.psaccounts.paramsLoaded;
+      },
     },
     mounted() {
-      this.setSvcUiUrl({
+      this.$store.dispatch({
+        type: 'setSvcUiUrl',
         svcUiDomainName: process.env.VUE_APP_UI_SVC_URL,
         protocolBo: window.location.protocol.slice(0, -1),
         domainNameBo: window.location.host,
       });
     },
     methods: {
-      ...Vuex.mapActions([
-        'setSvcUiUrl',
-      ]),
       connectSvcUi() {
         window.location.replace(this.getSvcUiUrl);
       },
     },
   };
 </script>
-<!-- Add "scoped" attribute to limit CSS to this component only -->
+
 <style scoped>
 h3 {
   margin: 40px 0 0;

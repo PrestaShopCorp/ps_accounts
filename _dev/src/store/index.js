@@ -18,21 +18,12 @@
  */
 import Vue from 'vue';
 import Vuex from 'vuex';
-import mutations from './mutations';
-import actions from './actions';
-import getters from './getters';
+import psaccounts from './modules/psaccounts';
 
 Vue.use(Vuex);
 
-const state = global.store;
-// console.log('global.store', global.store);
-state.svcUiUrl = null;
-state.paramsLoaded = false;
-
 export default new Vuex.Store({
-  state,
-  mutations,
-  actions,
-  getters,
-  strict: true,
+  modules: {
+    psaccounts,
+  },
 });
