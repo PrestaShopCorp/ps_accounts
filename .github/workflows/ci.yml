@@ -13,14 +13,11 @@ jobs:
       - name: Checkout the repository
         uses: actions/checkout@v1
 
-      - name: Yarn install
-        run: |
-          yarn
-          yarn build
-
-      - name: Composer install
-        run: |
-          composer install
+#      - name: Install
+#        run: |
+#          yarn
+#          yarn build
+#          composer install
 
       - name: Compress module accounts
         run: |
