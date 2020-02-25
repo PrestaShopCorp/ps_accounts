@@ -24,7 +24,9 @@ jobs:
 
       - name: Compress module accounts
         run: |
-          tar -czvf accounts.tar.gz .
+          tar --version
+#          tar -czvf accounts.tar.gz .
+
 
       - name: Copy key
         run: |
@@ -34,7 +36,8 @@ jobs:
 
       - name: Scp module
         run: |
-          scp -ikey.pub -oStrictHostKeyChecking=no accounts.tar.gz "$HOST:"
+          scp -ikey.pub -oStrictHostKeyChecking=no composer.lock "$HOST:"
+#          scp -ikey.pub -oStrictHostKeyChecking=no accounts.tar.gz "$HOST:"
         env:
           HOST: ${{ secrets.SSH_HOST }}
 
