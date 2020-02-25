@@ -15,13 +15,12 @@ jobs:
         with:
           path: module
 
-      - run: ls -al
-
-#      - name: Install
-#        run: |
-#          yarn
-#          yarn build
-#          composer install
+      - name: Install
+        run: |
+          cd module
+          yarn
+          yarn build
+          composer install
 
       - name: Compress module accounts
         run: |
