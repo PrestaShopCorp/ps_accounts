@@ -22,8 +22,7 @@ jobs:
 
       - name: Compress module accounts
         run: |
-          cd module
-          tar -czvf accounts.tar.gz .
+          tar -czvf accounts.tar.gz module
 
 
       - name: Copy key
