@@ -1,6 +1,6 @@
-on:
-  push:
-    branches:
+on: [push]
+#  push:
+#    branches:
 #      - develop
       - "*"
 
