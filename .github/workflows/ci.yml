@@ -18,16 +18,9 @@ jobs:
           yarn
           yarn build
 
-      - name: Test
-        run: |
-          composer --version
-          ls -al
-
-
       - name: Composer install
-        uses: MilesChou/composer-action@master
-        with:
-          args: install
+        run: |
+          composer install
 
       - name: Compress module accounts
         run: |
