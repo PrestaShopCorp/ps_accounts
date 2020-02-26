@@ -30,7 +30,7 @@ jobs:
           username: ${{ secrets.TEST_USERNAME }}
           key: ${{ secrets.SSH_PRIVATE_KEY }}
           passphrase: ${{ secrets.TEST_PASS }}
-          source: module
+          source: module/composer.json
           target: ~
 
 
