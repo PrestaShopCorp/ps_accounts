@@ -30,9 +30,7 @@ jobs:
         uses: appleboy/ssh-action@master
         with:
           host: ${{ secrets.TEST_HOST }}
-          username: ${{ secrets.TEST_USERNAME }}
           key: ${{ secrets.SSH_PRIVATE_KEY }}
-          port: 22
           script: ls
 #      - name: Copy key
 #        run: |
