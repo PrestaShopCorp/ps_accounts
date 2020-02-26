@@ -67,7 +67,8 @@ class ConfigureHmacPsAccountsController extends ModuleAdminController
             die;
         }
 
-        header('Location: '.$_ENV['VUE_APP_UI_SVC_URL'].'/verify-shop/'.$_GET['uid']
+        header(
+            'Location: '.$_ENV['VUE_APP_UI_SVC_URL'].'/verify-shop/'.$_GET['uid']
             .'?hmacPath='
             .urlencode('/upload/'.$_GET['uid'].'.txt')
             .'&shopKey='

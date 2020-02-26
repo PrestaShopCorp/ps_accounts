@@ -1,5 +1,5 @@
 
-// import {PsAccount} from '../src/pages/PsAccount';
+// import {PsAccount} from './src/pages/PsAccount';
 //
 // require('jsdom-global')();
 // const testUtils = require('@vue/test-utils');
@@ -9,18 +9,16 @@
 describe('PsAccount.vue', () => {
   // eslint-disable-next-line no-undef
   beforeEach(() => {
-    delete window.pubKey;
-    delete window.shopName;
-    delete window.protocolDomainToValidate;
-    delete window.domainNameDomainToValidate;
+    delete window.store;
   });
   // eslint-disable-next-line no-undef
   it('should generate uri for redirecting later and set loaded', () => {
-    window.pubKey = 'test';
-    window.shopName = 'shopName';
-    window.protocolDomainToValidate = 'http';
-    window.domainNameDomainToValidate = '/admin-dev/index.php';
-    window.queryParams = {hmac: 'hmac', uid: 'uid', slug: 'slug'};
+    window.store = {};
+    window.store.pubKey = 'test';
+    window.store.shopName = 'shopName';
+    window.store.protocolDomainToValidate = 'http';
+    window.store.domainNameDomainToValidate = '/admin-dev/index.php';
+    window.store.queryParams = {hmac: 'hmac', uid: 'uid', slug: 'slug'};
 
     // const wrapper = testUtils.mount(PsAccount, {
     //   propsData: {
@@ -48,11 +46,12 @@ describe('PsAccount.vue', () => {
 
   // eslint-disable-next-line no-undef
   it('should not generate uri for redirecting later and set loaded', () => {
-    window.pubKey = 'test';
-    window.shopName = 'shopName';
-    window.protocolDomainToValidate = 'http';
-    window.domainNameDomainToValidate = '/admin-dev/index.php';
-    window.queryParams = {hmac: 'hmac', uid: 'uid', slug: 'slug'};
+    window.store = {};
+    window.store.pubKey = 'test';
+    window.store.shopName = 'shopName';
+    window.store.protocolDomainToValidate = 'http';
+    window.store.domainNameDomainToValidate = '/admin-dev/index.php';
+    window.store.queryParams = {hmac: 'hmac', uid: 'uid', slug: 'slug'};
 
     // const wrapper = testUtils.mount(PsAccount, {
     //   propsData: {

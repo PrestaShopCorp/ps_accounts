@@ -79,8 +79,8 @@ class Ps_accounts extends Module
     public function getContent()
     {
         Tools::redirectAdmin(
-             $this->context->link->getAdminLink($this->adminControllers['configure'])
-         );
+            $this->context->link->getAdminLink($this->adminControllers['configure'])
+        );
     }
 
     public function getPath()
