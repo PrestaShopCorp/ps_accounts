@@ -26,18 +26,27 @@ jobs:
         run: |
           tar -czvf accounts.tar.gz module
 
-      - name: Copy key
-        run: |
-          echo $KEY > ~/.ssh/id_rsa
-          chmod 400 key.pub
-        env:
-          SSH_KEY: ${{ secrets.SSH_KEY }}
 
-      - name: Scp module
-        run: |
-          scp -i key.pub -oStrictHostKeyChecking=no accounts.tar.gz "$HOST:"
-        env:
-          HOST: ${{ secrets.SSH_HOST }}
+      - name: executing remote ssh commands using password
+        uses: appleboy/ssh-action@master
+        with:
+          host: ${{ secrets.SSH_HOST_URL }}
+          username: ${{ secrets.SSH_USER }}
+          key: ${{ secrets.SSH_KEY }}
+          script: ls -al
+
+#      - name: Copy key
+#        run: |
+#          echo $KEY > ~/.ssh/id_rsa
+#          chmod 400 key.pub
+#        env:
+#          SSH_KEY: ${{ secrets.SSH_KEY }}
+#
+#      - name: Scp module
+#        run: |
+#          scp -i key.pub -oStrictHostKeyChecking=no accounts.tar.gz "$HOST:"
+#        env:
+#          HOST: ${{ secrets.SSH_HOST }}
 
 #      - name: Test
 #        run: |
