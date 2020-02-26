@@ -12,8 +12,8 @@ jobs:
     steps:
       - name: Checkout the repository
         uses: actions/checkout@v2
-        with:
-          path: module
+#        with:
+#          path: module
 
 #      - name: Install
 #        run: |
@@ -22,9 +22,9 @@ jobs:
 #          yarn build
 #          composer install
 
-      - name: Compress module accounts
-        run: |
-          tar -czvf accounts.tar.gz module
+#      - name: Compress module accounts
+#        run: |
+#          tar -czvf accounts.tar.gz module
 
       - name: copy file via ssh password
         uses: appleboy/scp-action@master
