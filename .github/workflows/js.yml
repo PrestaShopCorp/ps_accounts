@@ -20,4 +20,4 @@ jobs:
       - name: Setup node
         uses: actions/setup-node@v1
       - run: yarn --cwd _dev/ install
-      - run: yarn --cwd _dev/ yarn test
+      - run: yarn --cwd _dev/ test
