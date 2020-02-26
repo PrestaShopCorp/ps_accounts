@@ -33,8 +33,6 @@ use GuzzleHttp\Message\ResponseInterface;
  */
 class ResponseApiHandler
 {
-    //TODO: Add Monolog to log all received response
-
     /**
      * Format api response.
      *

@@ -64,8 +64,8 @@ class ConfigurePsAccountsController extends ModuleAdminController
     private function firstStepisDone()
     {
         return  Configuration::get('PS_ACCOUNTS_RSA_PUBLIC_KEY')
-            &&  Configuration::get('PS_ACCOUNTS_RSA_PRIVATE_KEY')
-            &&  Configuration::get('PS_ACCOUNTS_RSA_SIGN_DATA');
+            && Configuration::get('PS_ACCOUNTS_RSA_PRIVATE_KEY')
+            && Configuration::get('PS_ACCOUNTS_RSA_SIGN_DATA');
     }
 
     /**
@@ -103,7 +103,7 @@ class ConfigurePsAccountsController extends ModuleAdminController
     private function manageSshKey()
     {
         $sshKey = new SshKey();
-        $key    = $sshKey->generate();
+        $key = $sshKey->generate();
         Configuration::updateValue('PS_ACCOUNTS_RSA_PRIVATE_KEY', $key['privatekey']);
         Configuration::updateValue('PS_ACCOUNTS_RSA_PUBLIC_KEY', $key['publickey']);
         $data = 'data';

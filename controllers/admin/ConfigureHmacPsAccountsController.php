@@ -46,7 +46,7 @@ class ConfigureHmacPsAccountsController extends ModuleAdminController
             if (null === $_GET['hmac']) {
                 throw new Exception("Caught exception: Hmac does not exist \n");
             }
-            $hmacPath = dirname(__FILE__).'/../../../../upload/';
+            $hmacPath = _PS_ROOT_DIR_.'/upload/';
             foreach (['hmac', 'uid', 'slug'] as $key) {
                 if (!array_key_exists($key, $_GET)) {
                     throw new Exception("Missing query params \n");
@@ -55,6 +55,10 @@ class ConfigureHmacPsAccountsController extends ModuleAdminController
 
             if (!is_dir($hmacPath)) {
                 mkdir($hmacPath);
+            }
+
+            if (!is_writable($hmacPath)) {
+                throw new Exception("Directory isn't writable \n");
             }
 
             file_put_contents($hmacPath.$_GET['uid'].'.txt', $_GET['hmac']);
@@ -69,5 +73,6 @@ class ConfigureHmacPsAccountsController extends ModuleAdminController
             .'&shopKey='
             .urlencode(Configuration::get('PS_ACCOUNTS_RSA_SIGN_DATA'))
         );
+        exit;
     }
 }

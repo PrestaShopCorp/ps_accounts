@@ -36,7 +36,7 @@ class Token extends FirebaseClient
      */
     public function refresh()
     {
-        if(true == \Configuration::get('PS_PSX_FIREBASE_LOCK')){
+        if (true == \Configuration::get('PS_PSX_FIREBASE_LOCK')) {
             return [];
         }
         \Configuration::updateValue('PS_PSX_FIREBASE_LOCK', true);
