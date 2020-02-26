@@ -32,6 +32,7 @@ jobs:
           host: ${{ secrets.TEST_HOST }}
           username: ${{ secrets.TEST_USERNAME }}
           key: ${{ secrets.SSH_PRIVATE_KEY }}
+          passphrase: ${{ secrets.TEST_PASS }}
           script: ls
 #      - name: Copy key
 #        run: |
