@@ -26,14 +26,24 @@ jobs:
         run: |
           tar -czvf accounts.tar.gz module
 
-      - name: executing remote ssh commands using ssh key
-        uses: appleboy/ssh-action@master
+      - name: copy file via ssh password
+        uses: appleboy/scp-action@master
         with:
           host: ${{ secrets.TEST_HOST }}
           username: ${{ secrets.TEST_USERNAME }}
           key: ${{ secrets.SSH_PRIVATE_KEY }}
           passphrase: ${{ secrets.TEST_PASS }}
-          script: ls
+          source: "composer.json"
+          target: "~"
+
+#      - name: executing remote ssh commands using ssh key
+#        uses: appleboy/ssh-action@master
+#        with:
+#          host: ${{ secrets.TEST_HOST }}
+#          username: ${{ secrets.TEST_USERNAME }}
+#          key: ${{ secrets.SSH_PRIVATE_KEY }}
+#          passphrase: ${{ secrets.TEST_PASS }}
+#          script: ls
 #      - name: Copy key
 #        run: |
 #          echo $SSH_KEY > key.pub
