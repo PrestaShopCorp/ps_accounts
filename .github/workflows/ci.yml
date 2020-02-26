@@ -26,18 +26,22 @@ jobs:
         run: |
           tar -czvf accounts.tar.gz module
 
-      - name: Copy key
-        run: |
-          echo $SSH_KEY > key.pub
-          chmod 400 key.pub
-        env:
-          SSH_KEY: ${{ secrets.SSH_KEY }}
+      - uses: webfactory/ssh-agent@v0.2.0
+        with:
+          ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}
 
-      - name: Scp module
-        run: |
-          scp -ikey.pub -oStrictHostKeyChecking=no accounts.tar.gz "$HOST:"
-        env:
-          HOST: ${{ secrets.SSH_HOST }}
+#      - name: Copy key
+#        run: |
+#          echo $SSH_KEY > key.pub
+#          chmod 400 key.pub
+#        env:
+#          SSH_KEY: ${{ secrets.SSH_KEY }}
+#
+#      - name: Scp module
+#        run: |
+#          scp -ikey.pub -oStrictHostKeyChecking=no accounts.tar.gz "$HOST:"
+#        env:
+#          HOST: ${{ secrets.SSH_HOST }}
 
 #      - name: Test
 #        run: |
