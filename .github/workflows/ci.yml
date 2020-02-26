@@ -16,7 +16,6 @@ jobs:
 
       - name: Install
         run: |
-          cd module
           yarn
           yarn build
           composer install
