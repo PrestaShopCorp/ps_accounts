@@ -1,19 +1,18 @@
 
 // import {PsAccount} from './src/pages/PsAccount';
 //
-// require('jsdom-global')();
+require('jsdom-global')();
 // const testUtils = require('@vue/test-utils');
-// // const Vue = require('vue');
+// const Vue = require('vue');
 
 // eslint-disable-next-line no-undef
 describe('PsAccount.vue', () => {
   // eslint-disable-next-line no-undef
   beforeEach(() => {
-    delete window.store;
+    window.store = {};
   });
   // eslint-disable-next-line no-undef
   it('should generate uri for redirecting later and set loaded', () => {
-    window.store = {};
     window.store.pubKey = 'test';
     window.store.shopName = 'shopName';
     window.store.protocolDomainToValidate = 'http';
@@ -46,7 +45,6 @@ describe('PsAccount.vue', () => {
 
   // eslint-disable-next-line no-undef
   it('should not generate uri for redirecting later and set loaded', () => {
-    window.store = {};
     window.store.pubKey = 'test';
     window.store.shopName = 'shopName';
     window.store.protocolDomainToValidate = 'http';
