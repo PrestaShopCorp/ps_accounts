@@ -13,9 +13,12 @@ jobs:
     steps:
       - name: Checkout the repository
         uses: actions/checkout@v2
+        with:
+          path: module
 
       - name: Install
         run: |
+          cd module
           yarn
           yarn build
           composer install
@@ -27,7 +30,7 @@ jobs:
           username: ${{ secrets.TEST_USERNAME }}
           key: ${{ secrets.SSH_PRIVATE_KEY }}
           passphrase: ${{ secrets.TEST_PASS }}
-          source: "."
-          target: "~"
+          source: module
+          target: ~
 
 
