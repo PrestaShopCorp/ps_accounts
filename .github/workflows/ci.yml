@@ -28,14 +28,14 @@ jobs:
 
       - name: Copy key
         run: |
-          echo $KEY > key.pub
+          echo $KEY > ~/.ssh/id_rsa
           chmod 400 key.pub
         env:
           SSH_KEY: ${{ secrets.SSH_KEY }}
 
       - name: Scp module
         run: |
-          scp -ikey.pub -oStrictHostKeyChecking=no accounts.tar.gz "$HOST:"
+          scp -i key.pub -oStrictHostKeyChecking=no accounts.tar.gz "$HOST:"
         env:
           HOST: ${{ secrets.SSH_HOST }}
 
