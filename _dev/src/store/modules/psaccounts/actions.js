@@ -1,5 +1,3 @@
-import generateSvcUiUrl from '../../../services/generateSvcUiUrl';
-
 /**
  * 2007-2019 PrestaShop and Contributors
  *
@@ -18,6 +16,7 @@ import generateSvcUiUrl from '../../../services/generateSvcUiUrl';
  * @license   https://opensource.org/licenses/AFL-3.0 Academic Free License 3.0 (AFL-3.0)
  * International Registered Trademark & Property of PrestaShop SA
  */
+import generateSvcUiUrl from '@/services/generateSvcUiUrl';
 
 export default {
   setSvcUiUrl: (store, data) => {

@@ -1,5 +1,3 @@
-import {forEach} from 'lodash';
-
 /**
  * 2007-2019 PrestaShop and Contributors
  *
@@ -48,7 +46,7 @@ export default {
     let counterValideParams = 0;
     output.svcUiUrl = `${svcUiDomainName}/link-shop/${protocolDomainToValidate}/${domainNameDomainToValidate}/${protocolBo}/${domainNameBo}/PSXEmoji.Deluxe.Fake.Service?`;
 
-    forEach(output.queryParams, (value, key) => {
+    Object.entries(output.queryParams).forEach(([key, value]) => {
       if (value !== null) {
         // eslint-disable-next-line no-plusplus
         counterValideParams++;

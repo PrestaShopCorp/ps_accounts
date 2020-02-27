@@ -4,7 +4,7 @@
       <h2>ps account</h2>
     </div>
     <div class="app-body">
-      <PsAccount  />
+      <PsAccount />
     </div>
   </div>
 </template>

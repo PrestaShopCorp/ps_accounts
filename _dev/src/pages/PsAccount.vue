@@ -5,10 +5,9 @@
       class="ps_account text-center"
     >
       <button
-        @click.stop.prevent="connectSvcUi()"
+        @click="connectSvcUi()"
         class="btn btn-primary"
       >
-        {{ buttonText }}
         {{ $t('general.startOnboarding') }}
       </button>
     </div>
@@ -24,12 +23,6 @@
 <script>
   export default {
     name: 'PsAccount',
-    props: {
-      buttonText: {
-        type: String,
-        default: '',
-      },
-    },
     computed: {
       getSvcUiUrl() {
         return this.$store.state.psaccounts.svcUiUrl;
