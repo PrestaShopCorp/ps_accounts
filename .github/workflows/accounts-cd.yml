@@ -4,6 +4,7 @@ on:
   push:
     branches:
       - develop
+      - feature/499-ci
 
 env:
   MODULE_NAME: ps_accounts
