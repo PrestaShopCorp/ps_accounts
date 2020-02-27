@@ -47,7 +47,9 @@ jobs:
           username: ${{ secrets.SSH_USERNAME }}
           key: ${{ secrets.SSH_PRIVATE_KEY }}
           passphrase: ${{ secrets.TEST_PASS }}
-          script: sudo su -c 'mv ps_accounts ${{ secrets.MODULE_PATH }}'
+          script: |
+            sudo su -c 'mv ps_accounts ${{ secrets.MODULE_PATH }}'
+            sudo su -c 'chown -R www-data:www-data ${{ secrets.MODULE_PATH }}/ps_accounts'
 
       - name: Install module
         uses: appleboy/ssh-action@master
