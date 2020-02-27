@@ -16,7 +16,7 @@ jobs:
 
       - name: Build module
         run: |
-          yarn --production
+          yarn
           yarn build
           composer install
 
