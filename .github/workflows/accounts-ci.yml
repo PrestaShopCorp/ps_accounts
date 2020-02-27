@@ -1,8 +1,9 @@
 name: Module accounts CI
 
-push:
-  branches:
-    - develop
+on:
+  push:
+    branches:
+      - develop
 
 jobs:
   accounts_ci:
