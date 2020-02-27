@@ -1,14 +1,16 @@
-name: Module accounts CI
+name: Module accounts CD
 
 on:
   push:
     branches:
       - develop
-      - feature/499-ci
+
+env:
+  MODULE_NAME: ps_accounts
 
 jobs:
   accounts_ci:
-    name: Module Accounts continuous integration
+    name: Module Accounts continuous deployment
     runs-on: ubuntu-latest
 
     steps:
@@ -28,7 +30,7 @@ jobs:
           host: ${{ secrets.SSH_HOST }}
           username: ${{ secrets.SSH_USERNAME }}
           key: ${{ secrets.SSH_KEY }}
-          script: sudo su -c 'docker exec $(docker ps -aqf "name=prestashop_shop-accounts") rm -rf modules/ps_accounts'
+          script: sudo su -c 'docker exec $(docker ps -aqf "name=${{ secret.CONTAINER_NAME }}") rm -rf modules/${{ env.MODULE_NAME }}'
 
       - name: Copy module
         uses: appleboy/scp-action@master
@@ -37,7 +39,7 @@ jobs:
           username: ${{ secrets.SSH_USERNAME }}
           key: ${{ secrets.SSH_KEY }}
           source: "."
-          target: "ps_accounts"
+          target: ${{ env.MODULE_NAME }}
 
       - name: Move module
         uses: appleboy/ssh-action@master
@@ -46,8 +48,8 @@ jobs:
           username: ${{ secrets.SSH_USERNAME }}
           key: ${{ secrets.SSH_KEY }}
           script: |
-            sudo su -c 'mv ps_accounts ${{ secrets.MODULE_PATH }}'
-            sudo su -c 'chown -R www-data:www-data ${{ secrets.MODULE_PATH }}/ps_accounts'
+            sudo su -c 'mv ${{ env.MODULE_NAME }} ${{ secrets.MODULE_PATH }}'
+            sudo su -c 'chown -R www-data:www-data ${{ secrets.MODULE_PATH }}/${{ env.MODULE_NAME }}'
 
       - name: Install module
         uses: appleboy/ssh-action@master
@@ -56,7 +58,7 @@ jobs:
           username: ${{ secrets.SSH_USERNAME }}
           key: ${{ secrets.SSH_KEY }}
           script: |
-            sudo su -c 'docker exec $(docker ps -aqf "name=prestashop_shop-accounts") bin/console prestashop:module install ps_accounts'
+            sudo su -c 'docker exec $(docker ps -aqf "name=${{ secret.CONTAINER_NAME }}") bin/console prestashop:module install ${{ env.MODULE_NAME }}'
 
       - name: Clear cache
         uses: appleboy/ssh-action@master
@@ -65,5 +67,5 @@ jobs:
           username: ${{ secrets.SSH_USERNAME }}
           key: ${{ secrets.SSH_KEY }}
           script: |
-            sudo su -c 'docker exec $(docker ps -aqf "name=prestashop_shop-accounts") bin/console cache:cl'
-            sudo su -c 'docker exec $(docker ps -aqf "name=prestashop_shop-accounts") chmod -R 777 var/cache var/logs'
+            sudo su -c 'docker exec $(docker ps -aqf "name=${{ secret.CONTAINER_NAME }}") bin/console cache:cl'
+            sudo su -c 'docker exec $(docker ps -aqf "name=${{ secret.CONTAINER_NAME }}") chmod -R 777 var/cache var/logs'
