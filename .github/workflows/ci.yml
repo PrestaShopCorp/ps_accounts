@@ -23,27 +23,38 @@ jobs:
       - name: Copy module
         uses: appleboy/scp-action@master
         with:
-          host: ${{ secrets.TEST_HOST }}
-          username: ${{ secrets.TEST_USERNAME }}
+          host: ${{ secrets.SSH_HOST }}
+          username: ${{ secrets.SSH_USERNAME }}
           key: ${{ secrets.SSH_PRIVATE_KEY }}
           passphrase: ${{ secrets.TEST_PASS }}
           source: "."
-          target: "accounts"
+          target: "ps_accounts"
 
       - name: Ls
         uses: appleboy/ssh-action@master
         with:
-          host: ${{ secrets.TEST_HOST }}
-          username: ${{ secrets.TEST_USERNAME }}
+          host: ${{ secrets.SSH_HOST }}
+          username: ${{ secrets.SSH_USERNAME }}
           key: ${{ secrets.SSH_PRIVATE_KEY }}
           passphrase: ${{ secrets.TEST_PASS }}
           script: ls
 
-#      - name: Ls
-#        uses: appleboy/ssh-action@master
-#        with:
-#          host: ${{ secrets.TEST_HOST }}
-#          username: ${{ secrets.TEST_USERNAME }}
-#          key: ${{ secrets.SSH_PRIVATE_KEY }}
-#          passphrase: ${{ secrets.TEST_PASS }}
-#          script: rm -rf "accounts"
+      - name: Ls
+        uses: appleboy/ssh-action@master
+        with:
+          host: ${{ secrets.SSH_HOST }}
+          username: ${{ secrets.SSH_USERNAME }}
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          passphrase: ${{ secrets.TEST_PASS }}
+          script: mv /space/shop-accounts/modules/ps_accounts
+
+      - name: Ls
+        uses: appleboy/ssh-action@master
+        with:
+          host: ${{ secrets.SSH_HOST }}
+          username: ${{ secrets.SSH_USERNAME }}
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          passphrase: ${{ secrets.TEST_PASS }}
+          script: |
+            sudo su
+            docker exec $(docker ps -aqf "name=${{ secrets.CONTAINER_NAME }}") 'bin/console prestashop:module install ps_accounts'
