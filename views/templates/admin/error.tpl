@@ -18,5 +18,5 @@
  *}
 
 <div id="psaccounts">
-    onboardingFinished
+    Error
 </div>

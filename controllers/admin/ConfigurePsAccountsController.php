@@ -73,6 +73,10 @@ class ConfigurePsAccountsController extends ModuleAdminController
      */
     private function dispatch()
     {
+        if (!$this->context->employee->isSuperAdmin()) {
+            return 'alreadyOnboarded.tpl';
+        }
+
         if (
             $this->firstStepisDone()
         ) {
@@ -84,9 +88,16 @@ class ConfigurePsAccountsController extends ModuleAdminController
             $token = new Token();
             $token->refresh();
 
+            if (!Configuration::get('PS_PSX_FIREBASE_REFRESH_TOKEN')) {
+                return 'error.tpl';
+            }
+
             return 'alreadyOnboarded.tpl';
         }
 
+        if (Configuration::get('PS_PSX_FIREBASE_REFRESH_TOKEN')) {
+            return 'accessDenied.tpl';
+        }
         $this->manageSshKey();
 
         return 'configure.tpl';

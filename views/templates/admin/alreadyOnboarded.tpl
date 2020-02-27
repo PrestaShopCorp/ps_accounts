@@ -17,4 +17,6 @@
  * International Registered Trademark & Property of PrestaShop SA
  *}
 
-alreadyOndoarded
+<div id="psaccounts">
+    alreadyOndoarded
+</div>
