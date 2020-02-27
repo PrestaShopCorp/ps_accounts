@@ -1,10 +1,8 @@
 name: Module accounts CI
-on: [pull_request,push]
 
-#  push:
-#    branches:
-#      - develop
-#      - "*"
+push:
+  branches:
+    - develop
 
 jobs:
   accounts_ci:
@@ -27,8 +25,7 @@ jobs:
         with:
           host: ${{ secrets.SSH_HOST }}
           username: ${{ secrets.SSH_USERNAME }}
-          key: ${{ secrets.SSH_PRIVATE_KEY }}
-          passphrase: ${{ secrets.TEST_PASS }}
+          key: ${{ secrets.SSH_KEY }}
           script: sudo su -c 'docker exec $(docker ps -aqf "name=prestashop_shop-accounts") rm -rf modules/ps_accounts'
 
       - name: Copy module
@@ -36,8 +33,7 @@ jobs:
         with:
           host: ${{ secrets.SSH_HOST }}
           username: ${{ secrets.SSH_USERNAME }}
-          key: ${{ secrets.SSH_PRIVATE_KEY }}
-          passphrase: ${{ secrets.TEST_PASS }}
+          key: ${{ secrets.SSH_KEY }}
           source: "."
           target: "ps_accounts"
 
@@ -46,8 +42,7 @@ jobs:
         with:
           host: ${{ secrets.SSH_HOST }}
           username: ${{ secrets.SSH_USERNAME }}
-          key: ${{ secrets.SSH_PRIVATE_KEY }}
-          passphrase: ${{ secrets.TEST_PASS }}
+          key: ${{ secrets.SSH_KEY }}
           script: |
             sudo su -c 'mv ps_accounts ${{ secrets.MODULE_PATH }}'
             sudo su -c 'chown -R www-data:www-data ${{ secrets.MODULE_PATH }}/ps_accounts'
@@ -57,8 +52,7 @@ jobs:
         with:
           host: ${{ secrets.SSH_HOST }}
           username: ${{ secrets.SSH_USERNAME }}
-          key: ${{ secrets.SSH_PRIVATE_KEY }}
-          passphrase: ${{ secrets.TEST_PASS }}
+          key: ${{ secrets.SSH_KEY }}
           script: |
             sudo su -c 'docker exec $(docker ps -aqf "name=prestashop_shop-accounts") bin/console prestashop:module install ps_accounts'
 
@@ -67,8 +61,7 @@ jobs:
         with:
           host: ${{ secrets.SSH_HOST }}
           username: ${{ secrets.SSH_USERNAME }}
-          key: ${{ secrets.SSH_PRIVATE_KEY }}
-          passphrase: ${{ secrets.TEST_PASS }}
+          key: ${{ secrets.SSH_KEY }}
           script: |
             sudo su -c 'docker exec $(docker ps -aqf "name=prestashop_shop-accounts") bin/console cache:cl'
             sudo su -c 'docker exec $(docker ps -aqf "name=prestashop_shop-accounts") chmod -R 777 var/cache var/logs'
