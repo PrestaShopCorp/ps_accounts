@@ -10,7 +10,6 @@ jobs:
     name: Module Accounts continuous integration
     runs-on: ubuntu-latest
 
-
     steps:
       - name: Checkout the repository
         uses: actions/checkout@v2
