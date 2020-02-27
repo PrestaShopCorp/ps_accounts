@@ -22,13 +22,13 @@ jobs:
           composer install
 
       - name: Delete old module
-          uses: appleboy/ssh-action@master
-          with:
-            host: ${{ secrets.SSH_HOST }}
-            username: ${{ secrets.SSH_USERNAME }}
-            key: ${{ secrets.SSH_PRIVATE_KEY }}
-            passphrase: ${{ secrets.TEST_PASS }}
-            script:  sudo su -c 'docker exec $(docker ps -aqf "name=prestashop_shop-accounts") rm -rf modules/ps_accounts'
+        uses: appleboy/ssh-action@master
+        with:
+          host: ${{ secrets.SSH_HOST }}
+          username: ${{ secrets.SSH_USERNAME }}
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          passphrase: ${{ secrets.TEST_PASS }}
+          script: sudo su -c 'docker exec $(docker ps -aqf "name=prestashop_shop-accounts") rm -rf modules/ps_accounts'
 
       - name: Copy module
         uses: appleboy/scp-action@master
