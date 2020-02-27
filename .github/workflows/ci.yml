@@ -16,7 +16,7 @@ jobs:
 
       - name: Build module
         run: |
-          yarn
+          yarn --production
           yarn build
           composer install
 
@@ -37,9 +37,7 @@ jobs:
           username: ${{ secrets.SSH_USERNAME }}
           key: ${{ secrets.SSH_PRIVATE_KEY }}
           passphrase: ${{ secrets.TEST_PASS }}
-          script: |
-            sudo su
-            mv ps_accounts ${{ secrets.MODULE_PATH }}
+          script: sudo su -c 'mv ps_accounts ${{ secrets.MODULE_PATH }}'
 
       - name: Install module
         uses: appleboy/ssh-action@master
@@ -49,5 +47,4 @@ jobs:
           key: ${{ secrets.SSH_PRIVATE_KEY }}
           passphrase: ${{ secrets.TEST_PASS }}
           script: |
-            sudo su
-            docker exec $(docker ps -aqf "name=${{ secrets.CONTAINER_NAME }}") 'bin/console prestashop:module install ps_accounts'
+            sudo su -c 'docker exec $(docker ps -aqf "name=prestashop_shop-accounts") bin/console prestashop:module install ps_accounts'
