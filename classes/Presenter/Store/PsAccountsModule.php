@@ -20,7 +20,7 @@
 
 namespace PrestaShop\Module\PsAccounts\Presenter\Store\Modules;
 
-use PrestaShop\Module\PrestashopCheckout\Translations\Translations;
+use PrestaShop\Module\PsAccounts\Translations\Translations;
 use PrestaShop\Module\PsAccounts\Presenter\PresenterInterface;
 
 /**
@@ -60,7 +60,7 @@ class PsAccountsModule implements PresenterInterface
                 'domainNameBo' => null,
                 'protocolDomainToValidate' => str_replace('://', '', \Tools::getProtocol(\Configuration::get('PS_SSL_ENABLED'))),
                 'domainNameDomainToValidate' => str_replace(\Tools::getProtocol(\Configuration::get('PS_SSL_ENABLED')), '', \Tools::getShopDomainSsl(true)),
-                'moduleVersion' => \Ps_accounts::VERSION,
+//                'moduleVersion' => \Ps_accounts::VERSION,
                 'psVersion' => _PS_VERSION_,
                 'language' => $this->context->language,
                 'translations' => (new Translations($this->module))->getTranslations(),

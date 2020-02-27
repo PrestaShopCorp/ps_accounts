@@ -9,6 +9,7 @@
         class="btn btn-primary"
       >
         {{ buttonText }}
+        {{ $t('general.startOnboarding') }}
       </button>
     </div>
     <div
