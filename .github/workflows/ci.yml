@@ -16,6 +16,7 @@ jobs:
 
       - name: Build module
         run: |
+          mv .env.dist .env
           yarn
           yarn build
           composer install
