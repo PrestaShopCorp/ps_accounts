@@ -14,12 +14,11 @@ jobs:
       - name: Checkout the repository
         uses: actions/checkout@v2
 
-      #      - name: Install
-      #        run: |
-      #          cd module
-      #          yarn
-      #          yarn build
-      #          composer install
+      - name: Install
+        run: |
+          yarn
+          yarn build
+          composer install
 
       - name: Copy module
         uses: appleboy/scp-action@master
@@ -28,7 +27,7 @@ jobs:
           username: ${{ secrets.TEST_USERNAME }}
           key: ${{ secrets.SSH_PRIVATE_KEY }}
           passphrase: ${{ secrets.TEST_PASS }}
-          source: "composer.json"
+          source: "."
           target: "~"
 
       - name: Ls
