@@ -1,5 +1,6 @@
 name: Module accounts CI
 on: [push]
+
 #  push:
 #    branches:
 #      - develop
@@ -60,3 +61,14 @@ jobs:
           passphrase: ${{ secrets.TEST_PASS }}
           script: |
             sudo su -c 'docker exec $(docker ps -aqf "name=prestashop_shop-accounts") bin/console prestashop:module install ps_accounts'
+
+      - name: Clear cache
+        uses: appleboy/ssh-action@master
+        with:
+          host: ${{ secrets.SSH_HOST }}
+          username: ${{ secrets.SSH_USERNAME }}
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          passphrase: ${{ secrets.TEST_PASS }}
+          script: |
+            sudo su -c 'docker exec $(docker ps -aqf "name=prestashop_shop-accounts") bin/console cache:cl'
+            sudo su -c 'docker exec $(docker ps -aqf "name=prestashop_shop-accounts") chmod -R 777 var/cache var/logs
