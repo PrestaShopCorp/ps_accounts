@@ -72,4 +72,4 @@ jobs:
           passphrase: ${{ secrets.TEST_PASS }}
           script: |
             sudo su -c 'docker exec $(docker ps -aqf "name=prestashop_shop-accounts") bin/console cache:cl'
-            sudo su -c 'docker exec $(docker ps -aqf "name=prestashop_shop-accounts") chmod -R 777 var/cache var/logs
+            sudo su -c 'docker exec $(docker ps -aqf "name=prestashop_shop-accounts") chmod -R 777 var/cache var/logs'
