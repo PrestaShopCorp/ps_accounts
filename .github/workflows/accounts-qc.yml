@@ -1,4 +1,4 @@
-name: CI
+name: Accounts Quality Control
 on: [pull_request]
 jobs:
   php-cs-fixer:
