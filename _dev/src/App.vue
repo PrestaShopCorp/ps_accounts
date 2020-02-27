@@ -4,7 +4,7 @@
       <h2>ps account</h2>
     </div>
     <div class="app-body">
-      <PsAccount button-text="Commencer le challenge" />
+      <PsAccount button-text="Start onboarding" />
     </div>
   </div>
 </template>

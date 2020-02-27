@@ -23,7 +23,9 @@ export default {
   getShopName: (state) => state.shopName,
   getNextStep: (state) => state.nextStep,
   getQueryParams: (state) => state.queryParams,
-  getProtocolDomainToValidateQueryParams: (state) => state.protocolDomainToValidate,
+  getProtocolDomainToValidate: (state) => state.protocolDomainToValidate,
   getDomainNameDomainToValidate: (state) => state.domainNameDomainToValidate,
   isParamsLoaded: (state) => state.paramsLoaded,
+  locale: (state) => state.language.locale,
+  translations: (state) => state.translations,
 };

@@ -15,7 +15,7 @@
       v-else
       class="forbidden text-center"
     >
-      Restart onboarding
+      {{ $t('Restart onboarding') }}
     </div>
   </div>
 </template>
