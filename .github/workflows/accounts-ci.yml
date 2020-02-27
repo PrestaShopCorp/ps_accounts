@@ -1,7 +1,6 @@
 name: Module accounts CI
 on: [pull_request,push]
 
-
 #  push:
 #    branches:
 #      - develop
