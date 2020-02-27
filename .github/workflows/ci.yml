@@ -14,7 +14,7 @@ jobs:
       - name: Checkout the repository
         uses: actions/checkout@v2
 
-      - name: Install
+      - name: Build module
         run: |
           yarn
           yarn build
@@ -30,25 +30,16 @@ jobs:
           source: "."
           target: "ps_accounts"
 
-      - name: Ls
+      - name: Move module
         uses: appleboy/ssh-action@master
         with:
           host: ${{ secrets.SSH_HOST }}
           username: ${{ secrets.SSH_USERNAME }}
           key: ${{ secrets.SSH_PRIVATE_KEY }}
           passphrase: ${{ secrets.TEST_PASS }}
-          script: ls
+          script: mv ps_accounts ${{ secrets.MODULE_PATH }}
 
-      - name: Ls
-        uses: appleboy/ssh-action@master
-        with:
-          host: ${{ secrets.SSH_HOST }}
-          username: ${{ secrets.SSH_USERNAME }}
-          key: ${{ secrets.SSH_PRIVATE_KEY }}
-          passphrase: ${{ secrets.TEST_PASS }}
-          script: mv /space/shop-accounts/modules/ps_accounts
-
-      - name: Ls
+      - name: Install module
         uses: appleboy/ssh-action@master
         with:
           host: ${{ secrets.SSH_HOST }}
