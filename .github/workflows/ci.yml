@@ -37,7 +37,9 @@ jobs:
           username: ${{ secrets.SSH_USERNAME }}
           key: ${{ secrets.SSH_PRIVATE_KEY }}
           passphrase: ${{ secrets.TEST_PASS }}
-          script: mv ps_accounts ${{ secrets.MODULE_PATH }}
+          script: |
+            sudo su
+            mv ps_accounts ${{ secrets.MODULE_PATH }}
 
       - name: Install module
         uses: appleboy/ssh-action@master
