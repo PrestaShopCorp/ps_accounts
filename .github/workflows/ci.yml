@@ -39,11 +39,11 @@ jobs:
           passphrase: ${{ secrets.TEST_PASS }}
           script: ls
 
-      - name: Ls
-        uses: appleboy/ssh-action@master
-        with:
-          host: ${{ secrets.TEST_HOST }}
-          username: ${{ secrets.TEST_USERNAME }}
-          key: ${{ secrets.SSH_PRIVATE_KEY }}
-          passphrase: ${{ secrets.TEST_PASS }}
-          script: rm -rf "accounts"
+#      - name: Ls
+#        uses: appleboy/ssh-action@master
+#        with:
+#          host: ${{ secrets.TEST_HOST }}
+#          username: ${{ secrets.TEST_USERNAME }}
+#          key: ${{ secrets.SSH_PRIVATE_KEY }}
+#          passphrase: ${{ secrets.TEST_PASS }}
+#          script: rm -rf "accounts"
