@@ -28,8 +28,6 @@ if (!defined('_PS_VERSION_')) {
 }
 require_once __DIR__.'/vendor/autoload.php';
 
-use Symfony\Component\Dotenv\Dotenv;
-
 class Ps_accounts extends Module
 {
     public $name;
@@ -69,7 +67,7 @@ class Ps_accounts extends Module
             'configure' => 'ConfigurePsAccounts',
             'hmac' => 'ConfigureHmacPsAccounts',
         ];
-        $dotenv = new Dotenv();
+        $dotenv = new Symfony\Component\Dotenv\Dotenv();
         $dotenv->load($this->local_path.'.env');
     }
 
