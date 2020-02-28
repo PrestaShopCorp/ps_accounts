@@ -75,7 +75,7 @@ jobs:
           username: ${{ secrets.SSH_USERNAME }}
           key: ${{ secrets.SSH_KEY }}
           script: |
-            sudo su -c 'docker exec $(docker ps -aqf "name=${{ secrets.CONTAINER_NAME }}") ln -s $(pwd)/modules/ps_accounts/.env $(pwd)/modules/ps_accounts/_dev/.env'
+            sudo su -c 'docker exec $(docker ps -aqf "name=${{ secrets.CONTAINER_NAME }}") cp modules/ps_accounts/.env modules/ps_accounts/_dev/.env'
             sudo su -c 'docker exec $(docker ps -aqf "name=${{ secrets.CONTAINER_NAME }}") source modules/ps_accounts/.env'
             sudo su -c 'docker exec $(docker ps -aqf "name=${{ secrets.CONTAINER_NAME }}") source modules/ps_accounts/_dev/.env'
             sudo su -c 'docker exec $(docker ps -aqf "name=${{ secrets.CONTAINER_NAME }}") bin/console prestashop:module install ${{ env.MODULE_NAME }}'
