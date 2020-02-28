@@ -21,14 +21,14 @@ jobs:
 
       - name: Gcloud auth
         run: |
-          echo ${{ secrets.GCLOUD_CREDENTIAL }} > ${{ env.GCLOUD_TOKEN_PATH }}
-#          echo $GOOGLE_APPLICATION_CREDENTIALS > $GCLOUD_TOKEN_PATH
-#          gcloud container clusters get-credentials ${{ secrets.GCLOUD_CLUSTER }} \
-#          --zone europe-west1-c --project ${{ secrets.GCLOUD_PROJECT }}
+          echo $GOOGLE_APPLICATION_CREDENTIALS > $GCLOUD_TOKEN_PATH
+          gcloud container clusters get-credentials $GCLOUD_CLUSTER \
+          --zone europe-west1-c --project $GCLOUD_PROJECT
         env:
-          GCLOUD_TOKEN_PATH: ${{ ENV.GCLOUD_TOKEN_PATH }}
           GOOGLE_APPLICATION_CREDENTIALS: ${{ secrets.GCLOUD_CREDENTIAL }}
-          GOOGLE_CREDENTIALS: ${{ secrets.GCLOUD_CREDENTIAL }}
+          GCLOUD_TOKEN_PATH: ${{ ENV.GCLOUD_TOKEN_PATH }}
+          GCLOUD_CLUSTER: ${{ secrets.GCLOUD_CLUSTER }}
+          GCLOUD_PROJECT: ${{ secrets.GCLOUD_PROJECT }}
 
       - name: Build module
         run: |
