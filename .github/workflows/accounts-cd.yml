@@ -19,22 +19,19 @@ jobs:
       - name: Checkout the repository
         uses: actions/checkout@v2
 
-      - name: Gcloud auth
+      - name: Gcloud auth and write env file
         run: |
           echo $GOOGLE_APPLICATION_CREDENTIALS > $GCLOUD_TOKEN_PATH
           gcloud auth activate-service-account --key-file=$GCLOUD_TOKEN_PATH
           gcloud container clusters get-credentials $GCLOUD_CLUSTER \
           --zone europe-west1-c --project $GCLOUD_PROJECT
-        env:
-          GOOGLE_APPLICATION_CREDENTIALS: ${{ secrets.GCLOUD_CREDENTIAL }}
-          GCLOUD_TOKEN_PATH: ${{ ENV.GCLOUD_TOKEN_PATH }}
-          GCLOUD_CLUSTER: ${{ secrets.GCLOUD_CLUSTER }}
-          GCLOUD_PROJECT: ${{ secrets.GCLOUD_PROJECT }}
-
-      - name: Write env file
-        run: |
           gcloud beta secrets versions access 1 --secret="accounts-module" > .env
           cat .env
+        env:
+          GOOGLE_APPLICATION_CREDENTIALS: ${{ secrets.GCLOUD_CREDENTIAL }}
+          GCLOUD_TOKEN_PATH: ${{ env.GCLOUD_TOKEN_PATH }}
+          GCLOUD_CLUSTER: ${{ secrets.GCLOUD_CLUSTER }}
+          GCLOUD_PROJECT: ${{ secrets.GCLOUD_PROJECT }}
 
       - name: Build module
         run: |
