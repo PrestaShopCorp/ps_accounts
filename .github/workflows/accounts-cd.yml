@@ -21,7 +21,8 @@ jobs:
 
       - name: Gcloud auth
         run: |
-          echo $GOOGLE_APPLICATION_CREDENTIALS > $GCLOUD_TOKEN_PATH
+          echo ${{ secrets.GCLOUD_CREDENTIAL }} > ${{ env.GCLOUD_TOKEN_PATH }}
+#          echo $GOOGLE_APPLICATION_CREDENTIALS > $GCLOUD_TOKEN_PATH
 #          gcloud container clusters get-credentials ${{ secrets.GCLOUD_CLUSTER }} \
 #          --zone europe-west1-c --project ${{ secrets.GCLOUD_PROJECT }}
         env:
