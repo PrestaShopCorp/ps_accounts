@@ -20,8 +20,8 @@ views/files/*
 !views/files/.gitkeep
 
 ### Vuejs ignore build files ###
-/views/js/index.js
-/views/js/index.js.map
+/views/js/app.js
+/views/js/app.js.map
 /views/js/chunk-vendors.js
 /views/js/chunk-vendors.js.map
 /views/css/index.css

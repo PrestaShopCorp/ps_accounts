@@ -34,7 +34,11 @@
       ]),
     },
     mounted() {
-      this.tata();
+      this.setSvcUiUrl({
+        svcUiDomainName: process.env.VUE_APP_UI_SVC_URL,
+        protocolBo: window.location.protocol.slice(0, -1),
+        domainNameBo: window.location.host,
+      });
     },
     methods: {
       ...Vuex.mapActions([
@@ -42,13 +46,6 @@
       ]),
       connectSvcUi() {
         window.location.replace(this.getSvcUiUrl);
-      },
-      tata() {
-        this.setSvcUiUrl({
-          svcUiDomainName: process.env.VUE_APP_UI_SVC_URL,
-          protocolBo: window.location.protocol.slice(0, -1),
-          domainNameBo: window.location.host,
-        });
       },
     },
   };
