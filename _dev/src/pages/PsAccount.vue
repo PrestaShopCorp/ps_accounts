@@ -21,25 +21,27 @@
 </template>
 
 <script>
+  import Vuex from 'vuex';
+
   export default {
     name: 'PsAccount',
     computed: {
-      getSvcUiUrl() {
-        return this.$store.state.psaccounts.svcUiUrl;
-      },
-      isParamsLoaded() {
-        return this.$store.state.psaccounts.paramsLoaded;
-      },
+      ...Vuex.mapGetters([
+        'getSvcUiUrl',
+        'isParamsLoaded',
+      ]),
     },
     mounted() {
-      this.$store.dispatch({
-        type: 'setSvcUiUrl',
+      this.setSvcUiUrl({
         svcUiDomainName: process.env.VUE_APP_UI_SVC_URL,
         protocolBo: window.location.protocol.slice(0, -1),
         domainNameBo: window.location.host,
       });
     },
     methods: {
+      ...Vuex.mapActions([
+        'setSvcUiUrl',
+      ]),
       connectSvcUi() {
         window.location.replace(this.getSvcUiUrl);
       },

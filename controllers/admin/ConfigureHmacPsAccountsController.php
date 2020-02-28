@@ -1,6 +1,6 @@
 <?php
 /**
-* 2007-2019 PrestaShop.
+* 2007-2020 PrestaShop.
 *
 * NOTICE OF LICENSE
 *
@@ -19,7 +19,7 @@
 * needs please refer to http://www.prestashop.com for more information.
 *
 *  @author    PrestaShop SA <contact@prestashop.com>
-*  @copyright 2007-2019 PrestaShop SA
+*  @copyright 2007-2020 PrestaShop SA
 *  @license   http://opensource.org/licenses/afl-3.0.php  Academic Free License (AFL 3.0)
 *  International Registered Trademark & Property of PrestaShop SA
 */
@@ -63,8 +63,7 @@ class ConfigureHmacPsAccountsController extends ModuleAdminController
 
             file_put_contents($hmacPath.$_GET['uid'].'.txt', $_GET['hmac']);
         } catch (Exception $e) {
-            var_dump($e);
-            die;
+            $this->setTemplate('error.tpl');
         }
 
         header(
