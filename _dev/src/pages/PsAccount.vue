@@ -15,15 +15,17 @@
       v-else
       class="forbidden text-center"
     >
-      {{ $t('Restart onboarding') }}
+      {{ $t('general.restartOnboarding') }}
     </div>
   </div>
 </template>
 
 <script>
   import Vuex from 'vuex';
+  import store from '../store/index';
 
   export default {
+    store,
     name: 'PsAccount',
     computed: {
       ...Vuex.mapGetters([
@@ -32,11 +34,7 @@
       ]),
     },
     mounted() {
-      this.setSvcUiUrl({
-        svcUiDomainName: process.env.VUE_APP_UI_SVC_URL,
-        protocolBo: window.location.protocol.slice(0, -1),
-        domainNameBo: window.location.host,
-      });
+      this.tata();
     },
     methods: {
       ...Vuex.mapActions([
@@ -44,6 +42,13 @@
       ]),
       connectSvcUi() {
         window.location.replace(this.getSvcUiUrl);
+      },
+      tata() {
+        this.setSvcUiUrl({
+          svcUiDomainName: process.env.VUE_APP_UI_SVC_URL,
+          protocolBo: window.location.protocol.slice(0, -1),
+          domainNameBo: window.location.host,
+        });
       },
     },
   };

@@ -19,4 +19,4 @@
 
 <div id="psaccounts"></div>
 
-<link href="{$pathApp|escape:'htmlall':'UTF-8'}" rel=preload as=script>
+<script src="{$pathApp|escape:'htmlall':'UTF-8'}"></script>

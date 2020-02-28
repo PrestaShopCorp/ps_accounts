@@ -29,10 +29,8 @@ state.paramsLoaded = false;
 state.svcUiUrl = null;
 
 export default new Vuex.Store({
-  modules: {
-    state,
-    getters,
-    actions,
-    mutations,
-  },
+  state,
+  getters,
+  actions,
+  mutations,
 });
