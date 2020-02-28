@@ -43,12 +43,12 @@ class ConfigureHmacPsAccountsController extends ModuleAdminController
     public function initContent()
     {
         try {
-            if (null === $_GET['hmac']) {
+            if (null === Tools::getValue('hmac')) {
                 throw new Exception("Caught exception: Hmac does not exist \n");
             }
             $hmacPath = _PS_ROOT_DIR_.'/upload/';
             foreach (['hmac', 'uid', 'slug'] as $key) {
-                if (!array_key_exists($key, $_GET)) {
+                if (!array_key_exists($key, Tools::getAllValues())) {
                     throw new Exception("Missing query params \n");
                 }
             }
@@ -61,15 +61,15 @@ class ConfigureHmacPsAccountsController extends ModuleAdminController
                 throw new Exception("Directory isn't writable \n");
             }
 
-            file_put_contents($hmacPath.$_GET['uid'].'.txt', $_GET['hmac']);
+            file_put_contents($hmacPath.Tools::getValue('uid').'.txt', Tools::getValue('hmac'));
         } catch (Exception $e) {
             $this->setTemplate('error.tpl');
         }
 
         header(
-            'Location: '.$_ENV['VUE_APP_UI_SVC_URL'].'/verify-shop/'.$_GET['uid']
+            'Location: '.$_ENV['VUE_APP_UI_SVC_URL'].'/verify-shop/'.Tools::getValue('uid')
             .'?hmacPath='
-            .urlencode('/upload/'.$_GET['uid'].'.txt')
+            .urlencode('/upload/'.Tools::getValue('uid').'.txt')
             .'&shopKey='
             .urlencode(Configuration::get('PS_ACCOUNTS_RSA_SIGN_DATA'))
         );
