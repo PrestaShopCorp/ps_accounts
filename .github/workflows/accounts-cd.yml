@@ -22,7 +22,8 @@ jobs:
       - name: Gcloud auth
         shell: bash
         run: |
-          echo ${{ secrets.GCLOUD_CREDENTIAL }} > $GCLOUD_TOKEN_PATH
+          echo "toto"
+#          echo ${{ secrets.GCLOUD_CREDENTIAL }} > $GCLOUD_TOKEN_PATH
 #          gcloud auth activate-service-account
 #
 #          gcloud container clusters get-credentials ${{ secrets.GCLOUD_CLUSTER }} \
