@@ -21,6 +21,7 @@
 namespace PrestaShop\Module\PsAccounts\Api;
 
 use GuzzleHttp\Client;
+use GuzzleHttp\Exception\GuzzleException;
 use PrestaShop\Module\PsAccounts\Handler\Response\ResponseApiHandler;
 
 /**
@@ -28,6 +29,14 @@ use PrestaShop\Module\PsAccounts\Handler\Response\ResponseApiHandler;
  */
 class GenericClient
 {
+    /**
+     * Enable or disable the catch of Maasland 400 error
+     * If set to false, you will not be able to catch the error of maasland
+     * guzzle will show a different error message.
+     *
+     * @var bool
+     */
+    protected $catchExceptions = false;
     /**
      * Guzzle Client.
      *
@@ -43,13 +52,11 @@ class GenericClient
     protected $link;
 
     /**
-     * Enable or disable the catch of Maasland 400 error
-     * If set to false, you will not be able to catch the error of maasland
-     * guzzle will show a different error message.
+     * Api route.
      *
-     * @var bool
+     * @var string
      */
-    protected $catchExceptions = false;
+    protected $route;
 
     /**
      * Set how long guzzle will wait a response before end it up.
@@ -59,11 +66,54 @@ class GenericClient
     protected $timeout = 10;
 
     /**
-     * Api route.
+     * Getter for client.
      *
-     * @var string
+     * @return Client
      */
-    protected $route;
+    protected function getClient()
+    {
+        return $this->client;
+    }
+
+    /**
+     * Getter for exceptions mode.
+     *
+     * @return bool
+     */
+    protected function getExceptionsMode()
+    {
+        return $this->catchExceptions;
+    }
+
+    /**
+     * Getter for Link.
+     *
+     * @return \Link
+     */
+    protected function getLink()
+    {
+        return $this->link;
+    }
+
+    /**
+     * Getter for route.
+     *
+     * @return string
+     */
+    protected function getRoute()
+    {
+        return $this->route;
+    }
+
+    /**
+     * Getter for timeout.
+     *
+     * @return int
+     */
+    protected function getTimeout()
+    {
+        return $this->timeout;
+    }
 
     /**
      * Wrapper of method post from guzzle client.
@@ -74,14 +124,18 @@ class GenericClient
      */
     protected function post(array $options = [])
     {
-        $response = $this->getClient()->post($this->getRoute(), $options);
+        try {
+            $response = $this->getClient()->post($this->getRoute(), $options);
+        } catch (GuzzleException $e) {
+            //TODO handle error
+        }
 
         $responseHandler = new ResponseApiHandler();
 
         $response = $responseHandler->handleResponse($response);
 
         // If response is not successful only
-        if (\Configuration::get('PS_CHECKOUT_DEBUG_LOGS_ENABLED') && !$response['status']) {
+        if (\Configuration::get('PS_CHECKOUT_DEBUG_LOGS_ENABLED') && ! $response['status']) {
             /**
              * @var \Ps_checkout
              */
@@ -96,39 +150,11 @@ class GenericClient
     }
 
     /**
-     * Setter for route.
-     *
-     * @param string $route
-     */
-    protected function setRoute($route)
-    {
-        $this->route = $route;
-    }
-
-    /**
      * Setter for client.
      */
     protected function setClient(Client $client)
     {
         $this->client = $client;
-    }
-
-    /**
-     * Setter for link.
-     */
-    protected function setLink(\Link $link)
-    {
-        $this->link = $link;
-    }
-
-    /**
-     * Setter for timeout.
-     *
-     * @param int $timeout
-     */
-    protected function setTimeout($timeout)
-    {
-        $this->timeout = $timeout;
     }
 
     /**
@@ -142,52 +168,30 @@ class GenericClient
     }
 
     /**
-     * Getter for route.
-     *
-     * @return string
+     * Setter for link.
      */
-    protected function getRoute()
+    protected function setLink(\Link $link)
     {
-        return $this->route;
+        $this->link = $link;
     }
 
     /**
-     * Getter for client.
+     * Setter for route.
      *
-     * @return Client
+     * @param string $route
      */
-    protected function getClient()
+    protected function setRoute($route)
     {
-        return $this->client;
+        $this->route = $route;
     }
 
     /**
-     * Getter for Link.
+     * Setter for timeout.
      *
-     * @return \Link
+     * @param int $timeout
      */
-    protected function getLink()
+    protected function setTimeout($timeout)
     {
-        return $this->link;
-    }
-
-    /**
-     * Getter for timeout.
-     *
-     * @return int
-     */
-    protected function getTimeout()
-    {
-        return $this->timeout;
-    }
-
-    /**
-     * Getter for exceptions mode.
-     *
-     * @return bool
-     */
-    protected function getExceptionsMode()
-    {
-        return $this->catchExceptions;
+        $this->timeout = $timeout;
     }
 }
