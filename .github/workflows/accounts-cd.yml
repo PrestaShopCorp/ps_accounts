@@ -20,12 +20,8 @@ jobs:
         uses: actions/checkout@v2
 
       - name: Gcloud auth
-#        shell: bash
         run: |
-          echo "toto"
-#          echo ${{ secrets.GCLOUD_CREDENTIAL }} > $GCLOUD_TOKEN_PATH
-#          gcloud auth activate-service-account
-#
+          echo $GOOGLE_APPLICATION_CREDENTIALS > $GCLOUD_TOKEN_PATH
 #          gcloud container clusters get-credentials ${{ secrets.GCLOUD_CLUSTER }} \
 #          --zone europe-west1-c --project ${{ secrets.GCLOUD_PROJECT }}
         env:
