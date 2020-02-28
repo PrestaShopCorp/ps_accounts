@@ -33,7 +33,6 @@ jobs:
           GCLOUD_CLUSTER: ${{ secrets.GCLOUD_CLUSTER }}
           GCLOUD_PROJECT: ${{ secrets.GCLOUD_PROJECT }}
 
-
       - name: Build module
         run: |
           yarn
