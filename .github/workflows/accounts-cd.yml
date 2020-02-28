@@ -22,11 +22,13 @@ jobs:
       - name: Gcloud auth
         shell: bash
         run: |
-          gcloud auth activate-service-account
-#          echo ${{ secrets.GCLOUD_CREDENTIAL }} > ${{ env.GCLOUD_TOKEN_PATH }}
+          echo ${{ secrets.GCLOUD_CREDENTIAL }} > $GCLOUD_TOKEN_PATH
+#          gcloud auth activate-service-account
+#
 #          gcloud container clusters get-credentials ${{ secrets.GCLOUD_CLUSTER }} \
 #          --zone europe-west1-c --project ${{ secrets.GCLOUD_PROJECT }}
         env:
+          GCLOUD_TOKEN_PATH: ${{ ENV.GCLOUD_TOKEN_PATH }}
           GOOGLE_APPLICATION_CREDENTIALS: ${{ secrets.GCLOUD_CREDENTIAL }}
           GOOGLE_CREDENTIALS: ${{ secrets.GCLOUD_CREDENTIAL }}
 
