@@ -8,6 +8,7 @@ on:
 
 env:
   MODULE_NAME: ps_accounts
+  GCLOUD_TOKEN_PATH: ./token.json
 
 jobs:
   accounts_ci:
@@ -17,6 +18,15 @@ jobs:
     steps:
       - name: Checkout the repository
         uses: actions/checkout@v2
+
+      - name: Gcloud auth
+        run: |
+          echo ${{ secrets.GCLOUD_CREDENTIAL }} > ${{ env.GCLOUD_TOKEN_PATH }}
+          gcloud auth activate-service-account --key-file=${{ env.GCLOUD_TOKEN_PATH }}
+          gcloud container clusters get-credentials ${{ secrets.GCLOUD_CLUSTER }} \
+          --zone europe-west1-c --project ${{ secrets.GCLOUD_PROJECT }}
+        env:
+          GOOGLE_CREDENTIALS: ${{ secrets.GCLOUD_CREDENTIAL }}
 
       - name: Build module
         run: |
