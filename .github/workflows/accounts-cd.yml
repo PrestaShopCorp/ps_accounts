@@ -20,6 +20,7 @@ jobs:
         uses: actions/checkout@v2
 
       - name: Gcloud auth
+        shell: bash
         run: |
           echo ${{ secrets.GCLOUD_CREDENTIAL }} > ${{ env.GCLOUD_TOKEN_PATH }}
 #          gcloud auth activate-service-account --key-file=${{ env.GCLOUD_TOKEN_PATH }}
