@@ -1,12 +1,6 @@
 name: Accounts Quality Control PHP
 
-#on: [pull_request]
-on:
-  push:
-    branches:
-      - develop
-      - feature/499-ci
-      - feature/signed-hmac
+on: [pull_request]
 
 jobs:
   php-cs-fixer:
