@@ -45,6 +45,6 @@ export default {
         commit('UPDATE_SVC_UI_URL', generator.svcUiUrl);
       }
       return Promise.resolve(true);
-    }).catch((error) => console.log(error.response.data));
+    });
   },
 };
