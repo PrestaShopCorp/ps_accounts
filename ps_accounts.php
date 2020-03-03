@@ -66,7 +66,8 @@ class Ps_accounts extends Module
         $this->adminControllers = [
             'configure' => 'AdminConfigurePsAccounts',
             'hmac' => 'AdminConfigureHmacPsAccounts',
-        ];
+            'ajax' => 'AdminAjaxPsAccounts',
+            ];
         $dotenv = new Symfony\Component\Dotenv\Dotenv();
         $dotenv->load($this->local_path.'.env');
     }

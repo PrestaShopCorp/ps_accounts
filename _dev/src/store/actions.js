@@ -17,26 +17,34 @@
  * International Registered Trademark & Property of PrestaShop SA
  */
 import generateSvcUiUrl from '@/services/generateSvcUiUrl';
+import ajax from '@/requests/ajax.js';
 
 export default {
-  setSvcUiUrl: (store, data) => {
-    const generator = generateSvcUiUrl.generate(
-      data.svcUiDomainName,
-      store.getters.getProtocolDomainToValidate,
-      store.getters.getDomainNameDomainToValidate,
-      data.protocolBo,
-      data.domainNameBo,
-      {
-        boUrl: store.getters.getBoUrl,
-        pubKey: store.getters.getPubKey,
-        shopName: store.getters.getShopName,
-        next: store.getters.getNextStep,
-      },
-    );
+  setSvcUiUrl({commit, getters}, payload) {
+    return ajax({
+      url: getters.getAdminController,
+      action: 'GenerateSshKey',
+      data: [],
+    }).then((response) => {
+      const generator = generateSvcUiUrl.generate(
+        payload.svcUiDomainName,
+        getters.getProtocolDomainToValidate,
+        getters.getDomainNameDomainToValidate,
+        payload.protocolBo,
+        payload.domainNameBo,
+        {
+          boUrl: getters.getBoUrl,
+          pubKey: response,
+          shopName: getters.getShopName,
+          next: getters.getNextStep,
+        },
+      );
+      commit('UPDATE_QUERY_PARAMS', generator.queryParams);
 
-    store.commit('UPDATE_QUERY_PARAMS', generator.queryParams);
-    if (generator.SvcUiUrlIsGenerated) {
-      store.commit('UPDATE_SVC_UI_URL', generator.svcUiUrl);
-    }
+      if (generator.SvcUiUrlIsGenerated) {
+        commit('UPDATE_SVC_UI_URL', generator.svcUiUrl);
+      }
+      return Promise.resolve(true);
+    }).catch((error) => console.log(error.response.data));
   },
 };

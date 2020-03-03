@@ -20,7 +20,7 @@
 
 use PrestaShop\Module\PsAccounts\Service\SshKey;
 
-class AdminAjaxPrestashopCheckoutController extends ModuleAdminController
+class AdminAjaxPsAccountsController extends ModuleAdminController
 {
     /**
      * AJAX: Generate ssh key
@@ -38,6 +38,10 @@ class AdminAjaxPrestashopCheckoutController extends ModuleAdminController
                 Configuration::get('PS_ACCOUNTS_RSA_PRIVATE_KEY'),
                 $data
             )
+        );
+
+        $this->ajaxDie(
+            json_encode(Configuration::get('PS_ACCOUNTS_RSA_PUBLIC_KEY'))
         );
     }
 }

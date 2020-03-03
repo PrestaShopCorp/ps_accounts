@@ -20,8 +20,8 @@
 
 namespace PrestaShop\Module\PsAccounts\Presenter\Store\Modules;
 
-use PrestaShop\Module\PsAccounts\Translations\Translations;
 use PrestaShop\Module\PsAccounts\Presenter\PresenterInterface;
+use PrestaShop\Module\PsAccounts\Translations\Translations;
 
 /**
  * Construct the psaccounts module.
@@ -52,18 +52,15 @@ class PsAccountsModule implements PresenterInterface
     {
         return [
             'psaccounts' => [
-                'pubKey' => \Configuration::get('PS_ACCOUNTS_RSA_PUBLIC_KEY'),
                 'boUrl' => preg_replace('/^https?:\/\/[^\/]+/', '', $this->context->link->getAdminLink('AdminConfigurePsAccounts')),
                 'shopName' => \Configuration::get('PS_SHOP_NAME'),
                 'nextStep' => preg_replace('/^https?:\/\/[^\/]+/', '', $this->context->link->getAdminLink('AdminConfigureHmacPsAccounts')),
-                'protocolBo' => null,
-                'domainNameBo' => null,
                 'protocolDomainToValidate' => str_replace('://', '', \Tools::getProtocol(\Configuration::get('PS_SSL_ENABLED'))),
                 'domainNameDomainToValidate' => str_replace(\Tools::getProtocol(\Configuration::get('PS_SSL_ENABLED')), '', \Tools::getShopDomainSsl(true)),
-//                'moduleVersion' => \Ps_accounts::VERSION,
                 'psVersion' => _PS_VERSION_,
                 'language' => $this->context->language,
                 'translations' => (new Translations($this->module))->getTranslations(),
+                'adminController' => $this->context->link->getAdminLink('AdminAjaxPsAccounts'),
             ],
         ];
     }

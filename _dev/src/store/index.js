@@ -25,7 +25,6 @@ import mutations from './mutations';
 Vue.use(Vuex);
 
 const state = global.store.psaccounts;
-state.paramsLoaded = false;
 state.svcUiUrl = null;
 
 export default new Vuex.Store({

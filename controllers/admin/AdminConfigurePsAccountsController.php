@@ -109,4 +109,20 @@ class AdminConfigurePsAccountsController extends ModuleAdminController
         $token->getRefreshTokenWithAdminToken($_GET['adminToken']);
         $token->refresh();
     }
+
+    private function manageSshKey()
+    {
+        $sshKey = new SshKey();
+        $key = $sshKey->generate();
+        Configuration::updateValue('PS_ACCOUNTS_RSA_PRIVATE_KEY', $key['privatekey']);
+        Configuration::updateValue('PS_ACCOUNTS_RSA_PUBLIC_KEY', $key['publickey']);
+        $data = 'data';
+        Configuration::updateValue(
+            'PS_ACCOUNTS_RSA_SIGN_DATA',
+            $sshKey->signData(
+                Configuration::get('PS_ACCOUNTS_RSA_PRIVATE_KEY'),
+                $data
+            )
+        );
+    }
 }

@@ -19,13 +19,12 @@
 export default {
   getSvcUiUrl: (state) => state.svcUiUrl,
   getBoUrl: (state) => state.boUrl,
-  getPubKey: (state) => state.pubKey,
   getShopName: (state) => state.shopName,
   getNextStep: (state) => state.nextStep,
   getQueryParams: (state) => state.queryParams,
   getProtocolDomainToValidate: (state) => state.protocolDomainToValidate,
+  getAdminController: (state) => state.adminController,
   getDomainNameDomainToValidate: (state) => state.domainNameDomainToValidate,
-  isParamsLoaded: (state) => state.paramsLoaded,
   locale: (state) => state.language.locale,
   translations: (state) => state.translations,
 };

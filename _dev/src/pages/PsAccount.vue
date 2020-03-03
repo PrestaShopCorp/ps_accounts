@@ -1,22 +1,13 @@
 <template>
-  <div>
-    <div
-      v-if="isParamsLoaded"
-      class="ps_account text-center"
+  <div
+    class="ps_account text-center"
+  >
+    <button
+      @click="launchSvcUiUrl()"
+      class="btn btn-primary"
     >
-      <button
-        @click="connectSvcUi()"
-        class="btn btn-primary"
-      >
-        {{ $t('general.startOnboarding') }}
-      </button>
-    </div>
-    <div
-      v-else
-      class="forbidden text-center"
-    >
-      {{ $t('general.restartOnboarding') }}
-    </div>
+      {{ $t('general.startOnboarding') }}
+    </button>
   </div>
 </template>
 
@@ -30,15 +21,12 @@
     computed: {
       ...Vuex.mapGetters([
         'getSvcUiUrl',
-        'isParamsLoaded',
       ]),
     },
-    mounted() {
-      this.setSvcUiUrl({
-        svcUiDomainName: process.env.VUE_APP_UI_SVC_URL,
-        protocolBo: window.location.protocol.slice(0, -1),
-        domainNameBo: window.location.host,
-      });
+    watch: {
+      getSvcUiUrl() {
+        this.connectSvcUi();
+      },
     },
     methods: {
       ...Vuex.mapActions([
@@ -46,6 +34,14 @@
       ]),
       connectSvcUi() {
         window.location.replace(this.getSvcUiUrl);
+      },
+      launchSvcUiUrl() {
+        this.setSvcUiUrl({
+          svcUiDomainName: process.env.VUE_APP_UI_SVC_URL,
+          protocolBo: window.location.protocol.slice(0, -1),
+          domainNameBo: window.location.host,
+        });
+        this.connectSvcUi();
       },
     },
   };
