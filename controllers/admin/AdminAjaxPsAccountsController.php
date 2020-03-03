@@ -1,4 +1,5 @@
-{**
+<?php
+/**
  * 2007-2020 PrestaShop and Contributors
  *
  * NOTICE OF LICENSE
@@ -15,9 +16,28 @@
  * @copyright 2007-2020 PrestaShop SA and Contributors
  * @license   https://opensource.org/licenses/AFL-3.0 Academic Free License 3.0 (AFL-3.0)
  * International Registered Trademark & Property of PrestaShop SA
- *}
-<link href="{$pathApp|escape:'htmlall':'UTF-8'}" rel=preload as=script>
+ */
 
-<div id="psaccounts"></div>
+use PrestaShop\Module\PsAccounts\Service\SshKey;
 
-<script src="{$pathApp|escape:'htmlall':'UTF-8'}"></script>
+class AdminAjaxPrestashopCheckoutController extends ModuleAdminController
+{
+    /**
+     * AJAX: Generate ssh key
+     */
+    public function ajaxProcessGenerateSshKey()
+    {
+        $sshKey = new SshKey();
+        $key = $sshKey->generate();
+        Configuration::updateValue('PS_ACCOUNTS_RSA_PRIVATE_KEY', $key['privatekey']);
+        Configuration::updateValue('PS_ACCOUNTS_RSA_PUBLIC_KEY', $key['publickey']);
+        $data = 'data';
+        Configuration::updateValue(
+            'PS_ACCOUNTS_RSA_SIGN_DATA',
+            $sshKey->signData(
+                Configuration::get('PS_ACCOUNTS_RSA_PRIVATE_KEY'),
+                $data
+            )
+        );
+    }
+}

@@ -27,7 +27,7 @@ use PrestaShop\Module\PsAccounts\Api\Firebase\Token;
 use PrestaShop\Module\PsAccounts\Presenter\Store\StorePresenter;
 use PrestaShop\Module\PsAccounts\Service\SshKey;
 
-class ConfigurePsAccountsController extends ModuleAdminController
+class AdminConfigurePsAccountsController extends ModuleAdminController
 {
     /**
      * Construct.
@@ -74,7 +74,7 @@ class ConfigurePsAccountsController extends ModuleAdminController
     private function dispatch()
     {
         if (!$this->context->employee->isSuperAdmin()) {
-            return 'alreadyOnboarded.tpl';
+            return 'accessDenied.tpl';
         }
 
         if (
@@ -98,7 +98,6 @@ class ConfigurePsAccountsController extends ModuleAdminController
         if (Configuration::get('PS_PSX_FIREBASE_REFRESH_TOKEN')) {
             return 'accessDenied.tpl';
         }
-        $this->manageSshKey();
 
         return 'configure.tpl';
     }
@@ -109,21 +108,5 @@ class ConfigurePsAccountsController extends ModuleAdminController
         $token = new Token();
         $token->getRefreshTokenWithAdminToken($_GET['adminToken']);
         $token->refresh();
-    }
-
-    private function manageSshKey()
-    {
-        $sshKey = new SshKey();
-        $key = $sshKey->generate();
-        Configuration::updateValue('PS_ACCOUNTS_RSA_PRIVATE_KEY', $key['privatekey']);
-        Configuration::updateValue('PS_ACCOUNTS_RSA_PUBLIC_KEY', $key['publickey']);
-        $data = 'data';
-        Configuration::updateValue(
-            'PS_ACCOUNTS_RSA_SIGN_DATA',
-            $sshKey->signData(
-                Configuration::get('PS_ACCOUNTS_RSA_PRIVATE_KEY'),
-                $data
-            )
-        );
     }
 }

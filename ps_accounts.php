@@ -64,8 +64,8 @@ class Ps_accounts extends Module
         $this->css_path = $this->_path.'views/css/';
         $this->js_path = $this->_path.'views/js/';
         $this->adminControllers = [
-            'configure' => 'ConfigurePsAccounts',
-            'hmac' => 'ConfigureHmacPsAccounts',
+            'configure' => 'AdminConfigurePsAccounts',
+            'hmac' => 'AdminConfigureHmacPsAccounts',
         ];
         $dotenv = new Symfony\Component\Dotenv\Dotenv();
         $dotenv->load($this->local_path.'.env');

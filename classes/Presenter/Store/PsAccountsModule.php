@@ -53,9 +53,9 @@ class PsAccountsModule implements PresenterInterface
         return [
             'psaccounts' => [
                 'pubKey' => \Configuration::get('PS_ACCOUNTS_RSA_PUBLIC_KEY'),
-                'boUrl' => preg_replace('/^https?:\/\/[^\/]+/', '', $this->context->link->getAdminLink('ConfigurePsAccounts')),
+                'boUrl' => preg_replace('/^https?:\/\/[^\/]+/', '', $this->context->link->getAdminLink('AdminConfigurePsAccounts')),
                 'shopName' => \Configuration::get('PS_SHOP_NAME'),
-                'nextStep' => preg_replace('/^https?:\/\/[^\/]+/', '', $this->context->link->getAdminLink('ConfigureHmacPsAccounts')),
+                'nextStep' => preg_replace('/^https?:\/\/[^\/]+/', '', $this->context->link->getAdminLink('AdminConfigureHmacPsAccounts')),
                 'protocolBo' => null,
                 'domainNameBo' => null,
                 'protocolDomainToValidate' => str_replace('://', '', \Tools::getProtocol(\Configuration::get('PS_SSL_ENABLED'))),
