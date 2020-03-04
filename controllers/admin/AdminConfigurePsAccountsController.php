@@ -55,7 +55,7 @@ class AdminConfigurePsAccountsController extends ModuleAdminController
             'store' => (new StorePresenter($this->module, $this->context))->present(),
         ]);
         $this->context->smarty->assign([
-            'pathApp' => Tools::getShopDomainSsl(true).$this->module->getPath().'views/js/app.js',
+            'pathApp' => Tools::getShopDomainSsl(true).$this->module->getPathUri().'views/js/app.js',
         ]);
 
         $this->setTemplate($tplName);

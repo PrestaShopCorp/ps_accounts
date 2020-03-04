@@ -81,9 +81,4 @@ class Ps_accounts extends Module
             $this->context->link->getAdminLink($this->adminControllers['configure'])
         );
     }
-
-    public function getPath()
-    {
-        return $this->_path;
-    }
 }
