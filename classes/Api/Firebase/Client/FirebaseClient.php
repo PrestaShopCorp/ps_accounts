@@ -36,7 +36,7 @@ class FirebaseClient extends GenericClient
      */
     protected $apiKey;
 
-    public function __construct(array $params = [])
+    public function __construct()
     {
         $this->apiKey = (new FirebaseEnv())->getFirebaseApiKey();
 
@@ -50,7 +50,7 @@ class FirebaseClient extends GenericClient
                 ],
                 'headers' => [
                     'Content-Type' => 'application/json',
-                ],
+                ]
             ],
         ]);
 

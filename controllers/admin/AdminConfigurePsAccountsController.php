@@ -80,7 +80,9 @@ class AdminConfigurePsAccountsController extends ModuleAdminController
         if (
             $this->firstStepisDone()
         ) {
-            if (isset($_GET['step']) && 4 == $_GET['step'] && isset($_GET['adminToken'])) {
+            $adminToken = Tools::getValue('adminToken');
+            $step = Tools::getValue('step');
+            if ($adminToken && $step && 4 == $step) {
                 $this->getRefreshTokenWithAdminToken();
 
                 return 'onboardingFinished.tpl';
@@ -104,25 +106,9 @@ class AdminConfigurePsAccountsController extends ModuleAdminController
 
     private function getRefreshTokenWithAdminToken()
     {
-        Configuration::updateValue('PS_PSX_FIREBASE_ADMIN_TOKEN', $_GET['adminToken']);
+        Configuration::updateValue('PS_PSX_FIREBASE_ADMIN_TOKEN', Tools::getValue('adminToken'));
         $token = new Token();
-        $token->getRefreshTokenWithAdminToken($_GET['adminToken']);
+        $token->getRefreshTokenWithAdminToken(Tools::getValue('adminToken'));
         $token->refresh();
-    }
-
-    private function manageSshKey()
-    {
-        $sshKey = new SshKey();
-        $key = $sshKey->generate();
-        Configuration::updateValue('PS_ACCOUNTS_RSA_PRIVATE_KEY', $key['privatekey']);
-        Configuration::updateValue('PS_ACCOUNTS_RSA_PUBLIC_KEY', $key['publickey']);
-        $data = 'data';
-        Configuration::updateValue(
-            'PS_ACCOUNTS_RSA_SIGN_DATA',
-            $sshKey->signData(
-                Configuration::get('PS_ACCOUNTS_RSA_PRIVATE_KEY'),
-                $data
-            )
-        );
     }
 }
