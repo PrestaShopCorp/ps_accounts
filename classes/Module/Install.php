@@ -52,7 +52,7 @@ class Install
             }
 
             $tab             = new \Tab($tabId);
-            $tab->active     = self::PARENT_TAB_NAME;
+            $tab->active     = self::TAB_ACTIVE;
             $tab->class_name = $controllerName;
             $tab->name       = [];
 

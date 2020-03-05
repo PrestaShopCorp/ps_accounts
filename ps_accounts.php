@@ -81,9 +81,11 @@ class Ps_accounts extends Module
 
         Media::addJsDef([
             'store' => (new PrestaShop\Module\PsAccounts\Presenter\Store\StorePresenter($this, $this->context))->present(),
+            'resetOnboardingUrl' => $this->context->link->getAdminLink('AdminAjaxPsAccounts'),
         ]);
         $this->context->smarty->assign([
             'pathApp' => Tools::getShopDomainSsl(true).$this->getPathUri().'views/js/app.js',
+            'resetOnboarding' => Tools::getShopDomainSsl(true).$this->getPathUri().'views/js/resetOnboarding.js',
         ]);
 
         return $this->context->smarty->fetch($this->local_path . 'views/templates/admin/' . $tplName);

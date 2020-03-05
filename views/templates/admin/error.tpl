@@ -17,6 +17,12 @@
  * International Registered Trademark & Property of PrestaShop SA
  *}
 
+<link href="{$resetOnboarding|escape:'htmlall':'UTF-8'}" rel=preload as=script>
+<script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+
 <div id="psaccounts">
-    Error
+    <p></p>error</p>
+    <button onclick="resetOnboarding()">Click me</button>
 </div>
+
+<script src="{$resetOnboarding|escape:'htmlall':'UTF-8'}"></script>

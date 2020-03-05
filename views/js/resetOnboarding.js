@@ -1,5 +1,6 @@
-{**
- * 2007-2020 PrestaShop and Contributors
+
+/**
+ * 2007-2019 PrestaShop and Contributors
  *
  * NOTICE OF LICENSE
  *
@@ -12,16 +13,27 @@
  * to license@prestashop.com so we can send you a copy immediately.
  *
  * @author    PrestaShop SA <contact@prestashop.com>
- * @copyright 2007-2020 PrestaShop SA and Contributors
+ * @copyright 2007-2019 PrestaShop SA and Contributors
  * @license   https://opensource.org/licenses/AFL-3.0 Academic Free License 3.0 (AFL-3.0)
  * International Registered Trademark & Property of PrestaShop SA
- *}
-<link href="{$resetOnboarding|escape:'htmlall':'UTF-8'}" rel=preload as=script>
-<script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+ */
+function resetOnboarding(params = []) {
+  const form = new FormData();
+  form.append('ajax', true);
+  form.append('action', 'ResetOnboarding');
+  form.append('controller', 'AdminAjaxPsAccounts');
+  Object.entries([]).forEach(([key, value]) => {
+    form.append(key, value);
+  });
 
-<div id="psaccounts">
-    <p></p>accessDenied</p>
-    <button onclick="resetOnboarding()">Click me</button>
-</div>
+  return axios.post(window.resetOnboardingUrl, form)
+    .then((res) => {
+        location.reload();
 
-<script src="{$resetOnboarding|escape:'htmlall':'UTF-8'}"></script>
+        return res.data;
+    })
+    .catch((error) => {
+      // eslint-disable-next-line no-console
+      console.log(error);
+    });
+}
