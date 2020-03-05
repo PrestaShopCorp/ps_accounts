@@ -52,11 +52,27 @@ class PsAccountsModule implements PresenterInterface
     {
         return [
             'psaccounts' => [
-                'boUrl' => preg_replace('/^https?:\/\/[^\/]+/', '', $this->context->link->getAdminLink('AdminConfigurePsAccounts')),
+                'boUrl' => preg_replace(
+                    '/^https?:\/\/[^\/]+/',
+                    '',
+                    $this->context->link->getAdminLink('AdminModules', true) . '&configure=' . $this->module->name
+                ),
                 'shopName' => \Configuration::get('PS_SHOP_NAME'),
-                'nextStep' => preg_replace('/^https?:\/\/[^\/]+/', '', $this->context->link->getAdminLink('AdminConfigureHmacPsAccounts')),
-                'protocolDomainToValidate' => str_replace('://', '', \Tools::getProtocol(\Configuration::get('PS_SSL_ENABLED'))),
-                'domainNameDomainToValidate' => str_replace(\Tools::getProtocol(\Configuration::get('PS_SSL_ENABLED')), '', \Tools::getShopDomainSsl(true)),
+                'nextStep' => preg_replace(
+                    '/^https?:\/\/[^\/]+/',
+                    '',
+                    $this->context->link->getAdminLink('AdminConfigureHmacPsAccounts')
+                ),
+                'protocolDomainToValidate' => str_replace(
+                    '://',
+                    '',
+                    \Tools::getProtocol(\Configuration::get('PS_SSL_ENABLED'))
+                ),
+                'domainNameDomainToValidate' => str_replace(
+                    \Tools::getProtocol(\Configuration::get('PS_SSL_ENABLED')),
+                    '',
+                    \Tools::getShopDomainSsl(true)
+                ),
                 'psVersion' => _PS_VERSION_,
                 'language' => $this->context->language,
                 'translations' => (new Translations($this->module))->getTranslations(),

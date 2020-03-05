@@ -37,6 +37,9 @@ export default {
       queryParams: {},
     };
 
+    if (svcUiDomainName.substring(svcUiDomainName.length - 1) === '/') {
+      svcUiDomainName.slice(0, -1);
+    }
     output.queryParams.bo = typeof queryParamsInput.boUrl === 'string' ? encodeURIComponent(queryParamsInput.boUrl) : null;
     output.queryParams.pubKey = typeof queryParamsInput.pubKey === 'string' ? encodeURIComponent(queryParamsInput.pubKey) : null;
     output.queryParams.name = typeof queryParamsInput.shopName === 'string' ? encodeURIComponent(queryParamsInput.shopName) : null;
