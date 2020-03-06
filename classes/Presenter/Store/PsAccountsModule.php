@@ -77,6 +77,11 @@ class PsAccountsModule implements PresenterInterface
                 'language' => $this->context->language,
                 'translations' => (new Translations($this->module))->getTranslations(),
                 'adminController' => $this->context->link->getAdminLink('AdminAjaxPsAccounts'),
+                'resetOnboardingUrl' => $this->context->link->getAdminLink('AdminAjaxPsAccounts'),
+                'onboardingStarted' => \Configuration::get('PS_ACCOUNTS_RSA_PUBLIC_KEY')
+                    && \Configuration::get('PS_ACCOUNTS_RSA_PRIVATE_KEY')
+                    && \Configuration::get('PS_ACCOUNTS_RSA_SIGN_DATA'),
+                'tplName' => $this->module->getTplName()
             ],
         ];
     }

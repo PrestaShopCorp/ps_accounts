@@ -16,13 +16,9 @@
  * @license   https://opensource.org/licenses/AFL-3.0 Academic Free License 3.0 (AFL-3.0)
  * International Registered Trademark & Property of PrestaShop SA
  *}
-<link href="{$resetOnboarding|escape:'htmlall':'UTF-8'}" rel=preload as=script>
-<script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+<link href="{$pathApp|escape:'htmlall':'UTF-8'}" rel=preload as=script>
 
-<div id="psaccounts">
-    <p></p>alreadyOndoarded</p>
-    <button onclick="resetOnboarding()">Click me</button>
-</div>
+<div id="psaccounts"></div>
 
-<script src="{$resetOnboarding|escape:'htmlall':'UTF-8'}"></script>
+<script src="{$pathApp|escape:'htmlall':'UTF-8'}"></script>
 

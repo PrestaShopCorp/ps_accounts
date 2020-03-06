@@ -25,6 +25,9 @@ export default {
   getProtocolDomainToValidate: (state) => state.protocolDomainToValidate,
   getAdminController: (state) => state.adminController,
   getDomainNameDomainToValidate: (state) => state.domainNameDomainToValidate,
+  resetOnboardingUrl: (state) => state.resetOnboardingUrl,
+  onboardingStarted: (state) => state.onboardingStarted,
+  tplName: (state) => state.tplName,
   locale: (state) => state.language.locale,
   translations: (state) => state.translations,
 };

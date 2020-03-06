@@ -48,16 +48,16 @@ class AdminConfigureHmacPsAccountsController extends ModuleAdminController
             }
             $hmacPath = _PS_ROOT_DIR_.'/upload/';
             foreach (['hmac', 'uid', 'slug'] as $key) {
-                if (!array_key_exists($key, Tools::getAllValues())) {
+                if (! array_key_exists($key, Tools::getAllValues())) {
                     throw new Exception("Missing query params \n");
                 }
             }
 
-            if (!is_dir($hmacPath)) {
+            if (! is_dir($hmacPath)) {
                 mkdir($hmacPath);
             }
 
-            if (!is_writable($hmacPath)) {
+            if (! is_writable($hmacPath)) {
                 throw new Exception("Directory isn't writable \n");
             }
 
@@ -65,9 +65,14 @@ class AdminConfigureHmacPsAccountsController extends ModuleAdminController
         } catch (Exception $e) {
             $this->setTemplate('error.tpl');
         }
+        $url = $_ENV['VUE_APP_UI_SVC_URL'];
+
+        if ('/' === substr($url, -1)) {
+            $url = substr($url, 0, -1);
+        }
 
         header(
-            'Location: '.$_ENV['VUE_APP_UI_SVC_URL'].'/verify-shop/'.Tools::getValue('uid')
+            'Location: '.$url.'/verify-shop/'.Tools::getValue('uid')
             .'?hmacPath='
             .urlencode('/upload/'.Tools::getValue('uid').'.txt')
             .'&shopKey='
