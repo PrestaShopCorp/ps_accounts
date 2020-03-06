@@ -6,7 +6,8 @@
     "dev": "vue-cli-service build --no-clean --mode development --watch",
     "test": "vue-cli-service test:unit tests/*",
     "build": "vue-cli-service build --no-clean",
-    "lint": "vue-cli-service lint"
+    "cs:check": "prettier --check './**/*.+(js|json|vue|scss)'",
+    "cs:write": "prettier --write './**/*.+(js|json|vue|scss)'"
   },
   "jest": {
     "moduleFileExtensions": [
@@ -43,17 +44,10 @@
   },
   "devDependencies": {
     "@vue/cli-plugin-babel": "^4.1.0",
-    "@vue/cli-plugin-eslint": "^4.1.0",
     "@vue/cli-plugin-router": "^4.1.0",
     "@vue/cli-plugin-unit-jest": "^4.2.2",
     "@vue/cli-plugin-vuex": "^4.1.0",
     "@vue/cli-service": "^4.1.0",
-    "@vue/test-utils": "^1.0.0-beta.31",
-    "babel-eslint": "^10.0.3",
-    "eslint": "^6.7.2",
-    "eslint-config-airbnb-base": "^14.0.0",
-    "eslint-config-prestashop": "^0.0.2",
-    "eslint-plugin-import": "^2.19.1",
     "eslint-plugin-vue": "^5.0.0",
     "jest": "^25.1.0",
     "jsdom-global": "^3.0.2",

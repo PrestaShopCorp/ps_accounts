@@ -11,7 +11,7 @@ jobs:
       - name: Setup node
         uses: actions/setup-node@v1
       - run: yarn --cwd _dev/ install
-      - run: yarn --cwd _dev/ lint
+      - run: yarn --cwd _dev/ cs:check
 
   js-unit-test:
     name: JS-UNIT-TEST
