@@ -6,17 +6,11 @@ module.exports = {
   parserOptions: {
     parser: 'babel-eslint',
   },
-  extends: [
-    'prestashop',
-    'plugin:vue/strongly-recommended',
-  ],
-  plugins: [
-    'import',
-    'vue',
-  ],
+  extends: ['prestashop', 'plugin:vue/strongly-recommended'],
+  plugins: ['import', 'vue'],
   rules: {
-    'no-param-reassign': ['error', {props: false}],
-    'prefer-destructuring': ['error', {object: true, array: false}],
+    'no-param-reassign': ['error', { props: false }],
+    'prefer-destructuring': ['error', { object: true, array: false }],
     'vue/script-indent': [
       'error',
       2,
@@ -34,4 +28,4 @@ module.exports = {
       },
     },
   ],
-};
+}

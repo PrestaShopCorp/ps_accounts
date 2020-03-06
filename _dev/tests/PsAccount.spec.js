@@ -1,4 +1,4 @@
-import generateSvcUiUrl from '../src/services/generateSvcUiUrl';
+import generateSvcUiUrl from '../src/services/generateSvcUiUrl'
 
 // eslint-disable-next-line no-undef
 describe('PsAccount.vue', () => {
@@ -15,8 +15,8 @@ describe('PsAccount.vue', () => {
         pubKey: 'getPubKey',
         shopName: 'getShopName',
         next: 'getNextStep',
-      },
-    );
+      }
+    )
     const outputExpected = {
       SvcUiUrlIsGenerated: true,
       queryParams: {
@@ -25,12 +25,13 @@ describe('PsAccount.vue', () => {
         next: 'getNextStep',
         pubKey: 'getPubKey',
       },
-      svcUiUrl: 'svcUiDomainName/link-shop/getProtocolDomainToValidate/getDomainNameDomainToValidate/protocolBo/domainNameBo/PSXEmoji.Deluxe.Fake.Service?bo=getBoUrl&pubKey=getPubKey&name=getShopName&next=getNextStep',
-    };
+      svcUiUrl:
+        'svcUiDomainName/link-shop/getProtocolDomainToValidate/getDomainNameDomainToValidate/protocolBo/domainNameBo/PSXEmoji.Deluxe.Fake.Service?bo=getBoUrl&pubKey=getPubKey&name=getShopName&next=getNextStep',
+    }
 
     // eslint-disable-next-line no-undef
-    expect(generator).toEqual(outputExpected);
-  });
+    expect(generator).toEqual(outputExpected)
+  })
 
   // eslint-disable-next-line no-undef
   it('Do not generate Ui Service Url when we do not have all infomations', () => {
@@ -45,8 +46,8 @@ describe('PsAccount.vue', () => {
         pubKey: 'getPubKey',
         shopName: 'getShopName',
         next: null,
-      },
-    );
+      }
+    )
     const outputExpected = {
       SvcUiUrlIsGenerated: false,
       queryParams: {
@@ -55,10 +56,11 @@ describe('PsAccount.vue', () => {
         next: null,
         pubKey: 'getPubKey',
       },
-      svcUiUrl: 'svcUiDomainName/link-shop/getProtocolDomainToValidate/getDomainNameDomainToValidate/null/domainNameBo/PSXEmoji.Deluxe.Fake.Service?bo=getBoUrl&pubKey=getPubKey&name=getShopName&',
-    };
+      svcUiUrl:
+        'svcUiDomainName/link-shop/getProtocolDomainToValidate/getDomainNameDomainToValidate/null/domainNameBo/PSXEmoji.Deluxe.Fake.Service?bo=getBoUrl&pubKey=getPubKey&name=getShopName&',
+    }
 
     // eslint-disable-next-line no-undef
-    expect(generator).toEqual(outputExpected);
-  });
-});
+    expect(generator).toEqual(outputExpected)
+  })
+})

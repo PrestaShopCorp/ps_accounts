@@ -17,5 +17,5 @@
  * International Registered Trademark & Property of PrestaShop SA
  */
 // eslint-disable-next-line import/prefer-default-export
-export const UPDATE_SVC_UI_URL = 'UPDATE_SVC_UI_URL';
-export const UPDATE_QUERY_PARAMS = 'UPDATE_QUERY_PARAMS';
+export const UPDATE_SVC_UI_URL = 'UPDATE_SVC_UI_URL'
+export const UPDATE_QUERY_PARAMS = 'UPDATE_QUERY_PARAMS'

@@ -16,18 +16,18 @@
  * @license   https://opensource.org/licenses/AFL-3.0 Academic Free License 3.0 (AFL-3.0)
  * International Registered Trademark & Property of PrestaShop SA
  */
-import Vue from 'vue';
-import BootstrapVue from 'bootstrap-vue';
-import i18n from './lib/i18n';
-import App from './App.vue';
-import store from './store';
+import Vue from 'vue'
+import BootstrapVue from 'bootstrap-vue'
+import i18n from './lib/i18n'
+import App from './App.vue'
+import store from './store'
 
-Vue.use(BootstrapVue);
+Vue.use(BootstrapVue)
 
-Vue.config.productionTip = process.env.NODE_ENV === 'production';
+Vue.config.productionTip = process.env.NODE_ENV === 'production'
 
 new Vue({
   store,
   i18n,
-  render: (h) => h(App),
-}).$mount('#psaccounts');
+  render: h => h(App),
+}).$mount('#psaccounts')

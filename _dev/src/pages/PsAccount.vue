@@ -1,50 +1,41 @@
 <template>
-  <div
-    class="ps_account text-center"
-  >
-    <button
-      @click="launchSvcUiUrl()"
-      class="btn btn-primary"
-    >
+  <div class="ps_account text-center">
+    <button @click="launchSvcUiUrl()" class="btn btn-primary">
       {{ $t('general.startOnboarding') }}
     </button>
   </div>
 </template>
 
 <script>
-  import Vuex from 'vuex';
-  import store from '../store/index';
+import Vuex from 'vuex'
+import store from '../store/index'
 
-  export default {
-    store,
-    name: 'PsAccount',
-    computed: {
-      ...Vuex.mapGetters([
-        'getSvcUiUrl',
-      ]),
+export default {
+  store,
+  name: 'PsAccount',
+  computed: {
+    ...Vuex.mapGetters(['getSvcUiUrl']),
+  },
+  watch: {
+    getSvcUiUrl() {
+      this.connectSvcUi()
     },
-    watch: {
-      getSvcUiUrl() {
-        this.connectSvcUi();
-      },
+  },
+  methods: {
+    ...Vuex.mapActions(['setSvcUiUrl']),
+    connectSvcUi() {
+      window.location.replace(this.getSvcUiUrl)
     },
-    methods: {
-      ...Vuex.mapActions([
-        'setSvcUiUrl',
-      ]),
-      connectSvcUi() {
-        window.location.replace(this.getSvcUiUrl);
-      },
-      launchSvcUiUrl() {
-        this.setSvcUiUrl({
-          svcUiDomainName: process.env.VUE_APP_UI_SVC_URL,
-          protocolBo: window.location.protocol.slice(0, -1),
-          domainNameBo: window.location.host,
-        });
-        this.connectSvcUi();
-      },
+    launchSvcUiUrl() {
+      this.setSvcUiUrl({
+        svcUiDomainName: process.env.VUE_APP_UI_SVC_URL,
+        protocolBo: window.location.protocol.slice(0, -1),
+        domainNameBo: window.location.host,
+      })
+      this.connectSvcUi()
     },
-  };
+  },
+}
 </script>
 
 <style scoped>

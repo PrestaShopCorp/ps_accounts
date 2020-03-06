@@ -29,40 +29,52 @@ export default {
       pubKey: null,
       shopName: null,
       next: null,
-    },
+    }
   ) {
     const output = {
       SvcUiUrlIsGenerated: false,
       svcUiUrl: null,
       queryParams: {},
-    };
+    }
 
     if (svcUiDomainName.substring(svcUiDomainName.length - 1) === '/') {
       // eslint-disable-next-line no-param-reassign
-      svcUiDomainName = svcUiDomainName.slice(0, -1);
+      svcUiDomainName = svcUiDomainName.slice(0, -1)
     }
-    output.queryParams.bo = typeof queryParamsInput.boUrl === 'string' ? encodeURIComponent(queryParamsInput.boUrl) : null;
-    output.queryParams.pubKey = typeof queryParamsInput.pubKey === 'string' ? encodeURIComponent(queryParamsInput.pubKey) : null;
-    output.queryParams.name = typeof queryParamsInput.shopName === 'string' ? encodeURIComponent(queryParamsInput.shopName) : null;
-    output.queryParams.next = typeof queryParamsInput.next === 'string' ? encodeURIComponent(queryParamsInput.next) : null;
+    output.queryParams.bo =
+      typeof queryParamsInput.boUrl === 'string'
+        ? encodeURIComponent(queryParamsInput.boUrl)
+        : null
+    output.queryParams.pubKey =
+      typeof queryParamsInput.pubKey === 'string'
+        ? encodeURIComponent(queryParamsInput.pubKey)
+        : null
+    output.queryParams.name =
+      typeof queryParamsInput.shopName === 'string'
+        ? encodeURIComponent(queryParamsInput.shopName)
+        : null
+    output.queryParams.next =
+      typeof queryParamsInput.next === 'string'
+        ? encodeURIComponent(queryParamsInput.next)
+        : null
 
-    const countInitQueryParams = Object.keys(output.queryParams).length;
-    let counterValideParams = 0;
-    output.svcUiUrl = `${svcUiDomainName}/link-shop/${protocolDomainToValidate}/${domainNameDomainToValidate}/${protocolBo}/${domainNameBo}/PSXEmoji.Deluxe.Fake.Service?`;
+    const countInitQueryParams = Object.keys(output.queryParams).length
+    let counterValideParams = 0
+    output.svcUiUrl = `${svcUiDomainName}/link-shop/${protocolDomainToValidate}/${domainNameDomainToValidate}/${protocolBo}/${domainNameBo}/PSXEmoji.Deluxe.Fake.Service?`
 
     Object.entries(output.queryParams).forEach(([key, value]) => {
       if (value !== null) {
         // eslint-disable-next-line no-plusplus
-        counterValideParams++;
-        output.svcUiUrl += `${key}=${value}&`;
+        counterValideParams++
+        output.svcUiUrl += `${key}=${value}&`
       }
-    });
+    })
 
     if (countInitQueryParams === counterValideParams) {
-      output.svcUiUrl = output.svcUiUrl.slice(0, -1);
-      output.SvcUiUrlIsGenerated = true;
+      output.svcUiUrl = output.svcUiUrl.slice(0, -1)
+      output.SvcUiUrlIsGenerated = true
     }
 
-    return output;
+    return output
   },
-};
+}

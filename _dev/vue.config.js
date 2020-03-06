@@ -18,11 +18,11 @@
  */
 
 module.exports = {
-  chainWebpack: (config) => {
-    config.optimization.delete('splitChunks');
-    config.plugins.delete('html');
-    config.plugins.delete('preload');
-    config.plugins.delete('prefetch');
+  chainWebpack: config => {
+    config.optimization.delete('splitChunks')
+    config.plugins.delete('html')
+    config.plugins.delete('preload')
+    config.plugins.delete('prefetch')
   },
   css: {
     extract: false,
@@ -32,4 +32,4 @@ module.exports = {
   outputDir: '../views/',
   assetsDir: '',
   publicPath: '../modules/ps_accounts/views/',
-};
+}

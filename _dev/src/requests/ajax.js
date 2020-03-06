@@ -16,21 +16,22 @@
  * @license   https://opensource.org/licenses/AFL-3.0 Academic Free License 3.0 (AFL-3.0)
  * International Registered Trademark & Property of PrestaShop SA
  */
-const axios = require('axios');
+const axios = require('axios')
 
 export default function ajax(params) {
-  const form = new FormData();
-  form.append('ajax', true);
-  form.append('action', params.action);
-  form.append('controller', 'AdminAjaxPsAccounts');
+  const form = new FormData()
+  form.append('ajax', true)
+  form.append('action', params.action)
+  form.append('controller', 'AdminAjaxPsAccounts')
   Object.entries(params.data).forEach(([key, value]) => {
-    form.append(key, value);
-  });
+    form.append(key, value)
+  })
 
-  return axios.post(params.url, form)
-    .then((res) => res.data)
-    .catch((error) => {
+  return axios
+    .post(params.url, form)
+    .then(res => res.data)
+    .catch(error => {
       // eslint-disable-next-line no-console
-      console.log(error);
-    });
+      console.log(error)
+    })
 }

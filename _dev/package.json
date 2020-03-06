@@ -7,7 +7,7 @@
     "test": "vue-cli-service test:unit tests/*",
     "build": "vue-cli-service build --no-clean",
     "cs:check": "prettier --check './**/*.+(js|json|vue|scss)'",
-    "cs:write": "prettier --write './**/*.+(js|json|vue|scss)'"
+    "cs:fix": "prettier --write './**/*.+(js|json|vue|scss)'"
   },
   "jest": {
     "moduleFileExtensions": [

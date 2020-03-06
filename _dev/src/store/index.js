@@ -16,20 +16,20 @@
  * @license   https://opensource.org/licenses/AFL-3.0 Academic Free License 3.0 (AFL-3.0)
  * International Registered Trademark & Property of PrestaShop SA
  */
-import Vue from 'vue';
-import Vuex from 'vuex';
-import getters from './getters';
-import actions from './actions';
-import mutations from './mutations';
+import Vue from 'vue'
+import Vuex from 'vuex'
+import getters from './getters'
+import actions from './actions'
+import mutations from './mutations'
 
-Vue.use(Vuex);
+Vue.use(Vuex)
 
-const state = global.store.psaccounts;
-state.svcUiUrl = null;
+const state = global.store.psaccounts
+state.svcUiUrl = null
 
 export default new Vuex.Store({
   state,
   getters,
   actions,
   mutations,
-});
+})

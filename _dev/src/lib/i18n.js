@@ -16,16 +16,16 @@
  * @license   https://opensource.org/licenses/AFL-3.0 Academic Free License 3.0 (AFL-3.0)
  * International Registered Trademark & Property of PrestaShop SA
  */
-import Vue from 'vue';
-import VueI18n from 'vue-i18n';
-import store from '../store';
+import Vue from 'vue'
+import VueI18n from 'vue-i18n'
+import store from '../store'
 
-Vue.use(VueI18n);
+Vue.use(VueI18n)
 
-const {locale} = store.getters;
-const messages = store.getters.translations;
+const { locale } = store.getters
+const messages = store.getters.translations
 
 export default new VueI18n({
   locale,
   messages,
-});
+})

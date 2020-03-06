@@ -16,16 +16,16 @@
  * @license   https://opensource.org/licenses/AFL-3.0 Academic Free License 3.0 (AFL-3.0)
  * International Registered Trademark & Property of PrestaShop SA
  */
-import generateSvcUiUrl from '@/services/generateSvcUiUrl';
-import ajax from '@/requests/ajax.js';
+import generateSvcUiUrl from '@/services/generateSvcUiUrl'
+import ajax from '@/requests/ajax.js'
 
 export default {
-  setSvcUiUrl({commit, getters}, payload) {
+  setSvcUiUrl({ commit, getters }, payload) {
     return ajax({
       url: getters.getAdminController,
       action: 'GenerateSshKey',
       data: [],
-    }).then((response) => {
+    }).then(response => {
       const generator = generateSvcUiUrl.generate(
         payload.svcUiDomainName,
         getters.getProtocolDomainToValidate,
@@ -37,14 +37,14 @@ export default {
           pubKey: response,
           shopName: getters.getShopName,
           next: getters.getNextStep,
-        },
-      );
-      commit('UPDATE_QUERY_PARAMS', generator.queryParams);
+        }
+      )
+      commit('UPDATE_QUERY_PARAMS', generator.queryParams)
 
       if (generator.SvcUiUrlIsGenerated) {
-        commit('UPDATE_SVC_UI_URL', generator.svcUiUrl);
+        commit('UPDATE_SVC_UI_URL', generator.svcUiUrl)
       }
-      return Promise.resolve(true);
-    });
+      return Promise.resolve(true)
+    })
   },
-};
+}
