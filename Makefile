@@ -29,7 +29,7 @@ yarn_build: ## Build vuejs file
 	$(DKC) run --rm ps_account_node sh -c "yarn build"
 
 yarn_watch: ## Watch VueJS files and compile when saved
-	$(DKC) run --rm ps_account_node sh -c "yarn dev"
+	$(DKC) run --rm ps_account_node sh -c "yarn start:dev"
 
 %:
 	@:

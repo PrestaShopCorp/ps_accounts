@@ -13,26 +13,28 @@ import store from '../store/index'
 export default {
   store,
   name: 'PsAccount',
-  computed: {
-    ...Vuex.mapGetters(['getSvcUiUrl']),
+  created() {
+    this.$store.watch(
+      (state, getters) => getters.getSvcUiUrl,
+      (newValue, oldValue) => {
+        if (null !== newValue) {
+          this.connectSvcUi(newValue)
+        }
+      }
+    )
   },
-  watch: {
-    getSvcUiUrl() {
-      this.connectSvcUi()
-    },
-  },
+
   methods: {
-    ...Vuex.mapActions(['setSvcUiUrl']),
-    connectSvcUi() {
-      window.location.replace(this.getSvcUiUrl)
+    connectSvcUi(url) {
+      window.location.replace(url)
     },
     launchSvcUiUrl() {
-      this.setSvcUiUrl({
+      this.$store.dispatch({
+        type: 'setSvcUiUrl',
         svcUiDomainName: process.env.VUE_APP_UI_SVC_URL,
         protocolBo: window.location.protocol.slice(0, -1),
         domainNameBo: window.location.host,
       })
-      this.connectSvcUi()
     },
   },
 }

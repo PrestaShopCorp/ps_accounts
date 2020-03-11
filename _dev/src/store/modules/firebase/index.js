@@ -16,14 +16,17 @@
  * @license   https://opensource.org/licenses/AFL-3.0 Academic Free License 3.0 (AFL-3.0)
  * International Registered Trademark & Property of PrestaShop SA
  */
-import Vue from 'vue'
-import Vuex from 'vuex'
-import psaccounts from './modules/psaccounts'
+import getters from './getters'
+import actions from './actions'
+import mutations from './mutations'
 
-Vue.use(Vuex)
+const store = JSON.parse(global.store)
 
-export default new Vuex.Store({
-  modules: {
-    psaccounts,
-  },
-})
+const state = store.firebase
+
+export default {
+  state,
+  getters,
+  actions,
+  mutations,
+}

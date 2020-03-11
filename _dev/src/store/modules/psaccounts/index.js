@@ -16,18 +16,18 @@
  * @license   https://opensource.org/licenses/AFL-3.0 Academic Free License 3.0 (AFL-3.0)
  * International Registered Trademark & Property of PrestaShop SA
  */
+
+import getters from './getters'
+import actions from './actions'
+import mutations from './mutations'
+
+const store = global.store
+const state = store.psaccounts
+// state.svcUiUrl = null;
+
 export default {
-  getSvcUiUrl: state => state.svcUiUrl,
-  getBoUrl: state => state.boUrl,
-  getShopName: state => state.shopName,
-  getNextStep: state => state.nextStep,
-  getQueryParams: state => state.queryParams,
-  getProtocolDomainToValidate: state => state.protocolDomainToValidate,
-  getAdminController: state => state.adminController,
-  getDomainNameDomainToValidate: state => state.domainNameDomainToValidate,
-  resetOnboardingUrl: state => state.resetOnboardingUrl,
-  onboardingStarted: state => state.onboardingStarted,
-  tplName: state => state.tplName,
-  locale: state => state.language.locale,
-  translations: state => state.translations,
+  state,
+  getters,
+  actions,
+  mutations,
 }

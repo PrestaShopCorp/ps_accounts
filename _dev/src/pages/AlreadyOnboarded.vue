@@ -1,6 +1,6 @@
 <template>
   <div class="ps_account text-center">
-    <h1>{{ this.tplName }}</h1>
+    <h1>{{ getTplName() }}</h1>
     <button @click="resetOnboarding()" class="btn btn-primary">
       {{ $t('general.restartOnboarding') }}
     </button>
@@ -13,10 +13,10 @@ import Vuex from 'vuex'
 
 export default {
   name: 'AlreadyOnboarded',
-  computed: {
-    ...Vuex.mapGetters(['resetOnboardingUrl', 'tplName']),
-  },
   methods: {
+    getTplName() {
+      return this.$store.getters.tplName
+    },
     resetOnboarding() {
       const form = new FormData()
       form.append('ajax', true)
@@ -27,7 +27,7 @@ export default {
       })
 
       return axios
-        .post(this.resetOnboardingUrl, form)
+        .post(this.$store.getters.resetOnboardingUrl, form)
         .then(res => {
           window.location.reload()
 

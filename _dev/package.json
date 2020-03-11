@@ -3,11 +3,11 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "dev": "vue-cli-service build --no-clean --mode development --watch",
+    "start:dev": "vue-cli-service build --no-clean --mode development --watch",
     "test": "vue-cli-service test:unit tests/*",
     "build": "vue-cli-service build --no-clean",
     "cs:check": "prettier --check './**/*.+(js|json|vue|scss)'",
-    "cs:fix": "prettier --write './**/*.+(js|json|vue|scss)'"
+    "cs:format": "prettier --write './**/*.+(js|json|vue|scss)'"
   },
   "jest": {
     "moduleFileExtensions": [

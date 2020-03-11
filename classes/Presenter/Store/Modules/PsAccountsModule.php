@@ -52,6 +52,7 @@ class PsAccountsModule implements PresenterInterface
     {
         return [
             'psaccounts' => [
+                'svcUiUrl' => null,
                 'boUrl' => preg_replace(
                     '/^https?:\/\/[^\/]+/',
                     '',

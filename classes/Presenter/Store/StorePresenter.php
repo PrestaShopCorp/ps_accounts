@@ -62,6 +62,11 @@ class StorePresenter implements PresenterInterface
      */
     public function present()
     {
-        return (new PsAccountsModule($this->module, $this->context))->present();
+        $this->store = array_merge(
+            (new PsAccountsModule($this->module, $this->context))->present(),
+            (new FirebaseModule())->present()
+        );
+
+        return $this->store;
     }
 }

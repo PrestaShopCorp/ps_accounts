@@ -39,6 +39,7 @@ export default {
           next: getters.getNextStep,
         }
       )
+
       commit('UPDATE_QUERY_PARAMS', generator.queryParams)
 
       if (generator.SvcUiUrlIsGenerated) {

@@ -16,14 +16,6 @@
  * @license   https://opensource.org/licenses/AFL-3.0 Academic Free License 3.0 (AFL-3.0)
  * International Registered Trademark & Property of PrestaShop SA
  */
-import Vue from 'vue'
-import Vuex from 'vuex'
-import psaccounts from './modules/psaccounts'
-
-Vue.use(Vuex)
-
-export default new Vuex.Store({
-  modules: {
-    psaccounts,
-  },
-})
+export default {
+  firebaseOnboardingIsCompleted: state => state.onboardingCompleted,
+}
