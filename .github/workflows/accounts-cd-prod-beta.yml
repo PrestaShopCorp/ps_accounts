@@ -1,17 +1,16 @@
-name: Module accounts CD
+name: Module accounts CD Production Beta
 
 on:
   push:
-    branches:
-      - develop
-      - feature/709-prod-cd
+    tags:
+      - '*'
 
 env:
   MODULE_NAME: ps_accounts
   GCLOUD_TOKEN_PATH: ./token.json
 
 jobs:
-  accounts_ci:
+  accounts_cd:
     name: Module Accounts continuous deployment
     runs-on: ubuntu-latest
 
