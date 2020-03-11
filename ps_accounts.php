@@ -135,6 +135,7 @@ class Ps_accounts extends Module
         if ($this->firstStepIsDone()) {
             $adminToken = Tools::getValue('adminToken');
             $step       = Tools::getValue('step');
+            // TODO emailVerified
             if ($adminToken && $step && 4 == $step) {
                 $this->getRefreshTokenWithAdminToken();
                 $this->setTpl('onboardingFinished.tpl');
@@ -147,7 +148,7 @@ class Ps_accounts extends Module
 
             if (! Configuration::get('PS_PSX_FIREBASE_REFRESH_TOKEN')) {
                 $this->setTpl('error.tpl');
-                $this->setTplName('Error');
+                $this->setTplName('FIREBASE_REFRESH_TOKEN is empty');
 
                 return;
             }

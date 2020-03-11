@@ -47,9 +47,13 @@ class AdminConfigureHmacPsAccountsController extends ModuleAdminController
                 throw new Exception("Caught exception: Hmac does not exist \n");
             }
             $hmacPath = _PS_ROOT_DIR_.'/upload/';
-            foreach (['hmac', 'uid', 'slug'] as $key) {
+            foreach (['hmac' => '/[a-zA-Z0-9]{8,64}/', 'uid' => '/[a-zA-Z0-9]{8,64}/', 'slug' => '/[-_a-zA-Z0-9]{8,255}/'] as $key => $value) {
                 if (! array_key_exists($key, Tools::getAllValues())) {
                     throw new Exception("Missing query params \n");
+                }
+
+                if (! preg_match($value, Tools::getValue($key))) {
+                    throw new Exception("Invalide query params \n");
                 }
             }
 
@@ -73,9 +77,7 @@ class AdminConfigureHmacPsAccountsController extends ModuleAdminController
 
         header(
             'Location: '.$url.'/verify-shop/'.Tools::getValue('uid')
-            .'?hmacPath='
-            .urlencode('/upload/'.Tools::getValue('uid').'.txt')
-            .'&shopKey='
+            .'?shopKey='
             .urlencode(Configuration::get('PS_ACCOUNTS_RSA_SIGN_DATA'))
         );
         exit;
