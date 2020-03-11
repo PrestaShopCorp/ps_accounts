@@ -22,21 +22,21 @@ import ajax from '@/requests/ajax.js'
 export default {
   setSvcUiUrl({ commit, getters }, payload) {
     return ajax({
-      url: getters.getAdminController,
+      url: getters.adminController,
       action: 'GenerateSshKey',
       data: [],
     }).then(response => {
       const generator = generateSvcUiUrl.generate(
         payload.svcUiDomainName,
-        getters.getProtocolDomainToValidate,
-        getters.getDomainNameDomainToValidate,
+        getters.protocolDomainToValidate,
+        getters.domainNameDomainToValidate,
         payload.protocolBo,
         payload.domainNameBo,
         {
-          boUrl: getters.getBoUrl,
+          boUrl: getters.boUrl,
           pubKey: response,
-          shopName: getters.getShopName,
-          next: getters.getNextStep,
+          shopName: getters.shopName,
+          next: getters.nextStep,
         }
       )
 

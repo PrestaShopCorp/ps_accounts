@@ -1,6 +1,6 @@
 <template>
   <div class="ps_account text-center">
-    <h1>{{ getTplName() }}</h1>
+    <h1>{{ getPageTitle() }}</h1>
     <button @click="resetOnboarding()" class="btn btn-primary">
       {{ $t('general.restartOnboarding') }}
     </button>
@@ -14,8 +14,8 @@ import Vuex from 'vuex'
 export default {
   name: 'AlreadyOnboarded',
   methods: {
-    getTplName() {
-      return this.$store.getters.tplName
+    getPageTitle() {
+      return this.$store.getters.pageTitle
     },
     resetOnboarding() {
       const form = new FormData()

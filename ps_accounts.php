@@ -45,6 +45,8 @@ class Ps_accounts extends Module
     protected $tpl         = '';
     protected $tplName     = '';
 
+    const SVC_TOKEN = "adminToken";
+
     /**
      * __construct.
      */
@@ -87,39 +89,7 @@ class Ps_accounts extends Module
             'pathApp' => Tools::getShopDomainSsl(true).$this->getPathUri().'views/js/app.js',
         ]);
 
-        return $this->context->smarty->fetch($this->local_path.'views/templates/admin/'.$this->getTpl());
-    }
-
-    public function getTpl()
-    {
-        return $this->tpl;
-    }
-
-    public function getTplName()
-    {
-        return $this->tplName;
-    }
-
-    public function install()
-    {
-        return (new PrestaShop\Module\PsAccounts\Module\Install($this))->installInMenu()
-            && parent::install();
-    }
-
-    public function setTpl($tpl)
-    {
-        $this->tpl = $tpl;
-    }
-
-    public function setTplName($tplName)
-    {
-        $this->tplName = $tplName;
-    }
-
-    public function uninstall()
-    {
-        return (new PrestaShop\Module\PsAccounts\Module\Uninstall($this))->uninstallMenu()
-            && parent::uninstall();
+        return $this->context->smarty->fetch($this->local_path.'views/templates/admin/'.$this->getTplName());
     }
 
     /**
@@ -128,18 +98,18 @@ class Ps_accounts extends Module
     private function dispatch()
     {
         if (! $this->context->employee->isSuperAdmin()) {
-            $this->setTpl('accessDenied.tpl');
-            $this->setTplName('Access Denied');
+            $this->setTplName('accessDenied.tpl');
+            $this->setPageTitle('Access Denied');
         }
 
         if ($this->firstStepIsDone()) {
-            $adminToken = Tools::getValue('adminToken');
+            $adminToken = Tools::getValue(self::SVC_TOKEN);
             $step       = Tools::getValue('step');
             // TODO emailVerified
             if ($adminToken && $step && 4 == $step) {
                 $this->getRefreshTokenWithAdminToken();
-                $this->setTpl('onboardingFinished.tpl');
-                $this->setTplName('Onboarding Finished');
+                $this->setTplName('onboardingFinished.tpl');
+                $this->setPageTitle('Onboarding Finished');
 
                 return;
             }
@@ -147,25 +117,25 @@ class Ps_accounts extends Module
             $token->refresh();
 
             if (! Configuration::get('PS_PSX_FIREBASE_REFRESH_TOKEN')) {
-                $this->setTpl('error.tpl');
-                $this->setTplName('FIREBASE_REFRESH_TOKEN is empty');
+                $this->setTplName('error.tpl');
+                $this->setPageTitle('FIREBASE_REFRESH_TOKEN is empty');
 
                 return;
             }
-            $this->setTpl('alreadyOnboarded.tpl');
-            $this->setTplName('Already Onboarded');
+            $this->setTplName('alreadyOnboarded.tpl');
+            $this->setPageTitle('Already Onboarded');
 
             return;
         }
 
         if (Configuration::get('PS_PSX_FIREBASE_REFRESH_TOKEN')) {
-            $this->setTpl('accessDenied.tpl');
-            $this->setTplName('Access Denied');
+            $this->setTplName('accessDenied.tpl');
+            $this->setPageTitle('Access Denied');
 
             return;
         }
-        $this->setTpl('configure.tpl');
-        $this->setTplName('Configure');
+        $this->setTplName('configure.tpl');
+        $this->setPageTitle('Configure');
 
         return;
     }
@@ -183,5 +153,37 @@ class Ps_accounts extends Module
         $token = new PrestaShop\Module\PsAccounts\Api\Firebase\Token();
         $token->getRefreshTokenWithAdminToken(Tools::getValue('adminToken'));
         $token->refresh();
+    }
+
+    public function setTplName($tplName)
+    {
+        $this->tplName = $tplName;
+    }
+
+    public function getTplName()
+    {
+        return $this->tplName;
+    }
+
+    public function setPageTitle($pageTitle)
+    {
+        $this->pageTitle = $pageTitle;
+    }
+
+    public function getPageTitle()
+    {
+        return $this->pageTitle;
+    }
+
+    public function install()
+    {
+        return (new PrestaShop\Module\PsAccounts\Module\Install($this))->installInMenu()
+            && parent::install();
+    }
+
+    public function uninstall()
+    {
+        return (new PrestaShop\Module\PsAccounts\Module\Uninstall($this))->uninstallMenu()
+            && parent::uninstall();
     }
 }

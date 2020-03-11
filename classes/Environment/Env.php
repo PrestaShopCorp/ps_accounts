@@ -27,18 +27,6 @@ use Dotenv\Dotenv;
  */
 class Env
 {
-    /**
-     * Const that define all environment possible to use.
-     * Top of the list are taken in first if they exist in the project.
-     * eg: If .env.test is present in the module it will be loaded, if not present
-     * we try to load the next one etc ...
-     *
-     * @var array
-     */
-    const FILE_ENV_LIST = [
-        'test' => '.env.test',
-        'prod' => '.env',
-    ];
 
     /**
      * Environment name: can be 'prod' or 'test'.
@@ -53,22 +41,6 @@ class Env
      * @var string
      */
     protected $mode;
-
-    public function __construct()
-    {
-        foreach (self::FILE_ENV_LIST as $env => $fileName) {
-            if (!file_exists(_PS_MODULE_DIR_.'ps_accounts/'.$fileName)) {
-                continue;
-            }
-
-            $dotenv = Dotenv::create(_PS_MODULE_DIR_.'ps_accounts/', $fileName);
-            $dotenv->load();
-
-            $this->setName($env);
-
-            break;
-        }
-    }
 
     /**
      * getter for name.

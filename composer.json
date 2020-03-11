@@ -24,6 +24,7 @@
   "require": {
     "symfony/dotenv": "^3.4",
     "phpseclib/phpseclib": "^2.0",
-    "ext-json": "*"
+    "ext-json": "*",
+    "guzzlehttp/guzzle": "^6.5"
   }
 }

@@ -17,17 +17,17 @@
  * International Registered Trademark & Property of PrestaShop SA
  */
 export default {
-  getBoUrl: state => state.boUrl,
-  getSvcUiUrl: state => state.svcUiUrl,
-  getShopName: state => state.shopName,
-  getNextStep: state => state.nextStep,
-  getQueryParams: state => state.queryParams,
-  getProtocolDomainToValidate: state => state.protocolDomainToValidate,
-  getAdminController: state => state.adminController,
-  getDomainNameDomainToValidate: state => state.domainNameDomainToValidate,
+  boUrl: state => state.boUrl,
+  svcUiUrl: state => state.svcUiUrl,
+  shopName: state => state.shopName,
+  nextStep: state => state.nextStep,
+  queryParams: state => state.queryParams,
+  protocolDomainToValidate: state => state.protocolDomainToValidate,
+  adminController: state => state.adminController,
+  domainNameDomainToValidate: state => state.domainNameDomainToValidate,
   resetOnboardingUrl: state => state.resetOnboardingUrl,
   onboardingStarted: state => state.onboardingStarted,
-  tplName: state => state.tplName,
+  pageTitle: state => state.pageTitle,
   locale: state => state.language.locale,
   translations: state => state.translations,
 }

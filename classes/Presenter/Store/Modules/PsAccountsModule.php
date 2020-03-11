@@ -82,7 +82,7 @@ class PsAccountsModule implements PresenterInterface
                 'onboardingStarted' => \Configuration::get('PS_ACCOUNTS_RSA_PUBLIC_KEY')
                     && \Configuration::get('PS_ACCOUNTS_RSA_PRIVATE_KEY')
                     && \Configuration::get('PS_ACCOUNTS_RSA_SIGN_DATA'),
-                'tplName' => $this->module->getTplName()
+                'pageTitle' => $this->module->getPageTitle()
             ],
         ];
     }

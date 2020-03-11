@@ -6,27 +6,27 @@ describe('PsAccount.vue', () => {
   it('Generate Ui Service Url when we have all infomations', () => {
     const generator = generateSvcUiUrl.generate(
       'svcUiDomainName',
-      'getProtocolDomainToValidate',
-      'getDomainNameDomainToValidate',
+      'protocolDomainToValidate',
+      'domainNameDomainToValidate',
       'protocolBo',
       'domainNameBo',
       {
-        boUrl: 'getBoUrl',
+        boUrl: 'boUrl',
         pubKey: 'getPubKey',
-        shopName: 'getShopName',
-        next: 'getNextStep',
+        shopName: 'shopName',
+        next: 'nextStep',
       }
     )
     const outputExpected = {
       SvcUiUrlIsGenerated: true,
       queryParams: {
-        bo: 'getBoUrl',
-        name: 'getShopName',
-        next: 'getNextStep',
+        bo: 'boUrl',
+        name: 'shopName',
+        next: 'nextStep',
         pubKey: 'getPubKey',
       },
       svcUiUrl:
-        'svcUiDomainName/link-shop/getProtocolDomainToValidate/getDomainNameDomainToValidate/protocolBo/domainNameBo/PSXEmoji.Deluxe.Fake.Service?bo=getBoUrl&pubKey=getPubKey&name=getShopName&next=getNextStep',
+        'svcUiDomainName/link-shop/protocolDomainToValidate/domainNameDomainToValidate/protocolBo/domainNameBo/PSXEmoji.Deluxe.Fake.Service?bo=boUrl&pubKey=getPubKey&name=shopName&next=nextStep',
     }
 
     // eslint-disable-next-line no-undef
@@ -37,27 +37,27 @@ describe('PsAccount.vue', () => {
   it('Do not generate Ui Service Url when we do not have all infomations', () => {
     const generator = generateSvcUiUrl.generate(
       'svcUiDomainName',
-      'getProtocolDomainToValidate',
-      'getDomainNameDomainToValidate',
+      'protocolDomainToValidate',
+      'domainNameDomainToValidate',
       null,
       'domainNameBo',
       {
-        boUrl: 'getBoUrl',
+        boUrl: 'boUrl',
         pubKey: 'getPubKey',
-        shopName: 'getShopName',
+        shopName: 'shopName',
         next: null,
       }
     )
     const outputExpected = {
       SvcUiUrlIsGenerated: false,
       queryParams: {
-        bo: 'getBoUrl',
-        name: 'getShopName',
+        bo: 'boUrl',
+        name: 'shopName',
         next: null,
         pubKey: 'getPubKey',
       },
       svcUiUrl:
-        'svcUiDomainName/link-shop/getProtocolDomainToValidate/getDomainNameDomainToValidate/null/domainNameBo/PSXEmoji.Deluxe.Fake.Service?bo=getBoUrl&pubKey=getPubKey&name=getShopName&',
+        'svcUiDomainName/link-shop/protocolDomainToValidate/domainNameDomainToValidate/null/domainNameBo/PSXEmoji.Deluxe.Fake.Service?bo=boUrl&pubKey=getPubKey&name=shopName&',
     }
 
     // eslint-disable-next-line no-undef

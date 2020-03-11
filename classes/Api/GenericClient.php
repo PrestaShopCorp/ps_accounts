@@ -137,9 +137,9 @@ class GenericClient
         // If response is not successful only
         if (\Configuration::get('PS_CHECKOUT_DEBUG_LOGS_ENABLED') && ! $response['status']) {
             /**
-             * @var \Ps_checkout
+             * @var \Ps)accounts
              */
-            $module = \Module::getInstanceByName('ps_checkout');
+            $module = \Module::getInstanceByName('ps_accounts');
             $logger = $module->getLogger();
             $logger->debug('route '.$this->getRoute());
             $logger->debug('options '.var_export($options, true));

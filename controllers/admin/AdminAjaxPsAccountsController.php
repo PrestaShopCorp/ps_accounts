@@ -21,6 +21,8 @@ use PrestaShop\Module\PsAccounts\Service\SshKey;
 
 class AdminAjaxPsAccountsController extends ModuleAdminController
 {
+    const STR_TO_SIGN = "data";
+
     /**
      * AJAX: Generate ssh key.
      */
@@ -35,7 +37,7 @@ class AdminAjaxPsAccountsController extends ModuleAdminController
             'PS_ACCOUNTS_RSA_SIGN_DATA',
             $sshKey->signData(
                 Configuration::get('PS_ACCOUNTS_RSA_PRIVATE_KEY'),
-                $data
+                self::STR_TO_SIGN
             )
         );
 

@@ -15,7 +15,7 @@ export default {
   name: 'PsAccount',
   created() {
     this.$store.watch(
-      (state, getters) => getters.getSvcUiUrl,
+      (state, getters) => getters.svcUiUrl,
       (newValue, oldValue) => {
         if (null !== newValue) {
           this.connectSvcUi(newValue)
