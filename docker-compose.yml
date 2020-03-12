@@ -14,23 +14,24 @@ services:
         interval: 30s
         timeout: 10s
         retries: 5
-    networks: 
+    networks:
       - account-net
 
   ps_account_db:
     image: mysql:5.7
     container_name: ps_acc_db
     env_file: .env
-    networks: 
+    networks:
       - account-net
 
   ps_account_node:
     image: node:lts-stretch
     container_name: ps_acc_node
     command: "tail -f /dev/null"
+    env_file: _dev/.env
     volumes:
-      - .:/app
-    working_dir: /app
+      - .:/var/www/html/modules/ps_accounts
+    working_dir: /var/www/html/modules/ps_accounts/_dev
 
 networks:
   account-net:

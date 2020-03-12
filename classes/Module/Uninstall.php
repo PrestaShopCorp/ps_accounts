@@ -1,6 +1,6 @@
 <?php
 /**
- * 2007-2019 PrestaShop and Contributors.
+ * 2007-2020 PrestaShop and Contributors.
  *
  * NOTICE OF LICENSE
  *
@@ -13,7 +13,7 @@
  * to license@prestashop.com so we can send you a copy immediately.
  *
  * @author    PrestaShop SA <contact@prestashop.com>
- * @copyright 2007-2019 PrestaShop SA and Contributors
+ * @copyright 2007-2020 PrestaShop SA and Contributors
  * @license   https://opensource.org/licenses/AFL-3.0 Academic Free License 3.0 (AFL-3.0)
  * International Registered Trademark & Property of PrestaShop SA
  */
@@ -34,14 +34,19 @@ class Uninstall
      */
     public function uninstallMenu()
     {
-        $tabId = (int) Tab::getIdFromClassName($this->module->controllers['configure']);
+        // foreach( ['configure', 'hmac', 'ajax'] as $aliasController){
+        foreach ($this->module->adminControllers as $controllerName) {
+            $tabId = (int) \Tab::getIdFromClassName($controllerName);
 
-        if (!$tabId) {
-            return true;
+            if (!$tabId) {
+                return true;
+            }
+
+            $tab = new \Tab($tabId);
+
+            return $tab->delete();
         }
 
-        $tab = new Tab($tabId);
-
-        return $tab->delete();
+        return true;
     }
 }

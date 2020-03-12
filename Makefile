@@ -1,6 +1,5 @@
 DKC=docker-compose -f docker-compose.yml -f docker-compose.override.yml
 
-
 .PHONY: help
 
 help:
@@ -8,13 +7,14 @@ help:
 
 init: ## Init project
 	cp -n .env.dist .env || true
+	ln -s $$(pwd)/.env $$(pwd)/_dev/.env || true
 	cp -n docker-compose.override.yml.dist docker-compose.override.yml || true
 
 yarn_start: ## Start VueJs
 	$(MAKE) yarn_install
 	$(MAKE) yarn_watch
 
-start: ## Start app
+start: ## Start app, force rebuild all containers
 	$(DKC) up -d --build
 	$(MAKE) yarn_start
 
@@ -29,7 +29,7 @@ yarn_build: ## Build vuejs file
 	$(DKC) run --rm ps_account_node sh -c "yarn build"
 
 yarn_watch: ## Watch VueJS files and compile when saved
-	$(DKC) run --rm ps_account_node sh -c "yarn watch"
+	$(DKC) run --rm ps_account_node sh -c "yarn start:dev"
 
 %:
 	@:

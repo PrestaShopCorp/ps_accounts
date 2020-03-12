@@ -1,16 +1,27 @@
+### VUEJS BUILD ARTEFACT ###
+app.js
+
+### IDE ###
+.idea
+
 ### Composer ###
 composer.phar
 /vendor/
-/node_modules/
+node_modules/
 docker-compose.override.yml
 .env
 .php_cs.cache
 .php_cs
 install.lock
 
+### Module files ###
+!views/files
+views/files/*
+!views/files/.gitkeep
+
 ### Vuejs ignore build files ###
-/views/js/index.js
-/views/js/index.js.map
+/views/js/app.js
+/views/js/app.js.map
 /views/js/chunk-vendors.js
 /views/js/chunk-vendors.js.map
 /views/css/index.css
@@ -22,5 +33,3 @@ install.lock
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
-
-.idea/*
