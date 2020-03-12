@@ -1,0 +1,27 @@
+name: Accounts Quality Control PHP
+
+on: [pull_request]
+
+jobs:
+  php-cs-fixer:
+    name: PHP-CS-FIXER
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v1
+        with:
+          fetch-depth: 0
+      - name: php-cs-fixer default
+        uses: prestashopcorp/github-action-php-cs-fixer@master
+        with:
+            other-cmds: --dry-run --diff --using-cache=no --diff-format udiff --rules=@PSR2
+  phpunit:
+    name: PHPUNIT
+    runs-on: ubuntu-latest
+    steps:
+    - name: checkout project
+      uses: actions/checkout@v1
+    - name: composer install missing files
+      run: composer install
+    - name: Run phpunit
+      uses: pxgamer/phpunit-action@master

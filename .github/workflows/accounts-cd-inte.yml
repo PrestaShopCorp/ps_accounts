@@ -1,9 +1,8 @@
 name: Module accounts CD
 
 on:
-  push:
-    branches:
-      - develop
+  pull_request:
+    types: [opened,edited,reopened,synchronize]
 
 env:
   MODULE_NAME: ps_accounts
@@ -13,6 +12,8 @@ jobs:
   accounts_cd:
     name: Module Accounts continuous deployment
     runs-on: ubuntu-latest
+    timeout-minutes: 10
+    if: contains(github.event.pull_request.labels.*.name, 'quality insurance needed')
 
     steps:
       - name: Checkout the repository
@@ -34,8 +35,8 @@ jobs:
 
       - name: Build module
         run: |
-          yarn
-          yarn build
+          yarn --cwd _dev/ install
+          yarn --cwd _dev/ build
           composer install
 
       - name: Delete old module
@@ -72,6 +73,9 @@ jobs:
           username: ${{ secrets.SSH_USERNAME }}
           key: ${{ secrets.SSH_KEY }}
           script: |
+            sudo su -c 'docker exec $(docker ps -aqf "name=${{ secrets.CONTAINER_NAME }}") cp modules/ps_accounts/.env modules/ps_accounts/_dev/.env'
+            sudo su -c 'docker exec $(docker ps -aqf "name=${{ secrets.CONTAINER_NAME }}") source modules/ps_accounts/.env'
+            sudo su -c 'docker exec $(docker ps -aqf "name=${{ secrets.CONTAINER_NAME }}") source modules/ps_accounts/_dev/.env'
             sudo su -c 'docker exec $(docker ps -aqf "name=${{ secrets.CONTAINER_NAME }}") bin/console prestashop:module install ${{ env.MODULE_NAME }}'
 
       - name: Clear cache

@@ -14,6 +14,8 @@ make start
 
 Wait container be to state `healthy`  
 
+For watch docker-compose status run `watch docker-compose ps`    
+
 ![](doc/healthy.png)
 
 ## How to connect ?
