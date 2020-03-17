@@ -22,6 +22,8 @@ namespace PrestaShop\Module\PsAccounts\Presenter\Store\Modules;
 
 use PrestaShop\Module\PsAccounts\Presenter\PresenterInterface;
 use PrestaShop\Module\PsAccounts\Translations\Translations;
+use PrestaShop\Module\PsAccounts\Adapter\LinkAdapter;
+
 
 /**
  * Construct the psaccounts module.
@@ -82,8 +84,64 @@ class PsAccountsModule implements PresenterInterface
                 'onboardingStarted' => \Configuration::get('PS_ACCOUNTS_RSA_PUBLIC_KEY')
                     && \Configuration::get('PS_ACCOUNTS_RSA_PRIVATE_KEY')
                     && \Configuration::get('PS_ACCOUNTS_RSA_SIGN_DATA'),
-                'pageTitle' => $this->module->getPageTitle()
+                'pageTitle' => $this->module->getPageTitle(),
+                'isShopContext' => $this->isShopContext(),
+                'shopsTree' => $this->getShopsTree(),
             ],
         ];
+    }
+
+        /**
+     * @return bool
+     */
+    private function isShopContext()
+    {
+        if (\Shop::isFeatureActive() && \Shop::getContext() !== \Shop::CONTEXT_SHOP) {
+            return false;
+        }
+
+        return true;
+    }
+
+    /**
+     * @return array
+     */
+    private function getShopsTree()
+    {
+        $shopList = [];
+
+        if (true === $this->isShopContext()) {
+            return $shopList;
+        }
+
+        $linkAdapter = new LinkAdapter($this->context->link);
+
+        foreach (\Shop::getTree() as $groupId => $groupData) {
+            $shops = [];
+
+            foreach ($groupData['shops'] as $shopId => $shopData) {
+                $shops[] = [
+                    'id' => $shopId,
+                    'name' => $shopData['name'],
+                    'url' => $linkAdapter->getAdminLink(
+                        'AdminModules',
+                        true,
+                        [],
+                        [
+                            'configure' => $this->module->name,
+                            'setShopContext' => 's-' . $shopId,
+                        ]
+                    ),
+                ];
+            }
+
+            $shopList[] = [
+                'id' => $groupId,
+                'name' => $groupData['name'],
+                'shops' => $shops,
+            ];
+        }
+
+        return $shopList;
     }
 }

@@ -118,7 +118,7 @@ class Ps_accounts extends Module
 
             if (! Configuration::get('PS_PSX_FIREBASE_REFRESH_TOKEN')) {
                 $this->setTplName('error.tpl');
-                $this->setPageTitle('FIREBASE_REFRESH_TOKEN is empty');
+                $this->setPageTitle('You aren\'t authorized');
 
                 return;
             }
