@@ -26,7 +26,7 @@ describe('PsAccount.vue', () => {
         pubKey: 'getPubKey',
       },
       svcUiUrl:
-        'svcUiDomainName/link-shop/protocolDomainToValidate/domainNameDomainToValidate/protocolBo/domainNameBo/PSXEmoji.Deluxe.Fake.Service?bo=boUrl&pubKey=getPubKey&name=shopName&next=nextStep',
+        'svcUiDomainName/shop/account/link/protocolDomainToValidate/domainNameDomainToValidate/protocolBo/domainNameBo/PSXEmoji.Deluxe.Fake.Service?bo=boUrl&pubKey=getPubKey&name=shopName&next=nextStep',
     }
 
     // eslint-disable-next-line no-undef
@@ -57,7 +57,7 @@ describe('PsAccount.vue', () => {
         pubKey: 'getPubKey',
       },
       svcUiUrl:
-        'svcUiDomainName/link-shop/protocolDomainToValidate/domainNameDomainToValidate/null/domainNameBo/PSXEmoji.Deluxe.Fake.Service?bo=boUrl&pubKey=getPubKey&name=shopName&',
+        'svcUiDomainName/shop/account/link/protocolDomainToValidate/domainNameDomainToValidate/null/domainNameBo/PSXEmoji.Deluxe.Fake.Service?bo=boUrl&pubKey=getPubKey&name=shopName&',
     }
 
     // eslint-disable-next-line no-undef

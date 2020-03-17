@@ -60,7 +60,7 @@ export default {
 
     const countInitQueryParams = Object.keys(output.queryParams).length
     let counterValideParams = 0
-    output.svcUiUrl = `${svcUiDomainName}/link-shop/${protocolDomainToValidate}/${domainNameDomainToValidate}/${protocolBo}/${domainNameBo}/PSXEmoji.Deluxe.Fake.Service?`
+    output.svcUiUrl = `${svcUiDomainName}/shop/account/link/${protocolDomainToValidate}/${domainNameDomainToValidate}/${protocolBo}/${domainNameBo}/PSXEmoji.Deluxe.Fake.Service?`
 
     Object.entries(output.queryParams).forEach(([key, value]) => {
       if (value !== null) {
