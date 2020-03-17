@@ -34,8 +34,12 @@ jobs:
 
       - name: Build module
         run: |
-          yarn
-          yarn build
+          yarn --cwd _dev/ install
+          yarn --cwd _dev/ build
+          composer install
+
+      - name: Composer
+        run: |
           composer install
 
       - name: Delete old module
