@@ -49,12 +49,12 @@ class Translations
                 'startOnboarding' => $this->module->l('Start Onboarding', 'translations'),
                 'restartOnboarding' => $this->module->l('Restart Onboarding', 'translations'),
                 'multiShop' => [
-                    'title' => $this->module->l('Multistore detected', 'translations'),
-                    'subtitle' => $this->module->l('Each shop must be configured separately, even if you configure the same account on all of them.', 'translations'),
+                    'title' => $this->module->l('Multi-store mode actived', 'translations'),
+                    'subtitle' => $this->module->l('You must configure your stores one by one for this service, but youwill be able to use the same accounts', 'translations'),
                     'chooseOne' => $this->module->l('Please select the first shop to configure from the list below :', 'translations'),
                     'group' => 'Group:',
                     'configure' => 'Configure',
-                    'tips' => $this->module->l('Once you are done with the first shop, you can configure the others: select them one by one with the shop selector, in the horizontal menu.', 'translations'),
+                    'tips' => $this->module->l('After you done with the first shop, you can configure the other shops, by selector them one by one in shop selector, in horizontal menu.', 'translations'),
                 ],
             ],
         ];

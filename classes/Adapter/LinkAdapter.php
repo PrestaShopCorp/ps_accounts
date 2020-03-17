@@ -53,7 +53,6 @@ class LinkAdapter
      */
     public function getAdminLink($controller, $withToken = true, $sfRouteParams = [], $params = [])
     {
-
         $paramsAsString = '';
         foreach ($params as $key => $value) {
             $paramsAsString .= "&$key=$value";

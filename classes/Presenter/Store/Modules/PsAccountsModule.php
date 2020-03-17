@@ -24,7 +24,6 @@ use PrestaShop\Module\PsAccounts\Presenter\PresenterInterface;
 use PrestaShop\Module\PsAccounts\Translations\Translations;
 use PrestaShop\Module\PsAccounts\Adapter\LinkAdapter;
 
-
 /**
  * Construct the psaccounts module.
  */
@@ -91,7 +90,7 @@ class PsAccountsModule implements PresenterInterface
         ];
     }
 
-        /**
+    /**
      * @return bool
      */
     private function isShopContext()
