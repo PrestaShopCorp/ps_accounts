@@ -23,7 +23,6 @@ import mutations from './mutations'
 
 const store = global.store
 const state = store.psaccounts
-// state.svcUiUrl = null;
 
 export default {
   state,

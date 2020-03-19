@@ -42,6 +42,8 @@ class Ps_accounts extends Module
     public $tab;
     public $version;
     protected $config_form = false;
+    protected $protocolDomainToValidate     = '';
+    protected $domainNameDomainToValidate     = '';
     protected $tpl         = '';
     protected $tplName     = '';
 
@@ -80,13 +82,12 @@ class Ps_accounts extends Module
      */
     public function getContent()
     {
-        $tplName = $this->dispatch();
-
+        $this->dispatch();
         Media::addJsDef([
             'store' => (new PrestaShop\Module\PsAccounts\Presenter\Store\StorePresenter($this, $this->context))->present(),
         ]);
         $this->context->smarty->assign([
-            'pathApp' => Tools::getShopDomainSsl(true).$this->getPathUri().'views/js/app.js',
+            'pathApp' => 'http://'.$this->getDomainNameDomainToValidate().$this->getPathUri().'views/js/app.js',
         ]);
 
         return $this->context->smarty->fetch($this->local_path.'views/templates/admin/'.$this->getTplName());
@@ -96,12 +97,33 @@ class Ps_accounts extends Module
      * @return void
      */
     private function dispatch()
-    {
+    {   
+         if(false === Tools::getValue('multishop')){
+            $domainName = Tools::getShopDomainSsl(false);
+            $this->setDomainNameDomainToValidate(Tools::getValue('domain_ssl'),Tools::getValue('domain'));
+
+            if(true != Configuration::get('PS_SSL_ENABLED')){
+                $domainNameSsl = null;
+            }else{
+                $domainNameSsl = str_replace(
+                    \Tools::getProtocol(\Configuration::get('PS_SSL_ENABLED')),
+                    '',
+                    \Tools::getShopDomainSsl(true)
+                );
+            }
+         }else{
+             $domainNameSsl = Tools::getValue('domain_ssl');
+             $domainName = Tools::getValue('domain');
+        }
+        $this->setDomainNameDomainToValidate($domainNameSsl, $domainName);
+        
         if (! $this->context->employee->isSuperAdmin()) {
             $this->setTplName('accessDenied.tpl');
             $this->setPageTitle('Access Denied');
-        }
 
+            return;
+        }
+        
         if ($this->firstStepIsDone()) {
             $adminToken = Tools::getValue(self::SVC_TOKEN);
             $step       = Tools::getValue('step');
@@ -116,7 +138,7 @@ class Ps_accounts extends Module
             $token = new PrestaShop\Module\PsAccounts\Api\Firebase\Token();
             $token->refresh();
 
-            if (! Configuration::get('PS_PSX_FIREBASE_REFRESH_TOKEN')) {
+            if (!Configuration::get('PS_PSX_FIREBASE_REFRESH_TOKEN')) {
                 $this->setTplName('error.tpl');
                 $this->setPageTitle('You aren\'t authorized');
 
@@ -134,6 +156,7 @@ class Ps_accounts extends Module
 
             return;
         }
+
         $this->setTplName('configure.tpl');
         $this->setPageTitle('Configure');
 
@@ -153,6 +176,27 @@ class Ps_accounts extends Module
         $token = new PrestaShop\Module\PsAccounts\Api\Firebase\Token();
         $token->getRefreshTokenWithAdminToken(Tools::getValue('adminToken'));
         $token->refresh();
+    }
+
+    public function setProtocolDomainToValidate($protocolDomainToValidate)
+    {
+        $this->protocolDomainToValidate = $protocolDomainToValidate;
+    }
+
+    public function getProtocolDomainToValidate()
+    {
+        return $this->protocolDomainToValidate;
+    }
+
+    public function setDomainNameDomainToValidate($domainNameSsl, $domainName)
+    {
+        $this->setProtocolDomainToValidate($domainNameSsl ? 'https' : 'http');
+        $this->domainNameDomainToValidate = $domainNameSsl ? $domainNameSsl : $domainName;
+    }
+
+    public function getDomainNameDomainToValidate()
+    {
+        return $this->domainNameDomainToValidate;
     }
 
     public function setTplName($tplName)

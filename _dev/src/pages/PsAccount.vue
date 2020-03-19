@@ -1,9 +1,15 @@
 <template>
   <div id="app" class="ps_account text-center">
-    <button @click="launchSvcUiUrl()" class="btn btn-primary">
-      {{ $t('general.startOnboarding') }}
-    </button>
-    <div class="container" v-if="!isShopContext">
+    <div class="container" v-if="isShopContext">
+      <button 
+      @click="launchSvcUiUrl()"
+      id='startOnboarding'
+      class="btn btn-primary"
+      >
+        {{ $t('general.startOnboarding') }}
+      </button>
+    </div>
+    <div class="container" v-else>
       <b-alert variant="warning" show>
         <h2>{{ $t('general.multiShop.title') }}</h2>
         <p>{{ $t('general.multiShop.subtitle') }}</p>
@@ -49,7 +55,6 @@ export default {
   },
   computed: {
     isShopContext() {
-      console.log(this.$store.state.psaccounts.isShopContext)
       return this.$store.state.psaccounts.isShopContext
     },
     shopsTree() {
@@ -68,18 +73,22 @@ export default {
         domainNameBo: window.location.host,
       })
     },
+    addQueryParams(shop) {
+      return `&multishop=true&domain=${shop.domain}&domain_ssl=${shop.domain_ssl}`;
+    },
   },
 }
 </script>
 
 <style lang="scss">
-.bootstrap.panel {
-  display: none !important;
-}
 #app {
   @import '~bootstrap-vue/dist/bootstrap-vue';
   @import '~prestakit/dist/css/bootstrap-prestashop-ui-kit';
 }
+.bootstrap.panel {
+  display: none !important;
+}
+
 #app {
   margin: 0;
   font-family: Open Sans, Helvetica, Arial, sans-serif;
@@ -89,6 +98,11 @@ export default {
   line-height: 1.5;
   color: #363a41;
   text-align: left;
+   
+  #startOnboarding{
+    margin: 0 auto;
+    display: block;
+  }
 }
 #app .card-header,
 .card-header .card-header-title {

@@ -65,16 +65,8 @@ class PsAccountsModule implements PresenterInterface
                     '',
                     $this->context->link->getAdminLink('AdminConfigureHmacPsAccounts')
                 ),
-                'protocolDomainToValidate' => str_replace(
-                    '://',
-                    '',
-                    \Tools::getProtocol(\Configuration::get('PS_SSL_ENABLED'))
-                ),
-                'domainNameDomainToValidate' => str_replace(
-                    \Tools::getProtocol(\Configuration::get('PS_SSL_ENABLED')),
-                    '',
-                    \Tools::getShopDomainSsl(true)
-                ),
+                'protocolDomainToValidate' => $this->module->getProtocolDomainToValidate(),
+                'domainNameDomainToValidate' => $this->module->getDomainNameDomainToValidate(),
                 'psVersion' => _PS_VERSION_,
                 'language' => $this->context->language,
                 'translations' => (new Translations($this->module))->getTranslations(),
@@ -117,11 +109,12 @@ class PsAccountsModule implements PresenterInterface
 
         foreach (\Shop::getTree() as $groupId => $groupData) {
             $shops = [];
-
             foreach ($groupData['shops'] as $shopId => $shopData) {
                 $shops[] = [
                     'id' => $shopId,
                     'name' => $shopData['name'],
+                    'domain' => $shopData['domain'],
+                    'domain_ssl' => $shopData['domain_ssl'],
                     'url' => $linkAdapter->getAdminLink(
                         'AdminModules',
                         true,
