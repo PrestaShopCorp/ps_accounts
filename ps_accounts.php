@@ -97,23 +97,23 @@ class Ps_accounts extends Module
      * @return void
      */
     private function dispatch()
-    {   
-         if(false === Tools::getValue('multishop')){
+    {
+        if (false === Tools::getValue('multishop')) {
             $domainName = Tools::getShopDomainSsl(false);
-            $this->setDomainNameDomainToValidate(Tools::getValue('domain_ssl'),Tools::getValue('domain'));
+            $this->setDomainNameDomainToValidate(Tools::getValue('domain_ssl'), Tools::getValue('domain'));
 
-            if(true != Configuration::get('PS_SSL_ENABLED')){
+            if (true != Configuration::get('PS_SSL_ENABLED')) {
                 $domainNameSsl = null;
-            }else{
+            } else {
                 $domainNameSsl = str_replace(
                     \Tools::getProtocol(\Configuration::get('PS_SSL_ENABLED')),
                     '',
                     \Tools::getShopDomainSsl(true)
                 );
             }
-         }else{
-             $domainNameSsl = Tools::getValue('domain_ssl');
-             $domainName = Tools::getValue('domain');
+        } else {
+            $domainNameSsl = Tools::getValue('domain_ssl');
+            $domainName = Tools::getValue('domain');
         }
         $this->setDomainNameDomainToValidate($domainNameSsl, $domainName);
         

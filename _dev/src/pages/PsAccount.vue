@@ -1,10 +1,10 @@
 <template>
   <div id="app" class="ps_account text-center">
     <div class="container" v-if="isShopContext">
-      <button 
-      @click="launchSvcUiUrl()"
-      id='startOnboarding'
-      class="btn btn-primary"
+      <button
+        @click="launchSvcUiUrl()"
+        id="startOnboarding"
+        class="btn btn-primary"
       >
         {{ $t('general.startOnboarding') }}
       </button>
@@ -74,7 +74,7 @@ export default {
       })
     },
     addQueryParams(shop) {
-      return `&multishop=true&domain=${shop.domain}&domain_ssl=${shop.domain_ssl}`;
+      return `&multishop=true&domain=${shop.domain}&domain_ssl=${shop.domain_ssl}`
     },
   },
 }
@@ -98,8 +98,8 @@ export default {
   line-height: 1.5;
   color: #363a41;
   text-align: left;
-   
-  #startOnboarding{
+
+  #startOnboarding {
     margin: 0 auto;
     display: block;
   }
