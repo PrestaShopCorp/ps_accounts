@@ -1,20 +1,37 @@
 # Prestashop Account
 
-## Run project
+## Install project
 
-configure env :
-```
+Configure env :
+```bash
 make init
 ```
 
-Start project :  
+Clone the repo if not already done
+```bash
+git clone git@github.com:PrestaShopCorp/prestashop_accounts_vue_components.git
+git clone github.com:PrestaShopCorp/prestashop_accounts_auth.git
 ```
+
+/!\ Customize .env with path of dependencies
+
+Customize docker-compose.override.yml for choice port
+
+## Run project
+
+List all Makefile rules
+```bash
+make help
+```
+
+Start project :
+```bash
 make start
 ```
 
-Wait container be to state `healthy`  
+Wait container be to state `healthy`
 
-For watch docker-compose status run `watch docker-compose ps`    
+For watch docker-compose status run `watch docker-compose ps`
 
 ![](doc/healthy.png)
 
@@ -23,8 +40,8 @@ For watch docker-compose status run `watch docker-compose ps`
 #### FRONT
 ```
 FRONT URL   : http://localhost:<port>
-User        : pub@prestashop.com  
-Pwd         : 123456789  
+User        : pub@prestashop.com
+Pwd         : 123456789
 ```
 
 #### BO
@@ -38,8 +55,8 @@ http://localhost:80/admin-dev/index.php/module/manage?email=demo@prestashop.com 
 
 authentication
 ```
-URL         : http://localhost:<port>/admin-dev  
-User        : demo@prestashop.com  
+URL         : http://localhost:<port>/admin-dev
+User        : demo@prestashop.com
 Pwd         : prestashop_demo
 ```
 
@@ -47,9 +64,9 @@ Pwd         : prestashop_demo
 ```
 host        : localhost
 port        : <port>
-name        : prestashop  
-user        : macfly  
-password    : admin  
+name        : prestashop
+user        : macfly
+password    : admin
 prefix      : ps_
 ```
 

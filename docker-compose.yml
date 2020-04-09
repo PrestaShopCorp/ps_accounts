@@ -8,6 +8,8 @@ services:
     working_dir: /var/www/html/modules/ps_accounts
     volumes:
       - .:/var/www/html/modules/ps_accounts
+      - ${PRESTASHOP_ACCOUNTS_VUE_COMPONENTS_PATH}:/tmp/libs/js/prestashop_accounts_vue_components
+      - ${PRESTASHOP_ACCOUNTS_AUTH_PATH}:/tmp/libs/php/prestashop_accounts_auth
     command: ["/var/www/html/modules/ps_accounts/.docker/start.sh"]
     healthcheck:
         test: ["CMD", "curl", "-f", "http://localhost"]
@@ -23,15 +25,6 @@ services:
     env_file: .env
     networks:
       - account-net
-
-  ps_account_node:
-    image: node:lts-stretch
-    container_name: ps_acc_node
-    command: "tail -f /dev/null"
-    env_file: _dev/.env
-    volumes:
-      - .:/var/www/html/modules/ps_accounts
-    working_dir: /var/www/html/modules/ps_accounts/_dev
 
 networks:
   account-net:

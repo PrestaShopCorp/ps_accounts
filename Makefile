@@ -1,36 +1,41 @@
+include .env
+
 DKC=docker-compose -f docker-compose.yml -f docker-compose.override.yml
 
 .PHONY: help
 
-help:
-	@grep -E '^[a-zA-Z_-]+:.*?## .*$$' $(MAKEFILE_LIST) | sort | awk 'BEGIN {FS = ":.*?## "}; {printf "\033[36m%-30s\033[0m %s\n", $$1, $$2}'
-
-init: ## Init project
+# target: init                       	- Start app, force rebuild all containers
+init:
 	cp -n .env.dist .env || true
 	ln -s $$(pwd)/.env $$(pwd)/_dev/.env || true
 	cp -n docker-compose.override.yml.dist docker-compose.override.yml || true
 
-yarn_start: ## Start VueJs
+# target: yarn_start                	- Start VueJs
+yarn_start:
 	$(MAKE) yarn_install
 	$(MAKE) yarn_watch
 
-start: ## Start app, force rebuild all containers
-	$(DKC) up -d --build
+# target: start                     	- Start app, force rebuild all containers
+start:
+	$(DKC) up -d --build --force-recreate
 	$(MAKE) yarn_start
 
-run: ## Run app
+# target: run                       	- Run app
+run:
 	$(DKC) up -d
 	$(MAKE) yarn_start
 
-yarn_install: ## Install depedencies nodejs
-	$(DKC) run --rm ps_account_node sh -c "yarn install"
+# target: yarn_install                	- Install depedencies nodejs
+yarn_install:
+	docker run --rm  -w /app -v $(PRESTASHOP_ACCOUNTS_VUE_COMPONENTS_PATH):/app --name ps_acc_node node:lts-stretch sh -c "yarn install"
 
-yarn_build: ## Build vuejs file
-	$(DKC) run --rm ps_account_node sh -c "yarn build"
+# target: yarn_build                	- Build vuejs file
+yarn_build:
+	docker run --rm  -w /app -v $(PRESTASHOP_ACCOUNTS_VUE_COMPONENTS_PATH):/app --name ps_acc_node node:lts-stretch sh -c "yarn build"
 
-yarn_watch: ## Watch VueJS files and compile when saved
-	$(DKC) run --rm ps_account_node sh -c "yarn start:dev"
+# target: yarn_watch                	- Watch VueJS files and compile when saved
+yarn_watch:
+	docker run --rm -w /app -v $(PRESTASHOP_ACCOUNTS_VUE_COMPONENTS_PATH):/app --name ps_acc_node node:lts-stretch sh -c "yarn start:dev && tail -f /dev/null"
 
-%:
-	@:
-
+help:
+	@egrep "^#" Makefile

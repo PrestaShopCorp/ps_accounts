@@ -80,6 +80,10 @@ class Ps_accounts extends Module
      */
     public function getContent()
     {
+        $greeting = new testing\TestComposer\Index();
+
+        echo $greeting->greet("Hello Composer");
+        die;
         $tplName = $this->dispatch();
 
         Media::addJsDef([

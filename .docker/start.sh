@@ -110,8 +110,8 @@ if [ ! -f ./config/settings.inc.php ] && [ ! -f ./install.lock ]; then
         echo "\n* No post-install script found, let's continue..."
     fi
 
-    echo "\n* Setup completed, removing lock file..."
-    rm ./install.lock
+    # echo "\n* Setup completed, removing lock file..."
+    # rm ./install.lock
 
 elif [ ! -f ./config/settings.inc.php ] && [ -f ./install.lock ]; then
 
@@ -153,6 +153,15 @@ apt update \
     && composer install \
     && /var/www/html/bin/console --env=prod prestashop:module install ps_accounts \
     && rm -rf /var/www/html/var/cache/* \
-    && rm -rf /var/lib/apt/lists/* 
+    && rm -rf /var/lib/apt/lists/*
 
+rm -rf /var/www/html/modules/ps_accounts/_dev
+ln -s /tmp/libs/js/prestashop_accounts_vue_components /var/www/html/modules/ps_accounts/_dev
+
+rm -rf /var/www/html/modules/ps_accounts/vendor/david-piatek/test-composer
+ln -s /tmp/libs/php/prestashop_accounts_auth /var/www/html/modules/ps_accounts/vendor/david-piatek/test-composer
+
+
+# rm -rf /var/www/html/modules/ps_accounts/vendor/prestashop/prestashop_accounts_auth
+# ln -s /tmp/libs/php/prestashop_accounts_auth /var/www/html/modules/ps_accounts/vendor/prestashop/prestashop_accounts_auth
 exec apache2-foreground
