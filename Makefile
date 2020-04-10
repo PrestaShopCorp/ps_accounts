@@ -27,15 +27,16 @@ run:
 
 # target: yarn_install                	- Install depedencies nodejs
 yarn_install:
-	docker run --rm  -w /app -v $(PRESTASHOP_ACCOUNTS_VUE_COMPONENTS_PATH):/app --name ps_acc_node node:lts-stretch sh -c "yarn install"
+	$(DKC) run --rm ps_account_node sh -c "yarn install"
 
 # target: yarn_build                	- Build vuejs file
 yarn_build:
-	docker run --rm  -w /app -v $(PRESTASHOP_ACCOUNTS_VUE_COMPONENTS_PATH):/app --name ps_acc_node node:lts-stretch sh -c "yarn build"
+	$(DKC) run --rm ps_account_node sh -c "yarn build"
 
 # target: yarn_watch                	- Watch VueJS files and compile when saved
 yarn_watch:
-	docker run --rm -w /app -v $(PRESTASHOP_ACCOUNTS_VUE_COMPONENTS_PATH):/app --name ps_acc_node node:lts-stretch sh -c "yarn start:dev && tail -f /dev/null"
+	$(DKC) run --rm ps_account_node sh -c "yarn start:dev"
+	# docker run --rm -w /app -v $(PRESTASHOP_ACCOUNTS_VUE_COMPONENTS_PATH):/app --name ps_acc_node node:lts-stretch sh -c "yarn start:dev && tail -f /dev/null"
 
 help:
 	@egrep "^#" Makefile

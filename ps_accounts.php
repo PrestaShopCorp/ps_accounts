@@ -80,9 +80,9 @@ class Ps_accounts extends Module
      */
     public function getContent()
     {
-        $greeting = new testing\TestComposer\Index();
+        $say = new PrestaShop\AccountsAuth\Say();
 
-        echo $greeting->greet("Hello Composer");
+        echo $say->hello("Hello Composer");
         die;
         $tplName = $this->dispatch();
 

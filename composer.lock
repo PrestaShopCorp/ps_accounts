@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "e76c66b2cd24152454f8dbb8a4b24e9f",
+    "content-hash": "10068f6ac94e0822f9fbc71469d428ae",
     "packages": [
         {
             "name": "guzzlehttp/guzzle",
@@ -286,6 +286,33 @@
                 "x509"
             ],
             "time": "2019-09-17T03:41:22+00:00"
+        },
+        {
+            "name": "prestashop/prestashop-accounts-auth",
+            "version": "dev-master",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/PrestaShopCorp/prestashop_accounts_auth.git",
+                "reference": "bf48e0c38a8a765231a13940d328e0567224a428"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/PrestaShopCorp/prestashop_accounts_auth/zipball/bf48e0c38a8a765231a13940d328e0567224a428",
+                "reference": "bf48e0c38a8a765231a13940d328e0567224a428",
+                "shasum": ""
+            },
+            "type": "library",
+            "autoload": {
+                "psr-4": {
+                    "PrestaShop\\AccountsAuth\\": "src/"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "description": "Firebase auth class",
+            "time": "2020-04-10T14:51:38+00:00"
         },
         {
             "name": "psr/http-message",
@@ -3086,8 +3113,10 @@
         }
     ],
     "aliases": [],
-    "minimum-stability": "stable",
-    "stability-flags": [],
+    "minimum-stability": "dev",
+    "stability-flags": {
+        "prestashop/prestashop-accounts-auth": 20
+    },
     "prefer-stable": false,
     "prefer-lowest": false,
     "platform": {

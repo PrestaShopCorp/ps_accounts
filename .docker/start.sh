@@ -155,13 +155,10 @@ apt update \
     && rm -rf /var/www/html/var/cache/* \
     && rm -rf /var/lib/apt/lists/*
 
-rm -rf /var/www/html/modules/ps_accounts/_dev
-ln -s /tmp/libs/js/prestashop_accounts_vue_components /var/www/html/modules/ps_accounts/_dev
+# rm -rf /var/www/html/modules/ps_accounts/_dev
+# ln -s /tmp/libs/js/prestashop_accounts_vue_components /var/www/html/modules/ps_accounts/_dev
 
-rm -rf /var/www/html/modules/ps_accounts/vendor/david-piatek/test-composer
-ln -s /tmp/libs/php/prestashop_accounts_auth /var/www/html/modules/ps_accounts/vendor/david-piatek/test-composer
+rm -rf /var/www/html/modules/ps_accounts/vendor/prestashop/prestashop-accounts-auth
+ln -s /tmp/libs/php/prestashop_accounts_auth /var/www/html/modules/ps_accounts/vendor/prestashop/prestashop-accounts-auth
 
-
-# rm -rf /var/www/html/modules/ps_accounts/vendor/prestashop/prestashop_accounts_auth
-# ln -s /tmp/libs/php/prestashop_accounts_auth /var/www/html/modules/ps_accounts/vendor/prestashop/prestashop_accounts_auth
 exec apache2-foreground
