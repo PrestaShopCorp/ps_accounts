@@ -144,19 +144,15 @@ if [ -d /tmp/init-scripts/ ]; then
 else
     echo "\n* No init script found, let's continue..."
 fi
-
-apt update \
-    && apt install -y vim nano wget \
-    && php -r "readfile('https://getcomposer.org/installer');" | php -- --install-dir=/usr/local/bin --filename=composer \
-    && chmod +x /usr/local/bin/composer \
-    && cd /var/www/html/modules/ps_accounts \
+cd /var/www/html/modules/ps_accounts \
     && composer install \
     && /var/www/html/bin/console --env=prod prestashop:module install ps_accounts \
     && rm -rf /var/www/html/var/cache/* \
-    && rm -rf /var/lib/apt/lists/*
+    && rm -rf /var/lib/apt/lists/* \
+    && yarn --cwd _dev/ install
 
-# rm -rf /var/www/html/modules/ps_accounts/_dev
-# ln -s /tmp/libs/js/prestashop_accounts_vue_components /var/www/html/modules/ps_accounts/_dev
+rm -rf /var/www/html/modules/ps_accounts/_dev/node_modules/accounts-vue-components
+ln -s /tmp/libs/js/prestashop_accounts_vue_components /var/www/html/modules/ps_accounts/_dev/node_modules/accounts-vue-components
 
 rm -rf /var/www/html/modules/ps_accounts/vendor/prestashop/prestashop-accounts-auth
 ln -s /tmp/libs/php/prestashop_accounts_auth /var/www/html/modules/ps_accounts/vendor/prestashop/prestashop-accounts-auth

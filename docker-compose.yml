@@ -2,7 +2,7 @@ version: "3"
 
 services:
   ps_account_web:
-    image: prestashop/prestashop:${PS_VERSION}
+    build: .
     container_name: ps_acc_web
     env_file: .env
     working_dir: /var/www/html/modules/ps_accounts
@@ -25,15 +25,6 @@ services:
     env_file: .env
     networks:
       - account-net
-
-  ps_account_node:
-    image: node:lts-stretch
-    container_name: ps_acc_node
-    command: "tail -f /dev/null"
-    env_file: _dev/.env
-    volumes:
-      - .:/var/www/html/modules/ps_accounts
-    working_dir: /var/www/html/modules/ps_accounts/_dev
 
 networks:
   account-net:
