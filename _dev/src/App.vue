@@ -3,14 +3,13 @@
     <div class="app-header">
       <h2>ps account</h2>
     </div>
-    <Hello msg="Youpi"/>
+    <Hello msg="Youpi" />
 
     <div class="app-body">
       <AlreadyOnboarded v-if="lock" />
       <PsAccount v-else />
     </div>
   </div>
-
 </template>
 
 <script>
@@ -18,7 +17,7 @@ import Vuex from 'vuex'
 import store from './store/index'
 
 import Hello from 'accounts-vue-components'
-import NairaInput from 'vue-naira-input';
+import NairaInput from 'vue-naira-input'
 import PsAccount from './pages/PsAccount'
 import AlreadyOnboarded from './pages/AlreadyOnboarded'
 
@@ -28,7 +27,7 @@ export default {
   components: {
     PsAccount,
     AlreadyOnboarded,
-    Hello
+    Hello,
   },
   created() {
     if (this.onboardingStarted === true) {
