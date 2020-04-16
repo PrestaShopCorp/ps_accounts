@@ -21,7 +21,7 @@
 namespace PrestaShop\Module\PsAccounts\Presenter\Store;
 
 use PrestaShop\Module\PsAccounts\Presenter\PresenterInterface;
-use PrestaShop\Module\PsAccounts\Presenter\Store\Modules\FirebaseModule;
+use PrestaShop\AccountsAuth\Presenter\Store\Modules\FirebaseModule;
 use PrestaShop\Module\PsAccounts\Presenter\Store\Modules\PsAccountsModule;
 
 /**

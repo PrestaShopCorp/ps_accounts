@@ -80,11 +80,8 @@ class Ps_accounts extends Module
      */
     public function getContent()
     {
-        $say = new PrestaShop\AccountsAuth\Say();
 
-        echo $say->hello("Hello Composer");
-        die;
-        $tplName = $this->dispatch();
+        $this->dispatch();
 
         Media::addJsDef([
             'store' => (new PrestaShop\Module\PsAccounts\Presenter\Store\StorePresenter($this, $this->context))->present(),
@@ -117,7 +114,7 @@ class Ps_accounts extends Module
 
                 return;
             }
-            $token = new PrestaShop\Module\PsAccounts\Api\Firebase\Token();
+            $token = new PrestaShop\AccountsAuth\Api\Firebase\Token();
             $token->refresh();
 
             if (! Configuration::get('PS_PSX_FIREBASE_REFRESH_TOKEN')) {
@@ -154,7 +151,7 @@ class Ps_accounts extends Module
     private function getRefreshTokenWithAdminToken()
     {
         Configuration::updateValue('PS_PSX_FIREBASE_ADMIN_TOKEN', Tools::getValue('adminToken'));
-        $token = new PrestaShop\Module\PsAccounts\Api\Firebase\Token();
+        $token = new PrestaShop\AccountsAuth\Api\Firebase\Token();
         $token->getRefreshTokenWithAdminToken(Tools::getValue('adminToken'));
         $token->refresh();
     }
