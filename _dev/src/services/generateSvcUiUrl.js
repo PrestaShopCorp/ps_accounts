@@ -29,6 +29,7 @@ export default {
       pubKey: null,
       shopName: null,
       next: null,
+      locale: null,
     }
   ) {
     const output = {
@@ -56,6 +57,10 @@ export default {
     output.queryParams.next =
       typeof queryParamsInput.next === 'string'
         ? encodeURIComponent(queryParamsInput.next)
+        : null
+    output.queryParams.lang =
+      typeof queryParamsInput.locale === 'string'
+        ? encodeURIComponent(queryParamsInput.locale)
         : null
 
     const countInitQueryParams = Object.keys(output.queryParams).length
