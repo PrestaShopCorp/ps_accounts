@@ -1,4 +1,4 @@
-# Prestashop Account
+# PrestaShop Account
 
 ## Run project
 

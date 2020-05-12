@@ -61,8 +61,8 @@ class Ps_accounts extends Module
 
         parent::__construct();
 
-        $this->displayName = $this->l('Prestashop Account');
-        $this->description = $this->l('Module Prestashop Account');
+        $this->displayName = $this->l('PrestaShop Account');
+        $this->description = $this->l('Module PrestaShop Account');
 
         $this->ps_versions_compliancy = ['min' => '1.6', 'max' => _PS_VERSION_];
         $this->css_path               = $this->_path.'views/css/';
