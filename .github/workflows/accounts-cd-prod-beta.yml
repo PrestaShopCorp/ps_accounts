@@ -40,6 +40,7 @@ jobs:
           composer install
 
       - name: Delete old module
+        continue-on-error: true
         uses: appleboy/ssh-action@master
         with:
           host: ${{ secrets.SSH_HOST_PRODUCTION }}
