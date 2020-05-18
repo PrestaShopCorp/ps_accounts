@@ -1,9 +1,10 @@
 name: Module accounts CD
 
-on:
-  push:
-    branches:
-      - master
+on: [push]
+#on:
+#  push:
+#    branches:
+#      - master
 
 env:
   MODULE_NAME: ps_accounts
