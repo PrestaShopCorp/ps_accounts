@@ -1,10 +1,8 @@
 name: Module accounts CD
 
-#on:
-#  pull_request:
-#    types: [opened,edited,reopened,synchronize,labeled]
-
-on: [push]
+on:
+  pull_request:
+    types: [opened,edited,reopened,synchronize,labeled]
 
 env:
   MODULE_NAME: ps_accounts
@@ -15,7 +13,7 @@ jobs:
     name: Module Accounts continuous deployment
     runs-on: ubuntu-latest
     timeout-minutes: 10
-#    if: contains(github.event.pull_request.labels.*.name, 'quality assurance needed')
+    if: contains(github.event.pull_request.labels.*.name, 'quality assurance needed')
 
     steps:
       - name: Checkout the repository

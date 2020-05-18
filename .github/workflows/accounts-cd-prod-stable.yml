@@ -1,6 +1,9 @@
 name: Module accounts CD Production Beta
 
-on: [push]
+on:
+  push:
+    tags:
+      - '*'
 
 env:
   MODULE_NAME: ps_accounts
@@ -45,7 +48,7 @@ jobs:
           host: ${{ secrets.SSH_HOST_PRODUCTION }}
           username: ${{ secrets.SSH_USERNAME }}
           key: ${{ secrets.SSH_KEY }}
-          script: sudo su -c 'docker exec $(docker ps -aqf "name=${{ secrets.CONTAINER_BETA_NAME }}") rm -rf modules/${{ env.MODULE_NAME }}'
+          script: sudo su -c 'docker exec $(docker ps -aqf "name=${{ secrets.CONTAINER_NAME }}") rm -rf modules/${{ env.MODULE_NAME }}'
 
       - name: Copy module
         uses: appleboy/scp-action@master
@@ -63,8 +66,8 @@ jobs:
           username: ${{ secrets.SSH_USERNAME }}
           key: ${{ secrets.SSH_KEY }}
           script: |
-            sudo su -c 'mv ${{ env.MODULE_NAME }} ${{ secrets.MODULE_BETA_PATH }}'
-            sudo su -c 'chown -R www-data:www-data ${{ secrets.MODULE_BETA_PATH }}/${{ env.MODULE_NAME }}'
+            sudo su -c 'mv ${{ env.MODULE_NAME }} ${{ secrets.MODULE_PATH }}'
+            sudo su -c 'chown -R www-data:www-data ${{ secrets.MODULE_PATH }}/${{ env.MODULE_NAME }}'
 
       - name: Install module
         uses: appleboy/ssh-action@master
@@ -73,7 +76,7 @@ jobs:
           username: ${{ secrets.SSH_USERNAME }}
           key: ${{ secrets.SSH_KEY }}
           script: |
-            sudo su -c 'docker exec $(docker ps -aqf "name=${{ secrets.CONTAINER_BETA_NAME }}") bin/console prestashop:module install ${{ env.MODULE_NAME }}'
+            sudo su -c 'docker exec $(docker ps -aqf "name=${{ secrets.CONTAINER_NAME }}") bin/console prestashop:module install ${{ env.MODULE_NAME }}'
 
       - name: Clear cache
         uses: appleboy/ssh-action@master
@@ -82,5 +85,5 @@ jobs:
           username: ${{ secrets.SSH_USERNAME }}
           key: ${{ secrets.SSH_KEY }}
           script: |
-            sudo su -c 'docker exec $(docker ps -aqf "name=${{ secrets.CONTAINER_BETA_NAME }}") bin/console cache:cl'
-            sudo su -c 'docker exec $(docker ps -aqf "name=${{ secrets.CONTAINER_BETA_NAME }}") chmod -R 777 var/cache var/logs'
+            sudo su -c 'docker exec $(docker ps -aqf "name=${{ secrets.CONTAINER_NAME }}") bin/console cache:cl'
+            sudo su -c 'docker exec $(docker ps -aqf "name=${{ secrets.CONTAINER_NAME }}") chmod -R 777 var/cache var/logs'
