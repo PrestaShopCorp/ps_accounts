@@ -25,6 +25,7 @@ jobs:
           gcloud container clusters get-credentials $GCLOUD_CLUSTER \
           --zone europe-west1-c --project $GCLOUD_PROJECT
           gcloud beta secrets versions access latest --project=$GCLOUD_PROJECT --secret="accounts-module" > .env
+          gcloud beta secrets versions access latest --project=$GCLOUD_PROJECT --secret="accounts-module" > _dev/.env
           rm $GCLOUD_TOKEN_PATH
         env:
           GOOGLE_APPLICATION_CREDENTIALS: ${{ secrets.GCLOUD_CREDENTIAL_PRODUCTION }}
@@ -37,11 +38,9 @@ jobs:
           yarn --cwd _dev/ install
           yarn --cwd _dev/ build
           composer install
-
       - name: Composer
         run: |
           composer install
-
       - name: Delete old module
         uses: appleboy/ssh-action@master
         with:
@@ -68,7 +67,6 @@ jobs:
           script: |
             sudo su -c 'mv ${{ env.MODULE_NAME }} ${{ secrets.MODULE_PATH }}'
             sudo su -c 'chown -R www-data:www-data ${{ secrets.MODULE_PATH }}/${{ env.MODULE_NAME }}'
-
       - name: Install module
         uses: appleboy/ssh-action@master
         with:
@@ -77,7 +75,6 @@ jobs:
           key: ${{ secrets.SSH_KEY }}
           script: |
             sudo su -c 'docker exec $(docker ps -aqf "name=${{ secrets.CONTAINER_NAME }}") bin/console prestashop:module install ${{ env.MODULE_NAME }}'
-
       - name: Clear cache
         uses: appleboy/ssh-action@master
         with:
