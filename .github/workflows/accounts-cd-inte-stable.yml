@@ -1,9 +1,9 @@
-name: Module accounts CD Production Beta
+name: Module accounts CD
 
 on:
   push:
-    tags:
-      - '*'
+    branches:
+      - master
 
 env:
   MODULE_NAME: ps_accounts
@@ -13,6 +13,7 @@ jobs:
   accounts_cd:
     name: Module Accounts continuous deployment
     runs-on: ubuntu-latest
+    timeout-minutes: 10
 
     steps:
       - name: Checkout the repository
@@ -28,10 +29,10 @@ jobs:
           gcloud beta secrets versions access latest --project=$GCLOUD_PROJECT --secret="accounts-module" > _dev/.env
           rm $GCLOUD_TOKEN_PATH
         env:
-          GOOGLE_APPLICATION_CREDENTIALS: ${{ secrets.GCLOUD_CREDENTIAL_PRODUCTION }}
+          GOOGLE_APPLICATION_CREDENTIALS: ${{ secrets.GCLOUD_CREDENTIAL_INTEGRATION }}
           GCLOUD_TOKEN_PATH: ${{ env.GCLOUD_TOKEN_PATH }}
           GCLOUD_CLUSTER: ${{ secrets.GCLOUD_CLUSTER }}
-          GCLOUD_PROJECT: ${{ secrets.GCLOUD_PROJECT_PRODUCTION }}
+          GCLOUD_PROJECT: ${{ secrets.GCLOUD_PROJECT_INTEGRATION }}
 
       - name: Build module
         run: |
@@ -39,14 +40,10 @@ jobs:
           yarn --cwd _dev/ build
           composer install
 
-      - name: Composer
-        run: |
-          composer install
-
       - name: Delete old module
         uses: appleboy/ssh-action@master
         with:
-          host: ${{ secrets.SSH_HOST_PRODUCTION }}
+          host: ${{ secrets.SSH_HOST_INTEGRATION }}
           username: ${{ secrets.SSH_USERNAME }}
           key: ${{ secrets.SSH_KEY }}
           script: sudo su -c 'docker exec $(docker ps -aqf "name=${{ secrets.CONTAINER_NAME }}") rm -rf modules/${{ env.MODULE_NAME }}'
@@ -54,7 +51,7 @@ jobs:
       - name: Copy module
         uses: appleboy/scp-action@master
         with:
-          host: ${{ secrets.SSH_HOST_PRODUCTION }}
+          host: ${{ secrets.SSH_HOST_INTEGRATION }}
           username: ${{ secrets.SSH_USERNAME }}
           key: ${{ secrets.SSH_KEY }}
           source: "."
@@ -63,7 +60,7 @@ jobs:
       - name: Move module
         uses: appleboy/ssh-action@master
         with:
-          host: ${{ secrets.SSH_HOST_PRODUCTION }}
+          host: ${{ secrets.SSH_HOST_INTEGRATION }}
           username: ${{ secrets.SSH_USERNAME }}
           key: ${{ secrets.SSH_KEY }}
           script: |
@@ -73,16 +70,17 @@ jobs:
       - name: Install module
         uses: appleboy/ssh-action@master
         with:
-          host: ${{ secrets.SSH_HOST_PRODUCTION }}
+          host: ${{ secrets.SSH_HOST_INTEGRATION }}
           username: ${{ secrets.SSH_USERNAME }}
           key: ${{ secrets.SSH_KEY }}
           script: |
+            sudo su -c 'docker exec $(docker ps -aqf "name=${{ secrets.CONTAINER_NAME }}") cp modules/ps_accounts/.env modules/ps_accounts/_dev/.env'
             sudo su -c 'docker exec $(docker ps -aqf "name=${{ secrets.CONTAINER_NAME }}") bin/console prestashop:module install ${{ env.MODULE_NAME }}'
 
       - name: Clear cache
         uses: appleboy/ssh-action@master
         with:
-          host: ${{ secrets.SSH_HOST_PRODUCTION }}
+          host: ${{ secrets.SSH_HOST_INTEGRATION }}
           username: ${{ secrets.SSH_USERNAME }}
           key: ${{ secrets.SSH_KEY }}
           script: |
