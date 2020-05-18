@@ -29,6 +29,7 @@ export default {
       pubKey: null,
       shopName: null,
       next: null,
+      locale: null,
     }
   ) {
     const output = {
@@ -57,10 +58,14 @@ export default {
       typeof queryParamsInput.next === 'string'
         ? encodeURIComponent(queryParamsInput.next)
         : null
+    output.queryParams.lang =
+      typeof queryParamsInput.locale === 'string'
+        ? encodeURIComponent(queryParamsInput.locale)
+        : null
 
     const countInitQueryParams = Object.keys(output.queryParams).length
     let counterValideParams = 0
-    output.svcUiUrl = `${svcUiDomainName}/link-shop/${protocolDomainToValidate}/${domainNameDomainToValidate}/${protocolBo}/${domainNameBo}/PSXEmoji.Deluxe.Fake.Service?`
+    output.svcUiUrl = `${svcUiDomainName}/shop/account/link/${protocolDomainToValidate}/${domainNameDomainToValidate}/${protocolBo}/${domainNameBo}/PSXEmoji.Deluxe.Fake.Service?`
 
     Object.entries(output.queryParams).forEach(([key, value]) => {
       if (value !== null) {

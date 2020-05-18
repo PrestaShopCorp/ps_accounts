@@ -37,6 +37,7 @@ export default {
           pubKey: response,
           shopName: getters.shopName,
           next: getters.nextStep,
+          locale: getters.locale,
         }
       )
 

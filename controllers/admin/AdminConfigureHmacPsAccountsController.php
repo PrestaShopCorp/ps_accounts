@@ -76,7 +76,7 @@ class AdminConfigureHmacPsAccountsController extends ModuleAdminController
         }
 
         header(
-            'Location: '.$url.'/verify-shop/'.Tools::getValue('uid')
+            'Location: '.$url.'/shop/account/verify/'.Tools::getValue('uid')
             .'?shopKey='
             .urlencode(Configuration::get('PS_ACCOUNTS_RSA_SIGN_DATA'))
         );
