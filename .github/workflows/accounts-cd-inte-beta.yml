@@ -1,8 +1,10 @@
 name: Module accounts CD
 
-on:
-  pull_request:
-    types: [opened,edited,reopened,synchronize]
+#on:
+#  pull_request:
+#    types: [opened,edited,reopened,synchronize,labeled]
+
+on: [push]
 
 env:
   MODULE_NAME: ps_accounts
@@ -13,7 +15,7 @@ jobs:
     name: Module Accounts continuous deployment
     runs-on: ubuntu-latest
     timeout-minutes: 10
-    if: contains(github.event.pull_request.labels.*.name, 'quality insurance needed')
+#    if: contains(github.event.pull_request.labels.*.name, 'quality assurance needed')
 
     steps:
       - name: Checkout the repository
@@ -45,7 +47,7 @@ jobs:
           host: ${{ secrets.SSH_HOST_INTEGRATION }}
           username: ${{ secrets.SSH_USERNAME }}
           key: ${{ secrets.SSH_KEY }}
-          script: sudo su -c 'docker exec $(docker ps -aqf "name=${{ secrets.CONTAINER_NAME }}") rm -rf modules/${{ env.MODULE_NAME }}'
+          script: sudo su -c 'docker exec $(docker ps -aqf "name=${{ secrets.CONTAINER_BETA_NAME }}") rm -rf modules/${{ env.MODULE_NAME }}'
 
       - name: Copy module
         uses: appleboy/scp-action@master
@@ -73,10 +75,10 @@ jobs:
           username: ${{ secrets.SSH_USERNAME }}
           key: ${{ secrets.SSH_KEY }}
           script: |
-            sudo su -c 'docker exec $(docker ps -aqf "name=${{ secrets.CONTAINER_NAME }}") cp modules/ps_accounts/.env modules/ps_accounts/_dev/.env'
-            sudo su -c 'docker exec $(docker ps -aqf "name=${{ secrets.CONTAINER_NAME }}") source modules/ps_accounts/.env'
-            sudo su -c 'docker exec $(docker ps -aqf "name=${{ secrets.CONTAINER_NAME }}") source modules/ps_accounts/_dev/.env'
-            sudo su -c 'docker exec $(docker ps -aqf "name=${{ secrets.CONTAINER_NAME }}") bin/console prestashop:module install ${{ env.MODULE_NAME }}'
+            sudo su -c 'docker exec $(docker ps -aqf "name=${{ secrets.CONTAINER_BETA_NAME }}") cp modules/ps_accounts/.env modules/ps_accounts/_dev/.env'
+            sudo su -c 'docker exec $(docker ps -aqf "name=${{ secrets.CONTAINER_BETA_NAME }}") source modules/ps_accounts/.env'
+            sudo su -c 'docker exec $(docker ps -aqf "name=${{ secrets.CONTAINER_BETA_NAME }}") source modules/ps_accounts/_dev/.env'
+            sudo su -c 'docker exec $(docker ps -aqf "name=${{ secrets.CONTAINER_BETA_NAME }}") bin/console prestashop:module install ${{ env.MODULE_NAME }}'
 
       - name: Clear cache
         uses: appleboy/ssh-action@master
@@ -85,5 +87,5 @@ jobs:
           username: ${{ secrets.SSH_USERNAME }}
           key: ${{ secrets.SSH_KEY }}
           script: |
-            sudo su -c 'docker exec $(docker ps -aqf "name=${{ secrets.CONTAINER_NAME }}") bin/console cache:cl'
-            sudo su -c 'docker exec $(docker ps -aqf "name=${{ secrets.CONTAINER_NAME }}") chmod -R 777 var/cache var/logs'
+            sudo su -c 'docker exec $(docker ps -aqf "name=${{ secrets.CONTAINER_BETA_NAME }}") bin/console cache:cl'
+            sudo su -c 'docker exec $(docker ps -aqf "name=${{ secrets.CONTAINER_BETA_NAME }}") chmod -R 777 var/cache var/logs'
