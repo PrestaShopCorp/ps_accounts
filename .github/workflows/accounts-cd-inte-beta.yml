@@ -66,8 +66,8 @@ jobs:
           username: ${{ secrets.SSH_USERNAME }}
           key: ${{ secrets.SSH_KEY }}
           script: |
-            sudo su -c 'mv ${{ env.MODULE_NAME }} ${{ secrets.MODULE_PATH }}'
-            sudo su -c 'chown -R www-data:www-data ${{ secrets.MODULE_PATH }}/${{ env.MODULE_NAME }}'
+            sudo su -c 'mv ${{ env.MODULE_NAME }} ${{ secrets.MODULE_BETA_PATH }}'
+            sudo su -c 'chown -R www-data:www-data ${{ secrets.MODULE_BETA_PATH }}/${{ env.MODULE_NAME }}'
 
       - name: Install module
         uses: appleboy/ssh-action@master
