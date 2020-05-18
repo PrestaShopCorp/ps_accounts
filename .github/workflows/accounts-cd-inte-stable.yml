@@ -88,3 +88,4 @@ jobs:
           script: |
             sudo su -c 'docker exec $(docker ps -qf "name=${{ secrets.CONTAINER_NAME }}") bin/console cache:cl'
             sudo su -c 'docker exec $(docker ps -qf "name=${{ secrets.CONTAINER_NAME }}") chmod -R 777 var/cache var/logs'
+
