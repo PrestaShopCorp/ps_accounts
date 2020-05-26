@@ -22,46 +22,44 @@ namespace PrestaShop\Module\PsAccounts\Module;
 
 class Install
 {
-    //for debug
-//    const PARENT_TAB_NAME = 'IMPROVE';
-//    const TAB_ACTIVE = 1;
-
     const PARENT_TAB_NAME = -1;
-    const TAB_ACTIVE = -0;
+    const TAB_ACTIVE = 0;
 
     /**
-     * @var \Module
+     * @var \Ps_accounts
      */
     private $module;
 
-    public function __construct(\Module $module)
+    public function __construct(\Ps_accounts $module)
     {
         $this->module = $module;
     }
 
     /**
      * installInMenu.
+     *
+     * @return bool
      */
     public function installInMenu()
     {
         foreach ($this->module->adminControllers as $controllerName) {
             $tabId = (int) \Tab::getIdFromClassName($controllerName);
 
-            if (! $tabId) {
+            if (!$tabId) {
                 $tabId = null;
             }
 
-            $tab             = new \Tab($tabId);
-            $tab->active     = self::TAB_ACTIVE;
+            $tab = new \Tab($tabId);
+            $tab->active = (bool) self::TAB_ACTIVE;
             $tab->class_name = $controllerName;
-            $tab->name       = [];
+            $tab->name = [];
 
             foreach (\Language::getLanguages(true) as $lang) {
                 $tab->name[$lang['id_lang']] = $this->module->displayName;
             }
 
-            $tab->id_parent = -1 == self::PARENT_TAB_NAME ? (int) \Tab::getIdFromClassName(self::PARENT_TAB_NAME) : -1;
-            $tab->module    = $this->module->name;
+            $tab->id_parent = -1 == self::PARENT_TAB_NAME ? (int) \Tab::getIdFromClassName((string) self::PARENT_TAB_NAME) : -1;
+            $tab->module = $this->module->name;
 
             $tab->save();
         }

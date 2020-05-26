@@ -18,15 +18,14 @@
  * International Registered Trademark & Property of PrestaShop SA
  */
 
-namespace PrestaShop\Module\PsAccounts\Presenter\Store\Modules;
+namespace PrestaShop\Module\PsAccounts\Presenter;
 
-use PrestaShop\Module\PsAccounts\Presenter\PresenterInterface;
-use PrestaShop\Module\PsAccounts\Translations\Translations;
+use PrestaShop\Module\PsAccounts\Adapter\LinkAdapter;
 
 /**
  * Construct the psaccounts module.
  */
-class PsAccountsModule implements PresenterInterface
+class PsAccountsModule
 {
     /**
      * @var \Context
@@ -44,7 +43,7 @@ class PsAccountsModule implements PresenterInterface
     }
 
     /**
-     * Present the Firebase module (vuex).
+     * Present the PsAccounts module for vue.
      *
      * @return array
      */
@@ -67,23 +66,77 @@ class PsAccountsModule implements PresenterInterface
                 'protocolDomainToValidate' => str_replace(
                     '://',
                     '',
-                    \Tools::getProtocol(\Configuration::get('PS_SSL_ENABLED'))
+                    \Tools::getProtocol()
                 ),
                 'domainNameDomainToValidate' => str_replace(
-                    \Tools::getProtocol(\Configuration::get('PS_SSL_ENABLED')),
+                    \Tools::getProtocol((bool) \Configuration::get('PS_SSL_ENABLED')),
                     '',
                     \Tools::getShopDomainSsl(true)
                 ),
                 'psVersion' => _PS_VERSION_,
-                'language' => $this->context->language,
-                'translations' => (new Translations($this->module))->getTranslations(),
                 'adminController' => $this->context->link->getAdminLink('AdminAjaxPsAccounts'),
                 'resetOnboardingUrl' => $this->context->link->getAdminLink('AdminAjaxPsAccounts'),
                 'onboardingStarted' => \Configuration::get('PS_ACCOUNTS_RSA_PUBLIC_KEY')
                     && \Configuration::get('PS_ACCOUNTS_RSA_PRIVATE_KEY')
                     && \Configuration::get('PS_ACCOUNTS_RSA_SIGN_DATA'),
-                'pageTitle' => $this->module->getPageTitle()
+                'isShopContext' => $this->isShopContext(),
+                'shopsTree' => $this->getShopsTree(),
             ],
         ];
+    }
+
+    /**
+     * @return bool
+     */
+    private function isShopContext()
+    {
+        if (\Shop::isFeatureActive() && \Shop::getContext() !== \Shop::CONTEXT_SHOP) {
+            return false;
+        }
+
+        return true;
+    }
+
+    /**
+     * @return array
+     */
+    private function getShopsTree()
+    {
+        $shopList = [];
+
+        if (true === $this->isShopContext()) {
+            return $shopList;
+        }
+
+        $linkAdapter = new LinkAdapter($this->context->link);
+
+        foreach (\Shop::getTree() as $groupId => $groupData) {
+            $shops = [];
+            foreach ($groupData['shops'] as $shopId => $shopData) {
+                $shops[] = [
+                    'id' => $shopId,
+                    'name' => $shopData['name'],
+                    'domain' => $shopData['domain'],
+                    'domain_ssl' => $shopData['domain_ssl'],
+                    'url' => $linkAdapter->getAdminLink(
+                        'AdminModules',
+                        true,
+                        [],
+                        [
+                            'configure' => $this->module->name,
+                            'setShopContext' => 's-' . $shopId,
+                        ]
+                    ),
+                ];
+            }
+
+            $shopList[] = [
+                'id' => $groupId,
+                'name' => $groupData['name'],
+                'shops' => $shops,
+            ];
+        }
+
+        return $shopList;
     }
 }

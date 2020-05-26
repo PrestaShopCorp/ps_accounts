@@ -23,22 +23,14 @@
 *  @license   http://opensource.org/licenses/afl-3.0.php  Academic Free License (AFL 3.0)
 *  International Registered Trademark & Property of PrestaShop SA
 */
+
+/**
+ * Controller generate hmac and redirect on hmac's file.
+ */
 class AdminConfigureHmacPsAccountsController extends ModuleAdminController
 {
     /**
-     * Construct.
-     */
-    public function __construct()
-    {
-        parent::__construct();
-    }
-
-    /**
-     * Initialize the content by adding Boostrap and loading the TPL.
-     *
-     * @param none
-     *
-     * @return none
+     * @return void
      */
     public function initContent()
     {
@@ -46,28 +38,27 @@ class AdminConfigureHmacPsAccountsController extends ModuleAdminController
             if (null === Tools::getValue('hmac')) {
                 throw new Exception("Caught exception: Hmac does not exist \n");
             }
-            $hmacPath = _PS_ROOT_DIR_.'/upload/';
+            $hmacPath = _PS_ROOT_DIR_ . '/upload/';
             foreach (['hmac' => '/[a-zA-Z0-9]{8,64}/', 'uid' => '/[a-zA-Z0-9]{8,64}/', 'slug' => '/[-_a-zA-Z0-9]{8,255}/'] as $key => $value) {
-                if (! array_key_exists($key, Tools::getAllValues())) {
+                if (!array_key_exists($key, Tools::getAllValues())) {
                     throw new Exception("Missing query params \n");
                 }
 
-                if (! preg_match($value, Tools::getValue($key))) {
+                if (!preg_match($value, Tools::getValue($key))) {
                     throw new Exception("Invalide query params \n");
                 }
             }
 
-            if (! is_dir($hmacPath)) {
+            if (!is_dir($hmacPath)) {
                 mkdir($hmacPath);
             }
 
-            if (! is_writable($hmacPath)) {
+            if (!is_writable($hmacPath)) {
                 throw new Exception("Directory isn't writable \n");
             }
 
-            file_put_contents($hmacPath.Tools::getValue('uid').'.txt', Tools::getValue('hmac'));
+            file_put_contents($hmacPath . Tools::getValue('uid') . '.txt', Tools::getValue('hmac'));
         } catch (Exception $e) {
-            $this->setTemplate('error.tpl');
         }
         $url = $_ENV['VUE_APP_UI_SVC_URL'];
 
@@ -76,9 +67,9 @@ class AdminConfigureHmacPsAccountsController extends ModuleAdminController
         }
 
         header(
-            'Location: '.$url.'/shop/account/verify/'.Tools::getValue('uid')
-            .'?shopKey='
-            .urlencode(Configuration::get('PS_ACCOUNTS_RSA_SIGN_DATA'))
+            'Location: ' . $url . '/shop/account/verify/' . Tools::getValue('uid')
+            . '?shopKey='
+            . urlencode(Configuration::get('PS_ACCOUNTS_RSA_SIGN_DATA'))
         );
         exit;
     }

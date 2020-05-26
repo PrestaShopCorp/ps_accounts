@@ -7,24 +7,27 @@
     "optimize-autoloader": true,
     "prepend-autoloader": false
   },
-  "require-dev": {
-    "php": ">=5.6",
-    "phpunit/phpunit": "^5.7",
-    "prestashop/php-dev-tools": "^2.2",
-    "friendsofphp/php-cs-fixer": "^2.16"
-  },
   "autoload": {
     "psr-4": {
       "PrestaShop\\Module\\PsAccounts\\": "classes/"
     },
     "classmap": [
-      "ps_accounts.php"
+      "ps_accounts.php",
+      "controllers/"
     ]
   },
   "require": {
+    "php": ">=5.6",
     "symfony/dotenv": "^3.4",
     "phpseclib/phpseclib": "^2.0",
     "ext-json": "*",
-    "guzzlehttp/guzzle": "^6.5"
+    "guzzlehttp/guzzle": "~5.0",
+    "monolog/monolog": "1.25.3",
+    "prestashop/prestashop-accounts-auth": "dev-feature/790-extract-library-from-ps_accounts"
+  },
+  "require-dev": {
+    "phpunit/phpunit": "^5.7",
+    "prestashop/php-dev-tools": "3.*",
+    "friendsofphp/php-cs-fixer": "^2.16"
   }
 }
