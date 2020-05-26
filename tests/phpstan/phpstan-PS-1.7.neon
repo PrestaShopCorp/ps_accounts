@@ -1,0 +1,16 @@
+includes:
+	- %currentWorkingDirectory%/vendor/prestashop/php-dev-tools/phpstan/ps-module-extension.neon
+parameters:
+	checkMissingIterableValueType: false
+	reportUnmatchedIgnoredErrors: false
+	paths:
+		- ../../classes
+		- ../../controllers
+		- ../../ps_accounts.php
+	dynamicConstantNames:
+		- _PS_VERSION_
+	ignoreErrors:
+		- '#Property TabCore::\$name \(string\) does not accept array.#'
+		- '#Parameter \#1 \$value of method ControllerCore::ajaxDie\(\) expects string\|null, string\|false given.#'
+
+	level: 7

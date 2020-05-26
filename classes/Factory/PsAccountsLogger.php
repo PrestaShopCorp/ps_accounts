@@ -18,39 +18,37 @@
  * International Registered Trademark & Property of PrestaShop SA
  */
 
-namespace PrestaShop\Module\PsAccounts\Translations;
+namespace PrestaShop\Module\PsAccounts\Factory;
 
-class Translations
+use Monolog\Handler\RotatingFileHandler;
+use Monolog\Logger;
+
+class PsAccountsLogger
 {
-    /**
-     * @var \Module
-     */
-    private $module = null;
+    const MAX_FILES = 15;
 
     /**
-     * @param \Module $module
-     */
-    public function __construct(\Module $module)
-    {
-        $this->module = $module;
-    }
-
-    /**
-     * Create all translations (backoffice)
+     * Create logger.
      *
-     * @return array translation list
+     * @return \Monolog\Logger
      */
-    public function getTranslations()
+    public static function create()
     {
-        $locale = \Context::getContext()->language->locale;
+        $path = _PS_ROOT_DIR_ . '/var/logs/ps_accounts';
 
-        $translations[$locale] = [
-            'general' => [
-                'startOnboarding' => $this->module->l('Start Onboarding', 'translations'),
-                'restartOnboarding' => $this->module->l('Restart Onboarding', 'translations'),
-            ],
-        ];
+        if (version_compare(_PS_VERSION_, '1.7', '<')) {
+            $path = _PS_ROOT_DIR_ . '/log/ps_accounts';
+        } elseif (version_compare(_PS_VERSION_, '1.7.4', '<')) {
+            $path = _PS_ROOT_DIR_ . '/app/logs/ps_accounts';
+        }
 
-        return $translations;
+        $rotatingFileHandler = new RotatingFileHandler(
+            $path,
+            static::MAX_FILES
+        );
+        $logger = new Logger('ps_accounts');
+        $logger->pushHandler($rotatingFileHandler);
+
+        return $logger;
     }
 }

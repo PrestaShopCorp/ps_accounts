@@ -22,8 +22,16 @@ namespace PrestaShop\Module\PsAccounts\Service;
 
 use phpseclib\Crypt\RSA;
 
+/**
+ * Manage RSA
+ */
 class SshKey
 {
+    /**
+     * @var \phpseclib\Crypt\RSA
+     */
+    private $rsa;
+
     public function __construct()
     {
         $this->rsa = new RSA();
@@ -31,6 +39,9 @@ class SshKey
         $this->rsa->setSignatureMode(RSA::SIGNATURE_PKCS1);
     }
 
+    /**
+     * @return array
+     */
     public function generate()
     {
         $this->rsa->setPrivateKeyFormat(RSA::PRIVATE_FORMAT_PKCS1);
@@ -39,6 +50,12 @@ class SshKey
         return $this->rsa->createKey();
     }
 
+    /**
+     * @param string $privateKey
+     * @param string $data
+     *
+     * @return string
+     */
     public function signData($privateKey, $data)
     {
         $this->rsa->loadKey($privateKey);
@@ -46,6 +63,13 @@ class SshKey
         return base64_encode($this->rsa->sign($data));
     }
 
+    /**
+     * @param string $publicKey
+     * @param string $signature
+     * @param string $data
+     *
+     * @return bool
+     */
     public function verifySignature($publicKey, $signature, $data)
     {
         $this->rsa->loadKey($publicKey);

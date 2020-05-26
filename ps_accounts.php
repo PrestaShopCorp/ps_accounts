@@ -23,164 +23,133 @@
 *  @license   http://opensource.org/licenses/afl-3.0.php  Academic Free License (AFL 3.0)
 *  International Registered Trademark & Property of PrestaShop SA
 */
-if (! defined('_PS_VERSION_')) {
+if (!defined('_PS_VERSION_')) {
     exit;
 }
-require_once __DIR__.'/vendor/autoload.php';
+require_once __DIR__ . '/vendor/autoload.php';
 
 class Ps_accounts extends Module
 {
+    /**
+     * @var array
+     */
     public $adminControllers;
-    public $author;
-    public $bootstrap;
-    public $css_path;
-    public $description;
-    public $displayName;
-    public $js_path;
-    public $name;
-    public $ps_versions_compliancy;
-    public $tab;
-    public $version;
-    protected $config_form = false;
-    protected $tpl         = '';
-    protected $tplName     = '';
 
-    const SVC_TOKEN = "adminToken";
+    /**
+     * @var string
+     */
+    public $author;
+
+    /**
+     * @var bool
+     */
+    public $bootstrap;
+
+    /**
+     * @var int
+     */
+    public $need_instance;
+
+    /**
+     * @var string
+     */
+    public $description;
+
+    /**
+     * @var string
+     */
+    public $displayName;
+
+    /**
+     * @var string
+     */
+    public $name;
+
+    /**
+     * @var array
+     */
+    public $ps_versions_compliancy;
+
+    /**
+     * @var string
+     */
+    public $tab;
+
+    /**
+     * @var string
+     */
+    public $version;
+
+    /**
+     * @var \Monolog\Logger
+     */
+    private $logger;
 
     /**
      * __construct.
      */
     public function __construct()
     {
-        $this->name          = 'ps_accounts';
-        $this->tab           = 'administration';
-        $this->version       = '1.0.0';
-        $this->author        = 'PrestaShop';
-        $this->need_instance = 0;
-        $this->bootstrap     = true;
-
         parent::__construct();
 
+        $this->name = 'ps_accounts';
+        $this->tab = 'administration';
+        $this->author = 'PrestaShop';
+        $this->need_instance = 0;
+        $this->bootstrap = true;
+        $this->version = '1.0.0';
         $this->displayName = $this->l('PrestaShop Account');
         $this->description = $this->l('Link your PrestaShop account to your online shop to activate & manage services on your back-office. Don\'t uninstall this module if you are already using a service, as it will prevent it from working.');
 
         $this->ps_versions_compliancy = ['min' => '1.6', 'max' => _PS_VERSION_];
-        $this->css_path               = $this->_path.'views/css/';
-        $this->js_path                = $this->_path.'views/js/';
-        $this->adminControllers       = [
-            'hmac'      => 'AdminConfigureHmacPsAccounts',
-            'ajax'      => 'AdminAjaxPsAccounts',
-            ];
-        $dotenv = new Symfony\Component\Dotenv\Dotenv();
-        $dotenv->load($this->local_path.'.env');
+        $this->adminControllers = [
+            'hmac' => 'AdminConfigureHmacPsAccounts',
+            'ajax' => 'AdminAjaxPsAccounts',
+        ];
     }
 
     /**
-     * Load the configuration form.
+     * @return \Monolog\Logger
      */
-    public function getContent()
+    public function getLogger()
     {
-        $tplName = $this->dispatch();
+        if (null !== $this->logger) {
+            return $this->logger;
+        }
 
-        Media::addJsDef([
-            'store' => (new PrestaShop\Module\PsAccounts\Presenter\Store\StorePresenter($this, $this->context))->present(),
-        ]);
-        $this->context->smarty->assign([
-            'pathApp' => Tools::getShopDomainSsl(true).$this->getPathUri().'views/js/app.js',
-        ]);
+        $this->logger = PrestaShop\Module\PsAccounts\Factory\PsAccountsLogger::create();
 
-        return $this->context->smarty->fetch($this->local_path.'views/templates/admin/'.$this->getTplName());
+        return $this->logger;
     }
 
     /**
-     * @return void
+     * @return \Context
      */
-    private function dispatch()
+    public function getContext()
     {
-        if (! $this->context->employee->isSuperAdmin()) {
-            $this->setTplName('accessDenied.tpl');
-            $this->setPageTitle('Access Denied');
-        }
-
-        if ($this->firstStepIsDone()) {
-            $adminToken = Tools::getValue(self::SVC_TOKEN);
-            $step       = Tools::getValue('step');
-            // TODO emailVerified
-            if ($adminToken && $step && 4 == $step) {
-                $this->getRefreshTokenWithAdminToken();
-                $this->setTplName('onboardingFinished.tpl');
-                $this->setPageTitle('Onboarding Finished');
-
-                return;
-            }
-            $token = new PrestaShop\Module\PsAccounts\Api\Firebase\Token();
-            $token->refresh();
-
-            if (! Configuration::get('PS_PSX_FIREBASE_REFRESH_TOKEN')) {
-                $this->setTplName('error.tpl');
-                $this->setPageTitle('FIREBASE_REFRESH_TOKEN is empty');
-
-                return;
-            }
-            $this->setTplName('alreadyOnboarded.tpl');
-            $this->setPageTitle('Already Onboarded');
-
-            return;
-        }
-
-        if (Configuration::get('PS_PSX_FIREBASE_REFRESH_TOKEN')) {
-            $this->setTplName('accessDenied.tpl');
-            $this->setPageTitle('Access Denied');
-
-            return;
-        }
-        $this->setTplName('configure.tpl');
-        $this->setPageTitle('Configure');
-
-        return;
+        return $this->context;
     }
 
-    private function firstStepIsDone()
+    /**
+     * @return array
+     */
+    public function getAdminControllers()
     {
-        return  Configuration::get('PS_ACCOUNTS_RSA_PUBLIC_KEY')
-            && Configuration::get('PS_ACCOUNTS_RSA_PRIVATE_KEY')
-            && Configuration::get('PS_ACCOUNTS_RSA_SIGN_DATA');
+        return $this->adminControllers;
     }
 
-    private function getRefreshTokenWithAdminToken()
-    {
-        Configuration::updateValue('PS_PSX_FIREBASE_ADMIN_TOKEN', Tools::getValue('adminToken'));
-        $token = new PrestaShop\Module\PsAccounts\Api\Firebase\Token();
-        $token->getRefreshTokenWithAdminToken(Tools::getValue('adminToken'));
-        $token->refresh();
-    }
-
-    public function setTplName($tplName)
-    {
-        $this->tplName = $tplName;
-    }
-
-    public function getTplName()
-    {
-        return $this->tplName;
-    }
-
-    public function setPageTitle($pageTitle)
-    {
-        $this->pageTitle = $pageTitle;
-    }
-
-    public function getPageTitle()
-    {
-        return $this->pageTitle;
-    }
-
+    /**
+     * @return bool
+     */
     public function install()
     {
         return (new PrestaShop\Module\PsAccounts\Module\Install($this))->installInMenu()
             && parent::install();
     }
 
+    /**
+     * @return bool
+     */
     public function uninstall()
     {
         return (new PrestaShop\Module\PsAccounts\Module\Uninstall($this))->uninstallMenu()
