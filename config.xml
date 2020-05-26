@@ -2,11 +2,11 @@
 <module>
     <name>ps_accounts</name>
     <displayName><![CDATA[PrestaShop Account]]></displayName>
-    <version><![CDATA[1.0.0]]></version>
-    <description><![CDATA[Link your PrestaShop account to your online shop to activate & manage services on your back-office. Don't uninstall this module if you are already using a service, as it will prevent it from working.]]></description>
+    <version><![CDATA[]]></version>
+    <description><![CDATA[Link your PrestaShop account to your online shop to activate &amp; manage services on your back-office. Don&#039;t uninstall this module if you are already using a service, as it will prevent it from working.]]></description>
     <author><![CDATA[PrestaShop]]></author>
     <tab><![CDATA[administration]]></tab>
-    <is_configurable>1</is_configurable>
-    <need_instance>1</need_instance>
+    <is_configurable>0</is_configurable>
+    <need_instance>0</need_instance>
 	<limited_countries></limited_countries>
 </module>
