@@ -19,17 +19,22 @@
  */
 use PrestaShop\Module\PsAccounts\Service\SshKey;
 
+/**
+ * Controller for all call ajax.
+ */
 class AdminAjaxPsAccountsController extends ModuleAdminController
 {
-    const STR_TO_SIGN = "data";
+    const STR_TO_SIGN = 'data';
 
     /**
      * AJAX: Generate ssh key.
+     *
+     * @return void
      */
     public function ajaxProcessGenerateSshKey()
     {
         $sshKey = new SshKey();
-        $key    = $sshKey->generate();
+        $key = $sshKey->generate();
         Configuration::updateValue('PS_ACCOUNTS_RSA_PRIVATE_KEY', $key['privatekey']);
         Configuration::updateValue('PS_ACCOUNTS_RSA_PUBLIC_KEY', $key['publickey']);
         $data = 'data';
@@ -47,7 +52,23 @@ class AdminAjaxPsAccountsController extends ModuleAdminController
     }
 
     /**
+     * AJAX: Save Admin Token.
+     *
+     * @return void
+     */
+    public function ajaxProcessSaveAdminToken()
+    {
+        Configuration::updateValue('PS_PSX_FIREBASE_ADMIN_TOKEN', Tools::getValue('adminToken'));
+
+        $this->ajaxDie(
+            json_encode(true)
+        );
+    }
+
+    /**
      * AJAX: Reset onboading.
+     *
+     * @return void
      */
     public function ajaxProcessResetOnboarding()
     {
