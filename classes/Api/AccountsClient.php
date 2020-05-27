@@ -79,7 +79,6 @@ class AccountsClient extends GenericClient
         ]);
 
         if (!$res || $res['httpCode'] < 200 || $res['httpCode'] > 299) {
-        dump($res); die;
             return [
                 'httpCode' => $res['httpCode'],
                 'body' => $res['body'] ? $res['body']['message'] : 'Unknown error',
