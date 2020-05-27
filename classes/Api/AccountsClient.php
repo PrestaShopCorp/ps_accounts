@@ -79,15 +79,16 @@ class AccountsClient extends GenericClient
         ]);
 
         if (!$res || $res['httpCode'] < 200 || $res['httpCode'] > 299) {
+        dump($res); die;
             return [
                 'httpCode' => $res['httpCode'],
-                'body' => $res['body']['message'],
+                'body' => $res['body'] ? $res['body']['message'] : 'Unknown error',
             ];
         }
 
         return [
             'httpCode' => 200,
-            'body' => 'pouet',
+            'body' => 'ok',
         ];
     }
 }
