@@ -78,8 +78,13 @@ class AccountsClient extends GenericClient
             'json' => $body,
         ]);
 
-        // TODO !0: $res->status === false :
-        // returns [500, '...'] if error occurs
+        if (!$res || $res['httpCode'] < 200 || $res['httpCode'] > 299) {
+            return [
+                'httpCode' => $res['httpCode'],
+                'body' => $res['body']['message'],
+            ];
+        }
+
         return [
             'httpCode' => 200,
             'body' => 'pouet',
