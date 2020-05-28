@@ -2,14 +2,11 @@
 
 ## Installation
 
-Configure env :
-```bash
-make init
-```
-
 Clone the repo if not already done
+
 ```bash
 git clone github.com:PrestaShopCorp/prestashop_accounts_auth.git
+git clone github.com:PrestaShopCorp/ps_checkout.git
 ```
 
 /!\ Customize .env with path of dependencies
