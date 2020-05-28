@@ -1,5 +1,3 @@
-DKC=docker-compose -f docker-compose.yml -f docker-compose.override.yml
-
 .PHONY: help
 
 help:
@@ -7,12 +5,10 @@ help:
 
 init: ## Init project
 	cp -n .env.dist .env || true
-	cp -n docker-compose.override.yml.dist docker-compose.override.yml || true
 
 start: ## Start app, force rebuild all containers
-	rm -f install.lock
 	$(MAKE) init
-	$(DKC) up -d
+	docker-compose up -d
 
 restart: ## Force restart all containers
 	$(MAKE) down
