@@ -15,6 +15,8 @@ Customize docker-compose.override.yml for choice port
 
 ## Usage
 
+/!\ The ports `80` and `3306` should not be used by your host.
+
 List all Makefile rules
 ```bash
 make
