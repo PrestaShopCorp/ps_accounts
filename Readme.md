@@ -5,8 +5,8 @@
 Clone the repo if not already done
 
 ```bash
-git clone github.com:PrestaShopCorp/prestashop_accounts_auth.git
-git clone github.com:PrestaShopCorp/ps_checkout.git
+git clone git@github.com:PrestaShopCorp/prestashop_accounts_auth.git
+git clone git@github.com:PrestaShopCorp/ps_checkout.git
 ```
 
 /!\ Customize .env with path of dependencies
@@ -38,26 +38,26 @@ For watch docker-compose status run `watch docker-compose ps`
 #### FRONT
 
 ```
-FRONT URL   : http://localhost:<port>
+FRONT URL   : http://127.0.0.1
 User        : pub@prestashop.com
 Pwd         : 123456789
 ```
 
 #### BO
 
-```
-http://localhost:<port>/admin-dev/index.php/module/manage?email=demo@prestashop.com password=prestashop_demo
-```
-example
-```
-http://localhost:80/admin-dev/index.php/module/manage?email=demo@prestashop.com password=prestashop_demo
-```
+
 
 authentication
 ```
-URL         : http://localhost:<port>/admin-dev
+URL         : http://127.0.0.1/admin-dev
 User        : demo@prestashop.com
 Pwd         : prestashop_demo
+```
+
+or
+
+```
+http://127.0.0.1/admin-dev/index.php/module/manage?email=demo@prestashop.com password=prestashop_demo
 ```
 
 #### DB
