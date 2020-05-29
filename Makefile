@@ -7,6 +7,7 @@ init: ## Init project
 	cp -n .env.dist .env || true
 
 start: ## Start app, force rebuild all containers
+	rm -f install.lock || true
 	$(MAKE) init
 	docker-compose up -d
 
