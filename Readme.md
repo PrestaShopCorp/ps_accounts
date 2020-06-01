@@ -15,8 +15,6 @@ Customize docker-compose.override.yml for choice port
 
 ## Usage
 
-/!\ The ports `80` and `3306` should not be used by your host.
-
 List all Makefile rules
 ```bash
 make
@@ -38,7 +36,7 @@ For watch docker-compose status run `watch docker-compose ps`
 #### FRONT
 
 ```
-FRONT URL   : http://127.0.0.1
+FRONT URL   : http://localhost:<port>
 User        : pub@prestashop.com
 Pwd         : 123456789
 ```
@@ -49,7 +47,7 @@ Pwd         : 123456789
 
 authentication
 ```
-URL         : http://127.0.0.1/admin-dev
+URL   : http://localhost:<port>/admin-dev
 User        : demo@prestashop.com
 Pwd         : prestashop_demo
 ```
@@ -57,7 +55,7 @@ Pwd         : prestashop_demo
 or
 
 ```
-http://127.0.0.1/admin-dev/index.php/module/manage?email=demo@prestashop.com password=prestashop_demo
+http://127.0.0.1:<port>/admin-dev/index.php/module/manage?email=demo@prestashop.com password=prestashop_demo
 ```
 
 #### DB

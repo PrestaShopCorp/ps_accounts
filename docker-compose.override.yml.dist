@@ -1,0 +1,10 @@
+version: "3"
+
+services:
+  ps_account_web:
+    ports:
+      - 80:80
+
+  ps_account_db:
+    ports:
+      - 3306:3306

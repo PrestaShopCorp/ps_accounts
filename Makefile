@@ -1,31 +1,31 @@
-include .env
-export $(shell sed 's/=.*//' .env)
+DKC=docker-compose -f docker-compose.yml -f docker-compose.override.yml
 
-#all                  	- Init VueJs and Start docker containers Module
-all: help
+.PHONY: help
 
-#init                  - Init project
-init:
+help:
+	@grep -E '^[a-zA-Z_-]+:.*?## .*$$' $(MAKEFILE_LIST) | sort | awk 'BEGIN {FS = ":.*?## "}; {printf "\033[36m%-30s\033[0m %s\n", $$1, $$2}'
+
+init: ## Init project
 	cp -n .env.dist .env || true
+	cp -n docker-compose.override.yml.dist docker-compose.override.yml || true
 
-#start                 - Start app, force rebuild all containers
-start:
+start: ## Start app, force rebuild all containers
 	rm -f install.lock || true
-	$(MAKE) down
-	docker run -ti --name ps_acc_db --env-file=.env --net=host -d mysql:5.7
-	docker run -ti --name ps_acc_web --net=host --env-file=.env \
-	-v `pwd`:/var/www/html/modules/ps_accounts \
-	-v $$PS_CHECKOUT_PATH:/var/www/html/modules/ps_checkout \
-	-v $$PRESTASHOP_ACCOUNTS_AUTH_PATH:/tmp/libs/php/prestashop_accounts_auth \
-	-v $$PRESTASHOP_ACCOUNTS_VUE_COMPONENTS_PATH:/tmp/libs/js/prestashop_accounts_vue_components \
-	-v `pwd`/.docker/install_module.sh:/tmp/init-scripts/install_module.sh \
-	-d prestashop/prestashop
+	$(MAKE) init
+	$(DKC) up -d
 
-#down                  - Remove all ps_accounts containers
+start-net-host: ## Start app with host network (Linux only)
+	rm -f install.lock || true
+	$(MAKE) init
+	bash ./.docker/start-net-host.sh `pwd`
+
+restart: ## Force restart all containers
+	$(MAKE) down
+	$(MAKE) start
+
 down: ## Remove all ps_accounts containers
 	docker rm -f ps_acc_db || true
 	docker rm -f ps_acc_web || true
 
-#help                  - Help
-help:
-	@egrep "^#" Makefile
+%:
+	@:
