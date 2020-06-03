@@ -1,5 +1,31 @@
 # PrestaShop Account
 
+
+## AOS
+
+An AOS module is in three parts:
+
+### [module ps_accounts](http://github.com/PrestaShopCorp/ps_accounts)
+
+* [Autoinstall](http://github.com/PrestaShopCorp/ps_accounts)
+ (lien doc)
+* Contains all the controllers
+
+### [librairie npm](http://github.com/PrestaShopCorp/prestashop_accounts_vue_components)
+
+* Should be installed in the AOS module `npm install prestashop_accounts_vue_components` or `yarn add prestashop_accounts_vue_components`
+* Contains all the vuejs components to manage onboarding
+
+### [librairie composer](http://github.com/PrestaShopCorp/prestashop_accounts_auth)
+
+* Should be installed in the AOS module `composer require prestashop/prestashop-accounts-auth`
+* contient tout la lib composer:
+    * wrappe tout les appel au module ps_accounts
+    * contient tout la logique de firebase
+
+
+
+
 ## Installation
 
 Clone the repo if not already done
@@ -7,8 +33,8 @@ Clone the repo if not already done
 ```bash
 git clone git@github.com:PrestaShopCorp/prestashop_accounts_auth.git
 git clone git@github.com:PrestaShopCorp/ps_checkout.git
+make init
 ```
-
 /!\ Customize .env with path of dependencies
 
 Customize docker-compose.override.yml for choice port
