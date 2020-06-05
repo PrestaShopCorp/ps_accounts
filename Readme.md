@@ -20,11 +20,21 @@ An AOS module is in three parts:
 
 * Should be installed in the AOS module `composer require prestashop/prestashop-accounts-auth`
 * contient tout la lib composer:
-    * wrappe tout les appel au module ps_accounts
-    * contient tout la logique de firebase
+    * wrappe all the call to ps_accounts
+    * Contains all the firebase's logic
 
+## Installation all project
 
+```bash
+bash ./init-full-accounts.sh /path/to/install
+```
+WARNING : /path/to/install should be empty.
 
+in my example case /tmp/accounts
+
+```bash
+bash ./init-full-accounts.sh /tmp/accounts
+```
 
 ## Installation
 

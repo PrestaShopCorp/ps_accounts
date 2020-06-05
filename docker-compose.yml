@@ -17,15 +17,15 @@ services:
         timeout: 10s
         retries: 5
     networks:
-      - account-net
+      - services_accounts-net
 
   ps_account_db:
     image: mysql:5.7
     container_name: ps_acc_db
     env_file: .env
     networks:
-      - account-net
+      - services_accounts-net
 
 networks:
-  account-net:
-    driver: bridge
+  services_accounts-net:
+    external: true
