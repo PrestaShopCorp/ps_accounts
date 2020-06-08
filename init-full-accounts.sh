@@ -11,9 +11,9 @@ gitClone(){
     cd $1
     git clone --single-branch --branch feature/docker-compose git@github.com:PrestaShopCorp/services.git
     git clone --single-branch --branch test/account-integration git@github.com:v4lux/ps_checkout.git
-    git clone --single-branch --branch feature/docker-compose git@github.com:PrestaShopCorp/prestashop_accounts_auth.git
-    git clone --single-branch --branch feature/docker-compose git@github.com:PrestaShopCorp/prestashop_accounts_vue_components.git
-    git clone --single-branch --branch feature/docker-compose git@github.com:PrestaShopCorp/ps_accounts.git
+    git clone --single-branch --branch feature/170-adaptor-to-lib-npm git@github.com:PrestaShopCorp/prestashop_accounts_auth.git
+    git clone --single-branch --branch feature/build-lib git@github.com:PrestaShopCorp/prestashop_accounts_vue_components.git
+    git clone  --single-branch --branch feature/170-adaptor-to-lib-npm git@github.com:PrestaShopCorp/ps_accounts.git
     echo 'git clone finished'
 }
 
