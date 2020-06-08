@@ -1,76 +1,77 @@
 #!/bin/bash -e
 
 generateMainDirectory(){
-    PATH_TO_INSTALL=$1
-    echo $PATH_TO_INSTALL
-    # TODO remove this line
-    sudo rm -rf $PATH_TO_INSTALL || true
-    mkdir -p $PATH_TO_INSTALL
-    cd $PATH_TO_INSTALL
+    sudo rm -rf $1 || true
+    mkdir -p $1
+    cd $1
+}
+
+gitClone(){
+    echo 'git clone'
+    cd $1
+    git clone --single-branch --branch feature/docker-compose git@github.com:PrestaShopCorp/services.git
+    git clone --single-branch --branch test/account-integration git@github.com:v4lux/ps_checkout.git
+    git clone --single-branch --branch feature/docker-compose git@github.com:PrestaShopCorp/prestashop_accounts_auth.git
+    git clone --single-branch --branch feature/docker-compose git@github.com:PrestaShopCorp/prestashop_accounts_vue_components.git
+    git clone --single-branch --branch feature/docker-compose git@github.com:PrestaShopCorp/ps_accounts.git
+    echo 'git clone finished'
 }
 
 installServices() {
     echo 'install services'
-    git clone  --single-branch --branch feature/docker-compose git@github.com:PrestaShopCorp/services.git
-    cd services
-    bash ./install.sh $1/services
-	# cp -n apps/accounts/api/.env.example apps/accounts/api/.env || true
-	cp -n /home/david/Workspace/PrestaShop/services/apps/accounts/api/.env apps/accounts/api/.env || true
-	# cp -n apps/accounts/ui/.env.example apps/accounts/ui/.env || true
-    cp -n /home/david/Workspace/PrestaShop/services/apps/accounts/ui/.env apps/accounts/ui/.env || true
+    cd $1/services
+    bash ./install.sh `pwd`
     docker-compose up -d
-    cd ..
+    echo 'install services finished'
 }
 
 installPrestashopAccountsAuth() {
     echo 'install prestashop_accounts_auth'
-    git clone  --single-branch --branch feature/170-adaptor-to-lib-npm git@github.com:PrestaShopCorp/prestashop_accounts_auth.git
-    cd prestashop_accounts_auth
+    cd $1/prestashop_accounts_auth
     composer install
-    cd ..
+    echo 'install prestashop_accounts_auth finished'
 }
 
 installPrestashopAccountsVueComponents() {
     echo 'install prestashop_accounts_vue_components'
-    git clone  --single-branch --branch feature/build-lib git@github.com:PrestaShopCorp/prestashop_accounts_vue_components.git
-    cd prestashop_accounts_vue_components
-    yarn
+    cd $1/prestashop_accounts_vue_components
+    yarn install
     yarn build-lib
-    cd ..
+    echo 'install prestashop_accounts_vue_components finished'
 }
 
 installPsCheckout() {
     echo 'install ps_checkout'
-    git clone  --single-branch --branch test/account-integration git@github.com:v4lux/ps_checkout.git
-    cd ps_checkout/_dev
-    # TODO remove this lines
-    rm -rf ./package.json
-    cp  /home/david/Workspace/PrestaShop/ps_checkout/_dev/package.json ./package.json
-
-    yarn
-
-    # TODO remove this lines
-    yarn add $1/prestashop_accounts_vue_components
-    yarn --cwd _dev/ build
+    cd $1/ps_checkout/_dev
+    yarn install
+    yarn build-lib
+    echo 'install ps_checkout finished'
 }
 
 installPsAccounts() {
     echo 'install ps_accounts'
-    git clone  --single-branch --branch feature/170-adaptor-to-lib-npm git@github.com:PrestaShopCorp/ps_accounts.git
-    cd ps_accounts
-    cp -n /home/david/Workspace/PrestaShop/ps_accounts/.env .env || true
-
+    cd $1/ps_accounts
     make start
+    echo 'install ps_accounts finished'
 }
 
-main(){
+prepare(){
+    echo 'prepare'
     generateMainDirectory $1
-    installServices $1
-    installPrestashopAccountsAuth
-    installPrestashopAccountsVueComponents
-    installPsCheckout $1
-    installPsAccounts
+    gitClone $1
+    cd $1/ps_accounts
+    make init
+    echo 'prepare finished'
 }
 
-main $*
-echo 'FINISH'
+install(){
+    echo 'install'
+    installServices $1
+    installPrestashopAccountsAuth $1
+    installPrestashopAccountsVueComponents $1
+    installPsCheckout $1
+    installPsAccounts $1
+    echo 'install finished'
+}
+
+"$@"

@@ -25,15 +25,24 @@ An AOS module is in three parts:
 
 ## Installation all project
 
+First run prepare,
 ```bash
-bash ./init-full-accounts.sh /path/to/install
+bash ./init-full-accounts.sh /path/to/install prepare
 ```
 WARNING : /path/to/install should be empty.
 
-in my example case /tmp/accounts
+Then cumtomize
+ * /path/to/install/ps_accounts/docker-compose.override.yml
+ * /path/to/install/ps_accounts/.env
+ * /path/to/install/services/apps/accounts/ui/.env
+ * /path/to/install/services/apps/accounts/api/.env
 
+and add /path/to/install/services/gcp-credentials.json
+
+
+Finaly run install
 ```bash
-bash ./init-full-accounts.sh /tmp/accounts
+bash ./init-full-accounts.sh /path/to/install prepare
 ```
 
 ## Installation

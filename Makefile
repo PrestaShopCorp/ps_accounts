@@ -14,11 +14,6 @@ start: ## Start app, force rebuild all containers
 	$(MAKE) init
 	$(DKC) up -d
 
-start-net-host: ## Start app with host network (Linux only)
-	rm -f install.lock || true
-	$(MAKE) init
-	bash ./.docker/start-net-host.sh `pwd`
-
 restart: ## Force restart all containers
 	$(MAKE) down
 	$(MAKE) start
