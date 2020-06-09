@@ -71,7 +71,7 @@ class AccountsClient extends GenericClient
     public function checkWebhookAuthenticity(array $headers, array $body)
     {
         $correlationId = $headers['correlationId'];
-        $this->setRoute(getenv('ACCOUNTS_API_URL') . '/webhook/' . $correlationId . '/verify');
+        $this->setRoute(getenv('ACCOUNTS_API_URL') . '/webhooks/' . $correlationId . '/verify');
 
         $res = $this->post([
             'headers' => ['correlationId' => $correlationId],
