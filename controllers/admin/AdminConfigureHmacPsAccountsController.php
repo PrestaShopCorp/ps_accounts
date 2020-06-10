@@ -62,7 +62,7 @@ class AdminConfigureHmacPsAccountsController extends ModuleAdminController
         }
         $url = getenv('ACCOUNTS_API_URL');
         // $url = 'https://accounts.psessentials-integration.net';
-        if(false === $url){
+        if (false === $url) {
             throw new \Exception('Environmenrt variable ACCOUNTS_API_URL should not be empty');
         }
         if ('/' === substr($url, -1)) {

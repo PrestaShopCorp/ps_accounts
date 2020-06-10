@@ -1,7 +1,7 @@
 #!/bin/bash -e
 
 generateMainDirectory(){
-    sudo rm -rf $1 || true
+    rm -rf $1 || true
     mkdir -p $1
     cd $1
 }
