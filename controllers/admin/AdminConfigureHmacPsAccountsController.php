@@ -60,10 +60,10 @@ class AdminConfigureHmacPsAccountsController extends ModuleAdminController
             file_put_contents($hmacPath . Tools::getValue('uid') . '.txt', Tools::getValue('hmac'));
         } catch (Exception $e) {
         }
-        $url = getenv('ACCOUNTS_API_URL');
+        $url = getenv('ACCOUNTS_SVC_UI_URL');
         // $url = 'https://accounts.psessentials-integration.net';
         if (false === $url) {
-            throw new \Exception('Environmenrt variable ACCOUNTS_API_URL should not be empty');
+            throw new \Exception('Environmenrt variable ACCOUNTS_SVC_UI_URL should not be empty');
         }
         if ('/' === substr($url, -1)) {
             $url = substr($url, 0, -1);

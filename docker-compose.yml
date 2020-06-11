@@ -10,6 +10,7 @@ services:
       - .docker/install_module.sh:/tmp/init-scripts/install_module.sh
       - .:/var/www/html/modules/ps_accounts
       - ${PRESTASHOP_ACCOUNTS_AUTH_PATH}:/tmp/libs/php/prestashop_accounts_auth
+      - ${PRESTASHOP_ACCOUNTS_VUE_COMPONENTS_PATH}:/tmp/libs/php/prestashop_accounts_vue_components
       - ${PS_CHECKOUT_PATH}:/var/www/html/modules/ps_checkout
     healthcheck:
         test: ["CMD", "curl", "-f", "http://localhost"]

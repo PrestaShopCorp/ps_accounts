@@ -44,7 +44,7 @@ installPsCheckout() {
     echo 'install ps_checkout'
     cd $1/ps_checkout/_dev
     yarn install
-    yarn build-lib
+    yarn build
     echo 'install ps_checkout finished'
 }
 
