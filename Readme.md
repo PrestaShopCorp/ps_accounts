@@ -23,22 +23,27 @@ An AOS module is in three parts:
     * wrappe all the call to ps_accounts
     * Contains all the firebase's logic
 
-## Installation all project
+## Installation of all projects
 
 First run prepare,
 ```bash
 bash ./init-full-accounts.sh prepare /path/to/install
 ```
-WARNING : /path/to/install should be empty.
+WARNING : /path/to/install directory MUST be empty.
+
+You will need ngrok on port 80 to have customized DN for PS shop software (PS_DOMAIN var)
 
 Then customize
  * /path/to/install/ps_accounts/docker-compose.override.yml
- * /path/to/install/ps_accounts/.env
- * /path/to/install/services/apps/accounts/ui/.env
- * /path/to/install/services/apps/accounts/api/.env
-
-and add /path/to/install/services/gcp-credentials.json
-
+ * /path/to/install/ps_accounts/.env :
+   - use a public DN in PS_DOMAIN (ngrok or real DN, no local ones)
+   - fix *_PATH vars to match your /path/to/install
+   - fix FIREBASE_* vars to use the right environment
+ * /path/to/install/services/apps/accounts/ui/.env (copy from .env.example)
+   - Fill empty vars
+ * /path/to/install/services/apps/accounts/api/.env (copy from .env.example)
+   - Fill empty vars
+ * And add /path/to/install/services/gcp-credentials.json
 
 Finally, run install
 ```bash
