@@ -1735,10 +1735,6 @@ accepts@~1.3.4, accepts@~1.3.5, accepts@~1.3.7:
     mime-types "~2.1.24"
     negotiator "0.6.2"
 
-accounts-auth-componenents@PrestaShopCorp/prestashop_accounts_auth#feature/704-webhooks:
-  version "0.0.0"
-  resolved "https://codeload.github.com/PrestaShopCorp/prestashop_accounts_auth/tar.gz/4312077658d06fbf0a1b9102c51954f7fe9d5c22"
-
 acorn-globals@^4.1.0, acorn-globals@^4.3.2:
   version "4.3.4"
   resolved "https://registry.yarnpkg.com/acorn-globals/-/acorn-globals-4.3.4.tgz#9fa1926addc11c97308c4e66d7add0d40c3272e7"
