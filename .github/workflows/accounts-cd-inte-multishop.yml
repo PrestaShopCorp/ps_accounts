@@ -108,6 +108,7 @@ jobs:
           username: ${{ secrets.SSH_USERNAME }}
           key: ${{ secrets.SSH_KEY }}
           script: |
+            sudo su -c 'docker exec $(docker ps -q -f "ancestor=prestashop/prestashop:1.7" -f "name=multishop") cp modules/ps_accounts/.env modules/ps_accounts/_dev/.env'
             sudo su -c 'docker exec $(docker ps -q -f "ancestor=prestashop/prestashop:1.7" -f "name=multishop") bin/console prestashop:module install ps_accounts'
 
   install_checkout_17:
@@ -133,6 +134,7 @@ jobs:
           username: ${{ secrets.SSH_USERNAME }}
           key: ${{ secrets.SSH_KEY }}
           script: |
+            sudo su -c 'docker exec $(docker ps -q -f "ancestor=prestashop/prestashop:1.7" -f "name=multishop") cp modules/ps_checkout/.env modules/ps_checkout/_dev/.env'
             sudo su -c 'docker exec $(docker ps -q -f "ancestor=prestashop/prestashop:1.7" -f "name=multishop") bin/console prestashop:module install ps_checkout'
 
   clean:
