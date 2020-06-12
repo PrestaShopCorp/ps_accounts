@@ -36,6 +36,12 @@ jobs:
           yarn --cwd _dev/ build
           composer install
 
+      - name: Archive ps_checkout
+        uses: actions/upload-artifact@v1
+        with:
+          name: ps_checkout
+          path: ps_checkout
+
   build_accounts:
     name: Build ps_accounts
     runs-on: ubuntu-latest
@@ -60,6 +66,12 @@ jobs:
           yarn --cwd _dev/ build
           composer install
 
+      - name: Archive ps_checkout
+        uses: actions/upload-artifact@v1
+        with:
+          name: ps_accounts
+          path: ps_accounts
+
   copy_modules:
     name: Copy modules
     runs-on: ubuntu-latest
@@ -67,6 +79,16 @@ jobs:
       - build_checkout
       - build_accounts
     steps:
+
+      - name: Download accounts from previous step
+        uses: actions/download-artifact@v1
+        with:
+          name: ps_accounts
+
+      - name: Download checkout from previous step
+          uses: actions/download-artifact@v1
+          with:
+            name: ps_checkout
 
       - name: Gcloud auth and write env file
         run: |
