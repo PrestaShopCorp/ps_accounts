@@ -51,9 +51,9 @@ jobs:
           yarn --cwd _dev/ build
           composer install
 
-      - name: Build ps checkout
-        working-directory: ps_checkout
-        run: |
-          yarn --cwd _dev/ install
-          yarn --cwd _dev/ build
-          composer install
+#      - name: Build ps checkout
+#        working-directory: ps_checkout
+#        run: |
+#          yarn --cwd _dev/ install
+#          yarn --cwd _dev/ build
+#          composer install
