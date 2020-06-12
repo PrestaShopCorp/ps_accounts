@@ -47,7 +47,7 @@ jobs:
       - name: Build ps accounts
         run: |
           yarn --cwd _dev/ install
-#          yarn --cwd _dev/ build
+          yarn --cwd _dev/ build
 #          composer install
 
 #      - name: Build ps checkout
