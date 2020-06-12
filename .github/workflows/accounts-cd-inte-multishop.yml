@@ -54,7 +54,7 @@ jobs:
           path: ps_accounts
 
       - name: Build ps checkout
-        working-directory: ps_checkout
+        working-directory: ps_accounts
         run: |
           yarn --cwd _dev/ install
           yarn --cwd _dev/ build
