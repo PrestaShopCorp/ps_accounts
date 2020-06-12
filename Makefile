@@ -1,3 +1,5 @@
+DKC=docker-compose -f docker-compose.yml -f docker-compose.override.yml
+
 .PHONY: help
 
 help:
@@ -5,11 +7,13 @@ help:
 
 init: ## Init project
 	cp -n .env.dist .env || true
+	cp -n docker-compose.override.yml.dist docker-compose.override.yml || true
+	docker network create services_accounts-net || true
 
 start: ## Start app, force rebuild all containers
 	rm -f install.lock || true
 	$(MAKE) init
-	docker-compose up -d
+	$(DKC) up -d
 
 restart: ## Force restart all containers
 	$(MAKE) down
@@ -18,6 +22,7 @@ restart: ## Force restart all containers
 down: ## Remove all ps_accounts containers
 	docker rm -f ps_acc_db || true
 	docker rm -f ps_acc_web || true
+	docker network rm services_accounts-net || true
 
 %:
 	@:

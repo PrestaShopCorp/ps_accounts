@@ -90,14 +90,15 @@ class Ps_accounts extends Module
      */
     public function __construct()
     {
-        parent::__construct();
-
         $this->name = 'ps_accounts';
         $this->tab = 'administration';
         $this->author = 'PrestaShop';
         $this->need_instance = 0;
         $this->bootstrap = true;
         $this->version = '1.0.0';
+
+        parent::__construct();
+
         $this->displayName = $this->l('PrestaShop Account');
         $this->description = $this->l('Link your PrestaShop account to your online shop to activate & manage services on your back-office. Don\'t uninstall this module if you are already using a service, as it will prevent it from working.');
 

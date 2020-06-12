@@ -15,4 +15,7 @@ do
     ln -s /tmp/libs/php/prestashop_accounts_auth /var/www/html/modules/$module/vendor/prestashop/prestashop-accounts-auth
 done
 
+rm -rf /var/www/html/modules/ps_checkout/_dev/node_modules/prestashop_accounts_vue_components
+ln -s /tmp/libs/php/prestashop_accounts_auth /var/www/html/modules/ps_checkout/_dev/node_modules/prestashop_accounts_vue_components
+
 rm -rf /var/www/html/var/cache/*;
