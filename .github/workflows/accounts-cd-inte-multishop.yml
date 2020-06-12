@@ -45,10 +45,9 @@ jobs:
           path: ps_checkout
 
       - name: Build ps accounts
-        working-directory: ps_accounts
         run: |
-          yarn --cwd _dev/ install
-          yarn --cwd _dev/ build
+          yarn --cwd ps_accounts/_dev/ install
+          yarn --cwd ps_accounts/_dev/ build
           composer install
 
 #      - name: Build ps checkout
