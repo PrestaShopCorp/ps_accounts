@@ -73,7 +73,34 @@ jobs:
           source: "."
           target: ${{ env.MODULE_NAME }}
 
-#  install_ps_accounts:
-#    name: Install ps_accounts
-#    runs-on: ubuntu-latest
-#    steps:
+  install_ps_accounts:
+    name: Install ps_accounts
+    runs-on: ubuntu-latest
+    steps:
+
+      - name: Move module
+        uses: appleboy/ssh-action@master
+        with:
+          host: ${{ secrets.SSH_HOST_INTEGRATION }}
+          username: ${{ secrets.SSH_USERNAME }}
+          key: ${{ secrets.SSH_KEY }}
+          script: |
+            sudo su -c 'mv ps_accounts/ps_accounts ${{ secrets.MULTISHOP_17_PATH }}'
+            sudo su -c 'chown -R www-data:www-data ${{ secrets.MULTISHOP_17_PATH }}/ps_accounts'
+
+
+  install_ps_checkout:
+    name: Install ps_accounts
+    runs-on: ubuntu-latest
+    steps:
+
+      - name: Move module
+        uses: appleboy/ssh-action@master
+        with:
+          host: ${{ secrets.SSH_HOST_INTEGRATION }}
+          username: ${{ secrets.SSH_USERNAME }}
+          key: ${{ secrets.SSH_KEY }}
+          script: |
+            sudo su -c 'mv ps_accounts/ps_checkout ${{ secrets.MULTISHOP_17_PATH }}'
+            sudo su -c 'chown -R www-data:www-data ${{ secrets.MULTISHOP_17_PATH }}/ps_checkout'
+
