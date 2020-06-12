@@ -29,4 +29,4 @@ jobs:
           token: ${{ secrets.ACCESS_TOKEN }}
           path: ps_checkout
 
-      - run: ls ps_accounts && ls ps_checkout
+      - run: ls
