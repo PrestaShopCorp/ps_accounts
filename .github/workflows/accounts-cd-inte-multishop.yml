@@ -61,6 +61,8 @@ jobs:
           composer install
 
   copy_modules:
+    name: Copy modules
+    runs-on: ubuntu-latest
     needs:
       - build_checkout
       - build_accounts
