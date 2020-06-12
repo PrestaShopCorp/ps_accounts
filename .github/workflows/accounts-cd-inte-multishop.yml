@@ -36,13 +36,6 @@ jobs:
           token: ${{ secrets.ACCESS_TOKEN }}
           path: ps_checkout
 
-      - name: Build ps accounts
-        working-directory: ps_accounts
-        run: |
-          yarn --cwd _dev/ install
-          yarn --cwd _dev/ build
-          composer install
-
       - name: Gcloud auth and write env file
         run: |
           echo $GOOGLE_APPLICATION_CREDENTIALS > $GCLOUD_TOKEN_PATH
@@ -57,6 +50,13 @@ jobs:
           GCLOUD_TOKEN_PATH: ${{ env.GCLOUD_TOKEN_PATH }}
           GCLOUD_CLUSTER: ${{ secrets.GCLOUD_CLUSTER }}
           GCLOUD_PROJECT: ${{ secrets.GCLOUD_PROJECT_INTEGRATION }}
+
+      - name: Build ps accounts
+        working-directory: ps_accounts
+        run: |
+          yarn --cwd _dev/ install
+          yarn --cwd _dev/ build
+          composer install
 
       - name: Build ps checkout
         working-directory: ps_checkout
@@ -108,7 +108,6 @@ jobs:
           username: ${{ secrets.SSH_USERNAME }}
           key: ${{ secrets.SSH_KEY }}
           script: |
-            sudo su -c 'docker exec $(docker ps -q -f "ancestor=prestashop/prestashop:1.7" -f "name=multishop") cp modules/ps_accounts/.env modules/ps_accounts/_dev/.env'
             sudo su -c 'docker exec $(docker ps -q -f "ancestor=prestashop/prestashop:1.7" -f "name=multishop") bin/console prestashop:module install ps_accounts'
 
   install_checkout_17:
@@ -127,6 +126,15 @@ jobs:
             sudo su -c 'mv build/ps_checkout ${{ secrets.MULTISHOP_17_PATH }}'
             sudo su -c 'chown -R www-data:www-data ${{ secrets.MULTISHOP_17_PATH }}/ps_checkout'
 
+      - name: Install module
+        uses: appleboy/ssh-action@master
+        with:
+          host: ${{ secrets.SSH_HOST_INTEGRATION }}
+          username: ${{ secrets.SSH_USERNAME }}
+          key: ${{ secrets.SSH_KEY }}
+          script: |
+            sudo su -c 'docker exec $(docker ps -q -f "ancestor=prestashop/prestashop:1.7" -f "name=multishop") bin/console prestashop:module install ps_checkout'
+
   clean:
     name: Clean
     runs-on: ubuntu-latest
@@ -135,6 +143,17 @@ jobs:
       - install_checkout_17
       - install_accounts_17
     steps:
+
+      - name: Clear cache
+        uses: appleboy/ssh-action@master
+        with:
+          host: ${{ secrets.SSH_HOST_INTEGRATION }}
+          username: ${{ secrets.SSH_USERNAME }}
+          key: ${{ secrets.SSH_KEY }}
+          script: |
+            sudo su -c 'docker exec $(docker ps -q -f "ancestor=prestashop/prestashop:1.7" -f "name=multishop") bin/console cache:cl'
+            sudo su -c 'docker exec $(docker ps -q -f "ancestor=prestashop/prestashop:1.7" -f "name=multishop") chmod -R 777 var/cache var/logs'
+
       - name: Delete tmp module
         uses: appleboy/ssh-action@master
         with:
