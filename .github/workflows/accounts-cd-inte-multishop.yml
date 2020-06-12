@@ -10,14 +10,15 @@ env:
   GCLOUD_TOKEN_PATH: ./token.json
 
 jobs:
-  accounts_cd_multi_shop:
-    name: Multi shop - Module Accounts continuous deployment
+  build_accounts_multishop:
+    name: Build ps_accounts and ps_checkout
     runs-on: ubuntu-latest
 #    timeout-minutes: 10
 #    if: contains(github.event.pull_request.labels.*.name, 'quality assurance needed')
 
     steps:
 
+      # Fixed babel build : https://github.com/ember-cli/ember-cli/issues/9235#issuecomment-635254959
       - name: Use Node.js 12.16.3
         uses: actions/setup-node@v1
         with:
@@ -56,9 +57,23 @@ jobs:
           yarn --cwd _dev/ build
           composer install
 
-#      - name: Build ps checkout
-#        working-directory: ps_checkout
-#        run: |
-#          yarn --cwd _dev/ install
-#          yarn --cwd _dev/ build
-#          composer install
+      - name: Build ps checkout
+        working-directory: ps_checkout
+        run: |
+          yarn --cwd _dev/ install
+          yarn --cwd _dev/ build
+          composer install
+
+      - name: Copy module
+        uses: appleboy/scp-action@master
+        with:
+          host: ${{ secrets.SSH_HOST_INTEGRATION }}
+          username: ${{ secrets.SSH_USERNAME }}
+          key: ${{ secrets.SSH_KEY }}
+          source: "."
+          target: ${{ env.MODULE_NAME }}
+
+#  install_ps_accounts:
+#    name: Install ps_accounts
+#    runs-on: ubuntu-latest
+#    steps:
