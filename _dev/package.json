@@ -44,6 +44,7 @@
   },
   "devDependencies": {
     "@babel/core": "^7.10.2",
+    "@babel/compat-data": "^7.10.1",
     "@vue/cli-plugin-babel": "^4.1.0",
     "@vue/cli-plugin-router": "^4.1.0",
     "@vue/cli-plugin-unit-jest": "^4.2.2",
