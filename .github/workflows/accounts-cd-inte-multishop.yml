@@ -23,37 +23,38 @@ jobs:
         with:
           node-version: 12.16.3
 
-#      - name: Gcloud auth and write env file
-#        run: |
-#          echo $GOOGLE_APPLICATION_CREDENTIALS > $GCLOUD_TOKEN_PATH
-#          gcloud auth activate-service-account --key-file=$GCLOUD_TOKEN_PATH
-#          gcloud container clusters get-credentials $GCLOUD_CLUSTER \
-#          --zone europe-west1-c --project $GCLOUD_PROJECT
-#          gcloud beta secrets versions access latest --project=$GCLOUD_PROJECT --secret="accounts-module" > .env
-#          rm $GCLOUD_TOKEN_PATH
-#        env:
-#          GOOGLE_APPLICATION_CREDENTIALS: ${{ secrets.GCLOUD_CREDENTIAL_INTEGRATION }}
-#          GCLOUD_TOKEN_PATH: ${{ env.GCLOUD_TOKEN_PATH }}
-#          GCLOUD_CLUSTER: ${{ secrets.GCLOUD_CLUSTER }}
-#          GCLOUD_PROJECT: ${{ secrets.GCLOUD_PROJECT_INTEGRATION }}
+      - name: Gcloud auth and write env file
+        run: |
+          echo $GOOGLE_APPLICATION_CREDENTIALS > $GCLOUD_TOKEN_PATH
+          gcloud auth activate-service-account --key-file=$GCLOUD_TOKEN_PATH
+          gcloud container clusters get-credentials $GCLOUD_CLUSTER \
+          --zone europe-west1-c --project $GCLOUD_PROJECT
+          gcloud beta secrets versions access latest --project=$GCLOUD_PROJECT --secret="accounts-module" > .env
+          rm $GCLOUD_TOKEN_PATH
+        env:
+          GOOGLE_APPLICATION_CREDENTIALS: ${{ secrets.GCLOUD_CREDENTIAL_INTEGRATION }}
+          GCLOUD_TOKEN_PATH: ${{ env.GCLOUD_TOKEN_PATH }}
+          GCLOUD_CLUSTER: ${{ secrets.GCLOUD_CLUSTER }}
+          GCLOUD_PROJECT: ${{ secrets.GCLOUD_PROJECT_INTEGRATION }}
 
       - name: Checkout the repository
         uses: actions/checkout@v2
-#        with:
-#          path: ps_accounts
+        with:
+          path: ps_accounts
 
-#      - name: Checkout ps checkout
-#        uses: actions/checkout@v2
-#        with:
-#          repository: PrestaShopCorp/ps_checkout
-#          token: ${{ secrets.ACCESS_TOKEN }}
-#          path: ps_checkout
+      - name: Checkout ps checkout
+        uses: actions/checkout@v2
+        with:
+          repository: PrestaShopCorp/ps_checkout
+          token: ${{ secrets.ACCESS_TOKEN }}
+          path: ps_checkout
 
       - name: Build ps accounts
+        working-directory: ps_accounts
         run: |
           yarn --cwd _dev/ install
           yarn --cwd _dev/ build
-#          composer install
+          composer install
 
 #      - name: Build ps checkout
 #        working-directory: ps_checkout
