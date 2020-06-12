@@ -17,7 +17,7 @@ jobs:
 #    if: contains(github.event.pull_request.labels.*.name, 'quality assurance needed')
 
     steps:
-      -
+
       - name: Gcloud auth and write env file
         run: |
           echo $GOOGLE_APPLICATION_CREDENTIALS > $GCLOUD_TOKEN_PATH
