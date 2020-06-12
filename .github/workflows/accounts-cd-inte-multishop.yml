@@ -10,41 +10,12 @@ env:
   GCLOUD_TOKEN_PATH: ./token.json
 
 jobs:
-  build_checkout:
-    name: Build ps_checkout
+
+  build:
+    name: Build ps_accounts and ps_checkout
     runs-on: ubuntu-latest
-
-    steps:
-
-      # Fixed babel build : https://github.com/ember-cli/ember-cli/issues/9235#issuecomment-635254959
-      - name: Use Node.js 12.16.3
-        uses: actions/setup-node@v1
-        with:
-          node-version: 12.16.3
-
-      - name: Checkout ps checkout
-        uses: actions/checkout@v2
-        with:
-          repository: PrestaShopCorp/ps_checkout
-          token: ${{ secrets.ACCESS_TOKEN }}
-          path: ps_checkout
-
-      - name: Build ps checkout
-        working-directory: ps_checkout
-        run: |
-          yarn --cwd _dev/ install
-          yarn --cwd _dev/ build
-          composer install
-
-      - name: Archive ps_checkout
-        uses: actions/upload-artifact@v1
-        with:
-          name: ps_checkout
-          path: ps_checkout
-
-  build_accounts:
-    name: Build ps_accounts
-    runs-on: ubuntu-latest
+#    timeout-minutes: 10
+#    if: contains(github.event.pull_request.labels.*.name, 'quality assurance needed')
 
     steps:
 
@@ -59,36 +30,13 @@ jobs:
         with:
           path: ps_accounts
 
-      - name: Build ps checkout
-        working-directory: ps_accounts
-        run: |
-          yarn --cwd _dev/ install
-          yarn --cwd _dev/ build
-          composer install
-
-      - name: Archive ps_checkout
-        uses: actions/upload-artifact@v1
+      - name: Checkout ps checkout
+        uses: actions/checkout@v2
         with:
-          name: ps_accounts
-          path: ps_accounts
+          repository: PrestaShopCorp/ps_checkout
+          token: ${{ secrets.ACCESS_TOKEN }}
+          path: ps_checkout
 
-  copy_modules:
-    name: Copy modules
-    runs-on: ubuntu-latest
-    needs:
-      - build_checkout
-      - build_accounts
-    steps:
-
-      - name: Download accounts from previous step
-        uses: actions/download-artifact@v1
-        with:
-          name: ps_accounts
-
-      - name: Download checkout from previous step
-        uses: actions/download-artifact@v1
-        with:
-          name: ps_checkout
 
       - name: Gcloud auth and write env file
         run: |
@@ -104,6 +52,20 @@ jobs:
           GCLOUD_TOKEN_PATH: ${{ env.GCLOUD_TOKEN_PATH }}
           GCLOUD_CLUSTER: ${{ secrets.GCLOUD_CLUSTER }}
           GCLOUD_PROJECT: ${{ secrets.GCLOUD_PROJECT_INTEGRATION }}
+
+      - name: Build ps accounts
+        working-directory: ps_accounts
+        run: |
+          yarn --cwd _dev/ install
+          yarn --cwd _dev/ build
+          composer install
+
+      - name: Build ps checkout
+        working-directory: ps_checkout
+        run: |
+          yarn --cwd _dev/ install
+          yarn --cwd _dev/ build
+          composer install
 
       - name: Delete old modules
         continue-on-error: true
@@ -125,86 +87,10 @@ jobs:
           source: "."
           target: build
 
-#  build:
-#    name: Build ps_accounts and ps_checkout
-#    runs-on: ubuntu-latest
-##    timeout-minutes: 10
-##    if: contains(github.event.pull_request.labels.*.name, 'quality assurance needed')
-#
-#    steps:
-#
-#      # Fixed babel build : https://github.com/ember-cli/ember-cli/issues/9235#issuecomment-635254959
-#      - name: Use Node.js 12.16.3
-#        uses: actions/setup-node@v1
-#        with:
-#          node-version: 12.16.3
-#
-#      - name: Checkout the repository
-#        uses: actions/checkout@v2
-#        with:
-#          path: ps_accounts
-#
-#      - name: Checkout ps checkout
-#        uses: actions/checkout@v2
-#        with:
-#          repository: PrestaShopCorp/ps_checkout
-#          token: ${{ secrets.ACCESS_TOKEN }}
-#          path: ps_checkout
-#
-#
-#      - name: Gcloud auth and write env file
-#        run: |
-#          echo $GOOGLE_APPLICATION_CREDENTIALS > $GCLOUD_TOKEN_PATH
-#          gcloud auth activate-service-account --key-file=$GCLOUD_TOKEN_PATH
-#          gcloud container clusters get-credentials $GCLOUD_CLUSTER \
-#          --zone europe-west1-c --project $GCLOUD_PROJECT
-#          gcloud beta secrets versions access latest --project=$GCLOUD_PROJECT --secret="accounts-module" > ps_accounts/.env
-#          gcloud beta secrets versions access latest --project=$GCLOUD_PROJECT --secret="checkout-module" > ps_checkout/.env
-#          rm $GCLOUD_TOKEN_PATH
-#        env:
-#          GOOGLE_APPLICATION_CREDENTIALS: ${{ secrets.GCLOUD_CREDENTIAL_INTEGRATION }}
-#          GCLOUD_TOKEN_PATH: ${{ env.GCLOUD_TOKEN_PATH }}
-#          GCLOUD_CLUSTER: ${{ secrets.GCLOUD_CLUSTER }}
-#          GCLOUD_PROJECT: ${{ secrets.GCLOUD_PROJECT_INTEGRATION }}
-#
-#      - name: Build ps accounts
-#        working-directory: ps_accounts
-#        run: |
-#          yarn --cwd _dev/ install
-#          yarn --cwd _dev/ build
-#          composer install
-#
-#      - name: Build ps checkout
-#        working-directory: ps_checkout
-#        run: |
-#          yarn --cwd _dev/ install
-#          yarn --cwd _dev/ build
-#          composer install
-#
-#      - name: Delete old modules
-#        continue-on-error: true
-#        uses: appleboy/ssh-action@master
-#        with:
-#          host: ${{ secrets.SSH_HOST_INTEGRATION }}
-#          username: ${{ secrets.SSH_USERNAME }}
-#          key: ${{ secrets.SSH_KEY }}
-#          script: |
-#            sudo su -c 'rm -rf ${{ secrets.MULTISHOP_17_PATH }}/ps_accounts'
-#            sudo su -c 'rm -rf ${{ secrets.MULTISHOP_17_PATH }}/ps_checkout'
-#
-#      - name: Copy modules
-#        uses: appleboy/scp-action@master
-#        with:
-#          host: ${{ secrets.SSH_HOST_INTEGRATION }}
-#          username: ${{ secrets.SSH_USERNAME }}
-#          key: ${{ secrets.SSH_KEY }}
-#          source: "."
-#          target: build
-
   install_1_7:
     name: Install on shop 1.7
     runs-on: ubuntu-latest
-#    needs: build
+    needs: build
     needs: copy_modules
     steps:
 
