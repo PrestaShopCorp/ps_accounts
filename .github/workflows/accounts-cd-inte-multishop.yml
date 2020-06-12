@@ -64,6 +64,17 @@ jobs:
           yarn --cwd _dev/ build
           composer install
 
+      - name: Delete old module
+        continue-on-error: true
+        uses: appleboy/ssh-action@master
+        with:
+          host: ${{ secrets.SSH_HOST_INTEGRATION }}
+          username: ${{ secrets.SSH_USERNAME }}
+          key: ${{ secrets.SSH_KEY }}
+          script: |
+            sudo su -c 'rm -rf ${{ secrets.MULTISHOP_17_PATH }}/ps_accounts'
+            sudo su -c 'rm -rf ${{ secrets.MULTISHOP_17_PATH }}/ps_checkout'
+
       - name: Copy module
         uses: appleboy/scp-action@master
         with:
@@ -89,6 +100,15 @@ jobs:
             sudo su -c 'mv build/ps_accounts ${{ secrets.MULTISHOP_17_PATH }}'
             sudo su -c 'chown -R www-data:www-data ${{ secrets.MULTISHOP_17_PATH }}/ps_accounts'
 
+      - name: Install module
+        uses: appleboy/ssh-action@master
+        with:
+          host: ${{ secrets.SSH_HOST_INTEGRATION }}
+          username: ${{ secrets.SSH_USERNAME }}
+          key: ${{ secrets.SSH_KEY }}
+          script: |
+            sudo su -c 'docker exec $(docker ps -q -f "ancestor=prestashop/prestashop:1.7" -f "name=multishop") cp modules/ps_accounts/.env modules/ps_accounts/_dev/.env'
+            sudo su -c 'docker exec $(docker ps -q -f "ancestor=prestashop/prestashop:1.7" -f "name=multishop") bin/console prestashop:module install ps_accounts'
 
   install_checkout_17:
     name: Install ps_accounts
