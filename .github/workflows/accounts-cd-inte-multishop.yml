@@ -53,24 +53,20 @@ jobs:
           GCLOUD_CLUSTER: ${{ secrets.GCLOUD_CLUSTER }}
           GCLOUD_PROJECT: ${{ secrets.GCLOUD_PROJECT_INTEGRATION }}
 
+      - name: Write install file 1.6 checkout
+        working-directory: ps_checkout
+        run: echo '<?php include(dirname(__FILE__)."/../../config/config.inc.php"); $module = Module::getInstanceByName('checkout'); $module->install();' > install.php
+
+      - name: Write install file 1.6 accounts
+        working-directory: ps_accounts
+        run: echo '<?php include(dirname(__FILE__)."/../../config/config.inc.php"); $module = Module::getInstanceByName('ps_accounts'); $module->install();' > install.php
+
       - name: Build ps accounts
         working-directory: ps_accounts
         run: |
           yarn --cwd _dev/ install
           yarn --cwd _dev/ build
           composer install
-
-      - name: Write install file
-        working-directory: ps_checkout
-        run: echo '<?php include(dirname(__FILE__)."/../../config/config.inc.php"); $module = Module::getInstanceByName('ps_accounts'); $module->install();' > install.php
-
-      - name: Write install file
-        working-directory: ps_accounts
-        run: echo '<?php include(dirname(__FILE__)."/../../config/config.inc.php"); $module = Module::getInstanceByName('ps_accounts'); $module->install();' > install.php
-
-      - run: |
-          cat ps_accounts/install.php
-          cat ps_checkout/install.php
 
       - name: Build ps checkout
         working-directory: ps_checkout
