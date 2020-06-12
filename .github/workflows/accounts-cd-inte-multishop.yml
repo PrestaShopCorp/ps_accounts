@@ -86,9 +86,9 @@ jobs:
           name: ps_accounts
 
       - name: Download checkout from previous step
-          uses: actions/download-artifact@v1
-          with:
-            name: ps_checkout
+        uses: actions/download-artifact@v1
+        with:
+          name: ps_checkout
 
       - name: Gcloud auth and write env file
         run: |
