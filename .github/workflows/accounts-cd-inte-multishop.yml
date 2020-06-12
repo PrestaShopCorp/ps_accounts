@@ -60,10 +60,13 @@ jobs:
           yarn --cwd _dev/ build
           composer install
 
-      - name: Add install for 1.6
-        run: |
-          echo '<?php include(dirname(__FILE__)."/../../config/config.inc.php"); $module = Module::getInstanceByName('ps_accounts'); $module->install();' > ps_accounts/install.php
-          echo '<?php include(dirname(__FILE__)."/../../config/config.inc.php"); $module = Module::getInstanceByName('ps_checkout'); $module->install();' > ps_checkout/install.php
+      - name: Write install file
+        working-directory: ps_checkout
+        run: echo '<?php include(dirname(__FILE__)."/../../config/config.inc.php"); $module = Module::getInstanceByName('ps_accounts'); $module->install();' > install.php
+
+      - name: Write install file
+        working-directory: ps_accounts
+        run: echo '<?php include(dirname(__FILE__)."/../../config/config.inc.php"); $module = Module::getInstanceByName('ps_accounts'); $module->install();' > install.php
 
       - run: |
           cat ps_accounts/install.php
