@@ -34,20 +34,20 @@ jobs:
 
       - name: Checkout the repository
         uses: actions/checkout@v2
-        with:
-          path: ps_accounts
+#        with:
+#          path: ps_accounts
 
-      - name: Checkout ps checkout
-        uses: actions/checkout@v2
-        with:
-          repository: PrestaShopCorp/ps_checkout
-          token: ${{ secrets.ACCESS_TOKEN }}
-          path: ps_checkout
+#      - name: Checkout ps checkout
+#        uses: actions/checkout@v2
+#        with:
+#          repository: PrestaShopCorp/ps_checkout
+#          token: ${{ secrets.ACCESS_TOKEN }}
+#          path: ps_checkout
 
       - name: Build ps accounts
         run: |
-          yarn --cwd ps_accounts/_dev/ install
-          yarn --cwd ps_accounts/_dev/ build
+          yarn --cwd _dev/ install
+          yarn --cwd _dev/ build
           composer install
 
 #      - name: Build ps checkout
