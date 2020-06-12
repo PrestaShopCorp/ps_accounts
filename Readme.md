@@ -1,9 +1,9 @@
 # PrestaShop Account
 
 
-## AOS
+## AOS and comunity module
 
-An AOS module is in three parts:
+An AOS module needs three parts:
 
 ### [module ps_accounts](http://github.com/PrestaShopCorp/ps_accounts)
 
