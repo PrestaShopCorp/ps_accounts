@@ -19,6 +19,8 @@ jobs:
     steps:
       - name: Checkout the repository
         uses: actions/checkout@v2
+        with:
+          path: ps_accounts
 
       - name: Checkout ps checkout
         uses: actions/checkout@v2
@@ -27,4 +29,4 @@ jobs:
           token: ${{ secrets.ACCESS_TOKEN }}
           path: ps_checkout
 
-      - run: ls && ls ps_checkout
+      - run: ls ps_accounts && ls ps_checkout
