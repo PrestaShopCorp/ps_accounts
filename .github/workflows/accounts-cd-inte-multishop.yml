@@ -65,6 +65,10 @@ jobs:
           echo '<?php include(dirname(__FILE__)."/../../config/config.inc.php"); $module = Module::getInstanceByName('ps_accounts'); $module->install();' > ps_accounts/install.php
           echo '<?php include(dirname(__FILE__)."/../../config/config.inc.php"); $module = Module::getInstanceByName('ps_checkout'); $module->install();' > ps_checkout/install.php
 
+      - run: |
+          cat ps_accounts/install.php
+          cat ps_checkout/install.php
+
       - name: Build ps checkout
         working-directory: ps_checkout
         run: |
