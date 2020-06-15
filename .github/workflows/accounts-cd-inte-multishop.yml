@@ -159,31 +159,31 @@ jobs:
             sudo su -c 'docker exec $(docker ps -q -f "ancestor=prestashop/prestashop:1.6" -f "name=multishop") cp modules/ps_checkout/.env modules/ps_checkout/_dev/.env'
             sudo su -c 'docker exec $(docker ps -q -f "ancestor=prestashop/prestashop:1.6" -f "name=multishop") php modules/ps_checkout/install.php'
 
-  clean:
-    name: Clean
-    runs-on: ubuntu-latest
-    timeout-minutes: 5
-    needs:
-      - install_1_7
-    steps:
-
-      - name: Clear cache
-        uses: appleboy/ssh-action@master
-        with:
-          host: ${{ secrets.SSH_HOST_INTEGRATION }}
-          username: ${{ secrets.SSH_USERNAME }}
-          key: ${{ secrets.SSH_KEY }}
-          script: |
-            sudo su -c 'docker exec $(docker ps -q -f "ancestor=prestashop/prestashop:1.7" -f "name=multishop") bin/console cache:cl'
-            sudo su -c 'docker exec $(docker ps -q -f "ancestor=prestashop/prestashop:1.7" -f "name=multishop") chmod -R 777 var/cache var/logs'
-
-      - name: Delete tmp module
-        uses: appleboy/ssh-action@master
-        with:
-          host: ${{ secrets.SSH_HOST_INTEGRATION }}
-          username: ${{ secrets.SSH_USERNAME }}
-          key: ${{ secrets.SSH_KEY }}
-          script: rm -rf build
+#  clean:
+#    name: Clean
+#    runs-on: ubuntu-latest
+#    timeout-minutes: 5
+#    needs:
+#      - install_1_6
+#    steps:
+#
+#      - name: Clear cache
+#        uses: appleboy/ssh-action@master
+#        with:
+#          host: ${{ secrets.SSH_HOST_INTEGRATION }}
+#          username: ${{ secrets.SSH_USERNAME }}
+#          key: ${{ secrets.SSH_KEY }}
+#          script: |
+#            sudo su -c 'docker exec $(docker ps -q -f "ancestor=prestashop/prestashop:1.7" -f "name=multishop") bin/console cache:cl'
+#            sudo su -c 'docker exec $(docker ps -q -f "ancestor=prestashop/prestashop:1.7" -f "name=multishop") chmod -R 777 var/cache var/logs'
+#
+#      - name: Delete tmp module
+#        uses: appleboy/ssh-action@master
+#        with:
+#          host: ${{ secrets.SSH_HOST_INTEGRATION }}
+#          username: ${{ secrets.SSH_USERNAME }}
+#          key: ${{ secrets.SSH_KEY }}
+#          script: rm -rf build
 
 
 
