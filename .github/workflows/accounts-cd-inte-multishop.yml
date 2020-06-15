@@ -1,9 +1,8 @@
 name: Module accounts CD
 
-on: [push]
-#on:
-#  pull_request:
-#    types: [opened,edited,reopened,synchronize,labeled]
+on:
+  pull_request:
+    types: [opened,edited,reopened,synchronize,labeled]
 
 env:
   MODULE_NAME: ps_accounts
@@ -18,7 +17,6 @@ jobs:
 #    if: contains(github.event.pull_request.labels.*.name, 'quality assurance needed')
 
     steps:
-
       # Fixed babel build : https://github.com/ember-cli/ember-cli/issues/9235#issuecomment-635254959
       - name: Use Node.js 12.16.3
         uses: actions/setup-node@v1
@@ -30,13 +28,17 @@ jobs:
         with:
           path: ps_accounts
 
+      - name: Get checkout version
+        id: checkout_branch
+        run: echo ::set-output name=BRANCH::$(cat ps_accounts/custom-checkout-version)
+
       - name: Checkout ps checkout
         uses: actions/checkout@v2
         with:
           repository: PrestaShopCorp/ps_checkout
           token: ${{ secrets.ACCESS_TOKEN }}
           path: ps_checkout
-
+          ref: ${{ steps.checkout_branch.outputs.BRANCH }}
 
       - name: Gcloud auth and write env file
         run: |
@@ -58,7 +60,6 @@ jobs:
           cat <<'EOF' > ps_checkout/install.php
           <?php include(dirname(__FILE__)."/../../config/config.inc.php"); $module = Module::getInstanceByName('ps_checkout'); $module->install();
           EOF
-
 
       - name: Write install file 1.6 accounts
         run: |
