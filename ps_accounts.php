@@ -144,8 +144,8 @@ class Ps_accounts extends Module
     public function install()
     {
         $hookUpdateShopDomain = 'displayBackOfficeHeader';
-        // if ps version is 1.7.4 or above
-        if (version_compare(_PS_VERSION_, '1.7.4.0', '>=')) {
+        // if ps version is 1.7.6 or above
+        if (version_compare(_PS_VERSION_, '1.7.6.0', '>=')) {
             $hookUpdateShopDomain = 'actionMetaPageSave';
         }
 
