@@ -150,7 +150,14 @@ class Ps_accounts extends Module
      */
     public function install()
     {
+        $hookUpdateShopDomain = 'displayBackOfficeHeader';
+        // if ps version is 1.7.4 or above
+        if (version_compare(_PS_VERSION_, '1.7.4.0', '>=')) {
+            $hookUpdateShopDomain = 'actionMetaPageSave';
+        }
+
         return (new PrestaShop\Module\PsAccounts\Module\Install($this))->installInMenu()
+            && $this->registerHook($hookUpdateShopDomain)
             && parent::install();
     }
 
@@ -161,5 +168,43 @@ class Ps_accounts extends Module
     {
         return (new PrestaShop\Module\PsAccounts\Module\Uninstall($this))->uninstallMenu()
             && parent::uninstall();
+    }
+
+    /**
+    * Hook executed on every backoffice pages
+    * Used in order to listen changes made to the AdminMeta controller
+    *
+    * @since 1.6
+    * @deprecated since 1.7.6
+    */
+    public function hookDisplayBackOfficeHeader($params)
+    {
+        // Add a limitation in order to execute the code only if we are on the AdminMeta controller
+        if ($this->context->controller->controller_name !== 'AdminMeta') {
+            return false;
+        }
+
+        // If a changes is make to the meta form
+        if (Tools::isSubmit('submitOptionsmeta')) {
+            $domain = Tools::getValue('domain'); // new domain to update
+            $domainSsl = Tools::getValue('domain_ssl'); // new domain with ssl - needed ?
+
+            var_dump($params);
+            var_dump($domainSsl);
+            var_dump($context);
+            die();
+        }
+    }
+
+    /**
+    * Hook executed when performing some changes to the meta page and save them
+    *
+    * @since 1.7.6
+    */
+    public function hookActionMetaPageSave($params)
+    {
+        var_dump($params);
+        var_dump($params['form_data']); // -> data with the new domain
+        die();
     }
 }
