@@ -164,12 +164,12 @@ class Ps_accounts extends Module
     }
 
     /**
-    * Hook executed on every backoffice pages
-    * Used in order to listen changes made to the AdminMeta controller
-    *
-    * @since 1.6
-    * @deprecated since 1.7.6
-    */
+     * Hook executed on every backoffice pages
+     * Used in order to listen changes made to the AdminMeta controller
+     *
+     * @since 1.6
+     * @deprecated since 1.7.6
+     */
     public function hookDisplayBackOfficeHeader($params)
     {
         // Add a limitation in order to execute the code only if we are on the AdminMeta controller
@@ -190,10 +190,10 @@ class Ps_accounts extends Module
     }
 
     /**
-    * Hook executed when performing some changes to the meta page and save them
-    *
-    * @since 1.7.6
-    */
+     * Hook executed when performing some changes to the meta page and save them
+     *
+     * @since 1.7.6
+     */
     public function hookActionMetaPageSave($params)
     {
         var_dump($params);
