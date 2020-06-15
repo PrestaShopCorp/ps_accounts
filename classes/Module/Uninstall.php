@@ -22,15 +22,20 @@ namespace PrestaShop\Module\PsAccounts\Module;
 
 class Uninstall
 {
+    /**
+     * @var \Ps_accounts
+     */
     private $module;
 
-    public function __construct(\Module $module)
+    public function __construct(\Ps_accounts $module)
     {
         $this->module = $module;
     }
 
     /**
      * uninstallMenu.
+     *
+     * @return bool
      */
     public function uninstallMenu()
     {

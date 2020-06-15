@@ -7,32 +7,26 @@ services:
     env_file: .env
     working_dir: /var/www/html/modules/ps_accounts
     volumes:
+      - .docker/install_module.sh:/tmp/init-scripts/install_module.sh
       - .:/var/www/html/modules/ps_accounts
-    command: ["/var/www/html/modules/ps_accounts/.docker/start.sh"]
+      - ${PRESTASHOP_ACCOUNTS_AUTH_PATH}:/tmp/libs/php/prestashop_accounts_auth
+      - ${PRESTASHOP_ACCOUNTS_VUE_COMPONENTS_PATH}:/tmp/libs/php/prestashop_accounts_vue_components
+      - ${PS_CHECKOUT_PATH}:/var/www/html/modules/ps_checkout
     healthcheck:
         test: ["CMD", "curl", "-f", "http://localhost"]
         interval: 30s
         timeout: 10s
         retries: 5
     networks:
-      - account-net
+      - services_accounts-net
 
   ps_account_db:
     image: mysql:5.7
     container_name: ps_acc_db
     env_file: .env
     networks:
-      - account-net
-
-  ps_account_node:
-    image: node:lts-stretch
-    container_name: ps_acc_node
-    command: "tail -f /dev/null"
-    env_file: _dev/.env
-    volumes:
-      - .:/var/www/html/modules/ps_accounts
-    working_dir: /var/www/html/modules/ps_accounts/_dev
+      - services_accounts-net
 
 networks:
-  account-net:
-    driver: bridge
+  services_accounts-net:
+    external: true

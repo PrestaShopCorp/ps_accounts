@@ -7,30 +7,22 @@ help:
 
 init: ## Init project
 	cp -n .env.dist .env || true
-	ln -s $$(pwd)/.env $$(pwd)/_dev/.env || true
 	cp -n docker-compose.override.yml.dist docker-compose.override.yml || true
-
-yarn_start: ## Start VueJs
-	$(MAKE) yarn_install
-	$(MAKE) yarn_watch
+	docker network create services_accounts-net || true
 
 start: ## Start app, force rebuild all containers
-	$(DKC) up -d --build
-	$(MAKE) yarn_start
-
-run: ## Run app
+	rm -f install.lock || true
+	$(MAKE) init
 	$(DKC) up -d
-	$(MAKE) yarn_start
 
-yarn_install: ## Install depedencies nodejs
-	$(DKC) run --rm ps_account_node sh -c "yarn install"
+restart: ## Force restart all containers
+	$(MAKE) down
+	$(MAKE) start
 
-yarn_build: ## Build vuejs file
-	$(DKC) run --rm ps_account_node sh -c "yarn build"
-
-yarn_watch: ## Watch VueJS files and compile when saved
-	$(DKC) run --rm ps_account_node sh -c "yarn start:dev"
+down: ## Remove all ps_accounts containers
+	docker rm -f ps_acc_db || true
+	docker rm -f ps_acc_web || true
+	docker network rm services_accounts-net || true
 
 %:
 	@:
-
