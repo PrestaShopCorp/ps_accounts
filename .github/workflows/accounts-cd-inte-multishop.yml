@@ -80,7 +80,7 @@ jobs:
           yarn --cwd _dev/ build
           composer install
 
-      - name: Delete old modules
+      - name: Delete old modules 1.7
         continue-on-error: true
         uses: appleboy/ssh-action@master
         with:
@@ -142,9 +142,9 @@ jobs:
           username: ${{ secrets.SSH_USERNAME }}
           key: ${{ secrets.SSH_KEY }}
           script: |
-            sudo su -c 'cp build/ps_accounts ${{ secrets.MULTISHOP_16_PATH }}'
+            sudo su -c 'cp -R build/ps_accounts ${{ secrets.MULTISHOP_16_PATH }}'
             sudo su -c 'chown -R www-data:www-data ${{ secrets.MULTISHOP_16_PATH }}/ps_accounts'
-            sudo su -c 'cp build/ps_checkout ${{ secrets.MULTISHOP_16_PATH }}'
+            sudo su -c 'cp -R build/ps_checkout ${{ secrets.MULTISHOP_16_PATH }}'
             sudo su -c 'chown -R www-data:www-data ${{ secrets.MULTISHOP_16_PATH }}/ps_checkout'
 
       - name: Install modules
