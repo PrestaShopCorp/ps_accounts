@@ -25,7 +25,6 @@ jobs:
           gcloud container clusters get-credentials $GCLOUD_CLUSTER \
           --zone europe-west1-c --project $GCLOUD_PROJECT
           gcloud beta secrets versions access latest --project=$GCLOUD_PROJECT --secret="accounts-module" > .env
-          gcloud beta secrets versions access latest --project=$GCLOUD_PROJECT --secret="accounts-module" > _dev/.env
           rm $GCLOUD_TOKEN_PATH
         env:
           GOOGLE_APPLICATION_CREDENTIALS: ${{ secrets.GCLOUD_CREDENTIAL_PRODUCTION }}
@@ -33,14 +32,9 @@ jobs:
           GCLOUD_CLUSTER: ${{ secrets.GCLOUD_CLUSTER }}
           GCLOUD_PROJECT: ${{ secrets.GCLOUD_PROJECT_PRODUCTION }}
 
-      - name: Build module
-        run: |
-          yarn --cwd _dev/ install
-          yarn --cwd _dev/ build
-          composer install
       - name: Composer
-        run: |
-          composer install
+        run: composer install
+
       - name: Delete old module
         uses: appleboy/ssh-action@master
         with:
