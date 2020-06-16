@@ -107,8 +107,6 @@ class Ps_accounts extends Module
         $this->displayName = $this->l('PrestaShop Account');
         $this->description = $this->l('Link your PrestaShop account to your online shop to activate & manage services on your back-office. Don\'t uninstall this module if you are already using a service, as it will prevent it from working.');
 
-        parent::__construct();
-
         $this->ps_versions_compliancy = ['min' => '1.6', 'max' => _PS_VERSION_];
         $this->adminControllers = [
             'hmac' => 'AdminConfigureHmacPsAccounts',

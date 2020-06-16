@@ -45,12 +45,10 @@ class ps_accountsDispatchWebHookModuleFrontController extends ModuleFrontControl
      */
     private $firebaseId;
 
-    private $listener = null;
-
     /**
      * Initialize the webhook script
      *
-     * @return bool
+     * @return void
      */
     public function display()
     {
@@ -104,6 +102,12 @@ class ps_accountsDispatchWebHookModuleFrontController extends ModuleFrontControl
         }
     }
 
+    /**
+     * @param array $headers
+     * @param array $body
+     *
+     * @return array
+     */
     private function receiveAccountsWebhook($headers, $body)
     {
         switch ($body['action']) {
@@ -114,7 +118,6 @@ class ps_accountsDispatchWebHookModuleFrontController extends ModuleFrontControl
                     'status_code' => 200,
                     'message' => 'ok',
                 ];
-                break;
 
             // TODO : Other cases
 
@@ -127,6 +130,11 @@ class ps_accountsDispatchWebHookModuleFrontController extends ModuleFrontControl
         }
     }
 
+    /**
+     * @param array $output
+     *
+     * @return void
+     */
     private function generateHttpResponse(array $output)
     {
         header('Content-type: application/json');
@@ -137,6 +145,8 @@ class ps_accountsDispatchWebHookModuleFrontController extends ModuleFrontControl
 
     /**
      * Override displayMaintenancePage to prevent the maintenance page to be displayed
+     *
+     * @return void
      */
     protected function displayMaintenancePage()
     {

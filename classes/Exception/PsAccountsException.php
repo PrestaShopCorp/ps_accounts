@@ -18,7 +18,7 @@
  * International Registered Trademark & Property of PrestaShop SA
  */
 
-namespace PrestaShop\Module\PsAccounts;
+namespace PrestaShop\Module\PsAccounts\Exception;
 
 class PsAccountsException extends \PrestaShopExceptionCore
 {

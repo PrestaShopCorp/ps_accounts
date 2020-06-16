@@ -20,6 +20,8 @@
 
 namespace PrestaShop\Module\PsAccounts\WebHook;
 
+use PrestaShop\Module\PsAccounts\Exception\PsAccountsException;
+
 class UnauthorizedException extends PsAccountsException
 {
     /**

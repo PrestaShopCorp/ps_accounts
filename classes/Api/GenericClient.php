@@ -77,7 +77,7 @@ class GenericClient
      */
     protected function post(array $options = [])
     {
-        /** @var \Ps_checkout $module */
+        /** @var \Ps_accounts $module */
         $module = \Module::getInstanceByName('ps_accounts');
 
         try {
@@ -102,6 +102,8 @@ class GenericClient
      * Setter for route
      *
      * @param string $route
+     *
+     * @return void
      */
     protected function setRoute($route)
     {
@@ -112,6 +114,8 @@ class GenericClient
      * Setter for client
      *
      * @param Client $client
+     *
+     * @return void
      */
     protected function setClient(Client $client)
     {
@@ -122,6 +126,8 @@ class GenericClient
      * Setter for link
      *
      * @param \Link $link
+     *
+     * @return void
      */
     protected function setLink(\Link $link)
     {
@@ -132,6 +138,8 @@ class GenericClient
      * Setter for timeout
      *
      * @param int $timeout
+     *
+     * @return void
      */
     protected function setTimeout($timeout)
     {
@@ -142,6 +150,8 @@ class GenericClient
      * Setter for exceptions mode
      *
      * @param bool $bool
+     *
+     * @return void
      */
     protected function setExceptionsMode($bool)
     {
@@ -198,6 +208,15 @@ class GenericClient
         return $this->catchExceptions;
     }
 
+    /**
+     * Getter for exceptions mode
+     *
+     * @param \Ps_accounts $module
+     * @param \Exception $exception
+     * @param array $options
+     *
+     * @return array
+     */
     private function handleException(\Ps_accounts $module, \Exception $exception, $options = [])
     {
         $body = $exception->getMessage();

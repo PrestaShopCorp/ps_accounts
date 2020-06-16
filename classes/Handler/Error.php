@@ -22,7 +22,13 @@ namespace PrestaShop\Module\PsAccounts\Handler;
 
 class Error
 {
-    public function handle(int $statusCode = 504, string $message = 'I love logging #troll')
+    /**
+     * @param int $statusCode
+     * @param string $message
+     *
+     * @return \Exception
+     */
+    public function handle($statusCode = 504, $message = '')
     {
         throw new \Exception($message, $statusCode);
     }

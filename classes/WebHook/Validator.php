@@ -43,45 +43,38 @@ class Validator
      */
     private $message = 'youpi';
 
+    /**
+     * @var \Context
+     */
+    private $context;
+
+    /**
+     * @var Error
+     */
+    private $error;
+
     public function __construct()
     {
         $this->context = \Context::getContext();
         $this->error = new Error();
     }
 
-    public function getError(int $statusCode = 510, string $message = 'I love logging #troll')
+    /**
+     * @param int $statusCode
+     * @param string $message
+     *
+     * @return \Exception
+     */
+    public function getError($statusCode = 510, $message = '')
     {
         return $this->error->handle($statusCode, $message);
-    }
-
-    /**
-     * @return array
-     */
-    public function generate()
-    {
-        $this->rsa->setPrivateKeyFormat(RSA::PRIVATE_FORMAT_PKCS1);
-        $this->rsa->setPublicKeyFormat(RSA::PUBLIC_FORMAT_PKCS1);
-
-        return $this->rsa->createKey();
-    }
-
-    /**
-     * @param string $privateKey
-     * @param string $data
-     *
-     * @return string
-     */
-    public function signData($privateKey, $data)
-    {
-        $this->rsa->loadKey($privateKey);
-
-        return base64_encode($this->rsa->sign($data));
     }
 
     /**
      * Validates the webHook data
      *
      * @param array $headerValues
+     * @param array $payload
      *
      * @return array
      */
@@ -150,7 +143,10 @@ class Validator
     /**
      * Validates the webHook data
      *
-     * @return array| bool
+     * @param array $headerValues
+     * @param array $bodyValues
+     *
+     * @return void
      */
     public function validate($headerValues = [], $bodyValues = [])
     {
@@ -165,6 +161,8 @@ class Validator
 
     /**
      * Check the IP whitelist and Shop, Merchant and Psx Ids
+     *
+     * @param array $shopId
      *
      * @return bool
      */
@@ -185,10 +183,10 @@ class Validator
     /**
      * Check if the Webhook comes from the PSL
      *
-     * @param array $headersValues
+     * @param array $headerValues
      * @param array $bodyValues
      *
-     * @return bool
+     * @return array
      */
     private function verifyWebhook(array $headerValues = [], array $bodyValues = [])
     {
