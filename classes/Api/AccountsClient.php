@@ -21,6 +21,7 @@
 namespace PrestaShop\Module\PsAccounts\Api;
 
 use GuzzleHttp\Client;
+use Symfony\Component\Dotenv\Dotenv;
 
 /**
  * Construct the client used to make call to Accounts API
@@ -79,8 +80,11 @@ class AccountsClient extends GenericClient
      */
     public function checkWebhookAuthenticity(array $headers, array $body)
     {
+        $dotenv = new Dotenv();
+        $dotenv->load(_PS_MODULE_DIR_ . 'ps_accounts/.env');
+
         $correlationId = $headers['correlationId'];
-        $this->setRoute(getenv('ACCOUNTS_API_URL') . '/webhooks/' . $correlationId . '/verify');
+        $this->setRoute($_ENV['ACCOUNTS_SVC_API_URL'] . '/webhooks/' . $correlationId . '/verify');
 
         $res = $this->post([
             'headers' => ['correlationId' => $correlationId],
@@ -90,7 +94,7 @@ class AccountsClient extends GenericClient
         if (!$res || $res['httpCode'] < 200 || $res['httpCode'] > 299) {
             return [
                 'httpCode' => $res['httpCode'],
-                'body' => $res['body'] ? $res['body']['message'] : 'Unknown error',
+                'body' => $res['body'] && is_array($res['body']) && array_key_exists('message', $res['body']) ? $res['body']['message'] : 'Unknown error',
             ];
         }
 
