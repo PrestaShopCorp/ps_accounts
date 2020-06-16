@@ -26,7 +26,6 @@ jobs:
           gcloud container clusters get-credentials $GCLOUD_CLUSTER \
           --zone europe-west1-c --project $GCLOUD_PROJECT
           gcloud beta secrets versions access latest --project=$GCLOUD_PROJECT --secret="accounts-module" > .env
-          gcloud beta secrets versions access latest --project=$GCLOUD_PROJECT --secret="accounts-module" > _dev/.env
           rm $GCLOUD_TOKEN_PATH
         env:
           GOOGLE_APPLICATION_CREDENTIALS: ${{ secrets.GCLOUD_CREDENTIAL_INTEGRATION }}
@@ -34,11 +33,8 @@ jobs:
           GCLOUD_CLUSTER: ${{ secrets.GCLOUD_CLUSTER }}
           GCLOUD_PROJECT: ${{ secrets.GCLOUD_PROJECT_INTEGRATION }}
 
-      - name: Build module
-        run: |
-          yarn --cwd _dev/ install
-          yarn --cwd _dev/ build
-          composer install
+      - name: Composer
+        run: composer install
 
       - name: Delete old module
         continue-on-error: true
@@ -74,9 +70,7 @@ jobs:
           host: ${{ secrets.SSH_HOST_INTEGRATION }}
           username: ${{ secrets.SSH_USERNAME }}
           key: ${{ secrets.SSH_KEY }}
-          script: |
-            sudo su -c 'docker exec $(docker ps -qf "name=${{ secrets.CONTAINER_NAME }}") cp modules/ps_accounts/.env modules/ps_accounts/_dev/.env'
-            sudo su -c 'docker exec $(docker ps -qf "name=${{ secrets.CONTAINER_NAME }}") bin/console prestashop:module install ${{ env.MODULE_NAME }}'
+          script: sudo su -c 'docker exec $(docker ps -qf "name=${{ secrets.CONTAINER_NAME }}") bin/console prestashop:module install ${{ env.MODULE_NAME }}'
 
       - name: Clear cache
         uses: appleboy/ssh-action@master
@@ -87,4 +81,3 @@ jobs:
           script: |
             sudo su -c 'docker exec $(docker ps -qf "name=${{ secrets.CONTAINER_NAME }}") bin/console cache:cl'
             sudo su -c 'docker exec $(docker ps -qf "name=${{ secrets.CONTAINER_NAME }}") chmod -R 777 var/cache var/logs'
-

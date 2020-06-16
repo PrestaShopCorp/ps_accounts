@@ -69,10 +69,7 @@ jobs:
 
       - name: Build ps accounts
         working-directory: ps_accounts
-        run: |
-          yarn --cwd _dev/ install
-          yarn --cwd _dev/ build
-          composer install
+        run: composer install
 
       - name: Build ps checkout
         working-directory: ps_checkout
@@ -137,7 +134,6 @@ jobs:
           username: ${{ secrets.SSH_USERNAME }}
           key: ${{ secrets.SSH_KEY }}
           script: |
-            sudo su -c 'docker exec $(docker ps -q -f "ancestor=prestashop/prestashop:1.7" -f "name=multishop") cp modules/ps_accounts/.env modules/ps_accounts/_dev/.env'
             sudo su -c 'docker exec $(docker ps -q -f "ancestor=prestashop/prestashop:1.7" -f "name=multishop") bin/console prestashop:module install ps_accounts'
             sudo su -c 'docker exec $(docker ps -q -f "ancestor=prestashop/prestashop:1.7" -f "name=multishop") cp modules/ps_checkout/.env modules/ps_checkout/_dev/.env'
             sudo su -c 'docker exec $(docker ps -q -f "ancestor=prestashop/prestashop:1.7" -f "name=multishop") bin/console prestashop:module install ps_checkout'
@@ -166,7 +162,6 @@ jobs:
           username: ${{ secrets.SSH_USERNAME }}
           key: ${{ secrets.SSH_KEY }}
           script: |
-            sudo su -c 'docker exec $(docker ps -q -f "ancestor=prestashop/prestashop:1.6" -f "name=multishop") cp modules/ps_accounts/.env modules/ps_accounts/_dev/.env'
             sudo su -c 'docker exec $(docker ps -q -f "ancestor=prestashop/prestashop:1.6" -f "name=multishop") php modules/ps_accounts/install.php'
             sudo su -c 'docker exec $(docker ps -q -f "ancestor=prestashop/prestashop:1.6" -f "name=multishop") cp modules/ps_checkout/.env modules/ps_checkout/_dev/.env'
             sudo su -c 'docker exec $(docker ps -q -f "ancestor=prestashop/prestashop:1.6" -f "name=multishop") php modules/ps_checkout/install.php'

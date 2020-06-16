@@ -87,13 +87,7 @@ CI trigger on pull request labeled 'quality assurance needed'
 
 To set custom checkout branch , edit [custom-checkout-version](custom-checkout-version)
 
-To set custom version accounts-auth-componenents, edit [package.json](_dev/package.json) :
-``` 
-"accounts-auth-componenents": "PrestaShopCorp/prestashop_accounts_auth#feature/xxx-my-branch-name"
-```
-
 ## How to connect ?
-### How to connect ?
 
 #### FRONT
 
