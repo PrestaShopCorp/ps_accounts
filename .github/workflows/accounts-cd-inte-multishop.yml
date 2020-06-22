@@ -29,8 +29,16 @@ jobs:
           path: ps_accounts
 
       - name: Get checkout version
-        id: checkout_branch
-        run: echo ::set-output name=BRANCH::$(cat ps_accounts/custom-checkout-version)
+        id: version_checkout
+        run: echo ::set-output name=VERSION::$(cat ps_accounts/.github/checkout.version)
+
+      - name: Get accounts vue components version
+        id: version_vcomponents
+        run: echo ::set-output name=VERSION::$(cat ps_accounts/.github/accounts-vue-components.version)
+
+      - name: Get accounts auth version
+        id: version_auth
+        run: echo ::set-output name=VERSION::$(cat ps_accounts/.github/accounts-auth.version)
 
       - name: Checkout ps checkout
         uses: actions/checkout@v2
@@ -38,7 +46,7 @@ jobs:
           repository: PrestaShopCorp/ps_checkout
           token: ${{ secrets.ACCESS_TOKEN }}
           path: ps_checkout
-          ref: ${{ steps.checkout_branch.outputs.BRANCH }}
+          ref: ${{ steps.version_checkout.outputs.VERSION }}
 
       - name: Gcloud auth and write env file
         run: |
@@ -69,14 +77,22 @@ jobs:
 
       - name: Build ps accounts
         working-directory: ps_accounts
-        run: composer install
-
-      - name: Build ps checkout
-        working-directory: ps_checkout
         run: |
           yarn --cwd _dev/ install
           yarn --cwd _dev/ build
           composer install
+
+      - name: Build ps checkout
+        working-directory: ps_checkout
+        run: |
+          yarn --cwd _dev/ add https://github.com/PrestaShopCorp/prestashop_accounts_vue_components#${VCOMPONENTS_VERSION}
+          yarn --cwd _dev/ install
+          yarn --cwd _dev/ build
+          composer install
+          composer require prestashop/prestashop-accounts-auth:dev-${ACCOUNTSAUTH_VERSION}
+        env:
+          VCOMPONENTS_VERSION: ${{ steps.version_vcomponents.outputs.VERSION }}
+          ACCOUNTSAUTH_VERSION: ${{ steps.version_auth.outputs.VERSION }}
 
       - name: Delete old modules 1.7
         continue-on-error: true
@@ -134,6 +150,7 @@ jobs:
           username: ${{ secrets.SSH_USERNAME }}
           key: ${{ secrets.SSH_KEY }}
           script: |
+            sudo su -c 'docker exec $(docker ps -q -f "ancestor=prestashop/prestashop:1.7" -f "name=multishop") cp modules/ps_accounts/.env modules/ps_accounts/_dev/.env'
             sudo su -c 'docker exec $(docker ps -q -f "ancestor=prestashop/prestashop:1.7" -f "name=multishop") bin/console prestashop:module install ps_accounts'
             sudo su -c 'docker exec $(docker ps -q -f "ancestor=prestashop/prestashop:1.7" -f "name=multishop") cp modules/ps_checkout/.env modules/ps_checkout/_dev/.env'
             sudo su -c 'docker exec $(docker ps -q -f "ancestor=prestashop/prestashop:1.7" -f "name=multishop") bin/console prestashop:module install ps_checkout'
@@ -162,6 +179,7 @@ jobs:
           username: ${{ secrets.SSH_USERNAME }}
           key: ${{ secrets.SSH_KEY }}
           script: |
+            sudo su -c 'docker exec $(docker ps -q -f "ancestor=prestashop/prestashop:1.6" -f "name=multishop") cp modules/ps_accounts/.env modules/ps_accounts/_dev/.env'
             sudo su -c 'docker exec $(docker ps -q -f "ancestor=prestashop/prestashop:1.6" -f "name=multishop") php modules/ps_accounts/install.php'
             sudo su -c 'docker exec $(docker ps -q -f "ancestor=prestashop/prestashop:1.6" -f "name=multishop") cp modules/ps_checkout/.env modules/ps_checkout/_dev/.env'
             sudo su -c 'docker exec $(docker ps -q -f "ancestor=prestashop/prestashop:1.6" -f "name=multishop") php modules/ps_checkout/install.php'
