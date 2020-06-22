@@ -1,8 +1,9 @@
 name: Module accounts CD
 
-on:
-  pull_request:
-    types: [opened,edited,reopened,synchronize,labeled]
+on: [push]
+#on:
+#  pull_request:
+#    types: [opened,edited,reopened,synchronize,labeled]
 
 env:
   MODULE_NAME: ps_accounts
@@ -14,7 +15,7 @@ jobs:
     name: Build ps_accounts and ps_checkout
     runs-on: ubuntu-latest
     timeout-minutes: 10
-    if: contains(github.event.pull_request.labels.*.name, 'quality assurance needed')
+#    if: contains(github.event.pull_request.labels.*.name, 'quality assurance needed')
 
     steps:
       # Fixed babel build : https://github.com/ember-cli/ember-cli/issues/9235#issuecomment-635254959
