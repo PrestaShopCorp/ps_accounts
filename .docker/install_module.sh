@@ -26,8 +26,7 @@ do
     cd /var/www/html/modules/$module;
     composer install;
     /var/www/html/bin/console --env=prod prestashop:module install $module
-    rm -rf /var/www/html/modules/$module/vendor/prestashop/prestashop-accounts-auth
-    ln -s /tmp/libs/php/prestashop_accounts_auth /var/www/html/modules/$module/vendor/prestashop/prestashop-accounts-auth
+
 done
 
 yarn --cwd /tmp/libs/js/prestashop_accounts_vue_components/
