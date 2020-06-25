@@ -1,27 +1,21 @@
 # PrestaShop Account
 
+## Community Service & PrestaShop X modules
 
-## AOS and comunity module
-
-An AOS module needs three parts:
+To work as a Community Service or as PrestaShop X, a module needs three parts:
 
 ### [module ps_accounts](http://github.com/PrestaShopCorp/ps_accounts)
 
-* [Autoinstall](http://github.com/PrestaShopCorp/ps_accounts)
- (lien doc)
 * Contains all the controllers
 
 ### [librairie npm](http://github.com/PrestaShopCorp/prestashop_accounts_vue_components)
 
-* Should be installed in the AOS module `npm install prestashop_accounts_vue_components` or `yarn add prestashop_accounts_vue_components`
 * Contains all the vuejs components to manage onboarding
 
 ### [librairie composer](http://github.com/PrestaShopCorp/prestashop_accounts_auth)
 
-* Should be installed in the AOS module `composer require prestashop/prestashop-accounts-auth`
-* contient tout la lib composer:
-    * wrappe all the call to ps_accounts
-    * Contains all the firebase's logic
+* Wraps all the calls to ps_accounts
+* Contains all the Firebase logic
 
 ## Installation of all projects
 
@@ -103,7 +97,7 @@ Pwd         : 123456789
 
 authentication
 ```
-URL   : http://localhost:<port>/admin-dev
+URL         : http://localhost:<port>/admin-dev
 User        : demo@prestashop.com
 Pwd         : prestashop_demo
 ```
