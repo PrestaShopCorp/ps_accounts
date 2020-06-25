@@ -1,3 +1,4 @@
+
 #!/bin/sh
 
 groupmod -g $UID www-data
@@ -23,10 +24,9 @@ version=$(php -r "echo PHP_MAJOR_VERSION.PHP_MINOR_VERSION;") \
 
 for module in ps_accounts ps_checkout
 do
-    cd /var/www/html/modules/$module;
-    composer install;
-    /var/www/html/bin/console --env=prod prestashop:module install $module
-
+    cd /var/www/html/modules/$module
+    executeCommand "composer install"
+    executeCommand "/var/www/html/bin/console --env=prod prestashop:module install ${module}"
 done
 
 yarn --cwd /tmp/libs/js/prestashop_accounts_vue_components/
@@ -35,6 +35,6 @@ yarn --cwd /var/www/html/modules/ps_checkout/_dev/
 yarn --cwd /var/www/html/modules/ps_checkout/_dev/ build
 
 rm -rf /var/www/html/modules/ps_checkout/_dev/node_modules/prestashop_accounts_vue_components
-ln -s /tmp/libs/js/prestashop_accounts_vue_components /var/www/html/modules/ps_checkout/_dev/node_modules/prestashop_accounts_vue_components
+executeCommand "ln -s /tmp/libs/js/prestashop_accounts_vue_components /var/www/html/modules/ps_checkout/_dev/node_modules/prestashop_accounts_vue_components"
 
-rm -rf /var/www/html/var/cache/*;
+rm -rf /var/www/html/var/cache/*
