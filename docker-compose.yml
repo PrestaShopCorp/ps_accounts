@@ -8,6 +8,8 @@ services:
     working_dir: /var/www/html/modules/ps_accounts
     volumes:
       - .docker/install_module.sh:/tmp/init-scripts/install_module.sh
+      - .docker/prepare.sh:/tmp/pre-install-scripts/prepare.sh
+      - .docker/patches:/tmp/patches
       - .:/var/www/html/modules/ps_accounts
       - ${PRESTASHOP_ACCOUNTS_AUTH_PATH}:/tmp/libs/php/prestashop_accounts_auth
       - ${PRESTASHOP_ACCOUNTS_VUE_COMPONENTS_PATH}:/tmp/libs/js/prestashop_accounts_vue_components
