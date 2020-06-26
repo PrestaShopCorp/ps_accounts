@@ -75,6 +75,14 @@ For watch docker-compose status run `watch docker-compose ps`
 
 ![](doc/healthy.png)
 
+## Build dependencies
+
+You need to be sure PrestaShop is installed and everything has finished.
+
+```bash
+make build_node_deps
+```
+
 ## CI
 
 CI trigger on pull request labeled 'quality assurance needed'

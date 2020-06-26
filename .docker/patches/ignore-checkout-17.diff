@@ -1,0 +1,12 @@
+diff --git src/PrestaShopBundle/Install/Install.php src/PrestaShopBundle/Install/Install.php
+index 333909180d..fb896d6624 100644
+--- src/PrestaShopBundle/Install/Install.php
++++ src/PrestaShopBundle/Install/Install.php
+@@ -974,6 +974,7 @@ class Install extends AbstractInstall
+             'producttooltip',
+             'sendtoafriend',
+             'socialsharing',
++            'ps_checkout',
+         );
+ 
+         $addons_modules = array();
