@@ -83,7 +83,7 @@ jobs:
       - name: Build ps checkout
         working-directory: ps_checkout
         run: |
-          yarn --cwd _dev/ add https://github.com/PrestaShopCorp/prestashop_accounts_vue_components#${VCOMPONENTS_VERSION}
+          yarn --cwd _dev/ add prestashop_accounts_vue_components#${VCOMPONENTS_VERSION}
           yarn --cwd _dev/ install
           yarn --cwd _dev/ build
           composer install
