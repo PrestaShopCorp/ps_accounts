@@ -27,6 +27,9 @@
 /**
  * Controller generate hmac and redirect on hmac's file.
  */
+
+use Symfony\Component\Dotenv\Dotenv;
+
 class AdminConfigureHmacPsAccountsController extends ModuleAdminController
 {
     /**
@@ -34,6 +37,9 @@ class AdminConfigureHmacPsAccountsController extends ModuleAdminController
      */
     public function initContent()
     {
+        $dotenv = new Dotenv();
+        $dotenv->load(_PS_MODULE_DIR_ . 'ps_accounts/.env');
+
         try {
             if (null === Tools::getValue('hmac')) {
                 throw new Exception("Caught exception: Hmac does not exist \n");
@@ -60,8 +66,7 @@ class AdminConfigureHmacPsAccountsController extends ModuleAdminController
             file_put_contents($hmacPath . Tools::getValue('uid') . '.txt', Tools::getValue('hmac'));
         } catch (Exception $e) {
         }
-        $url = getenv('ACCOUNTS_SVC_UI_URL');
-        // $url = 'https://accounts.psessentials-integration.net';
+        $url = $_ENV['ACCOUNTS_SVC_UI_URL'];
         if (false === $url) {
             throw new \Exception('Environmenrt variable ACCOUNTS_SVC_UI_URL should not be empty');
         }
