@@ -24,7 +24,7 @@
 *  International Registered Trademark & Property of PrestaShop SA
 */
 
-/**
+/*
  * Controller generate hmac and redirect on hmac's file.
  */
 
