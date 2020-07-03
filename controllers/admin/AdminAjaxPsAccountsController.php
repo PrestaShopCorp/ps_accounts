@@ -64,27 +64,4 @@ class AdminAjaxPsAccountsController extends ModuleAdminController
             json_encode(true)
         );
     }
-
-    /**
-     * AJAX: Reset onboading.
-     *
-     * @return void
-     */
-    public function ajaxProcessResetOnboarding()
-    {
-        Configuration::updateValue('PS_ACCOUNTS_RSA_PRIVATE_KEY', null);
-        Configuration::updateValue('PS_ACCOUNTS_RSA_PUBLIC_KEY', null);
-        Configuration::updateValue('PS_ACCOUNTS_RSA_SIGN_DATA', null);
-        Configuration::updateValue('PS_PSX_FIREBASE_EMAIL', null);
-        Configuration::updateValue('PS_PSX_FIREBASE_ID_TOKEN', null);
-        Configuration::updateValue('PS_PSX_FIREBASE_LOCAL_ID', null);
-        Configuration::updateValue('PS_PSX_FIREBASE_REFRESH_TOKEN', null);
-        Configuration::updateValue('PS_PSX_FIREBASE_REFRESH_DATE', null);
-        Configuration::updateValue('PS_PSX_FIREBASE_ADMIN_TOKEN', null);
-        Configuration::updateValue('PS_PSX_FIREBASE_LOCK', null);
-
-        $this->ajaxDie(
-            json_encode(true)
-        );
-    }
 }
