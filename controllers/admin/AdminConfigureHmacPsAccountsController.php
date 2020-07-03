@@ -24,12 +24,11 @@
 *  International Registered Trademark & Property of PrestaShop SA
 */
 
-/*
- * Controller generate hmac and redirect on hmac's file.
- */
-
 use Symfony\Component\Dotenv\Dotenv;
 
+/**
+ * Controller generate hmac and redirect on hmac's file.
+ */
 class AdminConfigureHmacPsAccountsController extends ModuleAdminController
 {
     /**

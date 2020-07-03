@@ -19,6 +19,11 @@ do
     ln -s /tmp/libs/php/prestashop_accounts_auth /var/www/html/modules/$module/vendor/prestashop/prestashop-accounts-auth
 done
 
+yarn --cwd /tmp/libs/js/prestashop_accounts_vue_components/
+yarn --cwd /tmp/libs/js/prestashop_accounts_vue_components/ build-lib
+yarn --cwd /var/www/html/modules/ps_checkout/_dev/
+yarn --cwd /var/www/html/modules/ps_checkout/_dev/ build
+
 rm -rf /var/www/html/modules/ps_checkout/_dev/node_modules/prestashop_accounts_vue_components
 ln -s /tmp/libs/js/prestashop_accounts_vue_components /var/www/html/modules/ps_checkout/_dev/node_modules/prestashop_accounts_vue_components
 
