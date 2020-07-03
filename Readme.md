@@ -8,11 +8,11 @@ To work as a Community Service or as PrestaShop X, a module needs three parts:
 
 * Contains all the controllers
 
-### [librairie npm](http://github.com/PrestaShopCorp/prestashop_accounts_vue_components)
+### [library npm](http://github.com/PrestaShopCorp/prestashop_accounts_vue_components)
 
 * Contains all the vuejs components to manage onboarding
 
-### [librairie composer](http://github.com/PrestaShopCorp/prestashop_accounts_auth)
+### [library composer](http://github.com/PrestaShopCorp/prestashop_accounts_auth)
 
 * Wraps all the calls to ps_accounts
 * Contains all the Firebase logic

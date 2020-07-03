@@ -21,9 +21,10 @@
     "symfony/dotenv": "^3.4",
     "phpseclib/phpseclib": "^2.0",
     "ext-json": "*",
+    "symfony/dotenv": "^3.4",
     "guzzlehttp/guzzle": "~5.0",
     "monolog/monolog": "1.25.3",
-    "prestashop/prestashop-accounts-auth": "dev-feature/790-extract-library-from-ps_accounts"
+    "prestashop/prestashop-accounts-auth": "dev-master"
   },
   "require-dev": {
     "phpunit/phpunit": "^5.7",
