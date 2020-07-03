@@ -20,9 +20,13 @@ To work as a Community Service or as PrestaShop X, a module needs three parts:
 ## Installation of all projects
 
 First run prepare,
+
 ```bash
+export UID=<current_user_id>
+export GID=<current_group_id>
 bash ./init-full-accounts.sh prepare /path/to/install
 ```
+
 WARNING : /path/to/install directory MUST be empty.
 
 You will need ngrok on port 80 to have customized DN for PS shop software (PS_DOMAIN var)
@@ -32,6 +36,8 @@ Then customize
  * /path/to/install/ps_accounts/.env :
    - use a public DN in PS_DOMAIN (ngrok or real DN, no local ones)
    - fix *_PATH vars to match your /path/to/install
+   - fix UID var to match <current_user_id>
+   - fix GID var to match <current_group_id>
    - fix FIREBASE_* vars to use the right environment
  * /path/to/install/services/apps/accounts/ui/.env (copy from .env.example)
    - Fill empty vars
@@ -40,6 +46,7 @@ Then customize
  * And add /path/to/install/services/gcp-credentials.json
 
 Finally, run install
+
 ```bash
 bash ./init-full-accounts.sh install /path/to/install
 ```
@@ -53,18 +60,21 @@ git clone git@github.com:PrestaShopCorp/prestashop_accounts_auth.git
 git clone git@github.com:PrestaShopCorp/ps_checkout.git
 make init
 ```
-/!\ Customize .env with path of dependencies
+
+/!\ Minimal customize .env with path of dependencies, current user id, current group id and fix FIREBASE_* vars to use the right environment
 
 Customize docker-compose.override.yml for choice port
 
 ## Usage
 
 List all Makefile rules
+
 ```bash
 make
 ```
 
 Start project :
+
 ```bash
 make start
 ```
@@ -101,9 +111,8 @@ Pwd         : 123456789
 
 #### BO
 
-
-
 authentication
+
 ```
 URL         : http://localhost:<port>/admin-dev
 User        : demo@prestashop.com
@@ -130,6 +139,7 @@ prefix      : ps_
 ## Testing
 
 Run php-cs-fixer
+
 ```bash
 php vendor/bin/php-cs-fixer fix
 ```
