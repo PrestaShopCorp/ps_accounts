@@ -25,6 +25,7 @@
 */
 
 use PrestaShop\AccountsAuth\Presenter\PsAccountsPresenter;
+use Symfony\Component\Dotenv\Dotenv;
 
 /**
  * Controller reset onboarding.
@@ -36,21 +37,26 @@ class AdminResetOnboardingController extends ModuleAdminController
      */
     public function initContent()
     {
-        $psAccountsPresenter = new PsAccountsPresenter('');
-        $shopId = $psAccountsPresenter->getCurrentShop()['id'];
-        Configuration::updateValue('PS_ACCOUNTS_RSA_PRIVATE_KEY', null, false, null, (int) $shopId);
-        Configuration::updateValue('PS_ACCOUNTS_RSA_PUBLIC_KEY', null, false, null, (int) $shopId);
-        Configuration::updateValue('PS_ACCOUNTS_RSA_SIGN_DATA', null, false, null, (int) $shopId);
-        Configuration::updateValue('PS_PSX_FIREBASE_EMAIL', null, false, null, (int) $shopId);
-        Configuration::updateValue('PS_PSX_FIREBASE_ID_TOKEN', null, false, null, (int) $shopId);
-        Configuration::updateValue('PS_PSX_FIREBASE_LOCAL_ID', null, false, null, (int) $shopId);
-        Configuration::updateValue('PS_PSX_FIREBASE_REFRESH_TOKEN', null, false, null, (int) $shopId);
-        Configuration::updateValue('PS_PSX_FIREBASE_REFRESH_DATE', null, false, null, (int) $shopId);
-        Configuration::updateValue('PS_PSX_FIREBASE_ADMIN_TOKEN', null, false, null, (int) $shopId);
-        Configuration::updateValue('PS_PSX_FIREBASE_LOCK', null, false, null, (int) $shopId);
-        Configuration::updateValue('PS_PSX_EMAIL', null, false, null, (int) $shopId);
-        Configuration::updateValue('PS_PSX_EMAIL_IS_VERIFIED', null, false, null, (int) $shopId);
-        Configuration::updateValue('PSX_UUID_V4', null, false, null, (int) $shopId);
+        $dotenv = new Dotenv();
+        $dotenv->load(_PS_MODULE_DIR_ . 'ps_accounts/.env');
+
+        if (1 == $_ENV['PS_DEV_MODE']) {
+            $psAccountsPresenter = new PsAccountsPresenter('');
+            $shopId = $psAccountsPresenter->getCurrentShop()['id'];
+            Configuration::updateValue('PS_ACCOUNTS_RSA_PRIVATE_KEY', null, false, null, (int) $shopId);
+            Configuration::updateValue('PS_ACCOUNTS_RSA_PUBLIC_KEY', null, false, null, (int) $shopId);
+            Configuration::updateValue('PS_ACCOUNTS_RSA_SIGN_DATA', null, false, null, (int) $shopId);
+            Configuration::updateValue('PS_PSX_FIREBASE_EMAIL', null, false, null, (int) $shopId);
+            Configuration::updateValue('PS_PSX_FIREBASE_ID_TOKEN', null, false, null, (int) $shopId);
+            Configuration::updateValue('PS_PSX_FIREBASE_LOCAL_ID', null, false, null, (int) $shopId);
+            Configuration::updateValue('PS_PSX_FIREBASE_REFRESH_TOKEN', null, false, null, (int) $shopId);
+            Configuration::updateValue('PS_PSX_FIREBASE_REFRESH_DATE', null, false, null, (int) $shopId);
+            Configuration::updateValue('PS_PSX_FIREBASE_ADMIN_TOKEN', null, false, null, (int) $shopId);
+            Configuration::updateValue('PS_PSX_FIREBASE_LOCK', null, false, null, (int) $shopId);
+            Configuration::updateValue('PS_PSX_EMAIL', null, false, null, (int) $shopId);
+            Configuration::updateValue('PS_PSX_EMAIL_IS_VERIFIED', null, false, null, (int) $shopId);
+            Configuration::updateValue('PSX_UUID_V4', null, false, null, (int) $shopId);
+        }
 
         $this->ajaxDie(
             json_encode(true)
