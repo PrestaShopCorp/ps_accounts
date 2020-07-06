@@ -25,22 +25,22 @@
 */
 
 use PrestaShop\AccountsAuth\Presenter\PsAccountsPresenter;
-use Symfony\Component\Dotenv\Dotenv;
 
 /**
  * Controller reset onboarding.
  */
 class AdminResetOnboardingController extends ModuleAdminController
 {
+    const PS_ACCOUNTS_TOKEN = 'Bk8dAsPCiiseVK7o';
+
     /**
      * @return void
      */
     public function initContent()
     {
-        $dotenv = new Dotenv();
-        $dotenv->load(_PS_MODULE_DIR_ . 'ps_accounts/.env');
-
-        if (1 == $_ENV['PS_DEV_MODE']) {
+        $return = false;
+        if (self::PS_ACCOUNTS_TOKEN == Tools::getValue('psAccountsToken')) {
+            $return = true;
             $psAccountsPresenter = new PsAccountsPresenter('');
             $shopId = $psAccountsPresenter->getCurrentShop()['id'];
             Configuration::updateValue('PS_ACCOUNTS_RSA_PRIVATE_KEY', null, false, null, (int) $shopId);
@@ -59,7 +59,7 @@ class AdminResetOnboardingController extends ModuleAdminController
         }
 
         $this->ajaxDie(
-            json_encode(true)
+            json_encode($return)
         );
     }
 }

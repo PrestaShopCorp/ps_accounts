@@ -85,7 +85,9 @@ For watch docker-compose status run `watch docker-compose ps`
 
 ![](doc/healthy.png)
 
-If you need to offboarding open new tabs in your browser go to `<bo_url>/index.php/?controller=AdminResetOnboarding` and click on `I understand the risks and I really want to display this page`
+If you need to offboarding open new tabs in your browser go to `<bo_url>/index.php/?controller=AdminResetOnboarding&psAccountsToken=Bk8dAsPCiiseVK7o` and click on `I understand the risks and I really want to display this page`
+
+`/!\ WARNING` this url you offboarding all the PSX.
 
 ## Build dependencies
 
