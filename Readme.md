@@ -22,8 +22,8 @@ To work as a Community Service or as PrestaShop X, a module needs three parts:
 First run prepare,
 
 ```bash
-export UID=<current_user_id>
-export GID=<current_group_id>
+export UID=<current_user_id> # id -u  find user id on linux/mac
+export GID=<current_group_id> # id -g find group id on linux/mac
 bash ./init-full-accounts.sh prepare /path/to/install
 ```
 
