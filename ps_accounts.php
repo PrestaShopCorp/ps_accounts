@@ -106,6 +106,7 @@ class Ps_accounts extends Module
         $this->adminControllers = [
             'hmac' => 'AdminConfigureHmacPsAccounts',
             'ajax' => 'AdminAjaxPsAccounts',
+            'resetOnboarding' => 'AdminResetOnboarding',
         ];
     }
 

@@ -85,9 +85,13 @@ For watch docker-compose status run `watch docker-compose ps`
 
 ![](doc/healthy.png)
 
+If you need to offboarding open new tabs in your browser go to `<bo_url>/index.php/?controller=AdminResetOnboarding&psAccountsToken=Bk8dAsPCiiseVK7o` and click on `I understand the risks and I really want to display this page`
+
+`/!\ WARNING` this url you offboarding all the PSX.
+
 ## Build dependencies
 
-You need to be sure PrestaShop is installed and everything has finished.
+You need to reload prestashop_accounts_vue_components.
 
 ```bash
 make build_node_deps
