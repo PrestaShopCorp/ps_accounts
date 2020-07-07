@@ -21,6 +21,7 @@
 namespace PrestaShop\Module\PsAccounts\Api;
 
 use GuzzleHttp\Client;
+use PrestaShop\AccountsAuth\Api\GenericClient;
 use Symfony\Component\Dotenv\Dotenv;
 
 /**
