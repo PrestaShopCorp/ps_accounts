@@ -5,12 +5,8 @@ services:
     image: prestashop/prestashop:${PS_VERSION}
     container_name: ps_acc_web
     env_file: .env
-    environment:
-      - CURRENT_UID=${CURRENT_UID}
-      - CURRENT_GID=${CURRENT_GID}
     working_dir: /var/www/html/modules/ps_accounts
     volumes:
-      - .docker/docker_run.sh:/tmp/docker_run.sh
       - .docker/install_module.sh:/tmp/init-scripts/install_module.sh
       - .docker/prepare.sh:/tmp/pre-install-scripts/prepare.sh
       - .docker/patches:/tmp/patches

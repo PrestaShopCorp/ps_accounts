@@ -78,11 +78,6 @@ class Ps_accounts extends Module
     /**
      * @var string
      */
-    const VERSION = '1.0.0';
-
-    /**
-     * @var string
-     */
     public $version;
 
     /**
