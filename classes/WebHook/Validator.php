@@ -65,7 +65,7 @@ class Validator
      *
      * @return \Exception
      */
-    public function getError($statusCode = 510, $message = '')
+    public function getError($statusCode = 510, $message = 'error')
     {
         return $this->error->handle($statusCode, $message);
     }
