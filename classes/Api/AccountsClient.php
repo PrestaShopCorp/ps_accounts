@@ -36,7 +36,7 @@ class AccountsClient extends GenericClient
         $psAccountsService = new PsAccountsService();
         $token = $psAccountsService->getFirebaseRefreshToken();
 
-        if(!$token){
+        if (!$token) {
             (new Error())->handle($statusCode, $message);
         }
 
