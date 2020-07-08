@@ -242,16 +242,16 @@
         },
         {
             "name": "phpseclib/phpseclib",
-            "version": "2.0.27",
+            "version": "2.0.28",
             "source": {
                 "type": "git",
                 "url": "https://github.com/phpseclib/phpseclib.git",
-                "reference": "34620af4df7d1988d8f0d7e91f6c8a3bf931d8dc"
+                "reference": "d1ca58cf33cb21046d702ae3a7b14fdacd9f3260"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/phpseclib/phpseclib/zipball/34620af4df7d1988d8f0d7e91f6c8a3bf931d8dc",
-                "reference": "34620af4df7d1988d8f0d7e91f6c8a3bf931d8dc",
+                "url": "https://api.github.com/repos/phpseclib/phpseclib/zipball/d1ca58cf33cb21046d702ae3a7b14fdacd9f3260",
+                "reference": "d1ca58cf33cb21046d702ae3a7b14fdacd9f3260",
                 "shasum": ""
             },
             "require": {
@@ -330,7 +330,7 @@
                 "x.509",
                 "x509"
             ],
-            "time": "2020-04-04T23:17:33+00:00"
+            "time": "2020-07-08T09:08:33+00:00"
         },
         {
             "name": "prestashop/prestashop-accounts-auth",
@@ -338,12 +338,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/PrestaShopCorp/prestashop_accounts_auth.git",
-                "reference": "8e2abf90f02f6f6e0791f19724a0688b063cce67"
+                "reference": "bd21d52445f2a01ac42f20744caa46b468114cd1"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/PrestaShopCorp/prestashop_accounts_auth/zipball/8e2abf90f02f6f6e0791f19724a0688b063cce67",
-                "reference": "8e2abf90f02f6f6e0791f19724a0688b063cce67",
+                "url": "https://api.github.com/repos/PrestaShopCorp/prestashop_accounts_auth/zipball/bd21d52445f2a01ac42f20744caa46b468114cd1",
+                "reference": "bd21d52445f2a01ac42f20744caa46b468114cd1",
                 "shasum": ""
             },
             "require": {
@@ -368,7 +368,7 @@
                 "MIT"
             ],
             "description": "Firebase auth class",
-            "time": "2020-06-30T07:37:17+00:00"
+            "time": "2020-07-08T14:42:33+00:00"
         },
         {
             "name": "psr/log",

@@ -24,7 +24,7 @@
 *  International Registered Trademark & Property of PrestaShop SA
 */
 
-use PrestaShop\AccountsAuth\Presenter\PsAccountsPresenter;
+use PrestaShop\AccountsAuth\Service\PsAccountsService;
 
 /**
  * Controller reset onboarding.
@@ -41,8 +41,8 @@ class AdminResetOnboardingController extends ModuleAdminController
         $return = false;
         if (self::PS_ACCOUNTS_TOKEN == Tools::getValue('psAccountsToken')) {
             $return = true;
-            $psAccountsPresenter = new PsAccountsPresenter('');
-            $shopId = $psAccountsPresenter->getCurrentShop()['id'];
+            $psAccountsService = new PsAccountsService();
+            $shopId = $psAccountsService->getCurrentShop()['id'];
             Configuration::updateValue('PS_ACCOUNTS_RSA_PRIVATE_KEY', null, false, null, (int) $shopId);
             Configuration::updateValue('PS_ACCOUNTS_RSA_PUBLIC_KEY', null, false, null, (int) $shopId);
             Configuration::updateValue('PS_ACCOUNTS_RSA_SIGN_DATA', null, false, null, (int) $shopId);
