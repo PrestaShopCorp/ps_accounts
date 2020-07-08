@@ -1,6 +1,9 @@
 name: Module accounts CD
 
 on:
+  push:
+    branches:
+      - master
   pull_request:
     types: [opened,edited,reopened,synchronize,labeled]
 
