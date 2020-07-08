@@ -23,6 +23,7 @@ namespace PrestaShop\Module\PsAccounts\Api;
 use GuzzleHttp\Client;
 use PrestaShop\AccountsAuth\Api\GenericClient;
 use PrestaShop\AccountsAuth\Service\PsAccountsService;
+use PrestaShop\Module\PsAccounts\Handler\Error;
 use Symfony\Component\Dotenv\Dotenv;
 
 /**
@@ -37,7 +38,7 @@ class AccountsClient extends GenericClient
         $token = $psAccountsService->getFirebaseRefreshToken();
 
         if (!$token) {
-            (new Error())->handle($statusCode, $message);
+            (new Error())->handle(500, 'you must have admin token');
         }
 
         // Client can be provided for tests

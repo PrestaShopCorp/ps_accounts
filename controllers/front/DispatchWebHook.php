@@ -20,7 +20,7 @@
 use PrestaShop\Module\PsAccounts\Api\ServicesApi\Webhook;
 use PrestaShop\Module\PsAccounts\WebHook\Validator;
 
-class ps_accountsDispatchWebHookModuleFrontController extends ModuleFrontController
+class ps_accountsDispatchWebHookModuleFrontController extends FrontController
 {
     const PS_CHECKOUT_SHOP_UUID_V4 = 'PS_CHECKOUT_SHOP_UUID_V4';
 
