@@ -57,7 +57,7 @@ class AdminResetOnboardingController extends ModuleAdminController
             Configuration::updateValue('PS_PSX_EMAIL_IS_VERIFIED', null, false, null, (int) $shopId);
             Configuration::updateValue('PSX_UUID_V4', null, false, null, (int) $shopId);
         }
-        echo 'test';
+
         $this->ajaxDie(
             json_encode($return)
         );
