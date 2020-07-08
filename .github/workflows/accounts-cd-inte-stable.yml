@@ -2,8 +2,8 @@ name: Module accounts CD
 
 on:
   push:
-    branches:
-      - master
+    tags:
+      - 'stable'
 
 env:
   MODULE_NAME: ps_accounts
