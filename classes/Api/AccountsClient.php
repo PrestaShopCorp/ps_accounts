@@ -35,7 +35,7 @@ class AccountsClient extends GenericClient
     {
         $this->setLink($link);
         $psAccountsService = new PsAccountsService();
-        $token = $psAccountsService->getFirebaseRefreshToken();
+        $token = $psAccountsService->getFirebaseIdToken();
 
         if (!$token) {
             (new Error())->handle(500, 'you must have admin token');
@@ -53,7 +53,7 @@ class AccountsClient extends GenericClient
                         //'Content-Type' => 'application/vnd.accounts.v1+json', // api version to use
                         'Accept' => 'application/json',
                         'Authorization' => 'Bearer ' . $token,
-                        //'Shop-Id' => (new ShopUuidManager())->getForShop((int) \Context::getContext()->shop->id),
+                        'Shop-Id' => $psAccountsService->getCurrentShop()['id'],
                         'Hook-Url' => $this->link->getModuleLink(
                             'ps_accounts',
                             'DispatchWebHook',
