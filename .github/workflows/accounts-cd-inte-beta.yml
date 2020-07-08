@@ -1,8 +1,9 @@
 name: Module accounts CD
 
 on:
-  pull_request:
-    types: [opened,edited,reopened,synchronize,labeled]
+  push:
+    tags:
+      - 'beta'
 
 env:
   MODULE_NAME: ps_accounts

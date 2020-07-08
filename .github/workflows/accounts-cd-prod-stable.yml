@@ -3,7 +3,7 @@ name: Module accounts CD Production Beta
 on:
   push:
     tags:
-      - '*'
+      - 'prod'
 
 env:
   MODULE_NAME: ps_accounts
