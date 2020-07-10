@@ -1,28 +1,28 @@
 <?php
 /**
-* 2007-2020 PrestaShop.
-*
-* NOTICE OF LICENSE
-*
-* This source file is subject to the Academic Free License (AFL 3.0)
-* that is bundled with this package in the file LICENSE.txt.
-* It is also available through the world-wide-web at this URL:
-* http://opensource.org/licenses/afl-3.0.php
-* If you did not receive a copy of the license and are unable to
-* obtain it through the world-wide-web, please send an email
-* to license@prestashop.com so we can send you a copy immediately.
-*
-* DISCLAIMER
-*
-* Do not edit or add to this file if you wish to upgrade PrestaShop to newer
-* versions in the future. If you wish to customize PrestaShop for your
-* needs please refer to http://www.prestashop.com for more information.
-*
-*  @author    PrestaShop SA <contact@prestashop.com>
-*  @copyright 2007-2020 PrestaShop SA
-*  @license   http://opensource.org/licenses/afl-3.0.php  Academic Free License (AFL 3.0)
-*  International Registered Trademark & Property of PrestaShop SA
-*/
+ * 2007-2020 PrestaShop.
+ *
+ * NOTICE OF LICENSE
+ *
+ * This source file is subject to the Academic Free License (AFL 3.0)
+ * that is bundled with this package in the file LICENSE.txt.
+ * It is also available through the world-wide-web at this URL:
+ * http://opensource.org/licenses/afl-3.0.php
+ * If you did not receive a copy of the license and are unable to
+ * obtain it through the world-wide-web, please send an email
+ * to license@prestashop.com so we can send you a copy immediately.
+ *
+ * DISCLAIMER
+ *
+ * Do not edit or add to this file if you wish to upgrade PrestaShop to newer
+ * versions in the future. If you wish to customize PrestaShop for your
+ * needs please refer to http://www.prestashop.com for more information.
+ *
+ *  @author    PrestaShop SA <contact@prestashop.com>
+ *  @copyright 2007-2020 PrestaShop SA
+ *  @license   http://opensource.org/licenses/afl-3.0.php  Academic Free License (AFL 3.0)
+ *  International Registered Trademark & Property of PrestaShop SA
+ */
 if (!defined('_PS_VERSION_')) {
     exit;
 }
@@ -91,6 +91,15 @@ class Ps_accounts extends Module
     private $logger;
 
     /**
+     * List of hook to install at the installation of the module
+     *
+     * @var array
+     */
+    private $hookToInstall = [
+        'actionObjectShopUrlUpdateAfter',
+    ];
+
+    /**
      * __construct.
      */
     public function __construct()
@@ -150,15 +159,16 @@ class Ps_accounts extends Module
      */
     public function install()
     {
-        $hookUpdateShopDomain = 'displayBackOfficeHeader';
         // if ps version is 1.7.6 or above
         if (version_compare(_PS_VERSION_, '1.7.6.0', '>=')) {
-            $hookUpdateShopDomain = 'actionMetaPageSave';
+            array_push($this->hookToInstall, 'actionMetaPageSave');
+        } else {
+            array_push($this->hookToInstall, 'displayBackOfficeHeader');
         }
 
         return (new PrestaShop\Module\PsAccounts\Module\Install($this))->installInMenu()
-            && $this->registerHook($hookUpdateShopDomain)
-            && parent::install();
+            && parent::install()
+            && $this->registerHook($this->hookToInstall);
     }
 
     /**
@@ -166,6 +176,7 @@ class Ps_accounts extends Module
      */
     public function uninstall()
     {
+        $this->displayConfirmation('test');
         return (new PrestaShop\Module\PsAccounts\Module\Uninstall($this))->uninstallMenu()
             && parent::uninstall();
     }
@@ -184,14 +195,19 @@ class Ps_accounts extends Module
             return false;
         }
 
+        // If multishop is enable don't continue
+        if (true === \Shop::isFeatureActive()) {
+            return false;
+        }
+
         // If a changes is make to the meta form
         if (Tools::isSubmit('submitOptionsmeta')) {
             $domain = Tools::getValue('domain'); // new domain to update
             $domainSsl = Tools::getValue('domain_ssl'); // new domain with ssl - needed ?
 
             var_dump($params);
+            var_dump($domain);
             var_dump($domainSsl);
-            var_dump($context);
             die();
         }
     }
@@ -203,8 +219,37 @@ class Ps_accounts extends Module
      */
     public function hookActionMetaPageSave($params)
     {
+        // If multishop is enable don't continue
+        if (true === \Shop::isFeatureActive()) {
+            return false;
+        }
+
+        echo '<pre>';
         var_dump($params);
+        echo '<pre>';
         var_dump($params['form_data']); // -> data with the new domain
+        echo '<pre>';
+        die();
+    }
+
+    /**
+     * Hook trigger when a changement is made on the domain name
+     *
+     * @param array $params
+     */
+    public function hookActionObjectShopUrlUpdateAfter($params)
+    {
+        // If multishop is disable don't continue
+        if (false === \Shop::isFeatureActive()) {
+            return false;
+        }
+
+        dump($params);
+        dump($params['object']);
+        dump($params['object']->domain);
+        dump($params['object']->domain_ssl);
+        dump($params['object']->main);
+        dump($params['object']->active);
         die();
     }
 }
