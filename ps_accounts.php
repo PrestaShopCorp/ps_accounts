@@ -176,7 +176,6 @@ class Ps_accounts extends Module
      */
     public function uninstall()
     {
-        $this->displayConfirmation('test');
         return (new PrestaShop\Module\PsAccounts\Module\Uninstall($this))->uninstallMenu()
             && parent::uninstall();
     }
