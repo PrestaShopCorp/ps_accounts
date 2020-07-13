@@ -19,6 +19,7 @@
  */
 use PrestaShop\Module\PsAccounts\Api\ServicesApi\Webhook;
 use PrestaShop\Module\PsAccounts\WebHook\Validator;
+use PrestaShop\AccountsAuth\Service\PsAccountsService;
 
 class ps_accountsDispatchWebHookModuleFrontController extends FrontController
 {
@@ -110,9 +111,10 @@ class ps_accountsDispatchWebHookModuleFrontController extends FrontController
      */
     private function receiveAccountsWebhook($headers, $body)
     {
+        $psAccountsService = new PsAccountsService();
         switch ($body['action']) {
             case 'EmailVerified':
-                Configuration::updateValue('PS_ACCOUNTS_EMAIL_VERIFIED', true);
+                Configuration::updateValue('PS_PSX_FIREBASE_EMAIL_IS_VERIFIED', true, false, null, (int) $psAccountsService->getCurrentShop()['id']);
 
                 return [
                     'status_code' => 200,
