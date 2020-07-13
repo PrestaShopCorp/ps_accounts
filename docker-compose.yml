@@ -2,7 +2,11 @@ version: "3"
 
 services:
   ps_account_web:
-    image: prestashop/prestashop:${PS_VERSION}
+    build:
+      context: ./.docker
+      dockerfile: Dockerfile
+      args:
+        VERSION: "1.7"
     container_name: ps_acc_web
     env_file: .env
     working_dir: /var/www/html/modules/ps_accounts
@@ -29,6 +33,13 @@ services:
     networks:
       - services_accounts-net
 
+  blackfire:
+    image: blackfire/blackfire
+    env_file: .env
+    environment:
+      - BLACKFIRE_SERVER=latest
+    networks:
+      - services_accounts-net
 networks:
   services_accounts-net:
     external: true

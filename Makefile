@@ -8,12 +8,12 @@ help:
 init: ## Init project
 	cp -n .env.dist .env || true
 	cp -n docker-compose.override.yml.dist docker-compose.override.yml || true
-	docker network create services_accounts-net || true
+	docker network create services_accounts-net > /dev/null 2>&1 || true
 
 start: ## Start app, force rebuild all containers
 	rm -f install.lock || true
 	$(MAKE) init
-	$(DKC) up -d
+	$(DKC) up -d --build
 
 build_node_dep: ## Force reload node dependencies
 	docker exec -it ps_acc_web bash -c "yarn --cwd /tmp/libs/js/prestashop_accounts_vue_components/ build-lib"
