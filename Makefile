@@ -13,7 +13,7 @@ init: ## Init project
 start: ## Start app, force rebuild all containers
 	rm -f install.lock || true
 	$(MAKE) init
-	$(DKC) up -d --build
+	$(DKC) up -d --build --remove-orphans
 
 build_node_dep: ## Force reload node dependencies
 	docker exec -it ps_acc_web bash -c "yarn --cwd /tmp/libs/js/prestashop_accounts_vue_components/ build-lib"

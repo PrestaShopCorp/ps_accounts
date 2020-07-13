@@ -2,11 +2,7 @@ version: "3"
 
 services:
   ps_account_web:
-    build:
-      context: ./.docker
-      dockerfile: Dockerfile
-      args:
-        VERSION: "1.7"
+    image: prestashop/prestashop:${PS_VERSION}
     container_name: ps_acc_web
     env_file: .env
     working_dir: /var/www/html/modules/ps_accounts
