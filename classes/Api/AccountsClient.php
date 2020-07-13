@@ -22,9 +22,9 @@ namespace PrestaShop\Module\PsAccounts\Api;
 
 use GuzzleHttp\Client;
 use PrestaShop\AccountsAuth\Api\GenericClient;
+use PrestaShop\AccountsAuth\Environment\Env;
 use PrestaShop\AccountsAuth\Service\PsAccountsService;
 use PrestaShop\Module\PsAccounts\Handler\Error;
-use Symfony\Component\Dotenv\Dotenv;
 
 /**
  * Construct the client used to make call to Accounts API
@@ -33,6 +33,7 @@ class AccountsClient extends GenericClient
 {
     public function __construct(\Link $link, Client $client = null)
     {
+        new Env();
         $this->setLink($link);
         $psAccountsService = new PsAccountsService();
         $token = $psAccountsService->getFirebaseIdToken();
@@ -44,7 +45,7 @@ class AccountsClient extends GenericClient
         // Client can be provided for tests
         if (null === $client) {
             $client = new Client([
-                'base_url' => getenv('ACCOUNTS_API_URL'),
+                'base_url' => $_ENV['ACCOUNTS_API_URL'],
                 'defaults' => [
                     'timeout' => $this->timeout,
                     'exceptions' => $this->catchExceptions,
@@ -80,9 +81,6 @@ class AccountsClient extends GenericClient
      */
     public function checkWebhookAuthenticity(array $headers, array $body)
     {
-        $dotenv = new Dotenv();
-        $dotenv->load(_PS_MODULE_DIR_ . 'ps_accounts/.env');
-
         $correlationId = $headers['correlationId'];
         $this->setRoute($_ENV['ACCOUNTS_SVC_API_URL'] . '/webhooks/' . $correlationId . '/verify');
 

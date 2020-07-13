@@ -24,7 +24,7 @@
 *  International Registered Trademark & Property of PrestaShop SA
 */
 
-use Symfony\Component\Dotenv\Dotenv;
+use PrestaShop\AccountsAuth\Environment\Env;
 
 /**
  * Controller generate hmac and redirect on hmac's file.
@@ -36,8 +36,7 @@ class AdminConfigureHmacPsAccountsController extends ModuleAdminController
      */
     public function initContent()
     {
-        $dotenv = new Dotenv();
-        $dotenv->load(_PS_MODULE_DIR_ . 'ps_accounts/.env');
+        new Env();
 
         try {
             if (null === Tools::getValue('hmac')) {
