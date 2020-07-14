@@ -29,6 +29,13 @@ services:
     networks:
       - services_accounts-net
 
+  blackfire:
+    image: blackfire/blackfire
+    env_file: .env
+    environment:
+      - BLACKFIRE_SERVER=latest
+    networks:
+      - services_accounts-net
 networks:
   services_accounts-net:
     external: true
