@@ -338,12 +338,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/PrestaShopCorp/prestashop_accounts_auth.git",
-                "reference": "bd21d52445f2a01ac42f20744caa46b468114cd1"
+                "reference": "9d4d993ed7456e41e278f6c0ff13f4f6c404f285"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/PrestaShopCorp/prestashop_accounts_auth/zipball/bd21d52445f2a01ac42f20744caa46b468114cd1",
-                "reference": "bd21d52445f2a01ac42f20744caa46b468114cd1",
+                "url": "https://api.github.com/repos/PrestaShopCorp/prestashop_accounts_auth/zipball/9d4d993ed7456e41e278f6c0ff13f4f6c404f285",
+                "reference": "9d4d993ed7456e41e278f6c0ff13f4f6c404f285",
                 "shasum": ""
             },
             "require": {
@@ -368,7 +368,7 @@
                 "MIT"
             ],
             "description": "Firebase auth class",
-            "time": "2020-07-08T14:42:33+00:00"
+            "time": "2020-07-15T09:02:48+00:00"
         },
         {
             "name": "psr/log",
@@ -1698,16 +1698,16 @@
         },
         {
             "name": "prestashop/header-stamp",
-            "version": "v1.3",
+            "version": "v1.4",
             "source": {
                 "type": "git",
                 "url": "https://github.com/PrestaShopCorp/header-stamp.git",
-                "reference": "de13a0abe0134ec70099bb4bdd974fd190f581c8"
+                "reference": "3ddad2178174915d48f45f73b4f42cd4c491972c"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/PrestaShopCorp/header-stamp/zipball/de13a0abe0134ec70099bb4bdd974fd190f581c8",
-                "reference": "de13a0abe0134ec70099bb4bdd974fd190f581c8",
+                "url": "https://api.github.com/repos/PrestaShopCorp/header-stamp/zipball/3ddad2178174915d48f45f73b4f42cd4c491972c",
+                "reference": "3ddad2178174915d48f45f73b4f42cd4c491972c",
                 "shasum": ""
             },
             "require": {
@@ -1740,20 +1740,20 @@
             ],
             "description": "Rewrite your file headers to add the license or to make them up-to-date",
             "homepage": "https://github.com/PrestaShopCorp/header-stamp",
-            "time": "2020-06-15T09:24:54+00:00"
+            "time": "2020-07-09T13:10:39+00:00"
         },
         {
             "name": "prestashop/php-dev-tools",
-            "version": "v3.4",
+            "version": "v3.5",
             "source": {
                 "type": "git",
                 "url": "https://github.com/PrestaShop/php-dev-tools.git",
-                "reference": "892f85cfd8028776d520e444a6fc41f56f2d0a20"
+                "reference": "31a0269d7a3078e3be5e8024f6f04807190b719e"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/PrestaShop/php-dev-tools/zipball/892f85cfd8028776d520e444a6fc41f56f2d0a20",
-                "reference": "892f85cfd8028776d520e444a6fc41f56f2d0a20",
+                "url": "https://api.github.com/repos/PrestaShop/php-dev-tools/zipball/31a0269d7a3078e3be5e8024f6f04807190b719e",
+                "reference": "31a0269d7a3078e3be5e8024f6f04807190b719e",
                 "shasum": ""
             },
             "require": {
@@ -1778,7 +1778,7 @@
                 "MIT"
             ],
             "description": "PrestaShop coding standards",
-            "time": "2020-05-28T09:26:34+00:00"
+            "time": "2020-07-10T13:04:51+00:00"
         },
         {
             "name": "sebastian/code-unit-reverse-lookup",
@@ -2878,16 +2878,16 @@
         },
         {
             "name": "symfony/polyfill-php72",
-            "version": "v1.17.0",
+            "version": "v1.17.1",
             "source": {
                 "type": "git",
                 "url": "https://github.com/symfony/polyfill-php72.git",
-                "reference": "f048e612a3905f34931127360bdd2def19a5e582"
+                "reference": "3d9c70ff1b9f6bb618f9954b2f7f760220c2b38a"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/symfony/polyfill-php72/zipball/f048e612a3905f34931127360bdd2def19a5e582",
-                "reference": "f048e612a3905f34931127360bdd2def19a5e582",
+                "url": "https://api.github.com/repos/symfony/polyfill-php72/zipball/3d9c70ff1b9f6bb618f9954b2f7f760220c2b38a",
+                "reference": "3d9c70ff1b9f6bb618f9954b2f7f760220c2b38a",
                 "shasum": ""
             },
             "require": {
@@ -2897,6 +2897,10 @@
             "extra": {
                 "branch-alias": {
                     "dev-master": "1.17-dev"
+                },
+                "thanks": {
+                    "name": "symfony/polyfill",
+                    "url": "https://github.com/symfony/polyfill"
                 }
             },
             "autoload": {
@@ -2929,7 +2933,7 @@
                 "portable",
                 "shim"
             ],
-            "time": "2020-05-12T16:47:27+00:00"
+            "time": "2020-06-06T08:46:27+00:00"
         },
         {
             "name": "symfony/process",
@@ -3090,20 +3094,20 @@
         },
         {
             "name": "webmozart/assert",
-            "version": "1.9.0",
+            "version": "1.9.1",
             "source": {
                 "type": "git",
                 "url": "https://github.com/webmozart/assert.git",
-                "reference": "9dc4f203e36f2b486149058bade43c851dd97451"
+                "reference": "bafc69caeb4d49c39fd0779086c03a3738cbb389"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/webmozart/assert/zipball/9dc4f203e36f2b486149058bade43c851dd97451",
-                "reference": "9dc4f203e36f2b486149058bade43c851dd97451",
+                "url": "https://api.github.com/repos/webmozart/assert/zipball/bafc69caeb4d49c39fd0779086c03a3738cbb389",
+                "reference": "bafc69caeb4d49c39fd0779086c03a3738cbb389",
                 "shasum": ""
             },
             "require": {
-                "php": "^5.3.3 || ^7.0",
+                "php": "^5.3.3 || ^7.0 || ^8.0",
                 "symfony/polyfill-ctype": "^1.8"
             },
             "conflict": {
@@ -3135,7 +3139,7 @@
                 "check",
                 "validate"
             ],
-            "time": "2020-06-16T10:16:42+00:00"
+            "time": "2020-07-08T17:02:28+00:00"
         }
     ],
     "aliases": [],
