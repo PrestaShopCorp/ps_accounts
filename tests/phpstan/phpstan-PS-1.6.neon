@@ -12,5 +12,12 @@ parameters:
 	ignoreErrors:
 		- '#Property TabCore::\$name \(string\) does not accept array.#'
 		- '#Parameter \#1 \$value of method ControllerCore::ajaxDie\(\) expects string\|null, string\|false given.#'
+		- '#Parameter \#4 \$ssl of method LinkCore::getModuleLink\(\) expects null, true given.#'
+		- '#Parameter \#6 \$idShop of method LinkCore::getModuleLink\(\) expects null, int given.#'
+		- '#Result of method ps_accountsDispatchWebHookModuleFrontController::generateHttpResponse\(\) \(void\) is used.#'
+		- '#Method ps_accountsDispatchWebHookModuleFrontController::display\(\) with return type void returns void but should not return anything.#'
+		- '#Parameter \#1 \$json of function json_decode expects string, string\|false given.#'
+		- '#Parameter \#2 \$message of method PrestaShop\\Module\\PsAccounts\\WebHook\\Validator::getError\(\) expects string, string\|false given.#'
+		- '#Return type \(void\) of method ps_accountsDispatchWebHookModuleFrontController::display\(\) should be compatible with return type \(bool\) of method FrontControllerCore::display\(\)#'
 
 	level: 7

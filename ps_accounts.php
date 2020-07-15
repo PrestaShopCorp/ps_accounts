@@ -78,6 +78,11 @@ class Ps_accounts extends Module
     /**
      * @var string
      */
+    const VERSION = '1.0.0';
+
+    /**
+     * @var string
+     */
     public $version;
 
     /**
@@ -95,7 +100,7 @@ class Ps_accounts extends Module
         $this->author = 'PrestaShop';
         $this->need_instance = 0;
         $this->bootstrap = true;
-        $this->version = '1.0.0';
+        $this->version = self::VERSION;
 
         parent::__construct();
 
