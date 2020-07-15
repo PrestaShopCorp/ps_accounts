@@ -45,7 +45,7 @@ class AccountsClient extends GenericClient
         // Client can be provided for tests
         if (null === $client) {
             $client = new Client([
-                'base_url' => $_ENV['ACCOUNTS_API_URL'],
+                'base_url' => $_ENV['ACCOUNTS_SVC_API_URL'],
                 'defaults' => [
                     'timeout' => $this->timeout,
                     'exceptions' => $this->catchExceptions,
