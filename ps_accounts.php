@@ -28,6 +28,8 @@ if (!defined('_PS_VERSION_')) {
 }
 require_once __DIR__ . '/vendor/autoload.php';
 
+use PrestaShop\AccountsAuth\Service\PsAccountsService;
+
 class Ps_accounts extends Module
 {
     /**
@@ -204,10 +206,13 @@ class Ps_accounts extends Module
             $domain = Tools::getValue('domain'); // new domain to update
             $domainSsl = Tools::getValue('domain_ssl'); // new domain with ssl - needed ?
 
-            var_dump($params);
-            var_dump($domain);
-            var_dump($domainSsl);
-            die();
+            $c = [
+                'params' => $params,
+                'domain' => $domain,
+                'domain_ssl' => $domainSsl,
+            ];
+            $psAccountsService = new PsAccountsService();
+            $psAccountsService->changeUrl($c, '1.6');
         }
     }
 
@@ -223,12 +228,13 @@ class Ps_accounts extends Module
             return false;
         }
 
-        echo '<pre>';
-        var_dump($params);
-        echo '<pre>';
-        var_dump($params['form_data']); // -> data with the new domain
-        echo '<pre>';
-        die();
+        $c = [
+            'params' => $params,
+            'domain' => $params['form_data']['shop_urls']['domain'],
+            'domain_ssl' => $params['form_data']['shop_urls']['domain_ssl'],
+        ];
+        $psAccountsService = new PsAccountsService();
+        $psAccountsService->changeUrl($c, '1.7.6');
     }
 
     /**
@@ -239,16 +245,19 @@ class Ps_accounts extends Module
     public function hookActionObjectShopUrlUpdateAfter($params)
     {
         // If multishop is disable don't continue
-        if (false === \Shop::isFeatureActive()) {
-            return false;
-        }
+        //if (false == \Shop::isFeatureActive()) {
+        //    return false;
+        //}
 
-        dump($params);
-        dump($params['object']);
-        dump($params['object']->domain);
-        dump($params['object']->domain_ssl);
-        dump($params['object']->main);
-        dump($params['object']->active);
-        die();
+        $c = [
+            'params' => $params,
+            'domain' => $params['object']->domain,
+            'domain_ssl' => $params['object']->domain_ssl,
+            'shop_id' => $params['object']->id_shop,
+            'main' => $params['object']->main,
+            'active' => $params['object']->active,
+        ];
+        $psAccountsService = new PsAccountsService();
+        $psAccountsService->changeUrl($c, 'multishop');
     }
 }
