@@ -206,13 +206,13 @@ class Ps_accounts extends Module
             $domain = Tools::getValue('domain'); // new domain to update
             $domainSsl = Tools::getValue('domain_ssl'); // new domain with ssl - needed ?
 
-            $c = [
+            $bodyHttp = [
                 'params' => $params,
                 'domain' => $domain,
                 'domain_ssl' => $domainSsl,
             ];
             $psAccountsService = new PsAccountsService();
-            $psAccountsService->changeUrl($c, '1.6');
+            $psAccountsService->changeUrl($bodyHttp, '1.6');
         }
     }
 
@@ -228,13 +228,13 @@ class Ps_accounts extends Module
             return false;
         }
 
-        $c = [
+        $bodyHttp = [
             'params' => $params,
             'domain' => $params['form_data']['shop_urls']['domain'],
             'domain_ssl' => $params['form_data']['shop_urls']['domain_ssl'],
         ];
         $psAccountsService = new PsAccountsService();
-        $psAccountsService->changeUrl($c, '1.7.6');
+        $psAccountsService->changeUrl($bodyHttp, '1.7.6');
     }
 
     /**
@@ -244,12 +244,7 @@ class Ps_accounts extends Module
      */
     public function hookActionObjectShopUrlUpdateAfter($params)
     {
-        // If multishop is disable don't continue
-        //if (false == \Shop::isFeatureActive()) {
-        //    return false;
-        //}
-
-        $c = [
+        $bodyHttp = [
             'params' => $params,
             'domain' => $params['object']->domain,
             'domain_ssl' => $params['object']->domain_ssl,
@@ -258,6 +253,6 @@ class Ps_accounts extends Module
             'active' => $params['object']->active,
         ];
         $psAccountsService = new PsAccountsService();
-        $psAccountsService->changeUrl($c, 'multishop');
+        $psAccountsService->changeUrl($bodyHttp, 'multishop');
     }
 }
