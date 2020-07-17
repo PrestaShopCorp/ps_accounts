@@ -90,7 +90,7 @@ jobs:
           yarn --cwd _dev/ install
           yarn --cwd _dev/ build
           composer install
-          composer require prestashop/prestashop-accounts-auth:dev-${ACCOUNTSAUTH_VERSION}
+          composer require prestashop/prestashop-accounts-auth:${ACCOUNTSAUTH_VERSION}
         env:
           VCOMPONENTS_VERSION: ${{ steps.version_vcomponents.outputs.VERSION }}
           ACCOUNTSAUTH_VERSION: ${{ steps.version_auth.outputs.VERSION }}
