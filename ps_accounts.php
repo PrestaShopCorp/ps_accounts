@@ -188,6 +188,10 @@ class Ps_accounts extends Module
      *
      * @since 1.6
      * @deprecated since 1.7.6
+     *
+     * @param array $params
+     *
+     * @return bool
      */
     public function hookDisplayBackOfficeHeader($params)
     {
@@ -214,12 +218,18 @@ class Ps_accounts extends Module
             $psAccountsService = new PsAccountsService();
             $psAccountsService->changeUrl($bodyHttp, '1.6');
         }
+
+        return true;
     }
 
     /**
      * Hook executed when performing some changes to the meta page and save them
      *
      * @since 1.7.6
+     *
+     * @param array $params
+     *
+     * @return bool
      */
     public function hookActionMetaPageSave($params)
     {
@@ -235,12 +245,16 @@ class Ps_accounts extends Module
         ];
         $psAccountsService = new PsAccountsService();
         $psAccountsService->changeUrl($bodyHttp, '1.7.6');
+
+        return true;
     }
 
     /**
      * Hook trigger when a changement is made on the domain name
      *
      * @param array $params
+     *
+     * @return bool
      */
     public function hookActionObjectShopUrlUpdateAfter($params)
     {
@@ -254,5 +268,7 @@ class Ps_accounts extends Module
         ];
         $psAccountsService = new PsAccountsService();
         $psAccountsService->changeUrl($bodyHttp, 'multishop');
+
+        return true;
     }
 }
