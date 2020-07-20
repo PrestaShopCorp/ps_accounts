@@ -168,8 +168,7 @@ class Validator
      */
     private function checkExecutionPermissions($shopId)
     {
-        // TODO : tester l'un puis l'autre. 1 des 2 suffit a passer
-        $dbShopId = !empty(\Configuration::get('PS_CHECKOUT_SHOP_UUID_V4')) ? \Configuration::get('PS_CHECKOUT_SHOP_UUID_V4') : \Configuration::get('PS_PSX_FIREBASE_ID_TOKEN');
+        $dbShopId = \Configuration::get('PSX_UUID_V4', null, null, (int) $this->context->shop->id);
         if ($shopId != $dbShopId) {
             $output = [
                 'status_code' => 500,

@@ -19,5 +19,7 @@ parameters:
 		- '#Parameter \#1 \$json of function json_decode expects string, string\|false given.#'
 		- '#Parameter \#2 \$message of method PrestaShop\\Module\\PsAccounts\\WebHook\\Validator::getError\(\) expects string, string\|false given.#'
 		- '#Return type \(void\) of method ps_accountsDispatchWebHookModuleFrontController::display\(\) should be compatible with return type \(bool\) of method FrontControllerCore::display\(\)#'
+		- '#Parameter \#1 \$hook_name of method ModuleCore::registerHook\(\) expects string, array given.#'
+		- '#Access to an undefined property AdminController\|FrontController::\$controller_name.#'
 
 	level: 7
