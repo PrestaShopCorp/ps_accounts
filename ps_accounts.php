@@ -56,8 +56,8 @@ class Ps_accounts extends Module
     public $description;
 
     /**
-    * @var string
-    */
+     * @var string
+     */
     public $confirmUninstall;
 
     /**
