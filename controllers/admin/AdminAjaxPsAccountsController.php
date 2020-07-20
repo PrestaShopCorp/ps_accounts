@@ -17,6 +17,7 @@
  * @license   https://opensource.org/licenses/AFL-3.0 Academic Free License 3.0 (AFL-3.0)
  * International Registered Trademark & Property of PrestaShop SA
  */
+use PrestaShop\AccountsAuth\Service\PsAccountsService;
 use PrestaShop\AccountsAuth\Service\SshKey;
 
 /**
@@ -62,6 +63,21 @@ class AdminAjaxPsAccountsController extends ModuleAdminController
 
         $this->ajaxDie(
             json_encode(true)
+        );
+    }
+
+    /**
+     * AJAX: Save Admin Token.
+     *
+     * @return void
+     */
+    public function ajaxEmailIsVerifiedToken()
+    {
+        $psAccountsService = new PsAccountsService();
+        $shopId = $psAccountsService->getCurrentShop()['id'];
+
+        $this->ajaxDie(
+            json_encode(Configuration::get('PS_PSX_FIREBASE_EMAIL_IS_VERIFIED', null, null, (int) $shopId))
         );
     }
 }
