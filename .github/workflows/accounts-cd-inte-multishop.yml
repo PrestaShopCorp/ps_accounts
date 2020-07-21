@@ -69,13 +69,13 @@ jobs:
       - name: Write install file 1.6 checkout
         run: |
           cat <<'EOF' > ps_checkout/install.php
-          <?php include(dirname(__FILE__)."/../../config/config.inc.php"); $module = Module::getInstanceByName('ps_checkout'); $module->install();
+          <?php include(dirname(__FILE__)."/../../config/config.inc.php"); $module = Module::getInstanceByName('ps_checkout'); try{$module->uninstall();}catch(Exception $e){} $module->install();
           EOF
 
       - name: Write install file 1.6 accounts
         run: |
           cat <<'EOF' > ps_accounts/install.php
-          <?php include(dirname(__FILE__)."/../../config/config.inc.php"); $module = Module::getInstanceByName('ps_accounts'); $module->install();
+          <?php include(dirname(__FILE__)."/../../config/config.inc.php"); $module = Module::getInstanceByName('ps_accounts'); try{$module->uninstall();}catch(Exception $e){} $module->install();
           EOF
 
       - name: Build ps accounts
@@ -151,8 +151,10 @@ jobs:
           username: ${{ secrets.SSH_USERNAME }}
           key: ${{ secrets.SSH_KEY }}
           script: |
+            sudo su -c 'docker exec $(docker ps -q -f "ancestor=prestashop/prestashop:1.7" -f "name=multishop") bin/console prestashop:module uninstall ps_accounts || true'
             sudo su -c 'docker exec $(docker ps -q -f "ancestor=prestashop/prestashop:1.7" -f "name=multishop") bin/console prestashop:module install ps_accounts'
             sudo su -c 'docker exec $(docker ps -q -f "ancestor=prestashop/prestashop:1.7" -f "name=multishop") cp modules/ps_checkout/.env modules/ps_checkout/_dev/.env'
+            sudo su -c 'docker exec $(docker ps -q -f "ancestor=prestashop/prestashop:1.7" -f "name=multishop") bin/console prestashop:module uninstall ps_accounts || true'
             sudo su -c 'docker exec $(docker ps -q -f "ancestor=prestashop/prestashop:1.7" -f "name=multishop") bin/console prestashop:module install ps_checkout'
 
   install_1_6:
