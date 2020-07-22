@@ -24,10 +24,19 @@ version=$(php -r "echo PHP_MAJOR_VERSION.PHP_MINOR_VERSION;") \
 for module in ps_accounts ps_checkout
 do
     cd /var/www/html/modules/$module;
+    rm -f composer-dev.json composer-dev.lock;
+    cp composer.json composer-dev.json;
+    sed -i '/^}/i \
+  ,"repositories": [\
+    {\
+      "type": "path",\
+      "url": "/tmp/libs/php/prestashop_accounts_auth/"\
+    }\
+  ]' composer-dev.json;
     composer install;
     /var/www/html/bin/console --env=prod prestashop:module install $module
-    rm -rf /var/www/html/modules/$module/vendor/prestashop/prestashop-accounts-auth
-    ln -s /tmp/libs/php/prestashop_accounts_auth /var/www/html/modules/$module/vendor/prestashop/prestashop-accounts-auth
+#    rm -rf /var/www/html/modules/$module/vendor/prestashop/prestashop-accounts-auth
+#    ln -s /tmp/libs/php/prestashop_accounts_auth /var/www/html/modules/$module/vendor/prestashop/prestashop-accounts-auth
 done
 
 yarn --cwd /tmp/libs/js/prestashop_accounts_vue_components/

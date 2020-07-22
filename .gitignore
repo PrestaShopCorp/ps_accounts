@@ -13,6 +13,8 @@ docker-compose.override.yml
 .php_cs.cache
 .php_cs
 install.lock
+composer-dev.json
+composer-dev.lock
 
 ### Module files ###
 !views/files
