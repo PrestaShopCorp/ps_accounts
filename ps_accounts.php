@@ -116,7 +116,7 @@ class Ps_accounts extends Module
         $this->author = 'PrestaShop';
         $this->need_instance = 0;
         $this->bootstrap = true;
-        $this->version = self::VERSION;
+        $this->version = '1.0.0';
         $this->module_key = 'abf2cd758b4d629b2944d3922ef9db73';
 
         parent::__construct();
