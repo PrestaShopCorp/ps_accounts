@@ -17,8 +17,11 @@
  * @license   https://opensource.org/licenses/AFL-3.0 Academic Free License 3.0 (AFL-3.0)
  * International Registered Trademark & Property of PrestaShop SA
  */
+
+namespace PrestaShop\Module\PsAccounts\Tests\Unit;
+
 use PHPUnit\Framework\TestCase;
-use PrestaShop\Module\PsAccounts\Service\SshKey;
+use PrestaShop\AccountsAuth\Service\SshKey;
 
 class SshKeyTest extends TestCase
 {
