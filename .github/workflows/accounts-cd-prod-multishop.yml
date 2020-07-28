@@ -33,15 +33,15 @@ jobs:
 
       - name: Get checkout version
         id: version_checkout
-        run: echo ::set-output name=VERSION::$(cat ps_accounts/.github/checkout.version)
+        run: echo ::set-output name=VERSION::master
 
       - name: Get accounts vue components version
         id: version_vcomponents
-        run: echo ::set-output name=VERSION::$(cat ps_accounts/.github/accounts-vue-components.version)
+        run: echo ::set-output name=VERSION::master
 
       - name: Get accounts auth version
         id: version_auth
-        run: echo ::set-output name=VERSION::$(cat ps_accounts/.github/accounts-auth.version)
+        run: echo ::set-output name=VERSION::master
 
       - name: Checkout ps checkout
         uses: actions/checkout@v2
