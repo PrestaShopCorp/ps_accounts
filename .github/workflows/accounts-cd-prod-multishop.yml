@@ -1,6 +1,7 @@
 name: Module accounts CD Multishop
 
 on: [push]
+
 #on:
 #  push:
 #    branches:
