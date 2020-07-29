@@ -1,5 +1,17 @@
 #!/bin/sh
 
+LIB_PATH=/tmp/libs/php/prestashop_accounts_auth/
+
+# git branch to be referenced into composer-dev.json
+parse_git_branch() {
+  cd $LIB_PATH;
+  if [ `which git` ]; then
+    git branch 2> /dev/null | sed -e '/^[^*]/d' -e 's/* \(.*\)/\1/' -e 's/\//\\\//';
+  else
+    echo 'master'
+  fi
+}
+
 groupmod -g $UID www-data
 usermod -u $UID -g $GID www-data
 
@@ -26,13 +38,15 @@ do
     cd /var/www/html/modules/$module;
     rm -f composer-dev.json composer-dev.lock;
     cp composer.json composer-dev.json;
-    sed -i '/^}/i \
-  ,"repositories": [\
-    {\
-      "type": "path",\
-      "url": "/tmp/libs/php/prestashop_accounts_auth/"\
-    }\
-  ]' composer-dev.json;
+    sed -i "/^}/i \\
+  ,\"repositories\": [\\
+    {\\
+      \"type\": \"path\",\\
+      \"url\": \"`echo $LIB_PATH | sed -e 's/\//\\//'`\"\\
+    }\\
+  ]" composer-dev.json;
+    sed -i "s/\(\"prestashop\/prestashop-accounts-auth\"\): \"[^\"]*\"/\1: \"dev-$(parse_git_branch)\"/g" \
+      composer-dev.json;
     composer install;
     /var/www/html/bin/console --env=prod prestashop:module install $module
 done
@@ -46,3 +60,4 @@ rm -rf /var/www/html/modules/ps_checkout/_dev/node_modules/prestashop_accounts_v
 ln -s /tmp/libs/js/prestashop_accounts_vue_components /var/www/html/modules/ps_checkout/_dev/node_modules/prestashop_accounts_vue_components
 
 rm -rf /var/www/html/var/cache/*;
+
