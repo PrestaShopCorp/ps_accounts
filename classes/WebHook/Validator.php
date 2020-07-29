@@ -21,7 +21,6 @@
 namespace PrestaShop\Module\PsAccounts\WebHook;
 
 use PrestaShop\Module\PsAccounts\Api\AccountsClient;
-use PrestaShop\Module\PsAccounts\Handler\Error;
 
 class Validator
 {
@@ -41,7 +40,7 @@ class Validator
     /**
      * @var string
      */
-    private $message = 'youpi';
+    private $message = '';
 
     /**
      * @var \Context
@@ -56,18 +55,6 @@ class Validator
     public function __construct()
     {
         $this->context = \Context::getContext();
-        $this->error = new Error();
-    }
-
-    /**
-     * @param int $statusCode
-     * @param string $message
-     *
-     * @return \Exception
-     */
-    public function getError($statusCode = 510, $message = 'error')
-    {
-        return $this->error->handle($statusCode, $message);
     }
 
     /**
@@ -155,7 +142,7 @@ class Validator
         $errors = empty($errors) ? $this->verifyWebhook($headerValues, $bodyValues) : $errors;
 
         if (!empty($errors)) {
-            $this->getError(500, json_encode($errors));
+            throw new \Exception(json_encode($errors), 500);
         }
     }
 

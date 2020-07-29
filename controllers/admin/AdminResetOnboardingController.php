@@ -24,6 +24,7 @@
 *  International Registered Trademark & Property of PrestaShop SA
 */
 
+use PrestaShop\AccountsAuth\Handler\Error\ErrorHandlerSingleton;
 use PrestaShop\AccountsAuth\Service\PsAccountsService;
 
 /**
@@ -38,27 +39,32 @@ class AdminResetOnboardingController extends ModuleAdminController
      */
     public function initContent()
     {
-        $return = false;
-        if (self::PS_ACCOUNTS_TOKEN == Tools::getValue('psAccountsToken')) {
-            $return = true;
-            $psAccountsService = new PsAccountsService();
-            $shopId = $psAccountsService->getCurrentShop()['id'];
-            Configuration::updateValue('PS_ACCOUNTS_RSA_PRIVATE_KEY', null, false, null, (int) $shopId);
-            Configuration::updateValue('PS_ACCOUNTS_RSA_PUBLIC_KEY', null, false, null, (int) $shopId);
-            Configuration::updateValue('PS_ACCOUNTS_RSA_SIGN_DATA', null, false, null, (int) $shopId);
-            Configuration::updateValue('PS_PSX_FIREBASE_ID_TOKEN', null, false, null, (int) $shopId);
-            Configuration::updateValue('PS_PSX_FIREBASE_LOCAL_ID', null, false, null, (int) $shopId);
-            Configuration::updateValue('PS_PSX_FIREBASE_REFRESH_TOKEN', null, false, null, (int) $shopId);
-            Configuration::updateValue('PS_PSX_FIREBASE_REFRESH_DATE', null, false, null, (int) $shopId);
-            Configuration::updateValue('PS_PSX_FIREBASE_ADMIN_TOKEN', null, false, null, (int) $shopId);
-            Configuration::updateValue('PS_PSX_FIREBASE_LOCK', null, false, null, (int) $shopId);
-            Configuration::updateValue('PS_PSX_FIREBASE_EMAIL', null, false, null, (int) $shopId);
-            Configuration::updateValue('PS_PSX_FIREBASE_EMAIL_IS_VERIFIED', null, false, null, (int) $shopId);
-            Configuration::updateValue('PSX_UUID_V4', null, false, null, (int) $shopId);
-        }
+        try {
+            $return = false;
+            if (self::PS_ACCOUNTS_TOKEN == Tools::getValue('psAccountsToken')) {
+                $return = true;
+                $psAccountsService = new PsAccountsService();
+                $shopId = $psAccountsService->getCurrentShop()['id'];
+                Configuration::updateValue('PS_ACCOUNTS_RSA_PRIVATE_KEY', null, false, null, (int) $shopId);
+                Configuration::updateValue('PS_ACCOUNTS_RSA_PUBLIC_KEY', null, false, null, (int) $shopId);
+                Configuration::updateValue('PS_ACCOUNTS_RSA_SIGN_DATA', null, false, null, (int) $shopId);
+                Configuration::updateValue('PS_PSX_FIREBASE_ID_TOKEN', null, false, null, (int) $shopId);
+                Configuration::updateValue('PS_PSX_FIREBASE_LOCAL_ID', null, false, null, (int) $shopId);
+                Configuration::updateValue('PS_PSX_FIREBASE_REFRESH_TOKEN', null, false, null, (int) $shopId);
+                Configuration::updateValue('PS_PSX_FIREBASE_REFRESH_DATE', null, false, null, (int) $shopId);
+                Configuration::updateValue('PS_PSX_FIREBASE_ADMIN_TOKEN', null, false, null, (int) $shopId);
+                Configuration::updateValue('PS_PSX_FIREBASE_LOCK', null, false, null, (int) $shopId);
+                Configuration::updateValue('PS_PSX_FIREBASE_EMAIL', null, false, null, (int) $shopId);
+                Configuration::updateValue('PS_PSX_FIREBASE_EMAIL_IS_VERIFIED', null, false, null, (int) $shopId);
+                Configuration::updateValue('PSX_UUID_V4', null, false, null, (int) $shopId);
+            }
 
-        $this->ajaxDie(
-            json_encode($return)
-        );
+            $this->ajaxDie(
+                json_encode($return)
+            );
+        } catch (Exception $e) {
+            $errorHandler = ErrorHandlerSingleton::getInstance();
+            $errorHandler->handle($e, $e->getCode());
+        }
     }
 }

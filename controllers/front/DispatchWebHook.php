@@ -17,6 +17,7 @@
  * @license   https://opensource.org/licenses/AFL-3.0 Academic Free License 3.0 (AFL-3.0)
  * International Registered Trademark & Property of PrestaShop SA
  */
+use PrestaShop\AccountsAuth\Handler\Error\ErrorHandlerSingleton;
 use PrestaShop\AccountsAuth\Service\PsAccountsService;
 use PrestaShop\Module\PsAccounts\Api\ServicesApi\Webhook;
 use PrestaShop\Module\PsAccounts\WebHook\Validator;
@@ -67,10 +68,8 @@ class ps_accountsDispatchWebHookModuleFrontController extends FrontController
                 $this->dispatchWebhook($headers, $body)
             );
         } catch (\Exception $e) {
-            return $this->generateHttpResponse([
-                'status_code' => 500,
-                'message' => $e->getMessage(),
-            ]);
+            $errorHandler = ErrorHandlerSingleton::getInstance();
+            $errorHandler->handle($e, $e->getCode());
         }
     }
 
@@ -97,7 +96,7 @@ class ps_accountsDispatchWebHookModuleFrontController extends FrontController
                     'message' => 'ok',
                 ];
             }
-            throw new Exception($error);
+            throw new \Exception($error, 500);
         } else {
             return $this->receiveAccountsWebhook($headers, $bodyValues);
         }
