@@ -17,7 +17,7 @@
  * @license   https://opensource.org/licenses/AFL-3.0 Academic Free License 3.0 (AFL-3.0)
  * International Registered Trademark & Property of PrestaShop SA
  */
-use PrestaShop\AccountsAuth\Handler\Error\ErrorHandlerSingleton;
+use PrestaShop\AccountsAuth\Handler\Error\ErrorHandler;
 use PrestaShop\AccountsAuth\Service\PsAccountsService;
 use PrestaShop\AccountsAuth\Service\SshKey;
 
@@ -53,7 +53,7 @@ class AdminAjaxPsAccountsController extends ModuleAdminController
                 json_encode(Configuration::get('PS_ACCOUNTS_RSA_PUBLIC_KEY'))
             );
         } catch (Exception $e) {
-            $errorHandler = ErrorHandlerSingleton::getInstance();
+            $errorHandler = ErrorHandler::getInstance();
             $errorHandler->handle($e, $e->getCode());
         }
     }
@@ -72,7 +72,7 @@ class AdminAjaxPsAccountsController extends ModuleAdminController
                 json_encode(true)
             );
         } catch (Exception $e) {
-            $errorHandler = ErrorHandlerSingleton::getInstance();
+            $errorHandler = ErrorHandler::getInstance();
             $errorHandler->handle($e, $e->getCode());
         }
     }
@@ -92,7 +92,7 @@ class AdminAjaxPsAccountsController extends ModuleAdminController
                 json_encode(Configuration::get('PS_PSX_FIREBASE_EMAIL_IS_VERIFIED', null, null, (int) $shopId))
             );
         } catch (Exception $e) {
-            $errorHandler = ErrorHandlerSingleton::getInstance();
+            $errorHandler = ErrorHandler::getInstance();
             $errorHandler->handle($e, $e->getCode());
         }
     }

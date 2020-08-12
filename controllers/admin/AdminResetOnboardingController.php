@@ -24,7 +24,7 @@
 *  International Registered Trademark & Property of PrestaShop SA
 */
 
-use PrestaShop\AccountsAuth\Handler\Error\ErrorHandlerSingleton;
+use PrestaShop\AccountsAuth\Handler\Error\ErrorHandler;
 use PrestaShop\AccountsAuth\Service\PsAccountsService;
 
 /**
@@ -63,7 +63,7 @@ class AdminResetOnboardingController extends ModuleAdminController
                 json_encode($return)
             );
         } catch (Exception $e) {
-            $errorHandler = ErrorHandlerSingleton::getInstance();
+            $errorHandler = ErrorHandler::getInstance();
             $errorHandler->handle($e, $e->getCode());
         }
     }

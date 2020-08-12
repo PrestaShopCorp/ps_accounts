@@ -24,8 +24,8 @@
 *  International Registered Trademark & Property of PrestaShop SA
 */
 
-use PrestaShop\AccountsAuth\Environment\EnvSingleton;
-use PrestaShop\AccountsAuth\Handler\Error\ErrorHandlerSingleton;
+use PrestaShop\AccountsAuth\Environment\Env;
+use PrestaShop\AccountsAuth\Handler\Error\ErrorHandler;
 use PrestaShop\Module\PsAccounts\Exception\EnvVarException;
 use PrestaShop\Module\PsAccounts\Exception\Exception\QueryParamsException;
 use PrestaShop\Module\PsAccounts\Exception\HmacException;
@@ -40,10 +40,10 @@ class AdminConfigureHmacPsAccountsController extends ModuleAdminController
      */
     public function initContent()
     {
-        $errorHandler = ErrorHandlerSingleton::getInstance();
+        $errorHandler = ErrorHandler::getInstance();
 
         try {
-            EnvSingleton::getInstance();
+            Env::getInstance();
             if (null === Tools::getValue('hmac')) {
                 throw new HmacException('Hmac does not exist', 500);
             }

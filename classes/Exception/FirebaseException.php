@@ -20,6 +20,6 @@
 
 namespace PrestaShop\Module\PsAccounts\Exception;
 
-class WebhookException extends \Exception
+class FirebaseException extends \Exception
 {
 }
