@@ -21,6 +21,7 @@
 namespace PrestaShop\Module\PsAccounts\WebHook;
 
 use PrestaShop\Module\PsAccounts\Api\AccountsClient;
+use PrestaShop\Module\PsAccounts\Exception\WebhookException;
 
 class Validator
 {
@@ -142,7 +143,7 @@ class Validator
         $errors = empty($errors) ? $this->verifyWebhook($headerValues, $bodyValues) : $errors;
 
         if (!empty($errors)) {
-            throw new \Exception(json_encode($errors), 500);
+            throw new WebhookException(json_encode($errors), 500);
         }
     }
 

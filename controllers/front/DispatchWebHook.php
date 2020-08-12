@@ -20,6 +20,7 @@
 use PrestaShop\AccountsAuth\Handler\Error\ErrorHandlerSingleton;
 use PrestaShop\AccountsAuth\Service\PsAccountsService;
 use PrestaShop\Module\PsAccounts\Api\ServicesApi\Webhook;
+use PrestaShop\Module\PsAccounts\Exception\WebhookException;
 use PrestaShop\Module\PsAccounts\WebHook\Validator;
 
 class ps_accountsDispatchWebHookModuleFrontController extends FrontController
@@ -96,7 +97,7 @@ class ps_accountsDispatchWebHookModuleFrontController extends FrontController
                     'message' => 'ok',
                 ];
             }
-            throw new \Exception($error, 500);
+            throw new WebhookException($error, 500);
         } else {
             return $this->receiveAccountsWebhook($headers, $bodyValues);
         }

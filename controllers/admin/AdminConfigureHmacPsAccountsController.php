@@ -26,6 +26,9 @@
 
 use PrestaShop\AccountsAuth\Environment\EnvSingleton;
 use PrestaShop\AccountsAuth\Handler\Error\ErrorHandlerSingleton;
+use PrestaShop\Module\PsAccounts\Exception\EnvVarException;
+use PrestaShop\Module\PsAccounts\Exception\Exception\QueryParamsException;
+use PrestaShop\Module\PsAccounts\Exception\HmacException;
 
 /**
  * Controller generate hmac and redirect on hmac's file.
@@ -42,16 +45,16 @@ class AdminConfigureHmacPsAccountsController extends ModuleAdminController
         try {
             EnvSingleton::getInstance();
             if (null === Tools::getValue('hmac')) {
-                throw new \Exception('Caught exception: Hmac does not exist', 500);
+                throw new HmacException('Hmac does not exist', 500);
             }
             $hmacPath = _PS_ROOT_DIR_ . '/upload/';
             foreach (['hmac' => '/[a-zA-Z0-9]{8,64}/', 'uid' => '/[a-zA-Z0-9]{8,64}/', 'slug' => '/[-_a-zA-Z0-9]{8,255}/'] as $key => $value) {
                 if (!array_key_exists($key, Tools::getAllValues())) {
-                    throw new \Exception('Missing query params', 500);
+                    throw new QueryParamsException('Missing query params', 500);
                 }
 
                 if (!preg_match($value, Tools::getValue($key))) {
-                    throw new \Exception('Invalide query params', 500);
+                    throw new QueryParamsException('Invalide query params', 500);
                 }
             }
 
@@ -60,14 +63,14 @@ class AdminConfigureHmacPsAccountsController extends ModuleAdminController
             }
 
             if (!is_writable($hmacPath)) {
-                throw new \Exception('Directory isn\'t writable', 500);
+                throw new HmacException('Directory isn\'t writable', 500);
             }
 
             file_put_contents($hmacPath . Tools::getValue('uid') . '.txt', Tools::getValue('hmac'));
 
             $url = $_ENV['ACCOUNTS_SVC_UI_URL'];
             if (false === $url) {
-                throw new \Exception('Environmenrt variable ACCOUNTS_SVC_UI_URL should not be empty', 500);
+                throw new EnvVarException('Environment variable ACCOUNTS_SVC_UI_URL should not be empty', 500);
             }
 
             if ('/' === substr($url, -1)) {
