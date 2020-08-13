@@ -32,6 +32,7 @@ class Validator
     const BODY_DATA_ERROR = 'Data can\'t be empty';
     const BODY_DATA_OWNERID_ERROR = 'OwnerId can\'t be empty';
     const BODY_DATA_SHOPID_ERROR = 'ShopId can\'t be empty';
+    const BODY_OTHER_ERROR = 'ShopId can\'t be empty';
 
     /**
      * @var int
@@ -47,11 +48,6 @@ class Validator
      * @var \Context
      */
     private $context;
-
-    /**
-     * @var Error
-     */
-    private $error;
 
     public function __construct()
     {
@@ -143,7 +139,7 @@ class Validator
         $errors = empty($errors) ? $this->verifyWebhook($headerValues, $bodyValues) : $errors;
 
         if (!empty($errors)) {
-            throw new WebhookException(json_encode($errors), 500);
+            throw new WebhookException((string) json_encode($errors), 500);
         }
     }
 

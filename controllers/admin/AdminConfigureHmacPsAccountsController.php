@@ -27,8 +27,8 @@
 use PrestaShop\AccountsAuth\Environment\Env;
 use PrestaShop\AccountsAuth\Handler\Error\ErrorHandler;
 use PrestaShop\Module\PsAccounts\Exception\EnvVarException;
-use PrestaShop\Module\PsAccounts\Exception\Exception\QueryParamsException;
 use PrestaShop\Module\PsAccounts\Exception\HmacException;
+use PrestaShop\Module\PsAccounts\Exception\QueryParamsException;
 
 /**
  * Controller generate hmac and redirect on hmac's file.
