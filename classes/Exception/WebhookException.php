@@ -18,18 +18,8 @@
  * International Registered Trademark & Property of PrestaShop SA
  */
 
-namespace PrestaShop\Module\PsAccounts\Handler;
+namespace PrestaShop\Module\PsAccounts\Exception;
 
-class Error
+class WebhookException extends \Exception
 {
-    /**
-     * @param int $statusCode
-     * @param string $message
-     *
-     * @return \Exception
-     */
-    public function handle($statusCode = 504, $message = '')
-    {
-        throw new \Exception($message, $statusCode);
-    }
 }

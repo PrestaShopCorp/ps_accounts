@@ -25,6 +25,10 @@
 */
 
 use PrestaShop\AccountsAuth\Environment\Env;
+use PrestaShop\AccountsAuth\Handler\Error\ErrorHandler;
+use PrestaShop\Module\PsAccounts\Exception\EnvVarException;
+use PrestaShop\Module\PsAccounts\Exception\HmacException;
+use PrestaShop\Module\PsAccounts\Exception\QueryParamsException;
 
 /**
  * Controller generate hmac and redirect on hmac's file.
@@ -36,20 +40,21 @@ class AdminConfigureHmacPsAccountsController extends ModuleAdminController
      */
     public function initContent()
     {
-        new Env();
+        $errorHandler = ErrorHandler::getInstance();
 
         try {
+            Env::getInstance();
             if (null === Tools::getValue('hmac')) {
-                throw new Exception("Caught exception: Hmac does not exist \n");
+                throw new HmacException('Hmac does not exist', 500);
             }
             $hmacPath = _PS_ROOT_DIR_ . '/upload/';
             foreach (['hmac' => '/[a-zA-Z0-9]{8,64}/', 'uid' => '/[a-zA-Z0-9]{8,64}/', 'slug' => '/[-_a-zA-Z0-9]{8,255}/'] as $key => $value) {
                 if (!array_key_exists($key, Tools::getAllValues())) {
-                    throw new Exception("Missing query params \n");
+                    throw new QueryParamsException('Missing query params', 500);
                 }
 
                 if (!preg_match($value, Tools::getValue($key))) {
-                    throw new Exception("Invalide query params \n");
+                    throw new QueryParamsException('Invalide query params', 500);
                 }
             }
 
@@ -58,25 +63,25 @@ class AdminConfigureHmacPsAccountsController extends ModuleAdminController
             }
 
             if (!is_writable($hmacPath)) {
-                throw new Exception("Directory isn't writable \n");
+                throw new HmacException('Directory isn\'t writable', 500);
             }
 
             file_put_contents($hmacPath . Tools::getValue('uid') . '.txt', Tools::getValue('hmac'));
-        } catch (Exception $e) {
-        }
-        $url = $_ENV['ACCOUNTS_SVC_UI_URL'];
-        if (false === $url) {
-            throw new \Exception('Environmenrt variable ACCOUNTS_SVC_UI_URL should not be empty');
-        }
-        if ('/' === substr($url, -1)) {
-            $url = substr($url, 0, -1);
-        }
 
-        header(
-            'Location: ' . $url . '/shop/account/verify/' . Tools::getValue('uid')
+            $url = $_ENV['ACCOUNTS_SVC_UI_URL'];
+            if (false === $url) {
+                throw new EnvVarException('Environment variable ACCOUNTS_SVC_UI_URL should not be empty', 500);
+            }
+
+            if ('/' === substr($url, -1)) {
+                $url = substr($url, 0, -1);
+            }
+
+            Tools::redirect($url . '/shop/account/verify/' . Tools::getValue('uid')
             . '?shopKey='
-            . urlencode(Configuration::get('PS_ACCOUNTS_RSA_SIGN_DATA'))
-        );
-        exit;
+            . urlencode(Configuration::get('PS_ACCOUNTS_RSA_SIGN_DATA')));
+        } catch (Exception $e) {
+            $errorHandler->handle($e, $e->getCode());
+        }
     }
 }

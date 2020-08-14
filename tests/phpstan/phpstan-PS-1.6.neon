@@ -21,5 +21,6 @@ parameters:
 		- '#Return type \(void\) of method ps_accountsDispatchWebHookModuleFrontController::display\(\) should be compatible with return type \(bool\) of method FrontControllerCore::display\(\)#'
 		- '#Parameter \#1 \$hook_name of method ModuleCore::registerHook\(\) expects string, array given.#'
 		- '#Access to an undefined property AdminController\|FrontController::\$controller_name.#'
+		- '#Method ps_accountsDispatchWebHookModuleFrontController::display\(\) with return type void returns mixed but should not return anything. #'
 
 	level: 7
