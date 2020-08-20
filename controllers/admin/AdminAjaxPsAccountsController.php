@@ -21,7 +21,6 @@
 use PrestaShop\AccountsAuth\DependencyInjection\DependencyContainer;
 use PrestaShop\AccountsAuth\Handler\Error\ErrorHandler;
 use PrestaShop\AccountsAuth\Repository\ConfigurationRepository;
-use PrestaShop\AccountsAuth\Service\PsAccountsService;
 use PrestaShop\AccountsAuth\Service\SshKey;
 
 /**
