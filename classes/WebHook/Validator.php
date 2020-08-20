@@ -20,7 +20,10 @@
 
 namespace PrestaShop\Module\PsAccounts\WebHook;
 
+use PrestaShop\AccountsAuth\DependencyInjection\DependencyContainer;
+use PrestaShop\AccountsAuth\Repository\ConfigurationRepository;
 use PrestaShop\Module\PsAccounts\Api\AccountsClient;
+use PrestaShop\Module\PsAccounts\Exception\FirebaseException;
 use PrestaShop\Module\PsAccounts\Exception\WebhookException;
 
 class Validator
@@ -49,9 +52,21 @@ class Validator
      */
     private $context;
 
+    /**
+     * @var ConfigurationRepository
+     */
+    private $configuration;
+
+    /**
+     * Validator constructor.
+     *
+     * @throws \Exception
+     */
     public function __construct()
     {
         $this->context = \Context::getContext();
+
+        $this->configuration = DependencyContainer::getInstance()->get(ConfigurationRepository::class);
     }
 
     /**
@@ -131,6 +146,9 @@ class Validator
      * @param array $bodyValues
      *
      * @return void
+     *
+     * @throws WebhookException
+     * @throws FirebaseException
      */
     public function validate($headerValues = [], $bodyValues = [])
     {
@@ -149,10 +167,12 @@ class Validator
      * @param array $shopId
      *
      * @return bool
+     *
+     * @throws \Exception
      */
     private function checkExecutionPermissions($shopId)
     {
-        $dbShopId = \Configuration::get('PSX_UUID_V4', null, null, (int) $this->context->shop->id);
+        $dbShopId = $this->configuration->getShopUuid();
         if ($shopId != $dbShopId) {
             $output = [
                 'status_code' => 500,
@@ -170,6 +190,8 @@ class Validator
      * @param array $bodyValues
      *
      * @return array
+     *
+     * @throws FirebaseException
      */
     private function verifyWebhook(array $headerValues = [], array $bodyValues = [])
     {

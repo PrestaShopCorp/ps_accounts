@@ -17,7 +17,10 @@
  * @license   https://opensource.org/licenses/AFL-3.0 Academic Free License 3.0 (AFL-3.0)
  * International Registered Trademark & Property of PrestaShop SA
  */
+
+use PrestaShop\AccountsAuth\DependencyInjection\DependencyContainer;
 use PrestaShop\AccountsAuth\Handler\Error\ErrorHandler;
+use PrestaShop\AccountsAuth\Repository\ConfigurationRepository;
 use PrestaShop\AccountsAuth\Service\PsAccountsService;
 use PrestaShop\AccountsAuth\Service\SshKey;
 
@@ -29,6 +32,23 @@ class AdminAjaxPsAccountsController extends ModuleAdminController
     const STR_TO_SIGN = 'data';
 
     /**
+     * @var ConfigurationRepository
+     */
+    private $configuration;
+
+    /**
+     * AdminAjaxPsAccountsController constructor.
+     *
+     * @throws Exception
+     */
+    public function __construct()
+    {
+        parent::__construct();
+
+        $this->configuration = DependencyContainer::getInstance()->get(ConfigurationRepository::class);
+    }
+
+    /**
      * AJAX: Generate ssh key.
      *
      * @return void
@@ -38,19 +58,18 @@ class AdminAjaxPsAccountsController extends ModuleAdminController
         try {
             $sshKey = new SshKey();
             $key = $sshKey->generate();
-            Configuration::updateValue('PS_ACCOUNTS_RSA_PRIVATE_KEY', $key['privatekey']);
-            Configuration::updateValue('PS_ACCOUNTS_RSA_PUBLIC_KEY', $key['publickey']);
+            $this->configuration->updateAccountsRsaPrivateKey($key['privatekey']);
+            $this->configuration->updateAccountsRsaPublicKey($key['publickey']);
             $data = 'data';
-            Configuration::updateValue(
-                'PS_ACCOUNTS_RSA_SIGN_DATA',
+            $this->configuration->updateAccountsRsaSignData(
                 $sshKey->signData(
-                    Configuration::get('PS_ACCOUNTS_RSA_PRIVATE_KEY'),
+                    $this->configuration->getAccountsRsaPrivateKey(),
                     self::STR_TO_SIGN
                 )
             );
 
             $this->ajaxDie(
-                json_encode(Configuration::get('PS_ACCOUNTS_RSA_PUBLIC_KEY'))
+                json_encode($this->configuration->getAccountsRsaPublicKey())
             );
         } catch (Exception $e) {
             $errorHandler = ErrorHandler::getInstance();
@@ -66,6 +85,7 @@ class AdminAjaxPsAccountsController extends ModuleAdminController
     public function ajaxProcessSaveAdminToken()
     {
         try {
+            // FIXME : what for ?
             Configuration::updateValue('PS_PSX_FIREBASE_ADMIN_TOKEN', Tools::getValue('adminToken'));
 
             $this->ajaxDie(
@@ -85,11 +105,8 @@ class AdminAjaxPsAccountsController extends ModuleAdminController
     public function ajaxEmailIsVerifiedToken()
     {
         try {
-            $psAccountsService = new PsAccountsService();
-            $shopId = $psAccountsService->getCurrentShop()['id'];
-
             $this->ajaxDie(
-                json_encode(Configuration::get('PS_PSX_FIREBASE_EMAIL_IS_VERIFIED', null, null, (int) $shopId))
+                json_encode($this->configuration->firebaseEmailIsVerified())
             );
         } catch (Exception $e) {
             $errorHandler = ErrorHandler::getInstance();
