@@ -22,9 +22,8 @@ namespace PrestaShop\Module\PsAccounts\Api;
 
 use GuzzleHttp\Client;
 use PrestaShop\AccountsAuth\Api\GenericClient;
-use PrestaShop\AccountsAuth\Environment\Env;
 use PrestaShop\AccountsAuth\Service\PsAccountsService;
-use PrestaShop\Module\PsAccounts\Handler\Error;
+use PrestaShop\Module\PsAccounts\Exception\FirebaseException;
 
 /**
  * Construct the client used to make call to Accounts API
@@ -33,13 +32,14 @@ class AccountsClient extends GenericClient
 {
     public function __construct(\Link $link, Client $client = null)
     {
-        new Env();
+        parent::__construct();
+
         $this->setLink($link);
         $psAccountsService = new PsAccountsService();
         $token = $psAccountsService->getFirebaseIdToken();
 
         if (!$token) {
-            (new Error())->handle(500, 'you must have admin token');
+            throw new FirebaseException('you must have admin token', 500);
         }
 
         // Client can be provided for tests

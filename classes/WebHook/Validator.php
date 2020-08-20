@@ -21,7 +21,7 @@
 namespace PrestaShop\Module\PsAccounts\WebHook;
 
 use PrestaShop\Module\PsAccounts\Api\AccountsClient;
-use PrestaShop\Module\PsAccounts\Handler\Error;
+use PrestaShop\Module\PsAccounts\Exception\WebhookException;
 
 class Validator
 {
@@ -32,6 +32,7 @@ class Validator
     const BODY_DATA_ERROR = 'Data can\'t be empty';
     const BODY_DATA_OWNERID_ERROR = 'OwnerId can\'t be empty';
     const BODY_DATA_SHOPID_ERROR = 'ShopId can\'t be empty';
+    const BODY_OTHER_ERROR = 'ShopId can\'t be empty';
 
     /**
      * @var int
@@ -41,33 +42,16 @@ class Validator
     /**
      * @var string
      */
-    private $message = 'youpi';
+    private $message = '';
 
     /**
      * @var \Context
      */
     private $context;
 
-    /**
-     * @var Error
-     */
-    private $error;
-
     public function __construct()
     {
         $this->context = \Context::getContext();
-        $this->error = new Error();
-    }
-
-    /**
-     * @param int $statusCode
-     * @param string $message
-     *
-     * @return \Exception
-     */
-    public function getError($statusCode = 510, $message = 'error')
-    {
-        return $this->error->handle($statusCode, $message);
     }
 
     /**
@@ -155,7 +139,7 @@ class Validator
         $errors = empty($errors) ? $this->verifyWebhook($headerValues, $bodyValues) : $errors;
 
         if (!empty($errors)) {
-            $this->getError(500, json_encode($errors));
+            throw new WebhookException((string) json_encode($errors), 500);
         }
     }
 
