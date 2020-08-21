@@ -18,7 +18,7 @@
  * International Registered Trademark & Property of PrestaShop SA
  */
 
-namespace PrestaShop\Module\PsAccounts\Api;
+namespace PrestaShop\Module\PsAccounts\Api\Client;
 
 use GuzzleHttp\Client;
 use PrestaShop\AccountsAuth\Api\GenericClient;
@@ -44,7 +44,7 @@ class SegmentClient extends GenericClient
 
         if (null === $client) {
             $client = new Client([
-                'base_url' => $_ENV['ACCOUNTS_SVC_API_URL'],
+                'base_url' => $_ENV['SEGMENT_API_URL'],
                 'defaults' => [
                     'timeout' => $this->timeout,
                     'exceptions' => $this->catchExceptions,
@@ -56,5 +56,27 @@ class SegmentClient extends GenericClient
         }
 
         $this->setClient($client);
+    }
+
+    public function upload($syncId, $compressedJsonPath)
+    {
+        $this->setRoute($_ENV['SEGMENT_API_URL'] . "/v0/upload/$syncId");
+
+        return $this->post([
+            'headers' => [
+                'Content-Type' => 'binary/octet-stream',
+                'Content-Encoding' => 'gzip'
+            ],
+            'body' => [
+                'file' => fopen($compressedJsonPath, 'r')
+            ]
+        ]);
+    }
+
+    public function finish($syncId)
+    {
+        $this->setRoute($_ENV['SEGMENT_API_URL'] . "/v0/upload/$syncId");
+
+        return $this->post();
     }
 }
