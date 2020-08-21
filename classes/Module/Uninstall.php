@@ -26,10 +26,15 @@ class Uninstall
      * @var \Ps_accounts
      */
     private $module;
+    /**
+     * @var \Db
+     */
+    private $db;
 
-    public function __construct(\Ps_accounts $module)
+    public function __construct(\Ps_accounts $module, \Db $db)
     {
         $this->module = $module;
+        $this->db = $db;
     }
 
     /**
@@ -50,6 +55,28 @@ class Uninstall
             $tab = new \Tab($tabId);
 
             return $tab->delete();
+        }
+
+        return true;
+    }
+
+    public function uninstallDatabaseTables()
+    {
+        $dbUninstallFile = "{$this->module->getLocalPath()}/sql/uninstall.sql";
+
+        if (!file_exists($dbUninstallFile)) {
+            return false;
+        } elseif (!$sql = \Tools::file_get_contents($dbUninstallFile)) {
+            return false;
+        }
+
+        $sql = str_replace(['PREFIX_', 'ENGINE_TYPE'], [_DB_PREFIX_, _MYSQL_ENGINE_], $sql);
+        $sql = preg_split("/;\s*[\r\n]+/", trim($sql));
+
+        foreach ($sql as $query) {
+            if (!$this->db->execute($query)) {
+                return false;
+            }
         }
 
         return true;
