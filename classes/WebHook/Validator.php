@@ -20,7 +20,7 @@
 
 namespace PrestaShop\Module\PsAccounts\WebHook;
 
-use PrestaShop\AccountsAuth\DependencyInjection\DependencyContainer;
+use PrestaShop\AccountsAuth\DependencyInjection\PsAccountsServiceProvider;
 use PrestaShop\AccountsAuth\Repository\ConfigurationRepository;
 use PrestaShop\Module\PsAccounts\Api\AccountsClient;
 use PrestaShop\Module\PsAccounts\Exception\FirebaseException;
@@ -66,7 +66,7 @@ class Validator
     {
         $this->context = \Context::getContext();
 
-        $this->configuration = DependencyContainer::getInstance()->get(ConfigurationRepository::class);
+        $this->configuration = PsAccountsServiceProvider::getInstance()->get(ConfigurationRepository::class);
     }
 
     /**

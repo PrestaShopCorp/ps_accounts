@@ -18,8 +18,8 @@
  * International Registered Trademark & Property of PrestaShop SA
  */
 
-use PrestaShop\AccountsAuth\DependencyInjection\DependencyContainer;
-use PrestaShop\AccountsAuth\Handler\Error\ErrorHandler;
+use PrestaShop\AccountsAuth\DependencyInjection\PsAccountsServiceProvider;
+use PrestaShop\AccountsAuth\Handler\ErrorHandler\ErrorHandler;
 use PrestaShop\AccountsAuth\Repository\ConfigurationRepository;
 use PrestaShop\AccountsAuth\Service\SshKey;
 
@@ -44,13 +44,15 @@ class AdminAjaxPsAccountsController extends ModuleAdminController
     {
         parent::__construct();
 
-        $this->configuration = DependencyContainer::getInstance()->get(ConfigurationRepository::class);
+        $this->configuration = PsAccountsServiceProvider::getInstance()->get(ConfigurationRepository::class);
     }
 
     /**
      * AJAX: Generate ssh key.
      *
      * @return void
+     *
+     * @throws Exception
      */
     public function ajaxProcessGenerateSshKey()
     {
