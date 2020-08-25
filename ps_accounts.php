@@ -28,8 +28,6 @@ if (!defined('_PS_VERSION_')) {
 }
 require_once __DIR__ . '/vendor/autoload.php';
 
-use PrestaShop\AccountsAuth\Service\PsAccountsService;
-
 class Ps_accounts extends Module
 {
     /**
@@ -192,12 +190,15 @@ class Ps_accounts extends Module
      * Hook executed on every backoffice pages
      * Used in order to listen changes made to the AdminMeta controller
      *
-     * @since 1.6
      * @deprecated since 1.7.6
+     *
+     * @since 1.6
      *
      * @param array $params
      *
      * @return bool
+     *
+     * @throws ReflectionException
      */
     public function hookDisplayBackOfficeHeader($params)
     {
@@ -221,7 +222,7 @@ class Ps_accounts extends Module
                 'domain' => $domain,
                 'domain_ssl' => $domainSsl,
             ];
-            $psAccountsService = new PsAccountsService();
+            $psAccountsService = new \PrestaShop\AccountsAuth\Service\PsAccountsService();
             $psAccountsService->changeUrl($bodyHttp, '1.6');
         }
 
@@ -236,6 +237,8 @@ class Ps_accounts extends Module
      * @param array $params
      *
      * @return bool
+     *
+     * @throws ReflectionException
      */
     public function hookActionMetaPageSave($params)
     {
@@ -249,7 +252,7 @@ class Ps_accounts extends Module
             'domain' => $params['form_data']['shop_urls']['domain'],
             'domain_ssl' => $params['form_data']['shop_urls']['domain_ssl'],
         ];
-        $psAccountsService = new PsAccountsService();
+        $psAccountsService = new \PrestaShop\AccountsAuth\Service\PsAccountsService();
         $psAccountsService->changeUrl($bodyHttp, '1.7.6');
 
         return true;
@@ -261,6 +264,8 @@ class Ps_accounts extends Module
      * @param array $params
      *
      * @return bool
+     *
+     * @throws ReflectionException
      */
     public function hookActionObjectShopUrlUpdateAfter($params)
     {
@@ -272,7 +277,7 @@ class Ps_accounts extends Module
             'main' => $params['object']->main,
             'active' => $params['object']->active,
         ];
-        $psAccountsService = new PsAccountsService();
+        $psAccountsService = new \PrestaShop\AccountsAuth\Service\PsAccountsService();
         $psAccountsService->changeUrl($bodyHttp, 'multishop');
 
         return true;
