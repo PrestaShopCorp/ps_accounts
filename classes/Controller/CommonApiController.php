@@ -7,6 +7,7 @@ use ModuleFrontController;
 use PrestaShop\Module\PsAccounts\Repository\AccountsSyncStateRepository;
 use PrestaShop\Module\PsAccounts\Service\AuthorizationService;
 use PrestaShop\Module\PsAccounts\Service\SegmentService;
+use PrestaShopException;
 use Tools;
 
 class CommonApiController extends ModuleFrontController
@@ -16,7 +17,7 @@ class CommonApiController extends ModuleFrontController
      *
      * @var string
      */
-    public $endPoint = '';
+    public $type = '';
     /**
      * @var AuthorizationService
      */
@@ -29,14 +30,15 @@ class CommonApiController extends ModuleFrontController
     public function __construct()
     {
         parent::__construct();
+
+        $db = Db::getInstance();
+
         $this->controller_type = 'module';
+        $this->segmentService = new SegmentService($this->context);
         $this->authorizationService = new AuthorizationService(
-            Db::getInstance(),
-            new AccountsSyncStateRepository(
-                Db::getInstance()
-            )
+            $db,
+            new AccountsSyncStateRepository($db)
         );
-        $this->segmentService = new SegmentService();
     }
 
     public function init()
@@ -44,18 +46,26 @@ class CommonApiController extends ModuleFrontController
         $this->authorize();
     }
 
+    /**
+     * @return void
+     */
     private function authorize()
     {
         $jobId = Tools::getValue('job_id');
-        $syncId = Tools::getValue('sync_id');
         $offset = Tools::getValue('offset');
 
-        if (!$this->authorizationService->authorizeCall($jobId, $syncId, $offset, $this->endPoint)) {
+        if (!$this->authorizationService->authorizeCall($jobId, $offset, $this->type)) {
             header("HTTP/1.1 401 Unauthorized");
             exit;
         }
     }
 
+    /**
+     * @param null $value
+     * @param null $controller
+     * @param null $method
+     * @throws PrestaShopException
+     */
     public function ajaxDie($value = null, $controller = null, $method = null)
     {
         parent::ajaxDie(json_encode($value), $controller, $method);

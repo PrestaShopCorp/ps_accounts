@@ -7,7 +7,7 @@ require_once (__DIR__ . '/../../vendor/autoload.php');
 
 class ps_AccountsApiInfoModuleFrontController extends CommonApiController
 {
-    public $endPoint = 'apiInfo';
+    public $type = 'info';
 
     public function postProcess()
     {
@@ -16,10 +16,12 @@ class ps_AccountsApiInfoModuleFrontController extends CommonApiController
         $serverInformationRepository = new ServerInformationRepository();
         $serverInfo = $serverInformationRepository->getServerInformation();
 
-        if ($this->segmentService->upload($syncId, $serverInfo)) {
-            $this->segmentService->finishExport($syncId);
-        }
+        $this->segmentService->upload($syncId, $serverInfo);
 
-        $this->ajaxDie($serverInfo);
+        $this->ajaxDie(
+            [
+                'remaining_objects' => 0
+            ]
+        );
     }
 }

@@ -19,14 +19,13 @@ class AccountsSyncStateRepository
         $this->db = $db;
     }
 
-    public function insertSyncState($endpoint, $jobId, $syncId, $offset)
+    public function insertSyncState($type, $jobId, $offset)
     {
         return $this->db->insert(
             self::TABLE_NAME,
             [
-                'endpoint' => pSQL($endpoint),
+                'type' => pSQL($type),
                 'job_id' => pSQL($jobId),
-                'sync_id' => pSQL($syncId),
                 'offset' => (int) $offset
             ]
         );

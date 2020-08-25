@@ -6,6 +6,7 @@ use Context;
 use GuzzleHttp\Exception\ClientException;
 use Module;
 use PrestaShop\Module\PsAccounts\Api\Client\SegmentClient;
+use Ps_accounts;
 
 class SegmentService
 {
@@ -18,38 +19,43 @@ class SegmentService
      */
     private $compressionService;
     /**
-     * @var Module
+     * @var Ps_accounts
      */
     private $module;
 
-    public function __construct()
+    public function __construct(Context $context)
     {
-        $link = Context::getContext()->link;
-        $this->segmentClient = new SegmentClient($link);
+        $this->segmentClient = new SegmentClient($context->link);
         $this->compressionService = new CompressionService();
         $this->module = Module::getInstanceByName('ps_accounts');
     }
 
+    /**
+     * @param $syncId
+     * @return array
+     */
     public function finishExport($syncId)
     {
         return $this->segmentClient->finish($syncId);
     }
 
+    /**
+     * @param $syncId
+     * @param $data
+     * @return array|bool
+     */
     public function upload($syncId, $data)
     {
-        $compressedDataFilePath = $this->module->getLocalPath() . 'views/files/' . time() . '.gz';
-
-        if ($this->compressionService->generateGzipCompressedJsonFile($data, $compressedDataFilePath)) {
-            try {
-                $response = $this->segmentClient->upload($syncId, $compressedDataFilePath);
-            } catch (ClientException $exception) {
-                return false;
-            }
-            unlink($compressedDataFilePath);
-
-            return $response;
+        if ($compressedData = $this->compressionService->gzipCompressData($data)) {
+            return false;
         }
 
-        return false;
+        try {
+            $response = $this->segmentClient->upload($syncId, $compressedData);
+        } catch (ClientException $exception) {
+            return false;
+        }
+
+        return $response;
     }
 }

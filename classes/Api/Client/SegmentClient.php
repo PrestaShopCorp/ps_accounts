@@ -58,10 +58,10 @@ class SegmentClient extends GenericClient
 
     /**
      * @param $syncId
-     * @param $compressedJsonPath
+     * @param $compressedData
      * @return array
      */
-    public function upload($syncId, $compressedJsonPath)
+    public function upload($syncId, $compressedData)
     {
         $this->setRoute($_ENV['SEGMENT_API_URL'] . "/v0/upload/$syncId");
 
@@ -71,7 +71,7 @@ class SegmentClient extends GenericClient
                 'Content-Encoding' => 'gzip'
             ],
             'body' => [
-                'file' => fopen($compressedJsonPath, 'r')
+                'file' => $compressedData
             ]
         ]);
     }
