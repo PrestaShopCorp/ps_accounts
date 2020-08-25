@@ -3,7 +3,7 @@
 namespace PrestaShop\Module\PsAccounts\Service;
 
 use Db;
-use PrestaShop\Module\PsAccounts\Repository\AccountsSyncStateRepository;
+use PrestaShop\Module\PsAccounts\Repository\AccountsSyncRepository;
 
 class ApiAuthorizationService
 {
@@ -12,11 +12,11 @@ class ApiAuthorizationService
      */
     private $db;
     /**
-     * @var AccountsSyncStateRepository
+     * @var AccountsSyncRepository
      */
     private $accountsSyncStateRepository;
 
-    public function __construct(Db $db, AccountsSyncStateRepository $accountsSyncStateRepository)
+    public function __construct(Db $db, AccountsSyncRepository $accountsSyncStateRepository)
     {
         $this->db = $db;
         $this->accountsSyncStateRepository = $accountsSyncStateRepository;
@@ -30,7 +30,7 @@ class ApiAuthorizationService
      * @param string $type
      * @return bool
      */
-    public function authorizeCall($jobId, $offset, $type)
+    public function authorizeCall($jobId)
     {
         $syncState = $this->accountsSyncStateRepository->findSyncStateByJobId($jobId);
 
@@ -40,7 +40,7 @@ class ApiAuthorizationService
 
         //TODO: HERE WE CHECK WITH ACCOUNTS API IF JOB IS LEGIT
         if (true) {
-            return $this->accountsSyncStateRepository->insertSyncState($type, $jobId, $offset);
+            return $this->accountsSyncStateRepository->insertSync($jobId, 'now');
         }
 
         return false;

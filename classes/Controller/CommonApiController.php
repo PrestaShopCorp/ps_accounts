@@ -4,7 +4,7 @@ namespace PrestaShop\Module\PsAccounts\Controller;
 
 use Db;
 use ModuleFrontController;
-use PrestaShop\Module\PsAccounts\Repository\AccountsSyncStateRepository;
+use PrestaShop\Module\PsAccounts\Repository\AccountsSyncRepository;
 use PrestaShop\Module\PsAccounts\Service\ApiAuthorizationService;
 use PrestaShop\Module\PsAccounts\Service\SegmentService;
 use PrestaShopException;
@@ -37,7 +37,7 @@ class CommonApiController extends ModuleFrontController
         $this->segmentService = new SegmentService($this->context);
         $this->authorizationService = new ApiAuthorizationService(
             $db,
-            new AccountsSyncStateRepository($db)
+            new AccountsSyncRepository($db)
         );
     }
 
@@ -52,9 +52,8 @@ class CommonApiController extends ModuleFrontController
     private function authorize()
     {
         $jobId = Tools::getValue('job_id');
-        $offset = Tools::getValue('offset');
 
-        if (!$this->authorizationService->authorizeCall($jobId, $offset, $this->type)) {
+        if (!$this->authorizationService->authorizeCall($jobId)) {
             header("HTTP/1.1 401 Unauthorized");
             exit;
         }
