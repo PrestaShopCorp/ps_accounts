@@ -5,7 +5,7 @@ namespace PrestaShop\Module\PsAccounts\Controller;
 use Db;
 use ModuleFrontController;
 use PrestaShop\Module\PsAccounts\Repository\AccountsSyncStateRepository;
-use PrestaShop\Module\PsAccounts\Service\AuthorizationService;
+use PrestaShop\Module\PsAccounts\Service\ApiAuthorizationService;
 use PrestaShop\Module\PsAccounts\Service\SegmentService;
 use PrestaShopException;
 use Tools;
@@ -19,7 +19,7 @@ class CommonApiController extends ModuleFrontController
      */
     public $type = '';
     /**
-     * @var AuthorizationService
+     * @var ApiAuthorizationService
      */
     protected $authorizationService;
     /**
@@ -35,7 +35,7 @@ class CommonApiController extends ModuleFrontController
 
         $this->controller_type = 'module';
         $this->segmentService = new SegmentService($this->context);
-        $this->authorizationService = new AuthorizationService(
+        $this->authorizationService = new ApiAuthorizationService(
             $db,
             new AccountsSyncStateRepository($db)
         );

@@ -5,7 +5,7 @@ namespace PrestaShop\Module\PsAccounts\Service;
 use Db;
 use PrestaShop\Module\PsAccounts\Repository\AccountsSyncStateRepository;
 
-class AuthorizationService
+class ApiAuthorizationService
 {
     /**
      * @var Db

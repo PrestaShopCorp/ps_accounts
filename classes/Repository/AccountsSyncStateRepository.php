@@ -19,6 +19,13 @@ class AccountsSyncStateRepository
         $this->db = $db;
     }
 
+    /**
+     * @param $type
+     * @param $jobId
+     * @param $offset
+     * @return bool
+     * @throws \PrestaShopDatabaseException
+     */
     public function insertSyncState($type, $jobId, $offset)
     {
         return $this->db->insert(
@@ -31,6 +38,10 @@ class AccountsSyncStateRepository
         );
     }
 
+    /**
+     * @param $jobId
+     * @return array|bool|false|object|null
+     */
     public function findSyncStateByJobId($jobId)
     {
         $query = new DbQuery();

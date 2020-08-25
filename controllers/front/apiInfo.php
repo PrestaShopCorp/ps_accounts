@@ -1,6 +1,8 @@
 <?php
 
 use PrestaShop\Module\PsAccounts\Controller\CommonApiController;
+use PrestaShop\Module\PsAccounts\Repository\CurrencyRepository;
+use PrestaShop\Module\PsAccounts\Repository\LanguageRepository;
 use PrestaShop\Module\PsAccounts\Repository\ServerInformationRepository;
 
 require_once (__DIR__ . '/../../vendor/autoload.php');
@@ -13,7 +15,11 @@ class ps_AccountsApiInfoModuleFrontController extends CommonApiController
     {
         $syncId = Tools::getValue('sync_id');
 
-        $serverInformationRepository = new ServerInformationRepository();
+        $serverInformationRepository = new ServerInformationRepository(
+            new CurrencyRepository(),
+            new LanguageRepository()
+        );
+
         $serverInfo = $serverInformationRepository->getServerInformation();
 
         $this->segmentService->upload($syncId, $serverInfo);

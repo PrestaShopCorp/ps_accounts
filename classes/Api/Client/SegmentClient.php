@@ -39,9 +39,9 @@ class SegmentClient extends GenericClient
         $psAccountsService = new PsAccountsService();
         $token = $psAccountsService->getFirebaseIdToken();
 
-        if (!$token) {
-            throw new FirebaseException('you must have admin token', 500);
-        }
+//        if (!$token) {
+//            throw new FirebaseException('you must have admin token', 500);
+//        }
 
         if (null === $client) {
             $client = new Client([

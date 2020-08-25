@@ -74,6 +74,11 @@ class Install
         return true;
     }
 
+    /**
+     * Installs database tables
+     *
+     * @return bool
+     */
     public function installDatabaseTables()
     {
         $dbInstallFile = "{$this->module->getLocalPath()}/sql/install.sql";
