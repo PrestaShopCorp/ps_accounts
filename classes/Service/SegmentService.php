@@ -3,9 +3,9 @@
 namespace PrestaShop\Module\PsAccounts\Service;
 
 use Context;
+use GuzzleHttp\Exception\ClientException;
 use Module;
 use PrestaShop\Module\PsAccounts\Api\Client\SegmentClient;
-use PrestaShopBundle\Exception\NotImplementedException;
 
 class SegmentService
 {
@@ -37,11 +37,16 @@ class SegmentService
 
     public function upload($syncId, $data)
     {
-        $compressedDataFilePath = $this->module->getLocalPath() . '/files/' . time() . '.gz';
+        $compressedDataFilePath = $this->module->getLocalPath() . 'views/files/' . time() . '.gz';
 
         if ($this->compressionService->generateGzipCompressedJsonFile($data, $compressedDataFilePath)) {
-            $response = $this->segmentClient->upload($syncId, $compressedDataFilePath);
+            try {
+                $response = $this->segmentClient->upload($syncId, $compressedDataFilePath);
+            } catch (ClientException $exception) {
+                return false;
+            }
             unlink($compressedDataFilePath);
+
             return $response;
         }
 

@@ -48,9 +48,6 @@ class SegmentClient extends GenericClient
                 'defaults' => [
                     'timeout' => $this->timeout,
                     'exceptions' => $this->catchExceptions,
-                    'headers' => [
-
-                    ],
                 ],
             ]);
         }
@@ -75,7 +72,7 @@ class SegmentClient extends GenericClient
 
     public function finish($syncId)
     {
-        $this->setRoute($_ENV['SEGMENT_API_URL'] . "/v0/upload/$syncId");
+        $this->setRoute($_ENV['SEGMENT_API_URL'] . "/v0/finish/$syncId");
 
         return $this->post();
     }
