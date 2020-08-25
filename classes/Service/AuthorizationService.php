@@ -22,6 +22,15 @@ class AuthorizationService
         $this->accountsSyncStateRepository = $accountsSyncStateRepository;
     }
 
+    /**
+     * Authorizes if the call to endpoint is legit and creates sync state if needed
+     *
+     * @param string $jobId
+     * @param string $syncId
+     * @param int $offset
+     * @param string $endPoint
+     * @return bool
+     */
     public function authorizeCall($jobId, $syncId, $offset, $endPoint)
     {
         $syncState = $this->accountsSyncStateRepository->findSyncStateByJobId($jobId);
@@ -30,7 +39,7 @@ class AuthorizationService
             return true;
         }
 
-        //HERE WE CHECK WITH ACCOUNTS API IF JOB IS LEGIT
+        //TODO: HERE WE CHECK WITH ACCOUNTS API IF JOB IS LEGIT
         if (true) {
             return $this->accountsSyncStateRepository->insertSyncState($endPoint, $jobId, $syncId, $offset);
         }

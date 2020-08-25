@@ -12,11 +12,15 @@ use Tools;
 class CommonApiController extends ModuleFrontController
 {
     /**
+     * Endpoint name
+     *
+     * @var string
+     */
+    public $endPoint = '';
+    /**
      * @var AuthorizationService
      */
     protected $authorizationService;
-
-    public $endPoint = '';
     /**
      * @var SegmentService
      */

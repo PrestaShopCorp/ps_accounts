@@ -21,16 +21,17 @@
 namespace PrestaShop\Module\PsAccounts\Api\Client;
 
 use GuzzleHttp\Client;
+use Link;
 use PrestaShop\AccountsAuth\Api\GenericClient;
 use PrestaShop\AccountsAuth\Service\PsAccountsService;
 use PrestaShop\Module\PsAccounts\Exception\FirebaseException;
 
 /**
- * Construct the client used to make call to Accounts API
+ * Construct the client used to make call to Segment API
  */
 class SegmentClient extends GenericClient
 {
-    public function __construct(\Link $link, Client $client = null)
+    public function __construct(Link $link, Client $client = null)
     {
         parent::__construct();
 
@@ -55,6 +56,11 @@ class SegmentClient extends GenericClient
         $this->setClient($client);
     }
 
+    /**
+     * @param $syncId
+     * @param $compressedJsonPath
+     * @return array
+     */
     public function upload($syncId, $compressedJsonPath)
     {
         $this->setRoute($_ENV['SEGMENT_API_URL'] . "/v0/upload/$syncId");
@@ -70,6 +76,10 @@ class SegmentClient extends GenericClient
         ]);
     }
 
+    /**
+     * @param $syncId
+     * @return array
+     */
     public function finish($syncId)
     {
         $this->setRoute($_ENV['SEGMENT_API_URL'] . "/v0/finish/$syncId");

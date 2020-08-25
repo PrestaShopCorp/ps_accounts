@@ -24,10 +24,10 @@ class AccountsSyncStateRepository
         return $this->db->insert(
             self::TABLE_NAME,
             [
-                'endpoint' => $endpoint,
-                'job_id' => $jobId,
-                'sync_id' => $syncId,
-                'offset' => $offset
+                'endpoint' => pSQL($endpoint),
+                'job_id' => pSQL($jobId),
+                'sync_id' => pSQL($syncId),
+                'offset' => (int) $offset
             ]
         );
     }
