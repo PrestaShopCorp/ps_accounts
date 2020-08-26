@@ -7,7 +7,8 @@ use DbQuery;
 
 class AccountsSyncRepository
 {
-    const TABLE_NAME = 'accounts_sync_state';
+    const TYPE_SYNC_TABLE_NAME = 'accounts_type_sync';
+    const SYNC_TABLE_NAME = 'accounts_sync';
 
     /**
      * @var Db
@@ -29,7 +30,7 @@ class AccountsSyncRepository
     public function insertTypeSync($type, $offset, $lastSyncDate)
     {
         return $this->db->insert(
-            self::TABLE_NAME,
+            self::TYPE_SYNC_TABLE_NAME,
             [
                 'type' => pSQL($type),
                 'offset' => (int) $offset,
@@ -47,10 +48,10 @@ class AccountsSyncRepository
     public function insertSync($jobId, $date)
     {
         return $this->db->insert(
-            self::TABLE_NAME,
+            self::SYNC_TABLE_NAME,
             [
                 'job_id' => pSQL($jobId),
-                'created_at' => (int) $date,
+                'created_at' => pSQL($date),
             ]
         );
     }
@@ -63,7 +64,7 @@ class AccountsSyncRepository
     {
         $query = new DbQuery();
         $query->select('*')
-            ->from('accounts_sync')
+            ->from(self::SYNC_TABLE_NAME)
             ->where('job_id = "' . pSQL($jobId) . '"');
 
         return $this->db->getRow($query);
@@ -77,7 +78,7 @@ class AccountsSyncRepository
     {
         $query = new DbQuery();
         $query->select('*')
-            ->from('accounts_type_sync')
+            ->from(self::TYPE_SYNC_TABLE_NAME)
             ->where('type = "' . pSQL($type) . '"');
 
         return $this->db->getRow($query);

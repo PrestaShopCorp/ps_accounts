@@ -46,7 +46,7 @@ class SegmentService
      */
     public function upload($syncId, $data)
     {
-        if ($compressedData = $this->compressionService->gzipCompressData($data)) {
+        if (!$compressedData = $this->compressionService->gzipCompressData($data)) {
             return false;
         }
 

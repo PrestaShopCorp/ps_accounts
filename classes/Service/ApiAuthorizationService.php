@@ -29,6 +29,7 @@ class ApiAuthorizationService
      * @param int $offset
      * @param string $type
      * @return bool
+     * @throws \PrestaShopDatabaseException
      */
     public function authorizeCall($jobId)
     {
@@ -40,7 +41,7 @@ class ApiAuthorizationService
 
         //TODO: HERE WE CHECK WITH ACCOUNTS API IF JOB IS LEGIT
         if (true) {
-            return $this->accountsSyncStateRepository->insertSync($jobId, 'now');
+            return $this->accountsSyncStateRepository->insertSync($jobId, date(DATE_ATOM));
         }
 
         return false;

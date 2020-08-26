@@ -1,1 +1,2 @@
-DROP TABLE IF EXISTS `PREFIX_accounts_sync_state`;
+DROP TABLE IF EXISTS `PREFIX_accounts_type_sync`;
+DROP TABLE IF EXISTS `PREFIX_accounts_sync`;

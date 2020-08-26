@@ -13,7 +13,9 @@ class ps_AccountsApiInfoModuleFrontController extends CommonApiController
 
     public function postProcess()
     {
-        $syncId = Tools::getValue('sync_id');
+        if (!$syncId = Tools::getValue('sync_id')) {
+            $this->exitWithErrorStatus();
+        }
 
         $serverInformationRepository = new ServerInformationRepository(
             new CurrencyRepository(),
@@ -22,7 +24,11 @@ class ps_AccountsApiInfoModuleFrontController extends CommonApiController
 
         $serverInfo = $serverInformationRepository->getServerInformation();
 
-        $this->segmentService->upload($syncId, $serverInfo);
+        $response = $this->segmentService->upload($syncId, $serverInfo);
+
+        if (!$response || $response['httpCode'] != 201) {
+            $this->exitWithErrorStatus();
+        }
 
         $this->ajaxDie(
             [
