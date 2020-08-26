@@ -8,17 +8,12 @@ use PrestaShop\Module\PsAccounts\Repository\AccountsSyncRepository;
 class ApiAuthorizationService
 {
     /**
-     * @var Db
-     */
-    private $db;
-    /**
      * @var AccountsSyncRepository
      */
     private $accountsSyncStateRepository;
 
-    public function __construct(Db $db, AccountsSyncRepository $accountsSyncStateRepository)
+    public function __construct(AccountsSyncRepository $accountsSyncStateRepository)
     {
-        $this->db = $db;
         $this->accountsSyncStateRepository = $accountsSyncStateRepository;
     }
 

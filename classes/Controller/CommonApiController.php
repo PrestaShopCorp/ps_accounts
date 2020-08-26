@@ -3,9 +3,12 @@
 namespace PrestaShop\Module\PsAccounts\Controller;
 
 use Db;
+use Module;
 use ModuleFrontController;
+use PrestaShop\Module\PsAccounts\Api\Client\SegmentClient;
 use PrestaShop\Module\PsAccounts\Repository\AccountsSyncRepository;
 use PrestaShop\Module\PsAccounts\Service\ApiAuthorizationService;
+use PrestaShop\Module\PsAccounts\Service\CompressionService;
 use PrestaShop\Module\PsAccounts\Service\SegmentService;
 use PrestaShopException;
 use Tools;
@@ -34,11 +37,11 @@ class CommonApiController extends ModuleFrontController
         $db = Db::getInstance();
 
         $this->controller_type = 'module';
-        $this->segmentService = new SegmentService($this->context);
-        $this->authorizationService = new ApiAuthorizationService(
-            $db,
-            new AccountsSyncRepository($db)
+        $this->segmentService = new SegmentService(
+            new SegmentClient($this->context->link),
+            new CompressionService()
         );
+        $this->authorizationService = new ApiAuthorizationService(new AccountsSyncRepository($db));
     }
 
     public function init()

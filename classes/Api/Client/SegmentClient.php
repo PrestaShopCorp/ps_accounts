@@ -68,11 +68,11 @@ class SegmentClient extends GenericClient
         return $this->post([
             'headers' => [
                 'Content-Type' => 'binary/octet-stream',
-                'Content-Encoding' => 'gzip'
+                'Content-Encoding' => 'gzip',
             ],
             'body' => [
-                'file' => $compressedData
-            ]
+                'file' => $compressedData,
+            ],
         ]);
     }
 

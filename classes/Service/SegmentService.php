@@ -2,11 +2,8 @@
 
 namespace PrestaShop\Module\PsAccounts\Service;
 
-use Context;
 use GuzzleHttp\Exception\ClientException;
-use Module;
 use PrestaShop\Module\PsAccounts\Api\Client\SegmentClient;
-use Ps_accounts;
 
 class SegmentService
 {
@@ -18,16 +15,13 @@ class SegmentService
      * @var CompressionService
      */
     private $compressionService;
-    /**
-     * @var Ps_accounts
-     */
-    private $module;
 
-    public function __construct(Context $context)
-    {
-        $this->segmentClient = new SegmentClient($context->link);
-        $this->compressionService = new CompressionService();
-        $this->module = Module::getInstanceByName('ps_accounts');
+    public function __construct(
+        SegmentClient $segmentClient,
+        CompressionService $compressionService
+    ) {
+        $this->segmentClient = $segmentClient;
+        $this->compressionService = $compressionService;
     }
 
     /**

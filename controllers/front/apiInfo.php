@@ -1,6 +1,7 @@
 <?php
 
 use PrestaShop\Module\PsAccounts\Controller\CommonApiController;
+use PrestaShop\Module\PsAccounts\Repository\ConfigurationRepository;
 use PrestaShop\Module\PsAccounts\Repository\CurrencyRepository;
 use PrestaShop\Module\PsAccounts\Repository\LanguageRepository;
 use PrestaShop\Module\PsAccounts\Repository\ServerInformationRepository;
@@ -19,7 +20,8 @@ class ps_AccountsApiInfoModuleFrontController extends CommonApiController
 
         $serverInformationRepository = new ServerInformationRepository(
             new CurrencyRepository(),
-            new LanguageRepository()
+            new LanguageRepository(),
+            new ConfigurationRepository()
         );
 
         $serverInfo = $serverInformationRepository->getServerInformation();

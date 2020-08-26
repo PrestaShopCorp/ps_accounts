@@ -16,11 +16,19 @@ class ServerInformationRepository
      * @var LanguageRepository
      */
     private $languageRepository;
+    /**
+     * @var ConfigurationRepository
+     */
+    private $configurationRepository;
 
-    public function __construct(CurrencyRepository $currencyRepository, LanguageRepository $languageRepository)
-    {
+    public function __construct(
+        CurrencyRepository $currencyRepository,
+        LanguageRepository $languageRepository,
+        ConfigurationRepository $configurationRepository
+    ) {
         $this->currencyRepository = $currencyRepository;
         $this->languageRepository = $languageRepository;
+        $this->configurationRepository = $configurationRepository;
     }
 
     public function getServerInformation()
@@ -35,15 +43,15 @@ class ServerInformationRepository
                         "name" => "prestashop",
                         "version" => _PS_VERSION_
                     ],
-                    "url_is_simplified" => (bool) Configuration::get('PS_REWRITING_SETTINGS'),
-                    "cart_is_persistent" => (bool) Configuration::get('PS_CART_FOLLOWING'),
+                    "url_is_simplified" => (bool) $this->configurationRepository->get('PS_REWRITING_SETTINGS'),
+                    "cart_is_persistent" => (bool) $this->configurationRepository->get('PS_CART_FOLLOWING'),
                     "defaultLanguage" => $this->languageRepository->getDefaultLanguageIsoCode(),
                     "languages" => $this->languageRepository->getLanguagesIsoCodes(),
                     "defaultCurrency" => $this->currencyRepository->getDefaultCurrencyIsoCode(),
                     "currencies" => $this->currencyRepository->getCurrenciesIsoCodes(),
-                    "timezone" => Configuration::get('PS_TIMEZONE'),
+                    "timezone" => $this->configurationRepository->get('PS_TIMEZONE'),
                     "PHP" => phpversion(),
-                    "HTTPserver" => $_SERVER['SERVER_SOFTWARE']
+                    "HTTPserver" => isset($_SERVER['SERVER_SOFTWARE']) ? $_SERVER['SERVER_SOFTWARE'] : ''
                 ]
             ],
         ];
