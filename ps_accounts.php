@@ -18,7 +18,7 @@
  * versions in the future. If you wish to customize PrestaShop for your
  * needs please refer to http://www.prestashop.com for more information.
  *
- *  @author    PrestaShop SA <contact@prestashop.com>
+ *  @author   PrestaShop SA <contact@prestashop.com>
  *  @copyright 2007-2020 PrestaShop SA
  *  @license   http://opensource.org/licenses/afl-3.0.php  Academic Free License (AFL 3.0)
  *  International Registered Trademark & Property of PrestaShop SA
@@ -27,8 +27,6 @@ if (!defined('_PS_VERSION_')) {
     exit;
 }
 require_once __DIR__ . '/vendor/autoload.php';
-
-use PrestaShop\AccountsAuth\Service\PsAccountsService;
 
 class Ps_accounts extends Module
 {
@@ -221,7 +219,7 @@ class Ps_accounts extends Module
                 'domain' => $domain,
                 'domain_ssl' => $domainSsl,
             ];
-            $psAccountsService = new PsAccountsService();
+            $psAccountsService = new PrestaShop\AccountsAuth\Service\PsAccountsService();
             $psAccountsService->changeUrl($bodyHttp, '1.6');
         }
 
@@ -249,7 +247,7 @@ class Ps_accounts extends Module
             'domain' => $params['form_data']['shop_urls']['domain'],
             'domain_ssl' => $params['form_data']['shop_urls']['domain_ssl'],
         ];
-        $psAccountsService = new PsAccountsService();
+        $psAccountsService = new PrestaShop\AccountsAuth\Service\PsAccountsService();
         $psAccountsService->changeUrl($bodyHttp, '1.7.6');
 
         return true;
@@ -272,7 +270,7 @@ class Ps_accounts extends Module
             'main' => $params['object']->main,
             'active' => $params['object']->active,
         ];
-        $psAccountsService = new PsAccountsService();
+        $psAccountsService = new PrestaShop\AccountsAuth\Service\PsAccountsService();
         $psAccountsService->changeUrl($bodyHttp, 'multishop');
 
         return true;
