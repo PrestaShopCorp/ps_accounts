@@ -43,6 +43,11 @@ class CommonApiController extends ModuleFrontController
         $this->authorizationService = new ApiAuthorizationService(new AccountsSyncRepository($db));
     }
 
+    /**
+     * @return void
+     *
+     * @throws \PrestaShopDatabaseException
+     */
     public function init()
     {
         $this->authorize();
@@ -63,9 +68,9 @@ class CommonApiController extends ModuleFrontController
     }
 
     /**
-     * @param null $value
-     * @param null $controller
-     * @param null $method
+     * @param null|array $value
+     * @param null|string $controller
+     * @param null|string $method
      *
      * @throws PrestaShopException
      */
@@ -74,6 +79,9 @@ class CommonApiController extends ModuleFrontController
         parent::ajaxDie(json_encode($value), $controller, $method);
     }
 
+    /**
+     * @return void
+     */
     public function exitWithErrorStatus()
     {
         header('HTTP/1.1 500 Retry later');

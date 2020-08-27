@@ -39,9 +39,9 @@ class SegmentClient extends GenericClient
         $psAccountsService = new PsAccountsService();
         $token = $psAccountsService->getFirebaseIdToken();
 
-//        if (!$token) {
-//            throw new FirebaseException('you must have admin token', 500);
-//        }
+        if (!$token) {
+            throw new FirebaseException('you must have admin token', 500);
+        }
 
         if (null === $client) {
             $client = new Client([
@@ -49,6 +49,9 @@ class SegmentClient extends GenericClient
                 'defaults' => [
                     'timeout' => $this->timeout,
                     'exceptions' => $this->catchExceptions,
+                    'headers' => [
+                        'Authorization' => "Bearer $token",
+                    ]
                 ],
             ]);
         }
@@ -56,10 +59,10 @@ class SegmentClient extends GenericClient
         $this->setClient($client);
     }
 
+
     /**
-     * @param $syncId
-     * @param $compressedData
-     *
+     * @param string $syncId
+     * @param string $compressedData
      * @return array
      */
     public function upload($syncId, $compressedData)
@@ -78,7 +81,7 @@ class SegmentClient extends GenericClient
     }
 
     /**
-     * @param $syncId
+     * @param string $syncId
      *
      * @return array
      */
