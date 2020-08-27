@@ -191,7 +191,6 @@ class Ps_accounts extends Module
      * Used in order to listen changes made to the AdminMeta controller
      *
      * @deprecated since 1.7.6
-     *
      * @since 1.6
      *
      * @param array $params

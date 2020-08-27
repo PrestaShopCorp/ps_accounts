@@ -33,7 +33,7 @@ version=$(php -r "echo PHP_MAJOR_VERSION.PHP_MINOR_VERSION;") \
     && printf "extension=blackfire.so\nblackfire.agent_socket=tcp://blackfire:8707\n" > $PHP_INI_DIR/conf.d/blackfire.ini \
     && rm -rf /tmp/blackfire /tmp/blackfire-probe.tar.gz
 
-for module in ps_accounts ps_checkout
+for module in ps_accounts ps_checkout ps_metrics
 do
     cd /var/www/html/modules/$module;
     rm -f composer-dev.json composer-dev.lock;
@@ -55,6 +55,8 @@ yarn --cwd /tmp/libs/js/prestashop_accounts_vue_components/
 yarn --cwd /tmp/libs/js/prestashop_accounts_vue_components/ build-lib
 yarn --cwd /var/www/html/modules/ps_checkout/_dev/
 yarn --cwd /var/www/html/modules/ps_checkout/_dev/ build
+yarn --cwd /var/www/html/modules/ps_metrics/_dev/
+yarn --cwd /var/www/html/modules/ps_metrics/_dev/ build
 
 rm -rf /var/www/html/modules/ps_checkout/_dev/node_modules/prestashop_accounts_vue_components
 ln -s /tmp/libs/js/prestashop_accounts_vue_components /var/www/html/modules/ps_checkout/_dev/node_modules/prestashop_accounts_vue_components
