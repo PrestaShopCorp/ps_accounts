@@ -1,10 +1,10 @@
 <?php
 
+use PHPUnit\Framework\TestCase;
 use PrestaShop\Module\PsAccounts\Repository\ConfigurationRepository;
 use PrestaShop\Module\PsAccounts\Repository\CurrencyRepository;
 use PrestaShop\Module\PsAccounts\Repository\LanguageRepository;
 use PrestaShop\Module\PsAccounts\Repository\ServerInformationRepository;
-use PHPUnit\Framework\TestCase;
 
 class ServerInformationRepositoryTest extends TestCase
 {

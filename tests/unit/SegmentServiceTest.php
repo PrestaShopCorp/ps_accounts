@@ -1,8 +1,8 @@
 <?php
 
+use GuzzleHttp\Exception\ClientException;
 use PHPUnit\Framework\TestCase;
 use PrestaShop\Module\PsAccounts\Api\Client\SegmentClient;
-use GuzzleHttp\Exception\ClientException;
 use PrestaShop\Module\PsAccounts\Service\CompressionService;
 use PrestaShop\Module\PsAccounts\Service\SegmentService;
 
@@ -44,7 +44,7 @@ class SegmentServiceTest extends TestCase
         $this->segmentClient->method('upload')->willReturn([
             'status' => 'success',
             'httpCode' => 201,
-            'body' => "success",
+            'body' => 'success',
         ]);
 
         $this->assertTrue(is_array($this->segmentService->upload($syncId, $compressedData)));

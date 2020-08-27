@@ -10,9 +10,11 @@ class ConfigurationRepository
      * We wrap Configuration::get function in here to be able to mock static functions
      *
      * @param $key
+     *
      * @return bool|string
      */
-    public function get($key) {
+    public function get($key)
+    {
         return Configuration::get($key);
     }
 }

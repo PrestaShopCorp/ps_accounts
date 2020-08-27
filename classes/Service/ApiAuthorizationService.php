@@ -2,7 +2,6 @@
 
 namespace PrestaShop\Module\PsAccounts\Service;
 
-use Db;
 use PrestaShop\Module\PsAccounts\Repository\AccountsSyncRepository;
 
 class ApiAuthorizationService
@@ -23,7 +22,9 @@ class ApiAuthorizationService
      * @param string $jobId
      * @param int $offset
      * @param string $type
+     *
      * @return bool
+     *
      * @throws \PrestaShopDatabaseException
      */
     public function authorizeCall($jobId)

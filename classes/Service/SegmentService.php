@@ -26,6 +26,7 @@ class SegmentService
 
     /**
      * @param $syncId
+     *
      * @return array
      */
     public function finishExport($syncId)
@@ -36,6 +37,7 @@ class SegmentService
     /**
      * @param $syncId
      * @param $data
+     *
      * @return array|bool
      */
     public function upload($syncId, $data)

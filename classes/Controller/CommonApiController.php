@@ -3,7 +3,6 @@
 namespace PrestaShop\Module\PsAccounts\Controller;
 
 use Db;
-use Module;
 use ModuleFrontController;
 use PrestaShop\Module\PsAccounts\Api\Client\SegmentClient;
 use PrestaShop\Module\PsAccounts\Repository\AccountsSyncRepository;
@@ -51,6 +50,7 @@ class CommonApiController extends ModuleFrontController
 
     /**
      * @return void
+     *
      * @throws \PrestaShopDatabaseException
      */
     private function authorize()
@@ -66,6 +66,7 @@ class CommonApiController extends ModuleFrontController
      * @param null $value
      * @param null $controller
      * @param null $method
+     *
      * @throws PrestaShopException
      */
     public function ajaxDie($value = null, $controller = null, $method = null)
@@ -75,13 +76,13 @@ class CommonApiController extends ModuleFrontController
 
     public function exitWithErrorStatus()
     {
-        header("HTTP/1.1 500 Retry later");
+        header('HTTP/1.1 500 Retry later');
         exit;
     }
 
     public function exitWithUnauthorizedStatus()
     {
-        header("HTTP/1.1 401 Unauthorized");
+        header('HTTP/1.1 401 Unauthorized');
         exit;
     }
 }

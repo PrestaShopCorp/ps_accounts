@@ -9,6 +9,7 @@ class CompressionService
      *
      * @param $data
      * @param $filePath
+     *
      * @return bool
      */
     public function generateGzipCompressedJsonFile($data, $filePath)
@@ -30,6 +31,7 @@ class CompressionService
      * Compresses data with gzip
      *
      * @param $data
+     *
      * @return string
      */
     public function gzipCompressData($data)

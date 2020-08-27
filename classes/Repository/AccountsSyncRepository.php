@@ -24,7 +24,9 @@ class AccountsSyncRepository
      * @param $type
      * @param $offset
      * @param $lastSyncDate
+     *
      * @return bool
+     *
      * @throws \PrestaShopDatabaseException
      */
     public function insertTypeSync($type, $offset, $lastSyncDate)
@@ -34,7 +36,7 @@ class AccountsSyncRepository
             [
                 'type' => pSQL($type),
                 'offset' => (int) $offset,
-                'last_sync_date' => pSQL($lastSyncDate)
+                'last_sync_date' => pSQL($lastSyncDate),
             ]
         );
     }
@@ -42,7 +44,9 @@ class AccountsSyncRepository
     /**
      * @param $jobId
      * @param $date
+     *
      * @return bool
+     *
      * @throws \PrestaShopDatabaseException
      */
     public function insertSync($jobId, $date)
@@ -58,6 +62,7 @@ class AccountsSyncRepository
 
     /**
      * @param $jobId
+     *
      * @return array|bool|false|object|null
      */
     public function findSyncStateByJobId($jobId)
@@ -72,6 +77,7 @@ class AccountsSyncRepository
 
     /**
      * @param $type
+     *
      * @return array|bool|false|object|null
      */
     public function findSyncType($type)

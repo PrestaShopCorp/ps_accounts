@@ -6,7 +6,7 @@ use PrestaShop\Module\PsAccounts\Repository\CurrencyRepository;
 use PrestaShop\Module\PsAccounts\Repository\LanguageRepository;
 use PrestaShop\Module\PsAccounts\Repository\ServerInformationRepository;
 
-require_once (__DIR__ . '/../../vendor/autoload.php');
+require_once __DIR__ . '/../../vendor/autoload.php';
 
 class ps_AccountsApiInfoModuleFrontController extends CommonApiController
 {
@@ -34,7 +34,7 @@ class ps_AccountsApiInfoModuleFrontController extends CommonApiController
 
         $this->ajaxDie(
             [
-                'remaining_objects' => 0
+                'remaining_objects' => 0,
             ]
         );
     }

@@ -59,6 +59,7 @@ class SegmentClient extends GenericClient
     /**
      * @param $syncId
      * @param $compressedData
+     *
      * @return array
      */
     public function upload($syncId, $compressedData)
@@ -78,6 +79,7 @@ class SegmentClient extends GenericClient
 
     /**
      * @param $syncId
+     *
      * @return array
      */
     public function finish($syncId)
