@@ -21,8 +21,10 @@
 namespace PrestaShop\Module\PsAccounts\Api\Client;
 
 use GuzzleHttp\Client;
+use GuzzleHttp\Post\PostFile;
 use Link;
 use PrestaShop\AccountsAuth\Api\GenericClient;
+use PrestaShop\AccountsAuth\Handler\Response\ResponseApiHandler;
 use PrestaShop\AccountsAuth\Service\PsAccountsService;
 use PrestaShop\Module\PsAccounts\Exception\FirebaseException;
 
@@ -47,7 +49,7 @@ class SegmentClient extends GenericClient
             $client = new Client([
                 'base_url' => $_ENV['SEGMENT_API_URL'],
                 'defaults' => [
-                    'timeout' => $this->timeout,
+                    'timeout' => 60,
                     'exceptions' => $this->catchExceptions,
                     'headers' => [
                         'Authorization' => "Bearer $token",
@@ -69,15 +71,53 @@ class SegmentClient extends GenericClient
     {
         $this->setRoute($_ENV['SEGMENT_API_URL'] . "/v0/upload/$syncId");
 
-        return $this->post([
-            'headers' => [
-                'Content-Type' => 'binary/octet-stream',
-                'Content-Encoding' => 'gzip',
-            ],
-            'body' => [
-                'file' => $compressedData,
-            ],
-        ]);
+        $request = $this->getClient()
+            ->createRequest(
+                'POST',
+                $_ENV['SEGMENT_API_URL'] . "/v0/upload/$syncId",
+                [
+                    'headers' => [
+                        'Content-Type' => 'binary/octet-stream',
+                        'Content-Encoding' => 'gzip',
+                    ],
+                ]
+            );
+
+        /** @var \GuzzleHttp\Post\PostBody $body */
+        $body = $request->getBody();
+        $body->addFile(
+            new PostFile(
+                'file',
+                $compressedData,
+                time() . '.gz',
+                [
+                    'Content-Type' => 'binary/octet-stream',
+                    'Content-Encoding' => 'gzip',
+                ]
+            )
+        );
+
+        try {
+            $response = $this->getClient()->send($request);
+        } catch (\Exception $e) {
+            $response = false;
+        }
+
+        $responseHandler = new ResponseApiHandler();
+        return $responseHandler->handleResponse($response);
+
+//        return $this->post([
+//            'headers' => [
+//                'Content-Type' => 'binary/octet-stream',
+//                'Content-Encoding' => 'gzip',
+//            ],
+//            'multipart' => [
+//                [
+//                    'name'     => 'file',
+//                    'contents' => $compressedData,
+//                ]
+//            ],
+//        ]);
     }
 
     /**
