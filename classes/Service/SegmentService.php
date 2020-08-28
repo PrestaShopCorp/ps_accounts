@@ -38,7 +38,7 @@ class SegmentService
      * @param string $syncId
      * @param array $data
      *
-     * @return array|bool
+     * @return array|false
      */
     public function upload($syncId, $data)
     {

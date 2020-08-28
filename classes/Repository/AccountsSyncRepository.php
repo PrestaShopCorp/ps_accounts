@@ -61,7 +61,7 @@ class AccountsSyncRepository
     }
 
     /**
-     * @param $jobId
+     * @param string $jobId
      *
      * @return array|bool|false|object|null
      */

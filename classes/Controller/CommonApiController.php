@@ -73,6 +73,7 @@ class CommonApiController extends ModuleFrontController
      * @param string|null $method
      *
      * @throws PrestaShopException
+     *
      * @return void
      */
     public function ajaxDie($value = null, $controller = null, $method = null)

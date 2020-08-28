@@ -23,6 +23,8 @@ class CurrencyRepository
      */
     public function getDefaultCurrencyIsoCode()
     {
-        return Currency::getDefaultCurrency()->iso_code;
+        $currency = Currency::getDefaultCurrency();
+
+        return $currency instanceof Currency ? $currency->iso_code : '';
     }
 }

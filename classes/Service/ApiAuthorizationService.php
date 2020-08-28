@@ -20,6 +20,7 @@ class ApiAuthorizationService
      * Authorizes if the call to endpoint is legit and creates sync state if needed
      *
      * @param string $jobId
+     *
      * @return bool
      *
      * @throws \PrestaShopDatabaseException
@@ -33,10 +34,6 @@ class ApiAuthorizationService
         }
 
         //TODO: HERE WE CHECK WITH ACCOUNTS API IF JOB IS LEGIT
-        if (true) {
-            return $this->accountsSyncStateRepository->insertSync($jobId, date(DATE_ATOM));
-        }
-
-        return false;
+        return $this->accountsSyncStateRepository->insertSync($jobId, date(DATE_ATOM));
     }
 }

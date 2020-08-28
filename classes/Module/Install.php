@@ -85,16 +85,22 @@ class Install
 
         if (!file_exists($dbInstallFile)) {
             return false;
-        } elseif (!$sql = Tools::file_get_contents($dbInstallFile)) {
+        }
+
+        $sql = Tools::file_get_contents($dbInstallFile);
+
+        if (empty($sql) || !is_string($sql)) {
             return false;
         }
 
         $sql = str_replace(['PREFIX_', 'ENGINE_TYPE'], [_DB_PREFIX_, _MYSQL_ENGINE_], $sql);
         $sql = preg_split("/;\s*[\r\n]+/", trim($sql));
 
-        foreach ($sql as $query) {
-            if (!$this->db->execute($query)) {
-                return false;
+        if (!empty($sql)) {
+            foreach ($sql as $query) {
+                if (!$this->db->execute($query)) {
+                    return false;
+                }
             }
         }
 
