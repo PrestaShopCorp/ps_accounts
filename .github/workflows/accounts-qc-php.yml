@@ -60,5 +60,7 @@ jobs:
       uses: actions/checkout@v1
     - name: composer install missing files
       run: composer install
-    - name: Run phpunit
-      uses: pxgamer/phpunit-action@master
+    - name: PHPUnit tests
+      uses: php-actions/phpunit@v5
+      with:
+        config: ./phpunit.xml
