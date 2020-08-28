@@ -69,55 +69,23 @@ class SegmentClient extends GenericClient
      */
     public function upload($syncId, $compressedData)
     {
-        $this->setRoute($_ENV['SEGMENT_API_URL'] . "/v0/upload/$syncId");
+        $this->setRoute($_ENV['SEGMENT_PROXY_API_URL'] . "/v0/upload/$syncId");
 
-        $request = $this->getClient()
-            ->createRequest(
-                'POST',
-                $_ENV['SEGMENT_API_URL'] . "/v0/upload/$syncId",
-                [
-                    'headers' => [
-                        'Content-Type' => 'binary/octet-stream',
-                        'Content-Encoding' => 'gzip',
-                    ],
-                ]
-            );
-
-        /** @var \GuzzleHttp\Post\PostBody $body */
-        $body = $request->getBody();
-        $body->addFile(
-            new PostFile(
-                'file',
-                $compressedData,
-                time() . '.gz',
-                [
-                    'Content-Type' => 'binary/octet-stream',
-                    'Content-Encoding' => 'gzip',
-                ]
-            )
+        $file = new PostFile(
+            'file',
+            $compressedData,
+            'file.gz'
         );
 
-        try {
-            $response = $this->getClient()->send($request);
-        } catch (\Exception $e) {
-            $response = false;
-        }
-
-        $responseHandler = new ResponseApiHandler();
-        return $responseHandler->handleResponse($response);
-
-//        return $this->post([
-//            'headers' => [
-//                'Content-Type' => 'binary/octet-stream',
-//                'Content-Encoding' => 'gzip',
-//            ],
-//            'multipart' => [
-//                [
-//                    'name'     => 'file',
-//                    'contents' => $compressedData,
-//                ]
-//            ],
-//        ]);
+        return $this->post([
+            'headers' => [
+                'Content-Type' => 'binary/octet-stream',
+                'Content-Encoding' => 'gzip',
+            ],
+            'body' => [
+                'file' => $file
+            ],
+        ]);
     }
 
     /**
