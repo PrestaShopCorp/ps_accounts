@@ -6,6 +6,9 @@ use Currency;
 
 class CurrencyRepository
 {
+    /**
+     * @return array
+     */
     public function getCurrenciesIsoCodes()
     {
         $currencies = Currency::getCurrencies();
@@ -15,6 +18,9 @@ class CurrencyRepository
         }, $currencies);
     }
 
+    /**
+     * @return string
+     */
     public function getDefaultCurrencyIsoCode()
     {
         return Currency::getDefaultCurrency()->iso_code;

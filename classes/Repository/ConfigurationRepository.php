@@ -9,7 +9,7 @@ class ConfigurationRepository
     /**
      * We wrap Configuration::get function in here to be able to mock static functions
      *
-     * @param $key
+     * @param string $key
      *
      * @return bool|string
      */

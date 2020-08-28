@@ -25,7 +25,7 @@ class SegmentService
     }
 
     /**
-     * @param $syncId
+     * @param string $syncId
      *
      * @return array
      */
@@ -35,8 +35,8 @@ class SegmentService
     }
 
     /**
-     * @param $syncId
-     * @param $data
+     * @param string $syncId
+     * @param array $data
      *
      * @return array|bool
      */

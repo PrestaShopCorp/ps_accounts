@@ -12,6 +12,11 @@ class ps_AccountsApiInfoModuleFrontController extends CommonApiController
 {
     public $type = 'info';
 
+    /**
+     * @throws PrestaShopException
+     *
+     * @return void
+     */
     public function postProcess()
     {
         if (!$syncId = Tools::getValue('sync_id')) {

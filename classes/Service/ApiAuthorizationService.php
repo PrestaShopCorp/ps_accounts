@@ -20,9 +20,6 @@ class ApiAuthorizationService
      * Authorizes if the call to endpoint is legit and creates sync state if needed
      *
      * @param string $jobId
-     * @param int $offset
-     * @param string $type
-     *
      * @return bool
      *
      * @throws \PrestaShopDatabaseException

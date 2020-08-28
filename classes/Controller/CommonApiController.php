@@ -68,11 +68,12 @@ class CommonApiController extends ModuleFrontController
     }
 
     /**
-     * @param null|array $value
-     * @param null|string $controller
-     * @param null|string $method
+     * @param array|null $value
+     * @param string|null $controller
+     * @param string|null $method
      *
      * @throws PrestaShopException
+     * @return void
      */
     public function ajaxDie($value = null, $controller = null, $method = null)
     {
@@ -88,6 +89,9 @@ class CommonApiController extends ModuleFrontController
         exit;
     }
 
+    /**
+     * @return void
+     */
     public function exitWithUnauthorizedStatus()
     {
         header('HTTP/1.1 401 Unauthorized');

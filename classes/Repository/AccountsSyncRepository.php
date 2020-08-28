@@ -21,9 +21,9 @@ class AccountsSyncRepository
     }
 
     /**
-     * @param $type
-     * @param $offset
-     * @param $lastSyncDate
+     * @param string $type
+     * @param int $offset
+     * @param string $lastSyncDate
      *
      * @return bool
      *
@@ -42,8 +42,8 @@ class AccountsSyncRepository
     }
 
     /**
-     * @param $jobId
-     * @param $date
+     * @param string $jobId
+     * @param string $date
      *
      * @return bool
      *
@@ -76,7 +76,7 @@ class AccountsSyncRepository
     }
 
     /**
-     * @param $type
+     * @param string $type
      *
      * @return array|bool|false|object|null
      */

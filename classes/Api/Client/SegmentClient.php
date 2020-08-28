@@ -24,7 +24,6 @@ use GuzzleHttp\Client;
 use GuzzleHttp\Post\PostFile;
 use Link;
 use PrestaShop\AccountsAuth\Api\GenericClient;
-use PrestaShop\AccountsAuth\Handler\Response\ResponseApiHandler;
 use PrestaShop\AccountsAuth\Service\PsAccountsService;
 use PrestaShop\Module\PsAccounts\Exception\FirebaseException;
 
@@ -53,7 +52,7 @@ class SegmentClient extends GenericClient
                     'exceptions' => $this->catchExceptions,
                     'headers' => [
                         'Authorization' => "Bearer $token",
-                    ]
+                    ],
                 ],
             ]);
         }
@@ -61,10 +60,10 @@ class SegmentClient extends GenericClient
         $this->setClient($client);
     }
 
-
     /**
      * @param string $syncId
      * @param string $compressedData
+     *
      * @return array
      */
     public function upload($syncId, $compressedData)
@@ -83,7 +82,7 @@ class SegmentClient extends GenericClient
                 'Content-Encoding' => 'gzip',
             ],
             'body' => [
-                'file' => $file
+                'file' => $file,
             ],
         ]);
     }

@@ -60,6 +60,9 @@ class Uninstall
         return true;
     }
 
+    /**
+     * @return bool
+     */
     public function uninstallDatabaseTables()
     {
         $dbUninstallFile = "{$this->module->getLocalPath()}/sql/uninstall.sql";

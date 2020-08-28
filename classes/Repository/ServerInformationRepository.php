@@ -27,6 +27,9 @@ class ServerInformationRepository
         $this->configurationRepository = $configurationRepository;
     }
 
+    /**
+     * @return array
+     */
     public function getServerInformation()
     {
         return [

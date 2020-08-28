@@ -7,8 +7,8 @@ class CompressionService
     /**
      * Creates a gzip compressed file with passed data
      *
-     * @param $data
-     * @param $filePath
+     * @param array $data
+     * @param string $filePath
      *
      * @return bool
      */
@@ -30,7 +30,7 @@ class CompressionService
     /**
      * Compresses data with gzip
      *
-     * @param $data
+     * @param array $data
      *
      * @return string
      */
