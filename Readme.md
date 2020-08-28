@@ -183,3 +183,18 @@ docker run -tid --rm -v ps-volume:/var/www/html --name temp-ps prestashop/presta
 
 docker run --rm --volumes-from temp-ps -v $PWD:/web/module -e _PS_ROOT_DIR_=/var/www/html --workdir=/web/module phpstan/phpstan:0.12 analyse --configuration=/web/module/tests/phpstan/phpstan-PS-1.7.neon
 ```
+## Firebase JWT tokens
+
+To get Firebase ID and Refresh tokens you will need to make an API call to firebase
+
+```text
+https://identitytoolkit.googleapis.com/v1/accounts:signInWithPassword?key={{ssofirebaseApiKey}}
+
+body : {
+	"email": "{{email}}",
+	"password": "{{userPassword}}",
+	"returnSecureToken":true
+}
+```
+
+These tokens need to be inserted into PrestaShop configuration table with 'PS_PSX_FIREBASE_ID_TOKEN' and 'PS_PSX_FIREBASE_REFRESH_TOKEN' names
