@@ -2,6 +2,8 @@
 
 namespace PrestaShop\Module\PsAccounts\Service;
 
+use Exception;
+
 class CompressionService
 {
     /**
@@ -9,14 +11,15 @@ class CompressionService
      *
      * @param array $data
      *
-     * @return string|false
+     * @return string
+     * @throws Exception
      */
     public function gzipCompressData($data)
     {
-        $dataJson = json_encode($data);
-
-        if (!$dataJson || !extension_loaded('zlib')) {
-            return false;
+        if (!extension_loaded('zlib')) {
+            throw new Exception('Zlib extension for PHP is not enabled');
+        } elseif (!$dataJson = json_encode($data)) {
+            throw new Exception('Failed to encode data to JSON');
         }
 
         return gzencode($dataJson);

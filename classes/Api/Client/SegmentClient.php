@@ -46,7 +46,7 @@ class SegmentClient extends GenericClient
 
         if (null === $client) {
             $client = new Client([
-                'base_url' => $_ENV['SEGMENT_API_URL'],
+                'base_url' => $_ENV['SEGMENT_PROXY_API_URL'],
                 'defaults' => [
                     'timeout' => 60,
                     'exceptions' => $this->catchExceptions,

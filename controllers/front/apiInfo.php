@@ -33,14 +33,8 @@ class ps_AccountsApiInfoModuleFrontController extends CommonApiController
 
         $response = $this->segmentService->upload($syncId, $serverInfo);
 
-        if (!$response || $response['httpCode'] != 201) {
-            $this->exitWithErrorStatus();
-        }
-
         $this->ajaxDie(
-            [
-                'remaining_objects' => 0,
-            ]
+            array_merge(['remaining_objects' => '0'], $response)
         );
     }
 }

@@ -33,7 +33,7 @@ class ServerInformationRepository
     public function getServerInformation()
     {
         return [
-            'id' => 1,
+            'id' => '1',
             'collection' => 'shops',
             'properties' => [
                 'timestamp' => time(),

@@ -2,6 +2,7 @@
 
 namespace PrestaShop\Module\PsAccounts\Service;
 
+use Exception;
 use GuzzleHttp\Exception\ClientException;
 use PrestaShop\Module\PsAccounts\Api\Client\SegmentClient;
 
@@ -38,18 +39,20 @@ class SegmentService
      * @param string $syncId
      * @param array $data
      *
-     * @return array|false
+     * @return array
      */
     public function upload($syncId, $data)
     {
-        if (!$compressedData = $this->compressionService->gzipCompressData($data)) {
-            return false;
+        try {
+            $compressedData = $this->compressionService->gzipCompressData($data);
+        } catch (Exception $exception) {
+            return ['error' => $exception->getMessage()];
         }
 
         try {
             $response = $this->segmentClient->upload($syncId, $compressedData);
         } catch (ClientException $exception) {
-            return false;
+            return ['error' => $exception->getMessage()];
         }
 
         return $response;
