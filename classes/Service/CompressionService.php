@@ -12,6 +12,7 @@ class CompressionService
      * @param array $data
      *
      * @return string
+     *
      * @throws Exception
      */
     public function gzipCompressData($data)
@@ -19,9 +20,11 @@ class CompressionService
         if (!extension_loaded('zlib')) {
             throw new Exception('Zlib extension for PHP is not enabled');
         } elseif (!$dataJson = json_encode($data)) {
-            throw new Exception('Failed to encode data to JSON');
+            throw new Exception('Failed encoding data to JSON');
+        } elseif (!$encodedData = gzencode($dataJson)) {
+            throw new Exception('Failed encoding data to GZIP');
         }
 
-        return gzencode($dataJson);
+        return $encodedData;
     }
 }
