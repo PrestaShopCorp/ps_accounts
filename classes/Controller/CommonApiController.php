@@ -29,6 +29,10 @@ class CommonApiController extends ModuleFrontController
      * @var SegmentService
      */
     protected $segmentService;
+    /**
+     * @var AccountsSyncRepository
+     */
+    protected $accountsSyncRepository;
 
     public function __construct()
     {
@@ -44,6 +48,7 @@ class CommonApiController extends ModuleFrontController
             )
         );
         $this->authorizationService = new ApiAuthorizationService(new AccountsSyncRepository($db));
+        $this->accountsSyncRepository = new AccountsSyncRepository(Db::getInstance());
     }
 
     /**

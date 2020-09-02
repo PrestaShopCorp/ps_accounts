@@ -20,16 +20,15 @@ class ps_AccountsApiModulesModuleFrontController extends CommonApiController
         }
 
         $moduleRepository = new ModuleRepository(Db::getInstance());
-        $accountsSyncRepository = new AccountsSyncRepository(Db::getInstance());
 
         $limit = (int) Tools::getValue('limit', 50);
         $dateNow = (new DateTime())->format(DateTime::ATOM);
         $offset = 0;
 
-        if ($typeSync = $accountsSyncRepository->findTypeSync($this->type) !== false) {
+        if ($typeSync = $this->accountsSyncRepository->findTypeSync($this->type) !== false) {
             $offset = (int) $typeSync['offset'];
         } else {
-            $accountsSyncRepository->insertTypeSync($this->type, 0, $dateNow);
+            $this->accountsSyncRepository->insertTypeSync($this->type, 0, $dateNow);
         }
 
         $moduleInfo = $moduleRepository->getFormattedModulesData($offset, $limit);
@@ -47,7 +46,7 @@ class ps_AccountsApiModulesModuleFrontController extends CommonApiController
             $offset = 0;
         }
 
-        $accountsSyncRepository->updateTypeSync($this->type, $offset, $dateNow);
+        $this->accountsSyncRepository->updateTypeSync($this->type, $offset, $dateNow);
 
         $this->ajaxDie(
             array_merge(
@@ -57,8 +56,8 @@ class ps_AccountsApiModulesModuleFrontController extends CommonApiController
                     'object_type' => $this->type,
                     'has_remaining_objects' => $remainingObjects > 0,
                     'remaining_objects' => $remainingObjects,
-                ]
-                , $response
+                ],
+                $response
             )
         );
     }
