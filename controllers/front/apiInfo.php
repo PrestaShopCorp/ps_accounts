@@ -6,11 +6,9 @@ use PrestaShop\Module\PsAccounts\Repository\CurrencyRepository;
 use PrestaShop\Module\PsAccounts\Repository\LanguageRepository;
 use PrestaShop\Module\PsAccounts\Repository\ServerInformationRepository;
 
-require_once __DIR__ . '/../../vendor/autoload.php';
-
 class ps_AccountsApiInfoModuleFrontController extends CommonApiController
 {
-    public $type = 'info';
+    public $type = 'shops';
 
     /**
      * @throws PrestaShopException

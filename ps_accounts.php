@@ -119,6 +119,8 @@ class Ps_accounts extends Module
 
         parent::__construct();
 
+        require_once __DIR__ . '/../../vendor/autoload.php';
+
         $this->displayName = $this->l('PrestaShop Account');
         $this->description = $this->l('Link your PrestaShop account to your online shop to activate & manage services on your back-office. Don\'t uninstall this module if you are already using a service, as it will prevent it from working.');
         $this->confirmUninstall = $this->l('This action will prevent immediately your PrestaShop services and Community services from working as they are using PrestaShop Accounts module for authentication.');
