@@ -86,16 +86,4 @@ class SegmentClient extends GenericClient
             ],
         ]);
     }
-
-    /**
-     * @param string $syncId
-     *
-     * @return array
-     */
-    public function finish($syncId)
-    {
-        $this->setRoute($_ENV['SEGMENT_API_URL'] . "/v0/finish/$syncId");
-
-        return $this->post();
-    }
 }

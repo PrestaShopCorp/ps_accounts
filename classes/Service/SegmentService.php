@@ -27,16 +27,6 @@ class SegmentService
 
     /**
      * @param string $syncId
-     *
-     * @return array
-     */
-    public function finishExport($syncId)
-    {
-        return $this->segmentClient->finish($syncId);
-    }
-
-    /**
-     * @param string $syncId
      * @param array $data
      *
      * @return array
