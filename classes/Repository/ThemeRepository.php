@@ -60,7 +60,7 @@ class ThemeRepository
                     'properties' => [
                         'name' => $themeInfo['theme_name'],
                         'version' => $themeInfo['theme_version'],
-                        'active' => (int) $themeObj->isUsed() > 0,
+                        'active' => $this->context->theme->id == $themeInfo['theme_id'],
                     ]
                 ];
             }, $themes);
