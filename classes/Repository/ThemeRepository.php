@@ -5,6 +5,7 @@ namespace PrestaShop\Module\PsAccounts\Repository;
 use Context;
 use Db;
 use PrestaShop\PrestaShop\Core\Addon\Theme\ThemeManagerBuilder;
+use Theme;
 
 class ThemeRepository
 {
@@ -27,7 +28,7 @@ class ThemeRepository
      * @return array|mixed|null
      */
     public function getThemes() {
-        if (version_compare(_PS_VERSION_, '1.6', '>')) {
+        if (version_compare(_PS_VERSION_, '1.7', '>')) {
             $themeRepository = (new ThemeManagerBuilder($this->context, $this->db))
                 ->buildRepository($this->context->shop);
 
@@ -48,7 +49,21 @@ class ThemeRepository
                 ];
             }, $themes);
         } else {
-            return [];
+            $themes = Theme::getAvailable();
+
+            return array_map(function ($theme) {
+                $themeObj = Theme::getByDirectory($theme);
+                $themeInfo = Theme::getThemeInfo($themeObj->id);
+                return [
+                    'id' => (string) $themeInfo['theme_id'],
+                    'collection' => 'themes',
+                    'properties' => [
+                        'name' => $themeInfo['theme_name'],
+                        'version' => $themeInfo['theme_version'],
+                        'active' => (int) $themeObj->isUsed() > 0,
+                    ]
+                ];
+            }, $themes);
         }
     }
 
