@@ -4,6 +4,7 @@ namespace PrestaShop\Module\PsAccounts\Controller;
 
 use Db;
 use ModuleFrontController;
+use PrestaShop\Module\PsAccounts\Api\Client\EventBusSyncClient;
 use PrestaShop\Module\PsAccounts\Api\Client\SegmentClient;
 use PrestaShop\Module\PsAccounts\Repository\AccountsSyncRepository;
 use PrestaShop\Module\PsAccounts\Service\ApiAuthorizationService;
@@ -40,7 +41,10 @@ class CommonApiController extends ModuleFrontController
             new SegmentClient($this->context->link),
             new CompressionService()
         );
-        $this->authorizationService = new ApiAuthorizationService(new AccountsSyncRepository($db));
+        $this->authorizationService = new ApiAuthorizationService(
+            new AccountsSyncRepository($db),
+            new EventBusSyncClient($this->context->link)
+        );
     }
 
     /**
