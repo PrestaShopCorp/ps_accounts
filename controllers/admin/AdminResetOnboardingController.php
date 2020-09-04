@@ -54,6 +54,8 @@ class AdminResetOnboardingController extends ModuleAdminController
 
     /**
      * @return void
+     *
+     * @throws Exception
      */
     public function initContent()
     {
@@ -67,11 +69,6 @@ class AdminResetOnboardingController extends ModuleAdminController
                 $this->configuration->updateAccountsRsaSignData('');
                 $this->configuration->updateFirebaseIdAndRefreshTokens('', '');
                 $this->configuration->updateFirebaseLocalId('');
-
-                //Configuration::updateValue('PS_PSX_FIREBASE_REFRESH_DATE', null, false, null, (int) $shopId);
-                //Configuration::updateValue('PS_PSX_FIREBASE_ADMIN_TOKEN', null, false, null, (int) $shopId);
-                //Configuration::updateValue('PS_PSX_FIREBASE_LOCK', null, false, null, (int) $shopId);
-
                 $this->configuration->updateFirebaseEmail('');
                 $this->configuration->updateFirebaseEmailIsVerified(false);
                 $this->configuration->updateShopUuid('');
