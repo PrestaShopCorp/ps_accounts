@@ -11,12 +11,10 @@ class JsonFormatter
      */
     public function formatNewlineJsonString($data)
     {
-        $json = '';
-
-        array_map(function ($dataItem) use (&$json) {
-            $json .= json_encode($dataItem) . "\r\n";
+        $jsonArray = array_map(function ($dataItem) {
+            return json_encode($dataItem);
         }, $data);
 
-        return $json;
+        return implode("\r\n", $jsonArray);
     }
 }

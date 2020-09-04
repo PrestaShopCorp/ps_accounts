@@ -53,19 +53,33 @@ class ThemeRepository
         } else {
             $themes = Theme::getAvailable();
 
-            return array_map(function ($theme) {
+            return array_map(function ($theme) use (&$key) {
+                $key += 1;
                 $themeObj = Theme::getByDirectory($theme);
-                $themeInfo = Theme::getThemeInfo($themeObj->id);
 
-                return [
-                    'id' => (string) $themeInfo['theme_id'],
+                $themeData = [
+                    'id' => (string) $key,
                     'collection' => 'themes',
-                    'properties' => [
+                    'properties' => []
+                ];
+
+                if ($themeObj instanceof Theme) {
+                    $themeInfo = Theme::getThemeInfo($themeObj->id);
+
+                    $themeData['properties'] = [
                         'name' => $themeInfo['theme_name'],
                         'version' => $themeInfo['theme_version'],
                         'active' => $this->context->theme->id == $themeInfo['theme_id'],
-                    ],
-                ];
+                    ];
+                } else {
+                    $themeData['properties'] = [
+                        'name' => $theme,
+                        'version' => '',
+                        'active' => false
+                    ];
+                }
+
+                return $themeData;
             }, $themes);
         }
     }
