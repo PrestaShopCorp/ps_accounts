@@ -54,13 +54,13 @@ class ThemeRepository
             $themes = Theme::getAvailable();
 
             return array_map(function ($theme) use (&$key) {
-                $key += 1;
+                ++$key;
                 $themeObj = Theme::getByDirectory($theme);
 
                 $themeData = [
                     'id' => (string) $key,
                     'collection' => 'themes',
-                    'properties' => []
+                    'properties' => [],
                 ];
 
                 if ($themeObj instanceof Theme) {
@@ -75,7 +75,7 @@ class ThemeRepository
                     $themeData['properties'] = [
                         'name' => $theme,
                         'version' => '',
-                        'active' => false
+                        'active' => false,
                     ];
                 }
 

@@ -78,7 +78,7 @@ class AccountsSyncRepository
     /**
      * @param string $type
      *
-     * @return array|bool|false|object|null
+     * @return array|bool|object|null
      */
     public function findTypeSync($type)
     {

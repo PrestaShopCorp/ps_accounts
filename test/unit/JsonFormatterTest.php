@@ -20,7 +20,7 @@ class JsonFormatterTest extends TestCase
     public function testFormatNewlineJsonString()
     {
         $data = [
-            ['test' => 'data']
+            ['test' => 'data'],
         ];
 
         $this->assertTrue(is_string($this->jsonFormatter->formatNewlineJsonString($data)));

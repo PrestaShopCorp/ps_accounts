@@ -95,10 +95,10 @@ abstract class AbstractApiController extends ModuleFrontController
         $dateNow = (new DateTime())->format(DateTime::ATOM);
         $offset = 0;
 
-        if ($typeSync = $this->accountsSyncRepository->findTypeSync($this->type) !== false) {
-            if (is_array($typeSync)) {
-                $offset = (int) $typeSync['offset'];
-            }
+        $typeSync = $this->accountsSyncRepository->findTypeSync($this->type);
+
+        if ($typeSync !== false && is_array($typeSync)) {
+            $offset = (int) $typeSync['offset'];
         } else {
             $this->accountsSyncRepository->insertTypeSync($this->type, 0, $dateNow);
         }
