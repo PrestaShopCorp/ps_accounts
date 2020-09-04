@@ -5,10 +5,9 @@ namespace PrestaShop\Module\PsAccounts\Repository;
 use Db;
 use DbQuery;
 
-class ModuleRepository
+class ModuleRepository implements PaginatedApiRepositoryInterface
 {
     const MODULE_TABLE_NAME = 'module';
-    const MODULE_HISTORY_TABLE_NAME = 'module_history';
 
     /**
      * @var Db
@@ -27,7 +26,7 @@ class ModuleRepository
      * @return array[]
      * @throws \PrestaShopDatabaseException
      */
-    public function getFormattedModulesData($offset, $limit)
+    public function getFormattedData($offset, $limit)
     {
         $modules = $this->getModules($offset, $limit);
 
@@ -67,7 +66,7 @@ class ModuleRepository
      *
      * @return int
      */
-    public function getRemainingModuleCount($offset)
+    public function getRemainingObjectsCount($offset)
     {
         $query = new DbQuery();
         $query->select('(COUNT(id_module) - ' . (int) $offset . ') as count')

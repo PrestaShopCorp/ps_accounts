@@ -1,9 +1,9 @@
 <?php
 
-use PrestaShop\Module\PsAccounts\Controller\CommonApiController;
+use PrestaShop\Module\PsAccounts\Controller\AbstractApiController;
 use PrestaShop\Module\PsAccounts\Repository\ThemeRepository;
 
-class ps_AccountsApiThemesModuleFrontController extends CommonApiController
+class ps_AccountsApiThemesModuleFrontController extends AbstractApiController
 {
     public $type = 'themes';
 

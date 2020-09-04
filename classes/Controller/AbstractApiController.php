@@ -2,18 +2,21 @@
 
 namespace PrestaShop\Module\PsAccounts\Controller;
 
+use DateTime;
 use Db;
 use ModuleFrontController;
 use PrestaShop\Module\PsAccounts\Api\Client\SegmentClient;
 use PrestaShop\Module\PsAccounts\Formatter\JsonFormatter;
 use PrestaShop\Module\PsAccounts\Repository\AccountsSyncRepository;
+use PrestaShop\Module\PsAccounts\Repository\PaginatedApiRepositoryInterface;
 use PrestaShop\Module\PsAccounts\Service\ApiAuthorizationService;
 use PrestaShop\Module\PsAccounts\Service\CompressionService;
 use PrestaShop\Module\PsAccounts\Service\SegmentService;
+use PrestaShopDatabaseException;
 use PrestaShopException;
 use Tools;
 
-class CommonApiController extends ModuleFrontController
+abstract class AbstractApiController extends ModuleFrontController
 {
     /**
      * Endpoint name
@@ -54,7 +57,7 @@ class CommonApiController extends ModuleFrontController
     /**
      * @return void
      *
-     * @throws \PrestaShopDatabaseException
+     * @throws PrestaShopDatabaseException
      */
     public function init()
     {
@@ -64,7 +67,7 @@ class CommonApiController extends ModuleFrontController
     /**
      * @return void
      *
-     * @throws \PrestaShopDatabaseException
+     * @throws PrestaShopDatabaseException
      */
     private function authorize()
     {
@@ -73,6 +76,56 @@ class CommonApiController extends ModuleFrontController
         if (!$jobId || !$this->authorizationService->authorizeCall($jobId)) {
             $this->exitWithUnauthorizedStatus();
         }
+    }
+
+    /**
+     * @param PaginatedApiRepositoryInterface $repository
+     * @return array
+     * @throws PrestaShopDatabaseException
+     */
+    protected function handleDataSync(PaginatedApiRepositoryInterface $repository)
+    {
+        if (!$syncId = Tools::getValue('sync_id')) {
+            $this->exitWithErrorStatus();
+        }
+
+        $limit = (int) Tools::getValue('limit', 50);
+        $dateNow = (new DateTime())->format(DateTime::ATOM);
+        $offset = 0;
+
+        if ($typeSync = $this->accountsSyncRepository->findTypeSync($this->type) !== false) {
+            $offset = (int) $typeSync['offset'];
+        } else {
+            $this->accountsSyncRepository->insertTypeSync($this->type, 0, $dateNow);
+        }
+
+        $data = $repository->getFormattedData($offset, $limit);
+
+        $response = $this->segmentService->upload($syncId, $data);
+
+        if ($response['httpCode'] == 201) {
+            $offset += $limit;
+        }
+
+        $remainingObjects = $repository->getRemainingObjectsCount($offset);
+
+        if ($remainingObjects <= 0) {
+            $remainingObjects = 0;
+            $offset = 0;
+        }
+
+        $this->accountsSyncRepository->updateTypeSync($this->type, $offset, $dateNow);
+
+        return array_merge(
+            [
+                'sync_id' => $syncId,
+                'total_objects' => count($data),
+                'object_type' => $this->type,
+                'has_remaining_objects' => $remainingObjects > 0,
+                'remaining_objects' => $remainingObjects,
+            ],
+            $response
+        );
     }
 
     /**

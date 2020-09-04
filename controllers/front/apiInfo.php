@@ -1,12 +1,12 @@
 <?php
 
-use PrestaShop\Module\PsAccounts\Controller\CommonApiController;
+use PrestaShop\Module\PsAccounts\Controller\AbstractApiController;
 use PrestaShop\Module\PsAccounts\Repository\ConfigurationRepository;
 use PrestaShop\Module\PsAccounts\Repository\CurrencyRepository;
 use PrestaShop\Module\PsAccounts\Repository\LanguageRepository;
 use PrestaShop\Module\PsAccounts\Repository\ServerInformationRepository;
 
-class ps_AccountsApiInfoModuleFrontController extends CommonApiController
+class ps_AccountsApiInfoModuleFrontController extends AbstractApiController
 {
     public $type = 'shops';
 
