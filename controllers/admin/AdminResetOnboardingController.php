@@ -62,19 +62,19 @@ class AdminResetOnboardingController extends ModuleAdminController
             if (self::PS_ACCOUNTS_TOKEN == Tools::getValue('psAccountsToken')) {
                 $return = true;
 
-                $this->configuration->updateAccountsRsaPrivateKey(null);
-                $this->configuration->updateAccountsRsaPublicKey(null);
-                $this->configuration->updateAccountsRsaSignData(null);
-                $this->configuration->updateFirebaseIdAndRefreshTokens(null, null);
-                $this->configuration->updateFirebaseLocalId(null);
+                $this->configuration->updateAccountsRsaPrivateKey('');
+                $this->configuration->updateAccountsRsaPublicKey('');
+                $this->configuration->updateAccountsRsaSignData('');
+                $this->configuration->updateFirebaseIdAndRefreshTokens('', '');
+                $this->configuration->updateFirebaseLocalId('');
 
                 //Configuration::updateValue('PS_PSX_FIREBASE_REFRESH_DATE', null, false, null, (int) $shopId);
                 //Configuration::updateValue('PS_PSX_FIREBASE_ADMIN_TOKEN', null, false, null, (int) $shopId);
                 //Configuration::updateValue('PS_PSX_FIREBASE_LOCK', null, false, null, (int) $shopId);
 
-                $this->configuration->updateFirebaseEmail(null);
+                $this->configuration->updateFirebaseEmail('');
                 $this->configuration->updateFirebaseEmailIsVerified(false);
-                $this->configuration->updateShopUuid(null);
+                $this->configuration->updateShopUuid('');
             }
 
             $this->ajaxDie(

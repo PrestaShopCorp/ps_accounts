@@ -23,7 +23,7 @@ namespace PrestaShop\Module\PsAccounts\Api\Client;
 use GuzzleHttp\Client;
 use GuzzleHttp\Post\PostFile;
 use Link;
-use PrestaShop\AccountsAuth\Api\GenericClient;
+use PrestaShop\AccountsAuth\Api\Client\GenericClient;
 use PrestaShop\AccountsAuth\Service\PsAccountsService;
 use PrestaShop\Module\PsAccounts\Exception\FirebaseException;
 
