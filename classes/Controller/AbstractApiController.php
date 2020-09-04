@@ -80,7 +80,9 @@ abstract class AbstractApiController extends ModuleFrontController
 
     /**
      * @param PaginatedApiRepositoryInterface $repository
+     *
      * @return array
+     *
      * @throws PrestaShopDatabaseException
      */
     protected function handleDataSync(PaginatedApiRepositoryInterface $repository)
@@ -94,7 +96,7 @@ abstract class AbstractApiController extends ModuleFrontController
         $offset = 0;
 
         if ($typeSync = $this->accountsSyncRepository->findTypeSync($this->type) !== false) {
-            $offset = (int) $typeSync['offset'];
+            $offset = is_array($typeSync) ? (int) $typeSync['offset'] : 0;
         } else {
             $this->accountsSyncRepository->insertTypeSync($this->type, 0, $dateNow);
         }

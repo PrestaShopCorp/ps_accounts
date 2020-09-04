@@ -24,6 +24,7 @@ class ModuleRepository implements PaginatedApiRepositoryInterface
      * @param int $limit
      *
      * @return array[]
+     *
      * @throws \PrestaShopDatabaseException
      */
     public function getFormattedData($offset, $limit)
