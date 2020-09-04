@@ -5,6 +5,7 @@ namespace PrestaShop\Module\PsAccounts\Controller;
 use DateTime;
 use Db;
 use ModuleFrontController;
+use PrestaShop\Module\PsAccounts\Api\Client\EventBusSyncClient;
 use PrestaShop\Module\PsAccounts\Api\Client\SegmentClient;
 use PrestaShop\Module\PsAccounts\Formatter\JsonFormatter;
 use PrestaShop\Module\PsAccounts\Repository\AccountsSyncRepository;
@@ -50,7 +51,10 @@ abstract class AbstractApiController extends ModuleFrontController
                 new JsonFormatter()
             )
         );
-        $this->authorizationService = new ApiAuthorizationService(new AccountsSyncRepository($db));
+        $this->authorizationService = new ApiAuthorizationService(
+            new AccountsSyncRepository($db),
+            new EventBusSyncClient($this->context->link)
+        );
         $this->accountsSyncRepository = new AccountsSyncRepository(Db::getInstance());
     }
 
