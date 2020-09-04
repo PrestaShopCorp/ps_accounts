@@ -83,7 +83,7 @@ class Ps_accounts extends Module
     /**
      * @var string
      */
-    const VERSION = '1.1.0';
+    const VERSION = '2.0.0';
 
     /**
      * @var string
@@ -114,14 +114,14 @@ class Ps_accounts extends Module
         $this->author = 'PrestaShop';
         $this->need_instance = 0;
         $this->bootstrap = true;
-        $this->version = '1.1.0';
+        $this->version = '2.0.0';
         $this->module_key = 'abf2cd758b4d629b2944d3922ef9db73';
 
         parent::__construct();
 
         $this->displayName = $this->l('PrestaShop Account');
         $this->description = $this->l('Link your PrestaShop account to your online shop to activate & manage services on your back-office. Don\'t uninstall this module if you are already using a service, as it will prevent it from working.');
-        $this->confirmUninstall = $this->l('This action will prevent immediatly your PrestaShop services and Community services from working as they are using PrestaShop Accounts module for authentication.');
+        $this->confirmUninstall = $this->l('This action will prevent immediately your PrestaShop services and Community services from working as they are using PrestaShop Accounts module for authentication.');
         $this->ps_versions_compliancy = ['min' => '1.6', 'max' => _PS_VERSION_];
         $this->adminControllers = [
             'hmac' => 'AdminConfigureHmacPsAccounts',
@@ -172,7 +172,10 @@ class Ps_accounts extends Module
             array_push($this->hookToInstall, 'displayBackOfficeHeader');
         }
 
-        return (new PrestaShop\Module\PsAccounts\Module\Install($this))->installInMenu()
+        $installer = new PrestaShop\Module\PsAccounts\Module\Install($this, Db::getInstance());
+
+        return $installer->installInMenu()
+            && $installer->installDatabaseTables()
             && parent::install()
             && $this->registerHook($this->hookToInstall);
     }
@@ -182,7 +185,10 @@ class Ps_accounts extends Module
      */
     public function uninstall()
     {
-        return (new PrestaShop\Module\PsAccounts\Module\Uninstall($this))->uninstallMenu()
+        $uninstaller = new PrestaShop\Module\PsAccounts\Module\Uninstall($this, Db::getInstance());
+
+        return $uninstaller->uninstallMenu()
+            && $uninstaller->uninstallDatabaseTables()
             && parent::uninstall();
     }
 
@@ -190,8 +196,8 @@ class Ps_accounts extends Module
      * Hook executed on every backoffice pages
      * Used in order to listen changes made to the AdminMeta controller
      *
-     * @deprecated since 1.7.6
      * @since 1.6
+     * @deprecated since 1.7.6
      *
      * @param array $params
      *
