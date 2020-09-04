@@ -42,6 +42,7 @@ class EventBusSyncClient extends GenericClient
 
         try {
             $response = $this->get();
+
             return $response['httpCode'] == 200;
         } catch (ConnectException $exception) {
             return false;
