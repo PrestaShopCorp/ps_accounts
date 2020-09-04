@@ -3,7 +3,7 @@
 namespace PrestaShop\Module\PsAccounts\Repository;
 
 use Db;
-use PrestaShop\PrestaShop\Adapter\Entity\DbQuery;
+use DbQuery;
 
 class ModuleRepository
 {
@@ -23,17 +23,23 @@ class ModuleRepository
     /**
      * @param int $offset
      * @param int $limit
+     *
      * @return array[]
+     * @throws \PrestaShopDatabaseException
      */
     public function getFormattedModulesData($offset, $limit)
     {
         $modules = $this->getModules($offset, $limit);
 
-        return array_map(function($key, $module) {
+        if (!is_array($modules)) {
+            return [];
+        }
+
+        return array_map(function ($key, $module) {
             return [
-                'id' => (string) ($key + 1),
+                'id' => (string) ((int) $key + 1),
                 'collection' => 'modules',
-                'properties' => $module
+                'properties' => $module,
             ];
         }, array_keys($modules), $modules);
     }
@@ -41,12 +47,14 @@ class ModuleRepository
     /**
      * @param int $offset
      * @param int $limit
+     *
      * @return array|bool|false|\mysqli_result|\PDOStatement|resource|null
+     *
      * @throws \PrestaShopDatabaseException
      */
     public function getModules($offset, $limit)
     {
-        $query = new DbQuery();
+        $query = new \DbQuery();
         $query->select('name, version, active')
             ->from(self::MODULE_TABLE_NAME, 'm')
             ->limit($limit, $offset);
@@ -56,6 +64,7 @@ class ModuleRepository
 
     /**
      * @param int $offset
+     *
      * @return int
      */
     public function getRemainingModuleCount($offset)

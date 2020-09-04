@@ -78,7 +78,7 @@ class AccountsSyncRepository
     /**
      * @param string $type
      *
-     * @return array|bool|false|object|null
+     * @return bool|array
      */
     public function findTypeSync($type)
     {
@@ -103,7 +103,7 @@ class AccountsSyncRepository
             self::TYPE_SYNC_TABLE_NAME,
             [
                 'offset' => $offset,
-                'last_sync_date' => $date
+                'last_sync_date' => $date,
             ],
             'type = "' . pSQL($type) . '"'
         );

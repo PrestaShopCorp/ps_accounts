@@ -1,7 +1,6 @@
 <?php
 
 use PrestaShop\Module\PsAccounts\Controller\CommonApiController;
-use PrestaShop\Module\PsAccounts\Repository\AccountsSyncRepository;
 use PrestaShop\Module\PsAccounts\Repository\ModuleRepository;
 
 class ps_AccountsApiModulesModuleFrontController extends CommonApiController
@@ -25,7 +24,7 @@ class ps_AccountsApiModulesModuleFrontController extends CommonApiController
         $dateNow = (new DateTime())->format(DateTime::ATOM);
         $offset = 0;
 
-        if ($typeSync = $this->accountsSyncRepository->findTypeSync($this->type) !== false) {
+        if ($typeSync = $this->accountsSyncRepository->findTypeSync($this->type) !== false)  {
             $offset = (int) $typeSync['offset'];
         } else {
             $this->accountsSyncRepository->insertTypeSync($this->type, 0, $dateNow);

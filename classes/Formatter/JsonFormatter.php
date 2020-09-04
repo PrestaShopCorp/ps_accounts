@@ -6,6 +6,7 @@ class JsonFormatter
 {
     /**
      * @param array $data
+     *
      * @return string
      */
     public function formatNewlineJsonString($data)

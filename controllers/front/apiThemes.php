@@ -1,10 +1,6 @@
 <?php
 
 use PrestaShop\Module\PsAccounts\Controller\CommonApiController;
-use PrestaShop\Module\PsAccounts\Repository\ConfigurationRepository;
-use PrestaShop\Module\PsAccounts\Repository\CurrencyRepository;
-use PrestaShop\Module\PsAccounts\Repository\LanguageRepository;
-use PrestaShop\Module\PsAccounts\Repository\ServerInformationRepository;
 use PrestaShop\Module\PsAccounts\Repository\ThemeRepository;
 
 class ps_AccountsApiThemesModuleFrontController extends CommonApiController

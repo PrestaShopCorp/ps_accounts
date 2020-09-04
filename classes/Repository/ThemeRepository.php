@@ -27,7 +27,8 @@ class ThemeRepository
     /**
      * @return array|mixed|null
      */
-    public function getThemes() {
+    public function getThemes()
+    {
         if (version_compare(_PS_VERSION_, '1.7', '>')) {
             $themeRepository = (new ThemeManagerBuilder($this->context, $this->db))
                 ->buildRepository($this->context->shop);
@@ -37,14 +38,15 @@ class ThemeRepository
             $key = 0;
 
             return array_map(function ($theme) use ($currentTheme, &$key) {
-                $key += 1;
+                ++$key;
+
                 return [
                     'id' => (string) $key,
                     'collection' => 'themes',
                     'properties' => [
                         'name' => $theme->getName(),
                         'version' => $theme->get('version'),
-                        'active' => $theme->getName() == $currentTheme->getName()
+                        'active' => $theme->getName() == $currentTheme->getName(),
                     ],
                 ];
             }, $themes);
@@ -54,6 +56,7 @@ class ThemeRepository
             return array_map(function ($theme) {
                 $themeObj = Theme::getByDirectory($theme);
                 $themeInfo = Theme::getThemeInfo($themeObj->id);
+
                 return [
                     'id' => (string) $themeInfo['theme_id'],
                     'collection' => 'themes',
@@ -61,10 +64,9 @@ class ThemeRepository
                         'name' => $themeInfo['theme_name'],
                         'version' => $themeInfo['theme_version'],
                         'active' => $this->context->theme->id == $themeInfo['theme_id'],
-                    ]
+                    ],
                 ];
             }, $themes);
         }
     }
-
 }
