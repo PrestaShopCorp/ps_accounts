@@ -17,8 +17,10 @@
  * @license   https://opensource.org/licenses/AFL-3.0 Academic Free License 3.0 (AFL-3.0)
  * International Registered Trademark & Property of PrestaShop SA
  */
-use PrestaShop\AccountsAuth\Handler\Error\ErrorHandler;
-use PrestaShop\AccountsAuth\Service\PsAccountsService;
+
+use PrestaShop\AccountsAuth\DependencyInjection\PsAccountsServiceProvider;
+use PrestaShop\AccountsAuth\Handler\ErrorHandler\ErrorHandler;
+use PrestaShop\AccountsAuth\Repository\ConfigurationRepository;
 use PrestaShop\Module\PsAccounts\Api\ServicesApi\Webhook;
 use PrestaShop\Module\PsAccounts\Exception\WebhookException;
 use PrestaShop\Module\PsAccounts\WebHook\Validator;
@@ -26,6 +28,23 @@ use PrestaShop\Module\PsAccounts\WebHook\Validator;
 class ps_accountsDispatchWebHookModuleFrontController extends FrontController
 {
     const PS_CHECKOUT_SHOP_UUID_V4 = 'PS_CHECKOUT_SHOP_UUID_V4';
+
+    /**
+     * @var ConfigurationRepository
+     */
+    private $configuration;
+
+    /**
+     * ps_accountsDispatchWebHookModuleFrontController constructor.
+     *
+     * @throws Exception
+     */
+    public function __construct()
+    {
+        parent::__construct();
+
+        $this->configuration = PsAccountsServiceProvider::getInstance()->get(ConfigurationRepository::class);
+    }
 
     /**
      * Id coming from PSL
@@ -52,6 +71,8 @@ class ps_accountsDispatchWebHookModuleFrontController extends FrontController
      * Initialize the webhook script
      *
      * @return void
+     *
+     * @throws Exception
      */
     public function display()
     {
@@ -80,6 +101,9 @@ class ps_accountsDispatchWebHookModuleFrontController extends FrontController
      * @param array $bodyValues
      *
      * @return array
+     *
+     * @throws WebhookException
+     * @throws ReflectionException
      */
     private function dispatchWebhook(array $headers, array $bodyValues)
     {
@@ -108,13 +132,14 @@ class ps_accountsDispatchWebHookModuleFrontController extends FrontController
      * @param array $body
      *
      * @return array
+     *
+     * @throws ReflectionException
      */
     private function receiveAccountsWebhook($headers, $body)
     {
-        $psAccountsService = new PsAccountsService();
         switch ($body['action']) {
             case 'EmailVerified':
-                Configuration::updateValue('PS_PSX_FIREBASE_EMAIL_IS_VERIFIED', true, false, null, (int) $psAccountsService->getCurrentShop()['id']);
+                $this->configuration->updateFirebaseEmailIsVerified(true);
 
                 return [
                     'status_code' => 200,
