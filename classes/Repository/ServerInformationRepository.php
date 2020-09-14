@@ -50,7 +50,7 @@ class ServerInformationRepository
                     'php_version' => phpversion(),
                     'http_server' => isset($_SERVER['SERVER_SOFTWARE']) ? $_SERVER['SERVER_SOFTWARE'] : '',
                 ],
-            ]
+            ],
         ];
     }
 }
