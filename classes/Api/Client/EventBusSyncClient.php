@@ -4,7 +4,7 @@ namespace PrestaShop\Module\PsAccounts\Api\Client;
 
 use GuzzleHttp\Client;
 use GuzzleHttp\Exception\ConnectException;
-use PrestaShop\AccountsAuth\Api\GenericClient;
+use PrestaShop\AccountsAuth\Api\Client\GenericClient;
 
 class EventBusSyncClient extends GenericClient
 {
