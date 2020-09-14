@@ -48,7 +48,7 @@ class ThemeRepository
                 ];
             }, array_keys($themes), $themes);
         } else {
-            $themes = Theme::getAvailable();
+            $themes = Theme::getAvailable(false);
 
             return array_map(function ($theme) {
                 $themeObj = Theme::getByDirectory($theme);
