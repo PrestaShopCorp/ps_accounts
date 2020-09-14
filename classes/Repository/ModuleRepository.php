@@ -7,7 +7,7 @@ use DbQuery;
 
 class ModuleRepository implements PaginatedApiRepositoryInterface
 {
-    const MODULE_TABLE_NAME = 'module';
+    const MODULE_TABLE = 'module';
 
     /**
      * @var Db
@@ -56,7 +56,7 @@ class ModuleRepository implements PaginatedApiRepositoryInterface
     {
         $query = new \DbQuery();
         $query->select('name, version, active')
-            ->from(self::MODULE_TABLE_NAME, 'm')
+            ->from(self::MODULE_TABLE, 'm')
             ->limit($limit, $offset);
 
         return $this->db->executeS($query);
@@ -71,7 +71,7 @@ class ModuleRepository implements PaginatedApiRepositoryInterface
     {
         $query = new DbQuery();
         $query->select('(COUNT(id_module) - ' . (int) $offset . ') as count')
-            ->from(self::MODULE_TABLE_NAME);
+            ->from(self::MODULE_TABLE);
 
         return (int) $this->db->getValue($query);
     }
