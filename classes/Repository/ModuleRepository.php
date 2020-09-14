@@ -35,13 +35,13 @@ class ModuleRepository implements PaginatedApiRepositoryInterface
             return [];
         }
 
-        return array_map(function ($key, $module) {
+        return array_map(function ($module) {
             return [
-                'id' => (string) ((int) $key + 1),
+                'id' => (string) $module['id_module'],
                 'collection' => 'modules',
                 'properties' => $module,
             ];
-        }, array_keys($modules), $modules);
+        }, $modules);
     }
 
     /**

@@ -35,30 +35,26 @@ class ThemeRepository
 
             $currentTheme = $this->context->shop->theme;
             $themes = $themeRepository->getList();
-            $key = 0;
 
-            return array_map(function ($theme) use ($currentTheme, &$key) {
-                ++$key;
-
+            return array_map(function ($key, $theme) use ($currentTheme) {
                 return [
-                    'id' => (string) $key,
+                    'id' => $key,
                     'collection' => 'themes',
                     'properties' => [
                         'name' => $theme->getName(),
                         'version' => $theme->get('version'),
-                        'active' => (int) $theme->getName() == $currentTheme->getName(),
+                        'active' => (int) ($theme->getName() == $currentTheme->getName()),
                     ],
                 ];
-            }, $themes);
+            }, array_keys($themes), $themes);
         } else {
             $themes = Theme::getAvailable();
 
-            return array_map(function ($theme) use (&$key) {
-                ++$key;
+            return array_map(function ($theme) {
                 $themeObj = Theme::getByDirectory($theme);
 
                 $themeData = [
-                    'id' => (string) $key,
+                    'id' => $theme,
                     'collection' => 'themes',
                     'properties' => [],
                 ];
@@ -69,7 +65,7 @@ class ThemeRepository
                     $themeData['properties'] = [
                         'name' => $themeInfo['theme_name'],
                         'version' => $themeInfo['theme_version'],
-                        'active' => (int) $this->context->theme->id == $themeInfo['theme_id'],
+                        'active' => (int) ($this->context->theme->id == $themeInfo['theme_id']),
                     ];
                 } else {
                     $themeData['properties'] = [
