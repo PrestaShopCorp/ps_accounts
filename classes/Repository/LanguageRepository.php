@@ -26,4 +26,13 @@ class LanguageRepository
     {
         return Language::getLanguage(Configuration::get('PS_LANG_DEFAULT'))['iso_code'];
     }
+
+    /**
+     * @param string $isoCode
+     * @return false|string|null
+     */
+    public function getLanguageIdByIsoCode($isoCode)
+    {
+        return Language::getIdByIso($isoCode);
+    }
 }
