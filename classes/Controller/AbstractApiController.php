@@ -9,7 +9,7 @@ use PrestaShop\Module\PsAccounts\Api\Client\EventBusSyncClient;
 use PrestaShop\Module\PsAccounts\Api\Client\SegmentClient;
 use PrestaShop\Module\PsAccounts\Formatter\JsonFormatter;
 use PrestaShop\Module\PsAccounts\Repository\AccountsSyncRepository;
-use PrestaShop\Module\PsAccounts\Repository\PaginatedApiRepositoryInterface;
+use PrestaShop\Module\PsAccounts\Repository\PaginatedApiDataProviderInterface;
 use PrestaShop\Module\PsAccounts\Service\ApiAuthorizationService;
 use PrestaShop\Module\PsAccounts\Service\CompressionService;
 use PrestaShop\Module\PsAccounts\Service\SegmentService;
@@ -83,13 +83,13 @@ abstract class AbstractApiController extends ModuleFrontController
     }
 
     /**
-     * @param PaginatedApiRepositoryInterface $repository
+     * @param PaginatedApiDataProviderInterface $repository
      *
      * @return array
      *
      * @throws PrestaShopDatabaseException
      */
-    protected function handleDataSync(PaginatedApiRepositoryInterface $repository)
+    protected function handleDataSync(PaginatedApiDataProviderInterface $repository)
     {
         if (!$jobId = Tools::getValue('job_id')) {
             $this->exitWithErrorStatus();
