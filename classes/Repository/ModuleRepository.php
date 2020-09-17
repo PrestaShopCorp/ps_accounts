@@ -36,8 +36,11 @@ class ModuleRepository implements PaginatedApiRepositoryInterface
         }
 
         return array_map(function ($module) {
+            $moduleId = (string) $module['id_module'];
+            unset($module['id_module']);
+
             return [
-                'id' => (string) $module['id_module'],
+                'id' => $moduleId,
                 'collection' => 'modules',
                 'properties' => $module,
             ];
@@ -55,7 +58,7 @@ class ModuleRepository implements PaginatedApiRepositoryInterface
     public function getModules($offset, $limit)
     {
         $query = new \DbQuery();
-        $query->select('name, version, active')
+        $query->select('id_module, name, version as module_version, active')
             ->from(self::MODULE_TABLE, 'm')
             ->limit($limit, $offset);
 

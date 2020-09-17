@@ -14,15 +14,13 @@ class ps_AccountsApiThemesModuleFrontController extends AbstractApiController
      */
     public function postProcess()
     {
-        if (!$syncId = Tools::getValue('sync_id')) {
-            $this->exitWithErrorStatus();
-        }
+        $jobId = Tools::getValue('job_id');
 
         $themeRepository = new ThemeRepository();
 
         $themeInfo = $themeRepository->getThemes();
 
-        $response = $this->segmentService->upload($syncId, $themeInfo);
+        $response = $this->segmentService->upload($jobId, $themeInfo);
 
         $this->ajaxDie(
             array_merge(['remaining_objects' => '0'], $response)

@@ -38,11 +38,11 @@ class ThemeRepository
 
             return array_map(function ($key, $theme) use ($currentTheme) {
                 return [
-                    'id' => $key,
+                    'id' => md5($key),
                     'collection' => 'themes',
                     'properties' => [
                         'name' => $theme->getName(),
-                        'version' => $theme->get('version'),
+                        'theme_version' => $theme->get('version'),
                         'active' => (int) ($theme->getName() == $currentTheme->getName()),
                     ],
                 ];
@@ -54,7 +54,7 @@ class ThemeRepository
                 $themeObj = Theme::getByDirectory($theme);
 
                 $themeData = [
-                    'id' => $theme,
+                    'id' => md5($theme),
                     'collection' => 'themes',
                     'properties' => [],
                 ];
@@ -64,13 +64,13 @@ class ThemeRepository
 
                     $themeData['properties'] = [
                         'name' => $themeInfo['theme_name'],
-                        'version' => $themeInfo['theme_version'],
+                        'theme_version' => $themeInfo['theme_version'],
                         'active' => (int) ($this->context->theme->id == $themeInfo['theme_id']),
                     ];
                 } else {
                     $themeData['properties'] = [
                         'name' => $theme,
-                        'version' => '',
+                        'theme_version' => '',
                         'active' => 0,
                     ];
                 }

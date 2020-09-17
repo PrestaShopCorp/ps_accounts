@@ -65,7 +65,7 @@ abstract class AbstractApiController extends ModuleFrontController
      */
     public function init()
     {
-        $this->authorize();
+//        $this->authorize();
     }
 
     /**
@@ -91,7 +91,7 @@ abstract class AbstractApiController extends ModuleFrontController
      */
     protected function handleDataSync(PaginatedApiRepositoryInterface $repository)
     {
-        if (!$syncId = Tools::getValue('sync_id')) {
+        if (!$jobId = Tools::getValue('job_id')) {
             $this->exitWithErrorStatus();
         }
 
@@ -109,7 +109,7 @@ abstract class AbstractApiController extends ModuleFrontController
 
         $data = $repository->getFormattedData($offset, $limit);
 
-        $response = $this->segmentService->upload($syncId, $data);
+        $response = $this->segmentService->upload($jobId, $data);
 
         if ($response['httpCode'] == 201) {
             $offset += $limit;
@@ -126,7 +126,7 @@ abstract class AbstractApiController extends ModuleFrontController
 
         return array_merge(
             [
-                'sync_id' => $syncId,
+                'sync_id' => $jobId,
                 'total_objects' => count($data),
                 'object_type' => $this->type,
                 'has_remaining_objects' => $remainingObjects > 0,

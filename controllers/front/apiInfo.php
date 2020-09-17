@@ -17,9 +17,7 @@ class ps_AccountsApiInfoModuleFrontController extends AbstractApiController
      */
     public function postProcess()
     {
-        if (!$syncId = Tools::getValue('sync_id')) {
-            $this->exitWithErrorStatus();
-        }
+        $jobId = Tools::getValue('job_id');
 
         $serverInformationRepository = new ServerInformationRepository(
             new CurrencyRepository(),
@@ -29,7 +27,7 @@ class ps_AccountsApiInfoModuleFrontController extends AbstractApiController
 
         $serverInfo = $serverInformationRepository->getServerInformation();
 
-        $response = $this->segmentService->upload($syncId, $serverInfo);
+        $response = $this->segmentService->upload($jobId, $serverInfo);
 
         $this->ajaxDie(
             array_merge(['remaining_objects' => '0'], $response)
