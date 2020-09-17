@@ -37,7 +37,7 @@ class ProductRepository implements PaginatedApiRepositoryInterface
             COALESCE(pa.reference, p.reference) as reference, COALESCE(pa.upc, p.upc) as upc,
             COALESCE(pa.ean13, p.ean13) as ean, COALESCE(pa.isbn, p.isbn) as isbn,
             ps.condition, ps.visibility, ps.active, sa.quantity, m.name as manufacturer,
-            (p.weight + COALESCE(pas.weight, 0)) as weight')
+            (p.weight + COALESCE(pas.weight, 0)) as weight, (ps.price + COALESCE(pas.price, 0)) as price_tax_excl, p.date_add, p.date_upd')
             ->from('product_shop', 'ps')
             ->leftJoin('product', 'p', 'ps.id_product = p.id_product')
             ->leftJoin('product_attribute_shop', 'pas', 'pas.id_product = ps.id_product AND ps.id_shop = ' . (int)$shopId)
