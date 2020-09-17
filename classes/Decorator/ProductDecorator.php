@@ -3,9 +3,9 @@
 namespace PrestaShop\Module\PsAccounts\Decorator;
 
 use Context;
-use Image;
 use PrestaShop\Module\PsAccounts\Formatter\ArrayFormatter;
 use PrestaShop\Module\PsAccounts\Repository\ConfigurationRepository;
+use PrestaShop\Module\PsAccounts\Repository\CurrencyRepository;
 use PrestaShop\Module\PsAccounts\Repository\ImageRepository;
 use PrestaShop\Module\PsAccounts\Repository\LanguageRepository;
 use PrestaShop\Module\PsAccounts\Repository\ProductRepository;
@@ -37,10 +37,15 @@ class ProductDecorator
      * @var ImageRepository
      */
     private $imageRepository;
+    /**
+     * @var CurrencyRepository
+     */
+    private $currencyRepository;
 
     public function __construct(
         Context $context,
         LanguageRepository $languageRepository,
+        CurrencyRepository $currencyRepository,
         ProductRepository $productRepository,
         ArrayFormatter $arrayFormatter,
         ConfigurationRepository $configurationRepository,
@@ -48,6 +53,7 @@ class ProductDecorator
     ) {
         $this->context = $context;
         $this->languageRepository = $languageRepository;
+        $this->currencyRepository = $currencyRepository;
         $this->productRepository = $productRepository;
         $this->arrayFormatter = $arrayFormatter;
         $this->configurationRepository = $configurationRepository;
@@ -63,20 +69,17 @@ class ProductDecorator
     {
         $weightUnit = $this->configurationRepository->get('PS_WEIGHT_UNIT');
 
-        foreach ($products as &$product) {
-            $productObject = new Product(
-                $product['id_product'],
-                false,
-                $this->languageRepository->getLanguageIdByIsoCode($product['iso_code']),
-                $this->context->shop->id,
-                $this->context
-            );
+        if (($employees = \Employee::getEmployees()) !== false) {
+            $this->context->employee = new \Employee($employees[0]['id_employee']);
+        }
 
+        foreach ($products as &$product) {
             $this->addLink($product);
             $this->addCoverImageLink($product);
             $this->addProductImageLinks($product);
             $this->addProductAttributes($product);
             $this->addProductFeatures($product);
+            $this->addProductPricesTaxIncluded($product);
             $this->formatProductWeight($product, $weightUnit);
         }
     }
@@ -145,7 +148,7 @@ class ProductDecorator
      * @param string $weightUnit
      * @return void
      */
-    private function formatProductWeight(&$product, $weightUnit)
+    private function formatProductWeight(array &$product, $weightUnit)
     {
         $product['weight'] = \Tools::ps_round((float) $product['weight'], 2) . " $weightUnit";
     }
@@ -154,7 +157,7 @@ class ProductDecorator
      * @param array $product
      * @return void
      */
-    private function addProductImageLinks(&$product)
+    private function addProductImageLinks(array &$product)
     {
         $product['images'] = $this->arrayFormatter->formatArray(
             array_map(function ($image) use ($product) {
@@ -166,5 +169,22 @@ class ProductDecorator
             )
             )
         );
+    }
+
+    /**
+     * @param array $product
+     */
+    private function addProductPricesTaxIncluded(array &$product)
+    {
+        $product['price_tax_incl'] = Product::getPriceStatic($product['id_product'], true, $product['id_attribute'], 6, null, false, false);
+        $product['sale_price_tax_excl'] = Product::getPriceStatic($product['id_product'], false, $product['id_attribute'], 6, null, false, true);
+        $product['sale_price_tax_incl'] = Product::getPriceStatic($product['id_product'], true, $product['id_attribute'], 6, null, false, true);
+    }
+
+    /**
+     * @param array $product
+     */
+    private function addCategoryTree(array &$product)
+    {
     }
 }
