@@ -4,12 +4,12 @@ namespace PrestaShop\Module\PsAccounts\Decorator;
 
 use Context;
 use PrestaShop\Module\PsAccounts\Formatter\ArrayFormatter;
+use PrestaShop\Module\PsAccounts\Repository\CategoryRepository;
 use PrestaShop\Module\PsAccounts\Repository\ConfigurationRepository;
 use PrestaShop\Module\PsAccounts\Repository\CurrencyRepository;
 use PrestaShop\Module\PsAccounts\Repository\ImageRepository;
 use PrestaShop\Module\PsAccounts\Repository\LanguageRepository;
 use PrestaShop\Module\PsAccounts\Repository\ProductRepository;
-use Product;
 
 class ProductDecorator
 {
@@ -41,6 +41,10 @@ class ProductDecorator
      * @var CurrencyRepository
      */
     private $currencyRepository;
+    /**
+     * @var CategoryRepository
+     */
+    private $categoryRepository;
 
     public function __construct(
         Context $context,
@@ -49,7 +53,8 @@ class ProductDecorator
         ProductRepository $productRepository,
         ArrayFormatter $arrayFormatter,
         ConfigurationRepository $configurationRepository,
-        ImageRepository $imageRepository
+        ImageRepository $imageRepository,
+        CategoryRepository $categoryRepository
     ) {
         $this->context = $context;
         $this->languageRepository = $languageRepository;
@@ -58,6 +63,7 @@ class ProductDecorator
         $this->arrayFormatter = $arrayFormatter;
         $this->configurationRepository = $configurationRepository;
         $this->imageRepository = $imageRepository;
+        $this->categoryRepository = $categoryRepository;
     }
 
     /**
@@ -67,20 +73,15 @@ class ProductDecorator
      */
     public function decorateProducts(array &$products)
     {
-        $weightUnit = $this->configurationRepository->get('PS_WEIGHT_UNIT');
-
-        if (($employees = \Employee::getEmployees()) !== false) {
-            $this->context->employee = new \Employee($employees[0]['id_employee']);
-        }
-
         foreach ($products as &$product) {
             $this->addLink($product);
             $this->addCoverImageLink($product);
             $this->addProductImageLinks($product);
             $this->addProductAttributes($product);
             $this->addProductFeatures($product);
-            $this->addProductPricesTaxIncluded($product);
-            $this->formatProductWeight($product, $weightUnit);
+            $this->addProductPrices($product);
+            $this->formatDescriptions($product);
+            $this->addCategoryTree($product);
         }
     }
 
@@ -134,6 +135,7 @@ class ProductDecorator
 
     /**
      * @param array $product
+     *
      * @return void
      */
     private function addProductFeatures(array &$product)
@@ -145,40 +147,43 @@ class ProductDecorator
 
     /**
      * @param array $product
-     * @param string $weightUnit
-     * @return void
-     */
-    private function formatProductWeight(array &$product, $weightUnit)
-    {
-        $product['weight'] = \Tools::ps_round((float) $product['weight'], 2) . " $weightUnit";
-    }
-
-    /**
-     * @param array $product
+     *
      * @return void
      */
     private function addProductImageLinks(array &$product)
     {
+        $images = $this->imageRepository->getProductImages(
+            $product['id_product'],
+            $product['id_attribute'],
+            $this->context->shop->id
+        );
+
         $product['images'] = $this->arrayFormatter->formatArray(
             array_map(function ($image) use ($product) {
                 return $this->context->link->getImageLink($product['link_rewrite'], $image['id_image'], 'home_default');
-            }, $this->imageRepository->getProductImages(
-                $product['id_product'],
-                $product['id_attribute'],
-                $this->context->shop->id
-            )
-            )
+            }, $images)
         );
     }
 
     /**
      * @param array $product
      */
-    private function addProductPricesTaxIncluded(array &$product)
+    private function addProductPrices(array &$product)
     {
-        $product['price_tax_incl'] = Product::getPriceStatic($product['id_product'], true, $product['id_attribute'], 6, null, false, false);
-        $product['sale_price_tax_excl'] = Product::getPriceStatic($product['id_product'], false, $product['id_attribute'], 6, null, false, true);
-        $product['sale_price_tax_incl'] = Product::getPriceStatic($product['id_product'], true, $product['id_attribute'], 6, null, false, true);
+        $product['price_tax_excl'] = (float) $product['price_tax_excl'];
+        $product['price_tax_incl'] =
+            (float) $this->productRepository->getPriceTaxIncluded($product['id_product'], $product['id_attribute']);
+        $product['sale_price_tax_excl'] =
+            (float) $this->productRepository->getSalePriceTaxExcluded($product['id_product'], $product['id_attribute']);
+        $product['sale_price_tax_incl'] =
+            (float) $this->productRepository->getSalePriceTaxIncluded($product['id_product'], $product['id_attribute']);
+        $product['sale_date'] = $this->productRepository->getSaleDate($product['id_product'], $product['id_attribute']);
+    }
+
+    private function formatDescriptions(array &$product)
+    {
+        $product['description'] = base64_encode($product['description']);
+        $product['description_short'] = base64_encode($product['description_short']);
     }
 
     /**
@@ -186,5 +191,8 @@ class ProductDecorator
      */
     private function addCategoryTree(array &$product)
     {
+        $categoryPaths = $this->categoryRepository->getCategoryPaths($product['id_category_default'], $product['iso_code']);
+        $product['category_path'] = $categoryPaths['category_path'];
+        $product['category_id_path'] = $categoryPaths['category_id_path'];
     }
 }

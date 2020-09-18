@@ -5,7 +5,12 @@ namespace PrestaShop\Module\PsAccounts\Repository;
 use Context;
 use Db;
 use DbQuery;
-use PrestaShop\Module\PsAccounts\Decorator\ProductDecorator;
+use Employee;
+use mysqli_result;
+use PDOStatement;
+use PrestaShopDatabaseException;
+use Product;
+use SpecificPrice;
 
 class ProductRepository implements PaginatedApiRepositoryInterface
 {
@@ -22,32 +27,40 @@ class ProductRepository implements PaginatedApiRepositoryInterface
     {
         $this->db = $db;
         $this->context = $context;
+
+        if (!$this->context->employee instanceof Employee) {
+            if (($employees = Employee::getEmployees()) !== false) {
+                $this->context->employee = new Employee($employees[0]['id_employee']);
+            }
+        }
     }
 
     /**
      * @param $shopId
+     *
      * @return DbQuery
      */
     private function getBaseQueryWithAttributes($shopId)
     {
         $query = new DbQuery();
 
-        $query->select('p.id_product, COALESCE(pas.id_product_attribute, 0) as id_attribute,
+        $query->select('p.id_product, IFNULL(pas.id_product_attribute, 0) as id_attribute,
             pl.name, pl.description, pl.description_short, pl.link_rewrite, l.iso_code, cl.name as default_category,
-            COALESCE(pa.reference, p.reference) as reference, COALESCE(pa.upc, p.upc) as upc,
-            COALESCE(pa.ean13, p.ean13) as ean, COALESCE(pa.isbn, p.isbn) as isbn,
+            ps.id_category_default, IFNULL(pa.reference, p.reference) as reference, IFNULL(pa.upc, p.upc) as upc,
+            IFNULL(pa.ean13, p.ean13) as ean, IFNULL(pa.isbn, p.isbn) as isbn,
             ps.condition, ps.visibility, ps.active, sa.quantity, m.name as manufacturer,
-            (p.weight + COALESCE(pas.weight, 0)) as weight, (ps.price + COALESCE(pas.price, 0)) as price_tax_excl, p.date_add, p.date_upd')
+            (p.weight + IFNULL(pas.weight, 0)) as weight, (ps.price + IFNULL(pas.price, 0)) as price_tax_excl,
+            p.date_add as created_at, p.date_upd as updated_at')
             ->from('product_shop', 'ps')
             ->leftJoin('product', 'p', 'ps.id_product = p.id_product')
-            ->leftJoin('product_attribute_shop', 'pas', 'pas.id_product = ps.id_product AND ps.id_shop = ' . (int)$shopId)
+            ->leftJoin('product_attribute_shop', 'pas', 'pas.id_product = ps.id_product AND ps.id_shop = ' . (int) $shopId)
             ->leftJoin('product_attribute', 'pa', 'pas.id_product_attribute = pa.id_product_attribute')
             ->leftJoin('product_lang', 'pl', 'pl.id_product = ps.id_product')
             ->leftJoin('lang', 'l', 'pl.id_lang = l.id_lang')
             ->leftJoin('category_lang', 'cl', 'ps.id_category_default = cl.id_category AND cl.id_lang = pl.id_lang')
-            ->leftJoin('stock_available', 'sa', 'sa.id_product = p.id_product AND sa.id_product_attribute = COALESCE(pas.id_product_attribute, 0) AND sa.id_shop = ' . (int)$shopId)
+            ->leftJoin('stock_available', 'sa', 'sa.id_product = p.id_product AND sa.id_product_attribute = IFNULL(pas.id_product_attribute, 0) AND sa.id_shop = ' . (int) $shopId)
             ->leftJoin('manufacturer', 'm', 'p.id_manufacturer = m.id_manufacturer')
-            ->where('ps.id_shop = ' . (int)$shopId)
+            ->where('ps.id_shop = ' . (int) $shopId)
             ->orderBy('p.id_product, pas.id_product_attribute');
 
         return $query;
@@ -56,8 +69,10 @@ class ProductRepository implements PaginatedApiRepositoryInterface
     /**
      * @param int $offset
      * @param int $limit
-     * @return array|bool|\mysqli_result|\PDOStatement|resource|null
-     * @throws \PrestaShopDatabaseException
+     *
+     * @return array|bool|mysqli_result|PDOStatement|resource|null
+     *
+     * @throws PrestaShopDatabaseException
      */
     public function getFormattedData($offset, $limit)
     {
@@ -71,8 +86,10 @@ class ProductRepository implements PaginatedApiRepositoryInterface
     /**
      * @param int $offset
      * @param int $limit
-     * @return array|bool|\mysqli_result|\PDOStatement|resource|null
-     * @throws \PrestaShopDatabaseException
+     *
+     * @return array|bool|mysqli_result|PDOStatement|resource|null
+     *
+     * @throws PrestaShopDatabaseException
      */
     public function getProducts($offset, $limit)
     {
@@ -116,5 +133,44 @@ class ProductRepository implements PaginatedApiRepositoryInterface
             ->where('fp.id_product = ' . (int) $productId . ' AND l.iso_code = "' . pSQL($langIsoCode) . '"');
 
         return $this->db->executeS($query);
+    }
+
+    public function getPriceTaxExcluded($productId, $attributeId)
+    {
+        return Product::getPriceStatic($productId, false, $attributeId, 6, null, false, false);
+    }
+
+    public function getPriceTaxIncluded($productId, $attributeId)
+    {
+        return Product::getPriceStatic($productId, true, $attributeId, 6, null, false, false);
+    }
+
+    public function getSalePriceTaxExcluded($productId, $attributeId)
+    {
+        return Product::getPriceStatic($productId, false, $attributeId, 6);
+    }
+
+    public function getSalePriceTaxIncluded($productId, $attributeId)
+    {
+        return Product::getPriceStatic($productId, true, $attributeId, 6);
+    }
+
+    public function getSaleDate($productId, $attributeId)
+    {
+        $specific_price = SpecificPrice::getSpecificPrice(
+            (int) $productId,
+            $this->context->shop->id,
+            0,
+            0,
+            0,
+            1,
+            $attributeId
+        );
+
+        if (is_array($specific_price) && array_key_exists('to', $specific_price)) {
+            return $specific_price['from'] . '/' . $specific_price['to'];
+        }
+
+        return '';
     }
 }
