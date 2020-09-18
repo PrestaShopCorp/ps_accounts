@@ -29,6 +29,7 @@ class LanguageRepository
 
     /**
      * @param string $isoCode
+     *
      * @return false|string|null
      */
     public function getLanguageIdByIsoCode($isoCode)
