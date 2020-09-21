@@ -18,8 +18,8 @@ class CategoryRepository
     }
 
     /**
-     * @param $topCategoryId
-     * @param $langIso
+     * @param int $topCategoryId
+     * @param string $langIso
      *
      * @return array
      */
@@ -50,8 +50,8 @@ class CategoryRepository
     }
 
     /**
-     * @param $categoryId
-     * @param $langIsoCode
+     * @param int $categoryId
+     * @param string $langIsoCode
      *
      * @return array|bool|object|null
      */

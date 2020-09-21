@@ -17,6 +17,11 @@ class ImageRepository
         $this->db = $db;
     }
 
+    /**
+     * @param int $productId
+     * @param int $shopId
+     * @return false|string|null
+     */
     public function getProductCoverImage($productId, $shopId)
     {
         $query = new DbQuery();
@@ -30,6 +35,14 @@ class ImageRepository
         return $this->db->getValue($query);
     }
 
+    /**
+     * @param int $productId
+     * @param int $attributeId
+     * @param int $shopId
+     * @param bool $includeCover
+     * @return array|bool|\mysqli_result|\PDOStatement|resource|null
+     * @throws \PrestaShopDatabaseException
+     */
     public function getProductImages($productId, $attributeId, $shopId, $includeCover = false)
     {
         $query = new DbQuery();

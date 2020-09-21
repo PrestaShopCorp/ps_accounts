@@ -39,10 +39,6 @@ class ProductDecorator
      */
     private $imageRepository;
     /**
-     * @var CurrencyRepository
-     */
-    private $currencyRepository;
-    /**
      * @var CategoryRepository
      */
     private $categoryRepository;
@@ -114,7 +110,7 @@ class ProductDecorator
      */
     private function addCoverImageLink(array &$product)
     {
-        $cover = $this->imageRepository->getProductCoverImage($product['id_product'], $this->context->shop->id);
+        $cover = $this->imageRepository->getProductCoverImage((int) $product['id_product'], $this->context->shop->id);
 
         $product['cover'] = is_string($cover) ?
             $this->context->link->getImageLink($product['link_rewrite'], $cover, 'home_default') :

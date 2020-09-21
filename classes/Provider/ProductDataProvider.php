@@ -26,7 +26,9 @@ class ProductDataProvider implements PaginatedApiDataProviderInterface
     /**
      * @param int $offset
      * @param int $limit
+     *
      * @return array
+     *
      * @throws \PrestaShopDatabaseException
      */
     public function getFormattedData($offset, $limit)
