@@ -83,6 +83,7 @@ class ProductDecorator
             $this->addProductPrices($product);
             $this->formatDescriptions($product);
             $this->addCategoryTree($product);
+            $this->castPropertyValues($product);
         }
     }
 
@@ -212,5 +213,20 @@ class ProductDecorator
 
         $product['category_path'] = $categoryPaths['category_path'];
         $product['category_id_path'] = $categoryPaths['category_id_path'];
+    }
+
+    /**
+     * @param array $product
+     *
+     * @return void
+     */
+    private function castPropertyValues(array &$product)
+    {
+        $product['id_product'] = (int) $product['id_product'];
+        $product['id_attribute'] = (int) $product['id_attribute'];
+        $product['id_category_default'] = (int) $product['id_category_default'];
+        $product['quantity'] = (int) $product['quantity'];
+        $product['weight'] = (float) $product['weight'];
+        $product['active'] = $product['active'] == '1';
     }
 }
