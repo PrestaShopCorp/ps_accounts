@@ -37,7 +37,7 @@ class ServerInformationRepository
                 'id' => '1',
                 'collection' => 'shops',
                 'properties' => [
-                    'timestamp' => time(),
+                    'created_at' => date(DATE_ATOM),
                     'cms_version' => _PS_VERSION_,
                     'url_is_simplified' => $this->configurationRepository->get('PS_REWRITING_SETTINGS') == '1',
                     'cart_is_persistent' => $this->configurationRepository->get('PS_CART_FOLLOWING') == '1',
@@ -46,6 +46,8 @@ class ServerInformationRepository
                     'default_currency' => $this->currencyRepository->getDefaultCurrencyIsoCode(),
                     'currencies' => implode(';', $this->currencyRepository->getCurrenciesIsoCodes()),
                     'timezone' => $this->configurationRepository->get('PS_TIMEZONE'),
+                    'is_order_return_enabled' => $this->configurationRepository->get('PS_ORDER_RETURN') == '1',
+                    'order_return_nb_days' => $this->configurationRepository->get('PS_ORDER_RETURN_NB_DAYS') == '1',
                     'php_version' => phpversion(),
                     'http_server' => isset($_SERVER['SERVER_SOFTWARE']) ? $_SERVER['SERVER_SOFTWARE'] : '',
                 ],
