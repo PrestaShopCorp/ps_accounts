@@ -21,6 +21,7 @@ class ModuleDataProvider implements PaginatedApiDataProviderInterface
     /**
      * @param int $offset
      * @param int $limit
+     *
      * @return array|void
      */
     public function getFormattedData($offset, $limit)
@@ -52,6 +53,7 @@ class ModuleDataProvider implements PaginatedApiDataProviderInterface
 
     /**
      * @param int $offset
+     *
      * @return int|void
      */
     public function getRemainingObjectsCount($offset)

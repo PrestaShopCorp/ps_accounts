@@ -83,6 +83,10 @@ class ProductRepository
         return $this->db->executeS($query);
     }
 
+    /**
+     * @param int $offset
+     * @return int
+     */
     public function getRemainingProductsCount($offset)
     {
         $query = $this->getBaseQuery($this->context->shop->id)
@@ -91,6 +95,12 @@ class ProductRepository
         return (int) $this->db->getValue($query);
     }
 
+    /**
+     * @param int $productAttributeId
+     * @param string $langIsoCode
+     * @return array|bool|mysqli_result|PDOStatement|resource|null
+     * @throws PrestaShopDatabaseException
+     */
     public function getAttributes($productAttributeId, $langIsoCode)
     {
         $query = new DbQuery();
@@ -107,6 +117,12 @@ class ProductRepository
         return $this->db->executeS($query);
     }
 
+    /**
+     * @param int $productId
+     * @param string $langIsoCode
+     * @return array|bool|mysqli_result|PDOStatement|resource|null
+     * @throws PrestaShopDatabaseException
+     */
     public function getFeatures($productId, $langIsoCode)
     {
         $query = new DbQuery();
@@ -121,26 +137,51 @@ class ProductRepository
         return $this->db->executeS($query);
     }
 
+    /**
+     * @param int $productId
+     * @param int $attributeId
+     * @return float
+     */
     public function getPriceTaxExcluded($productId, $attributeId)
     {
         return Product::getPriceStatic($productId, false, $attributeId, 6, null, false, false);
     }
 
+    /**
+     * @param int $productId
+     * @param int $attributeId
+     * @return float
+     */
     public function getPriceTaxIncluded($productId, $attributeId)
     {
         return Product::getPriceStatic($productId, true, $attributeId, 6, null, false, false);
     }
 
+    /**
+     * @param int $productId
+     * @param int $attributeId
+     * @return float
+     */
     public function getSalePriceTaxExcluded($productId, $attributeId)
     {
         return Product::getPriceStatic($productId, false, $attributeId, 6);
     }
 
+    /**
+     * @param int $productId
+     * @param int $attributeId
+     * @return float
+     */
     public function getSalePriceTaxIncluded($productId, $attributeId)
     {
         return Product::getPriceStatic($productId, true, $attributeId, 6);
     }
 
+    /**
+     * @param int $productId
+     * @param int $attributeId
+     * @return string
+     */
     public function getSaleDate($productId, $attributeId)
     {
         $specific_price = SpecificPrice::getSpecificPrice(
