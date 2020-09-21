@@ -50,7 +50,6 @@ class ProductDecorator
     public function __construct(
         Context $context,
         LanguageRepository $languageRepository,
-        CurrencyRepository $currencyRepository,
         ProductRepository $productRepository,
         ArrayFormatter $arrayFormatter,
         ConfigurationRepository $configurationRepository,
@@ -59,7 +58,6 @@ class ProductDecorator
     ) {
         $this->context = $context;
         $this->languageRepository = $languageRepository;
-        $this->currencyRepository = $currencyRepository;
         $this->productRepository = $productRepository;
         $this->arrayFormatter = $arrayFormatter;
         $this->configurationRepository = $configurationRepository;
