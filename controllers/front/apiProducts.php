@@ -6,6 +6,7 @@ use PrestaShop\Module\PsAccounts\Formatter\ArrayFormatter;
 use PrestaShop\Module\PsAccounts\Provider\ProductDataProvider;
 use PrestaShop\Module\PsAccounts\Repository\CategoryRepository;
 use PrestaShop\Module\PsAccounts\Repository\ConfigurationRepository;
+use PrestaShop\Module\PsAccounts\Repository\CountryRepository;
 use PrestaShop\Module\PsAccounts\Repository\ImageRepository;
 use PrestaShop\Module\PsAccounts\Repository\LanguageRepository;
 use PrestaShop\Module\PsAccounts\Repository\ProductRepository;
@@ -33,7 +34,8 @@ class ps_accountsApiProductsModuleFrontController extends AbstractApiController
             new ArrayFormatter(),
             new ConfigurationRepository(),
             new ImageRepository(Db::getInstance()),
-            new CategoryRepository(Db::getInstance())
+            new CategoryRepository(Db::getInstance()),
+            new CountryRepository(Db::getInstance())
         );
 
         $productDataProvider = new ProductDataProvider($productRepository, $productDecorator);
