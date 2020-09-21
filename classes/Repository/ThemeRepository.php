@@ -43,7 +43,7 @@ class ThemeRepository
                     'properties' => [
                         'name' => $theme->getName(),
                         'theme_version' => $theme->get('version'),
-                        'active' => (int) ($theme->getName() == $currentTheme->getName()),
+                        'active' => $theme->getName() == $currentTheme->getName(),
                     ],
                 ];
             }, array_keys($themes), $themes);
@@ -65,13 +65,13 @@ class ThemeRepository
                     $themeData['properties'] = [
                         'name' => $themeInfo['theme_name'],
                         'theme_version' => $themeInfo['theme_version'],
-                        'active' => (int) ($this->context->theme->id == $themeInfo['theme_id']),
+                        'active' => $this->context->theme->id == $themeInfo['theme_id'],
                     ];
                 } else {
                     $themeData['properties'] = [
                         'name' => $theme,
                         'theme_version' => '',
-                        'active' => 0,
+                        'active' => false,
                     ];
                 }
 

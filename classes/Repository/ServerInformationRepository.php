@@ -38,10 +38,9 @@ class ServerInformationRepository
                 'collection' => 'shops',
                 'properties' => [
                     'timestamp' => time(),
-                    'cms_name' => 'prestashop',
                     'cms_version' => _PS_VERSION_,
-                    'url_is_simplified' => (int) $this->configurationRepository->get('PS_REWRITING_SETTINGS'),
-                    'cart_is_persistent' => (int) $this->configurationRepository->get('PS_CART_FOLLOWING'),
+                    'url_is_simplified' => $this->configurationRepository->get('PS_REWRITING_SETTINGS') == '1',
+                    'cart_is_persistent' => $this->configurationRepository->get('PS_CART_FOLLOWING') == '1',
                     'default_language' => $this->languageRepository->getDefaultLanguageIsoCode(),
                     'languages' => implode(';', $this->languageRepository->getLanguagesIsoCodes()),
                     'default_currency' => $this->currencyRepository->getDefaultCurrencyIsoCode(),

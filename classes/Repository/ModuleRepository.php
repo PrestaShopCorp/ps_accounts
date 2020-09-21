@@ -37,7 +37,10 @@ class ModuleRepository implements PaginatedApiRepositoryInterface
 
         return array_map(function ($module) {
             $moduleId = (string) $module['id_module'];
+
             unset($module['id_module']);
+
+            $module['active'] = $module['active'] == '1';
 
             return [
                 'id' => $moduleId,
