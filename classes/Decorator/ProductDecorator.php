@@ -6,6 +6,7 @@ use Context;
 use PrestaShop\Module\PsAccounts\Formatter\ArrayFormatter;
 use PrestaShop\Module\PsAccounts\Repository\CategoryRepository;
 use PrestaShop\Module\PsAccounts\Repository\ConfigurationRepository;
+use PrestaShop\Module\PsAccounts\Repository\CountryRepository;
 use PrestaShop\Module\PsAccounts\Repository\CurrencyRepository;
 use PrestaShop\Module\PsAccounts\Repository\ImageRepository;
 use PrestaShop\Module\PsAccounts\Repository\LanguageRepository;
@@ -42,6 +43,10 @@ class ProductDecorator
      * @var CategoryRepository
      */
     private $categoryRepository;
+    /**
+     * @var CountryRepository
+     */
+    private $countryRepository;
 
     public function __construct(
         Context $context,
@@ -50,7 +55,8 @@ class ProductDecorator
         ArrayFormatter $arrayFormatter,
         ConfigurationRepository $configurationRepository,
         ImageRepository $imageRepository,
-        CategoryRepository $categoryRepository
+        CategoryRepository $categoryRepository,
+        CountryRepository $countryRepository
     ) {
         $this->context = $context;
         $this->languageRepository = $languageRepository;
@@ -59,6 +65,7 @@ class ProductDecorator
         $this->configurationRepository = $configurationRepository;
         $this->imageRepository = $imageRepository;
         $this->categoryRepository = $categoryRepository;
+        $this->countryRepository = $countryRepository;
     }
 
     /**
@@ -72,8 +79,6 @@ class ProductDecorator
             $this->addLink($product);
             $this->addCoverImageLink($product);
             $this->addProductImageLinks($product);
-            $this->addProductAttributes($product);
-            $this->addProductFeatures($product);
             $this->addProductPrices($product);
             $this->formatDescriptions($product);
             $this->addCategoryTree($product);
@@ -122,34 +127,6 @@ class ProductDecorator
      *
      * @return void
      */
-    private function addProductAttributes(array &$product)
-    {
-        if ((int) $product['id_attribute'] === 0) {
-            $product['attributes'] = '';
-        } else {
-            $product['attributes'] = $this->arrayFormatter->formatValueArray(
-                $this->productRepository->getAttributes((int) $product['id_attribute'], $product['iso_code'])
-            );
-        }
-    }
-
-    /**
-     * @param array $product
-     *
-     * @return void
-     */
-    private function addProductFeatures(array &$product)
-    {
-        $product['features'] = $this->arrayFormatter->formatValueArray(
-            $this->productRepository->getFeatures((int) $product['id_product'], $product['iso_code'])
-        );
-    }
-
-    /**
-     * @param array $product
-     *
-     * @return void
-     */
     private function addProductImageLinks(array &$product)
     {
         $images = $this->imageRepository->getProductImages(
@@ -172,13 +149,15 @@ class ProductDecorator
      */
     private function addProductPrices(array &$product)
     {
+        $countryId = $this->countryRepository->getCountryIdByLanguageIsoCode($product['iso_code']);
+
         $product['price_tax_excl'] = (float) $product['price_tax_excl'];
         $product['price_tax_incl'] =
-            (float) $this->productRepository->getPriceTaxIncluded($product['id_product'], $product['id_attribute']);
+            (float) $this->productRepository->getPriceTaxIncluded($product['id_product'], $product['id_attribute'], $countryId);
         $product['sale_price_tax_excl'] =
-            (float) $this->productRepository->getSalePriceTaxExcluded($product['id_product'], $product['id_attribute']);
+            (float) $this->productRepository->getSalePriceTaxExcluded($product['id_product'], $product['id_attribute'], $countryId);
         $product['sale_price_tax_incl'] =
-            (float) $this->productRepository->getSalePriceTaxIncluded($product['id_product'], $product['id_attribute']);
+            (float) $this->productRepository->getSalePriceTaxIncluded($product['id_product'], $product['id_attribute'], $countryId);
         $product['sale_date'] = $this->productRepository->getSaleDate($product['id_product'], $product['id_attribute']);
     }
 
