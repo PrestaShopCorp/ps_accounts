@@ -12,7 +12,7 @@ use PrestaShopDatabaseException;
 use Product;
 use SpecificPrice;
 
-class ProductRepository implements PaginatedApiRepositoryInterface
+class ProductRepository
 {
     /**
      * @var Context
@@ -40,18 +40,11 @@ class ProductRepository implements PaginatedApiRepositoryInterface
      *
      * @return DbQuery
      */
-    private function getBaseQueryWithAttributes($shopId)
+    private function getBaseQuery($shopId)
     {
         $query = new DbQuery();
 
-        $query->select('p.id_product, IFNULL(pas.id_product_attribute, 0) as id_attribute,
-            pl.name, pl.description, pl.description_short, pl.link_rewrite, l.iso_code, cl.name as default_category,
-            ps.id_category_default, IFNULL(pa.reference, p.reference) as reference, IFNULL(pa.upc, p.upc) as upc,
-            IFNULL(pa.ean13, p.ean13) as ean, IFNULL(pa.isbn, p.isbn) as isbn,
-            ps.condition, ps.visibility, ps.active, sa.quantity, m.name as manufacturer,
-            (p.weight + IFNULL(pas.weight, 0)) as weight, (ps.price + IFNULL(pas.price, 0)) as price_tax_excl,
-            p.date_add as created_at, p.date_upd as updated_at')
-            ->from('product_shop', 'ps')
+        $query->from('product_shop', 'ps')
             ->leftJoin('product', 'p', 'ps.id_product = p.id_product')
             ->leftJoin('product_attribute_shop', 'pas', 'pas.id_product = ps.id_product AND ps.id_shop = ' . (int) $shopId)
             ->leftJoin('product_attribute', 'pa', 'pas.id_product_attribute = pa.id_product_attribute')
@@ -74,35 +67,28 @@ class ProductRepository implements PaginatedApiRepositoryInterface
      *
      * @throws PrestaShopDatabaseException
      */
-    public function getFormattedData($offset, $limit)
-    {
-        $query = $this->getBaseQueryWithAttributes($this->context->shop->id);
-
-        $query->limit($limit, $offset);
-
-        return $this->db->executeS($query);
-    }
-
-    /**
-     * @param int $offset
-     * @param int $limit
-     *
-     * @return array|bool|mysqli_result|PDOStatement|resource|null
-     *
-     * @throws PrestaShopDatabaseException
-     */
     public function getProducts($offset, $limit)
     {
-        $query = $this->getBaseQueryWithAttributes($this->context->shop->id);
+        $query = $this->getBaseQuery($this->context->shop->id)
+            ->select('p.id_product, IFNULL(pas.id_product_attribute, 0) as id_attribute,
+            pl.name, pl.description, pl.description_short, pl.link_rewrite, l.iso_code, cl.name as default_category,
+            ps.id_category_default, IFNULL(pa.reference, p.reference) as reference, IFNULL(pa.upc, p.upc) as upc,
+            IFNULL(pa.ean13, p.ean13) as ean, IFNULL(pa.isbn, p.isbn) as isbn,
+            ps.condition, ps.visibility, ps.active, sa.quantity, m.name as manufacturer,
+            (p.weight + IFNULL(pas.weight, 0)) as weight, (ps.price + IFNULL(pas.price, 0)) as price_tax_excl,
+            p.date_add as created_at, p.date_upd as updated_at');
 
         $query->limit($limit, $offset);
 
         return $this->db->executeS($query);
     }
 
-    public function getRemainingObjectsCount($offset)
+    public function getRemainingProductsCount($offset)
     {
-        return 0;
+        $query = $this->getBaseQuery($this->context->shop->id)
+            ->select('(COUNT(ps.id_product) - ' . (int) $offset . ') as count');
+
+        return (int) $this->db->getValue($query);
     }
 
     public function getAttributes($productAttributeId, $langIsoCode)

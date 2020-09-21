@@ -46,7 +46,6 @@ class ProductDataProvider implements PaginatedApiDataProviderInterface
 
     public function getRemainingObjectsCount($offset)
     {
-        return 0;
-        // TODO: Implement getRemainingObjectsCount() method.
+        return $this->productRepository->getRemainingProductsCount($offset);
     }
 }
