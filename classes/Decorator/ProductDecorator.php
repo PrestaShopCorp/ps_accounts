@@ -10,6 +10,7 @@ use PrestaShop\Module\PsAccounts\Repository\CurrencyRepository;
 use PrestaShop\Module\PsAccounts\Repository\ImageRepository;
 use PrestaShop\Module\PsAccounts\Repository\LanguageRepository;
 use PrestaShop\Module\PsAccounts\Repository\ProductRepository;
+use PrestaShopException;
 
 class ProductDecorator
 {
@@ -92,15 +93,19 @@ class ProductDecorator
      */
     private function addLink(array &$product)
     {
-        $product['link'] = $this->context->link->getProductLink(
-            $product,
-            null,
-            null,
-            null,
-            $this->languageRepository->getLanguageIdByIsoCode($product['iso_code']),
-            $this->context->shop->id,
-            $product['id_attribute']
-        );
+        try {
+            $product['link'] = $this->context->link->getProductLink(
+                $product,
+                null,
+                null,
+                null,
+                $this->languageRepository->getLanguageIdByIsoCode($product['iso_code']),
+                $this->context->shop->id,
+                $product['id_attribute']
+            );
+        } catch (PrestaShopException $e) {
+            $product['link'] = '';
+        }
     }
 
     /**
@@ -167,6 +172,8 @@ class ProductDecorator
 
     /**
      * @param array $product
+     *
+     * @return void
      */
     private function addProductPrices(array &$product)
     {
@@ -180,6 +187,11 @@ class ProductDecorator
         $product['sale_date'] = $this->productRepository->getSaleDate($product['id_product'], $product['id_attribute']);
     }
 
+    /**
+     * @param array $product
+     *
+     * @return void
+     */
     private function formatDescriptions(array &$product)
     {
         $product['description'] = base64_encode($product['description']);
@@ -188,10 +200,16 @@ class ProductDecorator
 
     /**
      * @param array $product
+     *
+     * @return void
      */
     private function addCategoryTree(array &$product)
     {
-        $categoryPaths = $this->categoryRepository->getCategoryPaths($product['id_category_default'], $product['iso_code']);
+        $categoryPaths = $this->categoryRepository->getCategoryPaths(
+            $product['id_category_default'],
+            $product['iso_code']
+        );
+
         $product['category_path'] = $categoryPaths['category_path'];
         $product['category_id_path'] = $categoryPaths['category_id_path'];
     }
