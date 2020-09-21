@@ -17,6 +17,12 @@ class CategoryRepository
         $this->db = $db;
     }
 
+    /**
+     * @param $topCategoryId
+     * @param $langIso
+     *
+     * @return array
+     */
     public function getCategoryPaths($topCategoryId, $langIso)
     {
         $categoryId = $topCategoryId;
@@ -43,6 +49,12 @@ class CategoryRepository
         ];
     }
 
+    /**
+     * @param $categoryId
+     * @param $langIsoCode
+     *
+     * @return array|bool|object|null
+     */
     public function getCategory($categoryId, $langIsoCode)
     {
         $query = new DbQuery();

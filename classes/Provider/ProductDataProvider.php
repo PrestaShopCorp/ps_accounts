@@ -23,6 +23,12 @@ class ProductDataProvider implements PaginatedApiDataProviderInterface
         $this->productDecorator = $productDecorator;
     }
 
+    /**
+     * @param int $offset
+     * @param int $limit
+     * @return array
+     * @throws \PrestaShopDatabaseException
+     */
     public function getFormattedData($offset, $limit)
     {
         $products = $this->productRepository->getProducts($offset, $limit);
