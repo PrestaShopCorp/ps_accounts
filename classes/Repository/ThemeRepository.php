@@ -38,7 +38,7 @@ class ThemeRepository
 
             return array_map(function ($key, $theme) use ($currentTheme) {
                 return [
-                    'id' => md5($key),
+                    'id' => md5((string) $key),
                     'collection' => 'themes',
                     'properties' => [
                         'name' => $theme->getName(),
