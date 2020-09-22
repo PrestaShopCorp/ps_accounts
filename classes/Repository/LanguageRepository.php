@@ -30,11 +30,11 @@ class LanguageRepository
     /**
      * @param string $isoCode
      *
-     * @return false|string|null
+     * @return int
      */
     public function getLanguageIdByIsoCode($isoCode)
     {
-        return Language::getIdByIso($isoCode);
+        return (int) Language::getIdByIso($isoCode);
     }
 
     /**

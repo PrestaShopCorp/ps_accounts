@@ -4,6 +4,10 @@ namespace PrestaShop\Module\PsAccounts\Repository;
 
 use Category;
 use Db;
+use DbQuery;
+use mysqli_result;
+use PDOStatement;
+use PrestaShopDatabaseException;
 
 class CategoryRepository
 {
@@ -30,20 +34,28 @@ class CategoryRepository
     /**
      * @param int $topCategoryId
      * @param int $langId
+     * @param int $shopId
      *
      * @return array
      */
-    public function getCategoryPaths($topCategoryId, $langId)
+    public function getCategoryPaths($topCategoryId, $langId, $shopId)
     {
         $categoryId = $topCategoryId;
         $categories = [];
 
         if (!isset($this->categoryLangCache[$langId])) {
-            $this->categoryLangCache[$langId] = Category::getSimpleCategoriesWithParentInfos($langId);
+            try {
+                $this->categoryLangCache[$langId] = $this->getCategoriesWithParentInfo($langId, $shopId);
+            } catch (PrestaShopDatabaseException $e) {
+                return [
+                    'category_path' => '',
+                    'category_id_path' => '',
+                ];
+            }
         }
 
         if (!$this->topCategoryId) {
-            $this->topCategoryId = Category::getTopCategory($langId)->id;
+            $this->topCategoryId = Category::getTopCategory()->id;
         }
 
         while ((int) $categoryId != $this->topCategoryId) {
@@ -66,5 +78,30 @@ class CategoryRepository
                 return $category['id_category'];
             }, $categories)),
         ];
+    }
+
+    /**
+     * @param int $langId
+     * @param int $shopId
+     *
+     * @return array|bool|mysqli_result|PDOStatement|resource|null
+     *
+     * @throws PrestaShopDatabaseException
+     */
+    private function getCategoriesWithParentInfo($langId, $shopId)
+    {
+        $query = new DbQuery();
+
+        $query->select('c.id_category, cl.name, c.id_parent')
+            ->from('category', 'c')
+            ->leftJoin(
+                'category_lang',
+                'cl',
+                'cl.id_category = c.id_category AND cl.id_shop = ' . (int) $shopId
+            )
+            ->where('cl.id_lang = ' . (int) $langId)
+            ->orderBy('cl.id_category');
+
+        return $this->db->executeS($query);
     }
 }

@@ -187,7 +187,8 @@ class ProductDecorator
     {
         $categoryPaths = $this->categoryRepository->getCategoryPaths(
             $product['id_category_default'],
-            $this->languageRepository->getLanguageIdByIsoCode($product['iso_code'])
+            $this->languageRepository->getLanguageIdByIsoCode($product['iso_code']),
+            $this->context->shop->id
         );
 
         $product['category_path'] = $categoryPaths['category_path'];
