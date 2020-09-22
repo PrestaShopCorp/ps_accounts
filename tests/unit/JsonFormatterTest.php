@@ -24,6 +24,6 @@ class JsonFormatterTest extends TestCase
         ];
 
         $this->assertTrue(is_string($this->jsonFormatter->formatNewlineJsonString($data)));
-        $this->assertRegExp("/\r\n/",$this->jsonFormatter->formatNewlineJsonString($data));
+        $this->assertRegExp("/\r\n/", $this->jsonFormatter->formatNewlineJsonString($data));
     }
 }
