@@ -81,7 +81,6 @@ class ProductDecorator
     {
         foreach ($products as &$product) {
             $this->addLink($product);
-//            $this->addCoverImageLink($product);
             $this->addProductImageLinks($product);
             $this->addProductPrices($product);
             $this->formatDescriptions($product);
@@ -103,7 +102,7 @@ class ProductDecorator
                 null,
                 null,
                 null,
-                $this->languageRepository->getLanguageIdByIsoCode($product['iso_code']),
+                (int) $this->languageRepository->getLanguageIdByIsoCode($product['iso_code']),
                 $this->context->shop->id,
                 $product['id_attribute']
             );
@@ -130,7 +129,6 @@ class ProductDecorator
      * @param array $product
      *
      * @return void
-     * @throws \PrestaShopDatabaseException
      */
     private function addProductImageLinks(array &$product)
     {
@@ -146,6 +144,7 @@ class ProductDecorator
             if ($isCover) {
                 $cover = $imageId;
             }
+
             return ['imageId' => $imageId, 'isCover' => $isCover];
         }, $productImages);
 
@@ -161,12 +160,12 @@ class ProductDecorator
         }
 
         $product['cover'] = $cover ?
-            $this->context->link->getImageLink($product['link_rewrite'], $cover, 'home_default') :
+            $this->context->link->getImageLink($product['link_rewrite'], (string) $cover, 'home_default') :
             '';
 
         $product['images'] = $this->arrayFormatter->formatArray(
             array_map(function ($image) use ($product) {
-                return $this->context->link->getImageLink($product['link_rewrite'], $image, 'home_default');
+                return $this->context->link->getImageLink($product['link_rewrite'], (string) $image, 'home_default');
             }, $images)
         );
 
