@@ -6,7 +6,6 @@ use Context;
 use PrestaShop\Module\PsAccounts\Formatter\ArrayFormatter;
 use PrestaShop\Module\PsAccounts\Repository\CategoryRepository;
 use PrestaShop\Module\PsAccounts\Repository\ConfigurationRepository;
-use PrestaShop\Module\PsAccounts\Repository\CountryRepository;
 use PrestaShop\Module\PsAccounts\Repository\ImageRepository;
 use PrestaShop\Module\PsAccounts\Repository\LanguageRepository;
 use PrestaShop\Module\PsAccounts\Repository\ProductRepository;
@@ -42,15 +41,6 @@ class ProductDecorator
      * @var CategoryRepository
      */
     private $categoryRepository;
-    /**
-     * @var CountryRepository
-     */
-    private $countryRepository;
-
-    /**
-     * @var array
-     */
-    private $languages;
 
     public function __construct(
         Context $context,
@@ -59,8 +49,7 @@ class ProductDecorator
         ArrayFormatter $arrayFormatter,
         ConfigurationRepository $configurationRepository,
         ImageRepository $imageRepository,
-        CategoryRepository $categoryRepository,
-        CountryRepository $countryRepository
+        CategoryRepository $categoryRepository
     ) {
         $this->context = $context;
         $this->languageRepository = $languageRepository;
@@ -69,7 +58,6 @@ class ProductDecorator
         $this->configurationRepository = $configurationRepository;
         $this->imageRepository = $imageRepository;
         $this->categoryRepository = $categoryRepository;
-        $this->countryRepository = $countryRepository;
     }
 
     /**
@@ -109,20 +97,6 @@ class ProductDecorator
         } catch (PrestaShopException $e) {
             $product['link'] = '';
         }
-    }
-
-    /**
-     * @param array $product
-     *
-     * @return void
-     */
-    private function addCoverImageLink(array &$product)
-    {
-        $cover = $this->imageRepository->getProductCoverImage((int) $product['id_product'], $this->context->shop->id);
-
-        $product['cover'] = is_string($cover) ?
-            $this->context->link->getImageLink($product['link_rewrite'], $cover, 'home_default') :
-            '';
     }
 
     /**
@@ -179,15 +153,17 @@ class ProductDecorator
      */
     private function addProductPrices(array &$product)
     {
-        $countryId = $this->countryRepository->getCountryIdByLanguageIsoCode($product['iso_code']);
-
         $product['price_tax_excl'] = (float) $product['price_tax_excl'];
         $product['price_tax_incl'] =
-            (float) $this->productRepository->getPriceTaxIncluded($product['id_product'], $product['id_attribute'], $countryId);
+            (float) $this->productRepository->getPriceTaxIncluded($product['id_product'], $product['id_attribute']);
         $product['sale_price_tax_excl'] =
-            (float) $this->productRepository->getSalePriceTaxExcluded($product['id_product'], $product['id_attribute'], $countryId);
+            (float) $this->productRepository->getSalePriceTaxExcluded($product['id_product'], $product['id_attribute']);
         $product['sale_price_tax_incl'] =
-            (float) $this->productRepository->getSalePriceTaxIncluded($product['id_product'], $product['id_attribute'], $countryId);
+            (float) $this->productRepository->getSalePriceTaxIncluded($product['id_product'], $product['id_attribute']);
+
+        $product['tax'] = $product['price_tax_incl'] - $product['price_tax_excl'];
+        $product['sale_tax'] = $product['sale_price_tax_incl'] - $product['sale_price_tax_excl'];
+
         $product['sale_date'] = $this->productRepository->getSaleDate($product['id_product'], $product['id_attribute']);
     }
 
@@ -211,7 +187,7 @@ class ProductDecorator
     {
         $categoryPaths = $this->categoryRepository->getCategoryPaths(
             $product['id_category_default'],
-            $product['iso_code']
+            $this->languageRepository->getLanguageIdByIsoCode($product['iso_code'])
         );
 
         $product['category_path'] = $categoryPaths['category_path'];
