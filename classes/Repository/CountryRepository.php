@@ -19,7 +19,7 @@ class CountryRepository
     }
 
     /**
-     * @param $isoCode
+     * @param string $isoCode
      *
      * @return int
      *

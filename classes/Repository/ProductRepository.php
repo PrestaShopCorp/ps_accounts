@@ -36,7 +36,7 @@ class ProductRepository
     }
 
     /**
-     * @param $shopId
+     * @param int $shopId
      *
      * @return DbQuery
      */
@@ -188,7 +188,7 @@ class ProductRepository
             $attributeId,
             $countryId,
             0,
-            0,
+            '',
             0,
             1,
             1,
@@ -199,11 +199,8 @@ class ProductRepository
             true,
             $specificPriceOutput,
             true,
-            null,
-            true,
-            null,
             0,
-            null
+            true
         );
 
 //        return $price;
@@ -224,7 +221,7 @@ class ProductRepository
             $attributeId,
             $countryId,
             0,
-            0,
+            '',
             0,
             1,
             1,
@@ -235,11 +232,8 @@ class ProductRepository
             true,
             $specificPriceOutput,
             true,
-            null,
-            true,
-            null,
             0,
-            null
+            true
         );
 //        return Product::getPriceStatic($productId, false, $attributeId, 6);
     }
@@ -259,7 +253,7 @@ class ProductRepository
             $attributeId,
             $countryId,
             0,
-            0,
+            '',
             0,
             1,
             1,
@@ -270,11 +264,8 @@ class ProductRepository
             true,
             $specificPriceOutput,
             true,
-            null,
-            true,
-            null,
             0,
-            null
+            true
         );
 //        return Product::getPriceStatic($productId, true, $attributeId, 6);
     }
