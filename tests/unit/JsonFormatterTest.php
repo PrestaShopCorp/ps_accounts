@@ -1,8 +1,7 @@
 <?php
 
-namespace PrestaShop\Module\PsAccounts\Formatter;
-
 use PHPUnit\Framework\TestCase;
+use PrestaShop\Module\PsAccounts\Formatter\JsonFormatter;
 
 class JsonFormatterTest extends TestCase
 {
@@ -21,8 +20,10 @@ class JsonFormatterTest extends TestCase
     {
         $data = [
             ['test' => 'data'],
+            ['test2' => 'data2'],
         ];
 
         $this->assertTrue(is_string($this->jsonFormatter->formatNewlineJsonString($data)));
+        $this->assertRegExp("/\r\n/",$this->jsonFormatter->formatNewlineJsonString($data));
     }
 }
