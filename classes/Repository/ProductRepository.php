@@ -163,11 +163,10 @@ class ProductRepository
     /**
      * @param int $productId
      * @param int $attributeId
-     * @param int $countryId
      *
      * @return float
      */
-    public function getPriceTaxExcluded($productId, $attributeId, $countryId)
+    public function getPriceTaxExcluded($productId, $attributeId)
     {
         return Product::getPriceStatic($productId, false, $attributeId, 6, null, false, false);
     }
@@ -175,99 +174,34 @@ class ProductRepository
     /**
      * @param int $productId
      * @param int $attributeId
-     * @param int $countryId
      *
      * @return float
      */
-    public function getPriceTaxIncluded($productId, $attributeId, $countryId)
+    public function getPriceTaxIncluded($productId, $attributeId)
     {
-//        $price = Product::getPriceStatic($productId, true, $attributeId, 6, null, false, false);
-        return Product::priceCalculation(
-            $this->context->shop->id,
-            $productId,
-            $attributeId,
-            $countryId,
-            0,
-            '',
-            0,
-            1,
-            1,
-            true,
-            6,
-            false,
-            false,
-            true,
-            $specificPriceOutput,
-            true,
-            0,
-            true
-        );
-
-//        return $price;
+        return Product::getPriceStatic($productId, true, $attributeId, 6, null, false, false);
     }
 
     /**
      * @param int $productId
      * @param int $attributeId
-     * @param int $countryId
      *
      * @return float
      */
-    public function getSalePriceTaxExcluded($productId, $attributeId, $countryId)
+    public function getSalePriceTaxExcluded($productId, $attributeId)
     {
-        return Product::priceCalculation(
-            $this->context->shop->id,
-            $productId,
-            $attributeId,
-            $countryId,
-            0,
-            '',
-            0,
-            1,
-            1,
-            false,
-            6,
-            false,
-            true,
-            true,
-            $specificPriceOutput,
-            true,
-            0,
-            true
-        );
-//        return Product::getPriceStatic($productId, false, $attributeId, 6);
+        return Product::getPriceStatic($productId, false, $attributeId, 6);
     }
 
     /**
      * @param int $productId
      * @param int $attributeId
-     * @param int $countryId
      *
      * @return float
      */
-    public function getSalePriceTaxIncluded($productId, $attributeId, $countryId)
+    public function getSalePriceTaxIncluded($productId, $attributeId)
     {
-        return Product::priceCalculation(
-            $this->context->shop->id,
-            $productId,
-            $attributeId,
-            $countryId,
-            0,
-            '',
-            0,
-            1,
-            1,
-            true,
-            6,
-            false,
-            true,
-            true,
-            $specificPriceOutput,
-            true,
-            0,
-            true
-        );
-//        return Product::getPriceStatic($productId, true, $attributeId, 6);
+        return Product::getPriceStatic($productId, true, $attributeId, 6);
     }
 
     /**
