@@ -7,6 +7,7 @@ class ArrayFormatter
     /**
      * @param array $data
      * @param string $separator
+     *
      * @return string
      */
     public function formatArray(array $data, $separator = ';')
@@ -17,6 +18,7 @@ class ArrayFormatter
     /**
      * @param array $data
      * @param string $separator
+     *
      * @return string
      */
     public function formatValueArray(array $data, $separator = ';')

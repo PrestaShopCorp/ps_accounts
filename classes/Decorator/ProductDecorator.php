@@ -7,7 +7,6 @@ use PrestaShop\Module\PsAccounts\Formatter\ArrayFormatter;
 use PrestaShop\Module\PsAccounts\Repository\CategoryRepository;
 use PrestaShop\Module\PsAccounts\Repository\ConfigurationRepository;
 use PrestaShop\Module\PsAccounts\Repository\CountryRepository;
-use PrestaShop\Module\PsAccounts\Repository\CurrencyRepository;
 use PrestaShop\Module\PsAccounts\Repository\ImageRepository;
 use PrestaShop\Module\PsAccounts\Repository\LanguageRepository;
 use PrestaShop\Module\PsAccounts\Repository\ProductRepository;
@@ -48,6 +47,11 @@ class ProductDecorator
      */
     private $countryRepository;
 
+    /**
+     * @var array
+     */
+    private $languages;
+
     public function __construct(
         Context $context,
         LanguageRepository $languageRepository,
@@ -77,7 +81,7 @@ class ProductDecorator
     {
         foreach ($products as &$product) {
             $this->addLink($product);
-            $this->addCoverImageLink($product);
+//            $this->addCoverImageLink($product);
             $this->addProductImageLinks($product);
             $this->addProductPrices($product);
             $this->formatDescriptions($product);
@@ -126,20 +130,47 @@ class ProductDecorator
      * @param array $product
      *
      * @return void
+     * @throws \PrestaShopDatabaseException
      */
     private function addProductImageLinks(array &$product)
     {
-        $images = $this->imageRepository->getProductImages(
-            $product['id_product'],
-            $product['id_attribute'],
-            $this->context->shop->id
-        );
+        $cover = 0;
+        $images = [];
+
+        $productImages = explode(';', (string) $product['images']);
+
+        $productImages = array_map(function ($image) use (&$cover) {
+            $image = explode(':', $image);
+            $imageId = (int) $image[0];
+            $isCover = (int) $image[1];
+            if ($isCover) {
+                $cover = $imageId;
+            }
+            return ['imageId' => $imageId, 'isCover' => $isCover];
+        }, $productImages);
+
+        if ($product['id_attribute'] !== '0') {
+            $attributeImages = explode(';', (string) $product['attribute_images']);
+            $images = array_diff($attributeImages, [$cover]);
+        } else {
+            foreach ($productImages as $productImage) {
+                if (!$productImage['isCover']) {
+                    $images[] = $productImage['imageId'];
+                }
+            }
+        }
+
+        $product['cover'] = $cover ?
+            $this->context->link->getImageLink($product['link_rewrite'], $cover, 'home_default') :
+            '';
 
         $product['images'] = $this->arrayFormatter->formatArray(
             array_map(function ($image) use ($product) {
-                return $this->context->link->getImageLink($product['link_rewrite'], $image['id_image'], 'home_default');
+                return $this->context->link->getImageLink($product['link_rewrite'], $image, 'home_default');
             }, $images)
         );
+
+        unset($product['attribute_images']);
     }
 
     /**

@@ -36,4 +36,12 @@ class LanguageRepository
     {
         return Language::getIdByIso($isoCode);
     }
+
+    /**
+     * @return array
+     */
+    public function getLanguages()
+    {
+        return Language::getLanguages();
+    }
 }
