@@ -47,7 +47,7 @@ class ServerInformationRepository
                     'currencies' => implode(';', $this->currencyRepository->getCurrenciesIsoCodes()),
                     'timezone' => $this->configurationRepository->get('PS_TIMEZONE'),
                     'is_order_return_enabled' => $this->configurationRepository->get('PS_ORDER_RETURN') == '1',
-                    'order_return_nb_days' => $this->configurationRepository->get('PS_ORDER_RETURN_NB_DAYS') == '1',
+                    'order_return_nb_days' => (int) $this->configurationRepository->get('PS_ORDER_RETURN_NB_DAYS'),
                     'php_version' => phpversion(),
                     'http_server' => isset($_SERVER['SERVER_SOFTWARE']) ? $_SERVER['SERVER_SOFTWARE'] : '',
                 ],
