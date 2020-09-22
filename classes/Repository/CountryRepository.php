@@ -20,7 +20,9 @@ class CountryRepository
 
     /**
      * @param $isoCode
+     *
      * @return int
+     *
      * @throws \PrestaShopDatabaseException
      * @throws \PrestaShopException
      */

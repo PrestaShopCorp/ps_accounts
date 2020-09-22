@@ -20,6 +20,7 @@ class ImageRepository
     /**
      * @param int $productId
      * @param int $shopId
+     *
      * @return false|string|null
      */
     public function getProductCoverImage($productId, $shopId)
@@ -40,7 +41,9 @@ class ImageRepository
      * @param int $attributeId
      * @param int $shopId
      * @param bool $includeCover
+     *
      * @return array|bool|\mysqli_result|\PDOStatement|resource|null
+     *
      * @throws \PrestaShopDatabaseException
      */
     public function getProductImages($productId, $attributeId, $shopId, $includeCover = false)

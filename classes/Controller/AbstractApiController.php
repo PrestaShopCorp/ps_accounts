@@ -109,9 +109,6 @@ abstract class AbstractApiController extends ModuleFrontController
 
         $data = $repository->getFormattedData($offset, $limit);
 
-        dump($data);
-        die;
-
         $response = $this->segmentService->upload($jobId, $data);
 
         if ($response['httpCode'] == 201) {

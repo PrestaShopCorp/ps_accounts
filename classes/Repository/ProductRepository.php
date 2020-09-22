@@ -46,7 +46,7 @@ class ProductRepository
 
         $query->from('product_shop', 'ps')
             ->leftJoin('product', 'p', 'ps.id_product = p.id_product')
-            ->leftJoin('product_attribute_shop', 'pas', 'pas.id_product = ps.id_product AND ps.id_shop = ' . (int) $shopId)
+            ->leftJoin('product_attribute_shop', 'pas', 'pas.id_product = ps.id_product AND pas.id_shop = ' . (int) $shopId)
             ->leftJoin('product_attribute', 'pa', 'pas.id_product_attribute = pa.id_product_attribute')
             ->leftJoin('product_lang', 'pl', 'pl.id_product = ps.id_product')
             ->innerJoin('lang', 'l', 'pl.id_lang = l.id_lang AND l.active = 1')
@@ -62,6 +62,9 @@ class ProductRepository
             ->leftJoin('feature_product', 'fp', 'fp.id_product = ps.id_product')
             ->leftJoin('feature_lang', 'fl', 'fl.id_feature = fp.id_feature AND fl.id_lang = l.id_lang')
             ->leftJoin('feature_value_lang', 'fvl', 'fvl.id_feature_value = fp.id_feature_value AND fvl.id_lang = l.id_lang')
+
+            ->leftJoin('image_shop', 'imgs', 'imgs.id_product = ps.id_product AND imgs.id_shop = ps.id_shop')
+            ->leftJoin('product_attribute_image', 'pai', 'pai.id_product_attribute = pas.id_product_attribute')
 
             ->where('ps.id_shop = ' . (int) $shopId)
             ->groupBy('ps.id_product, pas.id_product_attribute, l.id_lang')
@@ -88,8 +91,10 @@ class ProductRepository
             ps.condition, ps.visibility, ps.active, sa.quantity, m.name as manufacturer,
             (p.weight + IFNULL(pas.weight, 0)) as weight, (ps.price + IFNULL(pas.price, 0)) as price_tax_excl,
             p.date_add as created_at, p.date_upd as updated_at,
-            IFNULL(GROUP_CONCAT(DISTINCT agl.name,":", al.name SEPARATOR ";"), "") as attributes,
-            IFNULL(GROUP_CONCAT(DISTINCT fl.name,":", fvl.value SEPARATOR ";"), "") as features');
+            IFNULL(GROUP_CONCAT(DISTINCT agl.name, ":", al.name SEPARATOR ";"), "") as attributes,
+            IFNULL(GROUP_CONCAT(DISTINCT fl.name, ":", fvl.value SEPARATOR ";"), "") as features,
+            GROUP_CONCAT(DISTINCT imgs.id_image, ":", IFNULL(imgs.cover, 0) SEPARATOR ";") as images,
+            GROUP_CONCAT(DISTINCT pai.id_image SEPARATOR ";") as attribute_images');
 
         $query->limit($limit, $offset);
 
@@ -98,6 +103,7 @@ class ProductRepository
 
     /**
      * @param int $offset
+     *
      * @return int
      */
     public function getRemainingProductsCount($offset)
@@ -111,7 +117,9 @@ class ProductRepository
     /**
      * @param int $productAttributeId
      * @param string $langIsoCode
+     *
      * @return array|bool|mysqli_result|PDOStatement|resource|null
+     *
      * @throws PrestaShopDatabaseException
      */
     public function getAttributes($productAttributeId, $langIsoCode)
@@ -133,7 +141,9 @@ class ProductRepository
     /**
      * @param int $productId
      * @param string $langIsoCode
+     *
      * @return array|bool|mysqli_result|PDOStatement|resource|null
+     *
      * @throws PrestaShopDatabaseException
      */
     public function getFeatures($productId, $langIsoCode)
@@ -154,6 +164,7 @@ class ProductRepository
      * @param int $productId
      * @param int $attributeId
      * @param int $countryId
+     *
      * @return float
      */
     public function getPriceTaxExcluded($productId, $attributeId, $countryId)
@@ -165,6 +176,7 @@ class ProductRepository
      * @param int $productId
      * @param int $attributeId
      * @param int $countryId
+     *
      * @return float
      */
     public function getPriceTaxIncluded($productId, $attributeId, $countryId)
@@ -201,6 +213,7 @@ class ProductRepository
      * @param int $productId
      * @param int $attributeId
      * @param int $countryId
+     *
      * @return float
      */
     public function getSalePriceTaxExcluded($productId, $attributeId, $countryId)
@@ -235,6 +248,7 @@ class ProductRepository
      * @param int $productId
      * @param int $attributeId
      * @param int $countryId
+     *
      * @return float
      */
     public function getSalePriceTaxIncluded($productId, $attributeId, $countryId)
@@ -268,6 +282,7 @@ class ProductRepository
     /**
      * @param int $productId
      * @param int $attributeId
+     *
      * @return string
      */
     public function getSaleDate($productId, $attributeId)
