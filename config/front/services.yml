@@ -27,5 +27,3 @@ services:
     class: PrestaShop\Module\PsAccounts\Service\ApiAuthorizationService
     arguments:
       [ '@PrestaShop\Module\PsAccounts\Repository\AccountsSyncRepository', '@PrestaShop\Module\PsAccounts\Api\EventBusSyncClient' ]
-
-
