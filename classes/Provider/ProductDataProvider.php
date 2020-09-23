@@ -26,14 +26,14 @@ class ProductDataProvider implements PaginatedApiDataProviderInterface
     /**
      * @param int $offset
      * @param int $limit
+     * @param string $langIso
      *
      * @return array
-     *
      * @throws \PrestaShopDatabaseException
      */
-    public function getFormattedData($offset, $limit)
+    public function getFormattedData($offset, $limit, $langIso = null)
     {
-        $products = $this->productRepository->getProducts($offset, $limit);
+        $products = $this->productRepository->getProducts($offset, $limit, $langIso);
 
         $this->productDecorator->decorateProducts($products);
 
@@ -46,7 +46,13 @@ class ProductDataProvider implements PaginatedApiDataProviderInterface
         }, $products);
     }
 
-    public function getRemainingObjectsCount($offset)
+    /**
+     * @param int $offset
+     * @param string $langIso
+     *
+     * @return int
+     */
+    public function getRemainingObjectsCount($offset, $langIso = null)
     {
         return $this->productRepository->getRemainingProductsCount($offset);
     }
