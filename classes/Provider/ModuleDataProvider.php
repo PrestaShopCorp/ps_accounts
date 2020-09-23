@@ -21,10 +21,11 @@ class ModuleDataProvider implements PaginatedApiDataProviderInterface
     /**
      * @param int $offset
      * @param int $limit
+     * @param string $langIso
      *
-     * @return array|void
+     * @return array
      */
-    public function getFormattedData($offset, $limit)
+    public function getFormattedData($offset, $limit, $langIso = null)
     {
         try {
             $modules = $this->moduleRepository->getModules($offset, $limit);
@@ -53,10 +54,11 @@ class ModuleDataProvider implements PaginatedApiDataProviderInterface
 
     /**
      * @param int $offset
+     * @param string $langIso
      *
-     * @return int|void
+     * @return int
      */
-    public function getRemainingObjectsCount($offset)
+    public function getRemainingObjectsCount($offset, $langIso = null)
     {
         return $this->moduleRepository->getRemainingModules($offset);
     }

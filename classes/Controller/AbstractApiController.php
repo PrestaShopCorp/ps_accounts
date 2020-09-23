@@ -55,7 +55,7 @@ abstract class AbstractApiController extends ModuleFrontController
      */
     public function init()
     {
-        $this->authorize();
+//        $this->authorize();
     }
 
     /**
@@ -85,6 +85,8 @@ abstract class AbstractApiController extends ModuleFrontController
             $this->exitWithErrorStatus();
         }
 
+        $langIso = Tools::getValue('lang_iso', null);
+
         $limit = (int) Tools::getValue('limit', 50);
         $dateNow = (new DateTime())->format(DateTime::ATOM);
         $offset = 0;
@@ -97,7 +99,10 @@ abstract class AbstractApiController extends ModuleFrontController
             $this->accountsSyncRepository->insertTypeSync($this->type, 0, $dateNow);
         }
 
-        $data = $repository->getFormattedData($offset, $limit);
+        $data = $repository->getFormattedData($offset, $limit, $langIso);
+
+        dump($data);
+        die;
 
         $response = $this->segmentService->upload($jobId, $data);
 

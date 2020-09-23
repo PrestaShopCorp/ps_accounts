@@ -88,7 +88,7 @@ class CategoryRepository
      *
      * @throws PrestaShopDatabaseException
      */
-    private function getCategoriesWithParentInfo($langId, $shopId)
+    public function getCategoriesWithParentInfo($langId, $shopId)
     {
         $query = new DbQuery();
 
