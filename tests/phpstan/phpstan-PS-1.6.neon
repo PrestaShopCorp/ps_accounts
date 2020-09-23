@@ -29,5 +29,8 @@ parameters:
 		- '#Access to an undefined property Shop::\$theme.#'
 		- '#Call to method buildRepository\(\) on an unknown class PrestaShop\\PrestaShop\\Core\\Addon\\Theme\\ThemeManagerBuilder.#'
 		- '#Instantiated class PrestaShop\\PrestaShop\\Core\\Addon\\Theme\\ThemeManagerBuilder not found.#'
+		- '#Property Ps_accounts::\$serviceContainer has unknown class PrestaShop\\ModuleLibServiceContainer\\DependencyInjection\\ServiceContainer as its type.#'
+		- '#Instantiated class PrestaShop\\ModuleLibServiceContainer\\DependencyInjection\\ServiceContainer not found.#'
+		- '#Call to method getService\(\) on an unknown class PrestaShop\\ModuleLibServiceContainer\\DependencyInjection\\ServiceContainer.#'
 
 	level: 7
