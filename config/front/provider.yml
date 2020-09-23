@@ -1,0 +1,11 @@
+services:
+  PrestaShop\Module\PsAccounts\Provider\ModuleDataProvider:
+    class: PrestaShop\Module\PsAccounts\Provider\ModuleDataProvider
+    arguments:
+      - '@PrestaShop\Module\PsAccounts\Repository\ModuleRepository'
+
+  PrestaShop\Module\PsAccounts\Provider\ProductDataProvider:
+    class: PrestaShop\Module\PsAccounts\Provider\ProductDataProvider
+    arguments:
+      - '@PrestaShop\Module\PsAccounts\Repository\ProductRepository'
+      - '@PrestaShop\Module\PsAccounts\Decorator\ProductDecorator'

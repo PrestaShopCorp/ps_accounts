@@ -1,0 +1,16 @@
+services:
+  PrestaShop\Module\PsAccounts\Api\AccountsClient:
+    class: PrestaShop\Module\PsAccounts\Api\AccountsClient
+    arguments:
+      - '@=service("ps_accounts.context").link'
+
+  PrestaShop\Module\PsAccounts\Api\EventBusSyncClient:
+    class: PrestaShop\Module\PsAccounts\Api\EventBusSyncClient
+    arguments:
+      - '@=service("ps_accounts.context").link'
+
+  PrestaShop\Module\PsAccounts\Api\SegmentClient:
+    class: PrestaShop\Module\PsAccounts\Api\SegmentClient
+    arguments:
+      - '@=service("ps_accounts.context").link'
+

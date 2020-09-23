@@ -5,8 +5,6 @@ namespace PrestaShop\Module\PsAccounts\Decorator;
 use Context;
 use PrestaShop\Module\PsAccounts\Formatter\ArrayFormatter;
 use PrestaShop\Module\PsAccounts\Repository\CategoryRepository;
-use PrestaShop\Module\PsAccounts\Repository\ConfigurationRepository;
-use PrestaShop\Module\PsAccounts\Repository\ImageRepository;
 use PrestaShop\Module\PsAccounts\Repository\LanguageRepository;
 use PrestaShop\Module\PsAccounts\Repository\ProductRepository;
 use PrestaShopException;
@@ -26,38 +24,26 @@ class ProductDecorator
      */
     private $productRepository;
     /**
-     * @var ArrayFormatter
-     */
-    private $arrayFormatter;
-    /**
-     * @var ConfigurationRepository
-     */
-    private $configurationRepository;
-    /**
-     * @var ImageRepository
-     */
-    private $imageRepository;
-    /**
      * @var CategoryRepository
      */
     private $categoryRepository;
+    /**
+     * @var ArrayFormatter
+     */
+    private $arrayFormatter;
 
     public function __construct(
         Context $context,
         LanguageRepository $languageRepository,
         ProductRepository $productRepository,
-        ArrayFormatter $arrayFormatter,
-        ConfigurationRepository $configurationRepository,
-        ImageRepository $imageRepository,
-        CategoryRepository $categoryRepository
+        CategoryRepository $categoryRepository,
+        ArrayFormatter $arrayFormatter
     ) {
         $this->context = $context;
         $this->languageRepository = $languageRepository;
         $this->productRepository = $productRepository;
-        $this->arrayFormatter = $arrayFormatter;
-        $this->configurationRepository = $configurationRepository;
-        $this->imageRepository = $imageRepository;
         $this->categoryRepository = $categoryRepository;
+        $this->arrayFormatter = $arrayFormatter;
     }
 
     /**

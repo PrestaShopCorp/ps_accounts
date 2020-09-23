@@ -105,6 +105,11 @@ class Ps_accounts extends Module
     ];
 
     /**
+     * @var \PrestaShop\ModuleLibServiceContainer\DependencyInjection\ServiceContainer
+     */
+    private $serviceContainer;
+
+    /**
      * __construct.
      */
     public function __construct()
@@ -128,6 +133,10 @@ class Ps_accounts extends Module
             'ajax' => 'AdminAjaxPsAccounts',
             'resetOnboarding' => 'AdminResetOnboarding',
         ];
+        $this->serviceContainer = new \PrestaShop\ModuleLibServiceContainer\DependencyInjection\ServiceContainer(
+            $this->name,
+            $this->getLocalPath()
+        );
     }
 
     /**
@@ -190,6 +199,16 @@ class Ps_accounts extends Module
         return $uninstaller->uninstallMenu()
             && $uninstaller->uninstallDatabaseTables()
             && parent::uninstall();
+    }
+
+    /**
+     * @param string $serviceName
+     *
+     * @return mixed
+     */
+    public function getService($serviceName)
+    {
+        return $this->serviceContainer->getService($serviceName);
     }
 
     /**

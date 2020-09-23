@@ -18,7 +18,7 @@
  * International Registered Trademark & Property of PrestaShop SA
  */
 
-namespace PrestaShop\Module\PsAccounts\Api\Client;
+namespace PrestaShop\Module\PsAccounts\Api;
 
 use GuzzleHttp\Client;
 use GuzzleHttp\Post\PostFile;
@@ -68,7 +68,7 @@ class SegmentClient extends GenericClient
      */
     public function upload($jobId, $compressedData)
     {
-        $this->setRoute($_ENV['SEGMENT_PROXY_API_URL'] . "/v0/upload/$jobId");
+        $this->setRoute($_ENV['SEGMENT_PROXY_API_URL'] . "/upload/$jobId");
 
         $file = new PostFile(
             'file',

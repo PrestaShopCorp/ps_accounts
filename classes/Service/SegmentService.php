@@ -4,7 +4,7 @@ namespace PrestaShop\Module\PsAccounts\Service;
 
 use Exception;
 use GuzzleHttp\Exception\ClientException;
-use PrestaShop\Module\PsAccounts\Api\Client\SegmentClient;
+use PrestaShop\Module\PsAccounts\Api\SegmentClient;
 
 class SegmentService
 {

@@ -2,7 +2,7 @@
 
 namespace PrestaShop\Module\PsAccounts\Service;
 
-use PrestaShop\Module\PsAccounts\Api\Client\EventBusSyncClient;
+use PrestaShop\Module\PsAccounts\Api\EventBusSyncClient;
 use PrestaShop\Module\PsAccounts\Repository\AccountsSyncRepository;
 
 class ApiAuthorizationService
