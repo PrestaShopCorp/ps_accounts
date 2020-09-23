@@ -18,10 +18,10 @@ class ThemeRepository
      */
     private $db;
 
-    public function __construct()
+    public function __construct(Context $context, Db $db)
     {
-        $this->context = Context::getContext();
-        $this->db = Db::getInstance();
+        $this->context = $context;
+        $this->db = $db;
     }
 
     /**

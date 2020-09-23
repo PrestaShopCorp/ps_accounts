@@ -1,0 +1,9 @@
+services:
+  PrestaShop\Module\PsAccounts\Decorator\ProductDecorator:
+    class: PrestaShop\Module\PsAccounts\Decorator\ProductDecorator
+    arguments:
+      - '@ps_accounts.context'
+      - '@PrestaShop\Module\PsAccounts\Repository\LanguageRepository'
+      - '@PrestaShop\Module\PsAccounts\Repository\ProductRepository'
+      - '@PrestaShop\Module\PsAccounts\Repository\CategoryRepository'
+      - '@PrestaShop\Module\PsAccounts\Formatter\ArrayFormatter'

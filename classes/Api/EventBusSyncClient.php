@@ -1,6 +1,6 @@
 <?php
 
-namespace PrestaShop\Module\PsAccounts\Api\Client;
+namespace PrestaShop\Module\PsAccounts\Api;
 
 use GuzzleHttp\Client;
 use GuzzleHttp\Exception\ConnectException;

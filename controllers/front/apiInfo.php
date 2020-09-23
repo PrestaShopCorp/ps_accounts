@@ -1,9 +1,6 @@
 <?php
 
 use PrestaShop\Module\PsAccounts\Controller\AbstractApiController;
-use PrestaShop\Module\PsAccounts\Repository\ConfigurationRepository;
-use PrestaShop\Module\PsAccounts\Repository\CurrencyRepository;
-use PrestaShop\Module\PsAccounts\Repository\LanguageRepository;
 use PrestaShop\Module\PsAccounts\Repository\ServerInformationRepository;
 
 class ps_AccountsApiInfoModuleFrontController extends AbstractApiController
@@ -19,11 +16,7 @@ class ps_AccountsApiInfoModuleFrontController extends AbstractApiController
     {
         $jobId = Tools::getValue('job_id');
 
-        $serverInformationRepository = new ServerInformationRepository(
-            new CurrencyRepository(),
-            new LanguageRepository(),
-            new ConfigurationRepository()
-        );
+        $serverInformationRepository = $this->module->getService(ServerInformationRepository::class);
 
         $serverInfo = $serverInformationRepository->getServerInformation();
 
