@@ -1,6 +1,7 @@
 CREATE TABLE IF NOT EXISTS `PREFIX_accounts_type_sync` (
 	  `type` varchar(50) NOT NULL,
 	  `offset` int(10) unsigned NOT NULL DEFAULT 0,
+	  `lang_iso` varchar(3),
 	  `last_sync_date` DATETIME NOT NULL
 ) ENGINE=ENGINE_TYPE DEFAULT CHARSET=utf8;
 

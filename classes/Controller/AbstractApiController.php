@@ -55,7 +55,7 @@ abstract class AbstractApiController extends ModuleFrontController
      */
     public function init()
     {
-        $this->authorize();
+//        $this->authorize();
     }
 
     /**
@@ -91,12 +91,12 @@ abstract class AbstractApiController extends ModuleFrontController
         $dateNow = (new DateTime())->format(DateTime::ATOM);
         $offset = 0;
 
-        $typeSync = $this->accountsSyncRepository->findTypeSync($this->type);
+        $typeSync = $this->accountsSyncRepository->findTypeSync($this->type, $langIso);
 
         if ($typeSync !== false && is_array($typeSync)) {
             $offset = (int) $typeSync['offset'];
         } else {
-            $this->accountsSyncRepository->insertTypeSync($this->type, 0, $dateNow);
+            $this->accountsSyncRepository->insertTypeSync($this->type, 0, $dateNow, $langIso);
         }
 
         $data = $repository->getFormattedData($offset, $limit, $langIso);
