@@ -112,7 +112,7 @@ class ProductRepository
      *
      * @return int
      */
-    public function getRemainingProductsCount($offset, $langIso)
+    public function getRemainingProductsCount($offset, $langIso = null)
     {
         $query = $this->getBaseQuery($this->context->shop->id)
             ->select('(COUNT(ps.id_product) - ' . (int) $offset . ') as count');

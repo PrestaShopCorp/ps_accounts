@@ -55,7 +55,7 @@ abstract class AbstractApiController extends ModuleFrontController
      */
     public function init()
     {
-//        $this->authorize();
+        $this->authorize();
     }
 
     /**
@@ -100,9 +100,6 @@ abstract class AbstractApiController extends ModuleFrontController
         }
 
         $data = $repository->getFormattedData($offset, $limit, $langIso);
-
-        dump($data);
-        die;
 
         $response = $this->segmentService->upload($jobId, $data);
 
