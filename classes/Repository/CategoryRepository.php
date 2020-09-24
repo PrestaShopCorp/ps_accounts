@@ -147,7 +147,7 @@ class CategoryRepository
     public function getRemainingCategoriesCount($offset, $langIso)
     {
         $query = $this->getBaseQuery()
-            ->select('(COUNT(ps.id_product) - ' . (int) $offset . ') as count')
+            ->select('(COUNT(cs.id_category) - ' . (int) $offset . ') as count')
             ->where('cs.id_shop = ' . (int) $this->context->shop->id);
 
         if ($langIso !== null && is_string($langIso)) {

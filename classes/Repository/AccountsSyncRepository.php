@@ -110,7 +110,7 @@ class AccountsSyncRepository
                 'offset' => $offset,
                 'last_sync_date' => $date,
             ],
-            'type = "' . pSQL($type) . '" AND lang_iso = "' .pSQL($langIso) . '"'
+            'type = "' . pSQL($type) . '" AND lang_iso = "' . pSQL($langIso) . '"'
         );
     }
 }

@@ -101,9 +101,6 @@ abstract class AbstractApiController extends ModuleFrontController
 
         try {
             $data = $repository->getFormattedData($offset, $limit, $langIso);
-
-            dump($data);
-            die;
         } catch (PrestaShopDatabaseException $exception) {
             $this->exitWithErrorStatus();
         }
