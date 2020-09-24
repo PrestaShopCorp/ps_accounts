@@ -89,7 +89,7 @@ class AccountsSyncRepository
         $query->select('*')
             ->from(self::TYPE_SYNC_TABLE_NAME)
             ->where('type = "' . pSQL($type) . '"')
-            ->where('lang_iso = ' . ($langIso == null ? 'NULL' : '"' . pSQL($langIso) . '"'));
+            ->where('lang_iso = "' . pSQL((string) $langIso) . '"');
 
         return $this->db->getRow($query);
     }
@@ -98,10 +98,11 @@ class AccountsSyncRepository
      * @param string $type
      * @param int $offset
      * @param string $date
+     * @param null $langIso
      *
      * @return bool
      */
-    public function updateTypeSync($type, $offset, $date)
+    public function updateTypeSync($type, $offset, $date, $langIso = null)
     {
         return $this->db->update(
             self::TYPE_SYNC_TABLE_NAME,
@@ -109,7 +110,7 @@ class AccountsSyncRepository
                 'offset' => $offset,
                 'last_sync_date' => $date,
             ],
-            'type = "' . pSQL($type) . '"'
+            'type = "' . pSQL($type) . '" AND lang_iso = "' .pSQL($langIso) . '"'
         );
     }
 }

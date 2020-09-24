@@ -3,11 +3,9 @@
 namespace PrestaShop\Module\PsAccounts\Repository;
 
 use Category;
+use Context;
 use Db;
 use DbQuery;
-use mysqli_result;
-use PDOStatement;
-use PrestaShopDatabaseException;
 
 class CategoryRepository
 {
@@ -25,10 +23,26 @@ class CategoryRepository
      * @var int
      */
     private $topCategoryId = 0;
+    /**
+     * @var Context
+     */
+    private $context;
 
-    public function __construct(Db $db)
+    public function __construct(Db $db, Context $context)
     {
         $this->db = $db;
+        $this->context = $context;
+    }
+
+    public function getBaseQuery()
+    {
+        $query = new DbQuery();
+        $query->from('category_shop', 'cs')
+            ->innerJoin('category', 'c', 'cs.id_category = c.id_category')
+            ->leftJoin('category_lang', 'cl', 'cl.id_category = cs.id_category')
+            ->leftJoin('lang', 'l', 'l.id_lang = cl.id_lang');
+
+        return $query;
     }
 
     /**
@@ -46,7 +60,7 @@ class CategoryRepository
         if (!isset($this->categoryLangCache[$langId])) {
             try {
                 $this->categoryLangCache[$langId] = $this->getCategoriesWithParentInfo($langId, $shopId);
-            } catch (PrestaShopDatabaseException $e) {
+            } catch (\PrestaShopDatabaseException $e) {
                 return [
                     'category_path' => '',
                     'category_id_path' => '',
@@ -84,9 +98,9 @@ class CategoryRepository
      * @param int $langId
      * @param int $shopId
      *
-     * @return array|bool|mysqli_result|PDOStatement|resource|null
+     * @return array
      *
-     * @throws PrestaShopDatabaseException
+     * @throws \PrestaShopDatabaseException
      */
     public function getCategoriesWithParentInfo($langId, $shopId)
     {
@@ -103,5 +117,43 @@ class CategoryRepository
             ->orderBy('cl.id_category');
 
         return $this->db->executeS($query);
+    }
+
+    /**
+     * @param int $offset
+     * @param int $limit
+     * @param string $langIso
+     *
+     * @return array
+     *
+     * @throws \PrestaShopDatabaseException
+     */
+    public function getCategories($offset, $limit, $langIso = null)
+    {
+        $query = $this->getBaseQuery();
+
+        $query->select('cs.id_category, c.id_parent, cl.name, cl.description, cl.link_rewrite,
+         cl.meta_title, cl.meta_keywords, cl.meta_description, l.iso_code')
+        ->where('cs.id_shop = ' . (int) $this->context->shop->id)
+        ->limit($limit, $offset);
+
+        if ($langIso !== null && is_string($langIso)) {
+            $query->where('l.iso_code = "' . pSQL($langIso) . '"');
+        }
+
+        return $this->db->executeS($query);
+    }
+
+    public function getRemainingCategoriesCount($offset, $langIso)
+    {
+        $query = $this->getBaseQuery()
+            ->select('(COUNT(ps.id_product) - ' . (int) $offset . ') as count')
+            ->where('cs.id_shop = ' . (int) $this->context->shop->id);
+
+        if ($langIso !== null && is_string($langIso)) {
+            $query->where('l.iso_code = "' . pSQL($langIso) . '"');
+        }
+
+        return (int) $this->db->getValue($query);
     }
 }

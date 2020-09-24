@@ -99,7 +99,14 @@ abstract class AbstractApiController extends ModuleFrontController
             $this->accountsSyncRepository->insertTypeSync($this->type, 0, $dateNow, $langIso);
         }
 
-        $data = $repository->getFormattedData($offset, $limit, $langIso);
+        try {
+            $data = $repository->getFormattedData($offset, $limit, $langIso);
+
+            dump($data);
+            die;
+        } catch (PrestaShopDatabaseException $exception) {
+            $this->exitWithErrorStatus();
+        }
 
         $response = $this->segmentService->upload($jobId, $data);
 
@@ -107,14 +114,14 @@ abstract class AbstractApiController extends ModuleFrontController
             $offset += $limit;
         }
 
-        $remainingObjects = $repository->getRemainingObjectsCount($offset);
+        $remainingObjects = $repository->getRemainingObjectsCount($offset, $langIso);
 
         if ($remainingObjects <= 0) {
             $remainingObjects = 0;
             $offset = 0;
         }
 
-        $this->accountsSyncRepository->updateTypeSync($this->type, $offset, $dateNow);
+        $this->accountsSyncRepository->updateTypeSync($this->type, $offset, $dateNow, $langIso);
 
         return array_merge(
             [
