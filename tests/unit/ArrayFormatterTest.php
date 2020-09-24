@@ -19,7 +19,7 @@ class ArrayFormatterTest extends TestCase
     {
         $data = [
             'value1',
-            'value2'
+            'value2',
         ];
 
         $this->assertEquals('value1;value2', $this->arrayFormatter->formatArray($data));
