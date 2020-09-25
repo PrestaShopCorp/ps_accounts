@@ -86,7 +86,10 @@ class AdminAjaxPsAccountsController extends ModuleAdminController
     public function ajaxProcessSaveAdminToken()
     {
         try {
-            Configuration::updateValue('PS_PSX_FIREBASE_ADMIN_TOKEN', Tools::getValue('adminToken'));
+            if (false === $this->configuration->get(Configuration::PS_PSX_FIREBASE_ADMIN_TOKEN)) {
+                Configuration::updateValue('PS_PSX_FIREBASE_ADMIN_TOKEN', Tools::getValue('adminToken'));
+            }
+            Configuration::updateValue('PS_ACCOUNTS_FIREBASE_ADMIN_TOKEN', Tools::getValue('adminToken'));
 
             $this->ajaxDie(
                 json_encode(true)
