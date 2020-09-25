@@ -111,17 +111,17 @@ class ProductRepository
      * @param string $langIso
      *
      * @return int
+     * @throws PrestaShopDatabaseException
      */
     public function getRemainingProductsCount($offset, $langIso = null)
     {
-        $query = $this->getBaseQuery($this->context->shop->id)
-            ->select('(COUNT(ps.id_product) - ' . (int) $offset . ') as count');
+        $products = $this->getProducts(0, 1000000000, $langIso);
 
-        if ($langIso !== null && is_string($langIso)) {
-            $query->where('l.iso_code = "' . pSQL($langIso) . '"');
+        if (!is_array($products) || empty($products)) {
+            return 0;
         }
 
-        return (int) $this->db->getValue($query);
+        return (int) (count($products) - $offset);
     }
 
     /**
