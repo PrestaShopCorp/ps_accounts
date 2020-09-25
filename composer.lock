@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "041ba01f03779d664ca4b08648873262",
+    "content-hash": "3c3cc9b11410f7fb2c0c00072c1558d2",
     "packages": [
         {
             "name": "guzzlehttp/guzzle",
@@ -388,16 +388,16 @@
         },
         {
             "name": "prestashop/prestashop-accounts-auth",
-            "version": "2.1.3",
+            "version": "2.1.4",
             "source": {
                 "type": "git",
                 "url": "https://github.com/PrestaShopCorp/prestashop_accounts_auth.git",
-                "reference": "2b639c0d033d48fa875024435ed1fa9f70b6c259"
+                "reference": "21130502d69396a129ff8634841b85c559970fcd"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/PrestaShopCorp/prestashop_accounts_auth/zipball/2b639c0d033d48fa875024435ed1fa9f70b6c259",
-                "reference": "2b639c0d033d48fa875024435ed1fa9f70b6c259",
+                "url": "https://api.github.com/repos/PrestaShopCorp/prestashop_accounts_auth/zipball/21130502d69396a129ff8634841b85c559970fcd",
+                "reference": "21130502d69396a129ff8634841b85c559970fcd",
                 "shasum": ""
             },
             "require": {
@@ -426,7 +426,7 @@
                 "MIT"
             ],
             "description": "PrestaShop Accounts composer library",
-            "time": "2020-09-25T14:57:58+00:00"
+            "time": "2020-09-25T16:20:11+00:00"
         },
         {
             "name": "psr/log",
