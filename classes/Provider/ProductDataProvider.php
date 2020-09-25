@@ -52,6 +52,7 @@ class ProductDataProvider implements PaginatedApiDataProviderInterface
      * @param string $langIso
      *
      * @return int
+     *
      * @throws \PrestaShopDatabaseException
      */
     public function getRemainingObjectsCount($offset, $langIso = null)

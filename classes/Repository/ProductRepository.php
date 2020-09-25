@@ -111,6 +111,7 @@ class ProductRepository
      * @param string $langIso
      *
      * @return int
+     *
      * @throws PrestaShopDatabaseException
      */
     public function getRemainingProductsCount($offset, $langIso = null)

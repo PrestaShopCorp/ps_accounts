@@ -38,7 +38,7 @@ class AccountsSyncRepository
                 'type' => pSQL($type),
                 'offset' => (int) $offset,
                 'last_sync_date' => pSQL($lastSyncDate),
-                'lang_iso' => pSQL($langIso)
+                'lang_iso' => pSQL($langIso),
             ]
         );
     }
