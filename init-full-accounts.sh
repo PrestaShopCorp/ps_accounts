@@ -20,7 +20,6 @@ gitClone(){
 installServices() {
     echo 'install services'
     cd $1/services
-    bash ./install.sh `pwd`
     docker-compose up -d
     echo 'install services finished'
 }
