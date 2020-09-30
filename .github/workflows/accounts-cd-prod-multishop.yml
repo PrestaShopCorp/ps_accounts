@@ -12,7 +12,6 @@ env:
   GCLOUD_TOKEN_PATH: ./token.json
 
 jobs:
-
   build:
     name: Build ps_accounts and ps_checkout
     runs-on: ubuntu-latest
@@ -138,7 +137,7 @@ jobs:
             sudo su -c 'docker exec $(docker ps -q -f "ancestor=prestashop/prestashop:1.7" -f "name=multishop") bin/console prestashop:module uninstall ps_accounts || true'
             sudo su -c 'docker exec $(docker ps -q -f "ancestor=prestashop/prestashop:1.7" -f "name=multishop") bin/console prestashop:module install ps_accounts'
             sudo su -c 'docker exec $(docker ps -q -f "ancestor=prestashop/prestashop:1.7" -f "name=multishop") cp modules/ps_checkout/.env modules/ps_checkout/_dev/.env'
-            sudo su -c 'docker exec $(docker ps -q -f "ancestor=prestashop/prestashop:1.7" -f "name=multishop") bin/console prestashop:module uninstall ps_accounts || true'
+            sudo su -c 'docker exec $(docker ps -q -f "ancestor=prestashop/prestashop:1.7" -f "name=multishop") bin/console prestashop:module uninstall ps_checkout || true'
             sudo su -c 'docker exec $(docker ps -q -f "ancestor=prestashop/prestashop:1.7" -f "name=multishop") bin/console prestashop:module install ps_checkout'
 
   install_1_6:
