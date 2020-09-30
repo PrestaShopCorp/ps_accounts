@@ -12,7 +12,6 @@ env:
   GCLOUD_TOKEN_PATH: ./token.json
 
 jobs:
-
   build:
     name: Build ps_accounts and ps_checkout
     runs-on: ubuntu-latest
