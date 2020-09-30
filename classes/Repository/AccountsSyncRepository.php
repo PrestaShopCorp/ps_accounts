@@ -78,9 +78,9 @@ class AccountsSyncRepository
     /**
      * @param string $type
      *
-     * @return array|bool|false|object|null
+     * @return array|bool|object|null
      */
-    public function findSyncType($type)
+    public function findTypeSync($type)
     {
         $query = new DbQuery();
         $query->select('*')
@@ -88,5 +88,24 @@ class AccountsSyncRepository
             ->where('type = "' . pSQL($type) . '"');
 
         return $this->db->getRow($query);
+    }
+
+    /**
+     * @param string $type
+     * @param int $offset
+     * @param string $date
+     *
+     * @return bool
+     */
+    public function updateTypeSync($type, $offset, $date)
+    {
+        return $this->db->update(
+            self::TYPE_SYNC_TABLE_NAME,
+            [
+                'offset' => $offset,
+                'last_sync_date' => $date,
+            ],
+            'type = "' . pSQL($type) . '"'
+        );
     }
 }

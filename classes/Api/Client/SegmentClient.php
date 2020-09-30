@@ -61,14 +61,14 @@ class SegmentClient extends GenericClient
     }
 
     /**
-     * @param string $syncId
+     * @param string $jobId
      * @param string $compressedData
      *
      * @return array
      */
-    public function upload($syncId, $compressedData)
+    public function upload($jobId, $compressedData)
     {
-        $this->setRoute($_ENV['SEGMENT_PROXY_API_URL'] . "/v0/upload/$syncId");
+        $this->setRoute($_ENV['SEGMENT_PROXY_API_URL'] . "/v0/upload/$jobId");
 
         $file = new PostFile(
             'file',

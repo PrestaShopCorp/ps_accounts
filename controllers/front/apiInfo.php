@@ -1,16 +1,14 @@
 <?php
 
-use PrestaShop\Module\PsAccounts\Controller\CommonApiController;
+use PrestaShop\Module\PsAccounts\Controller\AbstractApiController;
 use PrestaShop\Module\PsAccounts\Repository\ConfigurationRepository;
 use PrestaShop\Module\PsAccounts\Repository\CurrencyRepository;
 use PrestaShop\Module\PsAccounts\Repository\LanguageRepository;
 use PrestaShop\Module\PsAccounts\Repository\ServerInformationRepository;
 
-require_once __DIR__ . '/../../vendor/autoload.php';
-
-class ps_AccountsApiInfoModuleFrontController extends CommonApiController
+class ps_AccountsApiInfoModuleFrontController extends AbstractApiController
 {
-    public $type = 'info';
+    public $type = 'shops';
 
     /**
      * @throws PrestaShopException
@@ -19,9 +17,7 @@ class ps_AccountsApiInfoModuleFrontController extends CommonApiController
      */
     public function postProcess()
     {
-        if (!$syncId = Tools::getValue('sync_id')) {
-            $this->exitWithErrorStatus();
-        }
+        $jobId = Tools::getValue('job_id');
 
         $serverInformationRepository = new ServerInformationRepository(
             new CurrencyRepository(),
@@ -31,7 +27,7 @@ class ps_AccountsApiInfoModuleFrontController extends CommonApiController
 
         $serverInfo = $serverInformationRepository->getServerInformation();
 
-        $response = $this->segmentService->upload($syncId, $serverInfo);
+        $response = $this->segmentService->upload($jobId, $serverInfo);
 
         $this->ajaxDie(
             array_merge(['remaining_objects' => '0'], $response)

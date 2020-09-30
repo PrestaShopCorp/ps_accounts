@@ -2,6 +2,7 @@
 
 namespace PrestaShop\Module\PsAccounts\Service;
 
+use PrestaShop\Module\PsAccounts\Api\Client\EventBusSyncClient;
 use PrestaShop\Module\PsAccounts\Repository\AccountsSyncRepository;
 
 class ApiAuthorizationService
@@ -10,10 +11,17 @@ class ApiAuthorizationService
      * @var AccountsSyncRepository
      */
     private $accountsSyncStateRepository;
+    /**
+     * @var EventBusSyncClient
+     */
+    private $eventBusSyncClient;
 
-    public function __construct(AccountsSyncRepository $accountsSyncStateRepository)
-    {
+    public function __construct(
+        AccountsSyncRepository $accountsSyncStateRepository,
+        EventBusSyncClient $eventBusSyncClient
+    ) {
         $this->accountsSyncStateRepository = $accountsSyncStateRepository;
+        $this->eventBusSyncClient = $eventBusSyncClient;
     }
 
     /**
@@ -33,7 +41,10 @@ class ApiAuthorizationService
             return true;
         }
 
-        //TODO: HERE WE CHECK WITH ACCOUNTS API IF JOB IS LEGIT
-        return $this->accountsSyncStateRepository->insertSync($jobId, date(DATE_ATOM));
+        if ($this->eventBusSyncClient->validateJobId($jobId)) {
+            return $this->accountsSyncStateRepository->insertSync($jobId, date(DATE_ATOM));
+        }
+
+        return false;
     }
 }

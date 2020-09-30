@@ -26,12 +26,12 @@ class SegmentService
     }
 
     /**
-     * @param string $syncId
+     * @param string $jobId
      * @param array $data
      *
      * @return array
      */
-    public function upload($syncId, $data)
+    public function upload($jobId, $data)
     {
         try {
             $compressedData = $this->compressionService->gzipCompressData($data);
@@ -40,7 +40,7 @@ class SegmentService
         }
 
         try {
-            $response = $this->segmentClient->upload($syncId, $compressedData);
+            $response = $this->segmentClient->upload($jobId, $compressedData);
         } catch (ClientException $exception) {
             return ['error' => $exception->getMessage()];
         }
