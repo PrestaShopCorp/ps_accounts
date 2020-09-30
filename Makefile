@@ -15,10 +15,15 @@ start: ## Start app, force rebuild all containers
 	$(MAKE) init
 	$(DKC) up -d --build --remove-orphans
 
-build_node_dep: ## Force reload node dependencies
-	docker exec -it ps_acc_web bash -c "yarn --cwd /tmp/libs/js/prestashop_accounts_vue_components/ build-lib"
-	docker exec -it ps_acc_web bash -c "yarn --cwd /var/www/html/modules/ps_checkout/_dev/ build || true"
-	docker exec -it ps_acc_web bash -c "yarn --cwd /var/www/html/modules/ps_checkout/_dev/ build"
+build_node_dep_checkout: ## Force reload node dependencies
+	docker exec -it ps_acc_web bash -c "yarn --cwd /tmp/libs/js/prestashop_accounts_vue_components/ build-lib --fix"
+	docker exec -it ps_acc_web bash -c "yarn --cwd /var/www/html/modules/ps_checkout/_dev/ build --fix || true"
+	docker exec -it ps_acc_web bash -c "yarn --cwd /var/www/html/modules/ps_checkout/_dev/ build --fix"
+
+build_node_dep_metrics: ## Force reload node dependencies
+	docker exec -it ps_acc_web bash -c "yarn --cwd /tmp/libs/js/prestashop_accounts_vue_components/ build-lib --fix"
+	docker exec -it ps_acc_web bash -c "yarn --cwd /var/www/html/modules/ps_metrics/_dev/ build --fix || true"
+	docker exec -it ps_acc_web bash -c "yarn --cwd /var/www/html/modules/ps_metrics/_dev/ build --fix"
 
 restart: ## Force restart all containers
 	$(MAKE) down

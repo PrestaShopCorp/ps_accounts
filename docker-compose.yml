@@ -14,6 +14,7 @@ services:
       - ${PRESTASHOP_ACCOUNTS_AUTH_PATH}:/tmp/libs/php/prestashop_accounts_auth
       - ${PRESTASHOP_ACCOUNTS_VUE_COMPONENTS_PATH}:/tmp/libs/js/prestashop_accounts_vue_components
       - ${PS_CHECKOUT_PATH}:/var/www/html/modules/ps_checkout
+      - ${PS_METRICS_PATH}:/var/www/html/modules/ps_metrics
     healthcheck:
         test: ["CMD", "curl", "-f", "http://localhost"]
         interval: 30s

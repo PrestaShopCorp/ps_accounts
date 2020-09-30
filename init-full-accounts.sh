@@ -47,6 +47,14 @@ installPsCheckout() {
     echo 'install ps_checkout finished'
 }
 
+installPsMetrics() {
+    echo 'install ps_metrics'
+    cd $1/ps_metrics/_dev
+    yarn install
+    yarn build
+    echo 'install ps_metrics finished'
+}
+
 installPsAccounts() {
     echo 'install ps_accounts'
     cd $1/ps_accounts
@@ -68,8 +76,9 @@ install(){
     installServices $1
     installPrestashopAccountsAuth $1
     installPrestashopAccountsVueComponents $1
-    installPsCheckout $1
     installPsAccounts $1
+    installPsCheckout $1
+    installPsMetrics $1
     echo 'install finished'
 }
 

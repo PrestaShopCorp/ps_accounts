@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "41eb410453c5c940a7e6240294f79533",
+    "content-hash": "337e1509be59959e55c1b1e1ffc8b0ab",
     "packages": [
         {
             "name": "guzzlehttp/guzzle",
@@ -388,16 +388,16 @@
         },
         {
             "name": "prestashop/prestashop-accounts-auth",
-            "version": "2.1.5",
+            "version": "v2.1.6",
             "source": {
                 "type": "git",
                 "url": "https://github.com/PrestaShopCorp/prestashop_accounts_auth.git",
-                "reference": "add5c404871d7b91ab172cbcb0cecb2b80ebb236"
+                "reference": "a8cfa8ebc2cbcb06d0ea371e55b11b109a012b04"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/PrestaShopCorp/prestashop_accounts_auth/zipball/add5c404871d7b91ab172cbcb0cecb2b80ebb236",
-                "reference": "add5c404871d7b91ab172cbcb0cecb2b80ebb236",
+                "url": "https://api.github.com/repos/PrestaShopCorp/prestashop_accounts_auth/zipball/a8cfa8ebc2cbcb06d0ea371e55b11b109a012b04",
+                "reference": "a8cfa8ebc2cbcb06d0ea371e55b11b109a012b04",
                 "shasum": ""
             },
             "require": {
@@ -426,7 +426,7 @@
                 "MIT"
             ],
             "description": "PrestaShop Accounts composer library",
-            "time": "2020-09-29T13:09:10+00:00"
+            "time": "2020-09-30T14:37:20+00:00"
         },
         {
             "name": "psr/log",
@@ -1867,16 +1867,16 @@
         },
         {
             "name": "prestashop/php-dev-tools",
-            "version": "v3.9",
+            "version": "v3.10",
             "source": {
                 "type": "git",
                 "url": "https://github.com/PrestaShop/php-dev-tools.git",
-                "reference": "01c27954fbcccbec0a8ad04c913e43832b1343ad"
+                "reference": "d806112cb6466cae8d9a4418fe65090d0c672747"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/PrestaShop/php-dev-tools/zipball/01c27954fbcccbec0a8ad04c913e43832b1343ad",
-                "reference": "01c27954fbcccbec0a8ad04c913e43832b1343ad",
+                "url": "https://api.github.com/repos/PrestaShop/php-dev-tools/zipball/d806112cb6466cae8d9a4418fe65090d0c672747",
+                "reference": "d806112cb6466cae8d9a4418fe65090d0c672747",
                 "shasum": ""
             },
             "require": {
@@ -1901,7 +1901,7 @@
                 "MIT"
             ],
             "description": "PrestaShop coding standards",
-            "time": "2020-09-07T08:53:30+00:00"
+            "time": "2020-09-29T16:25:14+00:00"
         },
         {
             "name": "sebastian/code-unit-reverse-lookup",
