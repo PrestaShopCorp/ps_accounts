@@ -65,6 +65,8 @@ jobs:
           GCLOUD_CLUSTER: ${{ secrets.GCLOUD_CLUSTER }}
           GCLOUD_PROJECT: ${{ secrets.GCLOUD_PROJECT_INTEGRATION }}
 
+      - run: cat ps_accounts/.env
+
       - name: Write install file 1.6 checkout
         run: |
           cat <<'EOF' > ps_checkout/install.php
