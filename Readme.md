@@ -76,11 +76,11 @@ The install script will :
 1. copy composer.json into composer-dev.json;
 2. append à "repositories" entry with the local repository of type "path" pointing where it is mounted on local filesystem;
 3. replace the dependency version  number with the one checked out locally :
-    - in case git is not installed in the VM :  
+    - in case git is not installed in the VM :
     `dev-master`
-    - in case git is installed in the VM :  
+    - in case git is installed in the VM :
     `dev-[git_branch_name]`
-    
+
 At this point composer will use dependencies from local repository and update its dependencies accordingly.
 
 In order to update alternate composer-dev.json in case composer.json has been updated you can run `make restart`.
@@ -196,5 +196,3 @@ body : {
 	"returnSecureToken":true
 }
 ```
-
-These tokens need to be inserted into PrestaShop configuration table with 'PS_PSX_FIREBASE_ID_TOKEN' and 'PS_PSX_FIREBASE_REFRESH_TOKEN' names

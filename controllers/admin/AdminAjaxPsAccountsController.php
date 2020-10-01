@@ -18,6 +18,7 @@
  * International Registered Trademark & Property of PrestaShop SA
  */
 
+use PrestaShop\AccountsAuth\Adapter\Configuration as ConfigurationAdapter;
 use PrestaShop\AccountsAuth\DependencyInjection\PsAccountsServiceProvider;
 use PrestaShop\AccountsAuth\Handler\ErrorHandler\ErrorHandler;
 use PrestaShop\AccountsAuth\Repository\ConfigurationRepository;
@@ -36,6 +37,11 @@ class AdminAjaxPsAccountsController extends ModuleAdminController
     private $configuration;
 
     /**
+     * @var ConfigurationAdapter
+     */
+    private $configurationAdapter;
+
+    /**
      * AdminAjaxPsAccountsController constructor.
      *
      * @throws Exception
@@ -45,6 +51,7 @@ class AdminAjaxPsAccountsController extends ModuleAdminController
         parent::__construct();
 
         $this->configuration = PsAccountsServiceProvider::getInstance()->get(ConfigurationRepository::class);
+        $this->configurationAdapter = PsAccountsServiceProvider::getInstance()->get(ConfigurationAdapter::class);
     }
 
     /**
@@ -86,7 +93,10 @@ class AdminAjaxPsAccountsController extends ModuleAdminController
     public function ajaxProcessSaveAdminToken()
     {
         try {
-            Configuration::updateValue('PS_PSX_FIREBASE_ADMIN_TOKEN', Tools::getValue('adminToken'));
+            if (false === $this->configurationAdapter->get(ConfigurationAdapter::PS_PSX_FIREBASE_ADMIN_TOKEN)) {
+                Configuration::updateValue('PS_PSX_FIREBASE_ADMIN_TOKEN', Tools::getValue('adminToken'));
+            }
+            Configuration::updateValue('PS_ACCOUNTS_FIREBASE_ADMIN_TOKEN', Tools::getValue('adminToken'));
 
             $this->ajaxDie(
                 json_encode(true)
