@@ -206,10 +206,10 @@ jobs:
             sudo su -c 'docker exec $(docker ps -q -f "ancestor=prestashop/prestashop:1.6" -f "name=multishop") rm -rf cache/smarty/cache/*'
             sudo su -c 'docker exec $(docker ps -q -f "ancestor=prestashop/prestashop:1.6" -f "name=multishop") rm -rf img/tmp/*'
 
-      - name: Delete tmp module
-        uses: appleboy/ssh-action@master
-        with:
-          host: ${{ secrets.SSH_HOST_INTEGRATION }}
-          username: ${{ secrets.SSH_USERNAME }}
-          key: ${{ secrets.SSH_KEY }}
-          script: rm -rf build
+#      - name: Delete tmp module
+#        uses: appleboy/ssh-action@master
+#        with:
+#          host: ${{ secrets.SSH_HOST_INTEGRATION }}
+#          username: ${{ secrets.SSH_USERNAME }}
+#          key: ${{ secrets.SSH_KEY }}
+#          script: rm -rf build
