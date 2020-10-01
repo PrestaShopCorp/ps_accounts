@@ -29,5 +29,6 @@ parameters:
 		- '#Access to an undefined property Shop::\$theme.#'
 		- '#Call to method buildRepository\(\) on an unknown class PrestaShop\\PrestaShop\\Core\\Addon\\Theme\\ThemeManagerBuilder.#'
 		- '#Instantiated class PrestaShop\\PrestaShop\\Core\\Addon\\Theme\\ThemeManagerBuilder not found.#'
+		- '#Call to an undefined method Module::getPath\(\).#'
 
 	level: 7

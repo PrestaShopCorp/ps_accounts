@@ -289,6 +289,9 @@ class Ps_accounts extends Module
         return true;
     }
 
+    /**
+     * @return string
+     */
     public function getPath()
     {
         return $this->_path;

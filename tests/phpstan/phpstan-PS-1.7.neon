@@ -31,5 +31,6 @@ parameters:
 		- '#Instantiated class PrestaShop\\PrestaShop\\Core\\Addon\\Theme\\ThemeManagerBuilder not found.#'
 		- '#Class Theme not found.#'
 		- '#Access to property \$id on an unknown class Theme.#'
+		- '#Call to an undefined method Module::getPath\(\).#'
 
 	level: 7

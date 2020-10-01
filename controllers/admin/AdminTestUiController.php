@@ -24,12 +24,8 @@
 *  International Registered Trademark & Property of PrestaShop SA
 */
 
-use PrestaShop\AccountsAuth\DependencyInjection\PsAccountsServiceProvider;
-use PrestaShop\AccountsAuth\Handler\ErrorHandler\ErrorHandler;
-use PrestaShop\AccountsAuth\Repository\ConfigurationRepository;
-
 /**
- * Controller reset onboarding.
+ * Controller test ui
  */
 class AdminTestUiController extends ModuleAdminController
 {
@@ -43,19 +39,15 @@ class AdminTestUiController extends ModuleAdminController
     }
 
     /**
-     * Initialize the content by adding Boostrap and loading the TPL.
-     *
-     * @param none
-     *
-     * @return none
+     * @return void
      */
     public function initContent()
     {
         parent::initContent();
-        $this->context->smarty->assign(array(
-            'pathApp' => Tools::getShopDomainSsl(true).$this->module->getPath().'views/js/app.js',
-            'pathVendor' => Tools::getShopDomainSsl(true).$this->module->getPath().'views/js/chunk-vendors.js',
-        ));
+        $this->context->smarty->assign([
+            'pathApp' => Tools::getShopDomainSsl(true) . $this->module->getPath() . 'views/js/app.js',
+            'pathVendor' => Tools::getShopDomainSsl(true) . $this->module->getPath() . 'views/js/chunk-vendors.js',
+        ]);
         Media::addJsDef([
             'contextPsAccounts' => (new PrestaShop\AccountsAuth\Presenter\PsAccountsPresenter('ps_accounts'))->present(),
         ]);
