@@ -95,6 +95,7 @@ jobs:
           VCOMPONENTS_VERSION: ${{ steps.version_vcomponents.outputs.VERSION }}
           ACCOUNTSAUTH_VERSION: ${{ steps.version_auth.outputs.VERSION }}
 
+      - run: ls
 #      - name: Delete old modules 1.7
 #        continue-on-error: true
 #        uses: appleboy/ssh-action@master
@@ -124,7 +125,7 @@ jobs:
           username: ${{ secrets.SSH_USERNAME }}
           key: ${{ secrets.SSH_KEY }}
           source: "."
-          target: build
+          target: build-tmp
 
 #  install_1_7:
 #    name: Install on shop 1.7
