@@ -95,17 +95,16 @@ jobs:
           VCOMPONENTS_VERSION: ${{ steps.version_vcomponents.outputs.VERSION }}
           ACCOUNTSAUTH_VERSION: ${{ steps.version_auth.outputs.VERSION }}
 
-      - run: ls
-#      - name: Delete old modules 1.7
-#        continue-on-error: true
-#        uses: appleboy/ssh-action@master
-#        with:
-#          host: ${{ secrets.SSH_HOST_INTEGRATION }}
-#          username: ${{ secrets.SSH_USERNAME }}
-#          key: ${{ secrets.SSH_KEY }}
-#          script: |
-#            sudo su -c 'rm -rf ${{ secrets.MULTISHOP_17_PATH }}/ps_accounts'
-#            sudo su -c 'rm -rf ${{ secrets.MULTISHOP_17_PATH }}/ps_checkout'
+      - name: Delete old modules 1.7
+        continue-on-error: true
+        uses: appleboy/ssh-action@master
+        with:
+          host: ${{ secrets.SSH_HOST_INTEGRATION }}
+          username: ${{ secrets.SSH_USERNAME }}
+          key: ${{ secrets.SSH_KEY }}
+          script: |
+            sudo su -c 'rm -rf ${{ secrets.MULTISHOP_17_PATH }}/ps_accounts'
+            sudo su -c 'rm -rf ${{ secrets.MULTISHOP_17_PATH }}/ps_checkout'
 #
 #      - name: Delete old modules 1.6
 #        continue-on-error: true
@@ -125,14 +124,13 @@ jobs:
           username: ${{ secrets.SSH_USERNAME }}
           key: ${{ secrets.SSH_KEY }}
           source: "."
-          target: build-tmp
+          target: build
 
   install_1_7:
     name: Install on shop 1.7
     runs-on: ubuntu-latest
     needs: build
     steps:
-
 
       - name: Move modules
         uses: appleboy/ssh-action@master
@@ -141,21 +139,11 @@ jobs:
           username: ${{ secrets.SSH_USERNAME }}
           key: ${{ secrets.SSH_KEY }}
           script: |
-            sudo su -c 'cp -R build-tmp/ps_accounts toto/'
+            sudo su -c 'cp -R build/ps_accounts ${{ secrets.MULTISHOP_17_PATH }}/ps_accounts'
+            sudo su -c 'chown -R www-data:www-data ${{ secrets.MULTISHOP_17_PATH }}/ps_accounts'
+            sudo su -c 'cp -R build/ps_checkout ${{ secrets.MULTISHOP_17_PATH }}'
+            sudo su -c 'chown -R www-data:www-data ${{ secrets.MULTISHOP_17_PATH }}/ps_checkout'
 
-#
-#      - name: Move modules
-#        uses: appleboy/ssh-action@master
-#        with:
-#          host: ${{ secrets.SSH_HOST_INTEGRATION }}
-#          username: ${{ secrets.SSH_USERNAME }}
-#          key: ${{ secrets.SSH_KEY }}
-#          script: |
-#            sudo su -c 'cp -R build/ps_accounts ${{ secrets.MULTISHOP_17_PATH }}'
-#            sudo su -c 'chown -R www-data:www-data ${{ secrets.MULTISHOP_17_PATH }}/ps_accounts'
-#            sudo su -c 'cp -R build/ps_checkout ${{ secrets.MULTISHOP_17_PATH }}'
-#            sudo su -c 'chown -R www-data:www-data ${{ secrets.MULTISHOP_17_PATH }}/ps_checkout'
-#
 #      - name: Install modules
 #        uses: appleboy/ssh-action@master
 #        with:
