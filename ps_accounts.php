@@ -125,6 +125,7 @@ class Ps_accounts extends Module
         $this->ps_versions_compliancy = ['min' => '1.6', 'max' => _PS_VERSION_];
         $this->adminControllers = [
             'hmac' => 'AdminConfigureHmacPsAccounts',
+            'testUi' => 'AdminTestUi',
             'ajax' => 'AdminAjaxPsAccounts',
             'resetOnboarding' => 'AdminResetOnboarding',
         ];
@@ -286,5 +287,10 @@ class Ps_accounts extends Module
         $psAccountsService->changeUrl($bodyHttp, 'multishop');
 
         return true;
+    }
+
+    public function getPath()
+    {
+        return $this->_path;
     }
 }
