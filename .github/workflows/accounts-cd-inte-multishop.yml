@@ -102,10 +102,10 @@ jobs:
           username: ${{ secrets.SSH_USERNAME }}
           key: ${{ secrets.SSH_KEY }}
           script: |
-            sudo su -c 'docker exec $(docker ps -q -f "ancestor=prestashop/prestashop:1.7" -f "name=multishop") ls -al modules/
+            sudo su -c 'docker exec $(docker ps -q -f "ancestor=prestashop/prestashop:1.7" -f "name=multishop") ls -al modules/'
             sudo su -c 'docker exec $(docker ps -q -f "ancestor=prestashop/prestashop:1.7" -f "name=multishop") rm -rf modules/ps_accounts'
             sudo su -c 'docker exec $(docker ps -q -f "ancestor=prestashop/prestashop:1.7" -f "name=multishop") rm -rf modules/ps_checkout'
-            sudo su -c 'docker exec $(docker ps -q -f "ancestor=prestashop/prestashop:1.7" -f "name=multishop") ls -al modules/
+            sudo su -c 'docker exec $(docker ps -q -f "ancestor=prestashop/prestashop:1.7" -f "name=multishop") ls -al modules/'
 
       - name: Delete old modules 1.6
         continue-on-error: true
