@@ -2,11 +2,11 @@
 
 namespace PrestaShop\Module\PsAccounts\Api;
 
+use Dotenv\Dotenv;
 use GuzzleHttp\Client;
 use GuzzleHttp\Exception\ConnectException;
 use PrestaShop\AccountsAuth\Api\Client\GenericClient;
 
-use Dotenv\Dotenv;
 $dotenv = Dotenv::createImmutable(_PS_MODULE_DIR_ . 'ps_checkout/');
 $dotenv->load();
 
