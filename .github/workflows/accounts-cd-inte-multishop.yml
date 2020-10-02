@@ -146,6 +146,7 @@ jobs:
 
       - name: Install modules
         uses: appleboy/ssh-action@master
+        retry: 2
         with:
           host: ${{ secrets.SSH_HOST_INTEGRATION }}
           username: ${{ secrets.SSH_USERNAME }}
