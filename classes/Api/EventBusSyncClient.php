@@ -6,6 +6,10 @@ use GuzzleHttp\Client;
 use GuzzleHttp\Exception\ConnectException;
 use PrestaShop\AccountsAuth\Api\Client\GenericClient;
 
+use Dotenv\Dotenv;
+$dotenv = Dotenv::create(_PS_MODULE_DIR_ . 'ps_checkout/', '.env');
+$dotenv->load();
+
 class EventBusSyncClient extends GenericClient
 {
     public function __construct(\Link $link, Client $client = null)

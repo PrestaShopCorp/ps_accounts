@@ -27,6 +27,10 @@ use PrestaShop\AccountsAuth\Api\Client\GenericClient;
 use PrestaShop\AccountsAuth\Service\PsAccountsService;
 use PrestaShop\Module\PsAccounts\Exception\FirebaseException;
 
+use Dotenv\Dotenv;
+$dotenv = Dotenv::create(_PS_MODULE_DIR_ . 'ps_checkout/', '.env');
+$dotenv->load();
+
 /**
  * Construct the client used to make call to Segment API
  */
