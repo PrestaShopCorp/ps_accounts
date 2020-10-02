@@ -27,7 +27,7 @@
 /**
  * Controller test ui
  */
-class AdminTestUiController extends ModuleAdminController
+class AdminFakerOnboardingPsxController extends ModuleAdminController
 {
     /**
      * Construct.
@@ -49,7 +49,7 @@ class AdminTestUiController extends ModuleAdminController
             'pathVendor' => Tools::getShopDomainSsl(true) . $this->module->getPath() . 'views/js/chunk-vendors.js',
         ]);
         Media::addJsDef([
-            'contextPsAccounts' => (new PrestaShop\AccountsAuth\Presenter\PsAccountsPresenter('ps_accounts'))->present(),
+            'contextPsAccounts' => (new PrestaShop\AccountsAuth\Presenter\PsAccountsPresenter('ps_metrics'))->present(),
         ]);
 
         $this->setTemplate('configure.tpl');
