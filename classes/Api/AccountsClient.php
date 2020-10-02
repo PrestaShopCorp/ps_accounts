@@ -43,7 +43,7 @@ class AccountsClient extends GenericClient
 
         $this->setLink($link);
         $psAccountsService = new PsAccountsService();
-        $token = $psAccountsService->getFirebaseIdToken();
+        $token = $psAccountsService->getOrRefreshToken();
 
         if (!$token) {
             throw new FirebaseException('you must have admin token', 500);
