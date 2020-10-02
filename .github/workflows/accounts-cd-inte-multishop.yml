@@ -155,34 +155,34 @@ jobs:
             sudo su -c 'docker exec $(docker ps -q -f "ancestor=prestashop/prestashop:1.7" -f "name=multishop") cp modules/ps_checkout/.env modules/ps_checkout/_dev/.env'
             sudo su -c 'docker exec $(docker ps -q -f "ancestor=prestashop/prestashop:1.7" -f "name=multishop") bin/console prestashop:module install ps_checkout'
 
-#  install_1_6:
-#    name: Install on shop 1.6
-#    runs-on: ubuntu-latest
-#    needs: build
-#    steps:
-#      - name: Move modules
-#        uses: appleboy/ssh-action@master
-#        with:
-#          host: ${{ secrets.SSH_HOST_INTEGRATION }}
-#          username: ${{ secrets.SSH_USERNAME }}
-#          key: ${{ secrets.SSH_KEY }}
-#          script: |
-#            sudo su -c 'cp -R build-accounts/ps_accounts ${{ secrets.MULTISHOP_16_PATH }}/ps_accounts'
-#            sudo su -c 'chown -R www-data:www-data ${{ secrets.MULTISHOP_16_PATH }}/ps_accounts'
-#            sudo su -c 'cp -R build-accounts/ps_checkout ${{ secrets.MULTISHOP_16_PATH }}/ps_checkout'
-#            sudo su -c 'chown -R www-data:www-data ${{ secrets.MULTISHOP_16_PATH }}/ps_checkout'
-#
-#      - name: Install modules
-#        uses: appleboy/ssh-action@master
-#        with:
-#          host: ${{ secrets.SSH_HOST_INTEGRATION }}
-#          username: ${{ secrets.SSH_USERNAME }}
-#          key: ${{ secrets.SSH_KEY }}
-#          script: |
-#            sudo su -c 'docker exec $(docker ps -q -f "ancestor=prestashop/prestashop:1.6" -f "name=multishop") php modules/ps_accounts/install.php'
-#            sudo su -c 'docker exec $(docker ps -q -f "ancestor=prestashop/prestashop:1.6" -f "name=multishop") cp modules/ps_checkout/.env modules/ps_checkout/_dev/.env'
-#            sudo su -c 'docker exec $(docker ps -q -f "ancestor=prestashop/prestashop:1.6" -f "name=multishop") php modules/ps_checkout/install.php'
-#
+  install_1_6:
+    name: Install on shop 1.6
+    runs-on: ubuntu-latest
+    needs: build
+    steps:
+      - name: Move modules
+        uses: appleboy/ssh-action@master
+        with:
+          host: ${{ secrets.SSH_HOST_INTEGRATION }}
+          username: ${{ secrets.SSH_USERNAME }}
+          key: ${{ secrets.SSH_KEY }}
+          script: |
+            sudo su -c 'cp -R build-accounts/ps_accounts ${{ secrets.MULTISHOP_16_PATH }}/ps_accounts'
+            sudo su -c 'chown -R www-data:www-data ${{ secrets.MULTISHOP_16_PATH }}/ps_accounts'
+            sudo su -c 'cp -R build-accounts/ps_checkout ${{ secrets.MULTISHOP_16_PATH }}/ps_checkout'
+            sudo su -c 'chown -R www-data:www-data ${{ secrets.MULTISHOP_16_PATH }}/ps_checkout'
+
+      - name: Install modules
+        uses: appleboy/ssh-action@master
+        with:
+          host: ${{ secrets.SSH_HOST_INTEGRATION }}
+          username: ${{ secrets.SSH_USERNAME }}
+          key: ${{ secrets.SSH_KEY }}
+          script: |
+            sudo su -c 'docker exec $(docker ps -q -f "ancestor=prestashop/prestashop:1.6" -f "name=multishop") php modules/ps_accounts/install.php'
+            sudo su -c 'docker exec $(docker ps -q -f "ancestor=prestashop/prestashop:1.6" -f "name=multishop") cp modules/ps_checkout/.env modules/ps_checkout/_dev/.env'
+            sudo su -c 'docker exec $(docker ps -q -f "ancestor=prestashop/prestashop:1.6" -f "name=multishop") php modules/ps_checkout/install.php'
+
   clean:
     name: Clean
     runs-on: ubuntu-latest
