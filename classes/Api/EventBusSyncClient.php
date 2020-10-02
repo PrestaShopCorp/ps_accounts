@@ -7,8 +7,11 @@ use GuzzleHttp\Client;
 use GuzzleHttp\Exception\ConnectException;
 use PrestaShop\AccountsAuth\Api\Client\GenericClient;
 
-$dotenv = Dotenv::createImmutable(_PS_MODULE_DIR_ . 'ps_accounts/');
-$dotenv->load();
+$accountsDir = _PS_MODULE_DIR_ . 'ps_accounts/';
+if (file_exists($accountsDir . '.env')) {
+    $dotenv = Dotenv::createImmutable($accountsDir);
+    $dotenv->load();
+}
 
 class EventBusSyncClient extends GenericClient
 {
