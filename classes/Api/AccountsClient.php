@@ -26,7 +26,7 @@ use PrestaShop\AccountsAuth\Api\Client\GenericClient;
 use PrestaShop\AccountsAuth\Service\PsAccountsService;
 use PrestaShop\Module\PsAccounts\Exception\FirebaseException;
 
-$dotenv = Dotenv::createImmutable(_PS_MODULE_DIR_ . 'ps_checkout/');
+$dotenv = Dotenv::createImmutable(_PS_MODULE_DIR_ . 'ps_accounts/');
 $dotenv->load();
 
 /**
