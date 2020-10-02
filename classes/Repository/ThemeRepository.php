@@ -65,7 +65,7 @@ class ThemeRepository
                     $themeData['properties'] = [
                         'name' => $themeInfo['theme_name'],
                         'theme_version' => $themeInfo['theme_version'],
-                        'active' => $this->context->theme->id == $themeInfo['theme_id'],
+                        'active' => $this->context->theme->id == (string) $themeInfo['theme_id'],
                     ];
                 } else {
                     $themeData['properties'] = [
