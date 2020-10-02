@@ -43,10 +43,9 @@ jobs:
           gcloud auth activate-service-account --key-file=$GCLOUD_TOKEN_PATH
           gcloud container clusters get-credentials $GCLOUD_CLUSTER \
           --zone europe-west1-c --project $GCLOUD_PROJECT
-         rm $GCLOUD_TOKEN_PATH
-#          gcloud beta secrets versions access latest --project=$GCLOUD_PROJECT --secret="accounts-module" > ps_accounts/.env
-#          gcloud beta secrets versions access latest --project=$GCLOUD_PROJECT --secret="checkout-module" > ps_checkout/.env
-#          rm $GCLOUD_TOKEN_PATH
+          gcloud beta secrets versions access latest --project=$GCLOUD_PROJECT --secret="accounts-module" > ps_accounts/.env
+          gcloud beta secrets versions access latest --project=$GCLOUD_PROJECT --secret="checkout-module" > ps_checkout/.env
+          rm $GCLOUD_TOKEN_PATH
         env:
           GOOGLE_APPLICATION_CREDENTIALS: ${{ secrets.GCLOUD_CREDENTIAL_PRODUCTION }}
           GCLOUD_TOKEN_PATH: ${{ env.GCLOUD_TOKEN_PATH }}
@@ -94,7 +93,7 @@ jobs:
         continue-on-error: true
         uses: appleboy/ssh-action@master
         with:
-          host: ${{ secrets.SSH_HOST_INTEGRATION }}
+          host: ${{ secrets.SSH_HOST_PRODUCTION }}
           username: ${{ secrets.SSH_USERNAME }}
           key: ${{ secrets.SSH_KEY }}
           script: |
@@ -104,7 +103,7 @@ jobs:
       - name: Copy modules
         uses: appleboy/scp-action@master
         with:
-          host: ${{ secrets.SSH_HOST_INTEGRATION }}
+          host: ${{ secrets.SSH_HOST_PRODUCTION }}
           username: ${{ secrets.SSH_USERNAME }}
           key: ${{ secrets.SSH_KEY }}
           source: "."
@@ -119,7 +118,7 @@ jobs:
       - name: Move modules
         uses: appleboy/ssh-action@master
         with:
-          host: ${{ secrets.SSH_HOST_INTEGRATION }}
+          host: ${{ secrets.SSH_HOST_PRODUCTION }}
           username: ${{ secrets.SSH_USERNAME }}
           key: ${{ secrets.SSH_KEY }}
           script: |
@@ -131,7 +130,7 @@ jobs:
       - name: Install modules
         uses: appleboy/ssh-action@master
         with:
-          host: ${{ secrets.SSH_HOST_INTEGRATION }}
+          host: ${{ secrets.SSH_HOST_PRODUCTION }}
           username: ${{ secrets.SSH_USERNAME }}
           key: ${{ secrets.SSH_KEY }}
           script: |
@@ -149,7 +148,7 @@ jobs:
       - name: Move modules
         uses: appleboy/ssh-action@master
         with:
-          host: ${{ secrets.SSH_HOST_INTEGRATION }}
+          host: ${{ secrets.SSH_HOST_PRODUCTION }}
           username: ${{ secrets.SSH_USERNAME }}
           key: ${{ secrets.SSH_KEY }}
           script: |
@@ -161,7 +160,7 @@ jobs:
       - name: Install modules
         uses: appleboy/ssh-action@master
         with:
-          host: ${{ secrets.SSH_HOST_INTEGRATION }}
+          host: ${{ secrets.SSH_HOST_PRODUCTION }}
           username: ${{ secrets.SSH_USERNAME }}
           key: ${{ secrets.SSH_KEY }}
           script: |
@@ -180,7 +179,7 @@ jobs:
       - name: Clear cache
         uses: appleboy/ssh-action@master
         with:
-          host: ${{ secrets.SSH_HOST_INTEGRATION }}
+          host: ${{ secrets.SSH_HOST_PRODUCTION }}
           username: ${{ secrets.SSH_USERNAME }}
           key: ${{ secrets.SSH_KEY }}
           script: |
@@ -193,7 +192,7 @@ jobs:
       - name: Delete tmp module
         uses: appleboy/ssh-action@master
         with:
-          host: ${{ secrets.SSH_HOST_INTEGRATION }}
+          host: ${{ secrets.SSH_HOST_PRODUCTION }}
           username: ${{ secrets.SSH_USERNAME }}
           key: ${{ secrets.SSH_KEY }}
           script: rm -rf build-accounts/
