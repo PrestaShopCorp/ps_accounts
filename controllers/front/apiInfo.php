@@ -22,7 +22,8 @@ class ps_AccountsApiInfoModuleFrontController extends AbstractApiController
         $serverInformationRepository = new ServerInformationRepository(
             new CurrencyRepository(),
             new LanguageRepository(),
-            new ConfigurationRepository()
+            new ConfigurationRepository(),
+            $this->context
         );
 
         $serverInfo = $serverInformationRepository->getServerInformation();
