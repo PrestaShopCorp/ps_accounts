@@ -38,10 +38,7 @@ class ModuleDataProvider implements PaginatedApiDataProviderInterface
         }
 
         return array_map(function ($module) {
-            $moduleId = (string) $module['id_module'];
-
-            unset($module['id_module']);
-
+            $moduleId = (string) $module['module_id'];
             $module['active'] = $module['active'] == '1';
 
             return [
