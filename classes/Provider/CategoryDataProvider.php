@@ -30,6 +30,10 @@ class CategoryDataProvider implements PaginatedApiDataProviderInterface
     {
         $categories = $this->categoryRepository->getCategories($offset, $limit, $langIso);
 
+        if (!is_array($categories)) {
+            $categories = [];
+        }
+
         return array_map(function ($category) {
             return [
                 'id' => "{$category['id_category']}-{$category['iso_code']}",

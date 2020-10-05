@@ -55,7 +55,7 @@ abstract class AbstractApiController extends ModuleFrontController
      */
     public function init()
     {
-        $this->authorize();
+//        $this->authorize();
     }
 
     /**
@@ -73,23 +73,23 @@ abstract class AbstractApiController extends ModuleFrontController
     }
 
     /**
-     * @param PaginatedApiDataProviderInterface $repository
+     * @param PaginatedApiDataProviderInterface $dataProvider
      *
      * @return array
      *
      * @throws PrestaShopDatabaseException
      */
-    protected function handleDataSync(PaginatedApiDataProviderInterface $repository)
+    protected function handleDataSync(PaginatedApiDataProviderInterface $dataProvider)
     {
         if (!$jobId = Tools::getValue('job_id')) {
             $this->exitWithErrorStatus();
         }
 
         $langIso = Tools::getValue('lang_iso', null);
-
         $limit = (int) Tools::getValue('limit', 50);
         $dateNow = (new DateTime())->format(DateTime::ATOM);
         $offset = 0;
+        $data = [];
 
         $typeSync = $this->accountsSyncRepository->findTypeSync($this->type, $langIso);
 
@@ -100,7 +100,7 @@ abstract class AbstractApiController extends ModuleFrontController
         }
 
         try {
-            $data = $repository->getFormattedData($offset, $limit, $langIso);
+            $data = $dataProvider->getFormattedData($offset, $limit, $langIso);
         } catch (PrestaShopDatabaseException $exception) {
             $this->exitWithErrorStatus();
         }
@@ -111,7 +111,7 @@ abstract class AbstractApiController extends ModuleFrontController
             $offset += $limit;
         }
 
-        $remainingObjects = $repository->getRemainingObjectsCount($offset, $langIso);
+        $remainingObjects = $dataProvider->getRemainingObjectsCount($offset, $langIso);
 
         if ($remainingObjects <= 0) {
             $remainingObjects = 0;

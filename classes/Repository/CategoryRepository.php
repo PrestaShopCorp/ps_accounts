@@ -34,6 +34,9 @@ class CategoryRepository
         $this->context = $context;
     }
 
+    /**
+     * @return DbQuery
+     */
     public function getBaseQuery()
     {
         $query = new DbQuery();
@@ -98,7 +101,7 @@ class CategoryRepository
      * @param int $langId
      * @param int $shopId
      *
-     * @return array
+     * @return array|bool|\mysqli_result|\PDOStatement|resource|null
      *
      * @throws \PrestaShopDatabaseException
      */
@@ -124,7 +127,7 @@ class CategoryRepository
      * @param int $limit
      * @param string $langIso
      *
-     * @return array
+     * @return array|bool|\mysqli_result|\PDOStatement|resource|null
      *
      * @throws \PrestaShopDatabaseException
      */
@@ -144,7 +147,12 @@ class CategoryRepository
         return $this->db->executeS($query);
     }
 
-    public function getRemainingCategoriesCount($offset, $langIso)
+    /**
+     * @param int $offset
+     * @param string $langIso
+     * @return int
+     */
+    public function getRemainingCategoriesCount($offset, $langIso = null)
     {
         $query = $this->getBaseQuery()
             ->select('(COUNT(cs.id_category) - ' . (int) $offset . ') as count')

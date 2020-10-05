@@ -98,7 +98,7 @@ class AccountsSyncRepository
      * @param string $type
      * @param int $offset
      * @param string $date
-     * @param null $langIso
+     * @param string $langIso
      *
      * @return bool
      */
@@ -110,7 +110,7 @@ class AccountsSyncRepository
                 'offset' => $offset,
                 'last_sync_date' => $date,
             ],
-            'type = "' . pSQL($type) . '" AND lang_iso = "' . pSQL($langIso) . '"'
+            'type = "' . pSQL($type) . '" AND lang_iso = "' . pSQL((string) $langIso) . '"'
         );
     }
 }
