@@ -76,7 +76,9 @@ class SegmentClient extends GenericClient
      */
     public function upload($jobId, $compressedData)
     {
-        $this->setRoute($_ENV['SEGMENT_PROXY_API_URL'] . "/upload/$jobId");
+        $route = $_ENV['SEGMENT_PROXY_API_URL'] . "/upload/$jobId";
+
+        $this->setRoute($route);
 
         $file = new PostFile(
             'file',
@@ -84,7 +86,7 @@ class SegmentClient extends GenericClient
             'file.gz'
         );
 
-        return $this->post([
+        $response = $this->post([
             'headers' => [
                 'Content-Type' => 'binary/octet-stream',
                 'Content-Encoding' => 'gzip',
@@ -93,5 +95,11 @@ class SegmentClient extends GenericClient
                 'file' => $file,
             ],
         ]);
+
+        if (is_array($response)) {
+            $response['upload_url'] = $route;
+        }
+
+        return $response;
     }
 }
