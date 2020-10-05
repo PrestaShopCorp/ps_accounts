@@ -158,6 +158,7 @@ class CategoryRepository
     /**
      * @param int $offset
      * @param string $langIso
+     *
      * @return int
      */
     public function getRemainingCategoriesCount($offset, $langIso = null)
