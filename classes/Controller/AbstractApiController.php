@@ -55,7 +55,7 @@ abstract class AbstractApiController extends ModuleFrontController
      */
     public function init()
     {
-//        $this->authorize();
+        $this->authorize();
     }
 
     /**

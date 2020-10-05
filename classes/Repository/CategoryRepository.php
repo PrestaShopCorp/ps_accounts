@@ -60,15 +60,13 @@ class CategoryRepository
         $categoryId = $topCategoryId;
         $categories = [];
 
-        if (!isset($this->categoryLangCache[$langId])) {
-            try {
-                $this->categoryLangCache[$langId] = $this->getCategoriesWithParentInfo($langId, $shopId);
-            } catch (\PrestaShopDatabaseException $e) {
-                return [
-                    'category_path' => '',
-                    'category_id_path' => '',
-                ];
-            }
+        try {
+            $categoriesWithParentsInfo = $this->getCategoriesWithParentInfo($langId, $shopId);
+        } catch (\PrestaShopDatabaseException $e) {
+            return [
+                'category_path' => '',
+                'category_id_path' => '',
+            ];
         }
 
         if (!$this->topCategoryId) {
@@ -76,7 +74,7 @@ class CategoryRepository
         }
 
         while ((int) $categoryId != $this->topCategoryId) {
-            foreach ($this->categoryLangCache[$langId] as $category) {
+            foreach ($categoriesWithParentsInfo as $category) {
                 if ($category['id_category'] == $categoryId) {
                     $categories[] = $category;
                     $categoryId = $category['id_parent'];
@@ -101,25 +99,35 @@ class CategoryRepository
      * @param int $langId
      * @param int $shopId
      *
-     * @return array|bool|\mysqli_result|\PDOStatement|resource|null
+     * @return array
      *
      * @throws \PrestaShopDatabaseException
      */
     public function getCategoriesWithParentInfo($langId, $shopId)
     {
-        $query = new DbQuery();
+        if (!isset($this->categoryLangCache[$langId])) {
+            $query = new DbQuery();
 
-        $query->select('c.id_category, cl.name, c.id_parent')
-            ->from('category', 'c')
-            ->leftJoin(
-                'category_lang',
-                'cl',
-                'cl.id_category = c.id_category AND cl.id_shop = ' . (int) $shopId
-            )
-            ->where('cl.id_lang = ' . (int) $langId)
-            ->orderBy('cl.id_category');
+            $query->select('c.id_category, cl.name, c.id_parent')
+                ->from('category', 'c')
+                ->leftJoin(
+                    'category_lang',
+                    'cl',
+                    'cl.id_category = c.id_category AND cl.id_shop = ' . (int) $shopId
+                )
+                ->where('cl.id_lang = ' . (int) $langId)
+                ->orderBy('cl.id_category');
 
-        return $this->db->executeS($query);
+            $result = $this->db->executeS($query);
+
+            if (is_array($result)) {
+                $this->categoryLangCache[$langId] = $result;
+            } else {
+                throw new \PrestaShopDatabaseException('No categories found');
+            }
+        }
+
+        return $this->categoryLangCache[$langId];
     }
 
     /**
