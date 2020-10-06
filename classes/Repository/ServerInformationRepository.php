@@ -37,6 +37,7 @@ class ServerInformationRepository
 
     /**
      * @return array
+     *
      * @throws \PrestaShopDatabaseException
      */
     public function getServerInformation()
