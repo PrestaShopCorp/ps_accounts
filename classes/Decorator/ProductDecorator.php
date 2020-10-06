@@ -194,5 +194,6 @@ class ProductDecorator
         $product['quantity'] = (int) $product['quantity'];
         $product['weight'] = (float) $product['weight'];
         $product['active'] = $product['active'] == '1';
+        $product['manufacturer'] = (string) $product['manufacturer'];
     }
 }
