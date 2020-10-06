@@ -29,6 +29,7 @@ use PrestaShop\AccountsAuth\Environment\Env;
 use PrestaShop\AccountsAuth\Handler\ErrorHandler\ErrorHandler;
 use PrestaShop\Module\PsAccounts\Exception\EnvVarException;
 use PrestaShop\Module\PsAccounts\Exception\HmacException;
+use PrestaShop\Module\PsAccounts\Exception\PsAccountsRsaSignDataEmptyException;
 use PrestaShop\Module\PsAccounts\Exception\QueryParamsException;
 
 /**
@@ -77,6 +78,10 @@ class AdminConfigureHmacPsAccountsController extends ModuleAdminController
 
             if ('/' === substr($url, -1)) {
                 $url = substr($url, 0, -1);
+            }
+
+            if (empty(Configuration::get('PS_ACCOUNTS_RSA_SIGN_DATA'))) {
+                throw new PsAccountsRsaSignDataEmptyException('PsAccounts RsaSignData couldn\'t be empty', 500);
             }
 
             Tools::redirect($url . '/shop/account/verify/' . Tools::getValue('uid')
