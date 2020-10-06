@@ -2,7 +2,7 @@
 <module>
     <name>ps_accounts</name>
     <displayName><![CDATA[PrestaShop Account]]></displayName>
-    <version><![CDATA[2.2.2]]></version>
+    <version><![CDATA[2.2.4]]></version>
     <description><![CDATA[Link your PrestaShop account to your online shop to activate &amp; manage services on your back-office. Don&#039;t uninstall this module if you are already using a service, as it will prevent it from working.]]></description>
     <author><![CDATA[PrestaShop]]></author>
     <tab><![CDATA[administration]]></tab>
