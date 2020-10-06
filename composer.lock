@@ -388,16 +388,16 @@
         },
         {
             "name": "prestashop/prestashop-accounts-auth",
-            "version": "2.1.7",
+            "version": "2.1.9",
             "source": {
                 "type": "git",
                 "url": "https://github.com/PrestaShopCorp/prestashop_accounts_auth.git",
-                "reference": "d8772f8cfbd1c42b7285f25c9c5080ecce6ba5dd"
+                "reference": "d569d6f5e7aeb510a7dc8ce521595dfe4087bbc7"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/PrestaShopCorp/prestashop_accounts_auth/zipball/d8772f8cfbd1c42b7285f25c9c5080ecce6ba5dd",
-                "reference": "d8772f8cfbd1c42b7285f25c9c5080ecce6ba5dd",
+                "url": "https://api.github.com/repos/PrestaShopCorp/prestashop_accounts_auth/zipball/d569d6f5e7aeb510a7dc8ce521595dfe4087bbc7",
+                "reference": "d569d6f5e7aeb510a7dc8ce521595dfe4087bbc7",
                 "shasum": ""
             },
             "require": {
@@ -426,7 +426,7 @@
                 "MIT"
             ],
             "description": "PrestaShop Accounts composer library",
-            "time": "2020-10-02T15:38:01+00:00"
+            "time": "2020-10-06T08:40:11+00:00"
         },
         {
             "name": "psr/log",
