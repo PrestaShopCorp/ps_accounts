@@ -4,6 +4,7 @@ namespace PrestaShop\Module\PsAccounts\Repository;
 
 use Db;
 use DbQuery;
+use Exception;
 use Module;
 
 class ModuleRepository implements PaginatedApiRepositoryInterface
@@ -116,28 +117,32 @@ class ModuleRepository implements PaginatedApiRepositoryInterface
             }
         }
 
-        $nativeModules = (array) @simplexml_load_file($moduleListXml);
+        try {
+            $nativeModules = (array) @simplexml_load_file($moduleListXml);
 
-        if (isset($nativeModules['module'])) {
-            $nativeModules = array_filter($nativeModules['module'], function ($module) {
-                return (string) $module->author == 'PrestaShop';
-            });
+            if (isset($nativeModules['module'])) {
+                $nativeModules = array_filter($nativeModules['module'], function ($module) {
+                    return (string) $module->author == 'PrestaShop';
+                });
 
-            $nativeModulesResult = array_map(function ($module) {
-                return (string) $module->name;
-            }, $nativeModules);
-        } elseif (isset($nativeModules['modules'])) {
-            foreach ($nativeModules['modules'] as $modules) {
-                if ($modules->attributes()['type'] == 'native') {
-                    $modules = (array) $modules;
+                $nativeModulesResult = array_map(function ($module) {
+                    return (string) $module->name;
+                }, $nativeModules);
+            } elseif (isset($nativeModules['modules'])) {
+                foreach ($nativeModules['modules'] as $modules) {
+                    if ($modules->attributes()['type'] == 'native') {
+                        $modules = (array) $modules;
 
-                    $nativeModulesResult = array_map(function ($module) {
-                        return (string) $module['name'];
-                    }, $modules['module']);
+                        $nativeModulesResult = array_map(function ($module) {
+                            return (string) $module['name'];
+                        }, $modules['module']);
 
-                    break;
+                        break;
+                    }
                 }
             }
+        } catch (Exception $exception) {
+            return $nativeModulesResult;
         }
 
         return $nativeModulesResult;

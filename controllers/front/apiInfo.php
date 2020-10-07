@@ -26,7 +26,7 @@ class ps_AccountsApiInfoModuleFrontController extends AbstractApiController
             $this->context
         );
 
-        $serverInfo = $serverInformationRepository->getServerInformation();
+        $serverInfo = $serverInformationRepository->getServerInformation(Tools::getValue('lang_iso', null));
 
         $response = $this->segmentService->upload($jobId, $serverInfo);
 
