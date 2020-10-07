@@ -16,7 +16,7 @@ class ps_AccountsApiThemesModuleFrontController extends AbstractApiController
     {
         $jobId = Tools::getValue('job_id');
 
-        $themeRepository = new ThemeRepository();
+        $themeRepository = $this->module->getService(ThemeRepository::class);
 
         $themeInfo = $themeRepository->getThemes();
 

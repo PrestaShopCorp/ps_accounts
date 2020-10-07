@@ -1,0 +1,12 @@
+services:
+  ps_accounts.db:
+    class: Db
+    factory: [ 'Db', 'getInstance' ]
+
+  ps_accounts.context:
+    class: Context
+    factory: [ 'Context', 'getContext' ]
+
+  ps_accounts.link:
+    class: Link
+    factory: [ 'PrestaShop\Module\PsAccounts\Factory\Link', 'get' ]

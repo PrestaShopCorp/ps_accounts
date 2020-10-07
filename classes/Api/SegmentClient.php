@@ -1,4 +1,5 @@
 <?php
+
 /**
  * 2007-2020 PrestaShop and Contributors
  *
@@ -18,14 +19,21 @@
  * International Registered Trademark & Property of PrestaShop SA
  */
 
-namespace PrestaShop\Module\PsAccounts\Api\Client;
+namespace PrestaShop\Module\PsAccounts\Api;
 
+use Dotenv\Dotenv;
 use GuzzleHttp\Client;
 use GuzzleHttp\Post\PostFile;
 use Link;
 use PrestaShop\AccountsAuth\Api\Client\GenericClient;
 use PrestaShop\AccountsAuth\Service\PsAccountsService;
 use PrestaShop\Module\PsAccounts\Exception\FirebaseException;
+
+$accountsDir = _PS_MODULE_DIR_ . 'ps_accounts/';
+if (file_exists($accountsDir . '.env')) {
+    $dotenv = Dotenv::createImmutable($accountsDir);
+    $dotenv->load();
+}
 
 /**
  * Construct the client used to make call to Segment API
@@ -38,7 +46,7 @@ class SegmentClient extends GenericClient
 
         $this->setLink($link);
         $psAccountsService = new PsAccountsService();
-        $token = $psAccountsService->getFirebaseIdToken();
+        $token = $psAccountsService->getOrRefreshToken();
 
         if (!$token) {
             throw new FirebaseException('you must have admin token', 500);
@@ -68,7 +76,9 @@ class SegmentClient extends GenericClient
      */
     public function upload($jobId, $compressedData)
     {
-        $this->setRoute($_ENV['SEGMENT_PROXY_API_URL'] . "/v0/upload/$jobId");
+        $route = $_ENV['SEGMENT_PROXY_API_URL'] . "/upload/$jobId";
+
+        $this->setRoute($route);
 
         $file = new PostFile(
             'file',
@@ -76,7 +86,7 @@ class SegmentClient extends GenericClient
             'file.gz'
         );
 
-        return $this->post([
+        $response = $this->post([
             'headers' => [
                 'Content-Type' => 'binary/octet-stream',
                 'Content-Encoding' => 'gzip',
@@ -85,5 +95,11 @@ class SegmentClient extends GenericClient
                 'file' => $file,
             ],
         ]);
+
+        if (is_array($response)) {
+            $response['upload_url'] = $route;
+        }
+
+        return $response;
     }
 }

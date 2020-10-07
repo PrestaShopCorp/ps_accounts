@@ -3,18 +3,14 @@
 namespace PrestaShop\Module\PsAccounts\Controller;
 
 use DateTime;
-use Db;
 use ModuleFrontController;
-use PrestaShop\Module\PsAccounts\Api\Client\EventBusSyncClient;
-use PrestaShop\Module\PsAccounts\Api\Client\SegmentClient;
-use PrestaShop\Module\PsAccounts\Formatter\JsonFormatter;
 use PrestaShop\Module\PsAccounts\Repository\AccountsSyncRepository;
-use PrestaShop\Module\PsAccounts\Repository\PaginatedApiRepositoryInterface;
+use PrestaShop\Module\PsAccounts\Repository\PaginatedApiDataProviderInterface;
 use PrestaShop\Module\PsAccounts\Service\ApiAuthorizationService;
-use PrestaShop\Module\PsAccounts\Service\CompressionService;
 use PrestaShop\Module\PsAccounts\Service\SegmentService;
 use PrestaShopDatabaseException;
 use PrestaShopException;
+use Ps_accounts;
 use Tools;
 
 abstract class AbstractApiController extends ModuleFrontController
@@ -37,25 +33,19 @@ abstract class AbstractApiController extends ModuleFrontController
      * @var AccountsSyncRepository
      */
     protected $accountsSyncRepository;
+    /**
+     * @var Ps_accounts
+     */
+    public $module;
 
     public function __construct()
     {
         parent::__construct();
 
-        $db = Db::getInstance();
-
         $this->controller_type = 'module';
-        $this->segmentService = new SegmentService(
-            new SegmentClient($this->context->link),
-            new CompressionService(
-                new JsonFormatter()
-            )
-        );
-        $this->authorizationService = new ApiAuthorizationService(
-            new AccountsSyncRepository($db),
-            new EventBusSyncClient($this->context->link)
-        );
-        $this->accountsSyncRepository = new AccountsSyncRepository(Db::getInstance());
+        $this->segmentService = $this->module->getService(SegmentService::class);
+        $this->authorizationService = $this->module->getService(ApiAuthorizationService::class);
+        $this->accountsSyncRepository = $this->module->getService(AccountsSyncRepository::class);
     }
 
     /**
@@ -83,31 +73,33 @@ abstract class AbstractApiController extends ModuleFrontController
     }
 
     /**
-     * @param PaginatedApiRepositoryInterface $repository
+     * @param PaginatedApiDataProviderInterface $repository
      *
      * @return array
      *
      * @throws PrestaShopDatabaseException
      */
-    protected function handleDataSync(PaginatedApiRepositoryInterface $repository)
+    protected function handleDataSync(PaginatedApiDataProviderInterface $repository)
     {
         if (!$jobId = Tools::getValue('job_id')) {
             $this->exitWithErrorStatus();
         }
 
+        $langIso = Tools::getValue('lang_iso', null);
+
         $limit = (int) Tools::getValue('limit', 50);
         $dateNow = (new DateTime())->format(DateTime::ATOM);
         $offset = 0;
 
-        $typeSync = $this->accountsSyncRepository->findTypeSync($this->type);
+        $typeSync = $this->accountsSyncRepository->findTypeSync($this->type, $langIso);
 
         if ($typeSync !== false && is_array($typeSync)) {
             $offset = (int) $typeSync['offset'];
         } else {
-            $this->accountsSyncRepository->insertTypeSync($this->type, 0, $dateNow);
+            $this->accountsSyncRepository->insertTypeSync($this->type, 0, $dateNow, $langIso);
         }
 
-        $data = $repository->getFormattedData($offset, $limit);
+        $data = $repository->getFormattedData($offset, $limit, $langIso);
 
         $response = $this->segmentService->upload($jobId, $data);
 

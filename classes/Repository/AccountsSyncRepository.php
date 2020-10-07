@@ -24,12 +24,13 @@ class AccountsSyncRepository
      * @param string $type
      * @param int $offset
      * @param string $lastSyncDate
+     * @param string $langIso
      *
      * @return bool
      *
      * @throws \PrestaShopDatabaseException
      */
-    public function insertTypeSync($type, $offset, $lastSyncDate)
+    public function insertTypeSync($type, $offset, $lastSyncDate, $langIso = null)
     {
         return $this->db->insert(
             self::TYPE_SYNC_TABLE_NAME,
@@ -37,6 +38,7 @@ class AccountsSyncRepository
                 'type' => pSQL($type),
                 'offset' => (int) $offset,
                 'last_sync_date' => pSQL($lastSyncDate),
+                'lang_iso' => pSQL($langIso),
             ]
         );
     }
@@ -77,15 +79,17 @@ class AccountsSyncRepository
 
     /**
      * @param string $type
+     * @param string $langIso
      *
      * @return array|bool|object|null
      */
-    public function findTypeSync($type)
+    public function findTypeSync($type, $langIso = null)
     {
         $query = new DbQuery();
         $query->select('*')
             ->from(self::TYPE_SYNC_TABLE_NAME)
-            ->where('type = "' . pSQL($type) . '"');
+            ->where('type = "' . pSQL($type) . '"')
+            ->where('lang_iso = ' . ($langIso == null ? 'NULL' : '"' . pSQL($langIso) . '"'));
 
         return $this->db->getRow($query);
     }

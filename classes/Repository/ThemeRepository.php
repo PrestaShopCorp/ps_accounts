@@ -18,10 +18,10 @@ class ThemeRepository
      */
     private $db;
 
-    public function __construct()
+    public function __construct(Context $context, Db $db)
     {
-        $this->context = Context::getContext();
-        $this->db = Db::getInstance();
+        $this->context = $context;
+        $this->db = $db;
     }
 
     /**
@@ -41,6 +41,7 @@ class ThemeRepository
                     'id' => md5((string) $key),
                     'collection' => 'themes',
                     'properties' => [
+                        'theme_id' => md5((string) $key),
                         'name' => $theme->getName(),
                         'theme_version' => $theme->get('version'),
                         'active' => $theme->getName() == $currentTheme->getName(),
@@ -63,12 +64,14 @@ class ThemeRepository
                     $themeInfo = Theme::getThemeInfo($themeObj->id);
 
                     $themeData['properties'] = [
+                        'theme_id' => md5($theme),
                         'name' => $themeInfo['theme_name'],
                         'theme_version' => $themeInfo['theme_version'],
-                        'active' => $this->context->theme->id == $themeInfo['theme_id'],
+                        'active' => (string) $this->context->theme->id == (string) $themeInfo['theme_id'],
                     ];
                 } else {
                     $themeData['properties'] = [
+                        'theme_id' => md5($theme),
                         'name' => $theme,
                         'theme_version' => '',
                         'active' => false,

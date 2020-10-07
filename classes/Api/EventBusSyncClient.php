@@ -1,10 +1,17 @@
 <?php
 
-namespace PrestaShop\Module\PsAccounts\Api\Client;
+namespace PrestaShop\Module\PsAccounts\Api;
 
+use Dotenv\Dotenv;
 use GuzzleHttp\Client;
 use GuzzleHttp\Exception\ConnectException;
 use PrestaShop\AccountsAuth\Api\Client\GenericClient;
+
+$accountsDir = _PS_MODULE_DIR_ . 'ps_accounts/';
+if (file_exists($accountsDir . '.env')) {
+    $dotenv = Dotenv::createImmutable($accountsDir);
+    $dotenv->load();
+}
 
 class EventBusSyncClient extends GenericClient
 {

@@ -7,7 +7,7 @@ use DbQuery;
 use Exception;
 use Module;
 
-class ModuleRepository implements PaginatedApiRepositoryInterface
+class ModuleRepository
 {
     const MODULE_TABLE = 'module';
 
@@ -19,37 +19,6 @@ class ModuleRepository implements PaginatedApiRepositoryInterface
     public function __construct(Db $db)
     {
         $this->db = $db;
-    }
-
-    /**
-     * @param int $offset
-     * @param int $limit
-     *
-     * @return array[]
-     *
-     * @throws \PrestaShopDatabaseException
-     */
-    public function getFormattedData($offset, $limit)
-    {
-        $modules = $this->getModules($offset, $limit);
-
-        if (!is_array($modules)) {
-            return [];
-        }
-
-        return array_map(function ($module) {
-            $moduleId = (string) $module['id_module'];
-
-            unset($module['id_module']);
-
-            $module['active'] = $module['active'] == '1';
-
-            return [
-                'id' => $moduleId,
-                'collection' => 'modules',
-                'properties' => $module,
-            ];
-        }, $modules);
     }
 
     /**
@@ -81,7 +50,7 @@ class ModuleRepository implements PaginatedApiRepositoryInterface
     {
         $query = $this->getBaseQuery();
 
-        $query->select('id_module, name, version as module_version, active')
+        $query->select('id_module as module_id, name, version as module_version, active')
             ->limit($limit, $offset);
 
         return $this->db->executeS($query);
@@ -92,7 +61,7 @@ class ModuleRepository implements PaginatedApiRepositoryInterface
      *
      * @return int
      */
-    public function getRemainingObjectsCount($offset)
+    public function getRemainingModules($offset)
     {
         $query = $this->getBaseQuery();
 
