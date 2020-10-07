@@ -22,10 +22,11 @@ class ps_AccountsApiInfoModuleFrontController extends AbstractApiController
         $serverInformationRepository = new ServerInformationRepository(
             new CurrencyRepository(),
             new LanguageRepository(),
-            new ConfigurationRepository()
+            new ConfigurationRepository(),
+            $this->context
         );
 
-        $serverInfo = $serverInformationRepository->getServerInformation();
+        $serverInfo = $serverInformationRepository->getServerInformation(Tools::getValue('lang_iso', null));
 
         $response = $this->segmentService->upload($jobId, $serverInfo);
 

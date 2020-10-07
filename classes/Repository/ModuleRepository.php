@@ -4,6 +4,8 @@ namespace PrestaShop\Module\PsAccounts\Repository;
 
 use Db;
 use DbQuery;
+use Exception;
+use Module;
 
 class ModuleRepository implements PaginatedApiRepositoryInterface
 {
@@ -51,6 +53,23 @@ class ModuleRepository implements PaginatedApiRepositoryInterface
     }
 
     /**
+     * @return DbQuery
+     */
+    public function getBaseQuery()
+    {
+        $nativeModules = $this->getNativeModules();
+
+        $query = new DbQuery();
+        $query->from(self::MODULE_TABLE, 'm');
+
+        if (!empty($nativeModules)) {
+            $query->where('m.name NOT IN ("' . implode('","', $nativeModules) . '")');
+        }
+
+        return $query;
+    }
+
+    /**
      * @param int $offset
      * @param int $limit
      *
@@ -60,9 +79,9 @@ class ModuleRepository implements PaginatedApiRepositoryInterface
      */
     public function getModules($offset, $limit)
     {
-        $query = new \DbQuery();
+        $query = $this->getBaseQuery();
+
         $query->select('id_module, name, version as module_version, active')
-            ->from(self::MODULE_TABLE, 'm')
             ->limit($limit, $offset);
 
         return $this->db->executeS($query);
@@ -75,10 +94,57 @@ class ModuleRepository implements PaginatedApiRepositoryInterface
      */
     public function getRemainingObjectsCount($offset)
     {
-        $query = new DbQuery();
-        $query->select('(COUNT(id_module) - ' . (int) $offset . ') as count')
-            ->from(self::MODULE_TABLE);
+        $query = $this->getBaseQuery();
+
+        $query->select('(COUNT(id_module) - ' . (int) $offset . ') as count');
 
         return (int) $this->db->getValue($query);
+    }
+
+    /**
+     * @return array
+     */
+    public function getNativeModules()
+    {
+        $nativeModulesResult = [];
+        $moduleListXml = _PS_ROOT_DIR_ . Module::CACHE_FILE_MODULES_LIST;
+
+        if (!file_exists($moduleListXml)) {
+            $moduleListXml = _PS_ROOT_DIR_ . Module::CACHE_FILE_ALL_COUNTRY_MODULES_LIST;
+
+            if (!file_exists($moduleListXml)) {
+                return $nativeModulesResult;
+            }
+        }
+
+        try {
+            $nativeModules = (array) @simplexml_load_file($moduleListXml);
+
+            if (isset($nativeModules['module'])) {
+                $nativeModules = array_filter($nativeModules['module'], function ($module) {
+                    return (string) $module->author == 'PrestaShop';
+                });
+
+                $nativeModulesResult = array_map(function ($module) {
+                    return (string) $module->name;
+                }, $nativeModules);
+            } elseif (isset($nativeModules['modules'])) {
+                foreach ($nativeModules['modules'] as $modules) {
+                    if ($modules->attributes()['type'] == 'native') {
+                        $modules = (array) $modules;
+
+                        $nativeModulesResult = array_map(function ($module) {
+                            return (string) $module['name'];
+                        }, $modules['module']);
+
+                        break;
+                    }
+                }
+            }
+        } catch (Exception $exception) {
+            return $nativeModulesResult;
+        }
+
+        return $nativeModulesResult;
     }
 }

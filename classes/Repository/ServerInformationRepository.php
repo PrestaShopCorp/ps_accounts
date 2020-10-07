@@ -2,6 +2,9 @@
 
 namespace PrestaShop\Module\PsAccounts\Repository;
 
+use Context;
+use Language;
+
 class ServerInformationRepository
 {
     /**
@@ -16,22 +19,32 @@ class ServerInformationRepository
      * @var ConfigurationRepository
      */
     private $configurationRepository;
+    /**
+     * @var Context
+     */
+    private $context;
 
     public function __construct(
         CurrencyRepository $currencyRepository,
         LanguageRepository $languageRepository,
-        ConfigurationRepository $configurationRepository
+        ConfigurationRepository $configurationRepository,
+        Context $context
     ) {
         $this->currencyRepository = $currencyRepository;
         $this->languageRepository = $languageRepository;
         $this->configurationRepository = $configurationRepository;
+        $this->context = $context;
     }
 
     /**
+     * @param null $langIso
+     *
      * @return array
      */
-    public function getServerInformation()
+    public function getServerInformation($langIso = null)
     {
+        $langId = $langIso != null ? (int) Language::getIdByIso($langIso) : null;
+
         return [
             [
                 'id' => '1',
@@ -50,6 +63,8 @@ class ServerInformationRepository
                     'order_return_nb_days' => (int) $this->configurationRepository->get('PS_ORDER_RETURN_NB_DAYS'),
                     'php_version' => phpversion(),
                     'http_server' => isset($_SERVER['SERVER_SOFTWARE']) ? $_SERVER['SERVER_SOFTWARE'] : '',
+                    'url' => $this->context->link->getPageLink('index', null, $langId),
+                    'ssl' => $this->configurationRepository->get('PS_SSL_ENABLED') == '1',
                 ],
             ],
         ];
