@@ -50,7 +50,7 @@ class ModuleRepository
     {
         $query = $this->getBaseQuery();
 
-        $query->select('id_module, name, version as module_version, active')
+        $query->select('id_module as module_id, name, version as module_version, active')
             ->limit($limit, $offset);
 
         return $this->db->executeS($query);
