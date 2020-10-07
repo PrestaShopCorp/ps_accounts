@@ -31,7 +31,7 @@ use PrestaShop\Module\PsAccounts\Exception\FirebaseException;
 /**
  * Construct the client used to make call to Segment API
  */
-class SegmentClient extends GenericClient
+class EventBusProxyClient extends GenericClient
 {
     public function __construct(Link $link, Client $client = null)
     {
@@ -47,7 +47,7 @@ class SegmentClient extends GenericClient
 
         if (null === $client) {
             $client = new Client([
-                'base_url' => $_ENV['SEGMENT_PROXY_API_URL'],
+                'base_url' => $_ENV['EVENT_BUS_PROXY_API_URL'],
                 'defaults' => [
                     'timeout' => 60,
                     'exceptions' => $this->catchExceptions,
@@ -69,7 +69,7 @@ class SegmentClient extends GenericClient
      */
     public function upload($jobId, $compressedData)
     {
-        $route = $_ENV['SEGMENT_PROXY_API_URL'] . "/upload/$jobId";
+        $route = $_ENV['EVENT_BUS_PROXY_API_URL'] . "/upload/$jobId";
 
         $this->setRoute($route);
 
