@@ -40,7 +40,7 @@ class ProductDataProvider implements PaginatedApiDataProviderInterface
 
         return array_map(function ($product) {
             return [
-                'id' => "{$product['id_product']}-{$product['id_attribute']}-{$product['iso_code']}",
+                'id' => $product['unique_product_id'],
                 'collection' => 'products',
                 'properties' => $product,
             ];

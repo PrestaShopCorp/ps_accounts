@@ -54,6 +54,7 @@ class ProductDecorator
     public function decorateProducts(array &$products)
     {
         foreach ($products as &$product) {
+            $this->addUniqueId($product);
             $this->addLink($product);
             $this->addProductImageLinks($product);
             $this->addProductPrices($product);
@@ -195,5 +196,15 @@ class ProductDecorator
         $product['weight'] = (float) $product['weight'];
         $product['active'] = $product['active'] == '1';
         $product['manufacturer'] = (string) $product['manufacturer'];
+    }
+
+    /**
+     * @param array $product
+     *
+     * @return void
+     */
+    private function addUniqueId(array &$product)
+    {
+        $product['unique_product_id'] = "{$product['id_product']}-{$product['id_attribute']}-{$product['iso_code']}";
     }
 }
