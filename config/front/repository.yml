@@ -40,6 +40,7 @@ services:
       - '@PrestaShop\Module\PsAccounts\Repository\CurrencyRepository'
       - '@PrestaShop\Module\PsAccounts\Repository\LanguageRepository'
       - '@PrestaShop\Module\PsAccounts\Repository\ConfigurationRepository'
+      - '@ps_accounts.context'
 
   PrestaShop\Module\PsAccounts\Repository\ThemeRepository:
     class: PrestaShop\Module\PsAccounts\Repository\ThemeRepository
