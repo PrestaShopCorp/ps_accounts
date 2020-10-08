@@ -49,4 +49,7 @@ services:
       - '@ps_accounts.context'
       - '@ps_accounts.db'
 
-
+  PrestaShop\Module\PsAccounts\Repository\OrderRepository:
+    class: PrestaShop\Module\PsAccounts\Repository\OrderRepository
+    arguments:
+      - '@ps_accounts.db'
