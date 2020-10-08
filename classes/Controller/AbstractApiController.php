@@ -3,7 +3,9 @@
 namespace PrestaShop\Module\PsAccounts\Controller;
 
 use DateTime;
+use Exception;
 use ModuleFrontController;
+use PrestaShop\Module\PsAccounts\Exception\UnauthorizedException;
 use PrestaShop\Module\PsAccounts\Repository\AccountsSyncRepository;
 use PrestaShop\Module\PsAccounts\Repository\PaginatedApiDataProviderInterface;
 use PrestaShop\Module\PsAccounts\Service\ApiAuthorizationService;
@@ -51,24 +53,35 @@ abstract class AbstractApiController extends ModuleFrontController
     /**
      * @return void
      *
-     * @throws PrestaShopDatabaseException
+     * @throws PrestaShopException
      */
     public function init()
     {
-//        $this->authorize();
+        try {
+            $this->authorize();
+        } catch (UnauthorizedException $exception) {
+            $this->exitWithUnauthorizedStatus($exception);
+        } catch (PrestaShopDatabaseException $exception) {
+            $this->exitWithErrorStatus($exception);
+        }
     }
 
     /**
      * @return void
      *
      * @throws PrestaShopDatabaseException
+     * @throws UnauthorizedException
      */
     private function authorize()
     {
         $jobId = Tools::getValue('job_id');
 
-        if (!$jobId || !$this->authorizationService->authorizeCall($jobId)) {
-            $this->exitWithUnauthorizedStatus();
+        if (!$jobId) {
+            throw new UnauthorizedException('Job ID is not defined.', 401);
+        }
+
+        if (!$this->authorizationService->authorizeCall($jobId)) {
+            throw new UnauthorizedException('Job ID validation failed.', 401);
         }
     }
 
@@ -81,10 +94,7 @@ abstract class AbstractApiController extends ModuleFrontController
      */
     protected function handleDataSync(PaginatedApiDataProviderInterface $dataProvider)
     {
-        if (!$jobId = Tools::getValue('job_id')) {
-            $this->exitWithErrorStatus();
-        }
-
+        $jobId = Tools::getValue('job_id');
         $langIso = Tools::getValue('lang_iso', null);
         $limit = (int) Tools::getValue('limit', 50);
         $dateNow = (new DateTime())->format(DateTime::ATOM);
@@ -102,7 +112,7 @@ abstract class AbstractApiController extends ModuleFrontController
         try {
             $data = $dataProvider->getFormattedData($offset, $limit, $langIso);
         } catch (PrestaShopDatabaseException $exception) {
-            $this->exitWithErrorStatus();
+            $this->exitWithErrorStatus($exception);
         }
 
         $response = $this->segmentService->upload($jobId, $data);
@@ -122,7 +132,7 @@ abstract class AbstractApiController extends ModuleFrontController
 
         return array_merge(
             [
-                'sync_id' => $jobId,
+                'job_id' => $jobId,
                 'total_objects' => count($data),
                 'object_type' => $this->type,
                 'has_remaining_objects' => $remainingObjects > 0,
@@ -147,20 +157,36 @@ abstract class AbstractApiController extends ModuleFrontController
     }
 
     /**
+     * @param Exception $exception
+     *
      * @return void
+     *
+     * @throws PrestaShopException
      */
-    public function exitWithErrorStatus()
+    public function exitWithErrorStatus(Exception $exception)
     {
-        header('HTTP/1.1 500 Retry later');
-        exit;
+        $this->ajaxDie([
+            'object_type' => $this->type,
+            'status' => false,
+            'httpCode' => $exception->getCode(),
+            'message' => $exception->getMessage(),
+        ]);
     }
 
     /**
+     * @param UnauthorizedException $exception
+     *
      * @return void
+     *
+     * @throws PrestaShopException
      */
-    public function exitWithUnauthorizedStatus()
+    public function exitWithUnauthorizedStatus(UnauthorizedException $exception)
     {
-        header('HTTP/1.1 401 Unauthorized');
-        exit;
+        $this->ajaxDie([
+            'object_type' => $this->type,
+            'status' => false,
+            'httpCode' => $exception->getCode(),
+            'message' => $exception->getMessage(),
+        ]);
     }
 }

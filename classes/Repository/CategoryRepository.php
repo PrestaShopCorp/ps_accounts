@@ -143,8 +143,9 @@ class CategoryRepository
     {
         $query = $this->getBaseQuery();
 
-        $query->select('cs.id_category, c.id_parent, cl.name, cl.description, cl.link_rewrite,
-         cl.meta_title, cl.meta_keywords, cl.meta_description, l.iso_code')
+        $query->select('CONCAT(cs.id_category, "-", l.iso_code) as unique_category_id, cs.id_category,
+         c.id_parent, cl.name, cl.description, cl.link_rewrite, cl.meta_title, cl.meta_keywords, cl.meta_description,
+         l.iso_code')
         ->where('cs.id_shop = ' . (int) $this->context->shop->id)
         ->limit($limit, $offset);
 
