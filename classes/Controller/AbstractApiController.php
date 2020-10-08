@@ -60,9 +60,9 @@ abstract class AbstractApiController extends ModuleFrontController
         try {
             $this->authorize();
         } catch (UnauthorizedException $exception) {
-            $this->exitWithUnauthorizedStatus($exception);
+            $this->exitWithExceptionMessage($exception);
         } catch (PrestaShopDatabaseException $exception) {
-            $this->exitWithErrorStatus($exception);
+            $this->exitWithExceptionMessage($exception);
         }
     }
 
@@ -112,7 +112,7 @@ abstract class AbstractApiController extends ModuleFrontController
         try {
             $data = $dataProvider->getFormattedData($offset, $limit, $langIso);
         } catch (PrestaShopDatabaseException $exception) {
-            $this->exitWithErrorStatus($exception);
+            $this->exitWithExceptionMessage($exception);
         }
 
         $response = $this->segmentService->upload($jobId, $data);
@@ -163,24 +163,7 @@ abstract class AbstractApiController extends ModuleFrontController
      *
      * @throws PrestaShopException
      */
-    public function exitWithErrorStatus(Exception $exception)
-    {
-        $this->ajaxDie([
-            'object_type' => $this->type,
-            'status' => false,
-            'httpCode' => $exception->getCode(),
-            'message' => $exception->getMessage(),
-        ]);
-    }
-
-    /**
-     * @param UnauthorizedException $exception
-     *
-     * @return void
-     *
-     * @throws PrestaShopException
-     */
-    public function exitWithUnauthorizedStatus(UnauthorizedException $exception)
+    public function exitWithExceptionMessage(Exception $exception)
     {
         $this->ajaxDie([
             'object_type' => $this->type,
