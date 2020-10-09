@@ -35,6 +35,9 @@ class CategoryDataProvider implements PaginatedApiDataProviderInterface
         }
 
         return array_map(function ($category) {
+            $category['id_category'] = (int) $category['id_category'];
+            $category['id_parent'] = (int) $category['id_parent'];
+
             return [
                 'id' => "{$category['id_category']}-{$category['iso_code']}",
                 'collection' => 'categories',
