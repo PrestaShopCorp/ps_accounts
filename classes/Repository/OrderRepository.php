@@ -43,7 +43,7 @@ class OrderRepository
     public function getOrders($offset, $limit, $shopId)
     {
         $query = $this->getBaseQuery();
-        $query->select('o.id_order, o.id_customer, o.id_cart, o.current_state,
+        $query->select('o.id_order, o.reference, o.id_customer, o.id_cart, o.current_state,
          o.conversion_rate, o.total_paid_tax_incl, o.date_add as created_at, o.date_upd as updated_at')
             ->where('o.id_shop = ' . (int) $shopId)
             ->limit((int) $limit, (int) $offset);
