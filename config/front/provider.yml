@@ -14,3 +14,4 @@ services:
     class: PrestaShop\Module\PsAccounts\Provider\CategoryDataProvider
     arguments:
       - '@PrestaShop\Module\PsAccounts\Repository\CategoryRepository'
+      - '@PrestaShop\Module\PsAccounts\Decorator\CategoryDecorator'

@@ -43,7 +43,9 @@ class CategoryRepository
         $query->from('category_shop', 'cs')
             ->innerJoin('category', 'c', 'cs.id_category = c.id_category')
             ->leftJoin('category_lang', 'cl', 'cl.id_category = cs.id_category')
-            ->leftJoin('lang', 'l', 'l.id_lang = cl.id_lang');
+            ->leftJoin('lang', 'l', 'l.id_lang = cl.id_lang')
+            ->where('cs.id_shop = ' . (int) $this->context->shop->id)
+            ->where('cl.id_shop = ' . (int) $this->context->shop->id);
 
         return $query;
     }
@@ -146,7 +148,6 @@ class CategoryRepository
         $query->select('CONCAT(cs.id_category, "-", l.iso_code) as unique_category_id, cs.id_category,
          c.id_parent, cl.name, cl.description, cl.link_rewrite, cl.meta_title, cl.meta_keywords, cl.meta_description,
          l.iso_code, c.date_add as created_at, c.date_upd as updated_at')
-        ->where('cs.id_shop = ' . (int) $this->context->shop->id)
         ->limit($limit, $offset);
 
         if ($langIso !== null && is_string($langIso)) {
@@ -165,8 +166,7 @@ class CategoryRepository
     public function getRemainingCategoriesCount($offset, $langIso = null)
     {
         $query = $this->getBaseQuery()
-            ->select('(COUNT(cs.id_category) - ' . (int) $offset . ') as count')
-            ->where('cs.id_shop = ' . (int) $this->context->shop->id);
+            ->select('(COUNT(cs.id_category) - ' . (int) $offset . ') as count');
 
         if ($langIso !== null && is_string($langIso)) {
             $query->where('l.iso_code = "' . pSQL($langIso) . '"');

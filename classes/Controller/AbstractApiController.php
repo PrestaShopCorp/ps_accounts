@@ -160,16 +160,19 @@ abstract class AbstractApiController extends ModuleFrontController
      * @param Exception $exception
      *
      * @return void
-     *
-     * @throws PrestaShopException
      */
     public function exitWithExceptionMessage(Exception $exception)
     {
-        $this->ajaxDie([
+        header('Cache-Control: no-store, no-cache, must-revalidate, post-check=0, pre-check=0');
+        header("HTTP/1.1 {$exception->getCode()}");
+
+        echo json_encode([
             'object_type' => $this->type,
             'status' => false,
             'httpCode' => $exception->getCode(),
             'message' => $exception->getMessage(),
         ]);
+
+        die;
     }
 }

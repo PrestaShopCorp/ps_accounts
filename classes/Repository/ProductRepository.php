@@ -67,6 +67,8 @@ class ProductRepository
             ->leftJoin('product_attribute_image', 'pai', 'pai.id_product_attribute = pas.id_product_attribute')
 
             ->where('ps.id_shop = ' . (int) $shopId)
+            ->where('pl.id_shop = ' . (int) $shopId)
+
             ->groupBy('ps.id_product, pas.id_product_attribute, l.id_lang')
             ->orderBy('p.id_product, pas.id_product_attribute');
 

@@ -2,6 +2,7 @@
 
 namespace PrestaShop\Module\PsAccounts\Provider;
 
+use PrestaShop\Module\PsAccounts\Decorator\CategoryDecorator;
 use PrestaShop\Module\PsAccounts\Repository\CategoryRepository;
 use PrestaShop\Module\PsAccounts\Repository\PaginatedApiDataProviderInterface;
 
@@ -11,10 +12,15 @@ class CategoryDataProvider implements PaginatedApiDataProviderInterface
      * @var CategoryRepository
      */
     private $categoryRepository;
+    /**
+     * @var CategoryDecorator
+     */
+    private $categoryDecorator;
 
-    public function __construct(CategoryRepository $categoryRepository)
+    public function __construct(CategoryRepository $categoryRepository, CategoryDecorator $categoryDecorator)
     {
         $this->categoryRepository = $categoryRepository;
+        $this->categoryDecorator = $categoryDecorator;
     }
 
     /**
@@ -34,10 +40,9 @@ class CategoryDataProvider implements PaginatedApiDataProviderInterface
             $categories = [];
         }
 
-        return array_map(function ($category) {
-            $category['id_category'] = (int) $category['id_category'];
-            $category['id_parent'] = (int) $category['id_parent'];
+        $this->categoryDecorator->decorateCategories($categories);
 
+        return array_map(function ($category) {
             return [
                 'id' => "{$category['id_category']}-{$category['iso_code']}",
                 'collection' => 'categories',
@@ -55,6 +60,5 @@ class CategoryDataProvider implements PaginatedApiDataProviderInterface
     public function getRemainingObjectsCount($offset, $langIso = null)
     {
         return $this->categoryRepository->getRemainingCategoriesCount($offset, $langIso);
-        // TODO: Implement getRemainingObjectsCount() method.
     }
 }
