@@ -157,22 +157,46 @@ abstract class AbstractApiController extends ModuleFrontController
     }
 
     /**
+     * @param array $response
+     *
+     * @return void
+     */
+    protected function exitWithResponse(array $response)
+    {
+        $httpCode = isset($response['httpCode']) ? (int) $response['httpCode'] : 200;
+
+        $this->dieWithResponse($response, $httpCode);
+    }
+
+    /**
      * @param Exception $exception
      *
      * @return void
      */
-    public function exitWithExceptionMessage(Exception $exception)
+    protected function exitWithExceptionMessage(Exception $exception)
     {
-        header('Cache-Control: no-store, no-cache, must-revalidate, post-check=0, pre-check=0');
-        header("HTTP/1.1 {$exception->getCode()}");
-
-        echo json_encode([
+        $response = [
             'object_type' => $this->type,
             'status' => false,
             'httpCode' => $exception->getCode(),
             'message' => $exception->getMessage(),
-        ]);
+        ];
 
+        $this->dieWithResponse($response, (int) $exception->getCode());
+    }
+
+    /**
+     * @param array $response
+     * @param int $code
+     *
+     * @return void
+     */
+    private function dieWithResponse(array $response, $code)
+    {
+        header('Cache-Control: no-store, no-cache, must-revalidate, post-check=0, pre-check=0');
+        header("HTTP/1.1 $code");
+
+        echo json_encode($response);
         die;
     }
 }

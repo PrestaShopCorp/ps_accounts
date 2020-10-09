@@ -18,6 +18,6 @@ class ps_AccountsApiCategoriesModuleFrontController extends AbstractApiControlle
 
         $response = $this->handleDataSync($productDataProvider);
 
-        $this->ajaxDie($response);
+        $this->exitWithResponse($response);
     }
 }
