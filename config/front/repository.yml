@@ -53,3 +53,8 @@ services:
     class: PrestaShop\Module\PsAccounts\Repository\OrderRepository
     arguments:
       - '@ps_accounts.db'
+
+  PrestaShop\Module\PsAccounts\Repository\OrderDetailsRepository:
+    class: PrestaShop\Module\PsAccounts\Repository\OrderDetailsRepository
+    arguments:
+      - '@ps_accounts.db'

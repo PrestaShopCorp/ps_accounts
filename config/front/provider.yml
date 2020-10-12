@@ -19,5 +19,7 @@ services:
   PrestaShop\Module\PsAccounts\Provider\OrderDataProvider:
     class: PrestaShop\Module\PsAccounts\Provider\OrderDataProvider
     arguments:
-      - '@PrestaShop\Module\PsAccounts\Repository\OrderRepository'
       - '@ps_accounts.context'
+      - '@PrestaShop\Module\PsAccounts\Repository\OrderRepository'
+      - '@PrestaShop\Module\PsAccounts\Repository\OrderDetailsRepository'
+      - '@PrestaShop\Module\PsAccounts\Formatter\ArrayFormatter'

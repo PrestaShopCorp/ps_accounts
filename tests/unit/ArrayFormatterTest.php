@@ -34,7 +34,7 @@ class ArrayFormatterTest extends TestCase
             ['id' => 3, 'value' => 789],
         ];
 
-        $this->assertEquals('123;456;789', $this->arrayFormatter->formatValueArray($data));
-        $this->assertEquals('123:456:789', $this->arrayFormatter->formatValueArray($data, ':'));
+        $this->assertEquals('123;456;789', $this->arrayFormatter->formatValueString($data, 'value'));
+        $this->assertEquals('123:456:789', $this->arrayFormatter->formatValueString($data, 'value', ':'));
     }
 }
