@@ -57,13 +57,15 @@ class OrderDataProvider implements PaginatedApiDataProviderInterface
 
         $orderDetails = $this->getOrderDetails($orderIds);
 
-        return array_map(function ($order) {
+        $orders = array_map(function ($order) {
             return [
                 'id' => $order['id_order'],
                 'collection' => 'orders',
                 'properties' => $order,
             ];
         }, $orders);
+
+        return array_merge($orders, $orderDetails);
     }
 
     /**
@@ -78,9 +80,27 @@ class OrderDataProvider implements PaginatedApiDataProviderInterface
 
     /**
      * @param array $orderIds
+     *
+     * @return array
      */
     private function getOrderDetails(array $orderIds)
     {
-        return $this->orderDetailsRepository->getOrderDetails($orderIds);
+        if (empty($orderIds)) {
+            return [];
+        }
+
+        $orderDetails = $this->orderDetailsRepository->getOrderDetails($orderIds);
+
+        if (!is_array($orderDetails)) {
+            return [];
+        }
+
+        return array_map(function ($orderDetail) {
+            return [
+                'id' => $orderDetail['id_order_detail'],
+                'collection' => 'order_details',
+                'properties' => $orderDetail,
+            ];
+        }, $orderDetails);
     }
 }

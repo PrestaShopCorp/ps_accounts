@@ -58,3 +58,4 @@ services:
     class: PrestaShop\Module\PsAccounts\Repository\OrderDetailsRepository
     arguments:
       - '@ps_accounts.db'
+      - '@ps_accounts.context'
