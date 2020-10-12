@@ -24,7 +24,6 @@
 *  International Registered Trademark & Property of PrestaShop SA
 */
 
-use PrestaShop\AccountsAuth\Service\PsAccountsService;
 use PrestaShop\AccountsAuth\DependencyInjection\PsAccountsServiceProvider;
 use PrestaShop\AccountsAuth\Environment\Env;
 use PrestaShop\AccountsAuth\Handler\ErrorHandler\ErrorHandler;
