@@ -27,6 +27,7 @@
 use PrestaShop\AccountsAuth\DependencyInjection\PsAccountsServiceProvider;
 use PrestaShop\AccountsAuth\Environment\Env;
 use PrestaShop\AccountsAuth\Handler\ErrorHandler\ErrorHandler;
+use PrestaShop\AccountsAuth\Service\PsAccountsService;
 use PrestaShop\Module\PsAccounts\Exception\EnvVarException;
 use PrestaShop\Module\PsAccounts\Exception\HmacException;
 use PrestaShop\Module\PsAccounts\Exception\PsAccountsRsaSignDataEmptyException;
@@ -45,8 +46,9 @@ class AdminConfigureHmacPsAccountsController extends ModuleAdminController
         $errorHandler = ErrorHandler::getInstance();
 
         try {
+            $psAccountsService = new PsAccountsService();
+            $psAccountsService->generateSshKey();
             PsAccountsServiceProvider::getInstance()->get(Env::class);
-
             if (null === Tools::getValue('hmac')) {
                 throw new HmacException('Hmac does not exist', 500);
             }
