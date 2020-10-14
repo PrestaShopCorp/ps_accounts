@@ -1,5 +1,4 @@
 name: Module accounts CD Multishop Production
-
 on:
   push:
     branches:
