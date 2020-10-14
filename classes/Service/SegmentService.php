@@ -4,24 +4,22 @@ namespace PrestaShop\Module\PsAccounts\Service;
 
 use Exception;
 use GuzzleHttp\Exception\ClientException;
-use PrestaShop\Module\PsAccounts\Api\SegmentClient;
+use PrestaShop\Module\PsAccounts\Api\EventBusProxyClient;
 
 class SegmentService
 {
     /**
-     * @var SegmentClient
+     * @var EventBusProxyClient
      */
-    private $segmentClient;
+    private $eventBusProxyClient;
     /**
      * @var CompressionService
      */
     private $compressionService;
 
-    public function __construct(
-        SegmentClient $segmentClient,
-        CompressionService $compressionService
-    ) {
-        $this->segmentClient = $segmentClient;
+    public function __construct(EventBusProxyClient $eventBusProxyClient, CompressionService $compressionService)
+    {
+        $this->eventBusProxyClient = $eventBusProxyClient;
         $this->compressionService = $compressionService;
     }
 
@@ -40,7 +38,7 @@ class SegmentService
         }
 
         try {
-            $response = $this->segmentClient->upload($jobId, $compressedData);
+            $response = $this->eventBusProxyClient->upload($jobId, $compressedData);
         } catch (ClientException $exception) {
             return ['error' => $exception->getMessage()];
         }

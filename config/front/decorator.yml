@@ -7,3 +7,6 @@ services:
       - '@PrestaShop\Module\PsAccounts\Repository\ProductRepository'
       - '@PrestaShop\Module\PsAccounts\Repository\CategoryRepository'
       - '@PrestaShop\Module\PsAccounts\Formatter\ArrayFormatter'
+
+  PrestaShop\Module\PsAccounts\Decorator\CategoryDecorator:
+    class: PrestaShop\Module\PsAccounts\Decorator\CategoryDecorator

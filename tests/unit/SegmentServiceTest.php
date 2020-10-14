@@ -2,7 +2,7 @@
 
 use GuzzleHttp\Exception\ClientException;
 use PHPUnit\Framework\TestCase;
-use PrestaShop\Module\PsAccounts\Api\Client\SegmentClient;
+use PrestaShop\Module\PsAccounts\Api\EventBusProxyClient;
 use PrestaShop\Module\PsAccounts\Service\CompressionService;
 use PrestaShop\Module\PsAccounts\Service\SegmentService;
 
@@ -17,9 +17,9 @@ class SegmentServiceTest extends TestCase
      */
     private $context;
     /**
-     * @var SegmentClient
+     * @var EventBusProxyClient
      */
-    private $segmentClient;
+    private $eventBusProxyClient;
     /**
      * @var CompressionService
      */
@@ -29,9 +29,9 @@ class SegmentServiceTest extends TestCase
     {
         parent::setUp();
         $this->context = Context::getContext();
-        $this->segmentClient = $this->createMock(SegmentClient::class);
+        $this->eventBusProxyClient = $this->createMock(EventBusProxyClient::class);
         $this->compressionService = $this->createMock(CompressionService::class);
-        $this->segmentService = new SegmentService($this->segmentClient, $this->compressionService);
+        $this->segmentService = new SegmentService($this->eventBusProxyClient, $this->compressionService);
     }
 
     public function testValidUpload()
@@ -41,7 +41,7 @@ class SegmentServiceTest extends TestCase
         $compressedData = gzencode(json_encode($data));
 
         $this->compressionService->method('gzipCompressData')->willReturn($compressedData);
-        $this->segmentClient->method('upload')->willReturn([
+        $this->eventBusProxyClient->method('upload')->willReturn([
             'status' => 'success',
             'httpCode' => 201,
             'body' => 'success',
@@ -64,7 +64,7 @@ class SegmentServiceTest extends TestCase
         $this->assertFalse($this->segmentService->upload($syncId, $data));
 
         $clientException = $this->createMock(ClientException::class);
-        $this->segmentClient->method('upload')->willThrowException($clientException);
+        $this->eventBusProxyClient->method('upload')->willThrowException($clientException);
         $this->assertFalse($this->segmentService->upload($syncId, $data));
     }
 }

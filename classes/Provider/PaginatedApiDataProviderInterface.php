@@ -2,6 +2,8 @@
 
 namespace PrestaShop\Module\PsAccounts\Repository;
 
+use PrestaShopDatabaseException;
+
 interface PaginatedApiDataProviderInterface
 {
     /**
@@ -10,6 +12,8 @@ interface PaginatedApiDataProviderInterface
      * @param string $langIso
      *
      * @return array
+     *
+     * @throws PrestaShopDatabaseException
      */
     public function getFormattedData($offset, $limit, $langIso = null);
 
@@ -18,6 +22,8 @@ interface PaginatedApiDataProviderInterface
      * @param string $langIso
      *
      * @return int
+     *
+     * @throws PrestaShopDatabaseException
      */
     public function getRemainingObjectsCount($offset, $langIso = null);
 }

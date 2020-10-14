@@ -9,8 +9,8 @@ services:
     arguments:
       - '@ps_accounts.link'
 
-  PrestaShop\Module\PsAccounts\Api\SegmentClient:
-    class: PrestaShop\Module\PsAccounts\Api\SegmentClient
+  PrestaShop\Module\PsAccounts\Api\EventBusProxyClient:
+    class: PrestaShop\Module\PsAccounts\Api\EventBusProxyClient
     arguments:
       - '@ps_accounts.link'
 

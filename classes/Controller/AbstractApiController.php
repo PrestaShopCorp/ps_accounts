@@ -3,7 +3,9 @@
 namespace PrestaShop\Module\PsAccounts\Controller;
 
 use DateTime;
+use Exception;
 use ModuleFrontController;
+use PrestaShop\Module\PsAccounts\Exception\UnauthorizedException;
 use PrestaShop\Module\PsAccounts\Repository\AccountsSyncRepository;
 use PrestaShop\Module\PsAccounts\Repository\PaginatedApiDataProviderInterface;
 use PrestaShop\Module\PsAccounts\Service\ApiAuthorizationService;
@@ -51,45 +53,53 @@ abstract class AbstractApiController extends ModuleFrontController
     /**
      * @return void
      *
-     * @throws PrestaShopDatabaseException
+     * @throws PrestaShopException
      */
     public function init()
     {
-        $this->authorize();
+        try {
+            $this->authorize();
+        } catch (UnauthorizedException $exception) {
+            $this->exitWithExceptionMessage($exception);
+        } catch (PrestaShopDatabaseException $exception) {
+            $this->exitWithExceptionMessage($exception);
+        }
     }
 
     /**
      * @return void
      *
      * @throws PrestaShopDatabaseException
+     * @throws UnauthorizedException
      */
     private function authorize()
     {
         $jobId = Tools::getValue('job_id');
 
-        if (!$jobId || !$this->authorizationService->authorizeCall($jobId)) {
-            $this->exitWithUnauthorizedStatus();
+        if (!$jobId) {
+            throw new UnauthorizedException('Job ID is not defined.', 401);
+        }
+
+        if (!$this->authorizationService->authorizeCall($jobId)) {
+            throw new UnauthorizedException('Job ID validation failed.', 401);
         }
     }
 
     /**
-     * @param PaginatedApiDataProviderInterface $repository
+     * @param PaginatedApiDataProviderInterface $dataProvider
      *
      * @return array
      *
      * @throws PrestaShopDatabaseException
      */
-    protected function handleDataSync(PaginatedApiDataProviderInterface $repository)
+    protected function handleDataSync(PaginatedApiDataProviderInterface $dataProvider)
     {
-        if (!$jobId = Tools::getValue('job_id')) {
-            $this->exitWithErrorStatus();
-        }
-
+        $jobId = Tools::getValue('job_id');
         $langIso = Tools::getValue('lang_iso', null);
-
         $limit = (int) Tools::getValue('limit', 50);
         $dateNow = (new DateTime())->format(DateTime::ATOM);
         $offset = 0;
+        $data = [];
 
         $typeSync = $this->accountsSyncRepository->findTypeSync($this->type, $langIso);
 
@@ -99,7 +109,11 @@ abstract class AbstractApiController extends ModuleFrontController
             $this->accountsSyncRepository->insertTypeSync($this->type, 0, $dateNow, $langIso);
         }
 
-        $data = $repository->getFormattedData($offset, $limit, $langIso);
+        try {
+            $data = $dataProvider->getFormattedData($offset, $limit, $langIso);
+        } catch (PrestaShopDatabaseException $exception) {
+            $this->exitWithExceptionMessage($exception);
+        }
 
         $response = $this->segmentService->upload($jobId, $data);
 
@@ -107,18 +121,18 @@ abstract class AbstractApiController extends ModuleFrontController
             $offset += $limit;
         }
 
-        $remainingObjects = $repository->getRemainingObjectsCount($offset);
+        $remainingObjects = $dataProvider->getRemainingObjectsCount($offset, $langIso);
 
         if ($remainingObjects <= 0) {
             $remainingObjects = 0;
             $offset = 0;
         }
 
-        $this->accountsSyncRepository->updateTypeSync($this->type, $offset, $dateNow);
+        $this->accountsSyncRepository->updateTypeSync($this->type, $offset, $dateNow, $langIso);
 
         return array_merge(
             [
-                'sync_id' => $jobId,
+                'job_id' => $jobId,
                 'total_objects' => count($data),
                 'object_type' => $this->type,
                 'has_remaining_objects' => $remainingObjects > 0,
@@ -143,20 +157,46 @@ abstract class AbstractApiController extends ModuleFrontController
     }
 
     /**
+     * @param array $response
+     *
      * @return void
      */
-    public function exitWithErrorStatus()
+    protected function exitWithResponse(array $response)
     {
-        header('HTTP/1.1 500 Retry later');
-        exit;
+        $httpCode = isset($response['httpCode']) ? (int) $response['httpCode'] : 200;
+
+        $this->dieWithResponse($response, $httpCode);
     }
 
     /**
+     * @param Exception $exception
+     *
      * @return void
      */
-    public function exitWithUnauthorizedStatus()
+    protected function exitWithExceptionMessage(Exception $exception)
     {
-        header('HTTP/1.1 401 Unauthorized');
-        exit;
+        $response = [
+            'object_type' => $this->type,
+            'status' => false,
+            'httpCode' => $exception->getCode(),
+            'message' => $exception->getMessage(),
+        ];
+
+        $this->dieWithResponse($response, (int) $exception->getCode());
+    }
+
+    /**
+     * @param array $response
+     * @param int $code
+     *
+     * @return void
+     */
+    private function dieWithResponse(array $response, $code)
+    {
+        header('Cache-Control: no-store, no-cache, must-revalidate, post-check=0, pre-check=0');
+        header("HTTP/1.1 $code");
+
+        echo json_encode($response);
+        die;
     }
 }

@@ -1,11 +1,11 @@
 <?php
 
 use PrestaShop\Module\PsAccounts\Controller\AbstractApiController;
-use PrestaShop\Module\PsAccounts\Provider\ProductDataProvider;
+use PrestaShop\Module\PsAccounts\Provider\CategoryDataProvider;
 
-class ps_accountsApiProductsModuleFrontController extends AbstractApiController
+class ps_AccountsApiCategoriesModuleFrontController extends AbstractApiController
 {
-    public $type = 'products';
+    public $type = 'categories';
 
     /**
      * @throws PrestaShopException
@@ -14,7 +14,7 @@ class ps_accountsApiProductsModuleFrontController extends AbstractApiController
      */
     public function postProcess()
     {
-        $productDataProvider = $this->module->getService(ProductDataProvider::class);
+        $productDataProvider = $this->module->getService(CategoryDataProvider::class);
 
         $response = $this->handleDataSync($productDataProvider);
 

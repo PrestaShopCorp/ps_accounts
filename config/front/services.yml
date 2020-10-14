@@ -20,7 +20,7 @@ services:
   PrestaShop\Module\PsAccounts\Service\SegmentService:
     class: PrestaShop\Module\PsAccounts\Service\SegmentService
     arguments:
-      - '@PrestaShop\Module\PsAccounts\Api\SegmentClient'
+      - '@PrestaShop\Module\PsAccounts\Api\EventBusProxyClient'
       - '@PrestaShop\Module\PsAccounts\Service\CompressionService'
 
   PrestaShop\Module\PsAccounts\Service\ApiAuthorizationService:

@@ -4,6 +4,7 @@ namespace PrestaShop\Module\PsAccounts\Api;
 
 use GuzzleHttp\Client;
 use GuzzleHttp\Exception\ConnectException;
+use GuzzleHttp\Exception\RequestException;
 use PrestaShop\AccountsAuth\Api\Client\GenericClient;
 
 class EventBusSyncClient extends GenericClient
@@ -44,6 +45,8 @@ class EventBusSyncClient extends GenericClient
 
             return $response['httpCode'] == 201;
         } catch (ConnectException $exception) {
+            return false;
+        } catch (RequestException $exception) {
             return false;
         }
     }

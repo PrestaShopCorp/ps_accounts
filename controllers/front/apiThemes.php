@@ -22,8 +22,6 @@ class ps_AccountsApiThemesModuleFrontController extends AbstractApiController
 
         $response = $this->segmentService->upload($jobId, $themeInfo);
 
-        $this->ajaxDie(
-            array_merge(['remaining_objects' => '0'], $response)
-        );
+        $this->exitWithResponse(array_merge(['remaining_objects' => '0'], $response));
     }
 }
