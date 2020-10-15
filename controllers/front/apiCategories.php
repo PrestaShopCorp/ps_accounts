@@ -14,9 +14,9 @@ class ps_AccountsApiCategoriesModuleFrontController extends AbstractApiControlle
      */
     public function postProcess()
     {
-        $productDataProvider = $this->module->getService(CategoryDataProvider::class);
+        $categoryDataProvider = $this->module->getService(CategoryDataProvider::class);
 
-        $response = $this->handleDataSync($productDataProvider);
+        $response = $this->handleDataSync($categoryDataProvider);
 
         $this->exitWithResponse($response);
     }
