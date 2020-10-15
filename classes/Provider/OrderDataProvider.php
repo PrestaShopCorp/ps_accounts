@@ -71,6 +71,7 @@ class OrderDataProvider implements PaginatedApiDataProviderInterface
     /**
      * @param int $offset
      * @param null $langIso
+     *
      * @return int
      */
     public function getRemainingObjectsCount($offset, $langIso = null)

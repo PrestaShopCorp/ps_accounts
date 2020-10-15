@@ -2,7 +2,6 @@
 
 namespace PrestaShop\Module\PsAccounts\Repository;
 
-use Context;
 use Db;
 use DbQuery;
 
@@ -54,6 +53,7 @@ class OrderRepository
     /**
      * @param int $offset
      * @param int $shopId
+     *
      * @return int
      */
     public function getRemainingOrderCount($offset, $shopId)
