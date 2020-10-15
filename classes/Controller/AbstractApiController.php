@@ -93,19 +93,19 @@ abstract class AbstractApiController extends ModuleFrontController
      * @param PaginatedApiDataProviderInterface $dataProvider
      *
      * @return array
-     *
-     * @throws PrestaShopDatabaseException
      */
     protected function handleDataSync(PaginatedApiDataProviderInterface $dataProvider)
     {
         $jobId = Tools::getValue('job_id');
         $langIso = Tools::getValue('lang_iso', null);
         $limit = (int) Tools::getValue('limit', 50);
+        $limit = $limit == 0 ? 1000000000000 : $limit;
         $dateNow = (new DateTime())->format(DateTime::ATOM);
         $offset = 0;
-        $data = [];
+        $response = [];
 
-        $typeSync = $this->accountsSyncRepository->findTypeSync($this->type, $langIso);
+        try {
+            $typeSync = $this->accountsSyncRepository->findTypeSync($this->type, $langIso);
 
         if ($typeSync !== false && is_array($typeSync)) {
             $offset = (int) $typeSync['offset'];
@@ -113,37 +113,38 @@ abstract class AbstractApiController extends ModuleFrontController
             $this->accountsSyncRepository->insertTypeSync($this->type, $offset, $dateNow, $langIso);
         }
 
-        try {
             $data = $dataProvider->getFormattedData($offset, $limit, $langIso);
+
+            $response = $this->segmentService->upload($jobId, $data);
+
+            if ($response['httpCode'] == 201) {
+                $offset += $limit;
+            }
+
+            $remainingObjects = $dataProvider->getRemainingObjectsCount($offset, $langIso);
+
+            if ($remainingObjects <= 0) {
+                $remainingObjects = 0;
+                $offset = 0;
+            }
+
+            $this->accountsSyncRepository->updateTypeSync($this->type, $offset, $dateNow, $langIso);
+
+            return array_merge(
+                [
+                    'job_id' => $jobId,
+                    'total_objects' => count($data),
+                    'object_type' => $this->type,
+                    'has_remaining_objects' => $remainingObjects > 0,
+                    'remaining_objects' => $remainingObjects,
+                ],
+                $response
+            );
         } catch (PrestaShopDatabaseException $exception) {
             $this->exitWithExceptionMessage($exception);
         }
 
-        $response = $this->segmentService->upload($jobId, $data);
-
-        if ($response['httpCode'] == 201) {
-            $offset += $limit;
-        }
-
-        $remainingObjects = $dataProvider->getRemainingObjectsCount($offset, $langIso);
-
-        if ($remainingObjects <= 0) {
-            $remainingObjects = 0;
-            $offset = 0;
-        }
-
-        $this->accountsSyncRepository->updateTypeSync($this->type, $offset, $dateNow, $langIso);
-
-        return array_merge(
-            [
-                'job_id' => $jobId,
-                'total_objects' => count($data),
-                'object_type' => $this->type,
-                'has_remaining_objects' => $remainingObjects > 0,
-                'remaining_objects' => $remainingObjects,
-            ],
-            $response
-        );
+        return $response;
     }
 
     /**
