@@ -45,13 +45,17 @@ class OrderDataProvider implements PaginatedApiDataProviderInterface
      * @param int $limit
      * @param null $langIso
      *
-     * @return array|array[]
+     * @return array
      *
      * @throws PrestaShopDatabaseException
      */
     public function getFormattedData($offset, $limit, $langIso = null)
     {
         $orders = $this->orderRepository->getOrders($offset, $limit, $this->context->shop->id);
+
+        if (!is_array($orders)) {
+            return [];
+        }
 
         $orderIds = $this->arrayFormatter->formatValueArray($orders, 'id_order');
 
