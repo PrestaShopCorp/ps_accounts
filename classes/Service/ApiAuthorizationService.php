@@ -29,7 +29,7 @@ class ApiAuthorizationService
      *
      * @param string $jobId
      *
-     * @return bool
+     * @return array|bool
      *
      * @throws \PrestaShopDatabaseException
      */
@@ -43,7 +43,7 @@ class ApiAuthorizationService
 
         $jobValidationResponse = $this->eventBusSyncClient->validateJobId($jobId);
 
-        if ((int) $jobValidationResponse['httpCode'] === 201) {
+        if (is_array($jobValidationResponse) && (int) $jobValidationResponse['httpCode'] === 201) {
             return $this->accountsSyncStateRepository->insertSync($jobId, date(DATE_ATOM));
         }
 
