@@ -3,9 +3,8 @@
 namespace PrestaShop\Module\PsAccounts\Api;
 
 use GuzzleHttp\Client;
-use GuzzleHttp\Exception\ConnectException;
-use GuzzleHttp\Exception\RequestException;
 use PrestaShop\AccountsAuth\Api\Client\GenericClient;
+use PrestaShop\AccountsAuth\Service\PsAccountsService;
 
 class EventBusSyncClient extends GenericClient
 {
@@ -14,6 +13,8 @@ class EventBusSyncClient extends GenericClient
         parent::__construct();
 
         $this->setLink($link);
+        $psAccountsService = new PsAccountsService();
+        $token = $psAccountsService->getOrRefreshToken();
 
         if (null === $client) {
             $client = new Client([
@@ -23,6 +24,7 @@ class EventBusSyncClient extends GenericClient
                     'exceptions' => $this->catchExceptions,
                     'headers' => [
                         'Accept' => 'application/json',
+                        'Authorization' => "Bearer $token",
                     ],
                 ],
             ]);
@@ -34,20 +36,12 @@ class EventBusSyncClient extends GenericClient
     /**
      * @param string $jobId
      *
-     * @return bool
+     * @return array|bool
      */
     public function validateJobId($jobId)
     {
         $this->setRoute($_ENV['EVENT_BUS_SYNC_API_URL'] . "/job/$jobId");
 
-        try {
-            $response = $this->get();
-
-            return $response['httpCode'] == 201;
-        } catch (ConnectException $exception) {
-            return false;
-        } catch (RequestException $exception) {
-            return false;
-        }
+        return $this->get();
     }
 }

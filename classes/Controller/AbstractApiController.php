@@ -80,8 +80,12 @@ abstract class AbstractApiController extends ModuleFrontController
             throw new UnauthorizedException('Job ID is not defined.', 401);
         }
 
-        if (!$this->authorizationService->authorizeCall($jobId)) {
-            throw new UnauthorizedException('Job ID validation failed.', 401);
+        $authorizationResponse = $this->authorizationService->authorizeCall($jobId);
+
+        if (is_array($authorizationResponse)) {
+            $this->exitWithResponse($authorizationResponse);
+        } elseif (!$authorizationResponse) {
+            throw new UnauthorizedException('Failed saving job id to database', 401);
         }
     }
 
