@@ -18,9 +18,9 @@
  * International Registered Trademark & Property of PrestaShop SA
  */
 
-use PrestaShop\AccountsAuth\DependencyInjection\PsAccountsServiceProvider;
-use PrestaShop\AccountsAuth\Handler\ErrorHandler\ErrorHandler;
-use PrestaShop\AccountsAuth\Repository\ConfigurationRepository;
+use PrestaShop\Module\PsAccounts\DependencyInjection\PsAccountsServiceProvider;
+use PrestaShop\Module\PsAccounts\Handler\ErrorHandler\ErrorHandler;
+use PrestaShop\Module\PsAccounts\Repository\ConfigurationRepository;
 use PrestaShop\Module\PsAccounts\Api\ServicesApi\Webhook;
 use PrestaShop\Module\PsAccounts\Exception\WebhookException;
 use PrestaShop\Module\PsAccounts\WebHook\Validator;

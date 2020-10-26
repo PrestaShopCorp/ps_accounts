@@ -20,8 +20,8 @@
 
 namespace PrestaShop\Module\PsAccounts\WebHook;
 
-use PrestaShop\AccountsAuth\DependencyInjection\PsAccountsServiceProvider;
-use PrestaShop\AccountsAuth\Repository\ConfigurationRepository;
+use PrestaShop\Module\PsAccounts\DependencyInjection\PsAccountsServiceProvider;
+use PrestaShop\Module\PsAccounts\Repository\ConfigurationRepository;
 use PrestaShop\Module\PsAccounts\Api\AccountsClient;
 use PrestaShop\Module\PsAccounts\Exception\FirebaseException;
 use PrestaShop\Module\PsAccounts\Exception\WebhookException;

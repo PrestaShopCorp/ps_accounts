@@ -24,10 +24,10 @@
 *  International Registered Trademark & Property of PrestaShop SA
 */
 
-use PrestaShop\AccountsAuth\DependencyInjection\PsAccountsServiceProvider;
-use PrestaShop\AccountsAuth\Environment\Env;
-use PrestaShop\AccountsAuth\Handler\ErrorHandler\ErrorHandler;
-use PrestaShop\AccountsAuth\Service\PsAccountsService;
+use PrestaShop\Module\PsAccounts\DependencyInjection\PsAccountsServiceProvider;
+use PrestaShop\Module\PsAccounts\Environment\Env;
+use PrestaShop\Module\PsAccounts\Handler\ErrorHandler\ErrorHandler;
+use PrestaShop\Module\PsAccounts\Service\PsAccountsService;
 use PrestaShop\Module\PsAccounts\Exception\EnvVarException;
 use PrestaShop\Module\PsAccounts\Exception\HmacException;
 use PrestaShop\Module\PsAccounts\Exception\PsAccountsRsaSignDataEmptyException;
@@ -40,6 +40,8 @@ class AdminConfigureHmacPsAccountsController extends ModuleAdminController
 {
     /**
      * @return void
+     *
+     * @throws Exception
      */
     public function initContent()
     {

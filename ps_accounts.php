@@ -246,7 +246,7 @@ class Ps_accounts extends Module
                 'domain' => $domain,
                 'domain_ssl' => $domainSsl,
             ];
-            $psAccountsService = new \PrestaShop\AccountsAuth\Service\PsAccountsService();
+            $psAccountsService = new \PrestaShop\Module\PsAccounts\Service\PsAccountsService();
             $psAccountsService->changeUrl($bodyHttp, '1.6');
         }
 
@@ -276,7 +276,7 @@ class Ps_accounts extends Module
             'domain' => $params['form_data']['shop_urls']['domain'],
             'domain_ssl' => $params['form_data']['shop_urls']['domain_ssl'],
         ];
-        $psAccountsService = new \PrestaShop\AccountsAuth\Service\PsAccountsService();
+        $psAccountsService = new \PrestaShop\Module\PsAccounts\Service\PsAccountsService();
         $psAccountsService->changeUrl($bodyHttp, '1.7.6');
 
         return true;
@@ -301,7 +301,7 @@ class Ps_accounts extends Module
             'main' => $params['object']->main,
             'active' => $params['object']->active,
         ];
-        $psAccountsService = new \PrestaShop\AccountsAuth\Service\PsAccountsService();
+        $psAccountsService = new \PrestaShop\Module\PsAccounts\Service\PsAccountsService();
         $psAccountsService->changeUrl($bodyHttp, 'multishop');
 
         return true;

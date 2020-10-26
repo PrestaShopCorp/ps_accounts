@@ -9,8 +9,7 @@
   },
   "autoload": {
     "psr-4": {
-      "PrestaShop\\Module\\PsAccounts\\": "classes/",
-      "PrestaShop\\AccountsAuth\\": "src/"
+      "PrestaShop\\Module\\PsAccounts\\": "classes/"
     },
     "classmap": [
       "ps_accounts.php",
@@ -19,7 +18,7 @@
   },
   "autoload-dev": {
     "psr-4": {
-      "PrestaShop\\AccountsAuth\\Tests\\": "tests/"
+      "PrestaShop\\Module\\PsAccounts\\Tests\\": "tests/"
     }
   },
   "require": {

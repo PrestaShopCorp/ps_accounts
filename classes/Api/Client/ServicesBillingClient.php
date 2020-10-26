@@ -1,6 +1,6 @@
 <?php
 /**
- * 2007-2020 PrestaShop and Contributors
+ * 2007-2020 PrestaShop and Contributors.
  *
  * NOTICE OF LICENSE
  *
@@ -18,34 +18,37 @@
  * International Registered Trademark & Property of PrestaShop SA
  */
 
-namespace PrestaShop\Module\PsAccounts\Api;
+namespace PrestaShop\Module\PsAccounts\Api\Client;
 
 use GuzzleHttp\Client;
-use PrestaShop\Module\PsAccounts\Api\Client\GenericClient;
 use PrestaShop\Module\PsAccounts\Service\PsAccountsService;
-use PrestaShop\Module\PsAccounts\Exception\FirebaseException;
 
 /**
- * Construct the client used to make call to Accounts API
+ * Handle call api Services
  */
-class AccountsClient extends GenericClient
+class ServicesBillingClient extends GenericClient
 {
+    /**
+     * ServicesBillingClient constructor.
+     *
+     * @param \Link $link
+     * @param Client|null $client
+     *
+     * @throws \ReflectionException
+     * @throws \Exception
+     */
     public function __construct(\Link $link, Client $client = null)
     {
         parent::__construct();
-
-        $this->setLink($link);
         $psAccountsService = new PsAccountsService();
+        $shopId = $psAccountsService->getCurrentShop()['id'];
         $token = $psAccountsService->getOrRefreshToken();
-
-        if (!$token) {
-            throw new FirebaseException('you must have admin token', 500);
-        }
+        $this->setLink($link);
 
         // Client can be provided for tests
         if (null === $client) {
             $client = new Client([
-                'base_url' => $_ENV['ACCOUNTS_SVC_API_URL'],
+                'base_url' => $_ENV['BILLING_SVC_API_URL'],
                 'defaults' => [
                     'timeout' => $this->timeout,
                     'exceptions' => $this->catchExceptions,
@@ -54,15 +57,7 @@ class AccountsClient extends GenericClient
                         //'Content-Type' => 'application/vnd.accounts.v1+json', // api version to use
                         'Accept' => 'application/json',
                         'Authorization' => 'Bearer ' . $token,
-                        'Shop-Id' => $psAccountsService->getCurrentShop()['id'],
-                        'Hook-Url' => $this->link->getModuleLink(
-                            'ps_accounts',
-                            'DispatchWebHook',
-                            [],
-                            true,
-                            null,
-                            (int) $psAccountsService->getCurrentShop()['id']
-                        ),
+                        'Shop-Id' => $shopId,
                         'Module-Version' => \Ps_accounts::VERSION, // version of the module
                         'Prestashop-Version' => _PS_VERSION_, // prestashop version
                     ],
@@ -74,31 +69,58 @@ class AccountsClient extends GenericClient
     }
 
     /**
-     * @param array $headers
-     * @param array $body
+     * @param mixed $shopUuidV4
      *
-     * @return array
+     * @return array | false
      */
-    public function checkWebhookAuthenticity(array $headers, array $body)
+    public function getBillingCustomer($shopUuidV4)
     {
-        $correlationId = $headers['correlationId'];
-        $this->setRoute($_ENV['ACCOUNTS_SVC_API_URL'] . '/webhooks/' . $correlationId . '/verify');
+        $this->setRoute('/shops/' . $shopUuidV4);
 
-        $res = $this->post([
-            'headers' => ['correlationId' => $correlationId],
-            'json' => $body,
+        return $this->get();
+    }
+
+    /**
+     * @param mixed $shopUuidV4
+     * @param array $bodyHttp
+     *
+     * @return array | false
+     */
+    public function createBillingCustomer($shopUuidV4, $bodyHttp)
+    {
+        // $this->setRoute('/shops/' . $shopUuidV4);
+        $this->setRoute('/shops');
+
+        return $this->post([
+            'body' => $bodyHttp,
         ]);
+    }
 
-        if (!$res || $res['httpCode'] < 200 || $res['httpCode'] > 299) {
-            return [
-                'httpCode' => $res['httpCode'],
-                'body' => $res['body'] && is_array($res['body']) && array_key_exists('message', $res['body']) ? $res['body']['message'] : 'Unknown error',
-            ];
-        }
+    /**
+     * @param mixed $shopUuidV4
+     * @param string $module
+     *
+     * @return array | false
+     */
+    public function getBillingSubscriptions($shopUuidV4, $module)
+    {
+        $this->setRoute('/shops/' . $shopUuidV4 . '/subscriptions?module=' . $module);
 
-        return [
-            'httpCode' => 200,
-            'body' => 'ok',
-        ];
+        return $this->get();
+    }
+
+    /**
+     * @param mixed $shopUuidV4
+     * @param array $bodyHttp
+     *
+     * @return array | false
+     */
+    public function createBillingSubscriptions($shopUuidV4, $bodyHttp)
+    {
+        $this->setRoute('/shops/' . $shopUuidV4 . '/subscriptions');
+
+        return $this->post([
+            'body' => $bodyHttp,
+        ]);
     }
 }

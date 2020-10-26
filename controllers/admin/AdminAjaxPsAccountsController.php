@@ -18,11 +18,11 @@
  * International Registered Trademark & Property of PrestaShop SA
  */
 
-use PrestaShop\AccountsAuth\Adapter\Configuration as ConfigurationAdapter;
-use PrestaShop\AccountsAuth\DependencyInjection\PsAccountsServiceProvider;
-use PrestaShop\AccountsAuth\Handler\ErrorHandler\ErrorHandler;
-use PrestaShop\AccountsAuth\Repository\ConfigurationRepository;
-use PrestaShop\AccountsAuth\Service\SshKey;
+use PrestaShop\Module\PsAccounts\Adapter\Configuration as ConfigurationAdapter;
+use PrestaShop\Module\PsAccounts\DependencyInjection\PsAccountsServiceProvider;
+use PrestaShop\Module\PsAccounts\Handler\ErrorHandler\ErrorHandler;
+use PrestaShop\Module\PsAccounts\Repository\ConfigurationRepository;
+use PrestaShop\Module\PsAccounts\Service\SshKey;
 
 /**
  * Controller for all call ajax.
@@ -89,6 +89,8 @@ class AdminAjaxPsAccountsController extends ModuleAdminController
      * AJAX: Save Admin Token.
      *
      * @return void
+     *
+     * @throws Exception
      */
     public function ajaxProcessSaveAdminToken()
     {
@@ -111,6 +113,8 @@ class AdminAjaxPsAccountsController extends ModuleAdminController
      * AJAX: Save Admin Token.
      *
      * @return void
+     *
+     * @throws Exception
      */
     public function ajaxEmailIsVerifiedToken()
     {

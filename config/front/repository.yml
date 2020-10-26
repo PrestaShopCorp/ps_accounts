@@ -1,52 +1,5 @@
 services:
-  PrestaShop\Module\PsAccounts\Repository\CurrencyRepository:
-    class: PrestaShop\Module\PsAccounts\Repository\CurrencyRepository
-
-  PrestaShop\Module\PsAccounts\Repository\LanguageRepository:
-    class: PrestaShop\Module\PsAccounts\Repository\LanguageRepository
-
   PrestaShop\Module\PsAccounts\Repository\ConfigurationRepository:
     class: PrestaShop\Module\PsAccounts\Repository\ConfigurationRepository
-
-  PrestaShop\Module\PsAccounts\Repository\AccountsSyncRepository:
-    class: PrestaShop\Module\PsAccounts\Repository\AccountsSyncRepository
-    arguments:
-      - '@ps_accounts.db'
-
-  PrestaShop\Module\PsAccounts\Repository\CategoryRepository:
-    class: PrestaShop\Module\PsAccounts\Repository\CategoryRepository
-    arguments:
-      - '@ps_accounts.db'
-      - '@ps_accounts.context'
-
-  PrestaShop\Module\PsAccounts\Repository\ImageRepository:
-    class: PrestaShop\Module\PsAccounts\Repository\ImageRepository
-    arguments:
-      - '@ps_accounts.db'
-
-  PrestaShop\Module\PsAccounts\Repository\ModuleRepository:
-    class: PrestaShop\Module\PsAccounts\Repository\ModuleRepository
-    arguments:
-      - '@ps_accounts.db'
-
-  PrestaShop\Module\PsAccounts\Repository\ProductRepository:
-    class: PrestaShop\Module\PsAccounts\Repository\ProductRepository
-    arguments:
-      - '@ps_accounts.db'
-      - '@ps_accounts.context'
-
-  PrestaShop\Module\PsAccounts\Repository\ServerInformationRepository:
-    class: PrestaShop\Module\PsAccounts\Repository\ServerInformationRepository
-    arguments:
-      - '@PrestaShop\Module\PsAccounts\Repository\CurrencyRepository'
-      - '@PrestaShop\Module\PsAccounts\Repository\LanguageRepository'
-      - '@PrestaShop\Module\PsAccounts\Repository\ConfigurationRepository'
-      - '@ps_accounts.context'
-
-  PrestaShop\Module\PsAccounts\Repository\ThemeRepository:
-    class: PrestaShop\Module\PsAccounts\Repository\ThemeRepository
-    arguments:
-      - '@ps_accounts.context'
-      - '@ps_accounts.db'
 
 
