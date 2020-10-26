@@ -18,10 +18,9 @@
  * International Registered Trademark & Property of PrestaShop SA
  */
 
-namespace PrestaShop\Module\PsAccounts\Api;
+namespace PrestaShop\Module\PsAccounts\Api\Client;
 
 use GuzzleHttp\Client;
-use PrestaShop\Module\PsAccounts\Api\Client\GenericClient;
 use PrestaShop\Module\PsAccounts\Service\PsAccountsService;
 use PrestaShop\Module\PsAccounts\Exception\FirebaseException;
 
@@ -30,6 +29,15 @@ use PrestaShop\Module\PsAccounts\Exception\FirebaseException;
  */
 class AccountsClient extends GenericClient
 {
+    /**
+     * AccountsClient constructor.
+     *
+     * @param \Link $link
+     * @param Client|null $client
+     *
+     * @throws FirebaseException
+     * @throws \PrestaShop\Module\PsAccounts\Exception\ServiceNotFoundException
+     */
     public function __construct(\Link $link, Client $client = null)
     {
         parent::__construct();
