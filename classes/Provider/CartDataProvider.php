@@ -45,10 +45,13 @@ class CartDataProvider implements PaginatedApiDataProviderInterface
             return [];
         }
 
-
-        return array_map(function ($cart) {
-
+        $cartIds =  array_map(function ($cart) {
+            return (int) $cart['id_cart'];
         }, $carts);
+
+        $cartProducts = $this->cartProductRepository->getCartProducts($cartIds);
+
+        return array_merge($carts, $cartProducts);
     }
 
     /**
