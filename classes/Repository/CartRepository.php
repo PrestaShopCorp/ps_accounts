@@ -39,6 +39,10 @@ class CartRepository
     /**
      * @param int $offset
      * @param int $limit
+     *
+     * @return array|bool|\mysqli_result|\PDOStatement|resource|null
+     *
+     * @throws \PrestaShopDatabaseException
      */
     public function getCarts($offset, $limit)
     {
@@ -50,6 +54,10 @@ class CartRepository
         return $this->db->executeS($query);
     }
 
+    /**
+     * @param int $offset
+     * @return int
+     */
     public function getRemainingCartsCount($offset)
     {
         $query = $this->getBaseQuery();
