@@ -43,7 +43,7 @@ class OrderDataProvider implements PaginatedApiDataProviderInterface
     /**
      * @param int $offset
      * @param int $limit
-     * @param null $langIso
+     * @param string|null $langIso
      *
      * @return array
      *
@@ -74,7 +74,7 @@ class OrderDataProvider implements PaginatedApiDataProviderInterface
 
     /**
      * @param int $offset
-     * @param null $langIso
+     * @param string|null $langIso
      *
      * @return int
      */

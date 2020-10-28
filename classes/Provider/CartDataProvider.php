@@ -45,7 +45,7 @@ class CartDataProvider implements PaginatedApiDataProviderInterface
             return [];
         }
 
-        $cartIds =  array_map(function ($cart) {
+        $cartIds = array_map(function ($cart) {
             return (int) $cart['id_cart'];
         }, $carts);
 
@@ -77,6 +77,7 @@ class CartDataProvider implements PaginatedApiDataProviderInterface
     /**
      * @param int $offset
      * @param string|null $langIso
+     *
      * @return int
      */
     public function getRemainingObjectsCount($offset, $langIso = null)

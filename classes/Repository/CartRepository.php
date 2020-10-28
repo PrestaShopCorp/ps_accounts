@@ -56,6 +56,7 @@ class CartRepository
 
     /**
      * @param int $offset
+     *
      * @return int
      */
     public function getRemainingCartsCount($offset)
