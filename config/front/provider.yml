@@ -15,3 +15,11 @@ services:
     arguments:
       - '@PrestaShop\Module\PsAccounts\Repository\CategoryRepository'
       - '@PrestaShop\Module\PsAccounts\Decorator\CategoryDecorator'
+
+  PrestaShop\Module\PsAccounts\Provider\OrderDataProvider:
+    class: PrestaShop\Module\PsAccounts\Provider\OrderDataProvider
+    arguments:
+      - '@ps_accounts.context'
+      - '@PrestaShop\Module\PsAccounts\Repository\OrderRepository'
+      - '@PrestaShop\Module\PsAccounts\Repository\OrderDetailsRepository'
+      - '@PrestaShop\Module\PsAccounts\Formatter\ArrayFormatter'

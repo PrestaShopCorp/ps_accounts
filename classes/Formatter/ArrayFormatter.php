@@ -17,14 +17,26 @@ class ArrayFormatter
 
     /**
      * @param array $data
+     * @param string|int $key
+     *
+     * @return array
+     */
+    public function formatValueArray(array $data, $key)
+    {
+        return array_map(function ($dataItem) use ($key) {
+            return $dataItem[$key];
+        }, $data);
+    }
+
+    /**
+     * @param array $data
+     * @param string|int $key
      * @param string $separator
      *
      * @return string
      */
-    public function formatValueArray(array $data, $separator = ';')
+    public function formatValueString(array $data, $key, $separator = ';')
     {
-        return implode($separator, array_map(function ($dataItem) {
-            return $dataItem['value'];
-        }, $data));
+        return implode($separator, $this->formatValueArray($data, $key));
     }
 }

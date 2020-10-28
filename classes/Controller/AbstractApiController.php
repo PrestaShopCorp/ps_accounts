@@ -110,7 +110,7 @@ abstract class AbstractApiController extends ModuleFrontController
         if ($typeSync !== false && is_array($typeSync)) {
             $offset = (int) $typeSync['offset'];
         } else {
-            $this->accountsSyncRepository->insertTypeSync($this->type, 0, $dateNow, $langIso);
+            $this->accountsSyncRepository->insertTypeSync($this->type, $offset, $dateNow, $langIso);
         }
 
         try {

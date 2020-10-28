@@ -37,7 +37,7 @@ class CategoryDataProvider implements PaginatedApiDataProviderInterface
         $categories = $this->categoryRepository->getCategories($offset, $limit, $langIso);
 
         if (!is_array($categories)) {
-            $categories = [];
+            return [];
         }
 
         $this->categoryDecorator->decorateCategories($categories);
