@@ -6,7 +6,6 @@ use Context;
 use PrestaShop\Module\PsAccounts\Formatter\ArrayFormatter;
 use PrestaShop\Module\PsAccounts\Repository\OrderDetailsRepository;
 use PrestaShop\Module\PsAccounts\Repository\OrderRepository;
-use PrestaShop\Module\PsAccounts\Repository\PaginatedApiDataProviderInterface;
 use PrestaShopDatabaseException;
 
 class OrderDataProvider implements PaginatedApiDataProviderInterface

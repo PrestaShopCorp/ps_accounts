@@ -4,7 +4,6 @@ namespace PrestaShop\Module\PsAccounts\Provider;
 
 use PrestaShop\Module\PsAccounts\Decorator\CategoryDecorator;
 use PrestaShop\Module\PsAccounts\Repository\CategoryRepository;
-use PrestaShop\Module\PsAccounts\Repository\PaginatedApiDataProviderInterface;
 
 class CategoryDataProvider implements PaginatedApiDataProviderInterface
 {

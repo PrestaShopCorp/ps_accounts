@@ -6,8 +6,8 @@ use DateTime;
 use Exception;
 use ModuleFrontController;
 use PrestaShop\Module\PsAccounts\Exception\UnauthorizedException;
+use PrestaShop\Module\PsAccounts\Provider\PaginatedApiDataProviderInterface;
 use PrestaShop\Module\PsAccounts\Repository\AccountsSyncRepository;
-use PrestaShop\Module\PsAccounts\Repository\PaginatedApiDataProviderInterface;
 use PrestaShop\Module\PsAccounts\Service\ApiAuthorizationService;
 use PrestaShop\Module\PsAccounts\Service\SegmentService;
 use PrestaShopDatabaseException;
@@ -58,7 +58,7 @@ abstract class AbstractApiController extends ModuleFrontController
     public function init()
     {
         try {
-//            $this->authorize();
+            $this->authorize();
         } catch (UnauthorizedException $exception) {
             $this->exitWithExceptionMessage($exception);
         } catch (PrestaShopDatabaseException $exception) {

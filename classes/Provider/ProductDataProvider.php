@@ -3,7 +3,6 @@
 namespace PrestaShop\Module\PsAccounts\Provider;
 
 use PrestaShop\Module\PsAccounts\Decorator\ProductDecorator;
-use PrestaShop\Module\PsAccounts\Repository\PaginatedApiDataProviderInterface;
 use PrestaShop\Module\PsAccounts\Repository\ProductRepository;
 
 class ProductDataProvider implements PaginatedApiDataProviderInterface

@@ -3,7 +3,6 @@
 namespace PrestaShop\Module\PsAccounts\Provider;
 
 use PrestaShop\Module\PsAccounts\Repository\ModuleRepository;
-use PrestaShop\Module\PsAccounts\Repository\PaginatedApiDataProviderInterface;
 use PrestaShopDatabaseException;
 
 class ModuleDataProvider implements PaginatedApiDataProviderInterface

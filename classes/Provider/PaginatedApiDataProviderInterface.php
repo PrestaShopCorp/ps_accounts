@@ -1,6 +1,6 @@
 <?php
 
-namespace PrestaShop\Module\PsAccounts\Repository;
+namespace PrestaShop\Module\PsAccounts\Provider;
 
 use PrestaShopDatabaseException;
 

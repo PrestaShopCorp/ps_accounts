@@ -5,7 +5,6 @@ namespace PrestaShop\Module\PsAccounts\Provider;
 use PrestaShop\Module\PsAccounts\Formatter\ArrayFormatter;
 use PrestaShop\Module\PsAccounts\Repository\CartProductRepository;
 use PrestaShop\Module\PsAccounts\Repository\CartRepository;
-use PrestaShop\Module\PsAccounts\Repository\PaginatedApiDataProviderInterface;
 
 class CartDataProvider implements PaginatedApiDataProviderInterface
 {
@@ -49,6 +48,8 @@ class CartDataProvider implements PaginatedApiDataProviderInterface
             return (int) $cart['id_cart'];
         }, $carts);
 
+        $this->castCartValues($carts);
+
         $carts = array_map(function ($cart) {
             return [
                 'id' => $cart['id_cart'],
@@ -58,6 +59,8 @@ class CartDataProvider implements PaginatedApiDataProviderInterface
         }, $carts);
 
         $cartProducts = $this->cartProductRepository->getCartProducts($cartIds);
+
+        $this->castCartProductValues($cartProducts);
 
         if (is_array($cartProducts)) {
             $cartProducts = array_map(function ($cartProduct) {
@@ -83,5 +86,32 @@ class CartDataProvider implements PaginatedApiDataProviderInterface
     public function getRemainingObjectsCount($offset, $langIso = null)
     {
         return (int) $this->cartRepository->getRemainingCartsCount($offset);
+    }
+
+    /**
+     * @param array $carts
+     *
+     * @return void
+     */
+    private function castCartValues(array &$carts)
+    {
+        foreach ($carts as &$cart) {
+            $cart['id_cart'] = (int) $cart['id_cart'];
+        }
+    }
+
+    /**
+     * @param array $cartProducts
+     *
+     * @return void
+     */
+    private function castCartProductValues(array &$cartProducts)
+    {
+        foreach ($cartProducts as &$cartProduct) {
+            $cartProduct['id_cart'] = (int) $cartProduct['id_cart'];
+            $cartProduct['id_product'] = (int) $cartProduct['id_product'];
+            $cartProduct['id_product_attribute'] = (int) $cartProduct['id_product_attribute'];
+            $cartProduct['quantity'] = (int) $cartProduct['quantity'];
+        }
     }
 }
