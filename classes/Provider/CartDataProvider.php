@@ -45,7 +45,7 @@ class CartDataProvider implements PaginatedApiDataProviderInterface
         }
 
         $cartIds = array_map(function ($cart) {
-            return (int) $cart['id_cart'];
+            return (string) $cart['id_cart'];
         }, $carts);
 
         $this->castCartValues($carts);
@@ -96,7 +96,7 @@ class CartDataProvider implements PaginatedApiDataProviderInterface
     private function castCartValues(array &$carts)
     {
         foreach ($carts as &$cart) {
-            $cart['id_cart'] = (int) $cart['id_cart'];
+            $cart['id_cart'] = (string) $cart['id_cart'];
         }
     }
 
