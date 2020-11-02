@@ -59,3 +59,15 @@ services:
     arguments:
       - '@ps_accounts.db'
       - '@ps_accounts.context'
+
+  PrestaShop\Module\PsAccounts\Repository\CartRepository:
+    class: PrestaShop\Module\PsAccounts\Repository\CartRepository
+    arguments:
+      - '@ps_accounts.db'
+      - '@ps_accounts.context'
+
+  PrestaShop\Module\PsAccounts\Repository\CartProductRepository:
+    class: PrestaShop\Module\PsAccounts\Repository\CartProductRepository
+    arguments:
+      - '@ps_accounts.db'
+      - '@ps_accounts.context'

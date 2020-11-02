@@ -23,3 +23,10 @@ services:
       - '@PrestaShop\Module\PsAccounts\Repository\OrderRepository'
       - '@PrestaShop\Module\PsAccounts\Repository\OrderDetailsRepository'
       - '@PrestaShop\Module\PsAccounts\Formatter\ArrayFormatter'
+
+  PrestaShop\Module\PsAccounts\Provider\CartDataProvider:
+    class: PrestaShop\Module\PsAccounts\Provider\CartDataProvider
+    arguments:
+      - '@PrestaShop\Module\PsAccounts\Repository\CartRepository'
+      - '@PrestaShop\Module\PsAccounts\Repository\CartProductRepository'
+      - '@PrestaShop\Module\PsAccounts\Formatter\ArrayFormatter'

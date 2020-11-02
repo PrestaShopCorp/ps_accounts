@@ -6,7 +6,6 @@ use Context;
 use PrestaShop\Module\PsAccounts\Formatter\ArrayFormatter;
 use PrestaShop\Module\PsAccounts\Repository\OrderDetailsRepository;
 use PrestaShop\Module\PsAccounts\Repository\OrderRepository;
-use PrestaShop\Module\PsAccounts\Repository\PaginatedApiDataProviderInterface;
 use PrestaShopDatabaseException;
 
 class OrderDataProvider implements PaginatedApiDataProviderInterface
@@ -43,7 +42,7 @@ class OrderDataProvider implements PaginatedApiDataProviderInterface
     /**
      * @param int $offset
      * @param int $limit
-     * @param null $langIso
+     * @param string|null $langIso
      *
      * @return array
      *
@@ -74,7 +73,7 @@ class OrderDataProvider implements PaginatedApiDataProviderInterface
 
     /**
      * @param int $offset
-     * @param null $langIso
+     * @param string|null $langIso
      *
      * @return int
      */
