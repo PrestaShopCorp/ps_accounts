@@ -6,6 +6,6 @@ CREATE TABLE IF NOT EXISTS `PREFIX_accounts_type_sync` (
 ) ENGINE=ENGINE_TYPE DEFAULT CHARSET=utf8;
 
 CREATE TABLE IF NOT EXISTS `PREFIX_accounts_sync` (
-	  `job_id` varchar(50) NOT NULL,
+	  `job_id` varchar(200) NOT NULL,
 	  `created_at` DATETIME NOT NULL
 ) ENGINE=ENGINE_TYPE DEFAULT CHARSET=utf8;
