@@ -41,13 +41,11 @@ class ApiAuthorizationService
             return true;
         }
 
-        return $this->accountsSyncStateRepository->insertSync($jobId, date(DATE_ATOM));
+        $jobValidationResponse = $this->eventBusSyncClient->validateJobId($jobId);
 
-//        $jobValidationResponse = $this->eventBusSyncClient->validateJobId($jobId);
-//
-//        if (is_array($jobValidationResponse) && (int) $jobValidationResponse['httpCode'] === 201) {
-//            return $this->accountsSyncStateRepository->insertSync($jobId, date(DATE_ATOM));
-//        }
+        if (is_array($jobValidationResponse) && (int) $jobValidationResponse['httpCode'] === 201) {
+            return $this->accountsSyncStateRepository->insertSync($jobId, date(DATE_ATOM));
+        }
 
         return $jobValidationResponse;
     }

@@ -12,7 +12,7 @@ class GoogleTaxonomyRepository
      */
     private $db;
 
-    public function __construct(Db  $db)
+    public function __construct(Db $db)
     {
         $this->db = $db;
     }
@@ -49,6 +49,8 @@ class GoogleTaxonomyRepository
 
     /**
      * @param int $offset
+     *
+     * @return int
      */
     public function getRemainingTaxonomyRepositories($offset)
     {

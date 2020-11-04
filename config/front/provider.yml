@@ -30,3 +30,8 @@ services:
       - '@PrestaShop\Module\PsAccounts\Repository\CartRepository'
       - '@PrestaShop\Module\PsAccounts\Repository\CartProductRepository'
       - '@PrestaShop\Module\PsAccounts\Formatter\ArrayFormatter'
+
+  PrestaShop\Module\PsAccounts\Provider\GoogleTaxonomyDataProvider:
+    class: PrestaShop\Module\PsAccounts\Provider\GoogleTaxonomyDataProvider
+    arguments:
+      - '@PrestaShop\Module\PsAccounts\Repository\GoogleTaxonomyRepository'

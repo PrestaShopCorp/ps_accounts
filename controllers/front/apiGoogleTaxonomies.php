@@ -1,9 +1,9 @@
 <?php
 
 use PrestaShop\Module\PsAccounts\Controller\AbstractApiController;
-use PrestaShop\Module\PsAccounts\Provider\CategoryDataProvider;
+use PrestaShop\Module\PsAccounts\Provider\GoogleTaxonomyDataProvider;
 
-class ps_AccountsApiCategoriesModuleFrontController extends AbstractApiController
+class ps_AccountsApiGoogleTaxonomiesModuleFrontController extends AbstractApiController
 {
     public $type = 'google_taxonomies';
 
@@ -18,7 +18,7 @@ class ps_AccountsApiCategoriesModuleFrontController extends AbstractApiControlle
             $this->exitWithExceptionMessage(new Exception('Facebook module is not installed', 500));
         }
 
-        $categoryDataProvider = $this->module->getService(CategoryDataProvider::class);
+        $categoryDataProvider = $this->module->getService(GoogleTaxonomyDataProvider::class);
 
         $response = $this->handleDataSync($categoryDataProvider);
 
