@@ -20,6 +20,10 @@ class GoogleTaxonomyDataProvider implements PaginatedApiDataProviderInterface
     {
         $data = $this->googleTaxonomyRepository->getTaxonomyCategories($offset, $limit);
 
+        if (!is_array($data)) {
+            return [];
+        }
+
         return array_map(function ($googleTaxonomy) {
             $uniqueId = "{$googleTaxonomy['id_category']}-{$googleTaxonomy['id_category']}";
             $googleTaxonomy['taxonomy_id'] = $uniqueId;
