@@ -102,6 +102,8 @@ class Ps_accounts extends Module
      */
     private $hookToInstall = [
         'actionObjectShopUrlUpdateAfter',
+        'hookActionObjectProductAddAfter',
+        'hookActionObjectProductUpdateAfter',
     ];
 
     /**
