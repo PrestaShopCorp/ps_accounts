@@ -113,6 +113,8 @@ class Ps_accounts extends Module
         'actionObjectShopUrlUpdateAfter',
         'actionObjectProductDeleteAfter',
         'actionObjectCategoryDeleteAfter',
+        'actionObjectProductAddAfter',
+        'actionObjectProductUpdateAfter',
     ];
 
     /**
