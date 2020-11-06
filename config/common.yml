@@ -1,3 +1,8 @@
+parameters:
+  firebase.api_key: '%env(string:FIREBASE_API_KEY)%'
+  firebase.auth_domain: '%env(string:FIREBASE_AUTH_DOMAIN)%'
+  firebase.project_id: '%env(string:FIREBASE_PROJECT_ID)%'
+
 services:
   ps_accounts.db:
     class: Db
@@ -7,6 +12,43 @@ services:
     class: Context
     factory: [ 'Context', 'getContext' ]
 
+  ps_accounts.shop_context:
+    class: PrestaShop\Module\PsAccounts\Context\ShopContext
+
   ps_accounts.link:
     class: Link
     factory: [ 'PrestaShop\Module\PsAccounts\Factory\Link', 'get' ]
+
+  ps_accounts.configuration_adapter:
+    class: PrestaShop\Module\PsAccounts\Adapter\Configuration
+    arguments:
+      - '@ps_accounts.context'
+
+  ps_accounts.link_adapter:
+    class: PrestaShop\Module\PsAccounts\Adapter\LinkAdapter
+    arguments:
+      - '@ps_accounts.link'
+
+  PrestaShop\Module\PsAccounts\Service\PsAccountsService:
+    class: PrestaShop\Module\PsAccounts\Service\PsAccountsService
+    arguments:
+      - '@PrestaShop\Module\PsAccounts\Repository\ConfigurationRepository'
+      - '@PrestaShop\Module\PsAccounts\Api\Client\FirebaseClient'
+      - '@ps_accounts.context'
+      - '@ps_accounts.shop_context'
+      - '@ps_accounts.link_adapter'
+
+  PrestaShop\Module\PsAccounts\Service\PsBillingService:
+    class: PrestaShop\Module\PsAccounts\Service\PsBillingService
+    arguments:
+      - '@PrestaShop\Module\PsAccounts\Api\Client\ServicesBillingClient'
+      - '@PrestaShop\Module\PsAccounts\Service\PsAccountsService'
+      - '@PrestaShop\Module\PsAccounts\Repository\ConfigurationRepository'
+      - '@ps_accounts.context'
+      - '@ps_accounts.shop_context'
+
+  PrestaShop\Module\PsAccounts\Handler\ErrorHandler\ErrorHandler:
+    class: PrestaShop\Module\PsAccounts\Handler\ErrorHandler\ErrorHandler
+    arguments:
+      - '@PrestaShop\Module\PsAccounts\Service\PsAccountsService'
+

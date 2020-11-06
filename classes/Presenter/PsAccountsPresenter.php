@@ -21,10 +21,9 @@
 namespace PrestaShop\Module\PsAccounts\Presenter;
 
 use Module;
-use PrestaShop\Module\PsAccounts\DependencyInjection\PsAccountsServiceProvider;
-use PrestaShop\Module\PsAccounts\Environment\Env;
 use PrestaShop\Module\PsAccounts\Handler\ErrorHandler\ErrorHandler;
 use PrestaShop\Module\PsAccounts\Service\PsAccountsService;
+use Ps_accounts;
 
 /**
  * Construct the psaccounts module.
@@ -37,14 +36,20 @@ class PsAccountsPresenter
     protected $psAccountsService;
 
     /**
+     * @var Ps_accounts
+     */
+    private $module;
+
+    /**
      * @param string $psxName
      *
      * @throws \Exception
      */
     public function __construct($psxName)
     {
-        PsAccountsServiceProvider::getInstance()->get(Env::class);
-        $this->psAccountsService = new PsAccountsService();
+        $this->module = Module::getInstanceByName('ps_accounts');
+
+        $this->psAccountsService = $this->module->getService(PsAccountsService::class);
         $this->psAccountsService->setPsxName($psxName);
         $this->psAccountsService->manageOnboarding();
     }
@@ -78,8 +83,8 @@ class PsAccountsPresenter
                 'manageAccountLink' => $this->psAccountsService->getManageAccountLink(),
             ];
         } catch (\Exception $e) {
-            $errorHandler = ErrorHandler::getInstance();
-            $errorHandler->handle($e, $e->getCode());
+            $this->module->getService(ErrorHandler::class)
+                ->handle($e, $e->getCode());
         }
 
         return [];

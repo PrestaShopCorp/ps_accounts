@@ -1,0 +1,17 @@
+services:
+  PrestaShop\Module\PsAccounts\Api\Client\AccountsClient:
+    class: PrestaShop\Module\PsAccounts\Api\Client\AccountsClient
+    arguments:
+      - '@PrestaShop\Module\PsAccounts\Service\PsAccountsService'
+      - '@ps_accounts.link'
+
+  PrestaShop\Module\PsAccounts\Api\Client\FirebaseClient:
+    class: PrestaShop\Module\PsAccounts\Api\Client\FirebaseClient
+
+  PrestaShop\Module\PsAccounts\Api\Client\ServicesBillingClient:
+    class: PrestaShop\Module\PsAccounts\Api\Client\ServicesBillingClient
+    arguments:
+      - '@ps_accounts.link'
+
+
+

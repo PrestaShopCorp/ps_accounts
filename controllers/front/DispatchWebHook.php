@@ -18,10 +18,12 @@
  * International Registered Trademark & Property of PrestaShop SA
  */
 
-use PrestaShop\Module\PsAccounts\DependencyInjection\PsAccountsServiceProvider;
+use Context;
+use Hook;
+use Module;
+use PrestaShop\Module\PsAccounts\Api\Client\AccountsClient;
 use PrestaShop\Module\PsAccounts\Handler\ErrorHandler\ErrorHandler;
 use PrestaShop\Module\PsAccounts\Repository\ConfigurationRepository;
-use PrestaShop\Module\PsAccounts\Api\ServicesApi\Webhook;
 use PrestaShop\Module\PsAccounts\Exception\WebhookException;
 use PrestaShop\Module\PsAccounts\WebHook\Validator;
 
@@ -35,6 +37,11 @@ class ps_accountsDispatchWebHookModuleFrontController extends FrontController
     private $configuration;
 
     /**
+     * @var Ps_accounts
+     */
+    private $module;
+
+    /**
      * ps_accountsDispatchWebHookModuleFrontController constructor.
      *
      * @throws Exception
@@ -43,7 +50,9 @@ class ps_accountsDispatchWebHookModuleFrontController extends FrontController
     {
         parent::__construct();
 
-        $this->configuration = PsAccountsServiceProvider::getInstance()->get(ConfigurationRepository::class);
+        $this->module = Module::getInstanceByName('ps_accounts');
+
+        $this->configuration = $this->module->getService(ConfigurationRepository::class);
     }
 
     /**
@@ -76,7 +85,12 @@ class ps_accountsDispatchWebHookModuleFrontController extends FrontController
      */
     public function display()
     {
-        $validator = new Validator();
+        $validator = new Validator(
+            $this->module->getService(AccountsClient::class),
+            $this->configuration,
+            $this->module->getService(Context::class)
+        );
+
         try {
             $headers = getallheaders();
             $body = json_decode(file_get_contents('php://input'), true);
@@ -90,8 +104,8 @@ class ps_accountsDispatchWebHookModuleFrontController extends FrontController
                 $this->dispatchWebhook($headers, $body)
             );
         } catch (\Exception $e) {
-            $errorHandler = ErrorHandler::getInstance();
-            $errorHandler->handle($e, $e->getCode());
+            $this->module->getService(ErrorHandler::class)
+                ->handle($e, $e->getCode());
         }
     }
 
@@ -109,7 +123,7 @@ class ps_accountsDispatchWebHookModuleFrontController extends FrontController
     {
         $moduleName = $bodyValues['service'];
         if ($moduleName !== 'ps_accounts') {
-            $error = \Hook::exec(
+            $error = Hook::exec(
                 'receiveWebhook_' . $moduleName,
                 ['headers' => $headers, 'body' => $bodyValues],
                 Module::getInstanceByName($moduleName)->id
@@ -132,8 +146,6 @@ class ps_accountsDispatchWebHookModuleFrontController extends FrontController
      * @param array $body
      *
      * @return array
-     *
-     * @throws ReflectionException
      */
     private function receiveAccountsWebhook($headers, $body)
     {

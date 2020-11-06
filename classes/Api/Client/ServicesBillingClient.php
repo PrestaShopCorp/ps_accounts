@@ -31,16 +31,19 @@ class ServicesBillingClient extends GenericClient
     /**
      * ServicesBillingClient constructor.
      *
+     * @param PsAccountsService $psAccountsService
      * @param \Link $link
      * @param Client|null $client
      *
-     * @throws \ReflectionException
      * @throws \Exception
      */
-    public function __construct(\Link $link, Client $client = null)
-    {
+    public function __construct(
+        PsAccountsService $psAccountsService,
+        \Link $link,
+        Client $client = null
+    ) {
         parent::__construct();
-        $psAccountsService = new PsAccountsService();
+
         $shopId = $psAccountsService->getCurrentShop()['id'];
         $token = $psAccountsService->getOrRefreshToken();
         $this->setLink($link);

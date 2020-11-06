@@ -46,13 +46,15 @@ class ErrorHandler
     protected $client;
 
     /**
-     * @var ErrorHandler
+     * ErrorHandler constructor.
+     *
+     * @param PsAccountsService $psAccountsService
+     *
+     * @throws \Raven_Exception
      */
-    private static $instance;
-
-    private function __construct()
+    public function __construct(PsAccountsService $psAccountsService)
     {
-        $this->psAccountsService = new PsAccountsService();
+        $this->psAccountsService = $psAccountsService;
 
         $this->client = new Raven_Client(
             $_ENV['SENTRY_CREDENTIALS'],
@@ -95,18 +97,6 @@ class ErrorHandler
             http_response_code($code);
             throw $error;
         }
-    }
-
-    /**
-     * @return ErrorHandler
-     */
-    public static function getInstance()
-    {
-        if (self::$instance === null) {
-            self::$instance = new ErrorHandler();
-        }
-
-        return self::$instance;
     }
 
     /**

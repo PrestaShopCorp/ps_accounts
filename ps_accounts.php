@@ -23,6 +23,7 @@
  *  @license   http://opensource.org/licenses/afl-3.0.php  Academic Free License (AFL 3.0)
  *  International Registered Trademark & Property of PrestaShop SA
  */
+
 if (!defined('_PS_VERSION_')) {
     exit;
 }
@@ -109,8 +110,16 @@ class Ps_accounts extends Module
      */
     private $serviceContainer;
 
+
+    /**
+     * @var array
+     */
+    private $configuration;
+
     /**
      * __construct.
+     *
+     * @throws \PrestaShop\Module\PsAccounts\Exception\EnvironmentFileException
      */
     public function __construct()
     {
@@ -133,9 +142,28 @@ class Ps_accounts extends Module
             'ajax' => 'AdminAjaxPsAccounts',
             'resetOnboarding' => 'AdminResetOnboarding',
         ];
-        $this->serviceContainer = new \PrestaShop\ModuleLibServiceContainer\DependencyInjection\ServiceContainer(
+
+        // load environment variables
+        \PrestaShop\Module\PsAccounts\Environment\Env::getInstance();
+
+        //$this->serviceContainer = new \PrestaShop\ModuleLibServiceContainer\DependencyInjection\ServiceContainer(
+        $this->serviceContainer = new \PrestaShop\Module\PsAccounts\DependencyInjection\ServiceContainer(
             $this->name,
             $this->getLocalPath()
+        );
+
+        // Process configuration
+        // TODO: organize files by scope
+        // TODO: check every service
+
+        // TODO: put module only variables into .env.dist
+        // TODO: find a solution for config_dev, config_prod ....
+
+        // TODO: ServiceContainer : specify file to load (quel est le besoin réel ?)
+        // TODO: ServiceContainer : access container
+
+        $this->getLogger()->info(
+            '################ ' . $this->serviceContainer->container->getParameter('firebase.api_key')
         );
     }
 
@@ -221,8 +249,6 @@ class Ps_accounts extends Module
      * @param array $params
      *
      * @return bool
-     *
-     * @throws ReflectionException
      */
     public function hookDisplayBackOfficeHeader($params)
     {
@@ -246,7 +272,9 @@ class Ps_accounts extends Module
                 'domain' => $domain,
                 'domain_ssl' => $domainSsl,
             ];
-            $psAccountsService = new \PrestaShop\Module\PsAccounts\Service\PsAccountsService();
+            $psAccountsService = $this->getService(
+                \PrestaShop\Module\PsAccounts\Service\PsAccountsService::class
+            );
             $psAccountsService->changeUrl($bodyHttp, '1.6');
         }
 
@@ -261,8 +289,6 @@ class Ps_accounts extends Module
      * @param array $params
      *
      * @return bool
-     *
-     * @throws ReflectionException
      */
     public function hookActionMetaPageSave($params)
     {
@@ -276,7 +302,9 @@ class Ps_accounts extends Module
             'domain' => $params['form_data']['shop_urls']['domain'],
             'domain_ssl' => $params['form_data']['shop_urls']['domain_ssl'],
         ];
-        $psAccountsService = new \PrestaShop\Module\PsAccounts\Service\PsAccountsService();
+        $psAccountsService = $this->getService(
+            \PrestaShop\Module\PsAccounts\Service\PsAccountsService::class
+        );
         $psAccountsService->changeUrl($bodyHttp, '1.7.6');
 
         return true;
@@ -288,8 +316,6 @@ class Ps_accounts extends Module
      * @param array $params
      *
      * @return bool
-     *
-     * @throws ReflectionException
      */
     public function hookActionObjectShopUrlUpdateAfter($params)
     {
@@ -301,7 +327,9 @@ class Ps_accounts extends Module
             'main' => $params['object']->main,
             'active' => $params['object']->active,
         ];
-        $psAccountsService = new \PrestaShop\Module\PsAccounts\Service\PsAccountsService();
+        $psAccountsService = $this->getService(
+            \PrestaShop\Module\PsAccounts\Service\PsAccountsService::class
+        );
         $psAccountsService->changeUrl($bodyHttp, 'multishop');
 
         return true;

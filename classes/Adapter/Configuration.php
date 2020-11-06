@@ -20,10 +20,6 @@
 
 namespace PrestaShop\Module\PsAccounts\Adapter;
 
-use PrestaShop\Module\PsAccounts\Context\ShopContext;
-use PrestaShop\Module\PsAccounts\DependencyInjection\PsAccountsServiceProvider;
-use PrestaShop\Module\PsAccounts\Exception\ServiceNotFoundException;
-
 class Configuration
 {
     const PS_ACCOUNTS_FIREBASE_ID_TOKEN = 'PS_ACCOUNTS_FIREBASE_ID_TOKEN';
@@ -61,18 +57,13 @@ class Configuration
     private $idLang = null;
 
     /**
-     * @var ShopContext
-     */
-    private $context;
-
-    /**
      * Configuration constructor.
      *
-     * @throws ServiceNotFoundException
+     * @param \Context $context
      */
-    public function __construct()
+    public function __construct(\Context $context)
     {
-        $this->context = PsAccountsServiceProvider::getInstance()->get(ShopContext::class);
+        $this->setIdShop((int)$context->shop->id);
     }
 
     /**

@@ -3,7 +3,6 @@
 namespace PrestaShop\Module\PsAccounts\Tests\Unit\Service\PsAccountsService;
 
 use PrestaShop\Module\PsAccounts\Adapter\Configuration;
-use PrestaShop\Module\PsAccounts\Exception\ServiceNotFoundException;
 use PrestaShop\Module\PsAccounts\Repository\ConfigurationRepository;
 use PrestaShop\Module\PsAccounts\Service\PsAccountsService;
 use PrestaShop\Module\PsAccounts\Tests\TestCase;
@@ -12,9 +11,6 @@ class IsEmailValidatedTest extends TestCase
 {
     /**
      * @test
-     *
-     * @throws ServiceNotFoundException
-     * @throws \ReflectionException
      */
     public function it_should_return_true()
     {
@@ -35,9 +31,6 @@ class IsEmailValidatedTest extends TestCase
 
     /**
      * @test
-     *
-     * @throws ServiceNotFoundException
-     * @throws \ReflectionException
      */
     public function it_should_return_false()
     {

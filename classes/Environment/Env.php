@@ -42,8 +42,6 @@ class Env
 
     /**
      * Env constructor.
-     *
-     * @throws EnvironmentFileException
      */
     public function __construct()
     {

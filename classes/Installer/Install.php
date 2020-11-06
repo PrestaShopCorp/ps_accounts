@@ -21,6 +21,7 @@
 namespace PrestaShop\Module\PsAccounts\Installer;
 
 use PrestaShop\Module\PsAccounts\Context\ShopContext;
+use PrestaShop\Module\PsAccounts\Handler\ErrorHandler\ErrorHandler;
 use PrestaShop\PrestaShop\Core\Addon\Module\ModuleManagerBuilder;
 
 /**
@@ -55,8 +56,9 @@ class Install
         $moduleManagerBuilder = ModuleManagerBuilder::getInstance();
         $moduleManager = $moduleManagerBuilder->build();
         $moduleIsInstalled = $moduleManager->install($this->psAccounts);
+
         if (false === $moduleIsInstalled) {
-            $errorHandler = \PrestaShop\Module\PsAccounts\Handler\ErrorHandler\ErrorHandler::getInstance();
+            $errorHandler = Module::getInstanceByName($this->psAccounts)->getService(ErrorHandler::class);
             $errorHandler->handle(new \Exception('Module ps_accounts can\'t be installed', 500), 500);
         }
 

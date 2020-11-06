@@ -21,6 +21,7 @@
 namespace PrestaShop\Module\PsAccounts\Api\Client;
 
 use GuzzleHttp\Client;
+use Link;
 use PrestaShop\Module\PsAccounts\Service\PsAccountsService;
 use PrestaShop\Module\PsAccounts\Exception\FirebaseException;
 
@@ -32,18 +33,20 @@ class AccountsClient extends GenericClient
     /**
      * AccountsClient constructor.
      *
-     * @param \Link $link
+     * @param PsAccountsService $psAccountsService
+     * @param Link $link
      * @param Client|null $client
      *
      * @throws FirebaseException
-     * @throws \PrestaShop\Module\PsAccounts\Exception\ServiceNotFoundException
      */
-    public function __construct(\Link $link, Client $client = null)
-    {
+    public function __construct(
+        PsAccountsService $psAccountsService,
+        Link $link,
+        Client $client = null
+    ) {
         parent::__construct();
 
         $this->setLink($link);
-        $psAccountsService = new PsAccountsService();
         $token = $psAccountsService->getOrRefreshToken();
 
         if (!$token) {

@@ -24,7 +24,6 @@
 *  International Registered Trademark & Property of PrestaShop SA
 */
 
-use PrestaShop\Module\PsAccounts\DependencyInjection\PsAccountsServiceProvider;
 use PrestaShop\Module\PsAccounts\Handler\ErrorHandler\ErrorHandler;
 use PrestaShop\Module\PsAccounts\Repository\ConfigurationRepository;
 
@@ -49,7 +48,7 @@ class AdminResetOnboardingController extends ModuleAdminController
     {
         parent::__construct();
 
-        $this->configuration = PsAccountsServiceProvider::getInstance()->get(ConfigurationRepository::class);
+        $this->configuration = $this->module->getService(ConfigurationRepository::class);
     }
 
     /**
@@ -78,8 +77,8 @@ class AdminResetOnboardingController extends ModuleAdminController
                 json_encode($return)
             );
         } catch (Exception $e) {
-            $errorHandler = ErrorHandler::getInstance();
-            $errorHandler->handle($e, $e->getCode());
+            $this->module->getService(ErrorHandler::class)
+                ->handle($e, $e->getCode());
         }
     }
 }

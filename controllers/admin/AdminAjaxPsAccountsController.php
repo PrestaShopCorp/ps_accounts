@@ -19,7 +19,6 @@
  */
 
 use PrestaShop\Module\PsAccounts\Adapter\Configuration as ConfigurationAdapter;
-use PrestaShop\Module\PsAccounts\DependencyInjection\PsAccountsServiceProvider;
 use PrestaShop\Module\PsAccounts\Handler\ErrorHandler\ErrorHandler;
 use PrestaShop\Module\PsAccounts\Repository\ConfigurationRepository;
 use PrestaShop\Module\PsAccounts\Service\SshKey;
@@ -37,7 +36,7 @@ class AdminAjaxPsAccountsController extends ModuleAdminController
     private $configuration;
 
     /**
-     * @var ConfigurationAdapter
+     * @var Configuration
      */
     private $configurationAdapter;
 
@@ -50,8 +49,8 @@ class AdminAjaxPsAccountsController extends ModuleAdminController
     {
         parent::__construct();
 
-        $this->configuration = PsAccountsServiceProvider::getInstance()->get(ConfigurationRepository::class);
-        $this->configurationAdapter = PsAccountsServiceProvider::getInstance()->get(ConfigurationAdapter::class);
+        $this->configuration = $this->module->getService(ConfigurationRepository::class);
+        $this->configurationAdapter = $this->module->getService(ConfigurationAdapter::class);
     }
 
     /**
@@ -80,8 +79,8 @@ class AdminAjaxPsAccountsController extends ModuleAdminController
                 json_encode($this->configuration->getAccountsRsaPublicKey())
             );
         } catch (Exception $e) {
-            $errorHandler = ErrorHandler::getInstance();
-            $errorHandler->handle($e, $e->getCode());
+            $this->module->getService(ErrorHandler::class)
+                ->handle($e, $e->getCode());
         }
     }
 
@@ -95,7 +94,7 @@ class AdminAjaxPsAccountsController extends ModuleAdminController
     public function ajaxProcessSaveAdminToken()
     {
         try {
-            if (false === $this->configurationAdapter->get(ConfigurationAdapter::PS_PSX_FIREBASE_ADMIN_TOKEN)) {
+            if (false === $this->configurationAdapter->get(Configuration::PS_PSX_FIREBASE_ADMIN_TOKEN)) {
                 Configuration::updateValue('PS_PSX_FIREBASE_ADMIN_TOKEN', Tools::getValue('adminToken'));
             }
             Configuration::updateValue('PS_ACCOUNTS_FIREBASE_ADMIN_TOKEN', Tools::getValue('adminToken'));
@@ -104,8 +103,8 @@ class AdminAjaxPsAccountsController extends ModuleAdminController
                 json_encode(true)
             );
         } catch (Exception $e) {
-            $errorHandler = ErrorHandler::getInstance();
-            $errorHandler->handle($e, $e->getCode());
+            $this->module->getService(ErrorHandler::class)
+                ->handle($e, $e->getCode());
         }
     }
 
@@ -123,8 +122,8 @@ class AdminAjaxPsAccountsController extends ModuleAdminController
                 json_encode($this->configuration->firebaseEmailIsVerified())
             );
         } catch (Exception $e) {
-            $errorHandler = ErrorHandler::getInstance();
-            $errorHandler->handle($e, $e->getCode());
+            $this->module->getService(ErrorHandler::class)
+                ->handle($e, $e->getCode());
         }
     }
 }

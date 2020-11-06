@@ -45,12 +45,12 @@ class AdminConfigureHmacPsAccountsController extends ModuleAdminController
      */
     public function initContent()
     {
-        $errorHandler = ErrorHandler::getInstance();
+        $errorHandler = $this->module->getService(ErrorHandler::class);
 
         try {
-            $psAccountsService = new PsAccountsService();
+            $psAccountsService = $this->module->getService(PsAccountsService::class);
             $psAccountsService->generateSshKey();
-            PsAccountsServiceProvider::getInstance()->get(Env::class);
+
             if (null === Tools::getValue('hmac')) {
                 throw new HmacException('Hmac does not exist', 500);
             }

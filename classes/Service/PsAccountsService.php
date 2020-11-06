@@ -27,12 +27,10 @@ use PrestaShop\Module\PsAccounts\Adapter\LinkAdapter;
 use PrestaShop\Module\PsAccounts\Api\Client\FirebaseClient;
 use PrestaShop\Module\PsAccounts\Api\Client\ServicesAccountsClient;
 use PrestaShop\Module\PsAccounts\Context\ShopContext;
-use PrestaShop\Module\PsAccounts\DependencyInjection\PsAccountsServiceProvider;
-use PrestaShop\Module\PsAccounts\Environment\Env;
 use PrestaShop\Module\PsAccounts\Exception\EnvVarException;
-use PrestaShop\Module\PsAccounts\Exception\ServiceNotFoundException;
 use PrestaShop\Module\PsAccounts\Exception\SshKeysNotFoundException;
 use PrestaShop\Module\PsAccounts\Repository\ConfigurationRepository;
+use Symfony\Component\DependencyInjection\ContainerInterface;
 use Tools;
 
 /**
@@ -43,34 +41,9 @@ class PsAccountsService
     const STR_TO_SIGN = 'data';
 
     /**
-     * @var Module
-     */
-    public $module;
-
-    /**
-     * @var Context
-     */
-    public $context;
-
-    /**
-     * @var ShopContext
-     */
-    public $shopContext;
-
-    /**
-     * @var string | null
-     */
-    public $psxName = null;
-
-    /**
-     * @var \Symfony\Component\DependencyInjection\ContainerInterface
+     * @var ContainerInterface
      */
     protected $container;
-
-    /**
-     * @var PsAccountsServiceProvider
-     */
-    protected $psAccountContainer;
 
     /**
      * @var LinkAdapter
@@ -88,22 +61,41 @@ class PsAccountsService
     private $firebaseClient;
 
     /**
+     * @var Context
+     */
+    private $context;
+
+    /**
+     * @var ShopContext
+     */
+    private $shopContext;
+
+    /**
+     * @var string | null
+     */
+    private $psxName = null;
+
+    /**
      * PsAccountsService constructor.
      *
-     * @throws ServiceNotFoundException
+     * @param ConfigurationRepository $configuration
+     * @param FirebaseClient $firebaseClient
+     * @param Context $context
+     * @param ShopContext $shopContext
+     * @param LinkAdapter $linkAdapter
      */
-    public function __construct()
-    {
-        $this->psAccountContainer = PsAccountsServiceProvider::getInstance();
-
-        $this->psAccountContainer->get(Env::class);
-
-        $this->configuration = $this->psAccountContainer->get(ConfigurationRepository::class);
-        $this->firebaseClient = $this->psAccountContainer->get(FirebaseClient::class);
-        $this->module = $this->psAccountContainer->get(Module::class);
-        $this->context = $this->psAccountContainer->get(Context::class);
-        $this->shopContext = $this->psAccountContainer->get(ShopContext::class);
-        $this->linkAdapter = $this->psAccountContainer->get(LinkAdapter::class);
+    public function __construct(
+        ConfigurationRepository $configuration,
+        FirebaseClient $firebaseClient,
+        Context $context,
+        ShopContext $shopContext,
+        LinkAdapter $linkAdapter
+    ) {
+        $this->configuration = $configuration;
+        $this->firebaseClient = $firebaseClient;
+        $this->context = $context;
+        $this->shopContext = $shopContext;
+        $this->linkAdapter = $linkAdapter;
     }
 
     /**
@@ -216,7 +208,7 @@ class PsAccountsService
                         true,
                         [],
                         [
-                            'configure' => $this->module->name,
+                            'configure' => 'ps_accounts',
                             'setShopContext' => 's-' . $shopId,
                         ]
                     ),
@@ -413,7 +405,7 @@ class PsAccountsService
      *
      * @return mixed
      *
-     * @throws \ReflectionException
+     * @throws \Exception
      */
     public function changeUrl($bodyHttp, $trigger)
     {
@@ -436,7 +428,7 @@ class PsAccountsService
         );
 
         if ($uuid && strlen($uuid) > 0) {
-            $response = (new ServicesAccountsClient($this->getContext()->link))->changeUrl(
+            $response = (new ServicesAccountsClient($this, $this->getContext()->link))->changeUrl(
                 $uuid,
                 [
                     'protocol' => $protocol,
@@ -463,6 +455,8 @@ class PsAccountsService
 
     /**
      * @return void
+     *
+     * @throws SshKeysNotFoundException
      */
     public function generateSshKey()
     {
@@ -624,8 +618,6 @@ class PsAccountsService
 
     /**
      * @return string
-     *
-     * @throws ServiceNotFoundException
      */
     public function getAccountsRsaPublicKey()
     {
@@ -634,8 +626,6 @@ class PsAccountsService
 
     /**
      * @return string
-     *
-     * @throws ServiceNotFoundException
      */
     public function getAccountsRsaSignData()
     {

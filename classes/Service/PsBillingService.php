@@ -24,10 +24,7 @@ use Context;
 use PrestaShop\Module\PsAccounts\Adapter\LinkAdapter;
 use PrestaShop\Module\PsAccounts\Api\Client\ServicesBillingClient;
 use PrestaShop\Module\PsAccounts\Context\ShopContext;
-use PrestaShop\Module\PsAccounts\DependencyInjection\PsAccountsServiceProvider;
-use PrestaShop\Module\PsAccounts\Environment\Env;
 use PrestaShop\Module\PsAccounts\Exception\BillingException;
-use PrestaShop\Module\PsAccounts\Exception\ServiceNotFoundException;
 use PrestaShop\Module\PsAccounts\Repository\ConfigurationRepository;
 
 /**
@@ -56,15 +53,41 @@ class PsBillingService
     protected $linkAdapter;
 
     /**
+     * @var ConfigurationRepository
+     */
+    private $configuration;
+
+    /**
+     * @var PsAccountsService
+     */
+    private $psAccountsService;
+
+    /**
+     * @var ServicesBillingClient
+     */
+    private $servicesBillingClient;
+
+    /**
      * PsBillingService constructor.
      *
-     * @throws ServiceNotFoundException
+     * @param ServicesBillingClient $servicesBillingClient
+     * @param PsAccountsService $psAccountsService
+     * @param ConfigurationRepository $configuration
+     * @param Context $context
+     * @param ShopContext $shopContext
      */
-    public function __construct()
-    {
-        PsAccountsServiceProvider::getInstance()->get(Env::class);
-        $this->context = Context::getContext();
-        $this->shopContext = new ShopContext();
+    public function __construct(
+        ServicesBillingClient $servicesBillingClient,
+        PsAccountsService $psAccountsService,
+        ConfigurationRepository $configuration,
+        Context $context,
+        ShopContext $shopContext
+    ) {
+        $this->servicesBillingClient = $servicesBillingClient;
+        $this->psAccountsService = $psAccountsService;
+        $this->configuration = $configuration;
+        $this->context = $context;
+        $this->shopContext = $shopContext;
     }
 
     /**
@@ -116,20 +139,15 @@ class PsBillingService
      */
     public function subscribeToFreePlan($module, $planName, $shopId = false, $customerIp = null)
     {
-        $psAccountsService = new PsAccountsService();
-
         if ($shopId !== false) {
-            /** @var ConfigurationRepository $configurationRepository */
-            $configurationRepository = PsAccountsServiceProvider::getInstance()
-                ->get(ConfigurationRepository::class);
-            $configurationRepository->setShopId($shopId);
+            $this->configuration->setShopId($shopId);
         }
 
-        $uuid = $psAccountsService->getShopUuidV4();
+        $uuid = $this->psAccountsService->getShopUuidV4();
         $toReturn = ['shopAccountId' => $uuid];
 
         if ($uuid && strlen($uuid) > 0) {
-            $billingClient = new ServicesBillingClient($this->getContext()->link);
+            $billingClient = $this->servicesBillingClient;
 
             $response = $billingClient->getBillingCustomer($uuid);
 
@@ -175,7 +193,7 @@ class PsBillingService
                     && $response['body']['subscription']['plan_id'] === $planName
                 ) {
                     $toReturn['subscriptionId'] = $response['body']['subscription']['id'];
-                    $psAccountsService->getOrRefreshToken();
+                    $this->psAccountsService->getOrRefreshToken();
 
                     return $toReturn;
                 } else {

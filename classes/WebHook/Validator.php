@@ -20,7 +20,7 @@
 
 namespace PrestaShop\Module\PsAccounts\WebHook;
 
-use PrestaShop\Module\PsAccounts\DependencyInjection\PsAccountsServiceProvider;
+use Context;
 use PrestaShop\Module\PsAccounts\Repository\ConfigurationRepository;
 use PrestaShop\Module\PsAccounts\Api\Client\AccountsClient;
 use PrestaShop\Module\PsAccounts\Exception\FirebaseException;
@@ -48,7 +48,7 @@ class Validator
     private $message = '';
 
     /**
-     * @var \Context
+     * @var Context
      */
     private $context;
 
@@ -58,15 +58,28 @@ class Validator
     private $configuration;
 
     /**
+     * @var AccountsClient
+     */
+    private $accountsClient;
+
+    /**
      * Validator constructor.
      *
-     * @throws \Exception
+     * @param AccountsClient $accountsClient
+     * @param ConfigurationRepository $configuration
+     * @param Context $context
      */
-    public function __construct()
+    public function __construct(
+        AccountsClient $accountsClient,
+        ConfigurationRepository $configuration,
+        Context $context
+    )
     {
-        $this->context = \Context::getContext();
+        $this->accountsClient = $accountsClient;
 
-        $this->configuration = PsAccountsServiceProvider::getInstance()->get(ConfigurationRepository::class);
+        $this->configuration = $configuration;
+
+        $this->context = $context;
     }
 
     /**
@@ -190,12 +203,12 @@ class Validator
      * @param array $bodyValues
      *
      * @return array
-     *
-     * @throws FirebaseException
      */
     private function verifyWebhook(array $headerValues = [], array $bodyValues = [])
     {
-        $response = (new AccountsClient($this->context->link))->checkWebhookAuthenticity($headerValues, $bodyValues);
+        //$response = (new AccountsClient($this->context->link))->checkWebhookAuthenticity($headerValues, $bodyValues);
+
+        $response = $this->accountsClient->checkWebhookAuthenticity($headerValues, $bodyValues);
 
         if (!$response || 200 > $response['httpCode'] || 299 < $response['httpCode']) {
             return [$response['body'] ? $response['body'] : 'Webhook not verified'];
