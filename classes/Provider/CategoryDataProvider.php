@@ -60,4 +60,9 @@ class CategoryDataProvider implements PaginatedApiDataProviderInterface
     {
         return $this->categoryRepository->getRemainingCategoriesCount($offset, $langIso);
     }
+
+    public function getFormattedDataIncremental($limit, $langIso = null)
+    {
+        return [];
+    }
 }

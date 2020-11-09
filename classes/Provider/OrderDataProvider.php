@@ -147,4 +147,9 @@ class OrderDataProvider implements PaginatedApiDataProviderInterface
             $orderDetail['unit_price_tax_incl'] = (float) $orderDetail['unit_price_tax_incl'];
         }
     }
+
+    public function getFormattedDataIncremental($limit, $langIso = null)
+    {
+        return [];
+    }
 }

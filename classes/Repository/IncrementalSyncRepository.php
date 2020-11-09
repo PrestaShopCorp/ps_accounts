@@ -49,4 +49,20 @@ class IncrementalSyncRepository
             Db::ON_DUPLICATE_KEY
         );
     }
+
+    /**
+     * @param string $type
+     * @param array $objectIds
+     *
+     * @return bool
+     */
+    public function removeIncrementalSyncObjects($type, $objectIds)
+    {
+        return $this->db->delete(
+            self::INCREMENTAL_SYNC_TABLE,
+            'type = "' . pSQL($type) . '"
+            AND id_shop = ' . $this->context->shop->id . '
+            AND id_object IN(' . implode(',', $objectIds) . ')'
+        );
+    }
 }

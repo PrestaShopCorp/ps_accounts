@@ -20,7 +20,7 @@ class ps_AccountsApiInfoModuleFrontController extends AbstractApiController
 
         $serverInfo = $serverInformationRepository->getServerInformation(Tools::getValue('lang_iso', null));
 
-        $response = $this->segmentService->upload($jobId, $serverInfo);
+        $response = $this->proxyService->upload($jobId, $serverInfo);
 
         $this->exitWithResponse(array_merge(['remaining_objects' => '0'], $response));
     }

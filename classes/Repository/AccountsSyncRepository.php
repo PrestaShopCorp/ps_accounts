@@ -96,7 +96,8 @@ class AccountsSyncRepository
         $query->select('*')
             ->from(self::TYPE_SYNC_TABLE_NAME)
             ->where('type = "' . pSQL($type) . '"')
-            ->where('lang_iso = "' . pSQL((string) $langIso) . '"');
+            ->where('lang_iso = "' . pSQL((string) $langIso) . '"')
+            ->where('id_shop = ' . (int) $this->context->shop->id);
 
         return $this->db->getRow($query);
     }
@@ -105,19 +106,43 @@ class AccountsSyncRepository
      * @param string $type
      * @param int $offset
      * @param string $date
+     * @param bool $fullSyncFinished
      * @param string $langIso
      *
      * @return bool
      */
-    public function updateTypeSync($type, $offset, $date, $langIso = null)
+    public function updateTypeSync($type, $offset, $date, $fullSyncFinished, $langIso = null)
     {
         return $this->db->update(
             self::TYPE_SYNC_TABLE_NAME,
             [
-                'offset' => $offset,
-                'last_sync_date' => $date,
+                'offset' => (int) $offset,
+                'full_sync_finished' => (int) $fullSyncFinished,
+                'last_sync_date' => pSQL($date),
             ],
-            'type = "' . pSQL($type) . '" AND lang_iso = "' . pSQL((string) $langIso) . '"'
+            'type = "' . pSQL($type) . '"
+            AND lang_iso = "' . pSQL((string) $langIso) . '"
+            AND id_shop = ' . $this->context->shop->id
+        );
+    }
+
+    /**
+     * @param string $type
+     * @param bool $fullSyncFinished
+     * @param string $langIso
+     *
+     * @return bool
+     */
+    public function updateFullSyncStatus($type, $fullSyncFinished, $langIso = null)
+    {
+        return $this->db->update(
+            self::TYPE_SYNC_TABLE_NAME,
+            [
+                'full_sync_finished' => (int) $fullSyncFinished,
+            ],
+            'type = "' . pSQL($type) . '"
+            AND lang_iso = "' . pSQL((string) $langIso) . '"
+            AND id_shop = ' . $this->context->shop->id
         );
     }
 }

@@ -20,7 +20,7 @@ class ps_AccountsApiThemesModuleFrontController extends AbstractApiController
 
         $themeInfo = $themeRepository->getThemes();
 
-        $response = $this->segmentService->upload($jobId, $themeInfo);
+        $response = $this->proxyService->upload($jobId, $themeInfo);
 
         $this->exitWithResponse(array_merge(['remaining_objects' => '0'], $response));
     }
