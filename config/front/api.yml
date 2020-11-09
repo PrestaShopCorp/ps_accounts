@@ -1,7 +1,0 @@
-services:
-  PrestaShop\Module\PsAccounts\Api\Client\AccountsClient:
-    class: PrestaShop\Module\PsAccounts\Api\Client\AccountsClient
-    arguments:
-      - '@PrestaShop\Module\PsAccounts\Service\PsAccountsService'
-      - '@ps_accounts.link'
-

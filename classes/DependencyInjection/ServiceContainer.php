@@ -3,7 +3,7 @@
 namespace PrestaShop\Module\PsAccounts\DependencyInjection;
 
 use PrestaShop\ModuleLibCacheDirectoryProvider\Cache\CacheDirectoryProvider;
-use PrestaShop\ModuleLibServiceContainer\DependencyInjection\ContainerProvider;
+#use PrestaShop\ModuleLibServiceContainer\DependencyInjection\ContainerProvider;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
 class ServiceContainer

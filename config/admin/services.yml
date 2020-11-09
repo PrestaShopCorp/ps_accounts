@@ -1,4 +1,0 @@
-imports:
-  - { resource: ../common.yml }
-  - { resource: api.yml }
-  - { resource: repository.yml }

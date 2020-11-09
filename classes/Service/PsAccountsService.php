@@ -28,6 +28,9 @@ use PrestaShop\Module\PsAccounts\Api\Client\FirebaseClient;
 use PrestaShop\Module\PsAccounts\Api\Client\ServicesAccountsClient;
 use PrestaShop\Module\PsAccounts\Context\ShopContext;
 use PrestaShop\Module\PsAccounts\Exception\EnvVarException;
+use PrestaShop\Module\PsAccounts\Exception\HmacException;
+use PrestaShop\Module\PsAccounts\Exception\PsAccountsRsaSignDataEmptyException;
+use PrestaShop\Module\PsAccounts\Exception\QueryParamsException;
 use PrestaShop\Module\PsAccounts\Exception\SshKeysNotFoundException;
 use PrestaShop\Module\PsAccounts\Repository\ConfigurationRepository;
 use Symfony\Component\DependencyInjection\ContainerInterface;
@@ -49,6 +52,16 @@ class PsAccountsService
      * @var LinkAdapter
      */
     protected $linkAdapter;
+
+    /**
+     * @var string
+     */
+    protected $uiUrl;
+
+    /**
+     * @var string
+     */
+    protected $ssoManageAccountUrl;
 
     /**
      * @var ConfigurationRepository
@@ -83,19 +96,23 @@ class PsAccountsService
      * @param Context $context
      * @param ShopContext $shopContext
      * @param LinkAdapter $linkAdapter
+     * @param array $config
      */
     public function __construct(
         ConfigurationRepository $configuration,
         FirebaseClient $firebaseClient,
         Context $context,
         ShopContext $shopContext,
-        LinkAdapter $linkAdapter
+        LinkAdapter $linkAdapter,
+        array $config
     ) {
         $this->configuration = $configuration;
         $this->firebaseClient = $firebaseClient;
         $this->context = $context;
         $this->shopContext = $shopContext;
         $this->linkAdapter = $linkAdapter;
+        $this->uiUrl = $config['ui_url'];
+        $this->ssoManageAccountUrl = $config['sso_manage_account_url'];
     }
 
     /**
@@ -354,7 +371,7 @@ class PsAccountsService
     /**
      * @return string
      *
-     * @throws \Exception
+     * @throws EnvVarException
      */
     public function getOnboardingLink()
     {
@@ -368,7 +385,7 @@ class PsAccountsService
             $this->linkAdapter->getAdminLink('AdminModules', true) . '&configure=' . $this->psxName
         );
 
-        $uiSvcBaseUrl = $_ENV['ACCOUNTS_SVC_UI_URL'];
+        $uiSvcBaseUrl = $this->uiUrl;
         if (false === $uiSvcBaseUrl) {
             throw new EnvVarException('Environmenrt variable ACCOUNTS_SVC_UI_URL should not be empty');
         }
@@ -397,6 +414,73 @@ class PsAccountsService
 
         return  $uiSvcBaseUrl . '/shop/account/link/' . $protocol . '/' . $domainName
             . '/' . $protocol . '/' . $domainName . '/' . $this->psxName . '?' . $strQueryParams;
+    }
+
+    /**
+     * @param array $queryParams
+     * @param string $rootDir
+     *
+     * @return string
+     *
+     * @throws EnvVarException
+     * @throws HmacException
+     * @throws QueryParamsException
+     * @throws SshKeysNotFoundException
+     * @throws PsAccountsRsaSignDataEmptyException
+     */
+    public function generateVerifyLink(array $queryParams, $rootDir)
+    {
+        $this->generateSshKey();
+
+        // FIXME: merge this test with the foreach below
+        if (!array_key_exists('hmac', $queryParams) || null === $queryParams['hmac']) {
+            throw new HmacException('Hmac does not exist', 500);
+        }
+
+        $hmacPath = $rootDir . '/upload/';
+
+        // FIXME: need some kind of DTO
+        foreach (
+            [
+                'hmac' => '/[a-zA-Z0-9]{8,64}/',
+                'uid' => '/[a-zA-Z0-9]{8,64}/',
+                'slug' => '/[-_a-zA-Z0-9]{8,255}/'
+            ] as $key => $value
+        ) {
+            if (!array_key_exists($key, $queryParams)) {
+                throw new QueryParamsException('Missing query params', 500);
+            }
+
+            if (!preg_match($value, $queryParams[$key])) {
+                throw new QueryParamsException('Invalide query params', 500);
+            }
+        }
+
+        if (!is_dir($hmacPath)) {
+            mkdir($hmacPath);
+        }
+
+        if (!is_writable($hmacPath)) {
+            throw new HmacException('Directory isn\'t writable', 500);
+        }
+
+        file_put_contents($hmacPath . $queryParams['uid'] . '.txt', $queryParams['hmac']);
+
+        $url = $this->uiUrl;
+        if (false === $url) {
+            throw new EnvVarException('Environment variable ACCOUNTS_SVC_UI_URL should not be empty', 500);
+        }
+
+        if ('/' === substr($url, -1)) {
+            $url = substr($url, 0, -1);
+        }
+
+        if (empty($this->configuration->getAccountsRsaSignData())) {
+            throw new PsAccountsRsaSignDataEmptyException('PsAccounts RsaSignData couldn\'t be empty', 500);
+        }
+
+        return $url . '/shop/account/verify/' . $queryParams['uid']
+            . '?shopKey=' . urlencode($this->configuration->getAccountsRsaSignData());
     }
 
     /**
@@ -610,7 +694,7 @@ class PsAccountsService
      */
     public function getManageAccountLink()
     {
-        $url = $_ENV['SSO_MANAGE_ACCOUNT'];
+        $url = $this->ssoManageAccountUrl;
         $langIsoCode = $this->context->language->iso_code;
 
         return $url . '?lang=' . substr($langIsoCode, 0, 2);

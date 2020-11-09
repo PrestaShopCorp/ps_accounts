@@ -1,8 +1,3 @@
-parameters:
-  firebase.api_key: '%env(string:FIREBASE_API_KEY)%'
-  firebase.auth_domain: '%env(string:FIREBASE_AUTH_DOMAIN)%'
-  firebase.project_id: '%env(string:FIREBASE_PROJECT_ID)%'
-
 services:
   ps_accounts.db:
     class: Db
@@ -29,6 +24,9 @@ services:
     arguments:
       - '@ps_accounts.link'
 
+  #####################
+  # services.yml
+
   PrestaShop\Module\PsAccounts\Service\PsAccountsService:
     class: PrestaShop\Module\PsAccounts\Service\PsAccountsService
     arguments:
@@ -37,6 +35,7 @@ services:
       - '@ps_accounts.context'
       - '@ps_accounts.shop_context'
       - '@ps_accounts.link_adapter'
+      - { ui_url: '%accounts.svc_ui_url%', sso_manage_account_url: '%sso.manage_account%' }
 
   PrestaShop\Module\PsAccounts\Service\PsBillingService:
     class: PrestaShop\Module\PsAccounts\Service\PsBillingService
@@ -47,8 +46,40 @@ services:
       - '@ps_accounts.context'
       - '@ps_accounts.shop_context'
 
+  #####################
+  # handlers.yml
+
   PrestaShop\Module\PsAccounts\Handler\ErrorHandler\ErrorHandler:
     class: PrestaShop\Module\PsAccounts\Handler\ErrorHandler\ErrorHandler
     arguments:
       - '@PrestaShop\Module\PsAccounts\Service\PsAccountsService'
+      - '%sentry.credentials%'
 
+  #####################
+  # api.yml
+
+  PrestaShop\Module\PsAccounts\Api\Client\AccountsClient:
+    class: PrestaShop\Module\PsAccounts\Api\Client\AccountsClient
+    arguments:
+      - '@PrestaShop\Module\PsAccounts\Service\PsAccountsService'
+      - '@ps_accounts.link'
+
+  PrestaShop\Module\PsAccounts\Api\Client\FirebaseClient:
+    class: PrestaShop\Module\PsAccounts\Api\Client\FirebaseClient
+    arguments:
+      - { api_key: '%firebase.api_key%' }
+
+  PrestaShop\Module\PsAccounts\Api\Client\ServicesBillingClient:
+    class: PrestaShop\Module\PsAccounts\Api\Client\ServicesBillingClient
+    arguments:
+      - '@PrestaShop\Module\PsAccounts\Service\PsAccountsService'
+      - '@ps_accounts.link'
+      - { api_url: '%billing.svc_api_url%' }
+
+  #####################
+  # repository.yml
+
+  PrestaShop\Module\PsAccounts\Repository\ConfigurationRepository:
+    class: PrestaShop\Module\PsAccounts\Repository\ConfigurationRepository
+    arguments:
+      - '@ps_accounts.configuration_adapter'

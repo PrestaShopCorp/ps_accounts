@@ -1,7 +1,0 @@
-services:
-  PrestaShop\Module\PsAccounts\Repository\ConfigurationRepository:
-    class: PrestaShop\Module\PsAccounts\Repository\ConfigurationRepository
-    arguments:
-      - '@ps_accounts.configuration_adapter'
-
-

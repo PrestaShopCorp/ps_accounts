@@ -144,26 +144,12 @@ class Ps_accounts extends Module
         ];
 
         // load environment variables
-        \PrestaShop\Module\PsAccounts\Environment\Env::getInstance();
+        new \PrestaShop\Module\PsAccounts\Environment\Env();
 
         //$this->serviceContainer = new \PrestaShop\ModuleLibServiceContainer\DependencyInjection\ServiceContainer(
         $this->serviceContainer = new \PrestaShop\Module\PsAccounts\DependencyInjection\ServiceContainer(
             $this->name,
             $this->getLocalPath()
-        );
-
-        // Process configuration
-        // TODO: organize files by scope
-        // TODO: check every service
-
-        // TODO: put module only variables into .env.dist
-        // TODO: find a solution for config_dev, config_prod ....
-
-        // TODO: ServiceContainer : specify file to load (quel est le besoin réel ?)
-        // TODO: ServiceContainer : access container
-
-        $this->getLogger()->info(
-            '################ ' . $this->serviceContainer->container->getParameter('firebase.api_key')
         );
     }
 

@@ -33,6 +33,7 @@ class ServicesBillingClient extends GenericClient
      *
      * @param PsAccountsService $psAccountsService
      * @param \Link $link
+     * @param array $props
      * @param Client|null $client
      *
      * @throws \Exception
@@ -40,6 +41,7 @@ class ServicesBillingClient extends GenericClient
     public function __construct(
         PsAccountsService $psAccountsService,
         \Link $link,
+        array $props,
         Client $client = null
     ) {
         parent::__construct();
@@ -51,7 +53,7 @@ class ServicesBillingClient extends GenericClient
         // Client can be provided for tests
         if (null === $client) {
             $client = new Client([
-                'base_url' => $_ENV['BILLING_SVC_API_URL'],
+                'base_url' => $props['api_url'],
                 'defaults' => [
                     'timeout' => $this->timeout,
                     'exceptions' => $this->catchExceptions,

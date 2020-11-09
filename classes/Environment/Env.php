@@ -20,89 +20,81 @@
 
 namespace PrestaShop\Module\PsAccounts\Environment;
 
-use PrestaShop\Module\PsAccounts\Exception\EnvironmentFileException;
-use Symfony\Component\Dotenv\Dotenv;
+//use Symfony\Component\Dotenv\Dotenv;
+use Dotenv\Dotenv;
 
 /**
  * Load environment variables.
  */
 class Env
 {
+    const MODULE_NAME = 'ps_accounts';
+
     /**
-     * Firebase public api key.
+     * Const that define all environment possible to use.
+     * Top of the list are taken in first if they exist in the project.
+     * eg: If .env.test is present in the module it will be loaded, if not present
+     * we try to load the next one etc ...
+     *
+     * @var array
+     */
+    const FILE_ENV_LIST = [
+        'test' => '.env.test',
+        'prod' => '.env',
+    ];
+
+    /**
+     * Environment name: can be 'prod' or 'test'
      *
      * @var string
      */
-    private $firebaseApiKey;
+    protected $name;
 
     /**
-     * @var Env
+     * Environment mode: can be 'live' or 'sandbox'
+     *
+     * @var string
      */
-    private static $instance;
+    protected $mode;
 
     /**
      * Env constructor.
      */
     public function __construct()
     {
-        $dotenv = new Dotenv();
-        // load prestashop var env
-        if (file_exists(_PS_ROOT_DIR_ . '.env')) {
-            $dotenv->load(_PS_ROOT_DIR_ . '.env');
+        foreach (self::FILE_ENV_LIST as $env => $fileName) {
+            if (!file_exists(_PS_MODULE_DIR_ . self::MODULE_NAME . '/' . $fileName)) {
+                continue;
+            }
+
+            $dotenv = Dotenv::create(_PS_MODULE_DIR_ . self::MODULE_NAME . '/', $fileName);
+            $dotenv->load();
+
+            $this->setName($env);
+
+            break;
         }
-        // load module var env
-        if (file_exists(_PS_MODULE_DIR_ . 'ps_accounts/.env')) {
-            $dotenv->load(_PS_MODULE_DIR_ . 'ps_accounts/.env');
-        }
-        // load lib var env
-        elseif (file_exists(dirname(__FILE__) . '/.env')) {
-            $dotenv->load(dirname(__FILE__) . '/.env');
-        } else {
-            $dotenv->load(dirname(__FILE__) . '/env');
-        }
-        $this->setFirebaseApiKey(getenv('FIREBASE_API_KEY') ?: null);
     }
 
     /**
-     * getter for firebaseApiKey.
+     * getName
      *
      * @return string
      */
-    public function getFirebaseApiKey()
+    public function getName()
     {
-        return $this->firebaseApiKey;
+        return $this->name;
     }
 
     /**
-     * setter for firebaseApiKey.
+     * setName
      *
-     * @param string $apiKey
+     * @param string $name
      *
      * @return void
      */
-    private function setFirebaseApiKey($apiKey)
+    private function setName($name)
     {
-        $this->firebaseApiKey = $apiKey;
-    }
-
-    /**
-     * @return Env
-     *
-     * @throws EnvironmentFileException
-     */
-    public static function getInstance()
-    {
-        if (self::$instance === null) {
-            self::$instance = new Env();
-        }
-
-        return self::$instance;
-    }
-
-    /**
-     * @return void
-     */
-    private function __clone()
-    {
+        $this->name = $name;
     }
 }

@@ -49,15 +49,18 @@ class ErrorHandler
      * ErrorHandler constructor.
      *
      * @param PsAccountsService $psAccountsService
+     * @param string $sentryCredentials
      *
      * @throws \Raven_Exception
      */
-    public function __construct(PsAccountsService $psAccountsService)
-    {
+    public function __construct(
+        PsAccountsService $psAccountsService,
+        $sentryCredentials
+    ) {
         $this->psAccountsService = $psAccountsService;
 
         $this->client = new Raven_Client(
-            $_ENV['SENTRY_CREDENTIALS'],
+            $sentryCredentials,
             [
                 'level' => 'warning',
                 'tags' => [
