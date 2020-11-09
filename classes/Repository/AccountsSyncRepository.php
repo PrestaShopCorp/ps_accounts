@@ -2,6 +2,7 @@
 
 namespace PrestaShop\Module\PsAccounts\Repository;
 
+use Context;
 use Db;
 use DbQuery;
 
@@ -14,10 +15,15 @@ class AccountsSyncRepository
      * @var Db
      */
     private $db;
+    /**
+     * @var Context
+     */
+    private $context;
 
-    public function __construct(Db $db)
+    public function __construct(Db $db, Context $context)
     {
         $this->db = $db;
+        $this->context = $context;
     }
 
     /**
@@ -35,6 +41,7 @@ class AccountsSyncRepository
         return $this->db->insert(
             self::TYPE_SYNC_TABLE_NAME,
             [
+                'id_shop' => (int) $this->context->shop->id,
                 'type' => pSQL($type),
                 'offset' => (int) $offset,
                 'last_sync_date' => pSQL($lastSyncDate),
@@ -67,7 +74,7 @@ class AccountsSyncRepository
      *
      * @return array|bool|false|object|null
      */
-    public function findSyncStateByJobId($jobId)
+    public function findJobById($jobId)
     {
         $query = new DbQuery();
         $query->select('*')

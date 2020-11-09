@@ -35,9 +35,9 @@ class ApiAuthorizationService
      */
     public function authorizeCall($jobId)
     {
-        $syncState = $this->accountsSyncStateRepository->findSyncStateByJobId($jobId);
+        $job = $this->accountsSyncStateRepository->findJobById($jobId);
 
-        if ($syncState) {
+        if ($job) {
             return true;
         }
 
