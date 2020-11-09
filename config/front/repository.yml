@@ -12,6 +12,7 @@ services:
     class: PrestaShop\Module\PsAccounts\Repository\AccountsSyncRepository
     arguments:
       - '@ps_accounts.db'
+      - '@ps_accounts.context'
 
   PrestaShop\Module\PsAccounts\Repository\CategoryRepository:
     class: PrestaShop\Module\PsAccounts\Repository\CategoryRepository
@@ -82,6 +83,12 @@ services:
 
   PrestaShop\Module\PsAccounts\Repository\DeletedObjectsRepository:
     class: PrestaShop\Module\PsAccounts\Repository\DeletedObjectsRepository
+    arguments:
+      - '@ps_accounts.db'
+      - '@ps_accounts.context'
+
+  PrestaShop\Module\PsAccounts\Repository\IncrementalSyncRepository:
+    class: PrestaShop\Module\PsAccounts\Repository\IncrementalSyncRepository
     arguments:
       - '@ps_accounts.db'
       - '@ps_accounts.context'

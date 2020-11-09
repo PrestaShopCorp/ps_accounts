@@ -115,6 +115,8 @@ abstract class AbstractApiController extends ModuleFrontController
         $langIso = Tools::getValue('lang_iso', $this->languageRepository->getDefaultLanguageIsoCode());
         $limit = (int) Tools::getValue('limit', 50);
         $limit = $limit == 0 ? 1000000000000 : $limit;
+        $fullSync = (int) Tools::getValue('full', 0);
+
         $dateNow = (new DateTime())->format(DateTime::ATOM);
         $offset = 0;
         $response = [];

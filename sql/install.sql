@@ -25,3 +25,13 @@ CREATE TABLE IF NOT EXISTS `PREFIX_accounts_deleted_objects`
     PRIMARY KEY (`type`, `id_object`, `id_shop`)
 ) ENGINE = ENGINE_TYPE
   DEFAULT CHARSET = utf8;
+
+CREATE TABLE IF NOT EXISTS `PREFIX_accounts_incremental_sync`
+(
+    `type`       VARCHAR(50)      NOT NULL,
+    `id_object`  INT(10) UNSIGNED NOT NULL,
+    `id_shop`  INT(10) UNSIGNED NOT NULL,
+    `created_at` DATETIME         NOT NULL,
+    PRIMARY KEY( `type`, `id_object`, `id_shop`)
+) ENGINE = ENGINE_TYPE
+  DEFAULT CHARSET = utf8;

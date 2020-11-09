@@ -371,4 +371,44 @@ class Ps_accounts extends Module
 
         $deletedObjectsRepository->insertDeletedObject($id, $type, $date, $shopId);
     }
+
+    public function hookActionObjectProductUpdateAfter($parameters)
+    {
+        $product = $parameters['object'];
+
+        $this->insertIncrementalSyncObject(
+            $product->id,
+            'products',
+            date(DATE_ATOM),
+            $this->context->shop->id
+        );
+    }
+
+    public function hookActionObjectProductAddAfter($parameters)
+    {
+        $product = $parameters['object'];
+
+        $this->insertIncrementalSyncObject(
+            $product->id,
+            'products',
+            date(DATE_ATOM),
+            $this->context->shop->id
+        );
+    }
+
+    /**
+     * @param int $objectId
+     * @param string $type
+     * @param string $date
+     * @throws PrestaShopDatabaseException
+     */
+    private function insertIncrementalSyncObject($objectId, $type, $date, $shopId)
+    {
+       /** @var \PrestaShop\Module\PsAccounts\Repository\IncrementalSyncRepository $incrementalSyncRepository */
+        $incrementalSyncRepository = $this->getService(
+            \PrestaShop\Module\PsAccounts\Repository\IncrementalSyncRepository::class
+        );
+
+        $incrementalSyncRepository->insertIncrementalObject($objectId, $type, $date, $shopId);
+    }
 }
