@@ -24,7 +24,7 @@ class ps_AccountsApiInfoModuleFrontController extends AbstractApiController
         $serverInfo = $serverInformationRepository->getServerInformation(Tools::getValue('lang_iso', null));
 
         try {
-            $response = $this->segmentService->upload($jobId, $serverInfo);
+            $response = $this->proxyService->upload($jobId, $serverInfo);
         } catch (EnvVarException $exception) {
             $this->exitWithExceptionMessage($exception);
         }

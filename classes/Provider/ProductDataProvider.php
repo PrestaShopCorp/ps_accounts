@@ -71,4 +71,54 @@ class ProductDataProvider implements PaginatedApiDataProviderInterface
 
         return $this->productRepository->getRemainingProductsCount($offset, $langId);
     }
+
+    /**
+     * @param int $limit
+     * @param null $langIso
+     *
+     * @return array
+     *
+     * @throws \PrestaShopDatabaseException
+     */
+    public function getFormattedDataIncremental($limit, $langIso = null)
+    {
+        $products = $this->productRepository->getProductsIncremental($limit, $langIso);
+
+        $productIds = $this->separateProductIds($products);
+
+        $this->productDecorator->decorateProducts($products);
+
+        $data = array_map(function ($product) {
+            return [
+                'id' => $product['unique_product_id'],
+                'collection' => 'products',
+                'properties' => $product,
+            ];
+        }, $products);
+
+        return [
+            'data' => $data,
+            'ids' => $productIds,
+        ];
+    }
+
+    /**
+     * @param array $products
+     *
+     * @return array
+     */
+    private function separateProductIds($products)
+    {
+        $productIds = [];
+        $productId = 0;
+
+        foreach ($products as $product) {
+            if ($productId !== (int) $product['id_product']) {
+                $productIds[] = $productId;
+                $productId = (int) $product['id_product'];
+            }
+        }
+
+        return $productIds;
+    }
 }

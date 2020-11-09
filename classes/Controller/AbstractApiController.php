@@ -12,6 +12,7 @@ use PrestaShop\Module\PsAccounts\Exception\FirebaseException;
 use PrestaShop\Module\PsAccounts\Provider\PaginatedApiDataProviderInterface;
 use PrestaShop\Module\PsAccounts\Repository\AccountsSyncRepository;
 use PrestaShop\Module\PsAccounts\Repository\LanguageRepository;
+use PrestaShop\Module\PsAccounts\Repository\IncrementalSyncRepository;
 use PrestaShop\Module\PsAccounts\Service\ApiAuthorizationService;
 use PrestaShop\Module\PsAccounts\Service\SegmentService;
 use PrestaShopDatabaseException;
@@ -34,7 +35,7 @@ abstract class AbstractApiController extends ModuleFrontController
     /**
      * @var SegmentService
      */
-    protected $segmentService;
+    protected $proxyService;
     /**
      * @var AccountsSyncRepository
      */
@@ -48,6 +49,10 @@ abstract class AbstractApiController extends ModuleFrontController
      */
     private $psAccountsService;
     /**
+     * @var IncrementalSyncRepository
+     */
+    protected $incrementalSyncRepository;
+    /**
      * @var Ps_accounts
      */
     public $module;
@@ -57,11 +62,12 @@ abstract class AbstractApiController extends ModuleFrontController
         parent::__construct();
 
         $this->controller_type = 'module';
-        $this->segmentService = $this->module->getService(SegmentService::class);
+        $this->proxyService = $this->module->getService(SegmentService::class);
         $this->authorizationService = $this->module->getService(ApiAuthorizationService::class);
         $this->accountsSyncRepository = $this->module->getService(AccountsSyncRepository::class);
         $this->languageRepository = $this->module->getService(LanguageRepository::class);
         $this->psAccountsService = new PsAccountsService();
+        $this->incrementalSyncRepository = $this->module->getService(IncrementalSyncRepository::class);
     }
 
     /**
@@ -115,24 +121,40 @@ abstract class AbstractApiController extends ModuleFrontController
         $langIso = Tools::getValue('lang_iso', $this->languageRepository->getDefaultLanguageIsoCode());
         $limit = (int) Tools::getValue('limit', 50);
         $limit = $limit == 0 ? 1000000000000 : $limit;
-        $fullSync = (int) Tools::getValue('full', 0);
+        $initFullSync = (int) Tools::getValue('full', 0) == 1;
 
         $dateNow = (new DateTime())->format(DateTime::ATOM);
         $offset = 0;
+        $remainingObjects = 1;
+        $data = [];
+        $incrementalSync = false;
         $response = [];
 
         try {
             $typeSync = $this->accountsSyncRepository->findTypeSync($this->type, $langIso);
 
-            if ($typeSync !== false && is_array($typeSync)) {
-                $offset = (int) $typeSync['offset'];
-            } else {
-                $this->accountsSyncRepository->insertTypeSync($this->type, $offset, $dateNow, $langIso);
+        if ($typeSync !== false && is_array($typeSync)) {
+            $offset = (int) $typeSync['offset'];
+
+            if ((int) $typeSync['full_sync_finished'] === 1 && !$initFullSync) {
+                $incrementalSync = true;
+            } elseif ((int) $typeSync['full_sync_finished'] === 1 && $initFullSync) {
+                $this->accountsSyncRepository->updateFullSyncStatus($this->type, false, $langIso);
+            }
+        } else {
+            $this->accountsSyncRepository->insertTypeSync($this->type, $offset, $dateNow, $langIso);
+        }
+
+        if ($incrementalSync) {
+            $response = $this->handleIncrementalSync($dataProvider, $jobId, $limit, $langIso);
+        } else {
+            try {
+                $data = $dataProvider->getFormattedData($offset, $limit, $langIso);
+            } catch (PrestaShopDatabaseException $exception) {
+                $this->exitWithExceptionMessage($exception);
             }
 
-            $data = $dataProvider->getFormattedData($offset, $limit, $langIso);
-
-            $response = $this->segmentService->upload($jobId, $data);
+            $response = $this->proxyService->upload($jobId, $data);
 
             if ($response['httpCode'] == 201) {
                 $offset += $limit;
@@ -145,7 +167,8 @@ abstract class AbstractApiController extends ModuleFrontController
                 $offset = 0;
             }
 
-            $this->accountsSyncRepository->updateTypeSync($this->type, $offset, $dateNow, $langIso);
+            $this->accountsSyncRepository->updateTypeSync($this->type, $offset, $dateNow, $remainingObjects == 0, $langIso);
+        }
 
             return array_merge(
                 [
@@ -161,6 +184,22 @@ abstract class AbstractApiController extends ModuleFrontController
             $this->exitWithExceptionMessage($exception);
         } catch (EnvVarException $exception) {
             $this->exitWithExceptionMessage($exception);
+        }
+
+        return $response;
+    }
+
+    private function handleIncrementalSync(PaginatedApiDataProviderInterface $dataProvider, $jobId, $limit, $langIso)
+    {
+        $incrementalData = $dataProvider->getFormattedDataIncremental($limit, $langIso);
+
+        $objectIds = $incrementalData['ids'];
+        $data = $incrementalData['data'];
+
+        $response = $this->proxyService->upload($jobId, $data);
+
+        if ($response['httpCode'] == 201) {
+            $this->incrementalSyncRepository->removeIncrementalSyncObjects($this->type, $objectIds);
         }
 
         return $response;
