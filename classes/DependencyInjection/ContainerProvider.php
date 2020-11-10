@@ -90,7 +90,6 @@ class ContainerProvider
         ;
 
         $moduleEnvVar = strtoupper($this->moduleName) . '_ENV';
-
         if (! getenv($moduleEnvVar)) {
             throw new \RuntimeException(
                 $moduleEnvVar . ' environment variable is not defined.'
