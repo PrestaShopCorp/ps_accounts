@@ -58,7 +58,7 @@ abstract class AbstractApiController extends ModuleFrontController
     public function init()
     {
         try {
-            $this->authorize();
+//            $this->authorize();
         } catch (UnauthorizedException $exception) {
             $this->exitWithExceptionMessage($exception);
         } catch (PrestaShopDatabaseException $exception) {
