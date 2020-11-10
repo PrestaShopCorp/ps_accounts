@@ -3,6 +3,7 @@
 namespace PrestaShop\Module\PsAccounts\Provider;
 
 use PrestaShop\Module\PsAccounts\Decorator\ProductDecorator;
+use PrestaShop\Module\PsAccounts\Formatter\ArrayFormatter;
 use PrestaShop\Module\PsAccounts\Repository\LanguageRepository;
 use PrestaShop\Module\PsAccounts\Repository\ProductRepository;
 
@@ -20,15 +21,21 @@ class ProductDataProvider implements PaginatedApiDataProviderInterface
      * @var LanguageRepository
      */
     private $languageRepository;
+    /**
+     * @var ArrayFormatter
+     */
+    private $arrayFormatter;
 
     public function __construct(
         ProductRepository $productRepository,
         ProductDecorator $productDecorator,
-        LanguageRepository $languageRepository
+        LanguageRepository $languageRepository,
+        ArrayFormatter $arrayFormatter
     ) {
         $this->productRepository = $productRepository;
         $this->productDecorator = $productDecorator;
         $this->languageRepository = $languageRepository;
+        $this->arrayFormatter = $arrayFormatter;
     }
 
     /**
@@ -84,9 +91,9 @@ class ProductDataProvider implements PaginatedApiDataProviderInterface
     {
         $products = $this->productRepository->getProductsIncremental($limit, $langIso);
 
-        $productIds = $this->separateProductIds($products);
+        $productIds = $this->separateProductIds($products, count($products) < $limit);
 
-        $this->productDecorator->decorateProducts($products);
+        $this->productDecorator->decorateProducts($products, $langIso);
 
         $data = array_map(function ($product) {
             return [
@@ -104,19 +111,18 @@ class ProductDataProvider implements PaginatedApiDataProviderInterface
 
     /**
      * @param array $products
+     * @param bool $includeLast
      *
      * @return array
      */
-    private function separateProductIds($products)
+    private function separateProductIds($products, $includeLast)
     {
-        $productIds = [];
-        $productId = 0;
+        $productIds = $this->arrayFormatter->formatValueArray($products, 'id_product');
 
-        foreach ($products as $product) {
-            if ($productId !== (int) $product['id_product']) {
-                $productIds[] = $productId;
-                $productId = (int) $product['id_product'];
-            }
+        $productIds = array_unique($productIds);
+
+        if (!$includeLast) {
+            array_pop($productIds);
         }
 
         return $productIds;

@@ -198,7 +198,7 @@ abstract class AbstractApiController extends ModuleFrontController
 
         $response = $this->proxyService->upload($jobId, $data);
 
-        if ($response['httpCode'] == 201) {
+        if ($response['httpCode'] == 201 && !empty($objectIds)) {
             $this->incrementalSyncRepository->removeIncrementalSyncObjects($this->type, $objectIds);
         }
 
