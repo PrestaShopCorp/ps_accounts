@@ -2,19 +2,15 @@ imports:
   - { resource: common/services.yml }
 
 parameters:
-  #########################
-  # Env overrideable vars
-
-  env(PS_ACCOUNTS_SENTRY_CREDENTIALS): 'https://4c7f6c8dd5aa405b8401a35f5cf26ada@o298402.ingest.sentry.io/5354585'
-
-  #########################
-  # Module configuration
+  # In case you need to override with environment variables, you can follow this example :
+  # env(PS_ACCOUNTS_SENTRY_CREDENTIALS): 'https://4c7f6c8dd5aa405b8401a35f5cf26ada@o298402.ingest.sentry.io/5354585'
+  # sentry.credentials: '%env(string:PS_ACCOUNTS_SENTRY_CREDENTIALS)%'
 
   firebase.api_key: 'AIzaSyASHFE2F08ncoOH9NhoCF8_6z7qnoLVKSA'
   firebase.auth_domain: 'prestashop-ready-integration.firebaseapp.com'
   firebase.project_id: 'prestashop-ready-integration'
 
-  sentry.credentials: '%env(string:PS_ACCOUNTS_SENTRY_CREDENTIALS)%'
+  sentry.credentials: 'https://4c7f6c8dd5aa405b8401a35f5cf26ada@o298402.ingest.sentry.io/5354585'
 
   accounts.svc_ui_url: 'http://localhost:8080'
   accounts.svc_api_url: 'http://accounts-api'
@@ -23,7 +19,3 @@ parameters:
 
   sso.resend_verification_email: 'https://auth.prestashop.com/account/send-verification-email'
   sso.manage_account: 'https://eventbus-sync.psessentials-integration.net'
-
-#  à prévoir dans le futur module EventBus
-#  SEGMENT_PROXY_API_URL=https://eventbus-proxy.psessentials-integration.net
-#  EVENT_BUS_SYNC_API_URL=https://eventbus-sync.psessentials-integration.net
