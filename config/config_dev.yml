@@ -14,7 +14,7 @@ parameters:
   firebase.auth_domain: 'prestashop-ready-integration.firebaseapp.com'
   firebase.project_id: 'prestashop-ready-integration'
 
-  sentry.credentials: '%env(PS_ACCOUNTS_SENTRY_CREDENTIALS)%'
+  sentry.credentials: '%env(string:PS_ACCOUNTS_SENTRY_CREDENTIALS)%'
 
   accounts.svc_ui_url: 'http://localhost:8080'
   accounts.svc_api_url: 'http://accounts-api'

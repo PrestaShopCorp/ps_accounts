@@ -5,36 +5,24 @@ parameters:
   #########################
   # Env overrideable vars
 
-  env(PS_ACCOUNTS_FIREBASE_API_KEY): 'AIzaSyBEm26bA2KR893rY68enLdVGpqnkoW2Juo'
-  env(PS_ACCOUNTS_FIREBASE_AUTH_DOMAIN): 'prestashop-sso-prod.firebaseapp.com'
-  env(PS_ACCOUNTS_FIREBASE_PROJECT_ID): 'prestashop-sso-prod'
-
   env(PS_ACCOUNTS_SENTRY_CREDENTIALS): 'https://4c7f6c8dd5aa405b8401a35f5cf26ada@o298402.ingest.sentry.io/5354585'
-
-  env(ACCOUNTS_SVC_UI_URL): 'https://accounts.psessentials.net'
-  env(ACCOUNTS_SVC_API_URL): 'https://accounts-api.psessentials.net'
-
-  env(BILLING_SVC_API_URL): 'https://billing-api.psessentials.net'
-
-  env(SSO_RESEND_VERIFICATION_EMAIL): 'https://auth.prestashop.com/account/send-verification-email'
-  env(SSO_MANAGE_ACCOUNT): 'https://auth.prestashop.com/login'
 
   #########################
   # Module configuration
 
-  firebase.api_key: '%env(string:PS_ACCOUNTS_FIREBASE_API_KEY)%'
-  firebase.auth_domain: '%env(string:PS_ACCOUNTS_FIREBASE_AUTH_DOMAIN)%'
-  firebase.project_id: '%env(string:PS_ACCOUNTS_FIREBASE_PROJECT_ID)%'
+  firebase.api_key: 'AIzaSyBEm26bA2KR893rY68enLdVGpqnkoW2Juo'
+  firebase.auth_domain: 'prestashop-sso-prod.firebaseapp.com'
+  firebase.project_id: 'prestashop-sso-prod'
 
-  sentry.credentials: '%env(PS_ACCOUNTS_SENTRY_CREDENTIALS)%'
+  sentry.credentials: '%env(string:PS_ACCOUNTS_SENTRY_CREDENTIALS)%'
 
-  accounts.svc_ui_url: '%env(string:ACCOUNTS_SVC_UI_URL)%'
-  accounts.svc_api_url: '%env(string:ACCOUNTS_SVC_API_URL)%'
+  accounts.svc_ui_url: 'https://accounts.psessentials.net'
+  accounts.svc_api_url: 'https://accounts-api.psessentials.net'
 
-  billing.svc_api_url: '%env(BILLING_SVC_API_URL)%'
+  billing.svc_api_url: 'https://billing-api.psessentials.net'
 
-  sso.resend_verification_email: '%env(SSO_RESEND_VERIFICATION_EMAIL)%'
-  sso.manage_account: '%env(SSO_MANAGE_ACCOUNT)%'
+  sso.resend_verification_email: 'https://auth.prestashop.com/account/send-verification-email'
+  sso.manage_account: 'https://auth.prestashop.com/login'
 
 #  à prévoir dans le futur module EventBus
 #  SEGMENT_PROXY_API_URL=https://eventbus-proxy.psessentials-integration.net
