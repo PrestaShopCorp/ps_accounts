@@ -96,22 +96,30 @@ class ProductDecorator
         $cover = 0;
         $images = [];
 
-        $productImages = explode(';', (string) $product['images']);
+        if ((string) $product['images'] !== '') {
+            $productImages = explode(';', (string) $product['images']);
 
-        $productImages = array_map(function ($image) use (&$cover) {
-            $image = explode(':', $image);
-            $imageId = (int) $image[0];
-            $isCover = (int) $image[1];
-            if ($isCover) {
-                $cover = $imageId;
-            }
+            $productImages = array_map(function ($image) use (&$cover) {
+                $image = explode(':', $image);
+                $imageId = (int) $image[0];
+                $isCover = (int) $image[1];
+                if ($isCover) {
+                    $cover = $imageId;
+                }
 
-            return ['imageId' => $imageId, 'isCover' => $isCover];
-        }, $productImages);
+                return ['imageId' => $imageId, 'isCover' => $isCover];
+            }, $productImages);
+        } else {
+            $productImages = [];
+        }
 
         if ($product['id_attribute'] !== '0') {
-            $attributeImages = explode(';', (string) $product['attribute_images']);
-            $images = array_diff($attributeImages, [$cover]);
+            if ((string) $product['attribute_images'] !== '') {
+                $attributeImages = explode(';', (string) $product['attribute_images']);
+                $images = array_diff($attributeImages, [$cover]);
+            } else {
+                $images = [];
+            }
         } else {
             foreach ($productImages as $productImage) {
                 if (!$productImage['isCover']) {
