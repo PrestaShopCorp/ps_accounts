@@ -24,7 +24,7 @@ class ModuleDataProvider implements PaginatedApiDataProviderInterface
      *
      * @return array
      */
-    public function getFormattedData($offset, $limit, $langIso = null)
+    public function getFormattedData($offset, $limit, $langIso)
     {
         try {
             $modules = $this->moduleRepository->getModules($offset, $limit);
@@ -54,7 +54,7 @@ class ModuleDataProvider implements PaginatedApiDataProviderInterface
      *
      * @return int
      */
-    public function getRemainingObjectsCount($offset, $langIso = null)
+    public function getRemainingObjectsCount($offset, $langIso)
     {
         return $this->moduleRepository->getRemainingModules($offset);
     }

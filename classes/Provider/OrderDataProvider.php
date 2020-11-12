@@ -42,13 +42,13 @@ class OrderDataProvider implements PaginatedApiDataProviderInterface
     /**
      * @param int $offset
      * @param int $limit
-     * @param string|null $langIso
+     * @param string $langIso
      *
      * @return array
      *
      * @throws PrestaShopDatabaseException
      */
-    public function getFormattedData($offset, $limit, $langIso = null)
+    public function getFormattedData($offset, $limit, $langIso)
     {
         $orders = $this->orderRepository->getOrders($offset, $limit, $this->context->shop->id);
 
@@ -73,11 +73,11 @@ class OrderDataProvider implements PaginatedApiDataProviderInterface
 
     /**
      * @param int $offset
-     * @param string|null $langIso
+     * @param string $langIso
      *
      * @return int
      */
-    public function getRemainingObjectsCount($offset, $langIso = null)
+    public function getRemainingObjectsCount($offset, $langIso)
     {
         return $this->orderRepository->getRemainingOrderCount($offset, $this->context->shop->id);
     }

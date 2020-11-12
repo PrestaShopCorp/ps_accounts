@@ -6,7 +6,6 @@ use Context;
 use Db;
 use DbQuery;
 use Employee;
-use mysqli_result;
 use PDOStatement;
 use PrestaShopDatabaseException;
 use Product;
@@ -37,71 +36,108 @@ class ProductRepository
 
     /**
      * @param int $shopId
+     * @param int $langId
      *
      * @return DbQuery
      */
-    private function getBaseQuery($shopId)
+    private function getBaseQuery($shopId, $langId)
     {
         $query = new DbQuery();
 
-        $query->from('product_shop', 'ps')
-            ->leftJoin('product', 'p', 'ps.id_product = p.id_product')
-            ->leftJoin('product_attribute_shop', 'pas', 'pas.id_product = ps.id_product AND pas.id_shop = ' . (int) $shopId)
+        $query->from('product', 'p')
+            ->innerJoin('product_shop', 'ps', 'ps.id_product = p.id_product AND ps.id_shop = ' . (int) $shopId)
+            ->innerJoin('product_lang', 'pl', 'pl.id_product = ps.id_product AND pl.id_lang = ' . (int) $langId . ' AND pl.id_shop = ' . (int) $shopId)
+
+            ->leftJoin('product_attribute_shop', 'pas', 'pas.id_product = p.id_product AND pas.id_shop = ' . (int) $shopId)
             ->leftJoin('product_attribute', 'pa', 'pas.id_product_attribute = pa.id_product_attribute')
-            ->leftJoin('product_lang', 'pl', 'pl.id_product = ps.id_product')
-            ->innerJoin('lang', 'l', 'pl.id_lang = l.id_lang AND l.active = 1')
-            ->leftJoin('category_lang', 'cl', 'ps.id_category_default = cl.id_category AND cl.id_lang = pl.id_lang')
+            ->leftJoin('category_lang', 'cl', 'ps.id_category_default = cl.id_category AND cl.id_lang = ' . (int) $langId)
             ->leftJoin('stock_available', 'sa', 'sa.id_product = p.id_product AND sa.id_product_attribute = IFNULL(pas.id_product_attribute, 0) AND sa.id_shop = ' . (int) $shopId)
-            ->leftJoin('manufacturer', 'm', 'p.id_manufacturer = m.id_manufacturer')
-
-            ->leftJoin('product_attribute_combination', 'pac', 'pac.id_product_attribute = pas.id_product_attribute')
-            ->leftJoin('attribute', 'a', 'a.id_attribute = pac.id_attribute')
-            ->leftJoin('attribute_group_lang', 'agl', 'agl.id_attribute_group = a.id_attribute_group AND agl.id_lang = l.id_lang')
-            ->leftJoin('attribute_lang', 'al', 'al.id_attribute = pac.id_attribute AND al.id_lang = l.id_lang')
-
-            ->leftJoin('feature_product', 'fp', 'fp.id_product = ps.id_product')
-            ->leftJoin('feature_lang', 'fl', 'fl.id_feature = fp.id_feature AND fl.id_lang = l.id_lang')
-            ->leftJoin('feature_value_lang', 'fvl', 'fvl.id_feature_value = fp.id_feature_value AND fvl.id_lang = l.id_lang')
-
-            ->leftJoin('image_shop', 'imgs', 'imgs.id_product = ps.id_product AND imgs.id_shop = ps.id_shop')
-            ->leftJoin('product_attribute_image', 'pai', 'pai.id_product_attribute = pas.id_product_attribute')
-
-            ->where('ps.id_shop = ' . (int) $shopId)
-            ->where('pl.id_shop = ' . (int) $shopId)
-
-            ->groupBy('ps.id_product, pas.id_product_attribute, l.id_lang')
-            ->orderBy('p.id_product, pas.id_product_attribute');
+            ->leftJoin('manufacturer', 'm', 'p.id_manufacturer = m.id_manufacturer');
 
         return $query;
+    }
+
+    private function getProductAttributeValues($attributeIds, $langId)
+    {
+        $query = new DbQuery();
+
+        $query->leftJoin('product_attribute_combination', 'pac', 'pac.id_product_attribute = pas.id_product_attribute')
+            ->leftJoin('attribute', 'a', 'a.id_attribute = pac.id_attribute')
+            ->leftJoin('attribute_group_lang', 'agl', 'agl.id_attribute_group = a.id_attribute_group AND agl.id_lang = ' . (int) $langId)
+            ->leftJoin('attribute_lang', 'al', 'al.id_attribute = pac.id_attribute AND al.id_lang = ' . (int) $langId);
+    }
+
+    private function getProductFeatures($productIds, $langId)
+    {
+        $query = new DbQuery();
+
+        $query->leftJoin('feature_product', 'fp', 'fp.id_product = ps.id_product')
+            ->leftJoin('feature_lang', 'fl', 'fl.id_feature = fp.id_feature AND fl.id_lang = ' . (int) $langId)
+            ->leftJoin('feature_value_lang', 'fvl', 'fvl.id_feature_value = fp.id_feature_value AND fvl.id_lang = ' . (int) $langId);
+    }
+
+    private function getProductImages()
+    {
+        $query = new DbQuery();
+        $query->leftJoin('image_shop', 'imgs', 'imgs.id_product = ps.id_product AND imgs.id_shop = ps.id_shop');
+
+    }
+
+    private function getAttributeImages()
+    {
+        $query = new DbQuery();
+        $query->leftJoin('product_attribute_image', 'pai', 'pai.id_product_attribute = pas.id_product_attribute');
     }
 
     /**
      * @param int $offset
      * @param int $limit
-     * @param string $langIso
+     * @param int $langId
      *
-     * @return array|bool|mysqli_result|PDOStatement|resource|null
+     * @return array
      *
      * @throws PrestaShopDatabaseException
      */
-    public function getProducts($offset, $limit, $langIso = null)
+    public function getProducts($offset, $limit, $langId)
     {
-        $query = $this->getBaseQuery($this->context->shop->id)
+
+        /**
+         * SELECT p.id_product, IFNULL(pas.id_product_attribute, 0) as id_attribute,
+        pl.name, pl.description, pl.description_short, pl.link_rewrite,
+        ps.id_category_default, IFNULL(pa.reference, p.reference) as reference, IFNULL(pa.upc, p.upc) as upc,
+        IFNULL(pa.ean13, p.ean13) as ean, IFNULL(pa.isbn, p.isbn) as isbn,
+        ps.condition, ps.visibility, ps.active,
+        (p.weight + IFNULL(pas.weight, 0)) as weight, (ps.price + IFNULL(pas.price, 0)) as price_tax_excl,
+        p.date_add as created_at, p.date_upd as updated_at
+
+        FROM `ps_product_shop` ps
+        INNER JOIN `ps_product_lang` `pl` ON pl.id_product = ps.id_product AND pl.id_lang = 1 AND pl.id_shop = 1
+        INNER JOIN `ps_product` `p` ON ps.id_product = p.id_product
+        LEFT JOIN `ps_product_attribute_shop` pas ON ps.id_product = pas.id_product AND pas.id_shop = 1
+        INNER JOIN `ps_product_attribute` `pa` ON pas.id_product_attribute = pa.id_product_attribute
+        WHERE ps.id_shop = 1
+        ORDER BY ps.id_product
+        LIMIT 500
+         */
+        $query = $this->getBaseQuery($this->context->shop->id, $langId)
+//            ->select('p.id_product, IFNULL(pas.id_product_attribute, 0) as id_attribute,
+//            pl.name, pl.description, pl.description_short, pl.link_rewrite, l.iso_code, cl.name as default_category,
+//            ps.id_category_default, IFNULL(pa.reference, p.reference) as reference, IFNULL(pa.upc, p.upc) as upc,
+//            IFNULL(pa.ean13, p.ean13) as ean, IFNULL(pa.isbn, p.isbn) as isbn,
+//            ps.condition, ps.visibility, ps.active, sa.quantity, m.name as manufacturer,
+//            (p.weight + IFNULL(pas.weight, 0)) as weight, (ps.price + IFNULL(pas.price, 0)) as price_tax_excl,
+//            p.date_add as created_at, p.date_upd as updated_at,
+//            IFNULL(GROUP_CONCAT(DISTINCT agl.name, ":", al.name SEPARATOR ";"), "") as attributes,
+//            IFNULL(GROUP_CONCAT(DISTINCT fl.name, ":", fvl.value SEPARATOR ";"), "") as features,
+//            GROUP_CONCAT(DISTINCT imgs.id_image, ":", IFNULL(imgs.cover, 0) SEPARATOR ";") as images,
+//            GROUP_CONCAT(DISTINCT pai.id_image SEPARATOR ";") as attribute_images')
             ->select('p.id_product, IFNULL(pas.id_product_attribute, 0) as id_attribute,
-            pl.name, pl.description, pl.description_short, pl.link_rewrite, l.iso_code, cl.name as default_category,
+            pl.name, pl.description, pl.description_short, pl.link_rewrite, cl.name as default_category,
             ps.id_category_default, IFNULL(pa.reference, p.reference) as reference, IFNULL(pa.upc, p.upc) as upc,
             IFNULL(pa.ean13, p.ean13) as ean, IFNULL(pa.isbn, p.isbn) as isbn,
             ps.condition, ps.visibility, ps.active, sa.quantity, m.name as manufacturer,
             (p.weight + IFNULL(pas.weight, 0)) as weight, (ps.price + IFNULL(pas.price, 0)) as price_tax_excl,
-            p.date_add as created_at, p.date_upd as updated_at,
-            IFNULL(GROUP_CONCAT(DISTINCT agl.name, ":", al.name SEPARATOR ";"), "") as attributes,
-            IFNULL(GROUP_CONCAT(DISTINCT fl.name, ":", fvl.value SEPARATOR ";"), "") as features,
-            GROUP_CONCAT(DISTINCT imgs.id_image, ":", IFNULL(imgs.cover, 0) SEPARATOR ";") as images,
-            GROUP_CONCAT(DISTINCT pai.id_image SEPARATOR ";") as attribute_images');
-
-        if ($langIso !== null && is_string($langIso)) {
-            $query->where('l.iso_code = "' . pSQL($langIso) . '"');
-        }
+            p.date_add as created_at, p.date_upd as updated_at');
 
         $query->limit($limit, $offset);
 
@@ -110,15 +146,15 @@ class ProductRepository
 
     /**
      * @param int $offset
-     * @param string $langIso
+     * @param int $langId
      *
      * @return int
      *
      * @throws PrestaShopDatabaseException
      */
-    public function getRemainingProductsCount($offset, $langIso = null)
+    public function getRemainingProductsCount($offset, $langId)
     {
-        $products = $this->getProducts(0, 1000000000, $langIso);
+        $products = $this->getProducts(0, 1000000000, $langId);
 
         if (!is_array($products) || empty($products)) {
             return 0;

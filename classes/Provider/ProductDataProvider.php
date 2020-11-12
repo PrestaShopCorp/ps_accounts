@@ -3,6 +3,7 @@
 namespace PrestaShop\Module\PsAccounts\Provider;
 
 use PrestaShop\Module\PsAccounts\Decorator\ProductDecorator;
+use PrestaShop\Module\PsAccounts\Repository\LanguageRepository;
 use PrestaShop\Module\PsAccounts\Repository\ProductRepository;
 
 class ProductDataProvider implements PaginatedApiDataProviderInterface
@@ -15,11 +16,19 @@ class ProductDataProvider implements PaginatedApiDataProviderInterface
      * @var ProductDecorator
      */
     private $productDecorator;
+    /**
+     * @var LanguageRepository
+     */
+    private $languageRepository;
 
-    public function __construct(ProductRepository $productRepository, ProductDecorator $productDecorator)
-    {
+    public function __construct(
+        ProductRepository $productRepository,
+        ProductDecorator $productDecorator,
+        LanguageRepository $languageRepository
+    ) {
         $this->productRepository = $productRepository;
         $this->productDecorator = $productDecorator;
+        $this->languageRepository = $languageRepository;
     }
 
     /**
@@ -31,9 +40,11 @@ class ProductDataProvider implements PaginatedApiDataProviderInterface
      *
      * @throws \PrestaShopDatabaseException
      */
-    public function getFormattedData($offset, $limit, $langIso = null)
+    public function getFormattedData($offset, $limit, $langIso)
     {
-        $products = $this->productRepository->getProducts($offset, $limit, $langIso);
+        $langId = $this->languageRepository->getLanguageIdByIsoCode($langIso);
+
+        $products = $this->productRepository->getProducts($offset, $limit, $langId);
 
         $this->productDecorator->decorateProducts($products);
 
@@ -54,8 +65,10 @@ class ProductDataProvider implements PaginatedApiDataProviderInterface
      *
      * @throws \PrestaShopDatabaseException
      */
-    public function getRemainingObjectsCount($offset, $langIso = null)
+    public function getRemainingObjectsCount($offset, $langIso)
     {
-        return $this->productRepository->getRemainingProductsCount($offset, $langIso);
+        $langId = $this->languageRepository->getLanguageIdByIsoCode($langIso);
+
+        return $this->productRepository->getRemainingProductsCount($offset, $langId);
     }
 }
