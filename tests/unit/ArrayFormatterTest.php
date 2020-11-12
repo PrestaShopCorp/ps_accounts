@@ -22,8 +22,8 @@ class ArrayFormatterTest extends TestCase
             'value2',
         ];
 
-        $this->assertEquals('value1;value2', $this->arrayFormatter->formatArray($data));
-        $this->assertEquals('value1:value2', $this->arrayFormatter->formatArray($data, ':'));
+        $this->assertEquals('value1;value2', $this->arrayFormatter->arrayToString($data));
+        $this->assertEquals('value1:value2', $this->arrayFormatter->arrayToString($data, ':'));
     }
 
     public function testFormatValueArrayTest()

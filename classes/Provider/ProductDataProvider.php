@@ -46,7 +46,7 @@ class ProductDataProvider implements PaginatedApiDataProviderInterface
 
         $products = $this->productRepository->getProducts($offset, $limit, $langId);
 
-        $this->productDecorator->decorateProducts($products);
+        $this->productDecorator->decorateProducts($products, $langIso, $langId);
 
         return array_map(function ($product) {
             return [

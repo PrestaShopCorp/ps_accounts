@@ -10,7 +10,7 @@ class ArrayFormatter
      *
      * @return string
      */
-    public function formatArray(array $data, $separator = ';')
+    public function arrayToString(array $data, $separator = ';')
     {
         return implode($separator, $data);
     }
@@ -18,14 +18,31 @@ class ArrayFormatter
     /**
      * @param array $data
      * @param string|int $key
+     * @param bool $unique
      *
      * @return array
      */
-    public function formatValueArray(array $data, $key)
+    public function formatValueArray(array $data, $key, $unique = false)
     {
-        return array_map(function ($dataItem) use ($key) {
+        $result = array_map(function ($dataItem) use ($key) {
             return $dataItem[$key];
         }, $data);
+
+        if ($unique) {
+            return $this->unique($result);
+        }
+
+        return $result;
+    }
+
+    /**
+     * @param array $data
+     *
+     * @return array
+     */
+    private function unique(array $data)
+    {
+        return array_unique($data);
     }
 
     /**
