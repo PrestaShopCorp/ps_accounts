@@ -2,12 +2,14 @@
 
 namespace PrestaShop\Module\PsAccounts\Tests\Unit\Service\PsAccountsService;
 
-use PrestaShop\Module\PsAccounts\Adapter\Configuration;
+use Db;
+use Module;
 use PrestaShop\Module\PsAccounts\Exception\SshKeysNotFoundException;
 use PrestaShop\Module\PsAccounts\Repository\ConfigurationRepository;
 use PrestaShop\Module\PsAccounts\Service\PsAccountsService;
 use PrestaShop\Module\PsAccounts\Service\SshKey;
 use PrestaShop\Module\PsAccounts\Tests\TestCase;
+use Ps_accounts;
 
 class GenerateSshKeyTest extends TestCase
 {
@@ -18,24 +20,29 @@ class GenerateSshKeyTest extends TestCase
      */
     public function it_should_update_ssh_keys()
     {
-        /** @var Configuration $configMock */
-        $configMock = $this->getConfigurationMock([
-            [Configuration::PS_ACCOUNTS_RSA_PRIVATE_KEY, false, null],
-            [Configuration::PS_ACCOUNTS_RSA_PUBLIC_KEY, false, null],
-            [Configuration::PS_ACCOUNTS_RSA_SIGN_DATA, false, null],
-        ]);
+        /** @var Ps_accounts $module */
+        $module = Module::getInstanceByName('ps_accounts');
 
-        $this->container->singleton(Configuration::class, $configMock);
+        /** @var PsAccountsService $service */
+        $service = $module->getService(PsAccountsService::class);
 
-        $configuration = $this->container->get(ConfigurationRepository::class);
+        /** @var ConfigurationRepository $configuration */
+        $configuration = $module->getService(ConfigurationRepository::class);
 
-        $service = new PsAccountsService();
+        //echo "A\n" . $configuration->getAccountsRsaPrivateKey() . "\n";
+
+        // Empty DB
+        $configuration->updateAccountsRsaPrivateKey(null);
+        $configuration->updateAccountsRsaPublicKey(null);
+        $configuration->updateAccountsRsaSignData(null);
 
         $this->assertEmpty($configuration->getAccountsRsaPrivateKey());
         $this->assertEmpty($configuration->getAccountsRsaPublicKey());
         $this->assertEmpty($configuration->getAccountsRsaSignData());
 
         $service->generateSshKey();
+
+        //echo "B\n" . $configuration->getAccountsRsaPrivateKey() . "\n";
 
         $this->assertNotEmpty($configuration->getAccountsRsaPrivateKey());
         $this->assertNotEmpty($configuration->getAccountsRsaPublicKey());

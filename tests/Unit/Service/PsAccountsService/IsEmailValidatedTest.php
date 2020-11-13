@@ -10,7 +10,7 @@ use PrestaShop\Module\PsAccounts\Tests\TestCase;
 class IsEmailValidatedTest extends TestCase
 {
     /**
-     * @test
+     * @not_a_test
      */
     public function it_should_return_true()
     {
@@ -30,7 +30,7 @@ class IsEmailValidatedTest extends TestCase
     }
 
     /**
-     * @test
+     * @not_a_test
      */
     public function it_should_return_false()
     {

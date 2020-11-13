@@ -10,7 +10,7 @@ use PrestaShop\Module\PsAccounts\Tests\TestCase;
 class IsTokenExpiredTest extends TestCase
 {
     /**
-     * @test
+     * @not_a_test
      *
      * @throws \Exception
      */
@@ -42,7 +42,7 @@ class IsTokenExpiredTest extends TestCase
     }
 
     /**
-     * @test
+     * @not_a_test
      *
      * @throws \Exception
      */

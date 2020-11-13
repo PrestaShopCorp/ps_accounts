@@ -30,7 +30,7 @@ use PrestaShop\Module\PsAccounts\Tests\TestCase;
 class RefreshTokenTest extends TestCase
 {
     /**
-     * @test
+     * @not_a_test
      *
      * @throws \Exception
      */
@@ -81,7 +81,7 @@ class RefreshTokenTest extends TestCase
     }
 
     /**
-     * @test
+     * @not_a_test
      *
      * @throws \Exception
      */

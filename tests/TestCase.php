@@ -2,8 +2,8 @@
 
 namespace PrestaShop\Module\PsAccounts\Tests;
 
+use Db;
 use PrestaShop\Module\PsAccounts\Adapter\Configuration;
-use PrestaShop\Module\PsAccounts\DependencyInjection\PsAccountsServiceProvider;
 
 class TestCase extends \PHPUnit\Framework\TestCase
 {
@@ -11,11 +11,6 @@ class TestCase extends \PHPUnit\Framework\TestCase
      * @var \Faker\Generator
      */
     public $faker;
-
-    /**
-     * @var PsAccountsServiceProvider
-     */
-    public $container;
 
     /**
      * @var array
@@ -34,10 +29,19 @@ class TestCase extends \PHPUnit\Framework\TestCase
     {
         parent::setUp();
 
-        $this->faker = \Faker\Factory::create();
+        Db::getInstance()->execute('START TRANSACTION');
 
-        $this->container = PsAccountsServiceProvider::getInstance();
-        $this->container->reset();
+        $this->faker = \Faker\Factory::create();
+    }
+
+    /**
+     * @return void
+     */
+    public function tearDown()
+    {
+        Db::getInstance()->execute('ROLLBACK');
+
+        parent::tearDown();
     }
 
     /**
@@ -51,7 +55,10 @@ class TestCase extends \PHPUnit\Framework\TestCase
             $this->config = $valueMap;
         }
 
-        $configuration = $this->createMock(Configuration::class);
+        //$configuration = $this->createMock(Configuration::class);
+        $configuration = $this->getMockBuilder(Configuration::class)
+            ->setConstructorArgs([\Context::getContext()])
+            ->getMock();
 
         $configuration->method('get')
             ->will($this->returnCallback(function ($key, $default = false) {
