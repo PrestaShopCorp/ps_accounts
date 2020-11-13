@@ -91,6 +91,12 @@ abstract class AbstractApiController extends ModuleFrontController
             throw new UnauthorizedException('Lang ISO code is not defined.', 401);
         }
 
+        $langId = $this->languageRepository->getLanguageIdByIsoCode($langIso);
+
+        if (!$langId) {
+            throw new UnauthorizedException('Language does not exist.', 401);
+        }
+
         $authorizationResponse = $this->authorizationService->authorizeCall($jobId);
 
         if (is_array($authorizationResponse)) {
