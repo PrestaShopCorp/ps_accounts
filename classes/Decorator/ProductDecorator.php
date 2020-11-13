@@ -155,6 +155,7 @@ class ProductDecorator
         $product['weight'] = (float) $product['weight'];
         $product['active'] = $product['active'] == '1';
         $product['manufacturer'] = (string) $product['manufacturer'];
+        $product['default_category'] = (string) $product['default_category'];
     }
 
     /**
