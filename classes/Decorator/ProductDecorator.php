@@ -51,6 +51,8 @@ class ProductDecorator
      * @param string $langIso
      * @param int $langId
      *
+     * @throws \PrestaShopDatabaseException
+     *
      * @return void
      */
     public function decorateProducts(array &$products, $langIso, $langId)

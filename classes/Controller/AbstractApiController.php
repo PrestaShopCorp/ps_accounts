@@ -11,8 +11,8 @@ use PrestaShop\Module\PsAccounts\Exception\EnvVarException;
 use PrestaShop\Module\PsAccounts\Exception\FirebaseException;
 use PrestaShop\Module\PsAccounts\Provider\PaginatedApiDataProviderInterface;
 use PrestaShop\Module\PsAccounts\Repository\AccountsSyncRepository;
-use PrestaShop\Module\PsAccounts\Repository\LanguageRepository;
 use PrestaShop\Module\PsAccounts\Repository\IncrementalSyncRepository;
+use PrestaShop\Module\PsAccounts\Repository\LanguageRepository;
 use PrestaShop\Module\PsAccounts\Service\ApiAuthorizationService;
 use PrestaShop\Module\PsAccounts\Service\SegmentService;
 use PrestaShopDatabaseException;
@@ -194,7 +194,9 @@ abstract class AbstractApiController extends ModuleFrontController
      * @param string $jobId
      * @param int $limit
      * @param string $langIso
+     *
      * @return array
+     *
      * @throws PrestaShopDatabaseException
      */
     private function handleIncrementalSync(PaginatedApiDataProviderInterface $dataProvider, $jobId, $limit, $langIso)
@@ -219,8 +221,8 @@ abstract class AbstractApiController extends ModuleFrontController
      * @param string|null $method
      *
      * @return void
-     * @throws PrestaShopException
      *
+     * @throws PrestaShopException
      */
     public function ajaxDie($value = null, $controller = null, $method = null)
     {

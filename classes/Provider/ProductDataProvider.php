@@ -81,13 +81,13 @@ class ProductDataProvider implements PaginatedApiDataProviderInterface
 
     /**
      * @param int $limit
-     * @param null $langIso
+     * @param string $langIso
      *
      * @return array
      *
      * @throws \PrestaShopDatabaseException
      */
-    public function getFormattedDataIncremental($limit, $langIso = null)
+    public function getFormattedDataIncremental($limit, $langIso)
     {
         $langId = $this->languageRepository->getLanguageIdByIsoCode($langIso);
 
