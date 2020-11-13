@@ -400,7 +400,7 @@ class Ps_accounts extends Module
      * @param int $objectId
      * @param string $type
      * @param string $date
-     * @throws PrestaShopDatabaseException
+     * @param $shopId
      */
     private function insertIncrementalSyncObject($objectId, $type, $date, $shopId)
     {
@@ -409,6 +409,15 @@ class Ps_accounts extends Module
             \PrestaShop\Module\PsAccounts\Repository\IncrementalSyncRepository::class
         );
 
-        $incrementalSyncRepository->insertIncrementalObject($objectId, $type, $date, $shopId);
+        /** @var \PrestaShop\Module\PsAccounts\Repository\LanguageRepository $languageRepository */
+        $languageRepository = $this->getService(
+            \PrestaShop\Module\PsAccounts\Repository\LanguageRepository::class
+        );
+
+        $languagesIsoCodes = $languageRepository->getLanguagesIsoCodes();
+
+        foreach ($languagesIsoCodes as $languagesIsoCode) {
+            $incrementalSyncRepository->insertIncrementalObject($objectId, $type, $date, $shopId, $languagesIsoCode);
+        }
     }
 }

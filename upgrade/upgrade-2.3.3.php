@@ -17,8 +17,9 @@ function upgrade_module_2_3_3()
     `type` VARCHAR(50) NOT NULL,
     `id_object` INT(10) UNSIGNED NOT NULL,
     `id_shop` INT(10) UNSIGNED NOT NULL,
+    `lang_iso`   VARCHAR(3),
     `created_at` DATETIME NOT NULL,
-    PRIMARY KEY( `type`, `id_object`, `id_shop`));';
+    PRIMARY KEY( `type`, `id_object`, `id_shop`, `lang_iso`));';
 
     foreach ($hooks as $hook) {
         $result &= $module->registerHook($hook);

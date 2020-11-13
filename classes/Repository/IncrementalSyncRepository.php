@@ -28,13 +28,14 @@ class IncrementalSyncRepository
      * @param int $objectId
      * @param string $objectType
      * @param string $date
+     * @param int $shopId
+     * @param string $langIso
      *
-     * @param $shopId
      * @return bool
      *
      * @throws \PrestaShopDatabaseException
      */
-    public function insertIncrementalObject($objectId, $objectType, $date, $shopId)
+    public function insertIncrementalObject($objectId, $objectType, $date, $shopId, $langIso)
     {
         return $this->db->insert(
             self::INCREMENTAL_SYNC_TABLE,
@@ -43,6 +44,7 @@ class IncrementalSyncRepository
                 'id_object' => $objectId,
                 'type' => $objectType,
                 'created_at' => $date,
+                'lang_iso' => $langIso,
             ],
             false,
             true,
@@ -53,16 +55,18 @@ class IncrementalSyncRepository
     /**
      * @param string $type
      * @param array $objectIds
+     * @param string $langIso
      *
      * @return bool
      */
-    public function removeIncrementalSyncObjects($type, $objectIds)
+    public function removeIncrementalSyncObjects($type, $objectIds, $langIso)
     {
         return $this->db->delete(
             self::INCREMENTAL_SYNC_TABLE,
             'type = "' . pSQL($type) . '"
             AND id_shop = ' . $this->context->shop->id . '
-            AND id_object IN(' . implode(',', $objectIds) . ')'
+            AND id_object IN(' . implode(',', $objectIds) . ')
+            AND lang_iso = "' . pSQL($langIso) . '"'
         );
     }
 }

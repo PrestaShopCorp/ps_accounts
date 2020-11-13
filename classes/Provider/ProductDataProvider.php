@@ -89,11 +89,13 @@ class ProductDataProvider implements PaginatedApiDataProviderInterface
      */
     public function getFormattedDataIncremental($limit, $langIso = null)
     {
-        $products = $this->productRepository->getProductsIncremental($limit, $langIso);
+        $langId = $this->languageRepository->getLanguageIdByIsoCode($langIso);
+
+        $products = $this->productRepository->getProductsIncremental($limit, $langIso, $langId);
 
         $productIds = $this->separateProductIds($products, count($products) < $limit);
 
-        $this->productDecorator->decorateProducts($products, $langIso);
+        $this->productDecorator->decorateProducts($products, $langIso, $langId);
 
         $data = array_map(function ($product) {
             return [
@@ -117,9 +119,7 @@ class ProductDataProvider implements PaginatedApiDataProviderInterface
      */
     private function separateProductIds($products, $includeLast)
     {
-        $productIds = $this->arrayFormatter->formatValueArray($products, 'id_product');
-
-        $productIds = array_unique($productIds);
+        $productIds = $this->arrayFormatter->formatValueArray($products, 'id_product', true);
 
         if (!$includeLast) {
             array_pop($productIds);

@@ -189,6 +189,14 @@ abstract class AbstractApiController extends ModuleFrontController
         return $response;
     }
 
+    /**
+     * @param PaginatedApiDataProviderInterface $dataProvider
+     * @param string $jobId
+     * @param int $limit
+     * @param string $langIso
+     * @return array
+     * @throws PrestaShopDatabaseException
+     */
     private function handleIncrementalSync(PaginatedApiDataProviderInterface $dataProvider, $jobId, $limit, $langIso)
     {
         $incrementalData = $dataProvider->getFormattedDataIncremental($limit, $langIso);
@@ -199,7 +207,7 @@ abstract class AbstractApiController extends ModuleFrontController
         $response = $this->proxyService->upload($jobId, $data);
 
         if ($response['httpCode'] == 201 && !empty($objectIds)) {
-            $this->incrementalSyncRepository->removeIncrementalSyncObjects($this->type, $objectIds);
+            $this->incrementalSyncRepository->removeIncrementalSyncObjects($this->type, $objectIds, $langIso);
         }
 
         return $response;
@@ -210,9 +218,9 @@ abstract class AbstractApiController extends ModuleFrontController
      * @param string|null $controller
      * @param string|null $method
      *
+     * @return void
      * @throws PrestaShopException
      *
-     * @return void
      */
     public function ajaxDie($value = null, $controller = null, $method = null)
     {
