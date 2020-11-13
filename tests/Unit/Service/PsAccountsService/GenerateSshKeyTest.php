@@ -20,14 +20,11 @@ class GenerateSshKeyTest extends TestCase
      */
     public function it_should_update_ssh_keys()
     {
-        /** @var Ps_accounts $module */
-        $module = Module::getInstanceByName('ps_accounts');
-
         /** @var PsAccountsService $service */
-        $service = $module->getService(PsAccountsService::class);
+        $service = $this->module->getService(PsAccountsService::class);
 
         /** @var ConfigurationRepository $configuration */
-        $configuration = $module->getService(ConfigurationRepository::class);
+        $configuration = $this->module->getService(ConfigurationRepository::class);
 
         //echo "A\n" . $configuration->getAccountsRsaPrivateKey() . "\n";
 

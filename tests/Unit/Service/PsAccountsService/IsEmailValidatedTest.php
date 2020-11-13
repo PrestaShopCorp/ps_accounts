@@ -10,41 +10,33 @@ use PrestaShop\Module\PsAccounts\Tests\TestCase;
 class IsEmailValidatedTest extends TestCase
 {
     /**
-     * @not_a_test
+     * @test
      */
     public function it_should_return_true()
     {
-        /** @var Configuration $configMock */
-        $configMock = $this->getConfigurationMock([]);
-
-        $this->container->singleton(Configuration::class, $configMock);
-
-        $service = new PsAccountsService();
-
         /** @var ConfigurationRepository $configuration */
-        $configuration = $this->container->get(ConfigurationRepository::class);
+        $configuration = $this->module->getService(ConfigurationRepository::class);
 
         $configuration->updateFirebaseEmailIsVerified(1);
+
+        /** @var PsAccountsService $service */
+        $service = $this->module->getService(PsAccountsService::class);
 
         $this->assertTrue($service->isEmailValidated());
     }
 
     /**
-     * @not_a_test
+     * @test
      */
     public function it_should_return_false()
     {
-        /** @var Configuration $configMock */
-        $configMock = $this->getConfigurationMock([]);
-
-        $this->container->singleton(Configuration::class, $configMock);
-
-        $service = new PsAccountsService();
-
         /** @var ConfigurationRepository $configuration */
-        $configuration = $this->container->get(ConfigurationRepository::class);
+        $configuration = $this->module->getService(ConfigurationRepository::class);
 
         $configuration->updateFirebaseEmailIsVerified(0);
+
+        /** @var PsAccountsService $service */
+        $service = $this->module->getService(PsAccountsService::class);
 
         $this->assertFalse($service->isEmailValidated());
     }

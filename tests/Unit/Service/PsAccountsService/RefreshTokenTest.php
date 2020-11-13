@@ -30,12 +30,14 @@ use PrestaShop\Module\PsAccounts\Tests\TestCase;
 class RefreshTokenTest extends TestCase
 {
     /**
-     * @not_a_test
+     * @test
      *
      * @throws \Exception
      */
     public function it_should_handle_response_success()
     {
+        /* FIXME */ $this->markTestSkipped('Howto inject mocked FirebaseClient into container ?');
+
         $idToken = (new Builder())
             ->expiresAt($this->faker->dateTimeBetween('now', '+2 hours')->getTimestamp())
             //->withClaim('uid', $this->faker->uuid)
@@ -47,6 +49,11 @@ class RefreshTokenTest extends TestCase
             ->getToken();
 
         $refreshToken = (new Builder())->getToken();
+
+        /** @var ConfigurationRepository $configuration */
+        $configuration = $this->module->getService(ConfigurationRepository::class);
+
+        $configuration->updateFirebaseIdAndRefreshTokens((string) $idToken, (string) $refreshToken);
 
         /** @var FirebaseClient $firebaseClient */
         $firebaseClient = $this->createMock(FirebaseClient::class);
@@ -60,18 +67,8 @@ class RefreshTokenTest extends TestCase
                 ],
             ]);
 
-        /** @var Configuration $configMock */
-        $configMock = $this->getConfigurationMock([
-            [Configuration::PS_ACCOUNTS_FIREBASE_ID_TOKEN, false, (string) $idToken],
-            [Configuration::PS_ACCOUNTS_FIREBASE_REFRESH_TOKEN, false, (string) $refreshToken],
-        ]);
-
-        $this->container->singleton(Configuration::class, $configMock);
-        $this->container->singleton(FirebaseClient::class, $firebaseClient);
-
-        $configuration = $this->container->get(ConfigurationRepository::class);
-
-        $service = new PsAccountsService();
+        /** @var PsAccountsService $service */
+        $service = $this->module->getService(PsAccountsService::class);
 
         $this->assertTrue($service->refreshToken());
 
@@ -81,18 +78,25 @@ class RefreshTokenTest extends TestCase
     }
 
     /**
-     * @not_a_test
+     * @test
      *
      * @throws \Exception
      */
     public function it_should_handle_response_error()
     {
+        /* FIXME */ $this->markTestSkipped('Howto inject mocked FirebaseClient into container ?');
+
         $idToken = (new Builder())
             ->expiresAt($this->faker->dateTimeBetween('now', '+2 hours')->getTimestamp())
             //->withClaim('uid', $this->faker->uuid)
             ->getToken();
 
         $refreshToken = (new Builder())->getToken();
+
+        /** @var ConfigurationRepository $configuration */
+        $configuration = $this->module->getService(ConfigurationRepository::class);
+
+        $configuration->updateFirebaseIdAndRefreshTokens((string) $idToken, (string) $refreshToken);
 
         /** @var FirebaseClient $firebaseClient */
         $firebaseClient = $this->createMock(FirebaseClient::class);
@@ -102,20 +106,8 @@ class RefreshTokenTest extends TestCase
                 'status' => false,
             ]);
 
-        /** @var Configuration $configMock */
-        $configMock = $this->getConfigurationMock([
-            [Configuration::PS_ACCOUNTS_FIREBASE_ID_TOKEN, false, (string) $idToken],
-            [Configuration::PS_ACCOUNTS_FIREBASE_REFRESH_TOKEN, false, (string) $refreshToken],
-        ]);
-
-        $configuration = new ConfigurationRepository($configMock);
-
-        $this->container->singleton(Configuration::class, $configMock);
-        $this->container->singleton(FirebaseClient::class, $firebaseClient);
-
-        $configuration = $this->container->get(ConfigurationRepository::class);
-
-        $service = new PsAccountsService();
+        /** @var PsAccountsService $service */
+        $service = $this->module->getService(PsAccountsService::class);
 
         $this->assertFalse($service->refreshToken());
 

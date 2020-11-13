@@ -4,13 +4,14 @@ namespace PrestaShop\Module\PsAccounts\Tests\Unit\Service\PsAccountsService;
 
 use Lcobucci\JWT\Builder;
 use PrestaShop\Module\PsAccounts\Adapter\Configuration;
+use PrestaShop\Module\PsAccounts\Repository\ConfigurationRepository;
 use PrestaShop\Module\PsAccounts\Service\PsAccountsService;
 use PrestaShop\Module\PsAccounts\Tests\TestCase;
 
 class IsTokenExpiredTest extends TestCase
 {
     /**
-     * @not_a_test
+     * @test
      *
      * @throws \Exception
      */
@@ -25,24 +26,24 @@ class IsTokenExpiredTest extends TestCase
 
         $refreshToken = (new Builder())->getToken();
 
-        /** @var Configuration $configMock */
-        $configMock = $this->getConfigurationMock([
-            [Configuration::PS_PSX_FIREBASE_REFRESH_DATE, false, $date->format('Y-m-d h:m:s')],
-            [Configuration::PS_ACCOUNTS_FIREBASE_REFRESH_TOKEN, false, (string) $refreshToken],
-            [Configuration::PS_ACCOUNTS_FIREBASE_ID_TOKEN, false, (string) $idToken],
-        ]);
+        /** @var ConfigurationRepository $configuration */
+        $configuration = $this->module->getService(ConfigurationRepository::class);
 
-        $this->container->singleton(Configuration::class, $configMock);
+//        /** @var Configuration $configMock */
+//        $configMock = $this->getConfigurationMock([
+//            [Configuration::PS_PSX_FIREBASE_REFRESH_DATE, false, $date->format('Y-m-d h:m:s')],
+//        ]);
 
-        $service = new PsAccountsService(
-            //new ConfigurationRepository($configMock)
-        );
+        $configuration->updateFirebaseIdAndRefreshTokens((string) $idToken, (string) $refreshToken);
+
+        /** @var PsAccountsService $service */
+        $service = $this->module->getService(PsAccountsService::class);
 
         $this->assertTrue($service->isTokenExpired());
     }
 
     /**
-     * @not_a_test
+     * @test
      *
      * @throws \Exception
      */
@@ -57,18 +58,18 @@ class IsTokenExpiredTest extends TestCase
 
         $refreshToken = (new Builder())->getToken();
 
-        /** @var Configuration $configMock */
-        $configMock = $this->getConfigurationMock([
-            [Configuration::PS_PSX_FIREBASE_REFRESH_DATE, false, $date->format('Y-m-d h:m:s')],
-            [Configuration::PS_ACCOUNTS_FIREBASE_REFRESH_TOKEN, false, (string) $refreshToken],
-            [Configuration::PS_ACCOUNTS_FIREBASE_ID_TOKEN, false, (string) $idToken],
-        ]);
+        /** @var ConfigurationRepository $configuration */
+        $configuration = $this->module->getService(ConfigurationRepository::class);
 
-        $this->container->singleton(Configuration::class, $configMock);
+//        /** @var Configuration $configMock */
+//        $configMock = $this->getConfigurationMock([
+//            [Configuration::PS_PSX_FIREBASE_REFRESH_DATE, false, $date->format('Y-m-d h:m:s')],
+//        ]);
 
-        $service = new PsAccountsService(
-            //new ConfigurationRepository($configMock)
-        );
+        $configuration->updateFirebaseIdAndRefreshTokens((string) $idToken, (string) $refreshToken);
+
+        /** @var PsAccountsService $service */
+        $service = $this->module->getService(PsAccountsService::class);
 
         $this->assertFalse($service->isTokenExpired());
     }
