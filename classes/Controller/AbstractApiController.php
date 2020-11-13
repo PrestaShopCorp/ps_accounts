@@ -91,13 +91,13 @@ abstract class AbstractApiController extends ModuleFrontController
             throw new UnauthorizedException('Lang ISO code is not defined.', 401);
         }
 
-//        $authorizationResponse = $this->authorizationService->authorizeCall($jobId);
-//
-//        if (is_array($authorizationResponse)) {
-//            $this->exitWithResponse($authorizationResponse);
-//        } elseif (!$authorizationResponse) {
-//            throw new UnauthorizedException('Failed saving job id to database', 401);
-//        }
+        $authorizationResponse = $this->authorizationService->authorizeCall($jobId);
+
+        if (is_array($authorizationResponse)) {
+            $this->exitWithResponse($authorizationResponse);
+        } elseif (!$authorizationResponse) {
+            throw new UnauthorizedException('Failed saving job id to database', 401);
+        }
     }
 
     /**

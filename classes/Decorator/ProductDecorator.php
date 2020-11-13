@@ -167,11 +167,25 @@ class ProductDecorator
         $product['unique_product_id'] = "{$product['id_product']}-{$product['id_attribute']}-{$product['iso_code']}";
     }
 
+    /**
+     * @param array $product
+     * @param string $langiso
+     *
+     * @return void
+     */
     private function addLanguageIsoCode(&$product, $langiso)
     {
         $product['iso_code'] = $langiso;
     }
 
+    /**
+     * @param array $products
+     * @param int $langId
+     *
+     * @throws \PrestaShopDatabaseException
+     *
+     * @return void
+     */
     private function addFeatureValues(array &$products, $langId)
     {
         $productIds = $this->arrayFormatter->formatValueArray($products, 'id_product', true);
@@ -182,6 +196,14 @@ class ProductDecorator
         }
     }
 
+    /**
+     * @param array $products
+     * @param int $langId
+     *
+     * @throws \PrestaShopDatabaseException
+     *
+     * @return void
+     */
     private function addAttributeValues(array &$products, $langId)
     {
         $attributeIds = $this->arrayFormatter->formatValueArray($products, 'id_attribute', true);
@@ -192,6 +214,13 @@ class ProductDecorator
         }
     }
 
+    /**
+     * @param array $products
+     *
+     * @throws \PrestaShopDatabaseException
+     *
+     * @return void
+     */
     private function addImages(array &$products)
     {
         $productIds = $this->arrayFormatter->formatValueArray($products, 'id_product', true);

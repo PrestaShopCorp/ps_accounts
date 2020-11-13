@@ -79,11 +79,11 @@ class CartDataProvider implements PaginatedApiDataProviderInterface
 
     /**
      * @param int $offset
-     * @param string|null $langIso
+     * @param string $langIso
      *
      * @return int
      */
-    public function getRemainingObjectsCount($offset, $langId)
+    public function getRemainingObjectsCount($offset, $langIso)
     {
         return (int) $this->cartRepository->getRemainingCartsCount($offset);
     }

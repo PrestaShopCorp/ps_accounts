@@ -86,7 +86,9 @@ class ProductRepository
 
         $query->limit($limit, $offset);
 
-        return $this->db->executeS($query);
+        $result = $this->db->executeS($query);
+
+        return is_array($result) ? $result : [];
     }
 
     /**
@@ -108,6 +110,14 @@ class ProductRepository
         return (int) (count($products) - $offset);
     }
 
+    /**
+     * @param array $attributeIds
+     * @param int $langId
+     *
+     * @return array
+     *
+     * @throws PrestaShopDatabaseException
+     */
     public function getProductAttributeValues(array $attributeIds, $langId)
     {
         $query = new DbQuery();
@@ -136,6 +146,14 @@ class ProductRepository
         return [];
     }
 
+    /**
+     * @param array $productIds
+     * @param int $langId
+     *
+     * @return array
+     *
+     * @throws PrestaShopDatabaseException
+     */
     public function getProductFeatures(array $productIds, $langId)
     {
         $query = new DbQuery();
@@ -162,6 +180,13 @@ class ProductRepository
         return [];
     }
 
+    /**
+     * @param array $productIds
+     *
+     * @return array
+     *
+     * @throws PrestaShopDatabaseException
+     */
     public function getProductImages(array $productIds)
     {
         $query = new DbQuery();
@@ -170,9 +195,18 @@ class ProductRepository
             ->from('image_shop', 'imgs')
             ->where('imgs.id_shop = ' . (int) $this->context->shop->id . ' AND imgs.id_product IN (' . $this->arrayFormatter->arrayToString($productIds, ',') . ')');
 
-        return $this->db->executeS($query);
+        $result = $this->db->executeS($query);
+
+        return is_array($result) ? $result : [];
     }
 
+    /**
+     * @param array $attributeIds
+     *
+     * @return array
+     *
+     * @throws PrestaShopDatabaseException
+     */
     public function getAttributeImages(array $attributeIds)
     {
         $query = new DbQuery();
@@ -181,7 +215,9 @@ class ProductRepository
             ->from('product_attribute_image', 'pai')
             ->where('pai.id_product_attribute IN (' . $this->arrayFormatter->arrayToString($attributeIds, ',') . ')');
 
-        return $this->db->executeS($query);
+        $result = $this->db->executeS($query);
+
+        return is_array($result) ? $result : [];
     }
 
     /**
