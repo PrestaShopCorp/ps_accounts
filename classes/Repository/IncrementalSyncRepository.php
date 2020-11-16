@@ -32,24 +32,26 @@ class IncrementalSyncRepository
      * @param string $langIso
      *
      * @return bool
-     *
-     * @throws \PrestaShopDatabaseException
      */
     public function insertIncrementalObject($objectId, $objectType, $date, $shopId, $langIso)
     {
-        return $this->db->insert(
-            self::INCREMENTAL_SYNC_TABLE,
-            [
-                'id_shop' => $shopId,
-                'id_object' => $objectId,
-                'type' => $objectType,
-                'created_at' => $date,
-                'lang_iso' => $langIso,
-            ],
-            false,
-            true,
-            Db::ON_DUPLICATE_KEY
-        );
+        try {
+            return $this->db->insert(
+                self::INCREMENTAL_SYNC_TABLE,
+                [
+                    'id_shop' => $shopId,
+                    'id_object' => $objectId,
+                    'type' => $objectType,
+                    'created_at' => $date,
+                    'lang_iso' => $langIso,
+                ],
+                false,
+                true,
+                Db::ON_DUPLICATE_KEY
+            );
+        } catch (\PrestaShopDatabaseException $e) {
+            return false;
+        }
     }
 
     /**

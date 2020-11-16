@@ -101,13 +101,13 @@ class ProductRepository
      */
     public function getRemainingProductsCount($offset, $langId)
     {
-        $products = $this->getProducts(0, 1000000000, $langId);
+        $products = $this->getProducts($offset, 1, $langId);
 
         if (!is_array($products) || empty($products)) {
             return 0;
         }
 
-        return (int) (count($products) - $offset);
+        return (int) (count($products));
     }
 
     /**

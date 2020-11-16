@@ -376,8 +376,6 @@ class Ps_accounts extends Module
      * @param array $parameters
      *
      * @return void
-     *
-     * @throws PrestaShopDatabaseException
      */
     public function hookActionObjectProductUpdateAfter($parameters)
     {
@@ -395,8 +393,6 @@ class Ps_accounts extends Module
      * @param array $parameters
      *
      * @return void
-     *
-     * @throws PrestaShopDatabaseException
      */
     public function hookActionObjectProductAddAfter($parameters)
     {
@@ -415,8 +411,6 @@ class Ps_accounts extends Module
      * @param string $type
      * @param string $date
      * @param int $shopId
-     *
-     * @throws PrestaShopDatabaseException
      *
      * @return void
      */
