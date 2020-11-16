@@ -71,3 +71,8 @@ services:
     arguments:
       - '@ps_accounts.db'
       - '@ps_accounts.context'
+
+  PrestaShop\Module\PsAccounts\Repository\GoogleTaxonomyRepository:
+    class: PrestaShop\Module\PsAccounts\Repository\GoogleTaxonomyRepository
+    arguments:
+      - '@ps_accounts.db'

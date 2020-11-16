@@ -58,7 +58,7 @@ abstract class AbstractApiController extends ModuleFrontController
     public function init()
     {
         try {
-            $this->authorize();
+//            $this->authorize();
         } catch (UnauthorizedException $exception) {
             $this->exitWithExceptionMessage($exception);
         } catch (PrestaShopDatabaseException $exception) {
@@ -183,7 +183,7 @@ abstract class AbstractApiController extends ModuleFrontController
         $response = [
             'object_type' => $this->type,
             'status' => false,
-            'httpCode' => $exception->getCode(),
+            'httpCode' => $exception->getCode() == 0 ? 500 : $exception->getCode(),
             'message' => $exception->getMessage(),
         ];
 
