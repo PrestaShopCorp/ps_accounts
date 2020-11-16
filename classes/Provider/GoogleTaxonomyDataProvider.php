@@ -30,7 +30,7 @@ class GoogleTaxonomyDataProvider implements PaginatedApiDataProviderInterface
 
             return [
                 'id' => $uniqueId,
-                'collection' => 'google_taxonomies',
+                'collection' => 'taxonomies',
                 'properties' => $googleTaxonomy,
             ];
         }, $data);

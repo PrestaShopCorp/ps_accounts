@@ -5,7 +5,7 @@ use PrestaShop\Module\PsAccounts\Provider\GoogleTaxonomyDataProvider;
 
 class ps_AccountsApiGoogleTaxonomiesModuleFrontController extends AbstractApiController
 {
-    public $type = 'google_taxonomies';
+    public $type = 'taxonomies';
 
     /**
      * @throws PrestaShopException
