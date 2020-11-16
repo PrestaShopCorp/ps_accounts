@@ -16,7 +16,7 @@ class GoogleTaxonomyDataProvider implements PaginatedApiDataProviderInterface
         $this->googleTaxonomyRepository = $googleTaxonomyRepository;
     }
 
-    public function getFormattedData($offset, $limit, $langIso = null)
+    public function getFormattedData($offset, $limit, $langIso)
     {
         $data = $this->googleTaxonomyRepository->getTaxonomyCategories($offset, $limit);
 
@@ -36,7 +36,7 @@ class GoogleTaxonomyDataProvider implements PaginatedApiDataProviderInterface
         }, $data);
     }
 
-    public function getRemainingObjectsCount($offset, $langIso = null)
+    public function getRemainingObjectsCount($offset, $langIso)
     {
         return $this->googleTaxonomyRepository->getRemainingTaxonomyRepositories($offset);
     }
