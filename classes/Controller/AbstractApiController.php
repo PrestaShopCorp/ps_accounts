@@ -25,6 +25,10 @@ abstract class AbstractApiController extends ModuleFrontController
      */
     public $type = '';
     /**
+     * @var bool
+     */
+    public $langIsoRequired = false;
+    /**
      * @var ApiAuthorizationService
      */
     protected $authorizationService;
@@ -87,14 +91,16 @@ abstract class AbstractApiController extends ModuleFrontController
             throw new UnauthorizedException('Job ID is not defined.', 401);
         }
 
-        if (!$langIso) {
-            throw new UnauthorizedException('Lang ISO code is not defined.', 401);
-        }
+        if ($this->langIsoRequired) {
+            if (!$langIso) {
+                throw new UnauthorizedException('Lang ISO code is not defined.', 401);
+            }
 
-        $langId = $this->languageRepository->getLanguageIdByIsoCode($langIso);
+            $langId = $this->languageRepository->getLanguageIdByIsoCode($langIso);
 
-        if (!$langId) {
-            throw new UnauthorizedException('Language does not exist.', 401);
+            if (!$langId) {
+                throw new UnauthorizedException('Language does not exist.', 401);
+            }
         }
 
         $authorizationResponse = $this->authorizationService->authorizeCall($jobId);
