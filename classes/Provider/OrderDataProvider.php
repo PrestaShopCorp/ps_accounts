@@ -60,6 +60,9 @@ class OrderDataProvider implements PaginatedApiDataProviderInterface
 
         $orderDetails = $this->getOrderDetails($orderIds);
 
+        $this->castOrderValues($orders);
+        $this->castOrderDetailValues($orderDetails);
+
         $orders = array_map(function ($order) {
             return [
                 'id' => $order['id_order'],
@@ -86,6 +89,8 @@ class OrderDataProvider implements PaginatedApiDataProviderInterface
      * @param array $orderIds
      *
      * @return array
+     *
+     * @throws PrestaShopDatabaseException
      */
     private function getOrderDetails(array $orderIds)
     {
@@ -106,5 +111,40 @@ class OrderDataProvider implements PaginatedApiDataProviderInterface
                 'properties' => $orderDetail,
             ];
         }, $orderDetails);
+    }
+
+    /**
+     * @param array $orders
+     *
+     * @return void
+     */
+    public function castOrderValues(array &$orders)
+    {
+        foreach ($orders as &$order) {
+            $order['id_order'] = (int) $order['id_order'];
+            $order['id_customer'] = (int) $order['id_customer'];
+            $order['id_cart'] = (int) $order['id_cart'];
+            $order['current_state'] = (int) $order['current_state'];
+            $order['conversion_rate'] = (float) $order['conversion_rate'];
+            $order['total_paid_tax_incl'] = (float) $order['total_paid_tax_incl'];
+            $order['new_customer'] = $order['new_customer'] === '1';
+        }
+    }
+
+    /**
+     * @param array $orderDetails
+     *
+     * @return void
+     */
+    private function castOrderDetailValues(array &$orderDetails)
+    {
+        foreach ($orderDetails as &$orderDetail) {
+            $orderDetail['id_order_detail'] = (int) $orderDetail['id_order_detail'];
+            $orderDetail['id_order'] = (int) $orderDetail['id_order'];
+            $orderDetail['product_id'] = (int) $orderDetail['product_id'];
+            $orderDetail['product_attribute_id'] = (int) $orderDetail['product_attribute_id'];
+            $orderDetail['product_quantity'] = (int) $orderDetail['product_quantity'];
+            $orderDetail['unit_price_tax_incl'] = (float) $orderDetail['unit_price_tax_incl'];
+        }
     }
 }
