@@ -200,7 +200,7 @@ abstract class AbstractApiController extends ModuleFrontController
         $response = [
             'object_type' => $this->type,
             'status' => false,
-            'httpCode' => $exception->getCode(),
+            'httpCode' => $exception->getCode() == 0 ? 500 : $exception->getCode(),
             'message' => $exception->getMessage(),
         ];
 

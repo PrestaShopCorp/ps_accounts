@@ -43,7 +43,8 @@ class OrderRepository
     {
         $query = $this->getBaseQuery();
         $query->select('o.id_order, o.reference, o.id_customer, o.id_cart, o.current_state,
-         o.conversion_rate, o.total_paid_tax_incl, o.date_add as created_at, o.date_upd as updated_at')
+         o.conversion_rate, o.total_paid_tax_incl, o.date_add as created_at, o.date_upd as updated_at,
+         IF((SELECT so.id_order FROM `' . _DB_PREFIX_ . 'orders` so WHERE so.id_customer = o.id_customer AND so.id_order < o.id_order LIMIT 1) > 0, 0, 1) as new_customer')
             ->where('o.id_shop = ' . (int) $shopId)
             ->limit((int) $limit, (int) $offset);
 
