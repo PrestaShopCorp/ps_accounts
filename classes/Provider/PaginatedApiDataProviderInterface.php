@@ -15,7 +15,7 @@ interface PaginatedApiDataProviderInterface
      *
      * @throws PrestaShopDatabaseException
      */
-    public function getFormattedData($offset, $limit, $langIso = null);
+    public function getFormattedData($offset, $limit, $langIso);
 
     /**
      * @param int $offset
@@ -25,5 +25,5 @@ interface PaginatedApiDataProviderInterface
      *
      * @throws PrestaShopDatabaseException
      */
-    public function getRemainingObjectsCount($offset, $langIso = null);
+    public function getRemainingObjectsCount($offset, $langIso);
 }

@@ -9,6 +9,7 @@ services:
     arguments:
       - '@PrestaShop\Module\PsAccounts\Repository\ProductRepository'
       - '@PrestaShop\Module\PsAccounts\Decorator\ProductDecorator'
+      - '@PrestaShop\Module\PsAccounts\Repository\LanguageRepository'
 
   PrestaShop\Module\PsAccounts\Provider\CategoryDataProvider:
     class: PrestaShop\Module\PsAccounts\Provider\CategoryDataProvider

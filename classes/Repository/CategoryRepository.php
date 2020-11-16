@@ -59,6 +59,13 @@ class CategoryRepository
      */
     public function getCategoryPaths($topCategoryId, $langId, $shopId)
     {
+        if ((int) $topCategoryId === 0) {
+            return [
+                'category_path' => '',
+                'category_id_path' => '',
+            ];
+        }
+
         $categoryId = $topCategoryId;
         $categories = [];
 

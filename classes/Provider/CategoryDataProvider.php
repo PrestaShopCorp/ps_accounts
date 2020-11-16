@@ -25,13 +25,13 @@ class CategoryDataProvider implements PaginatedApiDataProviderInterface
     /**
      * @param int $offset
      * @param int $limit
-     * @param string|null $langIso
+     * @param string $langIso
      *
      * @return array
      *
      * @throws \PrestaShopDatabaseException
      */
-    public function getFormattedData($offset, $limit, $langIso = null)
+    public function getFormattedData($offset, $limit, $langIso)
     {
         $categories = $this->categoryRepository->getCategories($offset, $limit, $langIso);
 
@@ -52,11 +52,11 @@ class CategoryDataProvider implements PaginatedApiDataProviderInterface
 
     /**
      * @param int $offset
-     * @param string|null $langIso
+     * @param string $langIso
      *
      * @return int
      */
-    public function getRemainingObjectsCount($offset, $langIso = null)
+    public function getRemainingObjectsCount($offset, $langIso)
     {
         return $this->categoryRepository->getRemainingCategoriesCount($offset, $langIso);
     }

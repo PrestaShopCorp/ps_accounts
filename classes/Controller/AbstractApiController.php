@@ -8,6 +8,7 @@ use ModuleFrontController;
 use PrestaShop\Module\PsAccounts\Exception\UnauthorizedException;
 use PrestaShop\Module\PsAccounts\Provider\PaginatedApiDataProviderInterface;
 use PrestaShop\Module\PsAccounts\Repository\AccountsSyncRepository;
+use PrestaShop\Module\PsAccounts\Repository\LanguageRepository;
 use PrestaShop\Module\PsAccounts\Service\ApiAuthorizationService;
 use PrestaShop\Module\PsAccounts\Service\SegmentService;
 use PrestaShopDatabaseException;
@@ -36,6 +37,10 @@ abstract class AbstractApiController extends ModuleFrontController
      */
     protected $accountsSyncRepository;
     /**
+     * @var LanguageRepository
+     */
+    private $languageRepository;
+    /**
      * @var Ps_accounts
      */
     public $module;
@@ -48,6 +53,7 @@ abstract class AbstractApiController extends ModuleFrontController
         $this->segmentService = $this->module->getService(SegmentService::class);
         $this->authorizationService = $this->module->getService(ApiAuthorizationService::class);
         $this->accountsSyncRepository = $this->module->getService(AccountsSyncRepository::class);
+        $this->languageRepository = $this->module->getService(LanguageRepository::class);
     }
 
     /**
@@ -58,7 +64,7 @@ abstract class AbstractApiController extends ModuleFrontController
     public function init()
     {
         try {
-//            $this->authorize();
+            $this->authorize();
         } catch (UnauthorizedException $exception) {
             $this->exitWithExceptionMessage($exception);
         } catch (PrestaShopDatabaseException $exception) {
@@ -75,9 +81,20 @@ abstract class AbstractApiController extends ModuleFrontController
     private function authorize()
     {
         $jobId = Tools::getValue('job_id');
+        $langIso = Tools::getValue('lang_iso', null);
 
         if (!$jobId) {
             throw new UnauthorizedException('Job ID is not defined.', 401);
+        }
+
+        if (!$langIso) {
+            throw new UnauthorizedException('Lang ISO code is not defined.', 401);
+        }
+
+        $langId = $this->languageRepository->getLanguageIdByIsoCode($langIso);
+
+        if (!$langId) {
+            throw new UnauthorizedException('Language does not exist.', 401);
         }
 
         $authorizationResponse = $this->authorizationService->authorizeCall($jobId);

@@ -36,7 +36,7 @@ class CartDataProvider implements PaginatedApiDataProviderInterface
         $this->arrayFormatter = $arrayFormatter;
     }
 
-    public function getFormattedData($offset, $limit, $langIso = null)
+    public function getFormattedData($offset, $limit, $langIso)
     {
         $carts = $this->cartRepository->getCarts($offset, $limit);
 
@@ -79,11 +79,11 @@ class CartDataProvider implements PaginatedApiDataProviderInterface
 
     /**
      * @param int $offset
-     * @param string|null $langIso
+     * @param string $langIso
      *
      * @return int
      */
-    public function getRemainingObjectsCount($offset, $langIso = null)
+    public function getRemainingObjectsCount($offset, $langIso)
     {
         return (int) $this->cartRepository->getRemainingCartsCount($offset);
     }

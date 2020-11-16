@@ -48,15 +48,21 @@ class ProductDecorator
 
     /**
      * @param array $products
+     * @param string $langIso
+     * @param int $langId
      *
      * @return void
      */
-    public function decorateProducts(array &$products)
+    public function decorateProducts(array &$products, $langIso, $langId)
     {
+        $this->addFeatureValues($products, $langId);
+        $this->addAttributeValues($products, $langId);
+        $this->addImages($products);
+
         foreach ($products as &$product) {
+            $this->addLanguageIsoCode($product, $langIso);
             $this->addUniqueId($product);
             $this->addLink($product);
-            $this->addProductImageLinks($product);
             $this->addProductPrices($product);
             $this->formatDescriptions($product);
             $this->addCategoryTree($product);
@@ -84,53 +90,6 @@ class ProductDecorator
         } catch (PrestaShopException $e) {
             $product['link'] = '';
         }
-    }
-
-    /**
-     * @param array $product
-     *
-     * @return void
-     */
-    private function addProductImageLinks(array &$product)
-    {
-        $cover = 0;
-        $images = [];
-
-        $productImages = explode(';', (string) $product['images']);
-
-        $productImages = array_map(function ($image) use (&$cover) {
-            $image = explode(':', $image);
-            $imageId = (int) $image[0];
-            $isCover = (int) $image[1];
-            if ($isCover) {
-                $cover = $imageId;
-            }
-
-            return ['imageId' => $imageId, 'isCover' => $isCover];
-        }, $productImages);
-
-        if ($product['id_attribute'] !== '0') {
-            $attributeImages = explode(';', (string) $product['attribute_images']);
-            $images = array_diff($attributeImages, [$cover]);
-        } else {
-            foreach ($productImages as $productImage) {
-                if (!$productImage['isCover']) {
-                    $images[] = $productImage['imageId'];
-                }
-            }
-        }
-
-        $product['cover'] = $cover ?
-            $this->context->link->getImageLink($product['link_rewrite'], (string) $cover, 'home_default') :
-            '';
-
-        $product['images'] = $this->arrayFormatter->formatArray(
-            array_map(function ($image) use ($product) {
-                return $this->context->link->getImageLink($product['link_rewrite'], (string) $image, 'home_default');
-            }, $images)
-        );
-
-        unset($product['attribute_images']);
     }
 
     /**
@@ -196,6 +155,7 @@ class ProductDecorator
         $product['weight'] = (float) $product['weight'];
         $product['active'] = $product['active'] == '1';
         $product['manufacturer'] = (string) $product['manufacturer'];
+        $product['default_category'] = (string) $product['default_category'];
     }
 
     /**
@@ -206,5 +166,105 @@ class ProductDecorator
     private function addUniqueId(array &$product)
     {
         $product['unique_product_id'] = "{$product['id_product']}-{$product['id_attribute']}-{$product['iso_code']}";
+    }
+
+    /**
+     * @param array $product
+     * @param string $langiso
+     *
+     * @return void
+     */
+    private function addLanguageIsoCode(&$product, $langiso)
+    {
+        $product['iso_code'] = $langiso;
+    }
+
+    /**
+     * @param array $products
+     * @param int $langId
+     *
+     * @throws \PrestaShopDatabaseException
+     *
+     * @return void
+     */
+    private function addFeatureValues(array &$products, $langId)
+    {
+        $productIds = $this->arrayFormatter->formatValueArray($products, 'id_product', true);
+        $features = $this->productRepository->getProductFeatures($productIds, $langId);
+
+        foreach ($products as &$product) {
+            $product['features'] = isset($features[$product['id_product']]) ? $features[$product['id_product']] : '';
+        }
+    }
+
+    /**
+     * @param array $products
+     * @param int $langId
+     *
+     * @throws \PrestaShopDatabaseException
+     *
+     * @return void
+     */
+    private function addAttributeValues(array &$products, $langId)
+    {
+        $attributeIds = $this->arrayFormatter->formatValueArray($products, 'id_attribute', true);
+        $attributes = $this->productRepository->getProductAttributeValues($attributeIds, $langId);
+
+        foreach ($products as &$product) {
+            $product['attributes'] = isset($attributes[$product['id_attribute']]) ? $attributes[$product['id_attribute']] : '';
+        }
+    }
+
+    /**
+     * @param array $products
+     *
+     * @throws \PrestaShopDatabaseException
+     *
+     * @return void
+     */
+    private function addImages(array &$products)
+    {
+        $productIds = $this->arrayFormatter->formatValueArray($products, 'id_product', true);
+        $attributeIds = $this->arrayFormatter->formatValueArray($products, 'id_attribute', true);
+
+        $images = $this->productRepository->getProductImages($productIds);
+        $attributeImages = $this->productRepository->getAttributeImages($attributeIds);
+
+        foreach ($products as &$product) {
+            $coverImageId = '0';
+
+            $productImages = array_filter($images, function ($image) use ($product) {
+                return $image['id_product'] === $product['id_product'];
+            });
+
+            foreach ($productImages as $productImage) {
+                if ($productImage['cover'] === '1') {
+                    $coverImageId = $productImage['id_image'];
+                    break;
+                }
+            }
+
+            if ($product['id_attribute'] === '0') {
+                $productImageIds = $this->arrayFormatter->formatValueArray($productImages, 'id_image');
+            } else {
+                $productAttributeImages = array_filter($attributeImages, function ($image) use ($product) {
+                    return $image['id_product_attribute'] === $product['id_attribute'];
+                });
+
+                $productImageIds = $this->arrayFormatter->formatValueArray($productAttributeImages, 'id_image');
+            }
+
+            $productImageIds = array_diff($productImageIds, [$coverImageId]);
+
+            $product['images'] = $this->arrayFormatter->arrayToString(
+                array_map(function ($imageId) use ($product) {
+                    return $this->context->link->getImageLink($product['link_rewrite'], (string) $imageId, 'home_default');
+                }, $productImageIds)
+            );
+
+            $product['cover'] = $coverImageId == '0' ?
+                '' :
+                $this->context->link->getImageLink($product['link_rewrite'], (string) $coverImageId, 'home_default');
+        }
     }
 }

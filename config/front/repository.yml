@@ -34,6 +34,7 @@ services:
     arguments:
       - '@ps_accounts.db'
       - '@ps_accounts.context'
+      - '@PrestaShop\Module\PsAccounts\Formatter\ArrayFormatter'
 
   PrestaShop\Module\PsAccounts\Repository\ServerInformationRepository:
     class: PrestaShop\Module\PsAccounts\Repository\ServerInformationRepository
