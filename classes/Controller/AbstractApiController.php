@@ -25,10 +25,6 @@ abstract class AbstractApiController extends ModuleFrontController
      */
     public $type = '';
     /**
-     * @var bool
-     */
-    public $langIsoRequired = false;
-    /**
      * @var ApiAuthorizationService
      */
     protected $authorizationService;
@@ -85,22 +81,9 @@ abstract class AbstractApiController extends ModuleFrontController
     private function authorize()
     {
         $jobId = Tools::getValue('job_id');
-        $langIso = Tools::getValue('lang_iso', null);
 
         if (!$jobId) {
             throw new UnauthorizedException('Job ID is not defined.', 401);
-        }
-
-        if ($this->langIsoRequired) {
-            if (!$langIso) {
-                throw new UnauthorizedException('Lang ISO code is not defined.', 401);
-            }
-
-            $langId = $this->languageRepository->getLanguageIdByIsoCode($langIso);
-
-            if (!$langId) {
-                throw new UnauthorizedException('Language does not exist.', 401);
-            }
         }
 
         $authorizationResponse = $this->authorizationService->authorizeCall($jobId);
@@ -120,7 +103,7 @@ abstract class AbstractApiController extends ModuleFrontController
     protected function handleDataSync(PaginatedApiDataProviderInterface $dataProvider)
     {
         $jobId = Tools::getValue('job_id');
-        $langIso = Tools::getValue('lang_iso', null);
+        $langIso = Tools::getValue('lang_iso', $this->languageRepository->getDefaultLanguageIsoCode());
         $limit = (int) Tools::getValue('limit', 50);
         $limit = $limit == 0 ? 1000000000000 : $limit;
         $dateNow = (new DateTime())->format(DateTime::ATOM);

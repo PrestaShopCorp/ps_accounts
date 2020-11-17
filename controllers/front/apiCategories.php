@@ -7,8 +7,6 @@ class ps_AccountsApiCategoriesModuleFrontController extends AbstractApiControlle
 {
     public $type = 'categories';
 
-    public $langIsoRequired = true;
-
     /**
      * @throws PrestaShopException
      *
