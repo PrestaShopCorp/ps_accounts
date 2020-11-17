@@ -29,6 +29,8 @@ if (!defined('_PS_VERSION_')) {
 }
 require_once __DIR__ . '/vendor/autoload.php';
 
+require_once __DIR__ . '/classes/Webservice/WebserviceSpecificManagementAccountToken.php';
+
 class Ps_accounts extends Module
 {
     /**
@@ -103,6 +105,7 @@ class Ps_accounts extends Module
      */
     private $hookToInstall = [
         'actionObjectShopUrlUpdateAfter',
+        //'addWebserviceResources',
     ];
 
     /**
@@ -197,9 +200,12 @@ class Ps_accounts extends Module
 
         $installer = new PrestaShop\Module\PsAccounts\Module\Install($this, Db::getInstance());
 
+
+
         return $installer->installInMenu()
             && $installer->installDatabaseTables()
             && parent::install()
+            && $this->registerHook('addWebserviceResources')
             && $this->registerHook($this->hookToInstall);
     }
 
@@ -297,7 +303,7 @@ class Ps_accounts extends Module
     }
 
     /**
-     * Hook trigger when a changement is made on the domain name
+     * Hook trigger when a change is made on the domain name
      *
      * @param array $params
      *
@@ -319,5 +325,19 @@ class Ps_accounts extends Module
         $psAccountsService->changeUrl($bodyHttp, 'multishop');
 
         return true;
+    }
+
+    /**
+     * @return array
+     */
+    public function hookAddWebserviceResources()
+    {
+        return array(
+            'account-token' => array(
+                'description' => 'Token resource',
+                //'class' => 'PsAccountsToken',
+                'specific_management' => true,
+            ),
+        );
     }
 }
