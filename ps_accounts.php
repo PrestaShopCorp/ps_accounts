@@ -337,11 +337,12 @@ class Ps_accounts extends Module
      * @param int $objectId
      * @param string $type
      * @param string $date
+     *
      * @throws PrestaShopDatabaseException
      */
     private function insertIncrementalSyncObject($objectId, $type, $date, $shopId)
     {
-       /** @var \PrestaShop\Module\PsAccounts\Repository\IncrementalSyncRepository $incrementalSyncRepository */
+        /** @var \PrestaShop\Module\PsAccounts\Repository\IncrementalSyncRepository $incrementalSyncRepository */
         $incrementalSyncRepository = $this->getService(
             \PrestaShop\Module\PsAccounts\Repository\IncrementalSyncRepository::class
         );

@@ -299,7 +299,9 @@ class ProductRepository
     /**
      * @param int $limit
      * @param string $langIso
+     *
      * @return array|bool|mysqli_result|PDOStatement|resource|null
+     *
      * @throws PrestaShopDatabaseException
      */
     public function getProductsIncremental($limit, $langIso)

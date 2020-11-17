@@ -28,8 +28,8 @@ class IncrementalSyncRepository
      * @param int $objectId
      * @param string $objectType
      * @param string $date
-     *
      * @param $shopId
+     *
      * @return bool
      *
      * @throws \PrestaShopDatabaseException
