@@ -92,7 +92,7 @@ class SynchronizationService
             $this->incrementalSyncRepository->removeIncrementalSyncObjects($type, $objectIds, $langIso);
         }
 
-        $remainingObjects = 1;
+        $remainingObjects = $this->accountsSyncRepository->getRemainingIncrementalObjects($type, $langIso);
 
         return array_merge([
             'total_objects' => count($data),

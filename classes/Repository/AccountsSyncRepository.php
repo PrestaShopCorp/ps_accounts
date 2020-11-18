@@ -145,4 +145,21 @@ class AccountsSyncRepository
             AND id_shop = ' . $this->context->shop->id
         );
     }
+
+    /**
+     * @param string $type
+     * @param string $langIso
+     * @return int
+     */
+    public function getRemainingIncrementalObjects($type, $langIso)
+    {
+        $query = new DbQuery();
+
+        $query->select('(COUNT(id_object) as count')
+        ->from(self::TYPE_SYNC_TABLE_NAME)
+        ->where('iso_code = "' . pSQL($langIso) . '"')
+        ->where('type = "' . pSQL($type) . '"');
+
+        return (int) $this->db->getValue($query);
+    }
 }
