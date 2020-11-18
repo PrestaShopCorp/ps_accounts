@@ -4,6 +4,7 @@ namespace PrestaShop\Module\PsAccounts\Provider;
 
 use Context;
 use PrestaShop\Module\PsAccounts\Repository\GoogleTaxonomyRepository;
+use PrestaShopDatabaseException;
 
 class GoogleTaxonomyDataProvider implements PaginatedApiDataProviderInterface
 {
@@ -45,5 +46,10 @@ class GoogleTaxonomyDataProvider implements PaginatedApiDataProviderInterface
     public function getRemainingObjectsCount($offset, $langIso)
     {
         return $this->googleTaxonomyRepository->getRemainingTaxonomyRepositories($offset, $this->context->shop->id);
+    }
+
+    public function getFormattedDataIncremental($limit, $langIso)
+    {
+        return [];
     }
 }

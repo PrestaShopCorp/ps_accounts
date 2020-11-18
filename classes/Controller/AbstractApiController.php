@@ -133,42 +133,42 @@ abstract class AbstractApiController extends ModuleFrontController
         try {
             $typeSync = $this->accountsSyncRepository->findTypeSync($this->type, $langIso);
 
-        if ($typeSync !== false && is_array($typeSync)) {
-            $offset = (int) $typeSync['offset'];
+            if ($typeSync !== false && is_array($typeSync)) {
+                $offset = (int) $typeSync['offset'];
 
-            if ((int) $typeSync['full_sync_finished'] === 1 && !$initFullSync) {
-                $incrementalSync = true;
-            } elseif ((int) $typeSync['full_sync_finished'] === 1 && $initFullSync) {
-                $this->accountsSyncRepository->updateFullSyncStatus($this->type, false, $langIso);
-            }
-        } else {
-            $this->accountsSyncRepository->insertTypeSync($this->type, $offset, $dateNow, $langIso);
-        }
-
-        if ($incrementalSync) {
-            $response = $this->handleIncrementalSync($dataProvider, $jobId, $limit, $langIso);
-        } else {
-            try {
-                $data = $dataProvider->getFormattedData($offset, $limit, $langIso);
-            } catch (PrestaShopDatabaseException $exception) {
-                $this->exitWithExceptionMessage($exception);
+                if ((int) $typeSync['full_sync_finished'] === 1 && !$initFullSync) {
+                    $incrementalSync = true;
+                } elseif ((int) $typeSync['full_sync_finished'] === 1 && $initFullSync) {
+                    $this->accountsSyncRepository->updateFullSyncStatus($this->type, false, $langIso);
+                }
+            } else {
+                $this->accountsSyncRepository->insertTypeSync($this->type, $offset, $dateNow, $langIso);
             }
 
-            $response = $this->proxyService->upload($jobId, $data);
+            if ($incrementalSync) {
+                $response = $this->handleIncrementalSync($dataProvider, $jobId, $limit, $langIso);
+            } else {
+                try {
+                    $data = $dataProvider->getFormattedData($offset, $limit, $langIso);
+                } catch (PrestaShopDatabaseException $exception) {
+                    $this->exitWithExceptionMessage($exception);
+                }
 
-            if ($response['httpCode'] == 201) {
-                $offset += $limit;
+                $response = $this->proxyService->upload($jobId, $data);
+
+                if ($response['httpCode'] == 201) {
+                    $offset += $limit;
+                }
+
+                $remainingObjects = $dataProvider->getRemainingObjectsCount($offset, $langIso);
+
+                if ($remainingObjects <= 0) {
+                    $remainingObjects = 0;
+                    $offset = 0;
+                }
+
+                $this->accountsSyncRepository->updateTypeSync($this->type, $offset, $dateNow, $remainingObjects == 0, $langIso);
             }
-
-            $remainingObjects = $dataProvider->getRemainingObjectsCount($offset, $langIso);
-
-            if ($remainingObjects <= 0) {
-                $remainingObjects = 0;
-                $offset = 0;
-            }
-
-            $this->accountsSyncRepository->updateTypeSync($this->type, $offset, $dateNow, $remainingObjects == 0, $langIso);
-        }
 
             return array_merge(
                 [
