@@ -4,6 +4,7 @@ namespace PrestaShop\Module\PsAccounts\Repository;
 
 use Context;
 use Db;
+use DbQuery;
 
 class IncrementalSyncRepository
 {
@@ -70,5 +71,23 @@ class IncrementalSyncRepository
             AND id_object IN(' . implode(',', $objectIds) . ')
             AND lang_iso = "' . pSQL($langIso) . '"'
         );
+    }
+
+    /**
+     * @param string $type
+     * @param string $langIso
+     *
+     * @return int
+     */
+    public function getRemainingIncrementalObjects($type, $langIso)
+    {
+        $query = new DbQuery();
+
+        $query->select('(COUNT(id_object) as count')
+            ->from(self::INCREMENTAL_SYNC_TABLE)
+            ->where('lang_iso = "' . pSQL($langIso) . '"')
+            ->where('type = "' . pSQL($type) . '"');
+
+        return (int) $this->db->getValue($query);
     }
 }
