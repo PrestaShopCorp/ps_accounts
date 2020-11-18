@@ -17,8 +17,8 @@ services:
     arguments:
       - '@PrestaShop\Module\PsAccounts\Formatter\JsonFormatter'
 
-  PrestaShop\Module\PsAccounts\Service\SegmentService:
-    class: PrestaShop\Module\PsAccounts\Service\SegmentService
+  PrestaShop\Module\PsAccounts\Service\ProxyService:
+    class: PrestaShop\Module\PsAccounts\Service\ProxyService
     arguments:
       - '@PrestaShop\Module\PsAccounts\Api\EventBusProxyClient'
       - '@PrestaShop\Module\PsAccounts\Service\CompressionService'
@@ -34,4 +34,11 @@ services:
     arguments:
       - '@ps_accounts.context'
       - '@PrestaShop\Module\PsAccounts\Repository\DeletedObjectsRepository'
-      - '@PrestaShop\Module\PsAccounts\Service\SegmentService'
+      - '@PrestaShop\Module\PsAccounts\Service\ProxyService'
+
+  PrestaShop\Module\PsAccounts\Service\SynchronizationService:
+    class: PrestaShop\Module\PsAccounts\Service\SynchronizationService
+    arguments:
+      - '@PrestaShop\Module\PsAccounts\Repository\AccountsSyncRepository'
+      - '@PrestaShop\Module\PsAccounts\Repository\IncrementalSyncRepository'
+      - '@PrestaShop\Module\PsAccounts\Service\ProxyService'

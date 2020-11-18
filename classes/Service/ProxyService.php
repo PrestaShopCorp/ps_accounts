@@ -7,7 +7,7 @@ use GuzzleHttp\Exception\ClientException;
 use PrestaShop\Module\PsAccounts\Api\EventBusProxyClient;
 use PrestaShop\Module\PsAccounts\Exception\EnvVarException;
 
-class SegmentService
+class ProxyService
 {
     /**
      * @var EventBusProxyClient

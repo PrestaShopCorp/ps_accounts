@@ -14,7 +14,8 @@ use PrestaShop\Module\PsAccounts\Repository\AccountsSyncRepository;
 use PrestaShop\Module\PsAccounts\Repository\IncrementalSyncRepository;
 use PrestaShop\Module\PsAccounts\Repository\LanguageRepository;
 use PrestaShop\Module\PsAccounts\Service\ApiAuthorizationService;
-use PrestaShop\Module\PsAccounts\Service\SegmentService;
+use PrestaShop\Module\PsAccounts\Service\ProxyService;
+use PrestaShop\Module\PsAccounts\Service\SynchronizationService;
 use PrestaShopDatabaseException;
 use PrestaShopException;
 use Ps_accounts;
@@ -33,7 +34,7 @@ abstract class AbstractApiController extends ModuleFrontController
      */
     protected $authorizationService;
     /**
-     * @var SegmentService
+     * @var ProxyService
      */
     protected $proxyService;
     /**
@@ -53,6 +54,10 @@ abstract class AbstractApiController extends ModuleFrontController
      */
     protected $incrementalSyncRepository;
     /**
+     * @var SynchronizationService
+     */
+    private $synchronizationService;
+    /**
      * @var Ps_accounts
      */
     public $module;
@@ -62,12 +67,13 @@ abstract class AbstractApiController extends ModuleFrontController
         parent::__construct();
 
         $this->controller_type = 'module';
-        $this->proxyService = $this->module->getService(SegmentService::class);
+        $this->proxyService = $this->module->getService(ProxyService::class);
         $this->authorizationService = $this->module->getService(ApiAuthorizationService::class);
         $this->accountsSyncRepository = $this->module->getService(AccountsSyncRepository::class);
         $this->languageRepository = $this->module->getService(LanguageRepository::class);
         $this->psAccountsService = new PsAccountsService();
         $this->incrementalSyncRepository = $this->module->getService(IncrementalSyncRepository::class);
+        $this->synchronizationService = $this->module->getService(SynchronizationService::class);
     }
 
     /**
@@ -125,8 +131,6 @@ abstract class AbstractApiController extends ModuleFrontController
 
         $dateNow = (new DateTime())->format(DateTime::ATOM);
         $offset = 0;
-        $remainingObjects = 1;
-        $data = [];
         $incrementalSync = false;
         $response = [];
 
@@ -146,37 +150,15 @@ abstract class AbstractApiController extends ModuleFrontController
             }
 
             if ($incrementalSync) {
-                $response = $this->handleIncrementalSync($dataProvider, $jobId, $limit, $langIso);
+                $response = $this->synchronizationService->handleIncrementalSync($dataProvider, $this->type, $jobId, $limit, $langIso);
             } else {
-                try {
-                    $data = $dataProvider->getFormattedData($offset, $limit, $langIso);
-                } catch (PrestaShopDatabaseException $exception) {
-                    $this->exitWithExceptionMessage($exception);
-                }
-
-                $response = $this->proxyService->upload($jobId, $data);
-
-                if ($response['httpCode'] == 201) {
-                    $offset += $limit;
-                }
-
-                $remainingObjects = $dataProvider->getRemainingObjectsCount($offset, $langIso);
-
-                if ($remainingObjects <= 0) {
-                    $remainingObjects = 0;
-                    $offset = 0;
-                }
-
-                $this->accountsSyncRepository->updateTypeSync($this->type, $offset, $dateNow, $remainingObjects == 0, $langIso);
+                $response = $this->synchronizationService->handleFullSync($dataProvider, $this->type, $jobId, $langIso, $offset, $limit, $dateNow);
             }
 
             return array_merge(
                 [
                     'job_id' => $jobId,
-                    'total_objects' => count($data),
                     'object_type' => $this->type,
-                    'has_remaining_objects' => $remainingObjects > 0,
-                    'remaining_objects' => $remainingObjects,
                 ],
                 $response
             );
@@ -184,32 +166,6 @@ abstract class AbstractApiController extends ModuleFrontController
             $this->exitWithExceptionMessage($exception);
         } catch (EnvVarException $exception) {
             $this->exitWithExceptionMessage($exception);
-        }
-
-        return $response;
-    }
-
-    /**
-     * @param PaginatedApiDataProviderInterface $dataProvider
-     * @param string $jobId
-     * @param int $limit
-     * @param string $langIso
-     *
-     * @return array
-     *
-     * @throws PrestaShopDatabaseException
-     */
-    private function handleIncrementalSync(PaginatedApiDataProviderInterface $dataProvider, $jobId, $limit, $langIso)
-    {
-        $incrementalData = $dataProvider->getFormattedDataIncremental($limit, $langIso);
-
-        $objectIds = $incrementalData['ids'];
-        $data = $incrementalData['data'];
-
-        $response = $this->proxyService->upload($jobId, $data);
-
-        if ($response['httpCode'] == 201 && !empty($objectIds)) {
-            $this->incrementalSyncRepository->removeIncrementalSyncObjects($this->type, $objectIds, $langIso);
         }
 
         return $response;
