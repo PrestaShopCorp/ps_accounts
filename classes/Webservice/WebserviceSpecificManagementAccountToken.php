@@ -155,14 +155,23 @@ class WebserviceSpecificManagementAccountToken implements WebserviceSpecificMana
      */
     public function manage()
     {
-        // TODO : POST token => return (token + idToken)
-        // TODO : generate token & store (Auth Basic)
-        // client : signature = encode(shopId, pubkey)
-        // server : shopId = decode(signature, privkey)
+        // TODO : programmatically generate token
         // @see https://devdocs.prestashop.com/1.7/webservice/tutorials/creating-access/
         // @see https://devdocs.prestashop.com/1.7/webservice/tutorials/testing-access/
-        // TODO : verify token ?
-        // TODO : create entities understandable by
+
+        // TODO : add a auth layer ?
+        // TODO : create entity resources ?
+
+//        // TODO: api/ps_accounts/...
+//        // TODO: => entry-point WebserviceSpecificManagementPsAccounts... as a dispatcher ?   $this->objectSpecificManagement = new $specificObjectName();
+//        switch ($this->wsObject->urlSegment[1]) {
+//            case 'token':
+//                $apiClass = new TokenResourceApi();
+//                break;
+//        }
+//        $apiClass->setObjectOutput($this->objOutput)
+//            ->setWsObject($this->wsObject);
+//        $apiClass->manage();
 
         switch ($this->wsObject->method) {
             case 'GET':
