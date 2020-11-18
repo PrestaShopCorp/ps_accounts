@@ -58,9 +58,4 @@ class ModuleDataProvider implements PaginatedApiDataProviderInterface
     {
         return $this->moduleRepository->getRemainingModules($offset);
     }
-
-    public function getFormattedDataIncremental($limit, $langIso = null)
-    {
-        return [];
-    }
 }
