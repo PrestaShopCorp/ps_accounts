@@ -4,7 +4,6 @@ namespace PrestaShop\Module\PsAccounts\Provider;
 
 use Context;
 use PrestaShop\Module\PsAccounts\Repository\GoogleTaxonomyRepository;
-use PrestaShopDatabaseException;
 
 class GoogleTaxonomyDataProvider implements PaginatedApiDataProviderInterface
 {
