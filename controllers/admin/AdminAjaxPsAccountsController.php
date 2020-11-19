@@ -168,13 +168,10 @@ class AdminAjaxPsAccountsController extends ModuleAdminController
     public function ajaxProcessUnlinkShop()
     {
         try {
-            $response = $this->psAccountsService->unlinkShop();
-
-            $this->ajaxDie(json_encode($response));
+            $this->ajaxDie(json_encode($this->psAccountsService->unlinkShop()));
 
         } catch (Exception $e) {
             $this->errorHandler->handle($e, $e->getCode());
-            throw $e;
         }
     }
 }
