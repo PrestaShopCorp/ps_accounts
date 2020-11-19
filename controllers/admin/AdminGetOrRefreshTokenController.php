@@ -28,6 +28,11 @@ use PrestaShop\AccountsAuth\Exception\ServiceNotFoundException;
 use PrestaShop\AccountsAuth\Handler\ErrorHandler\ErrorHandler;
 use PrestaShop\AccountsAuth\Service\PsAccountsService;
 
+/**
+ * @deprecated use AdminAjaxPsAccountsController::ajaxProcessGetOrRefreshToken instead
+ *
+ * Class AdminGetOrRefreshTokenController
+ */
 class AdminGetOrRefreshTokenController extends ModuleAdminController
 {
     /**
@@ -44,6 +49,7 @@ class AdminGetOrRefreshTokenController extends ModuleAdminController
      * GetOrRefreshToken constructor.
      *
      * @throws ServiceNotFoundException
+     * @throws PrestaShopException
      */
     public function __construct()
     {

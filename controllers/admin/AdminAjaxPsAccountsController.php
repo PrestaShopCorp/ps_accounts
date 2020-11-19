@@ -22,6 +22,7 @@ use PrestaShop\AccountsAuth\Adapter\Configuration as ConfigurationAdapter;
 use PrestaShop\AccountsAuth\DependencyInjection\PsAccountsServiceProvider;
 use PrestaShop\AccountsAuth\Handler\ErrorHandler\ErrorHandler;
 use PrestaShop\AccountsAuth\Repository\ConfigurationRepository;
+use PrestaShop\AccountsAuth\Service\PsAccountsService;
 use PrestaShop\AccountsAuth\Service\SshKey;
 
 /**
@@ -42,6 +43,16 @@ class AdminAjaxPsAccountsController extends ModuleAdminController
     private $configurationAdapter;
 
     /**
+     * @var PsAccountsService
+     */
+    private $psAccountsService;
+
+    /**
+     * @var ErrorHandler
+     */
+    private $errorHandler;
+
+    /**
      * AdminAjaxPsAccountsController constructor.
      *
      * @throws Exception
@@ -52,6 +63,8 @@ class AdminAjaxPsAccountsController extends ModuleAdminController
 
         $this->configuration = PsAccountsServiceProvider::getInstance()->get(ConfigurationRepository::class);
         $this->configurationAdapter = PsAccountsServiceProvider::getInstance()->get(ConfigurationAdapter::class);
+        $this->psAccountsService = new PsAccountsService();
+        $this->errorHandler = ErrorHandler::getInstance();
     }
 
     /**
@@ -89,6 +102,8 @@ class AdminAjaxPsAccountsController extends ModuleAdminController
      * AJAX: Save Admin Token.
      *
      * @return void
+     *
+     * @throws Exception
      */
     public function ajaxProcessSaveAdminToken()
     {
@@ -111,6 +126,8 @@ class AdminAjaxPsAccountsController extends ModuleAdminController
      * AJAX: Save Admin Token.
      *
      * @return void
+     *
+     * @throws Exception
      */
     public function ajaxEmailIsVerifiedToken()
     {
@@ -121,6 +138,43 @@ class AdminAjaxPsAccountsController extends ModuleAdminController
         } catch (Exception $e) {
             $errorHandler = ErrorHandler::getInstance();
             $errorHandler->handle($e, $e->getCode());
+        }
+    }
+
+    /**
+     * @return void
+     *
+     * @throws Exception
+     */
+    public function ajaxProcessGetOrRefreshToken()
+    {
+        try {
+            $this->ajaxDie(
+                json_encode([
+                    'token' => $this->psAccountsService->getOrRefreshToken(),
+                    'refreshToken' => $this->psAccountsService->getFirebaseRefreshToken(),
+                ])
+            );
+        } catch (Exception $e) {
+            $this->errorHandler->handle($e, $e->getCode());
+        }
+    }
+
+    /**
+     * @return void
+     *
+     * @throws Exception
+     */
+    public function ajaxProcessUnlinkShop()
+    {
+        try {
+            $response = $this->psAccountsService->unlinkShop();
+
+            $this->ajaxDie(json_encode($response));
+
+        } catch (Exception $e) {
+            $this->errorHandler->handle($e, $e->getCode());
+            throw $e;
         }
     }
 }
