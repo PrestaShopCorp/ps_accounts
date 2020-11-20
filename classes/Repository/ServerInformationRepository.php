@@ -39,11 +39,11 @@ class ServerInformationRepository
     private $arrayFormatter;
 
     public function __construct(
+        Context $context,
+        Db $db,
         CurrencyRepository $currencyRepository,
         LanguageRepository $languageRepository,
         ConfigurationRepository $configurationRepository,
-        Context $context,
-        Db $db,
         ArrayFormatter $arrayFormatter
     ) {
         $this->currencyRepository = $currencyRepository;
@@ -134,6 +134,7 @@ class ServerInformationRepository
             }
         } catch (PrestaShopDatabaseException $e) {
             $tablesFetchedSuccessfully = false;
+            $allTablesInstalled = false;
         }
 
         $module = Module::getInstanceByName('ps_accounts');
