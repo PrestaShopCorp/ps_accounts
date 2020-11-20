@@ -5,6 +5,7 @@ namespace PrestaShop\Module\PsAccounts\Api;
 use GuzzleHttp\Client;
 use PrestaShop\AccountsAuth\Api\Client\GenericClient;
 use PrestaShop\AccountsAuth\Service\PsAccountsService;
+use PrestaShop\Module\PsAccounts\Exception\EnvVarException;
 
 class EventBusSyncClient extends GenericClient
 {
@@ -37,9 +38,15 @@ class EventBusSyncClient extends GenericClient
      * @param string $jobId
      *
      * @return array|bool
+     *
+     * @throws EnvVarException
      */
     public function validateJobId($jobId)
     {
+        if (!isset($_ENV['EVENT_BUS_SYNC_API_URL'])) {
+            throw new EnvVarException('EVENT_BUS_SYNC_API_URL is not defined');
+        }
+
         $this->setRoute($_ENV['EVENT_BUS_SYNC_API_URL'] . "/job/$jobId");
 
         return $this->get();

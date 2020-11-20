@@ -26,6 +26,7 @@ use GuzzleHttp\Post\PostFile;
 use Link;
 use PrestaShop\AccountsAuth\Api\Client\GenericClient;
 use PrestaShop\AccountsAuth\Service\PsAccountsService;
+use PrestaShop\Module\PsAccounts\Exception\EnvVarException;
 use PrestaShop\Module\PsAccounts\Exception\FirebaseException;
 
 /**
@@ -66,9 +67,15 @@ class EventBusProxyClient extends GenericClient
      * @param string $compressedData
      *
      * @return array
+     *
+     * @throws EnvVarException
      */
     public function upload($jobId, $compressedData)
     {
+        if (!isset($_ENV['EVENT_BUS_PROXY_API_URL'])) {
+            throw new EnvVarException('EVENT_BUS_PROXY_API_URL is not defined');
+        }
+
         $route = $_ENV['EVENT_BUS_PROXY_API_URL'] . "/upload/$jobId";
 
         $this->setRoute($route);

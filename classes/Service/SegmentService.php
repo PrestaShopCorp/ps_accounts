@@ -5,6 +5,7 @@ namespace PrestaShop\Module\PsAccounts\Service;
 use Exception;
 use GuzzleHttp\Exception\ClientException;
 use PrestaShop\Module\PsAccounts\Api\EventBusProxyClient;
+use PrestaShop\Module\PsAccounts\Exception\EnvVarException;
 
 class SegmentService
 {
@@ -28,6 +29,8 @@ class SegmentService
      * @param array $data
      *
      * @return array
+     *
+     * @throws EnvVarException
      */
     public function upload($jobId, $data)
     {

@@ -3,7 +3,9 @@
 namespace PrestaShop\Module\PsAccounts\Service;
 
 use PrestaShop\Module\PsAccounts\Api\EventBusSyncClient;
+use PrestaShop\Module\PsAccounts\Exception\EnvVarException;
 use PrestaShop\Module\PsAccounts\Repository\AccountsSyncRepository;
+use PrestaShopDatabaseException;
 
 class ApiAuthorizationService
 {
@@ -31,7 +33,7 @@ class ApiAuthorizationService
      *
      * @return array|bool
      *
-     * @throws \PrestaShopDatabaseException
+     * @throws PrestaShopDatabaseException|EnvVarException
      */
     public function authorizeCall($jobId)
     {
