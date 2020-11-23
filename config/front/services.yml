@@ -26,4 +26,12 @@ services:
   PrestaShop\Module\PsAccounts\Service\ApiAuthorizationService:
     class: PrestaShop\Module\PsAccounts\Service\ApiAuthorizationService
     arguments:
-      [ '@PrestaShop\Module\PsAccounts\Repository\AccountsSyncRepository', '@PrestaShop\Module\PsAccounts\Api\EventBusSyncClient' ]
+      - '@PrestaShop\Module\PsAccounts\Repository\AccountsSyncRepository'
+      - '@PrestaShop\Module\PsAccounts\Api\EventBusSyncClient'
+
+  PrestaShop\Module\PsAccounts\Service\DeletedObjectsService:
+    class: PrestaShop\Module\PsAccounts\Service\DeletedObjectsService
+    arguments:
+      - '@ps_accounts.context'
+      - '@PrestaShop\Module\PsAccounts\Repository\DeletedObjectsRepository'
+      - '@PrestaShop\Module\PsAccounts\Service\SegmentService'

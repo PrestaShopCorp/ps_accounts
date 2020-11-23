@@ -4,10 +4,11 @@ namespace PrestaShop\Module\PsAccounts\Repository;
 
 use Context;
 use Db;
+use PrestaShop\PrestaShop\Adapter\Entity\DbQuery;
 
 class DeletedObjectsRepository
 {
-    const DELETED_OBJECTS_TABLE = 'deleted_objects';
+    const DELETED_OBJECTS_TABLE = 'accounts_deleted_objects';
 
     /**
      * @var Db
@@ -22,6 +23,27 @@ class DeletedObjectsRepository
     {
         $this->db = $db;
         $this->context = $context;
+    }
+
+    /**
+     * @param int $shopId
+     *
+     * @return array
+     *
+     * @throws \PrestaShopDatabaseException
+     */
+    public function getDeletedObjectsGrouped($shopId)
+    {
+        $query = new DbQuery();
+
+        $query->select('type, GROUP_CONCAT(id_object SEPARATOR ";") as ids')
+            ->from(self::DELETED_OBJECTS_TABLE)
+            ->where('id_shop = ' . (int) $shopId)
+            ->groupBy('type');
+
+        $result = $this->db->executeS($query);
+
+        return is_array($result) ? $result : [];
     }
 
     /**
@@ -55,15 +77,16 @@ class DeletedObjectsRepository
     /**
      * @param string $type
      * @param array $objectIds
+     * @param int $shopId
      *
      * @return bool
      */
-    public function removeDeletedObjects($type, $objectIds)
+    public function removeDeletedObjects($type, $objectIds, $shopId)
     {
         return $this->db->delete(
             self::DELETED_OBJECTS_TABLE,
             'type = "' . pSQL($type) . '"
-            AND id_shop = ' . $this->context->shop->id . '
+            AND id_shop = ' . $shopId . '
             AND id_object IN(' . implode(',', $objectIds) . ')'
         );
     }
