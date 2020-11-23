@@ -63,6 +63,14 @@ class OrderDataProvider implements PaginatedApiDataProviderInterface
         $this->castOrderValues($orders);
         $this->castOrderDetailValues($orderDetails);
 
+        $orderDetails = array_map(function ($orderDetail) {
+            return [
+                'id' => $orderDetail['id_order_detail'],
+                'collection' => 'order_details',
+                'properties' => $orderDetail,
+            ];
+        }, $orderDetails);
+
         $orders = array_map(function ($order) {
             return [
                 'id' => $order['id_order'],
@@ -104,13 +112,7 @@ class OrderDataProvider implements PaginatedApiDataProviderInterface
             return [];
         }
 
-        return array_map(function ($orderDetail) {
-            return [
-                'id' => $orderDetail['id_order_detail'],
-                'collection' => 'order_details',
-                'properties' => $orderDetail,
-            ];
-        }, $orderDetails);
+        return $orderDetails;
     }
 
     /**
