@@ -4,6 +4,7 @@ namespace PrestaShop\Module\PsAccounts\Repository;
 
 use Context;
 use Db;
+use DbQuery;
 use Exception;
 use Language;
 use PrestaShop\AccountsAuth\Service\PsAccountsService;
@@ -95,9 +96,8 @@ class ServerInformationRepository
     public function getHealthCheckData()
     {
         $tokenValid = true;
-        $tablesFetchedSuccessfully = true;
         $allTablesInstalled = true;
-        $errors = [];
+        $phpVersion = '';
 
         $psAccountsService = new PsAccountsService();
 
@@ -108,49 +108,42 @@ class ServerInformationRepository
         }
 
         $requiredTables = [
-            _DB_PREFIX_ . 'accounts_type_sync',
-            _DB_PREFIX_ . 'accounts_sync',
+            'accounts_type_sync',
+            'accounts_sync',
         ];
 
-        try {
-            $tables = $this->db->executeS("
-            SELECT t.TABLE_NAME AS table_name
-            FROM   INFORMATION_SCHEMA.TABLES AS t
-            WHERE  t.TABLE_TYPE = 'BASE TABLE'
-            AND  t.TABLE_SCHEMA = '" . _DB_NAME_ . "'
-            ");
+        foreach ($requiredTables as $requiredTable) {
+            $query = new DbQuery();
 
-            if (empty($tables)) {
-                $tablesFetchedSuccessfully = false;
-            } else {
-                $tablesFormatted = $this->arrayFormatter->formatValueArray($tables, 'table_name');
+            $query->select('*')
+                ->from($requiredTable);
 
-                foreach ($requiredTables as $requiredTable) {
-                    if (!in_array($requiredTable, $tablesFormatted)) {
-                        $allTablesInstalled = false;
-                        $errors[] = "$requiredTable is missing";
-                    }
-                }
+            try {
+                $this->db->executeS($query);
+            } catch (PrestaShopDatabaseException $e) {
+                $allTablesInstalled = false;
+                break;
             }
-        } catch (PrestaShopDatabaseException $e) {
-            $tablesFetchedSuccessfully = false;
-            $allTablesInstalled = false;
         }
 
         $module = Module::getInstanceByName('ps_accounts');
 
+        if (defined('PHP_VERSION') && defined('PHP_EXTRA_VERSION')) {
+            $phpVersion = str_replace(PHP_EXTRA_VERSION, '', PHP_VERSION);
+        } else {
+            $phpVersion = explode('-', phpversion())[0];
+        }
+
         return [
             'prestashop_version' => _PS_VERSION_,
             'ps_accounts_version' => $module->version,
-            'php_version' => phpversion(),
-            'firebase_token_valid' => $tokenValid,
-            'tables_fetched_successfully' => $tablesFetchedSuccessfully,
-            'tables_installed' => $allTablesInstalled,
+            'php_version' => $phpVersion,
+            'ps_account' => $tokenValid,
+            'ps_eventbus' => $allTablesInstalled,
             'env' => [
                 'EVENT_BUS_PROXY_API_URL' => isset($_ENV['EVENT_BUS_PROXY_API_URL']) ? $_ENV['EVENT_BUS_PROXY_API_URL'] : null,
                 'EVENT_BUS_SYNC_API_URL' => isset($_ENV['EVENT_BUS_SYNC_API_URL']) ? $_ENV['EVENT_BUS_SYNC_API_URL'] : null,
             ],
-            'errors' => $errors,
         ];
     }
 }
