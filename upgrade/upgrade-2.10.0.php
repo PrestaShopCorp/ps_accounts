@@ -1,6 +1,6 @@
 <?php
 
-function upgrade_module_2_3_3()
+function upgrade_module_2_10_0()
 {
     $result = true;
 
