@@ -44,12 +44,16 @@ class SynchronizationService
      */
     public function handleFullSync(PaginatedApiDataProviderInterface $dataProvider, $type, $jobId, $langIso, $offset, $limit, $dateNow)
     {
+        $response = [];
+
         $data = $dataProvider->getFormattedData($offset, $limit, $langIso);
 
-        $response = $this->proxyService->upload($jobId, $data);
+        if (!empty($data)) {
+            $response = $this->proxyService->upload($jobId, $data);
 
-        if ($response['httpCode'] == 201) {
-            $offset += $limit;
+            if ($response['httpCode'] == 201) {
+                $offset += $limit;
+            }
         }
 
         $remainingObjects = $dataProvider->getRemainingObjectsCount($offset, $langIso);
@@ -81,15 +85,19 @@ class SynchronizationService
      */
     public function handleIncrementalSync(PaginatedApiDataProviderInterface $dataProvider, $type, $jobId, $limit, $langIso)
     {
+        $response = [];
+
         $incrementalData = $dataProvider->getFormattedDataIncremental($limit, $langIso);
 
         $objectIds = $incrementalData['ids'];
         $data = $incrementalData['data'];
 
-        $response = $this->proxyService->upload($jobId, $data);
+        if (!empty($data)) {
+            $response = $this->proxyService->upload($jobId, $data);
 
-        if ($response['httpCode'] == 201 && !empty($objectIds)) {
-            $this->incrementalSyncRepository->removeIncrementalSyncObjects($type, $objectIds, $langIso);
+            if ($response['httpCode'] == 201 && !empty($objectIds)) {
+                $this->incrementalSyncRepository->removeIncrementalSyncObjects($type, $objectIds, $langIso);
+            }
         }
 
         $remainingObjects = $this->incrementalSyncRepository->getRemainingIncrementalObjects($type, $langIso);
