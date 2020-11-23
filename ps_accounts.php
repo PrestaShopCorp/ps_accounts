@@ -83,7 +83,7 @@ class Ps_accounts extends Module
     /**
      * @var string
      */
-    const VERSION = '2.10.1';
+    const VERSION = '2.11.0';
 
     /**
      * @var array
@@ -110,6 +110,7 @@ class Ps_accounts extends Module
      */
     private $hookToInstall = [
         'actionObjectShopUrlUpdateAfter',
+        'actionObjectProductDeleteAfter',
     ];
 
     /**
@@ -127,7 +128,7 @@ class Ps_accounts extends Module
         $this->author = 'PrestaShop';
         $this->need_instance = 0;
         $this->bootstrap = true;
-        $this->version = '2.10.1';
+        $this->version = '2.11.0';
         $this->module_key = 'abf2cd758b4d629b2944d3922ef9db73';
 
         parent::__construct();
@@ -313,5 +314,27 @@ class Ps_accounts extends Module
         $psAccountsService->changeUrl($bodyHttp, 'multishop');
 
         return true;
+    }
+
+    public function hookActionObjectProductDeleteAfter($parameters)
+    {
+        $product = $parameters['object'];
+
+        $this->insertDeletedObject(
+            $product->id,
+            'products',
+            date(DATE_ATOM),
+            $this->context->shop->id
+        );
+    }
+
+    private function insertDeletedObject($id, $type, $date, $shopId)
+    {
+        /** @var \PrestaShop\Module\PsAccounts\Repository\DeletedObjectsRepository $deletedObjectsRepository */
+        $deletedObjectsRepository = $this->getService(
+            \PrestaShop\Module\PsAccounts\Repository\DeletedObjectsRepository::class
+        );
+
+        $deletedObjectsRepository->insertDeletedObject($id, $type, $date, $shopId);
     }
 }
