@@ -5,6 +5,8 @@ use PrestaShop\Module\PsAccounts\Service\DeletedObjectsService;
 
 class ps_AccountsApiDeletedObjectsModuleFrontController extends AbstractApiController
 {
+    public $type = 'deleted';
+
     public function postProcess()
     {
         $jobId = Tools::getValue('job_id', '');
@@ -13,7 +15,8 @@ class ps_AccountsApiDeletedObjectsModuleFrontController extends AbstractApiContr
         $deletedObjectsService = $this->module->getService(DeletedObjectsService::class);
 
         try {
-            $deletedObjectsService->handleDeletedObjectsSync($jobId);
+            $response = $deletedObjectsService->handleDeletedObjectsSync($jobId);
+            $this->exitWithResponse($response);
         } catch (PrestaShopDatabaseException $exception) {
             $this->exitWithExceptionMessage($exception);
         }

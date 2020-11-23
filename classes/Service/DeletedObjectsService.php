@@ -36,7 +36,9 @@ class DeletedObjectsService
         $deletedObjects = $this->deletedObjectsRepository->getDeletedObjectsGrouped($this->context->shop->id);
 
         if (empty($deletedObjects)) {
-            return false;
+            return [
+                'total_objects' => 0,
+            ];
         }
 
         $data = $this->formatData($deletedObjects);
@@ -53,7 +55,12 @@ class DeletedObjectsService
             }
         }
 
-        return $response;
+        return array_merge(
+            [
+                'total_objects' => count($data),
+            ],
+            $data
+        );
 
     }
 
