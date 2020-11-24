@@ -226,9 +226,10 @@ abstract class AbstractApiController extends ModuleFrontController
     private function dieWithResponse(array $response, $code)
     {
         header('Cache-Control: no-store, no-cache, must-revalidate, post-check=0, pre-check=0');
+        header('Content-Type: application/json;charset=utf-8');
         header("HTTP/1.1 $code");
 
-        echo json_encode($response);
+        echo json_encode($response, JSON_UNESCAPED_SLASHES);
         die;
     }
 }
