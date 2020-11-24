@@ -7,9 +7,9 @@ use Db;
 use DbQuery;
 use Exception;
 use Language;
+use Module;
 use PrestaShop\AccountsAuth\Service\PsAccountsService;
 use PrestaShop\Module\PsAccounts\Formatter\ArrayFormatter;
-use PrestaShop\PrestaShop\Adapter\Entity\Module;
 use PrestaShopDatabaseException;
 
 class ServerInformationRepository
@@ -62,7 +62,7 @@ class ServerInformationRepository
      */
     public function getServerInformation($langIso = null)
     {
-        $langId = $langIso != null ? (int)Language::getIdByIso($langIso) : null;
+        $langId = $langIso != null ? (int) Language::getIdByIso($langIso) : null;
 
         return [
             [
@@ -80,7 +80,7 @@ class ServerInformationRepository
                     'weight_unit' => $this->configurationRepository->get('PS_WEIGHT_UNIT'),
                     'timezone' => $this->configurationRepository->get('PS_TIMEZONE'),
                     'is_order_return_enabled' => $this->configurationRepository->get('PS_ORDER_RETURN') == '1',
-                    'order_return_nb_days' => (int)$this->configurationRepository->get('PS_ORDER_RETURN_NB_DAYS'),
+                    'order_return_nb_days' => (int) $this->configurationRepository->get('PS_ORDER_RETURN_NB_DAYS'),
                     'php_version' => phpversion(),
                     'http_server' => isset($_SERVER['SERVER_SOFTWARE']) ? $_SERVER['SERVER_SOFTWARE'] : '',
                     'url' => $this->context->link->getPageLink('index', null, $langId),
@@ -131,7 +131,7 @@ class ServerInformationRepository
         if (defined('PHP_VERSION') && defined('PHP_EXTRA_VERSION')) {
             $phpVersion = str_replace(PHP_EXTRA_VERSION, '', PHP_VERSION);
         } else {
-            $phpVersion = explode('-', phpversion())[0];
+            $phpVersion = (string) explode('-', (string) phpversion())[0];
         }
 
         return [
