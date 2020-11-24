@@ -9,7 +9,6 @@ use PrestaShop\AccountsAuth\Service\PsAccountsService;
 use PrestaShop\Module\PsAccounts\Config\Config;
 use PrestaShop\Module\PsAccounts\Exception\EnvVarException;
 use PrestaShop\Module\PsAccounts\Exception\FirebaseException;
-use PrestaShop\Module\PsAccounts\Exception\UnauthorizedException;
 use PrestaShop\Module\PsAccounts\Provider\PaginatedApiDataProviderInterface;
 use PrestaShop\Module\PsAccounts\Repository\AccountsSyncRepository;
 use PrestaShop\Module\PsAccounts\Repository\LanguageRepository;

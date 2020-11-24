@@ -13,6 +13,8 @@ class ps_AccountsApiThemesModuleFrontController extends AbstractApiController
      */
     public function postProcess()
     {
+        $response = [];
+
         $jobId = Tools::getValue('job_id');
 
         $themeRepository = $this->module->getService(ThemeRepository::class);

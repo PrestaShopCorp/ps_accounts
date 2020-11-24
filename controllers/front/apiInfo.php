@@ -15,6 +15,8 @@ class ps_AccountsApiInfoModuleFrontController extends AbstractApiController
      */
     public function postProcess()
     {
+        $response = [];
+
         $jobId = Tools::getValue('job_id');
 
         $serverInformationRepository = $this->module->getService(ServerInformationRepository::class);
