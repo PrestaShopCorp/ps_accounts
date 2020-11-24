@@ -22,6 +22,14 @@ class ps_AccountsApiInfoModuleFrontController extends AbstractApiController
 
         $response = $this->segmentService->upload($jobId, $serverInfo);
 
-        $this->exitWithResponse(array_merge(['remaining_objects' => '0'], $response));
+        $this->exitWithResponse(
+            array_merge(
+                [
+                    'remaining_objects' => 0,
+                    'total_objects' => 1,
+                ],
+                $response
+            )
+        );
     }
 }
