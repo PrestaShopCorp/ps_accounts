@@ -316,6 +316,11 @@ class Ps_accounts extends Module
         return true;
     }
 
+    /**
+     * @param array $parameters
+     *
+     * @return void
+     */
     public function hookActionObjectProductDeleteAfter($parameters)
     {
         $product = $parameters['object'];
@@ -328,6 +333,14 @@ class Ps_accounts extends Module
         );
     }
 
+    /**
+     * @param int $id
+     * @param string $type
+     * @param string $date
+     * @param int $shopId
+     *
+     * @return void
+     */
     private function insertDeletedObject($id, $type, $date, $shopId)
     {
         /** @var \PrestaShop\Module\PsAccounts\Repository\DeletedObjectsRepository $deletedObjectsRepository */

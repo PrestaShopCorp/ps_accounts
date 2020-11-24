@@ -7,6 +7,9 @@ class ps_AccountsApiDeletedObjectsModuleFrontController extends AbstractApiContr
 {
     public $type = 'deleted';
 
+    /**
+     * @return void
+     */
     public function postProcess()
     {
         $jobId = Tools::getValue('job_id', '');

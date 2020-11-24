@@ -4,7 +4,7 @@ namespace PrestaShop\Module\PsAccounts\Repository;
 
 use Context;
 use Db;
-use PrestaShop\PrestaShop\Adapter\Entity\DbQuery;
+use DbQuery;
 
 class DeletedObjectsRepository
 {

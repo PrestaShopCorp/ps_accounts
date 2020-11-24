@@ -29,6 +29,9 @@ class DeletedObjectsService
 
     /**
      * @param string $jobId
+     *
+     * @return array
+     *
      * @throws \PrestaShopDatabaseException
      */
     public function handleDeletedObjectsSync($jobId)
@@ -61,15 +64,19 @@ class DeletedObjectsService
             ],
             $data
         );
-
     }
 
+    /**
+     * @param array $data
+     *
+     * @return array
+     */
     private function formatData(array $data)
     {
         return array_map(function ($dataItem) {
             return [
                 'collection' => $dataItem['type'],
-                'deleteIds' => explode(';', $dataItem['ids'])
+                'deleteIds' => explode(';', $dataItem['ids']),
             ];
         }, $data);
     }
