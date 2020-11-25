@@ -149,6 +149,8 @@ class AdminAjaxPsAccountsController extends ModuleAdminController
     public function ajaxProcessGetOrRefreshToken()
     {
         try {
+            header('Content-Type: text/json');
+
             $this->ajaxDie(
                 json_encode([
                     'token' => $this->psAccountsService->getOrRefreshToken(),
@@ -165,10 +167,17 @@ class AdminAjaxPsAccountsController extends ModuleAdminController
      *
      * @throws Exception
      */
+    //public function displayAjaxUnlinkShop()
     public function ajaxProcessUnlinkShop()
     {
         try {
-            $this->ajaxDie(json_encode($this->psAccountsService->unlinkShop()));
+            $response = $this->psAccountsService->unlinkShop();
+
+            http_response_code($response['httpCode']);
+
+            header('Content-Type: text/json');
+
+            $this->ajaxDie(json_encode($response['body']));
 
         } catch (Exception $e) {
             $this->errorHandler->handle($e, $e->getCode());
