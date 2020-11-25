@@ -3,7 +3,9 @@
 namespace PrestaShop\Module\PsAccounts\Service;
 
 use Context;
+use PrestaShop\Module\PsAccounts\Exception\EnvVarException;
 use PrestaShop\Module\PsAccounts\Repository\DeletedObjectsRepository;
+use PrestaShopDatabaseException;
 
 class DeletedObjectsService
 {
@@ -32,7 +34,7 @@ class DeletedObjectsService
      *
      * @return array
      *
-     * @throws \PrestaShopDatabaseException
+     * @throws PrestaShopDatabaseException|EnvVarException
      */
     public function handleDeletedObjectsSync($jobId)
     {

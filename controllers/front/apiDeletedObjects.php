@@ -1,6 +1,7 @@
 <?php
 
 use PrestaShop\Module\PsAccounts\Controller\AbstractApiController;
+use PrestaShop\Module\PsAccounts\Exception\EnvVarException;
 use PrestaShop\Module\PsAccounts\Service\DeletedObjectsService;
 
 class ps_AccountsApiDeletedObjectsModuleFrontController extends AbstractApiController
@@ -21,6 +22,8 @@ class ps_AccountsApiDeletedObjectsModuleFrontController extends AbstractApiContr
             $response = $deletedObjectsService->handleDeletedObjectsSync($jobId);
             $this->exitWithResponse($response);
         } catch (PrestaShopDatabaseException $exception) {
+            $this->exitWithExceptionMessage($exception);
+        } catch (EnvVarException $exception) {
             $this->exitWithExceptionMessage($exception);
         }
     }

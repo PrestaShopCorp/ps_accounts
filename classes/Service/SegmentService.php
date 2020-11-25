@@ -54,6 +54,8 @@ class SegmentService
      * @param array $data
      *
      * @return array
+     *
+     * @throws EnvVarException
      */
     public function delete($jobId, $data)
     {

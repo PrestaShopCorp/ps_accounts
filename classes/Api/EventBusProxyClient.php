@@ -108,9 +108,15 @@ class EventBusProxyClient extends GenericClient
      * @param string $compressedData
      *
      * @return array
+     *
+     * @throws EnvVarException
      */
     public function delete($jobId, $compressedData)
     {
+        if (!isset($_ENV['EVENT_BUS_PROXY_API_URL'])) {
+            throw new EnvVarException('EVENT_BUS_PROXY_API_URL is not defined');
+        }
+
         $route = $_ENV['EVENT_BUS_PROXY_API_URL'] . "/delete/$jobId";
 
         $this->setRoute($route);

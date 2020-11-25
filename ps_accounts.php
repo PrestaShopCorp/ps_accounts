@@ -91,6 +91,7 @@ class Ps_accounts extends Module
     const REQUIRED_TABLES = [
         'accounts_type_sync',
         'accounts_sync',
+        'accounts_deleted_objects',
     ];
 
     /**
