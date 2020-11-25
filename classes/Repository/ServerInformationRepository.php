@@ -116,7 +116,8 @@ class ServerInformationRepository
             $query = new DbQuery();
 
             $query->select('*')
-                ->from($requiredTable);
+                ->from($requiredTable)
+                ->limit(1);
 
             try {
                 $this->db->executeS($query);
