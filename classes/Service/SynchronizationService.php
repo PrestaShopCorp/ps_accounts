@@ -2,6 +2,7 @@
 
 namespace PrestaShop\Module\PsAccounts\Service;
 
+use PrestaShop\Module\PsAccounts\Exception\EnvVarException;
 use PrestaShop\Module\PsAccounts\Provider\PaginatedApiDataProviderInterface;
 use PrestaShop\Module\PsAccounts\Repository\AccountsSyncRepository;
 use PrestaShop\Module\PsAccounts\Repository\IncrementalSyncRepository;
@@ -40,7 +41,7 @@ class SynchronizationService
      *
      * @return array
      *
-     * @throws PrestaShopDatabaseException
+     * @throws PrestaShopDatabaseException|EnvVarException
      */
     public function handleFullSync(PaginatedApiDataProviderInterface $dataProvider, $type, $jobId, $langIso, $offset, $limit, $dateNow)
     {
@@ -81,7 +82,7 @@ class SynchronizationService
      *
      * @return array
      *
-     * @throws PrestaShopDatabaseException
+     * @throws PrestaShopDatabaseException|EnvVarException
      */
     public function handleIncrementalSync(PaginatedApiDataProviderInterface $dataProvider, $type, $jobId, $limit, $langIso)
     {
