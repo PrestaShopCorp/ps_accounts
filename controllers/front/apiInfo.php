@@ -1,6 +1,7 @@
 <?php
 
 use PrestaShop\Module\PsAccounts\Controller\AbstractApiController;
+use PrestaShop\Module\PsAccounts\Exception\EnvVarException;
 use PrestaShop\Module\PsAccounts\Repository\ServerInformationRepository;
 
 class ps_AccountsApiInfoModuleFrontController extends AbstractApiController
@@ -14,13 +15,19 @@ class ps_AccountsApiInfoModuleFrontController extends AbstractApiController
      */
     public function postProcess()
     {
+        $response = [];
+
         $jobId = Tools::getValue('job_id');
 
         $serverInformationRepository = $this->module->getService(ServerInformationRepository::class);
 
         $serverInfo = $serverInformationRepository->getServerInformation(Tools::getValue('lang_iso', null));
 
-        $response = $this->segmentService->upload($jobId, $serverInfo);
+        try {
+            $response = $this->segmentService->upload($jobId, $serverInfo);
+        } catch (EnvVarException $exception) {
+            $this->exitWithExceptionMessage($exception);
+        }
 
         $this->exitWithResponse(
             array_merge(

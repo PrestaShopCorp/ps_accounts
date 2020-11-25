@@ -5,7 +5,10 @@ namespace PrestaShop\Module\PsAccounts\Controller;
 use DateTime;
 use Exception;
 use ModuleFrontController;
-use PrestaShop\Module\PsAccounts\Exception\UnauthorizedException;
+use PrestaShop\AccountsAuth\Service\PsAccountsService;
+use PrestaShop\Module\PsAccounts\Config\Config;
+use PrestaShop\Module\PsAccounts\Exception\EnvVarException;
+use PrestaShop\Module\PsAccounts\Exception\FirebaseException;
 use PrestaShop\Module\PsAccounts\Provider\PaginatedApiDataProviderInterface;
 use PrestaShop\Module\PsAccounts\Repository\AccountsSyncRepository;
 use PrestaShop\Module\PsAccounts\Repository\LanguageRepository;
@@ -41,6 +44,10 @@ abstract class AbstractApiController extends ModuleFrontController
      */
     private $languageRepository;
     /**
+     * @var PsAccountsService
+     */
+    private $psAccountsService;
+    /**
      * @var Ps_accounts
      */
     public $module;
@@ -54,20 +61,21 @@ abstract class AbstractApiController extends ModuleFrontController
         $this->authorizationService = $this->module->getService(ApiAuthorizationService::class);
         $this->accountsSyncRepository = $this->module->getService(AccountsSyncRepository::class);
         $this->languageRepository = $this->module->getService(LanguageRepository::class);
+        $this->psAccountsService = new PsAccountsService();
     }
 
     /**
      * @return void
-     *
-     * @throws PrestaShopException
      */
     public function init()
     {
         try {
             $this->authorize();
-        } catch (UnauthorizedException $exception) {
-            $this->exitWithExceptionMessage($exception);
         } catch (PrestaShopDatabaseException $exception) {
+            $this->exitWithExceptionMessage($exception);
+        } catch (EnvVarException $exception) {
+            $this->exitWithExceptionMessage($exception);
+        } catch (FirebaseException $exception) {
             $this->exitWithExceptionMessage($exception);
         }
     }
@@ -75,23 +83,24 @@ abstract class AbstractApiController extends ModuleFrontController
     /**
      * @return void
      *
-     * @throws PrestaShopDatabaseException
-     * @throws UnauthorizedException
+     * @throws PrestaShopDatabaseException|EnvVarException|FirebaseException
      */
     private function authorize()
     {
-        $jobId = Tools::getValue('job_id');
-
-        if (!$jobId) {
-            throw new UnauthorizedException('Job ID is not defined.', 401);
-        }
+        $jobId = Tools::getValue('job_id', '');
 
         $authorizationResponse = $this->authorizationService->authorizeCall($jobId);
 
         if (is_array($authorizationResponse)) {
             $this->exitWithResponse($authorizationResponse);
         } elseif (!$authorizationResponse) {
-            throw new UnauthorizedException('Failed saving job id to database', 401);
+            throw new PrestaShopDatabaseException('Failed saving job id to database');
+        }
+
+        try {
+            $this->psAccountsService->getOrRefreshToken();
+        } catch (Exception $exception) {
+            throw new FirebaseException($exception->getMessage());
         }
     }
 
@@ -148,6 +157,8 @@ abstract class AbstractApiController extends ModuleFrontController
             );
         } catch (PrestaShopDatabaseException $exception) {
             $this->exitWithExceptionMessage($exception);
+        } catch (EnvVarException $exception) {
+            $this->exitWithExceptionMessage($exception);
         }
 
         return $response;
@@ -186,10 +197,20 @@ abstract class AbstractApiController extends ModuleFrontController
      */
     protected function exitWithExceptionMessage(Exception $exception)
     {
+        $code = $exception->getCode() == 0 ? 500 : $exception->getCode();
+
+        if ($exception instanceof PrestaShopDatabaseException) {
+            $code = Config::DATABASE_QUERY_ERROR_CODE;
+        } elseif ($exception instanceof EnvVarException) {
+            $code = Config::ENV_MISCONFIGURED_ERROR_CODE;
+        } elseif ($exception instanceof FirebaseException) {
+            $code = Config::REFRESH_TOKEN_ERROR_CODE;
+        }
+
         $response = [
             'object_type' => $this->type,
             'status' => false,
-            'httpCode' => $exception->getCode() == 0 ? 500 : $exception->getCode(),
+            'httpCode' => $code,
             'message' => $exception->getMessage(),
         ];
 
