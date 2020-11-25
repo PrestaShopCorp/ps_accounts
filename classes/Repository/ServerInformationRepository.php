@@ -7,10 +7,10 @@ use Db;
 use DbQuery;
 use Exception;
 use Language;
-use Module;
 use PrestaShop\AccountsAuth\Service\PsAccountsService;
 use PrestaShop\Module\PsAccounts\Formatter\ArrayFormatter;
 use PrestaShopDatabaseException;
+use Ps_accounts;
 
 class ServerInformationRepository
 {
@@ -107,12 +107,7 @@ class ServerInformationRepository
             $tokenValid = false;
         }
 
-        $requiredTables = [
-            'accounts_type_sync',
-            'accounts_sync',
-        ];
-
-        foreach ($requiredTables as $requiredTable) {
+        foreach (Ps_accounts::REQUIRED_TABLES as $requiredTable) {
             $query = new DbQuery();
 
             $query->select('*')
@@ -127,8 +122,6 @@ class ServerInformationRepository
             }
         }
 
-        $module = Module::getInstanceByName('ps_accounts');
-
         if (defined('PHP_VERSION') && defined('PHP_EXTRA_VERSION')) {
             $phpVersion = str_replace(PHP_EXTRA_VERSION, '', PHP_VERSION);
         } else {
@@ -137,7 +130,7 @@ class ServerInformationRepository
 
         return [
             'prestashop_version' => _PS_VERSION_,
-            'ps_accounts_version' => $module->version,
+            'ps_accounts_version' => Ps_accounts::VERSION,
             'php_version' => $phpVersion,
             'ps_account' => $tokenValid,
             'ps_eventbus' => $allTablesInstalled,

@@ -86,6 +86,14 @@ class Ps_accounts extends Module
     const VERSION = '2.9.2';
 
     /**
+     * @var array
+     */
+    const REQUIRED_TABLES = [
+        'accounts_type_sync',
+        'accounts_sync',
+    ];
+
+    /**
      * @var string
      */
     public $version;
