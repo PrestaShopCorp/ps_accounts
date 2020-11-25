@@ -39,10 +39,12 @@ services:
   PrestaShop\Module\PsAccounts\Repository\ServerInformationRepository:
     class: PrestaShop\Module\PsAccounts\Repository\ServerInformationRepository
     arguments:
+      - '@ps_accounts.context'
+      - '@ps_accounts.db'
       - '@PrestaShop\Module\PsAccounts\Repository\CurrencyRepository'
       - '@PrestaShop\Module\PsAccounts\Repository\LanguageRepository'
       - '@PrestaShop\Module\PsAccounts\Repository\ConfigurationRepository'
-      - '@ps_accounts.context'
+      - '@PrestaShop\Module\PsAccounts\Formatter\ArrayFormatter'
 
   PrestaShop\Module\PsAccounts\Repository\ThemeRepository:
     class: PrestaShop\Module\PsAccounts\Repository\ThemeRepository

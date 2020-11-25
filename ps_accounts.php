@@ -83,7 +83,15 @@ class Ps_accounts extends Module
     /**
      * @var string
      */
-    const VERSION = '2.9.2';
+    const VERSION = '2.10.0';
+
+    /**
+     * @var array
+     */
+    const REQUIRED_TABLES = [
+        'accounts_type_sync',
+        'accounts_sync',
+    ];
 
     /**
      * @var string
@@ -119,7 +127,7 @@ class Ps_accounts extends Module
         $this->author = 'PrestaShop';
         $this->need_instance = 0;
         $this->bootstrap = true;
-        $this->version = '2.9.2';
+        $this->version = '2.10.0';
         $this->module_key = 'abf2cd758b4d629b2944d3922ef9db73';
 
         parent::__construct();
