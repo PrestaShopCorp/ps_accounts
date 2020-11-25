@@ -48,7 +48,7 @@ class DeletedObjectsService
 
         $response = $this->segmentService->delete($jobId, $data);
 
-        if ($response['httpCode'] == 201) {
+        if ($response['httpCode'] == 204) {
             foreach ($data as $dataItem) {
                 $this->deletedObjectsRepository->removeDeletedObjects(
                     $dataItem['collection'],
@@ -62,7 +62,7 @@ class DeletedObjectsService
             [
                 'total_objects' => count($data),
             ],
-            $data
+            $response
         );
     }
 
