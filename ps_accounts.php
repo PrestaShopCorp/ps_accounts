@@ -335,6 +335,23 @@ class Ps_accounts extends Module
     }
 
     /**
+     * @param array $parameters
+     *
+     * @return void
+     */
+    public function hookActionObjectCategoryDeleteAfter($parameters)
+    {
+        $category = $parameters['object'];
+
+        $this->insertDeletedObject(
+            $category->id,
+            'categories',
+            date(DATE_ATOM),
+            $this->context->shop->id
+        );
+    }
+
+    /**
      * @param int $id
      * @param string $type
      * @param string $date

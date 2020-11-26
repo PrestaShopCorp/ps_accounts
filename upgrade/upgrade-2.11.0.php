@@ -12,5 +12,7 @@ function upgrade_module_2_11_0()
     PRIMARY KEY (`type`, `id_object`, `id_shop`)
     );';
 
-    return Db::getInstance()->execute($sql) && $module->registerHook('actionObjectProductDeleteAfter');
+    return Db::getInstance()->execute($sql)
+        && $module->registerHook('actionObjectProductDeleteAfter')
+        && $module->registerHook('actionObjectCategoryDeleteAfter');
 }
