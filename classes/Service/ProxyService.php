@@ -4,6 +4,7 @@ namespace PrestaShop\Module\PsAccounts\Service;
 
 use Exception;
 use GuzzleHttp\Exception\ClientException;
+use GuzzleHttp\Ring\Exception\ConnectException;
 use PrestaShop\Module\PsAccounts\Api\EventBusProxyClient;
 use PrestaShop\Module\PsAccounts\Exception\EnvVarException;
 
@@ -43,6 +44,8 @@ class ProxyService
         try {
             $response = $this->eventBusProxyClient->upload($jobId, $compressedData);
         } catch (ClientException $exception) {
+            return ['error' => $exception->getMessage()];
+        } catch (ConnectException $exception) {
             return ['error' => $exception->getMessage()];
         }
 
