@@ -92,6 +92,7 @@ class Ps_accounts extends Module
         'accounts_type_sync',
         'accounts_sync',
         'accounts_deleted_objects',
+        'accounts_incremental_sync',
     ];
 
     /**
