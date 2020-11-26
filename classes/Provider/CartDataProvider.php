@@ -98,7 +98,7 @@ class CartDataProvider implements PaginatedApiDataProviderInterface
         }
     }
 
-    public function getFormattedDataIncremental($limit, $langIso = null)
+    public function getFormattedDataIncremental($limit, $langIso)
     {
         $carts = $this->cartRepository->getCartsIncremental($limit);
 
@@ -121,6 +121,13 @@ class CartDataProvider implements PaginatedApiDataProviderInterface
         return array_merge($carts, $cartProducts);
     }
 
+    /**
+     * @param array $carts
+     *
+     * @return array
+     *
+     * @throws \PrestaShopDatabaseException
+     */
     private function getCartProducts(array $carts)
     {
         $cartIds = array_map(function ($cart) {

@@ -62,17 +62,16 @@ class OrderRepository
      */
     public function getRemainingOrderCount($offset, $shopId)
     {
-        $query = $this->getBaseQuery();
+        $query = $this->getBaseQuery($shopId);
 
-        $query->select('(COUNT(id_order) - ' . (int) $offset . ') as count')
-            ->where('o.id_shop = ' . (int) $shopId);
+        $query->select('(COUNT(id_order) - ' . (int) $offset . ') as count');
 
         return (int) $this->db->getValue($query);
     }
 
     /**
-     * @param $limit
-     * @param $shopId
+     * @param int $limit
+     * @param int $shopId
      *
      * @return array
      *

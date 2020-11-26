@@ -159,7 +159,7 @@ class OrderDataProvider implements PaginatedApiDataProviderInterface
      *
      * @throws PrestaShopDatabaseException
      */
-    public function getFormattedDataIncremental($limit, $langIso = null)
+    public function getFormattedDataIncremental($limit, $langIso)
     {
         $orders = $this->orderRepository->getOrdersIncremental($limit, $this->context->shop->id);
 
