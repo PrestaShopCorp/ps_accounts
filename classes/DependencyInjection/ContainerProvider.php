@@ -41,6 +41,11 @@ class ContainerProvider
     private $moduleLocalPath;
 
     /**
+     * @var string
+     */
+    private $moduleEnv;
+
+    /**
      * @var CacheDirectoryProvider
      */
     private $cacheDirectory;
@@ -48,12 +53,18 @@ class ContainerProvider
     /**
      * @param string $moduleName
      * @param string $moduleLocalPath
+     * @param string $moduleEnv
      * @param CacheDirectoryProvider $cacheDirectory
      */
-    public function __construct($moduleName, $moduleLocalPath, CacheDirectoryProvider $cacheDirectory)
-    {
+    public function __construct(
+        $moduleName,
+        $moduleLocalPath,
+        $moduleEnv,
+        CacheDirectoryProvider $cacheDirectory
+    ) {
         $this->moduleName = $moduleName;
         $this->moduleLocalPath = $moduleLocalPath;
+        $this->moduleEnv = $moduleEnv;
         $this->cacheDirectory = $cacheDirectory;
     }
 
@@ -89,16 +100,9 @@ class ContainerProvider
             . $containerName
         ;
 
-        $moduleEnvVar = strtoupper($this->moduleName) . '_ENV';
-        if (! getenv($moduleEnvVar)) {
-            throw new \RuntimeException(
-                $moduleEnvVar . ' environment variable is not defined.'
-            );
-        }
-
         $loader = new YamlFileLoader($containerBuilder, new FileLocator($moduleConfigPath));
 
-        $loader->load('services_' . getenv($moduleEnvVar) . '.yml');
+        $loader->load('services_' . $this->moduleEnv . '.yml');
 
         $containerBuilder->compile();
         $dumper = new PhpDumper($containerBuilder);

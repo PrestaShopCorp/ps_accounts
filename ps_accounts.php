@@ -33,6 +33,8 @@ require_once __DIR__ . '/classes/Webservice/WebserviceSpecificManagementAccountT
 
 class Ps_accounts extends Module
 {
+    const DEFAULT_ENV = 'prod';
+
     /**
      * @var array
      */
@@ -113,16 +115,13 @@ class Ps_accounts extends Module
      */
     private $serviceContainer;
 
-
     /**
      * @var array
      */
     private $configuration;
 
     /**
-     * __construct.
-     *
-     * @throws \PrestaShop\Module\PsAccounts\Exception\EnvironmentFileException
+     * Ps_accounts constructor.
      */
     public function __construct()
     {
@@ -146,14 +145,14 @@ class Ps_accounts extends Module
             'resetOnboarding' => 'AdminResetOnboarding',
         ];
 
-        // load environment variables
-        new \PrestaShop\Module\PsAccounts\Environment\Env();
-
         //$this->serviceContainer = new \PrestaShop\ModuleLibServiceContainer\DependencyInjection\ServiceContainer(
         $this->serviceContainer = new \PrestaShop\Module\PsAccounts\DependencyInjection\ServiceContainer(
             $this->name,
-            $this->getLocalPath()
+            $this->getLocalPath(),
+            $this->getModuleEnv()
         );
+
+        $this->getLogger()->info('Loading ' . $this->name . ' Env : [' . $this->getModuleEnv() .']');
     }
 
     /**
@@ -229,6 +228,16 @@ class Ps_accounts extends Module
     public function getService($serviceName)
     {
         return $this->serviceContainer->getService($serviceName);
+    }
+
+    /**
+     * @param string $key
+     *
+     * @return mixed
+     */
+    public function getParameter($key)
+    {
+        return $this->serviceContainer->getContainer()->getParameter($key);
     }
 
     /**
@@ -339,5 +348,23 @@ class Ps_accounts extends Module
                 'specific_management' => true,
             ),
         );
+    }
+
+    /**
+     * @return string
+     */
+    public function getModuleEnvVar()
+    {
+        return strtoupper($this->name) . '_ENV';
+    }
+
+    /**
+     * @param string $default
+     *
+     * @return string
+     */
+    public function getModuleEnv($default = null)
+    {
+        return getenv($this->getModuleEnvVar()) ?: $default ?: self::DEFAULT_ENV;
     }
 }

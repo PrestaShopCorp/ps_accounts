@@ -19,18 +19,25 @@ class ServiceContainer
     private $moduleLocalPath;
 
     /**
+     * @var string
+     */
+    private $moduleEnv;
+
+    /**
      * @var ContainerInterface
      */
-    public $container;
+    private $container;
 
     /**
      * @param string $moduleName
      * @param string $moduleLocalPath
+     * @param $moduleEnv
      */
-    public function __construct($moduleName, $moduleLocalPath)
+    public function __construct($moduleName, $moduleLocalPath, $moduleEnv)
     {
         $this->moduleName = $moduleName;
         $this->moduleLocalPath = $moduleLocalPath;
+        $this->moduleEnv = $moduleEnv;
 
         $this->initContainer();
     }
@@ -50,6 +57,14 @@ class ServiceContainer
     }
 
     /**
+     * @return ContainerInterface
+     */
+    public function getContainer()
+    {
+        return $this->container;
+    }
+
+    /**
      * Instantiate a new ContainerProvider
      */
     private function initContainer()
@@ -59,7 +74,7 @@ class ServiceContainer
             _PS_ROOT_DIR_,
             _PS_MODE_DEV_
         );
-        $containerProvider = new ContainerProvider($this->moduleName, $this->moduleLocalPath, $cacheDirectory);
+        $containerProvider = new ContainerProvider($this->moduleName, $this->moduleLocalPath, $this->moduleEnv, $cacheDirectory);
 
         $this->container = $containerProvider->get(defined('_PS_ADMIN_DIR_') || defined('PS_INSTALLATION_IN_PROGRESS') ? 'admin' : 'front');
     }

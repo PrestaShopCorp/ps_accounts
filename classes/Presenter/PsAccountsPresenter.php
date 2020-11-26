@@ -51,6 +51,8 @@ class PsAccountsPresenter
 
         $this->psAccountsService = $this->module->getService(PsAccountsService::class);
         $this->psAccountsService->setPsxName($psxName);
+
+        // FIXME : don't do this
         $this->psAccountsService->manageOnboarding();
     }
 
@@ -79,7 +81,7 @@ class PsAccountsPresenter
                 'currentShop' => $this->psAccountsService->getCurrentShop(),
                 'shops' => $this->psAccountsService->getShopsTree(),
                 'superAdminEmail' => $this->psAccountsService->getSuperAdminEmail(),
-                'ssoResendVerificationEmail' => $_ENV['SSO_RESEND_VERIFICATION_EMAIL'],
+                'ssoResendVerificationEmail' => $this->module->getParameter('sso.resend_verification_email'),
                 'manageAccountLink' => $this->psAccountsService->getManageAccountLink(),
             ];
         } catch (\Exception $e) {
