@@ -2,6 +2,7 @@
 
 namespace PrestaShop\Module\PsAccounts\Provider;
 
+use Context;
 use PrestaShop\Module\PsAccounts\Repository\GoogleTaxonomyRepository;
 
 class GoogleTaxonomyDataProvider implements PaginatedApiDataProviderInterface
@@ -10,15 +11,20 @@ class GoogleTaxonomyDataProvider implements PaginatedApiDataProviderInterface
      * @var GoogleTaxonomyRepository
      */
     private $googleTaxonomyRepository;
+    /**
+     * @var Context
+     */
+    private $context;
 
-    public function __construct(GoogleTaxonomyRepository $googleTaxonomyRepository)
+    public function __construct(GoogleTaxonomyRepository $googleTaxonomyRepository, Context $context)
     {
         $this->googleTaxonomyRepository = $googleTaxonomyRepository;
+        $this->context = $context;
     }
 
     public function getFormattedData($offset, $limit, $langIso)
     {
-        $data = $this->googleTaxonomyRepository->getTaxonomyCategories($offset, $limit);
+        $data = $this->googleTaxonomyRepository->getTaxonomyCategories($offset, $limit, $this->context->shop->id);
 
         if (!is_array($data)) {
             return [];
@@ -38,6 +44,6 @@ class GoogleTaxonomyDataProvider implements PaginatedApiDataProviderInterface
 
     public function getRemainingObjectsCount($offset, $langIso)
     {
-        return $this->googleTaxonomyRepository->getRemainingTaxonomyRepositories($offset);
+        return $this->googleTaxonomyRepository->getRemainingTaxonomyRepositories($offset, $this->context->shop->id);
     }
 }
