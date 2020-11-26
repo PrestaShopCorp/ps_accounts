@@ -5,6 +5,9 @@ namespace PrestaShop\Module\PsAccounts\Repository;
 use Context;
 use Db;
 use DbQuery;
+use mysqli_result;
+use PDOStatement;
+use PrestaShopDatabaseException;
 
 class CartRepository
 {
@@ -40,9 +43,9 @@ class CartRepository
      * @param int $offset
      * @param int $limit
      *
-     * @return array|bool|\mysqli_result|\PDOStatement|resource|null
+     * @return array|bool|mysqli_result|PDOStatement|resource|null
      *
-     * @throws \PrestaShopDatabaseException
+     * @throws PrestaShopDatabaseException
      */
     public function getCarts($offset, $limit)
     {
@@ -66,5 +69,28 @@ class CartRepository
         $query->select('(COUNT(c.id_cart) - ' . (int) $offset . ') as count');
 
         return (int) $this->db->getValue($query);
+    }
+
+    /**
+     * @param int $limit
+     *
+     * @return array
+     *
+     * @throws PrestaShopDatabaseException
+     */
+    public function getCartsIncremental($limit)
+    {
+        $query = $this->getBaseQuery();
+
+        $query->innerJoin(
+            'accounts_incremental_sync',
+            'aic',
+            'aic.id_object = c.id_cart AND aic.id_shop = c.id_shop AND aic.type = "carts"'
+        )
+            ->limit($limit);
+
+        $result = $this->db->executeS($query);
+
+        return is_array($result) ? $result : [];
     }
 }

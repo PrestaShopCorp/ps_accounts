@@ -116,6 +116,10 @@ class Ps_accounts extends Module
         'actionObjectCategoryDeleteAfter',
         'actionObjectProductAddAfter',
         'actionObjectProductUpdateAfter',
+        'actionObjectCartAddAfter',
+        'actionObjectCartUpdateAfter',
+        'actionObjectOrderAddAfter',
+        'actionObjectOrderUpdateAfter',
     ];
 
     /**
@@ -384,6 +388,74 @@ class Ps_accounts extends Module
         $this->insertDeletedObject(
             $product->id,
             'products',
+            date(DATE_ATOM),
+            $this->context->shop->id
+        );
+    }
+
+    /**
+     * @param array $parameters
+     *
+     * @return void
+     */
+    public function hookActionObjectCartUpdateAfter($parameters)
+    {
+        $cart = $parameters['object'];
+
+        $this->insertIncrementalSyncObject(
+            $cart->id,
+            'carts',
+            date(DATE_ATOM),
+            $this->context->shop->id
+        );
+    }
+
+    /**
+     * @param array $parameters
+     *
+     * @return void
+     */
+    public function hookActionObjectCartAddAfter($parameters)
+    {
+        $cart = $parameters['object'];
+
+        $this->insertIncrementalSyncObject(
+            $cart->id,
+            'carts',
+            date(DATE_ATOM),
+            $this->context->shop->id
+        );
+    }
+
+    /**
+     * @param array $parameters
+     *
+     * @return void
+     */
+    public function hookActionObjectOrderUpdateAfter($parameters)
+    {
+        $order = $parameters['object'];
+
+        $this->insertIncrementalSyncObject(
+            $order->id,
+            'orders',
+            date(DATE_ATOM),
+            $this->context->shop->id
+        );
+    }
+
+    /**
+     * @param array $parameters
+     *
+     * @return void
+     */
+    public function hookActionObjectOrderAddAfter($parameters)
+    {
+        $order = $parameters['object'];
+
+        $this->insertIncrementalSyncObject(
+            $order->id,
+            'orders',
             date(DATE_ATOM),
             $this->context->shop->id
         );

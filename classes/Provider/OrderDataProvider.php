@@ -56,20 +56,9 @@ class OrderDataProvider implements PaginatedApiDataProviderInterface
             return [];
         }
 
-        $orderIds = $this->arrayFormatter->formatValueArray($orders, 'id_order');
-
-        $orderDetails = $this->getOrderDetails($orderIds);
-
         $this->castOrderValues($orders);
-        $this->castOrderDetailValues($orderDetails);
 
-        $orderDetails = array_map(function ($orderDetail) {
-            return [
-                'id' => $orderDetail['id_order_detail'],
-                'collection' => 'order_details',
-                'properties' => $orderDetail,
-            ];
-        }, $orderDetails);
+        $orderDetails = $this->getOrderDetails($orders);
 
         $orders = array_map(function ($order) {
             return [
@@ -94,23 +83,35 @@ class OrderDataProvider implements PaginatedApiDataProviderInterface
     }
 
     /**
-     * @param array $orderIds
+     * @param array $orders
      *
      * @return array
      *
      * @throws PrestaShopDatabaseException
      */
-    private function getOrderDetails(array $orderIds)
+    private function getOrderDetails(array $orders)
     {
-        if (empty($orderIds)) {
+        if (empty($orders)) {
             return [];
         }
+
+        $orderIds = $this->arrayFormatter->formatValueArray($orders, 'id_order');
 
         $orderDetails = $this->orderDetailsRepository->getOrderDetails($orderIds);
 
-        if (!is_array($orderDetails)) {
+        if (!is_array($orderDetails) || empty($orderDetails)) {
             return [];
         }
+
+        $this->castOrderDetailValues($orderDetails);
+
+        $orderDetails = array_map(function ($orderDetail) {
+            return [
+                'id' => $orderDetail['id_order_detail'],
+                'collection' => 'order_details',
+                'properties' => $orderDetail,
+            ];
+        }, $orderDetails);
 
         return $orderDetails;
     }
@@ -150,8 +151,34 @@ class OrderDataProvider implements PaginatedApiDataProviderInterface
         }
     }
 
+    /**
+     * @param int $limit
+     * @param null $langIso
+     *
+     * @return array
+     *
+     * @throws PrestaShopDatabaseException
+     */
     public function getFormattedDataIncremental($limit, $langIso = null)
     {
-        return [];
+        $orders = $this->orderRepository->getOrdersIncremental($limit, $this->context->shop->id);
+
+        if (!is_array($orders)) {
+            return [];
+        }
+
+        $this->castOrderValues($orders);
+
+        $orderDetails = $this->getOrderDetails($orders);
+
+        $orders = array_map(function ($order) {
+            return [
+                'id' => $order['id_order'],
+                'collection' => 'orders',
+                'properties' => $order,
+            ];
+        }, $orders);
+
+        return array_merge($orders, $orderDetails);
     }
 }

@@ -44,9 +44,7 @@ class CartDataProvider implements PaginatedApiDataProviderInterface
             return [];
         }
 
-        $cartIds = array_map(function ($cart) {
-            return (string) $cart['id_cart'];
-        }, $carts);
+        $cartProducts = $this->getCartProducts($carts);
 
         $this->castCartValues($carts);
 
@@ -57,22 +55,6 @@ class CartDataProvider implements PaginatedApiDataProviderInterface
                 'properties' => $cart,
             ];
         }, $carts);
-
-        $cartProducts = $this->cartProductRepository->getCartProducts($cartIds);
-
-        $this->castCartProductValues($cartProducts);
-
-        if (is_array($cartProducts)) {
-            $cartProducts = array_map(function ($cartProduct) {
-                return [
-                    'id' => "{$cartProduct['id_cart']}-{$cartProduct['id_product']}-{$cartProduct['id_product_attribute']}",
-                    'collection' => 'cart_products',
-                    'properties' => $cartProduct,
-                ];
-            }, $cartProducts);
-        } else {
-            $cartProducts = [];
-        }
 
         return array_merge($carts, $cartProducts);
     }
@@ -118,6 +100,51 @@ class CartDataProvider implements PaginatedApiDataProviderInterface
 
     public function getFormattedDataIncremental($limit, $langIso = null)
     {
+        $carts = $this->cartRepository->getCartsIncremental($limit);
+
+        if (!is_array($carts)) {
+            return [];
+        }
+
+        $cartProducts = $this->getCartProducts($carts);
+
+        $this->castCartValues($carts);
+
+        $carts = array_map(function ($cart) {
+            return [
+                'id' => $cart['id_cart'],
+                'collection' => 'carts',
+                'properties' => $cart,
+            ];
+        }, $carts);
+
+        return array_merge($carts, $cartProducts);
+    }
+
+    private function getCartProducts(array $carts)
+    {
+        $cartIds = array_map(function ($cart) {
+            return (string) $cart['id_cart'];
+        }, $carts);
+
+        $cartProducts = $this->cartProductRepository->getCartProducts($cartIds);
+
+        if (!is_array($cartProducts) || empty($cartProducts)) {
+            return [];
+        }
+
+        $this->castCartProductValues($cartProducts);
+
+        if (is_array($cartProducts)) {
+            return array_map(function ($cartProduct) {
+                return [
+                    'id' => "{$cartProduct['id_cart']}-{$cartProduct['id_product']}-{$cartProduct['id_product_attribute']}",
+                    'collection' => 'cart_products',
+                    'properties' => $cartProduct,
+                ];
+            }, $cartProducts);
+        }
+
         return [];
     }
 }
