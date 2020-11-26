@@ -62,6 +62,7 @@ class DeletedObjectsService
 
         return array_merge(
             [
+                'job_id' => $jobId,
                 'total_objects' => count($data),
             ],
             $response
