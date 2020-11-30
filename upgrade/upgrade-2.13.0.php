@@ -11,6 +11,8 @@ function upgrade_module_2_13_0()
         'actionObjectCartUpdateAfter',
         'actionObjectOrderAddAfter',
         'actionObjectOrderUpdateAfter',
+        'actionObjectCategoryAddAfter',
+        'actionObjectCategoryUpdateAfter',
     ];
 
     foreach ($hooks as $hook) {

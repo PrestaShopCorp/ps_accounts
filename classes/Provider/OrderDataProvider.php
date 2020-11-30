@@ -167,6 +167,8 @@ class OrderDataProvider implements PaginatedApiDataProviderInterface
             return [];
         }
 
+        $orderIds = $this->separateOrderIds($orders);
+
         $this->castOrderValues($orders);
 
         $orderDetails = $this->getOrderDetails($orders);
@@ -179,6 +181,19 @@ class OrderDataProvider implements PaginatedApiDataProviderInterface
             ];
         }, $orders);
 
-        return array_merge($orders, $orderDetails);
+        return [
+            'data' => array_merge($orders, $orderDetails),
+            'ids' => $orderIds,
+        ];
+    }
+
+    /**
+     * @param array $orders
+     *
+     * @return array
+     */
+    private function separateOrderIds(array $orders)
+    {
+        return $this->arrayFormatter->formatValueArray($orders, 'id_order', true);
     }
 }

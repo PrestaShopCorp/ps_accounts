@@ -120,6 +120,8 @@ class Ps_accounts extends Module
         'actionObjectCartUpdateAfter',
         'actionObjectOrderAddAfter',
         'actionObjectOrderUpdateAfter',
+        'actionObjectCategoryAddAfter',
+        'actionObjectCategoryUpdateAfter',
     ];
 
     /**

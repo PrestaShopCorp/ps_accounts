@@ -106,6 +106,8 @@ class CartDataProvider implements PaginatedApiDataProviderInterface
             return [];
         }
 
+        $cartIds = $this->separateCartIds($carts);
+
         $cartProducts = $this->getCartProducts($carts);
 
         $this->castCartValues($carts);
@@ -118,7 +120,10 @@ class CartDataProvider implements PaginatedApiDataProviderInterface
             ];
         }, $carts);
 
-        return array_merge($carts, $cartProducts);
+        return [
+            'ids' => $cartIds,
+            'data' => array_merge($carts, $cartProducts),
+        ];
     }
 
     /**
@@ -153,5 +158,15 @@ class CartDataProvider implements PaginatedApiDataProviderInterface
         }
 
         return [];
+    }
+
+    /**
+     * @param array $carts
+     *
+     * @return array
+     */
+    private function separateCartIds(array $carts)
+    {
+        return $this->arrayFormatter->formatValueArray($carts, 'id_order', true);
     }
 }

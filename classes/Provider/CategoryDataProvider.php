@@ -3,6 +3,7 @@
 namespace PrestaShop\Module\PsAccounts\Provider;
 
 use PrestaShop\Module\PsAccounts\Decorator\CategoryDecorator;
+use PrestaShop\Module\PsAccounts\Formatter\ArrayFormatter;
 use PrestaShop\Module\PsAccounts\Repository\CategoryRepository;
 
 class CategoryDataProvider implements PaginatedApiDataProviderInterface
@@ -15,11 +16,16 @@ class CategoryDataProvider implements PaginatedApiDataProviderInterface
      * @var CategoryDecorator
      */
     private $categoryDecorator;
+    /**
+     * @var ArrayFormatter
+     */
+    private $arrayFormatter;
 
-    public function __construct(CategoryRepository $categoryRepository, CategoryDecorator $categoryDecorator)
+    public function __construct(CategoryRepository $categoryRepository, CategoryDecorator $categoryDecorator, ArrayFormatter $arrayFormatter)
     {
         $this->categoryRepository = $categoryRepository;
         $this->categoryDecorator = $categoryDecorator;
+        $this->arrayFormatter = $arrayFormatter;
     }
 
     /**
@@ -63,6 +69,37 @@ class CategoryDataProvider implements PaginatedApiDataProviderInterface
 
     public function getFormattedDataIncremental($limit, $langIso)
     {
-        return [];
+        $categories = $this->categoryRepository->getCategoriesIncremental($limit, $langIso);
+
+        if (!is_array($categories)) {
+            return [];
+        }
+
+        $categoryIds = $this->separateCategoryIds($categories);
+
+        $this->categoryDecorator->decorateCategories($categories);
+
+        $categories = array_map(function ($category) {
+            return [
+                'id' => "{$category['id_category']}-{$category['iso_code']}",
+                'collection' => 'categories',
+                'properties' => $category,
+            ];
+        }, $categories);
+
+        return [
+            'data' => $categories,
+            'ids' => $categoryIds,
+        ];
+    }
+
+    /**
+     * @param array $categories
+     *
+     * @return array
+     */
+    private function separateCategoryIds(array $categories)
+    {
+        return $this->arrayFormatter->formatValueArray($categories, 'id_category', true);
     }
 }
