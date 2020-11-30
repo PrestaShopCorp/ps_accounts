@@ -227,7 +227,7 @@ abstract class AbstractApiController extends ModuleFrontController
     {
         header('Cache-Control: no-store, no-cache, must-revalidate, post-check=0, pre-check=0');
         header('Content-Type: application/json;charset=utf-8');
-        header("HTTP/1.1 $code");
+        header("HTTP/1.1 $code Success");
 
         echo json_encode($response, JSON_UNESCAPED_SLASHES);
         die;
