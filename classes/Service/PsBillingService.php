@@ -21,11 +21,12 @@
 namespace PrestaShop\Module\PsAccounts\Service;
 
 use Context;
-use PrestaShop\Module\PsAccounts\Adapter\LinkAdapter;
+use PrestaShop\Module\PsAccounts\Adapter\Link;
 use PrestaShop\Module\PsAccounts\Api\Client\ServicesBillingClient;
 use PrestaShop\Module\PsAccounts\Context\ShopContext;
 use PrestaShop\Module\PsAccounts\Exception\BillingException;
 use PrestaShop\Module\PsAccounts\Repository\ConfigurationRepository;
+use Ps_accounts;
 
 /**
  * Construct the psbilling service.
@@ -33,24 +34,9 @@ use PrestaShop\Module\PsAccounts\Repository\ConfigurationRepository;
 class PsBillingService
 {
     /**
-     * @var Context
-     */
-    public $context;
-
-    /**
-     * @var ShopContext
-     */
-    public $shopContext;
-
-    /**
      * @var \Symfony\Component\DependencyInjection\ContainerInterface
      */
     protected $container;
-
-    /**
-     * @var LinkAdapter
-     */
-    protected $linkAdapter;
 
     /**
      * @var ConfigurationRepository
@@ -68,26 +54,28 @@ class PsBillingService
     private $servicesBillingClient;
 
     /**
+     * @var Ps_accounts
+     */
+    private $module;
+
+    /**
      * PsBillingService constructor.
      *
+     * @param ConfigurationRepository $configuration
      * @param ServicesBillingClient $servicesBillingClient
      * @param PsAccountsService $psAccountsService
-     * @param ConfigurationRepository $configuration
-     * @param Context $context
-     * @param ShopContext $shopContext
+     * @param Ps_accounts $module
      */
     public function __construct(
+        ConfigurationRepository $configuration,
         ServicesBillingClient $servicesBillingClient,
         PsAccountsService $psAccountsService,
-        ConfigurationRepository $configuration,
-        Context $context,
-        ShopContext $shopContext
+        Ps_accounts $module
     ) {
+        $this->configuration = $configuration;
         $this->servicesBillingClient = $servicesBillingClient;
         $this->psAccountsService = $psAccountsService;
-        $this->configuration = $configuration;
-        $this->context = $context;
-        $this->shopContext = $shopContext;
+        $this->module = $module;
     }
 
     /**
@@ -95,7 +83,7 @@ class PsBillingService
      */
     public function getShopContext()
     {
-        return $this->shopContext;
+        return $this->module->getService('ps_accounts.shop_context');
     }
 
     /**
@@ -103,7 +91,7 @@ class PsBillingService
      */
     public function getContext()
     {
-        return $this->context;
+        return $this->module->getContext();
     }
 
     /**

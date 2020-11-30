@@ -37,9 +37,9 @@ class FirebaseClient extends GenericClient
     /**
      * FirebaseClient constructor.
      *
-     * @param array $props
+     * @param array $config
      */
-    public function __construct(array $props)
+    public function __construct(array $config)
     {
         parent::__construct();
 
@@ -49,7 +49,7 @@ class FirebaseClient extends GenericClient
                 'exceptions' => $this->catchExceptions,
                 'allow_redirects' => false,
                 'query' => [
-                    'key' => $props['api_key'],
+                    'key' => $config['api_key'],
                 ],
                 'headers' => [
                     'Accept' => 'application/json',

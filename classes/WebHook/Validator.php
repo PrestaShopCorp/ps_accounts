@@ -21,8 +21,8 @@
 namespace PrestaShop\Module\PsAccounts\WebHook;
 
 use Context;
+use PrestaShop\Module\PsAccounts\Api\Client\ServicesAccountsClient;
 use PrestaShop\Module\PsAccounts\Repository\ConfigurationRepository;
-use PrestaShop\Module\PsAccounts\Api\Client\AccountsClient;
 use PrestaShop\Module\PsAccounts\Exception\FirebaseException;
 use PrestaShop\Module\PsAccounts\Exception\WebhookException;
 
@@ -58,19 +58,19 @@ class Validator
     private $configuration;
 
     /**
-     * @var AccountsClient
+     * @var ServicesAccountsClient
      */
     private $accountsClient;
 
     /**
      * Validator constructor.
      *
-     * @param AccountsClient $accountsClient
+     * @param ServicesAccountsClient $accountsClient
      * @param ConfigurationRepository $configuration
      * @param Context $context
      */
     public function __construct(
-        AccountsClient $accountsClient,
+        ServicesAccountsClient $accountsClient,
         ConfigurationRepository $configuration,
         Context $context
     )
@@ -208,7 +208,7 @@ class Validator
     {
         //$response = (new AccountsClient($this->context->link))->checkWebhookAuthenticity($headerValues, $bodyValues);
 
-        $response = $this->accountsClient->checkWebhookAuthenticity($headerValues, $bodyValues);
+        $response = $this->accountsClient->verifyWebhook($headerValues, $bodyValues);
 
         if (!$response || 200 > $response['httpCode'] || 299 < $response['httpCode']) {
             return [$response['body'] ? $response['body'] : 'Webhook not verified'];

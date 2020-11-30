@@ -25,7 +25,7 @@ use PrestaShop\Module\PsAccounts\Context\ShopContext;
 /**
  * Link adapter
  */
-class LinkAdapter
+class Link
 {
     /**
      * Link object
@@ -52,6 +52,7 @@ class LinkAdapter
      * @param array $params
      *
      * @return string
+     * @throws \PrestaShopException
      */
     public function getAdminLink($controller, $withToken = true, $sfRouteParams = [], $params = [])
     {

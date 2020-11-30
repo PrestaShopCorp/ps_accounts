@@ -23,7 +23,7 @@ namespace PrestaShop\Module\PsAccounts\Service;
 use Context;
 use Lcobucci\JWT\Parser;
 use Module;
-use PrestaShop\Module\PsAccounts\Adapter\LinkAdapter;
+use PrestaShop\Module\PsAccounts\Adapter\Link;
 use PrestaShop\Module\PsAccounts\Api\Client\FirebaseClient;
 use PrestaShop\Module\PsAccounts\Api\Client\ServicesAccountsClient;
 use PrestaShop\Module\PsAccounts\Context\ShopContext;
@@ -49,19 +49,19 @@ class PsAccountsService
     protected $container;
 
     /**
-     * @var LinkAdapter
+     * @var Link
      */
-    protected $linkAdapter;
+    protected $link;
 
     /**
      * @var string
      */
-    protected $uiUrl;
+    protected $accountsUiUrl;
 
     /**
      * @var string
      */
-    protected $ssoManageAccountUrl;
+    protected $ssoAccountUrl;
 
     /**
      * @var ConfigurationRepository
@@ -74,45 +74,37 @@ class PsAccountsService
     private $firebaseClient;
 
     /**
-     * @var Context
-     */
-    private $context;
-
-    /**
-     * @var ShopContext
-     */
-    private $shopContext;
-
-    /**
      * @var string | null
      */
     private $psxName = null;
 
     /**
+     * @var \Ps_accounts
+     */
+    private $module;
+
+    /**
      * PsAccountsService constructor.
      *
+     * @param array $config
      * @param ConfigurationRepository $configuration
      * @param FirebaseClient $firebaseClient
-     * @param Context $context
-     * @param ShopContext $shopContext
-     * @param LinkAdapter $linkAdapter
-     * @param array $config
+     * @param \Ps_accounts $module
      */
     public function __construct(
+        array $config,
         ConfigurationRepository $configuration,
         FirebaseClient $firebaseClient,
-        Context $context,
-        ShopContext $shopContext,
-        LinkAdapter $linkAdapter,
-        array $config
+        \Ps_accounts $module
     ) {
         $this->configuration = $configuration;
         $this->firebaseClient = $firebaseClient;
-        $this->context = $context;
-        $this->shopContext = $shopContext;
-        $this->linkAdapter = $linkAdapter;
-        $this->uiUrl = $config['ui_url'];
-        $this->ssoManageAccountUrl = $config['sso_manage_account_url'];
+        $this->module = $module;
+
+        $this->link = $this->module->getService('ps_accounts.link');
+
+        $this->accountsUiUrl = $config['accounts_ui_url'];
+        $this->ssoAccountUrl = $config['sso_account_url'];
     }
 
     /**
@@ -120,7 +112,7 @@ class PsAccountsService
      */
     public function getShopContext()
     {
-        return $this->shopContext;
+        return $this->module->getService('ps_accounts.shop_context');
     }
 
     /**
@@ -128,7 +120,7 @@ class PsAccountsService
      */
     public function getContext()
     {
-        return $this->context;
+        return $this->module->getContext();
     }
 
     /**
@@ -179,6 +171,8 @@ class PsAccountsService
 
     /**
      * @return array
+     *
+     * @throws \PrestaShopException
      */
     public function getCurrentShop()
     {
@@ -189,7 +183,7 @@ class PsAccountsService
             'name' => $shop['name'],
             'domain' => $shop['domain'],
             'domainSsl' => $shop['domain_ssl'],
-            'url' => $this->linkAdapter->getAdminLink(
+            'url' => $this->link->getAdminLink(
                 'AdminModules',
                 true,
                 [],
@@ -203,6 +197,8 @@ class PsAccountsService
 
     /**
      * @return array
+     *
+     * @throws \PrestaShopException
      */
     public function getShopsTree()
     {
@@ -220,7 +216,7 @@ class PsAccountsService
                     'name' => $shopData['name'],
                     'domain' => $shopData['domain'],
                     'domainSsl' => $shopData['domain_ssl'],
-                    'url' => $this->linkAdapter->getAdminLink(
+                    'url' => $this->link->getAdminLink(
                         'AdminModules',
                         true,
                         [],
@@ -320,6 +316,8 @@ class PsAccountsService
 
     /**
      * @return string | null
+     *
+     * @throws \PrestaShopException
      */
     public function getPsAccountsInstallLink()
     {
@@ -336,7 +334,7 @@ class PsAccountsService
             ]);
         }
 
-        return  $this->linkAdapter->getAdminLink('AdminModules', true, [], [
+        return  $this->link->getAdminLink('AdminModules', true, [], [
             'module_name' => $this->psxName,
             'configure' => $this->psxName,
             'install' => 'ps_accounts',
@@ -345,6 +343,8 @@ class PsAccountsService
 
     /**
      * @return string | null
+     *
+     * @throws \PrestaShopException
      */
     public function getPsAccountsEnableLink()
     {
@@ -361,7 +361,7 @@ class PsAccountsService
             ]);
         }
 
-        return  $this->linkAdapter->getAdminLink('AdminModules', true, [], [
+        return  $this->link->getAdminLink('AdminModules', true, [], [
             'module_name' => $this->psxName,
             'configure' => $this->psxName,
             'enable' => 'ps_accounts',
@@ -372,6 +372,7 @@ class PsAccountsService
      * @return string
      *
      * @throws EnvVarException
+     * @throws \PrestaShopException
      */
     public function getOnboardingLink()
     {
@@ -382,10 +383,10 @@ class PsAccountsService
         $callback = preg_replace(
             '/^https?:\/\/[^\/]+/',
             '',
-            $this->linkAdapter->getAdminLink('AdminModules', true) . '&configure=' . $this->psxName
+            $this->link->getAdminLink('AdminModules', true) . '&configure=' . $this->psxName
         );
 
-        $uiSvcBaseUrl = $this->uiUrl;
+        $uiSvcBaseUrl = $this->accountsUiUrl;
         if (false === $uiSvcBaseUrl) {
             throw new EnvVarException('Environmenrt variable ACCOUNTS_SVC_UI_URL should not be empty');
         }
@@ -400,7 +401,7 @@ class PsAccountsService
             'next' => preg_replace(
                 '/^https?:\/\/[^\/]+/',
                 '',
-                $this->linkAdapter->getAdminLink('AdminConfigureHmacPsAccounts')
+                $this->link->getAdminLink('AdminConfigureHmacPsAccounts')
             ),
             'name' => $currentShop['name'],
             'lang' => $this->context->language->iso_code,
@@ -466,7 +467,7 @@ class PsAccountsService
 
         file_put_contents($hmacPath . $queryParams['uid'] . '.txt', $queryParams['hmac']);
 
-        $url = $this->uiUrl;
+        $url = $this->accountsUiUrl;
         if (false === $url) {
             throw new EnvVarException('Environment variable ACCOUNTS_SVC_UI_URL should not be empty', 500);
         }
@@ -508,7 +509,7 @@ class PsAccountsService
         $boUrl = preg_replace(
             '/^https?:\/\/[^\/]+/',
             $protocol . '://' . $domain,
-            $this->linkAdapter->getAdminLink('AdminModules', true)
+            $this->link->getAdminLink('AdminModules', true)
         );
 
         if ($uuid && strlen($uuid) > 0) {
@@ -694,7 +695,7 @@ class PsAccountsService
      */
     public function getManageAccountLink()
     {
-        $url = $this->ssoManageAccountUrl;
+        $url = $this->ssoAccountUrl;
         $langIsoCode = $this->context->language->iso_code;
 
         return $url . '?lang=' . substr($langIsoCode, 0, 2);
@@ -714,5 +715,21 @@ class PsAccountsService
     public function getAccountsRsaSignData()
     {
         return $this->configuration->getAccountsRsaSignData();
+    }
+
+    /**
+     * @return string
+     */
+    public function getAccountsUiUrl()
+    {
+        return $this->accountsUiUrl;
+    }
+
+    /**
+     * @return string
+     */
+    public function getSsoAccountUrl()
+    {
+        return $this->ssoAccountUrl;
     }
 }

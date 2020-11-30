@@ -81,7 +81,7 @@ class PsAccountsPresenter
                 'currentShop' => $this->psAccountsService->getCurrentShop(),
                 'shops' => $this->psAccountsService->getShopsTree(),
                 'superAdminEmail' => $this->psAccountsService->getSuperAdminEmail(),
-                'ssoResendVerificationEmail' => $this->module->getParameter('sso.resend_verification_email'),
+                'ssoResendVerificationEmail' => $this->psAccountsService->getSsoAccountUrl(),
                 'manageAccountLink' => $this->psAccountsService->getManageAccountLink(),
             ];
         } catch (\Exception $e) {

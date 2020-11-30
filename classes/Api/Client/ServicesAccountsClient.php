@@ -23,6 +23,7 @@ namespace PrestaShop\Module\PsAccounts\Api\Client;
 use GuzzleHttp\Client;
 use Link;
 use PrestaShop\Module\PsAccounts\Service\PsAccountsService;
+use PrestaShop\Module\PsAccounts\Exception\FirebaseException;
 
 /**
  * Handle call api Services
@@ -30,28 +31,45 @@ use PrestaShop\Module\PsAccounts\Service\PsAccountsService;
 class ServicesAccountsClient extends GenericClient
 {
     /**
+     * @var PsAccountsService
+     */
+    private $psAccountsService;
+
+    /**
      * ServicesAccountsClient constructor.
      *
+     * @param array $config
      * @param PsAccountsService $psAccountsService
      * @param Link $link
      * @param Client|null $client
      *
+     * @throws FirebaseException
+     * @throws \PrestaShopException
      * @throws \Exception
      */
     public function __construct(
+        array $config,
         PsAccountsService $psAccountsService,
         Link $link,
         Client $client = null
     ) {
         parent::__construct();
-        $shopId = $psAccountsService->getCurrentShop()['id'];
+
+        $this->psAccountsService = $psAccountsService;
+
+        $shopId = (int) $psAccountsService->getCurrentShop()['id'];
         $token = $psAccountsService->getOrRefreshToken();
+
         $this->setLink($link);
+
+        if (!$token) {
+            throw new FirebaseException('Firebase token not found', 500);
+        }
 
         // Client can be provided for tests
         if (null === $client) {
             $client = new Client([
-                'base_url' => $_ENV['ACCOUNTS_SVC_API_URL'],
+                'base_url' => $config['api_url'],
                 'defaults' => [
                     'timeout' => $this->timeout,
                     'exceptions' => $this->catchExceptions,
@@ -84,5 +102,45 @@ class ServicesAccountsClient extends GenericClient
         return $this->patch([
             'body' => $bodyHttp,
         ]);
+    }
+
+    /**
+     * @param array $headers
+     * @param array $body
+     *
+     * @return array
+     */
+    public function verifyWebhook(array $headers, array $body)
+    {
+        $correlationId = $headers['correlationId'];
+
+        $this->setRoute('/webhooks/' . $correlationId . '/verify');
+
+        $shopId = (int) $this->psAccountsService->getCurrentShop()['id'];
+        $hookUrl = $this->link->getModuleLink('ps_accounts', 'DispatchWebHook', [], true, null, $shopId);
+
+        $res = $this->post([
+            'headers' => [
+                'correlationId' => $correlationId,
+                'Hook-Url' => $hookUrl,
+            ],
+            'json' => $body,
+        ]);
+
+        if (!$res || $res['httpCode'] < 200 || $res['httpCode'] > 299) {
+            return [
+                'httpCode' => $res['httpCode'],
+                'body' => $res['body']
+                && is_array($res['body'])
+                && array_key_exists('message', $res['body'])
+                    ? $res['body']['message']
+                    : 'Unknown error',
+            ];
+        }
+
+        return [
+            'httpCode' => 200,
+            'body' => 'ok',
+        ];
     }
 }

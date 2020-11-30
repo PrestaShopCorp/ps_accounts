@@ -21,7 +21,7 @@
 use Context;
 use Hook;
 use Module;
-use PrestaShop\Module\PsAccounts\Api\Client\AccountsClient;
+use PrestaShop\Module\PsAccounts\Api\Client\ServicesAccountsClient;
 use PrestaShop\Module\PsAccounts\Handler\ErrorHandler\ErrorHandler;
 use PrestaShop\Module\PsAccounts\Repository\ConfigurationRepository;
 use PrestaShop\Module\PsAccounts\Exception\WebhookException;
@@ -86,7 +86,7 @@ class ps_accountsDispatchWebHookModuleFrontController extends FrontController
     public function display()
     {
         $validator = new Validator(
-            $this->module->getService(AccountsClient::class),
+            $this->module->getService(ServicesAccountsClient::class),
             $this->configuration,
             $this->module->getService(Context::class)
         );
@@ -118,6 +118,7 @@ class ps_accountsDispatchWebHookModuleFrontController extends FrontController
      *
      * @throws WebhookException
      * @throws ReflectionException
+     * @throws PrestaShopException
      */
     private function dispatchWebhook(array $headers, array $bodyValues)
     {

@@ -1,7 +1,12 @@
 services:
-  ps_accounts.db:
-    class: Db
-    factory: [ 'Db', 'getInstance' ]
+  _defaults:
+    public: true
+
+  ps_accounts.module:
+    class: 'Ps_accounts'
+    factory: ['Module', 'getInstanceByName']
+    arguments:
+      - 'ps_accounts'
 
   ps_accounts.context:
     class: Context
@@ -10,19 +15,13 @@ services:
   ps_accounts.shop_context:
     class: PrestaShop\Module\PsAccounts\Context\ShopContext
 
-  ps_accounts.link:
-    class: Link
-    factory: [ 'PrestaShop\Module\PsAccounts\Factory\Link', 'get' ]
-
-  ps_accounts.configuration_adapter:
+  ps_accounts.configuration:
     class: PrestaShop\Module\PsAccounts\Adapter\Configuration
     arguments:
       - '@ps_accounts.context'
 
-  ps_accounts.link_adapter:
-    class: PrestaShop\Module\PsAccounts\Adapter\LinkAdapter
-    arguments:
-      - '@ps_accounts.link'
+  ps_accounts.link:
+    class: PrestaShop\Module\PsAccounts\Adapter\Link
 
   #####################
   # services.yml
@@ -30,21 +29,19 @@ services:
   PrestaShop\Module\PsAccounts\Service\PsAccountsService:
     class: PrestaShop\Module\PsAccounts\Service\PsAccountsService
     arguments:
+      - { accounts_ui_url: '%ps_accounts.svc_accounts_ui_url%',
+          sso_account_url: '%ps_accounts.sso_account_url%' }
       - '@PrestaShop\Module\PsAccounts\Repository\ConfigurationRepository'
       - '@PrestaShop\Module\PsAccounts\Api\Client\FirebaseClient'
-      - '@ps_accounts.context'
-      - '@ps_accounts.shop_context'
-      - '@ps_accounts.link_adapter'
-      - { ui_url: '%accounts.svc_ui_url%', sso_manage_account_url: '%sso.manage_account%' }
+      - '@ps_accounts.module'
 
   PrestaShop\Module\PsAccounts\Service\PsBillingService:
     class: PrestaShop\Module\PsAccounts\Service\PsBillingService
     arguments:
+      - '@PrestaShop\Module\PsAccounts\Repository\ConfigurationRepository'
       - '@PrestaShop\Module\PsAccounts\Api\Client\ServicesBillingClient'
       - '@PrestaShop\Module\PsAccounts\Service\PsAccountsService'
-      - '@PrestaShop\Module\PsAccounts\Repository\ConfigurationRepository'
-      - '@ps_accounts.context'
-      - '@ps_accounts.shop_context'
+      - '@ps_accounts.module'
 
   #####################
   # handlers.yml
@@ -58,23 +55,24 @@ services:
   #####################
   # api.yml
 
-  PrestaShop\Module\PsAccounts\Api\Client\AccountsClient:
-    class: PrestaShop\Module\PsAccounts\Api\Client\AccountsClient
-    arguments:
-      - '@PrestaShop\Module\PsAccounts\Service\PsAccountsService'
-      - '@ps_accounts.link'
-
   PrestaShop\Module\PsAccounts\Api\Client\FirebaseClient:
     class: PrestaShop\Module\PsAccounts\Api\Client\FirebaseClient
     arguments:
-      - { api_key: '%firebase.api_key%' }
+      - { api_key: '%ps_accounts.firebase_api_key%' }
 
   PrestaShop\Module\PsAccounts\Api\Client\ServicesBillingClient:
     class: PrestaShop\Module\PsAccounts\Api\Client\ServicesBillingClient
     arguments:
+      - { api_url: '%ps_accounts.svc_billing_api_url%' }
       - '@PrestaShop\Module\PsAccounts\Service\PsAccountsService'
       - '@ps_accounts.link'
-      - { api_url: '%billing.svc_api_url%' }
+
+  PrestaShop\Module\PsAccounts\Api\Client\ServicesAccountsClient:
+    class: PrestaShop\Module\PsAccounts\Api\Client\AccountsClient
+    arguments:
+      - { api_url: '%ps_accounts.svc_accounts_api_url%' }
+      - '@PrestaShop\Module\PsAccounts\Service\PsAccountsService'
+      - '@ps_accounts.link'
 
   #####################
   # repository.yml
@@ -82,4 +80,4 @@ services:
   PrestaShop\Module\PsAccounts\Repository\ConfigurationRepository:
     class: PrestaShop\Module\PsAccounts\Repository\ConfigurationRepository
     arguments:
-      - '@ps_accounts.configuration_adapter'
+      - '@ps_accounts.configuration'
