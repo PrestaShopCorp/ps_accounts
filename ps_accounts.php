@@ -83,7 +83,7 @@ class Ps_accounts extends Module
     /**
      * @var string
      */
-    const VERSION = '2.11.0';
+    const VERSION = '2.12.0';
 
     /**
      * @var array
@@ -92,6 +92,7 @@ class Ps_accounts extends Module
         'accounts_type_sync',
         'accounts_sync',
         'accounts_deleted_objects',
+        'accounts_incremental_sync',
     ];
 
     /**
@@ -113,6 +114,8 @@ class Ps_accounts extends Module
         'actionObjectShopUrlUpdateAfter',
         'actionObjectProductDeleteAfter',
         'actionObjectCategoryDeleteAfter',
+        'actionObjectProductAddAfter',
+        'actionObjectProductUpdateAfter',
     ];
 
     /**
@@ -130,7 +133,7 @@ class Ps_accounts extends Module
         $this->author = 'PrestaShop';
         $this->need_instance = 0;
         $this->bootstrap = true;
-        $this->version = '2.11.0';
+        $this->version = '2.12.0';
         $this->module_key = 'abf2cd758b4d629b2944d3922ef9db73';
 
         parent::__construct();
@@ -368,5 +371,66 @@ class Ps_accounts extends Module
         );
 
         $deletedObjectsRepository->insertDeletedObject($id, $type, $date, $shopId);
+    }
+
+    /**
+     * @param array $parameters
+     *
+     * @return void
+     */
+    public function hookActionObjectProductUpdateAfter($parameters)
+    {
+        $product = $parameters['object'];
+
+        $this->insertIncrementalSyncObject(
+            $product->id,
+            'products',
+            date(DATE_ATOM),
+            $this->context->shop->id
+        );
+    }
+
+    /**
+     * @param array $parameters
+     *
+     * @return void
+     */
+    public function hookActionObjectProductAddAfter($parameters)
+    {
+        $product = $parameters['object'];
+
+        $this->insertIncrementalSyncObject(
+            $product->id,
+            'products',
+            date(DATE_ATOM),
+            $this->context->shop->id
+        );
+    }
+
+    /**
+     * @param int $objectId
+     * @param string $type
+     * @param string $date
+     * @param int $shopId
+     *
+     * @return void
+     */
+    private function insertIncrementalSyncObject($objectId, $type, $date, $shopId)
+    {
+        /** @var \PrestaShop\Module\PsAccounts\Repository\IncrementalSyncRepository $incrementalSyncRepository */
+        $incrementalSyncRepository = $this->getService(
+            \PrestaShop\Module\PsAccounts\Repository\IncrementalSyncRepository::class
+        );
+
+        /** @var \PrestaShop\Module\PsAccounts\Repository\LanguageRepository $languageRepository */
+        $languageRepository = $this->getService(
+            \PrestaShop\Module\PsAccounts\Repository\LanguageRepository::class
+        );
+
+        $languagesIsoCodes = $languageRepository->getLanguagesIsoCodes();
+
+        foreach ($languagesIsoCodes as $languagesIsoCode) {
+            $incrementalSyncRepository->insertIncrementalObject($objectId, $type, $date, $shopId, $languagesIsoCode);
+        }
     }
 }

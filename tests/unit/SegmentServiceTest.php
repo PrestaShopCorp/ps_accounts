@@ -4,12 +4,12 @@ use GuzzleHttp\Exception\ClientException;
 use PHPUnit\Framework\TestCase;
 use PrestaShop\Module\PsAccounts\Api\EventBusProxyClient;
 use PrestaShop\Module\PsAccounts\Service\CompressionService;
-use PrestaShop\Module\PsAccounts\Service\SegmentService;
+use PrestaShop\Module\PsAccounts\Service\ProxyService;
 
-class SegmentServiceTest extends TestCase
+class ProxyServiceTest extends TestCase
 {
     /**
-     * @var SegmentService
+     * @var ProxyService
      */
     private $segmentService;
     /**
@@ -31,7 +31,7 @@ class SegmentServiceTest extends TestCase
         $this->context = Context::getContext();
         $this->eventBusProxyClient = $this->createMock(EventBusProxyClient::class);
         $this->compressionService = $this->createMock(CompressionService::class);
-        $this->segmentService = new SegmentService($this->eventBusProxyClient, $this->compressionService);
+        $this->segmentService = new ProxyService($this->eventBusProxyClient, $this->compressionService);
     }
 
     public function testValidUpload()

@@ -22,7 +22,7 @@ class ps_AccountsApiThemesModuleFrontController extends AbstractApiController
         $themeInfo = $themeRepository->getThemes();
 
         try {
-            $response = $this->segmentService->upload($jobId, $themeInfo);
+            $response = $this->proxyService->upload($jobId, $themeInfo);
         } catch (EnvVarException $exception) {
             $this->exitWithExceptionMessage($exception);
         }

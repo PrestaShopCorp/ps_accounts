@@ -46,4 +46,9 @@ class GoogleTaxonomyDataProvider implements PaginatedApiDataProviderInterface
     {
         return $this->googleTaxonomyRepository->getRemainingTaxonomyRepositories($offset, $this->context->shop->id);
     }
+
+    public function getFormattedDataIncremental($limit, $langIso)
+    {
+        return [];
+    }
 }
