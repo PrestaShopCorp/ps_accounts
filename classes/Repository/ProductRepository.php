@@ -101,13 +101,13 @@ class ProductRepository
      */
     public function getRemainingProductsCount($offset, $langId)
     {
-        $products = $this->getProducts(0, 1000000000, $langId);
+        $products = $this->getProducts($offset, 1, $langId);
 
         if (!is_array($products) || empty($products)) {
             return 0;
         }
 
-        return (int) (count($products) - $offset);
+        return (int) (count($products));
     }
 
     /**
@@ -294,5 +294,33 @@ class ProductRepository
         }
 
         return '';
+    }
+
+    /**
+     * @param int $limit
+     * @param string $langIso
+     * @param int $langId
+     *
+     * @return array
+     *
+     * @throws PrestaShopDatabaseException
+     */
+    public function getProductsIncremental($limit, $langIso, $langId)
+    {
+        $query = $this->getBaseQuery($this->context->shop->id, $langId);
+
+        $query->select('p.id_product, IFNULL(pas.id_product_attribute, 0) as id_attribute,
+            pl.name, pl.description, pl.description_short, pl.link_rewrite, cl.name as default_category,
+            ps.id_category_default, IFNULL(pa.reference, p.reference) as reference, IFNULL(pa.upc, p.upc) as upc,
+            IFNULL(pa.ean13, p.ean13) as ean, IFNULL(pa.isbn, p.isbn) as isbn,
+            ps.condition, ps.visibility, ps.active, sa.quantity, m.name as manufacturer,
+            (p.weight + IFNULL(pas.weight, 0)) as weight, (ps.price + IFNULL(pas.price, 0)) as price_tax_excl,
+            p.date_add as created_at, p.date_upd as updated_at')
+            ->innerJoin('accounts_incremental_sync', 'aic', 'aic.id_object = p.id_product AND aic.id_shop = ps.id_shop AND aic.type = "products" and aic.lang_iso = "' . pSQL($langIso) . '"')
+            ->limit($limit);
+
+        $result = $this->db->executeS($query);
+
+        return is_array($result) ? $result : [];
     }
 }
