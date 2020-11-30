@@ -178,7 +178,6 @@ class AdminAjaxPsAccountsController extends ModuleAdminController
             header('Content-Type: text/json');
 
             $this->ajaxDie(json_encode($response['body']));
-
         } catch (Exception $e) {
             $this->errorHandler->handle($e, $e->getCode());
         }
