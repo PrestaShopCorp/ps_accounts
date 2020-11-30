@@ -48,4 +48,29 @@ class SegmentService
 
         return $response;
     }
+
+    /**
+     * @param string $jobId
+     * @param array $data
+     *
+     * @return array
+     *
+     * @throws EnvVarException
+     */
+    public function delete($jobId, $data)
+    {
+        try {
+            $compressedData = $this->compressionService->gzipCompressData($data);
+        } catch (Exception $exception) {
+            return ['error' => $exception->getMessage()];
+        }
+
+        try {
+            $response = $this->eventBusProxyClient->delete($jobId, $compressedData);
+        } catch (ClientException $exception) {
+            return ['error' => $exception->getMessage()];
+        }
+
+        return $response;
+    }
 }
