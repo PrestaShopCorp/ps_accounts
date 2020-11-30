@@ -23,7 +23,7 @@
     "ext-json": "*",
     "guzzlehttp/guzzle": "~5.0",
     "monolog/monolog": "1.25.3",
-    "prestashop/prestashop-accounts-auth": "^2.1.7",
+    "prestashop/prestashop-accounts-auth": "^2.2.0",
     "prestashop/module-lib-service-container": "^1.2"
   },
   "require-dev": {
