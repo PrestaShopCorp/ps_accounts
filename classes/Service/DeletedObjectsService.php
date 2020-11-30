@@ -18,15 +18,15 @@ class DeletedObjectsService
      */
     private $deletedObjectsRepository;
     /**
-     * @var SegmentService
+     * @var ProxyService
      */
-    private $segmentService;
+    private $proxyService;
 
-    public function __construct(Context $context, DeletedObjectsRepository $deletedObjectsRepository, SegmentService $segmentService)
+    public function __construct(Context $context, DeletedObjectsRepository $deletedObjectsRepository, ProxyService $proxyService)
     {
         $this->context = $context;
         $this->deletedObjectsRepository = $deletedObjectsRepository;
-        $this->segmentService = $segmentService;
+        $this->proxyService = $proxyService;
     }
 
     /**
@@ -48,7 +48,7 @@ class DeletedObjectsService
 
         $data = $this->formatData($deletedObjects);
 
-        $response = $this->segmentService->delete($jobId, $data);
+        $response = $this->proxyService->delete($jobId, $data);
 
         if ($response['httpCode'] == 200) {
             foreach ($data as $dataItem) {
