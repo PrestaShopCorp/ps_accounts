@@ -464,6 +464,40 @@ class Ps_accounts extends Module
     }
 
     /**
+     * @param array $parameters
+     *
+     * @return void
+     */
+    public function hookActionObjectCategoryUpdateAfter($parameters)
+    {
+        $category = $parameters['object'];
+
+        $this->insertIncrementalSyncObject(
+            $category->id,
+            'categories',
+            date(DATE_ATOM),
+            $this->context->shop->id
+        );
+    }
+
+    /**
+     * @param array $parameters
+     *
+     * @return void
+     */
+    public function hookActionObjectCategoryAddAfter($parameters)
+    {
+        $category = $parameters['object'];
+
+        $this->insertIncrementalSyncObject(
+            $category->id,
+            'categories',
+            date(DATE_ATOM),
+            $this->context->shop->id
+        );
+    }
+
+    /**
      * @param int $objectId
      * @param string $type
      * @param string $date
