@@ -332,6 +332,23 @@ class Ps_accounts extends Module
      *
      * @return void
      */
+    public function hookActionObjectProductDeleteAfter($parameters)
+    {
+        $product = $parameters['object'];
+
+        $this->insertDeletedObject(
+            $product->id,
+            'products',
+            date(DATE_ATOM),
+            $this->context->shop->id
+        );
+    }
+
+    /**
+     * @param array $parameters
+     *
+     * @return void
+     */
     public function hookActionObjectCategoryDeleteAfter($parameters)
     {
         $category = $parameters['object'];
@@ -357,7 +374,8 @@ class Ps_accounts extends Module
             $product->id,
             'products',
             date(DATE_ATOM),
-            $this->context->shop->id
+            $this->context->shop->id,
+            true
         );
     }
 
@@ -374,7 +392,8 @@ class Ps_accounts extends Module
             $product->id,
             'products',
             date(DATE_ATOM),
-            $this->context->shop->id
+            $this->context->shop->id,
+            true
         );
     }
 
@@ -383,13 +402,13 @@ class Ps_accounts extends Module
      *
      * @return void
      */
-    public function hookActionObjectProductDeleteAfter($parameters)
+    public function hookActionObjectCartAddAfter($parameters)
     {
-        $product = $parameters['object'];
+        $cart = $parameters['object'];
 
-        $this->insertDeletedObject(
-            $product->id,
-            'products',
+        $this->insertIncrementalSyncObject(
+            $cart->id,
+            'carts',
             date(DATE_ATOM),
             $this->context->shop->id
         );
@@ -417,13 +436,13 @@ class Ps_accounts extends Module
      *
      * @return void
      */
-    public function hookActionObjectCartAddAfter($parameters)
+    public function hookActionObjectOrderAddAfter($parameters)
     {
-        $cart = $parameters['object'];
+        $order = $parameters['object'];
 
         $this->insertIncrementalSyncObject(
-            $cart->id,
-            'carts',
+            $order->id,
+            'orders',
             date(DATE_ATOM),
             $this->context->shop->id
         );
@@ -451,23 +470,6 @@ class Ps_accounts extends Module
      *
      * @return void
      */
-    public function hookActionObjectOrderAddAfter($parameters)
-    {
-        $order = $parameters['object'];
-
-        $this->insertIncrementalSyncObject(
-            $order->id,
-            'orders',
-            date(DATE_ATOM),
-            $this->context->shop->id
-        );
-    }
-
-    /**
-     * @param array $parameters
-     *
-     * @return void
-     */
     public function hookActionObjectCategoryUpdateAfter($parameters)
     {
         $category = $parameters['object'];
@@ -476,7 +478,8 @@ class Ps_accounts extends Module
             $category->id,
             'categories',
             date(DATE_ATOM),
-            $this->context->shop->id
+            $this->context->shop->id,
+            true
         );
     }
 
@@ -493,7 +496,8 @@ class Ps_accounts extends Module
             $category->id,
             'categories',
             date(DATE_ATOM),
-            $this->context->shop->id
+            $this->context->shop->id,
+            true
         );
     }
 
@@ -502,10 +506,11 @@ class Ps_accounts extends Module
      * @param string $type
      * @param string $date
      * @param int $shopId
+     * @param bool $hasMultiLang
      *
      * @return void
      */
-    private function insertIncrementalSyncObject($objectId, $type, $date, $shopId)
+    private function insertIncrementalSyncObject($objectId, $type, $date, $shopId, $hasMultiLang = false)
     {
         /** @var \PrestaShop\Module\PsAccounts\Repository\IncrementalSyncRepository $incrementalSyncRepository */
         $incrementalSyncRepository = $this->getService(
@@ -517,9 +522,15 @@ class Ps_accounts extends Module
             \PrestaShop\Module\PsAccounts\Repository\LanguageRepository::class
         );
 
-        $languagesIsoCodes = $languageRepository->getLanguagesIsoCodes();
+        if ($hasMultiLang) {
+            $languagesIsoCodes = $languageRepository->getLanguagesIsoCodes();
 
-        foreach ($languagesIsoCodes as $languagesIsoCode) {
+            foreach ($languagesIsoCodes as $languagesIsoCode) {
+                $incrementalSyncRepository->insertIncrementalObject($objectId, $type, $date, $shopId, $languagesIsoCode);
+            }
+        } else {
+            $languagesIsoCode = $languageRepository->getDefaultLanguageIsoCode();
+
             $incrementalSyncRepository->insertIncrementalObject($objectId, $type, $date, $shopId, $languagesIsoCode);
         }
     }
