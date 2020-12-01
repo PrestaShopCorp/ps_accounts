@@ -115,4 +115,9 @@ class CartDataProvider implements PaginatedApiDataProviderInterface
             $cartProduct['quantity'] = (int) $cartProduct['quantity'];
         }
     }
+
+    public function getFormattedDataIncremental($limit, $langIso = null)
+    {
+        return [];
+    }
 }

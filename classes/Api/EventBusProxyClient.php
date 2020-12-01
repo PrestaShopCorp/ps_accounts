@@ -102,4 +102,45 @@ class EventBusProxyClient extends GenericClient
 
         return $response;
     }
+
+    /**
+     * @param string $jobId
+     * @param string $compressedData
+     *
+     * @return array
+     *
+     * @throws EnvVarException
+     */
+    public function delete($jobId, $compressedData)
+    {
+        if (!isset($_ENV['EVENT_BUS_PROXY_API_URL'])) {
+            throw new EnvVarException('EVENT_BUS_PROXY_API_URL is not defined');
+        }
+
+        $route = $_ENV['EVENT_BUS_PROXY_API_URL'] . "/delete/$jobId";
+
+        $this->setRoute($route);
+
+        $file = new PostFile(
+            'file',
+            $compressedData,
+            'file.gz'
+        );
+
+        $response = $this->post([
+            'headers' => [
+                'Content-Type' => 'binary/octet-stream',
+                'Content-Encoding' => 'gzip',
+            ],
+            'body' => [
+                'file' => $file,
+            ],
+        ]);
+
+        if (is_array($response)) {
+            $response['upload_url'] = $route;
+        }
+
+        return $response;
+    }
 }
