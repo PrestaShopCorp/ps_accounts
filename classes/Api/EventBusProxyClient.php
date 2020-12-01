@@ -110,8 +110,10 @@ class EventBusProxyClient extends GenericClient
      * @return array
      *
      * @throws EnvVarException
+     *
+     * FIXME: this method should respect parent class GenericClient::delete parameters
      */
-    public function delete($jobId, $compressedData)
+    public function delete($jobId, $compressedData) /** @phpstan-ignore-line */
     {
         if (!isset($_ENV['EVENT_BUS_PROXY_API_URL'])) {
             throw new EnvVarException('EVENT_BUS_PROXY_API_URL is not defined');
