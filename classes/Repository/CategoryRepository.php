@@ -178,6 +178,14 @@ class CategoryRepository
         return (int) $this->db->getValue($query);
     }
 
+    /**
+     * @param int $limit
+     * @param string $langIso
+     *
+     * @return array|bool|\mysqli_result|\PDOStatement|resource|null
+     *
+     * @throws \PrestaShopDatabaseException
+     */
     public function getCategoriesIncremental($limit, $langIso)
     {
         $query = $this->getBaseQuery($this->context->shop->id, $langIso);
