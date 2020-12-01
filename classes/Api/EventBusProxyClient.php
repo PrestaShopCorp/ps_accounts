@@ -110,8 +110,6 @@ class EventBusProxyClient extends GenericClient
      * @return array
      *
      * @throws EnvVarException
-     *
-     * FIXME: this method should respect parent class GenericClient::delete parameters
      */
     public function delete($jobId, $compressedData)
     {
