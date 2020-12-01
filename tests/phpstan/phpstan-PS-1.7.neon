@@ -34,5 +34,7 @@ parameters:
 		- '#Property Ps_accounts::\$serviceContainer has unknown class PrestaShop\\ModuleLibServiceContainer\\DependencyInjection\\ServiceContainer as its type.#'
 		- '#Instantiated class PrestaShop\\ModuleLibServiceContainer\\DependencyInjection\\ServiceContainer not found.#'
 		- '#Call to method getService\(\) on an unknown class PrestaShop\\ModuleLibServiceContainer\\DependencyInjection\\ServiceContainer.#'
+		- '#Parameter \#1 \$jobId of method PrestaShop\\Module\\PsAccounts\\Api\\EventBusProxyClient::delete\(\) is required but parameter \#1 \$options of method PrestaShop\\AccountsAuth\\Api\\Client\\GenericClient::delete\(\) is optional.#'
+		- '#Parameter \#2 \$compressedData of method PrestaShop\\Module\\PsAccounts\\Api\\EventBusProxyClient::delete\(\) is not optional.#'
 
 	level: 7
