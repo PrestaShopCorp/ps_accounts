@@ -234,7 +234,7 @@ abstract class AbstractApiController extends ModuleFrontController
     {
         $httpStatusText = "HTTP/1.1 $code";
 
-        if (in_array((int) $code, Config::HTTP_STATUS_MESSAGES)) {
+        if (array_key_exists((int) $code, Config::HTTP_STATUS_MESSAGES)) {
             $httpStatusText .= ' ' . Config::HTTP_STATUS_MESSAGES[(int) $code];
         }
 
