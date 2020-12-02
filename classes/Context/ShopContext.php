@@ -32,4 +32,12 @@ class ShopContext
     {
         return version_compare(_PS_VERSION_, '1.7.0.0', '>=');
     }
+
+    /**
+     * @return bool
+     */
+    public function isShop173()
+    {
+        return version_compare(_PS_VERSION_, '1.7.3.0', '>=');
+    }
 }

@@ -109,6 +109,8 @@ class ServicesAccountsClient extends GenericClient
      * @param array $body
      *
      * @return array
+     *
+     * @throws \PrestaShopException
      */
     public function verifyWebhook(array $headers, array $body)
     {

@@ -115,6 +115,11 @@ class Ps_accounts extends Module
      */
     private $serviceContainer;
 
+//    /**
+//     * @var \Symfony\Component\DependencyInjection\ContainerInterface
+//     */
+//    protected $container;
+
     /**
      * @var array
      */
@@ -144,13 +149,6 @@ class Ps_accounts extends Module
             'ajax' => 'AdminAjaxPsAccounts',
             'resetOnboarding' => 'AdminResetOnboarding',
         ];
-
-        //$this->serviceContainer = new \PrestaShop\ModuleLibServiceContainer\DependencyInjection\ServiceContainer(
-        $this->serviceContainer = new \PrestaShop\Module\PsAccounts\DependencyInjection\ServiceContainer(
-            $this->name,
-            $this->getLocalPath(),
-            $this->getModuleEnv()
-        );
 
         $this->getLogger()->info('Loading ' . $this->name . ' Env : [' . $this->getModuleEnv() .']');
     }
@@ -199,8 +197,6 @@ class Ps_accounts extends Module
 
         $installer = new PrestaShop\Module\PsAccounts\Module\Install($this, Db::getInstance());
 
-
-
         return $installer->installInMenu()
             && $installer->installDatabaseTables()
             && parent::install()
@@ -227,18 +223,37 @@ class Ps_accounts extends Module
      */
     public function getService($serviceName)
     {
+        if (null === $this->serviceContainer) {
+            //$this->serviceContainer = new \PrestaShop\ModuleLibServiceContainer\DependencyInjection\ServiceContainer(
+            $this->serviceContainer = new \PrestaShop\Module\PsAccounts\DependencyInjection\ServiceContainer(
+                $this->name,
+                $this->getLocalPath(),
+                $this->getModuleEnv()
+            );
+        }
         return $this->serviceContainer->getService($serviceName);
     }
 
-    /**
-     * @param string $key
-     *
-     * @return mixed
-     */
-    public function getParameter($key)
-    {
-        return $this->serviceContainer->getContainer()->getParameter($key);
-    }
+//    /**
+//     * Override of native function to always retrieve Symfony container instead of legacy admin container on legacy context.
+//     *
+//     * @param string $serviceName
+//     *
+//     * @return mixed
+//     */
+//    public function getService($serviceName)
+//    {
+//        if ((new \PrestaShop\Module\PsAccounts\Context\ShopContext())->isShop173()) {
+//            // 1.7.3
+//            // 1.7.6
+//            //$this->context->controller->getContainer()
+//
+//            if (null === $this->container) {
+//                $this->container = \PrestaShop\PrestaShop\Adapter\SymfonyContainer::getInstance();
+//            }
+//        }
+//        return $this->container->get($serviceName);
+//    }
 
     /**
      * Hook executed on every backoffice pages

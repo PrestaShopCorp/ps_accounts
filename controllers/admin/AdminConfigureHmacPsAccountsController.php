@@ -53,8 +53,9 @@ class AdminConfigureHmacPsAccountsController extends ModuleAdminController
 
             Tools::redirect(
                 $psAccountsService->generateVerifyLink(
-                    _PS_ROOT_DIR_,
-                    Tools::getAllValues()
+                    Tools::getAllValues(),
+                    _PS_ROOT_DIR_
+
                 )
             );
         } catch (Exception $e) {

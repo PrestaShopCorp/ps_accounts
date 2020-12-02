@@ -50,7 +50,7 @@ services:
     class: PrestaShop\Module\PsAccounts\Handler\ErrorHandler\ErrorHandler
     arguments:
       - '@PrestaShop\Module\PsAccounts\Service\PsAccountsService'
-      - '%sentry.credentials%'
+      - '%ps_accounts.sentry_credentials%'
 
   #####################
   # api.yml

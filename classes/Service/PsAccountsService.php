@@ -84,6 +84,16 @@ class PsAccountsService
     private $module;
 
     /**
+     * @var Context
+     */
+    private $context;
+
+    /**
+     * @var ShopContext
+     */
+    private $shopContext;
+
+    /**
      * PsAccountsService constructor.
      *
      * @param array $config
@@ -102,6 +112,8 @@ class PsAccountsService
         $this->module = $module;
 
         $this->link = $this->module->getService('ps_accounts.link');
+        $this->context = $this->module->getContext();
+        $this->shopContext = $this->module->getService('ps_accounts.shop_context');
 
         $this->accountsUiUrl = $config['accounts_ui_url'];
         $this->ssoAccountUrl = $config['sso_account_url'];
@@ -298,6 +310,8 @@ class PsAccountsService
 
     /**
      * @return string
+     *
+     * @throws \PrestaShopException
      */
     public function getDomainName()
     {
@@ -513,7 +527,11 @@ class PsAccountsService
         );
 
         if ($uuid && strlen($uuid) > 0) {
-            $response = (new ServicesAccountsClient($this, $this->getContext()->link))->changeUrl(
+
+            /** @var ServicesAccountsClient $servicesAcountsClient */
+            $servicesAcountsClient = $this->module->getService(ServicesAccountsClient::class);
+
+            $response = $servicesAcountsClient->changeUrl(
                 $uuid,
                 [
                     'protocol' => $protocol,
@@ -687,7 +705,7 @@ class PsAccountsService
 
         $token = (new Parser())->parse($this->configuration->getFirebaseIdToken());
 
-        return $token->isExpired();
+        return $token->isExpired(new \DateTime());
     }
 
     /**
