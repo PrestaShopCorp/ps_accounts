@@ -25,10 +25,8 @@
         <li>PHP version : {$config.phpVersion}</li>
         <li>Firebase email : {$config.firebase_email}</li>
         <li>Is Firebase email verified : {$config.firebase_email_is_verified}</li>
-        <li>Firebase local ID : {$config.firebase_local_id}</li>
         <li>Firebase ID token : {$config.firebase_id_token}</li>
         <li>Firebase refresh token : {$config.firebase_refresh_token}</li>
-        <li>Firebase admin token : {$config.firebase_admin_token}</li>
     </ul>
 </div>
 

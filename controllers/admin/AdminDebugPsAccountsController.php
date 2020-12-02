@@ -41,15 +41,13 @@ class AdminDebugPsAccountsController extends ModuleAdminController
         $this->context->smarty->assign(array(
             'config' => [
                 'shopId' => (int)$this->context->shop->id,
-                'moduleVersion' => \Ps_checkout::VERSION,
+                'moduleVersion' => \Ps_accounts::VERSION,
                 'psVersion' => _PS_VERSION_,
                 'phpVersion' => phpversion(),
                 'firebase_email' => \Configuration::get('PS_ACCOUNTS_FIREBASE_EMAIL'),
                 'firebase_email_is_verified' => \Configuration::get('PS_ACCOUNTS_FIREBASE_EMAIL_IS_VERIFIED'),
-                'firebase_local_id' => \Configuration::get('PS_ACCOUNTS_FIREBASE_LOCAL_ID'),
                 'firebase_id_token' => \Configuration::get('PS_ACCOUNTS_FIREBASE_ID_TOKEN'),
                 'firebase_refresh_token' => \Configuration::get('PS_ACCOUNTS_FIREBASE_REFRESH_TOKEN'),
-                'firebase_admin_token' => \Configuration::get('PS_ACCOUNTS_FIREBASE_ADMIN_TOKEN'),
             ]
         ));
         $this->content = $this->context->smarty->fetch($this->module->getLocalPath() . '/views/templates/admin/debug.tpl');
