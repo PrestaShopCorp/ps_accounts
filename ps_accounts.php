@@ -83,7 +83,7 @@ class Ps_accounts extends Module
     /**
      * @var string
      */
-    const VERSION = '2.13.0';
+    const VERSION = '2.13.1';
 
     /**
      * @var array
@@ -133,7 +133,7 @@ class Ps_accounts extends Module
         $this->author = 'PrestaShop';
         $this->need_instance = 0;
         $this->bootstrap = true;
-        $this->version = '2.13.0';
+        $this->version = '2.13.1';
         $this->module_key = 'abf2cd758b4d629b2944d3922ef9db73';
 
         parent::__construct();
@@ -326,23 +326,6 @@ class Ps_accounts extends Module
      *
      * @return void
      */
-    public function hookActionObjectProductDeleteAfter($parameters)
-    {
-        $product = $parameters['object'];
-
-        $this->insertDeletedObject(
-            $product->id,
-            'products',
-            date(DATE_ATOM),
-            $this->context->shop->id
-        );
-    }
-
-    /**
-     * @param array $parameters
-     *
-     * @return void
-     */
     public function hookActionObjectCategoryDeleteAfter($parameters)
     {
         $category = $parameters['object'];
@@ -356,21 +339,20 @@ class Ps_accounts extends Module
     }
 
     /**
-     * @param int $id
-     * @param string $type
-     * @param string $date
-     * @param int $shopId
+     * @param array $parameters
      *
      * @return void
      */
-    private function insertDeletedObject($id, $type, $date, $shopId)
+    public function hookActionObjectProductAddAfter($parameters)
     {
-        /** @var \PrestaShop\Module\PsAccounts\Repository\DeletedObjectsRepository $deletedObjectsRepository */
-        $deletedObjectsRepository = $this->getService(
-            \PrestaShop\Module\PsAccounts\Repository\DeletedObjectsRepository::class
-        );
+        $product = $parameters['object'];
 
-        $deletedObjectsRepository->insertDeletedObject($id, $type, $date, $shopId);
+        $this->insertIncrementalSyncObject(
+            $product->id,
+            'products',
+            date(DATE_ATOM),
+            $this->context->shop->id
+        );
     }
 
     /**
@@ -395,11 +377,11 @@ class Ps_accounts extends Module
      *
      * @return void
      */
-    public function hookActionObjectProductAddAfter($parameters)
+    public function hookActionObjectProductDeleteAfter($parameters)
     {
         $product = $parameters['object'];
 
-        $this->insertIncrementalSyncObject(
+        $this->insertDeletedObject(
             $product->id,
             'products',
             date(DATE_ATOM),
@@ -432,5 +414,29 @@ class Ps_accounts extends Module
         foreach ($languagesIsoCodes as $languagesIsoCode) {
             $incrementalSyncRepository->insertIncrementalObject($objectId, $type, $date, $shopId, $languagesIsoCode);
         }
+    }
+
+    /**
+     * @param int $id
+     * @param string $type
+     * @param string $date
+     * @param int $shopId
+     *
+     * @return void
+     */
+    private function insertDeletedObject($id, $type, $date, $shopId)
+    {
+        /** @var \PrestaShop\Module\PsAccounts\Repository\DeletedObjectsRepository $deletedObjectsRepository */
+        $deletedObjectsRepository = $this->getService(
+            \PrestaShop\Module\PsAccounts\Repository\DeletedObjectsRepository::class
+        );
+
+        /** @var \PrestaShop\Module\PsAccounts\Repository\IncrementalSyncRepository $incrementalSyncRepository */
+        $incrementalSyncRepository = $this->getService(
+            \PrestaShop\Module\PsAccounts\Repository\IncrementalSyncRepository::class
+        );
+
+        $deletedObjectsRepository->insertDeletedObject($id, $type, $date, $shopId);
+        $incrementalSyncRepository->removeIncrementalSyncObject($type, $id);
     }
 }

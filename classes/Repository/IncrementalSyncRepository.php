@@ -90,4 +90,20 @@ class IncrementalSyncRepository
 
         return (int) $this->db->getValue($query);
     }
+
+    /**
+     * @param string $type
+     * @param int $objectId
+     *
+     * @return bool
+     */
+    public function removeIncrementalSyncObject($type, $objectId)
+    {
+        return $this->db->delete(
+            self::INCREMENTAL_SYNC_TABLE,
+            'type = "' . pSQL($type) . '"
+            AND id_shop = ' . $this->context->shop->id . '
+            AND id_object = ' . (int) $objectId
+        );
+    }
 }
