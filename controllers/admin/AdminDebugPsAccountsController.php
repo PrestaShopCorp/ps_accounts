@@ -1,8 +1,5 @@
 <?php
 
-use PrestaShop\Module\PrestashopCheckout\Adapter\LinkAdapter;
-use PrestaShop\Module\PrestashopCheckout\ShopUuidManager;
-
 /**
  * 2007-2020 PrestaShop and Contributors.
  *
@@ -21,7 +18,6 @@ use PrestaShop\Module\PrestashopCheckout\ShopUuidManager;
  * @license   https://opensource.org/licenses/AFL-3.0 Academic Free License 3.0 (AFL-3.0)
  * International Registered Trademark & Property of PrestaShop SA
  */
-
 class AdminDebugPsAccountsController extends ModuleAdminController
 {
     /**
@@ -36,11 +32,14 @@ class AdminDebugPsAccountsController extends ModuleAdminController
         $this->context = \Context::getContext();
     }
 
+    /**
+     * @return void
+     */
     public function initContent()
     {
-        $this->context->smarty->assign(array(
+        $this->context->smarty->assign([
             'config' => [
-                'shopId' => (int)$this->context->shop->id,
+                'shopId' => (int) $this->context->shop->id,
                 'moduleVersion' => \Ps_accounts::VERSION,
                 'psVersion' => _PS_VERSION_,
                 'phpVersion' => phpversion(),
@@ -48,8 +47,8 @@ class AdminDebugPsAccountsController extends ModuleAdminController
                 'firebase_email_is_verified' => \Configuration::get('PS_ACCOUNTS_FIREBASE_EMAIL_IS_VERIFIED'),
                 'firebase_id_token' => \Configuration::get('PS_ACCOUNTS_FIREBASE_ID_TOKEN'),
                 'firebase_refresh_token' => \Configuration::get('PS_ACCOUNTS_FIREBASE_REFRESH_TOKEN'),
-            ]
-        ));
+            ],
+        ]);
         $this->content = $this->context->smarty->fetch($this->module->getLocalPath() . '/views/templates/admin/debug.tpl');
         parent::initContent();
     }
