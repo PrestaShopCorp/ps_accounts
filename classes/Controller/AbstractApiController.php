@@ -240,6 +240,8 @@ abstract class AbstractApiController extends ModuleFrontController
             $httpStatusText .= ' ' . $response['body']['status'];
         }
 
+        $response['httpCode'] = (int) $code;
+
         header('Cache-Control: no-store, no-cache, must-revalidate, post-check=0, pre-check=0');
         header('Content-Type: application/json;charset=utf-8');
         header($httpStatusText);
