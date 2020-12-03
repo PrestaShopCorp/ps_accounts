@@ -61,6 +61,9 @@ class ModuleDataProvider implements PaginatedApiDataProviderInterface
 
     public function getFormattedDataIncremental($limit, $langIso = null)
     {
-        return [];
+        return [
+            'ids' => [],
+            'data' => [],
+        ];
     }
 }

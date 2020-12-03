@@ -1,6 +1,7 @@
 <?php
 
 use PHPUnit\Framework\TestCase;
+use PrestaShop\Module\PsAccounts\Formatter\ArrayFormatter;
 use PrestaShop\Module\PsAccounts\Repository\ConfigurationRepository;
 use PrestaShop\Module\PsAccounts\Repository\CurrencyRepository;
 use PrestaShop\Module\PsAccounts\Repository\LanguageRepository;
@@ -24,6 +25,18 @@ class ServerInformationRepositoryTest extends TestCase
      * @var ConfigurationRepository
      */
     private $configurationRepository;
+    /**
+     * @var ArrayFormatter
+     */
+    private $arrayFormatter;
+    /**
+     * @var Context
+     */
+    private $context;
+    /**
+     * @var Db
+     */
+    private $db;
 
     protected function setUp()
     {
@@ -31,11 +44,17 @@ class ServerInformationRepositoryTest extends TestCase
         $this->currencyRepository = $this->createMock(CurrencyRepository::class);
         $this->languageRepository = $this->createMock(LanguageRepository::class);
         $this->configurationRepository = $this->createMock(ConfigurationRepository::class);
+        $this->arrayFormatter = $this->createMock(ArrayFormatter::class);
+        $this->context = $this->createMock(Context::class);
+        $this->db = $this->createMock(Db::class);
 
         $this->serverInformationRepository = new ServerInformationRepository(
+            $this->context,
+            $this->db,
             $this->currencyRepository,
             $this->languageRepository,
-            $this->configurationRepository
+            $this->configurationRepository,
+            $this->arrayFormatter
         );
     }
 

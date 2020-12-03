@@ -83,7 +83,7 @@ class Ps_accounts extends Module
     /**
      * @var string
      */
-    const VERSION = '2.13.1';
+    const VERSION = '2.14.0';
 
     /**
      * @var array
@@ -116,6 +116,12 @@ class Ps_accounts extends Module
         'actionObjectCategoryDeleteAfter',
         'actionObjectProductAddAfter',
         'actionObjectProductUpdateAfter',
+        'actionObjectCartAddAfter',
+        'actionObjectCartUpdateAfter',
+        'actionObjectOrderAddAfter',
+        'actionObjectOrderUpdateAfter',
+        'actionObjectCategoryAddAfter',
+        'actionObjectCategoryUpdateAfter',
     ];
 
     /**
@@ -133,7 +139,7 @@ class Ps_accounts extends Module
         $this->author = 'PrestaShop';
         $this->need_instance = 0;
         $this->bootstrap = true;
-        $this->version = '2.13.1';
+        $this->version = '2.14.0';
         $this->module_key = 'abf2cd758b4d629b2944d3922ef9db73';
 
         parent::__construct();
@@ -326,6 +332,23 @@ class Ps_accounts extends Module
      *
      * @return void
      */
+    public function hookActionObjectProductDeleteAfter($parameters)
+    {
+        $product = $parameters['object'];
+
+        $this->insertDeletedObject(
+            $product->id,
+            'products',
+            date(DATE_ATOM),
+            $this->context->shop->id
+        );
+    }
+
+    /**
+     * @param array $parameters
+     *
+     * @return void
+     */
     public function hookActionObjectCategoryDeleteAfter($parameters)
     {
         $category = $parameters['object'];
@@ -351,7 +374,8 @@ class Ps_accounts extends Module
             $product->id,
             'products',
             date(DATE_ATOM),
-            $this->context->shop->id
+            $this->context->shop->id,
+            true
         );
     }
 
@@ -368,6 +392,24 @@ class Ps_accounts extends Module
             $product->id,
             'products',
             date(DATE_ATOM),
+            $this->context->shop->id,
+            true
+        );
+    }
+
+    /**
+     * @param array $parameters
+     *
+     * @return void
+     */
+    public function hookActionObjectCartAddAfter($parameters)
+    {
+        $cart = $parameters['object'];
+
+        $this->insertIncrementalSyncObject(
+            $cart->id,
+            'carts',
+            date(DATE_ATOM),
             $this->context->shop->id
         );
     }
@@ -377,15 +419,85 @@ class Ps_accounts extends Module
      *
      * @return void
      */
-    public function hookActionObjectProductDeleteAfter($parameters)
+    public function hookActionObjectCartUpdateAfter($parameters)
     {
-        $product = $parameters['object'];
+        $cart = $parameters['object'];
 
-        $this->insertDeletedObject(
-            $product->id,
-            'products',
+        $this->insertIncrementalSyncObject(
+            $cart->id,
+            'carts',
             date(DATE_ATOM),
             $this->context->shop->id
+        );
+    }
+
+    /**
+     * @param array $parameters
+     *
+     * @return void
+     */
+    public function hookActionObjectOrderAddAfter($parameters)
+    {
+        $order = $parameters['object'];
+
+        $this->insertIncrementalSyncObject(
+            $order->id,
+            'orders',
+            date(DATE_ATOM),
+            $this->context->shop->id
+        );
+    }
+
+    /**
+     * @param array $parameters
+     *
+     * @return void
+     */
+    public function hookActionObjectOrderUpdateAfter($parameters)
+    {
+        $order = $parameters['object'];
+
+        $this->insertIncrementalSyncObject(
+            $order->id,
+            'orders',
+            date(DATE_ATOM),
+            $this->context->shop->id
+        );
+    }
+
+    /**
+     * @param array $parameters
+     *
+     * @return void
+     */
+    public function hookActionObjectCategoryUpdateAfter($parameters)
+    {
+        $category = $parameters['object'];
+
+        $this->insertIncrementalSyncObject(
+            $category->id,
+            'categories',
+            date(DATE_ATOM),
+            $this->context->shop->id,
+            true
+        );
+    }
+
+    /**
+     * @param array $parameters
+     *
+     * @return void
+     */
+    public function hookActionObjectCategoryAddAfter($parameters)
+    {
+        $category = $parameters['object'];
+
+        $this->insertIncrementalSyncObject(
+            $category->id,
+            'categories',
+            date(DATE_ATOM),
+            $this->context->shop->id,
+            true
         );
     }
 
@@ -394,10 +506,11 @@ class Ps_accounts extends Module
      * @param string $type
      * @param string $date
      * @param int $shopId
+     * @param bool $hasMultiLang
      *
      * @return void
      */
-    private function insertIncrementalSyncObject($objectId, $type, $date, $shopId)
+    private function insertIncrementalSyncObject($objectId, $type, $date, $shopId, $hasMultiLang = false)
     {
         /** @var \PrestaShop\Module\PsAccounts\Repository\IncrementalSyncRepository $incrementalSyncRepository */
         $incrementalSyncRepository = $this->getService(
@@ -409,9 +522,15 @@ class Ps_accounts extends Module
             \PrestaShop\Module\PsAccounts\Repository\LanguageRepository::class
         );
 
-        $languagesIsoCodes = $languageRepository->getLanguagesIsoCodes();
+        if ($hasMultiLang) {
+            $languagesIsoCodes = $languageRepository->getLanguagesIsoCodes();
 
-        foreach ($languagesIsoCodes as $languagesIsoCode) {
+            foreach ($languagesIsoCodes as $languagesIsoCode) {
+                $incrementalSyncRepository->insertIncrementalObject($objectId, $type, $date, $shopId, $languagesIsoCode);
+            }
+        } else {
+            $languagesIsoCode = $languageRepository->getDefaultLanguageIsoCode();
+
             $incrementalSyncRepository->insertIncrementalObject($objectId, $type, $date, $shopId, $languagesIsoCode);
         }
     }
