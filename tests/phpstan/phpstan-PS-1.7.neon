@@ -34,5 +34,6 @@ parameters:
 		- '#Property Ps_accounts::\$serviceContainer has unknown class PrestaShop\\ModuleLibServiceContainer\\DependencyInjection\\ServiceContainer as its type.#'
 		- '#Instantiated class PrestaShop\\ModuleLibServiceContainer\\DependencyInjection\\ServiceContainer not found.#'
 		- '#Call to method getService\(\) on an unknown class PrestaShop\\ModuleLibServiceContainer\\DependencyInjection\\ServiceContainer.#'
+		- '#Cannot access property \$id on Module\|false.#'
 
 	level: 7
