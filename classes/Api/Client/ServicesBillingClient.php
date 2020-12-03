@@ -21,6 +21,7 @@
 namespace PrestaShop\Module\PsAccounts\Api\Client;
 
 use GuzzleHttp\Client;
+use PrestaShop\Module\PsAccounts\Adapter\Link;
 use PrestaShop\Module\PsAccounts\Service\PsAccountsService;
 
 /**
@@ -33,7 +34,7 @@ class ServicesBillingClient extends GenericClient
      *
      * @param array $config
      * @param PsAccountsService $psAccountsService
-     * @param \Link $link
+     * @param Link $link
      * @param Client|null $client
      *
      * @throws \Exception
@@ -41,14 +42,14 @@ class ServicesBillingClient extends GenericClient
     public function __construct(
         array $config,
         PsAccountsService $psAccountsService,
-        \Link $link,
+        Link $link,
         Client $client = null
     ) {
         parent::__construct();
 
         $shopId = $psAccountsService->getCurrentShop()['id'];
         $token = $psAccountsService->getOrRefreshToken();
-        $this->setLink($link);
+        $this->setLink($link->getLink());
 
         // Client can be provided for tests
         if (null === $client) {

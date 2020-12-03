@@ -26,6 +26,7 @@
 
 use PrestaShop\Module\PsAccounts\Handler\ErrorHandler\ErrorHandler;
 use PrestaShop\Module\PsAccounts\Repository\ConfigurationRepository;
+use PrestaShop\Module\PsAccounts\Service\PsAccountsService;
 
 /**
  * Controller reset onboarding.
@@ -63,14 +64,7 @@ class AdminResetOnboardingController extends ModuleAdminController
             if (self::PS_ACCOUNTS_TOKEN == Tools::getValue('psAccountsToken')) {
                 $return = true;
 
-                $this->configuration->updateAccountsRsaPrivateKey('');
-                $this->configuration->updateAccountsRsaPublicKey('');
-                $this->configuration->updateAccountsRsaSignData('');
-                $this->configuration->updateFirebaseIdAndRefreshTokens('', '');
-                $this->configuration->updateFirebaseLocalId('');
-                $this->configuration->updateFirebaseEmail('');
-                $this->configuration->updateFirebaseEmailIsVerified(false);
-                $this->configuration->updateShopUuid('');
+                $this->module->getService(PsAccountsService::class)->resetOnboardingData();
             }
 
             $this->ajaxDie(

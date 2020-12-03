@@ -68,7 +68,7 @@ services:
       - '@ps_accounts.link'
 
   PrestaShop\Module\PsAccounts\Api\Client\ServicesAccountsClient:
-    class: PrestaShop\Module\PsAccounts\Api\Client\AccountsClient
+    class: PrestaShop\Module\PsAccounts\Api\Client\ServicesAccountsClient
     arguments:
       - { api_url: '%ps_accounts.svc_accounts_api_url%' }
       - '@PrestaShop\Module\PsAccounts\Service\PsAccountsService'

@@ -18,13 +18,14 @@
  * International Registered Trademark & Property of PrestaShop SA
  */
 
-use PrestaShop\Module\PsAccounts\Adapter\Configuration as ConfigurationAdapter;
+use PrestaShop\Module\PsAccounts\Adapter\Configuration;
 use PrestaShop\Module\PsAccounts\Handler\ErrorHandler\ErrorHandler;
 use PrestaShop\Module\PsAccounts\Repository\ConfigurationRepository;
+use PrestaShop\Module\PsAccounts\Service\PsAccountsService;
 use PrestaShop\Module\PsAccounts\Service\SshKey;
 
 /**
- * Controller for all call ajax.
+ * Controller for all ajax calls.
  */
 class AdminAjaxPsAccountsController extends ModuleAdminController
 {
@@ -41,6 +42,16 @@ class AdminAjaxPsAccountsController extends ModuleAdminController
     private $configurationAdapter;
 
     /**
+     * @var PsAccountsService
+     */
+    private $psAccountsService;
+
+    /**
+     * @var ErrorHandler
+     */
+    private $errorHandler;
+
+    /**
      * AdminAjaxPsAccountsController constructor.
      *
      * @throws Exception
@@ -50,7 +61,9 @@ class AdminAjaxPsAccountsController extends ModuleAdminController
         parent::__construct();
 
         $this->configuration = $this->module->getService(ConfigurationRepository::class);
-        $this->configurationAdapter = $this->module->getService(ConfigurationAdapter::class);
+        $this->configurationAdapter = $this->module->getService('ps_accounts.configuration');
+        $this->psAccountsService = $this->module->getService(PsAccountsService::class);
+        $this->errorHandler = $this->module->getService(ErrorHandler::class);
     }
 
     /**
@@ -79,12 +92,13 @@ class AdminAjaxPsAccountsController extends ModuleAdminController
                 json_encode($this->configuration->getAccountsRsaPublicKey())
             );
         } catch (Exception $e) {
-            $this->module->getService(ErrorHandler::class)
-                ->handle($e, $e->getCode());
+            $this->errorHandler->handle($e, $e->getCode());
         }
     }
 
     /**
+     * FIXME: remove this ajax call if still used anywhere
+     *
      * AJAX: Save Admin Token.
      *
      * @return void
@@ -95,16 +109,15 @@ class AdminAjaxPsAccountsController extends ModuleAdminController
     {
         try {
             if (false === $this->configurationAdapter->get(Configuration::PS_PSX_FIREBASE_ADMIN_TOKEN)) {
-                Configuration::updateValue('PS_PSX_FIREBASE_ADMIN_TOKEN', Tools::getValue('adminToken'));
+                $this->configurationAdapter->set(Configuration::PS_PSX_FIREBASE_ADMIN_TOKEN, Tools::getValue('adminToken'));
             }
-            Configuration::updateValue('PS_ACCOUNTS_FIREBASE_ADMIN_TOKEN', Tools::getValue('adminToken'));
+            $this->configurationAdapter->set(Configuration::PS_ACCOUNTS_FIREBASE_ADMIN_TOKEN, Tools::getValue('adminToken'));
 
             $this->ajaxDie(
                 json_encode(true)
             );
         } catch (Exception $e) {
-            $this->module->getService(ErrorHandler::class)
-                ->handle($e, $e->getCode());
+            $this->errorHandler->handle($e, $e->getCode());
         }
     }
 
@@ -122,8 +135,49 @@ class AdminAjaxPsAccountsController extends ModuleAdminController
                 json_encode($this->configuration->firebaseEmailIsVerified())
             );
         } catch (Exception $e) {
-            $this->module->getService(ErrorHandler::class)
-                ->handle($e, $e->getCode());
+            $this->errorHandler->handle($e, $e->getCode());
+        }
+    }
+
+    /**
+     * @return void
+     *
+     * @throws Exception
+     */
+    public function ajaxProcessGetOrRefreshToken()
+    {
+        try {
+            header('Content-Type: text/json');
+
+            $this->ajaxDie(
+                json_encode([
+                    'token' => $this->psAccountsService->getOrRefreshToken(),
+                    'refreshToken' => $this->psAccountsService->getFirebaseRefreshToken(),
+                ])
+            );
+        } catch (Exception $e) {
+            $this->errorHandler->handle($e, $e->getCode());
+        }
+    }
+
+    /**
+     * @return void
+     *
+     * @throws Exception
+     */
+    //public function displayAjaxUnlinkShop()
+    public function ajaxProcessUnlinkShop()
+    {
+        try {
+            $response = $this->psAccountsService->unlinkShop();
+
+            http_response_code($response['httpCode']);
+
+            header('Content-Type: text/json');
+
+            $this->ajaxDie(json_encode($response['body']));
+        } catch (Exception $e) {
+            $this->errorHandler->handle($e, $e->getCode());
         }
     }
 }

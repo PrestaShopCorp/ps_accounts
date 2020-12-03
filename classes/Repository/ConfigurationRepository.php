@@ -82,6 +82,7 @@ class ConfigurationRepository
     public function updateFirebaseIdAndRefreshTokens($idToken, $refreshToken)
     {
         if (false === $this->configuration->get(Configuration::PS_PSX_FIREBASE_ID_TOKEN)) {
+            // FIXME: This to avoid mutual disconnect between ps_accounts & ps_checkout
             $this->configuration->set(Configuration::PS_PSX_FIREBASE_ID_TOKEN, $idToken);
             $this->configuration->set(Configuration::PS_PSX_FIREBASE_REFRESH_TOKEN, $refreshToken);
             $this->configuration->set(Configuration::PS_PSX_FIREBASE_REFRESH_DATE, date('Y-m-d H:i:s'));

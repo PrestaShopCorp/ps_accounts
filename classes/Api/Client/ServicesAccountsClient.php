@@ -21,7 +21,7 @@
 namespace PrestaShop\Module\PsAccounts\Api\Client;
 
 use GuzzleHttp\Client;
-use Link;
+use PrestaShop\Module\PsAccounts\Adapter\Link;
 use PrestaShop\Module\PsAccounts\Service\PsAccountsService;
 use PrestaShop\Module\PsAccounts\Exception\FirebaseException;
 
@@ -60,7 +60,7 @@ class ServicesAccountsClient extends GenericClient
         $shopId = (int) $psAccountsService->getCurrentShop()['id'];
         $token = $psAccountsService->getOrRefreshToken();
 
-        $this->setLink($link);
+        $this->setLink($link->getLink());
 
         if (!$token) {
             throw new FirebaseException('Firebase token not found', 500);
@@ -102,6 +102,18 @@ class ServicesAccountsClient extends GenericClient
         return $this->patch([
             'body' => $bodyHttp,
         ]);
+    }
+
+    /**
+     * @param string $shopUuidV4
+     *
+     * @return array
+     */
+    public function deleteShop($shopUuidV4)
+    {
+        $this->setRoute('/shop/' . $shopUuidV4);
+
+        return $this->delete();
     }
 
     /**

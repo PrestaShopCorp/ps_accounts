@@ -83,6 +83,7 @@ class PsAccountsPresenter
                 'superAdminEmail' => $this->psAccountsService->getSuperAdminEmail(),
                 'ssoResendVerificationEmail' => $this->psAccountsService->getSsoAccountUrl(),
                 'manageAccountLink' => $this->psAccountsService->getManageAccountLink(),
+                'adminAjaxLink' => $this->psAccountsService->getAdminAjaxLink(),
             ];
         } catch (\Exception $e) {
             $this->module->getService(ErrorHandler::class)
