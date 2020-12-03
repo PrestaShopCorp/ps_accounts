@@ -540,16 +540,16 @@
         },
         {
             "name": "prestashop/prestashop-accounts-auth",
-            "version": "2.2.2",
+            "version": "2.2.3",
             "source": {
                 "type": "git",
                 "url": "https://github.com/PrestaShopCorp/prestashop_accounts_auth.git",
-                "reference": "dbc2b4f31c7ef00fcbf63fe3cbf74b9b79e6e2b1"
+                "reference": "887b6472cf07028b88c057a1482dc09ce7038e70"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/PrestaShopCorp/prestashop_accounts_auth/zipball/dbc2b4f31c7ef00fcbf63fe3cbf74b9b79e6e2b1",
-                "reference": "dbc2b4f31c7ef00fcbf63fe3cbf74b9b79e6e2b1",
+                "url": "https://api.github.com/repos/PrestaShopCorp/prestashop_accounts_auth/zipball/887b6472cf07028b88c057a1482dc09ce7038e70",
+                "reference": "887b6472cf07028b88c057a1482dc09ce7038e70",
                 "shasum": ""
             },
             "require": {
@@ -578,7 +578,7 @@
                 "MIT"
             ],
             "description": "PrestaShop Accounts composer library",
-            "time": "2020-12-01T11:03:03+00:00"
+            "time": "2020-12-03T13:43:03+00:00"
         },
         {
             "name": "psr/cache",
