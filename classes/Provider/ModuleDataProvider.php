@@ -56,7 +56,7 @@ class ModuleDataProvider implements PaginatedApiDataProviderInterface
      */
     public function getRemainingObjectsCount($offset, $langIso)
     {
-        return $this->moduleRepository->getRemainingModules($offset);
+        return (int) $this->moduleRepository->getRemainingModules($offset);
     }
 
     public function getFormattedDataIncremental($limit, $langIso = null)

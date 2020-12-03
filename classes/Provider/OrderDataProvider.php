@@ -79,7 +79,7 @@ class OrderDataProvider implements PaginatedApiDataProviderInterface
      */
     public function getRemainingObjectsCount($offset, $langIso)
     {
-        return $this->orderRepository->getRemainingOrderCount($offset, $this->context->shop->id);
+        return (int) $this->orderRepository->getRemainingOrderCount($offset, $this->context->shop->id);
     }
 
     /**

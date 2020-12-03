@@ -57,7 +57,7 @@ class SynchronizationService
             }
         }
 
-        $remainingObjects = $dataProvider->getRemainingObjectsCount($offset, $langIso);
+        $remainingObjects = (int) $dataProvider->getRemainingObjectsCount($offset, $langIso);
 
         if ($remainingObjects <= 0) {
             $remainingObjects = 0;
