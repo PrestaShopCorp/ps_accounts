@@ -83,7 +83,7 @@ class IncrementalSyncRepository
     {
         $query = new DbQuery();
 
-        $query->select('(COUNT(id_object) as count')
+        $query->select('COUNT(id_object) as count')
             ->from(self::INCREMENTAL_SYNC_TABLE)
             ->where('lang_iso = "' . pSQL($langIso) . '"')
             ->where('type = "' . pSQL($type) . '"');
