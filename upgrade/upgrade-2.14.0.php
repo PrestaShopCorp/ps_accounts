@@ -1,6 +1,6 @@
 <?php
 
-function upgrade_module_2_13_0()
+function upgrade_module_2_14_0()
 {
     $hooksInstalled = true;
 
