@@ -44,7 +44,7 @@ class GoogleTaxonomyDataProvider implements PaginatedApiDataProviderInterface
 
     public function getRemainingObjectsCount($offset, $langIso)
     {
-        return $this->googleTaxonomyRepository->getRemainingTaxonomyRepositories($offset, $this->context->shop->id);
+        return (int) $this->googleTaxonomyRepository->getRemainingTaxonomyRepositories($offset, $this->context->shop->id);
     }
 
     public function getFormattedDataIncremental($limit, $langIso)

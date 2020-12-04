@@ -64,7 +64,7 @@ class CategoryDataProvider implements PaginatedApiDataProviderInterface
      */
     public function getRemainingObjectsCount($offset, $langIso)
     {
-        return $this->categoryRepository->getRemainingCategoriesCount($offset, $langIso);
+        return (int) $this->categoryRepository->getRemainingCategoriesCount($offset, $langIso);
     }
 
     public function getFormattedDataIncremental($limit, $langIso)

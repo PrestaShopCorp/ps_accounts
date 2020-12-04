@@ -30,7 +30,7 @@ class ps_AccountsApiThemesModuleFrontController extends AbstractApiController
         $this->exitWithResponse(
             array_merge(
                 [
-                    'remaining_objects' => '0',
+                    'remaining_objects' => 0,
                     'total_objects' => count($themeInfo),
                 ],
                 $response

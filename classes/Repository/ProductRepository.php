@@ -107,7 +107,7 @@ class ProductRepository
             return 0;
         }
 
-        return (int) (count($products));
+        return count($products);
     }
 
     /**

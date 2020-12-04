@@ -76,7 +76,7 @@ class ProductDataProvider implements PaginatedApiDataProviderInterface
     {
         $langId = $this->languageRepository->getLanguageIdByIsoCode($langIso);
 
-        return $this->productRepository->getRemainingProductsCount($offset, $langId);
+        return (int) $this->productRepository->getRemainingProductsCount($offset, $langId);
     }
 
     /**

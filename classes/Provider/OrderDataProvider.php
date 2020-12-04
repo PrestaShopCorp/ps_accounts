@@ -79,7 +79,7 @@ class OrderDataProvider implements PaginatedApiDataProviderInterface
      */
     public function getRemainingObjectsCount($offset, $langIso)
     {
-        return $this->orderRepository->getRemainingOrderCount($offset, $this->context->shop->id);
+        return (int) $this->orderRepository->getRemainingOrderCount($offset, $this->context->shop->id);
     }
 
     /**
@@ -163,8 +163,11 @@ class OrderDataProvider implements PaginatedApiDataProviderInterface
     {
         $orders = $this->orderRepository->getOrdersIncremental($limit, $this->context->shop->id);
 
-        if (!is_array($orders)) {
-            return [];
+        if (!is_array($orders) || empty($orders)) {
+            return [
+                'ids' => [],
+                'data' => [],
+            ];
         }
 
         $orderIds = $this->separateOrderIds($orders);
