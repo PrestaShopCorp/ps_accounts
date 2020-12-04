@@ -15,7 +15,15 @@ class ps_AccountsApiGoogleTaxonomiesModuleFrontController extends AbstractApiCon
     public function postProcess()
     {
         if (!Module::isInstalled('ps_facebook')) {
-            $this->exitWithExceptionMessage(new Exception('Facebook module is not installed', 500));
+            $this->exitWithResponse(
+                [
+                    'total_objects' => 0,
+                    'has_remaining_objects' => false,
+                    'remaining_objects' => 0,
+                    'job_id' => Tools::getValue('job_id'),
+                    'object_type' => $this->type,
+                ]
+            );
         }
 
         $categoryDataProvider = $this->module->getService(GoogleTaxonomyDataProvider::class);
