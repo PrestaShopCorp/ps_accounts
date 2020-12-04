@@ -1,8 +1,8 @@
 <?php
 
+use PrestaShop\Module\PsAccounts\Config\Config;
 use PrestaShop\Module\PsAccounts\Controller\AbstractApiController;
 use PrestaShop\Module\PsAccounts\Provider\GoogleTaxonomyDataProvider;
-use PrestaShop\Module\PsAccounts\Config\Config;
 
 class ps_AccountsApiGoogleTaxonomiesModuleFrontController extends AbstractApiController
 {
