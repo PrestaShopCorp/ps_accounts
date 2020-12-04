@@ -236,8 +236,8 @@ abstract class AbstractApiController extends ModuleFrontController
 
         if (array_key_exists((int) $code, Config::HTTP_STATUS_MESSAGES)) {
             $httpStatusText .= ' ' . Config::HTTP_STATUS_MESSAGES[(int) $code];
-        } elseif (isset($response['body']['status'])) {
-            $httpStatusText .= ' ' . $response['body']['status'];
+        } elseif (isset($response['body']['statusText'])) {
+            $httpStatusText .= ' ' . $response['body']['statusText'];
         }
 
         $response['httpCode'] = (int) $code;
