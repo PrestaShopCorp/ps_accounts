@@ -163,8 +163,11 @@ class OrderDataProvider implements PaginatedApiDataProviderInterface
     {
         $orders = $this->orderRepository->getOrdersIncremental($limit, $this->context->shop->id);
 
-        if (!is_array($orders)) {
-            return [];
+        if (!is_array($orders) || empty($orders)) {
+            return [
+                'ids' => [],
+                'data' => [],
+            ];
         }
 
         $orderIds = $this->separateOrderIds($orders);
