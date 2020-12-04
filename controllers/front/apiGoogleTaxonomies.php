@@ -2,6 +2,7 @@
 
 use PrestaShop\Module\PsAccounts\Controller\AbstractApiController;
 use PrestaShop\Module\PsAccounts\Provider\GoogleTaxonomyDataProvider;
+use PrestaShop\Module\PsAccounts\Config\Config;
 
 class ps_AccountsApiGoogleTaxonomiesModuleFrontController extends AbstractApiController
 {
@@ -15,15 +16,7 @@ class ps_AccountsApiGoogleTaxonomiesModuleFrontController extends AbstractApiCon
     public function postProcess()
     {
         if (!Module::isInstalled('ps_facebook')) {
-            $this->exitWithResponse(
-                [
-                    'total_objects' => 0,
-                    'has_remaining_objects' => false,
-                    'remaining_objects' => 0,
-                    'job_id' => Tools::getValue('job_id'),
-                    'object_type' => $this->type,
-                ]
-            );
+            $this->exitWithExceptionMessage(new Exception('Facebook module is not installed', Config::PS_FACEBOOK_NOT_INSTALLED));
         }
 
         $categoryDataProvider = $this->module->getService(GoogleTaxonomyDataProvider::class);
