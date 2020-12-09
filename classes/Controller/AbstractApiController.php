@@ -251,6 +251,7 @@ abstract class AbstractApiController extends ModuleFrontController
         header($httpStatusText);
 
         echo json_encode($response, JSON_UNESCAPED_SLASHES);
-        die;
+
+        exit;
     }
 }
