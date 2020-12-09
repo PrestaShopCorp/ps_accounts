@@ -287,7 +287,7 @@ class ProductRepository
                 $from = new DateTime($specific_price['from']);
                 $to = new DateTime($specific_price['to']);
 
-                return  $from->format('Y-m-dTh:i-Z') . '/' . $to->format('Y-m-dTh:i-Z');
+                return $from->format('Y-m-dTh:i-Z') . '/' . $to->format('Y-m-dTh:i-Z');
             }
         } catch (Exception $exception) {
             return '';

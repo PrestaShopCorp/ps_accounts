@@ -110,9 +110,13 @@ abstract class AbstractApiController extends ModuleFrontController
         }
 
         try {
-            $this->psAccountsService->getOrRefreshToken();
+            $token = $this->psAccountsService->getOrRefreshToken();
         } catch (Exception $exception) {
             throw new FirebaseException($exception->getMessage());
+        }
+
+        if (!$token) {
+            throw new FirebaseException('Invalid token');
         }
     }
 
@@ -247,6 +251,7 @@ abstract class AbstractApiController extends ModuleFrontController
         header($httpStatusText);
 
         echo json_encode($response, JSON_UNESCAPED_SLASHES);
-        die;
+
+        exit;
     }
 }
