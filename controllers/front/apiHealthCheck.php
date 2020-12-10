@@ -1,9 +1,6 @@
 <?php
 
-use PrestaShop\Module\PsAccounts\Controller\AbstractApiController;
-use PrestaShop\Module\PsAccounts\Repository\ServerInformationRepository;
-
-class ps_AccountsApiHealthCheckModuleFrontController extends AbstractApiController
+class ps_AccountsApiHealthCheckModuleFrontController extends FrontController
 {
     public function init()
     {
@@ -14,11 +11,15 @@ class ps_AccountsApiHealthCheckModuleFrontController extends AbstractApiControll
      */
     public function postProcess()
     {
-        /** @var ServerInformationRepository $serverInformationRepository */
-        $serverInformationRepository = $this->module->getService(ServerInformationRepository::class);
-
-        $status = $serverInformationRepository->getHealthCheckData();
-
-        $this->exitWithResponse($status);
+        if (Module::isInstalled('ps_eventbus')) {
+            Tools::redirect($this->context->link->getModuleLink(
+                'ps_eventbus',
+                'apiHealthCheck',
+                [],
+                null,
+                null,
+                $this->context->shop->id
+            ));
+        }
     }
 }

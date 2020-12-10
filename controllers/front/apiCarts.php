@@ -1,9 +1,6 @@
 <?php
 
-use PrestaShop\Module\PsAccounts\Controller\AbstractApiController;
-use PrestaShop\Module\PsAccounts\Provider\CartDataProvider;
-
-class ps_AccountsApiCartsModuleFrontController extends AbstractApiController
+class ps_AccountsApiCartsModuleFrontController extends FrontController
 {
     public $type = 'carts';
 
@@ -28,11 +25,5 @@ class ps_AccountsApiCartsModuleFrontController extends AbstractApiController
                 $this->context->shop->id
             ));
         }
-
-        $cartDataProvider = $this->module->getService(CartDataProvider::class);
-
-        $response = $this->handleDataSync($cartDataProvider);
-
-        $this->exitWithResponse($response);
     }
 }

@@ -1,9 +1,6 @@
 <?php
 
-use PrestaShop\Module\PsAccounts\Controller\AbstractApiController;
-use PrestaShop\Module\PsAccounts\Provider\ProductDataProvider;
-
-class ps_accountsApiProductsModuleFrontController extends AbstractApiController
+class ps_accountsApiProductsModuleFrontController extends FrontController
 {
     public $type = 'products';
 
@@ -28,11 +25,5 @@ class ps_accountsApiProductsModuleFrontController extends AbstractApiController
                 $this->context->shop->id
             ));
         }
-
-        $productDataProvider = $this->module->getService(ProductDataProvider::class);
-
-        $response = $this->handleDataSync($productDataProvider);
-
-        $this->exitWithResponse($response);
     }
 }

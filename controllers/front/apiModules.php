@@ -1,10 +1,6 @@
 <?php
 
-use PrestaShop\Module\PsAccounts\Controller\AbstractApiController;
-use PrestaShop\Module\PsAccounts\Provider\ModuleDataProvider;
-use PrestaShop\Module\PsAccounts\Repository\ModuleRepository;
-
-class ps_AccountsApiModulesModuleFrontController extends AbstractApiController
+class ps_AccountsApiModulesModuleFrontController extends FrontController
 {
     public $type = 'modules';
 
@@ -29,13 +25,5 @@ class ps_AccountsApiModulesModuleFrontController extends AbstractApiController
                 $this->context->shop->id
             ));
         }
-
-        $moduleDataProvider = new ModuleDataProvider(
-            new ModuleRepository(Db::getInstance())
-        );
-
-        $response = $this->handleDataSync($moduleDataProvider);
-
-        $this->exitWithResponse($response);
     }
 }

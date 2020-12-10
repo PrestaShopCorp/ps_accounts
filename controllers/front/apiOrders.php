@@ -1,9 +1,6 @@
 <?php
 
-use PrestaShop\Module\PsAccounts\Controller\AbstractApiController;
-use PrestaShop\Module\PsAccounts\Provider\OrderDataProvider;
-
-class ps_AccountsApiOrdersModuleFrontController extends AbstractApiController
+class ps_AccountsApiOrdersModuleFrontController extends FrontController
 {
     public $type = 'orders';
 
@@ -28,11 +25,5 @@ class ps_AccountsApiOrdersModuleFrontController extends AbstractApiController
                 $this->context->shop->id
             ));
         }
-
-        $orderDataProvider = $this->module->getService(OrderDataProvider::class);
-
-        $response = $this->handleDataSync($orderDataProvider);
-
-        $this->exitWithResponse($response);
     }
 }
