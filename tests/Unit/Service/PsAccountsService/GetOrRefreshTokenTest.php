@@ -18,23 +18,12 @@ class GetOrRefreshTokenTest extends TestCase
      */
     public function it_should_return_valid_token()
     {
-        //$date = (new \DateTime('tomorrow'));
-        $date = $this->faker->dateTimeBetween('now', '+2 hours');
+        $idToken = $this->makeJwtToken(new \DateTimeImmutable('tomorrow'));
 
-        $idToken = (new Builder())
-            ->expiresAt($date->getTimestamp())
-            //->withClaim('uid', $this->faker->uuid)
-            ->getToken();
-
-        $refreshToken = (new Builder())->getToken();
+        $refreshToken = $this->makeJwtToken(new \DateTimeImmutable('+1 year'));
 
         /** @var ConfigurationRepository $configuration */
         $configuration = $this->module->getService(ConfigurationRepository::class);
-
-//        /** @var Configuration $configMock */
-//        $configMock = $this->getConfigurationMock([
-//            [Configuration::PS_PSX_FIREBASE_REFRESH_DATE, false, $date->format('Y-m-d h:m:s')],
-//        ]);
 
         $configuration->updateFirebaseIdAndRefreshTokens((string) $idToken, (string) $refreshToken);
 
@@ -51,21 +40,11 @@ class GetOrRefreshTokenTest extends TestCase
      */
     public function it_should_refresh_expired_token()
     {
-        /* FIXME */ $this->markTestSkipped('Howto inject mocked FirebaseClient into container ?');
+        $idToken = $this->makeJwtToken(new \DateTimeImmutable('yesterday'));
 
-        $date = $this->faker->dateTime('now');
+        $idTokenRefreshed = $this->makeJwtToken(new \DateTimeImmutable('tomorrow'));
 
-        $idToken = (new Builder())
-            ->expiresAt($date->getTimestamp())
-            //->withClaim('uid', $this->faker->uuid)
-            ->getToken();
-
-        $idTokenRefreshed = (new Builder())
-            ->expiresAt($this->faker->dateTimeBetween('+2 hours', '+4 hours')->getTimestamp())
-            //->withClaim('uid', $this->faker->uuid)
-            ->getToken();
-
-        $refreshToken = (new Builder())->getToken();
+        $refreshToken = $this->makeJwtToken(new \DateTimeImmutable('+1 year'));
 
         /** @var FirebaseClient $firebaseClient */
         $firebaseClient = $this->createMock(FirebaseClient::class);
@@ -82,15 +61,15 @@ class GetOrRefreshTokenTest extends TestCase
         /** @var ConfigurationRepository $configuration */
         $configuration = $this->module->getService(ConfigurationRepository::class);
 
-//        /** @var Configuration $configMock */
-//        $configMock = $this->getConfigurationMock([
-//            [Configuration::PS_PSX_FIREBASE_REFRESH_DATE, false, $date->format('Y-m-d h:m:s')],
-//        ]);
-
         $configuration->updateFirebaseIdAndRefreshTokens((string) $idToken, (string) $refreshToken);
 
         /** @var PsAccountsService $service */
-        $service = $this->module->getService(PsAccountsService::class);
+        $service = new PsAccountsService(
+            ['accounts_ui_url' => '', 'sso_account_url' => ''],
+            $this->module->getService(ConfigurationRepository::class),
+            $firebaseClient,
+            $this->module->getService('ps_accounts.module')
+        );
 
         $this->assertEquals((string) $idTokenRefreshed, $service->getOrRefreshToken());
     }

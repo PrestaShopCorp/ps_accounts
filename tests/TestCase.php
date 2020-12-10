@@ -3,6 +3,9 @@
 namespace PrestaShop\Module\PsAccounts\Tests;
 
 use Db;
+use Lcobucci\JWT\Builder;
+use Lcobucci\JWT\Configuration;
+use Lcobucci\JWT\Token;
 use Module;
 use Faker\Generator;
 use Ps_accounts;
@@ -42,5 +45,27 @@ class TestCase extends \PHPUnit\Framework\TestCase
         Db::getInstance()->execute('ROLLBACK');
 
         parent::tearDown();
+    }
+
+    /**
+     * @param \DateTimeImmutable|null $expiresAt
+     * @param array $claims
+     *
+     * @return Token
+     */
+    public function makeJwtToken(\DateTimeImmutable $expiresAt = null, array $claims = [])
+    {
+        $builder = (new Builder())->expiresAt($expiresAt);
+
+        foreach ($claims as $claim => $value) {
+            $builder->withClaim($claim, $value);
+        }
+
+        $configuration = Configuration::forUnsecuredSigner();
+
+        return $builder->getToken(
+            $configuration->signer(),
+            $configuration->signingKey()
+        );
     }
 }

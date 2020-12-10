@@ -17,22 +17,12 @@ class IsTokenExpiredTest extends TestCase
      */
     public function it_should_return_true()
     {
-        $date = $this->faker->dateTime('now');
+        $idToken = $this->makeJwtToken(new \DateTimeImmutable('yesterday'));
 
-        $idToken = (new Builder())
-            ->expiresAt($date->getTimestamp())
-            //->withClaim('uid', $this->faker->uuid)
-            ->getToken();
-
-        $refreshToken = (new Builder())->getToken();
+        $refreshToken = $this->makeJwtToken(new \DateTimeImmutable('+1 year'));
 
         /** @var ConfigurationRepository $configuration */
         $configuration = $this->module->getService(ConfigurationRepository::class);
-
-//        /** @var Configuration $configMock */
-//        $configMock = $this->getConfigurationMock([
-//            [Configuration::PS_PSX_FIREBASE_REFRESH_DATE, false, $date->format('Y-m-d h:m:s')],
-//        ]);
 
         $configuration->updateFirebaseIdAndRefreshTokens((string) $idToken, (string) $refreshToken);
 
@@ -49,22 +39,12 @@ class IsTokenExpiredTest extends TestCase
      */
     public function it_should_return_false()
     {
-        $date = $this->faker->dateTimeBetween('+2 hours', '+4 hours');
+        $idToken = $this->makeJwtToken(new \DateTimeImmutable('+2 hours'));
 
-        $idToken = (new Builder())
-            ->expiresAt($date->getTimestamp())
-            //->withClaim('uid', $this->faker->uuid)
-            ->getToken();
-
-        $refreshToken = (new Builder())->getToken();
+        $refreshToken = $this->makeJwtToken(new \DateTimeImmutable('+1 year'));
 
         /** @var ConfigurationRepository $configuration */
         $configuration = $this->module->getService(ConfigurationRepository::class);
-
-//        /** @var Configuration $configMock */
-//        $configMock = $this->getConfigurationMock([
-//            [Configuration::PS_PSX_FIREBASE_REFRESH_DATE, false, $date->format('Y-m-d h:m:s')],
-//        ]);
 
         $configuration->updateFirebaseIdAndRefreshTokens((string) $idToken, (string) $refreshToken);
 

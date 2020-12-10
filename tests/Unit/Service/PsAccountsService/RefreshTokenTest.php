@@ -36,19 +36,11 @@ class RefreshTokenTest extends TestCase
      */
     public function it_should_handle_response_success()
     {
-        /* FIXME */ $this->markTestSkipped('Howto inject mocked FirebaseClient into container ?');
+        $idToken = $this->makeJwtToken(new \DateTimeImmutable('yesterday'));
 
-        $idToken = (new Builder())
-            ->expiresAt($this->faker->dateTimeBetween('now', '+2 hours')->getTimestamp())
-            //->withClaim('uid', $this->faker->uuid)
-            ->getToken();
+        $idTokenRefreshed = $this->makeJwtToken(new \DateTimeImmutable('tomorrow'));
 
-        $idTokenRefreshed = (new Builder())
-            ->expiresAt($this->faker->dateTimeBetween('+2 hours', '+4 hours')->getTimestamp())
-            //->withClaim('uid', $this->faker->uuid)
-            ->getToken();
-
-        $refreshToken = (new Builder())->getToken();
+        $refreshToken = $this->makeJwtToken(new \DateTimeImmutable('+1 year'));
 
         /** @var ConfigurationRepository $configuration */
         $configuration = $this->module->getService(ConfigurationRepository::class);
@@ -68,7 +60,12 @@ class RefreshTokenTest extends TestCase
             ]);
 
         /** @var PsAccountsService $service */
-        $service = $this->module->getService(PsAccountsService::class);
+        $service = new PsAccountsService(
+            ['accounts_ui_url' => '', 'sso_account_url' => ''],
+            $this->module->getService(ConfigurationRepository::class),
+            $firebaseClient,
+            $this->module->getService('ps_accounts.module')
+        );
 
         $this->assertTrue($service->refreshToken());
 
@@ -84,14 +81,9 @@ class RefreshTokenTest extends TestCase
      */
     public function it_should_handle_response_error()
     {
-        /* FIXME */ $this->markTestSkipped('Howto inject mocked FirebaseClient into container ?');
+        $idToken = $this->makeJwtToken(new \DateTimeImmutable('tomorrow'));
 
-        $idToken = (new Builder())
-            ->expiresAt($this->faker->dateTimeBetween('now', '+2 hours')->getTimestamp())
-            //->withClaim('uid', $this->faker->uuid)
-            ->getToken();
-
-        $refreshToken = (new Builder())->getToken();
+        $refreshToken = $this->makeJwtToken(new \DateTimeImmutable('+1 year'));
 
         /** @var ConfigurationRepository $configuration */
         $configuration = $this->module->getService(ConfigurationRepository::class);
@@ -107,7 +99,12 @@ class RefreshTokenTest extends TestCase
             ]);
 
         /** @var PsAccountsService $service */
-        $service = $this->module->getService(PsAccountsService::class);
+        $service = new PsAccountsService(
+            ['accounts_ui_url' => '', 'sso_account_url' => ''],
+            $this->module->getService(ConfigurationRepository::class),
+            $firebaseClient,
+            $this->module->getService('ps_accounts.module')
+        );
 
         $this->assertFalse($service->refreshToken());
 
