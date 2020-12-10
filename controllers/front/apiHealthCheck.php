@@ -5,8 +5,6 @@ use PrestaShop\Module\PsAccounts\Repository\ServerInformationRepository;
 
 class ps_AccountsApiHealthCheckModuleFrontController extends AbstractApiController
 {
-    public $type = 'shops';
-
     public function init()
     {
     }
