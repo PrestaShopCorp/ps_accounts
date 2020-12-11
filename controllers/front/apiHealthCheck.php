@@ -1,6 +1,6 @@
 <?php
 
-class ps_AccountsApiHealthCheckModuleFrontController extends FrontController
+class ps_AccountsApiHealthCheckModuleFrontController extends ModuleFrontController
 {
     public function init()
     {

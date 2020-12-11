@@ -1,6 +1,6 @@
 <?php
 
-class ps_AccountsApiCategoriesModuleFrontController extends FrontController
+class ps_AccountsApiCategoriesModuleFrontController extends ModuleFrontController
 {
     public $type = 'categories';
 

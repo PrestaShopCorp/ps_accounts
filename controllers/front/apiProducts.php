@@ -1,6 +1,6 @@
 <?php
 
-class ps_accountsApiProductsModuleFrontController extends FrontController
+class ps_accountsApiProductsModuleFrontController extends ModuleFrontController
 {
     public $type = 'products';
 

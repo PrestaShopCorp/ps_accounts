@@ -1,6 +1,6 @@
 <?php
 
-class ps_AccountsApiDeletedObjectsModuleFrontController extends FrontController
+class ps_AccountsApiDeletedObjectsModuleFrontController extends ModuleFrontController
 {
     public $type = 'deleted';
 

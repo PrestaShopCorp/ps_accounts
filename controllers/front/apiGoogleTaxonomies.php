@@ -1,6 +1,6 @@
 <?php
 
-class ps_AccountsApiGoogleTaxonomiesModuleFrontController extends FrontController
+class ps_AccountsApiGoogleTaxonomiesModuleFrontController extends ModuleFrontController
 {
     public $type = 'taxonomies';
 

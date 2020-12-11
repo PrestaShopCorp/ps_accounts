@@ -1,6 +1,6 @@
 <?php
 
-class ps_AccountsApiThemesModuleFrontController extends FrontController
+class ps_AccountsApiThemesModuleFrontController extends ModuleFrontController
 {
     public $type = 'themes';
 
