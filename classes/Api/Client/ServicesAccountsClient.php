@@ -22,48 +22,64 @@ namespace PrestaShop\Module\PsAccounts\Api\Client;
 
 use GuzzleHttp\Client;
 use PrestaShop\Module\PsAccounts\Adapter\Link;
-use PrestaShop\Module\PsAccounts\Service\PsAccountsService;
-use PrestaShop\Module\PsAccounts\Exception\FirebaseException;
+use PrestaShop\Module\PsAccounts\Configuration\ConfigOptionsResolver;
+use PrestaShop\Module\PsAccounts\Exception\OptionResolutionException;
+use PrestaShop\Module\PsAccounts\Provider\ShopProvider;
+use PrestaShop\Module\PsAccounts\Exception\TokenNotFoundException;
+use PrestaShop\Module\PsAccounts\Service\ShopTokenService;
 
 /**
- * Handle call api Services
+ * Class ServicesAccountsClient
+ *
+ * @package PrestaShop\Module\PsAccounts\Api\Client
  */
 class ServicesAccountsClient extends GenericClient
 {
     /**
-     * @var PsAccountsService
+     * @var ShopProvider
      */
-    private $psAccountsService;
+    private $shopProvider;
+
+    /**
+     * @var ShopTokenService
+     */
+    private $shopTokenService;
 
     /**
      * ServicesAccountsClient constructor.
      *
      * @param array $config
-     * @param PsAccountsService $psAccountsService
+     * @param ShopProvider $shopProvider
+     * @param ShopTokenService $shopTokenService
      * @param Link $link
      * @param Client|null $client
      *
-     * @throws FirebaseException
+     * @throws OptionResolutionException
+     * @throws TokenNotFoundException
      * @throws \PrestaShopException
      * @throws \Exception
      */
     public function __construct(
         array $config,
-        PsAccountsService $psAccountsService,
+        ShopProvider $shopProvider,
+        ShopTokenService $shopTokenService,
         Link $link,
         Client $client = null
     ) {
         parent::__construct();
 
-        $this->psAccountsService = $psAccountsService;
+        $config = $this->resolveConfig($config);
 
-        $shopId = (int) $psAccountsService->getCurrentShop()['id'];
-        $token = $psAccountsService->getOrRefreshToken();
+        $this->shopProvider = $shopProvider;
+        $this->shopTokenService = $shopTokenService;
+
+        $shopId = (int) $this->shopProvider->getCurrentShop()['id'];
+        $token = $this->shopTokenService->getOrRefreshToken();
 
         $this->setLink($link->getLink());
 
         if (!$token) {
-            throw new FirebaseException('Firebase token not found', 500);
+            throw new TokenNotFoundException('Firebase token not found', 500);
         }
 
         // Client can be provided for tests
@@ -95,7 +111,7 @@ class ServicesAccountsClient extends GenericClient
      *
      * @return array | false
      */
-    public function changeUrl($shopUuidV4, $bodyHttp)
+    public function updateShopUrl($shopUuidV4, $bodyHttp)
     {
         $this->setRoute('/shops/' . $shopUuidV4 . '/url');
 
@@ -130,7 +146,7 @@ class ServicesAccountsClient extends GenericClient
 
         $this->setRoute('/webhooks/' . $correlationId . '/verify');
 
-        $shopId = (int) $this->psAccountsService->getCurrentShop()['id'];
+        $shopId = (int) $this->shopProvider->getCurrentShop()['id'];
         $hookUrl = $this->link->getModuleLink('ps_accounts', 'DispatchWebHook', [], true, null, $shopId);
 
         $res = $this->post([
@@ -156,5 +172,20 @@ class ServicesAccountsClient extends GenericClient
             'httpCode' => 200,
             'body' => 'ok',
         ];
+    }
+
+    /**
+     * @param array $config
+     * @param array $defaults
+     *
+     * @return array
+     *
+     * @throws OptionResolutionException
+     */
+    public function resolveConfig(array $config, array $defaults = [])
+    {
+        return (new ConfigOptionsResolver([
+            'api_url',
+        ]))->resolve($config, $defaults);
     }
 }

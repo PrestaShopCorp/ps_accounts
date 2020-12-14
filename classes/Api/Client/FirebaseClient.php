@@ -21,6 +21,8 @@
 namespace PrestaShop\Module\PsAccounts\Api\Client;
 
 use GuzzleHttp\Client;
+use PrestaShop\Module\PsAccounts\Configuration\ConfigOptionsResolver;
+use PrestaShop\Module\PsAccounts\Exception\OptionResolutionException;
 
 /**
  * Handle firebase signIn/signUp.
@@ -38,10 +40,14 @@ class FirebaseClient extends GenericClient
      * FirebaseClient constructor.
      *
      * @param array $config
+     *
+     * @throws OptionResolutionException
      */
     public function __construct(array $config)
     {
         parent::__construct();
+
+        $config = $this->resolveConfig($config);
 
         $client = new Client([
             'defaults' => [
@@ -95,5 +101,20 @@ class FirebaseClient extends GenericClient
                 'refresh_token' => $refreshToken,
             ],
         ]);
+    }
+
+    /**
+     * @param array $config
+     * @param array $defaults
+     *
+     * @return array
+     *
+     * @throws OptionResolutionException
+     */
+    public function resolveConfig(array $config, array $defaults = [])
+    {
+        return (new ConfigOptionsResolver([
+            'api_key',
+        ]))->resolve($config, $defaults);
     }
 }

@@ -7,7 +7,7 @@ use Module;
 use PrestaShop\Module\PsAccounts\Exception\SshKeysNotFoundException;
 use PrestaShop\Module\PsAccounts\Repository\ConfigurationRepository;
 use PrestaShop\Module\PsAccounts\Service\PsAccountsService;
-use PrestaShop\Module\PsAccounts\Service\SshKey;
+use PrestaShop\Module\PsAccounts\Service\ShopKeysService;
 use PrestaShop\Module\PsAccounts\Tests\TestCase;
 use Ps_accounts;
 
@@ -45,7 +45,7 @@ class GenerateSshKeyTest extends TestCase
         $this->assertNotEmpty($configuration->getAccountsRsaPublicKey());
         $this->assertNotEmpty($configuration->getAccountsRsaSignData());
 
-        $sshKey = new SshKey();
+        $sshKey = new ShopKeysService();
         $data = $this->faker->sentence();
         $signedData = $sshKey->signData($configuration->getAccountsRsaPrivateKey(), $data);
 

@@ -20,6 +20,6 @@
 
 namespace PrestaShop\Module\PsAccounts\Exception;
 
-class EnvironmentFileException extends \Exception
+class OptionResolutionException extends \Exception
 {
 }

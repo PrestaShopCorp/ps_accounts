@@ -23,7 +23,6 @@ namespace PrestaShop\Module\PsAccounts\WebHook;
 use Context;
 use PrestaShop\Module\PsAccounts\Api\Client\ServicesAccountsClient;
 use PrestaShop\Module\PsAccounts\Repository\ConfigurationRepository;
-use PrestaShop\Module\PsAccounts\Exception\FirebaseException;
 use PrestaShop\Module\PsAccounts\Exception\WebhookException;
 
 class Validator
@@ -161,7 +160,6 @@ class Validator
      * @return void
      *
      * @throws WebhookException
-     * @throws FirebaseException
      */
     public function validate($headerValues = [], $bodyValues = [])
     {

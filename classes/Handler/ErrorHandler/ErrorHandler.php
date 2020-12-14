@@ -27,7 +27,7 @@
 namespace PrestaShop\Module\PsAccounts\Handler\ErrorHandler;
 
 use PrestaShop\Module\PsAccounts\Adapter\Configuration;
-use PrestaShop\Module\PsAccounts\Service\PsAccountsService;
+use PrestaShop\Module\PsAccounts\Repository\ConfigurationRepository;
 use Raven_Client;
 
 /**
@@ -36,28 +36,28 @@ use Raven_Client;
 class ErrorHandler
 {
     /**
-     * @var PsAccountsService
-     */
-    private $psAccountsService;
-
-    /**
      * @var Raven_Client
      */
     protected $client;
 
     /**
+     * @var ConfigurationRepository
+     */
+    private $configuration;
+
+    /**
      * ErrorHandler constructor.
      *
-     * @param PsAccountsService $psAccountsService
+     * @param ConfigurationRepository $configuration
      * @param string $sentryCredentials
      *
      * @throws \Raven_Exception
      */
     public function __construct(
-        PsAccountsService $psAccountsService,
+        ConfigurationRepository $configuration,
         $sentryCredentials
     ) {
-        $this->psAccountsService = $psAccountsService;
+        $this->configuration = $configuration;
 
         $this->client = new Raven_Client(
             $sentryCredentials,
@@ -69,14 +69,14 @@ class ErrorHandler
                     'prestashop_version' => _PS_VERSION_,
                     'ps_accounts_is_enabled' => \Module::isEnabled('ps_accounts'),
                     'ps_accounts_is_installed' => \Module::isInstalled('ps_accounts'),
-                    'email' => $this->psAccountsService->getEmail(),
-                    Configuration::PS_ACCOUNTS_FIREBASE_ID_TOKEN => $this->psAccountsService->getFirebaseIdToken(),
-                    Configuration::PS_ACCOUNTS_FIREBASE_REFRESH_TOKEN => $this->psAccountsService->getFirebaseRefreshToken(),
-                    Configuration::PSX_UUID_V4 => $this->psAccountsService->getShopUuidV4(),
-                    Configuration::PS_ACCOUNTS_FIREBASE_EMAIL_IS_VERIFIED => $this->psAccountsService->isEmailValidated(),
-                    Configuration::PS_ACCOUNTS_FIREBASE_EMAIL => $this->psAccountsService->getEmail(),
-                    Configuration::PS_ACCOUNTS_RSA_PUBLIC_KEY => $this->psAccountsService->getAccountsRsaPublicKey(),
-                    Configuration::PS_ACCOUNTS_RSA_SIGN_DATA => $this->psAccountsService->getAccountsRsaSignData(),
+                    //'email' => $this->configuration->getFirebaseEmail(),
+                    Configuration::PS_ACCOUNTS_FIREBASE_ID_TOKEN => $this->configuration->getFirebaseIdToken(),
+                    Configuration::PS_ACCOUNTS_FIREBASE_REFRESH_TOKEN => $this->configuration->getFirebaseRefreshToken(),
+                    Configuration::PSX_UUID_V4 => $this->configuration->getShopUuid(),
+                    Configuration::PS_ACCOUNTS_FIREBASE_EMAIL_IS_VERIFIED => $this->configuration->firebaseEmailIsVerified(),
+                    Configuration::PS_ACCOUNTS_FIREBASE_EMAIL => $this->configuration->getFirebaseEmail(),
+                    Configuration::PS_ACCOUNTS_RSA_PUBLIC_KEY => $this->configuration->getAccountsRsaPublicKey(),
+                    Configuration::PS_ACCOUNTS_RSA_SIGN_DATA => $this->configuration->getAccountsRsaSignData(),
                 ],
             ]
         );

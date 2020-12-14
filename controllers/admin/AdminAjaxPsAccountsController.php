@@ -22,7 +22,7 @@ use PrestaShop\Module\PsAccounts\Adapter\Configuration;
 use PrestaShop\Module\PsAccounts\Handler\ErrorHandler\ErrorHandler;
 use PrestaShop\Module\PsAccounts\Repository\ConfigurationRepository;
 use PrestaShop\Module\PsAccounts\Service\PsAccountsService;
-use PrestaShop\Module\PsAccounts\Service\SshKey;
+use PrestaShop\Module\PsAccounts\Service\ShopKeysService;
 
 /**
  * Controller for all ajax calls.
@@ -76,8 +76,8 @@ class AdminAjaxPsAccountsController extends ModuleAdminController
     public function ajaxProcessGenerateSshKey()
     {
         try {
-            $sshKey = new SshKey();
-            $key = $sshKey->generate();
+            $sshKey = new ShopKeysService();
+            $key = $sshKey->createPair();
             $this->configuration->updateAccountsRsaPrivateKey($key['privatekey']);
             $this->configuration->updateAccountsRsaPublicKey($key['publickey']);
             $data = 'data';

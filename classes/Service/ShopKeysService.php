@@ -21,28 +21,39 @@
 namespace PrestaShop\Module\PsAccounts\Service;
 
 use phpseclib\Crypt\RSA;
+use PrestaShop\Module\PsAccounts\Exception\SshKeysNotFoundException;
+use PrestaShop\Module\PsAccounts\Repository\ConfigurationRepository;
 
 /**
  * Manage RSA
  */
-class SshKey
+class ShopKeysService
 {
+    const SIGNATURE_DATA = 'data';
+
     /**
-     * @var \phpseclib\Crypt\RSA
+     * @var RSA
      */
     private $rsa;
 
-    public function __construct()
+    /**
+     * @var ConfigurationRepository
+     */
+    private $configuration;
+
+    public function __construct(ConfigurationRepository $configuration)
     {
         $this->rsa = new RSA();
         $this->rsa->setHash('sha256');
         $this->rsa->setSignatureMode(RSA::SIGNATURE_PKCS1);
+
+        $this->configuration = $configuration;
     }
 
     /**
      * @return array
      */
-    public function generate()
+    public function createPair()
     {
         $this->rsa->setPrivateKeyFormat(RSA::PRIVATE_FORMAT_PKCS1);
         $this->rsa->setPublicKeyFormat(RSA::PUBLIC_FORMAT_PKCS1);
@@ -75,5 +86,59 @@ class SshKey
         $this->rsa->loadKey($publicKey);
 
         return  $this->rsa->verify($data, base64_decode($signature));
+    }
+
+    /**
+     * @return void
+     *
+     * @throws SshKeysNotFoundException
+     */
+    public function generateKeys()
+    {
+        if (false === $this->hasKeys()) {
+
+            $key = $this->createPair();
+            $this->configuration->updateAccountsRsaPrivateKey($key['privatekey']);
+            $this->configuration->updateAccountsRsaPublicKey($key['publickey']);
+
+            $this->configuration->updateAccountsRsaSignData(
+                $this->signData(
+                    $this->configuration->getAccountsRsaPrivateKey(),
+                    self::SIGNATURE_DATA
+                )
+            );
+
+            if (false === $this->hasKeys()) {
+                throw new SshKeysNotFoundException('Keys where not found for the shop');
+            }
+        }
+    }
+
+    /**
+     * @return bool
+     */
+    public function hasKeys()
+    {
+        return false === (
+                empty($this->configuration->getAccountsRsaPublicKey())
+                || empty($this->configuration->getAccountsRsaPrivateKey())
+                || empty($this->configuration->getAccountsRsaSignData())
+            );
+    }
+
+    /**
+     * @return string
+     */
+    public function getPublicKey()
+    {
+        return $this->configuration->getAccountsRsaPublicKey();
+    }
+
+    /**
+     * @return string
+     */
+    public function getSignature()
+    {
+        return $this->configuration->getAccountsRsaSignData();
     }
 }

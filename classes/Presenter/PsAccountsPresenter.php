@@ -31,7 +31,7 @@ use Ps_accounts;
 class PsAccountsPresenter
 {
     /**
-     * @var psAccountsService
+     * @var PsAccountsService
      */
     protected $psAccountsService;
 
@@ -72,18 +72,19 @@ class PsAccountsPresenter
                 'psAccountsEnableLink' => $this->psAccountsService->getPsAccountsEnableLink(),
                 'psAccountsIsInstalled' => Module::isInstalled('ps_accounts'),
                 'psAccountsIsEnabled' => Module::isEnabled('ps_accounts'),
-                'onboardingLink' => $this->psAccountsService->getOnboardingLink(),
+                'onboardingLink' => $this->psAccountsService->getLinkAccountUrl(),
                 'user' => [
                     'email' => $this->psAccountsService->getEmail(),
                     'emailIsValidated' => $this->psAccountsService->isEmailValidated(),
                     'isSuperAdmin' => $this->psAccountsService->getContext()->employee->isSuperAdmin(),
                 ],
                 'currentShop' => $this->psAccountsService->getCurrentShop(),
+                'isShopContext' => $this->psAccountsService->isShopContext(),
                 'shops' => $this->psAccountsService->getShopsTree(),
                 'superAdminEmail' => $this->psAccountsService->getSuperAdminEmail(),
                 'ssoResendVerificationEmail' => $this->psAccountsService->getSsoAccountUrl(),
                 'manageAccountLink' => $this->psAccountsService->getManageAccountLink(),
-                'adminAjaxLink' => $this->psAccountsService->getAdminAjaxLink(),
+                'adminAjaxLink' => $this->psAccountsService->getAdminAjaxUrl(),
             ];
         } catch (\Exception $e) {
             $this->module->getService(ErrorHandler::class)

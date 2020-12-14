@@ -24,14 +24,8 @@
 *  International Registered Trademark & Property of PrestaShop SA
 */
 
-use PrestaShop\Module\PsAccounts\DependencyInjection\PsAccountsServiceProvider;
-use PrestaShop\Module\PsAccounts\Environment\Env;
 use PrestaShop\Module\PsAccounts\Handler\ErrorHandler\ErrorHandler;
 use PrestaShop\Module\PsAccounts\Service\PsAccountsService;
-use PrestaShop\Module\PsAccounts\Exception\EnvVarException;
-use PrestaShop\Module\PsAccounts\Exception\HmacException;
-use PrestaShop\Module\PsAccounts\Exception\PsAccountsRsaSignDataEmptyException;
-use PrestaShop\Module\PsAccounts\Exception\QueryParamsException;
 
 /**
  * Controller generate hmac and redirect on hmac's file.
@@ -45,6 +39,7 @@ class AdminConfigureHmacPsAccountsController extends ModuleAdminController
      */
     public function initContent()
     {
+        /** @var ErrorHandler $errorHandler */
         $errorHandler = $this->module->getService(ErrorHandler::class);
 
         try {
@@ -52,7 +47,7 @@ class AdminConfigureHmacPsAccountsController extends ModuleAdminController
             $psAccountsService = $this->module->getService(PsAccountsService::class);
 
             Tools::redirect(
-                $psAccountsService->generateVerifyLink(
+                $psAccountsService->getVerifyAccountUrl(
                     Tools::getAllValues(),
                     _PS_ROOT_DIR_
 

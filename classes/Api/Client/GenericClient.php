@@ -21,12 +21,13 @@
 namespace PrestaShop\Module\PsAccounts\Api\Client;
 
 use GuzzleHttp\Client;
+use PrestaShop\Module\PsAccounts\Configuration\Configurable;
 use PrestaShop\Module\PsAccounts\Handler\Response\ResponseApiHandler;
 
 /**
  * Construct the client used to make call to maasland.
  */
-abstract class GenericClient
+abstract class GenericClient implements Configurable
 {
     /**
      * If set to false, you will not be able to catch the error

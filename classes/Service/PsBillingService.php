@@ -23,8 +23,10 @@ namespace PrestaShop\Module\PsAccounts\Service;
 use Context;
 use PrestaShop\Module\PsAccounts\Adapter\Link;
 use PrestaShop\Module\PsAccounts\Api\Client\ServicesBillingClient;
+use PrestaShop\Module\PsAccounts\Configuration\Configurable;
 use PrestaShop\Module\PsAccounts\Context\ShopContext;
 use PrestaShop\Module\PsAccounts\Exception\BillingException;
+use PrestaShop\Module\PsAccounts\Exception\OptionResolutionException;
 use PrestaShop\Module\PsAccounts\Repository\ConfigurationRepository;
 use Ps_accounts;
 

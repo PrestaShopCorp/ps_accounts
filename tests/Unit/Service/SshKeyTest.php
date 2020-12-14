@@ -21,14 +21,14 @@
 namespace PrestaShop\Module\PsAccounts\Tests\Unit\Service;
 
 use PHPUnit\Framework\TestCase;
-use PrestaShop\Module\PsAccounts\Service\SshKey;
+use PrestaShop\Module\PsAccounts\Service\ShopKeysService;
 
 class SshKeyTest extends TestCase
 {
     public function testGenerate()
     {
-        $sshKey = new SshKey();
-        $key = $sshKey->generate();
+        $sshKey = new ShopKeysService();
+        $key = $sshKey->createPair();
         $this->assertArrayHasKey('privatekey', $key, "Key 'privatekey' don't exist in Array");
         $this->assertArrayHasKey('publickey', $key, "Key 'publickey' don't exist in Array");
         $this->assertEquals('string', gettype($key['privatekey']), "'privatekey' isn't string");
@@ -37,8 +37,8 @@ class SshKeyTest extends TestCase
 
     public function testVerifyDecryptRsaKey()
     {
-        $sshKey = new SshKey();
-        $key = $sshKey->generate();
+        $sshKey = new ShopKeysService();
+        $key = $sshKey->createPair();
         $privateKey = '-----BEGIN RSA PRIVATE KEY-----
          MIICWwIBAAKBgQCeksA2G79u1InvLc8tKcerLCLa66be0h/CD9RhDnQh5CXQxe5H
          URMyTWy6DpyFyddg6cnOh1RavMWUvdvjwtcgxVmmwtBA7kS8sKuxRUBFHjxB7i9N

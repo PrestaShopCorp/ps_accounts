@@ -245,26 +245,6 @@ class ConfigurationRepository
     /**
      * @return bool
      */
-    public function hasAccountsSshKeys()
-    {
-        $sshKeys = [
-            Configuration::PS_ACCOUNTS_RSA_PUBLIC_KEY,
-            Configuration::PS_ACCOUNTS_RSA_PRIVATE_KEY,
-            Configuration::PS_ACCOUNTS_RSA_SIGN_DATA,
-        ];
-
-        foreach ($sshKeys as $sshKey) {
-            if (empty($this->configuration->get($sshKey))) {
-                return false;
-            }
-        }
-
-        return true;
-    }
-
-    /**
-     * @return bool
-     */
     public function sslEnabled()
     {
         return true == $this->configuration->get('PS_SSL_ENABLED');

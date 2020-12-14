@@ -20,6 +20,6 @@
 
 namespace PrestaShop\Module\PsAccounts\Exception;
 
-class FirebaseException extends \Exception
+class TokenNotFoundException extends \Exception
 {
 }

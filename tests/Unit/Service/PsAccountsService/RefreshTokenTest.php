@@ -67,7 +67,7 @@ class RefreshTokenTest extends TestCase
             $this->module->getService('ps_accounts.module')
         );
 
-        $this->assertTrue($service->refreshToken());
+        $this->assertTrue($service->tokenService->refreshToken($service));
 
         $this->assertEquals((string) $idTokenRefreshed, $configuration->getFirebaseIdToken());
 
@@ -106,7 +106,7 @@ class RefreshTokenTest extends TestCase
             $this->module->getService('ps_accounts.module')
         );
 
-        $this->assertFalse($service->refreshToken());
+        $this->assertFalse($service->tokenService->refreshToken($service));
 
         $this->assertEquals((string) $idToken, $configuration->getFirebaseIdToken());
 

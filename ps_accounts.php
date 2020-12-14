@@ -265,6 +265,8 @@ class Ps_accounts extends Module
      * @param array $params
      *
      * @return bool
+     *
+     * @throws \Exception
      */
     public function hookDisplayBackOfficeHeader($params)
     {
@@ -288,10 +290,13 @@ class Ps_accounts extends Module
                 'domain' => $domain,
                 'domain_ssl' => $domainSsl,
             ];
+
+            /** @var \PrestaShop\Module\PsAccounts\Service\PsAccountsService $psAccountsService */
             $psAccountsService = $this->getService(
                 \PrestaShop\Module\PsAccounts\Service\PsAccountsService::class
             );
-            $psAccountsService->changeUrl($bodyHttp, '1.6');
+
+            $psAccountsService->updateShopUrl($bodyHttp, '1.6');
         }
 
         return true;
@@ -305,6 +310,8 @@ class Ps_accounts extends Module
      * @param array $params
      *
      * @return bool
+     *
+     * @throws \Exception
      */
     public function hookActionMetaPageSave($params)
     {
@@ -318,10 +325,13 @@ class Ps_accounts extends Module
             'domain' => $params['form_data']['shop_urls']['domain'],
             'domain_ssl' => $params['form_data']['shop_urls']['domain_ssl'],
         ];
+
+        /** @var \PrestaShop\Module\PsAccounts\Service\PsAccountsService $psAccountsService */
         $psAccountsService = $this->getService(
             \PrestaShop\Module\PsAccounts\Service\PsAccountsService::class
         );
-        $psAccountsService->changeUrl($bodyHttp, '1.7.6');
+
+        $psAccountsService->updateShopUrl($bodyHttp, '1.7.6');
 
         return true;
     }
@@ -332,6 +342,8 @@ class Ps_accounts extends Module
      * @param array $params
      *
      * @return bool
+     *
+     * @throws Exception
      */
     public function hookActionObjectShopUrlUpdateAfter($params)
     {
@@ -343,10 +355,13 @@ class Ps_accounts extends Module
             'main' => $params['object']->main,
             'active' => $params['object']->active,
         ];
+
+        /** @var \PrestaShop\Module\PsAccounts\Service\PsAccountsService $psAccountsService */
         $psAccountsService = $this->getService(
             \PrestaShop\Module\PsAccounts\Service\PsAccountsService::class
         );
-        $psAccountsService->changeUrl($bodyHttp, 'multishop');
+
+        $psAccountsService->updateShopUrl($bodyHttp, 'multishop');
 
         return true;
     }

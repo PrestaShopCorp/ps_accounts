@@ -21,17 +21,18 @@
 namespace PrestaShop\Module\PsAccounts\Service;
 
 use Context;
-use Lcobucci\JWT\Parser;
 use Module;
 use PrestaShop\Module\PsAccounts\Adapter\Link;
-use PrestaShop\Module\PsAccounts\Api\Client\FirebaseClient;
 use PrestaShop\Module\PsAccounts\Api\Client\ServicesAccountsClient;
+use PrestaShop\Module\PsAccounts\Configuration\ConfigOptionsResolver;
+use PrestaShop\Module\PsAccounts\Configuration\Configurable;
 use PrestaShop\Module\PsAccounts\Context\ShopContext;
-use PrestaShop\Module\PsAccounts\Exception\EnvVarException;
 use PrestaShop\Module\PsAccounts\Exception\HmacException;
+use PrestaShop\Module\PsAccounts\Exception\OptionResolutionException;
 use PrestaShop\Module\PsAccounts\Exception\PsAccountsRsaSignDataEmptyException;
 use PrestaShop\Module\PsAccounts\Exception\QueryParamsException;
 use PrestaShop\Module\PsAccounts\Exception\SshKeysNotFoundException;
+use PrestaShop\Module\PsAccounts\Provider\ShopProvider;
 use PrestaShop\Module\PsAccounts\Repository\ConfigurationRepository;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use Tools;
@@ -39,10 +40,8 @@ use Tools;
 /**
  * Construct the psaccounts service.
  */
-class PsAccountsService
+class PsAccountsService implements Configurable
 {
-    const STR_TO_SIGN = 'data';
-
     /**
      * @var ContainerInterface
      */
@@ -69,11 +68,6 @@ class PsAccountsService
     private $configuration;
 
     /**
-     * @var FirebaseClient
-     */
-    private $firebaseClient;
-
-    /**
      * @var string | null
      */
     private $psxName = null;
@@ -84,55 +78,42 @@ class PsAccountsService
     private $module;
 
     /**
-     * @var Context
+     * @var ShopProvider
      */
-    private $context;
+    private $shopProvider;
 
     /**
-     * @var ShopContext
+     * @var ShopTokenService
      */
-    private $shopContext;
+    private $shopTokenService;
+
+    /**
+     * @var ShopKeysService
+     */
+    private $shopKeysService;
 
     /**
      * PsAccountsService constructor.
      *
      * @param array $config
      * @param ConfigurationRepository $configuration
-     * @param FirebaseClient $firebaseClient
      * @param \Ps_accounts $module
+     *
+     * @throws \Exception
      */
     public function __construct(
         array $config,
         ConfigurationRepository $configuration,
-        FirebaseClient $firebaseClient,
         \Ps_accounts $module
     ) {
+        $config = $this->resolveConfig($config);
+        $this->accountsUiUrl = $config['accounts_ui_url'];
+        $this->ssoAccountUrl = $config['sso_account_url'];
+
         $this->configuration = $configuration;
-        $this->firebaseClient = $firebaseClient;
         $this->module = $module;
 
         $this->link = $this->module->getService('ps_accounts.link');
-        $this->context = $this->module->getContext();
-        $this->shopContext = $this->module->getService('ps_accounts.shop_context');
-
-        $this->accountsUiUrl = $config['accounts_ui_url'];
-        $this->ssoAccountUrl = $config['sso_account_url'];
-    }
-
-    /**
-     * @return ShopContext
-     */
-    public function getShopContext()
-    {
-        return $this->module->getService('ps_accounts.shop_context');
-    }
-
-    /**
-     * @return Context
-     */
-    public function getContext()
-    {
-        return $this->module->getContext();
     }
 
     /**
@@ -170,87 +151,6 @@ class PsAccountsService
     }
 
     /**
-     * @return bool
-     */
-    public function isShopContext()
-    {
-        if (\Shop::isFeatureActive() && \Shop::getContext() !== \Shop::CONTEXT_SHOP) {
-            return false;
-        }
-
-        return true;
-    }
-
-    /**
-     * @return array
-     *
-     * @throws \PrestaShopException
-     */
-    public function getCurrentShop()
-    {
-        $shop = \Shop::getShop($this->context->shop->id);
-
-        return [
-            'id' => $shop['id_shop'],
-            'name' => $shop['name'],
-            'domain' => $shop['domain'],
-            'domainSsl' => $shop['domain_ssl'],
-            'url' => $this->link->getAdminLink(
-                'AdminModules',
-                true,
-                [],
-                [
-                    'configure' => $this->psxName,
-                    'setShopContext' => 's-' . $shop['id_shop'],
-                ]
-            ),
-        ];
-    }
-
-    /**
-     * @return array
-     *
-     * @throws \PrestaShopException
-     */
-    public function getShopsTree()
-    {
-        $shopList = [];
-
-        if (true === $this->isShopContext()) {
-            return $shopList;
-        }
-
-        foreach (\Shop::getTree() as $groupId => $groupData) {
-            $shops = [];
-            foreach ($groupData['shops'] as $shopId => $shopData) {
-                $shops[] = [
-                    'id' => $shopId,
-                    'name' => $shopData['name'],
-                    'domain' => $shopData['domain'],
-                    'domainSsl' => $shopData['domain_ssl'],
-                    'url' => $this->link->getAdminLink(
-                        'AdminModules',
-                        true,
-                        [],
-                        [
-                            'configure' => 'ps_accounts',
-                            'setShopContext' => 's-' . $shopId,
-                        ]
-                    ),
-                ];
-            }
-
-            $shopList[] = [
-                'id' => $groupId,
-                'name' => $groupData['name'],
-                'shops' => $shops,
-            ];
-        }
-
-        return $shopList;
-    }
-
-    /**
      * @return string | null
      */
     public function getFirebaseRefreshToken()
@@ -259,21 +159,11 @@ class PsAccountsService
     }
 
     /**
-     * @return string | null
-     */
-    public function getFirebaseIdToken()
-    {
-        return $this->configuration->getFirebaseIdToken() ?: null;
-    }
-
-    /**
      * @return string
      */
     public function getSuperAdminEmail()
     {
-        $employee = new \Employee(1);
-
-        return $employee->email;
+        return (new \Employee(1))->email;
     }
 
     /**
@@ -293,209 +183,11 @@ class PsAccountsService
     }
 
     /**
-     * @return bool
-     */
-    public function sslEnabled()
-    {
-        return $this->configuration->sslEnabled();
-    }
-
-    /**
-     * @return string
-     */
-    public function getProtocol()
-    {
-        return false == $this->sslEnabled() ? 'http' : 'https';
-    }
-
-    /**
-     * @return string
-     *
-     * @throws \PrestaShopException
-     */
-    public function getDomainName()
-    {
-        $currentShop = $this->getCurrentShop();
-
-        return false == $this->sslEnabled() ? $currentShop['domain'] : $currentShop['domainSsl'];
-    }
-
-    /**
      * @return string | false
      */
     public function getShopUuidV4()
     {
         return $this->configuration->getShopUuid();
-    }
-
-    /**
-     * @return string | null
-     *
-     * @throws \PrestaShopException
-     */
-    public function getPsAccountsInstallLink()
-    {
-        if (true === Module::isInstalled('ps_accounts')) {
-            return null;
-        }
-
-        if ($this->shopContext->isShop17()) {
-            $router = $this->get('router');
-
-            return Tools::getHttpHost(true) . $router->generate('admin_module_manage_action', [
-                'action' => 'install',
-                'module_name' => 'ps_accounts',
-            ]);
-        }
-
-        return  $this->link->getAdminLink('AdminModules', true, [], [
-            'module_name' => $this->psxName,
-            'configure' => $this->psxName,
-            'install' => 'ps_accounts',
-        ]);
-    }
-
-    /**
-     * @return string | null
-     *
-     * @throws \PrestaShopException
-     */
-    public function getPsAccountsEnableLink()
-    {
-        if (true === Module::isEnabled('ps_accounts')) {
-            return null;
-        }
-
-        if ($this->shopContext->isShop17()) {
-            $router = $this->get('router');
-
-            return Tools::getHttpHost(true) . $router->generate('admin_module_manage_action', [
-                'action' => 'enable',
-                'module_name' => 'ps_accounts',
-            ]);
-        }
-
-        return  $this->link->getAdminLink('AdminModules', true, [], [
-            'module_name' => $this->psxName,
-            'configure' => $this->psxName,
-            'enable' => 'ps_accounts',
-        ]);
-    }
-
-    /**
-     * @return string
-     *
-     * @throws EnvVarException
-     * @throws \PrestaShopException
-     */
-    public function getOnboardingLink()
-    {
-        if (false === Module::isInstalled('ps_accounts')) {
-            return '';
-        }
-
-        $callback = preg_replace(
-            '/^https?:\/\/[^\/]+/',
-            '',
-            $this->link->getAdminLink('AdminModules', true) . '&configure=' . $this->psxName
-        );
-
-        $uiSvcBaseUrl = $this->accountsUiUrl;
-        if (false === $uiSvcBaseUrl) {
-            throw new EnvVarException('Environmenrt variable ACCOUNTS_SVC_UI_URL should not be empty');
-        }
-
-        $protocol = $this->getProtocol();
-        $domainName = $this->getDomainName();
-        $currentShop = $this->getCurrentShop();
-
-        $queryParams = [
-            'bo' => $callback,
-            'pubKey' => $this->configuration->getAccountsRsaPublicKey(),
-            'next' => preg_replace(
-                '/^https?:\/\/[^\/]+/',
-                '',
-                $this->link->getAdminLink('AdminConfigureHmacPsAccounts')
-            ),
-            'name' => $currentShop['name'],
-            'lang' => $this->context->language->iso_code,
-        ];
-
-        $queryParamsArray = [];
-        foreach ($queryParams as $key => $value) {
-            $queryParamsArray[] = $key . '=' . urlencode($value);
-        }
-        $strQueryParams = implode('&', $queryParamsArray);
-
-        return  $uiSvcBaseUrl . '/shop/account/link/' . $protocol . '/' . $domainName
-            . '/' . $protocol . '/' . $domainName . '/' . $this->psxName . '?' . $strQueryParams;
-    }
-
-    /**
-     * @param array $queryParams
-     * @param string $rootDir
-     *
-     * @return string
-     *
-     * @throws EnvVarException
-     * @throws HmacException
-     * @throws QueryParamsException
-     * @throws SshKeysNotFoundException
-     * @throws PsAccountsRsaSignDataEmptyException
-     */
-    public function generateVerifyLink(array $queryParams, $rootDir)
-    {
-        $this->generateSshKey();
-
-        // FIXME: merge this test with the foreach below
-        if (!array_key_exists('hmac', $queryParams) || null === $queryParams['hmac']) {
-            throw new HmacException('Hmac does not exist', 500);
-        }
-
-        $hmacPath = $rootDir . '/upload/';
-
-        // FIXME: need some kind of DTO
-        foreach (
-            [
-                'hmac' => '/[a-zA-Z0-9]{8,64}/',
-                'uid' => '/[a-zA-Z0-9]{8,64}/',
-                'slug' => '/[-_a-zA-Z0-9]{8,255}/'
-            ] as $key => $value
-        ) {
-            if (!array_key_exists($key, $queryParams)) {
-                throw new QueryParamsException('Missing query params', 500);
-            }
-
-            if (!preg_match($value, $queryParams[$key])) {
-                throw new QueryParamsException('Invalide query params', 500);
-            }
-        }
-
-        if (!is_dir($hmacPath)) {
-            mkdir($hmacPath);
-        }
-
-        if (!is_writable($hmacPath)) {
-            throw new HmacException('Directory isn\'t writable', 500);
-        }
-
-        file_put_contents($hmacPath . $queryParams['uid'] . '.txt', $queryParams['hmac']);
-
-        $url = $this->accountsUiUrl;
-        if (false === $url) {
-            throw new EnvVarException('Environment variable ACCOUNTS_SVC_UI_URL should not be empty', 500);
-        }
-
-        if ('/' === substr($url, -1)) {
-            $url = substr($url, 0, -1);
-        }
-
-        if (empty($this->configuration->getAccountsRsaSignData())) {
-            throw new PsAccountsRsaSignDataEmptyException('PsAccounts RsaSignData couldn\'t be empty', 500);
-        }
-
-        return $url . '/shop/account/verify/' . $queryParams['uid']
-            . '?shopKey=' . urlencode($this->configuration->getAccountsRsaSignData());
     }
 
     /**
@@ -506,32 +198,31 @@ class PsAccountsService
      *
      * @throws \Exception
      */
-    public function changeUrl($bodyHttp, $trigger)
+    public function updateShopUrl($bodyHttp, $trigger)
     {
         if (array_key_exists('shop_id', $bodyHttp)) {
             // id for multishop
             $this->configuration->setShopId($bodyHttp['shop_id']);
         }
 
-        $sslEnabled = $this->sslEnabled();
-        $protocol = $this->getProtocol();
+        $sslEnabled = $this->shopProvider->getShopContext()->sslEnabled();
+        $protocol = $this->shopProvider->getShopContext()->getProtocol();
         $domain = $sslEnabled ? $bodyHttp['domain_ssl'] : $bodyHttp['domain'];
 
         $uuid = $this->getShopUuidV4();
 
         $response = false;
-        $boUrl = preg_replace(
-            '/^https?:\/\/[^\/]+/',
-            $protocol . '://' . $domain,
-            $this->link->getAdminLink('AdminModules', true)
+        $boUrl = $this->replaceScheme(
+            $this->link->getAdminLink('AdminModules', true),
+            $protocol . '://' . $domain
         );
 
         if ($uuid && strlen($uuid) > 0) {
 
-            /** @var ServicesAccountsClient $servicesAcountsClient */
-            $servicesAcountsClient = $this->module->getService(ServicesAccountsClient::class);
+            /** @var ServicesAccountsClient $servicesAccountsClient */
+            $servicesAccountsClient = $this->module->getService(ServicesAccountsClient::class);
 
-            $response = $servicesAcountsClient->changeUrl(
+            $response = $servicesAccountsClient->updateShopUrl(
                 $uuid,
                 [
                     'protocol' => $protocol,
@@ -546,113 +237,6 @@ class PsAccountsService
     }
 
     /**
-     * @return array
-     */
-    public function unlinkShop()
-    {
-        /** @var ServicesAccountsClient $servicesAccountsClient */
-        $servicesAccountsClient = $this->module->getService(ServicesAccountsClient::class);
-
-        $response = $servicesAccountsClient->deleteShop((string) $this->getShopUuidV4());
-
-        // Réponse: 200: Shop supprimé avec payload contenant un message de confirmation
-        // Réponse: 404: La shop n'existe pas (not found)
-        // Réponse: 401: L'utilisateur n'est pas autorisé à supprimer cette shop
-
-        if ($response['status'] && $response['httpCode'] === 200) {
-            $this->resetOnboardingData();
-        }
-
-        return $response;
-    }
-
-    /**
-     * Empty onboarding configuration values
-     *
-     * @return void
-     */
-    public function resetOnboardingData()
-    {
-        $this->configuration->updateAccountsRsaPrivateKey('');
-        $this->configuration->updateAccountsRsaPublicKey('');
-        $this->configuration->updateAccountsRsaSignData('');
-
-        $this->configuration->updateFirebaseIdAndRefreshTokens('', '');
-        $this->configuration->updateFirebaseEmail('');
-        $this->configuration->updateFirebaseEmailIsVerified(false);
-
-        $this->configuration->updateShopUuid('');
-    }
-
-    /**
-     * @return void
-     *
-     * @throws \Exception
-     */
-    public function manageOnboarding()
-    {
-        $this->generateSshKey();
-        $this->updateOnboardingData();
-    }
-
-    /**
-     * @return void
-     *
-     * @throws SshKeysNotFoundException
-     */
-    public function generateSshKey()
-    {
-        if (false === $this->configuration->hasAccountsSshKeys()) {
-            $sshKey = new SshKey();
-
-            $key = $sshKey->generate();
-            $this->configuration->updateAccountsRsaPrivateKey($key['privatekey']);
-            $this->configuration->updateAccountsRsaPublicKey($key['publickey']);
-            $this->configuration->updateAccountsRsaSignData(
-                $sshKey->signData(
-                    $this->configuration->getAccountsRsaPrivateKey(),
-                    self::STR_TO_SIGN
-                )
-            );
-            if (empty($this->configuration->getAccountsRsaPrivateKey())) {
-                throw new SshKeysNotFoundException('SshKeys not found');
-            }
-        }
-    }
-
-    /**
-     * Only callable during onboarding
-     *
-     * Prepare onboarding data
-     *
-     * @return void
-     *
-     * @throws \Exception
-     */
-    public function updateOnboardingData()
-    {
-        $email = \Tools::getValue('email');
-        $emailVerified = \Tools::getValue('emailVerified');
-        $customToken = \Tools::getValue('adminToken');
-
-        if (false === $this->configuration->hasAccountsSshKeys()) {
-            throw new \Exception('SSH keys were not found');
-        }
-
-        if (!$this->exchangeCustomTokenForIdAndRefreshToken($customToken)) {
-            return;
-        }
-
-        if (!empty($email)) {
-            $this->configuration->updateFirebaseEmail($email);
-
-            if (!empty($emailVerified)) {
-                $this->configuration->updateFirebaseEmailIsVerified('true' === $emailVerified);
-            }
-        }
-    }
-
-    /**
      * Get the user firebase token.
      *
      * @return string
@@ -661,90 +245,7 @@ class PsAccountsService
      */
     public function getOrRefreshToken()
     {
-        if (
-            $this->configuration->hasFirebaseRefreshToken()
-            && $this->isTokenExpired()
-        ) {
-            $this->refreshToken();
-        }
-
-        return $this->configuration->getFirebaseIdToken();
-    }
-
-    /**
-     * @return bool
-     *
-     * @throws \Exception
-     */
-    public function refreshToken()
-    {
-        $response = $this->firebaseClient->exchangeRefreshTokenForIdToken(
-            $this->configuration->getFirebaseRefreshToken()
-        );
-
-        if ($response && true === $response['status']) {
-            $this->configuration->updateFirebaseIdAndRefreshTokens(
-                $response['body']['id_token'],
-                $response['body']['refresh_token']
-            );
-
-            return true;
-        }
-
-        return false;
-    }
-
-    /**
-     * get refreshToken.
-     *
-     * @see https://firebase.google.com/docs/reference/rest/auth Firebase documentation
-     *
-     * @param string $customToken
-     *
-     * @return bool
-     */
-    public function exchangeCustomTokenForIdAndRefreshToken($customToken)
-    {
-        $response = $this->firebaseClient->signInWithCustomToken($customToken);
-
-        if ($response && true === $response['status']) {
-            $uid = (new Parser())->parse((string) $customToken)->getClaim('uid');
-
-            $this->configuration->updateShopUuid($uid);
-
-            $this->configuration->updateFirebaseIdAndRefreshTokens(
-                $response['body']['idToken'],
-                $response['body']['refreshToken']
-            );
-
-            return true;
-        }
-
-        return false;
-    }
-
-    /**
-     * Check the token validity. The token expire time is set to 3600 seconds.
-     *
-     * @return bool
-     *
-     * @throws \Exception
-     */
-    public function isTokenExpired()
-    {
-        /*$refresh_date = $this->configuration->get(Configuration::PS_PSX_FIREBASE_REFRESH_DATE);
-
-        if (empty($refresh_date)) {
-            return true;
-        }
-
-        return strtotime($refresh_date) + 3600 < time();*/
-
-        // iat, exp
-
-        $token = (new Parser())->parse($this->configuration->getFirebaseIdToken());
-
-        return $token->isExpired(new \DateTime());
+        return $this->shopTokenService->getOrRefreshToken();
     }
 
     /**
@@ -753,33 +254,9 @@ class PsAccountsService
     public function getManageAccountLink()
     {
         $url = $this->ssoAccountUrl;
-        $langIsoCode = $this->context->language->iso_code;
+        $langIsoCode = $this->module->getContext()->language->iso_code;
 
         return $url . '?lang=' . substr($langIsoCode, 0, 2);
-    }
-
-    /**
-     * @return string
-     */
-    public function getAccountsRsaPublicKey()
-    {
-        return $this->configuration->getAccountsRsaPublicKey();
-    }
-
-    /**
-     * @return string
-     */
-    public function getAccountsRsaSignData()
-    {
-        return $this->configuration->getAccountsRsaSignData();
-    }
-
-    /**
-     * @return string
-     */
-    public function getAccountsUiUrl()
-    {
-        return $this->accountsUiUrl;
     }
 
     /**
@@ -800,9 +277,36 @@ class PsAccountsService
      *
      * @throws \PrestaShopException
      */
-    public function getAdminAjaxLink()
+    public function getAdminAjaxUrl()
     {
 //        Tools::getAdminTokenLite('AdminAjaxPsAccounts'));
         return $this->link->getAdminLink('AdminAjaxPsAccounts', true, [], ['ajax' => 1]);
+    }
+
+    /**
+     * @param array $config
+     * @param array $defaults
+     *
+     * @return array|mixed
+     *
+     * @throws OptionResolutionException
+     */
+    public function resolveConfig(array $config, array $defaults = [])
+    {
+        return (new ConfigOptionsResolver([
+            'accounts_ui_url',
+            'sso_account_url',
+        ]))->resolve($config, $defaults);
+    }
+
+    /**
+     * @param string $url
+     * @param string $replacement
+     *
+     * @return string
+     */
+    private function replaceScheme($url, $replacement = '')
+    {
+        return preg_replace('/^https?:\/\/[^\/]+/', $replacement, $url);
     }
 }
