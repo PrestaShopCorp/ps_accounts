@@ -133,11 +133,11 @@ jobs:
           username: ${{ secrets.SSH_USERNAME }}
           key: ${{ secrets.SSH_KEY }}
           script: |
-            sudo su -c 'docker exec $(docker container ls | grep "prestashop/prestashop:1.7" | grep "multishop" | awk "{ print $1 }") bin/console prestashop:module uninstall ps_accounts || true'
-            sudo su -c 'docker exec $(docker container ls | grep "prestashop/prestashop:1.7" | grep "multishop" | awk "{ print $1 }") bin/console prestashop:module install ps_accounts'
-            sudo su -c 'docker exec $(docker container ls | grep "prestashop/prestashop:1.7" | grep "multishop" | awk "{ print $1 }") cp modules/ps_checkout/.env modules/ps_checkout/_dev/.env'
-            sudo su -c 'docker exec $(docker container ls | grep "prestashop/prestashop:1.7" | grep "multishop" | awk "{ print $1 }") bin/console prestashop:module uninstall ps_checkout || true'
-            sudo su -c 'docker exec $(docker container ls | grep "prestashop/prestashop:1.7" | grep "multishop" | awk "{ print $1 }") bin/console prestashop:module install ps_checkout'
+            sudo su -c "docker exec $(docker container ls | grep 'prestashop/prestashop:1.7' | grep 'multishop' | awk '{ print $1 }') bin/console prestashop:module uninstall ps_accounts || true"
+            sudo su -c "docker exec $(docker container ls | grep 'prestashop/prestashop:1.7' | grep "multishop" | awk '{ print $1 }') bin/console prestashop:module install ps_accounts"
+            sudo su -c "docker exec $(docker container ls | grep 'prestashop/prestashop:1.7' | grep "multishop" | awk '{ print $1 }') cp modules/ps_checkout/.env modules/ps_checkout/_dev/.env"
+            sudo su -c "docker exec $(docker container ls | grep 'prestashop/prestashop:1.7' | grep "multishop" | awk '{ print $1 }') bin/console prestashop:module uninstall ps_checkout || true"
+            sudo su -c "docker exec $(docker container ls | grep 'prestashop/prestashop:1.7' | grep "multishop" | awk '{ print $1 }') bin/console prestashop:module install ps_checkout"
 
   install_1_6:
     name: Install on shop 1.6
@@ -163,9 +163,9 @@ jobs:
           username: ${{ secrets.SSH_USERNAME }}
           key: ${{ secrets.SSH_KEY }}
           script: |
-            sudo su -c 'docker exec $(docker container ls | grep "prestashop/prestashop:1.6" | grep "multishop" | awk "{ print $1 }") php modules/ps_accounts/install.php'
-            sudo su -c 'docker exec $(docker container ls | grep "prestashop/prestashop:1.6" | grep "multishop" | awk "{ print $1 }") cp modules/ps_checkout/.env modules/ps_checkout/_dev/.env'
-            sudo su -c 'docker exec $(docker container ls | grep "prestashop/prestashop:1.6" | grep "multishop" | awk "{ print $1 }") php modules/ps_checkout/install.php'
+            sudo su -c "docker exec $(docker container ls | grep 'prestashop/prestashop:1.6' | grep 'multishop' | awk '{ print $1 }') php modules/ps_accounts/install.php"
+            sudo su -c "docker exec $(docker container ls | grep 'prestashop/prestashop:1.6' | grep 'multishop' | awk '{ print $1 }') cp modules/ps_checkout/.env modules/ps_checkout/_dev/.env"
+            sudo su -c "docker exec $(docker container ls | grep 'prestashop/prestashop:1.6' | grep 'multishop' | awk '{ print $1 }') php modules/ps_checkout/install.php"
 
   clean:
     name: Clean
@@ -182,11 +182,11 @@ jobs:
           username: ${{ secrets.SSH_USERNAME }}
           key: ${{ secrets.SSH_KEY }}
           script: |
-            sudo su -c 'docker exec $(docker container ls | grep "prestashop/prestashop:1.7" | grep "multishop" | awk "{ print $1 }") bin/console cache:cl'
-            sudo su -c 'docker exec $(docker container ls | grep "prestashop/prestashop:1.7" | grep "multishop" | awk "{ print $1 }") chmod -R 777 var/cache var/logs'
-            sudo su -c 'docker exec $(docker container ls | grep "prestashop/prestashop:1.6" | grep "multishop" | awk "{ print $1 }") rm -rf cache/smarty/compile/*'
-            sudo su -c 'docker exec $(docker container ls | grep "prestashop/prestashop:1.6" | grep "multishop" | awk "{ print $1 }") rm -rf cache/smarty/cache/*'
-            sudo su -c 'docker exec $(docker container ls | grep "prestashop/prestashop:1.6" | grep "multishop" | awk "{ print $1 }") rm -rf img/tmp/*'
+            sudo su -c "docker exec $(docker container ls | grep 'prestashop/prestashop:1.7' | grep 'multishop' | awk '{ print $1 }') bin/console cache:cl"
+            sudo su -c "docker exec $(docker container ls | grep 'prestashop/prestashop:1.7' | grep 'multishop' | awk '{ print $1 }') chmod -R 777 var/cache var/logs"
+            sudo su -c "docker exec $(docker container ls | grep 'prestashop/prestashop:1.6' | grep 'multishop' | awk '{ print $1 }') rm -rf cache/smarty/compile/*"
+            sudo su -c "docker exec $(docker container ls | grep 'prestashop/prestashop:1.6' | grep 'multishop' | awk '{ print $1 }') rm -rf cache/smarty/cache/*"
+            sudo su -c "docker exec $(docker container ls | grep 'prestashop/prestashop:1.6' | grep 'multishop' | awk '{ print $1 }') rm -rf img/tmp/*"
 
       - name: Delete tmp module
         uses: appleboy/ssh-action@master
