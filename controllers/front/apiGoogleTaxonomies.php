@@ -2,11 +2,7 @@
 
 class ps_AccountsApiGoogleTaxonomiesModuleFrontController extends ModuleFrontController
 {
-    public $type = 'taxonomies';
-
     /**
-     * @throws PrestaShopException
-     *
      * @return void
      */
     public function postProcess()

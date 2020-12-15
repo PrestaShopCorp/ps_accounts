@@ -2,11 +2,7 @@
 
 class ps_AccountsApiCategoriesModuleFrontController extends ModuleFrontController
 {
-    public $type = 'categories';
-
     /**
-     * @throws PrestaShopException
-     *
      * @return void
      */
     public function postProcess()

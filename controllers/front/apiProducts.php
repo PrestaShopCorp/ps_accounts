@@ -2,8 +2,6 @@
 
 class ps_accountsApiProductsModuleFrontController extends ModuleFrontController
 {
-    public $type = 'products';
-
     /**
      * @throws PrestaShopException
      *

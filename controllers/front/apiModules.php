@@ -2,11 +2,7 @@
 
 class ps_AccountsApiModulesModuleFrontController extends ModuleFrontController
 {
-    public $type = 'modules';
-
     /**
-     * @throws PrestaShopException
-     *
      * @return void
      */
     public function postProcess()

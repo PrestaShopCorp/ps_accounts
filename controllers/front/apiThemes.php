@@ -2,8 +2,6 @@
 
 class ps_AccountsApiThemesModuleFrontController extends ModuleFrontController
 {
-    public $type = 'themes';
-
     /**
      * @return void
      */

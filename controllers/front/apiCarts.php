@@ -2,11 +2,7 @@
 
 class ps_AccountsApiCartsModuleFrontController extends ModuleFrontController
 {
-    public $type = 'carts';
-
     /**
-     * @throws PrestaShopException
-     *
      * @return void
      */
     public function postProcess()

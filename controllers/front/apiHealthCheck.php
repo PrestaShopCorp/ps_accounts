@@ -2,6 +2,9 @@
 
 class ps_AccountsApiHealthCheckModuleFrontController extends ModuleFrontController
 {
+    /**
+     * @return void
+     */
     public function init()
     {
     }

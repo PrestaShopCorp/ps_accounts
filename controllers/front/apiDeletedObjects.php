@@ -2,8 +2,6 @@
 
 class ps_AccountsApiDeletedObjectsModuleFrontController extends ModuleFrontController
 {
-    public $type = 'deleted';
-
     /**
      * @return void
      */
