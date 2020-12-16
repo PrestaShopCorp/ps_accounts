@@ -36,12 +36,18 @@ class ShopTokenService
      */
     private $configuration;
 
+    /**
+     * ShopTokenService constructor.
+     *
+     * @param FirebaseClient $firebaseClient
+     * @param ConfigurationRepository $configuration
+     */
     public function __construct(
-        ConfigurationRepository $configuration,
-        FirebaseClient $firebaseClient
+        FirebaseClient $firebaseClient,
+        ConfigurationRepository $configuration
     ) {
-        $this->configuration = $configuration;
         $this->firebaseClient = $firebaseClient;
+        $this->configuration = $configuration;
     }
 
     /**
@@ -111,6 +117,14 @@ class ShopTokenService
         }
 
         return $this->configuration->getFirebaseIdToken();
+    }
+
+    /**
+     * @return string|null
+     */
+    public function getRefreshToken()
+    {
+        return $this->configuration->getFirebaseRefreshToken() ?: null;
     }
 
     /**

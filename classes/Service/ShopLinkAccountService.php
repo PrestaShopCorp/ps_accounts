@@ -4,14 +4,129 @@ namespace PrestaShop\Module\PsAccounts\Service;
 
 // TODO : OnboardingDataDTO
 
+use PrestaShop\Module\PsAccounts\Adapter\Link;
 use PrestaShop\Module\PsAccounts\Api\Client\ServicesAccountsClient;
 use PrestaShop\Module\PsAccounts\Exception\HmacException;
 use PrestaShop\Module\PsAccounts\Exception\PsAccountsRsaSignDataEmptyException;
 use PrestaShop\Module\PsAccounts\Exception\QueryParamsException;
 use PrestaShop\Module\PsAccounts\Exception\SshKeysNotFoundException;
+use PrestaShop\Module\PsAccounts\Provider\ShopProvider;
+use PrestaShop\Module\PsAccounts\Repository\ConfigurationRepository;
 
 class ShopLinkAccountService
 {
+    /**
+     * @var ShopKeysService
+     */
+    private $shopKeysService;
+
+    /**
+     * @var ShopProvider
+     */
+    private $shopProvider;
+
+    /**
+     * @var ShopTokenService
+     */
+    private $shopTokenService;
+
+    /**
+     * @var ServicesAccountsClient
+     */
+    private $servicesAccountsClient;
+
+    /**
+     * @var ConfigurationRepository
+     */
+    private $configuration;
+
+    /**
+     * @var Link
+     */
+    private $link;
+
+    /**
+     * @var string | null
+     */
+    private $psxName = null;
+
+    /**
+     * ShopLinkAccountService constructor.
+     */
+    public function __construct(
+        ShopProvider $shopProvider,
+        ShopKeysService $shopKeysService,
+        ShopTokenService $shopTokenService,
+        ConfigurationRepository $configuration,
+        Link $link
+    ) {
+        $this->shopProvider = $shopProvider;
+        $this->shopKeysService = $shopKeysService;
+        $this->shopTokenService = $shopTokenService;
+        $this->configuration = $configuration;
+        $this->link = $link;
+    }
+
+    /**
+     * @param string $psxName
+     *
+     * @return void
+     */
+    public function setPsxName($psxName)
+    {
+        $this->psxName = $psxName;
+    }
+
+    /**
+     * @return string | null
+     */
+    public function getPsxName()
+    {
+        return $this->psxName;
+    }
+
+    /**
+     * @param array $bodyHttp
+     * @param string $trigger
+     *
+     * @return mixed
+     *
+     * @throws \Exception
+     */
+    public function updateShopUrl($bodyHttp, $trigger)
+    {
+        if (array_key_exists('shop_id', $bodyHttp)) {
+            // id for multishop
+            $this->configuration->setShopId($bodyHttp['shop_id']);
+        }
+
+        $sslEnabled = $this->shopProvider->getShopContext()->sslEnabled();
+        $protocol = $this->shopProvider->getShopContext()->getProtocol();
+        $domain = $sslEnabled ? $bodyHttp['domain_ssl'] : $bodyHttp['domain'];
+
+        $uuid = $this->configuration->getShopUuid();
+
+        $response = false;
+        $boUrl = $this->replaceScheme(
+            $this->link->getAdminLink('AdminModules', true),
+            $protocol . '://' . $domain
+        );
+
+        if ($uuid && strlen($uuid) > 0) {
+            $response = $this->servicesAccountsClient->updateShopUrl(
+                $uuid,
+                [
+                    'protocol' => $protocol,
+                    'domain' => $domain,
+                    'boUrl' => $boUrl,
+                    'trigger' => $trigger,
+                ]
+            );
+        }
+
+        return $response;
+    }
+
     /**
      * @return string
      *
@@ -36,7 +151,7 @@ class ShopLinkAccountService
                 $this->link->getAdminLink('AdminConfigureHmacPsAccounts')
             ),
             'name' => $currentShop['name'],
-            'lang' => $this->context->language->iso_code,
+            'lang' => $this->shopProvider->getShopContext()->getContext()->language->iso_code,
         ];
 
         $queryParamsArray = [];
@@ -112,10 +227,7 @@ class ShopLinkAccountService
      */
     public function unlinkShop()
     {
-        /** @var ServicesAccountsClient $servicesAccountsClient */
-        $servicesAccountsClient = $this->module->getService(ServicesAccountsClient::class);
-
-        $response = $servicesAccountsClient->deleteShop((string) $this->getShopUuidV4());
+        $response = $this->servicesAccountsClient->deleteShop((string) $this->getShopUuidV4());
 
         // Réponse: 200: Shop supprimé avec payload contenant un message de confirmation
         // Réponse: 404: La shop n'existe pas (not found)
@@ -187,5 +299,16 @@ class ShopLinkAccountService
                 $this->configuration->updateFirebaseEmailIsVerified('true' === $emailVerified);
             }
         }
+    }
+
+    /**
+     * @param string $url
+     * @param string $replacement
+     *
+     * @return string
+     */
+    private function replaceScheme($url, $replacement = '')
+    {
+        return preg_replace('/^https?:\/\/[^\/]+/', $replacement, $url);
     }
 }

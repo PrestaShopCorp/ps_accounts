@@ -23,6 +23,7 @@ use PrestaShop\Module\PsAccounts\Handler\ErrorHandler\ErrorHandler;
 use PrestaShop\Module\PsAccounts\Repository\ConfigurationRepository;
 use PrestaShop\Module\PsAccounts\Service\PsAccountsService;
 use PrestaShop\Module\PsAccounts\Service\ShopKeysService;
+use PrestaShop\Module\PsAccounts\Service\ShopTokenService;
 
 /**
  * Controller for all ajax calls.
@@ -147,12 +148,15 @@ class AdminAjaxPsAccountsController extends ModuleAdminController
     public function ajaxProcessGetOrRefreshToken()
     {
         try {
+            /** @var ShopTokenService $shopTokenService */
+            $shopTokenService = $this->module->getService(ShopTokenService::class);
+
             header('Content-Type: text/json');
 
             $this->ajaxDie(
                 json_encode([
-                    'token' => $this->psAccountsService->getOrRefreshToken(),
-                    'refreshToken' => $this->psAccountsService->getFirebaseRefreshToken(),
+                    'token' => $shopTokenService->getOrRefreshToken(),
+                    'refreshToken' => $shopTokenService->getRefreshToken(),
                 ])
             );
         } catch (Exception $e) {

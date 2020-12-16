@@ -38,7 +38,9 @@ use Symfony\Component\DependencyInjection\ContainerInterface;
 use Tools;
 
 /**
- * Construct the psaccounts service.
+ * Class PsAccountsService
+ *
+ * @package PrestaShop\Module\PsAccounts\Service
  */
 class PsAccountsService implements Configurable
 {
@@ -68,29 +70,14 @@ class PsAccountsService implements Configurable
     private $configuration;
 
     /**
-     * @var string | null
-     */
-    private $psxName = null;
-
-    /**
      * @var \Ps_accounts
      */
     private $module;
 
     /**
-     * @var ShopProvider
-     */
-    private $shopProvider;
-
-    /**
      * @var ShopTokenService
      */
     private $shopTokenService;
-
-    /**
-     * @var ShopKeysService
-     */
-    private $shopKeysService;
 
     /**
      * PsAccountsService constructor.
@@ -103,8 +90,8 @@ class PsAccountsService implements Configurable
      */
     public function __construct(
         array $config,
-        ConfigurationRepository $configuration,
-        \Ps_accounts $module
+        \Ps_accounts $module,
+        ConfigurationRepository $configuration
     ) {
         $config = $this->resolveConfig($config);
         $this->accountsUiUrl = $config['accounts_ui_url'];
@@ -116,47 +103,21 @@ class PsAccountsService implements Configurable
         $this->link = $this->module->getService('ps_accounts.link');
     }
 
-    /**
-     * @param string $psxName
-     *
-     * @return void
-     */
-    public function setPsxName($psxName)
-    {
-        $this->psxName = $psxName;
-    }
-
-    /**
-     * @return string | null
-     */
-    public function getPsxName()
-    {
-        return $this->psxName;
-    }
-
-    /**
-     * Override of native function to always retrieve Symfony container instead of legacy admin container on legacy context.
-     *
-     * @param string $serviceName
-     *
-     * @return mixed
-     */
-    public function get($serviceName)
-    {
-        if (null === $this->container) {
-            $this->container = \PrestaShop\PrestaShop\Adapter\SymfonyContainer::getInstance();
-        }
-
-        return $this->container->get($serviceName);
-    }
-
-    /**
-     * @return string | null
-     */
-    public function getFirebaseRefreshToken()
-    {
-        return $this->configuration->getFirebaseRefreshToken() ?: null;
-    }
+//    /**
+//     * Override of native function to always retrieve Symfony container instead of legacy admin container on legacy context.
+//     *
+//     * @param string $serviceName
+//     *
+//     * @return mixed
+//     */
+//    public function get($serviceName)
+//    {
+//        if (null === $this->container) {
+//            $this->container = \PrestaShop\PrestaShop\Adapter\SymfonyContainer::getInstance();
+//        }
+//
+//        return $this->container->get($serviceName);
+//    }
 
     /**
      * @return string
@@ -167,73 +128,11 @@ class PsAccountsService implements Configurable
     }
 
     /**
-     * @return string | null
-     */
-    public function getEmail()
-    {
-        return $this->configuration->getFirebaseEmail() ?: null;
-    }
-
-    /**
-     * @return bool
-     */
-    public function isEmailValidated()
-    {
-        return $this->configuration->firebaseEmailIsVerified();
-    }
-
-    /**
      * @return string | false
      */
     public function getShopUuidV4()
     {
         return $this->configuration->getShopUuid();
-    }
-
-    /**
-     * @param array $bodyHttp
-     * @param string $trigger
-     *
-     * @return mixed
-     *
-     * @throws \Exception
-     */
-    public function updateShopUrl($bodyHttp, $trigger)
-    {
-        if (array_key_exists('shop_id', $bodyHttp)) {
-            // id for multishop
-            $this->configuration->setShopId($bodyHttp['shop_id']);
-        }
-
-        $sslEnabled = $this->shopProvider->getShopContext()->sslEnabled();
-        $protocol = $this->shopProvider->getShopContext()->getProtocol();
-        $domain = $sslEnabled ? $bodyHttp['domain_ssl'] : $bodyHttp['domain'];
-
-        $uuid = $this->getShopUuidV4();
-
-        $response = false;
-        $boUrl = $this->replaceScheme(
-            $this->link->getAdminLink('AdminModules', true),
-            $protocol . '://' . $domain
-        );
-
-        if ($uuid && strlen($uuid) > 0) {
-
-            /** @var ServicesAccountsClient $servicesAccountsClient */
-            $servicesAccountsClient = $this->module->getService(ServicesAccountsClient::class);
-
-            $response = $servicesAccountsClient->updateShopUrl(
-                $uuid,
-                [
-                    'protocol' => $protocol,
-                    'domain' => $domain,
-                    'boUrl' => $boUrl,
-                    'trigger' => $trigger,
-                ]
-            );
-        }
-
-        return $response;
     }
 
     /**
@@ -249,14 +148,11 @@ class PsAccountsService implements Configurable
     }
 
     /**
-     * @return string
+     * @return string | null
      */
-    public function getManageAccountLink()
+    public function getRefreshToken()
     {
-        $url = $this->ssoAccountUrl;
-        $langIsoCode = $this->module->getContext()->language->iso_code;
-
-        return $url . '?lang=' . substr($langIsoCode, 0, 2);
+        return $this->shopTokenService->getRefreshToken();
     }
 
     /**
@@ -264,7 +160,10 @@ class PsAccountsService implements Configurable
      */
     public function getSsoAccountUrl()
     {
-        return $this->ssoAccountUrl;
+        $url = $this->ssoAccountUrl;
+        $langIsoCode = $this->module->getContext()->language->iso_code;
+
+        return $url . '?lang=' . substr($langIsoCode, 0, 2);
     }
 
     /**
@@ -297,16 +196,5 @@ class PsAccountsService implements Configurable
             'accounts_ui_url',
             'sso_account_url',
         ]))->resolve($config, $defaults);
-    }
-
-    /**
-     * @param string $url
-     * @param string $replacement
-     *
-     * @return string
-     */
-    private function replaceScheme($url, $replacement = '')
-    {
-        return preg_replace('/^https?:\/\/[^\/]+/', $replacement, $url);
     }
 }

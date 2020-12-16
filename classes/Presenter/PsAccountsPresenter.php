@@ -83,7 +83,7 @@ class PsAccountsPresenter
                 'shops' => $this->psAccountsService->getShopsTree(),
                 'superAdminEmail' => $this->psAccountsService->getSuperAdminEmail(),
                 'ssoResendVerificationEmail' => $this->psAccountsService->getSsoAccountUrl(),
-                'manageAccountLink' => $this->psAccountsService->getManageAccountLink(),
+                'manageAccountLink' => $this->psAccountsService->getSsoAccountUrl(),
                 'adminAjaxLink' => $this->psAccountsService->getAdminAjaxUrl(),
             ];
         } catch (\Exception $e) {

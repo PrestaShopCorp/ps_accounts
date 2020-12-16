@@ -134,7 +134,7 @@ class WebserviceSpecificManagementAccountToken implements WebserviceSpecificMana
     {
         $this->setContent([
             'token' => $this->psAccountService->getOrRefreshToken(),
-            'refreshToken' => $this->psAccountService->getFirebaseRefreshToken(),
+            'refreshToken' => $this->psAccountService->getRefreshToken(),
         ]);
     }
 
