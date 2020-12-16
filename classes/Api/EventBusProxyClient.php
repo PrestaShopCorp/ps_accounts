@@ -42,10 +42,6 @@ class EventBusProxyClient extends GenericClient
         $psAccountsService = new PsAccountsService();
         $token = $psAccountsService->getOrRefreshToken();
 
-        if (!$token) {
-            throw new FirebaseException('you must have admin token', 500);
-        }
-
         if (null === $client) {
             $client = new Client([
                 'base_url' => $_ENV['EVENT_BUS_PROXY_API_URL'],
@@ -89,7 +85,6 @@ class EventBusProxyClient extends GenericClient
         $response = $this->post([
             'headers' => [
                 'Content-Type' => 'binary/octet-stream',
-                'Content-Encoding' => 'gzip',
             ],
             'body' => [
                 'file' => $file,
@@ -130,7 +125,6 @@ class EventBusProxyClient extends GenericClient
         $response = $this->post([
             'headers' => [
                 'Content-Type' => 'binary/octet-stream',
-                'Content-Encoding' => 'gzip',
             ],
             'body' => [
                 'file' => $file,

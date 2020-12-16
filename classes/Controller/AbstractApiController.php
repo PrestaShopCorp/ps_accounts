@@ -99,7 +99,7 @@ abstract class AbstractApiController extends ModuleFrontController
      */
     private function authorize()
     {
-        $jobId = Tools::getValue('job_id', '');
+        $jobId = Tools::getValue('job_id', 'empty_job_id');
 
         $authorizationResponse = $this->authorizationService->authorizeCall($jobId);
 
@@ -169,6 +169,8 @@ abstract class AbstractApiController extends ModuleFrontController
         } catch (PrestaShopDatabaseException $exception) {
             $this->exitWithExceptionMessage($exception);
         } catch (EnvVarException $exception) {
+            $this->exitWithExceptionMessage($exception);
+        } catch (FirebaseException $exception) {
             $this->exitWithExceptionMessage($exception);
         }
 
