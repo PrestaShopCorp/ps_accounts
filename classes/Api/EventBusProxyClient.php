@@ -27,7 +27,6 @@ use Link;
 use PrestaShop\AccountsAuth\Api\Client\GenericClient;
 use PrestaShop\AccountsAuth\Service\PsAccountsService;
 use PrestaShop\Module\PsAccounts\Exception\EnvVarException;
-use PrestaShop\Module\PsAccounts\Exception\FirebaseException;
 
 /**
  * Construct the client used to make call to Segment API
@@ -41,10 +40,6 @@ class EventBusProxyClient extends GenericClient
         $this->setLink($link);
         $psAccountsService = new PsAccountsService();
         $token = $psAccountsService->getOrRefreshToken();
-
-        if (!$token) {
-            throw new FirebaseException('you must have admin token', 500);
-        }
 
         if (null === $client) {
             $client = new Client([
@@ -89,7 +84,6 @@ class EventBusProxyClient extends GenericClient
         $response = $this->post([
             'headers' => [
                 'Content-Type' => 'binary/octet-stream',
-                'Content-Encoding' => 'gzip',
             ],
             'body' => [
                 'file' => $file,
@@ -130,7 +124,6 @@ class EventBusProxyClient extends GenericClient
         $response = $this->post([
             'headers' => [
                 'Content-Type' => 'binary/octet-stream',
-                'Content-Encoding' => 'gzip',
             ],
             'body' => [
                 'file' => $file,

@@ -102,7 +102,11 @@ class ServerInformationRepository
         $psAccountsService = new PsAccountsService();
 
         try {
-            $psAccountsService->getOrRefreshToken();
+            $token = $psAccountsService->getOrRefreshToken();
+
+            if (!$token) {
+                $tokenValid = false;
+            }
         } catch (Exception $e) {
             $tokenValid = false;
         }
