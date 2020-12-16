@@ -102,8 +102,8 @@ jobs:
           username: ${{ secrets.SSH_USERNAME }}
           key: ${{ secrets.SSH_KEY }}
           script: |
-            sudo su -c 'docker exec $(docker ps -qf name=multishop17) rm -rf modules/ps_accounts'
-            sudo su -c 'docker exec $(docker ps -qf name=multishop17) rm -rf modules/ps_checkout'
+            sudo su -c 'docker exec $(docker ps -qf name=multishop-17) rm -rf modules/ps_accounts'
+            sudo su -c 'docker exec $(docker ps -qf name=multishop-17) rm -rf modules/ps_checkout'
 
       - name: Delete old modules 1.6
         continue-on-error: true
@@ -113,8 +113,8 @@ jobs:
           username: ${{ secrets.SSH_USERNAME }}
           key: ${{ secrets.SSH_KEY }}
           script: |
-            sudo su -c 'docker exec $(docker ps -qf name=multishop16) rm -rf modules/ps_accounts'
-            sudo su -c 'docker exec $(docker ps -qf name=multishop16) rm -rf modules/ps_checkout'
+            sudo su -c 'docker exec $(docker ps -qf name=multishop-16) rm -rf modules/ps_accounts'
+            sudo su -c 'docker exec $(docker ps -qf name=multishop-16) rm -rf modules/ps_checkout'
 
       - name: Copy modules
         uses: appleboy/scp-action@master
@@ -149,9 +149,9 @@ jobs:
           username: ${{ secrets.SSH_USERNAME }}
           key: ${{ secrets.SSH_KEY }}
           script: |
-            sudo su -c 'docker exec $(docker ps -qf name=multishop17) bin/console prestashop:module install ps_accounts'
-            sudo su -c 'docker exec $(docker ps -qf name=multishop17) cp modules/ps_checkout/.env modules/ps_checkout/_dev/.env'
-            sudo su -c 'docker exec $(docker ps -qf name=multishop17) bin/console prestashop:module install ps_checkout'
+            sudo su -c 'docker exec $(docker ps -qf name=multishop-17) bin/console prestashop:module install ps_accounts'
+            sudo su -c 'docker exec $(docker ps -qf name=multishop-17) cp modules/ps_checkout/.env modules/ps_checkout/_dev/.env'
+            sudo su -c 'docker exec $(docker ps -qf name=multishop-17) bin/console prestashop:module install ps_checkout'
 
   install_1_6:
     name: Install on shop 1.6
@@ -177,9 +177,9 @@ jobs:
           username: ${{ secrets.SSH_USERNAME }}
           key: ${{ secrets.SSH_KEY }}
           script: |
-            sudo su -c 'docker exec $(docker ps -qf name=multishop16) php modules/ps_accounts/install.php'
-            sudo su -c 'docker exec $(docker ps -qf name=multishop16) cp modules/ps_checkout/.env modules/ps_checkout/_dev/.env'
-            sudo su -c 'docker exec $(docker ps -qf name=multishop16) php modules/ps_checkout/install.php'
+            sudo su -c 'docker exec $(docker ps -qf name=multishop-16) php modules/ps_accounts/install.php'
+            sudo su -c 'docker exec $(docker ps -qf name=multishop-16) cp modules/ps_checkout/.env modules/ps_checkout/_dev/.env'
+            sudo su -c 'docker exec $(docker ps -qf name=multishop-16) php modules/ps_checkout/install.php'
 
   clean:
     name: Clean
@@ -198,11 +198,11 @@ jobs:
           username: ${{ secrets.SSH_USERNAME }}
           key: ${{ secrets.SSH_KEY }}
           script: |
-            sudo su -c 'docker exec $(docker ps -qf name=multishop17) bin/console cache:cl'
-            sudo su -c 'docker exec $(docker ps -qf name=multishop17) chmod -R 777 var/cache var/logs'
-            sudo su -c 'docker exec $(docker ps -qf name=multishop17) rm -rf cache/smarty/compile/*'
-            sudo su -c 'docker exec $(docker ps -qf name=multishop16) rm -rf cache/smarty/cache/*'
-            sudo su -c 'docker exec $(docker ps -qf name=multishop16) rm -rf img/tmp/*'
+            sudo su -c 'docker exec $(docker ps -qf name=multishop-17) bin/console cache:cl'
+            sudo su -c 'docker exec $(docker ps -qf name=multishop-17) chmod -R 777 var/cache var/logs'
+            sudo su -c 'docker exec $(docker ps -qf name=multishop-17) rm -rf cache/smarty/compile/*'
+            sudo su -c 'docker exec $(docker ps -qf name=multishop-16) rm -rf cache/smarty/cache/*'
+            sudo su -c 'docker exec $(docker ps -qf name=multishop-16) rm -rf img/tmp/*'
 
       - name: Delete tmp module
         uses: appleboy/ssh-action@master
