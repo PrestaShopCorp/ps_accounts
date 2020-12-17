@@ -21,6 +21,7 @@
 use PrestaShop\AccountsAuth\Adapter\Configuration as ConfigurationAdapter;
 use PrestaShop\AccountsAuth\DependencyInjection\PsAccountsServiceProvider;
 use PrestaShop\AccountsAuth\Handler\ErrorHandler\ErrorHandler;
+use PrestaShop\AccountsAuth\Presenter\PsAccountsPresenter;
 use PrestaShop\AccountsAuth\Repository\ConfigurationRepository;
 use PrestaShop\AccountsAuth\Service\PsAccountsService;
 use PrestaShop\AccountsAuth\Service\SshKey;
@@ -178,6 +179,27 @@ class AdminAjaxPsAccountsController extends ModuleAdminController
             header('Content-Type: text/json');
 
             $this->ajaxDie(json_encode($response['body']));
+        } catch (Exception $e) {
+            $this->errorHandler->handle($e, $e->getCode());
+        }
+    }
+
+    /**
+     * @return void
+     *
+     * @throws Exception
+     */
+    public function ajaxProcessGetContext()
+    {
+        try {
+            $psxName = Tools::getValue('psx_name');
+
+            /** @var PsAccountsPresenter $presenter */
+            $presenter =  new PsAccountsPresenter($psxName);
+
+            header('Content-Type: text/json');
+
+            $this->ajaxDie(json_encode($presenter->present()));
         } catch (Exception $e) {
             $this->errorHandler->handle($e, $e->getCode());
         }
