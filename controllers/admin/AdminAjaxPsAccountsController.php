@@ -194,8 +194,7 @@ class AdminAjaxPsAccountsController extends ModuleAdminController
         try {
             $psxName = Tools::getValue('psx_name');
 
-            /** @var PsAccountsPresenter $presenter */
-            $presenter =  new PsAccountsPresenter($psxName);
+            $presenter = new PsAccountsPresenter($psxName);
 
             header('Content-Type: text/json');
 
