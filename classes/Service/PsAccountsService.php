@@ -129,6 +129,14 @@ class PsAccountsService
     }
 
     /**
+     * @return bool
+     */
+    public function isEmailValidated()
+    {
+        return $this->configuration->firebaseEmailIsVerified();
+    }
+
+    /**
      * Generate ajax admin link with token
      * available via PsAccountsPresenter into page dom,
      * ex :
