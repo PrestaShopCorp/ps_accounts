@@ -25,7 +25,7 @@
 */
 
 use PrestaShop\Module\PsAccounts\Handler\ErrorHandler\ErrorHandler;
-use PrestaShop\Module\PsAccounts\Service\PsAccountsService;
+use PrestaShop\Module\PsAccounts\Service\ShopLinkAccountService;
 
 /**
  * Controller generate hmac and redirect on hmac's file.
@@ -43,11 +43,11 @@ class AdminConfigureHmacPsAccountsController extends ModuleAdminController
         $errorHandler = $this->module->getService(ErrorHandler::class);
 
         try {
-            /** @var PsAccountsService $psAccountsService */
-            $psAccountsService = $this->module->getService(PsAccountsService::class);
+            /** @var ShopLinkAccountService $shopLinkAccountService */
+            $shopLinkAccountService = $this->module->getService(ShopLinkAccountService::class);
 
             Tools::redirect(
-                $psAccountsService->getVerifyAccountUrl(
+                $shopLinkAccountService->getVerifyAccountUrl(
                     Tools::getAllValues(),
                     _PS_ROOT_DIR_
 

@@ -20,6 +20,6 @@
 
 namespace PrestaShop\Module\PsAccounts\Exception;
 
-class PsAccountsRsaSignDataEmptyException extends \Exception
+class RsaSignedDataNotFoundException extends \Exception
 {
 }

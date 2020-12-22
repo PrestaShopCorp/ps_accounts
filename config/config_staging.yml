@@ -8,8 +8,8 @@ parameters:
 
   # prestashop-ready-integration.firebaseapp.com
   ps_accounts.firebase_api_key: 'AIzaSyASHFE2F08ncoOH9NhoCF8_6z7qnoLVKSA'
-  ps_accounts.svc_accounts_api_url: 'http://accounts-api:3000'
-  ps_accounts.svc_accounts_ui_url: 'http://localhost:8080'
+  ps_accounts.svc_accounts_api_url: 'https://accounts-api.psessentials-integration.net'
+  ps_accounts.svc_accounts_ui_url: 'https://accounts.psessentials-integration.net'
   ps_accounts.svc_billing_api_url: 'https://billing-api.psessentials-integration.net'
   ps_accounts.sso_account_url: 'https://prestashop-newsso-staging.appspot.com/login'
   ps_accounts.sso_resend_verification_email_url: 'https://prestashop-newsso-staging.appspot.com/account/send-verification-email'

@@ -28,17 +28,26 @@ use PrestaShop\Module\PsAccounts\Context\ShopContext;
 class Link
 {
     /**
+     * @var ShopContext
+     */
+    private $shopContext;
+
+    /**
      * Link object
      *
      * @var \Link
      */
     private $link;
 
-    public function __construct(\Link $link = null)
-    {
+    public function __construct(
+        ShopContext $shopContext,
+        \Link $link = null
+    ) {
         if (null === $link) {
             $link = new \Link();
         }
+
+        $this->shopContext = $shopContext;
 
         $this->link = $link;
     }
@@ -56,7 +65,7 @@ class Link
      */
     public function getAdminLink($controller, $withToken = true, $sfRouteParams = [], $params = [])
     {
-        if ((new ShopContext())->isShop17()) {
+        if ($this->shopContext->isShop17()) {
             return $this->link->getAdminLink($controller, $withToken, $sfRouteParams, $params);
         }
         $paramsAsString = '';

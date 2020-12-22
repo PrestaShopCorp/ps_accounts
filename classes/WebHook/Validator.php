@@ -160,6 +160,7 @@ class Validator
      * @return void
      *
      * @throws WebhookException
+     * @throws \PrestaShopException
      */
     public function validate($headerValues = [], $bodyValues = [])
     {
@@ -201,6 +202,8 @@ class Validator
      * @param array $bodyValues
      *
      * @return array
+     *
+     * @throws \PrestaShopException
      */
     private function verifyWebhook(array $headerValues = [], array $bodyValues = [])
     {

@@ -35,6 +35,10 @@ class Ps_accounts extends Module
 {
     const DEFAULT_ENV = 'prod';
 
+    // Needed in order to retrieve the module version easier (in api call headers) than instanciate
+    // the module each time to get the version
+    const VERSION = '2.3.1';
+
     /**
      * @var array
      */
@@ -88,11 +92,6 @@ class Ps_accounts extends Module
     /**
      * @var string
      */
-    const VERSION = '2.3.1';
-
-    /**
-     * @var string
-     */
     public $version;
 
     /**
@@ -135,7 +134,11 @@ class Ps_accounts extends Module
         $this->author = 'PrestaShop';
         $this->need_instance = 0;
         $this->bootstrap = true;
+
+        // We cannot use the const VERSION because the const is not computed by addons marketplace
+        // when the zip is uploaded
         $this->version = '2.3.1';
+
         $this->module_key = 'abf2cd758b4d629b2944d3922ef9db73';
 
         parent::__construct();
@@ -147,7 +150,6 @@ class Ps_accounts extends Module
         $this->adminControllers = [
             'hmac' => 'AdminConfigureHmacPsAccounts',
             'ajax' => 'AdminAjaxPsAccounts',
-            'resetOnboarding' => 'AdminResetOnboarding',
         ];
 
         $this->getLogger()->info('Loading ' . $this->name . ' Env : [' . $this->getModuleEnv() .']');
@@ -291,12 +293,12 @@ class Ps_accounts extends Module
                 'domain_ssl' => $domainSsl,
             ];
 
-            /** @var \PrestaShop\Module\PsAccounts\Service\PsAccountsService $psAccountsService */
-            $psAccountsService = $this->getService(
-                \PrestaShop\Module\PsAccounts\Service\PsAccountsService::class
+            /** @var \PrestaShop\Module\PsAccounts\Service\ShopLinkAccountService $shopLinkAccountService */
+            $shopLinkAccountService = $this->getService(
+                \PrestaShop\Module\PsAccounts\Service\ShopLinkAccountService::class
             );
 
-            $psAccountsService->updateShopUrl($bodyHttp, '1.6');
+            $shopLinkAccountService->updateShopUrl($bodyHttp, '1.6');
         }
 
         return true;
@@ -326,12 +328,12 @@ class Ps_accounts extends Module
             'domain_ssl' => $params['form_data']['shop_urls']['domain_ssl'],
         ];
 
-        /** @var \PrestaShop\Module\PsAccounts\Service\PsAccountsService $psAccountsService */
-        $psAccountsService = $this->getService(
-            \PrestaShop\Module\PsAccounts\Service\PsAccountsService::class
+        /** @var \PrestaShop\Module\PsAccounts\Service\ShopLinkAccountService $shopLinkAccountService */
+        $shopLinkAccountService = $this->getService(
+            \PrestaShop\Module\PsAccounts\Service\ShopLinkAccountService::class
         );
 
-        $psAccountsService->updateShopUrl($bodyHttp, '1.7.6');
+        $shopLinkAccountService->updateShopUrl($bodyHttp, '1.7.6');
 
         return true;
     }
@@ -356,12 +358,12 @@ class Ps_accounts extends Module
             'active' => $params['object']->active,
         ];
 
-        /** @var \PrestaShop\Module\PsAccounts\Service\PsAccountsService $psAccountsService */
-        $psAccountsService = $this->getService(
-            \PrestaShop\Module\PsAccounts\Service\PsAccountsService::class
+        /** @var \PrestaShop\Module\PsAccounts\Service\ShopLinkAccountService $shopLinkAccountService */
+        $shopLinkAccountService = $this->getService(
+            \PrestaShop\Module\PsAccounts\Service\ShopLinkAccountService::class
         );
 
-        $psAccountsService->updateShopUrl($bodyHttp, 'multishop');
+        $shopLinkAccountService->updateShopUrl($bodyHttp, 'multishop');
 
         return true;
     }

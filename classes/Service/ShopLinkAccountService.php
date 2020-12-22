@@ -2,18 +2,21 @@
 
 namespace PrestaShop\Module\PsAccounts\Service;
 
-// TODO : OnboardingDataDTO
-
+use Module;
 use PrestaShop\Module\PsAccounts\Adapter\Link;
 use PrestaShop\Module\PsAccounts\Api\Client\ServicesAccountsClient;
+use PrestaShop\Module\PsAccounts\Configuration\ConfigOptionsResolver;
+use PrestaShop\Module\PsAccounts\Configuration\Configurable;
 use PrestaShop\Module\PsAccounts\Exception\HmacException;
-use PrestaShop\Module\PsAccounts\Exception\PsAccountsRsaSignDataEmptyException;
+use PrestaShop\Module\PsAccounts\Exception\OptionResolutionException;
+use PrestaShop\Module\PsAccounts\Exception\RsaSignedDataNotFoundException;
 use PrestaShop\Module\PsAccounts\Exception\QueryParamsException;
 use PrestaShop\Module\PsAccounts\Exception\SshKeysNotFoundException;
 use PrestaShop\Module\PsAccounts\Provider\ShopProvider;
 use PrestaShop\Module\PsAccounts\Repository\ConfigurationRepository;
+use Ps_accounts;
 
-class ShopLinkAccountService
+class ShopLinkAccountService implements Configurable
 {
     /**
      * @var ShopKeysService
@@ -31,11 +34,6 @@ class ShopLinkAccountService
     private $shopTokenService;
 
     /**
-     * @var ServicesAccountsClient
-     */
-    private $servicesAccountsClient;
-
-    /**
      * @var ConfigurationRepository
      */
     private $configuration;
@@ -46,20 +44,31 @@ class ShopLinkAccountService
     private $link;
 
     /**
-     * @var string | null
+     * @var string
      */
-    private $psxName = null;
+    private $accountsUiUrl;
 
     /**
      * ShopLinkAccountService constructor.
+     *
+     * @param array $config
+     * @param ShopProvider $shopProvider
+     * @param ShopKeysService $shopKeysService
+     * @param ShopTokenService $shopTokenService
+     * @param ConfigurationRepository $configuration
+     * @param Link $link
+     *
+     * @throws OptionResolutionException
      */
     public function __construct(
+        array $config,
         ShopProvider $shopProvider,
         ShopKeysService $shopKeysService,
         ShopTokenService $shopTokenService,
         ConfigurationRepository $configuration,
         Link $link
     ) {
+        $this->accountsUiUrl = $this->resolveConfig($config)['accounts_ui_url'];
         $this->shopProvider = $shopProvider;
         $this->shopKeysService = $shopKeysService;
         $this->shopTokenService = $shopTokenService;
@@ -68,21 +77,14 @@ class ShopLinkAccountService
     }
 
     /**
-     * @param string $psxName
-     *
-     * @return void
+     * @return ServicesAccountsClient
      */
-    public function setPsxName($psxName)
+    public function getServicesAccountsClient()
     {
-        $this->psxName = $psxName;
-    }
+        /** @var Ps_accounts $module */
+        $module = Module::getInstanceByName('ps_accounts');
 
-    /**
-     * @return string | null
-     */
-    public function getPsxName()
-    {
-        return $this->psxName;
+        return $module->getService(ServicesAccountsClient::class);
     }
 
     /**
@@ -113,7 +115,7 @@ class ShopLinkAccountService
         );
 
         if ($uuid && strlen($uuid) > 0) {
-            $response = $this->servicesAccountsClient->updateShopUrl(
+            $response = $this->getServicesAccountsClient()->updateShopUrl(
                 $uuid,
                 [
                     'protocol' => $protocol,
@@ -128,20 +130,20 @@ class ShopLinkAccountService
     }
 
     /**
+     * @param $psxName
+     *
      * @return string
      *
      * @throws \PrestaShopException
      */
-    public function getLinkAccountUrl()
+    public function getLinkAccountUrl($psxName)
     {
         $callback = $this->replaceScheme(
-            $this->link->getAdminLink('AdminModules', true) . '&configure=' . $this->psxName
+            $this->link->getAdminLink('AdminModules', true) . '&configure=' . $psxName
         );
 
-        $uiSvcBaseUrl = $this->accountsUiUrl;
-
         $protocol = $this->shopProvider->getShopContext()->getProtocol();
-        $currentShop = $this->shopProvider->getCurrentShop($this->psxName);
+        $currentShop = $this->shopProvider->getCurrentShop($psxName);
         $domainName = $this->shopProvider->getShopContext()->sslEnabled() ? $currentShop['domainSsl'] :$currentShop['domain'];
 
         $queryParams = [
@@ -160,8 +162,8 @@ class ShopLinkAccountService
         }
         $strQueryParams = implode('&', $queryParamsArray);
 
-        return  $uiSvcBaseUrl . '/shop/account/link/' . $protocol . '/' . $domainName
-            . '/' . $protocol . '/' . $domainName . '/' . $this->psxName . '?' . $strQueryParams;
+        return  $this->accountsUiUrl . '/shop/account/link/' . $protocol . '/' . $domainName
+            . '/' . $protocol . '/' . $domainName . '/' . $psxName . '?' . $strQueryParams;
     }
 
     /**
@@ -172,16 +174,10 @@ class ShopLinkAccountService
      *
      * @throws HmacException
      * @throws QueryParamsException
-     * @throws SshKeysNotFoundException
-     * @throws PsAccountsRsaSignDataEmptyException
+     * @throws RsaSignedDataNotFoundException
      */
     public function getVerifyAccountUrl(array $queryParams, $rootDir)
     {
-        $this->shopKeysService->generateKeys();
-
-        $hmacPath = $rootDir . '/upload/';
-
-        // FIXME: need some kind of DTO
         foreach (
             [
                 'hmac' => '/[a-zA-Z0-9]{8,64}/',
@@ -194,28 +190,20 @@ class ShopLinkAccountService
             }
 
             if (!preg_match($value, $queryParams[$key])) {
-                throw new QueryParamsException('Invalide query params', 500);
+                throw new QueryParamsException('Invalid query params', 500);
             }
         }
 
-        if (!is_dir($hmacPath)) {
-            mkdir($hmacPath);
-        }
+        $this->writeHmac($queryParams['hmac'],  $queryParams['uid'], $rootDir . '/upload/');
 
-        if (!is_writable($hmacPath)) {
-            throw new HmacException('Directory isn\'t writable', 500);
+        if (empty($this->shopKeysService->getSignature())) {
+            throw new RsaSignedDataNotFoundException('RSA signature not found', 500);
         }
-
-        file_put_contents($hmacPath . $queryParams['uid'] . '.txt', $queryParams['hmac']);
 
         $url = $this->accountsUiUrl;
 
         if ('/' === substr($url, -1)) {
             $url = substr($url, 0, -1);
-        }
-
-        if (empty($this->shopKeysService->getSignature())) {
-            throw new PsAccountsRsaSignDataEmptyException('PsAccounts RsaSignData couldn\'t be empty', 500);
         }
 
         return $url . '/shop/account/verify/' . $queryParams['uid']
@@ -224,17 +212,23 @@ class ShopLinkAccountService
 
     /**
      * @return array
+     *
+     * @throws SshKeysNotFoundException
      */
     public function unlinkShop()
     {
-        $response = $this->servicesAccountsClient->deleteShop((string) $this->getShopUuidV4());
+        $response = $this->getServicesAccountsClient()->deleteShop((string) $this->configuration->getShopUuid());
 
         // Réponse: 200: Shop supprimé avec payload contenant un message de confirmation
         // Réponse: 404: La shop n'existe pas (not found)
         // Réponse: 401: L'utilisateur n'est pas autorisé à supprimer cette shop
 
-        if ($response['status'] && $response['httpCode'] === 200) {
+        if ($response['status'] && 200 === $response['httpCode']
+            || 404 === $response['httpCode']) {
             $this->resetOnboardingData();
+
+            // FIXME regenerate rsa keys
+            $this->shopKeysService->regenerateKeys();
         }
 
         return $response;
@@ -266,6 +260,7 @@ class ShopLinkAccountService
     public function manageOnboarding()
     {
         $this->shopKeysService->generateKeys();
+
         $this->updateOnboardingData();
     }
 
@@ -284,21 +279,58 @@ class ShopLinkAccountService
         $emailVerified = \Tools::getValue('emailVerified');
         $customToken = \Tools::getValue('adminToken');
 
-        if (false === $this->shopKeysService->hasKeys()) {
-            throw new \Exception('SSH keys were not found');
-        }
+        if (is_string($customToken)) {
+            if (false === $this->shopKeysService->hasKeys()) {
+                throw new \Exception('SSH keys were not found');
+            }
 
-        if (!$this->shopTokenService->exchangeCustomTokenForIdAndRefreshToken($customToken)) {
-            throw new \Exception('Unable to get Firebase token');
-        }
+            if (!$this->shopTokenService->exchangeCustomTokenForIdAndRefreshToken($customToken)) {
+                throw new \Exception('Unable to get Firebase token');
+            }
 
-        if (!empty($email)) {
-            $this->configuration->updateFirebaseEmail($email);
+            if (!empty($email)) {
+                $this->configuration->updateFirebaseEmail($email);
 
-            if (!empty($emailVerified)) {
-                $this->configuration->updateFirebaseEmailIsVerified('true' === $emailVerified);
+                if (!empty($emailVerified)) {
+                    $this->configuration->updateFirebaseEmailIsVerified('true' === $emailVerified);
+                }
             }
         }
+    }
+
+    /**
+     * @param array $config
+     * @param array $defaults
+     *
+     * @return array|mixed
+     *
+     * @throws OptionResolutionException
+     */
+    public function resolveConfig(array $config, array $defaults = [])
+    {
+        return (new ConfigOptionsResolver([
+            'accounts_ui_url',
+        ]))->resolve($config, $defaults);
+    }
+
+    /**
+     * @param $hmac
+     * @param $uid
+     * @param $path
+     *
+     * @throws HmacException
+     */
+    protected function writeHmac($hmac, $uid,  $path)
+    {
+        if (!is_dir($path)) {
+            mkdir($path);
+        }
+
+        if (!is_writable($path)) {
+            throw new HmacException('Directory isn\'t writable', 500);
+        }
+
+        file_put_contents($path . $uid . '.txt', $hmac);
     }
 
     /**

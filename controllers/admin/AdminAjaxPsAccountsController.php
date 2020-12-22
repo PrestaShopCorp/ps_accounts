@@ -18,11 +18,9 @@
  * International Registered Trademark & Property of PrestaShop SA
  */
 
-use PrestaShop\Module\PsAccounts\Adapter\Configuration;
 use PrestaShop\Module\PsAccounts\Handler\ErrorHandler\ErrorHandler;
-use PrestaShop\Module\PsAccounts\Repository\ConfigurationRepository;
-use PrestaShop\Module\PsAccounts\Service\PsAccountsService;
-use PrestaShop\Module\PsAccounts\Service\ShopKeysService;
+use PrestaShop\Module\PsAccounts\Presenter\PsAccountsPresenter;
+use PrestaShop\Module\PsAccounts\Service\ShopLinkAccountService;
 use PrestaShop\Module\PsAccounts\Service\ShopTokenService;
 
 /**
@@ -30,23 +28,6 @@ use PrestaShop\Module\PsAccounts\Service\ShopTokenService;
  */
 class AdminAjaxPsAccountsController extends ModuleAdminController
 {
-    const STR_TO_SIGN = 'data';
-
-    /**
-     * @var ConfigurationRepository
-     */
-    private $configuration;
-
-    /**
-     * @var Configuration
-     */
-    private $configurationAdapter;
-
-    /**
-     * @var PsAccountsService
-     */
-    private $psAccountsService;
-
     /**
      * @var ErrorHandler
      */
@@ -61,83 +42,7 @@ class AdminAjaxPsAccountsController extends ModuleAdminController
     {
         parent::__construct();
 
-        $this->configuration = $this->module->getService(ConfigurationRepository::class);
-        $this->configurationAdapter = $this->module->getService('ps_accounts.configuration');
-        $this->psAccountsService = $this->module->getService(PsAccountsService::class);
         $this->errorHandler = $this->module->getService(ErrorHandler::class);
-    }
-
-    /**
-     * AJAX: Generate ssh key.
-     *
-     * @return void
-     *
-     * @throws Exception
-     */
-    public function ajaxProcessGenerateSshKey()
-    {
-        try {
-            $sshKey = new ShopKeysService();
-            $key = $sshKey->createPair();
-            $this->configuration->updateAccountsRsaPrivateKey($key['privatekey']);
-            $this->configuration->updateAccountsRsaPublicKey($key['publickey']);
-            $data = 'data';
-            $this->configuration->updateAccountsRsaSignData(
-                $sshKey->signData(
-                    $this->configuration->getAccountsRsaPrivateKey(),
-                    self::STR_TO_SIGN
-                )
-            );
-
-            $this->ajaxDie(
-                json_encode($this->configuration->getAccountsRsaPublicKey())
-            );
-        } catch (Exception $e) {
-            $this->errorHandler->handle($e, $e->getCode());
-        }
-    }
-
-    /**
-     * FIXME: remove this ajax call if still used anywhere
-     *
-     * AJAX: Save Admin Token.
-     *
-     * @return void
-     *
-     * @throws Exception
-     */
-    public function ajaxProcessSaveAdminToken()
-    {
-        try {
-            if (false === $this->configurationAdapter->get(Configuration::PS_PSX_FIREBASE_ADMIN_TOKEN)) {
-                $this->configurationAdapter->set(Configuration::PS_PSX_FIREBASE_ADMIN_TOKEN, Tools::getValue('adminToken'));
-            }
-            $this->configurationAdapter->set(Configuration::PS_ACCOUNTS_FIREBASE_ADMIN_TOKEN, Tools::getValue('adminToken'));
-
-            $this->ajaxDie(
-                json_encode(true)
-            );
-        } catch (Exception $e) {
-            $this->errorHandler->handle($e, $e->getCode());
-        }
-    }
-
-    /**
-     * AJAX: Save Admin Token.
-     *
-     * @return void
-     *
-     * @throws Exception
-     */
-    public function ajaxEmailIsVerifiedToken()
-    {
-        try {
-            $this->ajaxDie(
-                json_encode($this->configuration->firebaseEmailIsVerified())
-            );
-        } catch (Exception $e) {
-            $this->errorHandler->handle($e, $e->getCode());
-        }
     }
 
     /**
@@ -173,13 +78,37 @@ class AdminAjaxPsAccountsController extends ModuleAdminController
     public function ajaxProcessUnlinkShop()
     {
         try {
-            $response = $this->psAccountsService->unlinkShop();
+            /** @var ShopLinkAccountService $shopLinkAccountService */
+            $shopLinkAccountService = $this->module->getService(ShopLinkAccountService::class);
+
+            $response = $shopLinkAccountService->unlinkShop();
 
             http_response_code($response['httpCode']);
 
             header('Content-Type: text/json');
 
             $this->ajaxDie(json_encode($response['body']));
+        } catch (Exception $e) {
+            $this->errorHandler->handle($e, $e->getCode());
+        }
+    }
+
+    /**
+     * @return void
+     *
+     * @throws Exception
+     */
+    public function ajaxProcessGetContext()
+    {
+        try {
+            $psxName = Tools::getValue('psx_name');
+
+            /** @var PsAccountsPresenter $presenter */
+            $presenter = $this->module->getService(PsAccountsPresenter::class);
+
+            header('Content-Type: text/json');
+
+            $this->ajaxDie(json_encode($presenter->present($psxName)));
         } catch (Exception $e) {
             $this->errorHandler->handle($e, $e->getCode());
         }

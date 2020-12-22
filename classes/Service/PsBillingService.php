@@ -35,10 +35,10 @@ use Ps_accounts;
  */
 class PsBillingService
 {
-    /**
-     * @var \Symfony\Component\DependencyInjection\ContainerInterface
-     */
-    protected $container;
+//    /**
+//     * @var \Symfony\Component\DependencyInjection\ContainerInterface
+//     */
+//    protected $container;
 
     /**
      * @var ConfigurationRepository
@@ -46,9 +46,9 @@ class PsBillingService
     private $configuration;
 
     /**
-     * @var PsAccountsService
+     * @var ShopTokenService
      */
-    private $psAccountsService;
+    private $shopTokenService;
 
     /**
      * @var ServicesBillingClient
@@ -56,61 +56,37 @@ class PsBillingService
     private $servicesBillingClient;
 
     /**
-     * @var Ps_accounts
-     */
-    private $module;
-
-    /**
      * PsBillingService constructor.
      *
-     * @param ConfigurationRepository $configuration
      * @param ServicesBillingClient $servicesBillingClient
-     * @param PsAccountsService $psAccountsService
-     * @param Ps_accounts $module
+     * @param ShopTokenService $shopTokenService
+     * @param ConfigurationRepository $configuration
      */
     public function __construct(
-        ConfigurationRepository $configuration,
         ServicesBillingClient $servicesBillingClient,
-        PsAccountsService $psAccountsService,
-        Ps_accounts $module
+        ShopTokenService $shopTokenService,
+        ConfigurationRepository $configuration
     ) {
-        $this->configuration = $configuration;
         $this->servicesBillingClient = $servicesBillingClient;
-        $this->psAccountsService = $psAccountsService;
-        $this->module = $module;
+        $this->shopTokenService = $shopTokenService;
+        $this->configuration = $configuration;
     }
 
-    /**
-     * @return ShopContext
-     */
-    public function getShopContext()
-    {
-        return $this->module->getService('ps_accounts.shop_context');
-    }
-
-    /**
-     * @return Context
-     */
-    public function getContext()
-    {
-        return $this->module->getContext();
-    }
-
-    /**
-     * Override of native function to always retrieve Symfony container instead of legacy admin container on legacy context.
-     *
-     * @param string $serviceName
-     *
-     * @return mixed
-     */
-    public function get($serviceName)
-    {
-        if (null === $this->container) {
-            $this->container = \PrestaShop\PrestaShop\Adapter\SymfonyContainer::getInstance();
-        }
-
-        return $this->container->get($serviceName);
-    }
+//    /**
+//     * Override of native function to always retrieve Symfony container instead of legacy admin container on legacy context.
+//     *
+//     * @param string $serviceName
+//     *
+//     * @return mixed
+//     */
+//    public function get($serviceName)
+//    {
+//        if (null === $this->container) {
+//            $this->container = \PrestaShop\PrestaShop\Adapter\SymfonyContainer::getInstance();
+//        }
+//
+//        return $this->container->get($serviceName);
+//    }
 
     /**
      * Create a Billing customer if needed, and subscribe to $planName.
@@ -133,7 +109,7 @@ class PsBillingService
             $this->configuration->setShopId($shopId);
         }
 
-        $uuid = $this->psAccountsService->getShopUuidV4();
+        $uuid = $this->configuration->getShopUuid();
         $toReturn = ['shopAccountId' => $uuid];
 
         if ($uuid && strlen($uuid) > 0) {
@@ -183,7 +159,7 @@ class PsBillingService
                     && $response['body']['subscription']['plan_id'] === $planName
                 ) {
                     $toReturn['subscriptionId'] = $response['body']['subscription']['id'];
-                    $this->psAccountsService->getOrRefreshToken();
+                    $this->shopTokenService->getOrRefreshToken();
 
                     return $toReturn;
                 } else {

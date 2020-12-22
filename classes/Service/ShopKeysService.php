@@ -21,6 +21,7 @@
 namespace PrestaShop\Module\PsAccounts\Service;
 
 use phpseclib\Crypt\RSA;
+use PrestaShop\AccountsAuth\Service\SshKey;
 use PrestaShop\Module\PsAccounts\Exception\SshKeysNotFoundException;
 use PrestaShop\Module\PsAccounts\Repository\ConfigurationRepository;
 
@@ -89,13 +90,15 @@ class ShopKeysService
     }
 
     /**
+     * @param bool $refresh
+     *
      * @return void
      *
      * @throws SshKeysNotFoundException
      */
-    public function generateKeys()
+    public function generateKeys($refresh = true)
     {
-        if (false === $this->hasKeys()) {
+        if ($refresh || false === $this->hasKeys()) {
 
             $key = $this->createPair();
             $this->configuration->updateAccountsRsaPrivateKey($key['privatekey']);
@@ -109,9 +112,17 @@ class ShopKeysService
             );
 
             if (false === $this->hasKeys()) {
-                throw new SshKeysNotFoundException('Keys where not found for the shop');
+                throw new SshKeysNotFoundException('No RSA keys found for the shop');
             }
         }
+    }
+
+    /**
+     * @throws SshKeysNotFoundException
+     */
+    public function regenerateKeys()
+    {
+        $this->generateKeys(true);
     }
 
     /**

@@ -22,7 +22,12 @@ namespace PrestaShop\Module\PsAccounts\Presenter;
 
 use Module;
 use PrestaShop\Module\PsAccounts\Handler\ErrorHandler\ErrorHandler;
+use PrestaShop\Module\PsAccounts\Installer\Installer;
+use PrestaShop\Module\PsAccounts\Provider\ShopProvider;
+use PrestaShop\Module\PsAccounts\Repository\ConfigurationRepository;
 use PrestaShop\Module\PsAccounts\Service\PsAccountsService;
+use PrestaShop\Module\PsAccounts\Service\ShopLinkAccountService;
+use PrestaShop\Module\PsAccounts\Service\SsoService;
 use Ps_accounts;
 
 /**
@@ -31,64 +36,121 @@ use Ps_accounts;
 class PsAccountsPresenter
 {
     /**
+     * @var ShopProvider
+     */
+    protected $shopProvider;
+
+    /**
+     * @var ShopLinkAccountService
+     */
+    protected $shopLinkAccountService;
+
+    /**
+     * @var SsoService
+     */
+    protected $ssoService;
+
+    /**
+     * @var ConfigurationRepository
+     */
+    protected $configuration;
+
+    /**
+     * @var ErrorHandler
+     */
+    private $errorHandler;
+
+    /**
+     * @var Installer
+     */
+    private $installer;
+
+    /**
      * @var PsAccountsService
      */
-    protected $psAccountsService;
+    private $psAccountsService;
 
     /**
-     * @var Ps_accounts
-     */
-    private $module;
-
-    /**
-     * @param string $psxName
+     * PsAccountsPresenter constructor.
      *
-     * @throws \Exception
+     * @param PsAccountsService $psAccountsService
+     * @param ShopProvider $shopProvider
+     * @param ShopLinkAccountService $shopLinkAccountService
+     * @param SsoService $ssoService
+     * @param Installer $installer
+     * @param ConfigurationRepository $configuration
+     * @param ErrorHandler $errorHandler
      */
-    public function __construct($psxName)
-    {
-        $this->module = Module::getInstanceByName('ps_accounts');
-
-        $this->psAccountsService = $this->module->getService(PsAccountsService::class);
-        $this->psAccountsService->setPsxName($psxName);
-
-        // FIXME : don't do this
-        $this->psAccountsService->manageOnboarding();
+    public function __construct(
+        PsAccountsService $psAccountsService,
+        ShopProvider $shopProvider,
+        ShopLinkAccountService $shopLinkAccountService,
+        SsoService $ssoService,
+        Installer $installer,
+        ConfigurationRepository $configuration,
+        ErrorHandler $errorHandler
+    ) {
+        $this->psAccountsService = $psAccountsService;
+        $this->shopProvider = $shopProvider;
+        $this->shopLinkAccountService = $shopLinkAccountService;
+        $this->ssoService = $ssoService;
+        $this->installer = $installer;
+        $this->configuration = $configuration;
+        $this->errorHandler = $errorHandler;
     }
 
     /**
-     * Present the PsAccounts module for vue.
+     * Present the PsAccounts module data for JS
+     *
+     * @param $psxName
      *
      * @return array
      *
      * @throws \Exception
      */
-    public function present()
+    public function present($psxName)
     {
+        // FIXME : Do this elsewhere
+        $this->shopLinkAccountService->manageOnboarding();
+
+        $shopContext = $this->shopProvider->getShopContext();
+
         try {
             return [
-                'psIs17' => $this->psAccountsService->getShopContext()->isShop17(),
-                'psAccountsInstallLink' => $this->psAccountsService->getPsAccountsInstallLink(),
-                'psAccountsEnableLink' => $this->psAccountsService->getPsAccountsEnableLink(),
+                'psxName' => $psxName,
+                'psIs17' => $shopContext->isShop17(),
+
+                // FIXME : Installed status of module itself
                 'psAccountsIsInstalled' => Module::isInstalled('ps_accounts'),
+                'psAccountsInstallLink' => $this->installer->getPsAccountsInstallLink($psxName),
+
+                // Enable status
                 'psAccountsIsEnabled' => Module::isEnabled('ps_accounts'),
-                'onboardingLink' => $this->psAccountsService->getLinkAccountUrl(),
+                'psAccountsEnableLink' => $this->installer->getPsAccountsEnableLink($psxName),
+
+                'onboardingLink' => $this->shopLinkAccountService->getLinkAccountUrl($psxName),
+
+                // FIXME :  Mix "SSO user" with "Backend user"
                 'user' => [
-                    'email' => $this->psAccountsService->getEmail(),
-                    'emailIsValidated' => $this->psAccountsService->isEmailValidated(),
-                    'isSuperAdmin' => $this->psAccountsService->getContext()->employee->isSuperAdmin(),
+                    'email' => $this->configuration->getFirebaseEmail() ?: null,
+                    'emailIsValidated' => $this->configuration->firebaseEmailIsVerified(),
+                    'isSuperAdmin' => $shopContext->getContext()->employee->isSuperAdmin(),
                 ],
-                'currentShop' => $this->psAccountsService->getCurrentShop(),
-                'isShopContext' => $this->psAccountsService->isShopContext(),
-                'shops' => $this->psAccountsService->getShopsTree(),
+
+                'currentShop' => $this->shopProvider->getCurrentShop($psxName),
+                'isShopContext' => $shopContext->isShopContext(),
+                'shops' => $this->shopProvider->getShopsTree($psxName),
+
                 'superAdminEmail' => $this->psAccountsService->getSuperAdminEmail(),
-                'ssoResendVerificationEmail' => $this->psAccountsService->getSsoAccountUrl(),
-                'manageAccountLink' => $this->psAccountsService->getSsoAccountUrl(),
+
+                // FIXME : move into Vue components .env
+                'ssoResendVerificationEmail' => $this->ssoService->getSsoResendVerificationEmailUrl(),
+                'manageAccountLink' => $this->ssoService->getSsoAccountUrl(),
+
                 'adminAjaxLink' => $this->psAccountsService->getAdminAjaxUrl(),
             ];
         } catch (\Exception $e) {
-            $this->module->getService(ErrorHandler::class)
-                ->handle($e, $e->getCode());
+            $this->errorHandler->handle($e, $e->getCode());
         }
 
         return [];

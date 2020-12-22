@@ -20,49 +20,26 @@
 
 namespace PrestaShop\Module\PsAccounts\Service;
 
-use Context;
-use Module;
 use PrestaShop\Module\PsAccounts\Adapter\Link;
-use PrestaShop\Module\PsAccounts\Api\Client\ServicesAccountsClient;
-use PrestaShop\Module\PsAccounts\Configuration\ConfigOptionsResolver;
-use PrestaShop\Module\PsAccounts\Configuration\Configurable;
-use PrestaShop\Module\PsAccounts\Context\ShopContext;
-use PrestaShop\Module\PsAccounts\Exception\HmacException;
-use PrestaShop\Module\PsAccounts\Exception\OptionResolutionException;
-use PrestaShop\Module\PsAccounts\Exception\PsAccountsRsaSignDataEmptyException;
-use PrestaShop\Module\PsAccounts\Exception\QueryParamsException;
-use PrestaShop\Module\PsAccounts\Exception\SshKeysNotFoundException;
-use PrestaShop\Module\PsAccounts\Provider\ShopProvider;
 use PrestaShop\Module\PsAccounts\Repository\ConfigurationRepository;
 use Symfony\Component\DependencyInjection\ContainerInterface;
-use Tools;
 
 /**
  * Class PsAccountsService
  *
  * @package PrestaShop\Module\PsAccounts\Service
  */
-class PsAccountsService implements Configurable
+class PsAccountsService
 {
-    /**
-     * @var ContainerInterface
-     */
-    protected $container;
+//    /**
+//     * @var ContainerInterface
+//     */
+//    protected $container;
 
     /**
      * @var Link
      */
     protected $link;
-
-    /**
-     * @var string
-     */
-    protected $accountsUiUrl;
-
-    /**
-     * @var string
-     */
-    protected $ssoAccountUrl;
 
     /**
      * @var ConfigurationRepository
@@ -82,25 +59,21 @@ class PsAccountsService implements Configurable
     /**
      * PsAccountsService constructor.
      *
-     * @param array $config
-     * @param ConfigurationRepository $configuration
      * @param \Ps_accounts $module
-     *
-     * @throws \Exception
+     * @param ShopTokenService $shopTokenService
+     * @param ConfigurationRepository $configuration
+     * @param Link $link
      */
     public function __construct(
-        array $config,
         \Ps_accounts $module,
-        ConfigurationRepository $configuration
+        ShopTokenService $shopTokenService,
+        ConfigurationRepository $configuration,
+        Link $link
     ) {
-        $config = $this->resolveConfig($config);
-        $this->accountsUiUrl = $config['accounts_ui_url'];
-        $this->ssoAccountUrl = $config['sso_account_url'];
-
         $this->configuration = $configuration;
+        $this->shopTokenService = $shopTokenService;
         $this->module = $module;
-
-        $this->link = $this->module->getService('ps_accounts.link');
+        $this->link = $link;
     }
 
 //    /**
@@ -156,17 +129,6 @@ class PsAccountsService implements Configurable
     }
 
     /**
-     * @return string
-     */
-    public function getSsoAccountUrl()
-    {
-        $url = $this->ssoAccountUrl;
-        $langIsoCode = $this->module->getContext()->language->iso_code;
-
-        return $url . '?lang=' . substr($langIsoCode, 0, 2);
-    }
-
-    /**
      * Generate ajax admin link with token
      * available via PsAccountsPresenter into page dom,
      * ex :
@@ -180,21 +142,5 @@ class PsAccountsService implements Configurable
     {
 //        Tools::getAdminTokenLite('AdminAjaxPsAccounts'));
         return $this->link->getAdminLink('AdminAjaxPsAccounts', true, [], ['ajax' => 1]);
-    }
-
-    /**
-     * @param array $config
-     * @param array $defaults
-     *
-     * @return array|mixed
-     *
-     * @throws OptionResolutionException
-     */
-    public function resolveConfig(array $config, array $defaults = [])
-    {
-        return (new ConfigOptionsResolver([
-            'accounts_ui_url',
-            'sso_account_url',
-        ]))->resolve($config, $defaults);
     }
 }

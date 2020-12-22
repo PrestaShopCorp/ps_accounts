@@ -100,7 +100,7 @@ class ps_accountsDispatchWebHookModuleFrontController extends FrontController
                 $body
             );
 
-            return $this->generateHttpResponse(
+            $this->generateHttpResponse(
                 $this->dispatchWebhook($headers, $body)
             );
         } catch (\Exception $e) {
