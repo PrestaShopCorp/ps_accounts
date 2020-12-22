@@ -18,13 +18,14 @@
  * International Registered Trademark & Property of PrestaShop SA
  */
 
-namespace PrestaShop\Module\PsAccounts\Tests\Unit\Service\PsAccountsService;
+namespace PrestaShop\Module\PsAccounts\Tests\Unit\Service\ShopTokenService;
 
 use Lcobucci\JWT\Builder;
 use PrestaShop\Module\PsAccounts\Adapter\Configuration;
 use PrestaShop\Module\PsAccounts\Api\Client\FirebaseClient;
 use PrestaShop\Module\PsAccounts\Repository\ConfigurationRepository;
 use PrestaShop\Module\PsAccounts\Service\PsAccountsService;
+use PrestaShop\Module\PsAccounts\Service\ShopTokenService;
 use PrestaShop\Module\PsAccounts\Tests\TestCase;
 
 class RefreshTokenTest extends TestCase
@@ -59,15 +60,12 @@ class RefreshTokenTest extends TestCase
                 ],
             ]);
 
-        /** @var PsAccountsService $service */
-        $service = new PsAccountsService(
-            ['accounts_ui_url' => '', 'sso_account_url' => ''],
-            $this->module->getService(ConfigurationRepository::class),
+        $service = new ShopTokenService(
             $firebaseClient,
-            $this->module->getService('ps_accounts.module')
+            $configuration
         );
 
-        $this->assertTrue($service->tokenService->refreshToken($service));
+        $this->assertTrue($service->refreshToken());
 
         $this->assertEquals((string) $idTokenRefreshed, $configuration->getFirebaseIdToken());
 
@@ -98,15 +96,12 @@ class RefreshTokenTest extends TestCase
                 'status' => false,
             ]);
 
-        /** @var PsAccountsService $service */
-        $service = new PsAccountsService(
-            ['accounts_ui_url' => '', 'sso_account_url' => ''],
-            $this->module->getService(ConfigurationRepository::class),
+        $service = new ShopTokenService(
             $firebaseClient,
-            $this->module->getService('ps_accounts.module')
+            $configuration
         );
 
-        $this->assertFalse($service->tokenService->refreshToken($service));
+        $this->assertFalse($service->refreshToken());
 
         $this->assertEquals((string) $idToken, $configuration->getFirebaseIdToken());
 

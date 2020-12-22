@@ -1,11 +1,12 @@
 <?php
 
-namespace PrestaShop\Module\PsAccounts\Tests\Unit\Service\PsAccountsService;
+namespace PrestaShop\Module\PsAccounts\Tests\Unit\Service\ShopTokenService;
 
 use Lcobucci\JWT\Builder;
 use PrestaShop\Module\PsAccounts\Adapter\Configuration;
 use PrestaShop\Module\PsAccounts\Repository\ConfigurationRepository;
 use PrestaShop\Module\PsAccounts\Service\PsAccountsService;
+use PrestaShop\Module\PsAccounts\Service\ShopTokenService;
 use PrestaShop\Module\PsAccounts\Tests\TestCase;
 
 class IsTokenExpiredTest extends TestCase
@@ -26,8 +27,8 @@ class IsTokenExpiredTest extends TestCase
 
         $configuration->updateFirebaseIdAndRefreshTokens((string) $idToken, (string) $refreshToken);
 
-        /** @var PsAccountsService $service */
-        $service = $this->module->getService(PsAccountsService::class);
+        /** @var ShopTokenService $service */
+        $service = $this->module->getService(ShopTokenService::class);
 
         $this->assertTrue($service->isTokenExpired());
     }
@@ -48,8 +49,8 @@ class IsTokenExpiredTest extends TestCase
 
         $configuration->updateFirebaseIdAndRefreshTokens((string) $idToken, (string) $refreshToken);
 
-        /** @var PsAccountsService $service */
-        $service = $this->module->getService(PsAccountsService::class);
+        /** @var ShopTokenService $service */
+        $service = $this->module->getService(ShopTokenService::class);
 
         $this->assertFalse($service->isTokenExpired());
     }

@@ -1,12 +1,13 @@
 <?php
 
-namespace PrestaShop\Module\PsAccounts\Tests\Unit\Service\PsAccountsService;
+namespace PrestaShop\Module\PsAccounts\Tests\Unit\Service\ShopTokenService;
 
 use Lcobucci\JWT\Builder;
 use PrestaShop\Module\PsAccounts\Adapter\Configuration;
 use PrestaShop\Module\PsAccounts\Api\Client\FirebaseClient;
 use PrestaShop\Module\PsAccounts\Repository\ConfigurationRepository;
 use PrestaShop\Module\PsAccounts\Service\PsAccountsService;
+use PrestaShop\Module\PsAccounts\Service\ShopTokenService;
 use PrestaShop\Module\PsAccounts\Tests\TestCase;
 
 class GetOrRefreshTokenTest extends TestCase
@@ -27,8 +28,8 @@ class GetOrRefreshTokenTest extends TestCase
 
         $configuration->updateFirebaseIdAndRefreshTokens((string) $idToken, (string) $refreshToken);
 
-        /** @var PsAccountsService $service */
-        $service = $this->module->getService(PsAccountsService::class);
+        /** @var ShopTokenService $service */
+        $service = $this->module->getService(ShopTokenService::class);
 
         $this->assertEquals((string) $idToken, $service->getOrRefreshToken());
     }
@@ -63,12 +64,9 @@ class GetOrRefreshTokenTest extends TestCase
 
         $configuration->updateFirebaseIdAndRefreshTokens((string) $idToken, (string) $refreshToken);
 
-        /** @var PsAccountsService $service */
-        $service = new PsAccountsService(
-            ['accounts_ui_url' => '', 'sso_account_url' => ''],
-            $this->module->getService(ConfigurationRepository::class),
+        $service = new ShopTokenService(
             $firebaseClient,
-            $this->module->getService('ps_accounts.module')
+            $configuration
         );
 
         $this->assertEquals((string) $idTokenRefreshed, $service->getOrRefreshToken());

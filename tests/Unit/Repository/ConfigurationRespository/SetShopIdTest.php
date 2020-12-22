@@ -6,7 +6,7 @@ use PrestaShop\Module\PsAccounts\Adapter\Configuration;
 use PrestaShop\Module\PsAccounts\Repository\ConfigurationRepository;
 use PrestaShop\Module\PsAccounts\Tests\TestCase;
 
-class setShopIdTest extends TestCase
+class SetShopIdTest extends TestCase
 {
     /**
      * @test
