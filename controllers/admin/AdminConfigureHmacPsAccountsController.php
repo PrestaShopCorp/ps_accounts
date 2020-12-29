@@ -24,7 +24,7 @@
 *  International Registered Trademark & Property of PrestaShop SA
 */
 
-use PrestaShop\Module\PsAccounts\Handler\ErrorHandler\ErrorHandler;
+use PrestaShop\Module\PsAccounts\Handler\Error\Sentry;
 use PrestaShop\Module\PsAccounts\Service\ShopLinkAccountService;
 
 /**
@@ -33,15 +33,12 @@ use PrestaShop\Module\PsAccounts\Service\ShopLinkAccountService;
 class AdminConfigureHmacPsAccountsController extends ModuleAdminController
 {
     /**
-     * @return void
+     * return void
      *
-     * @throws Exception
+     * @throws Throwable
      */
     public function initContent()
     {
-        /** @var ErrorHandler $errorHandler */
-        $errorHandler = $this->module->getService(ErrorHandler::class);
-
         try {
             /** @var ShopLinkAccountService $shopLinkAccountService */
             $shopLinkAccountService = $this->module->getService(ShopLinkAccountService::class);
@@ -54,7 +51,7 @@ class AdminConfigureHmacPsAccountsController extends ModuleAdminController
                 )
             );
         } catch (Exception $e) {
-            $errorHandler->handle($e, $e->getCode());
+            Sentry::captureAndRethrow($e);
         }
     }
 }

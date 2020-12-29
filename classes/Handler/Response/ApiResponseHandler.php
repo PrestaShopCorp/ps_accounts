@@ -31,7 +31,7 @@ use GuzzleHttp\Message\ResponseInterface;
 /**
  * Handle api response.
  */
-class ResponseApiHandler
+class ApiResponseHandler
 {
     /**
      * Format api response.

@@ -21,7 +21,7 @@
 namespace PrestaShop\Module\PsAccounts\Presenter;
 
 use Module;
-use PrestaShop\Module\PsAccounts\Handler\ErrorHandler\ErrorHandler;
+use PrestaShop\Module\PsAccounts\Handler\Error\Sentry;
 use PrestaShop\Module\PsAccounts\Installer\Installer;
 use PrestaShop\Module\PsAccounts\Provider\ShopProvider;
 use PrestaShop\Module\PsAccounts\Repository\ConfigurationRepository;
@@ -56,11 +56,6 @@ class PsAccountsPresenter
     protected $configuration;
 
     /**
-     * @var ErrorHandler
-     */
-    private $errorHandler;
-
-    /**
      * @var Installer
      */
     private $installer;
@@ -79,7 +74,6 @@ class PsAccountsPresenter
      * @param SsoService $ssoService
      * @param Installer $installer
      * @param ConfigurationRepository $configuration
-     * @param ErrorHandler $errorHandler
      */
     public function __construct(
         PsAccountsService $psAccountsService,
@@ -87,8 +81,7 @@ class PsAccountsPresenter
         ShopLinkAccountService $shopLinkAccountService,
         SsoService $ssoService,
         Installer $installer,
-        ConfigurationRepository $configuration,
-        ErrorHandler $errorHandler
+        ConfigurationRepository $configuration
     ) {
         $this->psAccountsService = $psAccountsService;
         $this->shopProvider = $shopProvider;
@@ -96,7 +89,6 @@ class PsAccountsPresenter
         $this->ssoService = $ssoService;
         $this->installer = $installer;
         $this->configuration = $configuration;
-        $this->errorHandler = $errorHandler;
     }
 
     /**
@@ -106,7 +98,7 @@ class PsAccountsPresenter
      *
      * @return array
      *
-     * @throws \Exception
+     * @throws \Throwable
      */
     public function present($psxName)
     {
@@ -150,7 +142,7 @@ class PsAccountsPresenter
                 'adminAjaxLink' => $this->psAccountsService->getAdminAjaxUrl(),
             ];
         } catch (\Exception $e) {
-            $this->errorHandler->handle($e, $e->getCode());
+            Sentry::captureAndRethrow($e);
         }
 
         return [];

@@ -169,7 +169,7 @@ class Validator
         $errors = empty($errors) ? $this->verifyWebhook($headerValues, $bodyValues) : $errors;
 
         if (!empty($errors)) {
-            throw new WebhookException((string) json_encode($errors), 500);
+            throw new WebhookException((string) json_encode($errors));
         }
     }
 

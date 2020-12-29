@@ -21,7 +21,6 @@
 namespace PrestaShop\Module\PsAccounts\Service;
 
 use phpseclib\Crypt\RSA;
-use PrestaShop\AccountsAuth\Service\SshKey;
 use PrestaShop\Module\PsAccounts\Exception\SshKeysNotFoundException;
 use PrestaShop\Module\PsAccounts\Repository\ConfigurationRepository;
 
@@ -70,7 +69,7 @@ class ShopKeysService
      */
     public function signData($privateKey, $data)
     {
-        $this->rsa->loadKey($privateKey);
+        $this->rsa->loadKey($privateKey, RSA::PRIVATE_FORMAT_PKCS1);
 
         return base64_encode($this->rsa->sign($data));
     }

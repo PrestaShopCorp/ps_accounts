@@ -22,7 +22,7 @@ use Context;
 use Hook;
 use Module;
 use PrestaShop\Module\PsAccounts\Api\Client\ServicesAccountsClient;
-use PrestaShop\Module\PsAccounts\Handler\ErrorHandler\ErrorHandler;
+use PrestaShop\Module\PsAccounts\Handler\Error\Sentry;
 use PrestaShop\Module\PsAccounts\Repository\ConfigurationRepository;
 use PrestaShop\Module\PsAccounts\Exception\WebhookException;
 use PrestaShop\Module\PsAccounts\WebHook\Validator;
@@ -104,7 +104,7 @@ class ps_accountsDispatchWebHookModuleFrontController extends FrontController
                 $this->dispatchWebhook($headers, $body)
             );
         } catch (\Exception $e) {
-            $this->module->getService(ErrorHandler::class)
+            $this->module->getService(Sentry::class)
                 ->handle($e, $e->getCode());
         }
     }
@@ -136,7 +136,7 @@ class ps_accountsDispatchWebHookModuleFrontController extends FrontController
                     'message' => 'ok',
                 ];
             }
-            throw new WebhookException($error, 500);
+            throw new WebhookException($error);
         } else {
             return $this->receiveAccountsWebhook($headers, $bodyValues);
         }

@@ -24,7 +24,7 @@
  *  International Registered Trademark & Property of PrestaShop SA
  */
 
-namespace PrestaShop\Module\PsAccounts\Handler\ErrorHandler;
+namespace PrestaShop\Module\PsAccounts\Handler\Error;
 
 use PrestaShop\Module\PsAccounts\Adapter\Configuration;
 use PrestaShop\Module\PsAccounts\Repository\ConfigurationRepository;
@@ -33,7 +33,7 @@ use Raven_Client;
 /**
  * Handle Error.
  */
-class ErrorHandler
+class Sentry
 {
     /**
      * @var Raven_Client
@@ -48,14 +48,16 @@ class ErrorHandler
     /**
      * ErrorHandler constructor.
      *
+     * @param $sentryCredentials
+     * @param $environment
      * @param ConfigurationRepository $configuration
-     * @param string $sentryCredentials
      *
      * @throws \Raven_Exception
      */
     public function __construct(
-        ConfigurationRepository $configuration,
-        $sentryCredentials
+        $sentryCredentials,
+        $environment,
+        ConfigurationRepository $configuration
     ) {
         $this->configuration = $configuration;
 
@@ -64,12 +66,13 @@ class ErrorHandler
             [
                 'level' => 'warning',
                 'tags' => [
+                    'environment' => $environment,
                     'php_version' => phpversion(),
                     'ps_accounts_version' => \Ps_accounts::VERSION,
                     'prestashop_version' => _PS_VERSION_,
                     'ps_accounts_is_enabled' => \Module::isEnabled('ps_accounts'),
                     'ps_accounts_is_installed' => \Module::isInstalled('ps_accounts'),
-                    //'email' => $this->configuration->getFirebaseEmail(),
+                    'email' => $this->configuration->getFirebaseEmail(),
                     Configuration::PS_ACCOUNTS_FIREBASE_ID_TOKEN => $this->configuration->getFirebaseIdToken(),
                     Configuration::PS_ACCOUNTS_FIREBASE_REFRESH_TOKEN => $this->configuration->getFirebaseRefreshToken(),
                     Configuration::PSX_UUID_V4 => $this->configuration->getShopUuid(),
@@ -85,21 +88,26 @@ class ErrorHandler
     }
 
     /**
-     * @param \Exception $error
-     * @param mixed $code
-     * @param bool|null $throw
-     *
-     * @return void
-     *
-     * @throws \Exception
+     * @param \Throwable $exception
      */
-    public function handle($error, $code = null, $throw = true)
+    static function capture(\Throwable $exception)
     {
-        $code ? $this->client->captureException($error) : $this->client->captureMessage($error);
-        if ($code && true === $throw) {
-            http_response_code($code);
-            throw $error;
-        }
+        /** @var self $instance */
+        $instance = \Module::getInstanceByName('ps_accounts')->getService(self::class);
+
+        $instance->client->captureException($exception);
+    }
+
+    /**
+     * @param \Throwable $exception
+     *
+     * @throws \Throwable
+     */
+    static function captureAndRethrow(\Throwable $exception)
+    {
+        self::capture($exception);
+
+        throw $exception;
     }
 
     /**

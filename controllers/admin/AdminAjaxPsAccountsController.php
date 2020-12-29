@@ -18,7 +18,7 @@
  * International Registered Trademark & Property of PrestaShop SA
  */
 
-use PrestaShop\Module\PsAccounts\Handler\ErrorHandler\ErrorHandler;
+use PrestaShop\Module\PsAccounts\Handler\Error\Sentry;
 use PrestaShop\Module\PsAccounts\Presenter\PsAccountsPresenter;
 use PrestaShop\Module\PsAccounts\Service\ShopLinkAccountService;
 use PrestaShop\Module\PsAccounts\Service\ShopTokenService;
@@ -29,11 +29,6 @@ use PrestaShop\Module\PsAccounts\Service\ShopTokenService;
 class AdminAjaxPsAccountsController extends ModuleAdminController
 {
     /**
-     * @var ErrorHandler
-     */
-    private $errorHandler;
-
-    /**
      * AdminAjaxPsAccountsController constructor.
      *
      * @throws Exception
@@ -41,14 +36,12 @@ class AdminAjaxPsAccountsController extends ModuleAdminController
     public function __construct()
     {
         parent::__construct();
-
-        $this->errorHandler = $this->module->getService(ErrorHandler::class);
     }
 
     /**
-     * @return void
+     * return void
      *
-     * @throws Exception
+     * @throws Throwable
      */
     public function ajaxProcessGetOrRefreshToken()
     {
@@ -65,14 +58,14 @@ class AdminAjaxPsAccountsController extends ModuleAdminController
                 ])
             );
         } catch (Exception $e) {
-            $this->errorHandler->handle($e, $e->getCode());
+            Sentry::captureAndRethrow($e);
         }
     }
 
     /**
-     * @return void
+     * return void
      *
-     * @throws Exception
+     * @throws Throwable
      */
     //public function displayAjaxUnlinkShop()
     public function ajaxProcessUnlinkShop()
@@ -89,14 +82,14 @@ class AdminAjaxPsAccountsController extends ModuleAdminController
 
             $this->ajaxDie(json_encode($response['body']));
         } catch (Exception $e) {
-            $this->errorHandler->handle($e, $e->getCode());
+            Sentry::captureAndRethrow($e);
         }
     }
 
     /**
-     * @return void
+     * return void
      *
-     * @throws Exception
+     * @throws Throwable
      */
     public function ajaxProcessGetContext()
     {
@@ -110,7 +103,7 @@ class AdminAjaxPsAccountsController extends ModuleAdminController
 
             $this->ajaxDie(json_encode($presenter->present($psxName)));
         } catch (Exception $e) {
-            $this->errorHandler->handle($e, $e->getCode());
+            Sentry::captureAndRethrow($e);
         }
     }
 }

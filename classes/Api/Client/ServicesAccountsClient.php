@@ -79,7 +79,7 @@ class ServicesAccountsClient extends GenericClient
         $this->setLink($link->getLink());
 
         if (!$token) {
-            throw new TokenNotFoundException('Firebase token not found', 500);
+            throw new TokenNotFoundException('Firebase token not found');
         }
 
         // Client can be provided for tests

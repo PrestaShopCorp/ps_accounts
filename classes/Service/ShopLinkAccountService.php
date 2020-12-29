@@ -186,18 +186,18 @@ class ShopLinkAccountService implements Configurable
             ] as $key => $value
         ) {
             if (!array_key_exists($key, $queryParams)) {
-                throw new QueryParamsException('Missing query params', 500);
+                throw new QueryParamsException('Missing query params');
             }
 
             if (!preg_match($value, $queryParams[$key])) {
-                throw new QueryParamsException('Invalid query params', 500);
+                throw new QueryParamsException('Invalid query params');
             }
         }
 
         $this->writeHmac($queryParams['hmac'],  $queryParams['uid'], $rootDir . '/upload/');
 
         if (empty($this->shopKeysService->getSignature())) {
-            throw new RsaSignedDataNotFoundException('RSA signature not found', 500);
+            throw new RsaSignedDataNotFoundException('RSA signature not found');
         }
 
         $url = $this->accountsUiUrl;
@@ -327,7 +327,7 @@ class ShopLinkAccountService implements Configurable
         }
 
         if (!is_writable($path)) {
-            throw new HmacException('Directory isn\'t writable', 500);
+            throw new HmacException('Directory isn\'t writable');
         }
 
         file_put_contents($path . $uid . '.txt', $hmac);

@@ -23,10 +23,11 @@ namespace PrestaShop\Module\PsAccounts\Installer;
 use Module;
 use PrestaShop\Module\PsAccounts\Adapter\Link;
 use PrestaShop\Module\PsAccounts\Context\ShopContext;
-use PrestaShop\Module\PsAccounts\Handler\ErrorHandler\ErrorHandler;
+use PrestaShop\Module\PsAccounts\Handler\Error\Sentry;
 use PrestaShop\PrestaShop\Adapter\SymfonyContainer;
 use PrestaShop\PrestaShop\Core\Addon\Module\ModuleManager;
 use PrestaShop\PrestaShop\Core\Addon\Module\ModuleManagerBuilder;
+use PrestaShop\PrestaShop\Core\Foundation\IoC\Exception;
 use Symfony\Component\Routing\Router;
 use Tools;
 
@@ -49,11 +50,6 @@ class Installer
     private $moduleManager;
 
     /**
-     * @var ErrorHandler
-     */
-    private $errorHandler;
-
-    /**
      * @var Link
      */
     private $link;
@@ -68,20 +64,16 @@ class Installer
      *
      * @param ShopContext $shopContext
      * @param Link $link
-     * @param ErrorHandler $errorHandler
      */
     public function __construct(
         ShopContext $shopContext,
-        Link $link,
-        ErrorHandler $errorHandler
+        Link $link
     ) {
         $this->shopContext = $shopContext;
 
         $this->link = $link;
 
         //$this->router = $router;
-
-        $this->errorHandler = $errorHandler;
 
         $this->moduleManager = ModuleManagerBuilder::getInstance()->build();
     }
@@ -96,7 +88,7 @@ class Installer
      */
     public function installModule($moduleName, $upgrade = true)
     {
-        if (true === $this->shopContext->isShop17()) {
+        if (false === $this->shopContext->isShop17()) {
             return true;
         }
 
@@ -108,7 +100,7 @@ class Installer
         $moduleIsInstalled = $this->moduleManager->install($moduleName);
 
         if (false === $moduleIsInstalled) {
-            throw new \Exception("Module ${moduleName} can't be installed", 500);
+            throw new \Exception("Module ${moduleName} can't be installed");
         }
 
         return $moduleIsInstalled;
@@ -130,15 +122,14 @@ class Installer
     /**
      * @return bool
      *
-     * @throws \Exception
+     * @throws \Throwable
      */
     public function installPsAccounts()
     {
         try {
             return $this->installModule(self::PS_ACCOUNTS, false);
         } catch (\Exception $e) {
-            $this->errorHandler->handle($e, 500);
-            return true;
+            Sentry::captureAndRethrow($e);
         }
     }
 

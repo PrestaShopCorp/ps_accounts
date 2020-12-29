@@ -22,7 +22,7 @@ namespace PrestaShop\Module\PsAccounts\Api\Client;
 
 use GuzzleHttp\Client;
 use PrestaShop\Module\PsAccounts\Configuration\Configurable;
-use PrestaShop\Module\PsAccounts\Handler\Response\ResponseApiHandler;
+use PrestaShop\Module\PsAccounts\Handler\Response\ApiResponseHandler;
 
 /**
  * Construct the client used to make call to maasland.
@@ -132,7 +132,7 @@ abstract class GenericClient implements Configurable
     protected function post(array $options = [])
     {
         $response = $this->getClient()->post($this->getRoute(), $options);
-        $responseHandler = new ResponseApiHandler();
+        $responseHandler = new ApiResponseHandler();
         $response = $responseHandler->handleResponse($response);
         // If response is not successful only
         if (\Configuration::get('PS_ACCOUNTS_DEBUG_LOGS_ENABLED') && !$response['status']) {
@@ -159,7 +159,7 @@ abstract class GenericClient implements Configurable
     protected function patch(array $options = [])
     {
         $response = $this->getClient()->patch($this->getRoute(), $options);
-        $responseHandler = new ResponseApiHandler();
+        $responseHandler = new ApiResponseHandler();
         $response = $responseHandler->handleResponse($response);
         // If response is not successful only
         if (\Configuration::get('PS_ACCOUNTS_DEBUG_LOGS_ENABLED') && !$response['status']) {
@@ -186,7 +186,7 @@ abstract class GenericClient implements Configurable
     protected function get(array $options = [])
     {
         $response = $this->getClient()->get($this->getRoute(), $options);
-        $responseHandler = new ResponseApiHandler();
+        $responseHandler = new ApiResponseHandler();
         $response = $responseHandler->handleResponse($response);
         // If response is not successful only
         if (\Configuration::get('PS_ACCOUNTS_DEBUG_LOGS_ENABLED') && !$response['status']) {
@@ -213,7 +213,7 @@ abstract class GenericClient implements Configurable
     protected function delete(array $options = [])
     {
         $response = $this->getClient()->delete($this->getRoute(), $options);
-        $responseHandler = new ResponseApiHandler();
+        $responseHandler = new ApiResponseHandler();
         $response = $responseHandler->handleResponse($response);
         // If response is not successful only
         if (\Configuration::get('PS_ACCOUNTS_DEBUG_LOGS_ENABLED') && !$response['status']) {
