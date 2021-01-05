@@ -3,7 +3,7 @@ name: Build & Release draft
 on: [push, pull_request]
 
 jobs:
-  deploy:
+  build:
     name: build dependencies & create artifact
     runs-on: ubuntu-latest
     steps:
@@ -24,7 +24,7 @@ jobs:
 
   update_release_draft:
     runs-on: ubuntu-latest
-    needs: [deploy]
+    needs: [build]
     if: github.event_name == 'push' && github.event.ref == 'refs/heads/master'
     steps:
       - name: Download artifact
@@ -39,8 +39,15 @@ jobs:
 
       - name: Prepare for Release
         run: |
+          cd ${{ github.event.repository.name }}/${{ github.event.repository.name }}
+          cp .env.prod .env
+          cd ..
+          zip -r ${{ github.event.repository.name }}_prod.zip ${{ github.event.repository.name }}
           cd ${{ github.event.repository.name }}
-          zip -r ${{ github.event.repository.name }}.zip ${{ github.event.repository.name }}
+          cp .env.inte .env
+          cd ..
+          zip -r ${{ github.event.repository.name }}_inte.zip ${{ github.event.repository.name }}
+
       - name: Clean existing assets
         shell: bash
         run: |
@@ -53,12 +60,22 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Publish to GitHub Release
+      - name: Publish prod zip to GitHub Release
         uses: actions/upload-release-asset@v1.0.1
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           upload_url: ${{ steps.release_info.outputs.upload_url }}
-          asset_path: ./${{ github.event.repository.name }}/${{ github.event.repository.name }}.zip
-          asset_name: ${{ github.event.repository.name }}.zip
+          asset_path: ./${{ github.event.repository.name }}/${{ github.event.repository.name }}_prod.zip
+          asset_name: ${{ github.event.repository.name }}_prod.zip
+          asset_content_type: application/zip
+
+      - name: Publish inte zip to GitHub Release
+        uses: actions/upload-release-asset@v1.0.1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ steps.release_info.outputs.upload_url }}
+          asset_path: ./${{ github.event.repository.name }}/${{ github.event.repository.name }}_inte.zip
+          asset_name: ${{ github.event.repository.name }}_inte.zip
           asset_content_type: application/zip
