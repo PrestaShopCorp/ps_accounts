@@ -1,4 +1,8 @@
-### Distribuables (zip builds)
+### Env files
+.env.*
+!.env.dist
+
+### Manually built zip
 /dist/
 
 ### VUEJS BUILD ARTEFACT ###
