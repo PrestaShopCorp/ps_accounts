@@ -1,3 +1,6 @@
+### Distribuables (zip builds)
+/dist/
+
 ### VUEJS BUILD ARTEFACT ###
 app.js
 
