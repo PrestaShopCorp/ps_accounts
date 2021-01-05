@@ -21,11 +21,11 @@ jobs:
           name: ${{ github.event.repository.name }}
           path: ../
 
-  update_release_production:
+  upload_release_asset_production:
     name: update release production zip
     runs-on: ubuntu-latest
     needs: build
-    if: github.event_name == 'push' && github.event.ref == 'refs/heads/v*'
+    if: github.event_name == 'release'
     steps:
       - name: Download artifact
         uses: actions/download-artifact@v1
@@ -35,8 +35,10 @@ jobs:
       - name: Prepare the production zip
         run: |
           cd ${{ github.event.repository.name }}
-          echo "$PS_ACCOUNTS_ENV_PROD" > ${{ github.event.repository.name }}/.env
+          echo "$ENV_FILE" > ${{ github.event.repository.name }}/.env
           zip -r ${{ github.event.repository.name }}.zip ${{ github.event.repository.name }}
+        env:
+          ENV_FILE: ${{ secrets.PS_ACCOUNTS_ENV_PROD }}
 
       - name: Publish the production zip
         uses: actions/upload-release-asset@v1.0.1
@@ -48,11 +50,11 @@ jobs:
           asset_name: ${{ github.event.repository.name }}.zip
           asset_content_type: application/zip
 
-  update_release_integration:
+  upload_release_asset_integration:
     name: update release integration zip
     runs-on: ubuntu-latest
     needs: build
-    if: github.event_name == 'push' && github.event.ref == 'refs/heads/v*'
+    if: github.event_name == 'release'
     steps:
       - name: Download artifact
         uses: actions/download-artifact@v1
@@ -62,8 +64,9 @@ jobs:
       - name: Prepare the integration zip
         run: |
           cd ${{ github.event.repository.name }}
-          echo "$PS_ACCOUNTS_ENV_INTE" > ${{ github.event.repository.name }}/.env
+          echo "$ENV_FILE" > ${{ github.event.repository.name }}/.env
           zip -r ${{ github.event.repository.name }}_integration.zip ${{ github.event.repository.name }}
+        ENV_FILE: ${{ secrets.PS_ACCOUNTS_ENV_INTE }}
 
       - name: Publish the integration zip
         uses: actions/upload-release-asset@v1.0.1
