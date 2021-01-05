@@ -75,7 +75,7 @@ jobs:
   update_release_integration:
     name: update release integration zip
     runs-on: ubuntu-latest
-    needs: [build, clean_release_draft]
+    needs: [build, clean_release]
     if: (github.event_name == 'push' && github.event.ref == 'refs/heads/master') || github.event_name == 'release'
     steps:
       - name: Download artifact
