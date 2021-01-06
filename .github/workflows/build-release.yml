@@ -45,7 +45,7 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
-          upload_url: ${{ github.event.release.upload_url }}
+          upload_url: ${{ github.event.release.assets_url }}
           asset_path: ./${{ github.event.repository.name }}/${{ github.event.repository.name }}.zip
           asset_name: ${{ github.event.repository.name }}.zip
           asset_content_type: application/zip
@@ -74,7 +74,7 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
-          upload_url: ${{ github.event.release.upload_url }}
+          upload_url: ${{ github.event.release.assets_url }}
           asset_path: ./${{ github.event.repository.name }}/${{ github.event.repository.name }}_integration.zip
           asset_name: ${{ github.event.repository.name }}_integration.zip
           asset_content_type: application/zip
