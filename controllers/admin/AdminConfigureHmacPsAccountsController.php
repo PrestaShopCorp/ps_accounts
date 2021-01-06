@@ -27,7 +27,7 @@
 use PrestaShop\AccountsAuth\DependencyInjection\PsAccountsServiceProvider;
 use PrestaShop\AccountsAuth\Environment\Env;
 use PrestaShop\AccountsAuth\Handler\ErrorHandler\ErrorHandler;
-use PrestaShop\AccountsAuth\Service\PsAccountsService;
+use PrestaShop\AccountsAuth\Repository\ConfigurationRepository;
 use PrestaShop\Module\PsAccounts\Exception\EnvVarException;
 use PrestaShop\Module\PsAccounts\Exception\HmacException;
 use PrestaShop\Module\PsAccounts\Exception\PsAccountsRsaSignDataEmptyException;
@@ -40,15 +40,20 @@ class AdminConfigureHmacPsAccountsController extends ModuleAdminController
 {
     /**
      * @return void
+     *
+     * @throws Exception
      */
     public function initContent()
     {
         $errorHandler = ErrorHandler::getInstance();
 
         try {
-            $psAccountsService = new PsAccountsService();
-            $psAccountsService->generateSshKey();
-            PsAccountsServiceProvider::getInstance()->get(Env::class);
+            $container = PsAccountsServiceProvider::getInstance();
+
+            /** @var ConfigurationRepository $configuration */
+            $configuration = $container->get(ConfigurationRepository::class);
+
+            $container->get(Env::class);
             if (null === Tools::getValue('hmac')) {
                 throw new HmacException('Hmac does not exist', 500);
             }
@@ -82,13 +87,13 @@ class AdminConfigureHmacPsAccountsController extends ModuleAdminController
                 $url = substr($url, 0, -1);
             }
 
-            if (empty(Configuration::get('PS_ACCOUNTS_RSA_SIGN_DATA'))) {
+            if (empty($configuration->getAccountsRsaSignData())) {
                 throw new PsAccountsRsaSignDataEmptyException('PsAccounts RsaSignData couldn\'t be empty', 500);
             }
 
             Tools::redirect($url . '/shop/account/verify/' . Tools::getValue('uid')
             . '?shopKey='
-            . urlencode(Configuration::get('PS_ACCOUNTS_RSA_SIGN_DATA')));
+            . urlencode($configuration->getAccountsRsaSignData()));
         } catch (Exception $e) {
             $errorHandler->handle($e, $e->getCode());
         }
