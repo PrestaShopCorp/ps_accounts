@@ -36,9 +36,6 @@ use Tools;
  */
 class Installer
 {
-    const PS_ACCOUNTS = 'ps_accounts';
-    const PS_EVENTBUS = 'ps_eventbus';
-
     /**
      * @var ShopContext
      */
@@ -106,88 +103,69 @@ class Installer
         return $moduleIsInstalled;
     }
 
-    /**
-     * @param bool $upgrade
-     * @return bool
-     *
-     * @throws \Exception
-     */
-    public function installDependencies($upgrade = true)
-    {
-        return $this->installModule(self::PS_ACCOUNTS, $upgrade)
-            && $this->installModule(self::PS_EVENTBUS, $upgrade);
-
-    }
-
-    /**
-     * @return bool
-     *
-     * @throws \Throwable
-     */
-    public function installPsAccounts()
-    {
-        try {
-            return $this->installModule(self::PS_ACCOUNTS, false);
-        } catch (\Exception $e) {
-            Sentry::captureAndRethrow($e);
-        }
-    }
+//    /**
+//     * @return bool
+//     *
+//     * @throws \Throwable
+//     */
+//    public function installPsAccounts()
+//    {
+//        $status = false;
+//        try {
+//            $status = $this->installModule('ps_accounts', false);
+//        } catch (\Exception $e) {
+//            Sentry::captureAndRethrow($e);
+//        }
+//        return $status;
+//    }
 
     /**
-     * @param $psxName
+     * @param string $module
+     * @param string $psxName
      *
      * @return string | null
      *
      * @throws \PrestaShopException
      */
-    public function getPsAccountsInstallLink($psxName)
+    public function getModuleInstallUrl($module, $psxName)
     {
-        // FIXME : wrong responsibility here
-        if (true === Module::isInstalled('ps_accounts')) {
-            return null;
-        }
-
         if ($this->shopContext->isShop17()) {
             $router = SymfonyContainer::getInstance()->get('router');
             return Tools::getHttpHost(true) . $router->generate('admin_module_manage_action', [
                     'action' => 'install',
-                    'module_name' => 'ps_accounts',
+                    'module_name' => $module,
                 ]);
         }
 
         return  $this->link->getAdminLink('AdminModules', true, [], [
             'module_name' => $psxName,
             'configure' => $psxName,
-            'install' => 'ps_accounts',
+            'install' => $module,
         ]);
     }
 
     /**
+     * @param $module
      * @param $psxName
      *
      * @return string | null
      *
      * @throws \PrestaShopException
      */
-    public function getPsAccountsEnableLink($psxName)
+    public function getModuleEnableUrl($module, $psxName)
     {
-        // FIXME : wrong responsibility here
-        if (true === Module::isEnabled('ps_accounts')) {
-            return null;
-        }
-
         if ($this->shopContext->isShop17()) {
             $router = SymfonyContainer::getInstance()->get('router');
             return Tools::getHttpHost(true) . $router->generate('admin_module_manage_action', [
                     'action' => 'enable',
-                    'module_name' => 'ps_accounts',
+                    'module_name' => $module,
                 ]);
         }
 
         return  $this->link->getAdminLink('AdminModules', true, [], [
             'module_name' => $psxName,
             'configure' => $psxName,
-            'enable' => 'ps_accounts',
+            'enable' => $module,
         ]);
     }
 }

@@ -83,7 +83,7 @@ class ShopKeysService
      */
     public function verifySignature($publicKey, $signature, $data)
     {
-        $this->rsa->loadKey($publicKey);
+        $this->rsa->loadKey($publicKey, RSA::PUBLIC_FORMAT_PKCS1);
 
         return  $this->rsa->verify($data, base64_decode($signature));
     }

@@ -113,12 +113,12 @@ class PsAccountsPresenter
                 'psIs17' => $shopContext->isShop17(),
 
                 // FIXME : Installed status of module itself
-                'psAccountsIsInstalled' => Module::isInstalled('ps_accounts'),
-                'psAccountsInstallLink' => $this->installer->getPsAccountsInstallLink($psxName),
+                'psAccountsIsInstalled' => true,
+                'psAccountsInstallLink' => null,
 
                 // Enable status
                 'psAccountsIsEnabled' => Module::isEnabled('ps_accounts'),
-                'psAccountsEnableLink' => $this->installer->getPsAccountsEnableLink($psxName),
+                'psAccountsEnableLink' => $this->installer->getModuleEnableUrl('ps_accounts', $psxName),
 
                 'onboardingLink' => $this->shopLinkAccountService->getLinkAccountUrl($psxName),
 

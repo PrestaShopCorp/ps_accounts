@@ -190,6 +190,7 @@ class Ps_accounts extends Module
      *
      * @throws PrestaShopDatabaseException
      * @throws PrestaShopException
+     * @throws Exception
      */
     public function install()
     {
@@ -202,11 +203,15 @@ class Ps_accounts extends Module
 
         $installer = new PrestaShop\Module\PsAccounts\Module\Install($this, Db::getInstance());
 
+//        /** @var \PrestaShop\Module\PsAccounts\Installer\Installer $moduleInstaller */
+//        $moduleInstaller = $this->getService(\PrestaShop\Module\PsAccounts\Installer\Installer::class);
+
         return $installer->installInMenu()
-            && $installer->installDatabaseTables()
+            //&& $installer->installDatabaseTables()
             && parent::install()
             && $this->registerHook('addWebserviceResources')
             && $this->registerHook($this->hookToInstall);
+            //&& $moduleInstaller->installModule('ps_eventbus');
     }
 
     /**
@@ -217,7 +222,7 @@ class Ps_accounts extends Module
         $uninstaller = new PrestaShop\Module\PsAccounts\Module\Uninstall($this, Db::getInstance());
 
         return $uninstaller->uninstallMenu()
-            && $uninstaller->uninstallDatabaseTables()
+            //&& $uninstaller->uninstallDatabaseTables()
             && parent::uninstall();
     }
 
