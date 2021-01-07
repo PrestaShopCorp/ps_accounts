@@ -16,6 +16,11 @@ install.lock
 composer-dev.json
 composer-dev.lock
 
+### Configuration ###
+config/config_*.yml
+!config/config_prod.yml
+
+
 ### Module files ###
 !views/files
 views/files/*

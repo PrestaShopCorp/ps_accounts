@@ -203,15 +203,15 @@ class Ps_accounts extends Module
 
         $installer = new PrestaShop\Module\PsAccounts\Module\Install($this, Db::getInstance());
 
-//        /** @var \PrestaShop\Module\PsAccounts\Installer\Installer $moduleInstaller */
-//        $moduleInstaller = $this->getService(\PrestaShop\Module\PsAccounts\Installer\Installer::class);
+        /** @var \PrestaShop\Module\PsAccounts\Installer\Installer $moduleInstaller */
+        $moduleInstaller = $this->getService(\PrestaShop\Module\PsAccounts\Installer\Installer::class);
 
         return $installer->installInMenu()
             //&& $installer->installDatabaseTables()
             && parent::install()
-            && $this->registerHook('addWebserviceResources')
-            && $this->registerHook($this->hookToInstall);
-            //&& $moduleInstaller->installModule('ps_eventbus');
+            //&& $this->registerHook('addWebserviceResources')
+            && $this->registerHook($this->hookToInstall)
+            && $moduleInstaller->installModule('ps_eventbus');
     }
 
     /**
@@ -384,7 +384,6 @@ class Ps_accounts extends Module
         return array(
             'account-token' => array(
                 'description' => 'Token resource',
-                //'class' => 'PsAccountsToken',
                 'specific_management' => true,
             ),
         );
