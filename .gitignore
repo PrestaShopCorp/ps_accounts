@@ -17,9 +17,9 @@ composer-dev.json
 composer-dev.lock
 
 ### Configuration ###
-config/config_*.yml
-!config/config_prod.yml
-
+config/**/*.yml
+!config/common.yml
+!config/**/*_prod.yml
 
 ### Module files ###
 !views/files
