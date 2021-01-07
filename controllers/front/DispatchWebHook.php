@@ -18,16 +18,13 @@
  * International Registered Trademark & Property of PrestaShop SA
  */
 
-use Context;
-use Hook;
-use Module;
 use PrestaShop\Module\PsAccounts\Api\Client\ServicesAccountsClient;
 use PrestaShop\Module\PsAccounts\Handler\Error\Sentry;
 use PrestaShop\Module\PsAccounts\Repository\ConfigurationRepository;
 use PrestaShop\Module\PsAccounts\Exception\WebhookException;
 use PrestaShop\Module\PsAccounts\WebHook\Validator;
 
-class ps_accountsDispatchWebHookModuleFrontController extends FrontController
+class ps_accountsDispatchWebHookModuleFrontController extends ModuleFrontController
 {
     const PS_CHECKOUT_SHOP_UUID_V4 = 'PS_CHECKOUT_SHOP_UUID_V4';
 
@@ -37,11 +34,6 @@ class ps_accountsDispatchWebHookModuleFrontController extends FrontController
     private $configuration;
 
     /**
-     * @var Ps_accounts
-     */
-    private $module;
-
-    /**
      * ps_accountsDispatchWebHookModuleFrontController constructor.
      *
      * @throws Exception
@@ -49,8 +41,6 @@ class ps_accountsDispatchWebHookModuleFrontController extends FrontController
     public function __construct()
     {
         parent::__construct();
-
-        $this->module = Module::getInstanceByName('ps_accounts');
 
         $this->configuration = $this->module->getService(ConfigurationRepository::class);
     }
@@ -117,7 +107,6 @@ class ps_accountsDispatchWebHookModuleFrontController extends FrontController
      * @return array
      *
      * @throws WebhookException
-     * @throws ReflectionException
      * @throws PrestaShopException
      */
     private function dispatchWebhook(array $headers, array $bodyValues)
