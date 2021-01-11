@@ -33,11 +33,11 @@ require_once __DIR__ . '/classes/Webservice/WebserviceSpecificManagementAccountT
 
 class Ps_accounts extends Module
 {
-    const DEFAULT_ENV = 'prod';
+    const DEFAULT_ENV = '';
 
     // Needed in order to retrieve the module version easier (in api call headers) than instanciate
     // the module each time to get the version
-    const VERSION = '2.3.1';
+    const VERSION = '4.0-dev';
 
     /**
      * @var array
@@ -125,6 +125,11 @@ class Ps_accounts extends Module
     private $configuration;
 
     /**
+     * @var \PrestaShop\Module\PsAccounts\Installer\Installer
+     */
+    private $moduleInstaller;
+
+    /**
      * Ps_accounts constructor.
      */
     public function __construct()
@@ -137,16 +142,28 @@ class Ps_accounts extends Module
 
         // We cannot use the const VERSION because the const is not computed by addons marketplace
         // when the zip is uploaded
-        $this->version = '2.3.1';
+        $this->version = '4.0-dev';
 
         $this->module_key = 'abf2cd758b4d629b2944d3922ef9db73';
 
         parent::__construct();
 
+        $this->moduleInstaller = $this->getService(\PrestaShop\Module\PsAccounts\Installer\Installer::class);
+
         $this->displayName = $this->l('PrestaShop Account');
-        $this->description = $this->l('Link your PrestaShop account to your online shop to activate & manage services on your back-office. Don\'t uninstall this module if you are already using a service, as it will prevent it from working.');
-        $this->confirmUninstall = $this->l('This action will prevent immediately your PrestaShop services and Community services from working as they are using PrestaShop Accounts module for authentication.');
+
+        $this->description = $this->l(
+            'Link your PrestaShop account to your online shop to activate & manage services on your back-office.'
+            . ' Don\'t uninstall this module if you are already using a service, as it will prevent it from working.'
+        );
+
+        $this->confirmUninstall = $this->l(
+            'This action will prevent immediately your PrestaShop services and Community services from working'
+            . ' as they are using PrestaShop Accounts module for authentication.'
+        );
+
         $this->ps_versions_compliancy = ['min' => '1.6', 'max' => _PS_VERSION_];
+
         $this->adminControllers = [
             'hmac' => 'AdminConfigureHmacPsAccounts',
             'ajax' => 'AdminAjaxPsAccounts',
@@ -203,15 +220,12 @@ class Ps_accounts extends Module
 
         $installer = new PrestaShop\Module\PsAccounts\Module\Install($this, Db::getInstance());
 
-        /** @var \PrestaShop\Module\PsAccounts\Installer\Installer $moduleInstaller */
-        $moduleInstaller = $this->getService(\PrestaShop\Module\PsAccounts\Installer\Installer::class);
-
         return $installer->installInMenu()
             //&& $installer->installDatabaseTables()
             && parent::install()
             //&& $this->registerHook('addWebserviceResources')
             && $this->registerHook($this->hookToInstall)
-            && $moduleInstaller->installModule('ps_eventbus');
+            && $this->moduleInstaller->installModule('ps_eventbus');
     }
 
     /**
@@ -405,5 +419,48 @@ class Ps_accounts extends Module
     public function getModuleEnv($default = null)
     {
         return getenv($this->getModuleEnvVar()) ?: $default ?: self::DEFAULT_ENV;
+    }
+
+    /**
+     * Load the configuration form.
+     *
+     * @return string
+     *
+     * @throws Throwable
+     */
+    public function getContent()
+    {
+        $this->loadAssets(\Tools::getValue('google_message_error'), \Tools::getValue('countProperty'));
+
+        return $this->display(__FILE__, '/views/templates/admin/app.tpl');
+    }
+
+    /**
+     * Load VueJs App and set JS variable for Vuex
+     *
+     * @param string $responseApiMessage
+     * @param int $countProperty
+     *
+     * @return void
+     * @throws Throwable
+     */
+    protected function loadAssets($responseApiMessage = 'null', $countProperty = 0)
+    {
+        $this->context->smarty->assign('pathVendor', $this->_path . 'views/js/chunk-vendors.js');
+        $this->context->smarty->assign('pathApp', $this->_path . 'views/js/app.js');
+
+        Media::addJsDef([
+            'storePsAccounts' => (new PrestaShop\Module\PsAccounts\Presenter\Store\StorePresenter(
+                $this, $this->context, null, (string) $responseApiMessage, (int) $countProperty)
+            )->present(),
+        ]);
+
+        /** @var \PrestaShop\Module\PsAccounts\Presenter\PsAccountsPresenter $presenter */
+        $presenter = Module::getInstanceByName('ps_accounts')
+            ->getService(\PrestaShop\Module\PsAccounts\Presenter\PsAccountsPresenter::class);
+
+        Media::addJsDef([
+            'contextPsAccounts' => $presenter->present($this->name),
+        ]);
     }
 }

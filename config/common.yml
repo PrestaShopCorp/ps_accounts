@@ -2,13 +2,13 @@ services:
   _defaults:
     public: true
 
-  Ps_accounts:
+  ps_accounts.module:
     class: Ps_accounts
     factory: ['Module', 'getInstanceByName']
     arguments:
       - 'ps_accounts'
 
-  Context:
+  ps_accounts.context:
     class: Context
     factory: [ 'Context', 'getContext' ]
 
@@ -16,12 +16,12 @@ services:
     class: PrestaShop\Module\PsAccounts\Context\ShopContext
     arguments:
       - '@PrestaShop\Module\PsAccounts\Repository\ConfigurationRepository'
-      - '@Context'
+      - '@ps_accounts.context'
 
   PrestaShop\Module\PsAccounts\Adapter\Configuration:
     class: PrestaShop\Module\PsAccounts\Adapter\Configuration
     arguments:
-      - '@Context'
+      - '@ps_accounts.context'
 
   PrestaShop\Module\PsAccounts\Adapter\Link:
     class: PrestaShop\Module\PsAccounts\Adapter\Link
@@ -54,7 +54,7 @@ services:
   PrestaShop\Module\PsAccounts\Service\PsAccountsService:
     class: PrestaShop\Module\PsAccounts\Service\PsAccountsService
     arguments:
-      - '@Ps_accounts'
+      - '@ps_accounts.module'
       - '@PrestaShop\Module\PsAccounts\Service\ShopTokenService'
       - '@PrestaShop\Module\PsAccounts\Repository\ConfigurationRepository'
       - '@PrestaShop\Module\PsAccounts\Adapter\Link'

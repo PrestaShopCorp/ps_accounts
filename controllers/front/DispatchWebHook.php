@@ -71,14 +71,14 @@ class ps_accountsDispatchWebHookModuleFrontController extends ModuleFrontControl
      *
      * @return void
      *
-     * @throws Exception
+     * @throws Throwable
      */
     public function display()
     {
         $validator = new Validator(
             $this->module->getService(ServicesAccountsClient::class),
             $this->configuration,
-            $this->module->getService(Context::class)
+            $this->module->getService('ps_accounts.context')
         );
 
         try {
@@ -94,8 +94,7 @@ class ps_accountsDispatchWebHookModuleFrontController extends ModuleFrontControl
                 $this->dispatchWebhook($headers, $body)
             );
         } catch (\Exception $e) {
-            $this->module->getService(Sentry::class)
-                ->handle($e, $e->getCode());
+            Sentry::captureAndRethrow($e);
         }
     }
 
