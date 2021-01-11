@@ -102,7 +102,7 @@ class ContainerProvider
 
         $loader = new YamlFileLoader($containerBuilder, new FileLocator($moduleConfigPath));
 
-        $loader->load('services_' . $this->moduleEnv . '.yml');
+        $loader->load('services' . ($this->moduleEnv ? '_' . $this->moduleEnv : '') . '.yml');
 
         $containerBuilder->compile();
         $dumper = new PhpDumper($containerBuilder);
