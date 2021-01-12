@@ -76,28 +76,29 @@ class Installer
     }
 
     /**
-     * @param $moduleName
+     * @param string $module
      * @param bool $upgrade
      *
      * @return bool
      *
      * @throws \Exception
      */
-    public function installModule($moduleName, $upgrade = true)
+    public function installModule($module, $upgrade = true)
     {
         if (false === $this->shopContext->isShop17()) {
-            return true;
+            //return true;
+            throw new \Exception("Module ${module} can't be installed");
         }
 
-        if (false === $upgrade && true === $this->moduleManager->isInstalled($moduleName)) {
+        if (false === $upgrade && true === $this->moduleManager->isInstalled($module)) {
             return true;
         }
 
         // install or upgrade module
-        $moduleIsInstalled = $this->moduleManager->install($moduleName);
+        $moduleIsInstalled = $this->moduleManager->install($module);
 
         if (false === $moduleIsInstalled) {
-            throw new \Exception("Module ${moduleName} can't be installed");
+            throw new \Exception("Module ${module} can't be installed");
         }
 
         return $moduleIsInstalled;
@@ -127,7 +128,7 @@ class Installer
      *
      * @throws \PrestaShopException
      */
-    public function getModuleInstallUrl($module, $psxName)
+    public function getInstallUrl($module, $psxName)
     {
         if ($this->shopContext->isShop17()) {
             $router = SymfonyContainer::getInstance()->get('router');
@@ -152,7 +153,7 @@ class Installer
      *
      * @throws \PrestaShopException
      */
-    public function getModuleEnableUrl($module, $psxName)
+    public function getEnableUrl($module, $psxName)
     {
         if ($this->shopContext->isShop17()) {
             $router = SymfonyContainer::getInstance()->get('router');
@@ -167,5 +168,31 @@ class Installer
             'configure' => $psxName,
             'enable' => $module,
         ]);
+    }
+
+    /**
+     * @param string $module
+     *
+     * @return bool
+     */
+    public function isInstalled($module)
+    {
+        if (false === $this->shopContext->isShop17()) {
+            return Module::isInstalled('ps_eventbus');
+        }
+        return $this->moduleManager->isInstalled($module);
+    }
+
+    /**
+     * @param string $module
+     *
+     * @return bool
+     */
+    public function isEnabled($module)
+    {
+        if (false === $this->shopContext->isShop17()) {
+            return Module::isEnabled($module);
+        }
+        return $this->moduleManager->isEnabled($module);
     }
 }

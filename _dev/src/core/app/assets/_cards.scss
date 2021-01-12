@@ -1,0 +1,359 @@
+.card {
+  border: 0;
+  border-radius: $border-radius-small;
+  display: inline-block;
+  position: relative;
+  margin-bottom: 20px;
+  box-shadow: $box-shadow;
+
+  .card-body {
+    padding: 15px 15px 10px 15px;
+
+    &.table-full-width {
+      padding-left: 0;
+      padding-right: 0;
+    }
+  }
+
+  .card-header {
+    &:not([data-background-color]) {
+      background-color: transparent;
+    }
+
+    padding: 15px 15px 0;
+    border: 0;
+
+    .card-title {
+      margin-top: 10px;
+    }
+
+    .no-padding {
+      margin-left: -15px;
+      margin-right: -15px;
+      margin-top: -15px;
+    }
+  }
+
+  .map {
+    border-radius: $border-radius-small;
+
+    &.map-big {
+      height: 400px;
+    }
+  }
+
+  &[data-background-color="orange"] {
+    background-color: $primary-color;
+
+    .card-header {
+      background-color: $primary-color;
+    }
+
+    .card-footer {
+      .stats {
+        color: $white-color;
+      }
+    }
+  }
+
+  &[data-background-color="red"] {
+    background-color: $danger-color;
+  }
+
+  &[data-background-color="yellow"] {
+    background-color: $warning-color;
+  }
+
+  &[data-background-color="blue"] {
+    background-color: $info-color;
+  }
+
+  &[data-background-color="green"] {
+    background-color: $success-color;
+  }
+
+  .image {
+    overflow: hidden;
+    height: 200px;
+    position: relative;
+  }
+
+  .avatar {
+    width: 30px;
+    height: 30px;
+    overflow: hidden;
+    border-radius: 50%;
+    margin-bottom: 15px;
+  }
+
+  label {
+    font-size: $font-size-small;
+    margin-bottom: 5px;
+    color: $dark-gray;
+  }
+
+  .card-footer {
+    background-color: transparent;
+    border: 0;
+
+    .stats {
+      i {
+        margin-right: 5px;
+        position: relative;
+        top: 2px;
+      }
+    }
+
+    .btn {
+      margin: 0;
+    }
+  }
+}
+
+.card-user {
+  .image {
+    height: 120px;
+  }
+
+  .author {
+    text-align: center;
+    text-transform: none;
+    margin-top: -77px;
+
+    a + p.description {
+      margin-top: -7px;
+    }
+  }
+
+  .avatar {
+    width: 124px;
+    height: 124px;
+    border: 1px solid $white-color;
+    position: relative;
+  }
+
+  .card-body {
+    min-height: 120px;
+  }
+
+  hr {
+    margin: 5px 15px;
+  }
+
+  .button-container {
+    margin-bottom: 6px;
+    text-align: center;
+  }
+}
+
+.card-plain {
+  background: #fafbfc;
+  box-shadow: none;
+
+  .card-footer {
+    color: #363a41;
+    font-family: "Open Sans";
+    font-size: 18px;
+    font-weight: bold;
+    letter-spacing: -0.19px;
+    line-height: 24px;
+    margin-left: 0;
+    margin-right: 0;
+    background-color: transparent;
+  }
+
+  &:not(.card-subcategories).card-body {
+    padding-left: 0;
+    padding-right: 0;
+  }
+
+  .no-padding-vertical {
+    padding: 0px 10px !important;
+  }
+}
+
+%card-stats {
+  hr {
+    margin: 5px 15px;
+  }
+}
+
+.card-stats {
+  @extend %card-stats;
+
+  .statistics {
+    position: relative;
+    text-align: center;
+    padding: 15px 0;
+
+    .title {
+      margin-bottom: 0;
+    }
+
+    .stats-title {
+      margin-bottom: 5px;
+      color: $dark-gray;
+      font-weight: $font-weight-normal;
+    }
+
+    &.statistics-horizontal,
+    &.statistics-horizontal .info-title {
+      padding: 0;
+    }
+  }
+
+  .icon {
+    display: inline-block;
+    vertical-align: top;
+    margin: 0 15px;
+  }
+
+  .stats-information {
+    display: inline-block;
+    margin-bottom: 15px;
+
+    .stats-text {
+      font-size: 29px;
+    }
+
+    .stats-details {
+      display: block;
+      color: $default-color;
+    }
+  }
+
+  .dots {
+    text-align: right;
+
+    .dot {
+      background-color: $black-color;
+      height: 3px;
+      width: 3px;
+      border-radius: 50%;
+      display: inline-block;
+    }
+  }
+
+  [class*="col-"] {
+    .statistics::after {
+      position: absolute;
+      right: 0;
+      top: 20px;
+      width: 1px;
+      height: calc(100% - 40px);
+      content: "";
+      background: $medium-gray;
+    }
+  }
+
+  [class*="col-"]:last-child {
+    .statistics::after {
+      display: none;
+    }
+  }
+}
+
+.card-stats-mini {
+  &.card-background::after {
+    background-image: linear-gradient(to right, #434343 0%, black 100%);
+    opacity: 0.94;
+  }
+
+  .card-body {
+    &::after {
+      clear: both;
+      content: "";
+      display: block;
+    }
+  }
+
+  .card-footer {
+    border-top: 1px solid $opacity-2;
+    margin: 0 15px;
+  }
+
+  &.card-background {
+    .card-body {
+      min-height: auto;
+      padding-top: 15px;
+      padding-bottom: 15px;
+    }
+  }
+
+  .card-title {
+    margin-top: 0;
+    margin-bottom: 5px;
+  }
+
+  .info-area {
+    text-align: left;
+    width: 40%;
+    float: left;
+    padding: 15px 0;
+
+    .icon > i {
+      font-size: 2em;
+    }
+  }
+
+  .chart-area {
+    float: left;
+    width: 60%;
+  }
+
+  .stats {
+    text-align: left;
+    color: $white-color;
+  }
+}
+
+.card-chart {
+  .card-header {
+    .card-title {
+      margin-top: 10px;
+      margin-bottom: 20px;
+    }
+
+    .card-category {
+      margin-bottom: 5px;
+    }
+  }
+
+  .table {
+    margin-bottom: 0;
+
+    td {
+      border-top: none;
+      border-bottom: 1px solid #e9ecef;
+    }
+  }
+
+  .card-progress {
+    margin-top: 30px;
+  }
+
+  .chart-area {
+    height: 190px;
+    width: calc(100% + 30px);
+    margin-left: -15px;
+    margin-right: -15px;
+  }
+
+  .card-footer {
+    margin-top: 15px;
+
+    .stats {
+      color: $dark-gray;
+    }
+  }
+
+  .dropdown {
+    position: absolute;
+    right: 20px;
+    top: 20px;
+
+    .btn {
+      margin: 0;
+    }
+  }
+}

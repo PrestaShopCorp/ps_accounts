@@ -28,7 +28,6 @@ use PrestaShop\Module\PsAccounts\Repository\ConfigurationRepository;
 use PrestaShop\Module\PsAccounts\Service\PsAccountsService;
 use PrestaShop\Module\PsAccounts\Service\ShopLinkAccountService;
 use PrestaShop\Module\PsAccounts\Service\SsoService;
-use Ps_accounts;
 
 /**
  * Construct the psaccounts module.
@@ -107,6 +106,8 @@ class PsAccountsPresenter
 
         $shopContext = $this->shopProvider->getShopContext();
 
+        $isEnabled = false; //$this->installer->isEnabled('ps_accounts');
+
         try {
             return [
                 'psxName' => $psxName,
@@ -117,8 +118,8 @@ class PsAccountsPresenter
                 'psAccountsInstallLink' => null,
 
                 // Enable status
-                'psAccountsIsEnabled' => Module::isEnabled('ps_accounts'),
-                'psAccountsEnableLink' => $this->installer->getModuleEnableUrl('ps_accounts', $psxName),
+                'psAccountsIsEnabled' => $isEnabled,
+                'psAccountsEnableLink' => ($isEnabled ? null : $this->installer->getEnableUrl('ps_accounts', $psxName)),
 
                 'onboardingLink' => $this->shopLinkAccountService->getLinkAccountUrl($psxName),
 
@@ -140,6 +141,14 @@ class PsAccountsPresenter
                 'manageAccountLink' => $this->ssoService->getSsoAccountUrl(),
 
                 'adminAjaxLink' => $this->psAccountsService->getAdminAjaxUrl(),
+
+                // EventBus dependency
+                'psEventbusStatus' => [
+                    'isInstalled' => $this->installer->isInstalled('ps_eventbus'),
+                    'installLink' => $this->installer->getInstallUrl('ps_eventbus', $psxName),
+                    'isEnabled' => $this->installer->isEnabled('ps_eventbus'),
+                    'enableLink' => $this->installer->getEnableUrl('ps_eventbus', $psxName),
+                ],
             ];
         } catch (\Exception $e) {
             Sentry::captureAndRethrow($e);

@@ -1,0 +1,88 @@
+{
+  "name": "ps_accounts",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "dev": "vue-cli-service build --no-clean --mode development --watch",
+    "build": "vue-cli-service build --no-clean",
+    "lint": "vue-cli-service lint"
+  },
+  "dependencies": {
+    "@prestashopcorp/segment-vue": "^1.1.1",
+    "@sentry/browser": "^5.24.2",
+    "@sentry/integrations": "^5.24.2",
+    "@sentry/tracing": "^5.24.2",
+    "@vue/composition-api": "^1.0.0-beta.3",
+    "autoprefixer": "^9.8.6",
+    "axios": "^0.19.2",
+    "bootstrap": "^4.5.0",
+    "bootstrap-vue": "^2.15.0",
+    "chart.js": "^2.9.3",
+    "core-js": "^3.6.4",
+    "lodash": "^4.17.17",
+    "moment": "^2.26.0",
+    "moment-range": "^4.0.2",
+    "prestakit": "^1.1.0",
+    "prestashop_accounts_vue_components": "../../../../prestashop_accounts_vue_components",
+    "regenerator-runtime": "^0.13.5",
+    "tailwindcss": "^1.8.10",
+    "tween.js": "^16.6.0",
+    "vue": "^2.6.11",
+    "vue-content-loader": "^0.2.3",
+    "vue-i18n": "^8.18.2",
+    "vue-router": "^3.2.0",
+    "vue-styled-components": "^1.5.1",
+    "vue2-collapse": "^1.0.15",
+    "vuex": "^3.4.0"
+  },
+  "devDependencies": {
+    "@babel/core": "^7.10.2",
+    "@babel/preset-env": "^7.10.4",
+    "@vue/babel-helper-vue-jsx-merge-props": "^1.0.0",
+    "@vue/babel-preset-jsx": "^1.1.2",
+    "@vue/cli-plugin-babel": "~4.3.0",
+    "@vue/cli-plugin-eslint": "~4.3.0",
+    "@vue/cli-service": "~4.3.0",
+    "babel-eslint": "^10.1.0",
+    "babel-loader": "^8.1.0",
+    "babel-preset-vue": "^2.0.2",
+    "eslint": "7.2.0",
+    "eslint-config-airbnb": "18.2.0",
+    "eslint-config-airbnb-base": "^14.1.0",
+    "eslint-config-node": "^4.1.0",
+    "eslint-config-prestashop": "0.0.2",
+    "eslint-config-prettier": "^6.11.0",
+    "eslint-loader": "^4.0.2",
+    "eslint-plugin-import": "^2.21.2",
+    "eslint-plugin-jsx-a11y": "^6.3.0",
+    "eslint-plugin-node": "^11.1.0",
+    "eslint-plugin-prettier": "^3.1.4",
+    "eslint-plugin-vue": "^6.2.2",
+    "node-sass": "^4.14.1",
+    "prettier": "^2.0.5",
+    "sass-loader": "^8.0.2",
+    "vue-loader": "^15.9.2",
+    "vue-template-compiler": "^2.6.11"
+  },
+  "eslintConfig": {
+    "root": true,
+    "env": {
+      "node": true
+    },
+    "extends": [
+      "plugin:vue/essential",
+      "eslint:recommended"
+    ],
+    "parserOptions": {
+      "parser": "babel-eslint"
+    },
+    "rules": {}
+  },
+  "browserslist": [
+    "> 1%",
+    "last 2 versions",
+    "not dead"
+  ],
+  "author": "PrestaShop",
+  "license": "AFL-3.0"
+}

@@ -138,7 +138,7 @@ class Ps_accounts extends Module
         $this->tab = 'administration';
         $this->author = 'PrestaShop';
         $this->need_instance = 0;
-        $this->bootstrap = true;
+        $this->bootstrap = false;
 
         // We cannot use the const VERSION because the const is not computed by addons marketplace
         // when the zip is uploaded
@@ -449,18 +449,17 @@ class Ps_accounts extends Module
         $this->context->smarty->assign('pathVendor', $this->_path . 'views/js/chunk-vendors.js');
         $this->context->smarty->assign('pathApp', $this->_path . 'views/js/app.js');
 
+        $storePresenter = new PrestaShop\Module\PsAccounts\Presenter\Store\StorePresenter($this, $this->context);
+
         Media::addJsDef([
-            'storePsAccounts' => (new PrestaShop\Module\PsAccounts\Presenter\Store\StorePresenter(
-                $this, $this->context, null, (string) $responseApiMessage, (int) $countProperty)
-            )->present(),
+            'storePsAccounts' => $storePresenter->present(),
         ]);
 
-        /** @var \PrestaShop\Module\PsAccounts\Presenter\PsAccountsPresenter $presenter */
-        $presenter = Module::getInstanceByName('ps_accounts')
-            ->getService(\PrestaShop\Module\PsAccounts\Presenter\PsAccountsPresenter::class);
+        /** @var \PrestaShop\Module\PsAccounts\Presenter\PsAccountsPresenter $psAccountsPresenter */
+        $psAccountsPresenter = $this->getService(\PrestaShop\Module\PsAccounts\Presenter\PsAccountsPresenter::class);
 
         Media::addJsDef([
-            'contextPsAccounts' => $presenter->present($this->name),
+            'contextPsAccounts' => $psAccountsPresenter->present($this->name),
         ]);
     }
 }
