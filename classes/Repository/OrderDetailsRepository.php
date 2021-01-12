@@ -49,8 +49,11 @@ class OrderDetailsRepository
     {
         $query = $this->getBaseQuery();
 
-        $query->select('od.id_order_detail, od.id_order, od.product_id, od.product_attribute_id, od.product_quantity, od.unit_price_tax_incl')
-            ->where('od.id_order IN (' . implode(',', array_map('intval', $orderIds)) . ')');
+        $query->select('od.id_order_detail, od.id_order, od.product_id, od.product_attribute_id,
+         od.product_quantity, od.unit_price_tax_incl, od.unit_price_tax_excl, SUM(osd.total_price_tax_incl) as refund')
+            ->leftJoin('order_slip_detail', 'osd', 'od.id_order_detail = osd.id_order_detail')
+            ->where('od.id_order IN (' . implode(',', array_map('intval', $orderIds)) . ')')
+            ->groupBy('od.id_order_detail');
 
         return $this->db->executeS($query);
     }

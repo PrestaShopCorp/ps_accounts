@@ -130,6 +130,8 @@ class OrderDataProvider implements PaginatedApiDataProviderInterface
             $order['current_state'] = (int) $order['current_state'];
             $order['conversion_rate'] = (float) $order['conversion_rate'];
             $order['total_paid_tax_incl'] = (float) $order['total_paid_tax_incl'];
+            $order['total_paid_tax_excl'] = (float) $order['total_paid_tax_excl'];
+            $order['refund'] = (float) $order['refund'];
             $order['new_customer'] = $order['new_customer'] === '1';
         }
     }
@@ -148,6 +150,8 @@ class OrderDataProvider implements PaginatedApiDataProviderInterface
             $orderDetail['product_attribute_id'] = (int) $orderDetail['product_attribute_id'];
             $orderDetail['product_quantity'] = (int) $orderDetail['product_quantity'];
             $orderDetail['unit_price_tax_incl'] = (float) $orderDetail['unit_price_tax_incl'];
+            $orderDetail['unit_price_tax_excl'] = (float) $orderDetail['unit_price_tax_excl'];
+            $orderDetail['refund'] = -1 * (float) $orderDetail['refund'];
         }
     }
 
