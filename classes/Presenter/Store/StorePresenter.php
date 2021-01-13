@@ -24,6 +24,7 @@ use Context;
 use PrestaShop\Module\PsAccounts\Presenter\PresenterInterface;
 use PrestaShop\Module\PsAccounts\Presenter\Store\Context\ContextPresenter;
 use PrestaShop\Module\PsAccounts\Presenter\Store\Settings\SettingsPresenter;
+use PrestaShop\Module\PsAccounts\Translations\SettingsTranslations;
 
 /**
  * Present the store to the vuejs app (vuex)
@@ -65,6 +66,8 @@ class StorePresenter implements PresenterInterface
      * Build the store required by vuex
      *
      * @return array
+     *
+     * @throws \PrestaShopException
      */
     public function present()
     {
@@ -77,7 +80,12 @@ class StorePresenter implements PresenterInterface
         // Load a presenter depending on the application to load (dashboard | settings)
         $this->store = array_merge(
             $contextPresenter,
-            (new SettingsPresenter($this->module, $this->context))->present()
+            [
+                'settings' => [
+                    'faq' => false,
+                    'translations' => (new SettingsTranslations($this->module))->getTranslations(),
+                ],
+            ]
         );
 
         return $this->store;

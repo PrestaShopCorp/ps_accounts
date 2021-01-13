@@ -208,6 +208,7 @@ class Ps_accounts extends Module
      * @throws PrestaShopDatabaseException
      * @throws PrestaShopException
      * @throws Exception
+     * @throws Throwable
      */
     public function install()
     {

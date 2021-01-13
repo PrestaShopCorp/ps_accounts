@@ -25,10 +25,7 @@ use PrestaShop\Module\PsAccounts\Adapter\Link;
 use PrestaShop\Module\PsAccounts\Context\ShopContext;
 use PrestaShop\Module\PsAccounts\Handler\Error\Sentry;
 use PrestaShop\PrestaShop\Adapter\SymfonyContainer;
-use PrestaShop\PrestaShop\Core\Addon\Module\ModuleManager;
 use PrestaShop\PrestaShop\Core\Addon\Module\ModuleManagerBuilder;
-use PrestaShop\PrestaShop\Core\Foundation\IoC\Exception;
-use Symfony\Component\Routing\Router;
 use Tools;
 
 /**
@@ -42,19 +39,9 @@ class Installer
     private $shopContext;
 
     /**
-     * @var ModuleManager
-     */
-    private $moduleManager;
-
-    /**
      * @var Link
      */
     private $link;
-
-    /**
-     * @var Router
-     */
-    private $router;
 
     /**
      * Install constructor.
@@ -69,10 +56,6 @@ class Installer
         $this->shopContext = $shopContext;
 
         $this->link = $link;
-
-        //$this->router = $router;
-
-        $this->moduleManager = ModuleManagerBuilder::getInstance()->build();
     }
 
     /**
@@ -81,44 +64,29 @@ class Installer
      *
      * @return bool
      *
-     * @throws \Exception
+     * @throws \Throwable
      */
     public function installModule($module, $upgrade = true)
     {
         if (false === $this->shopContext->isShop17()) {
-            //return true;
-            throw new \Exception("Module ${module} can't be installed");
+            return true;
         }
 
-        if (false === $upgrade && true === $this->moduleManager->isInstalled($module)) {
+        $moduleManager = ModuleManagerBuilder::getInstance()->build();
+
+        if (false === $upgrade && true === $moduleManager->isInstalled($module)) {
             return true;
         }
 
         // install or upgrade module
-        $moduleIsInstalled = $this->moduleManager->install($module);
+        $moduleIsInstalled = $moduleManager->install($module);
 
         if (false === $moduleIsInstalled) {
-            throw new \Exception("Module ${module} can't be installed");
+            Sentry::captureAndRethrow(new \Exception("Module ${module} can't be installed"));
         }
 
         return $moduleIsInstalled;
     }
-
-//    /**
-//     * @return bool
-//     *
-//     * @throws \Throwable
-//     */
-//    public function installPsAccounts()
-//    {
-//        $status = false;
-//        try {
-//            $status = $this->installModule('ps_accounts', false);
-//        } catch (\Exception $e) {
-//            Sentry::captureAndRethrow($e);
-//        }
-//        return $status;
-//    }
 
     /**
      * @param string $module
@@ -180,7 +148,8 @@ class Installer
         if (false === $this->shopContext->isShop17()) {
             return Module::isInstalled('ps_eventbus');
         }
-        return $this->moduleManager->isInstalled($module);
+        $moduleManager = ModuleManagerBuilder::getInstance()->build();
+        return $moduleManager->isInstalled($module);
     }
 
     /**
@@ -193,6 +162,7 @@ class Installer
         if (false === $this->shopContext->isShop17()) {
             return Module::isEnabled($module);
         }
-        return $this->moduleManager->isEnabled($module);
+        $moduleManager = ModuleManagerBuilder::getInstance()->build();
+        return $moduleManager->isEnabled($module);
     }
 }

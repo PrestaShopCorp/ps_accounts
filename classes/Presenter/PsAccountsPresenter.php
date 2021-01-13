@@ -32,7 +32,7 @@ use PrestaShop\Module\PsAccounts\Service\SsoService;
 /**
  * Construct the psaccounts module.
  */
-class PsAccountsPresenter
+class PsAccountsPresenter implements PresenterInterface
 {
     /**
      * @var ShopProvider
@@ -99,7 +99,7 @@ class PsAccountsPresenter
      *
      * @throws \Throwable
      */
-    public function present($psxName)
+    public function present($psxName = 'ps_accounts')
     {
         // FIXME : Do this elsewhere
         $this->shopLinkAccountService->manageOnboarding();

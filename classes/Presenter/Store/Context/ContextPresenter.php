@@ -22,6 +22,8 @@ namespace PrestaShop\Module\PsAccounts\Presenter\Store\Context;
 
 use Context;
 use Module;
+use PrestaShop\Module\PsAccounts\Adapter\Link;
+use PrestaShop\Module\PsAccounts\Provider\ShopProvider;
 use PrestaShop\Module\PsAccounts\Service\PsAccountsService;
 use PrestaShop\Module\PsAccounts\Presenter\PresenterInterface;
 use Ps_accounts;
@@ -53,16 +55,6 @@ class ContextPresenter implements PresenterInterface
     }
 
     /**
-     * Tells if we can show the Dashboard App by checking if there's a refresh token and Google Linked Value
-     *
-     * @return bool
-     */
-    protected function canShowDashboardApp()
-    {
-        return false;
-    }
-
-    /**
      * Check if the merchant is onboarded on ps accounts
      *
      * @return bool
@@ -80,59 +72,32 @@ class ContextPresenter implements PresenterInterface
      * Present the Context Vuex
      *
      * @return array
+     *
+     * @throws \PrestaShopException
      */
     public function present()
     {
-//        $linkAdapter = new LinkAdapter($this->module, $this->context->link);
-//        $currentShop = (new ShopsProvider())->getShopUrl($this->context->shop->id);
-//        $configurationValues = new ConfigurationRepository();
-//
-//        return [
-//            'context' => [
-//                'app' => $this->getCurrentVueApp(),
-//                'canShowDashboard' => $this->canShowDashboardApp(),
-//                'user' => [
-//                    'gaIsOnboarded' => (bool) $configurationValues->getGoogleLinkedValue(),
-//                    'psAccountsIsOnboarded' => $this->psAccountsIsOnboarded(),
-//                ],
-//                'version_ps' => _PS_VERSION_,
-//                'version_module' => $this->module->version,
-//                'shopId' => $this->psAccountsService->getShopUuidV4(),
-//                'isShop17' => version_compare(_PS_VERSION_, '1.7.3.0', '>='),
-//                'configurationLink' => $linkAdapter->getAdminLink('AdminModules', true, [], ['configure' => $this->module->name]),
-//                'controllersLinks' => [
-//                    'dashboard' => $linkAdapter->getAdminLink($this->module->ajaxDashboardController),
-//                    'settings' => $linkAdapter->getAdminLink($this->module->ajaxSettingsController),
-//                ],
-//                'i18n' => [
-//                    'isoCode' => $this->context->language->iso_code,
-//                    'languageLocale' => $this->context->language->language_code,
-//                    'currencyIsoCode' => $this->context->currency->iso_code,
-//                ],
-//                'shop' => [
-//                    'domain' => $currentShop['domain'],
-//                    'url' => $currentShop['url'],
-//                ],
-//                'readmeUrl' => $this->getReadme(),
-//            ],
-//        ];
+        /** @var Link $linkAdapter */
+        $linkAdapter = $this->module->getService(Link::class);
+
+        /** @var ShopProvider $shopProvider */
+        $shopProvider = $this->module->getService(ShopProvider::class);
+
+        $currentShop = $shopProvider->getCurrentShop();
 
         return [
             'context' => [
                 'app' => $this->getCurrentVueApp(),
-                'canShowDashboard' => $this->canShowDashboardApp(),
                 'user' => [
-                    'gaIsOnboarded' => false,
                     'psAccountsIsOnboarded' => $this->psAccountsIsOnboarded(),
                 ],
                 'version_ps' => _PS_VERSION_,
                 'version_module' => $this->module->version,
                 'shopId' => $this->psAccountsService->getShopUuidV4(),
                 'isShop17' => version_compare(_PS_VERSION_, '1.7.3.0', '>='),
-                'configurationLink' => '',
+                'configurationLink' => $linkAdapter->getAdminLink('AdminModules', true, [], ['configure' => $this->module->name]),
                 'controllersLinks' => [
-                    'dashboard' => '',
-                    'settings' => '',
+                    'ajax' => $linkAdapter->getAdminLink('AdminAjaxPsAccounts'),
                 ],
                 'i18n' => [
                     'isoCode' => $this->context->language->iso_code,
@@ -140,8 +105,8 @@ class ContextPresenter implements PresenterInterface
                     'currencyIsoCode' => $this->context->currency->iso_code,
                 ],
                 'shop' => [
-                    'domain' => '',
-                    'url' => '',
+                    'domain' => $currentShop['domain'],
+                    'url' => $currentShop['url'],
                 ],
                 'readmeUrl' => $this->getReadme(),
             ],
