@@ -50,8 +50,10 @@ class OrderDetailsRepository
         $query = $this->getBaseQuery();
 
         $query->select('od.id_order_detail, od.id_order, od.product_id, od.product_attribute_id,
-         od.product_quantity, od.unit_price_tax_incl, od.unit_price_tax_excl, SUM(osd.total_price_tax_incl) as refund')
+         od.product_quantity, od.unit_price_tax_incl, od.unit_price_tax_excl, SUM(osd.total_price_tax_incl) as refund, SUM(osd.total_price_tax_excl) as refund_tax_excl, c.iso_code as currency')
             ->leftJoin('order_slip_detail', 'osd', 'od.id_order_detail = osd.id_order_detail')
+            ->innerJoin('orders', 'o', 'od.id_order = o.id_order')
+            ->leftJoin('currency', 'c', 'c.id_currency = o.id_currency')
             ->where('od.id_order IN (' . implode(',', array_map('intval', $orderIds)) . ')')
             ->groupBy('od.id_order_detail');
 
