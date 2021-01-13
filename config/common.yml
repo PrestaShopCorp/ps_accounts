@@ -98,7 +98,7 @@ services:
     class: PrestaShop\Module\PsAccounts\Handler\Error\Sentry
     arguments:
       - '%ps_accounts.sentry_credentials%'
-      - '@=service("Ps_accounts").getModuleEnv()'
+      - '@=service("ps_accounts.module").getModuleEnv()'
       - '@PrestaShop\Module\PsAccounts\Repository\ConfigurationRepository'
 
   ###############
