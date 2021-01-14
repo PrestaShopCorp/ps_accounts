@@ -69,7 +69,7 @@ class OrderRepository
     {
         $query = $this->getBaseQuery($shopId);
 
-        $query->select('(COUNT(id_order) - ' . (int) $offset . ') as count');
+        $query->select('(COUNT(o.id_order) - ' . (int) $offset . ') as count');
 
         return (int) $this->db->getValue($query);
     }
