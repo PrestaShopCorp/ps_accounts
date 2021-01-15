@@ -155,7 +155,8 @@ class OrderDataProvider implements PaginatedApiDataProviderInterface
             $orderDetail['unit_price_tax_excl'] = (float) $orderDetail['unit_price_tax_excl'];
             $orderDetail['refund'] = (float) $orderDetail['refund'] > 0 ? -1 * (float) $orderDetail['refund'] : 0;
             $orderDetail['refund_tax_excl'] = (float) $orderDetail['refund_tax_excl'] > 0 ? -1 * (float) $orderDetail['refund_tax_excl'] : 0;
-            $orderDetail['category'] = (float) $orderDetail['category'];
+            $orderDetail['category'] = (int) $orderDetail['category'];
+            $orderDetail['unique_product_id'] = "{$orderDetail['product_id']}-{$orderDetail['product_attribute_id']}-{$orderDetail['iso_code']}";
         }
     }
 
