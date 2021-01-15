@@ -33,7 +33,7 @@ class OrderDetailsRepository
         $query = new DbQuery();
 
         $query->from(self::TABLE_NAME, 'od')
-            ->where('od.id_shop = ' . (int)$this->context->shop->id);
+            ->where('od.id_shop = ' . (int) $this->context->shop->id);
 
         return $query;
     }
