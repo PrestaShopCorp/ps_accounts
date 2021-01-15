@@ -33,25 +33,28 @@ class OrderDetailsRepository
         $query = new DbQuery();
 
         $query->from(self::TABLE_NAME, 'od')
-            ->where('od.id_shop = ' . (int) $this->context->shop->id);
+            ->where('od.id_shop = ' . (int)$this->context->shop->id);
 
         return $query;
     }
 
     /**
      * @param array $orderIds
+     * @param int $shopId
      *
      * @return array|bool|\mysqli_result|\PDOStatement|resource|null
      *
      * @throws \PrestaShopDatabaseException
      */
-    public function getOrderDetails(array $orderIds)
+    public function getOrderDetails(array $orderIds, $shopId)
     {
         $query = $this->getBaseQuery();
 
         $query->select('od.id_order_detail, od.id_order, od.product_id, od.product_attribute_id,
-         od.product_quantity, od.unit_price_tax_incl, od.unit_price_tax_excl, SUM(osd.total_price_tax_incl) as refund, SUM(osd.total_price_tax_excl) as refund_tax_excl, c.iso_code as currency')
+         od.product_quantity, od.unit_price_tax_incl, od.unit_price_tax_excl, SUM(osd.total_price_tax_incl) as refund,
+          SUM(osd.total_price_tax_excl) as refund_tax_excl, c.iso_code as currency, ps.id_category_default as category')
             ->leftJoin('order_slip_detail', 'osd', 'od.id_order_detail = osd.id_order_detail')
+            ->leftJoin('product_shop', 'ps', 'od.product_id = ps.id_product AND ps.id_shop = ' . (int) $shopId)
             ->innerJoin('orders', 'o', 'od.id_order = o.id_order')
             ->leftJoin('currency', 'c', 'c.id_currency = o.id_currency')
             ->where('od.id_order IN (' . implode(',', array_map('intval', $orderIds)) . ')')

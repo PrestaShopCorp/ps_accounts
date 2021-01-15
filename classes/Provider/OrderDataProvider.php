@@ -58,7 +58,7 @@ class OrderDataProvider implements PaginatedApiDataProviderInterface
 
         $this->castOrderValues($orders);
 
-        $orderDetails = $this->getOrderDetails($orders);
+        $orderDetails = $this->getOrderDetails($orders, $this->context->shop->id);
 
         $orders = array_map(function ($order) {
             return [
@@ -84,12 +84,13 @@ class OrderDataProvider implements PaginatedApiDataProviderInterface
 
     /**
      * @param array $orders
+     * @param int $shopId
      *
      * @return array
      *
      * @throws PrestaShopDatabaseException
      */
-    private function getOrderDetails(array $orders)
+    private function getOrderDetails(array $orders, $shopId)
     {
         if (empty($orders)) {
             return [];
@@ -97,7 +98,7 @@ class OrderDataProvider implements PaginatedApiDataProviderInterface
 
         $orderIds = $this->arrayFormatter->formatValueArray($orders, 'id_order');
 
-        $orderDetails = $this->orderDetailsRepository->getOrderDetails($orderIds);
+        $orderDetails = $this->orderDetailsRepository->getOrderDetails($orderIds, $shopId);
 
         if (!is_array($orderDetails) || empty($orderDetails)) {
             return [];
@@ -152,8 +153,9 @@ class OrderDataProvider implements PaginatedApiDataProviderInterface
             $orderDetail['product_quantity'] = (int) $orderDetail['product_quantity'];
             $orderDetail['unit_price_tax_incl'] = (float) $orderDetail['unit_price_tax_incl'];
             $orderDetail['unit_price_tax_excl'] = (float) $orderDetail['unit_price_tax_excl'];
-            $orderDetail['refund'] = -1 * (float) $orderDetail['refund'];
-            $orderDetail['refund_tax_excl'] = -1 * (float) $orderDetail['refund_tax_excl'];
+            $orderDetail['refund'] = (float) $orderDetail['refund'] > 0 ? -1 * (float) $orderDetail['refund'] : 0;
+            $orderDetail['refund_tax_excl'] = (float) $orderDetail['refund_tax_excl'] > 0 ? -1 * (float) $orderDetail['refund_tax_excl'] : 0;
+            $orderDetail['category'] = (float) $orderDetail['category'];
         }
     }
 
@@ -180,7 +182,7 @@ class OrderDataProvider implements PaginatedApiDataProviderInterface
 
         $this->castOrderValues($orders);
 
-        $orderDetails = $this->getOrderDetails($orders);
+        $orderDetails = $this->getOrderDetails($orders, $this->context->shop->id);
 
         $orders = array_map(function ($order) {
             return [
