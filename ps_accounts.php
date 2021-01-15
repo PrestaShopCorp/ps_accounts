@@ -251,11 +251,13 @@ class Ps_accounts extends Module
         if (null === $this->serviceContainer) {
             //$this->serviceContainer = new \PrestaShop\ModuleLibServiceContainer\DependencyInjection\ServiceContainer(
             $this->serviceContainer = new \PrestaShop\Module\PsAccounts\DependencyInjection\ServiceContainer(
-                $this->name,
+                // append version number to force cache generation (1.6 Core won't clear it)
+                $this->name . str_replace('.', '', $this->version),
                 $this->getLocalPath(),
                 $this->getModuleEnv()
             );
         }
+
         return $this->serviceContainer->getService($serviceName);
     }
 
