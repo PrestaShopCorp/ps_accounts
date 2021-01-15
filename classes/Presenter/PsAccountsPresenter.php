@@ -106,50 +106,45 @@ class PsAccountsPresenter implements PresenterInterface
 
         $shopContext = $this->shopProvider->getShopContext();
 
-        $isEnabled = false; //$this->installer->isEnabled('ps_accounts');
+        $isEnabled = $this->installer->isEnabled('ps_accounts');
 
         try {
-            return [
-                'psxName' => $psxName,
-                'psIs17' => $shopContext->isShop17(),
+            return array_merge(
+                [
+                    'psxName' => $psxName,
+                    'psIs17' => $shopContext->isShop17(),
 
-                // FIXME : Installed status of module itself
-                'psAccountsIsInstalled' => true,
-                'psAccountsInstallLink' => null,
+                    // FIXME : Installed status of module itself
+                    'psAccountsIsInstalled' => true,
+                    'psAccountsInstallLink' => null,
 
-                // Enable status
-                'psAccountsIsEnabled' => $isEnabled,
-                'psAccountsEnableLink' => ($isEnabled ? null : $this->installer->getEnableUrl('ps_accounts', $psxName)),
+                    // Enable status
+                    'psAccountsIsEnabled' => $isEnabled,
+                    'psAccountsEnableLink' => ($isEnabled ? null : $this->installer->getEnableUrl('ps_accounts', $psxName)),
 
-                'onboardingLink' => $this->shopLinkAccountService->getLinkAccountUrl($psxName),
+                    'onboardingLink' => $this->shopLinkAccountService->getLinkAccountUrl($psxName),
 
-                // FIXME :  Mix "SSO user" with "Backend user"
-                'user' => [
-                    'email' => $this->configuration->getFirebaseEmail() ?: null,
-                    'emailIsValidated' => $this->configuration->firebaseEmailIsVerified(),
-                    'isSuperAdmin' => $shopContext->getContext()->employee->isSuperAdmin(),
+                    // FIXME :  Mix "SSO user" with "Backend user"
+                    'user' => [
+                        'email' => $this->configuration->getFirebaseEmail() ?: null,
+                        'emailIsValidated' => $this->configuration->firebaseEmailIsVerified(),
+                        'isSuperAdmin' => $shopContext->getContext()->employee->isSuperAdmin(),
+                    ],
+
+                    'currentShop' => $this->shopProvider->getCurrentShop($psxName),
+                    'isShopContext' => $shopContext->isShopContext(),
+                    'shops' => $this->shopProvider->getShopsTree($psxName),
+
+                    'superAdminEmail' => $this->psAccountsService->getSuperAdminEmail(),
+
+                    // FIXME : move into Vue components .env
+                    'ssoResendVerificationEmail' => $this->ssoService->getSsoResendVerificationEmailUrl(),
+                    'manageAccountLink' => $this->ssoService->getSsoAccountUrl(),
+
+                    'adminAjaxLink' => $this->psAccountsService->getAdminAjaxUrl(),
                 ],
-
-                'currentShop' => $this->shopProvider->getCurrentShop($psxName),
-                'isShopContext' => $shopContext->isShopContext(),
-                'shops' => $this->shopProvider->getShopsTree($psxName),
-
-                'superAdminEmail' => $this->psAccountsService->getSuperAdminEmail(),
-
-                // FIXME : move into Vue components .env
-                'ssoResendVerificationEmail' => $this->ssoService->getSsoResendVerificationEmailUrl(),
-                'manageAccountLink' => $this->ssoService->getSsoAccountUrl(),
-
-                'adminAjaxLink' => $this->psAccountsService->getAdminAjaxUrl(),
-
-                // EventBus dependency
-                'psEventbusStatus' => [
-                    'isInstalled' => $this->installer->isInstalled('ps_eventbus'),
-                    'installLink' => $this->installer->getInstallUrl('ps_eventbus', $psxName),
-                    'isEnabled' => $this->installer->isEnabled('ps_eventbus'),
-                    'enableLink' => $this->installer->getEnableUrl('ps_eventbus', $psxName),
-                ],
-            ];
+                (new DependenciesPresenter())->present($psxName)
+            );
         } catch (\Exception $e) {
             Sentry::captureAndRethrow($e);
         }

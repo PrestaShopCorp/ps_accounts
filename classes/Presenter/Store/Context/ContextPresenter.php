@@ -49,9 +49,7 @@ class ContextPresenter implements PresenterInterface
     {
         $this->module = $module;
         $this->context = $context;
-
-        $this->psAccountsService = Module::getInstanceByName('ps_accounts')
-            ->getService(PsAccountsService::class);
+        $this->psAccountsService = $this->module->getService(PsAccountsService::class);
     }
 
     /**

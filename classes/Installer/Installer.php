@@ -100,6 +100,7 @@ class Installer
     {
         if ($this->shopContext->isShop17()) {
             $router = SymfonyContainer::getInstance()->get('router');
+
             return Tools::getHttpHost(true) . $router->generate('admin_module_manage_action', [
                     'action' => 'install',
                     'module_name' => $module,

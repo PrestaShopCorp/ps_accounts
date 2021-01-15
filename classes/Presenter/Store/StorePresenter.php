@@ -23,7 +23,6 @@ namespace PrestaShop\Module\PsAccounts\Presenter\Store;
 use Context;
 use PrestaShop\Module\PsAccounts\Presenter\PresenterInterface;
 use PrestaShop\Module\PsAccounts\Presenter\Store\Context\ContextPresenter;
-use PrestaShop\Module\PsAccounts\Presenter\Store\Settings\SettingsPresenter;
 use PrestaShop\Module\PsAccounts\Translations\SettingsTranslations;
 
 /**
