@@ -252,7 +252,7 @@ class Ps_accounts extends Module
             //$this->serviceContainer = new \PrestaShop\ModuleLibServiceContainer\DependencyInjection\ServiceContainer(
             $this->serviceContainer = new \PrestaShop\Module\PsAccounts\DependencyInjection\ServiceContainer(
                 // append version number to force cache generation (1.6 Core won't clear it)
-                $this->name . str_replace('.', '', $this->version),
+                $this->name . str_replace(['.', '-'], '', $this->version),
                 $this->getLocalPath(),
                 $this->getModuleEnv()
             );
