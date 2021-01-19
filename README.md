@@ -16,7 +16,7 @@ Your module needs three parts:
   - It's your interface between your module and PrestaShop Accounts service.
 - [PrestaShop Accounts Vue Components](http://github.com/PrestaShopCorp/prestashop_accounts_vue_components)
   - It's the front-end component you need to integrate into your module.
-- [Composer Library](http://github.com/PrestaShopCorp/prestashop_accounts_installer)
+- [Composer Library](http://github.com/PrestaShopCorp/prestashop-accounts-installer)
   - This library's role is here to compensate a lack of security between modules dependencies. If PS Accounts is removed while your module is still installed: it causes a crash of the PrestaShop module's page/feature.
   - This library is here to install automatically PS Accounts if it's missing.
 
@@ -71,10 +71,13 @@ There are 3 kinds of tokens that can interest you:
 
 ## Breaking Changes
 ### Removal of the environment variables
-A big pain was to declare a tons of environment variables to override the default values depending of the environment.
+One bad habit was to use environment variables ONLY and a .env file as a configuration file and then to access $_ENV everywhere.
 
-This time is over. We're using Symfony configuration file config.yml.
+We are now using YAML files with a Symfony service container to configure services and their injected dependencies as well as configuration parameters.
+
 You can copy and paste the `config.yml.example` to `config.yml` but you **MUST NOT COMMIT THIS FILE**
+
+You can still override parameters inside config.yml with environment variables using Symfony available helpers. 
 
 ### Composer library prestashop_accounts_auth deprecated
 This library will is deprecated and no longer needed.
@@ -85,14 +88,16 @@ If you need to call PrestaShop Accounts public classes's methods, you need to us
 
 **DO NOT USE**
 ```php
-<?php
-// TODO show an example with a use PrestaShop\Namespace\Class
+$psAccountsService = new \PrestaShop\Module\PsAccounts\Service\PsAccountsService();
 ```
 
 **USE INSTEAD**
 ```php
-<?php
-// TODO Call the service on the container
+use PrestaShop\Module\PsAccounts\Service\PsAccountsService;
+
+/** @var PsAccountsService $psAccountsService */
+$psAccountsService = Module::getInstanceByName('ps_accounts')
+    ->getService(PsAccountsService::class);
 ```
 
 ### Add the dependency manager library to your module's dependencies
