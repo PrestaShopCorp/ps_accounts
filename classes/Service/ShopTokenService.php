@@ -128,6 +128,14 @@ class ShopTokenService
     }
 
     /**
+     * @return string|null
+     */
+    public function getToken()
+    {
+        return $this->configuration->getFirebaseIdToken() ?: null;
+    }
+
+    /**
      * @return bool
      *
      * @throws \Exception

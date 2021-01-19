@@ -31,11 +31,6 @@ use Symfony\Component\DependencyInjection\ContainerInterface;
  */
 class PsAccountsService
 {
-//    /**
-//     * @var ContainerInterface
-//     */
-//    protected $container;
-
     /**
      * @var Link
      */
@@ -76,22 +71,6 @@ class PsAccountsService
         $this->link = $link;
     }
 
-//    /**
-//     * Override of native function to always retrieve Symfony container instead of legacy admin container on legacy context.
-//     *
-//     * @param string $serviceName
-//     *
-//     * @return mixed
-//     */
-//    public function get($serviceName)
-//    {
-//        if (null === $this->container) {
-//            $this->container = \PrestaShop\PrestaShop\Adapter\SymfonyContainer::getInstance();
-//        }
-//
-//        return $this->container->get($serviceName);
-//    }
-
     /**
      * @return string
      */
@@ -121,11 +100,19 @@ class PsAccountsService
     }
 
     /**
-     * @return string | null
+     * @return string|null
      */
     public function getRefreshToken()
     {
         return $this->shopTokenService->getRefreshToken();
+    }
+
+    /**
+     * @return string|null
+     */
+    public function getToken()
+    {
+        return $this->shopTokenService->getToken();
     }
 
     /**
@@ -134,6 +121,14 @@ class PsAccountsService
     public function isEmailValidated()
     {
         return $this->configuration->firebaseEmailIsVerified();
+    }
+
+    /**
+     * @return string|null
+     */
+    public function getEmail()
+    {
+        return $this->configuration->getFirebaseEmail();
     }
 
     /**

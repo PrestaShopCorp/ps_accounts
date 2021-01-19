@@ -96,8 +96,7 @@ $psAccountsService = new \PrestaShop\Module\PsAccounts\Service\PsAccountsService
 use PrestaShop\Module\PsAccounts\Service\PsAccountsService;
 
 /** @var PsAccountsService $psAccountsService */
-$psAccountsService = Module::getInstanceByName('ps_accounts')
-    ->getService(PsAccountsService::class);
+$psAccountsService = Module::getInstanceByName('ps_accounts')->getService(PsAccountsService::class);
 ```
 
 ### Add the dependency manager library to your module's dependencies
