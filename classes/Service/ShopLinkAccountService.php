@@ -299,6 +299,16 @@ class ShopLinkAccountService implements Configurable
     }
 
     /**
+     * @return bool
+     */
+    public function isAccountLinked()
+    {
+        return $this->shopTokenService->getToken()
+            && $this->configuration->getFirebaseEmail()
+            && $this->configuration->firebaseEmailIsVerified();
+    }
+
+    /**
      * @param array $config
      * @param array $defaults
      *
@@ -320,7 +330,7 @@ class ShopLinkAccountService implements Configurable
      *
      * @throws HmacException
      */
-    protected function writeHmac($hmac, $uid,  $path)
+    private function writeHmac($hmac, $uid,  $path)
     {
         if (!is_dir($path)) {
             mkdir($path);
