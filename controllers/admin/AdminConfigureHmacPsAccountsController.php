@@ -33,7 +33,7 @@ use PrestaShop\Module\PsAccounts\Service\ShopLinkAccountService;
 class AdminConfigureHmacPsAccountsController extends ModuleAdminController
 {
     /**
-     * return void
+     * @return void
      *
      * @throws Throwable
      */

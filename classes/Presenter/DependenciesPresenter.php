@@ -22,9 +22,15 @@ namespace PrestaShop\Module\PsAccounts\Presenter;
 
 use Module;
 use PrestaShop\Module\PsAccounts\Installer\Installer;
+use Ps_accounts;
 
 class DependenciesPresenter implements PresenterInterface
 {
+    /**
+     * @var Ps_accounts
+     */
+    private $module;
+
     /**
      * @var Installer
      */
@@ -32,8 +38,8 @@ class DependenciesPresenter implements PresenterInterface
 
     public function __construct()
     {
-        $this->installer = Module::getInstanceByName('ps_accounts')
-            ->getService(Installer::class);
+        $this->module =  Module::getInstanceByName('ps_accounts');
+        $this->installer = $this->module->getService(Installer::class);
     }
 
     /**

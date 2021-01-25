@@ -116,6 +116,8 @@ class ShopKeysService
     }
 
     /**
+     * @return void
+     *
      * @throws SshKeysNotFoundException
      */
     public function regenerateKeys()

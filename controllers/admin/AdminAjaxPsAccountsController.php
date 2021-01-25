@@ -39,7 +39,7 @@ class AdminAjaxPsAccountsController extends ModuleAdminController
     }
 
     /**
-     * return void
+     * @return void
      *
      * @throws Throwable
      */
@@ -63,7 +63,7 @@ class AdminAjaxPsAccountsController extends ModuleAdminController
     }
 
     /**
-     * return void
+     * @return void
      *
      * @throws Throwable
      */
@@ -87,7 +87,7 @@ class AdminAjaxPsAccountsController extends ModuleAdminController
     }
 
     /**
-     * return void
+     * @return void
      *
      * @throws Throwable
      */

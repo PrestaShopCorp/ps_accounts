@@ -93,7 +93,7 @@ class PsAccountsPresenter implements PresenterInterface
     /**
      * Present the PsAccounts module data for JS
      *
-     * @param $psxName
+     * @param string $psxName
      *
      * @return array
      *

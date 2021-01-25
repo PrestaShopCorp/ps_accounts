@@ -48,8 +48,8 @@ class Sentry
     /**
      * ErrorHandler constructor.
      *
-     * @param $sentryCredentials
-     * @param $environment
+     * @param string $sentryCredentials
+     * @param string $environment
      * @param ConfigurationRepository $configuration
      *
      * @throws \Raven_Exception
@@ -89,6 +89,8 @@ class Sentry
 
     /**
      * @param \Throwable $exception
+     *
+     * @return void
      */
     public static function capture(\Throwable $exception)
     {
@@ -100,6 +102,8 @@ class Sentry
 
     /**
      * @param \Throwable $exception
+     *
+     * @return void
      *
      * @throws \Throwable
      */

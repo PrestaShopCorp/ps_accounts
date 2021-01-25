@@ -78,7 +78,7 @@ class ShopProvider
     }
 
     /**
-     * @param $psxName
+     * @param string $psxName
      *
      * @return array
      *

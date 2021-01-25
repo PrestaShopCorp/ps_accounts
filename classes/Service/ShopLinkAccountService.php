@@ -130,7 +130,7 @@ class ShopLinkAccountService implements Configurable
     }
 
     /**
-     * @param $psxName
+     * @param string $psxName
      *
      * @return string
      *
@@ -324,9 +324,11 @@ class ShopLinkAccountService implements Configurable
     }
 
     /**
-     * @param $hmac
-     * @param $uid
-     * @param $path
+     * @param string $hmac
+     * @param string $uid
+     * @param string $path
+     *
+     * @return void
      *
      * @throws HmacException
      */
