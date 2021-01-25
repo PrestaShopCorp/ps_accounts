@@ -28,8 +28,6 @@ if (!defined('_PS_VERSION_')) {
 }
 require_once __DIR__ . '/vendor/autoload.php';
 
-require_once __DIR__ . '/classes/Webservice/WebserviceSpecificManagementAccountToken.php';
-
 class Ps_accounts extends Module
 {
     const DEFAULT_ENV = '';
@@ -389,19 +387,6 @@ class Ps_accounts extends Module
         $shopLinkAccountService->updateShopUrl($bodyHttp, 'multishop');
 
         return true;
-    }
-
-    /**
-     * @return array
-     */
-    public function hookAddWebserviceResources()
-    {
-        return [
-            'account-token' => [
-                'description' => 'Token resource',
-                'specific_management' => true,
-            ],
-        ];
     }
 
     /**
