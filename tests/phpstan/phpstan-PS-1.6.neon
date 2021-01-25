@@ -36,5 +36,6 @@ parameters:
 		- '#Call to static method getInstance\(\) on an unknown class PrestaShop\\PrestaShop\\Core\\Addon\\Module\\ModuleManagerBuilder.#'
 		- '#Call to static method getInstance\(\) on an unknown class PrestaShop\\PrestaShop\\Adapter\\SymfonyContainer.#'
 		- '#Symfony\\Component\\Config\\ResourceCheckerConfigCache::write\(\) expects string, array\|string given.#'
+		- '#Call to method get\(\) on an unknown class PrestaShop\\PrestaShop\\Adapter\\SymfonyContainer.#'
 
 	level: 7
