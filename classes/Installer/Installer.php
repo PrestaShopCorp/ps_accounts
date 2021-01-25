@@ -26,6 +26,7 @@ use PrestaShop\Module\PsAccounts\Context\ShopContext;
 use PrestaShop\Module\PsAccounts\Handler\Error\Sentry;
 use PrestaShop\PrestaShop\Adapter\SymfonyContainer;
 use PrestaShop\PrestaShop\Core\Addon\Module\ModuleManagerBuilder;
+use Symfony\Component\Routing\Router;
 use Tools;
 
 /**
@@ -99,6 +100,7 @@ class Installer
     public function getInstallUrl($module, $psxName)
     {
         if ($this->shopContext->isShop17()) {
+            /** @var Router $router */
             $router = SymfonyContainer::getInstance()->get('router');
 
             return Tools::getHttpHost(true) . $router->generate('admin_module_manage_action', [
@@ -125,6 +127,7 @@ class Installer
     public function getEnableUrl($module, $psxName)
     {
         if ($this->shopContext->isShop17()) {
+            /** @var Router $router */
             $router = SymfonyContainer::getInstance()->get('router');
 
             return Tools::getHttpHost(true) . $router->generate('admin_module_manage_action', [
