@@ -97,7 +97,7 @@ class Sentry
     public static function capture(\Throwable $exception)
     {
         /** @var Ps_accounts $psAccounts */
-        $psAccounts =  Module::getInstanceByName('ps_accounts');
+        $psAccounts = Module::getInstanceByName('ps_accounts');
 
         /** @var self $instance */
         $instance = $psAccounts->getService(self::class);
