@@ -38,5 +38,6 @@ parameters:
 		- '#Symfony\\Component\\Config\\ResourceCheckerConfigCache::write\(\) expects string, array\|string given.#'
 		- '#Call to method get\(\) on an unknown class PrestaShop\\PrestaShop\\Adapter\\SymfonyContainer.#'
 		- '#Call to static method getInstance\(\) on an unknown class PrestaShop\\PrestaShop\\Adapter\\SymfonyContainer.#'
+		- '#Call to an undefined method object::generate\(\).#'
 
 	level: 7
