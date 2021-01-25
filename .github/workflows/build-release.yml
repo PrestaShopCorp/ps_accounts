@@ -1,9 +1,8 @@
-name: Build & Release draft
-
-on: [push, pull_request]
+name: Build & Release zips
+on: [push, pull_request, release]
 
 jobs:
-  deploy:
+  build:
     name: build dependencies & create artifact
     runs-on: ubuntu-latest
     steps:
@@ -22,43 +21,60 @@ jobs:
           name: ${{ github.event.repository.name }}
           path: ../
 
-  update_release_draft:
+  upload_release_asset_production:
+    name: update release production zip
     runs-on: ubuntu-latest
-    needs: [deploy]
-    if: github.event_name == 'push' && github.event.ref == 'refs/heads/master'
+    needs: build
+    if: github.event_name == 'release'
     steps:
       - name: Download artifact
         uses: actions/download-artifact@v1
         with:
           name: ${{ github.event.repository.name }}
 
-      - id: release_info
-        uses: toolmantim/release-drafter@v5
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-
-      - name: Prepare for Release
+      - name: Prepare the production zip
         run: |
           cd ${{ github.event.repository.name }}
+          echo "$ENV_FILE" > ${{ github.event.repository.name }}/.env
           zip -r ${{ github.event.repository.name }}.zip ${{ github.event.repository.name }}
-      - name: Clean existing assets
-        shell: bash
-        run: |
-          curl -fsSL https://github.com/github/hub/raw/master/script/get | bash -s 2.14.1
-          assets=`bin/hub api -t repos/${{ github.repository }}/releases/${{ steps.release_info.outputs.id }}/assets | awk '/\].url/ { print $2 }'`
-          for asset in $assets
-          do
-            bin/hub api -X DELETE $asset
-          done
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          ENV_FILE: ${{ secrets.PS_ACCOUNTS_ENV_PROD }}
 
-      - name: Publish to GitHub Release
+      - name: Publish the production zip
         uses: actions/upload-release-asset@v1.0.1
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
-          upload_url: ${{ steps.release_info.outputs.upload_url }}
+          upload_url: ${{ github.event.release.upload_url }}
           asset_path: ./${{ github.event.repository.name }}/${{ github.event.repository.name }}.zip
           asset_name: ${{ github.event.repository.name }}.zip
+          asset_content_type: application/zip
+
+  upload_release_asset_integration:
+    name: update release integration zip
+    runs-on: ubuntu-latest
+    needs: build
+    if: github.event_name == 'release'
+    steps:
+      - name: Download artifact
+        uses: actions/download-artifact@v1
+        with:
+          name: ${{ github.event.repository.name }}
+
+      - name: Prepare the integration zip
+        run: |
+          cd ${{ github.event.repository.name }}
+          echo "$ENV_FILE" > ${{ github.event.repository.name }}/.env
+          zip -r ${{ github.event.repository.name }}_integration.zip ${{ github.event.repository.name }}
+        env:
+          ENV_FILE: ${{ secrets.PS_ACCOUNTS_ENV_INTE }}
+
+      - name: Publish the integration zip
+        uses: actions/upload-release-asset@v1.0.1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ github.event.release.upload_url }}
+          asset_path: ./${{ github.event.repository.name }}/${{ github.event.repository.name }}_integration.zip
+          asset_name: ${{ github.event.repository.name }}_integration.zip
           asset_content_type: application/zip

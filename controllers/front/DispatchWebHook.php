@@ -150,7 +150,6 @@ class ps_accountsDispatchWebHookModuleFrontController extends ModuleFrontControl
             // TODO : Other cases
 
             default: // unknown action
-
                 return [
                     'status_code' => 500,
                     'message' => 'Action unknown',
