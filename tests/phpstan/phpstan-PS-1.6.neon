@@ -32,5 +32,9 @@ parameters:
 		- '#Property Ps_accounts::\$serviceContainer has unknown class PrestaShop\\ModuleLibServiceContainer\\DependencyInjection\\ServiceContainer as its type.#'
 		- '#Instantiated class PrestaShop\\ModuleLibServiceContainer\\DependencyInjection\\ServiceContainer not found.#'
 		- '#Call to method getService\(\) on an unknown class PrestaShop\\ModuleLibServiceContainer\\DependencyInjection\\ServiceContainer.#'
+		- '#Method LinkCore::getAdminLink\(\) invoked with 4 parameters, 1-2 required.#'
+		- '#Call to static method getInstance\(\) on an unknown class PrestaShop\\PrestaShop\\Core\\Addon\\Module\\ModuleManagerBuilder.#'
+		- '#Call to static method getInstance\(\) on an unknown class PrestaShop\\PrestaShop\\Adapter\\SymfonyContainer.#'
+		- '#Cannot cast array\|string to string.#'
 
 	level: 7

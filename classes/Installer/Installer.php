@@ -115,8 +115,8 @@ class Installer
     }
 
     /**
-     * @param $module
-     * @param $psxName
+     * @param string $module
+     * @param string $psxName
      *
      * @return string | null
      *

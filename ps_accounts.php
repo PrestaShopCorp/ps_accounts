@@ -107,7 +107,7 @@ class Ps_accounts extends Module
     ];
 
     /**
-     * @var \PrestaShop\ModuleLibServiceContainer\DependencyInjection\ServiceContainer
+     * @var \PrestaShop\Module\PsAccounts\DependencyInjection\ServiceContainer
      */
     private $serviceContainer;
 
@@ -241,6 +241,8 @@ class Ps_accounts extends Module
      * @param string $serviceName
      *
      * @return mixed
+     *
+     * @throws Exception
      */
     public function getService($serviceName)
     {
