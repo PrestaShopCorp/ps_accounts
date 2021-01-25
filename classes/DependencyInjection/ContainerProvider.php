@@ -107,7 +107,7 @@ class ContainerProvider
         $containerBuilder->compile();
         $dumper = new PhpDumper($containerBuilder);
         $containerConfigCache->write(
-            $dumper->dump(['class' => $containerClassName]),
+            (string) $dumper->dump(['class' => $containerClassName]),
             $containerBuilder->getResources()
         );
 

@@ -31,7 +31,9 @@ class ServiceContainer
     /**
      * @param string $moduleName
      * @param string $moduleLocalPath
-     * @param $moduleEnv
+     * @param string $moduleEnv
+     *
+     * @throws \Exception
      */
     public function __construct($moduleName, $moduleLocalPath, $moduleEnv)
     {
@@ -46,6 +48,8 @@ class ServiceContainer
      * @param string $serviceName
      *
      * @return object|null
+     *
+     * @throws \Exception
      */
     public function getService($serviceName)
     {
@@ -66,6 +70,10 @@ class ServiceContainer
 
     /**
      * Instantiate a new ContainerProvider
+     *
+     * @return void
+     *
+     * @throws \Exception
      */
     private function initContainer()
     {
