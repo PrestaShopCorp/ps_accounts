@@ -27,21 +27,16 @@ use Ps_accounts;
 class DependenciesPresenter implements PresenterInterface
 {
     /**
-     * @var Ps_accounts
-     */
-    private $module;
-
-    /**
      * @var Installer
      */
     private $installer;
 
     public function __construct()
     {
-        /** @var Ps_accounts module */
-        $this->module =  Module::getInstanceByName('ps_accounts');
+        /** @var Ps_accounts $psAccounts */
+        $psAccounts =  Module::getInstanceByName('ps_accounts');
 
-        $this->installer = $this->module->getService(Installer::class);
+        $this->installer = $psAccounts->getService(Installer::class);
     }
 
     /**

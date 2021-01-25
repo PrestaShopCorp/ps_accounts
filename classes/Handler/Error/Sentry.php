@@ -26,8 +26,10 @@
 
 namespace PrestaShop\Module\PsAccounts\Handler\Error;
 
+use Module;
 use PrestaShop\Module\PsAccounts\Adapter\Configuration;
 use PrestaShop\Module\PsAccounts\Repository\ConfigurationRepository;
+use Ps_accounts;
 use Raven_Client;
 
 /**
@@ -94,8 +96,11 @@ class Sentry
      */
     public static function capture(\Throwable $exception)
     {
+        /** @var Ps_accounts $psAccounts */
+        $psAccounts =  Module::getInstanceByName('ps_accounts');
+
         /** @var self $instance */
-        $instance = \Module::getInstanceByName('ps_accounts')->getService(self::class);
+        $instance = $psAccounts->getService(self::class);
 
         $instance->client->captureException($exception);
     }
