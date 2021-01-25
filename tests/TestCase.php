@@ -3,11 +3,11 @@
 namespace PrestaShop\Module\PsAccounts\Tests;
 
 use Db;
+use Faker\Generator;
 use Lcobucci\JWT\Builder;
 use Lcobucci\JWT\Configuration;
 use Lcobucci\JWT\Token;
 use Module;
-use Faker\Generator;
 use Ps_accounts;
 
 class TestCase extends \PHPUnit\Framework\TestCase
@@ -33,7 +33,7 @@ class TestCase extends \PHPUnit\Framework\TestCase
 
         $this->faker = \Faker\Factory::create();
 
-        /** @var Ps_accounts $module */
+        /* @var Ps_accounts $module */
         $this->module = Module::getInstanceByName('ps_accounts');
     }
 

@@ -66,7 +66,6 @@ abstract class GenericClient implements Configurable
 
     /**
      * GenericClient constructor.
-     *
      */
     public function __construct()
     {

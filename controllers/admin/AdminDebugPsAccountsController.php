@@ -34,6 +34,8 @@ class AdminDebugPsAccountsController extends ModuleAdminController
 
     /**
      * @return void
+     *
+     * @throws SmartyException
      */
     public function initContent()
     {

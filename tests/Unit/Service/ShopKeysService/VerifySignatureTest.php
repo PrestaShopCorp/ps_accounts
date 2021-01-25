@@ -2,21 +2,15 @@
 
 namespace PrestaShop\Module\PsAccounts\Tests\Unit\Service\ShopKeysService;
 
-use Db;
-use Module;
-use PrestaShop\Module\PsAccounts\Exception\SshKeysNotFoundException;
-use PrestaShop\Module\PsAccounts\Repository\ConfigurationRepository;
-use PrestaShop\Module\PsAccounts\Service\PsAccountsService;
 use PrestaShop\Module\PsAccounts\Service\ShopKeysService;
 use PrestaShop\Module\PsAccounts\Tests\TestCase;
-use Ps_accounts;
 
 class VerifySignatureTest extends TestCase
 {
     /**
      * @test
      */
-    public function it_should_verify_signature()
+    public function itShouldVerifySignature()
     {
         /** @var ShopKeysService $service */
         $service = $this->module->getService(ShopKeysService::class);

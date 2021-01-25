@@ -3,13 +3,10 @@
 namespace PrestaShop\Module\PsAccounts\Tests\Unit\Service\ShopKeysService;
 
 use Db;
-use Module;
 use PrestaShop\Module\PsAccounts\Exception\SshKeysNotFoundException;
 use PrestaShop\Module\PsAccounts\Repository\ConfigurationRepository;
-use PrestaShop\Module\PsAccounts\Service\PsAccountsService;
 use PrestaShop\Module\PsAccounts\Service\ShopKeysService;
 use PrestaShop\Module\PsAccounts\Tests\TestCase;
-use Ps_accounts;
 
 class GenerateKeysTest extends TestCase
 {
@@ -18,7 +15,7 @@ class GenerateKeysTest extends TestCase
      *
      * @throws SshKeysNotFoundException
      */
-    public function it_should_create_rsa_keys()
+    public function itShouldCreateRsaKeys()
     {
         /** @var ShopKeysService $service */
         $service = $this->module->getService(ShopKeysService::class);
@@ -60,7 +57,7 @@ class GenerateKeysTest extends TestCase
     /**
      * @test
      */
-    public function it_should_generate_key_pair()
+    public function itShouldGenerateKeyPair()
     {
         /** @var ShopKeysService $service */
         $service = $this->module->getService(ShopKeysService::class);
@@ -75,7 +72,7 @@ class GenerateKeysTest extends TestCase
     /**
      * @test
      */
-    public function it_should_verify_signature()
+    public function itShouldVerifySignature()
     {
         /** @var ShopKeysService $service */
         $service = $this->module->getService(ShopKeysService::class);

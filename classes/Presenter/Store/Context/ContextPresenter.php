@@ -21,11 +21,10 @@
 namespace PrestaShop\Module\PsAccounts\Presenter\Store\Context;
 
 use Context;
-use Module;
 use PrestaShop\Module\PsAccounts\Adapter\Link;
+use PrestaShop\Module\PsAccounts\Presenter\PresenterInterface;
 use PrestaShop\Module\PsAccounts\Provider\ShopProvider;
 use PrestaShop\Module\PsAccounts\Service\PsAccountsService;
-use PrestaShop\Module\PsAccounts\Presenter\PresenterInterface;
 use Ps_accounts;
 
 class ContextPresenter implements PresenterInterface

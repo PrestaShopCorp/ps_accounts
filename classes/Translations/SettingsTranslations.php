@@ -23,7 +23,6 @@ namespace PrestaShop\Module\PsAccounts\Translations;
 
 use Context;
 use Ps_accounts;
-use Ps_metrics;
 
 class SettingsTranslations
 {
@@ -36,7 +35,6 @@ class SettingsTranslations
      * __construct
      *
      * @param Ps_accounts $module
-     *
      */
     public function __construct(Ps_accounts $module)
     {

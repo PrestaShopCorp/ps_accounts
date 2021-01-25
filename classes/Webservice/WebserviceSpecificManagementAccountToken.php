@@ -21,7 +21,7 @@ class WebserviceSpecificManagementAccountToken implements WebserviceSpecificMana
 
     /**
      * @var string
-     * FIXME : unused here
+     *             FIXME : unused here
      */
     protected $output;
 
@@ -48,13 +48,14 @@ class WebserviceSpecificManagementAccountToken implements WebserviceSpecificMana
         /** @var Ps_accounts $module */
         $module = Module::getInstanceByName('ps_accounts');
 
-        /** @var PsAccountsService $service */
+        /* @var PsAccountsService $service */
         $this->psAccountService = $module->getService(PsAccountsService::class);
     }
 
     public function setUrlSegment($segments)
     {
         $this->urlSegment = $segments;
+
         return $this;
     }
 
@@ -97,6 +98,7 @@ class WebserviceSpecificManagementAccountToken implements WebserviceSpecificMana
     public function setWsObject(WebserviceRequestCore $obj)
     {
         $this->wsObject = $obj;
+
         return $this;
     }
 

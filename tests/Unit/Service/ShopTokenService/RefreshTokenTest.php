@@ -20,11 +20,8 @@
 
 namespace PrestaShop\Module\PsAccounts\Tests\Unit\Service\ShopTokenService;
 
-use Lcobucci\JWT\Builder;
-use PrestaShop\Module\PsAccounts\Adapter\Configuration;
 use PrestaShop\Module\PsAccounts\Api\Client\FirebaseClient;
 use PrestaShop\Module\PsAccounts\Repository\ConfigurationRepository;
-use PrestaShop\Module\PsAccounts\Service\PsAccountsService;
 use PrestaShop\Module\PsAccounts\Service\ShopTokenService;
 use PrestaShop\Module\PsAccounts\Tests\TestCase;
 
@@ -35,7 +32,7 @@ class RefreshTokenTest extends TestCase
      *
      * @throws \Exception
      */
-    public function it_should_handle_response_success()
+    public function itShouldHandleResponseSuccess()
     {
         $idToken = $this->makeJwtToken(new \DateTimeImmutable('yesterday'));
 
@@ -77,7 +74,7 @@ class RefreshTokenTest extends TestCase
      *
      * @throws \Exception
      */
-    public function it_should_handle_response_error()
+    public function itShouldHandleResponseError()
     {
         $idToken = $this->makeJwtToken(new \DateTimeImmutable('tomorrow'));
 

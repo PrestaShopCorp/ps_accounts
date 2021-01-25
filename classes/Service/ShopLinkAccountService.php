@@ -9,8 +9,8 @@ use PrestaShop\Module\PsAccounts\Configuration\ConfigOptionsResolver;
 use PrestaShop\Module\PsAccounts\Configuration\Configurable;
 use PrestaShop\Module\PsAccounts\Exception\HmacException;
 use PrestaShop\Module\PsAccounts\Exception\OptionResolutionException;
-use PrestaShop\Module\PsAccounts\Exception\RsaSignedDataNotFoundException;
 use PrestaShop\Module\PsAccounts\Exception\QueryParamsException;
+use PrestaShop\Module\PsAccounts\Exception\RsaSignedDataNotFoundException;
 use PrestaShop\Module\PsAccounts\Exception\SshKeysNotFoundException;
 use PrestaShop\Module\PsAccounts\Provider\ShopProvider;
 use PrestaShop\Module\PsAccounts\Repository\ConfigurationRepository;
@@ -144,7 +144,7 @@ class ShopLinkAccountService implements Configurable
 
         $protocol = $this->shopProvider->getShopContext()->getProtocol();
         $currentShop = $this->shopProvider->getCurrentShop($psxName);
-        $domainName = $this->shopProvider->getShopContext()->sslEnabled() ? $currentShop['domainSsl'] :$currentShop['domain'];
+        $domainName = $this->shopProvider->getShopContext()->sslEnabled() ? $currentShop['domainSsl'] : $currentShop['domain'];
 
         $queryParams = [
             'bo' => $callback,
@@ -162,7 +162,7 @@ class ShopLinkAccountService implements Configurable
         }
         $strQueryParams = implode('&', $queryParamsArray);
 
-        return  $this->accountsUiUrl . '/shop/account/link/' . $protocol . '/' . $domainName
+        return $this->accountsUiUrl . '/shop/account/link/' . $protocol . '/' . $domainName
             . '/' . $protocol . '/' . $domainName . '/' . $psxName . '?' . $strQueryParams;
     }
 
@@ -182,7 +182,7 @@ class ShopLinkAccountService implements Configurable
             [
                 'hmac' => '/[a-zA-Z0-9]{8,64}/',
                 'uid' => '/[a-zA-Z0-9]{8,64}/',
-                'slug' => '/[-_a-zA-Z0-9]{8,255}/'
+                'slug' => '/[-_a-zA-Z0-9]{8,255}/',
             ] as $key => $value
         ) {
             if (!array_key_exists($key, $queryParams)) {
@@ -194,7 +194,7 @@ class ShopLinkAccountService implements Configurable
             }
         }
 
-        $this->writeHmac($queryParams['hmac'],  $queryParams['uid'], $rootDir . '/upload/');
+        $this->writeHmac($queryParams['hmac'], $queryParams['uid'], $rootDir . '/upload/');
 
         if (empty($this->shopKeysService->getSignature())) {
             throw new RsaSignedDataNotFoundException('RSA signature not found');
@@ -330,7 +330,7 @@ class ShopLinkAccountService implements Configurable
      *
      * @throws HmacException
      */
-    private function writeHmac($hmac, $uid,  $path)
+    private function writeHmac($hmac, $uid, $path)
     {
         if (!is_dir($path)) {
             mkdir($path);

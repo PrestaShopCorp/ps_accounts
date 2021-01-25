@@ -85,7 +85,7 @@ class ShopKeysService
     {
         $this->rsa->loadKey($publicKey, RSA::PUBLIC_FORMAT_PKCS1);
 
-        return  $this->rsa->verify($data, base64_decode($signature));
+        return $this->rsa->verify($data, base64_decode($signature));
     }
 
     /**
@@ -98,7 +98,6 @@ class ShopKeysService
     public function generateKeys($refresh = true)
     {
         if ($refresh || false === $this->hasKeys()) {
-
             $key = $this->createPair();
             $this->configuration->updateAccountsRsaPrivateKey($key['privatekey']);
             $this->configuration->updateAccountsRsaPublicKey($key['publickey']);

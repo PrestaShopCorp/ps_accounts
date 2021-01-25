@@ -54,7 +54,7 @@ class DependenciesPresenter implements PresenterInterface
                     'installLink' => $this->installer->getInstallUrl($module, $psxName),
 
                     'isEnabled' => $this->installer->isEnabled($module),
-                    'enableLink' => $this->installer->getEnableUrl($module, $psxName)
+                    'enableLink' => $this->installer->getEnableUrl($module, $psxName),
                 ],
             ],
         ];

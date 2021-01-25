@@ -63,7 +63,7 @@ class Configuration
      */
     public function __construct(\Context $context)
     {
-        $this->setIdShop((int)$context->shop->id);
+        $this->setIdShop((int) $context->shop->id);
     }
 
     /**

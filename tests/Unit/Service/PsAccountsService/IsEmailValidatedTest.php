@@ -2,7 +2,6 @@
 
 namespace PrestaShop\Module\PsAccounts\Tests\Unit\Service\PsAccountsService;
 
-use PrestaShop\Module\PsAccounts\Adapter\Configuration;
 use PrestaShop\Module\PsAccounts\Repository\ConfigurationRepository;
 use PrestaShop\Module\PsAccounts\Service\PsAccountsService;
 use PrestaShop\Module\PsAccounts\Tests\TestCase;
@@ -12,7 +11,7 @@ class IsEmailValidatedTest extends TestCase
     /**
      * @test
      */
-    public function it_should_return_true()
+    public function itShouldReturnTrue()
     {
         /** @var ConfigurationRepository $configuration */
         $configuration = $this->module->getService(ConfigurationRepository::class);
@@ -28,7 +27,7 @@ class IsEmailValidatedTest extends TestCase
     /**
      * @test
      */
-    public function it_should_return_false()
+    public function itShouldReturnFalse()
     {
         /** @var ConfigurationRepository $configuration */
         $configuration = $this->module->getService(ConfigurationRepository::class);

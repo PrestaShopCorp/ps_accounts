@@ -22,12 +22,9 @@ namespace PrestaShop\Module\PsAccounts\Service;
 
 use PrestaShop\Module\PsAccounts\Adapter\Link;
 use PrestaShop\Module\PsAccounts\Repository\ConfigurationRepository;
-use Symfony\Component\DependencyInjection\ContainerInterface;
 
 /**
  * Class PsAccountsService
- *
- * @package PrestaShop\Module\PsAccounts\Service
  */
 class PsAccountsService
 {

@@ -62,7 +62,7 @@ class ShopTokenService
         $response = $this->firebaseClient->signInWithCustomToken($customToken);
 
         if ($response && true === $response['status']) {
-            $uid = (new Parser())->parse((string)$customToken)->getClaim('uid');
+            $uid = (new Parser())->parse((string) $customToken)->getClaim('uid');
 
             $this->configuration->updateShopUuid($uid);
 

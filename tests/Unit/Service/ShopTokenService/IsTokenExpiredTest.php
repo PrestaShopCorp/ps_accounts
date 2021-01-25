@@ -2,10 +2,7 @@
 
 namespace PrestaShop\Module\PsAccounts\Tests\Unit\Service\ShopTokenService;
 
-use Lcobucci\JWT\Builder;
-use PrestaShop\Module\PsAccounts\Adapter\Configuration;
 use PrestaShop\Module\PsAccounts\Repository\ConfigurationRepository;
-use PrestaShop\Module\PsAccounts\Service\PsAccountsService;
 use PrestaShop\Module\PsAccounts\Service\ShopTokenService;
 use PrestaShop\Module\PsAccounts\Tests\TestCase;
 
@@ -16,7 +13,7 @@ class IsTokenExpiredTest extends TestCase
      *
      * @throws \Exception
      */
-    public function it_should_return_true()
+    public function itShouldReturnTrue()
     {
         $idToken = $this->makeJwtToken(new \DateTimeImmutable('yesterday'));
 
@@ -38,7 +35,7 @@ class IsTokenExpiredTest extends TestCase
      *
      * @throws \Exception
      */
-    public function it_should_return_false()
+    public function itShouldReturnFalse()
     {
         $idToken = $this->makeJwtToken(new \DateTimeImmutable('+2 hours'));
 

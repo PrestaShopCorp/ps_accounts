@@ -90,7 +90,7 @@ class Sentry
     /**
      * @param \Throwable $exception
      */
-    static function capture(\Throwable $exception)
+    public static function capture(\Throwable $exception)
     {
         /** @var self $instance */
         $instance = \Module::getInstanceByName('ps_accounts')->getService(self::class);
@@ -103,7 +103,7 @@ class Sentry
      *
      * @throws \Throwable
      */
-    static function captureAndRethrow(\Throwable $exception)
+    public static function captureAndRethrow(\Throwable $exception)
     {
         self::capture($exception);
 

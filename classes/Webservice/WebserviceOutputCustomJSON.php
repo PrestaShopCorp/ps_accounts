@@ -53,14 +53,14 @@ class WebserviceOutputCustomJSON implements WebserviceOutputInterface
     /**
      * @var array Json contents
      */
-    protected $content = array();
+    protected $content = [];
 
     /**
      * WebserviceOutputCustomJSON constructor.
      *
      * @param array $languages
      */
-    public function __construct($languages = array())
+    public function __construct($languages = [])
     {
         $this->languages = $languages;
     }
@@ -131,7 +131,7 @@ class WebserviceOutputCustomJSON implements WebserviceOutputInterface
      */
     public function renderErrors($message, $code = null)
     {
-        $this->content['errors'][] = array('code' => $code, 'message' => $message);
+        $this->content['errors'][] = ['code' => $code, 'message' => $message];
 
         return '';
     }
@@ -204,4 +204,3 @@ class WebserviceOutputCustomJSON implements WebserviceOutputInterface
         // TODO: Implement renderNodeFooter() method.
     }
 }
-

@@ -27,8 +27,6 @@ use PrestaShop\Module\PsAccounts\Exception\OptionResolutionException;
 
 /**
  * Class PsAccountsService
- *
- * @package PrestaShop\Module\PsAccounts\Service
  */
 class SsoService implements Configurable
 {
@@ -49,7 +47,8 @@ class SsoService implements Configurable
      *
      * @throws OptionResolutionException
      */
-    public function __construct(array $config) {
+    public function __construct(array $config)
+    {
         $config = $this->resolveConfig($config);
         $this->ssoAccountUrl = $config['sso_account_url'];
         $this->ssoResendVerificationEmailUrl = $config['sso_resend_verification_email_url'];

@@ -47,7 +47,6 @@ class AdminConfigureHmacPsAccountsController extends ModuleAdminController
                 $shopLinkAccountService->getVerifyAccountUrl(
                     Tools::getAllValues(),
                     _PS_ROOT_DIR_
-
                 )
             );
         } catch (Exception $e) {

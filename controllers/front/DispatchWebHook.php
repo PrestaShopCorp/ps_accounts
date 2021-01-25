@@ -19,9 +19,9 @@
  */
 
 use PrestaShop\Module\PsAccounts\Api\Client\ServicesAccountsClient;
+use PrestaShop\Module\PsAccounts\Exception\WebhookException;
 use PrestaShop\Module\PsAccounts\Handler\Error\Sentry;
 use PrestaShop\Module\PsAccounts\Repository\ConfigurationRepository;
-use PrestaShop\Module\PsAccounts\Exception\WebhookException;
 use PrestaShop\Module\PsAccounts\WebHook\Validator;
 
 class ps_accountsDispatchWebHookModuleFrontController extends ModuleFrontController

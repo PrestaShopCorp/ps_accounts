@@ -24,14 +24,12 @@ use GuzzleHttp\Client;
 use PrestaShop\Module\PsAccounts\Adapter\Link;
 use PrestaShop\Module\PsAccounts\Configuration\ConfigOptionsResolver;
 use PrestaShop\Module\PsAccounts\Exception\OptionResolutionException;
-use PrestaShop\Module\PsAccounts\Provider\ShopProvider;
 use PrestaShop\Module\PsAccounts\Exception\TokenNotFoundException;
+use PrestaShop\Module\PsAccounts\Provider\ShopProvider;
 use PrestaShop\Module\PsAccounts\Service\ShopTokenService;
 
 /**
  * Class ServicesAccountsClient
- *
- * @package PrestaShop\Module\PsAccounts\Api\Client
  */
 class ServicesAccountsClient extends GenericClient
 {

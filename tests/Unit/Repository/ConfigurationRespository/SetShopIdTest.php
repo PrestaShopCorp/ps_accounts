@@ -11,7 +11,7 @@ class SetShopIdTest extends TestCase
     /**
      * @test
      */
-    public function it_should_pass_shop_id_calling_get()
+    public function itShouldPassShopIdCallingGet()
     {
         $shopId = $this->faker->randomNumber();
 
@@ -33,7 +33,7 @@ class SetShopIdTest extends TestCase
     /**
      * @test
      */
-    public function it_should_pass_shop_id_calling_update()
+    public function itShouldPassShopIdCallingUpdate()
     {
         $shopId = $this->faker->randomNumber();
 

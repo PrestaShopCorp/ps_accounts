@@ -107,7 +107,7 @@ class Installer
                 ]);
         }
 
-        return  $this->link->getAdminLink('AdminModules', true, [], [
+        return $this->link->getAdminLink('AdminModules', true, [], [
             'module_name' => $psxName,
             'configure' => $psxName,
             'install' => $module,
@@ -126,13 +126,14 @@ class Installer
     {
         if ($this->shopContext->isShop17()) {
             $router = SymfonyContainer::getInstance()->get('router');
+
             return Tools::getHttpHost(true) . $router->generate('admin_module_manage_action', [
                     'action' => 'enable',
                     'module_name' => $module,
                 ]);
         }
 
-        return  $this->link->getAdminLink('AdminModules', true, [], [
+        return $this->link->getAdminLink('AdminModules', true, [], [
             'module_name' => $psxName,
             'configure' => $psxName,
             'enable' => $module,
@@ -150,6 +151,7 @@ class Installer
             return Module::isInstalled('ps_eventbus');
         }
         $moduleManager = ModuleManagerBuilder::getInstance()->build();
+
         return $moduleManager->isInstalled($module);
     }
 
@@ -164,6 +166,7 @@ class Installer
             return Module::isEnabled($module);
         }
         $moduleManager = ModuleManagerBuilder::getInstance()->build();
+
         return $moduleManager->isEnabled($module);
     }
 }

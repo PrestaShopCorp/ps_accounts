@@ -23,7 +23,6 @@
  *  @license   http://opensource.org/licenses/afl-3.0.php  Academic Free License (AFL 3.0)
  *  International Registered Trademark & Property of PrestaShop SA
  */
-
 if (!defined('_PS_VERSION_')) {
     exit;
 }
@@ -169,7 +168,7 @@ class Ps_accounts extends Module
             'ajax' => 'AdminAjaxPsAccounts',
         ];
 
-        $this->getLogger()->info('Loading ' . $this->name . ' Env : [' . $this->getModuleEnv() .']');
+        $this->getLogger()->info('Loading ' . $this->name . ' Env : [' . $this->getModuleEnv() . ']');
     }
 
     /**
@@ -397,12 +396,12 @@ class Ps_accounts extends Module
      */
     public function hookAddWebserviceResources()
     {
-        return array(
-            'account-token' => array(
+        return [
+            'account-token' => [
                 'description' => 'Token resource',
                 'specific_management' => true,
-            ),
-        );
+            ],
+        ];
     }
 
     /**
@@ -444,6 +443,7 @@ class Ps_accounts extends Module
      * @param int $countProperty
      *
      * @return void
+     *
      * @throws Throwable
      */
     protected function loadAssets($responseApiMessage = 'null', $countProperty = 0)

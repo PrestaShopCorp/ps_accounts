@@ -61,6 +61,7 @@ class Link
      * @param array $params
      *
      * @return string
+     *
      * @throws \PrestaShopException
      */
     public function getAdminLink($controller, $withToken = true, $sfRouteParams = [], $params = [])
