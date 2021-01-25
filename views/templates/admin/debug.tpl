@@ -28,12 +28,41 @@
         <li>Firebase ID token : {$config.firebase_id_token}</li>
         <li>Firebase refresh token : {$config.firebase_refresh_token}</li>
     </ul>
+    <div class="unlink-shop">
+        {if $config.isShopLinked}
+            <button onclick="unlinkShop()">Unlink shop</button>
+        {else}
+            <div>This shop is not linked</div>
+        {/if}
+    </div>
+    <div class="unlink-message"></div>
 </div>
+
+<script>
+    function unlinkShop()
+    {
+        $.ajax({
+            type: 'POST',
+            url: '{$config.unlinkShopUrl}',
+            dataType: 'json',
+            success: function (response) {
+                $('.unlink-message').html('The shop (with uid : ' + response.uid + ') has been successefully unlinked.');
+                $('.unlink-shop').hide();
+            },
+            error: function (response) {
+                $('.unlink-message').html(response.error + '. The response code is :' + response.statusCode);
+            }
+        });
+    }
+</script>
 
 <style>
     /** Hide native multistore module activation panel, because of visual regressions on non-bootstrap content */
     #psaccounts ul li {
         word-break: break-all;
         margin: 5px 0px;
+    }
+    .success {
+        display: none;
     }
 </style>

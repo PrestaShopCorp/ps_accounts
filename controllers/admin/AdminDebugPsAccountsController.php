@@ -1,5 +1,7 @@
 <?php
 
+use PrestaShop\Module\PsAccounts\Repository\ConfigurationRepository;
+
 /**
  * 2007-2020 PrestaShop and Contributors.
  *
@@ -21,6 +23,11 @@
 class AdminDebugPsAccountsController extends ModuleAdminController
 {
     /**
+     * @var ConfigurationRepository
+     */
+    private $configuration;
+
+    /**
      * AdminDebugController constructor.
      *
      * @throws Exception
@@ -30,6 +37,7 @@ class AdminDebugPsAccountsController extends ModuleAdminController
         parent::__construct();
 
         $this->context = \Context::getContext();
+        $this->configuration = new ConfigurationRepository();
     }
 
     /**
@@ -43,13 +51,25 @@ class AdminDebugPsAccountsController extends ModuleAdminController
                 'moduleVersion' => \Ps_accounts::VERSION,
                 'psVersion' => _PS_VERSION_,
                 'phpVersion' => phpversion(),
-                'firebase_email' => \Configuration::get('PS_ACCOUNTS_FIREBASE_EMAIL'),
-                'firebase_email_is_verified' => \Configuration::get('PS_ACCOUNTS_FIREBASE_EMAIL_IS_VERIFIED'),
-                'firebase_id_token' => \Configuration::get('PS_ACCOUNTS_FIREBASE_ID_TOKEN'),
-                'firebase_refresh_token' => \Configuration::get('PS_ACCOUNTS_FIREBASE_REFRESH_TOKEN'),
+                'firebase_email' => $this->configuration->get('PS_ACCOUNTS_FIREBASE_EMAIL'),
+                'firebase_email_is_verified' => $this->configuration->get('PS_ACCOUNTS_FIREBASE_EMAIL_IS_VERIFIED'),
+                'firebase_id_token' => $this->configuration->get('PS_ACCOUNTS_FIREBASE_ID_TOKEN'),
+                'firebase_refresh_token' => $this->configuration->get('PS_ACCOUNTS_FIREBASE_REFRESH_TOKEN'),
+                'unlinkShopUrl' => 'index.php?controller=AdminAjaxPsAccounts&ajax=1&action=unlinkShop&token=' . Tools::getAdminTokenLite('AdminAjaxPsAccounts'),
+                'isShopLinked' => $this->isAccountLinked(),
             ],
         ]);
         $this->content = $this->context->smarty->fetch($this->module->getLocalPath() . '/views/templates/admin/debug.tpl');
         parent::initContent();
+    }
+
+    /**
+     * @return bool
+     */
+    public function isAccountLinked()
+    {
+        return $this->configuration->get('PS_ACCOUNTS_FIREBASE_ID_TOKEN')
+            && $this->configuration->get('PS_ACCOUNTS_FIREBASE_EMAIL')
+            && $this->configuration->get('PS_ACCOUNTS_FIREBASE_EMAIL_IS_VERIFIED');
     }
 }
