@@ -29,21 +29,14 @@ class ps_accountsDispatchWebHookModuleFrontController extends ModuleFrontControl
     const PS_CHECKOUT_SHOP_UUID_V4 = 'PS_CHECKOUT_SHOP_UUID_V4';
 
     /**
+     * @var Ps_accounts
+     */
+    public $module;
+
+    /**
      * @var ConfigurationRepository
      */
     private $configuration;
-
-    /**
-     * ps_accountsDispatchWebHookModuleFrontController constructor.
-     *
-     * @throws Exception
-     */
-    public function __construct()
-    {
-        parent::__construct();
-
-        $this->configuration = $this->module->getService(ConfigurationRepository::class);
-    }
 
     /**
      * Id coming from PSL
@@ -65,6 +58,18 @@ class ps_accountsDispatchWebHookModuleFrontController extends ModuleFrontControl
      * @var string
      */
     private $firebaseId;
+
+    /**
+     * ps_accountsDispatchWebHookModuleFrontController constructor.
+     *
+     * @throws Exception
+     */
+    public function __construct()
+    {
+        parent::__construct();
+
+        $this->configuration = $this->module->getService(ConfigurationRepository::class);
+    }
 
     /**
      * Initialize the webhook script
@@ -131,6 +136,27 @@ class ps_accountsDispatchWebHookModuleFrontController extends ModuleFrontControl
     }
 
     /**
+     * Override displayMaintenancePage to prevent the maintenance page to be displayed
+     *
+     * @return void
+     */
+    protected function displayMaintenancePage()
+    {
+    }
+
+    /**
+     * Override geolocationManagement to prevent country GEOIP blocking
+     *
+     * @param Country $defaultCountry
+     *
+     * @return false
+     */
+    protected function geolocationManagement($defaultCountry)
+    {
+        return false;
+    }
+
+    /**
      * @param array $headers
      * @param array $body
      *
@@ -168,26 +194,5 @@ class ps_accountsDispatchWebHookModuleFrontController extends ModuleFrontControl
         http_response_code($output['status_code']);
         echo json_encode($output['message']);
         exit;
-    }
-
-    /**
-     * Override displayMaintenancePage to prevent the maintenance page to be displayed
-     *
-     * @return void
-     */
-    protected function displayMaintenancePage()
-    {
-    }
-
-    /**
-     * Override geolocationManagement to prevent country GEOIP blocking
-     *
-     * @param Country $defaultCountry
-     *
-     * @return false
-     */
-    protected function geolocationManagement($defaultCountry)
-    {
-        return false;
     }
 }

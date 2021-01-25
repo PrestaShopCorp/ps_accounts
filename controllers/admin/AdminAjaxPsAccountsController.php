@@ -29,6 +29,11 @@ use PrestaShop\Module\PsAccounts\Service\ShopTokenService;
 class AdminAjaxPsAccountsController extends ModuleAdminController
 {
     /**
+     * @var Ps_accounts
+     */
+    public $module;
+
+    /**
      * AdminAjaxPsAccountsController constructor.
      *
      * @throws Exception
