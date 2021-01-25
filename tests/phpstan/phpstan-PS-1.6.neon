@@ -35,6 +35,6 @@ parameters:
 		- '#Method LinkCore::getAdminLink\(\) invoked with 4 parameters, 1-2 required.#'
 		- '#Call to static method getInstance\(\) on an unknown class PrestaShop\\PrestaShop\\Core\\Addon\\Module\\ModuleManagerBuilder.#'
 		- '#Call to static method getInstance\(\) on an unknown class PrestaShop\\PrestaShop\\Adapter\\SymfonyContainer.#'
-		- '#Cannot cast array\|string to string.#'
+		- '#Symfony\\Component\\Config\\ResourceCheckerConfigCache::write\(\) expects string, array\|string given.#'
 
 	level: 7

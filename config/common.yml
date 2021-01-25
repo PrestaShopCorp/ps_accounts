@@ -114,6 +114,7 @@ services:
     arguments:
       - { api_url: '%ps_accounts.svc_billing_api_url%' }
       - '@PrestaShop\Module\PsAccounts\Service\PsAccountsService'
+      - '@PrestaShop\Module\PsAccounts\Provider\ShopProvider'
       - '@PrestaShop\Module\PsAccounts\Adapter\Link'
 
   PrestaShop\Module\PsAccounts\Api\Client\ServicesAccountsClient:

@@ -93,6 +93,8 @@ class Sentry
      * @param \Throwable $exception
      *
      * @return void
+     *
+     * @throws \Exception
      */
     public static function capture(\Throwable $exception)
     {

@@ -24,6 +24,7 @@ use GuzzleHttp\Client;
 use PrestaShop\Module\PsAccounts\Adapter\Link;
 use PrestaShop\Module\PsAccounts\Configuration\ConfigOptionsResolver;
 use PrestaShop\Module\PsAccounts\Exception\OptionResolutionException;
+use PrestaShop\Module\PsAccounts\Provider\ShopProvider;
 use PrestaShop\Module\PsAccounts\Service\PsAccountsService;
 
 /**
@@ -36,15 +37,18 @@ class ServicesBillingClient extends GenericClient
      *
      * @param array $config
      * @param PsAccountsService $psAccountsService
+     * @param ShopProvider $shopProvider
      * @param Link $link
      * @param Client|null $client
      *
      * @throws OptionResolutionException
      * @throws \PrestaShopException
+     * @throws \Exception
      */
     public function __construct(
         array $config,
         PsAccountsService $psAccountsService,
+        ShopProvider $shopProvider,
         Link $link,
         Client $client = null
     ) {
@@ -52,8 +56,10 @@ class ServicesBillingClient extends GenericClient
 
         $config = $this->resolveConfig($config);
 
-        $shopId = $psAccountsService->getCurrentShop()['id'];
+        $shopId = $shopProvider->getCurrentShop()['id'];
+
         $token = $psAccountsService->getOrRefreshToken();
+
         $this->setLink($link->getLink());
 
         // Client can be provided for tests

@@ -35,6 +35,6 @@ parameters:
 		- '#Instantiated class PrestaShop\\ModuleLibServiceContainer\\DependencyInjection\\ServiceContainer not found.#'
 		- '#Call to method getService\(\) on an unknown class PrestaShop\\ModuleLibServiceContainer\\DependencyInjection\\ServiceContainer.#'
 		- '#Cannot access property \$id on Module\|false.#'
-		- '#Cannot cast array\|string to string.#'
+		- '#Symfony\\Component\\Config\\ResourceCheckerConfigCache::write\(\) expects string, array\|string given.#'
 
 	level: 7
