@@ -62,7 +62,4 @@
         word-break: break-all;
         margin: 5px 0px;
     }
-    .success {
-        display: none;
-    }
 </style>
