@@ -130,6 +130,8 @@ class PsAccountsService
 
     /**
      * @return bool
+     *
+     * @throws \Exception
      */
     public function isAccountLinked()
     {

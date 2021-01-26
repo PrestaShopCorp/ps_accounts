@@ -64,7 +64,7 @@ class Installer
      *
      * @return bool
      *
-     * @throws \Throwable
+     * @throws \Exception
      */
     public function installModule($module, $upgrade = true)
     {
@@ -82,7 +82,7 @@ class Installer
         $moduleIsInstalled = $moduleManager->install($module);
 
         if (false === $moduleIsInstalled) {
-            Sentry::captureAndRethrow(new \Exception("Module ${module} can't be installed"));
+            Sentry::capture(new \Exception("Module ${module} can't be installed"));
         }
 
         return $moduleIsInstalled;
