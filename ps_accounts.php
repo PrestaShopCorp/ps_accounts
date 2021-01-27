@@ -217,12 +217,15 @@ class Ps_accounts extends Module
 
         $installer = new PrestaShop\Module\PsAccounts\Module\Install($this, Db::getInstance());
 
-        return $installer->installInMenu()
+        $status =  $installer->installInMenu()
             //&& $installer->installDatabaseTables()
             && parent::install()
-            //&& $this->registerHook('addWebserviceResources')
-            && $this->registerHook($this->hookToInstall)
-            && $this->moduleInstaller->installModule('ps_eventbus');
+            && $this->registerHook($this->hookToInstall);
+
+        // Ignore fail on ps_eventbus install
+        $this->moduleInstaller->installModule('ps_eventbus');
+
+        return $status;
     }
 
     /**
