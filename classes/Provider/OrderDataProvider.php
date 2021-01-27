@@ -58,7 +58,7 @@ class OrderDataProvider implements PaginatedApiDataProviderInterface
 
         $this->castOrderValues($orders);
 
-        $orderDetails = $this->getOrderDetails($orders);
+        $orderDetails = $this->getOrderDetails($orders, $this->context->shop->id);
 
         $orders = array_map(function ($order) {
             return [
@@ -84,12 +84,13 @@ class OrderDataProvider implements PaginatedApiDataProviderInterface
 
     /**
      * @param array $orders
+     * @param int $shopId
      *
      * @return array
      *
      * @throws PrestaShopDatabaseException
      */
-    private function getOrderDetails(array $orders)
+    private function getOrderDetails(array $orders, $shopId)
     {
         if (empty($orders)) {
             return [];
@@ -97,7 +98,7 @@ class OrderDataProvider implements PaginatedApiDataProviderInterface
 
         $orderIds = $this->arrayFormatter->formatValueArray($orders, 'id_order');
 
-        $orderDetails = $this->orderDetailsRepository->getOrderDetails($orderIds);
+        $orderDetails = $this->orderDetailsRepository->getOrderDetails($orderIds, $shopId);
 
         if (!is_array($orderDetails) || empty($orderDetails)) {
             return [];
@@ -130,6 +131,9 @@ class OrderDataProvider implements PaginatedApiDataProviderInterface
             $order['current_state'] = (int) $order['current_state'];
             $order['conversion_rate'] = (float) $order['conversion_rate'];
             $order['total_paid_tax_incl'] = (float) $order['total_paid_tax_incl'];
+            $order['total_paid_tax_excl'] = (float) $order['total_paid_tax_excl'];
+            $order['refund'] = (float) $order['refund'];
+            $order['refund_tax_excl'] = (float) $order['refund_tax_excl'];
             $order['new_customer'] = $order['new_customer'] === '1';
         }
     }
@@ -148,6 +152,11 @@ class OrderDataProvider implements PaginatedApiDataProviderInterface
             $orderDetail['product_attribute_id'] = (int) $orderDetail['product_attribute_id'];
             $orderDetail['product_quantity'] = (int) $orderDetail['product_quantity'];
             $orderDetail['unit_price_tax_incl'] = (float) $orderDetail['unit_price_tax_incl'];
+            $orderDetail['unit_price_tax_excl'] = (float) $orderDetail['unit_price_tax_excl'];
+            $orderDetail['refund'] = (float) $orderDetail['refund'] > 0 ? -1 * (float) $orderDetail['refund'] : 0;
+            $orderDetail['refund_tax_excl'] = (float) $orderDetail['refund_tax_excl'] > 0 ? -1 * (float) $orderDetail['refund_tax_excl'] : 0;
+            $orderDetail['category'] = (int) $orderDetail['category'];
+            $orderDetail['unique_product_id'] = "{$orderDetail['product_id']}-{$orderDetail['product_attribute_id']}-{$orderDetail['iso_code']}";
         }
     }
 
@@ -174,7 +183,7 @@ class OrderDataProvider implements PaginatedApiDataProviderInterface
 
         $this->castOrderValues($orders);
 
-        $orderDetails = $this->getOrderDetails($orders);
+        $orderDetails = $this->getOrderDetails($orders, $this->context->shop->id);
 
         $orders = array_map(function ($order) {
             return [

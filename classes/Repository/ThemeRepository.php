@@ -42,8 +42,8 @@ class ThemeRepository
                     'collection' => 'themes',
                     'properties' => [
                         'theme_id' => md5((string) $key),
-                        'name' => $theme->getName(),
-                        'theme_version' => $theme->get('version'),
+                        'name' => (string) $theme->getName(),
+                        'theme_version' => (string) $theme->get('version'),
                         'active' => $theme->getName() == $currentTheme->getName(),
                     ],
                 ];
@@ -66,7 +66,7 @@ class ThemeRepository
                     $themeData['properties'] = [
                         'theme_id' => md5($theme),
                         'name' => $themeInfo['theme_name'],
-                        'theme_version' => $themeInfo['theme_version'],
+                        'theme_version' => (string) $themeInfo['theme_version'],
                         'active' => (string) $this->context->theme->id == (string) $themeInfo['theme_id'],
                     ];
                 } else {

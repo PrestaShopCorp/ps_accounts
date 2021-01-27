@@ -29,7 +29,10 @@ class OrderRepository
     {
         $query = new DbQuery();
         $query->from(self::ORDERS_TABLE, 'o')
-            ->where('o.id_shop = ' . (int) $shopId);
+            ->leftJoin('currency', 'c', 'o.id_currency = c.id_currency')
+            ->leftJoin('order_slip', 'os', 'o.id_order = os.id_order')
+            ->where('o.id_shop = ' . (int) $shopId)
+            ->groupBy('o.id_order');
 
         return $query;
     }
@@ -46,9 +49,11 @@ class OrderRepository
     public function getOrders($offset, $limit, $shopId)
     {
         $query = $this->getBaseQuery($shopId);
+
         $query->select('o.id_order, o.reference, o.id_customer, o.id_cart, o.current_state,
-         o.conversion_rate, o.total_paid_tax_incl, o.date_add as created_at, o.date_upd as updated_at,
-         IF((SELECT so.id_order FROM `' . _DB_PREFIX_ . 'orders` so WHERE so.id_customer = o.id_customer AND so.id_order < o.id_order LIMIT 1) > 0, 0, 1) as new_customer')
+         o.conversion_rate,o.total_paid_tax_excl, o.total_paid_tax_incl, o.date_add as created_at, o.date_upd as updated_at,
+         IF((SELECT so.id_order FROM `' . _DB_PREFIX_ . 'orders` so WHERE so.id_customer = o.id_customer AND so.id_order < o.id_order LIMIT 1) > 0, 0, 1) as new_customer,
+         c.iso_code as currency, SUM(os.total_products_tax_incl + os.total_shipping_tax_incl) as refund, SUM(os.total_products_tax_excl + os.total_shipping_tax_excl) as refund_tax_excl')
             ->limit((int) $limit, (int) $offset);
 
         return $this->db->executeS($query);
@@ -64,7 +69,7 @@ class OrderRepository
     {
         $query = $this->getBaseQuery($shopId);
 
-        $query->select('(COUNT(id_order) - ' . (int) $offset . ') as count');
+        $query->select('(COUNT(o.id_order) - ' . (int) $offset . ') as count');
 
         return (int) $this->db->getValue($query);
     }
@@ -81,11 +86,15 @@ class OrderRepository
     {
         $query = $this->getBaseQuery($shopId);
 
-        $query->innerJoin(
-            'accounts_incremental_sync',
-            'aic',
-            'aic.id_object = o.id_order AND aic.id_shop = o.id_shop AND aic.type = "orders"'
-        )
+        $query->select('o.id_order, o.reference, o.id_customer, o.id_cart, o.current_state,
+         o.conversion_rate,o.total_paid_tax_excl, o.total_paid_tax_incl, o.date_add as created_at, o.date_upd as updated_at,
+         IF((SELECT so.id_order FROM `' . _DB_PREFIX_ . 'orders` so WHERE so.id_customer = o.id_customer AND so.id_order < o.id_order LIMIT 1) > 0, 0, 1) as new_customer,
+         c.iso_code as currency, SUM(os.total_products_tax_incl + os.total_shipping_tax_incl) as refund, SUM(os.total_products_tax_excl + os.total_shipping_tax_excl) as refund_tax_excl')
+            ->innerJoin(
+                'accounts_incremental_sync',
+                'aic',
+                'aic.id_object = o.id_order AND aic.id_shop = o.id_shop AND aic.type = "orders"'
+            )
             ->limit($limit);
 
         $result = $this->db->executeS($query);
