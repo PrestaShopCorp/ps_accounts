@@ -21,7 +21,7 @@ DIST="${ORIGIN}/dist"
 # Copy the sources and prepare dist
 cp -r "$(pwd)" "${TMP_DIR}/${MODULE}"
 cd "${TMP_DIR}/${MODULE}"
-mkdir "$DIST"
+mkdir -p "$DIST"
 
 # Build vendors
 php -r "copy('https://getcomposer.org/installer', 'composer-setup.php');"
@@ -35,14 +35,14 @@ rm ./composer.phar;
 cd "${TMP_DIR}/${MODULE}"
 mv ".env.inte" ".env"
 cd ..
-zip -r ${ZIP_INTE} ${MODULE}
+zip -r ${ZIP_INTE} ${MODULE} -x '*.git*'
 mv ${ZIP_INTE} ${DIST}
 
 # Pack a zip for production
 cd "${TMP_DIR}/${MODULE}"
 mv ".env.prod" ".env"
 cd ..
-zip -r ${ZIP_PROD} ${MODULE}
+zip -r ${ZIP_PROD} ${MODULE} -x '*.git*'
 mv ${ZIP_PROD} ${DIST}
 
 # Cleanup

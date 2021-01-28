@@ -36,7 +36,7 @@ jobs:
         run: |
           cd ${{ github.event.repository.name }}
           echo "$ENV_FILE" > ${{ github.event.repository.name }}/.env
-          zip -r ${{ github.event.repository.name }}.zip ${{ github.event.repository.name }}
+          zip -r ${{ github.event.repository.name }}.zip ${{ github.event.repository.name }} -x '*.git*'
         env:
           ENV_FILE: ${{ secrets.PS_ACCOUNTS_ENV_PROD }}
 
@@ -65,7 +65,7 @@ jobs:
         run: |
           cd ${{ github.event.repository.name }}
           echo "$ENV_FILE" > ${{ github.event.repository.name }}/.env
-          zip -r ${{ github.event.repository.name }}_integration.zip ${{ github.event.repository.name }}
+          zip -r ${{ github.event.repository.name }}_integration.zip ${{ github.event.repository.name }}  -x '*.git*'
         env:
           ENV_FILE: ${{ secrets.PS_ACCOUNTS_ENV_INTE }}
 
