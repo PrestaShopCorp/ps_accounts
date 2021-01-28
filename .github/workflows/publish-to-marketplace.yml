@@ -22,10 +22,10 @@ jobs:
       - name: Prepare publishing tool
         run: |
           composer global require prestashop/publish-on-marketplace
+
       - name: Release zip
         run: |
           ls -l .
-          ls -l ..
-          ~/.composer/vendor/bin/publish-on-marketplace --archive=$PWD/../${{ github.event.repository.name }}.zip --metadata-json=$PWD/.github/mktp-metadata.json --changelog="${{ github.event.release.body }}" --debug
+          ~/.composer/vendor/bin/publish-on-marketplace --archive=$PWD/${{ github.event.repository.name }}.zip --metadata-json=$PWD/.github/mktp-metadata.json --changelog="${{ github.event.release.body }}" --debug
         env:
           MARKETPLACE_API_KEY: ${{ secrets.MARKETPLACE_API_KEY }}
