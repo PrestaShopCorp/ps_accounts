@@ -2,7 +2,7 @@ name: Publish to the Marketplace
 
 on:
   release:
-    action: [released]
+    types: [released]
 
 jobs:
   publish_to_marketplace:
@@ -24,7 +24,6 @@ jobs:
           composer global require prestashop/publish-on-marketplace
       - name: Release zip
         run: |
-          cd ..
-          ~/.composer/vendor/bin/publish-on-marketplace --archive=${{ github.event.repository.name }}.zip --metadata-json=$PWD/.github/mktp-metadata.json --changelog="${{ github.event.release.body }}" --debug
+          ~/.composer/vendor/bin/publish-on-marketplace --archive=$PWD/../${{ github.event.repository.name }}.zip --metadata-json=$PWD/.github/mktp-metadata.json --changelog="${{ github.event.release.body }}" --debug
         env:
           MARKETPLACE_API_KEY: ${{ secrets.MARKETPLACE_API_KEY }}
