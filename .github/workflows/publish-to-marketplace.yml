@@ -6,6 +6,7 @@ on:
 
 jobs:
   publish_to_marketplace:
+    needs: upload_release_asset_production
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
@@ -25,6 +26,6 @@ jobs:
 
       - name: Release zip
         run: |
-          sudo --preserve-env ~/.composer/vendor/bin/publish-on-marketplace --archive=$PWD/${{ github.event.repository.name }}.zip --metadata-json=$PWD/.github/mktp-metadata.json --changelog="${{ github.event.release.body }}" --debug
+          ~/.composer/vendor/bin/publish-on-marketplace --archive=$PWD/${{ github.event.repository.name }}.zip --metadata-json=$PWD/.github/mktp-metadata.json --changelog="${{ github.event.release.body }}" --debug
         env:
           MARKETPLACE_API_KEY: ${{ secrets.MARKETPLACE_API_KEY }}
