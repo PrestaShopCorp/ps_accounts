@@ -1,6 +1,6 @@
 <?php
 
-use PrestaShop\Module\PsAccounts\Repository\ConfigurationRepository;
+use PrestaShop\AccountsAuth\Repository\ConfigurationRepository;
 
 /**
  * 2007-2020 PrestaShop and Contributors.
@@ -51,10 +51,10 @@ class AdminDebugPsAccountsController extends ModuleAdminController
                 'moduleVersion' => \Ps_accounts::VERSION,
                 'psVersion' => _PS_VERSION_,
                 'phpVersion' => phpversion(),
-                'firebase_email' => $this->configuration->get('PS_ACCOUNTS_FIREBASE_EMAIL'),
-                'firebase_email_is_verified' => $this->configuration->get('PS_ACCOUNTS_FIREBASE_EMAIL_IS_VERIFIED'),
-                'firebase_id_token' => $this->configuration->get('PS_ACCOUNTS_FIREBASE_ID_TOKEN'),
-                'firebase_refresh_token' => $this->configuration->get('PS_ACCOUNTS_FIREBASE_REFRESH_TOKEN'),
+                'firebase_email' => $this->configuration->getFirebaseEmail(),
+                'firebase_email_is_verified' => $this->configuration->firebaseEmailIsVerified(),
+                'firebase_id_token' => $this->configuration->getFirebaseIdToken(),
+                'firebase_refresh_token' => $this->configuration->getFirebaseRefreshToken(),
                 'unlinkShopUrl' => 'index.php?controller=AdminAjaxPsAccounts&ajax=1&action=unlinkShop&token=' . Tools::getAdminTokenLite('AdminAjaxPsAccounts'),
                 'isShopLinked' => $this->isAccountLinked(),
             ],
@@ -68,8 +68,8 @@ class AdminDebugPsAccountsController extends ModuleAdminController
      */
     public function isAccountLinked()
     {
-        return $this->configuration->get('PS_ACCOUNTS_FIREBASE_ID_TOKEN')
-            && $this->configuration->get('PS_ACCOUNTS_FIREBASE_EMAIL')
-            && $this->configuration->get('PS_ACCOUNTS_FIREBASE_EMAIL_IS_VERIFIED');
+        return $this->configuration->getFirebaseIdToken()
+            && $this->configuration->getFirebaseEmail()
+            && $this->configuration->firebaseEmailIsVerified();
     }
 }
