@@ -85,6 +85,7 @@ class ServerInformationRepository
                     'http_server' => isset($_SERVER['SERVER_SOFTWARE']) ? $_SERVER['SERVER_SOFTWARE'] : '',
                     'url' => $this->context->link->getPageLink('index', null, $langId),
                     'ssl' => $this->configurationRepository->get('PS_SSL_ENABLED') == '1',
+                    'multi_shop_count' => $this->getMultiShopCount(),
                 ],
             ],
         ];
@@ -143,5 +144,19 @@ class ServerInformationRepository
                 'EVENT_BUS_SYNC_API_URL' => isset($_ENV['EVENT_BUS_SYNC_API_URL']) ? $_ENV['EVENT_BUS_SYNC_API_URL'] : null,
             ],
         ];
+    }
+
+    /**
+     * @return int
+     */
+    public function getMultiShopCount()
+    {
+        $query = new DbQuery();
+
+        $query->select('COUNT(id_shop)')
+            ->from('shop')
+            ->where('active = 1 and deleted = 0');
+
+        return (int) $this->db->getValue($query);
     }
 }
