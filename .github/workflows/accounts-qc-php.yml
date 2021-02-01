@@ -56,11 +56,11 @@ jobs:
     name: PHPUNIT
     runs-on: ubuntu-latest
     steps:
-    - name: checkout project
-      uses: actions/checkout@v1
-    - name: composer install missing files
-      run: composer install
-    - name: PHPUnit tests
-      uses: php-actions/phpunit@v5
-      with:
-        configuration: ./phpunit.xml
+      - name: checkout project
+        uses: actions/checkout@v1
+      - name: composer install missing files
+        run: composer install
+      - name: PHPUnit tests
+        uses: php-actions/phpunit@v5
+        with:
+          configuration: ./phpunit.xml
