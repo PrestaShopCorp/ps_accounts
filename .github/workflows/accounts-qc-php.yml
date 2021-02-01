@@ -64,3 +64,4 @@ jobs:
         uses: php-actions/phpunit@v5
         with:
           configuration: ./phpunit.xml
+          bootstrap: ./tests/bootstrap.php
