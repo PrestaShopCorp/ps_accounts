@@ -1,9 +1,11 @@
-name: Build & Release zips
-on: [push, pull_request, release]
+name: Release and publish
+on:
+  release:
+    types: [released, prereleased]
 
 jobs:
   build:
-    name: build dependencies & create artifact
+    name: Build the base artifact
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
@@ -15,6 +17,13 @@ jobs:
       - name: Clean-up project
         uses: PrestaShopCorp/github-action-clean-before-deploy@v1.0
 
+      - name: Bump version
+        run: |
+          VERSION=$(echo "${{ github.event.release.tag_name }}" | sed 's/^v//')
+          sed -i -e "s/\(VERSION = \).*/\1\'${VERSION}\';/" ps_accounts.php
+          sed -i -e "s/\($this->version = \).*/\1\'${VERSION}\';/" ps_accounts.php
+          sed -i -e 's|\(<version><!\[CDATA\[\)[0-9a-z.]\{1,\}]]></version>|\1'$VERSION']]></version>|g' config.xml
+
       - name: Create & upload artifact
         uses: actions/upload-artifact@v1
         with:
@@ -22,10 +31,9 @@ jobs:
           path: ../
 
   upload_release_asset_production:
-    name: update release production zip
+    name: Upload the production zip asset to the release
     runs-on: ubuntu-latest
     needs: build
-    if: github.event_name == 'release'
     steps:
       - name: Download artifact
         uses: actions/download-artifact@v1
@@ -36,7 +44,7 @@ jobs:
         run: |
           cd ${{ github.event.repository.name }}
           echo "$ENV_FILE" > ${{ github.event.repository.name }}/.env
-          zip -r ${{ github.event.repository.name }}.zip ${{ github.event.repository.name }}
+          zip -r ${{ github.event.repository.name }}.zip ${{ github.event.repository.name }} -x '*.git*'
         env:
           ENV_FILE: ${{ secrets.PS_ACCOUNTS_ENV_PROD }}
 
@@ -51,10 +59,9 @@ jobs:
           asset_content_type: application/zip
 
   upload_release_asset_integration:
-    name: update release integration zip
+    name: Upload the integration zip asset to the release
     runs-on: ubuntu-latest
     needs: build
-    if: github.event_name == 'release'
     steps:
       - name: Download artifact
         uses: actions/download-artifact@v1
@@ -65,7 +72,7 @@ jobs:
         run: |
           cd ${{ github.event.repository.name }}
           echo "$ENV_FILE" > ${{ github.event.repository.name }}/.env
-          zip -r ${{ github.event.repository.name }}_integration.zip ${{ github.event.repository.name }}
+          zip -r ${{ github.event.repository.name }}_integration.zip ${{ github.event.repository.name }}  -x '*.git*'
         env:
           ENV_FILE: ${{ secrets.PS_ACCOUNTS_ENV_INTE }}
 
@@ -78,3 +85,30 @@ jobs:
           asset_path: ./${{ github.event.repository.name }}/${{ github.event.repository.name }}_integration.zip
           asset_name: ${{ github.event.repository.name }}_integration.zip
           asset_content_type: application/zip
+
+  publish_to_marketplace:
+    name: Publish the module to the addons marketplace
+    runs-on: ubuntu-latest
+    needs: upload_release_asset_production
+    if: "!github.event.release.prerelease"
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2.0.0
+
+      - name: Download release asset
+        uses: dsaltares/fetch-gh-release-asset@0.0.5
+        with:
+          repo: ${{ github.event.repository.full_name }}
+          version: ${{ github.event.release.id }}
+          file: ${{ github.event.repository.name }}.zip
+          token: ${{ secrets.JARVIS_TOKEN }}
+
+      - name: Prepare publishing tool
+        run: |
+          composer global require prestashop/publish-on-marketplace
+
+      - name: Release zip
+        run: |
+          ~/.composer/vendor/bin/publish-on-marketplace --archive=$PWD/${{ github.event.repository.name }}.zip --metadata-json=$PWD/.github/mktp-metadata.json --changelog="${{ github.event.release.body }}" --debug
+        env:
+          MARKETPLACE_API_KEY: ${{ secrets.MARKETPLACE_API_KEY }}
