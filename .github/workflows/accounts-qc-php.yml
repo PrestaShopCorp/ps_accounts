@@ -45,14 +45,14 @@ jobs:
           path: ~/.composer/cache
           key: php-composer-cache
       - run: composer install
-      - name: Select .neon file to run with PHPStan
+      - name: Select .neon file to run with PHPStan with PrestaShop v${{ matrix.presta-versions }}
         id: neon
         run: |
-          PS_VERSION=$(docker exec temp-ps bash -c 'echo "$PS_VERSION"')
+          PS_VERSION="${{ matrix.presta-versions }}"
           [[ "${PS_VERSION:0:3}" != '1.7' ]] && echo ::set-output name=filename::phpstan-PS-1.6.neon || echo ::set-output name=filename::phpstan-PS-1.7.neon
       - name: Run PHPStan PrestaShop v${{ matrix.presta-versions }}
         run: |
-          PRESTASHOP="prestashop/prestashop:${{ matrix.presta-versions }}" \
+          PS_VERSION="${{ matrix.presta-versions }}" \
           NEON_FILE=${{steps.neon.outputs.filename}} \
           make test-back
 

@@ -8,8 +8,8 @@ VERSION := $(shell git describe --tags)
 SEM_VERSION ?= $(shell git describe --tags | sed 's/^v//')
 MODULE ?= $(shell basename ${PWD})
 PACKAGE ?= "${MODULE}-${VERSION}"
-PHPSTAN ?= "phpstan/phpstan:0.12"
-PRESTASHOP ?= "prestashop/prestashop:1.7.7.1"
+PHPSTAN_VERSION ?= "0.12"
+PS_VERSION ?= "1.7.7.1"
 NEON_FILE ?= "phpstan-PS-1.7.neon"
 
 # target: default                                - Calling build by default
@@ -97,13 +97,13 @@ test-back: vendor/bin/php-cs-fixer
 ifndef DOCKER
     $(error "DOCKER is unavailable on your system")
 endif
-	docker pull ${PHPSTAN}
-	docker pull ${PRESTASHOP}
-	docker run --rm -d -v ps-volume:/var/www/html --entrypoint /bin/sleep --name test-phpstan ${PRESTASHOP} 2s
+	docker pull phpstan/phpstan:${PHPSTAN_VERSION}
+	docker pull prestashop/prestashop:${PS_VERSION}
+	docker run --rm -d -v ps-volume:/var/www/html --entrypoint /bin/sleep --name test-phpstan prestashop/prestashop:${PS_VERSION} 2s
 	docker run --rm --volumes-from test-phpstan \
 	  -v ${PWD}:/web/module \
 	  -e _PS_ROOT_DIR_=/var/www/html \
-	  --workdir=/web/module ${PHPSTAN} analyse \
+	  --workdir=/web/module phpstan/phpstan:${PHPSTAN_VERSION} analyse \
 	  --configuration=/web/module/tests/phpstan/${NEON_FILE}
 
 vendor/bin/php-cs-fixer:
