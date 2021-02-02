@@ -52,16 +52,9 @@ jobs:
           [[ "${PS_VERSION:0:3}" != '1.7' ]] && echo ::set-output name=filename::phpstan-PS-1.6.neon || echo ::set-output name=filename::phpstan-PS-1.7.neon
       - name: Run PHPStan PrestaShop v${{ matrix.presta-versions }}
         run: |
-          PRESTASHOP="prestashop/prestashop:${{ matrix.presta-versions }}"
-          PHPSTAN="phpstan/phpstan:0.12"
-          docker pull ${PHPSTAN}
-          docker pull ${PRESTASHOP}
-          docker run --rm -d -v ps-volume:/var/www/html --entrypoint /bin/sleep --name test-phpstan ${PRESTASHOP} 2s
-          docker run --rm --volumes-from test-phpstan \
-            -v ${PWD}:/web/module \
-            -e _PS_ROOT_DIR_=/var/www/html \
-            --workdir=/web/module phpstan/phpstan analyse \
-            --configuration=/web/module/tests/phpstan/${{steps.neon.outputs.filename}}
+          PRESTASHOP="prestashop/prestashop:${{ matrix.presta-versions }}" \
+          NEON_FILE=${{steps.neon.outputs.filename}} \
+          make test-back
 
   phpunit:
     name: PHPUNIT

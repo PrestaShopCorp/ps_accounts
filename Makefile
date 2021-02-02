@@ -5,11 +5,12 @@ NPM = $(shell which npm 2> /dev/null)
 YARN = $(shell which yarn 2> /dev/null)
 VERSION := $(shell git describe --tags)
 
-SEM_VERSION := $(shell git describe --tags | sed 's/^v//')
-MODULE := $(shell basename ${PWD})
-PACKAGE := "${MODULE}-${VERSION}"
-PHPSTAN := "phpstan/phpstan:0.12"
-PRESTASHOP := "prestashop/prestashop:1.7.7.1"
+SEM_VERSION ?= $(shell git describe --tags | sed 's/^v//')
+MODULE ?= $(shell basename ${PWD})
+PACKAGE ?= "${MODULE}-${VERSION}"
+PHPSTAN ?= "phpstan/phpstan:0.12"
+PRESTASHOP ?= "prestashop/prestashop:1.7.7.1"
+NEON_FILE ?= "phpstan-PS-1.7.neon"
 
 # target: default                                - Calling build by default
 default: build
@@ -85,14 +86,17 @@ endif
 	php -r "unlink('composer-setup.php');"
 
 # target: tests                                  - Launch the tests/lints suite front and back
-tests: test-back test-front
+tests: test-back test-front lint-back
+
+# target: lint-back                              - Launch the back linting
+lint-back:
+	vendor/bin/php-cs-fixer fix --dry-run --diff --using-cache=no --diff-format udiff
 
 # target: test-back                              - Launch the tests back
 test-back: vendor/bin/php-cs-fixer
 ifndef DOCKER
     $(error "DOCKER is unavailable on your system")
 endif
-	vendor/bin/php-cs-fixer fix --dry-run --diff --using-cache=no --diff-format udiff
 	docker pull ${PHPSTAN}
 	docker pull ${PRESTASHOP}
 	docker run --rm -d -v ps-volume:/var/www/html --entrypoint /bin/sleep --name test-phpstan ${PRESTASHOP} 2s
@@ -100,7 +104,7 @@ endif
 	  -v ${PWD}:/web/module \
 	  -e _PS_ROOT_DIR_=/var/www/html \
 	  --workdir=/web/module ${PHPSTAN} analyse \
-	  --configuration=/web/module/tests/phpstan/phpstan-PS-1.7.neon
+	  --configuration=/web/module/tests/phpstan/${NEON_FILE}
 
 vendor/bin/php-cs-fixer:
 	./composer.phar install

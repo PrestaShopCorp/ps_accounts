@@ -19,10 +19,7 @@ jobs:
 
       - name: Bump version
         run: |
-          VERSION=$(echo "${{ github.event.release.tag_name }}" | sed 's/^v//')
-          sed -i -e "s/\(VERSION = \).*/\1\'${VERSION}\';/" ps_accounts.php
-          sed -i -e "s/\($this->version = \).*/\1\'${VERSION}\';/" ps_accounts.php
-          sed -i -e 's|\(<version><!\[CDATA\[\)[0-9a-z.]\{1,\}]]></version>|\1'$VERSION']]></version>|g' config.xml
+          VERSION=$(echo "${{ github.event.release.tag_name }}" | sed 's/^v//') make version
 
       - name: Create & upload artifact
         uses: actions/upload-artifact@v1
