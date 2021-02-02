@@ -34,38 +34,56 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v2.0.0
+
       - name: Cache vendor folder
         uses: actions/cache@v1
         with:
           path: vendor
           key: php-${{ hashFiles('composer.lock') }}
+
       - name: Cache composer folder
         uses: actions/cache@v1
         with:
           path: ~/.composer/cache
           key: php-composer-cache
-      - run: composer install
-      - name: Select .neon file to run with PHPStan with PrestaShop v${{ matrix.presta-versions }}
+
+      - name: Install dependencies
+        run: composer install
+
+      - name: Select .neon file compatible with PrestaShop ${{ matrix.presta-versions }}
         id: neon
         run: |
           PS_VERSION="${{ matrix.presta-versions }}"
           [[ "${PS_VERSION:0:3}" != '1.7' ]] && echo ::set-output name=filename::phpstan-PS-1.6.neon || echo ::set-output name=filename::phpstan-PS-1.7.neon
-      - name: Run PHPStan PrestaShop v${{ matrix.presta-versions }}
+
+      - name: PHPStan PrestaShop ${{ matrix.presta-versions }}
         run: |
           PS_VERSION="${{ matrix.presta-versions }}" \
           NEON_FILE=${{steps.neon.outputs.filename}} \
-          make test-back
+          make phpstan
 
   phpunit:
     name: PHPUNIT
     runs-on: ubuntu-latest
     steps:
-      - name: checkout project
-        uses: actions/checkout@v1
-      - name: composer install missing files
-        run: composer install
-      - name: PHPUnit tests
-        uses: php-actions/phpunit@v5
+      - name: Checkout
+        uses: actions/checkout@v2.0.0
+
+      - name: Cache vendor folder
+        uses: actions/cache@v1
         with:
-          configuration: ./phpunit.xml
-          bootstrap: ./tests/bootstrap.php
+          path: vendor
+          key: php-${{ hashFiles('composer.lock') }}
+
+      - name: Cache composer folder
+        uses: actions/cache@v1
+        with:
+          path: ~/.composer/cache
+          key: php-composer-cache
+
+      - name: Install dependencies
+        run: composer install
+
+      - name: PHPUnit PrestaShop latest
+        run: |
+          PS_VERSION="latest" make phpunit

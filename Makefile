@@ -8,9 +8,10 @@ VERSION := $(shell git describe --tags)
 SEM_VERSION ?= $(shell git describe --tags | sed 's/^v//')
 MODULE ?= $(shell basename ${PWD})
 PACKAGE ?= "${MODULE}-${VERSION}"
-PHPSTAN_VERSION ?= "0.12"
-PS_VERSION ?= "1.7.7.1"
-NEON_FILE ?= "phpstan-PS-1.7.neon"
+PHPSTAN_VERSION ?= 0.12
+PHPUNIT_VERSION ?= latest
+PS_VERSION ?= 1.7.7.1
+NEON_FILE ?= phpstan-PS-1.7.neon
 
 # target: default                                - Calling build by default
 default: build
@@ -88,12 +89,15 @@ endif
 # target: tests                                  - Launch the tests/lints suite front and back
 tests: test-back test-front lint-back
 
+# target: test-back                              - Launch the tests back
+test-back: lint-back phpstan phpunit
+
 # target: lint-back                              - Launch the back linting
 lint-back:
 	vendor/bin/php-cs-fixer fix --dry-run --diff --using-cache=no --diff-format udiff
 
-# target: test-back                              - Launch the tests back
-test-back: vendor/bin/php-cs-fixer
+# target: phpstan                                - Start phpstan
+phpstan:
 ifndef DOCKER
     $(error "DOCKER is unavailable on your system")
 endif
@@ -103,10 +107,30 @@ endif
 	docker run --rm --volumes-from test-phpstan \
 	  -v ${PWD}:/web/module \
 	  -e _PS_ROOT_DIR_=/var/www/html \
-	  --workdir=/web/module phpstan/phpstan:${PHPSTAN_VERSION} analyse \
+	  --workdir=/web/module \
+	  phpstan/phpstan:${PHPSTAN_VERSION} analyse \
 	  --configuration=/web/module/tests/phpstan/${NEON_FILE}
 
-vendor/bin/php-cs-fixer:
+# target: phpunit                                - Start phpunit
+phpunit: vendor/phpunit/phpunit
+ifndef DOCKER
+    $(error "DOCKER is unavailable on your system")
+endif
+	docker pull phpunit/phpunit:${PHPUNIT_VERSION}
+	docker pull prestashop/prestashop:${PS_VERSION}
+	docker run --rm -d -v ps-volume:/var/www/html --entrypoint /bin/sleep --name test-phpunit prestashop/prestashop:${PS_VERSION} 2s
+	docker run --rm --volumes-from test-phpunit \
+	  -v ${PWD}:/app:ro \
+	  -v ${PWD}/vendor:/vendor:ro \
+	  -e _PS_ROOT_DIR_=/var/www/html \
+	  --workdir /app \
+	  --entrypoint /vendor/phpunit/phpunit/phpunit \
+	  phpunit/phpunit:${PHPUNIT_VERSION} \
+	  --configuration ./phpunit.xml \
+	  --bootstrap ./tests/bootstrap.php
+	@echo phpunit passed
+
+vendor/phpunit/phpunit:
 	./composer.phar install
 
 # target: test-front                             - Launch the tests front (does not work linter is not configured)
