@@ -55,7 +55,7 @@ jobs:
           PRESTASHOP="prestashop/prestashop:${{ matrix.presta-versions }}"
           PHPSTAN="phpstan/phpstan:0.12"
           docker pull ${PHPSTAN}
-	        docker pull ${PRESTASHOP}
+          docker pull ${PRESTASHOP}
           docker run --rm -d -v ps-volume:/var/www/html --entrypoint /bin/sleep --name test-phpstan ${PRESTASHOP} 2s
           docker run --rm --volumes-from test-phpstan \
             -v ${PWD}:/web/module \
