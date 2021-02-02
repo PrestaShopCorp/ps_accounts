@@ -1,12 +1,15 @@
 .PHONY: clean help build bundle zip version bundle-prod bundle-inte build-front build-back
-PHP := $(shell which php 2> /dev/null)
-DOCKER := $(shell docker ps 2> /dev/null)
-NPM := $(shell which npm 2> /dev/null)
-YARN := $(shell which yarn 2> /dev/null)
-VERSION = $(shell git describe --tags)
-SEM_VERSION = $(shell git describe --tags | sed 's/^v//')
-MODULE = $(shell basename ${PWD})
-PACKAGE = "${MODULE}-${VERSION}"
+PHP = $(shell which php 2> /dev/null)
+DOCKER = $(shell docker ps 2> /dev/null)
+NPM = $(shell which npm 2> /dev/null)
+YARN = $(shell which yarn 2> /dev/null)
+VERSION := $(shell git describe --tags)
+
+SEM_VERSION := $(shell git describe --tags | sed 's/^v//')
+MODULE := $(shell basename ${PWD})
+PACKAGE := "${MODULE}-${VERSION}"
+PHPSTAN := "phpstan/phpstan:0.12"
+PRESTASHOP := "prestashop/prestashop:1.7.7.1"
 
 # target: default                                - Calling build by default
 default: build
@@ -90,11 +93,13 @@ ifndef DOCKER
     $(error "DOCKER is unavailable on your system")
 endif
 	vendor/bin/php-cs-fixer fix --dry-run --diff --using-cache=no --diff-format udiff
-	docker run --rm -d -v ps-volume:/var/www/html --entrypoint /bin/sleep --name test-phpstan prestashop/prestashop 2s
+	docker pull ${PHPSTAN}
+	docker pull ${PRESTASHOP}
+	docker run --rm -d -v ps-volume:/var/www/html --entrypoint /bin/sleep --name test-phpstan ${PRESTASHOP} 2s
 	docker run --rm --volumes-from test-phpstan \
-	  -v $PWD:/web/module \
+	  -v ${PWD}:/web/module \
 	  -e _PS_ROOT_DIR_=/var/www/html \
-	  --workdir=/web/module phpstan/phpstan analyse \
+	  --workdir=/web/module ${PHPSTAN} analyse \
 	  --configuration=/web/module/tests/phpstan/phpstan-PS-1.7.neon
 
 vendor/bin/php-cs-fixer:
