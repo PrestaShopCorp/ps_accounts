@@ -6,6 +6,7 @@ use PrestaShop\Module\PsAccounts\Repository\ConfigurationRepository;
 use PrestaShop\Module\PsAccounts\Repository\CurrencyRepository;
 use PrestaShop\Module\PsAccounts\Repository\LanguageRepository;
 use PrestaShop\Module\PsAccounts\Repository\ServerInformationRepository;
+use PrestaShop\Module\PsAccounts\Repository\ShopRepository;
 
 class ServerInformationRepositoryTest extends TestCase
 {
@@ -26,6 +27,10 @@ class ServerInformationRepositoryTest extends TestCase
      */
     private $configurationRepository;
     /**
+     * @var ShopRepository
+     */
+    private $shopRepository;
+    /**
      * @var ArrayFormatter
      */
     private $arrayFormatter;
@@ -44,6 +49,7 @@ class ServerInformationRepositoryTest extends TestCase
         $this->currencyRepository = $this->createMock(CurrencyRepository::class);
         $this->languageRepository = $this->createMock(LanguageRepository::class);
         $this->configurationRepository = $this->createMock(ConfigurationRepository::class);
+        $this->shopRepository = $this->createMock(ShopRepository::class);
         $this->arrayFormatter = $this->createMock(ArrayFormatter::class);
         $this->context = $this->createMock(Context::class);
         $this->db = $this->createMock(Db::class);
@@ -54,12 +60,14 @@ class ServerInformationRepositoryTest extends TestCase
             $this->currencyRepository,
             $this->languageRepository,
             $this->configurationRepository,
+            $this->shopRepository,
             $this->arrayFormatter
         );
     }
 
     public function testGetServerInformation()
     {
+        $this->shopRepository->method('getMultiShopCount')->willReturn(1);
         $this->currencyRepository->method('getCurrenciesIsoCodes')->willReturn(['EUR', 'USD']);
         $this->currencyRepository->method('getDefaultCurrencyIsoCode')->willReturn('USD');
 
