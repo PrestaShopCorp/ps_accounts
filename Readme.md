@@ -6,16 +6,16 @@ To work as a Community Service or as PrestaShop X, a module needs three parts:
 
 ### [module ps_accounts](http://github.com/PrestaShopCorp/ps_accounts)
 
-* Contains all the controllers
+- Contains all the controllers
 
 ### [library npm](http://github.com/PrestaShopCorp/prestashop_accounts_vue_components)
 
-* Contains all the vuejs components to manage onboarding
+- Contains all the vuejs components to manage onboarding
 
 ### [library composer](http://github.com/PrestaShopCorp/prestashop_accounts_auth)
 
-* Wraps all the calls to ps_accounts
-* Contains all the Firebase logic
+- Wraps all the calls to ps_accounts
+- Contains all the Firebase logic
 
 ## Installation of all projects
 
@@ -32,18 +32,19 @@ WARNING : /path/to/install directory MUST be empty.
 You will need ngrok on port 80 to have customized DN for PS shop software (PS_DOMAIN var)
 
 Then customize
- * /path/to/install/ps_accounts/docker-compose.override.yml
- * /path/to/install/ps_accounts/.env :
-   - use a public DN in PS_DOMAIN (ngrok or real DN, no local ones)
-   - fix *_PATH vars to match your /path/to/install
-   - fix UID var to match <current_user_id>
-   - fix GID var to match <current_group_id>
-   - fix FIREBASE_* vars to use the right environment
- * /path/to/install/services/apps/accounts/ui/.env (copy from .env.example)
-   - Fill empty vars
- * /path/to/install/services/apps/accounts/api/.env (copy from .env.example)
-   - Fill empty vars
- * And add /path/to/install/services/gcp-credentials.json
+
+- /path/to/install/ps_accounts/docker-compose.override.yml
+- /path/to/install/ps_accounts/.env :
+  - use a public DN in PS_DOMAIN (ngrok or real DN, no local ones)
+  - fix \*\_PATH vars to match your /path/to/install
+  - fix UID var to match <current_user_id>
+  - fix GID var to match <current_group_id>
+  - fix FIREBASE\_\* vars to use the right environment
+- /path/to/install/services/apps/accounts/ui/.env (copy from .env.example)
+  - Fill empty vars
+- /path/to/install/services/apps/accounts/api/.env (copy from .env.example)
+  - Fill empty vars
+- And add /path/to/install/services/gcp-credentials.json
 
 Finally, run install
 
@@ -61,7 +62,7 @@ git clone git@github.com:PrestaShopCorp/ps_checkout.git
 make init
 ```
 
-/!\ Minimal customize .env with path of dependencies, current user id, current group id and fix FIREBASE_* vars to use the right environment
+/!\ Minimal customize .env with path of dependencies, current user id, current group id and fix FIREBASE\_\* vars to use the right environment
 
 Customize docker-compose.override.yml for choice port
 
@@ -75,11 +76,11 @@ The install script will :
 
 1. copy composer.json into composer-dev.json;
 2. append à "repositories" entry with the local repository of type "path" pointing where it is mounted on local filesystem;
-3. replace the dependency version  number with the one checked out locally :
-    - in case git is not installed in the VM :
-    `dev-master`
-    - in case git is installed in the VM :
-    `dev-[git_branch_name]`
+3. replace the dependency version number with the one checked out locally :
+   - in case git is not installed in the VM :
+     `dev-master`
+   - in case git is installed in the VM :
+     `dev-[git_branch_name]`
 
 At this point composer will use dependencies from local repository and update its dependencies accordingly.
 
@@ -122,6 +123,14 @@ make build_node_deps
 CI trigger on pull request labeled 'quality assurance needed'
 
 To set custom checkout branch , edit [custom-checkout-version](custom-checkout-version)
+
+## CD
+
+Delivery is automated (see [.github/workflows]):
+
+- bump version in the files (`ps_accounts.php`, `config.xml`) accordingly to the version you set in your release version
+- build and customize (integration env) zips available as release assets
+- ship the production zip to the addons marketplace
 
 ## How to connect ?
 
@@ -183,6 +192,7 @@ docker run -tid --rm -v ps-volume:/var/www/html --name temp-ps prestashop/presta
 
 docker run --rm --volumes-from temp-ps -v $PWD:/web/module -e _PS_ROOT_DIR_=/var/www/html --workdir=/web/module phpstan/phpstan:0.12 analyse --configuration=/web/module/tests/phpstan/phpstan-PS-1.7.neon
 ```
+
 ## Firebase JWT tokens
 
 To get Firebase ID and Refresh tokens you will need to make an API call to firebase
