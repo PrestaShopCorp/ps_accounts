@@ -37,8 +37,10 @@ class AdminDebugPsAccountsController extends ModuleAdminController
     {
         parent::__construct();
 
-        $this->context = (new PsAccountsServiceProvider())->get(\Context::class);
-        $this->configuration = (new PsAccountsServiceProvider())->get(ConfigurationRepository::class);
+        $serviceProvider = PsAccountsServiceProvider::getInstance();
+
+        $this->context = $serviceProvider->get(\Context::class);
+        $this->configuration = $serviceProvider->get(ConfigurationRepository::class);
     }
 
     /**
