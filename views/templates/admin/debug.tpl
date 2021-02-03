@@ -23,6 +23,7 @@
         <li>Module version : {$config.moduleVersion}</li>
         <li>Prestashop version : {$config.psVersion}</li>
         <li>PHP version : {$config.phpVersion}</li>
+        <li>Shop UID : {$config.shopUuidV4}</li>
         <li>Firebase email : {$config.firebase_email}</li>
         <li>Is Firebase email verified : {$config.firebase_email_is_verified}</li>
         <li>Firebase ID token : {$config.firebase_id_token}</li>

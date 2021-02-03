@@ -1,5 +1,6 @@
 <?php
 
+use PrestaShop\AccountsAuth\DependencyInjection\PsAccountsServiceProvider;
 use PrestaShop\AccountsAuth\Repository\ConfigurationRepository;
 
 /**
@@ -36,18 +37,21 @@ class AdminDebugPsAccountsController extends ModuleAdminController
     {
         parent::__construct();
 
-        $this->context = \Context::getContext();
-        $this->configuration = new ConfigurationRepository();
+        $this->context = (new PsAccountsServiceProvider())->get(\Context::class);
+        $this->configuration = (new PsAccountsServiceProvider())->get(ConfigurationRepository::class);
     }
 
     /**
      * @return void
+     *
+     * @throws SmartyException
      */
     public function initContent()
     {
         $this->context->smarty->assign([
             'config' => [
                 'shopId' => (int) $this->context->shop->id,
+                'shopUuidV4' => $this->configuration->getShopUuid(),
                 'moduleVersion' => \Ps_accounts::VERSION,
                 'psVersion' => _PS_VERSION_,
                 'phpVersion' => phpversion(),
