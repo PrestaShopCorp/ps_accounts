@@ -1,5 +1,8 @@
 <?php
 
+use PrestaShop\AccountsAuth\DependencyInjection\PsAccountsServiceProvider;
+use PrestaShop\AccountsAuth\Repository\ConfigurationRepository;
+
 /**
  * 2007-2020 PrestaShop and Contributors.
  *
@@ -21,6 +24,11 @@
 class AdminDebugPsAccountsController extends ModuleAdminController
 {
     /**
+     * @var ConfigurationRepository
+     */
+    private $configuration;
+
+    /**
      * AdminDebugController constructor.
      *
      * @throws Exception
@@ -29,27 +37,45 @@ class AdminDebugPsAccountsController extends ModuleAdminController
     {
         parent::__construct();
 
-        $this->context = \Context::getContext();
+        $serviceProvider = PsAccountsServiceProvider::getInstance();
+
+        $this->context = $serviceProvider->get(\Context::class);
+        $this->configuration = $serviceProvider->get(ConfigurationRepository::class);
     }
 
     /**
      * @return void
+     *
+     * @throws SmartyException
      */
     public function initContent()
     {
         $this->context->smarty->assign([
             'config' => [
                 'shopId' => (int) $this->context->shop->id,
+                'shopUuidV4' => $this->configuration->getShopUuid(),
                 'moduleVersion' => \Ps_accounts::VERSION,
                 'psVersion' => _PS_VERSION_,
                 'phpVersion' => phpversion(),
-                'firebase_email' => \Configuration::get('PS_ACCOUNTS_FIREBASE_EMAIL'),
-                'firebase_email_is_verified' => \Configuration::get('PS_ACCOUNTS_FIREBASE_EMAIL_IS_VERIFIED'),
-                'firebase_id_token' => \Configuration::get('PS_ACCOUNTS_FIREBASE_ID_TOKEN'),
-                'firebase_refresh_token' => \Configuration::get('PS_ACCOUNTS_FIREBASE_REFRESH_TOKEN'),
+                'firebase_email' => $this->configuration->getFirebaseEmail(),
+                'firebase_email_is_verified' => $this->configuration->firebaseEmailIsVerified(),
+                'firebase_id_token' => $this->configuration->getFirebaseIdToken(),
+                'firebase_refresh_token' => $this->configuration->getFirebaseRefreshToken(),
+                'unlinkShopUrl' => 'index.php?controller=AdminAjaxPsAccounts&ajax=1&action=unlinkShop&token=' . Tools::getAdminTokenLite('AdminAjaxPsAccounts'),
+                'isShopLinked' => $this->isAccountLinked(),
             ],
         ]);
         $this->content = $this->context->smarty->fetch($this->module->getLocalPath() . '/views/templates/admin/debug.tpl');
         parent::initContent();
+    }
+
+    /**
+     * @return bool
+     */
+    public function isAccountLinked()
+    {
+        return $this->configuration->getFirebaseIdToken()
+            && $this->configuration->getFirebaseEmail()
+            && $this->configuration->firebaseEmailIsVerified();
     }
 }
