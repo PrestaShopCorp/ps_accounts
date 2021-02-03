@@ -52,6 +52,8 @@ class ServerInformationRepositoryTest extends TestCase
         $this->shopRepository = $this->createMock(ShopRepository::class);
         $this->arrayFormatter = $this->createMock(ArrayFormatter::class);
         $this->context = $this->createMock(Context::class);
+        $link = $this->createMock(Link::class);
+        $this->context->link = $link;
         $this->db = $this->createMock(Db::class);
 
         $this->serverInformationRepository = new ServerInformationRepository(
@@ -76,7 +78,12 @@ class ServerInformationRepositoryTest extends TestCase
 
         $this->configurationRepository->expects($this->at(0))->method('get')->with('PS_REWRITING_SETTINGS')->willReturn(true);
         $this->configurationRepository->expects($this->at(1))->method('get')->with('PS_CART_FOLLOWING')->willReturn(true);
-        $this->configurationRepository->expects($this->at(2))->method('get')->with('PS_TIMEZONE')->willReturn('GMT/Zulu');
+        $this->configurationRepository->expects($this->at(2))->method('get')->with('PS_WEIGHT_UNIT')->willReturn('kg');
+        $this->configurationRepository->expects($this->at(3))->method('get')->with('PS_TIMEZONE')->willReturn('GMT/Zulu');
+        $this->configurationRepository->expects($this->at(4))->method('get')->with('PS_ORDER_RETURN')->willReturn('1');
+        $this->configurationRepository->expects($this->at(5))->method('get')->with('PS_ORDER_RETURN_NB_DAYS')->willReturn('1');
+
+        $this->context->link->method('getPageLink')->willReturn('some link');
 
         $this->assertTrue(is_array($this->serverInformationRepository->getServerInformation()));
     }

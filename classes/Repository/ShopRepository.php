@@ -19,7 +19,6 @@ class ShopRepository
 
     public function __construct(Context $context, Db $db)
     {
-
         $this->context = $context;
         $this->db = $db;
     }

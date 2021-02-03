@@ -59,7 +59,6 @@ class ServerInformationRepository
         $this->context = $context;
         $this->db = $db;
         $this->arrayFormatter = $arrayFormatter;
-
     }
 
     /**
