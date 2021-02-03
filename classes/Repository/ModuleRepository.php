@@ -4,8 +4,6 @@ namespace PrestaShop\Module\PsAccounts\Repository;
 
 use Db;
 use DbQuery;
-use Exception;
-use Module;
 
 class ModuleRepository
 {
@@ -28,6 +26,7 @@ class ModuleRepository
     {
         $query = new DbQuery();
         $query->from(self::MODULE_TABLE, 'm');
+
         return $query;
     }
 
@@ -62,5 +61,4 @@ class ModuleRepository
 
         return (int) $this->db->getValue($query);
     }
-
 }
