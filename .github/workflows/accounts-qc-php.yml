@@ -63,4 +63,4 @@ jobs:
     - name: PHPUnit tests
       uses: php-actions/phpunit@v5
       with:
-        config: ./phpunit.xml
+        configuration: ./phpunit.xml

@@ -38,6 +38,10 @@ class ServerInformationRepository
      * @var ArrayFormatter
      */
     private $arrayFormatter;
+    /**
+     * @var ShopRepository
+     */
+    private $shopRepository;
 
     public function __construct(
         Context $context,
@@ -45,11 +49,13 @@ class ServerInformationRepository
         CurrencyRepository $currencyRepository,
         LanguageRepository $languageRepository,
         ConfigurationRepository $configurationRepository,
+        ShopRepository $shopRepository,
         ArrayFormatter $arrayFormatter
     ) {
         $this->currencyRepository = $currencyRepository;
         $this->languageRepository = $languageRepository;
         $this->configurationRepository = $configurationRepository;
+        $this->shopRepository = $shopRepository;
         $this->context = $context;
         $this->db = $db;
         $this->arrayFormatter = $arrayFormatter;
@@ -85,6 +91,7 @@ class ServerInformationRepository
                     'http_server' => isset($_SERVER['SERVER_SOFTWARE']) ? $_SERVER['SERVER_SOFTWARE'] : '',
                     'url' => $this->context->link->getPageLink('index', null, $langId),
                     'ssl' => $this->configurationRepository->get('PS_SSL_ENABLED') == '1',
+                    'multi_shop_count' => $this->shopRepository->getMultiShopCount(),
                 ],
             ],
         ];
