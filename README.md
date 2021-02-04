@@ -10,15 +10,23 @@ Your PSx or Community Service needs to call this module in order to use PrestaSh
 
 ### Work as Community Service or PrestaShop X modules (PSx)
 
-Your module needs three parts:
+Your module needs three parts :
 
 - [PS Accounts module](http://github.com/PrestaShopCorp/ps_accounts)
-  - It's your interface between your module and PrestaShop Accounts service.
-- [PrestaShop Accounts Vue Components](http://github.com/PrestaShopCorp/prestashop_accounts_vue_components)
-  - It's the front-end component you need to integrate into your module.
+    - This module must be installed.
+    - It's your interface between your module and PrestaShop Accounts service.
+  
+And in your PSx :
+
 - [Composer Library](http://github.com/PrestaShopCorp/prestashop-accounts-installer)
-  - This library's role is here to compensate a lack of security between modules dependencies. If PS Accounts is removed while your module is still installed: it causes a crash of the PrestaShop module's page/feature.
-  - This library is here to install automatically PS Accounts if it's missing.
+    - This library's role is here to compensate a lack of security between modules dependencies. If PS Accounts is removed while your module is still installed: it causes a crash of the PrestaShop module's page/feature.
+    - This library is here to install automatically PS Accounts if it's missing.
+    - It's your interface between your module and PrestaShop Accounts module
+    - You should never require directly PrestaShop\Module\PsAccounts namespace classes
+  
+- [PrestaShop Accounts Vue Components](http://github.com/PrestaShopCorp/prestashop_accounts_vue_components)
+    - It's the front-end component you need to integrate into your module's configuration page.
+    - :warning: Introduire le composant VueJS et rediriger vers la doc de ce dernier
 
 ## Installation
 
@@ -26,18 +34,11 @@ If you need to install and test the module, [you can download the desired zip he
 - **ps_accounts.zip** is the "**production** ready zip"
 - **ps_accounts_integration.zip** is the zip you need if you want to test on the **integration environment**.
 
-
 ## How to start working with PS Accounts as a PSx or Community Service developer?
 
 - [Read the official documentation here](https://devdocs.prestashop.com/1.7/modules/)
 - Clone this repository
-- Copy paste the `config/config.yml.example` to `config/config.yml`
-
-
-:warning: TODO:
-- L'obligation de passer par le service container, pas d'appel aux classes directement (never use `use PrestaShopAccounts\Namespace\Class)
-- Exemple de code à intégrer pour utiliser le service container de PS Accounts
-- Introduire le composant VueJS et rediriger vers la doc de ce dernier
+- Copy paste the `config/config.yml.dist` to `config/config.yml`
 
 ## CI
 
@@ -47,7 +48,6 @@ To set custom checkout branch , edit [custom-checkout-version](custom-checkout-v
 
 ## Testing
 :warning: TODO Vérifier avec @hSchoenenberger
-
 
 ## JWT
 ### What are JWTs?
@@ -67,17 +67,20 @@ There are 3 kinds of tokens that can interest you:
 [For more informations, please read the official documentation here](https://firebase.google.com/docs/auth/users#auth_tokens)
 
 ### How to refresh the JWT
-:warning: TODO : Le call à effectuer sur le module pour obtenir un nouveau JWT
+
+```php
+use PrestaShop\PsAccountsInstaller\Installer\Installer;
+
+define('MIN_PS_ACCOUNTS_VERSION', '4.0.0');
+
+$installer = new Installer(MIN_PS_ACCOUNTS_VERSION);
+$shopToken = $installer->getPsAccountsService()->getOrRefreshToken();
+```
 
 ## Breaking Changes
 ### Removal of the environment variables
-One bad habit was to use environment variables ONLY and a .env file as a configuration file and then to access $_ENV everywhere.
-
-We are now using YAML files with a Symfony service container to configure services and their injected dependencies as well as configuration parameters.
-
-You can copy and paste the `config.yml.example` to `config.yml` but you **MUST NOT COMMIT THIS FILE**
-
-You can still override parameters inside config.yml with environment variables using Symfony available helpers. 
+This module don't use a .env file as a configuration file. We are now using YAML files with a Symfony service container to configure services and their injected dependencies as well as configuration parameters.
+You can copy and paste the `config.yml.dist` to `config.yml` but you **MUST NOT COMMIT THIS FILE**
 
 ### Composer library prestashop_accounts_auth deprecated
 This library will is deprecated and no longer needed.
