@@ -116,7 +116,7 @@ class ps_accountsDispatchWebHookModuleFrontController extends ModuleFrontControl
     private function dispatchWebhook(array $headers, array $bodyValues)
     {
         $moduleName = $bodyValues['service'];
-        if ($moduleName !== 'ps_accounts') {
+        if ($moduleName && $moduleName !== 'ps_accounts') {
             $error = Hook::exec(
                 'receiveWebhook_' . $moduleName,
                 ['headers' => $headers, 'body' => $bodyValues],
