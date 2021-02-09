@@ -5,6 +5,8 @@ namespace PrestaShop\Module\PsAccounts\Repository;
 use Context;
 use Db;
 use DbQuery;
+use PrestaShop\Module\PsAccounts\Config\Config;
+use PrestaShopDatabaseException;
 
 class AccountsSyncRepository
 {
@@ -38,16 +40,22 @@ class AccountsSyncRepository
      */
     public function insertTypeSync($type, $offset, $lastSyncDate, $langIso = null)
     {
-        return $this->db->insert(
+        $result = $this->db->insert(
             self::TYPE_SYNC_TABLE_NAME,
             [
                 'id_shop' => (int) $this->context->shop->id,
-                'type' => pSQL($type),
+                'type' => pSQL((string) $type),
                 'offset' => (int) $offset,
-                'last_sync_date' => pSQL($lastSyncDate),
-                'lang_iso' => pSQL($langIso),
+                'last_sync_date' => pSQL((string) $lastSyncDate),
+                'lang_iso' => pSQL((string) $langIso),
             ]
         );
+
+        if (!$result) {
+            throw new PrestaShopDatabaseException('Failed to insert type sync', Config::DATABASE_INSERT_ERROR_CODE);
+        }
+
+        return $result;
     }
 
     /**
