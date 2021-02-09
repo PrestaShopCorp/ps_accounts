@@ -70,6 +70,7 @@ class SynchronizationService
             'total_objects' => count($data),
             'has_remaining_objects' => $remainingObjects > 0,
             'remaining_objects' => $remainingObjects,
+            'md5' => $this->getPayloadMd5($data),
         ], $response);
     }
 
@@ -107,6 +108,16 @@ class SynchronizationService
             'total_objects' => count($data),
             'has_remaining_objects' => $remainingObjects > 0,
             'remaining_objects' => $remainingObjects,
+            'md5' => $this->getPayloadMd5($data),
         ], $response);
+    }
+
+    private function getPayloadMd5($payload)
+    {
+        return md5(
+            implode(' ', array_map(function ($payloadItem) {
+                return $payloadItem['id'];
+            }, $payload))
+        );
     }
 }
