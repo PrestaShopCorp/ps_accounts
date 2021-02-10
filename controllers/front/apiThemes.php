@@ -35,6 +35,11 @@ class ps_AccountsApiThemesModuleFrontController extends AbstractApiController
                 [
                     'remaining_objects' => 0,
                     'total_objects' => count($themeInfo),
+                    'md5' => md5(
+                        implode(' ', array_map(function ($payloadItem) {
+                            return $payloadItem['id'];
+                        }, $themeInfo))
+                    ),
                 ],
                 $response
             )
