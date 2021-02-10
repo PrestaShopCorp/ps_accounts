@@ -112,6 +112,11 @@ class SynchronizationService
         ], $response);
     }
 
+    /**
+     * @param array $payload
+     *
+     * @return string
+     */
     private function getPayloadMd5($payload)
     {
         return md5(
