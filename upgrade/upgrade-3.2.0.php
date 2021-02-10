@@ -42,7 +42,8 @@ function upgrade_module_3_2_0()
     foreach ($sqlQueries as $sqlQuery) {
         try {
             Db::getInstance()->execute($sqlQuery);
-        } catch (Exception $exception) {}
+        } catch (Exception $exception) {
+        }
     }
 
     foreach ($hooks as $hook) {
