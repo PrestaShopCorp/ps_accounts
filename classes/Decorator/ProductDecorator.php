@@ -159,6 +159,9 @@ class ProductDecorator
         $product['active'] = $product['active'] == '1';
         $product['manufacturer'] = (string) $product['manufacturer'];
         $product['default_category'] = (string) $product['default_category'];
+        $product['isbn'] = isset($product['isbn']) ? (string) $product['isbn'] : '';
+        $product['ean13'] = (string) $product['ean13'];
+        $product['upc'] = (string) $product['upc'];
     }
 
     /**
