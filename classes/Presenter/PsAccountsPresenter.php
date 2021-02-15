@@ -114,13 +114,20 @@ class PsAccountsPresenter implements PresenterInterface
                     'psxName' => $psxName,
                     'psIs17' => $shopContext->isShop17(),
 
-                    // FIXME : Installed status of module itself
+                    /////////////////////////////
+                    // InstallerPresenter
+
                     'psAccountsIsInstalled' => true,
                     'psAccountsInstallLink' => null,
 
-                    // Enable status
-                    'psAccountsIsEnabled' => $isEnabled,
-                    'psAccountsEnableLink' => ($isEnabled ? null : $this->installer->getEnableUrl('ps_accounts', $psxName)),
+                    'psAccountsIsEnabled' => true,
+                    'psAccountsEnableLink' => null,
+
+                    'psAccountsIsUptodate' => true,
+                    'psAccountsUpdateLink' => null,
+
+                    ////////////////////////////
+                    // PsAccountsPresenter
 
                     'onboardingLink' => $this->shopLinkAccountService->getLinkAccountUrl($psxName),
 

@@ -164,6 +164,7 @@ class Ps_accounts extends Module
         $this->adminControllers = [
             'hmac' => 'AdminConfigureHmacPsAccounts',
             'ajax' => 'AdminAjaxPsAccounts',
+            'debug' => 'AdminDebugPsAccounts',
         ];
 
         $this->getLogger()->info('Loading ' . $this->name . ' Env : [' . $this->getModuleEnv() . ']');
