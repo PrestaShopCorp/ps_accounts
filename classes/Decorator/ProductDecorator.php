@@ -160,7 +160,7 @@ class ProductDecorator
         $product['manufacturer'] = (string) $product['manufacturer'];
         $product['default_category'] = (string) $product['default_category'];
         $product['isbn'] = isset($product['isbn']) ? (string) $product['isbn'] : '';
-        $product['ean13'] = (string) $product['ean13'];
+        $product['ean'] = (string) $product['ean'];
         $product['upc'] = (string) $product['upc'];
     }
 
