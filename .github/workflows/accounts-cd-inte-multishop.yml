@@ -184,7 +184,7 @@ jobs:
             sudo su -c 'docker exec $(docker ps -q -f "name=multishop-17") bin/console prestashop:module install ps_accounts'
             sudo su -c 'docker exec $(docker ps -q -f "name=multishop-17") cp modules/ps_checkout/.env modules/ps_checkout/_dev/.env'
             sudo su -c 'docker exec $(docker ps -q -f "name=multishop-17") bin/console prestashop:module install ps_checkout'
-            sudo su -c 'docker exec $(docker ps -q -f "name=multishop-17") bin/console prestashop:module install ps_facebook'
+#            sudo su -c 'docker exec $(docker ps -q -f "name=multishop-17") bin/console prestashop:module install ps_facebook'
 
   install_1_6:
     name: Install on shop 1.6
