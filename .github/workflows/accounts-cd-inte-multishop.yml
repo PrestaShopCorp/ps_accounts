@@ -72,6 +72,7 @@ jobs:
           gcloud beta secrets versions access latest --project=$GCLOUD_PROJECT --secret="accounts-module" > ps_accounts/config/config.yml
           gcloud beta secrets versions access latest --project=$GCLOUD_PROJECT --secret="checkout-module" > ps_checkout/.env
           gcloud beta secrets versions access latest --project=$GCLOUD_PROJECT --secret="facebook-module" > ps_facebook/.env
+          gcloud beta secrets versions access latest --project=$GCLOUD_PROJECT --secret="metrics-module" > ps_metrics/.env
           rm $GCLOUD_TOKEN_PATH
           cat ps_accounts/config/config.yml
         env:
@@ -92,6 +93,12 @@ jobs:
           <?php include(dirname(__FILE__)."/../../config/config.inc.php"); $module = Module::getInstanceByName('ps_accounts'); try{$module->uninstall();}catch(Exception $e){} $module->install();
           EOF
 
+      - name: Write install file 1.6 facebook
+        run: |
+          cat <<'EOF' > ps_facebook/install.php
+          <?php include(dirname(__FILE__)."/../../config/config.inc.php"); $module = Module::getInstanceByName('ps_facebook'); try{$module->uninstall();}catch(Exception $e){} $module->install();
+          EOF
+
       - name: Build ps accounts
         working-directory: ps_accounts
         run: |
@@ -109,6 +116,13 @@ jobs:
           VCOMPONENTS_VERSION: ${{ steps.version_vcomponents.outputs.VERSION }}
           ACCOUNTSAUTH_VERSION: ${{ steps.version_auth.outputs.VERSION }}
 
+      - name: Build ps facebook
+        working-directory: ps_facebook
+        run: |
+          yarn --cwd _dev/ install
+          yarn --cwd _dev/ build
+          composer install
+
       - name: Delete old modules 1.7
         continue-on-error: true
         uses: appleboy/ssh-action@master
@@ -119,6 +133,7 @@ jobs:
           script: |
             sudo su -c 'docker exec $(docker ps -q -f "name=multishop-17") rm -rf modules/ps_accounts'
             sudo su -c 'docker exec $(docker ps -q -f "name=multishop-17") rm -rf modules/ps_checkout'
+            sudo su -c 'docker exec $(docker ps -q -f "name=multishop-17") rm -rf modules/ps_facebook'
 
       - name: Delete old modules 1.6
         continue-on-error: true
@@ -130,6 +145,7 @@ jobs:
           script: |
             sudo su -c 'docker exec $(docker ps -q -f "name=multishop-16") rm -rf modules/ps_accounts'
             sudo su -c 'docker exec $(docker ps -q -f "name=multishop-16") rm -rf modules/ps_checkout'
+            sudo su -c 'docker exec $(docker ps -q -f "name=multishop-16") rm -rf modules/ps_facebook'
 
       - name: Copy modules
         uses: appleboy/scp-action@master
@@ -156,6 +172,8 @@ jobs:
             sudo su -c 'chown -R www-data:www-data ${{ secrets.MULTISHOP_17_PATH }}/ps_accounts'
             sudo su -c 'cp -R build-accounts/ps_checkout ${{ secrets.MULTISHOP_17_PATH }}/ps_checkout'
             sudo su -c 'chown -R www-data:www-data ${{ secrets.MULTISHOP_17_PATH }}/ps_checkout'
+            sudo su -c 'cp -R build-accounts/ps_checkout ${{ secrets.MULTISHOP_17_PATH }}/ps_facebook'
+            sudo su -c 'chown -R www-data:www-data ${{ secrets.MULTISHOP_17_PATH }}/ps_facebook'
 
       - name: Install modules
         uses: appleboy/ssh-action@master
@@ -167,6 +185,7 @@ jobs:
             sudo su -c 'docker exec $(docker ps -q -f "name=multishop-17") bin/console prestashop:module install ps_accounts'
             sudo su -c 'docker exec $(docker ps -q -f "name=multishop-17") cp modules/ps_checkout/.env modules/ps_checkout/_dev/.env'
             sudo su -c 'docker exec $(docker ps -q -f "name=multishop-17") bin/console prestashop:module install ps_checkout'
+            sudo su -c 'docker exec $(docker ps -q -f "name=multishop-17") bin/console prestashop:module install ps_facebook'
 
   install_1_6:
     name: Install on shop 1.6
@@ -184,6 +203,8 @@ jobs:
             sudo su -c 'chown -R www-data:www-data ${{ secrets.MULTISHOP_16_PATH }}/ps_accounts'
             sudo su -c 'cp -R build-accounts/ps_checkout ${{ secrets.MULTISHOP_16_PATH }}/ps_checkout'
             sudo su -c 'chown -R www-data:www-data ${{ secrets.MULTISHOP_16_PATH }}/ps_checkout'
+            sudo su -c 'cp -R build-accounts/ps_checkout ${{ secrets.MULTISHOP_16_PATH }}/ps_facebook'
+            sudo su -c 'chown -R www-data:www-data ${{ secrets.MULTISHOP_16_PATH }}/ps_facebook'
 
       - name: Install modules
         uses: appleboy/ssh-action@master
@@ -195,6 +216,7 @@ jobs:
             sudo su -c 'docker exec $(docker ps -q -f "name=multishop-16") php modules/ps_accounts/install.php'
             sudo su -c 'docker exec $(docker ps -q -f "name=multishop-16") cp modules/ps_checkout/.env modules/ps_checkout/_dev/.env'
             sudo su -c 'docker exec $(docker ps -q -f "name=multishop-16") php modules/ps_checkout/install.php'
+            sudo su -c 'docker exec $(docker ps -q -f "name=multishop-16") php modules/ps_facebook/install.php'
 
   clean:
     name: Clean
