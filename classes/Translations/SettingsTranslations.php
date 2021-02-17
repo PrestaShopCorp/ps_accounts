@@ -59,7 +59,8 @@ class SettingsTranslations
                 'incentivePanel' => [
                     'title' => $this->module->l('PrestaShop Account'),
                     'howTo' => $this->module->l('How to activate it? An easy 2-steps process :', 'SettingsTranslations'),
-                    'connectToPs' => $this->module->l('Connect your PrestaShop account', 'SettingsTranslations'),
+                    'createPsAccount' => $this->module->l('Create your PrestaShop Account', 'SettingsTranslations'),
+                    'linkPsAccount' => $this->module->l('Link your PrestaShop Account', 'SettingsTranslations'),
                 ],
             ],
         ];

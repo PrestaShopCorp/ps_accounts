@@ -29,15 +29,13 @@
           <div v-if="'settings' === app">
             <h2>{{ $t("configure.incentivePanel.howTo") }}</h2>
             <p>
-              <span class="material-icons">check_circle</span>
-              {{ $t("configure.incentivePanel.connectToPs") }}
+              <!--span class="material-icons">check_circle</span-->
+              {{ $t("configure.incentivePanel.createPsAccount") }}
             </p>
-          </div>
-          <!-- For Dashboard App-->
-          <div class="dashboard-app" v-if="'dashboard' === app">
-            <a @click.prevent="startSetup()" class="btn btn-primary">{{
-              $("configure.incentivePanel.link")
-            }}</a>
+            <p>
+              <!--span class="material-icons">check_circle</span-->
+              {{ $t("configure.incentivePanel.linkPsAccount") }}
+            </p>
           </div>
         </section>
       </b-col>
