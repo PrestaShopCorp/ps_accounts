@@ -4,6 +4,7 @@ on:
   push:
     branches:
       - master
+      - feature/v3-ci-cd
   pull_request:
     types: [opened,edited,reopened,synchronize,labeled]
 
@@ -16,7 +17,7 @@ jobs:
     name: Inte - Build ps_accounts and ps_checkout
     runs-on: ubuntu-latest
     timeout-minutes: 10
-    if: contains(github.event.pull_request.labels.*.name, 'quality assurance needed') || github.ref == 'refs/heads/master'
+#    if: contains(github.event.pull_request.labels.*.name, 'quality assurance needed') || github.ref == 'refs/heads/master'
 
     steps:
       # Fixed babel build : https://github.com/ember-cli/ember-cli/issues/9235#issuecomment-635254959
@@ -56,7 +57,7 @@ jobs:
           gcloud auth activate-service-account --key-file=$GCLOUD_TOKEN_PATH
           gcloud container clusters get-credentials $GCLOUD_CLUSTER \
           --zone europe-west1-c --project $GCLOUD_PROJECT
-          gcloud beta secrets versions access latest --project=$GCLOUD_PROJECT --secret="accounts-module" > ps_accounts/.env
+          gcloud beta secrets versions access latest --project=$GCLOUD_PROJECT --secret="accounts-module" > ps_accounts/config/config.yml
           gcloud beta secrets versions access latest --project=$GCLOUD_PROJECT --secret="checkout-module" > ps_checkout/.env
           rm $GCLOUD_TOKEN_PATH
         env:
