@@ -43,6 +43,10 @@ jobs:
         id: version_auth
         run: echo ::set-output name=VERSION::$(cat ps_accounts/.github/accounts-auth.version)
 
+      - name: Get facebook version
+        id: version_facebook
+        run: echo ::set-output name=VERSION::$(cat ps_accounts/.github/facebook.version)
+
       - name: Checkout ps checkout
         uses: actions/checkout@v2
         with:
@@ -50,6 +54,14 @@ jobs:
           token: ${{ secrets.ACCESS_TOKEN }}
           path: ps_checkout
           ref: ${{ steps.version_checkout.outputs.VERSION }}
+
+      - name: Checkout ps facebook
+        uses: actions/checkout@v2
+        with:
+          repository: PrestaShopCorp/ps_facebook
+          token: ${{ secrets.ACCESS_TOKEN }}
+          path: ps_facebook
+          ref: ${{ steps.version_facebook.outputs.VERSION }}
 
       - name: Gcloud auth and write env file
         run: |
@@ -59,6 +71,7 @@ jobs:
           --zone europe-west1-c --project $GCLOUD_PROJECT
           gcloud beta secrets versions access latest --project=$GCLOUD_PROJECT --secret="accounts-module" > ps_accounts/config/config.yml
           gcloud beta secrets versions access latest --project=$GCLOUD_PROJECT --secret="checkout-module" > ps_checkout/.env
+          gcloud beta secrets versions access latest --project=$GCLOUD_PROJECT --secret="facebook-module" > ps_facebook/.env
           rm $GCLOUD_TOKEN_PATH
           cat ps_accounts/config/config.yml
         env:
