@@ -103,8 +103,8 @@ jobs:
           username: ${{ secrets.SSH_USERNAME }}
           key: ${{ secrets.SSH_KEY }}
           script: |
-            sudo su -c 'docker exec $(docker ps -q -f "ancestor=prestashop/prestashop:1.7.6.7" -f "name=multishop") rm -rf modules/ps_accounts'
-            sudo su -c 'docker exec $(docker ps -q -f "ancestor=prestashop/prestashop:1.7.6.7" -f "name=multishop") rm -rf modules/ps_checkout'
+            sudo su -c 'docker exec $(docker ps -q -f "ancestor=prestashop/prestashop:1.7.6.9-7.2-apache" -f "name=multishop") rm -rf modules/ps_accounts'
+            sudo su -c 'docker exec $(docker ps -q -f "ancestor=prestashop/prestashop:1.7.6.9-7.2-apache" -f "name=multishop") rm -rf modules/ps_checkout'
 
       - name: Delete old modules 1.6
         continue-on-error: true
@@ -150,9 +150,9 @@ jobs:
           username: ${{ secrets.SSH_USERNAME }}
           key: ${{ secrets.SSH_KEY }}
           script: |
-            sudo su -c 'docker exec $(docker ps -q -f "ancestor=prestashop/prestashop:1.7.6.7" -f "name=multishop") bin/console prestashop:module install ps_accounts'
-            sudo su -c 'docker exec $(docker ps -q -f "ancestor=prestashop/prestashop:1.7.6.7" -f "name=multishop") cp modules/ps_checkout/.env modules/ps_checkout/_dev/.env'
-            sudo su -c 'docker exec $(docker ps -q -f "ancestor=prestashop/prestashop:1.7.6.7" -f "name=multishop") bin/console prestashop:module install ps_checkout'
+            sudo su -c 'docker exec $(docker ps -q -f "ancestor=prestashop/prestashop:1.7.6.9-7.2-apache" -f "name=multishop") bin/console prestashop:module install ps_accounts'
+            sudo su -c 'docker exec $(docker ps -q -f "ancestor=prestashop/prestashop:1.7.6.9-7.2-apache" -f "name=multishop") cp modules/ps_checkout/.env modules/ps_checkout/_dev/.env'
+            sudo su -c 'docker exec $(docker ps -q -f "ancestor=prestashop/prestashop:1.7.6.9-7.2-apache" -f "name=multishop") bin/console prestashop:module install ps_checkout'
 
   install_1_6:
     name: Install on shop 1.6
@@ -199,8 +199,8 @@ jobs:
           username: ${{ secrets.SSH_USERNAME }}
           key: ${{ secrets.SSH_KEY }}
           script: |
-            sudo su -c 'docker exec $(docker ps -q -f "ancestor=prestashop/prestashop:1.7.6.7" -f "name=multishop") bin/console cache:cl'
-            sudo su -c 'docker exec $(docker ps -q -f "ancestor=prestashop/prestashop:1.7.6.7" -f "name=multishop") chmod -R 777 var/cache var/logs'
+            sudo su -c 'docker exec $(docker ps -q -f "ancestor=prestashop/prestashop:1.7.6.9-7.2-apache" -f "name=multishop") bin/console cache:cl'
+            sudo su -c 'docker exec $(docker ps -q -f "ancestor=prestashop/prestashop:1.7.6.9-7.2-apache" -f "name=multishop") chmod -R 777 var/cache var/logs'
             sudo su -c 'docker exec $(docker ps -q -f "ancestor=prestashop/prestashop:1.6" -f "name=multishop") rm -rf cache/smarty/compile/*'
             sudo su -c 'docker exec $(docker ps -q -f "ancestor=prestashop/prestashop:1.6" -f "name=multishop") rm -rf cache/smarty/cache/*'
             sudo su -c 'docker exec $(docker ps -q -f "ancestor=prestashop/prestashop:1.6" -f "name=multishop") rm -rf img/tmp/*'
