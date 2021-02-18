@@ -3,7 +3,7 @@ on:
   push:
     branches:
       - master
-      - feature/v3-ci-cd
+
   pull_request:
     types: [opened,edited,reopened,synchronize,labeled]
 
