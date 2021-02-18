@@ -201,8 +201,7 @@ jobs:
             sudo su -c 'cp -R build-accounts/ps_facebook ${{ secrets.MULTISHOP_17_PATH }}/ps_facebook'
             sudo su -c 'chown -R www-data:www-data ${{ secrets.MULTISHOP_17_PATH }}/ps_facebook'
             sudo su -c 'cp -R build-accounts/ps_metrics ${{ secrets.MULTISHOP_17_PATH }}/ps_metrics'
-            sudo su -c 'chown -R www-data:www-data ${{ secrets.MULTISHOP_17_PATH }}/ps_metrics
-            '
+            sudo su -c 'chown -R www-data:www-data ${{ secrets.MULTISHOP_17_PATH }}/ps_metrics'
       - name: Install modules
         uses: appleboy/ssh-action@master
         with:
