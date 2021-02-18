@@ -22,9 +22,10 @@ jobs:
 
       - name: Bump version
         run: |
-          ls -al
-          cat Makefile
           VERSION=3.3.0 make version
+          sed -i -e "s/\(VERSION = \).*/\1\'${VERSION}\';/" ps_accounts.php
+          sed -i -e "s/\($this->version = \).*/\1\'${VERSION}\';/" ps_accounts.php
+          sed -i -e 's|\(<version><!\[CDATA\[\)[0-9a-z.]\{1,\}]]></version>|\1'$VERSION']]></version>|g' config.xml
 
 
       - name: Create & upload artifact
