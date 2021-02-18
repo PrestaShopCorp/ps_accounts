@@ -16,6 +16,7 @@ jobs:
     name: Prod - Build ps_accounts and ps_checkout
     runs-on: ubuntu-latest
     timeout-minutes: 10
+    if: false
 #    if: contains(github.event.pull_request.labels.*.name, 'quality assurance needed') || github.ref == 'refs/heads/master'
 
     steps:
