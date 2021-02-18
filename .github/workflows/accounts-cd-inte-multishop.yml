@@ -114,12 +114,12 @@ jobs:
           VCOMPONENTS_VERSION: ${{ steps.version_vcomponents.outputs.VERSION }}
           ACCOUNTSAUTH_VERSION: ${{ steps.version_auth.outputs.VERSION }}
 
-#      - name: Build ps facebook
-#        working-directory: ps_facebook
-#        run: |
-#          yarn --cwd _dev/ install
-#          yarn --cwd _dev/ build
-#          composer install
+      - name: Build ps facebook
+        working-directory: ps_facebook
+        run: |
+          yarn --cwd _dev/ install
+          yarn --cwd _dev/ build
+          composer install
 
       - name: Delete old modules 1.7
         continue-on-error: true
@@ -170,8 +170,8 @@ jobs:
             sudo su -c 'chown -R www-data:www-data ${{ secrets.MULTISHOP_17_PATH }}/ps_accounts'
             sudo su -c 'cp -R build-accounts/ps_checkout ${{ secrets.MULTISHOP_17_PATH }}/ps_checkout'
             sudo su -c 'chown -R www-data:www-data ${{ secrets.MULTISHOP_17_PATH }}/ps_checkout'
-#            sudo su -c 'cp -R build-accounts/ps_checkout ${{ secrets.MULTISHOP_17_PATH }}/ps_facebook'
-#            sudo su -c 'chown -R www-data:www-data ${{ secrets.MULTISHOP_17_PATH }}/ps_facebook'
+            sudo su -c 'cp -R build-accounts/ps_facebook ${{ secrets.MULTISHOP_17_PATH }}/ps_facebook'
+            sudo su -c 'chown -R www-data:www-data ${{ secrets.MULTISHOP_17_PATH }}/ps_facebook'
 
       - name: Install modules
         uses: appleboy/ssh-action@master
@@ -183,7 +183,7 @@ jobs:
             sudo su -c 'docker exec $(docker ps -q -f "name=multishop-17") bin/console prestashop:module install ps_accounts'
             sudo su -c 'docker exec $(docker ps -q -f "name=multishop-17") cp modules/ps_checkout/.env modules/ps_checkout/_dev/.env'
             sudo su -c 'docker exec $(docker ps -q -f "name=multishop-17") bin/console prestashop:module install ps_checkout'
-#            sudo su -c 'docker exec $(docker ps -q -f "name=multishop-17") bin/console prestashop:module install ps_facebook'
+            sudo su -c 'docker exec $(docker ps -q -f "name=multishop-17") bin/console prestashop:module install ps_facebook'
 
   install_1_6:
     name: Install on shop 1.6
