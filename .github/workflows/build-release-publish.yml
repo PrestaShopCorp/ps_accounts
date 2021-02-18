@@ -22,8 +22,7 @@ jobs:
 
       - name: Bump version
         run: |
-          VERSION=3.3.0
-          make version
+          VERSION=3.3.0 make version
 #          VERSION=$(echo "${{ github.event.release.tag_name }}" | sed 's/^v//') make version
 
       - name: Create & upload artifact
