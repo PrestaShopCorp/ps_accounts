@@ -22,6 +22,7 @@ jobs:
 
       - name: Bump version
         run: |
+          ls -al
           VERSION=3.3.0 make version
 
       - name: Create & upload artifact
