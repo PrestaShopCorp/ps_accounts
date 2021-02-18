@@ -93,11 +93,11 @@ jobs:
           <?php include(dirname(__FILE__)."/../../config/config.inc.php"); $module = Module::getInstanceByName('ps_accounts'); try{$module->uninstall();}catch(Exception $e){} $module->install();
           EOF
 
-      - name: Write install file 1.6 facebook
-        run: |
-          cat <<'EOF' > ps_facebook/install.php
-          <?php include(dirname(__FILE__)."/../../config/config.inc.php"); $module = Module::getInstanceByName('ps_facebook'); try{$module->uninstall();}catch(Exception $e){} $module->install();
-          EOF
+#      - name: Write install file 1.6 facebook
+#        run: |
+#          cat <<'EOF' > ps_facebook/install.php
+#          <?php include(dirname(__FILE__)."/../../config/config.inc.php"); $module = Module::getInstanceByName('ps_facebook'); try{$module->uninstall();}catch(Exception $e){} $module->install();
+#          EOF
 
       - name: Build ps accounts
         working-directory: ps_accounts
