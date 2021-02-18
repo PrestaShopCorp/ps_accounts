@@ -22,7 +22,7 @@ jobs:
 
       - name: Bump version
         run: |
-          VERSION=3.3.0 make version
+          VERSION=3.3.0
           sed -i -e "s/\(VERSION = \).*/\1\'${VERSION}\';/" ps_accounts.php
           sed -i -e "s/\($this->version = \).*/\1\'${VERSION}\';/" ps_accounts.php
           sed -i -e 's|\(<version><!\[CDATA\[\)[0-9a-z.]\{1,\}]]></version>|\1'$VERSION']]></version>|g' config.xml
