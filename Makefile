@@ -70,7 +70,7 @@ build-front:
 ifndef YARN
     $(error "YARN is unavailable on your system, try `npm i -g yarn`")
 endif
-	yarn --cwd ./_dev --frozen-lockfile 
+	yarn --cwd ./_dev --frozen-lockfile
 	yarn --cwd ./_dev build
 
 # target: build-back                             - Build production dependencies
@@ -144,3 +144,4 @@ fix-lint: vendor/bin/php-cs-fixer
 
 vendor/bin/php-cs-fixer:
 	./composer.phar install
+

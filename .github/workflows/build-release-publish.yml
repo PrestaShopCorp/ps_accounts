@@ -19,7 +19,11 @@ jobs:
 
       - name: Bump version
         run: |
-          VERSION=$(echo "${{ github.event.release.tag_name }}" | sed 's/^v//') make version
+          VERSION=$(echo "${{ github.event.release.tag_name }}" | sed 's/^v//')
+          sed -i -e "s/\(VERSION = \).*/\1\'${VERSION}\';/" ps_accounts.php
+          sed -i -e "s/\($this->version = \).*/\1\'${VERSION}\';/" ps_accounts.php
+          sed -i -e 's|\(<version><!\[CDATA\[\)[0-9a-z.]\{1,\}]]></version>|\1'$VERSION']]></version>|g' config.xml
+
 
       - name: Create & upload artifact
         uses: actions/upload-artifact@v1
@@ -37,10 +41,23 @@ jobs:
         with:
           name: ${{ github.event.repository.name }}
 
+      - name: Gcloud auth and write env file
+        run: |
+          echo $GOOGLE_APPLICATION_CREDENTIALS > /tmp/token.json
+          gcloud auth activate-service-account --key-file=/tmp/token.json
+          gcloud container clusters get-credentials $GCLOUD_CLUSTER \
+          --zone europe-west1-c --project $GCLOUD_PROJECT
+          gcloud beta secrets versions access latest --project=$GCLOUD_PROJECT --secret="accounts-module" > ps_accounts/ps_accounts/config/config.yml
+          rm /tmp/token.json
+        env:
+          GOOGLE_APPLICATION_CREDENTIALS: ${{ secrets.GCLOUD_CREDENTIAL_PRODUCTION }}
+          GCLOUD_TOKEN_PATH: ${{ env.GCLOUD_TOKEN_PATH }}
+          GCLOUD_CLUSTER: ${{ secrets.GCLOUD_CLUSTER }}
+          GCLOUD_PROJECT: ${{ secrets.GCLOUD_PROJECT_PRODUCTION }}
+
       - name: Prepare the production zip
         run: |
           cd ${{ github.event.repository.name }}
-          echo "$ENV_FILE" > ${{ github.event.repository.name }}/.env
           zip -r ${{ github.event.repository.name }}.zip ${{ github.event.repository.name }} -x '*.git*'
         env:
           ENV_FILE: ${{ secrets.PS_ACCOUNTS_ENV_PROD }}
@@ -65,13 +82,24 @@ jobs:
         with:
           name: ${{ github.event.repository.name }}
 
+      - name: Gcloud auth and write env file
+        run: |
+          echo $GOOGLE_APPLICATION_CREDENTIALS > /tmp/token.json
+          gcloud auth activate-service-account --key-file=/tmp/token.json
+          gcloud container clusters get-credentials $GCLOUD_CLUSTER \
+          --zone europe-west1-c --project $GCLOUD_PROJECT
+          gcloud beta secrets versions access latest --project=$GCLOUD_PROJECT --secret="accounts-module" > ps_accounts/ps_accounts/config/config.yml
+          rm /tmp/token.json
+        env:
+          GOOGLE_APPLICATION_CREDENTIALS: ${{ secrets.GCLOUD_CREDENTIAL_INTEGRATION }}
+          GCLOUD_TOKEN_PATH: ${{ env.GCLOUD_TOKEN_PATH }}
+          GCLOUD_CLUSTER: ${{ secrets.GCLOUD_CLUSTER }}
+          GCLOUD_PROJECT: ${{ secrets.GCLOUD_PROJECT_INTEGRATION }}
+
       - name: Prepare the integration zip
         run: |
           cd ${{ github.event.repository.name }}
-          echo "$ENV_FILE" > ${{ github.event.repository.name }}/.env
           zip -r ${{ github.event.repository.name }}_integration.zip ${{ github.event.repository.name }}  -x '*.git*'
-        env:
-          ENV_FILE: ${{ secrets.PS_ACCOUNTS_ENV_INTE }}
 
       - name: Publish the integration zip
         uses: actions/upload-release-asset@v1.0.1
