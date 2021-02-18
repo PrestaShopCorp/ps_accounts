@@ -47,10 +47,6 @@ jobs:
         id: version_facebook
         run: echo ::set-output name=VERSION::$(cat ps_accounts/.github/facebook.version)
 
-      - name: Get metrics version
-        id: version_metrics
-        run: echo ::set-output name=VERSION::$(cat ps_metrics/.github/metrics.version)
-
       - name: Checkout ps checkout
         uses: actions/checkout@v2
         with:
@@ -67,14 +63,6 @@ jobs:
           path: ps_facebook
           ref: ${{ steps.version_facebook.outputs.VERSION }}
 
-      - name: Checkout ps metrics
-        uses: actions/checkout@v2
-        with:
-          repository: PrestaShopCorp/ps_metrics
-          token: ${{ secrets.ACCESS_TOKEN }}
-          path: ps_metrics
-          ref: ${{ steps.version_metrics.outputs.VERSION }}
-
       - name: Gcloud auth and write env file
         run: |
           echo $GOOGLE_APPLICATION_CREDENTIALS > $GCLOUD_TOKEN_PATH
@@ -84,7 +72,6 @@ jobs:
           gcloud beta secrets versions access latest --project=$GCLOUD_PROJECT --secret="accounts-module" > ps_accounts/config/config.yml
           gcloud beta secrets versions access latest --project=$GCLOUD_PROJECT --secret="checkout-module" > ps_checkout/.env
           gcloud beta secrets versions access latest --project=$GCLOUD_PROJECT --secret="facebook-module" > ps_facebook/.env
-          gcloud beta secrets versions access latest --project=$GCLOUD_PROJECT --secret="metrics-module" > ps_metrics/.env
           rm $GCLOUD_TOKEN_PATH
         env:
           GOOGLE_APPLICATION_CREDENTIALS: ${{ secrets.GCLOUD_CREDENTIAL_INTEGRATION }}
@@ -108,12 +95,6 @@ jobs:
         run: |
           cat <<'EOF' > ps_facebook/install.php
           <?php include(dirname(__FILE__)."/../../config/config.inc.php"); $module = Module::getInstanceByName('ps_facebook'); try{$module->uninstall();}catch(Exception $e){} $module->install();
-          EOF
-
-      - name: Write install file 1.6 metrics
-        run: |
-          cat <<'EOF' > ps_metrics/install.php
-          <?php include(dirname(__FILE__)."/../../config/config.inc.php"); $module = Module::getInstanceByName('ps_metrics'); try{$module->uninstall();}catch(Exception $e){} $module->install();
           EOF
 
       - name: Build ps accounts
@@ -140,13 +121,6 @@ jobs:
           yarn --cwd _dev/ build
           composer install
 
-      - name: Build ps metrics
-        working-directory: ps_metrics
-        run: |
-          yarn --cwd _dev/ install
-          yarn --cwd _dev/ build
-          composer install
-
       - name: Delete old modules 1.7
         continue-on-error: true
         uses: appleboy/ssh-action@master
@@ -158,7 +132,6 @@ jobs:
             sudo su -c 'docker exec $(docker ps -q -f "name=multishop-17") rm -rf modules/ps_accounts'
             sudo su -c 'docker exec $(docker ps -q -f "name=multishop-17") rm -rf modules/ps_checkout'
             sudo su -c 'docker exec $(docker ps -q -f "name=multishop-17") rm -rf modules/ps_facebook'
-            sudo su -c 'docker exec $(docker ps -q -f "name=multishop-17") rm -rf modules/ps_metrics'
 
       - name: Delete old modules 1.6
         continue-on-error: true
@@ -171,7 +144,6 @@ jobs:
             sudo su -c 'docker exec $(docker ps -q -f "name=multishop-16") rm -rf modules/ps_accounts'
             sudo su -c 'docker exec $(docker ps -q -f "name=multishop-16") rm -rf modules/ps_checkout'
             sudo su -c 'docker exec $(docker ps -q -f "name=multishop-16") rm -rf modules/ps_facebook'
-            sudo su -c 'docker exec $(docker ps -q -f "name=multishop-16") rm -rf modules/ps_metrics'
 
       - name: Copy modules
         uses: appleboy/scp-action@master
@@ -200,8 +172,7 @@ jobs:
             sudo su -c 'chown -R www-data:www-data ${{ secrets.MULTISHOP_17_PATH }}/ps_checkout'
             sudo su -c 'cp -R build-accounts/ps_facebook ${{ secrets.MULTISHOP_17_PATH }}/ps_facebook'
             sudo su -c 'chown -R www-data:www-data ${{ secrets.MULTISHOP_17_PATH }}/ps_facebook'
-            sudo su -c 'cp -R build-accounts/ps_metrics ${{ secrets.MULTISHOP_17_PATH }}/ps_metrics'
-            sudo su -c 'chown -R www-data:www-data ${{ secrets.MULTISHOP_17_PATH }}/ps_metrics'
+
       - name: Install modules
         uses: appleboy/ssh-action@master
         with:
@@ -212,7 +183,6 @@ jobs:
             sudo su -c 'docker exec $(docker ps -q -f "name=multishop-17") bin/console prestashop:module install ps_accounts'
             sudo su -c 'docker exec $(docker ps -q -f "name=multishop-17") cp modules/ps_checkout/.env modules/ps_checkout/_dev/.env'
             sudo su -c 'docker exec $(docker ps -q -f "name=multishop-17") bin/console prestashop:module install ps_checkout'
-            sudo su -c 'docker exec $(docker ps -q -f "name=multishop-17") bin/console prestashop:module install ps_metrics'
 
   install_1_6:
     name: Install on shop 1.6
@@ -232,8 +202,6 @@ jobs:
             sudo su -c 'chown -R www-data:www-data ${{ secrets.MULTISHOP_16_PATH }}/ps_checkout'
             sudo su -c 'cp -R build-accounts/ps_checkout ${{ secrets.MULTISHOP_16_PATH }}/ps_facebook'
             sudo su -c 'chown -R www-data:www-data ${{ secrets.MULTISHOP_16_PATH }}/ps_facebook'
-            sudo su -c 'cp -R build-accounts/ps_metrics ${{ secrets.MULTISHOP_16_PATH }}/ps_metrics'
-            sudo su -c 'chown -R www-data:www-data ${{ secrets.MULTISHOP_16_PATH }}/ps_metrics'
 
       - name: Install modules
         uses: appleboy/ssh-action@master
@@ -246,7 +214,6 @@ jobs:
             sudo su -c 'docker exec $(docker ps -q -f "name=multishop-16") cp modules/ps_checkout/.env modules/ps_checkout/_dev/.env'
             sudo su -c 'docker exec $(docker ps -q -f "name=multishop-16") php modules/ps_checkout/install.php'
             sudo su -c 'docker exec $(docker ps -q -f "name=multishop-16") php modules/ps_facebook/install.php'
-            sudo su -c 'docker exec $(docker ps -q -f "name=multishop-16") php modules/ps_metrics/install.php'
 
   clean:
     name: Clean
@@ -278,4 +245,3 @@ jobs:
           username: ${{ secrets.SSH_USERNAME }}
           key: ${{ secrets.SSH_KEY }}
           script: rm -rf build-accounts
-
