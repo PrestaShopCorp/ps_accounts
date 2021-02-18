@@ -55,13 +55,13 @@ jobs:
           path: ps_checkout
           ref: ${{ steps.version_checkout.outputs.VERSION }}
 
-#      - name: Checkout ps facebook
-#        uses: actions/checkout@v2
-#        with:
-#          repository: PrestaShopCorp/ps_facebook
-#          token: ${{ secrets.ACCESS_TOKEN }}
-#          path: ps_facebook
-#          ref: ${{ steps.version_facebook.outputs.VERSION }}
+      - name: Checkout ps facebook
+        uses: actions/checkout@v2
+        with:
+          repository: PrestaShopCorp/ps_facebook
+          token: ${{ secrets.ACCESS_TOKEN }}
+          path: ps_facebook
+          ref: ${{ steps.version_facebook.outputs.VERSION }}
 
       - name: Gcloud auth and write env file
         run: |
@@ -71,10 +71,8 @@ jobs:
           --zone europe-west1-c --project $GCLOUD_PROJECT
           gcloud beta secrets versions access latest --project=$GCLOUD_PROJECT --secret="accounts-module" > ps_accounts/config/config.yml
           gcloud beta secrets versions access latest --project=$GCLOUD_PROJECT --secret="checkout-module" > ps_checkout/.env
-
+          gcloud beta secrets versions access latest --project=$GCLOUD_PROJECT --secret="facebook-module" > ps_facebook/.env
           rm $GCLOUD_TOKEN_PATH
-#          gcloud beta secrets versions access latest --project=$GCLOUD_PROJECT --secret="facebook-module" > ps_facebook/.env
-
         env:
           GOOGLE_APPLICATION_CREDENTIALS: ${{ secrets.GCLOUD_CREDENTIAL_INTEGRATION }}
           GCLOUD_TOKEN_PATH: ${{ env.GCLOUD_TOKEN_PATH }}
@@ -93,11 +91,11 @@ jobs:
           <?php include(dirname(__FILE__)."/../../config/config.inc.php"); $module = Module::getInstanceByName('ps_accounts'); try{$module->uninstall();}catch(Exception $e){} $module->install();
           EOF
 
-#      - name: Write install file 1.6 facebook
-#        run: |
-#          cat <<'EOF' > ps_facebook/install.php
-#          <?php include(dirname(__FILE__)."/../../config/config.inc.php"); $module = Module::getInstanceByName('ps_facebook'); try{$module->uninstall();}catch(Exception $e){} $module->install();
-#          EOF
+      - name: Write install file 1.6 facebook
+        run: |
+          cat <<'EOF' > ps_facebook/install.php
+          <?php include(dirname(__FILE__)."/../../config/config.inc.php"); $module = Module::getInstanceByName('ps_facebook'); try{$module->uninstall();}catch(Exception $e){} $module->install();
+          EOF
 
       - name: Build ps accounts
         working-directory: ps_accounts
