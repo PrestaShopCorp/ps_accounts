@@ -3,6 +3,7 @@ on:
   push:
     branches:
       - master
+      - feature/v3-ci-cd
   pull_request:
     types: [opened,edited,reopened,synchronize,labeled]
 
@@ -15,7 +16,7 @@ jobs:
     name: Prod - Build ps_accounts and ps_checkout
     runs-on: ubuntu-latest
     timeout-minutes: 10
-    if: contains(github.event.pull_request.labels.*.name, 'quality assurance needed') || github.ref == 'refs/heads/master'
+#    if: contains(github.event.pull_request.labels.*.name, 'quality assurance needed') || github.ref == 'refs/heads/master'
 
     steps:
       # Fixed babel build : https://github.com/ember-cli/ember-cli/issues/9235#issuecomment-635254959
@@ -29,12 +30,37 @@ jobs:
         with:
           path: ps_accounts
 
+      - name: Get checkout version
+        id: version_checkout
+        run: echo ::set-output name=VERSION::$(cat ps_accounts/.github/checkout.version)
+
+      - name: Get accounts vue components version
+        id: version_vcomponents
+        run: echo ::set-output name=VERSION::$(cat ps_accounts/.github/accounts-vue-components.version)
+
+      - name: Get accounts auth version
+        id: version_auth
+        run: echo ::set-output name=VERSION::$(cat ps_accounts/.github/accounts-auth.version)
+
+      - name: Get facebook version
+        id: version_facebook
+        run: echo ::set-output name=VERSION::$(cat ps_accounts/.github/facebook.version)
+
       - name: Checkout ps checkout
         uses: actions/checkout@v2
         with:
           repository: PrestaShopCorp/ps_checkout
           token: ${{ secrets.ACCESS_TOKEN }}
           path: ps_checkout
+          ref: ${{ steps.version_checkout.outputs.VERSION }}
+
+      - name: Checkout ps facebook
+        uses: actions/checkout@v2
+        with:
+          repository: PrestaShopCorp/ps_facebook
+          token: ${{ secrets.ACCESS_TOKEN }}
+          path: ps_facebook
+          ref: ${{ steps.version_facebook.outputs.VERSION }}
 
       - name: Gcloud auth and write env file
         run: |
@@ -42,8 +68,9 @@ jobs:
           gcloud auth activate-service-account --key-file=$GCLOUD_TOKEN_PATH
           gcloud container clusters get-credentials $GCLOUD_CLUSTER \
           --zone europe-west1-c --project $GCLOUD_PROJECT
-          gcloud beta secrets versions access latest --project=$GCLOUD_PROJECT --secret="accounts-module" > ps_accounts/.env
+          gcloud beta secrets versions access latest --project=$GCLOUD_PROJECT --secret="accounts-module" > ps_accounts/config/config.yml
           gcloud beta secrets versions access latest --project=$GCLOUD_PROJECT --secret="checkout-module" > ps_checkout/.env
+          gcloud beta secrets versions access latest --project=$GCLOUD_PROJECT --secret="facebook-module" > ps_facebook/.env
           rm $GCLOUD_TOKEN_PATH
         env:
           GOOGLE_APPLICATION_CREDENTIALS: ${{ secrets.GCLOUD_CREDENTIAL_PRODUCTION }}
@@ -63,6 +90,12 @@ jobs:
           <?php include(dirname(__FILE__)."/../../config/config.inc.php"); $module = Module::getInstanceByName('ps_accounts'); try{$module->uninstall();}catch(Exception $e){} $module->install();
           EOF
 
+      - name: Write install file 1.6 facebook
+        run: |
+          cat <<'EOF' > ps_facebook/install.php
+          <?php include(dirname(__FILE__)."/../../config/config.inc.php"); $module = Module::getInstanceByName('ps_facebook'); try{$module->uninstall();}catch(Exception $e){} $module->install();
+          EOF
+
       - name: Build ps accounts
         working-directory: ps_accounts
         run: |
@@ -71,11 +104,21 @@ jobs:
       - name: Build ps checkout
         working-directory: ps_checkout
         run: |
-          yarn --cwd _dev/ add prestashop_accounts_vue_components
+          yarn --cwd _dev/ add prestashop_accounts_vue_components#${VCOMPONENTS_VERSION}
           yarn --cwd _dev/ install
           yarn --cwd _dev/ build
           composer install
-          composer require prestashop/prestashop-accounts-auth
+          composer require prestashop/prestashop-accounts-auth:${ACCOUNTSAUTH_VERSION}
+        env:
+          VCOMPONENTS_VERSION: ${{ steps.version_vcomponents.outputs.VERSION }}
+          ACCOUNTSAUTH_VERSION: ${{ steps.version_auth.outputs.VERSION }}
+
+      - name: Build ps facebook
+        working-directory: ps_facebook
+        run: |
+          yarn --cwd _dev/ install
+          yarn --cwd _dev/ build
+          composer install
 
       - name: Delete old modules 1.7
         continue-on-error: true
@@ -85,8 +128,9 @@ jobs:
           username: ${{ secrets.SSH_USERNAME }}
           key: ${{ secrets.SSH_KEY }}
           script: |
-            sudo su -c 'rm -rf ${{ secrets.MULTISHOP_17_PATH }}/ps_accounts'
-            sudo su -c 'rm -rf ${{ secrets.MULTISHOP_17_PATH }}/ps_checkout'
+            sudo su -c 'docker exec $(docker ps -q -f "name=multishop-17") rm -rf modules/ps_accounts'
+            sudo su -c 'docker exec $(docker ps -q -f "name=multishop-17") rm -rf modules/ps_checkout'
+            sudo su -c 'docker exec $(docker ps -q -f "name=multishop-17") rm -rf modules/ps_facebook'
 
       - name: Delete old modules 1.6
         continue-on-error: true
@@ -96,8 +140,9 @@ jobs:
           username: ${{ secrets.SSH_USERNAME }}
           key: ${{ secrets.SSH_KEY }}
           script: |
-            sudo su -c 'rm -rf ${{ secrets.MULTISHOP_16_PATH }}/ps_accounts'
-            sudo su -c 'rm -rf ${{ secrets.MULTISHOP_16_PATH }}/ps_checkout'
+            sudo su -c 'docker exec $(docker ps -q -f "name=multishop-16") rm -rf modules/ps_accounts'
+            sudo su -c 'docker exec $(docker ps -q -f "name=multishop-16") rm -rf modules/ps_checkout'
+            sudo su -c 'docker exec $(docker ps -q -f "name=multishop-16") rm -rf modules/ps_facebook'
 
       - name: Copy modules
         uses: appleboy/scp-action@master
@@ -113,7 +158,6 @@ jobs:
     runs-on: ubuntu-latest
     needs: build
     steps:
-
       - name: Move modules
         uses: appleboy/ssh-action@master
         with:
@@ -121,10 +165,12 @@ jobs:
           username: ${{ secrets.SSH_USERNAME }}
           key: ${{ secrets.SSH_KEY }}
           script: |
-            sudo su -c 'cp -R build-accounts//ps_accounts ${{ secrets.MULTISHOP_17_PATH }}'
+            sudo su -c 'cp -R build-accounts/ps_accounts ${{ secrets.MULTISHOP_17_PATH }}/ps_accounts'
             sudo su -c 'chown -R www-data:www-data ${{ secrets.MULTISHOP_17_PATH }}/ps_accounts'
-            sudo su -c 'cp -R build-accounts//ps_checkout ${{ secrets.MULTISHOP_17_PATH }}'
+            sudo su -c 'cp -R build-accounts/ps_checkout ${{ secrets.MULTISHOP_17_PATH }}/ps_checkout'
             sudo su -c 'chown -R www-data:www-data ${{ secrets.MULTISHOP_17_PATH }}/ps_checkout'
+            sudo su -c 'cp -R build-accounts/ps_facebook ${{ secrets.MULTISHOP_17_PATH }}/ps_facebook'
+            sudo su -c 'chown -R www-data:www-data ${{ secrets.MULTISHOP_17_PATH }}/ps_facebook'
 
       - name: Install modules
         uses: appleboy/ssh-action@master
@@ -133,11 +179,9 @@ jobs:
           username: ${{ secrets.SSH_USERNAME }}
           key: ${{ secrets.SSH_KEY }}
           script: |
-            sudo su -c 'docker exec $(docker ps -q -f "ancestor=prestashop/prestashop:1.7.6.7" -f "name=multishop") bin/console prestashop:module uninstall ps_accounts || true'
-            sudo su -c 'docker exec $(docker ps -q -f "ancestor=prestashop/prestashop:1.7.6.7" -f "name=multishop") bin/console prestashop:module install ps_accounts'
-            sudo su -c 'docker exec $(docker ps -q -f "ancestor=prestashop/prestashop:1.7.6.7" -f "name=multishop") cp modules/ps_checkout/.env modules/ps_checkout/_dev/.env'
-            sudo su -c 'docker exec $(docker ps -q -f "ancestor=prestashop/prestashop:1.7.6.7" -f "name=multishop") bin/console prestashop:module uninstall ps_checkout || true'
-            sudo su -c 'docker exec $(docker ps -q -f "ancestor=prestashop/prestashop:1.7.6.7" -f "name=multishop") bin/console prestashop:module install ps_checkout'
+            sudo su -c 'docker exec $(docker ps -q -f "name=multishop-17") bin/console prestashop:module install ps_accounts'
+            sudo su -c 'docker exec $(docker ps -q -f "name=multishop-17") cp modules/ps_checkout/.env modules/ps_checkout/_dev/.env'
+            sudo su -c 'docker exec $(docker ps -q -f "name=multishop-17") bin/console prestashop:module install ps_checkout'
 
   install_1_6:
     name: Install on shop 1.6
@@ -151,10 +195,12 @@ jobs:
           username: ${{ secrets.SSH_USERNAME }}
           key: ${{ secrets.SSH_KEY }}
           script: |
-            sudo su -c 'cp -R build-accounts//ps_accounts ${{ secrets.MULTISHOP_16_PATH }}'
+            sudo su -c 'cp -R build-accounts/ps_accounts ${{ secrets.MULTISHOP_16_PATH }}/ps_accounts'
             sudo su -c 'chown -R www-data:www-data ${{ secrets.MULTISHOP_16_PATH }}/ps_accounts'
-            sudo su -c 'cp -R build-accounts//ps_checkout ${{ secrets.MULTISHOP_16_PATH }}'
+            sudo su -c 'cp -R build-accounts/ps_checkout ${{ secrets.MULTISHOP_16_PATH }}/ps_checkout'
             sudo su -c 'chown -R www-data:www-data ${{ secrets.MULTISHOP_16_PATH }}/ps_checkout'
+            sudo su -c 'cp -R build-accounts/ps_checkout ${{ secrets.MULTISHOP_16_PATH }}/ps_facebook'
+            sudo su -c 'chown -R www-data:www-data ${{ secrets.MULTISHOP_16_PATH }}/ps_facebook'
 
       - name: Install modules
         uses: appleboy/ssh-action@master
@@ -163,16 +209,19 @@ jobs:
           username: ${{ secrets.SSH_USERNAME }}
           key: ${{ secrets.SSH_KEY }}
           script: |
-            sudo su -c 'docker exec $(docker ps -q -f "ancestor=prestashop/prestashop:1.6" -f "name=multishop") php modules/ps_accounts/install.php'
-            sudo su -c 'docker exec $(docker ps -q -f "ancestor=prestashop/prestashop:1.6" -f "name=multishop") cp modules/ps_checkout/.env modules/ps_checkout/_dev/.env'
-            sudo su -c 'docker exec $(docker ps -q -f "ancestor=prestashop/prestashop:1.6" -f "name=multishop") php modules/ps_checkout/install.php'
+            sudo su -c 'docker exec $(docker ps -q -f "name=multishop-16") php modules/ps_accounts/install.php'
+            sudo su -c 'docker exec $(docker ps -q -f "name=multishop-16") cp modules/ps_checkout/.env modules/ps_checkout/_dev/.env'
+            sudo su -c 'docker exec $(docker ps -q -f "name=multishop-16") php modules/ps_checkout/install.php'
+            sudo su -c 'docker exec $(docker ps -q -f "name=multishop-16") php modules/ps_facebook/install.php'
 
   clean:
     name: Clean
     runs-on: ubuntu-latest
     timeout-minutes: 5
     needs:
+      - install_1_7
       - install_1_6
+
     steps:
 
       - name: Clear cache
@@ -182,11 +231,11 @@ jobs:
           username: ${{ secrets.SSH_USERNAME }}
           key: ${{ secrets.SSH_KEY }}
           script: |
-            sudo su -c 'docker exec $(docker ps -q -f "ancestor=prestashop/prestashop:1.7.6.7" -f "name=multishop") bin/console cache:cl'
-            sudo su -c 'docker exec $(docker ps -q -f "ancestor=prestashop/prestashop:1.7.6.7" -f "name=multishop") chmod -R 777 var/cache var/logs'
-            sudo su -c 'docker exec $(docker ps -q -f "ancestor=prestashop/prestashop:1.6" -f "name=multishop") rm -rf cache/smarty/compile/*'
-            sudo su -c 'docker exec $(docker ps -q -f "ancestor=prestashop/prestashop:1.6" -f "name=multishop") rm -rf cache/smarty/cache/*'
-            sudo su -c 'docker exec $(docker ps -q -f "ancestor=prestashop/prestashop:1.6" -f "name=multishop") rm -rf img/tmp/*'
+            sudo su -c 'docker exec $(docker ps -q -f "name=multishop-17") bin/console cache:cl'
+            sudo su -c 'docker exec $(docker ps -q -f "name=multishop-17") chmod -R 777 var/cache var/logs'
+            sudo su -c 'docker exec $(docker ps -q -f "name=multishop-16") rm -rf cache/smarty/compile/*'
+            sudo su -c 'docker exec $(docker ps -q -f "name=multishop-16") rm -rf cache/smarty/cache/*'
+            sudo su -c 'docker exec $(docker ps -q -f "name=multishop-16") rm -rf img/tmp/*'
 
       - name: Delete tmp module
         uses: appleboy/ssh-action@master
@@ -194,5 +243,4 @@ jobs:
           host: ${{ secrets.SSH_HOST_PRODUCTION }}
           username: ${{ secrets.SSH_USERNAME }}
           key: ${{ secrets.SSH_KEY }}
-          script: rm -rf build-accounts/
-
+          script: rm -rf build-accounts
