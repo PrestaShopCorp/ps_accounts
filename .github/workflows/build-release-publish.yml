@@ -23,7 +23,9 @@ jobs:
       - name: Bump version
         run: |
           ls -al
+          cat Makefile
           VERSION=3.3.0 make version
+
 
       - name: Create & upload artifact
         uses: actions/upload-artifact@v1
