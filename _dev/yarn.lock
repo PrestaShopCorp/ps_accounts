@@ -955,14 +955,7 @@
     consola "^2.15.0"
     node-fetch "^2.6.1"
 
-"@prestashopcorp/segment-vue@1.1.3":
-  version "1.1.3"
-  resolved "https://registry.yarnpkg.com/@prestashopcorp/segment-vue/-/segment-vue-1.1.3.tgz#0cb8893e52efc160513890326698152d939fae78"
-  integrity sha512-NVuHvYESc/BAv9U789x3JchKG0ZAe8Lw0CjyEOTdo/8i1U2JNjF/Eo6MBbelhRx3rEG2W7VFXPP6IiOOHV2orA==
-  dependencies:
-    load-script "^1.0.0"
-
-"@prestashopcorp/segment-vue@^1.1.3":
+"@prestashopcorp/segment-vue@^1.2.10":
   version "1.2.10"
   resolved "https://registry.yarnpkg.com/@prestashopcorp/segment-vue/-/segment-vue-1.2.10.tgz#481a0c4b9761b82c2e445fadf715b383f5dcc5d2"
   integrity sha512-bB+LPAHPPzpt8IvbFiLnohkPERhsPpFEFRBW1ckNATZAGxZwuG20iSUAaW1qTi80RIvyMMOQAax5Vma09kpzSg==
@@ -7682,13 +7675,11 @@ prestakit@^1.1.0, prestakit@^1.2.1:
     select2 "^4.0.5"
     select2-bootstrap-theme "0.1.0-beta.10"
 
-prestashop_accounts_vue_components@^1.5.4:
+"prestashop_accounts_vue_components@file:../../../../prestashop_accounts_vue_components":
   version "1.5.4"
-  resolved "https://registry.yarnpkg.com/prestashop_accounts_vue_components/-/prestashop_accounts_vue_components-1.5.4.tgz#3d8ca57282fa813653aa3b6d0ebe0f391390aab7"
-  integrity sha512-Uuchkw7wuyjQXuNr5DCr8UhynpZgGlq13lNv35ONsZE1FcWaadXnjMjSV/EdRkgVspObVhp+KHRS3ft7IroK8w==
   dependencies:
     "@hapi/joi" "^17.1.1"
-    "@prestashopcorp/segment-vue" "1.1.3"
+    "@prestashopcorp/segment-vue" "^1.2.10"
     babel-loader "^8.1.0"
     bootstrap-vue "^2.11.0"
     core-js "^3.6.4"

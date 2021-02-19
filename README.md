@@ -89,18 +89,8 @@ Please remove it from your module's dependencies.
 ### Do not directly import PrestaShop Accounts classes
 If you need to call PrestaShop Accounts public classes's methods, you need to use the service container.
 
-**DO NOT USE**
-```php
-$psAccountsService = new \PrestaShop\Module\PsAccounts\Service\PsAccountsService();
-```
+see: [PrestaShop Accounts Installer](http://github.com/PrestaShopCorp/prestashop-accounts-installer)
 
-**USE INSTEAD**
-```php
-use PrestaShop\Module\PsAccounts\Service\PsAccountsService;
-
-/** @var PsAccountsService $psAccountsService */
-$psAccountsService = Module::getInstanceByName('ps_accounts')->getService(PsAccountsService::class);
-```
 
 ### Add the dependency manager library to your module's dependencies
 If the end-user delete or force the uninstallation of the module `ps_accounts` without uninstalling a PSX or Community Service that depends of PS Accounts presence, the module page and feature will throw an exception.
