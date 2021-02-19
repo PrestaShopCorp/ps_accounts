@@ -70,12 +70,15 @@ There are 3 kinds of tokens that can interest you:
 
 ```php
 use PrestaShop\PsAccountsInstaller\Installer\Installer;
+use PrestaShop\PsAccountsInstaller\Installer\Facade\PsAccounts;
 
 define('MIN_PS_ACCOUNTS_VERSION', '4.0.0');
 
-$installer = new Installer(MIN_PS_ACCOUNTS_VERSION);
-$shopToken = $installer->getPsAccountsService()->getOrRefreshToken();
+$facade = new PsAccounts(new Installer(MIN_PS_ACCOUNTS_VERSION));
+$shopToken = $facade->getPsAccountsService()->getOrRefreshToken();
 ```
+
+see: [PrestaShop Accounts Installer](http://github.com/PrestaShopCorp/prestashop-accounts-installer) for more details on how to setup Installer.
 
 ## Breaking Changes
 ### Removal of the environment variables
@@ -86,26 +89,10 @@ You can copy and paste the `config.yml.dist` to `config.yml` but you **MUST NOT 
 This library will is deprecated and no longer needed.
 Please remove it from your module's dependencies.
 
-### Do not directly import PrestaShop Accounts classes
+### New psx dependency prestashop-accounts-installer
+**Do not directly import PrestaShop Accounts classes**
+
 If you need to call PrestaShop Accounts public classes's methods, you need to use the service container.
 
 see: [PrestaShop Accounts Installer](http://github.com/PrestaShopCorp/prestashop-accounts-installer)
 
-
-### Add the dependency manager library to your module's dependencies
-If the end-user delete or force the uninstallation of the module `ps_accounts` without uninstalling a PSX or Community Service that depends of PS Accounts presence, the module page and feature will throw an exception.
-
-The user will be stuck and we do not want that. 
-
-In order to palliate to this PrestaShop problem, we need _something_ that checks if the module PS Accounts is installed. This something comes with the *prestashop-accounts-installer* library available on Packagist.
-
-**YOU MUST ADD THIS DEPENDENCY TO YOUR composer.json**
-
----
-
-## Troubleshoot
-### `PS_ACCOUNTS_ENV` not found
-You declare the environment variable without specifying a value. Delete the declaration or specify a valid value.
-
-### The PrestaShop module page throws an error \PrestaShop\Namespace\Class not found
-You didn't add the *prestashop-accounts-installer* to your composer.json dependencies and the ps_accounts module is not present but your module calls for it.
