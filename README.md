@@ -85,11 +85,11 @@ see: [PrestaShop Accounts Installer](http://github.com/PrestaShopCorp/prestashop
 This module don't use a .env file as a configuration file. We are now using YAML files with a Symfony service container to configure services and their injected dependencies as well as configuration parameters.
 You can copy and paste the `config.yml.dist` to `config.yml` but you **MUST NOT COMMIT THIS FILE**
 
-### Composer library prestashop_accounts_auth deprecated
+### Composer dependency `prestashop_accounts_auth` deprecated
 This library will is deprecated and no longer needed.
 Please remove it from your module's dependencies.
 
-### New psx dependency prestashop-accounts-installer
+### New composer dependency `prestashop-accounts-installer`
 **Do not directly import PrestaShop Accounts classes**
 
 If you need to call PrestaShop Accounts public classes's methods, you need to use the service container.
