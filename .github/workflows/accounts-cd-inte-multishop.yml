@@ -17,7 +17,7 @@ jobs:
     name: Inte - Build ps_accounts and ps_checkout
     runs-on: ubuntu-latest
     timeout-minutes: 10
-#    if: contains(github.event.pull_request.labels.*.name, 'quality assurance needed') || github.ref == 'refs/heads/master'
+    if: contains(github.event.pull_request.labels.*.name, 'quality assurance needed') || github.ref == 'refs/heads/master'
 
     steps:
       # Fixed babel build : https://github.com/ember-cli/ember-cli/issues/9235#issuecomment-635254959
@@ -64,152 +64,151 @@ jobs:
           gcloud beta secrets versions access latest --secret="accounts-module" > ps_accounts/.env
         env:
           GOOGLE_APPLICATION_CREDENTIALS: ${{ secrets.TEST_INTEGRATION }}
-          GCLOUD_PROJECT: ${{ secrets.GCLOUD_PROJECT_INTEGRATION }}
-#
-#      - name: Write install file 1.6 checkout
-#        run: |
-#          cat <<'EOF' > ps_checkout/install.php
-#          <?php include(dirname(__FILE__)."/../../config/config.inc.php"); $module = Module::getInstanceByName('ps_checkout'); try{$module->uninstall();}catch(Exception $e){} $module->install();
-#          EOF
-#
-#      - name: Write install file 1.6 accounts
-#        run: |
-#          cat <<'EOF' > ps_accounts/install.php
-#          <?php include(dirname(__FILE__)."/../../config/config.inc.php"); $module = Module::getInstanceByName('ps_accounts'); try{$module->uninstall();}catch(Exception $e){} $module->install();
-#          EOF
-#
-#      - name: Build ps accounts
-#        working-directory: ps_accounts
-#        run: |
-#          composer install
-#
-#      - name: Build ps checkout
-#        working-directory: ps_checkout
-#        run: |
-#          yarn --cwd _dev/ add prestashop_accounts_vue_components#${VCOMPONENTS_VERSION}
-#          yarn --cwd _dev/ install
-#          yarn --cwd _dev/ build
-#          composer install
-#          composer require prestashop/prestashop-accounts-auth:${ACCOUNTSAUTH_VERSION}
-#        env:
-#          VCOMPONENTS_VERSION: ${{ steps.version_vcomponents.outputs.VERSION }}
-#          ACCOUNTSAUTH_VERSION: ${{ steps.version_auth.outputs.VERSION }}
-#
-#      - name: Delete old modules 1.7
-#        continue-on-error: true
-#        uses: appleboy/ssh-action@master
-#        with:
-#          host: ${{ secrets.SSH_HOST_INTEGRATION }}
-#          username: ${{ secrets.SSH_USERNAME }}
-#          key: ${{ secrets.SSH_KEY }}
-#          script: |
-#            sudo su -c 'docker exec $(docker ps -q -f "ancestor=prestashop/prestashop:1.7.6.7" -f "name=multishop") rm -rf modules/ps_accounts'
-#            sudo su -c 'docker exec $(docker ps -q -f "ancestor=prestashop/prestashop:1.7.6.7" -f "name=multishop") rm -rf modules/ps_checkout'
-#
-#      - name: Delete old modules 1.6
-#        continue-on-error: true
-#        uses: appleboy/ssh-action@master
-#        with:
-#          host: ${{ secrets.SSH_HOST_INTEGRATION }}
-#          username: ${{ secrets.SSH_USERNAME }}
-#          key: ${{ secrets.SSH_KEY }}
-#          script: |
-#            sudo su -c 'docker exec $(docker ps -q -f "ancestor=prestashop/prestashop:1.6" -f "name=multishop") rm -rf modules/ps_accounts'
-#            sudo su -c 'docker exec $(docker ps -q -f "ancestor=prestashop/prestashop:1.6" -f "name=multishop") rm -rf modules/ps_checkout'
-#
-#      - name: Copy modules
-#        uses: appleboy/scp-action@master
-#        with:
-#          host: ${{ secrets.SSH_HOST_INTEGRATION }}
-#          username: ${{ secrets.SSH_USERNAME }}
-#          key: ${{ secrets.SSH_KEY }}
-#          source: "."
-#          target: build-accounts
-#
-#  install_1_7:
-#    name: Install on shop 1.7
-#    runs-on: ubuntu-latest
-#    needs: build
-#    steps:
-#      - name: Move modules
-#        uses: appleboy/ssh-action@master
-#        with:
-#          host: ${{ secrets.SSH_HOST_INTEGRATION }}
-#          username: ${{ secrets.SSH_USERNAME }}
-#          key: ${{ secrets.SSH_KEY }}
-#          script: |
-#            sudo su -c 'cp -R build-accounts/ps_accounts ${{ secrets.MULTISHOP_17_PATH }}/ps_accounts'
-#            sudo su -c 'chown -R www-data:www-data ${{ secrets.MULTISHOP_17_PATH }}/ps_accounts'
-#            sudo su -c 'cp -R build-accounts/ps_checkout ${{ secrets.MULTISHOP_17_PATH }}/ps_checkout'
-#            sudo su -c 'chown -R www-data:www-data ${{ secrets.MULTISHOP_17_PATH }}/ps_checkout'
-#
-#      - name: Install modules
-#        uses: appleboy/ssh-action@master
-#        with:
-#          host: ${{ secrets.SSH_HOST_INTEGRATION }}
-#          username: ${{ secrets.SSH_USERNAME }}
-#          key: ${{ secrets.SSH_KEY }}
-#          script: |
-#            sudo su -c 'docker exec $(docker ps -q -f "ancestor=prestashop/prestashop:1.7.6.7" -f "name=multishop") bin/console prestashop:module install ps_accounts'
-#            sudo su -c 'docker exec $(docker ps -q -f "ancestor=prestashop/prestashop:1.7.6.7" -f "name=multishop") cp modules/ps_checkout/.env modules/ps_checkout/_dev/.env'
-#            sudo su -c 'docker exec $(docker ps -q -f "ancestor=prestashop/prestashop:1.7.6.7" -f "name=multishop") bin/console prestashop:module install ps_checkout'
-#
-#  install_1_6:
-#    name: Install on shop 1.6
-#    runs-on: ubuntu-latest
-#    needs: build
-#    steps:
-#      - name: Move modules
-#        uses: appleboy/ssh-action@master
-#        with:
-#          host: ${{ secrets.SSH_HOST_INTEGRATION }}
-#          username: ${{ secrets.SSH_USERNAME }}
-#          key: ${{ secrets.SSH_KEY }}
-#          script: |
-#            sudo su -c 'cp -R build-accounts/ps_accounts ${{ secrets.MULTISHOP_16_PATH }}/ps_accounts'
-#            sudo su -c 'chown -R www-data:www-data ${{ secrets.MULTISHOP_16_PATH }}/ps_accounts'
-#            sudo su -c 'cp -R build-accounts/ps_checkout ${{ secrets.MULTISHOP_16_PATH }}/ps_checkout'
-#            sudo su -c 'chown -R www-data:www-data ${{ secrets.MULTISHOP_16_PATH }}/ps_checkout'
-#
-#      - name: Install modules
-#        uses: appleboy/ssh-action@master
-#        with:
-#          host: ${{ secrets.SSH_HOST_INTEGRATION }}
-#          username: ${{ secrets.SSH_USERNAME }}
-#          key: ${{ secrets.SSH_KEY }}
-#          script: |
-#            sudo su -c 'docker exec $(docker ps -q -f "ancestor=prestashop/prestashop:1.6" -f "name=multishop") php modules/ps_accounts/install.php'
-#            sudo su -c 'docker exec $(docker ps -q -f "ancestor=prestashop/prestashop:1.6" -f "name=multishop") cp modules/ps_checkout/.env modules/ps_checkout/_dev/.env'
-#            sudo su -c 'docker exec $(docker ps -q -f "ancestor=prestashop/prestashop:1.6" -f "name=multishop") php modules/ps_checkout/install.php'
-#
-#  clean:
-#    name: Clean
-#    runs-on: ubuntu-latest
-#    timeout-minutes: 5
-#    needs:
-#      - install_1_7
-#      - install_1_6
-#
-#    steps:
-#
-#      - name: Clear cache
-#        uses: appleboy/ssh-action@master
-#        with:
-#          host: ${{ secrets.SSH_HOST_INTEGRATION }}
-#          username: ${{ secrets.SSH_USERNAME }}
-#          key: ${{ secrets.SSH_KEY }}
-#          script: |
-#            sudo su -c 'docker exec $(docker ps -q -f "ancestor=prestashop/prestashop:1.7.6.7" -f "name=multishop") bin/console cache:cl'
-#            sudo su -c 'docker exec $(docker ps -q -f "ancestor=prestashop/prestashop:1.7.6.7" -f "name=multishop") chmod -R 777 var/cache var/logs'
-#            sudo su -c 'docker exec $(docker ps -q -f "ancestor=prestashop/prestashop:1.6" -f "name=multishop") rm -rf cache/smarty/compile/*'
-#            sudo su -c 'docker exec $(docker ps -q -f "ancestor=prestashop/prestashop:1.6" -f "name=multishop") rm -rf cache/smarty/cache/*'
-#            sudo su -c 'docker exec $(docker ps -q -f "ancestor=prestashop/prestashop:1.6" -f "name=multishop") rm -rf img/tmp/*'
-#
-#      - name: Delete tmp module
-#        uses: appleboy/ssh-action@master
-#        with:
-#          host: ${{ secrets.SSH_HOST_INTEGRATION }}
-#          username: ${{ secrets.SSH_USERNAME }}
-#          key: ${{ secrets.SSH_KEY }}
-#          script: rm -rf build-accounts
-#
+
+      - name: Write install file 1.6 checkout
+        run: |
+          cat <<'EOF' > ps_checkout/install.php
+          <?php include(dirname(__FILE__)."/../../config/config.inc.php"); $module = Module::getInstanceByName('ps_checkout'); try{$module->uninstall();}catch(Exception $e){} $module->install();
+          EOF
+
+      - name: Write install file 1.6 accounts
+        run: |
+          cat <<'EOF' > ps_accounts/install.php
+          <?php include(dirname(__FILE__)."/../../config/config.inc.php"); $module = Module::getInstanceByName('ps_accounts'); try{$module->uninstall();}catch(Exception $e){} $module->install();
+          EOF
+
+      - name: Build ps accounts
+        working-directory: ps_accounts
+        run: |
+          composer install
+
+      - name: Build ps checkout
+        working-directory: ps_checkout
+        run: |
+          yarn --cwd _dev/ add prestashop_accounts_vue_components#${VCOMPONENTS_VERSION}
+          yarn --cwd _dev/ install
+          yarn --cwd _dev/ build
+          composer install
+          composer require prestashop/prestashop-accounts-auth:${ACCOUNTSAUTH_VERSION}
+        env:
+          VCOMPONENTS_VERSION: ${{ steps.version_vcomponents.outputs.VERSION }}
+          ACCOUNTSAUTH_VERSION: ${{ steps.version_auth.outputs.VERSION }}
+
+      - name: Delete old modules 1.7
+        continue-on-error: true
+        uses: appleboy/ssh-action@master
+        with:
+          host: ${{ secrets.SSH_HOST_INTEGRATION }}
+          username: ${{ secrets.SSH_USERNAME }}
+          key: ${{ secrets.SSH_KEY }}
+          script: |
+            sudo su -c 'docker exec $(docker ps -q -f "ancestor=prestashop/prestashop:1.7.6.7" -f "name=multishop") rm -rf modules/ps_accounts'
+            sudo su -c 'docker exec $(docker ps -q -f "ancestor=prestashop/prestashop:1.7.6.7" -f "name=multishop") rm -rf modules/ps_checkout'
+
+      - name: Delete old modules 1.6
+        continue-on-error: true
+        uses: appleboy/ssh-action@master
+        with:
+          host: ${{ secrets.SSH_HOST_INTEGRATION }}
+          username: ${{ secrets.SSH_USERNAME }}
+          key: ${{ secrets.SSH_KEY }}
+          script: |
+            sudo su -c 'docker exec $(docker ps -q -f "ancestor=prestashop/prestashop:1.6" -f "name=multishop") rm -rf modules/ps_accounts'
+            sudo su -c 'docker exec $(docker ps -q -f "ancestor=prestashop/prestashop:1.6" -f "name=multishop") rm -rf modules/ps_checkout'
+
+      - name: Copy modules
+        uses: appleboy/scp-action@master
+        with:
+          host: ${{ secrets.SSH_HOST_INTEGRATION }}
+          username: ${{ secrets.SSH_USERNAME }}
+          key: ${{ secrets.SSH_KEY }}
+          source: "."
+          target: build-accounts
+
+  install_1_7:
+    name: Install on shop 1.7
+    runs-on: ubuntu-latest
+    needs: build
+    steps:
+      - name: Move modules
+        uses: appleboy/ssh-action@master
+        with:
+          host: ${{ secrets.SSH_HOST_INTEGRATION }}
+          username: ${{ secrets.SSH_USERNAME }}
+          key: ${{ secrets.SSH_KEY }}
+          script: |
+            sudo su -c 'cp -R build-accounts/ps_accounts ${{ secrets.MULTISHOP_17_PATH }}/ps_accounts'
+            sudo su -c 'chown -R www-data:www-data ${{ secrets.MULTISHOP_17_PATH }}/ps_accounts'
+            sudo su -c 'cp -R build-accounts/ps_checkout ${{ secrets.MULTISHOP_17_PATH }}/ps_checkout'
+            sudo su -c 'chown -R www-data:www-data ${{ secrets.MULTISHOP_17_PATH }}/ps_checkout'
+
+      - name: Install modules
+        uses: appleboy/ssh-action@master
+        with:
+          host: ${{ secrets.SSH_HOST_INTEGRATION }}
+          username: ${{ secrets.SSH_USERNAME }}
+          key: ${{ secrets.SSH_KEY }}
+          script: |
+            sudo su -c 'docker exec $(docker ps -q -f "ancestor=prestashop/prestashop:1.7.6.7" -f "name=multishop") bin/console prestashop:module install ps_accounts'
+            sudo su -c 'docker exec $(docker ps -q -f "ancestor=prestashop/prestashop:1.7.6.7" -f "name=multishop") cp modules/ps_checkout/.env modules/ps_checkout/_dev/.env'
+            sudo su -c 'docker exec $(docker ps -q -f "ancestor=prestashop/prestashop:1.7.6.7" -f "name=multishop") bin/console prestashop:module install ps_checkout'
+
+  install_1_6:
+    name: Install on shop 1.6
+    runs-on: ubuntu-latest
+    needs: build
+    steps:
+      - name: Move modules
+        uses: appleboy/ssh-action@master
+        with:
+          host: ${{ secrets.SSH_HOST_INTEGRATION }}
+          username: ${{ secrets.SSH_USERNAME }}
+          key: ${{ secrets.SSH_KEY }}
+          script: |
+            sudo su -c 'cp -R build-accounts/ps_accounts ${{ secrets.MULTISHOP_16_PATH }}/ps_accounts'
+            sudo su -c 'chown -R www-data:www-data ${{ secrets.MULTISHOP_16_PATH }}/ps_accounts'
+            sudo su -c 'cp -R build-accounts/ps_checkout ${{ secrets.MULTISHOP_16_PATH }}/ps_checkout'
+            sudo su -c 'chown -R www-data:www-data ${{ secrets.MULTISHOP_16_PATH }}/ps_checkout'
+
+      - name: Install modules
+        uses: appleboy/ssh-action@master
+        with:
+          host: ${{ secrets.SSH_HOST_INTEGRATION }}
+          username: ${{ secrets.SSH_USERNAME }}
+          key: ${{ secrets.SSH_KEY }}
+          script: |
+            sudo su -c 'docker exec $(docker ps -q -f "ancestor=prestashop/prestashop:1.6" -f "name=multishop") php modules/ps_accounts/install.php'
+            sudo su -c 'docker exec $(docker ps -q -f "ancestor=prestashop/prestashop:1.6" -f "name=multishop") cp modules/ps_checkout/.env modules/ps_checkout/_dev/.env'
+            sudo su -c 'docker exec $(docker ps -q -f "ancestor=prestashop/prestashop:1.6" -f "name=multishop") php modules/ps_checkout/install.php'
+
+  clean:
+    name: Clean
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    needs:
+      - install_1_7
+      - install_1_6
+
+    steps:
+
+      - name: Clear cache
+        uses: appleboy/ssh-action@master
+        with:
+          host: ${{ secrets.SSH_HOST_INTEGRATION }}
+          username: ${{ secrets.SSH_USERNAME }}
+          key: ${{ secrets.SSH_KEY }}
+          script: |
+            sudo su -c 'docker exec $(docker ps -q -f "ancestor=prestashop/prestashop:1.7.6.7" -f "name=multishop") bin/console cache:cl'
+            sudo su -c 'docker exec $(docker ps -q -f "ancestor=prestashop/prestashop:1.7.6.7" -f "name=multishop") chmod -R 777 var/cache var/logs'
+            sudo su -c 'docker exec $(docker ps -q -f "ancestor=prestashop/prestashop:1.6" -f "name=multishop") rm -rf cache/smarty/compile/*'
+            sudo su -c 'docker exec $(docker ps -q -f "ancestor=prestashop/prestashop:1.6" -f "name=multishop") rm -rf cache/smarty/cache/*'
+            sudo su -c 'docker exec $(docker ps -q -f "ancestor=prestashop/prestashop:1.6" -f "name=multishop") rm -rf img/tmp/*'
+
+      - name: Delete tmp module
+        uses: appleboy/ssh-action@master
+        with:
+          host: ${{ secrets.SSH_HOST_INTEGRATION }}
+          username: ${{ secrets.SSH_USERNAME }}
+          key: ${{ secrets.SSH_KEY }}
+          script: rm -rf build-accounts
+
