@@ -64,6 +64,7 @@ jobs:
           gcloud beta secrets versions access latest --project=$GCLOUD_PROJECT --secret="accounts-module" > ps_accounts/.env
           cat ps_accounts/.env
 
+
 #      - name: Gcloud auth and write env file
 #        run: |
 #          echo $GOOGLE_APPLICATION_CREDENTIALS > $GCLOUD_TOKEN_PATH
