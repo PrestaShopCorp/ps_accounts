@@ -30,8 +30,6 @@ jobs:
           sed -i -e "s/\($this->version = \).*/\1\'${VERSION}\';/" ps_accounts.php
           sed -i -e 's|\(<version><!\[CDATA\[\)[0-9a-z\.\-]\{1,\}\]\]></version>|\1'$VERSION']]></version>|g' config.xml
 
-
-
       - name: Create & upload artifact
         uses: actions/upload-artifact@v1
         with:
