@@ -66,6 +66,16 @@ There are 3 kinds of tokens that can interest you:
 - Firebase Refresh token
 [For more informations, please read the official documentation here](https://firebase.google.com/docs/auth/users#auth_tokens)
 
+Here is a recap of the configuration variables used to manage a shop account
+
+| ps_configuration                      | User account (Firebase SSO) | Shop (Firebase Ready) | What for ?
+|---------------------------------------|-----|-------|---
+| PS_ACCOUNTS_FIREBASE_ID_TOKEN         |     | X     | authenticate your shop, query accounts-api, billing-api...
+| PS_ACCOUNTS_FIREBASE_REFRESH_TOKEN    |     | X     |          
+| PSX_UUID_V4                           |     | X     | identify your shop          
+| PS_ACCOUNTS_FIREBASE_EMAIL            | X   |       | identify your account
+| PS_ACCOUNTS_FIREBASE_EMAIL_IS_VERIFIED| X   |       |
+
 ### How to refresh the JWT
 
 ```php

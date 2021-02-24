@@ -147,6 +147,8 @@ class ConfigurationRepository
     }
 
     /**
+     * @deprecated since v4.0.0
+     *
      * @return string | null
      */
     public function getFirebaseLocalId()
@@ -155,6 +157,8 @@ class ConfigurationRepository
     }
 
     /**
+     * @deprecated sibce v4.0.0
+     *
      * @param string $localId
      *
      * @return void
