@@ -24,14 +24,8 @@
 *  International Registered Trademark & Property of PrestaShop SA
 */
 
-use PrestaShop\AccountsAuth\DependencyInjection\PsAccountsServiceProvider;
-use PrestaShop\AccountsAuth\Environment\Env;
-use PrestaShop\AccountsAuth\Handler\ErrorHandler\ErrorHandler;
-use PrestaShop\AccountsAuth\Repository\ConfigurationRepository;
-use PrestaShop\Module\PsAccounts\Exception\EnvVarException;
-use PrestaShop\Module\PsAccounts\Exception\HmacException;
-use PrestaShop\Module\PsAccounts\Exception\PsAccountsRsaSignDataEmptyException;
-use PrestaShop\Module\PsAccounts\Exception\QueryParamsException;
+use PrestaShop\Module\PsAccounts\Handler\Error\Sentry;
+use PrestaShop\Module\PsAccounts\Service\ShopLinkAccountService;
 
 /**
  * Controller generate hmac and redirect on hmac's file.
@@ -39,63 +33,29 @@ use PrestaShop\Module\PsAccounts\Exception\QueryParamsException;
 class AdminConfigureHmacPsAccountsController extends ModuleAdminController
 {
     /**
+     * @var Ps_accounts
+     */
+    public $module;
+
+    /**
      * @return void
      *
-     * @throws Exception
+     * @throws Throwable
      */
     public function initContent()
     {
-        $errorHandler = ErrorHandler::getInstance();
-
         try {
-            $container = PsAccountsServiceProvider::getInstance();
+            /** @var ShopLinkAccountService $shopLinkAccountService */
+            $shopLinkAccountService = $this->module->getService(ShopLinkAccountService::class);
 
-            /** @var ConfigurationRepository $configuration */
-            $configuration = $container->get(ConfigurationRepository::class);
-
-            $container->get(Env::class);
-            if (null === Tools::getValue('hmac')) {
-                throw new HmacException('Hmac does not exist', 500);
-            }
-            $hmacPath = _PS_ROOT_DIR_ . '/upload/';
-            foreach (['hmac' => '/[a-zA-Z0-9]{8,64}/', 'uid' => '/[a-zA-Z0-9]{8,64}/', 'slug' => '/[-_a-zA-Z0-9]{8,255}/'] as $key => $value) {
-                if (!array_key_exists($key, Tools::getAllValues())) {
-                    throw new QueryParamsException('Missing query params', 500);
-                }
-
-                if (!preg_match($value, Tools::getValue($key))) {
-                    throw new QueryParamsException('Invalide query params', 500);
-                }
-            }
-
-            if (!is_dir($hmacPath)) {
-                mkdir($hmacPath);
-            }
-
-            if (!is_writable($hmacPath)) {
-                throw new HmacException('Directory isn\'t writable', 500);
-            }
-
-            file_put_contents($hmacPath . Tools::getValue('uid') . '.txt', Tools::getValue('hmac'));
-
-            $url = $_ENV['ACCOUNTS_SVC_UI_URL'];
-            if (false === $url) {
-                throw new EnvVarException('Environment variable ACCOUNTS_SVC_UI_URL should not be empty', 500);
-            }
-
-            if ('/' === substr($url, -1)) {
-                $url = substr($url, 0, -1);
-            }
-
-            if (empty($configuration->getAccountsRsaSignData())) {
-                throw new PsAccountsRsaSignDataEmptyException('PsAccounts RsaSignData couldn\'t be empty', 500);
-            }
-
-            Tools::redirect($url . '/shop/account/verify/' . Tools::getValue('uid')
-            . '?shopKey='
-            . urlencode($configuration->getAccountsRsaSignData()));
+            Tools::redirect(
+                $shopLinkAccountService->getVerifyAccountUrl(
+                    Tools::getAllValues(),
+                    _PS_ROOT_DIR_
+                )
+            );
         } catch (Exception $e) {
-            $errorHandler->handle($e, $e->getCode());
+            Sentry::captureAndRethrow($e);
         }
     }
 }

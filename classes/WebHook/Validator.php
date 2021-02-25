@@ -20,11 +20,10 @@
 
 namespace PrestaShop\Module\PsAccounts\WebHook;
 
-use PrestaShop\AccountsAuth\DependencyInjection\PsAccountsServiceProvider;
-use PrestaShop\AccountsAuth\Repository\ConfigurationRepository;
-use PrestaShop\Module\PsAccounts\Api\AccountsClient;
-use PrestaShop\Module\PsAccounts\Exception\FirebaseException;
+use Context;
+use PrestaShop\Module\PsAccounts\Api\Client\ServicesAccountsClient;
 use PrestaShop\Module\PsAccounts\Exception\WebhookException;
+use PrestaShop\Module\PsAccounts\Repository\ConfigurationRepository;
 
 class Validator
 {
@@ -48,7 +47,7 @@ class Validator
     private $message = '';
 
     /**
-     * @var \Context
+     * @var Context
      */
     private $context;
 
@@ -58,15 +57,27 @@ class Validator
     private $configuration;
 
     /**
+     * @var ServicesAccountsClient
+     */
+    private $accountsClient;
+
+    /**
      * Validator constructor.
      *
-     * @throws \Exception
+     * @param ServicesAccountsClient $accountsClient
+     * @param ConfigurationRepository $configuration
+     * @param Context $context
      */
-    public function __construct()
-    {
-        $this->context = \Context::getContext();
+    public function __construct(
+        ServicesAccountsClient $accountsClient,
+        ConfigurationRepository $configuration,
+        Context $context
+    ) {
+        $this->accountsClient = $accountsClient;
 
-        $this->configuration = PsAccountsServiceProvider::getInstance()->get(ConfigurationRepository::class);
+        $this->configuration = $configuration;
+
+        $this->context = $context;
     }
 
     /**
@@ -148,7 +159,7 @@ class Validator
      * @return void
      *
      * @throws WebhookException
-     * @throws FirebaseException
+     * @throws \PrestaShopException
      */
     public function validate($headerValues = [], $bodyValues = [])
     {
@@ -157,7 +168,7 @@ class Validator
         $errors = empty($errors) ? $this->verifyWebhook($headerValues, $bodyValues) : $errors;
 
         if (!empty($errors)) {
-            throw new WebhookException((string) json_encode($errors), 500);
+            throw new WebhookException((string) json_encode($errors));
         }
     }
 
@@ -191,11 +202,13 @@ class Validator
      *
      * @return array
      *
-     * @throws FirebaseException
+     * @throws \PrestaShopException
      */
     private function verifyWebhook(array $headerValues = [], array $bodyValues = [])
     {
-        $response = (new AccountsClient($this->context->link))->checkWebhookAuthenticity($headerValues, $bodyValues);
+        //$response = (new AccountsClient($this->context->link))->checkWebhookAuthenticity($headerValues, $bodyValues);
+
+        $response = $this->accountsClient->verifyWebhook($headerValues, $bodyValues);
 
         if (!$response || 200 > $response['httpCode'] || 299 < $response['httpCode']) {
             return [$response['body'] ? $response['body'] : 'Webhook not verified'];

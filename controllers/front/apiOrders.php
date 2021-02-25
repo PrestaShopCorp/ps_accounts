@@ -1,23 +1,25 @@
 <?php
 
-use PrestaShop\Module\PsAccounts\Controller\AbstractApiController;
-use PrestaShop\Module\PsAccounts\Provider\OrderDataProvider;
-
-class ps_AccountsApiOrdersModuleFrontController extends AbstractApiController
+class ps_AccountsApiOrdersModuleFrontController extends ModuleFrontController
 {
-    public $type = 'orders';
-
     /**
-     * @throws PrestaShopException
-     *
      * @return void
      */
     public function postProcess()
     {
-        $orderDataProvider = $this->module->getService(OrderDataProvider::class);
-
-        $response = $this->handleDataSync($orderDataProvider);
-
-        $this->exitWithResponse($response);
+        if (Module::isInstalled('ps_eventbus')) {
+            Tools::redirect($this->context->link->getModuleLink(
+                'ps_eventbus',
+                'apiOrders',
+                [
+                    'job_id' => Tools::getValue('job_id', ''),
+                    'limit' => Tools::getValue('limit'),
+                    'full' => Tools::getValue('full'),
+                ],
+                null,
+                null,
+                $this->context->shop->id
+            ));
+        }
     }
 }

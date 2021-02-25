@@ -23,6 +23,13 @@ install.lock
 composer-dev.json
 composer-dev.lock
 
+### Configuration ###
+config/config*.yml
+config/**/services_*.yml
+!config/config.yml.dist
+!config/admin/services.yml
+!config/front/services.yml
+
 ### Module files ###
 !views/files
 views/files/*

@@ -1,0 +1,32 @@
+#dashboardApp {
+  *,
+  *:before,
+  *:after {
+    all: reset;
+  }
+
+  margin: 0;
+  font-family: Open Sans, Helvetica, Arial, sans-serif;
+  font-size: 14px;
+  font-size: 0.875rem;
+  font-weight: 400;
+  line-height: 1.5;
+  color: #363a41;
+  text-align: left;
+  background-color: #f1f1f1;
+  max-width: 100%;
+
+  .modal-body {
+    max-height: 60vh;
+    overflow-y: scroll;
+    background: /* Shadow covers */ linear-gradient(white 30%, rgba(255, 255, 255, 0)), linear-gradient(rgba(255, 255, 255, 0), white 70%) 0 100%, /* Shadows */ radial-gradient(farthest-side at 50% 0, rgba(0, 0, 0, .2), rgba(0, 0, 0, 0)), radial-gradient(farthest-side at 50% 100%, rgba(0, 0, 0, .2), rgba(0, 0, 0, 0)) 0 100%;
+    background-repeat: no-repeat;
+    background-color: white;
+    background-size: 100% 40px, 100% 40px, 100% 14px, 100% 14px;
+    background-attachment: local, local, scroll, scroll;
+  }
+
+  @import "~bootstrap-vue/dist/bootstrap-vue";
+  @import "~prestakit/dist/css/bootstrap-prestashop-ui-kit";
+  @import url("https://fonts.googleapis.com/icon?family=Material+Icons");
+}

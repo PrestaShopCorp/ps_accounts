@@ -1,26 +1,25 @@
 <?php
 
-use PrestaShop\Module\PsAccounts\Controller\AbstractApiController;
-use PrestaShop\Module\PsAccounts\Provider\ModuleDataProvider;
-use PrestaShop\Module\PsAccounts\Repository\ModuleRepository;
-
-class ps_AccountsApiModulesModuleFrontController extends AbstractApiController
+class ps_AccountsApiModulesModuleFrontController extends ModuleFrontController
 {
-    public $type = 'modules';
-
     /**
-     * @throws PrestaShopException
-     *
      * @return void
      */
     public function postProcess()
     {
-        $moduleDataProvider = new ModuleDataProvider(
-            new ModuleRepository(Db::getInstance())
-        );
-
-        $response = $this->handleDataSync($moduleDataProvider);
-
-        $this->exitWithResponse($response);
+        if (Module::isInstalled('ps_eventbus')) {
+            Tools::redirect($this->context->link->getModuleLink(
+                'ps_eventbus',
+                'apiModules',
+                [
+                    'job_id' => Tools::getValue('job_id', ''),
+                    'limit' => Tools::getValue('limit'),
+                    'full' => Tools::getValue('full'),
+                ],
+                null,
+                null,
+                $this->context->shop->id
+            ));
+        }
     }
 }

@@ -31,6 +31,7 @@ class Install
      * @var \Ps_accounts
      */
     private $module;
+
     /**
      * @var \Db
      */
@@ -46,6 +47,9 @@ class Install
      * installInMenu.
      *
      * @return bool
+     *
+     * @throws \PrestaShopDatabaseException
+     * @throws \PrestaShopException
      */
     public function installInMenu()
     {

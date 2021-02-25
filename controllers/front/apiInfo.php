@@ -1,45 +1,23 @@
 <?php
 
-use PrestaShop\Module\PsAccounts\Controller\AbstractApiController;
-use PrestaShop\Module\PsAccounts\Exception\EnvVarException;
-use PrestaShop\Module\PsAccounts\Exception\FirebaseException;
-use PrestaShop\Module\PsAccounts\Repository\ServerInformationRepository;
-
-class ps_AccountsApiInfoModuleFrontController extends AbstractApiController
+class ps_AccountsApiInfoModuleFrontController extends ModuleFrontController
 {
-    public $type = 'shops';
-
     /**
-     * @throws PrestaShopException
-     *
      * @return void
      */
     public function postProcess()
     {
-        $response = [];
-
-        $jobId = Tools::getValue('job_id');
-
-        $serverInformationRepository = $this->module->getService(ServerInformationRepository::class);
-
-        $serverInfo = $serverInformationRepository->getServerInformation(Tools::getValue('lang_iso', null));
-
-        try {
-            $response = $this->proxyService->upload($jobId, $serverInfo);
-        } catch (EnvVarException $exception) {
-            $this->exitWithExceptionMessage($exception);
-        } catch (FirebaseException $exception) {
-            $this->exitWithExceptionMessage($exception);
-        }
-
-        $this->exitWithResponse(
-            array_merge(
+        if (Module::isInstalled('ps_eventbus')) {
+            Tools::redirect($this->context->link->getModuleLink(
+                'ps_eventbus',
+                'apiInfo',
                 [
-                    'remaining_objects' => 0,
-                    'total_objects' => 1,
+                    'job_id' => Tools::getValue('job_id', ''),
                 ],
-                $response
-            )
-        );
+                null,
+                null,
+                $this->context->shop->id
+            ));
+        }
     }
 }
