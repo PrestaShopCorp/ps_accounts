@@ -294,6 +294,13 @@ class ShopLinkAccountService implements Configurable
                 if (!empty($emailVerified)) {
                     $this->configuration->updateFirebaseEmailIsVerified('true' === $emailVerified);
                 }
+
+                // FIXME : quick and dirty fix
+                \Tools::redirectAdmin(
+                    $this->link->getAdminLink('AdminModules', true, [], [
+                        'configure' => 'ps_accounts',
+                    ])
+                );
             }
         }
     }
