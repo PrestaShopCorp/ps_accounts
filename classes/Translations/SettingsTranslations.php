@@ -49,18 +49,19 @@ class SettingsTranslations
     public function getTranslations()
     {
         $locale = Context::getContext()->language->iso_code;
+        $class = 'SettingsTranslations';
 
         $translations[$locale] = [
             'general' => [
-                'settings' => $this->module->l('Settings', 'SettingsTranslations'),
-                'help' => $this->module->l('Help', 'SettingsTranslations'),
+                'settings' => $this->module->l('settings.settings', $class),
+                'help' => $this->module->l('settings.help', $class),
             ],
             'configure' => [
                 'incentivePanel' => [
-                    'title' => $this->module->l('PrestaShop Account'),
-                    'howTo' => $this->module->l('How to activate it? An easy 2-steps process :', 'SettingsTranslations'),
-                    'createPsAccount' => $this->module->l('Create your PrestaShop Account', 'SettingsTranslations'),
-                    'linkPsAccount' => $this->module->l('Link your PrestaShop Account', 'SettingsTranslations'),
+                    'title' => $this->module->l('settings.title', $class),
+                    'howTo' => $this->module->l('settings.sub_title', $class),
+                    'createPsAccount' => $this->module->l('settings.step_1', $class),
+                    'linkPsAccount' => $this->module->l('settings.step_2', $class),
                 ],
             ],
         ];
