@@ -37,7 +37,7 @@ Vue.use(VueCompositionAPI);
 Vue.use(Router);
 Vue.use(BootstrapVue, BootstrapVueIcons);
 Vue.use(VueCollapse);
-Vue.use(psAccountsVueComponents);
+Vue.use(psAccountsVueComponents, { locale: i18n.locale });
 Vue.use(StoreSaga, { store });
 // Vue.use(VueSegment, {
 //   id: "Vxk9VEvePTRlBmjkjzbUG6saW5yAmgb2",
