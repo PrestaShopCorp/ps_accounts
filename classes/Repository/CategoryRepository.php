@@ -6,6 +6,10 @@ use Category;
 use Context;
 use Db;
 use DbQuery;
+use mysqli_result;
+use PDOStatement;
+use PrestaShopDatabaseException;
+use Shop;
 
 class CategoryRepository
 {
@@ -19,10 +23,6 @@ class CategoryRepository
      */
     private $categoryLangCache;
 
-    /**
-     * @var int
-     */
-    private $topCategoryId = 0;
     /**
      * @var Context
      */
@@ -70,31 +70,18 @@ class CategoryRepository
             ];
         }
 
-        $categoryId = $topCategoryId;
         $categories = [];
 
         try {
             $categoriesWithParentsInfo = $this->getCategoriesWithParentInfo($langId, $shopId);
-        } catch (\PrestaShopDatabaseException $e) {
+        } catch (PrestaShopDatabaseException $e) {
             return [
                 'category_path' => '',
                 'category_id_path' => '',
             ];
         }
 
-        if (!$this->topCategoryId) {
-            $this->topCategoryId = Category::getTopCategory()->id;
-        }
-
-        while ((int) $categoryId != $this->topCategoryId) {
-            foreach ($categoriesWithParentsInfo as $category) {
-                if ($category['id_category'] == $categoryId) {
-                    $categories[] = $category;
-                    $categoryId = $category['id_parent'];
-                    break;
-                }
-            }
-        }
+        $this->buildCategoryPaths($categoriesWithParentsInfo, $topCategoryId, $categories);
 
         $categories = array_reverse($categories);
 
@@ -109,12 +96,27 @@ class CategoryRepository
     }
 
     /**
+     * @param array $categoriesWithParentsInfo
+     * @param int $currentCategoryId
+     * @param array $categories
+     */
+    private function buildCategoryPaths($categoriesWithParentsInfo, $currentCategoryId, &$categories)
+    {
+        foreach ($categoriesWithParentsInfo as $category) {
+            if ($category['id_category'] == $currentCategoryId) {
+                $categories[] = $category;
+                $this->buildCategoryPaths($categoriesWithParentsInfo, $category['id_parent'], $categories);
+            }
+        }
+    }
+
+    /**
      * @param int $langId
      * @param int $shopId
      *
      * @return array
      *
-     * @throws \PrestaShopDatabaseException
+     * @throws PrestaShopDatabaseException
      */
     public function getCategoriesWithParentInfo($langId, $shopId)
     {
@@ -136,7 +138,7 @@ class CategoryRepository
             if (is_array($result)) {
                 $this->categoryLangCache[$langId] = $result;
             } else {
-                throw new \PrestaShopDatabaseException('No categories found');
+                throw new PrestaShopDatabaseException('No categories found');
             }
         }
 
@@ -148,9 +150,9 @@ class CategoryRepository
      * @param int $limit
      * @param string $langIso
      *
-     * @return array|bool|\mysqli_result|\PDOStatement|resource|null
+     * @return array|bool|mysqli_result|PDOStatement|resource|null
      *
-     * @throws \PrestaShopDatabaseException
+     * @throws PrestaShopDatabaseException
      */
     public function getCategories($offset, $limit, $langIso)
     {
@@ -182,9 +184,9 @@ class CategoryRepository
      * @param int $limit
      * @param string $langIso
      *
-     * @return array|bool|\mysqli_result|\PDOStatement|resource|null
+     * @return array|bool|mysqli_result|PDOStatement|resource|null
      *
-     * @throws \PrestaShopDatabaseException
+     * @throws PrestaShopDatabaseException
      */
     public function getCategoriesIncremental($limit, $langIso)
     {

@@ -227,7 +227,7 @@ abstract class AbstractApiController extends ModuleFrontController
             'message' => $exception->getMessage(),
         ];
 
-        $this->dieWithResponse($response, (int) $exception->getCode());
+        $this->dieWithResponse($response, (int) $code);
     }
 
     /**
