@@ -7675,8 +7675,10 @@ prestakit@^1.1.0, prestakit@^1.2.1:
     select2 "^4.0.5"
     select2-bootstrap-theme "0.1.0-beta.10"
 
-"prestashop_accounts_vue_components@file:../../prestashop_accounts_vue_components":
+prestashop_accounts_vue_components@^1.5.5:
   version "1.5.5"
+  resolved "https://registry.yarnpkg.com/prestashop_accounts_vue_components/-/prestashop_accounts_vue_components-1.5.5.tgz#c4835a9ef74b0367770fcaae0b3800c82385b37a"
+  integrity sha512-UJzjmXapeKdL7Je6O3z2Jyh2AfnOFifMGUeQzilCXm3uCT4mpe7MGKvgRCp+IQdTPceJBy+BqE9+ZaF8Snc6Ag==
   dependencies:
     "@hapi/joi" "^17.1.1"
     "@prestashopcorp/segment-vue" "^1.2.10"
