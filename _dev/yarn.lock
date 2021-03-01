@@ -7675,8 +7675,8 @@ prestakit@^1.1.0, prestakit@^1.2.1:
     select2 "^4.0.5"
     select2-bootstrap-theme "0.1.0-beta.10"
 
-"prestashop_accounts_vue_components@file:../../../../prestashop_accounts_vue_components":
-  version "1.5.4"
+"prestashop_accounts_vue_components@file:../../prestashop_accounts_vue_components":
+  version "1.5.5"
   dependencies:
     "@hapi/joi" "^17.1.1"
     "@prestashopcorp/segment-vue" "^1.2.10"
