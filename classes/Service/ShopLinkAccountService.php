@@ -304,8 +304,7 @@ class ShopLinkAccountService implements Configurable
     public function isAccountLinked()
     {
         return $this->shopTokenService->getToken()
-            && $this->configuration->getFirebaseEmail()
-            && $this->configuration->firebaseEmailIsVerified();
+            && $this->configuration->getFirebaseEmail();
     }
 
     /**
