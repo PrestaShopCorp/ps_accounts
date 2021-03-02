@@ -86,7 +86,7 @@ class ProductDecorator
                 null,
                 null,
                 null,
-                (int) $this->languageRepository->getLanguageIdByIsoCode($product['iso_code']),
+                $this->languageRepository->getLanguageIdByIsoCode($product['iso_code']),
                 $this->context->shop->id,
                 $product['id_attribute']
             );
@@ -274,13 +274,13 @@ class ProductDecorator
 
             $product['images'] = $this->arrayFormatter->arrayToString(
                 array_map(function ($imageId) use ($product) {
-                    return $this->context->link->getImageLink($product['link_rewrite'], (string) $imageId, 'home_default');
+                    return $this->context->link->getImageLink($product['link_rewrite'], (string) $imageId);
                 }, $productImageIds)
             );
 
             $product['cover'] = $coverImageId == '0' ?
                 '' :
-                $this->context->link->getImageLink($product['link_rewrite'], (string) $coverImageId, 'home_default');
+                $this->context->link->getImageLink($product['link_rewrite'], (string) $coverImageId);
         }
     }
 }

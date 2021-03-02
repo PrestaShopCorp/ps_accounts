@@ -127,7 +127,6 @@ class OrderDataProvider implements PaginatedApiDataProviderInterface
         foreach ($orders as &$order) {
             $order['id_order'] = (int) $order['id_order'];
             $order['id_customer'] = (int) $order['id_customer'];
-            $order['id_cart'] = (int) $order['id_cart'];
             $order['current_state'] = (int) $order['current_state'];
             $order['conversion_rate'] = (float) $order['conversion_rate'];
             $order['total_paid_tax_incl'] = (float) $order['total_paid_tax_incl'];
@@ -135,6 +134,9 @@ class OrderDataProvider implements PaginatedApiDataProviderInterface
             $order['refund'] = (float) $order['refund'];
             $order['refund_tax_excl'] = (float) $order['refund_tax_excl'];
             $order['new_customer'] = $order['new_customer'] === '1';
+            $order['is_paid'] = (float) $order['total_paid_real'] >= (float) $order['total_paid_tax_incl'];
+            $order['shipping_cost'] = (float) $order['shipping_cost'];
+            $order['total_paid_tax'] = $order['total_paid_tax_incl'] - $order['total_paid_tax_excl'];
         }
     }
 
