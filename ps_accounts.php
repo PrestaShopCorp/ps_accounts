@@ -99,6 +99,7 @@ class Ps_accounts extends Module
 
         $this->displayName = $this->l('ps_accounts.display_name');
         $this->description = $this->l('ps_accounts.description');
+        $this->description_full = $this->l('ps_accounts.description_full');
         $this->confirmUninstall = $this->l('ps_accounts.confirm_uninstall');
 
         $this->ps_versions_compliancy = ['min' => '1.6', 'max' => _PS_VERSION_];
