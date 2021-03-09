@@ -21,7 +21,6 @@
 use PrestaShop\AccountsAuth\DependencyInjection\PsAccountsServiceProvider;
 use PrestaShop\AccountsAuth\Handler\ErrorHandler\ErrorHandler;
 use PrestaShop\AccountsAuth\Repository\ConfigurationRepository;
-use PrestaShop\Module\PsAccounts\Api\ServicesApi\Webhook;
 use PrestaShop\Module\PsAccounts\Exception\WebhookException;
 use PrestaShop\Module\PsAccounts\WebHook\Validator;
 
