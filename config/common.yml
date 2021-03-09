@@ -6,7 +6,3 @@ services:
   ps_accounts.context:
     class: Context
     factory: [ 'Context', 'getContext' ]
-
-  ps_accounts.link:
-    class: Link
-    factory: [ 'PrestaShop\Module\PsAccounts\Factory\Link', 'get' ]
