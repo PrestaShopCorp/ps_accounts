@@ -26,12 +26,13 @@ abstract class AbstractRestController extends \ModuleFrontController implements 
      */
     public function postProcess()
     {
-        $payload = $this->decodePayload();
-
-        $action = $this->getRestAction($_SERVER['REQUEST_METHOD'], $payload);
-
         try {
-            $this->dieWithResponseJson($this->$action($payload));
+            $this->dieWithResponseJson(
+                $this->dispatchRestAction(
+                    $_SERVER['REQUEST_METHOD'],
+                    $this->decodePayload()
+                )
+            );
         } catch (\Exception $e) {
             //Sentry::captureAndRethrow($e);
             $this->dieWithResponseJson([
@@ -119,23 +120,29 @@ abstract class AbstractRestController extends \ModuleFrontController implements 
     /**
      * @param string $httpMethod
      *
-     * @return string
+     * @param array $payload
+     * @return array
      */
-    protected function getRestAction($httpMethod, $payload)
+    protected function dispatchRestAction($httpMethod, array $payload)
     {
+        $id = null;
+        if (array_key_exists(self::RESOURCE_ID, $payload)) {
+            $id = $payload[self::RESOURCE_ID];
+        }
+
         switch ($httpMethod) {
             case 'GET':
-                if (isset($payload['id'])) {
-                    return self::METHOD_SHOW;
+                if (null !== $id) {
+                    return $this->{self::METHOD_SHOW}($id, $payload);
                 }
-                return self::METHOD_INDEX;
+                return $this->{self::METHOD_INDEX}($payload);
             case 'POST':
-                return self::METHOD_STORE;
+                return $this->{self::METHOD_STORE}($payload);
             case 'PUT':
             case 'PATCH':
-                return self::METHOD_UPDATE;
+                return  $this->{self::METHOD_UPDATE}($id, $payload);
             case 'DELETE':
-                return self::METHOD_DELETE;
+                return $this->{self::METHOD_DELETE}($id, $payload);
         }
     }
 
