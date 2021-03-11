@@ -119,9 +119,9 @@ abstract class AbstractRestController extends \ModuleFrontController implements 
 
     /**
      * @param string $httpMethod
-     *
      * @param array $payload
-     * @return array
+     *
+     * @return void
      */
     protected function dispatchRestAction($httpMethod, array $payload)
     {
