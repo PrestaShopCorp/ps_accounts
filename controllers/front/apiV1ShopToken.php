@@ -3,7 +3,7 @@
 use PrestaShop\Module\PsAccounts\Controller\AbstractRestController;
 use PrestaShop\Module\PsAccounts\Service\ShopTokenService;
 
-class ps_AccountsApiShopTokenModuleFrontController extends AbstractRestController
+class ps_AccountsApiV1ShopTokenModuleFrontController extends AbstractRestController
 {
     /**
      * @param array $payload

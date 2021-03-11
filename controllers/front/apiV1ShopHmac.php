@@ -2,7 +2,7 @@
 
 use PrestaShop\Module\PsAccounts\Controller\AbstractRestController;
 
-class ps_AccountsApiShopHmacModuleFrontController extends AbstractRestController
+class ps_AccountsApiV1ShopHmacModuleFrontController extends AbstractRestController
 {
     /**
      * @param array $payload
