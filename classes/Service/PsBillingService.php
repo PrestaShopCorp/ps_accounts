@@ -120,7 +120,7 @@ class PsBillingService
                     $uuid,
                     $customerIp ? ['created_from_ip' => $customerIp] : []
                 );
-                if (!$response || !array_key_exists('httpCode', $response) || $response['httpCode'] !== 200) {
+                if (!$response || !array_key_exists('httpCode', $response) || $response['httpCode'] !== 201) {
                     throw new BillingException('Billing customer creation failed.', 60);
                 }
             }
@@ -132,7 +132,7 @@ class PsBillingService
             }
 
             if ($response['httpCode'] === 404) {
-                $response = $billingClient->createBillingSubscriptions($uuid, ['plan_id' => $planName, 'module' => $module]);
+                $response = $billingClient->createBillingSubscriptions($uuid, $module, ['plan_id' => $planName, 'module' => $module]);
                 if (!$response || !array_key_exists('httpCode', $response) || $response['httpCode'] >= 400) {
                     if ($response && array_key_exists('body', $response)
                         && array_key_exists('message', $response['body'])
