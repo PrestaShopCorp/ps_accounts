@@ -147,10 +147,13 @@ abstract class AbstractRestController extends \ModuleFrontController implements 
     }
 
     /**
-     * @return mixed
+     * @return array
      */
     protected function decodePayload()
     {
+//        $encrypted = base64_decode($_REQUEST['token']);
+//        $json = decrypt($privKey, $e,crypted);
+//        return json_decode($json);
         return $_REQUEST;
     }
 }
