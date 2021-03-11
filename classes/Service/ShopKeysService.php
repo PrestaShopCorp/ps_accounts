@@ -148,8 +148,28 @@ class ShopKeysService
     /**
      * @return string
      */
+    public function getPrivateKey()
+    {
+        return $this->configuration->getAccountsRsaPrivateKey();
+    }
+
+    /**
+     * @return string
+     */
     public function getSignature()
     {
         return $this->configuration->getAccountsRsaSignData();
+    }
+
+    /**
+     * @param $encrypted
+     *
+     * @return false|string
+     */
+    public function decrypt($encrypted)
+    {
+        $this->rsa->loadKey($this->getPrivateKey(), RSA::PRIVATE_FORMAT_PKCS1);
+
+        return $this->rsa->decrypt($encrypted);
     }
 }

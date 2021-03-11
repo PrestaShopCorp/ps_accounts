@@ -3,6 +3,7 @@
 namespace PrestaShop\Module\PsAccounts\Controller;
 
 use PrestaShop\Module\PsAccounts\Handler\Error\Sentry;
+use PrestaShop\Module\PsAccounts\Service\ShopKeysService;
 
 abstract class AbstractRestController extends \ModuleFrontController implements RestControllerInterface
 {
@@ -135,12 +136,13 @@ abstract class AbstractRestController extends \ModuleFrontController implements 
                 if (null !== $id) {
                     return $this->{self::METHOD_SHOW}($id, $payload);
                 }
+
                 return $this->{self::METHOD_INDEX}($payload);
             case 'POST':
                 return $this->{self::METHOD_STORE}($payload);
             case 'PUT':
             case 'PATCH':
-                return  $this->{self::METHOD_UPDATE}($id, $payload);
+                return $this->{self::METHOD_UPDATE}($id, $payload);
             case 'DELETE':
                 return $this->{self::METHOD_DELETE}($id, $payload);
         }
@@ -151,9 +153,14 @@ abstract class AbstractRestController extends \ModuleFrontController implements 
      */
     protected function decodePayload()
     {
-//        $encrypted = base64_decode($_REQUEST['token']);
-//        $json = decrypt($privKey, $e,crypted);
-//        return json_decode($json);
         return $_REQUEST;
+
+        /** @var ShopKeysService $shopKeysService */
+        $shopKeysService = $this->module->getService(ShopKeysService::class);
+
+        $encrypted = base64_decode($_REQUEST['token']);
+        $json = $shopKeysService->decrypt($encrypted);
+
+        return json_decode($json);
     }
 }
