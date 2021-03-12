@@ -23,7 +23,14 @@ class TestCase extends \PHPUnit\Framework\TestCase
     public $module;
 
     /**
+     * @var \PrestaShop\Module\PsAccounts\Adapter\Configuration;
+     */
+    public $configuration;
+
+    /**
      * @return void
+     *
+     * @throws \Exception
      */
     protected function setUp()
     {
@@ -33,8 +40,11 @@ class TestCase extends \PHPUnit\Framework\TestCase
 
         $this->faker = \Faker\Factory::create();
 
-        /* @var Ps_accounts $module */
         $this->module = Module::getInstanceByName('ps_accounts');
+
+        $this->configuration = $this->module->getService(
+            \PrestaShop\Module\PsAccounts\Adapter\Configuration::class
+        );
     }
 
     /**

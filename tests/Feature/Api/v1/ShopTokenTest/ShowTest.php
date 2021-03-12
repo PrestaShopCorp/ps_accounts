@@ -1,22 +1,20 @@
 <?php
 
-namespace PrestaShop\Module\PsAccounts\Tests\Feature\Api\v1;
+namespace PrestaShop\Module\PsAccounts\Tests\Feature\Api\v1\ShopTokenTest;
 
 use PrestaShop\Module\PsAccounts\Controller\AbstractRestController;
 use PrestaShop\Module\PsAccounts\Tests\Feature\BaseFeatureTest;
 
-class ShopTokenTest extends BaseFeatureTest
+class ShowTest extends BaseFeatureTest
 {
     /**
      * @test
      *
      * @throws \Exception
      */
-    public function itShouldShowWithSuccess()
+    public function itShouldSucceed()
     {
-        $baseUri = 'http://prestashop-17-herve-dev.local';
-
-        $response = $this->client->get($baseUri . '/module/ps_accounts/apiV1ShopUrl', [
+        $response = $this->client->get('/module/ps_accounts/apiV1ShopUrl', [
             'query' => [
                 AbstractRestController::PAYLOAD_PARAM => $this->encodePayload([
                     'shop_id' => 1,
@@ -24,7 +22,9 @@ class ShopTokenTest extends BaseFeatureTest
             ],
         ]);
 
-        $json = json_decode($response->getBody()->getContents(), true);
+        $this->assertEquals($response->getStatusCode(), 200);
+
+        $json = $response->json();
 
         print_r($json);
 

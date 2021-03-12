@@ -3,7 +3,6 @@
 namespace PrestaShop\Module\PsAccounts\Tests\Feature;
 
 use GuzzleHttp\Client;
-use Module;
 use PrestaShop\Module\PsAccounts\Service\ShopKeysService;
 use PrestaShop\Module\PsAccounts\Tests\TestCase;
 
@@ -14,11 +13,19 @@ class BaseFeatureTest extends TestCase
      */
     protected $client;
 
+    /**
+     * @throws \Exception
+     */
     public function setUp()
     {
         parent::setUp();
 
+        $scheme = $this->configuration->get('PS_SSL_ENABLED') ? 'https://' : 'http://';
+        $domain = $this->configuration->get('PS_SHOP_DOMAIN');
+        $baseUrl = $scheme . $domain;
+
         $this->client = new Client([
+            'base_url' => $baseUrl,
             'defaults' => [
                 'timeout' => 60,
                 'exceptions' => true,
@@ -40,11 +47,8 @@ class BaseFeatureTest extends TestCase
      */
     public function encodePayload(array $payload)
     {
-        /** @var \Ps_accounts $module */
-        $module = Module::getInstanceByName('ps_accounts');
-
         /** @var ShopKeysService $shopKeysService */
-        $shopKeysService = $module->getService(ShopKeysService::class);
+        $shopKeysService = $this->module->getService(ShopKeysService::class);
 
         return base64_encode($shopKeysService->encrypt(json_encode($payload)));
     }
