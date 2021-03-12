@@ -6,13 +6,14 @@ use PrestaShop\Module\PsAccounts\Service\ShopTokenService;
 class ps_AccountsApiV1ShopTokenModuleFrontController extends AbstractShopRestController
 {
     /**
+     * @param mixed $id
      * @param array $payload
      *
      * @return array
      *
      * @throws Exception
      */
-    public function index(array $payload)
+    public function show($id, array $payload)
     {
         /** @var ShopTokenService $shopTokenService */
         $shopTokenService = $this->module->getService(ShopTokenService::class);

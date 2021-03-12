@@ -12,6 +12,8 @@ abstract class AbstractRestController extends \ModuleFrontController implements 
     const METHOD_DELETE = 'delete';
     const METHOD_STORE = 'store';
 
+    const PAYLOAD_PARAM = 'payload';
+
     /**
      * @var string
      */
@@ -156,11 +158,11 @@ abstract class AbstractRestController extends \ModuleFrontController implements 
         $shopKeysService = $this->module->getService(ShopKeysService::class);
 
         // FIXME : for testing purpose
-        $_REQUEST['token'] = base64_encode($shopKeysService->encrypt(json_encode($_REQUEST)));
+        //$_REQUEST[self::PAYLOAD_PARAM] = base64_encode($shopKeysService->encrypt(json_encode($_REQUEST)));
 
-        $this->module->getLogger()->info('Encrypted payload : [' . $_REQUEST['token'] . ']');
+        $this->module->getLogger()->info('Encrypted payload : [' . $_REQUEST[self::PAYLOAD_PARAM] . ']');
 
-        $payload = json_decode($shopKeysService->decrypt(base64_decode($_REQUEST['token'])), true);
+        $payload = json_decode($shopKeysService->decrypt(base64_decode($_REQUEST[self::PAYLOAD_PARAM])), true);
 
         $this->module->getLogger()->info('Decrypted payload : [' . print_r($payload, true) . ']');
 
