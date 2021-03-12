@@ -1,6 +1,6 @@
 <?php
 
-namespace PrestaShop\Module\PsAccounts\Tests\Feature\Api\v1\ShopTokenTest;
+namespace PrestaShop\Module\PsAccounts\Tests\Feature\Api\v1\ShopUrlTest;
 
 use PrestaShop\Module\PsAccounts\Controller\AbstractRestController;
 use PrestaShop\Module\PsAccounts\Tests\Feature\BaseFeatureTest;
