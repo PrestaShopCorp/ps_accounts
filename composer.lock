@@ -1,7 +1,7 @@
 {
     "_readme": [
         "This file locks the dependencies of your project to a known state",
-        "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
+        "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
     "content-hash": "a6d37f3c9354634a6b2d634007b3fb1b",
@@ -540,16 +540,16 @@
         },
         {
             "name": "prestashop/prestashop-accounts-auth",
-            "version": "2.2.4",
+            "version": "v2.3.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/PrestaShopCorp/prestashop_accounts_auth.git",
-                "reference": "b27f36f66f57832f854191f626fc89f5ce5ade73"
+                "reference": "640f1ed35d0276cda7a96519bc6993a4a3ff35b6"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/PrestaShopCorp/prestashop_accounts_auth/zipball/b27f36f66f57832f854191f626fc89f5ce5ade73",
-                "reference": "b27f36f66f57832f854191f626fc89f5ce5ade73",
+                "url": "https://api.github.com/repos/PrestaShopCorp/prestashop_accounts_auth/zipball/640f1ed35d0276cda7a96519bc6993a4a3ff35b6",
+                "reference": "640f1ed35d0276cda7a96519bc6993a4a3ff35b6",
                 "shasum": ""
             },
             "require": {
@@ -578,7 +578,7 @@
                 "MIT"
             ],
             "description": "PrestaShop Accounts composer library",
-            "time": "2021-01-05T09:31:13+00:00"
+            "time": "2021-03-11T15:19:17+00:00"
         },
         {
             "name": "psr/cache",
@@ -3774,5 +3774,6 @@
     "platform-dev": [],
     "platform-overrides": {
         "php": "5.6"
-    }
+    },
+    "plugin-api-version": "1.1.0"
 }
