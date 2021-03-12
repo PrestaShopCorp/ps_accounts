@@ -2,23 +2,20 @@
 
 namespace PrestaShop\Module\PsAccounts\Controller;
 
-use PrestaShop\Module\PsAccounts\Handler\Error\Sentry;
 use PrestaShop\Module\PsAccounts\Service\ShopKeysService;
 
 abstract class AbstractRestController extends \ModuleFrontController implements RestControllerInterface
 {
-    // ?encrypt(query_string)
-    // GET  apiShopUrl?shopId=
-    // POST apiHmac
-    // POST apiLinkAccount (update JWT, RefreshToken, ShopUuid, Email, EmailVerified)
-
-    const RESOURCE_ID = 'id';
-
     const METHOD_INDEX = 'index';
     const METHOD_SHOW = 'show';
     const METHOD_UPDATE = 'update';
     const METHOD_DELETE = 'delete';
     const METHOD_STORE = 'store';
+
+    /**
+     * @var string
+     */
+    public $resourceId = 'id';
 
     /**
      * @return void
@@ -122,13 +119,15 @@ abstract class AbstractRestController extends \ModuleFrontController implements 
      * @param string $httpMethod
      * @param array $payload
      *
-     * @return void
+     * @return array
+     *
+     * @throws \Exception
      */
     protected function dispatchRestAction($httpMethod, array $payload)
     {
         $id = null;
-        if (array_key_exists(self::RESOURCE_ID, $payload)) {
-            $id = $payload[self::RESOURCE_ID];
+        if (array_key_exists($this->resourceId, $payload)) {
+            $id = $payload[$this->resourceId];
         }
 
         switch ($httpMethod) {
@@ -136,7 +135,6 @@ abstract class AbstractRestController extends \ModuleFrontController implements 
                 if (null !== $id) {
                     return $this->{self::METHOD_SHOW}($id, $payload);
                 }
-
                 return $this->{self::METHOD_INDEX}($payload);
             case 'POST':
                 return $this->{self::METHOD_STORE}($payload);
@@ -146,6 +144,7 @@ abstract class AbstractRestController extends \ModuleFrontController implements 
             case 'DELETE':
                 return $this->{self::METHOD_DELETE}($id, $payload);
         }
+        throw new \Exception('Invalid Method : ' . $httpMethod);
     }
 
     /**
@@ -153,14 +152,18 @@ abstract class AbstractRestController extends \ModuleFrontController implements 
      */
     protected function decodePayload()
     {
-        return $_REQUEST;
-
         /** @var ShopKeysService $shopKeysService */
         $shopKeysService = $this->module->getService(ShopKeysService::class);
 
-        $encrypted = base64_decode($_REQUEST['token']);
-        $json = $shopKeysService->decrypt($encrypted);
+        // FIXME : for testing purpose
+        $_REQUEST['token'] = base64_encode($shopKeysService->encrypt(json_encode($_REQUEST)));
 
-        return json_decode($json);
+        $this->module->getLogger()->info('Encrypted payload : [' . $_REQUEST['token'] . ']');
+
+        $payload = json_decode($shopKeysService->decrypt(base64_decode($_REQUEST['token'])), true);
+
+        $this->module->getLogger()->info('Decrypted payload : [' . print_r($payload, true) . ']');
+
+        return $payload;
     }
 }

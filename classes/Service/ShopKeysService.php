@@ -89,6 +89,30 @@ class ShopKeysService
     }
 
     /**
+     * @param $encrypted
+     *
+     * @return false|string
+     */
+    public function decrypt($encrypted)
+    {
+        $this->rsa->loadKey($this->getPrivateKey(), RSA::PRIVATE_FORMAT_PKCS1);
+
+        return $this->rsa->decrypt($encrypted);
+    }
+
+    /**
+     * @param $string
+     *
+     * @return false|string
+     */
+    public function encrypt($string)
+    {
+        $this->rsa->loadKey($this->getPublicKey(), RSA::PUBLIC_FORMAT_PKCS1);
+
+        return $this->rsa->encrypt($string);
+    }
+
+    /**
      * @param bool $refresh
      *
      * @return void
@@ -159,17 +183,5 @@ class ShopKeysService
     public function getSignature()
     {
         return $this->configuration->getAccountsRsaSignData();
-    }
-
-    /**
-     * @param $encrypted
-     *
-     * @return false|string
-     */
-    public function decrypt($encrypted)
-    {
-        $this->rsa->loadKey($this->getPrivateKey(), RSA::PRIVATE_FORMAT_PKCS1);
-
-        return $this->rsa->decrypt($encrypted);
     }
 }

@@ -1,9 +1,9 @@
 <?php
 
-use PrestaShop\Module\PsAccounts\Controller\AbstractRestController;
+use PrestaShop\Module\PsAccounts\Controller\AbstractShopRestController;
 use PrestaShop\Module\PsAccounts\Service\ShopLinkAccountService;
 
-class ps_AccountsApiV1ShopHmacModuleFrontController extends AbstractRestController
+class ps_AccountsApiV1ShopHmacModuleFrontController extends AbstractShopRestController
 {
     /**
      * @param array $payload
@@ -19,15 +19,13 @@ class ps_AccountsApiV1ShopHmacModuleFrontController extends AbstractRestControll
 
         $shopLinkAccountService->writeHmac(
             $payload['hmac'],
-            // FIXME : extraire l'id de la shop en cours
-            $payload['id'],
+            $this->context->shop->id,
             _PS_ROOT_DIR_ . '/upload/'
         );
 
         return [
             'success' => true,
             'message' => 'HMAC stored successfully',
-            'url' => '/upload/' . $payload['id'] . '.txt',
         ];
     }
 }
