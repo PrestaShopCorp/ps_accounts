@@ -2,14 +2,12 @@
 
 namespace PrestaShop\Module\PsAccounts\Repository;
 
-use Category;
 use Context;
 use Db;
 use DbQuery;
 use mysqli_result;
 use PDOStatement;
 use PrestaShopDatabaseException;
-use Shop;
 
 class CategoryRepository
 {
@@ -99,6 +97,8 @@ class CategoryRepository
      * @param array $categoriesWithParentsInfo
      * @param int $currentCategoryId
      * @param array $categories
+     *
+     * @return void
      */
     private function buildCategoryPaths($categoriesWithParentsInfo, $currentCategoryId, &$categories)
     {
