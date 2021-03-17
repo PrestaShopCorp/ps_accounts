@@ -28,6 +28,11 @@ class TestCase extends \PHPUnit\Framework\TestCase
     public $configuration;
 
     /**
+     * @var bool
+     */
+    protected $enableTransactions = true;
+
+    /**
      * @return void
      *
      * @throws \Exception
@@ -36,7 +41,9 @@ class TestCase extends \PHPUnit\Framework\TestCase
     {
         parent::setUp();
 
-        Db::getInstance()->execute('START TRANSACTION');
+        if (true === $this->enableTransactions) {
+            $this->startTransaction();
+        }
 
         $this->faker = \Faker\Factory::create();
 
@@ -52,7 +59,7 @@ class TestCase extends \PHPUnit\Framework\TestCase
      */
     public function tearDown()
     {
-        Db::getInstance()->execute('ROLLBACK');
+        $this->rollback();
 
         parent::tearDown();
     }
@@ -77,5 +84,21 @@ class TestCase extends \PHPUnit\Framework\TestCase
             $configuration->signer(),
             $configuration->signingKey()
         );
+    }
+
+    /**
+     * @return void
+     */
+    public function startTransaction()
+    {
+        Db::getInstance()->execute('START TRANSACTION');
+    }
+
+    /**
+     * @return void
+     */
+    public function rollback()
+    {
+        Db::getInstance()->execute('ROLLBACK');
     }
 }

@@ -2,6 +2,8 @@
 
 namespace PrestaShop\Module\PsAccounts\Controller;
 
+use PrestaShop\Module\PsAccounts\Exception\Http\HttpException;
+use PrestaShop\Module\PsAccounts\Exception\Http\UnauthorizedException;
 use PrestaShop\Module\PsAccounts\Service\ShopKeysService;
 
 abstract class AbstractRestController extends \ModuleFrontController implements RestControllerInterface
@@ -33,12 +35,18 @@ abstract class AbstractRestController extends \ModuleFrontController implements 
                     $this->decodePayload()
                 )
             );
+        } catch (HttpException $e) {
+            $this->dieWithResponseJson([
+                'error' => true,
+                'message' => $e->getMessage(),
+            ], $e->getStatusCode());
         } catch (\Exception $e) {
+            $this->module->getLogger()->error($e);
             //Sentry::captureAndRethrow($e);
             $this->dieWithResponseJson([
                 'error' => true,
                 'message' => $e->getMessage(),
-            ]);
+            ], 500);
         }
     }
 
@@ -47,8 +55,12 @@ abstract class AbstractRestController extends \ModuleFrontController implements 
      *
      * @throws \PrestaShopException
      */
-    public function dieWithResponseJson(array $response)
+    public function dieWithResponseJson(array $response, $httpResponseCode=null)
     {
+        if (is_integer($httpResponseCode)) {
+            http_response_code($httpResponseCode);
+        }
+
         header('Content-Type: text/json');
 
         $this->ajaxDie(json_encode($response));
@@ -139,6 +151,9 @@ abstract class AbstractRestController extends \ModuleFrontController implements 
                 }
                 return $this->{self::METHOD_INDEX}($payload);
             case 'POST':
+                if (null !== $id) {
+                    return $this->{self::METHOD_UPDATE}($id, $payload);
+                }
                 return $this->{self::METHOD_STORE}($payload);
             case 'PUT':
             case 'PATCH':
@@ -157,14 +172,22 @@ abstract class AbstractRestController extends \ModuleFrontController implements 
         /** @var ShopKeysService $shopKeysService */
         $shopKeysService = $this->module->getService(ShopKeysService::class);
 
-        // FIXME : for testing purpose
-        //$_REQUEST[self::PAYLOAD_PARAM] = base64_encode($shopKeysService->encrypt(json_encode($_REQUEST)));
+        try {
+            // FIXME : for testing purpose
+            //$_REQUEST[self::PAYLOAD_PARAM] = base64_encode($shopKeysService->encrypt(json_encode($_REQUEST)));
 
-        $this->module->getLogger()->info('Encrypted payload : [' . $_REQUEST[self::PAYLOAD_PARAM] . ']');
+            //$this->module->getLogger()->info('Encrypted payload : [' . $_REQUEST[self::PAYLOAD_PARAM] . ']');
 
-        $payload = json_decode($shopKeysService->decrypt(base64_decode($_REQUEST[self::PAYLOAD_PARAM])), true);
+            $payload = json_decode($shopKeysService->decrypt(base64_decode($_REQUEST[self::PAYLOAD_PARAM])), true);
 
-        $this->module->getLogger()->info('Decrypted payload : [' . print_r($payload, true) . ']');
+            //$this->module->getLogger()->info('Decrypted payload : [' . print_r($payload, true) . ']');
+
+        } catch (\Exception $e) {
+
+            $this->module->getLogger()->error($e);
+
+            throw new UnauthorizedException();
+        }
 
         return $payload;
     }

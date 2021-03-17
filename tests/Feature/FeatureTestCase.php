@@ -2,12 +2,19 @@
 
 namespace PrestaShop\Module\PsAccounts\Tests\Feature;
 
+use Db;
 use GuzzleHttp\Client;
+use GuzzleHttp\Message\ResponseInterface;
 use PrestaShop\Module\PsAccounts\Service\ShopKeysService;
 use PrestaShop\Module\PsAccounts\Tests\TestCase;
 
-class BaseFeatureTest extends TestCase
+class FeatureTestCase extends TestCase
 {
+    /**
+     * @var bool
+     */
+    protected $enableTransactions = false;
+
     /**
      * @var Client
      */
@@ -28,7 +35,7 @@ class BaseFeatureTest extends TestCase
             'base_url' => $baseUrl,
             'defaults' => [
                 'timeout' => 60,
-                'exceptions' => true,
+                'exceptions' => false,
                 'allow_redirects' => false,
                 'query' => [],
                 'headers' => [
@@ -51,5 +58,35 @@ class BaseFeatureTest extends TestCase
         $shopKeysService = $this->module->getService(ShopKeysService::class);
 
         return base64_encode($shopKeysService->encrypt(json_encode($payload)));
+    }
+
+    /**
+     * @param ResponseInterface $response
+     *
+     * @return void
+     */
+    public function assertResponseOk(ResponseInterface $response)
+    {
+        $this->assertEquals(200, $response->getStatusCode());
+    }
+
+    /**
+     * @param ResponseInterface $response
+     *
+     * @return void
+     */
+    public function assertResponseUnauthorized(ResponseInterface $response)
+    {
+        $this->assertEquals(401, $response->getStatusCode());
+    }
+
+    /**
+     * @param ResponseInterface $response
+     *
+     * @return void
+     */
+    public function assertResponseNotFound(ResponseInterface $response)
+    {
+        $this->assertEquals(404, $response->getStatusCode());
     }
 }

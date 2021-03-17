@@ -1,11 +1,16 @@
 <?php
 
 use Lcobucci\JWT\Parser;
-use PrestaShop\Module\PsAccounts\Controller\AbstractShopRestController;
+use PrestaShop\Module\PsAccounts\Controller\AbstractRestController;
 use PrestaShop\Module\PsAccounts\Repository\ConfigurationRepository;
 
-class ps_AccountsApiV1ShopAccountModuleFrontRestController extends AbstractShopRestController
+class ps_AccountsApiV1ShopLinkAccountModuleFrontController extends AbstractRestController
 {
+    /**
+     * @var string
+     */
+    public $resourceId = 'shop_id';
+
     /**
      * @var ConfigurationRepository
      */
@@ -29,24 +34,33 @@ class ps_AccountsApiV1ShopAccountModuleFrontRestController extends AbstractShopR
     }
 
     /**
+     * @param mixed $id
      * @param array $payload
      *
-     * @return array
+     * @return array|void
      *
      * @throws Exception
      */
-    public function store(array $payload)
+    public function update($id, array $payload)
     {
+        /** @var ConfigurationRepository $conf */
+        $conf = $this->module->getService(ConfigurationRepository::class);
+        $conf->setShopId($id);
+
         // TODO : verify tokens against Firebase
         // TODO : store BOTH user JWT & shop JWT
         // TODO : store PS_ACCOUNTS_FIREBASE_USER_ID_TOKEN_[user_id]
-        // TODO : Entité "Account"
-        // FIXME : prévoir plusieurs comptes utilisateur par shop
 
-        $uuid = $this->jwtParser->parse((string) $payload['shop_token'])->getClaim('user_id');
+        $shopToken = $payload['shop_token'];
+        $this->assertValidFirebaseToken($shopToken);
+
+        $userToken = $payload['user_token'];
+        $this->assertValidFirebaseToken($userToken);
+
+        $uuid = $this->jwtParser->parse((string) $shopToken)->getClaim('user_id');
         $this->configuration->updateShopUuid($uuid);
 
-        $email = $this->jwtParser->parse((string) $payload['user_token'])->getClaim('email');
+        $email = $this->jwtParser->parse((string) $userToken)->getClaim('email');
         $this->configuration->updateFirebaseEmail($email);
 
         $this->configuration->updateFirebaseIdAndRefreshTokens(
@@ -76,5 +90,16 @@ class ps_AccountsApiV1ShopAccountModuleFrontRestController extends AbstractShopR
             'shop_refresh_token' => $this->configuration->getFirebaseRefreshToken(),
             'user_token' => null,
         ];
+    }
+
+
+    /**
+     * @param string $token
+     *
+     * @throws \Exception
+     */
+    private function assertValidFirebaseToken($token)
+    {
+        // TODO: implement verifyFirebaseToken
     }
 }

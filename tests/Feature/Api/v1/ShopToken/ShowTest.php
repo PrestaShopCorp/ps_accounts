@@ -1,7 +1,8 @@
 <?php
 
-namespace PrestaShop\Module\PsAccounts\Tests\Feature\Api\v1\ShopUrl;
+namespace PrestaShop\Module\PsAccounts\Tests\Feature\Api\v1\ShopToken;
 
+use PrestaShop\Module\PsAccounts\Adapter\Configuration;
 use PrestaShop\Module\PsAccounts\Controller\AbstractRestController;
 use PrestaShop\Module\PsAccounts\Tests\Feature\FeatureTestCase;
 
@@ -14,7 +15,7 @@ class ShowTest extends FeatureTestCase
      */
     public function itShouldSucceed()
     {
-        $response = $this->client->get('/module/ps_accounts/apiV1ShopUrl', [
+        $response = $this->client->get('/module/ps_accounts/apiV1ShopToken', [
             'query' => [
                 AbstractRestController::PAYLOAD_PARAM => $this->encodePayload([
                     'shop_id' => 1,
@@ -28,8 +29,10 @@ class ShowTest extends FeatureTestCase
 
         $this->assertResponseOk($response);
 
-        $this->assertArrayHasKey('domain', $json);
-        $this->assertArrayHasKey('domain_ssl', $json);
+        $this->assertArraySubset([
+            'token' => $this->configuration->get(Configuration::PS_ACCOUNTS_FIREBASE_ID_TOKEN),
+            'refresh_token' => $this->configuration->get(Configuration::PS_ACCOUNTS_FIREBASE_REFRESH_TOKEN),
+        ], $json);
     }
 
     /**
@@ -39,11 +42,11 @@ class ShowTest extends FeatureTestCase
      */
     public function itShouldReturnInvalidPayloadError()
     {
-        $response = $this->client->get('/module/ps_accounts/apiV1ShopUrl', [
+        $response = $this->client->get('/module/ps_accounts/apiV1ShopToken', [
             'query' => [
                 AbstractRestController::PAYLOAD_PARAM => $this->encodePayload([
-                    'shop_id' => 1,
-                ]) . $this->faker->randomAscii
+                        'shop_id' => 1,
+                    ]) . $this->faker->randomAscii
             ],
         ]);
 
@@ -65,7 +68,7 @@ class ShowTest extends FeatureTestCase
      */
     public function itShouldReturnNotFoundError()
     {
-        $response = $this->client->get('/module/ps_accounts/apiV1ShopUrl', [
+        $response = $this->client->get('/module/ps_accounts/apiV1ShopToken', [
             'query' => [
                 AbstractRestController::PAYLOAD_PARAM => $this->encodePayload([
                     'shop_id' => 99,
