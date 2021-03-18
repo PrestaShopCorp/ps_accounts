@@ -46,7 +46,7 @@ class ShowTest extends FeatureTestCase
             'query' => [
                 AbstractRestController::PAYLOAD_PARAM => $this->encodePayload([
                         'shop_id' => 1,
-                    ]) . $this->faker->randomAscii
+                    ]) . 'foo'
             ],
         ]);
 

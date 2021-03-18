@@ -75,6 +75,26 @@ class FeatureTestCase extends TestCase
      *
      * @return void
      */
+    public function assertResponseCreated(ResponseInterface $response)
+    {
+        $this->assertEquals(201, $response->getStatusCode());
+    }
+
+    /**
+     * @param ResponseInterface $response
+     *
+     * @return void
+     */
+    public function assertResponseDeleted(ResponseInterface $response)
+    {
+        $this->assertEquals(204, $response->getStatusCode());
+    }
+
+    /**
+     * @param ResponseInterface $response
+     *
+     * @return void
+     */
     public function assertResponseUnauthorized(ResponseInterface $response)
     {
         $this->assertEquals(401, $response->getStatusCode());

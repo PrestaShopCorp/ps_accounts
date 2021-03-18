@@ -2,6 +2,7 @@
 
 namespace PrestaShop\Module\PsAccounts\Controller;
 
+use http\Env\Response;
 use PrestaShop\Module\PsAccounts\Exception\Http\HttpException;
 use PrestaShop\Module\PsAccounts\Exception\Http\UnauthorizedException;
 use PrestaShop\Module\PsAccounts\Service\ShopKeysService;
@@ -14,12 +15,22 @@ abstract class AbstractRestController extends \ModuleFrontController implements 
     const METHOD_DELETE = 'delete';
     const METHOD_STORE = 'store';
 
-    const PAYLOAD_PARAM = 'payload';
+    const PAYLOAD_PARAM = 'data';
 
     /**
      * @var string
      */
     public $resourceId = 'id';
+
+    /**
+     * @param mixed $id
+     *
+     * @return mixed
+     */
+    public function bindResource($id)
+    {
+        return $id;
+    }
 
     /**
      * @return void
@@ -29,11 +40,9 @@ abstract class AbstractRestController extends \ModuleFrontController implements 
     public function postProcess()
     {
         try {
-            $this->dieWithResponseJson(
-                $this->dispatchRestAction(
-                    $_SERVER['REQUEST_METHOD'],
-                    $this->decodePayload()
-                )
+            $this->dispatchRestAction(
+                $_SERVER['REQUEST_METHOD'],
+                $this->decodePayload()
             );
         } catch (HttpException $e) {
             $this->dieWithResponseJson([
@@ -133,7 +142,7 @@ abstract class AbstractRestController extends \ModuleFrontController implements 
      * @param string $httpMethod
      * @param array $payload
      *
-     * @return array
+     * @return void
      *
      * @throws \Exception
      */
@@ -141,27 +150,41 @@ abstract class AbstractRestController extends \ModuleFrontController implements 
     {
         $id = null;
         if (array_key_exists($this->resourceId, $payload)) {
-            $id = $payload[$this->resourceId];
+            $id = $this->bindResource($payload[$this->resourceId]);
         }
+
+        $content = null;
+        $statusCode = 200;
 
         switch ($httpMethod) {
             case 'GET':
                 if (null !== $id) {
-                    return $this->{self::METHOD_SHOW}($id, $payload);
+                    $content = $this->{self::METHOD_SHOW}($id, $payload);
+                } else {
+                    $content = $this->{self::METHOD_INDEX}($payload);
                 }
-                return $this->{self::METHOD_INDEX}($payload);
+                break;
             case 'POST':
                 if (null !== $id) {
-                    return $this->{self::METHOD_UPDATE}($id, $payload);
+                    $content =  $this->{self::METHOD_UPDATE}($id, $payload);
+                } else {
+                    $statusCode = 201;
+                    $content =  $this->{self::METHOD_STORE}($payload);
                 }
-                return $this->{self::METHOD_STORE}($payload);
+                break;
             case 'PUT':
             case 'PATCH':
-                return $this->{self::METHOD_UPDATE}($id, $payload);
+                $content = $this->{self::METHOD_UPDATE}($id, $payload);
+                break;
             case 'DELETE':
-                return $this->{self::METHOD_DELETE}($id, $payload);
+                $statusCode = 204;
+                $content =  $this->{self::METHOD_DELETE}($id, $payload);
+                break;
+            default:
+                throw new \Exception('Invalid Method : ' . $httpMethod);
         }
-        throw new \Exception('Invalid Method : ' . $httpMethod);
+
+        $this->dieWithResponseJson($content, $statusCode);
     }
 
     /**

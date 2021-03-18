@@ -1,16 +1,11 @@
 <?php
 
 use Lcobucci\JWT\Parser;
-use PrestaShop\Module\PsAccounts\Controller\AbstractRestController;
+use PrestaShop\Module\PsAccounts\Controller\AbstractShopRestController;
 use PrestaShop\Module\PsAccounts\Repository\ConfigurationRepository;
 
-class ps_AccountsApiV1ShopLinkAccountModuleFrontController extends AbstractRestController
+class ps_AccountsApiV1ShopLinkAccountModuleFrontController extends AbstractShopRestController
 {
-    /**
-     * @var string
-     */
-    public $resourceId = 'shop_id';
-
     /**
      * @var ConfigurationRepository
      */
@@ -34,19 +29,15 @@ class ps_AccountsApiV1ShopLinkAccountModuleFrontController extends AbstractRestC
     }
 
     /**
-     * @param mixed $id
+     * @param Shop $shop
      * @param array $payload
      *
      * @return array|void
      *
      * @throws Exception
      */
-    public function update($id, array $payload)
+    public function update($shop, array $payload)
     {
-        /** @var ConfigurationRepository $conf */
-        $conf = $this->module->getService(ConfigurationRepository::class);
-        $conf->setShopId($id);
-
         // TODO : verify tokens against Firebase
         // TODO : store BOTH user JWT & shop JWT
         // TODO : store PS_ACCOUNTS_FIREBASE_USER_ID_TOKEN_[user_id]
@@ -75,14 +66,14 @@ class ps_AccountsApiV1ShopLinkAccountModuleFrontController extends AbstractRestC
     }
 
     /**
-     * @param mixed $id
+     * @param Shop $shop
      * @param array $payload
      *
      * @return array|void
      *
      * @throws Exception
      */
-    public function show($id, array $payload)
+    public function show($shop, array $payload)
     {
         return [
             'shop_uuid' => $this->configuration->getShopUuid(),
