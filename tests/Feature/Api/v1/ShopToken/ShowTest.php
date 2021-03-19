@@ -16,8 +16,8 @@ class ShowTest extends FeatureTestCase
     public function itShouldSucceed()
     {
         $response = $this->client->get('/module/ps_accounts/apiV1ShopToken', [
-            'query' => [
-                AbstractRestController::PAYLOAD_PARAM => $this->encodePayload([
+            'headers' => [
+                AbstractRestController::TOKEN_HEADER => $this->encodePayload([
                     'shop_id' => 1,
                 ])
             ],
@@ -43,8 +43,8 @@ class ShowTest extends FeatureTestCase
     public function itShouldReturnInvalidPayloadError()
     {
         $response = $this->client->get('/module/ps_accounts/apiV1ShopToken', [
-            'query' => [
-                AbstractRestController::PAYLOAD_PARAM => $this->encodePayload([
+            'headers' => [
+                AbstractRestController::TOKEN_HEADER => $this->encodePayload([
                         'shop_id' => 1,
                     ]) . 'foo'
             ],
@@ -69,8 +69,8 @@ class ShowTest extends FeatureTestCase
     public function itShouldReturnNotFoundError()
     {
         $response = $this->client->get('/module/ps_accounts/apiV1ShopToken', [
-            'query' => [
-                AbstractRestController::PAYLOAD_PARAM => $this->encodePayload([
+            'headers' => [
+                AbstractRestController::TOKEN_HEADER => $this->encodePayload([
                     'shop_id' => 99,
                 ])
             ],

@@ -41,6 +41,15 @@ class ps_AccountsApiV1ShopLinkAccountModuleFrontController extends AbstractShopR
         // TODO : verify tokens against Firebase
         // TODO : store BOTH user JWT & shop JWT
         // TODO : store PS_ACCOUNTS_FIREBASE_USER_ID_TOKEN_[user_id]
+        // TODO : API doc
+
+//        TODO RequestValidator/DTO
+//        $payload = [
+//            'shop_token' => ,
+//            'shop_refresh_token' => ,
+//            'user_token' => ,
+//            'user_refresh_token' => ,
+//        ];
 
         $shopToken = $payload['shop_token'];
         $this->assertValidFirebaseToken($shopToken);
@@ -76,10 +85,14 @@ class ps_AccountsApiV1ShopLinkAccountModuleFrontController extends AbstractShopR
     public function show($shop, array $payload)
     {
         return [
-            'shop_uuid' => $this->configuration->getShopUuid(),
             'shop_token' => $this->configuration->getFirebaseIdToken(),
             'shop_refresh_token' => $this->configuration->getFirebaseRefreshToken(),
+            // FIXME : store user tokens
             'user_token' => null,
+            'user_refresh_token' => null,
+            //
+            'shop_uuid' => $this->configuration->getShopUuid(),
+            'user_email' => $this->configuration->getFirebaseEmail(),
         ];
     }
 
@@ -92,5 +105,6 @@ class ps_AccountsApiV1ShopLinkAccountModuleFrontController extends AbstractShopR
     private function assertValidFirebaseToken($token)
     {
         // TODO: implement verifyFirebaseToken
+        //$this->firebaseClient->verifyToken();
     }
 }

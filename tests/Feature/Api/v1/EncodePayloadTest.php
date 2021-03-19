@@ -14,6 +14,8 @@ class EncodePayloadTest extends FeatureTestCase
      */
     public function itShouldEncodePayload()
     {
+        $this->markTestSkipped();
+
         $payload = [
             "shopTokens" => [
                 "refreshToken" => 'AOvuKvRgjx-ajJn9TU0yIAe7qQc5rEBmbnTfndKifCOV9XWKokdaCs1s_IQ1WxbwKfJ_eYhviCLBAYMqCXlVVNUYv3WHygzORqY-h8Pgt52CEq_u4QThl2nmB4a7wD_dgzv_GRmNIDgxkEC-IZMW3jG7xH0HHbPLXDDVAMHuDtupqos_07uXW60',

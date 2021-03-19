@@ -2,7 +2,9 @@
 
 namespace PrestaShop\Module\PsAccounts\Controller;
 
-use http\Env\Response;
+use Lcobucci\JWT\Parser;
+use Lcobucci\JWT\Signer\Hmac\Sha256;
+use Lcobucci\JWT\Token;
 use PrestaShop\Module\PsAccounts\Exception\Http\HttpException;
 use PrestaShop\Module\PsAccounts\Exception\Http\UnauthorizedException;
 use PrestaShop\Module\PsAccounts\Service\ShopKeysService;
@@ -16,6 +18,7 @@ abstract class AbstractRestController extends \ModuleFrontController implements 
     const METHOD_STORE = 'store';
 
     const PAYLOAD_PARAM = 'data';
+    const TOKEN_HEADER = 'X-PrestaShop-Signature';
 
     /**
      * @var string
@@ -195,23 +198,36 @@ abstract class AbstractRestController extends \ModuleFrontController implements 
         /** @var ShopKeysService $shopKeysService */
         $shopKeysService = $this->module->getService(ShopKeysService::class);
 
-        try {
-            // FIXME : for testing purpose
-            //$_REQUEST[self::PAYLOAD_PARAM] = base64_encode($shopKeysService->encrypt(json_encode($_REQUEST)));
+        $jwtString = $this->getRequestHeader(self::TOKEN_HEADER);
 
-            //$this->module->getLogger()->info('Encrypted payload : [' . $_REQUEST[self::PAYLOAD_PARAM] . ']');
+        $this->module->getLogger()->info(self::TOKEN_HEADER . ' : ' . $jwtString);
 
-            $payload = json_decode($shopKeysService->decrypt(base64_decode($_REQUEST[self::PAYLOAD_PARAM])), true);
+        if ($jwtString) {
 
-            //$this->module->getLogger()->info('Decrypted payload : [' . print_r($payload, true) . ']');
+            $jwt = (new Parser())->parse($jwtString);
 
-        } catch (\Exception $e) {
+            if (true === $jwt->verify(new Sha256(), $shopKeysService->getPublicKey())) {
+                return $jwt->claims()->all();
+            }
 
-            $this->module->getLogger()->error($e);
-
-            throw new UnauthorizedException();
+            $this->module->getLogger()->info('Failed to verify token');
         }
 
-        return $payload;
+        throw new UnauthorizedException();
+    }
+
+    /**
+     * @param $header
+     *
+     * @return mixed|null
+     */
+    public function getRequestHeader($header)
+    {
+        $headerKey = 'HTTP_' . strtoupper(str_replace('-', '_', $header));
+
+        if (array_key_exists($headerKey, $_SERVER)) {
+            return $_SERVER[$headerKey];
+        }
+        return null;
     }
 }

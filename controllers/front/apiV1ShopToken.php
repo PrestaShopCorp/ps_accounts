@@ -1,7 +1,6 @@
 <?php
 
 use PrestaShop\Module\PsAccounts\Controller\AbstractShopRestController;
-use PrestaShop\Module\PsAccounts\Repository\ConfigurationRepository;
 use PrestaShop\Module\PsAccounts\Service\ShopTokenService;
 
 class ps_AccountsApiV1ShopTokenModuleFrontController extends AbstractShopRestController

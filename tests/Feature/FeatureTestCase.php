@@ -5,6 +5,9 @@ namespace PrestaShop\Module\PsAccounts\Tests\Feature;
 use Db;
 use GuzzleHttp\Client;
 use GuzzleHttp\Message\ResponseInterface;
+use Lcobucci\JWT\Builder;
+use Lcobucci\JWT\Signer\Hmac\Sha256;
+use Lcobucci\JWT\Signer\Key;
 use PrestaShop\Module\PsAccounts\Service\ShopKeysService;
 use PrestaShop\Module\PsAccounts\Tests\TestCase;
 
@@ -48,7 +51,7 @@ class FeatureTestCase extends TestCase
     /**
      * @param array $payload
      *
-     * @return string
+     * @return \Lcobucci\JWT\Token
      *
      * @throws \Exception
      */
@@ -57,7 +60,18 @@ class FeatureTestCase extends TestCase
         /** @var ShopKeysService $shopKeysService */
         $shopKeysService = $this->module->getService(ShopKeysService::class);
 
-        return base64_encode($shopKeysService->encrypt(json_encode($payload)));
+        //return base64_encode($shopKeysService->encrypt(json_encode($payload)));
+
+        $builder = (new Builder());
+
+        foreach ($payload as $k => $v) {
+            $builder->withClaim($k, $v);
+        }
+
+        return $builder->getToken(
+            new Sha256(),
+            new Key($shopKeysService->getPublicKey())
+        );
     }
 
     /**

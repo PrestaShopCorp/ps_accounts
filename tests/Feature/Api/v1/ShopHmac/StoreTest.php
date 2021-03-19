@@ -22,8 +22,8 @@ class StoreTest extends FeatureTestCase
         ];
 
         $response = $this->client->post('/module/ps_accounts/apiV1ShopHmac', [
-            'query' => [
-                AbstractRestController::PAYLOAD_PARAM => $this->encodePayload($payload),
+            'headers' => [
+                AbstractRestController::TOKEN_HEADER => $this->encodePayload($payload),
             ],
         ]);
 
