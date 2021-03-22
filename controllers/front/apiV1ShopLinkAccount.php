@@ -98,6 +98,8 @@ class ps_AccountsApiV1ShopLinkAccountModuleFrontController extends AbstractShopR
     /**
      * @param string $token
      *
+     * @return void
+     *
      * @throws \Exception
      */
     private function assertValidFirebaseToken($token)

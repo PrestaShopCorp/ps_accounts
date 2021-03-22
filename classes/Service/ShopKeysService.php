@@ -89,7 +89,7 @@ class ShopKeysService
     }
 
     /**
-     * @param $encrypted
+     * @param string $encrypted
      *
      * @return false|string
      */
@@ -101,7 +101,7 @@ class ShopKeysService
     }
 
     /**
-     * @param $string
+     * @param string $string
      *
      * @return false|string
      */

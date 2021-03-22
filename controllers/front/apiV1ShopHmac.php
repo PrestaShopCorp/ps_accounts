@@ -20,7 +20,7 @@ class ps_AccountsApiV1ShopHmacModuleFrontController extends AbstractShopRestCont
 
         $shopLinkAccountService->writeHmac(
             $payload['hmac'],
-            $shop->id, //$this->context->shop->id,
+            (string) $shop->id, //$this->context->shop->id,
             _PS_ROOT_DIR_ . '/upload/'
         );
 

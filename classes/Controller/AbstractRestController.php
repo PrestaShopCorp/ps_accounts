@@ -72,6 +72,9 @@ abstract class AbstractRestController extends \ModuleFrontController implements 
 
     /**
      * @param array $response
+     * @param int|null $httpResponseCode
+     *
+     * @return void
      *
      * @throws \PrestaShopException
      */
@@ -226,7 +229,7 @@ abstract class AbstractRestController extends \ModuleFrontController implements 
     }
 
     /**
-     * @param $header
+     * @param string $header
      *
      * @return mixed|null
      */
