@@ -29,18 +29,17 @@ class StoreTest extends FeatureTestCase
 
         $json = $response->json();
 
-        print_r($json);
+        $this->module->getLogger()->info(print_r($json, true));
 
         $this->assertResponseOk($response);
 
         $this->assertArraySubset(['success' => true], $json);
 
-        // TODO : read file with guzzle
-        $response = $this->client->post('/upload/' . $payload['shop_id'] . '.txt');
+        $response = $this->client->get('/upload/' . $payload['shop_id'] . '.txt');
 
         $hmac = $response->getBody()->getContents();
 
-        print_r($hmac);
+        $this->module->getLogger()->info(print_r($hmac, true));
 
         $this->assertResponseOk($response);
 

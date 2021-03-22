@@ -22,7 +22,7 @@ class AbstractShopRestController extends AbstractRestController
     {
         $shop = new Shop($id);
 
-        if (! $shop->id) {
+        if (!$shop->id) {
             throw new NotFoundException('Shop not found [' . $id . ']');
         }
 

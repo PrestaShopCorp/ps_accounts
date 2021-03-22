@@ -38,7 +38,6 @@ class ps_AccountsApiV1ShopLinkAccountModuleFrontController extends AbstractShopR
      */
     public function update($shop, array $payload)
     {
-        // TODO : verify tokens against Firebase
         // TODO : store BOTH user JWT & shop JWT
         // TODO : store PS_ACCOUNTS_FIREBASE_USER_ID_TOKEN_[user_id]
         // TODO : API doc
@@ -90,12 +89,11 @@ class ps_AccountsApiV1ShopLinkAccountModuleFrontController extends AbstractShopR
             // FIXME : store user tokens
             'user_token' => null,
             'user_refresh_token' => null,
-            //
+
             'shop_uuid' => $this->configuration->getShopUuid(),
             'user_email' => $this->configuration->getFirebaseEmail(),
         ];
     }
-
 
     /**
      * @param string $token

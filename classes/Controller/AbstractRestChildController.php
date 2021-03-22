@@ -16,8 +16,8 @@ class AbstractRestChildController extends AbstractRestController
     {
         $payload = parent::decodePayload();
 
-        if (! array_key_exists($this->parentId, $payload) ||
-            ! is_integer($payload[$this->parentId])) {
+        if (!array_key_exists($this->parentId, $payload) ||
+            !is_integer($payload[$this->parentId])) {
             $payload[$this->parentId] = $this->context->shop->id;
         }
 

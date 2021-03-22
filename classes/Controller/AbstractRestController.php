@@ -4,9 +4,10 @@ namespace PrestaShop\Module\PsAccounts\Controller;
 
 use Lcobucci\JWT\Parser;
 use Lcobucci\JWT\Signer\Hmac\Sha256;
-use Lcobucci\JWT\Token;
+use Lcobucci\JWT\Signer\Key;
 use PrestaShop\Module\PsAccounts\Exception\Http\HttpException;
 use PrestaShop\Module\PsAccounts\Exception\Http\UnauthorizedException;
+use PrestaShop\Module\PsAccounts\Handler\Error\Sentry;
 use PrestaShop\Module\PsAccounts\Service\ShopKeysService;
 
 abstract class AbstractRestController extends \ModuleFrontController implements RestControllerInterface
@@ -43,7 +44,7 @@ abstract class AbstractRestController extends \ModuleFrontController implements 
     public function postProcess()
     {
         try {
-            $this->dispatchRestAction(
+            $this->dispatchVerb(
                 $_SERVER['REQUEST_METHOD'],
                 $this->decodePayload()
             );
@@ -53,11 +54,13 @@ abstract class AbstractRestController extends \ModuleFrontController implements 
                 'message' => $e->getMessage(),
             ], $e->getStatusCode());
         } catch (\Exception $e) {
+            Sentry::capture($e);
+
             $this->module->getLogger()->error($e);
-            //Sentry::captureAndRethrow($e);
+
             $this->dieWithResponseJson([
                 'error' => true,
-                'message' => $e->getMessage(),
+                'message' => 'Failed processing your request',
             ], 500);
         }
     }
@@ -67,7 +70,7 @@ abstract class AbstractRestController extends \ModuleFrontController implements 
      *
      * @throws \PrestaShopException
      */
-    public function dieWithResponseJson(array $response, $httpResponseCode=null)
+    public function dieWithResponseJson(array $response, $httpResponseCode = null)
     {
         if (is_integer($httpResponseCode)) {
             http_response_code($httpResponseCode);
@@ -149,7 +152,7 @@ abstract class AbstractRestController extends \ModuleFrontController implements 
      *
      * @throws \Exception
      */
-    protected function dispatchRestAction($httpMethod, array $payload)
+    protected function dispatchVerb($httpMethod, array $payload)
     {
         $id = null;
         if (array_key_exists($this->resourceId, $payload)) {
@@ -169,10 +172,10 @@ abstract class AbstractRestController extends \ModuleFrontController implements 
                 break;
             case 'POST':
                 if (null !== $id) {
-                    $content =  $this->{self::METHOD_UPDATE}($id, $payload);
+                    $content = $this->{self::METHOD_UPDATE}($id, $payload);
                 } else {
                     $statusCode = 201;
-                    $content =  $this->{self::METHOD_STORE}($payload);
+                    $content = $this->{self::METHOD_STORE}($payload);
                 }
                 break;
             case 'PUT':
@@ -181,7 +184,7 @@ abstract class AbstractRestController extends \ModuleFrontController implements 
                 break;
             case 'DELETE':
                 $statusCode = 204;
-                $content =  $this->{self::METHOD_DELETE}($id, $payload);
+                $content = $this->{self::METHOD_DELETE}($id, $payload);
                 break;
             default:
                 throw new \Exception('Invalid Method : ' . $httpMethod);
@@ -203,10 +206,9 @@ abstract class AbstractRestController extends \ModuleFrontController implements 
         $this->module->getLogger()->info(self::TOKEN_HEADER . ' : ' . $jwtString);
 
         if ($jwtString) {
-
             $jwt = (new Parser())->parse($jwtString);
 
-            if (true === $jwt->verify(new Sha256(), $shopKeysService->getPublicKey())) {
+            if (true === $jwt->verify(new Sha256(), new Key($shopKeysService->getPublicKey()))) {
                 return $jwt->claims()->all();
             }
 
@@ -228,6 +230,7 @@ abstract class AbstractRestController extends \ModuleFrontController implements 
         if (array_key_exists($headerKey, $_SERVER)) {
             return $_SERVER[$headerKey];
         }
+
         return null;
     }
 }

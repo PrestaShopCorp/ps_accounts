@@ -24,7 +24,7 @@ class ShowTest extends FeatureTestCase
 
         $json = $response->json();
 
-        print_r($json);
+        $this->module->getLogger()->info(print_r($json, true));
 
         $this->assertResponseOk($response);
 
@@ -49,7 +49,7 @@ class ShowTest extends FeatureTestCase
 
         $json = $response->json();
 
-        print_r($json);
+        $this->module->getLogger()->info(print_r($json, true));
 
         $this->assertResponseUnauthorized($response);
 
@@ -75,7 +75,7 @@ class ShowTest extends FeatureTestCase
 
         $json = $response->json();
 
-        print_r($json);
+        $this->module->getLogger()->info(print_r($json, true));
 
         $this->assertResponseNotFound($response);
 

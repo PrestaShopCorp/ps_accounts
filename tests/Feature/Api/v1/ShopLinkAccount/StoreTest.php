@@ -20,13 +20,12 @@ class StoreTest extends FeatureTestCase
 
         $expiry = new \DateTimeImmutable('+10 days');
 
-        // FIXME create real Firebase User / Shop
-
         $payload = [
             'shop_id' => 1,
             'shop_token' => (string) $this->makeJwtToken($expiry, ['user_id' => $uuid]),
             'user_token' => (string) $this->makeJwtToken($expiry, ['email' => $email]),
             'shop_refresh_token' => (string) $this->makeJwtToken($expiry),
+            'user_refresh_token' => (string) $this->makeJwtToken($expiry),
         ];
 
         $response = $this->client->post('/module/ps_accounts/apiV1ShopLinkAccount', [
@@ -37,7 +36,7 @@ class StoreTest extends FeatureTestCase
 
         $json = $response->json();
 
-        print_r($json);
+        $this->module->getLogger()->info(print_r($json, true));
 
         $this->assertResponseOk($response);
 
