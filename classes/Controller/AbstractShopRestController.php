@@ -17,6 +17,8 @@ class AbstractShopRestController extends AbstractRestController
      * @param int $id
      *
      * @return Shop
+     *
+     * @throws \Exception
      */
     public function bindResource($id)
     {
@@ -32,9 +34,11 @@ class AbstractShopRestController extends AbstractRestController
     }
 
     /**
-     * @param $shopId
+     * @param int $shopId
      *
      * @return void
+     *
+     * @throws \Exception
      */
     protected function setConfigurationShopId($shopId)
     {

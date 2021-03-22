@@ -27,6 +27,11 @@ abstract class AbstractRestController extends \ModuleFrontController implements 
     public $resourceId = 'id';
 
     /**
+     * @var \Ps_accounts
+     */
+    public $module;
+
+    /**
      * @param mixed $id
      *
      * @return mixed
@@ -195,6 +200,8 @@ abstract class AbstractRestController extends \ModuleFrontController implements 
 
     /**
      * @return array
+     *
+     * @throws \Exception
      */
     protected function decodePayload()
     {
