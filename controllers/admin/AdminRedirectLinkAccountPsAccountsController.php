@@ -28,7 +28,9 @@ use PrestaShop\Module\PsAccounts\Handler\Error\Sentry;
 use PrestaShop\Module\PsAccounts\Service\ShopLinkAccountService;
 
 /**
- * Controller generate hmac and redirect on hmac's file.
+ * Class AdminRedirectLinkAccountPsAccountsController
+ *
+ * Redirect to accounts_ui to init link account process
  */
 class AdminRedirectLinkAccountPsAccountsController extends ModuleAdminController
 {
@@ -48,13 +50,11 @@ class AdminRedirectLinkAccountPsAccountsController extends ModuleAdminController
             /** @var ShopLinkAccountService $shopLinkAccountService */
             $shopLinkAccountService = $this->module->getService(ShopLinkAccountService::class);
 
-            // FIXME TODO
-//            Tools::redirect(
-//                $shopLinkAccountService->getVerifyAccountUrl(
-//                    Tools::getAllValues(),
-//                    _PS_ROOT_DIR_
-//                )
-//            );
+            // TODO : Create a JWT with presenter data needed by UI
+            // TODO : Redirect AccountsUi
+            Tools::redirect(
+                $shopLinkAccountService->getLinkAccountUrl('ps_accounts')
+            );
         } catch (Exception $e) {
             Sentry::captureAndRethrow($e);
         }
