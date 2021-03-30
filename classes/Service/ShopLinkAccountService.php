@@ -253,15 +253,18 @@ class ShopLinkAccountService implements Configurable
     }
 
     /**
+     * @param string $psxName
+     *
      * @return void
      *
-     * @throws \Exception
+     * @throws SshKeysNotFoundException
+     * @throws \PrestaShopException
      */
-    public function manageOnboarding()
+    public function manageOnboarding($psxName)
     {
         $this->shopKeysService->generateKeys();
 
-        $this->updateOnboardingData();
+        $this->updateOnboardingData($psxName);
     }
 
     /**
@@ -269,11 +272,13 @@ class ShopLinkAccountService implements Configurable
      *
      * Prepare onboarding data
      *
+     * @param $psxName
      * @return void
      *
+     * @throws \PrestaShopException
      * @throws \Exception
      */
-    public function updateOnboardingData()
+    public function updateOnboardingData($psxName)
     {
         $email = \Tools::getValue('email');
         $emailVerified = \Tools::getValue('emailVerified');
@@ -298,7 +303,7 @@ class ShopLinkAccountService implements Configurable
                 // FIXME : quick and dirty fix
                 \Tools::redirectAdmin(
                     $this->link->getAdminLink('AdminModules', true, [], [
-                        'configure' => 'ps_accounts',
+                        'configure' => $psxName,
                     ])
                 );
             }
