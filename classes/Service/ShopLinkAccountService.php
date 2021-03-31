@@ -272,7 +272,8 @@ class ShopLinkAccountService implements Configurable
      *
      * Prepare onboarding data
      *
-     * @param $psxName
+     * @param string $psxName
+     *
      * @return void
      *
      * @throws \PrestaShopException
