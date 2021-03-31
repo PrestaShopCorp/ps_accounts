@@ -1,7 +1,10 @@
 name: Release and publish
-on:
-  release:
-    types: [released, prereleased]
+
+on: [push]
+#on:
+#  release:
+#    types: [released, prereleased]
+#  push:
 
 jobs:
   build:
