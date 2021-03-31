@@ -9,17 +9,25 @@ class ps_AccountsApiV1ShopUrlModuleFrontController extends AbstractShopRestContr
      * @param array $payload
      *
      * @return array
+     *
+     * @throws PrestaShopDatabaseException
      */
     public function show($shop, array $payload)
     {
         return [
             'domain' => $shop->domain,
             'domain_ssl' => $shop->domain_ssl,
-            'ssl_activated' => $this->isSslActivated()
+            'ssl_activated' => $this->isSslActivated(),
         ];
     }
 
-    private function isSslActivated() {
+    /**
+     * @return int
+     *
+     * @throws PrestaShopDatabaseException
+     */
+    private function isSslActivated()
+    {
         // TODO It needs to be move to a different class
         // Does a class already exist to get data from a shop?
         $sslQuery = 'SELECT value
@@ -28,8 +36,9 @@ class ps_AccountsApiV1ShopUrlModuleFrontController extends AbstractShopRestContr
         ';
 
         $result = Db::getInstance()->executeS($sslQuery);
-        if (isset($result[0]) && isset($result[0]->value))
+        if (isset($result[0]) && isset($result[0]->value)) {
             return $result[0]->value;
+        }
 
         return 0;
     }
