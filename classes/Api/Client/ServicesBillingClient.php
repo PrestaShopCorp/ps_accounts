@@ -105,8 +105,7 @@ class ServicesBillingClient extends GenericClient
      */
     public function createBillingCustomer($shopUuidV4, $bodyHttp)
     {
-        // $this->setRoute('/shops/' . $shopUuidV4);
-        $this->setRoute('/shops');
+        $this->setRoute('/shops/' . $shopUuidV4);
 
         return $this->post([
             'body' => $bodyHttp,
@@ -121,20 +120,21 @@ class ServicesBillingClient extends GenericClient
      */
     public function getBillingSubscriptions($shopUuidV4, $module)
     {
-        $this->setRoute('/shops/' . $shopUuidV4 . '/subscriptions?module=' . $module);
+        $this->setRoute('/shops/' . $shopUuidV4 . '/subscriptions/' . $module);
 
         return $this->get();
     }
 
     /**
      * @param mixed $shopUuidV4
+     * @param string $module
      * @param array $bodyHttp
      *
      * @return array | false
      */
-    public function createBillingSubscriptions($shopUuidV4, $bodyHttp)
+    public function createBillingSubscriptions($shopUuidV4, $module, $bodyHttp)
     {
-        $this->setRoute('/shops/' . $shopUuidV4 . '/subscriptions');
+        $this->setRoute('/shops/' . $shopUuidV4 . '/subscriptions/' . $module);
 
         return $this->post([
             'body' => $bodyHttp,

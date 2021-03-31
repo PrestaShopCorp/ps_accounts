@@ -102,7 +102,7 @@ class PsAccountsPresenter implements PresenterInterface
     public function present($psxName = 'ps_accounts')
     {
         // FIXME : Do this elsewhere
-        $this->shopLinkAccountService->manageOnboarding();
+        $this->shopLinkAccountService->manageOnboarding($psxName);
 
         $shopContext = $this->shopProvider->getShopContext();
 
