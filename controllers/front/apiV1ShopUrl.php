@@ -1,45 +1,41 @@
 <?php
 
 use PrestaShop\Module\PsAccounts\Controller\AbstractShopRestController;
+use PrestaShop\Module\PsAccounts\Repository\ConfigurationRepository;
 
 class ps_AccountsApiV1ShopUrlModuleFrontController extends AbstractShopRestController
 {
+    /**
+     * @var ConfigurationRepository
+     */
+    private $configuration;
+
+    /**
+     * ps_AccountsApiV1ShopUrlModuleFrontController constructor.
+     *
+     * @throws Exception
+     */
+    public function __construct()
+    {
+        parent::__construct();
+
+        $this->configuration = $this->module->getService(ConfigurationRepository::class);
+    }
+
     /**
      * @param Shop $shop
      * @param array $payload
      *
      * @return array
      *
-     * @throws PrestaShopDatabaseException
+     * @throws Exception
      */
     public function show($shop, array $payload)
     {
         return [
             'domain' => $shop->domain,
             'domain_ssl' => $shop->domain_ssl,
-            'ssl_activated' => $this->isSslActivated(),
+            'ssl_activated' => $this->configuration->sslEnabled(),
         ];
-    }
-
-    /**
-     * @return int
-     *
-     * @throws PrestaShopDatabaseException
-     */
-    private function isSslActivated()
-    {
-        // TODO It needs to be move to a different class
-        // Does a class already exist to get data from a shop?
-        $sslQuery = 'SELECT value
-                FROM ' . _DB_PREFIX_ . 'configuration
-                WHERE name = "PS_SSL_ENABLED_EVERYWHERE"
-        ';
-
-        $result = Db::getInstance()->executeS($sslQuery);
-        if (isset($result[0]) && isset($result[0]->value)) {
-            return $result[0]->value;
-        }
-
-        return 0;
     }
 }
