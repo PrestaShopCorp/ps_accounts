@@ -109,10 +109,13 @@ class ps_accountsDispatchWebHookModuleFrontController extends FrontController
     {
         $moduleName = $bodyValues['service'];
         if ($moduleName !== 'ps_accounts') {
+            /** @var Module $module */
+            $module = Module::getInstanceByName($moduleName);
+
             $error = \Hook::exec(
                 'receiveWebhook_' . $moduleName,
                 ['headers' => $headers, 'body' => $bodyValues],
-                Module::getInstanceByName($moduleName)->id
+                $module->id
             );
 
             if ($error === '') {
