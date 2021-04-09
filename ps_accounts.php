@@ -31,56 +31,6 @@ require_once __DIR__ . '/vendor/autoload.php';
 class Ps_accounts extends Module
 {
     /**
-     * @var array
-     */
-    public $adminControllers;
-
-    /**
-     * @var string
-     */
-    public $author;
-
-    /**
-     * @var bool
-     */
-    public $bootstrap;
-
-    /**
-     * @var int
-     */
-    public $need_instance;
-
-    /**
-     * @var string
-     */
-    public $description;
-
-    /**
-     * @var string
-     */
-    public $confirmUninstall;
-
-    /**
-     * @var string
-     */
-    public $displayName;
-
-    /**
-     * @var string
-     */
-    public $name;
-
-    /**
-     * @var array
-     */
-    public $ps_versions_compliancy;
-
-    /**
-     * @var string
-     */
-    public $tab;
-
-    /**
      * @var string
      */
     const VERSION = 'x.y.z';
@@ -96,9 +46,9 @@ class Ps_accounts extends Module
     ];
 
     /**
-     * @var string
+     * @var array
      */
-    public $version;
+    public $adminControllers;
 
     /**
      * @var \Monolog\Logger
