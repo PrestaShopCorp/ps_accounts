@@ -60,11 +60,16 @@ class ShopProvider
     {
         $shop = \Shop::getShop($this->shopContext->getContext()->shop->id);
 
+        // TODO: Add missing values to context
         return [
-            'id' => $shop['id_shop'],
+            'shopId' => (string)$shop['id_shop'],
             'name' => $shop['name'],
-            'domain' => $shop['domain'],
-            'domainSsl' => $shop['domain_ssl'],
+            'domain' => 'http://'.$shop['domain'],
+            'multishop' => false,
+            'moduleName' => $psxName,
+            'psVersion' => _PS_VERSION_,
+            'sslDomain' => 'https://'.$shop['domain_ssl'],
+            'publicKey' => $this->shopContext->getConfiguration()->getAccountsRsaPublicKey(),
             'url' => $this->link->getAdminLink(
                 'AdminModules',
                 true,
