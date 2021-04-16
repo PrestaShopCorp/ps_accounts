@@ -9,6 +9,7 @@ use PrestaShop\AccountsAuth\Service\PsAccountsService;
 use PrestaShop\Module\PsAccounts\Config\Config;
 use PrestaShop\Module\PsAccounts\Exception\EnvVarException;
 use PrestaShop\Module\PsAccounts\Exception\FirebaseException;
+use PrestaShop\Module\PsAccounts\Exception\QueryParamsException;
 use PrestaShop\Module\PsAccounts\Provider\PaginatedApiDataProviderInterface;
 use PrestaShop\Module\PsAccounts\Repository\AccountsSyncRepository;
 use PrestaShop\Module\PsAccounts\Repository\IncrementalSyncRepository;
@@ -82,7 +83,7 @@ abstract class AbstractApiController extends ModuleFrontController
     public function init()
     {
         try {
-            $this->authorize();
+//            $this->authorize();
         } catch (PrestaShopDatabaseException $exception) {
             $this->exitWithExceptionMessage($exception);
         } catch (EnvVarException $exception) {
@@ -130,6 +131,11 @@ abstract class AbstractApiController extends ModuleFrontController
         $jobId = Tools::getValue('job_id');
         $langIso = Tools::getValue('lang_iso', $this->languageRepository->getDefaultLanguageIsoCode());
         $limit = (int) Tools::getValue('limit', 50);
+
+        if ($limit < 0) {
+            $this->exitWithExceptionMessage(new QueryParamsException('Invalid URL Parameters', Config::INVALID_URL_QUERY));
+        }
+
         $initFullSync = (int) Tools::getValue('full', 0) == 1;
 
         $dateNow = (new DateTime())->format(DateTime::ATOM);
@@ -218,6 +224,8 @@ abstract class AbstractApiController extends ModuleFrontController
             $code = Config::ENV_MISCONFIGURED_ERROR_CODE;
         } elseif ($exception instanceof FirebaseException) {
             $code = Config::REFRESH_TOKEN_ERROR_CODE;
+        } elseif ($exception instanceof QueryParamsException) {
+            $code = Config::INVALID_URL_QUERY;
         }
 
         $response = [
