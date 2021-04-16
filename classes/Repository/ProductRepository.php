@@ -76,7 +76,7 @@ class ProductRepository
     public function getProducts($offset, $limit, $langId)
     {
         $query = $this->getBaseQuery($this->context->shop->id, $langId)
-            ->select('p.id_product, IFNULL(pas.id_product_attribute, 0) as id_attribute,
+            ->select('p.id_product, IFNULL(pas.id_product_attribute, 0) as id_attribute, IFNULL(pas.default_on, 0) as is_default_attribute,
             pl.name, pl.description, pl.description_short, pl.link_rewrite, cl.name as default_category,
             ps.id_category_default, IFNULL(pa.reference, p.reference) as reference, IFNULL(pa.upc, p.upc) as upc,
             IFNULL(pa.ean13, p.ean13) as ean, ps.condition, ps.visibility, ps.active, sa.quantity, m.name as manufacturer,
@@ -312,7 +312,7 @@ class ProductRepository
     {
         $query = $this->getBaseQuery($this->context->shop->id, $langId);
 
-        $query->select('p.id_product, IFNULL(pas.id_product_attribute, 0) as id_attribute,
+        $query->select('p.id_product, IFNULL(pas.id_product_attribute, 0) as id_attribute, pas.default_on as is_default_attribute,
             pl.name, pl.description, pl.description_short, pl.link_rewrite, cl.name as default_category,
             ps.id_category_default, IFNULL(pa.reference, p.reference) as reference, IFNULL(pa.upc, p.upc) as upc,
             IFNULL(pa.ean13, p.ean13) as ean, ps.condition, ps.visibility, ps.active, sa.quantity, m.name as manufacturer,

@@ -26,7 +26,7 @@ class ps_AccountsApiThemesModuleFrontController extends AbstractApiController
             $response = $this->proxyService->upload($jobId, $themeInfo);
         } catch (EnvVarException $exception) {
             $this->exitWithExceptionMessage($exception);
-        } catch (FirebaseException $exception) {
+        } catch (Exception $exception) {
             $this->exitWithExceptionMessage($exception);
         }
 
