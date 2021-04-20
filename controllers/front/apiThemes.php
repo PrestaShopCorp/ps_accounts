@@ -2,7 +2,6 @@
 
 use PrestaShop\Module\PsAccounts\Controller\AbstractApiController;
 use PrestaShop\Module\PsAccounts\Exception\EnvVarException;
-use PrestaShop\Module\PsAccounts\Exception\FirebaseException;
 use PrestaShop\Module\PsAccounts\Repository\ThemeRepository;
 
 class ps_AccountsApiThemesModuleFrontController extends AbstractApiController
