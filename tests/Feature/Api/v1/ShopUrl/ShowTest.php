@@ -30,6 +30,11 @@ class ShowTest extends FeatureTestCase
 
         $this->assertArrayHasKey('domain', $json);
         $this->assertArrayHasKey('domain_ssl', $json);
+        $this->assertArrayHasKey('ssl_activated', $json);
+
+        $this->assertInternalType('string', $json['domain']);
+        $this->assertInternalType('string', $json['domain_ssl']);
+        $this->assertInternalType('bool', $json['ssl_activated']);
     }
 
     /**
