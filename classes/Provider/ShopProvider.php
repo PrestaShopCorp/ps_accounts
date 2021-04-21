@@ -62,7 +62,7 @@ class ShopProvider
 
         // TODO: Add missing values to context
         return [
-            'id' => (string)$shop['id_shop'],
+            'id' => (string) $shop['id_shop'],
             'name' => $shop['name'],
             'domain' => $shop['domain'],
             'multishop' => $this->shopContext->isMultishopActive(),
@@ -101,7 +101,7 @@ class ShopProvider
             $shops = [];
             foreach ($groupData['shops'] as $shopId => $shopData) {
                 $shops[] = [
-                    'id' => (string)$shopId,
+                    'id' => (string) $shopId,
                     'name' => $shopData['name'],
                     'domain' => $shopData['domain'],
                     'sslDomain' => $shopData['domain_ssl'],
@@ -118,7 +118,7 @@ class ShopProvider
             }
 
             $shopList[] = [
-                'id' => (string)$groupId,
+                'id' => (string) $groupId,
                 'name' => $groupData['name'],
                 'shops' => $shops,
             ];
