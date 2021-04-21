@@ -69,8 +69,7 @@ class OrderRepository
 
         $query->select('(COUNT(o.id_order) - ' . (int) $offset . ') as count')
             ->from(self::ORDERS_TABLE, 'o')
-            ->where('o.id_shop = ' . (int) $shopId)
-            ->groupBy('o.id_order');
+            ->where('o.id_shop = ' . (int) $shopId);
 
         return (int) $this->db->getValue($query);
     }
