@@ -199,6 +199,11 @@ class CategoryRepository
         return $this->db->executeS($query);
     }
 
+    /**
+     * @param DbQuery $query
+     *
+     * @return void
+     */
     private function addSelectParameters(DbQuery $query)
     {
         $query->select('CONCAT(cs.id_category, "-", l.iso_code) as unique_category_id, cs.id_category,

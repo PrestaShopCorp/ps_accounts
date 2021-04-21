@@ -314,6 +314,11 @@ class ProductRepository
         return is_array($result) ? $result : [];
     }
 
+    /**
+     * @param DbQuery $query
+     *
+     * @return void
+     */
     private function addSelectParameters(DbQuery $query)
     {
         $query->select('p.id_product, IFNULL(pas.id_product_attribute, 0) as id_attribute, pas.default_on as is_default_attribute,

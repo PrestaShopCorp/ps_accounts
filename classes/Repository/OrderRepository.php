@@ -100,6 +100,11 @@ class OrderRepository
         return is_array($result) ? $result : [];
     }
 
+    /**
+     * @param DbQuery $query
+     *
+     * @return void
+     */
     private function addSelectParameters(DbQuery $query)
     {
         $query->select('o.id_order, o.reference, o.id_customer, o.id_cart, o.current_state,

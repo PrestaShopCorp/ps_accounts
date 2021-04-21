@@ -96,6 +96,11 @@ class CartRepository
         return is_array($result) ? $result : [];
     }
 
+    /**
+     * @param DbQuery $query
+     *
+     * @return void
+     */
     private function addSelectParameters(DbQuery $query)
     {
         $query->select('c.id_cart, date_add as created_at, date_upd as updated_at');
