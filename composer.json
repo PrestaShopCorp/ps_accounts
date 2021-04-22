@@ -1,45 +1,47 @@
 {
-  "config": {
-    "preferred-install": "dist",
-    "platform": {
-      "php": "5.6"
+    "config": {
+        "preferred-install": "dist",
+        "platform": {
+            "php": "5.6"
+        },
+        "optimize-autoloader": true,
+        "prepend-autoloader": false
     },
-    "optimize-autoloader": true,
-    "prepend-autoloader": false
-  },
-  "autoload": {
-    "psr-4": {
-      "PrestaShop\\Module\\PsAccounts\\": "classes/"
+    "autoload": {
+        "psr-4": {
+            "PrestaShop\\Module\\PsAccounts\\": "classes/"
+        },
+        "classmap": [
+            "ps_accounts.php",
+            "controllers/"
+        ]
     },
-    "classmap": [
-      "ps_accounts.php",
-      "controllers/"
-    ]
-  },
-  "autoload-dev": {
-    "psr-4": {
-      "PrestaShop\\Module\\PsAccounts\\Tests\\": "tests/"
-    }
-  },
-  "require": {
-    "php": ">=5.6",
-    "phpseclib/phpseclib": "^2.0",
-    "ext-json": "*",
-    "guzzlehttp/guzzle": "~5.0",
-    "lcobucci/jwt": "^3.3",
-    "monolog/monolog": "1.25.3",
-    "prestashop/module-lib-service-container": "^1.2",
-    "sentry/sentry": "^1.0"
-  },
-  "require-dev": {
-    "phpunit/phpunit": "^5.7",
-    "prestashop/php-dev-tools": "3.*",
-    "friendsofphp/php-cs-fixer": "^2.16",
-    "fzaninotto/faker": "^1.9"
-  },
-  "scripts": {
-    "set-license-header": [
-      "@php ./vendor/bin/header-stamp --license=\"assets/afl.txt\" --exclude=\".github,node_modules,vendor,vendor,tests,_dev\""
-    ]
-  }
+    "autoload-dev": {
+        "psr-4": {
+            "PrestaShop\\Module\\PsAccounts\\Tests\\": "tests/"
+        }
+    },
+    "require": {
+        "php": ">=5.6",
+        "phpseclib/phpseclib": "^2.0",
+        "ext-json": "*",
+        "guzzlehttp/guzzle": "~5.0",
+        "lcobucci/jwt": "^3.3",
+        "monolog/monolog": "1.25.3",
+        "prestashop/module-lib-service-container": "^1.2",
+        "sentry/sentry": "^1.0"
+    },
+    "require-dev": {
+        "phpunit/phpunit": "^5.7",
+        "prestashop/php-dev-tools": "3.*",
+        "friendsofphp/php-cs-fixer": "^2.16",
+        "fzaninotto/faker": "^1.9"
+    },
+    "scripts": {
+        "set-license-header": [
+            "@php ./vendor/bin/header-stamp --license=\"assets/afl.txt\" --exclude=\".github,node_modules,vendor,vendor,tests,_dev\""
+        ]
+    },
+    "author": "PrestaShop",
+    "license": "AFL-3.0"
 }
