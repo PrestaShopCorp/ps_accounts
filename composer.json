@@ -36,5 +36,10 @@
     "prestashop/php-dev-tools": "3.*",
     "friendsofphp/php-cs-fixer": "^2.16",
     "fzaninotto/faker": "^1.9"
+  },
+  "scripts": {
+    "set-license-header": [
+      "@php ./vendor/bin/header-stamp --license=\"assets/afl.txt\" --exclude=\".github,node_modules,vendor,vendor,tests,_dev\""
+    ]
   }
 }
