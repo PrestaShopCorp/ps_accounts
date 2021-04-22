@@ -1,10 +1,11 @@
 # PrestaShop Account
+
 ## Introduction
 
 The module **ps_accounts** is the interface between your module (PSx / Community Service) and PrestaShop's Accounts service.
 - It manages the shop link and unlink to a user account.
 - It can receives informations from PrestaShop's Accounts API to update data about user and/or shop authentication and verification.
-- It can be query by AJAX calls from your module
+- It can be queried by AJAX calls from your module
 
 Your PSx or Community Service needs to call this module in order to use PrestaShop Accounts service.
 
@@ -18,7 +19,7 @@ Your module needs three parts :
   
 And in your PSx :
 
-- [Composer Library](http://github.com/PrestaShopCorp/prestashop-accounts-installer)
+- [PS Accounts Installer (Composer Library)](http://github.com/PrestaShopCorp/prestashop-accounts-installer)
     - This library's role is here to compensate a lack of security between modules dependencies. If PS Accounts is removed while your module is still installed: it causes a crash of the PrestaShop module's page/feature.
     - This library is here to install automatically PS Accounts if it's missing.
     - It's your interface between your module and PrestaShop Accounts module
@@ -26,7 +27,7 @@ And in your PSx :
   
 - [PrestaShop Accounts Vue Components](http://github.com/PrestaShopCorp/prestashop_accounts_vue_components)
     - It's the front-end component you need to integrate into your module's configuration page.
-    - :warning: Introduire le composant VueJS et rediriger vers la doc de ce dernier
+    - :warning: TODO:Introduce the VueJS component and redirect to its doc
 
 ## Installation
 
@@ -40,17 +41,22 @@ If you need to install and test the module, [you can download the desired zip he
 - Clone this repository
 - Copy paste the `config/config.yml.dist` to `config/config.yml`
 
-## CI
+## Continous Integration
 
 CI trigger on pull request labeled 'quality assurance needed'
 
 To set custom checkout branch , edit [custom-checkout-version](custom-checkout-version)
 
 ## Testing
-:warning: TODO Vérifier avec @hSchoenenberger
+
+:warning: TODO To be verified with @hSchoenenberger
 
 ## JWT
-### What are JWTs?
+
+### What are JWTs and how are they used?
+
+JWT are [JSON Web Tokens](https://jwt.io/).
+
 We use JWTs for 2 types of account: the user account and the shop account.
 What we're identifying when we link a PrestaShop shop is **a shop**. A shop belongs to 1 owner (user).
 
@@ -64,6 +70,7 @@ There are 3 kinds of tokens that can interest you:
 - Firebase ID Token 
 - Firebase Custom Token
 - Firebase Refresh token
+
 [For more informations, please read the official documentation here](https://firebase.google.com/docs/auth/users#auth_tokens)
 
 Here is a recap of the configuration variables used to manage a shop account
