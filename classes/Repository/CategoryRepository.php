@@ -158,10 +158,9 @@ class CategoryRepository
     {
         $query = $this->getBaseQuery($this->context->shop->id, $langIso);
 
-        $query->select('CONCAT(cs.id_category, "-", l.iso_code) as unique_category_id, cs.id_category,
-         c.id_parent, cl.name, cl.description, cl.link_rewrite, cl.meta_title, cl.meta_keywords, cl.meta_description,
-         l.iso_code, c.date_add as created_at, c.date_upd as updated_at')
-        ->limit($limit, $offset);
+        $this->addSelectParameters($query);
+
+        $query->limit($limit, $offset);
 
         return $this->db->executeS($query);
     }
@@ -192,12 +191,23 @@ class CategoryRepository
     {
         $query = $this->getBaseQuery($this->context->shop->id, $langIso);
 
-        $query->select('CONCAT(cs.id_category, "-", l.iso_code) as unique_category_id, cs.id_category,
-         c.id_parent, cl.name, cl.description, cl.link_rewrite, cl.meta_title, cl.meta_keywords, cl.meta_description,
-         l.iso_code, c.date_add as created_at, c.date_upd as updated_at')
-            ->innerJoin('accounts_incremental_sync', 'aic', 'aic.id_object = cs.id_category AND aic.id_shop = cs.id_shop AND aic.type = "categories" and aic.lang_iso = "' . pSQL($langIso) . '"')
+        $this->addSelectParameters($query);
+
+        $query->innerJoin('accounts_incremental_sync', 'aic', 'aic.id_object = cs.id_category AND aic.id_shop = cs.id_shop AND aic.type = "categories" and aic.lang_iso = "' . pSQL($langIso) . '"')
             ->limit($limit);
 
         return $this->db->executeS($query);
+    }
+
+    /**
+     * @param DbQuery $query
+     *
+     * @return void
+     */
+    private function addSelectParameters(DbQuery $query)
+    {
+        $query->select('CONCAT(cs.id_category, "-", l.iso_code) as unique_category_id, cs.id_category,
+         c.id_parent, cl.name, cl.description, cl.link_rewrite, cl.meta_title, cl.meta_keywords, cl.meta_description,
+         l.iso_code, c.date_add as created_at, c.date_upd as updated_at');
     }
 }

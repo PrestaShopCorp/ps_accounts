@@ -51,8 +51,9 @@ class CartRepository
     {
         $query = $this->getBaseQuery();
 
-        $query->select('c.id_cart, date_add as created_at, date_upd as updated_at')
-            ->limit($limit, $offset);
+        $this->addSelectParameters($query);
+
+        $query->limit($limit, $offset);
 
         return $this->db->executeS($query);
     }
@@ -82,8 +83,8 @@ class CartRepository
     {
         $query = $this->getBaseQuery();
 
-        $query->select('c.id_cart, date_add as created_at, date_upd as updated_at')
-            ->innerJoin(
+        $this->addSelectParameters($query);
+        $query->innerJoin(
             'accounts_incremental_sync',
             'aic',
             'aic.id_object = c.id_cart AND aic.id_shop = c.id_shop AND aic.type = "carts"'
@@ -93,5 +94,15 @@ class CartRepository
         $result = $this->db->executeS($query);
 
         return is_array($result) ? $result : [];
+    }
+
+    /**
+     * @param DbQuery $query
+     *
+     * @return void
+     */
+    private function addSelectParameters(DbQuery $query)
+    {
+        $query->select('c.id_cart, date_add as created_at, date_upd as updated_at');
     }
 }

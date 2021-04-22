@@ -75,17 +75,9 @@ class ProductRepository
      */
     public function getProducts($offset, $limit, $langId)
     {
-        $query = $this->getBaseQuery($this->context->shop->id, $langId)
-            ->select('p.id_product, IFNULL(pas.id_product_attribute, 0) as id_attribute, IFNULL(pas.default_on, 0) as is_default_attribute,
-            pl.name, pl.description, pl.description_short, pl.link_rewrite, cl.name as default_category,
-            ps.id_category_default, IFNULL(pa.reference, p.reference) as reference, IFNULL(pa.upc, p.upc) as upc,
-            IFNULL(pa.ean13, p.ean13) as ean, ps.condition, ps.visibility, ps.active, sa.quantity, m.name as manufacturer,
-            (p.weight + IFNULL(pas.weight, 0)) as weight, (ps.price + IFNULL(pas.price, 0)) as price_tax_excl,
-            p.date_add as created_at, p.date_upd as updated_at');
+        $query = $this->getBaseQuery($this->context->shop->id, $langId);
 
-        if (version_compare(_PS_VERSION_, '1.7', '>=')) {
-            $query->select('IFNULL(pa.isbn, p.isbn) as isbn');
-        }
+        $this->addSelectParameters($query);
 
         $query->limit($limit, $offset);
 
@@ -312,21 +304,32 @@ class ProductRepository
     {
         $query = $this->getBaseQuery($this->context->shop->id, $langId);
 
+        $this->addSelectParameters($query);
+
+        $query->innerJoin('accounts_incremental_sync', 'aic', 'aic.id_object = p.id_product AND aic.id_shop = ps.id_shop AND aic.type = "products" and aic.lang_iso = "' . pSQL($langIso) . '"')
+            ->limit($limit);
+
+        $result = $this->db->executeS($query);
+
+        return is_array($result) ? $result : [];
+    }
+
+    /**
+     * @param DbQuery $query
+     *
+     * @return void
+     */
+    private function addSelectParameters(DbQuery $query)
+    {
         $query->select('p.id_product, IFNULL(pas.id_product_attribute, 0) as id_attribute, pas.default_on as is_default_attribute,
             pl.name, pl.description, pl.description_short, pl.link_rewrite, cl.name as default_category,
             ps.id_category_default, IFNULL(pa.reference, p.reference) as reference, IFNULL(pa.upc, p.upc) as upc,
             IFNULL(pa.ean13, p.ean13) as ean, ps.condition, ps.visibility, ps.active, sa.quantity, m.name as manufacturer,
             (p.weight + IFNULL(pas.weight, 0)) as weight, (ps.price + IFNULL(pas.price, 0)) as price_tax_excl,
-            p.date_add as created_at, p.date_upd as updated_at')
-            ->innerJoin('accounts_incremental_sync', 'aic', 'aic.id_object = p.id_product AND aic.id_shop = ps.id_shop AND aic.type = "products" and aic.lang_iso = "' . pSQL($langIso) . '"')
-            ->limit($limit);
+            p.date_add as created_at, p.date_upd as updated_at');
 
         if (version_compare(_PS_VERSION_, '1.7', '>=')) {
             $query->select('IFNULL(pa.isbn, p.isbn) as isbn');
         }
-
-        $result = $this->db->executeS($query);
-
-        return is_array($result) ? $result : [];
     }
 }

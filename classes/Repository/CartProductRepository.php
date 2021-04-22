@@ -47,7 +47,7 @@ class CartProductRepository
     {
         $query = $this->getBaseQuery();
 
-        $query->select('cp.id_cart, cp.id_product, cp.id_product_attribute, cp.quantity');
+        $query->select('cp.id_cart, cp.id_product, cp.id_product_attribute, cp.quantity, cp.date_add as created_at');
 
         if (!empty($cartIds)) {
             $query->where('cp.id_cart IN (' . implode(',', array_map('intval', $cartIds)) . ')');

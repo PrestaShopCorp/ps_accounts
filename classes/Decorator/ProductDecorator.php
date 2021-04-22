@@ -162,7 +162,7 @@ class ProductDecorator
         $product['isbn'] = isset($product['isbn']) ? (string) $product['isbn'] : '';
         $product['ean'] = (string) $product['ean'];
         $product['upc'] = (string) $product['upc'];
-        $product['is_default_attribute'] = $product['id_attribute'] === 0 ? true : $product['is_default_attribute'] === '1';
+        $product['is_default_attribute'] = $product['id_attribute'] === 0 || (int) $product['is_default_attribute'] === 1;
     }
 
     /**

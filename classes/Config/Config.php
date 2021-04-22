@@ -17,6 +17,6 @@ class Config
         self::DATABASE_QUERY_ERROR_CODE => 'Database syntax error',
         self::DATABASE_INSERT_ERROR_CODE => 'Failed to write to database',
         self::PS_FACEBOOK_NOT_INSTALLED => 'Cannot sync Taxonomies without Facebook module',
-        self::INVALID_URL_QUERY => 'Invalid URL query'
+        self::INVALID_URL_QUERY => 'Invalid URL query',
     ];
 }
