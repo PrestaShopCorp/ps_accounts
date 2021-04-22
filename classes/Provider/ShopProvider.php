@@ -105,6 +105,7 @@ class ShopProvider
                     'name' => $shopData['name'],
                     'domain' => $shopData['domain'],
                     'sslDomain' => $shopData['domain_ssl'],
+                    'publicKey' => $this->shopContext->getConfiguration()->getAccountsRsaPublicKey(),
                     'url' => $this->link->getAdminLink(
                         'AdminModules',
                         true,
