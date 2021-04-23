@@ -125,6 +125,11 @@ services:
       - '@PrestaShop\Module\PsAccounts\Service\ShopTokenService'
       - '@PrestaShop\Module\PsAccounts\Adapter\Link'
 
+  PrestaShop\Module\PsAccounts\Api\Client\SsoClient:
+    class: PrestaShop\Module\PsAccounts\Api\Client\SsoClient
+    arguments:
+      - { api_key: '%ps_accounts.sso_api_url%' }
+
   #####################
   # repositories
 
