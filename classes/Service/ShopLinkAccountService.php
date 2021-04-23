@@ -362,7 +362,7 @@ class ShopLinkAccountService implements Configurable
      *
      * @throws HmacException
      */
-    private function writeHmac($hmac, $uid, $path)
+    public function writeHmac($hmac, $uid, $path)
     {
         if (!is_dir($path)) {
             mkdir($path);

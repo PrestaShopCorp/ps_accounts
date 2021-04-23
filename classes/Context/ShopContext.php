@@ -83,6 +83,14 @@ class ShopContext
     /**
      * @return bool
      */
+    public function isMultishopActive()
+    {
+        return \Shop::isFeatureActive();
+    }
+
+    /**
+     * @return bool
+     */
     public function sslEnabled()
     {
         return $this->configuration->sslEnabled();

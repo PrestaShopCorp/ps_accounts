@@ -251,6 +251,7 @@ class ConfigurationRepository
      */
     public function sslEnabled()
     {
-        return true == $this->configuration->get('PS_SSL_ENABLED');
+        return true == $this->configuration->get('PS_SSL_ENABLED')
+            || true == $this->configuration->get('PS_SSL_ENABLED_EVERYWHERE');
     }
 }

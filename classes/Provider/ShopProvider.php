@@ -60,11 +60,16 @@ class ShopProvider
     {
         $shop = \Shop::getShop($this->shopContext->getContext()->shop->id);
 
+        // TODO: Add missing values to context
         return [
-            'id' => $shop['id_shop'],
+            'id' => (string) $shop['id_shop'],
             'name' => $shop['name'],
             'domain' => $shop['domain'],
-            'domainSsl' => $shop['domain_ssl'],
+            'multishop' => $this->shopContext->isMultishopActive(),
+            'moduleName' => $psxName,
+            'psVersion' => _PS_VERSION_,
+            'sslDomain' => $shop['domain_ssl'],
+            'publicKey' => $this->shopContext->getConfiguration()->getAccountsRsaPublicKey(),
             'url' => $this->link->getAdminLink(
                 'AdminModules',
                 true,
@@ -96,10 +101,10 @@ class ShopProvider
             $shops = [];
             foreach ($groupData['shops'] as $shopId => $shopData) {
                 $shops[] = [
-                    'id' => $shopId,
+                    'id' => (string) $shopId,
                     'name' => $shopData['name'],
                     'domain' => $shopData['domain'],
-                    'domainSsl' => $shopData['domain_ssl'],
+                    'sslDomain' => $shopData['domain_ssl'],
                     'url' => $this->link->getAdminLink(
                         'AdminModules',
                         true,
@@ -113,7 +118,7 @@ class ShopProvider
             }
 
             $shopList[] = [
-                'id' => $groupId,
+                'id' => (string) $groupId,
                 'name' => $groupData['name'],
                 'shops' => $shops,
             ];
