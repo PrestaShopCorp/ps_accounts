@@ -111,11 +111,13 @@ class ServicesAccountsClient extends GenericClient
      */
     public function updateShopUrl($shopUuidV4, $bodyHttp)
     {
-        $this->setRoute('/shops/' . $shopUuidV4 . '/url');
-
-        return $this->patch([
-            'body' => $bodyHttp,
-        ]);
+        return false;
+//
+//        $this->setRoute('/shops/' . $shopUuidV4 . '/url');
+//
+//        return $this->patch([
+//            'body' => $bodyHttp,
+//        ]);
     }
 
     /**
@@ -131,6 +133,8 @@ class ServicesAccountsClient extends GenericClient
     }
 
     /**
+     * @deprecated since v5
+     *
      * @param array $headers
      * @param array $body
      *
@@ -170,6 +174,23 @@ class ServicesAccountsClient extends GenericClient
             'httpCode' => 200,
             'body' => 'ok',
         ];
+    }
+
+    /**
+     * @param $idToken
+     *
+     * @return array response
+     */
+    public function verifyToken($idToken)
+    {
+        $this->setRoute('/v1/shop/token/verify');
+
+        // TODO : transmit token like a bearer
+        return $this->post([
+            'json' => [
+                'token' => $idToken,
+            ],
+        ]);
     }
 
     /**

@@ -1,6 +1,8 @@
 <?php
 
 use Lcobucci\JWT\Parser;
+use PrestaShop\Module\PsAccounts\Api\Client\ServicesAccountsClient;
+use PrestaShop\Module\PsAccounts\Api\Client\SsoClient;
 use PrestaShop\Module\PsAccounts\Controller\AbstractShopRestController;
 use PrestaShop\Module\PsAccounts\Repository\ConfigurationRepository;
 
@@ -18,6 +20,8 @@ class ps_AccountsApiV1ShopLinkAccountModuleFrontController extends AbstractShopR
 
     /**
      * ps_AccountsApiV1ShopAccountModuleFrontController constructor.
+     *
+     * @throws Exception
      */
     public function __construct()
     {
@@ -48,19 +52,24 @@ class ps_AccountsApiV1ShopLinkAccountModuleFrontController extends AbstractShopR
 //            'shop_refresh_token' => ,
 //            'user_token' => ,
 //            'user_refresh_token' => ,
+//            'employee_id' => ,
 //        ];
 
         $shopToken = $payload['shop_token'];
-        $this->assertValidFirebaseToken($shopToken);
+        $this->verifyShopToken($shopToken);
 
         $userToken = $payload['user_token'];
-        $this->assertValidFirebaseToken($userToken);
+        $this->verifyUserToken($userToken);
 
         $uuid = $this->jwtParser->parse((string) $shopToken)->getClaim('user_id');
         $this->configuration->updateShopUuid($uuid);
 
         $email = $this->jwtParser->parse((string) $userToken)->getClaim('email');
         $this->configuration->updateFirebaseEmail($email);
+
+        // TODO: store customerId
+        //$employeeId = $payload['employee_id'];
+        //$this->configuration->updateEmployeeId($employeeId);
 
         $this->configuration->updateFirebaseIdAndRefreshTokens(
             $payload['shop_token'],
@@ -96,15 +105,40 @@ class ps_AccountsApiV1ShopLinkAccountModuleFrontController extends AbstractShopR
     }
 
     /**
-     * @param string $token
+     * @param $shopToken
      *
-     * @return void
-     *
-     * @throws \Exception
+     * @throws Exception
      */
-    private function assertValidFirebaseToken($token)
+    private function verifyShopToken($shopToken)
     {
-        // TODO: implement verifyFirebaseToken
-        //$this->firebaseClient->verifyToken();
+        // TODO : attempt refresh token
+        // TODO : return right HttpException
+
+        /** @var ServicesAccountsClient $accountsApiClient */
+        $accountsApiClient = $this->module->getService(ServicesAccountsClient::class);
+        $response = $accountsApiClient->verifyToken($shopToken);
+
+        if (true !== $response['status']) {
+            throw new \Exception('Unable to verify shop token : ' . $response['httpCode'] . ' ' . $response['body']['message']);
+        }
+    }
+
+    /**
+     * @param $userToken
+     *
+     * @throws Exception
+     */
+    private function verifyUserToken($userToken)
+    {
+        // TODO : attempt refresh token
+        // TODO : return right HttpException
+
+        /** @var SsoClient $ssoApiClient */
+        $ssoApiClient = $this->module->getService(SsoClient::class);
+        $response = $ssoApiClient->verifyToken($userToken);
+
+        if (true !== $response['status']) {
+            throw new \Exception('Unable to verify user token : ' . $response['httpCode'] . ' ' . $response['body']['message']);
+        }
     }
 }

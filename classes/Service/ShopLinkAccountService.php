@@ -96,6 +96,8 @@ class ShopLinkAccountService implements Configurable
 
     /**
      * @return ServicesAccountsClient
+     *
+     * @throws \Exception
      */
     public function getServicesAccountsClient()
     {
@@ -148,6 +150,8 @@ class ShopLinkAccountService implements Configurable
     }
 
     /**
+     * @deprecated since v5
+     *
      * @param string $psxName
      *
      * @return string
@@ -185,6 +189,8 @@ class ShopLinkAccountService implements Configurable
     }
 
     /**
+     * @deprecated since v5
+     *
      * @param array $queryParams
      * @param string $rootDir
      *
@@ -271,6 +277,8 @@ class ShopLinkAccountService implements Configurable
     }
 
     /**
+     * @deprecated since v5
+     *
      * @param string $psxName
      *
      * @return void
@@ -286,6 +294,8 @@ class ShopLinkAccountService implements Configurable
     }
 
     /**
+     * @deprecated since v5
+     *
      * Only callable during onboarding
      *
      * Prepare onboarding data

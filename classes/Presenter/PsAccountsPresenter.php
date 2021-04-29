@@ -107,7 +107,7 @@ class PsAccountsPresenter implements PresenterInterface
         $shopContext = $this->shopProvider->getShopContext();
 
         // FIXME : Module itself should also manage this
-        $isEnabled = $this->installer->isEnabled('ps_accounts');
+        //$isEnabled = $this->installer->isEnabled('ps_accounts');
 
         try {
             return array_merge(
