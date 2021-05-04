@@ -1,0 +1,19 @@
+imports:
+  - { resource: common.yml }
+
+parameters:
+  # In case you need to override with environment variables, you can follow this example :
+  # env(PS_ACCOUNTS_SENTRY_CREDENTIALS): 'https://4c7f6c8dd5aa405b8401a35f5cf26ada@o298402.ingest.sentry.io/5354585'
+  # sentry.credentials: '%env(string:PS_ACCOUNTS_SENTRY_CREDENTIALS)%'
+  #
+  # In order to manage multiple config files you can use PS_ACCOUNTS_ENV=[myenv] environment variable
+  # to load a specific services_[myenv].yml
+
+  # prestashop-ready-integration.firebaseapp.com
+  ps_accounts.firebase_api_key: 'AIzaSyASHFE2F08ncoOH9NhoCF8_6z7qnoLVKSA'
+  ps_accounts.svc_accounts_api_url: 'http://accounts-api:3000'
+  ps_accounts.svc_accounts_ui_url: 'http://localhost:8080'
+  ps_accounts.svc_billing_api_url: 'https://billing-api.psessentials-integration.net'
+  ps_accounts.sso_account_url: 'https://prestashop-newsso-staging.appspot.com/login'
+  ps_accounts.sso_resend_verification_email_url: 'https://prestashop-newsso-staging.appspot.com/account/send-verification-email'
+  ps_accounts.sentry_credentials: 'https://4c7f6c8dd5aa405b8401a35f5cf26ada@o298402.ingest.sentry.io/5354585'

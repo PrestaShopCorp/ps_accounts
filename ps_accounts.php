@@ -1,27 +1,21 @@
 <?php
 /**
- * 2007-2020 PrestaShop.
+ * Copyright since 2007 PrestaShop SA and Contributors
+ * PrestaShop is an International Registered Trademark & Property of PrestaShop SA
  *
  * NOTICE OF LICENSE
  *
- * This source file is subject to the Academic Free License (AFL 3.0)
- * that is bundled with this package in the file LICENSE.txt.
+ * This source file is subject to the Academic Free License version 3.0
+ * that is bundled with this package in the file LICENSE.md.
  * It is also available through the world-wide-web at this URL:
- * http://opensource.org/licenses/afl-3.0.php
+ * https://opensource.org/licenses/AFL-3.0
  * If you did not receive a copy of the license and are unable to
  * obtain it through the world-wide-web, please send an email
  * to license@prestashop.com so we can send you a copy immediately.
  *
- * DISCLAIMER
- *
- * Do not edit or add to this file if you wish to upgrade PrestaShop to newer
- * versions in the future. If you wish to customize PrestaShop for your
- * needs please refer to http://www.prestashop.com for more information.
- *
- *  @author    PrestaShop SA <contact@prestashop.com>
- *  @copyright 2007-2020 PrestaShop SA
- *  @license   http://opensource.org/licenses/afl-3.0.php  Academic Free License (AFL 3.0)
- *  International Registered Trademark & Property of PrestaShop SA
+ * @author    PrestaShop SA and Contributors <contact@prestashop.com>
+ * @copyright Since 2007 PrestaShop SA and Contributors
+ * @license   https://opensource.org/licenses/AFL-3.0 Academic Free License version 3.0
  */
 if (!defined('_PS_VERSION_')) {
     exit;
@@ -30,20 +24,11 @@ require_once __DIR__ . '/vendor/autoload.php';
 
 class Ps_accounts extends Module
 {
-    /**
-     * @var string
-     */
-    const VERSION = 'x.y.z';
+    const DEFAULT_ENV = '';
 
-    /**
-     * @var array
-     */
-    const REQUIRED_TABLES = [
-        'accounts_type_sync',
-        'accounts_sync',
-        'accounts_deleted_objects',
-        'accounts_incremental_sync',
-    ];
+    // Needed in order to retrieve the module version easier (in api call headers) than instanciate
+    // the module each time to get the version
+    const VERSION = '4.0-dev';
 
     /**
      * @var array
@@ -62,25 +47,31 @@ class Ps_accounts extends Module
      */
     private $hookToInstall = [
         'actionObjectShopUrlUpdateAfter',
-        'actionObjectProductDeleteAfter',
-        'actionObjectCategoryDeleteAfter',
-        'actionObjectProductAddAfter',
-        'actionObjectProductUpdateAfter',
-        'actionObjectCartAddAfter',
-        'actionObjectCartUpdateAfter',
-        'actionObjectOrderAddAfter',
-        'actionObjectOrderUpdateAfter',
-        'actionObjectCategoryAddAfter',
-        'actionObjectCategoryUpdateAfter',
+        //'addWebserviceResources',
     ];
 
     /**
-     * @var \PrestaShop\ModuleLibServiceContainer\DependencyInjection\ServiceContainer
+     * @var \PrestaShop\Module\PsAccounts\DependencyInjection\ServiceContainer
      */
     private $serviceContainer;
 
+//    /**
+//     * @var \Symfony\Component\DependencyInjection\ContainerInterface
+//     */
+//    protected $container;
+
     /**
-     * __construct.
+     * @var array
+     */
+    private $configuration;
+
+    /**
+     * @var \PrestaShop\Module\PsAccounts\Installer\Installer
+     */
+    private $moduleInstaller;
+
+    /**
+     * Ps_accounts constructor.
      */
     public function __construct()
     {
@@ -88,25 +79,32 @@ class Ps_accounts extends Module
         $this->tab = 'administration';
         $this->author = 'PrestaShop';
         $this->need_instance = 0;
-        $this->bootstrap = true;
-        $this->version = 'x.y.z';
+        $this->bootstrap = false;
+
+        // We cannot use the const VERSION because the const is not computed by addons marketplace
+        // when the zip is uploaded
+        $this->version = '4.0-dev';
+
         $this->module_key = 'abf2cd758b4d629b2944d3922ef9db73';
 
         parent::__construct();
 
-        $this->displayName = $this->l('PrestaShop Account');
-        $this->description = $this->l('Link your PrestaShop account to your online shop to activate & manage services on your back-office. Don\'t uninstall this module if you are already using a service, as it will prevent it from working.');
-        $this->confirmUninstall = $this->l('This action will prevent immediately your PrestaShop services and Community services from working as they are using PrestaShop Accounts module for authentication.');
+        $this->moduleInstaller = $this->getService(\PrestaShop\Module\PsAccounts\Installer\Installer::class);
+
+        $this->displayName = $this->l('ps_accounts.display_name');
+        $this->description = $this->l('ps_accounts.description');
+        $this->description_full = $this->l('ps_accounts.description_full');
+        $this->confirmUninstall = $this->l('ps_accounts.confirm_uninstall');
+
         $this->ps_versions_compliancy = ['min' => '1.6', 'max' => _PS_VERSION_];
+
         $this->adminControllers = [
             'hmac' => 'AdminConfigureHmacPsAccounts',
             'ajax' => 'AdminAjaxPsAccounts',
-            'resetOnboarding' => 'AdminResetOnboarding',
+            'debug' => 'AdminDebugPsAccounts',
         ];
-        $this->serviceContainer = new \PrestaShop\ModuleLibServiceContainer\DependencyInjection\ServiceContainer(
-            $this->name,
-            $this->getLocalPath()
-        );
+
+        $this->getLogger()->info('Loading ' . $this->name . ' Env : [' . $this->getModuleEnv() . ']');
     }
 
     /**
@@ -141,6 +139,10 @@ class Ps_accounts extends Module
 
     /**
      * @return bool
+     *
+     * @throws PrestaShopDatabaseException
+     * @throws PrestaShopException
+     * @throws Throwable
      */
     public function install()
     {
@@ -153,10 +155,15 @@ class Ps_accounts extends Module
 
         $installer = new PrestaShop\Module\PsAccounts\Module\Install($this, Db::getInstance());
 
-        return $installer->installInMenu()
-            && $installer->installDatabaseTables()
+        $status = $installer->installInMenu()
+            //&& $installer->installDatabaseTables()
             && parent::install()
             && $this->registerHook($this->hookToInstall);
+
+        // Ignore fail on ps_eventbus install
+        $this->moduleInstaller->installModule('ps_eventbus');
+
+        return $status;
     }
 
     /**
@@ -167,7 +174,7 @@ class Ps_accounts extends Module
         $uninstaller = new PrestaShop\Module\PsAccounts\Module\Uninstall($this, Db::getInstance());
 
         return $uninstaller->uninstallMenu()
-            && $uninstaller->uninstallDatabaseTables()
+            //&& $uninstaller->uninstallDatabaseTables()
             && parent::uninstall();
     }
 
@@ -175,11 +182,44 @@ class Ps_accounts extends Module
      * @param string $serviceName
      *
      * @return mixed
+     *
+     * @throws Exception
      */
     public function getService($serviceName)
     {
+        if (null === $this->serviceContainer) {
+            //$this->serviceContainer = new \PrestaShop\ModuleLibServiceContainer\DependencyInjection\ServiceContainer(
+            $this->serviceContainer = new \PrestaShop\Module\PsAccounts\DependencyInjection\ServiceContainer(
+                // append version number to force cache generation (1.6 Core won't clear it)
+                $this->name . str_replace(['.', '-'], '', $this->version),
+                $this->getLocalPath(),
+                $this->getModuleEnv()
+            );
+        }
+
         return $this->serviceContainer->getService($serviceName);
     }
+
+//    /**
+//     * Override of native function to always retrieve Symfony container instead of legacy admin container on legacy context.
+//     *
+//     * @param string $serviceName
+//     *
+//     * @return mixed
+//     */
+//    public function getService($serviceName)
+//    {
+//        if ((new \PrestaShop\Module\PsAccounts\Context\ShopContext())->isShop173()) {
+//            // 1.7.3
+//            // 1.7.6
+//            //$this->context->controller->getContainer()
+//
+//            if (null === $this->container) {
+//                $this->container = \PrestaShop\PrestaShop\Adapter\SymfonyContainer::getInstance();
+//            }
+//        }
+//        return $this->container->get($serviceName);
+//    }
 
     /**
      * Hook executed on every backoffice pages
@@ -192,7 +232,7 @@ class Ps_accounts extends Module
      *
      * @return bool
      *
-     * @throws ReflectionException
+     * @throws \Exception
      */
     public function hookDisplayBackOfficeHeader($params)
     {
@@ -216,8 +256,13 @@ class Ps_accounts extends Module
                 'domain' => $domain,
                 'domain_ssl' => $domainSsl,
             ];
-            $psAccountsService = new \PrestaShop\AccountsAuth\Service\PsAccountsService();
-            $psAccountsService->changeUrl($bodyHttp, '1.6');
+
+            /** @var \PrestaShop\Module\PsAccounts\Service\ShopLinkAccountService $shopLinkAccountService */
+            $shopLinkAccountService = $this->getService(
+                \PrestaShop\Module\PsAccounts\Service\ShopLinkAccountService::class
+            );
+
+            $shopLinkAccountService->updateShopUrl($bodyHttp, '1.6');
         }
 
         return true;
@@ -232,7 +277,7 @@ class Ps_accounts extends Module
      *
      * @return bool
      *
-     * @throws ReflectionException
+     * @throws \Exception
      */
     public function hookActionMetaPageSave($params)
     {
@@ -246,20 +291,25 @@ class Ps_accounts extends Module
             'domain' => $params['form_data']['shop_urls']['domain'],
             'domain_ssl' => $params['form_data']['shop_urls']['domain_ssl'],
         ];
-        $psAccountsService = new \PrestaShop\AccountsAuth\Service\PsAccountsService();
-        $psAccountsService->changeUrl($bodyHttp, '1.7.6');
+
+        /** @var \PrestaShop\Module\PsAccounts\Service\ShopLinkAccountService $shopLinkAccountService */
+        $shopLinkAccountService = $this->getService(
+            \PrestaShop\Module\PsAccounts\Service\ShopLinkAccountService::class
+        );
+
+        $shopLinkAccountService->updateShopUrl($bodyHttp, '1.7.6');
 
         return true;
     }
 
     /**
-     * Hook trigger when a changement is made on the domain name
+     * Hook trigger when a change is made on the domain name
      *
      * @param array $params
      *
      * @return bool
      *
-     * @throws ReflectionException
+     * @throws Exception
      */
     public function hookActionObjectShopUrlUpdateAfter($params)
     {
@@ -271,241 +321,75 @@ class Ps_accounts extends Module
             'main' => $params['object']->main,
             'active' => $params['object']->active,
         ];
-        $psAccountsService = new \PrestaShop\AccountsAuth\Service\PsAccountsService();
-        $psAccountsService->changeUrl($bodyHttp, 'multishop');
+
+        /** @var \PrestaShop\Module\PsAccounts\Service\ShopLinkAccountService $shopLinkAccountService */
+        $shopLinkAccountService = $this->getService(
+            \PrestaShop\Module\PsAccounts\Service\ShopLinkAccountService::class
+        );
+
+        $shopLinkAccountService->updateShopUrl($bodyHttp, 'multishop');
 
         return true;
     }
 
     /**
-     * @param array $parameters
-     *
-     * @return void
+     * @return string
      */
-    public function hookActionObjectProductDeleteAfter($parameters)
+    public function getModuleEnvVar()
     {
-        $product = $parameters['object'];
-
-        $this->insertDeletedObject(
-            $product->id,
-            'products',
-            date(DATE_ATOM),
-            $this->context->shop->id
-        );
+        return strtoupper($this->name) . '_ENV';
     }
 
     /**
-     * @param array $parameters
+     * @param string $default
      *
-     * @return void
+     * @return string
      */
-    public function hookActionObjectCategoryDeleteAfter($parameters)
+    public function getModuleEnv($default = null)
     {
-        $category = $parameters['object'];
-
-        $this->insertDeletedObject(
-            $category->id,
-            'categories',
-            date(DATE_ATOM),
-            $this->context->shop->id
-        );
+        return getenv($this->getModuleEnvVar()) ?: $default ?: self::DEFAULT_ENV;
     }
 
     /**
-     * @param array $parameters
+     * Load the configuration form.
      *
-     * @return void
+     * @return string
+     *
+     * @throws Throwable
      */
-    public function hookActionObjectProductAddAfter($parameters)
+    public function getContent()
     {
-        $product = $parameters['object'];
+        $this->loadAssets(\Tools::getValue('google_message_error'), \Tools::getValue('countProperty'));
 
-        $this->insertIncrementalSyncObject(
-            $product->id,
-            'products',
-            date(DATE_ATOM),
-            $this->context->shop->id,
-            true
-        );
+        return $this->display(__FILE__, '/views/templates/admin/app.tpl');
     }
 
     /**
-     * @param array $parameters
+     * Load VueJs App and set JS variable for Vuex
+     *
+     * @param string $responseApiMessage
+     * @param int $countProperty
      *
      * @return void
-     */
-    public function hookActionObjectProductUpdateAfter($parameters)
-    {
-        $product = $parameters['object'];
-
-        $this->insertIncrementalSyncObject(
-            $product->id,
-            'products',
-            date(DATE_ATOM),
-            $this->context->shop->id,
-            true
-        );
-    }
-
-    /**
-     * @param array $parameters
      *
-     * @return void
+     * @throws Throwable
      */
-    public function hookActionObjectCartAddAfter($parameters)
+    protected function loadAssets($responseApiMessage = 'null', $countProperty = 0)
     {
-        $cart = $parameters['object'];
+        $this->context->smarty->assign('pathVendor', $this->_path . 'views/js/chunk-vendors.js');
+        $this->context->smarty->assign('pathApp', $this->_path . 'views/js/app.js');
 
-        $this->insertIncrementalSyncObject(
-            $cart->id,
-            'carts',
-            date(DATE_ATOM),
-            $this->context->shop->id
-        );
-    }
+        $storePresenter = new PrestaShop\Module\PsAccounts\Presenter\Store\StorePresenter($this, $this->context);
 
-    /**
-     * @param array $parameters
-     *
-     * @return void
-     */
-    public function hookActionObjectCartUpdateAfter($parameters)
-    {
-        $cart = $parameters['object'];
+        Media::addJsDef([
+            'storePsAccounts' => $storePresenter->present(),
+        ]);
 
-        $this->insertIncrementalSyncObject(
-            $cart->id,
-            'carts',
-            date(DATE_ATOM),
-            $this->context->shop->id
-        );
-    }
+        /** @var \PrestaShop\Module\PsAccounts\Presenter\PsAccountsPresenter $psAccountsPresenter */
+        $psAccountsPresenter = $this->getService(\PrestaShop\Module\PsAccounts\Presenter\PsAccountsPresenter::class);
 
-    /**
-     * @param array $parameters
-     *
-     * @return void
-     */
-    public function hookActionObjectOrderAddAfter($parameters)
-    {
-        $order = $parameters['object'];
-
-        $this->insertIncrementalSyncObject(
-            $order->id,
-            'orders',
-            date(DATE_ATOM),
-            $this->context->shop->id
-        );
-    }
-
-    /**
-     * @param array $parameters
-     *
-     * @return void
-     */
-    public function hookActionObjectOrderUpdateAfter($parameters)
-    {
-        $order = $parameters['object'];
-
-        $this->insertIncrementalSyncObject(
-            $order->id,
-            'orders',
-            date(DATE_ATOM),
-            $this->context->shop->id
-        );
-    }
-
-    /**
-     * @param array $parameters
-     *
-     * @return void
-     */
-    public function hookActionObjectCategoryUpdateAfter($parameters)
-    {
-        $category = $parameters['object'];
-
-        $this->insertIncrementalSyncObject(
-            $category->id,
-            'categories',
-            date(DATE_ATOM),
-            $this->context->shop->id,
-            true
-        );
-    }
-
-    /**
-     * @param array $parameters
-     *
-     * @return void
-     */
-    public function hookActionObjectCategoryAddAfter($parameters)
-    {
-        $category = $parameters['object'];
-
-        $this->insertIncrementalSyncObject(
-            $category->id,
-            'categories',
-            date(DATE_ATOM),
-            $this->context->shop->id,
-            true
-        );
-    }
-
-    /**
-     * @param int $objectId
-     * @param string $type
-     * @param string $date
-     * @param int $shopId
-     * @param bool $hasMultiLang
-     *
-     * @return void
-     */
-    private function insertIncrementalSyncObject($objectId, $type, $date, $shopId, $hasMultiLang = false)
-    {
-        /** @var \PrestaShop\Module\PsAccounts\Repository\IncrementalSyncRepository $incrementalSyncRepository */
-        $incrementalSyncRepository = $this->getService(
-            \PrestaShop\Module\PsAccounts\Repository\IncrementalSyncRepository::class
-        );
-
-        /** @var \PrestaShop\Module\PsAccounts\Repository\LanguageRepository $languageRepository */
-        $languageRepository = $this->getService(
-            \PrestaShop\Module\PsAccounts\Repository\LanguageRepository::class
-        );
-
-        if ($hasMultiLang) {
-            $languagesIsoCodes = $languageRepository->getLanguagesIsoCodes();
-
-            foreach ($languagesIsoCodes as $languagesIsoCode) {
-                $incrementalSyncRepository->insertIncrementalObject($objectId, $type, $date, $shopId, $languagesIsoCode);
-            }
-        } else {
-            $languagesIsoCode = $languageRepository->getDefaultLanguageIsoCode();
-
-            $incrementalSyncRepository->insertIncrementalObject($objectId, $type, $date, $shopId, $languagesIsoCode);
-        }
-    }
-
-    /**
-     * @param int $id
-     * @param string $type
-     * @param string $date
-     * @param int $shopId
-     *
-     * @return void
-     */
-    private function insertDeletedObject($id, $type, $date, $shopId)
-    {
-        /** @var \PrestaShop\Module\PsAccounts\Repository\DeletedObjectsRepository $deletedObjectsRepository */
-        $deletedObjectsRepository = $this->getService(
-            \PrestaShop\Module\PsAccounts\Repository\DeletedObjectsRepository::class
-        );
-
-        /** @var \PrestaShop\Module\PsAccounts\Repository\IncrementalSyncRepository $incrementalSyncRepository */
-        $incrementalSyncRepository = $this->getService(
-            \PrestaShop\Module\PsAccounts\Repository\IncrementalSyncRepository::class
-        );
-
-        $deletedObjectsRepository->insertDeletedObject($id, $type, $date, $shopId);
-        $incrementalSyncRepository->removeIncrementalSyncObject($type, $id);
+        Media::addJsDef([
+            'contextPsAccounts' => $psAccountsPresenter->present($this->name),
+        ]);
     }
 }

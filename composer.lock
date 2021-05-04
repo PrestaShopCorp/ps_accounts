@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
         "This file is @generated automatically"
     ],
-    "content-hash": "56ce8219783b0d8176d3545f93cb9f13",
+    "content-hash": "75b98c7d9f9f14a8d904459459637c3a",
     "packages": [
         {
             "name": "guzzlehttp/guzzle",
@@ -539,48 +539,6 @@
             "time": "2020-10-21T08:35:58+00:00"
         },
         {
-            "name": "prestashop/prestashop-accounts-auth",
-            "version": "v2.3.0",
-            "source": {
-                "type": "git",
-                "url": "https://github.com/PrestaShopCorp/prestashop_accounts_auth.git",
-                "reference": "640f1ed35d0276cda7a96519bc6993a4a3ff35b6"
-            },
-            "dist": {
-                "type": "zip",
-                "url": "https://api.github.com/repos/PrestaShopCorp/prestashop_accounts_auth/zipball/640f1ed35d0276cda7a96519bc6993a4a3ff35b6",
-                "reference": "640f1ed35d0276cda7a96519bc6993a4a3ff35b6",
-                "shasum": ""
-            },
-            "require": {
-                "ext-json": "*",
-                "guzzlehttp/guzzle": "~5.0",
-                "lcobucci/jwt": "^3.3",
-                "php": ">=5.6",
-                "phpseclib/phpseclib": "^2.0",
-                "sentry/sentry": "^1.0",
-                "symfony/dotenv": "^3.4"
-            },
-            "require-dev": {
-                "friendsofphp/php-cs-fixer": "^2.16",
-                "fzaninotto/faker": "^1.9",
-                "phpunit/phpunit": "^5.7",
-                "prestashop/php-dev-tools": "3.*"
-            },
-            "type": "library",
-            "autoload": {
-                "psr-4": {
-                    "PrestaShop\\AccountsAuth\\": "src/"
-                }
-            },
-            "notification-url": "https://packagist.org/downloads/",
-            "license": [
-                "MIT"
-            ],
-            "description": "PrestaShop Accounts composer library",
-            "time": "2021-03-11T15:19:17+00:00"
-        },
-        {
             "name": "psr/cache",
             "version": "1.0.1",
             "source": {
@@ -1068,58 +1026,6 @@
             ],
             "description": "Symfony DependencyInjection Component",
             "homepage": "https://symfony.com",
-            "time": "2020-10-24T10:57:07+00:00"
-        },
-        {
-            "name": "symfony/dotenv",
-            "version": "v3.4.47",
-            "source": {
-                "type": "git",
-                "url": "https://github.com/symfony/dotenv.git",
-                "reference": "1022723ac4f56b001d99691d96c6025dbf1404f1"
-            },
-            "dist": {
-                "type": "zip",
-                "url": "https://api.github.com/repos/symfony/dotenv/zipball/1022723ac4f56b001d99691d96c6025dbf1404f1",
-                "reference": "1022723ac4f56b001d99691d96c6025dbf1404f1",
-                "shasum": ""
-            },
-            "require": {
-                "php": "^5.5.9|>=7.0.8"
-            },
-            "require-dev": {
-                "symfony/process": "^3.4.2|^4.0"
-            },
-            "type": "library",
-            "autoload": {
-                "psr-4": {
-                    "Symfony\\Component\\Dotenv\\": ""
-                },
-                "exclude-from-classmap": [
-                    "/Tests/"
-                ]
-            },
-            "notification-url": "https://packagist.org/downloads/",
-            "license": [
-                "MIT"
-            ],
-            "authors": [
-                {
-                    "name": "Fabien Potencier",
-                    "email": "fabien@symfony.com"
-                },
-                {
-                    "name": "Symfony Community",
-                    "homepage": "https://symfony.com/contributors"
-                }
-            ],
-            "description": "Registers environment variables from a .env file",
-            "homepage": "https://symfony.com",
-            "keywords": [
-                "dotenv",
-                "env",
-                "environment"
-            ],
             "time": "2020-10-24T10:57:07+00:00"
         },
         {
@@ -1834,6 +1740,57 @@
             ],
             "description": "A tool to automatically fix PHP code style",
             "time": "2021-01-26T00:22:21+00:00"
+        },
+        {
+            "name": "fzaninotto/faker",
+            "version": "v1.9.2",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/fzaninotto/Faker.git",
+                "reference": "848d8125239d7dbf8ab25cb7f054f1a630e68c2e"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/fzaninotto/Faker/zipball/848d8125239d7dbf8ab25cb7f054f1a630e68c2e",
+                "reference": "848d8125239d7dbf8ab25cb7f054f1a630e68c2e",
+                "shasum": ""
+            },
+            "require": {
+                "php": "^5.3.3 || ^7.0"
+            },
+            "require-dev": {
+                "ext-intl": "*",
+                "phpunit/phpunit": "^4.8.35 || ^5.7",
+                "squizlabs/php_codesniffer": "^2.9.2"
+            },
+            "type": "library",
+            "extra": {
+                "branch-alias": {
+                    "dev-master": "1.9-dev"
+                }
+            },
+            "autoload": {
+                "psr-4": {
+                    "Faker\\": "src/Faker/"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "François Zaninotto"
+                }
+            ],
+            "description": "Faker is a PHP library that generates fake data for you.",
+            "keywords": [
+                "data",
+                "faker",
+                "fixtures"
+            ],
+            "abandoned": true,
+            "time": "2020-12-11T09:56:16+00:00"
         },
         {
             "name": "myclabs/deep-copy",
@@ -2631,16 +2588,16 @@
         },
         {
             "name": "prestashop/php-dev-tools",
-            "version": "v3.15",
+            "version": "v3.14",
             "source": {
                 "type": "git",
                 "url": "https://github.com/PrestaShop/php-dev-tools.git",
-                "reference": "1570fd43b0f5a8cfa105e6f2211c818c902951f0"
+                "reference": "ef4217ee7212e6b65d983371b3255ca38395de44"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/PrestaShop/php-dev-tools/zipball/1570fd43b0f5a8cfa105e6f2211c818c902951f0",
-                "reference": "1570fd43b0f5a8cfa105e6f2211c818c902951f0",
+                "url": "https://api.github.com/repos/PrestaShop/php-dev-tools/zipball/ef4217ee7212e6b65d983371b3255ca38395de44",
+                "reference": "ef4217ee7212e6b65d983371b3255ca38395de44",
                 "shasum": ""
             },
             "require": {
@@ -2650,9 +2607,6 @@
                 "squizlabs/php_codesniffer": "^3.4",
                 "symfony/console": "~3.2 || ~4.0 || ~5.0",
                 "symfony/filesystem": "~3.2 || ~4.0 || ~5.0"
-            },
-            "conflict": {
-                "friendsofphp/php-cs-fixer": "2.18.3"
             },
             "bin": [
                 "bin/prestashop-coding-standards"
@@ -2668,7 +2622,7 @@
                 "MIT"
             ],
             "description": "PrestaShop coding standards",
-            "time": "2021-03-11T15:36:18+00:00"
+            "time": "2021-01-18T15:07:05+00:00"
         },
         {
             "name": "sebastian/code-unit-reverse-lookup",

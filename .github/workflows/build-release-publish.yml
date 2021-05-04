@@ -1,4 +1,5 @@
 name: Release and publish
+
 on:
   release:
     types: [released, prereleased]
@@ -11,6 +12,12 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v2.0.0
 
+      - name: Build JS dependencies
+        uses: PrestaShopCorp/github-action-build-js/12@v1.0
+        with:
+          cmd: yarn
+          path: ./_dev
+
       - name: Install composer dependencies
         run: composer install --no-dev -o
 
@@ -22,7 +29,7 @@ jobs:
           VERSION=$(echo "${{ github.event.release.tag_name }}" | sed 's/^v//')
           sed -i -e "s/\(VERSION = \).*/\1\'${VERSION}\';/" ps_accounts.php
           sed -i -e "s/\($this->version = \).*/\1\'${VERSION}\';/" ps_accounts.php
-          sed -i -e 's|\(<version><!\[CDATA\[\)[0-9a-z.]\{1,\}]]></version>|\1'$VERSION']]></version>|g' config.xml
+          sed -i -e 's|\(<version><!\[CDATA\[\)[0-9a-z\.\-]\{1,\}\]\]></version>|\1'$VERSION']]></version>|g' config.xml
 
       - name: Create & upload artifact
         uses: actions/upload-artifact@v1
@@ -40,10 +47,23 @@ jobs:
         with:
           name: ${{ github.event.repository.name }}
 
+      - name: Set up Cloud SDK
+        uses: google-github-actions/setup-gcloud@master
+        with:
+          project_id: ${{ secrets.GCLOUD_PROJECT_PRODUCTION }}
+          service_account_key: ${{ secrets.G_CREDENTIAL_PRODUCTION }}
+          export_default_credentials: true
+
+      - name: Copy env files
+        run: |
+          gcloud components install beta
+          gcloud beta secrets versions access latest --secret="accounts-module" > ps_accounts/ps_accounts/config/config.yml
+        env:
+          GOOGLE_APPLICATION_CREDENTIALS: ${{ secrets.G_CREDENTIAL_PRODUCTION }}
+
       - name: Prepare the production zip
         run: |
           cd ${{ github.event.repository.name }}
-          echo "$ENV_FILE" > ${{ github.event.repository.name }}/.env
           zip -r ${{ github.event.repository.name }}.zip ${{ github.event.repository.name }} -x '*.git*'
         env:
           ENV_FILE: ${{ secrets.PS_ACCOUNTS_ENV_PROD }}
@@ -68,13 +88,24 @@ jobs:
         with:
           name: ${{ github.event.repository.name }}
 
+      - name: Set up Cloud SDK
+        uses: google-github-actions/setup-gcloud@master
+        with:
+          project_id: ${{ secrets.GCLOUD_PROJECT_INTEGRATION }}
+          service_account_key: ${{ secrets.G_CREDENTIAL_INTEGRATION }}
+          export_default_credentials: true
+
+      - name: Copy env files
+        run: |
+          gcloud components install beta
+          gcloud beta secrets versions access latest --secret="accounts-module" > ps_accounts/ps_accounts/config/config.yml
+        env:
+          GOOGLE_APPLICATION_CREDENTIALS: ${{ secrets.G_CREDENTIAL_INTEGRATION }}
+
       - name: Prepare the integration zip
         run: |
           cd ${{ github.event.repository.name }}
-          echo "$ENV_FILE" > ${{ github.event.repository.name }}/.env
           zip -r ${{ github.event.repository.name }}_integration.zip ${{ github.event.repository.name }}  -x '*.git*'
-        env:
-          ENV_FILE: ${{ secrets.PS_ACCOUNTS_ENV_INTE }}
 
       - name: Publish the integration zip
         uses: actions/upload-release-asset@v1.0.1
