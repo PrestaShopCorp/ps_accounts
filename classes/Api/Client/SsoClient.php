@@ -79,6 +79,22 @@ class SsoClient extends GenericClient
     }
 
     /**
+     * @param $refreshToken
+     *
+     * @return array response
+     */
+    public function refreshToken($refreshToken)
+    {
+        $this->setRoute('/auth/token/refresh');
+
+        return $this->post([
+            'json' => [
+                'token' => $refreshToken,
+            ],
+        ]);
+    }
+
+    /**
      * @param array $config
      * @param array $defaults
      *

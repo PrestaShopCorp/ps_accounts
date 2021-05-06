@@ -49,6 +49,7 @@ services:
     class: PrestaShop\Module\PsAccounts\Service\ShopTokenService
     arguments:
       - '@PrestaShop\Module\PsAccounts\Api\Client\FirebaseClient'
+      - '@PrestaShop\Module\PsAccounts\Api\Client\AccountsClient'
       - '@PrestaShop\Module\PsAccounts\Repository\ConfigurationRepository'
 
   PrestaShop\Module\PsAccounts\Service\PsAccountsService:
@@ -62,8 +63,8 @@ services:
   PrestaShop\Module\PsAccounts\Service\SsoService:
     class: PrestaShop\Module\PsAccounts\Service\SsoService
     arguments:
-      - { sso_resend_verification_email_url: '%ps_accounts.sso_resend_verification_email_url%',
-          sso_account_url: '%ps_accounts.sso_account_url%' }
+      - { sso_resend_verification_email_url: '%ps_accounts.sso_resend_verification_email_url%', sso_account_url: '%ps_accounts.sso_account_url%' }
+      - '@PrestaShop\Module\PsAccounts\Api\Client\SsoClient'
 
   PrestaShop\Module\PsAccounts\Service\ShopLinkAccountService:
     class: PrestaShop\Module\PsAccounts\Service\ShopLinkAccountService
@@ -117,8 +118,8 @@ services:
       - '@PrestaShop\Module\PsAccounts\Provider\ShopProvider'
       - '@PrestaShop\Module\PsAccounts\Adapter\Link'
 
-  PrestaShop\Module\PsAccounts\Api\Client\ServicesAccountsClient:
-    class: PrestaShop\Module\PsAccounts\Api\Client\ServicesAccountsClient
+  PrestaShop\Module\PsAccounts\Api\Client\AccountsClient:
+    class: PrestaShop\Module\PsAccounts\Api\Client\AccountsClient
     arguments:
       - { api_url: '%ps_accounts.svc_accounts_api_url%' }
       - '@PrestaShop\Module\PsAccounts\Provider\ShopProvider'

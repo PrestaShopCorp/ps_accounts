@@ -21,7 +21,7 @@
 namespace PrestaShop\Module\PsAccounts\WebHook;
 
 use Context;
-use PrestaShop\Module\PsAccounts\Api\Client\ServicesAccountsClient;
+use PrestaShop\Module\PsAccounts\Api\Client\AccountsClient;
 use PrestaShop\Module\PsAccounts\Exception\WebhookException;
 use PrestaShop\Module\PsAccounts\Repository\ConfigurationRepository;
 
@@ -57,19 +57,19 @@ class Validator
     private $configuration;
 
     /**
-     * @var ServicesAccountsClient
+     * @var AccountsClient
      */
     private $accountsClient;
 
     /**
      * Validator constructor.
      *
-     * @param ServicesAccountsClient $accountsClient
+     * @param AccountsClient $accountsClient
      * @param ConfigurationRepository $configuration
      * @param Context $context
      */
     public function __construct(
-        ServicesAccountsClient $accountsClient,
+        AccountsClient $accountsClient,
         ConfigurationRepository $configuration,
         Context $context
     ) {

@@ -21,6 +21,7 @@
 namespace PrestaShop\Module\PsAccounts\Service;
 
 use Context;
+use PrestaShop\Module\PsAccounts\Api\Client\SsoClient;
 use PrestaShop\Module\PsAccounts\Configuration\ConfigOptionsResolver;
 use PrestaShop\Module\PsAccounts\Configuration\Configurable;
 use PrestaShop\Module\PsAccounts\Exception\OptionResolutionException;
@@ -41,17 +42,26 @@ class SsoService implements Configurable
     protected $ssoResendVerificationEmailUrl;
 
     /**
+     * @var SsoClient
+     */
+    private $ssoClient;
+
+    /**
      * PsAccountsService constructor.
      *
      * @param array $config
+     * @param SsoClient $ssoClient
      *
      * @throws OptionResolutionException
      */
-    public function __construct(array $config)
-    {
+    public function __construct(
+        array $config,
+        SsoClient $ssoClient
+    ) {
         $config = $this->resolveConfig($config);
         $this->ssoAccountUrl = $config['sso_account_url'];
         $this->ssoResendVerificationEmailUrl = $config['sso_resend_verification_email_url'];
+        $this->ssoClient = $ssoClient;
     }
 
     /**
@@ -66,11 +76,48 @@ class SsoService implements Configurable
     }
 
     /**
+     * @deprecated since v5
+     *
      * @return string
      */
     public function getSsoResendVerificationEmailUrl()
     {
         return $this->ssoResendVerificationEmailUrl;
+    }
+
+    /**
+     * @param $idToken
+     * @param $refreshToken
+     *
+     * @return string verified or refreshed token on success
+     *
+     * @throws \Exception
+     */
+    public function verifyToken($idToken, $refreshToken)
+    {
+        $response = $this->ssoClient->verifyToken($idToken);
+
+        if ($response && true == $response['status']) {
+            return $idToken;
+        }
+        return $this->refreshToken($refreshToken);
+    }
+
+    /**
+     * @param $refreshToken
+     *
+     * @return string idToken
+     *
+     * @throws \Exception
+     */
+    public function refreshToken($refreshToken)
+    {
+        $response = $this->ssoClient->refreshToken($refreshToken);
+
+        if ($response && true == $response['status']) {
+            return $response['body']['idToken'];
+        }
+        throw new \Exception('Unable to refresh user token : ' . $response['httpCode'] . ' ' . $response['body']['message']);
     }
 
     /**

@@ -21,6 +21,7 @@
 namespace PrestaShop\Module\PsAccounts\Service;
 
 use Lcobucci\JWT\Parser;
+use PrestaShop\Module\PsAccounts\Api\Client\AccountsClient;
 use PrestaShop\Module\PsAccounts\Api\Client\FirebaseClient;
 use PrestaShop\Module\PsAccounts\Repository\ConfigurationRepository;
 
@@ -32,6 +33,11 @@ class ShopTokenService
     private $firebaseClient;
 
     /**
+     * @var AccountsClient
+     */
+    private $accountsClient;
+
+    /**
      * @var ConfigurationRepository
      */
     private $configuration;
@@ -40,17 +46,22 @@ class ShopTokenService
      * ShopTokenService constructor.
      *
      * @param FirebaseClient $firebaseClient
+     * @param AccountsClient $accountsClient
      * @param ConfigurationRepository $configuration
      */
     public function __construct(
         FirebaseClient $firebaseClient,
+        AccountsClient $accountsClient,
         ConfigurationRepository $configuration
     ) {
         $this->firebaseClient = $firebaseClient;
+        $this->accountsClient = $accountsClient;
         $this->configuration = $configuration;
     }
 
     /**
+     * @deprecated since v5
+     *
      * @see https://firebase.google.com/docs/reference/rest/auth Firebase documentation
      *
      * @param string $customToken
@@ -78,29 +89,6 @@ class ShopTokenService
     }
 
     /**
-     * @return bool
-     *
-     * @throws \Exception
-     */
-    public function refreshToken()
-    {
-        $response = $this->firebaseClient->exchangeRefreshTokenForIdToken(
-            $this->configuration->getFirebaseRefreshToken()
-        );
-
-        if ($response && true === $response['status']) {
-            $this->configuration->updateFirebaseIdAndRefreshTokens(
-                $response['body']['id_token'],
-                $response['body']['refresh_token']
-            );
-
-            return true;
-        }
-
-        return false;
-    }
-
-    /**
      * Get the user firebase token.
      *
      * @return string
@@ -113,7 +101,10 @@ class ShopTokenService
             $this->configuration->hasFirebaseRefreshToken()
             && $this->isTokenExpired()
         ) {
-            $this->refreshToken();
+            $refreshToken = $this->getRefreshToken();
+            $this->configuration->updateFirebaseIdAndRefreshTokens(
+                $this->refreshToken($refreshToken), $refreshToken
+            );
         }
 
         return $this->configuration->getFirebaseIdToken();
@@ -146,5 +137,40 @@ class ShopTokenService
         $token = (new Parser())->parse($this->configuration->getFirebaseIdToken());
 
         return $token->isExpired(new \DateTime());
+    }
+
+    /**
+     * @param $idToken
+     * @param $refreshToken
+     *
+     * @return string verified or refreshed token on success
+     *
+     * @throws \Exception
+     */
+    public function verifyToken($idToken, $refreshToken)
+    {
+        $response = $this->accountsClient->verifyToken($idToken);
+
+        if ($response && true == $response['status']) {
+            return $idToken;
+        }
+        return $this->refreshToken($refreshToken);
+    }
+
+    /**
+     * @param $refreshToken
+     *
+     * @return string idToken
+     *
+     * @throws \Exception
+     */
+    private function refreshToken($refreshToken)
+    {
+        $response = $this->accountsClient->refreshToken($refreshToken);
+
+        if ($response && true == $response['status']) {
+            return $response['body']['token'];
+        }
+        throw new \Exception('Unable to refresh shop token : ' . $response['httpCode'] . ' ' . $response['body']['message']);
     }
 }

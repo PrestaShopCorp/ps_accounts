@@ -101,12 +101,12 @@ class PsAccountsPresenter implements PresenterInterface
      */
     public function present($psxName = 'ps_accounts')
     {
-        // FIXME : Do this elsewhere
+        // FIXME: Generates shop RSA keys
         $this->shopLinkAccountService->manageOnboarding($psxName);
 
         $shopContext = $this->shopProvider->getShopContext();
 
-        // FIXME : Module itself should also manage this
+        // FIXME: Module itself should also manage this
         //$isEnabled = $this->installer->isEnabled('ps_accounts');
 
         try {

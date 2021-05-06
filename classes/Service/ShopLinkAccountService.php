@@ -22,7 +22,7 @@ namespace PrestaShop\Module\PsAccounts\Service;
 
 use Module;
 use PrestaShop\Module\PsAccounts\Adapter\Link;
-use PrestaShop\Module\PsAccounts\Api\Client\ServicesAccountsClient;
+use PrestaShop\Module\PsAccounts\Api\Client\AccountsClient;
 use PrestaShop\Module\PsAccounts\Configuration\ConfigOptionsResolver;
 use PrestaShop\Module\PsAccounts\Configuration\Configurable;
 use PrestaShop\Module\PsAccounts\Exception\HmacException;
@@ -95,19 +95,21 @@ class ShopLinkAccountService implements Configurable
     }
 
     /**
-     * @return ServicesAccountsClient
+     * @return AccountsClient
      *
      * @throws \Exception
      */
-    public function getServicesAccountsClient()
+    public function getAccountsClient()
     {
         /** @var Ps_accounts $module */
         $module = Module::getInstanceByName('ps_accounts');
 
-        return $module->getService(ServicesAccountsClient::class);
+        return $module->getService(AccountsClient::class);
     }
 
     /**
+     * @deprecated since v5
+     *
      * @param array $bodyHttp
      * @param string $trigger
      *
@@ -135,7 +137,7 @@ class ShopLinkAccountService implements Configurable
         );
 
         if ($uuid && strlen($uuid) > 0) {
-            $response = $this->getServicesAccountsClient()->updateShopUrl(
+            $response = $this->getAccountsClient()->updateShopUrl(
                 $uuid,
                 [
                     'protocol' => $protocol,
@@ -238,10 +240,14 @@ class ShopLinkAccountService implements Configurable
      * @return array
      *
      * @throws SshKeysNotFoundException
+     * @throws \Exception
      */
     public function unlinkShop()
     {
-        $response = $this->getServicesAccountsClient()->deleteShop((string) $this->configuration->getShopUuid());
+        $response = $this->getAccountsClient()->deleteUserShop(
+            (string) $this->configuration->getUserFirebaseUuid(),
+            (string) $this->configuration->getShopUuid()
+        );
 
         // Réponse: 200: Shop supprimé avec payload contenant un message de confirmation
         // Réponse: 404: La shop n'existe pas (not found)

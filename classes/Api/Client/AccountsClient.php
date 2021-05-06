@@ -31,7 +31,7 @@ use PrestaShop\Module\PsAccounts\Service\ShopTokenService;
 /**
  * Class ServicesAccountsClient
  */
-class ServicesAccountsClient extends GenericClient
+class AccountsClient extends GenericClient
 {
     /**
      * @var ShopProvider
@@ -112,24 +112,23 @@ class ServicesAccountsClient extends GenericClient
     public function updateShopUrl($shopUuidV4, $bodyHttp)
     {
         return false;
-//
-//        $this->setRoute('/shops/' . $shopUuidV4 . '/url');
-//
-//        return $this->patch([
-//            'body' => $bodyHttp,
-//        ]);
     }
 
     /**
+     * FIXME: pass user bearer NOT shop one
+     *
+     * @param string $userUuid
      * @param string $shopUuidV4
      *
      * @return array
      */
-    public function deleteShop($shopUuidV4)
+    public function deleteUserShop($userUuid, $shopUuidV4)
     {
-        $this->setRoute('/shop/' . $shopUuidV4);
+        $this->setRoute('/user/' . $userUuid . '/shop/' . $shopUuidV4);
 
-        return $this->delete();
+        return $this->delete([
+//            'Authorization' => 'Bearer ' . $this->
+        ]);
     }
 
     /**
@@ -183,12 +182,27 @@ class ServicesAccountsClient extends GenericClient
      */
     public function verifyToken($idToken)
     {
-        $this->setRoute('/v1/shop/token/verify');
+        $this->setRoute('/shop/token/verify');
 
-        // TODO : transmit token like a bearer
         return $this->post([
             'json' => [
                 'token' => $idToken,
+            ],
+        ]);
+    }
+
+    /**
+     * @param $refreshToken
+     *
+     * @return array response
+     */
+    public function refreshToken($refreshToken)
+    {
+        $this->setRoute('/shop/token/refresh');
+
+        return $this->post([
+            'json' => [
+                'refreshToken' => $refreshToken,
             ],
         ]);
     }

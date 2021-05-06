@@ -18,7 +18,7 @@
  * @license   https://opensource.org/licenses/AFL-3.0 Academic Free License version 3.0
  */
 
-use PrestaShop\Module\PsAccounts\Api\Client\ServicesAccountsClient;
+use PrestaShop\Module\PsAccounts\Api\Client\AccountsClient;
 use PrestaShop\Module\PsAccounts\Exception\WebhookException;
 use PrestaShop\Module\PsAccounts\Handler\Error\Sentry;
 use PrestaShop\Module\PsAccounts\Repository\ConfigurationRepository;
@@ -81,7 +81,7 @@ class ps_accountsDispatchWebHookModuleFrontController extends ModuleFrontControl
     public function display()
     {
         $validator = new Validator(
-            $this->module->getService(ServicesAccountsClient::class),
+            $this->module->getService(AccountsClient::class),
             $this->configuration,
             $this->module->getService('ps_accounts.context')
         );
