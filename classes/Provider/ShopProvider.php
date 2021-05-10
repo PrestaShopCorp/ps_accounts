@@ -68,7 +68,7 @@ class ShopProvider
             'multishop' => $this->shopContext->isMultishopActive(),
             'moduleName' => $psxName,
             'psVersion' => _PS_VERSION_,
-            'sslDomain' => $shop['domain_ssl'],
+            'domainSsl' => $shop['domain_ssl'],
             'publicKey' => $this->shopContext->getConfiguration()->getAccountsRsaPublicKey(),
             'url' => $this->link->getAdminLink(
                 'AdminModules',
@@ -104,7 +104,9 @@ class ShopProvider
                     'id' => (string) $shopId,
                     'name' => $shopData['name'],
                     'domain' => $shopData['domain'],
-                    'sslDomain' => $shopData['domain_ssl'],
+                    'domainSsl' => $shopData['domain_ssl'],
+                    'publicKey' => $this->shopContext->getConfiguration()->getAccountsRsaPublicKey(),
+                    'multishop' => $this->shopContext->isMultishopActive(),
                     'url' => $this->link->getAdminLink(
                         'AdminModules',
                         true,
