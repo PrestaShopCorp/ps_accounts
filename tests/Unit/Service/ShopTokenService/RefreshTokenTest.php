@@ -22,7 +22,7 @@ namespace PrestaShop\Module\PsAccounts\Tests\Unit\Service\ShopTokenService;
 
 use PrestaShop\Module\PsAccounts\Api\Client\FirebaseClient;
 use PrestaShop\Module\PsAccounts\Repository\ConfigurationRepository;
-use PrestaShop\Module\PsAccounts\Service\ShopTokenService;
+use PrestaShop\Module\PsAccounts\Repository\ShopTokenRepository;
 use PrestaShop\Module\PsAccounts\Tests\TestCase;
 
 class RefreshTokenTest extends TestCase
@@ -57,7 +57,7 @@ class RefreshTokenTest extends TestCase
                 ],
             ]);
 
-        $service = new ShopTokenService(
+        $service = new ShopTokenRepository(
             $firebaseClient,
             $configuration
         );
@@ -93,7 +93,7 @@ class RefreshTokenTest extends TestCase
                 'status' => false,
             ]);
 
-        $service = new ShopTokenService(
+        $service = new ShopTokenRepository(
             $firebaseClient,
             $configuration
         );

@@ -18,20 +18,13 @@
  * @license   https://opensource.org/licenses/AFL-3.0 Academic Free License version 3.0
  */
 
-namespace PrestaShop\Module\PsAccounts\Service;
+namespace PrestaShop\Module\PsAccounts\Repository;
 
 use Lcobucci\JWT\Parser;
 use PrestaShop\Module\PsAccounts\Api\Client\AccountsClient;
-use PrestaShop\Module\PsAccounts\Api\Client\FirebaseClient;
-use PrestaShop\Module\PsAccounts\Repository\ConfigurationRepository;
 
-class ShopTokenService
+class ShopTokenRepository
 {
-    /**
-     * @var FirebaseClient
-     */
-    private $firebaseClient;
-
     /**
      * @var AccountsClient
      */
@@ -45,47 +38,15 @@ class ShopTokenService
     /**
      * ShopTokenService constructor.
      *
-     * @param FirebaseClient $firebaseClient
      * @param AccountsClient $accountsClient
      * @param ConfigurationRepository $configuration
      */
     public function __construct(
-        FirebaseClient $firebaseClient,
         AccountsClient $accountsClient,
         ConfigurationRepository $configuration
     ) {
-        $this->firebaseClient = $firebaseClient;
         $this->accountsClient = $accountsClient;
         $this->configuration = $configuration;
-    }
-
-    /**
-     * @deprecated since v5
-     *
-     * @see https://firebase.google.com/docs/reference/rest/auth Firebase documentation
-     *
-     * @param string $customToken
-     *
-     * @return bool
-     */
-    public function exchangeCustomTokenForIdAndRefreshToken($customToken)
-    {
-        $response = $this->firebaseClient->signInWithCustomToken($customToken);
-
-        if ($response && true === $response['status']) {
-            $uid = (new Parser())->parse((string) $customToken)->getClaim('uid');
-
-            $this->configuration->updateShopUuid($uid);
-
-            $this->configuration->updateFirebaseIdAndRefreshTokens(
-                $response['body']['idToken'],
-                $response['body']['refreshToken']
-            );
-
-            return true;
-        }
-
-        return false;
     }
 
     /**

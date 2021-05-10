@@ -24,9 +24,7 @@ use GuzzleHttp\Client;
 use PrestaShop\Module\PsAccounts\Adapter\Link;
 use PrestaShop\Module\PsAccounts\Configuration\ConfigOptionsResolver;
 use PrestaShop\Module\PsAccounts\Exception\OptionResolutionException;
-use PrestaShop\Module\PsAccounts\Exception\TokenNotFoundException;
 use PrestaShop\Module\PsAccounts\Provider\ShopProvider;
-use PrestaShop\Module\PsAccounts\Service\ShopTokenService;
 
 /**
  * Class ServicesAccountsClient
@@ -39,28 +37,20 @@ class AccountsClient extends GenericClient
     private $shopProvider;
 
     /**
-     * @var ShopTokenService
-     */
-    private $shopTokenService;
-
-    /**
      * ServicesAccountsClient constructor.
      *
      * @param array $config
      * @param ShopProvider $shopProvider
-     * @param ShopTokenService $shopTokenService
      * @param Link $link
      * @param Client|null $client
      *
      * @throws OptionResolutionException
-     * @throws TokenNotFoundException
      * @throws \PrestaShopException
      * @throws \Exception
      */
     public function __construct(
         array $config,
         ShopProvider $shopProvider,
-        ShopTokenService $shopTokenService,
         Link $link,
         Client $client = null
     ) {
@@ -69,16 +59,10 @@ class AccountsClient extends GenericClient
         $config = $this->resolveConfig($config);
 
         $this->shopProvider = $shopProvider;
-        $this->shopTokenService = $shopTokenService;
 
         $shopId = (int) $this->shopProvider->getCurrentShop()['id'];
-        $token = $this->shopTokenService->getOrRefreshToken();
 
         $this->setLink($link->getLink());
-
-        if (!$token) {
-            throw new TokenNotFoundException('Firebase token not found');
-        }
 
         // Client can be provided for tests
         if (null === $client) {
@@ -91,7 +75,6 @@ class AccountsClient extends GenericClient
                         // Commented, else does not work anymore with API.
                         //'Content-Type' => 'application/vnd.accounts.v1+json', // api version to use
                         'Accept' => 'application/json',
-                        'Authorization' => 'Bearer ' . $token,
                         'Shop-Id' => $shopId,
                         'Module-Version' => \Ps_accounts::VERSION, // version of the module
                         'Prestashop-Version' => _PS_VERSION_, // prestashop version
@@ -101,17 +84,6 @@ class AccountsClient extends GenericClient
         }
 
         $this->setClient($client);
-    }
-
-    /**
-     * @param mixed $shopUuidV4
-     * @param array $bodyHttp
-     *
-     * @return array | false
-     */
-    public function updateShopUrl($shopUuidV4, $bodyHttp)
-    {
-        return false;
     }
 
     /**
@@ -127,52 +99,11 @@ class AccountsClient extends GenericClient
         $this->setRoute('/user/' . $userUuid . '/shop/' . $shopUuidV4);
 
         return $this->delete([
-//            'Authorization' => 'Bearer ' . $this->
-        ]);
-    }
-
-    /**
-     * @deprecated since v5
-     *
-     * @param array $headers
-     * @param array $body
-     *
-     * @return array
-     *
-     * @throws \PrestaShopException
-     */
-    public function verifyWebhook(array $headers, array $body)
-    {
-        $correlationId = $headers['correlationId'];
-
-        $this->setRoute('/webhooks/' . $correlationId . '/verify');
-
-        $shopId = (int) $this->shopProvider->getCurrentShop()['id'];
-        $hookUrl = $this->link->getModuleLink('ps_accounts', 'DispatchWebHook', [], true, null, $shopId);
-
-        $res = $this->post([
             'headers' => [
-                'correlationId' => $correlationId,
-                'Hook-Url' => $hookUrl,
-            ],
-            'json' => $body,
+// FIXME
+//                'Authorization' => 'Bearer ' .
+            ]
         ]);
-
-        if (!$res || $res['httpCode'] < 200 || $res['httpCode'] > 299) {
-            return [
-                'httpCode' => $res['httpCode'],
-                'body' => $res['body']
-                && is_array($res['body'])
-                && array_key_exists('message', $res['body'])
-                    ? $res['body']['message']
-                    : 'Unknown error',
-            ];
-        }
-
-        return [
-            'httpCode' => 200,
-            'body' => 'ok',
-        ];
     }
 
     /**

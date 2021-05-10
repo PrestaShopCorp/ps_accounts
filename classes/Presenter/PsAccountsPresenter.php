@@ -27,7 +27,6 @@ use PrestaShop\Module\PsAccounts\Provider\ShopProvider;
 use PrestaShop\Module\PsAccounts\Repository\ConfigurationRepository;
 use PrestaShop\Module\PsAccounts\Service\PsAccountsService;
 use PrestaShop\Module\PsAccounts\Service\ShopLinkAccountService;
-use PrestaShop\Module\PsAccounts\Service\SsoService;
 
 /**
  * Construct the psaccounts module.
@@ -43,11 +42,6 @@ class PsAccountsPresenter implements PresenterInterface
      * @var ShopLinkAccountService
      */
     protected $shopLinkAccountService;
-
-    /**
-     * @var SsoService
-     */
-    protected $ssoService;
 
     /**
      * @var ConfigurationRepository
@@ -70,7 +64,6 @@ class PsAccountsPresenter implements PresenterInterface
      * @param PsAccountsService $psAccountsService
      * @param ShopProvider $shopProvider
      * @param ShopLinkAccountService $shopLinkAccountService
-     * @param SsoService $ssoService
      * @param Installer $installer
      * @param ConfigurationRepository $configuration
      */
@@ -78,14 +71,12 @@ class PsAccountsPresenter implements PresenterInterface
         PsAccountsService $psAccountsService,
         ShopProvider $shopProvider,
         ShopLinkAccountService $shopLinkAccountService,
-        SsoService $ssoService,
         Installer $installer,
         ConfigurationRepository $configuration
     ) {
         $this->psAccountsService = $psAccountsService;
         $this->shopProvider = $shopProvider;
         $this->shopLinkAccountService = $shopLinkAccountService;
-        $this->ssoService = $ssoService;
         $this->installer = $installer;
         $this->configuration = $configuration;
     }
@@ -101,8 +92,7 @@ class PsAccountsPresenter implements PresenterInterface
      */
     public function present($psxName = 'ps_accounts')
     {
-        // FIXME: Generates shop RSA keys
-        $this->shopLinkAccountService->manageOnboarding($psxName);
+        $this->shopLinkAccountService->prepareLinkAccount();
 
         $shopContext = $this->shopProvider->getShopContext();
 
@@ -130,7 +120,8 @@ class PsAccountsPresenter implements PresenterInterface
                     ////////////////////////////
                     // PsAccountsPresenter
 
-                    'onboardingLink' => $this->shopLinkAccountService->getLinkAccountUrl($psxName),
+                    // FIXME
+                    'onboardingLink' => '', //$this->configurationService->getLinkAccountUrl($psxName),
 
                     // FIXME :  Mix "SSO user" with "Backend user"
                     'user' => [
@@ -145,9 +136,8 @@ class PsAccountsPresenter implements PresenterInterface
 
                     'superAdminEmail' => $this->psAccountsService->getSuperAdminEmail(),
 
-                    // FIXME : move into Vue components .env
-                    'ssoResendVerificationEmail' => $this->ssoService->getSsoResendVerificationEmailUrl(),
-                    'manageAccountLink' => $this->ssoService->getSsoAccountUrl(),
+                    // FIXME
+                    'manageAccountLink' => '', //$this->configurationService->getSsoAccountUrl(),
 
                     'adminAjaxLink' => $this->psAccountsService->getAdminAjaxUrl(),
                 ],

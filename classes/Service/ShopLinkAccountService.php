@@ -30,24 +30,21 @@ use PrestaShop\Module\PsAccounts\Exception\OptionResolutionException;
 use PrestaShop\Module\PsAccounts\Exception\QueryParamsException;
 use PrestaShop\Module\PsAccounts\Exception\RsaSignedDataNotFoundException;
 use PrestaShop\Module\PsAccounts\Exception\SshKeysNotFoundException;
+use PrestaShop\Module\PsAccounts\Provider\RsaKeysProvider;
 use PrestaShop\Module\PsAccounts\Provider\ShopProvider;
 use PrestaShop\Module\PsAccounts\Repository\ConfigurationRepository;
+use PrestaShop\Module\PsAccounts\Repository\ShopTokenRepository;
 use Ps_accounts;
 
 class ShopLinkAccountService implements Configurable
 {
     /**
-     * @var ShopKeysService
+     * @var RsaKeysProvider
      */
-    private $shopKeysService;
+    private $rsaKeysProvider;
 
     /**
-     * @var ShopProvider
-     */
-    private $shopProvider;
-
-    /**
-     * @var ShopTokenService
+     * @var ShopTokenRepository
      */
     private $shopTokenService;
 
@@ -70,9 +67,8 @@ class ShopLinkAccountService implements Configurable
      * ShopLinkAccountService constructor.
      *
      * @param array $config
-     * @param ShopProvider $shopProvider
-     * @param ShopKeysService $shopKeysService
-     * @param ShopTokenService $shopTokenService
+     * @param RsaKeysProvider $rsaKeysProvider
+     * @param ShopTokenRepository $shopTokenRepository
      * @param ConfigurationRepository $configuration
      * @param Link $link
      *
@@ -80,16 +76,14 @@ class ShopLinkAccountService implements Configurable
      */
     public function __construct(
         array $config,
-        ShopProvider $shopProvider,
-        ShopKeysService $shopKeysService,
-        ShopTokenService $shopTokenService,
+        RsaKeysProvider $rsaKeysProvider,
+        ShopTokenRepository $shopTokenRepository,
         ConfigurationRepository $configuration,
         Link $link
     ) {
         $this->accountsUiUrl = $this->resolveConfig($config)['accounts_ui_url'];
-        $this->shopProvider = $shopProvider;
-        $this->shopKeysService = $shopKeysService;
-        $this->shopTokenService = $shopTokenService;
+        $this->rsaKeysProvider = $rsaKeysProvider;
+        $this->shopTokenService = $shopTokenRepository;
         $this->configuration = $configuration;
         $this->link = $link;
     }
@@ -108,138 +102,8 @@ class ShopLinkAccountService implements Configurable
     }
 
     /**
-     * @deprecated since v5
-     *
-     * @param array $bodyHttp
-     * @param string $trigger
-     *
-     * @return mixed
-     *
-     * @throws \Exception
-     */
-    public function updateShopUrl($bodyHttp, $trigger)
-    {
-        if (array_key_exists('shop_id', $bodyHttp)) {
-            // id for multishop
-            $this->configuration->setShopId($bodyHttp['shop_id']);
-        }
-
-        $sslEnabled = $this->shopProvider->getShopContext()->sslEnabled();
-        $protocol = $this->shopProvider->getShopContext()->getProtocol();
-        $domain = $sslEnabled ? $bodyHttp['domain_ssl'] : $bodyHttp['domain'];
-
-        $uuid = $this->configuration->getShopUuid();
-
-        $response = false;
-        $boUrl = $this->replaceScheme(
-            $this->link->getAdminLink('AdminModules', true),
-            $protocol . '://' . $domain
-        );
-
-        if ($uuid && strlen($uuid) > 0) {
-            $response = $this->getAccountsClient()->updateShopUrl(
-                $uuid,
-                [
-                    'protocol' => $protocol,
-                    'domain' => $domain,
-                    'boUrl' => $boUrl,
-                    'trigger' => $trigger,
-                ]
-            );
-        }
-
-        return $response;
-    }
-
-    /**
-     * @deprecated since v5
-     *
-     * @param string $psxName
-     *
-     * @return string
-     *
-     * @throws \PrestaShopException
-     */
-    public function getLinkAccountUrl($psxName)
-    {
-        $callback = $this->replaceScheme(
-            $this->link->getAdminLink('AdminModules', true) . '&configure=' . $psxName
-        );
-
-        $protocol = $this->shopProvider->getShopContext()->getProtocol();
-        $currentShop = $this->shopProvider->getCurrentShop($psxName);
-        $domainName = $this->shopProvider->getShopContext()->sslEnabled() ? $currentShop['domainSsl'] : $currentShop['domain'];
-
-        $queryParams = [
-            'bo' => $callback,
-            'pubKey' => $this->shopKeysService->getPublicKey(),
-            'next' => $this->replaceScheme(
-                $this->link->getAdminLink('AdminConfigureHmacPsAccounts')
-            ),
-            'name' => $currentShop['name'],
-            'lang' => $this->shopProvider->getShopContext()->getContext()->language->iso_code,
-        ];
-
-        $queryParamsArray = [];
-        foreach ($queryParams as $key => $value) {
-            $queryParamsArray[] = $key . '=' . urlencode($value);
-        }
-        $strQueryParams = implode('&', $queryParamsArray);
-
-        return $this->accountsUiUrl . '/shop/account/link/' . $protocol . '/' . $domainName
-            . '/' . $protocol . '/' . $domainName . '/' . $psxName . '?' . $strQueryParams;
-    }
-
-    /**
-     * @deprecated since v5
-     *
-     * @param array $queryParams
-     * @param string $rootDir
-     *
-     * @return string
-     *
-     * @throws HmacException
-     * @throws QueryParamsException
-     * @throws RsaSignedDataNotFoundException
-     */
-    public function getVerifyAccountUrl(array $queryParams, $rootDir)
-    {
-        foreach (
-            [
-                'hmac' => '/[a-zA-Z0-9]{8,64}/',
-                'uid' => '/[a-zA-Z0-9]{8,64}/',
-                'slug' => '/[-_a-zA-Z0-9]{8,255}/',
-            ] as $key => $value
-        ) {
-            if (!array_key_exists($key, $queryParams)) {
-                throw new QueryParamsException('Missing query params');
-            }
-
-            if (!preg_match($value, $queryParams[$key])) {
-                throw new QueryParamsException('Invalid query params');
-            }
-        }
-
-        $this->writeHmac($queryParams['hmac'], $queryParams['uid'], $rootDir . '/upload/');
-
-        if (empty($this->shopKeysService->getSignature())) {
-            throw new RsaSignedDataNotFoundException('RSA signature not found');
-        }
-
-        $url = $this->accountsUiUrl;
-
-        if ('/' === substr($url, -1)) {
-            $url = substr($url, 0, -1);
-        }
-
-        return $url . '/shop/account/verify/' . $queryParams['uid']
-            . '?shopKey=' . urlencode($this->shopKeysService->getSignature());
-    }
-
-    /**
      * @return array
      *
-     * @throws SshKeysNotFoundException
      * @throws \Exception
      */
     public function unlinkShop()
@@ -255,10 +119,7 @@ class ShopLinkAccountService implements Configurable
 
         if ($response['status'] && 200 === $response['httpCode']
             || 404 === $response['httpCode']) {
-            $this->resetOnboardingData();
-
-            // FIXME regenerate rsa keys
-            $this->shopKeysService->regenerateKeys();
+            $this->resetLinkAccount();
         }
 
         return $response;
@@ -269,8 +130,10 @@ class ShopLinkAccountService implements Configurable
      *
      * @return void
      */
-    public function resetOnboardingData()
+    public function resetLinkAccount()
     {
+        // FIXME : employee_id, user_tokens ...
+
         $this->configuration->updateAccountsRsaPrivateKey('');
         $this->configuration->updateAccountsRsaPublicKey('');
         $this->configuration->updateAccountsRsaSignData('');
@@ -283,66 +146,13 @@ class ShopLinkAccountService implements Configurable
     }
 
     /**
-     * @deprecated since v5
-     *
-     * @param string $psxName
-     *
      * @return void
      *
      * @throws SshKeysNotFoundException
-     * @throws \PrestaShopException
      */
-    public function manageOnboarding($psxName)
+    public function prepareLinkAccount()
     {
-        $this->shopKeysService->generateKeys();
-
-        $this->updateOnboardingData($psxName);
-    }
-
-    /**
-     * @deprecated since v5
-     *
-     * Only callable during onboarding
-     *
-     * Prepare onboarding data
-     *
-     * @param string $psxName
-     *
-     * @return void
-     *
-     * @throws \PrestaShopException
-     * @throws \Exception
-     */
-    public function updateOnboardingData($psxName)
-    {
-        $email = \Tools::getValue('email');
-        $emailVerified = \Tools::getValue('emailVerified');
-        $customToken = \Tools::getValue('adminToken');
-
-        if (is_string($customToken)) {
-            if (false === $this->shopKeysService->hasKeys()) {
-                throw new \Exception('SSH keys were not found');
-            }
-
-            if (!$this->shopTokenService->exchangeCustomTokenForIdAndRefreshToken($customToken)) {
-                throw new \Exception('Unable to get Firebase token');
-            }
-
-            if (!empty($email)) {
-                $this->configuration->updateFirebaseEmail($email);
-
-                if (!empty($emailVerified)) {
-                    $this->configuration->updateFirebaseEmailIsVerified('true' === $emailVerified);
-                }
-
-                // FIXME : quick and dirty fix
-                \Tools::redirectAdmin(
-                    $this->link->getAdminLink('AdminModules', true, [], [
-                        'configure' => $psxName,
-                    ])
-                );
-            }
-        }
+        $this->rsaKeysProvider->generateKeys();
     }
 
     /**
@@ -352,21 +162,6 @@ class ShopLinkAccountService implements Configurable
     {
         return $this->shopTokenService->getToken()
             && $this->configuration->getFirebaseEmail();
-    }
-
-    /**
-     * @param array $config
-     * @param array $defaults
-     *
-     * @return array|mixed
-     *
-     * @throws OptionResolutionException
-     */
-    public function resolveConfig(array $config, array $defaults = [])
-    {
-        return (new ConfigOptionsResolver([
-            'accounts_ui_url',
-        ]))->resolve($config, $defaults);
     }
 
     /**
@@ -392,13 +187,17 @@ class ShopLinkAccountService implements Configurable
     }
 
     /**
-     * @param string $url
-     * @param string $replacement
+     * @param array $config
+     * @param array $defaults
      *
-     * @return string
+     * @return array|mixed
+     *
+     * @throws OptionResolutionException
      */
-    private function replaceScheme($url, $replacement = '')
+    public function resolveConfig(array $config, array $defaults = [])
     {
-        return preg_replace('/^https?:\/\/[^\/]+/', $replacement, $url);
+        return (new ConfigOptionsResolver([
+            'accounts_ui_url',
+        ]))->resolve($config, $defaults);
     }
 }

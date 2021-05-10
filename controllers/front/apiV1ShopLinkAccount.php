@@ -4,8 +4,8 @@ use Lcobucci\JWT\Parser;
 use PrestaShop\Module\PsAccounts\Controller\AbstractShopRestController;
 use PrestaShop\Module\PsAccounts\Repository\ConfigurationRepository;
 use PrestaShop\Module\PsAccounts\Service\ShopLinkAccountService;
-use PrestaShop\Module\PsAccounts\Service\ShopTokenService;
-use PrestaShop\Module\PsAccounts\Service\SsoService;
+use PrestaShop\Module\PsAccounts\Repository\ShopTokenRepository;
+use PrestaShop\Module\PsAccounts\Repository\UserTokenRepository;
 
 class ps_AccountsApiV1ShopLinkAccountModuleFrontController extends AbstractShopRestController
 {
@@ -20,14 +20,14 @@ class ps_AccountsApiV1ShopLinkAccountModuleFrontController extends AbstractShopR
     private $jwtParser;
 
     /**
-     * @var SsoService
+     * @var UserTokenRepository
      */
-    private $ssoService;
+    private $userTokenRepository;
 
     /**
-     * @var ShopTokenService
+     * @var ShopTokenRepository
      */
-    private $shopTokenService;
+    private $shopTokenRepository;
 
     /**
      * @var ShopLinkAccountService
@@ -44,8 +44,8 @@ class ps_AccountsApiV1ShopLinkAccountModuleFrontController extends AbstractShopR
         parent::__construct();
 
         $this->configuration = $this->module->getService(ConfigurationRepository::class);
-        $this->ssoService = $this->module->getService(SsoService::class);
-        $this->shopTokenService = $this->module->getService(ShopTokenService::class);
+        $this->userTokenRepository = $this->module->getService(UserTokenRepository::class);
+        $this->shopTokenRepository = $this->module->getService(ShopTokenRepository::class);
         $this->shopLinkAccountService = $this->module->getService(ShopLinkAccountService::class);
 
         $this->jwtParser = new Parser();
@@ -68,11 +68,13 @@ class ps_AccountsApiV1ShopLinkAccountModuleFrontController extends AbstractShopR
      */
     public function update($shop, array $payload)
     {
-        $shopRefreshToken = $payload['shop_refresh-token'];
-        $shopToken = $this->shopTokenService->verifyToken($payload['shop_token'], $shopRefreshToken);
+        $shopRefreshToken = $payload['shop_refresh_token'];
+        $shopToken = $payload['shop_token'];
+        //$shopToken = $this->shopTokenRepository->verifyToken($payload['shop_token'], $shopRefreshToken);
 
         $userRefreshToken = $payload['user_refresh_token'];
-        $userToken = $this->ssoService->verifyToken($payload['user_token'], $userRefreshToken);
+        $userToken = $payload['user_token'];
+        //$userToken = $this->userTokenRepository->verifyToken($payload['user_token'], $userRefreshToken);
 
         $this->configuration->updateShopFirebaseCredentials($shopToken, $shopRefreshToken);
         $this->configuration->updateUserFirebaseCredentials($userToken, $userRefreshToken);
@@ -92,7 +94,7 @@ class ps_AccountsApiV1ShopLinkAccountModuleFrontController extends AbstractShopR
      */
     public function delete($shop, array $payload)
     {
-        $this->shopLinkAccountService->resetOnboardingData();
+        $this->shopLinkAccountService->resetLinkAccount();
 
         return [
             'success' => true,

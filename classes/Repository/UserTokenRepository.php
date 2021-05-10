@@ -18,7 +18,7 @@
  * @license   https://opensource.org/licenses/AFL-3.0 Academic Free License version 3.0
  */
 
-namespace PrestaShop\Module\PsAccounts\Service;
+namespace PrestaShop\Module\PsAccounts\Repository;
 
 use Context;
 use PrestaShop\Module\PsAccounts\Api\Client\SsoClient;
@@ -29,18 +29,8 @@ use PrestaShop\Module\PsAccounts\Exception\OptionResolutionException;
 /**
  * Class PsAccountsService
  */
-class SsoService implements Configurable
+class UserTokenRepository
 {
-    /**
-     * @var string
-     */
-    protected $ssoAccountUrl;
-
-    /**
-     * @var string
-     */
-    protected $ssoResendVerificationEmailUrl;
-
     /**
      * @var SsoClient
      */
@@ -49,40 +39,12 @@ class SsoService implements Configurable
     /**
      * PsAccountsService constructor.
      *
-     * @param array $config
      * @param SsoClient $ssoClient
-     *
-     * @throws OptionResolutionException
      */
     public function __construct(
-        array $config,
         SsoClient $ssoClient
     ) {
-        $config = $this->resolveConfig($config);
-        $this->ssoAccountUrl = $config['sso_account_url'];
-        $this->ssoResendVerificationEmailUrl = $config['sso_resend_verification_email_url'];
         $this->ssoClient = $ssoClient;
-    }
-
-    /**
-     * @return string
-     */
-    public function getSsoAccountUrl()
-    {
-        $url = $this->ssoAccountUrl;
-        $langIsoCode = Context::getContext()->language->iso_code;
-
-        return $url . '?lang=' . substr($langIsoCode, 0, 2);
-    }
-
-    /**
-     * @deprecated since v5
-     *
-     * @return string
-     */
-    public function getSsoResendVerificationEmailUrl()
-    {
-        return $this->ssoResendVerificationEmailUrl;
     }
 
     /**
@@ -118,21 +80,5 @@ class SsoService implements Configurable
             return $response['body']['idToken'];
         }
         throw new \Exception('Unable to refresh user token : ' . $response['httpCode'] . ' ' . $response['body']['message']);
-    }
-
-    /**
-     * @param array $config
-     * @param array $defaults
-     *
-     * @return array|mixed
-     *
-     * @throws OptionResolutionException
-     */
-    public function resolveConfig(array $config, array $defaults = [])
-    {
-        return (new ConfigOptionsResolver([
-            'sso_account_url',
-            'sso_resend_verification_email_url',
-        ]))->resolve($config, $defaults);
     }
 }

@@ -22,6 +22,7 @@ namespace PrestaShop\Module\PsAccounts\Service;
 
 use PrestaShop\Module\PsAccounts\Adapter\Link;
 use PrestaShop\Module\PsAccounts\Repository\ConfigurationRepository;
+use PrestaShop\Module\PsAccounts\Repository\ShopTokenRepository;
 
 /**
  * Class PsAccountsService
@@ -44,26 +45,26 @@ class PsAccountsService
     private $module;
 
     /**
-     * @var ShopTokenService
+     * @var ShopTokenRepository
      */
-    private $shopTokenService;
+    private $shopTokenRepository;
 
     /**
      * PsAccountsService constructor.
      *
      * @param \Ps_accounts $module
-     * @param ShopTokenService $shopTokenService
+     * @param ShopTokenRepository $shopTokenRepository
      * @param ConfigurationRepository $configuration
      * @param Link $link
      */
     public function __construct(
         \Ps_accounts $module,
-        ShopTokenService $shopTokenService,
+        ShopTokenRepository $shopTokenRepository,
         ConfigurationRepository $configuration,
         Link $link
     ) {
         $this->configuration = $configuration;
-        $this->shopTokenService = $shopTokenService;
+        $this->shopTokenRepository = $shopTokenRepository;
         $this->module = $module;
         $this->link = $link;
     }
@@ -93,7 +94,7 @@ class PsAccountsService
      */
     public function getOrRefreshToken()
     {
-        return $this->shopTokenService->getOrRefreshToken();
+        return $this->shopTokenRepository->getOrRefreshToken();
     }
 
     /**
@@ -101,7 +102,7 @@ class PsAccountsService
      */
     public function getRefreshToken()
     {
-        return $this->shopTokenService->getRefreshToken();
+        return $this->shopTokenRepository->getRefreshToken();
     }
 
     /**
@@ -109,7 +110,7 @@ class PsAccountsService
      */
     public function getToken()
     {
-        return $this->shopTokenService->getToken();
+        return $this->shopTokenRepository->getToken();
     }
 
     /**

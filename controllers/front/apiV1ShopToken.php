@@ -1,7 +1,7 @@
 <?php
 
 use PrestaShop\Module\PsAccounts\Controller\AbstractShopRestController;
-use PrestaShop\Module\PsAccounts\Service\ShopTokenService;
+use PrestaShop\Module\PsAccounts\Repository\ShopTokenRepository;
 
 class ps_AccountsApiV1ShopTokenModuleFrontController extends AbstractShopRestController
 {
@@ -15,8 +15,8 @@ class ps_AccountsApiV1ShopTokenModuleFrontController extends AbstractShopRestCon
      */
     public function show($shop, array $payload)
     {
-        /** @var ShopTokenService $shopTokenService */
-        $shopTokenService = $this->module->getService(ShopTokenService::class);
+        /** @var ShopTokenRepository $shopTokenService */
+        $shopTokenService = $this->module->getService(ShopTokenRepository::class);
 
         return [
             'token' => $shopTokenService->getOrRefreshToken(),

@@ -8,7 +8,7 @@ use GuzzleHttp\Message\ResponseInterface;
 use Lcobucci\JWT\Builder;
 use Lcobucci\JWT\Signer\Hmac\Sha256;
 use Lcobucci\JWT\Signer\Key;
-use PrestaShop\Module\PsAccounts\Service\ShopKeysService;
+use PrestaShop\Module\PsAccounts\Provider\RsaKeysProvider;
 use PrestaShop\Module\PsAccounts\Tests\TestCase;
 
 class FeatureTestCase extends TestCase
@@ -57,8 +57,8 @@ class FeatureTestCase extends TestCase
      */
     public function encodePayload(array $payload)
     {
-        /** @var ShopKeysService $shopKeysService */
-        $shopKeysService = $this->module->getService(ShopKeysService::class);
+        /** @var RsaKeysProvider $shopKeysService */
+        $shopKeysService = $this->module->getService(RsaKeysProvider::class);
 
         //return base64_encode($shopKeysService->encrypt(json_encode($payload)));
 

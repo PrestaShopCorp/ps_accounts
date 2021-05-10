@@ -8,7 +8,7 @@ use Lcobucci\JWT\Signer\Key;
 use PrestaShop\Module\PsAccounts\Exception\Http\HttpException;
 use PrestaShop\Module\PsAccounts\Exception\Http\UnauthorizedException;
 use PrestaShop\Module\PsAccounts\Handler\Error\Sentry;
-use PrestaShop\Module\PsAccounts\Service\ShopKeysService;
+use PrestaShop\Module\PsAccounts\Provider\RsaKeysProvider;
 
 abstract class AbstractRestController extends \ModuleFrontController implements RestControllerInterface
 {
@@ -208,8 +208,8 @@ abstract class AbstractRestController extends \ModuleFrontController implements 
      */
     protected function decodePayload()
     {
-        /** @var ShopKeysService $shopKeysService */
-        $shopKeysService = $this->module->getService(ShopKeysService::class);
+        /** @var RsaKeysProvider $shopKeysService */
+        $shopKeysService = $this->module->getService(RsaKeysProvider::class);
 
         $jwtString = $this->getRequestHeader(self::TOKEN_HEADER);
 

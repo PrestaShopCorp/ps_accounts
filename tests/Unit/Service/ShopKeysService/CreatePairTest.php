@@ -2,7 +2,7 @@
 
 namespace PrestaShop\Module\PsAccounts\Tests\Unit\Service\ShopKeysService;
 
-use PrestaShop\Module\PsAccounts\Service\ShopKeysService;
+use PrestaShop\Module\PsAccounts\Provider\RsaKeysProvider;
 use PrestaShop\Module\PsAccounts\Tests\TestCase;
 
 class CreatePairTest extends TestCase
@@ -12,8 +12,8 @@ class CreatePairTest extends TestCase
      */
     public function itShouldGenerateKeyPair()
     {
-        /** @var ShopKeysService $service */
-        $service = $this->module->getService(ShopKeysService::class);
+        /** @var RsaKeysProvider $service */
+        $service = $this->module->getService(RsaKeysProvider::class);
 
         $key = $service->createPair();
         $this->assertArrayHasKey('privatekey', $key, "Key 'privatekey' don't exist in Array");

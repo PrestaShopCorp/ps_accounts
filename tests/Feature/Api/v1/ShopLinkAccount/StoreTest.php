@@ -15,17 +15,20 @@ class StoreTest extends FeatureTestCase
      */
     public function itShouldSucceed()
     {
-        $uuid = $this->faker->uuid;
+        $shopUuid = $this->faker->uuid;
+        $userUuid = $this->faker->uuid;
         $email = $this->faker->safeEmail;
+        $employeeId = $this->faker->numberBetween(1);
 
         $expiry = new \DateTimeImmutable('+10 days');
 
         $payload = [
             'shop_id' => 1,
-            'shop_token' => (string) $this->makeJwtToken($expiry, ['user_id' => $uuid]),
-            'user_token' => (string) $this->makeJwtToken($expiry, ['email' => $email]),
+            'shop_token' => (string) $this->makeJwtToken($expiry, ['user_id' => $shopUuid]),
+            'user_token' => (string) $this->makeJwtToken($expiry, ['user_id' => $userUuid,'email' => $email]),
             'shop_refresh_token' => (string) $this->makeJwtToken($expiry),
             'user_refresh_token' => (string) $this->makeJwtToken($expiry),
+            'employee_id' => $employeeId,
         ];
 
         $response = $this->client->post('/module/ps_accounts/apiV1ShopLinkAccount', [
@@ -47,7 +50,22 @@ class StoreTest extends FeatureTestCase
 
         $this->assertEquals($payload['shop_token'], $this->configuration->get(Configuration::PS_ACCOUNTS_FIREBASE_ID_TOKEN));
         $this->assertEquals($payload['shop_refresh_token'], $this->configuration->get(Configuration::PS_ACCOUNTS_FIREBASE_REFRESH_TOKEN));
+
+        $this->assertEquals($userUuid, $this->configuration->get(Configuration::PS_ACCOUNTS_USER_FIREBASE_UUID));
+
+        $this->assertEquals($payload['user_token'], $this->configuration->get(Configuration::PS_ACCOUNTS_USER_FIREBASE_ID_TOKEN . '_' . $userUuid));
+        $this->assertEquals($payload['user_refresh_token'], $this->configuration->get(Configuration::PS_ACCOUNTS_USER_FIREBASE_REFRESH_TOKEN . '_' . $userUuid));
+
         $this->assertEquals($email, $this->configuration->get(Configuration::PS_ACCOUNTS_FIREBASE_EMAIL));
-        $this->assertEquals($uuid, $this->configuration->get(Configuration::PSX_UUID_V4));
+        $this->assertEquals($shopUuid, $this->configuration->get(Configuration::PSX_UUID_V4));
+        $this->assertEquals($employeeId, $this->configuration->get(Configuration::PS_ACCOUNTS_EMPLOYEE_ID));
+    }
+
+    /**
+     * @test
+     */
+    public function itShouldRefreshUserTokenForAllShopsThaBelongsToHim()
+    {
+        $this->markTestIncomplete('To be implemented for multishop support');
     }
 }
