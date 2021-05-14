@@ -15,3 +15,9 @@
 * store link account :
     * API doc
     * RequestValidator/DTO
+    
+* multiboutique
+    * ShopProvider::getShopTree
+    * User Credentials
+    * tracker les contextes d'appels multi
+    * UpdateShopUrl

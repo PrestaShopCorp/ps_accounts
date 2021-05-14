@@ -59,6 +59,6 @@ class ApiResponseHandler
             return true;
         }
 
-        return '2' === substr((string) $httpStatusCode, 0, 1) && null !== $responseContents;
+        return '2' === substr((string) $httpStatusCode, 0, 1); // && null !== $responseContents;
     }
 }

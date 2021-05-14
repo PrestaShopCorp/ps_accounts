@@ -119,7 +119,7 @@ class RsaKeysProvider
      *
      * @throws SshKeysNotFoundException
      */
-    public function generateKeys($refresh = true)
+    public function generateKeys($refresh = false)
     {
         if ($refresh || false === $this->hasKeys()) {
             $key = $this->createPair();
@@ -183,5 +183,15 @@ class RsaKeysProvider
     public function getSignature()
     {
         return $this->configuration->getAccountsRsaSignData();
+    }
+
+    /**
+     * @return void
+     */
+    public function cleanupKeys()
+    {
+        $this->configuration->updateAccountsRsaPrivateKey('');
+        $this->configuration->updateAccountsRsaPublicKey('');
+        $this->configuration->updateAccountsRsaSignData('');
     }
 }

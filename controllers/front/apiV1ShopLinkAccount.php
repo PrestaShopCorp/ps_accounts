@@ -69,16 +69,14 @@ class ps_AccountsApiV1ShopLinkAccountModuleFrontController extends AbstractShopR
     public function update($shop, array $payload)
     {
         $shopRefreshToken = $payload['shop_refresh_token'];
-        $shopToken = $payload['shop_token'];
-        //$shopToken = $this->shopTokenRepository->verifyToken($payload['shop_token'], $shopRefreshToken);
+        $shopToken = $this->shopTokenRepository->verifyToken($payload['shop_token'], $shopRefreshToken);
 
         $userRefreshToken = $payload['user_refresh_token'];
-        $userToken = $payload['user_token'];
-        //$userToken = $this->userTokenRepository->verifyToken($payload['user_token'], $userRefreshToken);
+        $userToken = $this->userTokenRepository->verifyToken($payload['user_token'], $userRefreshToken);
 
-        $this->configuration->updateShopFirebaseCredentials($shopToken, $shopRefreshToken);
-        $this->configuration->updateUserFirebaseCredentials($userToken, $userRefreshToken);
-        $this->configuration->updateEmployeeId($payload['employee_id']);
+        $this->shopTokenRepository->updateCredentials($shopToken, $shopRefreshToken);
+        $this->userTokenRepository->updateCredentials($userToken, $userRefreshToken);
+        //$this->configuration->updateEmployeeId($payload['employee_id']);
 
         return [
             'success' => true,
@@ -112,13 +110,11 @@ class ps_AccountsApiV1ShopLinkAccountModuleFrontController extends AbstractShopR
      */
     public function show($shop, array $payload)
     {
-        list($userIdToken, $userRefreshToken) = $this->configuration->getUserFirebaseCredentials();
-
         return [
-            'shop_token' => $this->configuration->getFirebaseIdToken(),
-            'shop_refresh_token' => $this->configuration->getFirebaseRefreshToken(),
-            'user_token' => $userIdToken,
-            'user_refresh_token' => $userRefreshToken,
+            'shop_token' => (string) $this->shopTokenRepository->getToken(),
+            'shop_refresh_token' => (string) $this->shopTokenRepository->getRefreshToken(),
+            'user_token' => (string) $this->userTokenRepository->getToken(),
+            'user_refresh_token' => (string) $this->userTokenRepository->getRefreshToken(),
             'employee_id' => $this->configuration->getEmployeeId(),
         ];
     }

@@ -34,9 +34,10 @@ use PrestaShop\Module\PsAccounts\Provider\RsaKeysProvider;
 use PrestaShop\Module\PsAccounts\Provider\ShopProvider;
 use PrestaShop\Module\PsAccounts\Repository\ConfigurationRepository;
 use PrestaShop\Module\PsAccounts\Repository\ShopTokenRepository;
+use PrestaShop\Module\PsAccounts\Repository\UserTokenRepository;
 use Ps_accounts;
 
-class ShopLinkAccountService implements Configurable
+class ShopLinkAccountService
 {
     /**
      * @var RsaKeysProvider
@@ -46,12 +47,12 @@ class ShopLinkAccountService implements Configurable
     /**
      * @var ShopTokenRepository
      */
-    private $shopTokenService;
+    private $shopTokenRepository;
 
     /**
-     * @var ConfigurationRepository
+     * @var UserTokenRepository
      */
-    private $configuration;
+    private $userTokenRepository;
 
     /**
      * @var Link
@@ -59,32 +60,23 @@ class ShopLinkAccountService implements Configurable
     private $link;
 
     /**
-     * @var string
-     */
-    private $accountsUiUrl;
-
-    /**
      * ShopLinkAccountService constructor.
      *
-     * @param array $config
      * @param RsaKeysProvider $rsaKeysProvider
      * @param ShopTokenRepository $shopTokenRepository
-     * @param ConfigurationRepository $configuration
+     * @param UserTokenRepository $userTokenRepository
      * @param Link $link
      *
-     * @throws OptionResolutionException
      */
     public function __construct(
-        array $config,
         RsaKeysProvider $rsaKeysProvider,
         ShopTokenRepository $shopTokenRepository,
-        ConfigurationRepository $configuration,
+        UserTokenRepository $userTokenRepository,
         Link $link
     ) {
-        $this->accountsUiUrl = $this->resolveConfig($config)['accounts_ui_url'];
         $this->rsaKeysProvider = $rsaKeysProvider;
-        $this->shopTokenService = $shopTokenRepository;
-        $this->configuration = $configuration;
+        $this->shopTokenRepository = $shopTokenRepository;
+        $this->userTokenRepository = $userTokenRepository;
         $this->link = $link;
     }
 
@@ -109,8 +101,8 @@ class ShopLinkAccountService implements Configurable
     public function unlinkShop()
     {
         $response = $this->getAccountsClient()->deleteUserShop(
-            (string) $this->configuration->getUserFirebaseUuid(),
-            (string) $this->configuration->getShopUuid()
+            (string) $this->userTokenRepository->getTokenUuid(),
+            (string) $this->shopTokenRepository->getTokenUuid()
         );
 
         // Réponse: 200: Shop supprimé avec payload contenant un message de confirmation
@@ -119,7 +111,7 @@ class ShopLinkAccountService implements Configurable
 
         if ($response['status'] && 200 === $response['httpCode']
             || 404 === $response['httpCode']) {
-            $this->resetLinkAccount();
+            //$this->resetLinkAccount();
         }
 
         return $response;
@@ -132,17 +124,14 @@ class ShopLinkAccountService implements Configurable
      */
     public function resetLinkAccount()
     {
-        // FIXME : employee_id, user_tokens ...
+        $this->rsaKeysProvider->cleanupKeys();
+        $this->shopTokenRepository->cleanupCredentials();
+        $this->userTokenRepository->cleanupCredentials();
 
-        $this->configuration->updateAccountsRsaPrivateKey('');
-        $this->configuration->updateAccountsRsaPublicKey('');
-        $this->configuration->updateAccountsRsaSignData('');
+        //
+        //$this->configuration->updateEmployeeId('');
 
-        $this->configuration->updateFirebaseIdAndRefreshTokens('', '');
-        $this->configuration->updateFirebaseEmail('');
-        $this->configuration->updateFirebaseEmailIsVerified(false);
 
-        $this->configuration->updateShopUuid('');
     }
 
     /**
@@ -160,8 +149,8 @@ class ShopLinkAccountService implements Configurable
      */
     public function isAccountLinked()
     {
-        return $this->shopTokenService->getToken()
-            && $this->configuration->getFirebaseEmail();
+        return $this->shopTokenRepository->getToken()
+            && $this->userTokenRepository->getToken();
     }
 
     /**
@@ -184,20 +173,5 @@ class ShopLinkAccountService implements Configurable
         }
 
         file_put_contents($path . $uid . '.txt', $hmac);
-    }
-
-    /**
-     * @param array $config
-     * @param array $defaults
-     *
-     * @return array|mixed
-     *
-     * @throws OptionResolutionException
-     */
-    public function resolveConfig(array $config, array $defaults = [])
-    {
-        return (new ConfigOptionsResolver([
-            'accounts_ui_url',
-        ]))->resolve($config, $defaults);
     }
 }

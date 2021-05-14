@@ -81,6 +81,8 @@ class AdminAjaxPsAccountsController extends ModuleAdminController
 
             $response = $shopLinkAccountService->unlinkShop();
 
+            $this->module->getLogger()->info('########################' . print_r($response, true));
+
             http_response_code($response['httpCode']);
 
             header('Content-Type: text/json');

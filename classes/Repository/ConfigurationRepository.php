@@ -20,8 +20,6 @@
 
 namespace PrestaShop\Module\PsAccounts\Repository;
 
-use Lcobucci\JWT\Parser;
-use Lcobucci\JWT\Token;
 use PrestaShop\Module\PsAccounts\Adapter\Configuration;
 
 class ConfigurationRepository
@@ -276,61 +274,56 @@ class ConfigurationRepository
     }
 
     /**
-     * @param $idToken
-     * @param $refreshToken
-     *
-     * @return void
-     */
-    public function updateShopFirebaseCredentials($idToken, $refreshToken)
-    {
-        $this->updateShopUuid((new Parser())->parse((string) $idToken)->getClaim('user_id'));
-        $this->updateFirebaseIdAndRefreshTokens($idToken, $refreshToken);
-    }
-
-    /**
-     * @param $idToken
-     * @param $refreshToken
-     *
-     * @return void
-     */
-    public function updateUserFirebaseCredentials($idToken, $refreshToken)
-    {
-        $token = (new Parser())->parse((string) $idToken);
-
-        $uuid = $token->claims()->get('user_id');
-        $this->configuration->set(Configuration::PS_ACCOUNTS_USER_FIREBASE_UUID, $uuid);
-        $this->configuration->set(Configuration::PS_ACCOUNTS_USER_FIREBASE_ID_TOKEN . '_' . $uuid, $idToken);
-        $this->configuration->set(Configuration::PS_ACCOUNTS_USER_FIREBASE_REFRESH_TOKEN . '_' . $uuid, $refreshToken);
-
-        $this->updateFirebaseEmail($token->claims()->get('email'));
-    }
-
-    /**
-     * @param $uuid
-     *
-     * @return array
-     */
-    public function getUserFirebaseCredentialsByUuid($uuid)
-    {
-        $idToken = $this->configuration->get(Configuration::PS_ACCOUNTS_USER_FIREBASE_ID_TOKEN . '_' . $uuid);
-        $refreshToken = $this->configuration->get(Configuration::PS_ACCOUNTS_USER_FIREBASE_REFRESH_TOKEN . '_' . $uuid);
-        return [$idToken, $refreshToken];
-    }
-
-    /**
-     * @return array
-     */
-    public function getUserFirebaseCredentials()
-    {
-        $uuid = $this->configuration->get(Configuration::PS_ACCOUNTS_USER_FIREBASE_UUID);
-        return $this->getUserFirebaseCredentialsByUuid($uuid);
-    }
-
-    /**
-     * @return string
+     * @return mixed
      */
     public function getUserFirebaseUuid()
     {
         return $this->configuration->get(Configuration::PS_ACCOUNTS_USER_FIREBASE_UUID);
+    }
+
+    /**
+     * @param string $uuid
+     *
+     * @return void
+     */
+    public function updateUserFirebaseUuid($uuid)
+    {
+        $this->configuration->set(Configuration::PS_ACCOUNTS_USER_FIREBASE_UUID, $uuid);
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getUserFirebaseIdToken()
+    {
+        return $this->configuration->get(Configuration::PS_ACCOUNTS_USER_FIREBASE_ID_TOKEN);
+    }
+
+    /**
+     * @param string $idToken
+     *
+     * @return void
+     */
+    public function updateUserFirebaseIdToken($idToken)
+    {
+        $this->configuration->set(Configuration::PS_ACCOUNTS_USER_FIREBASE_ID_TOKEN, $idToken);
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getUserFirebaseRefreshToken()
+    {
+        return $this->configuration->get(Configuration::PS_ACCOUNTS_USER_FIREBASE_REFRESH_TOKEN);
+    }
+
+    /**
+     * @param string $refreshToken
+     *
+     * @return void
+     */
+    public function updateUserFirebaseRefreshToken($refreshToken)
+    {
+        $this->configuration->set(Configuration::PS_ACCOUNTS_USER_FIREBASE_REFRESH_TOKEN, $refreshToken);
     }
 }

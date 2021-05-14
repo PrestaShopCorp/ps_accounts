@@ -50,6 +50,7 @@ class ConfigurationService implements Configurable
         return (new ConfigOptionsResolver([
             'sso_account_url',
             'sso_resend_verification_email_url',
+            'accounts_ui_url',
         ]))->resolve($config, $defaults);
     }
 }

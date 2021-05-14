@@ -21,10 +21,10 @@
 namespace PrestaShop\Module\PsAccounts\Repository;
 
 use Context;
+use Lcobucci\JWT\Parser;
+use Lcobucci\JWT\Token;
+use Lcobucci\JWT\Token\InvalidTokenStructure;
 use PrestaShop\Module\PsAccounts\Api\Client\SsoClient;
-use PrestaShop\Module\PsAccounts\Configuration\ConfigOptionsResolver;
-use PrestaShop\Module\PsAccounts\Configuration\Configurable;
-use PrestaShop\Module\PsAccounts\Exception\OptionResolutionException;
 
 /**
  * Class PsAccountsService
@@ -37,21 +37,29 @@ class UserTokenRepository
     private $ssoClient;
 
     /**
+     * @var ConfigurationRepository
+     */
+    private $configuration;
+
+    /**
      * PsAccountsService constructor.
      *
      * @param SsoClient $ssoClient
+     * @param ConfigurationRepository $configuration
      */
     public function __construct(
-        SsoClient $ssoClient
+        SsoClient $ssoClient,
+        ConfigurationRepository $configuration
     ) {
         $this->ssoClient = $ssoClient;
+        $this->configuration = $configuration;
     }
 
     /**
      * @param $idToken
      * @param $refreshToken
      *
-     * @return string verified or refreshed token on success
+     * @return Token|null verified or refreshed token on success
      *
      * @throws \Exception
      */
@@ -66,9 +74,9 @@ class UserTokenRepository
     }
 
     /**
-     * @param $refreshToken
+     * @param string $refreshToken
      *
-     * @return string idToken
+     * @return Token|null idToken
      *
      * @throws \Exception
      */
@@ -77,8 +85,87 @@ class UserTokenRepository
         $response = $this->ssoClient->refreshToken($refreshToken);
 
         if ($response && true == $response['status']) {
-            return $response['body']['idToken'];
+            return $this->parseToken($response['body']['idToken']);
         }
         throw new \Exception('Unable to refresh user token : ' . $response['httpCode'] . ' ' . $response['body']['message']);
+    }
+
+    /**
+     * @return string
+     */
+    public function getRefreshToken()
+    {
+        return $this->configuration->getUserFirebaseRefreshToken();
+    }
+
+    /**
+     * @return Token|null
+     */
+    public function getToken()
+    {
+        return $this->parseToken($this->configuration->getUserFirebaseIdToken());
+    }
+
+    /**
+     * @return string
+     */
+    public function getTokenUuid()
+    {
+        //return $this->getToken()->claims()->get('user_id');
+        return $this->configuration->getUserFirebaseUuid();
+    }
+
+    /**
+     * @return string
+     */
+    public function getTokenEmail()
+    {
+        //return $this->getToken()->claims()->get('user_id');
+        return $this->configuration->getFirebaseEmail();
+    }
+
+    /**
+     * @param $token
+     *
+     * @return Token|null
+     */
+    public function parseToken($token)
+    {
+        try {
+            return (new Parser())->parse((string) $token);
+        } catch (InvalidTokenStructure $e) {
+            return null;
+        }
+
+    }
+
+    /**
+     * @param string $idToken
+     * @param string $refreshToken
+     *
+     * @return void
+     */
+    public function updateCredentials($idToken, $refreshToken)
+    {
+        $token = (new Parser())->parse((string) $idToken);
+
+        $uuid = $token->claims()->get('user_id');
+        $this->configuration->updateUserFirebaseUuid($uuid);
+        $this->configuration->updateUserFirebaseIdToken($idToken);
+        $this->configuration->updateUserFirebaseRefreshToken($refreshToken);
+
+        $this->configuration->updateFirebaseEmail($token->claims()->get('email'));
+    }
+
+    /**
+     * @return void
+     */
+    public function cleanupCredentials()
+    {
+        $this->configuration->updateUserFirebaseUuid('');
+        $this->configuration->updateUserFirebaseIdToken('');
+        $this->configuration->updateUserFirebaseRefreshToken('');
+        $this->configuration->updateFirebaseEmail('');
+        //$this->configuration->updateFirebaseEmailIsVerified(false);
     }
 }

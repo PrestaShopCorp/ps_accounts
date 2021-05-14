@@ -43,7 +43,7 @@ services:
   PrestaShop\Module\PsAccounts\Service\ConfigurationService:
     class: PrestaShop\Module\PsAccounts\Service\ConfigurationService
     arguments:
-      - { sso_resend_verification_email_url: '%ps_accounts.sso_resend_verification_email_url%', sso_account_url: '%ps_accounts.sso_account_url%' }
+      - { sso_resend_verification_email_url: '%ps_accounts.sso_resend_verification_email_url%', sso_account_url: '%ps_accounts.sso_account_url%', accounts_ui_url: '%ps_accounts.svc_accounts_ui_url%' }
 
   PrestaShop\Module\PsAccounts\Service\PsAccountsService:
     class: PrestaShop\Module\PsAccounts\Service\PsAccountsService
@@ -56,10 +56,9 @@ services:
   PrestaShop\Module\PsAccounts\Service\ShopLinkAccountService:
     class: PrestaShop\Module\PsAccounts\Service\ShopLinkAccountService
     arguments:
-      - { accounts_ui_url: '%ps_accounts.svc_accounts_ui_url%' }
       - '@PrestaShop\Module\PsAccounts\Provider\RsaKeysProvider'
       - '@PrestaShop\Module\PsAccounts\Repository\ShopTokenRepository'
-      - '@PrestaShop\Module\PsAccounts\Repository\ConfigurationRepository'
+      - '@PrestaShop\Module\PsAccounts\Repository\UserTokenRepository'
       - '@PrestaShop\Module\PsAccounts\Adapter\Link'
 
   PrestaShop\Module\PsAccounts\Service\PsBillingService:
@@ -134,6 +133,7 @@ services:
     class: PrestaShop\Module\PsAccounts\Repository\UserTokenRepository
     arguments:
       - '@PrestaShop\Module\PsAccounts\Api\Client\SsoClient'
+      - '@PrestaShop\Module\PsAccounts\Repository\ConfigurationRepository'
 
   #####################
   # presenters

@@ -262,7 +262,7 @@ class Ps_accounts extends Module
                 \PrestaShop\Module\PsAccounts\Service\ShopLinkAccountService::class
             );
 
-            $shopLinkAccountService->updateShopUrl($bodyHttp, '1.6');
+            //$shopLinkAccountService->updateShopUrl($bodyHttp, '1.6');
         }
 
         return true;
@@ -297,7 +297,7 @@ class Ps_accounts extends Module
             \PrestaShop\Module\PsAccounts\Service\ShopLinkAccountService::class
         );
 
-        $shopLinkAccountService->updateShopUrl($bodyHttp, '1.7.6');
+        //$shopLinkAccountService->updateShopUrl($bodyHttp, '1.7.6');
 
         return true;
     }
@@ -327,7 +327,7 @@ class Ps_accounts extends Module
             \PrestaShop\Module\PsAccounts\Service\ShopLinkAccountService::class
         );
 
-        $shopLinkAccountService->updateShopUrl($bodyHttp, 'multishop');
+        //$shopLinkAccountService->updateShopUrl($bodyHttp, 'multishop');
 
         return true;
     }

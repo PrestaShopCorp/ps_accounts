@@ -69,7 +69,7 @@ class SsoClient extends GenericClient
      */
     public function verifyToken($idToken)
     {
-        $this->setRoute('/auth/token/verify');
+        $this->setRoute('auth/token/verify');
 
         return $this->post([
             'json' => [
@@ -85,7 +85,7 @@ class SsoClient extends GenericClient
      */
     public function refreshToken($refreshToken)
     {
-        $this->setRoute('/auth/token/refresh');
+        $this->setRoute('auth/token/refresh');
 
         return $this->post([
             'json' => [

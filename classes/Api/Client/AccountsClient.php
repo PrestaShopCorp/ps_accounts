@@ -25,6 +25,7 @@ use PrestaShop\Module\PsAccounts\Adapter\Link;
 use PrestaShop\Module\PsAccounts\Configuration\ConfigOptionsResolver;
 use PrestaShop\Module\PsAccounts\Exception\OptionResolutionException;
 use PrestaShop\Module\PsAccounts\Provider\ShopProvider;
+use PrestaShop\Module\PsAccounts\Repository\UserTokenRepository;
 
 /**
  * Class ServicesAccountsClient
@@ -69,8 +70,9 @@ class AccountsClient extends GenericClient
             $client = new Client([
                 'base_url' => $config['api_url'],
                 'defaults' => [
+//                    'verify' => false,
                     'timeout' => $this->timeout,
-                    'exceptions' => $this->catchExceptions,
+                    'exceptions' => true, //$this->catchExceptions,
                     'headers' => [
                         // Commented, else does not work anymore with API.
                         //'Content-Type' => 'application/vnd.accounts.v1+json', // api version to use
@@ -96,12 +98,14 @@ class AccountsClient extends GenericClient
      */
     public function deleteUserShop($userUuid, $shopUuidV4)
     {
-        $this->setRoute('/user/' . $userUuid . '/shop/' . $shopUuidV4);
+        $this->setRoute('user/' . $userUuid . '/shop/' . $shopUuidV4);
+
+        /** @var UserTokenRepository $userTokenRepository */
+        $userTokenRepository = \Module::getInstanceByName('ps_accounts')->getService(UserTokenRepository::class);
 
         return $this->delete([
             'headers' => [
-// FIXME
-//                'Authorization' => 'Bearer ' .
+                'Authorization' => 'Bearer ' . $userTokenRepository->getToken(),
             ]
         ]);
     }
@@ -113,7 +117,7 @@ class AccountsClient extends GenericClient
      */
     public function verifyToken($idToken)
     {
-        $this->setRoute('/shop/token/verify');
+        $this->setRoute('shop/token/verify');
 
         return $this->post([
             'json' => [
@@ -129,7 +133,7 @@ class AccountsClient extends GenericClient
      */
     public function refreshToken($refreshToken)
     {
-        $this->setRoute('/shop/token/refresh');
+        $this->setRoute('shop/token/refresh');
 
         return $this->post([
             'json' => [
