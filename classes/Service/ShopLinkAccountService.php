@@ -105,15 +105,6 @@ class ShopLinkAccountService
             (string) $this->shopTokenRepository->getTokenUuid()
         );
 
-        // Réponse: 200: Shop supprimé avec payload contenant un message de confirmation
-        // Réponse: 404: La shop n'existe pas (not found)
-        // Réponse: 401: L'utilisateur n'est pas autorisé à supprimer cette shop
-
-        if ($response['status'] && 200 === $response['httpCode']
-            || 404 === $response['httpCode']) {
-            //$this->resetLinkAccount();
-        }
-
         return $response;
     }
 

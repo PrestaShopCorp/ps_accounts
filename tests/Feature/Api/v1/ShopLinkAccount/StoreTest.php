@@ -2,10 +2,7 @@
 
 namespace PrestaShop\Module\PsAccounts\Tests\Feature\Api\v1\ShopLinkAccount;
 
-use GuzzleHttp\Message\ResponseInterface;
 use PrestaShop\Module\PsAccounts\Adapter\Configuration;
-use PrestaShop\Module\PsAccounts\Api\Client\AccountsClient;
-use PrestaShop\Module\PsAccounts\Api\Client\SsoClient;
 use PrestaShop\Module\PsAccounts\Controller\AbstractRestController;
 use PrestaShop\Module\PsAccounts\Tests\Feature\FeatureTestCase;
 
@@ -13,55 +10,6 @@ class StoreTest extends FeatureTestCase
 {
     /**
      * @test
-     *
-     * @throws \Exception
-     */
-    public function authTest()
-    {
-        /** @var AccountsClient $client */
-        $client = $this->module->getService(AccountsClient::class);
-
-        /** @var ResponseInterface $response */
-        $response = $client->getClient()->post('user/auth', [
-            'verify' => '/tmp/certs/local-cert.pem',
-            //'verify' => false,
-            'body' => [
-                'email' => 'herve.schoenenberger@gmail.com',
-                'password' => 'gnrvrv665',
-            ]
-        ]);
-
-        $this->module->getLogger()->info('###################' . print_r($response->json(), true));
-
-        $this->assertResponseOk($response);
-    }
-
-    /**
-     * @notatest
-     *
-     * @throws \Exception
-     */
-    public function authSsoTest()
-    {
-        /** @var SsoClient $client */
-        $client = $this->module->getService(SsoClient::class);
-
-        /** @var ResponseInterface $response */
-        $response = $client->getClient()->post('auth/sign-in', [
-            //'verify' => '/tmp/certs/local-cert.pem',
-            'body' => [
-                'email' => 'herve.schoenenberger@prestashop.com',
-                'password' => 'gnrvrv665',
-            ]
-        ]);
-
-        $this->module->getLogger()->info('###################' . print_r($response->json(), true));
-
-        $this->assertResponseOk($response);
-    }
-
-    /**
-     * @notatest
      *
      * @throws \Exception
      */

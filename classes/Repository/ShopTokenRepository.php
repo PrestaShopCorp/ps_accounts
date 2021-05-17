@@ -149,7 +149,7 @@ class ShopTokenRepository
      *
      * @throws \Exception
      */
-    private function refreshToken($refreshToken)
+    public function refreshToken($refreshToken)
     {
         $response = $this->accountsClient->refreshToken($refreshToken);
 

@@ -17,6 +17,9 @@
  * @copyright Since 2007 PrestaShop SA and Contributors
  * @license   https://opensource.org/licenses/AFL-3.0 Academic Free License version 3.0
  */
+
+use Symfony\Component\DependencyInjection\ParameterBag\ParameterBagInterface;
+
 if (!defined('_PS_VERSION_')) {
     exit;
 }
@@ -198,6 +201,16 @@ class Ps_accounts extends Module
         }
 
         return $this->serviceContainer->getService($serviceName);
+    }
+
+    /**
+     * @param string $name
+     *
+     * @return mixed
+     */
+    public function getParameter($name)
+    {
+        return $this->serviceContainer->getContainer()->getParameter($name);
     }
 
 //    /**
@@ -391,5 +404,17 @@ class Ps_accounts extends Module
         Media::addJsDef([
             'contextPsAccounts' => $psAccountsPresenter->present($this->name),
         ]);
+    }
+
+
+    /**
+     * @return string
+     */
+    public function getSsoAccountUrl()
+    {
+        $url = $this->getParameter('ps_accounts.sso_account_url');
+        $langIsoCode = $this->getContext()->language->iso_code;
+
+        return $url . '?lang=' . substr($langIsoCode, 0, 2);
     }
 }

@@ -2,7 +2,7 @@
 
 namespace PrestaShop\Module\PsAccounts\Tests\Unit\Service\ShopTokenService;
 
-use PrestaShop\Module\PsAccounts\Api\Client\FirebaseClient;
+use PrestaShop\Module\PsAccounts\Api\Client\AccountsClient;
 use PrestaShop\Module\PsAccounts\Repository\ConfigurationRepository;
 use PrestaShop\Module\PsAccounts\Repository\ShopTokenRepository;
 use PrestaShop\Module\PsAccounts\Tests\TestCase;
@@ -44,14 +44,15 @@ class GetOrRefreshTokenTest extends TestCase
 
         $refreshToken = $this->makeJwtToken(new \DateTimeImmutable('+1 year'));
 
-        /** @var FirebaseClient $firebaseClient */
-        $firebaseClient = $this->createMock(FirebaseClient::class);
+        /** @var AccountsClient $accountsClient */
+        $accountsClient = $this->createMock(AccountsClient::class);
 
-        $firebaseClient->method('exchangeRefreshTokenForIdToken')
+        $accountsClient->method('refreshToken')
             ->willReturn([
+                'httpCode' => 200,
                 'status' => true,
                 'body' => [
-                    'id_token' => $idTokenRefreshed,
+                    'token' => $idTokenRefreshed,
                     'refresh_token' => $refreshToken,
                 ],
             ]);
@@ -62,7 +63,7 @@ class GetOrRefreshTokenTest extends TestCase
         $configuration->updateFirebaseIdAndRefreshTokens((string) $idToken, (string) $refreshToken);
 
         $service = new ShopTokenRepository(
-            $firebaseClient,
+            $accountsClient,
             $configuration
         );
 

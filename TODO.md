@@ -11,13 +11,19 @@
     * Minimum de compat à Prévoir
 
 * créer un ConfigurationService
-
-* store link account :
-    * API doc
-    * RequestValidator/DTO
     
-* multiboutique
+* multiboutique:
     * ShopProvider::getShopTree
     * User Credentials
     * tracker les contextes d'appels multi
     * UpdateShopUrl
+    
+* compat:
+    * src (default v4)
+    * v5/src
+        * accès via la facade
+        * api uniquement sur la v5
+    * champs supplémentaires en BDD
+        * mode v5 dégradé
+            * USER_FIREBASE_ID_TOKEN/REFRESH_TOKEN/UUID, EMPLOYEE_ID
+            * shop_token proviens du même Firebase : OK

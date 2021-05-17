@@ -40,11 +40,6 @@ services:
   #####################
   # services
 
-  PrestaShop\Module\PsAccounts\Service\ConfigurationService:
-    class: PrestaShop\Module\PsAccounts\Service\ConfigurationService
-    arguments:
-      - { sso_resend_verification_email_url: '%ps_accounts.sso_resend_verification_email_url%', sso_account_url: '%ps_accounts.sso_account_url%', accounts_ui_url: '%ps_accounts.svc_accounts_ui_url%' }
-
   PrestaShop\Module\PsAccounts\Service\PsAccountsService:
     class: PrestaShop\Module\PsAccounts\Service\PsAccountsService
     arguments:

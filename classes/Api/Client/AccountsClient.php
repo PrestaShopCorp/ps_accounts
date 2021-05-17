@@ -70,9 +70,9 @@ class AccountsClient extends GenericClient
             $client = new Client([
                 'base_url' => $config['api_url'],
                 'defaults' => [
-//                    'verify' => false,
+                    'verify' => false,
                     'timeout' => $this->timeout,
-                    'exceptions' => true, //$this->catchExceptions,
+                    'exceptions' => $this->catchExceptions,
                     'headers' => [
                         // Commented, else does not work anymore with API.
                         //'Content-Type' => 'application/vnd.accounts.v1+json', // api version to use
@@ -89,12 +89,11 @@ class AccountsClient extends GenericClient
     }
 
     /**
-     * FIXME: pass user bearer NOT shop one
-     *
      * @param string $userUuid
      * @param string $shopUuidV4
      *
      * @return array
+     * @throws \Exception
      */
     public function deleteUserShop($userUuid, $shopUuidV4)
     {
@@ -105,7 +104,7 @@ class AccountsClient extends GenericClient
 
         return $this->delete([
             'headers' => [
-                'Authorization' => 'Bearer ' . $userTokenRepository->getToken(),
+                'Authorization' => 'Bearer ' . $userTokenRepository->getOrRefreshToken()
             ]
         ]);
     }

@@ -56,6 +56,26 @@ class UserTokenRepository
     }
 
     /**
+     * Get the user firebase token.
+     *
+     * @return Token|null
+     *
+     * @throws \Exception
+     */
+    public function getOrRefreshToken()
+    {
+        if ($this->isTokenExpired()) {
+            $refreshToken = $this->getRefreshToken();
+            $this->updateCredentials(
+                (string) $this->refreshToken($refreshToken),
+                $refreshToken
+            );
+        }
+
+        return $this->getToken();
+    }
+
+    /**
      * @param $idToken
      * @param $refreshToken
      *
@@ -137,6 +157,18 @@ class UserTokenRepository
             return null;
         }
 
+    }
+
+    /**
+     * @return bool
+     *
+     * @throws \Exception
+     */
+    public function isTokenExpired()
+    {
+        // iat, exp
+        $token = $this->getToken();
+        return $token ? $token->isExpired(new \DateTime()) : true;
     }
 
     /**

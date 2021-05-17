@@ -53,12 +53,6 @@ class ApiResponseHandler
      */
     private function responseIsSuccessful($responseContents, $httpStatusCode)
     {
-        // Directly return true, no need to check the body for a 204 status code
-        // 204 status code is only send by /payments/order/update
-        if (204 === $httpStatusCode) {
-            return true;
-        }
-
-        return '2' === substr((string) $httpStatusCode, 0, 1); // && null !== $responseContents;
+        return '2' === substr((string) $httpStatusCode, 0, 1);
     }
 }

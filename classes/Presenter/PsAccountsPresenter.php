@@ -59,6 +59,11 @@ class PsAccountsPresenter implements PresenterInterface
     private $psAccountsService;
 
     /**
+     * @var \Ps_accounts
+     */
+    private $module;
+
+    /**
      * PsAccountsPresenter constructor.
      *
      * @param PsAccountsService $psAccountsService
@@ -79,6 +84,7 @@ class PsAccountsPresenter implements PresenterInterface
         $this->shopLinkAccountService = $shopLinkAccountService;
         $this->installer = $installer;
         $this->configuration = $configuration;
+        $this->module = \Module::getInstanceByName('ps_accounts');
     }
 
     /**
@@ -137,7 +143,7 @@ class PsAccountsPresenter implements PresenterInterface
                     'superAdminEmail' => $this->psAccountsService->getSuperAdminEmail(),
 
                     // FIXME
-                    'manageAccountLink' => '', //$this->configurationService->getSsoAccountUrl(),
+                    'manageAccountLink' => $this->module->getSsoAccountUrl(),
 
                     'adminAjaxLink' => $this->psAccountsService->getAdminAjaxUrl(),
                 ],
