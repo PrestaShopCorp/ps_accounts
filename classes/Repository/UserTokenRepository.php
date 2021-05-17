@@ -20,7 +20,6 @@
 
 namespace PrestaShop\Module\PsAccounts\Repository;
 
-use Context;
 use Lcobucci\JWT\Parser;
 use Lcobucci\JWT\Token;
 use Lcobucci\JWT\Token\InvalidTokenStructure;
@@ -90,6 +89,7 @@ class UserTokenRepository
         if ($response && true == $response['status']) {
             return $idToken;
         }
+
         return $this->refreshToken($refreshToken);
     }
 
@@ -156,7 +156,6 @@ class UserTokenRepository
         } catch (InvalidTokenStructure $e) {
             return null;
         }
-
     }
 
     /**
@@ -168,6 +167,7 @@ class UserTokenRepository
     {
         // iat, exp
         $token = $this->getToken();
+
         return $token ? $token->isExpired(new \DateTime()) : true;
     }
 

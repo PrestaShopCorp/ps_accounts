@@ -23,16 +23,9 @@ namespace PrestaShop\Module\PsAccounts\Service;
 use Module;
 use PrestaShop\Module\PsAccounts\Adapter\Link;
 use PrestaShop\Module\PsAccounts\Api\Client\AccountsClient;
-use PrestaShop\Module\PsAccounts\Configuration\ConfigOptionsResolver;
-use PrestaShop\Module\PsAccounts\Configuration\Configurable;
 use PrestaShop\Module\PsAccounts\Exception\HmacException;
-use PrestaShop\Module\PsAccounts\Exception\OptionResolutionException;
-use PrestaShop\Module\PsAccounts\Exception\QueryParamsException;
-use PrestaShop\Module\PsAccounts\Exception\RsaSignedDataNotFoundException;
 use PrestaShop\Module\PsAccounts\Exception\SshKeysNotFoundException;
 use PrestaShop\Module\PsAccounts\Provider\RsaKeysProvider;
-use PrestaShop\Module\PsAccounts\Provider\ShopProvider;
-use PrestaShop\Module\PsAccounts\Repository\ConfigurationRepository;
 use PrestaShop\Module\PsAccounts\Repository\ShopTokenRepository;
 use PrestaShop\Module\PsAccounts\Repository\UserTokenRepository;
 use Ps_accounts;
@@ -66,7 +59,6 @@ class ShopLinkAccountService
      * @param ShopTokenRepository $shopTokenRepository
      * @param UserTokenRepository $userTokenRepository
      * @param Link $link
-     *
      */
     public function __construct(
         RsaKeysProvider $rsaKeysProvider,
@@ -121,8 +113,6 @@ class ShopLinkAccountService
 
         //
         //$this->configuration->updateEmployeeId('');
-
-
     }
 
     /**

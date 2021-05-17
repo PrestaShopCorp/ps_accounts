@@ -93,6 +93,7 @@ class AccountsClient extends GenericClient
      * @param string $shopUuidV4
      *
      * @return array
+     *
      * @throws \Exception
      */
     public function deleteUserShop($userUuid, $shopUuidV4)
@@ -104,8 +105,8 @@ class AccountsClient extends GenericClient
 
         return $this->delete([
             'headers' => [
-                'Authorization' => 'Bearer ' . $userTokenRepository->getOrRefreshToken()
-            ]
+                'Authorization' => 'Bearer ' . $userTokenRepository->getOrRefreshToken(),
+            ],
         ]);
     }
 

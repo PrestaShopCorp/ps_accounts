@@ -20,8 +20,8 @@
 
 use PrestaShop\Module\PsAccounts\Handler\Error\Sentry;
 use PrestaShop\Module\PsAccounts\Presenter\PsAccountsPresenter;
-use PrestaShop\Module\PsAccounts\Service\ShopLinkAccountService;
 use PrestaShop\Module\PsAccounts\Repository\ShopTokenRepository;
+use PrestaShop\Module\PsAccounts\Service\ShopLinkAccountService;
 
 /**
  * Controller for all ajax calls.

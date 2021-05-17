@@ -121,6 +121,7 @@ class ShopTokenRepository
     {
         // iat, exp
         $token = $this->getToken();
+
         return $token ? $token->isExpired(new \DateTime()) : true;
     }
 
@@ -139,6 +140,7 @@ class ShopTokenRepository
         if ($response && true == $response['status']) {
             return $idToken;
         }
+
         return $this->refreshToken($refreshToken);
     }
 
@@ -158,7 +160,6 @@ class ShopTokenRepository
         }
         throw new \Exception('Unable to refresh shop token : ' . $response['httpCode'] . ' ' . $response['body']['message']);
     }
-
 
     /**
      * @param string $idToken
