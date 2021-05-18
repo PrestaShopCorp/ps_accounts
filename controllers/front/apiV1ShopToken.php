@@ -19,8 +19,8 @@ class ps_AccountsApiV1ShopTokenModuleFrontController extends AbstractShopRestCon
         $shopTokenService = $this->module->getService(ShopTokenRepository::class);
 
         return [
-            'token' => $shopTokenService->getOrRefreshToken(),
-            'refresh_token' => $shopTokenService->getRefreshToken(),
+            'token' => (string) $shopTokenService->getOrRefreshToken(),
+            'refresh_token' => (string) $shopTokenService->getRefreshToken(),
         ];
     }
 }

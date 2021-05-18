@@ -1,6 +1,6 @@
 <?php
 
-namespace PrestaShop\Module\PsAccounts\Tests\Unit\Service\ShopKeysService;
+namespace PrestaShop\Module\PsAccounts\Tests\Unit\Provider\ShopKeysProvider;
 
 use PrestaShop\Module\PsAccounts\Provider\RsaKeysProvider;
 use PrestaShop\Module\PsAccounts\Tests\TestCase;

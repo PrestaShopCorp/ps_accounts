@@ -24,6 +24,7 @@ use Lcobucci\JWT\Parser;
 use Lcobucci\JWT\Token;
 use Lcobucci\JWT\Token\InvalidTokenStructure;
 use PrestaShop\Module\PsAccounts\Api\Client\AccountsClient;
+use PrestaShop\Module\PsAccounts\Exception\RefreshTokenException;
 
 class ShopTokenRepository
 {
@@ -131,7 +132,7 @@ class ShopTokenRepository
      *
      * @return Token|null verified or refreshed token on success
      *
-     * @throws \Exception
+     * @throws RefreshTokenException
      */
     public function verifyToken($idToken, $refreshToken)
     {
@@ -149,7 +150,7 @@ class ShopTokenRepository
      *
      * @return Token|null idToken
      *
-     * @throws \Exception
+     * @throws RefreshTokenException
      */
     public function refreshToken($refreshToken)
     {
@@ -158,7 +159,7 @@ class ShopTokenRepository
         if ($response && true == $response['status']) {
             return $this->parseToken($response['body']['token']);
         }
-        throw new \Exception('Unable to refresh shop token : ' . $response['httpCode'] . ' ' . $response['body']['message']);
+        throw new RefreshTokenException('Unable to refresh shop token : ' . $response['httpCode'] . ' ' . $response['body']['message']);
     }
 
     /**

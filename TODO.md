@@ -11,19 +11,29 @@
     * Minimum de compat à Prévoir
 
 * créer un ConfigurationService
-    
+
 * multiboutique:
-    * ShopProvider::getShopTree
+    * ShopProvider::getShopTree -> (données linkShop, employeeId)
     * User Credentials
     * tracker les contextes d'appels multi
     * UpdateShopUrl
     
+* tests intés
+
+* rétrocompat
+    
 * compat:
-    * src (default v4)
-    * v5/src
-        * accès via la facade
-        * api uniquement sur la v5
-    * champs supplémentaires en BDD
-        * mode v5 dégradé
-            * USER_FIREBASE_ID_TOKEN/REFRESH_TOKEN/UUID, EMPLOYEE_ID
-            * shop_token proviens du même Firebase : OK
+    * v4 - v5 : chemin critique vers la page de config
+        * onboarding obsolète -> panel warning -> maj données onboarding
+        * presenter: 
+            * isV4, isV5
+            * isOnboardedV4/V5 
+            * getOrRefreshTokenV4/V5
+            * PsAccountsPresenterV4/V5
+            
+* dep v5 - maj vue_component
+
+FIXME :
+-------
+* URLs presenter -> embraquer une config hybride 
+* api/v1/

@@ -2,6 +2,7 @@
 
 use Lcobucci\JWT\Parser;
 use PrestaShop\Module\PsAccounts\Controller\AbstractShopRestController;
+use PrestaShop\Module\PsAccounts\Exception\RefreshTokenException;
 use PrestaShop\Module\PsAccounts\Repository\ConfigurationRepository;
 use PrestaShop\Module\PsAccounts\Repository\ShopTokenRepository;
 use PrestaShop\Module\PsAccounts\Repository\UserTokenRepository;
@@ -68,11 +69,18 @@ class ps_AccountsApiV1ShopLinkAccountModuleFrontController extends AbstractShopR
      */
     public function update($shop, array $payload)
     {
-        $shopRefreshToken = $payload['shop_refresh_token'];
-        $shopToken = $this->shopTokenRepository->verifyToken($payload['shop_token'], $shopRefreshToken);
+        list( $shopRefreshToken, $userRefreshToken, $shopToken, $userToken ) = [
+            $payload['shop_refresh_token'],
+            $payload['user_refresh_token'],
+            $payload['shop_token'],
+            $payload['user_token'],
+        ];
 
-        $userRefreshToken = $payload['user_refresh_token'];
-        $userToken = $this->userTokenRepository->verifyToken($payload['user_token'], $userRefreshToken);
+        $verifyTokens = $this->module->getParameter('ps_accounts.verify_account_tokens');
+        if ($verifyTokens) {
+            $shopToken = $this->shopTokenRepository->verifyToken($shopToken, $shopRefreshToken);
+            $userToken = $this->userTokenRepository->verifyToken($userToken, $userRefreshToken);
+        }
 
         $this->shopTokenRepository->updateCredentials($shopToken, $shopRefreshToken);
         $this->userTokenRepository->updateCredentials($userToken, $userRefreshToken);

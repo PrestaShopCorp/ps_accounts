@@ -54,6 +54,7 @@ services:
       - '@PrestaShop\Module\PsAccounts\Provider\RsaKeysProvider'
       - '@PrestaShop\Module\PsAccounts\Repository\ShopTokenRepository'
       - '@PrestaShop\Module\PsAccounts\Repository\UserTokenRepository'
+      - '@PrestaShop\Module\PsAccounts\Repository\ConfigurationRepository'
       - '@PrestaShop\Module\PsAccounts\Adapter\Link'
 
   PrestaShop\Module\PsAccounts\Service\PsBillingService:
@@ -93,7 +94,7 @@ services:
   PrestaShop\Module\PsAccounts\Api\Client\AccountsClient:
     class: PrestaShop\Module\PsAccounts\Api\Client\AccountsClient
     arguments:
-      - { api_url: '%ps_accounts.svc_accounts_api_url%' }
+      - { api_url: '%ps_accounts.svc_accounts_api_url%', verify: '%ps_accounts.check_api_ssl_cert%' }
       - '@PrestaShop\Module\PsAccounts\Provider\ShopProvider'
       - '@PrestaShop\Module\PsAccounts\Adapter\Link'
 

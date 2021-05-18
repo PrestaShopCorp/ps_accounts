@@ -70,7 +70,7 @@ class AccountsClient extends GenericClient
             $client = new Client([
                 'base_url' => $config['api_url'],
                 'defaults' => [
-                    'verify' => false,
+                    'verify' => $config['verify'],
                     'timeout' => $this->timeout,
                     'exceptions' => $this->catchExceptions,
                     'headers' => [
@@ -154,6 +154,7 @@ class AccountsClient extends GenericClient
     {
         return (new ConfigOptionsResolver([
             'api_url',
+            'verify',
         ]))->resolve($config, $defaults);
     }
 }

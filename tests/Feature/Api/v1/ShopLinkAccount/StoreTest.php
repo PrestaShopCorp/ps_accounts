@@ -59,12 +59,4 @@ class StoreTest extends FeatureTestCase
         $this->assertEquals($shopUuid, $this->configuration->get(Configuration::PSX_UUID_V4));
         $this->assertEquals($employeeId, $this->configuration->get(Configuration::PS_ACCOUNTS_EMPLOYEE_ID));
     }
-
-    /**
-     * @notatest
-     */
-    public function itShouldRefreshUserTokenForAllShopsThaBelongsToHim()
-    {
-        $this->markTestIncomplete('To be implemented for multishop support');
-    }
 }

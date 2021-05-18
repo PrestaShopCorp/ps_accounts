@@ -18,7 +18,7 @@
  * International Registered Trademark & Property of PrestaShop SA
  */
 
-namespace PrestaShop\Module\PsAccounts\Tests\Unit\Service\ShopTokenService;
+namespace PrestaShop\Module\PsAccounts\Tests\Unit\Repository\ShopTokenRepository;
 
 use Lcobucci\JWT\Token;
 use PrestaShop\Module\PsAccounts\Api\Client\AccountsClient;

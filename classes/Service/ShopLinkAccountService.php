@@ -26,6 +26,7 @@ use PrestaShop\Module\PsAccounts\Api\Client\AccountsClient;
 use PrestaShop\Module\PsAccounts\Exception\HmacException;
 use PrestaShop\Module\PsAccounts\Exception\SshKeysNotFoundException;
 use PrestaShop\Module\PsAccounts\Provider\RsaKeysProvider;
+use PrestaShop\Module\PsAccounts\Repository\ConfigurationRepository;
 use PrestaShop\Module\PsAccounts\Repository\ShopTokenRepository;
 use PrestaShop\Module\PsAccounts\Repository\UserTokenRepository;
 use Ps_accounts;
@@ -48,6 +49,11 @@ class ShopLinkAccountService
     private $userTokenRepository;
 
     /**
+     * @var ConfigurationRepository
+     */
+    private $configuration;
+
+    /**
      * @var Link
      */
     private $link;
@@ -58,17 +64,20 @@ class ShopLinkAccountService
      * @param RsaKeysProvider $rsaKeysProvider
      * @param ShopTokenRepository $shopTokenRepository
      * @param UserTokenRepository $userTokenRepository
+     * @param ConfigurationRepository $configurationRepository
      * @param Link $link
      */
     public function __construct(
         RsaKeysProvider $rsaKeysProvider,
         ShopTokenRepository $shopTokenRepository,
         UserTokenRepository $userTokenRepository,
+        ConfigurationRepository $configurationRepository,
         Link $link
     ) {
         $this->rsaKeysProvider = $rsaKeysProvider;
         $this->shopTokenRepository = $shopTokenRepository;
         $this->userTokenRepository = $userTokenRepository;
+        $this->configuration = $configurationRepository;
         $this->link = $link;
     }
 
@@ -110,9 +119,7 @@ class ShopLinkAccountService
         $this->rsaKeysProvider->cleanupKeys();
         $this->shopTokenRepository->cleanupCredentials();
         $this->userTokenRepository->cleanupCredentials();
-
-        //
-        //$this->configuration->updateEmployeeId('');
+        $this->configuration->updateEmployeeId('');
     }
 
     /**

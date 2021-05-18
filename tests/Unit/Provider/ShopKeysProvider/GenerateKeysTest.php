@@ -1,6 +1,6 @@
 <?php
 
-namespace PrestaShop\Module\PsAccounts\Tests\Unit\Service\ShopKeysService;
+namespace PrestaShop\Module\PsAccounts\Tests\Unit\Provider\ShopKeysProvider;
 
 use Db;
 use PrestaShop\Module\PsAccounts\Exception\SshKeysNotFoundException;
