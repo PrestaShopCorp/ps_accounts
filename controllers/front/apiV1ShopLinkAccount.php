@@ -68,11 +68,13 @@ class ps_AccountsApiV1ShopLinkAccountModuleFrontController extends AbstractShopR
      */
     public function update($shop, array $payload)
     {
-        list($shopRefreshToken, $userRefreshToken, $shopToken, $userToken) = [
+        list($shopRefreshToken, $userRefreshToken, $shopToken, $userToken, $employeeId) = [
             $payload['shop_refresh_token'],
             $payload['user_refresh_token'],
             $payload['shop_token'],
             $payload['user_token'],
+            // FIXME : temporary fix
+            (array_key_exists('employee_id', $payload) ? $payload['employee_id'] : ''),
         ];
 
         $verifyTokens = $this->module->getParameter('ps_accounts.verify_account_tokens');
@@ -83,7 +85,7 @@ class ps_AccountsApiV1ShopLinkAccountModuleFrontController extends AbstractShopR
 
         $this->shopTokenRepository->updateCredentials($shopToken, $shopRefreshToken);
         $this->userTokenRepository->updateCredentials($userToken, $userRefreshToken);
-        //$this->configuration->updateEmployeeId($payload['employee_id']);
+        $this->configuration->updateEmployeeId($employeeId);
 
         return [
             'success' => true,
