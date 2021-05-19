@@ -36,6 +36,7 @@ abstract class GenericClient implements Configurable
      * @var bool
      */
     protected $catchExceptions = false;
+
     /**
      * Guzzle Client.
      *
@@ -76,7 +77,7 @@ abstract class GenericClient implements Configurable
      *
      * @return Client
      */
-    protected function getClient()
+    public function getClient()
     {
         return $this->client;
     }

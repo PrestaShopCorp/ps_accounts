@@ -28,7 +28,7 @@ class Ps_accounts extends Module
 
     // Needed in order to retrieve the module version easier (in api call headers) than instanciate
     // the module each time to get the version
-    const VERSION = '5.0-alpha';
+    const VERSION = '5.0-dev';
 
     /**
      * @var array
@@ -83,7 +83,7 @@ class Ps_accounts extends Module
 
         // We cannot use the const VERSION because the const is not computed by addons marketplace
         // when the zip is uploaded
-        $this->version = '5.0-alpha';
+        $this->version = '5.0-dev';
 
         $this->module_key = 'abf2cd758b4d629b2944d3922ef9db73';
 
@@ -200,6 +200,16 @@ class Ps_accounts extends Module
         return $this->serviceContainer->getService($serviceName);
     }
 
+    /**
+     * @param string $name
+     *
+     * @return mixed
+     */
+    public function getParameter($name)
+    {
+        return $this->serviceContainer->getContainer()->getParameter($name);
+    }
+
 //    /**
 //     * Override of native function to always retrieve Symfony container instead of legacy admin container on legacy context.
 //     *
@@ -262,7 +272,7 @@ class Ps_accounts extends Module
                 \PrestaShop\Module\PsAccounts\Service\ShopLinkAccountService::class
             );
 
-            $shopLinkAccountService->updateShopUrl($bodyHttp, '1.6');
+            //$shopLinkAccountService->updateShopUrl($bodyHttp, '1.6');
         }
 
         return true;
@@ -297,7 +307,7 @@ class Ps_accounts extends Module
             \PrestaShop\Module\PsAccounts\Service\ShopLinkAccountService::class
         );
 
-        $shopLinkAccountService->updateShopUrl($bodyHttp, '1.7.6');
+        //$shopLinkAccountService->updateShopUrl($bodyHttp, '1.7.6');
 
         return true;
     }
@@ -327,7 +337,7 @@ class Ps_accounts extends Module
             \PrestaShop\Module\PsAccounts\Service\ShopLinkAccountService::class
         );
 
-        $shopLinkAccountService->updateShopUrl($bodyHttp, 'multishop');
+        //$shopLinkAccountService->updateShopUrl($bodyHttp, 'multishop');
 
         return true;
     }
@@ -391,5 +401,16 @@ class Ps_accounts extends Module
         Media::addJsDef([
             'contextPsAccounts' => $psAccountsPresenter->present($this->name),
         ]);
+    }
+
+    /**
+     * @return string
+     */
+    public function getSsoAccountUrl()
+    {
+        $url = $this->getParameter('ps_accounts.sso_account_url');
+        $langIsoCode = $this->getContext()->language->iso_code;
+
+        return $url . '?lang=' . substr($langIsoCode, 0, 2);
     }
 }

@@ -105,8 +105,12 @@ class ShopProvider
                     'name' => $shopData['name'],
                     'domain' => $shopData['domain'],
                     'domainSsl' => $shopData['domain_ssl'],
+
                     'publicKey' => $this->shopContext->getConfiguration()->getAccountsRsaPublicKey(),
                     'multishop' => $this->shopContext->isMultishopActive(),
+
+                    'employeeId' => '',
+
                     'url' => $this->link->getAdminLink(
                         'AdminModules',
                         true,

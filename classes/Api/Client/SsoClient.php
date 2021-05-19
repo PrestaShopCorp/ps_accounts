@@ -18,74 +18,94 @@
  * @license   https://opensource.org/licenses/AFL-3.0 Academic Free License version 3.0
  */
 
-namespace PrestaShop\Module\PsAccounts\Service;
+namespace PrestaShop\Module\PsAccounts\Api\Client;
 
-use Context;
+use GuzzleHttp\Client;
 use PrestaShop\Module\PsAccounts\Configuration\ConfigOptionsResolver;
-use PrestaShop\Module\PsAccounts\Configuration\Configurable;
 use PrestaShop\Module\PsAccounts\Exception\OptionResolutionException;
 
 /**
- * Class PsAccountsService
+ * Class ServicesAccountsClient
  */
-class SsoService implements Configurable
+class SsoClient extends GenericClient
 {
     /**
-     * @var string
-     */
-    protected $ssoAccountUrl;
-
-    /**
-     * @var string
-     */
-    protected $ssoResendVerificationEmailUrl;
-
-    /**
-     * PsAccountsService constructor.
+     * ServicesAccountsClient constructor.
      *
      * @param array $config
+     * @param Client|null $client
      *
      * @throws OptionResolutionException
      */
-    public function __construct(array $config)
-    {
+    public function __construct(
+        array $config,
+        Client $client = null
+    ) {
+        parent::__construct();
+
         $config = $this->resolveConfig($config);
-        $this->ssoAccountUrl = $config['sso_account_url'];
-        $this->ssoResendVerificationEmailUrl = $config['sso_resend_verification_email_url'];
+
+        // Client can be provided for tests
+        if (null === $client) {
+            $client = new Client([
+                'base_url' => $config['api_url'],
+                'defaults' => [
+                    'timeout' => $this->timeout,
+                    'exceptions' => $this->catchExceptions,
+                    'headers' => [
+                        'Accept' => 'application/json',
+                    ],
+                ],
+            ]);
+        }
+
+        $this->setClient($client);
     }
 
     /**
-     * @return string
+     * @param string $idToken
+     *
+     * @return array response
      */
-    public function getSsoAccountUrl()
+    public function verifyToken($idToken)
     {
-        $url = $this->ssoAccountUrl;
-        $langIsoCode = Context::getContext()->language->iso_code;
+        $this->setRoute('auth/token/verify');
 
-        return $url . '?lang=' . substr($langIsoCode, 0, 2);
+        return $this->post([
+            'json' => [
+                'token' => $idToken,
+            ],
+        ]);
     }
 
     /**
-     * @return string
+     * @param string $refreshToken
+     *
+     * @return array response
      */
-    public function getSsoResendVerificationEmailUrl()
+    public function refreshToken($refreshToken)
     {
-        return $this->ssoResendVerificationEmailUrl;
+        $this->setRoute('auth/token/refresh');
+
+        return $this->post([
+            'json' => [
+                'token' => $refreshToken,
+            ],
+        ]);
     }
 
     /**
      * @param array $config
      * @param array $defaults
      *
-     * @return array|mixed
+     * @return array
      *
      * @throws OptionResolutionException
      */
     public function resolveConfig(array $config, array $defaults = [])
     {
         return (new ConfigOptionsResolver([
-            'sso_account_url',
-            'sso_resend_verification_email_url',
+            'api_url',
         ]))->resolve($config, $defaults);
     }
 }

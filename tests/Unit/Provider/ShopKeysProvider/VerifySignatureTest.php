@@ -1,8 +1,8 @@
 <?php
 
-namespace PrestaShop\Module\PsAccounts\Tests\Unit\Service\ShopKeysService;
+namespace PrestaShop\Module\PsAccounts\Tests\Unit\Provider\ShopKeysProvider;
 
-use PrestaShop\Module\PsAccounts\Service\ShopKeysService;
+use PrestaShop\Module\PsAccounts\Provider\RsaKeysProvider;
 use PrestaShop\Module\PsAccounts\Tests\TestCase;
 
 class VerifySignatureTest extends TestCase
@@ -12,8 +12,8 @@ class VerifySignatureTest extends TestCase
      */
     public function itShouldVerifySignature()
     {
-        /** @var ShopKeysService $service */
-        $service = $this->module->getService(ShopKeysService::class);
+        /** @var RsaKeysProvider $service */
+        $service = $this->module->getService(RsaKeysProvider::class);
 
         $key = $service->createPair();
 

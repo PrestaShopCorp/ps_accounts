@@ -18,11 +18,12 @@
  * International Registered Trademark & Property of PrestaShop SA
  */
 
-namespace PrestaShop\Module\PsAccounts\Tests\Unit\Service\ShopTokenService;
+namespace PrestaShop\Module\PsAccounts\Tests\Unit\Repository\ShopTokenRepository;
 
-use PrestaShop\Module\PsAccounts\Api\Client\FirebaseClient;
+use Lcobucci\JWT\Token;
+use PrestaShop\Module\PsAccounts\Api\Client\AccountsClient;
 use PrestaShop\Module\PsAccounts\Repository\ConfigurationRepository;
-use PrestaShop\Module\PsAccounts\Service\ShopTokenService;
+use PrestaShop\Module\PsAccounts\Repository\ShopTokenRepository;
 use PrestaShop\Module\PsAccounts\Tests\TestCase;
 
 class RefreshTokenTest extends TestCase
@@ -45,26 +46,25 @@ class RefreshTokenTest extends TestCase
 
         $configuration->updateFirebaseIdAndRefreshTokens((string) $idToken, (string) $refreshToken);
 
-        /** @var FirebaseClient $firebaseClient */
-        $firebaseClient = $this->createMock(FirebaseClient::class);
+        /** @var AccountsClient $accountsClient */
+        $accountsClient = $this->createMock(AccountsClient::class);
 
-        $firebaseClient->method('exchangeRefreshTokenForIdToken')
+        $accountsClient->method('refreshToken')
             ->willReturn([
+                'httpCode' => 200,
                 'status' => true,
                 'body' => [
-                    'id_token' => $idTokenRefreshed,
+                    'token' => $idTokenRefreshed,
                     'refresh_token' => $refreshToken,
                 ],
             ]);
 
-        $service = new ShopTokenService(
-            $firebaseClient,
+        $service = new ShopTokenRepository(
+            $accountsClient,
             $configuration
         );
 
-        $this->assertTrue($service->refreshToken());
-
-        $this->assertEquals((string) $idTokenRefreshed, $configuration->getFirebaseIdToken());
+        $this->assertEquals((string) $idTokenRefreshed, $service->refreshToken((string) $refreshToken));
 
         $this->assertEquals((string) $refreshToken, $configuration->getFirebaseRefreshToken());
     }
@@ -76,6 +76,8 @@ class RefreshTokenTest extends TestCase
      */
     public function itShouldHandleResponseError()
     {
+        $this->expectException(\Exception::class);
+
         $idToken = $this->makeJwtToken(new \DateTimeImmutable('tomorrow'));
 
         $refreshToken = $this->makeJwtToken(new \DateTimeImmutable('+1 year'));
@@ -85,20 +87,24 @@ class RefreshTokenTest extends TestCase
 
         $configuration->updateFirebaseIdAndRefreshTokens((string) $idToken, (string) $refreshToken);
 
-        /** @var FirebaseClient $firebaseClient */
-        $firebaseClient = $this->createMock(FirebaseClient::class);
+        /** @var AccountsClient $accountsClient */
+        $accountsClient = $this->createMock(AccountsClient::class);
 
-        $firebaseClient->method('exchangeRefreshTokenForIdToken')
+        $accountsClient->method('refreshToken')
             ->willReturn([
+                'httpCode' => 500,
                 'status' => false,
+                'body' => [
+                    'message' => 'Error while refreshing token',
+                ]
             ]);
 
-        $service = new ShopTokenService(
-            $firebaseClient,
+        $service = new ShopTokenRepository(
+            $accountsClient,
             $configuration
         );
 
-        $this->assertFalse($service->refreshToken());
+        $service->refreshToken((string) $refreshToken);
 
         $this->assertEquals((string) $idToken, $configuration->getFirebaseIdToken());
 

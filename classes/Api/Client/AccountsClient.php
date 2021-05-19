@@ -24,14 +24,13 @@ use GuzzleHttp\Client;
 use PrestaShop\Module\PsAccounts\Adapter\Link;
 use PrestaShop\Module\PsAccounts\Configuration\ConfigOptionsResolver;
 use PrestaShop\Module\PsAccounts\Exception\OptionResolutionException;
-use PrestaShop\Module\PsAccounts\Exception\TokenNotFoundException;
 use PrestaShop\Module\PsAccounts\Provider\ShopProvider;
-use PrestaShop\Module\PsAccounts\Service\ShopTokenService;
+use PrestaShop\Module\PsAccounts\Repository\UserTokenRepository;
 
 /**
  * Class ServicesAccountsClient
  */
-class ServicesAccountsClient extends GenericClient
+class AccountsClient extends GenericClient
 {
     /**
      * @var ShopProvider
@@ -39,28 +38,20 @@ class ServicesAccountsClient extends GenericClient
     private $shopProvider;
 
     /**
-     * @var ShopTokenService
-     */
-    private $shopTokenService;
-
-    /**
      * ServicesAccountsClient constructor.
      *
      * @param array $config
      * @param ShopProvider $shopProvider
-     * @param ShopTokenService $shopTokenService
      * @param Link $link
      * @param Client|null $client
      *
      * @throws OptionResolutionException
-     * @throws TokenNotFoundException
      * @throws \PrestaShopException
      * @throws \Exception
      */
     public function __construct(
         array $config,
         ShopProvider $shopProvider,
-        ShopTokenService $shopTokenService,
         Link $link,
         Client $client = null
     ) {
@@ -69,29 +60,23 @@ class ServicesAccountsClient extends GenericClient
         $config = $this->resolveConfig($config);
 
         $this->shopProvider = $shopProvider;
-        $this->shopTokenService = $shopTokenService;
 
         $shopId = (int) $this->shopProvider->getCurrentShop()['id'];
-        $token = $this->shopTokenService->getOrRefreshToken();
 
         $this->setLink($link->getLink());
-
-        if (!$token) {
-            throw new TokenNotFoundException('Firebase token not found');
-        }
 
         // Client can be provided for tests
         if (null === $client) {
             $client = new Client([
                 'base_url' => $config['api_url'],
                 'defaults' => [
+                    'verify' => $config['verify'],
                     'timeout' => $this->timeout,
                     'exceptions' => $this->catchExceptions,
                     'headers' => [
                         // Commented, else does not work anymore with API.
                         //'Content-Type' => 'application/vnd.accounts.v1+json', // api version to use
                         'Accept' => 'application/json',
-                        'Authorization' => 'Bearer ' . $token,
                         'Shop-Id' => $shopId,
                         'Module-Version' => \Ps_accounts::VERSION, // version of the module
                         'Prestashop-Version' => _PS_VERSION_, // prestashop version
@@ -104,72 +89,60 @@ class ServicesAccountsClient extends GenericClient
     }
 
     /**
-     * @param mixed $shopUuidV4
-     * @param array $bodyHttp
-     *
-     * @return array | false
-     */
-    public function updateShopUrl($shopUuidV4, $bodyHttp)
-    {
-        $this->setRoute('/shops/' . $shopUuidV4 . '/url');
-
-        return $this->patch([
-            'body' => $bodyHttp,
-        ]);
-    }
-
-    /**
+     * @param string $userUuid
      * @param string $shopUuidV4
      *
      * @return array
+     *
+     * @throws \Exception
      */
-    public function deleteShop($shopUuidV4)
+    public function deleteUserShop($userUuid, $shopUuidV4)
     {
-        $this->setRoute('/shop/' . $shopUuidV4);
+        $this->setRoute('user/' . $userUuid . '/shop/' . $shopUuidV4);
 
-        return $this->delete();
+        /** @var \Ps_accounts $module */
+        $module = \Module::getInstanceByName('ps_accounts');
+
+        /** @var UserTokenRepository $userTokenRepository */
+        $userTokenRepository = $module->getService(UserTokenRepository::class);
+
+        return $this->delete([
+            'headers' => [
+                'Authorization' => 'Bearer ' . $userTokenRepository->getOrRefreshToken(),
+            ],
+        ]);
     }
 
     /**
-     * @param array $headers
-     * @param array $body
+     * @param string $idToken
      *
-     * @return array
-     *
-     * @throws \PrestaShopException
+     * @return array response
      */
-    public function verifyWebhook(array $headers, array $body)
+    public function verifyToken($idToken)
     {
-        $correlationId = $headers['correlationId'];
+        $this->setRoute('shop/token/verify');
 
-        $this->setRoute('/webhooks/' . $correlationId . '/verify');
-
-        $shopId = (int) $this->shopProvider->getCurrentShop()['id'];
-        $hookUrl = $this->link->getModuleLink('ps_accounts', 'DispatchWebHook', [], true, null, $shopId);
-
-        $res = $this->post([
-            'headers' => [
-                'correlationId' => $correlationId,
-                'Hook-Url' => $hookUrl,
+        return $this->post([
+            'json' => [
+                'token' => $idToken,
             ],
-            'json' => $body,
         ]);
+    }
 
-        if (!$res || $res['httpCode'] < 200 || $res['httpCode'] > 299) {
-            return [
-                'httpCode' => $res['httpCode'],
-                'body' => $res['body']
-                && is_array($res['body'])
-                && array_key_exists('message', $res['body'])
-                    ? $res['body']['message']
-                    : 'Unknown error',
-            ];
-        }
+    /**
+     * @param string $refreshToken
+     *
+     * @return array response
+     */
+    public function refreshToken($refreshToken)
+    {
+        $this->setRoute('shop/token/refresh');
 
-        return [
-            'httpCode' => 200,
-            'body' => 'ok',
-        ];
+        return $this->post([
+            'json' => [
+                'refreshToken' => $refreshToken,
+            ],
+        ]);
     }
 
     /**
@@ -184,6 +157,7 @@ class ServicesAccountsClient extends GenericClient
     {
         return (new ConfigOptionsResolver([
             'api_url',
+            'verify',
         ]))->resolve($config, $defaults);
     }
 }

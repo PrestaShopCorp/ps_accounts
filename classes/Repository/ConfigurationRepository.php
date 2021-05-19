@@ -123,6 +123,24 @@ class ConfigurationRepository
     }
 
     /**
+     * @return string | null
+     */
+    public function getEmployeeId()
+    {
+        return $this->configuration->get(Configuration::PS_ACCOUNTS_EMPLOYEE_ID);
+    }
+
+    /**
+     * @param string $employeeId
+     *
+     * @return void
+     */
+    public function updateEmployeeId($employeeId)
+    {
+        $this->configuration->set(Configuration::PS_ACCOUNTS_EMPLOYEE_ID, $employeeId);
+    }
+
+    /**
      * @return bool
      */
     public function firebaseEmailIsVerified()
@@ -253,5 +271,59 @@ class ConfigurationRepository
     {
         return true == $this->configuration->get('PS_SSL_ENABLED')
             || true == $this->configuration->get('PS_SSL_ENABLED_EVERYWHERE');
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getUserFirebaseUuid()
+    {
+        return $this->configuration->get(Configuration::PS_ACCOUNTS_USER_FIREBASE_UUID);
+    }
+
+    /**
+     * @param string $uuid
+     *
+     * @return void
+     */
+    public function updateUserFirebaseUuid($uuid)
+    {
+        $this->configuration->set(Configuration::PS_ACCOUNTS_USER_FIREBASE_UUID, $uuid);
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getUserFirebaseIdToken()
+    {
+        return $this->configuration->get(Configuration::PS_ACCOUNTS_USER_FIREBASE_ID_TOKEN);
+    }
+
+    /**
+     * @param string $idToken
+     *
+     * @return void
+     */
+    public function updateUserFirebaseIdToken($idToken)
+    {
+        $this->configuration->set(Configuration::PS_ACCOUNTS_USER_FIREBASE_ID_TOKEN, $idToken);
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getUserFirebaseRefreshToken()
+    {
+        return $this->configuration->get(Configuration::PS_ACCOUNTS_USER_FIREBASE_REFRESH_TOKEN);
+    }
+
+    /**
+     * @param string $refreshToken
+     *
+     * @return void
+     */
+    public function updateUserFirebaseRefreshToken($refreshToken)
+    {
+        $this->configuration->set(Configuration::PS_ACCOUNTS_USER_FIREBASE_REFRESH_TOKEN, $refreshToken);
     }
 }

@@ -27,7 +27,6 @@ use PrestaShop\Module\PsAccounts\Provider\ShopProvider;
 use PrestaShop\Module\PsAccounts\Repository\ConfigurationRepository;
 use PrestaShop\Module\PsAccounts\Service\PsAccountsService;
 use PrestaShop\Module\PsAccounts\Service\ShopLinkAccountService;
-use PrestaShop\Module\PsAccounts\Service\SsoService;
 
 /**
  * Construct the psaccounts module.
@@ -45,11 +44,6 @@ class PsAccountsPresenter implements PresenterInterface
     protected $shopLinkAccountService;
 
     /**
-     * @var SsoService
-     */
-    protected $ssoService;
-
-    /**
      * @var ConfigurationRepository
      */
     protected $configuration;
@@ -65,29 +59,34 @@ class PsAccountsPresenter implements PresenterInterface
     private $psAccountsService;
 
     /**
+     * @var \Ps_accounts
+     */
+    private $module;
+
+    /**
      * PsAccountsPresenter constructor.
      *
      * @param PsAccountsService $psAccountsService
      * @param ShopProvider $shopProvider
      * @param ShopLinkAccountService $shopLinkAccountService
-     * @param SsoService $ssoService
      * @param Installer $installer
      * @param ConfigurationRepository $configuration
+     * @param \Ps_accounts $module
      */
     public function __construct(
         PsAccountsService $psAccountsService,
         ShopProvider $shopProvider,
         ShopLinkAccountService $shopLinkAccountService,
-        SsoService $ssoService,
         Installer $installer,
-        ConfigurationRepository $configuration
+        ConfigurationRepository $configuration,
+        \Ps_accounts $module
     ) {
         $this->psAccountsService = $psAccountsService;
         $this->shopProvider = $shopProvider;
         $this->shopLinkAccountService = $shopLinkAccountService;
-        $this->ssoService = $ssoService;
         $this->installer = $installer;
         $this->configuration = $configuration;
+        $this->module = $module;
     }
 
     /**
@@ -101,13 +100,12 @@ class PsAccountsPresenter implements PresenterInterface
      */
     public function present($psxName = 'ps_accounts')
     {
-        // FIXME : Do this elsewhere
-        $this->shopLinkAccountService->manageOnboarding($psxName);
+        $this->shopLinkAccountService->prepareLinkAccount();
 
         $shopContext = $this->shopProvider->getShopContext();
 
-        // FIXME : Module itself should also manage this
-        $isEnabled = $this->installer->isEnabled('ps_accounts');
+        // FIXME: Module itself should also manage this
+        //$isEnabled = $this->installer->isEnabled('ps_accounts');
 
         try {
             return array_merge(
@@ -130,7 +128,8 @@ class PsAccountsPresenter implements PresenterInterface
                     ////////////////////////////
                     // PsAccountsPresenter
 
-                    'onboardingLink' => $this->shopLinkAccountService->getLinkAccountUrl($psxName),
+                    // FIXME
+                    'onboardingLink' => '', //$this->configurationService->getLinkAccountUrl($psxName),
 
                     // FIXME :  Mix "SSO user" with "Backend user"
                     'user' => [
@@ -145,9 +144,8 @@ class PsAccountsPresenter implements PresenterInterface
 
                     'superAdminEmail' => $this->psAccountsService->getSuperAdminEmail(),
 
-                    // FIXME : move into Vue components .env
-                    'ssoResendVerificationEmail' => $this->ssoService->getSsoResendVerificationEmailUrl(),
-                    'manageAccountLink' => $this->ssoService->getSsoAccountUrl(),
+                    // FIXME
+                    'manageAccountLink' => $this->module->getSsoAccountUrl(),
 
                     'adminAjaxLink' => $this->psAccountsService->getAdminAjaxUrl(),
                 ],

@@ -24,6 +24,7 @@ use Context;
 use PrestaShop\Module\PsAccounts\Api\Client\ServicesBillingClient;
 use PrestaShop\Module\PsAccounts\Exception\BillingException;
 use PrestaShop\Module\PsAccounts\Repository\ConfigurationRepository;
+use PrestaShop\Module\PsAccounts\Repository\ShopTokenRepository;
 
 /**
  * Construct the psbilling service.
@@ -41,9 +42,9 @@ class PsBillingService
     private $configuration;
 
     /**
-     * @var ShopTokenService
+     * @var ShopTokenRepository
      */
-    private $shopTokenService;
+    private $shopTokenRepository;
 
     /**
      * @var ServicesBillingClient
@@ -54,16 +55,16 @@ class PsBillingService
      * PsBillingService constructor.
      *
      * @param ServicesBillingClient $servicesBillingClient
-     * @param ShopTokenService $shopTokenService
+     * @param ShopTokenRepository $shopTokenRepository
      * @param ConfigurationRepository $configuration
      */
     public function __construct(
         ServicesBillingClient $servicesBillingClient,
-        ShopTokenService $shopTokenService,
+        ShopTokenRepository $shopTokenRepository,
         ConfigurationRepository $configuration
     ) {
         $this->servicesBillingClient = $servicesBillingClient;
-        $this->shopTokenService = $shopTokenService;
+        $this->shopTokenRepository = $shopTokenRepository;
         $this->configuration = $configuration;
     }
 
@@ -154,7 +155,7 @@ class PsBillingService
                     && $response['body']['subscription']['plan_id'] === $planName
                 ) {
                     $toReturn['subscriptionId'] = $response['body']['subscription']['id'];
-                    $this->shopTokenService->getOrRefreshToken();
+                    $this->shopTokenRepository->getOrRefreshToken();
 
                     return $toReturn;
                 } else {

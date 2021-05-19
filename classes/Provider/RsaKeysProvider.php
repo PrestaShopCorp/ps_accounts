@@ -18,7 +18,7 @@
  * @license   https://opensource.org/licenses/AFL-3.0 Academic Free License version 3.0
  */
 
-namespace PrestaShop\Module\PsAccounts\Service;
+namespace PrestaShop\Module\PsAccounts\Provider;
 
 use phpseclib\Crypt\RSA;
 use PrestaShop\Module\PsAccounts\Exception\SshKeysNotFoundException;
@@ -27,7 +27,7 @@ use PrestaShop\Module\PsAccounts\Repository\ConfigurationRepository;
 /**
  * Manage RSA
  */
-class ShopKeysService
+class RsaKeysProvider
 {
     const SIGNATURE_DATA = 'data';
 
@@ -119,7 +119,7 @@ class ShopKeysService
      *
      * @throws SshKeysNotFoundException
      */
-    public function generateKeys($refresh = true)
+    public function generateKeys($refresh = false)
     {
         if ($refresh || false === $this->hasKeys()) {
             $key = $this->createPair();
@@ -183,5 +183,15 @@ class ShopKeysService
     public function getSignature()
     {
         return $this->configuration->getAccountsRsaSignData();
+    }
+
+    /**
+     * @return void
+     */
+    public function cleanupKeys()
+    {
+        $this->configuration->updateAccountsRsaPrivateKey('');
+        $this->configuration->updateAccountsRsaPublicKey('');
+        $this->configuration->updateAccountsRsaSignData('');
     }
 }
