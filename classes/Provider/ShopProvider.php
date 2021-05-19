@@ -93,23 +93,28 @@ class ShopProvider
     {
         $shopList = [];
 
-        if (true === $this->shopContext->isShopContext()) {
-            return $shopList;
-        }
+//        if (true === $this->shopContext->isShopContext()) {
+//            return $shopList;
+//        }
+
+        $configuration = $this->shopContext->getConfiguration();
 
         foreach (\Shop::getTree() as $groupId => $groupData) {
             $shops = [];
             foreach ($groupData['shops'] as $shopId => $shopData) {
+                $configuration->setShopId($shopId);
+
                 $shops[] = [
                     'id' => (string) $shopId,
                     'name' => $shopData['name'],
                     'domain' => $shopData['domain'],
                     'domainSsl' => $shopData['domain_ssl'],
 
-                    'publicKey' => $this->shopContext->getConfiguration()->getAccountsRsaPublicKey(),
-                    'multishop' => $this->shopContext->isMultishopActive(),
+                    // Contextualize by shopId
+                    'publicKey' => $configuration->getAccountsRsaPublicKey(),
 
-                    'employeeId' => '',
+                    // Accounts employeeId or current employeeId by default
+                    'employeeId' => $configuration->getEmployeeId() ?: $this->shopContext->getContext()->employee->id,
 
                     'url' => $this->link->getAdminLink(
                         'AdminModules',
@@ -127,8 +132,13 @@ class ShopProvider
                 'id' => (string) $groupId,
                 'name' => $groupData['name'],
                 'shops' => $shops,
+                'multishop' => $this->shopContext->isMultishopActive(),
+                'moduleName' => $psxName,
+                'psVersion' => _PS_VERSION_,
             ];
         }
+
+        $configuration->setShopId($this->shopContext->getContext()->shop->id);
 
         return $shopList;
     }
