@@ -18,7 +18,6 @@
  * @license   https://opensource.org/licenses/AFL-3.0 Academic Free License version 3.0
  */
 
-
 use Lcobucci\JWT\Parser;
 use PrestaShop\Module\PsAccounts\Controller\AbstractShopRestController;
 use PrestaShop\Module\PsAccounts\Repository\ConfigurationRepository;
