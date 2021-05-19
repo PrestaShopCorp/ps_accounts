@@ -143,6 +143,7 @@ class PsAccountsPresenter implements PresenterInterface
                     'shops' => $this->shopProvider->getShopsTree($psxName),
 
                     'superAdminEmail' => $this->psAccountsService->getSuperAdminEmail(),
+                    'employeeId' => $shopContext->getContext()->employee->id,
 
                     // FIXME
                     'manageAccountLink' => $this->module->getSsoAccountUrl(),
