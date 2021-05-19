@@ -60,16 +60,21 @@ class ShopProvider
     {
         $shop = \Shop::getShop($this->shopContext->getContext()->shop->id);
 
-        // TODO: Add missing values to context
+        $configuration = $this->shopContext->getConfiguration();
+
         return [
             'id' => (string) $shop['id_shop'],
             'name' => $shop['name'],
             'domain' => $shop['domain'],
+            'domainSsl' => $shop['domain_ssl'],
             'multishop' => $this->shopContext->isMultishopActive(),
             'moduleName' => $psxName,
             'psVersion' => _PS_VERSION_,
-            'domainSsl' => $shop['domain_ssl'],
-            'publicKey' => $this->shopContext->getConfiguration()->getAccountsRsaPublicKey(),
+
+            // LinkAccount
+            'publicKey' => $configuration->getAccountsRsaPublicKey(),
+            'employeeId' => $configuration->getEmployeeId(),
+
             'url' => $this->link->getAdminLink(
                 'AdminModules',
                 true,
@@ -110,11 +115,9 @@ class ShopProvider
                     'domain' => $shopData['domain'],
                     'domainSsl' => $shopData['domain_ssl'],
 
-                    // Contextualize by shopId
+                    // LinkAccount
                     'publicKey' => $configuration->getAccountsRsaPublicKey(),
-
-                    // Accounts employeeId or current employeeId by default
-                    'employeeId' => $configuration->getEmployeeId() ?: $this->shopContext->getContext()->employee->id,
+                    'employeeId' => $configuration->getEmployeeId(),
 
                     'url' => $this->link->getAdminLink(
                         'AdminModules',
