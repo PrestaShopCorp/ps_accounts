@@ -37,3 +37,4 @@ FIXME :
 -------
 * URLs presenter -> embraquer une config hybride 
 * api/v1/
+* emailVerified => requêter SSO

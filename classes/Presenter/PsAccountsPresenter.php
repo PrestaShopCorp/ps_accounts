@@ -71,20 +71,22 @@ class PsAccountsPresenter implements PresenterInterface
      * @param ShopLinkAccountService $shopLinkAccountService
      * @param Installer $installer
      * @param ConfigurationRepository $configuration
+     * @param \Ps_accounts $module
      */
     public function __construct(
         PsAccountsService $psAccountsService,
         ShopProvider $shopProvider,
         ShopLinkAccountService $shopLinkAccountService,
         Installer $installer,
-        ConfigurationRepository $configuration
+        ConfigurationRepository $configuration,
+        \Ps_accounts $module
     ) {
         $this->psAccountsService = $psAccountsService;
         $this->shopProvider = $shopProvider;
         $this->shopLinkAccountService = $shopLinkAccountService;
         $this->installer = $installer;
         $this->configuration = $configuration;
-        $this->module = \Module::getInstanceByName('ps_accounts');
+        $this->module = $module;
     }
 
     /**

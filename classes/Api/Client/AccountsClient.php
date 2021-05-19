@@ -100,8 +100,11 @@ class AccountsClient extends GenericClient
     {
         $this->setRoute('user/' . $userUuid . '/shop/' . $shopUuidV4);
 
+        /** @var \Ps_accounts $module */
+        $module = \Module::getInstanceByName('ps_accounts');
+
         /** @var UserTokenRepository $userTokenRepository */
-        $userTokenRepository = \Module::getInstanceByName('ps_accounts')->getService(UserTokenRepository::class);
+        $userTokenRepository = $module->getService(UserTokenRepository::class);
 
         return $this->delete([
             'headers' => [
@@ -111,7 +114,7 @@ class AccountsClient extends GenericClient
     }
 
     /**
-     * @param $idToken
+     * @param string $idToken
      *
      * @return array response
      */
@@ -127,7 +130,7 @@ class AccountsClient extends GenericClient
     }
 
     /**
-     * @param $refreshToken
+     * @param string $refreshToken
      *
      * @return array response
      */

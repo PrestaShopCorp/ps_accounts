@@ -131,7 +131,7 @@ class ConfigurationRepository
     }
 
     /**
-     * @param $employeeId
+     * @param string $employeeId
      *
      * @return void
      */

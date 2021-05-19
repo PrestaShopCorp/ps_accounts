@@ -127,8 +127,8 @@ class ShopTokenRepository
     }
 
     /**
-     * @param $idToken
-     * @param $refreshToken
+     * @param string $idToken
+     * @param string $refreshToken
      *
      * @return Token|null verified or refreshed token on success
      *
@@ -139,7 +139,7 @@ class ShopTokenRepository
         $response = $this->accountsClient->verifyToken($idToken);
 
         if ($response && true == $response['status']) {
-            return $idToken;
+            return $this->parseToken($idToken);
         }
 
         return $this->refreshToken($refreshToken);

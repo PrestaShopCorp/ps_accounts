@@ -63,7 +63,7 @@ class SsoClient extends GenericClient
     }
 
     /**
-     * @param $idToken
+     * @param string $idToken
      *
      * @return array response
      */
@@ -79,7 +79,7 @@ class SsoClient extends GenericClient
     }
 
     /**
-     * @param $refreshToken
+     * @param string $refreshToken
      *
      * @return array response
      */

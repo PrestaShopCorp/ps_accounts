@@ -76,8 +76,8 @@ class UserTokenRepository
     }
 
     /**
-     * @param $idToken
-     * @param $refreshToken
+     * @param string $idToken
+     * @param string $refreshToken
      *
      * @return Token|null verified or refreshed token on success
      *
@@ -88,7 +88,7 @@ class UserTokenRepository
         $response = $this->ssoClient->verifyToken($idToken);
 
         if ($response && true == $response['status']) {
-            return $idToken;
+            return $this->parseToken($idToken);
         }
 
         return $this->refreshToken($refreshToken);
@@ -146,7 +146,7 @@ class UserTokenRepository
     }
 
     /**
-     * @param $token
+     * @param string $token
      *
      * @return Token|null
      */

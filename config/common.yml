@@ -142,3 +142,4 @@ services:
       - '@PrestaShop\Module\PsAccounts\Service\ShopLinkAccountService'
       - '@PrestaShop\Module\PsAccounts\Installer\Installer'
       - '@PrestaShop\Module\PsAccounts\Repository\ConfigurationRepository'
+      - '@ps_accounts.module'
