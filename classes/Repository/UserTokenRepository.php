@@ -159,10 +159,13 @@ class UserTokenRepository
 
         // FIXME : just query sso api and don't refresh token everytime
         if (null === $token || !$token->claims()->get('email_verified')) {
-            $token = $this->getOrRefreshToken(true);
+            try {
+                $token = $this->getOrRefreshToken(true);
+            } catch (RefreshTokenException $e) {
+            }
         }
 
-        return null !== $token ? $token->claims()->get('email_verified') : false;
+        return null !== $token ? (bool) $token->claims()->get('email_verified') : false;
     }
 
     /**
