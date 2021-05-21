@@ -55,7 +55,7 @@ class PsAccountsService
      *
      * @param \Ps_accounts $module
      * @param ShopTokenRepository $shopTokenRepository
-     * @param ConfigurationRepository $configuration
+     * @param UserTokenRepository $userTokenRepository
      * @param Link $link
      */
     public function __construct(
