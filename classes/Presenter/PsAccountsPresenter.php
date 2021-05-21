@@ -145,7 +145,7 @@ class PsAccountsPresenter implements PresenterInterface
                     'ssoResendVerificationEmail' => $this->module->getParameter('ps_accounts.sso_resend_verification_email_url'),
 
                     'shops' => $this->shopProvider->getShopsTree($psxName),
-                    'employeeId' => $shopContext->getContext()->employee->id,
+                    'employeeId' => $shopContext->getContext()->employee->id ?: null,
                     'adminAjaxLink' => $this->psAccountsService->getAdminAjaxUrl(),
                 ],
                 (new DependenciesPresenter())->present($psxName)
