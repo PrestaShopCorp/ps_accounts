@@ -104,8 +104,7 @@ class PsAccountsPresenter implements PresenterInterface
 
         $shopContext = $this->shopProvider->getShopContext();
 
-        // FIXME: Module itself should also manage this
-        //$isEnabled = $this->installer->isEnabled('ps_accounts');
+        $moduleName = $this->module->name;
 
         try {
             return array_merge(
@@ -119,8 +118,8 @@ class PsAccountsPresenter implements PresenterInterface
                     'psAccountsIsInstalled' => true,
                     'psAccountsInstallLink' => null,
 
-                    'psAccountsIsEnabled' => true,
-                    'psAccountsEnableLink' => null,
+                    'psAccountsIsEnabled' => $this->installer->isEnabled($moduleName),
+                    'psAccountsEnableLink' => $this->installer->getEnableUrl($moduleName, $psxName),
 
                     'psAccountsIsUptodate' => true,
                     'psAccountsUpdateLink' => null,
@@ -128,26 +127,25 @@ class PsAccountsPresenter implements PresenterInterface
                     ////////////////////////////
                     // PsAccountsPresenter
 
-                    // FIXME
-                    'onboardingLink' => '', //$this->configurationService->getLinkAccountUrl($psxName),
-
                     // FIXME :  Mix "SSO user" with "Backend user"
                     'user' => [
-                        'email' => $this->configuration->getFirebaseEmail() ?: null,
-                        'emailIsValidated' => $this->configuration->firebaseEmailIsVerified(),
+                        'email' => $this->psAccountsService->getEmail() ?: null,
+                        'emailIsValidated' => $this->psAccountsService->isEmailValidated(),
                         'isSuperAdmin' => $shopContext->getContext()->employee->isSuperAdmin(),
                     ],
 
                     'currentShop' => $this->shopProvider->getCurrentShop($psxName),
                     'isShopContext' => $shopContext->isShopContext(),
-                    'shops' => $this->shopProvider->getShopsTree($psxName),
-
                     'superAdminEmail' => $this->psAccountsService->getSuperAdminEmail(),
-                    'employeeId' => $shopContext->getContext()->employee->id,
-
-                    // FIXME
                     'manageAccountLink' => $this->module->getSsoAccountUrl(),
 
+                    // TODO: link to a page to display an "Update Your PSX" notice
+                    'onboardingLink' => $this->module->getParameter('ps_accounts.svc_accounts_ui_url'),
+
+                    'ssoResendVerificationEmail' => $this->module->getParameter('ps_accounts.sso_resend_verification_email_url'),
+
+                    'shops' => $this->shopProvider->getShopsTree($psxName),
+                    'employeeId' => $shopContext->getContext()->employee->id,
                     'adminAjaxLink' => $this->psAccountsService->getAdminAjaxUrl(),
                 ],
                 (new DependenciesPresenter())->present($psxName)

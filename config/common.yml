@@ -45,7 +45,7 @@ services:
     arguments:
       - '@ps_accounts.module'
       - '@PrestaShop\Module\PsAccounts\Repository\ShopTokenRepository'
-      - '@PrestaShop\Module\PsAccounts\Repository\ConfigurationRepository'
+      - '@PrestaShop\Module\PsAccounts\Repository\UserTokenRepository'
       - '@PrestaShop\Module\PsAccounts\Adapter\Link'
 
   PrestaShop\Module\PsAccounts\Service\ShopLinkAccountService:
@@ -94,7 +94,7 @@ services:
   PrestaShop\Module\PsAccounts\Api\Client\AccountsClient:
     class: PrestaShop\Module\PsAccounts\Api\Client\AccountsClient
     arguments:
-      - { api_url: '%ps_accounts.svc_accounts_api_url%', verify: '%ps_accounts.check_api_ssl_cert%' }
+      - { api_url: '%ps_accounts.accounts_api_url%', verify: '%ps_accounts.check_api_ssl_cert%' }
       - '@PrestaShop\Module\PsAccounts\Provider\ShopProvider'
       - '@PrestaShop\Module\PsAccounts\Adapter\Link'
 
@@ -106,7 +106,7 @@ services:
   PrestaShop\Module\PsAccounts\Api\Client\ServicesBillingClient:
     class: PrestaShop\Module\PsAccounts\Api\Client\ServicesBillingClient
     arguments:
-      - { api_url: '%ps_accounts.svc_billing_api_url%' }
+      - { api_url: '%ps_accounts.billing_api_url%' }
       - '@PrestaShop\Module\PsAccounts\Service\PsAccountsService'
       - '@PrestaShop\Module\PsAccounts\Provider\ShopProvider'
       - '@PrestaShop\Module\PsAccounts\Adapter\Link'

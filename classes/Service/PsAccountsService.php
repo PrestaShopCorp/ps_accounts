@@ -23,6 +23,7 @@ namespace PrestaShop\Module\PsAccounts\Service;
 use PrestaShop\Module\PsAccounts\Adapter\Link;
 use PrestaShop\Module\PsAccounts\Repository\ConfigurationRepository;
 use PrestaShop\Module\PsAccounts\Repository\ShopTokenRepository;
+use PrestaShop\Module\PsAccounts\Repository\UserTokenRepository;
 
 /**
  * Class PsAccountsService
@@ -35,11 +36,6 @@ class PsAccountsService
     protected $link;
 
     /**
-     * @var ConfigurationRepository
-     */
-    private $configuration;
-
-    /**
      * @var \Ps_accounts
      */
     private $module;
@@ -48,6 +44,11 @@ class PsAccountsService
      * @var ShopTokenRepository
      */
     private $shopTokenRepository;
+
+    /**
+     * @var UserTokenRepository
+     */
+    private $userTokenRepository;
 
     /**
      * PsAccountsService constructor.
@@ -60,12 +61,12 @@ class PsAccountsService
     public function __construct(
         \Ps_accounts $module,
         ShopTokenRepository $shopTokenRepository,
-        ConfigurationRepository $configuration,
+        UserTokenRepository $userTokenRepository,
         Link $link
     ) {
-        $this->configuration = $configuration;
-        $this->shopTokenRepository = $shopTokenRepository;
         $this->module = $module;
+        $this->shopTokenRepository = $shopTokenRepository;
+        $this->userTokenRepository = $userTokenRepository;
         $this->link = $link;
     }
 
@@ -82,7 +83,7 @@ class PsAccountsService
      */
     public function getShopUuidV4()
     {
-        return $this->configuration->getShopUuid();
+        return $this->shopTokenRepository->getTokenUuid();
     }
 
     /**
@@ -115,10 +116,12 @@ class PsAccountsService
 
     /**
      * @return bool
+     *
+     * @throws \Exception
      */
     public function isEmailValidated()
     {
-        return $this->configuration->firebaseEmailIsVerified();
+        return $this->userTokenRepository->getTokenEmailVerified();
     }
 
     /**
@@ -126,7 +129,7 @@ class PsAccountsService
      */
     public function getEmail()
     {
-        return $this->configuration->getFirebaseEmail();
+        return $this->userTokenRepository->getTokenEmail();
     }
 
     /**

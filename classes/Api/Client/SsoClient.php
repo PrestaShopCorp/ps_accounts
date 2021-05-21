@@ -23,12 +23,18 @@ namespace PrestaShop\Module\PsAccounts\Api\Client;
 use GuzzleHttp\Client;
 use PrestaShop\Module\PsAccounts\Configuration\ConfigOptionsResolver;
 use PrestaShop\Module\PsAccounts\Exception\OptionResolutionException;
+use PrestaShop\Module\PsAccounts\Repository\UserTokenRepository;
 
 /**
  * Class ServicesAccountsClient
  */
 class SsoClient extends GenericClient
 {
+    /**
+     * @var UserTokenRepository
+     */
+    private $userTokenRepository;
+
     /**
      * ServicesAccountsClient constructor.
      *
