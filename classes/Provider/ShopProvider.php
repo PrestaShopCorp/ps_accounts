@@ -73,7 +73,7 @@ class ShopProvider
 
             // LinkAccount
             'publicKey' => $configuration->getAccountsRsaPublicKey(),
-            'employeeId' => $configuration->getEmployeeId(),
+            'employeeId' => (int) $configuration->getEmployeeId() ?: null,
 
             'url' => $this->link->getAdminLink(
                 'AdminModules',
@@ -117,7 +117,7 @@ class ShopProvider
 
                     // LinkAccount
                     'publicKey' => $configuration->getAccountsRsaPublicKey(),
-                    'employeeId' => $configuration->getEmployeeId(),
+                    'employeeId' => (int) $configuration->getEmployeeId() ?: null,
 
                     'url' => $this->link->getAdminLink(
                         'AdminModules',
