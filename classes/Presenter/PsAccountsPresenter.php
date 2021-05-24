@@ -133,16 +133,19 @@ class PsAccountsPresenter implements PresenterInterface
                         'emailIsValidated' => $this->psAccountsService->isEmailValidated(),
                         'isSuperAdmin' => $shopContext->getContext()->employee->isSuperAdmin(),
                     ],
-
                     'currentShop' => $this->shopProvider->getCurrentShop($psxName),
                     'isShopContext' => $shopContext->isShopContext(),
                     'superAdminEmail' => $this->psAccountsService->getSuperAdminEmail(),
-                    'manageAccountLink' => $this->module->getSsoAccountUrl(),
 
                     // TODO: link to a page to display an "Update Your PSX" notice
                     'onboardingLink' => $this->module->getParameter('ps_accounts.svc_accounts_ui_url'),
-
                     'ssoResendVerificationEmail' => $this->module->getParameter('ps_accounts.sso_resend_verification_email_url'),
+                    'manageAccountLink' => $this->module->getSsoAccountUrl(),
+
+                    // TODO: tdb
+                    'onboardingFallbackUrl' => '',
+
+                    'isOnboardedV4' => $this->psAccountsService->isAccountLinkedV4(),
 
                     'shops' => $this->shopProvider->getShopsTree($psxName),
                     'employeeId' => $shopContext->getContext()->employee->id,

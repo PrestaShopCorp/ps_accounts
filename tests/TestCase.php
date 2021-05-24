@@ -87,6 +87,26 @@ class TestCase extends \PHPUnit\Framework\TestCase
     }
 
     /**
+     * @param \DateTimeImmutable|null $expiresAt
+     * @param array $claims
+     *
+     * @return Token
+     *
+     * @throws \Exception
+     */
+    public function makeFirebaseToken(\DateTimeImmutable $expiresAt = null, array $claims = [])
+    {
+        if (null === $expiresAt) {
+            $expiresAt = new \DateTimeImmutable('tomorrow');
+        }
+        return $this->makeJwtToken($expiresAt, array_merge([
+            'user_id' => $this->faker->uuid,
+            'email' => $this->faker->safeEmail,
+            'email_verified' => $this->faker->boolean,
+        ], $claims));
+    }
+
+    /**
      * @return void
      */
     public function startTransaction()
