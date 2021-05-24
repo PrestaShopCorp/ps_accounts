@@ -138,7 +138,7 @@ class ShopTokenRepository
     {
         $response = $this->accountsClient->verifyToken($idToken);
 
-        if ($response && true == $response['status']) {
+        if ($response && true === $response['status']) {
             return $this->parseToken($idToken);
         }
 
@@ -156,10 +156,10 @@ class ShopTokenRepository
     {
         $response = $this->accountsClient->refreshToken($refreshToken);
 
-        if ($response && true == $response['status']) {
+        if ($response && true === $response['status']) {
             return $this->parseToken($response['body']['token']);
         }
-        throw new RefreshTokenException('Unable to refresh shop token : ' . $response['httpCode'] . ' ' . $response['body']['message']);
+        throw new RefreshTokenException('Unable to refresh shop token : ' . $response['httpCode'] . ' ' . print_r($response['body']['message'], true));
     }
 
     /**

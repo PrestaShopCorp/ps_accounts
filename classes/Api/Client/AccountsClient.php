@@ -140,7 +140,7 @@ class AccountsClient extends GenericClient
 
         return $this->post([
             'json' => [
-                'refreshToken' => $refreshToken,
+                'token' => $refreshToken,
             ],
         ]);
     }

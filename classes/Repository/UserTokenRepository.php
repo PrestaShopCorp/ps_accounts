@@ -58,13 +58,16 @@ class UserTokenRepository
     /**
      * Get the user firebase token.
      *
+     * @param bool $forceRefresh
+     *
      * @return Token|null
      *
+     * @throws RefreshTokenException
      * @throws \Exception
      */
-    public function getOrRefreshToken()
+    public function getOrRefreshToken($forceRefresh = false)
     {
-        if ($this->isTokenExpired()) {
+        if (true === $forceRefresh || $this->isTokenExpired()) {
             $refreshToken = $this->getRefreshToken();
             $this->updateCredentials(
                 (string) $this->refreshToken($refreshToken),
@@ -87,7 +90,7 @@ class UserTokenRepository
     {
         $response = $this->ssoClient->verifyToken($idToken);
 
-        if ($response && true == $response['status']) {
+        if ($response && true === $response['status']) {
             return $this->parseToken($idToken);
         }
 
@@ -105,10 +108,10 @@ class UserTokenRepository
     {
         $response = $this->ssoClient->refreshToken($refreshToken);
 
-        if ($response && true == $response['status']) {
+        if ($response && true === $response['status']) {
             return $this->parseToken($response['body']['idToken']);
         }
-        throw new RefreshTokenException('Unable to refresh user token : ' . $response['httpCode'] . ' ' . $response['body']['message']);
+        throw new RefreshTokenException('Unable to refresh user token : ' . $response['httpCode'] . ' ' . print_r($response['body']['message'], true));
     }
 
     /**
@@ -143,6 +146,26 @@ class UserTokenRepository
     {
         //return $this->getToken()->claims()->get('user_id');
         return $this->configuration->getFirebaseEmail();
+    }
+
+    /**
+     * @return bool
+     *
+     * @throws \Exception
+     */
+    public function getTokenEmailVerified()
+    {
+        $token = $this->getToken();
+
+        // FIXME : just query sso api and don't refresh token everytime
+        if (null === $token || !$token->claims()->get('email_verified')) {
+            try {
+                $token = $this->getOrRefreshToken(true);
+            } catch (RefreshTokenException $e) {
+            }
+        }
+
+        return null !== $token ? (bool) $token->claims()->get('email_verified') : false;
     }
 
     /**
