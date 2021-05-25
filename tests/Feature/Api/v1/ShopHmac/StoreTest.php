@@ -18,7 +18,7 @@ class StoreTest extends FeatureTestCase
     {
         $payload = [
             'shop_id' => 1,
-            'hmac' => base64_encode((string) (new Hmac\Sha256())->createHash('foo', new Key('bar'))),
+            'hmacfoo' => base64_encode((string) (new Hmac\Sha256())->createHash('foo', new Key('bar'))),
         ];
 
         $response = $this->client->post('/module/ps_accounts/apiV1ShopHmac', [
