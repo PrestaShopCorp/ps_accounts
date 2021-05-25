@@ -84,9 +84,8 @@ jobs:
       - name: Install dependencies
         run: composer install
 
-      - name: PHPUnit PrestaShop latest
-        run: |
-          PS_VERSION="latest" make phpunit
+      - name: PHPUnit tests
+        run: composer test
 
   header-stamp:
     name: Check license headers
