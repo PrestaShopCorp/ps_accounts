@@ -72,7 +72,8 @@ class ShopProvider
             'psVersion' => _PS_VERSION_,
 
             // LinkAccount
-            'publicKey' => $configuration->getAccountsRsaPublicKey(),
+            'uuid' => $configuration->getShopUuid() ?: null,
+            'publicKey' => $configuration->getAccountsRsaPublicKey() ?: null,
             'employeeId' => (int) $configuration->getEmployeeId() ?: null,
 
             'url' => $this->link->getAdminLink(
@@ -116,7 +117,8 @@ class ShopProvider
                     'domainSsl' => $shopData['domain_ssl'],
 
                     // LinkAccount
-                    'publicKey' => $configuration->getAccountsRsaPublicKey(),
+                    'uuid' => $configuration->getShopUuid() ?: null,
+                    'publicKey' => $configuration->getAccountsRsaPublicKey() ?: null,
                     'employeeId' => (int) $configuration->getEmployeeId() ?: null,
 
                     'url' => $this->link->getAdminLink(
