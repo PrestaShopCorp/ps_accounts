@@ -2,7 +2,8 @@
 
 namespace PrestaShop\Module\PsAccounts\Tests\Unit\Service\PsAccountsService;
 
-use PrestaShop\Module\PsAccounts\Repository\ConfigurationRepository;
+use PrestaShop\Module\PsAccounts\Repository\ShopTokenRepository;
+use PrestaShop\Module\PsAccounts\Repository\UserTokenRepository;
 use PrestaShop\Module\PsAccounts\Service\PsAccountsService;
 use PrestaShop\Module\PsAccounts\Tests\TestCase;
 
@@ -10,13 +11,17 @@ class IsEmailValidatedTest extends TestCase
 {
     /**
      * @test
+     *
+     * @throws \Exception
      */
     public function itShouldReturnTrue()
     {
-        /** @var ConfigurationRepository $configuration */
-        $configuration = $this->module->getService(ConfigurationRepository::class);
+        /** @var UserTokenRepository $tokenRepos */
+        $tokenRepos = $this->module->getService(UserTokenRepository::class);
 
-        $configuration->updateFirebaseEmailIsVerified(1);
+        $token = $this->makeFirebaseToken(null, ['email_verified' => true]);
+
+        $tokenRepos->updateCredentials($token, base64_encode($this->faker->name));
 
         /** @var PsAccountsService $service */
         $service = $this->module->getService(PsAccountsService::class);
@@ -26,13 +31,18 @@ class IsEmailValidatedTest extends TestCase
 
     /**
      * @test
+     *
+     * @throws \Exception
      */
     public function itShouldReturnFalse()
     {
-        /** @var ConfigurationRepository $configuration */
-        $configuration = $this->module->getService(ConfigurationRepository::class);
+        /** @var UserTokenRepository $tokenRepos */
+        $tokenRepos = $this->module->getService(UserTokenRepository::class);
 
-        $configuration->updateFirebaseEmailIsVerified(0);
+        $tokenRepos->updateCredentials(
+            $this->makeFirebaseToken(null, ['email_verified' => false]),
+            base64_encode($this->faker->name)
+        );
 
         /** @var PsAccountsService $service */
         $service = $this->module->getService(PsAccountsService::class);

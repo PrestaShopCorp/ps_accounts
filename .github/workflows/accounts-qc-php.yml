@@ -62,6 +62,7 @@ jobs:
           NEON_FILE=${{steps.neon.outputs.filename}} \
           make phpstan
 
+
   phpunit:
     name: PHPUNIT
     runs-on: ubuntu-latest
@@ -84,7 +85,7 @@ jobs:
       - name: Install dependencies
         run: composer install
 
-      - name: PHPUnit PrestaShop latest
+      - name: PHPUnit tests
         run: |
           PS_VERSION="latest" make phpunit
 

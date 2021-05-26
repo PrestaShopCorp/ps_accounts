@@ -145,6 +145,19 @@ class PsAccountsService
     }
 
     /**
+     * @return bool
+     *
+     * @throws \Exception
+     */
+    public function isAccountLinkedV4()
+    {
+        /** @var ShopLinkAccountService $shopLinkAccountService */
+        $shopLinkAccountService = $this->module->getService(ShopLinkAccountService::class);
+
+        return $shopLinkAccountService->isAccountLinkedV4();
+    }
+
+    /**
      * Generate ajax admin link with token
      * available via PsAccountsPresenter into page dom,
      * ex :

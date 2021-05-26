@@ -18,13 +18,15 @@
  * International Registered Trademark & Property of PrestaShop SA
  */
 
-namespace PrestaShop\Module\PsAccounts\Tests\Unit\Repository\ShopTokenRepository;
+namespace PrestaShop\Module\PsAccounts\Tests\Unit\Repository\UserTokenRepository;
 
 use Lcobucci\JWT\Token;
 use PrestaShop\Module\PsAccounts\Api\Client\AccountsClient;
+use PrestaShop\Module\PsAccounts\Api\Client\SsoClient;
 use PrestaShop\Module\PsAccounts\Exception\RefreshTokenException;
 use PrestaShop\Module\PsAccounts\Repository\ConfigurationRepository;
 use PrestaShop\Module\PsAccounts\Repository\ShopTokenRepository;
+use PrestaShop\Module\PsAccounts\Repository\UserTokenRepository;
 use PrestaShop\Module\PsAccounts\Tests\TestCase;
 
 class RefreshTokenTest extends TestCase
@@ -38,6 +40,7 @@ class RefreshTokenTest extends TestCase
     {
         $idToken = $this->makeJwtToken(new \DateTimeImmutable('yesterday'), [
             'user_id' => $this->faker->uuid,
+            'email' => $this->faker->safeEmail,
         ]);
 
         $idTokenRefreshed = $this->makeJwtToken(new \DateTimeImmutable('tomorrow'));
@@ -47,23 +50,20 @@ class RefreshTokenTest extends TestCase
         /** @var ConfigurationRepository $configuration */
         $configuration = $this->module->getService(ConfigurationRepository::class);
 
-        /** @var AccountsClient $accountsClient */
-        $accountsClient = $this->createMock(AccountsClient::class);
+        /** @var SsoClient $ssoClient */
+        $ssoClient = $this->createMock(SsoClient::class);
 
-        $accountsClient->method('refreshToken')
+        $ssoClient->method('refreshToken')
             ->willReturn([
                 'httpCode' => 200,
                 'status' => true,
                 'body' => [
-                    'token' => $idTokenRefreshed,
-                    'refresh_token' => $refreshToken,
+                    'idToken' => $idTokenRefreshed,
+                    'refreshToken' => $refreshToken,
                 ],
             ]);
 
-        $tokenRepos = new ShopTokenRepository(
-            $accountsClient,
-            $configuration
-        );
+        $tokenRepos = new UserTokenRepository($ssoClient, $configuration);
 
         $tokenRepos->updateCredentials((string) $idToken, (string) $refreshToken);
 
@@ -83,6 +83,7 @@ class RefreshTokenTest extends TestCase
 
         $idToken = $this->makeJwtToken(new \DateTimeImmutable('tomorrow'), [
             'user_id' => $this->faker->uuid,
+            'email' => $this->faker->safeEmail,
         ]);
 
         $refreshToken = $this->makeJwtToken(new \DateTimeImmutable('+1 year'));
@@ -90,10 +91,10 @@ class RefreshTokenTest extends TestCase
         /** @var ConfigurationRepository $configuration */
         $configuration = $this->module->getService(ConfigurationRepository::class);
 
-        /** @var AccountsClient $accountsClient */
-        $accountsClient = $this->createMock(AccountsClient::class);
+        /** @var SsoClient $ssoClient */
+        $ssoClient = $this->createMock(SsoClient::class);
 
-        $accountsClient->method('refreshToken')
+        $ssoClient->method('refreshToken')
             ->willReturn([
                 'httpCode' => 500,
                 'status' => false,
@@ -102,7 +103,7 @@ class RefreshTokenTest extends TestCase
                 ]
             ]);
 
-        $tokenRepos = new ShopTokenRepository($accountsClient, $configuration);
+        $tokenRepos = new UserTokenRepository($ssoClient, $configuration);
 
         $tokenRepos->updateCredentials((string) $idToken, (string) $refreshToken);
 

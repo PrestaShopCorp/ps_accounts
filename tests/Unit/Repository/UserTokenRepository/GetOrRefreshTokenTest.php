@@ -1,10 +1,10 @@
 <?php
 
-namespace PrestaShop\Module\PsAccounts\Tests\Unit\Repository\ShopTokenRepository;
+namespace PrestaShop\Module\PsAccounts\Tests\Unit\Repository\UserTokenRepository;
 
-use PrestaShop\Module\PsAccounts\Api\Client\AccountsClient;
+use PrestaShop\Module\PsAccounts\Api\Client\SsoClient;
 use PrestaShop\Module\PsAccounts\Repository\ConfigurationRepository;
-use PrestaShop\Module\PsAccounts\Repository\ShopTokenRepository;
+use PrestaShop\Module\PsAccounts\Repository\UserTokenRepository;
 use PrestaShop\Module\PsAccounts\Tests\TestCase;
 
 class GetOrRefreshTokenTest extends TestCase
@@ -18,16 +18,17 @@ class GetOrRefreshTokenTest extends TestCase
     {
         $idToken = $this->makeJwtToken(new \DateTimeImmutable('tomorrow'), [
             'user_id' => $this->faker->uuid,
+            'email' => $this->faker->safeEmail,
         ]);
 
         $refreshToken = $this->makeJwtToken(new \DateTimeImmutable('+1 year'));
 
-        /** @var ShopTokenRepository $service */
-        $service = $this->module->getService(ShopTokenRepository::class);
+        /** @var UserTokenRepository $tokenRepos */
+        $tokenRepos = $this->module->getService(UserTokenRepository::class);
 
-        $service->updateCredentials((string) $idToken, (string) $refreshToken);
+        $tokenRepos->updateCredentials((string) $idToken, (string) $refreshToken);
 
-        $this->assertEquals((string) $idToken, $service->getOrRefreshToken());
+        $this->assertEquals((string) $idToken, $tokenRepos->getOrRefreshToken());
     }
 
     /**
@@ -39,29 +40,31 @@ class GetOrRefreshTokenTest extends TestCase
     {
         $idToken = $this->makeJwtToken(new \DateTimeImmutable('yesterday'), [
             'user_id' => $this->faker->uuid,
+            'email' => $this->faker->safeEmail,
         ]);
 
         $idTokenRefreshed = $this->makeJwtToken(new \DateTimeImmutable('tomorrow'));
 
         $refreshToken = $this->makeJwtToken(new \DateTimeImmutable('+1 year'));
 
-        /** @var AccountsClient $accountsClient */
-        $accountsClient = $this->createMock(AccountsClient::class);
+        /** @var SsoClient $ssoClient */
+        $ssoClient = $this->createMock(SsoClient::class);
 
-        $accountsClient->method('refreshToken')
+        $ssoClient->method('refreshToken')
             ->willReturn([
                 'httpCode' => 200,
                 'status' => true,
                 'body' => [
-                    'token' => $idTokenRefreshed,
-                    'refresh_token' => $refreshToken,
+                    'idToken' => $idTokenRefreshed,
+                    'refreshToken' => $refreshToken,
                 ],
             ]);
 
         /** @var ConfigurationRepository $configuration */
         $configuration = $this->module->getService(ConfigurationRepository::class);
 
-        $tokenRepos = new ShopTokenRepository($accountsClient, $configuration);
+        /** @var UserTokenRepository $tokenRepos */
+        $tokenRepos = new UserTokenRepository($ssoClient, $configuration);
 
         $tokenRepos->updateCredentials((string) $idToken, (string) $refreshToken);
 
