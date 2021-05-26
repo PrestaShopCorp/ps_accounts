@@ -87,7 +87,7 @@ jobs:
 
       - name: PHPUnit tests
         run: |
-          make phpunit
+          PS_VERSION="latest" make phpunit
 
   header-stamp:
     name: Check license headers
