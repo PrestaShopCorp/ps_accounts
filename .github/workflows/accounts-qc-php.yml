@@ -62,6 +62,7 @@ jobs:
           NEON_FILE=${{steps.neon.outputs.filename}} \
           make phpstan
 
+
   phpunit:
     name: PHPUNIT
     runs-on: ubuntu-latest
@@ -85,7 +86,8 @@ jobs:
         run: composer install
 
       - name: PHPUnit tests
-        run: composer test
+        run: |
+          make phpunit
 
   header-stamp:
     name: Check license headers
