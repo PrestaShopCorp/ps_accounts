@@ -41,7 +41,7 @@
         "set-license-header": [
             "@php ./vendor/bin/header-stamp --license=\"assets/afl.txt\" --exclude=\".github,node_modules,vendor,vendor,tests,_dev\""
         ],
-        "test": "./vendor/bin/phpunit --configuration './phpunit.xml' --bootstrap './tests/bootstrap.php' --test-suffix 'Test.php,.phpt'",
+        "test": "./vendor/bin/phpunit --configuration './phpunit.xml' --bootstrap './tests/bootstrap.php' --test-suffix 'Test.php,.phpt'"
     },
     "author": "PrestaShop",
     "license": "AFL-3.0"
