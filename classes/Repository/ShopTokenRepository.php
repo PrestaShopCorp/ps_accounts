@@ -25,6 +25,7 @@ use Lcobucci\JWT\Token;
 use Lcobucci\JWT\Token\InvalidTokenStructure;
 use PrestaShop\Module\PsAccounts\Api\Client\AccountsClient;
 use PrestaShop\Module\PsAccounts\Exception\RefreshTokenException;
+use PrestaShop\Module\PsAccounts\Handler\Error\Sentry;
 
 class ShopTokenRepository
 {
@@ -53,22 +54,24 @@ class ShopTokenRepository
     }
 
     /**
-     * Get the user firebase token.
+     * @param bool $forceRefresh
      *
      * @return Token|null
      *
      * @throws \Exception
      */
-    public function getOrRefreshToken()
+    public function getOrRefreshToken($forceRefresh = false)
     {
-        if (
-            $this->configuration->hasFirebaseRefreshToken()
-            && $this->isTokenExpired()
-        ) {
+        if (true === $forceRefresh || $this->isTokenExpired()) {
             $refreshToken = $this->getRefreshToken();
-            $this->configuration->updateFirebaseIdAndRefreshTokens(
-                $this->refreshToken($refreshToken), $refreshToken
-            );
+            try {
+                $this->updateCredentials(
+                    (string) $this->refreshToken($refreshToken),
+                    $refreshToken
+                );
+            } catch (RefreshTokenException $e) {
+                Sentry::capture($e);
+            }
         }
 
         return $this->getToken();
