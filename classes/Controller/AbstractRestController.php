@@ -27,6 +27,7 @@ use PrestaShop\Module\PsAccounts\Exception\Http\HttpException;
 use PrestaShop\Module\PsAccounts\Exception\Http\UnauthorizedException;
 use PrestaShop\Module\PsAccounts\Handler\Error\Sentry;
 use PrestaShop\Module\PsAccounts\Provider\RsaKeysProvider;
+use PrestaShop\Module\PsAccounts\Repository\ConfigurationRepository;
 
 abstract class AbstractRestController extends \ModuleFrontController implements RestControllerInterface
 {
@@ -236,6 +237,10 @@ abstract class AbstractRestController extends \ModuleFrontController implements 
         if ($jwtString) {
             $jwt = (new Parser())->parse($jwtString);
 
+            if ($jwt->claims()->has('shop_id')) {
+                $this->setConfigurationShopId((int) $jwt->claims()->get('shop_id'));
+            }
+
             if (true === $jwt->verify(new Sha256(), new Key($shopKeysService->getPublicKey()))) {
                 return $jwt->claims()->all();
             }
@@ -260,5 +265,19 @@ abstract class AbstractRestController extends \ModuleFrontController implements 
         }
 
         return null;
+    }
+
+    /**
+     * @param int $shopId
+     *
+     * @return void
+     *
+     * @throws \Exception
+     */
+    protected function setConfigurationShopId($shopId)
+    {
+        /** @var ConfigurationRepository $conf */
+        $conf = $this->module->getService(ConfigurationRepository::class);
+        $conf->setShopId($shopId);
     }
 }

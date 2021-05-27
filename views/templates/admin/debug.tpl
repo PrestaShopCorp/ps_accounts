@@ -47,7 +47,7 @@
             url: '{$config.unlinkShopUrl}',
             dataType: 'json',
             success: function (response) {
-                $('.unlink-message').html('The shop (with uid : ' + response.uid + ') has been successfully unlinked.');
+                $('.unlink-message').html('The shop has been successfully unlinked.');
                 $('.unlink-shop').hide();
             },
             error: function (response) {
