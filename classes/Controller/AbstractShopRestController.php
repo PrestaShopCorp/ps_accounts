@@ -21,7 +21,6 @@
 namespace PrestaShop\Module\PsAccounts\Controller;
 
 use PrestaShop\Module\PsAccounts\Exception\Http\NotFoundException;
-use PrestaShop\Module\PsAccounts\Repository\ConfigurationRepository;
 use Shop;
 
 class AbstractShopRestController extends AbstractRestController
@@ -46,22 +45,6 @@ class AbstractShopRestController extends AbstractRestController
             throw new NotFoundException('Shop not found [' . $id . ']');
         }
 
-        $this->setConfigurationShopId($shop->id);
-
         return $shop;
-    }
-
-    /**
-     * @param int $shopId
-     *
-     * @return void
-     *
-     * @throws \Exception
-     */
-    protected function setConfigurationShopId($shopId)
-    {
-        /** @var ConfigurationRepository $conf */
-        $conf = $this->module->getService(ConfigurationRepository::class);
-        $conf->setShopId($shopId);
     }
 }
