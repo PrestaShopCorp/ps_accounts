@@ -18,25 +18,15 @@
  *-->
 <template>
   <b-container class="m-auto p-0" id="config-information">
-    <div class="d-flex">
-      <b-col sm="4" md="4" lg="4" class="p-16 m-auto text-center">
-        <img src="@/assets/prestashop-logo.png" width="300" />
+    <div class="d-flex col-left">
+      <b-col sm="4" md="4" lg="4" class="p-16 m-auto text-center d-flex">
+        <img src="@/assets/prestashop-logo.png" width="60" height="60" />
+        <h1><span class="white-text">Prestashop</span> Account</h1>
       </b-col>
 
-      <b-col sm="8" md="8" lg="8" class="p-4">
-        <h1>{{ $t("configure.incentivePanel.title") }}</h1>
+      <b-col sm="8" md="8" lg="8" class="col-right py-5">
         <section>
-          <div v-if="'settings' === app">
             <h2>{{ $t("configure.incentivePanel.howTo") }}</h2>
-            <p>
-              <!--span class="material-icons">check_circle</span-->
-              {{ $t("configure.incentivePanel.createPsAccount") }}
-            </p>
-            <p>
-              <!--span class="material-icons">check_circle</span-->
-              {{ $t("configure.incentivePanel.linkPsAccount") }}
-            </p>
-          </div>
         </section>
       </b-col>
     </div>
@@ -58,37 +48,34 @@ export default {
 
 <style lang="scss">
 #config-information {
-  background-color: #fff;
+  background-color: #011638;
+  border-radius: 10px;
 
-  h1 {
-    font-size: 18px;
-  }
-  h2 {
-    font-size: 16px;
-  }
-  img {
-    max-width: 100%;
-  }
-  .material-icons {
-    color: #4cbb6c;
-  }
-  section {
-    margin-left: 30px;
-    ul {
-      padding-left: 15px;
-      color: #6c868e;
+  .col-left > .d-flex {
+    @apply items-center justify-center;
 
-      li {
-        padding-left: 10px;
-        line-height: 26px;
+    h1 {
+      font-size: 16px;
+      color: #6B868F;
+      @apply font-light my-0 mx-2;
+
+      span.white-text {
+        @apply text-white font-bold;
       }
     }
-    .dashboard-app {
-      text-align: center;
 
-      .btn-primary {
-        color: #fff !important;
-      }
+    img {
+      max-width: 100%;
+    }
+  }
+  div.col-right {
+    padding-left: 16%;
+    @apply pr-2;
+
+    > section
+    h2 {
+      font-size: 22px;
+      @apply text-white font-bold mb-0;
     }
   }
 }
