@@ -25,9 +25,7 @@
       </b-col>
 
       <b-col sm="8" md="8" lg="8" class="col-right py-5">
-        <section>
-            <h2>{{ $t("configure.incentivePanel.howTo") }}</h2>
-        </section>
+        <h2>{{ $t("configure.incentivePanel.howTo") }}</h2>
       </b-col>
     </div>
   </b-container>
@@ -52,7 +50,7 @@ export default {
   border-radius: 10px;
 
   .col-left > .d-flex {
-    @apply items-center justify-center;
+    @apply items-center justify-start pl-16;
 
     h1 {
       font-size: 16px;
@@ -69,12 +67,11 @@ export default {
     }
   }
   div.col-right {
-    padding-left: 16%;
-    @apply pr-2;
+    @apply flex justify-end pr-16;
 
-    > section
     h2 {
       font-size: 22px;
+      max-width: 50%;
       @apply text-white font-bold mb-0;
     }
   }
