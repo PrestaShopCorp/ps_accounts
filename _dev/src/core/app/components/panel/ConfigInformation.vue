@@ -53,7 +53,7 @@ export default {
     @apply items-center justify-start pl-16;
 
     h1 {
-      font-size: 16px;
+      font-size: 18px;
       color: #6B868F;
       @apply font-light my-0 mx-2;
 
