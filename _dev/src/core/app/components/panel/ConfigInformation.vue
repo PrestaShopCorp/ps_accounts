@@ -47,7 +47,7 @@ export default {
 <style lang="scss">
 #config-information {
   background-color: #011638;
-  border-radius: 10px;
+  @apply rounded;
 
   .col-left > .d-flex {
     @apply items-center justify-start pl-16;
