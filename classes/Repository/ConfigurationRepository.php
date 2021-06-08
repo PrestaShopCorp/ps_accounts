@@ -326,4 +326,40 @@ class ConfigurationRepository
     {
         $this->configuration->set(Configuration::PS_ACCOUNTS_USER_FIREBASE_REFRESH_TOKEN, $refreshToken);
     }
+
+    /**
+     * specify id_shop & id_shop_group for shop #1
+     *
+     * @return void
+     */
+    public function migrateToMultiShop()
+    {
+        // FIXME : read from Database
+        $shopId = 1;
+        $shopGroupId = 1;
+
+        \Db::getInstance()->query(
+            "UPDATE " . _DB_PREFIX_ . "configuration SET id_shop=$shopId, id_shop_group=$shopGroupId"
+            ." WHERE (name like 'PS_ACCOUNTS_%' OR name IN ('PS_CHECKOUT_SHOP_UUID_V4', 'PSX_UUID_V4'))"
+            . " AND id_shop IS NULL AND id_shop_group IS NULL"
+        );
+    }
+
+    /**
+     * nullify id_shop & id_shop_group for shop #1
+     *
+     * @return void
+     */
+    public function migrateToSingleShop()
+    {
+        // FIXME : read from Database
+        $shopId = 1;
+        $shopGroupId = 1;
+
+        \Db::getInstance()->query(
+            "UPDATE " . _DB_PREFIX_ . "configuration SET id_shop=NULL, id_shop_group=NULL"
+            ." WHERE (name like 'PS_ACCOUNTS_%' OR name IN ('PS_CHECKOUT_SHOP_UUID_V4', 'PSX_UUID_V4'))"
+            . " AND id_shop=$shopId AND id_shop_group=$shopGroupId"
+        );
+    }
 }

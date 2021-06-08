@@ -46,7 +46,9 @@ class Ps_accounts extends Module
      * @var array
      */
     private $hookToInstall = [
-        'actionObjectShopUrlUpdateAfter',
+        //'displayBackOfficeHeader',
+        'actionObjectShopAddAfter',
+        'actionObjectShopDeleteAfter',
         //'addWebserviceResources',
     ];
 
@@ -103,8 +105,6 @@ class Ps_accounts extends Module
             'ajax' => 'AdminAjaxPsAccounts',
             'debug' => 'AdminDebugPsAccounts',
         ];
-
-        $this->getLogger()->info('Loading ' . $this->name . ' Env : [' . $this->getModuleEnv() . ']');
     }
 
     /**
@@ -162,6 +162,8 @@ class Ps_accounts extends Module
 
         // Ignore fail on ps_eventbus install
         $this->moduleInstaller->installModule('ps_eventbus');
+
+        $this->getLogger()->info('Install - Loading ' . $this->name . ' Env : [' . $this->getModuleEnv() . ']');
 
         return $status;
     }
@@ -235,110 +237,50 @@ class Ps_accounts extends Module
      * Hook executed on every backoffice pages
      * Used in order to listen changes made to the AdminMeta controller
      *
-     * @since 1.6
-     * @deprecated since 1.7.6
-     *
      * @param array $params
      *
      * @return bool
      *
-     * @throws \Exception
+     * @throws Exception
+     *
+     * @deprecated since 1.7.6
+     *
+     * @since 1.6
      */
     public function hookDisplayBackOfficeHeader($params)
     {
-        // Add a limitation in order to execute the code only if we are on the AdminMeta controller
-        if ($this->context->controller->controller_name !== 'AdminMeta') {
-            return false;
+        if ($this->context->controller->controller_name === 'AdminPreferences') {
+            $this->switchConfigMultishopMode();
         }
-
-        // If multishop is enable don't continue
-        if (true === \Shop::isFeatureActive()) {
-            return false;
-        }
-
-        // If a changes is make to the meta form
-        if (Tools::isSubmit('submitOptionsmeta')) {
-            $domain = Tools::getValue('domain'); // new domain to update
-            $domainSsl = Tools::getValue('domain_ssl'); // new domain with ssl - needed ?
-
-            $bodyHttp = [
-                'params' => $params,
-                'domain' => $domain,
-                'domain_ssl' => $domainSsl,
-            ];
-
-            /** @var \PrestaShop\Module\PsAccounts\Service\ShopLinkAccountService $shopLinkAccountService */
-            $shopLinkAccountService = $this->getService(
-                \PrestaShop\Module\PsAccounts\Service\ShopLinkAccountService::class
-            );
-
-            //$shopLinkAccountService->updateShopUrl($bodyHttp, '1.6');
-        }
-
-        return true;
     }
 
     /**
-     * Hook executed when performing some changes to the meta page and save them
-     *
-     * @since 1.7.6
-     *
-     * @param array $params
-     *
-     * @return bool
-     *
-     * @throws \Exception
-     */
-    public function hookActionMetaPageSave($params)
-    {
-        // If multishop is enable don't continue
-        if (true === \Shop::isFeatureActive()) {
-            return false;
-        }
-
-        $bodyHttp = [
-            'params' => $params,
-            'domain' => $params['form_data']['shop_urls']['domain'],
-            'domain_ssl' => $params['form_data']['shop_urls']['domain_ssl'],
-        ];
-
-        /** @var \PrestaShop\Module\PsAccounts\Service\ShopLinkAccountService $shopLinkAccountService */
-        $shopLinkAccountService = $this->getService(
-            \PrestaShop\Module\PsAccounts\Service\ShopLinkAccountService::class
-        );
-
-        //$shopLinkAccountService->updateShopUrl($bodyHttp, '1.7.6');
-
-        return true;
-    }
-
-    /**
-     * Hook trigger when a change is made on the domain name
-     *
      * @param array $params
      *
      * @return bool
      *
      * @throws Exception
      */
-    public function hookActionObjectShopUrlUpdateAfter($params)
+    public function hookActionObjectShopAddAfter($params)
     {
-        $bodyHttp = [
-            'params' => $params,
-            'domain' => $params['object']->domain,
-            'domain_ssl' => $params['object']->domain_ssl,
-            'shop_id' => $params['object']->id_shop,
-            'main' => $params['object']->main,
-            'active' => $params['object']->active,
-        ];
+        if ($this->context->controller->controller_name === 'AdminShop') {
+            $this->switchConfigMultishopMode();
+        }
+        return true;
+    }
 
-        /** @var \PrestaShop\Module\PsAccounts\Service\ShopLinkAccountService $shopLinkAccountService */
-        $shopLinkAccountService = $this->getService(
-            \PrestaShop\Module\PsAccounts\Service\ShopLinkAccountService::class
-        );
-
-        //$shopLinkAccountService->updateShopUrl($bodyHttp, 'multishop');
-
+    /**
+     * @param array $params
+     *
+     * @return bool
+     *
+     * @throws Exception
+     */
+    public function hookActionObjectShopDeleteAfter($params)
+    {
+        if ($this->context->controller->controller_name === 'AdminShop') {
+            $this->switchConfigMultishopMode();
+        }
         return true;
     }
 
@@ -412,5 +354,25 @@ class Ps_accounts extends Module
         $langIsoCode = $this->getContext()->language->iso_code;
 
         return $url . '?lang=' . substr($langIsoCode, 0, 2);
+    }
+
+    /**
+     * @return void
+     *
+     * @throws Exception
+     */
+    private function switchConfigMultishopMode()
+    {
+        /** @var \PrestaShop\Module\PsAccounts\Repository\ConfigurationRepository $config */
+        $config = $this->getService(\PrestaShop\Module\PsAccounts\Repository\ConfigurationRepository::class);
+
+        /** @var \PrestaShop\Module\PsAccounts\Context\ShopContext $shopContext */
+        $shopContext = $this->getService(\PrestaShop\Module\PsAccounts\Context\ShopContext::class);
+
+        if ($shopContext->isMultishopActive()) {
+            $config->migrateToMultiShop();
+        } else {
+            $config->migrateToSingleShop();
+        }
     }
 }
