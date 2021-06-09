@@ -337,9 +337,9 @@ class ConfigurationRepository
     public function migrateToMultiShop(\Shop $shop)
     {
         \Db::getInstance()->query(
-            "UPDATE " . _DB_PREFIX_ . "configuration SET id_shop=$shop->id, id_shop_group=$shop->id_shop_group"
-            ." WHERE (name like 'PS_ACCOUNTS_%' OR name IN ('PS_CHECKOUT_SHOP_UUID_V4', 'PSX_UUID_V4'))"
-            . " AND id_shop IS NULL AND id_shop_group IS NULL"
+            'UPDATE ' . _DB_PREFIX_ . "configuration SET id_shop=$shop->id, id_shop_group=$shop->id_shop_group"
+            . " WHERE (name like 'PS_ACCOUNTS_%' OR name IN ('PS_CHECKOUT_SHOP_UUID_V4', 'PSX_UUID_V4'))"
+            . ' AND id_shop IS NULL AND id_shop_group IS NULL'
         );
     }
 
@@ -353,8 +353,8 @@ class ConfigurationRepository
     public function migrateToSingleShop(\Shop $shop)
     {
         \Db::getInstance()->query(
-            "UPDATE " . _DB_PREFIX_ . "configuration SET id_shop=NULL, id_shop_group=NULL"
-            ." WHERE (name like 'PS_ACCOUNTS_%' OR name IN ('PS_CHECKOUT_SHOP_UUID_V4', 'PSX_UUID_V4'))"
+            'UPDATE ' . _DB_PREFIX_ . 'configuration SET id_shop=NULL, id_shop_group=NULL'
+            . " WHERE (name like 'PS_ACCOUNTS_%' OR name IN ('PS_CHECKOUT_SHOP_UUID_V4', 'PSX_UUID_V4'))"
             . " AND id_shop=$shop->id AND id_shop_group=$shop->id_shop_group"
         );
     }

@@ -244,7 +244,6 @@ class Ps_accounts extends Module
      * @throws Exception
      *
      * @deprecated since 1.7.6
-     *
      * @since 1.6
      */
     public function hookDisplayBackOfficeHeader($params)
@@ -266,6 +265,7 @@ class Ps_accounts extends Module
         if ($this->context->controller->controller_name === 'AdminShop') {
             $this->switchConfigMultishopMode();
         }
+
         return true;
     }
 
@@ -281,6 +281,7 @@ class Ps_accounts extends Module
         if ($this->context->controller->controller_name === 'AdminShop') {
             $this->switchConfigMultishopMode();
         }
+
         return true;
     }
 
