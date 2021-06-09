@@ -46,7 +46,6 @@ class Ps_accounts extends Module
      * @var array
      */
     private $hookToInstall = [
-        //'displayBackOfficeHeader',
         'actionObjectShopAddAfter',
         'actionObjectShopDeleteAfter',
         //'addWebserviceResources',
@@ -232,26 +231,6 @@ class Ps_accounts extends Module
 //        }
 //        return $this->container->get($serviceName);
 //    }
-
-    /**
-     * Hook executed on every backoffice pages
-     * Used in order to listen changes made to the AdminMeta controller
-     *
-     * @param array $params
-     *
-     * @return bool
-     *
-     * @throws Exception
-     *
-     * @deprecated since 1.7.6
-     * @since 1.6
-     */
-    public function hookDisplayBackOfficeHeader($params)
-    {
-        if ($this->context->controller->controller_name === 'AdminPreferences') {
-            $this->switchConfigMultishopMode();
-        }
-    }
 
     /**
      * @param array $params
