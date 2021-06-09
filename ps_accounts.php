@@ -370,9 +370,9 @@ class Ps_accounts extends Module
         $shopContext = $this->getService(\PrestaShop\Module\PsAccounts\Context\ShopContext::class);
 
         if ($shopContext->isMultishopActive()) {
-            $config->migrateToMultiShop();
+            $config->migrateToMultiShop(new \Shop(1));
         } else {
-            $config->migrateToSingleShop();
+            $config->migrateToSingleShop(new \Shop(1));
         }
     }
 }
