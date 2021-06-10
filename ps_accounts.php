@@ -236,7 +236,7 @@ class Ps_accounts extends Module
 //    }
 
     /**
-     * @param $params
+     * @param array $params
      *
      * @return void
      *
