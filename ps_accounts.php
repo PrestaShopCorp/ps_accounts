@@ -46,6 +46,7 @@ class Ps_accounts extends Module
      * @var array
      */
     private $hookToInstall = [
+        'displayBackOfficeHeader',
         'actionObjectShopAddAfter',
         'actionObjectShopDeleteAfter',
         //'addWebserviceResources',
@@ -162,6 +163,8 @@ class Ps_accounts extends Module
         // Ignore fail on ps_eventbus install
         $this->moduleInstaller->installModule('ps_eventbus');
 
+        $this->switchConfigMultishopMode();
+
         $this->getLogger()->info('Install - Loading ' . $this->name . ' Env : [' . $this->getModuleEnv() . ']');
 
         return $status;
@@ -231,6 +234,20 @@ class Ps_accounts extends Module
 //        }
 //        return $this->container->get($serviceName);
 //    }
+
+    /**
+     * @param $params
+     *
+     * @return void
+     *
+     * @throws Exception
+     */
+    public function hookDisplayBackOfficeHeader($params)
+    {
+        if ($this->context->controller->controller_name !== 'AdminPreferences') {
+            $this->switchConfigMultishopMode();
+        }
+    }
 
     /**
      * @param array $params
