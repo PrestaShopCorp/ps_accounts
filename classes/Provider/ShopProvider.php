@@ -67,6 +67,7 @@ class ShopProvider
             'name' => $shop['name'],
             'domain' => $shop['domain'],
             'domainSsl' => $shop['domain_ssl'],
+            'uri' => $shop['uri'],
             'multishop' => $this->shopContext->isMultishopActive(),
             'moduleName' => $psxName,
             'psVersion' => _PS_VERSION_,
@@ -115,6 +116,7 @@ class ShopProvider
                     'name' => $shopData['name'],
                     'domain' => $shopData['domain'],
                     'domainSsl' => $shopData['domain_ssl'],
+                    'uri' => $shopData['uri'],
 
                     // LinkAccount
                     'uuid' => $configuration->getShopUuid() ?: null,

@@ -126,23 +126,4 @@ class ps_AccountsApiV1ShopLinkAccountModuleFrontController extends AbstractShopR
             'message' => 'Link Account deleted successfully',
         ];
     }
-
-    /**
-     * @param Shop $shop
-     * @param array $payload
-     *
-     * @return array|void
-     *
-     * @throws Exception
-     */
-    public function show($shop, array $payload)
-    {
-        return [
-            'shop_token' => (string) $this->shopTokenRepository->getToken(),
-            'shop_refresh_token' => (string) $this->shopTokenRepository->getRefreshToken(),
-            'user_token' => (string) $this->userTokenRepository->getToken(),
-            'user_refresh_token' => (string) $this->userTokenRepository->getRefreshToken(),
-            'employee_id' => $this->configuration->getEmployeeId(),
-        ];
-    }
 }
