@@ -50,27 +50,22 @@ class ShopProvider
     }
 
     /**
+     * @param array $shopData
      * @param string $psxName
      *
      * @return array
-     *
-     * @throws \PrestaShopException
      */
-    public function getCurrentShop($psxName = '')
+    public function formatShopData($shopData, $psxName = '')
     {
-        $shop = \Shop::getShop($this->shopContext->getContext()->shop->id);
-
         $configuration = $this->shopContext->getConfiguration();
+        $configuration->setShopId($shopData['id_shop']);
 
-        return [
-            'id' => (string) $shop['id_shop'],
-            'name' => $shop['name'],
-            'domain' => $shop['domain'],
-            'domainSsl' => $shop['domain_ssl'],
-            'uri' => $shop['uri'],
-            'multishop' => $this->shopContext->isMultishopActive(),
-            'moduleName' => $psxName,
-            'psVersion' => _PS_VERSION_,
+        $data = [
+            'id' => (string) $shopData['id_shop'],
+            'name' => $shopData['name'],
+            'domain' => $shopData['domain'],
+            'domainSsl' => $shopData['domain_ssl'],
+            'physicalUri' => $this->getShopPhysicalUri($shopData['id_shop']),
 
             // LinkAccount
             'uuid' => $configuration->getShopUuid() ?: null,
@@ -83,10 +78,32 @@ class ShopProvider
                 [],
                 [
                     'configure' => $psxName,
-                    'setShopContext' => 's-' . $shop['id_shop'],
+                    'setShopContext' => 's-' . $shopData['id_shop'],
                 ]
             ),
         ];
+
+        $configuration->setShopId($this->shopContext->getContext()->shop->id);
+
+        return $data;
+    }
+
+    /**
+     * @param string $psxName
+     *
+     * @return array
+     *
+     * @throws \PrestaShopException
+     */
+    public function getCurrentShop($psxName = '')
+    {
+        $data = $this->formatShopData(\Shop::getShop($this->shopContext->getContext()->shop->id), $psxName);
+
+        return array_merge($data, [
+            'multishop' => $this->shopContext->isMultishopActive(),
+            'moduleName' => $psxName,
+            'psVersion' => _PS_VERSION_,
+        ]);
     }
 
     /**
@@ -100,39 +117,10 @@ class ShopProvider
     {
         $shopList = [];
 
-//        if (true === $this->shopContext->isShopContext()) {
-//            return $shopList;
-//        }
-
-        $configuration = $this->shopContext->getConfiguration();
-
         foreach (\Shop::getTree() as $groupId => $groupData) {
             $shops = [];
             foreach ($groupData['shops'] as $shopId => $shopData) {
-                $configuration->setShopId($shopId);
-
-                $shops[] = [
-                    'id' => (string) $shopId,
-                    'name' => $shopData['name'],
-                    'domain' => $shopData['domain'],
-                    'domainSsl' => $shopData['domain_ssl'],
-                    'uri' => $shopData['uri'],
-
-                    // LinkAccount
-                    'uuid' => $configuration->getShopUuid() ?: null,
-                    'publicKey' => $configuration->getAccountsRsaPublicKey() ?: null,
-                    'employeeId' => (int) $configuration->getEmployeeId() ?: null,
-
-                    'url' => $this->link->getAdminLink(
-                        'AdminModules',
-                        true,
-                        [],
-                        [
-                            'configure' => $psxName,
-                            'setShopContext' => 's-' . $shopId,
-                        ]
-                    ),
-                ];
+                $shops[] = $this->formatShopData($shopData, $psxName);
             }
 
             $shopList[] = [
@@ -145,8 +133,6 @@ class ShopProvider
             ];
         }
 
-        $configuration->setShopId($this->shopContext->getContext()->shop->id);
-
         return $shopList;
     }
 
@@ -156,5 +142,17 @@ class ShopProvider
     public function getShopContext()
     {
         return $this->shopContext;
+    }
+
+    /**
+     * @param int $shopId
+     *
+     * @return false|string|null
+     */
+    private function getShopPhysicalUri($shopId)
+    {
+        return \Db::getInstance()->getValue(
+            'SELECT physical_uri FROM ' . _DB_PREFIX_ . 'shop_url WHERE id_shop=' . (int) $shopId . ' AND main=1'
+        );
     }
 }
