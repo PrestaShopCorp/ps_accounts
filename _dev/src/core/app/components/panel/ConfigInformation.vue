@@ -20,7 +20,7 @@
   <b-container class="m-auto p-0" id="config-information">
     <div class="d-flex col-left">
       <b-col sm="4" md="4" lg="4" class="p-16 m-auto text-center d-flex">
-        <img src="@/assets/prestashop-logo.png" width="50" height="50" />
+        <img src="@/assets/prestashop-logo-2.png" width="50" height="50" />
         <h1><span class="white-text">Prestashop</span> Account</h1>
       </b-col>
 
