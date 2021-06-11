@@ -19,6 +19,7 @@
  */
 
 use PrestaShop\Module\PsAccounts\Controller\AbstractShopRestController;
+use PrestaShop\Module\PsAccounts\Provider\ShopProvider;
 use PrestaShop\Module\PsAccounts\Repository\ConfigurationRepository;
 
 class ps_AccountsApiV1ShopUrlModuleFrontController extends AbstractShopRestController
@@ -27,6 +28,11 @@ class ps_AccountsApiV1ShopUrlModuleFrontController extends AbstractShopRestContr
      * @var ConfigurationRepository
      */
     private $configuration;
+
+    /**
+     * @var ShopProvider
+     */
+    private $shopProvider;
 
     /**
      * ps_AccountsApiV1ShopUrlModuleFrontController constructor.
@@ -38,6 +44,7 @@ class ps_AccountsApiV1ShopUrlModuleFrontController extends AbstractShopRestContr
         parent::__construct();
 
         $this->configuration = $this->module->getService(ConfigurationRepository::class);
+        $this->shopProvider = $this->module->getService(ShopProvider::class);
     }
 
     /**
@@ -50,12 +57,12 @@ class ps_AccountsApiV1ShopUrlModuleFrontController extends AbstractShopRestContr
      */
     public function show($shop, array $payload)
     {
-        $data = \Shop::getShop($shop->id);
+        $shopData = $this->shopProvider->formatShopData(\Shop::getShop($shop->id));
 
         return [
-            'domain' => $shop->domain,
-            'domain_ssl' => $shop->domain_ssl,
-            'uri' => $data['uri'],
+            'domain' => $shopData['domain'],
+            'domain_ssl' => $shopData['domainSsl'],
+            'physical_uri' => $shopData['physicalUri'],
             'ssl_activated' => $this->configuration->sslEnabled(),
         ];
     }

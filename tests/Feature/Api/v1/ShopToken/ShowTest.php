@@ -72,7 +72,7 @@ class ShowTest extends FeatureTestCase
             'headers' => [
                 AbstractRestController::TOKEN_HEADER => $this->encodePayload([
                     'shop_id' => 99,
-                ])
+                ]),
             ],
         ]);
 
