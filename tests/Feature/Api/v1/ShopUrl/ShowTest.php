@@ -84,7 +84,9 @@ class ShowTest extends FeatureTestCase
 
         $this->module->getLogger()->info(print_r($json, true));
 
-        $this->assertResponseNotFound($response);
+        //$this->assertResponseNotFound($response);
+        // can't read pubkey from configuration table
+        $this->assertResponseUnauthorized($response);
 
         $this->assertArraySubset([
             'error' => true,
