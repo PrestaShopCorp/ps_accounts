@@ -165,31 +165,6 @@ class ConfigurationRepository
     }
 
     /**
-     * @deprecated since v4.0.0
-     *
-     * @return string | null
-     */
-    public function getFirebaseLocalId()
-    {
-        return $this->configuration->get(Configuration::PS_ACCOUNTS_FIREBASE_LOCAL_ID);
-    }
-
-    /**
-     * @deprecated sibce v4.0.0
-     *
-     * @param string $localId
-     *
-     * @return void
-     */
-    public function updateFirebaseLocalId($localId)
-    {
-        if (false === $this->configuration->get(Configuration::PS_PSX_FIREBASE_LOCAL_ID)) {
-            $this->configuration->set(Configuration::PS_PSX_FIREBASE_LOCAL_ID, $localId);
-        }
-        $this->configuration->set(Configuration::PS_ACCOUNTS_FIREBASE_LOCAL_ID, $localId);
-    }
-
-    /**
      * @return string
      */
     public function getShopUuid()
@@ -325,5 +300,37 @@ class ConfigurationRepository
     public function updateUserFirebaseRefreshToken($refreshToken)
     {
         $this->configuration->set(Configuration::PS_ACCOUNTS_USER_FIREBASE_REFRESH_TOKEN, $refreshToken);
+    }
+
+    /**
+     * specify id_shop & id_shop_group for shop
+     *
+     * @param \Shop $shop
+     *
+     * @return void
+     */
+    public function migrateToMultiShop(\Shop $shop)
+    {
+        \Db::getInstance()->query(
+            'UPDATE ' . _DB_PREFIX_ . 'configuration SET id_shop=' . (int) $shop->id . ', id_shop_group=' . (int) $shop->id_shop_group
+            . " WHERE (name like 'PS_ACCOUNTS_%' OR name IN ('PSX_UUID_V4'))"
+            . ' AND id_shop IS NULL AND id_shop_group IS NULL'
+        );
+    }
+
+    /**
+     * nullify id_shop & id_shop_group for shop
+     *
+     * @param \Shop $shop
+     *
+     * @return void
+     */
+    public function migrateToSingleShop(\Shop $shop)
+    {
+        \Db::getInstance()->query(
+            'UPDATE ' . _DB_PREFIX_ . 'configuration SET id_shop=NULL, id_shop_group=NULL'
+            . " WHERE (name like 'PS_ACCOUNTS_%' OR name IN ('PSX_UUID_V4'))"
+            . ' AND id_shop=' . (int) $shop->id . ' AND id_shop_group=' . (int) $shop->id_shop_group
+        );
     }
 }
