@@ -49,7 +49,6 @@ class Ps_accounts extends Module
         'displayBackOfficeHeader',
         'actionObjectShopAddAfter',
         'actionObjectShopDeleteAfter',
-        'moduleRoutes',
         //'addWebserviceResources',
     ];
 
