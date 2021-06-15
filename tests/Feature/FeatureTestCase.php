@@ -33,9 +33,6 @@ class FeatureTestCase extends TestCase
      */
     public function setUp()
     {
-        // FIXME: Link::getModuleLink
-        // FIXME: activate pretty urls
-
         parent::setUp();
 
         $scheme = $this->configuration->get('PS_SSL_ENABLED') ? 'https://' : 'http://';
@@ -58,6 +55,10 @@ class FeatureTestCase extends TestCase
         $this->rsaKeysProvider = $this->module->getService(RsaKeysProvider::class);
 
         $this->rsaKeysProvider->regenerateKeys();
+
+        // FIXME: Link::getModuleLink
+        // FIXME: OR activate friendly urls
+        //$this->configuration->set('PS_REWRITING_SETTINGS', '1');
     }
 
     /**
