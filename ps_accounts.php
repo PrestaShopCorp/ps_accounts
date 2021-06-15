@@ -49,6 +49,7 @@ class Ps_accounts extends Module
         'displayBackOfficeHeader',
         'actionObjectShopAddAfter',
         'actionObjectShopDeleteAfter',
+        'moduleRoutes',
         //'addWebserviceResources',
     ];
 
@@ -146,13 +147,6 @@ class Ps_accounts extends Module
      */
     public function install()
     {
-        // if ps version is 1.7.6 or above
-        if (version_compare(_PS_VERSION_, '1.7.6.0', '>=')) {
-            array_push($this->hookToInstall, 'actionMetaPageSave');
-        } else {
-            array_push($this->hookToInstall, 'displayBackOfficeHeader');
-        }
-
         $installer = new PrestaShop\Module\PsAccounts\Module\Install($this, Db::getInstance());
 
         $status = $installer->installInMenu()

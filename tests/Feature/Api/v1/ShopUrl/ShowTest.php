@@ -70,7 +70,7 @@ class ShowTest extends FeatureTestCase
      *
      * @throws \Exception
      */
-    public function itShouldReturnNotFoundError()
+    public function itShouldReturnUnauthorizedError()
     {
         $response = $this->client->get('/module/ps_accounts/apiV1ShopUrl', [
             'headers' => [
@@ -84,8 +84,6 @@ class ShowTest extends FeatureTestCase
 
         $this->module->getLogger()->info(print_r($json, true));
 
-        //$this->assertResponseNotFound($response);
-        // can't read pubkey from configuration table
         $this->assertResponseUnauthorized($response);
 
         $this->assertArraySubset([
