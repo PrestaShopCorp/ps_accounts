@@ -20,4 +20,4 @@ parameters:
   ps_accounts.verify_account_tokens: true
 
   # a page to display "Update Your Module" message
-  ps_accounts.svc_accounts_ui_url: 'https://accounts.prestashop.localhost'
+  ps_accounts.svc_accounts_ui_url: 'https://accounts.psessentials-integration.net'
