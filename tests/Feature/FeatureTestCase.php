@@ -24,6 +24,11 @@ class FeatureTestCase extends TestCase
     protected $client;
 
     /**
+     * @var RsaKeysProvider
+     */
+    protected $rsaKeysProvider;
+
+    /**
      * @throws \Exception
      */
     public function setUp()
@@ -46,6 +51,14 @@ class FeatureTestCase extends TestCase
                 ],
             ],
         ]);
+
+        $this->rsaKeysProvider = $this->module->getService(RsaKeysProvider::class);
+
+        $this->rsaKeysProvider->regenerateKeys();
+
+        // FIXME: Link::getModuleLink
+        // FIXME: OR activate friendly urls
+        //$this->configuration->set('PS_REWRITING_SETTINGS', '1');
     }
 
     /**
@@ -57,9 +70,6 @@ class FeatureTestCase extends TestCase
      */
     public function encodePayload(array $payload)
     {
-        /** @var RsaKeysProvider $shopKeysService */
-        $shopKeysService = $this->module->getService(RsaKeysProvider::class);
-
         //return base64_encode($shopKeysService->encrypt(json_encode($payload)));
 
         $builder = (new Builder());
@@ -70,7 +80,7 @@ class FeatureTestCase extends TestCase
 
         return $builder->getToken(
             new Sha256(),
-            new Key($shopKeysService->getPublicKey())
+            new Key($this->rsaKeysProvider->getPublicKey())
         );
     }
 
