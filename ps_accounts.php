@@ -28,12 +28,12 @@ class Ps_accounts extends Module
 
     // Needed in order to retrieve the module version easier (in api call headers) than instanciate
     // the module each time to get the version
-    const VERSION = '5.0-dev';
+    const VERSION = '5.0.0';
 
     /**
      * @var array
      */
-    public $adminControllers;
+    private $adminControllers;
 
     /**
      * @var \Monolog\Logger
@@ -85,7 +85,7 @@ class Ps_accounts extends Module
 
         // We cannot use the const VERSION because the const is not computed by addons marketplace
         // when the zip is uploaded
-        $this->version = '5.0-dev';
+        $this->version = '5.0.0';
 
         $this->module_key = 'abf2cd758b4d629b2944d3922ef9db73';
 
@@ -101,7 +101,6 @@ class Ps_accounts extends Module
         $this->ps_versions_compliancy = ['min' => '1.6', 'max' => _PS_VERSION_];
 
         $this->adminControllers = [
-            'hmac' => 'AdminConfigureHmacPsAccounts',
             'ajax' => 'AdminAjaxPsAccounts',
             'debug' => 'AdminDebugPsAccounts',
         ];
