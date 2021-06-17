@@ -62,9 +62,10 @@ class Uninstall
         return true;
     }
 
-
     /**
-     * @param $controllerName
+     * @param string $controllerName
+     *
+     * @return void
      */
     public function deleteAdminTab($controllerName)
     {
