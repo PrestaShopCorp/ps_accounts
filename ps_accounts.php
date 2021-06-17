@@ -152,6 +152,10 @@ class Ps_accounts extends Module
             && parent::install()
             && $this->registerHook($this->hookToInstall);
 
+        // Removed controller
+        $uninstaller = new PrestaShop\Module\PsAccounts\Module\Uninstall($this, Db::getInstance());
+        $uninstaller->deleteAdminTab('AdminConfigureHmacPsAccounts');
+
         // Ignore fail on ps_eventbus install
         $this->moduleInstaller->installModule('ps_eventbus');
 

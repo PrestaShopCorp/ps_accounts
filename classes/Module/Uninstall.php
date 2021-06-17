@@ -62,6 +62,18 @@ class Uninstall
         return true;
     }
 
+
+    /**
+     * @param $controllerName
+     */
+    public function deleteAdminTab($controllerName)
+    {
+        $tabId = (int) \Tab::getIdFromClassName($controllerName);
+        if ($tabId) {
+            (new \Tab($tabId))->delete();
+        }
+    }
+
     /**
      * @return bool
      */
