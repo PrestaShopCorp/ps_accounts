@@ -129,8 +129,13 @@ class PsAccountsPresenter implements PresenterInterface
 
                     // FIXME :  Mix "SSO user" with "Backend user"
                     'user' => [
+                        'uuid' => $this->psAccountsService->getUserUuidV4() ?: null,
                         'email' => $this->psAccountsService->getEmail() ?: null,
                         'emailIsValidated' => $this->psAccountsService->isEmailValidated(),
+                        'isSuperAdmin' => $shopContext->getContext()->employee->isSuperAdmin(),
+                    ],
+                    'backendUser' => [
+                        'email' => $shopContext->getContext()->employee->email,
                         'isSuperAdmin' => $shopContext->getContext()->employee->isSuperAdmin(),
                     ],
                     'currentShop' => $this->shopProvider->getCurrentShop($psxName),
