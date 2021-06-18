@@ -66,13 +66,13 @@ class ShowTest extends FeatureTestCase
      *
      * @throws \Exception
      */
-    public function itShouldReturnNotFoundError()
+    public function itShouldReturnUnauthorizedError()
     {
         $response = $this->client->get('/module/ps_accounts/apiV1ShopToken', [
             'headers' => [
                 AbstractRestController::TOKEN_HEADER => $this->encodePayload([
                     'shop_id' => 99,
-                ])
+                ]),
             ],
         ]);
 
@@ -80,7 +80,7 @@ class ShowTest extends FeatureTestCase
 
         $this->module->getLogger()->info(print_r($json, true));
 
-        $this->assertResponseNotFound($response);
+        $this->assertResponseUnauthorized($response);
 
         $this->assertArraySubset([
             'error' => true,

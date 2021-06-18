@@ -237,12 +237,14 @@ abstract class AbstractRestController extends \ModuleFrontController implements 
         if ($jwtString) {
             $jwt = (new Parser())->parse($jwtString);
 
-            if ($jwt->claims()->has('shop_id')) {
-                $this->setConfigurationShopId((int) $jwt->claims()->get('shop_id'));
-            }
+            $shop = new \Shop((int) $jwt->claims()->get('shop_id'));
 
-            if (true === $jwt->verify(new Sha256(), new Key($shopKeysService->getPublicKey()))) {
-                return $jwt->claims()->all();
+            if ($shop->id) {
+                $this->setConfigurationShopId($shop->id);
+
+                if (true === $jwt->verify(new Sha256(), new Key($shopKeysService->getPublicKey()))) {
+                    return $jwt->claims()->all();
+                }
             }
 
             $this->module->getLogger()->info('Failed to verify token');

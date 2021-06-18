@@ -147,9 +147,6 @@ class PsAccountsPresenter implements PresenterInterface
                     'ssoResendVerificationEmail' => $this->module->getParameter('ps_accounts.sso_resend_verification_email_url'),
                     'manageAccountLink' => $this->module->getSsoAccountUrl(),
 
-                    // TODO: tdb
-                    'onboardingFallbackUrl' => '',
-
                     'isOnboardedV4' => $this->psAccountsService->isAccountLinkedV4(),
 
                     'shops' => $this->shopProvider->getShopsTree($psxName),

@@ -30,10 +30,12 @@ class ShowTest extends FeatureTestCase
 
         $this->assertArrayHasKey('domain', $json);
         $this->assertArrayHasKey('domain_ssl', $json);
+        $this->assertArrayHasKey('physical_uri', $json);
         $this->assertArrayHasKey('ssl_activated', $json);
 
         $this->assertInternalType('string', $json['domain']);
         $this->assertInternalType('string', $json['domain_ssl']);
+        $this->assertInternalType('string', $json['physical_uri']);
         $this->assertInternalType('bool', $json['ssl_activated']);
     }
 
@@ -68,7 +70,7 @@ class ShowTest extends FeatureTestCase
      *
      * @throws \Exception
      */
-    public function itShouldReturnNotFoundError()
+    public function itShouldReturnUnauthorizedError()
     {
         $response = $this->client->get('/module/ps_accounts/apiV1ShopUrl', [
             'headers' => [
@@ -82,7 +84,7 @@ class ShowTest extends FeatureTestCase
 
         $this->module->getLogger()->info(print_r($json, true));
 
-        $this->assertResponseNotFound($response);
+        $this->assertResponseUnauthorized($response);
 
         $this->assertArraySubset([
             'error' => true,

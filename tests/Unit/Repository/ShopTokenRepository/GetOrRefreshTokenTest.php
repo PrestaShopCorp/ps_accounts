@@ -41,7 +41,9 @@ class GetOrRefreshTokenTest extends TestCase
             'user_id' => $this->faker->uuid,
         ]);
 
-        $idTokenRefreshed = $this->makeJwtToken(new \DateTimeImmutable('tomorrow'));
+        $idTokenRefreshed = $this->makeJwtToken(new \DateTimeImmutable('tomorrow'), [
+            'user_id' => $idToken->claims()->get('user_id'),
+        ]);
 
         $refreshToken = $this->makeJwtToken(new \DateTimeImmutable('+1 year'));
 

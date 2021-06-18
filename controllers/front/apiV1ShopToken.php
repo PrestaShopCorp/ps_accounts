@@ -33,12 +33,12 @@ class ps_AccountsApiV1ShopTokenModuleFrontController extends AbstractShopRestCon
      */
     public function show($shop, array $payload)
     {
-        /** @var ShopTokenRepository $shopTokenService */
-        $shopTokenService = $this->module->getService(ShopTokenRepository::class);
+        /** @var ShopTokenRepository $shopTokenRepository */
+        $shopTokenRepository = $this->module->getService(ShopTokenRepository::class);
 
         return [
-            'token' => (string) $shopTokenService->getOrRefreshToken(),
-            'refresh_token' => (string) $shopTokenService->getRefreshToken(),
+            'token' => (string) $shopTokenRepository->getOrRefreshToken(),
+            'refresh_token' => (string) $shopTokenRepository->getRefreshToken(),
         ];
     }
 }
