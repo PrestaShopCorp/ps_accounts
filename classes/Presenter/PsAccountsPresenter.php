@@ -136,6 +136,7 @@ class PsAccountsPresenter implements PresenterInterface
                     ],
                     'backendUser' => [
                         'email' => $shopContext->getContext()->employee->email,
+                        'employeeId' => $shopContext->getContext()->employee->id,
                         'isSuperAdmin' => $shopContext->getContext()->employee->isSuperAdmin(),
                     ],
                     'currentShop' => $this->shopProvider->getCurrentShop($psxName),
@@ -150,7 +151,6 @@ class PsAccountsPresenter implements PresenterInterface
                     'isOnboardedV4' => $this->psAccountsService->isAccountLinkedV4(),
 
                     'shops' => $this->shopProvider->getShopsTree($psxName),
-                    'employeeId' => $shopContext->getContext()->employee->id,
                     'adminAjaxLink' => $this->psAccountsService->getAdminAjaxUrl(),
                 ],
                 (new DependenciesPresenter())->present($psxName)
