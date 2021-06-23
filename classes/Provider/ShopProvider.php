@@ -68,7 +68,7 @@ class ShopProvider
             'physicalUri' => $this->getShopPhysicalUri($shopData['id_shop']),
 
             // LinkAccount
-            'uuid' => $configuration->getShopUuid() ?: null,
+            'uuid' => $configuration->getShopFirebaseUuid() ?: null,
             'publicKey' => $configuration->getAccountsRsaPublicKey() ?: null,
             'employeeId' => (int) $configuration->getEmployeeId() ?: null,
 

@@ -25,7 +25,7 @@ class IsAccountLinkedV4Test extends TestCase
         /** @var ConfigurationRepository $config */
         $config = $this->module->getService(ConfigurationRepository::class);
         $config->updateUserFirebaseIdToken('');
-        $config->updateFirebaseEmail($this->faker->safeEmail);
+        $config->updateUserFirebaseEmail($this->faker->safeEmail);
 
         /** @var PsAccountsService $service */
         $service = $this->module->getService(PsAccountsService::class);
@@ -48,7 +48,7 @@ class IsAccountLinkedV4Test extends TestCase
 
         /** @var ConfigurationRepository $config */
         $config = $this->module->getService(ConfigurationRepository::class);
-        $config->updateFirebaseEmail('');
+        $config->updateUserFirebaseEmail('');
 
         /** @var PsAccountsService $service */
         $service = $this->module->getService(PsAccountsService::class);

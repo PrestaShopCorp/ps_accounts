@@ -105,7 +105,7 @@ class PsBillingService
             $this->configuration->setShopId($shopId);
         }
 
-        $uuid = $this->configuration->getShopUuid();
+        $uuid = $this->configuration->getShopFirebaseUuid();
         $toReturn = ['shopAccountId' => $uuid];
 
         if ($uuid && strlen($uuid) > 0) {

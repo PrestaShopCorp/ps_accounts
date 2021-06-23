@@ -147,7 +147,7 @@ class UserTokenRepository
     public function getTokenEmail()
     {
         //return $this->getToken()->claims()->get('user_id');
-        return $this->configuration->getFirebaseEmail();
+        return $this->configuration->getUserFirebaseEmail();
     }
 
     /**
@@ -212,7 +212,7 @@ class UserTokenRepository
         $this->configuration->updateUserFirebaseIdToken($idToken);
         $this->configuration->updateUserFirebaseRefreshToken($refreshToken);
 
-        $this->configuration->updateFirebaseEmail($token->claims()->get('email'));
+        $this->configuration->updateUserFirebaseEmail($token->claims()->get('email'));
     }
 
     /**
@@ -223,7 +223,7 @@ class UserTokenRepository
         $this->configuration->updateUserFirebaseUuid('');
         $this->configuration->updateUserFirebaseIdToken('');
         $this->configuration->updateUserFirebaseRefreshToken('');
-        $this->configuration->updateFirebaseEmail('');
+        $this->configuration->updateUserFirebaseEmail('');
         //$this->configuration->updateFirebaseEmailIsVerified(false);
     }
 }

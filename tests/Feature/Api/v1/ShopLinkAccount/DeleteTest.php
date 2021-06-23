@@ -17,7 +17,7 @@ class DeleteTest extends FeatureTestCase
     {
         $this->markTestIncomplete('returns empty response');
 
-        $this->configuration->set(Configuration::PS_ACCOUNTS_FIREBASE_ID_TOKEN, 'foobar');
+        $this->configuration->set(Configuration::PS_ACCOUNTS_SHOP_FIREBASE_ID_TOKEN, 'foobar');
 
         $response = $this->client->delete('/module/ps_accounts/apiV1ShopLinkAccount', [
             'headers' => [
@@ -38,15 +38,15 @@ class DeleteTest extends FeatureTestCase
         \Configuration::clearConfigurationCacheForTesting();
         \Configuration::loadConfiguration();
 
-        $this->assertEmpty($this->configuration->get(Configuration::PS_ACCOUNTS_FIREBASE_ID_TOKEN));
-        $this->assertEmpty($this->configuration->get(Configuration::PS_ACCOUNTS_FIREBASE_REFRESH_TOKEN));
+        $this->assertEmpty($this->configuration->get(Configuration::PS_ACCOUNTS_SHOP_FIREBASE_ID_TOKEN));
+        $this->assertEmpty($this->configuration->get(Configuration::PS_ACCOUNTS_SHOP_FIREBASE_REFRESH_TOKEN));
 
         $this->assertEmpty($this->configuration->get(Configuration::PS_ACCOUNTS_USER_FIREBASE_UUID));
         $this->assertEmpty($this->configuration->get(Configuration::PS_ACCOUNTS_USER_FIREBASE_ID_TOKEN));
         $this->assertEmpty($this->configuration->get(Configuration::PS_ACCOUNTS_USER_FIREBASE_REFRESH_TOKEN));
 
-        $this->assertEmpty($this->configuration->get(Configuration::PS_ACCOUNTS_FIREBASE_EMAIL));
-        $this->assertEmpty($this->configuration->get(Configuration::PSX_UUID_V4));
+        $this->assertEmpty($this->configuration->get(Configuration::PS_ACCOUNTS_USER_FIREBASE_EMAIL));
+        $this->assertEmpty($this->configuration->get(Configuration::PS_ACCOUNTS_SHOP_FIREBASE_UUID));
         $this->assertEmpty($this->configuration->get(Configuration::PS_ACCOUNTS_EMPLOYEE_ID));
     }
 }

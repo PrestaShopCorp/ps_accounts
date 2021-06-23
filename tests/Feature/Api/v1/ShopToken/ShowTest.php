@@ -30,8 +30,8 @@ class ShowTest extends FeatureTestCase
         $this->assertResponseOk($response);
 
         $this->assertArraySubset([
-            'token' => $this->configuration->get(Configuration::PS_ACCOUNTS_FIREBASE_ID_TOKEN),
-            'refresh_token' => $this->configuration->get(Configuration::PS_ACCOUNTS_FIREBASE_REFRESH_TOKEN),
+            'token' => $this->configuration->get(Configuration::PS_ACCOUNTS_SHOP_FIREBASE_ID_TOKEN),
+            'refresh_token' => $this->configuration->get(Configuration::PS_ACCOUNTS_SHOP_FIREBASE_REFRESH_TOKEN),
         ], $json);
     }
 

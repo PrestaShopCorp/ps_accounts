@@ -48,15 +48,15 @@ class StoreTest extends FeatureTestCase
         \Configuration::clearConfigurationCacheForTesting();
         \Configuration::loadConfiguration();
 
-        $this->assertEquals($payload['shop_token'], $this->configuration->get(Configuration::PS_ACCOUNTS_FIREBASE_ID_TOKEN));
-        $this->assertEquals($payload['shop_refresh_token'], $this->configuration->get(Configuration::PS_ACCOUNTS_FIREBASE_REFRESH_TOKEN));
+        $this->assertEquals($payload['shop_token'], $this->configuration->get(Configuration::PS_ACCOUNTS_SHOP_FIREBASE_ID_TOKEN));
+        $this->assertEquals($payload['shop_refresh_token'], $this->configuration->get(Configuration::PS_ACCOUNTS_SHOP_FIREBASE_REFRESH_TOKEN));
 
         $this->assertEquals($userUuid, $this->configuration->get(Configuration::PS_ACCOUNTS_USER_FIREBASE_UUID));
         $this->assertEquals($payload['user_token'], $this->configuration->get(Configuration::PS_ACCOUNTS_USER_FIREBASE_ID_TOKEN));
         $this->assertEquals($payload['user_refresh_token'], $this->configuration->get(Configuration::PS_ACCOUNTS_USER_FIREBASE_REFRESH_TOKEN));
 
-        $this->assertEquals($email, $this->configuration->get(Configuration::PS_ACCOUNTS_FIREBASE_EMAIL));
-        $this->assertEquals($shopUuid, $this->configuration->get(Configuration::PSX_UUID_V4));
+        $this->assertEquals($email, $this->configuration->get(Configuration::PS_ACCOUNTS_USER_FIREBASE_EMAIL));
+        $this->assertEquals($shopUuid, $this->configuration->get(Configuration::PS_ACCOUNTS_SHOP_FIREBASE_UUID));
         $this->assertEquals($employeeId, $this->configuration->get(Configuration::PS_ACCOUNTS_EMPLOYEE_ID));
     }
 }

@@ -60,17 +60,17 @@ class ConfigurationRepository
     /**
      * @return string
      */
-    public function getFirebaseIdToken()
+    public function getShopFirebaseIdToken()
     {
-        return $this->configuration->get(Configuration::PS_ACCOUNTS_FIREBASE_ID_TOKEN);
+        return $this->configuration->get(Configuration::PS_ACCOUNTS_SHOP_FIREBASE_ID_TOKEN);
     }
 
     /**
      * @return string
      */
-    public function getFirebaseRefreshToken()
+    public function getShopFirebaseRefreshToken()
     {
-        return $this->configuration->get(Configuration::PS_ACCOUNTS_FIREBASE_REFRESH_TOKEN);
+        return $this->configuration->get(Configuration::PS_ACCOUNTS_SHOP_FIREBASE_REFRESH_TOKEN);
     }
 
     /**
@@ -79,16 +79,10 @@ class ConfigurationRepository
      *
      * @return void
      */
-    public function updateFirebaseIdAndRefreshTokens($idToken, $refreshToken)
+    public function updateShopFirebaseIdAndRefreshTokens($idToken, $refreshToken)
     {
-        if (false === $this->configuration->get(Configuration::PS_PSX_FIREBASE_ID_TOKEN)) {
-            // FIXME: This to avoid mutual disconnect between ps_accounts & ps_checkout
-            $this->configuration->set(Configuration::PS_PSX_FIREBASE_ID_TOKEN, $idToken);
-            $this->configuration->set(Configuration::PS_PSX_FIREBASE_REFRESH_TOKEN, $refreshToken);
-            $this->configuration->set(Configuration::PS_PSX_FIREBASE_REFRESH_DATE, date('Y-m-d H:i:s'));
-        }
-        $this->configuration->set(Configuration::PS_ACCOUNTS_FIREBASE_ID_TOKEN, $idToken);
-        $this->configuration->set(Configuration::PS_ACCOUNTS_FIREBASE_REFRESH_TOKEN, $refreshToken);
+        $this->configuration->set(Configuration::PS_ACCOUNTS_SHOP_FIREBASE_ID_TOKEN, $idToken);
+        $this->configuration->set(Configuration::PS_ACCOUNTS_SHOP_FIREBASE_REFRESH_TOKEN, $refreshToken);
     }
 
     /**
@@ -96,17 +90,17 @@ class ConfigurationRepository
      *
      * @return bool
      */
-    public function hasFirebaseRefreshToken()
+    public function hasShopFirebaseRefreshToken()
     {
-        return !empty($this->configuration->get(Configuration::PS_ACCOUNTS_FIREBASE_REFRESH_TOKEN));
+        return !empty($this->configuration->get(Configuration::PS_ACCOUNTS_SHOP_FIREBASE_REFRESH_TOKEN));
     }
 
     /**
      * @return string | null
      */
-    public function getFirebaseEmail()
+    public function getUserFirebaseEmail()
     {
-        return $this->configuration->get(Configuration::PS_ACCOUNTS_FIREBASE_EMAIL);
+        return $this->configuration->get(Configuration::PS_ACCOUNTS_USER_FIREBASE_EMAIL);
     }
 
     /**
@@ -114,12 +108,9 @@ class ConfigurationRepository
      *
      * @return void
      */
-    public function updateFirebaseEmail($email)
+    public function updateUserFirebaseEmail($email)
     {
-        if (false === $this->configuration->get(Configuration::PS_PSX_FIREBASE_EMAIL)) {
-            $this->configuration->set(Configuration::PS_PSX_FIREBASE_EMAIL, $email);
-        }
-        $this->configuration->set(Configuration::PS_ACCOUNTS_FIREBASE_EMAIL, $email);
+        $this->configuration->set(Configuration::PS_ACCOUNTS_USER_FIREBASE_EMAIL, $email);
     }
 
     /**
@@ -143,10 +134,10 @@ class ConfigurationRepository
     /**
      * @return bool
      */
-    public function firebaseEmailIsVerified()
+    public function userFirebaseEmailIsVerified()
     {
         return in_array(
-            $this->configuration->get(Configuration::PS_ACCOUNTS_FIREBASE_EMAIL_IS_VERIFIED),
+            $this->configuration->get(Configuration::PS_ACCOUNTS_USER_FIREBASE_EMAIL_IS_VERIFIED),
             ['1', 1, true]
         );
     }
@@ -156,10 +147,10 @@ class ConfigurationRepository
      *
      * @return void
      */
-    public function updateFirebaseEmailIsVerified($status)
+    public function updateUserFirebaseEmailIsVerified($status)
     {
         $this->configuration->set(
-            Configuration::PS_ACCOUNTS_FIREBASE_EMAIL_IS_VERIFIED,
+            Configuration::PS_ACCOUNTS_USER_FIREBASE_EMAIL_IS_VERIFIED,
             (string) $status
         );
     }
@@ -167,9 +158,9 @@ class ConfigurationRepository
     /**
      * @return string
      */
-    public function getShopUuid()
+    public function getShopFirebaseUuid()
     {
-        return $this->configuration->get(Configuration::PSX_UUID_V4);
+        return $this->configuration->get(Configuration::PS_ACCOUNTS_SHOP_FIREBASE_UUID);
     }
 
     /**
@@ -177,12 +168,9 @@ class ConfigurationRepository
      *
      * @return void
      */
-    public function updateShopUuid($uuid)
+    public function updateShopFirebaseUuid($uuid)
     {
-        if (false === $this->configuration->get(Configuration::PS_CHECKOUT_SHOP_UUID_V4)) {
-            $this->configuration->set(Configuration::PS_CHECKOUT_SHOP_UUID_V4, $uuid);
-        }
-        $this->configuration->set(Configuration::PSX_UUID_V4, $uuid);
+        $this->configuration->set(Configuration::PS_ACCOUNTS_SHOP_FIREBASE_UUID, $uuid);
     }
 
     /**

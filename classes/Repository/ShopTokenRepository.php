@@ -82,7 +82,7 @@ class ShopTokenRepository
      */
     public function getRefreshToken()
     {
-        return $this->configuration->getFirebaseRefreshToken();
+        return $this->configuration->getShopFirebaseRefreshToken();
     }
 
     /**
@@ -90,7 +90,7 @@ class ShopTokenRepository
      */
     public function getToken()
     {
-        return $this->parseToken($this->configuration->getFirebaseIdToken());
+        return $this->parseToken($this->configuration->getShopFirebaseIdToken());
     }
 
     /**
@@ -99,7 +99,7 @@ class ShopTokenRepository
     public function getTokenUuid()
     {
         //return $this->getToken()->claims()->get('user_id');
-        return $this->configuration->getShopUuid();
+        return $this->configuration->getShopFirebaseUuid();
     }
 
     /**
@@ -175,8 +175,8 @@ class ShopTokenRepository
     {
         $token = (new Parser())->parse((string) $idToken);
 
-        $this->configuration->updateShopUuid($token->getClaim('user_id'));
-        $this->configuration->updateFirebaseIdAndRefreshTokens((string) $idToken, (string) $refreshToken);
+        $this->configuration->updateShopFirebaseUuid($token->getClaim('user_id'));
+        $this->configuration->updateShopFirebaseIdAndRefreshTokens((string) $idToken, (string) $refreshToken);
     }
 
     /**
@@ -184,7 +184,7 @@ class ShopTokenRepository
      */
     public function cleanupCredentials()
     {
-        $this->configuration->updateShopUuid('');
-        $this->configuration->updateFirebaseIdAndRefreshTokens('', '');
+        $this->configuration->updateShopFirebaseUuid('');
+        $this->configuration->updateShopFirebaseIdAndRefreshTokens('', '');
     }
 }
