@@ -47,7 +47,7 @@ class Uninstall
     public function uninstallMenu()
     {
         // foreach( ['configure', 'hmac', 'ajax'] as $aliasController){
-        foreach ($this->module->adminControllers as $controllerName) {
+        foreach ($this->module->getAdminControllers() as $controllerName) {
             $tabId = (int) \Tab::getIdFromClassName($controllerName);
 
             if (!$tabId) {
@@ -60,6 +60,19 @@ class Uninstall
         }
 
         return true;
+    }
+
+    /**
+     * @param string $controllerName
+     *
+     * @return void
+     */
+    public function deleteAdminTab($controllerName)
+    {
+        $tabId = (int) \Tab::getIdFromClassName($controllerName);
+        if ($tabId) {
+            (new \Tab($tabId))->delete();
+        }
     }
 
     /**

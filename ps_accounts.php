@@ -33,7 +33,7 @@ class Ps_accounts extends Module
     /**
      * @var array
      */
-    public $adminControllers;
+    private $adminControllers;
 
     /**
      * @var \Monolog\Logger
@@ -101,7 +101,6 @@ class Ps_accounts extends Module
         $this->ps_versions_compliancy = ['min' => '1.6', 'max' => _PS_VERSION_];
 
         $this->adminControllers = [
-            'hmac' => 'AdminConfigureHmacPsAccounts',
             'ajax' => 'AdminAjaxPsAccounts',
             'debug' => 'AdminDebugPsAccounts',
         ];
@@ -152,6 +151,10 @@ class Ps_accounts extends Module
             //&& $installer->installDatabaseTables()
             && parent::install()
             && $this->registerHook($this->hookToInstall);
+
+        // Removed controller
+        $uninstaller = new PrestaShop\Module\PsAccounts\Module\Uninstall($this, Db::getInstance());
+        $uninstaller->deleteAdminTab('AdminConfigureHmacPsAccounts');
 
         // Ignore fail on ps_eventbus install
         $this->moduleInstaller->installModule('ps_eventbus');
