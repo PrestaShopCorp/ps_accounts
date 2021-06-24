@@ -114,6 +114,14 @@ class PsAccountsService
     }
 
     /**
+     * @return string | false
+     */
+    public function getUserUuidV4()
+    {
+        return $this->userTokenRepository->getTokenUuid();
+    }
+
+    /**
      * @return bool
      *
      * @throws \Exception

@@ -129,8 +129,14 @@ class PsAccountsPresenter implements PresenterInterface
 
                     // FIXME :  Mix "SSO user" with "Backend user"
                     'user' => [
+                        'uuid' => $this->psAccountsService->getUserUuidV4() ?: null,
                         'email' => $this->psAccountsService->getEmail() ?: null,
                         'emailIsValidated' => $this->psAccountsService->isEmailValidated(),
+                        'isSuperAdmin' => $shopContext->getContext()->employee->isSuperAdmin(),
+                    ],
+                    'backendUser' => [
+                        'email' => $shopContext->getContext()->employee->email,
+                        'employeeId' => $shopContext->getContext()->employee->id,
                         'isSuperAdmin' => $shopContext->getContext()->employee->isSuperAdmin(),
                     ],
                     'currentShop' => $this->shopProvider->getCurrentShop($psxName),
@@ -145,8 +151,10 @@ class PsAccountsPresenter implements PresenterInterface
                     'isOnboardedV4' => $this->psAccountsService->isAccountLinkedV4(),
 
                     'shops' => $this->shopProvider->getShopsTree($psxName),
-                    'employeeId' => $shopContext->getContext()->employee->id,
                     'adminAjaxLink' => $this->psAccountsService->getAdminAjaxUrl(),
+
+                    'accountsUiUrl' => $this->module->getParameter('ps_accounts.accounts_ui_url'),
+                    'segmentApiKey' => $this->module->getParameter('ps_accounts.segment_api_key'),
                 ],
                 (new DependenciesPresenter())->present($psxName)
             );
