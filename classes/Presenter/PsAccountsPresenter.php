@@ -152,6 +152,9 @@ class PsAccountsPresenter implements PresenterInterface
 
                     'shops' => $this->shopProvider->getShopsTree($psxName),
                     'adminAjaxLink' => $this->psAccountsService->getAdminAjaxUrl(),
+
+                    'accountsUiUrl' => $this->module->getParameter('ps_accounts.accounts_ui_url'),
+                    'segmentApiKey' => $this->module->getParameter('ps_accounts.segment_api_key'),
                 ],
                 (new DependenciesPresenter())->present($psxName)
             );
