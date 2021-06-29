@@ -21,6 +21,7 @@
 namespace PrestaShop\Module\PsAccounts\Service;
 
 use PrestaShop\Module\PsAccounts\Adapter\Link;
+use PrestaShop\Module\PsAccounts\Api\Client\AccountsClient;
 use PrestaShop\Module\PsAccounts\Repository\ShopTokenRepository;
 use PrestaShop\Module\PsAccounts\Repository\UserTokenRepository;
 
@@ -181,10 +182,16 @@ class PsAccountsService
         return $this->link->getAdminLink('AdminAjaxPsAccounts', true, [], ['ajax' => 1]);
     }
 
+    /**
+     * @return void
+     *
+     * @throws \Exception
+     */
     public function autoReonboardOnV5()
     {
         if ($this->isAccountLinkedV4()) {
-            $accountClient = $this->module->getService(\PrestaShop\Module\PsAccounts\Api\Client\AccountsClient::class);
+            /** @var AccountsClient $accountClient */
+            $accountClient = $this->module->getService(AccountsClient::class);
             $accountClient->reonboardShop();
         }
     }

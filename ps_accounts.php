@@ -371,6 +371,11 @@ class Ps_accounts extends Module
         }
     }
 
+    /**
+     * @return void
+     *
+     * @throws Exception
+     */
     private function autoReonboardOnV5()
     {
         /** @var \PrestaShop\Module\PsAccounts\Service\PsAccountsService $psAccountsService */
