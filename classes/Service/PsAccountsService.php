@@ -180,4 +180,12 @@ class PsAccountsService
 //        Tools::getAdminTokenLite('AdminAjaxPsAccounts'));
         return $this->link->getAdminLink('AdminAjaxPsAccounts', true, [], ['ajax' => 1]);
     }
+
+    public function autoReonboardOnV5()
+    {
+        if ($this->isAccountLinkedV4()) {
+            $accountClient = $this->module->getService(\PrestaShop\Module\PsAccounts\Api\Client\AccountsClient::class);
+            $accountClient->reonboardShop();
+        }
+    }
 }

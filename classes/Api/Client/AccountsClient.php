@@ -26,6 +26,7 @@ use PrestaShop\Module\PsAccounts\Configuration\ConfigOptionsResolver;
 use PrestaShop\Module\PsAccounts\Exception\OptionResolutionException;
 use PrestaShop\Module\PsAccounts\Provider\ShopProvider;
 use PrestaShop\Module\PsAccounts\Repository\UserTokenRepository;
+use PrestaShop\Module\PsAccounts\Repository\ShopTokenRepository;
 
 /**
  * Class ServicesAccountsClient
@@ -142,6 +143,32 @@ class AccountsClient extends GenericClient
             'json' => [
                 'token' => $refreshToken,
             ],
+        ]);
+    }
+
+    /**
+     * @return array
+     *
+     * @throws \Exception
+     */
+    public function reonboardShop()
+    {
+        /** @var \Ps_accounts $module */
+        $module = \Module::getInstanceByName('ps_accounts');
+
+        /** @var ShopTokenRepository $shopTokenRepository */
+        $shopTokenRepository = $module->getService(ShopTokenRepository::class);
+
+        $currentShop = $this->shopProvider->getCurrentShop('ps_accounts');
+
+        $this->setRoute('shop/' . $currentShop['uuid'] . '/reonboard');
+
+        return $this->post([
+            'headers' => [
+                'Authorization' => 'Bearer ' . $shopTokenRepository->getOrRefreshToken(),
+                'content-type' => 'application/json',
+            ],
+            'json' => $currentShop,
         ]);
     }
 

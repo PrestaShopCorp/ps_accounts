@@ -88,6 +88,7 @@ class ShopProvider
         return $data;
     }
 
+    // TODO Add public function to get main shop
     /**
      * @param string $psxName
      *
