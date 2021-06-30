@@ -23,17 +23,11 @@ namespace PrestaShop\Module\PsAccounts\Repository;
 use Lcobucci\JWT\Parser;
 use Lcobucci\JWT\Token;
 use Lcobucci\JWT\Token\InvalidTokenStructure;
-use PrestaShop\Module\PsAccounts\Api\Client\AccountsClient;
 use PrestaShop\Module\PsAccounts\Exception\RefreshTokenException;
 use PrestaShop\Module\PsAccounts\Handler\Error\Sentry;
 
 class ShopTokenRepository
 {
-    /**
-     * @var AccountsClient
-     */
-    private $accountsClient;
-
     /**
      * @var ConfigurationRepository
      */
@@ -42,14 +36,12 @@ class ShopTokenRepository
     /**
      * ShopTokenService constructor.
      *
-     * @param AccountsClient $accountsClient
      * @param ConfigurationRepository $configuration
      */
     public function __construct(
-        AccountsClient $accountsClient,
         ConfigurationRepository $configuration
-    ) {
-        $this->accountsClient = $accountsClient;
+    )
+    {
         $this->configuration = $configuration;
     }
 
@@ -139,7 +131,7 @@ class ShopTokenRepository
      */
     public function verifyToken($idToken, $refreshToken)
     {
-        $response = $this->accountsClient->verifyToken($idToken);
+        $response = $this->getAccountsClient()->verifyToken($idToken);
 
         if ($response && true === $response['status']) {
             return $this->parseToken($idToken);
@@ -157,7 +149,7 @@ class ShopTokenRepository
      */
     public function refreshToken($refreshToken)
     {
-        $response = $this->accountsClient->refreshToken($refreshToken);
+        $response = $this->getAccountsClient()->refreshToken($refreshToken);
 
         if ($response && true === $response['status']) {
             return $this->parseToken($response['body']['token']);
@@ -186,5 +178,14 @@ class ShopTokenRepository
     {
         $this->configuration->updateShopUuid('');
         $this->configuration->updateFirebaseIdAndRefreshTokens('', '');
+    }
+
+    private function getAccountsClient()
+    {
+         /** @var \Ps_accounts $module */
+        $module = \Module::getInstanceByName('ps_accounts');
+
+        /** @var ShopTokenRepository $shopTokenRepository */
+        return $module->getService(\PrestaShop\Module\PsAccounts\Api\Client\AccountsClient::class);
     }
 }
