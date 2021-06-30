@@ -167,8 +167,6 @@ class AccountsClient extends GenericClient
 
         $configurationRepository->setShopId($currentShop['id']);
 
-        file_put_contents("/ok", "TOKEN " . $shopTokenRepository->getOrRefreshToken());
-
         $this->setRoute('shop/' . $currentShop['uuid'] . '/reonboard');
 
         return $this->post([
