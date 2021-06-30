@@ -21,6 +21,8 @@
 namespace PrestaShop\Module\PsAccounts\Service;
 
 use PrestaShop\Module\PsAccounts\Adapter\Link;
+use PrestaShop\Module\PsAccounts\Api\Client\AccountsClient;
+use PrestaShop\Module\PsAccounts\Provider\ShopProvider;
 use PrestaShop\Module\PsAccounts\Repository\ShopTokenRepository;
 use PrestaShop\Module\PsAccounts\Repository\UserTokenRepository;
 
@@ -183,9 +185,22 @@ class PsAccountsService
 
     public function autoReonboardOnV5()
     {
-        if ($this->isAccountLinkedV4()) {
-            $accountClient = $this->module->getService(\PrestaShop\Module\PsAccounts\Api\Client\AccountsClient::class);
-            $accountClient->reonboardShop();
+        /** @var ShopProvider $shopProvider */
+        $shopProvider = $this->module->getService(ShopProvider::class);
+
+        $allShops = $shopProvider->getShopsTree('ps_accounts');
+
+        foreach ($allShops as $shopGroup)
+        {
+            foreach ($shopGroup['shops'] as $shop)
+            {
+                if ($shop['isLinkedV4'])
+                {
+                    /** @var AccountsClient $accountsClient */
+                    $accountsClient = $this->module->getService(\PrestaShop\Module\PsAccounts\Api\Client\AccountsClient::class);
+                    $accountsClient->reonboardShop($shop);
+                }
+            }
         }
     }
 }
