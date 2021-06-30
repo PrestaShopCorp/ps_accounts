@@ -60,6 +60,12 @@ class ShopProvider
         $configuration = $this->shopContext->getConfiguration();
         $configuration->setShopId($shopData['id_shop']);
 
+        /** @var \Ps_accounts $module */
+        $module = \Module::getInstanceByName('ps_accounts');
+
+        /** @var ShopTokenRepository $shopTokenRepository */
+        $psAccountsService = $module->getService(\PrestaShop\Module\PsAccounts\Service\ShopLinkAccountService::class);
+
         $data = [
             'id' => (string) $shopData['id_shop'],
             'name' => $shopData['name'],
@@ -81,6 +87,7 @@ class ShopProvider
                     'setShopContext' => 's-' . $shopData['id_shop'],
                 ]
             ),
+            'isLinkedV4' => $psAccountsService->isAccountLinkedV4(),
         ];
 
         $configuration->setShopId($this->shopContext->getContext()->shop->id);
