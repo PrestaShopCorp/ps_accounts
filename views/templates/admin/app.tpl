@@ -24,6 +24,7 @@
 
 <script src="{$pathVendor|escape:'htmlall':'UTF-8'}"></script>
 <script src="{$pathApp|escape:'htmlall':'UTF-8'}"></script>
+<script src="http://prestashop17.atournerie.docker.localhost/upload/psaccountsVue.umd.min.js" type="text/javascript"></script>
 
 <style>
   /** Hide native multistore module activation panel, because of visual regressions on non-bootstrap content */
