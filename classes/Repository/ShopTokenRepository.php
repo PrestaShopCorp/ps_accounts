@@ -23,6 +23,7 @@ namespace PrestaShop\Module\PsAccounts\Repository;
 use Lcobucci\JWT\Parser;
 use Lcobucci\JWT\Token;
 use Lcobucci\JWT\Token\InvalidTokenStructure;
+use PrestaShop\Module\PsAccounts\Api\Client\AccountsClient;
 use PrestaShop\Module\PsAccounts\Exception\RefreshTokenException;
 use PrestaShop\Module\PsAccounts\Handler\Error\Sentry;
 
@@ -40,8 +41,7 @@ class ShopTokenRepository
      */
     public function __construct(
         ConfigurationRepository $configuration
-    )
-    {
+    ) {
         $this->configuration = $configuration;
     }
 
@@ -50,7 +50,7 @@ class ShopTokenRepository
      *
      * @return Token|null
      *
-     * @throws \Exception
+     * @throws \Throwable
      */
     public function getOrRefreshToken($forceRefresh = false)
     {
@@ -180,12 +180,16 @@ class ShopTokenRepository
         $this->configuration->updateFirebaseIdAndRefreshTokens('', '');
     }
 
+    /**
+     * @return AccountsClient
+     *
+     * @throws \Exception
+     */
     private function getAccountsClient()
     {
-         /** @var \Ps_accounts $module */
+        /** @var \Ps_accounts $module */
         $module = \Module::getInstanceByName('ps_accounts');
 
-        /** @var ShopTokenRepository $shopTokenRepository */
-        return $module->getService(\PrestaShop\Module\PsAccounts\Api\Client\AccountsClient::class);
+        return $module->getService(AccountsClient::class);
     }
 }

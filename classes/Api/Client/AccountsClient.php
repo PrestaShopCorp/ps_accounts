@@ -26,8 +26,8 @@ use PrestaShop\Module\PsAccounts\Configuration\ConfigOptionsResolver;
 use PrestaShop\Module\PsAccounts\Exception\OptionResolutionException;
 use PrestaShop\Module\PsAccounts\Provider\ShopProvider;
 use PrestaShop\Module\PsAccounts\Repository\ConfigurationRepository;
-use PrestaShop\Module\PsAccounts\Repository\UserTokenRepository;
 use PrestaShop\Module\PsAccounts\Repository\ShopTokenRepository;
+use PrestaShop\Module\PsAccounts\Repository\UserTokenRepository;
 
 /**
  * Class ServicesAccountsClient
@@ -148,11 +148,11 @@ class AccountsClient extends GenericClient
     }
 
     /**
-     * @param \Shop $currentShop
+     * @param array $currentShop
      *
      * @return array
      *
-     * @throws \Exception
+     * @throws \Throwable
      */
     public function reonboardShop($currentShop)
     {

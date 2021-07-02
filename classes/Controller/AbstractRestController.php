@@ -20,6 +20,7 @@
 
 namespace PrestaShop\Module\PsAccounts\Controller;
 
+use Context;
 use Lcobucci\JWT\Parser;
 use Lcobucci\JWT\Signer\Hmac\Sha256;
 use Lcobucci\JWT\Signer\Key;
@@ -28,7 +29,6 @@ use PrestaShop\Module\PsAccounts\Exception\Http\UnauthorizedException;
 use PrestaShop\Module\PsAccounts\Handler\Error\Sentry;
 use PrestaShop\Module\PsAccounts\Provider\RsaKeysProvider;
 use PrestaShop\Module\PsAccounts\Repository\ConfigurationRepository;
-use Context;
 
 abstract class AbstractRestController extends \ModuleFrontController implements RestControllerInterface
 {

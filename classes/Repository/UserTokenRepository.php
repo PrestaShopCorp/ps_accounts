@@ -23,6 +23,7 @@ namespace PrestaShop\Module\PsAccounts\Repository;
 use Lcobucci\JWT\Parser;
 use Lcobucci\JWT\Token;
 use Lcobucci\JWT\Token\InvalidTokenStructure;
+use PrestaShop\Module\PsAccounts\Api\Client\SsoClient;
 use PrestaShop\Module\PsAccounts\Exception\RefreshTokenException;
 use PrestaShop\Module\PsAccounts\Handler\Error\Sentry;
 
@@ -218,12 +219,16 @@ class UserTokenRepository
         //$this->configuration->updateFirebaseEmailIsVerified(false);
     }
 
+    /**
+     * @return SsoClient
+     *
+     * @throws \Exception
+     */
     private function getSsoClient()
     {
         /** @var \Ps_accounts $module */
         $module = \Module::getInstanceByName('ps_accounts');
 
-        /** @var ShopTokenRepository $shopTokenRepository */
-        return $module->getService(\PrestaShop\Module\PsAccounts\Api\Client\SsoClient::class);
+        return $module->getService(SsoClient::class);
     }
 }
