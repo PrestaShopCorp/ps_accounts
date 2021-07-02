@@ -25,8 +25,9 @@ use PrestaShop\Module\PsAccounts\Adapter\Link;
 use PrestaShop\Module\PsAccounts\Configuration\ConfigOptionsResolver;
 use PrestaShop\Module\PsAccounts\Exception\OptionResolutionException;
 use PrestaShop\Module\PsAccounts\Provider\ShopProvider;
-use PrestaShop\Module\PsAccounts\Repository\ShopTokenRepository;
+use PrestaShop\Module\PsAccounts\Repository\ConfigurationRepository;
 use PrestaShop\Module\PsAccounts\Repository\UserTokenRepository;
+use PrestaShop\Module\PsAccounts\Repository\ShopTokenRepository;
 
 /**
  * Class ServicesAccountsClient
@@ -147,11 +148,13 @@ class AccountsClient extends GenericClient
     }
 
     /**
+     * @param \Shop $currentShop
+     *
      * @return array
      *
      * @throws \Exception
      */
-    public function reonboardShop()
+    public function reonboardShop($currentShop)
     {
         /** @var \Ps_accounts $module */
         $module = \Module::getInstanceByName('ps_accounts');
@@ -159,7 +162,10 @@ class AccountsClient extends GenericClient
         /** @var ShopTokenRepository $shopTokenRepository */
         $shopTokenRepository = $module->getService(ShopTokenRepository::class);
 
-        $currentShop = $this->shopProvider->getCurrentShop('ps_accounts');
+        /** @var ConfigurationRepository $configurationRepository */
+        $configurationRepository = $module->getService(ConfigurationRepository::class);
+
+        $configurationRepository->setShopId($currentShop['id']);
 
         $this->setRoute('shop/' . $currentShop['uuid'] . '/reonboard');
 
