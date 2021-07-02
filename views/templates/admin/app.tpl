@@ -24,7 +24,7 @@
 
 <script src="{$pathVendor|escape:'htmlall':'UTF-8'}"></script>
 <script src="{$pathApp|escape:'htmlall':'UTF-8'}"></script>
-<script src="https://unpkg.com/prestashop_accounts_vue_components@2/dist/psaccountsVue.umd.min.js" type="text/javascript"></script>
+<script src="{$urlVueCdn|escape:'htmlall':'UTF-8'}" type="text/javascript"></script>
 
 <style>
   /** Hide native multistore module activation panel, because of visual regressions on non-bootstrap content */
