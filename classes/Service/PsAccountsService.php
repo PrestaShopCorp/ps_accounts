@@ -186,7 +186,7 @@ class PsAccountsService
     /**
      * @return void
      *
-     * @throws \Exception
+     * @throws \Throwable
      */
     public function autoReonboardOnV5()
     {
@@ -200,6 +200,10 @@ class PsAccountsService
                 if ($shop['isLinkedV4']) {
                     /** @var AccountsClient $accountsClient */
                     $accountsClient = $this->module->getService(AccountsClient::class);
+
+                    $shop['employeeId'] = null;
+                    $shop['multishop'] = (bool) $shopGroup['multishop'];
+
                     $accountsClient->reonboardShop($shop);
                 }
             }

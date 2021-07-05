@@ -128,6 +128,7 @@ class ShopTokenRepository
      * @return Token|null verified or refreshed token on success
      *
      * @throws RefreshTokenException
+     * @throws \Exception
      */
     public function verifyToken($idToken, $refreshToken)
     {
@@ -146,6 +147,7 @@ class ShopTokenRepository
      * @return Token|null idToken
      *
      * @throws RefreshTokenException
+     * @throws \Exception
      */
     public function refreshToken($refreshToken)
     {

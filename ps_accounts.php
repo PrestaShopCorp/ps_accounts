@@ -374,7 +374,7 @@ class Ps_accounts extends Module
     /**
      * @return void
      *
-     * @throws Exception
+     * @throws Throwable
      */
     private function autoReonboardOnV5()
     {

@@ -233,8 +233,6 @@ abstract class AbstractRestController extends \ModuleFrontController implements 
 
         $jwtString = $this->getRequestHeader(self::TOKEN_HEADER);
 
-        $this->module->getLogger()->info(self::TOKEN_HEADER . ' : ' . $jwtString);
-
         if ($jwtString) {
             $jwt = (new Parser())->parse($jwtString);
 
