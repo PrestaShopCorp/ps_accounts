@@ -14,6 +14,9 @@ function upgrade_module_5_0_0($module)
     // Ignore fail on ps_eventbus install
     $moduleInstaller->installModule('ps_eventbus');
 
+    $psAccountService = $module->getService(\PrestaShop\Module\PsAccounts\Service\PsAccountsService::class);
+    $psAccountService->autoReonboardOnV5();
+
     // Removed controller
     $uninstaller = new PrestaShop\Module\PsAccounts\Module\Uninstall($this, Db::getInstance());
     $uninstaller->deleteAdminTab('AdminConfigureHmacPsAccounts');

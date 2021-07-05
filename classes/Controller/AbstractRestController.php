@@ -20,6 +20,7 @@
 
 namespace PrestaShop\Module\PsAccounts\Controller;
 
+use Context;
 use Lcobucci\JWT\Parser;
 use Lcobucci\JWT\Signer\Hmac\Sha256;
 use Lcobucci\JWT\Signer\Key;
@@ -232,15 +233,13 @@ abstract class AbstractRestController extends \ModuleFrontController implements 
 
         $jwtString = $this->getRequestHeader(self::TOKEN_HEADER);
 
-        $this->module->getLogger()->info(self::TOKEN_HEADER . ' : ' . $jwtString);
-
         if ($jwtString) {
             $jwt = (new Parser())->parse($jwtString);
 
             $shop = new \Shop((int) $jwt->claims()->get('shop_id'));
 
             if ($shop->id) {
-                $this->setConfigurationShopId($shop->id);
+                $this->setContextShop($shop);
 
                 if (true === $jwt->verify(new Sha256(), new Key($shopKeysService->getPublicKey()))) {
                     return $jwt->claims()->all();
@@ -270,16 +269,20 @@ abstract class AbstractRestController extends \ModuleFrontController implements 
     }
 
     /**
-     * @param int $shopId
+     * @param \Shop $shop
      *
      * @return void
      *
      * @throws \Exception
      */
-    protected function setConfigurationShopId($shopId)
+    protected function setContextShop(\Shop $shop)
     {
         /** @var ConfigurationRepository $conf */
         $conf = $this->module->getService(ConfigurationRepository::class);
-        $conf->setShopId($shopId);
+        $conf->setShopId($shop->id);
+
+        /** @var Context $context */
+        $context = $this->module->getService('ps_accounts.context');
+        $context->shop = $shop;
     }
 }

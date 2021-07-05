@@ -25,6 +25,8 @@ use PrestaShop\Module\PsAccounts\Adapter\Link;
 use PrestaShop\Module\PsAccounts\Configuration\ConfigOptionsResolver;
 use PrestaShop\Module\PsAccounts\Exception\OptionResolutionException;
 use PrestaShop\Module\PsAccounts\Provider\ShopProvider;
+use PrestaShop\Module\PsAccounts\Repository\ConfigurationRepository;
+use PrestaShop\Module\PsAccounts\Repository\ShopTokenRepository;
 use PrestaShop\Module\PsAccounts\Repository\UserTokenRepository;
 
 /**
@@ -143,6 +145,43 @@ class AccountsClient extends GenericClient
                 'token' => $refreshToken,
             ],
         ]);
+    }
+
+    /**
+     * @param array $currentShop
+     *
+     * @return array
+     *
+     * @throws \Throwable
+     */
+    public function reonboardShop($currentShop)
+    {
+        /** @var \Ps_accounts $module */
+        $module = \Module::getInstanceByName('ps_accounts');
+
+        /** @var ShopTokenRepository $shopTokenRepository */
+        $shopTokenRepository = $module->getService(ShopTokenRepository::class);
+
+        /** @var ConfigurationRepository $configurationRepository */
+        $configurationRepository = $module->getService(ConfigurationRepository::class);
+
+        $shopId = $configurationRepository->getShopId();
+
+        $configurationRepository->setShopId($currentShop['id']);
+
+        $this->setRoute('shop/' . $currentShop['uuid'] . '/reonboard');
+
+        $response = $this->post([
+            'headers' => [
+                'Authorization' => 'Bearer ' . $shopTokenRepository->getOrRefreshToken(),
+                'content-type' => 'application/json',
+            ],
+            'json' => $currentShop,
+        ]);
+
+        $configurationRepository->setShopId($shopId);
+
+        return $response;
     }
 
     /**

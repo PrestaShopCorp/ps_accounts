@@ -161,6 +161,8 @@ class Ps_accounts extends Module
 
         $this->switchConfigMultishopMode();
 
+        $this->autoReonboardOnV5();
+
         $this->getLogger()->info('Install - Loading ' . $this->name . ' Env : [' . $this->getModuleEnv() . ']');
 
         return $status;
@@ -367,5 +369,17 @@ class Ps_accounts extends Module
         } else {
             $config->migrateToSingleShop(new \Shop(1));
         }
+    }
+
+    /**
+     * @return void
+     *
+     * @throws Throwable
+     */
+    private function autoReonboardOnV5()
+    {
+        /** @var \PrestaShop\Module\PsAccounts\Service\PsAccountsService $psAccountsService */
+        $psAccountsService = $this->getService(\PrestaShop\Module\PsAccounts\Service\PsAccountsService::class);
+        $psAccountsService->autoReonboardOnV5();
     }
 }
