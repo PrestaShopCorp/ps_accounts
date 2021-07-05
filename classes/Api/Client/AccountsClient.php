@@ -165,17 +165,23 @@ class AccountsClient extends GenericClient
         /** @var ConfigurationRepository $configurationRepository */
         $configurationRepository = $module->getService(ConfigurationRepository::class);
 
+        $shopId = $configurationRepository->getShopId();
+
         $configurationRepository->setShopId($currentShop['id']);
 
         $this->setRoute('shop/' . $currentShop['uuid'] . '/reonboard');
 
-        return $this->post([
+        $response = $this->post([
             'headers' => [
                 'Authorization' => 'Bearer ' . $shopTokenRepository->getOrRefreshToken(),
                 'content-type' => 'application/json',
             ],
             'json' => $currentShop,
         ]);
+
+        $configurationRepository->setShopId($shopId);
+
+        return $response;
     }
 
     /**

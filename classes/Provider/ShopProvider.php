@@ -61,6 +61,9 @@ class ShopProvider
     public function formatShopData($shopData, $psxName = '')
     {
         $configuration = $this->shopContext->getConfiguration();
+
+        $shopId = $configuration->getShopId();
+
         $configuration->setShopId($shopData['id_shop']);
 
         /** @var \Ps_accounts $module */
@@ -93,7 +96,7 @@ class ShopProvider
             'isLinkedV4' => $shopLinkAccountService->isAccountLinkedV4(),
         ];
 
-        $configuration->setShopId($this->shopContext->getContext()->shop->id);
+        $configuration->setShopId($shopId);
 
         return $data;
     }
