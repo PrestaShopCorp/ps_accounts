@@ -49,7 +49,7 @@ class SsoClient extends GenericClient
     ) {
         parent::__construct();
 
-        $config = $this->resolveConfig(['sso_api_url' => $apiUrl]);
+        $config = $this->resolveConfig(['api_url' => $apiUrl]);
 
         // Client can be provided for tests
         if (null === $client) {
