@@ -98,7 +98,7 @@ class Installer
      */
     public function getInstallUrl($module, $psxName)
     {
-        if ($this->shopContext->isShop17()) {
+        if ($this->shopContext->isShop173()) {
             $router = SymfonyContainer::getInstance()->get('router');
 
             return Tools::getHttpHost(true) . $router->generate('admin_module_manage_action', [
@@ -148,7 +148,7 @@ class Installer
      */
     public function isInstalled($module)
     {
-        if (false === $this->shopContext->isShop173()) {
+        if (false === $this->shopContext->isShop17()) {
             return Module::isInstalled('ps_eventbus');
         }
         $moduleManager = ModuleManagerBuilder::getInstance()->build();
