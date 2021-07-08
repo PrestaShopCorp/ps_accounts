@@ -124,7 +124,7 @@ class Installer
      */
     public function getEnableUrl($module, $psxName)
     {
-        if ($this->shopContext->isShop17()) {
+        if ($this->shopContext->isShop173()) {
             $router = SymfonyContainer::getInstance()->get('router');
 
             return Tools::getHttpHost(true) . $router->generate('admin_module_manage_action', [
