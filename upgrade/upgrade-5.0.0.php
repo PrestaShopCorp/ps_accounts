@@ -18,7 +18,7 @@ function upgrade_module_5_0_0($module)
     $psAccountService->autoReonboardOnV5();
 
     // Removed controller
-    $uninstaller = new PrestaShop\Module\PsAccounts\Module\Uninstall($this, Db::getInstance());
+    $uninstaller = new PrestaShop\Module\PsAccounts\Module\Uninstall($module, Db::getInstance());
     $uninstaller->deleteAdminTab('AdminConfigureHmacPsAccounts');
 
     return true;
