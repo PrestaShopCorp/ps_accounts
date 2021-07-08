@@ -46,7 +46,7 @@ class ServicesBillingClient extends GenericClient
      * @throws \Exception
      */
     public function __construct(
-        string $apiUrl,
+        $apiUrl,
         PsAccountsService $psAccountsService,
         ShopProvider $shopProvider,
         Link $link,

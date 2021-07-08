@@ -44,7 +44,7 @@ class SsoClient extends GenericClient
      * @throws OptionResolutionException
      */
     public function __construct(
-        string $apiUrl,
+        $apiUrl,
         Client $client = null
     ) {
         parent::__construct();

@@ -53,8 +53,8 @@ class AccountsClient extends GenericClient
      * @throws \Exception
      */
     public function __construct(
-        string $apiUrl,
-        bool $verify,
+        $apiUrl,
+        $verify,
         ShopProvider $shopProvider,
         Link $link,
         Client $client = null
