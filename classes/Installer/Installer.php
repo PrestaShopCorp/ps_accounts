@@ -148,7 +148,7 @@ class Installer
      */
     public function isInstalled($module)
     {
-        if (false === $this->shopContext->isShop17()) {
+        if (false === $this->shopContext->isShop173()) {
             return Module::isInstalled('ps_eventbus');
         }
         $moduleManager = ModuleManagerBuilder::getInstance()->build();
