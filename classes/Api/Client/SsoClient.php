@@ -38,18 +38,18 @@ class SsoClient extends GenericClient
     /**
      * ServicesAccountsClient constructor.
      *
-     * @param array $config
+     * @param string $apiUrl
      * @param Client|null $client
      *
      * @throws OptionResolutionException
      */
     public function __construct(
-        array $config,
+        string $apiUrl,
         Client $client = null
     ) {
         parent::__construct();
 
-        $config = $this->resolveConfig($config);
+        $config = $this->resolveConfig(['sso_api_url' => $apiUrl]);
 
         // Client can be provided for tests
         if (null === $client) {
