@@ -35,7 +35,7 @@ class ServicesBillingClient extends GenericClient
     /**
      * ServicesBillingClient constructor.
      *
-     * @param array $config
+     * @param string $apiUrl
      * @param PsAccountsService $psAccountsService
      * @param ShopProvider $shopProvider
      * @param Link $link
@@ -46,7 +46,7 @@ class ServicesBillingClient extends GenericClient
      * @throws \Exception
      */
     public function __construct(
-        array $config,
+        $apiUrl,
         PsAccountsService $psAccountsService,
         ShopProvider $shopProvider,
         Link $link,
@@ -54,7 +54,7 @@ class ServicesBillingClient extends GenericClient
     ) {
         parent::__construct();
 
-        $config = $this->resolveConfig($config);
+        $config = $this->resolveConfig(['api_url' => $apiUrl]);
 
         $shopId = $shopProvider->getCurrentShop()['id'];
 
