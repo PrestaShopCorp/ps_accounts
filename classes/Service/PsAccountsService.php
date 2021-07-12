@@ -228,8 +228,8 @@ class PsAccountsService
                         $shop['employeeId'] = null;
                         $shop['multishop'] = (bool) $shopGroup['multishop'];
 
-                        $resp = $accountsClient->reonboardShop($shop);
-                        $isAlreadyReonboard = $resp['status'];
+                        $accountsClient->reonboardShop($shop);
+                        $isAlreadyReonboard = true;
                     }
                 }
             }
