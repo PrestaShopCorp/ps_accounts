@@ -204,23 +204,23 @@ class PsAccountsService
 
         $flattenShops = [];
 
-        foreach ($allShops as $shopGroup)
-            foreach ($shopGroup['shops'] as $shop)
-            {
-                $shop['multishop'] = (bool)$shopGroup['multishop'];
+        foreach ($allShops as $shopGroup) {
+            foreach ($shopGroup['shops'] as $shop) {
+                $shop['multishop'] = (bool) $shopGroup['multishop'];
                 $flattenShops[] = $shop;
             }
+        }
 
         $isAlreadyReonboard = false;
 
         usort($flattenShops, function ($firstShop, $secondShop) {
-                return (int) $firstShop['id'] - (int) $secondShop['id'];
-            });
-            foreach ($flattenShops as $shop) {
+            return (int) $firstShop['id'] - (int) $secondShop['id'];
+        });
+        foreach ($flattenShops as $shop) {
             if ($shop['isLinkedV4']) {
                 if ($isAlreadyReonboard) {
                     $id = $conf->getShopId();
-                    $conf->setShopId((int)$shop['id']);
+                    $conf->setShopId((int) $shop['id']);
 
                     $shopLinkAccountService->resetLinkAccount();
 
