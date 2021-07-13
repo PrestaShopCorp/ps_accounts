@@ -200,17 +200,17 @@ class PsAccountsService
         /** @var ShopLinkAccountService $shopLinkAccountService */
         $shopLinkAccountService = $this->module->getService(ShopLinkAccountService::class);
 
-        $allShops = $shopProvider->getShopsTree('ps_accounts');
+        $allShops = $shopProvider->getShopsTree($this->module->name);
 
         $isAlreadyReonboard = false;
 
         usort($allShops, function ($firstGroup, $secondGroup) {
-            return (int)$firstGroup['id'] - (int)$secondGroup ['id'];
+            return (int) $firstGroup['id'] - (int) $secondGroup['id'];
         });
 
         foreach ($allShops as $shopGroup) {
             usort($shopGroup['shops'], function ($firstShop, $secondShop) {
-                return (int)$firstShop['id'] - (int)$secondShop['id'];
+                return (int) $firstShop['id'] - (int) $secondShop['id'];
             });
             foreach ($shopGroup['shops'] as $shop) {
                 if ($shop['isLinkedV4']) {
