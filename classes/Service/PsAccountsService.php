@@ -202,35 +202,38 @@ class PsAccountsService
 
         $allShops = $shopProvider->getShopsTree('ps_accounts');
 
+        $flattenShops = [];
+
+        foreach ($allShops as $shopGroup)
+            foreach ($shopGroup['shops'] as $shop)
+            {
+                $shop['multishop'] = (bool)$shopGroup['multishop'];
+                $flattenShops[] = $shop;
+            }
+
         $isAlreadyReonboard = false;
 
-        usort($allShops, function ($firstGroup, $secondGroup) {
-            return (int)$firstGroup['id'] - (int)$secondGroup ['id'];
+        usort($flattenShops, function ($firstShop, $secondShop) {
+            return (int)$firstShop['id'] - (int)$secondShop['id'];
         });
 
-        foreach ($allShops as $shopGroup) {
-            usort($shopGroup['shops'], function ($firstShop, $secondShop) {
-                return (int)$firstShop['id'] - (int)$secondShop['id'];
-            });
-            foreach ($shopGroup['shops'] as $shop) {
-                if ($shop['isLinkedV4']) {
-                    if ($isAlreadyReonboard) {
-                        $id = $conf->getShopId();
-                        $conf->setShopId((int) $shop['id']);
+        foreach ($flattenShops as $shop) {
+            if ($shop['isLinkedV4']) {
+                if ($isAlreadyReonboard) {
+                    $id = $conf->getShopId();
+                    $conf->setShopId((int)$shop['id']);
 
-                        $shopLinkAccountService->resetLinkAccount();
+                    $shopLinkAccountService->resetLinkAccount();
 
-                        $conf->setShopId($id);
-                    } else {
-                        /** @var AccountsClient $accountsClient */
-                        $accountsClient = $this->module->getService(AccountsClient::class);
+                    $conf->setShopId($id);
+                } else {
+                    /** @var AccountsClient $accountsClient */
+                    $accountsClient = $this->module->getService(AccountsClient::class);
 
-                        $shop['employeeId'] = null;
-                        $shop['multishop'] = (bool) $shopGroup['multishop'];
+                    $shop['employeeId'] = null;
 
-                        $accountsClient->reonboardShop($shop);
-                        $isAlreadyReonboard = true;
-                    }
+                    $accountsClient->reonboardShop($shop);
+                    $isAlreadyReonboard = true;
                 }
             }
         }
