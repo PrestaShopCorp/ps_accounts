@@ -321,6 +321,7 @@ class Ps_accounts extends Module
      */
     protected function loadAssets($responseApiMessage = 'null', $countProperty = 0)
     {
+        /** @var Ps_accounts $module */
         $module = \Module::getInstanceByName('ps_accounts');
         $this->context->smarty->assign('pathVendor', $this->_path . 'views/js/chunk-vendors.js');
         $this->context->smarty->assign('pathApp', $this->_path . 'views/js/app.js');
