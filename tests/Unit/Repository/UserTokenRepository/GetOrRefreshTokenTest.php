@@ -47,24 +47,16 @@ class GetOrRefreshTokenTest extends TestCase
 
         $refreshToken = $this->makeJwtToken(new \DateTimeImmutable('+1 year'));
 
-        /** @var SsoClient $ssoClient */
-        $ssoClient = $this->createMock(SsoClient::class);
-
-        $ssoClient->method('refreshToken')
-            ->willReturn([
-                'httpCode' => 200,
-                'status' => true,
-                'body' => [
-                    'idToken' => $idTokenRefreshed,
-                    'refreshToken' => $refreshToken,
-                ],
-            ]);
-
         /** @var ConfigurationRepository $configuration */
         $configuration = $this->module->getService(ConfigurationRepository::class);
 
         /** @var UserTokenRepository $tokenRepos */
-        $tokenRepos = new UserTokenRepository($ssoClient, $configuration);
+        $tokenRepos = $this->getMockBuilder(UserTokenRepository::class)
+            ->setConstructorArgs([$configuration])
+            ->setMethods(['refreshToken'])
+            ->getMock();
+        $tokenRepos->method('refreshToken')
+            ->willReturn($idTokenRefreshed);
 
         $tokenRepos->updateCredentials((string) $idToken, (string) $refreshToken);
 
