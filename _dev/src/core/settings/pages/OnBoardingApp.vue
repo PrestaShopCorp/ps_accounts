@@ -33,13 +33,17 @@
 <script>
 /* eslint-disable */
 import ConfigInformation from "@/core/app/components/panel/ConfigInformation";
-import { PsAccounts } from "prestashop_accounts_vue_components";
 import { mapSagas } from "@/lib/store-saga";
+
+let PsAccounts = window?.psaccountsVue?.PsAccounts;
+if (!PsAccounts) {
+  PsAccounts = require('prestashop_accounts_vue_components').PsAccounts;
+}
 
 export default {
   components: {
-    PsAccounts,
     ConfigInformation,
+    PsAccounts,
   },
   methods: {
     ...mapSagas({
