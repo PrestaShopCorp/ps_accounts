@@ -136,8 +136,7 @@ class Installer
         return $this->link->getAdminLink('AdminModules', true, [], [
             'module_name' => $psxName,
             'configure' => $psxName,
-            //'enable' => $module,
-            'install' => $module,
+            'enable' => $module,
         ]);
     }
 
