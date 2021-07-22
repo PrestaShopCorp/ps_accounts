@@ -43,7 +43,6 @@ class AccountsClient extends GenericClient
      * ServicesAccountsClient constructor.
      *
      * @param string $apiUrl
-     * @param bool $verify
      * @param ShopProvider $shopProvider
      * @param Link $link
      * @param Client|null $client
@@ -54,14 +53,13 @@ class AccountsClient extends GenericClient
      */
     public function __construct(
         $apiUrl,
-        $verify,
         ShopProvider $shopProvider,
         Link $link,
         Client $client = null
     ) {
         parent::__construct();
 
-        $config = $this->resolveConfig(['api_url' => $apiUrl, 'verify' => $verify]);
+        $config = $this->resolveConfig(['api_url' => $apiUrl]);
 
         $this->shopProvider = $shopProvider;
 
@@ -74,7 +72,6 @@ class AccountsClient extends GenericClient
             $client = new Client([
                 'base_url' => $config['api_url'],
                 'defaults' => [
-                    'verify' => $config['verify'],
                     'timeout' => $this->timeout,
                     'exceptions' => $this->catchExceptions,
                     'headers' => [
@@ -198,7 +195,6 @@ class AccountsClient extends GenericClient
     {
         return (new ConfigOptionsResolver([
             'api_url',
-            'verify',
         ]))->resolve($config, $defaults);
     }
 }
