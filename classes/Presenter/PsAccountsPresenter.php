@@ -108,7 +108,7 @@ class PsAccountsPresenter implements PresenterInterface
 
         $currentShop = $this->shopProvider->getCurrentShop($psxName);
         $shopBase64 = base64_encode((string) json_encode($currentShop));
-        $onboardingLink = $this->module->getParameter('ps_accounts.svc_accounts_ui_url')
+        $onboardingLink = $this->module->getParameter('ps_accounts.accounts_ui_url')
             . '?shopPayload=' . $shopBase64;
 
         try {
