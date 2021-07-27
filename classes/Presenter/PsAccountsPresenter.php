@@ -155,6 +155,7 @@ class PsAccountsPresenter implements PresenterInterface
 
                     'accountsUiUrl' => $this->module->getParameter('ps_accounts.accounts_ui_url'),
                     'segmentApiKey' => $this->module->getParameter('ps_accounts.segment_api_key'),
+                    'hotjarId' => $this->module->getParameter('ps_accounts.hotjar_id'),
                 ],
                 (new DependenciesPresenter())->present($psxName)
             );
