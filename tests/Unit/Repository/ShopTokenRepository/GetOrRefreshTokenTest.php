@@ -12,7 +12,7 @@ class GetOrRefreshTokenTest extends TestCase
     /**
      * @test
      *
-     * @throws \Exception
+     * @throws \Throwable
      */
     public function itShouldReturnValidToken()
     {
@@ -33,7 +33,7 @@ class GetOrRefreshTokenTest extends TestCase
     /**
      * @test
      *
-     * @throws \Exception
+     * @throws \Throwable
      */
     public function itShouldRefreshExpiredToken()
     {
@@ -47,26 +47,19 @@ class GetOrRefreshTokenTest extends TestCase
 
         $refreshToken = $this->makeJwtToken(new \DateTimeImmutable('+1 year'));
 
-        /** @var AccountsClient $accountsClient */
-        $accountsClient = $this->createMock(AccountsClient::class);
-
-        $accountsClient->method('refreshToken')
-            ->willReturn([
-                'httpCode' => 200,
-                'status' => true,
-                'body' => [
-                    'token' => $idTokenRefreshed,
-                    'refresh_token' => $refreshToken,
-                ],
-            ]);
-
         /** @var ConfigurationRepository $configuration */
         $configuration = $this->module->getService(ConfigurationRepository::class);
 
-        $tokenRepos = new ShopTokenRepository($accountsClient, $configuration);
+        /** @var ShopTokenRepository $tokenRepos */
+        $tokenRepos = $this->getMockBuilder(ShopTokenRepository::class)
+            ->setConstructorArgs([$configuration])
+            ->setMethods(['refreshToken'])
+            ->getMock();
+        $tokenRepos->method('refreshToken')
+            ->willReturn($idTokenRefreshed);
 
         $tokenRepos->updateCredentials((string) $idToken, (string) $refreshToken);
 
-        $this->assertEquals((string) $idTokenRefreshed, $tokenRepos->getOrRefreshToken());
+        $this->assertEquals((string) $idTokenRefreshed, (string) $tokenRepos->getOrRefreshToken());
     }
 }

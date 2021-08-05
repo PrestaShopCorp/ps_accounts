@@ -21,6 +21,9 @@
 namespace PrestaShop\Module\PsAccounts\Service;
 
 use PrestaShop\Module\PsAccounts\Adapter\Link;
+use PrestaShop\Module\PsAccounts\Api\Client\AccountsClient;
+use PrestaShop\Module\PsAccounts\Provider\ShopProvider;
+use PrestaShop\Module\PsAccounts\Repository\ConfigurationRepository;
 use PrestaShop\Module\PsAccounts\Repository\ShopTokenRepository;
 use PrestaShop\Module\PsAccounts\Repository\UserTokenRepository;
 
@@ -179,5 +182,67 @@ class PsAccountsService
     {
 //        Tools::getAdminTokenLite('AdminAjaxPsAccounts'));
         return $this->link->getAdminLink('AdminAjaxPsAccounts', true, [], ['ajax' => 1]);
+    }
+
+    /**
+     * @return string
+     */
+    public function getAccountsVueCdn()
+    {
+        return $this->module->getParameter('ps_accounts.accounts_vue_cdn_url');
+    }
+
+    /**
+     * @return void
+     *
+     * @throws \Throwable
+     */
+    public function autoReonboardOnV5()
+    {
+        /** @var ShopProvider $shopProvider */
+        $shopProvider = $this->module->getService(ShopProvider::class);
+
+        /** @var ConfigurationRepository $conf */
+        $conf = $this->module->getService(ConfigurationRepository::class);
+
+        /** @var ShopLinkAccountService $shopLinkAccountService */
+        $shopLinkAccountService = $this->module->getService(ShopLinkAccountService::class);
+
+        $allShops = $shopProvider->getShopsTree($this->module->name);
+
+        $flattenShops = [];
+
+        foreach ($allShops as $shopGroup) {
+            foreach ($shopGroup['shops'] as $shop) {
+                $shop['multishop'] = (bool) $shopGroup['multishop'];
+                $flattenShops[] = $shop;
+            }
+        }
+
+        $isAlreadyReonboard = false;
+
+        usort($flattenShops, function ($firstShop, $secondShop) {
+            return (int) $firstShop['id'] - (int) $secondShop['id'];
+        });
+        foreach ($flattenShops as $shop) {
+            if ($shop['isLinkedV4']) {
+                if ($isAlreadyReonboard) {
+                    $id = $conf->getShopId();
+                    $conf->setShopId((int) $shop['id']);
+
+                    $shopLinkAccountService->resetLinkAccount();
+
+                    $conf->setShopId($id);
+                } else {
+                    /** @var AccountsClient $accountsClient */
+                    $accountsClient = $this->module->getService(AccountsClient::class);
+
+                    $shop['employeeId'] = null;
+
+                    $accountsClient->reonboardShop($shop);
+                    $isAlreadyReonboard = true;
+                }
+            }
+        }
     }
 }
