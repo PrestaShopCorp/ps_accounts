@@ -102,7 +102,7 @@ class ConfigurationRepository
     }
 
     /**
-     * @return string | null
+     * @return string|null
      */
     public function getFirebaseEmail()
     {
@@ -123,7 +123,7 @@ class ConfigurationRepository
     }
 
     /**
-     * @return string | null
+     * @return string|null
      */
     public function getEmployeeId()
     {
