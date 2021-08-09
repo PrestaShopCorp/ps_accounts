@@ -256,7 +256,9 @@ class Ps_accounts extends Module
      */
     public function hookDisplayBackOfficeHeader($params)
     {
-        $this->switchConfigMultishopMode();
+        if ($this->context->controller->controller_name !== 'AdminPreferences') {
+            $this->switchConfigMultishopMode();
+        }
         return true;
     }
 
@@ -269,7 +271,9 @@ class Ps_accounts extends Module
      */
     public function hookActionObjectShopAddAfter($params)
     {
-        $this->switchConfigMultishopMode();
+        if ($this->context->controller->controller_name === 'AdminShop') {
+            $this->switchConfigMultishopMode();
+        }
         return true;
     }
 
@@ -394,5 +398,13 @@ class Ps_accounts extends Module
         /** @var \PrestaShop\Module\PsAccounts\Service\PsAccountsService $psAccountsService */
         $psAccountsService = $this->getService(\PrestaShop\Module\PsAccounts\Service\PsAccountsService::class);
         $psAccountsService->autoReonboardOnV5();
+    }
+
+    /**
+     * @return array
+     */
+    public function getHookToInstall()
+    {
+        return $this->hookToInstall;
     }
 }
