@@ -92,7 +92,7 @@ class Installer
      * @param string $module
      * @param string $psxName
      *
-     * @return string | null
+     * @return string|null
      *
      * @throws \PrestaShopException
      */
@@ -118,7 +118,7 @@ class Installer
      * @param string $module
      * @param string $psxName
      *
-     * @return string | null
+     * @return string|null
      *
      * @throws \PrestaShopException
      */
