@@ -303,34 +303,43 @@ class ConfigurationRepository
     }
 
     /**
+    *   Get shop who is defined as main in the prestashop
+    *
+    *   @return \Shop
+    */
+    public function getMainShop() {
+        $mainShopId = \Db::getInstance()->getValue("SELECT value FROM " . _DB_PREFIX_ . "configuration WHERE name = 'PS_SHOP_DEFAULT'");
+        $shop = new \Shop($mainShopId);
+        return $shop;
+    }
+
+    /**
      * specify id_shop & id_shop_group for shop
-     *
-     * @param \Shop $shop
      *
      * @return void
      */
-    public function migrateToMultiShop(\Shop $shop)
+    public function migrateToMultiShop()
     {
+        $shop = $this->getMainShop();
         \Db::getInstance()->query(
-            'UPDATE ' . _DB_PREFIX_ . 'configuration SET id_shop=' . (int) $shop->id . ', id_shop_group=' . (int) $shop->id_shop_group
-            . " WHERE (name like 'PS_ACCOUNTS_%' OR name IN ('PSX_UUID_V4'))"
-            . ' AND id_shop IS NULL AND id_shop_group IS NULL'
+            'UPDATE ' . _DB_PREFIX_ . 'configuration SET id_shop = ' . $shop->id . ', id_shop_group = ' . $shop->id_shop_group . ''
+             . " WHERE (name like 'PS_ACCOUNTS_%' OR name = 'PSX_UUID_V4')"
+             . ' AND id_shop IS NULL AND id_shop_group IS NULL;'
         );
     }
 
     /**
      * nullify id_shop & id_shop_group for shop
      *
-     * @param \Shop $shop
-     *
      * @return void
      */
-    public function migrateToSingleShop(\Shop $shop)
+    public function migrateToSingleShop()
     {
+        $shop = $this->getMainShop();
         \Db::getInstance()->query(
-            'UPDATE ' . _DB_PREFIX_ . 'configuration SET id_shop=NULL, id_shop_group=NULL'
-            . " WHERE (name like 'PS_ACCOUNTS_%' OR name IN ('PSX_UUID_V4'))"
-            . ' AND id_shop=' . (int) $shop->id . ' AND id_shop_group=' . (int) $shop->id_shop_group
+            'UPDATE ' . _DB_PREFIX_ . 'configuration SET id_shop = NULL, id_shop_group = NULL'
+             . " WHERE (name like 'PS_ACCOUNTS_%' OR name = 'PSX_UUID_V4')"
+             . ' AND id_shop = ' . $shop->id . ' AND id_shop_group = ' . $shop->id_shop_group . ';'
         );
     }
 }
