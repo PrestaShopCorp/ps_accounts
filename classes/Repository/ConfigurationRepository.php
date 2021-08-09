@@ -303,13 +303,15 @@ class ConfigurationRepository
     }
 
     /**
-    *   Get shop who is defined as main in the prestashop
-    *
-    *   @return \Shop
-    */
-    public function getMainShop() {
-        $mainShopId = \Db::getInstance()->getValue("SELECT value FROM " . _DB_PREFIX_ . "configuration WHERE name = 'PS_SHOP_DEFAULT'");
+     *   Get shop who is defined as main in the prestashop
+     *
+     *   @return \Shop
+     */
+    public function getMainShop()
+    {
+        $mainShopId = \Db::getInstance()->getValue('SELECT value FROM ' . _DB_PREFIX_ . "configuration WHERE name = 'PS_SHOP_DEFAULT'");
         $shop = new \Shop((int) $mainShopId);
+
         return $shop;
     }
 

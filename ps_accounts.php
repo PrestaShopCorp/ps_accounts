@@ -244,7 +244,6 @@ class Ps_accounts extends Module
     public function hookDisplayAdminForm($params)
     {
         $this->switchConfigMultishopMode();
-        return true;
     }
 
     /**
@@ -259,7 +258,6 @@ class Ps_accounts extends Module
         if ($this->context->controller->controller_name !== 'AdminPreferences') {
             $this->switchConfigMultishopMode();
         }
-        return true;
     }
 
     /**
@@ -274,6 +272,7 @@ class Ps_accounts extends Module
         if ($this->context->controller->controller_name === 'AdminShop') {
             $this->switchConfigMultishopMode();
         }
+
         return true;
     }
 
