@@ -88,7 +88,7 @@ class ServicesBillingClient extends GenericClient
     /**
      * @param mixed $shopUuidV4
      *
-     * @return array | false
+     * @return array|false
      */
     public function getBillingCustomer($shopUuidV4)
     {
@@ -101,7 +101,7 @@ class ServicesBillingClient extends GenericClient
      * @param mixed $shopUuidV4
      * @param array $bodyHttp
      *
-     * @return array | false
+     * @return array|false
      */
     public function createBillingCustomer($shopUuidV4, $bodyHttp)
     {
@@ -116,7 +116,7 @@ class ServicesBillingClient extends GenericClient
      * @param mixed $shopUuidV4
      * @param string $module
      *
-     * @return array | false
+     * @return array|false
      */
     public function getBillingSubscriptions($shopUuidV4, $module)
     {
@@ -130,7 +130,7 @@ class ServicesBillingClient extends GenericClient
      * @param string $module
      * @param array $bodyHttp
      *
-     * @return array | false
+     * @return array|false
      */
     public function createBillingSubscriptions($shopUuidV4, $module, $bodyHttp)
     {

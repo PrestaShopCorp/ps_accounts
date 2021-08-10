@@ -81,7 +81,7 @@ class PsAccountsService
     }
 
     /**
-     * @return string | false
+     * @return string|false
      */
     public function getShopUuidV4()
     {
@@ -117,7 +117,7 @@ class PsAccountsService
     }
 
     /**
-     * @return string | false
+     * @return string|false
      */
     public function getUserUuidV4()
     {
