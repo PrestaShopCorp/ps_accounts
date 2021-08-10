@@ -5,4 +5,4 @@ docker cp . test-phpunit:/var/www/html/modules/ps_accounts
 docker container exec -u www-data test-phpunit sh -c "sleep 1 && ./bin/console prestashop:module install ps_accounts"
 docker container exec --workdir /var/www/html/modules/ps_accounts test-phpunit ./vendor/bin/phpunit
 docker container rm -f test-phpunit
-echo phpunit passed
+echo phpunit finished
