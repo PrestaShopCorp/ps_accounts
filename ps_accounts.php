@@ -273,6 +273,18 @@ class Ps_accounts extends Module
             $this->switchConfigMultishopMode();
         }
 
+        $shopCreated = $params["object"];
+
+        /** @var \PrestaShop\Module\PsAccounts\Repository\ConfigurationRepository $config */
+        $configuration = $this->getService(\PrestaShop\Module\PsAccounts\Repository\ConfigurationRepository::class);
+        $actualShopId = $configuration->getShopId();
+        $configuration->setShopId($shopCreated->id);
+
+        /** @var \PrestaShop\Module\PsAccounts\Provider\RsaKeysProvider $rsaKeyProvider */
+        $rsaKeyProvider = $this->getService(\PrestaShop\Module\PsAccounts\Provider\RsaKeysProvider::class);
+        $rsaKeyProvider->generateKeys();
+        $configuration->setShopId = $actualShopId;
+
         return true;
     }
 
