@@ -58,7 +58,7 @@ class ServicesBillingClient extends GenericClient
 
         $shopId = $shopProvider->getCurrentShop()['id'];
 
-        $token = $psAccountsService->getOrRefreshToken();
+        $token = $psAccountsService->getOrRefreshTokenRaw();
 
         $this->setLink($link->getLink());
 
