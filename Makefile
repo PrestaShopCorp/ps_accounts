@@ -113,7 +113,7 @@ endif
 
 
 # target: phpunit                                - Start phpunit
-phpunit: vendor/phpunit/phpunit
+phpunit-docker: vendor/phpunit/phpunit
 ifndef DOCKER
     $(error "DOCKER is unavailable on your system")
 endif
@@ -122,13 +122,18 @@ endif
 	cp ./config/config.yml.dist ./config/config.yml
 	docker cp . test-phpunit:/var/www/html/modules/ps_accounts
 	docker container exec -u www-data test-phpunit sh -c "sleep 1 && ./bin/console prestashop:module install ps_accounts"
-	docker container exec -u www-data --workdir /var/www/html/modules/ps_accounts test-phpunit ./vendor/bin/phpunit
-	@echo phpunit passed
 
 backup-config-yml:
 	@if [ -f ./config/config.yml ]; then mv ./config/config.yml ./config/.config.yml.bak; fi
 
-phpunit-local: backup-config-yml phpunit
+# target: phpunit                                - Start phpunit
+phpunit: phpunit-docker
+	docker container exec -u www-data --workdir /var/www/html/modules/ps_accounts test-phpunit ./vendor/bin/phpunit
+	@echo phpunit passed
+
+# target: phpunit                                - Start phpunit-local
+phpunit-local: backup-config-yml phpunit-docker
+	-docker container exec -u www-data --workdir /var/www/html/modules/ps_accounts test-phpunit ./vendor/bin/phpunit
 	@if [ -f ./config/.config.yml.bak ]; then mv ./config/.config.yml.bak ./config/config.yml; fi
 	@docker container rm -f test-phpunit
 
