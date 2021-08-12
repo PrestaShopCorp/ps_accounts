@@ -107,7 +107,7 @@ class RsaKeysProvider
      */
     public function encrypt($string)
     {
-        $this->rsa->loadKey((string) $this->getPublicKey(), RSA::PUBLIC_FORMAT_PKCS1);
+        $this->rsa->loadKey($this->getPublicKey(), RSA::PUBLIC_FORMAT_PKCS1);
 
         return $this->rsa->encrypt($string);
     }
@@ -162,7 +162,7 @@ class RsaKeysProvider
     }
 
     /**
-     * @return string|bool
+     * @return string
      */
     public function getPublicKey()
     {

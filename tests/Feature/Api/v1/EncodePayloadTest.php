@@ -27,7 +27,7 @@ class EncodePayloadTest extends FeatureTestCase
 
         $jwt = (new Parser())->parse((string) $this->encodePayload($payload));
 
-        $this->assertTrue($jwt->verify(new Sha256(), new Key((string) $shopKeysService->getPublicKey())));
+        $this->assertTrue($jwt->verify(new Sha256(), new Key($shopKeysService->getPublicKey())));
 
         $this->assertArraySubset($jwt->claims()->all(), $payload);
     }

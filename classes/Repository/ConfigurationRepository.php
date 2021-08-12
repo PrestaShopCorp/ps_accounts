@@ -204,7 +204,7 @@ class ConfigurationRepository
     }
 
     /**
-     * @return string|bool
+     * @return string
      */
     public function getAccountsRsaPublicKey()
     {

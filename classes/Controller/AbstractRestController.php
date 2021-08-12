@@ -240,14 +240,8 @@ abstract class AbstractRestController extends \ModuleFrontController implements 
 
             if ($shop->id) {
                 $this->setContextShop($shop);
-                $publicKey = $shopKeysService->getPublicKey();
 
-                if (
-                    null !== $publicKey &&
-                    false !== $publicKey &&
-                    '' !== $publicKey &&
-                    true === $jwt->verify(new Sha256(), new Key((string) $publicKey))
-                ) {
+                if (true === $jwt->verify(new Sha256(), new Key($shopKeysService->getPublicKey()))) {
                     return $jwt->claims()->all();
                 }
             }
