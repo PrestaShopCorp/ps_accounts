@@ -58,7 +58,7 @@ class ServicesBillingClient extends GenericClient
 
         $shopId = $shopProvider->getCurrentShop()['id'];
 
-        $token = $psAccountsService->getOrRefreshTokenRaw();
+        $token = $psAccountsService->getOrRefreshToken();
 
         $this->setLink($link->getLink());
 
@@ -73,7 +73,7 @@ class ServicesBillingClient extends GenericClient
                         // Commented, else does not work anymore with API.
                         //'Content-Type' => 'application/vnd.accounts.v1+json', // api version to use
                         'Accept' => 'application/json',
-                        'Authorization' => 'Bearer ' . $token,
+                        'Authorization' => 'Bearer ' . (string) $token,
                         'Shop-Id' => $shopId,
                         'Module-Version' => \Ps_accounts::VERSION, // version of the module
                         'Prestashop-Version' => _PS_VERSION_, // prestashop version

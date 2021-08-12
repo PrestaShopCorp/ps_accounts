@@ -117,14 +117,6 @@ class PsAccountsService
     }
 
     /**
-     * @return string|null
-     */
-    public function getOrRefreshTokenRaw()
-    {
-        return $this->shopTokenRepository->getOrRefreshTokenRaw();
-    }
-
-    /**
      * @return string|false
      */
     public function getUserUuidV4()

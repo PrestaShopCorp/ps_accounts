@@ -70,30 +70,6 @@ class ShopTokenRepository
     }
 
     /**
-     * @param bool $forceRefresh
-     *
-     * @return string|null
-     *
-     * @throws \Throwable
-     */
-    public function getOrRefreshTokenRaw($forceRefresh = false)
-    {
-        if (true === $forceRefresh || $this->isTokenExpired()) {
-            $refreshToken = $this->getRefreshToken();
-            try {
-                $this->updateCredentials(
-                    (string) $this->refreshToken($refreshToken),
-                    $refreshToken
-                );
-            } catch (RefreshTokenException $e) {
-                Sentry::capture($e);
-            }
-        }
-
-        return $this->getTokenRaw();
-    }
-
-    /**
      * @return string
      */
     public function getRefreshToken()
@@ -107,14 +83,6 @@ class ShopTokenRepository
     public function getToken()
     {
         return $this->parseToken($this->configuration->getFirebaseIdToken());
-    }
-
-    /**
-     * @return string|null
-     */
-    public function getTokenRaw()
-    {
-        return $this->configuration->getFirebaseIdToken();
     }
 
     /**
