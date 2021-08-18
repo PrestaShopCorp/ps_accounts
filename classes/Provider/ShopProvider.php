@@ -120,7 +120,13 @@ class ShopProvider
         foreach (\Shop::getTree() as $groupId => $groupData) {
             $shops = [];
             foreach ($groupData['shops'] as $shopId => $shopData) {
-                $shops[] = $this->formatShopData($shopData, $psxName);
+                $data = $this->formatShopData($shopData, $psxName);
+
+                $shops[] = array_merge($data, [
+                    'multishop' => $this->shopContext->isMultishopActive(),
+                    'moduleName' => $psxName,
+                    'psVersion' => _PS_VERSION_,
+                ]);
             }
 
             $shopList[] = [

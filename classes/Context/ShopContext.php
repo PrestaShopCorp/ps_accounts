@@ -71,6 +71,32 @@ class ShopContext
     /**
      * @return bool
      */
+    public function getShopContext()
+    {
+        return \Shop::getContext();
+    }
+
+    /**
+     * ID of shop or group
+     *
+     * @return string | null
+     */
+    public function getShopContextId()
+    {
+        if (\Shop::getContext() == \Shop::CONTEXT_SHOP) {
+            return \Shop::getContextShopID();;
+        }
+
+        if (\Shop::getContext() == \Shop::CONTEXT_GROUP) {
+            return \Shop::getContextShopGroupID();
+        }
+
+        return null;
+    }
+
+    /**
+     * @return bool
+     */
     public function isShopContext()
     {
         if ($this->isMultishopActive() && \Shop::getContext() !== \Shop::CONTEXT_SHOP) {

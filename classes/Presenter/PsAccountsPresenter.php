@@ -109,6 +109,10 @@ class PsAccountsPresenter implements PresenterInterface
         try {
             return array_merge(
                 [
+                    'currentContext' => [
+                        'type' => $shopContext->getShopContext(),
+                        'id' => $shopContext->getShopContextId(),
+                    ],
                     'psxName' => $psxName,
                     'psIs17' => $shopContext->isShop17(),
 
