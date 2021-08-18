@@ -50,20 +50,13 @@ class RefreshTokenTest extends TestCase
         /** @var ConfigurationRepository $configuration */
         $configuration = $this->module->getService(ConfigurationRepository::class);
 
-        /** @var SsoClient $ssoClient */
-        $ssoClient = $this->createMock(SsoClient::class);
-
-        $ssoClient->method('refreshToken')
-            ->willReturn([
-                'httpCode' => 200,
-                'status' => true,
-                'body' => [
-                    'idToken' => $idTokenRefreshed,
-                    'refreshToken' => $refreshToken,
-                ],
-            ]);
-
-        $tokenRepos = new UserTokenRepository($ssoClient, $configuration);
+        /** @var UserTokenRepository $tokenRepos */
+        $tokenRepos = $this->getMockBuilder(UserTokenRepository::class)
+            ->setConstructorArgs([$configuration])
+            ->setMethods(['refreshToken'])
+            ->getMock();
+        $tokenRepos->method('refreshToken')
+            ->willReturn($idTokenRefreshed);
 
         $tokenRepos->updateCredentials((string) $idToken, (string) $refreshToken);
 
@@ -91,19 +84,13 @@ class RefreshTokenTest extends TestCase
         /** @var ConfigurationRepository $configuration */
         $configuration = $this->module->getService(ConfigurationRepository::class);
 
-        /** @var SsoClient $ssoClient */
-        $ssoClient = $this->createMock(SsoClient::class);
-
-        $ssoClient->method('refreshToken')
-            ->willReturn([
-                'httpCode' => 500,
-                'status' => false,
-                'body' => [
-                    'message' => 'Error while refreshing token',
-                ]
-            ]);
-
-        $tokenRepos = new UserTokenRepository($ssoClient, $configuration);
+        /** @var UserTokenRepository $tokenRepos */
+        $tokenRepos = $this->getMockBuilder(UserTokenRepository::class)
+            ->setConstructorArgs([$configuration])
+            ->setMethods(['refreshToken'])
+            ->getMock();
+        $tokenRepos->method('refreshToken')
+            ->willThrowException(new RefreshTokenException());
 
         $tokenRepos->updateCredentials((string) $idToken, (string) $refreshToken);
 

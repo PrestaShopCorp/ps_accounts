@@ -33,11 +33,6 @@ use PrestaShop\Module\PsAccounts\Handler\Error\Sentry;
 class UserTokenRepository
 {
     /**
-     * @var SsoClient
-     */
-    private $ssoClient;
-
-    /**
      * @var ConfigurationRepository
      */
     private $configuration;
@@ -45,14 +40,11 @@ class UserTokenRepository
     /**
      * PsAccountsService constructor.
      *
-     * @param SsoClient $ssoClient
      * @param ConfigurationRepository $configuration
      */
     public function __construct(
-        SsoClient $ssoClient,
         ConfigurationRepository $configuration
     ) {
-        $this->ssoClient = $ssoClient;
         $this->configuration = $configuration;
     }
 
@@ -90,7 +82,7 @@ class UserTokenRepository
      */
     public function verifyToken($idToken, $refreshToken)
     {
-        $response = $this->ssoClient->verifyToken($idToken);
+        $response = $this->getSsoClient()->verifyToken($idToken);
 
         if ($response && true === $response['status']) {
             return $this->parseToken($idToken);
@@ -108,7 +100,7 @@ class UserTokenRepository
      */
     public function refreshToken($refreshToken)
     {
-        $response = $this->ssoClient->refreshToken($refreshToken);
+        $response = $this->getSsoClient()->refreshToken($refreshToken);
 
         if ($response && true === $response['status']) {
             return $this->parseToken($response['body']['idToken']);
@@ -225,5 +217,18 @@ class UserTokenRepository
         $this->configuration->updateUserFirebaseRefreshToken('');
         $this->configuration->updateFirebaseEmail('');
         //$this->configuration->updateFirebaseEmailIsVerified(false);
+    }
+
+    /**
+     * @return SsoClient
+     *
+     * @throws \Exception
+     */
+    private function getSsoClient()
+    {
+        /** @var \Ps_accounts $module */
+        $module = \Module::getInstanceByName('ps_accounts');
+
+        return $module->getService(SsoClient::class);
     }
 }

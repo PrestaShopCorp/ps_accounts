@@ -22,6 +22,7 @@ namespace PrestaShop\Module\PsAccounts\Provider;
 
 use PrestaShop\Module\PsAccounts\Adapter\Link;
 use PrestaShop\Module\PsAccounts\Context\ShopContext;
+use PrestaShop\Module\PsAccounts\Service\ShopLinkAccountService;
 
 class ShopProvider
 {
@@ -54,11 +55,22 @@ class ShopProvider
      * @param string $psxName
      *
      * @return array
+     *
+     * @throws \Exception
      */
     public function formatShopData($shopData, $psxName = '')
     {
         $configuration = $this->shopContext->getConfiguration();
+
+        $shopId = $configuration->getShopId();
+
         $configuration->setShopId($shopData['id_shop']);
+
+        /** @var \Ps_accounts $module */
+        $module = \Module::getInstanceByName('ps_accounts');
+
+        /** @var ShopLinkAccountService $shopLinkAccountService */
+        $shopLinkAccountService = $module->getService(ShopLinkAccountService::class);
 
         $data = [
             'id' => (string) $shopData['id_shop'],
@@ -81,12 +93,15 @@ class ShopProvider
                     'setShopContext' => 's-' . $shopData['id_shop'],
                 ]
             ),
+            'isLinkedV4' => $shopLinkAccountService->isAccountLinkedV4(),
         ];
 
-        $configuration->setShopId($this->shopContext->getContext()->shop->id);
+        $configuration->setShopId($shopId);
 
         return $data;
     }
+
+    // TODO Add public function to get main shop
 
     /**
      * @param string $psxName
