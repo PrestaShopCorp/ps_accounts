@@ -273,9 +273,9 @@ class Ps_accounts extends Module
             $this->switchConfigMultishopMode();
         }
 
-        $shopCreated = $params["object"];
+        $shopCreated = $params['object'];
 
-        /** @var \PrestaShop\Module\PsAccounts\Repository\ConfigurationRepository $config */
+        /** @var \PrestaShop\Module\PsAccounts\Repository\ConfigurationRepository $configuration */
         $configuration = $this->getService(\PrestaShop\Module\PsAccounts\Repository\ConfigurationRepository::class);
         $actualShopId = $configuration->getShopId();
         $configuration->setShopId($shopCreated->id);

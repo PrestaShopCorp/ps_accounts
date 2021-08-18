@@ -69,7 +69,7 @@ class ShopContext
     }
 
     /**
-     * @return bool
+     * @return int
      */
     public function getShopContext()
     {
@@ -79,12 +79,12 @@ class ShopContext
     /**
      * ID of shop or group
      *
-     * @return string | null
+     * @return int|null
      */
     public function getShopContextId()
     {
         if (\Shop::getContext() == \Shop::CONTEXT_SHOP) {
-            return \Shop::getContextShopID();;
+            return \Shop::getContextShopID();
         }
 
         if (\Shop::getContext() == \Shop::CONTEXT_GROUP) {
