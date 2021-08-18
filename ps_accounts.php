@@ -283,7 +283,7 @@ class Ps_accounts extends Module
         /** @var \PrestaShop\Module\PsAccounts\Provider\RsaKeysProvider $rsaKeyProvider */
         $rsaKeyProvider = $this->getService(\PrestaShop\Module\PsAccounts\Provider\RsaKeysProvider::class);
         $rsaKeyProvider->generateKeys();
-        $configuration->setShopId = $actualShopId;
+        $configuration->setShopId($actualShopId);
 
         return true;
     }
