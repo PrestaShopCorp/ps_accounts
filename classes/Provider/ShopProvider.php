@@ -83,6 +83,10 @@ class ShopProvider
             'uuid' => $configuration->getShopUuid() ?: null,
             'publicKey' => $configuration->getAccountsRsaPublicKey() ?: null,
             'employeeId' => (int) $configuration->getEmployeeId() ?: null,
+            'user' => [
+                'email' => $configuration->getFirebaseEmail() ?: null,
+                'uuid' => $configuration->getUserFirebaseUuid() ?: null,
+            ],
 
             'url' => $this->link->getAdminLink(
                 'AdminModules',
@@ -155,6 +159,43 @@ class ShopProvider
         }
 
         return $shopList;
+    }
+
+    /**
+     * @param string $psxName
+     *
+     * @return array
+     *
+     * @throws \PrestaShopException
+     */
+    public function getUnlinkedShops($psxName)
+    {
+        $shopTree = $this->getShopsTree($psxName);
+        $shops = [];
+
+        switch ($this->getShopContext()->getShopContext()) {
+            case \Shop::CONTEXT_ALL:
+                $shops = array_reduce($shopTree, function ($carry, $shopGroup) {
+                    return array_merge($carry, $shopGroup['shops']);
+                }, []);
+                break;
+            case \Shop::CONTEXT_GROUP:
+                $shops = array_reduce($shopTree, function ($carry, $shopGroup) {
+                    if ($shopGroup['id'] != $this->getShopContext()->getShopContextId()) {
+                        return $carry;
+                    }
+
+                    return array_merge($carry, $shopGroup['shops']);
+                }, []);
+                break;
+            case \Shop::CONTEXT_SHOP:
+                $shops = [$this->getCurrentShop($psxName)];
+                break;
+        }
+
+        return array_filter($shops, function ($shop) {
+            return $shop['uuid'] === null;
+        });
     }
 
     /**

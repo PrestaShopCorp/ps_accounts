@@ -106,10 +106,10 @@ class PsAccountsPresenter implements PresenterInterface
 
         $moduleName = $this->module->name;
 
-        $currentShop = $this->shopProvider->getCurrentShop($psxName);
-        $shopBase64 = base64_encode((string) json_encode($currentShop));
+        $unlinkedShops = $this->shopProvider->getUnlinkedShops($psxName);
+        $shopBase64 = base64_encode((string) json_encode(array_values($unlinkedShops)));
         $onboardingLink = $this->module->getParameter('ps_accounts.accounts_ui_url')
-            . '?shopPayload=' . $shopBase64;
+            . '?shops=' . $shopBase64;
 
         try {
             return array_merge(
@@ -148,7 +148,7 @@ class PsAccountsPresenter implements PresenterInterface
                         'employeeId' => $shopContext->getContext()->employee->id,
                         'isSuperAdmin' => $shopContext->getContext()->employee->isSuperAdmin(),
                     ],
-                    'currentShop' => $currentShop,
+                    'currentShop' => $this->shopProvider->getCurrentShop($psxName),
                     'isShopContext' => $shopContext->isShopContext(),
                     'superAdminEmail' => $this->psAccountsService->getSuperAdminEmail(),
 
