@@ -2006,6 +2006,15 @@ bcrypt-pbkdf@^1.0.0:
   dependencies:
     tweetnacl "^0.14.3"
 
+belter@^1.0.123, belter@^1.0.41:
+  version "1.0.164"
+  resolved "https://registry.yarnpkg.com/belter/-/belter-1.0.164.tgz#3f0218f87ee5443c8b917a0e11bad4da5c15439f"
+  integrity sha512-aDRwk/yvRmesbEXixhbJ0kGeFmJth2kXZtqB8Dpk5xpfU79VPu+AX5DkE3b4Q6wCINNIetYhSZdSE255IKao2g==
+  dependencies:
+    cross-domain-safe-weakmap "^1"
+    cross-domain-utils "^2"
+    zalgo-promise "^1"
+
 bfj@^6.1.1:
   version "6.1.2"
   resolved "https://registry.yarnpkg.com/bfj/-/bfj-6.1.2.tgz#325c861a822bcb358a41c78a33b8e6e2086dde7f"
@@ -2982,6 +2991,20 @@ create-hmac@^1.1.0, create-hmac@^1.1.4, create-hmac@^1.1.7:
     ripemd160 "^2.0.0"
     safe-buffer "^5.0.1"
     sha.js "^2.4.8"
+
+cross-domain-safe-weakmap@^1, cross-domain-safe-weakmap@^1.0.1:
+  version "1.0.28"
+  resolved "https://registry.yarnpkg.com/cross-domain-safe-weakmap/-/cross-domain-safe-weakmap-1.0.28.tgz#d6c3c5af954340ce5f9d4ee5f3c38dba9513a165"
+  integrity sha512-gfQiQYSdWr9cYFVpmzp+b6MyTnefefDHr+fvm+JVv20hQxetV5J6chZOAusrpM/kFpTTbVDnHCziBFaREvgc0Q==
+  dependencies:
+    cross-domain-utils "^2.0.0"
+
+cross-domain-utils@^2, cross-domain-utils@^2.0.0, cross-domain-utils@^2.0.33:
+  version "2.0.34"
+  resolved "https://registry.yarnpkg.com/cross-domain-utils/-/cross-domain-utils-2.0.34.tgz#3f8dc8d82a5434213787433f17b76f51c316e382"
+  integrity sha512-ke4PirGRXwEElEmE/7k5aCvCW+EqbgseT7AOObzFfaVnOLuEVN9SjVWoOfS/qAT0rDPn3ggmNDW6mguMBy4HgA==
+  dependencies:
+    zalgo-promise "^1.0.11"
 
 cross-spawn@^3.0.0:
   version "3.0.1"
@@ -6121,6 +6144,11 @@ material-design-icons-iconfont@^5.0.1:
   resolved "https://registry.yarnpkg.com/material-design-icons-iconfont/-/material-design-icons-iconfont-5.0.1.tgz#371875ed7fe9c8c520bc7123c3231feeab731c31"
   integrity sha512-Xg6rIdGrfySTqiTZ6d+nQbcFepS6R4uKbJP0oAqyeZXJY/bX6mZDnOmmUJusqLXfhIwirs0c++a6JpqVa8RFvA==
 
+material-design-icons-iconfont@^6.1.0:
+  version "6.1.0"
+  resolved "https://registry.yarnpkg.com/material-design-icons-iconfont/-/material-design-icons-iconfont-6.1.0.tgz#ffad21a71f2000336fd410cbeba36ddbf301f0f2"
+  integrity sha512-wRJtOo1v1ch+gN8PRsj0IGJznk+kQ8mz13ds/nuhLI+Qyf/931ZlRpd92oq0IRPpZIb+bhX8pRjzIVdcPDKmiQ==
+
 md5.js@^1.3.4:
   version "1.3.5"
   resolved "https://registry.yarnpkg.com/md5.js/-/md5.js-1.3.5.tgz#b5d07b8e3216e3e27cd728d72f70d1e6a342005f"
@@ -7268,6 +7296,17 @@ posix-character-classes@^0.1.0:
   resolved "https://registry.yarnpkg.com/posix-character-classes/-/posix-character-classes-0.1.1.tgz#01eac0fe3b5af71a2a6c02feabb8c1fef7e00eab"
   integrity sha1-AerA/jta9xoqbAL+q7jB/vfgDqs=
 
+post-robot@^10:
+  version "10.0.42"
+  resolved "https://registry.yarnpkg.com/post-robot/-/post-robot-10.0.42.tgz#0371d2147ba465271c7362c492e0b5b332850de5"
+  integrity sha512-fuIuJblIbiAUJVKvttYZ1ZABhvrtAJgxZZ/TsWzzAdQGzkXOaewwgvFiGOSZRr0DywRaQs0Wvgxa7bFCYh8pfg==
+  dependencies:
+    belter "^1.0.41"
+    cross-domain-safe-weakmap "^1.0.1"
+    cross-domain-utils "^2.0.0"
+    universal-serialize "^1.0.4"
+    zalgo-promise "^1.0.3"
+
 postcss-calc@^7.0.1:
   version "7.0.5"
   resolved "https://registry.yarnpkg.com/postcss-calc/-/postcss-calc-7.0.5.tgz#f8a6e99f12e619c2ebc23cf6c486fdc15860933e"
@@ -7663,7 +7702,7 @@ prepend-http@^1.0.0:
   resolved "https://registry.yarnpkg.com/prepend-http/-/prepend-http-1.0.4.tgz#d4f4562b0ce3696e41ac52d0e002e57a635dc6dc"
   integrity sha1-1PRWKwzjaW5BrFLQ4ALlemNdxtw=
 
-prestakit@^1.1.0, prestakit@^1.2.1:
+prestakit@^1.1.0:
   version "1.2.1"
   resolved "https://registry.yarnpkg.com/prestakit/-/prestakit-1.2.1.tgz#f7345396ef0f937fcf880caad6d08d4964f2dd89"
   integrity sha512-lxVGZMEQ6U/sDgOmoDfWAa51u6pMCpACjA37ip48cSSqdxIA3hYR+0bJO/gIW1I0fgJ2rkjaAobplJc4wo7xag==
@@ -7675,10 +7714,22 @@ prestakit@^1.1.0, prestakit@^1.2.1:
     select2 "^4.0.5"
     select2-bootstrap-theme "0.1.0-beta.10"
 
-prestashop_accounts_vue_components@^1.5.5:
-  version "1.5.5"
-  resolved "https://registry.yarnpkg.com/prestashop_accounts_vue_components/-/prestashop_accounts_vue_components-1.5.5.tgz#c4835a9ef74b0367770fcaae0b3800c82385b37a"
-  integrity sha512-UJzjmXapeKdL7Je6O3z2Jyh2AfnOFifMGUeQzilCXm3uCT4mpe7MGKvgRCp+IQdTPceJBy+BqE9+ZaF8Snc6Ag==
+prestakit@^1.2.1:
+  version "1.2.3"
+  resolved "https://registry.yarnpkg.com/prestakit/-/prestakit-1.2.3.tgz#c00a5c8557c640d96c552da0bba0de3c1aece835"
+  integrity sha512-OSEfaEvcvckXF8puDwIB9qVuLvljHs9yH/D3vt/Wsj5qqJ/afaGZ7sXz0cBtFvrTrtU01vfKo7U04JW3FM0kBg==
+  dependencies:
+    bootstrap "^4.4.1"
+    jquery.growl "^1.3.5"
+    material-design-icons-iconfont "^6.1.0"
+    open-sans-fonts "^1.6.2"
+    select2 "^4.0.5"
+    select2-bootstrap-theme "0.1.0-beta.10"
+
+prestashop_accounts_vue_components@^2.0.0:
+  version "2.0.0"
+  resolved "https://registry.yarnpkg.com/prestashop_accounts_vue_components/-/prestashop_accounts_vue_components-2.0.0.tgz#557c6be552c7b0f62652f1f26a66982029bc345f"
+  integrity sha512-eqkZpIS/gE/evIoY+MRwKxocDhMWk8RQchnaDMA05DhtLJPvCQOqeL1gnoskhIpwHEBaXfO1fmicbyH22y67Cw==
   dependencies:
     "@hapi/joi" "^17.1.1"
     "@prestashopcorp/segment-vue" "^1.2.10"
@@ -7691,6 +7742,7 @@ prestashop_accounts_vue_components@^1.5.5:
     react-is "^16.13.1"
     v-click-outside "^3.1.2"
     vue "^2.6.11"
+    zoid "^9.0.63"
 
 prettier-linter-helpers@^1.0.0:
   version "1.0.0"
@@ -9420,6 +9472,11 @@ unique-slug@^2.0.0:
   dependencies:
     imurmurhash "^0.1.4"
 
+universal-serialize@^1.0.4:
+  version "1.0.8"
+  resolved "https://registry.yarnpkg.com/universal-serialize/-/universal-serialize-1.0.8.tgz#93470f043a9ed30094104824c02d21f607b61e6a"
+  integrity sha512-AhC3D26asmMkxAadYjCUJh98AUV/Fpp9uStVz4OuigpaGqIwY+i95EWE392P+4ObOPFHw8TUk/GazyiSGDtxhA==
+
 universalify@^0.1.0:
   version "0.1.2"
   resolved "https://registry.yarnpkg.com/universalify/-/universalify-0.1.2.tgz#b646f69be3942dabcecc9d6639c80dc105efaa66"
@@ -10031,3 +10088,18 @@ yorkie@^2.0.0:
     is-ci "^1.0.10"
     normalize-path "^1.0.0"
     strip-indent "^2.0.0"
+
+zalgo-promise@^1, zalgo-promise@^1.0.11, zalgo-promise@^1.0.3, zalgo-promise@^1.0.45:
+  version "1.0.46"
+  resolved "https://registry.yarnpkg.com/zalgo-promise/-/zalgo-promise-1.0.46.tgz#325988d75d0be4cd63a266bad5e18f8f6cd85675"
+  integrity sha512-tzPpQRqaQQavxl17TY98nznvmr+judUg3My7ugsUcRDbdqisYOE2z79HNNDgXnyX3eA0mf2bMOJrqHptt00npg==
+
+zoid@^9.0.63:
+  version "9.0.63"
+  resolved "https://registry.yarnpkg.com/zoid/-/zoid-9.0.63.tgz#87ca9585c11788a33db4de6a515cef8a02faf63c"
+  integrity sha512-c9OccNUlOV9KuTKJJRhCU3B5SRHObTTiPAUayKkBQ0/qZugfh59MDW+zkFDR8IZN+c7NB/R90FCIpAfBp8+U/g==
+  dependencies:
+    belter "^1.0.123"
+    cross-domain-utils "^2.0.33"
+    post-robot "^10"
+    zalgo-promise "^1.0.45"

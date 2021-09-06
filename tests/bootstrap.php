@@ -1,5 +1,9 @@
 <?php
 
+if (!defined('_PS_ADMIN_DIR_')) {
+    define('_PS_ADMIN_DIR_', '');
+}
+
 $rootDirectory = getenv('_PS_ROOT_DIR_') ?: __DIR__ . '/../../..';
 $projectDir = __DIR__ . '/../';
 

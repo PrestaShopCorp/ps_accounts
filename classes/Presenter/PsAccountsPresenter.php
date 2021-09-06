@@ -27,7 +27,6 @@ use PrestaShop\Module\PsAccounts\Provider\ShopProvider;
 use PrestaShop\Module\PsAccounts\Repository\ConfigurationRepository;
 use PrestaShop\Module\PsAccounts\Service\PsAccountsService;
 use PrestaShop\Module\PsAccounts\Service\ShopLinkAccountService;
-use PrestaShop\Module\PsAccounts\Service\SsoService;
 
 /**
  * Construct the psaccounts module.
@@ -45,11 +44,6 @@ class PsAccountsPresenter implements PresenterInterface
     protected $shopLinkAccountService;
 
     /**
-     * @var SsoService
-     */
-    protected $ssoService;
-
-    /**
      * @var ConfigurationRepository
      */
     protected $configuration;
@@ -65,29 +59,34 @@ class PsAccountsPresenter implements PresenterInterface
     private $psAccountsService;
 
     /**
+     * @var \Ps_accounts
+     */
+    private $module;
+
+    /**
      * PsAccountsPresenter constructor.
      *
      * @param PsAccountsService $psAccountsService
      * @param ShopProvider $shopProvider
      * @param ShopLinkAccountService $shopLinkAccountService
-     * @param SsoService $ssoService
      * @param Installer $installer
      * @param ConfigurationRepository $configuration
+     * @param \Ps_accounts $module
      */
     public function __construct(
         PsAccountsService $psAccountsService,
         ShopProvider $shopProvider,
         ShopLinkAccountService $shopLinkAccountService,
-        SsoService $ssoService,
         Installer $installer,
-        ConfigurationRepository $configuration
+        ConfigurationRepository $configuration,
+        \Ps_accounts $module
     ) {
         $this->psAccountsService = $psAccountsService;
         $this->shopProvider = $shopProvider;
         $this->shopLinkAccountService = $shopLinkAccountService;
-        $this->ssoService = $ssoService;
         $this->installer = $installer;
         $this->configuration = $configuration;
+        $this->module = $module;
     }
 
     /**
@@ -101,12 +100,16 @@ class PsAccountsPresenter implements PresenterInterface
      */
     public function present($psxName = 'ps_accounts')
     {
-        // FIXME : Do this elsewhere
-        $this->shopLinkAccountService->manageOnboarding($psxName);
+        $this->shopLinkAccountService->prepareLinkAccount();
 
         $shopContext = $this->shopProvider->getShopContext();
 
-        $isEnabled = $this->installer->isEnabled('ps_accounts');
+        $moduleName = $this->module->name;
+
+        $currentShop = $this->shopProvider->getCurrentShop($psxName);
+        $shopBase64 = base64_encode((string) json_encode($currentShop));
+        $onboardingLink = $this->module->getParameter('ps_accounts.accounts_ui_url')
+            . '?shopPayload=' . $shopBase64;
 
         try {
             return array_merge(
@@ -120,8 +123,8 @@ class PsAccountsPresenter implements PresenterInterface
                     'psAccountsIsInstalled' => true,
                     'psAccountsInstallLink' => null,
 
-                    'psAccountsIsEnabled' => true,
-                    'psAccountsEnableLink' => null,
+                    'psAccountsIsEnabled' => $this->installer->isEnabled($moduleName),
+                    'psAccountsEnableLink' => $this->installer->getEnableUrl($moduleName, $psxName),
 
                     'psAccountsIsUptodate' => true,
                     'psAccountsUpdateLink' => null,
@@ -129,26 +132,35 @@ class PsAccountsPresenter implements PresenterInterface
                     ////////////////////////////
                     // PsAccountsPresenter
 
-                    'onboardingLink' => $this->shopLinkAccountService->getLinkAccountUrl($psxName),
-
                     // FIXME :  Mix "SSO user" with "Backend user"
                     'user' => [
-                        'email' => $this->configuration->getFirebaseEmail() ?: null,
-                        'emailIsValidated' => $this->configuration->firebaseEmailIsVerified(),
+                        'uuid' => $this->psAccountsService->getUserUuidV4() ?: null,
+                        'email' => $this->psAccountsService->getEmail() ?: null,
+                        'emailIsValidated' => $this->psAccountsService->isEmailValidated(),
                         'isSuperAdmin' => $shopContext->getContext()->employee->isSuperAdmin(),
                     ],
-
-                    'currentShop' => $this->shopProvider->getCurrentShop($psxName),
+                    'backendUser' => [
+                        'email' => $shopContext->getContext()->employee->email,
+                        'employeeId' => $shopContext->getContext()->employee->id,
+                        'isSuperAdmin' => $shopContext->getContext()->employee->isSuperAdmin(),
+                    ],
+                    'currentShop' => $currentShop,
                     'isShopContext' => $shopContext->isShopContext(),
-                    'shops' => $this->shopProvider->getShopsTree($psxName),
-
                     'superAdminEmail' => $this->psAccountsService->getSuperAdminEmail(),
 
-                    // FIXME : move into Vue components .env
-                    'ssoResendVerificationEmail' => $this->ssoService->getSsoResendVerificationEmailUrl(),
-                    'manageAccountLink' => $this->ssoService->getSsoAccountUrl(),
+                    // TODO: link to a page to display an "Update Your PSX" notice
+                    'onboardingLink' => $onboardingLink,
 
+                    'ssoResendVerificationEmail' => $this->module->getParameter('ps_accounts.sso_resend_verification_email_url'),
+                    'manageAccountLink' => $this->module->getSsoAccountUrl(),
+
+                    'isOnboardedV4' => $this->psAccountsService->isAccountLinkedV4(),
+
+                    'shops' => $this->shopProvider->getShopsTree($psxName),
                     'adminAjaxLink' => $this->psAccountsService->getAdminAjaxUrl(),
+
+                    'accountsUiUrl' => $this->module->getParameter('ps_accounts.accounts_ui_url'),
+                    'segmentApiKey' => $this->module->getParameter('ps_accounts.segment_api_key'),
                 ],
                 (new DependenciesPresenter())->present($psxName)
             );

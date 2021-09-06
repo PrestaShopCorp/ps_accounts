@@ -28,12 +28,12 @@ class Ps_accounts extends Module
 
     // Needed in order to retrieve the module version easier (in api call headers) than instanciate
     // the module each time to get the version
-    const VERSION = '4.0-dev';
+    const VERSION = '5.0.0';
 
     /**
      * @var array
      */
-    public $adminControllers;
+    private $adminControllers;
 
     /**
      * @var \Monolog\Logger
@@ -46,7 +46,10 @@ class Ps_accounts extends Module
      * @var array
      */
     private $hookToInstall = [
-        'actionObjectShopUrlUpdateAfter',
+        'displayAdminForm',
+        'displayBackOfficeHeader',
+        'actionObjectShopAddAfter',
+        'actionObjectShopDeleteAfter',
         //'addWebserviceResources',
     ];
 
@@ -83,7 +86,7 @@ class Ps_accounts extends Module
 
         // We cannot use the const VERSION because the const is not computed by addons marketplace
         // when the zip is uploaded
-        $this->version = '4.0-dev';
+        $this->version = '5.0.0';
 
         $this->module_key = 'abf2cd758b4d629b2944d3922ef9db73';
 
@@ -99,12 +102,9 @@ class Ps_accounts extends Module
         $this->ps_versions_compliancy = ['min' => '1.6', 'max' => _PS_VERSION_];
 
         $this->adminControllers = [
-            'hmac' => 'AdminConfigureHmacPsAccounts',
             'ajax' => 'AdminAjaxPsAccounts',
             'debug' => 'AdminDebugPsAccounts',
         ];
-
-        $this->getLogger()->info('Loading ' . $this->name . ' Env : [' . $this->getModuleEnv() . ']');
     }
 
     /**
@@ -146,13 +146,6 @@ class Ps_accounts extends Module
      */
     public function install()
     {
-        // if ps version is 1.7.6 or above
-        if (version_compare(_PS_VERSION_, '1.7.6.0', '>=')) {
-            array_push($this->hookToInstall, 'actionMetaPageSave');
-        } else {
-            array_push($this->hookToInstall, 'displayBackOfficeHeader');
-        }
-
         $installer = new PrestaShop\Module\PsAccounts\Module\Install($this, Db::getInstance());
 
         $status = $installer->installInMenu()
@@ -160,8 +153,18 @@ class Ps_accounts extends Module
             && parent::install()
             && $this->registerHook($this->hookToInstall);
 
+        // Removed controller
+        $uninstaller = new PrestaShop\Module\PsAccounts\Module\Uninstall($this, Db::getInstance());
+        $uninstaller->deleteAdminTab('AdminConfigureHmacPsAccounts');
+
         // Ignore fail on ps_eventbus install
         $this->moduleInstaller->installModule('ps_eventbus');
+
+        $this->switchConfigMultishopMode();
+
+        $this->autoReonboardOnV5();
+
+        $this->getLogger()->info('Install - Loading ' . $this->name . ' Env : [' . $this->getModuleEnv() . ']');
 
         return $status;
     }
@@ -200,6 +203,16 @@ class Ps_accounts extends Module
         return $this->serviceContainer->getService($serviceName);
     }
 
+    /**
+     * @param string $name
+     *
+     * @return mixed
+     */
+    public function getParameter($name)
+    {
+        return $this->serviceContainer->getContainer()->getParameter($name);
+    }
+
 //    /**
 //     * Override of native function to always retrieve Symfony container instead of legacy admin container on legacy context.
 //     *
@@ -222,112 +235,59 @@ class Ps_accounts extends Module
 //    }
 
     /**
-     * Hook executed on every backoffice pages
-     * Used in order to listen changes made to the AdminMeta controller
-     *
-     * @since 1.6
-     * @deprecated since 1.7.6
-     *
      * @param array $params
      *
-     * @return bool
+     * @return void
      *
-     * @throws \Exception
+     * @throws Exception
+     */
+    public function hookDisplayAdminForm($params)
+    {
+        $this->switchConfigMultishopMode();
+    }
+
+    /**
+     * @param array $params
+     *
+     * @return void
+     *
+     * @throws Exception
      */
     public function hookDisplayBackOfficeHeader($params)
     {
-        // Add a limitation in order to execute the code only if we are on the AdminMeta controller
-        if ($this->context->controller->controller_name !== 'AdminMeta') {
-            return false;
+        if ($this->context->controller->controller_name !== 'AdminPreferences') {
+            $this->switchConfigMultishopMode();
         }
-
-        // If multishop is enable don't continue
-        if (true === \Shop::isFeatureActive()) {
-            return false;
-        }
-
-        // If a changes is make to the meta form
-        if (Tools::isSubmit('submitOptionsmeta')) {
-            $domain = Tools::getValue('domain'); // new domain to update
-            $domainSsl = Tools::getValue('domain_ssl'); // new domain with ssl - needed ?
-
-            $bodyHttp = [
-                'params' => $params,
-                'domain' => $domain,
-                'domain_ssl' => $domainSsl,
-            ];
-
-            /** @var \PrestaShop\Module\PsAccounts\Service\ShopLinkAccountService $shopLinkAccountService */
-            $shopLinkAccountService = $this->getService(
-                \PrestaShop\Module\PsAccounts\Service\ShopLinkAccountService::class
-            );
-
-            $shopLinkAccountService->updateShopUrl($bodyHttp, '1.6');
-        }
-
-        return true;
     }
 
     /**
-     * Hook executed when performing some changes to the meta page and save them
-     *
-     * @since 1.7.6
-     *
-     * @param array $params
-     *
-     * @return bool
-     *
-     * @throws \Exception
-     */
-    public function hookActionMetaPageSave($params)
-    {
-        // If multishop is enable don't continue
-        if (true === \Shop::isFeatureActive()) {
-            return false;
-        }
-
-        $bodyHttp = [
-            'params' => $params,
-            'domain' => $params['form_data']['shop_urls']['domain'],
-            'domain_ssl' => $params['form_data']['shop_urls']['domain_ssl'],
-        ];
-
-        /** @var \PrestaShop\Module\PsAccounts\Service\ShopLinkAccountService $shopLinkAccountService */
-        $shopLinkAccountService = $this->getService(
-            \PrestaShop\Module\PsAccounts\Service\ShopLinkAccountService::class
-        );
-
-        $shopLinkAccountService->updateShopUrl($bodyHttp, '1.7.6');
-
-        return true;
-    }
-
-    /**
-     * Hook trigger when a change is made on the domain name
-     *
      * @param array $params
      *
      * @return bool
      *
      * @throws Exception
      */
-    public function hookActionObjectShopUrlUpdateAfter($params)
+    public function hookActionObjectShopAddAfter($params)
     {
-        $bodyHttp = [
-            'params' => $params,
-            'domain' => $params['object']->domain,
-            'domain_ssl' => $params['object']->domain_ssl,
-            'shop_id' => $params['object']->id_shop,
-            'main' => $params['object']->main,
-            'active' => $params['object']->active,
-        ];
+        if ($this->context->controller->controller_name === 'AdminShop') {
+            $this->switchConfigMultishopMode();
+        }
 
-        /** @var \PrestaShop\Module\PsAccounts\Service\ShopLinkAccountService $shopLinkAccountService */
-        $shopLinkAccountService = $this->getService(
-            \PrestaShop\Module\PsAccounts\Service\ShopLinkAccountService::class
-        );
+        return true;
+    }
 
-        $shopLinkAccountService->updateShopUrl($bodyHttp, 'multishop');
+    /**
+     * @param array $params
+     *
+     * @return bool
+     *
+     * @throws Exception
+     */
+    public function hookActionObjectShopDeleteAfter($params)
+    {
+        if ($this->context->controller->controller_name === 'AdminShop') {
+            $this->switchConfigMultishopMode();
+        }
 
         return true;
     }
@@ -376,8 +336,11 @@ class Ps_accounts extends Module
      */
     protected function loadAssets($responseApiMessage = 'null', $countProperty = 0)
     {
+        /** @var Ps_accounts $module */
+        $module = \Module::getInstanceByName('ps_accounts');
         $this->context->smarty->assign('pathVendor', $this->_path . 'views/js/chunk-vendors.js');
         $this->context->smarty->assign('pathApp', $this->_path . 'views/js/app.js');
+        $this->context->smarty->assign('urlAccountsVueCdn', $module->getParameter('ps_accounts.accounts_vue_cdn_url'));
 
         $storePresenter = new PrestaShop\Module\PsAccounts\Presenter\Store\StorePresenter($this, $this->context);
 
@@ -391,5 +354,56 @@ class Ps_accounts extends Module
         Media::addJsDef([
             'contextPsAccounts' => $psAccountsPresenter->present($this->name),
         ]);
+    }
+
+    /**
+     * @return string
+     */
+    public function getSsoAccountUrl()
+    {
+        $url = $this->getParameter('ps_accounts.sso_account_url');
+        $langIsoCode = $this->getContext()->language->iso_code;
+
+        return $url . '?lang=' . substr($langIsoCode, 0, 2);
+    }
+
+    /**
+     * @return void
+     *
+     * @throws Exception
+     */
+    private function switchConfigMultishopMode()
+    {
+        /** @var \PrestaShop\Module\PsAccounts\Repository\ConfigurationRepository $config */
+        $config = $this->getService(\PrestaShop\Module\PsAccounts\Repository\ConfigurationRepository::class);
+
+        /** @var \PrestaShop\Module\PsAccounts\Context\ShopContext $shopContext */
+        $shopContext = $this->getService(\PrestaShop\Module\PsAccounts\Context\ShopContext::class);
+
+        if ($shopContext->isMultishopActive()) {
+            $config->migrateToMultiShop();
+        } else {
+            $config->migrateToSingleShop();
+        }
+    }
+
+    /**
+     * @return void
+     *
+     * @throws Throwable
+     */
+    private function autoReonboardOnV5()
+    {
+        /** @var \PrestaShop\Module\PsAccounts\Service\PsAccountsService $psAccountsService */
+        $psAccountsService = $this->getService(\PrestaShop\Module\PsAccounts\Service\PsAccountsService::class);
+        $psAccountsService->autoReonboardOnV5();
+    }
+
+    /**
+     * @return array
+     */
+    public function getHookToInstall()
+    {
+        return $this->hookToInstall;
     }
 }

@@ -20,8 +20,8 @@
 
 use PrestaShop\Module\PsAccounts\Handler\Error\Sentry;
 use PrestaShop\Module\PsAccounts\Presenter\PsAccountsPresenter;
+use PrestaShop\Module\PsAccounts\Repository\ShopTokenRepository;
 use PrestaShop\Module\PsAccounts\Service\ShopLinkAccountService;
-use PrestaShop\Module\PsAccounts\Service\ShopTokenService;
 
 /**
  * Controller for all ajax calls.
@@ -51,14 +51,14 @@ class AdminAjaxPsAccountsController extends ModuleAdminController
     public function ajaxProcessGetOrRefreshToken()
     {
         try {
-            /** @var ShopTokenService $shopTokenService */
-            $shopTokenService = $this->module->getService(ShopTokenService::class);
+            /** @var ShopTokenRepository $shopTokenService */
+            $shopTokenService = $this->module->getService(ShopTokenRepository::class);
 
             header('Content-Type: text/json');
 
             $this->ajaxDie(
                 json_encode([
-                    'token' => $shopTokenService->getOrRefreshToken(),
+                    'token' => $shopTokenService->getOrRefreshToken()->toString(),
                     'refreshToken' => $shopTokenService->getRefreshToken(),
                 ])
             );

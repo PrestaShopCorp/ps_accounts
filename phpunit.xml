@@ -1,8 +1,22 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<phpunit bootstrap="tests/bootstrap.php" colors="true" stopOnFailure="false">
-    <testsuites>
-        <testsuite name="Ps account Tests">
-            <directory suffix="Test.php">./tests/php</directory>
-        </testsuite>
-    </testsuites>
+<phpunit bootstrap="tests/bootstrap.php"
+         colors="true"
+         stopOnFailure="false"
+         verbose="true"
+         convertErrorsToExceptions="true"
+         convertNoticesToExceptions="true"
+         convertWarningsToExceptions="true"
+         defaultTestSuite="unit"
+>
+  <testsuites>
+    <testsuite name="all">
+      <directory suffix="Test.php">./tests</directory>
+    </testsuite>
+    <testsuite name="unit">
+      <directory suffix="Test.php">./tests/Unit</directory>
+    </testsuite>
+    <testsuite name="feature">
+      <directory suffix="Test.php">./tests/Feature</directory>
+    </testsuite>
+  </testsuites>
 </phpunit>

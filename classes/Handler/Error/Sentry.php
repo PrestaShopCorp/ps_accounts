@@ -84,13 +84,13 @@ class Sentry
     }
 
     /**
-     * @param \Throwable $exception
+     * @param mixed $exception
      *
      * @return void
      *
-     * @throws \Exception
+     * @throws \Throwable
      */
-    public static function capture(\Throwable $exception)
+    public static function capture($exception)
     {
         /** @var Ps_accounts $psAccounts */
         $psAccounts = Module::getInstanceByName('ps_accounts');
@@ -98,17 +98,19 @@ class Sentry
         /** @var self $instance */
         $instance = $psAccounts->getService(self::class);
 
+        $psAccounts->getLogger()->debug($exception);
+
         $instance->client->captureException($exception);
     }
 
     /**
-     * @param \Throwable $exception
+     * @param mixed $exception
      *
      * @return void
      *
      * @throws \Throwable
      */
-    public static function captureAndRethrow(\Throwable $exception)
+    public static function captureAndRethrow($exception)
     {
         self::capture($exception);
 

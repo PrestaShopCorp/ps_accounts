@@ -22,6 +22,7 @@ namespace PrestaShop\Module\PsAccounts\Provider;
 
 use PrestaShop\Module\PsAccounts\Adapter\Link;
 use PrestaShop\Module\PsAccounts\Context\ShopContext;
+use PrestaShop\Module\PsAccounts\Service\ShopLinkAccountService;
 
 class ShopProvider
 {
@@ -50,6 +51,59 @@ class ShopProvider
     }
 
     /**
+     * @param array $shopData
+     * @param string $psxName
+     *
+     * @return array
+     *
+     * @throws \Exception
+     */
+    public function formatShopData($shopData, $psxName = '')
+    {
+        $configuration = $this->shopContext->getConfiguration();
+
+        $shopId = $configuration->getShopId();
+
+        $configuration->setShopId($shopData['id_shop']);
+
+        /** @var \Ps_accounts $module */
+        $module = \Module::getInstanceByName('ps_accounts');
+
+        /** @var ShopLinkAccountService $shopLinkAccountService */
+        $shopLinkAccountService = $module->getService(ShopLinkAccountService::class);
+
+        $data = [
+            'id' => (string) $shopData['id_shop'],
+            'name' => $shopData['name'],
+            'domain' => $shopData['domain'],
+            'domainSsl' => $shopData['domain_ssl'],
+            'physicalUri' => $this->getShopPhysicalUri($shopData['id_shop']),
+
+            // LinkAccount
+            'uuid' => $configuration->getShopUuid() ?: null,
+            'publicKey' => $configuration->getAccountsRsaPublicKey() ?: null,
+            'employeeId' => (int) $configuration->getEmployeeId() ?: null,
+
+            'url' => $this->link->getAdminLink(
+                'AdminModules',
+                true,
+                [],
+                [
+                    'configure' => $psxName,
+                    'setShopContext' => 's-' . $shopData['id_shop'],
+                ]
+            ),
+            'isLinkedV4' => $shopLinkAccountService->isAccountLinkedV4(),
+        ];
+
+        $configuration->setShopId($shopId);
+
+        return $data;
+    }
+
+    // TODO Add public function to get main shop
+
+    /**
      * @param string $psxName
      *
      * @return array
@@ -58,23 +112,13 @@ class ShopProvider
      */
     public function getCurrentShop($psxName = '')
     {
-        $shop = \Shop::getShop($this->shopContext->getContext()->shop->id);
+        $data = $this->formatShopData(\Shop::getShop($this->shopContext->getContext()->shop->id), $psxName);
 
-        return [
-            'id' => $shop['id_shop'],
-            'name' => $shop['name'],
-            'domain' => $shop['domain'],
-            'domainSsl' => $shop['domain_ssl'],
-            'url' => $this->link->getAdminLink(
-                'AdminModules',
-                true,
-                [],
-                [
-                    'configure' => $psxName,
-                    'setShopContext' => 's-' . $shop['id_shop'],
-                ]
-            ),
-        ];
+        return array_merge($data, [
+            'multishop' => $this->shopContext->isMultishopActive(),
+            'moduleName' => $psxName,
+            'psVersion' => _PS_VERSION_,
+        ]);
     }
 
     /**
@@ -88,34 +132,19 @@ class ShopProvider
     {
         $shopList = [];
 
-        if (true === $this->shopContext->isShopContext()) {
-            return $shopList;
-        }
-
         foreach (\Shop::getTree() as $groupId => $groupData) {
             $shops = [];
             foreach ($groupData['shops'] as $shopId => $shopData) {
-                $shops[] = [
-                    'id' => $shopId,
-                    'name' => $shopData['name'],
-                    'domain' => $shopData['domain'],
-                    'domainSsl' => $shopData['domain_ssl'],
-                    'url' => $this->link->getAdminLink(
-                        'AdminModules',
-                        true,
-                        [],
-                        [
-                            'configure' => $psxName,
-                            'setShopContext' => 's-' . $shopId,
-                        ]
-                    ),
-                ];
+                $shops[] = $this->formatShopData($shopData, $psxName);
             }
 
             $shopList[] = [
-                'id' => $groupId,
+                'id' => (string) $groupId,
                 'name' => $groupData['name'],
                 'shops' => $shops,
+                'multishop' => $this->shopContext->isMultishopActive(),
+                'moduleName' => $psxName,
+                'psVersion' => _PS_VERSION_,
             ];
         }
 
@@ -128,5 +157,17 @@ class ShopProvider
     public function getShopContext()
     {
         return $this->shopContext;
+    }
+
+    /**
+     * @param int $shopId
+     *
+     * @return false|string|null
+     */
+    private function getShopPhysicalUri($shopId)
+    {
+        return \Db::getInstance()->getValue(
+            'SELECT physical_uri FROM ' . _DB_PREFIX_ . 'shop_url WHERE id_shop=' . (int) $shopId . ' AND main=1'
+        );
     }
 }

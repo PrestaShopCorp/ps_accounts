@@ -21,7 +21,11 @@
 namespace PrestaShop\Module\PsAccounts\Service;
 
 use PrestaShop\Module\PsAccounts\Adapter\Link;
+use PrestaShop\Module\PsAccounts\Api\Client\AccountsClient;
+use PrestaShop\Module\PsAccounts\Provider\ShopProvider;
 use PrestaShop\Module\PsAccounts\Repository\ConfigurationRepository;
+use PrestaShop\Module\PsAccounts\Repository\ShopTokenRepository;
+use PrestaShop\Module\PsAccounts\Repository\UserTokenRepository;
 
 /**
  * Class PsAccountsService
@@ -34,37 +38,37 @@ class PsAccountsService
     protected $link;
 
     /**
-     * @var ConfigurationRepository
-     */
-    private $configuration;
-
-    /**
      * @var \Ps_accounts
      */
     private $module;
 
     /**
-     * @var ShopTokenService
+     * @var ShopTokenRepository
      */
-    private $shopTokenService;
+    private $shopTokenRepository;
+
+    /**
+     * @var UserTokenRepository
+     */
+    private $userTokenRepository;
 
     /**
      * PsAccountsService constructor.
      *
      * @param \Ps_accounts $module
-     * @param ShopTokenService $shopTokenService
-     * @param ConfigurationRepository $configuration
+     * @param ShopTokenRepository $shopTokenRepository
+     * @param UserTokenRepository $userTokenRepository
      * @param Link $link
      */
     public function __construct(
         \Ps_accounts $module,
-        ShopTokenService $shopTokenService,
-        ConfigurationRepository $configuration,
+        ShopTokenRepository $shopTokenRepository,
+        UserTokenRepository $userTokenRepository,
         Link $link
     ) {
-        $this->configuration = $configuration;
-        $this->shopTokenService = $shopTokenService;
         $this->module = $module;
+        $this->shopTokenRepository = $shopTokenRepository;
+        $this->userTokenRepository = $userTokenRepository;
         $this->link = $link;
     }
 
@@ -77,11 +81,11 @@ class PsAccountsService
     }
 
     /**
-     * @return string | false
+     * @return string|false
      */
     public function getShopUuidV4()
     {
-        return $this->configuration->getShopUuid();
+        return $this->shopTokenRepository->getTokenUuid();
     }
 
     /**
@@ -93,7 +97,7 @@ class PsAccountsService
      */
     public function getOrRefreshToken()
     {
-        return $this->shopTokenService->getOrRefreshToken();
+        return $this->shopTokenRepository->getOrRefreshToken();
     }
 
     /**
@@ -101,7 +105,7 @@ class PsAccountsService
      */
     public function getRefreshToken()
     {
-        return $this->shopTokenService->getRefreshToken();
+        return $this->shopTokenRepository->getRefreshToken();
     }
 
     /**
@@ -109,15 +113,25 @@ class PsAccountsService
      */
     public function getToken()
     {
-        return $this->shopTokenService->getToken();
+        return $this->shopTokenRepository->getToken();
+    }
+
+    /**
+     * @return string|false
+     */
+    public function getUserUuidV4()
+    {
+        return $this->userTokenRepository->getTokenUuid();
     }
 
     /**
      * @return bool
+     *
+     * @throws \Exception
      */
     public function isEmailValidated()
     {
-        return $this->configuration->firebaseEmailIsVerified();
+        return $this->userTokenRepository->getTokenEmailVerified();
     }
 
     /**
@@ -125,7 +139,7 @@ class PsAccountsService
      */
     public function getEmail()
     {
-        return $this->configuration->getFirebaseEmail();
+        return $this->userTokenRepository->getTokenEmail();
     }
 
     /**
@@ -142,6 +156,19 @@ class PsAccountsService
     }
 
     /**
+     * @return bool
+     *
+     * @throws \Exception
+     */
+    public function isAccountLinkedV4()
+    {
+        /** @var ShopLinkAccountService $shopLinkAccountService */
+        $shopLinkAccountService = $this->module->getService(ShopLinkAccountService::class);
+
+        return $shopLinkAccountService->isAccountLinkedV4();
+    }
+
+    /**
      * Generate ajax admin link with token
      * available via PsAccountsPresenter into page dom,
      * ex :
@@ -155,5 +182,67 @@ class PsAccountsService
     {
 //        Tools::getAdminTokenLite('AdminAjaxPsAccounts'));
         return $this->link->getAdminLink('AdminAjaxPsAccounts', true, [], ['ajax' => 1]);
+    }
+
+    /**
+     * @return string
+     */
+    public function getAccountsVueCdn()
+    {
+        return $this->module->getParameter('ps_accounts.accounts_vue_cdn_url');
+    }
+
+    /**
+     * @return void
+     *
+     * @throws \Throwable
+     */
+    public function autoReonboardOnV5()
+    {
+        /** @var ShopProvider $shopProvider */
+        $shopProvider = $this->module->getService(ShopProvider::class);
+
+        /** @var ConfigurationRepository $conf */
+        $conf = $this->module->getService(ConfigurationRepository::class);
+
+        /** @var ShopLinkAccountService $shopLinkAccountService */
+        $shopLinkAccountService = $this->module->getService(ShopLinkAccountService::class);
+
+        $allShops = $shopProvider->getShopsTree($this->module->name);
+
+        $flattenShops = [];
+
+        foreach ($allShops as $shopGroup) {
+            foreach ($shopGroup['shops'] as $shop) {
+                $shop['multishop'] = (bool) $shopGroup['multishop'];
+                $flattenShops[] = $shop;
+            }
+        }
+
+        $isAlreadyReonboard = false;
+
+        usort($flattenShops, function ($firstShop, $secondShop) {
+            return (int) $firstShop['id'] - (int) $secondShop['id'];
+        });
+        foreach ($flattenShops as $shop) {
+            if ($shop['isLinkedV4']) {
+                if ($isAlreadyReonboard) {
+                    $id = $conf->getShopId();
+                    $conf->setShopId((int) $shop['id']);
+
+                    $shopLinkAccountService->resetLinkAccount();
+
+                    $conf->setShopId($id);
+                } else {
+                    /** @var AccountsClient $accountsClient */
+                    $accountsClient = $this->module->getService(AccountsClient::class);
+
+                    $shop['employeeId'] = null;
+
+                    $accountsClient->reonboardShop($shop);
+                    $isAlreadyReonboard = true;
+                }
+            }
+        }
     }
 }

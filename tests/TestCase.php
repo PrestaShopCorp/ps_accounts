@@ -23,18 +23,35 @@ class TestCase extends \PHPUnit\Framework\TestCase
     public $module;
 
     /**
+     * @var \PrestaShop\Module\PsAccounts\Adapter\Configuration;
+     */
+    public $configuration;
+
+    /**
+     * @var bool
+     */
+    protected $enableTransactions = true;
+
+    /**
      * @return void
+     *
+     * @throws \Exception
      */
     protected function setUp()
     {
         parent::setUp();
 
-        Db::getInstance()->execute('START TRANSACTION');
+        if (true === $this->enableTransactions) {
+            $this->startTransaction();
+        }
 
         $this->faker = \Faker\Factory::create();
 
-        /* @var Ps_accounts $module */
         $this->module = Module::getInstanceByName('ps_accounts');
+
+        $this->configuration = $this->module->getService(
+            \PrestaShop\Module\PsAccounts\Adapter\Configuration::class
+        );
     }
 
     /**
@@ -42,7 +59,7 @@ class TestCase extends \PHPUnit\Framework\TestCase
      */
     public function tearDown()
     {
-        Db::getInstance()->execute('ROLLBACK');
+        $this->rollback();
 
         parent::tearDown();
     }
@@ -67,5 +84,41 @@ class TestCase extends \PHPUnit\Framework\TestCase
             $configuration->signer(),
             $configuration->signingKey()
         );
+    }
+
+    /**
+     * @param \DateTimeImmutable|null $expiresAt
+     * @param array $claims
+     *
+     * @return Token
+     *
+     * @throws \Exception
+     */
+    public function makeFirebaseToken(\DateTimeImmutable $expiresAt = null, array $claims = [])
+    {
+        if (null === $expiresAt) {
+            $expiresAt = new \DateTimeImmutable('tomorrow');
+        }
+        return $this->makeJwtToken($expiresAt, array_merge([
+            'user_id' => $this->faker->uuid,
+            'email' => $this->faker->safeEmail,
+            'email_verified' => $this->faker->boolean,
+        ], $claims));
+    }
+
+    /**
+     * @return void
+     */
+    public function startTransaction()
+    {
+        Db::getInstance()->execute('START TRANSACTION');
+    }
+
+    /**
+     * @return void
+     */
+    public function rollback()
+    {
+        Db::getInstance()->execute('ROLLBACK');
     }
 }

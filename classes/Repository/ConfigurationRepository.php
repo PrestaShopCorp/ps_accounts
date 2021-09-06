@@ -102,7 +102,7 @@ class ConfigurationRepository
     }
 
     /**
-     * @return string | null
+     * @return string|null
      */
     public function getFirebaseEmail()
     {
@@ -120,6 +120,24 @@ class ConfigurationRepository
             $this->configuration->set(Configuration::PS_PSX_FIREBASE_EMAIL, $email);
         }
         $this->configuration->set(Configuration::PS_ACCOUNTS_FIREBASE_EMAIL, $email);
+    }
+
+    /**
+     * @return string|null
+     */
+    public function getEmployeeId()
+    {
+        return $this->configuration->get(Configuration::PS_ACCOUNTS_EMPLOYEE_ID);
+    }
+
+    /**
+     * @param string $employeeId
+     *
+     * @return void
+     */
+    public function updateEmployeeId($employeeId)
+    {
+        $this->configuration->set(Configuration::PS_ACCOUNTS_EMPLOYEE_ID, $employeeId);
     }
 
     /**
@@ -144,31 +162,6 @@ class ConfigurationRepository
             Configuration::PS_ACCOUNTS_FIREBASE_EMAIL_IS_VERIFIED,
             (string) $status
         );
-    }
-
-    /**
-     * @deprecated since v4.0.0
-     *
-     * @return string | null
-     */
-    public function getFirebaseLocalId()
-    {
-        return $this->configuration->get(Configuration::PS_ACCOUNTS_FIREBASE_LOCAL_ID);
-    }
-
-    /**
-     * @deprecated sibce v4.0.0
-     *
-     * @param string $localId
-     *
-     * @return void
-     */
-    public function updateFirebaseLocalId($localId)
-    {
-        if (false === $this->configuration->get(Configuration::PS_PSX_FIREBASE_LOCAL_ID)) {
-            $this->configuration->set(Configuration::PS_PSX_FIREBASE_LOCAL_ID, $localId);
-        }
-        $this->configuration->set(Configuration::PS_ACCOUNTS_FIREBASE_LOCAL_ID, $localId);
     }
 
     /**
@@ -211,7 +204,7 @@ class ConfigurationRepository
     }
 
     /**
-     * @return string
+     * @return string|bool
      */
     public function getAccountsRsaPublicKey()
     {
@@ -251,6 +244,104 @@ class ConfigurationRepository
      */
     public function sslEnabled()
     {
-        return true == $this->configuration->get('PS_SSL_ENABLED');
+        return true == $this->configuration->get('PS_SSL_ENABLED')
+            || true == $this->configuration->get('PS_SSL_ENABLED_EVERYWHERE');
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getUserFirebaseUuid()
+    {
+        return $this->configuration->get(Configuration::PS_ACCOUNTS_USER_FIREBASE_UUID);
+    }
+
+    /**
+     * @param string $uuid
+     *
+     * @return void
+     */
+    public function updateUserFirebaseUuid($uuid)
+    {
+        $this->configuration->set(Configuration::PS_ACCOUNTS_USER_FIREBASE_UUID, $uuid);
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getUserFirebaseIdToken()
+    {
+        return $this->configuration->get(Configuration::PS_ACCOUNTS_USER_FIREBASE_ID_TOKEN);
+    }
+
+    /**
+     * @param string $idToken
+     *
+     * @return void
+     */
+    public function updateUserFirebaseIdToken($idToken)
+    {
+        $this->configuration->set(Configuration::PS_ACCOUNTS_USER_FIREBASE_ID_TOKEN, $idToken);
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getUserFirebaseRefreshToken()
+    {
+        return $this->configuration->get(Configuration::PS_ACCOUNTS_USER_FIREBASE_REFRESH_TOKEN);
+    }
+
+    /**
+     * @param string $refreshToken
+     *
+     * @return void
+     */
+    public function updateUserFirebaseRefreshToken($refreshToken)
+    {
+        $this->configuration->set(Configuration::PS_ACCOUNTS_USER_FIREBASE_REFRESH_TOKEN, $refreshToken);
+    }
+
+    /**
+     *   Get shop who is defined as main in the prestashop
+     *
+     *   @return \Shop
+     */
+    public function getMainShop()
+    {
+        $mainShopId = \Db::getInstance()->getValue('SELECT value FROM ' . _DB_PREFIX_ . "configuration WHERE name = 'PS_SHOP_DEFAULT'");
+        $shop = new \Shop((int) $mainShopId);
+
+        return $shop;
+    }
+
+    /**
+     * specify id_shop & id_shop_group for shop
+     *
+     * @return void
+     */
+    public function migrateToMultiShop()
+    {
+        $shop = $this->getMainShop();
+        \Db::getInstance()->query(
+            'UPDATE ' . _DB_PREFIX_ . 'configuration SET id_shop = ' . (int) $shop->id . ', id_shop_group = ' . (int) $shop->id_shop_group .
+            " WHERE (name like 'PS_ACCOUNTS_%' OR name = 'PSX_UUID_V4')" .
+            ' AND id_shop IS NULL AND id_shop_group IS NULL;'
+        );
+    }
+
+    /**
+     * nullify id_shop & id_shop_group for shop
+     *
+     * @return void
+     */
+    public function migrateToSingleShop()
+    {
+        $shop = $this->getMainShop();
+        \Db::getInstance()->query(
+            'UPDATE ' . _DB_PREFIX_ . 'configuration SET id_shop = NULL, id_shop_group = NULL' .
+            " WHERE (name like 'PS_ACCOUNTS_%' OR name = 'PSX_UUID_V4')" .
+            ' AND id_shop = ' . (int) $shop->id . ' AND id_shop_group = ' . (int) $shop->id_shop_group . ';'
+        );
     }
 }

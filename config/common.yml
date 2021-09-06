@@ -1,30 +1,32 @@
 services:
-  _defaults:
-    public: true
-
   ps_accounts.module:
     class: Ps_accounts
+    public: true
     factory: ['Module', 'getInstanceByName']
     arguments:
       - 'ps_accounts'
 
   ps_accounts.context:
     class: Context
+    public: true
     factory: [ 'Context', 'getContext' ]
 
   PrestaShop\Module\PsAccounts\Context\ShopContext:
     class: PrestaShop\Module\PsAccounts\Context\ShopContext
+    public: true
     arguments:
       - '@PrestaShop\Module\PsAccounts\Repository\ConfigurationRepository'
       - '@ps_accounts.context'
 
   PrestaShop\Module\PsAccounts\Adapter\Configuration:
     class: PrestaShop\Module\PsAccounts\Adapter\Configuration
+    public: true
     arguments:
       - '@ps_accounts.context'
 
   PrestaShop\Module\PsAccounts\Adapter\Link:
     class: PrestaShop\Module\PsAccounts\Adapter\Link
+    public: true
     arguments:
       - '@PrestaShop\Module\PsAccounts\Context\ShopContext'
 
@@ -33,6 +35,7 @@ services:
 
   PrestaShop\Module\PsAccounts\Installer\Installer:
     class: PrestaShop\Module\PsAccounts\Installer\Installer
+    public: true
     arguments:
       - '@PrestaShop\Module\PsAccounts\Context\ShopContext'
       - '@PrestaShop\Module\PsAccounts\Adapter\Link'
@@ -40,46 +43,31 @@ services:
   #####################
   # services
 
-  PrestaShop\Module\PsAccounts\Service\ShopKeysService:
-    class: PrestaShop\Module\PsAccounts\Service\ShopKeysService
-    arguments:
-      - '@PrestaShop\Module\PsAccounts\Repository\ConfigurationRepository'
-
-  PrestaShop\Module\PsAccounts\Service\ShopTokenService:
-    class: PrestaShop\Module\PsAccounts\Service\ShopTokenService
-    arguments:
-      - '@PrestaShop\Module\PsAccounts\Api\Client\FirebaseClient'
-      - '@PrestaShop\Module\PsAccounts\Repository\ConfigurationRepository'
-
   PrestaShop\Module\PsAccounts\Service\PsAccountsService:
     class: PrestaShop\Module\PsAccounts\Service\PsAccountsService
+    public: true
     arguments:
       - '@ps_accounts.module'
-      - '@PrestaShop\Module\PsAccounts\Service\ShopTokenService'
-      - '@PrestaShop\Module\PsAccounts\Repository\ConfigurationRepository'
+      - '@PrestaShop\Module\PsAccounts\Repository\ShopTokenRepository'
+      - '@PrestaShop\Module\PsAccounts\Repository\UserTokenRepository'
       - '@PrestaShop\Module\PsAccounts\Adapter\Link'
-
-  PrestaShop\Module\PsAccounts\Service\SsoService:
-    class: PrestaShop\Module\PsAccounts\Service\SsoService
-    arguments:
-      - { sso_resend_verification_email_url: '%ps_accounts.sso_resend_verification_email_url%',
-          sso_account_url: '%ps_accounts.sso_account_url%' }
 
   PrestaShop\Module\PsAccounts\Service\ShopLinkAccountService:
     class: PrestaShop\Module\PsAccounts\Service\ShopLinkAccountService
+    public: true
     arguments:
-      - { accounts_ui_url: '%ps_accounts.svc_accounts_ui_url%' }
-      - '@PrestaShop\Module\PsAccounts\Provider\ShopProvider'
-      - '@PrestaShop\Module\PsAccounts\Service\ShopKeysService'
-      - '@PrestaShop\Module\PsAccounts\Service\ShopTokenService'
+      - '@PrestaShop\Module\PsAccounts\Provider\RsaKeysProvider'
+      - '@PrestaShop\Module\PsAccounts\Repository\ShopTokenRepository'
+      - '@PrestaShop\Module\PsAccounts\Repository\UserTokenRepository'
       - '@PrestaShop\Module\PsAccounts\Repository\ConfigurationRepository'
       - '@PrestaShop\Module\PsAccounts\Adapter\Link'
 
   PrestaShop\Module\PsAccounts\Service\PsBillingService:
     class: PrestaShop\Module\PsAccounts\Service\PsBillingService
+    public: true
     arguments:
       - '@PrestaShop\Module\PsAccounts\Api\Client\ServicesBillingClient'
-      - '@PrestaShop\Module\PsAccounts\Service\ShopTokenService'
+      - '@PrestaShop\Module\PsAccounts\Repository\ShopTokenRepository'
       - '@PrestaShop\Module\PsAccounts\Repository\ConfigurationRepository'
 
   #####################
@@ -87,15 +75,23 @@ services:
 
   PrestaShop\Module\PsAccounts\Provider\ShopProvider:
     class: PrestaShop\Module\PsAccounts\Provider\ShopProvider
+    public: true
     arguments:
       - '@PrestaShop\Module\PsAccounts\Context\ShopContext'
       - '@PrestaShop\Module\PsAccounts\Adapter\Link'
+
+  PrestaShop\Module\PsAccounts\Provider\RsaKeysProvider:
+    class: PrestaShop\Module\PsAccounts\Provider\RsaKeysProvider
+    public: true
+    arguments:
+      - '@PrestaShop\Module\PsAccounts\Repository\ConfigurationRepository'
 
   #####################
   # handlers
 
   PrestaShop\Module\PsAccounts\Handler\Error\Sentry:
     class: PrestaShop\Module\PsAccounts\Handler\Error\Sentry
+    public: true
     arguments:
       - '%ps_accounts.sentry_credentials%'
       - '@=service("ps_accounts.module").getModuleEnv()'
@@ -104,25 +100,27 @@ services:
   ###############
   # api clients
 
-  PrestaShop\Module\PsAccounts\Api\Client\FirebaseClient:
-    class: PrestaShop\Module\PsAccounts\Api\Client\FirebaseClient
+  PrestaShop\Module\PsAccounts\Api\Client\AccountsClient:
+    class: PrestaShop\Module\PsAccounts\Api\Client\AccountsClient
+    public: true
     arguments:
-      - { api_key: '%ps_accounts.firebase_api_key%' }
-
-  PrestaShop\Module\PsAccounts\Api\Client\ServicesBillingClient:
-    class: PrestaShop\Module\PsAccounts\Api\Client\ServicesBillingClient
-    arguments:
-      - { api_url: '%ps_accounts.svc_billing_api_url%' }
-      - '@PrestaShop\Module\PsAccounts\Service\PsAccountsService'
+      - '%ps_accounts.accounts_api_url%'
       - '@PrestaShop\Module\PsAccounts\Provider\ShopProvider'
       - '@PrestaShop\Module\PsAccounts\Adapter\Link'
 
-  PrestaShop\Module\PsAccounts\Api\Client\ServicesAccountsClient:
-    class: PrestaShop\Module\PsAccounts\Api\Client\ServicesAccountsClient
+  PrestaShop\Module\PsAccounts\Api\Client\SsoClient:
+    class: PrestaShop\Module\PsAccounts\Api\Client\SsoClient
+    public: true
     arguments:
-      - { api_url: '%ps_accounts.svc_accounts_api_url%' }
+      - '%ps_accounts.sso_api_url%'
+
+  PrestaShop\Module\PsAccounts\Api\Client\ServicesBillingClient:
+    class: PrestaShop\Module\PsAccounts\Api\Client\ServicesBillingClient
+    public: true
+    arguments:
+      - '%ps_accounts.billing_api_url%'
+      - '@PrestaShop\Module\PsAccounts\Service\PsAccountsService'
       - '@PrestaShop\Module\PsAccounts\Provider\ShopProvider'
-      - '@PrestaShop\Module\PsAccounts\Service\ShopTokenService'
       - '@PrestaShop\Module\PsAccounts\Adapter\Link'
 
   #####################
@@ -130,18 +128,32 @@ services:
 
   PrestaShop\Module\PsAccounts\Repository\ConfigurationRepository:
     class: PrestaShop\Module\PsAccounts\Repository\ConfigurationRepository
+    public: true
     arguments:
       - '@PrestaShop\Module\PsAccounts\Adapter\Configuration'
+
+  PrestaShop\Module\PsAccounts\Repository\ShopTokenRepository:
+    class: PrestaShop\Module\PsAccounts\Repository\ShopTokenRepository
+    public: true
+    arguments:
+      - '@PrestaShop\Module\PsAccounts\Repository\ConfigurationRepository'
+
+  PrestaShop\Module\PsAccounts\Repository\UserTokenRepository:
+    class: PrestaShop\Module\PsAccounts\Repository\UserTokenRepository
+    public: true
+    arguments:
+      - '@PrestaShop\Module\PsAccounts\Repository\ConfigurationRepository'
 
   #####################
   # presenters
 
   PrestaShop\Module\PsAccounts\Presenter\PsAccountsPresenter:
     class: PrestaShop\Module\PsAccounts\Presenter\PsAccountsPresenter
+    public: true
     arguments:
       - '@PrestaShop\Module\PsAccounts\Service\PsAccountsService'
       - '@PrestaShop\Module\PsAccounts\Provider\ShopProvider'
       - '@PrestaShop\Module\PsAccounts\Service\ShopLinkAccountService'
-      - '@PrestaShop\Module\PsAccounts\Service\SsoService'
       - '@PrestaShop\Module\PsAccounts\Installer\Installer'
       - '@PrestaShop\Module\PsAccounts\Repository\ConfigurationRepository'
+      - '@ps_accounts.module'

@@ -73,11 +73,23 @@ class ShopContext
      */
     public function isShopContext()
     {
-        if (\Shop::isFeatureActive() && \Shop::getContext() !== \Shop::CONTEXT_SHOP) {
+        if ($this->isMultishopActive() && \Shop::getContext() !== \Shop::CONTEXT_SHOP) {
             return false;
         }
 
         return true;
+    }
+
+    /**
+     * is multishop active "right now"
+     *
+     * @return bool
+     */
+    public function isMultishopActive()
+    {
+        //return \Shop::isFeatureActive();
+        return $feature_active = (bool) \Db::getInstance()->getValue('SELECT value FROM `' . _DB_PREFIX_ . 'configuration` WHERE `name` = "PS_MULTISHOP_FEATURE_ACTIVE"')
+                && (\Db::getInstance()->getValue('SELECT COUNT(*) FROM ' . _DB_PREFIX_ . 'shop') > 1);
     }
 
     /**
