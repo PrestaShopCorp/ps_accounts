@@ -31,7 +31,34 @@ class ps_AccountsApiV1ShopHmacModuleFrontController extends AbstractShopRestCont
      *
      * @throws Exception
      */
+    // FIXME problem with physical uri who doesn't redirect with the http method
+    public function show($shop, array $payload)
+    {
+        return $this->saveHmac($shop, $payload);
+    }
+
+    /**
+     * @param Shop $shop
+     * @param array $payload
+     *
+     * @return array|void
+     *
+     * @throws Exception
+     */
     public function update($shop, array $payload)
+    {
+        return $this->saveHmac($shop, $payload);
+    }
+
+    /**
+     * @param Shop $shop
+     * @param array $payload
+     *
+     * @return array|void
+     *
+     * @throws Exception
+     */
+    private function saveHmac($shop, array $payload)
     {
         /** @var ShopLinkAccountService $shopLinkAccountService */
         $shopLinkAccountService = $this->module->getService(ShopLinkAccountService::class);
