@@ -86,56 +86,6 @@ class ps_AccountsApiV1ShopLinkAccountModuleFrontController extends AbstractShopR
      */
     public function update($shop, array $payload)
     {
-        return $this->saveTokens($shop, $payload);
-    }
-
-    /**
-     * Expected Payload keys :
-     *  - shop_token
-     *  - shop_refresh_token
-     *  - user_token
-     *  - user_refresh_token
-     *  - employee_id
-     *
-     * @param Shop $shop
-     * @param array $payload
-     *
-     * @return array|void
-     *
-     * @throws Exception
-     */
-    // FIXME problem with physical uri who doesn't redirect with the http method
-    public function show($shop, array $payload)
-    {
-        return $this->saveTokens($shop, $payload);
-    }
-
-    /**
-     * @param Shop $shop
-     * @param array $payload
-     *
-     * @return array|void
-     */
-    public function delete($shop, array $payload)
-    {
-        $this->shopLinkAccountService->resetLinkAccount();
-
-        return [
-            'success' => true,
-            'message' => 'Link Account deleted successfully',
-        ];
-    }
-
-    /**
-     * @param Shop $shop
-     * @param array $payload
-     *
-     * @return array|void
-     *
-     * @throws Exception
-     */
-    private function saveTokens($shop, array $payload)
-    {
         list($shopRefreshToken, $userRefreshToken, $shopToken, $userToken, $employeeId) = [
             $payload['shop_refresh_token'],
             $payload['user_refresh_token'],
@@ -158,6 +108,22 @@ class ps_AccountsApiV1ShopLinkAccountModuleFrontController extends AbstractShopR
         return [
             'success' => true,
             'message' => 'Link Account stored successfully',
+        ];
+    }
+
+    /**
+     * @param Shop $shop
+     * @param array $payload
+     *
+     * @return array|void
+     */
+    public function delete($shop, array $payload)
+    {
+        $this->shopLinkAccountService->resetLinkAccount();
+
+        return [
+            'success' => true,
+            'message' => 'Link Account deleted successfully',
         ];
     }
 }
