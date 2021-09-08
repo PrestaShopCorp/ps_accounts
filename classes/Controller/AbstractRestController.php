@@ -71,7 +71,7 @@ abstract class AbstractRestController extends \ModuleFrontController implements 
         try {
             $payload = $this->decodePayload();
             $this->dispatchVerb(
-                isset($payload['method']) && $payload['method'] !== NULL ? $payload['method'] : $_SERVER['REQUEST_METHOD'],
+                isset($payload['method']) && null !== $payload['method'] ? $payload['method'] : $_SERVER['REQUEST_METHOD'],
                 $payload
             );
         } catch (HttpException $e) {
