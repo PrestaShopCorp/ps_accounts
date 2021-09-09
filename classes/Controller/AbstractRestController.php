@@ -69,9 +69,10 @@ abstract class AbstractRestController extends \ModuleFrontController implements 
     public function postProcess()
     {
         try {
+            $payload = $this->decodePayload();
             $this->dispatchVerb(
-                $_SERVER['REQUEST_METHOD'],
-                $this->decodePayload()
+                isset($payload['method']) && null !== $payload['method'] ? $payload['method'] : $_SERVER['REQUEST_METHOD'],
+                $payload
             );
         } catch (HttpException $e) {
             $this->dieWithResponseJson([
