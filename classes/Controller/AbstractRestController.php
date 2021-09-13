@@ -296,7 +296,8 @@ abstract class AbstractRestController extends \ModuleFrontController implements 
     /**
      * @return void
      */
-    protected function displayMaintenancePage() {
+    protected function displayMaintenancePage()
+    {
         return true;
     }
 
