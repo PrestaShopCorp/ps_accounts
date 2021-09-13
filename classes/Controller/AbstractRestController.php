@@ -294,7 +294,7 @@ abstract class AbstractRestController extends \ModuleFrontController implements 
     }
 
     /**
-     * @return void
+     * @return bool
      */
     protected function displayMaintenancePage()
     {
@@ -305,6 +305,8 @@ abstract class AbstractRestController extends \ModuleFrontController implements 
      * Override displayRestrictedCountryPage to prevent page country is not allowed
      *
      * @see FrontController::displayRestrictedCountryPage()
+     *
+     * @return void
      */
     protected function displayRestrictedCountryPage()
     {
@@ -315,7 +317,7 @@ abstract class AbstractRestController extends \ModuleFrontController implements 
      *
      * @see FrontController::geolocationManagement()
      *
-     * @param Country $defaultCountry
+     * @param \Country $defaultCountry
      *
      * @return false
      */
