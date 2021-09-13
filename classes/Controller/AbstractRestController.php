@@ -292,4 +292,34 @@ abstract class AbstractRestController extends \ModuleFrontController implements 
         $context = $this->module->getService('ps_accounts.context');
         $context->shop = $shop;
     }
+
+    /**
+     * @return void
+     */
+    protected function displayMaintenancePage() {
+        return true;
+    }
+
+    /**
+     * Override displayRestrictedCountryPage to prevent page country is not allowed
+     *
+     * @see FrontController::displayRestrictedCountryPage()
+     */
+    protected function displayRestrictedCountryPage()
+    {
+    }
+
+    /**
+     * Override geolocationManagement to prevent country GEOIP blocking
+     *
+     * @see FrontController::geolocationManagement()
+     *
+     * @param Country $defaultCountry
+     *
+     * @return false
+     */
+    protected function geolocationManagement($defaultCountry)
+    {
+        return false;
+    }
 }
