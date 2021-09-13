@@ -63,7 +63,6 @@ class ps_AccountsApiV1ShopUrlModuleFrontController extends AbstractShopRestContr
             'domain' => $shopData['domain'],
             'domain_ssl' => $shopData['domainSsl'],
             'physical_uri' => $shopData['physicalUri'],
-            'virtual_uri' => $shopData['virtualUri'],
             'ssl_activated' => $this->configuration->sslEnabled(),
         ];
     }
