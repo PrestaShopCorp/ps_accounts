@@ -56,13 +56,15 @@ class ShopTokenRepository
     {
         if (true === $forceRefresh || $this->isTokenExpired()) {
             $refreshToken = $this->getRefreshToken();
-            try {
-                $this->updateCredentials(
-                    (string) $this->refreshToken($refreshToken),
-                    $refreshToken
-                );
-            } catch (RefreshTokenException $e) {
-                Sentry::capture($e);
+            if (is_string($refreshToken) && '' != $refreshToken) {
+                try {
+                    $this->updateCredentials(
+                        (string) $this->refreshToken($refreshToken),
+                        $refreshToken
+                    );
+                } catch (RefreshTokenException $e) {
+                    Sentry::capture($e);
+                }
             }
         }
 
