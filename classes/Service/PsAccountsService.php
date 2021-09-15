@@ -97,7 +97,7 @@ class PsAccountsService
      */
     public function getOrRefreshToken()
     {
-        return $this->shopTokenRepository->getOrRefreshToken();
+        return (string) $this->shopTokenRepository->getOrRefreshToken();
     }
 
     /**
@@ -113,7 +113,7 @@ class PsAccountsService
      */
     public function getToken()
     {
-        return $this->shopTokenRepository->getToken();
+        return (string) $this->shopTokenRepository->getToken();
     }
 
     /**
