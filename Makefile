@@ -25,7 +25,7 @@ clean:
 	git -c core.excludesfile=/dev/null clean -X -d -f
 
 # target: bundle                                 - Bundle local sources into a ZIP file
-bundle: bundle-prod
+bundle: bundle-inte bundle-prod
 
 # target: zip                                    - Alias of target: bundle
 zip: bundle
@@ -43,7 +43,6 @@ version:
 
 # target: bundle-prod                            - Bundle a production zip
 bundle-prod: dist ./vendor ./views/index.php
-	rm -f .env
 	cd .. && zip -r ${PACKAGE}_prod.zip ${MODULE} -x '*.git*' \
 	  ${MODULE}/_dev/\* \
 	  ${MODULE}/dist/\* \
@@ -51,16 +50,17 @@ bundle-prod: dist ./vendor ./views/index.php
 	  ${MODULE}/Makefile
 	mv ../${PACKAGE}_prod.zip ./dist
 
-# target: bundle-prod                            - Bundle an integration zip
-bundle-inte: dist .env.inte ./vendor ./views/index.php
-	cp .env.inte .env
+# target: bundle-inte                            - Bundle an integration zip
+bundle-inte: dist ./vendor ./views/index.php
+	cp config/config.yml config/config.yml.local
+	cp config/config.preprod.yml config/config.yml
 	cd .. && zip -r ${PACKAGE}_inte.zip ${MODULE} -x '*.git*' \
 	  ${MODULE}/_dev/\* \
 	  ${MODULE}/dist/\* \
 	  ${MODULE}/composer.phar \
 	  ${MODULE}/Makefile
 	mv ../${PACKAGE}_inte.zip ./dist
-	rm -f .env
+	mv config/config.yml.local config/config.yml
 
 # target: build                                  - Setup PHP & Node.js locally
 build: build-front build-back
@@ -111,24 +111,26 @@ endif
 	  phpstan/phpstan:${PHPSTAN_VERSION} analyse \
 	  --configuration=/web/module/tests/phpstan/${NEON_FILE}
 
+
 # target: phpunit                                - Start phpunit
 phpunit: vendor/phpunit/phpunit
 ifndef DOCKER
     $(error "DOCKER is unavailable on your system")
 endif
-	docker pull phpunit/phpunit:${PHPUNIT_VERSION}
-	docker pull prestashop/prestashop:${PS_VERSION}
-	docker run --rm -d -v ps-volume:/var/www/html --entrypoint /bin/sleep --name test-phpunit prestashop/prestashop:${PS_VERSION} 2s
-	docker run --rm --volumes-from test-phpunit \
-	  -v ${PWD}:/app:ro \
-	  -v ${PWD}/vendor:/vendor:ro \
-	  -e _PS_ROOT_DIR_=/var/www/html \
-	  --workdir /app \
-	  --entrypoint /vendor/phpunit/phpunit/phpunit \
-	  phpunit/phpunit:${PHPUNIT_VERSION} \
-	  --configuration ./phpunit.xml \
-	  --bootstrap ./tests/bootstrap.php
+	docker run --rm -d -e PS_DOMAIN=localhost -e PS_ENABLE_SSL=0 -e PS_DEV_MODE=1 --name test-phpunit prestashop/docker-internal-images:1.7
+	docker container exec test-phpunit sh -c "rm -rf /var/www/html/modules/ps_accounts"
+	cp ./config/config.yml.dist ./config/config.yml
+	docker cp . test-phpunit:/var/www/html/modules/ps_accounts
+	docker container exec -u www-data test-phpunit sh -c "sleep 1 && ./bin/console prestashop:module install ps_accounts"
+	docker container exec -u www-data --workdir /var/www/html/modules/ps_accounts test-phpunit ./vendor/bin/phpunit
 	@echo phpunit passed
+
+backup-config-yml:
+	@if [ -f ./config/config.yml ]; then mv ./config/config.yml ./config/.config.yml.bak; fi
+
+phpunit-local: backup-config-yml phpunit
+	@if [ -f ./config/.config.yml.bak ]; then mv ./config/.config.yml.bak ./config/config.yml; fi
+	@docker container rm -f test-phpunit
 
 vendor/phpunit/phpunit:
 	./composer.phar install

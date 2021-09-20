@@ -106,6 +106,11 @@ class PsAccountsPresenter implements PresenterInterface
 
         $moduleName = $this->module->name;
 
+        $currentShop = $this->shopProvider->getCurrentShop($psxName);
+        $shopBase64 = base64_encode((string) json_encode($currentShop));
+        $onboardingLink = $this->module->getParameter('ps_accounts.accounts_ui_url')
+            . '?shopPayload=' . $shopBase64;
+
         try {
             return array_merge(
                 [
@@ -139,12 +144,13 @@ class PsAccountsPresenter implements PresenterInterface
                         'employeeId' => $shopContext->getContext()->employee->id,
                         'isSuperAdmin' => $shopContext->getContext()->employee->isSuperAdmin(),
                     ],
-                    'currentShop' => $this->shopProvider->getCurrentShop($psxName),
+                    'currentShop' => $currentShop,
                     'isShopContext' => $shopContext->isShopContext(),
                     'superAdminEmail' => $this->psAccountsService->getSuperAdminEmail(),
 
                     // TODO: link to a page to display an "Update Your PSX" notice
-                    'onboardingLink' => $this->module->getParameter('ps_accounts.svc_accounts_ui_url'),
+                    'onboardingLink' => $onboardingLink,
+
                     'ssoResendVerificationEmail' => $this->module->getParameter('ps_accounts.sso_resend_verification_email_url'),
                     'manageAccountLink' => $this->module->getSsoAccountUrl(),
 

@@ -20,6 +20,7 @@
 
 namespace PrestaShop\Module\PsAccounts\Controller;
 
+use Context;
 use Lcobucci\JWT\Parser;
 use Lcobucci\JWT\Signer\Hmac\Sha256;
 use Lcobucci\JWT\Signer\Key;
@@ -68,9 +69,10 @@ abstract class AbstractRestController extends \ModuleFrontController implements 
     public function postProcess()
     {
         try {
+            $payload = $this->decodePayload();
             $this->dispatchVerb(
-                $_SERVER['REQUEST_METHOD'],
-                $this->decodePayload()
+                isset($payload['method']) && null !== $payload['method'] ? $payload['method'] : $_SERVER['REQUEST_METHOD'],
+                $payload
             );
         } catch (HttpException $e) {
             $this->dieWithResponseJson([
@@ -232,17 +234,21 @@ abstract class AbstractRestController extends \ModuleFrontController implements 
 
         $jwtString = $this->getRequestHeader(self::TOKEN_HEADER);
 
-        $this->module->getLogger()->info(self::TOKEN_HEADER . ' : ' . $jwtString);
-
         if ($jwtString) {
             $jwt = (new Parser())->parse($jwtString);
 
             $shop = new \Shop((int) $jwt->claims()->get('shop_id'));
 
             if ($shop->id) {
-                $this->setConfigurationShopId($shop->id);
+                $this->setContextShop($shop);
+                $publicKey = $shopKeysService->getPublicKey();
 
-                if (true === $jwt->verify(new Sha256(), new Key($shopKeysService->getPublicKey()))) {
+                if (
+                    null !== $publicKey &&
+                    false !== $publicKey &&
+                    '' !== $publicKey &&
+                    true === $jwt->verify(new Sha256(), new Key((string) $publicKey))
+                ) {
                     return $jwt->claims()->all();
                 }
             }
@@ -270,16 +276,53 @@ abstract class AbstractRestController extends \ModuleFrontController implements 
     }
 
     /**
-     * @param int $shopId
+     * @param \Shop $shop
      *
      * @return void
      *
      * @throws \Exception
      */
-    protected function setConfigurationShopId($shopId)
+    protected function setContextShop(\Shop $shop)
     {
         /** @var ConfigurationRepository $conf */
         $conf = $this->module->getService(ConfigurationRepository::class);
-        $conf->setShopId($shopId);
+        $conf->setShopId($shop->id);
+
+        /** @var Context $context */
+        $context = $this->module->getService('ps_accounts.context');
+        $context->shop = $shop;
+    }
+
+    /**
+     * @return bool
+     */
+    protected function displayMaintenancePage()
+    {
+        return true;
+    }
+
+    /**
+     * Override displayRestrictedCountryPage to prevent page country is not allowed
+     *
+     * @see FrontController::displayRestrictedCountryPage()
+     *
+     * @return void
+     */
+    protected function displayRestrictedCountryPage()
+    {
+    }
+
+    /**
+     * Override geolocationManagement to prevent country GEOIP blocking
+     *
+     * @see FrontController::geolocationManagement()
+     *
+     * @param \Country $defaultCountry
+     *
+     * @return false
+     */
+    protected function geolocationManagement($defaultCountry)
+    {
+        return false;
     }
 }

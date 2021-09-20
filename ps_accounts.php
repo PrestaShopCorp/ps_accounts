@@ -46,6 +46,7 @@ class Ps_accounts extends Module
      * @var array
      */
     private $hookToInstall = [
+        'displayAdminForm',
         'displayBackOfficeHeader',
         'actionObjectShopAddAfter',
         'actionObjectShopDeleteAfter',
@@ -161,6 +162,8 @@ class Ps_accounts extends Module
 
         $this->switchConfigMultishopMode();
 
+        $this->autoReonboardOnV5();
+
         $this->getLogger()->info('Install - Loading ' . $this->name . ' Env : [' . $this->getModuleEnv() . ']');
 
         return $status;
@@ -230,6 +233,18 @@ class Ps_accounts extends Module
 //        }
 //        return $this->container->get($serviceName);
 //    }
+
+    /**
+     * @param array $params
+     *
+     * @return void
+     *
+     * @throws Exception
+     */
+    public function hookDisplayAdminForm($params)
+    {
+        $this->switchConfigMultishopMode();
+    }
 
     /**
      * @param array $params
@@ -321,8 +336,11 @@ class Ps_accounts extends Module
      */
     protected function loadAssets($responseApiMessage = 'null', $countProperty = 0)
     {
+        /** @var Ps_accounts $module */
+        $module = \Module::getInstanceByName('ps_accounts');
         $this->context->smarty->assign('pathVendor', $this->_path . 'views/js/chunk-vendors.js');
         $this->context->smarty->assign('pathApp', $this->_path . 'views/js/app.js');
+        $this->context->smarty->assign('urlAccountsVueCdn', $module->getParameter('ps_accounts.accounts_vue_cdn_url'));
 
         $storePresenter = new PrestaShop\Module\PsAccounts\Presenter\Store\StorePresenter($this, $this->context);
 
@@ -363,9 +381,29 @@ class Ps_accounts extends Module
         $shopContext = $this->getService(\PrestaShop\Module\PsAccounts\Context\ShopContext::class);
 
         if ($shopContext->isMultishopActive()) {
-            $config->migrateToMultiShop(new \Shop(1));
+            $config->migrateToMultiShop();
         } else {
-            $config->migrateToSingleShop(new \Shop(1));
+            $config->migrateToSingleShop();
         }
+    }
+
+    /**
+     * @return void
+     *
+     * @throws Throwable
+     */
+    private function autoReonboardOnV5()
+    {
+        /** @var \PrestaShop\Module\PsAccounts\Service\PsAccountsService $psAccountsService */
+        $psAccountsService = $this->getService(\PrestaShop\Module\PsAccounts\Service\PsAccountsService::class);
+        $psAccountsService->autoReonboardOnV5();
+    }
+
+    /**
+     * @return array
+     */
+    public function getHookToInstall()
+    {
+        return $this->hookToInstall;
     }
 }

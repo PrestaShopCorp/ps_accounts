@@ -35,7 +35,7 @@ class ServicesBillingClient extends GenericClient
     /**
      * ServicesBillingClient constructor.
      *
-     * @param array $config
+     * @param string $apiUrl
      * @param PsAccountsService $psAccountsService
      * @param ShopProvider $shopProvider
      * @param Link $link
@@ -46,7 +46,7 @@ class ServicesBillingClient extends GenericClient
      * @throws \Exception
      */
     public function __construct(
-        array $config,
+        $apiUrl,
         PsAccountsService $psAccountsService,
         ShopProvider $shopProvider,
         Link $link,
@@ -54,7 +54,7 @@ class ServicesBillingClient extends GenericClient
     ) {
         parent::__construct();
 
-        $config = $this->resolveConfig($config);
+        $config = $this->resolveConfig(['api_url' => $apiUrl]);
 
         $shopId = $shopProvider->getCurrentShop()['id'];
 
@@ -73,7 +73,7 @@ class ServicesBillingClient extends GenericClient
                         // Commented, else does not work anymore with API.
                         //'Content-Type' => 'application/vnd.accounts.v1+json', // api version to use
                         'Accept' => 'application/json',
-                        'Authorization' => 'Bearer ' . $token,
+                        'Authorization' => 'Bearer ' . (string) $token,
                         'Shop-Id' => $shopId,
                         'Module-Version' => \Ps_accounts::VERSION, // version of the module
                         'Prestashop-Version' => _PS_VERSION_, // prestashop version
@@ -88,7 +88,7 @@ class ServicesBillingClient extends GenericClient
     /**
      * @param mixed $shopUuidV4
      *
-     * @return array | false
+     * @return array|false
      */
     public function getBillingCustomer($shopUuidV4)
     {
@@ -101,7 +101,7 @@ class ServicesBillingClient extends GenericClient
      * @param mixed $shopUuidV4
      * @param array $bodyHttp
      *
-     * @return array | false
+     * @return array|false
      */
     public function createBillingCustomer($shopUuidV4, $bodyHttp)
     {
@@ -116,7 +116,7 @@ class ServicesBillingClient extends GenericClient
      * @param mixed $shopUuidV4
      * @param string $module
      *
-     * @return array | false
+     * @return array|false
      */
     public function getBillingSubscriptions($shopUuidV4, $module)
     {
@@ -130,7 +130,7 @@ class ServicesBillingClient extends GenericClient
      * @param string $module
      * @param array $bodyHttp
      *
-     * @return array | false
+     * @return array|false
      */
     public function createBillingSubscriptions($shopUuidV4, $module, $bodyHttp)
     {
