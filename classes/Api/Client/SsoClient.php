@@ -49,12 +49,10 @@ class SsoClient extends GenericClient
     ) {
         parent::__construct();
 
-        $config = $this->resolveConfig(['api_url' => $apiUrl]);
-
         // Client can be provided for tests
         if (null === $client) {
             $client = new Client([
-                'base_url' => $config['api_url'],
+                'base_url' => $apiUrl,
                 'defaults' => [
                     'timeout' => $this->timeout,
                     'exceptions' => $this->catchExceptions,
@@ -98,20 +96,5 @@ class SsoClient extends GenericClient
                 'token' => $refreshToken,
             ],
         ]);
-    }
-
-    /**
-     * @param array $config
-     * @param array $defaults
-     *
-     * @return array
-     *
-     * @throws OptionResolutionException
-     */
-    public function resolveConfig(array $config, array $defaults = [])
-    {
-        return (new ConfigOptionsResolver([
-            'api_url',
-        ]))->resolve($config, $defaults);
     }
 }

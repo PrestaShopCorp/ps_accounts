@@ -101,12 +101,8 @@ class ShopLinkAccountService
      */
     public function unlinkShop()
     {
-        $response = $this->getAccountsClient()->deleteUserShop(
-            (string) $this->userTokenRepository->getTokenUuid(),
-            (string) $this->shopTokenRepository->getTokenUuid()
-        );
-
-        return $response;
+        return $this->getAccountsClient()
+            ->deleteUserShop($this->configuration->getShopId());
     }
 
     /**

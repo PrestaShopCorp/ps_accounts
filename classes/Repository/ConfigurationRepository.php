@@ -344,4 +344,31 @@ class ConfigurationRepository
             ' AND id_shop = ' . (int) $shop->id . ' AND id_shop_group = ' . (int) $shop->id_shop_group . ';'
         );
     }
+
+    /**
+     * @param $shopId
+     * @param $closure
+     *
+     * @return mixed
+     *
+     * @throws \Exception
+     */
+    public function execInShopContext($shopId, $closure)
+    {
+        $backup = $this->getShopId();
+        $this->setShopId($shopId);
+        $exception = null;
+
+        try {
+            $result = $closure();
+        } catch (\Exception $e) {
+            $exception = $e;
+        }
+        $this->setShopId($backup);
+
+        if (null === $exception) {
+            return $result;
+        }
+        throw $exception;
+    }
 }

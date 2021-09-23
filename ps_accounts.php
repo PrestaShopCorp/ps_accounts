@@ -46,11 +46,10 @@ class Ps_accounts extends Module
      * @var array
      */
     private $hookToInstall = [
-        'displayAdminForm',
         'displayBackOfficeHeader',
         'actionObjectShopAddAfter',
         'actionObjectShopDeleteAfter',
-        //'addWebserviceResources',
+        'actionObjectShopUrlUpdateAfter',
     ];
 
     /**
@@ -241,23 +240,70 @@ class Ps_accounts extends Module
      *
      * @throws Exception
      */
-    public function hookDisplayAdminForm($params)
+    public function hookDisplayBackOfficeHeader($params)
     {
-        $this->switchConfigMultishopMode();
+        # Multistore On/Off switch
+        if (in_array($this->context->controller->controller_name, [
+            'AdminPreferences',
+        ])) {
+            $this->getLogger()->info('## hookDisplayBackOfficeHeader - ' . $this->context->controller->controller_name);
+            $this->switchConfigMultishopMode();
+        }
+
+        // Multistore update ShopUrl 1.6
+        if ('AdminShopUrl' === $this->context->controller->controller_name
+            && Tools::isSubmit('submitAddshop_url')
+            /*&& Tools::getValue('main')*/) {
+
+            /** @var \PrestaShop\Module\PsAccounts\Api\Client\AccountsClient $accountsApi */
+            $accountsApi = $this->getService(
+                \PrestaShop\Module\PsAccounts\Api\Client\AccountsClient::class
+            );
+
+            $this->getLogger()->info('### - hookDisplayBackOfficeHeader ' . Tools::getValue('domain'));
+
+            $accountsApi->updateUserShop(new \PrestaShop\Module\PsAccounts\Api\Client\ShopInterface([
+                'id' => $params['object']->id_shop,
+                'domain' => Tools::getValue('domain'),
+                'domainSsl' => Tools::getValue('domain_ssl'),
+                'physicalUri' => Tools::getValue('physical_uri'),
+                'virtual_uri' => Tools::getValue('virtual_uri'),
+            ]));
+        }
     }
 
     /**
+     * Hook trigger when a change is made on the domain name
+     *
      * @param array $params
      *
-     * @return void
+     * @return bool
      *
      * @throws Exception
      */
-    public function hookDisplayBackOfficeHeader($params)
+    public function hookActionObjectShopUrlUpdateAfter($params)
     {
-        if ($this->context->controller->controller_name !== 'AdminPreferences') {
-            $this->switchConfigMultishopMode();
+        if ($this->context->controller->controller_name === 'AdminMeta' && $params['object']->main) {
+
+            /** @var \PrestaShop\Module\PsAccounts\Api\Client\AccountsClient $accountsApi */
+            $accountsApi = $this->getService(
+                \PrestaShop\Module\PsAccounts\Api\Client\AccountsClient::class
+            );
+
+            $this->getLogger()->info('### - hookActionObjectShopUrlUpdateAfter ' . $params['object']->domain);
+
+            $accountsApi->updateUserShop(new \PrestaShop\Module\PsAccounts\Api\Client\ShopInterface([
+                'id' => $params['object']->id_shop,
+                'domain' => $params['object']->domain,
+                'domainSsl' => $params['object']->domain_ssl,
+                'physicalUri' => $params['object']->physical_uri,
+                'virtual_uri' => $params['object']->virtual_uri,
+                // 'main' => $params['object']->main,
+                // 'active' => $params['object']->active,
+            ]));
         }
+
+        return true;
     }
 
     /**
@@ -269,6 +315,7 @@ class Ps_accounts extends Module
      */
     public function hookActionObjectShopAddAfter($params)
     {
+        $this->getLogger()->info('## hookActionObjectShopAddAfter - ' . $this->context->controller->controller_name);
         if ($this->context->controller->controller_name === 'AdminShop') {
             $this->switchConfigMultishopMode();
         }
@@ -285,6 +332,7 @@ class Ps_accounts extends Module
      */
     public function hookActionObjectShopDeleteAfter($params)
     {
+        $this->getLogger()->info('## hookActionObjectShopDeleteAfter - ' . $this->context->controller->controller_name);
         if ($this->context->controller->controller_name === 'AdminShop') {
             $this->switchConfigMultishopMode();
         }
