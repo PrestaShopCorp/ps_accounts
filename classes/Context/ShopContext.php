@@ -22,6 +22,7 @@ namespace PrestaShop\Module\PsAccounts\Context;
 
 use Context;
 use PrestaShop\Module\PsAccounts\Repository\ConfigurationRepository;
+use PrestaShop\Module\PsAccounts\Repository\UserTokenRepository;
 
 /**
  * Get the shop context
@@ -34,6 +35,11 @@ class ShopContext
     private $configuration;
 
     /**
+     * @var UserTokenRepository
+     */
+    private $userTokenRepository;
+
+    /**
      * @var Context
      */
     private $context;
@@ -42,13 +48,16 @@ class ShopContext
      * ShopContext constructor.
      *
      * @param ConfigurationRepository $configuration
+     * @param UserTokenRepository $userTokenRepository
      * @param Context $context
      */
     public function __construct(
         ConfigurationRepository $configuration,
+        UserTokenRepository $userTokenRepository,
         Context $context
     ) {
         $this->configuration = $configuration;
+        $this->userTokenRepository = $userTokenRepository;
         $this->context = $context;
     }
 
@@ -148,5 +157,13 @@ class ShopContext
     public function getConfiguration()
     {
         return $this->configuration;
+    }
+
+    /**
+     * @return UserTokenRepository
+     */
+    public function getUser()
+    {
+        return $this->userTokenRepository;
     }
 }

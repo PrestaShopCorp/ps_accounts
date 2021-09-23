@@ -22,6 +22,7 @@ namespace PrestaShop\Module\PsAccounts\Provider;
 
 use PrestaShop\Module\PsAccounts\Adapter\Link;
 use PrestaShop\Module\PsAccounts\Context\ShopContext;
+use PrestaShop\Module\PsAccounts\Repository\UserTokenRepository;
 use PrestaShop\Module\PsAccounts\Service\ShopLinkAccountService;
 
 class ShopProvider
@@ -61,6 +62,7 @@ class ShopProvider
     public function formatShopData($shopData, $psxName = '')
     {
         $configuration = $this->shopContext->getConfiguration();
+        $user = $this->shopContext->getUser();
 
         $shopId = $configuration->getShopId();
 
@@ -86,6 +88,7 @@ class ShopProvider
             'user' => [
                 'email' => $configuration->getFirebaseEmail() ?: null,
                 'uuid' => $configuration->getUserFirebaseUuid() ?: null,
+                'emailIsValidated' => $user->getTokenEmailVerified(),
             ],
 
             'url' => $this->link->getAdminLink(

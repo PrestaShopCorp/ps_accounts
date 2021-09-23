@@ -16,6 +16,7 @@ services:
     public: true
     arguments:
       - '@PrestaShop\Module\PsAccounts\Repository\ConfigurationRepository'
+      - '@PrestaShop\Module\PsAccounts\Repository\UserTokenRepository'
       - '@ps_accounts.context'
 
   PrestaShop\Module\PsAccounts\Adapter\Configuration:
