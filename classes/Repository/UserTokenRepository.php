@@ -66,7 +66,7 @@ class UserTokenRepository
                         $refreshToken
                     );
                 } catch (RefreshTokenException $e) {
-                    Sentry::capture($e);
+                    //Sentry::capture($e);
                 }
             }
         }

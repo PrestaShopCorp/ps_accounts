@@ -63,7 +63,7 @@ class ShopTokenRepository
                         $refreshToken
                     );
                 } catch (RefreshTokenException $e) {
-                    Sentry::capture($e);
+                    //Sentry::capture($e);
                 }
             }
         }
