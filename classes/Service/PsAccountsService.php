@@ -82,6 +82,7 @@ class PsAccountsService
 
     /**
      * @deprecated deprecated since version 5.0
+     *
      * @return string|false
      */
     public function getShopUuidV4()
