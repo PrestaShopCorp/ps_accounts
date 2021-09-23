@@ -122,7 +122,8 @@ class ShopLinkAccountService
         $this->configuration->updateEmployeeId('');
         try {
             $this->rsaKeysProvider->generateKeys();
-        } catch (\Exception $e) {}
+        } catch (\Exception $e) {
+        }
     }
 
     /**
