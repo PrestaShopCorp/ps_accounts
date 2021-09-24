@@ -161,7 +161,7 @@ class UserTokenRepository
             }
         }
 
-        return null !== $token && (bool)$token->claims()->get('email_verified');
+        return null !== $token && (bool) $token->claims()->get('email_verified');
     }
 
     /**

@@ -21,7 +21,6 @@
 namespace PrestaShop\Module\PsAccounts\Handler\Error;
 
 use Module;
-use PrestaShop\Module\PsAccounts\Adapter\Configuration;
 use PrestaShop\Module\PsAccounts\Repository\ConfigurationRepository;
 use Ps_accounts;
 use Raven_Client;
