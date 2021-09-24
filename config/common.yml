@@ -94,7 +94,7 @@ services:
     public: true
     arguments:
       - '%ps_accounts.sentry_credentials%'
-      - '@=service("ps_accounts.module").getModuleEnv()'
+      - '%ps_accounts.environment%'
       - '@PrestaShop\Module\PsAccounts\Repository\ConfigurationRepository'
 
   ###############
