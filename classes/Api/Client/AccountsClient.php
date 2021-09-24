@@ -149,8 +149,8 @@ class AccountsClient extends GenericClient
             /** @var \Ps_accounts $module */
             $module = \Module::getInstanceByName('ps_accounts');
 
-            $module->getLogger()->info('### - hookActionObjectShopUrlUpdateAfter ' . 'user/' . $userToken->getTokenUuid() . '/shop/' . $shopToken->getTokenUuid());
-            $module->getLogger()->info('### - hookActionObjectShopUrlUpdateAfter ' . json_encode($shop));
+            $module->getLogger()->info('### - updateUserShop ' . 'user/' . $userToken->getTokenUuid() . '/shop/' . $shopToken->getTokenUuid());
+            $module->getLogger()->info('### - updateUserShop ' . json_encode($shop));
 
             return $this->patch([
                 'headers' => $this->getHeaders([

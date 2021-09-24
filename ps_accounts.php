@@ -243,31 +243,9 @@ class Ps_accounts extends Module
     public function hookDisplayBackOfficeHeader($params)
     {
         // Multistore On/Off switch
-        if (in_array($this->context->controller->controller_name, [
-            'AdminPreferences',
-        ])) {
+        if ('AdminPreferences' === $this->context->controller->controller_name) {
             $this->getLogger()->info('## hookDisplayBackOfficeHeader - ' . $this->context->controller->controller_name);
             $this->switchConfigMultishopMode();
-        }
-
-        // Multistore update ShopUrl 1.6
-        if ('AdminShopUrl' === $this->context->controller->controller_name
-            && Tools::isSubmit('submitAddshop_url')
-            /*&& Tools::getValue('main')*/) {
-            /** @var \PrestaShop\Module\PsAccounts\Api\Client\AccountsClient $accountsApi */
-            $accountsApi = $this->getService(
-                \PrestaShop\Module\PsAccounts\Api\Client\AccountsClient::class
-            );
-
-            $this->getLogger()->info('### - hookDisplayBackOfficeHeader ' . Tools::getValue('domain'));
-
-            $accountsApi->updateUserShop(new \PrestaShop\Module\PsAccounts\DTO\UpdateShop([
-                'shopId' => $params['object']->id_shop,
-                'domain' => Tools::getValue('domain'),
-                'sslDomain' => Tools::getValue('domain_ssl'),
-                'physicalUri' => Tools::getValue('physical_uri'),
-                'virtualUri' => Tools::getValue('virtual_uri'),
-            ]));
         }
     }
 
@@ -284,8 +262,7 @@ class Ps_accounts extends Module
     {
         $this->getLogger()->info('### - hookActionObjectShopUrlUpdateAfter ' . $this->context->controller->controller_name);
 
-        // Admin || AdminMeta
-        //if ('AdminMeta' === $this->context->controller->controller_name /*&& $params['object']->main*/) {
+        if (in_array($this->context->controller->controller_name, ['Admin', 'AdminMeta', 'AdminShopUrl']) && $params['object']->main) {
             /** @var \PrestaShop\Module\PsAccounts\Api\Client\AccountsClient $accountsApi */
             $accountsApi = $this->getService(
                 \PrestaShop\Module\PsAccounts\Api\Client\AccountsClient::class
@@ -300,7 +277,7 @@ class Ps_accounts extends Module
                 'physicalUri' => $params['object']->physical_uri,
                 'virtualUri' => $params['object']->virtual_uri,
             ]));
-        //}
+        }
 
         return true;
     }

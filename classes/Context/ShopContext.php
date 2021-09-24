@@ -134,24 +134,21 @@ class ShopContext
      */
     public function execInShopContext($shopId, $closure)
     {
-        if ($this->isMultishopActive()) {
-            $backup = $this->configuration->getShopId();
-            $this->configuration->setShopId($shopId);
+        $backup = $this->configuration->getShopId();
+        $this->configuration->setShopId($shopId);
 
-            $exception = null;
+        $exception = null;
 
-            try {
-                $result = $closure();
-            } catch (\Exception $e) {
-                $exception = $e;
-            }
-            $this->configuration->setShopId($backup);
-
-            if (null === $exception) {
-                return $result;
-            }
-            throw $exception;
+        try {
+            $result = $closure();
+        } catch (\Exception $e) {
+            $exception = $e;
         }
-        return $closure();
+        $this->configuration->setShopId($backup);
+
+        if (null === $exception) {
+            return $result;
+        }
+        throw $exception;
     }
 }
