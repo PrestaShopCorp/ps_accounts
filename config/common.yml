@@ -106,7 +106,6 @@ services:
     arguments:
       - '%ps_accounts.accounts_api_url%'
       - '@PrestaShop\Module\PsAccounts\Provider\ShopProvider'
-      - '@PrestaShop\Module\PsAccounts\Repository\ConfigurationRepository'
       - '@PrestaShop\Module\PsAccounts\Adapter\Link'
 
   PrestaShop\Module\PsAccounts\Api\Client\SsoClient:

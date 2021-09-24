@@ -22,8 +22,7 @@ namespace PrestaShop\Module\PsAccounts\Api\Client;
 
 use GuzzleHttp\Client;
 use PrestaShop\Module\PsAccounts\Adapter\Link;
-use PrestaShop\Module\PsAccounts\Configuration\ConfigOptionsResolver;
-use PrestaShop\Module\PsAccounts\Exception\OptionResolutionException;
+use PrestaShop\Module\PsAccounts\DTO\UpdateShop;
 use PrestaShop\Module\PsAccounts\Provider\ShopProvider;
 use PrestaShop\Module\PsAccounts\Repository\ConfigurationRepository;
 use PrestaShop\Module\PsAccounts\Repository\ShopTokenRepository;
@@ -40,11 +39,6 @@ class AccountsClient extends GenericClient
     private $shopProvider;
 
     /**
-     * @var ConfigurationRepository
-     */
-    private $config;
-
-    /**
      * ServicesAccountsClient constructor.
      *
      * @param string $apiUrl
@@ -58,15 +52,12 @@ class AccountsClient extends GenericClient
     public function __construct(
         $apiUrl,
         ShopProvider $shopProvider,
-        ConfigurationRepository  $configurationRepository,
         Link $link,
         Client $client = null
     ) {
         parent::__construct();
 
         $this->shopProvider = $shopProvider;
-
-        $this->config = $configurationRepository;
 
         $this->setLink($link->getLink());
 
@@ -118,13 +109,15 @@ class AccountsClient extends GenericClient
     }
 
     /**
+     * @param int $shopId
+     *
      * @return array
      *
      * @throws \Exception
      */
     public function deleteUserShop($shopId)
     {
-        return $this->config->execInShopContext($shopId, function () use ($shopId) {
+        return $this->shopProvider->getShopContext()->execInShopContext($shopId, function () {
             $userToken = $this->getUserTokenRepository();
             $shopToken = $this->getShopTokenRepository();
 
@@ -139,26 +132,32 @@ class AccountsClient extends GenericClient
     }
 
     /**
-     * @param ShopInterface $shop
+     * @param UpdateShop $shop
      *
      * @return array
      *
      * @throws \Exception
      */
-    public function updateUserShop(ShopInterface $shop)
+    public function updateUserShop(UpdateShop $shop)
     {
-        return $this->config->execInShopContext($shop->id, function () use ($shop) {
+        return $this->shopProvider->getShopContext()->execInShopContext($shop->shopId, function () use ($shop) {
             $userToken = $this->getUserTokenRepository();
             $shopToken = $this->getShopTokenRepository();
 
             $this->setRoute('user/' . $userToken->getTokenUuid() . '/shop/' . $shopToken->getTokenUuid());
+
+            /** @var \Ps_accounts $module */
+            $module = \Module::getInstanceByName('ps_accounts');
+
+            $module->getLogger()->info('### - hookActionObjectShopUrlUpdateAfter ' . 'user/' . $userToken->getTokenUuid() . '/shop/' . $shopToken->getTokenUuid());
+            $module->getLogger()->info('### - hookActionObjectShopUrlUpdateAfter ' . json_encode($shop));
 
             return $this->patch([
                 'headers' => $this->getHeaders([
                     'Authorization' => 'Bearer ' . $userToken->getOrRefreshToken(),
                     'content-type' => 'application/json',
                 ]),
-                'json' => $shop->toArray()
+                'json' => $shop->jsonSerialize(),
             ]);
         });
     }
@@ -172,7 +171,7 @@ class AccountsClient extends GenericClient
      */
     public function reonboardShop($currentShop)
     {
-        return $this->config->execInShopContext($currentShop['id'], function () use ($currentShop) {
+        return $this->shopProvider->getShopContext()->execInShopContext($currentShop['id'], function () use ($currentShop) {
             $shopToken = $this->getShopTokenRepository();
 
             $this->setRoute('shop/' . $currentShop['uuid'] . '/reonboard');
@@ -196,7 +195,7 @@ class AccountsClient extends GenericClient
     {
         $shopId = (int) $this->shopProvider->getCurrentShop()['id'];
 
-        return  array_merge([
+        return array_merge([
             'Accept' => 'application/json',
         ], $additionalHeaders);
     }

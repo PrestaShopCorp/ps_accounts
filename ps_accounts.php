@@ -28,7 +28,7 @@ class Ps_accounts extends Module
 
     // Needed in order to retrieve the module version easier (in api call headers) than instanciate
     // the module each time to get the version
-    const VERSION = '5.0.0';
+    const VERSION = '5.0.2';
 
     /**
      * @var array
@@ -85,7 +85,7 @@ class Ps_accounts extends Module
 
         // We cannot use the const VERSION because the const is not computed by addons marketplace
         // when the zip is uploaded
-        $this->version = '5.0.0';
+        $this->version = '5.0.2';
 
         $this->module_key = 'abf2cd758b4d629b2944d3922ef9db73';
 
@@ -242,7 +242,7 @@ class Ps_accounts extends Module
      */
     public function hookDisplayBackOfficeHeader($params)
     {
-        # Multistore On/Off switch
+        // Multistore On/Off switch
         if (in_array($this->context->controller->controller_name, [
             'AdminPreferences',
         ])) {
@@ -254,7 +254,6 @@ class Ps_accounts extends Module
         if ('AdminShopUrl' === $this->context->controller->controller_name
             && Tools::isSubmit('submitAddshop_url')
             /*&& Tools::getValue('main')*/) {
-
             /** @var \PrestaShop\Module\PsAccounts\Api\Client\AccountsClient $accountsApi */
             $accountsApi = $this->getService(
                 \PrestaShop\Module\PsAccounts\Api\Client\AccountsClient::class
@@ -262,12 +261,12 @@ class Ps_accounts extends Module
 
             $this->getLogger()->info('### - hookDisplayBackOfficeHeader ' . Tools::getValue('domain'));
 
-            $accountsApi->updateUserShop(new \PrestaShop\Module\PsAccounts\Api\Client\ShopInterface([
-                'id' => $params['object']->id_shop,
+            $accountsApi->updateUserShop(new \PrestaShop\Module\PsAccounts\DTO\UpdateShop([
+                'shopId' => $params['object']->id_shop,
                 'domain' => Tools::getValue('domain'),
-                'domainSsl' => Tools::getValue('domain_ssl'),
+                'sslDomain' => Tools::getValue('domain_ssl'),
                 'physicalUri' => Tools::getValue('physical_uri'),
-                'virtual_uri' => Tools::getValue('virtual_uri'),
+                'virtualUri' => Tools::getValue('virtual_uri'),
             ]));
         }
     }
@@ -283,8 +282,10 @@ class Ps_accounts extends Module
      */
     public function hookActionObjectShopUrlUpdateAfter($params)
     {
-        if ($this->context->controller->controller_name === 'AdminMeta' && $params['object']->main) {
+        $this->getLogger()->info('### - hookActionObjectShopUrlUpdateAfter ' . $this->context->controller->controller_name);
 
+        // Admin || AdminMeta
+        //if ('AdminMeta' === $this->context->controller->controller_name /*&& $params['object']->main*/) {
             /** @var \PrestaShop\Module\PsAccounts\Api\Client\AccountsClient $accountsApi */
             $accountsApi = $this->getService(
                 \PrestaShop\Module\PsAccounts\Api\Client\AccountsClient::class
@@ -292,16 +293,14 @@ class Ps_accounts extends Module
 
             $this->getLogger()->info('### - hookActionObjectShopUrlUpdateAfter ' . $params['object']->domain);
 
-            $accountsApi->updateUserShop(new \PrestaShop\Module\PsAccounts\Api\Client\ShopInterface([
-                'id' => $params['object']->id_shop,
+            $accountsApi->updateUserShop(new \PrestaShop\Module\PsAccounts\DTO\UpdateShop([
+                'shopId' => $params['object']->id_shop,
                 'domain' => $params['object']->domain,
-                'domainSsl' => $params['object']->domain_ssl,
+                'sslDomain' => $params['object']->domain_ssl,
                 'physicalUri' => $params['object']->physical_uri,
-                'virtual_uri' => $params['object']->virtual_uri,
-                // 'main' => $params['object']->main,
-                // 'active' => $params['object']->active,
+                'virtualUri' => $params['object']->virtual_uri,
             ]));
-        }
+        //}
 
         return true;
     }
