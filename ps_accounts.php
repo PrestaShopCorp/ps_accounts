@@ -270,13 +270,18 @@ class Ps_accounts extends Module
 
             $this->getLogger()->info('### - hookActionObjectShopUrlUpdateAfter ' . $params['object']->domain);
 
-            $accountsApi->updateUserShop(new \PrestaShop\Module\PsAccounts\DTO\UpdateShop([
+            $shop = new Shop($params['object']->id_shop);
+
+            $response = $accountsApi->updateUserShop(new \PrestaShop\Module\PsAccounts\DTO\UpdateShop([
                 'shopId' => $params['object']->id_shop,
+                'name' => $shop->name,
                 'domain' => $params['object']->domain,
                 'sslDomain' => $params['object']->domain_ssl,
                 'physicalUri' => $params['object']->physical_uri,
                 'virtualUri' => $params['object']->virtual_uri,
             ]));
+
+            $this->getLogger()->info(print_r($response, true));
         }
 
         return true;
