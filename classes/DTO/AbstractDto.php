@@ -41,7 +41,7 @@ abstract class AbstractDto implements \JsonSerializable
      */
     public function jsonSerialize()
     {
-        return array_filter((Array) $this, function ($attrValue, $attrName) {
+        return array_filter((array) $this, function ($attrValue, $attrName) {
             return in_array($attrName, $this->attributes);
         }, ARRAY_FILTER_USE_BOTH);
     }
