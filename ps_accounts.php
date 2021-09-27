@@ -267,15 +267,17 @@ class Ps_accounts extends Module
                 \PrestaShop\Module\PsAccounts\Api\Client\AccountsClient::class
             );
 
+            /** @var \PrestaShop\Module\PsAccounts\Adapter\Link $link */
+            $link = $this->getService(\PrestaShop\Module\PsAccounts\Adapter\Link::class);
+
             $response = $accountsApi->updateUserShop(new \PrestaShop\Module\PsAccounts\DTO\UpdateShop([
                 'shopId' => $params['object']->id_shop,
-                // FIXME: make it optional
-                'name' => (new Shop($params['object']->id_shop))->name,
                 'domain' => 'http://' . $params['object']->domain,
                 'sslDomain' => 'https://' . $params['object']->domain_ssl,
                 'physicalUri' => $params['object']->physical_uri,
                 'virtualUri' => $params['object']->virtual_uri,
-                'boBaseUrl' => $this->link->getAdminLink('AdminModules', true, [], [
+                // FIXME : getAdminLink won't work well outside a given shop context
+                'boBaseUrl' => $link->getAdminLink('AdminModules', true, [], [
                         'configure' => $this->name,
                         'setShopContext' => 's-' . $params['object']->id_shop,
                     ]

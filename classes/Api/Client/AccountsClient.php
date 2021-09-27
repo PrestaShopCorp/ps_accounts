@@ -156,6 +156,8 @@ class AccountsClient extends GenericClient
 
             $this->setRoute('user/' . $userToken->getTokenUuid() . '/shop/' . $shopToken->getTokenUuid());
 
+            $module->getLogger()->debug(json_encode($shop));
+
             return $this->patch([
                 'headers' => $this->getHeaders([
                     'Authorization' => 'Bearer ' . $userToken->getOrRefreshToken(),
