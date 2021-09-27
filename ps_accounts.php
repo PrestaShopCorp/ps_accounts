@@ -281,7 +281,7 @@ class Ps_accounts extends Module
                 'sslDomain' => 'https://' . $params['object']->domain_ssl,
                 'physicalUri' => $params['object']->physical_uri,
                 'virtualUri' => $params['object']->virtual_uri,
-                'boBaseUrl' => $link->getAdminLink('AdminModules', true, [], [
+                'boBaseUrl' => $link->getAdminLink('AdminModules', false, [], [
                         'configure' => $this->name,
                         'setShopContext' => 's-' . $params['object']->id_shop,
                     ]
@@ -339,7 +339,7 @@ class Ps_accounts extends Module
             'sslDomain' => 'https://' . $shop->domain_ssl,
             'physicalUri' => $shop->physical_uri,
             'virtualUri' => $shop->virtual_uri,
-            'boBaseUrl' => $link->getAdminLink('AdminModules', true, [], [
+            'boBaseUrl' => $link->getAdminLink('AdminModules', false, [], [
                     'configure' => $this->name,
                     'setShopContext' => 's-' . $params['object']->id,
                 ]
