@@ -33,4 +33,9 @@ class UpdateShop extends AbstractDto
      * @var string
      */
     public $sslDomain;
+
+    /**
+     * @var string
+     */
+    public $boBaseUrl;
 }

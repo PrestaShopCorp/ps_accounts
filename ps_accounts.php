@@ -271,10 +271,15 @@ class Ps_accounts extends Module
                 'shopId' => $params['object']->id_shop,
                 // FIXME: make it optional
                 'name' => (new Shop($params['object']->id_shop))->name,
-                'domain' => $params['object']->domain,
-                'sslDomain' => $params['object']->domain_ssl,
+                'domain' => 'http://' . $params['object']->domain,
+                'sslDomain' => 'https://' . $params['object']->domain_ssl,
                 'physicalUri' => $params['object']->physical_uri,
                 'virtualUri' => $params['object']->virtual_uri,
+                'boBaseUrl' => $this->link->getAdminLink('AdminModules', true, [], [
+                        'configure' => $this->name,
+                        'setShopContext' => 's-' . $params['object']->id_shop,
+                    ]
+                ),
             ]));
 
             if (!$response || true !== $response['status']) {
