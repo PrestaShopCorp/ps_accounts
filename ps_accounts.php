@@ -271,7 +271,7 @@ class Ps_accounts extends Module
             $link = $this->getService(\PrestaShop\Module\PsAccounts\Adapter\Link::class);
 
             $response = $accountsApi->updateUserShop(new \PrestaShop\Module\PsAccounts\DTO\UpdateShop([
-                'shopId' => $params['object']->id_shop,
+                'shopId' => (string) $params['object']->id_shop,
                 'domain' => 'http://' . $params['object']->domain,
                 'sslDomain' => 'https://' . $params['object']->domain_ssl,
                 'physicalUri' => $params['object']->physical_uri,
@@ -327,7 +327,7 @@ class Ps_accounts extends Module
             );
 
             $response = $accountsApi->updateUserShop(new \PrestaShop\Module\PsAccounts\DTO\UpdateShop([
-                'shopId' => $params['object']->id,
+                'shopId' => (string) $params['object']->id,
                 'name' => $params['object']->name,
             ]));
 

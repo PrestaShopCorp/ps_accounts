@@ -5,7 +5,7 @@ namespace PrestaShop\Module\PsAccounts\DTO;
 class UpdateShop extends AbstractDto
 {
     /**
-     * @var int
+     * @var string
      */
     public $shopId;
 
