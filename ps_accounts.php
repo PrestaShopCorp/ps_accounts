@@ -48,6 +48,7 @@ class Ps_accounts extends Module
     private $hookToInstall = [
         'displayBackOfficeHeader',
         'actionObjectShopAddAfter',
+        'actionObjectShopUpdateAfter',
         'actionObjectShopDeleteAfter',
         'actionObjectShopUrlUpdateAfter',
     ];
@@ -242,16 +243,16 @@ class Ps_accounts extends Module
      */
     public function hookDisplayBackOfficeHeader($params)
     {
+        /** @var \PrestaShop\Module\PsAccounts\Context\ShopContext $shopContext */
+        $shopContext = $this->getService(\PrestaShop\Module\PsAccounts\Context\ShopContext::class);
+
         // Multistore On/Off switch
-        if ('AdminPreferences' === $this->context->controller->controller_name) {
-            $this->getLogger()->info('## hookDisplayBackOfficeHeader - ' . $this->context->controller->controller_name);
+        if ('AdminPreferences' === $this->context->controller->controller_name || !$shopContext->isShop17()) {
             $this->switchConfigMultishopMode();
         }
     }
 
     /**
-     * Hook trigger when a change is made on the domain name
-     *
      * @param array $params
      *
      * @return bool
@@ -260,28 +261,28 @@ class Ps_accounts extends Module
      */
     public function hookActionObjectShopUrlUpdateAfter($params)
     {
-        $this->getLogger()->info('### - hookActionObjectShopUrlUpdateAfter ' . $this->context->controller->controller_name);
-
         if (in_array($this->context->controller->controller_name, ['Admin', 'AdminMeta', 'AdminShopUrl']) && $params['object']->main) {
             /** @var \PrestaShop\Module\PsAccounts\Api\Client\AccountsClient $accountsApi */
             $accountsApi = $this->getService(
                 \PrestaShop\Module\PsAccounts\Api\Client\AccountsClient::class
             );
 
-            $this->getLogger()->info('### - hookActionObjectShopUrlUpdateAfter ' . $params['object']->domain);
-
-            $shop = new Shop($params['object']->id_shop);
-
             $response = $accountsApi->updateUserShop(new \PrestaShop\Module\PsAccounts\DTO\UpdateShop([
                 'shopId' => $params['object']->id_shop,
-                'name' => $shop->name,
+                // FIXME: make it optional
+                'name' => (new Shop($params['object']->id_shop))->name,
                 'domain' => $params['object']->domain,
                 'sslDomain' => $params['object']->domain_ssl,
                 'physicalUri' => $params['object']->physical_uri,
                 'virtualUri' => $params['object']->virtual_uri,
             ]));
 
-            $this->getLogger()->info(print_r($response, true));
+            if (!$response || true !== $response['status']) {
+                $this->getLogger()->debug(
+                    'Error trying to PATCH shop : ' . $response['httpCode'] .
+                    ' ' . print_r($response['body']['message'], true)
+                );
+            }
         }
 
         return true;
@@ -296,9 +297,39 @@ class Ps_accounts extends Module
      */
     public function hookActionObjectShopAddAfter($params)
     {
-        $this->getLogger()->info('## hookActionObjectShopAddAfter - ' . $this->context->controller->controller_name);
-        if ($this->context->controller->controller_name === 'AdminShop') {
+        if ('AdminShop' === $this->context->controller->controller_name) {
             $this->switchConfigMultishopMode();
+        }
+
+        return true;
+    }
+
+    /**
+     * @param array $params
+     *
+     * @return bool
+     *
+     * @throws Exception
+     */
+    public function hookActionObjectShopUpdateAfter($params)
+    {
+        if ('AdminShop' === $this->context->controller->controller_name) {
+            /** @var \PrestaShop\Module\PsAccounts\Api\Client\AccountsClient $accountsApi */
+            $accountsApi = $this->getService(
+                \PrestaShop\Module\PsAccounts\Api\Client\AccountsClient::class
+            );
+
+            $response = $accountsApi->updateUserShop(new \PrestaShop\Module\PsAccounts\DTO\UpdateShop([
+                'shopId' => $params['object']->id,
+                'name' => $params['object']->name,
+            ]));
+
+            if (!$response || true !== $response['status']) {
+                $this->getLogger()->debug(
+                    'Error trying to PATCH shop : ' . $response['httpCode'] .
+                    ' ' . print_r($response['body']['message'], true)
+                );
+            }
         }
 
         return true;
@@ -313,8 +344,7 @@ class Ps_accounts extends Module
      */
     public function hookActionObjectShopDeleteAfter($params)
     {
-        $this->getLogger()->info('## hookActionObjectShopDeleteAfter - ' . $this->context->controller->controller_name);
-        if ($this->context->controller->controller_name === 'AdminShop') {
+        if ('AdminShop' === $this->context->controller->controller_name) {
             $this->switchConfigMultishopMode();
         }
 
