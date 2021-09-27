@@ -117,7 +117,7 @@ class AccountsClient extends GenericClient
      */
     public function deleteUserShop($shopId)
     {
-        return $this->shopProvider->getShopContext()->execInShopContext($shopId, function () {
+        return $this->shopProvider->getShopContext()->execInShopContext((int) $shopId, function () {
             $userToken = $this->getUserTokenRepository();
             $shopToken = $this->getShopTokenRepository();
 
@@ -140,7 +140,7 @@ class AccountsClient extends GenericClient
      */
     public function updateUserShop(UpdateShop $shop)
     {
-        return $this->shopProvider->getShopContext()->execInShopContext($shop->shopId, function () use ($shop) {
+        return $this->shopProvider->getShopContext()->execInShopContext((int) $shop->shopId, function () use ($shop) {
             $userToken = $this->getUserTokenRepository();
             $shopToken = $this->getShopTokenRepository();
 
@@ -155,8 +155,6 @@ class AccountsClient extends GenericClient
             }
 
             $this->setRoute('user/' . $userToken->getTokenUuid() . '/shop/' . $shopToken->getTokenUuid());
-
-            $module->getLogger()->debug(json_encode($shop));
 
             return $this->patch([
                 'headers' => $this->getHeaders([
@@ -177,7 +175,7 @@ class AccountsClient extends GenericClient
      */
     public function reonboardShop($currentShop)
     {
-        return $this->shopProvider->getShopContext()->execInShopContext($currentShop['id'], function () use ($currentShop) {
+        return $this->shopProvider->getShopContext()->execInShopContext((int) $currentShop['id'], function () use ($currentShop) {
             $shopToken = $this->getShopTokenRepository();
 
             $this->setRoute('shop/' . $currentShop['uuid'] . '/reonboard');
