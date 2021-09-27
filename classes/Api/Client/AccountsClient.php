@@ -26,6 +26,7 @@ use PrestaShop\Module\PsAccounts\DTO\UpdateShop;
 use PrestaShop\Module\PsAccounts\Provider\ShopProvider;
 use PrestaShop\Module\PsAccounts\Repository\ShopTokenRepository;
 use PrestaShop\Module\PsAccounts\Repository\UserTokenRepository;
+use PrestaShop\Module\PsAccounts\Service\ShopLinkAccountService;
 
 /**
  * Class ServicesAccountsClient
@@ -133,7 +134,7 @@ class AccountsClient extends GenericClient
     /**
      * @param UpdateShop $shop
      *
-     * @return array
+     * @return array|null
      *
      * @throws \Exception
      */
@@ -143,13 +144,17 @@ class AccountsClient extends GenericClient
             $userToken = $this->getUserTokenRepository();
             $shopToken = $this->getShopTokenRepository();
 
-            $this->setRoute('user/' . $userToken->getTokenUuid() . '/shop/' . $shopToken->getTokenUuid());
-
             /** @var \Ps_accounts $module */
             $module = \Module::getInstanceByName('ps_accounts');
 
-            $module->getLogger()->info('### - updateUserShop ' . 'user/' . $userToken->getTokenUuid() . '/shop/' . $shopToken->getTokenUuid());
-            $module->getLogger()->info('### - updateUserShop ' . json_encode($shop));
+            /** @var ShopLinkAccountService $linkAccountService */
+            $linkAccountService = $module->getService(ShopLinkAccountService::class);
+
+            if (!$linkAccountService->isAccountLinked()) {
+                return null;
+            }
+
+            $this->setRoute('user/' . $userToken->getTokenUuid() . '/shop/' . $shopToken->getTokenUuid());
 
             return $this->patch([
                 'headers' => $this->getHeaders([
