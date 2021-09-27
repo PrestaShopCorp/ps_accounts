@@ -23,15 +23,15 @@ abstract class AbstractDto implements \JsonSerializable
     {
         foreach ($values as $attrName => $attrValue) {
             if (!property_exists($this, $attrName)) {
-                throw new \Exception('unexpected property : ' . $attrName);
+                throw new \Exception('unexpected property : ' . get_class($this) . '->' . $attrName);
             }
             $this->$attrName = $attrValue;
             $this->attributes[] = $attrName;
         }
 
-        foreach ($this->mandatory as $attrName => $attrValue) {
+        foreach ($this->mandatory as $attrName) {
             if (!in_array($attrName, $this->attributes)) {
-                throw new \Exception('missing mandatory property : ' . $attrName);
+                throw new \Exception('property expected : ' . get_class($this) . '->' . $attrName);
             }
         }
     }

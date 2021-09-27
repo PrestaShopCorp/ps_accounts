@@ -261,7 +261,7 @@ class Ps_accounts extends Module
      */
     public function hookActionObjectShopUrlUpdateAfter($params)
     {
-        if (in_array($this->context->controller->controller_name, ['Admin', 'AdminMeta', 'AdminShopUrl']) && $params['object']->main) {
+        if ($params['object']->main) {
             /** @var \PrestaShop\Module\PsAccounts\Api\Client\AccountsClient $accountsApi */
             $accountsApi = $this->getService(
                 \PrestaShop\Module\PsAccounts\Api\Client\AccountsClient::class
@@ -270,13 +270,17 @@ class Ps_accounts extends Module
             /** @var \PrestaShop\Module\PsAccounts\Adapter\Link $link */
             $link = $this->getService(\PrestaShop\Module\PsAccounts\Adapter\Link::class);
 
+            Cache::clean('Shop::setUrl_' . (int) $params['object']->id_shop);
+
+            $shop = new \Shop($params['object']->id_shop);
+
             $response = $accountsApi->updateUserShop(new \PrestaShop\Module\PsAccounts\DTO\UpdateShop([
                 'shopId' => (string) $params['object']->id_shop,
+                'name' => $shop->name,
                 'domain' => 'http://' . $params['object']->domain,
                 'sslDomain' => 'https://' . $params['object']->domain_ssl,
                 'physicalUri' => $params['object']->physical_uri,
                 'virtualUri' => $params['object']->virtual_uri,
-                // FIXME : getAdminLink won't work well outside a given shop context
                 'boBaseUrl' => $link->getAdminLink('AdminModules', true, [], [
                         'configure' => $this->name,
                         'setShopContext' => 's-' . $params['object']->id_shop,
@@ -304,9 +308,7 @@ class Ps_accounts extends Module
      */
     public function hookActionObjectShopAddAfter($params)
     {
-        if ('AdminShop' === $this->context->controller->controller_name) {
-            $this->switchConfigMultishopMode();
-        }
+        $this->switchConfigMultishopMode();
 
         return true;
     }
@@ -320,23 +322,35 @@ class Ps_accounts extends Module
      */
     public function hookActionObjectShopUpdateAfter($params)
     {
-        if ('AdminShop' === $this->context->controller->controller_name) {
-            /** @var \PrestaShop\Module\PsAccounts\Api\Client\AccountsClient $accountsApi */
-            $accountsApi = $this->getService(
-                \PrestaShop\Module\PsAccounts\Api\Client\AccountsClient::class
+        /** @var \PrestaShop\Module\PsAccounts\Api\Client\AccountsClient $accountsApi */
+        $accountsApi = $this->getService(
+            \PrestaShop\Module\PsAccounts\Api\Client\AccountsClient::class
+        );
+
+        /** @var \PrestaShop\Module\PsAccounts\Adapter\Link $link */
+        $link = $this->getService(\PrestaShop\Module\PsAccounts\Adapter\Link::class);
+
+        $shop = new \Shop($params['object']->id);
+
+        $response = $accountsApi->updateUserShop(new \PrestaShop\Module\PsAccounts\DTO\UpdateShop([
+            'shopId' => (string) $params['object']->id,
+            'name' => $params['object']->name,
+            'domain' => 'http://' . $shop->domain,
+            'sslDomain' => 'https://' . $shop->domain_ssl,
+            'physicalUri' => $shop->physical_uri,
+            'virtualUri' => $shop->virtual_uri,
+            'boBaseUrl' => $link->getAdminLink('AdminModules', true, [], [
+                    'configure' => $this->name,
+                    'setShopContext' => 's-' . $params['object']->id,
+                ]
+            ),
+        ]));
+
+        if (!$response || true !== $response['status']) {
+            $this->getLogger()->debug(
+                'Error trying to PATCH shop : ' . $response['httpCode'] .
+                ' ' . print_r($response['body']['message'], true)
             );
-
-            $response = $accountsApi->updateUserShop(new \PrestaShop\Module\PsAccounts\DTO\UpdateShop([
-                'shopId' => (string) $params['object']->id,
-                'name' => $params['object']->name,
-            ]));
-
-            if (!$response || true !== $response['status']) {
-                $this->getLogger()->debug(
-                    'Error trying to PATCH shop : ' . $response['httpCode'] .
-                    ' ' . print_r($response['body']['message'], true)
-                );
-            }
         }
 
         return true;
@@ -351,9 +365,7 @@ class Ps_accounts extends Module
      */
     public function hookActionObjectShopDeleteAfter($params)
     {
-        if ('AdminShop' === $this->context->controller->controller_name) {
-            $this->switchConfigMultishopMode();
-        }
+        $this->switchConfigMultishopMode();
 
         return true;
     }

@@ -5,7 +5,7 @@ namespace PrestaShop\Module\PsAccounts\DTO;
 class UpdateShop extends AbstractDto
 {
     /**
-     * @var string
+     * @var
      */
     public $shopId;
 
@@ -38,4 +38,17 @@ class UpdateShop extends AbstractDto
      * @var string
      */
     public $boBaseUrl;
+
+    /**
+     * @var string[]
+     */
+    public $mandatory = [
+        'shopId',
+        'name',
+        'virtualUri',
+        'physicalUri',
+        'domain',
+        'sslDomain',
+        'boBaseUrl',
+    ];
 }
