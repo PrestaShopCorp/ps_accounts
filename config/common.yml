@@ -11,6 +11,11 @@ services:
     public: true
     factory: [ 'Context', 'getContext' ]
 
+  ps_accounts.logger:
+    class: Context
+    public: true
+    factory: [ 'PrestaShop\Module\PsAccounts\Factory\PsAccountsLogger', 'create' ]
+
   PrestaShop\Module\PsAccounts\Context\ShopContext:
     class: PrestaShop\Module\PsAccounts\Context\ShopContext
     public: true

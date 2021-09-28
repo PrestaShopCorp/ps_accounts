@@ -36,11 +36,6 @@ class Ps_accounts extends Module
     private $adminControllers;
 
     /**
-     * @var \Monolog\Logger
-     */
-    private $logger;
-
-    /**
      * List of hook to install at the installation of the module
      *
      * @var array
@@ -109,16 +104,12 @@ class Ps_accounts extends Module
 
     /**
      * @return \Monolog\Logger
+     *
+     * @throws Exception
      */
     public function getLogger()
     {
-        if (null !== $this->logger) {
-            return $this->logger;
-        }
-
-        $this->logger = PrestaShop\Module\PsAccounts\Factory\PsAccountsLogger::create();
-
-        return $this->logger;
+        return $this->getService('ps_accounts.logger');
     }
 
     /**
