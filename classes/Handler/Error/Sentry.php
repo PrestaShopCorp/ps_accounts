@@ -67,7 +67,6 @@ class Sentry
                     'prestashop_version' => _PS_VERSION_,
                     'ps_accounts_is_enabled' => \Module::isEnabled('ps_accounts'),
                     'email' => $this->configuration->getFirebaseEmail(),
-                    'email_verified' => $this->configuration->firebaseEmailIsVerified(),
                     'shop_uuid' => $this->configuration->getShopUuid(),
                 ],
             ]

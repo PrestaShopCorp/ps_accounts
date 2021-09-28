@@ -26,6 +26,7 @@ use Lcobucci\JWT\Token\InvalidTokenStructure;
 use PrestaShop\Module\PsAccounts\Api\Client\SsoClient;
 use PrestaShop\Module\PsAccounts\Exception\RefreshTokenException;
 use PrestaShop\Module\PsAccounts\Handler\Error\Sentry;
+use PrestaShop\Module\PsAccounts\Log\Logger;
 
 /**
  * Class PsAccountsService
@@ -66,7 +67,7 @@ class UserTokenRepository
                         $refreshToken
                     );
                 } catch (RefreshTokenException $e) {
-                    //Sentry::capture($e);
+                    Logger::getInstance()->debug($e);
                 }
             }
         }
