@@ -121,7 +121,7 @@ endif
 	#docker container exec test-phpunit rm -rf /var/www/html/modules/ps_accounts
 	docker cp . test-phpunit:/var/www/html/modules/ps_accounts
 	docker cp ./config/config.yml.dist test-phpunit:/var/www/html/modules/ps_accounts/config/config.yml
-	docker container exec -u www-data test-phpunit sh -c "sleep 1 && php -d memory_limit=-1 ./bin/console prestashop:module reset ps_accounts"
+	docker container exec -u www-data test-phpunit sh -c "sleep 1 && php -d memory_limit=-1 ./bin/console prestashop:module install ps_accounts"
 	docker container exec -u www-data test-phpunit sh -c "cat /var/www/html/modules/ps_accounts/config.xml | grep '<version>' | sed 's/^.*\[CDATA\[\(.*\)\]\].*/\1/'"
 	#docker container exec --workdir /var/www/html/modules/ps_accounts test-phpunit make composer.phar
 	#docker container exec --workdir /var/www/html/modules/ps_accounts test-phpunit ./composer.phar install
