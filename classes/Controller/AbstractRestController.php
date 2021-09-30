@@ -82,7 +82,7 @@ abstract class AbstractRestController extends \ModuleFrontController implements 
         } catch (\Exception $e) {
             Sentry::capture($e);
 
-            $this->module->getLogger()->error($e);
+            //$this->module->getLogger()->error($e);
 
             $this->dieWithResponseJson([
                 'error' => true,
@@ -264,7 +264,7 @@ abstract class AbstractRestController extends \ModuleFrontController implements 
      *
      * @return mixed|null
      */
-    public function getRequestHeader($header)
+    protected function getRequestHeader($header)
     {
         $headerKey = 'HTTP_' . strtoupper(str_replace('-', '_', $header));
 
