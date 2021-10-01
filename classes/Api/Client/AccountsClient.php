@@ -197,8 +197,6 @@ class AccountsClient extends GenericClient
      */
     private function getHeaders($additionalHeaders = [])
     {
-        $shopId = (int) $this->shopProvider->getCurrentShop()['id'];
-
         return array_merge([
             'Accept' => 'application/json',
         ], $additionalHeaders);
