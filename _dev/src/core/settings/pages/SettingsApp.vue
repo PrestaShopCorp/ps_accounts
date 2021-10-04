@@ -61,6 +61,7 @@ export default {
   text-align: left;
 
   .tab-content {
+    padding: 0;
     background: transparent;
   }
 }
