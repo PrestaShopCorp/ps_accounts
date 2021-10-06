@@ -132,6 +132,30 @@ class AccountsClient extends GenericClient
     }
 
     /**
+     * @param array $currentShop
+     *
+     * @return array
+     *
+     * @throws \Throwable
+     */
+    public function reonboardShop($currentShop)
+    {
+        return $this->shopProvider->getShopContext()->execInShopContext((int) $currentShop['id'], function () use ($currentShop) {
+            $shopToken = $this->getShopTokenRepository();
+
+            $this->setRoute('shop/' . $currentShop['uuid'] . '/reonboard');
+
+            return $this->post([
+                'headers' => $this->getHeaders([
+                    'Authorization' => 'Bearer ' . $shopToken->getOrRefreshToken(),
+                    'content-type' => 'application/json',
+                ]),
+                'json' => $currentShop,
+            ]);
+        });
+    }
+
+    /**
      * @param UpdateShop $shop
      *
      * @return array|null
@@ -162,30 +186,6 @@ class AccountsClient extends GenericClient
                     'content-type' => 'application/json',
                 ]),
                 'json' => $shop->jsonSerialize(),
-            ]);
-        });
-    }
-
-    /**
-     * @param array $currentShop
-     *
-     * @return array
-     *
-     * @throws \Throwable
-     */
-    public function reonboardShop($currentShop)
-    {
-        return $this->shopProvider->getShopContext()->execInShopContext((int) $currentShop['id'], function () use ($currentShop) {
-            $shopToken = $this->getShopTokenRepository();
-
-            $this->setRoute('shop/' . $currentShop['uuid'] . '/reonboard');
-
-            return $this->post([
-                'headers' => $this->getHeaders([
-                    'Authorization' => 'Bearer ' . $shopToken->getOrRefreshToken(),
-                    'content-type' => 'application/json',
-                ]),
-                'json' => $currentShop,
             ]);
         });
     }
