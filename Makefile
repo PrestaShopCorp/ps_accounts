@@ -10,7 +10,7 @@ MODULE ?= $(shell basename ${PWD})
 PACKAGE ?= "${MODULE}-${VERSION}"
 PHPSTAN_VERSION ?= 0.12
 PHPUNIT_VERSION ?= latest
-PS_VERSION ?= 1.7.7.1
+PS_VERSION ?= latest #1.7.7.1
 NEON_FILE ?= phpstan-PS-1.7.neon
 
 # target: default                                - Calling build by default
