@@ -196,7 +196,7 @@ class ShopProvider
         }
 
         return array_filter($shops, function ($shop) {
-            return $shop['uuid'] === null;
+            return $shop['uuid'] === null || ($shop['uuid'] && $shop['isLinkedV4']);
         });
     }
 
