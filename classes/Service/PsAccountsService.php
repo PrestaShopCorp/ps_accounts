@@ -81,9 +81,19 @@ class PsAccountsService
     }
 
     /**
+     * @deprecated deprecated since version 5.0
+     *
      * @return string|false
      */
     public function getShopUuidV4()
+    {
+        return $this->getShopUuid();
+    }
+
+    /**
+     * @return string|false
+     */
+    public function getShopUuid()
     {
         return $this->shopTokenRepository->getTokenUuid();
     }

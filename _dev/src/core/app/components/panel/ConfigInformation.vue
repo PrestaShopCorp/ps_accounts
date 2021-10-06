@@ -17,18 +17,19 @@
  * International Registered Trademark & Property of PrestaShop SA
  *-->
 <template>
-  <b-container class="m-auto p-0" id="config-information">
-    <div class="d-flex col-left">
-      <b-col sm="4" md="4" lg="4" class="p-16 m-auto text-center d-flex">
-        <img src="@/assets/prestashop-logo-2.png" width="50" height="50" />
-        <h1><span class="white-text">Prestashop</span> Account</h1>
-      </b-col>
-
-      <b-col sm="8" md="8" lg="8" class="col-right py-5">
-        <h2>{{ $t("configure.incentivePanel.howTo") }}</h2>
-      </b-col>
+  <aside class="config-information">
+    <div class="titleWrapper">
+      <img src="@/assets/prestashop-logo-2.png" class="logo" />
+      <h1 class="title">
+        PrestaShop
+        <span class="font-normal" style="color: #6b868f;">Account</span>
+      </h1>
     </div>
-  </b-container>
+
+    <div class="description">
+      <h2 class="text">{{ $t("configure.incentivePanel.howTo") }}</h2>
+    </div>
+  </aside>
 </template>
 
 <script>
@@ -44,35 +45,55 @@ export default {
 };
 </script>
 
-<style lang="scss">
-#config-information {
-  background-color: #011638;
-  @apply rounded;
+<style lang="scss" scoped>
+.config-information {
+  @apply flex flex-col justify-around p-4 bg-brand-dark rounded #{!important};
 
-  .col-left > .d-flex {
-    @apply items-center justify-start pl-16;
+  & .titleWrapper {
+    @apply flex-1 flex justify-start items-center #{!important};
+  }
 
-    h1 {
-      font-size: 18px;
-      color: #6B868F;
-      @apply font-light my-0 mx-2;
+  & .logo {
+    @apply w-10 h-10 mr-2 #{!important};
+  }
 
-      span.white-text {
-        @apply text-white font-bold;
-      }
+  & .title {
+    @apply m-0 text-white text-base #{!important};
+  }
+
+  & .description {
+    @apply flex-1 mt-4 #{!important};
+  }
+
+  & .text {
+    @apply m-0 text-sm text-white #{!important};
+  }
+
+  @screen md {
+    @apply flex-row items-center p-8 #{!important};
+
+    & .logo {
+      @apply mr-4 #{!important};
     }
 
-    img {
-      max-width: 100%;
+    & .title {
+      @apply flex flex-col #{!important};
+    }
+
+    & .description {
+      @apply mt-0 #{!important};
+    }
+
+    & .text {
+      @apply text-2xl #{!important};
     }
   }
-  div.col-right {
-    @apply flex justify-end pr-16;
 
-    h2 {
-      font-size: 22px;
-      max-width: 50%;
-      @apply text-white font-bold mb-0;
+  @screen lg {
+    @apply px-12 py-16 #{!important};
+
+    & .title {
+      @apply block #{!important};
     }
   }
 }
