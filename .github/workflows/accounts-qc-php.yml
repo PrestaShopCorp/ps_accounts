@@ -54,7 +54,7 @@ jobs:
         id: neon
         run: |
           PS_VERSION="${{ matrix.presta-versions }}"
-          [[ "${PS_VERSION:0:3}" != '1.7' ]] && echo ::set-output name=filename::phpstan-PS-1.6.neon || echo ::set-output name=filename::phpstan-PS-1.7.neon
+          [[ "${PS_VERSION:0:3}" == '1.6' ]] && echo ::set-output name=filename::phpstan-PS-1.6.neon || echo ::set-output name=filename::phpstan-PS-1.7.neon
 
       - name: PHPStan PrestaShop ${{ matrix.presta-versions }}
         run: |
