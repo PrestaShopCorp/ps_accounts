@@ -165,12 +165,13 @@ class ShopProvider
 
     /**
      * @param string $psxName
+     * @param int $employeeId
      *
      * @return array
      *
      * @throws \PrestaShopException
      */
-    public function getUnlinkedShops($psxName)
+    public function getUnlinkedShops($psxName, $employeeId)
     {
         $shopTree = $this->getShopsTree($psxName);
         $shops = [];
@@ -195,9 +196,15 @@ class ShopProvider
                 break;
         }
 
-        return array_filter($shops, function ($shop) {
+        $unlinkedShops = array_filter($shops, function ($shop) {
             return $shop['uuid'] === null || ($shop['uuid'] && $shop['isLinkedV4']);
         });
+
+        return array_map(function ($shop) use ($employeeId) {
+            $shop['employeeId'] = (string) $employeeId;
+
+            return $shop;
+        }, $unlinkedShops);
     }
 
     /**

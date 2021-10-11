@@ -104,8 +104,13 @@ class PsAccountsPresenter implements PresenterInterface
 
         $moduleName = $this->module->name;
 
-        $unlinkedShops = $this->shopProvider->getUnlinkedShops($psxName);
-        $shopBase64 = base64_encode((string) json_encode(array_values($unlinkedShops)));
+        $unlinkedShops = $this->shopProvider->getUnlinkedShops(
+            $psxName,
+            $shopContext->getContext()->employee->id
+        );
+        $shopBase64 = base64_encode(
+            (string) json_encode(array_values($unlinkedShops))
+        );
         $onboardingLink = $this->module->getParameter('ps_accounts.accounts_ui_url')
             . '?shops=' . $shopBase64;
 
