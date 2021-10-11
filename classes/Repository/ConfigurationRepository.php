@@ -212,9 +212,11 @@ class ConfigurationRepository
             $rsaKeyProvider = $module->getService(\PrestaShop\Module\PsAccounts\Provider\RsaKeysProvider::class);
 
             $rsaKeyProvider->generateKeys(true);
+
             return $this->configuration->get(Configuration::PS_ACCOUNTS_RSA_PUBLIC_KEY);
         } catch (\Exception $e) {
         }
+
         return null;
     }
 
