@@ -21,6 +21,7 @@
 namespace PrestaShop\Module\PsAccounts\Repository;
 
 use PrestaShop\Module\PsAccounts\Adapter\Configuration;
+use PrestaShop\Module\PsAccounts\Provider\RsaKeysProvider;
 
 class ConfigurationRepository
 {
@@ -191,6 +192,30 @@ class ConfigurationRepository
     public function getAccountsRsaPrivateKey()
     {
         return $this->configuration->get(Configuration::PS_ACCOUNTS_RSA_PRIVATE_KEY);
+    }
+
+    /**
+     * @return string|null
+     */
+    public function getOrGenerateAccountsRsaPublicKey()
+    {
+        $publicKey = $this->configuration->get(Configuration::PS_ACCOUNTS_RSA_PUBLIC_KEY);
+        if ($publicKey) {
+            return $publicKey;
+        }
+
+        try {
+            /** @var \Ps_accounts $module */
+            $module = \Module::getInstanceByName('ps_accounts');
+
+            /** @var RsaKeysProvider $rsaKeyProvider */
+            $rsaKeyProvider = $module->getService(\PrestaShop\Module\PsAccounts\Provider\RsaKeysProvider::class);
+
+            $rsaKeyProvider->generateKeys(true);
+            return $this->configuration->get(Configuration::PS_ACCOUNTS_RSA_PUBLIC_KEY);
+        } catch (\Exception $e) {
+        }
+        return null;
     }
 
     /**

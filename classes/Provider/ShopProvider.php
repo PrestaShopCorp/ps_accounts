@@ -82,7 +82,7 @@ class ShopProvider
 
             // LinkAccount
             'uuid' => $configuration->getShopUuid() ?: null,
-            'publicKey' => $configuration->getAccountsRsaPublicKey() ?: null,
+            'publicKey' => $configuration->getOrGenerateAccountsRsaPublicKey() ?: null,
             'employeeId' => (int) $configuration->getEmployeeId() ?: null,
             'user' => [
                 'email' => $configuration->getFirebaseEmail() ?: null,
