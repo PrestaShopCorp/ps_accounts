@@ -113,7 +113,7 @@ class ShopProvider
      */
     public function getCurrentShop($psxName = '')
     {
-        $data = $this->formatShopData(\Shop::getShop($this->shopContext->getContext()->shop->id), $psxName);
+        $data = $this->formatShopData((array) \Shop::getShop($this->shopContext->getContext()->shop->id), $psxName);
 
         return array_merge($data, [
             'multishop' => $this->shopContext->isMultishopActive(),
@@ -163,7 +163,7 @@ class ShopProvider
     /**
      * @param int $shopId
      *
-     * @return false|string|null
+     * @return false|string
      */
     private function getShopPhysicalUri($shopId)
     {
@@ -175,7 +175,7 @@ class ShopProvider
     /**
      * @param int $shopId
      *
-     * @return false|string|null
+     * @return false|string
      */
     private function getShopVirtualUri($shopId)
     {
