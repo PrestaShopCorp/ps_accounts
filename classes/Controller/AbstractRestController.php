@@ -69,9 +69,10 @@ abstract class AbstractRestController extends \ModuleFrontController implements 
     public function postProcess()
     {
         try {
+            $payload = $this->decodePayload();
             $this->dispatchVerb(
-                $_SERVER['REQUEST_METHOD'],
-                $this->decodePayload()
+                isset($payload['method']) && null !== $payload['method'] ? $payload['method'] : $_SERVER['REQUEST_METHOD'],
+                $payload
             );
         } catch (HttpException $e) {
             $this->dieWithResponseJson([
@@ -81,7 +82,7 @@ abstract class AbstractRestController extends \ModuleFrontController implements 
         } catch (\Exception $e) {
             Sentry::capture($e);
 
-            $this->module->getLogger()->error($e);
+            //$this->module->getLogger()->error($e);
 
             $this->dieWithResponseJson([
                 'error' => true,
@@ -290,5 +291,38 @@ abstract class AbstractRestController extends \ModuleFrontController implements 
         /** @var Context $context */
         $context = $this->module->getService('ps_accounts.context');
         $context->shop = $shop;
+    }
+
+    /**
+     * @return bool
+     */
+    protected function displayMaintenancePage()
+    {
+        return true;
+    }
+
+    /**
+     * Override displayRestrictedCountryPage to prevent page country is not allowed
+     *
+     * @see FrontController::displayRestrictedCountryPage()
+     *
+     * @return void
+     */
+    protected function displayRestrictedCountryPage()
+    {
+    }
+
+    /**
+     * Override geolocationManagement to prevent country GEOIP blocking
+     *
+     * @see FrontController::geolocationManagement()
+     *
+     * @param \Country $defaultCountry
+     *
+     * @return false
+     */
+    protected function geolocationManagement($defaultCountry)
+    {
+        return false;
     }
 }

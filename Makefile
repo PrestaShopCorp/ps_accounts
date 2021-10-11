@@ -113,24 +113,25 @@ endif
 
 
 # target: phpunit                                - Start phpunit
-phpunit: vendor/phpunit/phpunit
+phpunit: phpunit-cleanup
 ifndef DOCKER
     $(error "DOCKER is unavailable on your system")
 endif
 	docker run --rm -d -e PS_DOMAIN=localhost -e PS_ENABLE_SSL=0 -e PS_DEV_MODE=1 --name test-phpunit prestashop/docker-internal-images:1.7
-	docker container exec test-phpunit sh -c "rm -rf /var/www/html/modules/ps_accounts"
-	cp ./config/config.yml.dist ./config/config.yml
+	-docker container exec -u www-data test-phpunit sh -c "sleep 1 && php -d memory_limit=-1 ./bin/console prestashop:module uninstall ps_accounts"
 	docker cp . test-phpunit:/var/www/html/modules/ps_accounts
-	docker container exec -u www-data test-phpunit sh -c "sleep 1 && ./bin/console prestashop:module install ps_accounts"
+	docker cp ./config/config.yml.dist test-phpunit:/var/www/html/modules/ps_accounts/config/config.yml
+	docker container exec -u www-data test-phpunit sh -c "sleep 1 && php -d memory_limit=-1 ./bin/console prestashop:module install ps_accounts"
+	@docker container exec -u www-data test-phpunit sh -c "echo \"Testing module v\`cat /var/www/html/modules/ps_accounts/config.xml | grep '<version>' | sed 's/^.*\[CDATA\[\(.*\)\]\].*/\1/'\`\n\""
 	docker container exec -u www-data --workdir /var/www/html/modules/ps_accounts test-phpunit ./vendor/bin/phpunit
 	@echo phpunit passed
 
-backup-config-yml:
-	@if [ -f ./config/config.yml ]; then mv ./config/config.yml ./config/.config.yml.bak; fi
+phpunit-cleanup:
+	-docker container rm -f test-phpunit
 
-phpunit-local: backup-config-yml phpunit
-	@if [ -f ./config/.config.yml.bak ]; then mv ./config/.config.yml.bak ./config/config.yml; fi
-	@docker container rm -f test-phpunit
+phpunit-debug:
+	docker container exec -u www-data --workdir /var/www/html/modules/ps_accounts test-phpunit ./vendor/bin/phpunit
+	@echo phpunit passed
 
 vendor/phpunit/phpunit:
 	./composer.phar install

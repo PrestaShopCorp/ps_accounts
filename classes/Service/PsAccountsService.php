@@ -81,9 +81,19 @@ class PsAccountsService
     }
 
     /**
+     * @deprecated deprecated since version 5.0
+     *
      * @return string|false
      */
     public function getShopUuidV4()
+    {
+        return $this->getShopUuid();
+    }
+
+    /**
+     * @return string|false
+     */
+    public function getShopUuid()
     {
         return $this->shopTokenRepository->getTokenUuid();
     }
@@ -97,7 +107,7 @@ class PsAccountsService
      */
     public function getOrRefreshToken()
     {
-        return $this->shopTokenRepository->getOrRefreshToken();
+        return (string) $this->shopTokenRepository->getOrRefreshToken();
     }
 
     /**
@@ -113,7 +123,7 @@ class PsAccountsService
      */
     public function getToken()
     {
-        return $this->shopTokenRepository->getToken();
+        return (string) $this->shopTokenRepository->getToken();
     }
 
     /**
