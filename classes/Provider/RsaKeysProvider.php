@@ -140,7 +140,7 @@ class RsaKeysProvider
     }
 
     /**
-     * @return string|null
+     * @return string|null|bool
      */
     public function getOrGenerateAccountsRsaPublicKey()
     {
@@ -154,9 +154,8 @@ class RsaKeysProvider
 
             return $this->getPublicKey();
         } catch (\Exception $e) {
+            return null;
         }
-
-        return null;
     }
 
     /**
@@ -174,11 +173,7 @@ class RsaKeysProvider
      */
     public function hasKeys()
     {
-        return false === (
-                empty($this->configuration->getAccountsRsaPublicKey())
-                || empty($this->configuration->getAccountsRsaPrivateKey())
-                || empty($this->configuration->getAccountsRsaSignData())
-            );
+        return false === empty($this->configuration->getAccountsRsaPublicKey());
     }
 
     /**
