@@ -73,6 +73,9 @@ class ShopProvider
         /** @var ShopLinkAccountService $shopLinkAccountService */
         $shopLinkAccountService = $module->getService(ShopLinkAccountService::class);
 
+        /** @var RsaKeysProvider $rsaKeyProvider */
+        $rsaKeyProvider = $module->getService(\PrestaShop\Module\PsAccounts\Provider\RsaKeysProvider::class);
+
         $data = [
             'id' => (string) $shopData['id_shop'],
             'name' => $shopData['name'],
@@ -82,7 +85,7 @@ class ShopProvider
 
             // LinkAccount
             'uuid' => $configuration->getShopUuid() ?: null,
-            'publicKey' => $configuration->getOrGenerateAccountsRsaPublicKey() ?: null,
+            'publicKey' => $rsaKeyProvider->getOrGenerateAccountsRsaPublicKey() ?: null,
             'employeeId' => (int) $configuration->getEmployeeId() ?: null,
             'user' => [
                 'email' => $configuration->getFirebaseEmail() ?: null,
