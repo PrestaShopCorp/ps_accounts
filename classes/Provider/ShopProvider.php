@@ -85,8 +85,8 @@ class ShopProvider
             'publicKey' => $configuration->getAccountsRsaPublicKey() ?: null,
             'employeeId' => (int) $configuration->getEmployeeId() ?: null,
             'user' => [
-                'email' => $configuration->getFirebaseEmail() ?: null,
-                'uuid' => $configuration->getUserFirebaseUuid() ?: null,
+                'email' => $userToken->getTokenEmail() ?: null,
+                'uuid' => $userToken->getTokenUuid() ?: null,
                 'emailIsValidated' => $userToken->getTokenEmailVerified(),
             ],
 
