@@ -341,7 +341,7 @@ class ConfigurationRepository
         \Db::getInstance()->query(
             'UPDATE ' . _DB_PREFIX_ . 'configuration SET id_shop = NULL, id_shop_group = NULL' .
             " WHERE (name like 'PS_ACCOUNTS_%' OR name = 'PSX_UUID_V4')" .
-            ' AND id_shop = ' . (int) $shop->id . ' AND id_shop_group = ' . (int) $shop->id_shop_group . ';'
+            ' AND id_shop = ' . (int) $shop->id . ';'
         );
     }
 }
