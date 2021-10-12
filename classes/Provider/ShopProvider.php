@@ -74,7 +74,7 @@ class ShopProvider
         $shopLinkAccountService = $module->getService(ShopLinkAccountService::class);
 
         /** @var RsaKeysProvider $rsaKeyProvider */
-        $rsaKeyProvider = $module->getService(\PrestaShop\Module\PsAccounts\Provider\RsaKeysProvider::class);
+        $rsaKeyProvider = $module->getService(RsaKeysProvider::class);
 
         $data = [
             'id' => (string) $shopData['id_shop'],
