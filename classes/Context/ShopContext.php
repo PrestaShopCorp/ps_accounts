@@ -162,7 +162,7 @@ class ShopContext
     /**
      * @return UserTokenRepository
      */
-    public function getUser()
+    public function getUserToken()
     {
         return $this->userTokenRepository;
     }

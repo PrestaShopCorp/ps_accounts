@@ -61,7 +61,7 @@ class ShopProvider
     public function formatShopData($shopData, $psxName = '')
     {
         $configuration = $this->shopContext->getConfiguration();
-        $user = $this->shopContext->getUser();
+        $userToken = $this->shopContext->getUserToken();
 
         $shopId = $configuration->getShopId();
 
@@ -87,7 +87,7 @@ class ShopProvider
             'user' => [
                 'email' => $configuration->getFirebaseEmail() ?: null,
                 'uuid' => $configuration->getUserFirebaseUuid() ?: null,
-                'emailIsValidated' => $user->getTokenEmailVerified(),
+                'emailIsValidated' => $userToken->getTokenEmailVerified(),
             ],
 
             'url' => $this->link->getAdminLink(
