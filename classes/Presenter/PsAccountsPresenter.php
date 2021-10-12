@@ -98,8 +98,6 @@ class PsAccountsPresenter implements PresenterInterface
      */
     public function present($psxName = 'ps_accounts')
     {
-        $this->shopLinkAccountService->prepareLinkAccount();
-
         $shopContext = $this->shopProvider->getShopContext();
 
         $moduleName = $this->module->name;
