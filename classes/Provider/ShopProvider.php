@@ -65,7 +65,7 @@ class ShopProvider
         }
 
         $configuration = $this->shopContext->getConfiguration();
-        $user = $this->shopContext->getUser();
+        $userToken = $this->shopContext->getUserToken();
 
         $shopId = $configuration->getShopId();
 
@@ -92,9 +92,9 @@ class ShopProvider
             'publicKey' => $rsaKeyProvider->getOrGenerateAccountsRsaPublicKey() ?: null,
             'employeeId' => (int) $configuration->getEmployeeId() ?: null,
             'user' => [
-                'email' => $configuration->getFirebaseEmail() ?: null,
-                'uuid' => $configuration->getUserFirebaseUuid() ?: null,
-                'emailIsValidated' => $user->getTokenEmailVerified(),
+                'email' => $userToken->getTokenEmail() ?: null,
+                'uuid' => $userToken->getTokenUuid() ?: null,
+                'emailIsValidated' => $userToken->getTokenEmailVerified(),
             ],
 
             'url' => $this->link->getAdminLink(
