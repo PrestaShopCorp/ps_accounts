@@ -57,7 +57,8 @@ class ps_AccountsApiV1ShopUrlModuleFrontController extends AbstractShopRestContr
      */
     public function show($shop, array $payload)
     {
-        $shopData = $this->shopProvider->formatShopData(\Shop::getShop($shop->id));
+        $shop = \Shop::getShop($shop->id);
+        $shopData = is_array($shop) ? $this->shopProvider->formatShopData($shop) : [];
 
         return [
             'domain' => $shopData['domain'],
