@@ -140,7 +140,7 @@ class RsaKeysProvider
     }
 
     /**
-     * @return string|null|bool
+     * @return string|bool|null
      */
     public function getOrGenerateAccountsRsaPublicKey()
     {
