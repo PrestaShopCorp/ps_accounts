@@ -60,8 +60,10 @@ class ShopProvider
      */
     public function formatShopData($shopData, $psxName = '')
     {
-        if (is_bool($shopData))
+        if (is_bool($shopData)) {
             return [];
+        }
+
         $configuration = $this->shopContext->getConfiguration();
         $user = $this->shopContext->getUser();
 
