@@ -51,7 +51,7 @@ class ShopProvider
     }
 
     /**
-     * @param array $shopData
+     * @param array|bool $shopData
      * @param string $psxName
      *
      * @return array
@@ -60,6 +60,8 @@ class ShopProvider
      */
     public function formatShopData($shopData, $psxName = '')
     {
+        if (is_bool($shopData))
+            return [];
         $configuration = $this->shopContext->getConfiguration();
         $user = $this->shopContext->getUser();
 
@@ -121,8 +123,7 @@ class ShopProvider
      */
     public function getCurrentShop($psxName = '')
     {
-        $shop = \Shop::getShop($this->shopContext->getContext()->shop->id);
-        $data = is_array($shop) ? $this->formatShopData($shop, $psxName) : [];
+        $data = $this->formatShopData(\Shop::getShop($this->shopContext->getContext()->shop->id), $psxName);
 
         return array_merge($data, [
             'multishop' => $this->shopContext->isMultishopActive(),
