@@ -51,7 +51,7 @@ class ShopProvider
     }
 
     /**
-     * @param array $shopData
+     * @param array|bool $shopData
      * @param string $psxName
      *
      * @return array
@@ -60,6 +60,10 @@ class ShopProvider
      */
     public function formatShopData($shopData, $psxName = '')
     {
+        if (is_bool($shopData)) {
+            return [];
+        }
+
         $configuration = $this->shopContext->getConfiguration();
         $userToken = $this->shopContext->getUserToken();
 
@@ -73,6 +77,9 @@ class ShopProvider
         /** @var ShopLinkAccountService $shopLinkAccountService */
         $shopLinkAccountService = $module->getService(ShopLinkAccountService::class);
 
+        /** @var RsaKeysProvider $rsaKeyProvider */
+        $rsaKeyProvider = $module->getService(RsaKeysProvider::class);
+
         $data = [
             'id' => (string) $shopData['id_shop'],
             'name' => $shopData['name'],
@@ -82,7 +89,7 @@ class ShopProvider
 
             // LinkAccount
             'uuid' => $configuration->getShopUuid() ?: null,
-            'publicKey' => $configuration->getAccountsRsaPublicKey() ?: null,
+            'publicKey' => $rsaKeyProvider->getOrGenerateAccountsRsaPublicKey() ?: null,
             'employeeId' => (int) $configuration->getEmployeeId() ?: null,
             'user' => [
                 'email' => $userToken->getTokenEmail() ?: null,
@@ -218,7 +225,7 @@ class ShopProvider
     /**
      * @param int $shopId
      *
-     * @return false|string|null
+     * @return false|string
      */
     private function getShopPhysicalUri($shopId)
     {

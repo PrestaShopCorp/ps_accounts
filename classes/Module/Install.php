@@ -66,7 +66,9 @@ class Install
             $tab->name = [];
 
             foreach (\Language::getLanguages(true) as $lang) {
-                $tab->name[$lang['id_lang']] = $this->module->displayName . ' (' . $k . ')';
+                if (is_array($lang)) {
+                    $tab->name[$lang['id_lang']] = $this->module->displayName . ' (' . $k . ')';
+                }
             }
 
             $tab->id_parent = -1 == self::PARENT_TAB_NAME ? (int) \Tab::getIdFromClassName((string) self::PARENT_TAB_NAME) : -1;
