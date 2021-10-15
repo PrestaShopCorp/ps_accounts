@@ -51,7 +51,7 @@ class ShopProvider
     }
 
     /**
-     * @param array|bool $shopData
+     * @param array $shopData
      * @param string $psxName
      *
      * @return array
@@ -60,10 +60,6 @@ class ShopProvider
      */
     public function formatShopData($shopData, $psxName = '')
     {
-        if (is_bool($shopData)) {
-            return [];
-        }
-
         $configuration = $this->shopContext->getConfiguration();
         $userToken = $this->shopContext->getUserToken();
 
