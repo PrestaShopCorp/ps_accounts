@@ -31,8 +31,8 @@ module.exports = {
   },
   configureWebpack: {
     output: {
-      filename: `js/app-metrics-settings.${version}.js`,
-      chunkFilename: `js/chunk-vendors-metrics-settings.${version}.js`
+      filename: `js/[name].${version}.js`,
+      chunkFilename: `js/[name].${version}.js`
     }
   },
   css: {
