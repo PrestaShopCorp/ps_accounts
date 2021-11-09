@@ -4,4 +4,13 @@ module.exports = {
   purge: {
     content: ["./src/**/*.vue"],
   },
+  theme: {
+    extend: {
+      colors: {
+        brand: {
+          dark: "#011638",
+        },
+      },
+    },
+  }
 };

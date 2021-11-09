@@ -20,7 +20,7 @@
   <div id="settingsApp">
     <Tabs :vertical="vertical">
       <Tab :label="$t('general.settings')" to="/settings/onboarding" />
-<!--      <Tab :label="$t('general.help')" to="/settings/help" />-->
+      <!--      <Tab :label="$t('general.help')" to="/settings/help" />-->
     </Tabs>
   </div>
 </template>
@@ -61,7 +61,14 @@ export default {
   text-align: left;
 
   .tab-content {
+    padding: 0;
     background: transparent;
+  }
+
+  @media only screen and (max-width: 768px) {
+    .tab-content {
+      padding: 1rem;
+    }
   }
 }
 

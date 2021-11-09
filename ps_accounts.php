@@ -28,7 +28,7 @@ class Ps_accounts extends Module
 
     // Needed in order to retrieve the module version easier (in api call headers) than instanciate
     // the module each time to get the version
-    const VERSION = '5.0.0';
+    const VERSION = '5.1.0';
 
     /**
      * @var array
@@ -36,16 +36,12 @@ class Ps_accounts extends Module
     private $adminControllers;
 
     /**
-     * @var \Monolog\Logger
-     */
-    private $logger;
-
-    /**
      * List of hook to install at the installation of the module
      *
      * @var array
      */
     private $hookToInstall = [
+        'displayAdminForm',
         'displayBackOfficeHeader',
         'actionObjectShopAddAfter',
         'actionObjectShopDeleteAfter',
@@ -85,7 +81,7 @@ class Ps_accounts extends Module
 
         // We cannot use the const VERSION because the const is not computed by addons marketplace
         // when the zip is uploaded
-        $this->version = '5.0.0';
+        $this->version = '5.1.0';
 
         $this->module_key = 'abf2cd758b4d629b2944d3922ef9db73';
 
@@ -108,16 +104,12 @@ class Ps_accounts extends Module
 
     /**
      * @return \Monolog\Logger
+     *
+     * @throws Exception
      */
     public function getLogger()
     {
-        if (null !== $this->logger) {
-            return $this->logger;
-        }
-
-        $this->logger = PrestaShop\Module\PsAccounts\Factory\PsAccountsLogger::create();
-
-        return $this->logger;
+        return $this->getService('ps_accounts.logger');
     }
 
     /**
@@ -232,6 +224,18 @@ class Ps_accounts extends Module
 //        }
 //        return $this->container->get($serviceName);
 //    }
+
+    /**
+     * @param array $params
+     *
+     * @return void
+     *
+     * @throws Exception
+     */
+    public function hookDisplayAdminForm($params)
+    {
+        $this->switchConfigMultishopMode();
+    }
 
     /**
      * @param array $params
@@ -368,9 +372,9 @@ class Ps_accounts extends Module
         $shopContext = $this->getService(\PrestaShop\Module\PsAccounts\Context\ShopContext::class);
 
         if ($shopContext->isMultishopActive()) {
-            $config->migrateToMultiShop(new \Shop(1));
+            $config->migrateToMultiShop();
         } else {
-            $config->migrateToSingleShop(new \Shop(1));
+            $config->migrateToSingleShop();
         }
     }
 
@@ -384,5 +388,13 @@ class Ps_accounts extends Module
         /** @var \PrestaShop\Module\PsAccounts\Service\PsAccountsService $psAccountsService */
         $psAccountsService = $this->getService(\PrestaShop\Module\PsAccounts\Service\PsAccountsService::class);
         $psAccountsService->autoReonboardOnV5();
+    }
+
+    /**
+     * @return array
+     */
+    public function getHookToInstall()
+    {
+        return $this->hookToInstall;
     }
 }

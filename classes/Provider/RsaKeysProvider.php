@@ -107,7 +107,7 @@ class RsaKeysProvider
      */
     public function encrypt($string)
     {
-        $this->rsa->loadKey($this->getPublicKey(), RSA::PUBLIC_FORMAT_PKCS1);
+        $this->rsa->loadKey((string) $this->getPublicKey(), RSA::PUBLIC_FORMAT_PKCS1);
 
         return $this->rsa->encrypt($string);
     }
@@ -140,6 +140,25 @@ class RsaKeysProvider
     }
 
     /**
+     * @return string|bool|null
+     */
+    public function getOrGenerateAccountsRsaPublicKey()
+    {
+        $publicKey = $this->getPublicKey();
+        if ($publicKey) {
+            return $publicKey;
+        }
+
+        try {
+            $this->regenerateKeys();
+
+            return $this->getPublicKey();
+        } catch (\Exception $e) {
+            return null;
+        }
+    }
+
+    /**
      * @return void
      *
      * @throws SshKeysNotFoundException
@@ -154,15 +173,11 @@ class RsaKeysProvider
      */
     public function hasKeys()
     {
-        return false === (
-                empty($this->configuration->getAccountsRsaPublicKey())
-                || empty($this->configuration->getAccountsRsaPrivateKey())
-                || empty($this->configuration->getAccountsRsaSignData())
-            );
+        return false === empty($this->configuration->getAccountsRsaPublicKey());
     }
 
     /**
-     * @return string
+     * @return string|bool
      */
     public function getPublicKey()
     {

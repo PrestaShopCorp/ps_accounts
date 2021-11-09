@@ -11,11 +11,17 @@ services:
     public: true
     factory: [ 'Context', 'getContext' ]
 
+  ps_accounts.logger:
+    class: Context
+    public: true
+    factory: [ 'PrestaShop\Module\PsAccounts\Factory\PsAccountsLogger', 'create' ]
+
   PrestaShop\Module\PsAccounts\Context\ShopContext:
     class: PrestaShop\Module\PsAccounts\Context\ShopContext
     public: true
     arguments:
       - '@PrestaShop\Module\PsAccounts\Repository\ConfigurationRepository'
+      - '@PrestaShop\Module\PsAccounts\Repository\UserTokenRepository'
       - '@ps_accounts.context'
 
   PrestaShop\Module\PsAccounts\Adapter\Configuration:
@@ -94,7 +100,7 @@ services:
     public: true
     arguments:
       - '%ps_accounts.sentry_credentials%'
-      - '@=service("ps_accounts.module").getModuleEnv()'
+      - '%ps_accounts.environment%'
       - '@PrestaShop\Module\PsAccounts\Repository\ConfigurationRepository'
 
   ###############
@@ -105,7 +111,6 @@ services:
     public: true
     arguments:
       - '%ps_accounts.accounts_api_url%'
-      - '%ps_accounts.check_api_ssl_cert%'
       - '@PrestaShop\Module\PsAccounts\Provider\ShopProvider'
       - '@PrestaShop\Module\PsAccounts\Adapter\Link'
 

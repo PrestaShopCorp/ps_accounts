@@ -20,9 +20,9 @@
 
 namespace PrestaShop\Module\PsAccounts\Presenter;
 
-use Module;
-use PrestaShop\Module\PsAccounts\Handler\Error\Sentry;
+use PrestaShop\Module\PsAccounts\Exception\SshKeysNotFoundException;
 use PrestaShop\Module\PsAccounts\Installer\Installer;
+use PrestaShop\Module\PsAccounts\Log\Logger;
 use PrestaShop\Module\PsAccounts\Provider\ShopProvider;
 use PrestaShop\Module\PsAccounts\Repository\ConfigurationRepository;
 use PrestaShop\Module\PsAccounts\Service\PsAccountsService;
@@ -90,30 +90,35 @@ class PsAccountsPresenter implements PresenterInterface
     }
 
     /**
-     * Present the PsAccounts module data for JS
-     *
      * @param string $psxName
      *
      * @return array
      *
-     * @throws \Throwable
+     * @throws SshKeysNotFoundException
      */
     public function present($psxName = 'ps_accounts')
     {
-        $this->shopLinkAccountService->prepareLinkAccount();
-
         $shopContext = $this->shopProvider->getShopContext();
 
         $moduleName = $this->module->name;
 
-        $currentShop = $this->shopProvider->getCurrentShop($psxName);
-        $shopBase64 = base64_encode((string) json_encode($currentShop));
+        $unlinkedShops = $this->shopProvider->getUnlinkedShops(
+            $psxName,
+            $shopContext->getContext()->employee->id
+        );
+        $shopBase64 = base64_encode(
+            (string) json_encode(array_values($unlinkedShops))
+        );
         $onboardingLink = $this->module->getParameter('ps_accounts.accounts_ui_url')
-            . '?shopPayload=' . $shopBase64;
+            . '?shops=' . $shopBase64;
 
         try {
             return array_merge(
                 [
+                    'currentContext' => [
+                        'type' => $shopContext->getShopContext(),
+                        'id' => $shopContext->getShopContextId(),
+                    ],
                     'psxName' => $psxName,
                     'psIs17' => $shopContext->isShop17(),
 
@@ -144,7 +149,7 @@ class PsAccountsPresenter implements PresenterInterface
                         'employeeId' => $shopContext->getContext()->employee->id,
                         'isSuperAdmin' => $shopContext->getContext()->employee->isSuperAdmin(),
                     ],
-                    'currentShop' => $currentShop,
+                    'currentShop' => $this->shopProvider->getCurrentShop($psxName),
                     'isShopContext' => $shopContext->isShopContext(),
                     'superAdminEmail' => $this->psAccountsService->getSuperAdminEmail(),
 
@@ -165,7 +170,7 @@ class PsAccountsPresenter implements PresenterInterface
                 (new DependenciesPresenter())->present($psxName)
             );
         } catch (\Exception $e) {
-            Sentry::captureAndRethrow($e);
+            Logger::getInstance()->debug($e);
         }
 
         return [];
