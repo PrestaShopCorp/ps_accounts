@@ -27,7 +27,6 @@ import store from "@/core/app/store";
 import router from "@/core/app/router";
 import StoreSaga from "@/lib/store-saga";
 import AppContainer from "@/core/app/pages/AppContainer";
-import psAccountsVueComponents from "prestashop_accounts_vue_components";
 import VueCompositionAPI from "@vue/composition-api";
 import "@/lib/error";
 import "@/core/app/assets/_global.scss";
@@ -37,7 +36,6 @@ Vue.use(VueCompositionAPI);
 Vue.use(Router);
 Vue.use(BootstrapVue, BootstrapVueIcons);
 Vue.use(VueCollapse);
-Vue.use(psAccountsVueComponents, { locale: i18n.locale });
 Vue.use(StoreSaga, { store });
 // Vue.use(VueSegment, {
 //   id: "Vxk9VEvePTRlBmjkjzbUG6saW5yAmgb2",
@@ -49,6 +47,8 @@ Vue.use(StoreSaga, { store });
 Vue.config.productionTip = process.env.NODE_ENV === "production";
 Vue.config.debug = process.env.NODE_ENV !== "production";
 Vue.config.devtools = process.env.NODE_ENV !== "production";
+
+window.Vue = Vue;
 
 window.onload = () => {
   new Vue({

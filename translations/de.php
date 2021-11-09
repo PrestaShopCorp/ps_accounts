@@ -26,6 +26,6 @@ $_MODULE['<{ps_accounts}prestashop>ps_accounts_46c3a41d2feb9cd614cbc0606a91d472'
 $_MODULE['<{ps_accounts}prestashop>settingstranslations_3ae556b4e587c076e0a83035895a3023'] = 'Settings';
 $_MODULE['<{ps_accounts}prestashop>settingstranslations_19d7aeee5c0c2f5f35ac2e2ae188f5fb'] = 'Help';
 $_MODULE['<{ps_accounts}prestashop>settingstranslations_f98a72bcebc86d1cdb536d4f2321453d'] = 'Ihr Prestashop-Konto';
-$_MODULE['<{ps_accounts}prestashop>settingstranslations_3498492bdffcc04e709e154a74dd41d7'] = 'Verknüpfen Sie Ihren Shop mit einem PrestaShop-Konto';
+$_MODULE['<{ps_accounts}prestashop>settingstranslations_3498492bdffcc04e709e154a74dd41d7'] = 'Ein einziges Konto zur Verwaltung aller Ihrer PrestaShop-Shops';
 $_MODULE['<{ps_accounts}prestashop>settingstranslations_77d3646d3307c9ec64022988a627e2c2'] = 'Erstellen Sie Ihr Prestashop-Konto oder melden Sie sich bei Ihrem bestehenden Konto an';
 $_MODULE['<{ps_accounts}prestashop>settingstranslations_0bf8c9a75dc18d636083edc439957857'] = 'Verknüpfen Sie Ihren Shop mit Ihrem Konto';

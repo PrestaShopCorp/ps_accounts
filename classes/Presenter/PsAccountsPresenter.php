@@ -20,9 +20,9 @@
 
 namespace PrestaShop\Module\PsAccounts\Presenter;
 
-use Module;
-use PrestaShop\Module\PsAccounts\Handler\Error\Sentry;
+use PrestaShop\Module\PsAccounts\Exception\SshKeysNotFoundException;
 use PrestaShop\Module\PsAccounts\Installer\Installer;
+use PrestaShop\Module\PsAccounts\Log\Logger;
 use PrestaShop\Module\PsAccounts\Provider\ShopProvider;
 use PrestaShop\Module\PsAccounts\Repository\ConfigurationRepository;
 use PrestaShop\Module\PsAccounts\Service\PsAccountsService;
@@ -90,25 +90,35 @@ class PsAccountsPresenter implements PresenterInterface
     }
 
     /**
-     * Present the PsAccounts module data for JS
-     *
      * @param string $psxName
      *
      * @return array
      *
-     * @throws \Throwable
+     * @throws SshKeysNotFoundException
      */
     public function present($psxName = 'ps_accounts')
     {
-        $this->shopLinkAccountService->prepareLinkAccount();
-
         $shopContext = $this->shopProvider->getShopContext();
 
         $moduleName = $this->module->name;
 
+        $unlinkedShops = $this->shopProvider->getUnlinkedShops(
+            $psxName,
+            $shopContext->getContext()->employee->id
+        );
+        $shopBase64 = base64_encode(
+            (string) json_encode(array_values($unlinkedShops))
+        );
+        $onboardingLink = $this->module->getParameter('ps_accounts.accounts_ui_url')
+            . '?shops=' . $shopBase64;
+
         try {
             return array_merge(
                 [
+                    'currentContext' => [
+                        'type' => $shopContext->getShopContext(),
+                        'id' => $shopContext->getShopContextId(),
+                    ],
                     'psxName' => $psxName,
                     'psIs17' => $shopContext->isShop17(),
 
@@ -129,7 +139,7 @@ class PsAccountsPresenter implements PresenterInterface
 
                     // FIXME :  Mix "SSO user" with "Backend user"
                     'user' => [
-                        'uuid' => $this->psAccountsService->getUserUuidV4() ?: null,
+                        'uuid' => $this->psAccountsService->getUserUuid() ?: null,
                         'email' => $this->psAccountsService->getEmail() ?: null,
                         'emailIsValidated' => $this->psAccountsService->isEmailValidated(),
                         'isSuperAdmin' => $shopContext->getContext()->employee->isSuperAdmin(),
@@ -144,7 +154,8 @@ class PsAccountsPresenter implements PresenterInterface
                     'superAdminEmail' => $this->psAccountsService->getSuperAdminEmail(),
 
                     // TODO: link to a page to display an "Update Your PSX" notice
-                    'onboardingLink' => $this->module->getParameter('ps_accounts.svc_accounts_ui_url'),
+                    'onboardingLink' => $onboardingLink,
+
                     'ssoResendVerificationEmail' => $this->module->getParameter('ps_accounts.sso_resend_verification_email_url'),
                     'manageAccountLink' => $this->module->getSsoAccountUrl(),
 
@@ -159,7 +170,7 @@ class PsAccountsPresenter implements PresenterInterface
                 (new DependenciesPresenter())->present($psxName)
             );
         } catch (\Exception $e) {
-            Sentry::captureAndRethrow($e);
+            Logger::getInstance()->debug($e);
         }
 
         return [];

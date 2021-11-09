@@ -28,7 +28,7 @@ class Ps_accounts extends Module
 
     // Needed in order to retrieve the module version easier (in api call headers) than instanciate
     // the module each time to get the version
-    const VERSION = '5.0.0';
+    const VERSION = '5.1.0';
 
     /**
      * @var array
@@ -36,16 +36,12 @@ class Ps_accounts extends Module
     private $adminControllers;
 
     /**
-     * @var \Monolog\Logger
-     */
-    private $logger;
-
-    /**
      * List of hook to install at the installation of the module
      *
      * @var array
      */
     private $hookToInstall = [
+        'displayAdminForm',
         'displayBackOfficeHeader',
         'actionObjectShopAddAfter',
         'actionObjectShopDeleteAfter',
@@ -85,7 +81,7 @@ class Ps_accounts extends Module
 
         // We cannot use the const VERSION because the const is not computed by addons marketplace
         // when the zip is uploaded
-        $this->version = '5.0.0';
+        $this->version = '5.1.0';
 
         $this->module_key = 'abf2cd758b4d629b2944d3922ef9db73';
 
@@ -108,16 +104,12 @@ class Ps_accounts extends Module
 
     /**
      * @return \Monolog\Logger
+     *
+     * @throws Exception
      */
     public function getLogger()
     {
-        if (null !== $this->logger) {
-            return $this->logger;
-        }
-
-        $this->logger = PrestaShop\Module\PsAccounts\Factory\PsAccountsLogger::create();
-
-        return $this->logger;
+        return $this->getService('ps_accounts.logger');
     }
 
     /**
@@ -160,6 +152,8 @@ class Ps_accounts extends Module
         $this->moduleInstaller->installModule('ps_eventbus');
 
         $this->switchConfigMultishopMode();
+
+        $this->autoReonboardOnV5();
 
         $this->getLogger()->info('Install - Loading ' . $this->name . ' Env : [' . $this->getModuleEnv() . ']');
 
@@ -230,6 +224,18 @@ class Ps_accounts extends Module
 //        }
 //        return $this->container->get($serviceName);
 //    }
+
+    /**
+     * @param array $params
+     *
+     * @return void
+     *
+     * @throws Exception
+     */
+    public function hookDisplayAdminForm($params)
+    {
+        $this->switchConfigMultishopMode();
+    }
 
     /**
      * @param array $params
@@ -321,8 +327,11 @@ class Ps_accounts extends Module
      */
     protected function loadAssets($responseApiMessage = 'null', $countProperty = 0)
     {
+        /** @var Ps_accounts $module */
+        $module = \Module::getInstanceByName('ps_accounts');
         $this->context->smarty->assign('pathVendor', $this->_path . 'views/js/chunk-vendors.js');
         $this->context->smarty->assign('pathApp', $this->_path . 'views/js/app.js');
+        $this->context->smarty->assign('urlAccountsVueCdn', $module->getParameter('ps_accounts.accounts_vue_cdn_url'));
 
         $storePresenter = new PrestaShop\Module\PsAccounts\Presenter\Store\StorePresenter($this, $this->context);
 
@@ -363,9 +372,29 @@ class Ps_accounts extends Module
         $shopContext = $this->getService(\PrestaShop\Module\PsAccounts\Context\ShopContext::class);
 
         if ($shopContext->isMultishopActive()) {
-            $config->migrateToMultiShop(new \Shop(1));
+            $config->migrateToMultiShop();
         } else {
-            $config->migrateToSingleShop(new \Shop(1));
+            $config->migrateToSingleShop();
         }
+    }
+
+    /**
+     * @return void
+     *
+     * @throws Throwable
+     */
+    private function autoReonboardOnV5()
+    {
+        /** @var \PrestaShop\Module\PsAccounts\Service\PsAccountsService $psAccountsService */
+        $psAccountsService = $this->getService(\PrestaShop\Module\PsAccounts\Service\PsAccountsService::class);
+        $psAccountsService->autoReonboardOnV5();
+    }
+
+    /**
+     * @return array
+     */
+    public function getHookToInstall()
+    {
+        return $this->hookToInstall;
     }
 }

@@ -7,18 +7,19 @@ use PrestaShop\Module\PsAccounts\Repository\ConfigurationRepository;
 use PrestaShop\Module\PsAccounts\Repository\UserTokenRepository;
 use PrestaShop\Module\PsAccounts\Tests\TestCase;
 
-class GetOrRefreshTokenTest extends TestCase
+class GetTokenEmailVerifiedTest extends TestCase
 {
     /**
      * @test
      *
      * @throws \Exception
      */
-    public function itShouldReturnValidToken()
+    public function itShouldReturnTrue()
     {
         $idToken = $this->makeJwtToken(new \DateTimeImmutable('tomorrow'), [
             'user_id' => $this->faker->uuid,
             'email' => $this->faker->safeEmail,
+            'email_verified' => true,
         ]);
 
         $refreshToken = $this->makeJwtToken(new \DateTimeImmutable('+1 year'));
@@ -28,7 +29,7 @@ class GetOrRefreshTokenTest extends TestCase
 
         $tokenRepos->updateCredentials((string) $idToken, (string) $refreshToken);
 
-        $this->assertEquals((string) $idToken, $tokenRepos->getOrRefreshToken());
+        $this->assertTrue($tokenRepos->getTokenEmailVerified());
     }
 
     /**
@@ -36,30 +37,21 @@ class GetOrRefreshTokenTest extends TestCase
      *
      * @throws \Exception
      */
-    public function itShouldRefreshExpiredToken()
+    public function itShouldReturnFalse()
     {
-        $idToken = $this->makeJwtToken(new \DateTimeImmutable('yesterday'), [
+        $idToken = $this->makeJwtToken(new \DateTimeImmutable('tomorrow'), [
             'user_id' => $this->faker->uuid,
             'email' => $this->faker->safeEmail,
+            'email_verified' => false,
         ]);
-
-        $idTokenRefreshed = $this->makeJwtToken(new \DateTimeImmutable('tomorrow'));
 
         $refreshToken = $this->makeJwtToken(new \DateTimeImmutable('+1 year'));
 
-        /** @var ConfigurationRepository $configuration */
-        $configuration = $this->module->getService(ConfigurationRepository::class);
-
         /** @var UserTokenRepository $tokenRepos */
-        $tokenRepos = $this->getMockBuilder(UserTokenRepository::class)
-            ->setConstructorArgs([$configuration])
-            ->setMethods(['refreshToken'])
-            ->getMock();
-        $tokenRepos->method('refreshToken')
-            ->willReturn($idTokenRefreshed);
+        $tokenRepos = $this->module->getService(UserTokenRepository::class);
 
         $tokenRepos->updateCredentials((string) $idToken, (string) $refreshToken);
 
-        $this->assertEquals((string) $idTokenRefreshed, $tokenRepos->getOrRefreshToken());
+        $this->assertFalse($tokenRepos->getTokenEmailVerified());
     }
 }
