@@ -14,11 +14,8 @@ jobs:
 
       - name: Bump version
         run: |
-          VERSION=$(echo "${{ github.event.release.tag_name }}" | sed 's/^v//')
-          sed -i -e "s/\(VERSION = \).*/\1\'${VERSION}\';/" ps_accounts.php
-          sed -i -e "s/\($this->version = \).*/\1\'${VERSION}\';/" ps_accounts.php
-          sed -i -e 's|\(<version><!\[CDATA\[\)[0-9a-z\.\-]\{1,\}.*\]\]></version>|\1'$VERSION']]></version>|g' config.xml
-          sed -i -e "s/\(\"version\"\: \).*/\1\"${VERSION}\",/" ./_dev/package.json
+          VERSION=$(echo "${{ github.event.release.tag_name }}" | sed 's/^v//') \
+          make version
 
       - name: Build JS dependencies
         uses: PrestaShopCorp/github-action-build-js/12@v1.0

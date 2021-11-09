@@ -3,9 +3,8 @@ PHP = $(shell which php 2> /dev/null)
 DOCKER = $(shell docker ps 2> /dev/null)
 NPM = $(shell which npm 2> /dev/null)
 YARN = $(shell which yarn 2> /dev/null)
-VERSION ?= $(shell git describe --tags)
 
-SEM_VERSION ?= 5.0.4#$(shell git describe --tags | sed 's/^v//')
+VERSION ?= 5.1.0#$(shell git describe --tags | sed 's/^v//')
 MODULE ?= $(shell basename ${PWD})
 PACKAGE ?= "${MODULE}-${VERSION}"
 PHPSTAN_VERSION ?= 0.12
@@ -36,11 +35,11 @@ dist:
 
 # target: version                                - Replace version in files
 version:
-	@echo "...$(SEM_VERSION)..."
-	sed -i -e "s/\(VERSION = \).*/\1\'${SEM_VERSION}\';/" ps_accounts.php
-	sed -i -e "s/\($this->version = \).*/\1\'${SEM_VERSION}\';/" ps_accounts.php
-	sed -i -e "s|\(<version><!\[CDATA\[\)[0-9a-z.-]\{1,\}.*]]></version>|\1${SEM_VERSION}]]></version>|" config.xml
-	sed -i -e "s/\(\"version\"\: \).*/\1\"${SEM_VERSION}\",/" ./_dev/package.json
+	@echo "...$(VERSION)..."
+	sed -i -e "s/\(VERSION = \).*/\1\'${VERSION}\';/" ps_accounts.php
+	sed -i -e "s/\($this->version = \).*/\1\'${VERSION}\';/" ps_accounts.php
+	sed -i -e 's/\(<version><!\[CDATA\[\)[0-9a-z\.\-]\{1,\}.*\]\]><\/version>/\1'${VERSION}']]><\/version>/' config.xml
+	sed -i -e "s/\(\"version\"\: \).*/\1\"${VERSION}\",/" ./_dev/package.json
 
 # target: bundle-prod                            - Bundle a production zip
 bundle-prod: dist ./vendor ./views/index.php
