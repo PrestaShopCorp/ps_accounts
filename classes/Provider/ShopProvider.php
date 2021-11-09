@@ -61,6 +61,7 @@ class ShopProvider
     public function formatShopData($shopData, $psxName = '')
     {
         $configuration = $this->shopContext->getConfiguration();
+        $userToken = $this->shopContext->getUserToken();
 
         $shopId = $configuration->getShopId();
 
@@ -72,6 +73,9 @@ class ShopProvider
         /** @var ShopLinkAccountService $shopLinkAccountService */
         $shopLinkAccountService = $module->getService(ShopLinkAccountService::class);
 
+        /** @var RsaKeysProvider $rsaKeyProvider */
+        $rsaKeyProvider = $module->getService(RsaKeysProvider::class);
+
         $data = [
             'id' => (string) $shopData['id_shop'],
             'name' => $shopData['name'],
@@ -81,8 +85,13 @@ class ShopProvider
 
             // LinkAccount
             'uuid' => $configuration->getShopUuid() ?: null,
-            'publicKey' => $configuration->getAccountsRsaPublicKey() ?: null,
+            'publicKey' => $rsaKeyProvider->getOrGenerateAccountsRsaPublicKey() ?: null,
             'employeeId' => (int) $configuration->getEmployeeId() ?: null,
+            'user' => [
+                'email' => $userToken->getTokenEmail() ?: null,
+                'uuid' => $userToken->getTokenUuid() ?: null,
+                'emailIsValidated' => $userToken->getTokenEmailVerified(),
+            ],
 
             'url' => $this->link->getAdminLink(
                 'AdminModules',
@@ -112,7 +121,7 @@ class ShopProvider
      */
     public function getCurrentShop($psxName = '')
     {
-        $data = $this->formatShopData(\Shop::getShop($this->shopContext->getContext()->shop->id), $psxName);
+        $data = $this->formatShopData((array) \Shop::getShop($this->shopContext->getContext()->shop->id), $psxName);
 
         return array_merge($data, [
             'multishop' => $this->shopContext->isMultishopActive(),
@@ -135,7 +144,13 @@ class ShopProvider
         foreach (\Shop::getTree() as $groupId => $groupData) {
             $shops = [];
             foreach ($groupData['shops'] as $shopId => $shopData) {
-                $shops[] = $this->formatShopData($shopData, $psxName);
+                $data = $this->formatShopData((array) $shopData, $psxName);
+
+                $shops[] = array_merge($data, [
+                    'multishop' => $this->shopContext->isMultishopActive(),
+                    'moduleName' => $psxName,
+                    'psVersion' => _PS_VERSION_,
+                ]);
             }
 
             $shopList[] = [
@@ -152,6 +167,50 @@ class ShopProvider
     }
 
     /**
+     * @param string $psxName
+     * @param int $employeeId
+     *
+     * @return array
+     *
+     * @throws \PrestaShopException
+     */
+    public function getUnlinkedShops($psxName, $employeeId)
+    {
+        $shopTree = $this->getShopsTree($psxName);
+        $shops = [];
+
+        switch ($this->getShopContext()->getShopContext()) {
+            case \Shop::CONTEXT_ALL:
+                $shops = array_reduce($shopTree, function ($carry, $shopGroup) {
+                    return array_merge($carry, $shopGroup['shops']);
+                }, []);
+                break;
+            case \Shop::CONTEXT_GROUP:
+                $shops = array_reduce($shopTree, function ($carry, $shopGroup) {
+                    if ($shopGroup['id'] != $this->getShopContext()->getShopContextId()) {
+                        return $carry;
+                    }
+
+                    return array_merge($carry, $shopGroup['shops']);
+                }, []);
+                break;
+            case \Shop::CONTEXT_SHOP:
+                $shops = [$this->getCurrentShop($psxName)];
+                break;
+        }
+
+        $unlinkedShops = array_filter($shops, function ($shop) {
+            return $shop['uuid'] === null || ($shop['uuid'] && $shop['isLinkedV4']);
+        });
+
+        return array_map(function ($shop) use ($employeeId) {
+            $shop['employeeId'] = (string) $employeeId;
+
+            return $shop;
+        }, $unlinkedShops);
+    }
+
+    /**
      * @return ShopContext
      */
     public function getShopContext()
@@ -162,7 +221,7 @@ class ShopProvider
     /**
      * @param int $shopId
      *
-     * @return false|string|null
+     * @return false|string
      */
     private function getShopPhysicalUri($shopId)
     {

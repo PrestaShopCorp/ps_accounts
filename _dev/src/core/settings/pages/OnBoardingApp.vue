@@ -17,7 +17,7 @@
  * International Registered Trademark & Property of PrestaShop SA
  *-->
 <template>
-  <div class="onboarding pt-5">
+  <div class="pt-5 onboarding">
     <section class="onboarding-header">
       <ConfigInformation :app="app" />
     </section>
@@ -99,10 +99,16 @@ export default {
 
 <style lang="scss" scoped>
 .onboarding {
-  @apply max-w-6xl mx-auto #{!important};
+  @apply max-w-screen-lg mx-auto #{!important};
 
   &-header {
-    @apply mb-4 #{!important};
+    @apply mb-2 #{!important};
+  }
+
+  @screen md {
+    &-header {
+      @apply mb-4 #{!important};
+    }
   }
 }
 </style>

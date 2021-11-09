@@ -140,6 +140,25 @@ class RsaKeysProvider
     }
 
     /**
+     * @return string|bool|null
+     */
+    public function getOrGenerateAccountsRsaPublicKey()
+    {
+        $publicKey = $this->getPublicKey();
+        if ($publicKey) {
+            return $publicKey;
+        }
+
+        try {
+            $this->regenerateKeys();
+
+            return $this->getPublicKey();
+        } catch (\Exception $e) {
+            return null;
+        }
+    }
+
+    /**
      * @return void
      *
      * @throws SshKeysNotFoundException
@@ -154,11 +173,7 @@ class RsaKeysProvider
      */
     public function hasKeys()
     {
-        return false === (
-                empty($this->configuration->getAccountsRsaPublicKey())
-                || empty($this->configuration->getAccountsRsaPrivateKey())
-                || empty($this->configuration->getAccountsRsaSignData())
-            );
+        return false === empty($this->configuration->getAccountsRsaPublicKey());
     }
 
     /**

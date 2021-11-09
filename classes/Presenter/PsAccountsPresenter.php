@@ -98,20 +98,27 @@ class PsAccountsPresenter implements PresenterInterface
      */
     public function present($psxName = 'ps_accounts')
     {
-        $this->shopLinkAccountService->prepareLinkAccount();
-
         $shopContext = $this->shopProvider->getShopContext();
 
         $moduleName = $this->module->name;
 
-        $currentShop = $this->shopProvider->getCurrentShop($psxName);
-        $shopBase64 = base64_encode((string) json_encode($currentShop));
+        $unlinkedShops = $this->shopProvider->getUnlinkedShops(
+            $psxName,
+            $shopContext->getContext()->employee->id
+        );
+        $shopBase64 = base64_encode(
+            (string) json_encode(array_values($unlinkedShops))
+        );
         $onboardingLink = $this->module->getParameter('ps_accounts.accounts_ui_url')
-            . '?shopPayload=' . $shopBase64;
+            . '?shops=' . $shopBase64;
 
         try {
             return array_merge(
                 [
+                    'currentContext' => [
+                        'type' => $shopContext->getShopContext(),
+                        'id' => $shopContext->getShopContextId(),
+                    ],
                     'psxName' => $psxName,
                     'psIs17' => $shopContext->isShop17(),
 
@@ -142,7 +149,7 @@ class PsAccountsPresenter implements PresenterInterface
                         'employeeId' => $shopContext->getContext()->employee->id,
                         'isSuperAdmin' => $shopContext->getContext()->employee->isSuperAdmin(),
                     ],
-                    'currentShop' => $currentShop,
+                    'currentShop' => $this->shopProvider->getCurrentShop($psxName),
                     'isShopContext' => $shopContext->isShopContext(),
                     'superAdminEmail' => $this->psAccountsService->getSuperAdminEmail(),
 

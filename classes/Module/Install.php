@@ -65,6 +65,7 @@ class Install
             $tab->class_name = $controllerName;
             $tab->name = [];
 
+            /** @var array $lang */
             foreach (\Language::getLanguages(true) as $lang) {
                 $tab->name[$lang['id_lang']] = $this->module->displayName . ' (' . $k . ')';
             }
