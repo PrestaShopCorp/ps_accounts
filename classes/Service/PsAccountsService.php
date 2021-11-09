@@ -127,9 +127,19 @@ class PsAccountsService
     }
 
     /**
+     * @deprecated deprecated since version 5.1.1
+     *
      * @return string|false
      */
     public function getUserUuidV4()
+    {
+        return $this->getUserUuid();
+    }
+
+    /**
+     * @return string|false
+     */
+    public function getUserUuid()
     {
         return $this->userTokenRepository->getTokenUuid();
     }
