@@ -111,6 +111,7 @@ endif
 	  --workdir=/web/module \
 	  phpstan/phpstan:${PHPSTAN_VERSION} analyse \
 	  --configuration=/web/module/tests/phpstan/${NEON_FILE}
+	docker volume rm ps-volume
 
 
 # target: phpunit                                - Start phpunit

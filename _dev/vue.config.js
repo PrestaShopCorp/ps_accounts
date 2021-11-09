@@ -39,7 +39,7 @@ module.exports = {
     extract: false,
   },
   runtimeCompiler: true,
-  productionSourceMap: false,
+  // productionSourceMap: false,
   filenameHashing: false,
   outputDir: "../views/",
   assetsDir: "",
