@@ -28,7 +28,7 @@ class Ps_accounts extends Module
 
     // Needed in order to retrieve the module version easier (in api call headers) than instanciate
     // the module each time to get the version
-    const VERSION = '5.1.2';
+    const VERSION = '5.2.0';
 
     /**
      * @var array
@@ -46,13 +46,14 @@ class Ps_accounts extends Module
         'actionObjectShopAddAfter',
         'actionObjectShopUpdateAfter',
         'actionObjectShopDeleteAfter',
+        'actionObjectShopUrlUpdateAfter',
         'displayDashboardTop',
         'displayAccountUpdateWarning',
         //'addWebserviceResources',
     ];
 
     /**
-     * List of new hook to create at the installation of the module
+     * List of new hooks to create at the installation of the module
      *
      * @var array
      */
@@ -99,7 +100,7 @@ class Ps_accounts extends Module
 
         // We cannot use the const VERSION because the const is not computed by addons marketplace
         // when the zip is uploaded
-        $this->version = '5.1.2';
+        $this->version = '5.2.0';
 
         $this->module_key = 'abf2cd758b4d629b2944d3922ef9db73';
 
@@ -292,6 +293,40 @@ class Ps_accounts extends Module
      */
     public function hookDisplayDashboardTop($params)
     {
+        if ($params['object']->main) {
+            /** @var \PrestaShop\Module\PsAccounts\Api\Client\AccountsClient $accountsApi */
+            $accountsApi = $this->getService(
+                \PrestaShop\Module\PsAccounts\Api\Client\AccountsClient::class
+            );
+
+            /** @var \PrestaShop\Module\PsAccounts\Adapter\Link $link */
+            $link = $this->getService(\PrestaShop\Module\PsAccounts\Adapter\Link::class);
+
+            Cache::clean('Shop::setUrl_' . (int) $params['object']->id_shop);
+
+            $shop = new \Shop($params['object']->id_shop);
+
+            $response = $accountsApi->updateUserShop(new \PrestaShop\Module\PsAccounts\DTO\UpdateShop([
+                'shopId' => (string) $params['object']->id_shop,
+                'name' => $shop->name,
+                'domain' => 'http://' . $params['object']->domain,
+                'sslDomain' => 'https://' . $params['object']->domain_ssl,
+                'physicalUri' => $params['object']->physical_uri,
+                'virtualUri' => $params['object']->virtual_uri,
+                'boBaseUrl' => $link->getAdminLink('AdminModules', false, [], [
+                        'configure' => $this->name,
+                        'setShopContext' => 's-' . $params['object']->id_shop,
+                    ]
+                ),
+            ]));
+
+            if (!$response || true !== $response['status']) {
+                $this->getLogger()->debug(
+                    'Error trying to PATCH shop : ' . $response['httpCode'] .
+                    ' ' . print_r($response['body']['message'], true)
+                );
+            }
+        }
         /** @var \PrestaShop\Module\PsAccounts\Service\PsAccountsService $psAccountsService */
         $psAccountsService = $this->getService(\PrestaShop\Module\PsAccounts\Service\PsAccountsService::class);
 
@@ -333,8 +368,38 @@ class Ps_accounts extends Module
      */
     public function hookActionObjectShopAddAfter($params)
     {
-        if ($this->context->controller->controller_name === 'AdminShop') {
-            $this->switchConfigMultishopMode();
+        /** @var \PrestaShop\Module\PsAccounts\Api\Client\AccountsClient $accountsApi */
+        $accountsApi = $this->getService(
+            \PrestaShop\Module\PsAccounts\Api\Client\AccountsClient::class
+        );
+
+        /** @var \PrestaShop\Module\PsAccounts\Adapter\Link $link */
+        $link = $this->getService(\PrestaShop\Module\PsAccounts\Adapter\Link::class);
+
+        $shop = new \Shop($params['object']->id);
+
+        $response = $accountsApi->updateUserShop(new \PrestaShop\Module\PsAccounts\DTO\UpdateShop([
+            'shopId' => (string) $params['object']->id,
+            'name' => $params['object']->name,
+            'domain' => 'http://' . $shop->domain,
+            'sslDomain' => 'https://' . $shop->domain_ssl,
+            'physicalUri' => $shop->physical_uri,
+            'virtualUri' => $shop->virtual_uri,
+            'boBaseUrl' => $link->getAdminLink('AdminModules', false, [], [
+                    'configure' => $this->name,
+                    'setShopContext' => 's-' . $params['object']->id,
+                ]
+            ),
+        ]));
+
+        if (!$response || true !== $response['status']) {
+            $this->getLogger()->debug(
+                'Error trying to PATCH shop : ' . $response['httpCode'] .
+                ' ' . print_r($response['body']['message'], true)
+            );
+            if ($this->context->controller->controller_name === 'AdminShop') {
+                $this->switchConfigMultishopMode();
+            }
         }
 
         return true;
@@ -349,9 +414,7 @@ class Ps_accounts extends Module
      */
     public function hookActionObjectShopDeleteAfter($params)
     {
-        if ($this->context->controller->controller_name === 'AdminShop') {
-            $this->switchConfigMultishopMode();
-        }
+        $this->switchConfigMultishopMode();
 
         return true;
     }
