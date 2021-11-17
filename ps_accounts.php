@@ -47,7 +47,23 @@ class Ps_accounts extends Module
         'actionObjectShopUpdateAfter',
         'actionObjectShopDeleteAfter',
         'displayDashboardTop',
+        'displayAccountUpdateWarning',
         //'addWebserviceResources',
+    ];
+
+    /**
+     * List of new hook to create at the installation of the module
+     *
+     * @var array
+     */
+    private $newHooks = [
+      [
+          'name' => 'displayAccountUpdateWarning',
+          'title' => 'Display account update warning',
+          'description' => 'Show a warning message when the user wants to'
+            + ' update his shop configuration',
+          'position' => 1,
+      ]
     ];
 
     /**
@@ -140,6 +156,7 @@ class Ps_accounts extends Module
     public function install()
     {
         $installer = new PrestaShop\Module\PsAccounts\Module\Install($this, Db::getInstance());
+        $this->addNewHooks($this->newHooks);
 
         $status = $installer->installInMenu()
             //&& $installer->installDatabaseTables()
@@ -206,6 +223,19 @@ class Ps_accounts extends Module
         return $this->serviceContainer->getContainer()->getParameter($name);
     }
 
+    public function addNewHooks($newHooks) {
+        foreach ($newHooks as $newHook) {
+            if (!Hook::getIdByName($newHook['name'])) {
+                $hook = new Hook();
+                $hook->name = $newHook['name'];
+                $hook->title = $newHook['title'];
+                $hook->description = $newHook['description'];
+                $hook->position = $newHook['position'];
+                $hook->add(); // return true on success
+            }
+        }
+    }
+
 //    /**
 //     * Override of native function to always retrieve Symfony container instead of legacy admin container on legacy context.
 //     *
@@ -269,16 +299,29 @@ class Ps_accounts extends Module
             && 'AdminShopUrl' === $_GET['controller']
             && isset($_GET['updateshop_url'])
         )
-            return '<div class="row">
-            <div class="col-sm">
-              <div class="alert alert-info" role="alert">
-                <div class="alert-text">
-                  Your shop is linked on ps_accounts, modify this url will modify it on ps_accounts link.
-                </div>
-              </div>
-            </div>
-          </div>'
-        ;
+            return PrestaShop\PrestaShop\Adapter\SymfonyContainer::getInstance()
+                    ->get('twig')
+                    ->render('@Modules/ps_accounts/views/templates/backoffice/update_url_warning.twig');
+    }
+
+    /**
+     * @param array $params
+     *
+     * @return void
+     *
+     * @throws Exception
+     */
+    public function hookDisplayAccountUpdateWarning()
+    {
+        /** @var \PrestaShop\Module\PsAccounts\Service\PsAccountsService $psAccountsService */
+        $psAccountsService = $this->getService(\PrestaShop\Module\PsAccounts\Service\PsAccountsService::class);
+
+        if ($psAccountsService->isAccountLinked())
+            // I don't load with $this->get('twig') since i had this error https://github.com/PrestaShop/PrestaShop/issues/20505
+            // Some users may have the same and couldn't render the configuration page
+            return PrestaShop\PrestaShop\Adapter\SymfonyContainer::getInstance()
+                    ->get('twig')
+                    ->render('@Modules/ps_accounts/views/templates/backoffice/update_url_warning.twig');
     }
 
     /**
@@ -426,5 +469,13 @@ class Ps_accounts extends Module
     public function getHookToInstall()
     {
         return $this->hookToInstall;
+    }
+
+    /**
+     * @return array
+     */
+    public function getHookToAdd()
+    {
+        return $this->newHooks;
     }
 }
