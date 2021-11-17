@@ -1,0 +1,5 @@
+{% extends 'PrestaShopBundle:Admin/Configure/ShopParameters/TrafficSeo/Meta/Blocks:shop_urls_configuration.html.twig' %}
+{% block shop_urls_configuration %}
+  {{ renderhook('displayAccountUpdateWarning') }}
+  {{ parent() }}
+{% endblock %}
