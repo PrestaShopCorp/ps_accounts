@@ -60,7 +60,7 @@ class Ps_accounts extends Module
             'name' => 'displayAccountUpdateWarning',
             'title' => 'Display account update warning',
             'description' => 'Show a warning message when the user wants to'
-                + ' update his shop configuration',
+                . ' update his shop configuration',
             'position' => 1,
         ]
     ];
