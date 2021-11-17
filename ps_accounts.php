@@ -41,7 +41,6 @@ class Ps_accounts extends Module
      * @var array
      */
     private $hookToInstall = [
-        'displayAdminForm',
         'displayBackOfficeHeader',
         'actionObjectShopAddAfter',
         'actionObjectShopUpdateAfter',
@@ -49,7 +48,6 @@ class Ps_accounts extends Module
         'actionObjectShopUrlUpdateAfter',
         'displayDashboardTop',
         'displayAccountUpdateWarning',
-        //'addWebserviceResources',
     ];
 
     /**
@@ -58,13 +56,13 @@ class Ps_accounts extends Module
      * @var array
      */
     private $newHooks = [
-      [
-          'name' => 'displayAccountUpdateWarning',
-          'title' => 'Display account update warning',
-          'description' => 'Show a warning message when the user wants to'
-            + ' update his shop configuration',
-          'position' => 1,
-      ]
+        [
+            'name' => 'displayAccountUpdateWarning',
+            'title' => 'Display account update warning',
+            'description' => 'Show a warning message when the user wants to'
+                + ' update his shop configuration',
+            'position' => 1,
+        ]
     ];
 
     /**
@@ -204,7 +202,7 @@ class Ps_accounts extends Module
         if (null === $this->serviceContainer) {
             //$this->serviceContainer = new \PrestaShop\ModuleLibServiceContainer\DependencyInjection\ServiceContainer(
             $this->serviceContainer = new \PrestaShop\Module\PsAccounts\DependencyInjection\ServiceContainer(
-                // append version number to force cache generation (1.6 Core won't clear it)
+            // append version number to force cache generation (1.6 Core won't clear it)
                 $this->name . str_replace(['.', '-'], '', $this->version),
                 $this->getLocalPath(),
                 $this->getModuleEnv()
@@ -267,8 +265,10 @@ class Ps_accounts extends Module
      */
     public function hookDisplayBackOfficeHeader($params)
     {
+        /** @var \PrestaShop\Module\PsAccounts\Context\ShopContext $shopContext */
         $shopContext = $this->getService(\PrestaShop\Module\PsAccounts\Context\ShopContext::class);
 
+        // Multistore On/Off switch
         if ('AdminPreferences' === $this->context->controller->controller_name || !$shopContext->isShop17()) {
             $this->switchConfigMultishopMode();
         }
@@ -281,9 +281,18 @@ class Ps_accounts extends Module
      *
      * @throws Exception
      */
-    public function hookDisplayAdminForm($params)
+    public function hookDisplayDashboardTop($params)
     {
-        $this->switchConfigMultishopMode();
+        /** @var \PrestaShop\Module\PsAccounts\Service\PsAccountsService $psAccountsService */
+        $psAccountsService = $this->getService(\PrestaShop\Module\PsAccounts\Service\PsAccountsService::class);
+
+        if ($psAccountsService->isAccountLinked()
+            && 'AdminShopUrl' === $_GET['controller']
+            && isset($_GET['updateshop_url'])
+        )
+            return PrestaShop\PrestaShop\Adapter\SymfonyContainer::getInstance()
+                ->get('twig')
+                ->render('@Modules/ps_accounts/views/templates/backoffice/update_url_warning.twig');
     }
 
     /**
@@ -293,7 +302,27 @@ class Ps_accounts extends Module
      *
      * @throws Exception
      */
-    public function hookDisplayDashboardTop($params)
+    public function hookDisplayAccountUpdateWarning()
+    {
+        /** @var \PrestaShop\Module\PsAccounts\Service\PsAccountsService $psAccountsService */
+        $psAccountsService = $this->getService(\PrestaShop\Module\PsAccounts\Service\PsAccountsService::class);
+
+        if ($psAccountsService->isAccountLinked())
+            // I don't load with $this->get('twig') since i had this error https://github.com/PrestaShop/PrestaShop/issues/20505
+            // Some users may have the same and couldn't render the configuration page
+            return PrestaShop\PrestaShop\Adapter\SymfonyContainer::getInstance()
+                ->get('twig')
+                ->render('@Modules/ps_accounts/views/templates/backoffice/update_url_warning.twig');
+    }
+
+    /**
+     * @param array $params
+     *
+     * @return bool
+     *
+     * @throws Exception
+     */
+    public function hookActionObjectShopUrlUpdateAfter($params)
     {
         if ($params['object']->main) {
             /** @var \PrestaShop\Module\PsAccounts\Api\Client\AccountsClient $accountsApi */
@@ -329,36 +358,8 @@ class Ps_accounts extends Module
                 );
             }
         }
-        /** @var \PrestaShop\Module\PsAccounts\Service\PsAccountsService $psAccountsService */
-        $psAccountsService = $this->getService(\PrestaShop\Module\PsAccounts\Service\PsAccountsService::class);
 
-        if ($psAccountsService->isAccountLinked()
-            && 'AdminShopUrl' === $_GET['controller']
-            && isset($_GET['updateshop_url'])
-        )
-            return PrestaShop\PrestaShop\Adapter\SymfonyContainer::getInstance()
-                    ->get('twig')
-                    ->render('@Modules/ps_accounts/views/templates/backoffice/update_url_warning.twig');
-    }
-
-    /**
-     * @param array $params
-     *
-     * @return void
-     *
-     * @throws Exception
-     */
-    public function hookDisplayAccountUpdateWarning()
-    {
-        /** @var \PrestaShop\Module\PsAccounts\Service\PsAccountsService $psAccountsService */
-        $psAccountsService = $this->getService(\PrestaShop\Module\PsAccounts\Service\PsAccountsService::class);
-
-        if ($psAccountsService->isAccountLinked())
-            // I don't load with $this->get('twig') since i had this error https://github.com/PrestaShop/PrestaShop/issues/20505
-            // Some users may have the same and couldn't render the configuration page
-            return PrestaShop\PrestaShop\Adapter\SymfonyContainer::getInstance()
-                    ->get('twig')
-                    ->render('@Modules/ps_accounts/views/templates/backoffice/update_url_warning.twig');
+        return true;
     }
 
     /**
@@ -369,6 +370,20 @@ class Ps_accounts extends Module
      * @throws Exception
      */
     public function hookActionObjectShopAddAfter($params)
+    {
+        $this->switchConfigMultishopMode();
+
+        return true;
+    }
+
+    /**
+     * @param array $params
+     *
+     * @return bool
+     *
+     * @throws Exception
+     */
+    public function hookActionObjectShopUpdateAfter($params)
     {
         /** @var \PrestaShop\Module\PsAccounts\Api\Client\AccountsClient $accountsApi */
         $accountsApi = $this->getService(
@@ -399,9 +414,6 @@ class Ps_accounts extends Module
                 'Error trying to PATCH shop : ' . $response['httpCode'] .
                 ' ' . print_r($response['body']['message'], true)
             );
-            if ($this->context->controller->controller_name === 'AdminShop') {
-                $this->switchConfigMultishopMode();
-            }
         }
 
         return true;
