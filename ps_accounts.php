@@ -265,9 +265,13 @@ class Ps_accounts extends Module
      *
      * @throws Exception
      */
-    public function hookDisplayAdminForm($params)
+    public function hookDisplayBackOfficeHeader($params)
     {
-        $this->switchConfigMultishopMode();
+        $shopContext = $this->getService(\PrestaShop\Module\PsAccounts\Context\ShopContext::class);
+
+        if ('AdminPreferences' === $this->context->controller->controller_name || !$shopContext->isShop17()) {
+            $this->switchConfigMultishopMode();
+        }
     }
 
     /**
@@ -277,11 +281,9 @@ class Ps_accounts extends Module
      *
      * @throws Exception
      */
-    public function hookDisplayBackOfficeHeader($params)
+    public function hookDisplayAdminForm($params)
     {
-        if ($this->context->controller->controller_name !== 'AdminPreferences') {
-            $this->switchConfigMultishopMode();
-        }
+        $this->switchConfigMultishopMode();
     }
 
     /**
