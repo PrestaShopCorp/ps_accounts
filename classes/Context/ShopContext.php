@@ -121,7 +121,7 @@ class ShopContext
      */
     public function getShopIdFromShopUrlId($idShopUrl)
     {
-        return \Db::getInstance()->getValue('SELECT id_shop FROM `' . _DB_PREFIX_ . 'shop_url` WHERE `id_shop_url` = ' . (int)$idShopUrl);
+        return (int)\Db::getInstance()->getValue('SELECT id_shop FROM `' . _DB_PREFIX_ . 'shop_url` WHERE `id_shop_url` = ' . (int)$idShopUrl);
     }
 
     /**

@@ -155,11 +155,11 @@ class Ps_accounts extends Module
     public function install()
     {
         $installer = new PrestaShop\Module\PsAccounts\Module\Install($this, Db::getInstance());
-        $this->addCustomHooks($this->customHooks);
 
         $status = $installer->installInMenu()
             //&& $installer->installDatabaseTables()
             && parent::install()
+            && $this->addCustomHooks($this->customHooks)
             && $this->registerHook($this->hookToInstall);
 
         // Removed controller
@@ -222,17 +222,28 @@ class Ps_accounts extends Module
         return $this->serviceContainer->getContainer()->getParameter($name);
     }
 
+    /**
+     * @param array $customHooks
+     *
+     * @return bool
+     */
     public function addCustomHooks($customHooks) {
+        $ret = true;
+
         foreach ($customHooks as $customHook) {
+            $verify = true;
             if (Hook::getIdByName($customHook['name']) === false) {
                 $hook = new Hook();
                 $hook->name = $customHook['name'];
                 $hook->title = $customHook['title'];
                 $hook->description = $customHook['description'];
                 $hook->position = $customHook['position'];
-                $hook->add(); // return true on success
+                $verify = $hook->add(); // return true on success
             }
+            $ret = $ret && $verify;
         }
+
+        return $ret;
     }
 
 //    /**
@@ -277,7 +288,7 @@ class Ps_accounts extends Module
     /**
      * @param array $params
      *
-     * @return void
+     * @return mixed
      *
      * @throws Exception
      */
@@ -299,22 +310,19 @@ class Ps_accounts extends Module
             $actualShopId = $configuration->getIdShop();
             $configuration->setIdShop($shopId);
 
+            $configuration->setIdShop($actualShopId);
             if ($accountsService->isAccountLinked())
             {
-                $configuration->setIdShop($actualShopId);
                 return PrestaShop\PrestaShop\Adapter\SymfonyContainer::getInstance()
                     ->get('twig')
                     ->render('@Modules/ps_accounts/views/templates/backoffice/update_url_warning.twig');
             }
 
-            $configuration->setIdShop($actualShopId);
         }
     }
 
     /**
-     * @param array $params
-     *
-     * @return void
+     * @return mixed
      *
      * @throws Exception
      */
