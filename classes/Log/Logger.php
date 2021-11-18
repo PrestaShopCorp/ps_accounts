@@ -1,4 +1,5 @@
-{**
+<?php
+/**
  * Copyright since 2007 PrestaShop SA and Contributors
  * PrestaShop is an International Registered Trademark & Property of PrestaShop SA
  *
@@ -15,21 +16,25 @@
  * @author    PrestaShop SA and Contributors <contact@prestashop.com>
  * @copyright Since 2007 PrestaShop SA and Contributors
  * @license   https://opensource.org/licenses/AFL-3.0 Academic Free License version 3.0
- *}
+ */
 
-<link href="{$pathVendor|escape:'htmlall':'UTF-8'}" rel=preload as=script>
-<link href="{$pathApp|escape:'htmlall':'UTF-8'}" rel=preload as=script>
 
-<div id="app"></div>
+namespace PrestaShop\Module\PsAccounts\Log;
 
-<script src="{$pathVendor|escape:'htmlall':'UTF-8'}"></script>
-<script src="{$pathApp|escape:'htmlall':'UTF-8'}"></script>
-<script src="{$urlAccountsVueCdn|escape:'htmlall':'UTF-8'}" type="text/javascript"></script>
+use Ps_accounts;
 
-<style>
-  /** Hide native multistore module activation panel, because of visual regressions on non-bootstrap content */
-  #content.nobootstrap div.bootstrap.panel {
-    display: none;
-  }
-</style>
+class Logger
+{
+    /**
+     * @return \Monolog\Logger
+     *
+     * @throws \Exception
+     */
+    public static function getInstance()
+    {
+        /** @var Ps_accounts $psAccounts */
+        $psAccounts = \Module::getInstanceByName('ps_accounts');
 
+        return $psAccounts->getLogger();
+    }
+}

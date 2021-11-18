@@ -25,18 +25,13 @@ use Lcobucci\JWT\Token;
 use Lcobucci\JWT\Token\InvalidTokenStructure;
 use PrestaShop\Module\PsAccounts\Api\Client\SsoClient;
 use PrestaShop\Module\PsAccounts\Exception\RefreshTokenException;
-use PrestaShop\Module\PsAccounts\Handler\Error\Sentry;
+use PrestaShop\Module\PsAccounts\Log\Logger;
 
 /**
  * Class PsAccountsService
  */
 class UserTokenRepository
 {
-    /**
-     * @var SsoClient
-     */
-    private $ssoClient;
-
     /**
      * @var ConfigurationRepository
      */
@@ -45,14 +40,11 @@ class UserTokenRepository
     /**
      * PsAccountsService constructor.
      *
-     * @param SsoClient $ssoClient
      * @param ConfigurationRepository $configuration
      */
     public function __construct(
-        SsoClient $ssoClient,
         ConfigurationRepository $configuration
     ) {
-        $this->ssoClient = $ssoClient;
         $this->configuration = $configuration;
     }
 
@@ -67,13 +59,15 @@ class UserTokenRepository
     {
         if (true === $forceRefresh || $this->isTokenExpired()) {
             $refreshToken = $this->getRefreshToken();
-            try {
-                $this->updateCredentials(
-                    (string) $this->refreshToken($refreshToken),
-                    $refreshToken
-                );
-            } catch (RefreshTokenException $e) {
-                Sentry::capture($e);
+            if (is_string($refreshToken) && '' != $refreshToken) {
+                try {
+                    $this->updateCredentials(
+                        (string) $this->refreshToken($refreshToken),
+                        $refreshToken
+                    );
+                } catch (RefreshTokenException $e) {
+                    Logger::getInstance()->debug($e);
+                }
             }
         }
 
@@ -90,7 +84,7 @@ class UserTokenRepository
      */
     public function verifyToken($idToken, $refreshToken)
     {
-        $response = $this->ssoClient->verifyToken($idToken);
+        $response = $this->getSsoClient()->verifyToken($idToken);
 
         if ($response && true === $response['status']) {
             return $this->parseToken($idToken);
@@ -108,7 +102,7 @@ class UserTokenRepository
      */
     public function refreshToken($refreshToken)
     {
-        $response = $this->ssoClient->refreshToken($refreshToken);
+        $response = $this->getSsoClient()->refreshToken($refreshToken);
 
         if ($response && true === $response['status']) {
             return $this->parseToken($response['body']['idToken']);
@@ -160,14 +154,14 @@ class UserTokenRepository
         $token = $this->getToken();
 
         // FIXME : just query sso api and don't refresh token everytime
-        if (null === $token || !$token->claims()->get('email_verified')) {
+        if (null !== $token && !$token->claims()->get('email_verified')) {
             try {
                 $token = $this->getOrRefreshToken(true);
             } catch (RefreshTokenException $e) {
             }
         }
 
-        return null !== $token ? (bool) $token->claims()->get('email_verified') : false;
+        return null !== $token && (bool) $token->claims()->get('email_verified');
     }
 
     /**
@@ -225,5 +219,18 @@ class UserTokenRepository
         $this->configuration->updateUserFirebaseRefreshToken('');
         $this->configuration->updateFirebaseEmail('');
         //$this->configuration->updateFirebaseEmailIsVerified(false);
+    }
+
+    /**
+     * @return SsoClient
+     *
+     * @throws \Exception
+     */
+    private function getSsoClient()
+    {
+        /** @var \Ps_accounts $module */
+        $module = \Module::getInstanceByName('ps_accounts');
+
+        return $module->getService(SsoClient::class);
     }
 }

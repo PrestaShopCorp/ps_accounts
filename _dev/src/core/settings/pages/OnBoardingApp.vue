@@ -17,15 +17,13 @@
  * International Registered Trademark & Property of PrestaShop SA
  *-->
 <template>
-  <div class="pt-5">
-    <section>
+  <div class="pt-5 onboarding">
+    <section class="onboarding-header">
       <ConfigInformation :app="app" />
     </section>
 
-    <section>
-      <div class="m-auto p-0 container">
-        <PsAccounts :force-show-plans="true" />
-      </div>
+    <section class="onboarding-content">
+      <PsAccounts :force-show-plans="true" />
     </section>
   </div>
 </template>
@@ -33,13 +31,17 @@
 <script>
 /* eslint-disable */
 import ConfigInformation from "@/core/app/components/panel/ConfigInformation";
-import { PsAccounts } from "prestashop_accounts_vue_components";
 import { mapSagas } from "@/lib/store-saga";
+
+let PsAccounts = window?.psaccountsVue?.PsAccounts;
+if (!PsAccounts) {
+  PsAccounts = require('prestashop_accounts_vue_components').PsAccounts;
+}
 
 export default {
   components: {
-    PsAccounts,
     ConfigInformation,
+    PsAccounts,
   },
   methods: {
     ...mapSagas({
@@ -95,8 +97,18 @@ export default {
 };
 </script>
 
-<style scoped>
-section {
-  margin-bottom: 35px;
+<style lang="scss" scoped>
+.onboarding {
+  @apply max-w-screen-lg mx-auto #{!important};
+
+  &-header {
+    @apply mb-2 #{!important};
+  }
+
+  @screen md {
+    &-header {
+      @apply mb-4 #{!important};
+    }
+  }
 }
 </style>
