@@ -116,6 +116,10 @@ class ShopLinkAccountService
         $this->shopTokenRepository->cleanupCredentials();
         $this->userTokenRepository->cleanupCredentials();
         $this->configuration->updateEmployeeId('');
+        try {
+            $this->rsaKeysProvider->generateKeys();
+        } catch (\Exception $e) {
+        }
     }
 
     /**
