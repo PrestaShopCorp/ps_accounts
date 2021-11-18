@@ -202,7 +202,7 @@ class Ps_accounts extends Module
         if (null === $this->serviceContainer) {
             //$this->serviceContainer = new \PrestaShop\ModuleLibServiceContainer\DependencyInjection\ServiceContainer(
             $this->serviceContainer = new \PrestaShop\Module\PsAccounts\DependencyInjection\ServiceContainer(
-            // append version number to force cache generation (1.6 Core won't clear it)
+                // append version number to force cache generation (1.6 Core won't clear it)
                 $this->name . str_replace(['.', '-'], '', $this->version),
                 $this->getLocalPath(),
                 $this->getModuleEnv()
@@ -283,16 +283,33 @@ class Ps_accounts extends Module
      */
     public function hookDisplayDashboardTop($params)
     {
-        /** @var \PrestaShop\Module\PsAccounts\Service\PsAccountsService $psAccountsService */
-        $psAccountsService = $this->getService(\PrestaShop\Module\PsAccounts\Service\PsAccountsService::class);
 
-        if ($psAccountsService->isAccountLinked()
-            && 'AdminShopUrl' === $_GET['controller']
-            && isset($_GET['updateshop_url'])
-        )
-            return PrestaShop\PrestaShop\Adapter\SymfonyContainer::getInstance()
-                ->get('twig')
-                ->render('@Modules/ps_accounts/views/templates/backoffice/update_url_warning.twig');
+        if ('AdminShopUrl' === $_GET['controller'] && isset($_GET['updateshop_url']))
+        {
+            /** @var \PrestaShop\Module\PsAccounts\Context\ShopContext $shopContext */
+            $shopContext = $this->getService(\PrestaShop\Module\PsAccounts\Context\ShopContext::class);
+
+            /** @var \PrestaShop\Module\PsAccounts\Service\PsAccountsService $accountsService */
+            $accountsService = $this->getService(\PrestaShop\Module\PsAccounts\Service\PsAccountsService::class);
+
+            /** @var \PrestaShop\Module\PsAccounts\Adapter\Configuration $configuration */
+            $configuration = $this->getService(\PrestaShop\Module\PsAccounts\Adapter\Configuration::class);
+
+            $shopId = $shopContext->getShopIdFromShopUrlId((int) $_GET['id_shop_url']);
+
+            $actualShopId = $configuration->getIdShop();
+            $configuration->setIdShop($shopId);
+
+            if ($accountsService->isAccountLinked())
+            {
+                $configuration->setIdShop($actualShopId);
+                return PrestaShop\PrestaShop\Adapter\SymfonyContainer::getInstance()
+                    ->get('twig')
+                    ->render('@Modules/ps_accounts/views/templates/backoffice/update_url_warning.twig');
+            }
+
+            $configuration->setIdShop($actualShopId);
+        }
     }
 
     /**

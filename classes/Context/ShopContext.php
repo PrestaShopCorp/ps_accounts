@@ -22,6 +22,7 @@ namespace PrestaShop\Module\PsAccounts\Context;
 
 use Context;
 use PrestaShop\Module\PsAccounts\Repository\ConfigurationRepository;
+use PrestaShop\Module\PsAccounts\Repository\UserTokenRepository;
 
 /**
  * Get the shop context
@@ -34,6 +35,11 @@ class ShopContext
     private $configuration;
 
     /**
+     * @var UserTokenRepository
+     */
+    private $userTokenRepository;
+
+    /**
      * @var Context
      */
     private $context;
@@ -42,13 +48,16 @@ class ShopContext
      * ShopContext constructor.
      *
      * @param ConfigurationRepository $configuration
+     * @param UserTokenRepository $userTokenRepository
      * @param Context $context
      */
     public function __construct(
         ConfigurationRepository $configuration,
+        UserTokenRepository $userTokenRepository,
         Context $context
     ) {
         $this->configuration = $configuration;
+        $this->userTokenRepository = $userTokenRepository;
         $this->context = $context;
     }
 
@@ -69,6 +78,32 @@ class ShopContext
     }
 
     /**
+     * @return int
+     */
+    public function getShopContext()
+    {
+        return \Shop::getContext();
+    }
+
+    /**
+     * ID of shop or group
+     *
+     * @return int|null
+     */
+    public function getShopContextId()
+    {
+        if (\Shop::getContext() == \Shop::CONTEXT_SHOP) {
+            return \Shop::getContextShopID();
+        }
+
+        if (\Shop::getContext() == \Shop::CONTEXT_GROUP) {
+            return \Shop::getContextShopGroupID();
+        }
+
+        return null;
+    }
+
+    /**
      * @return bool
      */
     public function isShopContext()
@@ -78,6 +113,15 @@ class ShopContext
         }
 
         return true;
+    }
+
+    /**
+     * @param int $idShopUrl
+     * @return int
+     */
+    public function getShopIdFromShopUrlId($idShopUrl)
+    {
+        return \Db::getInstance()->getValue('SELECT id_shop FROM `' . _DB_PREFIX_ . 'shop_url` WHERE `id_shop_url` = ' . (int)$idShopUrl);
     }
 
     /**
@@ -150,5 +194,13 @@ class ShopContext
             return $result;
         }
         throw $exception;
+    }
+
+    /**
+     * @return UserTokenRepository
+     */
+    public function getUserToken()
+    {
+        return $this->userTokenRepository;
     }
 }
