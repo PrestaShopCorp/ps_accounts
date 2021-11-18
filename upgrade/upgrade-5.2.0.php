@@ -9,7 +9,7 @@
  */
 function upgrade_module_5_2_0($module)
 {
-    $module->addNewHooks($module->getHookToAdd());
+    $module->addCustomHooks($module->getCustomHooks());
     $module->registerHook($module->getHookToInstall());
 
     return true;

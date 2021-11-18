@@ -55,7 +55,7 @@ class Ps_accounts extends Module
      *
      * @var array
      */
-    private $newHooks = [
+    private $customHooks = [
         [
             'name' => 'displayAccountUpdateWarning',
             'title' => 'Display account update warning',
@@ -155,7 +155,7 @@ class Ps_accounts extends Module
     public function install()
     {
         $installer = new PrestaShop\Module\PsAccounts\Module\Install($this, Db::getInstance());
-        $this->addNewHooks($this->newHooks);
+        $this->addCustomHooks($this->customHooks);
 
         $status = $installer->installInMenu()
             //&& $installer->installDatabaseTables()
@@ -222,14 +222,14 @@ class Ps_accounts extends Module
         return $this->serviceContainer->getContainer()->getParameter($name);
     }
 
-    public function addNewHooks($newHooks) {
-        foreach ($newHooks as $newHook) {
-            if (!Hook::getIdByName($newHook['name'])) {
+    public function addCustomHooks($customHooks) {
+        foreach ($customHooks as $customHook) {
+            if (Hook::getIdByName($customHook['name']) === false) {
                 $hook = new Hook();
-                $hook->name = $newHook['name'];
-                $hook->title = $newHook['title'];
-                $hook->description = $newHook['description'];
-                $hook->position = $newHook['position'];
+                $hook->name = $customHook['name'];
+                $hook->title = $customHook['title'];
+                $hook->description = $customHook['description'];
+                $hook->position = $customHook['position'];
                 $hook->add(); // return true on success
             }
         }
@@ -283,7 +283,6 @@ class Ps_accounts extends Module
      */
     public function hookDisplayDashboardTop($params)
     {
-
         if ('AdminShopUrl' === $_GET['controller'] && isset($_GET['updateshop_url']))
         {
             /** @var \PrestaShop\Module\PsAccounts\Context\ShopContext $shopContext */
@@ -568,8 +567,8 @@ class Ps_accounts extends Module
     /**
      * @return array
      */
-    public function getHookToAdd()
+    public function getCustomHooks()
     {
-        return $this->newHooks;
+        return $this->customHooks;
     }
 }
