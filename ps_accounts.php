@@ -233,7 +233,7 @@ class Ps_accounts extends Module
 
         foreach ($customHooks as $customHook) {
             $verify = true;
-            if ((bool)Hook::getIdByName($customHook['name']) === false) {
+            if ((bool) Hook::getIdByName($customHook['name']) === false) {
                 $hook = new Hook();
                 $hook->name = $customHook['name'];
                 $hook->title = $customHook['title'];
