@@ -62,7 +62,7 @@ class Ps_accounts extends Module
             'description' => 'Show a warning message when the user wants to'
                 . ' update his shop configuration',
             'position' => 1,
-        ]
+        ],
     ];
 
     /**
@@ -227,7 +227,8 @@ class Ps_accounts extends Module
      *
      * @return bool
      */
-    public function addCustomHooks($customHooks) {
+    public function addCustomHooks($customHooks)
+    {
         $ret = true;
 
         foreach ($customHooks as $customHook) {
@@ -294,8 +295,7 @@ class Ps_accounts extends Module
      */
     public function hookDisplayDashboardTop($params)
     {
-        if ('AdminShopUrl' === $_GET['controller'] && isset($_GET['updateshop_url']))
-        {
+        if ('AdminShopUrl' === $_GET['controller'] && isset($_GET['updateshop_url'])) {
             /** @var \PrestaShop\Module\PsAccounts\Context\ShopContext $shopContext */
             $shopContext = $this->getService(\PrestaShop\Module\PsAccounts\Context\ShopContext::class);
 
@@ -311,13 +311,12 @@ class Ps_accounts extends Module
             $configuration->setIdShop($shopId);
 
             $configuration->setIdShop($actualShopId);
-            if ($accountsService->isAccountLinked())
-            {
+            if ($accountsService->isAccountLinked()) {
+                /* @phpstan-ignore-next-line */
                 return PrestaShop\PrestaShop\Adapter\SymfonyContainer::getInstance()
                     ->get('twig')
                     ->render('@Modules/ps_accounts/views/templates/backoffice/update_url_warning.twig');
             }
-
         }
     }
 
@@ -331,12 +330,14 @@ class Ps_accounts extends Module
         /** @var \PrestaShop\Module\PsAccounts\Service\PsAccountsService $psAccountsService */
         $psAccountsService = $this->getService(\PrestaShop\Module\PsAccounts\Service\PsAccountsService::class);
 
-        if ($psAccountsService->isAccountLinked())
+        if ($psAccountsService->isAccountLinked()) {
             // I don't load with $this->get('twig') since i had this error https://github.com/PrestaShop/PrestaShop/issues/20505
             // Some users may have the same and couldn't render the configuration page
+            /* @phpstan-ignore-next-line */
             return PrestaShop\PrestaShop\Adapter\SymfonyContainer::getInstance()
                 ->get('twig')
                 ->render('@Modules/ps_accounts/views/templates/backoffice/update_url_warning.twig');
+        }
     }
 
     /**
