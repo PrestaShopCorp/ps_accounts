@@ -170,6 +170,14 @@ class ShopContext
     }
 
     /**
+     * @return UserTokenRepository
+     */
+    public function getUserToken()
+    {
+        return $this->userTokenRepository;
+    }
+
+    /**
      * @param int $shopId
      * @param \Closure $closure
      *
@@ -195,13 +203,5 @@ class ShopContext
             return $result;
         }
         throw $exception;
-    }
-
-    /**
-     * @return UserTokenRepository
-     */
-    public function getUserToken()
-    {
-        return $this->userTokenRepository;
     }
 }
