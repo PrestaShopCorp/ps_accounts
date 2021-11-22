@@ -204,12 +204,4 @@ class ShopContext
         }
         throw $exception;
     }
-
-    /**
-     * @return UserTokenRepository
-     */
-    public function getUserToken()
-    {
-        return $this->userTokenRepository;
-    }
 }
