@@ -22,6 +22,7 @@ namespace PrestaShop\Module\PsAccounts\Context;
 
 use Context;
 use PrestaShop\Module\PsAccounts\Repository\ConfigurationRepository;
+use PrestaShop\Module\PsAccounts\Repository\UserTokenRepository;
 
 /**
  * Get the shop context
@@ -34,6 +35,11 @@ class ShopContext
     private $configuration;
 
     /**
+     * @var UserTokenRepository
+     */
+    private $userTokenRepository;
+
+    /**
      * @var Context
      */
     private $context;
@@ -42,13 +48,16 @@ class ShopContext
      * ShopContext constructor.
      *
      * @param ConfigurationRepository $configuration
+     * @param UserTokenRepository $userTokenRepository
      * @param Context $context
      */
     public function __construct(
         ConfigurationRepository $configuration,
+        UserTokenRepository $userTokenRepository,
         Context $context
     ) {
         $this->configuration = $configuration;
+        $this->userTokenRepository = $userTokenRepository;
         $this->context = $context;
     }
 
@@ -66,6 +75,32 @@ class ShopContext
     public function isShop173()
     {
         return version_compare(_PS_VERSION_, '1.7.3.0', '>=');
+    }
+
+    /**
+     * @return int
+     */
+    public function getShopContext()
+    {
+        return \Shop::getContext();
+    }
+
+    /**
+     * ID of shop or group
+     *
+     * @return int|null
+     */
+    public function getShopContextId()
+    {
+        if (\Shop::getContext() == \Shop::CONTEXT_SHOP) {
+            return \Shop::getContextShopID();
+        }
+
+        if (\Shop::getContext() == \Shop::CONTEXT_GROUP) {
+            return \Shop::getContextShopGroupID();
+        }
+
+        return null;
     }
 
     /**
@@ -122,6 +157,14 @@ class ShopContext
     public function getConfiguration()
     {
         return $this->configuration;
+    }
+
+    /**
+     * @return UserTokenRepository
+     */
+    public function getUserToken()
+    {
+        return $this->userTokenRepository;
     }
 
     /**

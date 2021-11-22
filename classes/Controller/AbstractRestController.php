@@ -101,6 +101,8 @@ abstract class AbstractRestController extends \ModuleFrontController implements 
      */
     public function dieWithResponseJson(array $response, $httpResponseCode = null)
     {
+        ob_end_clean();
+
         if (is_integer($httpResponseCode)) {
             http_response_code($httpResponseCode);
         }
