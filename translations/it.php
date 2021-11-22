@@ -19,12 +19,12 @@
  */
 global $_MODULE;
 $_MODULE = [];
-$_MODULE['<{ps_accounts}prestashop>ps_accounts_40047b296fb8a4952e0512c7184e1ca3'] = 'PrestaShop Account';
-$_MODULE['<{ps_accounts}prestashop>ps_accounts_9006e8a0d8ca7f627146d32bc9c0eb73'] = 'Associate your shop with your PrestaShop account to activate and manage your subscriptions in your back office. Do not uninstall this module if you have a current subscription.';
-$_MODULE['<{ps_accounts}prestashop>ps_accounts_ceeadaf870d9eaa81cf1fbe32614af64'] = 'This action will prevent immediately your PrestaShop services and Community services from working as they are using PrestaShop Accounts module for authentication.';
-$_MODULE['<{ps_accounts}prestashop>settingstranslations_f4f70727dc34561dfde1a3c529b6205c'] = 'Settings';
-$_MODULE['<{ps_accounts}prestashop>settingstranslations_6a26f548831e6a8c26bfbbd9f6ec61e0'] = 'Help';
-$_MODULE['<{ps_accounts}prestashop>settingstranslations_b7ca62f12bc3b8e0d6422c028473a265'] = 'Your PrestaShop account';
-$_MODULE['<{ps_accounts}prestashop>settingstranslations_518d650937979216a269cf9830a7b484'] = 'One account to manage all your PrestaShop shops';
-$_MODULE['<{ps_accounts}prestashop>settingstranslations_655aa4af96bbb20cf78e14b560affb38'] = 'Create your PrestaShop account or login to your existing account';
-$_MODULE['<{ps_accounts}prestashop>settingstranslations_d23c41d498fe8587fb2f6ac563426dce'] = 'Associate your shop with your account';
+$_MODULE['<{ps_accounts}prestashop>ps_accounts_40047b296fb8a4952e0512c7184e1ca3'] = 'Account PrestaShop';
+$_MODULE['<{ps_accounts}prestashop>ps_accounts_9006e8a0d8ca7f627146d32bc9c0eb73'] = 'Associa il tuo negozio al tuo account PrestaShop per attivare e gestire i tuoi abbonamenti nel tuo back office. Non disinstallare questo modulo se hai un abbonamento in corso.';
+$_MODULE['<{ps_accounts}prestashop>ps_accounts_ceeadaf870d9eaa81cf1fbe32614af64'] = 'Questa azione impedirà immediatamente il funzionamento dei tuoi servizi PrestaShop e dei servizi della Comunità che utilizzano il modulo PrestaShop Accounts per l\'autenticazione.';
+$_MODULE['<{ps_accounts}prestashop>settingstranslations_f4f70727dc34561dfde1a3c529b6205c'] = 'Impostazioni';
+$_MODULE['<{ps_accounts}prestashop>settingstranslations_6a26f548831e6a8c26bfbbd9f6ec61e0'] = 'Aiuto';
+$_MODULE['<{ps_accounts}prestashop>settingstranslations_b7ca62f12bc3b8e0d6422c028473a265'] = 'Il tuo account PrestaShop';
+$_MODULE['<{ps_accounts}prestashop>settingstranslations_518d650937979216a269cf9830a7b484'] = 'Un solo account per gestire tutti i tuoi negozi PrestaShop';
+$_MODULE['<{ps_accounts}prestashop>settingstranslations_655aa4af96bbb20cf78e14b560affb38'] = 'Crea il tuo account PrestaShop o accedi al tuo account esistente';
+$_MODULE['<{ps_accounts}prestashop>settingstranslations_d23c41d498fe8587fb2f6ac563426dce'] = 'Collega il tuo negozio al tuo account';
