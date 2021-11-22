@@ -310,13 +310,14 @@ class Ps_accounts extends Module
             $actualShopId = $configuration->getIdShop();
             $configuration->setIdShop($shopId);
 
-            $configuration->setIdShop($actualShopId);
             if ($accountsService->isAccountLinked()) {
+                $configuration->setIdShop($actualShopId);
                 /* @phpstan-ignore-next-line */
                 return PrestaShop\PrestaShop\Adapter\SymfonyContainer::getInstance()
                     ->get('twig')
                     ->render('@Modules/ps_accounts/views/templates/backoffice/update_url_warning.twig');
             }
+            $configuration->setIdShop($actualShopId);
         }
     }
 
