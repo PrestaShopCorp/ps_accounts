@@ -287,18 +287,6 @@ class Ps_accounts extends Module
     }
 
     /**
-     * @param array $params
-     *
-     * @return void
-     *
-     * @throws Exception
-     */
-    public function hookActionAdminMetaControllerUpdate_optionsBefore($params)
-    {
-        file_put_contents('/ok', 'test');
-    }
-
-    /**
      * @return mixed
      *
      * @throws Exception
