@@ -12,6 +12,11 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v2.0.0
 
+      - name: Bump version
+        run: |
+          VERSION=$(echo "${{ github.event.release.tag_name }}" | sed 's/^v//' | cut -d'-' -f1) \
+          make version
+
       - name: Build JS dependencies
         uses: PrestaShopCorp/github-action-build-js/12@v1.0
         with:
@@ -23,13 +28,6 @@ jobs:
 
       - name: Clean-up project
         uses: PrestaShopCorp/github-action-clean-before-deploy@v1.0
-
-      - name: Bump version
-        run: |
-          VERSION=$(echo "${{ github.event.release.tag_name }}" | sed 's/^v//')
-          sed -i -e "s/\(VERSION = \).*/\1\'${VERSION}\';/" ps_accounts.php
-          sed -i -e "s/\($this->version = \).*/\1\'${VERSION}\';/" ps_accounts.php
-          sed -i -e 's|\(<version><!\[CDATA\[\)[0-9a-z\.\-]\{1,\}\]\]></version>|\1'$VERSION']]></version>|g' config.xml
 
       - name: Create & upload artifact
         uses: actions/upload-artifact@v1
