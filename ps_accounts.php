@@ -89,10 +89,10 @@ class Ps_accounts extends Module
 
         $this->moduleInstaller = $this->getService(\PrestaShop\Module\PsAccounts\Installer\Installer::class);
 
-        $this->displayName = $this->l('ps_accounts.display_name');
-        $this->description = $this->l('ps_accounts.description');
-        $this->description_full = $this->l('ps_accounts.description_full');
-        $this->confirmUninstall = $this->l('ps_accounts.confirm_uninstall');
+        $this->displayName = $this->l('PrestaShop Account');
+        $this->description = $this->l('Associate your shop with your PrestaShop account to activate and manage your subscriptions in your back office. Do not uninstall this module if you have a current subscription.');
+        $this->description_full = $this->l('Associate your shop with your PrestaShop account to activate and manage your subscriptions in your back office. Do not uninstall this module if you have a current subscription.');
+        $this->confirmUninstall = $this->l('This action will prevent immediately your PrestaShop services and Community services from working as they are using PrestaShop Accounts module for authentication.');
 
         $this->ps_versions_compliancy = ['min' => '1.6', 'max' => _PS_VERSION_];
 

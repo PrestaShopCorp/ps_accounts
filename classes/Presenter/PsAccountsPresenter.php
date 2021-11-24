@@ -121,6 +121,7 @@ class PsAccountsPresenter implements PresenterInterface
                     ],
                     'psxName' => $psxName,
                     'psIs17' => $shopContext->isShop17(),
+                    'psAccountsVersion' => $this->module->version,
 
                     /////////////////////////////
                     // InstallerPresenter
@@ -139,7 +140,7 @@ class PsAccountsPresenter implements PresenterInterface
 
                     // FIXME :  Mix "SSO user" with "Backend user"
                     'user' => [
-                        'uuid' => $this->psAccountsService->getUserUuidV4() ?: null,
+                        'uuid' => $this->psAccountsService->getUserUuid() ?: null,
                         'email' => $this->psAccountsService->getEmail() ?: null,
                         'emailIsValidated' => $this->psAccountsService->isEmailValidated(),
                         'isSuperAdmin' => $shopContext->getContext()->employee->isSuperAdmin(),

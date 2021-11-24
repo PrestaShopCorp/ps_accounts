@@ -53,15 +53,15 @@ class SettingsTranslations
 
         $translations[$locale] = [
             'general' => [
-                'settings' => $this->module->l('settings.settings', $class),
-                'help' => $this->module->l('settings.help', $class),
+                'settings' => $this->module->l('Settings', $class),
+                'help' => $this->module->l('Help', $class),
             ],
             'configure' => [
                 'incentivePanel' => [
-                    'title' => $this->module->l('settings.title', $class),
-                    'howTo' => $this->module->l('settings.sub_title', $class),
-                    'createPsAccount' => $this->module->l('settings.step_1', $class),
-                    'linkPsAccount' => $this->module->l('settings.step_2', $class),
+                    'title' => $this->module->l('Your PrestaShop account', $class),
+                    'howTo' => $this->module->l('One account to manage all your PrestaShop shops', $class),
+                    'createPsAccount' => $this->module->l('Create your PrestaShop account or login to your existing account', $class),
+                    'linkPsAccount' => $this->module->l('Associate your shop with your account', $class),
                 ],
             ],
         ];

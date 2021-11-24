@@ -1,0 +1,13 @@
+preserve_hierarchy: true
+commit_message: "[ci skip] fix: New (%language%) translations"
+append_commit_message: false
+pull_request_labels:
+  - translations
+files:
+  - source: /translations/en.php
+    dest: module.php
+    translation: /translations/%two_letters_code%.php
+    type: php
+    labels:
+      - psaccounts
+      - module
