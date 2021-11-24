@@ -17,6 +17,10 @@
  * International Registered Trademark & Property of PrestaShop SA
  */
 const path = require("path");
+const fs = require("fs");
+
+const packageJson = fs.readFileSync("./package.json");
+const version = JSON.parse(packageJson).version || 0;
 
 module.exports = {
   chainWebpack: (config) => {
@@ -24,6 +28,12 @@ module.exports = {
     config.plugins.delete("preload");
     config.plugins.delete("prefetch");
     config.resolve.alias.set("@", path.resolve(__dirname, "src"));
+  },
+  configureWebpack: {
+    output: {
+      filename: `js/[name].${version}.js`,
+      chunkFilename: `js/[name].${version}.js`
+    }
   },
   css: {
     extract: false,

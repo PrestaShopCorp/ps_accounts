@@ -36,10 +36,12 @@ views/files/*
 !views/files/.gitkeep
 
 ### Vuejs ignore build files ###
-/views/js/app.js
-/views/js/app.js.map
-/views/js/chunk-vendors.js
-/views/js/chunk-vendors.js.map
+/views/js/app*.js
+/views/js/app*.js.map
+/views/js/chunk-vendors*.js
+/views/js/chunk-vendors*.js.map
+/views/js/settings*.js
+/views/js/settingsOnBoarding*.js
 /views/css/index.css
 /views/css/chunk-vendors.css
 /views/favicon.ico
