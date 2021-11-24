@@ -29,3 +29,6 @@ $_MODULE['<{ps_accounts}prestashop>settingstranslations_f98a72bcebc86d1cdb536d4f
 $_MODULE['<{ps_accounts}prestashop>settingstranslations_3498492bdffcc04e709e154a74dd41d7'] = 'Un solo account per gestire tutti i tuoi negozi PrestaShop';
 $_MODULE['<{ps_accounts}prestashop>settingstranslations_77d3646d3307c9ec64022988a627e2c2'] = 'Crea il tuo account Prestashop o accedi al tuo account esistente';
 $_MODULE['<{ps_accounts}prestashop>settingstranslations_0bf8c9a75dc18d636083edc439957857'] = 'Collega il tuo negozio al tuo account';
+
+// Backoffice translation
+$_MODULE['<{ps_accounts}prestashop>ps_accounts_72cc870074ae5021261343a596097e10'] = 'This shop is linked to your Prestashop account. Unlink your shop if you do not want to impact your live settings.';

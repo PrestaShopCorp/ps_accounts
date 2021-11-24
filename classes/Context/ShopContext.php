@@ -116,6 +116,16 @@ class ShopContext
     }
 
     /**
+     * @param int $idShopUrl
+     *
+     * @return int
+     */
+    public function getShopIdFromShopUrlId($idShopUrl)
+    {
+        return (int) \Db::getInstance()->getValue('SELECT id_shop FROM `' . _DB_PREFIX_ . 'shop_url` WHERE `id_shop_url` = ' . (int) $idShopUrl);
+    }
+
+    /**
      * is multishop active "right now"
      *
      * @return bool
