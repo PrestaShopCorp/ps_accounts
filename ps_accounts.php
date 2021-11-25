@@ -28,7 +28,7 @@ class Ps_accounts extends Module
 
     // Needed in order to retrieve the module version easier (in api call headers) than instanciate
     // the module each time to get the version
-    const VERSION = '5.0.4';
+    const VERSION = '5.1.0';
 
     /**
      * @var array
@@ -81,7 +81,7 @@ class Ps_accounts extends Module
 
         // We cannot use the const VERSION because the const is not computed by addons marketplace
         // when the zip is uploaded
-        $this->version = '5.0.4';
+        $this->version = '5.1.0';
 
         $this->module_key = 'abf2cd758b4d629b2944d3922ef9db73';
 
@@ -89,10 +89,10 @@ class Ps_accounts extends Module
 
         $this->moduleInstaller = $this->getService(\PrestaShop\Module\PsAccounts\Installer\Installer::class);
 
-        $this->displayName = $this->l('ps_accounts.display_name');
-        $this->description = $this->l('ps_accounts.description');
-        $this->description_full = $this->l('ps_accounts.description_full');
-        $this->confirmUninstall = $this->l('ps_accounts.confirm_uninstall');
+        $this->displayName = $this->l('PrestaShop Account');
+        $this->description = $this->l('Associate your shop with your PrestaShop account to activate and manage your subscriptions in your back office. Do not uninstall this module if you have a current subscription.');
+        $this->description_full = $this->l('Associate your shop with your PrestaShop account to activate and manage your subscriptions in your back office. Do not uninstall this module if you have a current subscription.');
+        $this->confirmUninstall = $this->l('This action will prevent immediately your PrestaShop services and Community services from working as they are using PrestaShop Accounts module for authentication.');
 
         $this->ps_versions_compliancy = ['min' => '1.6', 'max' => _PS_VERSION_];
 
@@ -327,11 +327,9 @@ class Ps_accounts extends Module
      */
     protected function loadAssets($responseApiMessage = 'null', $countProperty = 0)
     {
-        /** @var Ps_accounts $module */
-        $module = \Module::getInstanceByName('ps_accounts');
-        $this->context->smarty->assign('pathVendor', $this->_path . 'views/js/chunk-vendors.js');
-        $this->context->smarty->assign('pathApp', $this->_path . 'views/js/app.js');
-        $this->context->smarty->assign('urlAccountsVueCdn', $module->getParameter('ps_accounts.accounts_vue_cdn_url'));
+        $this->context->smarty->assign('pathVendor', $this->_path . 'views/js/chunk-vendors.' . $this->version . '.js');
+        $this->context->smarty->assign('pathApp', $this->_path . 'views/js/app.' . $this->version . '.js');
+        $this->context->smarty->assign('urlAccountsVueCdn', $this->getParameter('ps_accounts.accounts_vue_cdn_url'));
 
         $storePresenter = new PrestaShop\Module\PsAccounts\Presenter\Store\StorePresenter($this, $this->context);
 

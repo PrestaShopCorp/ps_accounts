@@ -1,6 +1,6 @@
 {
   "name": "ps_accounts",
-  "version": "0.1.0",
+  "version": "5.1.0",
   "private": true,
   "scripts": {
     "dev": "vue-cli-service build --no-clean --mode development --watch",
@@ -23,7 +23,7 @@
     "moment": "^2.26.0",
     "moment-range": "^4.0.2",
     "prestakit": "^1.1.0",
-    "prestashop_accounts_vue_components": "^2.0.0",
+    "prestashop_accounts_vue_components": "^3.0.1",
     "regenerator-runtime": "^0.13.5",
     "tailwindcss": "^1.8.10",
     "tween.js": "^16.6.0",
