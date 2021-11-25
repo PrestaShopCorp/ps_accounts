@@ -5,10 +5,11 @@ namespace PrestaShop\Module\PsAccounts\Tests\Feature\Api\v1;
 use Lcobucci\JWT\Parser;
 use Lcobucci\JWT\Signer\Hmac\Sha256;
 use Lcobucci\JWT\Signer\Key;
+use PrestaShop\Module\PsAccounts\Controller\AbstractRestController;
 use PrestaShop\Module\PsAccounts\Provider\RsaKeysProvider;
 use PrestaShop\Module\PsAccounts\Tests\Feature\FeatureTestCase;
 
-class EncodePayloadTest extends FeatureTestCase
+class DecodePayloadTest extends FeatureTestCase
 {
     /**
      * @test
@@ -30,5 +31,50 @@ class EncodePayloadTest extends FeatureTestCase
         $this->assertTrue($jwt->verify(new Sha256(), new Key($shopKeysService->getPublicKey())));
 
         $this->assertArraySubset($jwt->claims()->all(), $payload);
+    }
+
+    /**
+     * @test
+     *
+     * @throws \Exception
+     */
+    public function itShouldDecodeMethod()
+    {
+        $response = $this->client->get('/module/ps_accounts/apiV1ShopUrl', [
+            'headers' => [
+                AbstractRestController::TOKEN_HEADER => $this->encodePayload([
+                    'shop_id' => 1,
+                ])
+            ],
+        ]);
+
+        $json = $response->json();
+
+        $this->module->getLogger()->info(print_r($json, true));
+
+        $this->assertResponseOk($response);
+    }
+
+    /**
+     * @test
+     *
+     * @throws \Exception
+     */
+    public function itShouldDecodeMethodFromPayload()
+    {
+        $response = $this->client->post('/module/ps_accounts/apiV1ShopUrl', [
+            'headers' => [
+                AbstractRestController::TOKEN_HEADER => $this->encodePayload([
+                    'method' => 'GET',
+                    'shop_id' => 1,
+                ])
+            ],
+        ]);
+
+        $json = $response->json();
+
+        $this->module->getLogger()->info(print_r($json, true));
+
+        $this->assertResponseOk($response);
     }
 }

@@ -22,7 +22,6 @@ namespace PrestaShop\Module\PsAccounts\Api\Client;
 
 use GuzzleHttp\Client;
 use PrestaShop\Module\PsAccounts\Adapter\Link;
-use PrestaShop\Module\PsAccounts\Configuration\ConfigOptionsResolver;
 use PrestaShop\Module\PsAccounts\Exception\OptionResolutionException;
 use PrestaShop\Module\PsAccounts\Provider\ShopProvider;
 use PrestaShop\Module\PsAccounts\Service\PsAccountsService;
@@ -54,8 +53,6 @@ class ServicesBillingClient extends GenericClient
     ) {
         parent::__construct();
 
-        $config = $this->resolveConfig(['api_url' => $apiUrl]);
-
         $shopId = $shopProvider->getCurrentShop()['id'];
 
         $token = $psAccountsService->getOrRefreshToken();
@@ -65,7 +62,7 @@ class ServicesBillingClient extends GenericClient
         // Client can be provided for tests
         if (null === $client) {
             $client = new Client([
-                'base_url' => $config['api_url'],
+                'base_url' => $apiUrl,
                 'defaults' => [
                     'timeout' => $this->timeout,
                     'exceptions' => $this->catchExceptions,
@@ -139,20 +136,5 @@ class ServicesBillingClient extends GenericClient
         return $this->post([
             'body' => $bodyHttp,
         ]);
-    }
-
-    /**
-     * @param array $config
-     * @param array $defaults
-     *
-     * @return array
-     *
-     * @throws OptionResolutionException
-     */
-    public function resolveConfig(array $config, array $defaults = [])
-    {
-        return (new ConfigOptionsResolver([
-            'api_url',
-        ]))->resolve($config, $defaults);
     }
 }
