@@ -19,16 +19,12 @@
  */
 global $_MODULE;
 $_MODULE = [];
-$_MODULE['<{ps_accounts}prestashop>ps_accounts_c12a064dbfebf675a89d7c916258ee86'] = 'Konto PrestaShop';
-$_MODULE['<{ps_accounts}prestashop>ps_accounts_89635180490c61910103399d55933738'] = 'Połącz swój sklep z kontem PrestaShop, aby aktywować i zarządzać subskrypcjami w swoim back office. Nie odinstalowuj tego modułu, jeśli masz aktualną subskrypcję.';
-$_MODULE['<{ps_accounts}prestashop>ps_accounts_0ca78537b8a4a8fbe7e58b00bcaeaa69'] = 'Połącz swój sklep z kontem PrestaShop, aby aktywować i zarządzać subskrypcjami w swoim back office. Nie odinstalowuj tego modułu, jeśli masz aktualną subskrypcję.';
-$_MODULE['<{ps_accounts}prestashop>ps_accounts_46c3a41d2feb9cd614cbc0606a91d472'] = 'This action will prevent immediately your PrestaShop services and Community services from working as they are using PrestaShop Accounts module for authentication.';
-$_MODULE['<{ps_accounts}prestashop>settingstranslations_3ae556b4e587c076e0a83035895a3023'] = 'Settings';
-$_MODULE['<{ps_accounts}prestashop>settingstranslations_19d7aeee5c0c2f5f35ac2e2ae188f5fb'] = 'Help';
-$_MODULE['<{ps_accounts}prestashop>settingstranslations_f98a72bcebc86d1cdb536d4f2321453d'] = 'Twoje konto PrestaShop';
-$_MODULE['<{ps_accounts}prestashop>settingstranslations_3498492bdffcc04e709e154a74dd41d7'] = 'Jedno konto do zarządzania wszystkimi subskrypcjami PrestaShop';
-$_MODULE['<{ps_accounts}prestashop>settingstranslations_77d3646d3307c9ec64022988a627e2c2'] = 'Utwórz konto Prestashop lub zaloguj się do istniejącego konta';
-$_MODULE['<{ps_accounts}prestashop>settingstranslations_0bf8c9a75dc18d636083edc439957857'] = 'Połącz swój sklep z kontem';
-
-// Backoffice translation
-$_MODULE['<{ps_accounts}prestashop>ps_accounts_72cc870074ae5021261343a596097e10'] = 'This shop is linked to your Prestashop account. Unlink your shop if you do not want to impact your live settings.';
+$_MODULE['<{ps_accounts}prestashop>ps_accounts_40047b296fb8a4952e0512c7184e1ca3'] = 'Konto PrestaShop';
+$_MODULE['<{ps_accounts}prestashop>ps_accounts_9006e8a0d8ca7f627146d32bc9c0eb73'] = 'Połącz swój sklep z kontem PrestaShop, aby aktywować i zarządzać subskrypcjami w swoim back office. Nie odinstalowuj tego modułu, jeśli masz aktualną subskrypcję.';
+$_MODULE['<{ps_accounts}prestashop>ps_accounts_ceeadaf870d9eaa81cf1fbe32614af64'] = 'Ta akcja uniemożliwi natychmiastowe działanie Twoich usług PrestaShop i usług Community, ponieważ używają one modułu PrestaShop Accounts do uwierzytelniania.';
+$_MODULE['<{ps_accounts}prestashop>settingstranslations_f4f70727dc34561dfde1a3c529b6205c'] = 'Ustawienia';
+$_MODULE['<{ps_accounts}prestashop>settingstranslations_6a26f548831e6a8c26bfbbd9f6ec61e0'] = 'Pomoc';
+$_MODULE['<{ps_accounts}prestashop>settingstranslations_b7ca62f12bc3b8e0d6422c028473a265'] = 'Twoje konto PrestaShop';
+$_MODULE['<{ps_accounts}prestashop>settingstranslations_518d650937979216a269cf9830a7b484'] = 'Jedno konto do zarządzania wszystkimi subskrypcjami PrestaShop';
+$_MODULE['<{ps_accounts}prestashop>settingstranslations_655aa4af96bbb20cf78e14b560affb38'] = 'Utwórz swoje konto PrestaShop lub zaloguj się do istniejącego konta';
+$_MODULE['<{ps_accounts}prestashop>settingstranslations_d23c41d498fe8587fb2f6ac563426dce'] = 'Połącz swój sklep z kontem';

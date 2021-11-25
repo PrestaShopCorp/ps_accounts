@@ -121,6 +121,7 @@ class PsAccountsPresenter implements PresenterInterface
                     ],
                     'psxName' => $psxName,
                     'psIs17' => $shopContext->isShop17(),
+                    'psAccountsVersion' => $this->module->version,
 
                     /////////////////////////////
                     // InstallerPresenter
