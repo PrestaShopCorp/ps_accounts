@@ -19,7 +19,7 @@
  */
 global $_MODULE;
 $_MODULE = [];
-$_MODULE['<{ps_accounts}prestashop>ps_accounts_40047b296fb8a4952e0512c7184e1ca3'] = 'Konto PrestaShop';
+$_MODULE['<{ps_accounts}prestashop>ps_accounts_40047b296fb8a4952e0512c7184e1ca3'] = 'PrestaShop Account';
 $_MODULE['<{ps_accounts}prestashop>ps_accounts_9006e8a0d8ca7f627146d32bc9c0eb73'] = 'Połącz swój sklep z kontem PrestaShop, aby aktywować i zarządzać subskrypcjami w swoim back office. Nie odinstalowuj tego modułu, jeśli masz aktualną subskrypcję.';
 $_MODULE['<{ps_accounts}prestashop>ps_accounts_ceeadaf870d9eaa81cf1fbe32614af64'] = 'Ta akcja uniemożliwi natychmiastowe działanie Twoich usług PrestaShop i usług Community, ponieważ używają one modułu PrestaShop Accounts do uwierzytelniania.';
 $_MODULE['<{ps_accounts}prestashop>settingstranslations_f4f70727dc34561dfde1a3c529b6205c'] = 'Ustawienia';

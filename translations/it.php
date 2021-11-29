@@ -19,7 +19,7 @@
  */
 global $_MODULE;
 $_MODULE = [];
-$_MODULE['<{ps_accounts}prestashop>ps_accounts_40047b296fb8a4952e0512c7184e1ca3'] = 'Account PrestaShop';
+$_MODULE['<{ps_accounts}prestashop>ps_accounts_40047b296fb8a4952e0512c7184e1ca3'] = 'PrestaShop Account';
 $_MODULE['<{ps_accounts}prestashop>ps_accounts_9006e8a0d8ca7f627146d32bc9c0eb73'] = 'Associa il tuo negozio al tuo account PrestaShop per attivare e gestire i tuoi abbonamenti nel tuo back office. Non disinstallare questo modulo se hai un abbonamento in corso.';
 $_MODULE['<{ps_accounts}prestashop>ps_accounts_ceeadaf870d9eaa81cf1fbe32614af64'] = 'Questa azione impedirà immediatamente il funzionamento dei tuoi servizi PrestaShop e dei servizi della Comunità che utilizzano il modulo PrestaShop Accounts per l\'autenticazione.';
 $_MODULE['<{ps_accounts}prestashop>settingstranslations_f4f70727dc34561dfde1a3c529b6205c'] = 'Impostazioni';
