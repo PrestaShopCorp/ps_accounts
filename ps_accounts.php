@@ -44,6 +44,7 @@ class Ps_accounts extends Module
         'displayBackOfficeHeader',
         'actionObjectShopAddAfter',
         'actionObjectShopUpdateAfter',
+        'actionObjectShopDeleteBefore',
         'actionObjectShopDeleteAfter',
         'actionObjectShopUrlUpdateAfter',
         'displayDashboardTop',
@@ -503,6 +504,38 @@ class Ps_accounts extends Module
     public function hookActionObjectShopDeleteAfter($params)
     {
         $this->switchConfigMultishopMode();
+
+        return true;
+    }
+
+    /**
+     * @param array $params
+     *
+     * @return bool
+     *
+     * @throws Exception
+     */
+    public function hookActionObjectShopDeleteBefore($params)
+    {
+        /** @var \PrestaShop\Module\PsAccounts\Api\Client\AccountsClient $accountsApi */
+        $accountsApi = $this->getService(
+            \PrestaShop\Module\PsAccounts\Api\Client\AccountsClient::class
+        );
+
+        try {
+            $response = $accountsApi->deleteUserShop($params['object']->id);
+
+            if (!$response || true !== $response['status']) {
+                $this->getLogger()->debug(
+                    'Error trying to DELETE shop : ' . $response['httpCode'] .
+                    ' ' . print_r($response['body']['message'], true)
+                );
+            }
+        } catch (\Throwable $e) {
+            $this->getLogger()->debug(
+                'Error curl while trying to DELETE shop : ' . print_r($e->getMessage(), true)
+            );
+        }
 
         return true;
     }
