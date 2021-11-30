@@ -347,11 +347,12 @@ class Ps_accounts extends Module
             $configuration = $this->getService(\PrestaShop\Module\PsAccounts\Adapter\Configuration::class);
 
             if (isset($_GET['updateshop_url'])) {
-                $shopId = $shopContext->getShopIdFromShopUrlId((int)$_GET['id_shop_url']);
+                $shopId = $shopContext->getShopIdFromShopUrlId((int) $_GET['id_shop_url']);
 
-                return $shopContext->execInShopContext($shopId, function() use ($accountsService) {
-                    if ($accountsService->isAccountLinked())
+                return $shopContext->execInShopContext($shopId, function () use ($accountsService) {
+                    if ($accountsService->isAccountLinked()) {
                         return $this->renderUpdateWarningView();
+                    }
                 });
             } else {
                 /** @var \PrestaShop\Module\PsAccounts\Provider\ShopProvider $shopProvider */
@@ -363,7 +364,9 @@ class Ps_accounts extends Module
                         $isLink = $shopContext->execInShopContext($shop['id'], function () use ($accountsService) {
                             return $accountsService->isAccountLinked();
                         });
-                        if ($isLink) return $this->renderDeleteWarningView();
+                        if ($isLink) {
+                            return $this->renderDeleteWarningView();
+                        }
                     }
                 }
             }
