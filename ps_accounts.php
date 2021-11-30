@@ -343,9 +343,6 @@ class Ps_accounts extends Module
             /** @var \PrestaShop\Module\PsAccounts\Service\PsAccountsService $accountsService */
             $accountsService = $this->getService(\PrestaShop\Module\PsAccounts\Service\PsAccountsService::class);
 
-            /** @var \PrestaShop\Module\PsAccounts\Adapter\Configuration $configuration */
-            $configuration = $this->getService(\PrestaShop\Module\PsAccounts\Adapter\Configuration::class);
-
             if (isset($_GET['updateshop_url'])) {
                 $shopId = $shopContext->getShopIdFromShopUrlId((int) $_GET['id_shop_url']);
 
