@@ -13,10 +13,12 @@ function upgrade_module_5_2_0($module)
     $module->registerHook($module->getHookToInstall());
 
     updateShopUrl($module);
+
     return true;
 }
 
-function updateShopUrl($module) {
+function updateShopUrl($module)
+{
     /** @var \PrestaShop\Module\PsAccounts\Provider\ShopProvider $shopProvider */
     $shopProvider = $module->getService(\PrestaShop\Module\PsAccounts\Provider\ShopProvider::class);
 

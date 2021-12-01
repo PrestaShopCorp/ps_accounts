@@ -327,7 +327,14 @@ class Ps_accounts extends Module
         }
     }
 
-    private function renderAdminShopUrlWarningIfLinked($shopContext, $accountsService) {
+    /**
+     * @param \PrestaShop\Module\PsAccounts\Context\ShopContext $shopContext
+     * @param \PrestaShop\Module\PsAccounts\Service\PsAccountsService $accountsService
+     * @return mixed
+     * @throws Exception
+     */
+    private function renderAdminShopUrlWarningIfLinked($shopContext, $accountsService)
+    {
         $shopId = $shopContext->getShopIdFromShopUrlId((int) $_GET['id_shop_url']);
 
         return $shopContext->execInShopContext($shopId, function () use ($accountsService) {
@@ -337,7 +344,14 @@ class Ps_accounts extends Module
         });
     }
 
-    private function renderAdminShopWarningIfLinked($shopContext, $accountsService) {
+    /**
+     * @param \PrestaShop\Module\PsAccounts\Context\ShopContext $shopContext
+     * @param \PrestaShop\Module\PsAccounts\Service\PsAccountsService $accountsService
+     * @return mixed
+     * @throws Exception
+     */
+    private function renderAdminShopWarningIfLinked($shopContext, $accountsService)
+    {
         /** @var \PrestaShop\Module\PsAccounts\Provider\ShopProvider $shopProvider */
         $shopProvider = $this->getService(\PrestaShop\Module\PsAccounts\Provider\ShopProvider::class);
 
