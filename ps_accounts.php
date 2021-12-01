@@ -330,7 +330,9 @@ class Ps_accounts extends Module
     /**
      * @param \PrestaShop\Module\PsAccounts\Context\ShopContext $shopContext
      * @param \PrestaShop\Module\PsAccounts\Service\PsAccountsService $accountsService
+     *
      * @return mixed
+     *
      * @throws Exception
      */
     private function renderAdminShopUrlWarningIfLinked($shopContext, $accountsService)
@@ -347,7 +349,9 @@ class Ps_accounts extends Module
     /**
      * @param \PrestaShop\Module\PsAccounts\Context\ShopContext $shopContext
      * @param \PrestaShop\Module\PsAccounts\Service\PsAccountsService $accountsService
+     *
      * @return mixed
+     *
      * @throws Exception
      */
     private function renderAdminShopWarningIfLinked($shopContext, $accountsService)
