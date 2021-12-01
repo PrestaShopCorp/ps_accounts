@@ -327,6 +327,33 @@ class Ps_accounts extends Module
         }
     }
 
+    private function renderAdminShopUrlWarningIfLinked($shopContext, $accountsService) {
+        $shopId = $shopContext->getShopIdFromShopUrlId((int) $_GET['id_shop_url']);
+
+        return $shopContext->execInShopContext($shopId, function () use ($accountsService) {
+            if ($accountsService->isAccountLinked()) {
+                return $this->renderUpdateWarningView();
+            }
+        });
+    }
+
+    private function renderAdminShopWarningIfLinked($shopContext, $accountsService) {
+        /** @var \PrestaShop\Module\PsAccounts\Provider\ShopProvider $shopProvider */
+        $shopProvider = $this->getService(\PrestaShop\Module\PsAccounts\Provider\ShopProvider::class);
+
+        $shopsTree = $shopProvider->getShopsTree('ps_accounts');
+        foreach ($shopsTree as $shopGroup) {
+            foreach ($shopGroup['shops'] as $shop) {
+                $isLink = $shopContext->execInShopContext($shop['id'], function () use ($accountsService) {
+                    return $accountsService->isAccountLinked();
+                });
+                if ($isLink) {
+                    return $this->renderDeleteWarningView();
+                }
+            }
+        }
+    }
+
     /**
      * @param array $params
      *
@@ -336,37 +363,18 @@ class Ps_accounts extends Module
      */
     public function hookDisplayDashboardTop($params)
     {
-        if ('AdminShopUrl' === $_GET['controller']) {
-            /** @var \PrestaShop\Module\PsAccounts\Context\ShopContext $shopContext */
-            $shopContext = $this->getService(\PrestaShop\Module\PsAccounts\Context\ShopContext::class);
+        /** @var \PrestaShop\Module\PsAccounts\Context\ShopContext $shopContext */
+        $shopContext = $this->getService(\PrestaShop\Module\PsAccounts\Context\ShopContext::class);
 
-            /** @var \PrestaShop\Module\PsAccounts\Service\PsAccountsService $accountsService */
-            $accountsService = $this->getService(\PrestaShop\Module\PsAccounts\Service\PsAccountsService::class);
+        /** @var \PrestaShop\Module\PsAccounts\Service\PsAccountsService $accountsService */
+        $accountsService = $this->getService(\PrestaShop\Module\PsAccounts\Service\PsAccountsService::class);
 
-            if (isset($_GET['updateshop_url'])) {
-                $shopId = $shopContext->getShopIdFromShopUrlId((int) $_GET['id_shop_url']);
+        if ('AdminShopUrl' === $_GET['controller'] && isset($_GET['updateshop_url'])) {
+            return $this->renderAdminShopUrlWarningIfLinked($shopContext, $accountsService);
+        }
 
-                return $shopContext->execInShopContext($shopId, function () use ($accountsService) {
-                    if ($accountsService->isAccountLinked()) {
-                        return $this->renderUpdateWarningView();
-                    }
-                });
-            } else {
-                /** @var \PrestaShop\Module\PsAccounts\Provider\ShopProvider $shopProvider */
-                $shopProvider = $this->getService(\PrestaShop\Module\PsAccounts\Provider\ShopProvider::class);
-
-                $shopsTree = $shopProvider->getShopsTree('ps_accounts');
-                foreach ($shopsTree as $shopGroup) {
-                    foreach ($shopGroup['shops'] as $shop) {
-                        $isLink = $shopContext->execInShopContext($shop['id'], function () use ($accountsService) {
-                            return $accountsService->isAccountLinked();
-                        });
-                        if ($isLink) {
-                            return $this->renderDeleteWarningView();
-                        }
-                    }
-                }
-            }
+        if ('AdminShop' === $_GET['controller']) {
+            return $this->renderAdminShopWarningIfLinked($shopContext, $accountsService);
         }
     }
 
