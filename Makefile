@@ -4,7 +4,7 @@ DOCKER = $(shell docker ps 2> /dev/null)
 NPM = $(shell which npm 2> /dev/null)
 YARN = $(shell which yarn 2> /dev/null)
 
-VERSION ?= 5.1.0#$(shell git describe --tags | sed 's/^v//')
+VERSION ?= 5.2.0#$(shell git describe --tags | sed 's/^v//')
 MODULE ?= $(shell basename ${PWD})
 PACKAGE ?= "${MODULE}-${VERSION}"
 PHPSTAN_VERSION ?= 0.12
