@@ -266,7 +266,7 @@ abstract class AbstractRestController extends \ModuleFrontController implements 
      *
      * @return mixed|null
      */
-    public function getRequestHeader($header)
+    protected function getRequestHeader($header)
     {
         $headerKey = 'HTTP_' . strtoupper(str_replace('-', '_', $header));
 

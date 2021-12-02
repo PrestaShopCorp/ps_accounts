@@ -1,6 +1,6 @@
 {
   "name": "ps_accounts",
-  "version": "5.1.0",
+  "version": "5.2.0",
   "private": true,
   "scripts": {
     "dev": "vue-cli-service build --no-clean --mode development --watch",

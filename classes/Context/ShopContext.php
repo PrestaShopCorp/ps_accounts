@@ -116,6 +116,16 @@ class ShopContext
     }
 
     /**
+     * @param int $idShopUrl
+     *
+     * @return int
+     */
+    public function getShopIdFromShopUrlId($idShopUrl)
+    {
+        return (int) \Db::getInstance()->getValue('SELECT id_shop FROM `' . _DB_PREFIX_ . 'shop_url` WHERE `id_shop_url` = ' . (int) $idShopUrl);
+    }
+
+    /**
      * is multishop active "right now"
      *
      * @return bool
@@ -165,5 +175,33 @@ class ShopContext
     public function getUserToken()
     {
         return $this->userTokenRepository;
+    }
+
+    /**
+     * @param int $shopId
+     * @param \Closure $closure
+     *
+     * @return mixed
+     *
+     * @throws \Exception
+     */
+    public function execInShopContext($shopId, $closure)
+    {
+        $backup = $this->configuration->getShopId();
+        $this->configuration->setShopId($shopId);
+
+        $exception = null;
+
+        try {
+            $result = $closure();
+        } catch (\Exception $e) {
+            $exception = $e;
+        }
+        $this->configuration->setShopId($backup);
+
+        if (null === $exception) {
+            return $result;
+        }
+        throw $exception;
     }
 }
