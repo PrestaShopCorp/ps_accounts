@@ -337,6 +337,10 @@ class Ps_accounts extends Module
      */
     private function renderAdminShopUrlWarningIfLinked($shopContext, $accountsService)
     {
+        if (!isset($_GET['updateshop_url'])) {
+            return;
+        }
+
         $shopId = $shopContext->getShopIdFromShopUrlId((int) $_GET['id_shop_url']);
 
         return $shopContext->execInShopContext($shopId, function () use ($accountsService) {
@@ -356,6 +360,14 @@ class Ps_accounts extends Module
      */
     private function renderAdminShopWarningIfLinked($shopContext, $accountsService)
     {
+        if (isset($_GET['addshop'])) {
+            return;
+        }
+
+        if (isset($_GET['updateshop'])) {
+            return;
+        }
+
         /** @var \PrestaShop\Module\PsAccounts\Provider\ShopProvider $shopProvider */
         $shopProvider = $this->getService(\PrestaShop\Module\PsAccounts\Provider\ShopProvider::class);
 
@@ -387,7 +399,7 @@ class Ps_accounts extends Module
         /** @var \PrestaShop\Module\PsAccounts\Service\PsAccountsService $accountsService */
         $accountsService = $this->getService(\PrestaShop\Module\PsAccounts\Service\PsAccountsService::class);
 
-        if ('AdminShopUrl' === $_GET['controller'] && isset($_GET['updateshop_url'])) {
+        if ('AdminShopUrl' === $_GET['controller']) {
             return $this->renderAdminShopUrlWarningIfLinked($shopContext, $accountsService);
         }
 
