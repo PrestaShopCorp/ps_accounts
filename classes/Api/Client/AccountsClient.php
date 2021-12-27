@@ -174,7 +174,7 @@ class AccountsClient extends GenericClient
             /** @var ShopLinkAccountService $linkAccountService */
             $linkAccountService = $module->getService(ShopLinkAccountService::class);
 
-            if (!$linkAccountService->isAccountLinked()) {
+            if (!$linkAccountService->isAccountLinkedV5()) {
                 return null;
             }
 
