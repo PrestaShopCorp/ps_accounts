@@ -135,11 +135,10 @@ class ShopLinkAccountService
     /**
      * @return bool
      */
-    public function isAccountLinked()
+    public function isAccountLinkedV5()
     {
         return $this->shopTokenRepository->getToken()
-            && $this->userTokenRepository->getToken()
-            && $this->configuration->getEmployeeId();
+            && $this->userTokenRepository->getToken();
     }
 
     /**
