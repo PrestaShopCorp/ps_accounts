@@ -61,8 +61,10 @@ class AccountsClient extends GenericClient
 
         $this->setLink($link->getLink());
 
+        $module = \Module::getInstanceByName('ps_accounts');
+
         if (null === $client) {
-            $client = new Client([
+            $client = $this->createClient([
                 'base_url' => $apiUrl,
                 'defaults' => [
                     'timeout' => $this->timeout,

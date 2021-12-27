@@ -20,6 +20,7 @@
 
 namespace PrestaShop\Module\PsAccounts\Handler\Response;
 
+use GuzzleHttp\Psr7\Response;
 use GuzzleHttp\Message\ResponseInterface;
 
 /**
@@ -28,13 +29,57 @@ use GuzzleHttp\Message\ResponseInterface;
 class ApiResponseHandler
 {
     /**
+     * If set to false, prestashop is before v8
+     *
+     * @var bool
+     */
+    protected $isPrestashopEqualOrUpperV8;
+
+    /**
+     * ApiResponseHandler constructor
+     *
+     * @param bool $isPrestashopEqualOrUpperV8
+     */
+    public function __construct($isPrestashopEqualOrUpperV8 = false) {
+        $this->isPrestashopEqualOrUpperV8 = $isPrestashopEqualOrUpperV8;
+    }
+
+    /**
+     * Handle the response of a generic client before or after
+     * PrestaShop v8
+     *
+     * @var Response|ResponseInterface $response
+     *
+     * @return array
+     */
+    public function handleResponse($response) {
+        return $this->isPrestashopEqualOrUpperV8 ? $this->handleResponseFromV8($response) : $this->handleResponseBeforeV8($response);
+    }
+
+    /**
      * Format api response.
      *
      * @return array
      */
-    public function handleResponse(ResponseInterface $response)
+    public function handleResponseBeforeV8(ResponseInterface $response)
     {
         $responseContents = json_decode($response->getBody()->getContents(), true);
+
+        return [
+            'status' => $this->responseIsSuccessful($responseContents, $response->getStatusCode()),
+            'httpCode' => $response->getStatusCode(),
+            'body' => $responseContents,
+        ];
+    }
+
+    /**
+     * Format api response.
+     *
+     * @return array
+     */
+    public function handleResponseFromV8(Response $response)
+    {
+        $responseContents = $response->getBody()->getContents();
 
         return [
             'status' => $this->responseIsSuccessful($responseContents, $response->getStatusCode()),

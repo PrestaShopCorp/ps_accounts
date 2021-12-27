@@ -48,9 +48,10 @@ class SsoClient extends GenericClient
     ) {
         parent::__construct();
 
-        // Client can be provided for tests
+        $module = \Module::getInstanceByName('ps_accounts');
+
         if (null === $client) {
-            $client = new Client([
+            $client = $this->createClient([
                 'base_url' => $apiUrl,
                 'defaults' => [
                     'timeout' => $this->timeout,

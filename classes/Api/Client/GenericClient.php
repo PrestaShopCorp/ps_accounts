@@ -37,6 +37,13 @@ abstract class GenericClient
     protected $catchExceptions = false;
 
     /**
+     * If set to false, prestashop is before v8
+     *
+     * @var bool|null
+     */
+    protected $isPrestashopEqualOrUpperV8 = null;
+
+    /**
      * Guzzle Client.
      *
      * @var Client
@@ -131,7 +138,8 @@ abstract class GenericClient
     protected function post(array $options = [])
     {
         $response = $this->getClient()->post($this->getRoute(), $options);
-        $responseHandler = new ApiResponseHandler();
+//        file_put_contents('/ok', $this->isPrestashopEqualOrUpperV8 ? "After v8\n" : "Before v8\n", FILE_APPEND);
+        $responseHandler = new ApiResponseHandler($this->isPrestashopEqualOrUpperV8);
         $response = $responseHandler->handleResponse($response);
         // If response is not successful only
         if (\Configuration::get('PS_ACCOUNTS_DEBUG_LOGS_ENABLED') && !$response['status']) {
@@ -158,7 +166,7 @@ abstract class GenericClient
     protected function patch(array $options = [])
     {
         $response = $this->getClient()->patch($this->getRoute(), $options);
-        $responseHandler = new ApiResponseHandler();
+        $responseHandler = new ApiResponseHandler($this->isPrestashopEqualOrUpperV8);
         $response = $responseHandler->handleResponse($response);
         // If response is not successful only
         if (\Configuration::get('PS_ACCOUNTS_DEBUG_LOGS_ENABLED') && !$response['status']) {
@@ -185,7 +193,7 @@ abstract class GenericClient
     protected function get(array $options = [])
     {
         $response = $this->getClient()->get($this->getRoute(), $options);
-        $responseHandler = new ApiResponseHandler();
+        $responseHandler = new ApiResponseHandler($this->isPrestashopEqualOrUpperV8);
         $response = $responseHandler->handleResponse($response);
         // If response is not successful only
         if (\Configuration::get('PS_ACCOUNTS_DEBUG_LOGS_ENABLED') && !$response['status']) {
@@ -212,7 +220,7 @@ abstract class GenericClient
     protected function delete(array $options = [])
     {
         $response = $this->getClient()->delete($this->getRoute(), $options);
-        $responseHandler = new ApiResponseHandler();
+        $responseHandler = new ApiResponseHandler($this->isPrestashopEqualOrUpperV8);
         $response = $responseHandler->handleResponse($response);
         // If response is not successful only
         if (\Configuration::get('PS_ACCOUNTS_DEBUG_LOGS_ENABLED') && !$response['status']) {
@@ -232,19 +240,78 @@ abstract class GenericClient
     /**
      * Setter for client.
      *
+     * @param Client $client
+     *
      * @return void
      */
     protected function setClient(Client $client)
     {
-        /** @var \Ps_accounts $module */
-        $module = \Module::getInstanceByName('ps_accounts');
+        $this->client = $client;
+    }
 
+    /**
+     * Creater for client
+     *
+     * @param array $options
+     *
+     * @return Client
+     */
+    protected  function createClient($options)
+    {
+        /**
+         * @var string $psVersion
+         */
+        $psVersion = _PS_VERSION_;
+
+        $this->isPrestashopEqualOrUpperV8 = intval($psVersion[0]) >= 8;
+
+        return $this->isPrestashopEqualOrUpperV8 ? $this->createClientV8($options) : $this->createClientBeforeV8($options);
+    }
+
+    /**
+     * Creater for client before version 8 of PrestaShop
+     *
+     * @param array $options
+     *
+     * @return Client
+     */
+    private function createClientBeforeV8($options)
+    {
+        $module = \Module::getInstanceByName('ps_accounts');
+        $client = new Client($options);
         $client->setDefaultOption(
             'verify',
             (bool) $module->getParameter('ps_accounts.check_api_ssl_cert')
         );
+        return $client;
+    }
 
-        $this->client = $client;
+    /**
+     * Creater for client
+     *
+     * @param array $options
+     *
+     * @return Client
+     */
+    private function createClientV8($options)
+    {
+        $module = \Module::getInstanceByName('ps_accounts');
+        $payload = [];
+
+        if (isset($options['defaults']['headers']))
+            $payload['headers'] = $options['defaults']['headers'];
+
+        return new Client(
+            array_merge(
+                [
+                    'base_uri' => $options['base_url'],
+                    'verify' => (bool) $module->getParameter('ps_accounts.check_api_ssl_cert'),
+                    'timeout' => $options['defaults']['timeout'],
+                    'http_errors' => $options['defaults']['exceptions'],
+                ],
+                $payload
+            )
+        );
     }
 
     /**
