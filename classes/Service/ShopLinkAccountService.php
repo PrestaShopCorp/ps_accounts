@@ -135,7 +135,7 @@ class ShopLinkAccountService
     /**
      * @return bool
      */
-    public function isAccountLinkedV5()
+    public function isAccountLinked()
     {
         return $this->shopTokenRepository->getToken()
             && $this->userTokenRepository->getToken();

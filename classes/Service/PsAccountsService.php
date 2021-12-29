@@ -172,8 +172,7 @@ class PsAccountsService
         /** @var ShopLinkAccountService $shopLinkAccountService */
         $shopLinkAccountService = $this->module->getService(ShopLinkAccountService::class);
 
-        return $shopLinkAccountService->isAccountLinkedV4()
-            || $shopLinkAccountService->isAccountLinkedV5();
+        return $shopLinkAccountService->isAccountLinked();
     }
 
     /**
