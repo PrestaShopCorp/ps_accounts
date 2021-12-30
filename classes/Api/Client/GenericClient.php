@@ -36,13 +36,6 @@ abstract class GenericClient
     protected $catchExceptions = false;
 
     /**
-     * If set to false, prestashop is before v8
-     *
-     * @var bool|null
-     */
-    protected $isPrestashopEqualOrUpperV8 = null;
-
-    /**
      * Guzzle Client.
      *
      * @var Client
@@ -257,12 +250,13 @@ abstract class GenericClient
      *
      * @return Client
      */
-    protected  function createClient($options)
+    protected function createClient($options)
     {
         $factory = new GuzzleFactory();
         $guzzle = $factory->create($options);
         $this->client = $guzzle->getClient();
         $this->guzzle = $guzzle;
+
         return $this->client;
     }
 

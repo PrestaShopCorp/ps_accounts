@@ -28,7 +28,7 @@ use GuzzleHttp\Client;
 class ClientAfterPrestashop8 extends ClientAbstract implements ClientInterface
 {
     /**
-     * @var Client $client
+     * @var Client
      */
     private $client;
 
@@ -37,11 +37,13 @@ class ClientAfterPrestashop8 extends ClientAbstract implements ClientInterface
      */
     public function __construct($options)
     {
+        /** @var \Ps_accounts $module */
         $module = \Module::getInstanceByName('ps_accounts');
         $payload = [];
 
-        if (isset($options['defaults']['headers']))
+        if (isset($options['defaults']['headers'])) {
             $payload['headers'] = $options['defaults']['headers'];
+        }
 
         $this->client = new Client(
             array_merge(
@@ -64,18 +66,24 @@ class ClientAfterPrestashop8 extends ClientAbstract implements ClientInterface
         return $this->client;
     }
 
+    // FIXME Lots of phpstan error because it doesn't exist in current guzzle package
+
     /**
+     * @phpstan-ignore-next-line
+     *
      * @param \GuzzleHttp\Psr7\Response $response
      *
      * @return array
      */
     public function handleResponse($response)
     {
+        /* @phpstan-ignore-next-line */
         $responseContents = $response->getBody()->getContents();
 
+        /* @phpstan-ignore-next-line */
         return [
-            'status' => $this->responseIsSuccessful($responseContents, $response->getStatusCode()),
-            'httpCode' => $response->getStatusCode(),
+            'status' => $this->responseIsSuccessful($responseContents, $response->getStatusCode()), //@phpstan-ignore-line
+            'httpCode' => $response->getStatusCode(), //@phpstan-ignore-line
             'body' => $responseContents,
         ];
     }

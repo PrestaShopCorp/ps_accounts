@@ -20,8 +20,6 @@
 
 namespace PrestaShop\Module\PsAccounts\Api\Client;
 
-use GuzzleHttp\Client;
-
 /**
  * Construct the guzzle client depending on PrestaShop version
  */
@@ -32,7 +30,7 @@ class GuzzleFactory
      *
      * @param array $options
      *
-     * @return Client
+     * @return ClientInterface
      */
     public function create($options)
     {

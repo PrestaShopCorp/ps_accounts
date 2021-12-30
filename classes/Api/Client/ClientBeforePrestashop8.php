@@ -29,7 +29,7 @@ use GuzzleHttp\Message\ResponseInterface;
 class ClientBeforePrestashop8 extends ClientAbstract implements ClientInterface
 {
     /**
-     * @var Client $client
+     * @var Client
      */
     private $client;
 
@@ -38,6 +38,7 @@ class ClientBeforePrestashop8 extends ClientAbstract implements ClientInterface
      */
     public function __construct($options)
     {
+        /** @var \Ps_accounts $module */
         $module = \Module::getInstanceByName('ps_accounts');
         $client = new Client($options);
         $client->setDefaultOption(

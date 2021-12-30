@@ -40,7 +40,7 @@ interface ClientInterface
     public function getClient();
 
     /**
-     * @param $response
+     * @param mixed $response
      *
      * @return array
      */
@@ -54,5 +54,5 @@ interface ClientInterface
      *
      * @return bool
      */
-    function responseIsSuccessful($responseContents, $httpStatusCode);
+    public function responseIsSuccessful($responseContents, $httpStatusCode);
 }
