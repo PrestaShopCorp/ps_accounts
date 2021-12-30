@@ -48,8 +48,6 @@ class SsoClient extends GenericClient
     ) {
         parent::__construct();
 
-        $module = \Module::getInstanceByName('ps_accounts');
-
         if (null === $client) {
             $client = $this->createClient([
                 'base_url' => $apiUrl,

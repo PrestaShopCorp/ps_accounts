@@ -17,12 +17,42 @@
  * @copyright Since 2007 PrestaShop SA and Contributors
  * @license   https://opensource.org/licenses/AFL-3.0 Academic Free License version 3.0
  */
-header('Expires: Mon, 26 Jul 1997 05:00:00 GMT');
-header('Last-Modified: ' . gmdate('D, d M Y H:i:s') . ' GMT');
 
-header('Cache-Control: no-store, no-cache, must-revalidate');
-header('Cache-Control: post-check=0, pre-check=0', false);
-header('Pragma: no-cache');
+namespace PrestaShop\Module\PsAccounts\Api\Client;
 
-header('Location: ../');
-exit;
+use GuzzleHttp\Client;
+
+/**
+ * Interface that the guzzle client class implement
+ */
+interface ClientInterface
+{
+    /**
+     * Abtract client constructor
+     *
+     * @param array $options
+     */
+    public function __construct($options);
+
+    /**
+     * @return Client
+     */
+    public function getClient();
+
+    /**
+     * @param $response
+     *
+     * @return array
+     */
+    public function handleResponse($response);
+
+    /**
+     * Check if the response is successful or not (response code 200 to 299).
+     *
+     * @param array $responseContents
+     * @param int $httpStatusCode
+     *
+     * @return bool
+     */
+    function responseIsSuccessful($responseContents, $httpStatusCode);
+}

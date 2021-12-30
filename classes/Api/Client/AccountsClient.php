@@ -61,8 +61,6 @@ class AccountsClient extends GenericClient
 
         $this->setLink($link->getLink());
 
-        $module = \Module::getInstanceByName('ps_accounts');
-
         if (null === $client) {
             $client = $this->createClient([
                 'base_url' => $apiUrl,

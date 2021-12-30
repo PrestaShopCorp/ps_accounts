@@ -21,10 +21,9 @@
 namespace PrestaShop\Module\PsAccounts\Api\Client;
 
 use GuzzleHttp\Client;
-use PrestaShop\Module\PsAccounts\Handler\Response\ApiResponseHandler;
 
 /**
- * Construct the client used to make call to maasland.
+ * Construct the client used to make call to differents api.
  */
 abstract class GenericClient
 {
@@ -70,6 +69,13 @@ abstract class GenericClient
      * @var int
      */
     protected $timeout = 10;
+
+    /**
+     * The interface of the guzzle client, depending on PrestaShop version
+     *
+     * @var ClientInterface
+     */
+    protected $guzzle;
 
     /**
      * GenericClient constructor.
@@ -138,9 +144,7 @@ abstract class GenericClient
     protected function post(array $options = [])
     {
         $response = $this->getClient()->post($this->getRoute(), $options);
-//        file_put_contents('/ok', $this->isPrestashopEqualOrUpperV8 ? "After v8\n" : "Before v8\n", FILE_APPEND);
-        $responseHandler = new ApiResponseHandler($this->isPrestashopEqualOrUpperV8);
-        $response = $responseHandler->handleResponse($response);
+        $response = $this->guzzle->handleResponse($response);
         // If response is not successful only
         if (\Configuration::get('PS_ACCOUNTS_DEBUG_LOGS_ENABLED') && !$response['status']) {
             /**
@@ -166,8 +170,7 @@ abstract class GenericClient
     protected function patch(array $options = [])
     {
         $response = $this->getClient()->patch($this->getRoute(), $options);
-        $responseHandler = new ApiResponseHandler($this->isPrestashopEqualOrUpperV8);
-        $response = $responseHandler->handleResponse($response);
+        $response = $this->guzzle->handleResponse($response);
         // If response is not successful only
         if (\Configuration::get('PS_ACCOUNTS_DEBUG_LOGS_ENABLED') && !$response['status']) {
             /**
@@ -193,8 +196,7 @@ abstract class GenericClient
     protected function get(array $options = [])
     {
         $response = $this->getClient()->get($this->getRoute(), $options);
-        $responseHandler = new ApiResponseHandler($this->isPrestashopEqualOrUpperV8);
-        $response = $responseHandler->handleResponse($response);
+        $response = $this->guzzle->handleResponse($response);
         // If response is not successful only
         if (\Configuration::get('PS_ACCOUNTS_DEBUG_LOGS_ENABLED') && !$response['status']) {
             /**
@@ -220,8 +222,7 @@ abstract class GenericClient
     protected function delete(array $options = [])
     {
         $response = $this->getClient()->delete($this->getRoute(), $options);
-        $responseHandler = new ApiResponseHandler($this->isPrestashopEqualOrUpperV8);
-        $response = $responseHandler->handleResponse($response);
+        $response = $this->guzzle->handleResponse($response);
         // If response is not successful only
         if (\Configuration::get('PS_ACCOUNTS_DEBUG_LOGS_ENABLED') && !$response['status']) {
             /**
@@ -258,60 +259,11 @@ abstract class GenericClient
      */
     protected  function createClient($options)
     {
-        /**
-         * @var string $psVersion
-         */
-        $psVersion = _PS_VERSION_;
-
-        $this->isPrestashopEqualOrUpperV8 = intval($psVersion[0]) >= 8;
-
-        return $this->isPrestashopEqualOrUpperV8 ? $this->createClientV8($options) : $this->createClientBeforeV8($options);
-    }
-
-    /**
-     * Creater for client before version 8 of PrestaShop
-     *
-     * @param array $options
-     *
-     * @return Client
-     */
-    private function createClientBeforeV8($options)
-    {
-        $module = \Module::getInstanceByName('ps_accounts');
-        $client = new Client($options);
-        $client->setDefaultOption(
-            'verify',
-            (bool) $module->getParameter('ps_accounts.check_api_ssl_cert')
-        );
-        return $client;
-    }
-
-    /**
-     * Creater for client
-     *
-     * @param array $options
-     *
-     * @return Client
-     */
-    private function createClientV8($options)
-    {
-        $module = \Module::getInstanceByName('ps_accounts');
-        $payload = [];
-
-        if (isset($options['defaults']['headers']))
-            $payload['headers'] = $options['defaults']['headers'];
-
-        return new Client(
-            array_merge(
-                [
-                    'base_uri' => $options['base_url'],
-                    'verify' => (bool) $module->getParameter('ps_accounts.check_api_ssl_cert'),
-                    'timeout' => $options['defaults']['timeout'],
-                    'http_errors' => $options['defaults']['exceptions'],
-                ],
-                $payload
-            )
-        );
+        $factory = new GuzzleFactory();
+        $guzzle = $factory->create($options);
+        $this->client = $guzzle->getClient();
+        $this->guzzle = $guzzle;
+        return $this->client;
     }
 
     /**
