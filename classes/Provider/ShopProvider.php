@@ -83,6 +83,7 @@ class ShopProvider
             'domainSsl' => $shopData['domain_ssl'],
             'physicalUri' => $this->getShopPhysicalUri($shopData['id_shop']),
             'virtualUri' => $this->getShopVirtualUri($shopData['id_shop']),
+            'frontUrl' => $this->getShopUrl($shopData),
 
             // LinkAccount
             'uuid' => $configuration->getShopUuid() ?: null,
@@ -240,6 +241,22 @@ class ShopProvider
     {
         return \Db::getInstance()->getValue(
             'SELECT virtual_uri FROM ' . _DB_PREFIX_ . 'shop_url WHERE id_shop=' . (int) $shopId . ' AND main=1'
+        );
+    }
+
+    /**
+     * @param array $shopData
+     *
+     * @return string
+     */
+    private function getShopUrl($shopData)
+    {
+        return \GuzzleHttp\Url::buildUrl(
+            [
+                'scheme' => $shopData['domain_ssl'] ? 'https' : 'http',
+                'host' => $shopData['domain_ssl'] ?: $shopData['domain'],
+                'path' => $shopData['uri'],
+            ]
         );
     }
 }
