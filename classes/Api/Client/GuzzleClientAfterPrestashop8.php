@@ -21,31 +21,37 @@
 namespace PrestaShop\Module\PsAccounts\Api\Client;
 
 use GuzzleHttp\Client;
-use GuzzleHttp\Message\ResponseInterface;
 
 /**
- * Construct the guzzle client before PrestaShop 8
+ * Construct the client with the new guzzle version of PrestaShop 8
  */
-class ClientBeforePrestashop8 extends ClientAbstract implements ClientInterface
+class GuzzleClientAfterPrestashop8 extends AbstractGuzzleClient implements ClientInterface
 {
     /**
-     * @var Client
-     */
-    private $client;
-
-    /**
-     * Constructor for client before PrestaShop 8
+     * Constructor for client after PrestaShop 8
      */
     public function __construct($options)
     {
+        parent::__construct();
         /** @var \Ps_accounts $module */
         $module = \Module::getInstanceByName('ps_accounts');
-        $client = new Client($options);
-        $client->setDefaultOption(
-            'verify',
-            (bool) $module->getParameter('ps_accounts.check_api_ssl_cert')
+        $payload = [];
+
+        if (isset($options['defaults']['headers'])) {
+            $payload['headers'] = $options['defaults']['headers'];
+        }
+
+        $this->client = new Client(
+            array_merge(
+                [
+                    'base_uri' => $options['base_url'],
+                    'verify' => (bool) $module->getParameter('ps_accounts.check_api_ssl_cert'),
+                    'timeout' => $options['defaults']['timeout'],
+                    'http_errors' => $options['defaults']['exceptions'],
+                ],
+                $payload
+            )
         );
-        $this->client = $client;
     }
 
     /**
@@ -56,18 +62,24 @@ class ClientBeforePrestashop8 extends ClientAbstract implements ClientInterface
         return $this->client;
     }
 
+    // FIXME Lots of phpstan error because it doesn't exist in current guzzle package
+
     /**
-     * @param ResponseInterface $response
+     * @phpstan-ignore-next-line
+     *
+     * @param \GuzzleHttp\Psr7\Response $response
      *
      * @return array
      */
     public function handleResponse($response)
     {
-        $responseContents = json_decode($response->getBody()->getContents(), true);
+        /* @phpstan-ignore-next-line */
+        $responseContents = $response->getBody()->getContents();
 
+        /* @phpstan-ignore-next-line */
         return [
-            'status' => $this->responseIsSuccessful($responseContents, $response->getStatusCode()),
-            'httpCode' => $response->getStatusCode(),
+            'status' => $this->responseIsSuccessful($responseContents, $response->getStatusCode()), //@phpstan-ignore-line
+            'httpCode' => $response->getStatusCode(), //@phpstan-ignore-line
             'body' => $responseContents,
         ];
     }

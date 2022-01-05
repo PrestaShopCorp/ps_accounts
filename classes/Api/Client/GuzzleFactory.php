@@ -30,7 +30,7 @@ class GuzzleFactory
      *
      * @param array $options
      *
-     * @return ClientInterface
+     * @return AbstractGuzzleClient
      */
     public function create($options)
     {
@@ -39,6 +39,6 @@ class GuzzleFactory
          */
         $psVersion = _PS_VERSION_;
 
-        return intval($psVersion[0]) >= 8 ? new ClientAfterPrestashop8($options) : new ClientBeforePrestashop8($options);
+        return intval($psVersion[0]) >= 8 ? new GuzzleClientAfterPrestashop8($options) : new GuzzleClientBeforePrestashop8($options);
     }
 }
