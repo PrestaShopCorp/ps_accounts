@@ -44,7 +44,6 @@ class AccountsClient extends AbstractGenericApiClient
      * @param ShopProvider $shopProvider
      * @param Link $link
      * @param AbstractGuzzleClient|null $client
-     *
      */
     public function __construct(
         $apiUrl,

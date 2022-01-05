@@ -211,6 +211,7 @@ abstract class AbstractGuzzleClient
 
     /**
      * @param mixed $response
+     *
      * @return array
      */
     abstract public function handleResponse($response);
