@@ -27,7 +27,7 @@ use PrestaShop\Module\PsAccounts\Repository\UserTokenRepository;
 /**
  * Class ServicesAccountsClient
  */
-class SsoClient extends GenericClient
+class SsoClient extends AbstractGenericApiClient
 {
     /**
      * @var UserTokenRepository
@@ -38,13 +38,13 @@ class SsoClient extends GenericClient
      * ServicesAccountsClient constructor.
      *
      * @param string $apiUrl
-     * @param Client|null $client
+     * @param AbstractGuzzleClient|null $client
      *
      * @throws OptionResolutionException
      */
     public function __construct(
         $apiUrl,
-        Client $client = null
+        AbstractGuzzleClient $client = null
     ) {
         parent::__construct();
 
@@ -71,9 +71,9 @@ class SsoClient extends GenericClient
      */
     public function verifyToken($idToken)
     {
-        $this->setRoute('auth/token/verify');
+        $this->client->setRoute('auth/token/verify');
 
-        return $this->post([
+        return $this->client->post([
             'json' => [
                 'token' => $idToken,
             ],
@@ -87,9 +87,9 @@ class SsoClient extends GenericClient
      */
     public function refreshToken($refreshToken)
     {
-        $this->setRoute('auth/token/refresh');
+        $this->client->setRoute('auth/token/refresh');
 
-        return $this->post([
+        return $this->client->post([
             'json' => [
                 'token' => $refreshToken,
             ],

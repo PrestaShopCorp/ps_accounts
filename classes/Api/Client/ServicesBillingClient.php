@@ -29,7 +29,7 @@ use PrestaShop\Module\PsAccounts\Service\PsAccountsService;
 /**
  * Handle call api Services
  */
-class ServicesBillingClient extends GenericClient
+class ServicesBillingClient extends AbstractGenericApiClient
 {
     /**
      * ServicesBillingClient constructor.
@@ -38,7 +38,7 @@ class ServicesBillingClient extends GenericClient
      * @param PsAccountsService $psAccountsService
      * @param ShopProvider $shopProvider
      * @param Link $link
-     * @param Client|null $client
+     * @param AbstractGuzzleClient|null $client
      *
      * @throws OptionResolutionException
      * @throws \PrestaShopException
@@ -49,7 +49,7 @@ class ServicesBillingClient extends GenericClient
         PsAccountsService $psAccountsService,
         ShopProvider $shopProvider,
         Link $link,
-        Client $client = null
+        AbstractGuzzleClient $client = null
     ) {
         parent::__construct();
 
@@ -61,7 +61,7 @@ class ServicesBillingClient extends GenericClient
 
         // Client can be provided for tests
         if (null === $client) {
-            $client = new Client([
+            $client = $this->createClient([
                 'base_url' => $apiUrl,
                 'defaults' => [
                     'timeout' => $this->timeout,
@@ -89,9 +89,9 @@ class ServicesBillingClient extends GenericClient
      */
     public function getBillingCustomer($shopUuidV4)
     {
-        $this->setRoute('/shops/' . $shopUuidV4);
+        $this->client->setRoute('/shops/' . $shopUuidV4);
 
-        return $this->get();
+        return $this->client->get();
     }
 
     /**
@@ -102,9 +102,9 @@ class ServicesBillingClient extends GenericClient
      */
     public function createBillingCustomer($shopUuidV4, $bodyHttp)
     {
-        $this->setRoute('/shops/' . $shopUuidV4);
+        $this->client->setRoute('/shops/' . $shopUuidV4);
 
-        return $this->post([
+        return $this->client->post([
             'body' => $bodyHttp,
         ]);
     }
@@ -117,9 +117,9 @@ class ServicesBillingClient extends GenericClient
      */
     public function getBillingSubscriptions($shopUuidV4, $module)
     {
-        $this->setRoute('/shops/' . $shopUuidV4 . '/subscriptions/' . $module);
+        $this->client->setRoute('/shops/' . $shopUuidV4 . '/subscriptions/' . $module);
 
-        return $this->get();
+        return $this->client->get();
     }
 
     /**
@@ -131,9 +131,9 @@ class ServicesBillingClient extends GenericClient
      */
     public function createBillingSubscriptions($shopUuidV4, $module, $bodyHttp)
     {
-        $this->setRoute('/shops/' . $shopUuidV4 . '/subscriptions/' . $module);
+        $this->client->setRoute('/shops/' . $shopUuidV4 . '/subscriptions/' . $module);
 
-        return $this->post([
+        return $this->client->post([
             'body' => $bodyHttp,
         ]);
     }
