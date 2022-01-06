@@ -247,12 +247,14 @@ class ShopProvider
     /**
      * @param array $shopData
      *
-     * @return string
+     * @return string|null
      */
     private function getShopUrl($shopData)
     {
-        if (!$shopData['domain'])
+        if (!$shopData['domain']) {
             return null;
+        }
+
         return
             ($shopData['domain_ssl'] ? 'https://' : 'http://') .
             ($shopData['domain_ssl'] ?: $shopData['domain']) .
