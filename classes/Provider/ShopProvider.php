@@ -253,7 +253,7 @@ class ShopProvider
     {
         return \GuzzleHttp\Url::buildUrl(
             [
-                'scheme' => $shopData['domain_ssl'] ? 'https': 'http',
+                'scheme' => $shopData['domain_ssl'] ? 'https' : 'http',
                 'host' => $shopData['domain_ssl'] ?: $shopData['domain'],
                 'path' => $shopData['uri'],
             ]
