@@ -251,12 +251,11 @@ class ShopProvider
      */
     private function getShopUrl($shopData)
     {
-        return \GuzzleHttp\Url::buildUrl(
-            [
-                'scheme' => $shopData['domain_ssl'] ? 'https' : 'http',
-                'host' => $shopData['domain_ssl'] ?: $shopData['domain'],
-                'path' => $shopData['uri'],
-            ]
-        );
+        if (!$shopData['domain'])
+            return null;
+        return
+            ($shopData['domain_ssl'] ? 'https://' : 'http://') .
+            ($shopData['domain_ssl'] ?: $shopData['domain']) .
+            $shopData['uri'];
     }
 }
