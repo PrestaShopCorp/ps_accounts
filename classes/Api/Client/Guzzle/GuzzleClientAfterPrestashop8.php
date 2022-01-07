@@ -75,7 +75,7 @@ class GuzzleClientAfterPrestashop8 extends AbstractGuzzleClient
     public function handleResponse($response)
     {
         /* @phpstan-ignore-next-line */
-        $responseContents = $response->getBody()->getContents();
+        $responseContents = json_decode($response->getBody()->getContents(), true);
 
         /* @phpstan-ignore-next-line */
         return [
