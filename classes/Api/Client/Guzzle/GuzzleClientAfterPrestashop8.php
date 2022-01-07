@@ -18,27 +18,36 @@
  * @license   https://opensource.org/licenses/AFL-3.0 Academic Free License version 3.0
  */
 
-namespace PrestaShop\Module\PsAccounts\Api\Client;
+namespace PrestaShop\Module\PsAccounts\Api\Client\Guzzle;
 
 use GuzzleHttp\Client;
+use PrestaShop\Module\PsAccounts\Api\Client\Guzzle\AbstractGuzzleClient;
 
 /**
  * Construct the client with the new guzzle version of PrestaShop 8
  */
-class GuzzleClientAfterPrestashop8 extends AbstractGuzzleClient implements ClientInterface
+class GuzzleClientAfterPrestashop8 extends AbstractGuzzleClient
 {
     /**
      * Constructor for client after PrestaShop 8
      */
     public function __construct($options)
     {
-        parent::__construct();
         /** @var \Ps_accounts $module */
         $module = \Module::getInstanceByName('ps_accounts');
+
         $payload = [];
 
         if (isset($options['defaults']['headers'])) {
             $payload['headers'] = $options['defaults']['headers'];
+        }
+
+        if (isset($options['defaults']['timeout'])) {
+            $payload['timeout'] = $options['defaults']['timeout'];
+        }
+
+        if (isset($options['defaults']['exceptions'])) {
+            $payload['http_errors'] = $options['defaults']['exceptions'];
         }
 
         $this->client = new Client(
@@ -46,20 +55,12 @@ class GuzzleClientAfterPrestashop8 extends AbstractGuzzleClient implements Clien
                 [
                     'base_uri' => $options['base_url'],
                     'verify' => (bool) $module->getParameter('ps_accounts.check_api_ssl_cert'),
-                    'timeout' => $options['defaults']['timeout'],
-                    'http_errors' => $options['defaults']['exceptions'],
+                    'timeout' => $this->timeout,
+                    'http_errors' => $this->catchExceptions
                 ],
                 $payload
             )
         );
-    }
-
-    /**
-     * @return Client
-     */
-    public function getClient()
-    {
-        return $this->client;
     }
 
     // FIXME Lots of phpstan error because it doesn't exist in current guzzle package

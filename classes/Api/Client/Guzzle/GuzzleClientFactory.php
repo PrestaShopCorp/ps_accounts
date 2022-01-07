@@ -18,12 +18,17 @@
  * @license   https://opensource.org/licenses/AFL-3.0 Academic Free License version 3.0
  */
 
-namespace PrestaShop\Module\PsAccounts\Api\Client;
+namespace PrestaShop\Module\PsAccounts\Api\Client\Guzzle;
+
+use PrestaShop\Module\PsAccounts\Api\Client\Guzzle\AbstractGuzzleClient;
+use PrestaShop\Module\PsAccounts\Api\Client\Guzzle\GuzzleClientAfterPrestashop8;
+use PrestaShop\Module\PsAccounts\Api\Client\Guzzle\GuzzleClientBeforePrestashop8;
+use const _PS_VERSION_;
 
 /**
  * Construct the guzzle client depending on PrestaShop version
  */
-class GuzzleFactory
+class GuzzleClientFactory
 {
     /**
      * Creater for client

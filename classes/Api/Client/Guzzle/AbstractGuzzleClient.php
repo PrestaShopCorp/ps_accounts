@@ -18,14 +18,15 @@
  * @license   https://opensource.org/licenses/AFL-3.0 Academic Free License version 3.0
  */
 
-namespace PrestaShop\Module\PsAccounts\Api\Client;
+namespace PrestaShop\Module\PsAccounts\Api\Client\Guzzle;
 
 use GuzzleHttp\Client;
+use PrestaShop\Module\PsAccounts\Api\Client\ClientInterface;
 
 /**
  * Construct the client used to make call to differents api.
  */
-abstract class AbstractGuzzleClient
+abstract class AbstractGuzzleClient implements ClientInterface
 {
     /**
      * Guzzle Client.
@@ -42,31 +43,19 @@ abstract class AbstractGuzzleClient
     protected $route;
 
     /**
-     * GenericApiClient constructor.
+     * Set how long guzzle will wait a response before end it up.
+     *
+     * @var int
      */
-    public function __construct()
-    {
-    }
+    protected $timeout = 10;
 
     /**
-     * Getter for client.
+     * If set to false, you will not be able to catch the error
+     * guzzle will show a different error message.
      *
-     * @return Client
+     * @var bool
      */
-    public function getClient()
-    {
-        return $this->client;
-    }
-
-    /**
-     * Getter for route.
-     *
-     * @return string
-     */
-    protected function getRoute()
-    {
-        return $this->route;
-    }
+    protected $catchExceptions = false;
 
     /**
      * Wrapper of method post from guzzle client.
@@ -173,30 +162,6 @@ abstract class AbstractGuzzleClient
     }
 
     /**
-     * Setter for client.
-     *
-     * @param Client $client
-     *
-     * @return void
-     */
-    protected function setClient(Client $client)
-    {
-        $this->client = $client;
-    }
-
-    /**
-     * Setter for route.
-     *
-     * @param string $route
-     *
-     * @return void
-     */
-    public function setRoute($route)
-    {
-        $this->route = $route;
-    }
-
-    /**
      * Check if the response is successful or not (response code 200 to 299).
      *
      * @param array $responseContents
@@ -210,9 +175,46 @@ abstract class AbstractGuzzleClient
     }
 
     /**
-     * @param mixed $response
+     * Getter for client.
      *
-     * @return array
+     * @return Client
      */
-    abstract public function handleResponse($response);
+    public function getClient()
+    {
+        return $this->client;
+    }
+
+    /**
+     * Setter for client.
+     *
+     * @param Client $client
+     *
+     * @return void
+     */
+    public function setClient(Client $client)
+    {
+        $this->client = $client;
+    }
+
+    /**
+     * Getter for route.
+     *
+     * @return string
+     */
+    protected function getRoute()
+    {
+        return $this->route;
+    }
+
+    /**
+     * Setter for route.
+     *
+     * @param string $route
+     *
+     * @return void
+     */
+    public function setRoute($route)
+    {
+        $this->route = $route;
+    }
 }
