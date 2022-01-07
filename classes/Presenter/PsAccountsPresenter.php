@@ -25,6 +25,7 @@ use PrestaShop\Module\PsAccounts\Installer\Installer;
 use PrestaShop\Module\PsAccounts\Log\Logger;
 use PrestaShop\Module\PsAccounts\Provider\ShopProvider;
 use PrestaShop\Module\PsAccounts\Repository\ConfigurationRepository;
+use PrestaShop\Module\PsAccounts\Repository\ShopTokenRepository;
 use PrestaShop\Module\PsAccounts\Service\PsAccountsService;
 use PrestaShop\Module\PsAccounts\Service\ShopLinkAccountService;
 
@@ -98,6 +99,10 @@ class PsAccountsPresenter implements PresenterInterface
      */
     public function present($psxName = 'ps_accounts')
     {
+        /** @var ShopTokenRepository $rep */
+        $rep = $this->module->getService(ShopTokenRepository::class);
+        Logger::getInstance()->debug('TOKEN : ' . $rep->getOrRefreshToken(true));
+
         $shopContext = $this->shopProvider->getShopContext();
 
         $moduleName = $this->module->name;
