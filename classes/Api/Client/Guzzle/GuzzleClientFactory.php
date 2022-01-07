@@ -20,7 +20,7 @@
 
 namespace PrestaShop\Module\PsAccounts\Api\Client\Guzzle;
 
-use const  _PS_VERSION_;
+use const _PS_VERSION_;
 
 /**
  * Construct the guzzle client depending on PrestaShop version

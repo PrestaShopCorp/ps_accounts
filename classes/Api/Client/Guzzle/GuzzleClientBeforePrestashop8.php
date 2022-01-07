@@ -22,7 +22,6 @@ namespace PrestaShop\Module\PsAccounts\Api\Client\Guzzle;
 
 use GuzzleHttp\Client;
 use GuzzleHttp\Message\ResponseInterface;
-use PrestaShop\Module\PsAccounts\Api\Client\Guzzle\AbstractGuzzleClient;
 
 /**
  * Construct the guzzle client before PrestaShop 8
@@ -37,11 +36,11 @@ class GuzzleClientBeforePrestashop8 extends AbstractGuzzleClient
         /** @var \Ps_accounts $module */
         $module = \Module::getInstanceByName('ps_accounts');
 
-        if (! isset($options['defaults']['timeout'])) {
+        if (!isset($options['defaults']['timeout'])) {
             $options['defaults']['timeout'] = $this->timeout;
         }
 
-        if (! isset($options['defaults']['exceptions'])) {
+        if (!isset($options['defaults']['exceptions'])) {
             $options['defaults']['exceptions'] = $this->catchExceptions;
         }
 

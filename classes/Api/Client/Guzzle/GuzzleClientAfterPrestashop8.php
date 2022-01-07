@@ -21,7 +21,6 @@
 namespace PrestaShop\Module\PsAccounts\Api\Client\Guzzle;
 
 use GuzzleHttp\Client;
-use PrestaShop\Module\PsAccounts\Api\Client\Guzzle\AbstractGuzzleClient;
 
 /**
  * Construct the client with the new guzzle version of PrestaShop 8
@@ -56,7 +55,7 @@ class GuzzleClientAfterPrestashop8 extends AbstractGuzzleClient
                     'base_uri' => $options['base_url'],
                     'verify' => (bool) $module->getParameter('ps_accounts.check_api_ssl_cert'),
                     'timeout' => $this->timeout,
-                    'http_errors' => $this->catchExceptions
+                    'http_errors' => $this->catchExceptions,
                 ],
                 $payload
             )

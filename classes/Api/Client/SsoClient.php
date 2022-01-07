@@ -22,8 +22,6 @@ namespace PrestaShop\Module\PsAccounts\Api\Client;
 
 use PrestaShop\Module\PsAccounts\Api\Client\Guzzle\AbstractGuzzleClient;
 use PrestaShop\Module\PsAccounts\Api\Client\Guzzle\GuzzleClientFactory;
-use PrestaShop\Module\PsAccounts\Exception\OptionResolutionException;
-use PrestaShop\Module\PsAccounts\Repository\UserTokenRepository;
 
 /**
  * Class ServicesAccountsClient

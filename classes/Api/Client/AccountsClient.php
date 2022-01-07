@@ -39,6 +39,11 @@ class AccountsClient
     private $shopProvider;
 
     /**
+     * @var AbstractGuzzleClient
+     */
+    private $client;
+
+    /**
      * ServicesAccountsClient constructor.
      *
      * @param string $apiUrl
