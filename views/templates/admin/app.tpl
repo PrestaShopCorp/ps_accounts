@@ -20,7 +20,13 @@
 <link href="{$pathVendor|escape:'htmlall':'UTF-8'}" rel=preload as=script>
 <link href="{$pathApp|escape:'htmlall':'UTF-8'}" rel=preload as=script>
 
-<div id="app"></div>
+<!--<div id="app"></div>-->
+
+<prestashop-accounts>
+    test slot
+    <div id="app"></div>
+    <template v-slot:footer><span style="background: red">test footer</span></template>
+</prestashop-accounts>
 
 <script src="{$pathVendor|escape:'htmlall':'UTF-8'}"></script>
 <script src="{$pathApp|escape:'htmlall':'UTF-8'}"></script>
