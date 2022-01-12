@@ -20,8 +20,8 @@
 
 namespace PrestaShop\Module\PsAccounts\Api\Client;
 
-use GuzzleHttp\Client;
-use PrestaShop\Module\PsAccounts\Adapter\Link;
+use PrestaShop\Module\PsAccounts\Api\Client\Guzzle\AbstractGuzzleClient;
+use PrestaShop\Module\PsAccounts\Api\Client\Guzzle\GuzzleClientFactory;
 use PrestaShop\Module\PsAccounts\Exception\OptionResolutionException;
 use PrestaShop\Module\PsAccounts\Provider\ShopProvider;
 use PrestaShop\Module\PsAccounts\Service\PsAccountsService;
@@ -29,15 +29,19 @@ use PrestaShop\Module\PsAccounts\Service\PsAccountsService;
 /**
  * Handle call api Services
  */
-class ServicesBillingClient extends AbstractGenericApiClient
+class ServicesBillingClient
 {
+    /**
+     * @var AbstractGuzzleClient
+     */
+    private $client;
+
     /**
      * ServicesBillingClient constructor.
      *
      * @param string $apiUrl
      * @param PsAccountsService $psAccountsService
      * @param ShopProvider $shopProvider
-     * @param Link $link
      * @param AbstractGuzzleClient|null $client
      *
      * @throws OptionResolutionException
@@ -48,24 +52,17 @@ class ServicesBillingClient extends AbstractGenericApiClient
         $apiUrl,
         PsAccountsService $psAccountsService,
         ShopProvider $shopProvider,
-        Link $link,
         AbstractGuzzleClient $client = null
     ) {
-        parent::__construct();
-
         $shopId = $shopProvider->getCurrentShop()['id'];
 
         $token = $psAccountsService->getOrRefreshToken();
 
-        $this->setLink($link->getLink());
-
         // Client can be provided for tests
         if (null === $client) {
-            $client = $this->createClient([
+            $client = (new GuzzleClientFactory())->create([
                 'base_url' => $apiUrl,
                 'defaults' => [
-                    'timeout' => $this->timeout,
-                    'exceptions' => $this->catchExceptions,
                     'headers' => [
                         // Commented, else does not work anymore with API.
                         //'Content-Type' => 'application/vnd.accounts.v1+json', // api version to use
@@ -79,7 +76,7 @@ class ServicesBillingClient extends AbstractGenericApiClient
             ]);
         }
 
-        $this->setClient($client);
+        $this->client = $client;
     }
 
     /**

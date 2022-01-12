@@ -18,7 +18,7 @@
  * @license   https://opensource.org/licenses/AFL-3.0 Academic Free License version 3.0
  */
 
-namespace PrestaShop\Module\PsAccounts\Api\Client;
+namespace PrestaShop\Module\PsAccounts\Api\Client\Guzzle;
 
 use GuzzleHttp\Client;
 use GuzzleHttp\Message\ResponseInterface;
@@ -26,30 +26,32 @@ use GuzzleHttp\Message\ResponseInterface;
 /**
  * Construct the guzzle client before PrestaShop 8
  */
-class GuzzleClientBeforePrestashop8 extends AbstractGuzzleClient implements ClientInterface
+class Guzzle5Client extends AbstractGuzzleClient
 {
     /**
      * Constructor for client before PrestaShop 8
      */
     public function __construct($options)
     {
-        parent::__construct();
         /** @var \Ps_accounts $module */
         $module = \Module::getInstanceByName('ps_accounts');
+
+        if (!isset($options['defaults']['timeout'])) {
+            $options['defaults']['timeout'] = $this->timeout;
+        }
+
+        if (!isset($options['defaults']['exceptions'])) {
+            $options['defaults']['exceptions'] = $this->catchExceptions;
+        }
+
         $client = new Client($options);
+
         $client->setDefaultOption(
             'verify',
             (bool) $module->getParameter('ps_accounts.check_api_ssl_cert')
         );
-        $this->client = $client;
-    }
 
-    /**
-     * @return Client
-     */
-    public function getClient()
-    {
-        return $this->client;
+        $this->client = $client;
     }
 
     /**

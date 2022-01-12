@@ -18,12 +18,14 @@
  * @license   https://opensource.org/licenses/AFL-3.0 Academic Free License version 3.0
  */
 
-namespace PrestaShop\Module\PsAccounts\Api\Client;
+namespace PrestaShop\Module\PsAccounts\Api\Client\Guzzle;
+
+use const _PS_VERSION_;
 
 /**
  * Construct the guzzle client depending on PrestaShop version
  */
-class GuzzleFactory
+class GuzzleClientFactory
 {
     /**
      * Creater for client
@@ -39,6 +41,6 @@ class GuzzleFactory
          */
         $psVersion = _PS_VERSION_;
 
-        return intval($psVersion[0]) >= 8 ? new GuzzleClientAfterPrestashop8($options) : new GuzzleClientBeforePrestashop8($options);
+        return intval($psVersion[0]) >= 8 ? new Guzzle7Client($options) : new Guzzle5Client($options);
     }
 }

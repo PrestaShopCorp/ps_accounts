@@ -20,39 +20,33 @@
 
 namespace PrestaShop\Module\PsAccounts\Api\Client;
 
-use PrestaShop\Module\PsAccounts\Exception\OptionResolutionException;
-use PrestaShop\Module\PsAccounts\Repository\UserTokenRepository;
+use PrestaShop\Module\PsAccounts\Api\Client\Guzzle\AbstractGuzzleClient;
+use PrestaShop\Module\PsAccounts\Api\Client\Guzzle\GuzzleClientFactory;
 
 /**
  * Class ServicesAccountsClient
  */
-class SsoClient extends AbstractGenericApiClient
+class SsoClient
 {
     /**
-     * @var UserTokenRepository
+     * @var AbstractGuzzleClient
      */
-    private $userTokenRepository;
+    private $client;
 
     /**
      * ServicesAccountsClient constructor.
      *
      * @param string $apiUrl
      * @param AbstractGuzzleClient|null $client
-     *
-     * @throws OptionResolutionException
      */
     public function __construct(
         $apiUrl,
         AbstractGuzzleClient $client = null
     ) {
-        parent::__construct();
-
         if (null === $client) {
-            $client = $this->createClient([
+            $client = (new GuzzleClientFactory())->create([
                 'base_url' => $apiUrl,
                 'defaults' => [
-                    'timeout' => $this->timeout,
-                    'exceptions' => $this->catchExceptions,
                     'headers' => [
                         'Accept' => 'application/json',
                     ],
@@ -60,7 +54,7 @@ class SsoClient extends AbstractGenericApiClient
             ]);
         }
 
-        $this->setClient($client);
+        $this->client = $client;
     }
 
     /**

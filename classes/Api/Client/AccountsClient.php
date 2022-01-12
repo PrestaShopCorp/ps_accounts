@@ -20,7 +20,8 @@
 
 namespace PrestaShop\Module\PsAccounts\Api\Client;
 
-use PrestaShop\Module\PsAccounts\Adapter\Link;
+use PrestaShop\Module\PsAccounts\Api\Client\Guzzle\AbstractGuzzleClient;
+use PrestaShop\Module\PsAccounts\Api\Client\Guzzle\GuzzleClientFactory;
 use PrestaShop\Module\PsAccounts\DTO\UpdateShop;
 use PrestaShop\Module\PsAccounts\Provider\ShopProvider;
 use PrestaShop\Module\PsAccounts\Repository\ShopTokenRepository;
@@ -30,7 +31,7 @@ use PrestaShop\Module\PsAccounts\Service\ShopLinkAccountService;
 /**
  * Class ServicesAccountsClient
  */
-class AccountsClient extends AbstractGenericApiClient
+class AccountsClient
 {
     /**
      * @var ShopProvider
@@ -38,36 +39,31 @@ class AccountsClient extends AbstractGenericApiClient
     private $shopProvider;
 
     /**
+     * @var AbstractGuzzleClient
+     */
+    private $client;
+
+    /**
      * ServicesAccountsClient constructor.
      *
      * @param string $apiUrl
      * @param ShopProvider $shopProvider
-     * @param Link $link
      * @param AbstractGuzzleClient|null $client
      */
     public function __construct(
         $apiUrl,
         ShopProvider $shopProvider,
-        Link $link,
         AbstractGuzzleClient $client = null
     ) {
-        parent::__construct();
-
         $this->shopProvider = $shopProvider;
 
-        $this->setLink($link->getLink());
-
         if (null === $client) {
-            $client = $this->createClient([
+            $client = (new GuzzleClientFactory())->create([
                 'base_url' => $apiUrl,
-                'defaults' => [
-                    'timeout' => $this->timeout,
-                    'exceptions' => $this->catchExceptions,
-                ],
             ]);
         }
 
-        $this->setClient($client);
+        $this->client = $client;
     }
 
     /**
