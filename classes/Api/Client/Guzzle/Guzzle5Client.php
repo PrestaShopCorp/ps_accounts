@@ -26,7 +26,7 @@ use GuzzleHttp\Message\ResponseInterface;
 /**
  * Construct the guzzle client before PrestaShop 8
  */
-class GuzzleClientBeforePrestashop8 extends AbstractGuzzleClient
+class Guzzle5Client extends AbstractGuzzleClient
 {
     /**
      * Constructor for client before PrestaShop 8

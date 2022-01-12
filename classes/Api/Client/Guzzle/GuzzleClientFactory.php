@@ -41,6 +41,6 @@ class GuzzleClientFactory
          */
         $psVersion = _PS_VERSION_;
 
-        return intval($psVersion[0]) >= 8 ? new GuzzleClientAfterPrestashop8($options) : new GuzzleClientBeforePrestashop8($options);
+        return intval($psVersion[0]) >= 8 ? new Guzzle7Client($options) : new Guzzle5Client($options);
     }
 }

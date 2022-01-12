@@ -24,8 +24,9 @@ use GuzzleHttp\Client;
 
 /**
  * Construct the client with the new guzzle version of PrestaShop 8
+ * In the case of prestashop 8, guzzle version 7 is used
  */
-class GuzzleClientAfterPrestashop8 extends AbstractGuzzleClient
+class Guzzle7Client extends AbstractGuzzleClient
 {
     /**
      * Constructor for client after PrestaShop 8
