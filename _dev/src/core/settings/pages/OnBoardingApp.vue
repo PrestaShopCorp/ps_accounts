@@ -23,7 +23,7 @@
     </section>
 
     <section class="onboarding-content">
-      <PsAccounts :force-show-plans="true" />
+      <prestashop-accounts v-html="slotHtml"></prestashop-accounts>
     </section>
   </div>
 </template>
@@ -33,15 +33,9 @@
 import ConfigInformation from "@/core/app/components/panel/ConfigInformation";
 import { mapSagas } from "@/lib/store-saga";
 
-let PsAccounts = window?.psaccountsVue?.PsAccounts;
-if (!PsAccounts) {
-  PsAccounts = require('prestashop_accounts_vue_components').PsAccounts;
-}
-
 export default {
   components: {
     ConfigInformation,
-    PsAccounts,
   },
   methods: {
     ...mapSagas({
@@ -53,6 +47,11 @@ export default {
       loading: true,
       unwatch: "",
     };
+  },
+  mounted() {
+    let recaptchaScript = document.createElement('script')
+    recaptchaScript.setAttribute('src', 'http://shop-am.17.ps.localhost/upload/prestashop_accounts_vue_components/psaccountsVue.umd.min.js')
+    document.head.appendChild(recaptchaScript);
   },
   created() {
     if (this.googleLinked) {
@@ -87,6 +86,9 @@ export default {
     this.unwatch();
   },
   computed: {
+    slotHtml() {
+      return `<template v-slot:body> <config-information :app="${this.app}" /> </template>`;
+    },
     app() {
       return this.$store.state.app.app;
     },

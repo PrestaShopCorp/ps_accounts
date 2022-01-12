@@ -48,7 +48,7 @@ Vue.config.productionTip = process.env.NODE_ENV === "production";
 Vue.config.debug = process.env.NODE_ENV !== "production";
 Vue.config.devtools = process.env.NODE_ENV !== "production";
 
-window.Vue = Vue;
+// window.Vue = Vue;
 
 window.onload = () => {
   new Vue({
