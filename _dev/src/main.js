@@ -37,18 +37,10 @@ Vue.use(Router);
 Vue.use(BootstrapVue, BootstrapVueIcons);
 Vue.use(VueCollapse);
 Vue.use(StoreSaga, { store });
-// Vue.use(VueSegment, {
-//   id: "Vxk9VEvePTRlBmjkjzbUG6saW5yAmgb2",
-//   router,
-//   debug: process.env.NODE_ENV !== "production",
-//   pageCategory: "ps_accounts",
-// });
 
 Vue.config.productionTip = process.env.NODE_ENV === "production";
 Vue.config.debug = process.env.NODE_ENV !== "production";
 Vue.config.devtools = process.env.NODE_ENV !== "production";
-
-// window.Vue = Vue;
 
 window.onload = () => {
   new Vue({

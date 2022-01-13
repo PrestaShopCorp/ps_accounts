@@ -23,7 +23,7 @@
     </section>
 
     <section class="onboarding-content">
-      <prestashop-accounts v-html="slotHtml"></prestashop-accounts>
+      <prestashop-accounts></prestashop-accounts>
     </section>
   </div>
 </template>
@@ -40,7 +40,7 @@ export default {
   methods: {
     ...mapSagas({
       getListProperty: "getListProperty",
-    }),
+    })
   },
   data() {
     return {
@@ -49,9 +49,7 @@ export default {
     };
   },
   mounted() {
-    let recaptchaScript = document.createElement('script')
-    recaptchaScript.setAttribute('src', 'http://shop-am.17.ps.localhost/upload/prestashop_accounts_vue_components/psaccountsVue.umd.min.js')
-    document.head.appendChild(recaptchaScript);
+    window.psaccountsVue.init();
   },
   created() {
     if (this.googleLinked) {

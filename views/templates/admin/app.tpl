@@ -17,39 +17,14 @@
  * @license   https://opensource.org/licenses/AFL-3.0 Academic Free License version 3.0
  *}
 
-<script type="module">
-    import { createApp } from 'https://unpkg.com/vue@3.2.26/dist/vue.esm-browser.js';
-
-    const App = {
-        data() {
-            return {
-                name: "Anthony",
-            };
-        },
-        template: `<h1>Hello {{ name }}</h1>`,
-    };
-
-    createApp(App).mount("#app3");
-</script>
-
-<!--<link href="{$pathVendor|escape:'htmlall':'UTF-8'}" rel=preload as=script>
-<link href="{$pathApp|escape:'htmlall':'UTF-8'}" rel=preload as=script>-->
+<link href="{$pathVendor|escape:'htmlall':'UTF-8'}" rel=preload as=script>
+<link href="{$pathApp|escape:'htmlall':'UTF-8'}" rel=preload as=script>
 
 <div id="app"></div>
 
-<!--<prestashop-accounts>
-    <template v-slot:body>
-        <div id="app3"></div>
-        <div id="app"></div>
-    </template>
-</prestashop-accounts>-->
-
 <script src="{$pathVendor|escape:'htmlall':'UTF-8'}"></script>
 <script src="{$pathApp|escape:'htmlall':'UTF-8'}"></script>
-<!--<script src="{$urlAccountsVueCdn|escape:'htmlall':'UTF-8'}" type="text/javascript"></script>-->
-
- <script src="/upload/js/app.68144786.js"></script>
- <script src="/upload/js/chunk-vendors.84a1ac1a.js"></script>
+<script src="{$urlAccountsVueCdn|escape:'htmlall':'UTF-8'}" type="text/javascript"></script>
 
 <style>
   /** Hide native multistore module activation panel, because of visual regressions on non-bootstrap content */
