@@ -125,7 +125,7 @@ jobs:
         uses: actions/checkout@v2.0.0
 
       - name: Download release asset
-        uses: dsaltares/fetch-gh-release-asset@0.0.6
+        uses: dsaltares/fetch-gh-release-asset@0.06
         with:
           repo: ${{ github.event.repository.full_name }}
           version: ${{ github.event.release.id }}
