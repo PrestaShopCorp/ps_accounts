@@ -84,9 +84,6 @@ export default {
     this.unwatch();
   },
   computed: {
-    slotHtml() {
-      return `<template v-slot:body> <config-information :app="${this.app}" /> </template>`;
-    },
     app() {
       return this.$store.state.app.app;
     },
