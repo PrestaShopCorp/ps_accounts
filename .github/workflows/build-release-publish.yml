@@ -62,7 +62,7 @@ jobs:
       - name: Prepare the production zip
         run: |
           cd ${{ github.event.repository.name }}
-          zip -r ${{ github.event.repository.name }}.zip ${{ github.event.repository.name }} -x '*.git*'
+          zip -r ${{ github.event.repository.name }}.zip ${{ github.event.repository.name }} -x '*.git*' '*config/config.yml.*'
         env:
           ENV_FILE: ${{ secrets.PS_ACCOUNTS_ENV_PROD }}
 
@@ -103,7 +103,7 @@ jobs:
       - name: Prepare the preprod zip
         run: |
           cd ${{ github.event.repository.name }}
-          zip -r ${{ github.event.repository.name }}_preprod.zip ${{ github.event.repository.name }}  -x '*.git*'
+          zip -r ${{ github.event.repository.name }}_preprod.zip ${{ github.event.repository.name }}  -x '*.git*' '*config/config.yml.*'
 
       - name: Publish the preprod zip
         uses: actions/upload-release-asset@v1.0.1
