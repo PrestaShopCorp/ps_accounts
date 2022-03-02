@@ -49,7 +49,11 @@ export default {
     };
   },
   mounted() {
-    window.psaccountsVue.init();
+    if (window?.psaccountsVue) {
+      return window?.psaccountsVue?.init();
+    }
+
+    require('prestashop_accounts_vue_components').init();
   },
   created() {
     if (this.googleLinked) {
