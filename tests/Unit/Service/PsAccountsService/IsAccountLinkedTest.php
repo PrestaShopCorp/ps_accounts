@@ -31,10 +31,6 @@ class IsAccountLinkedTest extends TestCase
             base64_encode($this->faker->name)
         );
 
-        /** @var ConfigurationRepository $config */
-        $config = $this->module->getService(ConfigurationRepository::class);
-        $config->updateEmployeeId($this->faker->numberBetween());
-
         /** @var PsAccountsService $service */
         $service = $this->module->getService(PsAccountsService::class);
 
@@ -57,14 +53,7 @@ class IsAccountLinkedTest extends TestCase
 
         /** @var UserTokenRepository $tokenRepos */
         $repos = $this->module->getService(UserTokenRepository::class);
-        $repos->updateCredentials(
-            $this->makeFirebaseToken(null, ['email_verified' => true]),
-            base64_encode($this->faker->name)
-        );
-
-        /** @var ConfigurationRepository $config */
-        $config = $this->module->getService(ConfigurationRepository::class);
-        $config->updateEmployeeId('');
+        $repos->cleanupCredentials();
 
         /** @var PsAccountsService $service */
         $service = $this->module->getService(PsAccountsService::class);
