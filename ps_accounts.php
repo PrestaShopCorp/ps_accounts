@@ -612,7 +612,7 @@ class Ps_accounts extends Module
     {
         $this->context->smarty->assign('pathVendor', $this->_path . 'views/js/chunk-vendors.' . $this->version . '.js');
         $this->context->smarty->assign('pathApp', $this->_path . 'views/js/app.' . $this->version . '.js');
-        $this->context->smarty->assign('urlAccountsVueCdn', $this->getParameter('ps_accounts.accounts_vue_cdn_url'));
+        $this->context->smarty->assign('urlAccountsCdn', $this->getParameter('ps_accounts.accounts_cdn_url'));
 
         $storePresenter = new PrestaShop\Module\PsAccounts\Presenter\Store\StorePresenter($this, $this->context);
 
