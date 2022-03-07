@@ -41,7 +41,9 @@ views/files/*
 /views/js/chunk-vendors*.js
 /views/js/chunk-vendors*.js.map
 /views/js/settings*.js
+/views/js/settings*.js.map
 /views/js/settingsOnBoarding*.js
+/views/js/settingsOnBoarding*.js.map
 /views/css/index.css
 /views/css/chunk-vendors.css
 /views/favicon.ico

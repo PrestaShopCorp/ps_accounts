@@ -213,6 +213,14 @@ class PsAccountsService
     }
 
     /**
+     * @return string
+     */
+    public function getAccountsCdn()
+    {
+        return $this->module->getParameter('ps_accounts.accounts_cdn_url');
+    }
+
+    /**
      * @return void
      *
      * @throws \Throwable
