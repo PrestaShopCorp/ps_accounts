@@ -1,4 +1,5 @@
-{#**
+<?php
+/**
  * Copyright since 2007 PrestaShop SA and Contributors
  * PrestaShop is an International Registered Trademark & Property of PrestaShop SA
  *
@@ -15,9 +16,31 @@
  * @author    PrestaShop SA and Contributors <contact@prestashop.com>
  * @copyright Since 2007 PrestaShop SA and Contributors
  * @license   https://opensource.org/licenses/AFL-3.0 Academic Free License version 3.0
- *#}
-{% extends '@!PrestaShop/Admin/Configure/ShopParameters/TrafficSeo/Meta/Blocks/shop_urls_configuration.html.twig' %}
-{% block shop_urls_configuration %}
-  {{ renderhook('displayAccountUpdateWarning') }}
-  {{ parent() }}
-{% endblock %}
+ */
+
+namespace PrestaShop\Module\PsAccounts\Api\Client\Guzzle;
+
+use const _PS_VERSION_;
+
+/**
+ * Construct the guzzle client depending on PrestaShop version
+ */
+class GuzzleClientFactory
+{
+    /**
+     * Creater for client
+     *
+     * @param array $options
+     *
+     * @return AbstractGuzzleClient
+     */
+    public function create($options)
+    {
+        /**
+         * @var string $psVersion
+         */
+        $psVersion = _PS_VERSION_;
+
+        return intval($psVersion[0]) >= 8 ? new Guzzle7Client($options) : new Guzzle5Client($options);
+    }
+}

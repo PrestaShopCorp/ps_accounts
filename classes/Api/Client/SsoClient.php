@@ -20,41 +20,33 @@
 
 namespace PrestaShop\Module\PsAccounts\Api\Client;
 
-use GuzzleHttp\Client;
-use PrestaShop\Module\PsAccounts\Exception\OptionResolutionException;
-use PrestaShop\Module\PsAccounts\Repository\UserTokenRepository;
+use PrestaShop\Module\PsAccounts\Api\Client\Guzzle\AbstractGuzzleClient;
+use PrestaShop\Module\PsAccounts\Api\Client\Guzzle\GuzzleClientFactory;
 
 /**
  * Class ServicesAccountsClient
  */
-class SsoClient extends GenericClient
+class SsoClient
 {
     /**
-     * @var UserTokenRepository
+     * @var AbstractGuzzleClient
      */
-    private $userTokenRepository;
+    private $client;
 
     /**
      * ServicesAccountsClient constructor.
      *
      * @param string $apiUrl
-     * @param Client|null $client
-     *
-     * @throws OptionResolutionException
+     * @param AbstractGuzzleClient|null $client
      */
     public function __construct(
         $apiUrl,
-        Client $client = null
+        AbstractGuzzleClient $client = null
     ) {
-        parent::__construct();
-
-        // Client can be provided for tests
         if (null === $client) {
-            $client = new Client([
+            $client = (new GuzzleClientFactory())->create([
                 'base_url' => $apiUrl,
                 'defaults' => [
-                    'timeout' => $this->timeout,
-                    'exceptions' => $this->catchExceptions,
                     'headers' => [
                         'Accept' => 'application/json',
                     ],
@@ -62,7 +54,7 @@ class SsoClient extends GenericClient
             ]);
         }
 
-        $this->setClient($client);
+        $this->client = $client;
     }
 
     /**
@@ -72,9 +64,9 @@ class SsoClient extends GenericClient
      */
     public function verifyToken($idToken)
     {
-        $this->setRoute('auth/token/verify');
+        $this->client->setRoute('auth/token/verify');
 
-        return $this->post([
+        return $this->client->post([
             'json' => [
                 'token' => $idToken,
             ],
@@ -88,9 +80,9 @@ class SsoClient extends GenericClient
      */
     public function refreshToken($refreshToken)
     {
-        $this->setRoute('auth/token/refresh');
+        $this->client->setRoute('auth/token/refresh');
 
-        return $this->post([
+        return $this->client->post([
             'json' => [
                 'token' => $refreshToken,
             ],

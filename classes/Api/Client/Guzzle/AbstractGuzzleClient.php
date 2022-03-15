@@ -18,37 +18,22 @@
  * @license   https://opensource.org/licenses/AFL-3.0 Academic Free License version 3.0
  */
 
-namespace PrestaShop\Module\PsAccounts\Api\Client;
+namespace PrestaShop\Module\PsAccounts\Api\Client\Guzzle;
 
 use GuzzleHttp\Client;
-use PrestaShop\Module\PsAccounts\Handler\Response\ApiResponseHandler;
+use PrestaShop\Module\PsAccounts\Api\Client\ClientInterface;
 
 /**
- * Construct the client used to make call to maasland.
+ * Construct the client used to make call to differents api.
  */
-abstract class GenericClient
+abstract class AbstractGuzzleClient implements ClientInterface
 {
-    /**
-     * If set to false, you will not be able to catch the error
-     * guzzle will show a different error message.
-     *
-     * @var bool
-     */
-    protected $catchExceptions = false;
-
     /**
      * Guzzle Client.
      *
      * @var Client
      */
     protected $client;
-
-    /**
-     * Class Link in order to generate module link.
-     *
-     * @var \Link
-     */
-    protected $link;
 
     /**
      * Api route.
@@ -65,61 +50,12 @@ abstract class GenericClient
     protected $timeout = 10;
 
     /**
-     * GenericClient constructor.
-     */
-    public function __construct()
-    {
-    }
-
-    /**
-     * Getter for client.
+     * If set to false, you will not be able to catch the error
+     * guzzle will show a different error message.
      *
-     * @return Client
+     * @var bool
      */
-    public function getClient()
-    {
-        return $this->client;
-    }
-
-    /**
-     * Getter for exceptions mode.
-     *
-     * @return bool
-     */
-    protected function getExceptionsMode()
-    {
-        return $this->catchExceptions;
-    }
-
-    /**
-     * Getter for Link.
-     *
-     * @return \Link
-     */
-    protected function getLink()
-    {
-        return $this->link;
-    }
-
-    /**
-     * Getter for route.
-     *
-     * @return string
-     */
-    protected function getRoute()
-    {
-        return $this->route;
-    }
-
-    /**
-     * Getter for timeout.
-     *
-     * @return int
-     */
-    protected function getTimeout()
-    {
-        return $this->timeout;
-    }
+    protected $catchExceptions = false;
 
     /**
      * Wrapper of method post from guzzle client.
@@ -128,11 +64,10 @@ abstract class GenericClient
      *
      * @return array return response or false if no response
      */
-    protected function post(array $options = [])
+    public function post(array $options = [])
     {
         $response = $this->getClient()->post($this->getRoute(), $options);
-        $responseHandler = new ApiResponseHandler();
-        $response = $responseHandler->handleResponse($response);
+        $response = $this->handleResponse($response);
         // If response is not successful only
         if (\Configuration::get('PS_ACCOUNTS_DEBUG_LOGS_ENABLED') && !$response['status']) {
             /**
@@ -155,11 +90,10 @@ abstract class GenericClient
      *
      * @return array return response or false if no response
      */
-    protected function patch(array $options = [])
+    public function patch(array $options = [])
     {
         $response = $this->getClient()->patch($this->getRoute(), $options);
-        $responseHandler = new ApiResponseHandler();
-        $response = $responseHandler->handleResponse($response);
+        $response = $this->handleResponse($response);
         // If response is not successful only
         if (\Configuration::get('PS_ACCOUNTS_DEBUG_LOGS_ENABLED') && !$response['status']) {
             /**
@@ -182,11 +116,10 @@ abstract class GenericClient
      *
      * @return array return response or false if no response
      */
-    protected function get(array $options = [])
+    public function get(array $options = [])
     {
         $response = $this->getClient()->get($this->getRoute(), $options);
-        $responseHandler = new ApiResponseHandler();
-        $response = $responseHandler->handleResponse($response);
+        $response = $this->handleResponse($response);
         // If response is not successful only
         if (\Configuration::get('PS_ACCOUNTS_DEBUG_LOGS_ENABLED') && !$response['status']) {
             /**
@@ -209,11 +142,10 @@ abstract class GenericClient
      *
      * @return array return response array
      */
-    protected function delete(array $options = [])
+    public function delete(array $options = [])
     {
         $response = $this->getClient()->delete($this->getRoute(), $options);
-        $responseHandler = new ApiResponseHandler();
-        $response = $responseHandler->handleResponse($response);
+        $response = $this->handleResponse($response);
         // If response is not successful only
         if (\Configuration::get('PS_ACCOUNTS_DEBUG_LOGS_ENABLED') && !$response['status']) {
             /**
@@ -230,43 +162,48 @@ abstract class GenericClient
     }
 
     /**
+     * Check if the response is successful or not (response code 200 to 299).
+     *
+     * @param array $responseContents
+     * @param int $httpStatusCode
+     *
+     * @return bool
+     */
+    public function responseIsSuccessful($responseContents, $httpStatusCode)
+    {
+        return '2' === substr((string) $httpStatusCode, 0, 1);
+    }
+
+    /**
+     * Getter for client.
+     *
+     * @return Client
+     */
+    public function getClient()
+    {
+        return $this->client;
+    }
+
+    /**
      * Setter for client.
+     *
+     * @param Client $client
      *
      * @return void
      */
-    protected function setClient(Client $client)
+    public function setClient(Client $client)
     {
-        /** @var \Ps_accounts $module */
-        $module = \Module::getInstanceByName('ps_accounts');
-
-        $client->setDefaultOption(
-            'verify',
-            (bool) $module->getParameter('ps_accounts.check_api_ssl_cert')
-        );
-
         $this->client = $client;
     }
 
     /**
-     * Setter for exceptions mode.
+     * Getter for route.
      *
-     * @param bool $bool
-     *
-     * @return void
+     * @return string
      */
-    protected function setExceptionsMode($bool)
+    protected function getRoute()
     {
-        $this->catchExceptions = $bool;
-    }
-
-    /**
-     * Setter for link.
-     *
-     * @return void
-     */
-    protected function setLink(\Link $link)
-    {
-        $this->link = $link;
+        return $this->route;
     }
 
     /**
@@ -276,20 +213,8 @@ abstract class GenericClient
      *
      * @return void
      */
-    protected function setRoute($route)
+    public function setRoute($route)
     {
         $this->route = $route;
-    }
-
-    /**
-     * Setter for timeout.
-     *
-     * @param int $timeout
-     *
-     * @return void
-     */
-    protected function setTimeout($timeout)
-    {
-        $this->timeout = $timeout;
     }
 }

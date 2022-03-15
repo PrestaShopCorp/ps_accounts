@@ -20,8 +20,8 @@
 
 namespace PrestaShop\Module\PsAccounts\Api\Client;
 
-use GuzzleHttp\Client;
-use PrestaShop\Module\PsAccounts\Adapter\Link;
+use PrestaShop\Module\PsAccounts\Api\Client\Guzzle\AbstractGuzzleClient;
+use PrestaShop\Module\PsAccounts\Api\Client\Guzzle\GuzzleClientFactory;
 use PrestaShop\Module\PsAccounts\DTO\UpdateShop;
 use PrestaShop\Module\PsAccounts\Provider\ShopProvider;
 use PrestaShop\Module\PsAccounts\Repository\ShopTokenRepository;
@@ -31,7 +31,7 @@ use PrestaShop\Module\PsAccounts\Service\ShopLinkAccountService;
 /**
  * Class ServicesAccountsClient
  */
-class AccountsClient extends GenericClient
+class AccountsClient
 {
     /**
      * @var ShopProvider
@@ -39,39 +39,31 @@ class AccountsClient extends GenericClient
     private $shopProvider;
 
     /**
+     * @var AbstractGuzzleClient
+     */
+    private $client;
+
+    /**
      * ServicesAccountsClient constructor.
      *
      * @param string $apiUrl
      * @param ShopProvider $shopProvider
-     * @param Link $link
-     * @param Client|null $client
-     *
-     * @throws \PrestaShopException
-     * @throws \Exception
+     * @param AbstractGuzzleClient|null $client
      */
     public function __construct(
         $apiUrl,
         ShopProvider $shopProvider,
-        Link $link,
-        Client $client = null
+        AbstractGuzzleClient $client = null
     ) {
-        parent::__construct();
-
         $this->shopProvider = $shopProvider;
 
-        $this->setLink($link->getLink());
-
         if (null === $client) {
-            $client = new Client([
+            $client = (new GuzzleClientFactory())->create([
                 'base_url' => $apiUrl,
-                'defaults' => [
-                    'timeout' => $this->timeout,
-                    'exceptions' => $this->catchExceptions,
-                ],
             ]);
         }
 
-        $this->setClient($client);
+        $this->client = $client;
     }
 
     /**
@@ -81,9 +73,9 @@ class AccountsClient extends GenericClient
      */
     public function verifyToken($idToken)
     {
-        $this->setRoute('shop/token/verify');
+        $this->client->setRoute('shop/token/verify');
 
-        return $this->post([
+        return $this->client->post([
             'json' => [
                 'headers' => $this->getHeaders(),
                 'token' => $idToken,
@@ -98,9 +90,9 @@ class AccountsClient extends GenericClient
      */
     public function refreshToken($refreshToken)
     {
-        $this->setRoute('shop/token/refresh');
+        $this->client->setRoute('shop/token/refresh');
 
-        return $this->post([
+        return $this->client->post([
             'json' => [
                 'headers' => $this->getHeaders(),
                 'token' => $refreshToken,
@@ -121,9 +113,9 @@ class AccountsClient extends GenericClient
             $userToken = $this->getUserTokenRepository();
             $shopToken = $this->getShopTokenRepository();
 
-            $this->setRoute('user/' . $userToken->getTokenUuid() . '/shop/' . $shopToken->getTokenUuid());
+            $this->client->setRoute('user/' . $userToken->getTokenUuid() . '/shop/' . $shopToken->getTokenUuid());
 
-            return $this->delete([
+            return $this->client->delete([
                 'headers' => $this->getHeaders([
                     'Authorization' => 'Bearer ' . $userToken->getOrRefreshToken(),
                 ]),
@@ -143,9 +135,9 @@ class AccountsClient extends GenericClient
         return $this->shopProvider->getShopContext()->execInShopContext((int) $currentShop['id'], function () use ($currentShop) {
             $shopToken = $this->getShopTokenRepository();
 
-            $this->setRoute('shop/' . $currentShop['uuid'] . '/reonboard');
+            $this->client->setRoute('shop/' . $currentShop['uuid'] . '/reonboard');
 
-            return $this->post([
+            return $this->client->post([
                 'headers' => $this->getHeaders([
                     'Authorization' => 'Bearer ' . $shopToken->getOrRefreshToken(),
                     'content-type' => 'application/json',
@@ -178,9 +170,9 @@ class AccountsClient extends GenericClient
                 return null;
             }
 
-            $this->setRoute('user/' . $userToken->getTokenUuid() . '/shop/' . $shopToken->getTokenUuid());
+            $this->client->setRoute('user/' . $userToken->getTokenUuid() . '/shop/' . $shopToken->getTokenUuid());
 
-            return $this->patch([
+            return $this->client->patch([
                 'headers' => $this->getHeaders([
                     'Authorization' => 'Bearer ' . $userToken->getOrRefreshToken(),
                     'content-type' => 'application/json',

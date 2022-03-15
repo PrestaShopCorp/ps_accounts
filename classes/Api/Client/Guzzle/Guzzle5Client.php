@@ -18,21 +18,48 @@
  * @license   https://opensource.org/licenses/AFL-3.0 Academic Free License version 3.0
  */
 
-namespace PrestaShop\Module\PsAccounts\Handler\Response;
+namespace PrestaShop\Module\PsAccounts\Api\Client\Guzzle;
 
+use GuzzleHttp\Client;
 use GuzzleHttp\Message\ResponseInterface;
 
 /**
- * Handle api response.
+ * Construct the guzzle client before PrestaShop 8
  */
-class ApiResponseHandler
+class Guzzle5Client extends AbstractGuzzleClient
 {
     /**
-     * Format api response.
+     * Constructor for client before PrestaShop 8
+     */
+    public function __construct($options)
+    {
+        /** @var \Ps_accounts $module */
+        $module = \Module::getInstanceByName('ps_accounts');
+
+        if (!isset($options['defaults']['timeout'])) {
+            $options['defaults']['timeout'] = $this->timeout;
+        }
+
+        if (!isset($options['defaults']['exceptions'])) {
+            $options['defaults']['exceptions'] = $this->catchExceptions;
+        }
+
+        $client = new Client($options);
+
+        $client->setDefaultOption(
+            'verify',
+            (bool) $module->getParameter('ps_accounts.check_api_ssl_cert')
+        );
+
+        $this->client = $client;
+    }
+
+    /**
+     * @param ResponseInterface $response
      *
      * @return array
      */
-    public function handleResponse(ResponseInterface $response)
+    public function handleResponse($response)
     {
         $responseContents = json_decode($response->getBody()->getContents(), true);
 
@@ -41,18 +68,5 @@ class ApiResponseHandler
             'httpCode' => $response->getStatusCode(),
             'body' => $responseContents,
         ];
-    }
-
-    /**
-     * Check if the response is successful or not (response code 200 to 299).
-     *
-     * @param array $responseContents
-     * @param int $httpStatusCode
-     *
-     * @return bool
-     */
-    private function responseIsSuccessful($responseContents, $httpStatusCode)
-    {
-        return '2' === substr((string) $httpStatusCode, 0, 1);
     }
 }
