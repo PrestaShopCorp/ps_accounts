@@ -49,6 +49,8 @@ class Ps_accounts extends Module
         'actionObjectShopUrlUpdateAfter',
         'displayDashboardTop',
         'displayAccountUpdateWarning',
+        'actionAdminLoginControllerLoginBefore',
+        'displayAdminLogin',
     ];
 
     /**
@@ -576,6 +578,92 @@ class Ps_accounts extends Module
         }
 
         return true;
+    }
+
+    /**
+     * @param array $params
+     *
+     * @return mixed
+     *
+     * @throws Exception
+     */
+    public function hookDisplayAdminLogin($params)
+    {
+        $this->context->smarty->assign('pathVendor', $this->_path . 'views/js/chunk-vendors.' . $this->version . '.js');
+        $this->context->smarty->assign('pathZoid', $this->_path . 'views/js/zoid.' . $this->version . '.js');
+        $this->context->smarty->assign('pathImg', $this->_path . 'views/img/prestashop-logo-2.png');
+        /* @phpstan-ignore-next-line */
+        return $this->display(__FILE__, 'views/templates/backoffice/sso.tpl');
+    }
+
+    /**
+     * @param array $params
+     *
+     * @return array|null
+     *
+     * @throws Exception
+     */
+    public function hookActionAdminLoginControllerLoginBefore($params)
+    {
+        $token = trim(Tools::getValue('token'));
+        $refreshToken = trim(Tools::getValue('refreshToken'));
+        $provider = trim(Tools::getValue('provider'));
+
+        if ($provider !== "ps_accounts" || empty($refreshToken) || empty($token))
+            return null;
+
+        /** @var \PrestaShop\Module\PsSso\Api\Client\SsoClient $ssoClient */
+        $ssoClient = $this->get(\PrestaShop\Module\PsSso\Api\Client\SsoClient::class);
+
+        $ret = $ssoClient->verifyToken($token);
+
+        if ($ret['status'] === false)
+            return null;
+
+        /** @var \PrestaShop\Module\PsSso\Repository\UserTokenRepository $userTokenRepository */
+        $userTokenRepository = $this->get(\PrestaShop\Module\PsSso\Repository\UserTokenRepository::class);
+
+        $parsedToken = $userTokenRepository->parseToken($token);
+
+        $jwtEmail = $parsedToken->claims()->get('email');
+        $emailVerified = $parsedToken->claims()->get('email_verified');
+        $context = Context::getContext();
+        $context->employee = new Employee();
+        $isEmployedLoaded = $context->employee->getByEmail($jwtEmail);
+
+        if (!$isEmployedLoaded || empty($emailVerified))
+        {
+            $context->employee->logout();
+            die(
+                json_encode(
+                    [
+                        'hasErrors' => true,
+                        'errors' => [
+                            empty($emailVerified) ? "You account is not verified" : "The employee does not exist"
+                        ]
+                    ]
+                )
+            );
+        }
+
+        $context->employee->remote_addr = (int) ip2long(Tools::getRemoteAddr());
+
+        $cookie = Context::getContext()->cookie;
+        $cookie->id_employee = $context->employee->id;
+        $cookie->email = $context->employee->email;
+        $cookie->profile = $context->employee->id_profile;
+        $cookie->passwd = $context->employee->passwd;
+        $cookie->remote_addr = $context->employee->remote_addr;
+        $cookie->registerSession(new EmployeeSession());
+
+        if (!Tools::getValue('stay_logged_in'))
+            $cookie->last_activity = time();
+
+        $cookie->write();
+
+        $url = $context->link->getAdminLink($_POST['redirect']);
+
+        die(json_encode(['hasErrors' => false, 'redirect' => $url]));
     }
 
     /**

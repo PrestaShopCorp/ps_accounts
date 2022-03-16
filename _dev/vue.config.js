@@ -30,10 +30,14 @@ module.exports = {
     config.resolve.alias.set("@", path.resolve(__dirname, "src"));
   },
   configureWebpack: {
+    entry: {
+      app: "./src/main.js",
+      zoid: "./src/zoid.ts",
+    },
     output: {
       filename: `js/[name].${version}.js`,
-      chunkFilename: `js/[name].${version}.js`
-    }
+      chunkFilename: `js/[name].${version}.js`,
+    },
   },
   css: {
     extract: false,
