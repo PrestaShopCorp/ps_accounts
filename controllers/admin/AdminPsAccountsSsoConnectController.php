@@ -103,7 +103,9 @@ class AdminPsAccountsSsoConnectController extends ModuleAdminController
         $cookie->profile = $context->employee->id_profile;
         $cookie->passwd = $context->employee->passwd;
         $cookie->remote_addr = $context->employee->remote_addr;
-//        $cookie->registerSession(new EmployeeSession());
+
+        if (intval(_PS_VERSION_[0]) >= 8)
+            $cookie->registerSession(new EmployeeSession());
 
         if (!Tools::getValue('stay_logged_in'))
             $cookie->last_activity = time();
