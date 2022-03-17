@@ -38,7 +38,6 @@ document
         params.append("ajax", "1");
         params.append("token", idToken);
         params.append("refreshToken", refreshToken);
-        params.append("controller", "AdminLogin");
         params.append("provider", "ps_accounts");
         params.append("submitLogin", "1");
         params.append("redirect", redirect);
@@ -46,17 +45,17 @@ document
         // eslint-disable-next-line
         params.append("stay_logged_in", $("#stay_logged_in:checked").val());
 
+        // index.php?controller=AdminAjaxPsAccounts&ajax=1&action=unlinkShop&token=' . Tools::getAdminTokenLite('AdminAjaxPsAccounts')
         axios
-          .post(`${"index.php?rand="}${new Date().getTime()}`, params, {
-            headers: {
-              "cache-control": "no-cache",
-              "Content-Type":
-                "application/x-www-form-urlencoded; charset=UTF-8",
-              "X-Requested-With": "XMLHttpRequest",
-              Accept: "application/json, text/javascript, */*; q=0.01",
-            },
-            maxRedirects: 0,
-          })
+          .post(
+            `index.php?controller=AdminPsAccountsSsoConnect&ajax=1&action=ssoConnect`,
+            params,
+            {
+              headers: {
+                Accept: "application/json",
+              },
+            }
+          )
           .then((res) => {
             if (res.data.hasErrors) {
               // Function in prestashop core (global actually)
