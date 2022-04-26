@@ -28,7 +28,7 @@ class Ps_accounts extends Module
 
     // Needed in order to retrieve the module version easier (in api call headers) than instanciate
     // the module each time to get the version
-    const VERSION = '5.2.4';
+    const VERSION = '5.2.6';
 
     /**
      * @var array
@@ -101,7 +101,7 @@ class Ps_accounts extends Module
 
         // We cannot use the const VERSION because the const is not computed by addons marketplace
         // when the zip is uploaded
-        $this->version = '5.2.4';
+        $this->version = '5.2.6';
 
         $this->module_key = 'abf2cd758b4d629b2944d3922ef9db73';
 
@@ -593,6 +593,13 @@ class Ps_accounts extends Module
         $this->context->smarty->assign('pathVendor', $this->_path . 'views/js/chunk-vendors.' . $this->version . '.js');
         $this->context->smarty->assign('pathZoid', $this->_path . 'views/js/zoid.' . $this->version . '.js');
         $this->context->smarty->assign('pathImg', $this->_path . 'views/img/prestashop-logo-2.png');
+
+        /** @var \PrestaShop\Module\PsAccounts\Presenter\PsAccountsPresenter $psAccountsPresenter */
+        $psAccountsPresenter = $this->getService(\PrestaShop\Module\PsAccounts\Presenter\PsAccountsPresenter::class);
+
+        // TODO Look why addJsDef doesn't work in this context
+        $this->context->smarty->assign('accountsUiUrl', $psAccountsPresenter->present($this->name)['accountsUiUrl']);
+
         /* @phpstan-ignore-next-line */
         return $this->display(__FILE__, 'views/templates/backoffice/sso.tpl');
     }

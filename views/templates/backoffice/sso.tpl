@@ -1,5 +1,8 @@
 <link href="{$pathVendor|escape:'htmlall':'UTF-8'}" rel=preload as=script>
 <link href="{$pathZoid|escape:'htmlall':'UTF-8'}" rel=preload as=script>
+<script>
+    const accountsUiUrl = "{$accountsUiUrl}";
+</script>
 
 <div class="col-sm prestashop-sso">
     <img src="{$pathImg|escape:'htmlall':'UTF-8'}" class="prestashop-sso picture" />
