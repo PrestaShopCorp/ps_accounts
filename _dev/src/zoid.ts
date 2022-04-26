@@ -1,11 +1,15 @@
 import * as zoid from "zoid/dist/zoid";
 import axios from "axios";
 
+// @ts-ignore
+// eslint-disable-next-line
+console.log(accountsUiUrl);
+
 const ssoComponent = zoid.create({
   tag: "crossdomains-account-link-shop",
   // @ts-ignore
   // eslint-disable-next-line
-  url: ({ props }) => `https://accounts.prestashop.localhost/?cdc=true`,
+  url: ({ props }) => `${accountsUiUrl}/?cdc=true&workflow=sso`,
 
   dimensions: {
     width: "400px",
