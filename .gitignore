@@ -1,6 +1,7 @@
 ### Env files
 .env.*
 !.env.dist
+!.env.example
 
 ### Manually built zip
 /dist/
