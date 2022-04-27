@@ -96,6 +96,27 @@ class AdminAjaxPsAccountsController extends ModuleAdminController
      *
      * @throws Throwable
      */
+    public function ajaxProcessResetLinkAccount()
+    {
+        try {
+            /** @var ShopLinkAccountService $shopLinkAccountService */
+            $shopLinkAccountService = $this->module->getService(ShopLinkAccountService::class);
+
+            $shopLinkAccountService->resetLinkAccount();
+
+            header('Content-Type: text/json');
+
+            $this->ajaxDie(json_encode(['message' => 'success']));
+        } catch (Exception $e) {
+            Sentry::captureAndRethrow($e);
+        }
+    }
+
+    /**
+     * @return void
+     *
+     * @throws Throwable
+     */
     public function ajaxProcessGetContext()
     {
         try {
