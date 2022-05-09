@@ -167,8 +167,7 @@ class PsAccountsPresenter implements PresenterInterface
 
                     'accountsUiUrl' => $this->module->getParameter('ps_accounts.accounts_ui_url'),
                     'segmentApiKey' => $this->module->getParameter('ps_accounts.segment_api_key'),
-                ],
-                (new DependenciesPresenter())->present($psxName)
+                ]
             );
         } catch (\Exception $e) {
             Logger::getInstance()->debug($e);

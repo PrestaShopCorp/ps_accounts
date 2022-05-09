@@ -71,21 +71,6 @@ class Ps_accounts extends Module
      */
     private $serviceContainer;
 
-//    /**
-//     * @var \Symfony\Component\DependencyInjection\ContainerInterface
-//     */
-//    protected $container;
-
-    /**
-     * @var array
-     */
-    private $configuration;
-
-    /**
-     * @var \PrestaShop\Module\PsAccounts\Installer\Installer
-     */
-    private $moduleInstaller;
-
     /**
      * Ps_accounts constructor.
      */
@@ -104,8 +89,6 @@ class Ps_accounts extends Module
         $this->module_key = 'abf2cd758b4d629b2944d3922ef9db73';
 
         parent::__construct();
-
-        $this->moduleInstaller = $this->getService(\PrestaShop\Module\PsAccounts\Installer\Installer::class);
 
         $this->displayName = $this->l('PrestaShop Account');
         $this->description = $this->l('Associate your shop with your PrestaShop account to activate and manage your subscriptions in your back office. Do not uninstall this module if you have a current subscription.');
@@ -166,9 +149,6 @@ class Ps_accounts extends Module
         // Removed controller
         $uninstaller = new PrestaShop\Module\PsAccounts\Module\Uninstall($this, Db::getInstance());
         $uninstaller->deleteAdminTab('AdminConfigureHmacPsAccounts');
-
-        // Ignore fail on ps_eventbus install
-        $this->moduleInstaller->installModule('ps_eventbus');
 
         $this->switchConfigMultishopMode();
 
