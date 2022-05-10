@@ -147,6 +147,10 @@ class Installer
      */
     public function isInstalled($module)
     {
+        if (false === $this->shopContext->isShop17()) {
+            return Module::isInstalled($module);
+        }
+
         $moduleManager = ModuleManagerBuilder::getInstance()->build();
 
         return $moduleManager->isInstalled($module);

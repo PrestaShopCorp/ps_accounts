@@ -103,7 +103,7 @@ This module don't use a .env file as a configuration file. We are now using YAML
 You can copy and paste the `config.yml.dist` to `config.yml` but you **MUST NOT COMMIT THIS FILE**
 
 ### Composer dependency `prestashop_accounts_auth` deprecated
-This library will is deprecated and no longer needed.
+This library will be deprecated and no longer needed.
 Please remove it from your module's dependencies.
 
 ### New composer dependency `prestashop-accounts-installer`
@@ -113,3 +113,6 @@ If you need to call PrestaShop Accounts public classes's methods, you need to us
 
 see: [PrestaShop Accounts Installer](http://github.com/PrestaShopCorp/prestashop-accounts-installer)
 
+### PS EventBus is no longer installed
+
+The dependency with ps_eventbus module has been removed. This module is no longer installed automatically with the module ps_accounts. If you need ps_eventbus, you need to install it 
