@@ -40,7 +40,6 @@ If you need to install and test the module, [you can download the desired zip he
 - [Read the official documentation here](https://devdocs.prestashop.com/1.7/modules/)
 - Clone this repository
 - Copy paste the `config/config.yml.dist` to `config/config.yml`
-- Copy paste the `.env.example` to `.env`
 
 ## Continous Integration
 
