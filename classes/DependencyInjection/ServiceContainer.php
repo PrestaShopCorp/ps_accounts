@@ -21,7 +21,6 @@
 namespace PrestaShop\Module\PsAccounts\DependencyInjection;
 
 use PrestaShop\ModuleLibCacheDirectoryProvider\Cache\CacheDirectoryProvider;
-//use PrestaShop\ModuleLibServiceContainer\DependencyInjection\ContainerProvider;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
 class ServiceContainer
@@ -71,11 +70,7 @@ class ServiceContainer
      */
     public function getService($serviceName)
     {
-        if (null === $this->container) {
-            $this->initContainer();
-        }
-
-        return $this->container->get($serviceName);
+        return $this->getContainer()->get($serviceName);
     }
 
     /**
@@ -83,6 +78,10 @@ class ServiceContainer
      */
     public function getContainer()
     {
+        if (null === $this->container) {
+            $this->initContainer();
+        }
+
         return $this->container;
     }
 

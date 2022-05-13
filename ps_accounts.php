@@ -95,7 +95,7 @@ class Ps_accounts extends Module
         $this->description_full = $this->l('Associate your shop with your PrestaShop account to activate and manage your subscriptions in your back office. Do not uninstall this module if you have a current subscription.');
         $this->confirmUninstall = $this->l('This action will prevent immediately your PrestaShop services and Community services from working as they are using PrestaShop Accounts module for authentication.');
 
-        $this->ps_versions_compliancy = ['min' => '1.6', 'max' => _PS_VERSION_];
+        $this->ps_versions_compliancy = ['min' => '1.6.1', 'max' => _PS_VERSION_];
 
         $this->adminControllers = [
             'ajax' => 'AdminAjaxPsAccounts',
@@ -172,16 +172,14 @@ class Ps_accounts extends Module
     }
 
     /**
-     * @param string $serviceName
      *
-     * @return mixed
+     * @return \PrestaShop\Module\PsAccounts\DependencyInjection\ServiceContainer
      *
      * @throws Exception
      */
-    public function getService($serviceName)
+    public function getServiceContainer()
     {
         if (null === $this->serviceContainer) {
-            //$this->serviceContainer = new \PrestaShop\ModuleLibServiceContainer\DependencyInjection\ServiceContainer(
             $this->serviceContainer = new \PrestaShop\Module\PsAccounts\DependencyInjection\ServiceContainer(
                 // append version number to force cache generation (1.6 Core won't clear it)
                 $this->name . str_replace(['.', '-'], '', $this->version),
@@ -190,7 +188,19 @@ class Ps_accounts extends Module
             );
         }
 
-        return $this->serviceContainer->getService($serviceName);
+        return $this->serviceContainer;
+    }
+
+    /**
+     * @param string $serviceName
+     *
+     * @return mixed
+     *
+     * @throws Exception
+     */
+    public function getService($serviceName)
+    {
+        return $this->getServiceContainer()->getService($serviceName);
     }
 
     /**
@@ -200,7 +210,7 @@ class Ps_accounts extends Module
      */
     public function getParameter($name)
     {
-        return $this->serviceContainer->getContainer()->getParameter($name);
+        return $this->getServiceContainer()->getContainer()->getParameter($name);
     }
 
     /**
