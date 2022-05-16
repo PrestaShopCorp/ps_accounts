@@ -150,6 +150,14 @@ class Ps_accounts extends Module
         $uninstaller = new PrestaShop\Module\PsAccounts\Module\Uninstall($this, Db::getInstance());
         $uninstaller->deleteAdminTab('AdminConfigureHmacPsAccounts');
 
+        if ($this->getShopContext()->isShop17()) {
+            /** @var \PrestaShop\Module\PsAccounts\Installer\Installer $moduleInstaller */
+            $moduleInstaller = $this->getService(\PrestaShop\Module\PsAccounts\Installer\Installer::class);
+
+            // Ignore fail on ps_eventbus install
+            $moduleInstaller->installModule('ps_eventbus');
+        }
+
         $this->switchConfigMultishopMode();
 
         $this->autoReonboardOnV5();
@@ -172,7 +180,6 @@ class Ps_accounts extends Module
     }
 
     /**
-     *
      * @return \PrestaShop\Module\PsAccounts\DependencyInjection\ServiceContainer
      *
      * @throws Exception
@@ -268,11 +275,8 @@ class Ps_accounts extends Module
      */
     public function hookDisplayBackOfficeHeader($params)
     {
-        /** @var \PrestaShop\Module\PsAccounts\Context\ShopContext $shopContext */
-        $shopContext = $this->getService(\PrestaShop\Module\PsAccounts\Context\ShopContext::class);
-
         // Multistore On/Off switch
-        if ('AdminPreferences' === $this->context->controller->controller_name || !$shopContext->isShop17()) {
+        if ('AdminPreferences' === $this->context->controller->controller_name || !$this->getShopContext()->isShop17()) {
             $this->switchConfigMultishopMode();
         }
     }
@@ -284,10 +288,7 @@ class Ps_accounts extends Module
      */
     public function renderUpdateWarningView()
     {
-        /** @var \PrestaShop\Module\PsAccounts\Context\ShopContext $shopContext */
-        $shopContext = $this->getService(\PrestaShop\Module\PsAccounts\Context\ShopContext::class);
-
-        if ($shopContext->isShop17()) {
+        if ($this->getShopContext()->isShop17()) {
             /* @phpstan-ignore-next-line */
             return PrestaShop\PrestaShop\Adapter\SymfonyContainer::getInstance()
                 ->get('twig')
@@ -304,10 +305,7 @@ class Ps_accounts extends Module
      */
     public function renderDeleteWarningView()
     {
-        /** @var \PrestaShop\Module\PsAccounts\Context\ShopContext $shopContext */
-        $shopContext = $this->getService(\PrestaShop\Module\PsAccounts\Context\ShopContext::class);
-
-        if ($shopContext->isShop17()) {
+        if ($this->getShopContext()->isShop17()) {
             /* @phpstan-ignore-next-line */
             return PrestaShop\PrestaShop\Adapter\SymfonyContainer::getInstance()
                 ->get('twig')
@@ -383,8 +381,7 @@ class Ps_accounts extends Module
      */
     public function hookDisplayDashboardTop($params)
     {
-        /** @var \PrestaShop\Module\PsAccounts\Context\ShopContext $shopContext */
-        $shopContext = $this->getService(\PrestaShop\Module\PsAccounts\Context\ShopContext::class);
+        $shopContext = $this->getShopContext();
 
         /** @var \PrestaShop\Module\PsAccounts\Service\PsAccountsService $accountsService */
         $accountsService = $this->getService(\PrestaShop\Module\PsAccounts\Service\PsAccountsService::class);
@@ -408,10 +405,7 @@ class Ps_accounts extends Module
         /** @var \PrestaShop\Module\PsAccounts\Service\PsAccountsService $psAccountsService */
         $psAccountsService = $this->getService(\PrestaShop\Module\PsAccounts\Service\PsAccountsService::class);
 
-        /** @var \PrestaShop\Module\PsAccounts\Context\ShopContext $shopContext */
-        $shopContext = $this->getService(\PrestaShop\Module\PsAccounts\Context\ShopContext::class);
-
-        if ($psAccountsService->isAccountLinked() && !$shopContext->isMultishopActive()) {
+        if ($psAccountsService->isAccountLinked() && !$this->getShopContext()->isMultishopActive()) {
             // I don't load with $this->get('twig') since i had this error https://github.com/PrestaShop/PrestaShop/issues/20505
             // Some users may have the same and couldn't render the configuration page
             return $this->renderUpdateWarningView();
@@ -595,7 +589,7 @@ class Ps_accounts extends Module
      */
     public function getContent()
     {
-        $this->loadAssets(\Tools::getValue('google_message_error'), \Tools::getValue('countProperty'));
+        $this->loadAssets();
 
         return $this->display(__FILE__, '/views/templates/admin/app.tpl');
     }
@@ -603,14 +597,11 @@ class Ps_accounts extends Module
     /**
      * Load VueJs App and set JS variable for Vuex
      *
-     * @param string $responseApiMessage
-     * @param int $countProperty
-     *
      * @return void
      *
      * @throws Throwable
      */
-    protected function loadAssets($responseApiMessage = 'null', $countProperty = 0)
+    protected function loadAssets()
     {
         $this->context->smarty->assign('pathVendor', $this->_path . 'views/js/chunk-vendors.' . $this->version . '.js');
         $this->context->smarty->assign('pathApp', $this->_path . 'views/js/app.' . $this->version . '.js');
@@ -642,6 +633,14 @@ class Ps_accounts extends Module
     }
 
     /**
+     * @return \PrestaShop\Module\PsAccounts\Context\ShopContext
+     */
+    private function getShopContext()
+    {
+        return $this->getService(\PrestaShop\Module\PsAccounts\Context\ShopContext::class);
+    }
+
+    /**
      * @return void
      *
      * @throws Exception
@@ -651,10 +650,7 @@ class Ps_accounts extends Module
         /** @var \PrestaShop\Module\PsAccounts\Repository\ConfigurationRepository $config */
         $config = $this->getService(\PrestaShop\Module\PsAccounts\Repository\ConfigurationRepository::class);
 
-        /** @var \PrestaShop\Module\PsAccounts\Context\ShopContext $shopContext */
-        $shopContext = $this->getService(\PrestaShop\Module\PsAccounts\Context\ShopContext::class);
-
-        if ($shopContext->isMultishopActive()) {
+        if ($this->getShopContext()->isMultishopActive()) {
             $config->migrateToMultiShop();
         } else {
             $config->migrateToSingleShop();

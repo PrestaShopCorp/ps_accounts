@@ -113,6 +113,20 @@ If you need to call PrestaShop Accounts public classes's methods, you need to us
 
 see: [PrestaShop Accounts Installer](http://github.com/PrestaShopCorp/prestashop-accounts-installer)
 
-### PS EventBus is no longer installed
+### PS EventBus is no longer installed for 1.6.x versions
 
-The dependency with ps_eventbus module has been removed. This module is no longer installed automatically with the module ps_accounts. If you need ps_eventbus, you need to install it 
+The ps_eventbus module is no longer installed automatically for Prestashop version <1.7.
+
+### APIs removal
+
+Those API has been removed:
+- `/carts`
+- `/categories`
+- `/deletedObjects`
+- `/googleTaxonomies`
+- `/apiHealthCheck`
+- `/info`
+- `/modules`
+- `/orders`
+- `/products`
+- `/themes`
