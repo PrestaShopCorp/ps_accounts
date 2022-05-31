@@ -2119,7 +2119,7 @@ boolbase@^1.0.0, boolbase@~1.0.0:
   resolved "https://registry.yarnpkg.com/boolbase/-/boolbase-1.0.0.tgz#68dff5fbe60c51eb37725ea9e3ed310dcc1e776e"
   integrity sha1-aN/1++YMUes3cl6p4+0xDcwed24=
 
-bootstrap-vue@^2.15.0, bootstrap-vue@^2.21.2:
+bootstrap-vue@^2.15.0:
   version "2.21.2"
   resolved "https://registry.yarnpkg.com/bootstrap-vue/-/bootstrap-vue-2.21.2.tgz#ec38f66c3a2205becccddb6158a991d96509ed0b"
   integrity sha512-0Exe+4MZysqhZNXIKf4TzkvXaupxh9EHsoCRez0o5Dc0J7rlafayOEwql63qXv74CgZO8E4U8ugRNJko1vMvNw==
@@ -6180,11 +6180,6 @@ material-design-icons-iconfont@^5.0.1:
   resolved "https://registry.yarnpkg.com/material-design-icons-iconfont/-/material-design-icons-iconfont-5.0.1.tgz#371875ed7fe9c8c520bc7123c3231feeab731c31"
   integrity sha512-Xg6rIdGrfySTqiTZ6d+nQbcFepS6R4uKbJP0oAqyeZXJY/bX6mZDnOmmUJusqLXfhIwirs0c++a6JpqVa8RFvA==
 
-material-design-icons-iconfont@^6.1.0:
-  version "6.4.2"
-  resolved "https://registry.yarnpkg.com/material-design-icons-iconfont/-/material-design-icons-iconfont-6.4.2.tgz#e45b6faa560a6c972715acead96d56b37652e345"
-  integrity sha512-MLbuHqK9c99SJb48rEnWpMm+VR4WNT7atQiyGkvQqDzx1Aw24dCjDTyX5aN8WruCHdS7XtNgRMCrsiN5lPRjyQ==
-
 md5.js@^1.3.4:
   version "1.3.5"
   resolved "https://registry.yarnpkg.com/md5.js/-/md5.js-1.3.5.tgz#b5d07b8e3216e3e27cd728d72f70d1e6a342005f"
@@ -7752,34 +7747,21 @@ prestakit@^1.1.0:
     select2 "^4.0.5"
     select2-bootstrap-theme "0.1.0-beta.10"
 
-prestakit@^1.2.3:
-  version "1.2.4"
-  resolved "https://registry.yarnpkg.com/prestakit/-/prestakit-1.2.4.tgz#efa2a099cb7353120e2417485ff4aa77bf86ace5"
-  integrity sha512-Xys+yszA9UyW99FmB9ay5pxKNX31R2fmlpX2uw1vkhxst3B/h9cvO5sWElZYrjUFc8PLs2qIEZ2aHChtbNI4hw==
-  dependencies:
-    bootstrap "^4.4.1"
-    jquery.growl "^1.3.5"
-    material-design-icons-iconfont "^6.1.0"
-    open-sans-fonts "^1.6.2"
-    select2 "^4.0.5"
-    select2-bootstrap-theme "0.1.0-beta.10"
-
-prestashop_accounts_vue_components@^4.0.0:
-  version "4.0.0"
-  resolved "https://registry.yarnpkg.com/prestashop_accounts_vue_components/-/prestashop_accounts_vue_components-4.0.0.tgz#d891738ea14a14a7c69a1ca56c12b2dacd386984"
-  integrity sha512-nCU8PRmHrOZHHnox+ebMvygEfHQOuB4o/VAQaT4tB1fusvana+uyvnbUMJRBC8qTd2Bg/Cz9b9MgJYscf/5hAg==
+prestashop_accounts_vue_components@^4.2.0:
+  version "4.2.0"
+  resolved "https://registry.yarnpkg.com/prestashop_accounts_vue_components/-/prestashop_accounts_vue_components-4.2.0.tgz#416e1a31823ac1ba4d1b2b5f303ca1d0c7611743"
+  integrity sha512-IWyU87bk4wgjWYfmGcNL+gXO1DAQoU2IRkI5aY4vvxSPfN7J4wQZ95EGQOXnaW9K6cGDao/A+k0RlGG9w7GybQ==
   dependencies:
     "@prestashopcorp/segment-vue" "^2.1.7"
     "@vue/composition-api" "^1.4.3"
     babel-loader "^8.2.3"
-    bootstrap-vue "^2.21.2"
     deepmerge "^4.2.2"
     joi "^17.5.0"
-    prestakit "^1.2.3"
     v-click-outside "^3.1.2"
     vue "^2.6.14"
+    vue-demi "^0.12.1"
     vue-i18n "^8.26.5"
-    zoid "^9.0.63"
+    zoid "9.0.63"
 
 prettier-linter-helpers@^1.0.0:
   version "1.0.0"
@@ -9686,6 +9668,11 @@ vue-content-loader@^0.2.3:
   dependencies:
     babel-helper-vue-jsx-merge-props "^2.0.3"
 
+vue-demi@^0.12.1:
+  version "0.12.5"
+  resolved "https://registry.yarnpkg.com/vue-demi/-/vue-demi-0.12.5.tgz#8eeed566a7d86eb090209a11723f887d28aeb2d1"
+  integrity sha512-BREuTgTYlUr0zw0EZn3hnhC3I6gPWv+Kwh4MCih6QcAeaTlaIX0DwOVN0wHej7hSvDPecz4jygy/idsgKfW58Q==
+
 vue-demi@^0.7.4:
   version "0.7.5"
   resolved "https://registry.yarnpkg.com/vue-demi/-/vue-demi-0.7.5.tgz#88dee7492fc99a0f911ff03fc02c658fa2a79af8"
@@ -10155,10 +10142,10 @@ zalgo-promise@^1, zalgo-promise@^1.0.11, zalgo-promise@^1.0.3, zalgo-promise@^1.
   resolved "https://registry.yarnpkg.com/zalgo-promise/-/zalgo-promise-1.0.48.tgz#9e33eef502d5ed9f5a09fc5728c833c3e87afa2e"
   integrity sha512-LLHANmdm53+MucY9aOFIggzYtUdkSBFxUsy4glTTQYNyK6B3uCPWTbfiGvSrEvLojw0mSzyFJ1/RRLv+QMNdzQ==
 
-zoid@^9.0.63:
-  version "9.0.86"
-  resolved "https://registry.yarnpkg.com/zoid/-/zoid-9.0.86.tgz#0f18ba8841e57bfac97a83b9afe158e1eca5cc12"
-  integrity sha512-hWcLj0s4cHKErUUn0Nz2bvuCStA9/y3sz/0gFxvAhompu9v54i+Pik0Kx39pWPB8qbiEN7MRyHohv1ZERlHeSg==
+zoid@9.0.63:
+  version "9.0.63"
+  resolved "https://registry.yarnpkg.com/zoid/-/zoid-9.0.63.tgz#87ca9585c11788a33db4de6a515cef8a02faf63c"
+  integrity sha512-c9OccNUlOV9KuTKJJRhCU3B5SRHObTTiPAUayKkBQ0/qZugfh59MDW+zkFDR8IZN+c7NB/R90FCIpAfBp8+U/g==
   dependencies:
     belter "^1.0.123"
     cross-domain-utils "^2.0.33"
