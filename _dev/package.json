@@ -23,7 +23,7 @@
     "moment": "^2.26.0",
     "moment-range": "^4.0.2",
     "prestakit": "^1.1.0",
-    "prestashop_accounts_vue_components": "^4.0.0",
+    "prestashop_accounts_vue_components": "^4.2.0",
     "regenerator-runtime": "^0.13.5",
     "tailwindcss": "^1.8.10",
     "tween.js": "^16.6.0",
