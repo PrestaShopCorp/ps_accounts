@@ -52,10 +52,11 @@ abstract class AbstractRestController extends \ModuleFrontController implements 
     public $module;
 
     // Fix the performances and avoid loading shitty stuff
-    function __construct() {
+    public function __construct()
+    {
         parent::__construct();
-        $this->$ajax = true;
-        $this->$content_only = true;
+        $this->ajax = true;
+        $this->content_only = true;
     }
 
     /**
