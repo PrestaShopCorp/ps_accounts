@@ -20,31 +20,18 @@
 
 namespace PrestaShop\Module\PsAccounts\Api\Client\Guzzle;
 
-use const _PS_VERSION_;
-
 /**
  * Construct the guzzle client depending on PrestaShop version
  */
 class GuzzleClientFactory
 {
     /**
-     * Creater for client
-     *
      * @param array $options
      *
      * @return AbstractGuzzleClient
      */
     public function create($options)
     {
-//        /**
-//         * @var string $psVersion
-//         */
-//        $psVersion = _PS_VERSION_;
-//
-//        return intval($psVersion[0]) >= 8
-//            ? new Guzzle7Client($options)
-//            : new Guzzle5Client($options);
-
         return $this->getGuzzleMajorVersionNumber() >= 7
             ? new Guzzle7Client($options)
             : new Guzzle5Client($options);
