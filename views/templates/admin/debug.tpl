@@ -28,32 +28,41 @@
         <li>Is Firebase email verified : {$config.firebase_email_is_verified}</li>
         <li>Firebase ID token : {$config.firebase_id_token}</li>
         <li>Firebase refresh token : {$config.firebase_refresh_token}</li>
+        <li>Shop Linked : {if $config.isShopLinked}YES{else}NO{/if}</li>
     </ul>
-    <div class="unlink-shop">
-        {if $config.isShopLinked}
-            <button onclick="unlinkShop()">Unlink shop</button>
-        {else}
-            <div>This shop is not linked</div>
-        {/if}
+    <div>
+        <button onclick="callAction('unlinkShop', 'The shop has been successfully unlinked.')">Unlink shop</button>
+        <button onclick="callAction('resetLinkAccount', 'Link account data has been cleared.')">Clear link account data</button>
     </div>
-    <div class="unlink-message"></div>
+    <div id="action-message"></div>
 </div>
 
 <script>
-    function unlinkShop()
-    {
-        $.ajax({
-            type: 'POST',
-            url: '{$config.unlinkShopUrl}',
-            dataType: 'json',
-            success: function (response) {
-                $('.unlink-message').html('The shop has been successfully unlinked.');
-                $('.unlink-shop').hide();
-            },
-            error: function (response) {
-                $('.unlink-message').html(response.error + '. The response code is :' + response.statusCode);
-            }
+    /**
+     *
+     * @param action unlinkShop | resetLinkAccount
+     */
+    adminAjaxCall = async (action) => {
+        return new Promise((resolve, reject) => {
+            $.ajax({
+                type: 'POST',
+                url: '{$config.adminAjaxUrl}&action=' + action,
+                dataType: 'json',
+                success: (data) => resolve(data),
+                error: (xhr) => reject(xhr),
+            });
         });
+    }
+
+    function callAction(action, successMessage='Action succeeded !') {
+        $('#action-message').html('Processing request...');
+        adminAjaxCall(action)
+            .then(() => {
+                $('#action-message').html(successMessage);
+            })
+            .catch((xhr) => {
+                $('#action-message').html('An error occurred : ' + xhr.status + ' : ' + xhr.statusText);
+            });
     }
 </script>
 

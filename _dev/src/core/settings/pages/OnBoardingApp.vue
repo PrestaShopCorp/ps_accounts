@@ -23,7 +23,7 @@
     </section>
 
     <section class="onboarding-content">
-      <PsAccounts :force-show-plans="true" />
+      <prestashop-accounts></prestashop-accounts>
     </section>
   </div>
 </template>
@@ -33,26 +33,27 @@
 import ConfigInformation from "@/core/app/components/panel/ConfigInformation";
 import { mapSagas } from "@/lib/store-saga";
 
-let PsAccounts = window?.psaccountsVue?.PsAccounts;
-if (!PsAccounts) {
-  PsAccounts = require('prestashop_accounts_vue_components').PsAccounts;
-}
-
 export default {
   components: {
     ConfigInformation,
-    PsAccounts,
   },
   methods: {
     ...mapSagas({
       getListProperty: "getListProperty",
-    }),
+    })
   },
   data() {
     return {
       loading: true,
       unwatch: "",
     };
+  },
+  mounted() {
+    if (window?.psaccountsVue) {
+      return window?.psaccountsVue?.init();
+    }
+
+    require('prestashop_accounts_vue_components').init();
   },
   created() {
     if (this.googleLinked) {
