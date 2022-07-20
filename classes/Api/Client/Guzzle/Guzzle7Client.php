@@ -75,7 +75,7 @@ class Guzzle7Client extends AbstractGuzzleClient
     public function handleResponse($response)
     {
         /* @phpstan-ignore-next-line */
-        $responseContents = json_decode($response->getBody()->getContents(), true);
+        $responseContents = $this->getResponseJson($response);
 
         /* @phpstan-ignore-next-line */
         return [
@@ -83,5 +83,15 @@ class Guzzle7Client extends AbstractGuzzleClient
             'httpCode' => $response->getStatusCode(), //@phpstan-ignore-line
             'body' => $responseContents,
         ];
+    }
+
+    /**
+     * @param \GuzzleHttp\Psr7\Response $response
+     *
+     * @return mixed
+     */
+    public function getResponseJson($response)
+    {
+        return json_decode($response->getBody()->getContents(), true);
     }
 }

@@ -55,4 +55,11 @@ interface ClientInterface
      * @return bool
      */
     public function responseIsSuccessful($responseContents, $httpStatusCode);
+
+    /**
+     * @param mixed $response
+     *
+     * @return mixed
+     */
+    public function getResponseJson($response);
 }

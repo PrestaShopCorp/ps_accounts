@@ -21,13 +21,13 @@ class DeleteTest extends FeatureTestCase
 
         $response = $this->client->delete('/module/ps_accounts/apiV1ShopLinkAccount', [
             'headers' => [
-                AbstractRestController::TOKEN_HEADER => $this->encodePayload(['shop_id' => 1])
+                AbstractRestController::TOKEN_HEADER => (string) $this->encodePayload(['shop_id' => 1])
             ],
         ]);
 
         $this->module->getLogger()->info(print_r($response, true));
 
-        $json = $response->json();
+        $json = $this->getResponseJson($response);
 
         $this->module->getLogger()->info(print_r($json, true));
 

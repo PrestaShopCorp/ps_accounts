@@ -11,6 +11,7 @@ PHPSTAN_VERSION ?= 0.12
 PHPUNIT_VERSION ?= latest
 PS_VERSION ?= latest #1.7.7.1
 NEON_FILE ?= phpstan-PS-1.7.neon
+PHPUNIT_PS_VERSION ?= 1.7 # 1.7|nightly
 
 # target: default                                - Calling build by default
 default: build
@@ -114,7 +115,7 @@ phpunit: phpunit-cleanup
 ifndef DOCKER
     $(error "DOCKER is unavailable on your system")
 endif
-	docker run --rm -d -e PS_DOMAIN=localhost -e PS_ENABLE_SSL=0 -e PS_DEV_MODE=1 --name test-phpunit prestashop/docker-internal-images:1.7
+	docker run --rm -d -e PS_DOMAIN=localhost -e PS_ENABLE_SSL=0 -e PS_DEV_MODE=1 --name test-phpunit prestashop/docker-internal-images:${PHPUNIT_PS_VERSION}
 	-docker container exec -u www-data test-phpunit sh -c "sleep 1 && php -d memory_limit=-1 ./bin/console prestashop:module uninstall ps_accounts"
 	docker cp . test-phpunit:/var/www/html/modules/ps_accounts
 	docker cp ./config/config.yml.dist test-phpunit:/var/www/html/modules/ps_accounts/config/config.yml

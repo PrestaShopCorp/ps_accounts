@@ -61,12 +61,22 @@ class Guzzle5Client extends AbstractGuzzleClient
      */
     public function handleResponse($response)
     {
-        $responseContents = json_decode($response->getBody()->getContents(), true);
+        $responseContents = $this->getResponseJson($response);
 
         return [
             'status' => $this->responseIsSuccessful($responseContents, $response->getStatusCode()),
             'httpCode' => $response->getStatusCode(),
             'body' => $responseContents,
         ];
+    }
+
+    /**
+     * @param ResponseInterface $response
+     *
+     * @return mixed
+     */
+    public function getResponseJson($response)
+    {
+        return json_decode($response->getBody()->getContents(), true);
     }
 }

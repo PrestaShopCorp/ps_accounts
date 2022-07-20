@@ -16,13 +16,13 @@ class ShowTest extends FeatureTestCase
     {
         $response = $this->client->get('/module/ps_accounts/apiV1ShopUrl', [
             'headers' => [
-                AbstractRestController::TOKEN_HEADER => $this->encodePayload([
+                AbstractRestController::TOKEN_HEADER => (string) $this->encodePayload([
                     'shop_id' => 1,
                 ])
             ],
         ]);
 
-        $json = $response->json();
+        $json = $this->getResponseJson($response);
 
         $this->module->getLogger()->info(print_r($json, true));
 
@@ -50,13 +50,13 @@ class ShowTest extends FeatureTestCase
     {
         $response = $this->client->get('/module/ps_accounts/apiV1ShopUrl', [
             'headers' => [
-                AbstractRestController::TOKEN_HEADER => $this->encodePayload([
+                AbstractRestController::TOKEN_HEADER => (string) $this->encodePayload([
                     'shop_id' => 1,
                 ]) . 'foobar'
             ],
         ]);
 
-        $json = $response->json();
+        $json = $this->getResponseJson($response);
 
         $this->module->getLogger()->info(print_r($json, true));
 
@@ -76,13 +76,13 @@ class ShowTest extends FeatureTestCase
     {
         $response = $this->client->get('/module/ps_accounts/apiV1ShopUrl', [
             'headers' => [
-                AbstractRestController::TOKEN_HEADER => $this->encodePayload([
+                AbstractRestController::TOKEN_HEADER => (string) $this->encodePayload([
                     'shop_id' => 99,
                 ]),
             ],
         ]);
 
-        $json = $response->json();
+        $json = $this->getResponseJson($response);
 
         $this->module->getLogger()->info(print_r($json, true));
 
