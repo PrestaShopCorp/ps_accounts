@@ -1,7 +1,3 @@
-### Env files
-.env.*
-!.env.dist
-
 ### Manually built zip
 /dist/
 
@@ -10,13 +6,12 @@ app.js
 
 ### IDE ###
 .idea
+.vscode
 
 ### Composer ###
 composer.phar
 /vendor/
 node_modules/
-docker-compose.override.yml
-.env
 .php_cs.cache
 .php_cs
 install.lock
@@ -53,3 +48,5 @@ views/files/*
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
+
+.vscode

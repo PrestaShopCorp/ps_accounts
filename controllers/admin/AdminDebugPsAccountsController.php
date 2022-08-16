@@ -88,7 +88,7 @@ class AdminDebugPsAccountsController extends ModuleAdminController
                 'firebase_email_is_verified' => $this->configuration->firebaseEmailIsVerified(),
                 'firebase_id_token' => $this->configuration->getFirebaseIdToken(),
                 'firebase_refresh_token' => $this->configuration->getFirebaseRefreshToken(),
-                'unlinkShopUrl' => 'index.php?controller=AdminAjaxPsAccounts&ajax=1&action=unlinkShop&token=' . Tools::getAdminTokenLite('AdminAjaxPsAccounts'),
+                'adminAjaxUrl' => $this->psAccountsService->getAdminAjaxUrl(),
                 'isShopLinked' => $this->psAccountsService->isAccountLinked(),
             ],
         ]);

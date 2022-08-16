@@ -35,13 +35,26 @@ If you need to install and test the module, [you can download the desired zip he
 - **ps_accounts.zip** is the "**production** ready zip"
 - **ps_accounts_integration.zip** is the zip you need if you want to test on the **integration environment**.
 
+### Compatibility Matrix
+
+We aims to follow partially the Prestashop compatibility charts
+- [Compatibility Chart Prestashop 1.6 & 1.7](https://devdocs.prestashop.com/1.7/basics/installation/system-requirements/#php-compatibility-chart)
+- [Compatibility Chart Prestashop 8.1](https://devdocs.prestashop.com/8/basics/installation/system-requirements/#php-compatibility-chart)
+
+| ps_account version                      | Prestashop Version | PHP Version
+|---------------------------------------|-----|-------
+| 5.x | >=1.6 \|\| <1.7.5 | PHP 5.6 - 7.4   |        
+| 6.x | >=1.7.5 | PHP 5.6 - 8 |
+
+A pending question is about 
+
 ## How to start working with PS Accounts as a PSx or Community Service developer?
 
 - [Read the official documentation here](https://devdocs.prestashop.com/1.7/modules/)
 - Clone this repository
 - Copy paste the `config/config.yml.dist` to `config/config.yml`
 
-## Continous Integration
+## Continuous Integration
 
 CI trigger on pull request labeled 'quality assurance needed'
 
@@ -103,7 +116,7 @@ This module don't use a .env file as a configuration file. We are now using YAML
 You can copy and paste the `config.yml.dist` to `config.yml` but you **MUST NOT COMMIT THIS FILE**
 
 ### Composer dependency `prestashop_accounts_auth` deprecated
-This library will is deprecated and no longer needed.
+This library will be deprecated and no longer needed.
 Please remove it from your module's dependencies.
 
 ### New composer dependency `prestashop-accounts-installer`
@@ -113,3 +126,20 @@ If you need to call PrestaShop Accounts public classes's methods, you need to us
 
 see: [PrestaShop Accounts Installer](http://github.com/PrestaShopCorp/prestashop-accounts-installer)
 
+### PS EventBus is no longer installed for 1.6.x versions
+
+The ps_eventbus module is no longer installed automatically for Prestashop version <1.7.
+
+### APIs removal
+
+Those API has been removed:
+- `/carts`
+- `/categories`
+- `/deletedObjects`
+- `/googleTaxonomies`
+- `/apiHealthCheck`
+- `/info`
+- `/modules`
+- `/orders`
+- `/products`
+- `/themes`

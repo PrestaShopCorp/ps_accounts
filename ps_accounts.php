@@ -73,21 +73,6 @@ class Ps_accounts extends Module
      */
     private $serviceContainer;
 
-//    /**
-//     * @var \Symfony\Component\DependencyInjection\ContainerInterface
-//     */
-//    protected $container;
-
-    /**
-     * @var array
-     */
-    private $configuration;
-
-    /**
-     * @var \PrestaShop\Module\PsAccounts\Installer\Installer
-     */
-    private $moduleInstaller;
-
     /**
      * Ps_accounts constructor.
      */
@@ -107,14 +92,12 @@ class Ps_accounts extends Module
 
         parent::__construct();
 
-        $this->moduleInstaller = $this->getService(\PrestaShop\Module\PsAccounts\Installer\Installer::class);
-
         $this->displayName = $this->l('PrestaShop Account');
         $this->description = $this->l('Associate your shop with your PrestaShop account to activate and manage your subscriptions in your back office. Do not uninstall this module if you have a current subscription.');
         $this->description_full = $this->l('Associate your shop with your PrestaShop account to activate and manage your subscriptions in your back office. Do not uninstall this module if you have a current subscription.');
         $this->confirmUninstall = $this->l('This action will prevent immediately your PrestaShop services and Community services from working as they are using PrestaShop Accounts module for authentication.');
 
-        $this->ps_versions_compliancy = ['min' => '1.6', 'max' => _PS_VERSION_];
+        $this->ps_versions_compliancy = ['min' => '1.6.1', 'max' => _PS_VERSION_];
 
         $this->adminControllers = [
             'ajax' => 'AdminAjaxPsAccounts',
@@ -170,8 +153,13 @@ class Ps_accounts extends Module
         $uninstaller = new PrestaShop\Module\PsAccounts\Module\Uninstall($this, Db::getInstance());
         $uninstaller->deleteAdminTab('AdminConfigureHmacPsAccounts');
 
-        // Ignore fail on ps_eventbus install
-        $this->moduleInstaller->installModule('ps_eventbus');
+        if ($this->getShopContext()->isShop17()) {
+            /** @var \PrestaShop\Module\PsAccounts\Installer\Installer $moduleInstaller */
+            $moduleInstaller = $this->getService(\PrestaShop\Module\PsAccounts\Installer\Installer::class);
+
+            // Ignore fail on ps_eventbus install
+            $moduleInstaller->installModule('ps_eventbus');
+        }
 
         $this->switchConfigMultishopMode();
 
@@ -195,16 +183,13 @@ class Ps_accounts extends Module
     }
 
     /**
-     * @param string $serviceName
-     *
-     * @return mixed
+     * @return \PrestaShop\Module\PsAccounts\DependencyInjection\ServiceContainer
      *
      * @throws Exception
      */
-    public function getService($serviceName)
+    public function getServiceContainer()
     {
         if (null === $this->serviceContainer) {
-            //$this->serviceContainer = new \PrestaShop\ModuleLibServiceContainer\DependencyInjection\ServiceContainer(
             $this->serviceContainer = new \PrestaShop\Module\PsAccounts\DependencyInjection\ServiceContainer(
                 // append version number to force cache generation (1.6 Core won't clear it)
                 $this->name . str_replace(['.', '-'], '', $this->version),
@@ -213,7 +198,19 @@ class Ps_accounts extends Module
             );
         }
 
-        return $this->serviceContainer->getService($serviceName);
+        return $this->serviceContainer;
+    }
+
+    /**
+     * @param string $serviceName
+     *
+     * @return mixed
+     *
+     * @throws Exception
+     */
+    public function getService($serviceName)
+    {
+        return $this->getServiceContainer()->getService($serviceName);
     }
 
     /**
@@ -223,7 +220,7 @@ class Ps_accounts extends Module
      */
     public function getParameter($name)
     {
-        return $this->serviceContainer->getContainer()->getParameter($name);
+        return $this->getServiceContainer()->getContainer()->getParameter($name);
     }
 
     /**
@@ -281,11 +278,8 @@ class Ps_accounts extends Module
      */
     public function hookDisplayBackOfficeHeader($params)
     {
-        /** @var \PrestaShop\Module\PsAccounts\Context\ShopContext $shopContext */
-        $shopContext = $this->getService(\PrestaShop\Module\PsAccounts\Context\ShopContext::class);
-
         // Multistore On/Off switch
-        if ('AdminPreferences' === $this->context->controller->controller_name || !$shopContext->isShop17()) {
+        if ('AdminPreferences' === $this->context->controller->controller_name || !$this->getShopContext()->isShop17()) {
             $this->switchConfigMultishopMode();
         }
     }
@@ -297,10 +291,7 @@ class Ps_accounts extends Module
      */
     public function renderUpdateWarningView()
     {
-        /** @var \PrestaShop\Module\PsAccounts\Context\ShopContext $shopContext */
-        $shopContext = $this->getService(\PrestaShop\Module\PsAccounts\Context\ShopContext::class);
-
-        if ($shopContext->isShop17()) {
+        if ($this->getShopContext()->isShop17()) {
             /* @phpstan-ignore-next-line */
             return PrestaShop\PrestaShop\Adapter\SymfonyContainer::getInstance()
                 ->get('twig')
@@ -317,10 +308,7 @@ class Ps_accounts extends Module
      */
     public function renderDeleteWarningView()
     {
-        /** @var \PrestaShop\Module\PsAccounts\Context\ShopContext $shopContext */
-        $shopContext = $this->getService(\PrestaShop\Module\PsAccounts\Context\ShopContext::class);
-
-        if ($shopContext->isShop17()) {
+        if ($this->getShopContext()->isShop17()) {
             /* @phpstan-ignore-next-line */
             return PrestaShop\PrestaShop\Adapter\SymfonyContainer::getInstance()
                 ->get('twig')
@@ -396,8 +384,7 @@ class Ps_accounts extends Module
      */
     public function hookDisplayDashboardTop($params)
     {
-        /** @var \PrestaShop\Module\PsAccounts\Context\ShopContext $shopContext */
-        $shopContext = $this->getService(\PrestaShop\Module\PsAccounts\Context\ShopContext::class);
+        $shopContext = $this->getShopContext();
 
         /** @var \PrestaShop\Module\PsAccounts\Service\PsAccountsService $accountsService */
         $accountsService = $this->getService(\PrestaShop\Module\PsAccounts\Service\PsAccountsService::class);
@@ -421,10 +408,7 @@ class Ps_accounts extends Module
         /** @var \PrestaShop\Module\PsAccounts\Service\PsAccountsService $psAccountsService */
         $psAccountsService = $this->getService(\PrestaShop\Module\PsAccounts\Service\PsAccountsService::class);
 
-        /** @var \PrestaShop\Module\PsAccounts\Context\ShopContext $shopContext */
-        $shopContext = $this->getService(\PrestaShop\Module\PsAccounts\Context\ShopContext::class);
-
-        if ($psAccountsService->isAccountLinked() && !$shopContext->isMultishopActive()) {
+        if ($psAccountsService->isAccountLinked() && !$this->getShopContext()->isMultishopActive()) {
             // I don't load with $this->get('twig') since i had this error https://github.com/PrestaShop/PrestaShop/issues/20505
             // Some users may have the same and couldn't render the configuration page
             return $this->renderUpdateWarningView();
@@ -631,7 +615,7 @@ class Ps_accounts extends Module
      */
     public function getContent()
     {
-        $this->loadAssets(\Tools::getValue('google_message_error'), \Tools::getValue('countProperty'));
+        $this->loadAssets();
 
         return $this->display(__FILE__, '/views/templates/admin/app.tpl');
     }
@@ -639,14 +623,11 @@ class Ps_accounts extends Module
     /**
      * Load VueJs App and set JS variable for Vuex
      *
-     * @param string $responseApiMessage
-     * @param int $countProperty
-     *
      * @return void
      *
      * @throws Throwable
      */
-    protected function loadAssets($responseApiMessage = 'null', $countProperty = 0)
+    protected function loadAssets()
     {
         $this->context->smarty->assign('pathVendor', $this->_path . 'views/js/chunk-vendors.' . $this->version . '.js');
         $this->context->smarty->assign('pathApp', $this->_path . 'views/js/app.' . $this->version . '.js');
@@ -678,6 +659,14 @@ class Ps_accounts extends Module
     }
 
     /**
+     * @return \PrestaShop\Module\PsAccounts\Context\ShopContext
+     */
+    private function getShopContext()
+    {
+        return $this->getService(\PrestaShop\Module\PsAccounts\Context\ShopContext::class);
+    }
+
+    /**
      * @return void
      *
      * @throws Exception
@@ -687,10 +676,7 @@ class Ps_accounts extends Module
         /** @var \PrestaShop\Module\PsAccounts\Repository\ConfigurationRepository $config */
         $config = $this->getService(\PrestaShop\Module\PsAccounts\Repository\ConfigurationRepository::class);
 
-        /** @var \PrestaShop\Module\PsAccounts\Context\ShopContext $shopContext */
-        $shopContext = $this->getService(\PrestaShop\Module\PsAccounts\Context\ShopContext::class);
-
-        if ($shopContext->isMultishopActive()) {
+        if ($this->getShopContext()->isMultishopActive()) {
             $config->migrateToMultiShop();
         } else {
             $config->migrateToSingleShop();
