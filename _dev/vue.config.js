@@ -32,7 +32,7 @@ module.exports = {
   configureWebpack: {
     entry: {
       app: "./src/main.js",
-      zoid: "./src/zoid.ts",
+      login: "./src/login.ts",
     },
     output: {
       filename: `js/[name].${version}.js`,

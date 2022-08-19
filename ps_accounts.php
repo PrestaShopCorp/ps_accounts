@@ -49,8 +49,8 @@ class Ps_accounts extends Module
         'actionObjectShopUrlUpdateAfter',
         'displayDashboardTop',
         'displayAccountUpdateWarning',
-        'actionAdminLoginControllerLoginBefore',
-        'displayAdminLogin',
+//        'actionAdminLoginControllerLoginBefore',
+        'displayPsAccountsAdminLogin',
     ];
 
     /**
@@ -64,6 +64,12 @@ class Ps_accounts extends Module
             'title' => 'Display account update warning',
             'description' => 'Show a warning message when the user wants to'
                 . ' update his shop configuration',
+            'position' => 1,
+        ],
+        [
+            'name' => 'displayPsAccountsAdminLogin',
+            'title' => 'PrestaShop Accounts custom login',
+            'description' => '',
             'position' => 1,
         ],
     ];
@@ -97,12 +103,13 @@ class Ps_accounts extends Module
         $this->description_full = $this->l('Associate your shop with your PrestaShop account to activate and manage your subscriptions in your back office. Do not uninstall this module if you have a current subscription.');
         $this->confirmUninstall = $this->l('This action will prevent immediately your PrestaShop services and Community services from working as they are using PrestaShop Accounts module for authentication.');
 
-        $this->ps_versions_compliancy = ['min' => '1.6.1', 'max' => _PS_VERSION_];
+        $this->ps_versions_compliancy = ['min' => '8.0.0', 'max' => _PS_VERSION_];
 
         $this->adminControllers = [
             'ajax' => 'AdminAjaxPsAccounts',
             'debug' => 'AdminDebugPsAccounts',
-            'ssoConnect' => 'AdminPsAccountsSsoConnect'
+            'ssoConnect' => 'AdminPsAccountsSsoConnect',
+            'oauth2Connect' => 'AdminOAuth2PsAccounts'
         ];
     }
 
@@ -572,10 +579,10 @@ class Ps_accounts extends Module
      *
      * @throws Exception
      */
-    public function hookDisplayAdminLogin($params)
+    public function hookDisplayPsAccountsAdminLogin($params)
     {
         $this->context->smarty->assign('pathVendor', $this->_path . 'views/js/chunk-vendors.' . $this->version . '.js');
-        $this->context->smarty->assign('pathZoid', $this->_path . 'views/js/zoid.' . $this->version . '.js');
+        $this->context->smarty->assign('pathZoid', $this->_path . 'views/js/login.' . $this->version . '.js');
         $this->context->smarty->assign('pathImg', $this->_path . 'views/img/prestashop-logo-2.png');
 
         /** @var \PrestaShop\Module\PsAccounts\Presenter\PsAccountsPresenter $psAccountsPresenter */
@@ -585,7 +592,7 @@ class Ps_accounts extends Module
         $this->context->smarty->assign('accountsUiUrl', $psAccountsPresenter->present($this->name)['accountsUiUrl']);
 
         /* @phpstan-ignore-next-line */
-        return $this->display(__FILE__, 'views/templates/backoffice/sso.tpl');
+        return $this->display(__FILE__, 'views/templates/hooks/ps_accounts_admin_login.tpl');
     }
 
     /**
