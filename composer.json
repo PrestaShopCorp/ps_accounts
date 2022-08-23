@@ -10,7 +10,7 @@
     "autoload": {
         "psr-4": {
             "PrestaShop\\Module\\PsAccounts\\": "classes/",
-            "OAuth2\\": "./OAuth2"
+            "PrestaShopCorp\\OAuth2\\Client\\": "oauth2-prestashop/"
         },
         "classmap": [
             "ps_accounts.php",

@@ -53,8 +53,9 @@
 	<div class="flip-container">
 		<div class="flipper">
 			<div class="front front_login panel" {if isset($reset_token) && isset($id_employee)}style="display:none;"{/if}>
-                {hook h="displayPsAccountsAdminLogin"}
                 <h4 id="shop_name">{$shop_name}</h4>
+                {hook h="displayPsAccountsAdminLogin"}
+                <hr />
 				{if !isset($wrong_folder_name) && !isset($wrong_install_name)}
 				<form action="#" id="login_form" method="post">
 					<input type="hidden" name="redirect" id="redirect" value="{$redirect}"/>

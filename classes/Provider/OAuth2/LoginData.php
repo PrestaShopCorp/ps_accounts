@@ -1,6 +1,6 @@
 <?php
 
-namespace OAuth2\Client\Provider;
+namespace PrestaShop\Module\PsAccounts\Provider\OAuth2;
 
 class LoginData
 {

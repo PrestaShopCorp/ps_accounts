@@ -18,14 +18,16 @@
  * @license   https://opensource.org/licenses/AFL-3.0 Academic Free License version 3.0
  */
 
-use OAuth2\Client\Provider\LoginData;
+use PrestaShop\Module\PsAccounts\Provider\OAuth2\LoginData;
+use PrestaShop\Module\PsAccounts\Provider\OAuth2\Oauth2LoginTrait;
+use PrestaShopCorp\OAuth2\Client\Provider\PrestaShop;
 
 /**
  * Controller for all ajax calls.
  */
 class AdminOAuth2PsAccountsController extends ModuleAdminController
 {
-    use \OAuth2\Traits\Oauth2Login;
+    use Oauth2LoginTrait;
 
     /**
      * @var Ps_accounts
@@ -88,6 +90,11 @@ class AdminOAuth2PsAccountsController extends ModuleAdminController
         $cookie->write();
 
         return true;
+    }
+
+    function getProvider(): PrestaShop
+    {
+        return $this->module->getService(PrestaShop::class);
     }
 
     function redirectAfterLogin(): void

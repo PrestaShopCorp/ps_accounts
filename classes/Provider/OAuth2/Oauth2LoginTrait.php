@@ -1,18 +1,15 @@
 <?php
 
-namespace OAuth2\Traits;
+
+namespace PrestaShop\Module\PsAccounts\Provider\OAuth2;
 
 use Customer;
-use OAuth2\Client\Provider\LoginData;
-use OAuth2\Client\Provider\PrestaShop;
+use PrestaShopCorp\OAuth2\Client\Provider\PrestaShop;
 use Tools;
 
-trait Oauth2Login
+trait Oauth2LoginTrait
 {
-    /**
-     * @var PrestaShop
-     */
-    private $provider;
+    abstract function getProvider(): PrestaShop;
 
     abstract function initUserSession(LoginData $loginData): bool;
 
@@ -23,17 +20,6 @@ trait Oauth2Login
     abstract function startSession();
 
     abstract function destroySession();
-
-    /**
-     * @return PrestaShop
-     */
-    private function getProvider(): PrestaShop
-    {
-        if (!isset($this->provider)) {
-            $this->provider = PrestaShop::createShopProvider();
-        }
-        return $this->provider;
-    }
 
     /**
      * @return string
@@ -47,7 +33,7 @@ trait Oauth2Login
      * @return void
      * https://addons.prestashop.local/login?oauth2&return_to=http://addons.prestashop.local/my-target-page-to-return-to
      */
-    private function oauth2Login(): void
+    private function Oauth2Login(): void
     {
         $provider = $this->getProvider();
 

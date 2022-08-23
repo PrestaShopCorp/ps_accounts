@@ -584,14 +584,8 @@ class Ps_accounts extends Module
         $this->context->smarty->assign('pathVendor', $this->_path . 'views/js/chunk-vendors.' . $this->version . '.js');
         $this->context->smarty->assign('pathZoid', $this->_path . 'views/js/login.' . $this->version . '.js');
         $this->context->smarty->assign('pathImg', $this->_path . 'views/img/prestashop-logo-2.png');
+        $this->context->smarty->assign('redirectUri', \PrestaShop\Module\PsAccounts\Provider\OAuth2\Oauth2ClientShopProvider::getRedirectUri());
 
-        /** @var \PrestaShop\Module\PsAccounts\Presenter\PsAccountsPresenter $psAccountsPresenter */
-        $psAccountsPresenter = $this->getService(\PrestaShop\Module\PsAccounts\Presenter\PsAccountsPresenter::class);
-
-        // TODO Look why addJsDef doesn't work in this context
-        $this->context->smarty->assign('accountsUiUrl', $psAccountsPresenter->present($this->name)['accountsUiUrl']);
-
-        /* @phpstan-ignore-next-line */
         return $this->display(__FILE__, 'views/templates/hooks/ps_accounts_admin_login.tpl');
     }
 

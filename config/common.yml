@@ -12,9 +12,14 @@ services:
     factory: [ 'Context', 'getContext' ]
 
   ps_accounts.logger:
-    class: Context
+    class: Monolog\Logger
     public: true
     factory: [ 'PrestaShop\Module\PsAccounts\Factory\PsAccountsLogger', 'create' ]
+
+  PrestaShopCorp\OAuth2\Client\Provider\PrestaShop:
+    class: PrestaShop\Module\PsAccounts\Provider\OAuth2\Oauth2ClientShopProvider
+    public: true
+    factory: [ 'PrestaShop\Module\PsAccounts\Provider\OAuth2\Oauth2ClientShopProvider', 'create' ]
 
   PrestaShop\Module\PsAccounts\Context\ShopContext:
     class: PrestaShop\Module\PsAccounts\Context\ShopContext

@@ -8,28 +8,19 @@ import { SignIn } from "@prestashopcorp/ps-accounts-sdk";
 // error.innerHTML = `<h3>TECHNICAL ERROR:</h3><p>Details: Error thrown: ${err.getMessage()}</p>`;
 // error.classList.toggle("hide");
 
-const returnTo = ""; /* document
-  .querySelector("input#redirect")
-  .getAttribute("value"); */
-
-const stayLoggedIn = 0; /* document
-  .querySelector("#stay_logged_in:checked")
-  .getAttribute("value"); */
-
-const loginUri = "http://prestashop17.docker.localhost/administration/index.php?controller=AdminOAuth2PsAccounts";
-const redirectUri = `${loginUri}&return_to=${returnTo}&stay_logged_in=${stayLoggedIn}`;
-
 const cdc = new SignIn({
   workflow: "loginWithHydra",
   app: "ps_accounts",
-  redirectUri,
+  // redirectUri: oauth2Uri,
   closeModalOnLogin: true,
   env: "dev",
   lang: "fr",
   isPopup: true,
 });
 
-cdc.mount("#ps-accounts-login");
+// cdc.mount("#ps-accounts-login");
+
+window.signInComponent = cdc;
 
 export default {
   cdc,
