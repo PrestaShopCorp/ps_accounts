@@ -27,7 +27,7 @@ Sentry.init({
   ],
   debug: process.env.NODE_ENV === "production",
   tracesSampleRate: 1.0,
-  environment: process.env.NODE_ENV
+  environment: process.env.NODE_ENV,
 });
 
 Vue.config.errorHandler = (err, vm, info) => {

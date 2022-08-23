@@ -71,15 +71,15 @@ class AdminOAuth2PsAccountsController extends ModuleAdminController
         $context->employee->remote_addr = (int) ip2long(Tools::getRemoteAddr());
 
         $cookie = $context->cookie;
-        /** @phpstan-ignore-next-line  */
+        /* @phpstan-ignore-next-line  */
         $cookie->id_employee = $context->employee->id;
-        /** @phpstan-ignore-next-line  */
+        /* @phpstan-ignore-next-line  */
         $cookie->email = $context->employee->email;
-        /** @phpstan-ignore-next-line  */
+        /* @phpstan-ignore-next-line  */
         $cookie->profile = $context->employee->id_profile;
-        /** @phpstan-ignore-next-line  */
+        /* @phpstan-ignore-next-line  */
         $cookie->passwd = $context->employee->passwd;
-        /** @phpstan-ignore-next-line  */
+        /* @phpstan-ignore-next-line  */
         $cookie->remote_addr = $context->employee->remote_addr;
 
         if (intval(_PS_VERSION_[0]) >= 8) {
@@ -87,7 +87,7 @@ class AdminOAuth2PsAccountsController extends ModuleAdminController
         }
 
         if (!Tools::getValue('stay_logged_in')) {
-            /** @phpstan-ignore-next-line  */
+            /* @phpstan-ignore-next-line  */
             $cookie->last_activity = time();
         }
 

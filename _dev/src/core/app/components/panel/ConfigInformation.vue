@@ -22,7 +22,7 @@
       <img src="@/assets/prestashop-logo-2.png" class="logo" />
       <h1 class="title">
         PrestaShop
-        <span class="font-normal" style="color: #6b868f;">Account</span>
+        <span class="font-normal" style="color: #6b868f">Account</span>
       </h1>
     </div>
 
