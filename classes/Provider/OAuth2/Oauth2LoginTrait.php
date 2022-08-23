@@ -9,31 +9,19 @@ use Tools;
 
 trait Oauth2LoginTrait
 {
-    abstract function getProvider(): PrestaShop;
+    abstract protected function getProvider(): PrestaShop;
 
-    abstract function initUserSession(LoginData $loginData): bool;
+    abstract protected function initUserSession(LoginData $loginData): bool;
 
-    abstract function redirectAfterLogin(): void;
+    abstract protected function redirectAfterLogin(): void;
 
-    abstract function redirectRegistrationForm(LoginData $loginData): void;
+    abstract protected function redirectRegistrationForm(LoginData $loginData): void;
 
-    abstract function startSession();
+    abstract protected function startSession();
 
-    abstract function destroySession();
+    abstract protected function destroySession();
 
-    /**
-     * @return string
-     */
-    private function getReturnToParam(): string
-    {
-        return 'return_to';
-    }
-
-    /**
-     * @return void
-     * https://addons.prestashop.local/login?oauth2&return_to=http://addons.prestashop.local/my-target-page-to-return-to
-     */
-    private function Oauth2Login(): void
+    public function Oauth2Login(): void
     {
         $provider = $this->getProvider();
 
@@ -45,7 +33,7 @@ trait Oauth2LoginTrait
 
             $this->oauth2Redirect();
 
-            // If we don't have an authorization code then get one
+        // If we don't have an authorization code then get one
         } elseif (!isset($_GET['code'])) {
             // cleanup existing accessToken
             $_SESSION['accessToken'] = null;
@@ -54,7 +42,7 @@ trait Oauth2LoginTrait
 
             $this->oauth2Redirect();
 
-            // Check given state against previously stored one to mitigate CSRF attack
+        // Check given state against previously stored one to mitigate CSRF attack
         } elseif (empty($_GET['state']) || (isset($_SESSION['oauth2state']) && $_GET['state'] !== $_SESSION['oauth2state'])) {
 
             if (isset($_SESSION['oauth2state'])) {
@@ -123,5 +111,10 @@ trait Oauth2LoginTrait
     private function setSessionReturnTo(string $returnTo): void
     {
         $_SESSION[$this->getReturnToParam()] = $returnTo;
+    }
+
+    private function getReturnToParam(): string
+    {
+        return 'return_to';
     }
 }

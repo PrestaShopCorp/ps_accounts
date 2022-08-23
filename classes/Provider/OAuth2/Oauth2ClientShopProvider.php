@@ -25,6 +25,7 @@ class Oauth2ClientShopProvider extends PrestaShop
     // TODO: display errors
     // TODO: hook login display
     // TODO: handle return_to (login.ts)
+    // TODO: route update secret & client_id
     public static function create(): PrestaShop
     {
         /** @var \Ps_accounts $module */
@@ -32,9 +33,9 @@ class Oauth2ClientShopProvider extends PrestaShop
 
         // FIXME store into bdd
         return new self($module, [
-            'clientId'                => $module->getParameter('ps_accounts.oauth2_client_id'),
-            'clientSecret'            => $module->getParameter('ps_accounts.oauth2_client_secret'),
-            'redirectUri'             => self::getRedirectUri(),
+            'clientId' => $module->getParameter('ps_accounts.oauth2_client_id'),
+            'clientSecret' => $module->getParameter('ps_accounts.oauth2_client_secret'),
+            'redirectUri' => self::getRedirectUri(),
         ]);
     }
 
@@ -69,7 +70,7 @@ class Oauth2ClientShopProvider extends PrestaShop
     public static function getLoginData(string $token): LoginData
     {
         list($uid, $email, $emailVerified) = self::listTokenClaims($token, [
-            'sub', 'email', 'email_verified'
+            'sub', 'email', 'email_verified',
         ]);
         $loginData = new LoginData();
         $loginData->uid = $uid;

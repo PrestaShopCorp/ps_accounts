@@ -47,7 +47,8 @@ class AdminOAuth2PsAccountsController extends ModuleAdminController
      *
      * @return bool
      */
-    protected function isAnonymousAllowed() {
+    protected function isAnonymousAllowed()
+    {
         return true;
     }
 
@@ -57,7 +58,7 @@ class AdminOAuth2PsAccountsController extends ModuleAdminController
     }
 
     // FIXME: is there a way to not duplicate that code (from ps core) ?
-    function initUserSession(LoginData $loginData): bool
+    private function initUserSession(LoginData $loginData): bool
     {
         $context = $this->context;
 
@@ -65,8 +66,7 @@ class AdminOAuth2PsAccountsController extends ModuleAdminController
         $context->employee = new Employee();
         $isEmployedLoaded = $context->employee->getByEmail($loginData->email);
 
-        if (!$isEmployedLoaded || empty($emailVerified))
-        {
+        if (!$isEmployedLoaded || empty($emailVerified)) {
             $context->employee->logout();
             // TODO: redirect SSO logout
             exit(empty($emailVerified) ? "You account is not verified" : "The employee does not exist");
@@ -81,23 +81,25 @@ class AdminOAuth2PsAccountsController extends ModuleAdminController
         $cookie->passwd = $context->employee->passwd;
         $cookie->remote_addr = $context->employee->remote_addr;
 
-        if (intval(_PS_VERSION_[0]) >= 8)
+        if (intval(_PS_VERSION_[0]) >= 8) {
             $cookie->registerSession(new EmployeeSession());
+        }
 
-        if (!Tools::getValue('stay_logged_in'))
+        if (!Tools::getValue('stay_logged_in')) {
             $cookie->last_activity = time();
+        }
 
         $cookie->write();
 
         return true;
     }
 
-    function getProvider(): PrestaShop
+    private function getProvider(): PrestaShop
     {
         return $this->module->getService(PrestaShop::class);
     }
 
-    function redirectAfterLogin(): void
+    private function redirectAfterLogin(): void
     {
         $returnTo = $this->getSessionReturnTo();
         $this->redirectJs(
@@ -105,7 +107,7 @@ class AdminOAuth2PsAccountsController extends ModuleAdminController
         );
     }
 
-    function redirectRegistrationForm(LoginData $loginData): void
+    private function redirectRegistrationForm(LoginData $loginData): void
     {
         // TODO: Implement redirectRegistrationForm() method.
     }
@@ -126,7 +128,7 @@ class AdminOAuth2PsAccountsController extends ModuleAdminController
      *
      * @return void
      */
-    public function redirectJs(string $url)
+    private function redirectJs(string $url)
     {
         if ($url) {
             echo <<<JS

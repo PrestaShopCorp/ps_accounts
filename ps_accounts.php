@@ -49,7 +49,6 @@ class Ps_accounts extends Module
         'actionObjectShopUrlUpdateAfter',
         'displayDashboardTop',
         'displayAccountUpdateWarning',
-//        'actionAdminLoginControllerLoginBefore',
         'displayPsAccountsAdminLogin',
     ];
 
@@ -108,8 +107,7 @@ class Ps_accounts extends Module
         $this->adminControllers = [
             'ajax' => 'AdminAjaxPsAccounts',
             'debug' => 'AdminDebugPsAccounts',
-            'ssoConnect' => 'AdminPsAccountsSsoConnect',
-            'oauth2Connect' => 'AdminOAuth2PsAccounts'
+            'oauth2' => 'AdminOAuth2PsAccounts',
         ];
     }
 

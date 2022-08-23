@@ -66,6 +66,7 @@ class AdminLoginController extends AdminLoginControllerCore
                 $this->psAccountsTemplateDir . $tpl_name, $this->context->smarty
             );
         }
+
         return parent::createTemplate($tpl_name);
     }
 }
