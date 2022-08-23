@@ -1,6 +1,5 @@
 <?php
 
-
 namespace PrestaShop\Module\PsAccounts\Provider\OAuth2;
 
 use PrestaShopCorp\OAuth2\Client\Provider\PrestaShop;
