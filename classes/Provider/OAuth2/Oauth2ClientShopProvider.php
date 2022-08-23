@@ -67,7 +67,7 @@ class Oauth2ClientShopProvider extends PrestaShop
      *
      * @return LoginData
      */
-    public static function getLoginData(string $token): LoginData
+    public function getLoginData(string $token): LoginData
     {
         list($uid, $email, $emailVerified) = self::listTokenClaims($token, [
             'sub', 'email', 'email_verified',

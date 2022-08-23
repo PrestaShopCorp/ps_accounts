@@ -19,6 +19,7 @@
  */
 
 use PrestaShop\Module\PsAccounts\Provider\OAuth2\LoginData;
+use PrestaShop\Module\PsAccounts\Provider\OAuth2\Oauth2ClientShopProvider;
 use PrestaShop\Module\PsAccounts\Provider\OAuth2\Oauth2LoginTrait;
 use PrestaShopCorp\OAuth2\Client\Provider\PrestaShop;
 
@@ -42,17 +43,12 @@ class AdminOAuth2PsAccountsController extends ModuleAdminController
         $this->content_only = true;
     }
 
-    /**
-     * Do not assert authenticated access
-     *
-     * @return bool
-     */
-    protected function isAnonymousAllowed()
+    protected function isAnonymousAllowed(): bool
     {
         return true;
     }
 
-    public function display()
+    public function display(): void
     {
         $this->oauth2Login();
     }
@@ -75,10 +71,15 @@ class AdminOAuth2PsAccountsController extends ModuleAdminController
         $context->employee->remote_addr = (int) ip2long(Tools::getRemoteAddr());
 
         $cookie = $context->cookie;
+        /** @phpstan-ignore-next-line  */
         $cookie->id_employee = $context->employee->id;
+        /** @phpstan-ignore-next-line  */
         $cookie->email = $context->employee->email;
+        /** @phpstan-ignore-next-line  */
         $cookie->profile = $context->employee->id_profile;
+        /** @phpstan-ignore-next-line  */
         $cookie->passwd = $context->employee->passwd;
+        /** @phpstan-ignore-next-line  */
         $cookie->remote_addr = $context->employee->remote_addr;
 
         if (intval(_PS_VERSION_[0]) >= 8) {
@@ -86,6 +87,7 @@ class AdminOAuth2PsAccountsController extends ModuleAdminController
         }
 
         if (!Tools::getValue('stay_logged_in')) {
+            /** @phpstan-ignore-next-line  */
             $cookie->last_activity = time();
         }
 
@@ -94,7 +96,7 @@ class AdminOAuth2PsAccountsController extends ModuleAdminController
         return true;
     }
 
-    private function getProvider(): PrestaShop
+    private function getProvider(): Oauth2ClientShopProvider
     {
         return $this->module->getService(PrestaShop::class);
     }
@@ -112,23 +114,18 @@ class AdminOAuth2PsAccountsController extends ModuleAdminController
         // TODO: Implement redirectRegistrationForm() method.
     }
 
-    private function startSession()
+    private function startSession(): void
     {
         // TODO: Implement startSession() method.
         session_start();
     }
 
-    private function destroySession()
+    private function destroySession(): void
     {
         // TODO: Implement destroySession() method.
     }
 
-    /**
-     * @param string $url
-     *
-     * @return void
-     */
-    private function redirectJs(string $url)
+    private function redirectJs(string $url): void
     {
         if ($url) {
             echo <<<JS

@@ -2,12 +2,11 @@
 
 namespace PrestaShop\Module\PsAccounts\Provider\OAuth2;
 
-use PrestaShopCorp\OAuth2\Client\Provider\PrestaShop;
 use Tools;
 
 trait Oauth2LoginTrait
 {
-    abstract protected function getProvider(): PrestaShop;
+    abstract protected function getProvider(): Oauth2ClientShopProvider;
 
     abstract protected function initUserSession(LoginData $loginData): bool;
 
@@ -15,9 +14,9 @@ trait Oauth2LoginTrait
 
     abstract protected function redirectRegistrationForm(LoginData $loginData): void;
 
-    abstract protected function startSession();
+    abstract protected function startSession(): void;
 
-    abstract protected function destroySession();
+    abstract protected function destroySession(): void;
 
     public function Oauth2Login(): void
     {
@@ -58,7 +57,7 @@ trait Oauth2LoginTrait
                     ]);
                 }
 
-                $loginData = $provider::getLoginData($_SESSION['accessToken']->getToken());
+                $loginData = $provider->getLoginData($_SESSION['accessToken']->getToken());
 
                 if ($this->initUserSession($loginData)) {
                     $this->redirectAfterLogin();
@@ -91,7 +90,7 @@ trait Oauth2LoginTrait
         exit;
     }
 
-    private function oauth2ErrorLog(string $msg)
+    private function oauth2ErrorLog(string $msg): void
     {
         error_log('[OAuth2] ' . $msg);
     }
