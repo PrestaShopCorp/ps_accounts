@@ -3,7 +3,6 @@
 
 namespace PrestaShop\Module\PsAccounts\Provider\OAuth2;
 
-use Customer;
 use PrestaShopCorp\OAuth2\Client\Provider\PrestaShop;
 use Tools;
 
@@ -44,7 +43,6 @@ trait Oauth2LoginTrait
 
         // Check given state against previously stored one to mitigate CSRF attack
         } elseif (empty($_GET['state']) || (isset($_SESSION['oauth2state']) && $_GET['state'] !== $_SESSION['oauth2state'])) {
-
             if (isset($_SESSION['oauth2state'])) {
                 unset($_SESSION['oauth2state']);
             }
@@ -57,7 +55,7 @@ trait Oauth2LoginTrait
                 if (!isset($_SESSION['accessToken'])) {
                     // Try to get an access token using the authorization code grant.
                     $_SESSION['accessToken'] = $provider->getAccessToken('authorization_code', [
-                        'code' => $_GET['code']
+                        'code' => $_GET['code'],
                     ]);
                 }
 
@@ -68,7 +66,6 @@ trait Oauth2LoginTrait
                 } else {
                     $this->redirectRegistrationForm($loginData);
                 }
-
             } catch (\League\OAuth2\Client\Provider\Exception\IdentityProviderException $e) {
                 // Failed to get the access token or user details.
                 $this->oauth2ErrorLog($e->getMessage());
@@ -105,6 +102,7 @@ trait Oauth2LoginTrait
         if (isset($_SESSION[$this->getReturnToParam()])) {
             return $_SESSION[$this->getReturnToParam()];
         }
+
         return '';
     }
 

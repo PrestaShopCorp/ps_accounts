@@ -69,7 +69,7 @@ class AdminOAuth2PsAccountsController extends ModuleAdminController
         if (!$isEmployedLoaded || empty($emailVerified)) {
             $context->employee->logout();
             // TODO: redirect SSO logout
-            exit(empty($emailVerified) ? "You account is not verified" : "The employee does not exist");
+            exit(empty($emailVerified) ? 'You account is not verified' : 'The employee does not exist');
         }
 
         $context->employee->remote_addr = (int) ip2long(Tools::getRemoteAddr());
