@@ -11,7 +11,7 @@ PHPSTAN_VERSION ?= 0.12
 PHPUNIT_VERSION ?= latest
 PS_VERSION ?= latest #1.7.7.1
 NEON_FILE ?= phpstan-PS-1.7.neon
-PHPUNIT_PS_VERSION ?= 1.7 # 1.7|nightly
+PHPUNIT_PS_VERSION ?= nightly  # 1.7|nightly
 
 # target: default                                - Calling build by default
 default: build
@@ -119,6 +119,7 @@ endif
 	-docker container exec -u www-data test-phpunit sh -c "sleep 1 && php -d memory_limit=-1 ./bin/console prestashop:module uninstall ps_accounts"
 	docker cp . test-phpunit:/var/www/html/modules/ps_accounts
 	docker cp ./config/config.yml.dist test-phpunit:/var/www/html/modules/ps_accounts/config/config.yml
+	docker container exec test-phpunit sh -c "chown -R www-data:www-data ./modules/ps_accounts"
 	docker container exec -u www-data test-phpunit sh -c "sleep 1 && php -d memory_limit=-1 ./bin/console prestashop:module install ps_accounts"
 	@docker container exec -u www-data test-phpunit sh -c "echo \"Testing module v\`cat /var/www/html/modules/ps_accounts/config.xml | grep '<version>' | sed 's/^.*\[CDATA\[\(.*\)\]\].*/\1/'\`\n\""
 	docker container exec -u www-data --workdir /var/www/html/modules/ps_accounts test-phpunit ./vendor/bin/phpunit

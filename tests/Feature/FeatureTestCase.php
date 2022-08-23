@@ -153,4 +153,20 @@ class FeatureTestCase extends TestCase
     {
         return $this->guzzleClient->getResponseJson($response);
     }
+
+    /**
+     * @param string $controller
+     *
+     * @return string
+     */
+    public function getPageLink($controller, $module='ps_accounts')
+    {
+        // /module/ps_accounts/apiV1ShopUrl
+        $scheme = $this->configuration->get('PS_SSL_ENABLED') ? 'https://' : 'http://';
+        $domain = $this->configuration->get('PS_SHOP_DOMAIN');
+        $baseUrl = $scheme . $domain;
+        $url = $baseUrl . '/index.php?module=' . $module . '&fc=module&controller=' . $controller;
+
+        return $url;
+    }
 }

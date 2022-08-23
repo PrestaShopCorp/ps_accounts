@@ -83,9 +83,9 @@ jobs:
       - name: Install dependencies
         run: composer install
 
-      - name: PHPUnit tests 1.7
-        run: |
-          PHPUNIT_PS_VERSION="1.7" make phpunit
+#      - name: PHPUnit tests 1.7
+#        run: |
+#          PHPUNIT_PS_VERSION="1.7" make phpunit
 
       - name: PHPUnit tests nightly
         run: |

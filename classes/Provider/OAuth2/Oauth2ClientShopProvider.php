@@ -37,12 +37,6 @@ class Oauth2ClientShopProvider extends PrestaShop
         $this->module = $module;
     }
 
-    // TODO: create factory classes for shop and addons
-    // TODO: publish PrestaShop provider
-    // TODO: factorize trait
-    // TODO: display errors
-    // TODO: hook login display
-    // TODO: handle return_to (login.ts)
     // TODO: route update secret & client_id
     public static function create(): PrestaShop
     {
