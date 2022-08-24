@@ -20,17 +20,19 @@
 
 namespace PrestaShop\Module\PsAccounts\Provider\OAuth2;
 
+use PrestaShopCorp\OAuth2\Client\Provider\PrestaShop;
+use PrestaShopCorp\OAuth2\Client\Provider\PrestaShopUser;
 use Tools;
 
 trait Oauth2LoginTrait
 {
-    abstract protected function getProvider(): Oauth2ClientShopProvider;
+    abstract protected function getProvider(): PrestaShop;
 
-    abstract protected function initUserSession(LoginData $loginData): bool;
+    abstract protected function initUserSession(PrestaShopUser $user): bool;
 
     abstract protected function redirectAfterLogin(): void;
 
-    abstract protected function redirectRegistrationForm(LoginData $loginData): void;
+    abstract protected function redirectRegistrationForm(PrestaShopUser $user): void;
 
     abstract protected function startSession(): void;
 
@@ -75,12 +77,12 @@ trait Oauth2LoginTrait
                     ]);
                 }
 
-                $loginData = $provider->getLoginData($_SESSION['accessToken']->getToken());
+                $prestaShopUser = $provider->getResourceOwner($_SESSION['accessToken']);
 
-                if ($this->initUserSession($loginData)) {
+                if ($this->initUserSession($prestaShopUser)) {
                     $this->redirectAfterLogin();
                 } else {
-                    $this->redirectRegistrationForm($loginData);
+                    $this->redirectRegistrationForm($prestaShopUser);
                 }
             } catch (\League\OAuth2\Client\Provider\Exception\IdentityProviderException $e) {
                 // Failed to get the access token or user details.

@@ -18,10 +18,10 @@
  * @license   https://opensource.org/licenses/AFL-3.0 Academic Free License version 3.0
  */
 
-use PrestaShop\Module\PsAccounts\Provider\OAuth2\LoginData;
 use PrestaShop\Module\PsAccounts\Provider\OAuth2\Oauth2ClientShopProvider;
 use PrestaShop\Module\PsAccounts\Provider\OAuth2\Oauth2LoginTrait;
 use PrestaShopCorp\OAuth2\Client\Provider\PrestaShop;
+use PrestaShopCorp\OAuth2\Client\Provider\PrestaShopUser;
 
 /**
  * Controller for all ajax calls.
@@ -54,13 +54,13 @@ class AdminOAuth2PsAccountsController extends ModuleAdminController
     }
 
     // FIXME: is there a way to not duplicate that code (from ps core) ?
-    private function initUserSession(LoginData $loginData): bool
+    private function initUserSession(PrestaShopUser $user): bool
     {
         $context = $this->context;
 
-        $emailVerified = $loginData->emailVerified;
+        $emailVerified = $user->getEmailVerified();
         $context->employee = new Employee();
-        $isEmployedLoaded = $context->employee->getByEmail($loginData->email);
+        $isEmployedLoaded = $context->employee->getByEmail($user->getEmail());
 
         if (!$isEmployedLoaded || empty($emailVerified)) {
             $context->employee->logout();
@@ -109,7 +109,7 @@ class AdminOAuth2PsAccountsController extends ModuleAdminController
         );
     }
 
-    private function redirectRegistrationForm(LoginData $loginData): void
+    private function redirectRegistrationForm(PrestaShopUser $user): void
     {
         // TODO: Implement redirectRegistrationForm() method.
     }

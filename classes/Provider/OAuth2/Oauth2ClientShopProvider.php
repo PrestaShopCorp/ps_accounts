@@ -39,11 +39,7 @@ class Oauth2ClientShopProvider extends PrestaShop
 
     // TODO: route update secret & client_id
     // TODO: get config from BDD
-    // TODO: publish PrestaShop provider
     // TODO: tests
-    // TODO: identity
-    // TODO: packagist
-    // TODO: release
     // TODO: prestashopcorp -> prestashop
     public static function create(): PrestaShop
     {
@@ -79,23 +75,5 @@ class Oauth2ClientShopProvider extends PrestaShop
         $context = \Context::getContext();
 
         return $context->link->getAdminLink('AdminOAuth2PsAccounts', false);
-    }
-
-    /**
-     * @param string $token
-     *
-     * @return LoginData
-     */
-    public function getLoginData(string $token): LoginData
-    {
-        list($uid, $email, $emailVerified) = self::listTokenClaims($token, [
-            'sub', 'email', 'email_verified',
-        ]);
-        $loginData = new LoginData();
-        $loginData->uid = $uid;
-        $loginData->email = $email;
-        $loginData->emailVerified = $emailVerified;
-
-        return $loginData;
     }
 }
