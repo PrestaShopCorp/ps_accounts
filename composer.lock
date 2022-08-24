@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
         "This file is @generated automatically"
     ],
-    "content-hash": "22f69e945090db3fe1db22dc74cdbb2f",
+    "content-hash": "f4a4ab2561b4d103ecf9c2906011dfb9",
     "packages": [
         {
             "name": "guzzlehttp/guzzle",
@@ -712,6 +712,66 @@
                 "prestashop"
             ],
             "time": "2021-06-01T15:21:20+00:00"
+        },
+        {
+            "name": "prestashopcorp/oauth2-prestashop",
+            "version": "dev-main",
+            "source": {
+                "type": "git",
+                "url": "git@github.com:PrestaShopCorp/oauth2-prestashop.git",
+                "reference": "4b856a5ab29de56a236f0beba63770e264329299"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/PrestaShopCorp/oauth2-prestashop/zipball/4b856a5ab29de56a236f0beba63770e264329299",
+                "reference": "4b856a5ab29de56a236f0beba63770e264329299",
+                "shasum": ""
+            },
+            "require": {
+                "lcobucci/jwt": "^3.3",
+                "league/oauth2-client": "^2.0",
+                "php": "^7.2|^8.0"
+            },
+            "require-dev": {
+                "mockery/mockery": "~0.9",
+                "phpunit/phpunit": "~4.0"
+            },
+            "type": "library",
+            "autoload": {
+                "psr-4": {
+                    "PrestaShopCorp\\OAuth2\\Client\\": "src/"
+                }
+            },
+            "autoload-dev": {
+                "psr-4": {
+                    "PrestaShopCorp\\OAuth2\\Client\\Test\\": "tests/src/"
+                }
+            },
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "PrestaShop SA",
+                    "email": "contact@prestashop.com"
+                }
+            ],
+            "description": "PrestaShop OAuth 2.0 support for the PHP League's OAuth 2.0 Client",
+            "keywords": [
+                "api",
+                "authentication",
+                "authorization",
+                "client",
+                "oauth",
+                "oauth2",
+                "php",
+                "prestashop"
+            ],
+            "support": {
+                "source": "https://github.com/PrestaShopCorp/oauth2-prestashop/tree/main",
+                "issues": "https://github.com/PrestaShopCorp/oauth2-prestashop/issues"
+            },
+            "time": "2022-08-24T09:23:19+00:00"
         },
         {
             "name": "psr/cache",
@@ -2574,6 +2634,7 @@
             "keywords": [
                 "diff"
             ],
+            "abandoned": true,
             "time": "2020-10-14T08:39:05+00:00"
         },
         {
@@ -4490,7 +4551,9 @@
     ],
     "aliases": [],
     "minimum-stability": "stable",
-    "stability-flags": [],
+    "stability-flags": {
+        "prestashopcorp/oauth2-prestashop": 20
+    },
     "prefer-stable": false,
     "prefer-lowest": false,
     "platform": {
