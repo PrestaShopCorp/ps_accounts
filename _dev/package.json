@@ -84,5 +84,9 @@
     "not dead"
   ],
   "author": "PrestaShop",
-  "license": "AFL-3.0"
+  "license": "AFL-3.0",
+  "engines": {
+    "npm": ">=6.14.0",
+    "node": ">=14.20.0"
+  }
 }
