@@ -16,7 +16,7 @@ services:
     public: true
     factory: [ 'PrestaShop\Module\PsAccounts\Factory\PsAccountsLogger', 'create' ]
 
-  PrestaShopCorp\OAuth2\Client\Provider\PrestaShop:
+  PrestaShop\OAuth2\Client\Provider\PrestaShop:
     class: PrestaShop\Module\PsAccounts\Provider\OAuth2\Oauth2ClientShopProvider
     public: true
     factory: [ 'PrestaShop\Module\PsAccounts\Provider\OAuth2\Oauth2ClientShopProvider', 'create' ]

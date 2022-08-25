@@ -28,7 +28,7 @@ class Ps_accounts extends Module
 
     // Needed in order to retrieve the module version easier (in api call headers) than instanciate
     // the module each time to get the version
-    const VERSION = '5.2.6';
+    const VERSION = '6.0.0';
 
     /**
      * @var array
@@ -91,7 +91,7 @@ class Ps_accounts extends Module
 
         // We cannot use the const VERSION because the const is not computed by addons marketplace
         // when the zip is uploaded
-        $this->version = '5.2.6';
+        $this->version = '6.0.0';
 
         $this->module_key = 'abf2cd758b4d629b2944d3922ef9db73';
 
@@ -579,10 +579,13 @@ class Ps_accounts extends Module
      */
     public function hookDisplayPsAccountsAdminLogin($params)
     {
+        $provider = $this->getService(\PrestaShop\OAuth2\Client\Provider\PrestaShop::class);
         $this->context->smarty->assign('pathVendor', $this->_path . 'views/js/chunk-vendors.' . $this->version . '.js');
         $this->context->smarty->assign('pathZoid', $this->_path . 'views/js/login.' . $this->version . '.js');
         $this->context->smarty->assign('pathImg', $this->_path . 'views/img/prestashop-logo-2.png');
-        $this->context->smarty->assign('redirectUri', \PrestaShop\Module\PsAccounts\Provider\OAuth2\Oauth2ClientShopProvider::getRedirectUri());
+        $this->context->smarty->assign('redirectUri', $provider->getRedirectUri());
+
+        $this->context->smarty->assign('loginError', Tools::getValue('loginError'));
 
         return $this->display(__FILE__, 'views/templates/hooks/ps_accounts_admin_login.tpl');
     }

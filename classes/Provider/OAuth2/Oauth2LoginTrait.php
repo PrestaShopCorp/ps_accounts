@@ -20,8 +20,9 @@
 
 namespace PrestaShop\Module\PsAccounts\Provider\OAuth2;
 
-use PrestaShopCorp\OAuth2\Client\Provider\PrestaShop;
-use PrestaShopCorp\OAuth2\Client\Provider\PrestaShopUser;
+use League\OAuth2\Client\Provider\Exception\IdentityProviderException;
+use PrestaShop\OAuth2\Client\Provider\PrestaShop;
+use PrestaShop\OAuth2\Client\Provider\PrestaShopUser;
 use Tools;
 
 trait Oauth2LoginTrait
@@ -38,6 +39,10 @@ trait Oauth2LoginTrait
 
     abstract protected function destroySession(): void;
 
+    /**
+     * @throws IdentityProviderException
+     * @throws \Exception
+     */
     public function Oauth2Login(): void
     {
         $provider = $this->getProvider();
@@ -46,10 +51,7 @@ trait Oauth2LoginTrait
 
         if (!empty($_GET['error'])) {
             // Got an error, probably user denied access
-            $this->oauth2ErrorLog('Got error: ' . $_GET['error']);
-
-            $this->oauth2Redirect();
-
+            throw new \Exception('Got error: ' . $_GET['error']);
         // If we don't have an authorization code then get one
         } elseif (!isset($_GET['code'])) {
             // cleanup existing accessToken
@@ -65,30 +67,21 @@ trait Oauth2LoginTrait
                 unset($_SESSION['oauth2state']);
             }
 
-            $this->oauth2ErrorLog('Invalid state');
-
-            $this->oauth2Redirect();
+            throw new \Exception('Invalid state');
         } else {
-            try {
-                if (!isset($_SESSION['accessToken'])) {
-                    // Try to get an access token using the authorization code grant.
-                    $_SESSION['accessToken'] = $provider->getAccessToken('authorization_code', [
-                        'code' => $_GET['code'],
-                    ]);
-                }
+            if (!isset($_SESSION['accessToken'])) {
+                // Try to get an access token using the authorization code grant.
+                $_SESSION['accessToken'] = $provider->getAccessToken('authorization_code', [
+                    'code' => $_GET['code'],
+                ]);
+            }
 
-                $prestaShopUser = $provider->getResourceOwner($_SESSION['accessToken']);
+            $prestaShopUser = $provider->getResourceOwner($_SESSION['accessToken']);
 
-                if ($this->initUserSession($prestaShopUser)) {
-                    $this->redirectAfterLogin();
-                } else {
-                    $this->redirectRegistrationForm($prestaShopUser);
-                }
-            } catch (\League\OAuth2\Client\Provider\Exception\IdentityProviderException $e) {
-                // Failed to get the access token or user details.
-                $this->oauth2ErrorLog($e->getMessage());
-
-                $this->oauth2Redirect();
+            if ($this->initUserSession($prestaShopUser)) {
+                $this->redirectAfterLogin();
+            } else {
+                $this->redirectRegistrationForm($prestaShopUser);
             }
         }
     }

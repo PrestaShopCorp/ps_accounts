@@ -719,32 +719,32 @@
             "source": {
                 "type": "git",
                 "url": "git@github.com:PrestaShopCorp/oauth2-prestashop.git",
-                "reference": "810f2ce8bd8f5ef628bb641d3076a608f29e6862"
+                "reference": "582dd8bd9537675dc9367e1dcacc283cf32784e7"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/PrestaShopCorp/oauth2-prestashop/zipball/810f2ce8bd8f5ef628bb641d3076a608f29e6862",
-                "reference": "810f2ce8bd8f5ef628bb641d3076a608f29e6862",
+                "url": "https://api.github.com/repos/PrestaShopCorp/oauth2-prestashop/zipball/582dd8bd9537675dc9367e1dcacc283cf32784e7",
+                "reference": "582dd8bd9537675dc9367e1dcacc283cf32784e7",
                 "shasum": ""
             },
             "require": {
-                "lcobucci/jwt": "^3.3",
                 "league/oauth2-client": "^2.0",
                 "php": "^7.2|^8.0"
             },
             "require-dev": {
-                "mockery/mockery": "~0.9",
-                "phpunit/phpunit": "~4.0"
+                "phpstan/phpstan": "^1.7",
+                "phpunit/phpunit": "^8.0 || ^9.0",
+                "prestashop/php-dev-tools": "^4.2"
             },
             "type": "library",
             "autoload": {
                 "psr-4": {
-                    "PrestaShopCorp\\OAuth2\\Client\\": "src/"
+                    "PrestaShop\\OAuth2\\Client\\": "src/"
                 }
             },
             "autoload-dev": {
                 "psr-4": {
-                    "PrestaShopCorp\\OAuth2\\Client\\Test\\": "tests/src/"
+                    "PrestaShop\\OAuth2\\Client\\Test\\": "tests/src/"
                 }
             },
             "license": [
@@ -771,7 +771,7 @@
                 "source": "https://github.com/PrestaShopCorp/oauth2-prestashop/tree/main",
                 "issues": "https://github.com/PrestaShopCorp/oauth2-prestashop/issues"
             },
-            "time": "2022-08-24T13:07:25+00:00"
+            "time": "2022-08-25T08:20:25+00:00"
         },
         {
             "name": "psr/cache",

@@ -21,7 +21,8 @@
 namespace PrestaShop\Module\PsAccounts\Provider\OAuth2;
 
 use League\OAuth2\Client\Token\AccessToken;
-use PrestaShopCorp\OAuth2\Client\Provider\PrestaShop;
+use PrestaShop\Module\PsAccounts\Repository\ConfigurationRepository;
+use PrestaShop\OAuth2\Client\Provider\PrestaShop;
 
 class Oauth2ClientShopProvider extends PrestaShop
 {
@@ -30,28 +31,40 @@ class Oauth2ClientShopProvider extends PrestaShop
      */
     private $module;
 
-    public function __construct(\Ps_accounts $module, array $options = [], array $collaborators = [])
-    {
-        parent::__construct($options, $collaborators);
+    /**
+     * @var \Context
+     */
+    private $context;
 
-        $this->module = $module;
-    }
+    /**
+     * @var ConfigurationRepository
+     */
+    private $configuration;
 
-    // TODO: route update secret & client_id
-    // TODO: get config from BDD
-    // TODO: tests
-    // TODO: prestashopcorp -> prestashop
-    public static function create(): PrestaShop
+    /**
+     * @param array $options
+     * @param array $collaborators
+     *
+     * @throws \Exception
+     */
+    public function __construct(array $options = [], array $collaborators = [])
     {
         /** @var \Ps_accounts $module */
         $module = \Module::getInstanceByName('ps_accounts');
+        $this->module = $module;
+        $this->context = $module->getContext();
+        $this->configuration = $module->getService(ConfigurationRepository::class);
 
-        // FIXME store into bdd
-        return new self($module, [
-            'clientId' => $module->getParameter('ps_accounts.oauth2_client_id'),
-            'clientSecret' => $module->getParameter('ps_accounts.oauth2_client_secret'),
-            'redirectUri' => self::getRedirectUri(),
-        ]);
+        parent::__construct(array_merge([
+            'clientId' => $this->configuration->getOauth2ClientId(),
+            'clientSecret' => $this->configuration->getOauth2ClientSecret(),
+            'redirectUri' => $this->getRedirectUri(),
+        ], $options), $collaborators);
+    }
+
+    public static function create(): PrestaShop
+    {
+        return new self();
     }
 
     public function getBaseAuthorizationUrl(): string
@@ -69,11 +82,8 @@ class Oauth2ClientShopProvider extends PrestaShop
         return $this->module->getParameter('ps_accounts.oauth2_url_resource_owner_details');
     }
 
-    public static function getRedirectUri(): string
+    public function getRedirectUri(): string
     {
-        /** @var \Context $context */
-        $context = \Context::getContext();
-
-        return $context->link->getAdminLink('AdminOAuth2PsAccounts', false);
+        return $this->context->link->getAdminLink('AdminOAuth2PsAccounts', false);
     }
 }

@@ -33,6 +33,12 @@
 <script>
     document.addEventListener("DOMContentLoaded", function() {
 
+        const error = "{$loginError}";
+        if (error !== "") {
+            // Function in prestashop core (global actually)
+            displayErrors([error]);
+        }
+
         const returnTo = document
             .querySelector("input#redirect")
             .getAttribute("value");

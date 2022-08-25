@@ -18,10 +18,11 @@
  * @license   https://opensource.org/licenses/AFL-3.0 Academic Free License version 3.0
  */
 
+use League\OAuth2\Client\Provider\Exception\IdentityProviderException;
 use PrestaShop\Module\PsAccounts\Provider\OAuth2\Oauth2ClientShopProvider;
 use PrestaShop\Module\PsAccounts\Provider\OAuth2\Oauth2LoginTrait;
-use PrestaShopCorp\OAuth2\Client\Provider\PrestaShop;
-use PrestaShopCorp\OAuth2\Client\Provider\PrestaShopUser;
+use PrestaShop\OAuth2\Client\Provider\PrestaShop;
+use PrestaShop\OAuth2\Client\Provider\PrestaShopUser;
 
 /**
  * Controller for all ajax calls.
@@ -50,10 +51,23 @@ class AdminOAuth2PsAccountsController extends ModuleAdminController
 
     public function display(): void
     {
-        $this->oauth2Login();
+        try {
+            $this->oauth2Login();
+        } catch (IdentityProviderException $e) {
+            // Failed to get the access token or user details.
+            $this->oauth2ErrorLog($e->getMessage());
+
+            $this->closePopupWithError($e->getMessage());
+        } catch (Exception $e) {
+            $this->oauth2ErrorLog($e->getMessage());
+
+            $this->closePopupWithError($e->getMessage());
+        }
     }
 
-    // FIXME: is there a way to not duplicate that code (from ps core) ?
+    /**
+     * @throws Exception
+     */
     private function initUserSession(PrestaShopUser $user): bool
     {
         $context = $this->context;
@@ -64,8 +78,7 @@ class AdminOAuth2PsAccountsController extends ModuleAdminController
 
         if (!$isEmployedLoaded || empty($emailVerified)) {
             $context->employee->logout();
-            // TODO: redirect SSO logout
-            exit(empty($emailVerified) ? 'You account is not verified' : 'The employee does not exist');
+            throw new Exception(empty($emailVerified) ? 'You account is not verified' : 'The employee does not exist');
         }
 
         $context->employee->remote_addr = (int) ip2long(Tools::getRemoteAddr());
@@ -99,6 +112,21 @@ class AdminOAuth2PsAccountsController extends ModuleAdminController
     private function getProvider(): Oauth2ClientShopProvider
     {
         return $this->module->getService(PrestaShop::class);
+    }
+
+    /**
+     * @param string $error
+     *
+     * @return void
+     */
+    private function closePopupWithError($error): void
+    {
+        $this->redirectJs(
+            $this->context->link->getAdminLink('AdminLogin', true, [], [
+                'logout' => 1,
+                'loginError' => $error,
+            ])
+        );
     }
 
     private function redirectAfterLogin(): void
