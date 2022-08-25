@@ -145,6 +145,26 @@ class FeatureTestCase extends TestCase
     }
 
     /**
+     * @param ResponseInterface $response
+     *
+     * @return void
+     */
+    public function assertResponseBadRequest($response)
+    {
+        $this->assertEquals(400, $response->getStatusCode());
+    }
+
+    /**
+     * @param ResponseInterface $response
+     *
+     * @return void
+     */
+    public function assertResponseError($response)
+    {
+        $this->assertGreaterThanOrEqual(500, $response->getStatusCode());
+    }
+
+    /**
      * @param $response
      *
      * @return array|mixed

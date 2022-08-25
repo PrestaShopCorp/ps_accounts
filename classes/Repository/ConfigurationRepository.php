@@ -344,4 +344,44 @@ class ConfigurationRepository
             ' AND id_shop = ' . (int) $shop->id . ';'
         );
     }
+
+    // OAuth2 setup
+    // ps_accounts.oauth2_client_id: 'shop-client'
+    // ps_accounts.oauth2_client_secret: 'secret'
+
+    /**
+     * @return mixed
+     */
+    public function getOauth2ClientId()
+    {
+        return $this->configuration->get(Configuration::PS_ACCOUNTS_OAUTH2_CLIENT_ID);
+    }
+
+    /**
+     * @param string $clientId
+     *
+     * @return void
+     */
+    public function updateOauth2ClientId($clientId)
+    {
+        $this->configuration->set(Configuration::PS_ACCOUNTS_OAUTH2_CLIENT_ID, $clientId);
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getOauth2ClientSecret()
+    {
+        return $this->configuration->get(Configuration::PS_ACCOUNTS_OAUTH2_CLIENT_SECRET);
+    }
+
+    /**
+     * @param string $secret
+     *
+     * @return void
+     */
+    public function updateOauth2ClientSecret($secret)
+    {
+        $this->configuration->set(Configuration::PS_ACCOUNTS_OAUTH2_CLIENT_SECRET, $secret);
+    }
 }

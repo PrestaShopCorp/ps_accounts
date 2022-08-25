@@ -51,6 +51,14 @@ abstract class AbstractRestController extends \ModuleFrontController implements 
      */
     public $module;
 
+    public function __construct()
+    {
+        parent::__construct();
+
+        $this->ajax = true;
+        $this->content_only = true;
+    }
+
     /**
      * @param mixed $id
      *
@@ -66,6 +74,8 @@ abstract class AbstractRestController extends \ModuleFrontController implements 
      *
      * @throws \Throwable
      */
+    // public function init()
+    // public function displayAjax()
     public function postProcess()
     {
         try {
@@ -190,7 +200,6 @@ abstract class AbstractRestController extends \ModuleFrontController implements 
             $id = $this->bindResource($payload[$this->resourceId]);
         }
 
-        $content = null;
         $statusCode = 200;
 
         switch ($httpMethod) {
