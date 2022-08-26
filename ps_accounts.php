@@ -222,10 +222,24 @@ class Ps_accounts extends Module
      * @param string $name
      *
      * @return mixed
+     *
+     * @throws Exception
      */
     public function getParameter($name)
     {
         return $this->getServiceContainer()->getContainer()->getParameter($name);
+    }
+
+    /**
+     * @param string $name
+     *
+     * @return bool
+     *
+     * @throws Exception
+     */
+    public function hasParameter($name)
+    {
+        return $this->getServiceContainer()->getContainer()->hasParameter($name);
     }
 
     /**
@@ -584,7 +598,6 @@ class Ps_accounts extends Module
         $this->context->smarty->assign('pathZoid', $this->_path . 'views/js/login.' . $this->version . '.js');
         $this->context->smarty->assign('pathImg', $this->_path . 'views/img/prestashop-logo-2.png');
         $this->context->smarty->assign('redirectUri', $provider->getRedirectUri());
-
         $this->context->smarty->assign('loginError', Tools::getValue('loginError'));
 
         return $this->display(__FILE__, 'views/templates/hooks/ps_accounts_admin_login.tpl');

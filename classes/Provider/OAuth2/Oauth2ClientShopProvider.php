@@ -67,19 +67,47 @@ class Oauth2ClientShopProvider extends PrestaShop
         return new self();
     }
 
+    /**
+     * @throws \Exception
+     */
+    public function getParameter(string $name, string $default): string
+    {
+        return $this->module->hasParameter($name)
+            ? $this->module->getParameter($name)
+            : $default;
+    }
+
+    /**
+     * @throws \Exception
+     */
     public function getBaseAuthorizationUrl(): string
     {
-        return $this->module->getParameter('ps_accounts.oauth2_url_authorize');
+        return $this->getParameter(
+            'ps_accounts.oauth2_url_authorize',
+            parent::getBaseAuthorizationUrl()
+        );
     }
 
+    /**
+     * @throws \Exception
+     */
     public function getBaseAccessTokenUrl(array $params): string
     {
-        return $this->module->getParameter('ps_accounts.oauth2_url_access_token');
+        return $this->getParameter(
+            'ps_accounts.oauth2_url_access_token',
+            parent::getBaseAccessTokenUrl($params)
+        );
     }
 
+    /**
+     * @throws \Exception
+     */
     public function getResourceOwnerDetailsUrl(AccessToken $token): string
     {
-        return $this->module->getParameter('ps_accounts.oauth2_url_resource_owner_details');
+        return $this->getParameter(
+            'ps_accounts.oauth2_url_resource_owner_details',
+            $this->getResourceOwnerDetailsUrl($token)
+        );
     }
 
     public function getRedirectUri(): string
