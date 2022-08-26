@@ -41,7 +41,7 @@ trait Oauth2LoginTrait
      * @throws IdentityProviderException
      * @throws \Exception
      */
-    public function Oauth2Login(): void
+    public function oauth2Login(): void
     {
         $provider = $this->getProvider();
 

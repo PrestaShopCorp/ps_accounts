@@ -719,17 +719,17 @@
             "source": {
                 "type": "git",
                 "url": "git@github.com:PrestaShopCorp/oauth2-prestashop.git",
-                "reference": "582dd8bd9537675dc9367e1dcacc283cf32784e7"
+                "reference": "567f78198d2a9dc8133a4301cd9be0321b53443f"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/PrestaShopCorp/oauth2-prestashop/zipball/582dd8bd9537675dc9367e1dcacc283cf32784e7",
-                "reference": "582dd8bd9537675dc9367e1dcacc283cf32784e7",
+                "url": "https://api.github.com/repos/PrestaShopCorp/oauth2-prestashop/zipball/567f78198d2a9dc8133a4301cd9be0321b53443f",
+                "reference": "567f78198d2a9dc8133a4301cd9be0321b53443f",
                 "shasum": ""
             },
             "require": {
                 "league/oauth2-client": "^2.0",
-                "php": "^7.2|^8.0"
+                "php": ">=7.1"
             },
             "require-dev": {
                 "phpstan/phpstan": "^1.7",
@@ -771,7 +771,7 @@
                 "source": "https://github.com/PrestaShopCorp/oauth2-prestashop/tree/main",
                 "issues": "https://github.com/PrestaShopCorp/oauth2-prestashop/issues"
             },
-            "time": "2022-08-25T08:20:25+00:00"
+            "time": "2022-08-26T12:55:29+00:00"
         },
         {
             "name": "psr/cache",
