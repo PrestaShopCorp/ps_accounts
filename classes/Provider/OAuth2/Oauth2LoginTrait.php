@@ -29,11 +29,9 @@ trait Oauth2LoginTrait
 {
     abstract protected function getProvider(): PrestaShop;
 
-    abstract protected function initUserSession(PrestaShopUser $user): bool;
+    abstract protected function initUserSession(PrestaShopUser $user): void;
 
     abstract protected function redirectAfterLogin(): void;
-
-    abstract protected function redirectRegistrationForm(PrestaShopUser $user): void;
 
     abstract protected function startSession(): void;
 
@@ -78,11 +76,9 @@ trait Oauth2LoginTrait
 
             $prestaShopUser = $provider->getResourceOwner($_SESSION['accessToken']);
 
-            if ($this->initUserSession($prestaShopUser)) {
-                $this->redirectAfterLogin();
-            } else {
-                $this->redirectRegistrationForm($prestaShopUser);
-            }
+            $this->initUserSession($prestaShopUser);
+
+            $this->redirectAfterLogin();
         }
     }
 

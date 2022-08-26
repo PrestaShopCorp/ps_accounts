@@ -49,8 +49,6 @@
         const redirectUri = "{$redirectUri}";
         const oauth2Uri = redirectUri + '&return_to=' + encodeURIComponent(returnTo) + '&stay_logged_in=' + stayLoggedIn;
 
-        console.log(oauth2Uri);
-
         window['signInComponent'].mount("#ps-accounts-login", {
             redirectUri: oauth2Uri
         });

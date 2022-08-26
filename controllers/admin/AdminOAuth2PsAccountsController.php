@@ -68,7 +68,7 @@ class AdminOAuth2PsAccountsController extends ModuleAdminController
     /**
      * @throws Exception
      */
-    private function initUserSession(PrestaShopUser $user): bool
+    private function initUserSession(PrestaShopUser $user): void
     {
         $context = $this->context;
 
@@ -105,8 +105,6 @@ class AdminOAuth2PsAccountsController extends ModuleAdminController
         }
 
         $cookie->write();
-
-        return true;
     }
 
     private function getProvider(): Oauth2ClientShopProvider
@@ -135,11 +133,6 @@ class AdminOAuth2PsAccountsController extends ModuleAdminController
         $this->redirectJs(
             !empty($returnTo) ? $returnTo : $this->context->link->getAdminLink('AdminDashboard')
         );
-    }
-
-    private function redirectRegistrationForm(PrestaShopUser $user): void
-    {
-        // TODO: Implement redirectRegistrationForm() method.
     }
 
     private function startSession(): void
