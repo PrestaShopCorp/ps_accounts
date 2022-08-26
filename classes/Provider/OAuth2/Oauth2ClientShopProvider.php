@@ -106,7 +106,7 @@ class Oauth2ClientShopProvider extends PrestaShop
     {
         return $this->getParameter(
             'ps_accounts.oauth2_url_resource_owner_details',
-            $this->getResourceOwnerDetailsUrl($token)
+            parent::getResourceOwnerDetailsUrl($token)
         );
     }
 
