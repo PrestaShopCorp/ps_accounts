@@ -345,9 +345,23 @@ class ConfigurationRepository
         );
     }
 
-    // OAuth2 setup
-    // ps_accounts.oauth2_client_id: 'shop-client'
-    // ps_accounts.oauth2_client_secret: 'secret'
+    /**
+     * @return bool
+     */
+    public function getLoginEnabled()
+    {
+        return (bool) $this->configuration->get(Configuration::PS_ACCOUNTS_LOGIN_ENABLED);
+    }
+
+    /**
+     * @param bool $enabled
+     *
+     * @return void
+     */
+    public function updateLoginEnabled($enabled)
+    {
+        $this->configuration->set(Configuration::PS_ACCOUNTS_LOGIN_ENABLED, $enabled);
+    }
 
     /**
      * @return mixed

@@ -1,4 +1,7 @@
 <?php
+
+use PrestaShop\Module\PsAccounts\Repository\ConfigurationRepository;
+
 /**
  * Copyright since 2007 PrestaShop SA and Contributors
  * PrestaShop is an International Registered Trademark & Property of PrestaShop SA
@@ -19,29 +22,30 @@
  */
 class AdminLoginController extends AdminLoginControllerCore
 {
-    /** @var string */
-    public $override_folder;
+    const PS_ACCOUNTS_LOGIN_MODE_LOCAL = 'local';
 
     /** @var string */
     public $template = 'content.tpl';
 
-    /** @var string */
-    private $psAccountsTemplateDir;
+    /** @var bool */
+    private $psAccountsLoginEnabled = false;
+
+    /** @var Ps_accounts */
+    private $psAccountsModule;
 
     public function __construct()
     {
         parent::__construct();
 
-        $this->psAccountsTemplateDir = _PS_MODULE_DIR_ .
-            DIRECTORY_SEPARATOR . 'ps_accounts' .
-            DIRECTORY_SEPARATOR . 'views' .
-            DIRECTORY_SEPARATOR . 'templates' .
-            DIRECTORY_SEPARATOR . 'override' .
-            DIRECTORY_SEPARATOR . 'controllers' .
-            DIRECTORY_SEPARATOR . 'login' .
-            DIRECTORY_SEPARATOR;
+        /** @var Ps_accounts $module */
+        $this->psAccountsModule = Module::getInstanceByName('ps_accounts');
 
-        $this->layout = $this->psAccountsTemplateDir . 'layout.tpl';
+        /** @var ConfigurationRepository $configuration */
+        $configuration = $this->psAccountsModule->getService(ConfigurationRepository::class);
+
+        if (self::PS_ACCOUNTS_LOGIN_MODE_LOCAL !== $this->getPsAccountsLoginMode()) {
+            $this->psAccountsLoginEnabled = $configuration->getLoginEnabled();
+        }
     }
 
     /**
@@ -55,12 +59,50 @@ class AdminLoginController extends AdminLoginControllerCore
      */
     public function createTemplate($tpl_name)
     {
-        if ($tpl_name === $this->template) {
-            return $this->context->smarty->createTemplate(
-                $this->psAccountsTemplateDir . $tpl_name, $this->context->smarty
-            );
+        if ($this->psAccountsLoginEnabled && $tpl_name === $this->template) {
+            return $this->createPsAccountsLoginTemplate();
         }
 
         return parent::createTemplate($tpl_name);
+    }
+
+    public function createPsAccountsLoginTemplate()
+    {
+        /** @var \PrestaShop\Module\PsAccounts\Provider\OAuth2\Oauth2ClientShopProvider $provider */
+        $provider = $this->psAccountsModule->getService(\PrestaShop\OAuth2\Client\Provider\PrestaShop::class);
+
+        $this->context->smarty->assign('oauthRedirectUri', $provider->getRedirectUri());
+        $this->context->smarty->assign('legacyLoginUri', $this->context->link->getAdminLink('AdminLogin', true, [], [
+            'mode' => self::PS_ACCOUNTS_LOGIN_MODE_LOCAL,
+        ]));
+
+        $this->context->smarty->assign('loginError', Tools::getValue('loginError'));
+
+        return $this->context->smarty->createTemplate(
+            $this->getPsAccountsTemplateDir() . $this->template, $this->context->smarty
+        );
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getPsAccountsLoginMode()
+    {
+        return Tools::getValue('mode');
+    }
+
+    /**
+     * @return string
+     */
+    public function getPsAccountsTemplateDir()
+    {
+        return _PS_MODULE_DIR_ .
+            DIRECTORY_SEPARATOR . 'ps_accounts' .
+            DIRECTORY_SEPARATOR . 'views' .
+            DIRECTORY_SEPARATOR . 'templates' .
+            DIRECTORY_SEPARATOR . 'override' .
+            DIRECTORY_SEPARATOR . 'controllers' .
+            DIRECTORY_SEPARATOR . 'login' .
+            DIRECTORY_SEPARATOR;
     }
 }

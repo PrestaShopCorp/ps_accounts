@@ -9,8 +9,18 @@
  */
 function upgrade_module_6_0_0($module)
 {
-    $module->addCustomHooks($module->getCustomHooks());
-    $module->registerHook($module->getHookToInstall());
+    if ($module->getOverrides() != null) {
+        try {
+            $module->installOverrides();
+        } catch (Exception $e) {
+            $module->getLogger()->error(Context::getContext()->getTranslator()->trans(
+                'Unable to install override: %s', [$e->getMessage()], 'Admin.Modules.Notification')
+            );
+            $module->uninstallOverrides();
+
+            return false;
+        }
+    }
 
     return true;
 }
