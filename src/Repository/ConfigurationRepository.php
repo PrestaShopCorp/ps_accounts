@@ -360,7 +360,7 @@ class ConfigurationRepository
      */
     public function updateLoginEnabled($enabled)
     {
-        $this->configuration->set(Configuration::PS_ACCOUNTS_LOGIN_ENABLED, $enabled);
+        $this->configuration->set(Configuration::PS_ACCOUNTS_LOGIN_ENABLED, (string) $enabled);
     }
 
     /**

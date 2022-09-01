@@ -90,7 +90,7 @@
 <script>
     document.addEventListener("DOMContentLoaded", function() {
 
-        const error = "{$loginError}";
+        const error = "{htmlentities($loginError)}";
         if (error !== "") {
             // Function in prestashop core (global actually)
             displayErrors([error]);

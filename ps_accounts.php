@@ -149,7 +149,7 @@ class Ps_accounts extends Module
         $installer = new PrestaShop\Module\PsAccounts\Module\Install($this, Db::getInstance());
 
         $status = $installer->installInMenu()
-            //&& $installer->installDatabaseTables()
+            && $installer->installDatabaseTables()
             && parent::install()
             && $this->addCustomHooks($this->customHooks)
             && $this->registerHook($this->hookToInstall);
@@ -183,7 +183,7 @@ class Ps_accounts extends Module
         $uninstaller = new PrestaShop\Module\PsAccounts\Module\Uninstall($this, Db::getInstance());
 
         return $uninstaller->uninstallMenu()
-            //&& $uninstaller->uninstallDatabaseTables()
+            && $uninstaller->uninstallDatabaseTables()
             && parent::uninstall();
     }
 

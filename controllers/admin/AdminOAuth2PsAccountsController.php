@@ -18,7 +18,9 @@
  * @license   https://opensource.org/licenses/AFL-3.0 Academic Free License version 3.0
  */
 
+use Doctrine\ORM\EntityManagerInterface;
 use League\OAuth2\Client\Provider\Exception\IdentityProviderException;
+use PrestaShop\Module\PsAccounts\Entity\EmployeeAccount;
 use PrestaShop\Module\PsAccounts\Provider\OAuth2\Oauth2ClientShopProvider;
 use PrestaShop\Module\PsAccounts\Provider\OAuth2\Oauth2LoginTrait;
 use PrestaShop\OAuth2\Client\Provider\PrestaShop;
@@ -57,26 +59,26 @@ class AdminOAuth2PsAccountsController extends ModuleAdminController
             // Failed to get the access token or user details.
             $this->oauth2ErrorLog($e->getMessage());
 
-            $this->closePopupWithError($e->getMessage());
+            $this->redirectWithError($e->getMessage());
         } catch (Exception $e) {
             $this->oauth2ErrorLog($e->getMessage());
 
-            $this->closePopupWithError($e->getMessage());
+            $this->redirectWithError($e->getMessage());
         }
     }
 
     /**
      * @throws Exception
      */
-    private function initUserSession(PrestaShopUser $user): void
+    private function initUserSession(PrestaShopUser $user): bool
     {
         $context = $this->context;
 
         $emailVerified = $user->getEmailVerified();
-        $context->employee = new Employee();
-        $isEmployedLoaded = $context->employee->getByEmail($user->getEmail());
 
-        if (!$isEmployedLoaded || empty($emailVerified)) {
+        $context->employee = $this->getEmployeeByUidOrEmail($user->getId(), $user->getEmail());
+
+        if (!$context->employee->id || empty($emailVerified)) {
             $context->employee->logout();
             throw new Exception(empty($emailVerified) ? 'You account is not verified' : 'The employee does not exist');
         }
@@ -105,6 +107,47 @@ class AdminOAuth2PsAccountsController extends ModuleAdminController
         }
 
         $cookie->write();
+
+        return true;
+    }
+
+    /**
+     * @throws \PrestaShop\PrestaShop\Core\Exception\ContainerNotFoundException
+     */
+    private function getEmployeeByUidOrEmail(string $uid, string $email): Employee
+    {
+        /** @var EntityManagerInterface $entityManager */
+        $entityManager = $this->module->getContainer()->get('doctrine.orm.entity_manager');
+
+        $employeeAccountRepository = $entityManager->getRepository(EmployeeAccount::class);
+
+        /**
+         * @var EmployeeAccount $employeeAccount
+         * @phpstan-ignore-next-line
+         */
+        $employeeAccount = $employeeAccountRepository->findOneBy(['uid' => $uid]);
+        // $employeeAccount = $employeeAccountRepository->findOneByUid($uid);
+
+        /** @phpstan-ignore-next-line  */
+        if ($employeeAccount) {
+            $employee = new Employee($employeeAccount->getEmployeeId());
+        } else {
+            $employeeAccount = new EmployeeAccount();
+            $employee = new Employee();
+            $employee->getByEmail($email);
+        }
+
+        // Update account
+        if ($employee->id) {
+            $employeeAccount->setEmployeeId($employee->id)
+                ->setUid($uid)
+                ->setEmail($email);
+
+            $entityManager->persist($employeeAccount);
+            $entityManager->flush();
+        }
+
+        return $employee;
     }
 
     private function getProvider(): Oauth2ClientShopProvider
@@ -117,9 +160,9 @@ class AdminOAuth2PsAccountsController extends ModuleAdminController
      *
      * @return void
      */
-    private function closePopupWithError($error): void
+    private function redirectWithError($error): void
     {
-        $this->redirectJs(
+        Tools::redirectAdmin(
             $this->context->link->getAdminLink('AdminLogin', true, [], [
                 'logout' => 1,
                 'loginError' => $error,
@@ -130,7 +173,7 @@ class AdminOAuth2PsAccountsController extends ModuleAdminController
     private function redirectAfterLogin(): void
     {
         $returnTo = $this->getSessionReturnTo();
-        $this->redirectJs(
+        Tools::redirectAdmin(
             !empty($returnTo) ? $returnTo : $this->context->link->getAdminLink('AdminDashboard')
         );
     }
@@ -144,28 +187,5 @@ class AdminOAuth2PsAccountsController extends ModuleAdminController
     private function destroySession(): void
     {
         // TODO: Implement destroySession() method.
-    }
-
-    private function redirectJs(string $url): void
-    {
-        if ($url) {
-            echo <<<JS
-<script>
-    const redirect = '$url';
-    if (opener)
-        opener.location = redirect;
-    else
-        window.location = redirect;
-</script>
-JS;
-        } else {
-            echo <<<JS
-<script>
-    if (opener)
-        window.close();
-</script>
-JS;
-        }
-        exit;
     }
 }
