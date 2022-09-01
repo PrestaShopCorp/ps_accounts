@@ -33,6 +33,7 @@ views/files/*
 ### Vuejs ignore build files ###
 /views/js/app*.js
 /views/js/app*.js.map
+/views/css/app*.css
 /views/js/chunk-vendors*.js
 /views/js/chunk-vendors*.js.map
 /views/js/settings*.js
@@ -41,6 +42,7 @@ views/files/*
 /views/js/settingsOnBoarding*.js.map
 /views/js/login*.js
 /views/js/login*.js.map
+/views/css/login*.css
 /views/css/index.css
 /views/css/chunk-vendors.css
 /views/favicon.ico

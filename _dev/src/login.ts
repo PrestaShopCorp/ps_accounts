@@ -1,5 +1,4 @@
 import { SignIn } from "@prestashopcorp/ps-accounts-sdk";
-
 // // Function in prestashop core (global actually)
 // // @ts-ignore
 // // eslint-disable-next-line

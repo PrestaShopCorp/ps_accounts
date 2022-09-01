@@ -1,9 +1,7 @@
+/** @type {import('tailwindcss').Config} */
 module.exports = {
   important: true,
-  prefix: "tw-",
-  purge: {
-    content: ["./src/**/*.vue"],
-  },
+  content: ["./src/**/*.vue", "../views/templates/override/**"],
   theme: {
     extend: {
       colors: {
