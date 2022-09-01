@@ -128,7 +128,7 @@ class AdminOAuth2PsAccountsController extends ModuleAdminController
         $employeeAccount = $employeeAccountRepository->findOneBy(['uid' => $uid]);
         // $employeeAccount = $employeeAccountRepository->findOneByUid($uid);
 
-        /** @phpstan-ignore-next-line  */
+        /* @phpstan-ignore-next-line */
         if ($employeeAccount) {
             $employee = new Employee($employeeAccount->getEmployeeId());
         } else {
