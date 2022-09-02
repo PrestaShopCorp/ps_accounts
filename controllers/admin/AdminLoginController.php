@@ -55,8 +55,10 @@ class AdminLoginController extends AdminLoginControllerCore
     {
         parent::__construct();
 
-        /* @var Ps_accounts $module */
-        $this->psAccountsModule = Module::getInstanceByName('ps_accounts');
+        /** @var Ps_accounts $module */
+        $module = Module::getInstanceByName('ps_accounts');
+
+        $this->psAccountsModule = $module;
 
         /** @var ConfigurationRepository $configuration */
         $configuration = $this->psAccountsModule->getService(ConfigurationRepository::class);
@@ -84,6 +86,11 @@ class AdminLoginController extends AdminLoginControllerCore
         return parent::createTemplate($tpl_name);
     }
 
+    /**
+     * @return Smarty_Internal_Template
+     *
+     * @throws SmartyException
+     */
     public function createPsAccountsLoginTemplate()
     {
         /** @var \PrestaShop\Module\PsAccounts\Provider\OAuth2\Oauth2ClientShopProvider $provider */

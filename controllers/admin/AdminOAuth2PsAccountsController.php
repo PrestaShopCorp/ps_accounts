@@ -185,6 +185,7 @@ class AdminOAuth2PsAccountsController extends ModuleAdminController
      */
     private function getSession(): SessionInterface
     {
+        /* @phpstan-ignore-next-line */
         return $this->module->getContainer()->get('session');
     }
 }
