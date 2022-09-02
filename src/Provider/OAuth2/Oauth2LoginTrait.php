@@ -23,19 +23,18 @@ namespace PrestaShop\Module\PsAccounts\Provider\OAuth2;
 use League\OAuth2\Client\Provider\Exception\IdentityProviderException;
 use PrestaShop\OAuth2\Client\Provider\PrestaShop;
 use PrestaShop\OAuth2\Client\Provider\PrestaShopUser;
+use Symfony\Component\HttpFoundation\Session\SessionInterface;
 use Tools;
 
 trait Oauth2LoginTrait
 {
     abstract protected function getProvider(): PrestaShop;
 
-    abstract protected function initUserSession(PrestaShopUser $user): void;
+    abstract protected function initUserSession(PrestaShopUser $user): bool;
 
     abstract protected function redirectAfterLogin(): void;
 
-    abstract protected function startSession(): void;
-
-    abstract protected function destroySession(): void;
+    abstract protected function getSession(): SessionInterface;
 
     /**
      * @throws IdentityProviderException
@@ -45,7 +44,8 @@ trait Oauth2LoginTrait
     {
         $provider = $this->getProvider();
 
-        $this->startSession();
+        //$this->getSession()->start();
+        $session = $this->getSession();
 
         if (!empty($_GET['error'])) {
             // Got an error, probably user denied access
@@ -53,32 +53,30 @@ trait Oauth2LoginTrait
         // If we don't have an authorization code then get one
         } elseif (!isset($_GET['code'])) {
             // cleanup existing accessToken
-            $_SESSION['accessToken'] = null;
+            $session->remove('accessToken');
 
             $this->setSessionReturnTo(Tools::getValue($this->getReturnToParam()));
 
             $this->oauth2Redirect();
 
         // Check given state against previously stored one to mitigate CSRF attack
-        } elseif (empty($_GET['state']) || (isset($_SESSION['oauth2state']) && $_GET['state'] !== $_SESSION['oauth2state'])) {
-            if (isset($_SESSION['oauth2state'])) {
-                unset($_SESSION['oauth2state']);
-            }
+        } elseif (empty($_GET['state']) || ($session->has('oauth2state') && $_GET['state'] !== $session->get('oauth2state'))) {
+            $session->remove('oauth2state');
 
             throw new \Exception('Invalid state');
         } else {
-            if (!isset($_SESSION['accessToken'])) {
+            if (!$session->has('accessToken')) {
                 // Try to get an access token using the authorization code grant.
-                $_SESSION['accessToken'] = $provider->getAccessToken('authorization_code', [
+                $session->set('accessToken', $provider->getAccessToken('authorization_code', [
                     'code' => $_GET['code'],
-                ]);
+                ]));
             }
 
-            $prestaShopUser = $provider->getResourceOwner($_SESSION['accessToken']);
+            $prestaShopUser = $provider->getResourceOwner($session->get('accessToken'));
 
-            $this->initUserSession($prestaShopUser);
-
-            $this->redirectAfterLogin();
+            if ($this->initUserSession($prestaShopUser)) {
+                $this->redirectAfterLogin();
+            }
         }
     }
 
@@ -92,7 +90,7 @@ trait Oauth2LoginTrait
         $authorizationUrl = $provider->getAuthorizationUrl();
 
         // Get the state generated for you and store it to the session.
-        $_SESSION['oauth2state'] = $provider->getState();
+        $this->getSession()->set('oauth2state', $provider->getState());
 
         // Redirect the user to the authorization URL.
         header('Location: ' . $authorizationUrl);
@@ -106,16 +104,12 @@ trait Oauth2LoginTrait
 
     private function getSessionReturnTo(): string
     {
-        if (isset($_SESSION[$this->getReturnToParam()])) {
-            return $_SESSION[$this->getReturnToParam()];
-        }
-
-        return '';
+        return $this->getSession()->get($this->getReturnToParam(), '');
     }
 
     private function setSessionReturnTo(string $returnTo): void
     {
-        $_SESSION[$this->getReturnToParam()] = $returnTo;
+        $this->getSession()->set($this->getReturnToParam(), $returnTo);
     }
 
     private function getReturnToParam(): string
