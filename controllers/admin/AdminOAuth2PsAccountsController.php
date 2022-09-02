@@ -25,6 +25,8 @@ use PrestaShop\Module\PsAccounts\Provider\OAuth2\Oauth2ClientShopProvider;
 use PrestaShop\Module\PsAccounts\Provider\OAuth2\Oauth2LoginTrait;
 use PrestaShop\OAuth2\Client\Provider\PrestaShop;
 use PrestaShop\OAuth2\Client\Provider\PrestaShopUser;
+use PrestaShop\PrestaShop\Core\Exception\ContainerNotFoundException;
+use Symfony\Component\HttpFoundation\Session\SessionInterface;
 
 /**
  * Controller for all ajax calls.
@@ -112,7 +114,7 @@ class AdminOAuth2PsAccountsController extends ModuleAdminController
     }
 
     /**
-     * @throws \PrestaShop\PrestaShop\Core\Exception\ContainerNotFoundException
+     * @throws ContainerNotFoundException
      */
     private function getEmployeeByUidOrEmail(string $uid, string $email): Employee
     {
@@ -150,11 +152,6 @@ class AdminOAuth2PsAccountsController extends ModuleAdminController
         return $employee;
     }
 
-    private function getProvider(): Oauth2ClientShopProvider
-    {
-        return $this->module->getService(PrestaShop::class);
-    }
-
     /**
      * @param string $error
      *
@@ -170,6 +167,11 @@ class AdminOAuth2PsAccountsController extends ModuleAdminController
         );
     }
 
+    private function getProvider(): Oauth2ClientShopProvider
+    {
+        return $this->module->getService(PrestaShop::class);
+    }
+
     private function redirectAfterLogin(): void
     {
         $returnTo = $this->getSessionReturnTo();
@@ -178,14 +180,11 @@ class AdminOAuth2PsAccountsController extends ModuleAdminController
         );
     }
 
-    private function startSession(): void
+    /**
+     * @throws ContainerNotFoundException
+     */
+    private function getSession(): SessionInterface
     {
-        // TODO: Implement startSession() method.
-        session_start();
-    }
-
-    private function destroySession(): void
-    {
-        // TODO: Implement destroySession() method.
+        return $this->module->getContainer()->get('session');
     }
 }
