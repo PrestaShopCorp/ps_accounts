@@ -584,37 +584,6 @@ class Ps_accounts extends Module
         return true;
     }
 
-//    /**
-//     * @param array $params
-//     *
-//     * @return mixed
-//     *
-//     * @throws Exception
-//     */
-//    public function hookDisplayPsAccountsAdminLogin($params)
-//    {
-//        /** @var \PrestaShop\Module\PsAccounts\Provider\OAuth2\Oauth2ClientShopProvider $provider */
-//        $provider = $this->getService(\PrestaShop\OAuth2\Client\Provider\PrestaShop::class);
-//
-//        /** @var \PrestaShop\Module\PsAccounts\Repository\ConfigurationRepository $configuration */
-//        $configuration = $this->getService(\PrestaShop\Module\PsAccounts\Repository\ConfigurationRepository::class);
-//
-//        $this->context->smarty->assign('pathVendor', $this->_path . 'views/js/chunk-vendors.' . $this->version . '.js');
-//        $this->context->smarty->assign('pathZoid', $this->_path . 'views/js/login.' . $this->version . '.js');
-//        $this->context->smarty->assign('pathImg', $this->_path . 'views/img/prestashop-logo-2.png');
-//
-//        $this->context->smarty->assign('redirectUri', $provider->getRedirectUri());
-//        $this->context->smarty->assign('ssoUri', $this->getParameter('ps_accounts.sso_account_url'));
-//        $this->context->smarty->assign('localLoginUri', $this->context->link->getAdminLink('AdminLogin', true, [], [
-//            'mode' => 'local',
-//        ]));
-//
-//        $this->context->smarty->assign('loginError', Tools::getValue('loginError'));
-//        $this->context->smarty->assign('loginEnabled', $configuration->getLoginEnabled());
-//
-//        return $this->display(__FILE__, 'views/templates/hooks/ps_accounts_admin_login.tpl');
-//    }
-
     /**
      * @return string
      */
