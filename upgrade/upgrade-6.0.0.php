@@ -9,9 +9,8 @@
  */
 function upgrade_module_6_0_0($module)
 {
-    // create employee_account table
-    $installer = new PrestaShop\Module\PsAccounts\Module\Install($module, Db::getInstance());
-    $installer->installDatabaseTables();
+    (new PrestaShop\Module\PsAccounts\Module\Install($module, Db::getInstance()))
+        ->runMigration('create_employee_account_table');
 
     return true;
 }
