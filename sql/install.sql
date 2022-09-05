@@ -1,4 +1,4 @@
-CREATE TABLE IF NOT EXISTS ps_employee_account
+CREATE TABLE IF NOT EXISTS `PREFIX_employee_account`
 (
   id_employee_account INT AUTO_INCREMENT NOT NULL,
   id_employee INT NOT NULL,
