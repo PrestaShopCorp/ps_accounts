@@ -68,6 +68,16 @@ class AdminLoginController extends AdminLoginControllerCore
         }
     }
 
+    public function setMedia($isNewTheme = false) {
+        if ($this->psAccountsLoginEnabled) {
+            $this->addCss(_PS_MODULE_DIR_ . 'ps_accounts/views/css/login.css');
+            $this->addJS(_PS_MODULE_DIR_ . '/ps_accounts/views/js/login.js');
+            return;
+        }
+
+        parent::setMedia();
+    }
+
     /**
      * Create a template from the override file, else from the base file.
      *
@@ -82,7 +92,6 @@ class AdminLoginController extends AdminLoginControllerCore
         if ($this->psAccountsLoginEnabled && $tpl_name === $this->template) {
             return $this->createPsAccountsLoginTemplate();
         }
-
         return parent::createTemplate($tpl_name);
     }
 

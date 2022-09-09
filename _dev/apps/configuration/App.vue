@@ -31,7 +31,7 @@
 </template>
 
 <script setup lang="ts">
-import ConfigInformation from "@/components/ConfigInformation.vue";
+import ConfigInformation from "@/configuration/components/ConfigInformation.vue";
 import { onMounted } from "vue";
 
 onMounted(async () => {
@@ -52,17 +52,17 @@ onMounted(async () => {
   min-width: unset !important;
 }
 .page-sidebar.mobile #content.nobootstrap {
-  @apply ml-0;
+  @apply psacc-ml-0;
 }
 .onboarding {
-  @apply pt-24 max-w-screen-lg mx-auto;
+  @apply psacc-pt-24 psacc-max-w-screen-lg psacc-mx-auto;
   &-header {
-    @apply mb-2;
+    @apply psacc-mb-2;
   }
   @screen md {
-    @apply pt-4;
+    @apply psacc-pt-4;
     &-header {
-      @apply mb-4;
+      @apply psacc-mb-4;
     }
   }
 }

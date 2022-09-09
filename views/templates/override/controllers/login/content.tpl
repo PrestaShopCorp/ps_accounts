@@ -16,81 +16,124 @@
  * @copyright Since 2007 PrestaShop SA and Contributors
  * @license   https://opensource.org/licenses/AFL-3.0 Academic Free License version 3.0
  *}
-<div id="login-panel">
-    <div id="login-header">
-        <h1 class="text-center">
-            <img id="logo" src="{$img_dir}prestashop@2x.png" width="123px" height="24px" alt="PrestaShop" />
-        </h1>
-        <div class="text-center">{$ps_version}</div>
-        <div id="error" class="hide alert alert-danger">
-            {if isset($errors)}
-                <h4>
-                    {if isset($nbErrors) && $nbErrors > 1}
-                        {l s='There are %d errors.' sprintf=[$nbErrors] d='Admin.Notifications.Error'}
-                    {else}
-                        {l s='There is %d error.' sprintf=[$nbErrors] d='Admin.Notifications.Error'}
-                    {/if}
-                </h4>
-                <ol>
-                    {foreach from=$errors item="error"}
-                        <li>{$error}</li>
-                    {/foreach}
-                </ol>
-            {/if}
-        </div>
-
-        {if isset($warningSslMessage)}
-            <div class="alert alert-warning">{$warningSslMessage}</div>
-        {/if}
+<div class="psacc-grid psacc-h-screen lg:psacc-grid-cols-2">
+    <div
+        class="psacc-hidden lg:psacc-flex psacc-flex-col psacc-items-center psacc-justify-center psacc-bg-primary-purple-50">
+        <section id="psacc_slider" class="splide psacc-max-w-xl">
+            <div
+                class="splide__arrows psacc-flex psacc-justify-between psacc-absolute psacc-bottom-12 psacc-translate-y-2/4 psacc-w-full psacc-z-10">
+                <button
+                    class="splide__arrow splide__arrow--prev psacc-font-materialIcons psacc-bg-white psacc-opacity-100 psacc-rounded psacc-border psacc-border-border-main psacc-text-font-main psacc-w-9 psacc-h-9">
+                    chevron_left
+                </button>
+                <button
+                    class="splide__arrow splide__arrow--next psacc-font-materialIcons psacc-bg-white psacc-opacity-100 psacc-rounded psacc-border psacc-border-border-main psacc-text-font-main psacc-w-9 psacc-h-9">
+                    chevron_right
+                </button>
+            </div>
+            <div class="splide__track">
+                <ul class="splide__list">
+                    <li class="splide__slide psacc-flex psacc-flex-col psacc-items-center psacc-justify-end">
+                        <img class="psacc-mb-12" src="/modules/ps_accounts/views/img/slide1.png" />
+                        <div class="psacc-max-w-sm">
+                            <h2 class="puik-h2 psacc-font-primary psacc-text-center psacc-mb-4 psacc-text-font-main">
+                                {l s='A modular interface' mod='ps_accounts'}
+                            </h2>
+                            <p class="puik-body-default psacc-font-secondary psacc-text-center psacc-text-base">
+                                {l s='Manage your entire business in one place: product catalog, orders, payments, delivery and much more.' mod='ps_accounts'}
+                            </p>
+                        </div>
+                    </li>
+                    <li class="splide__slide psacc-flex psacc-flex-col psacc-items-center psacc-justify-end">
+                        <img class="psacc-mb-12" src="/modules/ps_accounts/views/img/slide2.png" />
+                        <div class="psacc-max-w-sm">
+                            <h2 class="puik-h2 psacc-font-primary psacc-text-center psacc-mb-4 psacc-text-font-main">
+                                {l s='All the essentials for your business' mod='ps_accounts'}
+                            </h2>
+                            <p class="puik-body-default psacc-font-secondary psacc-text-center psacc-text-base">
+                                {l s='GMarketing, payment and performance analysis: the PrestaShop Essentials suite includes all the features you need to make your store successful.' mod='ps_accounts'}
+                            </p>
+                        </div>
+                    </li>
+                    <li class="splide__slide psacc-flex psacc-flex-col psacc-items-center psacc-justify-end">
+                        <img class="psacc-mb-12" src="/modules/ps_accounts/views/img/slide3.png" />
+                        <div class="psacc-max-w-sm">
+                            <h2 class="puik-h2 psacc-font-primary psacc-text-center psacc-mb-4 psacc-text-font-main">
+                                {l s='A 100% customizable solution' mod='ps_accounts'}
+                            </h2>
+                            <p class="puik-body-default psacc-font-secondary psacc-text-center psacc-text-base">
+                                {l s='PrestaShop accompanies your growth. Find our modules and those of our partners on PrestaShop Addons Marketplace to customize and develop your store' mod='ps_accounts'}
+                            </p>
+                        </div>
+                    </li>
+                </ul>
+            </div>
+        </section>
     </div>
-    <div id="shop-img"><img src="{$img_dir}preston-login@2x.png" alt="{$shop_name}" width="69.5px" height="118.5px" /></div>
-    <div class="flip-container">
-        <div class="flipper">
-            <div class="front front_login panel">
-                <h4 id="shop_name">{$shop_name}</h4>
-                {** hook h="displayPsAccountsAdminLogin" *}
-                <div class="col-sm">
-                    <button id="ps-accounts-login" type="button" tabindex="4" class="btn btn-primary btn-lg btn-block ladda-button" data-style="slide-up" data-spinner-color="white" >
-                        <span class="ladda-label">Log In with PrestaShop Accounts</span>
+    <div
+        class="psacc-flex psacc-flex-col psacc-items-center psacc-justify-between psacc-bg-white psacc-py-16 psacc-shadow-[0_6px_12px_rgba(0, 0, 0, 0.1)]">
+        {if isset($errors)}
+            <div class="psacc-flex psacc-flex-col psacc-space-y-4 psacc-mb-4">
+                {foreach from=$errors item="error"}
+                    <div class="puik-alert puik-alert--danger" aria-live="polite">
+                        <div class="puik-alert__content">
+                            <span class="puik-alert__icon">error</span>
+                            <div class="puik-alert__text">
+                                <span class="puik-alert__description">{$error}</span>
+                            </div>
+                        </div>
+                    </div>
+                {/foreach}
+            </div>
+        {/if}
+        {if !isset($wrong_folder_name) && !isset($wrong_install_name)}
+            <div class="psacc-flex psacc-flex-col psacc-items-center psacc-justify-between psacc-h-full">
+                <h1 class="psacc-m-0">
+                    <img id="logo" src="{$img_dir}prestashop@2x.png" width="123px" height="24px" alt="PrestaShop" />
+                </h1>
+
+                <div class="psacc-flex psacc-flex-col psacc-items-center psacc-max-w-xl">
+                    <h2 class="puik-h2 psacc-font-primary psacc-text-center psacc-mb-12">
+                        {l s='Welcome,' mod='ps_accounts'}</br>
+                        {l s='Access your back office to manage your store.' mod='ps_accounts'}
+                    </h2>
+                    <button id="ps-accounts-login" class="puik-button puik-button--primary puik-button--lg">
+                        {l s='Go to the back office' mod='ps_accounts'}
                     </button>
-                    <div class="form-group row">
-                        <a href="{$legacyLoginUri}"  class="col-xs-6 text-left">
-                            {l s='Local login' d='Admin.Login.Feature'}
-                        </a>
-{*                        <a target="_blank" and rel="noopener noreferrer" href="{$ssoUri}" class="col-xs-6 text-right">*}
-{*                            {l s='Manage session' d='Admin.Login.Feature'}*}
-{*                        </a>*}
+                </div>
+                <a class="puik-link" href="{$legacyLoginUri}">
+                    {l s='Connect with another method' mod='ps_accounts'}
+                </a>
+            </div>
+        {else}
+            <div class="puik-alert puik-alert--danger" aria-live="polite">
+                <div class="puik-alert__content">
+                    <span class="puik-alert__icon">error</span>
+                    <div class="puik-alert__text">
+                        <p class="puik-alert__title">{l s='For security reasons, you cannot connect to the back office until you have:' d='Admin.Login.Notification'}</p>
+                        <span class="puik-alert__description">
+                            <ul class="psacc-list-disc psacc-pl-10">
+                                {if isset($wrong_install_name) && $wrong_install_name == true}
+                                    <li>{l s='deleted the /install folder' d='Admin.Login.Notification'}</li>
+                                {/if}
+                                {if isset($wrong_folder_name) && $wrong_folder_name == true}
+                                    <li>{l s='renamed the /admin folder (e.g. %s)' sprintf=[$randomNb] d='Admin.Login.Notification'}
+                                    </li>
+                                {/if}
+                            </ul>
+                            <a class="puik-link" href="{$adminUrl|escape:'html':'UTF-8'}">
+                                {l s='Please then access this page by the new URL (e.g. %s)' sprintf=[$adminUrl] d='Admin.Login.Notification'}
+                            </a>
+                        </span>
                     </div>
                 </div>
             </div>
-        </div>
-    </div>
-
-    <a class='login-back' href='{$homeUrl}'><i class="material-icons rtl-flip">arrow_back</i> <span>{l s='Back to' d='Admin.Actions'}</span> <span class="login-back-shop">{$shop_name}</span></a>
-
-    <div id="login-footer">
-        <p class="text-center text-muted">
-            <a href="https://www.prestashop.com/" onclick="return !window.open(this.href);">
-                &copy; PrestaShop&#8482; 2007-{$smarty.now|date_format:"%Y"} - All rights reserved
-            </a>
-        </p>
-        <p class="text-center">
-            <a class="link-social link-twitter _blank" href="https://twitter.com/PrestaShop" title="Twitter">
-                <i class="icon-twitter"></i>
-            </a>
-            <a class="link-social link-facebook _blank" href="https://www.facebook.com/prestashop" title="Facebook">
-                <i class="icon-facebook"></i>
-            </a>
-            <a class="link-social link-github _blank" href="https://www.prestashop.com/github" title="Github">
-                <i class="icon-github"></i>
-            </a>
-        </p>
+        {/if}
     </div>
 </div>
 <script>
     document.addEventListener("DOMContentLoaded", function() {
-
-        const error = "{htmlentities($loginError)}";
+        const error = "{$loginError}";
         if (error !== "") {
             // Function in prestashop core (global actually)
             displayErrors([error]);

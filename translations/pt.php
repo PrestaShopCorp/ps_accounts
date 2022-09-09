@@ -30,3 +30,13 @@ $_MODULE['<{ps_accounts}prestashop>settingstranslations_b7ca62f12bc3b8e0d6422c02
 $_MODULE['<{ps_accounts}prestashop>settingstranslations_518d650937979216a269cf9830a7b484'] = 'Uma conta para gerir todas as suas lojas PrestaShop';
 $_MODULE['<{ps_accounts}prestashop>settingstranslations_655aa4af96bbb20cf78e14b560affb38'] = 'Crie a sua conta PrestaShop ou faça o login na sua conta existente';
 $_MODULE['<{ps_accounts}prestashop>settingstranslations_d23c41d498fe8587fb2f6ac563426dce'] = 'Ligue a sua loja à sua conta';
+$_MODULE['<{ps_accounts}prestashop>content_b06f57f635db5e25514b7e637146608c'] = 'Uma interface modular';
+$_MODULE['<{ps_accounts}prestashop>content_768b56d98e614fd590f42ed1e867868d'] = 'Gerir todo o seu negócio num só local: catálogo de produtos, encomendas, pagamentos, entregas e muito mais.';
+$_MODULE['<{ps_accounts}prestashop>content_8ea4efcd82809db344ff0d7a76695448'] = 'Todo o essencial para o seu negócio';
+$_MODULE['<{ps_accounts}prestashop>content_d5fedaaa590e15ca506e7d203d98dabb'] = 'GMarketing, pagamento e análise de desempenho: a suite PrestaShop Essentials inclui todas as funcionalidades necessárias para que a sua loja seja bem sucedida.';
+$_MODULE['<{ps_accounts}prestashop>content_f2d32f40a4060af2595051d0ab0278cb'] = 'Uma solução 100% personalizável';
+$_MODULE['<{ps_accounts}prestashop>content_9b4e2d0b927094565d6ce673644868a4'] = 'A PrestaShop acompanha o seu crescimento. Encontre os nossos módulos e os dos nossos parceiros no PrestaShop Addons Marketplace para personalizar e desenvolver a sua loja';
+$_MODULE['<{ps_accounts}prestashop>content_1ab1f34b16d32fa54b90ee0f91f39dfd'] = 'Bem-vindo,';
+$_MODULE['<{ps_accounts}prestashop>content_474684646f833216fdaf79c606af208b'] = 'Aceda ao seu back office para gerir a sua loja.';
+$_MODULE['<{ps_accounts}prestashop>content_6ed6a381a1de805e2b807f88a95faa2b'] = 'Ir para o back office';
+$_MODULE['<{ps_accounts}prestashop>content_8905a5daaa6744846452108776efa036'] = 'Conectar-se com outro método';

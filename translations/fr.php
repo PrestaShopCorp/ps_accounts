@@ -30,3 +30,13 @@ $_MODULE['<{ps_accounts}prestashop>settingstranslations_b7ca62f12bc3b8e0d6422c02
 $_MODULE['<{ps_accounts}prestashop>settingstranslations_518d650937979216a269cf9830a7b484'] = 'Un seul compte pour gérer toutes vos boutiques PrestaShop';
 $_MODULE['<{ps_accounts}prestashop>settingstranslations_655aa4af96bbb20cf78e14b560affb38'] = 'Créer votre compte PrestaShop ou vous connecter à votre compte existant';
 $_MODULE['<{ps_accounts}prestashop>settingstranslations_d23c41d498fe8587fb2f6ac563426dce'] = 'Associez votre boutique à votre compte';
+$_MODULE['<{ps_accounts}prestashop>content_b06f57f635db5e25514b7e637146608c'] = 'Une interface modulable';
+$_MODULE['<{ps_accounts}prestashop>content_768b56d98e614fd590f42ed1e867868d'] = 'Gérez toute votre activité au même endroit : catalogue produit, commandes, paiements, livraison et bien plus encore.';
+$_MODULE['<{ps_accounts}prestashop>content_8ea4efcd82809db344ff0d7a76695448'] = 'Tous les indispensables pour votre business';
+$_MODULE['<{ps_accounts}prestashop>content_d5fedaaa590e15ca506e7d203d98dabb'] = 'GMarketing, paiement et analyse de performance : la suite PrestaShop Essentials regroupe toutes les fonctionnalités indispensables au succès de votre boutique.';
+$_MODULE['<{ps_accounts}prestashop>content_f2d32f40a4060af2595051d0ab0278cb'] = 'Une solution 100% personnalisable';
+$_MODULE['<{ps_accounts}prestashop>content_9b4e2d0b927094565d6ce673644868a4'] = 'PrestaShop accompagne votre croissance. Retrouvez nos modules et ceux de nos partenaires sur PrestaShop Addons Marketplace pour personnaliser et développer votre boutique.';
+$_MODULE['<{ps_accounts}prestashop>content_1ab1f34b16d32fa54b90ee0f91f39dfd'] = 'Bienvenue,';
+$_MODULE['<{ps_accounts}prestashop>content_474684646f833216fdaf79c606af208b'] = 'Accédez à votre back-office pour gérer votre boutique.';
+$_MODULE['<{ps_accounts}prestashop>content_6ed6a381a1de805e2b807f88a95faa2b'] = 'Accéder au back-office';
+$_MODULE['<{ps_accounts}prestashop>content_8905a5daaa6744846452108776efa036'] = 'Se connecter avec une autre méthode';

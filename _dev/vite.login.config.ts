@@ -5,7 +5,7 @@ import path from "path";
 export default defineConfig({
   build: {
     lib: {
-      entry: path.resolve(__dirname, "src/login.ts"),
+      entry: path.resolve(__dirname, "apps/login/index.ts"),
       name: "AccountsLogin",
       formats: ["es"],
       fileName: () => `js/login.js`,
@@ -23,7 +23,7 @@ export default defineConfig({
     alias: [
       {
         find: "@",
-        replacement: path.resolve(__dirname, "/src"),
+        replacement: path.resolve(__dirname, "/apps"),
       },
     ],
   },

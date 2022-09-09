@@ -19,7 +19,7 @@
 <template>
   <aside class="config-information">
     <div class="titleWrapper">
-      <img src="@/assets/prestashop-logo-2.png" class="logo" />
+      <img src="@/configuration/assets/prestashop-logo-2.png" class="logo" />
       <h1 class="title">
         PrestaShop
         <span class="font-normal" style="color: #6b868f">Account</span>
@@ -36,53 +36,53 @@
 
 <style lang="scss" scoped>
 .config-information {
-  @apply flex flex-col justify-around p-4 bg-brand-dark rounded #{!important};
+  @apply psacc-flex psacc-flex-col psacc-justify-around psacc-p-4 psacc-bg-brand-dark psacc-rounded #{!important};
 
   & .titleWrapper {
-    @apply flex-1 flex justify-start items-center #{!important};
+    @apply psacc-flex-1 psacc-flex psacc-justify-start psacc-items-center #{!important};
   }
 
   & .logo {
-    @apply w-10 h-10 mr-2 #{!important};
+    @apply psacc-w-10 psacc-h-10 psacc-mr-2 #{!important};
   }
 
   & .title {
-    @apply m-0 text-white text-base #{!important};
+    @apply psacc-m-0 psacc-text-white psacc-text-base #{!important};
   }
 
   & .description {
-    @apply flex-1 mt-4 #{!important};
+    @apply psacc-flex-1 psacc-mt-4 #{!important};
   }
 
   & .text {
-    @apply m-0 text-sm text-white #{!important};
+    @apply psacc-m-0 psacc-text-sm psacc-text-white #{!important};
   }
 
   @screen md {
-    @apply flex-row items-center p-8 #{!important};
+    @apply psacc-flex-row psacc-items-center psacc-p-8 #{!important};
 
     & .logo {
-      @apply mr-4 #{!important};
+      @apply psacc-mr-4 #{!important};
     }
 
     & .title {
-      @apply flex flex-col #{!important};
+      @apply psacc-flex psacc-flex-col #{!important};
     }
 
     & .description {
-      @apply mt-0 #{!important};
+      @apply psacc-mt-0 #{!important};
     }
 
     & .text {
-      @apply text-2xl #{!important};
+      @apply psacc-text-2xl #{!important};
     }
   }
 
   @screen lg {
-    @apply px-12 py-16 #{!important};
+    @apply psacc-px-12 psacc-py-16 #{!important};
 
     & .title {
-      @apply block #{!important};
+      @apply psacc-block #{!important};
     }
   }
 }

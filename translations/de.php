@@ -30,3 +30,13 @@ $_MODULE['<{ps_accounts}prestashop>settingstranslations_b7ca62f12bc3b8e0d6422c02
 $_MODULE['<{ps_accounts}prestashop>settingstranslations_518d650937979216a269cf9830a7b484'] = 'Ein einziges Konto zur Verwaltung aller Ihrer PrestaShop-Shops';
 $_MODULE['<{ps_accounts}prestashop>settingstranslations_655aa4af96bbb20cf78e14b560affb38'] = 'Erstellen Sie Ihr PrestaShop-Konto oder melden Sie sich bei Ihrem bestehenden Konto an';
 $_MODULE['<{ps_accounts}prestashop>settingstranslations_d23c41d498fe8587fb2f6ac563426dce'] = 'Verknüpfen Sie Ihren Shop mit Ihrem Konto';
+$_MODULE['<{ps_accounts}prestashop>content_b06f57f635db5e25514b7e637146608c'] = 'Eine modulare Schnittstelle';
+$_MODULE['<{ps_accounts}prestashop>content_768b56d98e614fd590f42ed1e867868d'] = 'Verwalten Sie Ihr gesamtes Geschäft an einem Ort: Produktkatalog, Bestellungen, Zahlungen, Lieferung und vieles mehr.';
+$_MODULE['<{ps_accounts}prestashop>content_8ea4efcd82809db344ff0d7a76695448'] = 'Alles, was Sie für Ihr Unternehmen brauchen';
+$_MODULE['<{ps_accounts}prestashop>content_d5fedaaa590e15ca506e7d203d98dabb'] = 'GMarketing, Zahlungs- und Leistungsanalyse: Die PrestaShop Essentials Suite enthält alle Funktionen, die Sie für den Erfolg Ihres Shops benötigen.';
+$_MODULE['<{ps_accounts}prestashop>content_f2d32f40a4060af2595051d0ab0278cb'] = 'Eine 100% anpassbare Lösung';
+$_MODULE['<{ps_accounts}prestashop>content_9b4e2d0b927094565d6ce673644868a4'] = 'PrestaShop begleitet Ihr Wachstum. Finden Sie unsere Module und die unserer Partner auf PrestaShop Addons Marketplace, um Ihren Shop anzupassen und zu entwickeln';
+$_MODULE['<{ps_accounts}prestashop>content_1ab1f34b16d32fa54b90ee0f91f39dfd'] = 'Herzlich willkommen,';
+$_MODULE['<{ps_accounts}prestashop>content_474684646f833216fdaf79c606af208b'] = 'Greifen Sie auf Ihr Backoffice zu, um Ihr Geschäft zu verwalten.';
+$_MODULE['<{ps_accounts}prestashop>content_6ed6a381a1de805e2b807f88a95faa2b'] = 'Zum Backoffice gehen';
+$_MODULE['<{ps_accounts}prestashop>content_8905a5daaa6744846452108776efa036'] = 'Mit einer anderen Methode verbinden';

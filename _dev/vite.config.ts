@@ -10,7 +10,7 @@ export default defineConfig({
   },
   build: {
     lib: {
-      entry: path.resolve(__dirname, "src/main.ts"),
+      entry: path.resolve(__dirname, "apps/configuration/main.ts"),
       name: "Accounts",
       formats: ["es"],
       fileName: () => `js/app.${process.env.npm_package_version}.js`,
@@ -29,7 +29,7 @@ export default defineConfig({
     alias: [
       {
         find: "@",
-        replacement: path.resolve(__dirname, "/src"),
+        replacement: path.resolve(__dirname, "/apps"),
       },
     ],
   },

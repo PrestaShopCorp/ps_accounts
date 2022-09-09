@@ -30,3 +30,13 @@ $_MODULE['<{ps_accounts}prestashop>settingstranslations_b7ca62f12bc3b8e0d6422c02
 $_MODULE['<{ps_accounts}prestashop>settingstranslations_518d650937979216a269cf9830a7b484'] = 'Un solo account per gestire tutti i tuoi negozi PrestaShop';
 $_MODULE['<{ps_accounts}prestashop>settingstranslations_655aa4af96bbb20cf78e14b560affb38'] = 'Crea il tuo account PrestaShop o accedi al tuo account esistente';
 $_MODULE['<{ps_accounts}prestashop>settingstranslations_d23c41d498fe8587fb2f6ac563426dce'] = 'Collega il tuo negozio al tuo account';
+$_MODULE['<{ps_accounts}prestashop>content_b06f57f635db5e25514b7e637146608c'] = 'Un\'interfaccia modulare';
+$_MODULE['<{ps_accounts}prestashop>content_768b56d98e614fd590f42ed1e867868d'] = 'Gestite l\'intera attività in un unico luogo: catalogo prodotti, ordini, pagamenti, consegne e molto altro.';
+$_MODULE['<{ps_accounts}prestashop>content_8ea4efcd82809db344ff0d7a76695448'] = 'Tutto l\'essenziale per la vostra attività';
+$_MODULE['<{ps_accounts}prestashop>content_d5fedaaa590e15ca506e7d203d98dabb'] = 'GMarketing, pagamenti e analisi delle prestazioni: la suite PrestaShop Essentials include tutte le funzionalità necessarie per il successo del vostro negozio.';
+$_MODULE['<{ps_accounts}prestashop>content_f2d32f40a4060af2595051d0ab0278cb'] = 'Una soluzione personalizzabile al 100%';
+$_MODULE['<{ps_accounts}prestashop>content_9b4e2d0b927094565d6ce673644868a4'] = 'PrestaShop accompagna la tua crescita. Trova i nostri moduli e quelli dei nostri partner sul PrestaShop Addons Marketplace per personalizzare e sviluppare il tuo negozio.';
+$_MODULE['<{ps_accounts}prestashop>content_1ab1f34b16d32fa54b90ee0f91f39dfd'] = 'Benvenuti,';
+$_MODULE['<{ps_accounts}prestashop>content_474684646f833216fdaf79c606af208b'] = 'Accedete al vostro back office per gestire il vostro negozio.';
+$_MODULE['<{ps_accounts}prestashop>content_6ed6a381a1de805e2b807f88a95faa2b'] = 'Vai al back office';
+$_MODULE['<{ps_accounts}prestashop>content_8905a5daaa6744846452108776efa036'] = 'Collegarsi con un altro metodo';
