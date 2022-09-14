@@ -290,7 +290,7 @@ class PsAccountsService
     {
         $employeeId = $this->module->getContext()->employee->id;
 
-        if (is_int($employeeId)) {
+        if (!empty($employeeId)) {
             /** @var EntityManagerInterface $entityManager */
             $entityManager = $this->module->getContainer()->get('doctrine.orm.entity_manager');
 
