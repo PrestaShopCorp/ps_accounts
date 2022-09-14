@@ -49,7 +49,6 @@ class Ps_accounts extends Module
         'actionObjectShopUrlUpdateAfter',
         'displayDashboardTop',
         'displayAccountUpdateWarning',
-//        'displayPsAccountsAdminLogin',
     ];
 
     /**
@@ -65,12 +64,6 @@ class Ps_accounts extends Module
                 . ' update his shop configuration',
             'position' => 1,
         ],
-//        [
-//            'name' => 'displayPsAccountsAdminLogin',
-//            'title' => 'PrestaShop Accounts custom login',
-//            'description' => '',
-//            'position' => 1,
-//        ],
     ];
 
     /**
