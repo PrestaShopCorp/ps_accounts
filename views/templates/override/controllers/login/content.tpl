@@ -72,18 +72,16 @@
     </div>
     <div
         class="psacc-flex psacc-flex-col psacc-items-center psacc-justify-between psacc-bg-white psacc-py-16 psacc-shadow-[0_6px_12px_rgba(0, 0, 0, 0.1)]">
-        {if isset($errors)}
+        {if $loginError ne ''}
             <div class="psacc-flex psacc-flex-col psacc-space-y-4 psacc-mb-4">
-                {foreach from=$errors item="error"}
                     <div class="puik-alert puik-alert--danger" aria-live="polite">
                         <div class="puik-alert__content">
                             <span class="puik-alert__icon">error</span>
                             <div class="puik-alert__text">
-                                <span class="puik-alert__description">{$error}</span>
+                                <span class="puik-alert__description">{$loginError}</span>
                             </div>
                         </div>
                     </div>
-                {/foreach}
             </div>
         {/if}
         {if !isset($wrong_folder_name) && !isset($wrong_install_name)}
@@ -133,12 +131,6 @@
 </div>
 <script>
     document.addEventListener("DOMContentLoaded", function() {
-        const error = "{$loginError}";
-        if (error !== "") {
-            // Function in prestashop core (global actually)
-            displayErrors([error]);
-        }
-
         const returnTo = '{$redirect}';
         const redirectUri = "{$oauthRedirectUri}";
         const oauth2Uri = redirectUri + '&return_to=' + encodeURIComponent(returnTo);

@@ -111,6 +111,7 @@ class AdminLoginController extends AdminLoginControllerCore
         ]));
 
         $this->context->smarty->assign('loginError', Tools::getValue('loginError'));
+        $this->context->smarty->assign('meta_title', '');
 
         return $this->context->smarty->createTemplate(
             $this->getPsAccountsTemplateDir() . $this->template, $this->context->smarty
