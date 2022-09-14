@@ -634,9 +634,6 @@ class Ps_accounts extends Module
         Media::addJsDef([
             'contextPsAccounts' => $psAccountsPresenter->present($this->name),
         ]);
-
-        /** @var \PrestaShop\Module\PsAccounts\Service\PsAccountsService $psAccountsService */
-        $psAccountsService = $this->getService(\PrestaShop\Module\PsAccounts\Service\PsAccountsService::class);
     }
 
     /**
