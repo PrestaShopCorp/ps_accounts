@@ -276,25 +276,21 @@ class PsAccountsService
         }
     }
 
-    public function enableLogin(): void
+    public function getLoginActivated(): bool
     {
         /** @var ConfigurationRepository $configuration */
         $configuration = $this->module->getService(ConfigurationRepository::class);
-        $configuration->updateLoginEnabled(true);
-    }
 
-    public function disableLogin(): void
-    {
-        /** @var ConfigurationRepository $configuration */
-        $configuration = $this->module->getService(ConfigurationRepository::class);
-        $configuration->updateLoginEnabled(false);
+        return $configuration->getLoginEnabled() &&
+            $configuration->getOauth2ClientId() &&
+            $configuration->getOauth2ClientSecret();
     }
 
     public function getEmployeeAccount(): ?EmployeeAccount
     {
         $employeeId = $this->module->getContext()->employee->id;
 
-        if (!is_int($employeeId)) {
+        if (is_int($employeeId)) {
             /** @var EntityManagerInterface $entityManager */
             $entityManager = $this->module->getContainer()->get('doctrine.orm.entity_manager');
 
@@ -304,8 +300,9 @@ class PsAccountsService
              * @var EmployeeAccount $employeeAccount
              * @phpstan-ignore-next-line
              */
-            $employeeAccount = $employeeAccountRepository->findOneBy(['id_employee' => $employeeId]);
+            $employeeAccount = $employeeAccountRepository->findOneBy(['employeeId' => $employeeId]);
             // $employeeAccount = $employeeAccountRepository->findOneByUid($uid);
+            return $employeeAccount;
         }
 
         return null;

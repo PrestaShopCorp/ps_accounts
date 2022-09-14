@@ -18,7 +18,7 @@
  * @license   https://opensource.org/licenses/AFL-3.0 Academic Free License version 3.0
  */
 
-use PrestaShop\Module\PsAccounts\Repository\ConfigurationRepository;
+use PrestaShop\Module\PsAccounts\Service\PsAccountsService;
 
 /**
  * Copyright since 2007 PrestaShop SA and Contributors
@@ -51,6 +51,9 @@ class AdminLoginController extends AdminLoginControllerCore
     /** @var Ps_accounts */
     private $psAccountsModule;
 
+    /**
+     * @throws Exception
+     */
     public function __construct()
     {
         parent::__construct();
@@ -60,11 +63,11 @@ class AdminLoginController extends AdminLoginControllerCore
 
         $this->psAccountsModule = $module;
 
-        /** @var ConfigurationRepository $configuration */
-        $configuration = $this->psAccountsModule->getService(ConfigurationRepository::class);
+        /** @var PsAccountsService $moduleService */
+        $moduleService = $this->psAccountsModule->getService(PsAccountsService::class);
 
         if (self::PS_ACCOUNTS_LOGIN_MODE_LOCAL !== $this->getPsAccountsLoginMode()) {
-            $this->psAccountsLoginEnabled = $configuration->getLoginEnabled();
+            $this->psAccountsLoginEnabled = $moduleService->getLoginActivated();
         }
     }
 
