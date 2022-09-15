@@ -73,15 +73,30 @@
     <div
         class="psacc-flex psacc-flex-col psacc-items-center psacc-justify-between psacc-bg-white psacc-py-16 psacc-shadow-[0_6px_12px_rgba(0, 0, 0, 0.1)]">
         {if $loginError ne ''}
-            <div class="psacc-flex psacc-flex-col psacc-space-y-4 psacc-mb-4">
-                    <div class="puik-alert puik-alert--danger" aria-live="polite">
-                        <div class="puik-alert__content">
-                            <span class="puik-alert__icon">error</span>
-                            <div class="puik-alert__text">
-                                <span class="puik-alert__description">{$loginError}</span>
-                            </div>
+            <div class="psacc-flex psacc-flex-col psacc-space-y-4 psacc-mb-4 psacc-px-4">
+                <div class="puik-alert puik-alert--danger" aria-live="polite">
+                    <div class="puik-alert__content">
+                        <span class="puik-alert__icon">error</span>
+                        <div class="puik-alert__text">
+                            <span class="puik-alert__description">
+                                {if $loginError eq 'employee_not_found'}
+                                    {l 
+                                        s='The email address is not associated to a PrestaShop backoffice account. To learn more, go to the [1]FAQ[/1]' 
+                                        tags=["<a class=\"puik-link\" href=\"#\" target=\"_blank\">"] 
+                                        mod='ps_accounts'
+                                    }
+                                {elseif $loginError eq 'email_not_verified'}
+                                    {l 
+                                        s='You need to activate your account first by clicking the link in the email. If you need to receive a new activation link,[1]please click here[/1]' 
+                                        tags=["<a class=\"puik-link\" href=\"{$ssoResendVerificationEmail}\" target=\"_blank\">"] mod='ps_accounts'
+                                    }
+                                {else}
+                                    {$loginError}
+                                {/if}
+                            </span>
                         </div>
                     </div>
+                </div>
             </div>
         {/if}
         {if !isset($wrong_folder_name) && !isset($wrong_install_name)}
@@ -108,7 +123,9 @@
                 <div class="puik-alert__content">
                     <span class="puik-alert__icon">error</span>
                     <div class="puik-alert__text">
-                        <p class="puik-alert__title">{l s='For security reasons, you cannot connect to the back office until you have:' d='Admin.Login.Notification'}</p>
+                        <p class="puik-alert__title">
+                            {l s='For security reasons, you cannot connect to the back office until you have:' d='Admin.Login.Notification'}
+                        </p>
                         <span class="puik-alert__description">
                             <ul class="psacc-list-disc psacc-pl-10">
                                 {if isset($wrong_install_name) && $wrong_install_name == true}

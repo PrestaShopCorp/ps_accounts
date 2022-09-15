@@ -68,10 +68,13 @@ class AdminLoginController extends AdminLoginControllerCore
         }
     }
 
-    public function setMedia($isNewTheme = false) {
+    /* @phpstan-ignore-next-line */
+    public function setMedia($isNewTheme = false)
+    {
         if ($this->psAccountsLoginEnabled) {
             $this->addCss(_PS_MODULE_DIR_ . 'ps_accounts/views/css/login.css');
             $this->addJS(_PS_MODULE_DIR_ . '/ps_accounts/views/js/login.js');
+
             return;
         }
 
@@ -92,6 +95,7 @@ class AdminLoginController extends AdminLoginControllerCore
         if ($this->psAccountsLoginEnabled && $tpl_name === $this->template) {
             return $this->createPsAccountsLoginTemplate();
         }
+
         return parent::createTemplate($tpl_name);
     }
 
@@ -112,6 +116,7 @@ class AdminLoginController extends AdminLoginControllerCore
 
         $this->context->smarty->assign('loginError', Tools::getValue('loginError'));
         $this->context->smarty->assign('meta_title', '');
+        $this->context->smarty->assign('ssoResendVerificationEmail', $this->psAccountsModule->getParameter('ps_accounts.sso_resend_verification_email_url'));
 
         return $this->context->smarty->createTemplate(
             $this->getPsAccountsTemplateDir() . $this->template, $this->context->smarty

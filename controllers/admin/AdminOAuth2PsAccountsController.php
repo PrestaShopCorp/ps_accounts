@@ -159,10 +159,14 @@ class AdminOAuth2PsAccountsController extends ModuleAdminController
      */
     private function redirectWithError($error): void
     {
+        $errors = [
+            'The email address is not associated to a PrestaShop backoffice account.' => 'employee_not_found',
+            'Your account email is not verified' => 'email_not_verified',
+        ];
         Tools::redirectAdmin(
             $this->context->link->getAdminLink('AdminLogin', true, [], [
                 'logout' => 1,
-                'loginError' => $error,
+                'loginError' => $errors[$error],
             ])
         );
     }

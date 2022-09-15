@@ -33,10 +33,12 @@ $_MODULE['<{ps_accounts}prestashop>settingstranslations_d23c41d498fe8587fb2f6ac5
 $_MODULE['<{ps_accounts}prestashop>content_b06f57f635db5e25514b7e637146608c'] = 'Una interfaz modular';
 $_MODULE['<{ps_accounts}prestashop>content_768b56d98e614fd590f42ed1e867868d'] = 'Gestione todo su negocio en un solo lugar: catálogo de productos, pedidos, pagos, entregas y mucho más.';
 $_MODULE['<{ps_accounts}prestashop>content_8ea4efcd82809db344ff0d7a76695448'] = 'Todo lo esencial para su negocio';
-$_MODULE['<{ps_accounts}prestashop>content_d5fedaaa590e15ca506e7d203d98dabb'] = 'GMarketing, pago y análisis de rendimiento: la suite PrestaShop Essentials incluye todas las funciones que necesita para que su tienda tenga éxito.';
+$_MODULE['<{ps_accounts}prestashop>content_d5fedaaa590e15ca506e7d203d98dabb'] = 'Marketing, pago y análisis de rendimiento: la suite PrestaShop Essentials incluye todas las funciones que necesita para que su tienda tenga éxito.';
 $_MODULE['<{ps_accounts}prestashop>content_f2d32f40a4060af2595051d0ab0278cb'] = 'Una solución 100% personalizable';
 $_MODULE['<{ps_accounts}prestashop>content_9b4e2d0b927094565d6ce673644868a4'] = 'PrestaShop acompaña su crecimiento. Encuentre nuestros módulos y los de nuestros socios en PrestaShop Addons Marketplace para personalizar y desarrollar su tienda';
 $_MODULE['<{ps_accounts}prestashop>content_1ab1f34b16d32fa54b90ee0f91f39dfd'] = 'Bienvenido,';
 $_MODULE['<{ps_accounts}prestashop>content_474684646f833216fdaf79c606af208b'] = 'Acceda a su back office para gestionar su tienda.';
 $_MODULE['<{ps_accounts}prestashop>content_6ed6a381a1de805e2b807f88a95faa2b'] = 'Ir al back office';
 $_MODULE['<{ps_accounts}prestashop>content_8905a5daaa6744846452108776efa036'] = 'Conectar con otro método';
+$_MODULE['<{ps_accounts}prestashop>content_653f49dc0e643470e7b4ae9855974bbd'] = 'La dirección de correo electrónico no está asociada a una cuenta de backoffice de PrestaShop. Para saber más, vaya a las [1]preguntas frecuentes[/1]';
+$_MODULE['<{ps_accounts}prestashop>content_729f27762821b8ec88f1a656be7dff72'] = 'Necesitas verificar tu cuenta primero haciendo clic en el enlace del correo electrónico. Si necesitas recibir un nuevo enlace de verificación,[1]haga clic aqui[/1]';
