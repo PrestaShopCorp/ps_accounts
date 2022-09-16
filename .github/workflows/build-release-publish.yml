@@ -13,9 +13,11 @@ jobs:
         uses: actions/checkout@v2.0.0
 
       - name: Setup node env 🏗
-        uses: actions/setup-node@v2.1.2
+        uses: actions/setup-node@v3
         with:
           node-version: 16
+          registry-url: 'https://registry.npmjs.org'
+          scope: '@prestashopcorp'
 
       - name: Bump version
         run: |
@@ -41,7 +43,9 @@ jobs:
 
       - name: Install _dev dependencies 👨🏻‍💻
         working-directory: ./_dev
-        run: yarn
+        run: yarn --frozen-lockfile --silent
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN_RO }}
 
       - name: Build apps
         working-directory: ./_dev
