@@ -82,7 +82,7 @@ class AdminOAuth2PsAccountsController extends ModuleAdminController
 
         if (!$context->employee->id || empty($emailVerified)) {
             $context->employee->logout();
-            throw new Exception(empty($emailVerified) ? 'You account is not verified' : 'The employee does not exist');
+            throw new Exception(empty($emailVerified) ? 'Your account email is not verified' : 'The email address is not associated to a PrestaShop backoffice account.');
         }
 
         $context->employee->remote_addr = (int) ip2long(Tools::getRemoteAddr());
@@ -159,10 +159,14 @@ class AdminOAuth2PsAccountsController extends ModuleAdminController
      */
     private function redirectWithError($error): void
     {
+        $errors = [
+            'The email address is not associated to a PrestaShop backoffice account.' => 'employee_not_found',
+            'Your account email is not verified' => 'email_not_verified',
+        ];
         Tools::redirectAdmin(
             $this->context->link->getAdminLink('AdminLogin', true, [], [
                 'logout' => 1,
-                'loginError' => $error,
+                'loginError' => $errors[$error],
             ])
         );
     }

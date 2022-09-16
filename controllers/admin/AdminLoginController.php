@@ -68,6 +68,19 @@ class AdminLoginController extends AdminLoginControllerCore
         }
     }
 
+    /* @phpstan-ignore-next-line */
+    public function setMedia($isNewTheme = false)
+    {
+        if ($this->psAccountsLoginEnabled) {
+            $this->addCss(_PS_MODULE_DIR_ . 'ps_accounts/views/css/login.css');
+            $this->addJS(_PS_MODULE_DIR_ . '/ps_accounts/views/js/login.js');
+
+            return;
+        }
+
+        parent::setMedia();
+    }
+
     /**
      * Create a template from the override file, else from the base file.
      *
@@ -102,6 +115,8 @@ class AdminLoginController extends AdminLoginControllerCore
         ]));
 
         $this->context->smarty->assign('loginError', Tools::getValue('loginError'));
+        $this->context->smarty->assign('meta_title', '');
+        $this->context->smarty->assign('ssoResendVerificationEmail', $this->psAccountsModule->getParameter('ps_accounts.sso_resend_verification_email_url'));
 
         return $this->context->smarty->createTemplate(
             $this->getPsAccountsTemplateDir() . $this->template, $this->context->smarty

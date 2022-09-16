@@ -30,3 +30,15 @@ $_MODULE['<{ps_accounts}prestashop>settingstranslations_b7ca62f12bc3b8e0d6422c02
 $_MODULE['<{ps_accounts}prestashop>settingstranslations_518d650937979216a269cf9830a7b484'] = 'Eén account om al uw PrestaShop winkels te beheren';
 $_MODULE['<{ps_accounts}prestashop>settingstranslations_655aa4af96bbb20cf78e14b560affb38'] = 'Maak uw PrestaShop account aan of log in op uw bestaande account';
 $_MODULE['<{ps_accounts}prestashop>settingstranslations_d23c41d498fe8587fb2f6ac563426dce'] = 'Koppel uw winkel aan uw account';
+$_MODULE['<{ps_accounts}prestashop>content_b06f57f635db5e25514b7e637146608c'] = 'Een modulaire interface';
+$_MODULE['<{ps_accounts}prestashop>content_768b56d98e614fd590f42ed1e867868d'] = 'Beheer uw hele bedrijf op één plek: productcatalogus, bestellingen, betalingen, levering en nog veel meer.';
+$_MODULE['<{ps_accounts}prestashop>content_8ea4efcd82809db344ff0d7a76695448'] = 'Alle benodigdheden voor uw bedrijf';
+$_MODULE['<{ps_accounts}prestashop>content_d5fedaaa590e15ca506e7d203d98dabb'] = 'Marketing, betaling en prestatie-analyse: de PrestaShop Essentials-suite bevat alle functies die u nodig hebt om uw winkel succesvol te maken.';
+$_MODULE['<{ps_accounts}prestashop>content_f2d32f40a4060af2595051d0ab0278cb'] = 'Een 100% aanpasbare oplossing';
+$_MODULE['<{ps_accounts}prestashop>content_9b4e2d0b927094565d6ce673644868a4'] = 'PrestaShop begeleidt uw groei. Vind onze modules en die van onze partners op PrestaShop Addons Marketplace om uw winkel aan te passen en te ontwikkelen';
+$_MODULE['<{ps_accounts}prestashop>content_1ab1f34b16d32fa54b90ee0f91f39dfd'] = 'Welkom,';
+$_MODULE['<{ps_accounts}prestashop>content_474684646f833216fdaf79c606af208b'] = 'Toegang tot uw backoffice om uw winkel te beheren.';
+$_MODULE['<{ps_accounts}prestashop>content_6ed6a381a1de805e2b807f88a95faa2b'] = 'Ga naar de backoffice';
+$_MODULE['<{ps_accounts}prestashop>content_8905a5daaa6744846452108776efa036'] = 'Verbind met een andere methode';
+$_MODULE['<{ps_accounts}prestashop>content_653f49dc0e643470e7b4ae9855974bbd'] = 'Het e-mailadres is niet gekoppeld aan een PrestaShop backoffice account. Voor meer informatie, ga naar de [1]FAQ[/1]';
+$_MODULE['<{ps_accounts}prestashop>content_729f27762821b8ec88f1a656be7dff72'] = 'U moet uw account eerst verifiëren door op de link in de e-mail te klikken. Als u een nieuwe verificatielink moet ontvangen,[1]klik hier[/1]';
