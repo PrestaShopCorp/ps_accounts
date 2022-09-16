@@ -28,7 +28,7 @@ class Ps_accounts extends Module
 
     // Needed in order to retrieve the module version easier (in api call headers) than instanciate
     // the module each time to get the version
-    const VERSION = '5.2.5';
+    const VERSION = '6.0.0';
 
     /**
      * @var array
@@ -84,7 +84,7 @@ class Ps_accounts extends Module
 
         // We cannot use the const VERSION because the const is not computed by addons marketplace
         // when the zip is uploaded
-        $this->version = '5.2.5';
+        $this->version = '6.0.0';
 
         $this->module_key = 'abf2cd758b4d629b2944d3922ef9db73';
 
@@ -95,11 +95,12 @@ class Ps_accounts extends Module
         $this->description_full = $this->l('Associate your shop with your PrestaShop account to activate and manage your subscriptions in your back office. Do not uninstall this module if you have a current subscription.');
         $this->confirmUninstall = $this->l('This action will prevent immediately your PrestaShop services and Community services from working as they are using PrestaShop Accounts module for authentication.');
 
-        $this->ps_versions_compliancy = ['min' => '1.6.1', 'max' => _PS_VERSION_];
+        $this->ps_versions_compliancy = ['min' => '8.0.0', 'max' => _PS_VERSION_];
 
         $this->adminControllers = [
             'ajax' => 'AdminAjaxPsAccounts',
             'debug' => 'AdminDebugPsAccounts',
+            'oauth2' => 'AdminOAuth2PsAccounts',
         ];
     }
 
@@ -141,7 +142,7 @@ class Ps_accounts extends Module
         $installer = new PrestaShop\Module\PsAccounts\Module\Install($this, Db::getInstance());
 
         $status = $installer->installInMenu()
-            //&& $installer->installDatabaseTables()
+            && $installer->installDatabaseTables()
             && parent::install()
             && $this->addCustomHooks($this->customHooks)
             && $this->registerHook($this->hookToInstall);
@@ -175,7 +176,7 @@ class Ps_accounts extends Module
         $uninstaller = new PrestaShop\Module\PsAccounts\Module\Uninstall($this, Db::getInstance());
 
         return $uninstaller->uninstallMenu()
-            //&& $uninstaller->uninstallDatabaseTables()
+            && $uninstaller->uninstallDatabaseTables()
             && parent::uninstall();
     }
 
@@ -214,10 +215,24 @@ class Ps_accounts extends Module
      * @param string $name
      *
      * @return mixed
+     *
+     * @throws Exception
      */
     public function getParameter($name)
     {
         return $this->getServiceContainer()->getContainer()->getParameter($name);
+    }
+
+    /**
+     * @param string $name
+     *
+     * @return bool
+     *
+     * @throws Exception
+     */
+    public function hasParameter($name)
+    {
+        return $this->getServiceContainer()->getContainer()->hasParameter($name);
     }
 
     /**
@@ -605,6 +620,7 @@ class Ps_accounts extends Module
     {
         $this->context->smarty->assign('pathVendor', $this->_path . 'views/js/chunk-vendors.' . $this->version . '.js');
         $this->context->smarty->assign('pathApp', $this->_path . 'views/js/app.' . $this->version . '.js');
+        $this->context->smarty->assign('pathAppAssets', $this->_path . 'views/css/app.' . $this->version . '.css');
         $this->context->smarty->assign('urlAccountsCdn', $this->getParameter('ps_accounts.accounts_cdn_url'));
 
         $storePresenter = new PrestaShop\Module\PsAccounts\Presenter\Store\StorePresenter($this, $this->context);

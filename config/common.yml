@@ -12,9 +12,14 @@ services:
     factory: [ 'Context', 'getContext' ]
 
   ps_accounts.logger:
-    class: Context
+    class: Monolog\Logger
     public: true
     factory: [ 'PrestaShop\Module\PsAccounts\Factory\PsAccountsLogger', 'create' ]
+
+  PrestaShop\OAuth2\Client\Provider\PrestaShop:
+    class: PrestaShop\Module\PsAccounts\Provider\OAuth2\Oauth2ClientShopProvider
+    public: true
+    factory: [ 'PrestaShop\Module\PsAccounts\Provider\OAuth2\Oauth2ClientShopProvider', 'create' ]
 
   PrestaShop\Module\PsAccounts\Context\ShopContext:
     class: PrestaShop\Module\PsAccounts\Context\ShopContext
@@ -112,7 +117,6 @@ services:
     arguments:
       - '%ps_accounts.accounts_api_url%'
       - '@PrestaShop\Module\PsAccounts\Provider\ShopProvider'
-      - '@PrestaShop\Module\PsAccounts\Adapter\Link'
 
   PrestaShop\Module\PsAccounts\Api\Client\SsoClient:
     class: PrestaShop\Module\PsAccounts\Api\Client\SsoClient
@@ -127,7 +131,6 @@ services:
       - '%ps_accounts.billing_api_url%'
       - '@PrestaShop\Module\PsAccounts\Service\PsAccountsService'
       - '@PrestaShop\Module\PsAccounts\Provider\ShopProvider'
-      - '@PrestaShop\Module\PsAccounts\Adapter\Link'
 
   #####################
   # repositories

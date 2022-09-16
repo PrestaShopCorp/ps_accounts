@@ -53,7 +53,7 @@ class ps_AccountsApiV1ShopLinkAccountModuleFrontController extends AbstractShopR
     private $shopLinkAccountService;
 
     /**
-     * ps_AccountsApiV1ShopAccountModuleFrontController constructor.
+     * ps_AccountsApiV1ShopLinkAccountModuleFrontController constructor.
      *
      * @throws Exception
      */

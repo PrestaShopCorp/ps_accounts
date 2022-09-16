@@ -35,13 +35,26 @@ If you need to install and test the module, [you can download the desired zip he
 - **ps_accounts.zip** is the "**production** ready zip"
 - **ps_accounts_integration.zip** is the zip you need if you want to test on the **integration environment**.
 
+### Compatibility Matrix
+
+We aims to follow partially the Prestashop compatibility charts
+- [Compatibility Chart Prestashop 1.6 & 1.7](https://devdocs.prestashop.com/1.7/basics/installation/system-requirements/#php-compatibility-chart)
+- [Compatibility Chart Prestashop 8.1](https://devdocs.prestashop.com/8/basics/installation/system-requirements/#php-compatibility-chart)
+
+| ps_account version                      | Prestashop Version | PHP Version
+|---------------------------------------|-----|-------
+| 5.x | >=1.6 \|\| <1.7.5 | PHP 5.6 - 7.4   |        
+| 6.x | >=1.7.5 | PHP 5.6 - 8 |
+
+A pending question is about 
+
 ## How to start working with PS Accounts as a PSx or Community Service developer?
 
 - [Read the official documentation here](https://devdocs.prestashop.com/1.7/modules/)
 - Clone this repository
 - Copy paste the `config/config.yml.dist` to `config/config.yml`
 
-## Continous Integration
+## Continuous Integration
 
 CI trigger on pull request labeled 'quality assurance needed'
 

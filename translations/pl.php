@@ -30,3 +30,15 @@ $_MODULE['<{ps_accounts}prestashop>settingstranslations_b7ca62f12bc3b8e0d6422c02
 $_MODULE['<{ps_accounts}prestashop>settingstranslations_518d650937979216a269cf9830a7b484'] = 'Jedno konto do zarządzania wszystkimi subskrypcjami PrestaShop';
 $_MODULE['<{ps_accounts}prestashop>settingstranslations_655aa4af96bbb20cf78e14b560affb38'] = 'Utwórz swoje konto PrestaShop lub zaloguj się do istniejącego konta';
 $_MODULE['<{ps_accounts}prestashop>settingstranslations_d23c41d498fe8587fb2f6ac563426dce'] = 'Połącz swój sklep z kontem';
+$_MODULE['<{ps_accounts}prestashop>content_b06f57f635db5e25514b7e637146608c'] = 'Modułowy interfejs';
+$_MODULE['<{ps_accounts}prestashop>content_768b56d98e614fd590f42ed1e867868d'] = 'Zarządzaj całym swoim biznesem w jednym miejscu: katalogiem produktów, zamówieniami, płatnościami, dostawą i wiele więcej.';
+$_MODULE['<{ps_accounts}prestashop>content_8ea4efcd82809db344ff0d7a76695448'] = 'Wszystkie niezbędne elementy dla Twojej firmy';
+$_MODULE['<{ps_accounts}prestashop>content_d5fedaaa590e15ca506e7d203d98dabb'] = 'Marketing, analiza płatności i wydajności: pakiet PrestaShop Essentials zawiera wszystkie funkcje, których potrzebujesz, aby Twój sklep odniósł sukces.';
+$_MODULE['<{ps_accounts}prestashop>content_f2d32f40a4060af2595051d0ab0278cb'] = 'Rozwiązanie w 100% dostosowane do potrzeb klienta';
+$_MODULE['<{ps_accounts}prestashop>content_9b4e2d0b927094565d6ce673644868a4'] = 'PrestaShop towarzyszy Twojemu rozwojowi. Znajdź nasze moduły i te od naszych partnerów na PrestaShop Addons Marketplace, aby dostosować i rozwinąć Twój sklep.';
+$_MODULE['<{ps_accounts}prestashop>content_1ab1f34b16d32fa54b90ee0f91f39dfd'] = 'Witam,';
+$_MODULE['<{ps_accounts}prestashop>content_474684646f833216fdaf79c606af208b'] = 'Uzyskaj dostęp do swojego back office, aby zarządzać swoim sklepem.';
+$_MODULE['<{ps_accounts}prestashop>content_6ed6a381a1de805e2b807f88a95faa2b'] = 'Idź na zaplecze.';
+$_MODULE['<{ps_accounts}prestashop>content_8905a5daaa6744846452108776efa036'] = 'Połącz się z inną metodą';
+$_MODULE['<{ps_accounts}prestashop>content_653f49dc0e643470e7b4ae9855974bbd'] = 'Adres e-mail nie jest powiązany z kontem PrestaShop backoffice. Aby dowiedzieć się więcej, przejdź do [1]FAQ[/1]';
+$_MODULE['<{ps_accounts}prestashop>content_729f27762821b8ec88f1a656be7dff72'] = 'Musisz najpierw zweryfikować swoje konto, klikając na link wiadomości. Jeśli chcesz otrzymać nowy link weryfikacyjny,[1]kliknij tutaj[/1]';
