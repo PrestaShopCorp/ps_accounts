@@ -80,16 +80,18 @@
                         <div class="puik-alert__text">
                             <span class="puik-alert__description">
                                 {if $loginError eq 'employee_not_found'}
-                                    {l 
-                                        s='The email address is not associated to a PrestaShop backoffice account. To learn more, go to the [1]FAQ[/1]' 
-                                        tags=["<a class=\"puik-link\" href=\"#\" target=\"_blank\">"] 
+                                    {l
+                                        s='The email address is not associated to a PrestaShop backoffice account. To learn more, go to the [1]FAQ[/1]'
+                                        tags=["<a class=\"puik-link\" href=\"#\" target=\"_blank\">"]
                                         mod='ps_accounts'
                                     }
                                 {elseif $loginError eq 'email_not_verified'}
-                                    {l 
-                                        s='You need to activate your account first by clicking the link in the email. If you need to receive a new activation link,[1]please click here[/1]' 
+                                    {l
+                                        s='You need to activate your account first by clicking the link in the email. If you need to receive a new activation link,[1]please click here[/1]'
                                         tags=["<a class=\"puik-link\" href=\"{$ssoResendVerificationEmail}\" target=\"_blank\">"] mod='ps_accounts'
                                     }
+                                {elseif $loginError eq 'error_from_hydra' or $loginError eq 'error_other'}
+                                    {l s='An error occured during login, please contact PrestaShop support' mod='ps_accounts'}
                                 {else}
                                     {$loginError}
                                 {/if}
