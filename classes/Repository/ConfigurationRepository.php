@@ -344,4 +344,42 @@ class ConfigurationRepository
             ' AND id_shop = ' . (int) $shop->id . ';'
         );
     }
+
+    /**
+     * @param string $type
+     * 
+     * @return int
+     */
+    public function getRefreshTokenFailure($type)
+    {
+        if ($type === 'shop') {
+            return (int) $this->configuration->get(Configuration::PS_ACCOUNTS_FIREBASE_REFRESH_TOKEN_FAILURE, '0');
+        }
+
+        if ($type === 'user') {
+            return (int) $this->configuration->get(Configuration::PS_ACCOUNTS_USER_FIREBASE_REFRESH_TOKEN_FAILURE, '0');
+        }
+
+        return 0;
+    }
+
+    /**
+     * @param string $type
+     * @param int $attempt
+     *
+     * @return void
+     */
+    public function updateRefreshTokenFailure($type, $attempt)
+    {
+        switch($type) {
+            case 'shop':
+                $this->configure->set(Configuration::PS_ACCOUNTS_FIREBASE_REFRESH_TOKEN_FAILURE, $attempt);
+                break;
+            case 'user':
+                $this->configure->set(Configuration::PS_ACCOUNTS_USER_FIREBASE_REFRESH_TOKEN_FAILURE, $attempt);
+                break;
+            default:
+                break;
+        }
+    }
 }
