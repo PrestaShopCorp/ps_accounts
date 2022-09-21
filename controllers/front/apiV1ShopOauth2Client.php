@@ -64,7 +64,7 @@ class ps_AccountsApiV1ShopOauth2ClientModuleFrontController extends AbstractShop
 
         $this->configuration->updateOauth2ClientId($clientId);
         $this->configuration->updateOauth2ClientSecret($clientSecret);
-        // $this->configuration->updateLoginEnabled(true);
+        $this->configuration->updateLoginEnabled(true);
 
         return [
             'success' => true,
