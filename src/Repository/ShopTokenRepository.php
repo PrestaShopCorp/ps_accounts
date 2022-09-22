@@ -156,9 +156,34 @@ class ShopTokenRepository
         $response = $this->getAccountsClient()->refreshToken($refreshToken);
 
         if ($response && true === $response['status']) {
-            return $this->parseToken($response['body']['token']);
+            $token = $this->parseToken($response['body']['token']);
+            $this->configuration->updateShopRefreshTokenFailure(0);
+
+            return $token;
         }
+
+        $this->onRefreshTokenFailure();
+
         throw new RefreshTokenException('Unable to refresh shop token : ' . $response['httpCode'] . ' ' . print_r($response['body']['message'], true));
+    }
+
+    /**
+     * @return void
+     */
+    private function onRefreshTokenFailure()
+    {
+        $attempt = $this->configuration->getShopRefreshTokenFailure();
+
+        if ($attempt >= 2) {
+            $this->cleanupCredentials();
+            $this->configuration->updateShopRefreshTokenFailure(0);
+
+            return;
+        }
+
+        $this->configuration->updateShopRefreshTokenFailure(
+            $attempt++
+        );
     }
 
     /**

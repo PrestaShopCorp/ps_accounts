@@ -398,4 +398,22 @@ class ConfigurationRepository
     {
         $this->configuration->set(Configuration::PS_ACCOUNTS_OAUTH2_CLIENT_SECRET, $secret);
     }
+
+    /**
+     * @return int
+     */
+    public function getShopRefreshTokenFailure()
+    {
+        return (int) $this->configuration->get(Configuration::PS_ACCOUNTS_SHOP_REFRESH_TOKEN_FAILURE, '0');
+    }
+
+    /**
+     * @param int $attempt
+     *
+     * @return void
+     */
+    public function updateShopRefreshTokenFailure($attempt)
+    {
+        $this->configuration->set(Configuration::PS_ACCOUNTS_SHOP_REFRESH_TOKEN_FAILURE, $attempt);
+    }
 }
