@@ -21,11 +21,14 @@
 use Doctrine\ORM\EntityManagerInterface;
 use League\OAuth2\Client\Provider\Exception\IdentityProviderException;
 use PrestaShop\Module\PsAccounts\Entity\EmployeeAccount;
+use PrestaShop\Module\PsAccounts\Exception\EmployeeAccountEmailNotVerifiedException;
+use PrestaShop\Module\PsAccounts\Exception\EmployeeAccountNotFoundException;
 use PrestaShop\Module\PsAccounts\Provider\OAuth2\Oauth2ClientShopProvider;
 use PrestaShop\Module\PsAccounts\Provider\OAuth2\Oauth2LoginTrait;
 use PrestaShop\OAuth2\Client\Provider\PrestaShop;
 use PrestaShop\OAuth2\Client\Provider\PrestaShopUser;
 use PrestaShop\PrestaShop\Core\Exception\ContainerNotFoundException;
+use PrestaShop\PrestaShop\Core\Exception\CoreException;
 use Symfony\Component\HttpFoundation\Session\SessionInterface;
 
 /**
@@ -58,19 +61,29 @@ class AdminOAuth2PsAccountsController extends ModuleAdminController
         try {
             $this->oauth2Login();
         } catch (IdentityProviderException $e) {
-            // Failed to get the access token or user details.
             $this->oauth2ErrorLog($e->getMessage());
-
-            $this->redirectWithError($e->getMessage());
+            $this->redirectWithError('error_from_hydra');
+        } catch (EmployeeAccountEmailNotVerifiedException $e) {
+            $this->oauth2ErrorLog($e->getMessage());
+            $this->redirectWithError('email_not_verified');
+        } catch (EmployeeAccountNotFoundException $e) {
+            $this->oauth2ErrorLog($e->getMessage());
+            $this->redirectWithError('employee_not_found');
         } catch (Exception $e) {
             $this->oauth2ErrorLog($e->getMessage());
-
-            $this->redirectWithError($e->getMessage());
+            $this->redirectWithError('error_other');
         }
     }
 
     /**
-     * @throws Exception
+     * @param PrestaShopUser $user
+     *
+     * @return bool
+     *
+     * @throws ContainerNotFoundException
+     * @throws EmployeeAccountEmailNotVerifiedException
+     * @throws EmployeeAccountNotFoundException
+     * @throws CoreException
      */
     private function initUserSession(PrestaShopUser $user): bool
     {
@@ -82,7 +95,11 @@ class AdminOAuth2PsAccountsController extends ModuleAdminController
 
         if (!$context->employee->id || empty($emailVerified)) {
             $context->employee->logout();
-            throw new Exception(empty($emailVerified) ? 'Your account email is not verified' : 'The email address is not associated to a PrestaShop backoffice account.');
+
+            if (empty($emailVerified)) {
+                throw new EmployeeAccountEmailNotVerifiedException('Your account email is not verified');
+            }
+            throw new EmployeeAccountNotFoundException('The email address is not associated to a PrestaShop backoffice account.');
         }
 
         $context->employee->remote_addr = (int) ip2long(Tools::getRemoteAddr());
@@ -157,16 +174,12 @@ class AdminOAuth2PsAccountsController extends ModuleAdminController
      *
      * @return void
      */
-    private function redirectWithError($error): void
+    private function redirectWithError(string $error): void
     {
-        $errors = [
-            'The email address is not associated to a PrestaShop backoffice account.' => 'employee_not_found',
-            'Your account email is not verified' => 'email_not_verified',
-        ];
         Tools::redirectAdmin(
             $this->context->link->getAdminLink('AdminLogin', true, [], [
                 'logout' => 1,
-                'loginError' => $errors[$error],
+                'loginError' => $error,
             ])
         );
     }
