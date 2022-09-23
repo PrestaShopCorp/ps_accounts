@@ -22,11 +22,12 @@ namespace PrestaShop\Module\PsAccounts\Api\Client;
 
 use PrestaShop\Module\PsAccounts\Api\Client\Guzzle\AbstractGuzzleClient;
 use PrestaShop\Module\PsAccounts\Api\Client\Guzzle\GuzzleClientFactory;
+use PrestaShop\Module\PsAccounts\Repository\TokenClientInterface;
 
 /**
  * Class ServicesAccountsClient
  */
-class SsoClient
+class SsoClient implements TokenClientInterface
 {
     /**
      * @var AbstractGuzzleClient
