@@ -414,6 +414,6 @@ class ConfigurationRepository
      */
     public function updateShopRefreshTokenFailure($attempt)
     {
-        $this->configuration->set(Configuration::PS_ACCOUNTS_SHOP_REFRESH_TOKEN_FAILURE, $attempt);
+        $this->configuration->set(Configuration::PS_ACCOUNTS_SHOP_REFRESH_TOKEN_FAILURE, (string) $attempt);
     }
 }
