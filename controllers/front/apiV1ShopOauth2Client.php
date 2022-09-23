@@ -19,6 +19,7 @@
  */
 
 use PrestaShop\Module\PsAccounts\Controller\AbstractShopRestController;
+use PrestaShop\Module\PsAccounts\DTO\Api\UpdateShopOauth2ClientRequest;
 use PrestaShop\Module\PsAccounts\Exception\Http\BadRequestException;
 use PrestaShop\Module\PsAccounts\Repository\ConfigurationRepository;
 
@@ -50,20 +51,19 @@ class ps_AccountsApiV1ShopOauth2ClientModuleFrontController extends AbstractShop
      * @param array $payload
      *
      * @return array
+     *
+     * @throws Exception
      */
     public function update($shop, array $payload)
     {
-        list($clientId, $clientSecret) = [
-            $payload['client_id'],
-            $payload['client_secret'],
-        ];
+        $request = new UpdateShopOauth2ClientRequest($payload);
 
-        if (!isset($clientId) || !isset($clientSecret)) {
+        if (!isset($request->client_id) || !isset($request->client_secret)) {
             throw new BadRequestException('client_id and client_secret expected');
         }
 
-        $this->configuration->updateOauth2ClientId($clientId);
-        $this->configuration->updateOauth2ClientSecret($clientSecret);
+        $this->configuration->updateOauth2ClientId($request->client_id);
+        $this->configuration->updateOauth2ClientSecret($request->client_secret);
         $this->configuration->updateLoginEnabled(true);
 
         return [

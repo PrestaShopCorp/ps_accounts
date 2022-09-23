@@ -18,35 +18,12 @@
  * @license   https://opensource.org/licenses/AFL-3.0 Academic Free License version 3.0
  */
 
-use Lcobucci\JWT\Parser;
 use PrestaShop\Module\PsAccounts\Controller\AbstractShopRestController;
-use PrestaShop\Module\PsAccounts\Repository\ConfigurationRepository;
-use PrestaShop\Module\PsAccounts\Repository\ShopTokenRepository;
-use PrestaShop\Module\PsAccounts\Repository\UserTokenRepository;
+use PrestaShop\Module\PsAccounts\DTO\Api\UpdateShopLinkAccountRequest;
 use PrestaShop\Module\PsAccounts\Service\ShopLinkAccountService;
 
 class ps_AccountsApiV1ShopLinkAccountModuleFrontController extends AbstractShopRestController
 {
-    /**
-     * @var ConfigurationRepository
-     */
-    private $configuration;
-
-    /**
-     * @var Parser
-     */
-    private $jwtParser;
-
-    /**
-     * @var UserTokenRepository
-     */
-    private $userTokenRepository;
-
-    /**
-     * @var ShopTokenRepository
-     */
-    private $shopTokenRepository;
-
     /**
      * @var ShopLinkAccountService
      */
@@ -61,12 +38,7 @@ class ps_AccountsApiV1ShopLinkAccountModuleFrontController extends AbstractShopR
     {
         parent::__construct();
 
-        $this->configuration = $this->module->getService(ConfigurationRepository::class);
-        $this->userTokenRepository = $this->module->getService(UserTokenRepository::class);
-        $this->shopTokenRepository = $this->module->getService(ShopTokenRepository::class);
         $this->shopLinkAccountService = $this->module->getService(ShopLinkAccountService::class);
-
-        $this->jwtParser = new Parser();
     }
 
     /**
@@ -86,24 +58,15 @@ class ps_AccountsApiV1ShopLinkAccountModuleFrontController extends AbstractShopR
      */
     public function update($shop, array $payload)
     {
-        list($shopRefreshToken, $userRefreshToken, $shopToken, $userToken, $employeeId) = [
-            $payload['shop_refresh_token'],
-            $payload['user_refresh_token'],
-            $payload['shop_token'],
-            $payload['user_token'],
-            // FIXME : temporary fix
-            (array_key_exists('employee_id', $payload) ? $payload['employee_id'] : ''),
-        ];
+        $request = new UpdateShopLinkAccountRequest(array_merge(
+            ['employee_id' => ''],
+            $payload
+        ));
 
-        $verifyTokens = $this->module->getParameter('ps_accounts.verify_account_tokens');
-        if ($verifyTokens) {
-            $shopToken = $this->shopTokenRepository->verifyToken($shopToken, $shopRefreshToken);
-            $userToken = $this->userTokenRepository->verifyToken($userToken, $userRefreshToken);
-        }
-
-        $this->shopTokenRepository->updateCredentials($shopToken, $shopRefreshToken);
-        $this->userTokenRepository->updateCredentials($userToken, $userRefreshToken);
-        $this->configuration->updateEmployeeId($employeeId);
+        $this->shopLinkAccountService->updateLinkAccount(
+            $request,
+            $this->module->getParameter('ps_accounts.verify_account_tokens')
+        );
 
         return [
             'success' => true,
