@@ -120,6 +120,11 @@ class ShopLinkAccountService
             $this->rsaKeysProvider->generateKeys();
         } catch (\Exception $e) {
         }
+
+        // Disable login & cleanup
+        $this->configuration->updateOauth2ClientId('');
+        $this->configuration->updateOauth2ClientSecret('');
+        $this->configuration->updateLoginEnabled(false);
     }
 
     /**
