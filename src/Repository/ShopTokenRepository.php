@@ -182,7 +182,7 @@ class ShopTokenRepository
         }
 
         $this->configuration->updateShopRefreshTokenFailure(
-            $attempt++
+            ++$attempt // increment before evaluation
         );
     }
 
