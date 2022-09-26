@@ -133,7 +133,7 @@ class ShopLinkAccountService
      *
      * @throws RefreshTokenException
      */
-    public function updateLinkAccount(UpdateShopLinkAccountRequest $payload, $verifyTokens=false)
+    public function updateLinkAccount(UpdateShopLinkAccountRequest $payload, $verifyTokens = false)
     {
         if ($verifyTokens) {
             $payload->shop_token = $this->shopTokenRepository->verifyToken($payload->shop_token, $payload->shop_refresh_token);
