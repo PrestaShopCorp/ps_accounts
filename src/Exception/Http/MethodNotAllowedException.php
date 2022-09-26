@@ -18,27 +18,23 @@
  * @license   https://opensource.org/licenses/AFL-3.0 Academic Free License version 3.0
  */
 
-namespace PrestaShop\Module\PsAccounts\Controller;
+namespace PrestaShop\Module\PsAccounts\Exception\Http;
 
-class AbstractRestChildController extends AbstractRestController
+use Throwable;
+
+class MethodNotAllowedException extends HttpException
 {
     /**
-     * @var string
+     * NotFoundException constructor.
+     *
+     * @param string $message
+     * @param int $code
+     * @param Throwable|null $previous
      */
-    public $parentId = 'parent_id';
-
-    /**
-     * @return array
-     */
-    protected function decodePayload()
+    public function __construct($message = 'Method Not Allowed', $code = 0, Throwable $previous = null)
     {
-        $payload = parent::decodePayload();
+        parent::__construct($message, $code, $previous);
 
-        if (!array_key_exists($this->parentId, $payload) ||
-            !is_integer($payload[$this->parentId])) {
-            $payload[$this->parentId] = $this->context->shop->id;
-        }
-
-        return $payload;
+        $this->statusCode = 405;
     }
 }

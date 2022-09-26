@@ -20,7 +20,6 @@
 
 use PrestaShop\Module\PsAccounts\Controller\AbstractShopRestController;
 use PrestaShop\Module\PsAccounts\DTO\Api\UpdateShopOauth2ClientRequest;
-use PrestaShop\Module\PsAccounts\Exception\Http\BadRequestException;
 use PrestaShop\Module\PsAccounts\Repository\ConfigurationRepository;
 
 class ps_AccountsApiV1ShopOauth2ClientModuleFrontController extends AbstractShopRestController
@@ -43,25 +42,13 @@ class ps_AccountsApiV1ShopOauth2ClientModuleFrontController extends AbstractShop
     }
 
     /**
-     * Expected Payload keys :
-     *  - client_id
-     *  - client_secret
-     *
      * @param Shop $shop
-     * @param array $payload
+     * @param UpdateShopOauth2ClientRequest $request
      *
      * @return array
-     *
-     * @throws Exception
      */
-    public function update($shop, array $payload)
+    public function update(Shop $shop, UpdateShopOauth2ClientRequest $request): array
     {
-        $request = new UpdateShopOauth2ClientRequest($payload);
-
-        if (!isset($request->client_id) || !isset($request->client_secret)) {
-            throw new BadRequestException('client_id and client_secret expected');
-        }
-
         $this->configuration->updateOauth2ClientId($request->client_id);
         $this->configuration->updateOauth2ClientSecret($request->client_secret);
         $this->configuration->updateLoginEnabled(true);
@@ -77,10 +64,8 @@ class ps_AccountsApiV1ShopOauth2ClientModuleFrontController extends AbstractShop
      * @param array $payload
      *
      * @return array
-     *
-     * @throws Exception
      */
-    public function delete($shop, array $payload)
+    public function delete(Shop $shop, array $payload): array
     {
         $this->configuration->updateOauth2ClientId('');
         $this->configuration->updateOauth2ClientSecret('');

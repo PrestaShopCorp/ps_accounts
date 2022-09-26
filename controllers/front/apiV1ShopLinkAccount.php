@@ -20,6 +20,7 @@
 
 use PrestaShop\Module\PsAccounts\Controller\AbstractShopRestController;
 use PrestaShop\Module\PsAccounts\DTO\Api\UpdateShopLinkAccountRequest;
+use PrestaShop\Module\PsAccounts\Exception\RefreshTokenException;
 use PrestaShop\Module\PsAccounts\Service\ShopLinkAccountService;
 
 class ps_AccountsApiV1ShopLinkAccountModuleFrontController extends AbstractShopRestController
@@ -42,27 +43,15 @@ class ps_AccountsApiV1ShopLinkAccountModuleFrontController extends AbstractShopR
     }
 
     /**
-     * Expected Payload keys :
-     *  - shop_token
-     *  - shop_refresh_token
-     *  - user_token
-     *  - user_refresh_token
-     *  - employee_id
-     *
      * @param Shop $shop
-     * @param array $payload
+     * @param UpdateShopLinkAccountRequest $request
      *
-     * @return array|void
+     * @return array
      *
-     * @throws Exception
+     * @throws RefreshTokenException
      */
-    public function update($shop, array $payload)
+    public function update(Shop $shop, UpdateShopLinkAccountRequest $request): array
     {
-        $request = new UpdateShopLinkAccountRequest(array_merge(
-            ['employee_id' => ''],
-            $payload
-        ));
-
         $this->shopLinkAccountService->updateLinkAccount(
             $request,
             $this->module->getParameter('ps_accounts.verify_account_tokens')
@@ -78,9 +67,9 @@ class ps_AccountsApiV1ShopLinkAccountModuleFrontController extends AbstractShopR
      * @param Shop $shop
      * @param array $payload
      *
-     * @return array|void
+     * @return array
      */
-    public function delete($shop, array $payload)
+    public function delete(Shop $shop, array $payload): array
     {
         $this->shopLinkAccountService->resetLinkAccount();
 

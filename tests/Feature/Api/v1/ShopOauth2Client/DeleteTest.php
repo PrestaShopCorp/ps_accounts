@@ -22,8 +22,6 @@ class DeleteTest extends FeatureTestCase
             ],
         ]);
 
-        $this->module->getLogger()->info(print_r($response, true));
-
         $json = $this->getResponseJson($response);
 
         $this->module->getLogger()->info(print_r($json, true));

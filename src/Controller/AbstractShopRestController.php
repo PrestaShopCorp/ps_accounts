@@ -31,13 +31,11 @@ class AbstractShopRestController extends AbstractRestController
     public $resourceId = 'shop_id';
 
     /**
-     * @param int $id
+     * @param mixed $id
      *
      * @return Shop
-     *
-     * @throws \Exception
      */
-    public function bindResource($id)
+    protected function buildResource($id): Shop
     {
         $shop = new Shop($id);
 
