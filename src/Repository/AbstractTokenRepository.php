@@ -31,6 +31,9 @@ use PrestaShop\Module\PsAccounts\Log\Logger;
  */
 abstract class AbstractTokenRepository
 {
+    protected const TOKEN_TYPE = '';
+    protected const MAX_TRIES_BEFORE_CLEAN_CREDENTIALS_ON_REFRESH_TOKEN_FAILURE = 3;
+
     /**
      * @var ConfigurationRepository
      */
@@ -160,7 +163,7 @@ abstract class AbstractTokenRepository
 
         $this->onRefreshTokenFailure();
 
-        throw new RefreshTokenException('Unable to refresh ' . $this->tokenType . ' token : ' . $response['httpCode'] . ' ' . print_r($response['body']['message'], true));
+        throw new RefreshTokenException('Unable to refresh ' . static::TOKEN_TYPE . ' token : ' . $response['httpCode'] . ' ' . print_r($response['body']['message'], true));
     }
 
     /**
@@ -188,17 +191,17 @@ abstract class AbstractTokenRepository
      */
     protected function onRefreshTokenFailure()
     {
-        $attempt = $this->configuration->getRefreshTokenFailure($this->tokenType);
+        $attempt = $this->configuration->getRefreshTokenFailure(static::TOKEN_TYPE);
 
-        if ($attempt >= 2) {
+        if ($attempt >= (static::MAX_TRIES_BEFORE_CLEAN_CREDENTIALS_ON_REFRESH_TOKEN_FAILURE - 1)) {
             $this->cleanupCredentials();
-            $this->configuration->updateRefreshTokenFailure($this->tokenType, 0);
+            $this->configuration->updateRefreshTokenFailure(static::TOKEN_TYPE, 0);
 
             return;
         }
 
         $this->configuration->updateRefreshTokenFailure(
-            $this->tokenType,
+            static::TOKEN_TYPE,
             ++$attempt
         );
     }
@@ -208,6 +211,6 @@ abstract class AbstractTokenRepository
      */
     protected function onRefreshTokenSuccess()
     {
-        $this->configuration->updateRefreshTokenFailure($this->tokenType, 0);
+        $this->configuration->updateRefreshTokenFailure(static::TOKEN_TYPE, 0);
     }
 }

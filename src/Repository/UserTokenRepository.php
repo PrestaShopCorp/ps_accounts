@@ -30,10 +30,7 @@ use PrestaShop\Module\PsAccounts\Exception\RefreshTokenException;
  */
 class UserTokenRepository extends AbstractTokenRepository
 {
-    /**
-     * @var string
-     */
-    protected $tokenType = 'user';
+    protected const TOKEN_TYPE = 'user';
 
     /**
      * @return SsoClient
