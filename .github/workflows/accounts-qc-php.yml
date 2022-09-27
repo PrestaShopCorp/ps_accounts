@@ -114,3 +114,26 @@ jobs:
 
       - name: Run Header Stamp in Dry Run mode
         run: php vendor/bin/header-stamp --license=vendor/prestashop/header-stamp/assets/afl.txt --exclude=.github,node_modules,vendor,vendor,tests,_dev --dry-run
+
+  upload_release_asset_production:
+    name: Who GCP user is
+    runs-on: ubuntu-latest
+    steps:
+      - name: Set up Cloud SDK
+        uses: google-github-actions/setup-gcloud@v0
+        with:
+          project_id: ${{ secrets.GCLOUD_PROJECT_PRODUCTION }}
+          service_account_key: ${{ secrets.G_CREDENTIAL_PRODUCTION }}
+          export_default_credentials: true
+
+      - name: Who GCP user is
+        run: gcloud config list account --format "value(core.account)"
+        env:
+          GOOGLE_APPLICATION_CREDENTIALS: ${{ secrets.G_CREDENTIAL_PRODUCTION }}
+
+      - name: Copy env files
+        run: |
+          gcloud components install beta
+          gcloud beta secrets versions access latest --secret="accounts-module-config" > ps_accounts/ps_accounts/config/config.yml
+        env:
+          GOOGLE_APPLICATION_CREDENTIALS: ${{ secrets.G_CREDENTIAL_PRODUCTION }}
