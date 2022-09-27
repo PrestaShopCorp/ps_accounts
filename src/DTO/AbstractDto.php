@@ -20,6 +20,8 @@
 
 namespace PrestaShop\Module\PsAccounts\DTO;
 
+use PrestaShop\Module\PsAccounts\Exception\DtoException;
+
 abstract class AbstractDto implements \JsonSerializable
 {
     /**
@@ -33,6 +35,11 @@ abstract class AbstractDto implements \JsonSerializable
     protected $mandatory = [];
 
     /**
+     * @var bool
+     */
+    protected $ignoreExtraProperties = false;
+
+    /**
      * @param array $values
      *
      * @throws \Exception
@@ -40,16 +47,17 @@ abstract class AbstractDto implements \JsonSerializable
     public function __construct($values = [])
     {
         foreach ($values as $attrName => $attrValue) {
-            if (!property_exists($this, $attrName)) {
-                throw new \Exception('unexpected property : ' . get_class($this) . '->' . $attrName);
+            if (property_exists($this, $attrName)) {
+                $this->$attrName = $attrValue;
+                $this->attributes[] = $attrName;
+            } elseif (!$this->ignoreExtraProperties) {
+                throw new DtoException('unexpected property : ' . get_class($this) . '->$' . $attrName);
             }
-            $this->$attrName = $attrValue;
-            $this->attributes[] = $attrName;
         }
 
         foreach ($this->mandatory as $attrName) {
             if (!in_array($attrName, $this->attributes)) {
-                throw new \Exception('property expected : ' . get_class($this) . '->' . $attrName);
+                throw new DtoException('property expected : ' . get_class($this) . '->$' . $attrName);
             }
         }
     }

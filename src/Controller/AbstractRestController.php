@@ -73,11 +73,16 @@ abstract class AbstractRestController extends \ModuleFrontController
     {
         try {
             $payload = $this->decodePayload();
-            $this->dispatchVerb(
-                isset($payload['method']) && null !== $payload['method'] ? $payload['method'] : $_SERVER['REQUEST_METHOD'],
-                $payload
-            );
+            $method = $_SERVER['REQUEST_METHOD'];
+            // detect method from payload (hack with some shop server configuration)
+            if (isset($payload['method'])) {
+                $method = $payload['method'];
+                unset($payload['method']);
+            }
+            $this->dispatchVerb($method, $payload);
         } catch (HttpException $e) {
+            $this->module->getLogger()->error($e);
+
             $this->dieWithResponseJson([
                 'error' => true,
                 'message' => $e->getMessage(),

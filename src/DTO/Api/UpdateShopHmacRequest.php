@@ -20,9 +20,9 @@
 
 namespace PrestaShop\Module\PsAccounts\DTO\Api;
 
-use PrestaShop\Module\PsAccounts\DTO\AbstractDto;
+use PrestaShop\Module\PsAccounts\DTO\AbstractRequest;
 
-class UpdateShopHmacRequest extends AbstractDto
+class UpdateShopHmacRequest extends AbstractRequest
 {
     /** @var string */
     public $shop_id;

@@ -18,26 +18,8 @@
  * @license   https://opensource.org/licenses/AFL-3.0 Academic Free License version 3.0
  */
 
-namespace PrestaShop\Module\PsAccounts\DTO\Api;
+namespace PrestaShop\Module\PsAccounts\Exception;
 
-use PrestaShop\Module\PsAccounts\DTO\AbstractRequest;
-use PrestaShop\Module\PsAccounts\Exception\Http\BadRequestException;
-
-class UpdateShopOauth2ClientRequest extends AbstractRequest
+class DtoException extends \Exception
 {
-    /** @var string */
-    public $shop_id;
-    /** @var string */
-    public $client_id;
-    /** @var string */
-    public $client_secret;
-
-    public function __construct($values = [])
-    {
-        parent::__construct($values);
-
-        if (!isset($this->client_id) || !isset($this->client_secret)) {
-            throw new BadRequestException('client_id and client_secret expected');
-        }
-    }
 }
