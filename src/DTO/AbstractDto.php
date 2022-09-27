@@ -30,7 +30,7 @@ abstract class AbstractDto implements \JsonSerializable
     protected $attributes = [];
 
     /**
-     * @var array
+     * @var string[]
      */
     protected $mandatory = [];
 

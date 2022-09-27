@@ -21,7 +21,6 @@
 namespace PrestaShop\Module\PsAccounts\DTO\Api;
 
 use PrestaShop\Module\PsAccounts\DTO\AbstractRequest;
-use PrestaShop\Module\PsAccounts\Exception\Http\BadRequestException;
 
 class UpdateShopOauth2ClientRequest extends AbstractRequest
 {
@@ -32,12 +31,11 @@ class UpdateShopOauth2ClientRequest extends AbstractRequest
     /** @var string */
     public $client_secret;
 
-    public function __construct($values = [])
-    {
-        parent::__construct($values);
-
-        if (!isset($this->client_id) || !isset($this->client_secret)) {
-            throw new BadRequestException('client_id and client_secret expected');
-        }
-    }
+    /**
+     * @var string[]
+     */
+    protected $mandatory = [
+        'client_id',
+        'client_secret',
+    ];
 }
