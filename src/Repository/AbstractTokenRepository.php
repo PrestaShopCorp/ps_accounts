@@ -161,7 +161,9 @@ abstract class AbstractTokenRepository
             return $token;
         }
 
-        $this->onRefreshTokenFailure();
+        if ($response['httpCode'] >= 400 && $response['httpCode'] < 500) {
+            $this->onRefreshTokenFailure();
+        }
 
         throw new RefreshTokenException('Unable to refresh ' . static::TOKEN_TYPE . ' token : ' . $response['httpCode'] . ' ' . print_r($response['body']['message'], true));
     }
