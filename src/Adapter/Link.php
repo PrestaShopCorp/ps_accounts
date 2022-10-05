@@ -20,7 +20,6 @@
 
 namespace PrestaShop\Module\PsAccounts\Adapter;
 
-use _PHPStan_98a3b0791\Nette\Neon\Exception;
 use PrestaShop\Module\PsAccounts\Context\ShopContext;
 
 /**
@@ -103,12 +102,14 @@ class Link
         $boBaseUrl = $this->getAdminLink($controller, $withToken, $sfRouteParams, $params);
         $parsedUrl = parse_url($boBaseUrl);
 
-        if ($parsedUrl && isset($parsedUrl['host']) && isset($parsedUrl['scheme']))
+        if ($parsedUrl && isset($parsedUrl['host']) && isset($parsedUrl['scheme'])) {
             return str_replace(
                 $parsedUrl['host'],
                 $parsedUrl['scheme'] === 'http' ? $domain : $sslDomain,
                 $boBaseUrl
             );
+        }
+
         return $boBaseUrl;
     }
 }
