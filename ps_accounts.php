@@ -449,14 +449,23 @@ class Ps_accounts extends Module
 
             $shop = new \Shop($params['object']->id_shop);
 
+            $domain = $params['object']->domain;
+            $sslDomain = $params['object']->domain_ssl;
+
             $response = $accountsApi->updateUserShop(new \PrestaShop\Module\PsAccounts\DTO\UpdateShop([
                 'shopId' => (string) $params['object']->id_shop,
                 'name' => $shop->name,
-                'domain' => 'http://' . $params['object']->domain,
-                'sslDomain' => 'https://' . $params['object']->domain_ssl,
+                'domain' => 'http://' . $domain,
+                'sslDomain' => 'https://' . $sslDomain,
                 'physicalUri' => $params['object']->physical_uri,
                 'virtualUri' => $params['object']->virtual_uri,
-                'boBaseUrl' => $link->getAdminLink('AdminModules', false, [], [
+                'boBaseUrl' => $link->getAdminLinkOnUpdatedHook(
+                    $sslDomain,
+                    $domain,
+                    'AdminModules',
+                    false,
+                    [],
+                    [
                         'configure' => $this->name,
                         'setShopContext' => 's-' . $params['object']->id_shop,
                     ]
@@ -507,6 +516,9 @@ class Ps_accounts extends Module
 
         $shop = new \Shop($params['object']->id);
 
+        $domain = $params['object']->domain;
+        $sslDomain = $params['object']->domain_ssl;
+
         $response = $accountsApi->updateUserShop(new \PrestaShop\Module\PsAccounts\DTO\UpdateShop([
             'shopId' => (string) $params['object']->id,
             'name' => $params['object']->name,
@@ -514,11 +526,17 @@ class Ps_accounts extends Module
             'sslDomain' => 'https://' . $shop->domain_ssl,
             'physicalUri' => $shop->physical_uri,
             'virtualUri' => $shop->virtual_uri,
-            'boBaseUrl' => $link->getAdminLink('AdminModules', false, [], [
+            'boBaseUrl' => $link->getAdminLinkOnUpdatedHook(
+                $sslDomain,
+                $domain,
+                'AdminModules',
+                false,
+                [],
+                [
                     'configure' => $this->name,
-                    'setShopContext' => 's-' . $params['object']->id,
+                    'setShopContext' => 's-' . $params['object']->id_shop,
                 ]
-            ),
+            )
         ]));
 
         if (!$response || true !== $response['status']) {
