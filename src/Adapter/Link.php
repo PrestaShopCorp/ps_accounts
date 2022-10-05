@@ -44,7 +44,7 @@ class Link
         \Link $link = null
     ) {
         if (null === $link) {
-            $link = new \Link();
+            $link = \Context::getContext()->link;
         }
 
         $this->shopContext = $shopContext;
@@ -83,5 +83,20 @@ class Link
     public function getLink()
     {
         return $this->link;
+    }
+
+
+    /**
+     * @return string
+     */
+    public function getAdminLinkOnUpdatedHook($sslDomain, $domain, $controller, $withToken = true, $sfRouteParams = [], $params = [])
+    {
+        $boBaseUrl = $this->getAdminLink($controller, $withToken, $sfRouteParams, $params);
+        $parsedUrl = parse_url($boBaseUrl);
+        return str_replace(
+            $parsedUrl['host'],
+            $parsedUrl['scheme'] === 'http' ? $domain : $sslDomain,
+            $boBaseUrl
+        );
     }
 }
