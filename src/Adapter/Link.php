@@ -20,6 +20,7 @@
 
 namespace PrestaShop\Module\PsAccounts\Adapter;
 
+use _PHPStan_98a3b0791\Nette\Neon\Exception;
 use PrestaShop\Module\PsAccounts\Context\ShopContext;
 
 /**
@@ -86,17 +87,28 @@ class Link
     }
 
     /**
-     * @return string
+     * Adapter for getAdminLink from prestashop link class
+     *
+     * @param string $sslDomain shop ssl domain
+     * @param string $domain shop domain
+     * @param string $controller controller name
+     * @param bool $withToken include or not the token in the url
+     * @param array $sfRouteParams
+     * @param array $params
+     *
+     * @return string|null
      */
     public function getAdminLinkOnUpdatedHook($sslDomain, $domain, $controller, $withToken = true, $sfRouteParams = [], $params = [])
     {
         $boBaseUrl = $this->getAdminLink($controller, $withToken, $sfRouteParams, $params);
         $parsedUrl = parse_url($boBaseUrl);
 
-        return str_replace(
-            $parsedUrl['host'],
-            $parsedUrl['scheme'] === 'http' ? $domain : $sslDomain,
-            $boBaseUrl
-        );
+        if ($parsedUrl && isset($parsedUrl['host']) && isset($parsedUrl['scheme']))
+            return str_replace(
+                $parsedUrl['host'],
+                $parsedUrl['scheme'] === 'http' ? $domain : $sslDomain,
+                $boBaseUrl
+            );
+        return $boBaseUrl;
     }
 }
