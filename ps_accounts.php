@@ -536,7 +536,7 @@ class Ps_accounts extends Module
                     'configure' => $this->name,
                     'setShopContext' => 's-' . $params['object']->id_shop,
                 ]
-            )
+            ),
         ]));
 
         if (!$response || true !== $response['status']) {

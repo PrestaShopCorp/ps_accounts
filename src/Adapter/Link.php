@@ -85,7 +85,6 @@ class Link
         return $this->link;
     }
 
-
     /**
      * @return string
      */
@@ -93,6 +92,7 @@ class Link
     {
         $boBaseUrl = $this->getAdminLink($controller, $withToken, $sfRouteParams, $params);
         $parsedUrl = parse_url($boBaseUrl);
+
         return str_replace(
             $parsedUrl['host'],
             $parsedUrl['scheme'] === 'http' ? $domain : $sslDomain,
