@@ -44,7 +44,7 @@ class Link
         \Link $link = null
     ) {
         if (null === $link) {
-            $link = new \Link();
+            $link = \Context::getContext()->link;
         }
 
         $this->shopContext = $shopContext;
@@ -83,5 +83,33 @@ class Link
     public function getLink()
     {
         return $this->link;
+    }
+
+    /**
+     * Adapter to get adminLink with custom domain
+     *
+     * @param string $sslDomain shop ssl domain
+     * @param string $domain shop domain
+     * @param string $controller controller name
+     * @param bool $withToken include or not the token in the url
+     * @param array $sfRouteParams
+     * @param array $params
+     *
+     * @return string
+     */
+    public function getAdminLinkWithCustomDomain($sslDomain, $domain, $controller, $withToken = true, $sfRouteParams = [], $params = [])
+    {
+        $boBaseUrl = $this->getAdminLink($controller, $withToken, $sfRouteParams, $params);
+        $parsedUrl = parse_url($boBaseUrl);
+
+        if ($parsedUrl && isset($parsedUrl['host']) && isset($parsedUrl['scheme'])) {
+            return str_replace(
+                $parsedUrl['host'],
+                $parsedUrl['scheme'] === 'http' ? $domain : $sslDomain,
+                $boBaseUrl
+            );
+        }
+
+        return $boBaseUrl;
     }
 }
