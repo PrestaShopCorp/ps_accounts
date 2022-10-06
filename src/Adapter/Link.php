@@ -86,7 +86,7 @@ class Link
     }
 
     /**
-     * Adapter for getAdminLink from prestashop link class
+     * Adapter to get adminLink with custom domain
      *
      * @param string $sslDomain shop ssl domain
      * @param string $domain shop domain
@@ -95,7 +95,7 @@ class Link
      * @param array $sfRouteParams
      * @param array $params
      *
-     * @return string|null
+     * @return string
      */
     public function changeDomainOfAdminLink($sslDomain, $domain, $controller, $withToken = true, $sfRouteParams = [], $params = [])
     {
