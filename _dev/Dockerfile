@@ -1,17 +1,16 @@
 # Build package
-FROM node:12-alpine as package
-
+FROM node:14-slim as package
 WORKDIR /app
 
-ADD package.json package.json
+ADD ./package.json ./yarn.lock ./
 
-RUN yarn --only=prod
+RUN yarn --frozen-lockfile
 
-## Build vuejs
+# Build vuejs
 FROM package as builder
+ADD . .
 
 WORKDIR /app
-ADD . .
 RUN yarn run build-storybook
 
 
