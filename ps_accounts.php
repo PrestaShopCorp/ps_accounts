@@ -459,7 +459,7 @@ class Ps_accounts extends Module
                 'sslDomain' => 'https://' . $sslDomain,
                 'physicalUri' => $params['object']->physical_uri,
                 'virtualUri' => $params['object']->virtual_uri,
-                'boBaseUrl' => $link->getAdminLinkOnUpdatedHook(
+                'boBaseUrl' => $link->changeDomainOfAdminLink(
                     $sslDomain,
                     $domain,
                     'AdminModules',
@@ -526,7 +526,7 @@ class Ps_accounts extends Module
             'sslDomain' => 'https://' . $shop->domain_ssl,
             'physicalUri' => $shop->physical_uri,
             'virtualUri' => $shop->virtual_uri,
-            'boBaseUrl' => $link->getAdminLinkOnUpdatedHook(
+            'boBaseUrl' => $link->changeDomainOfAdminLink(
                 $sslDomain,
                 $domain,
                 'AdminModules',

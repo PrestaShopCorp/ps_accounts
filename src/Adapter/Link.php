@@ -97,7 +97,7 @@ class Link
      *
      * @return string|null
      */
-    public function getAdminLinkOnUpdatedHook($sslDomain, $domain, $controller, $withToken = true, $sfRouteParams = [], $params = [])
+    public function changeDomainOfAdminLink($sslDomain, $domain, $controller, $withToken = true, $sfRouteParams = [], $params = [])
     {
         $boBaseUrl = $this->getAdminLink($controller, $withToken, $sfRouteParams, $params);
         $parsedUrl = parse_url($boBaseUrl);
