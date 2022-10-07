@@ -472,7 +472,11 @@ class Ps_accounts extends Module
                 ),
             ]));
 
-            if (!$response || true !== $response['status']) {
+            if (!$response) {
+                return true;
+            }
+
+            if (true !== $response['status']) {
                 $this->getLogger()->debug(
                     'Error trying to PATCH shop : ' . $response['httpCode'] .
                     ' ' . print_r($response['body']['message'], true)
@@ -539,7 +543,11 @@ class Ps_accounts extends Module
             ),
         ]));
 
-        if (!$response || true !== $response['status']) {
+        if (!$response) {
+            return true;
+        }
+
+        if (true !== $response['status']) {
             $this->getLogger()->debug(
                 'Error trying to PATCH shop : ' . $response['httpCode'] .
                 ' ' . print_r($response['body']['message'], true)
