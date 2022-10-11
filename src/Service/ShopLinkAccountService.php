@@ -137,8 +137,8 @@ class ShopLinkAccountService
      */
     public function isAccountLinked()
     {
-        return $this->shopTokenRepository->getToken()
-            && $this->userTokenRepository->getToken();
+        return $this->shopTokenRepository->getOrRefreshToken()
+            && $this->userTokenRepository->getOrRefreshToken();
     }
 
     /**
@@ -146,8 +146,8 @@ class ShopLinkAccountService
      */
     public function isAccountLinkedV4()
     {
-        return $this->shopTokenRepository->getToken()
-            && !$this->userTokenRepository->getToken()
+        return $this->shopTokenRepository->getOrRefreshToken()
+            && !$this->userTokenRepository->getOrRefreshToken()
             && $this->userTokenRepository->getTokenEmail();
     }
 
