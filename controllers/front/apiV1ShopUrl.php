@@ -55,7 +55,7 @@ class ps_AccountsApiV1ShopUrlModuleFrontController extends AbstractShopRestContr
      *
      * @throws Exception
      */
-    public function show($shop, array $payload)
+    public function show(Shop $shop, array $payload): array
     {
         $shopData = $this->shopProvider->formatShopData((array) \Shop::getShop($shop->id));
 

@@ -27,11 +27,11 @@ class ps_AccountsApiV1ShopTokenModuleFrontController extends AbstractShopRestCon
      * @param Shop $shop
      * @param array $payload
      *
-     * @return array
+     * @return string[]
      *
-     * @throws Exception
+     * @throws Throwable
      */
-    public function show($shop, array $payload)
+    public function show(Shop $shop, array $payload): array
     {
         /** @var ShopTokenRepository $shopTokenRepository */
         $shopTokenRepository = $this->module->getService(ShopTokenRepository::class);

@@ -18,55 +18,29 @@
  * @license   https://opensource.org/licenses/AFL-3.0 Academic Free License version 3.0
  */
 
-namespace PrestaShop\Module\PsAccounts\Controller;
+namespace PrestaShop\Module\PsAccounts\DTO;
 
-interface RestControllerInterface
+use PrestaShop\Module\PsAccounts\Exception\DtoException;
+use PrestaShop\Module\PsAccounts\Exception\Http\BadRequestException;
+
+abstract class AbstractRequest extends AbstractDto
 {
     /**
-     * @param array $payload
-     *
-     * @return array
-     *
-     * @throws \Exception
+     * @var bool
      */
-    public function index(array $payload);
+    protected $throwOnUnexpectedProperties = false;
 
     /**
-     * @param array $payload
-     *
-     * @return array
+     * @param array $values
      *
      * @throws \Exception
      */
-    public function store(array $payload);
-
-    /**
-     * @param mixed $id
-     * @param array $payload
-     *
-     * @return array
-     *
-     * @throws \Exception
-     */
-    public function show($id, array $payload);
-
-    /**
-     * @param mixed $id
-     * @param array $payload
-     *
-     * @return array
-     *
-     * @throws \Exception
-     */
-    public function update($id, array $payload);
-
-    /**
-     * @param mixed $id
-     * @param array $payload
-     *
-     * @return array
-     *
-     * @throws \Exception
-     */
-    public function delete($id, array $payload);
+    public function __construct($values = [])
+    {
+        try {
+            parent::__construct($values);
+        } catch (DtoException $e) {
+            throw new BadRequestException($e->getMessage());
+        }
+    }
 }
