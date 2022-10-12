@@ -20,11 +20,11 @@
 
 namespace PrestaShop\Module\PsAccounts\Repository;
 
-use Lcobucci\JWT\Parser;
 use Lcobucci\JWT\Token;
+use Lcobucci\JWT\Parser;
+use PrestaShop\Module\PsAccounts\Log\Logger;
 use Lcobucci\JWT\Token\InvalidTokenStructure;
 use PrestaShop\Module\PsAccounts\Exception\RefreshTokenException;
-use PrestaShop\Module\PsAccounts\Log\Logger;
 
 /**
  * Class AbstractTokenRepository
@@ -165,7 +165,9 @@ abstract class AbstractTokenRepository
             $this->onRefreshTokenFailure();
         }
 
-        throw new RefreshTokenException('Unable to refresh ' . static::TOKEN_TYPE . ' token : ' . $response['httpCode'] . ' ' . print_r($response['body']['message'], true));
+        throw new RefreshTokenException(
+            'Unable to refresh ' . static::TOKEN_TYPE . ' token : ' . $response['httpCode'] . ' ' . print_r($response['body'] ? $response['body']['message'] : '', true)
+        );
     }
 
     /**
