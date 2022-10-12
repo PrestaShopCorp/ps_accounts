@@ -28,7 +28,7 @@ abstract class AbstractRequest extends AbstractDto
     /**
      * @var bool
      */
-    protected $ignoreExtraProperties = true;
+    protected $throwOnUnexpectedProperties = false;
 
     /**
      * @param array $values

@@ -37,7 +37,7 @@ abstract class AbstractDto implements \JsonSerializable
     /**
      * @var bool
      */
-    protected $ignoreExtraProperties = false;
+    protected $throwOnUnexpectedProperties = true;
 
     /**
      * @param array $values
@@ -50,7 +50,7 @@ abstract class AbstractDto implements \JsonSerializable
             if (property_exists($this, $attrName)) {
                 $this->$attrName = $attrValue;
                 $this->attributes[] = $attrName;
-            } elseif (!$this->ignoreExtraProperties) {
+            } elseif ($this->throwOnUnexpectedProperties) {
                 throw new DtoException('unexpected property : ' . get_class($this) . '->$' . $attrName);
             }
         }
