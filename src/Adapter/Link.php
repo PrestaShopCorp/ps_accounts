@@ -44,7 +44,7 @@ class Link
         \Link $link = null
     ) {
         if (null === $link) {
-            $link = \Context::getContext()->link;
+            $link = new \Link();
         }
 
         $this->shopContext = $shopContext;
