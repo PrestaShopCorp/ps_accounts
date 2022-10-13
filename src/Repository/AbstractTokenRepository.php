@@ -32,6 +32,7 @@ use PrestaShop\Module\PsAccounts\Exception\RefreshTokenException;
 abstract class AbstractTokenRepository
 {
     protected const TOKEN_TYPE = '';
+    protected const TOKEN_KEY = '';
     protected const MAX_TRIES_BEFORE_CLEAN_CREDENTIALS_ON_REFRESH_TOKEN_FAILURE = 3;
 
     /**
@@ -103,8 +104,9 @@ abstract class AbstractTokenRepository
             $refreshToken = $this->getRefreshToken();
             if (is_string($refreshToken) && '' != $refreshToken) {
                 try {
+                    $token = $this->refreshToken($refreshToken);
                     $this->updateCredentials(
-                        (string) $this->refreshToken($refreshToken),
+                        (string) $token,
                         $refreshToken
                     );
                 } catch (RefreshTokenException $e) {
@@ -155,9 +157,9 @@ abstract class AbstractTokenRepository
         $response = $this->client()->refreshToken($refreshToken);
 
         if ($response && true === $response['status']) {
-            $token = $this->parseToken($response['body']['token']);
-            $this->onRefreshTokenSuccess();
+            $token = $this->parseToken($response['body'][static::TOKEN_KEY]);
 
+            $this->onRefreshTokenSuccess();
             return $token;
         }
 
@@ -166,7 +168,7 @@ abstract class AbstractTokenRepository
         }
 
         throw new RefreshTokenException(
-            'Unable to refresh ' . static::TOKEN_TYPE . ' token : ' . $response['httpCode'] . ' ' . print_r($response['body'] ? $response['body']['message'] : '', true)
+            'Unable to refresh ' . static::TOKEN_TYPE . ' token : ' . $response['httpCode'] . ' ' . print_r($response['body']['message'] ?? '', true)
         );
     }
 
