@@ -479,7 +479,7 @@ class Ps_accounts extends Module
             if (true !== $response['status']) {
                 $this->getLogger()->debug(
                     'Error trying to PATCH shop : ' . $response['httpCode'] .
-                    ' ' . print_r($response['body']['message'], true)
+                    ' ' . print_r($response['body']['message'] ?? '', true)
                 );
             }
         }
@@ -550,7 +550,7 @@ class Ps_accounts extends Module
         if (true !== $response['status']) {
             $this->getLogger()->debug(
                 'Error trying to PATCH shop : ' . $response['httpCode'] .
-                ' ' . print_r($response['body']['message'], true)
+                ' ' . print_r($response['body']['message'] ?? '', true)
             );
         }
 
