@@ -31,9 +31,10 @@ use PrestaShop\Module\PsAccounts\Log\Logger;
  */
 abstract class AbstractTokenRepository
 {
+    public const MAX_TRIES_BEFORE_CLEAN_CREDENTIALS_ON_REFRESH_TOKEN_FAILURE = 3;
+
     protected const TOKEN_TYPE = '';
     protected const TOKEN_KEY = '';
-    protected const MAX_TRIES_BEFORE_CLEAN_CREDENTIALS_ON_REFRESH_TOKEN_FAILURE = 3;
 
     /**
      * @var ConfigurationRepository
