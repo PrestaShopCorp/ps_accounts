@@ -19,25 +19,28 @@
  */
 
 use PrestaShop\Module\PsAccounts\Controller\AbstractShopRestController;
+use PrestaShop\Module\PsAccounts\DTO\Api\UpdateShopHmacRequest;
+use PrestaShop\Module\PsAccounts\Exception\HmacException;
 use PrestaShop\Module\PsAccounts\Service\ShopLinkAccountService;
 
 class ps_AccountsApiV1ShopHmacModuleFrontController extends AbstractShopRestController
 {
     /**
      * @param Shop $shop
-     * @param array $payload
+     * @param UpdateShopHmacRequest $request
      *
-     * @return array|void
+     * @return array
      *
+     * @throws HmacException
      * @throws Exception
      */
-    public function update($shop, array $payload)
+    public function update(Shop $shop, UpdateShopHmacRequest $request): array
     {
         /** @var ShopLinkAccountService $shopLinkAccountService */
         $shopLinkAccountService = $this->module->getService(ShopLinkAccountService::class);
 
         $shopLinkAccountService->writeHmac(
-            $payload['hmac'],
+            $request->hmac,
             (string) $shop->id, //$this->context->shop->id,
             _PS_ROOT_DIR_ . '/upload/'
         );

@@ -25,12 +25,15 @@ use Lcobucci\JWT\Parser;
 use Lcobucci\JWT\Signer\Hmac\Sha256;
 use Lcobucci\JWT\Signer\Key;
 use PrestaShop\Module\PsAccounts\Exception\Http\HttpException;
+use PrestaShop\Module\PsAccounts\Exception\Http\MethodNotAllowedException;
 use PrestaShop\Module\PsAccounts\Exception\Http\UnauthorizedException;
 use PrestaShop\Module\PsAccounts\Handler\Error\Sentry;
 use PrestaShop\Module\PsAccounts\Provider\RsaKeysProvider;
 use PrestaShop\Module\PsAccounts\Repository\ConfigurationRepository;
+use ReflectionException;
+use ReflectionParameter;
 
-abstract class AbstractRestController extends \ModuleFrontController implements RestControllerInterface
+abstract class AbstractRestController extends \ModuleFrontController
 {
     const METHOD_INDEX = 'index';
     const METHOD_SHOW = 'show';
@@ -60,16 +63,6 @@ abstract class AbstractRestController extends \ModuleFrontController implements 
     }
 
     /**
-     * @param mixed $id
-     *
-     * @return mixed
-     */
-    public function bindResource($id)
-    {
-        return $id;
-    }
-
-    /**
      * @return void
      *
      * @throws \Throwable
@@ -80,11 +73,16 @@ abstract class AbstractRestController extends \ModuleFrontController implements 
     {
         try {
             $payload = $this->decodePayload();
-            $this->dispatchVerb(
-                isset($payload['method']) && null !== $payload['method'] ? $payload['method'] : $_SERVER['REQUEST_METHOD'],
-                $payload
-            );
+            $method = $_SERVER['REQUEST_METHOD'];
+            // detect method from payload (hack with some shop server configuration)
+            if (isset($payload['method'])) {
+                $method = $payload['method'];
+                unset($payload['method']);
+            }
+            $this->dispatchVerb($method, $payload);
         } catch (HttpException $e) {
+            $this->module->getLogger()->error($e);
+
             $this->dieWithResponseJson([
                 'error' => true,
                 'message' => $e->getMessage(),
@@ -92,7 +90,7 @@ abstract class AbstractRestController extends \ModuleFrontController implements 
         } catch (\Exception $e) {
             Sentry::capture($e);
 
-            //$this->module->getLogger()->error($e);
+            $this->module->getLogger()->error($e);
 
             $this->dieWithResponseJson([
                 'error' => true,
@@ -123,69 +121,6 @@ abstract class AbstractRestController extends \ModuleFrontController implements 
     }
 
     /**
-     * @param array $payload
-     *
-     * @return array
-     *
-     * @throws \Exception
-     */
-    public function index(array $payload)
-    {
-        throw new \Exception('Method not implemented : ' . __METHOD__);
-    }
-
-    /**
-     * @param mixed $id
-     * @param array $payload
-     *
-     * @return array
-     *
-     * @throws \Exception
-     */
-    public function show($id, array $payload)
-    {
-        throw new \Exception('Method not implemented : ' . __METHOD__);
-    }
-
-    /**
-     * @param array $payload
-     *
-     * @return array
-     *
-     * @throws \Exception
-     */
-    public function store(array $payload)
-    {
-        throw new \Exception('Method not implemented : ' . __METHOD__);
-    }
-
-    /**
-     * @param mixed $id
-     * @param array $payload
-     *
-     * @return array
-     *
-     * @throws \Exception
-     */
-    public function update($id, array $payload)
-    {
-        throw new \Exception('Method not implemented : ' . __METHOD__);
-    }
-
-    /**
-     * @param mixed $id
-     * @param array $payload
-     *
-     * @return array
-     *
-     * @throws \Exception
-     */
-    public function delete($id, array $payload)
-    {
-        throw new \Exception('Method not implemented : ' . __METHOD__);
-    }
-
-    /**
      * @param string $httpMethod
      * @param array $payload
      *
@@ -195,42 +130,93 @@ abstract class AbstractRestController extends \ModuleFrontController implements 
      */
     protected function dispatchVerb($httpMethod, array $payload)
     {
-        $id = null;
-        if (array_key_exists($this->resourceId, $payload)) {
-            $id = $this->bindResource($payload[$this->resourceId]);
-        }
+        $id = array_key_exists($this->resourceId, $payload)
+            ? $payload[$this->resourceId]
+            : null;
 
         $statusCode = 200;
 
         switch ($httpMethod) {
             case 'GET':
-                if (null !== $id) {
-                    $content = $this->{self::METHOD_SHOW}($id, $payload);
-                } else {
-                    $content = $this->{self::METHOD_INDEX}($payload);
-                }
+                $method = null !== $id
+                    ? self::METHOD_SHOW
+                    : self::METHOD_INDEX;
                 break;
             case 'POST':
-                if (null !== $id) {
-                    $content = $this->{self::METHOD_UPDATE}($id, $payload);
-                } else {
-                    $statusCode = 201;
-                    $content = $this->{self::METHOD_STORE}($payload);
-                }
+                list($method, $statusCode) = null !== $id
+                    ? [self::METHOD_UPDATE, $statusCode]
+                    : [self::METHOD_STORE, 201];
                 break;
             case 'PUT':
             case 'PATCH':
-                $content = $this->{self::METHOD_UPDATE}($id, $payload);
+                $method = self::METHOD_UPDATE;
                 break;
             case 'DELETE':
                 $statusCode = 204;
-                $content = $this->{self::METHOD_DELETE}($id, $payload);
+                $method = self::METHOD_DELETE;
                 break;
             default:
                 throw new \Exception('Invalid Method : ' . $httpMethod);
         }
 
-        $this->dieWithResponseJson($content, $statusCode);
+        $this->dieWithResponseJson($this->invokeMethod($method, $id, $payload), $statusCode);
+    }
+
+    /**
+     * @param string $method
+     * @param mixed $id
+     * @param mixed $payload
+     *
+     * @return mixed
+     */
+    protected function invokeMethod(string $method, $id, $payload)
+    {
+        try {
+            $method = new \ReflectionMethod($this, $method);
+            $params = $method->getParameters();
+
+            $args = [];
+
+            if (null !== $id) {
+                $args[] = $this->buildResource($id);
+            }
+
+            if (null !== $payload) {
+                $args[] = $this->buildPayload($payload, $params[1]);
+            }
+
+            return $method->invokeArgs($this, $args);
+        } catch (ReflectionException $e) {
+            throw new MethodNotAllowedException();
+        }
+    }
+
+    /**
+     * @param mixed $id
+     *
+     * @return mixed
+     */
+    protected function buildResource($id)
+    {
+        return $id;
+    }
+
+    /**
+     * @param array $payload
+     * @param ReflectionParameter $reflectionParam
+     *
+     * @return array|object
+     *
+     * @throws ReflectionException
+     */
+    protected function buildPayload(array $payload, ReflectionParameter $reflectionParam)
+    {
+        if ($reflectionParam->getType()->isBuiltin()) {
+            return $payload;
+        } else {
+            // Instantiate DTO like value bag
+            return $reflectionParam->getClass()->newInstance($payload);
+        }
     }
 
     /**
