@@ -30,3 +30,6 @@ parameters:
   ps_accounts.oauth2_url_authorize: 'http://hydra:4444/oauth2/auth'
   ps_accounts.oauth2_url_access_token: 'http://hydra:4444/oauth2/token'
   ps_accounts.oauth2_url_resource_owner_details: 'http://hydra:4444/userinfo'
+
+  ps_accounts.uri_help_center_en: "https://help-center.prestashop.com/en/articles/8087001455634-i-cannot-log-in-to-the-back-office-of-my-edition-shop-with-my-prestashop-account"
+  ps_accounts.uri_help_center_fr: "https://help-center.prestashop.com/fr/articles/8087001455634-je-ne-peux-pas-me-connecter-au-back-office-de-ma-boutique-edition-avec-mon-compte-prestashop"

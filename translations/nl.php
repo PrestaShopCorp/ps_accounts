@@ -42,3 +42,4 @@ $_MODULE['<{ps_accounts}prestashop>content_6ed6a381a1de805e2b807f88a95faa2b'] = 
 $_MODULE['<{ps_accounts}prestashop>content_8905a5daaa6744846452108776efa036'] = 'Verbind met een andere methode';
 $_MODULE['<{ps_accounts}prestashop>content_653f49dc0e643470e7b4ae9855974bbd'] = 'Het e-mailadres is niet gekoppeld aan een PrestaShop backoffice account. Voor meer informatie, ga naar de [1]FAQ[/1]';
 $_MODULE['<{ps_accounts}prestashop>content_729f27762821b8ec88f1a656be7dff72'] = 'U moet uw account eerst verifiëren door op de link in de e-mail te klikken. Als u een nieuwe verificatielink moet ontvangen,[1]klik hier[/1]';
+$_MODULE['<{ps_accounts}prestashop>content_c8fc2e859e06da33e96d200b0106cfa3'] = 'Met deze account heeft u geen toegang tot de backoffice. Probeer een andere account of neem contact op met uw beheerder. [1]Ga naar het Helpcentrum[/1]';

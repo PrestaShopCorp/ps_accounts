@@ -117,6 +117,14 @@ class AdminLoginController extends AdminLoginControllerCore
             'mode' => self::PS_ACCOUNTS_LOGIN_MODE_LOCAL,
         ]));
 
+        $isoCode = $this->context->currentLocale->getCode();
+        $this->context->smarty->assign(
+            'uri_help_center',
+            0 !== strpos($isoCode, 'fr')
+                ? $this->psAccountsModule->getParameter('ps_accounts.uri_help_center_en')
+                : $this->psAccountsModule->getParameter('ps_accounts.uri_help_center_fr')
+        );
+
         $this->context->smarty->assign('loginError', Tools::getValue('loginError'));
         $this->context->smarty->assign('meta_title', '');
         $this->context->smarty->assign('ssoResendVerificationEmail', $this->psAccountsModule->getParameter('ps_accounts.sso_resend_verification_email_url'));

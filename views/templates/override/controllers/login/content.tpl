@@ -81,8 +81,8 @@
                             <span class="puik-alert__description">
                                 {if $loginError eq 'employee_not_found'}
                                     {l
-                                        s='The email address is not associated to a PrestaShop backoffice account. To learn more, go to the [1]FAQ[/1]'
-                                        tags=["<a class=\"puik-link\" href=\"#\" target=\"_blank\">"]
+                                        s='You cannot access the back office with this account. Try another account or contact your administrator. [1]Go to Help Center[/1]'
+                                        tags=["<a class=\"puik-link\" href=\"{$uri_help_center}\" target=\"_blank\">"]
                                         mod='ps_accounts'
                                     }
                                 {elseif $loginError eq 'email_not_verified'}
