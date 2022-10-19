@@ -9,6 +9,10 @@
  * Your PrestaShop database also has to respond locally to the Host and Port configured in the sources :
  * Ex: add local resolution in your /etc/hosts file
  *  127.0.0.1 mariadb
+ *
+ * TODO: Use a dedicated test Database
+ * TODO: Auto fix permissions on sources
+ * TODO: Create e2e test endpoint for live e2e tests
  */
 
 if (!getenv('_PS_ROOT_DIR_')) {
