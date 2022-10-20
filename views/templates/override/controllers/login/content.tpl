@@ -82,7 +82,7 @@
                                 {if $loginError eq 'employee_not_found'}
                                     {l
                                         s='You cannot access the back office with this account. Try another account or contact your administrator. [1]Go to Help Center[/1]'
-                                        tags=["<a class=\"puik-link\" href=\"{$uri_help_center}\" target=\"_blank\">"]
+                                        tags=["<a class=\"puik-link\" href=\"{$uriHelpCenter}\" target=\"_blank\">"]
                                         mod='ps_accounts'
                                     }
                                 {elseif $loginError eq 'email_not_verified'}

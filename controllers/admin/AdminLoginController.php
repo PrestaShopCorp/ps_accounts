@@ -118,16 +118,13 @@ class AdminLoginController extends AdminLoginControllerCore
         ]));
 
         $isoCode = $this->context->currentLocale->getCode();
-        $this->context->smarty->assign(
-            'uri_help_center',
-            0 !== strpos($isoCode, 'fr')
-                ? $this->psAccountsModule->getParameter('ps_accounts.uri_help_center_en')
-                : $this->psAccountsModule->getParameter('ps_accounts.uri_help_center_fr')
-        );
 
+        $this->context->smarty->assign('uriHelpCenter', $this->getUriHelpCenter($isoCode));
         $this->context->smarty->assign('loginError', Tools::getValue('loginError'));
         $this->context->smarty->assign('meta_title', '');
-        $this->context->smarty->assign('ssoResendVerificationEmail', $this->psAccountsModule->getParameter('ps_accounts.sso_resend_verification_email_url'));
+        $this->context->smarty->assign('ssoResendVerificationEmail',
+            $this->psAccountsModule->getParameter('ps_accounts.sso_resend_verification_email_url')
+        );
 
         return $this->context->smarty->createTemplate(
             $this->getPsAccountsTemplateDir() . $this->template, $this->context->smarty
@@ -155,5 +152,19 @@ class AdminLoginController extends AdminLoginControllerCore
             DIRECTORY_SEPARATOR . 'controllers' .
             DIRECTORY_SEPARATOR . 'login' .
             DIRECTORY_SEPARATOR;
+    }
+
+    /**
+     * @param string $isoCode
+     *
+     * @return mixed
+     *
+     * @throws Exception
+     */
+    private function getUriHelpCenter(string $isoCode)
+    {
+        return 0 !== strpos($isoCode, 'fr')
+            ? $this->psAccountsModule->getParameter('ps_accounts.uri_help_center_en')
+            : $this->psAccountsModule->getParameter('ps_accounts.uri_help_center_fr');
     }
 }
