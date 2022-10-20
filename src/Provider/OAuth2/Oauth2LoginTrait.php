@@ -101,8 +101,6 @@ trait Oauth2LoginTrait
     private function oauth2ErrorLog(string $msg): void
     {
         Logger::getInstance()->error('[OAuth2] ' . $msg);
-
-        // error_log('[OAuth2] ' . $msg);
     }
 
     private function getSessionReturnTo(): string
