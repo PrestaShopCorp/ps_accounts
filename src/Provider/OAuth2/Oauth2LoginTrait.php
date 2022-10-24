@@ -21,6 +21,7 @@
 namespace PrestaShop\Module\PsAccounts\Provider\OAuth2;
 
 use League\OAuth2\Client\Provider\Exception\IdentityProviderException;
+use PrestaShop\Module\PsAccounts\Log\Logger;
 use PrestaShop\OAuth2\Client\Provider\PrestaShop;
 use PrestaShop\OAuth2\Client\Provider\PrestaShopUser;
 use Symfony\Component\HttpFoundation\Session\SessionInterface;
@@ -99,7 +100,7 @@ trait Oauth2LoginTrait
 
     private function oauth2ErrorLog(string $msg): void
     {
-        error_log('[OAuth2] ' . $msg);
+        Logger::getInstance()->error('[OAuth2] ' . $msg);
     }
 
     private function getSessionReturnTo(): string

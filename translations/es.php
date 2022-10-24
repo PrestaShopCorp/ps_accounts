@@ -42,3 +42,4 @@ $_MODULE['<{ps_accounts}prestashop>content_6ed6a381a1de805e2b807f88a95faa2b'] = 
 $_MODULE['<{ps_accounts}prestashop>content_8905a5daaa6744846452108776efa036'] = 'Conectar con otro método';
 $_MODULE['<{ps_accounts}prestashop>content_653f49dc0e643470e7b4ae9855974bbd'] = 'La dirección de correo electrónico no está asociada a una cuenta de backoffice de PrestaShop. Para saber más, vaya a las [1]preguntas frecuentes[/1]';
 $_MODULE['<{ps_accounts}prestashop>content_729f27762821b8ec88f1a656be7dff72'] = 'Necesitas verificar tu cuenta primero haciendo clic en el enlace del correo electrónico. Si necesitas recibir un nuevo enlace de verificación,[1]haga clic aqui[/1]';
+$_MODULE['<{ps_accounts}prestashop>content_c8fc2e859e06da33e96d200b0106cfa3'] = 'No puede acceder al back office con esta cuenta. Pruebe con otra cuenta o póngase en contacto con su administrador. [1]Ir al Centro de Ayuda[/1]';

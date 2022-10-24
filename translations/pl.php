@@ -42,3 +42,4 @@ $_MODULE['<{ps_accounts}prestashop>content_6ed6a381a1de805e2b807f88a95faa2b'] = 
 $_MODULE['<{ps_accounts}prestashop>content_8905a5daaa6744846452108776efa036'] = 'Połącz się z inną metodą';
 $_MODULE['<{ps_accounts}prestashop>content_653f49dc0e643470e7b4ae9855974bbd'] = 'Adres e-mail nie jest powiązany z kontem PrestaShop backoffice. Aby dowiedzieć się więcej, przejdź do [1]FAQ[/1]';
 $_MODULE['<{ps_accounts}prestashop>content_729f27762821b8ec88f1a656be7dff72'] = 'Musisz najpierw zweryfikować swoje konto, klikając na link wiadomości. Jeśli chcesz otrzymać nowy link weryfikacyjny,[1]kliknij tutaj[/1]';
+$_MODULE['<{ps_accounts}prestashop>content_c8fc2e859e06da33e96d200b0106cfa3'] = 'Nie można uzyskać dostępu do zaplecza za pomocą tego konta. Spróbuj użyć innego konta lub skontaktuj się z administratorem. [1]Przejdź do Centrum Pomocy[/1]';
