@@ -43,3 +43,4 @@ $_MODULE['<{ps_accounts}prestashop>content_1483546116fd85ebd65dcc595c69e73e'] = 
 $_MODULE['<{ps_accounts}prestashop>content_653f49dc0e643470e7b4ae9855974bbd'] = 'La dirección de correo electrónico no está asociada a una cuenta de backoffice de PrestaShop. Para obtener más información, vaya a la [1]FAQ[/1]';
 $_MODULE['<{ps_accounts}prestashop>content_729f27762821b8ec88f1a656be7dff72'] = 'Primero tiene que activar su cuenta haciendo clic en el enlace del correo electrónico. Si necesita recibir un nuevo enlace de activación, [1]haga clic aquí[/1]';
 $_MODULE['<{ps_accounts}prestashop>content_476ff05d1175f9a35d268828caf300f2'] = 'Se ha producido un error durante el inicio de sesión, póngase en contacto con el soporte de PrestaShop';
+$_MODULE['<{ps_accounts}prestashop>content_c8fc2e859e06da33e96d200b0106cfa3'] = 'You cannot access the back office with this account. Try another account or contact your administrator. [1]Go to Help Center[/1]';
