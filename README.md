@@ -41,10 +41,10 @@ We aims to follow partially the Prestashop compatibility charts
 - [Compatibility Chart Prestashop 1.6 & 1.7](https://devdocs.prestashop.com/1.7/basics/installation/system-requirements/#php-compatibility-chart)
 - [Compatibility Chart Prestashop 8.1](https://devdocs.prestashop.com/8/basics/installation/system-requirements/#php-compatibility-chart)
 
-| ps_account version                      | Prestashop Version | PHP Version
-|---------------------------------------|-----|-------
-| 5.x | >=1.6 \|\| <1.7.5 | PHP 5.6 - 7.4   |        
-| 6.x | >=1.7.5 | PHP 5.6 - 8 |
+| ps_account version | Prestashop Version | PHP Version   |
+|--------------------|--------------------|---------------|
+| 5.x                | \>=1.6 && <1.7.5   | PHP 5.6 - 7.4 |        
+| 6.x                | \>=8.0.0           | PHP 7.2 - 8   |
 
 A pending question is about 
 
