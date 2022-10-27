@@ -33,6 +33,8 @@ class ShowTest extends FeatureTestCase
             'token' => $this->configuration->get(Configuration::PS_ACCOUNTS_FIREBASE_ID_TOKEN),
             'refresh_token' => $this->configuration->get(Configuration::PS_ACCOUNTS_FIREBASE_REFRESH_TOKEN),
         ], $json);
+
+        $this->assertEquals(0, $this->configuration->get(Configuration::PS_ACCOUNTS_FIREBASE_REFRESH_TOKEN_FAILURE));
     }
 
     /**

@@ -29,7 +29,8 @@ use PrestaShop\Module\PsAccounts\Api\Client\AccountsClient;
  */
 class ShopTokenRepository extends AbstractTokenRepository
 {
-    protected const TOKEN_TYPE = 'shop';
+    const TOKEN_TYPE = 'shop';
+    const TOKEN_KEY = 'token';
 
     /**
      * @return AccountsClient

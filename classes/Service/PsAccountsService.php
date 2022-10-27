@@ -123,7 +123,7 @@ class PsAccountsService
      */
     public function getToken()
     {
-        return (string) $this->shopTokenRepository->getToken();
+        return (string) $this->shopTokenRepository->getOrRefreshToken();
     }
 
     /**

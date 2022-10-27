@@ -347,7 +347,7 @@ class ConfigurationRepository
 
     /**
      * @param string $type
-     * 
+     *
      * @return int
      */
     public function getRefreshTokenFailure($type)
@@ -371,12 +371,12 @@ class ConfigurationRepository
      */
     public function updateRefreshTokenFailure($type, $attempt)
     {
-        switch($type) {
+        switch ($type) {
             case 'shop':
-                $this->configure->set(Configuration::PS_ACCOUNTS_FIREBASE_REFRESH_TOKEN_FAILURE, $attempt);
+                $this->configuration->set(Configuration::PS_ACCOUNTS_FIREBASE_REFRESH_TOKEN_FAILURE, (string) $attempt);
                 break;
             case 'user':
-                $this->configure->set(Configuration::PS_ACCOUNTS_USER_FIREBASE_REFRESH_TOKEN_FAILURE, $attempt);
+                $this->configuration->set(Configuration::PS_ACCOUNTS_USER_FIREBASE_REFRESH_TOKEN_FAILURE, (string) $attempt);
                 break;
             default:
                 break;
