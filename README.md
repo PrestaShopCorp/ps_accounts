@@ -39,7 +39,7 @@ If you need to install and test the module, [you can download the desired zip he
 
 We aims to follow partially the Prestashop compatibility charts
 - [Compatibility Chart Prestashop 1.6 & 1.7](https://devdocs.prestashop.com/1.7/basics/installation/system-requirements/#php-compatibility-chart)
-- [Compatibility Chart Prestashop 8.1](https://devdocs.prestashop.com/8/basics/installation/system-requirements/#php-compatibility-chart)
+- [Compatibility Chart Prestashop 8.0](https://devdocs.prestashop.com/8/basics/installation/system-requirements/#php-compatibility-chart)
 
 | ps_accounts version | Prestashop Version | PHP Version   |
 |---------------------|--------------------|---------------|
