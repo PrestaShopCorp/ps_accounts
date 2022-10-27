@@ -43,7 +43,7 @@ We aims to follow partially the Prestashop compatibility charts
 
 | ps_accounts version | Prestashop Version | PHP Version   |
 |---------------------|--------------------|---------------|
-| 5.x                 | \>=1.6 && <1.7.5   | PHP 5.6 - 7.4 |        
+| 5.x                 | \>=1.6 && <8.0.0   | PHP 5.6 - 7.4 |        
 | 6.x                 | \>=8.0.0           | PHP 7.2 - 8   |
 
 A pending question is about 
