@@ -243,7 +243,7 @@ abstract class GenericClient
         /** @var \Ps_accounts $module */
         $module = \Module::getInstanceByName('ps_accounts');
 
-        /** @phpstan-ignore-next-line  */
+        /* @phpstan-ignore-next-line  */
         $client->setDefaultOption(
             'verify',
             (bool) $module->getParameter('ps_accounts.check_api_ssl_cert')

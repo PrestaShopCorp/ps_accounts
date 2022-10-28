@@ -276,7 +276,7 @@ class Ps_accounts extends Module
     public function hookDisplayBackOfficeHeader($params)
     {
         // Multistore On/Off switch
-        /** @phpstan-ignore-next-line  */
+        /* @phpstan-ignore-next-line  */
         if ('AdminPreferences' === $this->context->controller->controller_name || !$this->getShopContext()->isShop17()) {
             $this->switchConfigMultishopMode();
         }
@@ -568,7 +568,7 @@ class Ps_accounts extends Module
      */
     public function getModuleEnvVar()
     {
-        /** @phpstan-ignore-next-line  */
+        /* @phpstan-ignore-next-line  */
         return strtoupper($this->name) . '_ENV';
     }
 
