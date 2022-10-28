@@ -53,8 +53,7 @@ abstract class AbstractTokenRepository
      */
     public function __construct(
         ConfigurationRepository $configuration
-    )
-    {
+    ) {
         $this->configuration = $configuration;
     }
 
@@ -170,7 +169,8 @@ abstract class AbstractTokenRepository
             $this->onRefreshTokenFailure();
         }
 
-        throw new RefreshTokenException('Unable to refresh ' . static::TOKEN_TYPE . ' token : ' . $response['httpCode'] . ' ' . print_r($response['body']['message'] ?? '', true));
+        $errorMsg = isset($response['body']['message']) ? $response['body']['message'] : '';
+        throw new RefreshTokenException('Unable to refresh ' . static::TOKEN_TYPE . ' token : ' . $response['httpCode'] . ' ' . print_r($errorMsg, true));
     }
 
     /**

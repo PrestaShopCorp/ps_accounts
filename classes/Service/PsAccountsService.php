@@ -236,7 +236,7 @@ class PsAccountsService
         /** @var ShopLinkAccountService $shopLinkAccountService */
         $shopLinkAccountService = $this->module->getService(ShopLinkAccountService::class);
 
-        $allShops = $shopProvider->getShopsTree($this->module->name);
+        $allShops = $shopProvider->getShopsTree((string) $this->module->name);
 
         $flattenShops = [];
 

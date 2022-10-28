@@ -30,6 +30,8 @@ class ApiResponseHandler
     /**
      * Format api response.
      *
+     * @param ResponseInterface $response
+     *
      * @return array
      */
     public function handleResponse(ResponseInterface $response)

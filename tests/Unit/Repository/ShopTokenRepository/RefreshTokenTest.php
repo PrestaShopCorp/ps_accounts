@@ -22,6 +22,7 @@ namespace PrestaShop\Module\PsAccounts\Tests\Unit\Repository\ShopTokenRepository
 
 use Exception;
 use Lcobucci\JWT\Token;
+use PrestaShop\Module\PsAccounts\Adapter\Link;
 use PrestaShop\Module\PsAccounts\Api\Client\AccountsClient;
 use PrestaShop\Module\PsAccounts\Exception\RefreshTokenException;
 use PrestaShop\Module\PsAccounts\Provider\ShopProvider;
@@ -135,7 +136,8 @@ class RefreshTokenTest extends TestCase
         return $this->getMockBuilder(AccountsClient::class)
             ->setConstructorArgs([
                 $this->module->getParameter('ps_accounts.accounts_api_url'),
-                $shopProvider
+                $shopProvider,
+                $this->module->getService(Link::class),
             ])
             ->setMethods($methods)
             ->getMock();
