@@ -8,6 +8,12 @@
          convertWarningsToExceptions="true"
          defaultTestSuite="unit"
 >
+  <filter>
+    <whitelist>
+      <directory suffix=".php">controller</directory>
+      <directory suffix=".php">src</directory>
+    </whitelist>
+  </filter>
   <testsuites>
     <testsuite name="all">
       <directory suffix="Test.php">./tests</directory>
