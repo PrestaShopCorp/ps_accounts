@@ -28,7 +28,7 @@ class Ps_accounts extends Module
 
     // Needed in order to retrieve the module version easier (in api call headers) than instanciate
     // the module each time to get the version
-    const VERSION = '5.2.5';
+    const VERSION = '5.3.1';
 
     /**
      * @var array
@@ -84,7 +84,7 @@ class Ps_accounts extends Module
 
         // We cannot use the const VERSION because the const is not computed by addons marketplace
         // when the zip is uploaded
-        $this->version = '5.2.5';
+        $this->version = '5.3.1';
 
         $this->module_key = 'abf2cd758b4d629b2944d3922ef9db73';
 
@@ -430,20 +430,29 @@ class Ps_accounts extends Module
             /** @var \PrestaShop\Module\PsAccounts\Adapter\Link $link */
             $link = $this->getService(\PrestaShop\Module\PsAccounts\Adapter\Link::class);
 
-            Cache::clean('Shop::setUrl_' . (int) $params['object']->id_shop);
+            Cache::clean('Shop::setUrl_' . (int) $params['object']->id);
 
-            $shop = new \Shop($params['object']->id_shop);
+            $shop = new \Shop($params['object']->id);
+
+            $domain = $params['object']->domain;
+            $sslDomain = $params['object']->domain_ssl;
 
             $response = $accountsApi->updateUserShop(new \PrestaShop\Module\PsAccounts\DTO\UpdateShop([
-                'shopId' => (string) $params['object']->id_shop,
+                'shopId' => (string) $params['object']->id,
                 'name' => $shop->name,
-                'domain' => 'http://' . $params['object']->domain,
-                'sslDomain' => 'https://' . $params['object']->domain_ssl,
+                'domain' => 'http://' . $domain,
+                'sslDomain' => 'https://' . $sslDomain,
                 'physicalUri' => $params['object']->physical_uri,
                 'virtualUri' => $params['object']->virtual_uri,
-                'boBaseUrl' => $link->getAdminLink('AdminModules', false, [], [
+                'boBaseUrl' => $link->getAdminLinkWithCustomDomain(
+                    $sslDomain,
+                    $domain,
+                    'AdminModules',
+                    false,
+                    [],
+                    [
                         'configure' => $this->name,
-                        'setShopContext' => 's-' . $params['object']->id_shop,
+                        'setShopContext' => 's-' . $params['object']->id,
                     ]
                 ),
             ]));
@@ -492,6 +501,9 @@ class Ps_accounts extends Module
 
         $shop = new \Shop($params['object']->id);
 
+        $domain = $params['object']->domain;
+        $sslDomain = $params['object']->domain_ssl;
+
         $response = $accountsApi->updateUserShop(new \PrestaShop\Module\PsAccounts\DTO\UpdateShop([
             'shopId' => (string) $params['object']->id,
             'name' => $params['object']->name,
@@ -499,7 +511,13 @@ class Ps_accounts extends Module
             'sslDomain' => 'https://' . $shop->domain_ssl,
             'physicalUri' => $shop->physical_uri,
             'virtualUri' => $shop->virtual_uri,
-            'boBaseUrl' => $link->getAdminLink('AdminModules', false, [], [
+            'boBaseUrl' => $link->getAdminLinkWithCustomDomain(
+                $sslDomain,
+                $domain,
+                'AdminModules',
+                false,
+                [],
+                [
                     'configure' => $this->name,
                     'setShopContext' => 's-' . $params['object']->id,
                 ]
