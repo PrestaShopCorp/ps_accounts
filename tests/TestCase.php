@@ -3,6 +3,7 @@
 namespace PrestaShop\Module\PsAccounts\Tests;
 
 use Db;
+use Exception;
 use Faker\Generator;
 use Lcobucci\JWT\Builder;
 use Lcobucci\JWT\Configuration;
@@ -54,7 +55,7 @@ class TestCase extends \PHPUnit\Framework\TestCase
 
         $this->faker = \Faker\Factory::create();
 
-        $this->module = Module::getInstanceByName('ps_accounts');
+        $this->module = $this->getModuleInstance();
 
         $this->configuration = $this->module->getService(
             ConfigurationAdapter::class
@@ -131,5 +132,22 @@ class TestCase extends \PHPUnit\Framework\TestCase
     public function rollback()
     {
         Db::getInstance()->execute('ROLLBACK');
+    }
+
+    /**
+     * @return Ps_accounts
+     *
+     * @throws Exception
+     */
+    private function getModuleInstance()
+    {
+        /** @var Ps_accounts|false $module */
+        $module = Module::getInstanceByName('ps_accounts');
+
+        if ($module === false) {
+            throw new Exception('Module not installed');
+        }
+
+        return $module;
     }
 }
