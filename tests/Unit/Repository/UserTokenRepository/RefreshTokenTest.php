@@ -27,6 +27,7 @@ use PrestaShop\Module\PsAccounts\Api\Client\SsoClient;
 use PrestaShop\Module\PsAccounts\Exception\RefreshTokenException;
 use PrestaShop\Module\PsAccounts\Repository\AbstractTokenRepository;
 use PrestaShop\Module\PsAccounts\Repository\UserTokenRepository;
+use PrestaShop\Module\PsAccounts\Service\ShopLinkAccountService;
 use PrestaShop\Module\PsAccounts\Tests\TestCase;
 
 class RefreshTokenTest extends TestCase
@@ -121,6 +122,10 @@ class RefreshTokenTest extends TestCase
 
         $this->assertEquals(0, $this->configurationRepository->getRefreshTokenFailure('shop'));
         $this->assertEquals(null, (string) $tokenRepos->getToken());
+
+        /** @var ShopLinkAccountService $linkAccountService */
+        $linkAccountService = $this->module->getService(ShopLinkAccountService::class);
+        $this->assertFalse($linkAccountService->isAccountLinked());
     }
 
     /**
