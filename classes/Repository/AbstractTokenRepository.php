@@ -20,11 +20,15 @@
 
 namespace PrestaShop\Module\PsAccounts\Repository;
 
+use Exception;
 use Lcobucci\JWT\Parser;
 use Lcobucci\JWT\Token;
 use Lcobucci\JWT\Token\InvalidTokenStructure;
+use Module;
 use PrestaShop\Module\PsAccounts\Exception\RefreshTokenException;
 use PrestaShop\Module\PsAccounts\Log\Logger;
+use PrestaShop\Module\PsAccounts\Service\ShopLinkAccountService;
+use Ps_accounts;
 
 /**
  * Class AbstractTokenRepository
@@ -60,7 +64,7 @@ abstract class AbstractTokenRepository
     /**
      * @return TokenClientInterface
      *
-     * @throws \Exception
+     * @throws Exception
      */
     abstract protected function client();
 
@@ -122,7 +126,7 @@ abstract class AbstractTokenRepository
     /**
      * @return bool
      *
-     * @throws \Exception
+     * @throws Exception
      */
     public function isTokenExpired()
     {
@@ -151,7 +155,7 @@ abstract class AbstractTokenRepository
      * @return Token|null idToken
      *
      * @throws RefreshTokenException
-     * @throws \Exception
+     * @throws Exception
      */
     public function refreshToken($refreshToken)
     {
@@ -180,7 +184,7 @@ abstract class AbstractTokenRepository
      * @return Token|null verified or refreshed token on success
      *
      * @throws RefreshTokenException
-     * @throws \Exception
+     * @throws Exception
      */
     public function verifyToken($idToken, $refreshToken)
     {
@@ -201,7 +205,7 @@ abstract class AbstractTokenRepository
         $attempt = $this->configuration->getRefreshTokenFailure(static::TOKEN_TYPE);
 
         if ($attempt >= (static::MAX_TRIES_BEFORE_CLEAN_CREDENTIALS_ON_REFRESH_TOKEN_FAILURE - 1)) {
-            $this->cleanupCredentials();
+            $this->onMaxRefreshTokenAttempts();
             $this->configuration->updateRefreshTokenFailure(static::TOKEN_TYPE, 0);
 
             return;
@@ -219,5 +223,21 @@ abstract class AbstractTokenRepository
     protected function onRefreshTokenSuccess()
     {
         $this->configuration->updateRefreshTokenFailure(static::TOKEN_TYPE, 0);
+    }
+
+    /**
+     * @return void
+     *
+     * @throws Exception
+     */
+    protected function onMaxRefreshTokenAttempts()
+    {
+        /** @var Ps_accounts $module */
+        $module = Module::getInstanceByName('ps_accounts');
+
+        /** @var ShopLinkAccountService $service */
+        $service = $module->getService(ShopLinkAccountService::class);
+
+        $service->resetLinkAccount();
     }
 }
