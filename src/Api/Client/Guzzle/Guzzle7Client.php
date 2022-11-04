@@ -21,6 +21,7 @@
 namespace PrestaShop\Module\PsAccounts\Api\Client\Guzzle;
 
 use GuzzleHttp\Client;
+use GuzzleHttp\Psr7\Response;
 
 /**
  * Construct the client with the new guzzle version of PrestaShop 8
@@ -68,7 +69,7 @@ class Guzzle7Client extends AbstractGuzzleClient
     /**
      * @phpstan-ignore-next-line
      *
-     * @param \GuzzleHttp\Psr7\Response $response
+     * @param Response $response
      *
      * @return array
      */
@@ -76,10 +77,9 @@ class Guzzle7Client extends AbstractGuzzleClient
     {
         $responseContents = $this->getResponseJson($response);
 
-        /* @phpstan-ignore-next-line */
         return [
-            'status' => $this->responseIsSuccessful($responseContents, $response->getStatusCode()), //@phpstan-ignore-line
-            'httpCode' => $response->getStatusCode(), //@phpstan-ignore-line
+            'status' => $this->responseIsSuccessful($responseContents, $response->getStatusCode()),
+            'httpCode' => $response->getStatusCode(),
             'body' => $responseContents,
         ];
     }
@@ -87,13 +87,12 @@ class Guzzle7Client extends AbstractGuzzleClient
     /**
      * @phpstan-ignore-next-line
      *
-     * @param \GuzzleHttp\Psr7\Response $response
+     * @param Response $response
      *
      * @return mixed
      */
     public function getResponseJson($response)
     {
-        /* @phpstan-ignore-next-line */
         return json_decode($response->getBody()->getContents(), true);
     }
 }

@@ -129,8 +129,8 @@ class PsAccountsPresenter implements PresenterInterface
                     'psAccountsIsInstalled' => true,
                     'psAccountsInstallLink' => null,
 
-                    'psAccountsIsEnabled' => $this->installer->isEnabled($moduleName),
-                    'psAccountsEnableLink' => $this->installer->getEnableUrl($moduleName, $psxName),
+                    'psAccountsIsEnabled' => $this->installer->isEnabled((string) $moduleName),
+                    'psAccountsEnableLink' => $this->installer->getEnableUrl((string) $moduleName, $psxName),
 
                     'psAccountsIsUptodate' => true,
                     'psAccountsUpdateLink' => null,
