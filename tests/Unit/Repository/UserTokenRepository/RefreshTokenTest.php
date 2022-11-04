@@ -134,7 +134,7 @@ class RefreshTokenTest extends TestCase
     /**
      * @param array $methods
      *
-     * @return \PHPUnit_Framework_MockObject_MockObject|AccountsClient
+     * @return \PHPUnit_Framework_MockObject_MockObject|SsoClient
      *
      * @throws \Exception
      */
