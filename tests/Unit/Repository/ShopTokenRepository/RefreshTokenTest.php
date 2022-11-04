@@ -107,9 +107,11 @@ class RefreshTokenTest extends TestCase
             ->willReturn($client);
 
         $tokenRepos->updateCredentials((string) $idToken, (string) $refreshToken);
-
         $this->configurationRepository->updateRefreshTokenFailure('shop', 0);
+
         $this->assertEquals(0, $this->configurationRepository->getRefreshTokenFailure('shop'));
+        $this->assertEquals($idToken, (string) $tokenRepos->getToken());
+        $this->assertEquals($refreshToken, (string) $tokenRepos->getRefreshToken());
 
         for ($i = 0; $i < AbstractTokenRepository::MAX_TRIES_BEFORE_CLEAN_CREDENTIALS_ON_REFRESH_TOKEN_FAILURE; $i++) {
             try {
@@ -120,6 +122,7 @@ class RefreshTokenTest extends TestCase
 
         $this->assertEquals(0, $this->configurationRepository->getRefreshTokenFailure('shop'));
         $this->assertEquals(null, (string) $tokenRepos->getToken());
+        $this->assertEquals(null, (string) $tokenRepos->getRefreshToken());
 
         /** @var ShopLinkAccountService $linkAccountService */
         $linkAccountService = $this->module->getService(ShopLinkAccountService::class);
