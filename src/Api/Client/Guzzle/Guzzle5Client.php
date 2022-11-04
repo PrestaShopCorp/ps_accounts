@@ -21,7 +21,6 @@
 namespace PrestaShop\Module\PsAccounts\Api\Client\Guzzle;
 
 use GuzzleHttp\Client;
-use GuzzleHttp\Message\ResponseInterface;
 
 /**
  * Construct the Guzzle client before PrestaShop 8

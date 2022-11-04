@@ -291,7 +291,7 @@ class Ps_accounts extends Module
     public function hookDisplayBackOfficeHeader($params)
     {
         // Multistore On/Off switch
-        /** @phpstan-ignore-next-line */
+        /* @phpstan-ignore-next-line */
         if ('AdminPreferences' === $this->context->controller->controller_name || !$this->getShopContext()->isShop17()) {
             $this->switchConfigMultishopMode();
         }
@@ -305,7 +305,7 @@ class Ps_accounts extends Module
     public function renderUpdateWarningView()
     {
         if ($this->getShopContext()->isShop17()) {
-            /** @phpstan-ignore-next-line */
+            /* @phpstan-ignore-next-line */
             return PrestaShop\PrestaShop\Adapter\SymfonyContainer::getInstance()
                 ->get('twig')
                 ->render('@Modules/ps_accounts/views/templates/backoffice/update_url_warning.twig');
@@ -322,7 +322,7 @@ class Ps_accounts extends Module
     public function renderDeleteWarningView()
     {
         if ($this->getShopContext()->isShop17()) {
-            /** @phpstan-ignore-next-line */
+            /* @phpstan-ignore-next-line */
             return PrestaShop\PrestaShop\Adapter\SymfonyContainer::getInstance()
                 ->get('twig')
                 ->render('@Modules/ps_accounts/views/templates/backoffice/delete_url_warning.twig');
