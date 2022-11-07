@@ -523,6 +523,13 @@ class Ps_accounts extends Module
         $domain = $params['object']->domain;
         $sslDomain = $params['object']->domain_ssl;
 
+//        // Load shop context in case of Symfony Command context
+//        if (!isset(Context::getContext()->shop)) {
+//            /** @var \PrestaShop\PrestaShop\Adapter\LegacyContextLoader $legacyContextLoader */
+//            $legacyContextLoader = $this->get('prestashop.adapter.legacy_context_loader');
+//            $legacyContextLoader->loadShopContext($shop->id);
+//        }
+
         $response = $accountsApi->updateUserShop(new \PrestaShop\Module\PsAccounts\DTO\UpdateShop([
             'shopId' => (string) $params['object']->id,
             'name' => $params['object']->name,
