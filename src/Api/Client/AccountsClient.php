@@ -25,13 +25,14 @@ use PrestaShop\Module\PsAccounts\Api\Client\Guzzle\GuzzleClientFactory;
 use PrestaShop\Module\PsAccounts\DTO\UpdateShop;
 use PrestaShop\Module\PsAccounts\Provider\ShopProvider;
 use PrestaShop\Module\PsAccounts\Repository\ShopTokenRepository;
+use PrestaShop\Module\PsAccounts\Repository\TokenClientInterface;
 use PrestaShop\Module\PsAccounts\Repository\UserTokenRepository;
 use PrestaShop\Module\PsAccounts\Service\ShopLinkAccountService;
 
 /**
  * Class ServicesAccountsClient
  */
-class AccountsClient
+class AccountsClient implements TokenClientInterface
 {
     /**
      * @var ShopProvider
