@@ -22,61 +22,27 @@ namespace PrestaShop\Module\PsAccounts\Repository;
 
 use Lcobucci\JWT\Parser;
 use Lcobucci\JWT\Token;
-use Lcobucci\JWT\Token\InvalidTokenStructure;
 use PrestaShop\Module\PsAccounts\Api\Client\AccountsClient;
-use PrestaShop\Module\PsAccounts\Exception\RefreshTokenException;
-use PrestaShop\Module\PsAccounts\Log\Logger;
 
-class ShopTokenRepository
+/**
+ * Class ShopTokenRepository
+ */
+class ShopTokenRepository extends AbstractTokenRepository
 {
-    /**
-     * @var ConfigurationRepository
-     */
-    private $configuration;
+    const TOKEN_TYPE = 'shop';
+    const TOKEN_KEY = 'token';
 
     /**
-     * ShopTokenService constructor.
+     * @return AccountsClient
      *
-     * @param ConfigurationRepository $configuration
+     * @throws \Exception
      */
-    public function __construct(
-        ConfigurationRepository $configuration
-    ) {
-        $this->configuration = $configuration;
-    }
-
-    /**
-     * @param bool $forceRefresh
-     *
-     * @return Token|null
-     *
-     * @throws \Throwable
-     */
-    public function getOrRefreshToken($forceRefresh = false)
+    protected function client()
     {
-        if (true === $forceRefresh || $this->isTokenExpired()) {
-            $refreshToken = $this->getRefreshToken();
-            if (is_string($refreshToken) && '' != $refreshToken) {
-                try {
-                    $this->updateCredentials(
-                        (string) $this->refreshToken($refreshToken),
-                        $refreshToken
-                    );
-                } catch (RefreshTokenException $e) {
-                    Logger::getInstance()->debug($e);
-                }
-            }
-        }
+        /** @var \Ps_accounts $module */
+        $module = \Module::getInstanceByName('ps_accounts');
 
-        return $this->getToken();
-    }
-
-    /**
-     * @return string
-     */
-    public function getRefreshToken()
-    {
-        return $this->configuration->getFirebaseRefreshToken();
+        return $module->getService(AccountsClient::class);
     }
 
     /**
@@ -92,73 +58,24 @@ class ShopTokenRepository
      */
     public function getTokenUuid()
     {
-        //return $this->getToken()->claims()->get('user_id');
         return $this->configuration->getShopUuid();
     }
 
     /**
-     * @param string $token
-     *
-     * @return Token|null
+     * @return string
      */
-    public function parseToken($token)
+    public function getRefreshToken()
     {
-        try {
-            return (new Parser())->parse((string) $token);
-        } catch (InvalidTokenStructure $e) {
-            return null;
-        }
+        return $this->configuration->getFirebaseRefreshToken();
     }
 
     /**
-     * @return bool
-     *
-     * @throws \Exception
+     * @return void
      */
-    public function isTokenExpired()
+    public function cleanupCredentials()
     {
-        // iat, exp
-        $token = $this->getToken();
-
-        return $token ? $token->isExpired(new \DateTime()) : true;
-    }
-
-    /**
-     * @param string $idToken
-     * @param string $refreshToken
-     *
-     * @return Token|null verified or refreshed token on success
-     *
-     * @throws RefreshTokenException
-     * @throws \Exception
-     */
-    public function verifyToken($idToken, $refreshToken)
-    {
-        $response = $this->getAccountsClient()->verifyToken($idToken);
-
-        if ($response && true === $response['status']) {
-            return $this->parseToken($idToken);
-        }
-
-        return $this->refreshToken($refreshToken);
-    }
-
-    /**
-     * @param string $refreshToken
-     *
-     * @return Token|null idToken
-     *
-     * @throws RefreshTokenException
-     * @throws \Exception
-     */
-    public function refreshToken($refreshToken)
-    {
-        $response = $this->getAccountsClient()->refreshToken($refreshToken);
-
-        if ($response && true === $response['status']) {
-            return $this->parseToken($response['body']['token']);
-        }
-        throw new RefreshTokenException('Unable to refresh shop token : ' . $response['httpCode'] . ' ' . print_r($response['body']['message'], true));
+        $this->configuration->updateShopUuid('');
+        $this->configuration->updateFirebaseIdAndRefreshTokens('', '');
     }
 
     /**
@@ -173,27 +90,5 @@ class ShopTokenRepository
 
         $this->configuration->updateShopUuid($token->getClaim('user_id'));
         $this->configuration->updateFirebaseIdAndRefreshTokens((string) $idToken, (string) $refreshToken);
-    }
-
-    /**
-     * @return void
-     */
-    public function cleanupCredentials()
-    {
-        $this->configuration->updateShopUuid('');
-        $this->configuration->updateFirebaseIdAndRefreshTokens('', '');
-    }
-
-    /**
-     * @return AccountsClient
-     *
-     * @throws \Exception
-     */
-    private function getAccountsClient()
-    {
-        /** @var \Ps_accounts $module */
-        $module = \Module::getInstanceByName('ps_accounts');
-
-        return $module->getService(AccountsClient::class);
     }
 }

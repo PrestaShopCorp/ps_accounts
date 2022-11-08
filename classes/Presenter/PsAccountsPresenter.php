@@ -100,7 +100,7 @@ class PsAccountsPresenter implements PresenterInterface
     {
         $shopContext = $this->shopProvider->getShopContext();
 
-        $moduleName = $this->module->name;
+        $moduleName = (string) $this->module->name;
 
         $unlinkedShops = $this->shopProvider->getUnlinkedShops(
             $psxName,

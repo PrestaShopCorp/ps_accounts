@@ -276,6 +276,7 @@ class Ps_accounts extends Module
     public function hookDisplayBackOfficeHeader($params)
     {
         // Multistore On/Off switch
+        /* @phpstan-ignore-next-line  */
         if ('AdminPreferences' === $this->context->controller->controller_name || !$this->getShopContext()->isShop17()) {
             $this->switchConfigMultishopMode();
         }
@@ -585,6 +586,7 @@ class Ps_accounts extends Module
      */
     public function getModuleEnvVar()
     {
+        /* @phpstan-ignore-next-line  */
         return strtoupper($this->name) . '_ENV';
     }
 
@@ -635,7 +637,7 @@ class Ps_accounts extends Module
         $psAccountsPresenter = $this->getService(\PrestaShop\Module\PsAccounts\Presenter\PsAccountsPresenter::class);
 
         Media::addJsDef([
-            'contextPsAccounts' => $psAccountsPresenter->present($this->name),
+            'contextPsAccounts' => $psAccountsPresenter->present((string) $this->name),
         ]);
     }
 

@@ -3,11 +3,14 @@
 namespace PrestaShop\Module\PsAccounts\Tests;
 
 use Db;
+use Exception;
 use Faker\Generator;
 use Lcobucci\JWT\Builder;
 use Lcobucci\JWT\Configuration;
 use Lcobucci\JWT\Token;
 use Module;
+use PrestaShop\Module\PsAccounts\Adapter\Configuration as ConfigurationAdapter;
+use PrestaShop\Module\PsAccounts\Repository\ConfigurationRepository;
 use Ps_accounts;
 
 class TestCase extends \PHPUnit\Framework\TestCase
@@ -23,9 +26,14 @@ class TestCase extends \PHPUnit\Framework\TestCase
     public $module;
 
     /**
-     * @var \PrestaShop\Module\PsAccounts\Adapter\Configuration;
+     * @var ConfigurationAdapter
      */
     public $configuration;
+
+    /**
+     * @var ConfigurationRepository
+     */
+    public $configurationRepository;
 
     /**
      * @var bool
@@ -47,10 +55,14 @@ class TestCase extends \PHPUnit\Framework\TestCase
 
         $this->faker = \Faker\Factory::create();
 
-        $this->module = Module::getInstanceByName('ps_accounts');
+        $this->module = $this->getModuleInstance();
 
         $this->configuration = $this->module->getService(
-            \PrestaShop\Module\PsAccounts\Adapter\Configuration::class
+            ConfigurationAdapter::class
+        );
+
+        $this->configurationRepository = $this->module->getService(
+            ConfigurationRepository::class
         );
     }
 
@@ -120,5 +132,22 @@ class TestCase extends \PHPUnit\Framework\TestCase
     public function rollback()
     {
         Db::getInstance()->execute('ROLLBACK');
+    }
+
+    /**
+     * @return Ps_accounts
+     *
+     * @throws Exception
+     */
+    private function getModuleInstance()
+    {
+        /** @var Ps_accounts|false $module */
+        $module = Module::getInstanceByName('ps_accounts');
+
+        if ($module === false) {
+            throw new Exception('Module not installed');
+        }
+
+        return $module;
     }
 }

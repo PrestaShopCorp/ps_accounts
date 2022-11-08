@@ -20,13 +20,14 @@
 
 namespace PrestaShop\Module\PsAccounts\Tests\Unit\Repository\UserTokenRepository;
 
+use Exception;
 use Lcobucci\JWT\Token;
 use PrestaShop\Module\PsAccounts\Api\Client\AccountsClient;
 use PrestaShop\Module\PsAccounts\Api\Client\SsoClient;
 use PrestaShop\Module\PsAccounts\Exception\RefreshTokenException;
-use PrestaShop\Module\PsAccounts\Repository\ConfigurationRepository;
-use PrestaShop\Module\PsAccounts\Repository\ShopTokenRepository;
+use PrestaShop\Module\PsAccounts\Repository\AbstractTokenRepository;
 use PrestaShop\Module\PsAccounts\Repository\UserTokenRepository;
+use PrestaShop\Module\PsAccounts\Service\ShopLinkAccountService;
 use PrestaShop\Module\PsAccounts\Tests\TestCase;
 
 class RefreshTokenTest extends TestCase
@@ -34,9 +35,9 @@ class RefreshTokenTest extends TestCase
     /**
      * @test
      *
-     * @throws \Exception
+     * @throws Exception
      */
-    public function itShouldHandleResponseSuccess()
+    public function itShouldRefreshTokenWhenExpired()
     {
         $idToken = $this->makeJwtToken(new \DateTimeImmutable('yesterday'), [
             'user_id' => $this->faker->uuid,
@@ -47,14 +48,7 @@ class RefreshTokenTest extends TestCase
 
         $refreshToken = $this->makeJwtToken(new \DateTimeImmutable('+1 year'));
 
-        /** @var ConfigurationRepository $configuration */
-        $configuration = $this->module->getService(ConfigurationRepository::class);
-
-        /** @var UserTokenRepository $tokenRepos */
-        $tokenRepos = $this->getMockBuilder(UserTokenRepository::class)
-            ->setConstructorArgs([$configuration])
-            ->setMethods(['refreshToken'])
-            ->getMock();
+        $tokenRepos = $this->getUserTokenRepositoryMock(['refreshToken']);
         $tokenRepos->method('refreshToken')
             ->willReturn($idTokenRefreshed);
 
@@ -68,36 +62,100 @@ class RefreshTokenTest extends TestCase
     /**
      * @test
      *
-     * @throws \Exception
+     * @throws Exception
      */
-    public function itShouldHandleResponseError()
+    public function itShouldThrowExceptionOnErrorResponse()
     {
+        $refreshToken = $this->makeJwtToken(new \DateTimeImmutable('+1 year'));
+
+        $client = $this->getSsoClientMock(['refreshToken']);
+        $client->method('refreshToken')
+            ->willReturn([
+                'status' => false,
+                'httpCode' => 403
+            ]);
+
+        $tokenRepos = $this->getUserTokenRepositoryMock(['client']);
+        $tokenRepos->method('client')
+            ->willReturn($client);
+
         $this->expectException(RefreshTokenException::class);
 
-        $idToken = $this->makeJwtToken(new \DateTimeImmutable('tomorrow'), [
+        $tokenRepos->refreshToken((string) $refreshToken);
+    }
+
+    /**
+     * @test
+     */
+    public function itShouldCleanupCredentialsOnFailure()
+    {
+        $idToken = $this->makeJwtToken(new \DateTimeImmutable('yesterday'), [
             'user_id' => $this->faker->uuid,
-            'email' => $this->faker->safeEmail,
         ]);
 
         $refreshToken = $this->makeJwtToken(new \DateTimeImmutable('+1 year'));
 
-        /** @var ConfigurationRepository $configuration */
-        $configuration = $this->module->getService(ConfigurationRepository::class);
+        $client = $this->getSsoClientMock(['refreshToken']);
+        $client->method('refreshToken')
+            ->willReturn([
+                'status' => false,
+                'httpCode' => 403
+            ]);
 
-        /** @var UserTokenRepository $tokenRepos */
-        $tokenRepos = $this->getMockBuilder(UserTokenRepository::class)
-            ->setConstructorArgs([$configuration])
-            ->setMethods(['refreshToken'])
-            ->getMock();
-        $tokenRepos->method('refreshToken')
-            ->willThrowException(new RefreshTokenException());
+        $tokenRepos = $this->getUserTokenRepositoryMock(['client']);
+        $tokenRepos->method('client')
+            ->willReturn($client);
 
         $tokenRepos->updateCredentials((string) $idToken, (string) $refreshToken);
+        $this->configurationRepository->updateRefreshTokenFailure('user', 0);
 
-        $this->assertEquals((string) $idToken, $tokenRepos->getToken());
+        $this->assertEquals(0, $this->configurationRepository->getRefreshTokenFailure('user'));
+        $this->assertEquals($idToken, (string) $tokenRepos->getToken());
+        $this->assertEquals($refreshToken, (string) $tokenRepos->getRefreshToken());
 
-        $this->assertEquals((string) $refreshToken, $tokenRepos->getRefreshToken());
+        for ($i = 0; $i < AbstractTokenRepository::MAX_TRIES_BEFORE_CLEAN_CREDENTIALS_ON_REFRESH_TOKEN_FAILURE; $i++) {
+            try {
+                $tokenRepos->refreshToken((string) $refreshToken);
+            } catch (RefreshTokenException $e) {
+            }
+        }
 
-        $tokenRepos->refreshToken((string) $refreshToken);
+        $this->assertEquals(0, $this->configurationRepository->getRefreshTokenFailure('user'));
+        $this->assertEquals(null, (string) $tokenRepos->getToken());
+        $this->assertEquals(null, (string) $tokenRepos->getRefreshToken());
+
+        /** @var ShopLinkAccountService $linkAccountService */
+        $linkAccountService = $this->module->getService(ShopLinkAccountService::class);
+        $this->assertFalse($linkAccountService->isAccountLinked());
+    }
+
+    /**
+     * @param array $methods
+     *
+     * @return \PHPUnit_Framework_MockObject_MockObject|SsoClient
+     *
+     * @throws \Exception
+     */
+    protected function getSsoClientMock(array $methods = [])
+    {
+        return $this->getMockBuilder(SsoClient::class)
+            ->setConstructorArgs([
+                $this->module->getParameter('ps_accounts.sso_api_url')
+            ])
+            ->setMethods($methods)
+            ->getMock();
+    }
+
+    /**
+     * @param array $methods
+     *
+     * @return \PHPUnit_Framework_MockObject_MockObject|UserTokenRepository
+     */
+    protected function getUserTokenRepositoryMock(array $methods = [])
+    {
+        return $this->getMockBuilder(UserTokenRepository::class)
+            ->setConstructorArgs([$this->configurationRepository])
+            ->setMethods($methods)
+            ->getMock();
     }
 }

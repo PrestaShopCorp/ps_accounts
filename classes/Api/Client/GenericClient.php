@@ -132,6 +132,7 @@ abstract class GenericClient
     {
         $response = $this->getClient()->post($this->getRoute(), $options);
         $responseHandler = new ApiResponseHandler();
+        /** @phpstan-ignore-next-line  */
         $response = $responseHandler->handleResponse($response);
         // If response is not successful only
         if (\Configuration::get('PS_ACCOUNTS_DEBUG_LOGS_ENABLED') && !$response['status']) {
@@ -159,6 +160,7 @@ abstract class GenericClient
     {
         $response = $this->getClient()->patch($this->getRoute(), $options);
         $responseHandler = new ApiResponseHandler();
+        /** @phpstan-ignore-next-line  */
         $response = $responseHandler->handleResponse($response);
         // If response is not successful only
         if (\Configuration::get('PS_ACCOUNTS_DEBUG_LOGS_ENABLED') && !$response['status']) {
@@ -186,6 +188,7 @@ abstract class GenericClient
     {
         $response = $this->getClient()->get($this->getRoute(), $options);
         $responseHandler = new ApiResponseHandler();
+        /** @phpstan-ignore-next-line  */
         $response = $responseHandler->handleResponse($response);
         // If response is not successful only
         if (\Configuration::get('PS_ACCOUNTS_DEBUG_LOGS_ENABLED') && !$response['status']) {
@@ -213,6 +216,7 @@ abstract class GenericClient
     {
         $response = $this->getClient()->delete($this->getRoute(), $options);
         $responseHandler = new ApiResponseHandler();
+        /** @phpstan-ignore-next-line  */
         $response = $responseHandler->handleResponse($response);
         // If response is not successful only
         if (\Configuration::get('PS_ACCOUNTS_DEBUG_LOGS_ENABLED') && !$response['status']) {
@@ -239,6 +243,7 @@ abstract class GenericClient
         /** @var \Ps_accounts $module */
         $module = \Module::getInstanceByName('ps_accounts');
 
+        /* @phpstan-ignore-next-line  */
         $client->setDefaultOption(
             'verify',
             (bool) $module->getParameter('ps_accounts.check_api_ssl_cert')
