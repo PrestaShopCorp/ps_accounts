@@ -90,7 +90,7 @@ jobs:
 
       - name: PHPUnit tests
         run: |
-          PS_VERSION="${{ matrix.presta-versions }}" make phpunit
+          PHPUNIT_PS_VERSION="${{ matrix.presta-versions }}" make phpunit
 
   header-stamp:
     name: Check license headers
