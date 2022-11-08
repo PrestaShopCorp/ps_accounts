@@ -31,10 +31,10 @@ jobs:
         presta-versions: ["latest"]
     steps:
       - name: Checkout
-        uses: actions/checkout@v2.0.0
+        uses: actions/checkout@v3
 
       - name: Cache vendor folder
-        uses: actions/cache@v1
+        uses: actions/cache@v3
         with:
           path: vendor
           key: php-${{ hashFiles('composer.lock') }}
@@ -66,16 +66,16 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
-        uses: actions/checkout@v2.0.0
+        uses: actions/checkout@v3
 
       - name: Cache vendor folder
-        uses: actions/cache@v1
+        uses: actions/cache@v3
         with:
           path: vendor
           key: php-${{ hashFiles('composer.lock') }}
 
       - name: Cache composer folder
-        uses: actions/cache@v1
+        uses: actions/cache@v3
         with:
           path: ~/.composer/cache
           key: php-composer-cache
@@ -96,16 +96,16 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
 
       - name: Cache vendor folder
-        uses: actions/cache@v1
+        uses: actions/cache@v3
         with:
           path: vendor
           key: php-${{ hashFiles('composer.lock') }}
 
       - name: Cache composer folder
-        uses: actions/cache@v1
+        uses: actions/cache@v3
         with:
           path: ~/.composer/cache
           key: php-composer-cache

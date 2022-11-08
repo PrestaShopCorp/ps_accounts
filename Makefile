@@ -122,7 +122,8 @@ endif
 	docker container exec test-phpunit sh -c "chown -R www-data:www-data ./modules/ps_accounts"
 	docker container exec -u www-data test-phpunit sh -c "sleep 1 && php -d memory_limit=-1 ./bin/console prestashop:module install ps_accounts"
 	@docker container exec -u www-data test-phpunit sh -c "echo \"Testing module v\`cat /var/www/html/modules/ps_accounts/config.xml | grep '<version>' | sed 's/^.*\[CDATA\[\(.*\)\]\].*/\1/'\`\n\""
-	docker container exec -u www-data --workdir /var/www/html/modules/ps_accounts test-phpunit ./vendor/bin/phpunit
+	docker container exec test-phpunit sh -c "pecl install xdebug && docker-php-ext-enable xdebug"
+	docker container exec -u www-data --workdir /var/www/html/modules/ps_accounts test-phpunit sh -c "XDEBUG_MODE=coverage ./vendor/bin/phpunit --coverage-text"
 	@echo phpunit passed
 
 phpunit-cleanup:
