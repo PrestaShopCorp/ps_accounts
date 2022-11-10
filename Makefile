@@ -109,26 +109,43 @@ endif
 	  --configuration=/web/module/tests/phpstan/${NEON_FILE}
 	docker volume rm ps-volume
 
+## target: phpunit                                - Start phpunit
+#phpunit: phpunit-cleanup
+#ifndef DOCKER
+#    $(error "DOCKER is unavailable on your system")
+#endif
+#	docker run --rm -d -e PS_DOMAIN=localhost -e PS_ENABLE_SSL=0 -e PS_DEV_MODE=1 --name test-phpunit prestashop/docker-internal-images:${PHPUNIT_PS_VERSION}
+#	-docker container exec -u www-data test-phpunit sh -c "sleep 1 && php -d memory_limit=-1 ./bin/console prestashop:module uninstall ps_accounts"
+#	docker cp . test-phpunit:/var/www/html/modules/ps_accounts
+#	docker cp ./config/config.yml.dist test-phpunit:/var/www/html/modules/ps_accounts/config/config.yml
+#	docker container exec test-phpunit sh -c "chown -R www-data:www-data ./modules/ps_accounts"
+#	docker container exec -u www-data test-phpunit sh -c "sleep 1 && php -d memory_limit=-1 ./bin/console prestashop:module install ps_accounts"
+#	@docker container exec -u www-data test-phpunit sh -c "echo \"Testing module v\`cat /var/www/html/modules/ps_accounts/config.xml | grep '<version>' | sed 's/^.*\[CDATA\[\(.*\)\]\].*/\1/'\`\n\""
+#	docker container exec -u www-data --workdir /var/www/html/modules/ps_accounts test-phpunit ./vendor/bin/phpunit
+#	@echo phpunit passed
+#
+#phpunit-cleanup:
+#	-docker container rm -f test-phpunit
+
 # target: phpunit                                - Start phpunit
-phpunit: phpunit-cleanup
-ifndef DOCKER
-    $(error "DOCKER is unavailable on your system")
-endif
-	docker run --rm -d -e PS_DOMAIN=localhost -e PS_ENABLE_SSL=0 -e PS_DEV_MODE=1 --name test-phpunit prestashop/docker-internal-images:1.7
-	-docker container exec -u www-data test-phpunit sh -c "sleep 1 && php -d memory_limit=-1 ./bin/console prestashop:module uninstall ps_accounts"
-	docker cp . test-phpunit:/var/www/html/modules/ps_accounts
-	docker cp ./config/config.yml.dist test-phpunit:/var/www/html/modules/ps_accounts/config/config.yml
-	docker container exec -u www-data test-phpunit sh -c "sleep 1 && php -d memory_limit=-1 ./bin/console prestashop:module install ps_accounts"
-	@docker container exec -u www-data test-phpunit sh -c "echo \"Testing module v\`cat /var/www/html/modules/ps_accounts/config.xml | grep '<version>' | sed 's/^.*\[CDATA\[\(.*\)\]\].*/\1/'\`\n\""
-	docker container exec -u www-data --workdir /var/www/html/modules/ps_accounts test-phpunit ./vendor/bin/phpunit
-	@echo phpunit passed
-
-phpunit-cleanup:
-	-docker container rm -f test-phpunit
-
-phpunit-debug:
-	docker container exec -u www-data --workdir /var/www/html/modules/ps_accounts test-phpunit ./vendor/bin/phpunit
-	@echo phpunit passed
+DOCKER_INTERNAL=prestashop/docker-internal-images:nightly
+phpunit:
+#	-docker container rm -f phpunit
+	docker run --rm -ti \
+		--name phpunit \
+		-e PS_DOMAIN=localhost \
+		-e PS_ENABLE_SSL=0 \
+		-e PS_DEV_MODE=1 \
+		-v ${PWD}:/var/www/html/modules/ps_accounts \
+		-w /var/www/html/modules/ps_accounts \
+		${DOCKER_INTERNAL} \
+		sh -c " \
+			service mysql start && \
+			service apache2 start && \
+			../../bin/console prestashop:module install ps_accounts && \
+			./vendor/bin/phpunit --colors=always || bash \
+		      "
+		@echo phpunit passed
 
 vendor/phpunit/phpunit:
 	./composer.phar install
@@ -144,4 +161,5 @@ fix-lint: vendor/bin/php-cs-fixer
 
 vendor/bin/php-cs-fixer:
 	./composer.phar install
+
 

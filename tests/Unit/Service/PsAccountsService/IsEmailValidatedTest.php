@@ -41,7 +41,7 @@ class IsEmailValidatedTest extends TestCase
 
         $tokenRepos->updateCredentials(
             $this->makeFirebaseToken(null, ['email_verified' => false]),
-            base64_encode($this->faker->name)
+            null //base64_encode($this->faker->name)
         );
 
         /** @var PsAccountsService $service */
