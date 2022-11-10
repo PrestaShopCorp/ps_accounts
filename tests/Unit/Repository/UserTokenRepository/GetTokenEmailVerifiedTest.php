@@ -45,7 +45,7 @@ class GetTokenEmailVerifiedTest extends TestCase
             'email_verified' => false,
         ]);
 
-        $refreshToken = $this->makeJwtToken(new \DateTimeImmutable('+1 year'));
+        $refreshToken = null; //$this->makeJwtToken(new \DateTimeImmutable('+1 year'));
 
         /** @var UserTokenRepository $tokenRepos */
         $tokenRepos = $this->module->getService(UserTokenRepository::class);
