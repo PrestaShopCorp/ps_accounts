@@ -18,7 +18,7 @@ default: build
 
 # target: help                                   - Get help on this file
 help:
-	@egrep "^#" Makefile
+	@egrep "^# target" Makefile
 
 # target: build                                  - Clean up the repository
 clean:
@@ -111,6 +111,7 @@ endif
 	docker volume rm ps-volume
 
 # target: phpunit                                - Start phpunit
+# FIXME: create two command to run test (feature with apache2 started et unit with just mysql
 DOCKER_INTERNAL=prestashop/docker-internal-images:nightly
 #PHPUNIT_CMD="./vendor/bin/phpunit --colors=always || bash"
 PHPUNIT_CMD="./vendor/bin/phpunit --colors=always"
