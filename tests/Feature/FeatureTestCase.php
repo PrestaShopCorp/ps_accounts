@@ -11,6 +11,7 @@ use Lcobucci\JWT\Signer\Key;
 use PrestaShop\Module\PsAccounts\Api\Client\Guzzle\AbstractGuzzleClient;
 use PrestaShop\Module\PsAccounts\Api\Client\Guzzle\GuzzleClientFactory;
 use PrestaShop\Module\PsAccounts\Provider\RsaKeysProvider;
+use PrestaShop\Module\PsAccounts\Repository\UserTokenRepository;
 use PrestaShop\Module\PsAccounts\Tests\TestCase;
 
 class FeatureTestCase extends TestCase
@@ -34,6 +35,11 @@ class FeatureTestCase extends TestCase
      * @var RsaKeysProvider
      */
     protected $rsaKeysProvider;
+
+    /**
+     * @var UserTokenRepository
+     */
+    protected $userTokenRepository;
 
     /**
      * @throws \Exception
@@ -63,8 +69,10 @@ class FeatureTestCase extends TestCase
         $this->client = $this->guzzleClient->getClient();
 
         $this->rsaKeysProvider = $this->module->getService(RsaKeysProvider::class);
-
         $this->rsaKeysProvider->regenerateKeys();
+
+        $this->userTokenRepository = $this->module->getService(UserTokenRepository::class);
+        $this->userTokenRepository->cleanupCredentials();
 
         // FIXME: Link::getModuleLink
         // FIXME: OR activate friendly urls

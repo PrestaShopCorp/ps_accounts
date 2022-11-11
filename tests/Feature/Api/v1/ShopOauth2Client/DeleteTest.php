@@ -18,7 +18,10 @@ class DeleteTest extends FeatureTestCase
 
         $response = $this->client->delete('/module/ps_accounts/apiV1ShopOauth2Client', [
             'headers' => [
-                AbstractRestController::TOKEN_HEADER => (string) $this->encodePayload(['shop_id' => 1])
+                AbstractRestController::TOKEN_HEADER => (string) $this->encodePayload([
+                    'method' => 'DELETE',
+                    'shop_id' => 1,
+                ])
             ],
         ]);
 
