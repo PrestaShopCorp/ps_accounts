@@ -115,7 +115,7 @@ phpstan: check-docker
 # target: phpunit                                - Start phpunit
 # FIXME: create two command to run test (feature with apache2 started et unit with just mysql
 #PHPUNIT_CMD="./vendor/bin/phpunit --colors=always || bash"
-PHPUNIT_CMD="./vendor/bin/phpunit"
+#PHPUNIT_CMD="./vendor/bin/phpunit"
 phpunit: check-docker
 #	-docker container rm -f phpunit
 	@docker run --rm \
@@ -129,10 +129,11 @@ phpunit: check-docker
 		sh -c " \
 			service mysql start && \
 			service apache2 start && \
+			if [ ! -f ./config/config.yml ]; then cp ./config/config.yml.dist ./config/config.yml; fi && \
 			../../bin/console prestashop:module install ps_accounts && \
 			echo \"Testing module v\`cat config.xml | grep '<version>' | sed 's/^.*\[CDATA\[\(.*\)\]\].*/\1/'\`\n\" && \
 			chown -R www-data:www-data ../../var/logs && \
-			${PHPUNIT_CMD} \
+			XDEBUG_MODE=coverage ./vendor/bin/phpunit \
 		      "
 	@echo phpunit passed
 
