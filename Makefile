@@ -115,7 +115,7 @@ phpstan: check-docker
 # target: phpunit                                - Start phpunit
 # FIXME: create two command to run test (feature with apache2 started et unit with just mysql
 #PHPUNIT_CMD="./vendor/bin/phpunit --colors=always || bash"
-PHPUNIT_CMD="./vendor/bin/phpunit --colors=always"
+PHPUNIT_CMD="./vendor/bin/phpunit"
 phpunit: check-docker
 #	-docker container rm -f phpunit
 	@docker run --rm -ti \
