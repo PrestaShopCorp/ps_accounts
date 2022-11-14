@@ -117,7 +117,7 @@ phpstan: check-docker
 #PHPUNIT_CMD="./vendor/bin/phpunit --colors=always || bash"
 PHPUNIT_CMD="./vendor/bin/phpunit --colors=always"
 phpunit: check-docker
-	-docker container rm -f phpunit
+#	-docker container rm -f phpunit
 	@docker run --rm -ti \
 		--name phpunit \
 		-e PS_DOMAIN=localhost \
