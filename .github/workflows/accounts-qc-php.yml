@@ -85,11 +85,11 @@ jobs:
 
 #      - name: PHPUnit tests 1.7
 #        run: |
-#          PHPUNIT_PS_VERSION="1.7" make phpunit
+#          DOCKER_INTERNAL="1.7" make phpunit
 
       - name: PHPUnit tests nightly
         run: |
-          PHPUNIT_PS_VERSION="nightly" make phpunit
+          DOCKER_INTERNAL="nightly" make phpunit
 
   header-stamp:
     name: Check license headers

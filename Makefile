@@ -11,7 +11,7 @@ PHPSTAN_VERSION ?= 0.12
 PHPUNIT_VERSION ?= latest
 PS_VERSION ?= latest #1.7.7.1
 NEON_FILE ?= phpstan-PS-1.7.neon
-PHPUNIT_PS_VERSION ?= nightly  # 1.7|nightly
+DOCKER_INTERNAL ?= nightly # 1.7|nightly
 
 # target: default                                - Calling build by default
 default: build
@@ -94,11 +94,13 @@ test-back: lint-back phpstan phpunit
 lint-back:
 	vendor/bin/php-cs-fixer fix --dry-run --diff --using-cache=no --diff-format udiff
 
-# target: phpstan                                - Start phpstan
-phpstan:
+check-docker:
 ifndef DOCKER
     $(error "DOCKER is unavailable on your system")
 endif
+
+# target: phpstan                                - Start phpstan
+phpstan: check-docker
 	docker pull phpstan/phpstan:${PHPSTAN_VERSION}
 	docker pull prestashop/prestashop:${PS_VERSION}
 	docker run --rm -d -v ps-volume:/var/www/html --entrypoint /bin/sleep --name test-phpstan prestashop/prestashop:${PS_VERSION} 2s
@@ -112,10 +114,9 @@ endif
 
 # target: phpunit                                - Start phpunit
 # FIXME: create two command to run test (feature with apache2 started et unit with just mysql
-DOCKER_INTERNAL=prestashop/docker-internal-images:nightly
 #PHPUNIT_CMD="./vendor/bin/phpunit --colors=always || bash"
 PHPUNIT_CMD="./vendor/bin/phpunit --colors=always"
-phpunit:
+phpunit: check-docker
 	-docker container rm -f phpunit
 	@docker run --rm -ti \
 		--name phpunit \
@@ -124,7 +125,7 @@ phpunit:
 		-e PS_DEV_MODE=1 \
 		-v ${PWD}:/var/www/html/modules/ps_accounts \
 		-w /var/www/html/modules/ps_accounts \
-		${DOCKER_INTERNAL} \
+		prestashop/docker-internal-images:${DOCKER_INTERNAL} \
 		sh -c " \
 			service mysql start && \
 			service apache2 start && \
