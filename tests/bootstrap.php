@@ -1,6 +1,6 @@
 <?php
 if (!defined('_PS_ADMIN_DIR_')) {
-    define('_PS_ADMIN_DIR_', '/administration');
+    define('_PS_ADMIN_DIR_', '/admin');
 }
 
 if (!defined('_PS_MODE_DEV_')) {
