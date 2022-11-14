@@ -21,10 +21,9 @@
 namespace PrestaShop\Module\PsAccounts\Api\Client\Guzzle;
 
 use GuzzleHttp\Client;
-use GuzzleHttp\Message\ResponseInterface;
 
 /**
- * Construct the guzzle client before PrestaShop 8
+ * Construct the Guzzle client before PrestaShop 8
  */
 class Guzzle5Client extends AbstractGuzzleClient
 {
@@ -46,6 +45,7 @@ class Guzzle5Client extends AbstractGuzzleClient
 
         $client = new Client($options);
 
+        /* @phpstan-ignore-next-line */
         $client->setDefaultOption(
             'verify',
             (bool) $module->getParameter('ps_accounts.check_api_ssl_cert')
@@ -55,7 +55,7 @@ class Guzzle5Client extends AbstractGuzzleClient
     }
 
     /**
-     * @param ResponseInterface $response
+     * @param mixed $response
      *
      * @return array
      */
@@ -64,19 +64,22 @@ class Guzzle5Client extends AbstractGuzzleClient
         $responseContents = $this->getResponseJson($response);
 
         return [
+            /* @phpstan-ignore-next-line */
             'status' => $this->responseIsSuccessful($responseContents, $response->getStatusCode()),
+            /* @phpstan-ignore-next-line */
             'httpCode' => $response->getStatusCode(),
             'body' => $responseContents,
         ];
     }
 
     /**
-     * @param ResponseInterface $response
+     * @param mixed $response
      *
      * @return mixed
      */
     public function getResponseJson($response)
     {
+        /* @phpstan-ignore-next-line */
         return json_decode($response->getBody()->getContents(), true);
     }
 }

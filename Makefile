@@ -151,4 +151,3 @@ fix-lint: vendor/bin/php-cs-fixer
 vendor/bin/php-cs-fixer:
 	./composer.phar install
 
-

@@ -46,12 +46,6 @@
         ],
         "phpunit": "docker exec -ti phpunit-dev ./vendor/bin/phpunit --configuration './phpunit.xml' --bootstrap './tests/bootstrap.php' --test-suffix 'Test.php,.phpt'"
     },
-    "repositories": [
-        {
-            "type": "vcs",
-            "url": "git@github.com:PrestaShopCorp/oauth2-prestashop.git"
-        }
-    ],
     "author": "PrestaShop",
     "license": "AFL-3.0",
     "type": "prestashop-module"

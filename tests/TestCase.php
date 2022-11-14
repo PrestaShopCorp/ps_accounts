@@ -9,6 +9,8 @@ use Lcobucci\JWT\Builder;
 use Lcobucci\JWT\Configuration;
 use Lcobucci\JWT\Token;
 use Module;
+use PrestaShop\Module\PsAccounts\Adapter\Configuration as ConfigurationAdapter;
+use PrestaShop\Module\PsAccounts\Repository\ConfigurationRepository;
 use Ps_accounts;
 
 class TestCase extends \PHPUnit\Framework\TestCase
@@ -24,9 +26,14 @@ class TestCase extends \PHPUnit\Framework\TestCase
     public $module;
 
     /**
-     * @var \PrestaShop\Module\PsAccounts\Adapter\Configuration;
+     * @var ConfigurationAdapter
      */
     public $configuration;
+
+    /**
+     * @var ConfigurationRepository
+     */
+    public $configurationRepository;
 
     /**
      * @var bool
@@ -51,7 +58,11 @@ class TestCase extends \PHPUnit\Framework\TestCase
         $this->module = $this->getModuleInstance();
 
         $this->configuration = $this->module->getService(
-            \PrestaShop\Module\PsAccounts\Adapter\Configuration::class
+            ConfigurationAdapter::class
+        );
+
+        $this->configurationRepository = $this->module->getService(
+            ConfigurationRepository::class
         );
     }
 

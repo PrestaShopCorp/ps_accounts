@@ -22,100 +22,28 @@ namespace PrestaShop\Module\PsAccounts\Repository;
 
 use Lcobucci\JWT\Parser;
 use Lcobucci\JWT\Token;
-use Lcobucci\JWT\Token\InvalidTokenStructure;
 use PrestaShop\Module\PsAccounts\Api\Client\SsoClient;
 use PrestaShop\Module\PsAccounts\Exception\RefreshTokenException;
-use PrestaShop\Module\PsAccounts\Log\Logger;
 
 /**
- * Class PsAccountsService
+ * Class UserTokenRepository
  */
-class UserTokenRepository
+class UserTokenRepository extends AbstractTokenRepository
 {
-    /**
-     * @var ConfigurationRepository
-     */
-    private $configuration;
+    protected const TOKEN_TYPE = 'user';
+    protected const TOKEN_KEY = 'idToken';
 
     /**
-     * PsAccountsService constructor.
-     *
-     * @param ConfigurationRepository $configuration
-     */
-    public function __construct(
-        ConfigurationRepository $configuration
-    ) {
-        $this->configuration = $configuration;
-    }
-
-    /**
-     * @param bool $forceRefresh
-     *
-     * @return Token|null
+     * @return SsoClient
      *
      * @throws \Exception
      */
-    public function getOrRefreshToken($forceRefresh = false)
+    protected function client()
     {
-        if (true === $forceRefresh || $this->isTokenExpired()) {
-            $refreshToken = $this->getRefreshToken();
-            if (is_string($refreshToken) && '' != $refreshToken) {
-                try {
-                    $this->updateCredentials(
-                        (string) $this->refreshToken($refreshToken),
-                        $refreshToken
-                    );
-                } catch (RefreshTokenException $e) {
-                    Logger::getInstance()->debug($e);
-                }
-            }
-        }
+        /** @var \Ps_accounts $module */
+        $module = \Module::getInstanceByName('ps_accounts');
 
-        return $this->getToken();
-    }
-
-    /**
-     * @param string $idToken
-     * @param string $refreshToken
-     *
-     * @return Token|null verified or refreshed token on success
-     *
-     * @throws RefreshTokenException
-     */
-    public function verifyToken($idToken, $refreshToken)
-    {
-        $response = $this->getSsoClient()->verifyToken($idToken);
-
-        if ($response && true === $response['status']) {
-            return $this->parseToken($idToken);
-        }
-
-        return $this->refreshToken($refreshToken);
-    }
-
-    /**
-     * @param string $refreshToken
-     *
-     * @return Token|null idToken
-     *
-     * @throws RefreshTokenException
-     */
-    public function refreshToken($refreshToken)
-    {
-        $response = $this->getSsoClient()->refreshToken($refreshToken);
-
-        if ($response && true === $response['status']) {
-            return $this->parseToken($response['body']['idToken']);
-        }
-        throw new RefreshTokenException('Unable to refresh user token : ' . $response['httpCode'] . ' ' . print_r($response['body']['message'], true));
-    }
-
-    /**
-     * @return string
-     */
-    public function getRefreshToken()
-    {
-        return $this->configuration->getUserFirebaseRefreshToken();
+        return $module->getService(SsoClient::class);
     }
 
     /**
@@ -131,64 +59,27 @@ class UserTokenRepository
      */
     public function getTokenUuid()
     {
-        //return $this->getToken()->claims()->get('user_id');
         return $this->configuration->getUserFirebaseUuid();
     }
 
     /**
      * @return string
      */
-    public function getTokenEmail()
+    public function getRefreshToken()
     {
-        //return $this->getToken()->claims()->get('user_id');
-        return $this->configuration->getFirebaseEmail();
+        return $this->configuration->getUserFirebaseRefreshToken();
     }
 
     /**
-     * @return bool
-     *
-     * @throws \Exception
+     * @return void
      */
-    public function getTokenEmailVerified()
+    public function cleanupCredentials()
     {
-        $token = $this->getToken();
-
-        // FIXME : just query sso api and don't refresh token everytime
-        if (null !== $token && !$token->claims()->get('email_verified')) {
-            try {
-                $token = $this->getOrRefreshToken(true);
-            } catch (RefreshTokenException $e) {
-            }
-        }
-
-        return null !== $token && (bool) $token->claims()->get('email_verified');
-    }
-
-    /**
-     * @param string $token
-     *
-     * @return Token|null
-     */
-    public function parseToken($token)
-    {
-        try {
-            return (new Parser())->parse((string) $token);
-        } catch (InvalidTokenStructure $e) {
-            return null;
-        }
-    }
-
-    /**
-     * @return bool
-     *
-     * @throws \Exception
-     */
-    public function isTokenExpired()
-    {
-        // iat, exp
-        $token = $this->getToken();
-
-        return $token ? $token->isExpired(new \DateTime()) : true;
+        $this->configuration->updateUserFirebaseUuid('');
+        $this->configuration->updateUserFirebaseIdToken('');
+        $this->configuration->updateUserFirebaseRefreshToken('');
+        $this->configuration->updateFirebaseEmail('');
+        //$this->configuration->updateFirebaseEmailIsVerified(false);
     }
 
     /**
@@ -210,27 +101,30 @@ class UserTokenRepository
     }
 
     /**
-     * @return void
+     * @return string
      */
-    public function cleanupCredentials()
+    public function getTokenEmail()
     {
-        $this->configuration->updateUserFirebaseUuid('');
-        $this->configuration->updateUserFirebaseIdToken('');
-        $this->configuration->updateUserFirebaseRefreshToken('');
-        $this->configuration->updateFirebaseEmail('');
-        //$this->configuration->updateFirebaseEmailIsVerified(false);
+        return $this->configuration->getFirebaseEmail();
     }
 
     /**
-     * @return SsoClient
+     * @return bool
      *
      * @throws \Exception
      */
-    private function getSsoClient()
+    public function getTokenEmailVerified()
     {
-        /** @var \Ps_accounts $module */
-        $module = \Module::getInstanceByName('ps_accounts');
+        $token = $this->getToken();
 
-        return $module->getService(SsoClient::class);
+        // FIXME : just query sso api and don't refresh token everytime
+        if (null !== $token && !$token->claims()->get('email_verified')) {
+            try {
+                $token = $this->getOrRefreshToken(true);
+            } catch (RefreshTokenException $e) {
+            }
+        }
+
+        return null !== $token && (bool) $token->claims()->get('email_verified');
     }
 }
