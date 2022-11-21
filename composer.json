@@ -1,4 +1,5 @@
 {
+    "name": "prestashopcorp/ps_accounts",
     "config": {
         "preferred-install": "dist",
         "platform": {
@@ -41,8 +42,9 @@
         "set-license-header": [
             "@php ./vendor/bin/header-stamp --license=\"assets/afl.txt\" --exclude=\".github,node_modules,vendor,vendor,tests,_dev\""
         ],
-        "test": "./vendor/bin/phpunit --configuration './phpunit.xml' --bootstrap './tests/bootstrap.php' --test-suffix 'Test.php,.phpt'"
+        "phpunit": "docker exec -u www-data -ti phpunit-dev ./vendor/bin/phpunit --configuration './phpunit.xml' --bootstrap './tests/bootstrap.php' --test-suffix 'Test.php,.phpt'"
     },
     "author": "PrestaShop",
-    "license": "AFL-3.0"
+    "license": "AFL-3.0",
+    "type": "prestashop-module"
 }

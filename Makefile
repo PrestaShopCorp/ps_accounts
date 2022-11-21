@@ -11,13 +11,14 @@ PHPSTAN_VERSION ?= 0.12
 PHPUNIT_VERSION ?= latest
 PS_VERSION ?= latest #1.7.7.1
 NEON_FILE ?= phpstan-PS-1.7.neon
+DOCKER_INTERNAL ?= 1.7 # 1.7|nightly
 
 # target: default                                - Calling build by default
 default: build
 
 # target: help                                   - Get help on this file
 help:
-	@egrep "^#" Makefile
+	@egrep "^# target" Makefile
 
 # target: build                                  - Clean up the repository
 clean:
@@ -93,11 +94,13 @@ test-back: lint-back phpstan phpunit
 lint-back:
 	vendor/bin/php-cs-fixer fix --dry-run --diff --using-cache=no --diff-format udiff
 
-# target: phpstan                                - Start phpstan
-phpstan:
+check-docker:
 ifndef DOCKER
     $(error "DOCKER is unavailable on your system")
 endif
+
+# target: phpstan                                - Start phpstan
+phpstan: check-docker
 	docker pull phpstan/phpstan:${PHPSTAN_VERSION}
 	docker pull prestashop/prestashop:${PS_VERSION}
 	docker run --rm -d -v ps-volume:/var/www/html --entrypoint /bin/sleep --name test-phpstan prestashop/prestashop:${PS_VERSION} 2s
@@ -110,26 +113,27 @@ endif
 	docker volume rm ps-volume
 
 # target: phpunit                                - Start phpunit
-DOCKER_INTERNAL=prestashop/docker-internal-images:nightly
+# FIXME: create two command to run test (feature with apache2 started et unit with just mysql
 #PHPUNIT_CMD="./vendor/bin/phpunit --colors=always || bash"
-PHPUNIT_CMD="./vendor/bin/phpunit --colors=always"
-phpunit:
-	-docker container rm -f phpunit
-	@docker run --rm -ti \
+#PHPUNIT_CMD="./vendor/bin/phpunit"
+phpunit: check-docker
+#	-docker container rm -f phpunit
+	@docker run --rm \
 		--name phpunit \
 		-e PS_DOMAIN=localhost \
 		-e PS_ENABLE_SSL=0 \
 		-e PS_DEV_MODE=1 \
 		-v ${PWD}:/var/www/html/modules/ps_accounts \
 		-w /var/www/html/modules/ps_accounts \
-		${DOCKER_INTERNAL} \
+		prestashop/docker-internal-images:${DOCKER_INTERNAL} \
 		sh -c " \
 			service mysql start && \
 			service apache2 start && \
+			if [ ! -f ./config/config.yml ]; then cp ./config/config.yml.dist ./config/config.yml; fi && \
 			../../bin/console prestashop:module install ps_accounts && \
 			echo \"Testing module v\`cat config.xml | grep '<version>' | sed 's/^.*\[CDATA\[\(.*\)\]\].*/\1/'\`\n\" && \
 			chown -R www-data:www-data ../../var/logs && \
-			${PHPUNIT_CMD} \
+			XDEBUG_MODE=coverage ./vendor/bin/phpunit \
 		      "
 	@echo phpunit passed
 
