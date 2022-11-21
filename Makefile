@@ -118,7 +118,7 @@ phpstan: check-docker
 #PHPUNIT_CMD="./vendor/bin/phpunit"
 phpunit: check-docker
 #	-docker container rm -f phpunit
-	@docker run --rm \
+	@docker run --rm -ti \
 		--name phpunit \
 		-e PS_DOMAIN=localhost \
 		-e PS_ENABLE_SSL=0 \
@@ -127,13 +127,13 @@ phpunit: check-docker
 		-w /var/www/html/modules/ps_accounts \
 		prestashop/docker-internal-images:${DOCKER_INTERNAL} \
 		sh -c " \
-			service mysql start && \
+			service mariadb start && \
 			service apache2 start && \
 			if [ ! -f ./config/config.yml ]; then cp ./config/config.yml.dist ./config/config.yml; fi && \
 			../../bin/console prestashop:module install ps_accounts && \
 			echo \"Testing module v\`cat config.xml | grep '<version>' | sed 's/^.*\[CDATA\[\(.*\)\]\].*/\1/'\`\n\" && \
 			chown -R www-data:www-data ../../var/logs && \
-			XDEBUG_MODE=coverage ./vendor/bin/phpunit \
+			XDEBUG_MODE=coverage ./vendor/bin/phpunit || bash \
 		      "
 	@echo phpunit passed
 
