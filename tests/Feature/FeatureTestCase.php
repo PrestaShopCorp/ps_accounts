@@ -48,6 +48,7 @@ class FeatureTestCase extends TestCase
         $this->client = new Client([
             'base_url' => $baseUrl,
             'defaults' => [
+                'verify' => false,
                 'timeout' => 60,
                 'exceptions' => false,
                 'allow_redirects' => false,
