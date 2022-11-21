@@ -118,7 +118,7 @@ phpstan: check-docker
 #PHPUNIT_CMD="./vendor/bin/phpunit"
 phpunit: check-docker
 #	-docker container rm -f phpunit
-	@docker run --rm -ti \
+	@docker run --rm \
 		--name phpunit \
 		-e PS_DOMAIN=localhost \
 		-e PS_ENABLE_SSL=0 \
@@ -133,7 +133,7 @@ phpunit: check-docker
 			../../bin/console prestashop:module install ps_accounts && \
 			echo \"Testing module v\`cat config.xml | grep '<version>' | sed 's/^.*\[CDATA\[\(.*\)\]\].*/\1/'\`\n\" && \
 			chown -R www-data:www-data ../../var/logs && \
-			XDEBUG_MODE=coverage ./vendor/bin/phpunit || bash \
+			XDEBUG_MODE=coverage ./vendor/bin/phpunit \
 		      "
 	@echo phpunit passed
 
