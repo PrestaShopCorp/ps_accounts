@@ -15,17 +15,16 @@ class DeleteTest extends FeatureTestCase
      */
     public function itShouldSucceed()
     {
-        $this->markTestIncomplete('returns empty response');
-
         $this->configuration->set(Configuration::PS_ACCOUNTS_FIREBASE_ID_TOKEN, 'foobar');
 
         $response = $this->client->delete('/module/ps_accounts/apiV1ShopLinkAccount', [
             'headers' => [
-                AbstractRestController::TOKEN_HEADER => $this->encodePayload(['shop_id' => 1])
+                AbstractRestController::TOKEN_HEADER => (string) $this->encodePayload([
+                    'method' => 'DELETE',
+                    'shop_id' => 1,
+                ])
             ],
         ]);
-
-        $this->module->getLogger()->info(print_r($response, true));
 
         $json = $response->json();
 
@@ -33,7 +32,8 @@ class DeleteTest extends FeatureTestCase
 
         $this->assertResponseDeleted($response);
 
-        //$this->assertArraySubset(['success' => true], $json);
+        // FIXME: empty response
+        // $this->assertArraySubset(['success' => true], $json);
 
         \Configuration::clearConfigurationCacheForTesting();
         \Configuration::loadConfiguration();

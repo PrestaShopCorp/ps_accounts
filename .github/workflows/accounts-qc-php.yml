@@ -68,7 +68,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        presta-versions: ["1.7", "1.6"]
+        presta-versions: ["1.7"]
     steps:
       - name: Checkout
         uses: actions/checkout@v2.0.0
@@ -90,7 +90,7 @@ jobs:
 
       - name: PHPUnit tests
         run: |
-          PHPUNIT_PS_VERSION="${{ matrix.presta-versions }}" make phpunit
+          DOCKER_INTERNAL="${{ matrix.presta-versions }}" make phpunit
 
   header-stamp:
     name: Check license headers

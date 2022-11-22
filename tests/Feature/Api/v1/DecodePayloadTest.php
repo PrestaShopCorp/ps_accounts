@@ -41,6 +41,7 @@ class DecodePayloadTest extends FeatureTestCase
     public function itShouldDecodeMethod()
     {
         $response = $this->client->get('/module/ps_accounts/apiV1ShopUrl', [
+#        $response = $this->client->get('/?module=ps_accounts&fc=module&controller=apiV1ShopUrl', [
             'headers' => [
                 AbstractRestController::TOKEN_HEADER => $this->encodePayload([
                     'shop_id' => 1,
