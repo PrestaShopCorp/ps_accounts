@@ -11,14 +11,14 @@ PHPSTAN_VERSION ?= 0.12
 PHPUNIT_VERSION ?= latest
 PS_VERSION ?= latest #1.7.7.1
 NEON_FILE ?= phpstan-PS-1.7.neon
-PHPUNIT_PS_VERSION ?= nightly  # 1.7|nightly
+DOCKER_INTERNAL ?= nightly # 1.7|nightly
 
 # target: default                                - Calling build by default
 default: build
 
 # target: help                                   - Get help on this file
 help:
-	@egrep "^#" Makefile
+	@egrep "^# target" Makefile
 
 # target: build                                  - Clean up the repository
 clean:
@@ -94,11 +94,13 @@ test-back: lint-back phpstan phpunit
 lint-back:
 	vendor/bin/php-cs-fixer fix --dry-run --diff --using-cache=no --diff-format udiff
 
-# target: phpstan                                - Start phpstan
-phpstan:
+check-docker:
 ifndef DOCKER
     $(error "DOCKER is unavailable on your system")
 endif
+
+# target: phpstan                                - Start phpstan
+phpstan: check-docker
 	docker pull phpstan/phpstan:${PHPSTAN_VERSION}
 	docker pull prestashop/prestashop:${PS_VERSION}
 	docker run --rm -d -v ps-volume:/var/www/html --entrypoint /bin/sleep --name test-phpstan prestashop/prestashop:${PS_VERSION} 2s
@@ -111,26 +113,28 @@ endif
 	docker volume rm ps-volume
 
 # target: phpunit                                - Start phpunit
-phpunit: phpunit-cleanup
-ifndef DOCKER
-    $(error "DOCKER is unavailable on your system")
-endif
-	docker run --rm -d -e PS_DOMAIN=localhost -e PS_ENABLE_SSL=0 -e PS_DEV_MODE=1 --name test-phpunit prestashop/docker-internal-images:${PHPUNIT_PS_VERSION}
-	-docker container exec -u www-data test-phpunit sh -c "sleep 1 && php -d memory_limit=-1 ./bin/console prestashop:module uninstall ps_accounts"
-	docker cp . test-phpunit:/var/www/html/modules/ps_accounts
-	docker cp ./config/config.yml.dist test-phpunit:/var/www/html/modules/ps_accounts/config/config.yml
-	docker container exec test-phpunit sh -c "chown -R www-data:www-data ./modules/ps_accounts"
-	docker container exec -u www-data test-phpunit sh -c "sleep 1 && php -d memory_limit=-1 ./bin/console prestashop:module install ps_accounts"
-	@docker container exec -u www-data test-phpunit sh -c "echo \"Testing module v\`cat /var/www/html/modules/ps_accounts/config.xml | grep '<version>' | sed 's/^.*\[CDATA\[\(.*\)\]\].*/\1/'\`\n\""
-	docker container exec test-phpunit sh -c "pecl install xdebug && docker-php-ext-enable xdebug"
-	docker container exec -u www-data --workdir /var/www/html/modules/ps_accounts test-phpunit sh -c "XDEBUG_MODE=coverage ./vendor/bin/phpunit --coverage-text"
-	@echo phpunit passed
-
-phpunit-cleanup:
-	-docker container rm -f test-phpunit
-
-phpunit-debug:
-	docker container exec -u www-data --workdir /var/www/html/modules/ps_accounts test-phpunit ./vendor/bin/phpunit
+# FIXME: create two command to run test (feature with apache2 started et unit with just mysql
+#PHPUNIT_CMD="./vendor/bin/phpunit --colors=always || bash"
+#PHPUNIT_CMD="./vendor/bin/phpunit"
+phpunit: check-docker
+#	-docker container rm -f phpunit
+	@docker run --rm \
+		--name phpunit \
+		-e PS_DOMAIN=localhost \
+		-e PS_ENABLE_SSL=0 \
+		-e PS_DEV_MODE=1 \
+		-v ${PWD}:/var/www/html/modules/ps_accounts \
+		-w /var/www/html/modules/ps_accounts \
+		prestashop/docker-internal-images:${DOCKER_INTERNAL} \
+		sh -c " \
+			service mysql start && \
+			service apache2 start && \
+			if [ ! -f ./config/config.yml ]; then cp ./config/config.yml.dist ./config/config.yml; fi && \
+			../../bin/console prestashop:module install ps_accounts && \
+			echo \"Testing module v\`cat config.xml | grep '<version>' | sed 's/^.*\[CDATA\[\(.*\)\]\].*/\1/'\`\n\" && \
+			chown -R www-data:www-data ../../var/logs && \
+			XDEBUG_MODE=coverage ./vendor/bin/phpunit \
+		      "
 	@echo phpunit passed
 
 vendor/phpunit/phpunit:
