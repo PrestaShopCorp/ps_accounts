@@ -133,6 +133,7 @@ phpunit: check-docker
 			../../bin/console prestashop:module install ps_accounts && \
 			echo \"Testing module v\`cat config.xml | grep '<version>' | sed 's/^.*\[CDATA\[\(.*\)\]\].*/\1/'\`\n\" && \
 			chown -R www-data:www-data ../../var/logs && \
+			chown -R www-data:www-data ../../var/cache && \
 			XDEBUG_MODE=coverage ./vendor/bin/phpunit \
 		      "
 	@echo phpunit passed
