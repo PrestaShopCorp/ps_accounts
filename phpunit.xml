@@ -21,7 +21,8 @@
   </testsuites>
   <filter>
     <whitelist>
-      <directory suffix=".php">./tests/</directory>
+      <directory suffix=".php">./controllers</directory>
+      <directory suffix=".php">./classes</directory>
     </whitelist>
   </filter>
   <logging>
