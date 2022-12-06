@@ -118,19 +118,20 @@ phpstan: check-docker
 #PHPUNIT_CMD="./vendor/bin/phpunit"
 phpunit: check-docker
 #	-docker container rm -f phpunit
+	docker pull prestashop/docker-internal-images:${DOCKER_INTERNAL}
 	@docker run --rm \
 		--name phpunit \
 		-e PS_DOMAIN=localhost \
 		-e PS_ENABLE_SSL=0 \
 		-e PS_DEV_MODE=1 \
 		-e XDEBUG_MODE=coverage \
+		-e XDEBUG_ENABLED=1 \
 		-v ${PWD}:/var/www/html/modules/ps_accounts \
 		-w /var/www/html/modules/ps_accounts \
 		prestashop/docker-internal-images:${DOCKER_INTERNAL} \
 		sh -c " \
-			service mysql start && \
+			service mariadb start && \
 			service apache2 start && \
-			pecl install xdebug && docker-php-ext-enable xdebug && \
 			if [ ! -f ./config/config.yml ]; then cp ./config/config.yml.dist ./config/config.yml; fi && \
 			../../bin/console prestashop:module install ps_accounts && \
 			echo \"Testing module v\`cat config.xml | grep '<version>' | sed 's/^.*\[CDATA\[\(.*\)\]\].*/\1/'\`\n\" && \
