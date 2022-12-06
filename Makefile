@@ -118,6 +118,7 @@ phpstan: check-docker
 #PHPUNIT_CMD="./vendor/bin/phpunit"
 phpunit: check-docker
 #	-docker container rm -f phpunit
+# FIXME: PS_* vars are useless here as we override run
 	docker pull prestashop/docker-internal-images:${DOCKER_INTERNAL}
 	@docker run --rm \
 		--name phpunit \
