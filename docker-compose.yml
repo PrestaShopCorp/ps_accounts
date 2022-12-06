@@ -14,7 +14,7 @@ services:
       - ./:/var/www/html/modules/ps_accounts
     entrypoint: [
         "/bin/sh", "-c", " \
-          service mysql start && \
+          service mariadb start && \
           php -d memory_limit=-1 ../../bin/console prestashop:module install ps_accounts && \
           chown -R www-data:www-data ../../var/logs && \
           chown -R www-data:www-data ../../var/cache && \
