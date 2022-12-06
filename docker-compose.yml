@@ -9,12 +9,12 @@ services:
       - PS_ENABLE_SSL=0
       - PS_DEV_MODE=1
       - XDEBUG_MODE=coverage
+      - XDEBUG_ENABLED=1
     volumes:
       - ./:/var/www/html/modules/ps_accounts
     entrypoint: [
         "/bin/sh", "-c", " \
           service mysql start && \
-          pecl install xdebug && docker-php-ext-enable xdebug && \
           php -d memory_limit=-1 ../../bin/console prestashop:module install ps_accounts && \
           chown -R www-data:www-data ../../var/logs && \
           chown -R www-data:www-data ../../var/cache && \
