@@ -15,6 +15,7 @@ services:
     entrypoint: [
         "/bin/sh", "-c", " \
           service mariadb start && \
+          docker-php-ext-enable xdebug && \
           php -d memory_limit=-1 ../../bin/console prestashop:module install ps_accounts && \
           chown -R www-data:www-data ../../var/logs && \
           chown -R www-data:www-data ../../var/cache && \
