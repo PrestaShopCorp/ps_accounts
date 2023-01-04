@@ -8,12 +8,6 @@
          convertWarningsToExceptions="true"
          defaultTestSuite="unit"
 >
-  <filter>
-    <whitelist>
-      <directory suffix=".php">controller</directory>
-      <directory suffix=".php">src</directory>
-    </whitelist>
-  </filter>
   <testsuites>
     <testsuite name="all">
       <directory suffix="Test.php">./tests</directory>
@@ -25,4 +19,13 @@
       <directory suffix="Test.php">./tests/Feature</directory>
     </testsuite>
   </testsuites>
+  <filter>
+    <whitelist>
+      <directory suffix=".php">controllers</directory>
+      <directory suffix=".php">src</directory>
+    </whitelist>
+  </filter>
+  <logging>
+    <log type="coverage-text" target="php://stdout" />
+  </logging>
 </phpunit>
