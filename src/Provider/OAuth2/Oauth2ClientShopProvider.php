@@ -55,11 +55,24 @@ class Oauth2ClientShopProvider extends PrestaShop
         $this->context = $module->getContext();
         $this->configuration = $module->getService(ConfigurationRepository::class);
 
+        // Disable certificate verification from local configuration
+        $options['verify'] = $this->getParameter(
+            'ps_accounts.check_api_ssl_cert',
+            true
+        );
+
         parent::__construct(array_merge([
             'clientId' => $this->configuration->getOauth2ClientId(),
             'clientSecret' => $this->configuration->getOauth2ClientSecret(),
             'redirectUri' => $this->getRedirectUri(),
         ], $options), $collaborators);
+    }
+
+    protected function getAllowedClientOptions(array $options)
+    {
+        return array_merge(parent::getAllowedClientOptions($options), [
+           'verify',
+        ]);
     }
 
     public static function create(): PrestaShop
