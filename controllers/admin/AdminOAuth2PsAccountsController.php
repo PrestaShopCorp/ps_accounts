@@ -26,6 +26,7 @@ use PrestaShop\Module\PsAccounts\Exception\EmployeeAccountNotFoundException;
 use PrestaShop\Module\PsAccounts\Provider\OAuth2\Oauth2ClientShopProvider;
 use PrestaShop\Module\PsAccounts\Provider\OAuth2\Oauth2LoginTrait;
 use PrestaShop\Module\PsAccounts\Service\AnalyticsService;
+use PrestaShop\Module\PsAccounts\Service\PsAccountsService;
 use PrestaShop\OAuth2\Client\Provider\PrestaShop;
 use PrestaShop\OAuth2\Client\Provider\PrestaShopUser;
 use PrestaShop\PrestaShop\Core\Exception\ContainerNotFoundException;
@@ -44,9 +45,26 @@ class AdminOAuth2PsAccountsController extends ModuleAdminController
      */
     public $module;
 
+    /**
+     * @var AnalyticsService
+     */
+    private $analyticsService;
+
+    /**
+     * @var PsAccountsService
+     */
+    private $psAccountsService;
+
+    /**
+     * @throws PrestaShopException
+     * @throws Exception
+     */
     public function __construct()
     {
         parent::__construct();
+
+        $this->analyticsService = $this->module->getService(AnalyticsService::class);
+        $this->psAccountsService = $this->module->getService(PsAccountsService::class);
 
         $this->ajax = true;
         $this->content_only = true;
@@ -128,10 +146,13 @@ class AdminOAuth2PsAccountsController extends ModuleAdminController
 
         $cookie->write();
 
-        if (true /* TODO: only track smb-edition */) {
-            /** @var AnalyticsService $analytics */
-            $analytics = $this->module->getService(AnalyticsService::class);
-            $analytics->trackUserSignedIntoApp($user->getId(), $user->getEmail(), 'smb-edition');
+        // Only track smb-edition
+        if (Module::isEnabled('smb_edition')) {
+            $this->analyticsService->trackUserSignedIntoApp(
+                $user->getId(),
+                $this->psAccountsService->getShopUuid(),
+                'smb-edition'
+            );
         }
 
         return true;
