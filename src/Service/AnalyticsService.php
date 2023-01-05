@@ -8,7 +8,6 @@ class AnalyticsService
 {
     public function __construct(string $segmentWriteKey)
     {
-        // TODO: getShopEditionStatus
         Segment::init($segmentWriteKey);
     }
 

@@ -25,6 +25,7 @@ use PrestaShop\Module\PsAccounts\Exception\EmployeeAccountEmailNotVerifiedExcept
 use PrestaShop\Module\PsAccounts\Exception\EmployeeAccountNotFoundException;
 use PrestaShop\Module\PsAccounts\Provider\OAuth2\Oauth2ClientShopProvider;
 use PrestaShop\Module\PsAccounts\Provider\OAuth2\Oauth2LoginTrait;
+use PrestaShop\Module\PsAccounts\Service\AnalyticsService;
 use PrestaShop\OAuth2\Client\Provider\PrestaShop;
 use PrestaShop\OAuth2\Client\Provider\PrestaShopUser;
 use PrestaShop\PrestaShop\Core\Exception\ContainerNotFoundException;
@@ -126,6 +127,12 @@ class AdminOAuth2PsAccountsController extends ModuleAdminController
         }
 
         $cookie->write();
+
+        if (true /* TODO: only track smb-edition */) {
+            /** @var AnalyticsService $analytics */
+            $analytics = $this->module->getService(AnalyticsService::class);
+            $analytics->trackUserSignedIntoApp($user->getId(), $user->getEmail(), 'smb-edition');
+        }
 
         return true;
     }
