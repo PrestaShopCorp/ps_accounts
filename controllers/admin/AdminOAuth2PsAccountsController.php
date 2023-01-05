@@ -150,7 +150,7 @@ class AdminOAuth2PsAccountsController extends ModuleAdminController
         if (Module::isEnabled('smb_edition')) {
             $this->analyticsService->trackUserSignedIntoApp(
                 $user->getId(),
-                $this->psAccountsService->getShopUuid(),
+                (string) $this->psAccountsService->getShopUuid() ?? null,
                 'smb-edition'
             );
         }
