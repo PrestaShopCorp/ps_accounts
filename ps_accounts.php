@@ -247,7 +247,7 @@ class Ps_accounts extends Module
 
         foreach ($customHooks as $customHook) {
             $verify = true;
-            if ((bool)Hook::getIdByName($customHook['name']) === false) {
+            if ((bool) Hook::getIdByName($customHook['name']) === false) {
                 $hook = new Hook();
                 $hook->name = $customHook['name'];
                 $hook->title = $customHook['title'];
@@ -346,7 +346,7 @@ class Ps_accounts extends Module
             return;
         }
 
-        $shopId = $shopContext->getShopIdFromShopUrlId((int)$_GET['id_shop_url']);
+        $shopId = $shopContext->getShopIdFromShopUrlId((int) $_GET['id_shop_url']);
 
         return $shopContext->execInShopContext($shopId, function () use ($accountsService) {
             if ($accountsService->isAccountLinked()) {
@@ -447,7 +447,7 @@ class Ps_accounts extends Module
             /** @var \PrestaShop\Module\PsAccounts\Adapter\Link $link */
             $link = $this->getService(\PrestaShop\Module\PsAccounts\Adapter\Link::class);
 
-            Cache::clean('Shop::setUrl_' . (int)$params['object']->id);
+            Cache::clean('Shop::setUrl_' . (int) $params['object']->id);
 
             $shop = new \Shop($params['object']->id);
 
@@ -455,7 +455,7 @@ class Ps_accounts extends Module
             $sslDomain = $params['object']->domain_ssl;
 
             $response = $accountsApi->updateUserShop(new \PrestaShop\Module\PsAccounts\DTO\UpdateShop([
-                'shopId' => (string)$params['object']->id,
+                'shopId' => (string) $params['object']->id,
                 'name' => $shop->name,
                 'domain' => 'http://' . $domain,
                 'sslDomain' => 'https://' . $sslDomain,
@@ -526,7 +526,7 @@ class Ps_accounts extends Module
         $sslDomain = $params['object']->domain_ssl;
 
         $response = $accountsApi->updateUserShop(new \PrestaShop\Module\PsAccounts\DTO\UpdateShop([
-            'shopId' => (string)$params['object']->id,
+            'shopId' => (string) $params['object']->id,
             'name' => $params['object']->name,
             'domain' => 'http://' . $shop->domain,
             'sslDomain' => 'https://' . $shop->domain_ssl,
@@ -627,7 +627,7 @@ class Ps_accounts extends Module
             $analyticsService->trackUserSignedIntoBackOfficeLocally(
                 $account->getEmail(),
                 $account->getUid(),
-                $psAccountsService->getShopUuid()
+                (string) $psAccountsService->getShopUuid() ?? null
             );
         }
     }
@@ -637,7 +637,7 @@ class Ps_accounts extends Module
      */
     public function getModuleEnvVar()
     {
-        return strtoupper((string)$this->name) . '_ENV';
+        return strtoupper((string) $this->name) . '_ENV';
     }
 
     /**
@@ -688,7 +688,7 @@ class Ps_accounts extends Module
         $psAccountsPresenter = $this->getService(\PrestaShop\Module\PsAccounts\Presenter\PsAccountsPresenter::class);
 
         Media::addJsDef([
-            'contextPsAccounts' => $psAccountsPresenter->present((string)$this->name),
+            'contextPsAccounts' => $psAccountsPresenter->present((string) $this->name),
         ]);
     }
 
