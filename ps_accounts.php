@@ -49,6 +49,7 @@ class Ps_accounts extends Module
         'actionObjectShopUrlUpdateAfter',
         'displayDashboardTop',
         'displayAccountUpdateWarning',
+        'actionAdminLoginControllerLoginAfter',
     ];
 
     /**
@@ -189,7 +190,7 @@ class Ps_accounts extends Module
     {
         if (null === $this->serviceContainer) {
             $this->serviceContainer = new \PrestaShop\Module\PsAccounts\DependencyInjection\ServiceContainer(
-                // append version number to force cache generation (1.6 Core won't clear it)
+            // append version number to force cache generation (1.6 Core won't clear it)
                 $this->name . str_replace(['.', '-'], '', $this->version),
                 $this->getLocalPath(),
                 $this->getModuleEnv()
@@ -246,7 +247,7 @@ class Ps_accounts extends Module
 
         foreach ($customHooks as $customHook) {
             $verify = true;
-            if ((bool) Hook::getIdByName($customHook['name']) === false) {
+            if ((bool)Hook::getIdByName($customHook['name']) === false) {
                 $hook = new Hook();
                 $hook->name = $customHook['name'];
                 $hook->title = $customHook['title'];
@@ -345,7 +346,7 @@ class Ps_accounts extends Module
             return;
         }
 
-        $shopId = $shopContext->getShopIdFromShopUrlId((int) $_GET['id_shop_url']);
+        $shopId = $shopContext->getShopIdFromShopUrlId((int)$_GET['id_shop_url']);
 
         return $shopContext->execInShopContext($shopId, function () use ($accountsService) {
             if ($accountsService->isAccountLinked()) {
@@ -446,7 +447,7 @@ class Ps_accounts extends Module
             /** @var \PrestaShop\Module\PsAccounts\Adapter\Link $link */
             $link = $this->getService(\PrestaShop\Module\PsAccounts\Adapter\Link::class);
 
-            Cache::clean('Shop::setUrl_' . (int) $params['object']->id);
+            Cache::clean('Shop::setUrl_' . (int)$params['object']->id);
 
             $shop = new \Shop($params['object']->id);
 
@@ -454,7 +455,7 @@ class Ps_accounts extends Module
             $sslDomain = $params['object']->domain_ssl;
 
             $response = $accountsApi->updateUserShop(new \PrestaShop\Module\PsAccounts\DTO\UpdateShop([
-                'shopId' => (string) $params['object']->id,
+                'shopId' => (string)$params['object']->id,
                 'name' => $shop->name,
                 'domain' => 'http://' . $domain,
                 'sslDomain' => 'https://' . $sslDomain,
@@ -525,7 +526,7 @@ class Ps_accounts extends Module
         $sslDomain = $params['object']->domain_ssl;
 
         $response = $accountsApi->updateUserShop(new \PrestaShop\Module\PsAccounts\DTO\UpdateShop([
-            'shopId' => (string) $params['object']->id,
+            'shopId' => (string)$params['object']->id,
             'name' => $params['object']->name,
             'domain' => 'http://' . $shop->domain,
             'sslDomain' => 'https://' . $shop->domain_ssl,
@@ -605,11 +606,38 @@ class Ps_accounts extends Module
     }
 
     /**
+     * @param array $params
+     *
+     * @return void
+     */
+    public function hookActionAdminLoginControllerLoginAfter($params)
+    {
+        /** @var Employee $employee */
+        $employee = $params['employee'];
+
+        /** @var \PrestaShop\Module\PsAccounts\Service\AnalyticsService $analyticsService */
+        $analyticsService = $this->getService(\PrestaShop\Module\PsAccounts\Service\AnalyticsService::class);
+
+        /** @var \PrestaShop\Module\PsAccounts\Service\PsAccountsService $psAccountsService */
+        $psAccountsService = $this->getService(\PrestaShop\Module\PsAccounts\Service\PsAccountsService::class);
+
+        $account = $psAccountsService->getEmployeeAccount();
+
+        if ($this->isShopEdition()) {
+            $analyticsService->trackUserSignedIntoBackOfficeLocally(
+                $account->getEmail(),
+                $account->getUid(),
+                $psAccountsService->getShopUuid()
+            );
+        }
+    }
+
+    /**
      * @return string
      */
     public function getModuleEnvVar()
     {
-        return strtoupper((string) $this->name) . '_ENV';
+        return strtoupper((string)$this->name) . '_ENV';
     }
 
     /**
@@ -660,7 +688,7 @@ class Ps_accounts extends Module
         $psAccountsPresenter = $this->getService(\PrestaShop\Module\PsAccounts\Presenter\PsAccountsPresenter::class);
 
         Media::addJsDef([
-            'contextPsAccounts' => $psAccountsPresenter->present((string) $this->name),
+            'contextPsAccounts' => $psAccountsPresenter->present((string)$this->name),
         ]);
     }
 
@@ -726,5 +754,10 @@ class Ps_accounts extends Module
     public function getCustomHooks()
     {
         return $this->customHooks;
+    }
+
+    public function isShopEdition(): bool
+    {
+        return Module::isEnabled('smb_edition');
     }
 }

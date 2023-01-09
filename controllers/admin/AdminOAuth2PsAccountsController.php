@@ -146,8 +146,7 @@ class AdminOAuth2PsAccountsController extends ModuleAdminController
 
         $cookie->write();
 
-        // Only track smb-edition
-        if (Module::isEnabled('smb_edition')) {
+        if ($this->module->isShopEdition()) {
             $this->analyticsService->trackUserSignedIntoApp(
                 $user->getId(),
                 (string) $this->psAccountsService->getShopUuid() ?? null,
