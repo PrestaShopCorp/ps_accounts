@@ -21,8 +21,11 @@
 use Doctrine\ORM\EntityManagerInterface;
 use League\OAuth2\Client\Provider\Exception\IdentityProviderException;
 use PrestaShop\Module\PsAccounts\Entity\EmployeeAccount;
-use PrestaShop\Module\PsAccounts\Exception\EmployeeAccountEmailNotVerifiedException;
-use PrestaShop\Module\PsAccounts\Exception\EmployeeAccountNotFoundException;
+use PrestaShop\Module\PsAccounts\Exception\AccountLogin\AccountLoginException;
+use PrestaShop\Module\PsAccounts\Exception\AccountLogin\EmailNotVerifiedException;
+use PrestaShop\Module\PsAccounts\Exception\AccountLogin\EmployeeNotFoundException;
+use PrestaShop\Module\PsAccounts\Exception\AccountLogin\HydraErrorException;
+use PrestaShop\Module\PsAccounts\Exception\AccountLogin\OtherErrorException;
 use PrestaShop\Module\PsAccounts\Provider\OAuth2\Oauth2ClientShopProvider;
 use PrestaShop\Module\PsAccounts\Provider\OAuth2\Oauth2LoginTrait;
 use PrestaShop\Module\PsAccounts\Service\AnalyticsService;
@@ -80,13 +83,11 @@ class AdminOAuth2PsAccountsController extends ModuleAdminController
         try {
             $this->oauth2Login();
         } catch (IdentityProviderException $e) {
-            $this->onLoginFailed( 'error_from_hydra', $e);
-        } catch (EmployeeAccountEmailNotVerifiedException $e) {
-            $this->onLoginFailed( 'email_not_verified', $e);
-        } catch (EmployeeAccountNotFoundException $e) {
-            $this->onLoginFailed( 'employee_not_found', $e);
+            $this->onLoginFailed(new HydraErrorException(null, $e->getMessage()));
+        } catch (EmailNotVerifiedException | EmployeeNotFoundException $e) {
+            $this->onLoginFailed($e);
         } catch (Exception $e) {
-            $this->onLoginFailed( 'error_other', $e);
+            $this->onLoginFailed(new OtherErrorException(null, $e->getMessage()));
         }
     }
 
@@ -96,8 +97,8 @@ class AdminOAuth2PsAccountsController extends ModuleAdminController
      * @return bool
      *
      * @throws ContainerNotFoundException
-     * @throws EmployeeAccountEmailNotVerifiedException
-     * @throws EmployeeAccountNotFoundException
+     * @throws EmailNotVerifiedException
+     * @throws EmployeeNotFoundException
      * @throws CoreException
      */
     private function initUserSession(PrestaShopUser $user): bool
@@ -112,9 +113,9 @@ class AdminOAuth2PsAccountsController extends ModuleAdminController
             $context->employee->logout();
 
             if (empty($emailVerified)) {
-                throw new EmployeeAccountEmailNotVerifiedException('Your account email is not verified');
+                throw new EmailNotVerifiedException($user);
             }
-            throw new EmployeeAccountNotFoundException('The email address is not associated to a PrestaShop backoffice account.');
+            throw new EmployeeNotFoundException($user);
         }
 
         $context->employee->remote_addr = (int) ip2long(Tools::getRemoteAddr());
@@ -192,29 +193,27 @@ class AdminOAuth2PsAccountsController extends ModuleAdminController
         return $employee;
     }
 
-    /**
-     * @param string $error
-     *
-     * @return void
-     */
-    private function redirectWithError(string $error): void
+    private function onLoginFailed(AccountLoginException $e): void
     {
+        if ($this->module->isShopEdition() && (
+                $e instanceof EmployeeNotFoundException ||
+                $e instanceof EmailNotVerifiedException
+            )) {
+            $this->analyticsService->trackBackOfficeSSOSignInFailed(
+                $e->getPrestaShopUser()->getId(),
+                (string) $this->psAccountsService->getShopUuid() ?? null,
+                $e->getType(),
+                $e->getMessage()
+            );
+        }
+
+        $this->oauth2ErrorLog($e->getMessage());
         Tools::redirectAdmin(
             $this->context->link->getAdminLink('AdminLogin', true, [], [
                 'logout' => 1,
-                'loginError' => $error,
+                'loginError' => $e->getType(),
             ])
         );
-    }
-
-    private function onLoginFailed(string $type, Exception $e): void
-    {
-        $this->oauth2ErrorLog($e->getMessage());
-        $this->redirectWithError($type);
-
-        if ($this->module->isShopEdition()) {
-            $this->analyticsService->trackBackOfficeSSOSignInFailed();
-        }
     }
 
     private function getProvider(): Oauth2ClientShopProvider
