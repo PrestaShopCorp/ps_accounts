@@ -180,14 +180,6 @@
     lodash-es "^4.17.21"
     lodash-unified "^1.0.2"
 
-"@prestashopcorp/segment-vue@^2.1.7":
-  version "2.1.7"
-  resolved "https://registry.yarnpkg.com/@prestashopcorp/segment-vue/-/segment-vue-2.1.7.tgz#e82cbdf96d323f0bf1e358b008c47c0f4881455c"
-  integrity sha512-E/xx06oqJQM8pd5f/JJ3r+Sz6kKpHdXoD54Ge3luf+FJQ9+SqVEGymH2+Hu/mpQkO1Zt8+7xjCDqTS4C4NLLXw==
-  dependencies:
-    load-script "^1.0.0"
-    vue-demi "^0.7.4"
-
 "@sideway/address@^4.1.3":
   version "4.1.3"
   resolved "https://registry.yarnpkg.com/@sideway/address/-/address-4.1.3.tgz#d93cce5d45c5daec92ad76db492cc2ee3c64ab27"
@@ -1487,11 +1479,6 @@ lilconfig@^2.0.5, lilconfig@^2.0.6:
   resolved "https://registry.yarnpkg.com/lilconfig/-/lilconfig-2.0.6.tgz#32a384558bd58af3d4c6e077dd1ad1d397bc69d4"
   integrity sha512-9JROoBW7pobfsx+Sq2JsASvCo6Pfo6WWoUW79HuB1BCoBXD4PLWJPqDF6fNj67pqBYTbAHkE57M1kS/+L1neOg==
 
-load-script@^1.0.0:
-  version "1.0.0"
-  resolved "https://registry.yarnpkg.com/load-script/-/load-script-1.0.0.tgz#0491939e0bee5643ee494a7e3da3d2bac70c6ca4"
-  integrity sha1-BJGTngvuVkPuSUp+PaPSuscMbKQ=
-
 loader-utils@^1.4.0:
   version "1.4.0"
   resolved "https://registry.yarnpkg.com/loader-utils/-/loader-utils-1.4.0.tgz#c579b5e34cb34b1a74edc6c1fb36bfa371d5a613"
@@ -1828,12 +1815,11 @@ prelude-ls@^1.2.1:
   resolved "https://registry.yarnpkg.com/prelude-ls/-/prelude-ls-1.2.1.tgz#debc6489d7a6e6b0e7611888cec880337d316396"
   integrity sha512-vkcDPrRZo1QZLbn5RLGPpg/WmIQ65qoWWhcGKf/b5eplkkarX0m9z8ppCat4mlOqUsWpyNuYgO3VRyrYHSzX5g==
 
-prestashop_accounts_vue_components@^4.2.0:
-  version "4.2.2"
-  resolved "https://registry.yarnpkg.com/prestashop_accounts_vue_components/-/prestashop_accounts_vue_components-4.2.2.tgz#e7c09408518ecef5eb617124ca59e21704183c5b"
-  integrity sha512-SjqGYaptX05P+gi28atNw4zrOAskVmfjqiBwDJpUxp4Zumb9nByXO+41V4RzjYU46IgtJxapFTXueftTVCGAHQ==
+prestashop_accounts_vue_components@^4.2.6:
+  version "4.2.6"
+  resolved "https://registry.yarnpkg.com/prestashop_accounts_vue_components/-/prestashop_accounts_vue_components-4.2.6.tgz#710f57040ccf08b7946f6f21582eb37fdf78e6d8"
+  integrity sha512-HBDRbOnZLdaLF3RZI2uCdlSrZhrGwycrmykcLYP+jxrGlJ+7DalFFeqWESgMimtJQQ1dbO/E4Oq6cvrJ6PCK+w==
   dependencies:
-    "@prestashopcorp/segment-vue" "^2.1.7"
     "@vue/composition-api" "^1.4.3"
     babel-loader "^8.2.3"
     deepmerge "^4.2.2"
@@ -2179,11 +2165,6 @@ vue-demi@^0.12.1:
   version "0.12.5"
   resolved "https://registry.yarnpkg.com/vue-demi/-/vue-demi-0.12.5.tgz#8eeed566a7d86eb090209a11723f887d28aeb2d1"
   integrity sha512-BREuTgTYlUr0zw0EZn3hnhC3I6gPWv+Kwh4MCih6QcAeaTlaIX0DwOVN0wHej7hSvDPecz4jygy/idsgKfW58Q==
-
-vue-demi@^0.7.4:
-  version "0.7.5"
-  resolved "https://registry.yarnpkg.com/vue-demi/-/vue-demi-0.7.5.tgz#88dee7492fc99a0f911ff03fc02c658fa2a79af8"
-  integrity sha512-eFSQSvbQdY7C9ujOzvM6tn7XxwLjn0VQDXQsiYBLBwf28Na+2nTQR4BBBcomhmdP6mmHlBKAwarq6a0BPG87hQ==
 
 vue-eslint-parser@^8.0.1:
   version "8.3.0"
