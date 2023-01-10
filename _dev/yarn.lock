@@ -934,14 +934,6 @@
   dependencies:
     load-script "^1.0.0"
 
-"@prestashopcorp/segment-vue@^2.1.7":
-  version "2.1.7"
-  resolved "https://registry.yarnpkg.com/@prestashopcorp/segment-vue/-/segment-vue-2.1.7.tgz#e82cbdf96d323f0bf1e358b008c47c0f4881455c"
-  integrity sha512-E/xx06oqJQM8pd5f/JJ3r+Sz6kKpHdXoD54Ge3luf+FJQ9+SqVEGymH2+Hu/mpQkO1Zt8+7xjCDqTS4C4NLLXw==
-  dependencies:
-    load-script "^1.0.0"
-    vue-demi "^0.7.4"
-
 "@sentry/browser@^5.24.2":
   version "5.30.0"
   resolved "https://registry.yarnpkg.com/@sentry/browser/-/browser-5.30.0.tgz#c28f49d551db3172080caef9f18791a7fd39e3b3"
@@ -7747,12 +7739,11 @@ prestakit@^1.1.0:
     select2 "^4.0.5"
     select2-bootstrap-theme "0.1.0-beta.10"
 
-prestashop_accounts_vue_components@^4.2.0:
-  version "4.2.0"
-  resolved "https://registry.yarnpkg.com/prestashop_accounts_vue_components/-/prestashop_accounts_vue_components-4.2.0.tgz#416e1a31823ac1ba4d1b2b5f303ca1d0c7611743"
-  integrity sha512-IWyU87bk4wgjWYfmGcNL+gXO1DAQoU2IRkI5aY4vvxSPfN7J4wQZ95EGQOXnaW9K6cGDao/A+k0RlGG9w7GybQ==
+prestashop_accounts_vue_components@^4.2.6:
+  version "4.2.6"
+  resolved "https://registry.yarnpkg.com/prestashop_accounts_vue_components/-/prestashop_accounts_vue_components-4.2.6.tgz#710f57040ccf08b7946f6f21582eb37fdf78e6d8"
+  integrity sha512-HBDRbOnZLdaLF3RZI2uCdlSrZhrGwycrmykcLYP+jxrGlJ+7DalFFeqWESgMimtJQQ1dbO/E4Oq6cvrJ6PCK+w==
   dependencies:
-    "@prestashopcorp/segment-vue" "^2.1.7"
     "@vue/composition-api" "^1.4.3"
     babel-loader "^8.2.3"
     deepmerge "^4.2.2"
@@ -9672,11 +9663,6 @@ vue-demi@^0.12.1:
   version "0.12.5"
   resolved "https://registry.yarnpkg.com/vue-demi/-/vue-demi-0.12.5.tgz#8eeed566a7d86eb090209a11723f887d28aeb2d1"
   integrity sha512-BREuTgTYlUr0zw0EZn3hnhC3I6gPWv+Kwh4MCih6QcAeaTlaIX0DwOVN0wHej7hSvDPecz4jygy/idsgKfW58Q==
-
-vue-demi@^0.7.4:
-  version "0.7.5"
-  resolved "https://registry.yarnpkg.com/vue-demi/-/vue-demi-0.7.5.tgz#88dee7492fc99a0f911ff03fc02c658fa2a79af8"
-  integrity sha512-eFSQSvbQdY7C9ujOzvM6tn7XxwLjn0VQDXQsiYBLBwf28Na+2nTQR4BBBcomhmdP6mmHlBKAwarq6a0BPG87hQ==
 
 vue-eslint-parser@^7.0.0:
   version "7.5.0"
