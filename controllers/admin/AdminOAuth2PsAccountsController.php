@@ -80,17 +80,13 @@ class AdminOAuth2PsAccountsController extends ModuleAdminController
         try {
             $this->oauth2Login();
         } catch (IdentityProviderException $e) {
-            $this->oauth2ErrorLog($e->getMessage());
-            $this->redirectWithError('error_from_hydra');
+            $this->onLoginFailed( 'error_from_hydra', $e);
         } catch (EmployeeAccountEmailNotVerifiedException $e) {
-            $this->oauth2ErrorLog($e->getMessage());
-            $this->redirectWithError('email_not_verified');
+            $this->onLoginFailed( 'email_not_verified', $e);
         } catch (EmployeeAccountNotFoundException $e) {
-            $this->oauth2ErrorLog($e->getMessage());
-            $this->redirectWithError('employee_not_found');
+            $this->onLoginFailed( 'employee_not_found', $e);
         } catch (Exception $e) {
-            $this->oauth2ErrorLog($e->getMessage());
-            $this->redirectWithError('error_other');
+            $this->onLoginFailed( 'error_other', $e);
         }
     }
 
@@ -209,6 +205,16 @@ class AdminOAuth2PsAccountsController extends ModuleAdminController
                 'loginError' => $error,
             ])
         );
+    }
+
+    private function onLoginFailed(string $type, Exception $e): void
+    {
+        $this->oauth2ErrorLog($e->getMessage());
+        $this->redirectWithError($type);
+
+        if ($this->module->isShopEdition()) {
+            $this->analyticsService->trackBackOfficeSSOSignInFailed();
+        }
     }
 
     private function getProvider(): Oauth2ClientShopProvider
