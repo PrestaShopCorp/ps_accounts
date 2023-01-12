@@ -16,7 +16,6 @@ parameters:
   ps_accounts.sso_resend_verification_email_url: 'https://prestashop-newsso-staging.appspot.com/account/send-verification-email'
   ps_accounts.billing_api_url: 'https://billing-api.psessentials-integration.net'
   ps_accounts.sentry_credentials: 'https://4c7f6c8dd5aa405b8401a35f5cf26ada@o298402.ingest.sentry.io/5354585'
-  ps_accounts.segment_api_key: 'yO1sKx3Xe9upW4bRDoRXEB0TZEXQm2y3'
   ps_accounts.segment_write_key: 'UITzSdsFTgYsXaiJG09hsCiupUPwgJQB'
   ps_accounts.check_api_ssl_cert: false
   ps_accounts.verify_account_tokens: false
