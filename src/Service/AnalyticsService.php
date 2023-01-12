@@ -35,10 +35,12 @@ class AnalyticsService
     {
         $this->track([
             'event' => 'User Signed Into Back Office Locally',
-            'email' => $userEmail,
             'userId' => $userUid,
             'context' => [
                 'groupId' => $shopUid,
+            ],
+            'properties' => [
+                'email' => $userEmail,
             ],
         ]);
     }
