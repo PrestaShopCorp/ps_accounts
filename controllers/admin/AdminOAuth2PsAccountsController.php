@@ -144,6 +144,11 @@ class AdminOAuth2PsAccountsController extends ModuleAdminController
         $cookie->write();
 
         if ($this->module->isShopEdition()) {
+//            $this->analyticsService->identify(
+//                $user->getId(),
+//                $user->getName(),
+//                $user->getEmail()
+//            );
             $this->analyticsService->trackUserSignedIntoApp(
                 $user->getId(),
                 (string) $this->psAccountsService->getShopUuid() ?? null,
