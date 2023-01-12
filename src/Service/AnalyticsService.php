@@ -11,9 +11,9 @@ class AnalyticsService
         Segment::init($segmentWriteKey);
     }
 
-    public function track(array $properties): void
+    public function track(array $message): void
     {
-        Segment::track($properties);
+        Segment::track($message);
         Segment::flush();
     }
 
