@@ -13,9 +13,6 @@ class AnalyticsService
 
     public function track(array $properties): void
     {
-        // TODO: lazy identify
-        // TODO: remove old segment key and vue_component validation
-        // $this->identify();
         Segment::track($properties);
         Segment::flush();
     }
