@@ -51,7 +51,7 @@
                                 {l s='All the essentials for your business' mod='ps_accounts'}
                             </h2>
                             <p class="puik-body-default psacc-font-secondary psacc-text-center psacc-text-base">
-                                {l s='GMarketing, payment and performance analysis: the PrestaShop Essentials suite includes all the features you need to make your store successful.' mod='ps_accounts'}
+                                {l s='Marketing, payment and performance analysis: the PrestaShop Essentials suite includes all the features you need to make your store successful.' mod='ps_accounts'}
                             </p>
                         </div>
                     </li>
