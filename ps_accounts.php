@@ -623,7 +623,7 @@ class Ps_accounts extends Module
 
         $account = $psAccountsService->getEmployeeAccount();
 
-        if ($this->isShopEdition()) {
+        if ($this->isShopEdition() && !empty($account)) {
             $analyticsService->trackUserSignedIntoBackOfficeLocally(
                 $account->getEmail(),
                 $account->getUid(),
