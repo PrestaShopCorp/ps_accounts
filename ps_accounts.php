@@ -49,6 +49,7 @@ class Ps_accounts extends Module
         'actionObjectShopUrlUpdateAfter',
         'displayDashboardTop',
         'displayAccountUpdateWarning',
+        'actionAdminControllerInitBefore',
     ];
 
     /**
@@ -602,6 +603,22 @@ class Ps_accounts extends Module
         }
 
         return true;
+    }
+
+    /**
+     * @param $params
+     *
+     * @return void
+     *
+     * @throws Exception
+     */
+    public function hookActionAdminControllerInitBefore($params)
+    {
+        if (isset($_GET['logout'])) {
+            // TODO: redirect to oauth2 session logout
+            // http://prestashop8.docker.localhost/administration/index.php?controller=AdminLogin&logout=1&token=609a85a247efa8eef5f87fb1f148ff37
+            $this->getLogger()->error('### LOGOUT');
+        }
     }
 
     /**
