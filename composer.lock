@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "a268db00ecdb9ebfab162cc10f77c09f",
+    "content-hash": "da582ff3cb5a0df9396cb0ac65fb722e",
     "packages": [
         {
             "name": "guzzlehttp/guzzle",
@@ -831,16 +831,16 @@
         },
         {
             "name": "prestashopcorp/oauth2-prestashop",
-            "version": "v1.0.0",
+            "version": "dev-feat/get-session-logout-url",
             "source": {
                 "type": "git",
                 "url": "https://github.com/PrestaShopCorp/oauth2-prestashop.git",
-                "reference": "2b29979c066db9f1b5a06102b6843d25525adb00"
+                "reference": "54513dbb33aa2e3c6fd6b8c6011d4e18af326273"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/PrestaShopCorp/oauth2-prestashop/zipball/2b29979c066db9f1b5a06102b6843d25525adb00",
-                "reference": "2b29979c066db9f1b5a06102b6843d25525adb00",
+                "url": "https://api.github.com/repos/PrestaShopCorp/oauth2-prestashop/zipball/54513dbb33aa2e3c6fd6b8c6011d4e18af326273",
+                "reference": "54513dbb33aa2e3c6fd6b8c6011d4e18af326273",
                 "shasum": ""
             },
             "require": {
@@ -881,9 +881,9 @@
             ],
             "support": {
                 "issues": "https://github.com/PrestaShopCorp/oauth2-prestashop/issues",
-                "source": "https://github.com/PrestaShopCorp/oauth2-prestashop/tree/v1.0.0"
+                "source": "https://github.com/PrestaShopCorp/oauth2-prestashop/tree/feat/get-session-logout-url"
             },
-            "time": "2022-10-04T15:35:08+00:00"
+            "time": "2022-12-15T15:23:49+00:00"
         },
         {
             "name": "psr/cache",
@@ -5459,7 +5459,9 @@
     ],
     "aliases": [],
     "minimum-stability": "stable",
-    "stability-flags": [],
+    "stability-flags": {
+        "prestashopcorp/oauth2-prestashop": 20
+    },
     "prefer-stable": false,
     "prefer-lowest": false,
     "platform": {
