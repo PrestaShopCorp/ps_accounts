@@ -666,8 +666,6 @@ class Ps_accounts extends Module
                 'id_token_hint' => $accessToken->getValues()['id_token']
             ]);
 
-            $this->getLogger()->error('### LOGOUT ' . $logoutUrl);
-
             // Redirect the user to the authorization URL.
             header('Location: ' . $logoutUrl);
             exit;
