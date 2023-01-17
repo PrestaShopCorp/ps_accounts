@@ -49,6 +49,7 @@ class Ps_accounts extends Module
         'actionObjectShopUrlUpdateAfter',
         'displayDashboardTop',
         'displayAccountUpdateWarning',
+        'actionAdminLoginControllerLoginAfter',
         'actionAdminControllerInitBefore',
     ];
 
@@ -606,7 +607,36 @@ class Ps_accounts extends Module
     }
 
     /**
-     * @param $params
+     * @param array $params
+     *
+     * @return void
+     *
+     * @throws Exception
+     */
+    public function hookActionAdminLoginControllerLoginAfter($params)
+    {
+        /** @var Employee $employee */
+        $employee = $params['employee'];
+
+        /** @var \PrestaShop\Module\PsAccounts\Service\AnalyticsService $analyticsService */
+        $analyticsService = $this->getService(\PrestaShop\Module\PsAccounts\Service\AnalyticsService::class);
+
+        /** @var \PrestaShop\Module\PsAccounts\Service\PsAccountsService $psAccountsService */
+        $psAccountsService = $this->getService(\PrestaShop\Module\PsAccounts\Service\PsAccountsService::class);
+
+        $account = $psAccountsService->getEmployeeAccount();
+
+        if ($this->isShopEdition() && !empty($account)) {
+            $analyticsService->trackUserSignedIntoBackOfficeLocally(
+                $account->getEmail(),
+                $account->getUid(),
+                (string) $psAccountsService->getShopUuid() ?? null
+            );
+        }
+    }
+
+    /**
+     * @param array $params
      *
      * @return void
      *
@@ -614,10 +644,31 @@ class Ps_accounts extends Module
      */
     public function hookActionAdminControllerInitBefore($params)
     {
-        if (isset($_GET['logout'])) {
-            // TODO: redirect to oauth2 session logout
-            // http://prestashop8.docker.localhost/administration/index.php?controller=AdminLogin&logout=1&token=609a85a247efa8eef5f87fb1f148ff37
-            $this->getLogger()->error('### LOGOUT');
+        if (isset($_GET['logout'])
+            && !isset($_GET[\PrestaShop\Module\PsAccounts\Provider\OAuth2\Oauth2ClientShopProvider::QUERY_LOGOUT_CALLBACK_PARAM])) {
+
+            /** @var \PrestaShop\Module\PsAccounts\Provider\OAuth2\Oauth2ClientShopProvider $provider */
+            $provider = $this->getService(\PrestaShop\OAuth2\Client\Provider\PrestaShop::class);
+
+            /** @var \Symfony\Component\HttpFoundation\Session\SessionInterface $session */
+            $session = $this->getContainer()->get('session');
+
+            /** @var \League\OAuth2\Client\Token\AccessToken $accessToken */
+            $accessToken = $session->get('accessToken');
+
+            if (empty($accessToken)) {
+                return;
+            }
+
+            $logoutUrl = $provider->getLogoutUrl([
+                'id_token_hint' => $accessToken->getValues()['id_token']
+            ]);
+
+            $this->getLogger()->error('### LOGOUT ' . $logoutUrl);
+
+            // Redirect the user to the authorization URL.
+            header('Location: ' . $logoutUrl);
+            exit;
         }
     }
 
@@ -743,5 +794,10 @@ class Ps_accounts extends Module
     public function getCustomHooks()
     {
         return $this->customHooks;
+    }
+
+    public function isShopEdition(): bool
+    {
+        return Module::isEnabled('smb_edition');
     }
 }

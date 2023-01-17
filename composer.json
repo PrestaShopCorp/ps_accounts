@@ -32,7 +32,8 @@
         "prestashop/module-lib-service-container": "^1.2",
         "sentry/sentry": "^1.0",
         "league/oauth2-client": "^2.6",
-        "prestashopcorp/oauth2-prestashop": "dev-feat/get-session-logout-url"
+        "prestashopcorp/oauth2-prestashop": "dev-feat/get-session-logout-url",
+        "segmentio/analytics-php": "^1.8"
     },
     "require-dev": {
         "phpunit/phpunit": "^8.5",

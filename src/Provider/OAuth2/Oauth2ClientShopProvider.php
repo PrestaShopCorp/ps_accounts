@@ -26,6 +26,9 @@ use PrestaShop\OAuth2\Client\Provider\PrestaShop;
 
 class Oauth2ClientShopProvider extends PrestaShop
 {
+    public const SESSION_ACCESS_TOKEN_NAME = 'accessToken';
+    public const QUERY_LOGOUT_CALLBACK_PARAM = 'oauth2Callback';
+
     /**
      * @var \Ps_accounts
      */
@@ -59,6 +62,7 @@ class Oauth2ClientShopProvider extends PrestaShop
             'clientId' => $this->configuration->getOauth2ClientId(),
             'clientSecret' => $this->configuration->getOauth2ClientSecret(),
             'redirectUri' => $this->getRedirectUri(),
+            'postLogoutCallbackUri' => $this->getPostLogoutRedirectUri(),
         ], $options), $collaborators);
     }
 
@@ -113,5 +117,27 @@ class Oauth2ClientShopProvider extends PrestaShop
     public function getRedirectUri(): string
     {
         return $this->context->link->getAdminLink('AdminOAuth2PsAccounts', false);
+    }
+
+    /**
+     * @return string
+     *
+     * @throws \Exception
+     */
+    public function getBaseSessionLogoutUrl(): string
+    {
+        return $this->getParameter(
+            'ps_accounts.oauth2_url_session_logout',
+            parent::getBaseSessionLogoutUrl()
+        );
+    }
+
+    public function getPostLogoutRedirectUri(): string
+    {
+        // return 'https://' . _FRONTOFFICE_SERVER_ . '/en?logout&' . self::QUERY_LOGOUT_CALLBACK_PARAM;
+        return $this->context->link->getAdminLink('AdminLogin', true, [], [
+            'logout' => 1,
+            self::QUERY_LOGOUT_CALLBACK_PARAM => 1,
+        ]);
     }
 }
