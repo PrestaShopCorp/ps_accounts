@@ -146,7 +146,6 @@ class Oauth2ClientShopProvider extends PrestaShop
 
     public function getPostLogoutRedirectUri(): string
     {
-        // return 'https://' . _FRONTOFFICE_SERVER_ . '/en?logout&' . self::QUERY_LOGOUT_CALLBACK_PARAM;
         return $this->context->link->getAdminLink('AdminLogin', false, [], [
             'logout' => 1,
             self::QUERY_LOGOUT_CALLBACK_PARAM => 1,

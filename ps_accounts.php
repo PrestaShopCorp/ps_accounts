@@ -653,6 +653,7 @@ class Ps_accounts extends Module
             /** @var \Symfony\Component\HttpFoundation\Session\SessionInterface $session */
             $session = $this->getContainer()->get('session');
 
+            // FIXME: create accessors on provider
             /** @var \League\OAuth2\Client\Token\AccessToken $accessToken */
             $accessToken = $session->get('accessToken');
 
