@@ -645,6 +645,7 @@ class Ps_accounts extends Module
     public function hookActionAdminControllerInitBefore($params)
     {
         if (isset($_GET['logout'])
+            // FIXME: create a dedicated logout controller
             && !isset($_GET[\PrestaShop\Module\PsAccounts\Provider\OAuth2\Oauth2ClientShopProvider::QUERY_LOGOUT_CALLBACK_PARAM])) {
 
             /** @var \PrestaShop\Module\PsAccounts\Provider\OAuth2\Oauth2ClientShopProvider $provider */
@@ -653,7 +654,7 @@ class Ps_accounts extends Module
             /** @var \Symfony\Component\HttpFoundation\Session\SessionInterface $session */
             $session = $this->getContainer()->get('session');
 
-            // FIXME: create accessors on provider
+            // FIXME: create accessToken accessors on provider
             /** @var \League\OAuth2\Client\Token\AccessToken $accessToken */
             $accessToken = $session->get('accessToken');
 
