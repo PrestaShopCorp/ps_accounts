@@ -24,6 +24,8 @@ require_once __DIR__ . '/vendor/autoload.php';
 
 class Ps_accounts extends Module
 {
+    use \PrestaShop\Module\PsAccounts\Provider\OAuth2\Oauth2LogoutTrait;
+
     const DEFAULT_ENV = '';
 
     // Needed in order to retrieve the module version easier (in api call headers) than instanciate
@@ -644,38 +646,15 @@ class Ps_accounts extends Module
      */
     public function hookActionAdminControllerInitBefore($params)
     {
-        /** @var \PrestaShop\Module\PsAccounts\Service\PsAccountsService $moduleService */
-        $moduleService = $this->getService(\PrestaShop\Module\PsAccounts\Service\PsAccountsService::class);
+        /** @var \PrestaShop\Module\PsAccounts\Service\PsAccountsService $psAccountsService */
+        $psAccountsService = $this->getService(\PrestaShop\Module\PsAccounts\Service\PsAccountsService::class);
 
-        if (!$moduleService->getLoginActivated()) {
+        if (!$psAccountsService->getLoginActivated()) {
             return;
         }
 
-        if (isset($_GET['logout'])
-            // FIXME: create a dedicated logout controller
-            && !isset($_GET[\PrestaShop\Module\PsAccounts\Provider\OAuth2\Oauth2ClientShopProvider::QUERY_LOGOUT_CALLBACK_PARAM])) {
-
-            /** @var \PrestaShop\Module\PsAccounts\Provider\OAuth2\Oauth2ClientShopProvider $provider */
-            $provider = $this->getService(\PrestaShop\OAuth2\Client\Provider\PrestaShop::class);
-
-            /** @var \Symfony\Component\HttpFoundation\Session\SessionInterface $session */
-            $session = $this->getContainer()->get('session');
-
-            // FIXME: create accessToken accessors on provider
-            /** @var \League\OAuth2\Client\Token\AccessToken $accessToken */
-            $accessToken = $session->get('accessToken');
-
-            if (empty($accessToken)) {
-                return;
-            }
-
-            $logoutUrl = $provider->getLogoutUrl([
-                'id_token_hint' => $accessToken->getValues()['id_token']
-            ]);
-
-            // Redirect the user to the authorization URL.
-            header('Location: ' . $logoutUrl);
-            exit;
+        if (isset($_GET['logout'])) {
+            $this->oauth2Logout();
         }
     }
 
@@ -806,5 +785,24 @@ class Ps_accounts extends Module
     public function isShopEdition(): bool
     {
         return Module::isEnabled('smb_edition');
+    }
+
+    protected function getProvider(): PrestaShop\Module\PsAccounts\Provider\OAuth2\Oauth2ClientShopProvider
+    {
+        /** @var \PrestaShop\Module\PsAccounts\Provider\OAuth2\Oauth2ClientShopProvider $provider */
+        $provider = $this->getService(\PrestaShop\OAuth2\Client\Provider\PrestaShop::class);
+
+        return $provider;
+    }
+
+    protected function getAccessToken(): League\OAuth2\Client\Token\AccessToken
+    {
+        /** @var \Symfony\Component\HttpFoundation\Session\SessionInterface $session */
+        $session = $this->getContainer()->get('session');
+
+        /** @var \League\OAuth2\Client\Token\AccessToken $accessToken */
+        $accessToken = $session->get('accessToken');
+
+        return $accessToken;
     }
 }
