@@ -644,6 +644,13 @@ class Ps_accounts extends Module
      */
     public function hookActionAdminControllerInitBefore($params)
     {
+        /** @var \PrestaShop\Module\PsAccounts\Service\PsAccountsService $moduleService */
+        $moduleService = $this->getService(\PrestaShop\Module\PsAccounts\Service\PsAccountsService::class);
+
+        if (!$moduleService->getLoginActivated()) {
+            return;
+        }
+
         if (isset($_GET['logout'])
             // FIXME: create a dedicated logout controller
             && !isset($_GET[\PrestaShop\Module\PsAccounts\Provider\OAuth2\Oauth2ClientShopProvider::QUERY_LOGOUT_CALLBACK_PARAM])) {
