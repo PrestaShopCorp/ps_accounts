@@ -18,6 +18,7 @@
  * @license   https://opensource.org/licenses/AFL-3.0 Academic Free License version 3.0
  */
 
+use PrestaShop\Module\PsAccounts\Service\AnalyticsService;
 use PrestaShop\Module\PsAccounts\Service\PsAccountsService;
 
 /**
@@ -51,6 +52,9 @@ class AdminLoginController extends AdminLoginControllerCore
     /** @var Ps_accounts */
     private $psAccountsModule;
 
+    /** @var AnalyticsService */
+    private $analyticsService;
+
     /**
      * @throws Exception
      */
@@ -69,6 +73,8 @@ class AdminLoginController extends AdminLoginControllerCore
         if (self::PS_ACCOUNTS_LOGIN_MODE_LOCAL !== $this->getPsAccountsLoginMode()) {
             $this->psAccountsLoginEnabled = $moduleService->getLoginActivated();
         }
+
+        $this->analyticsService = $this->psAccountsModule->getService(AnalyticsService::class);
     }
 
     /* @phpstan-ignore-next-line */
@@ -95,6 +101,12 @@ class AdminLoginController extends AdminLoginControllerCore
      */
     public function createTemplate($tpl_name)
     {
+        if ($this->psAccountsModule->isShopEdition()) {
+            $this->psAccountsLoginEnabled ?
+                $this->analyticsService->pageAccountsBoLogin() :
+                $this->analyticsService->pageLocalBoLogin();
+        }
+
         if ($this->psAccountsLoginEnabled && $tpl_name === $this->template) {
             return $this->createPsAccountsLoginTemplate();
         }

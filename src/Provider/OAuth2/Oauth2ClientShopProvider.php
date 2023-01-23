@@ -26,6 +26,9 @@ use PrestaShop\OAuth2\Client\Provider\PrestaShop;
 
 class Oauth2ClientShopProvider extends PrestaShop
 {
+    public const SESSION_ACCESS_TOKEN_NAME = 'accessToken';
+    public const QUERY_LOGOUT_CALLBACK_PARAM = 'oauth2Callback';
+
     /**
      * @var \Ps_accounts
      */
@@ -55,11 +58,24 @@ class Oauth2ClientShopProvider extends PrestaShop
         $this->context = $module->getContext();
         $this->configuration = $module->getService(ConfigurationRepository::class);
 
+        // Disable certificate verification from local configuration
+        $options['verify'] = (bool) $this->module->getParameter(
+            'ps_accounts.check_api_ssl_cert'
+        );
+
         parent::__construct(array_merge([
             'clientId' => $this->configuration->getOauth2ClientId(),
             'clientSecret' => $this->configuration->getOauth2ClientSecret(),
             'redirectUri' => $this->getRedirectUri(),
+            'postLogoutCallbackUri' => $this->getPostLogoutRedirectUri(),
         ], $options), $collaborators);
+    }
+
+    protected function getAllowedClientOptions(array $options)
+    {
+        return array_merge(parent::getAllowedClientOptions($options), [
+            'verify',
+        ]);
     }
 
     public static function create(): PrestaShop
@@ -113,5 +129,26 @@ class Oauth2ClientShopProvider extends PrestaShop
     public function getRedirectUri(): string
     {
         return $this->context->link->getAdminLink('AdminOAuth2PsAccounts', false);
+    }
+
+    /**
+     * @return string
+     *
+     * @throws \Exception
+     */
+    public function getBaseSessionLogoutUrl(): string
+    {
+        return $this->getParameter(
+            'ps_accounts.oauth2_url_session_logout',
+            parent::getBaseSessionLogoutUrl()
+        );
+    }
+
+    public function getPostLogoutRedirectUri(): string
+    {
+        return $this->context->link->getAdminLink('AdminLogin', false, [], [
+            'logout' => 1,
+            self::QUERY_LOGOUT_CALLBACK_PARAM => 1,
+        ]);
     }
 }

@@ -18,8 +18,34 @@
  * @license   https://opensource.org/licenses/AFL-3.0 Academic Free License version 3.0
  */
 
-namespace PrestaShop\Module\PsAccounts\Exception;
+namespace PrestaShop\Module\PsAccounts\Provider\OAuth2;
 
-class EmployeeAccountNotFoundException extends \Exception
+use League\OAuth2\Client\Token\AccessToken;
+
+trait Oauth2LogoutTrait
 {
+    abstract protected function getProvider(): Oauth2ClientShopProvider;
+
+    abstract protected function getAccessToken(): AccessToken;
+
+    /**
+     * @throws \Exception
+     */
+    public function oauth2Logout(): void
+    {
+        if (!isset($_GET[Oauth2ClientShopProvider::QUERY_LOGOUT_CALLBACK_PARAM])) {
+            $accessToken = $this->getAccessToken();
+
+            if (empty($accessToken)) {
+                return;
+            }
+
+            $logoutUrl = $this->getProvider()->getLogoutUrl([
+                'id_token_hint' => $accessToken->getValues()['id_token'],
+            ]);
+
+            header('Location: ' . $logoutUrl);
+            exit;
+        }
+    }
 }

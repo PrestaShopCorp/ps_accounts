@@ -81,6 +81,12 @@ services:
       - '@PrestaShop\Module\PsAccounts\Repository\ShopTokenRepository'
       - '@PrestaShop\Module\PsAccounts\Repository\ConfigurationRepository'
 
+  PrestaShop\Module\PsAccounts\Service\AnalyticsService:
+    class: PrestaShop\Module\PsAccounts\Service\AnalyticsService
+    public: true
+    arguments:
+      - '%ps_accounts.segment_write_key%'
+
   #####################
   # providers
 
