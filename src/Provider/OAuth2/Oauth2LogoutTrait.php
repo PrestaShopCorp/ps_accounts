@@ -26,7 +26,7 @@ trait Oauth2LogoutTrait
 {
     abstract protected function getProvider(): Oauth2ClientShopProvider;
 
-    abstract protected function getAccessToken(): AccessToken;
+    abstract protected function getAccessToken(): ?AccessToken;
 
     /**
      * @throws \Exception
