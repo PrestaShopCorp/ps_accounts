@@ -653,8 +653,7 @@ class Ps_accounts extends Module
             return;
         }
 
-        if (isset($_GET['logout']) && !isset($_GET['loginError'])) {
-            // FIXME: display login error
+        if (isset($_GET['logout'])) {
             $this->oauth2Logout();
         }
     }
@@ -796,7 +795,7 @@ class Ps_accounts extends Module
         return $provider;
     }
 
-    protected function getAccessToken(): League\OAuth2\Client\Token\AccessToken
+    protected function getAccessToken(): ?League\OAuth2\Client\Token\AccessToken
     {
         /** @var \Symfony\Component\HttpFoundation\Session\SessionInterface $session */
         $session = $this->getContainer()->get('session');

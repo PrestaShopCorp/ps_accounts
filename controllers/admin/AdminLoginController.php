@@ -20,6 +20,7 @@
 
 use PrestaShop\Module\PsAccounts\Service\AnalyticsService;
 use PrestaShop\Module\PsAccounts\Service\PsAccountsService;
+use Symfony\Component\HttpFoundation\Session\SessionInterface;
 
 /**
  * Copyright since 2007 PrestaShop SA and Contributors
@@ -124,6 +125,9 @@ class AdminLoginController extends AdminLoginControllerCore
         /** @var \PrestaShop\Module\PsAccounts\Provider\OAuth2\Oauth2ClientShopProvider $provider */
         $provider = $this->psAccountsModule->getService(\PrestaShop\OAuth2\Client\Provider\PrestaShop::class);
 
+        /** @var SessionInterface $session */
+        $session = $this->psAccountsModule->getContainer()->get('session');
+
         $this->context->smarty->assign('oauthRedirectUri', $provider->getRedirectUri());
         $this->context->smarty->assign('legacyLoginUri', $this->context->link->getAdminLink('AdminLogin', true, [], [
             'mode' => self::PS_ACCOUNTS_LOGIN_MODE_LOCAL,
@@ -132,7 +136,7 @@ class AdminLoginController extends AdminLoginControllerCore
         $isoCode = $this->context->currentLocale->getCode();
 
         $this->context->smarty->assign('uriHelpCenter', $this->getUriHelpCenter($isoCode));
-        $this->context->smarty->assign('loginError', Tools::getValue('loginError'));
+        $this->context->smarty->assign('loginError', $session->get('loginError'));
         $this->context->smarty->assign('meta_title', '');
         $this->context->smarty->assign('ssoResendVerificationEmail',
             $this->psAccountsModule->getParameter('ps_accounts.sso_resend_verification_email_url')
