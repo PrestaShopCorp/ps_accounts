@@ -653,7 +653,8 @@ class Ps_accounts extends Module
             return;
         }
 
-        if (isset($_GET['logout'])) {
+        if (isset($_GET['logout']) && !isset($_GET['loginError'])) {
+            // FIXME: display login error
             $this->oauth2Logout();
         }
     }
