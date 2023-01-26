@@ -54,4 +54,3 @@ yarn-debug.log*
 yarn-error.log*
 
 .vscode
-/tests/local_config.php

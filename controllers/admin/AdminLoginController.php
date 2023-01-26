@@ -102,9 +102,14 @@ class AdminLoginController extends AdminLoginControllerCore
     public function createTemplate($tpl_name)
     {
         if ($this->psAccountsModule->isShopEdition()) {
+            /** @var PsAccountsService $psAccountsService */
+            $psAccountsService = $this->psAccountsModule->getService(PsAccountsService::class);
+            $account = $psAccountsService->getEmployeeAccount();
+            $userId = $account ? $account->getUid() : null;
+
             $this->psAccountsLoginEnabled ?
-                $this->analyticsService->pageAccountsBoLogin() :
-                $this->analyticsService->pageLocalBoLogin();
+                $this->analyticsService->pageAccountsBoLogin($userId) :
+                $this->analyticsService->pageLocalBoLogin($userId);
         }
 
         if ($this->psAccountsLoginEnabled && $tpl_name === $this->template) {
