@@ -87,12 +87,12 @@ class AnalyticsService
         Segment::flush();
     }
 
-    public function pageAccountsBoLogin(?string $userUid=null): void
+    public function pageAccountsBoLogin(?string $userUid = null): void
     {
         $this->page('Accounts Backoffice Login Page', $userUid);
     }
 
-    public function pageLocalBoLogin(?string $userUid=null): void
+    public function pageLocalBoLogin(?string $userUid = null): void
     {
         $this->page('Local Backoffice Login Page', $userUid);
     }
@@ -103,8 +103,7 @@ class AnalyticsService
             'userId' => $userUid,
             // aggregate any previous anonymous call
             'anonymous_id' => $this->getAnonymousId(),
-            'traits' =>
-                [$name ? ['name' => $name] : []] +
+            'traits' => [$name ? ['name' => $name] : []] +
                 [$email ? ['email' => $email] : []],
         ]);
     }
