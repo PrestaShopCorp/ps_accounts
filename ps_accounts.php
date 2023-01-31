@@ -632,11 +632,8 @@ class Ps_accounts extends Module
                 $email = $employee->email;
             }
             $analyticsService->identify($uid, null, $email);
-            $analyticsService->trackUserSignedIntoBackOfficeLocally(
-                $email,
-                $uid,
-                (string) $psAccountsService->getShopUuid() ?? null
-            );
+            $analyticsService->trackUserSignedIntoBackOfficeLocally($uid, $email);
+            $analyticsService->group($uid, (string) $psAccountsService->getShopUuid());
         }
     }
 
@@ -766,6 +763,7 @@ class Ps_accounts extends Module
 
     public function isShopEdition(): bool
     {
-        return Module::isEnabled('smb_edition');
+        return true;
+        //return Module::isEnabled('smb_edition');
     }
 }

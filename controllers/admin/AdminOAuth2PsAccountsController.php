@@ -151,8 +151,11 @@ class AdminOAuth2PsAccountsController extends ModuleAdminController
             );
             $this->analyticsService->trackUserSignedIntoApp(
                 $user->getId(),
-                (string) $this->psAccountsService->getShopUuid() ?? null,
                 'smb-edition'
+            );
+            $this->analyticsService->group(
+                $user->getId(),
+                (string) $this->psAccountsService->getShopUuid()
             );
         }
 
@@ -212,9 +215,12 @@ class AdminOAuth2PsAccountsController extends ModuleAdminController
             );
             $this->analyticsService->trackBackOfficeSSOSignInFailed(
                 $user->getId(),
-                (string) $this->psAccountsService->getShopUuid() ?? null,
                 $e->getType(),
                 $e->getMessage()
+            );
+            $this->analyticsService->group(
+                $user->getId(),
+                (string) $this->psAccountsService->getShopUuid()
             );
         }
 
