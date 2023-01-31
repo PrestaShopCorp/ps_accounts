@@ -152,7 +152,8 @@
     document.addEventListener("DOMContentLoaded", function() {
         const returnTo = '{$redirect}';
         const redirectUri = "{$oauthRedirectUri}";
-        const oauth2Uri = redirectUri + '&return_to=' + encodeURIComponent(returnTo);
+        const locale = (navigator.language || navigator.userLanguage || 'en').slice(0, 2);
+        const oauth2Uri = redirectUri + '&return_to=' + encodeURIComponent(returnTo) + '&locale=' + encodeURIComponent(locale);
 
         document.querySelector('#ps-accounts-login').addEventListener('click', function() {
             document.location = oauth2Uri;

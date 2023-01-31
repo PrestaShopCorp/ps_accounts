@@ -58,7 +58,7 @@ trait Oauth2LoginTrait
 
             $this->setSessionReturnTo(Tools::getValue($this->getReturnToParam()));
 
-            $this->oauth2Redirect();
+            $this->oauth2Redirect(Tools::getValue('locale'));
 
         // Check given state against previously stored one to mitigate CSRF attack
         } elseif (empty($_GET['state']) || ($session->has('oauth2state') && $_GET['state'] !== $session->get('oauth2state'))) {
@@ -81,14 +81,14 @@ trait Oauth2LoginTrait
         }
     }
 
-    private function oauth2Redirect(): void
+    private function oauth2Redirect(string $locale): void
     {
         $provider = $this->getProvider();
 
         // Fetch the authorization URL from the provider; this returns the
         // urlAuthorize option and generates and applies any necessary parameters
         // (e.g. state).
-        $authorizationUrl = $provider->getAuthorizationUrl();
+        $authorizationUrl = $provider->getAuthorizationUrl(['ui_locales' => $locale]);
 
         // Get the state generated for you and store it to the session.
         $this->getSession()->set('oauth2state', $provider->getState());
