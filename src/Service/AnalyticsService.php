@@ -22,6 +22,7 @@ class AnalyticsService
         $this->track([
             'event' => 'User Signed Into App',
             'userId' => $userUid,
+            'anonymousId' => $this->getAnonymousId(),
             'context' => [
                 'groupId' => $shopUid,
             ],
@@ -36,6 +37,7 @@ class AnalyticsService
         $this->track([
             'event' => 'User Signed Into Back Office Locally',
             'userId' => $userUid,
+            'anonymousId' => $this->getAnonymousId(),
             'context' => [
                 'groupId' => $shopUid,
             ],
@@ -50,6 +52,7 @@ class AnalyticsService
         $this->track([
             'event' => 'Back Office SSO Sign In Failed',
             'userId' => $userUid,
+            'anonymousId' => $this->getAnonymousId(),
             'context' => [
                 'groupId' => $shopUid,
             ],
@@ -69,14 +72,9 @@ class AnalyticsService
         ?string $title = null,
         ?string $url = null
     ): void {
-        $data = [];
-        if ($userId) {
-            $data['userId'] = $userId;
-        } else {
-            $data['anonymousId'] = session_id();
-        }
-
-        Segment::page($data + [
+        Segment::page([
+            'userId' => $userId,
+            'anonymousId' => $this->getAnonymousId(),
             'name' => $name,
             'properties' => [
                 'path' => $path !== null ? $path : $_SERVER['PATH_INFO'],
@@ -89,24 +87,29 @@ class AnalyticsService
         Segment::flush();
     }
 
-    public function pageAccountsBoLogin(): void
+    public function pageAccountsBoLogin(?string $userUid = null): void
     {
-        $this->page('Accounts Backoffice Login Page');
+        $this->page('Accounts Backoffice Login Page', $userUid);
     }
 
-    public function pageLocalBoLogin(): void
+    public function pageLocalBoLogin(?string $userUid = null): void
     {
-        $this->page('Local Backoffice Login Page');
+        $this->page('Local Backoffice Login Page', $userUid);
     }
 
-    public function identify(string $userUid, string $name, string $email): void
+    public function identify(?string $userUid, ?string $name, ?string $email): void
     {
         Segment::identify([
             'userId' => $userUid,
-            'traits' => [
-                'name' => $name,
-                'email' => $email,
-            ],
+            // aggregate any previous anonymous call
+            'anonymous_id' => $this->getAnonymousId(),
+            'traits' => [$name ? ['name' => $name] : []] +
+                [$email ? ['email' => $email] : []],
         ]);
+    }
+
+    protected function getAnonymousId(): ?string
+    {
+        return $_COOKIE['ajs_anonymous_id'] ?? session_id();
     }
 }

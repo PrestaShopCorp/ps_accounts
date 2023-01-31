@@ -146,11 +146,11 @@ class AdminOAuth2PsAccountsController extends ModuleAdminController
         $this->unsetLoginError();
 
         if ($this->module->isShopEdition()) {
-//            $this->analyticsService->identify(
-//                $user->getId(),
-//                $user->getName(),
-//                $user->getEmail()
-//            );
+            $this->analyticsService->identify(
+                $user->getId(),
+                $user->getName(),
+                $user->getEmail()
+            );
             $this->analyticsService->trackUserSignedIntoApp(
                 $user->getId(),
                 (string) $this->psAccountsService->getShopUuid() ?? null,
@@ -209,8 +209,14 @@ class AdminOAuth2PsAccountsController extends ModuleAdminController
                 $e instanceof EmployeeNotFoundException ||
                 $e instanceof EmailNotVerifiedException
             )) {
+            $user = $e->getPrestaShopUser();
+            $this->analyticsService->identify(
+                $user->getId(),
+                $user->getName(),
+                $user->getEmail()
+            );
             $this->analyticsService->trackBackOfficeSSOSignInFailed(
-                $e->getPrestaShopUser()->getId(),
+                $user->getId(),
                 (string) $this->psAccountsService->getShopUuid() ?? null,
                 $e->getType(),
                 $e->getMessage()
