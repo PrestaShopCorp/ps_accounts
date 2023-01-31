@@ -22,11 +22,11 @@ namespace PrestaShop\Module\PsAccounts\Exception\AccountLogin;
 
 use PrestaShop\OAuth2\Client\Provider\PrestaShopUser;
 
-class HydraErrorException extends AccountLoginException
+class Oauth2Exception extends AccountLoginException
 {
     public function __construct(
         ?PrestaShopUser $user,
-        string $message = 'Your account email is not verified',
+        string $message = 'OAuth2 error',
         string $type = 'error_from_hydra'
     ) {
         parent::__construct($user, $message, $type);

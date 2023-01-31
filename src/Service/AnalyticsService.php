@@ -17,45 +17,36 @@ class AnalyticsService
         Segment::flush();
     }
 
-    public function trackUserSignedIntoApp(string $userUid, ?string $shopUid, string $application): void
+    public function trackUserSignedIntoApp(?string $userUid, string $application): void
     {
         $this->track([
             'event' => 'User Signed Into App',
             'userId' => $userUid,
             'anonymousId' => $this->getAnonymousId(),
-            'context' => [
-                'groupId' => $shopUid,
-            ],
             'properties' => [
                 'application' => $application,
             ],
         ]);
     }
 
-    public function trackUserSignedIntoBackOfficeLocally(string $userEmail, ?string $userUid, string $shopUid): void
+    public function trackUserSignedIntoBackOfficeLocally(?string $userUid, string $userEmail): void
     {
         $this->track([
             'event' => 'User Signed Into Back Office Locally',
             'userId' => $userUid,
             'anonymousId' => $this->getAnonymousId(),
-            'context' => [
-                'groupId' => $shopUid,
-            ],
             'properties' => [
                 'email' => $userEmail,
             ],
         ]);
     }
 
-    public function trackBackOfficeSSOSignInFailed(string $userUid, ?string $shopUid, ?string $type, ?string $description): void
+    public function trackBackOfficeSSOSignInFailed(?string $userUid, ?string $type, ?string $description): void
     {
         $this->track([
             'event' => 'Back Office SSO Sign In Failed',
             'userId' => $userUid,
             'anonymousId' => $this->getAnonymousId(),
-            'context' => [
-                'groupId' => $shopUid,
-            ],
             'properties' => [
                 'type' => $type,
                 'description' => $description,
@@ -105,6 +96,18 @@ class AnalyticsService
             'anonymous_id' => $this->getAnonymousId(),
             'traits' => [$name ? ['name' => $name] : []] +
                 [$email ? ['email' => $email] : []],
+        ]);
+    }
+
+    public function group(?string $userUid, string $shopUid): void
+    {
+        Segment::group([
+            'userId' => $userUid,
+            'groupId' => $shopUid,
+            'anonymous_id' => $this->getAnonymousId(),
+//            "traits" => [
+//                "name" => $shopName,
+//            ]
         ]);
     }
 
