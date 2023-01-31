@@ -24,6 +24,8 @@ require_once __DIR__ . '/vendor/autoload.php';
 
 class Ps_accounts extends Module
 {
+    use \PrestaShop\Module\PsAccounts\Provider\OAuth2\Oauth2LogoutTrait;
+
     const DEFAULT_ENV = '';
 
     // Needed in order to retrieve the module version easier (in api call headers) than instanciate
@@ -50,6 +52,7 @@ class Ps_accounts extends Module
         'displayDashboardTop',
         'displayAccountUpdateWarning',
         'actionAdminLoginControllerLoginAfter',
+        'actionAdminControllerInitBefore',
     ];
 
     /**
@@ -190,7 +193,7 @@ class Ps_accounts extends Module
     {
         if (null === $this->serviceContainer) {
             $this->serviceContainer = new \PrestaShop\Module\PsAccounts\DependencyInjection\ServiceContainer(
-            // append version number to force cache generation (1.6 Core won't clear it)
+                // append version number to force cache generation (1.6 Core won't clear it)
                 $this->name . str_replace(['.', '-'], '', $this->version),
                 $this->getLocalPath(),
                 $this->getModuleEnv()
@@ -609,6 +612,8 @@ class Ps_accounts extends Module
      * @param array $params
      *
      * @return void
+     *
+     * @throws Exception
      */
     public function hookActionAdminLoginControllerLoginAfter($params)
     {
@@ -634,6 +639,27 @@ class Ps_accounts extends Module
             $analyticsService->identify($uid, null, $email);
             $analyticsService->trackUserSignedIntoBackOfficeLocally($uid, $email);
             $analyticsService->group($uid, (string) $psAccountsService->getShopUuid());
+        }
+    }
+
+    /**
+     * @param array $params
+     *
+     * @return void
+     *
+     * @throws Exception
+     */
+    public function hookActionAdminControllerInitBefore($params)
+    {
+        /** @var \PrestaShop\Module\PsAccounts\Service\PsAccountsService $psAccountsService */
+        $psAccountsService = $this->getService(\PrestaShop\Module\PsAccounts\Service\PsAccountsService::class);
+
+        if (!$psAccountsService->getLoginActivated()) {
+            return;
+        }
+
+        if (isset($_GET['logout'])) {
+            $this->oauth2Logout();
         }
     }
 
@@ -764,5 +790,24 @@ class Ps_accounts extends Module
     public function isShopEdition(): bool
     {
         return Module::isEnabled('smb_edition');
+    }
+
+    protected function getProvider(): PrestaShop\Module\PsAccounts\Provider\OAuth2\Oauth2ClientShopProvider
+    {
+        /** @var \PrestaShop\Module\PsAccounts\Provider\OAuth2\Oauth2ClientShopProvider $provider */
+        $provider = $this->getService(\PrestaShop\OAuth2\Client\Provider\PrestaShop::class);
+
+        return $provider;
+    }
+
+    protected function getAccessToken(): ?League\OAuth2\Client\Token\AccessToken
+    {
+        /** @var \Symfony\Component\HttpFoundation\Session\SessionInterface $session */
+        $session = $this->getContainer()->get('session');
+
+        /** @var \League\OAuth2\Client\Token\AccessToken $accessToken */
+        $accessToken = $session->get('accessToken');
+
+        return $accessToken;
     }
 }

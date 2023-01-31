@@ -143,6 +143,8 @@ class AdminOAuth2PsAccountsController extends ModuleAdminController
 
         $cookie->write();
 
+        $this->unsetLoginError();
+
         if ($this->module->isShopEdition()) {
             $this->analyticsService->identify(
                 $user->getId(),
@@ -201,6 +203,9 @@ class AdminOAuth2PsAccountsController extends ModuleAdminController
         return $employee;
     }
 
+    /**
+     * @throws ContainerNotFoundException
+     */
     private function onLoginFailed(AccountLoginException $e): void
     {
         if ($this->module->isShopEdition() && (
@@ -225,14 +230,17 @@ class AdminOAuth2PsAccountsController extends ModuleAdminController
         }
 
         $this->oauth2ErrorLog($e->getMessage());
+        $this->setLoginError($e->getType());
         Tools::redirectAdmin(
             $this->context->link->getAdminLink('AdminLogin', true, [], [
                 'logout' => 1,
-                'loginError' => $e->getType(),
             ])
         );
     }
 
+    /**
+     * @throws Exception
+     */
     private function getProvider(): Oauth2ClientShopProvider
     {
         return $this->module->getService(PrestaShop::class);
@@ -251,7 +259,23 @@ class AdminOAuth2PsAccountsController extends ModuleAdminController
      */
     private function getSession(): SessionInterface
     {
-        /* @phpstan-ignore-next-line */
+        /* @phpstan-ignore-next-line  */
         return $this->module->getContainer()->get('session');
+    }
+
+    /**
+     * @throws ContainerNotFoundException
+     */
+    private function setLoginError(string $error): void
+    {
+        $this->getSession()->set('loginError', $error);
+    }
+
+    /**
+     * @throws ContainerNotFoundException
+     */
+    private function unsetLoginError(): void
+    {
+        $this->getSession()->remove('loginError');
     }
 }
