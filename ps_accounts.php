@@ -763,7 +763,6 @@ class Ps_accounts extends Module
 
     public function isShopEdition(): bool
     {
-        return true;
-        //return Module::isEnabled('smb_edition');
+        return Module::isEnabled('smb_edition');
     }
 }
