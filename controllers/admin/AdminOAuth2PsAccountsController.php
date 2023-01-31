@@ -24,7 +24,7 @@ use PrestaShop\Module\PsAccounts\Entity\EmployeeAccount;
 use PrestaShop\Module\PsAccounts\Exception\AccountLogin\AccountLoginException;
 use PrestaShop\Module\PsAccounts\Exception\AccountLogin\EmailNotVerifiedException;
 use PrestaShop\Module\PsAccounts\Exception\AccountLogin\EmployeeNotFoundException;
-use PrestaShop\Module\PsAccounts\Exception\AccountLogin\HydraErrorException;
+use PrestaShop\Module\PsAccounts\Exception\AccountLogin\Oauth2Exception;
 use PrestaShop\Module\PsAccounts\Exception\AccountLogin\OtherErrorException;
 use PrestaShop\Module\PsAccounts\Provider\OAuth2\Oauth2ClientShopProvider;
 use PrestaShop\Module\PsAccounts\Provider\OAuth2\Oauth2LoginTrait;
@@ -83,7 +83,7 @@ class AdminOAuth2PsAccountsController extends ModuleAdminController
         try {
             $this->oauth2Login();
         } catch (IdentityProviderException $e) {
-            $this->onLoginFailed(new HydraErrorException(null, $e->getMessage()));
+            $this->onLoginFailed(new Oauth2Exception(null, $e->getMessage()));
         } catch (EmailNotVerifiedException | EmployeeNotFoundException $e) {
             $this->onLoginFailed($e);
         } catch (Exception $e) {

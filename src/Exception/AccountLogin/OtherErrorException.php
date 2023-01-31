@@ -26,7 +26,7 @@ class OtherErrorException extends AccountLoginException
 {
     public function __construct(
         ?PrestaShopUser $user,
-        string $message = 'Your account email is not verified',
+        string $message = 'Other error',
         string $type = 'error_other'
     ) {
         parent::__construct($user, $message, $type);
