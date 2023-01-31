@@ -101,14 +101,16 @@ class AnalyticsService
 
     public function group(?string $userUid, string $shopUid): void
     {
-        Segment::group([
-            'userId' => $userUid,
-            'groupId' => $shopUid,
-            'anonymous_id' => $this->getAnonymousId(),
+        if (!empty($shopUid)) {
+            Segment::group([
+                'userId' => $userUid,
+                'groupId' => $shopUid,
+                'anonymous_id' => $this->getAnonymousId(),
 //            "traits" => [
 //                "name" => $shopName,
 //            ]
-        ]);
+            ]);
+        }
     }
 
     protected function getAnonymousId(): ?string
