@@ -92,7 +92,6 @@ class AnalyticsService
         } catch (\Exception $e) {
             $this->logger->error($e->getMessage(), $message);
         }
-
     }
 
     public function pageAccountsBoLogin(?string $userUid = null): void

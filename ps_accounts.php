@@ -637,8 +637,8 @@ class Ps_accounts extends Module
                 $email = $employee->email;
             }
             $analyticsService->identify($uid, null, $email);
-            $analyticsService->trackUserSignedIntoBackOfficeLocally($uid, $email);
             $analyticsService->group($uid, (string) $psAccountsService->getShopUuid());
+            $analyticsService->trackUserSignedIntoBackOfficeLocally($uid, $email);
         }
     }
 
