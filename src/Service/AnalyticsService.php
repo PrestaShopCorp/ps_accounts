@@ -2,19 +2,30 @@
 
 namespace PrestaShop\Module\PsAccounts\Service;
 
+use Monolog\Logger;
 use Segment;
 
 class AnalyticsService
 {
-    public function __construct(string $segmentWriteKey)
+    /**
+     * @var Logger
+     */
+    private $logger;
+
+    public function __construct(string $segmentWriteKey, Logger $logger)
     {
         Segment::init($segmentWriteKey);
+        $this->logger = $logger;
     }
 
     public function track(array $message): void
     {
-        Segment::track($message);
-        Segment::flush();
+        try {
+            Segment::track($message);
+            Segment::flush();
+        } catch (\Exception $e) {
+            $this->logger->error($e->getMessage(), $message);
+        }
     }
 
     public function trackUserSignedIntoApp(?string $userUid, string $application): void
@@ -63,7 +74,7 @@ class AnalyticsService
         ?string $title = null,
         ?string $url = null
     ): void {
-        Segment::page([
+        $message = [
             'userId' => $userId,
             'anonymousId' => $this->getAnonymousId(),
             'name' => $name,
@@ -74,8 +85,14 @@ class AnalyticsService
                 'title' => $title,
                 'url' => $url !== null ? $url : $_SERVER['HTTP_HOST'] . $_SERVER['REQUEST_URI'],
             ],
-        ]);
-        Segment::flush();
+        ];
+        try {
+            Segment::page($message);
+            Segment::flush();
+        } catch (\Exception $e) {
+            $this->logger->error($e->getMessage(), $message);
+        }
+
     }
 
     public function pageAccountsBoLogin(?string $userUid = null): void
@@ -90,26 +107,33 @@ class AnalyticsService
 
     public function identify(?string $userUid, ?string $name, ?string $email): void
     {
-        Segment::identify([
+        $message = [
             'userId' => $userUid,
-            // aggregate any previous anonymous call
-            'anonymous_id' => $this->getAnonymousId(),
+            'anonymousId' => $this->getAnonymousId(),
             'traits' => [$name ? ['name' => $name] : []] +
                 [$email ? ['email' => $email] : []],
-        ]);
+        ];
+        try {
+            Segment::identify($message);
+        } catch (\Exception $e) {
+            $this->logger->error($e->getMessage(), $message);
+        }
     }
 
     public function group(?string $userUid, string $shopUid): void
     {
-        if (!empty($shopUid)) {
-            Segment::group([
-                'userId' => $userUid,
-                'groupId' => $shopUid,
-                'anonymous_id' => $this->getAnonymousId(),
+        $message = [
+            'userId' => $userUid,
+            'groupId' => $shopUid,
+            'anonymousId' => $this->getAnonymousId(),
 //            "traits" => [
 //                "name" => $shopName,
 //            ]
-            ]);
+        ];
+        try {
+            Segment::group($message);
+        } catch (\Exception $e) {
+            $this->logger->error($e->getMessage(), $message);
         }
     }
 

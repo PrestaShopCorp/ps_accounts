@@ -86,6 +86,7 @@ services:
     public: true
     arguments:
       - '%ps_accounts.segment_write_key%'
+      - '@ps_accounts.logger'
 
   #####################
   # providers
