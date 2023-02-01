@@ -28,12 +28,7 @@ trait Oauth2LogoutTrait
 
     abstract protected function getAccessToken(): ?AccessToken;
 
-    public function isOauth2LogoutEnabled()
-    {
-//        $prop = 'oauth2LogoutEnabled';
-//        return property_exists($this, $prop) && (bool)$this->$prop;
-        return $this->hasParameter('ps_accounts.oauth2_url_session_logout');
-    }
+    abstract protected function isOauth2LogoutEnabled(): bool;
 
     /**
      * @throws \Exception

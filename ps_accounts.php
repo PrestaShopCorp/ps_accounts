@@ -810,4 +810,9 @@ class Ps_accounts extends Module
 
         return $accessToken;
     }
+
+    protected function isOauth2LogoutEnabled(): bool
+    {
+        return $this->hasParameter('ps_accounts.oauth2_url_session_logout');
+    }
 }
