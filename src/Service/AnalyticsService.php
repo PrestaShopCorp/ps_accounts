@@ -7,6 +7,8 @@ use Segment;
 
 class AnalyticsService
 {
+    const COOKIE_ANONYMOUS_ID = 'ajs_anonymous_id';
+
     /**
      * @var Logger
      */
@@ -16,6 +18,7 @@ class AnalyticsService
     {
         Segment::init($segmentWriteKey);
         $this->logger = $logger;
+        $this->initAnonymousId();
     }
 
     public function track(array $message): void
@@ -136,8 +139,20 @@ class AnalyticsService
         }
     }
 
-    protected function getAnonymousId(): ?string
+    public function initAnonymousId(): void
     {
-        return $_COOKIE['ajs_anonymous_id'] ?? session_id();
+        if (empty($_COOKIE[self::COOKIE_ANONYMOUS_ID])) {
+            $this->refreshAnonymousId();
+        }
+    }
+
+    public function getAnonymousId(): string
+    {
+        return $_COOKIE[self::COOKIE_ANONYMOUS_ID];
+    }
+
+    public function refreshAnonymousId(): void
+    {
+        setcookie(self::COOKIE_ANONYMOUS_ID, uniqid("", true), time()+3600);
     }
 }
