@@ -126,6 +126,11 @@ class Oauth2ClientShopProvider extends PrestaShop
         );
     }
 
+    /**
+     * @example  http://my-shop.mydomain/admin-path/index.php?controller=AdminOAuth2PsAccounts
+     *
+     * @return string
+     */
     public function getRedirectUri(): string
     {
         return $this->context->link->getAdminLink('AdminOAuth2PsAccounts', false);
@@ -144,6 +149,11 @@ class Oauth2ClientShopProvider extends PrestaShop
         );
     }
 
+    /**
+     * @example http://my-shop.mydomain/admin-path/index.php?controller=AdminLogin&logout=1&oauth2Callback=1
+     *
+     * @return string
+     */
     public function getPostLogoutRedirectUri(): string
     {
         return $this->context->link->getAdminLink('AdminLogin', false, [], [

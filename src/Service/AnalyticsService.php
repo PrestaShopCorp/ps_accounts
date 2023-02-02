@@ -153,6 +153,8 @@ class AnalyticsService
 
     public function refreshAnonymousId(): void
     {
+        // FIXME: UUID v5
+        // FIXME: lifetime based on session
         setcookie(self::COOKIE_ANONYMOUS_ID, uniqid('', true), time() + 3600);
     }
 }
