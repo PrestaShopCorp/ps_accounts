@@ -33,7 +33,8 @@
         "sentry/sentry": "^1.0",
         "league/oauth2-client": "^2.6",
         "prestashopcorp/oauth2-prestashop": "^1.1.0",
-        "segmentio/analytics-php": "^1.8"
+        "segmentio/analytics-php": "^1.8",
+        "ramsey/uuid": "^4.2"
     },
     "require-dev": {
         "phpunit/phpunit": "^8.5",

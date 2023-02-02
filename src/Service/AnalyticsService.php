@@ -3,6 +3,7 @@
 namespace PrestaShop\Module\PsAccounts\Service;
 
 use Monolog\Logger;
+use Ramsey\Uuid\Uuid;
 use Segment;
 
 class AnalyticsService
@@ -153,8 +154,6 @@ class AnalyticsService
 
     public function refreshAnonymousId(): void
     {
-        // FIXME: UUID v5
-        // FIXME: lifetime based on session
-        setcookie(self::COOKIE_ANONYMOUS_ID, uniqid('', true), time() + 3600);
+        setcookie(self::COOKIE_ANONYMOUS_ID, Uuid::uuid4(), time() + 3600);
     }
 }
