@@ -153,6 +153,6 @@ class AnalyticsService
 
     public function refreshAnonymousId(): void
     {
-        setcookie(self::COOKIE_ANONYMOUS_ID, uniqid("", true), time()+3600);
+        setcookie(self::COOKIE_ANONYMOUS_ID, uniqid('', true), time() + 3600);
     }
 }
