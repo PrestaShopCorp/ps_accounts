@@ -148,6 +148,7 @@ class AnalyticsService
     public function getAnonymousId(): string
     {
         $this->initAnonymousId();
+
         return self::$anonymousId;
     }
 
