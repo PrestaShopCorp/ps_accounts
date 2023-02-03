@@ -152,9 +152,6 @@ class AnalyticsService
         return self::$anonymousId;
     }
 
-    /**
-     * @return void
-     */
     private function initAnonymousId(): void
     {
         if (!isset(self::$anonymousId)) {
