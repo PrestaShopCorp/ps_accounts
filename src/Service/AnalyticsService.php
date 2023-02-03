@@ -15,11 +15,16 @@ class AnalyticsService
      */
     private $logger;
 
+    /**
+     * @var string
+     */
+    private static $anonymousId;
+
     public function __construct(string $segmentWriteKey, Logger $logger)
     {
         Segment::init($segmentWriteKey);
-        $this->logger = $logger;
         $this->initAnonymousId();
+        $this->logger = $logger;
     }
 
     public function track(array $message): void
@@ -140,20 +145,24 @@ class AnalyticsService
         }
     }
 
-    public function initAnonymousId(): void
-    {
-        if (empty($_COOKIE[self::COOKIE_ANONYMOUS_ID])) {
-            $this->refreshAnonymousId();
-        }
-    }
-
     public function getAnonymousId(): string
     {
-        return $_COOKIE[self::COOKIE_ANONYMOUS_ID];
+        $this->initAnonymousId();
+        return self::$anonymousId;
     }
 
-    public function refreshAnonymousId(): void
+    /**
+     * @return void
+     */
+    private function initAnonymousId(): void
     {
-        setcookie(self::COOKIE_ANONYMOUS_ID, Uuid::uuid4(), time() + 3600);
+        if (!isset(self::$anonymousId)) {
+            if (!isset($_COOKIE[self::COOKIE_ANONYMOUS_ID])) {
+                self::$anonymousId = Uuid::uuid4();
+                setcookie(self::COOKIE_ANONYMOUS_ID, self::$anonymousId, time() + 3600);
+            } else {
+                self::$anonymousId = $_COOKIE[self::COOKIE_ANONYMOUS_ID];
+            }
+        }
     }
 }
