@@ -141,7 +141,7 @@ class AdminLoginController extends AdminLoginControllerCore
         $isoCode = $this->context->currentLocale->getCode();
 
         $this->context->smarty->assign('uriHelpCenter', $this->getUriHelpCenter($isoCode));
-        $this->context->smarty->assign('loginError', $session->get('loginError'));
+        $this->context->smarty->assign('loginError', $session->remove('loginError'));
         $this->context->smarty->assign('meta_title', '');
         $this->context->smarty->assign('ssoResendVerificationEmail',
             $this->psAccountsModule->getParameter('ps_accounts.sso_resend_verification_email_url')

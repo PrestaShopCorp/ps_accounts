@@ -143,8 +143,6 @@ class AdminOAuth2PsAccountsController extends ModuleAdminController
 
         $cookie->write();
 
-        $this->unsetLoginError();
-
         if ($this->module->isShopEdition()) {
             $this->analyticsService->identify(
                 $user->getId(),
@@ -269,13 +267,5 @@ class AdminOAuth2PsAccountsController extends ModuleAdminController
     private function setLoginError(string $error): void
     {
         $this->getSession()->set('loginError', $error);
-    }
-
-    /**
-     * @throws ContainerNotFoundException
-     */
-    private function unsetLoginError(): void
-    {
-        $this->getSession()->remove('loginError');
     }
 }
