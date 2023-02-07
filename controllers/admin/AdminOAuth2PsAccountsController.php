@@ -21,10 +21,15 @@
 use Doctrine\ORM\EntityManagerInterface;
 use League\OAuth2\Client\Provider\Exception\IdentityProviderException;
 use PrestaShop\Module\PsAccounts\Entity\EmployeeAccount;
-use PrestaShop\Module\PsAccounts\Exception\EmployeeAccountEmailNotVerifiedException;
-use PrestaShop\Module\PsAccounts\Exception\EmployeeAccountNotFoundException;
+use PrestaShop\Module\PsAccounts\Exception\AccountLogin\AccountLoginException;
+use PrestaShop\Module\PsAccounts\Exception\AccountLogin\EmailNotVerifiedException;
+use PrestaShop\Module\PsAccounts\Exception\AccountLogin\EmployeeNotFoundException;
+use PrestaShop\Module\PsAccounts\Exception\AccountLogin\Oauth2Exception;
+use PrestaShop\Module\PsAccounts\Exception\AccountLogin\OtherErrorException;
 use PrestaShop\Module\PsAccounts\Provider\OAuth2\Oauth2ClientShopProvider;
 use PrestaShop\Module\PsAccounts\Provider\OAuth2\Oauth2LoginTrait;
+use PrestaShop\Module\PsAccounts\Service\AnalyticsService;
+use PrestaShop\Module\PsAccounts\Service\PsAccountsService;
 use PrestaShop\OAuth2\Client\Provider\PrestaShop;
 use PrestaShop\OAuth2\Client\Provider\PrestaShopUser;
 use PrestaShop\PrestaShop\Core\Exception\ContainerNotFoundException;
@@ -43,9 +48,26 @@ class AdminOAuth2PsAccountsController extends ModuleAdminController
      */
     public $module;
 
+    /**
+     * @var AnalyticsService
+     */
+    private $analyticsService;
+
+    /**
+     * @var PsAccountsService
+     */
+    private $psAccountsService;
+
+    /**
+     * @throws PrestaShopException
+     * @throws Exception
+     */
     public function __construct()
     {
         parent::__construct();
+
+        $this->analyticsService = $this->module->getService(AnalyticsService::class);
+        $this->psAccountsService = $this->module->getService(PsAccountsService::class);
 
         $this->ajax = true;
         $this->content_only = true;
@@ -61,17 +83,11 @@ class AdminOAuth2PsAccountsController extends ModuleAdminController
         try {
             $this->oauth2Login();
         } catch (IdentityProviderException $e) {
-            $this->oauth2ErrorLog($e->getMessage());
-            $this->redirectWithError('error_from_hydra');
-        } catch (EmployeeAccountEmailNotVerifiedException $e) {
-            $this->oauth2ErrorLog($e->getMessage());
-            $this->redirectWithError('email_not_verified');
-        } catch (EmployeeAccountNotFoundException $e) {
-            $this->oauth2ErrorLog($e->getMessage());
-            $this->redirectWithError('employee_not_found');
+            $this->onLoginFailed(new Oauth2Exception(null, $e->getMessage()));
+        } catch (EmailNotVerifiedException | EmployeeNotFoundException $e) {
+            $this->onLoginFailed($e);
         } catch (Exception $e) {
-            $this->oauth2ErrorLog($e->getMessage());
-            $this->redirectWithError('error_other');
+            $this->onLoginFailed(new OtherErrorException(null, $e->getMessage()));
         }
     }
 
@@ -81,8 +97,8 @@ class AdminOAuth2PsAccountsController extends ModuleAdminController
      * @return bool
      *
      * @throws ContainerNotFoundException
-     * @throws EmployeeAccountEmailNotVerifiedException
-     * @throws EmployeeAccountNotFoundException
+     * @throws EmailNotVerifiedException
+     * @throws EmployeeNotFoundException
      * @throws CoreException
      */
     private function initUserSession(PrestaShopUser $user): bool
@@ -97,9 +113,9 @@ class AdminOAuth2PsAccountsController extends ModuleAdminController
             $context->employee->logout();
 
             if (empty($emailVerified)) {
-                throw new EmployeeAccountEmailNotVerifiedException('Your account email is not verified');
+                throw new EmailNotVerifiedException($user);
             }
-            throw new EmployeeAccountNotFoundException('The email address is not associated to a PrestaShop backoffice account.');
+            throw new EmployeeNotFoundException($user);
         }
 
         $context->employee->remote_addr = (int) ip2long(Tools::getRemoteAddr());
@@ -126,6 +142,22 @@ class AdminOAuth2PsAccountsController extends ModuleAdminController
         }
 
         $cookie->write();
+
+        if ($this->module->isShopEdition()) {
+            $this->analyticsService->identify(
+                $user->getId(),
+                $user->getName(),
+                $user->getEmail()
+            );
+            $this->analyticsService->group(
+                $user->getId(),
+                (string) $this->psAccountsService->getShopUuid()
+            );
+            $this->analyticsService->trackUserSignedIntoApp(
+                $user->getId(),
+                'smb-edition'
+            );
+        }
 
         return true;
     }
@@ -170,20 +202,43 @@ class AdminOAuth2PsAccountsController extends ModuleAdminController
     }
 
     /**
-     * @param string $error
-     *
-     * @return void
+     * @throws ContainerNotFoundException
      */
-    private function redirectWithError(string $error): void
+    private function onLoginFailed(AccountLoginException $e): void
     {
+        if ($this->module->isShopEdition() && (
+                $e instanceof EmployeeNotFoundException ||
+                $e instanceof EmailNotVerifiedException
+            )) {
+            $user = $e->getPrestaShopUser();
+            $this->analyticsService->identify(
+                $user->getId(),
+                $user->getName(),
+                $user->getEmail()
+            );
+            $this->analyticsService->group(
+                $user->getId(),
+                (string) $this->psAccountsService->getShopUuid()
+            );
+            $this->analyticsService->trackBackOfficeSSOSignInFailed(
+                $user->getId(),
+                $e->getType(),
+                $e->getMessage()
+            );
+        }
+
+        $this->oauth2ErrorLog($e->getMessage());
+        $this->setLoginError($e->getType());
         Tools::redirectAdmin(
             $this->context->link->getAdminLink('AdminLogin', true, [], [
                 'logout' => 1,
-                'loginError' => $error,
             ])
         );
     }
 
+    /**
+     * @throws Exception
+     */
     private function getProvider(): Oauth2ClientShopProvider
     {
         return $this->module->getService(PrestaShop::class);
@@ -202,7 +257,15 @@ class AdminOAuth2PsAccountsController extends ModuleAdminController
      */
     private function getSession(): SessionInterface
     {
-        /* @phpstan-ignore-next-line */
+        /* @phpstan-ignore-next-line  */
         return $this->module->getContainer()->get('session');
+    }
+
+    /**
+     * @throws ContainerNotFoundException
+     */
+    private function setLoginError(string $error): void
+    {
+        $this->getSession()->set('loginError', $error);
     }
 }
