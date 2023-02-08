@@ -5,10 +5,12 @@ namespace PrestaShop\Module\PsAccounts\Service;
 use Monolog\Logger;
 use Ramsey\Uuid\Uuid;
 use Segment;
+use Symfony\Component\HttpFoundation\Session\SessionInterface;
 
+// TODO: unit tests this class
 class AnalyticsService
 {
-    const COOKIE_ANONYMOUS_ID = 'ajs_anonymous_id';
+    const SESSION_ANONYMOUS_ID = 'segment.anonymousId';
 
     /**
      * @var Logger
@@ -16,14 +18,13 @@ class AnalyticsService
     private $logger;
 
     /**
-     * @var string
+     * @var SessionInterface
      */
-    private static $anonymousId;
+    private $session;
 
     public function __construct(string $segmentWriteKey, Logger $logger)
     {
         Segment::init($segmentWriteKey);
-        $this->initAnonymousId();
         $this->logger = $logger;
     }
 
@@ -147,20 +148,26 @@ class AnalyticsService
 
     public function getAnonymousId(): string
     {
-        $this->initAnonymousId();
+        $session = $this->getSession();
+        $anonymousId = $session->get(self::SESSION_ANONYMOUS_ID);
+        if (null === $anonymousId) {
+            $anonymousId = Uuid::uuid4();
+            $session->set(self::SESSION_ANONYMOUS_ID, $anonymousId);
+        }
 
-        return self::$anonymousId;
+        return $anonymousId;
     }
 
-    private function initAnonymousId(): void
+    private function getSession(): SessionInterface
     {
-        if (!isset(self::$anonymousId)) {
-            if (!isset($_COOKIE[self::COOKIE_ANONYMOUS_ID])) {
-                self::$anonymousId = Uuid::uuid4();
-                setcookie(self::COOKIE_ANONYMOUS_ID, self::$anonymousId, time() + 3600);
-            } else {
-                self::$anonymousId = $_COOKIE[self::COOKIE_ANONYMOUS_ID];
-            }
+        if (!isset($this->session)) {
+            /** @var \Ps_accounts $module */
+            $module = \Module::getInstanceByName('ps_accounts');
+            /** @var SessionInterface $session */
+            $session = $module->getContainer()->get('session');
+            $this->session = $session;
         }
+
+        return $this->session;
     }
 }
