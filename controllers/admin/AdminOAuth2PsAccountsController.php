@@ -247,7 +247,7 @@ class AdminOAuth2PsAccountsController extends ModuleAdminController
     private function redirectAfterLogin(): void
     {
         $returnTo = $this->getSessionReturnTo() ?: 'AdminDashboard';
-        if (preg_match('/([A-Z][a-z0-9]+)+/', $returnTo)) {
+        if (preg_match('/^([A-Z][a-z0-9]+)+$/', $returnTo)) {
             $returnTo = $this->context->link->getAdminLink($returnTo);
         }
         Tools::redirectAdmin($returnTo);
