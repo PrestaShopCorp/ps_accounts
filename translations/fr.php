@@ -30,8 +30,8 @@ $_MODULE['<{ps_accounts}prestashop>settingstranslations_b7ca62f12bc3b8e0d6422c02
 $_MODULE['<{ps_accounts}prestashop>settingstranslations_518d650937979216a269cf9830a7b484'] = 'Un seul compte pour gérer toutes vos boutiques PrestaShop';
 $_MODULE['<{ps_accounts}prestashop>settingstranslations_655aa4af96bbb20cf78e14b560affb38'] = 'Créer votre compte PrestaShop ou vous connecter à votre compte existant';
 $_MODULE['<{ps_accounts}prestashop>settingstranslations_d23c41d498fe8587fb2f6ac563426dce'] = 'Associez votre boutique à votre compte';
-$_MODULE['<{ps_accounts}prestashop>content_b06f57f635db5e25514b7e637146608c'] = 'Une interface modulaire';
-$_MODULE['<{ps_accounts}prestashop>content_768b56d98e614fd590f42ed1e867868d'] = 'Gérez toute votre activité au même endroit : catalogue de produits, commandes, paiements, livraison et bien plus encore.';
+$_MODULE['<{ps_accounts}prestashop>content_23feb5280da1e3a86dc0fcc048f1a58d'] = 'Un back-office simple à prendre en main';
+$_MODULE['<{ps_accounts}prestashop>content_e661ffe463ad9b9bcea4c49d744058e7'] = 'Gérez toute votre activité au même endroit : catalogue de produits, commandes, paiements, livraisons et bien plus encore.';
 $_MODULE['<{ps_accounts}prestashop>content_8ea4efcd82809db344ff0d7a76695448'] = 'Tous les éléments essentiels pour votre entreprise';
 $_MODULE['<{ps_accounts}prestashop>content_f27ec0e8d78513e2e60830c62a3a13b8'] = 'Marketing, paiement et analyse des performances : la suite PrestaShop Essentials comprend toutes les fonctionnalités dont vous avez besoin pour assurer le succès de votre boutique.';
 $_MODULE['<{ps_accounts}prestashop>content_f2d32f40a4060af2595051d0ab0278cb'] = 'Une solution 100% personnalisable';

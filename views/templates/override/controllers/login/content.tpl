@@ -37,10 +37,10 @@
                         <img class="psacc-mb-12" src="/modules/ps_accounts/views/img/slide1.png" />
                         <div class="psacc-max-w-sm">
                             <h2 class="puik-h2 psacc-font-primary psacc-text-center psacc-mb-4 psacc-text-font-main">
-                                {l s='A modular interface' mod='ps_accounts'}
+                                {l s='An easy-to-use back office' mod='ps_accounts'}
                             </h2>
                             <p class="puik-body-default psacc-font-secondary psacc-text-center psacc-text-base">
-                                {l s='Manage your entire business in one place: product catalog, orders, payments, delivery and much more.' mod='ps_accounts'}
+                                {l s='Manage your entire business in one place: product catalog, orders, payments, deliveries and much more.' mod='ps_accounts'}
                             </p>
                         </div>
                     </li>
