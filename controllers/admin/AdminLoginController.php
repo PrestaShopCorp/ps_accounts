@@ -140,7 +140,6 @@ class AdminLoginController extends AdminLoginControllerCore
 
         $isoCode = $this->context->currentLocale->getCode();
 
-        $this->context->smarty->assign('uriHelpCenter', $this->getUriHelpCenter($isoCode));
         $this->context->smarty->assign('loginError', $session->remove('loginError'));
         $this->context->smarty->assign('meta_title', '');
         $this->context->smarty->assign('ssoResendVerificationEmail',
@@ -173,19 +172,5 @@ class AdminLoginController extends AdminLoginControllerCore
             DIRECTORY_SEPARATOR . 'controllers' .
             DIRECTORY_SEPARATOR . 'login' .
             DIRECTORY_SEPARATOR;
-    }
-
-    /**
-     * @param string $isoCode
-     *
-     * @return mixed
-     *
-     * @throws Exception
-     */
-    private function getUriHelpCenter(string $isoCode)
-    {
-        return 0 !== strpos($isoCode, 'fr')
-            ? $this->psAccountsModule->getParameter('ps_accounts.uri_help_center_en')
-            : $this->psAccountsModule->getParameter('ps_accounts.uri_help_center_fr');
     }
 }
