@@ -38,7 +38,7 @@ onMounted(async () => {
   if (window?.psaccountsVue) {
     return window?.psaccountsVue?.init();
   }
-  const accountFallback = await import("prestashop_accounts_vue_components");
+  const accountFallback = (await import("prestashop_accounts_vue_components")).default;
   accountFallback.init();
 });
 </script>
