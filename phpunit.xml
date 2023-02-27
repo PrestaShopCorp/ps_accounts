@@ -19,4 +19,13 @@
       <directory suffix="Test.php">./tests/Feature</directory>
     </testsuite>
   </testsuites>
+  <filter>
+    <whitelist>
+      <directory suffix=".php">./controllers</directory>
+      <directory suffix=".php">./classes</directory>
+    </whitelist>
+  </filter>
+  <logging>
+    <log type="coverage-text" target="php://stdout" />
+  </logging>
 </phpunit>
