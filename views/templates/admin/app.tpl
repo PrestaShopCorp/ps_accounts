@@ -24,9 +24,9 @@
 
 <div id="app"></div>
 
-<script src="{$pathVendor|escape:'htmlall':'UTF-8'}" type="module"></script>
-<script src="{$pathApp|escape:'htmlall':'UTF-8'}" type="module"></script>
-<script src="{$urlAccountsCdn|escape:'htmlall':'UTF-8'}" type="text/javascript"></script>
+<script src="{$urlAccountsCdn|escape:'htmlall':'UTF-8'}" type="text/javascript" defer></script>
+<script src="{$pathVendor|escape:'htmlall':'UTF-8'}" type="module" defer></script>
+<script src="{$pathApp|escape:'htmlall':'UTF-8'}" type="module" defer></script>
 
 <style>
   /** Hide native multistore module activation panel, because of visual regressions on non-bootstrap content */
