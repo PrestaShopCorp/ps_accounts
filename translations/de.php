@@ -42,4 +42,4 @@ $_MODULE['<{ps_accounts}prestashop>content_6ed6a381a1de805e2b807f88a95faa2b'] = 
 $_MODULE['<{ps_accounts}prestashop>content_8905a5daaa6744846452108776efa036'] = 'Zu anderer Maschine verbinden';
 $_MODULE['<{ps_accounts}prestashop>content_729f27762821b8ec88f1a656be7dff72'] = 'Sie müssen Ihr Konto erst aktivieren, indem Sie auf den Link in der E-Mail klicken. Wenn Sie einen neuen Aktivierungslink erhalten möchten,[1]klicken Sie bitte hier[/1]';
 $_MODULE['<{ps_accounts}prestashop>content_476ff05d1175f9a35d268828caf300f2'] = 'Beim Login ist ein Fehler aufgetreten, bitte kontaktieren Sie den PrestaShop-Support';
-$_MODULE['<{ps_accounts}prestashop>content_fd359ea79740b865e45c2bf6fe5d3ab1'] = 'Mit diesem Konto können Sie nicht auf das Backoffice zugreifen. Verwenden Sie ein anderes Konto oder kontaktieren Sie Ihren Administrator.';
+$_MODULE['<{ps_accounts}prestashop>content_fd359ea79740b865e45c2bf6fe5d3ab1'] = 'You cannot access the back office with this account. Try another account or contact your administrator.';
