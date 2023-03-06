@@ -19,7 +19,7 @@
  */
 global $_MODULE;
 $_MODULE = [];
-$_MODULE['<{ps_accounts}prestashop>ps_accounts_40047b296fb8a4952e0512c7184e1ca3'] = 'PrestaShop Account';
+$_MODULE['<{ps_accounts}prestashop>ps_accounts_40047b296fb8a4952e0512c7184e1ca3'] = 'PrestaShop-account';
 $_MODULE['<{ps_accounts}prestashop>ps_accounts_9006e8a0d8ca7f627146d32bc9c0eb73'] = 'Koppel uw winkel aan uw PrestaShop account om uw abonnementen te activeren en te beheren in uw backoffice. De-installeer deze module niet als u een lopend abonnement hebt.';
 $_MODULE['<{ps_accounts}prestashop>ps_accounts_ceeadaf870d9eaa81cf1fbe32614af64'] = 'Deze actie zal onmiddellijk voorkomen dat uw PrestaShop diensten en communautaire diensten werken als ze PrestaShop Accounts module voor authenticatie gebruiken.';
 $_MODULE['<{ps_accounts}prestashop>ps_accounts_01a84505e1f42ba1b80ffed4f9f21221'] = 'Deze winkel is gekoppeld aan uw PrestaShop account. Unlink uw winkel als u niet wilt dat uw live-instellingen beïnvloeden.';
