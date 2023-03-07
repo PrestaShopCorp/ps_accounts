@@ -19,7 +19,7 @@
  */
 global $_MODULE;
 $_MODULE = [];
-$_MODULE['<{ps_accounts}prestashop>ps_accounts_40047b296fb8a4952e0512c7184e1ca3'] = 'PrestaShop Account';
+$_MODULE['<{ps_accounts}prestashop>ps_accounts_40047b296fb8a4952e0512c7184e1ca3'] = 'PrestaShop-account';
 $_MODULE['<{ps_accounts}prestashop>ps_accounts_9006e8a0d8ca7f627146d32bc9c0eb73'] = 'Koppel uw winkel aan uw PrestaShop account om uw abonnementen te activeren en te beheren in uw backoffice. De-installeer deze module niet als u een lopend abonnement hebt.';
 $_MODULE['<{ps_accounts}prestashop>ps_accounts_ceeadaf870d9eaa81cf1fbe32614af64'] = 'Deze actie zal onmiddellijk voorkomen dat uw PrestaShop diensten en communautaire diensten werken als ze PrestaShop Accounts module voor authenticatie gebruiken.';
 $_MODULE['<{ps_accounts}prestashop>ps_accounts_01a84505e1f42ba1b80ffed4f9f21221'] = 'Deze winkel is gekoppeld aan uw PrestaShop account. Unlink uw winkel als u niet wilt dat uw live-instellingen beïnvloeden.';
@@ -42,4 +42,4 @@ $_MODULE['<{ps_accounts}prestashop>content_6ed6a381a1de805e2b807f88a95faa2b'] = 
 $_MODULE['<{ps_accounts}prestashop>content_8905a5daaa6744846452108776efa036'] = 'Verbinden met een andere methode';
 $_MODULE['<{ps_accounts}prestashop>content_729f27762821b8ec88f1a656be7dff72'] = 'U moet uw account eerst activeren door op de link in de e-mail te klikken. Als u een nieuwe activeringslink wilt ontvangen,[1]klik dan hier[/1]';
 $_MODULE['<{ps_accounts}prestashop>content_476ff05d1175f9a35d268828caf300f2'] = 'Er is een fout opgetreden tijdens het inloggen, neem contact op met PrestaShop support.';
-$_MODULE['<{ps_accounts}prestashop>content_fd359ea79740b865e45c2bf6fe5d3ab1'] = 'U hebt geen toegang tot de back-office met dit account. Probeer een ander account of neem contact op met uw beheerder.';
+$_MODULE['<{ps_accounts}prestashop>content_fd359ea79740b865e45c2bf6fe5d3ab1'] = 'U hebt geen toegang tot de backoffice met dit account. Probeer een ander account of neem contact op met uw beheerder.';
