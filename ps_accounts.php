@@ -28,7 +28,7 @@ class Ps_accounts extends Module
 
     // Needed in order to retrieve the module version easier (in api call headers) than instanciate
     // the module each time to get the version
-    const VERSION = '5.3.2';
+    const VERSION = '5.3.5';
 
     /**
      * @var array
@@ -41,6 +41,7 @@ class Ps_accounts extends Module
      * @var array
      */
     private $hookToInstall = [
+        'displaybackOfficeEmployeeMenu',
         'displayBackOfficeHeader',
         'actionObjectShopAddAfter',
         'actionObjectShopUpdateAfter',
@@ -84,7 +85,7 @@ class Ps_accounts extends Module
 
         // We cannot use the const VERSION because the const is not computed by addons marketplace
         // when the zip is uploaded
-        $this->version = '5.3.2';
+        $this->version = '5.3.5';
 
         $this->module_key = 'abf2cd758b4d629b2944d3922ef9db73';
 
@@ -243,6 +244,24 @@ class Ps_accounts extends Module
         }
 
         return $ret;
+    }
+
+    /**
+     * @param array $params
+     *
+     * @return void
+     *
+     * @throws Exception
+     */
+    public function hookDisplaybackOfficeEmployeeMenu($params)
+    {
+        $bar = $params['links'];
+
+        $bar->add(
+            new PrestaShop\PrestaShop\Core\Action\ActionsBarButton(
+                '', ['link' => $this->getParameter('ps_accounts.accounts_ui_url'), 'icon' => 'open_in_new'], $this->l('PrestaShop account')
+            )
+        );
     }
 
 //    /**

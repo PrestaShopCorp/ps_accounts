@@ -30,3 +30,4 @@ $_MODULE['<{ps_accounts}prestashop>settingstranslations_b7ca62f12bc3b8e0d6422c02
 $_MODULE['<{ps_accounts}prestashop>settingstranslations_518d650937979216a269cf9830a7b484'] = 'One account to manage all your PrestaShop shops';
 $_MODULE['<{ps_accounts}prestashop>settingstranslations_655aa4af96bbb20cf78e14b560affb38'] = 'Create your PrestaShop account or login to your existing account';
 $_MODULE['<{ps_accounts}prestashop>settingstranslations_d23c41d498fe8587fb2f6ac563426dce'] = 'Associate your shop with your account';
+$_MODULE['<{ps_accounts}prestashop>ps_accounts_5c896f82bc4b3a76ecb16c1ee1976d48'] = 'PrestaShop account';
