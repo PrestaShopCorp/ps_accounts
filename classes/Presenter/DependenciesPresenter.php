@@ -32,12 +32,9 @@ class DependenciesPresenter implements PresenterInterface
      */
     private $installer;
 
-    public function __construct()
+    public function __construct(Installer $installer)
     {
-        /** @var Ps_accounts $psAccounts */
-        $psAccounts = Module::getInstanceByName('ps_accounts');
-
-        $this->installer = $psAccounts->getService(Installer::class);
+        $this->installer = $installer;
     }
 
     /**
