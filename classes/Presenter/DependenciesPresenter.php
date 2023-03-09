@@ -21,9 +21,7 @@
 
 namespace PrestaShop\Module\PsAccounts\Presenter;
 
-use Module;
 use PrestaShop\Module\PsAccounts\Installer\Installer;
-use Ps_accounts;
 
 class DependenciesPresenter implements PresenterInterface
 {
