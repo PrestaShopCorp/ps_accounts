@@ -27,7 +27,7 @@ class PsAccountsPresenterTest extends TestCase
     {
         parent::setUp();
 
-        $this->installer = $this->createStub(Installer::class);
+        $this->installer = $this->createMock(Installer::class);
         $this->installer->method('isEnabled')
             ->willReturn(true);
         $this->installer->method('getEnableUrl')
