@@ -23,7 +23,7 @@ class PsAccountsPresenterTest extends TestCase
      */
     private $installer;
 
-    public function setUp(): void
+    public function setUp()
     {
         parent::setUp();
 
