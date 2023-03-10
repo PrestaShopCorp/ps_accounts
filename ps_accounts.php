@@ -275,9 +275,16 @@ class Ps_accounts extends Module
     {
         $bar = $params['links'];
 
+        $link = $this->getParameter('ps_accounts.accounts_ui_url') . '?' . http_build_query([
+            'utm_source' => Tools::getShopDomain(),
+            'utm_medium' => 'back-office',
+            'utm_campaign' => $this->name,
+            'utm_content' => 'headeremployeedropdownlink',
+        ]);
+
         $bar->add(
             new PrestaShop\PrestaShop\Core\Action\ActionsBarButton(
-                '', ['link' => $this->getParameter('ps_accounts.accounts_ui_url'), 'icon' => 'open_in_new'], $this->l('PrestaShop account')
+                '', ['link' => $link, 'icon' => 'open_in_new'], $this->l('PrestaShop account')
             )
         );
     }
