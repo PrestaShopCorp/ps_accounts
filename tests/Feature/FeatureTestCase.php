@@ -56,9 +56,9 @@ class FeatureTestCase extends TestCase
         $this->guzzleClient = (new GuzzleClientFactory())->create([
             'base_url' => $baseUrl,
             'defaults' => [
-                'timeout' => 60,
+                //'timeout' => 60,
                 'exceptions' => false,
-                'allow_redirects' => false,
+                'allow_redirects' => true,
                 'query' => [],
                 'headers' => [
                     'Accept' => 'application/json',

@@ -7,12 +7,13 @@ services:
     environment:
       # FIXME: PS_* vars are useless here as we override run
       - PS_DOMAIN=localhost
-      - PS_ENABLE_SSL=0
+      - PS_ENABLE_SSL=1
       - PS_DEV_MODE=1
       - XDEBUG_MODE=coverage
       - XDEBUG_ENABLED=1
     volumes:
       - ./:/var/www/html/modules/ps_accounts
+    network_mode: bridge
     entrypoint: [
         "/bin/sh", "-c", " \
           service mariadb start && \
@@ -20,6 +21,7 @@ services:
           php -d memory_limit=-1 ../../bin/console prestashop:module install ps_accounts && \
           chown -R www-data:www-data ../../var/logs && \
           chown -R www-data:www-data ../../var/cache && \
-          apache2-foreground
+          apachectl -C \"ServerName PhpunitDev\" -D FOREGROUND
         "
     ]
+

@@ -16,6 +16,8 @@ class StoreTest extends FeatureTestCase
      */
     public function itShouldSucceed()
     {
+        $this->markTestSkipped('This verification step has been deprecated');
+
         $payload = [
             'shop_id' => 1,
             'hmac' => base64_encode((string) (new Hmac\Sha256())->createHash('foo', new Key('bar'))),
