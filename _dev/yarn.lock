@@ -1815,10 +1815,10 @@ prelude-ls@^1.2.1:
   resolved "https://registry.yarnpkg.com/prelude-ls/-/prelude-ls-1.2.1.tgz#debc6489d7a6e6b0e7611888cec880337d316396"
   integrity sha512-vkcDPrRZo1QZLbn5RLGPpg/WmIQ65qoWWhcGKf/b5eplkkarX0m9z8ppCat4mlOqUsWpyNuYgO3VRyrYHSzX5g==
 
-prestashop_accounts_vue_components@^4.2.6:
-  version "4.2.6"
-  resolved "https://registry.yarnpkg.com/prestashop_accounts_vue_components/-/prestashop_accounts_vue_components-4.2.6.tgz#710f57040ccf08b7946f6f21582eb37fdf78e6d8"
-  integrity sha512-HBDRbOnZLdaLF3RZI2uCdlSrZhrGwycrmykcLYP+jxrGlJ+7DalFFeqWESgMimtJQQ1dbO/E4Oq6cvrJ6PCK+w==
+prestashop_accounts_vue_components@^4.2.7:
+  version "4.2.7"
+  resolved "https://registry.yarnpkg.com/prestashop_accounts_vue_components/-/prestashop_accounts_vue_components-4.2.7.tgz#e13e12d6b703e9f8dc0552edb4fe8b5832d857b3"
+  integrity sha512-lP15Z05H1UdCCVsgPaFmcOmJVFTg9Qoev/Vr2NZ9x1ATQdv5IBoiJG/s9OCH0nB1DhIQr97rfWi25JbAdVB2bg==
   dependencies:
     "@vue/composition-api" "^1.4.3"
     babel-loader "^8.2.3"
