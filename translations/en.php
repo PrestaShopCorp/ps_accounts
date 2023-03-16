@@ -43,4 +43,4 @@ $_MODULE['<{ps_accounts}prestashop>content_8905a5daaa6744846452108776efa036'] = 
 $_MODULE['<{ps_accounts}prestashop>content_729f27762821b8ec88f1a656be7dff72'] = 'You need to activate your account first by clicking the link in the email. If you need to receive a new activation link,[1]please click here[/1]';
 $_MODULE['<{ps_accounts}prestashop>content_476ff05d1175f9a35d268828caf300f2'] = 'An error occured during login, please contact PrestaShop support';
 $_MODULE['<{ps_accounts}prestashop>content_fd359ea79740b865e45c2bf6fe5d3ab1'] = 'You cannot access the back office with this account. Try another account or contact your administrator.';
-$_MODULE['<{ps_accounts}prestashop>ps_accounts_5c896f82bc4b3a76ecb16c1ee1976d48'] = 'PrestaShop account';
+$_MODULE['<{ps_accounts}prestashop>ps_accounts_e53a9fbe0e31ac65b72e5e2c876074d8'] = 'Manage your PrestaShop account';
