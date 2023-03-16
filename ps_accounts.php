@@ -265,8 +265,8 @@ class Ps_accounts extends Module
         ]);
 
         $bar->add(
-            new PrestaShop\PrestaShop\Core\Action\ActionsBarButton(
-                '', ['link' => $link, 'icon' => 'open_in_new'], $this->l('PrestaShop account')
+            new \PrestaShopBundle\Controller\Admin\Sell\Order\ActionsBarButton(
+                '', ['link' => $link, 'icon' => 'open_in_new'], $this->l('Manage your PrestaShop account')
             )
         );
     }
