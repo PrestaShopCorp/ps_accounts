@@ -21,7 +21,6 @@ if (!defined('_PS_VERSION_')) {
     exit;
 }
 require_once __DIR__ . '/vendor/autoload.php';
-
 class Ps_accounts extends Module
 {
     use \PrestaShop\Module\PsAccounts\Provider\OAuth2\Oauth2LogoutTrait;
@@ -30,7 +29,7 @@ class Ps_accounts extends Module
 
     // Needed in order to retrieve the module version easier (in api call headers) than instanciate
     // the module each time to get the version
-    const VERSION = '6.0.0';
+    const VERSION = '6.1.4';
 
     /**
      * @var array
@@ -43,6 +42,7 @@ class Ps_accounts extends Module
      * @var array
      */
     private $hookToInstall = [
+        'displaybackOfficeEmployeeMenu',
         'displayBackOfficeHeader',
         'actionObjectShopAddAfter',
         'actionObjectShopUpdateAfter',
@@ -88,7 +88,7 @@ class Ps_accounts extends Module
 
         // We cannot use the const VERSION because the const is not computed by addons marketplace
         // when the zip is uploaded
-        $this->version = '6.0.0';
+        $this->version = '6.1.4';
 
         $this->module_key = 'abf2cd758b4d629b2944d3922ef9db73';
 
@@ -262,6 +262,31 @@ class Ps_accounts extends Module
         }
 
         return $ret;
+    }
+
+    /**
+     * @param array $params
+     *
+     * @return void
+     *
+     * @throws Exception
+     */
+    public function hookDisplaybackOfficeEmployeeMenu($params)
+    {
+        $bar = $params['links'];
+
+        $link = $this->getParameter('ps_accounts.accounts_ui_url') . '?' . http_build_query([
+            'utm_source' => Tools::getShopDomain(),
+            'utm_medium' => 'back-office',
+            'utm_campaign' => $this->name,
+            'utm_content' => 'headeremployeedropdownlink',
+        ]);
+
+        $bar->add(
+            new PrestaShop\PrestaShop\Core\Action\ActionsBarButton(
+                '', ['link' => $link, 'icon' => 'open_in_new'], $this->l('Manage your PrestaShop account')
+            )
+        );
     }
 
 //    /**
