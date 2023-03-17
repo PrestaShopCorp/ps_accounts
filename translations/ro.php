@@ -43,4 +43,4 @@ $_MODULE['<{ps_accounts}prestashop>content_8905a5daaa6744846452108776efa036'] = 
 $_MODULE['<{ps_accounts}prestashop>content_729f27762821b8ec88f1a656be7dff72'] = 'Trebuie să îți activezi contul mai întâi, făcând clic pe linkul din e-mail. Dacă vrei să primești un nou link de activare,[1]te rugăm să apeși aici[/1]';
 $_MODULE['<{ps_accounts}prestashop>content_476ff05d1175f9a35d268828caf300f2'] = 'A apărut o eroare în timpul autentificării, te rugăm să contactezi suportul PrestaShop';
 $_MODULE['<{ps_accounts}prestashop>content_fd359ea79740b865e45c2bf6fe5d3ab1'] = 'Nu poți accesa back office cu acest cont. Încearcă un alt cont sau contactează administratorul.';
-$_MODULE['<{ps_accounts}prestashop>ps_accounts_e53a9fbe0e31ac65b72e5e2c876074d8'] = 'Manage your PrestaShop account';
+$_MODULE['<{ps_accounts}prestashop>ps_accounts_e53a9fbe0e31ac65b72e5e2c876074d8'] = 'Gestionați-vă contul PrestaShop';
