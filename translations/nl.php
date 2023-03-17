@@ -43,3 +43,4 @@ $_MODULE['<{ps_accounts}prestashop>content_8905a5daaa6744846452108776efa036'] = 
 $_MODULE['<{ps_accounts}prestashop>content_729f27762821b8ec88f1a656be7dff72'] = 'U moet uw account eerst activeren door op de link in de e-mail te klikken. Als u een nieuwe activeringslink wilt ontvangen,[1]klik dan hier[/1]';
 $_MODULE['<{ps_accounts}prestashop>content_476ff05d1175f9a35d268828caf300f2'] = 'Er is een fout opgetreden tijdens het inloggen, neem contact op met PrestaShop support.';
 $_MODULE['<{ps_accounts}prestashop>content_fd359ea79740b865e45c2bf6fe5d3ab1'] = 'U hebt geen toegang tot de backoffice met dit account. Probeer een ander account of neem contact op met uw beheerder.';
+$_MODULE['<{ps_accounts}prestashop>ps_accounts_e53a9fbe0e31ac65b72e5e2c876074d8'] = 'Manage your PrestaShop account';
