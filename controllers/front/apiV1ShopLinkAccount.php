@@ -56,7 +56,7 @@ class ps_AccountsApiV1ShopLinkAccountModuleFrontController extends AbstractShopR
      *
      * @return array
      *
-     * @throws RefreshTokenException
+     * @throws RefreshTokenException|PrestaShopException
      */
     public function update(Shop $shop, UpdateShopLinkAccountRequest $request): array
     {
@@ -81,6 +81,8 @@ class ps_AccountsApiV1ShopLinkAccountModuleFrontController extends AbstractShopR
      * @param array $payload
      *
      * @return array
+     *
+     * @throws PrestaShopException
      */
     public function delete(Shop $shop, array $payload): array
     {

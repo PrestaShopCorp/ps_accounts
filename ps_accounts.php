@@ -81,7 +81,7 @@ class Ps_accounts extends Module
             'position' => 1,
         ],
         [
-            'name' => self::HOOK_ACTION_SHOP_ACCOUNT_LINK_AFTER,
+            'name' => self::HOOK_ACTION_SHOP_ACCOUNT_UNLINK_AFTER,
             'title' => 'Shop unlinked event',
             'description' => 'Shop unlinked with PrestaShop Account',
             'position' => 1,
@@ -707,7 +707,7 @@ class Ps_accounts extends Module
     }
 
     /**
-     * @param array{shopUuid: string, shoÎd: string} $params
+     * @param array{shopUuid: string, shopId: string} $params
      *
      * @return void
      *
@@ -719,7 +719,7 @@ class Ps_accounts extends Module
     }
 
     /**
-     * @param array{shopUuid: string, shoÎd: string} $params
+     * @param array{shopUuid: string, shopId: string} $params
      *
      * @return void
      *
