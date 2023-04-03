@@ -22,6 +22,7 @@ use PrestaShop\Module\PsAccounts\Handler\Error\Sentry;
 use PrestaShop\Module\PsAccounts\Presenter\PsAccountsPresenter;
 use PrestaShop\Module\PsAccounts\Repository\ShopTokenRepository;
 use PrestaShop\Module\PsAccounts\Service\ShopLinkAccountService;
+use PrestaShop\OAuth2\Client\Provider\PrestaShop;
 
 /**
  * Controller for all ajax calls.
@@ -131,5 +132,55 @@ class AdminAjaxPsAccountsController extends ModuleAdminController
         } catch (Exception $e) {
             Sentry::captureAndRethrow($e);
         }
+    }
+
+    /**
+     * @return void
+     *
+     * @throws Throwable
+     */
+    public function ajaxProcessGetOrRefreshAccessToken()
+    {
+        try {
+            $token = $this->getOrRefreshAccessToken();
+
+            if (! $token) {
+                // TODO : trigger login redirect
+            }
+
+            header('Content-Type: text/json');
+
+            $this->ajaxDie(
+                json_encode([
+                    'token' => $token->getToken(),
+                ])
+            );
+        } catch (Exception $e) {
+            Sentry::captureAndRethrow($e);
+        }
+    }
+
+    private function getOrRefreshAccessToken(): ?\League\OAuth2\Client\Token\AccessToken
+    {
+        $tokenName = 'accessToken';
+
+        /** @var \Symfony\Component\HttpFoundation\Session\SessionInterface $session */
+        $session = $this->module->getContainer()->get('session');
+
+        /** @var \League\OAuth2\Client\Token\AccessToken $token */
+        $token = $session->get($tokenName);
+
+        /** @var \PrestaShop\OAuth2\Client\Provider\PrestaShop $provider */
+        $provider = $this->module->getService(PrestaShop::class);
+
+        if ($token->hasExpired()) {
+            $newAccessToken = $provider->getAccessToken('refresh_token', [
+                'refresh_token' => $token->getRefreshToken()
+            ]);
+
+            $token = $newAccessToken;
+            $session->set($tokenName, $token);
+        }
+        return $token;
     }
 }
