@@ -28,14 +28,11 @@ class OAuth2Session
 
     public function getOrRefreshAccessToken(): ?AccessToken
     {
-        list($tokenName, $token) = $this->getAccessToken();
-
+        $token = $this->getAccessToken();
         if ($token->hasExpired()) {
-            $newAccessToken = $this->provider->getAccessToken('refresh_token', [
+            $token = $this->provider->getAccessToken('refresh_token', [
                 'refresh_token' => $token->getRefreshToken()
             ]);
-
-            $token = $newAccessToken;
             $this->setAccessToken($token);
         }
         return $token;
