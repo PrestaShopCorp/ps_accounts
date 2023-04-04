@@ -825,19 +825,16 @@ class Ps_accounts extends Module
         return $provider;
     }
 
-    protected function getAccessToken(): ?League\OAuth2\Client\Token\AccessToken
-    {
-        /** @var \Symfony\Component\HttpFoundation\Session\SessionInterface $session */
-        $session = $this->getContainer()->get('session');
-
-        /** @var \League\OAuth2\Client\Token\AccessToken $accessToken */
-        $accessToken = $session->get('accessToken');
-
-        return $accessToken;
-    }
-
     protected function isOauth2LogoutEnabled(): bool
     {
         return $this->hasParameter('ps_accounts.oauth2_url_session_logout');
+    }
+
+    protected function getOauth2Session(): \PrestaShop\Module\PsAccounts\Provider\OAuth2\OAuth2Session
+    {
+        /** @var \PrestaShop\Module\PsAccounts\Provider\OAuth2\OAuth2Session $oauth2Session */
+        $oauth2Session = $this->getService(\PrestaShop\Module\PsAccounts\Provider\OAuth2\OAuth2Session::class);
+
+        return $oauth2Session;
     }
 }

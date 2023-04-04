@@ -37,6 +37,8 @@ trait Oauth2LoginTrait
 
     abstract protected function getSession(): SessionInterface;
 
+    abstract protected function getOauth2Session(): OAuth2Session;
+
     /**
      * @throws IdentityProviderException
      * @throws \Exception
@@ -47,6 +49,7 @@ trait Oauth2LoginTrait
 
         //$this->getSession()->start();
         $session = $this->getSession();
+        $oauth2Session = $this->getOauth2Session();
 
         if (!empty($_GET['error'])) {
             // Got an error, probably user denied access
@@ -54,7 +57,7 @@ trait Oauth2LoginTrait
         // If we don't have an authorization code then get one
         } elseif (!isset($_GET['code'])) {
             // cleanup existing accessToken
-            $session->remove('accessToken');
+            $oauth2Session->clear();
 
             $this->setSessionReturnTo(Tools::getValue($this->getReturnToParam()));
 
@@ -66,14 +69,16 @@ trait Oauth2LoginTrait
 
             throw new \Exception('Invalid state');
         } else {
-            if (!$session->has('accessToken')) {
+            if (! $oauth2Session->getAccessToken()) {
                 // Try to get an access token using the authorization code grant.
-                $session->set('accessToken', $provider->getAccessToken('authorization_code', [
-                    'code' => $_GET['code'],
-                ]));
+                $oauth2Session->setAccessToken(
+                    $provider->getAccessToken('authorization_code', [
+                        'code' => $_GET['code'],
+                    ])
+                );
             }
 
-            $prestaShopUser = $provider->getResourceOwner($session->get('accessToken'));
+            $prestaShopUser = $provider->getResourceOwner($oauth2Session->getAccessToken());
 
             if ($this->initUserSession($prestaShopUser)) {
                 $this->redirectAfterLogin();

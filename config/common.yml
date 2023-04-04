@@ -24,9 +24,7 @@ services:
   PrestaShop\Module\PsAccounts\Provider\OAuth2\OAuth2Session:
     class: PrestaShop\Module\PsAccounts\Provider\OAuth2\OAuth2Session
     public: true
-    arguments:
-      - '@session'
-      - '@PrestaShop\OAuth2\Client\Provider\PrestaShop'
+    factory: [ 'PrestaShop\Module\PsAccounts\Factory\OAuth2SessionFactory', 'create' ]
 
   PrestaShop\Module\PsAccounts\Context\ShopContext:
     class: PrestaShop\Module\PsAccounts\Context\ShopContext

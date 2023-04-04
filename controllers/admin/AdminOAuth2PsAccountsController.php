@@ -28,6 +28,7 @@ use PrestaShop\Module\PsAccounts\Exception\AccountLogin\Oauth2Exception;
 use PrestaShop\Module\PsAccounts\Exception\AccountLogin\OtherErrorException;
 use PrestaShop\Module\PsAccounts\Provider\OAuth2\Oauth2ClientShopProvider;
 use PrestaShop\Module\PsAccounts\Provider\OAuth2\Oauth2LoginTrait;
+use PrestaShop\Module\PsAccounts\Provider\OAuth2\OAuth2Session;
 use PrestaShop\Module\PsAccounts\Service\AnalyticsService;
 use PrestaShop\Module\PsAccounts\Service\PsAccountsService;
 use PrestaShop\OAuth2\Client\Provider\PrestaShop;
@@ -268,5 +269,13 @@ class AdminOAuth2PsAccountsController extends ModuleAdminController
     private function setLoginError(string $error): void
     {
         $this->getSession()->set('loginError', $error);
+    }
+
+    /**
+     * @throws Exception
+     */
+    protected function getOauth2Session(): OAuth2Session
+    {
+        return $this->module->getService(OAuth2Session::class);
     }
 }

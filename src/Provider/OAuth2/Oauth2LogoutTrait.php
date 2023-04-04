@@ -26,7 +26,7 @@ trait Oauth2LogoutTrait
 {
     abstract protected function getProvider(): Oauth2ClientShopProvider;
 
-    abstract protected function getAccessToken(): ?AccessToken;
+    abstract protected function getOauth2Session(): OAuth2Session;
 
     abstract protected function isOauth2LogoutEnabled(): bool;
 
@@ -40,7 +40,7 @@ trait Oauth2LogoutTrait
         }
 
         if (!isset($_GET[Oauth2ClientShopProvider::QUERY_LOGOUT_CALLBACK_PARAM])) {
-            $accessToken = $this->getAccessToken();
+            $accessToken = $this->getOauth2Session()->getAccessToken();
 
             if (empty($accessToken)) {
                 return;

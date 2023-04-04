@@ -38,7 +38,7 @@ class OAuth2Session
         return $token;
     }
 
-    public function getAccessToken(): AccessToken
+    public function getAccessToken(): ?AccessToken
     {
         /** @var AccessToken $token */
         $token = $this->session->get(self::TOKEN_NAME);
@@ -49,5 +49,10 @@ class OAuth2Session
     public function setAccessToken(AccessToken $token)
     {
         $this->session->set(self::TOKEN_NAME, $token);
+    }
+
+    public function clear()
+    {
+        $this->session->remove(self::TOKEN_NAME);
     }
 }
