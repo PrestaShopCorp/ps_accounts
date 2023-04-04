@@ -21,6 +21,7 @@
 namespace PrestaShop\Module\PsAccounts\Provider\OAuth2;
 
 use League\OAuth2\Client\Provider\Exception\IdentityProviderException;
+use League\OAuth2\Client\Token\AccessToken;
 use PrestaShop\Module\PsAccounts\Log\Logger;
 use PrestaShop\OAuth2\Client\Provider\PrestaShop;
 use PrestaShop\OAuth2\Client\Provider\PrestaShopUser;
@@ -71,11 +72,11 @@ trait Oauth2LoginTrait
         } else {
             if (!$oauth2Session->getAccessToken()) {
                 // Try to get an access token using the authorization code grant.
-                $oauth2Session->setAccessToken(
-                    $provider->getAccessToken('authorization_code', [
-                        'code' => $_GET['code'],
-                    ])
-                );
+                /** @var AccessToken $accessToken */
+                $accessToken = $provider->getAccessToken('authorization_code', [
+                    'code' => $_GET['code'],
+                ]);
+                $oauth2Session->setAccessToken($accessToken);
             }
 
             $prestaShopUser = $provider->getResourceOwner($oauth2Session->getAccessToken());

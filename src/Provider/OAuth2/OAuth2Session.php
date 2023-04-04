@@ -30,6 +30,7 @@ class OAuth2Session
     {
         $token = $this->getAccessToken();
         if ($token->hasExpired()) {
+            /** @var AccessToken $token */
             $token = $this->provider->getAccessToken('refresh_token', [
                 'refresh_token' => $token->getRefreshToken(),
             ]);
@@ -47,12 +48,12 @@ class OAuth2Session
         return $token;
     }
 
-    public function setAccessToken(AccessToken $token)
+    public function setAccessToken(AccessToken $token): void
     {
         $this->session->set(self::TOKEN_NAME, $token);
     }
 
-    public function clear()
+    public function clear(): void
     {
         $this->session->remove(self::TOKEN_NAME);
     }
