@@ -20,6 +20,7 @@
 
 use PrestaShop\Module\PsAccounts\Handler\Error\Sentry;
 use PrestaShop\Module\PsAccounts\Presenter\PsAccountsPresenter;
+use PrestaShop\Module\PsAccounts\Provider\OAuth2\OAuth2Session;
 use PrestaShop\Module\PsAccounts\Repository\ShopTokenRepository;
 use PrestaShop\Module\PsAccounts\Service\ShopLinkAccountService;
 use PrestaShop\OAuth2\Client\Provider\PrestaShop;
@@ -142,45 +143,18 @@ class AdminAjaxPsAccountsController extends ModuleAdminController
     public function ajaxProcessGetOrRefreshAccessToken()
     {
         try {
-            $token = $this->getOrRefreshAccessToken();
-
-            if (! $token) {
-                // TODO : trigger login redirect
-            }
+            /** @var OAuth2Session $oauthSession */
+            $oauthSession = $this->module->getService(OAuth2Session::class);
 
             header('Content-Type: text/json');
 
             $this->ajaxDie(
                 json_encode([
-                    'token' => $token->getToken(),
+                    'token' => $oauthSession->getOrRefreshAccessToken()->getToken(),
                 ])
             );
         } catch (Exception $e) {
             Sentry::captureAndRethrow($e);
         }
-    }
-
-    private function getOrRefreshAccessToken(): ?\League\OAuth2\Client\Token\AccessToken
-    {
-        $tokenName = 'accessToken';
-
-        /** @var \Symfony\Component\HttpFoundation\Session\SessionInterface $session */
-        $session = $this->module->getContainer()->get('session');
-
-        /** @var \League\OAuth2\Client\Token\AccessToken $token */
-        $token = $session->get($tokenName);
-
-        /** @var \PrestaShop\OAuth2\Client\Provider\PrestaShop $provider */
-        $provider = $this->module->getService(PrestaShop::class);
-
-        if ($token->hasExpired()) {
-            $newAccessToken = $provider->getAccessToken('refresh_token', [
-                'refresh_token' => $token->getRefreshToken()
-            ]);
-
-            $token = $newAccessToken;
-            $session->set($tokenName, $token);
-        }
-        return $token;
     }
 }
