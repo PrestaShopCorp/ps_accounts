@@ -31,10 +31,11 @@ class OAuth2Session
         $token = $this->getAccessToken();
         if ($token->hasExpired()) {
             $token = $this->provider->getAccessToken('refresh_token', [
-                'refresh_token' => $token->getRefreshToken()
+                'refresh_token' => $token->getRefreshToken(),
             ]);
             $this->setAccessToken($token);
         }
+
         return $token;
     }
 

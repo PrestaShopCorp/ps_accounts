@@ -20,8 +20,6 @@
 
 namespace PrestaShop\Module\PsAccounts\Provider\OAuth2;
 
-use League\OAuth2\Client\Token\AccessToken;
-
 trait Oauth2LogoutTrait
 {
     abstract protected function getProvider(): Oauth2ClientShopProvider;

@@ -830,7 +830,7 @@ class Ps_accounts extends Module
         return $this->hasParameter('ps_accounts.oauth2_url_session_logout');
     }
 
-    protected function getOauth2Session(): \PrestaShop\Module\PsAccounts\Provider\OAuth2\OAuth2Session
+    protected function getOauth2Session(): PrestaShop\Module\PsAccounts\Provider\OAuth2\OAuth2Session
     {
         /** @var \PrestaShop\Module\PsAccounts\Provider\OAuth2\OAuth2Session $oauth2Session */
         $oauth2Session = $this->getService(\PrestaShop\Module\PsAccounts\Provider\OAuth2\OAuth2Session::class);

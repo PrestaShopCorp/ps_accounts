@@ -69,7 +69,7 @@ trait Oauth2LoginTrait
 
             throw new \Exception('Invalid state');
         } else {
-            if (! $oauth2Session->getAccessToken()) {
+            if (!$oauth2Session->getAccessToken()) {
                 // Try to get an access token using the authorization code grant.
                 $oauth2Session->setAccessToken(
                     $provider->getAccessToken('authorization_code', [
