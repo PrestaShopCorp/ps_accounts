@@ -4,6 +4,7 @@ namespace PrestaShop\Module\PsAccounts\Provider\OAuth2;
 
 use League\OAuth2\Client\Token\AccessToken;
 use PrestaShop\OAuth2\Client\Provider\PrestaShop;
+use PrestaShop\OAuth2\Client\Provider\PrestaShopUser;
 use Symfony\Component\HttpFoundation\Session\SessionInterface;
 
 class OAuth2Session
@@ -51,6 +52,11 @@ class OAuth2Session
     public function setAccessToken(AccessToken $token): void
     {
         $this->session->set(self::TOKEN_NAME, $token);
+    }
+
+    public function getResourceOwner(): PrestaShopUser
+    {
+        return $prestaShopUser = $this->provider->getResourceOwner($this->getAccessToken());
     }
 
     public function clear(): void

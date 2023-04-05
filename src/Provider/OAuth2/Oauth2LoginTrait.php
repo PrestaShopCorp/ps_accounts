@@ -79,9 +79,7 @@ trait Oauth2LoginTrait
                 $oauth2Session->setAccessToken($accessToken);
             }
 
-            $prestaShopUser = $provider->getResourceOwner($oauth2Session->getAccessToken());
-
-            if ($this->initUserSession($prestaShopUser)) {
+            if ($this->initUserSession($oauth2Session->getResourceOwner())) {
                 $this->redirectAfterLogin();
             }
         }
