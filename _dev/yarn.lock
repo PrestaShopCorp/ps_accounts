@@ -7739,10 +7739,10 @@ prestakit@^1.1.0:
     select2 "^4.0.5"
     select2-bootstrap-theme "0.1.0-beta.10"
 
-prestashop_accounts_vue_components@^4.2.6:
-  version "4.2.6"
-  resolved "https://registry.yarnpkg.com/prestashop_accounts_vue_components/-/prestashop_accounts_vue_components-4.2.6.tgz#710f57040ccf08b7946f6f21582eb37fdf78e6d8"
-  integrity sha512-HBDRbOnZLdaLF3RZI2uCdlSrZhrGwycrmykcLYP+jxrGlJ+7DalFFeqWESgMimtJQQ1dbO/E4Oq6cvrJ6PCK+w==
+prestashop_accounts_vue_components@^4.2.7:
+  version "4.2.7"
+  resolved "https://registry.yarnpkg.com/prestashop_accounts_vue_components/-/prestashop_accounts_vue_components-4.2.7.tgz#e13e12d6b703e9f8dc0552edb4fe8b5832d857b3"
+  integrity sha512-lP15Z05H1UdCCVsgPaFmcOmJVFTg9Qoev/Vr2NZ9x1ATQdv5IBoiJG/s9OCH0nB1DhIQr97rfWi25JbAdVB2bg==
   dependencies:
     "@vue/composition-api" "^1.4.3"
     babel-loader "^8.2.3"
