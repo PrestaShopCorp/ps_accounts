@@ -130,3 +130,12 @@ Those API has been removed:
 - `/orders`
 - `/products`
 - `/themes`
+
+## Custom hooks
+
+Here are listed custom hooks provided with this module :
+
+| Hook name                    | Payload          | Description                                          |
+|------------------------------|------------------|------------------------------------------------------|
+| actionShopAccountLinkAfter   | shopId, shopUuid | Triggered after link has been acknowledged by shop   |
+| actionShopAccountUnlinkAfter | shopId, shopUuid | Triggered after unlink has been acknowledged by shop |
