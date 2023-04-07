@@ -56,7 +56,7 @@ class OAuth2Session
 
     public function getResourceOwner(): PrestaShopUser
     {
-        return $prestaShopUser = $this->provider->getResourceOwner($this->getAccessToken());
+        return $this->provider->getResourceOwner($this->getAccessToken());
     }
 
     public function clear(): void
