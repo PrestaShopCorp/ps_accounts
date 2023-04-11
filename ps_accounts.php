@@ -503,10 +503,10 @@ class Ps_accounts extends Module
             ]));
 
             if (!$response) {
-                return true;
-            }
-
-            if (true !== $response['status']) {
+                $this->getLogger()->debug(
+                    'Error trying to PATCH shop : No $response object'
+                );
+            } elseif (true !== $response['status']) {
                 $this->getLogger()->debug(
                     'Error trying to PATCH shop : ' . $response['httpCode'] .
                     ' ' . print_r($response['body']['message'] ?? '', true)
@@ -574,10 +574,10 @@ class Ps_accounts extends Module
         ]));
 
         if (!$response) {
-            return true;
-        }
-
-        if (true !== $response['status']) {
+            $this->getLogger()->debug(
+                'Error trying to PATCH shop : No $response object'
+            );
+        } elseif (true !== $response['status']) {
             $this->getLogger()->debug(
                 'Error trying to PATCH shop : ' . $response['httpCode'] .
                 ' ' . print_r($response['body']['message'] ?? '', true)
@@ -617,8 +617,11 @@ class Ps_accounts extends Module
 
         try {
             $response = $accountsApi->deleteUserShop($params['object']->id);
-
-            if (!$response || true !== $response['status']) {
+            if (!$response) {
+                $this->getLogger()->debug(
+                    'Error trying to DELETE shop : No $response object'
+                );
+            } elseif (true !== $response['status']) {
                 $this->getLogger()->debug(
                     'Error trying to DELETE shop : ' . $response['httpCode'] .
                     ' ' . print_r($response['body']['message'], true)
