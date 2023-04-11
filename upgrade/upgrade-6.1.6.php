@@ -7,7 +7,7 @@
  *
  * @throws Exception
  */
-function upgrade_module_6_1_5($module)
+function upgrade_module_6_1_6($module)
 {
     $module->addCustomHooks($module->getCustomHooks());
     $module->registerHook($module->getHookToInstall());
