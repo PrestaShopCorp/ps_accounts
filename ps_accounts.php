@@ -28,7 +28,12 @@ class Ps_accounts extends Module
 
     // Needed in order to retrieve the module version easier (in api call headers) than instanciate
     // the module each time to get the version
-    const VERSION = '5.3.2';
+    const VERSION = '5.3.6';
+
+
+    const HOOK_ACTION_SHOP_ACCOUNT_LINK_AFTER = 'actionShopAccountLinkAfter';
+    const HOOK_ACTION_SHOP_ACCOUNT_UNLINK_AFTER = 'actionShopAccountUnlinkAfter';
+    const HOOK_DISPLAY_ACCOUNT_UPDATE_WARNING = 'displayAccountUpdateWarning';
 
     /**
      * @var array
@@ -48,7 +53,9 @@ class Ps_accounts extends Module
         'actionObjectShopDeleteAfter',
         'actionObjectShopUrlUpdateAfter',
         'displayDashboardTop',
-        'displayAccountUpdateWarning',
+        self::HOOK_DISPLAY_ACCOUNT_UPDATE_WARNING,
+        self::HOOK_ACTION_SHOP_ACCOUNT_LINK_AFTER,
+        self::HOOK_ACTION_SHOP_ACCOUNT_UNLINK_AFTER,
     ];
 
     /**
@@ -58,10 +65,22 @@ class Ps_accounts extends Module
      */
     private $customHooks = [
         [
-            'name' => 'displayAccountUpdateWarning',
+            'name' => self::HOOK_DISPLAY_ACCOUNT_UPDATE_WARNING,
             'title' => 'Display account update warning',
             'description' => 'Show a warning message when the user wants to'
                 . ' update his shop configuration',
+            'position' => 1,
+        ],
+        [
+            'name' => self::HOOK_ACTION_SHOP_ACCOUNT_LINK_AFTER,
+            'title' => 'Shop linked event',
+            'description' => 'Shop linked with PrestaShop Account',
+            'position' => 1,
+        ],
+        [
+            'name' => self::HOOK_ACTION_SHOP_ACCOUNT_UNLINK_AFTER,
+            'title' => 'Shop unlinked event',
+            'description' => 'Shop unlinked with PrestaShop Account',
             'position' => 1,
         ],
     ];
@@ -84,7 +103,7 @@ class Ps_accounts extends Module
 
         // We cannot use the const VERSION because the const is not computed by addons marketplace
         // when the zip is uploaded
-        $this->version = '5.3.2';
+        $this->version = '5.3.6';
 
         $this->module_key = 'abf2cd758b4d629b2944d3922ef9db73';
 
@@ -590,6 +609,30 @@ class Ps_accounts extends Module
         }
 
         return true;
+    }
+
+    /**
+     * @param array{shopUuid: string, shopId: string} $params
+     *
+     * @return void
+     *
+     * @throws Exception
+     */
+    public function hookActionShopAccountLinkAfter($params)
+    {
+        // Not implemented here
+    }
+
+    /**
+     * @param array{shopUuid: string, shoÎd: string} $params
+     *
+     * @return void
+     *
+     * @throws Exception
+     */
+    public function hookActionShopAccountUnlinkAfter($params)
+    {
+        // Not implemented here
     }
 
     /**
