@@ -49,6 +49,12 @@ class PrestaShopSession
         return $token;
     }
 
+    public function getIdToken(): ?string
+    {
+        $accessToken = $this->getAccessToken();
+        return $accessToken ? $accessToken->getValues()['id_token'] : null;
+    }
+
     public function setAccessToken(AccessToken $token): void
     {
         $this->session->set(self::TOKEN_NAME, $token);
@@ -64,7 +70,7 @@ class PrestaShopSession
         return $this->hasAccessToken();
     }
 
-    public function getResourceOwner(): PrestaShopUser
+    public function getPrestashopUser(): PrestaShopUser
     {
         return $this->provider->getResourceOwner($this->getAccessToken());
     }

@@ -28,9 +28,9 @@ use PrestaShop\OAuth2\Client\Provider\PrestaShopUser;
 use Symfony\Component\HttpFoundation\Session\SessionInterface;
 use Tools;
 
-trait Oauth2LoginTrait
+trait PrestaShopLoginTrait
 {
-    abstract protected function getProvider(): PrestaShop;
+    abstract protected function getProvider(): PrestaShopClientProvider;
 
     abstract protected function initUserSession(PrestaShopUser $user): bool;
 
@@ -70,17 +70,14 @@ trait Oauth2LoginTrait
 
             throw new \Exception('Invalid state');
         } else {
-            // FIXME: why are we checking this ?
-            if (!$oauth2Session->hasAccessToken()) {
-                // Try to get an access token using the authorization code grant.
-                /** @var AccessToken $accessToken */
-                $accessToken = $provider->getAccessToken('authorization_code', [
-                    'code' => $_GET['code'],
-                ]);
-                $oauth2Session->setAccessToken($accessToken);
-            }
+            // Try to get an access token using the authorization code grant.
+            /** @var AccessToken $accessToken */
+            $accessToken = $provider->getAccessToken('authorization_code', [
+                'code' => $_GET['code'],
+            ]);
+            $oauth2Session->setAccessToken($accessToken);
 
-            if ($this->initUserSession($oauth2Session->getResourceOwner())) {
+            if ($this->initUserSession($oauth2Session->getPrestashopUser())) {
                 $this->redirectAfterLogin();
             }
         }

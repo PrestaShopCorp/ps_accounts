@@ -23,7 +23,7 @@ if (!defined('_PS_VERSION_')) {
 require_once __DIR__ . '/vendor/autoload.php';
 class Ps_accounts extends Module
 {
-    use \PrestaShop\Module\PsAccounts\Provider\OAuth2\Oauth2LogoutTrait;
+    use \PrestaShop\Module\PsAccounts\Provider\OAuth2\PrestaShopLogoutTrait;
 
     const DEFAULT_ENV = '';
 
@@ -865,7 +865,7 @@ class Ps_accounts extends Module
     protected function getProvider(): PrestaShop\Module\PsAccounts\Provider\OAuth2\PrestaShopClientProvider
     {
         /** @var \PrestaShop\Module\PsAccounts\Provider\OAuth2\PrestaShopClientProvider $provider */
-        $provider = $this->getService('ps_accounts.oauth2.client_provider');
+        $provider = $this->getService(\PrestaShop\Module\PsAccounts\Provider\OAuth2\PrestaShopClientProvider::class);
 
         return $provider;
     }
@@ -878,7 +878,7 @@ class Ps_accounts extends Module
     protected function getOauth2Session(): PrestaShop\Module\PsAccounts\Provider\OAuth2\PrestaShopSession
     {
         /** @var \PrestaShop\Module\PsAccounts\Provider\OAuth2\PrestaShopSession $oauth2Session */
-        $oauth2Session = $this->getService('ps_accounts.oauth2.session');
+        $oauth2Session = $this->getService(\PrestaShop\Module\PsAccounts\Provider\OAuth2\PrestaShopSession::class);
 
         return $oauth2Session;
     }

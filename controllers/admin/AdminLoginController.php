@@ -128,7 +128,7 @@ class AdminLoginController extends AdminLoginControllerCore
     public function createPsAccountsLoginTemplate()
     {
         /** @var \PrestaShop\Module\PsAccounts\Provider\OAuth2\PrestaShopClientProvider $provider */
-        $provider = $this->psAccountsModule->getService('ps_accounts.oauth2.client_provider');
+        $provider = $this->psAccountsModule->getService(\PrestaShop\Module\PsAccounts\Provider\OAuth2\PrestaShopClientProvider::class);
 
         /** @var SessionInterface $session */
         $session = $this->psAccountsModule->getContainer()->get('session');
