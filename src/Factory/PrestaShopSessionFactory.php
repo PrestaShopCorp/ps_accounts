@@ -2,13 +2,13 @@
 
 namespace PrestaShop\Module\PsAccounts\Factory;
 
-use PrestaShop\Module\PsAccounts\Provider\OAuth2\OAuth2Session;
+use PrestaShop\Module\PsAccounts\Provider\OAuth2\PrestaShopSession;
 use PrestaShop\OAuth2\Client\Provider\PrestaShop;
 use Symfony\Component\HttpFoundation\Session\SessionInterface;
 
-class OAuth2SessionFactory
+class PrestaShopSessionFactory
 {
-    public static function create(): OAuth2Session
+    public static function create(): PrestaShopSession
     {
         /** @var \Ps_accounts $module */
         $module = \Module::getInstanceByName('ps_accounts');
@@ -17,8 +17,8 @@ class OAuth2SessionFactory
         $session = $module->getContainer()->get('session');
 
         /** @var PrestaShop $provider */
-        $provider = $module->getService(PrestaShop::class);
+        $provider = $module->getService('ps_accounts.oauth2.client_provider');
 
-        return new OAuth2Session($session, $provider);
+        return new PrestaShopSession($session, $provider);
     }
 }

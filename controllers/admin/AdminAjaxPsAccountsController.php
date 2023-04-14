@@ -20,7 +20,7 @@
 
 use PrestaShop\Module\PsAccounts\Handler\Error\Sentry;
 use PrestaShop\Module\PsAccounts\Presenter\PsAccountsPresenter;
-use PrestaShop\Module\PsAccounts\Provider\OAuth2\OAuth2Session;
+use PrestaShop\Module\PsAccounts\Provider\OAuth2\PrestaShopSession;
 use PrestaShop\Module\PsAccounts\Repository\ShopTokenRepository;
 use PrestaShop\Module\PsAccounts\Service\ShopLinkAccountService;
 use PrestaShop\OAuth2\Client\Provider\PrestaShop;
@@ -143,8 +143,8 @@ class AdminAjaxPsAccountsController extends ModuleAdminController
     public function ajaxProcessGetOrRefreshAccessToken()
     {
         try {
-            /** @var OAuth2Session $oauthSession */
-            $oauthSession = $this->module->getService(OAuth2Session::class);
+            /** @var PrestaShopSession $oauthSession */
+            $oauthSession = $this->module->getService('ps_accounts.oauth2.session');
 
             header('Content-Type: text/json');
 

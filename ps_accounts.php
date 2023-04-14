@@ -820,10 +820,10 @@ class Ps_accounts extends Module
         return Module::isEnabled('smb_edition');
     }
 
-    protected function getProvider(): PrestaShop\Module\PsAccounts\Provider\OAuth2\Oauth2ClientShopProvider
+    protected function getProvider(): PrestaShop\Module\PsAccounts\Provider\OAuth2\PrestaShopClientProvider
     {
-        /** @var \PrestaShop\Module\PsAccounts\Provider\OAuth2\Oauth2ClientShopProvider $provider */
-        $provider = $this->getService(\PrestaShop\OAuth2\Client\Provider\PrestaShop::class);
+        /** @var \PrestaShop\Module\PsAccounts\Provider\OAuth2\PrestaShopClientProvider $provider */
+        $provider = $this->getService('ps_accounts.oauth2.client_provider');
 
         return $provider;
     }
@@ -833,10 +833,10 @@ class Ps_accounts extends Module
         return $this->hasParameter('ps_accounts.oauth2_url_session_logout');
     }
 
-    protected function getOauth2Session(): PrestaShop\Module\PsAccounts\Provider\OAuth2\OAuth2Session
+    protected function getOauth2Session(): PrestaShop\Module\PsAccounts\Provider\OAuth2\PrestaShopSession
     {
-        /** @var \PrestaShop\Module\PsAccounts\Provider\OAuth2\OAuth2Session $oauth2Session */
-        $oauth2Session = $this->getService(\PrestaShop\Module\PsAccounts\Provider\OAuth2\OAuth2Session::class);
+        /** @var \PrestaShop\Module\PsAccounts\Provider\OAuth2\PrestaShopSession $oauth2Session */
+        $oauth2Session = $this->getService('ps_accounts.oauth2.session');
 
         return $oauth2Session;
     }

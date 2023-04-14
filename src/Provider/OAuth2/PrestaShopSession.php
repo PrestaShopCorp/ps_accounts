@@ -7,7 +7,7 @@ use PrestaShop\OAuth2\Client\Provider\PrestaShop;
 use PrestaShop\OAuth2\Client\Provider\PrestaShopUser;
 use Symfony\Component\HttpFoundation\Session\SessionInterface;
 
-class OAuth2Session
+class PrestaShopSession
 {
     const TOKEN_NAME = 'accessToken';
 

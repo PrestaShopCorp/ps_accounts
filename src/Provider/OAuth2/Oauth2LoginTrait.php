@@ -38,7 +38,7 @@ trait Oauth2LoginTrait
 
     abstract protected function getSession(): SessionInterface;
 
-    abstract protected function getOauth2Session(): OAuth2Session;
+    abstract protected function getOauth2Session(): PrestaShopSession;
 
     /**
      * @throws IdentityProviderException
