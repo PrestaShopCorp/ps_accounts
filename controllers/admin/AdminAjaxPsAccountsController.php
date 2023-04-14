@@ -152,7 +152,7 @@ class AdminAjaxPsAccountsController extends ModuleAdminController
 
             $this->ajaxDie(
                 json_encode([
-                    'token' => $accessToken ? $accessToken->getToken(): '',
+                    'token' => $accessToken ? $accessToken->getToken() : '',
                 ])
             );
         } catch (Exception $e) {

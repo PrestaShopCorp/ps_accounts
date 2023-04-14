@@ -52,6 +52,7 @@ class PrestaShopSession
     public function getIdToken(): ?string
     {
         $accessToken = $this->getAccessToken();
+
         return $accessToken ? $accessToken->getValues()['id_token'] : null;
     }
 
