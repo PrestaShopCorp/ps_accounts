@@ -54,6 +54,16 @@ class PrestaShopSession
         $this->session->set(self::TOKEN_NAME, $token);
     }
 
+    public function hasAccessToken(): bool
+    {
+        return $this->session->has(self::TOKEN_NAME);
+    }
+
+    public function isAuthenticated(): bool
+    {
+        return $this->hasAccessToken();
+    }
+
     public function getResourceOwner(): PrestaShopUser
     {
         return $this->provider->getResourceOwner($this->getAccessToken());
