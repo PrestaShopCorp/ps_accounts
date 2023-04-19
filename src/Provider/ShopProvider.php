@@ -22,7 +22,8 @@ namespace PrestaShop\Module\PsAccounts\Provider;
 
 use PrestaShop\Module\PsAccounts\Adapter\Link;
 use PrestaShop\Module\PsAccounts\Context\ShopContext;
-use PrestaShop\Module\PsAccounts\Service\ShopLinkAccountService;
+use PrestaShop\Module\PsAccounts\Domain\Shop\Entity\Account;
+use PrestaShop\Module\PsAccounts\Domain\Shop\Entity\PublicKey;
 
 class ShopProvider
 {
@@ -44,7 +45,7 @@ class ShopProvider
      */
     public function __construct(
         ShopContext $shopContext,
-        Link $link
+        Link        $link
     ) {
         $this->shopContext = $shopContext;
         $this->link = $link;
@@ -57,62 +58,55 @@ class ShopProvider
      * @return array
      *
      * @throws \Exception
+     * @throws \Throwable
      */
     public function formatShopData($shopData, $psxName = '')
     {
-        $configuration = $this->shopContext->getConfiguration();
-        $userToken = $this->shopContext->getUserToken();
+        return $this->getShopContext()->execInShopContext($shopData['id_shop'], function () use ($shopData, $psxName) {
 
-        $shopId = $configuration->getShopId();
+            /** @var \Ps_accounts $module */
+            $module = \Module::getInstanceByName('ps_accounts');
 
-        $configuration->setShopId($shopData['id_shop']);
+            /** @var Account $shopAccount */
+            $shopAccount = $module->getService(Account::class);
+            $shopSession = $shopAccount->getShopSession();
+            $ownerSession = $shopAccount->getOwnerSession();
 
-        /** @var \Ps_accounts $module */
-        $module = \Module::getInstanceByName('ps_accounts');
+            /** @var PublicKey $rsaKeyProvider */
+            $rsaKeyProvider = $module->getService(PublicKey::class);
 
-        /** @var ShopLinkAccountService $shopLinkAccountService */
-        $shopLinkAccountService = $module->getService(ShopLinkAccountService::class);
+            return [
+                'id' => (string) $shopData['id_shop'],
+                'name' => $shopData['name'],
+                'domain' => $shopData['domain'],
+                'domainSsl' => $shopData['domain_ssl'],
+                'physicalUri' => $this->getShopPhysicalUri($shopData['id_shop']),
+                'virtualUri' => $this->getShopVirtualUri($shopData['id_shop']),
+                'frontUrl' => $this->getShopUrl($shopData),
 
-        /** @var RsaKeysProvider $rsaKeyProvider */
-        $rsaKeyProvider = $module->getService(RsaKeysProvider::class);
+                // LinkAccount
+                'uuid' => $shopSession->getToken()->getUuid() ?: null,
+                'publicKey' => $rsaKeyProvider->getOrGeneratePublicKey() ?: null,
+                'employeeId' => (int) $ownerSession->getEmployeeId() ?: null,
+                'user' => [
+                    'email' => $ownerSession->getToken()->getEmail() ?: null,
+                    'uuid' => $ownerSession->getToken()->getUuid() ?: null,
+                    'emailIsValidated' => $ownerSession->isEmailVerified(),
+                ],
 
-        $data = [
-            'id' => (string) $shopData['id_shop'],
-            'name' => $shopData['name'],
-            'domain' => $shopData['domain'],
-            'domainSsl' => $shopData['domain_ssl'],
-            'physicalUri' => $this->getShopPhysicalUri($shopData['id_shop']),
-            'virtualUri' => $this->getShopVirtualUri($shopData['id_shop']),
-            'frontUrl' => $this->getShopUrl($shopData),
-
-            // LinkAccount
-            'uuid' => $configuration->getShopUuid() ?: null,
-            'publicKey' => $rsaKeyProvider->getOrGenerateAccountsRsaPublicKey() ?: null,
-            'employeeId' => (int) $configuration->getEmployeeId() ?: null,
-            'user' => [
-                'email' => $userToken->getTokenEmail() ?: null,
-                'uuid' => $userToken->getTokenUuid() ?: null,
-                'emailIsValidated' => $userToken->getTokenEmailVerified(),
-            ],
-
-            'url' => $this->link->getAdminLink(
-                'AdminModules',
-                true,
-                [],
-                [
-                    'configure' => $psxName,
-                    'setShopContext' => 's-' . $shopData['id_shop'],
-                ]
-            ),
-            'isLinkedV4' => $shopLinkAccountService->isAccountLinkedV4(),
-        ];
-
-        $configuration->setShopId($shopId);
-
-        return $data;
+                'url' => $this->link->getAdminLink(
+                    'AdminModules',
+                    true,
+                    [],
+                    [
+                        'configure' => $psxName,
+                        'setShopContext' => 's-' . $shopData['id_shop'],
+                    ]
+                ),
+                'isLinkedV4' => $shopAccount->isLinkedV4(),
+            ];
+        });
     }
-
-    // TODO Add public function to get main shop
 
     /**
      * @param string $psxName

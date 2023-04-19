@@ -22,23 +22,14 @@ namespace PrestaShop\Module\PsAccounts\Api\Client;
 
 use PrestaShop\Module\PsAccounts\Api\Client\Guzzle\AbstractGuzzleClient;
 use PrestaShop\Module\PsAccounts\Api\Client\Guzzle\GuzzleClientFactory;
-use PrestaShop\Module\PsAccounts\DTO\UpdateShop;
-use PrestaShop\Module\PsAccounts\Provider\ShopProvider;
-use PrestaShop\Module\PsAccounts\Repository\ShopTokenRepository;
-use PrestaShop\Module\PsAccounts\Repository\TokenClientInterface;
-use PrestaShop\Module\PsAccounts\Repository\UserTokenRepository;
-use PrestaShop\Module\PsAccounts\Service\ShopLinkAccountService;
+use PrestaShop\Module\PsAccounts\Dto\UpdateShop;
+use PrestaShop\Module\PsAccounts\Domain\Shop\Contract\TokenClientInterface;
 
 /**
  * Class ServicesAccountsClient
  */
 class AccountsClient implements TokenClientInterface
 {
-    /**
-     * @var ShopProvider
-     */
-    private $shopProvider;
-
     /**
      * @var AbstractGuzzleClient
      */
@@ -48,16 +39,12 @@ class AccountsClient implements TokenClientInterface
      * ServicesAccountsClient constructor.
      *
      * @param string $apiUrl
-     * @param ShopProvider $shopProvider
      * @param AbstractGuzzleClient|null $client
      */
     public function __construct(
         $apiUrl,
-        ShopProvider $shopProvider,
         AbstractGuzzleClient $client = null
     ) {
-        $this->shopProvider = $shopProvider;
-
         if (null === $client) {
             $client = (new GuzzleClientFactory())->create([
                 'base_url' => $apiUrl,
@@ -102,85 +89,62 @@ class AccountsClient implements TokenClientInterface
     }
 
     /**
-     * @param int $shopId
+     * @param string $ownerUid
+     * @param string $shopUid
+     * @param string $ownerToken
      *
      * @return array
-     *
-     * @throws \Exception
      */
-    public function deleteUserShop($shopId)
+    public function deleteUserShop($ownerUid, $shopUid, $ownerToken)
     {
-        return $this->shopProvider->getShopContext()->execInShopContext((int) $shopId, function () {
-            $userToken = $this->getUserTokenRepository();
-            $shopToken = $this->getShopTokenRepository();
+        $this->client->setRoute('user/' . $ownerUid . '/shop/' . $shopUid);
 
-            $this->client->setRoute('user/' . $userToken->getTokenUuid() . '/shop/' . $shopToken->getTokenUuid());
-
-            return $this->client->delete([
-                'headers' => $this->getHeaders([
-                    'Authorization' => 'Bearer ' . $userToken->getOrRefreshToken(),
-                ]),
-            ]);
-        });
+        return $this->client->delete([
+            'headers' => $this->getHeaders([
+                'Authorization' => 'Bearer ' . $ownerToken,
+            ]),
+        ]);
     }
 
     /**
-     * @param array $currentShop
+     * @param string $shopUid
+     * @param string $shopToken
+     * @param array $payload
      *
      * @return array
-     *
-     * @throws \Throwable
      */
-    public function reonboardShop($currentShop)
+    public function reonboardShop($shopUid, $shopToken, $payload)
     {
-        return $this->shopProvider->getShopContext()->execInShopContext((int) $currentShop['id'], function () use ($currentShop) {
-            $shopToken = $this->getShopTokenRepository();
-
-            $this->client->setRoute('shop/' . $currentShop['uuid'] . '/reonboard');
+            $this->client->setRoute('shop/' . $shopUid . '/reonboard');
 
             return $this->client->post([
                 'headers' => $this->getHeaders([
-                    'Authorization' => 'Bearer ' . $shopToken->getOrRefreshToken(),
+                    'Authorization' => 'Bearer ' . $shopToken,
                     'content-type' => 'application/json',
                 ]),
-                'json' => $currentShop,
+                'json' => $payload,
             ]);
-        });
     }
 
     /**
+     * @param string $ownerUid
+     * @param string $shopUid
+     * @param string $ownerToken
      * @param UpdateShop $shop
      *
-     * @return array|null
-     *
-     * @throws \Exception
+     * @return array
      */
-    public function updateUserShop(UpdateShop $shop)
+    public function updateUserShop($ownerUid, $shopUid, $ownerToken, UpdateShop $shop)
     {
-        return $this->shopProvider->getShopContext()->execInShopContext((int) $shop->shopId, function () use ($shop) {
-            $userToken = $this->getUserTokenRepository();
-            $shopToken = $this->getShopTokenRepository();
+        $this->client->setRoute('user/' . $ownerUid . '/shop/' . $shopUid);
 
-            /** @var \Ps_accounts $module */
-            $module = \Module::getInstanceByName('ps_accounts');
-
-            /** @var ShopLinkAccountService $linkAccountService */
-            $linkAccountService = $module->getService(ShopLinkAccountService::class);
-
-            if (!$linkAccountService->isAccountLinked()) {
-                return null;
-            }
-
-            $this->client->setRoute('user/' . $userToken->getTokenUuid() . '/shop/' . $shopToken->getTokenUuid());
-
-            return $this->client->patch([
-                'headers' => $this->getHeaders([
-                    'Authorization' => 'Bearer ' . $userToken->getOrRefreshToken(),
-                    'content-type' => 'application/json',
-                ]),
-                'json' => $shop->jsonSerialize(),
-            ]);
-        });
+        return $this->client->patch([
+            'headers' => $this->getHeaders([
+                'Authorization' => 'Bearer ' . $ownerToken,
+                'content-type' => 'application/json',
+            ]),
+            'json' => $shop->jsonSerialize(),
+        ]);
     }
 
     /**
@@ -193,31 +157,5 @@ class AccountsClient implements TokenClientInterface
         return array_merge([
             'Accept' => 'application/json',
         ], $additionalHeaders);
-    }
-
-    /**
-     * @return ShopTokenRepository
-     *
-     * @throws \Exception
-     */
-    private function getShopTokenRepository()
-    {
-        /** @var \Ps_accounts $module */
-        $module = \Module::getInstanceByName('ps_accounts');
-
-        return $module->getService(ShopTokenRepository::class);
-    }
-
-    /**
-     * @return UserTokenRepository
-     *
-     * @throws \Exception
-     */
-    private function getUserTokenRepository()
-    {
-        /** @var \Ps_accounts $module */
-        $module = \Module::getInstanceByName('ps_accounts');
-
-        return $module->getService(UserTokenRepository::class);
     }
 }

@@ -10,8 +10,8 @@ use Lcobucci\JWT\Signer\Hmac\Sha256;
 use Lcobucci\JWT\Signer\Key;
 use PrestaShop\Module\PsAccounts\Api\Client\Guzzle\AbstractGuzzleClient;
 use PrestaShop\Module\PsAccounts\Api\Client\Guzzle\GuzzleClientFactory;
-use PrestaShop\Module\PsAccounts\Provider\RsaKeysProvider;
-use PrestaShop\Module\PsAccounts\Repository\UserTokenRepository;
+use PrestaShop\Module\PsAccounts\Domain\Shop\Entity\PublicKey;
+use PrestaShop\Module\PsAccounts\Repository\Support\UserTokenRepository;
 use PrestaShop\Module\PsAccounts\Tests\TestCase;
 
 class FeatureTestCase extends TestCase
@@ -32,7 +32,7 @@ class FeatureTestCase extends TestCase
     protected $guzzleClient;
 
     /**
-     * @var RsaKeysProvider
+     * @var \PrestaShop\Module\PsAccounts\Domain\Shop\Entity\PublicKey
      */
     protected $rsaKeysProvider;
 
@@ -68,7 +68,7 @@ class FeatureTestCase extends TestCase
 
         $this->client = $this->guzzleClient->getClient();
 
-        $this->rsaKeysProvider = $this->module->getService(RsaKeysProvider::class);
+        $this->rsaKeysProvider = $this->module->getService(PublicKey::class);
         $this->rsaKeysProvider->regenerateKeys();
 
         $this->userTokenRepository = $this->module->getService(UserTokenRepository::class);

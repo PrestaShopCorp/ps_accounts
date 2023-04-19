@@ -21,13 +21,12 @@
 namespace PrestaShop\Module\PsAccounts\Tests\Unit\Repository\ShopTokenRepository;
 
 use Exception;
-use Lcobucci\JWT\Token;
 use PrestaShop\Module\PsAccounts\Api\Client\AccountsClient;
+use PrestaShop\Module\PsAccounts\Domain\Shop\Entity\Account;
 use PrestaShop\Module\PsAccounts\Exception\RefreshTokenException;
 use PrestaShop\Module\PsAccounts\Provider\ShopProvider;
-use PrestaShop\Module\PsAccounts\Repository\AbstractTokenRepository;
-use PrestaShop\Module\PsAccounts\Repository\ShopTokenRepository;
-use PrestaShop\Module\PsAccounts\Service\ShopLinkAccountService;
+use PrestaShop\Module\PsAccounts\Repository\Support\AbstractTokenRepository;
+use PrestaShop\Module\PsAccounts\Repository\Support\ShopTokenRepository;
 use PrestaShop\Module\PsAccounts\Tests\TestCase;
 
 class RefreshTokenTest extends TestCase
@@ -124,9 +123,9 @@ class RefreshTokenTest extends TestCase
         $this->assertEquals(null, (string) $tokenRepos->getToken());
         $this->assertEquals(null, (string) $tokenRepos->getRefreshToken());
 
-        /** @var ShopLinkAccountService $linkAccountService */
-        $linkAccountService = $this->module->getService(ShopLinkAccountService::class);
-        $this->assertFalse($linkAccountService->isAccountLinked());
+        /** @var Account $linkAccountService */
+        $linkAccountService = $this->module->getService(Account::class);
+        $this->assertFalse($linkAccountService->isLinked());
     }
 
     /**

@@ -2,7 +2,7 @@
 
 namespace PrestaShop\Module\PsAccounts\Tests\Unit\DTO;
 
-use PrestaShop\Module\PsAccounts\DTO\UpdateShop;
+use PrestaShop\Module\PsAccounts\Dto\UpdateShop;
 use PrestaShop\Module\PsAccounts\Tests\TestCase;
 
 class UpdateShopDTOTest extends TestCase

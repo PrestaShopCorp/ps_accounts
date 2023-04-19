@@ -2,8 +2,7 @@
 
 namespace PrestaShop\Module\PsAccounts\Tests\Unit\Service\PsAccountsService;
 
-use PrestaShop\Module\PsAccounts\Repository\ShopTokenRepository;
-use PrestaShop\Module\PsAccounts\Repository\UserTokenRepository;
+use PrestaShop\Module\PsAccounts\Repository\Support\UserTokenRepository;
 use PrestaShop\Module\PsAccounts\Service\PsAccountsService;
 use PrestaShop\Module\PsAccounts\Tests\TestCase;
 

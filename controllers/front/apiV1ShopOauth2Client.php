@@ -19,7 +19,7 @@
  */
 
 use PrestaShop\Module\PsAccounts\Controller\AbstractShopRestController;
-use PrestaShop\Module\PsAccounts\DTO\Api\UpdateShopOauth2ClientRequest;
+use PrestaShop\Module\PsAccounts\Dto\Api\UpdateShopOauth2ClientRequest;
 use PrestaShop\Module\PsAccounts\Repository\ConfigurationRepository;
 
 class ps_AccountsApiV1ShopOauth2ClientModuleFrontController extends AbstractShopRestController

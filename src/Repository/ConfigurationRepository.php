@@ -142,6 +142,8 @@ class ConfigurationRepository
 
     /**
      * @return bool
+     *
+     * @deprecated
      */
     public function firebaseEmailIsVerified()
     {
@@ -155,6 +157,8 @@ class ConfigurationRepository
      * @param bool $status
      *
      * @return void
+     *
+     * @deprecated
      */
     public function updateFirebaseEmailIsVerified($status)
     {
@@ -219,24 +223,6 @@ class ConfigurationRepository
     public function updateAccountsRsaPublicKey($key)
     {
         $this->configuration->set(Configuration::PS_ACCOUNTS_RSA_PUBLIC_KEY, $key);
-    }
-
-    /**
-     * @return string
-     */
-    public function getAccountsRsaSignData()
-    {
-        return $this->configuration->get(Configuration::PS_ACCOUNTS_RSA_SIGN_DATA);
-    }
-
-    /**
-     * @param string $signData
-     *
-     * @return void
-     */
-    public function updateAccountsRsaSignData($signData)
-    {
-        $this->configuration->set(Configuration::PS_ACCOUNTS_RSA_SIGN_DATA, $signData);
     }
 
     /**

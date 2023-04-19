@@ -1,0 +1,39 @@
+services:
+  PrestaShop\Module\PsAccounts\Domain\Shop\Command\LinkShopHandler:
+    class: PrestaShop\Module\PsAccounts\Domain\Shop\Command\LinkShopHandler
+    public: true
+    arguments:
+      - '@PrestaShop\Module\PsAccounts\Domain\Shop\Entity\ShopSession'
+      - '@PrestaShop\Module\PsAccounts\Domain\Shop\Entity\OwnerSession'
+      - '@PrestaShop\Module\PsAccounts\Repository\ConfigurationRepository'
+
+  PrestaShop\Module\PsAccounts\Domain\Shop\Command\MigrateAndLinkV4ShopHandler:
+    class: PrestaShop\Module\PsAccounts\Domain\Shop\Command\MigrateAndLinkV4ShopHandler
+    public: true
+    arguments:
+      - '@PrestaShop\Module\PsAccounts\Api\Client\AccountsClient'
+      - '@PrestaShop\Module\PsAccounts\Context\ShopContext'
+      - '@PrestaShop\Module\PsAccounts\Domain\Shop\Entity\ShopSession'
+
+  PrestaShop\Module\PsAccounts\Domain\Shop\Command\RemoteUnlinkShopHandler:
+    class: PrestaShop\Module\PsAccounts\Domain\Shop\Command\RemoteUnlinkShopHandler
+    public: true
+    arguments:
+      - '@PrestaShop\Module\PsAccounts\Api\Client\AccountsClient'
+      - '@PrestaShop\Module\PsAccounts\Context\ShopContext'
+      - '@PrestaShop\Module\PsAccounts\Domain\Shop\Entity\ShopSession'
+      - '@PrestaShop\Module\PsAccounts\Domain\Shop\Entity\OwnerSession'
+
+  PrestaShop\Module\PsAccounts\Domain\Shop\Command\UnlinkShopHandler:
+    class: PrestaShop\Module\PsAccounts\Domain\Shop\Command\UnlinkShopHandler
+    public: true
+    arguments:
+      - '@PrestaShop\Module\PsAccounts\Domain\Shop\Entity\Account'
+
+  PrestaShop\Module\PsAccounts\Domain\Shop\Command\UpdateShopHandler:
+    class: PrestaShop\Module\PsAccounts\Domain\Shop\Command\UpdateShopHandler
+    public: true
+    arguments:
+      - '@PrestaShop\Module\PsAccounts\Api\Client\AccountsClient'
+      - '@PrestaShop\Module\PsAccounts\Context\ShopContext'
+      - '@PrestaShop\Module\PsAccounts\Domain\Shop\Entity\Account'

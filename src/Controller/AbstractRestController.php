@@ -27,8 +27,8 @@ use Lcobucci\JWT\Signer\Key;
 use PrestaShop\Module\PsAccounts\Exception\Http\HttpException;
 use PrestaShop\Module\PsAccounts\Exception\Http\MethodNotAllowedException;
 use PrestaShop\Module\PsAccounts\Exception\Http\UnauthorizedException;
-use PrestaShop\Module\PsAccounts\Handler\Error\Sentry;
-use PrestaShop\Module\PsAccounts\Provider\RsaKeysProvider;
+use PrestaShop\Module\PsAccounts\Service\SentryService;
+use PrestaShop\Module\PsAccounts\Domain\Shop\Entity\PublicKey;
 use PrestaShop\Module\PsAccounts\Repository\ConfigurationRepository;
 use ReflectionException;
 use ReflectionParameter;
@@ -88,7 +88,7 @@ abstract class AbstractRestController extends \ModuleFrontController
                 'message' => $e->getMessage(),
             ], $e->getStatusCode());
         } catch (\Exception $e) {
-            Sentry::capture($e);
+            SentryService::capture($e);
 
             $this->module->getLogger()->error($e);
 
@@ -226,8 +226,8 @@ abstract class AbstractRestController extends \ModuleFrontController
      */
     protected function decodePayload()
     {
-        /** @var RsaKeysProvider $shopKeysService */
-        $shopKeysService = $this->module->getService(RsaKeysProvider::class);
+        /** @var PublicKey $shopKeysService */
+        $shopKeysService = $this->module->getService(PublicKey::class);
 
         $jwtString = $this->getRequestHeader(self::TOKEN_HEADER);
 

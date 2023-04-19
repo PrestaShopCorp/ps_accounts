@@ -467,9 +467,9 @@ class Ps_accounts extends Module
     public function hookActionObjectShopUrlUpdateAfter($params)
     {
         if ($params['object']->main) {
-            /** @var \PrestaShop\Module\PsAccounts\Api\Client\AccountsClient $accountsApi */
-            $accountsApi = $this->getService(
-                \PrestaShop\Module\PsAccounts\Api\Client\AccountsClient::class
+            /** @var \PrestaShop\Module\PsAccounts\Cqrs\CommandBus $commandBus */
+            $commandBus = $this->getService(
+                \PrestaShop\Module\PsAccounts\Cqrs\CommandBus::class
             );
 
             /** @var \PrestaShop\Module\PsAccounts\Adapter\Link $link */
@@ -482,25 +482,29 @@ class Ps_accounts extends Module
             $domain = $params['object']->domain;
             $sslDomain = $params['object']->domain_ssl;
 
-            $response = $accountsApi->updateUserShop(new \PrestaShop\Module\PsAccounts\DTO\UpdateShop([
-                'shopId' => (string) $params['object']->id,
-                'name' => $shop->name,
-                'domain' => 'http://' . $domain,
-                'sslDomain' => 'https://' . $sslDomain,
-                'physicalUri' => $params['object']->physical_uri,
-                'virtualUri' => $params['object']->virtual_uri,
-                'boBaseUrl' => $link->getAdminLinkWithCustomDomain(
-                    $sslDomain,
-                    $domain,
-                    'AdminModules',
-                    false,
-                    [],
-                    [
-                        'configure' => $this->name,
-                        'setShopContext' => 's-' . $params['object']->id,
-                    ]
-                ),
-            ]));
+            $response = $commandBus->execute(
+                new \PrestaShop\Module\PsAccounts\Domain\Shop\Command\UpdateShop(
+                    new \PrestaShop\Module\PsAccounts\Dto\UpdateShop([
+                        'shopId' => (string) $params['object']->id,
+                        'name' => $shop->name,
+                        'domain' => 'http://' . $domain,
+                        'sslDomain' => 'https://' . $sslDomain,
+                        'physicalUri' => $params['object']->physical_uri,
+                        'virtualUri' => $params['object']->virtual_uri,
+                        'boBaseUrl' => $link->getAdminLinkWithCustomDomain(
+                            $sslDomain,
+                            $domain,
+                            'AdminModules',
+                            false,
+                            [],
+                            [
+                                'configure' => $this->name,
+                                'setShopContext' => 's-' . $params['object']->id,
+                            ]
+                        ),
+                    ])
+                )
+            );
 
             if (!$response) {
                 return true;
@@ -540,9 +544,9 @@ class Ps_accounts extends Module
      */
     public function hookActionObjectShopUpdateAfter($params)
     {
-        /** @var \PrestaShop\Module\PsAccounts\Api\Client\AccountsClient $accountsApi */
-        $accountsApi = $this->getService(
-            \PrestaShop\Module\PsAccounts\Api\Client\AccountsClient::class
+        /** @var \PrestaShop\Module\PsAccounts\Cqrs\CommandBus $commandBus */
+        $commandBus = $this->getService(
+            \PrestaShop\Module\PsAccounts\Cqrs\CommandBus::class
         );
 
         /** @var \PrestaShop\Module\PsAccounts\Adapter\Link $link */
@@ -553,25 +557,29 @@ class Ps_accounts extends Module
         $domain = $params['object']->domain;
         $sslDomain = $params['object']->domain_ssl;
 
-        $response = $accountsApi->updateUserShop(new \PrestaShop\Module\PsAccounts\DTO\UpdateShop([
-            'shopId' => (string) $params['object']->id,
-            'name' => $params['object']->name,
-            'domain' => 'http://' . $shop->domain,
-            'sslDomain' => 'https://' . $shop->domain_ssl,
-            'physicalUri' => $shop->physical_uri,
-            'virtualUri' => $shop->virtual_uri,
-            'boBaseUrl' => $link->getAdminLinkWithCustomDomain(
-                $sslDomain,
-                $domain,
-                'AdminModules',
-                false,
-                [],
-                [
-                    'configure' => $this->name,
-                    'setShopContext' => 's-' . $params['object']->id,
-                ]
-            ),
-        ]));
+        $response = $commandBus->execute(
+            new \PrestaShop\Module\PsAccounts\Domain\Shop\Command\UpdateShop(
+                new \PrestaShop\Module\PsAccounts\Dto\UpdateShop([
+                    'shopId' => (string) $params['object']->id,
+                    'name' => $params['object']->name,
+                    'domain' => 'http://' . $shop->domain,
+                    'sslDomain' => 'https://' . $shop->domain_ssl,
+                    'physicalUri' => $shop->physical_uri,
+                    'virtualUri' => $shop->virtual_uri,
+                    'boBaseUrl' => $link->getAdminLinkWithCustomDomain(
+                        $sslDomain,
+                        $domain,
+                        'AdminModules',
+                        false,
+                        [],
+                        [
+                            'configure' => $this->name,
+                            'setShopContext' => 's-' . $params['object']->id,
+                        ]
+                    ),
+                ])
+            )
+        );
 
         if (!$response) {
             return true;
@@ -610,13 +618,15 @@ class Ps_accounts extends Module
      */
     public function hookActionObjectShopDeleteBefore($params)
     {
-        /** @var \PrestaShop\Module\PsAccounts\Api\Client\AccountsClient $accountsApi */
-        $accountsApi = $this->getService(
-            \PrestaShop\Module\PsAccounts\Api\Client\AccountsClient::class
-        );
-
         try {
-            $response = $accountsApi->deleteUserShop($params['object']->id);
+            /** @var \PrestaShop\Module\PsAccounts\Cqrs\CommandBus $commandBus */
+            $commandBus = $this->getService(\PrestaShop\Module\PsAccounts\Cqrs\CommandBus::class);
+
+            $response = $commandBus->execute(
+                new \PrestaShop\Module\PsAccounts\Domain\Shop\Command\RemoteUnlinkShop(
+                    $params['object']->id
+                )
+            );
 
             if (!$response || true !== $response['status']) {
                 $this->getLogger()->debug(

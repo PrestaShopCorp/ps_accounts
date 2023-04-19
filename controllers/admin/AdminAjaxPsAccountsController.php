@@ -18,10 +18,13 @@
  * @license   https://opensource.org/licenses/AFL-3.0 Academic Free License version 3.0
  */
 
-use PrestaShop\Module\PsAccounts\Handler\Error\Sentry;
+use PrestaShop\Module\PsAccounts\Cqrs\CommandBus;
+use PrestaShop\Module\PsAccounts\Domain\Shop\Command\RemoteUnlinkShop;
+use PrestaShop\Module\PsAccounts\Domain\Shop\Entity\ShopSession;
+use PrestaShop\Module\PsAccounts\Service\SentryService;
 use PrestaShop\Module\PsAccounts\Presenter\PsAccountsPresenter;
-use PrestaShop\Module\PsAccounts\Repository\ShopTokenRepository;
-use PrestaShop\Module\PsAccounts\Service\ShopLinkAccountService;
+use PrestaShop\Module\PsAccounts\Repository\ConfigurationRepository;
+use PrestaShop\Module\PsAccounts\Domain\Shop\Entity\Account;
 
 /**
  * Controller for all ajax calls.
@@ -51,19 +54,21 @@ class AdminAjaxPsAccountsController extends ModuleAdminController
     public function ajaxProcessGetOrRefreshToken()
     {
         try {
-            /** @var ShopTokenRepository $shopTokenService */
-            $shopTokenService = $this->module->getService(ShopTokenRepository::class);
+            /** @var ShopSession $shopSession */
+            $shopSession = $this->module->getService(ShopSession::class);
+
+            $token = $shopSession->getOrRefreshToken();
 
             header('Content-Type: text/json');
 
             $this->ajaxDie(
                 json_encode([
-                    'token' => (string) $shopTokenService->getOrRefreshToken(),
-                    'refreshToken' => $shopTokenService->getRefreshToken(),
+                    'token' => (string) $token->getToken(),
+                    'refreshToken' => $token->getRefreshToken(),
                 ])
             );
         } catch (Exception $e) {
-            Sentry::captureAndRethrow($e);
+            SentryService::captureAndRethrow($e);
         }
     }
 
@@ -76,10 +81,15 @@ class AdminAjaxPsAccountsController extends ModuleAdminController
     public function ajaxProcessUnlinkShop()
     {
         try {
-            /** @var ShopLinkAccountService $shopLinkAccountService */
-            $shopLinkAccountService = $this->module->getService(ShopLinkAccountService::class);
+            /** @var CommandBus $commandBus */
+            $commandBus = $this->module->getService(CommandBus::class);
 
-            $response = $shopLinkAccountService->unlinkShop();
+            /** @var ConfigurationRepository $configurationRepository */
+            $configurationRepository = $this->module->getService(ConfigurationRepository::class);
+
+            $response = $commandBus->execute(new RemoteUnlinkShop(
+                $configurationRepository->getShopId()
+            ));
 
             http_response_code($response['httpCode']);
 
@@ -87,7 +97,7 @@ class AdminAjaxPsAccountsController extends ModuleAdminController
 
             $this->ajaxDie(json_encode($response['body']));
         } catch (Exception $e) {
-            Sentry::captureAndRethrow($e);
+            SentryService::captureAndRethrow($e);
         }
     }
 
@@ -99,16 +109,16 @@ class AdminAjaxPsAccountsController extends ModuleAdminController
     public function ajaxProcessResetLinkAccount()
     {
         try {
-            /** @var ShopLinkAccountService $shopLinkAccountService */
-            $shopLinkAccountService = $this->module->getService(ShopLinkAccountService::class);
+            /** @var Account $shopLinkAccountService */
+            $shopLinkAccountService = $this->module->getService(Account::class);
 
-            $shopLinkAccountService->resetLinkAccount();
+            $shopLinkAccountService->resetLink();
 
             header('Content-Type: text/json');
 
             $this->ajaxDie(json_encode(['message' => 'success']));
         } catch (Exception $e) {
-            Sentry::captureAndRethrow($e);
+            SentryService::captureAndRethrow($e);
         }
     }
 
@@ -129,7 +139,7 @@ class AdminAjaxPsAccountsController extends ModuleAdminController
 
             $this->ajaxDie(json_encode($presenter->present($psxName)));
         } catch (Exception $e) {
-            Sentry::captureAndRethrow($e);
+            SentryService::captureAndRethrow($e);
         }
     }
 }

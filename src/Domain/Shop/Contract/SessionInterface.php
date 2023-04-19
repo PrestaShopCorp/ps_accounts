@@ -1,0 +1,20 @@
+<?php
+
+namespace PrestaShop\Module\PsAccounts\Domain\Shop\Contract;
+
+use PrestaShop\Module\PsAccounts\Domain\Shop\Entity\Token;
+
+interface SessionInterface
+{
+    public function getToken(): Token;
+
+    public function setToken(string $token, string $refreshToken);
+
+    public function verifyToken(string $token): bool;
+
+    public function refreshToken(string $refreshToken): Token;
+
+    public function getOrRefreshToken(bool $forceRefresh = false): Token;
+
+    public function cleanup(): void;
+}

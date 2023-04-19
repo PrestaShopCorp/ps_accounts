@@ -21,11 +21,11 @@
 use Doctrine\ORM\EntityManagerInterface;
 use League\OAuth2\Client\Provider\Exception\IdentityProviderException;
 use PrestaShop\Module\PsAccounts\Entity\EmployeeAccount;
-use PrestaShop\Module\PsAccounts\Exception\AccountLogin\AccountLoginException;
-use PrestaShop\Module\PsAccounts\Exception\AccountLogin\EmailNotVerifiedException;
-use PrestaShop\Module\PsAccounts\Exception\AccountLogin\EmployeeNotFoundException;
-use PrestaShop\Module\PsAccounts\Exception\AccountLogin\Oauth2Exception;
-use PrestaShop\Module\PsAccounts\Exception\AccountLogin\OtherErrorException;
+use PrestaShop\Module\PsAccounts\Exception\AccountLoginException;
+use PrestaShop\Module\PsAccounts\Exception\EmailNotVerifiedException;
+use PrestaShop\Module\PsAccounts\Exception\EmployeeNotFoundException;
+use PrestaShop\Module\PsAccounts\Exception\Oauth2Exception;
+use PrestaShop\Module\PsAccounts\Exception\OtherErrorException;
 use PrestaShop\Module\PsAccounts\Provider\OAuth2\Oauth2ClientShopProvider;
 use PrestaShop\Module\PsAccounts\Provider\OAuth2\Oauth2LoginTrait;
 use PrestaShop\Module\PsAccounts\Service\AnalyticsService;

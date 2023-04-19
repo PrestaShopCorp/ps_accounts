@@ -2,9 +2,8 @@
 
 namespace PrestaShop\Module\PsAccounts\Tests\Unit\Repository\ShopTokenRepository;
 
-use PrestaShop\Module\PsAccounts\Api\Client\AccountsClient;
 use PrestaShop\Module\PsAccounts\Repository\ConfigurationRepository;
-use PrestaShop\Module\PsAccounts\Repository\ShopTokenRepository;
+use PrestaShop\Module\PsAccounts\Repository\Support\ShopTokenRepository;
 use PrestaShop\Module\PsAccounts\Tests\TestCase;
 
 class GetOrRefreshTokenTest extends TestCase

@@ -22,7 +22,7 @@ namespace PrestaShop\Module\PsAccounts\Api\Client;
 
 use PrestaShop\Module\PsAccounts\Api\Client\Guzzle\AbstractGuzzleClient;
 use PrestaShop\Module\PsAccounts\Api\Client\Guzzle\GuzzleClientFactory;
-use PrestaShop\Module\PsAccounts\Repository\TokenClientInterface;
+use PrestaShop\Module\PsAccounts\Domain\Shop\Contract\TokenClientInterface;
 
 /**
  * Class ServicesAccountsClient

@@ -19,7 +19,7 @@
  */
 
 use PrestaShop\Module\PsAccounts\Controller\AbstractShopRestController;
-use PrestaShop\Module\PsAccounts\Repository\ShopTokenRepository;
+use PrestaShop\Module\PsAccounts\Domain\Shop\Entity\ShopSession;
 
 class ps_AccountsApiV1ShopTokenModuleFrontController extends AbstractShopRestController
 {
@@ -33,12 +33,14 @@ class ps_AccountsApiV1ShopTokenModuleFrontController extends AbstractShopRestCon
      */
     public function show(Shop $shop, array $payload): array
     {
-        /** @var ShopTokenRepository $shopTokenRepository */
-        $shopTokenRepository = $this->module->getService(ShopTokenRepository::class);
+        /** @var ShopSession $shopSession */
+        $shopSession = $this->module->getService(ShopSession::class);
+
+        $token = $shopSession->getOrRefreshToken();
 
         return [
-            'token' => (string) $shopTokenRepository->getOrRefreshToken(),
-            'refresh_token' => (string) $shopTokenRepository->getRefreshToken(),
+            'token' => (string) $token->getToken(),
+            'refresh_token' => (string) $token->getRefreshToken(),
         ];
     }
 }

@@ -19,16 +19,18 @@
  */
 
 use PrestaShop\Module\PsAccounts\Controller\AbstractShopRestController;
-use PrestaShop\Module\PsAccounts\DTO\Api\UpdateShopLinkAccountRequest;
+use PrestaShop\Module\PsAccounts\Cqrs\CommandBus;
+use PrestaShop\Module\PsAccounts\Domain\Shop\Command\LinkShop;
+use PrestaShop\Module\PsAccounts\Domain\Shop\Command\UnlinkShop;
+use PrestaShop\Module\PsAccounts\Dto\Api\UpdateShopLinkAccountRequest;
 use PrestaShop\Module\PsAccounts\Exception\RefreshTokenException;
-use PrestaShop\Module\PsAccounts\Service\ShopLinkAccountService;
 
 class ps_AccountsApiV1ShopLinkAccountModuleFrontController extends AbstractShopRestController
 {
     /**
-     * @var ShopLinkAccountService
+     * @var CommandBus
      */
-    private $shopLinkAccountService;
+    private $commandBus;
 
     /**
      * ps_AccountsApiV1ShopLinkAccountModuleFrontController constructor.
@@ -39,23 +41,19 @@ class ps_AccountsApiV1ShopLinkAccountModuleFrontController extends AbstractShopR
     {
         parent::__construct();
 
-        $this->shopLinkAccountService = $this->module->getService(ShopLinkAccountService::class);
+        $this->commandBus = $this->module->getService(CommandBus::class);
     }
 
     /**
-     * @param Shop $shop
-     * @param UpdateShopLinkAccountRequest $request
-     *
-     * @return array
-     *
      * @throws RefreshTokenException
+     * @throws Exception
      */
     public function update(Shop $shop, UpdateShopLinkAccountRequest $request): array
     {
-        $this->shopLinkAccountService->updateLinkAccount(
+        $this->commandBus->execute(new LinkShop(
             $request,
             $this->module->getParameter('ps_accounts.verify_account_tokens')
-        );
+        ));
 
         return [
             'success' => true,
@@ -64,14 +62,11 @@ class ps_AccountsApiV1ShopLinkAccountModuleFrontController extends AbstractShopR
     }
 
     /**
-     * @param Shop $shop
-     * @param array $payload
-     *
-     * @return array
+     * @throws Exception
      */
     public function delete(Shop $shop, array $payload): array
     {
-        $this->shopLinkAccountService->resetLinkAccount();
+        $this->commandBus->execute(new UnlinkShop($shop->id));
 
         return [
             'success' => true,

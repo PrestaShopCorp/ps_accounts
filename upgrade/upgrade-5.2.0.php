@@ -28,8 +28,8 @@ function updateShopUrl($module)
     /** @var \PrestaShop\Module\PsAccounts\Service\PsAccountsService $accountsService */
     $accountsService = $module->getService(\PrestaShop\Module\PsAccounts\Service\PsAccountsService::class);
 
-    /** @var \PrestaShop\Module\PsAccounts\Api\Client\AccountsClient $accountsApi */
-    $accountsApi = $module->getService(
+    /** @var \PrestaShop\Module\PsAccounts\Cqrs\CommandBus $commandBus */
+    $commandBus = $module->getService(
         \PrestaShop\Module\PsAccounts\Api\Client\AccountsClient::class
     );
 
@@ -37,19 +37,23 @@ function updateShopUrl($module)
 
     foreach ($shopsTree as $shopGroup) {
         foreach ($shopGroup['shops'] as $shop) {
-            $shopContext->execInShopContext($shop['id'], function () use ($accountsService, $shop, $accountsApi, $module) {
+            $shopContext->execInShopContext($shop['id'], function () use ($accountsService, $shop, $commandBus, $module) {
                 try {
                     if ($accountsService->isAccountLinked()) {
-                        $response = $accountsApi->updateUserShop(new \PrestaShop\Module\PsAccounts\DTO\UpdateShop([
-                            'shopId' => (string) $shop['id'],
-                            'name' => $shop['name'],
-                            'domain' => 'http://' . $shop['domain'],
-                            'sslDomain' => 'https://' . $shop['domainSsl'],
-                            'physicalUri' => $shop['physicalUri'],
-                            // FIXME when we have the virtual uri in tree, add it here
-                            'virtualUri' => '',
-                            'boBaseUrl' => $shop['url'],
-                        ]));
+                        $response = $commandBus->execute(
+                            new \PrestaShop\Module\PsAccounts\Domain\Shop\Command\UpdateShop(
+                                new \PrestaShop\Module\PsAccounts\Dto\UpdateShop([
+                                    'shopId' => (string) $shop['id'],
+                                    'name' => $shop['name'],
+                                    'domain' => 'http://' . $shop['domain'],
+                                    'sslDomain' => 'https://' . $shop['domainSsl'],
+                                    'physicalUri' => $shop['physicalUri'],
+                                    // FIXME when we have the virtual uri in tree, add it here
+                                    'virtualUri' => '',
+                                    'boBaseUrl' => $shop['url'],
+                                ])
+                            )
+                        );
 
                         if (!$response || true !== $response['status']) {
                             $module->getLogger()->debug(

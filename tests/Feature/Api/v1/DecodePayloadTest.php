@@ -6,7 +6,7 @@ use Lcobucci\JWT\Parser;
 use Lcobucci\JWT\Signer\Hmac\Sha256;
 use Lcobucci\JWT\Signer\Key;
 use PrestaShop\Module\PsAccounts\Controller\AbstractRestController;
-use PrestaShop\Module\PsAccounts\Provider\RsaKeysProvider;
+use PrestaShop\Module\PsAccounts\Domain\Shop\Entity\PublicKey;
 use PrestaShop\Module\PsAccounts\Tests\Feature\FeatureTestCase;
 
 class DecodePayloadTest extends FeatureTestCase
@@ -23,8 +23,8 @@ class DecodePayloadTest extends FeatureTestCase
             "jwt" => 'eyJhbGciOiJSUzI1NiIsImtpZCI6IjRlMDBlOGZlNWYyYzg4Y2YwYzcwNDRmMzA3ZjdlNzM5Nzg4ZTRmMWUiLCJ0eXAiOiJKV1QifQ.eyJpc3MiOiJodHRwczovL3NlY3VyZXRva2VuLmdvb2dsZS5jb20vc2hvcHRlc3QtYzMyMzIiLCJhdWQiOiJzaG9wdGVzdC1jMzIzMiIsImF1dGhfdGltZSI6MTYxNjA2MzkzNywidXNlcl9pZCI6Ik1Ucm9MUVduaExlYUtxMGJzajNMdkFpWlRvOTIiLCJzdWIiOiJNVHJvTFFXbmhMZWFLcTBic2ozTHZBaVpUbzkyIiwiaWF0IjoxNjE2MDYzOTM3LCJleHAiOjE2MTYwNjc1MzcsImVtYWlsIjoiaHR0cHNsaW04MDgwMTYxNTgwMzUxNTVAc2hvcC5wcmVzdGFzaG9wLmNvbSIsImVtYWlsX3ZlcmlmaWVkIjp0cnVlLCJmaXJlYmFzZSI6eyJpZGVudGl0aWVzIjp7ImVtYWlsIjpbImh0dHBzbGltODA4MDE2MTU4MDM1MTU1QHNob3AucHJlc3Rhc2hvcC5jb20iXX0sInNpZ25faW5fcHJvdmlkZXIiOiJjdXN0b20ifX0.J6rX8H6roDa4Fq62vhlXtm702V9YnhqT2JLts31Jy2wvn9h5Qf-FxHInrGlQyHWqtPcM_mxFlgcTNYfZNNyuzF_5Iz-v6rKtCXK7tmtaw6qKSM3sDQAvGpPBRVuhxVxUUqgXkT6DeznfFTYOoD96P912jFF6KroObLtJfDJsfhvncaSqh3pcMbKUP6gwe05Xyg6g_psY48OpYjia6X9b0Hn1orgdOH15JE4SWM5nk0XXcbs98qlNKNu2SbmgrQqu9zv-3aiC44LWAp_7UTDLQvXTTpVk4GbmXNCoD26bOwPm75tm7b2X4yq5d4WAvkBQmTI5-ug1Kf7ZZyPtl1X7kw',
         ];
 
-        /** @var RsaKeysProvider $shopKeysService */
-        $shopKeysService = $this->module->getService(RsaKeysProvider::class);
+        /** @var \PrestaShop\Module\PsAccounts\Domain\Shop\Entity\PublicKey $shopKeysService */
+        $shopKeysService = $this->module->getService(PublicKey::class);
 
         $jwt = (new Parser())->parse((string) $this->encodePayload($payload));
 

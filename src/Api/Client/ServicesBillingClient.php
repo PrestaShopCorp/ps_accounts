@@ -28,6 +28,8 @@ use PrestaShop\Module\PsAccounts\Service\PsAccountsService;
 
 /**
  * Handle call api Services
+ *
+ * @deprecated
  */
 class ServicesBillingClient
 {

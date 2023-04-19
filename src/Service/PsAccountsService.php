@@ -22,12 +22,14 @@ namespace PrestaShop\Module\PsAccounts\Service;
 
 use Doctrine\ORM\EntityManagerInterface;
 use PrestaShop\Module\PsAccounts\Adapter\Link;
-use PrestaShop\Module\PsAccounts\Api\Client\AccountsClient;
+use PrestaShop\Module\PsAccounts\Cqrs\CommandBus;
+use PrestaShop\Module\PsAccounts\Domain\Shop\Command\MigrateAndLinkV4Shop;
+use PrestaShop\Module\PsAccounts\Domain\Shop\Entity\Account;
+use PrestaShop\Module\PsAccounts\Domain\Shop\Entity\OwnerSession;
+use PrestaShop\Module\PsAccounts\Domain\Shop\Entity\ShopSession;
 use PrestaShop\Module\PsAccounts\Entity\EmployeeAccount;
 use PrestaShop\Module\PsAccounts\Provider\ShopProvider;
 use PrestaShop\Module\PsAccounts\Repository\ConfigurationRepository;
-use PrestaShop\Module\PsAccounts\Repository\ShopTokenRepository;
-use PrestaShop\Module\PsAccounts\Repository\UserTokenRepository;
 
 /**
  * Class PsAccountsService
@@ -45,39 +47,28 @@ class PsAccountsService
     private $module;
 
     /**
-     * @var ShopTokenRepository
+     * @var ShopSession
      */
-    private $shopTokenRepository;
+    private $shopSession;
 
     /**
-     * @var UserTokenRepository
+     * @var OwnerSession
      */
-    private $userTokenRepository;
+    private $ownerSession;
 
-    /**
-     * PsAccountsService constructor.
-     *
-     * @param \Ps_accounts $module
-     * @param ShopTokenRepository $shopTokenRepository
-     * @param UserTokenRepository $userTokenRepository
-     * @param Link $link
-     */
     public function __construct(
         \Ps_accounts $module,
-        ShopTokenRepository $shopTokenRepository,
-        UserTokenRepository $userTokenRepository,
+        ShopSession $shopSession,
+        OwnerSession $ownerSession,
         Link $link
     ) {
         $this->module = $module;
-        $this->shopTokenRepository = $shopTokenRepository;
-        $this->userTokenRepository = $userTokenRepository;
+        $this->shopSession = $shopSession;
+        $this->ownerSession = $ownerSession;
         $this->link = $link;
     }
 
-    /**
-     * @return string
-     */
-    public function getSuperAdminEmail()
+    public function getSuperAdminEmail(): string
     {
         return (new \Employee(1))->email;
     }
@@ -85,109 +76,88 @@ class PsAccountsService
     /**
      * @deprecated deprecated since version 5.0
      *
-     * @return string|false
      */
-    public function getShopUuidV4()
+    public function getShopUuidV4(): string
     {
         return $this->getShopUuid();
     }
 
-    /**
-     * @return string|false
-     */
-    public function getShopUuid()
+    public function getShopUuid(): string
     {
-        return $this->shopTokenRepository->getTokenUuid();
+        return (string) $this->shopSession->getToken()->getUuid();
     }
 
     /**
-     * Get the user firebase token.
-     *
-     * @return string
-     *
-     * @throws \Exception
+     * @throws \Throwable
      */
-    public function getOrRefreshToken()
+    public function getOrRefreshToken(): string
     {
-        return (string) $this->shopTokenRepository->getOrRefreshToken();
+        return (string) $this->shopSession->getOrRefreshToken()->getToken();
+    }
+
+    public function getRefreshToken(): ?string
+    {
+        return $this->shopSession->getToken()->getRefreshToken();
     }
 
     /**
-     * @return string|null
+     * @throws \Throwable
      */
-    public function getRefreshToken()
+    public function getToken(): ?string
     {
-        return $this->shopTokenRepository->getRefreshToken();
-    }
-
-    /**
-     * @return string|null
-     */
-    public function getToken()
-    {
-        return (string) $this->shopTokenRepository->getOrRefreshToken();
+        return (string) $this->shopSession->getOrRefreshToken()->getToken();
     }
 
     /**
      * @deprecated deprecated since version 5.1.1
      *
-     * @return string|false
      */
-    public function getUserUuidV4()
+    public function getUserUuidV4(): string
     {
         return $this->getUserUuid();
     }
 
-    /**
-     * @return string|false
-     */
-    public function getUserUuid()
+    public function getUserUuid(): string
     {
-        return $this->userTokenRepository->getTokenUuid();
+        return (string) $this->ownerSession->getToken()->getUuid();
     }
 
+
     /**
-     * @return bool
-     *
-     * @throws \Exception
+     * @throws \Throwable
      */
-    public function isEmailValidated()
+    public function isEmailValidated(): bool
     {
-        return $this->userTokenRepository->getTokenEmailVerified();
+        return $this->ownerSession->isEmailVerified();
     }
 
-    /**
-     * @return string|null
-     */
-    public function getEmail()
+    public function getEmail(): ?string
     {
-        return $this->userTokenRepository->getTokenEmail();
+        return $this->ownerSession->getToken()->getEmail();
     }
 
-    /**
-     * @return bool
-     *
-     * @throws \Exception
-     */
-    public function isAccountLinked()
-    {
-        /** @var ShopLinkAccountService $shopLinkAccountService */
-        $shopLinkAccountService = $this->module->getService(ShopLinkAccountService::class);
 
-        return $shopLinkAccountService->isAccountLinked();
+    /**
+     * @throws \Throwable
+     */
+    public function isAccountLinked(): bool
+    {
+        /** @var Account $shopAccount */
+        $shopAccount = $this->module->getService(Account::class);
+
+        return $shopAccount->isLinked();
     }
 
-    /**
-     * @return bool
-     *
-     * @throws \Exception
-     */
-    public function isAccountLinkedV4()
-    {
-        /** @var ShopLinkAccountService $shopLinkAccountService */
-        $shopLinkAccountService = $this->module->getService(ShopLinkAccountService::class);
 
-        return $shopLinkAccountService->isAccountLinkedV4();
+    /**
+     * @throws \Throwable
+     */
+    public function isAccountLinkedV4(): bool
+    {
+        /** @var Account $shopAccount */
+        $shopAccount = $this->module->getService(Account::class);
+
+        return $shopAccount->isLinkedV4();
     }
 
     /**
@@ -195,29 +165,27 @@ class PsAccountsService
      * available via PsAccountsPresenter into page dom,
      * ex :
      * let url = window.contextPsAccounts.adminAjaxLink + '&action=unlinkShop'
-     *
-     * @return string
-     *
+
      * @throws \PrestaShopException
      */
-    public function getAdminAjaxUrl()
+    public function getAdminAjaxUrl(): string
     {
 //        Tools::getAdminTokenLite('AdminAjaxPsAccounts'));
         return $this->link->getAdminLink('AdminAjaxPsAccounts', true, [], ['ajax' => 1]);
     }
 
     /**
-     * @return string
+     * @throws \Exception
      */
-    public function getAccountsVueCdn()
+    public function getAccountsVueCdn(): string
     {
         return $this->module->getParameter('ps_accounts.accounts_vue_cdn_url');
     }
 
     /**
-     * @return string
+     * @throws \Exception
      */
-    public function getAccountsCdn()
+    public function getAccountsCdn(): string
     {
         return $this->module->getParameter('ps_accounts.accounts_cdn_url');
     }
@@ -229,14 +197,17 @@ class PsAccountsService
      */
     public function autoReonboardOnV5()
     {
+        /** @var CommandBus $commandBus */
+        $commandBus = $this->module->getService(CommandBus::class);
+
         /** @var ShopProvider $shopProvider */
         $shopProvider = $this->module->getService(ShopProvider::class);
 
         /** @var ConfigurationRepository $conf */
         $conf = $this->module->getService(ConfigurationRepository::class);
 
-        /** @var ShopLinkAccountService $shopLinkAccountService */
-        $shopLinkAccountService = $this->module->getService(ShopLinkAccountService::class);
+        /** @var Account $shopAccount */
+        $shopAccount = $this->module->getService(Account::class);
 
         $allShops = $shopProvider->getShopsTree((string) $this->module->name);
 
@@ -260,22 +231,22 @@ class PsAccountsService
                     $id = $conf->getShopId();
                     $conf->setShopId((int) $shop['id']);
 
-                    $shopLinkAccountService->resetLinkAccount();
+                    $shopAccount->resetLink();
 
                     $conf->setShopId($id);
                 } else {
-                    /** @var AccountsClient $accountsClient */
-                    $accountsClient = $this->module->getService(AccountsClient::class);
-
                     $shop['employeeId'] = null;
 
-                    $accountsClient->reonboardShop($shop);
+                    $commandBus->execute(new MigrateAndLinkV4Shop($shop['id'], $shop));
                     $isAlreadyReonboard = true;
                 }
             }
         }
     }
 
+    /**
+     * @throws \Exception
+     */
     public function getLoginActivated(): bool
     {
         /** @var ConfigurationRepository $configuration */

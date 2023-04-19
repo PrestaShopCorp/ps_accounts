@@ -2,7 +2,7 @@
 
 namespace PrestaShop\Module\PsAccounts\Tests\Unit\Provider\RsaKeysProvider;
 
-use PrestaShop\Module\PsAccounts\Provider\RsaKeysProvider;
+use PrestaShop\Module\PsAccounts\Domain\Shop\Entity\PublicKey;
 use PrestaShop\Module\PsAccounts\Tests\TestCase;
 
 class VerifySignatureTest extends TestCase
@@ -12,8 +12,8 @@ class VerifySignatureTest extends TestCase
      */
     public function itShouldVerifySignature()
     {
-        /** @var RsaKeysProvider $service */
-        $service = $this->module->getService(RsaKeysProvider::class);
+        /** @var PublicKey $service */
+        $service = $this->module->getService(PublicKey::class);
 
         $key = $service->createPair();
 

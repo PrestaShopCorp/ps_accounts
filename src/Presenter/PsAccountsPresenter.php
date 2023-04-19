@@ -22,26 +22,18 @@ namespace PrestaShop\Module\PsAccounts\Presenter;
 
 use PrestaShop\Module\PsAccounts\Exception\SshKeysNotFoundException;
 use PrestaShop\Module\PsAccounts\Installer\Installer;
-use PrestaShop\Module\PsAccounts\Log\Logger;
+use PrestaShop\Module\PsAccounts\Logger\Logger;
 use PrestaShop\Module\PsAccounts\Provider\ShopProvider;
 use PrestaShop\Module\PsAccounts\Repository\ConfigurationRepository;
 use PrestaShop\Module\PsAccounts\Service\PsAccountsService;
-use PrestaShop\Module\PsAccounts\Service\ShopLinkAccountService;
+use PrestaShop\Module\PsAccounts\Domain\Shop\Entity\Account;
 
-/**
- * Construct the psaccounts module.
- */
 class PsAccountsPresenter implements PresenterInterface
 {
     /**
      * @var ShopProvider
      */
     protected $shopProvider;
-
-    /**
-     * @var ShopLinkAccountService
-     */
-    protected $shopLinkAccountService;
 
     /**
      * @var ConfigurationRepository
@@ -68,22 +60,19 @@ class PsAccountsPresenter implements PresenterInterface
      *
      * @param PsAccountsService $psAccountsService
      * @param ShopProvider $shopProvider
-     * @param ShopLinkAccountService $shopLinkAccountService
      * @param Installer $installer
      * @param ConfigurationRepository $configuration
      * @param \Ps_accounts $module
      */
     public function __construct(
-        PsAccountsService $psAccountsService,
-        ShopProvider $shopProvider,
-        ShopLinkAccountService $shopLinkAccountService,
-        Installer $installer,
+        PsAccountsService       $psAccountsService,
+        ShopProvider            $shopProvider,
+        Installer               $installer,
         ConfigurationRepository $configuration,
-        \Ps_accounts $module
+        \Ps_accounts            $module
     ) {
         $this->psAccountsService = $psAccountsService;
         $this->shopProvider = $shopProvider;
-        $this->shopLinkAccountService = $shopLinkAccountService;
         $this->installer = $installer;
         $this->configuration = $configuration;
         $this->module = $module;
