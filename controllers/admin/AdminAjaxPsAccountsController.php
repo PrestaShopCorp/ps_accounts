@@ -146,13 +146,11 @@ class AdminAjaxPsAccountsController extends ModuleAdminController
             /** @var PrestaShopSession $oauthSession */
             $oauthSession = $this->module->getService(PrestaShopSession::class);
 
-            $accessToken = $oauthSession->getOrRefreshAccessToken();
-
             header('Content-Type: text/json');
 
             $this->ajaxDie(
                 json_encode([
-                    'token' => $accessToken ? $accessToken->getToken() : '',
+                    'token' => (string) $oauthSession->getOrRefreshAccessToken(),
                 ])
             );
         } catch (Exception $e) {

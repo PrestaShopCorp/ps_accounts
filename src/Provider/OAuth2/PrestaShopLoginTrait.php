@@ -74,7 +74,7 @@ trait PrestaShopLoginTrait
             $accessToken = $provider->getAccessToken('authorization_code', [
                 'code' => $_GET['code'],
             ]);
-            $oauth2Session->setAccessToken($accessToken);
+            $oauth2Session->setTokenProvider($accessToken);
 
             if ($this->initUserSession($oauth2Session->getPrestashopUser())) {
                 $this->redirectAfterLogin();

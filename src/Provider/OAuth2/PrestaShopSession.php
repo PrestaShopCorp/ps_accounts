@@ -27,57 +27,59 @@ class PrestaShopSession
         $this->provider = $provider;
     }
 
-    public function getOrRefreshAccessToken(): ?AccessToken
+    public function getOrRefreshAccessToken(): ?string
     {
-        $token = $this->getAccessToken();
+        $token = $this->getTokenProvider();
         if ($token->hasExpired()) {
             /** @var AccessToken $token */
             $token = $this->provider->getAccessToken('refresh_token', [
                 'refresh_token' => $token->getRefreshToken(),
             ]);
-            $this->setAccessToken($token);
+            $this->setTokenProvider($token);
         }
 
-        return $token;
-    }
-
-    public function getAccessToken(): ?AccessToken
-    {
-        /** @var AccessToken $token */
-        $token = $this->session->get(self::TOKEN_NAME);
-
-        return $token;
+        return $this->getAccessToken();
     }
 
     public function getIdToken(): ?string
     {
-        $accessToken = $this->getAccessToken();
+        $token = $this->getTokenProvider();
 
-        return $accessToken ? $accessToken->getValues()['id_token'] : null;
+        return $token ? $token->getValues()['id_token'] : null;
     }
 
-    public function setAccessToken(AccessToken $token): void
+    public function getAccessToken(): ?string
+    {
+        $token = $this->getTokenProvider();
+
+        return $token ? $token->getToken() : null;
+    }
+
+    public function setTokenProvider(AccessToken $token): void
     {
         $this->session->set(self::TOKEN_NAME, $token);
     }
 
-    public function hasAccessToken(): bool
+    public function isAuthenticated(): bool
     {
         return $this->session->has(self::TOKEN_NAME);
     }
 
-    public function isAuthenticated(): bool
-    {
-        return $this->hasAccessToken();
-    }
-
     public function getPrestashopUser(): PrestaShopUser
     {
-        return $this->provider->getResourceOwner($this->getAccessToken());
+        return $this->provider->getResourceOwner($this->getTokenProvider());
     }
 
     public function clear(): void
     {
         $this->session->remove(self::TOKEN_NAME);
+    }
+
+    private function getTokenProvider(): ?AccessToken
+    {
+        /** @var AccessToken $token */
+        $token = $this->session->get(self::TOKEN_NAME);
+
+        return $token;
     }
 }
