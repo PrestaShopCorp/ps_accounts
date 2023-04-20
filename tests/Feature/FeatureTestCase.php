@@ -10,8 +10,8 @@ use Lcobucci\JWT\Signer\Hmac\Sha256;
 use Lcobucci\JWT\Signer\Key;
 use PrestaShop\Module\PsAccounts\Api\Client\Guzzle\AbstractGuzzleClient;
 use PrestaShop\Module\PsAccounts\Api\Client\Guzzle\GuzzleClientFactory;
+use PrestaShop\Module\PsAccounts\Domain\Shop\Entity\OwnerSession;
 use PrestaShop\Module\PsAccounts\Domain\Shop\Entity\PublicKey;
-use PrestaShop\Module\PsAccounts\Repository\Support\UserTokenRepository;
 use PrestaShop\Module\PsAccounts\Tests\TestCase;
 
 class FeatureTestCase extends TestCase
@@ -32,14 +32,14 @@ class FeatureTestCase extends TestCase
     protected $guzzleClient;
 
     /**
-     * @var \PrestaShop\Module\PsAccounts\Domain\Shop\Entity\PublicKey
+     * @var PublicKey
      */
-    protected $rsaKeysProvider;
+    protected $publicKey;
 
     /**
-     * @var UserTokenRepository
+     * @var OwnerSession
      */
-    protected $userTokenRepository;
+    protected $ownerSession;
 
     /**
      * @throws \Exception
@@ -68,11 +68,11 @@ class FeatureTestCase extends TestCase
 
         $this->client = $this->guzzleClient->getClient();
 
-        $this->rsaKeysProvider = $this->module->getService(PublicKey::class);
-        $this->rsaKeysProvider->regenerateKeys();
+        $this->publicKey = $this->module->getService(PublicKey::class);
+        $this->publicKey->regenerateKeys();
 
-        $this->userTokenRepository = $this->module->getService(UserTokenRepository::class);
-        $this->userTokenRepository->cleanupCredentials();
+        $this->ownerSession = $this->module->getService(OwnerSession::class);
+        $this->ownerSession->cleanup();
 
         // FIXME: Link::getModuleLink
         // FIXME: OR activate friendly urls
@@ -98,7 +98,7 @@ class FeatureTestCase extends TestCase
 
         return $builder->getToken(
             new Sha256(),
-            new Key($this->rsaKeysProvider->getPublicKey())
+            new Key($this->publicKey->getPublicKey())
         );
     }
 

@@ -11,6 +11,9 @@ services:
       - PS_DEV_MODE=1
       - XDEBUG_MODE=coverage
       - XDEBUG_ENABLED=1
+    ports:
+      - 80:80
+      - 445:445
     volumes:
       - ./:/var/www/html/modules/ps_accounts
     entrypoint: [
