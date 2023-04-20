@@ -77,9 +77,6 @@ class PrestaShopSession
 
     private function getTokenProvider(): ?AccessToken
     {
-        /** @var AccessToken $token */
-        $token = $this->session->get(self::TOKEN_NAME);
-
-        return $token;
+        return $this->session->get(self::TOKEN_NAME);
     }
 }
