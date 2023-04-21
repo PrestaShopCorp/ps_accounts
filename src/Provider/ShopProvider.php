@@ -45,7 +45,7 @@ class ShopProvider
      */
     public function __construct(
         ShopContext $shopContext,
-        Link        $link
+        Link $link
     ) {
         $this->shopContext = $shopContext;
         $this->link = $link;
@@ -63,7 +63,6 @@ class ShopProvider
     public function formatShopData($shopData, $psxName = '')
     {
         return $this->getShopContext()->execInShopContext($shopData['id_shop'], function () use ($shopData, $psxName) {
-
             /** @var \Ps_accounts $module */
             $module = \Module::getInstanceByName('ps_accounts');
 

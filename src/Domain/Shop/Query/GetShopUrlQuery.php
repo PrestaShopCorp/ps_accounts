@@ -6,5 +6,4 @@ use PrestaShop\Module\PsAccounts\Cqrs\Query;
 
 class GetShopUrlQuery extends Query
 {
-
 }

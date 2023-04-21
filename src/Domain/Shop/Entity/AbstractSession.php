@@ -3,10 +3,10 @@
 namespace PrestaShop\Module\PsAccounts\Domain\Shop\Entity;
 
 use PrestaShop\Module\PsAccounts\Domain\Shop\Contract\SessionInterface;
+use PrestaShop\Module\PsAccounts\Domain\Shop\Contract\TokenClientInterface;
 use PrestaShop\Module\PsAccounts\Exception\RefreshTokenException;
 use PrestaShop\Module\PsAccounts\Logger\Logger;
 use PrestaShop\Module\PsAccounts\Repository\ConfigurationRepository;
-use PrestaShop\Module\PsAccounts\Domain\Shop\Contract\TokenClientInterface;
 use Ps_accounts;
 
 abstract class AbstractSession implements SessionInterface
@@ -90,15 +90,14 @@ abstract class AbstractSession implements SessionInterface
             $this->onRefreshTokenFailure();
         }
 
-        throw new RefreshTokenException('Unable to refresh ' . static::TOKEN_TYPE . ' token : ' .
-            $response['httpCode'] . ' ' . print_r($response['body']['message'] ?? '', true));
+        throw new RefreshTokenException('Unable to refresh ' . static::TOKEN_TYPE . ' token : ' . $response['httpCode'] . ' ' . print_r($response['body']['message'] ?? '', true));
     }
 
     public function verifyToken(string $token): bool
     {
         $response = $this->getApiClient()->verifyToken($token);
 
-        return ($response && true === $response['status']);
+        return $response && true === $response['status'];
     }
 
     /**
@@ -120,7 +119,6 @@ abstract class AbstractSession implements SessionInterface
 
         return null !== $token && (bool) $token->getToken()->claims()->get('email_verified');
     }
-
 
     /**
      * @return void

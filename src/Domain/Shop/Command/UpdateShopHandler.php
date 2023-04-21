@@ -5,8 +5,6 @@ namespace PrestaShop\Module\PsAccounts\Domain\Shop\Command;
 use PrestaShop\Module\PsAccounts\Api\Client\AccountsClient;
 use PrestaShop\Module\PsAccounts\Context\ShopContext;
 use PrestaShop\Module\PsAccounts\Domain\Shop\Entity\Account;
-use PrestaShop\Module\PsAccounts\Domain\Shop\Entity\OwnerSession;
-use PrestaShop\Module\PsAccounts\Domain\Shop\Entity\ShopSession;
 
 class UpdateShopHandler
 {
@@ -29,8 +27,7 @@ class UpdateShopHandler
         AccountsClient $accountClient,
         ShopContext $shopContext,
         Account $shopAccount
-    )
-    {
+    ) {
         $this->accountClient = $accountClient;
         $this->shopContext = $shopContext;
         $this->shopAccount = $shopAccount;
@@ -42,7 +39,6 @@ class UpdateShopHandler
     public function handle(UpdateShop $command): array
     {
         return $this->shopContext->execInShopContext((int) $command->payload->shopId, function () use ($command) {
-
             if (!$this->shopAccount->isLinked()) {
                 return null;
             }

@@ -25,8 +25,8 @@ class LinkShopHandler
     private $configurationRepository;
 
     public function __construct(
-        ShopSession             $shopSession,
-        OwnerSession            $ownerSession,
+        ShopSession $shopSession,
+        OwnerSession $ownerSession,
         ConfigurationRepository $configurationRepository
     ) {
         $this->shopSession = $shopSession;

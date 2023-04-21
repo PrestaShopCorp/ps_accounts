@@ -11,7 +11,8 @@ class UnlinkShopHandler
      */
     private $shopAccount;
 
-    public function __construct(Account $shopAccount) {
+    public function __construct(Account $shopAccount)
+    {
         $this->shopAccount = $shopAccount;
     }
 
@@ -19,7 +20,7 @@ class UnlinkShopHandler
     {
         // FIXME: exec in shop context with $command->shopId
 
-        /** @var UnlinkShop $command */
+        /* @var UnlinkShop $command */
         $this->shopAccount->resetLink();
     }
 }

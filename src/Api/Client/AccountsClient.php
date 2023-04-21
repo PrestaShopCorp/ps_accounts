@@ -22,8 +22,8 @@ namespace PrestaShop\Module\PsAccounts\Api\Client;
 
 use PrestaShop\Module\PsAccounts\Api\Client\Guzzle\AbstractGuzzleClient;
 use PrestaShop\Module\PsAccounts\Api\Client\Guzzle\GuzzleClientFactory;
-use PrestaShop\Module\PsAccounts\Dto\UpdateShop;
 use PrestaShop\Module\PsAccounts\Domain\Shop\Contract\TokenClientInterface;
+use PrestaShop\Module\PsAccounts\Dto\UpdateShop;
 
 /**
  * Class ServicesAccountsClient
@@ -115,9 +115,9 @@ class AccountsClient implements TokenClientInterface
      */
     public function reonboardShop($shopUid, $shopToken, $payload)
     {
-            $this->client->setRoute('shop/' . $shopUid . '/reonboard');
+        $this->client->setRoute('shop/' . $shopUid . '/reonboard');
 
-            return $this->client->post([
+        return $this->client->post([
                 'headers' => $this->getHeaders([
                     'Authorization' => 'Bearer ' . $shopToken,
                     'content-type' => 'application/json',

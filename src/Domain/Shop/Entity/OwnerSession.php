@@ -5,7 +5,6 @@ namespace PrestaShop\Module\PsAccounts\Domain\Shop\Entity;
 use Lcobucci\JWT\Parser;
 use PrestaShop\Module\PsAccounts\Api\Client\SsoClient;
 use PrestaShop\Module\PsAccounts\Domain\Shop\Contract\SessionInterface;
-use PrestaShop\Module\PsAccounts\Exception\RefreshTokenException;
 use PrestaShop\Module\PsAccounts\Repository\ConfigurationRepository;
 
 class OwnerSession extends AbstractSession implements SessionInterface
@@ -73,4 +72,3 @@ class OwnerSession extends AbstractSession implements SessionInterface
         $this->configurationRepository->updateEmployeeId($employeeId);
     }
 }
-

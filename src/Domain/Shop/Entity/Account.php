@@ -20,7 +20,6 @@
 
 namespace PrestaShop\Module\PsAccounts\Domain\Shop\Entity;
 
-use PrestaShop\Module\PsAccounts\Domain\Shop\Entity\PublicKey;
 use PrestaShop\Module\PsAccounts\Repository\ConfigurationRepository;
 
 class Account
@@ -46,9 +45,9 @@ class Account
     private $configurationRepository;
 
     public function __construct(
-        PublicKey               $publicKey,
-        ShopSession             $shopSession,
-        OwnerSession            $ownerSession,
+        PublicKey $publicKey,
+        ShopSession $shopSession,
+        OwnerSession $ownerSession,
         ConfigurationRepository $configurationRepository
     ) {
         $this->publicKey = $publicKey;
@@ -79,8 +78,8 @@ class Account
      */
     public function isLinked(): bool
     {
-        return ! ($this->shopSession->getOrRefreshToken()->getToken() instanceof NullToken)
-            && ! ($this->ownerSession->getOrRefreshToken()->getToken() instanceof NullToken);
+        return !($this->shopSession->getOrRefreshToken()->getToken() instanceof NullToken)
+            && !($this->ownerSession->getOrRefreshToken()->getToken() instanceof NullToken);
     }
 
     /**
@@ -88,7 +87,7 @@ class Account
      */
     public function isLinkedV4(): bool
     {
-        return ! ($this->shopSession->getOrRefreshToken()->getToken() instanceof NullToken)
+        return !($this->shopSession->getOrRefreshToken()->getToken() instanceof NullToken)
             && ($this->ownerSession->getOrRefreshToken()->getToken() instanceof NullToken)
             && $this->configurationRepository->getFirebaseEmail();
     }

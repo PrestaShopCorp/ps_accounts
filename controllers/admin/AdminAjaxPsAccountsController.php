@@ -20,11 +20,11 @@
 
 use PrestaShop\Module\PsAccounts\Cqrs\CommandBus;
 use PrestaShop\Module\PsAccounts\Domain\Shop\Command\RemoteUnlinkShop;
+use PrestaShop\Module\PsAccounts\Domain\Shop\Entity\Account;
 use PrestaShop\Module\PsAccounts\Domain\Shop\Entity\ShopSession;
-use PrestaShop\Module\PsAccounts\Service\SentryService;
 use PrestaShop\Module\PsAccounts\Presenter\PsAccountsPresenter;
 use PrestaShop\Module\PsAccounts\Repository\ConfigurationRepository;
-use PrestaShop\Module\PsAccounts\Domain\Shop\Entity\Account;
+use PrestaShop\Module\PsAccounts\Service\SentryService;
 
 /**
  * Controller for all ajax calls.

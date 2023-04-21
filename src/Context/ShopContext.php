@@ -46,7 +46,7 @@ class ShopContext
      */
     public function __construct(
         ConfigurationRepository $configuration,
-        Context                 $context
+        Context $context
     ) {
         $this->configuration = $configuration;
         $this->context = $context;

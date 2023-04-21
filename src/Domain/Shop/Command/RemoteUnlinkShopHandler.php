@@ -34,8 +34,7 @@ class RemoteUnlinkShopHandler
         ShopContext $shopContext,
         ShopSession $shopSession,
         OwnerSession $ownerSession
-    )
-    {
+    ) {
         $this->accountClient = $accountClient;
         $this->shopContext = $shopContext;
         $this->shopSession = $shopSession;
@@ -47,8 +46,7 @@ class RemoteUnlinkShopHandler
      */
     public function handle(RemoteUnlinkShop $command): array
     {
-        return $this->shopContext->execInShopContext((int) $command->shopId, function () use ($command) {
-
+        return $this->shopContext->execInShopContext((int) $command->shopId, function () {
             $ownerToken = $this->ownerSession->getOrRefreshToken();
             $shopToken = $this->shopSession->getOrRefreshToken();
 

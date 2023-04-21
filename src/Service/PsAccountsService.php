@@ -75,7 +75,6 @@ class PsAccountsService
 
     /**
      * @deprecated deprecated since version 5.0
-     *
      */
     public function getShopUuidV4(): string
     {
@@ -110,7 +109,6 @@ class PsAccountsService
 
     /**
      * @deprecated deprecated since version 5.1.1
-     *
      */
     public function getUserUuidV4(): string
     {
@@ -121,7 +119,6 @@ class PsAccountsService
     {
         return (string) $this->ownerSession->getToken()->getUuid();
     }
-
 
     /**
      * @throws \Throwable
@@ -136,7 +133,6 @@ class PsAccountsService
         return $this->ownerSession->getToken()->getEmail();
     }
 
-
     /**
      * @throws \Throwable
      */
@@ -147,7 +143,6 @@ class PsAccountsService
 
         return $shopAccount->isLinked();
     }
-
 
     /**
      * @throws \Throwable
@@ -166,6 +161,7 @@ class PsAccountsService
      * ex :
      * let url = window.contextPsAccounts.adminAjaxLink + '&action=unlinkShop'
 
+     *
      * @throws \PrestaShopException
      */
     public function getAdminAjaxUrl(): string

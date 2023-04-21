@@ -26,7 +26,6 @@ use PrestaShop\Module\PsAccounts\Logger\Logger;
 use PrestaShop\Module\PsAccounts\Provider\ShopProvider;
 use PrestaShop\Module\PsAccounts\Repository\ConfigurationRepository;
 use PrestaShop\Module\PsAccounts\Service\PsAccountsService;
-use PrestaShop\Module\PsAccounts\Domain\Shop\Entity\Account;
 
 class PsAccountsPresenter implements PresenterInterface
 {
@@ -65,11 +64,11 @@ class PsAccountsPresenter implements PresenterInterface
      * @param \Ps_accounts $module
      */
     public function __construct(
-        PsAccountsService       $psAccountsService,
-        ShopProvider            $shopProvider,
-        Installer               $installer,
+        PsAccountsService $psAccountsService,
+        ShopProvider $shopProvider,
+        Installer $installer,
         ConfigurationRepository $configuration,
-        \Ps_accounts            $module
+        \Ps_accounts $module
     ) {
         $this->psAccountsService = $psAccountsService;
         $this->shopProvider = $shopProvider;
