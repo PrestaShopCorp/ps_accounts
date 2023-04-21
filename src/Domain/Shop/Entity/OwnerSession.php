@@ -68,7 +68,7 @@ class OwnerSession extends AbstractSession implements SessionInterface
         return (int) $this->configurationRepository->getEmployeeId();
     }
 
-    public function setEmployeeId(int $employeeId): void
+    public function setEmployeeId(?int $employeeId): void
     {
         $this->configurationRepository->updateEmployeeId($employeeId);
     }

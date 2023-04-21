@@ -18,7 +18,6 @@ class HookActionObjectShopUpdateAfterTest extends TestCase
      * @not_a_test
      *
      * @throws Exception
-     * @throws OptimisticLockException
      */
     public function itShouldUpdateBoBaseUrlInBoContext()
     {
@@ -27,9 +26,8 @@ class HookActionObjectShopUpdateAfterTest extends TestCase
         $apiClient = $this->getMockBuilder(AccountsClient::class)
             ->setConstructorArgs([
                 $this->module->getParameter('ps_accounts.accounts_api_url'),
-                $this->module->getService(ShopProvider::class)
             ])
-            ->setMethods(['updateUserShop'])
+            ->addMethods(['updateUserShop'])
             ->getMock();
 
         // Replace with mocked version

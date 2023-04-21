@@ -1,7 +1,7 @@
 version: "3.7"
 services:
   phpunit:
-    container_name: phpunit-dev
+    container_name: phpunit
     image: prestashop/docker-internal-images:nightly
     working_dir: /var/www/html/modules/ps_accounts
     environment:

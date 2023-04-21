@@ -1,8 +1,8 @@
 <?php
 
-namespace PrestaShop\Module\PsAccounts\Tests\Unit\Repository\ShopTokenRepository;
+namespace PrestaShop\Module\PsAccounts\Tests\Unit\Domain\Shop\Entity\OwnerSession;
 
-use PrestaShop\Module\PsAccounts\Repository\Support\ShopTokenRepository;
+use PrestaShop\Module\PsAccounts\Domain\Shop\Entity\OwnerSession;
 use PrestaShop\Module\PsAccounts\Tests\TestCase;
 
 class IsTokenExpiredTest extends TestCase
@@ -16,16 +16,17 @@ class IsTokenExpiredTest extends TestCase
     {
         $idToken = $this->makeJwtToken(new \DateTimeImmutable('yesterday'), [
             'user_id' => $this->faker->uuid,
+            'email' => $this->faker->safeEmail,
         ]);
 
         $refreshToken = $this->makeJwtToken(new \DateTimeImmutable('+1 year'));
 
-        /** @var ShopTokenRepository $tokenRepos */
-        $tokenRepos = $this->module->getService(ShopTokenRepository::class);
+        /** @var OwnerSession $ownerSession */
+        $ownerSession = $this->module->getService(OwnerSession::class);
 
-        $tokenRepos->updateCredentials((string) $idToken, (string) $refreshToken);
+        $ownerSession->setToken((string) $idToken, (string) $refreshToken);
 
-        $this->assertTrue($tokenRepos->isTokenExpired());
+        $this->assertTrue($ownerSession->getToken()->isExpired());
     }
 
     /**
@@ -37,15 +38,16 @@ class IsTokenExpiredTest extends TestCase
     {
         $idToken = $this->makeJwtToken(new \DateTimeImmutable('+2 hours'), [
             'user_id' => $this->faker->uuid,
+            'email' => $this->faker->safeEmail,
         ]);
 
         $refreshToken = $this->makeJwtToken(new \DateTimeImmutable('+1 year'));
 
-        /** @var ShopTokenRepository $tokenRepos */
-        $tokenRepos = $this->module->getService(ShopTokenRepository::class);
+        /** @var OwnerSession $ownerSession */
+        $ownerSession = $this->module->getService(OwnerSession::class);
 
-        $tokenRepos->updateCredentials((string) $idToken, (string) $refreshToken);
+        $ownerSession->setToken((string) $idToken, (string) $refreshToken);
 
-        $this->assertFalse($tokenRepos->isTokenExpired());
+        $this->assertFalse($ownerSession->getToken()->isExpired());
     }
 }

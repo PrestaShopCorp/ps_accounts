@@ -2,8 +2,8 @@
 
 namespace PrestaShop\Module\PsAccounts\Tests\Unit\Service\PsAccountsService;
 
-use PrestaShop\Module\PsAccounts\Repository\Support\ShopTokenRepository;
-use PrestaShop\Module\PsAccounts\Repository\Support\UserTokenRepository;
+use PrestaShop\Module\PsAccounts\Domain\Shop\Entity\OwnerSession;
+use PrestaShop\Module\PsAccounts\Domain\Shop\Entity\ShopSession;
 use PrestaShop\Module\PsAccounts\Service\PsAccountsService;
 use PrestaShop\Module\PsAccounts\Tests\TestCase;
 
@@ -16,16 +16,16 @@ class IsAccountLinkedTest extends TestCase
      */
     public function itShouldReturnTrue()
     {
-        /** @var ShopTokenRepository $repos */
-        $repos = $this->module->getService(ShopTokenRepository::class);
-        $repos->updateCredentials(
+        /** @var ShopSession $session */
+        $session = $this->module->getService(ShopSession::class);
+        $session->setToken(
             $this->makeFirebaseToken(null, ['email_verified' => true]),
             base64_encode($this->faker->name)
         );
 
-        /** @var UserTokenRepository $tokenRepos */
-        $repos = $this->module->getService(UserTokenRepository::class);
-        $repos->updateCredentials(
+        /** @var OwnerSession $session */
+        $session = $this->module->getService(OwnerSession::class);
+        $session->setToken(
             $this->makeFirebaseToken(null, ['email_verified' => true]),
             base64_encode($this->faker->name)
         );
@@ -43,16 +43,16 @@ class IsAccountLinkedTest extends TestCase
      */
     public function itShouldReturnFalse()
     {
-        /** @var ShopTokenRepository $repos */
-        $repos = $this->module->getService(ShopTokenRepository::class);
-        $repos->updateCredentials(
+        /** @var ShopSession $session */
+        $session = $this->module->getService(ShopSession::class);
+        $session->setToken(
             $this->makeFirebaseToken(null, ['email_verified' => true]),
             base64_encode($this->faker->name)
         );
 
-        /** @var UserTokenRepository $tokenRepos */
-        $repos = $this->module->getService(UserTokenRepository::class);
-        $repos->cleanupCredentials();
+        /** @var OwnerSession $session */
+        $session = $this->module->getService(OwnerSession::class);
+        $session->cleanup();
 
         /** @var PsAccountsService $service */
         $service = $this->module->getService(PsAccountsService::class);

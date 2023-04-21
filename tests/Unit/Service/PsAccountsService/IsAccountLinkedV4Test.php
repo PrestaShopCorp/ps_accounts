@@ -2,8 +2,9 @@
 
 namespace PrestaShop\Module\PsAccounts\Tests\Unit\Service\PsAccountsService;
 
+use PrestaShop\Module\PsAccounts\Domain\Shop\Entity\OwnerSession;
+use PrestaShop\Module\PsAccounts\Domain\Shop\Entity\ShopSession;
 use PrestaShop\Module\PsAccounts\Repository\ConfigurationRepository;
-use PrestaShop\Module\PsAccounts\Repository\Support\ShopTokenRepository;
 use PrestaShop\Module\PsAccounts\Service\PsAccountsService;
 use PrestaShop\Module\PsAccounts\Tests\TestCase;
 
@@ -17,10 +18,15 @@ class IsAccountLinkedV4Test extends TestCase
     public function itShouldReturnTrue()
     {
         $token = $this->makeFirebaseToken(null, ['email_verified' => true]);
+        $refreshToken = $this->makeJwtToken(new \DateTimeImmutable('+1 year'));
 
-        /** @var ShopTokenRepository $tokenRepos */
-        $tokenRepos = $this->module->getService(ShopTokenRepository::class);
-        $tokenRepos->updateCredentials($token, base64_encode($this->faker->name));
+        /** @var ShopSession $shopSession */
+        $shopSession = $this->module->getService(ShopSession::class);
+        $shopSession->setToken($token, $refreshToken);
+
+        /** @var OwnerSession $ownerSession */
+        $ownerSession = $this->module->getService(OwnerSession::class);
+        $ownerSession->cleanup();
 
         /** @var ConfigurationRepository $config */
         $config = $this->module->getService(ConfigurationRepository::class);
@@ -41,10 +47,11 @@ class IsAccountLinkedV4Test extends TestCase
     public function itShouldReturnFalse()
     {
         $token = $this->makeFirebaseToken(null, ['email_verified' => true]);
+        $refreshToken = $this->makeJwtToken(new \DateTimeImmutable('+1 year'));
 
-        /** @var ShopTokenRepository $tokenRepos */
-        $tokenRepos = $this->module->getService(ShopTokenRepository::class);
-        $tokenRepos->updateCredentials($token, base64_encode($this->faker->name));
+        /** @var ShopSession $shopSession */
+        $shopSession = $this->module->getService(ShopSession::class);
+        $shopSession->setToken($token, $refreshToken);
 
         /** @var ConfigurationRepository $config */
         $config = $this->module->getService(ConfigurationRepository::class);

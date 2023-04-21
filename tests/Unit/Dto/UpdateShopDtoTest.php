@@ -1,11 +1,11 @@
 <?php
 
-namespace PrestaShop\Module\PsAccounts\Tests\Unit\DTO;
+namespace PrestaShop\Module\PsAccounts\Tests\Unit\Dto;
 
 use PrestaShop\Module\PsAccounts\Dto\UpdateShop;
 use PrestaShop\Module\PsAccounts\Tests\TestCase;
 
-class UpdateShopDTOTest extends TestCase
+class UpdateShopDtoTest extends TestCase
 {
     /**
      * @test

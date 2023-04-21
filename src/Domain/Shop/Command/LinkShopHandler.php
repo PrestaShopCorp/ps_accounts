@@ -52,7 +52,7 @@ class LinkShopHandler
 
         $this->shopSession->setToken($payload->shop_token, $payload->shop_refresh_token);
         $this->ownerSession->setToken($payload->user_token, $payload->user_refresh_token);
-        $this->ownerSession->setEmployeeId($payload->employee_id);
+        $this->ownerSession->setEmployeeId($payload->employee_id ?: null);
         $this->configurationRepository->updateLoginEnabled(true);
     }
 }

@@ -2,7 +2,7 @@
 
 namespace PrestaShop\Module\PsAccounts\Tests\Unit\Service\PsAccountsService;
 
-use PrestaShop\Module\PsAccounts\Repository\Support\UserTokenRepository;
+use PrestaShop\Module\PsAccounts\Domain\Shop\Entity\OwnerSession;
 use PrestaShop\Module\PsAccounts\Service\PsAccountsService;
 use PrestaShop\Module\PsAccounts\Tests\TestCase;
 
@@ -15,12 +15,13 @@ class IsEmailValidatedTest extends TestCase
      */
     public function itShouldReturnTrue()
     {
-        /** @var UserTokenRepository $tokenRepos */
-        $tokenRepos = $this->module->getService(UserTokenRepository::class);
+        /** @var OwnerSession $ownerSession */
+        $ownerSession = $this->module->getService(OwnerSession::class);
 
         $token = $this->makeFirebaseToken(null, ['email_verified' => true]);
+        $refreshToken = $this->makeJwtToken(new \DateTimeImmutable('+1 year'));
 
-        $tokenRepos->updateCredentials($token, base64_encode($this->faker->name));
+        $ownerSession->setToken($token, $refreshToken);
 
         /** @var PsAccountsService $service */
         $service = $this->module->getService(PsAccountsService::class);
@@ -35,12 +36,12 @@ class IsEmailValidatedTest extends TestCase
      */
     public function itShouldReturnFalse()
     {
-        /** @var UserTokenRepository $tokenRepos */
-        $tokenRepos = $this->module->getService(UserTokenRepository::class);
+        /** @var OwnerSession $ownerSession */
+        $ownerSession = $this->module->getService(OwnerSession::class);
 
-        $tokenRepos->updateCredentials(
+        $ownerSession->setToken(
             $this->makeFirebaseToken(null, ['email_verified' => false]),
-            null //base64_encode($this->faker->name)
+            '' //$this->makeJwtToken(new \DateTimeImmutable('+1 year'))
         );
 
         /** @var PsAccountsService $service */

@@ -1,8 +1,8 @@
 <?php
 
-namespace PrestaShop\Module\PsAccounts\Tests\Unit\Repository\UserTokenRepository;
+namespace PrestaShop\Module\PsAccounts\Tests\Unit\Domain\Shop\Entity\OwnerSession;
 
-use PrestaShop\Module\PsAccounts\Repository\Support\UserTokenRepository;
+use PrestaShop\Module\PsAccounts\Domain\Shop\Entity\OwnerSession;
 use PrestaShop\Module\PsAccounts\Tests\TestCase;
 
 class GetTokenEmailVerifiedTest extends TestCase
@@ -22,12 +22,12 @@ class GetTokenEmailVerifiedTest extends TestCase
 
         $refreshToken = $this->makeJwtToken(new \DateTimeImmutable('+1 year'));
 
-        /** @var UserTokenRepository $tokenRepos */
-        $tokenRepos = $this->module->getService(UserTokenRepository::class);
+        /** @var OwnerSession $ownerSession */
+        $ownerSession = $this->module->getService(OwnerSession::class);
 
-        $tokenRepos->updateCredentials((string) $idToken, (string) $refreshToken);
+        $ownerSession->setToken((string) $idToken, (string) $refreshToken);
 
-        $this->assertTrue($tokenRepos->getTokenEmailVerified());
+        $this->assertTrue($ownerSession->isEmailVerified());
     }
 
     /**
@@ -45,11 +45,11 @@ class GetTokenEmailVerifiedTest extends TestCase
 
         $refreshToken = null; //$this->makeJwtToken(new \DateTimeImmutable('+1 year'));
 
-        /** @var UserTokenRepository $tokenRepos */
-        $tokenRepos = $this->module->getService(UserTokenRepository::class);
+        /** @var OwnerSession $ownerSession */
+        $ownerSession = $this->module->getService(OwnerSession::class);
 
-        $tokenRepos->updateCredentials((string) $idToken, (string) $refreshToken);
+        $ownerSession->setToken((string) $idToken, (string) $refreshToken);
 
-        $this->assertFalse($tokenRepos->getTokenEmailVerified());
+        $this->assertFalse($ownerSession->isEmailVerified());
     }
 }

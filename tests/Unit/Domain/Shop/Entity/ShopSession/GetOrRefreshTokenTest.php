@@ -1,9 +1,11 @@
 <?php
 
-namespace PrestaShop\Module\PsAccounts\Tests\Unit\Repository\ShopTokenRepository;
+namespace PrestaShop\Module\PsAccounts\Tests\Unit\Domain\Shop\Entity\ShopSession;
 
+use PrestaShop\Module\PsAccounts\Api\Client\AccountsClient;
+use PrestaShop\Module\PsAccounts\Domain\Shop\Entity\ShopSession;
+use PrestaShop\Module\PsAccounts\Domain\Shop\Entity\Token;
 use PrestaShop\Module\PsAccounts\Repository\ConfigurationRepository;
-use PrestaShop\Module\PsAccounts\Repository\Support\ShopTokenRepository;
 use PrestaShop\Module\PsAccounts\Tests\TestCase;
 
 class GetOrRefreshTokenTest extends TestCase
@@ -21,12 +23,12 @@ class GetOrRefreshTokenTest extends TestCase
 
         $refreshToken = $this->makeJwtToken(new \DateTimeImmutable('+1 year'));
 
-        /** @var ShopTokenRepository $service */
-        $service = $this->module->getService(ShopTokenRepository::class);
+        /** @var ShopSession $shopSession */
+        $shopSession = $this->module->getService(ShopSession::class);
 
-        $service->updateCredentials((string) $idToken, (string) $refreshToken);
+        $shopSession->setToken((string) $idToken, (string) $refreshToken);
 
-        $this->assertEquals((string) $idToken, $service->getOrRefreshToken());
+        $this->assertEquals((string) $idToken, $shopSession->getOrRefreshToken()->getToken());
     }
 
     /**
@@ -49,16 +51,19 @@ class GetOrRefreshTokenTest extends TestCase
         /** @var ConfigurationRepository $configuration */
         $configuration = $this->module->getService(ConfigurationRepository::class);
 
-        /** @var ShopTokenRepository $tokenRepos */
-        $tokenRepos = $this->getMockBuilder(ShopTokenRepository::class)
-            ->setConstructorArgs([$configuration])
+        /** @var ShopSession $shopSession */
+        $shopSession = $this->getMockBuilder(ShopSession::class)
+            ->setConstructorArgs([
+                $this->module->getService(AccountsClient::class),
+                $configuration
+            ])
             ->setMethods(['refreshToken'])
             ->getMock();
-        $tokenRepos->method('refreshToken')
-            ->willReturn($idTokenRefreshed);
+        $shopSession->method('refreshToken')
+            ->willReturn(new Token($idTokenRefreshed, $refreshToken));
 
-        $tokenRepos->updateCredentials((string) $idToken, (string) $refreshToken);
+        $shopSession->setToken((string) $idToken, (string) $refreshToken);
 
-        $this->assertEquals((string) $idTokenRefreshed, (string) $tokenRepos->getOrRefreshToken());
+        $this->assertEquals((string) $idTokenRefreshed, (string) $shopSession->getOrRefreshToken()->getToken());
     }
 }

@@ -66,6 +66,15 @@ class Token
 
     protected function getNullToken(): \Lcobucci\JWT\Token
     {
-        return new \Lcobucci\JWT\Token([], ['exp' => new \DateTime()]);
+        //return new \Lcobucci\JWT\Token([], ['exp' => new \DateTime()]);
+        return new NullToken([], ['exp' => new \DateTime()]);
+    }
+}
+
+class NullToken extends \Lcobucci\JWT\Token
+{
+    public function toString(): string
+    {
+        return '';
     }
 }

@@ -160,7 +160,7 @@ abstract class AbstractSession implements SessionInterface
     protected function onMaxRefreshTokenAttempts(): void
     {
         /** @var Ps_accounts $module */
-        $module = Module::getInstanceByName('ps_accounts');
+        $module = \Module::getInstanceByName('ps_accounts');
 
         /** @var Account $service */
         $service = $module->getService(Account::class);
