@@ -70,11 +70,3 @@ class Token
         return new NullToken([], ['exp' => new \DateTime()]);
     }
 }
-
-class NullToken extends \Lcobucci\JWT\Token
-{
-    public function toString(): string
-    {
-        return '';
-    }
-}
