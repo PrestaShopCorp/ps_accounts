@@ -23,7 +23,6 @@ use PrestaShop\Module\PsAccounts\Presenter\PsAccountsPresenter;
 use PrestaShop\Module\PsAccounts\Provider\OAuth2\PrestaShopSession;
 use PrestaShop\Module\PsAccounts\Repository\ShopTokenRepository;
 use PrestaShop\Module\PsAccounts\Service\ShopLinkAccountService;
-use PrestaShop\OAuth2\Client\Provider\PrestaShop;
 
 /**
  * Controller for all ajax calls.

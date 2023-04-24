@@ -37,8 +37,9 @@ trait PrestaShopLogoutTrait
             return;
         }
 
+        $oauth2Session = $this->getOauth2Session();
         if (!isset($_GET[PrestaShopClientProvider::QUERY_LOGOUT_CALLBACK_PARAM])) {
-            $idToken = $this->getOauth2Session()->getIdToken();
+            $idToken = $oauth2Session->getIdToken();
 
             if (empty($idToken)) {
                 return;
@@ -50,6 +51,8 @@ trait PrestaShopLogoutTrait
 
             header('Location: ' . $logoutUrl);
             exit;
+        } else {
+            $oauth2Session->clear();
         }
     }
 }

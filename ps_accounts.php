@@ -700,12 +700,12 @@ class Ps_accounts extends Module
         /** @var \PrestaShop\Module\PsAccounts\Service\PsAccountsService $psAccountsService */
         $psAccountsService = $this->getService(\PrestaShop\Module\PsAccounts\Service\PsAccountsService::class);
 
-        if (!$psAccountsService->getLoginActivated()) {
-            return;
-        }
-
         if (isset($_GET['logout'])) {
-            $this->oauth2Logout();
+            if ($psAccountsService->getLoginActivated()) {
+                $this->oauth2Logout();
+            } else {
+                $this->getOauth2Session()->clear();
+            }
         }
     }
 
