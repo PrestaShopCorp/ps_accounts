@@ -2,6 +2,7 @@
 
 namespace PrestaShop\Module\PsAccounts\Provider\OAuth2;
 
+use League\OAuth2\Client\Provider\Exception\IdentityProviderException;
 use League\OAuth2\Client\Token\AccessToken;
 use PrestaShop\OAuth2\Client\Provider\PrestaShop;
 use PrestaShop\OAuth2\Client\Provider\PrestaShopUser;
@@ -27,10 +28,13 @@ class PrestaShopSession
         $this->provider = $provider;
     }
 
+    /**
+     * @throws IdentityProviderException
+     */
     public function getOrRefreshAccessToken(): ?string
     {
         $token = $this->getTokenProvider();
-        if ($token->hasExpired()) {
+        if ($token && $token->hasExpired()) {
             /** @var AccessToken $token */
             $token = $this->provider->getAccessToken('refresh_token', [
                 'refresh_token' => $token->getRefreshToken(),
