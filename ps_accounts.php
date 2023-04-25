@@ -23,7 +23,7 @@ if (!defined('_PS_VERSION_')) {
 require_once __DIR__ . '/vendor/autoload.php';
 class Ps_accounts extends Module
 {
-    use \PrestaShop\Module\PsAccounts\Provider\OAuth2\Oauth2LogoutTrait;
+    use \PrestaShop\Module\PsAccounts\Provider\OAuth2\PrestaShopLogoutTrait;
 
     const DEFAULT_ENV = '';
 
@@ -700,12 +700,12 @@ class Ps_accounts extends Module
         /** @var \PrestaShop\Module\PsAccounts\Service\PsAccountsService $psAccountsService */
         $psAccountsService = $this->getService(\PrestaShop\Module\PsAccounts\Service\PsAccountsService::class);
 
-        if (!$psAccountsService->getLoginActivated()) {
-            return;
-        }
-
         if (isset($_GET['logout'])) {
-            $this->oauth2Logout();
+            if ($psAccountsService->getLoginActivated()) {
+                $this->oauth2Logout();
+            } else {
+                $this->getOauth2Session()->clear();
+            }
         }
     }
 
@@ -862,27 +862,24 @@ class Ps_accounts extends Module
         return Module::isEnabled('smb_edition');
     }
 
-    protected function getProvider(): PrestaShop\Module\PsAccounts\Provider\OAuth2\Oauth2ClientShopProvider
+    protected function getProvider(): PrestaShop\Module\PsAccounts\Provider\OAuth2\PrestaShopClientProvider
     {
-        /** @var \PrestaShop\Module\PsAccounts\Provider\OAuth2\Oauth2ClientShopProvider $provider */
-        $provider = $this->getService(\PrestaShop\OAuth2\Client\Provider\PrestaShop::class);
+        /** @var \PrestaShop\Module\PsAccounts\Provider\OAuth2\PrestaShopClientProvider $provider */
+        $provider = $this->getService(\PrestaShop\Module\PsAccounts\Provider\OAuth2\PrestaShopClientProvider::class);
 
         return $provider;
-    }
-
-    protected function getAccessToken(): ?League\OAuth2\Client\Token\AccessToken
-    {
-        /** @var \Symfony\Component\HttpFoundation\Session\SessionInterface $session */
-        $session = $this->getContainer()->get('session');
-
-        /** @var \League\OAuth2\Client\Token\AccessToken $accessToken */
-        $accessToken = $session->get('accessToken');
-
-        return $accessToken;
     }
 
     protected function isOauth2LogoutEnabled(): bool
     {
         return $this->hasParameter('ps_accounts.oauth2_url_session_logout');
+    }
+
+    protected function getOauth2Session(): PrestaShop\Module\PsAccounts\Provider\OAuth2\PrestaShopSession
+    {
+        /** @var \PrestaShop\Module\PsAccounts\Provider\OAuth2\PrestaShopSession $oauth2Session */
+        $oauth2Session = $this->getService(\PrestaShop\Module\PsAccounts\Provider\OAuth2\PrestaShopSession::class);
+
+        return $oauth2Session;
     }
 }

@@ -26,8 +26,9 @@ use PrestaShop\Module\PsAccounts\Exception\AccountLogin\EmailNotVerifiedExceptio
 use PrestaShop\Module\PsAccounts\Exception\AccountLogin\EmployeeNotFoundException;
 use PrestaShop\Module\PsAccounts\Exception\AccountLogin\Oauth2Exception;
 use PrestaShop\Module\PsAccounts\Exception\AccountLogin\OtherErrorException;
-use PrestaShop\Module\PsAccounts\Provider\OAuth2\Oauth2ClientShopProvider;
-use PrestaShop\Module\PsAccounts\Provider\OAuth2\Oauth2LoginTrait;
+use PrestaShop\Module\PsAccounts\Provider\OAuth2\PrestaShopClientProvider;
+use PrestaShop\Module\PsAccounts\Provider\OAuth2\PrestaShopLoginTrait;
+use PrestaShop\Module\PsAccounts\Provider\OAuth2\PrestaShopSession;
 use PrestaShop\Module\PsAccounts\Service\AnalyticsService;
 use PrestaShop\Module\PsAccounts\Service\PsAccountsService;
 use PrestaShop\OAuth2\Client\Provider\PrestaShop;
@@ -41,7 +42,7 @@ use Symfony\Component\HttpFoundation\Session\SessionInterface;
  */
 class AdminOAuth2PsAccountsController extends ModuleAdminController
 {
-    use Oauth2LoginTrait;
+    use PrestaShopLoginTrait;
 
     /**
      * @var Ps_accounts
@@ -239,9 +240,9 @@ class AdminOAuth2PsAccountsController extends ModuleAdminController
     /**
      * @throws Exception
      */
-    private function getProvider(): Oauth2ClientShopProvider
+    private function getProvider(): PrestaShopClientProvider
     {
-        return $this->module->getService(PrestaShop::class);
+        return $this->module->getService(PrestashopClientProvider::class);
     }
 
     private function redirectAfterLogin(): void
@@ -268,5 +269,13 @@ class AdminOAuth2PsAccountsController extends ModuleAdminController
     private function setLoginError(string $error): void
     {
         $this->getSession()->set('loginError', $error);
+    }
+
+    /**
+     * @throws Exception
+     */
+    protected function getOauth2Session(): PrestaShopSession
+    {
+        return $this->module->getService(PrestaShopSession::class);
     }
 }
