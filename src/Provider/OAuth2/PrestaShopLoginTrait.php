@@ -21,21 +21,23 @@
 namespace PrestaShop\Module\PsAccounts\Provider\OAuth2;
 
 use League\OAuth2\Client\Provider\Exception\IdentityProviderException;
+use League\OAuth2\Client\Token\AccessToken;
 use PrestaShop\Module\PsAccounts\Log\Logger;
-use PrestaShop\OAuth2\Client\Provider\PrestaShop;
 use PrestaShop\OAuth2\Client\Provider\PrestaShopUser;
 use Symfony\Component\HttpFoundation\Session\SessionInterface;
 use Tools;
 
-trait Oauth2LoginTrait
+trait PrestaShopLoginTrait
 {
-    abstract protected function getProvider(): PrestaShop;
+    abstract protected function getProvider(): PrestaShopClientProvider;
 
     abstract protected function initUserSession(PrestaShopUser $user): bool;
 
     abstract protected function redirectAfterLogin(): void;
 
     abstract protected function getSession(): SessionInterface;
+
+    abstract protected function getOauth2Session(): PrestaShopSession;
 
     /**
      * @throws IdentityProviderException
@@ -47,6 +49,7 @@ trait Oauth2LoginTrait
 
         //$this->getSession()->start();
         $session = $this->getSession();
+        $oauth2Session = $this->getOauth2Session();
 
         if (!empty($_GET['error'])) {
             // Got an error, probably user denied access
@@ -54,7 +57,7 @@ trait Oauth2LoginTrait
         // If we don't have an authorization code then get one
         } elseif (!isset($_GET['code'])) {
             // cleanup existing accessToken
-            $session->remove('accessToken');
+            $oauth2Session->clear();
 
             $this->setSessionReturnTo(Tools::getValue($this->getReturnToParam()));
 
@@ -66,16 +69,14 @@ trait Oauth2LoginTrait
 
             throw new \Exception('Invalid state');
         } else {
-            if (!$session->has('accessToken')) {
-                // Try to get an access token using the authorization code grant.
-                $session->set('accessToken', $provider->getAccessToken('authorization_code', [
-                    'code' => $_GET['code'],
-                ]));
-            }
+            // Try to get an access token using the authorization code grant.
+            /** @var AccessToken $accessToken */
+            $accessToken = $provider->getAccessToken('authorization_code', [
+                'code' => $_GET['code'],
+            ]);
+            $oauth2Session->setTokenProvider($accessToken);
 
-            $prestaShopUser = $provider->getResourceOwner($session->get('accessToken'));
-
-            if ($this->initUserSession($prestaShopUser)) {
+            if ($this->initUserSession($oauth2Session->getPrestashopUser())) {
                 $this->redirectAfterLogin();
             }
         }

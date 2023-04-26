@@ -20,6 +20,7 @@
 
 use PrestaShop\Module\PsAccounts\Handler\Error\Sentry;
 use PrestaShop\Module\PsAccounts\Presenter\PsAccountsPresenter;
+use PrestaShop\Module\PsAccounts\Provider\OAuth2\PrestaShopSession;
 use PrestaShop\Module\PsAccounts\Repository\ShopTokenRepository;
 use PrestaShop\Module\PsAccounts\Service\ShopLinkAccountService;
 
@@ -128,6 +129,29 @@ class AdminAjaxPsAccountsController extends ModuleAdminController
             header('Content-Type: text/json');
 
             $this->ajaxDie(json_encode($presenter->present($psxName)));
+        } catch (Exception $e) {
+            Sentry::captureAndRethrow($e);
+        }
+    }
+
+    /**
+     * @return void
+     *
+     * @throws Throwable
+     */
+    public function ajaxProcessGetOrRefreshAccessToken()
+    {
+        try {
+            /** @var PrestaShopSession $oauthSession */
+            $oauthSession = $this->module->getService(PrestaShopSession::class);
+
+            header('Content-Type: text/json');
+
+            $this->ajaxDie(
+                json_encode([
+                    'token' => (string) $oauthSession->getOrRefreshAccessToken(),
+                ])
+            );
         } catch (Exception $e) {
             Sentry::captureAndRethrow($e);
         }
