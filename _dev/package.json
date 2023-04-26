@@ -12,7 +12,7 @@
   },
   "dependencies": {
     "@prestashopcorp/ps-accounts-sdk": "^0.3.2",
-    "@prestashopcorp/puik": "^1.0.0",
+    "@prestashopcorp/puik": "^1.2.0",
     "@splidejs/splide": "^4.0.8",
     "prestashop_accounts_vue_components": "^4.2.7",
     "vue": "^3.2.38",
