@@ -20,6 +20,7 @@ import { createApp } from "vue";
 import i18n from "./lib/i18n";
 import "./assets/index.css";
 import App from "./App.vue";
+import "@prestashopcorp/puik/theme/base.css"
 
 (async () => {
   const app = createApp(App);
