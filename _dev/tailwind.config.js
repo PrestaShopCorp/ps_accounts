@@ -16,7 +16,7 @@ module.exports = {
         },
       },
       backgroundImage: {
-        'bicycle': "url('/modules/ps_accounts/views/img/login-background-bicycle.png')"
+        'bicycle': "url('https://assets.prestashop3.com/dst/accounts/assets/login-background-default.png')"
       },
       backgroundColor: {
         'quote': '#f8e08e'

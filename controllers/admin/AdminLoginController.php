@@ -134,7 +134,7 @@ class AdminLoginController extends AdminLoginControllerCore
     {
         /** @var \PrestaShop\Module\PsAccounts\Provider\OAuth2\Oauth2ClientShopProvider $provider */
         $provider = $this->psAccountsModule->getService(\PrestaShop\OAuth2\Client\Provider\PrestaShop::class);
-        /** @var ShopProvider $context */
+        /** @var ShopProvider $shopProvider */
         $shopProvider = $this->psAccountsModule->getService(ShopProvider::class);
         /** @var ConfigurationRepository $configRepository */
         $configRepository = $this->psAccountsModule->getService(ConfigurationRepository::class);
@@ -154,8 +154,8 @@ class AdminLoginController extends AdminLoginControllerCore
         ]));
 
         $isoCode = $this->context->currentLocale->getCode();
-        $this->context->smarty->assign('isoCode', $isoCode);
-        $this->context->smarty->assign('defaultIsoCode', 'en-EN');
+        $this->context->smarty->assign('isoCode', substr($isoCode, 0, 2));
+        $this->context->smarty->assign('defaultIsoCode', 'en');
         $this->context->smarty->assign('testimonials', $testimonials);
 
         $this->context->smarty->assign('loginError', $session->remove('loginError'));
