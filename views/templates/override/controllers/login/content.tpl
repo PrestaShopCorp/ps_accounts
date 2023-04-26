@@ -27,7 +27,7 @@
             <div
                 class="splide__arrows psacc-flex psacc-justify-between psacc-w-full psacc-my-5"
             >
-                <img src="/modules/ps_accounts/views/img/quote-mark.svg" class="psacc-ml-10">
+                <img src="{$shopUrl}/modules/ps_accounts/views/img/quote-mark.svg" class="psacc-ml-10">
                 <div class="psacc-flex psacc-justify-center psacc-items-center psacc-mr-10">
                     <button
                         class="splide__arrow splide__arrow--prev psacc-font-materialIcons psacc-opacity-100 psacc-rounded psacc-text-font-main psacc-text-4xl psacc-mr-5"

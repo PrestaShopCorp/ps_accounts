@@ -22,6 +22,8 @@ use PrestaShop\Module\PsAccounts\Service\AnalyticsService;
 use PrestaShop\Module\PsAccounts\Service\PsAccountsService;
 use Symfony\Component\HttpFoundation\Session\SessionInterface;
 use GuzzleHttp\Client;
+use PrestaShop\Module\PsAccounts\Provider\ShopProvider;
+use PrestaShop\Module\PsAccounts\Repository\ConfigurationRepository;
 
 /**
  * Copyright since 2007 PrestaShop SA and Contributors
@@ -130,11 +132,19 @@ class AdminLoginController extends AdminLoginControllerCore
     {
         /** @var \PrestaShop\Module\PsAccounts\Provider\OAuth2\Oauth2ClientShopProvider $provider */
         $provider = $this->psAccountsModule->getService(\PrestaShop\OAuth2\Client\Provider\PrestaShop::class);
+        /** @var ShopProvider $context */
+        $shopProvider = $this->psAccountsModule->getService(ShopProvider::class);
+        /** @var ConfigurationRepository $configRepository */
+        $configRepository = $this->psAccountsModule->getService(ConfigurationRepository::class);
 
         $testimonials = $this->getTestimonials();
 
         /** @var SessionInterface $session */
         $session = $this->psAccountsModule->getContainer()->get('session');
+
+        $currentShop = $shopProvider->getCurrentShop();
+
+        $this->context->smarty->assign('shopUrl', $configRepository->sslEnabled() ? "https://" . $currentShop['domainSsl'] : "http://" . $currentShop['domain']);
 
         $this->context->smarty->assign('oauthRedirectUri', $provider->getRedirectUri());
         $this->context->smarty->assign('legacyLoginUri', $this->context->link->getAdminLink('AdminLogin', true, [], [
