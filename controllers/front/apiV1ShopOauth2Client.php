@@ -20,6 +20,7 @@
 
 use PrestaShop\Module\PsAccounts\Controller\AbstractShopRestController;
 use PrestaShop\Module\PsAccounts\DTO\Api\UpdateShopOauth2ClientRequest;
+use PrestaShop\Module\PsAccounts\Provider\OAuth2\PrestaShopSession;
 use PrestaShop\Module\PsAccounts\Repository\ConfigurationRepository;
 
 class ps_AccountsApiV1ShopOauth2ClientModuleFrontController extends AbstractShopRestController
@@ -28,6 +29,11 @@ class ps_AccountsApiV1ShopOauth2ClientModuleFrontController extends AbstractShop
      * @var ConfigurationRepository
      */
     private $configuration;
+
+    /**
+     * @var PrestaShopSession
+     */
+    private $oauth2Session;
 
     /**
      * ps_AccountsApiV1ShopOauth2ClientModuleFrontController constructor.
@@ -39,6 +45,7 @@ class ps_AccountsApiV1ShopOauth2ClientModuleFrontController extends AbstractShop
         parent::__construct();
 
         $this->configuration = $this->module->getService(ConfigurationRepository::class);
+        $this->oauth2Session = $this->module->getService(PrestaShopSession::class);
     }
 
     /**
@@ -69,6 +76,7 @@ class ps_AccountsApiV1ShopOauth2ClientModuleFrontController extends AbstractShop
     {
         $this->configuration->updateOauth2ClientId('');
         $this->configuration->updateOauth2ClientSecret('');
+        $this->oauth2Session->clear();
 
         return [
             'success' => true,
