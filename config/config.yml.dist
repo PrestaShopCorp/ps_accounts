@@ -32,3 +32,6 @@ parameters:
   ps_accounts.oauth2_url_resource_owner_details: 'http://hydra:4444/userinfo'
   ps_accounts.oauth2_url_session_logout: 'http://hydra:4444/oauth2/sessions/logout'
 
+  # Login page testimonials url
+  ps_accounts.testimonials_url: 'http://prestadev.docker.localhost/upload/1.json'
+

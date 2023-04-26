@@ -43,26 +43,18 @@
             </div>
             <div class="splide__track psacc-mb-5">
                 <ul class="splide__list psacc-w-full">
-                    <li class="splide__slide">
-                        <div class="psacc-w-10/12 psacc-ml-10 psacc-font-primary">
-                            <p class="psacc-mb-4 psacc-text-lg">
-                                I recently launched my own e-commerce site for my bike repair store with PrestaShop and I'm really happy with the results.
-                            </p>
-                            <p class="puik-body-default psacc-font-secondary">
-                                <span class="psacc-font-bold">Grégory Perrain</span>, Founder @MeloMelo
-                            </p>
-                        </div>
-                    </li>
-                    <li class="splide__slide">
-                        <div class="psacc-w-10/12 psacc-ml-10 psacc-font-primary">
-                            <p class="psacc-mb-4 psacc-text-lg">
-                                I recently launched my own e-commerce site for my bike repair store with PrestaShop and I'm really happy with the results.
-                            </p>
-                            <p class="puik-body-default">
-                                <span class="psacc-font-bold">Grégory Perrain</span>, Founder @MeloMelo
-                            </p>
-                        </div>
-                    </li>
+                    {foreach from=$testimonials item=testimonial}
+                        <li class="splide__slide">
+                            <div class="psacc-w-10/12 psacc-ml-10 psacc-font-primary">
+                                <p class="psacc-mb-4 psacc-text-lg">
+                                    {$testimonial->$isoCode->sentence|default:$testimonial->$defaultIsoCode->sentence}
+                                </p>
+                                <p class="puik-body-default psacc-font-secondary">
+                                    <span class="psacc-font-bold">{$testimonial->$isoCode->name|default:$testimonial->$defaultIsoCode->name}</span>, {$testimonial->$isoCode->enterprise|default:$testimonial->$defaultIsoCode->enterprise}
+                                </p>
+                            </div>
+                        </li>
+                    {/foreach}
                 </ul>
             </div>
             <ul class="splide__pagination"></ul>

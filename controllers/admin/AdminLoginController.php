@@ -21,6 +21,7 @@
 use PrestaShop\Module\PsAccounts\Service\AnalyticsService;
 use PrestaShop\Module\PsAccounts\Service\PsAccountsService;
 use Symfony\Component\HttpFoundation\Session\SessionInterface;
+use GuzzleHttp\Client;
 
 /**
  * Copyright since 2007 PrestaShop SA and Contributors
@@ -130,6 +131,8 @@ class AdminLoginController extends AdminLoginControllerCore
         /** @var \PrestaShop\Module\PsAccounts\Provider\OAuth2\Oauth2ClientShopProvider $provider */
         $provider = $this->psAccountsModule->getService(\PrestaShop\OAuth2\Client\Provider\PrestaShop::class);
 
+        $testimonials = $this->getTestimonials();
+
         /** @var SessionInterface $session */
         $session = $this->psAccountsModule->getContainer()->get('session');
 
@@ -139,6 +142,9 @@ class AdminLoginController extends AdminLoginControllerCore
         ]));
 
         $isoCode = $this->context->currentLocale->getCode();
+        $this->context->smarty->assign('isoCode', $isoCode);
+        $this->context->smarty->assign('defaultIsoCode', 'en-EN');
+        $this->context->smarty->assign('testimonials', $testimonials);
 
         $this->context->smarty->assign('loginError', $session->remove('loginError'));
         $this->context->smarty->assign('meta_title', '');
@@ -172,5 +178,15 @@ class AdminLoginController extends AdminLoginControllerCore
             DIRECTORY_SEPARATOR . 'controllers' .
             DIRECTORY_SEPARATOR . 'login' .
             DIRECTORY_SEPARATOR;
+    }
+
+    private function getTestimonials () {
+        try {
+            $client = new Client();
+            $resp = $client->get($this->psAccountsModule->getParameter('ps_accounts.testimonials_url'));
+            return json_decode($resp->getBody()->getContents());
+        } catch (Exception|\GuzzleHttp\Exception\GuzzleException $e) {
+            return [];
+        }
     }
 }
