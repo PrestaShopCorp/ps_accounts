@@ -19,7 +19,9 @@
 <template>
   <aside class="config-information">
     <div class="titleWrapper">
-      <img src="@/configuration/assets/prestashop-logo-2.png" class="logo" />
+      <div class="logoWrapper">
+        <img src="@/configuration/assets/logo.png" alt="Logo PrestaShop" class="logo" />
+      </div>
       <h1 class="title">
         PrestaShop
         <span class="font-normal" style="color: #6b868f">Account</span>
@@ -42,8 +44,8 @@
     @apply psacc-flex-1 psacc-flex psacc-justify-start psacc-items-center #{!important};
   }
 
-  & .logo {
-    @apply psacc-w-10 psacc-h-10 psacc-mr-2 #{!important};
+  & .logoWrapper {
+    @apply psacc-w-10 psacc-h-10 psacc-p-1 psacc-mr-2  psacc-bg-white psacc-rounded-full #{!important};
   }
 
   & .title {
@@ -61,7 +63,7 @@
   @screen md {
     @apply psacc-flex-row psacc-items-center psacc-p-8 #{!important};
 
-    & .logo {
+    & .logoWrapper {
       @apply psacc-mr-4 #{!important};
     }
 
