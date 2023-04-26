@@ -18,12 +18,12 @@
  * @license   https://opensource.org/licenses/AFL-3.0 Academic Free License version 3.0
  */
 
-use PrestaShop\Module\PsAccounts\Service\AnalyticsService;
-use PrestaShop\Module\PsAccounts\Service\PsAccountsService;
-use Symfony\Component\HttpFoundation\Session\SessionInterface;
 use GuzzleHttp\Client;
 use PrestaShop\Module\PsAccounts\Provider\ShopProvider;
 use PrestaShop\Module\PsAccounts\Repository\ConfigurationRepository;
+use PrestaShop\Module\PsAccounts\Service\AnalyticsService;
+use PrestaShop\Module\PsAccounts\Service\PsAccountsService;
+use Symfony\Component\HttpFoundation\Session\SessionInterface;
 
 /**
  * Copyright since 2007 PrestaShop SA and Contributors
@@ -120,7 +120,8 @@ class AdminLoginController extends AdminLoginControllerCore
             if ($this->psAccountsLoginEnabled && $tpl_name === $this->template) {
                 return $this->createPsAccountsLoginTemplate();
             }
-        } catch (\Exception $e) {}
+        } catch (\Exception $e) {
+        }
 
         return parent::createTemplate($tpl_name);
     }
@@ -146,7 +147,7 @@ class AdminLoginController extends AdminLoginControllerCore
 
         $currentShop = $shopProvider->getCurrentShop();
 
-        $this->context->smarty->assign('shopUrl', $configRepository->sslEnabled() ? "https://" . $currentShop['domainSsl'] : "http://" . $currentShop['domain']);
+        $this->context->smarty->assign('shopUrl', $configRepository->sslEnabled() ? 'https://' . $currentShop['domainSsl'] : 'http://' . $currentShop['domain']);
 
         $this->context->smarty->assign('oauthRedirectUri', $provider->getRedirectUri());
         $this->context->smarty->assign('legacyLoginUri', $this->context->link->getAdminLink('AdminLogin', true, [], [
@@ -192,10 +193,15 @@ class AdminLoginController extends AdminLoginControllerCore
             DIRECTORY_SEPARATOR;
     }
 
-    private function getTestimonials () {
+    /**
+     * @return array
+     */
+    private function getTestimonials()
+    {
         try {
             $client = new Client();
             $resp = $client->get($this->psAccountsModule->getParameter('ps_accounts.testimonials_url'));
+
             return json_decode($resp->getBody()->getContents());
         } catch (Exception|\GuzzleHttp\Exception\GuzzleException $e) {
             return [];
