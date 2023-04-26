@@ -39,7 +39,6 @@ class ps_AccountsApiV1ShopOauth2ClientModuleFrontController extends AbstractShop
         parent::__construct();
 
         $this->configuration = $this->module->getService(ConfigurationRepository::class);
-        //$this->oauth2Session = $this->module->getService(PrestaShopSession::class);
     }
 
     /**
