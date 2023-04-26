@@ -9,24 +9,24 @@ The format for the json is :
 ```json
 [
 	{
-		"en-EN": {
+		"en": {
 			"sentence": "John's sentences",
 			"name": "John Doe",
 			"enterprise": "John's enterprise"
 		},
-		"fr-FR": {
+		"fr": {
 			"sentence": "La phrase de John",
 			"name": "John Doe",
 			"enterprise": "L'entreprise de John"
 		}
 	},
   {
-    "en-EN": {
+    "en": {
       "sentence": "Roger's sentences",
       "name": "Roger Doe",
       "enterprise": "Roger's enterprise"
     },
-    "fr-FR": {
+    "fr": {
       "sentence": "La phrase de Roger",
       "name": "Roger Doe",
       "enterprise": "L'entreprise de Roger"
