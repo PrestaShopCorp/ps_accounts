@@ -116,9 +116,11 @@ class AdminLoginController extends AdminLoginControllerCore
                 $this->analyticsService->pageLocalBoLogin($userId);
         }
 
-        if ($this->psAccountsLoginEnabled && $tpl_name === $this->template) {
-            return $this->createPsAccountsLoginTemplate();
-        }
+        try {
+            if ($this->psAccountsLoginEnabled && $tpl_name === $this->template) {
+                return $this->createPsAccountsLoginTemplate();
+            }
+        } catch (\Exception $e) {}
 
         return parent::createTemplate($tpl_name);
     }
