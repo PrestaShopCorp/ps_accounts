@@ -66,7 +66,7 @@
             <div class="psacc-flex psacc-flex-col psacc-space-y-4 psacc-mb-4 psacc-px-4">
                 <div class="puik-alert puik-alert--danger" aria-live="polite">
                     <div class="puik-alert__content">
-                        <span class="puik-alert__icon">error</span>
+                        <span class="psacc-font-materialIcons">error</span>
                         <div class="puik-alert__text">
                             <span class="puik-alert__description">
                                 {if $loginError eq 'employee_not_found'}
@@ -114,7 +114,7 @@
         {else}
             <div class="puik-alert puik-alert--danger" aria-live="polite">
                 <div class="puik-alert__content">
-                    <span class="puik-alert__icon">error</span>
+                    <span class="psacc-font-materialIcons">error</span>
                     <div class="puik-alert__text">
                         <p class="puik-alert__title">
                             {l s='For security reasons, you cannot connect to the back office until you have:' d='Admin.Login.Notification'}
