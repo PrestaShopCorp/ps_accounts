@@ -700,6 +700,12 @@ class Ps_accounts extends Module
         /** @var \PrestaShop\Module\PsAccounts\Service\PsAccountsService $psAccountsService */
         $psAccountsService = $this->getService(\PrestaShop\Module\PsAccounts\Service\PsAccountsService::class);
 
+        $oauth2Client = $this->getOauth2Client();
+        if ($oauth2Client->exists() && !$psAccountsService->isAccountLinked()) {
+            $this->getOauth2Session()->clear();
+            $oauth2Client->delete();
+        }
+
         if (isset($_GET['logout'])) {
             if ($psAccountsService->getLoginActivated()) {
                 $this->oauth2Logout();
@@ -862,12 +868,17 @@ class Ps_accounts extends Module
         return Module::isEnabled('smb_edition');
     }
 
+    /**
+     * @throws Exception
+     */
+    public function getOauth2Client(): PrestaShop\Module\PsAccounts\Provider\OAuth2\Oauth2Client
+    {
+        return $this->getService(\PrestaShop\Module\PsAccounts\Provider\OAuth2\Oauth2Client::class);
+    }
+
     protected function getProvider(): PrestaShop\Module\PsAccounts\Provider\OAuth2\PrestaShopClientProvider
     {
-        /** @var \PrestaShop\Module\PsAccounts\Provider\OAuth2\PrestaShopClientProvider $provider */
-        $provider = $this->getService(\PrestaShop\Module\PsAccounts\Provider\OAuth2\PrestaShopClientProvider::class);
-
-        return $provider;
+        return $this->getService(\PrestaShop\Module\PsAccounts\Provider\OAuth2\PrestaShopClientProvider::class);
     }
 
     protected function isOauth2LogoutEnabled(): bool
@@ -877,9 +888,6 @@ class Ps_accounts extends Module
 
     protected function getOauth2Session(): PrestaShop\Module\PsAccounts\Provider\OAuth2\PrestaShopSession
     {
-        /** @var \PrestaShop\Module\PsAccounts\Provider\OAuth2\PrestaShopSession $oauth2Session */
-        $oauth2Session = $this->getService(\PrestaShop\Module\PsAccounts\Provider\OAuth2\PrestaShopSession::class);
-
-        return $oauth2Session;
+        return $this->getService(\PrestaShop\Module\PsAccounts\Provider\OAuth2\PrestaShopSession::class);
     }
 }
