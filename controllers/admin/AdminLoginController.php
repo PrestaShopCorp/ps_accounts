@@ -133,21 +133,15 @@ class AdminLoginController extends AdminLoginControllerCore
      */
     public function createPsAccountsLoginTemplate()
     {
-        /** @var \PrestaShop\Module\PsAccounts\Provider\OAuth2\Oauth2ClientShopProvider $provider */
-        $provider = $this->psAccountsModule->getService(\PrestaShop\OAuth2\Client\Provider\PrestaShop::class);
-        /** @var ShopProvider $shopProvider */
-        $shopProvider = $this->psAccountsModule->getService(ShopProvider::class);
-        /** @var ConfigurationRepository $configRepository */
-        $configRepository = $this->psAccountsModule->getService(ConfigurationRepository::class);
+        /** @var PrestaShop\Module\PsAccounts\Provider\OAuth2\PrestaShopClientProvider $provider */
+        $provider = $this->psAccountsModule->getService(PrestaShop\Module\PsAccounts\Provider\OAuth2\PrestaShopClientProvider::class);
 
         $testimonials = $this->getTestimonials();
 
         /** @var SessionInterface $session */
         $session = $this->psAccountsModule->getContainer()->get('session');
 
-        $currentShop = $shopProvider->getCurrentShop();
-
-        $this->context->smarty->assign('shopUrl', $configRepository->sslEnabled() ? 'https://' . $currentShop['domainSsl'] : 'http://' . $currentShop['domain']);
+        $this->context->smarty->assign('shopUrl', $this->context->shop->getBaseUrl(true));
 
         $this->context->smarty->assign('oauthRedirectUri', $provider->getRedirectUri());
         $this->context->smarty->assign('legacyLoginUri', $this->context->link->getAdminLink('AdminLogin', true, [], [
