@@ -46,7 +46,7 @@ class AdminAjaxPsAccountsController extends ModuleAdminController
     /**
      * @return void
      *
-     * @throws Throwable
+     * @throws Exception
      */
     public function ajaxProcessGetOrRefreshToken()
     {
@@ -70,7 +70,7 @@ class AdminAjaxPsAccountsController extends ModuleAdminController
     /**
      * @return void
      *
-     * @throws Throwable
+     * @throws Exception
      */
     //public function displayAjaxUnlinkShop()
     public function ajaxProcessUnlinkShop()
@@ -94,7 +94,7 @@ class AdminAjaxPsAccountsController extends ModuleAdminController
     /**
      * @return void
      *
-     * @throws Throwable
+     * @throws Exception
      */
     public function ajaxProcessResetLinkAccount()
     {
@@ -115,7 +115,7 @@ class AdminAjaxPsAccountsController extends ModuleAdminController
     /**
      * @return void
      *
-     * @throws Throwable
+     * @throws Exception
      */
     public function ajaxProcessGetContext()
     {

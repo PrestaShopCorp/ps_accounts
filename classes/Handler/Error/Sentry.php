@@ -80,7 +80,7 @@ class Sentry
      *
      * @return void
      *
-     * @throws \Throwable
+     * @throws \Exception
      */
     public static function capture($exception)
     {
@@ -100,7 +100,7 @@ class Sentry
      *
      * @return void
      *
-     * @throws \Throwable
+     * @throws \Exception
      */
     public static function captureAndRethrow($exception)
     {

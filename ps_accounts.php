@@ -30,7 +30,6 @@ class Ps_accounts extends Module
     // the module each time to get the version
     const VERSION = '5.3.6';
 
-
     const HOOK_ACTION_SHOP_ACCOUNT_LINK_AFTER = 'actionShopAccountLinkAfter';
     const HOOK_ACTION_SHOP_ACCOUNT_UNLINK_AFTER = 'actionShopAccountUnlinkAfter';
     const HOOK_DISPLAY_ACCOUNT_UPDATE_WARNING = 'displayAccountUpdateWarning';
@@ -153,7 +152,6 @@ class Ps_accounts extends Module
      *
      * @throws PrestaShopDatabaseException
      * @throws PrestaShopException
-     * @throws Throwable
      */
     public function install()
     {
@@ -602,7 +600,7 @@ class Ps_accounts extends Module
                     ' ' . print_r($response['body']['message'], true)
                 );
             }
-        } catch (\Throwable $e) {
+        } catch (Exception $e) {
             $this->getLogger()->debug(
                 'Error curl while trying to DELETE shop : ' . print_r($e->getMessage(), true)
             );
@@ -659,7 +657,8 @@ class Ps_accounts extends Module
      *
      * @return string
      *
-     * @throws Throwable
+     * @throws PrestaShopException
+     * @throws \PrestaShop\Module\PsAccounts\Exception\SshKeysNotFoundException
      */
     public function getContent()
     {
@@ -673,7 +672,8 @@ class Ps_accounts extends Module
      *
      * @return void
      *
-     * @throws Throwable
+     * @throws PrestaShopException
+     * @throws \PrestaShop\Module\PsAccounts\Exception\SshKeysNotFoundException
      */
     protected function loadAssets()
     {
@@ -734,7 +734,7 @@ class Ps_accounts extends Module
     /**
      * @return void
      *
-     * @throws Throwable
+     * @throws PrestaShopException
      */
     private function autoReonboardOnV5()
     {
