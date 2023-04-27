@@ -19,8 +19,6 @@
  */
 
 use GuzzleHttp\Client;
-use PrestaShop\Module\PsAccounts\Provider\ShopProvider;
-use PrestaShop\Module\PsAccounts\Repository\ConfigurationRepository;
 use PrestaShop\Module\PsAccounts\Service\AnalyticsService;
 use PrestaShop\Module\PsAccounts\Service\PsAccountsService;
 use Symfony\Component\HttpFoundation\Session\SessionInterface;
@@ -59,6 +57,9 @@ class AdminLoginController extends AdminLoginControllerCore
     /** @var AnalyticsService */
     private $analyticsService;
 
+    /** @var \Monolog\Logger  */
+    private $logger;
+
     /**
      * @throws Exception
      */
@@ -70,6 +71,8 @@ class AdminLoginController extends AdminLoginControllerCore
         $module = Module::getInstanceByName('ps_accounts');
 
         $this->psAccountsModule = $module;
+
+        $this->logger = $this->psAccountsModule->getLogger();
 
         /** @var PsAccountsService $moduleService */
         $moduleService = $this->psAccountsModule->getService(PsAccountsService::class);
@@ -121,6 +124,7 @@ class AdminLoginController extends AdminLoginControllerCore
                 return $this->createPsAccountsLoginTemplate();
             }
         } catch (\Exception $e) {
+            $this->logger->error("Error while creating the ps accounts login template", ["error" => $e->getMessage()]);
         }
 
         return parent::createTemplate($tpl_name);
@@ -198,6 +202,7 @@ class AdminLoginController extends AdminLoginControllerCore
 
             return json_decode($resp->getBody()->getContents());
         } catch (Exception|\GuzzleHttp\Exception\GuzzleException $e) {
+            $this->logger->error("Error while getting the testimonials", ["error" => $e->getMessage()]);
             return [];
         }
     }
