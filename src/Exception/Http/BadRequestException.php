@@ -20,8 +20,6 @@
 
 namespace PrestaShop\Module\PsAccounts\Exception\Http;
 
-use Throwable;
-
 class BadRequestException extends HttpException
 {
     /**
@@ -29,9 +27,9 @@ class BadRequestException extends HttpException
      *
      * @param string $message
      * @param int $code
-     * @param Throwable|null $previous
+     * @param \Exception|null $previous
      */
-    public function __construct($message = 'Bad Request', $code = 0, Throwable $previous = null)
+    public function __construct($message = 'Bad Request', $code = 0, \Exception $previous = null)
     {
         parent::__construct($message, $code, $previous);
 

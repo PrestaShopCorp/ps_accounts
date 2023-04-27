@@ -101,7 +101,7 @@ abstract class AbstractTokenRepository
      *
      * @return Token|null
      *
-     * @throws \Throwable
+     * @throws Exception
      */
     public function getOrRefreshToken($forceRefresh = false)
     {

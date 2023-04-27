@@ -157,7 +157,6 @@ class Ps_accounts extends Module
      *
      * @throws PrestaShopDatabaseException
      * @throws PrestaShopException
-     * @throws Throwable
      */
     public function install()
     {
@@ -645,7 +644,7 @@ class Ps_accounts extends Module
                     ' ' . print_r($response['body']['message'], true)
                 );
             }
-        } catch (\Throwable $e) {
+        } catch (Exception $e) {
             $this->getLogger()->debug(
                 'Error curl while trying to DELETE shop : ' . print_r($e->getMessage(), true)
             );
@@ -756,7 +755,8 @@ class Ps_accounts extends Module
      *
      * @return string
      *
-     * @throws Throwable
+     * @throws PrestaShopException
+     * @throws \PrestaShop\Module\PsAccounts\Exception\SshKeysNotFoundException
      */
     public function getContent()
     {
@@ -770,7 +770,8 @@ class Ps_accounts extends Module
      *
      * @return void
      *
-     * @throws Throwable
+     * @throws PrestaShopException
+     * @throws \PrestaShop\Module\PsAccounts\Exception\SshKeysNotFoundException
      */
     protected function loadAssets()
     {
@@ -832,7 +833,7 @@ class Ps_accounts extends Module
     /**
      * @return void
      *
-     * @throws Throwable
+     * @throws PrestaShopException
      */
     private function autoReonboardOnV5()
     {
