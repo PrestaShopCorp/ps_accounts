@@ -15,25 +15,41 @@ class CommandBus
     }
 
     /**
+     * @param mixed $command
+     *
+     * @return mixed
+     *
      * @throws \Exception
      */
     public function resolveHandler($command)
     {
-        $handlerClass = preg_replace('/(Command|Query)?$/', 'Handler', get_class($command));
+        $commandClass = get_class($command);
+
+        $handlerClass = preg_replace(
+            '/((Command|Query)(\\\\[^\\\\]*$))/',
+            '${2}Handler${3}',
+            $commandClass, 1);
+
+        $handlerClass .= 'Handler';
 
         return $this->module->getService($handlerClass);
     }
 
     /**
+     * @param mixed $command
+     *
+     * @return mixed
+     *
      * @throws \Exception
      */
-    public function execute($command)
+    public function handle($command)
     {
-        $this->module->getLogger()->debug('handling command : ' . get_class($command));
+        $this->module->getLogger()->debug('handling : ' . get_class($command));
 
         $handler = $this->resolveHandler($command);
 
         if (method_exists($handler, 'handle')) {
+            /* @phpstan-ignore-next-line */
             return $handler->handle($command);
         }
         throw new \Exception('handle method not found');
