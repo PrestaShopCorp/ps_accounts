@@ -21,7 +21,6 @@
 namespace PrestaShop\Module\PsAccounts\Provider\OAuth2;
 
 use League\OAuth2\Client\Token\AccessToken;
-use PrestaShop\Module\PsAccounts\Repository\ConfigurationRepository;
 use PrestaShop\OAuth2\Client\Provider\PrestaShop;
 
 class PrestaShopClientProvider extends PrestaShop
