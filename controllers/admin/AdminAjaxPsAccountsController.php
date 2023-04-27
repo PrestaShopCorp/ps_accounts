@@ -23,6 +23,7 @@ use PrestaShop\Module\PsAccounts\Domain\Shop\Command\RemoteUnlinkShop;
 use PrestaShop\Module\PsAccounts\Domain\Shop\Entity\Account;
 use PrestaShop\Module\PsAccounts\Domain\Shop\Entity\ShopSession;
 use PrestaShop\Module\PsAccounts\Presenter\PsAccountsPresenter;
+use PrestaShop\Module\PsAccounts\Provider\OAuth2\PrestaShopSession;
 use PrestaShop\Module\PsAccounts\Repository\ConfigurationRepository;
 use PrestaShop\Module\PsAccounts\Service\SentryService;
 
@@ -109,10 +110,10 @@ class AdminAjaxPsAccountsController extends ModuleAdminController
     public function ajaxProcessResetLinkAccount()
     {
         try {
-            /** @var Account $shopLinkAccountService */
-            $shopLinkAccountService = $this->module->getService(Account::class);
+            /** @var Account $shopAccount */
+            $shopAccount = $this->module->getService(Account::class);
 
-            $shopLinkAccountService->resetLink();
+            $shopAccount->resetLink();
 
             header('Content-Type: text/json');
 
@@ -140,6 +141,29 @@ class AdminAjaxPsAccountsController extends ModuleAdminController
             $this->ajaxDie(json_encode($presenter->present($psxName)));
         } catch (Exception $e) {
             SentryService::captureAndRethrow($e);
+        }
+    }
+
+    /**
+     * @return void
+     *
+     * @throws Throwable
+     */
+    public function ajaxProcessGetOrRefreshAccessToken()
+    {
+        try {
+            /** @var PrestaShopSession $oauthSession */
+            $oauthSession = $this->module->getService(PrestaShopSession::class);
+
+            header('Content-Type: text/json');
+
+            $this->ajaxDie(
+                json_encode([
+                    'token' => (string) $oauthSession->getOrRefreshAccessToken(),
+                ])
+            );
+        } catch (Exception $e) {
+            Sentry::captureAndRethrow($e);
         }
     }
 }

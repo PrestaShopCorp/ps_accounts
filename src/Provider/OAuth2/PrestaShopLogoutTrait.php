@@ -20,13 +20,11 @@
 
 namespace PrestaShop\Module\PsAccounts\Provider\OAuth2;
 
-use League\OAuth2\Client\Token\AccessToken;
-
-trait Oauth2LogoutTrait
+trait PrestaShopLogoutTrait
 {
-    abstract protected function getProvider(): Oauth2ClientShopProvider;
+    abstract protected function getProvider(): PrestaShopClientProvider;
 
-    abstract protected function getAccessToken(): ?AccessToken;
+    abstract protected function getOauth2Session(): PrestaShopSession;
 
     abstract protected function isOauth2LogoutEnabled(): bool;
 
@@ -39,19 +37,22 @@ trait Oauth2LogoutTrait
             return;
         }
 
-        if (!isset($_GET[Oauth2ClientShopProvider::QUERY_LOGOUT_CALLBACK_PARAM])) {
-            $accessToken = $this->getAccessToken();
+        $oauth2Session = $this->getOauth2Session();
+        if (!isset($_GET[PrestaShopClientProvider::QUERY_LOGOUT_CALLBACK_PARAM])) {
+            $idToken = $oauth2Session->getIdToken();
 
-            if (empty($accessToken)) {
+            if (empty($idToken)) {
                 return;
             }
 
             $logoutUrl = $this->getProvider()->getLogoutUrl([
-                'id_token_hint' => $accessToken->getValues()['id_token'],
+                'id_token_hint' => $idToken,
             ]);
 
             header('Location: ' . $logoutUrl);
             exit;
+        } else {
+            $oauth2Session->clear();
         }
     }
 }

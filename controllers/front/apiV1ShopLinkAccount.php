@@ -24,6 +24,7 @@ use PrestaShop\Module\PsAccounts\Domain\Shop\Command\LinkShop;
 use PrestaShop\Module\PsAccounts\Domain\Shop\Command\UnlinkShop;
 use PrestaShop\Module\PsAccounts\Dto\Api\UpdateShopLinkAccountRequest;
 use PrestaShop\Module\PsAccounts\Exception\RefreshTokenException;
+use PrestaShop\Module\PsAccounts\Service\PsAccountsService;
 
 class ps_AccountsApiV1ShopLinkAccountModuleFrontController extends AbstractShopRestController
 {
@@ -31,6 +32,11 @@ class ps_AccountsApiV1ShopLinkAccountModuleFrontController extends AbstractShopR
      * @var CommandBus
      */
     private $commandBus;
+
+    /**
+     * @var PsAccountsService
+     */
+    private $psAccountsService;
 
     /**
      * ps_AccountsApiV1ShopLinkAccountModuleFrontController constructor.
@@ -42,6 +48,8 @@ class ps_AccountsApiV1ShopLinkAccountModuleFrontController extends AbstractShopR
         parent::__construct();
 
         $this->commandBus = $this->module->getService(CommandBus::class);
+
+        $this->psAccountsService = $this->module->getService(PsAccountsService::class);
     }
 
     /**
@@ -55,6 +63,11 @@ class ps_AccountsApiV1ShopLinkAccountModuleFrontController extends AbstractShopR
             $this->module->getParameter('ps_accounts.verify_account_tokens')
         ));
 
+        Hook::exec(Ps_accounts::HOOK_ACTION_SHOP_ACCOUNT_LINK_AFTER, [
+            'shopUuid' => $this->psAccountsService->getShopUuid(),
+            'shopId' => $shop->id,
+        ]);
+
         return [
             'success' => true,
             'message' => 'Link Account stored successfully',
@@ -66,7 +79,14 @@ class ps_AccountsApiV1ShopLinkAccountModuleFrontController extends AbstractShopR
      */
     public function delete(Shop $shop, array $payload): array
     {
+        $hookData = [
+            'shopUuid' => $this->psAccountsService->getShopUuid(),
+            'shopId' => $shop->id,
+        ];
+
         $this->commandBus->execute(new UnlinkShop($shop->id));
+
+        Hook::exec(Ps_accounts::HOOK_ACTION_SHOP_ACCOUNT_UNLINK_AFTER, $hookData);
 
         return [
             'success' => true,

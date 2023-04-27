@@ -24,9 +24,8 @@ use League\OAuth2\Client\Token\AccessToken;
 use PrestaShop\Module\PsAccounts\Repository\ConfigurationRepository;
 use PrestaShop\OAuth2\Client\Provider\PrestaShop;
 
-class Oauth2ClientShopProvider extends PrestaShop
+class PrestaShopClientProvider extends PrestaShop
 {
-    public const SESSION_ACCESS_TOKEN_NAME = 'accessToken';
     public const QUERY_LOGOUT_CALLBACK_PARAM = 'oauth2Callback';
 
     /**

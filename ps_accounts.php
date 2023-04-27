@@ -23,13 +23,17 @@ if (!defined('_PS_VERSION_')) {
 require_once __DIR__ . '/vendor/autoload.php';
 class Ps_accounts extends Module
 {
-    use \PrestaShop\Module\PsAccounts\Provider\OAuth2\Oauth2LogoutTrait;
+    use \PrestaShop\Module\PsAccounts\Provider\OAuth2\PrestaShopLogoutTrait;
 
     const DEFAULT_ENV = '';
 
     // Needed in order to retrieve the module version easier (in api call headers) than instanciate
     // the module each time to get the version
     const VERSION = '7.0.0';
+
+    const HOOK_ACTION_SHOP_ACCOUNT_LINK_AFTER = 'actionShopAccountLinkAfter';
+    const HOOK_ACTION_SHOP_ACCOUNT_UNLINK_AFTER = 'actionShopAccountUnlinkAfter';
+    const HOOK_DISPLAY_ACCOUNT_UPDATE_WARNING = 'displayAccountUpdateWarning';
 
     /**
      * @var array
@@ -50,9 +54,11 @@ class Ps_accounts extends Module
         'actionObjectShopDeleteAfter',
         'actionObjectShopUrlUpdateAfter',
         'displayDashboardTop',
-        'displayAccountUpdateWarning',
         'actionAdminLoginControllerLoginAfter',
         'actionAdminControllerInitBefore',
+        self::HOOK_DISPLAY_ACCOUNT_UPDATE_WARNING,
+        self::HOOK_ACTION_SHOP_ACCOUNT_LINK_AFTER,
+        self::HOOK_ACTION_SHOP_ACCOUNT_UNLINK_AFTER,
     ];
 
     /**
@@ -62,10 +68,22 @@ class Ps_accounts extends Module
      */
     private $customHooks = [
         [
-            'name' => 'displayAccountUpdateWarning',
+            'name' => self::HOOK_DISPLAY_ACCOUNT_UPDATE_WARNING,
             'title' => 'Display account update warning',
             'description' => 'Show a warning message when the user wants to'
                 . ' update his shop configuration',
+            'position' => 1,
+        ],
+        [
+            'name' => self::HOOK_ACTION_SHOP_ACCOUNT_LINK_AFTER,
+            'title' => 'Shop linked event',
+            'description' => 'Shop linked with PrestaShop Account',
+            'position' => 1,
+        ],
+        [
+            'name' => self::HOOK_ACTION_SHOP_ACCOUNT_UNLINK_AFTER,
+            'title' => 'Shop unlinked event',
+            'description' => 'Shop unlinked with PrestaShop Account',
             'position' => 1,
         ],
     ];
@@ -289,27 +307,6 @@ class Ps_accounts extends Module
         );
     }
 
-//    /**
-//     * Override of native function to always retrieve Symfony container instead of legacy admin container on legacy context.
-//     *
-//     * @param string $serviceName
-//     *
-//     * @return mixed
-//     */
-//    public function getService($serviceName)
-//    {
-//        if ((new \PrestaShop\Module\PsAccounts\Context\ShopContext())->isShop173()) {
-//            // 1.7.3
-//            // 1.7.6
-//            //$this->context->controller->getContainer()
-//
-//            if (null === $this->container) {
-//                $this->container = \PrestaShop\PrestaShop\Adapter\SymfonyContainer::getInstance();
-//            }
-//        }
-//        return $this->container->get($serviceName);
-//    }
-
     /**
      * @param array $params
      *
@@ -507,10 +504,10 @@ class Ps_accounts extends Module
             );
 
             if (!$response) {
-                return true;
-            }
-
-            if (true !== $response['status']) {
+                $this->getLogger()->debug(
+                    'Error trying to PATCH shop : No $response object'
+                );
+            } elseif (true !== $response['status']) {
                 $this->getLogger()->debug(
                     'Error trying to PATCH shop : ' . $response['httpCode'] .
                     ' ' . print_r($response['body']['message'] ?? '', true)
@@ -582,10 +579,10 @@ class Ps_accounts extends Module
         );
 
         if (!$response) {
-            return true;
-        }
-
-        if (true !== $response['status']) {
+            $this->getLogger()->debug(
+                'Error trying to PATCH shop : No $response object'
+            );
+        } elseif (true !== $response['status']) {
             $this->getLogger()->debug(
                 'Error trying to PATCH shop : ' . $response['httpCode'] .
                 ' ' . print_r($response['body']['message'] ?? '', true)
@@ -627,8 +624,11 @@ class Ps_accounts extends Module
                     $params['object']->id
                 )
             );
-
-            if (!$response || true !== $response['status']) {
+            if (!$response) {
+                $this->getLogger()->debug(
+                    'Error trying to DELETE shop : No $response object'
+                );
+            } elseif (true !== $response['status']) {
                 $this->getLogger()->debug(
                     'Error trying to DELETE shop : ' . $response['httpCode'] .
                     ' ' . print_r($response['body']['message'], true)
@@ -689,13 +689,37 @@ class Ps_accounts extends Module
         /** @var \PrestaShop\Module\PsAccounts\Service\PsAccountsService $psAccountsService */
         $psAccountsService = $this->getService(\PrestaShop\Module\PsAccounts\Service\PsAccountsService::class);
 
-        if (!$psAccountsService->getLoginActivated()) {
-            return;
-        }
-
         if (isset($_GET['logout'])) {
-            $this->oauth2Logout();
+            if ($psAccountsService->getLoginActivated()) {
+                $this->oauth2Logout();
+            } else {
+                $this->getOauth2Session()->clear();
+            }
         }
+    }
+
+    /**
+     * @param array{shopUuid: string, shopId: string} $params
+     *
+     * @return void
+     *
+     * @throws Exception
+     */
+    public function hookActionShopAccountLinkAfter($params)
+    {
+        // Not implemented here
+    }
+
+    /**
+     * @param array{shopUuid: string, shopId: string} $params
+     *
+     * @return void
+     *
+     * @throws Exception
+     */
+    public function hookActionShopAccountUnlinkAfter($params)
+    {
+        // Not implemented here
     }
 
     /**
@@ -827,27 +851,24 @@ class Ps_accounts extends Module
         return Module::isEnabled('smb_edition');
     }
 
-    protected function getProvider(): PrestaShop\Module\PsAccounts\Provider\OAuth2\Oauth2ClientShopProvider
+    protected function getProvider(): PrestaShop\Module\PsAccounts\Provider\OAuth2\PrestaShopClientProvider
     {
-        /** @var \PrestaShop\Module\PsAccounts\Provider\OAuth2\Oauth2ClientShopProvider $provider */
-        $provider = $this->getService(\PrestaShop\OAuth2\Client\Provider\PrestaShop::class);
+        /** @var \PrestaShop\Module\PsAccounts\Provider\OAuth2\PrestaShopClientProvider $provider */
+        $provider = $this->getService(\PrestaShop\Module\PsAccounts\Provider\OAuth2\PrestaShopClientProvider::class);
 
         return $provider;
-    }
-
-    protected function getAccessToken(): ?League\OAuth2\Client\Token\AccessToken
-    {
-        /** @var \Symfony\Component\HttpFoundation\Session\SessionInterface $session */
-        $session = $this->getContainer()->get('session');
-
-        /** @var \League\OAuth2\Client\Token\AccessToken $accessToken */
-        $accessToken = $session->get('accessToken');
-
-        return $accessToken;
     }
 
     protected function isOauth2LogoutEnabled(): bool
     {
         return $this->hasParameter('ps_accounts.oauth2_url_session_logout');
+    }
+
+    protected function getOauth2Session(): PrestaShop\Module\PsAccounts\Provider\OAuth2\PrestaShopSession
+    {
+        /** @var \PrestaShop\Module\PsAccounts\Provider\OAuth2\PrestaShopSession $oauth2Session */
+        $oauth2Session = $this->getService(\PrestaShop\Module\PsAccounts\Provider\OAuth2\PrestaShopSession::class);
+
+        return $oauth2Session;
     }
 }
