@@ -3,7 +3,7 @@
 namespace PrestaShop\Module\PsAccounts\Tests\Unit\Domain\Shop\Entity\PublicKey;
 
 use Db;
-use PrestaShop\Module\PsAccounts\Exception\SshKeysNotFoundException;
+use PrestaShop\Module\PsAccounts\Exception\PublicKeyException;
 use PrestaShop\Module\PsAccounts\Repository\ConfigurationRepository;
 use PrestaShop\Module\PsAccounts\Domain\Shop\Entity\PublicKey;
 use PrestaShop\Module\PsAccounts\Tests\TestCase;
@@ -13,7 +13,7 @@ class GenerateKeysTest extends TestCase
     /**
      * @test
      *
-     * @throws SshKeysNotFoundException
+     * @throws PublicKeyException
      */
     public function itShouldGenerateKeys()
     {

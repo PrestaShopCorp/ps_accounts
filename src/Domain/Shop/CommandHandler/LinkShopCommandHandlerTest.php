@@ -1,7 +1,8 @@
 <?php
 
-namespace PrestaShop\Module\PsAccounts\Domain\Shop\Command;
+namespace PrestaShop\Module\PsAccounts\Domain\Shop\CommandHandler;
 
+use PrestaShop\Module\PsAccounts\Domain\Shop\Command\LinkShopCommand;
 use PrestaShop\Module\PsAccounts\Dto\Api\UpdateShopLinkAccountRequest;
 use PrestaShop\Module\PsAccounts\Exception\RefreshTokenException;
 use PrestaShop\Module\PsAccounts\Repository\ConfigurationRepository;
@@ -9,7 +10,7 @@ use PrestaShop\Module\PsAccounts\Repository\Support\ShopTokenRepository;
 use PrestaShop\Module\PsAccounts\Repository\Support\UserTokenRepository;
 use PrestaShop\Module\PsAccounts\Tests\TestCase;
 
-class LinkShopTest extends TestCase
+class LinkShopCommandHandlerTest extends TestCase
 {
     /**
      * @var ShopTokenRepository
@@ -27,7 +28,7 @@ class LinkShopTest extends TestCase
     private $mockedConfigurationRepository;
 
     /**
-     * @var LinkShopHandler
+     * @var LinkShopCommandHandler
      */
     private $linkShopHandler;
 
@@ -44,7 +45,7 @@ class LinkShopTest extends TestCase
         $this->shopTokenRepository = $this->createMock(ShopTokenRepository::class);
         $this->userTokenRepository = $this->createMock(UserTokenRepository::class);
 
-        $this->linkShopHandler = new LinkShopHandler(
+        $this->linkShopHandler = new LinkShopCommandHandler(
             $this->shopTokenRepository,
             $this->userTokenRepository,
             $this->mockedConfigurationRepository
@@ -67,7 +68,7 @@ class LinkShopTest extends TestCase
             'shop_refresh_token' => 'barRefresh',
         ]);
 
-        $command = new LinkShop(
+        $command = new LinkShopCommand(
             new UpdateShopLinkAccountRequest($request),
             false
         );
@@ -113,7 +114,7 @@ class LinkShopTest extends TestCase
             'shop_refresh_token' => 'barRefresh',
         ]);
 
-        $command = new LinkShop(
+        $command = new LinkShopCommand(
             new UpdateShopLinkAccountRequest($request),
             true
         );

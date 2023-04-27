@@ -1,12 +1,13 @@
 <?php
 
-namespace PrestaShop\Module\PsAccounts\Domain\Shop\Command;
+namespace PrestaShop\Module\PsAccounts\Domain\Shop\CommandHandler;
 
 use PrestaShop\Module\PsAccounts\Api\Client\AccountsClient;
 use PrestaShop\Module\PsAccounts\Context\ShopContext;
+use PrestaShop\Module\PsAccounts\Domain\Shop\Command\UpdateShopCommand;
 use PrestaShop\Module\PsAccounts\Domain\Shop\Entity\Account;
 
-class UpdateShopHandler
+class UpdateShopCommandHandler
 {
     /**
      * @var AccountsClient
@@ -36,7 +37,7 @@ class UpdateShopHandler
     /**
      * @throws \Exception
      */
-    public function handle(UpdateShop $command): array
+    public function handle(UpdateShopCommand $command): array
     {
         return $this->shopContext->execInShopContext((int) $command->payload->shopId, function () use ($command) {
             if (!$this->shopAccount->isLinked()) {

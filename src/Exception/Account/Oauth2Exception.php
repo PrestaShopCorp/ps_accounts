@@ -18,8 +18,17 @@
  * @license   https://opensource.org/licenses/AFL-3.0 Academic Free License version 3.0
  */
 
-namespace PrestaShop\Module\PsAccounts\Exception;
+namespace PrestaShop\Module\PsAccounts\Exception\Account;
 
-class RsaSignedDataNotFoundException extends \Exception
+use PrestaShop\OAuth2\Client\Provider\PrestaShopUser;
+
+class Oauth2Exception extends AccountLoginException
 {
+    public function __construct(
+        ?PrestaShopUser $user,
+        string $message = 'OAuth2 error',
+        string $type = 'error_from_hydra'
+    ) {
+        parent::__construct($user, $message, $type);
+    }
 }

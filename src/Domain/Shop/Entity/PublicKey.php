@@ -21,7 +21,7 @@
 namespace PrestaShop\Module\PsAccounts\Domain\Shop\Entity;
 
 use phpseclib\Crypt\RSA;
-use PrestaShop\Module\PsAccounts\Exception\SshKeysNotFoundException;
+use PrestaShop\Module\PsAccounts\Exception\PublicKeyException;
 use PrestaShop\Module\PsAccounts\Repository\ConfigurationRepository;
 
 /**
@@ -37,7 +37,7 @@ class PublicKey
     /**
      * @var ConfigurationRepository
      */
-    private $configuration;
+    private $configurationRepository;
 
     public function __construct(ConfigurationRepository $configuration)
     {
@@ -45,13 +45,10 @@ class PublicKey
         $this->rsa->setHash('sha256');
         $this->rsa->setSignatureMode(RSA::SIGNATURE_PKCS1);
 
-        $this->configuration = $configuration;
+        $this->configurationRepository = $configuration;
     }
 
-    /**
-     * @return array
-     */
-    public function createPair()
+    public function createPair(): array
     {
         $this->rsa->setPrivateKeyFormat(RSA::PRIVATE_FORMAT_PKCS1);
         $this->rsa->setPublicKeyFormat(RSA::PUBLIC_FORMAT_PKCS1);
@@ -60,20 +57,16 @@ class PublicKey
     }
 
     /**
-     * @param bool $refresh
-     *
-     * @return void
-     *
-     * @throws SshKeysNotFoundException
+     * @throws PublicKeyException
      */
-    public function generateKeys($refresh = false)
+    public function generateKeys(bool $refresh = false): void
     {
         if ($refresh || false === $this->hasKeys()) {
             $key = $this->createPair();
-            $this->configuration->updateAccountsRsaPrivateKey($key['privatekey']);
-            $this->configuration->updateAccountsRsaPublicKey($key['publickey']);
+            $this->configurationRepository->updateAccountsRsaPrivateKey($key['privatekey']);
+            $this->configurationRepository->updateAccountsRsaPublicKey($key['publickey']);
             if (false === $this->hasKeys()) {
-                throw new SshKeysNotFoundException('No RSA keys found for the shop');
+                throw new PublicKeyException('Error while generating keys');
             }
         }
     }
@@ -98,21 +91,16 @@ class PublicKey
     }
 
     /**
-     * @return void
-     *
-     * @throws SshKeysNotFoundException
+     * @throws PublicKeyException
      */
-    public function regenerateKeys()
+    public function regenerateKeys(): void
     {
         $this->generateKeys(true);
     }
 
-    /**
-     * @return bool
-     */
-    public function hasKeys()
+    public function hasKeys(): bool
     {
-        return false === empty($this->configuration->getAccountsRsaPublicKey());
+        return false === empty($this->configurationRepository->getAccountsRsaPublicKey());
     }
 
     /**
@@ -120,23 +108,17 @@ class PublicKey
      */
     public function getPublicKey()
     {
-        return $this->configuration->getAccountsRsaPublicKey();
+        return $this->configurationRepository->getAccountsRsaPublicKey();
     }
 
-    /**
-     * @return string
-     */
-    public function getPrivateKey()
+    public function getPrivateKey(): string
     {
-        return $this->configuration->getAccountsRsaPrivateKey();
+        return $this->configurationRepository->getAccountsRsaPrivateKey();
     }
 
-    /**
-     * @return void
-     */
-    public function cleanupKeys()
+    public function cleanupKeys(): void
     {
-        $this->configuration->updateAccountsRsaPrivateKey('');
-        $this->configuration->updateAccountsRsaPublicKey('');
+        $this->configurationRepository->updateAccountsRsaPrivateKey('');
+        $this->configurationRepository->updateAccountsRsaPublicKey('');
     }
 }

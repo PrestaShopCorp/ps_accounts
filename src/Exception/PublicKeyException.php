@@ -20,6 +20,6 @@
 
 namespace PrestaShop\Module\PsAccounts\Exception;
 
-class BillingException extends \Exception
+class PublicKeyException extends \Exception
 {
 }

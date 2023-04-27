@@ -4,7 +4,7 @@ namespace PrestaShop\Module\PsAccounts\Domain\Shop\Command;
 
 use PrestaShop\Module\PsAccounts\Dto\Api\UpdateShopLinkAccountRequest;
 
-class LinkShop
+class LinkShopCommand
 {
     /**
      * @var UpdateShopLinkAccountRequest

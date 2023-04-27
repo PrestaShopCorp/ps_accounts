@@ -31,9 +31,6 @@ class OwnerSession extends AbstractSession implements SessionInterface
         );
     }
 
-    /**
-     * @return void
-     */
     public function cleanup(): void
     {
         $this->configurationRepository->updateUserFirebaseUuid('');
@@ -44,13 +41,7 @@ class OwnerSession extends AbstractSession implements SessionInterface
         //$this->configuration->updateFirebaseEmailIsVerified(false);
     }
 
-    /**
-     * @param string $token
-     * @param string $refreshToken
-     *
-     * @return void
-     */
-    public function setToken(string $token, string $refreshToken)
+    public function setToken(string $token, string $refreshToken): void
     {
         $parsed = (new Parser())->parse((string) $token);
 
@@ -69,6 +60,6 @@ class OwnerSession extends AbstractSession implements SessionInterface
 
     public function setEmployeeId(?int $employeeId): void
     {
-        $this->configurationRepository->updateEmployeeId($employeeId);
+        $this->configurationRepository->updateEmployeeId((string) $employeeId);
     }
 }

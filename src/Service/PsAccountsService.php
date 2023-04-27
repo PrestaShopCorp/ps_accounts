@@ -23,7 +23,7 @@ namespace PrestaShop\Module\PsAccounts\Service;
 use Doctrine\ORM\EntityManagerInterface;
 use PrestaShop\Module\PsAccounts\Adapter\Link;
 use PrestaShop\Module\PsAccounts\Cqrs\CommandBus;
-use PrestaShop\Module\PsAccounts\Domain\Shop\Command\MigrateAndLinkV4Shop;
+use PrestaShop\Module\PsAccounts\Domain\Shop\Command\MigrateAndLinkV4ShopCommand;
 use PrestaShop\Module\PsAccounts\Domain\Shop\Entity\Account;
 use PrestaShop\Module\PsAccounts\Domain\Shop\Entity\OwnerSession;
 use PrestaShop\Module\PsAccounts\Domain\Shop\Entity\ShopSession;
@@ -233,7 +233,7 @@ class PsAccountsService
                 } else {
                     $shop['employeeId'] = null;
 
-                    $commandBus->execute(new MigrateAndLinkV4Shop($shop['id'], $shop));
+                    $commandBus->handle(new MigrateAndLinkV4ShopCommand($shop['id'], $shop));
                     $isAlreadyReonboard = true;
                 }
             }

@@ -8,7 +8,7 @@ interface SessionInterface
 {
     public function getToken(): Token;
 
-    public function setToken(string $token, string $refreshToken);
+    public function setToken(string $token, string $refreshToken): void;
 
     public function verifyToken(string $token): bool;
 

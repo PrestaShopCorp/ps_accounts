@@ -55,6 +55,11 @@ class Token
         return $this->getToken()->claims()->get('email');
     }
 
+    public function __toString(): string
+    {
+        return $this->token;
+    }
+
     protected function parseToken(string $token): \Lcobucci\JWT\Token
     {
         try {

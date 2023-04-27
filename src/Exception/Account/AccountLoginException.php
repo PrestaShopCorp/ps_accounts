@@ -18,8 +18,43 @@
  * @license   https://opensource.org/licenses/AFL-3.0 Academic Free License version 3.0
  */
 
-namespace PrestaShop\Module\PsAccounts\Exception;
+namespace PrestaShop\Module\PsAccounts\Exception\Account;
 
-class QueryParamsException extends \Exception
+use PrestaShop\OAuth2\Client\Provider\PrestaShopUser;
+
+abstract class AccountLoginException extends \Exception
 {
+    /**
+     * @var PrestaShopUser|null
+     */
+    private $user;
+
+    /**
+     * @var string
+     */
+    private $type;
+
+    public function __construct(?PrestaShopUser $user, string $message = '', string $type = '')
+    {
+        parent::__construct($message);
+
+        $this->user = $user;
+        $this->type = $type;
+    }
+
+    /**
+     * @return PrestaShopUser|null
+     */
+    public function getPrestaShopUser(): ?PrestaShopUser
+    {
+        return $this->user;
+    }
+
+    /**
+     * @return string
+     */
+    public function getType(): string
+    {
+        return $this->type;
+    }
 }

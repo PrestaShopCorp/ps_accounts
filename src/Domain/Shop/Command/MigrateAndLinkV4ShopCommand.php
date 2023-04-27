@@ -2,7 +2,7 @@
 
 namespace PrestaShop\Module\PsAccounts\Domain\Shop\Command;
 
-class MigrateAndLinkV4Shop
+class MigrateAndLinkV4ShopCommand
 {
     /**
      * @var int

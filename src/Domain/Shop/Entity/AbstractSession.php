@@ -39,15 +39,15 @@ abstract class AbstractSession implements SessionInterface
     /**
      * @param bool $forceRefresh
      *
-     * @return Token|null
+     * @return Token
      *
-     * @throws \Throwable
+     * @throws \Exception
      */
     public function getOrRefreshToken(bool $forceRefresh = false): Token
     {
         $token = $this->getToken();
 
-        if (true === $forceRefresh || !$token || $token->isExpired()) {
+        if (true === $forceRefresh || $token->isExpired()) {
             $refreshToken = $token->getRefreshToken();
             if (is_string($refreshToken) && '' != $refreshToken) {
                 try {
@@ -66,7 +66,7 @@ abstract class AbstractSession implements SessionInterface
     /**
      * @param string $refreshToken
      *
-     * @return Token|null idToken
+     * @return Token idToken
      *
      * @throws RefreshTokenException
      * @throws \Exception

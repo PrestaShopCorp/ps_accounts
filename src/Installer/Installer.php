@@ -68,10 +68,6 @@ class Installer
      */
     public function installModule($module, $upgrade = true)
     {
-        if (false === $this->shopContext->isShop17()) {
-            return true;
-        }
-
         $moduleManager = ModuleManagerBuilder::getInstance()->build();
 
         if (false === $upgrade && true === $moduleManager->isInstalled($module)) {
@@ -98,20 +94,12 @@ class Installer
      */
     public function getInstallUrl($module, $psxName)
     {
-        if ($this->shopContext->isShop173()) {
-            $router = SymfonyContainer::getInstance()->get('router');
+        $router = SymfonyContainer::getInstance()->get('router');
 
-            return Tools::getHttpHost(true) . $router->generate('admin_module_manage_action', [
-                    'action' => 'install',
-                    'module_name' => $module,
-                ]);
-        }
-
-        return $this->link->getAdminLink('AdminModules', true, [], [
-            'module_name' => $psxName,
-            'configure' => $psxName,
-            'install' => $module,
-        ]);
+        return Tools::getHttpHost(true) . $router->generate('admin_module_manage_action', [
+                'action' => 'install',
+                'module_name' => $module,
+            ]);
     }
 
     /**
@@ -124,20 +112,12 @@ class Installer
      */
     public function getEnableUrl($module, $psxName)
     {
-        if ($this->shopContext->isShop173()) {
-            $router = SymfonyContainer::getInstance()->get('router');
+        $router = SymfonyContainer::getInstance()->get('router');
 
-            return Tools::getHttpHost(true) . $router->generate('admin_module_manage_action', [
-                    'action' => 'enable',
-                    'module_name' => $module,
-                ]);
-        }
-
-        return $this->link->getAdminLink('AdminModules', true, [], [
-            'module_name' => $psxName,
-            'configure' => $psxName,
-            'enable' => $module,
-        ]);
+        return Tools::getHttpHost(true) . $router->generate('admin_module_manage_action', [
+                'action' => 'enable',
+                'module_name' => $module,
+            ]);
     }
 
     /**
@@ -147,10 +127,6 @@ class Installer
      */
     public function isInstalled($module)
     {
-        if (false === $this->shopContext->isShop17()) {
-            return Module::isInstalled($module);
-        }
-
         $moduleManager = ModuleManagerBuilder::getInstance()->build();
 
         return $moduleManager->isInstalled($module);
@@ -163,9 +139,6 @@ class Installer
      */
     public function isEnabled($module)
     {
-        if (false === $this->shopContext->isShop17()) {
-            return Module::isEnabled($module);
-        }
         $moduleManager = ModuleManagerBuilder::getInstance()->build();
 
         return $moduleManager->isEnabled($module);

@@ -40,8 +40,8 @@ function updateShopUrl($module)
             $shopContext->execInShopContext($shop['id'], function () use ($accountsService, $shop, $commandBus, $module) {
                 try {
                     if ($accountsService->isAccountLinked()) {
-                        $response = $commandBus->execute(
-                            new \PrestaShop\Module\PsAccounts\Domain\Shop\Command\UpdateShop(
+                        $response = $commandBus->handle(
+                            new \PrestaShop\Module\PsAccounts\Domain\Shop\Command\UpdateShopCommand(
                                 new \PrestaShop\Module\PsAccounts\Dto\UpdateShop([
                                     'shopId' => (string) $shop['id'],
                                     'name' => $shop['name'],

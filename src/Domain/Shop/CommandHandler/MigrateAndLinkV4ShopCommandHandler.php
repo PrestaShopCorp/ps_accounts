@@ -1,13 +1,13 @@
 <?php
 
-namespace PrestaShop\Module\PsAccounts\Domain\Shop\Command;
+namespace PrestaShop\Module\PsAccounts\Domain\Shop\CommandHandler;
 
 use PrestaShop\Module\PsAccounts\Api\Client\AccountsClient;
 use PrestaShop\Module\PsAccounts\Context\ShopContext;
-use PrestaShop\Module\PsAccounts\Domain\Shop\Entity\OwnerSession;
+use PrestaShop\Module\PsAccounts\Domain\Shop\Command\MigrateAndLinkV4ShopCommand;
 use PrestaShop\Module\PsAccounts\Domain\Shop\Entity\ShopSession;
 
-class MigrateAndLinkV4ShopHandler
+class MigrateAndLinkV4ShopCommandHandler
 {
     /**
      * @var AccountsClient
@@ -27,9 +27,8 @@ class MigrateAndLinkV4ShopHandler
     public function __construct(
         AccountsClient $accountClient,
         ShopContext $shopContext,
-        ShopSession $shopSession,
-    )
-    {
+        ShopSession $shopSession
+    ) {
         $this->accountClient = $accountClient;
         $this->shopContext = $shopContext;
         $this->shopSession = $shopSession;
@@ -38,10 +37,9 @@ class MigrateAndLinkV4ShopHandler
     /**
      * @throws \Exception
      */
-    public function handle(MigrateAndLinkv4Shop $command): array
+    public function handle(MigrateAndLinkV4ShopCommand $command): array
     {
         return $this->shopContext->execInShopContext((int) $command->shopId, function () use ($command) {
-
             $shopToken = $this->shopSession->getOrRefreshToken();
 
             return $this->accountClient->reonboardShop(

@@ -31,22 +31,13 @@ class ShopSession extends AbstractSession implements SessionInterface
         );
     }
 
-    /**
-     * @return void
-     */
     public function cleanup(): void
     {
         $this->configurationRepository->updateShopUuid('');
         $this->configurationRepository->updateFirebaseIdAndRefreshTokens('', '');
     }
 
-    /**
-     * @param string $token
-     * @param string $refreshToken
-     *
-     * @return void
-     */
-    public function setToken(string $token, string $refreshToken)
+    public function setToken(string $token, string $refreshToken): void
     {
         $parsed = (new Parser())->parse($token);
 

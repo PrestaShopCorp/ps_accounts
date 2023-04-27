@@ -1,39 +1,48 @@
 services:
-  PrestaShop\Module\PsAccounts\Domain\Shop\Command\LinkShopHandler:
-    class: PrestaShop\Module\PsAccounts\Domain\Shop\Command\LinkShopHandler
+  _defaults:
     public: true
+
+  PrestaShop\Module\PsAccounts\Domain\Shop\CommandHandler\LinkShopCommandHandler:
+    class: PrestaShop\Module\PsAccounts\Domain\Shop\CommandHandler\LinkShopCommandHandler
+    tags:
+      - { name: tactician.handler, command: 'PrestaShop\Module\PsAccounts\Domain\Shop\Command\LinkShopCommand' }
     arguments:
       - '@PrestaShop\Module\PsAccounts\Domain\Shop\Entity\ShopSession'
       - '@PrestaShop\Module\PsAccounts\Domain\Shop\Entity\OwnerSession'
       - '@PrestaShop\Module\PsAccounts\Repository\ConfigurationRepository'
 
-  PrestaShop\Module\PsAccounts\Domain\Shop\Command\MigrateAndLinkV4ShopHandler:
-    class: PrestaShop\Module\PsAccounts\Domain\Shop\Command\MigrateAndLinkV4ShopHandler
-    public: true
+  PrestaShop\Module\PsAccounts\Domain\Shop\CommandHandler\MigrateAndLinkV4ShopCommandHandler:
+    class: PrestaShop\Module\PsAccounts\Domain\Shop\CommandHandler\MigrateAndLinkV4ShopCommandHandler
+    tags:
+      - { name: tactician.handler, command: 'PrestaShop\Module\PsAccounts\Domain\Shop\Command\MigrateAndLinkV4ShopCommand' }
     arguments:
       - '@PrestaShop\Module\PsAccounts\Api\Client\AccountsClient'
       - '@PrestaShop\Module\PsAccounts\Context\ShopContext'
       - '@PrestaShop\Module\PsAccounts\Domain\Shop\Entity\ShopSession'
 
-  PrestaShop\Module\PsAccounts\Domain\Shop\Command\RemoteUnlinkShopHandler:
-    class: PrestaShop\Module\PsAccounts\Domain\Shop\Command\RemoteUnlinkShopHandler
-    public: true
+  PrestaShop\Module\PsAccounts\Domain\Shop\CommandHandler\RemoteUnlinkShopCommandHandler:
+    class: PrestaShop\Module\PsAccounts\Domain\Shop\CommandHandler\RemoteUnlinkShopCommandHandler
+    tags:
+      - { name: tactician.handler, command: 'PrestaShop\Module\PsAccounts\Domain\Shop\Command\RemoteUnlinkShopCommand' }
     arguments:
       - '@PrestaShop\Module\PsAccounts\Api\Client\AccountsClient'
       - '@PrestaShop\Module\PsAccounts\Context\ShopContext'
       - '@PrestaShop\Module\PsAccounts\Domain\Shop\Entity\ShopSession'
       - '@PrestaShop\Module\PsAccounts\Domain\Shop\Entity\OwnerSession'
 
-  PrestaShop\Module\PsAccounts\Domain\Shop\Command\UnlinkShopHandler:
-    class: PrestaShop\Module\PsAccounts\Domain\Shop\Command\UnlinkShopHandler
-    public: true
+  PrestaShop\Module\PsAccounts\Domain\Shop\CommandHandler\UnlinkShopCommandHandler:
+    class: PrestaShop\Module\PsAccounts\Domain\Shop\CommandHandler\UnlinkShopCommandHandler
+    tags:
+      - { name: tactician.handler, command: 'PrestaShop\Module\PsAccounts\Domain\Shop\Command\UnlinkShopCommand' }
     arguments:
       - '@PrestaShop\Module\PsAccounts\Domain\Shop\Entity\Account'
 
-  PrestaShop\Module\PsAccounts\Domain\Shop\Command\UpdateShopHandler:
-    class: PrestaShop\Module\PsAccounts\Domain\Shop\Command\UpdateShopHandler
-    public: true
+  PrestaShop\Module\PsAccounts\Domain\Shop\CommandHandler\UpdateShopCommandHandler:
+    class: PrestaShop\Module\PsAccounts\Domain\Shop\CommandHandler\UpdateShopCommandHandler
+    tags:
+      - { name: tactician.handler, command: 'PrestaShop\Module\PsAccounts\Domain\Shop\Command\UpdateShopCommand' }
     arguments:
       - '@PrestaShop\Module\PsAccounts\Api\Client\AccountsClient'
       - '@PrestaShop\Module\PsAccounts\Context\ShopContext'
       - '@PrestaShop\Module\PsAccounts\Domain\Shop\Entity\Account'
+

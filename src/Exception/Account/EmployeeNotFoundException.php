@@ -18,8 +18,17 @@
  * @license   https://opensource.org/licenses/AFL-3.0 Academic Free License version 3.0
  */
 
-namespace PrestaShop\Module\PsAccounts\Exception;
+namespace PrestaShop\Module\PsAccounts\Exception\Account;
 
-class SshKeysNotFoundException extends \Exception
+use PrestaShop\OAuth2\Client\Provider\PrestaShopUser;
+
+class EmployeeNotFoundException extends AccountLoginException
 {
+    public function __construct(
+        ?PrestaShopUser $user,
+        string $message = 'The email address is not associated to a PrestaShop backoffice account.',
+        string $type = 'employee_not_found'
+    ) {
+        parent::__construct($user, $message, $type);
+    }
 }

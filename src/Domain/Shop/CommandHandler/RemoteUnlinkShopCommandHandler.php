@@ -1,13 +1,14 @@
 <?php
 
-namespace PrestaShop\Module\PsAccounts\Domain\Shop\Command;
+namespace PrestaShop\Module\PsAccounts\Domain\Shop\CommandHandler;
 
 use PrestaShop\Module\PsAccounts\Api\Client\AccountsClient;
 use PrestaShop\Module\PsAccounts\Context\ShopContext;
+use PrestaShop\Module\PsAccounts\Domain\Shop\Command\RemoteUnlinkShopCommand;
 use PrestaShop\Module\PsAccounts\Domain\Shop\Entity\OwnerSession;
 use PrestaShop\Module\PsAccounts\Domain\Shop\Entity\ShopSession;
 
-class RemoteUnlinkShopHandler
+class RemoteUnlinkShopCommandHandler
 {
     /**
      * @var AccountsClient
@@ -44,7 +45,7 @@ class RemoteUnlinkShopHandler
     /**
      * @throws \Exception
      */
-    public function handle(RemoteUnlinkShop $command): array
+    public function handle(RemoteUnlinkShopCommand $command): array
     {
         return $this->shopContext->execInShopContext((int) $command->shopId, function () {
             $ownerToken = $this->ownerSession->getOrRefreshToken();

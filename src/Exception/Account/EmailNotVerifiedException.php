@@ -18,8 +18,17 @@
  * @license   https://opensource.org/licenses/AFL-3.0 Academic Free License version 3.0
  */
 
-namespace PrestaShop\Module\PsAccounts\Exception;
+namespace PrestaShop\Module\PsAccounts\Exception\Account;
 
-class TokenNotFoundException extends \Exception
+use PrestaShop\OAuth2\Client\Provider\PrestaShopUser;
+
+class EmailNotVerifiedException extends AccountLoginException
 {
+    public function __construct(
+        ?PrestaShopUser $user,
+        string $message = 'Your account email is not verified',
+        string $type = 'email_not_verified'
+    ) {
+        parent::__construct($user, $message, $type);
+    }
 }

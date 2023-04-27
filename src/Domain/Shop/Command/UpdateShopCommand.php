@@ -4,7 +4,7 @@ namespace PrestaShop\Module\PsAccounts\Domain\Shop\Command;
 
 use PrestaShop\Module\PsAccounts\Dto\UpdateShop as UpdateShopDto;
 
-class UpdateShop
+class UpdateShopCommand
 {
     /**
      * @var UpdateShopDto

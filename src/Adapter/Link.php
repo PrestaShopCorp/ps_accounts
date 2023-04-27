@@ -66,15 +66,7 @@ class Link
      */
     public function getAdminLink($controller, $withToken = true, $sfRouteParams = [], $params = [])
     {
-        if ($this->shopContext->isShop17()) {
-            return $this->link->getAdminLink($controller, $withToken, $sfRouteParams, $params);
-        }
-        $paramsAsString = '';
-        foreach ($params as $key => $value) {
-            $paramsAsString .= "&$key=$value";
-        }
-
-        return \Tools::getShopDomainSsl(true) . __PS_BASE_URI__ . basename(_PS_ADMIN_DIR_) . '/' . $this->link->getAdminLink($controller, $withToken) . $paramsAsString;
+        return $this->link->getAdminLink($controller, $withToken, $sfRouteParams, $params);
     }
 
     /**

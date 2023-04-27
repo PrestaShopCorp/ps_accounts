@@ -2,21 +2,21 @@ imports:
   - { resource: commands.yml }
 
 services:
+  _defaults:
+    public: true
+
   ps_accounts.module:
     class: Ps_accounts
-    public: true
     factory: ['Module', 'getInstanceByName']
     arguments:
       - 'ps_accounts'
 
   ps_accounts.context:
     class: Context
-    public: true
     factory: [ 'Context', 'getContext' ]
 
   ps_accounts.logger:
     class: Monolog\Logger
-    public: true
     factory: [ 'PrestaShop\Module\PsAccounts\Factory\LoggerFactory', 'create' ]
 
   PrestaShop\Module\PsAccounts\Provider\OAuth2\PrestaShopClientProvider:
@@ -26,19 +26,16 @@ services:
 
   PrestaShop\Module\PsAccounts\Provider\OAuth2\PrestaShopSession:
     class: PrestaShop\Module\PsAccounts\Provider\OAuth2\PrestaShopSession
-    public: true
     factory: [ 'PrestaShop\Module\PsAccounts\Factory\PrestaShopSessionFactory', 'create' ]
 
   PrestaShop\Module\PsAccounts\Context\ShopContext:
     class: PrestaShop\Module\PsAccounts\Context\ShopContext
-    public: true
     arguments:
       - '@PrestaShop\Module\PsAccounts\Repository\ConfigurationRepository'
       - '@ps_accounts.context'
 
   PrestaShop\Module\PsAccounts\Adapter\Configuration:
     class: PrestaShop\Module\PsAccounts\Adapter\Configuration
-    public: true
     arguments:
       - '@ps_accounts.context'
 
@@ -53,7 +50,6 @@ services:
 
   PrestaShop\Module\PsAccounts\Service\PsAccountsService:
     class: PrestaShop\Module\PsAccounts\Service\PsAccountsService
-    public: true
     arguments:
       - '@ps_accounts.module'
       - '@PrestaShop\Module\PsAccounts\Domain\Shop\Entity\ShopSession'
@@ -77,7 +73,6 @@ services:
 
   PrestaShop\Module\PsAccounts\Service\SentryService:
     class: PrestaShop\Module\PsAccounts\Service\SentryService
-    public: true
     arguments:
       - '%ps_accounts.sentry_credentials%'
       - '%ps_accounts.environment%'
@@ -85,7 +80,6 @@ services:
 
   PrestaShop\Module\PsAccounts\Installer\Installer:
     class: PrestaShop\Module\PsAccounts\Installer\Installer
-    public: true
     arguments:
       - '@PrestaShop\Module\PsAccounts\Context\ShopContext'
       - '@PrestaShop\Module\PsAccounts\Adapter\Link'
@@ -128,7 +122,6 @@ services:
 
   PrestaShop\Module\PsAccounts\Repository\ConfigurationRepository:
     class: PrestaShop\Module\PsAccounts\Repository\ConfigurationRepository
-    public: true
     arguments:
       - '@PrestaShop\Module\PsAccounts\Adapter\Configuration'
 
@@ -137,7 +130,6 @@ services:
 
   PrestaShop\Module\PsAccounts\Presenter\PsAccountsPresenter:
     class: PrestaShop\Module\PsAccounts\Presenter\PsAccountsPresenter
-    public: true
     arguments:
       - '@PrestaShop\Module\PsAccounts\Service\PsAccountsService'
       - '@PrestaShop\Module\PsAccounts\Provider\ShopProvider'
@@ -150,21 +142,18 @@ services:
 
   PrestaShop\Module\PsAccounts\Domain\Shop\Entity\ShopSession:
     class: PrestaShop\Module\PsAccounts\Domain\Shop\Entity\ShopSession
-    public: true
     arguments:
       - '@PrestaShop\Module\PsAccounts\Api\Client\AccountsClient'
       - '@PrestaShop\Module\PsAccounts\Repository\ConfigurationRepository'
 
   PrestaShop\Module\PsAccounts\Domain\Shop\Entity\OwnerSession:
     class: PrestaShop\Module\PsAccounts\Domain\Shop\Entity\OwnerSession
-    public: true
     arguments:
       - '@PrestaShop\Module\PsAccounts\Api\Client\SsoClient'
       - '@PrestaShop\Module\PsAccounts\Repository\ConfigurationRepository'
 
   PrestaShop\Module\PsAccounts\Domain\Shop\Entity\Account:
     class: PrestaShop\Module\PsAccounts\Domain\Shop\Entity\Account
-    public: true
     arguments:
       - '@PrestaShop\Module\PsAccounts\Domain\Shop\Entity\PublicKey'
       - '@PrestaShop\Module\PsAccounts\Domain\Shop\Entity\ShopSession'
@@ -173,7 +162,6 @@ services:
 
   PrestaShop\Module\PsAccounts\Domain\Shop\Entity\PublicKey:
     class: PrestaShop\Module\PsAccounts\Domain\Shop\Entity\PublicKey
-    public: true
     arguments:
       - '@PrestaShop\Module\PsAccounts\Repository\ConfigurationRepository'
 
@@ -182,12 +170,10 @@ services:
 
   PrestaShop\Module\PsAccounts\Cqrs\CommandBus:
     class: PrestaShop\Module\PsAccounts\Cqrs\CommandBus
-    public: true
     arguments:
       - '@ps_accounts.module'
 
   PrestaShop\Module\PsAccounts\Cqrs\QueryBus:
     class: PrestaShop\Module\PsAccounts\Cqrs\QueryBus
-    public: true
     arguments:
       - '@ps_accounts.module'

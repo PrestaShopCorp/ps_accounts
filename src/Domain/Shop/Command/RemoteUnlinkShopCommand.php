@@ -2,7 +2,7 @@
 
 namespace PrestaShop\Module\PsAccounts\Domain\Shop\Command;
 
-class RemoteUnlinkShop
+class RemoteUnlinkShopCommand
 {
     /**
      * @var int

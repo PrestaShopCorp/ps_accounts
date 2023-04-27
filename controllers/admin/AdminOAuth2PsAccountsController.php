@@ -21,11 +21,11 @@
 use Doctrine\ORM\EntityManagerInterface;
 use League\OAuth2\Client\Provider\Exception\IdentityProviderException;
 use PrestaShop\Module\PsAccounts\Entity\EmployeeAccount;
-use PrestaShop\Module\PsAccounts\Exception\AccountLoginException;
-use PrestaShop\Module\PsAccounts\Exception\EmailNotVerifiedException;
-use PrestaShop\Module\PsAccounts\Exception\EmployeeNotFoundException;
-use PrestaShop\Module\PsAccounts\Exception\Oauth2Exception;
-use PrestaShop\Module\PsAccounts\Exception\OtherErrorException;
+use PrestaShop\Module\PsAccounts\Exception\Account\AccountLoginException;
+use PrestaShop\Module\PsAccounts\Exception\Account\EmailNotVerifiedException;
+use PrestaShop\Module\PsAccounts\Exception\Account\EmployeeNotFoundException;
+use PrestaShop\Module\PsAccounts\Exception\Account\Oauth2Exception;
+use PrestaShop\Module\PsAccounts\Exception\Account\OtherErrorException;
 use PrestaShop\Module\PsAccounts\Provider\OAuth2\PrestaShopClientProvider;
 use PrestaShop\Module\PsAccounts\Provider\OAuth2\PrestaShopLoginTrait;
 use PrestaShop\Module\PsAccounts\Provider\OAuth2\PrestaShopSession;
@@ -98,8 +98,8 @@ class AdminOAuth2PsAccountsController extends ModuleAdminController
      * @return bool
      *
      * @throws ContainerNotFoundException
-     * @throws EmailNotVerifiedException
-     * @throws EmployeeNotFoundException
+     * @throws \PrestaShop\Module\PsAccounts\Exception\Account\EmailNotVerifiedException
+     * @throws \PrestaShop\Module\PsAccounts\Exception\Account\EmployeeNotFoundException
      * @throws CoreException
      */
     private function initUserSession(PrestaShopUser $user): bool
