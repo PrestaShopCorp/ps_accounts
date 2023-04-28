@@ -49,7 +49,7 @@
                                 <p class="psacc-mb-4 psacc-text-lg">
                                     {$testimonial->$isoCode->sentence|default:$testimonial->$defaultIsoCode->sentence}
                                 </p>
-                                <p class="puik-body-default psacc-font-secondary">
+                                <p class="puik-body-default psacc-font-primary">
                                     <span class="psacc-font-bold">{$testimonial->$isoCode->name|default:$testimonial->$defaultIsoCode->name}</span>, {$testimonial->$isoCode->enterprise|default:$testimonial->$defaultIsoCode->enterprise}
                                 </p>
                             </div>
