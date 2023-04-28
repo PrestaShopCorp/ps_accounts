@@ -20,12 +20,13 @@
 <link href="{$pathVendor|escape:'htmlall':'UTF-8'}" rel=preload as=script>
 <link href="{$pathApp|escape:'htmlall':'UTF-8'}" rel=preload as=script>
 <link href="{$urlAccountsCdn|escape:'htmlall':'UTF-8'}" rel=preload as=script>
+<link rel="stylesheet" href="{$pathAppAssets|escape:'htmlall':'UTF-8'}" type="text/css" media="all">
 
 <div id="app"></div>
 
 <script src="{$urlAccountsCdn|escape:'htmlall':'UTF-8'}" type="text/javascript" defer></script>
-<script src="{$pathVendor|escape:'htmlall':'UTF-8'}" defer></script>
-<script src="{$pathApp|escape:'htmlall':'UTF-8'}" defer></script>
+<script src="{$pathVendor|escape:'htmlall':'UTF-8'}" type="module"></script>
+<script src="{$pathApp|escape:'htmlall':'UTF-8'}" type="module"></script>
 
 <style>
   /** Hide native multistore module activation panel, because of visual regressions on non-bootstrap content */

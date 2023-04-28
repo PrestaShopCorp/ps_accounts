@@ -16,12 +16,9 @@
  * @license   https://opensource.org/licenses/AFL-3.0 Academic Free License 3.0 (AFL-3.0)
  * International Registered Trademark & Property of PrestaShop SA
  */
-import Vue from "vue";
-import VueI18n from "vue-i18n";
+import { createI18n, I18n, I18nOptions } from "vue-i18n";
 
-Vue.use(VueI18n);
-
-const { storePsAccounts } = global;
+const { storePsAccounts } = window;
 const locale = storePsAccounts.context.i18n.isoCode
   ? storePsAccounts.context.i18n.isoCode
   : "";
@@ -40,7 +37,7 @@ const messages = Object.assign(
       : {}),
   }
 );
-const numberFormats = {};
+const numberFormats: Record<string, unknown> = {};
 // create standard isoCode with prestashop language locale (1.6.1)
 
 numberFormats[locale] = {
@@ -50,8 +47,10 @@ numberFormats[locale] = {
   },
 };
 
-export default new VueI18n({
+const i18n = createI18n({
   locale,
-  messages,
   numberFormats,
-});
+  messages,
+} as I18nOptions) as I18n;
+
+export default i18n;

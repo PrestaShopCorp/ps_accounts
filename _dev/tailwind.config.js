@@ -1,9 +1,13 @@
+const { puikTailwindPreset } = require("@prestashopcorp/puik")
+/** @type {import('tailwindcss').Config} */
 module.exports = {
   important: true,
-  prefix: "tw-",
-  purge: {
-    content: ["./src/**/*.vue"],
+  corePlugins: {
+    preflight: false,
   },
+  prefix: 'psacc-',
+  presets: [puikTailwindPreset],
+  content: ["./src/**/*.vue", "./src/**/*.css"],
   theme: {
     extend: {
       colors: {
@@ -12,5 +16,5 @@ module.exports = {
         },
       },
     },
-  }
+  },
 };

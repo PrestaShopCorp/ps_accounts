@@ -16,9 +16,15 @@
  * @license   https://opensource.org/licenses/AFL-3.0 Academic Free License 3.0 (AFL-3.0)
  * International Registered Trademark & Property of PrestaShop SA
  */
+import { createApp } from "vue";
+import i18n from "./lib/i18n";
+import "./assets/index.css";
+import App from "./App.vue";
+import "@prestashopcorp/puik/theme/base.css"
 
-export default {
-  psAccountsIsOnboarded: (state) => state.user.psAccountsIsOnboarded,
-  gaIsOnboarded: (state) => state.user.gaIsOnboarded,
-  getConfigurationLink: (state) => state.configurationLink,
-};
+(async () => {
+  const app = createApp(App);
+  app.use(i18n);
+
+  app.mount("#app");
+})();
