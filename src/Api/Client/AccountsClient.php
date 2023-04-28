@@ -112,6 +112,8 @@ class AccountsClient implements TokenClientInterface
      * @param array $payload
      *
      * @return array
+     *
+     * @throws \Exception
      */
     public function reonboardShop($shopUid, $shopToken, $payload)
     {

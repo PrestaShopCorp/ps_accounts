@@ -29,7 +29,7 @@ class ps_AccountsApiV1ShopTokenModuleFrontController extends AbstractShopRestCon
      *
      * @return string[]
      *
-     * @throws Throwable
+     * @throws Exception
      */
     public function show(Shop $shop, array $payload): array
     {

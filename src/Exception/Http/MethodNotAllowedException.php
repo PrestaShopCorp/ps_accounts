@@ -20,8 +20,6 @@
 
 namespace PrestaShop\Module\PsAccounts\Exception\Http;
 
-use Throwable;
-
 class MethodNotAllowedException extends HttpException
 {
     /**
@@ -29,9 +27,9 @@ class MethodNotAllowedException extends HttpException
      *
      * @param string $message
      * @param int $code
-     * @param Throwable|null $previous
+     * @param \Exception|null $previous
      */
-    public function __construct($message = 'Method Not Allowed', $code = 0, Throwable $previous = null)
+    public function __construct($message = 'Method Not Allowed', $code = 0, \Exception $previous = null)
     {
         parent::__construct($message, $code, $previous);
 

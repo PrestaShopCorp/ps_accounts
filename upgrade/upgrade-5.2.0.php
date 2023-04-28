@@ -62,7 +62,7 @@ function updateShopUrl($module)
                             );
                         }
                     }
-                } catch (\Throwable $e) {
+                } catch (\Exception $e) {
                     $module->getLogger()->debug(
                         'Error while trying to PATCH shop : ' . $e->getMessage(), true
                     );

@@ -189,7 +189,7 @@ class PsAccountsService
     /**
      * @return void
      *
-     * @throws \Throwable
+     * @throws \PrestaShopException
      */
     public function autoReonboardOnV5()
     {
