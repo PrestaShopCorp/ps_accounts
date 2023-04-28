@@ -21,7 +21,7 @@
 namespace PrestaShop\Module\PsAccounts\Domain\Shop\Entity;
 
 use phpseclib\Crypt\RSA;
-use PrestaShop\Module\PsAccounts\Exception\PublicKeyException;
+use PrestaShop\Module\PsAccounts\Domain\Shop\Exception\PublicKeyException;
 use PrestaShop\Module\PsAccounts\Repository\ConfigurationRepository;
 
 /**

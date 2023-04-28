@@ -35,15 +35,9 @@ class AccountsClient implements TokenClientInterface
      */
     private $client;
 
-    /**
-     * ServicesAccountsClient constructor.
-     *
-     * @param string $apiUrl
-     * @param AbstractGuzzleClient|null $client
-     */
     public function __construct(
-        $apiUrl,
-        AbstractGuzzleClient $client = null
+        string                $apiUrl,
+        ?AbstractGuzzleClient $client
     ) {
         if (null === $client) {
             $client = (new GuzzleClientFactory())->create([
@@ -54,12 +48,7 @@ class AccountsClient implements TokenClientInterface
         $this->client = $client;
     }
 
-    /**
-     * @param string $idToken
-     *
-     * @return array response
-     */
-    public function verifyToken($idToken)
+    public function verifyToken(string $idToken): array
     {
         $this->client->setRoute('shop/token/verify');
 
@@ -71,12 +60,7 @@ class AccountsClient implements TokenClientInterface
         ]);
     }
 
-    /**
-     * @param string $refreshToken
-     *
-     * @return array response
-     */
-    public function refreshToken($refreshToken)
+    public function refreshToken(string $refreshToken): array
     {
         $this->client->setRoute('shop/token/refresh');
 
@@ -88,14 +72,7 @@ class AccountsClient implements TokenClientInterface
         ]);
     }
 
-    /**
-     * @param string $ownerUid
-     * @param string $shopUid
-     * @param string $ownerToken
-     *
-     * @return array
-     */
-    public function deleteUserShop($ownerUid, $shopUid, $ownerToken)
+    public function deleteUserShop(string $ownerUid, string $shopUid, string $ownerToken): array
     {
         $this->client->setRoute('user/' . $ownerUid . '/shop/' . $shopUid);
 
@@ -106,16 +83,7 @@ class AccountsClient implements TokenClientInterface
         ]);
     }
 
-    /**
-     * @param string $shopUid
-     * @param string $shopToken
-     * @param array $payload
-     *
-     * @return array
-     *
-     * @throws \Exception
-     */
-    public function reonboardShop($shopUid, $shopToken, $payload)
+    public function reonboardShop(string $shopUid, string $shopToken, array $payload): array
     {
         $this->client->setRoute('shop/' . $shopUid . '/reonboard');
 
@@ -128,15 +96,7 @@ class AccountsClient implements TokenClientInterface
             ]);
     }
 
-    /**
-     * @param string $ownerUid
-     * @param string $shopUid
-     * @param string $ownerToken
-     * @param UpdateShop $shop
-     *
-     * @return array
-     */
-    public function updateUserShop($ownerUid, $shopUid, $ownerToken, UpdateShop $shop)
+    public function updateUserShop(string $ownerUid, string $shopUid, string $ownerToken, UpdateShop $shop): array
     {
         $this->client->setRoute('user/' . $ownerUid . '/shop/' . $shopUid);
 
@@ -149,12 +109,7 @@ class AccountsClient implements TokenClientInterface
         ]);
     }
 
-    /**
-     * @param array $additionalHeaders
-     *
-     * @return array
-     */
-    private function getHeaders($additionalHeaders = [])
+    private function getHeaders(array $additionalHeaders = []): array
     {
         return array_merge([
             'Accept' => 'application/json',

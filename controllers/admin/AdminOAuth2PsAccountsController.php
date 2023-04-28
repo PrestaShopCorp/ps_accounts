@@ -98,8 +98,8 @@ class AdminOAuth2PsAccountsController extends ModuleAdminController
      * @return bool
      *
      * @throws ContainerNotFoundException
-     * @throws \PrestaShop\Module\PsAccounts\Exception\Account\EmailNotVerifiedException
-     * @throws \PrestaShop\Module\PsAccounts\Exception\Account\EmployeeNotFoundException
+     * @throws EmailNotVerifiedException
+     * @throws EmployeeNotFoundException
      * @throws CoreException
      */
     private function initUserSession(PrestaShopUser $user): bool

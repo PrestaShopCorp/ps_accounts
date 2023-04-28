@@ -4,7 +4,7 @@ namespace PrestaShop\Module\PsAccounts\Domain\Shop\Entity;
 
 use PrestaShop\Module\PsAccounts\Domain\Shop\Contract\SessionInterface;
 use PrestaShop\Module\PsAccounts\Domain\Shop\Contract\TokenClientInterface;
-use PrestaShop\Module\PsAccounts\Exception\RefreshTokenException;
+use PrestaShop\Module\PsAccounts\Domain\Shop\Exception\RefreshTokenException;
 use PrestaShop\Module\PsAccounts\Logger\Logger;
 use PrestaShop\Module\PsAccounts\Repository\ConfigurationRepository;
 use Ps_accounts;
@@ -103,7 +103,7 @@ abstract class AbstractSession implements SessionInterface
     /**
      * @return bool
      *
-     * @throws \Throwable
+     * @throws \Exception
      */
     public function isEmailVerified(): bool
     {

@@ -27,7 +27,7 @@ use PrestaShop\Module\PsAccounts\Domain\Shop\Entity\AbstractSession;
 use PrestaShop\Module\PsAccounts\Domain\Shop\Entity\Account;
 use PrestaShop\Module\PsAccounts\Domain\Shop\Entity\ShopSession;
 use PrestaShop\Module\PsAccounts\Domain\Shop\Entity\Token;
-use PrestaShop\Module\PsAccounts\Exception\RefreshTokenException;
+use PrestaShop\Module\PsAccounts\Domain\Shop\Exception\RefreshTokenException;
 use PrestaShop\Module\PsAccounts\Tests\TestCase;
 
 class RefreshTokenTest extends TestCase

@@ -34,15 +34,9 @@ class SsoClient implements TokenClientInterface
      */
     private $client;
 
-    /**
-     * ServicesAccountsClient constructor.
-     *
-     * @param string $apiUrl
-     * @param AbstractGuzzleClient|null $client
-     */
     public function __construct(
-        $apiUrl,
-        AbstractGuzzleClient $client = null
+        string                $apiUrl,
+        ?AbstractGuzzleClient $client
     ) {
         if (null === $client) {
             $client = (new GuzzleClientFactory())->create([
@@ -58,12 +52,7 @@ class SsoClient implements TokenClientInterface
         $this->client = $client;
     }
 
-    /**
-     * @param string $idToken
-     *
-     * @return array response
-     */
-    public function verifyToken($idToken)
+    public function verifyToken(string $idToken): array
     {
         $this->client->setRoute('auth/token/verify');
 
@@ -74,12 +63,7 @@ class SsoClient implements TokenClientInterface
         ]);
     }
 
-    /**
-     * @param string $refreshToken
-     *
-     * @return array response
-     */
-    public function refreshToken($refreshToken)
+    public function refreshToken(string $refreshToken): array
     {
         $this->client->setRoute('auth/token/refresh');
 

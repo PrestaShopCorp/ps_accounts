@@ -87,7 +87,7 @@ class PsAccountsService
     }
 
     /**
-     * @throws \Throwable
+     * @throws \Exception
      */
     public function getOrRefreshToken(): string
     {
@@ -100,7 +100,7 @@ class PsAccountsService
     }
 
     /**
-     * @throws \Throwable
+     * @throws \Exception
      */
     public function getToken(): ?string
     {
@@ -121,7 +121,7 @@ class PsAccountsService
     }
 
     /**
-     * @throws \Throwable
+     * @throws \Exception
      */
     public function isEmailValidated(): bool
     {
@@ -134,7 +134,7 @@ class PsAccountsService
     }
 
     /**
-     * @throws \Throwable
+     * @throws \Exception
      */
     public function isAccountLinked(): bool
     {
@@ -145,7 +145,7 @@ class PsAccountsService
     }
 
     /**
-     * @throws \Throwable
+     * @throws \Exception
      */
     public function isAccountLinkedV4(): bool
     {

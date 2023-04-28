@@ -6,7 +6,7 @@ use Hook;
 use PrestaShop\Module\PsAccounts\Domain\Shop\Command\LinkShopCommand;
 use PrestaShop\Module\PsAccounts\Domain\Shop\Entity\OwnerSession;
 use PrestaShop\Module\PsAccounts\Domain\Shop\Entity\ShopSession;
-use PrestaShop\Module\PsAccounts\Exception\RefreshTokenException;
+use PrestaShop\Module\PsAccounts\Domain\Shop\Exception\RefreshTokenException;
 use PrestaShop\Module\PsAccounts\Repository\ConfigurationRepository;
 use Ps_accounts;
 

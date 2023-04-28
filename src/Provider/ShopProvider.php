@@ -58,7 +58,6 @@ class ShopProvider
      * @return array
      *
      * @throws \Exception
-     * @throws \Throwable
      */
     public function formatShopData($shopData, $psxName = '')
     {

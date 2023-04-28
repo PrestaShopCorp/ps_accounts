@@ -4,7 +4,7 @@ namespace PrestaShop\Module\PsAccounts\Domain\Shop\CommandHandler;
 
 use PrestaShop\Module\PsAccounts\Domain\Shop\Command\LinkShopCommand;
 use PrestaShop\Module\PsAccounts\Dto\Api\UpdateShopLinkAccountRequest;
-use PrestaShop\Module\PsAccounts\Exception\RefreshTokenException;
+use PrestaShop\Module\PsAccounts\Domain\Shop\Exception\RefreshTokenException;
 use PrestaShop\Module\PsAccounts\Repository\ConfigurationRepository;
 use PrestaShop\Module\PsAccounts\Repository\Support\ShopTokenRepository;
 use PrestaShop\Module\PsAccounts\Repository\Support\UserTokenRepository;

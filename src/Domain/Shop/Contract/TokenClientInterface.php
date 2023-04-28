@@ -22,17 +22,7 @@ namespace PrestaShop\Module\PsAccounts\Domain\Shop\Contract;
 
 interface TokenClientInterface
 {
-    /**
-     * @param string $refreshToken
-     *
-     * @return array response
-     */
-    public function refreshToken($refreshToken);
+    public function refreshToken(string $refreshToken): array;
 
-    /**
-     * @param string $idToken
-     *
-     * @return array response
-     */
-    public function verifyToken($idToken);
+    public function verifyToken(string $idToken): array;
 }

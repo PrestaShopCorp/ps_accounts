@@ -74,7 +74,7 @@ class Account
     }
 
     /**
-     * @throws \Throwable
+     * @throws \Exception
      */
     public function isLinked(): bool
     {
@@ -83,7 +83,7 @@ class Account
     }
 
     /**
-     * @throws \Throwable
+     * @throws \Exception
      */
     public function isLinkedV4(): bool
     {
