@@ -20,6 +20,7 @@
 
 use PrestaShop\Module\PsAccounts\Controller\AbstractShopRestController;
 use PrestaShop\Module\PsAccounts\Dto\Api\UpdateShopOauth2ClientRequest;
+use PrestaShop\Module\PsAccounts\Provider\OAuth2\Oauth2Client;
 use PrestaShop\Module\PsAccounts\Repository\ConfigurationRepository;
 
 class ps_AccountsApiV1ShopOauth2ClientModuleFrontController extends AbstractShopRestController
@@ -28,6 +29,11 @@ class ps_AccountsApiV1ShopOauth2ClientModuleFrontController extends AbstractShop
      * @var ConfigurationRepository
      */
     private $configuration;
+
+    /**
+     * @var Oauth2Client
+     */
+    private $oauth2Client;
 
     /**
      * ps_AccountsApiV1ShopOauth2ClientModuleFrontController constructor.
@@ -39,6 +45,7 @@ class ps_AccountsApiV1ShopOauth2ClientModuleFrontController extends AbstractShop
         parent::__construct();
 
         $this->configuration = $this->module->getService(ConfigurationRepository::class);
+        $this->oauth2Client = $this->module->getService(Oauth2Client::class);
     }
 
     /**
@@ -49,8 +56,7 @@ class ps_AccountsApiV1ShopOauth2ClientModuleFrontController extends AbstractShop
      */
     public function update(Shop $shop, UpdateShopOauth2ClientRequest $request): array
     {
-        $this->configuration->updateOauth2ClientId($request->client_id);
-        $this->configuration->updateOauth2ClientSecret($request->client_secret);
+        $this->oauth2Client->update($request->client_id, $request->client_secret);
         $this->configuration->updateLoginEnabled(true);
 
         return [
@@ -64,11 +70,12 @@ class ps_AccountsApiV1ShopOauth2ClientModuleFrontController extends AbstractShop
      * @param array $payload
      *
      * @return array
+     *
+     * @throws Exception
      */
     public function delete(Shop $shop, array $payload): array
     {
-        $this->configuration->updateOauth2ClientId('');
-        $this->configuration->updateOauth2ClientSecret('');
+        $this->oauth2Client->delete();
 
         return [
             'success' => true,
