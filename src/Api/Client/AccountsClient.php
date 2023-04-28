@@ -37,7 +37,7 @@ class AccountsClient implements TokenClientInterface
 
     public function __construct(
         string                $apiUrl,
-        ?AbstractGuzzleClient $client
+        ?AbstractGuzzleClient $client = null
     ) {
         if (null === $client) {
             $client = (new GuzzleClientFactory())->create([

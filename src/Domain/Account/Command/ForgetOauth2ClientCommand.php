@@ -2,6 +2,6 @@
 
 namespace PrestaShop\Module\PsAccounts\Domain\Account\Command;
 
-class RegisterOAuth2ClientCommand
+class ForgetOauth2ClientCommand
 {
 }

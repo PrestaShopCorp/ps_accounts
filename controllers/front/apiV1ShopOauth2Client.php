@@ -19,21 +19,19 @@
  */
 
 use PrestaShop\Module\PsAccounts\Controller\AbstractShopRestController;
+use PrestaShop\Module\PsAccounts\Cqrs\CommandBus;
+use PrestaShop\Module\PsAccounts\Domain\Account\Command\ForgetOauth2ClientCommand;
+use PrestaShop\Module\PsAccounts\Domain\Account\Command\RegisterOauth2ClientCommand;
 use PrestaShop\Module\PsAccounts\Dto\Api\UpdateShopOauth2ClientRequest;
-use PrestaShop\Module\PsAccounts\Provider\OAuth2\Oauth2Client;
+use PrestaShop\Module\PsAccounts\Domain\Account\Entity\Oauth2Client;
 use PrestaShop\Module\PsAccounts\Repository\ConfigurationRepository;
 
 class ps_AccountsApiV1ShopOauth2ClientModuleFrontController extends AbstractShopRestController
 {
     /**
-     * @var ConfigurationRepository
+     * @var CommandBus
      */
-    private $configuration;
-
-    /**
-     * @var Oauth2Client
-     */
-    private $oauth2Client;
+    private $commandBus;
 
     /**
      * ps_AccountsApiV1ShopOauth2ClientModuleFrontController constructor.
@@ -44,8 +42,7 @@ class ps_AccountsApiV1ShopOauth2ClientModuleFrontController extends AbstractShop
     {
         parent::__construct();
 
-        $this->configuration = $this->module->getService(ConfigurationRepository::class);
-        $this->oauth2Client = $this->module->getService(Oauth2Client::class);
+        $this->commandBus = $this->module->getService(CommandBus::class);
     }
 
     /**
@@ -53,11 +50,17 @@ class ps_AccountsApiV1ShopOauth2ClientModuleFrontController extends AbstractShop
      * @param UpdateShopOauth2ClientRequest $request
      *
      * @return array
+     *
+     * @throws Exception
      */
     public function update(Shop $shop, UpdateShopOauth2ClientRequest $request): array
     {
-        $this->oauth2Client->update($request->client_id, $request->client_secret);
-        $this->configuration->updateLoginEnabled(true);
+        $this->commandBus->handle(
+            new RegisterOauth2ClientCommand(
+                $request->client_id,
+                $request->client_secret
+            )
+        );
 
         return [
             'success' => true,
@@ -75,7 +78,7 @@ class ps_AccountsApiV1ShopOauth2ClientModuleFrontController extends AbstractShop
      */
     public function delete(Shop $shop, array $payload): array
     {
-        $this->oauth2Client->delete();
+        $this->commandBus->handle(new ForgetOauth2ClientCommand());
 
         return [
             'success' => true,
