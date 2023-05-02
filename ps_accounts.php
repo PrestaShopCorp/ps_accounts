@@ -351,7 +351,7 @@ class Ps_accounts extends Module
      */
     public function renderUpdateWarningView()
     {
-        if ($this->getShopContext()->isShop17()) {
+        if ($this->getShopContext()->isShop173()) {
             /* @phpstan-ignore-next-line */
             return PrestaShop\PrestaShop\Adapter\SymfonyContainer::getInstance()
                 ->get('twig')
@@ -368,7 +368,7 @@ class Ps_accounts extends Module
      */
     public function renderDeleteWarningView()
     {
-        if ($this->getShopContext()->isShop17()) {
+        if ($this->getShopContext()->isShop173()) {
             /* @phpstan-ignore-next-line */
             return PrestaShop\PrestaShop\Adapter\SymfonyContainer::getInstance()
                 ->get('twig')
