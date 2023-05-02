@@ -9,10 +9,6 @@ use PrestaShop\Module\PsAccounts\Repository\ConfigurationRepository;
 
 class ShopSession extends AbstractSession implements SessionInterface
 {
-    protected const TOKEN_TYPE = 'shop';
-    protected const RESPONSE_TOKEN_KEY = 'token';
-    protected const RESPONSE_REFRESH_TOKEN_KEY = 'refresh_token';
-
     /**
      * @var AccountsClient
      */
@@ -21,6 +17,11 @@ class ShopSession extends AbstractSession implements SessionInterface
     public function __construct(AccountsClient $apiClient, ConfigurationRepository $configurationRepository)
     {
         parent::__construct($apiClient, $configurationRepository);
+    }
+
+    public static function getSessionName(): string
+    {
+        return 'shop';
     }
 
     public function getToken(): Token
@@ -43,5 +44,13 @@ class ShopSession extends AbstractSession implements SessionInterface
 
         $this->configurationRepository->updateShopUuid($parsed->claims()->get('user_id'));
         $this->configurationRepository->updateFirebaseIdAndRefreshTokens($token, $refreshToken);
+    }
+
+    protected function getTokenFromRefreshResponse(array $response): Token
+    {
+        return new Token(
+            $response['body']['token'],
+            $response['body']['refresh_token']
+        );
     }
 }

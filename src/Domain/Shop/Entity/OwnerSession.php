@@ -9,10 +9,6 @@ use PrestaShop\Module\PsAccounts\Repository\ConfigurationRepository;
 
 class OwnerSession extends AbstractSession implements SessionInterface
 {
-    protected const TOKEN_TYPE = 'user';
-    protected const RESPONSE_TOKEN_KEY = 'idToken';
-    protected const RESPONSE_REFRESH_TOKEN_KEY = 'refreshToken';
-
     /**
      * @var SsoClient
      */
@@ -21,6 +17,11 @@ class OwnerSession extends AbstractSession implements SessionInterface
     public function __construct(SsoClient $apiClient, ConfigurationRepository $configurationRepository)
     {
         parent::__construct($apiClient, $configurationRepository);
+    }
+
+    public static function getSessionName(): string
+    {
+        return 'user';
     }
 
     public function getToken(): Token
@@ -61,5 +62,13 @@ class OwnerSession extends AbstractSession implements SessionInterface
     public function setEmployeeId(?int $employeeId): void
     {
         $this->configurationRepository->updateEmployeeId((string) $employeeId);
+    }
+
+    protected function getTokenFromRefreshResponse(array $response): Token
+    {
+        return new Token(
+            $response['body']['idToken'],
+            $response['body']['refreshToken']
+        );
     }
 }

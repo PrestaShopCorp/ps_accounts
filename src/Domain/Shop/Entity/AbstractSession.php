@@ -11,12 +11,7 @@ use Ps_accounts;
 
 abstract class AbstractSession implements SessionInterface
 {
-    public const MAX_TRIES_BEFORE_CLEAN_CREDENTIALS_ON_REFRESH_TOKEN_FAILURE = 3;
-
-    // TODO: extract a ResponseInterface from those 3 consts
-    protected const TOKEN_TYPE = '';
-    protected const RESPONSE_TOKEN_KEY = '';
-    protected const RESPONSE_REFRESH_TOKEN_KEY = '';
+    protected const MAX_TRIES_BEFORE_CLEAN_CREDENTIALS_ON_REFRESH_TOKEN_FAILURE = 3;
 
     /**
      * @var ConfigurationRepository
@@ -76,21 +71,16 @@ abstract class AbstractSession implements SessionInterface
         $response = $this->getApiClient()->refreshToken($refreshToken);
 
         if ($response && true === $response['status']) {
-            $token = new Token(
-                $response['body'][static::RESPONSE_TOKEN_KEY],
-                $response['body'][static::RESPONSE_REFRESH_TOKEN_KEY]
-            );
-
             $this->onRefreshTokenSuccess();
 
-            return $token;
+            return $this->getTokenFromRefreshResponse($response);
         }
 
         if ($response['httpCode'] >= 400 && $response['httpCode'] < 500) {
             $this->onRefreshTokenFailure();
         }
 
-        throw new RefreshTokenException('Unable to refresh ' . static::TOKEN_TYPE . ' token : ' . $response['httpCode'] . ' ' . print_r($response['body']['message'] ?? '', true));
+        throw new RefreshTokenException('Unable to refresh ' . static::getSessionName() . ' token : ' . $response['httpCode'] . ' ' . print_r($response['body']['message'] ?? '', true));
     }
 
     public function verifyToken(string $token): bool
@@ -120,6 +110,8 @@ abstract class AbstractSession implements SessionInterface
         return null !== $token && (bool) $token->getToken()->claims()->get('email_verified');
     }
 
+    abstract protected function getTokenFromRefreshResponse(array $response): Token;
+
     /**
      * @return void
      *
@@ -127,17 +119,17 @@ abstract class AbstractSession implements SessionInterface
      */
     protected function onRefreshTokenFailure(): void
     {
-        $attempt = $this->configurationRepository->getRefreshTokenFailure(static::TOKEN_TYPE);
+        $attempt = $this->configurationRepository->getRefreshTokenFailure(static::getSessionName());
 
         if ($attempt >= (static::MAX_TRIES_BEFORE_CLEAN_CREDENTIALS_ON_REFRESH_TOKEN_FAILURE - 1)) {
             $this->onMaxRefreshTokenAttempts();
-            $this->configurationRepository->updateRefreshTokenFailure(static::TOKEN_TYPE, 0);
+            $this->configurationRepository->updateRefreshTokenFailure(static::getSessionName(), 0);
 
             return;
         }
 
         $this->configurationRepository->updateRefreshTokenFailure(
-            static::TOKEN_TYPE,
+            static::getSessionName(),
             ++$attempt
         );
     }
@@ -147,7 +139,7 @@ abstract class AbstractSession implements SessionInterface
      */
     protected function onRefreshTokenSuccess(): void
     {
-        $this->configurationRepository->updateRefreshTokenFailure(static::TOKEN_TYPE, 0);
+        $this->configurationRepository->updateRefreshTokenFailure(static::getSessionName(), 0);
     }
 
     /**

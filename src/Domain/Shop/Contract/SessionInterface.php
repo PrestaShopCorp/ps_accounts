@@ -6,6 +6,8 @@ use PrestaShop\Module\PsAccounts\Domain\Shop\Entity\Token;
 
 interface SessionInterface
 {
+    public static function getSessionName(): string;
+
     public function getToken(): Token;
 
     public function setToken(string $token, string $refreshToken): void;
