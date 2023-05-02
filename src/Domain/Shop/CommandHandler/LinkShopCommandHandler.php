@@ -38,7 +38,12 @@ class LinkShopCommandHandler
     }
 
     /**
+     * @param LinkShopCommand $command
+     *
+     * @return void
+     *
      * @throws RefreshTokenException
+     * @throws \PrestaShopException
      */
     public function handle(LinkShopCommand $command): void
     {

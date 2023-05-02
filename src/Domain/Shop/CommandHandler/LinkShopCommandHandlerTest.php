@@ -2,25 +2,26 @@
 
 namespace PrestaShop\Module\PsAccounts\Domain\Shop\CommandHandler;
 
+use PHPUnit\Framework\MockObject\MockObject;
 use PrestaShop\Module\PsAccounts\Domain\Shop\Command\LinkShopCommand;
+use PrestaShop\Module\PsAccounts\Domain\Shop\Entity\OwnerSession;
+use PrestaShop\Module\PsAccounts\Domain\Shop\Entity\ShopSession;
 use PrestaShop\Module\PsAccounts\Dto\Api\UpdateShopLinkAccountRequest;
 use PrestaShop\Module\PsAccounts\Domain\Shop\Exception\RefreshTokenException;
 use PrestaShop\Module\PsAccounts\Repository\ConfigurationRepository;
-use PrestaShop\Module\PsAccounts\Repository\Support\ShopTokenRepository;
-use PrestaShop\Module\PsAccounts\Repository\Support\UserTokenRepository;
 use PrestaShop\Module\PsAccounts\Tests\TestCase;
 
 class LinkShopCommandHandlerTest extends TestCase
 {
     /**
-     * @var ShopTokenRepository
+     * @var MockObject|ShopSession|(ShopSession&MockObject)
      */
-    private $shopTokenRepository;
+    private $shopSession;
 
     /**
-     * @var UserTokenRepository
+     * @var MockObject|OwnerSession|(OwnerSession&MockObject)
      */
-    private $userTokenRepository;
+    private $ownerSession;
 
     /**
      * @var ConfigurationRepository
@@ -42,12 +43,12 @@ class LinkShopCommandHandlerTest extends TestCase
 //            ->getMock();
 
         $this->mockedConfigurationRepository = $this->createMock(ConfigurationRepository::class);
-        $this->shopTokenRepository = $this->createMock(ShopTokenRepository::class);
-        $this->userTokenRepository = $this->createMock(UserTokenRepository::class);
+        $this->shopSession = $this->createMock(ShopSession::class);
+        $this->ownerSession = $this->createMock(OwnerSession::class);
 
         $this->linkShopHandler = new LinkShopCommandHandler(
-            $this->shopTokenRepository,
-            $this->userTokenRepository,
+            $this->shopSession,
+            $this->ownerSession,
             $this->mockedConfigurationRepository
         );
     }
@@ -57,7 +58,7 @@ class LinkShopCommandHandlerTest extends TestCase
      *
      * @throws \Exception
      */
-    public function itShouldHandleLinkShop()
+    public function itShouldHandleLinkShop(): void
     {
         $request = new UpdateShopLinkAccountRequest([
             'shop_id' => 1,
@@ -68,29 +69,30 @@ class LinkShopCommandHandlerTest extends TestCase
             'shop_refresh_token' => 'barRefresh',
         ]);
 
-        $command = new LinkShopCommand(
-            new UpdateShopLinkAccountRequest($request),
-            false
-        );
+        $command = new LinkShopCommand($request, false);
 
-        $this->shopTokenRepository->expects($this->once())
-            ->method('updateCredentials')
+        /** @phpstan-ignore-next-line  */
+        $this->shopSession->expects($this->once())
+            ->method('setToken')
             ->with(
                 $request->shop_token,
                 $request->shop_refresh_token
             );
 
-        $this->userTokenRepository->expects($this->once())
-            ->method('updateCredentials')
+        /** @phpstan-ignore-next-line  */
+        $this->ownerSession->expects($this->once())
+            ->method('setToken')
             ->with(
                 $request->user_token,
                 $request->user_refresh_token
             );
 
-        $this->mockedConfigurationRepository->expects($this->once())
-            ->method('updateEmployeeId')
+        /** @phpstan-ignore-next-line  */
+        $this->ownerSession->expects($this->once())
+            ->method('setEmployeeId')
             ->with($request->employee_id);
 
+        /** @phpstan-ignore-next-line  */
         $this->mockedConfigurationRepository->expects($this->once())
             ->method('updateLoginEnabled')
             ->with(true);
@@ -98,12 +100,16 @@ class LinkShopCommandHandlerTest extends TestCase
         // $commandBus = new CommandBus();
         // $commandBus->execute($command);
         $this->linkShopHandler->handle($command);
+
+        // FIXME: expect hook to be triggered
     }
 
     /**
      * @test
+     *
+     * @throws \Exception
      */
-    public function itShouldThrowRefreshTokenException()
+    public function itShouldThrowRefreshTokenException(): void
     {
         $request = new UpdateShopLinkAccountRequest([
             'shop_id' => 1,
@@ -114,13 +120,11 @@ class LinkShopCommandHandlerTest extends TestCase
             'shop_refresh_token' => 'barRefresh',
         ]);
 
-        $command = new LinkShopCommand(
-            new UpdateShopLinkAccountRequest($request),
-            true
-        );
+        $command = new LinkShopCommand($request, true);
 
-        // FIXME: this is just an example, not a meaningfully test
-        $this->shopTokenRepository->method('verifyToken')
+        // FIXME: this is just an example, not a meaningful test here
+        /** @phpstan-ignore-next-line  */
+        $this->shopSession->method('verifyToken')
             ->willThrowException(new RefreshTokenException());
 
         $this->expectException(RefreshTokenException::class);
