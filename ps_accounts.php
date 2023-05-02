@@ -30,7 +30,6 @@ class Ps_accounts extends Module
     // the module each time to get the version
     const VERSION = '5.3.6';
 
-
     const HOOK_ACTION_SHOP_ACCOUNT_LINK_AFTER = 'actionShopAccountLinkAfter';
     const HOOK_ACTION_SHOP_ACCOUNT_UNLINK_AFTER = 'actionShopAccountUnlinkAfter';
     const HOOK_DISPLAY_ACCOUNT_UPDATE_WARNING = 'displayAccountUpdateWarning';
@@ -308,7 +307,7 @@ class Ps_accounts extends Module
      */
     public function renderUpdateWarningView()
     {
-        if ($this->getShopContext()->isShop17()) {
+        if ($this->getShopContext()->isShop173()) {
             /* @phpstan-ignore-next-line */
             return PrestaShop\PrestaShop\Adapter\SymfonyContainer::getInstance()
                 ->get('twig')
@@ -325,7 +324,7 @@ class Ps_accounts extends Module
      */
     public function renderDeleteWarningView()
     {
-        if ($this->getShopContext()->isShop17()) {
+        if ($this->getShopContext()->isShop173()) {
             /* @phpstan-ignore-next-line */
             return PrestaShop\PrestaShop\Adapter\SymfonyContainer::getInstance()
                 ->get('twig')
