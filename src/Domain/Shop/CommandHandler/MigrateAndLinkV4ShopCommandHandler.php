@@ -44,7 +44,7 @@ class MigrateAndLinkV4ShopCommandHandler
 
             return $this->accountClient->reonboardShop(
                 $shopToken->getUuid(),
-                $shopToken->getToken(),
+                $shopToken->getJwt(),
                 $command->payload
             );
         });

@@ -29,7 +29,7 @@ class GetOrRefreshTokenTest extends TestCase
 
         $ownerSession->setToken((string) $idToken, (string) $refreshToken);
 
-        $this->assertEquals((string) $idToken, $ownerSession->getOrRefreshToken()->getToken());
+        $this->assertEquals((string) $idToken, $ownerSession->getOrRefreshToken()->getJwt());
     }
 
     /**
@@ -64,6 +64,6 @@ class GetOrRefreshTokenTest extends TestCase
 
         $ownerSession->setToken((string) $idToken, (string) $refreshToken);
 
-        $this->assertEquals((string) $idTokenRefreshed, $ownerSession->getOrRefreshToken()->getToken());
+        $this->assertEquals((string) $idTokenRefreshed, $ownerSession->getOrRefreshToken()->getJwt());
     }
 }

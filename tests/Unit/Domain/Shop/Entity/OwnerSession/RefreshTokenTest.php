@@ -32,6 +32,8 @@ use PrestaShop\Module\PsAccounts\Tests\TestCase;
 
 class RefreshTokenTest extends TestCase
 {
+    protected const MAX_TRIES_BEFORE_CLEAN_CREDENTIALS_ON_REFRESH_TOKEN_FAILURE = 3;
+
     /**
      * @test
      *
@@ -54,7 +56,7 @@ class RefreshTokenTest extends TestCase
 
         $ownerSession->setToken((string) $idToken, (string) $refreshToken);
 
-        $this->assertEquals((string) $idTokenRefreshed, $ownerSession->refreshToken((string) $refreshToken)->getToken());
+        $this->assertEquals((string) $idTokenRefreshed, $ownerSession->refreshToken((string) $refreshToken)->getJwt());
 
         $this->assertEquals((string) $refreshToken, $ownerSession->getToken()->getRefreshToken());
     }
@@ -112,10 +114,10 @@ class RefreshTokenTest extends TestCase
         $this->configurationRepository->updateRefreshTokenFailure('user', 0);
 
         $this->assertEquals(0, $this->configurationRepository->getRefreshTokenFailure('user'));
-        $this->assertEquals($idToken, (string) $ownerSession->getToken()->getToken());
+        $this->assertEquals($idToken, (string) $ownerSession->getToken()->getJwt());
         $this->assertEquals($refreshToken, (string) $ownerSession->getToken()->getRefreshToken());
 
-        for ($i = 0; $i < AbstractSession::MAX_TRIES_BEFORE_CLEAN_CREDENTIALS_ON_REFRESH_TOKEN_FAILURE; $i++) {
+        for ($i = 0; $i < self::MAX_TRIES_BEFORE_CLEAN_CREDENTIALS_ON_REFRESH_TOKEN_FAILURE; $i++) {
             try {
                 $ownerSession->refreshToken((string) $refreshToken);
             } catch (RefreshTokenException $e) {
@@ -123,7 +125,7 @@ class RefreshTokenTest extends TestCase
         }
 
         $this->assertEquals(0, $this->configurationRepository->getRefreshTokenFailure('user'));
-        $this->assertEquals(null, (string) $ownerSession->getToken()->getToken());
+        $this->assertEquals(null, (string) $ownerSession->getToken()->getJwt());
         $this->assertEquals(null, (string) $ownerSession->getToken()->getRefreshToken());
 
         /** @var Account $linkAccountService */

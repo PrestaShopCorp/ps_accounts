@@ -54,7 +54,7 @@ class RemoteUnlinkShopCommandHandler
             return $this->accountClient->deleteUserShop(
                 $ownerToken->getUuid(),
                 $shopToken->getUuid(),
-                $ownerToken->getToken()
+                $ownerToken->getJwt()
             );
         });
     }

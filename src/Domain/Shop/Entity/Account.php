@@ -78,8 +78,8 @@ class Account
      */
     public function isLinked(): bool
     {
-        return !($this->shopSession->getOrRefreshToken()->getToken() instanceof NullToken)
-            && !($this->ownerSession->getOrRefreshToken()->getToken() instanceof NullToken);
+        return !($this->shopSession->getOrRefreshToken()->getJwt() instanceof NullToken)
+            && !($this->ownerSession->getOrRefreshToken()->getJwt() instanceof NullToken);
     }
 
     /**
@@ -87,8 +87,8 @@ class Account
      */
     public function isLinkedV4(): bool
     {
-        return !($this->shopSession->getOrRefreshToken()->getToken() instanceof NullToken)
-            && ($this->ownerSession->getOrRefreshToken()->getToken() instanceof NullToken)
+        return !($this->shopSession->getOrRefreshToken()->getJwt() instanceof NullToken)
+            && ($this->ownerSession->getOrRefreshToken()->getJwt() instanceof NullToken)
             && $this->configurationRepository->getFirebaseEmail();
     }
 

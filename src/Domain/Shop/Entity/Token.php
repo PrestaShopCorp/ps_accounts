@@ -23,7 +23,7 @@ class Token
         $this->refreshToken = $refreshToken;
     }
 
-    public function getToken(): \Lcobucci\JWT\Token
+    public function getJwt(): \Lcobucci\JWT\Token
     {
         return $this->parseToken($this->token);
     }
@@ -35,7 +35,7 @@ class Token
 
     public function isExpired(): bool
     {
-        $token = $this->getToken();
+        $token = $this->getJwt();
 
         return $token->isExpired(new \DateTime());
     }
@@ -46,13 +46,13 @@ class Token
         // return $this->configuration->getUserFirebaseUuid();
         // return $this->getToken()->claims()->get('user_id');
         // FIXME: sub ?
-        return $this->getToken()->claims()->get('user_id');
+        return $this->getJwt()->claims()->get('user_id');
     }
 
     public function getEmail(): ?string
     {
         // return $this->configuration->getFirebaseEmail();
-        return $this->getToken()->claims()->get('email');
+        return $this->getJwt()->claims()->get('email');
     }
 
     public function __toString(): string

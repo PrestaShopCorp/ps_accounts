@@ -39,7 +39,7 @@ class ps_AccountsApiV1ShopTokenModuleFrontController extends AbstractShopRestCon
         $token = $shopSession->getOrRefreshToken();
 
         return [
-            'token' => (string) $token->getToken(),
+            'token' => (string) $token->getJwt(),
             'refresh_token' => (string) $token->getRefreshToken(),
         ];
     }

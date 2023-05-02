@@ -50,7 +50,7 @@ class UpdateShopCommandHandler
             return $this->accountClient->updateUserShop(
                 $ownerToken->getUuid(),
                 $shopToken->getUuid(),
-                $ownerToken->getToken(),
+                $ownerToken->getJwt(),
                 $command->payload
             );
         });

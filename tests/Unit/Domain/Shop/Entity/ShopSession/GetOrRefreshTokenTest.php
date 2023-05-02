@@ -26,7 +26,7 @@ class GetOrRefreshTokenTest extends TestCase
 
         $shopSession->setToken((string) $idToken, (string) $refreshToken);
 
-        $this->assertEquals((string) $idToken, $shopSession->getOrRefreshToken()->getToken());
+        $this->assertEquals((string) $idToken, $shopSession->getOrRefreshToken()->getJwt());
     }
 
     /**
@@ -60,6 +60,6 @@ class GetOrRefreshTokenTest extends TestCase
 
         $shopSession->setToken((string) $idToken, (string) $refreshToken);
 
-        $this->assertEquals((string) $idTokenRefreshed, (string) $shopSession->getOrRefreshToken()->getToken());
+        $this->assertEquals((string) $idTokenRefreshed, (string) $shopSession->getOrRefreshToken()->getJwt());
     }
 }

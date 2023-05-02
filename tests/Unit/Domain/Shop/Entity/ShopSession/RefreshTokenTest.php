@@ -32,6 +32,8 @@ use PrestaShop\Module\PsAccounts\Tests\TestCase;
 
 class RefreshTokenTest extends TestCase
 {
+    protected const MAX_TRIES_BEFORE_CLEAN_CREDENTIALS_ON_REFRESH_TOKEN_FAILURE = 3;
+
     /**
      * @test
      *
@@ -53,7 +55,7 @@ class RefreshTokenTest extends TestCase
 
         $shopSession->setToken((string) $idToken, (string) $refreshToken);
 
-        $this->assertEquals((string) $idTokenRefreshed, $shopSession->refreshToken((string) $refreshToken)->getToken());
+        $this->assertEquals((string) $idTokenRefreshed, $shopSession->refreshToken((string) $refreshToken)->getJwt());
 
         $this->assertEquals((string) $refreshToken, $shopSession->getToken()->getRefreshToken());
     }
@@ -110,10 +112,10 @@ class RefreshTokenTest extends TestCase
         $this->configurationRepository->updateRefreshTokenFailure('shop', 0);
 
         $this->assertEquals(0, $this->configurationRepository->getRefreshTokenFailure('shop'));
-        $this->assertEquals($idToken, (string) $sessionMock->getToken()->getToken());
+        $this->assertEquals($idToken, (string) $sessionMock->getToken()->getJwt());
         $this->assertEquals($refreshToken, (string) $sessionMock->getToken()->getRefreshToken());
 
-        for ($i = 0; $i < AbstractSession::MAX_TRIES_BEFORE_CLEAN_CREDENTIALS_ON_REFRESH_TOKEN_FAILURE; $i++) {
+        for ($i = 0; $i < self::MAX_TRIES_BEFORE_CLEAN_CREDENTIALS_ON_REFRESH_TOKEN_FAILURE; $i++) {
             try {
                 $sessionMock->refreshToken((string) $refreshToken);
             } catch (RefreshTokenException $e) {
@@ -121,7 +123,7 @@ class RefreshTokenTest extends TestCase
         }
 
         $this->assertEquals(0, $this->configurationRepository->getRefreshTokenFailure('shop'));
-        $this->assertEquals(null, (string) $sessionMock->getToken()->getToken());
+        $this->assertEquals(null, (string) $sessionMock->getToken()->getJwt());
         $this->assertEquals(null, (string) $sessionMock->getToken()->getRefreshToken());
 
         /** @var Account $shopAccount */

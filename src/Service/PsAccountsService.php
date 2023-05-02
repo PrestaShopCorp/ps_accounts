@@ -91,7 +91,7 @@ class PsAccountsService
      */
     public function getOrRefreshToken(): string
     {
-        return (string) $this->shopSession->getOrRefreshToken()->getToken();
+        return (string) $this->shopSession->getOrRefreshToken()->getJwt();
     }
 
     public function getRefreshToken(): ?string
@@ -104,7 +104,7 @@ class PsAccountsService
      */
     public function getToken(): ?string
     {
-        return (string) $this->shopSession->getOrRefreshToken()->getToken();
+        return (string) $this->shopSession->getOrRefreshToken()->getJwt();
     }
 
     /**

@@ -44,17 +44,16 @@ abstract class AbstractSession implements SessionInterface
 
         if (true === $forceRefresh || $token->isExpired()) {
             $refreshToken = $token->getRefreshToken();
-            if (is_string($refreshToken) && '' != $refreshToken) {
+            if (! empty($refreshToken)) {
                 try {
                     $token = $this->refreshToken($refreshToken);
-                    $this->setToken((string) $token->getToken(), $token->getRefreshToken());
+                    $this->setToken((string) $token->getJwt(), $token->getRefreshToken());
                 } catch (RefreshTokenException $e) {
                     Logger::getInstance()->debug($e);
                 }
             }
         }
 
-        // return $this->getToken();
         return $token;
     }
 
@@ -80,7 +79,11 @@ abstract class AbstractSession implements SessionInterface
             $this->onRefreshTokenFailure();
         }
 
-        throw new RefreshTokenException('Unable to refresh ' . static::getSessionName() . ' token : ' . $response['httpCode'] . ' ' . print_r($response['body']['message'] ?? '', true));
+        throw new RefreshTokenException(
+            'Unable to refresh ' . static::getSessionName() .
+            ' token : ' . $response['httpCode'] .
+            ' ' . print_r($response['body']['message'] ?? '', true)
+        );
     }
 
     public function verifyToken(string $token): bool
@@ -97,17 +100,19 @@ abstract class AbstractSession implements SessionInterface
      */
     public function isEmailVerified(): bool
     {
-        $token = $this->getToken();
+        $jwt = $this->getToken()->getJwt();
 
         // FIXME : just query sso api and don't refresh token everytime
-        if (null !== $token && !$token->getToken()->claims()->get('email_verified')) {
+        if (!$jwt instanceof NullToken &&
+            !$jwt->claims()->get('email_verified')
+        ) {
             try {
-                $token = $this->getOrRefreshToken(true);
+                $jwt = $this->getOrRefreshToken(true)->getJwt();
             } catch (RefreshTokenException $e) {
             }
         }
 
-        return null !== $token && (bool) $token->getToken()->claims()->get('email_verified');
+        return $jwt->claims()->get('email_verified');
     }
 
     abstract protected function getTokenFromRefreshResponse(array $response): Token;
