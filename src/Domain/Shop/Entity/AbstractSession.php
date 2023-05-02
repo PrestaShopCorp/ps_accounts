@@ -44,7 +44,7 @@ abstract class AbstractSession implements SessionInterface
 
         if (true === $forceRefresh || $token->isExpired()) {
             $refreshToken = $token->getRefreshToken();
-            if (! empty($refreshToken)) {
+            if (!empty($refreshToken)) {
                 try {
                     $token = $this->refreshToken($refreshToken);
                     $this->setToken((string) $token->getJwt(), $token->getRefreshToken());
@@ -79,11 +79,7 @@ abstract class AbstractSession implements SessionInterface
             $this->onRefreshTokenFailure();
         }
 
-        throw new RefreshTokenException(
-            'Unable to refresh ' . static::getSessionName() .
-            ' token : ' . $response['httpCode'] .
-            ' ' . print_r($response['body']['message'] ?? '', true)
-        );
+        throw new RefreshTokenException('Unable to refresh ' . static::getSessionName() . ' token : ' . $response['httpCode'] . ' ' . print_r($response['body']['message'] ?? '', true));
     }
 
     public function verifyToken(string $token): bool
@@ -112,7 +108,7 @@ abstract class AbstractSession implements SessionInterface
             }
         }
 
-        return $jwt->claims()->get('email_verified');
+        return (bool) $jwt->claims()->get('email_verified');
     }
 
     abstract protected function getTokenFromRefreshResponse(array $response): Token;
