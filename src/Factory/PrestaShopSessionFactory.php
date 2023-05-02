@@ -4,7 +4,6 @@ namespace PrestaShop\Module\PsAccounts\Factory;
 
 use PrestaShop\Module\PsAccounts\Provider\OAuth2\PrestaShopClientProvider;
 use PrestaShop\Module\PsAccounts\Provider\OAuth2\PrestaShopSession;
-use PrestaShop\OAuth2\Client\Provider\PrestaShop;
 use Symfony\Component\HttpFoundation\Session\SessionInterface;
 
 class PrestaShopSessionFactory
@@ -17,7 +16,7 @@ class PrestaShopSessionFactory
         /** @var SessionInterface $session */
         $session = $module->getContainer()->get('session');
 
-        /** @var PrestaShop $provider */
+        /** @var PrestaShopClientProvider $provider */
         $provider = $module->getService(PrestaShopClientProvider::class);
 
         return new PrestaShopSession($session, $provider);

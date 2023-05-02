@@ -307,27 +307,6 @@ class Ps_accounts extends Module
         );
     }
 
-//    /**
-//     * Override of native function to always retrieve Symfony container instead of legacy admin container on legacy context.
-//     *
-//     * @param string $serviceName
-//     *
-//     * @return mixed
-//     */
-//    public function getService($serviceName)
-//    {
-//        if ((new \PrestaShop\Module\PsAccounts\Context\ShopContext())->isShop173()) {
-//            // 1.7.3
-//            // 1.7.6
-//            //$this->context->controller->getContainer()
-//
-//            if (null === $this->container) {
-//                $this->container = \PrestaShop\PrestaShop\Adapter\SymfonyContainer::getInstance();
-//            }
-//        }
-//        return $this->container->get($serviceName);
-//    }
-
     /**
      * @param array $params
      *
@@ -699,12 +678,6 @@ class Ps_accounts extends Module
     {
         /** @var \PrestaShop\Module\PsAccounts\Service\PsAccountsService $psAccountsService */
         $psAccountsService = $this->getService(\PrestaShop\Module\PsAccounts\Service\PsAccountsService::class);
-
-        $oauth2Client = $this->getOauth2Client();
-        if ($oauth2Client->exists() && !$psAccountsService->isAccountLinked()) {
-            $this->getOauth2Session()->clear();
-            $oauth2Client->delete();
-        }
 
         if (isset($_GET['logout'])) {
             if ($psAccountsService->getLoginActivated()) {

@@ -159,4 +159,12 @@ class PrestaShopClientProvider extends PrestaShop
             self::QUERY_LOGOUT_CALLBACK_PARAM => 1,
         ]);
     }
+
+    /**
+     * @return Oauth2Client
+     */
+    public function getOauth2Client(): Oauth2Client
+    {
+        return $this->oauth2Client;
+    }
 }
