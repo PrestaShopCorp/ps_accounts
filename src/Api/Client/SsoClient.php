@@ -35,7 +35,7 @@ class SsoClient implements TokenClientInterface
     private $client;
 
     public function __construct(
-        string                $apiUrl,
+        string $apiUrl,
         ?AbstractGuzzleClient $client = null
     ) {
         if (null === $client) {

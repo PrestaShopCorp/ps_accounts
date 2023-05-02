@@ -23,8 +23,6 @@ use PrestaShop\Module\PsAccounts\Cqrs\CommandBus;
 use PrestaShop\Module\PsAccounts\Domain\Account\Command\ForgetOauth2ClientCommand;
 use PrestaShop\Module\PsAccounts\Domain\Account\Command\RegisterOauth2ClientCommand;
 use PrestaShop\Module\PsAccounts\Dto\Api\UpdateShopOauth2ClientRequest;
-use PrestaShop\Module\PsAccounts\Domain\Account\Entity\Oauth2Client;
-use PrestaShop\Module\PsAccounts\Repository\ConfigurationRepository;
 
 class ps_AccountsApiV1ShopOauth2ClientModuleFrontController extends AbstractShopRestController
 {

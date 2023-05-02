@@ -849,7 +849,7 @@ class Ps_accounts extends Module
     /**
      * @throws Exception
      */
-    public function getOauth2Client(): \PrestaShop\Module\PsAccounts\Domain\Account\Entity\Oauth2Client
+    public function getOauth2Client(): PrestaShop\Module\PsAccounts\Domain\Account\Entity\Oauth2Client
     {
         return $this->getService(\PrestaShop\Module\PsAccounts\Domain\Account\Entity\Oauth2Client::class);
     }

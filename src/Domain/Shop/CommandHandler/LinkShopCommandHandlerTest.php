@@ -6,8 +6,8 @@ use PHPUnit\Framework\MockObject\MockObject;
 use PrestaShop\Module\PsAccounts\Domain\Shop\Command\LinkShopCommand;
 use PrestaShop\Module\PsAccounts\Domain\Shop\Entity\OwnerSession;
 use PrestaShop\Module\PsAccounts\Domain\Shop\Entity\ShopSession;
-use PrestaShop\Module\PsAccounts\Dto\Api\UpdateShopLinkAccountRequest;
 use PrestaShop\Module\PsAccounts\Domain\Shop\Exception\RefreshTokenException;
+use PrestaShop\Module\PsAccounts\Dto\Api\UpdateShopLinkAccountRequest;
 use PrestaShop\Module\PsAccounts\Repository\ConfigurationRepository;
 use PrestaShop\Module\PsAccounts\Tests\TestCase;
 
@@ -71,7 +71,7 @@ class LinkShopCommandHandlerTest extends TestCase
 
         $command = new LinkShopCommand($request, false);
 
-        /** @phpstan-ignore-next-line  */
+        /* @phpstan-ignore-next-line  */
         $this->shopSession->expects($this->once())
             ->method('setToken')
             ->with(
@@ -79,7 +79,7 @@ class LinkShopCommandHandlerTest extends TestCase
                 $request->shop_refresh_token
             );
 
-        /** @phpstan-ignore-next-line  */
+        /* @phpstan-ignore-next-line  */
         $this->ownerSession->expects($this->once())
             ->method('setToken')
             ->with(
@@ -87,12 +87,12 @@ class LinkShopCommandHandlerTest extends TestCase
                 $request->user_refresh_token
             );
 
-        /** @phpstan-ignore-next-line  */
+        /* @phpstan-ignore-next-line  */
         $this->ownerSession->expects($this->once())
             ->method('setEmployeeId')
             ->with($request->employee_id);
 
-        /** @phpstan-ignore-next-line  */
+        /* @phpstan-ignore-next-line  */
         $this->mockedConfigurationRepository->expects($this->once())
             ->method('updateLoginEnabled')
             ->with(true);
@@ -123,7 +123,7 @@ class LinkShopCommandHandlerTest extends TestCase
         $command = new LinkShopCommand($request, true);
 
         // FIXME: this is just an example, not a meaningful test here
-        /** @phpstan-ignore-next-line  */
+        /* @phpstan-ignore-next-line  */
         $this->shopSession->method('verifyToken')
             ->willThrowException(new RefreshTokenException());
 
