@@ -1,39 +1,13 @@
 # PrestaShop Account
 
-## Introduction
-
-The module **ps_accounts** is the interface between your module (PSx / Community Service) and PrestaShop's Accounts service.
-- It manages the shop link and unlink to a user account.
-- It can receives informations from PrestaShop's Accounts API to update data about user and/or shop authentication and verification.
-- It can be queried by AJAX calls from your module
-
-Your PSx or Community Service needs to call this module in order to use PrestaShop Accounts service.
-
-### Work as Community Service or PrestaShop X modules (PSx)
-
-Your module needs three parts :
-
-- [PS Accounts module](http://github.com/PrestaShopCorp/ps_accounts)
-    - This module must be installed.
-    - It's your interface between your module and PrestaShop Accounts service.
-  
-And in your PSx :
-
-- [PS Accounts Installer (Composer Library)](http://github.com/PrestaShopCorp/prestashop-accounts-installer)
-    - This library's role is here to compensate a lack of security between modules dependencies. If PS Accounts is removed while your module is still installed: it causes a crash of the PrestaShop module's page/feature.
-    - This library is here to install automatically PS Accounts if it's missing.
-    - It's your interface between your module and PrestaShop Accounts module
-    - You should never require directly PrestaShop\Module\PsAccounts namespace classes
-  
-- [PrestaShop Accounts Vue Components](http://github.com/PrestaShopCorp/prestashop_accounts_vue_components)
-    - It's the front-end component you need to integrate into your module's configuration page.
-    - :warning: TODO:Introduce the VueJS component and redirect to its doc
+The module **ps_accounts** is the interface between your module and PrestaShop's services. It manages:
+- Shop association and dissociation processes.
+- Maintain secure communication between shop and Prestashop services.
+- Synchronize basic informations about the shops (Shop Urls).
 
 ## Installation
 
-If you need to install and test the module, [you can download the desired zip here](https://github.com/PrestaShopCorp/ps_accounts/releases)
-- **ps_accounts.zip** is the "**production** ready zip"
-- **ps_accounts_integration.zip** is the zip you need if you want to test on the **integration environment**.
+If you need to install and test the module, [you can download the desired zip here](https://github.com/PrestaShopCorp/ps_accounts/releases).
 
 ### Compatibility Matrix
 
@@ -46,29 +20,71 @@ We aims to follow partially the Prestashop compatibility charts
 | 5.x                 | \>=1.6 && <8.0.0   | PHP 5.6 - 7.4 |        
 | 6.x                 | \>=8.0.0           | PHP 7.2 - 8   |
 
-A pending question is about 
+### Integration along with your Prestashop module
+
+If you are integrating a module, you should have a look on the [PrestaShop Integration Framework Documentation](https://docs.cloud.prestashop.com/).
+
+## APIs
+
+Here are listed Open APIs provided by this module:
+
+| HTTP Verb | Controller          | Method                  | Payload                     | Description                                          |
+|-----------|---------------------|-------------------------|-----------------------------|------------------------------------------------------|
+| GET       | AdminAjaxPsAccounts | getOrRefreshAccessToken | { token: "<access_token>" } | Triggered after link has been acknowledged by shop   |
+
+Example: I want to get the authenticated user token in order make action on his behalf. The request would be `GET https://<shop-admin-url>/index.php?controller=AdminAjaxPsAccounts&action=getOrRefreshAccessToken&ajax=true&token=<token>`
+
+## Custom hooks
+
+Here are listed custom hooks provided with this module:
+
+| Hook name                    | Payload          | Description                                          |
+|------------------------------|------------------|------------------------------------------------------|
+| actionShopAccountLinkAfter   | shopId, shopUuid | Triggered after link has been acknowledged by shop   |
+| actionShopAccountUnlinkAfter | shopId, shopUuid | Triggered after unlink has been acknowledged by shop |
+
+
+### JWT
+
+[JSON Web Token RFC (JWT)](https://datatracker.ietf.org/doc/html/rfc7519).
+
+All the tokens exposed follow the OpenId Connect Token and Access Tokens [Specs](https://openid.net/specs/openid-connect-core-1_0.html#IDToken).
+
+This modules manages three tokens:
+
+| JWT Name                    | Description                                                                                            |
+|-----------------------------|--------------------------------------------------------------------------------------------------------|
+| Shop Token                  | This token can be used to act as the shop. It should be used only for machine to machine communication without user interaction |
+| Shop Owner Token            | This token is created for the owner who associate the shop. This token is under depreciation           |
+| Authenticated User Token    | Token for the current authenticated user when this user has performed an authentication through Prestashop Authentication system |
+
+:warning: The Shop Owner token is under depreciation.
+
+## Development
+
+This module has three parts:
+- [PS Accounts module](http://github.com/PrestaShopCorp/ps_accounts)
+    - This module must be installed.
+    - It's your interface between your module and PrestaShop Accounts service.
+- [PS Accounts Installer (Composer Library)](http://github.com/PrestaShopCorp/prestashop-accounts-installer)
+    - This library's role is here to compensate a lack of security between modules dependencies. If PS Accounts is removed while your module is still installed: it causes a crash of the PrestaShop module's page/feature.
+    - This library is here to install automatically PS Accounts if it's missing.
+    - It's your interface between your module and PrestaShop Accounts module
+    - You should never require directly PrestaShop\Module\PsAccounts namespace classes
+- [PrestaShop Accounts Vue Components](http://github.com/PrestaShopCorp/prestashop_accounts_vue_components)
+    - It's the front-end component you need to integrate into your module's configuration page.
 
 ## How to start working with PS Accounts as a PSx or Community Service developer?
 
-- [Read the official documentation here](https://devdocs.prestashop.com/1.7/modules/)
+- [Read the official documentation here](https://devdocs.prestashop-project.org/8/modules/)
 - Clone this repository
 - Copy paste the `config/config.yml.dist` to `config/config.yml`
 
-## Continuous Integration
+### Testing
 
-CI trigger on pull request labeled 'quality assurance needed'
+This repository has a Makefile. Just run for running phpunit `make phpunit` and `make phpstan`.
 
-To set custom checkout branch , edit [custom-checkout-version](custom-checkout-version)
-
-## Testing
-
-:warning: TODO To be verified with @hSchoenenberger
-
-## JWT
-
-### What are JWTs and how are they used?
-
-JWT are [JSON Web Tokens](https://jwt.io/).
+### JWT
 
 We use JWTs for 2 types of account: the user account and the shop account.
 What we're identifying when we link a PrestaShop shop is **a shop**. A shop belongs to 1 owner (user).
@@ -76,15 +92,6 @@ What we're identifying when we link a PrestaShop shop is **a shop**. A shop belo
 There are 2 Firebase projects:
 - **prestashop-newsso-production** is the Firebase Authentication project we're using to authenticate **users** _(prestashop-newsso-staging) for staging environment_
 - **prestashop-ready-prod** is the Firebase Authentication project we're using to authenticate **shops** _(psessentials-integration) for integration environment_
-
-**Don't try to verify a shop token against **prestashop-newsso-production** it won't work.**
-
-There are 3 kinds of tokens that can interest you:
-- Firebase ID Token 
-- Firebase Custom Token
-- Firebase Refresh token
-
-[For more informations, please read the official documentation here](https://firebase.google.com/docs/auth/users#auth_tokens)
 
 Here is a recap of the configuration variables used to manage a shop account
 
@@ -111,6 +118,7 @@ $shopToken = $facade->getPsAccountsService()->getOrRefreshToken();
 see: [PrestaShop Accounts Installer](http://github.com/PrestaShopCorp/prestashop-accounts-installer) for more details on how to setup Installer.
 
 ## Breaking Changes
+
 ### Removal of the environment variables
 This module don't use a .env file as a configuration file. We are now using YAML files with a Symfony service container to configure services and their injected dependencies as well as configuration parameters.
 You can copy and paste the `config.yml.dist` to `config.yml` but you **MUST NOT COMMIT THIS FILE**
@@ -143,12 +151,3 @@ Those API has been removed:
 - `/orders`
 - `/products`
 - `/themes`
-
-## Custom hooks
-
-Here are listed custom hooks provided with this module :
-
-| Hook name                    | Payload          | Description                                          |
-|------------------------------|------------------|------------------------------------------------------|
-| actionShopAccountLinkAfter   | shopId, shopUuid | Triggered after link has been acknowledged by shop   |
-| actionShopAccountUnlinkAfter | shopId, shopUuid | Triggered after unlink has been acknowledged by shop |
