@@ -119,52 +119,62 @@ pull-phpunit:
 # FIXME: create two command to run test (feature with apache2 started et unit with just mysql
 #PHPUNIT_CMD="./vendor/bin/phpunit --colors=always || bash"
 #PHPUNIT_CMD="./vendor/bin/phpunit"
-phpunit: check-docker pull-phpunit
-	@docker run --rm \
-		--name phpunit \
-		-e PS_DOMAIN=localhost \
-		-e PS_ENABLE_SSL=0 \
-		-e PS_DEV_MODE=1 \
-		-e XDEBUG_MODE=coverage \
-		-e XDEBUG_ENABLED=1 \
-		-v ${PWD}:/var/www/html/modules/ps_accounts \
-		-w /var/www/html/modules/ps_accounts \
-		prestashop/docker-internal-images:${DOCKER_INTERNAL} \
-		sh -c " \
-			service mariadb start && \
-			service apache2 start && \
-			docker-php-ext-enable xdebug && \
-			if [ ! -f ./config/config.yml ]; then cp ./config/config.yml.dist ./config/config.yml; fi && \
-			../../bin/console prestashop:module install ps_accounts && \
-			echo \"Testing module v\`cat config.xml | grep '<version>' | sed 's/^.*\[CDATA\[\(.*\)\]\].*/\1/'\`\n\" && \
-			chown -R www-data:www-data ../../var/logs && \
-			chown -R www-data:www-data ../../var/cache && \
-			./vendor/bin/phpunit \
-		      "
-	@echo phpunit passed
+#phpunit: check-docker pull-phpunit
+#	@docker run --rm \
+#		--name phpunit \
+#		-e PS_DOMAIN=localhost \
+#		-e PS_ENABLE_SSL=0 \
+#		-e PS_DEV_MODE=1 \
+#		-e XDEBUG_MODE=coverage \
+#		-e XDEBUG_ENABLED=1 \
+#		-v ${PWD}:/var/www/html/modules/ps_accounts \
+#		-w /var/www/html/modules/ps_accounts \
+#		prestashop/docker-internal-images:${DOCKER_INTERNAL} \
+#		sh -c " \
+#			service mariadb start && \
+#			service apache2 start && \
+#			docker-php-ext-enable xdebug && \
+#			if [ ! -f ./config/config.yml ]; then cp ./config/config.yml.dist ./config/config.yml; fi && \
+#			../../bin/console prestashop:module install ps_accounts && \
+#			echo \"Testing module v\`cat config.xml | grep '<version>' | sed 's/^.*\[CDATA\[\(.*\)\]\].*/\1/'\`\n\" && \
+#			chown -R www-data:www-data ../../var/logs && \
+#			chown -R www-data:www-data ../../var/cache && \
+#			./vendor/bin/phpunit \
+#		      "
+#	@echo phpunit passed
 
-phpunit-dev: check-docker pull-phpunit
-	@docker run --rm -ti \
-		--name phpunit \
-		-e PS_DOMAIN=localhost \
-		-e PS_ENABLE_SSL=0 \
-		-e PS_DEV_MODE=1 \
-		-e XDEBUG_MODE=coverage \
-		-e XDEBUG_ENABLED=1 \
-		-v ${PWD}:/var/www/html/modules/ps_accounts \
-		-w /var/www/html/modules/ps_accounts \
-		prestashop/docker-internal-images:${DOCKER_INTERNAL} \
-		sh -c " \
-			service mariadb start && \
-			docker-php-ext-enable xdebug && \
-			if [ ! -f ./config/config.yml ]; then cp ./config/config.yml.dist ./config/config.yml; fi && \
-			../../bin/console prestashop:module install ps_accounts && \
-			echo \"Testing module v\`cat config.xml | grep '<version>' | sed 's/^.*\[CDATA\[\(.*\)\]\].*/\1/'\`\n\" && \
-			chown -R www-data:www-data ../../var/logs && \
-			chown -R www-data:www-data ../../var/cache && \
-			apache2-foreground \
-		      "
+phpunit-start: pull-phpunit phpunit-stop
+	@docker-compose up -d
+#	@docker exec -ti phpunit sh -c "service mariadb start"
 	@echo phpunit started
+
+phpunit-module-install: phpunit-start
+	@sleep 1
+	@docker exec -ti phpunit sh -c "php -d memory_limit=-1 ./bin/console prestashop:module install ps_accounts"
+
+phpunit-stop:
+	@docker-compose down
+	@echo phpunit stopped
+
+phpunit-permissions:
+	@docker exec -ti phpunit sh -c "chown -R www-data:www-data ./var"
+
+phpunit-module-version:
+	@docker exec -ti -w /var/www/html/modules/ps_accounts phpunit sh -c "echo \"Testing module v\`cat config.xml | grep '<version>' | sed 's/^.*\[CDATA\[\(.*\)\]\].*/\1/'\`\n\""
+
+phpunit-run-unit: phpunit-permissions
+	@docker exec -ti -w /var/www/html/modules/ps_accounts phpunit sh -c "./vendor/bin/phpunit --testsuite unit"
+	@echo testsuite unit passed
+
+phpunit-run-domain: phpunit-permissions
+	@docker exec -ti -w /var/www/html/modules/ps_accounts phpunit sh -c "./vendor/bin/phpunit --testsuite domain"
+	@echo testsuite domain passed
+
+phpunit-run-feature: phpunit-permissions
+	@docker exec -ti -w /var/www/html/modules/ps_accounts phpunit sh -c "./vendor/bin/phpunit --testsuite feature"
+	@echo testsuite feature passed
+
+phpunit: phpunit-module-install phpunit-module-version phpunit-run-feature phpunit-run-domain phpunit-run-unit
 
 vendor/phpunit/phpunit:
 	./composer.phar install

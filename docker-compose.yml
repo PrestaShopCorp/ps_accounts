@@ -2,8 +2,8 @@ version: "3.7"
 services:
   phpunit:
     container_name: phpunit
-    image: prestashop/docker-internal-images:nightly
-    working_dir: /var/www/html/modules/ps_accounts
+    image: prestashop/docker-internal-images:8
+#    working_dir: /var/www/html/modules/ps_accounts
     environment:
       # FIXME: PS_* vars are useless here as we override run
       - PS_DOMAIN=localhost
@@ -11,18 +11,24 @@ services:
       - PS_DEV_MODE=1
       - XDEBUG_MODE=coverage
       - XDEBUG_ENABLED=1
-    ports:
-      - 80:80
-      - 445:445
     volumes:
       - ./:/var/www/html/modules/ps_accounts
-    entrypoint: [
-        "/bin/sh", "-c", " \
-          service mariadb start && \
-          docker-php-ext-enable xdebug && \
-          php -d memory_limit=-1 ../../bin/console prestashop:module install ps_accounts && \
-          chown -R www-data:www-data ../../var/logs && \
-          chown -R www-data:www-data ../../var/cache && \
-          apache2-foreground
-        "
-    ]
+#    entrypoint: [
+#        "/bin/sh", "-c", " \
+#          service mariadb start && \
+#          php -d memory_limit=-1 ../../bin/console prestashop:module install ps_accounts && \
+#          chown -R www-data:www-data ../../var/logs && \
+#          chown -R www-data:www-data ../../var/cache && \
+#          apache2-foreground
+#        "
+#    ]
+#    entrypoint: [
+#      "/bin/sh", "-c", " \
+#          service mariadb start && \
+#          docker-php-ext-enable xdebug && \
+#          php -d memory_limit=-1 ../../bin/console prestashop:module install ps_accounts && \
+#          chown -R www-data:www-data ../../var/logs && \
+#          chown -R www-data:www-data ../../var/cache && \
+#          apache2-foreground
+#        "
+#    ]
