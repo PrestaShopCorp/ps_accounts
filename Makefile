@@ -148,7 +148,7 @@ phpunit-start: pull-phpunit phpunit-stop
 #	@docker exec -ti phpunit sh -c "service mariadb start"
 	@echo phpunit started
 
-phpunit-module-install: phpunit-start
+phpunit-module-install: phpunit-start phpunit-module-config
 	@sleep 5
 	@docker exec phpunit sh -c "php -d memory_limit=-1 ./bin/console prestashop:module install ps_accounts"
 
@@ -176,7 +176,7 @@ phpunit-module-config:
 	@docker exec -w /var/www/html/modules/ps_accounts phpunit \
 		sh -c "if [ ! -f ./config/config.yml ]; then cp ./config/config.yml.dist ./config/config.yml; fi"
 
-phpunit: phpunit-module-config phpunit-module-install phpunit-module-version phpunit-run-feature phpunit-run-domain phpunit-run-unit
+phpunit: phpunit-module-install phpunit-module-version phpunit-run-feature phpunit-run-domain phpunit-run-unit
 	@echo phpunit passed
 
 vendor/phpunit/phpunit:
