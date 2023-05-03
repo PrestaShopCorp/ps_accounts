@@ -176,7 +176,7 @@ phpunit-module-config:
 	@docker exec -w /var/www/html/modules/ps_accounts phpunit \
 		sh -c "if [ ! -f ./config/config.yml ]; then cp ./config/config.yml.dist ./config/config.yml; fi"
 
-phpunit: phpunit-module-install phpunit-module-config phpunit-module-version phpunit-run-feature phpunit-run-domain phpunit-run-unit
+phpunit: phpunit-module-config phpunit-module-install phpunit-module-version phpunit-run-feature phpunit-run-domain phpunit-run-unit
 	@echo phpunit passed
 
 vendor/phpunit/phpunit:
