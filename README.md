@@ -48,6 +48,8 @@ Here are listed custom hooks provided with this module:
 
 [JSON Web Token RFC (JWT)](https://datatracker.ietf.org/doc/html/rfc7519).
 
+All the tokens exposed follow the OpenId Connect Token and Access Tokens [Specs](https://openid.net/specs/openid-connect-core-1_0.html#IDToken).
+
 This modules manages three tokens:
 
 | JWT Name                    | Description                                                                                            |
