@@ -157,24 +157,22 @@ phpunit-stop:
 	@echo phpunit stopped
 
 phpunit-permissions:
-	@docker exec -ti phpunit sh -c "chown -R www-data:www-data ./var"
+	@docker exec phpunit sh -c "chown -R www-data:www-data ./var"
 
 phpunit-module-version:
-	@docker exec -ti -w /var/www/html/modules/ps_accounts phpunit sh -c "echo \"Testing module v\`cat config.xml | grep '<version>' | sed 's/^.*\[CDATA\[\(.*\)\]\].*/\1/'\`\n\""
+	@docker exec -w /var/www/html/modules/ps_accounts phpunit sh -c "echo \"Testing module v\`cat config.xml | grep '<version>' | sed 's/^.*\[CDATA\[\(.*\)\]\].*/\1/'\`\n\""
 
 phpunit-run-unit: phpunit-permissions
-	@docker exec -ti -w /var/www/html/modules/ps_accounts phpunit sh -c "./vendor/bin/phpunit --testsuite unit"
-	@echo testsuite unit passed
+	@docker exec -w /var/www/html/modules/ps_accounts phpunit sh -c "./vendor/bin/phpunit --testsuite unit"
 
 phpunit-run-domain: phpunit-permissions
-	@docker exec -ti -w /var/www/html/modules/ps_accounts phpunit sh -c "./vendor/bin/phpunit --testsuite domain"
-	@echo testsuite domain passed
+	@docker exec -w /var/www/html/modules/ps_accounts phpunit sh -c "./vendor/bin/phpunit --testsuite domain"
 
 phpunit-run-feature: phpunit-permissions
-	@docker exec -ti -w /var/www/html/modules/ps_accounts phpunit sh -c "./vendor/bin/phpunit --testsuite feature"
-	@echo testsuite feature passed
+	@docker exec -w /var/www/html/modules/ps_accounts phpunit sh -c "./vendor/bin/phpunit --testsuite feature"
 
 phpunit: phpunit-module-install phpunit-module-version phpunit-run-feature phpunit-run-domain phpunit-run-unit
+	@echo phpunit passed
 
 vendor/phpunit/phpunit:
 	./composer.phar install
