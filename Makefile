@@ -150,7 +150,7 @@ phpunit-start: pull-phpunit phpunit-stop
 
 phpunit-module-install: phpunit-start
 	@sleep 1
-	@docker exec -ti phpunit sh -c "php -d memory_limit=-1 ./bin/console prestashop:module install ps_accounts"
+	@docker exec phpunit sh -c "php -d memory_limit=-1 ./bin/console prestashop:module install ps_accounts"
 
 phpunit-stop:
 	@docker-compose down
