@@ -11,7 +11,7 @@ PHPSTAN_VERSION ?= 0.12
 PHPUNIT_VERSION ?= latest
 PS_VERSION ?= latest #1.7.7.1
 NEON_FILE ?= phpstan-PS-1.7.neon
-DOCKER_INTERNAL ?= nightly # 1.7|nightly
+DOCKER_INTERNAL ?= 8 # 1.7|nightly
 CONTAINER_INSTALL_DIR="/var/www/html/modules/ps_accounts"
 
 # target: default                                - Calling build by default

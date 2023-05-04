@@ -40,7 +40,8 @@
         "phpunit/phpunit": "^8.5",
         "prestashop/php-dev-tools": "3.*",
         "friendsofphp/php-cs-fixer": "^2.16",
-        "fzaninotto/faker": "^1.9"
+        "fzaninotto/faker": "^1.9",
+        "dms/phpunit-arraysubset-asserts": "^0.4.0"
     },
     "scripts": {
         "set-license-header": [
