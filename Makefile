@@ -112,29 +112,34 @@ phpstan: check-docker
 	  --configuration=/web/module/tests/phpstan/${NEON_FILE}
 	docker volume rm ps-volume
 
-pull-phpunit:
+phpunit-pull:
 	docker pull prestashop/docker-internal-images:${DOCKER_INTERNAL}
 
-phpunit-start: pull-phpunit phpunit-stop
+phpunit-start:
 	@docker-compose up -d
-#	@docker exec -ti phpunit sh -c "service mariadb start"
 	@echo phpunit started
-
-phpunit-module-install: phpunit-start phpunit-module-config
-	@sleep 5
-	#docker-php-ext-enable xdebug
-	@docker exec phpunit sh -c "php -d memory_limit=-1 ./bin/console prestashop:module install ps_accounts"
 
 phpunit-stop:
 	@docker-compose down
 	@echo phpunit stopped
 
-phpunit-permissions:
-	@docker exec phpunit sh -c "chown -R www-data:www-data ./var"
+phpunit-restart: phpunit-stop phpunit-start
+
+phpunit-module-config:
+	@docker exec -w /var/www/html/modules/ps_accounts phpunit \
+		sh -c "if [ ! -f ./config/config.yml ]; then cp ./config/config.yml.dist ./config/config.yml; fi"
 
 phpunit-module-version:
 	@docker exec -w /var/www/html/modules/ps_accounts phpunit \
-		sh -c "echo \"Testing module v\`cat config.xml | grep '<version>' | sed 's/^.*\[CDATA\[\(.*\)\]\].*/\1/'\`\n\""
+		sh -c "echo \"Module v\`cat config.xml | grep '<version>' | sed 's/^.*\[CDATA\[\(.*\)\]\].*/\1/'\`\n\""
+
+phpunit-module-install: phpunit-module-config phpunit-module-version
+	@sleep 5
+	@#@docker exec phpunit sh -c "docker-php-ext-enable xdebug"
+	@docker exec phpunit sh -c "php -d memory_limit=-1 ./bin/console prestashop:module install ps_accounts"
+
+phpunit-permissions:
+	@docker exec phpunit sh -c "chown -R www-data:www-data ./var"
 
 phpunit-run-unit: phpunit-permissions
 	@docker exec -w /var/www/html/modules/ps_accounts phpunit sh -c "./vendor/bin/phpunit --testsuite unit"
@@ -145,13 +150,12 @@ phpunit-run-domain: phpunit-permissions
 phpunit-run-feature: phpunit-permissions
 	@docker exec -w /var/www/html/modules/ps_accounts phpunit sh -c "./vendor/bin/phpunit --testsuite feature"
 
-phpunit-module-config:
-	@docker exec -w /var/www/html/modules/ps_accounts phpunit \
-		sh -c "if [ ! -f ./config/config.yml ]; then cp ./config/config.yml.dist ./config/config.yml; fi"
-
 # target: phpunit                                - Start phpunit
-phpunit: phpunit-module-install phpunit-module-version phpunit-run-feature phpunit-run-domain phpunit-run-unit
+phpunit: phpunit-pull phpunit-restart phpunit-module-install phpunit-run-feature phpunit-run-domain phpunit-run-unit
 	@echo phpunit passed
+
+phpunit-dev: phpunit-pull phpunit-restart phpunit-module-install phpunit-permissions
+	@echo phpunit container is ready
 
 vendor/phpunit/phpunit:
 	./composer.phar install
