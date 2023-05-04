@@ -12,6 +12,7 @@ PHPUNIT_VERSION ?= latest
 PS_VERSION ?= latest #1.7.7.1
 NEON_FILE ?= phpstan-PS-1.7.neon
 DOCKER_INTERNAL ?= nightly # 1.7|nightly
+CONTAINER_INSTALL_DIR="/var/www/html/modules/ps_accounts"
 
 # target: default                                - Calling build by default
 default: build
@@ -126,15 +127,14 @@ phpunit-stop:
 phpunit-restart: phpunit-stop phpunit-start
 
 phpunit-module-config:
-	@docker exec -w /var/www/html/modules/ps_accounts phpunit \
+	@docker exec -w ${CONTAINER_INSTALL_DIR} phpunit \
 		sh -c "if [ ! -f ./config/config.yml ]; then cp ./config/config.yml.dist ./config/config.yml; fi"
 
 phpunit-module-version:
-	@docker exec -w /var/www/html/modules/ps_accounts phpunit \
+	@docker exec -w ${CONTAINER_INSTALL_DIR} phpunit \
 		sh -c "echo \"Module v\`cat config.xml | grep '<version>' | sed 's/^.*\[CDATA\[\(.*\)\]\].*/\1/'\`\n\""
 
 phpunit-module-install: phpunit-module-config phpunit-module-version
-	@sleep 5
 	@#@docker exec phpunit sh -c "docker-php-ext-enable xdebug"
 	@docker exec phpunit sh -c "php -d memory_limit=-1 ./bin/console prestashop:module install ps_accounts"
 
@@ -142,19 +142,23 @@ phpunit-permissions:
 	@docker exec phpunit sh -c "chown -R www-data:www-data ./var"
 
 phpunit-run-unit: phpunit-permissions
-	@docker exec -w /var/www/html/modules/ps_accounts phpunit sh -c "./vendor/bin/phpunit --testsuite unit"
+	@docker exec -w ${CONTAINER_INSTALL_DIR} phpunit ./vendor/bin/phpunit --testsuite unit
 
 phpunit-run-domain: phpunit-permissions
-	@docker exec -w /var/www/html/modules/ps_accounts phpunit sh -c "./vendor/bin/phpunit --testsuite domain"
+	@docker exec -w ${CONTAINER_INSTALL_DIR} phpunit ./vendor/bin/phpunit --testsuite domain
 
 phpunit-run-feature: phpunit-permissions
-	@docker exec -w /var/www/html/modules/ps_accounts phpunit sh -c "./vendor/bin/phpunit --testsuite feature"
+	@docker exec -w ${CONTAINER_INSTALL_DIR} phpunit ./vendor/bin/phpunit --testsuite feature
+
+phpunit-delay-5:
+	@echo waiting 5 seconds
+	@sleep 5
 
 # target: phpunit                                - Start phpunit
-phpunit: phpunit-pull phpunit-restart phpunit-module-install phpunit-run-feature phpunit-run-domain phpunit-run-unit
+phpunit: phpunit-pull phpunit-restart phpunit-delay-5 phpunit-module-install phpunit-run-feature phpunit-run-domain phpunit-run-unit
 	@echo phpunit passed
 
-phpunit-dev: phpunit-pull phpunit-restart phpunit-module-install phpunit-permissions
+phpunit-dev: phpunit-pull phpunit-restart phpunit-delay-5 phpunit-module-install phpunit-permissions
 	@echo phpunit container is ready
 
 vendor/phpunit/phpunit:
