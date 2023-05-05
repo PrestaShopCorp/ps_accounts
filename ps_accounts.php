@@ -675,11 +675,11 @@ class Ps_accounts extends Module
      */
     public function hookActionAdminControllerInitBefore($params)
     {
-        /** @var \PrestaShop\Module\PsAccounts\Service\PsAccountsService $psAccountsService */
-        $psAccountsService = $this->getService(\PrestaShop\Module\PsAccounts\Service\PsAccountsService::class);
+        /** @var \PrestaShop\Module\PsAccounts\Domain\Account\Entity\Login $login */
+        $login = $this->getService(\PrestaShop\Module\PsAccounts\Domain\Account\Entity\Login::class);
 
         if (isset($_GET['logout'])) {
-            if ($psAccountsService->getLoginActivated()) {
+            if ($login->isEnabled()) {
                 $this->oauth2Logout();
             } else {
                 $this->getOauth2Session()->clear();
@@ -696,7 +696,9 @@ class Ps_accounts extends Module
      */
     public function hookActionShopAccountLinkAfter($params)
     {
-        // Not implemented here
+        /** @var \PrestaShop\Module\PsAccounts\Domain\Account\Entity\Login $login */
+        $login = $this->getService(\PrestaShop\Module\PsAccounts\Domain\Account\Entity\Login::class);
+        $login->enable();
     }
 
     /**
@@ -708,7 +710,11 @@ class Ps_accounts extends Module
      */
     public function hookActionShopAccountUnlinkAfter($params)
     {
-        // Not implemented here
+        $this->getProvider()->getOauth2Client()->delete();
+
+        /** @var \PrestaShop\Module\PsAccounts\Domain\Account\Entity\Login $login */
+        $login = $this->getService(\PrestaShop\Module\PsAccounts\Domain\Account\Entity\Login::class);
+        $login->disable();
     }
 
     /**
@@ -838,14 +844,6 @@ class Ps_accounts extends Module
     public function isShopEdition(): bool
     {
         return Module::isEnabled('smb_edition');
-    }
-
-    /**
-     * @throws Exception
-     */
-    public function getOauth2Client(): PrestaShop\Module\PsAccounts\Domain\Account\Entity\Oauth2Client
-    {
-        return $this->getService(\PrestaShop\Module\PsAccounts\Domain\Account\Entity\Oauth2Client::class);
     }
 
     protected function getProvider(): PrestaShop\Module\PsAccounts\Provider\OAuth2\PrestaShopClientProvider

@@ -171,6 +171,12 @@ services:
     arguments:
       - '@PrestaShop\Module\PsAccounts\Repository\ConfigurationRepository'
 
+  PrestaShop\Module\PsAccounts\Domain\Account\Entity\Login:
+    class: PrestaShop\Module\PsAccounts\Domain\Account\Entity\Login
+    arguments:
+      - '@PrestaShop\Module\PsAccounts\Repository\ConfigurationRepository'
+      - '@PrestaShop\Module\PsAccounts\Domain\Account\Entity\Oauth2Client'
+
   #####################
   # CQRS
 

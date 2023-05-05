@@ -20,9 +20,9 @@
 
 namespace PrestaShop\Module\PsAccounts\Service;
 
-use Doctrine\ORM\EntityManagerInterface;
 use PrestaShop\Module\PsAccounts\Adapter\Link;
 use PrestaShop\Module\PsAccounts\Cqrs\CommandBus;
+use PrestaShop\Module\PsAccounts\Domain\Account\Entity\Login;
 use PrestaShop\Module\PsAccounts\Domain\Shop\Command\MigrateAndLinkV4ShopCommand;
 use PrestaShop\Module\PsAccounts\Domain\Shop\Entity\Account;
 use PrestaShop\Module\PsAccounts\Domain\Shop\Entity\OwnerSession;
@@ -241,37 +241,26 @@ class PsAccountsService
     }
 
     /**
+     * @deprecated
+     *
      * @throws \Exception
      */
     public function getLoginActivated(): bool
     {
-        /** @var ConfigurationRepository $configuration */
-        $configuration = $this->module->getService(ConfigurationRepository::class);
+        /** @var Login $login */
+        $login = $this->module->getService(Login::class);
 
-        return $configuration->getLoginEnabled() &&
-            $configuration->getOauth2ClientId() &&
-            $configuration->getOauth2ClientSecret();
+        return $login->isEnabled();
     }
 
+    /**
+     * @throws \Exception
+     */
     public function getEmployeeAccount(): ?EmployeeAccount
     {
-        $employeeId = $this->module->getContext()->employee->id;
+        /** @var Login $login */
+        $login = $this->module->getService(Login::class);
 
-        if (!empty($employeeId)) {
-            /** @var EntityManagerInterface $entityManager */
-            $entityManager = $this->module->getContainer()->get('doctrine.orm.entity_manager');
-
-            $employeeAccountRepository = $entityManager->getRepository(EmployeeAccount::class);
-
-            /**
-             * @var EmployeeAccount $employeeAccount
-             * @phpstan-ignore-next-line
-             */
-            $employeeAccount = $employeeAccountRepository->findOneBy(['employeeId' => $employeeId]);
-            // $employeeAccount = $employeeAccountRepository->findOneByUid($uid);
-            return $employeeAccount;
-        }
-
-        return null;
+        return $login->getLoggedInEmployeeAccount();
     }
 }

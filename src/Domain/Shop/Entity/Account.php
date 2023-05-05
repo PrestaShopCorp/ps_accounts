@@ -66,7 +66,6 @@ class Account
         $this->publicKey->cleanupKeys();
         $this->shopSession->cleanup();
         $this->ownerSession->cleanup();
-        $this->configurationRepository->updateLoginEnabled(false);
         try {
             $this->publicKey->generateKeys();
         } catch (\Exception $e) {

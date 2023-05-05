@@ -18,6 +18,7 @@
  * @license   https://opensource.org/licenses/AFL-3.0 Academic Free License version 3.0
  */
 
+use PrestaShop\Module\PsAccounts\Domain\Account\Entity\Login;
 use PrestaShop\Module\PsAccounts\Service\AnalyticsService;
 use PrestaShop\Module\PsAccounts\Service\PsAccountsService;
 use Symfony\Component\HttpFoundation\Session\SessionInterface;
@@ -68,11 +69,11 @@ class AdminLoginController extends AdminLoginControllerCore
 
         $this->psAccountsModule = $module;
 
-        /** @var PsAccountsService $moduleService */
-        $moduleService = $this->psAccountsModule->getService(PsAccountsService::class);
+        /** @var Login $login */
+        $login = $this->psAccountsModule->getService(Login::class);
 
         if (self::PS_ACCOUNTS_LOGIN_MODE_LOCAL !== $this->getPsAccountsLoginMode()) {
-            $this->psAccountsLoginEnabled = $moduleService->getLoginActivated();
+            $this->psAccountsLoginEnabled = $login->isEnabled();
         }
 
         $this->analyticsService = $this->psAccountsModule->getService(AnalyticsService::class);

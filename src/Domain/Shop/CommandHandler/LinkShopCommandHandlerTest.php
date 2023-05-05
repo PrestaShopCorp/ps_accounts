@@ -48,8 +48,7 @@ class LinkShopCommandHandlerTest extends TestCase
 
         $this->linkShopHandler = new LinkShopCommandHandler(
             $this->shopSession,
-            $this->ownerSession,
-            $this->mockedConfigurationRepository
+            $this->ownerSession
         );
     }
 

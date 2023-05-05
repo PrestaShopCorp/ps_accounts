@@ -9,7 +9,6 @@ services:
     arguments:
       - '@PrestaShop\Module\PsAccounts\Domain\Shop\Entity\ShopSession'
       - '@PrestaShop\Module\PsAccounts\Domain\Shop\Entity\OwnerSession'
-      - '@PrestaShop\Module\PsAccounts\Repository\ConfigurationRepository'
 
   PrestaShop\Module\PsAccounts\Domain\Shop\CommandHandler\MigrateAndLinkV4ShopCommandHandler:
     class: PrestaShop\Module\PsAccounts\Domain\Shop\CommandHandler\MigrateAndLinkV4ShopCommandHandler

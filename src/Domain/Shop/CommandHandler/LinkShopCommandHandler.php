@@ -7,7 +7,7 @@ use PrestaShop\Module\PsAccounts\Domain\Shop\Command\LinkShopCommand;
 use PrestaShop\Module\PsAccounts\Domain\Shop\Entity\OwnerSession;
 use PrestaShop\Module\PsAccounts\Domain\Shop\Entity\ShopSession;
 use PrestaShop\Module\PsAccounts\Domain\Shop\Exception\RefreshTokenException;
-use PrestaShop\Module\PsAccounts\Repository\ConfigurationRepository;
+use PrestaShopException;
 use Ps_accounts;
 
 class LinkShopCommandHandler
@@ -22,19 +22,12 @@ class LinkShopCommandHandler
      */
     private $ownerSession;
 
-    /**
-     * @var ConfigurationRepository
-     */
-    private $configurationRepository;
-
     public function __construct(
         ShopSession $shopSession,
-        OwnerSession $ownerSession,
-        ConfigurationRepository $configurationRepository
+        OwnerSession $ownerSession
     ) {
         $this->shopSession = $shopSession;
         $this->ownerSession = $ownerSession;
-        $this->configurationRepository = $configurationRepository;
     }
 
     /**
@@ -43,7 +36,7 @@ class LinkShopCommandHandler
      * @return void
      *
      * @throws RefreshTokenException
-     * @throws \PrestaShopException
+     * @throws PrestaShopException
      */
     public function handle(LinkShopCommand $command): void
     {
@@ -61,7 +54,6 @@ class LinkShopCommandHandler
         $this->shopSession->setToken($payload->shop_token, $payload->shop_refresh_token);
         $this->ownerSession->setToken($payload->user_token, $payload->user_refresh_token);
         $this->ownerSession->setEmployeeId((int) $payload->employee_id ?: null);
-        $this->configurationRepository->updateLoginEnabled(true);
 
         Hook::exec(Ps_accounts::HOOK_ACTION_SHOP_ACCOUNT_LINK_AFTER, [
             'shopUuid' => $this->shopSession->getToken()->getUuid(),
