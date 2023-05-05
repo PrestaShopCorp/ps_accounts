@@ -21,7 +21,6 @@
 namespace PrestaShop\Module\PsAccounts\Provider\OAuth2;
 
 use League\OAuth2\Client\Token\AccessToken;
-use PrestaShop\Module\PsAccounts\Repository\ConfigurationRepository;
 use PrestaShop\OAuth2\Client\Provider\PrestaShop;
 
 class PrestaShopClientProvider extends PrestaShop
@@ -39,9 +38,9 @@ class PrestaShopClientProvider extends PrestaShop
     private $context;
 
     /**
-     * @var ConfigurationRepository
+     * @var Oauth2Client
      */
-    private $configuration;
+    private $oauth2Client;
 
     /**
      * @param array $options
@@ -55,7 +54,7 @@ class PrestaShopClientProvider extends PrestaShop
         $module = \Module::getInstanceByName('ps_accounts');
         $this->module = $module;
         $this->context = $module->getContext();
-        $this->configuration = $module->getService(ConfigurationRepository::class);
+        $this->oauth2Client = $module->getService(Oauth2Client::class);
 
         // Disable certificate verification from local configuration
         $options['verify'] = (bool) $this->module->getParameter(
@@ -63,8 +62,8 @@ class PrestaShopClientProvider extends PrestaShop
         );
 
         parent::__construct(array_merge([
-            'clientId' => $this->configuration->getOauth2ClientId(),
-            'clientSecret' => $this->configuration->getOauth2ClientSecret(),
+            'clientId' => $this->oauth2Client->getClientId(),
+            'clientSecret' => $this->oauth2Client->getClientSecret(),
             'redirectUri' => $this->getRedirectUri(),
             'postLogoutCallbackUri' => $this->getPostLogoutRedirectUri(),
         ], $options), $collaborators);
@@ -159,5 +158,13 @@ class PrestaShopClientProvider extends PrestaShop
             'logout' => 1,
             self::QUERY_LOGOUT_CALLBACK_PARAM => 1,
         ]);
+    }
+
+    /**
+     * @return Oauth2Client
+     */
+    public function getOauth2Client(): Oauth2Client
+    {
+        return $this->oauth2Client;
     }
 }

@@ -307,27 +307,6 @@ class Ps_accounts extends Module
         );
     }
 
-//    /**
-//     * Override of native function to always retrieve Symfony container instead of legacy admin container on legacy context.
-//     *
-//     * @param string $serviceName
-//     *
-//     * @return mixed
-//     */
-//    public function getService($serviceName)
-//    {
-//        if ((new \PrestaShop\Module\PsAccounts\Context\ShopContext())->isShop173()) {
-//            // 1.7.3
-//            // 1.7.6
-//            //$this->context->controller->getContainer()
-//
-//            if (null === $this->container) {
-//                $this->container = \PrestaShop\PrestaShop\Adapter\SymfonyContainer::getInstance();
-//            }
-//        }
-//        return $this->container->get($serviceName);
-//    }
-
     /**
      * @param array $params
      *
@@ -862,12 +841,17 @@ class Ps_accounts extends Module
         return Module::isEnabled('smb_edition');
     }
 
+    /**
+     * @throws Exception
+     */
+    public function getOauth2Client(): PrestaShop\Module\PsAccounts\Provider\OAuth2\Oauth2Client
+    {
+        return $this->getService(\PrestaShop\Module\PsAccounts\Provider\OAuth2\Oauth2Client::class);
+    }
+
     protected function getProvider(): PrestaShop\Module\PsAccounts\Provider\OAuth2\PrestaShopClientProvider
     {
-        /** @var \PrestaShop\Module\PsAccounts\Provider\OAuth2\PrestaShopClientProvider $provider */
-        $provider = $this->getService(\PrestaShop\Module\PsAccounts\Provider\OAuth2\PrestaShopClientProvider::class);
-
-        return $provider;
+        return $this->getService(\PrestaShop\Module\PsAccounts\Provider\OAuth2\PrestaShopClientProvider::class);
     }
 
     protected function isOauth2LogoutEnabled(): bool
@@ -877,9 +861,6 @@ class Ps_accounts extends Module
 
     protected function getOauth2Session(): PrestaShop\Module\PsAccounts\Provider\OAuth2\PrestaShopSession
     {
-        /** @var \PrestaShop\Module\PsAccounts\Provider\OAuth2\PrestaShopSession $oauth2Session */
-        $oauth2Session = $this->getService(\PrestaShop\Module\PsAccounts\Provider\OAuth2\PrestaShopSession::class);
-
-        return $oauth2Session;
+        return $this->getService(\PrestaShop\Module\PsAccounts\Provider\OAuth2\PrestaShopSession::class);
     }
 }

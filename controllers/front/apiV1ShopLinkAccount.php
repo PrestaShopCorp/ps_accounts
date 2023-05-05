@@ -83,6 +83,7 @@ class ps_AccountsApiV1ShopLinkAccountModuleFrontController extends AbstractShopR
      * @return array
      *
      * @throws PrestaShopException
+     * @throws Exception
      */
     public function delete(Shop $shop, array $payload): array
     {

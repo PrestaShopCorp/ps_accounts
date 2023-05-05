@@ -4,7 +4,6 @@ namespace PrestaShop\Module\PsAccounts\Provider\OAuth2;
 
 use League\OAuth2\Client\Provider\Exception\IdentityProviderException;
 use League\OAuth2\Client\Token\AccessToken;
-use PrestaShop\OAuth2\Client\Provider\PrestaShop;
 use PrestaShop\OAuth2\Client\Provider\PrestaShopUser;
 use Symfony\Component\HttpFoundation\Session\SessionInterface;
 
@@ -18,11 +17,11 @@ class PrestaShopSession
     private $session;
 
     /**
-     * @var PrestaShop
+     * @var PrestaShopClientProvider
      */
     private $provider;
 
-    public function __construct(SessionInterface $session, PrestaShop $provider)
+    public function __construct(SessionInterface $session, PrestaShopClientProvider $provider)
     {
         $this->session = $session;
         $this->provider = $provider;
@@ -30,6 +29,7 @@ class PrestaShopSession
 
     /**
      * @throws IdentityProviderException
+     * @throws \Exception
      */
     public function getOrRefreshAccessToken(): ?string
     {
@@ -45,6 +45,9 @@ class PrestaShopSession
         return $this->getAccessToken();
     }
 
+    /**
+     * @throws \Exception
+     */
     public function getIdToken(): ?string
     {
         $token = $this->getTokenProvider();
@@ -52,6 +55,9 @@ class PrestaShopSession
         return $token ? $token->getValues()['id_token'] : null;
     }
 
+    /**
+     * @throws \Exception
+     */
     public function getAccessToken(): ?string
     {
         $token = $this->getTokenProvider();
@@ -69,6 +75,9 @@ class PrestaShopSession
         return $this->session->has(self::TOKEN_NAME);
     }
 
+    /**
+     * @throws \Exception
+     */
     public function getPrestashopUser(): PrestaShopUser
     {
         return $this->provider->getResourceOwner($this->getTokenProvider());
@@ -79,8 +88,15 @@ class PrestaShopSession
         $this->session->remove(self::TOKEN_NAME);
     }
 
+    /**
+     * @throws \Exception
+     */
     private function getTokenProvider(): ?AccessToken
     {
+        if (!$this->provider->getOauth2Client()->exists()) {
+            $this->clear();
+        }
+
         return $this->session->get(self::TOKEN_NAME);
     }
 }
