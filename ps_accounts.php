@@ -678,12 +678,6 @@ class Ps_accounts extends Module
         /** @var \PrestaShop\Module\PsAccounts\Service\PsAccountsService $psAccountsService */
         $psAccountsService = $this->getService(\PrestaShop\Module\PsAccounts\Service\PsAccountsService::class);
 
-        $oauth2Client = $this->getOauth2Client();
-        if ($oauth2Client->exists() && !$psAccountsService->isAccountLinked()) {
-            $this->getOauth2Session()->clear();
-            $oauth2Client->delete();
-        }
-
         if (isset($_GET['logout'])) {
             if ($psAccountsService->getLoginActivated()) {
                 $this->oauth2Logout();
