@@ -20,8 +20,6 @@
 
 namespace PrestaShop\Module\PsAccounts\Exception\Http;
 
-use Throwable;
-
 class UnauthorizedException extends HttpException
 {
     /**
@@ -29,9 +27,9 @@ class UnauthorizedException extends HttpException
      *
      * @param string $message
      * @param int $code
-     * @param Throwable|null $previous
+     * @param \Exception|null $previous
      */
-    public function __construct($message = 'Unauthorized', $code = 0, Throwable $previous = null)
+    public function __construct($message = 'Unauthorized', $code = 0, \Exception $previous = null)
     {
         parent::__construct($message, $code, $previous);
 

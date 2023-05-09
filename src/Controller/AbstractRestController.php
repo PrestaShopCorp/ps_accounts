@@ -65,7 +65,7 @@ abstract class AbstractRestController extends \ModuleFrontController
     /**
      * @return void
      *
-     * @throws \Throwable
+     * @throws \PrestaShopException
      */
     // public function init()
     // public function displayAjax()
