@@ -137,7 +137,7 @@ class AccountsClient extends GenericClient implements TokenClientInterface
      *
      * @return array
      *
-     * @throws \Throwable
+     * @throws \Exception
      */
     public function reonboardShop($currentShop)
     {

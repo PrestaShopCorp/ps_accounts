@@ -12,7 +12,7 @@ class GetOrRefreshTokenTest extends TestCase
     /**
      * @test
      *
-     * @throws \Throwable
+     * @throws \Exception
      */
     public function itShouldReturnValidToken()
     {
@@ -33,7 +33,7 @@ class GetOrRefreshTokenTest extends TestCase
     /**
      * @test
      *
-     * @throws \Throwable
+     * @throws \Exception
      */
     public function itShouldRefreshExpiredToken()
     {

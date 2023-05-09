@@ -64,7 +64,7 @@ abstract class AbstractRestController extends \ModuleFrontController implements 
     /**
      * @return void
      *
-     * @throws \Throwable
+     * @throws \PrestaShopException
      */
     public function postProcess()
     {
