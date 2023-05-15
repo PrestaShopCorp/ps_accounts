@@ -4,13 +4,13 @@
 
 
 .splide__pagination {
-    @apply psacc-relative psacc-bottom-0 psacc-top-8;
+    @apply !psacc-mb-6;
 }
 
 .splide__pagination__page {
-    @apply psacc-w-2 psacc-h-2 !psacc-bg-white psacc-mx-4 psacc-rounded-full;
+    @apply psacc-w-4 !psacc-bg-primary-800/25 psacc-mx-4 psacc-rounded-md psacc-h-1.5 psacc-duration-200;
 }
 
 .splide__pagination__page.is-active {
-    @apply !psacc-bg-primary-purple-500 psacc-w-4 psacc-h-4;
+    @apply psacc-w-10 psacc-h-1.5 !psacc-bg-primary-800;
 }

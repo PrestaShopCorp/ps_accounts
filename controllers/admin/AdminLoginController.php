@@ -18,6 +18,7 @@
  * @license   https://opensource.org/licenses/AFL-3.0 Academic Free License version 3.0
  */
 
+use GuzzleHttp\Client;
 use PrestaShop\Module\PsAccounts\Service\AnalyticsService;
 use PrestaShop\Module\PsAccounts\Service\PsAccountsService;
 use Symfony\Component\HttpFoundation\Session\SessionInterface;
@@ -56,6 +57,9 @@ class AdminLoginController extends AdminLoginControllerCore
     /** @var AnalyticsService */
     private $analyticsService;
 
+    /** @var \Monolog\Logger */
+    private $logger;
+
     /**
      * @throws Exception
      */
@@ -67,6 +71,8 @@ class AdminLoginController extends AdminLoginControllerCore
         $module = Module::getInstanceByName('ps_accounts');
 
         $this->psAccountsModule = $module;
+
+        $this->logger = $this->psAccountsModule->getLogger();
 
         /** @var PsAccountsService $moduleService */
         $moduleService = $this->psAccountsModule->getService(PsAccountsService::class);
@@ -113,8 +119,12 @@ class AdminLoginController extends AdminLoginControllerCore
                 $this->analyticsService->pageLocalBoLogin($userId);
         }
 
-        if ($this->psAccountsLoginEnabled && $tpl_name === $this->template) {
-            return $this->createPsAccountsLoginTemplate();
+        try {
+            if ($this->psAccountsLoginEnabled && $tpl_name === $this->template) {
+                return $this->createPsAccountsLoginTemplate();
+            }
+        } catch (\Exception $e) {
+            $this->logger->error('Error while creating the ps accounts login template', ['error' => $e->getMessage()]);
         }
 
         return parent::createTemplate($tpl_name);
@@ -127,11 +137,15 @@ class AdminLoginController extends AdminLoginControllerCore
      */
     public function createPsAccountsLoginTemplate()
     {
-        /** @var \PrestaShop\Module\PsAccounts\Provider\OAuth2\PrestaShopClientProvider $provider */
-        $provider = $this->psAccountsModule->getService(\PrestaShop\Module\PsAccounts\Provider\OAuth2\PrestaShopClientProvider::class);
+        /** @var PrestaShop\Module\PsAccounts\Provider\OAuth2\PrestaShopClientProvider $provider */
+        $provider = $this->psAccountsModule->getService(PrestaShop\Module\PsAccounts\Provider\OAuth2\PrestaShopClientProvider::class);
+
+        $testimonials = $this->getTestimonials();
 
         /** @var SessionInterface $session */
         $session = $this->psAccountsModule->getContainer()->get('session');
+
+        $this->context->smarty->assign('shopUrl', $this->context->shop->getBaseUrl(true));
 
         $this->context->smarty->assign('oauthRedirectUri', $provider->getRedirectUri());
         $this->context->smarty->assign('legacyLoginUri', $this->context->link->getAdminLink('AdminLogin', true, [], [
@@ -139,6 +153,9 @@ class AdminLoginController extends AdminLoginControllerCore
         ]));
 
         $isoCode = $this->context->currentLocale->getCode();
+        $this->context->smarty->assign('isoCode', substr($isoCode, 0, 2));
+        $this->context->smarty->assign('defaultIsoCode', 'en');
+        $this->context->smarty->assign('testimonials', $testimonials);
 
         $this->context->smarty->assign('loginError', $session->remove('loginError'));
         $this->context->smarty->assign('meta_title', '');
@@ -172,5 +189,22 @@ class AdminLoginController extends AdminLoginControllerCore
             DIRECTORY_SEPARATOR . 'controllers' .
             DIRECTORY_SEPARATOR . 'login' .
             DIRECTORY_SEPARATOR;
+    }
+
+    /**
+     * @return array
+     */
+    private function getTestimonials()
+    {
+        try {
+            $client = new Client();
+            $resp = $client->get($this->psAccountsModule->getParameter('ps_accounts.testimonials_url'));
+
+            return json_decode($resp->getBody()->getContents());
+        } catch (Exception|\GuzzleHttp\Exception\GuzzleException $e) {
+            $this->logger->error('Error while getting the testimonials', ['error' => $e->getMessage()]);
+
+            return [];
+        }
     }
 }
