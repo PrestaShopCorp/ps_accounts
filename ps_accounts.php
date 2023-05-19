@@ -741,7 +741,7 @@ class Ps_accounts extends Module
     {
         $this->loadAssets();
 
-        return $this->display(__FILE__, '/views/templates/admin/app.tpl');
+        return $this->display(__FILE__, 'views/templates/admin/app.tpl');
     }
 
     /**
