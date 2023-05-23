@@ -32,7 +32,7 @@ Here are listed Open APIs provided by this module:
 |-----------|---------------------|-------------------------|-----------------------------|------------------------------------------------------|
 | GET       | AdminAjaxPsAccounts | getOrRefreshAccessToken | { token: "<access_token>" } | Triggered after link has been acknowledged by shop   |
 
-Example: I want to get the authenticated user token in order make action on his behalf. The request would be `GET https://<shop-admin-url>/index.php?controller=AdminAjaxPsAccounts&action=getOrRefreshAccessToken&ajax=true&token=<token>`
+Example: I want to get the authenticated user token in order make action on his behalf. The request would be `GET https://<shop-admin-url>/index.php?controller=AdminAjaxPsAccounts&action=getOrRefreshAccessToken&ajax=true&token=<token>` where `token` is a Prestashop Admin token.
 
 ## Custom hooks
 
