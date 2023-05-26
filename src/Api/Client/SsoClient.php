@@ -50,6 +50,8 @@ class SsoClient implements TokenClientInterface
                 'defaults' => [
                     'headers' => [
                         'Accept' => 'application/json',
+                        'X-Module-Version' => \Ps_accounts::VERSION,
+                        'X-Prestashop-Version' => _PS_VERSION_,
                     ],
                 ],
             ]);

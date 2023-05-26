@@ -35,6 +35,11 @@ use PrestaShop\Module\PsAccounts\Service\ShopLinkAccountService;
 class AccountsClient implements TokenClientInterface
 {
     /**
+     * @var string
+     */
+    private $apiUrl;
+
+    /**
      * @var ShopProvider
      */
     private $shopProvider;
@@ -56,15 +61,26 @@ class AccountsClient implements TokenClientInterface
         ShopProvider $shopProvider,
         AbstractGuzzleClient $client = null
     ) {
+        $this->apiUrl = $apiUrl;
         $this->shopProvider = $shopProvider;
+        $this->client = $client;
+    }
 
-        if (null === $client) {
-            $client = (new GuzzleClientFactory())->create([
-                'base_url' => $apiUrl,
+    /**
+     * @return AbstractGuzzleClient
+     */
+    private function getClient()
+    {
+        if (null === $this->client) {
+            $this->client = (new GuzzleClientFactory())->create([
+                'base_url' => $this->apiUrl,
+                'defaults' => [
+                    'headers' => $this->getHeaders(),
+                ],
             ]);
         }
 
-        $this->client = $client;
+        return $this->client;
     }
 
     /**
@@ -74,11 +90,13 @@ class AccountsClient implements TokenClientInterface
      */
     public function verifyToken($idToken)
     {
-        $this->client->setRoute('shop/token/verify');
+        $this->getClient()->setRoute('shop/token/verify');
 
-        return $this->client->post([
+        return $this->getClient()->post([
             'json' => [
-                'headers' => $this->getHeaders(),
+                'headers' => $this->getHeaders([
+                    'X-Shop-Id' => $this->shopProvider->getCurrentShop()['id'],
+                ]),
                 'token' => $idToken,
             ],
         ]);
@@ -91,11 +109,13 @@ class AccountsClient implements TokenClientInterface
      */
     public function refreshToken($refreshToken)
     {
-        $this->client->setRoute('shop/token/refresh');
+        $this->getClient()->setRoute('shop/token/refresh');
 
-        return $this->client->post([
+        return $this->getClient()->post([
             'json' => [
-                'headers' => $this->getHeaders(),
+                'headers' => $this->getHeaders([
+                    'X-Shop-Id' => $this->shopProvider->getCurrentShop()['id'],
+                ]),
                 'token' => $refreshToken,
             ],
         ]);
@@ -110,15 +130,16 @@ class AccountsClient implements TokenClientInterface
      */
     public function deleteUserShop($shopId)
     {
-        return $this->shopProvider->getShopContext()->execInShopContext((int) $shopId, function () {
+        return $this->shopProvider->getShopContext()->execInShopContext((int) $shopId, function () use ($shopId) {
             $userToken = $this->getUserTokenRepository();
             $shopToken = $this->getShopTokenRepository();
 
-            $this->client->setRoute('user/' . $userToken->getTokenUuid() . '/shop/' . $shopToken->getTokenUuid());
+            $this->getClient()->setRoute('user/' . $userToken->getTokenUuid() . '/shop/' . $shopToken->getTokenUuid());
 
-            return $this->client->delete([
+            return $this->getClient()->delete([
                 'headers' => $this->getHeaders([
                     'Authorization' => 'Bearer ' . $userToken->getOrRefreshToken(),
+                    'X-Shop-Id' => $shopId,
                 ]),
             ]);
         });
@@ -136,12 +157,12 @@ class AccountsClient implements TokenClientInterface
         return $this->shopProvider->getShopContext()->execInShopContext((int) $currentShop['id'], function () use ($currentShop) {
             $shopToken = $this->getShopTokenRepository();
 
-            $this->client->setRoute('shop/' . $currentShop['uuid'] . '/reonboard');
+            $this->getClient()->setRoute('shop/' . $currentShop['uuid'] . '/reonboard');
 
-            return $this->client->post([
+            return $this->getClient()->post([
                 'headers' => $this->getHeaders([
                     'Authorization' => 'Bearer ' . $shopToken->getOrRefreshToken(),
-                    'content-type' => 'application/json',
+                    'X-Shop-Id' => $currentShop['id'],
                 ]),
                 'json' => $currentShop,
             ]);
@@ -171,12 +192,12 @@ class AccountsClient implements TokenClientInterface
                 return null;
             }
 
-            $this->client->setRoute('user/' . $userToken->getTokenUuid() . '/shop/' . $shopToken->getTokenUuid());
+            $this->getClient()->setRoute('user/' . $userToken->getTokenUuid() . '/shop/' . $shopToken->getTokenUuid());
 
-            return $this->client->patch([
+            return $this->getClient()->patch([
                 'headers' => $this->getHeaders([
                     'Authorization' => 'Bearer ' . $userToken->getOrRefreshToken(),
-                    'content-type' => 'application/json',
+                    'X-Shop-Id' => $shop->shopId,
                 ]),
                 'json' => $shop->jsonSerialize(),
             ]);
@@ -192,6 +213,8 @@ class AccountsClient implements TokenClientInterface
     {
         return array_merge([
             'Accept' => 'application/json',
+            'X-Module-Version' => \Ps_accounts::VERSION,
+            'X-Prestashop-Version' => _PS_VERSION_,
         ], $additionalHeaders);
     }
 
