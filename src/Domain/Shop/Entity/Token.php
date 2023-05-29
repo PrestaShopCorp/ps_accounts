@@ -42,11 +42,7 @@ class Token
 
     public function getUuid(): ?string
     {
-        // return $this->configuration->getShopUuid();
-        // return $this->configuration->getUserFirebaseUuid();
-        // return $this->getToken()->claims()->get('user_id');
-        // FIXME: sub ?
-        return $this->getJwt()->claims()->get('user_id');
+        return $this->getJwt()->claims()->get('sub');
     }
 
     public function getEmail(): ?string
