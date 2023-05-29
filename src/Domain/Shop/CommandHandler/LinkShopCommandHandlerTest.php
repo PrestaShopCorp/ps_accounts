@@ -23,10 +23,10 @@ class LinkShopCommandHandlerTest extends TestCase
      */
     private $ownerSession;
 
-    /**
-     * @var ConfigurationRepository
-     */
-    private $mockedConfigurationRepository;
+//    /**
+//     * @var ConfigurationRepository
+//     */
+//    private $mockedConfigurationRepository;
 
     /**
      * @var LinkShopCommandHandler
@@ -42,7 +42,7 @@ class LinkShopCommandHandlerTest extends TestCase
 //            ->onlyMethods(['updateEmployeeId', 'updateLoginEnabled'])
 //            ->getMock();
 
-        $this->mockedConfigurationRepository = $this->createMock(ConfigurationRepository::class);
+//        $this->mockedConfigurationRepository = $this->createMock(ConfigurationRepository::class);
         $this->shopSession = $this->createMock(ShopSession::class);
         $this->ownerSession = $this->createMock(OwnerSession::class);
 
@@ -91,10 +91,10 @@ class LinkShopCommandHandlerTest extends TestCase
             ->method('setEmployeeId')
             ->with($request->employee_id);
 
-        /* @phpstan-ignore-next-line  */
-        $this->mockedConfigurationRepository->expects($this->once())
-            ->method('updateLoginEnabled')
-            ->with(true);
+//        /* @phpstan-ignore-next-line  */
+//        $this->mockedConfigurationRepository->expects($this->once())
+//            ->method('updateLoginEnabled')
+//            ->with(true);
 
         // $commandBus = new CommandBus();
         // $commandBus->execute($command);

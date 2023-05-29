@@ -2,7 +2,6 @@
 
 namespace PrestaShop\Module\PsAccounts\Domain\Account\Entity;
 
-use Context;
 use Doctrine\ORM\EntityManagerInterface;
 use PrestaShop\Module\PsAccounts\Entity\EmployeeAccount;
 use PrestaShop\Module\PsAccounts\Repository\ConfigurationRepository;
