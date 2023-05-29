@@ -30,9 +30,9 @@ Here are listed Open APIs provided by this module:
 
 | HTTP Verb | Controller          | Method                  | Payload                     | Description                                          |
 |-----------|---------------------|-------------------------|-----------------------------|------------------------------------------------------|
-| GET       | AdminAjaxPsAccounts | getOrRefreshAccessToken | { token: "<access_token>" } | Triggered after link has been acknowledged by shop   |
+| GET       | AdminAjaxPsAccounts | getOrRefreshAccessToken | { token: "<access_token>" } | Return a token provided by [Prestashop OpenId Connect Provider](https://oauth.prestashop.com/.well-known/openid-configuration) when the user has been authenticated by this provider |
 
-Example: I want to get the authenticated user token in order make action on his behalf. The request would be `GET https://<shop-admin-url>/index.php?controller=AdminAjaxPsAccounts&action=getOrRefreshAccessToken&ajax=true&token=<token>`
+Example: I want to get the authenticated user token in order make action on his behalf. The request would be `GET https://<shop-admin-url>/index.php?controller=AdminAjaxPsAccounts&action=getOrRefreshAccessToken&ajax=true&token=<token>` where `token` is a Prestashop Admin token.
 
 ## Custom hooks
 

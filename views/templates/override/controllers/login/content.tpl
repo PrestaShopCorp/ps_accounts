@@ -18,65 +18,55 @@
  *}
 <div class="psacc-grid psacc-h-screen lg:psacc-grid-cols-2">
     <div
-        class="psacc-hidden lg:psacc-flex psacc-flex-col psacc-items-center psacc-justify-center psacc-bg-primary-purple-50">
-        <section id="psacc_slider" class="splide psacc-max-w-xl">
+        class="psacc-hidden lg:psacc-flex psacc-flex-col psacc-items-center psacc-justify-end psacc-bg-cover psacc-bg-no-repeat psacc-bg-bicycle"
+    >
+        <section
+            id="psacc_slider"
+            class="splide psacc-mb-10 psacc-w-11/12 psacc-bg-quote psacc-flex psacc-flex-col"
+        >
             <div
-                class="splide__arrows psacc-flex psacc-justify-between psacc-absolute psacc-bottom-12 psacc-translate-y-2/4 psacc-w-full psacc-z-10">
-                <button
-                    class="splide__arrow splide__arrow--prev psacc-font-materialIcons psacc-bg-white psacc-opacity-100 psacc-rounded psacc-border psacc-border-border-main psacc-text-font-main psacc-w-9 psacc-h-9">
-                    chevron_left
-                </button>
-                <button
-                    class="splide__arrow splide__arrow--next psacc-font-materialIcons psacc-bg-white psacc-opacity-100 psacc-rounded psacc-border psacc-border-border-main psacc-text-font-main psacc-w-9 psacc-h-9">
-                    chevron_right
-                </button>
+                class="splide__arrows psacc-flex psacc-justify-between psacc-w-full psacc-my-5"
+            >
+                <img src="{$shopUrl}/modules/ps_accounts/views/img/quote-mark.svg" class="psacc-ml-10">
+                <div class="psacc-flex psacc-justify-center psacc-items-center psacc-mr-10">
+                    <button
+                        class="splide__arrow splide__arrow--prev psacc-font-materialIcons psacc-opacity-100 psacc-rounded psacc-text-font-main psacc-text-4xl psacc-mr-5"
+                    >
+                        chevron_left
+                    </button>
+                    <button
+                        class="splide__arrow splide__arrow--next psacc-font-materialIcons psacc-opacity-100 psacc-rounded psacc-text-font-main psacc-text-4xl"
+                    >
+                        chevron_right
+                    </button>
+                </div>
             </div>
-            <div class="splide__track">
-                <ul class="splide__list">
-                    <li class="splide__slide psacc-flex psacc-flex-col psacc-items-center psacc-justify-end">
-                        <img class="psacc-mb-12" src="/modules/ps_accounts/views/img/slide1.png" />
-                        <div class="psacc-max-w-sm">
-                            <h2 class="puik-h2 psacc-font-primary psacc-text-center psacc-mb-4 psacc-text-font-main">
-                                {l s='An easy-to-use back office' mod='ps_accounts'}
-                            </h2>
-                            <p class="puik-body-default psacc-font-secondary psacc-text-center psacc-text-base">
-                                {l s='Manage your entire business in one place: product catalog, orders, payments, deliveries and much more.' mod='ps_accounts'}
-                            </p>
-                        </div>
-                    </li>
-                    <li class="splide__slide psacc-flex psacc-flex-col psacc-items-center psacc-justify-end">
-                        <img class="psacc-mb-12" src="/modules/ps_accounts/views/img/slide2.png" />
-                        <div class="psacc-max-w-sm">
-                            <h2 class="puik-h2 psacc-font-primary psacc-text-center psacc-mb-4 psacc-text-font-main">
-                                {l s='All the essentials for your business' mod='ps_accounts'}
-                            </h2>
-                            <p class="puik-body-default psacc-font-secondary psacc-text-center psacc-text-base">
-                                {l s='Marketing, payment and performance analysis: the PrestaShop Essentials suite includes all the features you need to make your store successful.' mod='ps_accounts'}
-                            </p>
-                        </div>
-                    </li>
-                    <li class="splide__slide psacc-flex psacc-flex-col psacc-items-center psacc-justify-end">
-                        <img class="psacc-mb-12" src="/modules/ps_accounts/views/img/slide3.png" />
-                        <div class="psacc-max-w-sm">
-                            <h2 class="puik-h2 psacc-font-primary psacc-text-center psacc-mb-4 psacc-text-font-main">
-                                {l s='A 100% customizable solution' mod='ps_accounts'}
-                            </h2>
-                            <p class="puik-body-default psacc-font-secondary psacc-text-center psacc-text-base">
-                                {l s='PrestaShop accompanies your growth. Find our modules and those of our partners on PrestaShop Addons Marketplace to customize and develop your store' mod='ps_accounts'}
-                            </p>
-                        </div>
-                    </li>
+            <div class="splide__track psacc-mb-5">
+                <ul class="splide__list psacc-w-full">
+                    {foreach from=$testimonials item=testimonial}
+                        <li class="splide__slide">
+                            <div class="psacc-w-10/12 psacc-ml-10 psacc-font-primary">
+                                <p class="psacc-mb-4 psacc-text-lg">
+                                    {$testimonial->$isoCode->sentence|default:$testimonial->$defaultIsoCode->sentence}
+                                </p>
+                                <p class="puik-body-default psacc-font-primary">
+                                    <span class="psacc-font-bold">{$testimonial->$isoCode->name|default:$testimonial->$defaultIsoCode->name}</span>, {$testimonial->$isoCode->enterprise|default:$testimonial->$defaultIsoCode->enterprise}
+                                </p>
+                            </div>
+                        </li>
+                    {/foreach}
                 </ul>
             </div>
+            <ul class="splide__pagination"></ul>
         </section>
     </div>
     <div
-        class="psacc-flex psacc-flex-col psacc-items-center psacc-justify-between psacc-bg-white psacc-py-16 psacc-shadow-[0_6px_12px_rgba(0, 0, 0, 0.1)]">
+        class="psacc-flex psacc-flex-col psacc-items-center psacc-justify-between psacc-bg-white psacc-py-24 psacc-shadow-[0_6px_12px_rgba(0, 0, 0, 0.1)]">
         {if $loginError ne ''}
             <div class="psacc-flex psacc-flex-col psacc-space-y-4 psacc-mb-4 psacc-px-4">
                 <div class="puik-alert puik-alert--danger" aria-live="polite">
                     <div class="puik-alert__content">
-                        <span class="puik-alert__icon">error</span>
+                        <span class="psacc-font-materialIcons">error</span>
                         <div class="puik-alert__text">
                             <span class="puik-alert__description">
                                 {if $loginError eq 'employee_not_found'}
@@ -101,28 +91,30 @@
             </div>
         {/if}
         {if !isset($wrong_folder_name) && !isset($wrong_install_name)}
-            <div class="psacc-flex psacc-flex-col psacc-items-center psacc-justify-between psacc-h-full">
-                <h1 class="psacc-m-0">
-                    <img id="logo" src="{$img_dir}prestashop@2x.png" width="123px" height="24px" alt="PrestaShop" />
+            <div class="psacc-flex psacc-flex-col psacc-items-start psacc-justify-start psacc-h-full">
+                <h1 class="psacc-m-0 psacc-font-secondary psacc-text-5xl psacc-font-black psacc-mb-10">
+                    PRESTASHOP
                 </h1>
 
-                <div class="psacc-flex psacc-flex-col psacc-items-center psacc-max-w-xl">
-                    <h2 class="puik-h2 psacc-font-primary psacc-text-center psacc-mb-12">
+                <div class="psacc-flex psacc-flex-col psacc-items-start psacc-max-w-xl psacc-font-primary">
+                    <h2 class="puik-h2 psacc-mb-10">
                         {l s='Welcome,' mod='ps_accounts'}</br>
-                        {l s='Access your back office to manage your store.' mod='ps_accounts'}
                     </h2>
-                    <button id="ps-accounts-login" class="puik-button puik-button--primary puik-button--lg">
+                    <p class="psacc-mb-10 ">
+                        {l s='Access your back office to manage your store.' mod='ps_accounts'}
+                    </p>
+                    <button id="ps-accounts-login" class="puik-button puik-button--primary puik-button--lg psacc-w-full">
                         {l s='Go to the back office' mod='ps_accounts'}
                     </button>
                 </div>
-                <a class="puik-link" href="{$legacyLoginUri}">
+                <a class="puik-link psacc-mt-auto psacc-self-center" href="{$legacyLoginUri}">
                     {l s='Connect with another method' mod='ps_accounts'}
                 </a>
             </div>
         {else}
             <div class="puik-alert puik-alert--danger" aria-live="polite">
                 <div class="puik-alert__content">
-                    <span class="puik-alert__icon">error</span>
+                    <span class="psacc-font-materialIcons">error</span>
                     <div class="puik-alert__text">
                         <p class="puik-alert__title">
                             {l s='For security reasons, you cannot connect to the back office until you have:' d='Admin.Login.Notification'}
