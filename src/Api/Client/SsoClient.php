@@ -30,6 +30,11 @@ use PrestaShop\Module\PsAccounts\Repository\TokenClientInterface;
 class SsoClient implements TokenClientInterface
 {
     /**
+     * @var string
+     */
+    private $apiUrl;
+
+    /**
      * @var AbstractGuzzleClient
      */
     private $client;
@@ -44,18 +49,29 @@ class SsoClient implements TokenClientInterface
         $apiUrl,
         AbstractGuzzleClient $client = null
     ) {
-        if (null === $client) {
-            $client = (new GuzzleClientFactory())->create([
-                'base_url' => $apiUrl,
+        $this->apiUrl = $apiUrl;
+        $this->client = $client;
+    }
+
+    /**
+     * @return AbstractGuzzleClient
+     */
+    private function getClient()
+    {
+        if (null === $this->client) {
+            $this->client = (new GuzzleClientFactory())->create([
+                'base_url' => $this->apiUrl,
                 'defaults' => [
                     'headers' => [
                         'Accept' => 'application/json',
+                        'X-Module-Version' => \Ps_accounts::VERSION,
+                        'X-Prestashop-Version' => _PS_VERSION_,
                     ],
                 ],
             ]);
         }
 
-        $this->client = $client;
+        return $this->client;
     }
 
     /**
@@ -65,9 +81,9 @@ class SsoClient implements TokenClientInterface
      */
     public function verifyToken($idToken)
     {
-        $this->client->setRoute('auth/token/verify');
+        $this->getClient()->setRoute('auth/token/verify');
 
-        return $this->client->post([
+        return $this->getClient()->post([
             'json' => [
                 'token' => $idToken,
             ],
@@ -81,9 +97,9 @@ class SsoClient implements TokenClientInterface
      */
     public function refreshToken($refreshToken)
     {
-        $this->client->setRoute('auth/token/refresh');
+        $this->getClient()->setRoute('auth/token/refresh');
 
-        return $this->client->post([
+        return $this->getClient()->post([
             'json' => [
                 'token' => $refreshToken,
             ],
