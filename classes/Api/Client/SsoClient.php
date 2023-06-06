@@ -58,6 +58,8 @@ class SsoClient extends GenericClient implements TokenClientInterface
                     'exceptions' => $this->catchExceptions,
                     'headers' => [
                         'Accept' => 'application/json',
+                        'X-Module-Version' => \Ps_accounts::VERSION,
+                        'X-Prestashop-Version' => _PS_VERSION_,
                     ],
                 ],
             ]);

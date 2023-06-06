@@ -68,6 +68,7 @@ class AccountsClient extends GenericClient implements TokenClientInterface
                 'defaults' => [
                     'timeout' => $this->timeout,
                     'exceptions' => $this->catchExceptions,
+                    'headers' => $this->getHeaders(),
                 ],
             ]);
         }
@@ -86,7 +87,9 @@ class AccountsClient extends GenericClient implements TokenClientInterface
 
         return $this->post([
             'json' => [
-                'headers' => $this->getHeaders(),
+                'headers' => $this->getHeaders([
+                    'X-Shop-Id' => $this->shopProvider->getCurrentShop()['id'],
+                ]),
                 'token' => $idToken,
             ],
         ]);
@@ -103,7 +106,9 @@ class AccountsClient extends GenericClient implements TokenClientInterface
 
         return $this->post([
             'json' => [
-                'headers' => $this->getHeaders(),
+                'headers' => $this->getHeaders([
+                    'X-Shop-Id' => $this->shopProvider->getCurrentShop()['id'],
+                ]),
                 'token' => $refreshToken,
             ],
         ]);
@@ -118,7 +123,7 @@ class AccountsClient extends GenericClient implements TokenClientInterface
      */
     public function deleteUserShop($shopId)
     {
-        return $this->shopProvider->getShopContext()->execInShopContext((int) $shopId, function () {
+        return $this->shopProvider->getShopContext()->execInShopContext((int) $shopId, function () use ($shopId) {
             $userToken = $this->getUserTokenRepository();
             $shopToken = $this->getShopTokenRepository();
 
@@ -127,6 +132,7 @@ class AccountsClient extends GenericClient implements TokenClientInterface
             return $this->delete([
                 'headers' => $this->getHeaders([
                     'Authorization' => 'Bearer ' . $userToken->getOrRefreshToken(),
+                    'X-Shop-Id' => $shopId,
                 ]),
             ]);
         });
@@ -149,7 +155,7 @@ class AccountsClient extends GenericClient implements TokenClientInterface
             return $this->post([
                 'headers' => $this->getHeaders([
                     'Authorization' => 'Bearer ' . $shopToken->getOrRefreshToken(),
-                    'content-type' => 'application/json',
+                    'X-Shop-Id' => $currentShop['id'],
                 ]),
                 'json' => $currentShop,
             ]);
@@ -184,7 +190,7 @@ class AccountsClient extends GenericClient implements TokenClientInterface
             return $this->patch([
                 'headers' => $this->getHeaders([
                     'Authorization' => 'Bearer ' . $userToken->getOrRefreshToken(),
-                    'content-type' => 'application/json',
+                    'X-Shop-Id' => $shop->shopId,
                 ]),
                 'json' => $shop->jsonSerialize(),
             ]);
@@ -200,6 +206,8 @@ class AccountsClient extends GenericClient implements TokenClientInterface
     {
         return array_merge([
             'Accept' => 'application/json',
+            'X-Module-Version' => \Ps_accounts::VERSION,
+            'X-Prestashop-Version' => _PS_VERSION_,
         ], $additionalHeaders);
     }
 
