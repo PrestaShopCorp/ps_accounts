@@ -69,4 +69,22 @@ class UpdateShop extends AbstractDto
         'sslDomain',
         'boBaseUrl',
     ];
+
+    public function __construct($values = [])
+    {
+        parent::__construct($values);
+
+        $this->domain = $this->enforceHttpScheme($this->domain, false);
+        $this->sslDomain = $this->enforceHttpScheme($this->sslDomain);
+    }
+
+    public function enforceHttpScheme($url, $https = true)
+    {
+        $scheme = 'http' . ($https ? 's' : '') . '://';
+        return preg_replace(
+            "/^(\w+:\/\/|)/",
+            $scheme,
+            $this->payload->sslDomain
+        );
+    }
 }

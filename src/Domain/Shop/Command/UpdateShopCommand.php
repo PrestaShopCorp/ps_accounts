@@ -14,20 +14,5 @@ class UpdateShopCommand
     public function __construct(UpdateShopDto $payload)
     {
         $this->payload = $payload;
-
-        $this->payload->domain = $this->enforceHttpScheme($this->payload->domain, false);
-        $this->payload->sslDomain = $this->enforceHttpScheme($this->payload->sslDomain);
     }
-
-    public function enforceHttpScheme($url, $https = true)
-    {
-        $scheme = 'http' . ($https ? 's' : '') . '://';
-        return preg_replace(
-            "/^(\w+:\/\/|)/",
-            $scheme,
-            $this->payload->sslDomain
-        );
-    }
-
-
 }
