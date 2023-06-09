@@ -473,8 +473,8 @@ class Ps_accounts extends Module
                     new \PrestaShop\Module\PsAccounts\Dto\UpdateShop([
                         'shopId' => (string) $params['object']->id,
                         'name' => $shop->name,
-                        'domain' => 'http://' . $domain,
-                        'sslDomain' => 'https://' . $sslDomain,
+                        'domain' => $domain,
+                        'sslDomain' => $sslDomain,
                         'physicalUri' => $params['object']->physical_uri,
                         'virtualUri' => $params['object']->virtual_uri,
                         'boBaseUrl' => $link->getAdminLinkWithCustomDomain(
@@ -548,8 +548,8 @@ class Ps_accounts extends Module
                 new \PrestaShop\Module\PsAccounts\Dto\UpdateShop([
                     'shopId' => (string) $params['object']->id,
                     'name' => $params['object']->name,
-                    'domain' => 'http://' . $shop->domain,
-                    'sslDomain' => 'https://' . $shop->domain_ssl,
+                    'domain' => $shop->domain,
+                    'sslDomain' => $shop->domain_ssl,
                     'physicalUri' => $shop->physical_uri,
                     'virtualUri' => $shop->virtual_uri,
                     'boBaseUrl' => $link->getAdminLinkWithCustomDomain(
