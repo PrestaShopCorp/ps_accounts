@@ -2,16 +2,16 @@
 
 namespace PrestaShop\Module\PsAccounts\Domain\Shop\Command;
 
-use PrestaShop\Module\PsAccounts\Dto\UpdateShop as UpdateShopDto;
+use PrestaShop\Module\PsAccounts\Dto\UpdateShop;
 
 class UpdateShopCommand
 {
     /**
-     * @var UpdateShopDto
+     * @var UpdateShop
      */
     public $payload;
 
-    public function __construct(UpdateShopDto $payload)
+    public function __construct(UpdateShop $payload)
     {
         $this->payload = $payload;
     }

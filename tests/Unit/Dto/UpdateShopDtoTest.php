@@ -43,4 +43,23 @@ class UpdateShopDtoTest extends TestCase
             'boBaseUrl' => $this->faker->url
         ]);
     }
+
+    /**
+     * @test
+     */
+    public function itShouldEnforceDomainWithScheme()
+    {
+        $dto = new UpdateShop([
+            'shopId' => 4,
+            'name' => $this->faker->slug,
+            'virtualUri' => $this->faker->domainWord,
+            'physicalUri' => $this->faker->domainWord,
+            'domain' => $this->faker->domainName,
+            'sslDomain' => $this->faker->domainName,
+            'boBaseUrl' => $this->faker->url
+        ]);
+
+        $this->assertStringStartsWith('https://', $dto->sslDomain);
+        $this->assertStringStartsWith('http://', $dto->domain);
+    }
 }

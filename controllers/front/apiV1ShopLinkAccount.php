@@ -22,6 +22,10 @@ use PrestaShop\Module\PsAccounts\Controller\AbstractShopRestController;
 use PrestaShop\Module\PsAccounts\Cqrs\CommandBus;
 use PrestaShop\Module\PsAccounts\Domain\Shop\Command\LinkShopCommand;
 use PrestaShop\Module\PsAccounts\Domain\Shop\Command\UnlinkShopCommand;
+use PrestaShop\Module\PsAccounts\Domain\Shop\Entity\OwnerSession;
+use PrestaShop\Module\PsAccounts\Domain\Shop\Entity\ShopSession;
+use PrestaShop\Module\PsAccounts\Domain\Shop\Exception\RefreshTokenException;
+use PrestaShop\Module\PsAccounts\Domain\Shop\LinkShop;
 use PrestaShop\Module\PsAccounts\Dto\Api\UpdateShopLinkAccountRequest;
 
 class ps_AccountsApiV1ShopLinkAccountModuleFrontController extends AbstractShopRestController
@@ -30,6 +34,16 @@ class ps_AccountsApiV1ShopLinkAccountModuleFrontController extends AbstractShopR
      * @var CommandBus
      */
     private $commandBus;
+
+    /**
+     * @var ShopSession
+     */
+    private $shopSession;
+
+    /**
+     * @var OwnerSession
+     */
+    private $ownerSession;
 
     /**
      * ps_AccountsApiV1ShopLinkAccountModuleFrontController constructor.
@@ -42,16 +56,37 @@ class ps_AccountsApiV1ShopLinkAccountModuleFrontController extends AbstractShopR
 
         $this->commandBus = $this->module->getService(CommandBus::class);
         //$this->commandBus = $this->module->getContainer()->get('prestashop.command_bus');
+        $this->shopSession = $this->module->getService(ShopSession::class);
+        $this->ownerSession = $this->module->getService(OwnerSession::class);
     }
 
     /**
+     * @throws RefreshTokenException
      * @throws Exception
      */
     public function update(Shop $shop, UpdateShopLinkAccountRequest $request): array
     {
+        $shopToken = $request->shop_token;
+        $userToken = $request->user_token;
+
+        if ($this->module->getParameter('ps_accounts.verify_account_tokens')) {
+            if (false === $this->shopSession->verifyToken($shopToken)) {
+                $shopToken = $this->shopSession->refreshToken($request->shop_refresh_token);
+            }
+            if (false === $this->ownerSession->verifyToken($userToken)) {
+                $userToken = $this->ownerSession->refreshToken($request->user_refresh_token);
+            }
+        }
+
         $this->commandBus->handle(new LinkShopCommand(
-            $request,
-            $this->module->getParameter('ps_accounts.verify_account_tokens')
+            new LinkShop([
+                'shopId' => $request->shop_id,
+                'shopToken' => $shopToken,
+                'userToken' => $userToken,
+                'shopRefreshToken' => $request->shop_refresh_token,
+                'userRefreshToken' => $request->user_refresh_token,
+                'employeeId' => $request->employee_id,
+            ])
         ));
 
         return [

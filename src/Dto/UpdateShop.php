@@ -84,7 +84,7 @@ class UpdateShop extends AbstractDto
         return preg_replace(
             "/^(\w+:\/\/|)/",
             $scheme,
-            $this->payload->sslDomain
+            $url
         );
     }
 }

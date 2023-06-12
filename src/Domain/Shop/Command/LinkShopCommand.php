@@ -2,23 +2,17 @@
 
 namespace PrestaShop\Module\PsAccounts\Domain\Shop\Command;
 
-use PrestaShop\Module\PsAccounts\Dto\Api\UpdateShopLinkAccountRequest;
+use PrestaShop\Module\PsAccounts\Domain\Shop\LinkShop;
 
 class LinkShopCommand
 {
     /**
-     * @var UpdateShopLinkAccountRequest
+     * @var LinkShop
      */
     public $payload;
 
-    /**
-     * @var bool
-     */
-    public $verifyTokens = false;
-
-    public function __construct(UpdateShopLinkAccountRequest $payload, bool $verifyTokens)
+    public function __construct(LinkShop $payload)
     {
         $this->payload = $payload;
-        $this->verifyTokens = $verifyTokens;
     }
 }
