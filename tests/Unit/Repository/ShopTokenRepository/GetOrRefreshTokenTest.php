@@ -82,11 +82,21 @@ class GetOrRefreshTokenTest extends TestCase
         /** @var ConfigurationRepository $configuration */
         $configuration = $this->module->getService(ConfigurationRepository::class);
 
+//        /** @var ShopTokenRepository $tokenRepos */
+//        $tokenRepos = $this->getMockBuilder(ShopTokenRepository::class)
+//            ->setConstructorArgs([$configuration])
+//            ->setMethods(['client'])
+//            ->getMock();
+
         /** @var ShopTokenRepository $tokenRepos */
         $tokenRepos = $this->getMockBuilder(ShopTokenRepository::class)
             ->setConstructorArgs([$configuration])
-            ->setMethods(['client'])
+            //->disableOriginalConstructor()
+            //->disableOriginalClone()
+            ->disableArgumentCloning()
+            ->disallowMockingUnknownTypes()
             ->getMock();
+
         $tokenRepos->method('client')
             ->willReturn($client);
 
