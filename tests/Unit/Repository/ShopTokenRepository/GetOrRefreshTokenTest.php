@@ -94,6 +94,14 @@ class GetOrRefreshTokenTest extends TestCase
         $tokenRepos->method('client')
             ->willReturn($client);
 
+        $tokenRepos->updateCredentials(
+            $this->makeJwtToken(new \DateTimeImmutable('yesterday'), [
+                'user_id' => $this->faker->uuid,
+                'email' => $this->faker->safeEmail,
+            ]),
+            $this->makeJwtToken(new \DateTimeImmutable('+1 year'))
+        );
+
         $tokenRepos->getOrRefreshToken();
 
         $this->assertEquals($payload['token'], $tokenRepos->getToken());

@@ -70,7 +70,7 @@ class GetOrRefreshTokenTest extends TestCase
     public function itShouldUpdateRefreshToken()
     {
         $payload = [
-            'idToken' => $this->makeJwtToken(new \DateTimeImmutable('yesterday'), [
+            'idToken' => $this->makeJwtToken(new \DateTimeImmutable('tomorrow'), [
                 'user_id' => $this->faker->uuid,
             ]),
             'refreshToken' => $this->makeJwtToken(new \DateTimeImmutable('+1 year')),
@@ -93,6 +93,14 @@ class GetOrRefreshTokenTest extends TestCase
 
         $tokenRepos->method('client')
             ->willReturn($client);
+
+        $tokenRepos->updateCredentials(
+            $this->makeJwtToken(new \DateTimeImmutable('yesterday'), [
+                'user_id' => $this->faker->uuid,
+                'email' => $this->faker->safeEmail,
+            ]),
+            $this->makeJwtToken(new \DateTimeImmutable('+1 year'))
+        );
 
         $tokenRepos->getOrRefreshToken();
 
