@@ -159,7 +159,7 @@ abstract class AbstractTokenRepository
      * @throws RefreshTokenException
      * @throws Exception
      */
-    public function refreshToken($refreshToken, &$newRefreshToken=null)
+    public function refreshToken($refreshToken, &$newRefreshToken = null)
     {
         $response = $this->client()->refreshToken($refreshToken);
 
