@@ -31,6 +31,7 @@ class ShopTokenRepository extends AbstractTokenRepository
 {
     const TOKEN_TYPE = 'shop';
     const TOKEN_KEY = 'token';
+    const REFRESH_TOKEN_KEY = 'refresh_token';
 
     /**
      * @return AccountsClient

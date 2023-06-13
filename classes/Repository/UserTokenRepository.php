@@ -32,6 +32,7 @@ class UserTokenRepository extends AbstractTokenRepository
 {
     const TOKEN_TYPE = 'user';
     const TOKEN_KEY = 'idToken';
+    const REFRESH_TOKEN_KEY = 'refreshToken';
 
     /**
      * @return SsoClient
