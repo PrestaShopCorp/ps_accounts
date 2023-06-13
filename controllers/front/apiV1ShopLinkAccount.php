@@ -25,7 +25,7 @@ use PrestaShop\Module\PsAccounts\Domain\Shop\Command\UnlinkShopCommand;
 use PrestaShop\Module\PsAccounts\Domain\Shop\Entity\OwnerSession;
 use PrestaShop\Module\PsAccounts\Domain\Shop\Entity\ShopSession;
 use PrestaShop\Module\PsAccounts\Domain\Shop\Exception\RefreshTokenException;
-use PrestaShop\Module\PsAccounts\Domain\Shop\LinkShop;
+use PrestaShop\Module\PsAccounts\Domain\Shop\Dto\LinkShop;
 use PrestaShop\Module\PsAccounts\Dto\Api\UpdateShopLinkAccountRequest;
 
 class ps_AccountsApiV1ShopLinkAccountModuleFrontController extends AbstractShopRestController

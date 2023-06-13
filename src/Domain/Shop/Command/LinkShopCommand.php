@@ -2,7 +2,7 @@
 
 namespace PrestaShop\Module\PsAccounts\Domain\Shop\Command;
 
-use PrestaShop\Module\PsAccounts\Domain\Shop\LinkShop;
+use PrestaShop\Module\PsAccounts\Domain\Shop\Dto\LinkShop;
 
 class LinkShopCommand
 {

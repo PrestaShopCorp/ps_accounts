@@ -241,8 +241,6 @@ class PsAccountsService
     }
 
     /**
-     * @deprecated
-     *
      * @throws \Exception
      */
     public function getLoginActivated(): bool

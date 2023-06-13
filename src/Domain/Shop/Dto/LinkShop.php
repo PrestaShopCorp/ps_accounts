@@ -18,7 +18,7 @@
  * @license   https://opensource.org/licenses/AFL-3.0 Academic Free License version 3.0
  */
 
-namespace PrestaShop\Module\PsAccounts\Domain\Shop;
+namespace PrestaShop\Module\PsAccounts\Domain\Shop\Dto;
 
 use PrestaShop\Module\PsAccounts\Dto\AbstractDto;
 
