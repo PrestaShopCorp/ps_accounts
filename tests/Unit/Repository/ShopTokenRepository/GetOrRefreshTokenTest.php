@@ -62,4 +62,37 @@ class GetOrRefreshTokenTest extends TestCase
 
         $this->assertEquals((string) $idTokenRefreshed, (string) $tokenRepos->getOrRefreshToken());
     }
+
+    /**
+     * @test
+     * @throws \Exception
+     */
+    public function itShouldUpdateRefreshToken()
+    {
+        $payload = [
+            'token' => $this->makeJwtToken(new \DateTimeImmutable('yesterday'), [
+                'user_id' => $this->faker->uuid,
+            ]),
+            'refresh_token' => $this->makeJwtToken(new \DateTimeImmutable('+1 year')),
+        ];
+
+        $client = $this->createMock(AccountsClient::class);
+        $client->method('refreshToken')->willReturn($payload);
+
+        /** @var ConfigurationRepository $configuration */
+        $configuration = $this->module->getService(ConfigurationRepository::class);
+
+        /** @var ShopTokenRepository $tokenRepos */
+        $tokenRepos = $this->getMockBuilder(ShopTokenRepository::class)
+            ->setConstructorArgs([$configuration])
+            ->setMethods(['client'])
+            ->getMock();
+        $tokenRepos->method('client')
+            ->willReturn($client);
+
+        $tokenRepos->getOrRefreshToken();
+
+        $this->assertEquals($payload['token'], $tokenRepos->getToken());
+        $this->assertEquals($payload['refresh_token'], $tokenRepos->getRefreshToken());
+    }
 }
