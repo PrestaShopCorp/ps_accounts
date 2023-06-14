@@ -18,6 +18,9 @@ install.lock
 composer-dev.json
 composer-dev.lock
 
+### PHPUnit ###
+.phpunit.result.cache
+
 ### Configuration ###
 config/config*.yml
 config/**/services_*.yml

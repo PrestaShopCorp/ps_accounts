@@ -3,6 +3,8 @@
 namespace PrestaShop\Module\PsAccounts\Tests\Unit\Domain\Shop\Entity\OwnerSession;
 
 use PrestaShop\Module\PsAccounts\Domain\Shop\Entity\OwnerSession;
+use PrestaShop\Module\PsAccounts\Repository\ConfigurationRepository;
+use PrestaShop\Module\PsAccounts\Repository\UserTokenRepository;
 use PrestaShop\Module\PsAccounts\Tests\TestCase;
 
 class GetTokenEmailVerifiedTest extends TestCase

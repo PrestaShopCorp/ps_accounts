@@ -31,6 +31,16 @@ use PrestaShop\Module\PsAccounts\Dto\UpdateShop;
 class AccountsClient implements TokenClientInterface
 {
     /**
+     * @var string
+     */
+    private $apiUrl;
+
+    /**
+     * @var ShopProvider
+     */
+    private $shopProvider;
+
+    /**
      * @var AbstractGuzzleClient
      */
     private $client;
@@ -39,22 +49,37 @@ class AccountsClient implements TokenClientInterface
         string $apiUrl,
         ?AbstractGuzzleClient $client = null
     ) {
-        if (null === $client) {
-            $client = (new GuzzleClientFactory())->create([
-                'base_url' => $apiUrl,
+        $this->apiUrl = $apiUrl;
+        $this->shopProvider = $shopProvider;
+        $this->client = $client;
+    }
+
+    /**
+     * @return AbstractGuzzleClient
+     */
+    private function getClient()
+    {
+        if (null === $this->client) {
+            $this->client = (new GuzzleClientFactory())->create([
+                'base_url' => $this->apiUrl,
+                'defaults' => [
+                    'headers' => $this->getHeaders(),
+                ],
             ]);
         }
 
-        $this->client = $client;
+        return $this->client;
     }
 
     public function verifyToken(string $idToken): array
     {
-        $this->client->setRoute('shop/token/verify');
+        $this->getClient()->setRoute('shop/token/verify');
 
-        return $this->client->post([
+        return $this->getClient()->post([
             'json' => [
-                'headers' => $this->getHeaders(),
+                'headers' => $this->getHeaders([
+                    'X-Shop-Id' => $this->shopProvider->getShopContext()->getConfiguration()->getShopUuid(),
+                ]),
                 'token' => $idToken,
             ],
         ]);
@@ -62,11 +87,13 @@ class AccountsClient implements TokenClientInterface
 
     public function refreshToken(string $refreshToken): array
     {
-        $this->client->setRoute('shop/token/refresh');
+        $this->getClient()->setRoute('shop/token/refresh');
 
-        return $this->client->post([
+        return $this->getClient()->post([
             'json' => [
-                'headers' => $this->getHeaders(),
+                'headers' => $this->getHeaders([
+                    'X-Shop-Id' => $this->shopProvider->getShopContext()->getConfiguration()->getShopUuid(),
+                ]),
                 'token' => $refreshToken,
             ],
         ]);
@@ -76,21 +103,22 @@ class AccountsClient implements TokenClientInterface
     {
         $this->client->setRoute('user/' . $ownerUid . '/shop/' . $shopUid);
 
-        return $this->client->delete([
+        return $this->getClient()->delete([
             'headers' => $this->getHeaders([
                 'Authorization' => 'Bearer ' . $ownerToken,
+                'X-Shop-Id' => $shopId,
             ]),
         ]);
     }
 
     public function reonboardShop(string $shopUid, string $shopToken, array $payload): array
     {
-        $this->client->setRoute('shop/' . $shopUid . '/reonboard');
+        $this->getClient()->setRoute('shop/' . $shopUid . '/reonboard');
 
-        return $this->client->post([
+        return $this->getClient()->post([
                 'headers' => $this->getHeaders([
                     'Authorization' => 'Bearer ' . $shopToken,
-                    'content-type' => 'application/json',
+                    'X-Shop-Id' => $payload['id'],
                 ]),
                 'json' => $payload,
             ]);
@@ -98,12 +126,12 @@ class AccountsClient implements TokenClientInterface
 
     public function updateUserShop(string $ownerUid, string $shopUid, string $ownerToken, UpdateShop $shop): array
     {
-        $this->client->setRoute('user/' . $ownerUid . '/shop/' . $shopUid);
+        $this->getClient()->setRoute('user/' . $ownerUid . '/shop/' . $shopUid);
 
-        return $this->client->patch([
+        return $this->getClient()->patch([
             'headers' => $this->getHeaders([
                 'Authorization' => 'Bearer ' . $ownerToken,
-                'content-type' => 'application/json',
+                'X-Shop-Id' => $shop->shopId,
             ]),
             'json' => $shop->jsonSerialize(),
         ]);
@@ -113,6 +141,8 @@ class AccountsClient implements TokenClientInterface
     {
         return array_merge([
             'Accept' => 'application/json',
+            'X-Module-Version' => \Ps_accounts::VERSION,
+            'X-Prestashop-Version' => _PS_VERSION_,
         ], $additionalHeaders);
     }
 }
