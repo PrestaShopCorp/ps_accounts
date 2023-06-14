@@ -609,7 +609,7 @@ class Ps_accounts extends Module
             $commandBus = $this->getService(\PrestaShop\Module\PsAccounts\Cqrs\CommandBus::class);
 
             $response = $commandBus->handle(
-                new \PrestaShop\Module\PsAccounts\Domain\Shop\Command\RemoteUnlinkShopCommand(
+                new \PrestaShop\Module\PsAccounts\Domain\Shop\Command\DeleteUserShopCommand(
                     $params['object']->id
                 )
             );

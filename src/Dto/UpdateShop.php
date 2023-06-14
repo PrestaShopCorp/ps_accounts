@@ -78,9 +78,10 @@ class UpdateShop extends AbstractDto
         $this->sslDomain = $this->enforceHttpScheme($this->sslDomain);
     }
 
-    public function enforceHttpScheme($url, $https = true)
+    public function enforceHttpScheme(string $url, bool $https = true): string
     {
         $scheme = 'http' . ($https ? 's' : '') . '://';
+
         return preg_replace(
             "/^(\w+:\/\/|)/",
             $scheme,

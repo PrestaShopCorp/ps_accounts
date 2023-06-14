@@ -20,7 +20,6 @@
 
 namespace PrestaShop\Module\PsAccounts\Api\Client;
 
-use Module;
 use PrestaShop\Module\PsAccounts\Api\Client\Guzzle\AbstractGuzzleClient;
 use PrestaShop\Module\PsAccounts\Api\Client\Guzzle\GuzzleClientFactory;
 use PrestaShop\Module\PsAccounts\Domain\Shop\Contract\TokenClientInterface;
@@ -53,7 +52,7 @@ class AccountsClient implements TokenClientInterface
         ?AbstractGuzzleClient $client = null
     ) {
         $this->apiUrl = $apiUrl;
-        $this->configurationRepository = $configurationRepository->getShopId();
+        $this->configurationRepository = $configurationRepository;
         $this->client = $client;
     }
 

@@ -4,11 +4,11 @@ namespace PrestaShop\Module\PsAccounts\Domain\Shop\CommandHandler;
 
 use PHPUnit\Framework\MockObject\MockObject;
 use PrestaShop\Module\PsAccounts\Domain\Shop\Command\LinkShopCommand;
+use PrestaShop\Module\PsAccounts\Domain\Shop\Dto\LinkShop;
 use PrestaShop\Module\PsAccounts\Domain\Shop\Entity\OwnerSession;
 use PrestaShop\Module\PsAccounts\Domain\Shop\Entity\ShopSession;
 use PrestaShop\Module\PsAccounts\Domain\Shop\Exception\RefreshTokenException;
 use PrestaShop\Module\PsAccounts\Dto\Api\UpdateShopLinkAccountRequest;
-use PrestaShop\Module\PsAccounts\Repository\ConfigurationRepository;
 use PrestaShop\Module\PsAccounts\Tests\TestCase;
 
 class LinkShopCommandHandlerTest extends TestCase
@@ -59,37 +59,37 @@ class LinkShopCommandHandlerTest extends TestCase
      */
     public function itShouldHandleLinkShop(): void
     {
-        $request = new UpdateShopLinkAccountRequest([
-            'shop_id' => 1,
-            'employee_id' => 1,
-            'user_token' => 'foo',
-            'shop_token' => 'bar',
-            'user_refresh_token' => 'fooRefresh',
-            'shop_refresh_token' => 'barRefresh',
+        $request = new LinkShop([
+            'shopId' => 1,
+            'employeeId' => 1,
+            'userToken' => 'foo',
+            'shopToken' => 'bar',
+            'userRefreshToken' => 'fooRefresh',
+            'shopRefreshToken' => 'barRefresh',
         ]);
 
-        $command = new LinkShopCommand($request, false);
+        $command = new LinkShopCommand($request);
 
         /* @phpstan-ignore-next-line  */
         $this->shopSession->expects($this->once())
             ->method('setToken')
             ->with(
-                $request->shop_token,
-                $request->shop_refresh_token
+                $request->shopToken,
+                $request->shopRefreshToken
             );
 
         /* @phpstan-ignore-next-line  */
         $this->ownerSession->expects($this->once())
             ->method('setToken')
             ->with(
-                $request->user_token,
-                $request->user_refresh_token
+                $request->userToken,
+                $request->userRefreshToken
             );
 
         /* @phpstan-ignore-next-line  */
         $this->ownerSession->expects($this->once())
             ->method('setEmployeeId')
-            ->with($request->employee_id);
+            ->with($request->employeeId);
 
 //        /* @phpstan-ignore-next-line  */
 //        $this->mockedConfigurationRepository->expects($this->once())
@@ -110,16 +110,16 @@ class LinkShopCommandHandlerTest extends TestCase
      */
     public function itShouldThrowRefreshTokenException(): void
     {
-        $request = new UpdateShopLinkAccountRequest([
-            'shop_id' => 1,
-            'employee_id' => 1,
-            'user_token' => 'foo',
-            'shop_token' => 'bar',
-            'user_refresh_token' => 'fooRefresh',
-            'shop_refresh_token' => 'barRefresh',
+        $request = new LinkShop([
+            'shopId' => 1,
+            'employeeId' => 1,
+            'userToken' => 'foo',
+            'shopToken' => 'bar',
+            'userRefreshToken' => 'fooRefresh',
+            'shopRefreshToken' => 'barRefresh',
         ]);
 
-        $command = new LinkShopCommand($request, true);
+        $command = new LinkShopCommand($request);
 
         // FIXME: this is just an example, not a meaningful test here
         /* @phpstan-ignore-next-line  */

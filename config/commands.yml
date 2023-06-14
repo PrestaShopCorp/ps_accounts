@@ -19,10 +19,10 @@ services:
       - '@PrestaShop\Module\PsAccounts\Context\ShopContext'
       - '@PrestaShop\Module\PsAccounts\Domain\Shop\Entity\ShopSession'
 
-  PrestaShop\Module\PsAccounts\Domain\Shop\CommandHandler\RemoteUnlinkShopCommandHandler:
-    class: PrestaShop\Module\PsAccounts\Domain\Shop\CommandHandler\RemoteUnlinkShopCommandHandler
+  PrestaShop\Module\PsAccounts\Domain\Shop\CommandHandler\DeleteUserShopCommandHandler:
+    class: PrestaShop\Module\PsAccounts\Domain\Shop\CommandHandler\DeleteUserShopCommandHandler
     tags:
-      - { name: tactician.handler, command: 'PrestaShop\Module\PsAccounts\Domain\Shop\Command\RemoteUnlinkShopCommand' }
+      - { name: tactician.handler, command: 'PrestaShop\Module\PsAccounts\Domain\Shop\Command\DeleteUserShopCommand' }
     arguments:
       - '@PrestaShop\Module\PsAccounts\Api\Client\AccountsClient'
       - '@PrestaShop\Module\PsAccounts\Context\ShopContext'

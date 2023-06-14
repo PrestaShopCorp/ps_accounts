@@ -28,6 +28,7 @@ use PrestaShop\Module\PsAccounts\Domain\Shop\Entity\Account;
 use PrestaShop\Module\PsAccounts\Domain\Shop\Entity\ShopSession;
 use PrestaShop\Module\PsAccounts\Domain\Shop\Entity\Token;
 use PrestaShop\Module\PsAccounts\Domain\Shop\Exception\RefreshTokenException;
+use PrestaShop\Module\PsAccounts\Repository\ConfigurationRepository;
 use PrestaShop\Module\PsAccounts\Tests\TestCase;
 
 class RefreshTokenTest extends TestCase
@@ -141,7 +142,8 @@ class RefreshTokenTest extends TestCase
     {
         return $this->getMockBuilder(AccountsClient::class)
             ->setConstructorArgs([
-                $this->module->getParameter('ps_accounts.accounts_api_url')
+                $this->module->getParameter('ps_accounts.accounts_api_url'),
+                $this->module->getService(ConfigurationRepository::class),
             ])
             ->setMethods($methods)
             ->getMock();
