@@ -20,10 +20,12 @@
 
 namespace PrestaShop\Module\PsAccounts\Api\Client;
 
+use Module;
 use PrestaShop\Module\PsAccounts\Api\Client\Guzzle\AbstractGuzzleClient;
 use PrestaShop\Module\PsAccounts\Api\Client\Guzzle\GuzzleClientFactory;
 use PrestaShop\Module\PsAccounts\Domain\Shop\Contract\TokenClientInterface;
 use PrestaShop\Module\PsAccounts\Dto\UpdateShop;
+use PrestaShop\Module\PsAccounts\Repository\ConfigurationRepository;
 
 /**
  * Class ServicesAccountsClient
@@ -36,9 +38,9 @@ class AccountsClient implements TokenClientInterface
     private $apiUrl;
 
     /**
-     * @var ShopProvider
+     * @var ConfigurationRepository
      */
-    private $shopProvider;
+    private $configurationRepository;
 
     /**
      * @var AbstractGuzzleClient
@@ -47,28 +49,12 @@ class AccountsClient implements TokenClientInterface
 
     public function __construct(
         string $apiUrl,
+        ConfigurationRepository $configurationRepository,
         ?AbstractGuzzleClient $client = null
     ) {
         $this->apiUrl = $apiUrl;
-        $this->shopProvider = $shopProvider;
+        $this->configurationRepository = $configurationRepository->getShopId();
         $this->client = $client;
-    }
-
-    /**
-     * @return AbstractGuzzleClient
-     */
-    private function getClient()
-    {
-        if (null === $this->client) {
-            $this->client = (new GuzzleClientFactory())->create([
-                'base_url' => $this->apiUrl,
-                'defaults' => [
-                    'headers' => $this->getHeaders(),
-                ],
-            ]);
-        }
-
-        return $this->client;
     }
 
     public function verifyToken(string $idToken): array
@@ -78,7 +64,7 @@ class AccountsClient implements TokenClientInterface
         return $this->getClient()->post([
             'json' => [
                 'headers' => $this->getHeaders([
-                    'X-Shop-Id' => $this->shopProvider->getShopContext()->getConfiguration()->getShopUuid(),
+                    'X-Shop-Id' => $this->configurationRepository->getShopId(),
                 ]),
                 'token' => $idToken,
             ],
@@ -92,7 +78,7 @@ class AccountsClient implements TokenClientInterface
         return $this->getClient()->post([
             'json' => [
                 'headers' => $this->getHeaders([
-                    'X-Shop-Id' => $this->shopProvider->getShopContext()->getConfiguration()->getShopUuid(),
+                    'X-Shop-Id' => $this->configurationRepository->getShopId(),
                 ]),
                 'token' => $refreshToken,
             ],
@@ -106,7 +92,7 @@ class AccountsClient implements TokenClientInterface
         return $this->getClient()->delete([
             'headers' => $this->getHeaders([
                 'Authorization' => 'Bearer ' . $ownerToken,
-                'X-Shop-Id' => $shopId,
+                'X-Shop-Id' => $this->configurationRepository->getShopId(),
             ]),
         ]);
     }
@@ -144,5 +130,19 @@ class AccountsClient implements TokenClientInterface
             'X-Module-Version' => \Ps_accounts::VERSION,
             'X-Prestashop-Version' => _PS_VERSION_,
         ], $additionalHeaders);
+    }
+
+    private function getClient(): AbstractGuzzleClient
+    {
+        if (null === $this->client) {
+            $this->client = (new GuzzleClientFactory())->create([
+                'base_url' => $this->apiUrl,
+                'defaults' => [
+                    'headers' => $this->getHeaders(),
+                ],
+            ]);
+        }
+
+        return $this->client;
     }
 }

@@ -47,27 +47,6 @@ class SsoClient implements TokenClientInterface
         $this->client = $client;
     }
 
-    /**
-     * @return AbstractGuzzleClient
-     */
-    private function getClient()
-    {
-        if (null === $this->client) {
-            $this->client = (new GuzzleClientFactory())->create([
-                'base_url' => $this->apiUrl,
-                'defaults' => [
-                    'headers' => [
-                        'Accept' => 'application/json',
-                        'X-Module-Version' => \Ps_accounts::VERSION,
-                        'X-Prestashop-Version' => _PS_VERSION_,
-                    ],
-                ],
-            ]);
-        }
-
-        return $this->client;
-    }
-
     public function verifyToken(string $idToken): array
     {
         $this->getClient()->setRoute('auth/token/verify');
@@ -88,5 +67,23 @@ class SsoClient implements TokenClientInterface
                 'token' => $refreshToken,
             ],
         ]);
+    }
+
+    private function getClient(): AbstractGuzzleClient
+    {
+        if (null === $this->client) {
+            $this->client = (new GuzzleClientFactory())->create([
+                'base_url' => $this->apiUrl,
+                'defaults' => [
+                    'headers' => [
+                        'Accept' => 'application/json',
+                        'X-Module-Version' => \Ps_accounts::VERSION,
+                        'X-Prestashop-Version' => _PS_VERSION_,
+                    ],
+                ],
+            ]);
+        }
+
+        return $this->client;
     }
 }

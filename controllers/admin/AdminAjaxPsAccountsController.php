@@ -19,7 +19,7 @@
  */
 
 use PrestaShop\Module\PsAccounts\Cqrs\CommandBus;
-use PrestaShop\Module\PsAccounts\Domain\Shop\Command\RemoteUnlinkShopCommand;
+use PrestaShop\Module\PsAccounts\Domain\Shop\Command\DeleteUserShopCommand;
 use PrestaShop\Module\PsAccounts\Domain\Shop\Entity\Account;
 use PrestaShop\Module\PsAccounts\Domain\Shop\Entity\ShopSession;
 use PrestaShop\Module\PsAccounts\Presenter\PsAccountsPresenter;
@@ -88,7 +88,7 @@ class AdminAjaxPsAccountsController extends ModuleAdminController
             /** @var ConfigurationRepository $configurationRepository */
             $configurationRepository = $this->module->getService(ConfigurationRepository::class);
 
-            $response = $commandBus->handle(new RemoteUnlinkShopCommand(
+            $response = $commandBus->handle(new DeleteUserShopCommand(
                 $configurationRepository->getShopId()
             ));
 

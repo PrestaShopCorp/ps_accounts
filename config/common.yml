@@ -108,6 +108,7 @@ services:
     public: true
     arguments:
       - '%ps_accounts.accounts_api_url%'
+      - '@PrestaShop\Module\PsAccounts\Repository\ConfigurationRepository'
 
   PrestaShop\Module\PsAccounts\Api\Client\SsoClient:
     class: PrestaShop\Module\PsAccounts\Api\Client\SsoClient
