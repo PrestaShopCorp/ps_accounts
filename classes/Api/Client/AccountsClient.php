@@ -88,7 +88,7 @@ class AccountsClient extends GenericClient implements TokenClientInterface
         return $this->post([
             'json' => [
                 'headers' => $this->getHeaders([
-                    'X-Shop-Id' => $this->shopProvider->getShopContext()->getConfiguration()->getShopUuid(),
+                    'X-Shop-Id' => $this->shopProvider->getShopContext()->getConfiguration()->getShopId(),
                 ]),
                 'token' => $idToken,
             ],
@@ -107,7 +107,7 @@ class AccountsClient extends GenericClient implements TokenClientInterface
         return $this->post([
             'json' => [
                 'headers' => $this->getHeaders([
-                    'X-Shop-Id' => $this->shopProvider->getShopContext()->getConfiguration()->getShopUuid(),
+                    'X-Shop-Id' => $this->shopProvider->getShopContext()->getConfiguration()->getShopId(),
                 ]),
                 'token' => $refreshToken,
             ],
