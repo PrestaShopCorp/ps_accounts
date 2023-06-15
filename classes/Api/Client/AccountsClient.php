@@ -88,7 +88,7 @@ class AccountsClient extends GenericClient implements TokenClientInterface
         return $this->post([
             'json' => [
                 'headers' => $this->getHeaders([
-                    'X-Shop-Id' => $this->shopProvider->getShopContext()->getConfiguration()->getShopId(),
+                    'X-Shop-Id' => $this->shopProvider->getShopContext()->getConfiguration()->getShopUuid(),
                 ]),
                 'token' => $idToken,
             ],
@@ -107,7 +107,7 @@ class AccountsClient extends GenericClient implements TokenClientInterface
         return $this->post([
             'json' => [
                 'headers' => $this->getHeaders([
-                    'X-Shop-Id' => $this->shopProvider->getShopContext()->getConfiguration()->getShopId(),
+                    'X-Shop-Id' => $this->shopProvider->getShopContext()->getConfiguration()->getShopUuid(),
                 ]),
                 'token' => $refreshToken,
             ],
@@ -132,7 +132,7 @@ class AccountsClient extends GenericClient implements TokenClientInterface
             return $this->delete([
                 'headers' => $this->getHeaders([
                     'Authorization' => 'Bearer ' . $userToken->getOrRefreshToken(),
-                    'X-Shop-Id' => $shopId,
+                    'X-Shop-Id' => $shopToken->getTokenUuid(),
                 ]),
             ]);
         });
@@ -155,7 +155,7 @@ class AccountsClient extends GenericClient implements TokenClientInterface
             return $this->post([
                 'headers' => $this->getHeaders([
                     'Authorization' => 'Bearer ' . $shopToken->getOrRefreshToken(),
-                    'X-Shop-Id' => $currentShop['id'],
+                    'X-Shop-Id' => $currentShop['uuid'],
                 ]),
                 'json' => $currentShop,
             ]);
@@ -190,7 +190,7 @@ class AccountsClient extends GenericClient implements TokenClientInterface
             return $this->patch([
                 'headers' => $this->getHeaders([
                     'Authorization' => 'Bearer ' . $userToken->getOrRefreshToken(),
-                    'X-Shop-Id' => $shop->shopId,
+                    'X-Shop-Id' => $shopToken->getTokenUuid(),
                 ]),
                 'json' => $shop->jsonSerialize(),
             ]);
