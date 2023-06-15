@@ -123,7 +123,7 @@ class AccountsClient extends GenericClient implements TokenClientInterface
      */
     public function deleteUserShop($shopId)
     {
-        return $this->shopProvider->getShopContext()->execInShopContext((int) $shopId, function () use ($shopId) {
+        return $this->shopProvider->getShopContext()->execInShopContext((int) $shopId, function () {
             $userToken = $this->getUserTokenRepository();
             $shopToken = $this->getShopTokenRepository();
 
