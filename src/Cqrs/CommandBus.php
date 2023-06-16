@@ -49,6 +49,7 @@ class CommandBus
         $handler = $this->resolveHandler($command);
 
         if ($handler && method_exists($handler, 'handle')) {
+            /* @phpstan-ignore-next-line */
             $this->module->getLogger()->debug('handling : ' . get_class($handler));
             $this->module->getLogger()->debug('with data : ' . json_encode($command));
 
