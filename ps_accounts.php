@@ -453,11 +453,6 @@ class Ps_accounts extends Module
     public function hookActionObjectShopUrlUpdateAfter($params)
     {
         if ($params['object']->main) {
-            /** @var \PrestaShop\Module\PsAccounts\Cqrs\CommandBus $commandBus */
-            $commandBus = $this->getService(
-                \PrestaShop\Module\PsAccounts\Cqrs\CommandBus::class
-            );
-
             /** @var \PrestaShop\Module\PsAccounts\Adapter\Link $link */
             $link = $this->getService(\PrestaShop\Module\PsAccounts\Adapter\Link::class);
 
@@ -468,7 +463,7 @@ class Ps_accounts extends Module
             $domain = $params['object']->domain;
             $sslDomain = $params['object']->domain_ssl;
 
-            $response = $commandBus->handle(
+            $response = $this->getCommandBus()->handle(
                 new \PrestaShop\Module\PsAccounts\Domain\Shop\Command\UpdateShopCommand(
                     new \PrestaShop\Module\PsAccounts\Dto\UpdateShop([
                         'shopId' => (string) $params['object']->id,
@@ -530,11 +525,6 @@ class Ps_accounts extends Module
      */
     public function hookActionObjectShopUpdateAfter($params)
     {
-        /** @var \PrestaShop\Module\PsAccounts\Cqrs\CommandBus $commandBus */
-        $commandBus = $this->getService(
-            \PrestaShop\Module\PsAccounts\Cqrs\CommandBus::class
-        );
-
         /** @var \PrestaShop\Module\PsAccounts\Adapter\Link $link */
         $link = $this->getService(\PrestaShop\Module\PsAccounts\Adapter\Link::class);
 
@@ -543,7 +533,7 @@ class Ps_accounts extends Module
         $domain = $params['object']->domain;
         $sslDomain = $params['object']->domain_ssl;
 
-        $response = $commandBus->handle(
+        $response = $this->getCommandBus()->handle(
             new \PrestaShop\Module\PsAccounts\Domain\Shop\Command\UpdateShopCommand(
                 new \PrestaShop\Module\PsAccounts\Dto\UpdateShop([
                     'shopId' => (string) $params['object']->id,
@@ -605,10 +595,7 @@ class Ps_accounts extends Module
     public function hookActionObjectShopDeleteBefore($params)
     {
         try {
-            /** @var \PrestaShop\Module\PsAccounts\Cqrs\CommandBus $commandBus */
-            $commandBus = $this->getService(\PrestaShop\Module\PsAccounts\Cqrs\CommandBus::class);
-
-            $response = $commandBus->handle(
+            $response = $this->getCommandBus()->handle(
                 new \PrestaShop\Module\PsAccounts\Domain\Shop\Command\DeleteUserShopCommand(
                     $params['object']->id
                 )
@@ -696,9 +683,10 @@ class Ps_accounts extends Module
      */
     public function hookActionShopAccountLinkAfter($params)
     {
-        /** @var \PrestaShop\Module\PsAccounts\Domain\Account\Entity\Login $login */
-        $login = $this->getService(\PrestaShop\Module\PsAccounts\Domain\Account\Entity\Login::class);
-        $login->enable();
+        // login is supposed to be enabled when OauthClient is registered
+        ///** @var \PrestaShop\Module\PsAccounts\Domain\Account\Entity\Login $login */
+        //$login = $this->getService(\PrestaShop\Module\PsAccounts\Domain\Account\Entity\Login::class);
+        //$login->enable();
     }
 
     /**
@@ -710,11 +698,9 @@ class Ps_accounts extends Module
      */
     public function hookActionShopAccountUnlinkAfter($params)
     {
-        $this->getProvider()->getOauth2Client()->delete();
-
-        /** @var \PrestaShop\Module\PsAccounts\Domain\Account\Entity\Login $login */
-        $login = $this->getService(\PrestaShop\Module\PsAccounts\Domain\Account\Entity\Login::class);
-        $login->disable();
+        $this->getCommandBus()->handle(
+            new \PrestaShop\Module\PsAccounts\Domain\Account\Command\ForgetOauth2ClientCommand()
+        );
     }
 
     /**
@@ -859,5 +845,19 @@ class Ps_accounts extends Module
     protected function getOauth2Session(): PrestaShop\Module\PsAccounts\Provider\OAuth2\PrestaShopSession
     {
         return $this->getService(\PrestaShop\Module\PsAccounts\Provider\OAuth2\PrestaShopSession::class);
+    }
+
+    /**
+     * @return \PrestaShop\Module\PsAccounts\Cqrs\CommandBus
+     *
+     * @throws Exception
+     */
+    private function getCommandBus(): \PrestaShop\Module\PsAccounts\Cqrs\CommandBus
+    {
+        /** @var \PrestaShop\Module\PsAccounts\Cqrs\CommandBus $commandBus */
+        $commandBus = $this->getService(
+            \PrestaShop\Module\PsAccounts\Cqrs\CommandBus::class
+        );
+        return $commandBus;
     }
 }
