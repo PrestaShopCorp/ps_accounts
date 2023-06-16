@@ -3,8 +3,8 @@
 namespace PrestaShop\Module\PsAccounts\Domain\Account\CommandHandler;
 
 use PrestaShop\Module\PsAccounts\Domain\Account\Command\ForgetOauth2ClientCommand;
+use PrestaShop\Module\PsAccounts\Domain\Account\Entity\Login;
 use PrestaShop\Module\PsAccounts\Domain\Account\Entity\Oauth2Client;
-use PrestaShop\Module\PsAccounts\Repository\ConfigurationRepository;
 
 class ForgetOauth2ClientCommandHandler
 {
@@ -14,18 +14,18 @@ class ForgetOauth2ClientCommandHandler
     private $oauth2Client;
 
     /**
-     * @var ConfigurationRepository
+     * @var Login
      */
-    private $configuration;
+    private $login;
 
     /**
      * @param Oauth2Client $oauth2Client
-     * @param ConfigurationRepository $configurationRepository
+     * @param Login $login
      */
-    public function __construct(Oauth2Client $oauth2Client, ConfigurationRepository $configurationRepository)
+    public function __construct(Oauth2Client $oauth2Client, Login $login)
     {
         $this->oauth2Client = $oauth2Client;
-        $this->configuration = $configurationRepository;
+        $this->login = $login;
     }
 
     /**
@@ -35,7 +35,7 @@ class ForgetOauth2ClientCommandHandler
     {
         if ($this->oauth2Client->exists()) {
             $this->oauth2Client->delete();
-            $this->configuration->updateLoginEnabled(false);
+            $this->login->disable();
         }
     }
 }
