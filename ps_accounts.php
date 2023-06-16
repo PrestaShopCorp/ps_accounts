@@ -852,12 +852,13 @@ class Ps_accounts extends Module
      *
      * @throws Exception
      */
-    private function getCommandBus(): \PrestaShop\Module\PsAccounts\Cqrs\CommandBus
+    private function getCommandBus(): PrestaShop\Module\PsAccounts\Cqrs\CommandBus
     {
         /** @var \PrestaShop\Module\PsAccounts\Cqrs\CommandBus $commandBus */
         $commandBus = $this->getService(
             \PrestaShop\Module\PsAccounts\Cqrs\CommandBus::class
         );
+
         return $commandBus;
     }
 }
