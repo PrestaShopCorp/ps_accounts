@@ -44,11 +44,14 @@ class CommandBus
      */
     public function handle($command)
     {
-        $this->module->getLogger()->debug('handling : ' . get_class($command));
+        $this->module->getLogger()->debug('resolving handler : ' . get_class($command));
 
         $handler = $this->resolveHandler($command);
 
-        if (method_exists($handler, 'handle')) {
+        if ($handler && method_exists($handler, 'handle')) {
+            $this->module->getLogger()->debug('handling : ' . get_class($handler));
+            $this->module->getLogger()->debug('with data : ' . json_encode($command));
+
             /* @phpstan-ignore-next-line */
             return $handler->handle($command);
         }
