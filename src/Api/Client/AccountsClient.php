@@ -63,7 +63,7 @@ class AccountsClient implements TokenClientInterface
         return $this->getClient()->post([
             'json' => [
                 'headers' => $this->getHeaders([
-                    'X-Shop-Id' => $this->configurationRepository->getShopId(),
+                    'X-Shop-Id' => $this->configurationRepository->getShopUuid(),
                 ]),
                 'token' => $idToken,
             ],
@@ -77,7 +77,7 @@ class AccountsClient implements TokenClientInterface
         return $this->getClient()->post([
             'json' => [
                 'headers' => $this->getHeaders([
-                    'X-Shop-Id' => $this->configurationRepository->getShopId(),
+                    'X-Shop-Id' => $this->configurationRepository->getShopUuid(),
                 ]),
                 'token' => $refreshToken,
             ],
@@ -91,7 +91,7 @@ class AccountsClient implements TokenClientInterface
         return $this->getClient()->delete([
             'headers' => $this->getHeaders([
                 'Authorization' => 'Bearer ' . $ownerToken,
-                'X-Shop-Id' => $this->configurationRepository->getShopId(),
+                'X-Shop-Id' => $this->configurationRepository->getShopUuid(),
             ]),
         ]);
     }
@@ -103,7 +103,7 @@ class AccountsClient implements TokenClientInterface
         return $this->getClient()->post([
                 'headers' => $this->getHeaders([
                     'Authorization' => 'Bearer ' . $shopToken,
-                    'X-Shop-Id' => $payload['id'],
+                    'X-Shop-Id' => $shopUid,
                 ]),
                 'json' => $payload,
             ]);
@@ -116,7 +116,7 @@ class AccountsClient implements TokenClientInterface
         return $this->getClient()->patch([
             'headers' => $this->getHeaders([
                 'Authorization' => 'Bearer ' . $ownerToken,
-                'X-Shop-Id' => $shop->shopId,
+                'X-Shop-Id' => $shopUid,
             ]),
             'json' => $shop->jsonSerialize(),
         ]);
