@@ -51,7 +51,7 @@ services:
       - { name: tactician.handler, command: 'PrestaShop\Module\PsAccounts\Domain\Account\Command\RegisterOauth2ClientCommand' }
     arguments:
       - '@PrestaShop\Module\PsAccounts\Domain\Account\Entity\Oauth2Client'
-      - '@PrestaShop\Module\PsAccounts\Repository\ConfigurationRepository'
+      - '@PrestaShop\Module\PsAccounts\Domain\Account\Entity\Login'
 
   PrestaShop\Module\PsAccounts\Domain\Account\CommandHandler\ForgetOauth2ClientCommandHandler:
     class: PrestaShop\Module\PsAccounts\Domain\Account\CommandHandler\ForgetOauth2ClientCommandHandler
@@ -59,4 +59,4 @@ services:
       - { name: tactician.handler, command: 'PrestaShop\Module\PsAccounts\Domain\Account\Command\ForgetOauth2ClientCommand' }
     arguments:
       - '@PrestaShop\Module\PsAccounts\Domain\Account\Entity\Oauth2Client'
-      - '@PrestaShop\Module\PsAccounts\Repository\ConfigurationRepository'
+      - '@PrestaShop\Module\PsAccounts\Domain\Account\Entity\Login'
