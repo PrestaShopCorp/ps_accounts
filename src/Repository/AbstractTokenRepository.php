@@ -39,6 +39,7 @@ abstract class AbstractTokenRepository
 
     protected const TOKEN_TYPE = '';
     protected const TOKEN_KEY = '';
+    protected const REFRESH_TOKEN_KEY = '';
 
     /**
      * @var ConfigurationRepository
@@ -109,10 +110,10 @@ abstract class AbstractTokenRepository
             $refreshToken = $this->getRefreshToken();
             if (is_string($refreshToken) && '' != $refreshToken) {
                 try {
-                    $token = $this->refreshToken($refreshToken);
+                    $token = $this->refreshToken($refreshToken, $newRefreshToken);
                     $this->updateCredentials(
                         (string) $token,
-                        $refreshToken
+                        $newRefreshToken
                     );
                 } catch (RefreshTokenException $e) {
                     Logger::getInstance()->debug($e);
@@ -151,18 +152,20 @@ abstract class AbstractTokenRepository
 
     /**
      * @param string $refreshToken
+     * @param string $newRefreshToken
      *
-     * @return Token|null idToken
+     * @return Token|null
      *
      * @throws RefreshTokenException
      * @throws Exception
      */
-    public function refreshToken($refreshToken)
+    public function refreshToken($refreshToken, &$newRefreshToken = null)
     {
         $response = $this->client()->refreshToken($refreshToken);
 
         if ($response && true === $response['status']) {
             $token = $this->parseToken($response['body'][static::TOKEN_KEY]);
+            $newRefreshToken = $response['body'][static::REFRESH_TOKEN_KEY];
 
             $this->onRefreshTokenSuccess();
 
