@@ -130,7 +130,7 @@ class AccountsClient implements TokenClientInterface
      */
     public function deleteUserShop($shopId)
     {
-        return $this->shopProvider->getShopContext()->execInShopContext((int) $shopId, function () use ($shopId) {
+        return $this->shopProvider->getShopContext()->execInShopContext((int) $shopId, function () {
             $userToken = $this->getUserTokenRepository();
             $shopToken = $this->getShopTokenRepository();
 
@@ -139,7 +139,7 @@ class AccountsClient implements TokenClientInterface
             return $this->getClient()->delete([
                 'headers' => $this->getHeaders([
                     'Authorization' => 'Bearer ' . $userToken->getOrRefreshToken(),
-                    'X-Shop-Id' => $shopId,
+                    'X-Shop-Id' => $shopToken->getTokenUuid(),
                 ]),
             ]);
         });
@@ -162,7 +162,7 @@ class AccountsClient implements TokenClientInterface
             return $this->getClient()->post([
                 'headers' => $this->getHeaders([
                     'Authorization' => 'Bearer ' . $shopToken->getOrRefreshToken(),
-                    'X-Shop-Id' => $currentShop['id'],
+                    'X-Shop-Id' => $currentShop['uuid'],
                 ]),
                 'json' => $currentShop,
             ]);
@@ -197,7 +197,7 @@ class AccountsClient implements TokenClientInterface
             return $this->getClient()->patch([
                 'headers' => $this->getHeaders([
                     'Authorization' => 'Bearer ' . $userToken->getOrRefreshToken(),
-                    'X-Shop-Id' => $shop->shopId,
+                    'X-Shop-Id' => $shopToken->getTokenUuid(),
                 ]),
                 'json' => $shop->jsonSerialize(),
             ]);
