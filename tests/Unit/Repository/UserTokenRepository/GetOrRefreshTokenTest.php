@@ -2,6 +2,7 @@
 
 namespace PrestaShop\Module\PsAccounts\Tests\Unit\Repository\UserTokenRepository;
 
+use PrestaShop\Module\PsAccounts\Api\Client\SsoClient;
 use PrestaShop\Module\PsAccounts\Repository\ConfigurationRepository;
 use PrestaShop\Module\PsAccounts\Repository\UserTokenRepository;
 use PrestaShop\Module\PsAccounts\Tests\TestCase;
@@ -60,5 +61,50 @@ class GetOrRefreshTokenTest extends TestCase
         $tokenRepos->updateCredentials((string) $idToken, (string) $refreshToken);
 
         $this->assertEquals((string) $idTokenRefreshed, $tokenRepos->getOrRefreshToken());
+    }
+
+    /**
+     * @test
+     * @throws \Exception
+     */
+    public function itShouldUpdateRefreshToken()
+    {
+        $payload = [
+            'idToken' => $this->makeJwtToken(new \DateTimeImmutable('tomorrow'), [
+                'user_id' => $this->faker->uuid,
+            ]),
+            'refreshToken' => $this->makeJwtToken(new \DateTimeImmutable('+1 year')),
+        ];
+
+        $client = $this->createMock(SsoClient::class);
+        $client->method('refreshToken')->willReturn($payload);
+
+        /** @var ConfigurationRepository $configuration */
+        $configuration = $this->module->getService(ConfigurationRepository::class);
+
+        /** @var UserTokenRepository $tokenRepos */
+        $tokenRepos = $this->getMockBuilder(UserTokenRepository::class)
+            ->setConstructorArgs([$configuration])
+            //->disableOriginalConstructor()
+            //->disableOriginalClone()
+            ->disableArgumentCloning()
+            ->disallowMockingUnknownTypes()
+            ->getMock();
+
+        $tokenRepos->method('client')
+            ->willReturn($client);
+
+        $tokenRepos->updateCredentials(
+            $this->makeJwtToken(new \DateTimeImmutable('yesterday'), [
+                'user_id' => $this->faker->uuid,
+                'email' => $this->faker->safeEmail,
+            ]),
+            $this->makeJwtToken(new \DateTimeImmutable('+1 year'))
+        );
+
+        $tokenRepos->getOrRefreshToken();
+
+        $this->assertEquals($payload['idToken'], $tokenRepos->getToken());
+        $this->assertEquals($payload['refreshToken'], $tokenRepos->getRefreshToken());
     }
 }
