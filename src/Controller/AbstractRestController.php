@@ -87,7 +87,7 @@ abstract class AbstractRestController extends \ModuleFrontController
                 'error' => true,
                 'message' => $e->getMessage(),
             ], $e->getStatusCode());
-        } catch (\Exception $e) {
+        } catch (\Throwable $e) {
             Sentry::capture($e);
 
             $this->module->getLogger()->error($e);
