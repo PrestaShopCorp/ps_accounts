@@ -20,13 +20,17 @@
 
 namespace PrestaShop\Module\PsAccounts\Handler\Error;
 
+use Context;
 use Module;
+use PrestaShop\Module\PsAccounts\Handler\ModuleFilteredRavenClient;
 use PrestaShop\Module\PsAccounts\Repository\ConfigurationRepository;
 use Ps_accounts;
 use Raven_Client;
 
 /**
- * Handle Error.
+ * Sentry service
+ *
+ * FIXME: maj Sentry
  */
 class Sentry
 {
@@ -41,22 +45,39 @@ class Sentry
     private $configuration;
 
     /**
+     * @var float
+     */
+    private $sampleRateFront = 0.2;
+
+    /**
+     * @var float
+     */
+    private $sampleRateBack = 1;
+
+    /**
+     * @var int
+     */
+    private $errorTypes = E_ALL & ~E_STRICT & ~E_DEPRECATED & ~E_USER_DEPRECATED & ~E_NOTICE & ~E_USER_NOTICE;
+
+    /**
      * ErrorHandler constructor.
      *
      * @param string $sentryCredentials
      * @param string $environment
      * @param ConfigurationRepository $configuration
+     * @param Context $context
      *
      * @throws \Raven_Exception
      */
     public function __construct(
         string $sentryCredentials,
         string $environment,
-        ConfigurationRepository $configuration
+        ConfigurationRepository $configuration,
+        Context $context
     ) {
         $this->configuration = $configuration;
 
-        $this->client = new Raven_Client(
+        $this->client = new ModuleFilteredRavenClient(
             $sentryCredentials,
             [
                 'environment' => $environment,
@@ -69,8 +90,34 @@ class Sentry
                     'email' => $this->configuration->getFirebaseEmail(),
                     'shop_uuid' => $this->configuration->getShopUuid(),
                 ],
+                'error_types' => $this->errorTypes,
+                'sample_rate' => $this->isContextInFrontOffice($context) ?
+                    $this->sampleRateFront :
+                    $this->sampleRateBack,
             ]
         );
+
+        $moduleName = 'ps_accounts';
+
+        // We use realpath to get errors even if module is behind a symbolic link
+        $this->client->setAppPath(realpath(_PS_MODULE_DIR_ . $moduleName . '/'));
+        // - Do no not add the shop root folder, it will exclude everything even if specified in the app path.
+        // - Excluding vendor/ avoids errors comming from one of your libraries library when called by another module.
+        $this->client->setExcludedAppPaths([
+            realpath(_PS_MODULE_DIR_ . $moduleName . '/vendor/'),
+        ]);
+        $this->client->setExcludedDomains(['127.0.0.1', 'localhost', '.local']);
+
+        // Other conditions can be done here to prevent the full installation of the client:
+        // - PHP versions,
+        // - PS versions,
+        // - Integration environment,
+        // - ...
+
+        if (version_compare((string) phpversion(), '7.4.0', '>=') &&
+            version_compare(_PS_VERSION_, '1.7.8.0', '<')) {
+            return;
+        }
 
         $this->client->install();
     }
@@ -107,5 +154,27 @@ class Sentry
         self::capture($exception);
 
         throw $exception;
+    }
+
+    /**
+     * @return bool
+     */
+    private function isContextInFrontOffice(Context $context = null)
+    {
+        /*
+        Some shops have trouble to refresh the cache of the service container.
+        To avoid issues on production after an upgrade, context has been made optional.
+        ToDo: Remove the nullable later.
+        */
+        if (!$context) {
+            return false;
+        }
+        /** @var \Controller|null $controller */
+        $controller = $context->controller;
+        if (!$controller) {
+            return false;
+        }
+
+        return in_array($controller->controller_type, ['front', 'modulefront']);
     }
 }

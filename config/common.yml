@@ -125,6 +125,7 @@ services:
       - '%ps_accounts.sentry_credentials%'
       - '%ps_accounts.environment%'
       - '@PrestaShop\Module\PsAccounts\Repository\ConfigurationRepository'
+      - '@ps_accounts.context'
 
   ###############
   # api clients
