@@ -2,8 +2,9 @@
 
 namespace PrestaShop\Module\PsAccounts\Domain\Account\CommandHandler;
 
+use PrestaShop\Module\PsAccounts\Cqrs\CommandBus;
+use PrestaShop\Module\PsAccounts\Domain\Account\Command\DisableLoginCommand;
 use PrestaShop\Module\PsAccounts\Domain\Account\Command\ForgetOauth2ClientCommand;
-use PrestaShop\Module\PsAccounts\Domain\Account\Entity\Login;
 use PrestaShop\Module\PsAccounts\Domain\Account\Entity\Oauth2Client;
 
 class ForgetOauth2ClientCommandHandler
@@ -14,18 +15,18 @@ class ForgetOauth2ClientCommandHandler
     private $oauth2Client;
 
     /**
-     * @var Login
+     * @var CommandBus
      */
-    private $login;
+    private $commandBus;
 
     /**
      * @param Oauth2Client $oauth2Client
-     * @param Login $login
+     * @param CommandBus $commandBus
      */
-    public function __construct(Oauth2Client $oauth2Client, Login $login)
+    public function __construct(Oauth2Client $oauth2Client, CommandBus $commandBus)
     {
         $this->oauth2Client = $oauth2Client;
-        $this->login = $login;
+        $this->commandBus = $commandBus;
     }
 
     /**
@@ -35,7 +36,7 @@ class ForgetOauth2ClientCommandHandler
     {
         if ($this->oauth2Client->exists()) {
             $this->oauth2Client->delete();
-            $this->login->disable();
+            $this->commandBus->handle(new DisableLoginCommand());
         }
     }
 }
