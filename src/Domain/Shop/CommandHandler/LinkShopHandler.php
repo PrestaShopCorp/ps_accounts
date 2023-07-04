@@ -9,7 +9,7 @@ use PrestaShop\Module\PsAccounts\Domain\Shop\Entity\ShopSession;
 use PrestaShopException;
 use Ps_accounts;
 
-class LinkShopCommandHandler
+class LinkShopHandler
 {
     /**
      * @var ShopSession

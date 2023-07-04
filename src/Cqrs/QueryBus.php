@@ -5,21 +5,15 @@ namespace PrestaShop\Module\PsAccounts\Cqrs;
 class QueryBus extends AbstractBus
 {
     /**
-     * @param mixed $command
+     * @param string $className
      *
-     * @return mixed
-     *
-     * @throws \Exception
+     * @return string
      */
-    protected function resolveHandler($command)
+    public function resolveHandlerClass(string $className): string
     {
-        $commandClass = get_class($command);
-
-        $handlerClass = preg_replace(
-            '/((Query)(\\\\[^\\\\]*$))/',
-            '${2}Handler${3}Handler',
-            $commandClass, 1);
-
-        return $this->module->getService($handlerClass);
+        return preg_replace(
+            '/((Query)(\\\\([^\\\\]*?)(Query)?$))/',
+            '${2}Handler\\\\${4}Handler',
+            $className, 1);
     }
 }

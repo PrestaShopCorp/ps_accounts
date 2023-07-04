@@ -7,7 +7,7 @@ use PrestaShop\Module\PsAccounts\Context\ShopContext;
 use PrestaShop\Module\PsAccounts\Domain\Shop\Command\UpdateShopCommand;
 use PrestaShop\Module\PsAccounts\Domain\Shop\Entity\Account;
 
-class UpdateShopCommandHandler
+class UpdateShopHandler
 {
     /**
      * @var AccountsClient

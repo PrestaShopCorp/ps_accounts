@@ -2,10 +2,10 @@
 
 namespace PrestaShop\Module\PsAccounts\Domain\Account\CommandHandler;
 
-use PrestaShop\Module\PsAccounts\Domain\Account\Command\DisableLoginCommand;
+use PrestaShop\Module\PsAccounts\Domain\Account\Command\EnableLoginCommand;
 use PrestaShop\Module\PsAccounts\Domain\Account\Entity\Login;
 
-class DisableLoginCommandHandler
+class EnableLoginHandler
 {
     /**
      * @var Login
@@ -23,8 +23,8 @@ class DisableLoginCommandHandler
     /**
      * @throws \Exception
      */
-    public function handle(DisableLoginCommand $command): void
+    public function handle(EnableLoginCommand $command): void
     {
-        $this->login->disable();
+        $this->login->enable();
     }
 }

@@ -15,11 +15,11 @@ abstract class AbstractBus
     }
 
     /**
-     * @param mixed $command
+     * @param string $className
      *
-     * @return mixed
+     * @return string
      */
-    abstract protected function resolveHandler($command);
+    abstract public function resolveHandlerClass(string $className): string;
 
     /**
      * @param mixed $command
@@ -32,7 +32,7 @@ abstract class AbstractBus
     {
         $this->module->getLogger()->debug('resolving handler : ' . get_class($command));
 
-        $handler = $this->resolveHandler($command);
+        $handler = $this->module->getService($this->resolveHandlerClass(get_class($command)));
 
         if ($handler && method_exists($handler, 'handle')) {
             /* @phpstan-ignore-next-line */

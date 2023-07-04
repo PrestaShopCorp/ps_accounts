@@ -12,6 +12,7 @@
     <testsuite name="all">
       <directory suffix="Test.php">./tests</directory>
       <directory suffix="Test.php">./src/Domain</directory>
+      <directory suffix="Test.php">./src/Cqrs</directory>
     </testsuite>
     <testsuite name="unit">
       <directory suffix="Test.php">./tests/Unit</directory>
@@ -21,6 +22,9 @@
     </testsuite>
     <testsuite name="domain">
       <directory suffix="Test.php">./src/Domain</directory>
+    </testsuite>
+    <testsuite name="cqrs">
+      <directory suffix="Test.php">./src/Cqrs</directory>
     </testsuite>
   </testsuites>
   <filter>

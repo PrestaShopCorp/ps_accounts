@@ -22,7 +22,7 @@ class LinkShopCommandHandlerTest extends TestCase
     private $ownerSession;
 
     /**
-     * @var LinkShopCommandHandler
+     * @var LinkShopHandler
      */
     private $linkShopHandler;
 
@@ -33,7 +33,7 @@ class LinkShopCommandHandlerTest extends TestCase
         $this->shopSession = $this->createMock(ShopSession::class);
         $this->ownerSession = $this->createMock(OwnerSession::class);
 
-        $this->linkShopHandler = new LinkShopCommandHandler(
+        $this->linkShopHandler = new LinkShopHandler(
             $this->shopSession,
             $this->ownerSession
         );

@@ -7,7 +7,7 @@ use PrestaShop\Module\PsAccounts\Domain\Shop\Command\UnlinkShopCommand;
 use PrestaShop\Module\PsAccounts\Domain\Shop\Entity\Account;
 use Ps_accounts;
 
-class UnlinkShopCommandHandler
+class UnlinkShopHandler
 {
     /**
      * @var Account
