@@ -160,11 +160,21 @@ class ShopLinkAccountService
 
     /**
      * @return bool
+     * @throws \Exception
      */
     public function isAccountLinked()
     {
         return $this->shopTokenRepository->getOrRefreshToken()
             && $this->userTokenRepository->getOrRefreshToken();
+    }
+
+    /**
+     * @throws \Exception
+     */
+    public function isShopAlive(): bool
+    {
+        return false === $this->shopTokenRepository->isTokenExpired()
+            && false === $this->userTokenRepository->isTokenExpired();
     }
 
     /**
