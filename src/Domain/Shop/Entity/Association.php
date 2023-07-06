@@ -22,7 +22,7 @@ namespace PrestaShop\Module\PsAccounts\Domain\Shop\Entity;
 
 use PrestaShop\Module\PsAccounts\Repository\ConfigurationRepository;
 
-class Account
+class Association
 {
     /**
      * @var OwnerSession

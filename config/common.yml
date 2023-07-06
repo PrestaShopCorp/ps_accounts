@@ -1,5 +1,6 @@
 imports:
   - { resource: commands.yml }
+  - { resource: queries.yml }
 
 services:
   _defaults:
@@ -24,9 +25,9 @@ services:
     public: true
     factory: [ 'PrestaShop\Module\PsAccounts\Provider\OAuth2\PrestaShopClientProvider', 'create' ]
 
-  PrestaShop\Module\PsAccounts\Provider\OAuth2\PrestaShopSession:
-    class: PrestaShop\Module\PsAccounts\Provider\OAuth2\PrestaShopSession
-    factory: [ 'PrestaShop\Module\PsAccounts\Factory\PrestaShopSessionFactory', 'create' ]
+  PrestaShop\Module\PsAccounts\Domain\Account\Entity\AccountSession:
+    class: PrestaShop\Module\PsAccounts\Domain\Account\Entity\AccountSession
+    factory: [ 'PrestaShop\Module\PsAccounts\Factory\AccountSessionFactory', 'create' ]
 
   PrestaShop\Module\PsAccounts\Domain\Account\Entity\Oauth2Client:
     class: PrestaShop\Module\PsAccounts\Domain\Account\Entity\Oauth2Client
@@ -159,8 +160,8 @@ services:
       - '@PrestaShop\Module\PsAccounts\Api\Client\SsoClient'
       - '@PrestaShop\Module\PsAccounts\Repository\ConfigurationRepository'
 
-  PrestaShop\Module\PsAccounts\Domain\Shop\Entity\Account:
-    class: PrestaShop\Module\PsAccounts\Domain\Shop\Entity\Account
+  PrestaShop\Module\PsAccounts\Domain\Shop\Entity\Association:
+    class: PrestaShop\Module\PsAccounts\Domain\Shop\Entity\Association
     arguments:
       - '@PrestaShop\Module\PsAccounts\Domain\Shop\Entity\PublicKey'
       - '@PrestaShop\Module\PsAccounts\Domain\Shop\Entity\ShopSession'

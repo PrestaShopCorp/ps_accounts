@@ -22,7 +22,8 @@ namespace PrestaShop\Module\PsAccounts\Provider;
 
 use PrestaShop\Module\PsAccounts\Adapter\Link;
 use PrestaShop\Module\PsAccounts\Context\ShopContext;
-use PrestaShop\Module\PsAccounts\Domain\Shop\Entity\Account;
+use PrestaShop\Module\PsAccounts\Domain\Shop\Dto\Shop;
+use PrestaShop\Module\PsAccounts\Domain\Shop\Entity\Association;
 use PrestaShop\Module\PsAccounts\Domain\Shop\Entity\PublicKey;
 
 class ShopProvider
@@ -52,28 +53,28 @@ class ShopProvider
     }
 
     /**
-     * @param array $shopData
+     * @param array $shopData data returned by \Shop::getShop
      * @param string $psxName
      *
-     * @return array
+     * @return Shop
      *
      * @throws \Exception
      */
-    public function formatShopData($shopData, $psxName = '')
+    public function formatShopData(array $shopData, string $psxName = ''): Shop
     {
         return $this->getShopContext()->execInShopContext($shopData['id_shop'], function () use ($shopData, $psxName) {
             /** @var \Ps_accounts $module */
             $module = \Module::getInstanceByName('ps_accounts');
 
-            /** @var Account $shopAccount */
-            $shopAccount = $module->getService(Account::class);
-            $shopSession = $shopAccount->getShopSession();
-            $ownerSession = $shopAccount->getOwnerSession();
+            /** @var Association $association */
+            $association = $module->getService(Association::class);
+            $shopSession = $association->getShopSession();
+            $ownerSession = $association->getOwnerSession();
 
             /** @var PublicKey $rsaKeyProvider */
             $rsaKeyProvider = $module->getService(PublicKey::class);
 
-            return [
+            return new Shop([
                 'id' => (string) $shopData['id_shop'],
                 'name' => $shopData['name'],
                 'domain' => $shopData['domain'],
@@ -101,8 +102,8 @@ class ShopProvider
                         'setShopContext' => 's-' . $shopData['id_shop'],
                     ]
                 ),
-                'isLinkedV4' => $shopAccount->isLinkedV4(),
-            ];
+                'isLinkedV4' => $association->isLinkedV4(),
+            ]);
         });
     }
 
@@ -111,13 +112,13 @@ class ShopProvider
      *
      * @return array
      *
-     * @throws \PrestaShopException
+     * @throws \PrestaShopException|\Exception
      */
-    public function getCurrentShop($psxName = '')
+    public function getCurrentShop(string $psxName = ''): array
     {
         $data = $this->formatShopData((array) \Shop::getShop($this->shopContext->getContext()->shop->id), $psxName);
 
-        return array_merge($data, [
+        return array_merge((array) $data, [
             'multishop' => $this->shopContext->isMultishopActive(),
             'moduleName' => $psxName,
             'psVersion' => _PS_VERSION_,
@@ -129,9 +130,9 @@ class ShopProvider
      *
      * @return array
      *
-     * @throws \PrestaShopException
+     * @throws \PrestaShopException|\Exception
      */
-    public function getShopsTree($psxName)
+    public function getShopsTree(string $psxName): array
     {
         $shopList = [];
 
@@ -140,7 +141,7 @@ class ShopProvider
             foreach ($groupData['shops'] as $shopId => $shopData) {
                 $data = $this->formatShopData((array) $shopData, $psxName);
 
-                $shops[] = array_merge($data, [
+                $shops[] = array_merge((array) $data, [
                     'multishop' => $this->shopContext->isMultishopActive(),
                     'moduleName' => $psxName,
                     'psVersion' => _PS_VERSION_,
@@ -168,7 +169,7 @@ class ShopProvider
      *
      * @throws \PrestaShopException
      */
-    public function getUnlinkedShops($psxName, $employeeId)
+    public function getUnlinkedShops(string $psxName, int $employeeId): array
     {
         $shopTree = $this->getShopsTree($psxName);
         $shops = [];
@@ -207,7 +208,7 @@ class ShopProvider
     /**
      * @return ShopContext
      */
-    public function getShopContext()
+    public function getShopContext(): ShopContext
     {
         return $this->shopContext;
     }
@@ -217,7 +218,7 @@ class ShopProvider
      *
      * @return false|string
      */
-    private function getShopPhysicalUri($shopId)
+    private function getShopPhysicalUri(int $shopId)
     {
         return \Db::getInstance()->getValue(
             'SELECT physical_uri FROM ' . _DB_PREFIX_ . 'shop_url WHERE id_shop=' . (int) $shopId . ' AND main=1'
@@ -229,7 +230,7 @@ class ShopProvider
      *
      * @return false|string
      */
-    private function getShopVirtualUri($shopId)
+    private function getShopVirtualUri(int $shopId)
     {
         return \Db::getInstance()->getValue(
             'SELECT virtual_uri FROM ' . _DB_PREFIX_ . 'shop_url WHERE id_shop=' . (int) $shopId . ' AND main=1'
@@ -241,7 +242,7 @@ class ShopProvider
      *
      * @return string|null
      */
-    private function getShopUrl($shopData)
+    private function getShopUrl(array $shopData): ?string
     {
         if (!$shopData['domain']) {
             return null;

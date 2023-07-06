@@ -22,8 +22,10 @@ namespace PrestaShop\Module\PsAccounts\Provider\OAuth2;
 
 use League\OAuth2\Client\Provider\Exception\IdentityProviderException;
 use League\OAuth2\Client\Token\AccessToken;
+use PrestaShop\Module\PsAccounts\Domain\Account\Entity\AccountSession;
 use PrestaShop\Module\PsAccounts\Logger\Logger;
 use PrestaShop\OAuth2\Client\Provider\PrestaShopUser;
+use PrestaShop\PrestaShop\Core\Exception\ContainerNotFoundException;
 use Symfony\Component\HttpFoundation\Session\SessionInterface;
 use Tools;
 
@@ -37,7 +39,7 @@ trait PrestaShopLoginTrait
 
     abstract protected function getSession(): SessionInterface;
 
-    abstract protected function getOauth2Session(): PrestaShopSession;
+    abstract protected function getOauth2Session(): AccountSession;
 
     /**
      * @throws IdentityProviderException
@@ -82,6 +84,9 @@ trait PrestaShopLoginTrait
         }
     }
 
+    /**
+     * @throws ContainerNotFoundException
+     */
     private function oauth2Redirect(string $locale): void
     {
         $provider = $this->getProvider();
@@ -99,16 +104,25 @@ trait PrestaShopLoginTrait
         exit;
     }
 
+    /**
+     * @throws \Exception
+     */
     private function oauth2ErrorLog(string $msg): void
     {
         Logger::getInstance()->error('[OAuth2] ' . $msg);
     }
 
+    /**
+     * @throws ContainerNotFoundException
+     */
     private function getSessionReturnTo(): string
     {
         return $this->getSession()->get($this->getReturnToParam(), '');
     }
 
+    /**
+     * @throws ContainerNotFoundException
+     */
     private function setSessionReturnTo(string $returnTo): void
     {
         $this->getSession()->set($this->getReturnToParam(), $returnTo);

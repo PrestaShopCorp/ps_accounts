@@ -18,12 +18,14 @@
  * @license   https://opensource.org/licenses/AFL-3.0 Academic Free License version 3.0
  */
 
+use Account\Query\GetOrRefreshAccessToken;
 use PrestaShop\Module\PsAccounts\Cqrs\CommandBus;
+use PrestaShop\Module\PsAccounts\Cqrs\QueryBus;
 use PrestaShop\Module\PsAccounts\Domain\Shop\Command\DeleteUserShopCommand;
-use PrestaShop\Module\PsAccounts\Domain\Shop\Entity\Account;
-use PrestaShop\Module\PsAccounts\Domain\Shop\Entity\ShopSession;
+use PrestaShop\Module\PsAccounts\Domain\Shop\Entity\Association;
+use PrestaShop\Module\PsAccounts\Domain\Shop\Entity\Token;
+use PrestaShop\Module\PsAccounts\Domain\Shop\Query\GetOrRefreshShopToken;
 use PrestaShop\Module\PsAccounts\Presenter\PsAccountsPresenter;
-use PrestaShop\Module\PsAccounts\Provider\OAuth2\PrestaShopSession;
 use PrestaShop\Module\PsAccounts\Repository\ConfigurationRepository;
 use PrestaShop\Module\PsAccounts\Service\SentryService;
 
@@ -38,6 +40,16 @@ class AdminAjaxPsAccountsController extends ModuleAdminController
     public $module;
 
     /**
+     * @var CommandBus
+     */
+    private $commandBus;
+
+    /**
+     * @var QueryBus
+     */
+    private $queryBus;
+
+    /**
      * AdminAjaxPsAccountsController constructor.
      *
      * @throws Exception
@@ -45,6 +57,9 @@ class AdminAjaxPsAccountsController extends ModuleAdminController
     public function __construct()
     {
         parent::__construct();
+
+        $this->queryBus = $this->module->getService(QueryBus::class);
+        $this->commandBus = $this->module->getService(CommandBus::class);
     }
 
     /**
@@ -55,10 +70,8 @@ class AdminAjaxPsAccountsController extends ModuleAdminController
     public function ajaxProcessGetOrRefreshToken()
     {
         try {
-            /** @var ShopSession $shopSession */
-            $shopSession = $this->module->getService(ShopSession::class);
-
-            $token = $shopSession->getOrRefreshToken();
+            /** @var Token $token */
+            $token = $this->queryBus->handle(new GetOrRefreshShopToken());
 
             header('Content-Type: text/json');
 
@@ -82,13 +95,10 @@ class AdminAjaxPsAccountsController extends ModuleAdminController
     public function ajaxProcessUnlinkShop()
     {
         try {
-            /** @var CommandBus $commandBus */
-            $commandBus = $this->module->getService(CommandBus::class);
-
             /** @var ConfigurationRepository $configurationRepository */
             $configurationRepository = $this->module->getService(ConfigurationRepository::class);
 
-            $response = $commandBus->handle(new DeleteUserShopCommand(
+            $response = $this->commandBus->handle(new DeleteUserShopCommand(
                 $configurationRepository->getShopId()
             ));
 
@@ -110,10 +120,10 @@ class AdminAjaxPsAccountsController extends ModuleAdminController
     public function ajaxProcessResetLinkAccount()
     {
         try {
-            /** @var Account $shopAccount */
-            $shopAccount = $this->module->getService(Account::class);
+            /** @var Association $association */
+            $association = $this->module->getService(Association::class);
 
-            $shopAccount->resetLink();
+            $association->resetLink();
 
             header('Content-Type: text/json');
 
@@ -152,14 +162,13 @@ class AdminAjaxPsAccountsController extends ModuleAdminController
     public function ajaxProcessGetOrRefreshAccessToken()
     {
         try {
-            /** @var PrestaShopSession $oauthSession */
-            $oauthSession = $this->module->getService(PrestaShopSession::class);
-
             header('Content-Type: text/json');
 
             $this->ajaxDie(
                 json_encode([
-                    'token' => (string) $oauthSession->getOrRefreshAccessToken(),
+                    'token' => (string) $this->queryBus->handle(
+                        new GetOrRefreshAccessToken()
+                    ),
                 ])
             );
         } catch (Exception $e) {

@@ -153,10 +153,10 @@ abstract class AbstractSession implements SessionInterface
         /** @var Ps_accounts $module */
         $module = \Module::getInstanceByName('ps_accounts');
 
-        /** @var Account $service */
-        $service = $module->getService(Account::class);
+        /** @var Association $association */
+        $association = $module->getService(Association::class);
 
-        $service->resetLink();
+        $association->resetLink();
     }
 
     protected function getApiClient(): TokenClientInterface

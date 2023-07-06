@@ -23,8 +23,7 @@ namespace PrestaShop\Module\PsAccounts\Tests\Unit\Domain\Shop\Entity\OwnerSessio
 use Exception;
 use PHPUnit\Framework\MockObject\MockObject;
 use PrestaShop\Module\PsAccounts\Api\Client\SsoClient;
-use PrestaShop\Module\PsAccounts\Domain\Shop\Entity\AbstractSession;
-use PrestaShop\Module\PsAccounts\Domain\Shop\Entity\Account;
+use PrestaShop\Module\PsAccounts\Domain\Shop\Entity\Association;
 use PrestaShop\Module\PsAccounts\Domain\Shop\Entity\OwnerSession;
 use PrestaShop\Module\PsAccounts\Domain\Shop\Entity\Token;
 use PrestaShop\Module\PsAccounts\Domain\Shop\Exception\RefreshTokenException;
@@ -128,9 +127,9 @@ class RefreshTokenTest extends TestCase
         $this->assertEquals(null, (string) $ownerSession->getToken()->getJwt());
         $this->assertEquals(null, (string) $ownerSession->getToken()->getRefreshToken());
 
-        /** @var Account $linkAccountService */
-        $linkAccountService = $this->module->getService(Account::class);
-        $this->assertFalse($linkAccountService->isLinked());
+        /** @var Association $association */
+        $association = $this->module->getService(Association::class);
+        $this->assertFalse($association->isLinked());
     }
 
     /**

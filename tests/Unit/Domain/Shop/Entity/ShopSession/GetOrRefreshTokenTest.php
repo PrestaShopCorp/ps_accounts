@@ -12,6 +12,8 @@ class GetOrRefreshTokenTest extends TestCase
 {
     /**
      * @test
+     *
+     * @throws \Exception
      */
     public function itShouldReturnValidToken()
     {
@@ -31,18 +33,25 @@ class GetOrRefreshTokenTest extends TestCase
 
     /**
      * @test
+     *
+     * @throws \Exception
      */
     public function itShouldRefreshExpiredToken()
     {
         $idToken = $this->makeJwtToken(new \DateTimeImmutable('yesterday'), [
             'user_id' => $this->faker->uuid,
         ]);
-
+        $refreshToken = $this->makeJwtToken(new \DateTimeImmutable('+1 year'));
         $idTokenRefreshed = $this->makeJwtToken(new \DateTimeImmutable('tomorrow'), [
             'user_id' => $idToken->claims()->get('user_id'),
         ]);
 
-        $refreshToken = $this->makeJwtToken(new \DateTimeImmutable('+1 year'));
+        $response = $this->createApiResponse([
+            'token' => $idTokenRefreshed,
+            'refresh_token' => $refreshToken,
+        ], 200, true);
+        $client = $this->createMock(AccountsClient::class);
+        $client->method('refreshToken')->willReturn($response);
 
         /** @var ConfigurationRepository $configuration */
         $configuration = $this->module->getService(ConfigurationRepository::class);
@@ -50,13 +59,11 @@ class GetOrRefreshTokenTest extends TestCase
         /** @var ShopSession $shopSession */
         $shopSession = $this->getMockBuilder(ShopSession::class)
             ->setConstructorArgs([
-                $this->module->getService(AccountsClient::class),
+                $client,
                 $configuration
             ])
-            ->setMethods(['refreshToken'])
+            ->onlyMethods([])
             ->getMock();
-        $shopSession->method('refreshToken')
-            ->willReturn(new Token($idTokenRefreshed, $refreshToken));
 
         $shopSession->setToken((string) $idToken, (string) $refreshToken);
 
@@ -65,46 +72,54 @@ class GetOrRefreshTokenTest extends TestCase
 
     /**
      * @test
+     *
      * @throws \Exception
      */
-    public function itShouldUpdateRefreshToken()
+    public function itShouldStoreNewRefreshToken()
     {
         $payload = [
-            'token' => $this->makeJwtToken(new \DateTimeImmutable('yesterday'), [
+            'token' => $this->makeJwtToken(new \DateTimeImmutable('+1 hour'), [
                 'user_id' => $this->faker->uuid,
+                'email' => $this->faker->safeEmail,
             ]),
             'refresh_token' => $this->makeJwtToken(new \DateTimeImmutable('+1 year')),
         ];
 
+        $response = $this->createApiResponse($payload, 200, true);
         $client = $this->createMock(AccountsClient::class);
-        $client->method('refreshToken')->willReturn($payload);
+        $client->method('refreshToken')->willReturn($response);
 
         /** @var ConfigurationRepository $configuration */
         $configuration = $this->module->getService(ConfigurationRepository::class);
 
-        /** @var ShopTokenRepository $tokenRepos */
-        $tokenRepos = $this->getMockBuilder(ShopTokenRepository::class)
-            ->setConstructorArgs([$configuration])
-            //->disableOriginalConstructor()
-            //->disableOriginalClone()
-            ->disableArgumentCloning()
-            ->disallowMockingUnknownTypes()
+        $shopSession = $this->getMockBuilder(ShopSession::class)
+            ->setConstructorArgs([
+                $client,
+                $configuration
+            ])
+            ->onlyMethods([])
             ->getMock();
 
-        $tokenRepos->method('client')
-            ->willReturn($client);
-
-        $tokenRepos->updateCredentials(
+        $shopSession->setToken(
             $this->makeJwtToken(new \DateTimeImmutable('yesterday'), [
                 'user_id' => $this->faker->uuid,
                 'email' => $this->faker->safeEmail,
             ]),
-            $this->makeJwtToken(new \DateTimeImmutable('+1 year'))
+            $this->makeJwtToken(new \DateTimeImmutable('yesterday'))
         );
 
-        $tokenRepos->getOrRefreshToken();
+        $shopSession->getOrRefreshToken();
 
-        $this->assertEquals($payload['token'], $tokenRepos->getToken());
-        $this->assertEquals($payload['refresh_token'], $tokenRepos->getRefreshToken());
+        $this->assertEquals((string) $payload['token'], (string) $shopSession->getToken()->getJwt());
+        $this->assertEquals((string) $payload['refresh_token'], (string) $shopSession->getToken()->getRefreshToken());
+    }
+
+    protected function createApiResponse(array $body, int $httpCode, bool $status): array
+    {
+        return [
+            'status' => $status,
+            'httpCode' => $httpCode,
+            'body' => $body,
+        ];
     }
 }

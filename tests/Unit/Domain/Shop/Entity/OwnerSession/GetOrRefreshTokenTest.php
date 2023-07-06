@@ -43,27 +43,82 @@ class GetOrRefreshTokenTest extends TestCase
             'user_id' => $this->faker->uuid,
             'email' => $this->faker->safeEmail,
         ]);
-
+        $refreshToken = $this->makeJwtToken(new \DateTimeImmutable('+1 year'));
         $idTokenRefreshed = $this->makeJwtToken(new \DateTimeImmutable('tomorrow'));
 
-        $refreshToken = $this->makeJwtToken(new \DateTimeImmutable('+1 year'));
+        $payload = [
+            'idToken' => $idTokenRefreshed,
+            'refreshToken' => $refreshToken,
+        ];
+
+        $response = $this->createApiResponse($payload, 200, true);
+        $client = $this->createMock(SsoClient::class);
+        $client->method('refreshToken')->willReturn($response);
 
         /** @var ConfigurationRepository $configurationRepository */
         $configurationRepository = $this->module->getService(ConfigurationRepository::class);
 
-        /** @var SsoClient $ssoClient */
-        $ssoClient = $this->module->getService(SsoClient::class);
-
         /** @var OwnerSession $ownerSession */
         $ownerSession = $this->getMockBuilder(OwnerSession::class)
-            ->setConstructorArgs([$ssoClient, $configurationRepository])
-            ->setMethods(['refreshToken'])
+            ->setConstructorArgs([$client, $configurationRepository])
+            ->onlyMethods([])
             ->getMock();
-        $ownerSession->method('refreshToken')
-            ->willReturn(new Token($idTokenRefreshed, $refreshToken));
 
         $ownerSession->setToken((string) $idToken, (string) $refreshToken);
 
         $this->assertEquals((string) $idTokenRefreshed, $ownerSession->getOrRefreshToken()->getJwt());
+    }
+
+    /**
+     * @test
+     *
+     * @throws \Exception
+     */
+    public function itShouldStoreNewRefreshToken()
+    {
+        $payload = [
+            'idToken' => $this->makeJwtToken(new \DateTimeImmutable('+1 hour'), [
+                'user_id' => $this->faker->uuid,
+                'email' => $this->faker->safeEmail,
+            ]),
+            'refreshToken' => $this->makeJwtToken(new \DateTimeImmutable('+1 year')),
+        ];
+
+        $response = $this->createApiResponse($payload, 200, true);
+        $client = $this->createMock(SsoClient::class);
+        $client->method('refreshToken')->willReturn($response);
+
+        /** @var ConfigurationRepository $configuration */
+        $configuration = $this->module->getService(ConfigurationRepository::class);
+
+        $shopSession = $this->getMockBuilder(OwnerSession::class)
+            ->setConstructorArgs([
+                $client,
+                $configuration
+            ])
+            ->onlyMethods([])
+            ->getMock();
+
+        $shopSession->setToken(
+            $this->makeJwtToken(new \DateTimeImmutable('yesterday'), [
+                'user_id' => $this->faker->uuid,
+                'email' => $this->faker->safeEmail,
+            ]),
+            $this->makeJwtToken(new \DateTimeImmutable('yesterday'))
+        );
+
+        $shopSession->getOrRefreshToken();
+
+        $this->assertEquals((string) $payload['idToken'], (string) $shopSession->getToken()->getJwt());
+        $this->assertEquals((string) $payload['refreshToken'], (string) $shopSession->getToken()->getRefreshToken());
+    }
+
+    protected function createApiResponse(array $body, int $httpCode, bool $status): array
+    {
+        return [
+            'status' => $status,
+            'httpCode' => $httpCode,
+            'body' => $body,
+        ];
     }
 }

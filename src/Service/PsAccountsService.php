@@ -24,7 +24,7 @@ use PrestaShop\Module\PsAccounts\Adapter\Link;
 use PrestaShop\Module\PsAccounts\Cqrs\CommandBus;
 use PrestaShop\Module\PsAccounts\Domain\Account\Entity\Login;
 use PrestaShop\Module\PsAccounts\Domain\Shop\Command\MigrateAndLinkV4ShopCommand;
-use PrestaShop\Module\PsAccounts\Domain\Shop\Entity\Account;
+use PrestaShop\Module\PsAccounts\Domain\Shop\Entity\Association;
 use PrestaShop\Module\PsAccounts\Domain\Shop\Entity\OwnerSession;
 use PrestaShop\Module\PsAccounts\Domain\Shop\Entity\ShopSession;
 use PrestaShop\Module\PsAccounts\Entity\EmployeeAccount;
@@ -138,10 +138,10 @@ class PsAccountsService
      */
     public function isAccountLinked(): bool
     {
-        /** @var Account $shopAccount */
-        $shopAccount = $this->module->getService(Account::class);
+        /** @var Association $association */
+        $association = $this->module->getService(Association::class);
 
-        return $shopAccount->isLinked();
+        return $association->isLinked();
     }
 
     /**
@@ -149,10 +149,10 @@ class PsAccountsService
      */
     public function isAccountLinkedV4(): bool
     {
-        /** @var Account $shopAccount */
-        $shopAccount = $this->module->getService(Account::class);
+        /** @var Association $association */
+        $association = $this->module->getService(Association::class);
 
-        return $shopAccount->isLinkedV4();
+        return $association->isLinkedV4();
     }
 
     /**
@@ -166,11 +166,12 @@ class PsAccountsService
      */
     public function getAdminAjaxUrl(): string
     {
-//        Tools::getAdminTokenLite('AdminAjaxPsAccounts'));
         return $this->link->getAdminLink('AdminAjaxPsAccounts', true, [], ['ajax' => 1]);
     }
 
     /**
+     * for compat only
+     *
      * @throws \Exception
      */
     public function getAccountsVueCdn(): string
@@ -187,9 +188,12 @@ class PsAccountsService
     }
 
     /**
+     * @deprecated
+     *
      * @return void
      *
      * @throws \PrestaShopException
+     * @throws \Exception
      */
     public function autoReonboardOnV5()
     {
@@ -202,8 +206,8 @@ class PsAccountsService
         /** @var ConfigurationRepository $conf */
         $conf = $this->module->getService(ConfigurationRepository::class);
 
-        /** @var Account $shopAccount */
-        $shopAccount = $this->module->getService(Account::class);
+        /** @var Association $association */
+        $association = $this->module->getService(Association::class);
 
         $allShops = $shopProvider->getShopsTree((string) $this->module->name);
 
@@ -227,7 +231,7 @@ class PsAccountsService
                     $id = $conf->getShopId();
                     $conf->setShopId((int) $shop['id']);
 
-                    $shopAccount->resetLink();
+                    $association->resetLink();
 
                     $conf->setShopId($id);
                 } else {

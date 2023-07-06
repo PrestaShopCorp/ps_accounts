@@ -5,7 +5,7 @@ namespace PrestaShop\Module\PsAccounts\Domain\Shop\CommandHandler;
 use PrestaShop\Module\PsAccounts\Api\Client\AccountsClient;
 use PrestaShop\Module\PsAccounts\Context\ShopContext;
 use PrestaShop\Module\PsAccounts\Domain\Shop\Command\UpdateShopCommand;
-use PrestaShop\Module\PsAccounts\Domain\Shop\Entity\Account;
+use PrestaShop\Module\PsAccounts\Domain\Shop\Entity\Association;
 
 class UpdateShopHandler
 {
@@ -20,18 +20,18 @@ class UpdateShopHandler
     private $shopContext;
 
     /**
-     * @var Account
+     * @var Association
      */
-    private $shopAccount;
+    private $association;
 
     public function __construct(
         AccountsClient $accountClient,
         ShopContext $shopContext,
-        Account $shopAccount
+        Association $shopAccount
     ) {
         $this->accountClient = $accountClient;
         $this->shopContext = $shopContext;
-        $this->shopAccount = $shopAccount;
+        $this->association = $shopAccount;
     }
 
     /**
@@ -40,12 +40,12 @@ class UpdateShopHandler
     public function handle(UpdateShopCommand $command): array
     {
         return $this->shopContext->execInShopContext((int) $command->payload->shopId, function () use ($command) {
-            if (!$this->shopAccount->isLinked()) {
+            if (!$this->association->isLinked()) {
                 return null;
             }
 
-            $shopToken = $this->shopAccount->getShopSession()->getOrRefreshToken();
-            $ownerToken = $this->shopAccount->getOwnerSession()->getOrRefreshToken();
+            $shopToken = $this->association->getShopSession()->getOrRefreshToken();
+            $ownerToken = $this->association->getOwnerSession()->getOrRefreshToken();
 
             return $this->accountClient->updateUserShop(
                 $ownerToken->getUuid(),

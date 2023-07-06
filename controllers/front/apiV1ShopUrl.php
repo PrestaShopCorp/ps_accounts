@@ -57,13 +57,13 @@ class ps_AccountsApiV1ShopUrlModuleFrontController extends AbstractShopRestContr
      */
     public function show(Shop $shop, array $payload): array
     {
-        $shopData = $this->shopProvider->formatShopData((array) \Shop::getShop($shop->id));
+        $shop = $this->shopProvider->formatShopData((array) \Shop::getShop($shop->id));
 
         return [
-            'domain' => $shopData['domain'],
-            'domain_ssl' => $shopData['domainSsl'],
-            'physical_uri' => $shopData['physicalUri'],
-            'virtual_uri' => $shopData['virtualUri'],
+            'domain' => $shop->domain,
+            'domain_ssl' => $shop->domainSsl,
+            'physical_uri' => $shop->physicalUri,
+            'virtual_uri' => $shop->virtualUri,
             'ssl_activated' => $this->configuration->sslEnabled(),
         ];
     }

@@ -19,10 +19,27 @@
  */
 
 use PrestaShop\Module\PsAccounts\Controller\AbstractShopRestController;
-use PrestaShop\Module\PsAccounts\Domain\Shop\Entity\ShopSession;
+use PrestaShop\Module\PsAccounts\Cqrs\QueryBus;
+use PrestaShop\Module\PsAccounts\Domain\Shop\Entity\Token;
+use PrestaShop\Module\PsAccounts\Domain\Shop\Query\GetOrRefreshShopToken;
 
 class ps_AccountsApiV1ShopTokenModuleFrontController extends AbstractShopRestController
 {
+    /**
+     * @var QueryBus
+     */
+    private $queryBus;
+
+    /**
+     * @throws Exception
+     */
+    public function __construct()
+    {
+        parent::__construct();
+
+        $this->queryBus = $this->module->getService(QueryBus::class);
+    }
+
     /**
      * @param Shop $shop
      * @param array $payload
@@ -33,10 +50,8 @@ class ps_AccountsApiV1ShopTokenModuleFrontController extends AbstractShopRestCon
      */
     public function show(Shop $shop, array $payload): array
     {
-        /** @var ShopSession $shopSession */
-        $shopSession = $this->module->getService(ShopSession::class);
-
-        $token = $shopSession->getOrRefreshToken();
+        /** @var Token $token */
+        $token = $this->queryBus->handle(new GetOrRefreshShopToken());
 
         return [
             'token' => (string) $token->getJwt(),

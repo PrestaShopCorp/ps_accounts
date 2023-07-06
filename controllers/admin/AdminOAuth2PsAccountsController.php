@@ -20,6 +20,7 @@
 
 use Doctrine\ORM\EntityManagerInterface;
 use League\OAuth2\Client\Provider\Exception\IdentityProviderException;
+use PrestaShop\Module\PsAccounts\Domain\Account\Entity\AccountSession;
 use PrestaShop\Module\PsAccounts\Entity\EmployeeAccount;
 use PrestaShop\Module\PsAccounts\Exception\Account\AccountLoginException;
 use PrestaShop\Module\PsAccounts\Exception\Account\EmailNotVerifiedException;
@@ -28,10 +29,8 @@ use PrestaShop\Module\PsAccounts\Exception\Account\Oauth2Exception;
 use PrestaShop\Module\PsAccounts\Exception\Account\OtherErrorException;
 use PrestaShop\Module\PsAccounts\Provider\OAuth2\PrestaShopClientProvider;
 use PrestaShop\Module\PsAccounts\Provider\OAuth2\PrestaShopLoginTrait;
-use PrestaShop\Module\PsAccounts\Provider\OAuth2\PrestaShopSession;
 use PrestaShop\Module\PsAccounts\Service\AnalyticsService;
 use PrestaShop\Module\PsAccounts\Service\PsAccountsService;
-use PrestaShop\OAuth2\Client\Provider\PrestaShop;
 use PrestaShop\OAuth2\Client\Provider\PrestaShopUser;
 use PrestaShop\PrestaShop\Core\Exception\ContainerNotFoundException;
 use PrestaShop\PrestaShop\Core\Exception\CoreException;
@@ -274,8 +273,8 @@ class AdminOAuth2PsAccountsController extends ModuleAdminController
     /**
      * @throws Exception
      */
-    protected function getOauth2Session(): PrestaShopSession
+    protected function getOauth2Session(): AccountSession
     {
-        return $this->module->getService(PrestaShopSession::class);
+        return $this->module->getService(AccountSession::class);
     }
 }

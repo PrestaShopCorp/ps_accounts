@@ -2,13 +2,13 @@
 
 namespace PrestaShop\Module\PsAccounts\Factory;
 
+use PrestaShop\Module\PsAccounts\Domain\Account\Entity\AccountSession;
 use PrestaShop\Module\PsAccounts\Provider\OAuth2\PrestaShopClientProvider;
-use PrestaShop\Module\PsAccounts\Provider\OAuth2\PrestaShopSession;
 use Symfony\Component\HttpFoundation\Session\SessionInterface;
 
-class PrestaShopSessionFactory
+class AccountSessionFactory
 {
-    public static function create(): PrestaShopSession
+    public static function create(): AccountSession
     {
         /** @var \Ps_accounts $module */
         $module = \Module::getInstanceByName('ps_accounts');
@@ -19,6 +19,6 @@ class PrestaShopSessionFactory
         /** @var PrestaShopClientProvider $provider */
         $provider = $module->getService(PrestaShopClientProvider::class);
 
-        return new PrestaShopSession($session, $provider);
+        return new AccountSession($session, $provider);
     }
 }
