@@ -14,7 +14,7 @@
     "@prestashopcorp/ps-accounts-sdk": "^0.3.2",
     "@prestashopcorp/puik": "^1.2.0",
     "@splidejs/splide": "^4.0.8",
-    "prestashop_accounts_vue_components": "^4.2.7",
+    "prestashop_accounts_vue_components": "^5.0.0",
     "vue": "^3.2.38",
     "vue-i18n": "^9.2.2",
     "zoid": "9.0.63"
