@@ -3,7 +3,7 @@
     <name>ps_accounts</name>
     <displayName><![CDATA[PrestaShop Account]]></displayName>
     <version><![CDATA[6.1.7]]></version>
-    <description><![CDATA[Associate your shop with your PrestaShop account to activate and manage your subscriptions in your back office. Do not uninstall this module if you have a current subscription.]]></description>
+    <description><![CDATA[Link your store to your PrestaShop account to activate and manage your subscriptions in your back office. Do not uninstall this module if you have a current subscription.]]></description>
     <author><![CDATA[PrestaShop]]></author>
     <tab><![CDATA[administration]]></tab>
 	<confirmUninstall><![CDATA[This action will prevent immediately your PrestaShop services and Community services from working as they are using PrestaShop Accounts module for authentication.]]></confirmUninstall>
