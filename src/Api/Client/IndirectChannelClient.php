@@ -92,7 +92,10 @@ class IndirectChannelClient
         return $this->client;
     }
     /**
-     * @return AbstractGuzzleClient
+     *
+     * @return array|null
+     *
+     * @throws \Exception
      */
     public function getInvitations()
     {
