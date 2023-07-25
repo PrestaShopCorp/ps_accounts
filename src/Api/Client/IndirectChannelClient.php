@@ -55,7 +55,6 @@ class IndirectChannelClient
         $this->client = $client;
     }
 
-
     /**
      * @param array $additionalHeaders
      *
@@ -91,8 +90,8 @@ class IndirectChannelClient
 
         return $this->client;
     }
+
     /**
-     *
      * @return array|null
      *
      * @throws \Exception
@@ -103,7 +102,6 @@ class IndirectChannelClient
 
         return $this->getClient()->get();
     }
-
 
     /**
      * @return ShopTokenRepository

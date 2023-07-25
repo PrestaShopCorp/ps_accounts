@@ -181,7 +181,7 @@ class AdminAjaxPsAccountsController extends ModuleAdminController
             } else {
                 $this->ajaxDie(
                     json_encode([
-                        'invitations' => $response['body']['invitations']
+                        'invitations' => $response['body']['invitations'],
                     ])
                 );
             }
