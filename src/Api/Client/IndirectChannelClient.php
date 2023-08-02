@@ -99,8 +99,7 @@ class IndirectChannelClient
     public function getInvitations()
     {
         $this->getClient()->setRoute('invitations');
-
-        return $this->getClient()->get();
+        return $this->getClient()->get(['query' => ['pending' => 'true']]);
     }
 
     /**
