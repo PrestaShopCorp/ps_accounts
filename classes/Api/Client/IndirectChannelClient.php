@@ -21,7 +21,6 @@
 
 namespace PrestaShop\Module\PsAccounts\Api\Client;
 
-
 use GuzzleHttp\Client;
 use PrestaShop\Module\PsAccounts\Adapter\Link;
 use PrestaShop\Module\PsAccounts\Repository\ShopTokenRepository;
