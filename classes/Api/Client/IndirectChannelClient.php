@@ -21,38 +21,48 @@
 
 namespace PrestaShop\Module\PsAccounts\Api\Client;
 
-use PrestaShop\Module\PsAccounts\Api\Client\Guzzle\AbstractGuzzleClient;
-use PrestaShop\Module\PsAccounts\Api\Client\Guzzle\GuzzleClientFactory;
+
+use GuzzleHttp\Client;
+use PrestaShop\Module\PsAccounts\Adapter\Link;
 use PrestaShop\Module\PsAccounts\Repository\ShopTokenRepository;
 use PrestaShop\Module\PsAccounts\Repository\UserTokenRepository;
 
 /**
  * Class IndirectChannelClient
  */
-class IndirectChannelClient
+class IndirectChannelClient extends GenericClient
 {
-    /**
-     * @var string
-     */
-    private $apiUrl;
-
-    /**
-     * @var AbstractGuzzleClient
-     */
-    private $client;
-
     /**
      * ServicesAccountsClient constructor.
      *
      * @param string $apiUrl
-     * @param AbstractGuzzleClient|null $client
+     * @param Link $link
+     * @param Client|null $client
+     *
+     * @throws \PrestaShopException
+     * @throws \Exception
      */
     public function __construct(
         $apiUrl,
-        AbstractGuzzleClient $client = null
+        Link $link,
+        Client $client = null
     ) {
-        $this->apiUrl = $apiUrl;
-        $this->client = $client;
+        parent::__construct();
+
+        $this->setLink($link->getLink());
+
+        if (null === $client) {
+            $client = new Client([
+                'base_url' => $apiUrl,
+                'defaults' => [
+                    'timeout' => $this->timeout,
+                    'exceptions' => $this->catchExceptions,
+                    'headers' => $this->getHeaders(),
+                ],
+            ]);
+        }
+
+        $this->setClient($client);
     }
 
     /**
@@ -75,32 +85,15 @@ class IndirectChannelClient
     }
 
     /**
-     * @return AbstractGuzzleClient
-     */
-    private function getClient()
-    {
-        if (null === $this->client) {
-            $this->client = (new GuzzleClientFactory())->create([
-                'base_url' => $this->apiUrl,
-                'defaults' => [
-                    'headers' => $this->getHeaders(),
-                ],
-            ]);
-        }
-
-        return $this->client;
-    }
-
-    /**
      * @return array|null
      *
      * @throws \Exception
      */
     public function getInvitations()
     {
-        $this->getClient()->setRoute('invitations');
+        $this->setRoute('invitations');
 
-        return $this->getClient()->get(['query' => ['pending' => 'true']]);
+        return $this->get(['query' => ['pending' => 'true']]);
     }
 
     /**
