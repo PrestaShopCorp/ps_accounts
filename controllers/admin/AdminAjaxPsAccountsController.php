@@ -132,4 +132,37 @@ class AdminAjaxPsAccountsController extends ModuleAdminController
             Sentry::captureAndRethrow($e);
         }
     }
+
+    /**
+     * @return void
+     *
+     * @throws Exception
+     */
+    public function ajaxProcessGetInvitations()
+    {
+        try {
+            header('Content-Type: text/json');
+            $indirectsApi = $this->module->getService(
+                \PrestaShop\Module\PsAccounts\Api\Client\IndirectChannelClient::class
+            );
+            $response = $indirectsApi->getInvitations();
+
+            if (!$response || true !== $response['status']) {
+                // TODO log error
+                $this->ajaxDie(
+                    json_encode([
+                        'invitations' => [],
+                    ])
+                );
+            } else {
+                $this->ajaxDie(
+                    json_encode([
+                        'invitations' => $response['body']['invitations'],
+                    ])
+                );
+            }
+        } catch (Exception $e) {
+            Sentry::captureAndRethrow($e);
+        }
+    }
 }
