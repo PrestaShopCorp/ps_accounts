@@ -134,6 +134,7 @@ services:
     public: true
     arguments:
       - '%ps_accounts.indirect_channel_api_url%'
+      - '@PrestaShop\Module\PsAccounts\Adapter\Link'
 
   #####################
   # repositories
