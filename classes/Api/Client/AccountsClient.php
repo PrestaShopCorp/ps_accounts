@@ -40,6 +40,16 @@ class AccountsClient extends GenericClient implements TokenClientInterface
     private $shopProvider;
 
     /**
+     * @var CircuitBreaker
+     */
+    private $circuitBreaker;
+
+    /**
+     * @var int
+     */
+    private $defaultTimeout;
+
+    /**
      * ServicesAccountsClient constructor.
      *
      * @param string $apiUrl
@@ -55,10 +65,13 @@ class AccountsClient extends GenericClient implements TokenClientInterface
         ShopProvider $shopProvider,
         Link $link,
         Client $client = null
+        $defaultTimeout
     ) {
         parent::__construct();
 
         $this->shopProvider = $shopProvider;
+        $this->circuitBreaker = new CircuitBreaker();
+        $this->defaultTimeout = $defaultTimeout;
 
         $this->setLink($link->getLink());
 
@@ -69,6 +82,7 @@ class AccountsClient extends GenericClient implements TokenClientInterface
                     'timeout' => $this->timeout,
                     'exceptions' => $this->catchExceptions,
                     'headers' => $this->getHeaders(),
+                    'timeout' => $this->defaultTimeout,
                 ],
             ]);
         }
@@ -102,16 +116,23 @@ class AccountsClient extends GenericClient implements TokenClientInterface
      */
     public function refreshToken($refreshToken)
     {
-        $this->setRoute('shop/token/refresh');
+        return $this->circuitBreaker->call(
+            function () use ($refreshToken) {
+                $this->setRoute('shop/token/refresh');
 
-        return $this->post([
-            'json' => [
-                'headers' => $this->getHeaders([
-                    'X-Shop-Id' => $this->shopProvider->getShopContext()->getConfiguration()->getShopUuid(),
-                ]),
-                'token' => $refreshToken,
-            ],
-        ]);
+                return $this->post([
+                    'json' => [
+                        'headers' => $this->getHeaders([
+                            'X-Shop-Id' => $this->shopProvider->getShopContext()->getConfiguration()->getShopUuid(),
+                        ]),
+                        'token' => $refreshToken,
+                    ],
+                ]);
+            }, [
+                'status' => false,
+                'httpCode' => 500,
+            ]
+        );
     }
 
     /**
