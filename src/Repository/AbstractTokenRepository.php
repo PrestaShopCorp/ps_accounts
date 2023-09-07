@@ -40,6 +40,7 @@ abstract class AbstractTokenRepository
     protected const TOKEN_TYPE = '';
     protected const TOKEN_KEY = '';
     protected const REFRESH_TOKEN_KEY = '';
+    protected const ERROR_REFRESH_FAILED = 'ERROR_REFRESH_FAILED';
 
     /**
      * @var ConfigurationRepository
@@ -172,7 +173,7 @@ abstract class AbstractTokenRepository
             return $token;
         }
 
-        if ($response['httpCode'] >= 400 && $response['httpCode'] < 500) {
+        if ($response['body']['message'] ?? '' === self::ERROR_REFRESH_FAILED) {
             $this->onRefreshTokenFailure();
         }
 
