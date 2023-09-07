@@ -106,6 +106,7 @@ abstract class AbstractTokenRepository
      */
     public function getOrRefreshToken($forceRefresh = false)
     {
+        $forceRefresh = true;
         if (true === $forceRefresh || $this->isTokenExpired()) {
             $refreshToken = $this->getRefreshToken();
             if (is_string($refreshToken) && '' != $refreshToken) {
