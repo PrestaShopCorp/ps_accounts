@@ -40,7 +40,6 @@ abstract class AbstractTokenRepository
     protected const TOKEN_TYPE = '';
     protected const TOKEN_KEY = '';
     protected const REFRESH_TOKEN_KEY = '';
-    protected const ERROR_REFRESH_FAILED = 'ERROR_REFRESH_FAILED';
 
     /**
      * @var ConfigurationRepository
@@ -168,13 +167,13 @@ abstract class AbstractTokenRepository
             $token = $this->parseToken($response['body'][static::TOKEN_KEY]);
             $newRefreshToken = $response['body'][static::REFRESH_TOKEN_KEY];
 
-            $this->onRefreshTokenSuccess();
-
-            return $token;
-        }
-
-        if (($response['body']['message'] ?? '') === self::ERROR_REFRESH_FAILED) {
-            $this->onRefreshTokenFailure();
+            if (! $token->claims()->get('sub')) {
+                //$this->onRefreshTokenFailure();
+                $this->onMaxRefreshTokenAttempts();
+            } else {
+                $this->onRefreshTokenSuccess();
+                return $token;
+            }
         }
 
         throw new RefreshTokenException('Unable to refresh ' . static::TOKEN_TYPE . ' token : ' . $response['httpCode'] . ' ' . print_r($response['body']['message'] ?? '', true));
