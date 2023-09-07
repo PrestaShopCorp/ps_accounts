@@ -50,6 +50,16 @@ class AccountsClient implements TokenClientInterface
     private $client;
 
     /**
+     * @var CircuitBreaker
+     */
+    private $circuitBreaker;
+
+    /**
+     * @var int
+     */
+    private $defaultTimeout;
+
+    /**
      * ServicesAccountsClient constructor.
      *
      * @param string $apiUrl
@@ -59,11 +69,14 @@ class AccountsClient implements TokenClientInterface
     public function __construct(
         $apiUrl,
         ShopProvider $shopProvider,
-        AbstractGuzzleClient $client = null
+        AbstractGuzzleClient $client = null,
+        $defaultTimeout
     ) {
         $this->apiUrl = $apiUrl;
         $this->shopProvider = $shopProvider;
         $this->client = $client;
+        $this->circuitBreaker = new CircuitBreaker();
+        $this->defaultTimeout = $defaultTimeout;
     }
 
     /**
@@ -76,6 +89,7 @@ class AccountsClient implements TokenClientInterface
                 'base_url' => $this->apiUrl,
                 'defaults' => [
                     'headers' => $this->getHeaders(),
+                    'timeout' => $this->defaultTimeout,
                 ],
             ]);
         }
@@ -109,16 +123,23 @@ class AccountsClient implements TokenClientInterface
      */
     public function refreshToken($refreshToken)
     {
-        $this->getClient()->setRoute('shop/token/refresh');
+        return $this->circuitBreaker->call(
+            function () use ($refreshToken) {
+                $this->getClient()->setRoute('shop/token/refresh');
 
-        return $this->getClient()->post([
-            'json' => [
-                'headers' => $this->getHeaders([
-                    'X-Shop-Id' => $this->shopProvider->getShopContext()->getConfiguration()->getShopUuid(),
-                ]),
-                'token' => $refreshToken,
-            ],
-        ]);
+                return $this->getClient()->post([
+                    'json' => [
+                        'headers' => $this->getHeaders([
+                            'X-Shop-Id' => $this->shopProvider->getShopContext()->getConfiguration()->getShopUuid(),
+                        ]),
+                        'token' => $refreshToken,
+                    ],
+                ]);
+            }, [
+                'status' => false,
+                'httpCode' => 500,
+            ]
+        );
     }
 
     /**

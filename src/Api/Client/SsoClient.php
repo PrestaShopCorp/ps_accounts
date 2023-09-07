@@ -40,6 +40,16 @@ class SsoClient implements TokenClientInterface
     private $client;
 
     /**
+     * @var CircuitBreaker
+     */
+    private $circuitBreaker;
+
+    /**
+     * @var mixed
+     */
+    private $defaultTimeout;
+
+    /**
      * ServicesAccountsClient constructor.
      *
      * @param string $apiUrl
@@ -47,10 +57,13 @@ class SsoClient implements TokenClientInterface
      */
     public function __construct(
         $apiUrl,
-        AbstractGuzzleClient $client = null
+        AbstractGuzzleClient $client = null,
+        $defaultTimeout
     ) {
         $this->apiUrl = $apiUrl;
         $this->client = $client;
+        $this->circuitBreaker = new CircuitBreaker();
+        $this->defaultTimeout = $defaultTimeout;
     }
 
     /**
@@ -67,6 +80,7 @@ class SsoClient implements TokenClientInterface
                         'X-Module-Version' => \Ps_accounts::VERSION,
                         'X-Prestashop-Version' => _PS_VERSION_,
                     ],
+                    'timeout' => $this->defaultTimeout,
                 ],
             ]);
         }
@@ -97,12 +111,19 @@ class SsoClient implements TokenClientInterface
      */
     public function refreshToken($refreshToken)
     {
-        $this->getClient()->setRoute('auth/token/refresh');
+        return $this->circuitBreaker->call(
+            function () use ($refreshToken) {
+                $this->getClient()->setRoute('auth/token/refresh');
 
-        return $this->getClient()->post([
-            'json' => [
-                'token' => $refreshToken,
-            ],
-        ]);
+                return $this->getClient()->post([
+                    'json' => [
+                        'token' => $refreshToken,
+                    ],
+                ]);
+            }, [
+                'status' => false,
+                'httpCode' => 500,
+            ]
+        );
     }
 }
