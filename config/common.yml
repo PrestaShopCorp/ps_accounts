@@ -136,7 +136,7 @@ services:
       - '%ps_accounts.accounts_api_url%'
       - '@PrestaShop\Module\PsAccounts\Provider\ShopProvider'
       - null
-      - 5
+      - 20
 
   PrestaShop\Module\PsAccounts\Api\Client\SsoClient:
     class: PrestaShop\Module\PsAccounts\Api\Client\SsoClient
@@ -144,7 +144,7 @@ services:
     arguments:
       - '%ps_accounts.sso_api_url%'
       - null
-      - 5
+      - 20
 
   PrestaShop\Module\PsAccounts\Api\Client\ServicesBillingClient:
     class: PrestaShop\Module\PsAccounts\Api\Client\ServicesBillingClient
