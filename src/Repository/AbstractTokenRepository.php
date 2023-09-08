@@ -36,11 +36,11 @@ use Ps_accounts;
 abstract class AbstractTokenRepository
 {
     public const MAX_TRIES_BEFORE_CLEAN_CREDENTIALS_ON_REFRESH_TOKEN_FAILURE = 1;
+    public const ERROR_REFRESH_TOKEN_FAILED = 'REFRESH_TOKEN_FAILED';
 
     protected const TOKEN_TYPE = '';
     protected const TOKEN_KEY = '';
     protected const REFRESH_TOKEN_KEY = '';
-    protected const ERROR_REFRESH_TOKEN_FAILED = 'REFRESH_TOKEN_FAILED';
 
     /**
      * @var ConfigurationRepository

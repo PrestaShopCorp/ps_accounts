@@ -101,7 +101,10 @@ class RefreshTokenTest extends TestCase
         $client->method('refreshToken')
             ->willReturn([
                 'status' => false,
-                'httpCode' => 403
+                'httpCode' => 403,
+                'body' => [
+                    'error' => AbstractTokenRepository::ERROR_REFRESH_TOKEN_FAILED,
+                ]
             ]);
 
         $tokenRepos = $this->getUserTokenRepositoryMock(['client']);
