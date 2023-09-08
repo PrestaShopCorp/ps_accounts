@@ -20,6 +20,8 @@
 
 namespace PrestaShop\Module\PsAccounts\Api\Client;
 
+use PrestaShop\Module\PsAccounts\Api\Client\CircuitBreaker\CircuitBreaker;
+use PrestaShop\Module\PsAccounts\Api\Client\CircuitBreaker\CircuitBreakerFactory;
 use GuzzleHttp\Client;
 use PrestaShop\Module\PsAccounts\Exception\OptionResolutionException;
 use PrestaShop\Module\PsAccounts\Repository\TokenClientInterface;
@@ -56,11 +58,11 @@ class SsoClient extends GenericClient implements TokenClientInterface
     public function __construct(
         $apiUrl,
         Client $client = null,
-        $defaultTimeout
+        $defaultTimeout = 20
     ) {
         parent::__construct();
 
-        $this->circuitBreaker = new CircuitBreaker();
+        $this->circuitBreaker = CircuitBreakerFactory::create('SSO_CLIENT');
         $this->defaultTimeout = $defaultTimeout;
 
         // Client can be provided for tests
@@ -106,19 +108,14 @@ class SsoClient extends GenericClient implements TokenClientInterface
      */
     public function refreshToken($refreshToken)
     {
-        return $this->circuitBreaker->call(
-            function () use ($refreshToken) {
-                $this->setRoute('auth/token/refresh');
+        return $this->circuitBreaker->call(function () use ($refreshToken) {
+            $this->setRoute('auth/token/refresh');
 
-                return $this->post([
-                    'json' => [
-                        'token' => $refreshToken,
-                    ],
-                ]);
-            }, [
-                'status' => false,
-                'httpCode' => 500,
-            ]
-        );
+            return $this->post([
+                'json' => [
+                    'token' => $refreshToken,
+                ],
+            ]);
+        });
     }
 }
