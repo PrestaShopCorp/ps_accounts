@@ -170,8 +170,9 @@ abstract class AbstractTokenRepository
 
             // compat: if not sub then it's a false token
             // sent by API to silent outdated module versions
-            if (! empty($token->claims()->get('sub'))) {
+            if (!empty($token->claims()->get('sub'))) {
                 $this->onRefreshTokenSuccess();
+
                 return $token;
             }
         }
