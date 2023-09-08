@@ -18,8 +18,8 @@ class CircuitBreakerFactory
             'status' => false,
             'httpCode' => 500,
             'body' => ['message' => 'Circuit Breaker Timeout'],
-
         ]);
+
         return $instance;
     }
 }
