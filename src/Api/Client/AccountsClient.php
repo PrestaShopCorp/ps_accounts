@@ -67,13 +67,13 @@ class AccountsClient implements TokenClientInterface
      * @param string $apiUrl
      * @param ShopProvider $shopProvider
      * @param AbstractGuzzleClient|null $client
-     * @param $defaultTimeout
+     * @param int $defaultTimeout
      */
     public function __construct(
-        $apiUrl,
+        string $apiUrl,
         ShopProvider $shopProvider,
         AbstractGuzzleClient $client = null,
-        $defaultTimeout = 20
+        int $defaultTimeout = 20
     ) {
         $this->apiUrl = $apiUrl;
         $this->shopProvider = $shopProvider;

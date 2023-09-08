@@ -47,17 +47,21 @@ class PersistentCircuitBreaker extends CircuitBreaker
         $this->set(self::LAST_FAILURE_TIME, $lastFailureTime);
     }
 
-    private function get($key)
+    private function get(string $key): string
     {
         return $this->config->getRaw($this->getKey($key), null, null, null);
     }
 
-    private function set($key, $value): void
+    /**
+     * @param string $key
+     * @param mixed $value
+     */
+    private function set(string $key, $value): void
     {
         $this->config->setRaw($this->getKey($key), $value, false, null, null);
     }
 
-    private function getKey($key): string
+    private function getKey(string $key): string
     {
         return $this->prefix . '_' . $this->resourceId . '_' . $key;
     }

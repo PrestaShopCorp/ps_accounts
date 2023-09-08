@@ -56,11 +56,12 @@ class SsoClient implements TokenClientInterface
      *
      * @param string $apiUrl
      * @param AbstractGuzzleClient|null $client
+     * @param int $defaultTimeout
      */
     public function __construct(
-        $apiUrl,
+        string $apiUrl,
         AbstractGuzzleClient $client = null,
-        $defaultTimeout = 20
+        int $defaultTimeout = 20
     ) {
         $this->apiUrl = $apiUrl;
         $this->client = $client;
