@@ -58,7 +58,7 @@ class AccountsClient extends GenericClient implements TokenClientInterface
      * @param ShopProvider $shopProvider
      * @param Link $link
      * @param Client|null $client
-     * @param $defaultTimeout
+     * @param int $defaultTimeout
      *
      * @throws \PrestaShopException
      * @throws \Exception
@@ -67,7 +67,7 @@ class AccountsClient extends GenericClient implements TokenClientInterface
         $apiUrl,
         ShopProvider $shopProvider,
         Link $link,
-        Client $client = null
+        Client $client = null,
         $defaultTimeout = 20
     ) {
         parent::__construct();

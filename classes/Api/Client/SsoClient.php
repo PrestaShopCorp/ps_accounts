@@ -52,6 +52,7 @@ class SsoClient extends GenericClient implements TokenClientInterface
      *
      * @param string $apiUrl
      * @param Client|null $client
+     * @param int $defaultTimeout
      *
      * @throws OptionResolutionException
      */
