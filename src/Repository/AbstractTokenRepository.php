@@ -176,7 +176,7 @@ abstract class AbstractTokenRepository
             }
         }
 
-        if (($response['body'] ?? '') === self::ERROR_REFRESH_TOKEN_FAILED) {
+        if (($response['body']['error'] ?? '') === self::ERROR_REFRESH_TOKEN_FAILED) {
             $this->onRefreshTokenFailure();
         }
 
