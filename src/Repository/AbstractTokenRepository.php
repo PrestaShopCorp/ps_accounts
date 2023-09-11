@@ -27,6 +27,7 @@ use Lcobucci\JWT\Token\InvalidTokenStructure;
 use Module;
 use PrestaShop\Module\PsAccounts\Exception\RefreshTokenException;
 use PrestaShop\Module\PsAccounts\Log\Logger;
+use PrestaShop\Module\PsAccounts\Service\LockService;
 use PrestaShop\Module\PsAccounts\Service\ShopLinkAccountService;
 use Ps_accounts;
 
@@ -47,6 +48,11 @@ abstract class AbstractTokenRepository
     protected $configuration;
 
     /**
+     * @var LockService
+     */
+    protected $lockService;
+
+    /**
      * @var string
      */
     protected $tokenType;
@@ -55,11 +61,14 @@ abstract class AbstractTokenRepository
      * AbstractTokenRepository constructor.
      *
      * @param ConfigurationRepository $configuration
+     * @param LockService $lockService
      */
     public function __construct(
-        ConfigurationRepository $configuration
+        ConfigurationRepository $configuration,
+        LockService $lockService,
     ) {
         $this->configuration = $configuration;
+        $this->lockService = $lockService;
     }
 
     /**
@@ -102,7 +111,7 @@ abstract class AbstractTokenRepository
      *
      * @return Token|null
      *
-     * @throws Exception
+     * @throws Exception|\Throwable
      */
     public function getOrRefreshToken($forceRefresh = false)
     {
@@ -110,7 +119,15 @@ abstract class AbstractTokenRepository
             $refreshToken = $this->getRefreshToken();
             if (is_string($refreshToken) && '' != $refreshToken) {
                 try {
-                    $token = $this->refreshToken($refreshToken, $newRefreshToken);
+                    $newRefreshToken = null;
+                    $token = $this->lockService->callLocked(
+                        function () use ($refreshToken, $newRefreshToken) {
+                            return $this->refreshToken($refreshToken, $newRefreshToken);
+                        },
+                        'REFRESH_TOKEN_LOCK_' . self::TOKEN_TYPE,
+                        10000,
+                        50
+                    );
                     $this->updateCredentials(
                         (string) $token,
                         $newRefreshToken

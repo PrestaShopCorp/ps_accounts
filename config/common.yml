@@ -99,6 +99,12 @@ services:
       - '%ps_accounts.segment_write_key%'
       - '@ps_accounts.logger'
 
+  PrestaShop\Module\PsAccounts\Service\LockService:
+    class: PrestaShop\Module\PsAccounts\Service\LockService
+    public: true
+    arguments:
+      - '@PrestaShop\Module\PsAccounts\Adapter\Configuration'
+
   #####################
   # providers
 
@@ -164,12 +170,14 @@ services:
     public: true
     arguments:
       - '@PrestaShop\Module\PsAccounts\Repository\ConfigurationRepository'
+      - '@PrestaShop\Module\PsAccounts\Service\LockService'
 
   PrestaShop\Module\PsAccounts\Repository\UserTokenRepository:
     class: PrestaShop\Module\PsAccounts\Repository\UserTokenRepository
     public: true
     arguments:
       - '@PrestaShop\Module\PsAccounts\Repository\ConfigurationRepository'
+      - '@PrestaShop\Module\PsAccounts\Service\LockService'
 
   #####################
   # presenters
