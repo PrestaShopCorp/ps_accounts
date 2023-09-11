@@ -31,6 +31,7 @@ abstract class CircuitBreaker
     /**
      * @param mixed $callback
      * @param mixed $fallbackResponse
+     *
      * @return mixed
      */
     public function call($callback, $fallbackResponse = null)
@@ -81,7 +82,7 @@ abstract class CircuitBreaker
 
     protected function setLastFailure(): void
     {
-        $this->setLastFailureTime((int)(new DateTime())->format('Uv'));
+        $this->setLastFailureTime((int) (new DateTime())->format('Uv'));
         $this->setFailureCount($this->getFailureCount() + 1);
     }
 
@@ -91,7 +92,7 @@ abstract class CircuitBreaker
     protected function state(): int
     {
         if ($this->getFailureCount() >= $this->threshold &&
-            (int)(new DateTime())->format('Uv') - $this->getLastFailureTime() >= $this->resetTimeoutMs) {
+            (int) (new DateTime())->format('Uv') - $this->getLastFailureTime() >= $this->resetTimeoutMs) {
             return self::CIRCUIT_BREAKER_STATE_HALF_OPEN;
         } elseif ($this->getFailureCount() >= $this->threshold) {
             return self::CIRCUIT_BREAKER_STATE_OPEN;
