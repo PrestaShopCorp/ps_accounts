@@ -65,11 +65,27 @@ abstract class CircuitBreaker
     }
 
     /**
+     * @return int
+     */
+    public function getResetTimeoutMs(): int
+    {
+        return $this->resetTimeoutMs;
+    }
+
+    /**
      * @param int $resetTimeoutMs
      */
     public function setResetTimeoutMs(int $resetTimeoutMs): void
     {
         $this->resetTimeoutMs = $resetTimeoutMs;
+    }
+
+    /**
+     * @return int
+     */
+    public function getThreshold(): int
+    {
+        return $this->threshold;
     }
 
     /**
@@ -80,16 +96,10 @@ abstract class CircuitBreaker
         $this->threshold = $threshold;
     }
 
-    protected function setLastFailure(): void
-    {
-        $this->setLastFailureTime((int) (new DateTime())->format('Uv'));
-        $this->setFailureCount($this->getFailureCount() + 1);
-    }
-
     /**
      * @return int
      */
-    protected function state(): int
+    public function state(): int
     {
         if ($this->getFailureCount() >= $this->threshold &&
             (int) (new DateTime())->format('Uv') - $this->getLastFailureTime() >= $this->resetTimeoutMs) {
@@ -99,6 +109,12 @@ abstract class CircuitBreaker
         } else {
             return self::CIRCUIT_BREAKER_STATE_CLOSED;
         }
+    }
+
+    protected function setLastFailure(): void
+    {
+        $this->setLastFailureTime((int) (new DateTime())->format('Uv'));
+        $this->setFailureCount($this->getFailureCount() + 1);
     }
 
     /**
