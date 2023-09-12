@@ -17,7 +17,7 @@ class CircuitBreakerFactory
         $instance->setDefaultFallbackResponse([
             'status' => false,
             'httpCode' => 500,
-            'body' => ['message' => 'Circuit Breaker Timeout'],
+            'body' => ['message' => 'Circuit Breaker Open'],
         ]);
 
         return $instance;
