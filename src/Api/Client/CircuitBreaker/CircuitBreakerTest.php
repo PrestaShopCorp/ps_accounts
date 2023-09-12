@@ -44,7 +44,7 @@ class CircuitBreakerTest extends TestCase
         );
     }
 
-    public function itShouldStartClosed()
+    public function itShouldStartClosed(): void
     {
         $this->assertEquals(CircuitBreaker::CIRCUIT_BREAKER_STATE_CLOSED, $this->circuitBreaker->state());
     }
@@ -52,14 +52,13 @@ class CircuitBreakerTest extends TestCase
     /**
      * @test
      */
-    public function itShouldOpenCircuit()
+    public function itShouldOpenCircuit(): void
     {
         $circuitBreaker = $this->circuitBreaker;
 
-        for ($i = 0; $i <= $circuitBreaker->getThreshold(); $i++) {
+        for ($i = 0; $i <= $circuitBreaker->getThreshold(); ++$i) {
             $response = $circuitBreaker->call(function () {
-                throw new ConnectException(
-                    'Test Timeout Reached', new Request('POST', '/test-route'));
+                throw new ConnectException('Test Timeout Reached', new Request('POST', '/test-route'));
             });
         }
 
@@ -72,14 +71,13 @@ class CircuitBreakerTest extends TestCase
     /**
      * @test
      */
-    public function itShouldHalfOpenCircuit()
+    public function itShouldHalfOpenCircuit(): void
     {
         $circuitBreaker = $this->circuitBreaker;
 
-        for ($i = 0; $i <= $circuitBreaker->getThreshold(); $i++) {
+        for ($i = 0; $i <= $circuitBreaker->getThreshold(); ++$i) {
             $response = $circuitBreaker->call(function () {
-                throw new ConnectException(
-                    'Test Timeout Reached', new Request('POST', '/test-route'));
+                throw new ConnectException('Test Timeout Reached', new Request('POST', '/test-route'));
             });
         }
 
@@ -91,22 +89,20 @@ class CircuitBreakerTest extends TestCase
     /**
      * @test
      */
-    public function itShouldKeepOpened()
+    public function itShouldKeepOpened(): void
     {
         $circuitBreaker = $this->circuitBreaker;
 
-        for ($i = 0; $i <= $circuitBreaker->getThreshold(); $i++) {
+        for ($i = 0; $i <= $circuitBreaker->getThreshold(); ++$i) {
             $response = $circuitBreaker->call(function () {
-                throw new ConnectException(
-                    'Test Timeout Reached', new Request('POST', '/test-route'));
+                throw new ConnectException('Test Timeout Reached', new Request('POST', '/test-route'));
             });
         }
 
         sleep(1);
 
         $response = $circuitBreaker->call(function () {
-            throw new ConnectException(
-                'Test Timeout Reached', new Request('POST', '/test-route'));
+            throw new ConnectException('Test Timeout Reached', new Request('POST', '/test-route'));
         });
 
         $this->assertEquals(CircuitBreaker::CIRCUIT_BREAKER_STATE_OPEN, $circuitBreaker->state());
@@ -118,14 +114,13 @@ class CircuitBreakerTest extends TestCase
     /**
      * @test
      */
-    public function itShouldCloseCircuit()
+    public function itShouldCloseCircuit(): void
     {
         $circuitBreaker = $this->circuitBreaker;
 
-        for ($i = 0; $i <= $circuitBreaker->getThreshold(); $i++) {
+        for ($i = 0; $i <= $circuitBreaker->getThreshold(); ++$i) {
             $response = $circuitBreaker->call(function () {
-                throw new ConnectException(
-                    'Test Timeout Reached', new Request('POST', '/test-route'));
+                throw new ConnectException('Test Timeout Reached', new Request('POST', '/test-route'));
             });
         }
 
@@ -138,8 +133,12 @@ class CircuitBreakerTest extends TestCase
         $this->assertEquals(CircuitBreaker::CIRCUIT_BREAKER_STATE_CLOSED, $circuitBreaker->state());
     }
 
-    private function createCircuitBreaker($resourceId, $defaultResponse, $threshold, $resetTimeoutMs): CircuitBreaker
-    {
+    private function createCircuitBreaker(
+        string $resourceId,
+        array $defaultResponse,
+        int $threshold,
+        int $resetTimeoutMs
+    ): CircuitBreaker {
         $circuitBreaker = new InMemoryCircuitBreaker($resourceId);
         $circuitBreaker->setResetTimeoutMs($resetTimeoutMs);
         $circuitBreaker->setThreshold($threshold);
