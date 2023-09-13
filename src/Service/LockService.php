@@ -45,15 +45,14 @@ class LockService
         // FIXME: implement two behaviours
         // ON_TIMEOUT_ACQUIRE_LOCK
         // ON_TIMEOUT_THROW_EXCEPTION
-        $resId = $resourceId . '_' . $this->config->getIdShop();
-        $this->logger->debug('Trying to acquire lock [' .$resId . '] for ' . $pollDelayMs . 'ms');
+        $this->logger->debug('Trying to acquire lock [' .$resourceId . '] for ' . $pollDelayMs . 'ms');
         while(($timestamp = (int) $this->readLock($resourceId)) > 0 /*&&
             (new DateTime())->format('Uv') - $timestamp < $timeoutMs*/) {
-            $this->logger->debug('Waiting to acquire lock [' .$resId . '] for ' . $pollDelayMs . 'ms (' . $timestamp . ')');
+            $this->logger->debug('Waiting to acquire lock [' .$resourceId . '] for ' . $pollDelayMs . 'ms (' . $timestamp . ')');
             usleep($pollDelayMs * 1000);
         }
         $this->writeLock($resourceId, (new \DateTime())->format('Uv'));
-        $this->logger->debug('Lock acquired [' .$resId . '] for ' . $pollDelayMs . 'ms');
+        $this->logger->debug('Lock acquired [' .$resourceId . '] for ' . $pollDelayMs . 'ms');
     }
 
     private function releaseLock($resourceId)
@@ -63,15 +62,12 @@ class LockService
 
     protected function writeLock($resourceId, $value)
     {
-        //$this->config->setRaw($resourceId, '0', null, null, null);
-        $this->config->set($resourceId, $value);
+        $this->config->setRaw($resourceId, $value);
     }
 
     protected function readLock($resourceId)
     {
-        //return $this->config->getRaw($resourceId, null, null);
-        \Configuration::loadConfiguration();
-        $lock =  $this->config->get($resourceId);
+        $lock =  $this->config->getUncached($resourceId);
         $this->logger->debug('Reading lock : ' . $resourceId . '|' . $lock);
         return $lock;
     }
