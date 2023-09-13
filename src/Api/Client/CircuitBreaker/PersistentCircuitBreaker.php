@@ -47,9 +47,13 @@ class PersistentCircuitBreaker extends CircuitBreaker
         $this->set(self::LAST_FAILURE_TIME, $lastFailureTime);
     }
 
+    /**
+     * @throws \PrestaShopDatabaseException
+     * @throws \PrestaShopException
+     */
     private function get(string $key): string
     {
-        return $this->config->getRaw($this->getKey($key), null, null, null);
+        return $this->config->getUncached($this->getKey($key), null, null, null);
     }
 
     /**
