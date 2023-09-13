@@ -3,6 +3,7 @@
 namespace PrestaShop\Module\PsAccounts\Service;
 
 use DateTime;
+use Monolog\Logger;
 use PrestaShop\Module\PsAccounts\Adapter\Configuration;
 
 class LockService
@@ -13,9 +14,13 @@ class LockService
     /** @var Configuration */
     private $config;
 
-    public function __construct(Configuration $config)
+    /** @var Logger */
+    private $logger;
+
+    public function __construct(Configuration $config, Logger $logger)
     {
         $this->config = $config;
+        $this->logger = $logger;
     }
 
     /**
@@ -40,11 +45,15 @@ class LockService
         // FIXME: implement two behaviours
         // ON_TIMEOUT_ACQUIRE_LOCK
         // ON_TIMEOUT_THROW_EXCEPTION
-        while(($timestamp =  $this->readLock($resourceId)) &&
-            (new DateTime())->format('Uv') - $timestamp < $timeoutMs) {
+        $resId = $resourceId . '_' . $this->config->getIdShop();
+        $this->logger->debug('Trying to acquire lock [' .$resId . '] for ' . $pollDelayMs . 'ms');
+        while(($timestamp = (int) $this->readLock($resourceId)) > 0 /*&&
+            (new DateTime())->format('Uv') - $timestamp < $timeoutMs*/) {
+            $this->logger->debug('Waiting to acquire lock [' .$resId . '] for ' . $pollDelayMs . 'ms (' . $timestamp . ')');
             usleep($pollDelayMs * 1000);
         }
         $this->writeLock($resourceId, (new \DateTime())->format('Uv'));
+        $this->logger->debug('Lock acquired [' .$resId . '] for ' . $pollDelayMs . 'ms');
     }
 
     private function releaseLock($resourceId)
@@ -55,12 +64,15 @@ class LockService
     protected function writeLock($resourceId, $value)
     {
         //$this->config->setRaw($resourceId, '0', null, null, null);
-        $this->config->set($resourceId, '0');
+        $this->config->set($resourceId, $value);
     }
 
     protected function readLock($resourceId)
     {
         //return $this->config->getRaw($resourceId, null, null);
-        return $this->config->get($resourceId);
+        \Configuration::loadConfiguration();
+        $lock =  $this->config->get($resourceId);
+        $this->logger->debug('Reading lock : ' . $resourceId . '|' . $lock);
+        return $lock;
     }
 }

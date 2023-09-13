@@ -119,18 +119,15 @@ abstract class AbstractTokenRepository
             $refreshToken = $this->getRefreshToken();
             if (is_string($refreshToken) && '' != $refreshToken) {
                 try {
-                    $newRefreshToken = null;
-                    $token = $this->lockService->callLocked(
-                        function () use ($refreshToken, $newRefreshToken) {
-                            return $this->refreshToken($refreshToken, $newRefreshToken);
+                    $this->lockService->callLocked(
+                        function () use ($refreshToken) {
+                            $token = $this->refreshToken($refreshToken, $newRefreshToken);
+                            $this->updateCredentials((string) $token, $newRefreshToken);
+                            return $token;
                         },
-                        'REFRESH_TOKEN_LOCK_' . self::TOKEN_TYPE,
+                        'REFRESH_TOKEN_LOCK_' . static::TOKEN_TYPE,
                         10000,
-                        50
-                    );
-                    $this->updateCredentials(
-                        (string) $token,
-                        $newRefreshToken
+                        500
                     );
                 } catch (RefreshTokenException $e) {
                     Logger::getInstance()->debug($e);

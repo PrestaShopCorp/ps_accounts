@@ -104,6 +104,7 @@ services:
     public: true
     arguments:
       - '@PrestaShop\Module\PsAccounts\Adapter\Configuration'
+      - '@ps_accounts.logger'
 
   #####################
   # providers
