@@ -52,7 +52,7 @@ class CircuitBreakerTest extends TestCase
     /**
      * @test
      */
-    public function itShouldOpenCircuit(): void
+    public function itShouldOpenCircuitOnThreshold(): void
     {
         $circuitBreaker = $this->circuitBreaker;
 
@@ -71,7 +71,7 @@ class CircuitBreakerTest extends TestCase
     /**
      * @test
      */
-    public function itShouldHalfOpenCircuit(): void
+    public function itShouldHalfOpenCircuitOnResetTimeout(): void
     {
         $circuitBreaker = $this->circuitBreaker;
 
@@ -89,7 +89,7 @@ class CircuitBreakerTest extends TestCase
     /**
      * @test
      */
-    public function itShouldKeepOpened(): void
+    public function itShouldReOpenCircuitOnTimeoutAndHalfOpen(): void
     {
         $circuitBreaker = $this->circuitBreaker;
 
@@ -114,7 +114,7 @@ class CircuitBreakerTest extends TestCase
     /**
      * @test
      */
-    public function itShouldCloseCircuit(): void
+    public function itShouldCloseCircuitOnSuccess(): void
     {
         $circuitBreaker = $this->circuitBreaker;
 
