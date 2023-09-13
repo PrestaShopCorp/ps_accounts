@@ -202,6 +202,7 @@ class Configuration
         if ($id > 0) {
             return (new \Configuration($id))->value;
         }
+
         return $default;
     }
 }
