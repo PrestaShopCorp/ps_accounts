@@ -208,6 +208,7 @@ class Configuration
         if ($id > 0) {
             $found = (new \Configuration($id));
             $found->clearCache();
+
             return $found->value;
         }
 
