@@ -58,7 +58,7 @@ class PersistentCircuitBreaker extends CircuitBreaker
      */
     private function get(string $key): string
     {
-        return $this->config->getUncached($this->getKey($key));
+        return $this->config->getUncached($this->getKey($key), 0, 0, false);
     }
 
     /**
@@ -67,7 +67,7 @@ class PersistentCircuitBreaker extends CircuitBreaker
      */
     private function set(string $key, $value): void
     {
-        $this->config->setRaw($this->getKey($key), $value);
+        $this->config->setRaw($this->getKey($key), $value, false, 0, 0);
     }
 
     private function getKey(string $key): string
