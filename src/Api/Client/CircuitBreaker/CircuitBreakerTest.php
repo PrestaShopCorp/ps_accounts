@@ -139,7 +139,8 @@ class CircuitBreakerTest extends TestCase
         int $threshold,
         int $resetTimeoutMs
     ): CircuitBreaker {
-        $circuitBreaker = new InMemoryCircuitBreaker($resourceId);
+        //$circuitBreaker = new InMemoryCircuitBreaker($resourceId);
+        $circuitBreaker = CircuitBreakerFactory::create($resourceId);
         $circuitBreaker->setResetTimeoutMs($resetTimeoutMs);
         $circuitBreaker->setThreshold($threshold);
         $circuitBreaker->setDefaultFallbackResponse($defaultResponse);

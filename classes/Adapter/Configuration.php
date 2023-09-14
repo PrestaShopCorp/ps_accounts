@@ -186,7 +186,6 @@ class Configuration
 
     /**
      * @param string $key
-     * @param int|null $idLang
      * @param int|null $idShopGroup
      * @param int|null $idShop
      * @param string|bool $default
@@ -196,11 +195,13 @@ class Configuration
      * @throws \PrestaShopDatabaseException
      * @throws \PrestaShopException
      */
-    public function getUncached($key, $idLang = null, $idShopGroup = null, $idShop = null, $default = false)
+    public function getUncached($key, $idShopGroup = null, $idShop = null, $default = false)
     {
         $id = \Configuration::getIdByName($key, $idShopGroup, $idShop);
         if ($id > 0) {
-            return (new \Configuration($id))->value;
+            $found = (new \Configuration($id));
+            $found->clearCache();
+            return $found->value;
         }
 
         return $default;
