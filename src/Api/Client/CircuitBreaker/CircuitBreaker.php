@@ -102,7 +102,7 @@ abstract class CircuitBreaker
     public function state(): int
     {
         if ($this->getFailureCount() >= $this->threshold &&
-            (int) (new DateTime())->format('Uv') - $this->getLastFailureTime() >= $this->resetTimeoutMs) {
+            $this->getCurrentTimestamp() - $this->getLastFailureTime() >= $this->resetTimeoutMs) {
             return self::CIRCUIT_BREAKER_STATE_HALF_OPEN;
         } elseif ($this->getFailureCount() >= $this->threshold) {
             return self::CIRCUIT_BREAKER_STATE_OPEN;
@@ -113,8 +113,13 @@ abstract class CircuitBreaker
 
     protected function setLastFailure(): void
     {
-        $this->setLastFailureTime((int) (new DateTime())->format('Uv'));
+        $this->setLastFailureTime($this->getCurrentTimestamp());
         $this->setFailureCount($this->getFailureCount() + 1);
+    }
+
+    protected function getCurrentTimestamp(): int
+    {
+        return (int) (new DateTime())->format('Uv');
     }
 
     /**

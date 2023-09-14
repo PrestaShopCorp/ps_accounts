@@ -25,6 +25,11 @@ class PersistentCircuitBreaker extends CircuitBreaker
 
         $this->prefix = $prefix;
         $this->config = $config;
+
+        // safeguard here
+        if ($this->getLastFailureTime() > $this->getCurrentTimestamp()) {
+            $this->reset();
+        }
     }
 
     public function getFailureCount(): int
