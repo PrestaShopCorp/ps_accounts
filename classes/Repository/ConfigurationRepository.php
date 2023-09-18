@@ -382,4 +382,20 @@ class ConfigurationRepository
                 break;
         }
     }
+
+    /**
+     * @return bool
+     */
+    public function getShopUnlinkedAuto()
+    {
+        return (bool) $this->configuration->get(Configuration::PS_ACCOUNTS_SHOP_UNLINKED_AUTO, '0');
+    }
+
+    /**
+     * @param bool $status
+     */
+    public function updateShopUnlinkedAuto($status)
+    {
+        $this->configuration->set(Configuration::PS_ACCOUNTS_SHOP_UNLINKED_AUTO, (bool) $status);
+    }
 }

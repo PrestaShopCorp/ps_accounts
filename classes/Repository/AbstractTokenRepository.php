@@ -106,6 +106,7 @@ abstract class AbstractTokenRepository
      */
     public function getOrRefreshToken($forceRefresh = false)
     {
+        //$forceRefresh = true;
         if (true === $forceRefresh || $this->isTokenExpired()) {
             $refreshToken = $this->getRefreshToken();
             if (is_string($refreshToken) && '' != $refreshToken) {
@@ -211,7 +212,7 @@ abstract class AbstractTokenRepository
 
         if ($attempt >= (static::MAX_TRIES_BEFORE_CLEAN_CREDENTIALS_ON_REFRESH_TOKEN_FAILURE - 1)) {
             $this->onMaxRefreshTokenAttempts();
-            $this->configuration->updateRefreshTokenFailure(static::TOKEN_TYPE, 0);
+            //$this->configuration->updateRefreshTokenFailure(static::TOKEN_TYPE, 0);
 
             return;
         }
@@ -244,5 +245,6 @@ abstract class AbstractTokenRepository
         $service = $module->getService(ShopLinkAccountService::class);
 
         $service->resetLinkAccount();
+        $this->configuration->updateShopUnlinkedAuto(true);
     }
 }
