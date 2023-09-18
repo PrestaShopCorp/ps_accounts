@@ -393,9 +393,11 @@ class ConfigurationRepository
 
     /**
      * @param bool $status
+     *
+     * @return void
      */
     public function updateShopUnlinkedAuto($status)
     {
-        $this->configuration->set(Configuration::PS_ACCOUNTS_SHOP_UNLINKED_AUTO, (bool) $status);
+        $this->configuration->set(Configuration::PS_ACCOUNTS_SHOP_UNLINKED_AUTO, (string) $status);
     }
 }
