@@ -131,9 +131,9 @@ class AccountsClient implements TokenClientInterface
 
             return $this->getClient()->post([
                 'headers' => $this->getHeaders([
-                'X-Shop-Id' => $this->shopProvider->getShopContext()->getConfiguration()->getShopUuid(),
-            ]),
-            'json' => [
+                    'X-Shop-Id' => $this->shopProvider->getShopContext()->getConfiguration()->getShopUuid(),
+                ]),
+                'json' => [
                     'token' => $refreshToken,
                 ],
             ]);
