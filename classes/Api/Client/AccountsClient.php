@@ -20,10 +20,10 @@
 
 namespace PrestaShop\Module\PsAccounts\Api\Client;
 
-use PrestaShop\Module\PsAccounts\Api\Client\CircuitBreaker\CircuitBreaker;
-use PrestaShop\Module\PsAccounts\Api\Client\CircuitBreaker\CircuitBreakerFactory;
 use GuzzleHttp\Client;
 use PrestaShop\Module\PsAccounts\Adapter\Link;
+use PrestaShop\Module\PsAccounts\Api\Client\CircuitBreaker\CircuitBreaker;
+use PrestaShop\Module\PsAccounts\Api\Client\CircuitBreaker\CircuitBreakerFactory;
 use PrestaShop\Module\PsAccounts\DTO\UpdateShop;
 use PrestaShop\Module\PsAccounts\Provider\ShopProvider;
 use PrestaShop\Module\PsAccounts\Repository\ShopTokenRepository;
@@ -60,7 +60,6 @@ class AccountsClient extends GenericClient implements TokenClientInterface
      * @param Client|null $client
      * @param int $defaultTimeout
      *
-     * @throws \PrestaShopException
      * @throws \Exception
      */
     public function __construct(
@@ -82,9 +81,9 @@ class AccountsClient extends GenericClient implements TokenClientInterface
             $client = new Client([
                 'base_url' => $apiUrl,
                 'defaults' => [
-                    'timeout' => $this->timeout,
                     'exceptions' => $this->catchExceptions,
                     'headers' => $this->getHeaders(),
+                    //'timeout' => $this->timeout,
                     'timeout' => $this->defaultTimeout,
                 ],
             ]);

@@ -19,7 +19,15 @@ class PersistentCircuitBreaker extends CircuitBreaker
      */
     private $config;
 
-    public function __construct(string $resourceId, string $prefix, Configuration $config)
+    /**
+     * @param string $resourceId
+     * @param string $prefix
+     * @param Configuration $config
+     *
+     * @throws \PrestaShopDatabaseException
+     * @throws \PrestaShopException
+     */
+    public function __construct($resourceId, $prefix, Configuration $config)
     {
         parent::__construct($resourceId);
 
@@ -32,31 +40,57 @@ class PersistentCircuitBreaker extends CircuitBreaker
         }
     }
 
-    public function getFailureCount(): int
+    /**
+     * @return int
+     *
+     * @throws \PrestaShopDatabaseException
+     * @throws \PrestaShopException
+     */
+    public function getFailureCount()
     {
         return (int) $this->get(self::FAILURE_COUNT);
     }
 
-    protected function setFailureCount(int $failureCount): void
+    /**
+     * @param int $failureCount
+     *
+     * @return void
+     */
+    protected function setFailureCount($failureCount)
     {
         $this->set(self::FAILURE_COUNT, $failureCount);
     }
 
-    protected function getLastFailureTime(): ?int
+    /**
+     * @return int|null
+     *
+     * @throws \PrestaShopDatabaseException
+     * @throws \PrestaShopException
+     */
+    protected function getLastFailureTime()
     {
         return (int) $this->get(self::LAST_FAILURE_TIME);
     }
 
-    protected function setLastFailureTime(?int $lastFailureTime): void
+    /**
+     * @param int|null $lastFailureTime
+     *
+     * @return void
+     */
+    protected function setLastFailureTime($lastFailureTime)
     {
         $this->set(self::LAST_FAILURE_TIME, $lastFailureTime);
     }
 
     /**
+     * @param string $key
+     *
+     * @return string
+     *
      * @throws \PrestaShopDatabaseException
      * @throws \PrestaShopException
      */
-    private function get(string $key): string
+    private function get($key)
     {
         return (string) $this->config->getUncached($this->getKey($key), 0, 0, false);
     }
@@ -64,13 +98,20 @@ class PersistentCircuitBreaker extends CircuitBreaker
     /**
      * @param string $key
      * @param mixed $value
+     *
+     * @return void
      */
-    private function set(string $key, $value): void
+    private function set($key, $value)
     {
         $this->config->setRaw($this->getKey($key), $value, false, 0, 0);
     }
 
-    private function getKey(string $key): string
+    /**
+     * @param string $key
+     *
+     * @return string
+     */
+    private function getKey($key)
     {
         return $this->prefix . '_' . $this->resourceId . '_' . $key;
     }

@@ -6,7 +6,14 @@ use PrestaShop\Module\PsAccounts\Adapter\Configuration;
 
 class CircuitBreakerFactory
 {
-    public static function create(string $resourceId): CircuitBreaker
+    /**
+     * @param string $resourceId
+     *
+     * @return CircuitBreaker
+     *
+     * @throws \Exception
+     */
+    public static function create($resourceId)
     {
         /** @var \Ps_accounts $module */
         $module = \Module::getInstanceByName('ps_accounts');

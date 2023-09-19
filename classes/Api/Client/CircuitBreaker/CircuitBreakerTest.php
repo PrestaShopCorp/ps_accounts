@@ -3,7 +3,7 @@
 namespace PrestaShop\Module\PsAccounts\Api\Client\CircuitBreaker;
 
 use GuzzleHttp\Exception\ConnectException;
-use GuzzleHttp\Psr7\Request;
+use GuzzleHttp\Message\Request;
 use PHPUnit\Framework\TestCase;
 
 class CircuitBreakerTest extends TestCase
@@ -32,7 +32,12 @@ class CircuitBreakerTest extends TestCase
      */
     private $circuitBreaker;
 
-    public function setUp(): void
+    /**
+     * @return void
+     *
+     * @throws \Exception
+     */
+    public function setUp()
     {
         parent::setUp();
 
@@ -44,39 +49,50 @@ class CircuitBreakerTest extends TestCase
         );
     }
 
-    public function itShouldStartClosed(): void
+    /**
+     * @test
+     *
+     * @return void
+     */
+    public function itShouldStartClosed()
     {
         $this->assertEquals(CircuitBreaker::CIRCUIT_BREAKER_STATE_CLOSED, $this->circuitBreaker->state());
     }
 
     /**
      * @test
+     *
+     * @return void
      */
-    public function itShouldOpenCircuitOnThreshold(): void
+    public function itShouldOpenCircuitOnThreshold()
     {
         $circuitBreaker = $this->circuitBreaker;
 
         for ($i = 0; $i <= $circuitBreaker->getThreshold(); ++$i) {
             $response = $circuitBreaker->call(function () {
+                /** @phpstan-ignore-next-line  */
                 throw new ConnectException('Test Timeout Reached', new Request('POST', '/test-route'));
             });
         }
 
         $this->assertEquals(CircuitBreaker::CIRCUIT_BREAKER_STATE_OPEN, $circuitBreaker->state());
-        $this->assertFalse($response['status'] ?? null);
-        $this->assertEquals(500, $response['httpCode'] ?? null);
-        $this->assertEquals('Circuit Breaker Open', $response['body']['message'] ?? null);
+        $this->assertFalse(isset($response['status']) ? $response['status'] : null);
+        $this->assertEquals(500, isset($response['httpCode']) ? $response['httpCode'] : null);
+        $this->assertEquals('Circuit Breaker Open', isset($response['body']['message']) ? $response['body']['message'] : null);
     }
 
     /**
      * @test
+     *
+     * @return void
      */
-    public function itShouldHalfOpenCircuitOnResetTimeout(): void
+    public function itShouldHalfOpenCircuitOnResetTimeout()
     {
         $circuitBreaker = $this->circuitBreaker;
 
         for ($i = 0; $i <= $circuitBreaker->getThreshold(); ++$i) {
             $response = $circuitBreaker->call(function () {
+                /** @phpstan-ignore-next-line  */
                 throw new ConnectException('Test Timeout Reached', new Request('POST', '/test-route'));
             });
         }
@@ -88,13 +104,16 @@ class CircuitBreakerTest extends TestCase
 
     /**
      * @test
+     *
+     * @return void
      */
-    public function itShouldReOpenCircuitOnTimeoutAndHalfOpen(): void
+    public function itShouldReOpenCircuitOnTimeoutAndHalfOpen()
     {
         $circuitBreaker = $this->circuitBreaker;
 
         for ($i = 0; $i <= $circuitBreaker->getThreshold(); ++$i) {
             $response = $circuitBreaker->call(function () {
+                /** @phpstan-ignore-next-line  */
                 throw new ConnectException('Test Timeout Reached', new Request('POST', '/test-route'));
             });
         }
@@ -102,24 +121,28 @@ class CircuitBreakerTest extends TestCase
         sleep(1);
 
         $response = $circuitBreaker->call(function () {
+            /** @phpstan-ignore-next-line  */
             throw new ConnectException('Test Timeout Reached', new Request('POST', '/test-route'));
         });
 
         $this->assertEquals(CircuitBreaker::CIRCUIT_BREAKER_STATE_OPEN, $circuitBreaker->state());
-        $this->assertFalse($response['status'] ?? null);
-        $this->assertEquals(500, $response['httpCode'] ?? null);
-        $this->assertEquals('Circuit Breaker Open', $response['body']['message'] ?? null);
+        $this->assertFalse(isset($response['status']) ? $response['status'] : null);
+        $this->assertEquals(500, isset($response['httpCode']) ? $response['httpCode'] : null);
+        $this->assertEquals('Circuit Breaker Open', isset($response['body']['message']) ? $response['body']['message'] : null);
     }
 
     /**
      * @test
+     *
+     * @return void
      */
-    public function itShouldCloseCircuitOnSuccess(): void
+    public function itShouldCloseCircuitOnSuccess()
     {
         $circuitBreaker = $this->circuitBreaker;
 
         for ($i = 0; $i <= $circuitBreaker->getThreshold(); ++$i) {
             $response = $circuitBreaker->call(function () {
+                /** @phpstan-ignore-next-line  */
                 throw new ConnectException('Test Timeout Reached', new Request('POST', '/test-route'));
             });
         }
@@ -133,12 +156,22 @@ class CircuitBreakerTest extends TestCase
         $this->assertEquals(CircuitBreaker::CIRCUIT_BREAKER_STATE_CLOSED, $circuitBreaker->state());
     }
 
+    /**
+     * @param string $resourceId
+     * @param array $defaultResponse
+     * @param int $threshold
+     * @param int $resetTimeoutMs
+     *
+     * @return CircuitBreaker
+     *
+     * @throws \Exception
+     */
     private function createCircuitBreaker(
-        string $resourceId,
+        $resourceId,
         array $defaultResponse,
-        int $threshold,
-        int $resetTimeoutMs
-    ): CircuitBreaker {
+        $threshold,
+        $resetTimeoutMs
+    ) {
         //$circuitBreaker = new InMemoryCircuitBreaker($resourceId);
         $circuitBreaker = CircuitBreakerFactory::create($resourceId);
         $circuitBreaker->setResetTimeoutMs($resetTimeoutMs);

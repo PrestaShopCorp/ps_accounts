@@ -23,7 +23,10 @@ abstract class CircuitBreaker
     /** @var mixed */
     protected $defaultFallbackResponse;
 
-    public function __construct(string $resourceId)
+    /**
+     * @param string $resourceId
+     */
+    public function __construct($resourceId)
     {
         $this->resourceId = $resourceId;
     }
@@ -47,10 +50,13 @@ abstract class CircuitBreaker
             }
         }
 
-        return $fallbackResponse ?? $this->defaultFallbackResponse;
+        return isset($fallbackResponse) ? $fallbackResponse : $this->defaultFallbackResponse;
     }
 
-    public function reset(): void
+    /**
+     * @return void
+     */
+    public function reset()
     {
         $this->setFailureCount(0);
         $this->setLastFailureTime(null);
@@ -58,8 +64,10 @@ abstract class CircuitBreaker
 
     /**
      * @param mixed $defaultFallbackResponse
+     *
+     * @return void
      */
-    public function setDefaultFallbackResponse($defaultFallbackResponse): void
+    public function setDefaultFallbackResponse($defaultFallbackResponse)
     {
         $this->defaultFallbackResponse = $defaultFallbackResponse;
     }
@@ -67,15 +75,17 @@ abstract class CircuitBreaker
     /**
      * @return int
      */
-    public function getResetTimeoutMs(): int
+    public function getResetTimeoutMs()
     {
         return $this->resetTimeoutMs;
     }
 
     /**
      * @param int $resetTimeoutMs
+     *
+     * @return void
      */
-    public function setResetTimeoutMs(int $resetTimeoutMs): void
+    public function setResetTimeoutMs($resetTimeoutMs)
     {
         $this->resetTimeoutMs = $resetTimeoutMs;
     }
@@ -83,15 +93,17 @@ abstract class CircuitBreaker
     /**
      * @return int
      */
-    public function getThreshold(): int
+    public function getThreshold()
     {
         return $this->threshold;
     }
 
     /**
      * @param int $threshold
+     *
+     * @return void
      */
-    public function setThreshold(int $threshold): void
+    public function setThreshold($threshold)
     {
         $this->threshold = $threshold;
     }
@@ -99,7 +111,7 @@ abstract class CircuitBreaker
     /**
      * @return int
      */
-    public function state(): int
+    public function state()
     {
         if ($this->getFailureCount() >= $this->threshold &&
             $this->getCurrentTimestamp() - $this->getLastFailureTime() >= $this->resetTimeoutMs) {
@@ -111,13 +123,19 @@ abstract class CircuitBreaker
         }
     }
 
-    protected function setLastFailure(): void
+    /**
+     * @return void
+     */
+    protected function setLastFailure()
     {
         $this->setLastFailureTime($this->getCurrentTimestamp());
         $this->setFailureCount($this->getFailureCount() + 1);
     }
 
-    protected function getCurrentTimestamp(): int
+    /**
+     * @return int
+     */
+    protected function getCurrentTimestamp()
     {
         return (int) (new DateTime())->format('Uv');
     }
@@ -125,20 +143,24 @@ abstract class CircuitBreaker
     /**
      * @return int
      */
-    abstract protected function getFailureCount(): int;
+    abstract protected function getFailureCount();
 
     /**
      * @param int $failureCount
+     *
+     * @return void
      */
-    abstract protected function setFailureCount(int $failureCount): void;
+    abstract protected function setFailureCount($failureCount);
 
     /**
      * @return int|null
      */
-    abstract protected function getLastFailureTime(): ?int;
+    abstract protected function getLastFailureTime();
 
     /**
      * @param int|null $lastFailureTime
+     *
+     * @return void
      */
-    abstract protected function setLastFailureTime(?int $lastFailureTime): void;
+    abstract protected function setLastFailureTime($lastFailureTime);
 }

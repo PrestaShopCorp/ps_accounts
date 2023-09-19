@@ -10,7 +10,10 @@ class InMemoryCircuitBreaker extends CircuitBreaker
     /** @var int|null */
     private $lastFailureTime;
 
-    public function __construct(string $resourceId)
+    /**
+     * @param string $resourceId
+     */
+    public function __construct($resourceId)
     {
         parent::__construct($resourceId);
 
@@ -20,7 +23,7 @@ class InMemoryCircuitBreaker extends CircuitBreaker
     /**
      * @return int
      */
-    public function getFailureCount(): int
+    public function getFailureCount()
     {
         return $this->failureCount;
     }
@@ -28,7 +31,7 @@ class InMemoryCircuitBreaker extends CircuitBreaker
     /**
      * @param int $failureCount
      */
-    public function setFailureCount(int $failureCount): void
+    public function setFailureCount($failureCount)
     {
         $this->failureCount = $failureCount;
     }
@@ -36,7 +39,7 @@ class InMemoryCircuitBreaker extends CircuitBreaker
     /**
      * @return int|null
      */
-    public function getLastFailureTime(): ?int
+    public function getLastFailureTime()
     {
         return $this->lastFailureTime;
     }
@@ -44,7 +47,7 @@ class InMemoryCircuitBreaker extends CircuitBreaker
     /**
      * @param int|null $lastFailureTime
      */
-    public function setLastFailureTime(?int $lastFailureTime): void
+    public function setLastFailureTime($lastFailureTime)
     {
         $this->lastFailureTime = $lastFailureTime;
     }
