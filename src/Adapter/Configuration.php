@@ -190,4 +190,28 @@ class Configuration
     {
         return \Configuration::updateValue($key, $values, $html, $idShopGroup, $idShop);
     }
+
+    /**
+     * @param string $key
+     * @param int|null $idShopGroup
+     * @param int|null $idShop
+     * @param string|bool $default
+     *
+     * @return mixed
+     *
+     * @throws \PrestaShopDatabaseException
+     * @throws \PrestaShopException
+     */
+    public function getUncached($key, $idShopGroup = null, $idShop = null, $default = false)
+    {
+        $id = \Configuration::getIdByName($key, $idShopGroup, $idShop);
+        if ($id > 0) {
+            $found = (new \Configuration($id));
+            $found->clearCache();
+
+            return $found->value;
+        }
+
+        return $default;
+    }
 }
