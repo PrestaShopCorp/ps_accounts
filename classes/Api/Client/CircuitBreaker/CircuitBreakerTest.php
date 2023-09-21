@@ -70,7 +70,7 @@ class CircuitBreakerTest extends TestCase
 
         for ($i = 0; $i <= $circuitBreaker->getThreshold(); ++$i) {
             $response = $circuitBreaker->call(function () {
-                /** @phpstan-ignore-next-line  */
+                /* @phpstan-ignore-next-line  */
                 throw new ConnectException('Test Timeout Reached', new Request('POST', '/test-route'));
             });
         }
@@ -92,7 +92,7 @@ class CircuitBreakerTest extends TestCase
 
         for ($i = 0; $i <= $circuitBreaker->getThreshold(); ++$i) {
             $response = $circuitBreaker->call(function () {
-                /** @phpstan-ignore-next-line  */
+                /* @phpstan-ignore-next-line  */
                 throw new ConnectException('Test Timeout Reached', new Request('POST', '/test-route'));
             });
         }
@@ -113,7 +113,7 @@ class CircuitBreakerTest extends TestCase
 
         for ($i = 0; $i <= $circuitBreaker->getThreshold(); ++$i) {
             $response = $circuitBreaker->call(function () {
-                /** @phpstan-ignore-next-line  */
+                /* @phpstan-ignore-next-line  */
                 throw new ConnectException('Test Timeout Reached', new Request('POST', '/test-route'));
             });
         }
@@ -121,7 +121,7 @@ class CircuitBreakerTest extends TestCase
         sleep(1);
 
         $response = $circuitBreaker->call(function () {
-            /** @phpstan-ignore-next-line  */
+            /* @phpstan-ignore-next-line  */
             throw new ConnectException('Test Timeout Reached', new Request('POST', '/test-route'));
         });
 
@@ -142,7 +142,7 @@ class CircuitBreakerTest extends TestCase
 
         for ($i = 0; $i <= $circuitBreaker->getThreshold(); ++$i) {
             $response = $circuitBreaker->call(function () {
-                /** @phpstan-ignore-next-line  */
+                /* @phpstan-ignore-next-line  */
                 throw new ConnectException('Test Timeout Reached', new Request('POST', '/test-route'));
             });
         }
