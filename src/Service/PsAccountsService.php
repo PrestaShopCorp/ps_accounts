@@ -129,6 +129,14 @@ class PsAccountsService
     }
 
     /**
+     * @return string|null
+     */
+    public function getUserToken()
+    {
+        return (string) $this->userTokenRepository->getOrRefreshToken();
+    }
+
+    /**
      * @deprecated deprecated since version 5.1.1
      *
      * @return string|false
