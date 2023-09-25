@@ -52,6 +52,11 @@ abstract class AbstractTokenRepository
     protected $tokenType;
 
     /**
+     * @var boolean
+     */
+    public static $refreshTokenCalled = false;
+
+    /**
      * AbstractTokenRepository constructor.
      *
      * @param ConfigurationRepository $configuration
@@ -106,6 +111,12 @@ abstract class AbstractTokenRepository
      */
     public function getOrRefreshToken($forceRefresh = false)
     {
+        if (self::$refreshTokenCalled) {
+            return $this->getToken();
+        }
+
+        self::$refreshTokenCalled = true;
+
         if (true === $forceRefresh || $this->isTokenExpired()) {
             $refreshToken = $this->getRefreshToken();
             if (is_string($refreshToken) && '' != $refreshToken) {

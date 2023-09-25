@@ -51,10 +51,15 @@ class GetOrRefreshTokenTest extends TestCase
             ->setConstructorArgs([$configuration])
             ->setMethods(['refreshToken'])
             ->getMock();
+        $tokenRepos::$refreshTokenCalled = false;
+            
         $tokenRepos->method('refreshToken')
             ->willReturn($idTokenRefreshed);
 
         $tokenRepos->updateCredentials((string) $idToken, (string) $refreshToken);
+
+        var_dump((string) $idTokenRefreshed);
+        var_dump((string) $tokenRepos->getOrRefreshToken());
 
         $this->assertEquals((string) $idTokenRefreshed, (string) $tokenRepos->getOrRefreshToken());
     }
