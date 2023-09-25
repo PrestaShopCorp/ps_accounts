@@ -127,6 +127,8 @@ class PsAccountsService
     }
 
     /**
+     * @deprecated
+     *
      * @return string|null
      */
     public function getUserToken()
