@@ -120,6 +120,7 @@ class ShopLinkAccountService
             $this->rsaKeysProvider->generateKeys();
         } catch (\Exception $e) {
         }
+        $this->configuration->updateShopUnlinkedAuto(false);
     }
 
     /**

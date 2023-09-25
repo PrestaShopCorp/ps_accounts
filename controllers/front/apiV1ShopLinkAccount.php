@@ -111,6 +111,7 @@ class ps_AccountsApiV1ShopLinkAccountModuleFrontController extends AbstractShopR
         $this->shopTokenRepository->updateCredentials($shopToken, $shopRefreshToken);
         $this->userTokenRepository->updateCredentials($userToken, $userRefreshToken);
         $this->configuration->updateEmployeeId($employeeId);
+        $this->configuration->updateShopUnlinkedAuto(false);
 
         Hook::exec(Ps_accounts::HOOK_ACTION_SHOP_ACCOUNT_LINK_AFTER, [
             'shopUuid' => $this->psAccountsService->getShopUuid(),
