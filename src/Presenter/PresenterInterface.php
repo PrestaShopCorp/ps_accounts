@@ -20,9 +20,6 @@
 
 namespace PrestaShop\Module\PsAccounts\Presenter;
 
-/**
- * Interface StorePresenter defines methods for store presenter.
- */
 interface PresenterInterface
 {
     /**
