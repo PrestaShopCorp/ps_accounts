@@ -186,6 +186,18 @@ class Configuration
     }
 
     /**
+     * @param $key
+     * @param $value
+     * @param $html
+     *
+     * @return void
+     */
+    public function setGlobal($key, $value, $html=false)
+    {
+        \Configuration::updateGlobalValue($key, $value, $html);
+    }
+
+    /**
      * @param string $key
      * @param int|null $idShopGroup
      * @param int|null $idShop

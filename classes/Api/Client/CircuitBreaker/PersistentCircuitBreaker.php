@@ -103,7 +103,8 @@ class PersistentCircuitBreaker extends CircuitBreaker
      */
     private function set($key, $value)
     {
-        $this->config->setRaw($this->getKey($key), $value, false, 0, 0);
+        //$this->config->setRaw($this->getKey($key), $value, false, 0, 0);
+        $this->config->setGlobal($this->getKey($key), $value);
     }
 
     /**
