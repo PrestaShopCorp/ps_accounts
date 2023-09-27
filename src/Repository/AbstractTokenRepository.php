@@ -54,7 +54,7 @@ abstract class AbstractTokenRepository
     /**
      * @var array
      */
-    public static $refreshTokenCalled = [];
+    protected $refreshTokenCalled = [];
 
     /**
      * AbstractTokenRepository constructor.
@@ -117,11 +117,11 @@ abstract class AbstractTokenRepository
             return $this->getToken();
         }
 
-        if (isset(self::$refreshTokenCalled[$refreshToken]) && self::$refreshTokenCalled[$refreshToken]) {
+        if (isset($this->refreshTokenCalled[$refreshToken]) && $this->refreshTokenCalled[$refreshToken]) {
             return $this->getToken();
         }
 
-        self::$refreshTokenCalled[$refreshToken] = true;
+        $this->refreshTokenCalled[$refreshToken] = true;
 
         if (true === $forceRefresh || $this->isTokenExpired()) {
             try {
