@@ -52,9 +52,9 @@ abstract class AbstractTokenRepository
     protected $tokenType;
 
     /**
-     * @var boolean
+     * @var array
      */
-    public static $refreshTokenCalled = false;
+    public static $refreshTokenCalled = [];
 
     /**
      * AbstractTokenRepository constructor.
@@ -111,24 +111,27 @@ abstract class AbstractTokenRepository
      */
     public function getOrRefreshToken($forceRefresh = false)
     {
-        if (self::$refreshTokenCalled) {
+        $refreshToken = $this->getRefreshToken();
+
+        if (!is_string($refreshToken) || '' === $refreshToken) {
             return $this->getToken();
         }
 
-        self::$refreshTokenCalled = true;
+        if (isset(self::$refreshTokenCalled[$refreshToken]) && self::$refreshTokenCalled[$refreshToken]) {
+            return $this->getToken();
+        }
+
+        self::$refreshTokenCalled[$refreshToken] = true;
 
         if (true === $forceRefresh || $this->isTokenExpired()) {
-            $refreshToken = $this->getRefreshToken();
-            if (is_string($refreshToken) && '' != $refreshToken) {
-                try {
-                    $token = $this->refreshToken($refreshToken, $newRefreshToken);
-                    $this->updateCredentials(
-                        (string) $token,
-                        $newRefreshToken
-                    );
-                } catch (RefreshTokenException $e) {
-                    Logger::getInstance()->debug($e);
-                }
+            try {
+                $token = $this->refreshToken($refreshToken, $newRefreshToken);
+                $this->updateCredentials(
+                    (string) $token,
+                    $newRefreshToken
+                );
+            } catch (RefreshTokenException $e) {
+                Logger::getInstance()->debug($e);
             }
         }
 
