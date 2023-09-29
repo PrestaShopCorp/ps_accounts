@@ -117,11 +117,9 @@ abstract class AbstractTokenRepository
             return $this->getToken();
         }
 
-        if (isset($this->refreshTokenCalled[$refreshToken]) && $this->refreshTokenCalled[$refreshToken]) {
+        if ($this->getRefreshTokenCalled($refreshToken)) {
             return $this->getToken();
         }
-
-        $this->refreshTokenCalled[$refreshToken] = true;
 
         if (true === $forceRefresh || $this->isTokenExpired()) {
             try {
@@ -133,6 +131,7 @@ abstract class AbstractTokenRepository
             } catch (RefreshTokenException $e) {
                 Logger::getInstance()->debug($e);
             }
+            $this->setRefreshTokenCalled($refreshToken);
         }
 
         return $this->getToken();
@@ -256,5 +255,25 @@ abstract class AbstractTokenRepository
 
         $service->resetLinkAccount();
         $this->configuration->updateShopUnlinkedAuto(true);
+    }
+
+    /**
+     * @param string $refreshToken
+     *
+     * @return bool
+     */
+    protected function getRefreshTokenCalled(string $refreshToken): bool
+    {
+        return isset($this->refreshTokenCalled[$refreshToken]) && $this->refreshTokenCalled[$refreshToken];
+    }
+
+    /**
+     * @param string $refreshToken
+     *
+     * @return void
+     */
+    protected function setRefreshTokenCalled(string $refreshToken): void
+    {
+        $this->refreshTokenCalled[$refreshToken] = true;
     }
 }
