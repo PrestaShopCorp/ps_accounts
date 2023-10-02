@@ -22,6 +22,8 @@ namespace PrestaShop\Module\PsAccounts\Api\Client;
 
 use GuzzleHttp\Client;
 use PrestaShop\Module\PsAccounts\Adapter\Link;
+use PrestaShop\Module\PsAccounts\Api\Client\CircuitBreaker\CircuitBreaker;
+use PrestaShop\Module\PsAccounts\Api\Client\CircuitBreaker\CircuitBreakerFactory;
 use PrestaShop\Module\PsAccounts\DTO\UpdateShop;
 use PrestaShop\Module\PsAccounts\Provider\ShopProvider;
 use PrestaShop\Module\PsAccounts\Repository\ShopTokenRepository;
@@ -40,25 +42,38 @@ class AccountsClient extends GenericClient implements TokenClientInterface
     private $shopProvider;
 
     /**
+     * @var CircuitBreaker
+     */
+    private $circuitBreaker;
+
+    /**
+     * @var int
+     */
+    private $defaultTimeout;
+
+    /**
      * ServicesAccountsClient constructor.
      *
      * @param string $apiUrl
      * @param ShopProvider $shopProvider
      * @param Link $link
      * @param Client|null $client
+     * @param int $defaultTimeout
      *
-     * @throws \PrestaShopException
      * @throws \Exception
      */
     public function __construct(
         $apiUrl,
         ShopProvider $shopProvider,
         Link $link,
-        Client $client = null
+        Client $client = null,
+        $defaultTimeout = 20
     ) {
         parent::__construct();
 
         $this->shopProvider = $shopProvider;
+        $this->circuitBreaker = CircuitBreakerFactory::create('ACCOUNTS_CLIENT');
+        $this->defaultTimeout = $defaultTimeout;
 
         $this->setLink($link->getLink());
 
@@ -66,9 +81,10 @@ class AccountsClient extends GenericClient implements TokenClientInterface
             $client = new Client([
                 'base_url' => $apiUrl,
                 'defaults' => [
-                    'timeout' => $this->timeout,
                     'exceptions' => $this->catchExceptions,
                     'headers' => $this->getHeaders(),
+                    //'timeout' => $this->timeout,
+                    'timeout' => $this->defaultTimeout,
                 ],
             ]);
         }
@@ -102,16 +118,18 @@ class AccountsClient extends GenericClient implements TokenClientInterface
      */
     public function refreshToken($refreshToken)
     {
-        $this->setRoute('shop/token/refresh');
+        return $this->circuitBreaker->call(function () use ($refreshToken) {
+            $this->setRoute('shop/token/refresh');
 
-        return $this->post([
-            'headers' => $this->getHeaders([
-                'X-Shop-Id' => $this->shopProvider->getShopContext()->getConfiguration()->getShopUuid(),
-            ]),
-            'json' => [
-                'token' => $refreshToken,
-            ],
-        ]);
+            return $this->post([
+                'headers' => $this->getHeaders([
+                    'X-Shop-Id' => $this->shopProvider->getShopContext()->getConfiguration()->getShopUuid(),
+                ]),
+                'json' => [
+                    'token' => $refreshToken,
+                ],
+            ]);
+        });
     }
 
     /**

@@ -21,9 +21,9 @@
 namespace PrestaShop\Module\PsAccounts\Api\Client;
 
 use GuzzleHttp\Client;
-use PrestaShop\Module\PsAccounts\Exception\OptionResolutionException;
+use PrestaShop\Module\PsAccounts\Api\Client\CircuitBreaker\CircuitBreaker;
+use PrestaShop\Module\PsAccounts\Api\Client\CircuitBreaker\CircuitBreakerFactory;
 use PrestaShop\Module\PsAccounts\Repository\TokenClientInterface;
-use PrestaShop\Module\PsAccounts\Repository\UserTokenRepository;
 
 /**
  * Class ServicesAccountsClient
@@ -31,36 +31,47 @@ use PrestaShop\Module\PsAccounts\Repository\UserTokenRepository;
 class SsoClient extends GenericClient implements TokenClientInterface
 {
     /**
-     * @var UserTokenRepository
+     * @var CircuitBreaker
      */
-    private $userTokenRepository;
+    private $circuitBreaker;
+
+    /**
+     * @var mixed
+     */
+    private $defaultTimeout;
 
     /**
      * ServicesAccountsClient constructor.
      *
      * @param string $apiUrl
      * @param Client|null $client
+     * @param int $defaultTimeout
      *
-     * @throws OptionResolutionException
+     * @throws \Exception
      */
     public function __construct(
         $apiUrl,
-        Client $client = null
+        Client $client = null,
+        $defaultTimeout = 20
     ) {
         parent::__construct();
+
+        $this->circuitBreaker = CircuitBreakerFactory::create('SSO_CLIENT');
+        $this->defaultTimeout = $defaultTimeout;
 
         // Client can be provided for tests
         if (null === $client) {
             $client = new Client([
                 'base_url' => $apiUrl,
                 'defaults' => [
-                    'timeout' => $this->timeout,
                     'exceptions' => $this->catchExceptions,
                     'headers' => [
                         'Accept' => 'application/json',
                         'X-Module-Version' => \Ps_accounts::VERSION,
                         'X-Prestashop-Version' => _PS_VERSION_,
                     ],
+                    //'timeout' => $this->timeout,
+                    'timeout' => $this->defaultTimeout,
                 ],
             ]);
         }
@@ -91,12 +102,14 @@ class SsoClient extends GenericClient implements TokenClientInterface
      */
     public function refreshToken($refreshToken)
     {
-        $this->setRoute('auth/token/refresh');
+        return $this->circuitBreaker->call(function () use ($refreshToken) {
+            $this->setRoute('auth/token/refresh');
 
-        return $this->post([
-            'json' => [
-                'token' => $refreshToken,
-            ],
-        ]);
+            return $this->post([
+                'json' => [
+                    'token' => $refreshToken,
+                ],
+            ]);
+        });
     }
 }
