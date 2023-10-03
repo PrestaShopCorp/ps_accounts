@@ -125,6 +125,7 @@ class ShopLinkAccountService
             $this->rsaKeysProvider->generateKeys();
         } catch (\Exception $e) {
         }
+        $this->configuration->updateShopUnlinkedAuto(false);
     }
 
     /**
@@ -146,6 +147,7 @@ class ShopLinkAccountService
         $this->userTokenRepository->updateCredentials($payload->user_token, $payload->user_refresh_token);
         $this->configuration->updateEmployeeId($payload->employee_id);
         $this->configuration->updateLoginEnabled(true);
+        $this->configuration->updateShopUnlinkedAuto(false);
     }
 
     /**

@@ -241,5 +241,6 @@ abstract class AbstractTokenRepository
         $service = $module->getService(ShopLinkAccountService::class);
 
         $service->resetLinkAccount();
+        $this->configuration->updateShopUnlinkedAuto(true);
     }
 }
