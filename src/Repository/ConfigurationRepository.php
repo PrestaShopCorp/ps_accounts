@@ -447,7 +447,7 @@ class ConfigurationRepository
      */
     public function getShopUnlinkedAuto()
     {
-        return (bool) $this->configuration->get(Configuration::PS_ACCOUNTS_SHOP_UNLINKED_AUTO, '0');
+        return (bool) $this->configuration->get(ConfigurationKeys::PS_ACCOUNTS_SHOP_UNLINKED_AUTO, '0');
     }
 
     /**
@@ -457,6 +457,6 @@ class ConfigurationRepository
      */
     public function updateShopUnlinkedAuto($status)
     {
-        $this->configuration->set(Configuration::PS_ACCOUNTS_SHOP_UNLINKED_AUTO, (string) $status);
+        $this->configuration->set(ConfigurationKeys::PS_ACCOUNTS_SHOP_UNLINKED_AUTO, (string) $status);
     }
 }
