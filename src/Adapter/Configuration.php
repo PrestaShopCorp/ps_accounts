@@ -22,43 +22,6 @@ namespace PrestaShop\Module\PsAccounts\Adapter;
 
 class Configuration
 {
-    public const PSX_UUID_V4 = 'PSX_UUID_V4';
-
-    // PS Shop Account
-    public const PS_ACCOUNTS_FIREBASE_ID_TOKEN = 'PS_ACCOUNTS_FIREBASE_ID_TOKEN';
-    public const PS_ACCOUNTS_FIREBASE_REFRESH_TOKEN = 'PS_ACCOUNTS_FIREBASE_REFRESH_TOKEN';
-    public const PS_ACCOUNTS_FIREBASE_REFRESH_TOKEN_FAILURE = 'PS_ACCOUNTS_FIREBASE_REFRESH_TOKEN_FAILURE';
-
-    // PS User Account
-    public const PS_ACCOUNTS_FIREBASE_EMAIL = 'PS_ACCOUNTS_FIREBASE_EMAIL';
-    public const PS_ACCOUNTS_FIREBASE_EMAIL_IS_VERIFIED = 'PS_ACCOUNTS_FIREBASE_EMAIL_IS_VERIFIED';
-    public const PS_ACCOUNTS_USER_FIREBASE_UUID = 'PS_ACCOUNTS_USER_FIREBASE_UUID';
-    public const PS_ACCOUNTS_USER_FIREBASE_ID_TOKEN = 'PS_ACCOUNTS_USER_FIREBASE_ID_TOKEN';
-    public const PS_ACCOUNTS_USER_FIREBASE_REFRESH_TOKEN = 'PS_ACCOUNTS_USER_FIREBASE_REFRESH_TOKEN';
-    public const PS_ACCOUNTS_USER_FIREBASE_REFRESH_TOKEN_FAILURE = 'PS_ACCOUNTS_USER_FIREBASE_REFRESH_TOKEN_FAILURE';
-
-    // PS Backend User
-    public const PS_ACCOUNTS_EMPLOYEE_ID = 'PS_ACCOUNTS_EMPLOYEE_ID';
-
-    // API keys
-    public const PS_ACCOUNTS_RSA_PUBLIC_KEY = 'PS_ACCOUNTS_RSA_PUBLIC_KEY';
-    public const PS_ACCOUNTS_RSA_PRIVATE_KEY = 'PS_ACCOUNTS_RSA_PRIVATE_KEY';
-    public const PS_ACCOUNTS_RSA_SIGN_DATA = 'PS_ACCOUNTS_RSA_SIGN_DATA';
-
-    // /!\ Compat with ps_checkout
-    public const PS_CHECKOUT_SHOP_UUID_V4 = 'PS_CHECKOUT_SHOP_UUID_V4';
-    public const PS_PSX_FIREBASE_ID_TOKEN = 'PS_PSX_FIREBASE_ID_TOKEN';
-    public const PS_PSX_FIREBASE_REFRESH_TOKEN = 'PS_PSX_FIREBASE_REFRESH_TOKEN';
-    public const PS_PSX_FIREBASE_REFRESH_DATE = 'PS_PSX_FIREBASE_REFRESH_DATE';
-    public const PS_PSX_FIREBASE_EMAIL = 'PS_PSX_FIREBASE_EMAIL';
-
-    // PsAccounts SSO login enabled
-    public const PS_ACCOUNTS_LOGIN_ENABLED = 'PS_ACCOUNTS_LOGIN_ENABLED';
-
-    // OAuth2 client setup
-    public const PS_ACCOUNTS_OAUTH2_CLIENT_ID = 'PS_ACCOUNTS_OAUTH2_CLIENT_ID';
-    public const PS_ACCOUNTS_OAUTH2_CLIENT_SECRET = 'PS_ACCOUNTS_OAUTH2_CLIENT_SECRET';
-
     /**
      * @var int
      */
@@ -192,15 +155,15 @@ class Configuration
     }
 
     /**
-     * @param $key
-     * @param $value
-     * @param $html
+     * @param string $key
+     * @param string|array $values
+     * @param bool $html
      *
      * @return void
      */
-    public function setGlobal($key, $value, $html=false)
+    public function setGlobal($key, $values, $html = false)
     {
-        \Configuration::updateGlobalValue($key, $value, $html);
+        \Configuration::updateGlobalValue($key, $values, $html);
     }
 
     /**

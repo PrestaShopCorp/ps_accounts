@@ -713,6 +713,13 @@ class Ps_accounts extends Module
         // Not implemented here
     }
 
+    /**
+     * @param mixed $module
+     *
+     * @return void
+     *
+     * @throws Exception
+     */
     public function hookActionModuleInstallAfter($module)
     {
         $this->resetCircuitBreaker();
@@ -874,6 +881,7 @@ class Ps_accounts extends Module
 
     /**
      * @return void
+     *
      * @throws Exception
      */
     private function resetCircuitBreaker(): void
