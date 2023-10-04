@@ -52,11 +52,6 @@ abstract class AbstractTokenRepository
     protected $tokenType;
 
     /**
-     * @var array
-     */
-    protected $refreshTokenCalled = [];
-
-    /**
      * AbstractTokenRepository constructor.
      *
      * @param ConfigurationRepository $configuration
@@ -111,27 +106,19 @@ abstract class AbstractTokenRepository
      */
     public function getOrRefreshToken($forceRefresh = false)
     {
-        $refreshToken = $this->getRefreshToken();
-
-        if (!is_string($refreshToken) || '' === $refreshToken) {
-            return $this->getToken();
-        }
-
-        if ($this->getRefreshTokenCalled($refreshToken)) {
-            return $this->getToken();
-        }
-
         if (true === $forceRefresh || $this->isTokenExpired()) {
-            try {
-                $token = $this->refreshToken($refreshToken, $newRefreshToken);
-                $this->updateCredentials(
-                    (string) $token,
-                    $newRefreshToken
-                );
-            } catch (RefreshTokenException $e) {
-                Logger::getInstance()->debug($e);
+            $refreshToken = $this->getRefreshToken();
+            if (is_string($refreshToken) && '' != $refreshToken) {
+                try {
+                    $token = $this->refreshToken($refreshToken, $newRefreshToken);
+                    $this->updateCredentials(
+                        (string) $token,
+                        $newRefreshToken
+                    );
+                } catch (RefreshTokenException $e) {
+                    Logger::getInstance()->debug($e);
+                }
             }
-            $this->setRefreshTokenCalled($refreshToken);
         }
 
         return $this->getToken();
@@ -255,25 +242,5 @@ abstract class AbstractTokenRepository
 
         $service->resetLinkAccount();
         $this->configuration->updateShopUnlinkedAuto(true);
-    }
-
-    /**
-     * @param string $refreshToken
-     *
-     * @return bool
-     */
-    protected function getRefreshTokenCalled(string $refreshToken): bool
-    {
-        return isset($this->refreshTokenCalled[$refreshToken]) && $this->refreshTokenCalled[$refreshToken];
-    }
-
-    /**
-     * @param string $refreshToken
-     *
-     * @return void
-     */
-    protected function setRefreshTokenCalled(string $refreshToken): void
-    {
-        $this->refreshTokenCalled[$refreshToken] = true;
     }
 }
