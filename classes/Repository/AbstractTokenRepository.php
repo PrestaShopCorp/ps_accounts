@@ -54,7 +54,7 @@ abstract class AbstractTokenRepository
     /**
      * @var array
      */
-    protected $refreshTokenCalled = [];
+    protected $refreshTokenErrors = [];
 
     /**
      * AbstractTokenRepository constructor.
@@ -117,7 +117,7 @@ abstract class AbstractTokenRepository
             return $this->getToken();
         }
 
-        if ($this->getRefreshTokenCalled($refreshToken)) {
+        if ($this->getRefreshTokenErrors($refreshToken)) {
             return $this->getToken();
         }
 
@@ -129,9 +129,9 @@ abstract class AbstractTokenRepository
                     $newRefreshToken
                 );
             } catch (RefreshTokenException $e) {
+                $this->setRefreshTokenErrors($refreshToken);
                 Logger::getInstance()->debug($e);
             }
-            $this->setRefreshTokenCalled($refreshToken);
         }
 
         return $this->getToken();
@@ -265,9 +265,9 @@ abstract class AbstractTokenRepository
      *
      * @return bool
      */
-    protected function getRefreshTokenCalled(string $refreshToken): bool
+    protected function getRefreshTokenErrors(string $refreshToken): bool
     {
-        return isset($this->refreshTokenCalled[$refreshToken]) && $this->refreshTokenCalled[$refreshToken];
+        return isset($this->refreshTokenErrors[$refreshToken]) && $this->refreshTokenErrors[$refreshToken];
     }
 
     /**
@@ -275,8 +275,8 @@ abstract class AbstractTokenRepository
      *
      * @return void
      */
-    protected function setRefreshTokenCalled(string $refreshToken): void
+    protected function setRefreshTokenErrors(string $refreshToken): void
     {
-        $this->refreshTokenCalled[$refreshToken] = true;
+        $this->refreshTokenErrors[$refreshToken] = true;
     }
 }
