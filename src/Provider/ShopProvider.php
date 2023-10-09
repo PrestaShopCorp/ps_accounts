@@ -108,9 +108,6 @@ class ShopProvider
             'unlinkedAuto' => $configuration->getShopUnlinkedAuto(),
         ];
 
-        // isAccountLinkedV4 => REFRESH user + shop / EACH SHOP + 1x (Presenter)
-        // getTokenEmailVerified => user (FORCE si email non vérifié)
-
         $configuration->setShopId($shopId);
 
         return $data;
