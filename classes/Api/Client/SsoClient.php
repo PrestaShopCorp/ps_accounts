@@ -116,7 +116,7 @@ class SsoClient extends GenericClient implements TokenClientInterface
     /**
      * @return CircuitBreaker
      */
-    public function getCircuitBreaker(): CircuitBreaker
+    public function getCircuitBreaker()
     {
         return $this->circuitBreaker;
     }
