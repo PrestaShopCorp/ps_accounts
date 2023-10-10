@@ -87,7 +87,7 @@ class StoreTest extends FeatureTestCase
             ],
         ]);
 
-        $json = $this->getResponseJson($response);
+        $json = $response->json();
 
         $this->module->getLogger()->info(print_r($json, true));
 
