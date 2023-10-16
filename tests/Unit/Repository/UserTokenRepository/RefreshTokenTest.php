@@ -22,7 +22,6 @@ namespace PrestaShop\Module\PsAccounts\Tests\Unit\Repository\UserTokenRepository
 
 use Exception;
 use Lcobucci\JWT\Token;
-use PrestaShop\Module\PsAccounts\Api\Client\AccountsClient;
 use PrestaShop\Module\PsAccounts\Api\Client\SsoClient;
 use PrestaShop\Module\PsAccounts\Exception\RefreshTokenException;
 use PrestaShop\Module\PsAccounts\Repository\AbstractTokenRepository;

@@ -216,6 +216,14 @@ class AccountsClient extends GenericClient implements TokenClientInterface
     }
 
     /**
+     * @return CircuitBreaker
+     */
+    public function getCircuitBreaker()
+    {
+        return $this->circuitBreaker;
+    }
+
+    /**
      * @param array $additionalHeaders
      *
      * @return array

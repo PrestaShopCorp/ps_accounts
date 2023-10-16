@@ -52,6 +52,7 @@ class Ps_accounts extends Module
         'actionObjectShopDeleteAfter',
         'actionObjectShopUrlUpdateAfter',
         'displayDashboardTop',
+        'actionModuleInstallAfter',
         self::HOOK_DISPLAY_ACCOUNT_UPDATE_WARNING,
         self::HOOK_ACTION_SHOP_ACCOUNT_LINK_AFTER,
         self::HOOK_ACTION_SHOP_ACCOUNT_UNLINK_AFTER,
@@ -293,7 +294,7 @@ class Ps_accounts extends Module
     public function hookDisplayBackOfficeHeader($params)
     {
         // Multistore On/Off switch
-        /* @phpstan-ignore-next-line  */
+        /* @phpstan-ignore-next-line */
         if ('AdminPreferences' === $this->context->controller->controller_name || !$this->getShopContext()->isShop17()) {
             $this->switchConfigMultishopMode();
         }
@@ -622,7 +623,7 @@ class Ps_accounts extends Module
     }
 
     /**
-     * @param array{shopUuid: string, shoÎd: string} $params
+     * @param array{shopUuid: string, shopId: string} $params
      *
      * @return void
      *
@@ -631,6 +632,18 @@ class Ps_accounts extends Module
     public function hookActionShopAccountUnlinkAfter($params)
     {
         // Not implemented here
+    }
+
+    /**
+     * @param mixed $module
+     *
+     * @return void
+     *
+     * @throws Exception
+     */
+    public function hookActionModuleInstallAfter($module)
+    {
+        $this->resetCircuitBreaker();
     }
 
     /**
@@ -758,5 +771,23 @@ class Ps_accounts extends Module
     public function getCustomHooks()
     {
         return $this->customHooks;
+    }
+
+    /**
+     * @return void
+     *
+     * @throws Exception
+     */
+    private function resetCircuitBreaker()
+    {
+        $this->getLogger()->info(__METHOD__);
+
+        /** @var \PrestaShop\Module\PsAccounts\Api\Client\AccountsClient $accountsClient */
+        $accountsClient = $this->getService(\PrestaShop\Module\PsAccounts\Api\Client\AccountsClient::class);
+        $accountsClient->getCircuitBreaker()->reset();
+
+        /** @var \PrestaShop\Module\PsAccounts\Api\Client\SsoClient $ssoClient */
+        $ssoClient = $this->getService(\PrestaShop\Module\PsAccounts\Api\Client\SsoClient::class);
+        $ssoClient->getCircuitBreaker()->reset();
     }
 }
