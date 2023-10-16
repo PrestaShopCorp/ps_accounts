@@ -56,6 +56,7 @@ class Ps_accounts extends Module
         'displayDashboardTop',
         'actionAdminLoginControllerLoginAfter',
         'actionAdminControllerInitBefore',
+        'actionModuleInstallAfter',
         self::HOOK_DISPLAY_ACCOUNT_UPDATE_WARNING,
         self::HOOK_ACTION_SHOP_ACCOUNT_LINK_AFTER,
         self::HOOK_ACTION_SHOP_ACCOUNT_UNLINK_AFTER,
@@ -157,6 +158,7 @@ class Ps_accounts extends Module
      *
      * @throws PrestaShopDatabaseException
      * @throws PrestaShopException
+     * @throws Exception
      */
     public function install()
     {
@@ -712,6 +714,18 @@ class Ps_accounts extends Module
     }
 
     /**
+     * @param mixed $module
+     *
+     * @return void
+     *
+     * @throws Exception
+     */
+    public function hookActionModuleInstallAfter($module)
+    {
+        $this->resetCircuitBreaker();
+    }
+
+    /**
      * @return string
      */
     public function getModuleEnvVar()
@@ -863,5 +877,23 @@ class Ps_accounts extends Module
     protected function getOauth2Session(): PrestaShop\Module\PsAccounts\Provider\OAuth2\PrestaShopSession
     {
         return $this->getService(\PrestaShop\Module\PsAccounts\Provider\OAuth2\PrestaShopSession::class);
+    }
+
+    /**
+     * @return void
+     *
+     * @throws Exception
+     */
+    private function resetCircuitBreaker(): void
+    {
+        $this->getLogger()->info(__METHOD__);
+
+        /** @var \PrestaShop\Module\PsAccounts\Api\Client\AccountsClient $accountsClient */
+        $accountsClient = $this->getService(\PrestaShop\Module\PsAccounts\Api\Client\AccountsClient::class);
+        $accountsClient->getCircuitBreaker()->reset();
+
+        /** @var \PrestaShop\Module\PsAccounts\Api\Client\SsoClient $ssoClient */
+        $ssoClient = $this->getService(\PrestaShop\Module\PsAccounts\Api\Client\SsoClient::class);
+        $ssoClient->getCircuitBreaker()->reset();
     }
 }

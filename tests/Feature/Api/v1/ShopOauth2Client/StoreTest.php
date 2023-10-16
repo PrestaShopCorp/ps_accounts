@@ -2,7 +2,7 @@
 
 namespace PrestaShop\Module\PsAccounts\Tests\Feature\Api\v1\ShopOauth2Client;
 
-use PrestaShop\Module\PsAccounts\Adapter\Configuration;
+use PrestaShop\Module\PsAccounts\Adapter\ConfigurationKeys;
 use PrestaShop\Module\PsAccounts\Controller\AbstractRestController;
 use PrestaShop\Module\PsAccounts\Tests\Feature\FeatureTestCase;
 
@@ -37,8 +37,8 @@ class StoreTest extends FeatureTestCase
         \Configuration::clearConfigurationCacheForTesting();
         \Configuration::loadConfiguration();
 
-        $this->assertEquals($payload['client_id'], $this->configuration->get(Configuration::PS_ACCOUNTS_OAUTH2_CLIENT_ID));
-        $this->assertEquals($payload['client_secret'], $this->configuration->get(Configuration::PS_ACCOUNTS_OAUTH2_CLIENT_SECRET));
+        $this->assertEquals($payload['client_id'], $this->configuration->get(ConfigurationKeys::PS_ACCOUNTS_OAUTH2_CLIENT_ID));
+        $this->assertEquals($payload['client_secret'], $this->configuration->get(ConfigurationKeys::PS_ACCOUNTS_OAUTH2_CLIENT_SECRET));
     }
 
     /**
