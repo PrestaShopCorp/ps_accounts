@@ -265,7 +265,7 @@ abstract class AbstractTokenRepository
      *
      * @return bool
      */
-    protected function getRefreshTokenErrors(string $refreshToken): bool
+    protected function getRefreshTokenErrors($refreshToken)
     {
         return isset($this->refreshTokenErrors[$refreshToken]) && $this->refreshTokenErrors[$refreshToken];
     }
@@ -275,7 +275,7 @@ abstract class AbstractTokenRepository
      *
      * @return void
      */
-    protected function setRefreshTokenErrors(string $refreshToken): void
+    protected function setRefreshTokenErrors($refreshToken)
     {
         $this->refreshTokenErrors[$refreshToken] = true;
     }
