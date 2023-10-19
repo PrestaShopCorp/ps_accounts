@@ -1,25 +1,14 @@
 version: "3.7"
 services:
   phpunit:
-    container_name: phpunit-dev
+    container_name: phpunit
     image: prestashop/docker-internal-images:1.7
-    working_dir: /var/www/html/modules/ps_accounts
     environment:
-      # FIXME: PS_* vars are useless here as we override run
       - PS_DOMAIN=localhost
       - PS_ENABLE_SSL=0
-      - PS_DEV_MODE=1
+      - PS_DEV_MODE=0
       - XDEBUG_MODE=coverage
       - XDEBUG_ENABLED=1
     volumes:
       - ./:/var/www/html/modules/ps_accounts
-    entrypoint: [
-        "/bin/sh", "-c", " \
-          service mariadb start && \
-          docker-php-ext-enable xdebug && \
-          php -d memory_limit=-1 ../../bin/console prestashop:module install ps_accounts && \
-          chown -R www-data:www-data ../../var/logs && \
-          chown -R www-data:www-data ../../var/cache && \
-          apache2-foreground
-        "
-    ]
+
