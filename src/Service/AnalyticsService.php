@@ -74,6 +74,20 @@ class AnalyticsService
         ]);
     }
 
+    public function trackMaxRefreshTokenAttempts(?string $userUid, string $userEmail, string $shopUid): void
+    {
+        $this->track([
+            'event' => 'Refresh Store Token Failed',
+            'userId' => $userUid,
+            'anonymousId' => $this->getAnonymousId(),
+            'properties' => [
+              'shopUid' => $shopUid,
+              'owner_email' => $userEmail,
+              'dissociated_at' => (new \DateTimeImmutable())->getTimestamp()
+            ],
+        ]);
+    }
+
     public function page(
         string $name,
         ?string $userId = null,

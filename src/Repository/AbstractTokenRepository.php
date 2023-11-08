@@ -28,6 +28,8 @@ use Module;
 use PrestaShop\Module\PsAccounts\Exception\RefreshTokenException;
 use PrestaShop\Module\PsAccounts\Log\Logger;
 use PrestaShop\Module\PsAccounts\Service\ShopLinkAccountService;
+use PrestaShop\Module\PsAccounts\Service\PsAccountsService;
+use PrestaShop\Module\PsAccounts\Service\AnalyticsService;
 use Ps_accounts;
 
 /**
@@ -47,6 +49,11 @@ abstract class AbstractTokenRepository
     protected $configuration;
 
     /**
+     * @var AnalyticsService
+     */
+    private $analyticsService;
+
+    /**
      * @var string
      */
     protected $tokenType;
@@ -62,9 +69,11 @@ abstract class AbstractTokenRepository
      * @param ConfigurationRepository $configuration
      */
     public function __construct(
-        ConfigurationRepository $configuration
+        ConfigurationRepository $configuration,
+        AnalyticsService $analyticsService
     ) {
         $this->configuration = $configuration;
+        $this->analyticsService = $analyticsService;
     }
 
     /**
@@ -253,8 +262,19 @@ abstract class AbstractTokenRepository
         /** @var ShopLinkAccountService $service */
         $service = $module->getService(ShopLinkAccountService::class);
 
+        $psAccountsService = $module->getService(PsAccountsService::class);
+        $userUid = $psAccountsService->getUserUuid();
+        $shopUuid = $psAccountsService->getShopUuid();
+        $userEmail = $psAccountsService->getEmail();
+        
         $service->resetLinkAccount();
         $this->configuration->updateShopUnlinkedAuto(true);
+        
+        $this->analyticsService->trackMaxRefreshTokenAttempts(
+            $userUid,
+            $shopUuid,
+            $userEmail
+        );
     }
 
     /**
