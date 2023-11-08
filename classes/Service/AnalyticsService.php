@@ -249,7 +249,7 @@ class AnalyticsService
     }
 
     /**
-     * @return
+     * @return string
      *
      * @throws \Exception
      */
@@ -269,7 +269,7 @@ class AnalyticsService
     {
         if (!isset(self::$anonymousId)) {
             if (!isset($_COOKIE[self::COOKIE_ANONYMOUS_ID])) {
-                self::$anonymousId = Uuid::uuid4();
+                self::$anonymousId = Uuid::uuid4()->toString();
                 try {
                     setcookie(self::COOKIE_ANONYMOUS_ID, self::$anonymousId, time() + 3600);
                 } catch (\Exception $e) {
