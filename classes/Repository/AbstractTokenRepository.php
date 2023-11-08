@@ -268,16 +268,16 @@ abstract class AbstractTokenRepository
         /** @var PsAccountsService $psAccountsService */
         $psAccountsService = $module->getService(PsAccountsService::class);
         $userUuid = $psAccountsService->getUserUuid();
-        $shopUuid = $psAccountsService->getShopUuid();
         $userEmail = $psAccountsService->getEmail();
+        $shopUuid = $psAccountsService->getShopUuid();
 
         $service->resetLinkAccount();
         $this->configuration->updateShopUnlinkedAuto(true);
 
         $this->analyticsService->trackMaxRefreshTokenAttempts(
-            $userUuid,
-            $userEmail,
-            $shopUuid
+            (string) $userUuid,
+            (string) $userEmail,
+            (string) $shopUuid
         );
     }
 
