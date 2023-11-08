@@ -27,9 +27,9 @@ use Lcobucci\JWT\Token\InvalidTokenStructure;
 use Module;
 use PrestaShop\Module\PsAccounts\Exception\RefreshTokenException;
 use PrestaShop\Module\PsAccounts\Log\Logger;
-use PrestaShop\Module\PsAccounts\Service\ShopLinkAccountService;
-use PrestaShop\Module\PsAccounts\Service\PsAccountsService;
 use PrestaShop\Module\PsAccounts\Service\AnalyticsService;
+use PrestaShop\Module\PsAccounts\Service\PsAccountsService;
+use PrestaShop\Module\PsAccounts\Service\ShopLinkAccountService;
 use Ps_accounts;
 
 /**
@@ -265,18 +265,19 @@ abstract class AbstractTokenRepository
         /** @var ShopLinkAccountService $service */
         $service = $module->getService(ShopLinkAccountService::class);
 
+        /** @var PsAccountsService $psAccountsService */
         $psAccountsService = $module->getService(PsAccountsService::class);
-        $userUid = $psAccountsService->getUserUuid();
+        $userUuid = $psAccountsService->getUserUuid();
         $shopUuid = $psAccountsService->getShopUuid();
         $userEmail = $psAccountsService->getEmail();
-        
+
         $service->resetLinkAccount();
         $this->configuration->updateShopUnlinkedAuto(true);
-        
+
         $this->analyticsService->trackMaxRefreshTokenAttempts(
-            $userUid,
-            $shopUuid,
-            $userEmail
+            $userUuid,
+            $userEmail,
+            $shopUuid
         );
     }
 

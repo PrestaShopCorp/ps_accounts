@@ -5,6 +5,7 @@ namespace PrestaShop\Module\PsAccounts\Tests\Unit\Repository\UserTokenRepository
 use PrestaShop\Module\PsAccounts\Api\Client\SsoClient;
 use PrestaShop\Module\PsAccounts\Repository\ConfigurationRepository;
 use PrestaShop\Module\PsAccounts\Repository\UserTokenRepository;
+use PrestaShop\Module\PsAccounts\Service\AnalyticsService;
 use PrestaShop\Module\PsAccounts\Tests\TestCase;
 
 class GetOrRefreshTokenTest extends TestCase
@@ -50,9 +51,12 @@ class GetOrRefreshTokenTest extends TestCase
         /** @var ConfigurationRepository $configuration */
         $configuration = $this->module->getService(ConfigurationRepository::class);
 
+        /** @var AnalyticsService $analytics */
+        $analytics = $this->module->getService(AnalyticsService::class);
+
         /** @var UserTokenRepository $tokenRepos */
         $tokenRepos = $this->getMockBuilder(UserTokenRepository::class)
-            ->setConstructorArgs([$configuration])
+            ->setConstructorArgs([$configuration, $analytics])
             ->setMethods(['refreshToken'])
             ->getMock();
         $tokenRepos->method('refreshToken')
@@ -82,9 +86,12 @@ class GetOrRefreshTokenTest extends TestCase
         /** @var ConfigurationRepository $configuration */
         $configuration = $this->module->getService(ConfigurationRepository::class);
 
+        /** @var AnalyticsService $analytics */
+        $analytics = $this->module->getService(AnalyticsService::class);
+
         /** @var UserTokenRepository $tokenRepos */
         $tokenRepos = $this->getMockBuilder(UserTokenRepository::class)
-            ->setConstructorArgs([$configuration])
+            ->setConstructorArgs([$configuration, $analytics])
             //->disableOriginalConstructor()
             //->disableOriginalClone()
             ->disableArgumentCloning()

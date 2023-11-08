@@ -28,6 +28,7 @@ use PrestaShop\Module\PsAccounts\Exception\RefreshTokenException;
 use PrestaShop\Module\PsAccounts\Provider\ShopProvider;
 use PrestaShop\Module\PsAccounts\Repository\AbstractTokenRepository;
 use PrestaShop\Module\PsAccounts\Repository\ShopTokenRepository;
+use PrestaShop\Module\PsAccounts\Service\AnalyticsService;
 use PrestaShop\Module\PsAccounts\Service\ShopLinkAccountService;
 use PrestaShop\Module\PsAccounts\Tests\TestCase;
 
@@ -158,8 +159,11 @@ class RefreshTokenTest extends TestCase
      */
     protected function getShopTokenRepositoryMock(array $methods = [])
     {
+        /** @var AnalyticsService $analytics */
+        $analytics = $this->module->getService(AnalyticsService::class);
+
         return $this->getMockBuilder(ShopTokenRepository::class)
-            ->setConstructorArgs([$this->configurationRepository])
+            ->setConstructorArgs([$this->configurationRepository, $analytics])
             ->setMethods($methods)
             ->getMock();
     }
