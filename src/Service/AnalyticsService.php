@@ -23,8 +23,8 @@ class AnalyticsService
     public function __construct(string $segmentWriteKey, Logger $logger)
     {
         Segment::init($segmentWriteKey);
-        $this->initAnonymousId();
         $this->logger = $logger;
+        $this->initAnonymousId();
     }
 
     public function track(array $message): void
@@ -83,7 +83,7 @@ class AnalyticsService
             'properties' => [
               'shopUid' => $shopUid,
               'owner_email' => $userEmail,
-              'dissociated_at' => (new \DateTimeImmutable())->getTimestamp()
+              'dissociated_at' => (new \DateTimeImmutable())->getTimestamp(),
             ],
         ]);
     }
@@ -171,7 +171,11 @@ class AnalyticsService
         if (!isset(self::$anonymousId)) {
             if (!isset($_COOKIE[self::COOKIE_ANONYMOUS_ID])) {
                 self::$anonymousId = Uuid::uuid4();
-                setcookie(self::COOKIE_ANONYMOUS_ID, self::$anonymousId, time() + 3600);
+                try {
+                    setcookie(self::COOKIE_ANONYMOUS_ID, self::$anonymousId, time() + 3600);
+                } catch (\Exception $e) {
+                    $this->logger->error($e->getMessage());
+                }
             } else {
                 self::$anonymousId = $_COOKIE[self::COOKIE_ANONYMOUS_ID];
             }
