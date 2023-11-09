@@ -223,6 +223,8 @@ abstract class AbstractTokenRepository
 
     /**
      * @return void
+     *
+     * @throws Exception
      */
     protected function onRefreshTokenFailure()
     {

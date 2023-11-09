@@ -111,6 +111,7 @@ class RefreshTokenTest extends TestCase
         $this->configurationRepository->updateRefreshTokenFailure('shop', 0);
 
         $this->assertEquals(0, $this->configurationRepository->getRefreshTokenFailure('shop'));
+        $this->assertFalse($this->configurationRepository->getShopUnlinkedAuto());
         $this->assertEquals($idToken, (string) $tokenRepos->getToken());
         $this->assertEquals($refreshToken, (string) $tokenRepos->getRefreshToken());
 
@@ -122,6 +123,7 @@ class RefreshTokenTest extends TestCase
         }
 
         $this->assertEquals(0, $this->configurationRepository->getRefreshTokenFailure('shop'));
+        $this->assertTrue($this->configurationRepository->getShopUnlinkedAuto());
         $this->assertEquals(null, (string) $tokenRepos->getToken());
         $this->assertEquals(null, (string) $tokenRepos->getRefreshToken());
 
