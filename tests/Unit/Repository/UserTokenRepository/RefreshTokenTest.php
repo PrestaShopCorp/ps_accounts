@@ -129,10 +129,10 @@ class RefreshTokenTest extends TestCase
 
         $this->analytics->expects($this->once())
             ->method('trackMaxRefreshTokenAttempts')
-            ->willReturnCallback(function (?string $userUid,
-                                           string $userEmail,
-                                           string $shopUid,
-                                           string $shopUrl) use ($idToken) {
+            ->willReturnCallback(function ($userUid,
+                                           $userEmail,
+                                           $shopUid,
+                                           $shopUrl) use ($idToken) {
                 // FIXME make a test including both user and shop tokens
                 //error_log(print_r([$userUid, $userEmail, $shopUid, $shopUrl], true));
                 $this->assertEquals($idToken->claims()->get('user_id'), $userUid);
