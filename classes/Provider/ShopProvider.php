@@ -53,12 +53,13 @@ class ShopProvider
     /**
      * @param array $shopData
      * @param string $psxName
+     * @param bool $refreshTokens
      *
      * @return array
      *
-     * @throws \Exception
+     * @throws \PrestaShopException
      */
-    public function formatShopData($shopData, $psxName = '', $refreshTokens=true)
+    public function formatShopData($shopData, $psxName = '', $refreshTokens = true)
     {
         $configuration = $this->shopContext->getConfiguration();
         $userToken = $this->shopContext->getUserToken();
