@@ -267,7 +267,11 @@ abstract class AbstractTokenRepository
         /** @var ShopProvider $shopProvider */
         $shopProvider = $module->getService(ShopProvider::class);
 
-        $shopData = $shopProvider->getCurrentShop();
+        $shopData = $shopProvider->formatShopData((array) \Shop::getShop(
+            $this->configuration->getShopId()),
+            'ps_accounts',
+            false
+        );
 
         $service->resetLinkAccount();
         $this->configuration->updateShopUnlinkedAuto(true);
@@ -276,7 +280,10 @@ abstract class AbstractTokenRepository
             (string) $shopData['user']['uuid'],
             (string) $shopData['user']['email'],
             (string) $shopData['uuid'],
-            (string) $shopData['frontUrl']
+            (string) $shopData['frontUrl'],
+            (string) $shopData['url'],
+            (string) $shopData['physicalUri'],
+            (string) $shopData['virtualUri']
         );
     }
 

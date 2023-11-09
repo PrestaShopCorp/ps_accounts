@@ -58,7 +58,7 @@ class ShopProvider
      *
      * @throws \Exception
      */
-    public function formatShopData($shopData, $psxName = '')
+    public function formatShopData($shopData, $psxName = '', $refreshTokens=true)
     {
         $configuration = $this->shopContext->getConfiguration();
         $userToken = $this->shopContext->getUserToken();
@@ -69,9 +69,6 @@ class ShopProvider
 
         /** @var \Ps_accounts $module */
         $module = \Module::getInstanceByName('ps_accounts');
-
-        /** @var ShopLinkAccountService $shopLinkAccountService */
-        $shopLinkAccountService = $module->getService(ShopLinkAccountService::class);
 
         /** @var RsaKeysProvider $rsaKeyProvider */
         $rsaKeyProvider = $module->getService(RsaKeysProvider::class);
@@ -92,7 +89,7 @@ class ShopProvider
             'user' => [
                 'email' => $userToken->getTokenEmail() ?: null,
                 'uuid' => $userToken->getTokenUuid() ?: null,
-                'emailIsValidated' => $userToken->getTokenEmailVerified(),
+                //'emailIsValidated' => $userToken->getTokenEmailVerified(),
             ],
 
             'url' => $this->link->getAdminLink(
@@ -104,9 +101,17 @@ class ShopProvider
                     'setShopContext' => 's-' . $shopData['id_shop'],
                 ]
             ),
-            'isLinkedV4' => $shopLinkAccountService->isAccountLinkedV4(),
+            //'isLinkedV4' => $shopLinkAccountService->isAccountLinkedV4(),
             'unlinkedAuto' => $configuration->getShopUnlinkedAuto(),
         ];
+
+        if ($refreshTokens) {
+            /** @var ShopLinkAccountService $shopLinkAccountService */
+            $shopLinkAccountService = $module->getService(ShopLinkAccountService::class);
+
+            $data['user']['emailIsValidated'] = $userToken->getTokenEmailVerified();
+            $data['isLinkedV4'] = $shopLinkAccountService->isAccountLinkedV4();
+        }
 
         $configuration->setShopId($shopId);
 
@@ -120,7 +125,7 @@ class ShopProvider
      *
      * @return array
      *
-     * @throws \PrestaShopException
+     * @throws \PrestaShopException|\Exception
      */
     public function getCurrentShop($psxName = '')
     {
