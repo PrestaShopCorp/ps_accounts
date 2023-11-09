@@ -2,7 +2,7 @@
 
 namespace PrestaShop\Module\PsAccounts\Tests\Feature\Api\v1\ShopLinkAccount;
 
-use PrestaShop\Module\PsAccounts\Adapter\Configuration;
+use PrestaShop\Module\PsAccounts\Adapter\ConfigurationKeys;
 use PrestaShop\Module\PsAccounts\Controller\AbstractRestController;
 use PrestaShop\Module\PsAccounts\Tests\Feature\FeatureTestCase;
 
@@ -15,7 +15,7 @@ class DeleteTest extends FeatureTestCase
      */
     public function itShouldSucceed()
     {
-        $this->configuration->set(Configuration::PS_ACCOUNTS_FIREBASE_ID_TOKEN, 'foobar');
+        $this->configuration->set(ConfigurationKeys::PS_ACCOUNTS_FIREBASE_ID_TOKEN, 'foobar');
 
         $response = $this->client->delete('/module/ps_accounts/apiV1ShopLinkAccount', [
             'headers' => [
@@ -38,15 +38,15 @@ class DeleteTest extends FeatureTestCase
         \Configuration::clearConfigurationCacheForTesting();
         \Configuration::loadConfiguration();
 
-        $this->assertEmpty($this->configuration->get(Configuration::PS_ACCOUNTS_FIREBASE_ID_TOKEN));
-        $this->assertEmpty($this->configuration->get(Configuration::PS_ACCOUNTS_FIREBASE_REFRESH_TOKEN));
+        $this->assertEmpty($this->configuration->get(ConfigurationKeys::PS_ACCOUNTS_FIREBASE_ID_TOKEN));
+        $this->assertEmpty($this->configuration->get(ConfigurationKeys::PS_ACCOUNTS_FIREBASE_REFRESH_TOKEN));
 
-        $this->assertEmpty($this->configuration->get(Configuration::PS_ACCOUNTS_USER_FIREBASE_UUID));
-        $this->assertEmpty($this->configuration->get(Configuration::PS_ACCOUNTS_USER_FIREBASE_ID_TOKEN));
-        $this->assertEmpty($this->configuration->get(Configuration::PS_ACCOUNTS_USER_FIREBASE_REFRESH_TOKEN));
+        $this->assertEmpty($this->configuration->get(ConfigurationKeys::PS_ACCOUNTS_USER_FIREBASE_UUID));
+        $this->assertEmpty($this->configuration->get(ConfigurationKeys::PS_ACCOUNTS_USER_FIREBASE_ID_TOKEN));
+        $this->assertEmpty($this->configuration->get(ConfigurationKeys::PS_ACCOUNTS_USER_FIREBASE_REFRESH_TOKEN));
 
-        $this->assertEmpty($this->configuration->get(Configuration::PS_ACCOUNTS_FIREBASE_EMAIL));
-        $this->assertEmpty($this->configuration->get(Configuration::PSX_UUID_V4));
-        $this->assertEmpty($this->configuration->get(Configuration::PS_ACCOUNTS_EMPLOYEE_ID));
+        $this->assertEmpty($this->configuration->get(ConfigurationKeys::PS_ACCOUNTS_FIREBASE_EMAIL));
+        $this->assertEmpty($this->configuration->get(ConfigurationKeys::PSX_UUID_V4));
+        $this->assertEmpty($this->configuration->get(ConfigurationKeys::PS_ACCOUNTS_EMPLOYEE_ID));
     }
 }

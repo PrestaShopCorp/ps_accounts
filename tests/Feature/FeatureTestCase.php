@@ -14,6 +14,7 @@ use PrestaShop\Module\PsAccounts\Provider\RsaKeysProvider;
 use PrestaShop\Module\PsAccounts\Repository\UserTokenRepository;
 use PrestaShop\Module\PsAccounts\Tests\TestCase;
 
+
 class FeatureTestCase extends TestCase
 {
     /**

@@ -105,6 +105,7 @@ class ShopProvider
                 ]
             ),
             'isLinkedV4' => $shopLinkAccountService->isAccountLinkedV4(),
+            'unlinkedAuto' => $configuration->getShopUnlinkedAuto(),
         ];
 
         $configuration->setShopId($shopId);

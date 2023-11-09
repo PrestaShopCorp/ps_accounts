@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Copyright since 2007 PrestaShop SA and Contributors
  * PrestaShop is an International Registered Trademark & Property of PrestaShop SA
@@ -20,16 +21,15 @@
 
 namespace PrestaShop\Module\PsAccounts\Api\Client;
 
-use PrestaShop\Module\PsAccounts\Api\Client\CircuitBreaker\CircuitBreaker;
-use PrestaShop\Module\PsAccounts\Api\Client\CircuitBreaker\CircuitBreakerFactory;
 use PrestaShop\Module\PsAccounts\Api\Client\Guzzle\AbstractGuzzleClient;
 use PrestaShop\Module\PsAccounts\Api\Client\Guzzle\GuzzleClientFactory;
-use PrestaShop\Module\PsAccounts\Repository\TokenClientInterface;
+use PrestaShop\Module\PsAccounts\Repository\ShopTokenRepository;
+use PrestaShop\Module\PsAccounts\Repository\UserTokenRepository;
 
 /**
- * Class ServicesAccountsClient
+ * Class IndirectChannelClient
  */
-class SsoClient implements TokenClientInterface
+class IndirectChannelClient
 {
     /**
      * @var string
@@ -42,31 +42,36 @@ class SsoClient implements TokenClientInterface
     private $client;
 
     /**
-     * @var CircuitBreaker
-     */
-    private $circuitBreaker;
-
-    /**
-     * @var mixed
-     */
-    private $defaultTimeout;
-
-    /**
      * ServicesAccountsClient constructor.
      *
      * @param string $apiUrl
      * @param AbstractGuzzleClient|null $client
-     * @param int $defaultTimeout
      */
     public function __construct(
-        string $apiUrl,
-        AbstractGuzzleClient $client = null,
-        int $defaultTimeout = 20
+        $apiUrl,
+        AbstractGuzzleClient $client = null
     ) {
         $this->apiUrl = $apiUrl;
         $this->client = $client;
-        $this->circuitBreaker = CircuitBreakerFactory::create('SSO_CLIENT');
-        $this->defaultTimeout = $defaultTimeout;
+    }
+
+    /**
+     * @param array $additionalHeaders
+     *
+     * @return array
+     */
+    private function getHeaders($additionalHeaders = [])
+    {
+        $userToken = $this->getUserTokenRepository();
+        $shopToken = $this->getShopTokenRepository();
+
+        return array_merge([
+            'Accept' => 'application/json',
+            'X-Module-Version' => \Ps_accounts::VERSION,
+            'X-Prestashop-Version' => _PS_VERSION_,
+            'Authorization' => 'Bearer ' . $userToken->getOrRefreshToken(),
+            'X-Shop-Id' => $shopToken->getTokenUuid(),
+        ], $additionalHeaders);
     }
 
     /**
@@ -78,12 +83,7 @@ class SsoClient implements TokenClientInterface
             $this->client = (new GuzzleClientFactory())->create([
                 'base_url' => $this->apiUrl,
                 'defaults' => [
-                    'headers' => [
-                        'Accept' => 'application/json',
-                        'X-Module-Version' => \Ps_accounts::VERSION,
-                        'X-Prestashop-Version' => _PS_VERSION_,
-                    ],
-                    'timeout' => $this->defaultTimeout,
+                    'headers' => $this->getHeaders(),
                 ],
             ]);
         }
@@ -92,44 +92,40 @@ class SsoClient implements TokenClientInterface
     }
 
     /**
-     * @param string $idToken
+     * @return array|null
      *
-     * @return array response
+     * @throws \Exception
      */
-    public function verifyToken($idToken)
+    public function getInvitations()
     {
-        $this->getClient()->setRoute('auth/token/verify');
+        $this->getClient()->setRoute('invitations');
 
-        return $this->getClient()->post([
-            'json' => [
-                'token' => $idToken,
-            ],
-        ]);
+        return $this->getClient()->get(['query' => ['pending' => 'true']]);
     }
 
     /**
-     * @param string $refreshToken
+     * @return ShopTokenRepository
      *
-     * @return array response
+     * @throws \Exception
      */
-    public function refreshToken($refreshToken)
+    private function getShopTokenRepository()
     {
-        return $this->circuitBreaker->call(function () use ($refreshToken) {
-            $this->getClient()->setRoute('auth/token/refresh');
+        /** @var \Ps_accounts $module */
+        $module = \Module::getInstanceByName('ps_accounts');
 
-            return $this->getClient()->post([
-                'json' => [
-                    'token' => $refreshToken,
-                ],
-            ]);
-        });
+        return $module->getService(ShopTokenRepository::class);
     }
 
     /**
-     * @return CircuitBreaker
+     * @return UserTokenRepository
+     *
+     * @throws \Exception
      */
-    public function getCircuitBreaker(): CircuitBreaker
+    private function getUserTokenRepository()
     {
-        return $this->circuitBreaker;
+        /** @var \Ps_accounts $module */
+        $module = \Module::getInstanceByName('ps_accounts');
+
+        return $module->getService(UserTokenRepository::class);
     }
 }

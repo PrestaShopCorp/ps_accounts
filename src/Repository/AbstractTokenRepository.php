@@ -52,6 +52,11 @@ abstract class AbstractTokenRepository
     protected $tokenType;
 
     /**
+     * @var array
+     */
+    protected $refreshTokenErrors = [];
+
+    /**
      * AbstractTokenRepository constructor.
      *
      * @param ConfigurationRepository $configuration
@@ -106,18 +111,26 @@ abstract class AbstractTokenRepository
      */
     public function getOrRefreshToken($forceRefresh = false)
     {
+        $refreshToken = $this->getRefreshToken();
+
+        if (!is_string($refreshToken) || '' === $refreshToken) {
+            return $this->getToken();
+        }
+
+        if ($this->getRefreshTokenErrors($refreshToken)) {
+            return $this->getToken();
+        }
+
         if (true === $forceRefresh || $this->isTokenExpired()) {
-            $refreshToken = $this->getRefreshToken();
-            if (is_string($refreshToken) && '' != $refreshToken) {
-                try {
-                    $token = $this->refreshToken($refreshToken, $newRefreshToken);
-                    $this->updateCredentials(
-                        (string) $token,
-                        $newRefreshToken
-                    );
-                } catch (RefreshTokenException $e) {
-                    Logger::getInstance()->debug($e);
-                }
+            try {
+                $token = $this->refreshToken($refreshToken, $newRefreshToken);
+                $this->updateCredentials(
+                    (string) $token,
+                    $newRefreshToken
+                );
+            } catch (RefreshTokenException $e) {
+                $this->setRefreshTokenErrors($refreshToken);
+                Logger::getInstance()->debug($e);
             }
         }
 
@@ -241,5 +254,26 @@ abstract class AbstractTokenRepository
         $service = $module->getService(ShopLinkAccountService::class);
 
         $service->resetLinkAccount();
+        $this->configuration->updateShopUnlinkedAuto(true);
+    }
+
+    /**
+     * @param string $refreshToken
+     *
+     * @return bool
+     */
+    protected function getRefreshTokenErrors(string $refreshToken): bool
+    {
+        return isset($this->refreshTokenErrors[$refreshToken]) && $this->refreshTokenErrors[$refreshToken];
+    }
+
+    /**
+     * @param string $refreshToken
+     *
+     * @return void
+     */
+    protected function setRefreshTokenErrors(string $refreshToken): void
+    {
+        $this->refreshTokenErrors[$refreshToken] = true;
     }
 }

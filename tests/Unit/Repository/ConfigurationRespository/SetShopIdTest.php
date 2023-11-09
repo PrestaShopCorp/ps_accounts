@@ -3,6 +3,7 @@
 namespace PrestaShop\Module\PsAccounts\Tests\Unit\Repository\ConfigurationRespository;
 
 use PrestaShop\Module\PsAccounts\Adapter\Configuration;
+use PrestaShop\Module\PsAccounts\Adapter\ConfigurationKeys;
 use PrestaShop\Module\PsAccounts\Repository\ConfigurationRepository;
 use PrestaShop\Module\PsAccounts\Tests\TestCase;
 
@@ -22,7 +23,7 @@ class SetShopIdTest extends TestCase
 
         $configMock->expects($this->once())
             ->method('getRaw')
-            ->with(Configuration::PS_ACCOUNTS_FIREBASE_EMAIL, null, null, $shopId, false);
+            ->with(ConfigurationKeys::PS_ACCOUNTS_FIREBASE_EMAIL, null, null, $shopId, false);
 
         $configuration = new ConfigurationRepository($configMock);
         $configuration->setShopId($shopId);
@@ -45,10 +46,10 @@ class SetShopIdTest extends TestCase
 
         $configMock->expects($this->once())
             ->method('get')
-            ->with(Configuration::PS_PSX_FIREBASE_EMAIL);
+            ->with(ConfigurationKeys::PS_PSX_FIREBASE_EMAIL);
         $configMock->expects($this->once())
             ->method('setRaw')
-            ->with(Configuration::PS_ACCOUNTS_FIREBASE_EMAIL, $email, false, null, $shopId);
+            ->with(ConfigurationKeys::PS_ACCOUNTS_FIREBASE_EMAIL, $email, false, null, $shopId);
 
         $configuration = new ConfigurationRepository($configMock);
         $configuration->setShopId($shopId);

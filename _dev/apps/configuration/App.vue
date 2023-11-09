@@ -33,13 +33,13 @@
 <script setup lang="ts">
 import ConfigInformation from "@/configuration/components/ConfigInformation.vue";
 import { onMounted } from "vue";
+import { init } from "prestashop_accounts_vue_components"
 
 onMounted(async () => {
   if (window?.psaccountsVue) {
     return window?.psaccountsVue?.init();
   }
-  const accountFallback = (await import("prestashop_accounts_vue_components")).default;
-  accountFallback.init();
+  init();
 });
 </script>
 <style lang="scss">

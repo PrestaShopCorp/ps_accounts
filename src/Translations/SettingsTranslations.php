@@ -59,9 +59,9 @@ class SettingsTranslations
             'configure' => [
                 'incentivePanel' => [
                     'title' => $this->module->l('Your PrestaShop account', $class),
-                    'howTo' => $this->module->l('One account to manage all your PrestaShop shops', $class),
+                    'howTo' => $this->module->l('One account to manage all your PrestaShop stores', $class),
                     'createPsAccount' => $this->module->l('Create your PrestaShop account or login to your existing account', $class),
-                    'linkPsAccount' => $this->module->l('Associate your shop with your account', $class),
+                    'linkPsAccount' => $this->module->l('Link your store to your account', $class),
                 ],
             ],
         ];
