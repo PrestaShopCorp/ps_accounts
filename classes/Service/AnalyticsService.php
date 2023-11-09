@@ -115,8 +115,8 @@ class AnalyticsService
      * @param string $userEmail
      * @param string $shopUid
      * @param string $shopUrl
-     * @return void
      *
+     * @return void
      */
     public function trackMaxRefreshTokenAttempts(
         $userUid,
