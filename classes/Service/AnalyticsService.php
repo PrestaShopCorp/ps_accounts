@@ -122,17 +122,23 @@ class AnalyticsService
         $userUid,
         $userEmail,
         $shopUid,
-        $shopUrl
+        $shopUrl,
+        $shopBoUrl,
+        $physicalUri,
+        $virtualUri
     ) {
         $this->track([
-            'event' => 'Refresh Store Token Failed',
+            'event' => 'Unintentionally Dissociated',
             'userId' => $userUid,
             'anonymousId' => $this->getAnonymousId(),
             'properties' => [
-              'shopUid' => $shopUid,
-              'shopUrl' => $shopUrl,
-              'ownerEmail' => $userEmail,
-              'dissociatedAt' => (new \DateTimeImmutable())->getTimestamp(),
+                'shopUid' => $shopUid,
+                'shopUrl' => $shopUrl . $physicalUri . $virtualUri,
+                'shopBoUrl' => $shopBoUrl,
+                'ownerEmail' => $userEmail,
+                'dissociatedAt' => (new \DateTimeImmutable())->getTimestamp(),
+                'psStoreVersion' => \Ps_accounts::VERSION,
+                'psAccountVersion' => _PS_VERSION_,
             ],
         ]);
     }
