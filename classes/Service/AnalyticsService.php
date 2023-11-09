@@ -114,21 +114,25 @@ class AnalyticsService
      * @param string|null $userUid
      * @param string $userEmail
      * @param string $shopUid
-     *
+     * @param string $shopUrl
      * @return void
      *
-     * @throws \Exception
      */
-    public function trackMaxRefreshTokenAttempts($userUid, $userEmail, $shopUid)
-    {
+    public function trackMaxRefreshTokenAttempts(
+        $userUid,
+        $userEmail,
+        $shopUid,
+        $shopUrl
+    ) {
         $this->track([
             'event' => 'Refresh Store Token Failed',
             'userId' => $userUid,
             'anonymousId' => $this->getAnonymousId(),
             'properties' => [
               'shopUid' => $shopUid,
-              'owner_email' => $userEmail,
-              'dissociated_at' => (new \DateTimeImmutable())->getTimestamp(),
+              'shopUrl' => $shopUrl,
+              'ownerEmail' => $userEmail,
+              'dissociatedAt' => (new \DateTimeImmutable())->getTimestamp(),
             ],
         ]);
     }
