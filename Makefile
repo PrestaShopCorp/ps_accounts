@@ -140,13 +140,13 @@ phpunit-module-install: phpunit-module-config phpunit-module-version
 phpunit-permissions:
 	@docker exec phpunit sh -c "chown -R www-data:www-data ./var"
 
-phpunit-run-unit: phpunit-xdebug phpunit-permissions
+phpunit-run-unit: phpunit-permissions
 	@docker exec -w ${CONTAINER_INSTALL_DIR} phpunit ./vendor/bin/phpunit --testsuite unit
 
 #phpunit-run-domain: phpunit-permissions
 #	@docker exec -w ${CONTAINER_INSTALL_DIR} phpunit ./vendor/bin/phpunit --testsuite domain
 
-phpunit-run-feature: phpunit-xdebug phpunit-permissions
+phpunit-run-feature: phpunit-permissions
 	@docker exec -w ${CONTAINER_INSTALL_DIR} phpunit ./vendor/bin/phpunit --testsuite feature
 
 phpunit-xdebug:
