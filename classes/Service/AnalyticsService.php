@@ -109,6 +109,15 @@ class AnalyticsService
             ],
         ]);
     }
+    
+    /**
+     * @param string $string
+     *
+     * @return string
+     */
+    private function removeLastSlash(string $string): string {
+      return substr($string, -1) === '/' ? substr($string, 0, -1):$string;
+    }
 
     /**
      * @param string|null $userUid
@@ -132,13 +141,14 @@ class AnalyticsService
         $physicalUri,
         $virtualUri
     ) {
+        $shopFrontUrl = $this->removeLastSlash($shopUrl) . $this->removeLastSlash($physicalUri) . $this->removeLastSlash($virtualUri);
         $this->track([
             'event' => 'Unintentionally Dissociated',
             'userId' => $userUid,
             'anonymousId' => $this->getAnonymousId(),
             'properties' => [
                 'shopUid' => $shopUid,
-                'shopUrl' => $shopUrl . $physicalUri . $virtualUri,
+                'shopUrl' => $shopFrontUrl,
                 'shopBoUrl' => $shopBoUrl,
                 'ownerEmail' => $userEmail,
                 'dissociatedAt' => (new \DateTimeImmutable())->getTimestamp(),
