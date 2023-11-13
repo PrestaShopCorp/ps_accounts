@@ -74,8 +74,9 @@ class AnalyticsService
         ]);
     }
 
-    private function removeLastSlash(string $string): string {
-      return substr($string, -1) === '/' ? substr($string, 0, -1):$string;
+    private function removeLastSlash(string $string): string
+    {
+        return substr($string, -1) === '/' ? substr($string, 0, -1) : $string;
     }
 
     public function trackMaxRefreshTokenAttempts(
