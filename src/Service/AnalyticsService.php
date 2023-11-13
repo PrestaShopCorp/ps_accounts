@@ -80,17 +80,14 @@ class AnalyticsService
         string $shopUid,
         string $shopUrl,
         string $shopBoUrl,
-        string $physicalUri,
-        string $virtualUri
     ): void {
-        $shopFrontUrl = rtrim($shopUrl, '/') . rtrim($physicalUri, '/') . rtrim($virtualUri, '/');
         $this->track([
             'event' => 'Unintentionally Dissociated',
             'userId' => $userUid,
             'anonymousId' => $this->getAnonymousId(),
             'properties' => [
                 'shopUid' => $shopUid,
-                'shopUrl' => $shopFrontUrl,
+                'shopUrl' => $shopUrl,
                 'shopBoUrl' => $shopBoUrl,
                 'ownerEmail' => $userEmail,
                 'dissociatedAt' => (new \DateTime())->format('Y-m-d'),
