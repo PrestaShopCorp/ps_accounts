@@ -260,6 +260,7 @@ abstract class AbstractTokenRepository
      * @return void
      *
      * @throws \PrestaShopException
+     * @throws Exception
      */
     protected function onMaxRefreshTokenAttempts($response)
     {
@@ -281,6 +282,8 @@ abstract class AbstractTokenRepository
         $service->resetLinkAccount();
         $this->configuration->updateShopUnlinkedAuto(true);
 
+        $module->getLogger()->debug('### TRACKED - A');
+
         $this->analyticsService->trackMaxRefreshTokenAttempts(
             (string) $shopData['user']['uuid'],
             (string) $shopData['user']['email'],
@@ -290,6 +293,8 @@ abstract class AbstractTokenRepository
             static::TOKEN_TYPE . ' token',
             $response['httpCode']
         );
+
+        $module->getLogger()->debug('### TRACKED - B');
     }
 
     /**
