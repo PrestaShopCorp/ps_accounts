@@ -115,7 +115,7 @@ class AnalyticsService
      *
      * @return string
      */
-    private function removeLastSlash(string $string): string
+    private function removeLastSlash($string)
     {
         return substr($string, -1) === '/' ? substr($string, 0, -1) : $string;
     }
