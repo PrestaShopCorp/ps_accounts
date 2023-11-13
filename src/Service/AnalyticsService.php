@@ -80,6 +80,8 @@ class AnalyticsService
         string $shopUid,
         string $shopUrl,
         string $shopBoUrl,
+        ?string $triggeredBy=null,
+        ?string $errorCode=null
     ): void {
         $this->track([
             'event' => 'Unintentionally Dissociated',
@@ -93,6 +95,8 @@ class AnalyticsService
                 'dissociatedAt' => (new \DateTime())->format('Y-m-d'),
                 'psStoreVersion' => \Ps_accounts::VERSION,
                 'psAccountVersion' => _PS_VERSION_,
+                'triggeredBy' => $triggeredBy,
+                'errorCode' => $errorCode,
             ],
         ]);
     }
