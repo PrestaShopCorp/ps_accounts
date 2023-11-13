@@ -195,7 +195,7 @@ abstract class AbstractTokenRepository
         }
 
         if ($response['httpCode'] >= 400 && $response['httpCode'] < 500) {
-            $this->onRefreshTokenFailure();
+            $this->onRefreshTokenFailure($response);
         }
 
         $errorMsg = isset($response['body']['message']) ? $response['body']['message'] : '';
@@ -223,16 +223,18 @@ abstract class AbstractTokenRepository
     }
 
     /**
+     * @param array $response
+     *
      * @return void
      *
      * @throws Exception
      */
-    protected function onRefreshTokenFailure()
+    protected function onRefreshTokenFailure($response)
     {
         $attempt = $this->configuration->getRefreshTokenFailure(static::TOKEN_TYPE);
 
         if ($attempt >= (static::MAX_TRIES_BEFORE_CLEAN_CREDENTIALS_ON_REFRESH_TOKEN_FAILURE - 1)) {
-            $this->onMaxRefreshTokenAttempts();
+            $this->onMaxRefreshTokenAttempts($response);
             $this->configuration->updateRefreshTokenFailure(static::TOKEN_TYPE, 0);
 
             return;
@@ -253,11 +255,13 @@ abstract class AbstractTokenRepository
     }
 
     /**
+     * @param array $response
+     *
      * @return void
      *
-     * @throws Exception
+     * @throws \PrestaShopException
      */
-    protected function onMaxRefreshTokenAttempts()
+    protected function onMaxRefreshTokenAttempts($response)
     {
         /** @var Ps_accounts $module */
         $module = Module::getInstanceByName('ps_accounts');
@@ -283,8 +287,8 @@ abstract class AbstractTokenRepository
             (string) $shopData['uuid'],
             (string) $shopData['frontUrl'],
             (string) $shopData['url'],
-            (string) $shopData['physicalUri'],
-            (string) $shopData['virtualUri']
+            static::TOKEN_TYPE . ' token',
+            $response['httpCode']
         );
     }
 

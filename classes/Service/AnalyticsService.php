@@ -68,15 +68,7 @@ class AnalyticsService
         ]);
     }
 
-    /**
-     * @param string|null $userUid
-     * @param string $userEmail
-     *
-     * @return void
-     *
-     * @throws \Exception
-     */
-    public function trackUserSignedIntoBackOfficeLocally($userUid, $userEmail)
+    public function trackUserSignedIntoBackOfficeLocally(?string $userUid, string $userEmail): void
     {
         $this->track([
             'event' => 'User Signed Into Back Office Locally',
@@ -116,6 +108,8 @@ class AnalyticsService
      * @param string $shopUid
      * @param string $shopUrl
      * @param string $shopBoUrl
+     * @param string|null $triggeredBy
+     * @param string|null $errorCode
      *
      * @return void
      *
@@ -125,7 +119,9 @@ class AnalyticsService
         $userEmail,
         $shopUid,
         $shopUrl,
-        $shopBoUrl
+        $shopBoUrl,
+        $triggeredBy=null,
+        $errorCode=null
     ) {
         $this->track([
             'event' => 'Unintentionally Dissociated',
@@ -139,6 +135,8 @@ class AnalyticsService
                 'dissociatedAt' => (new \DateTime())->format('Y-m-d'),
                 'psStoreVersion' => \Ps_accounts::VERSION,
                 'psAccountVersion' => _PS_VERSION_,
+                'triggeredBy' => $triggeredBy,
+                'errorCode' => $errorCode,
             ],
         ]);
     }
