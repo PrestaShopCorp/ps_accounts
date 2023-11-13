@@ -116,30 +116,24 @@ class AnalyticsService
      * @param string $shopUid
      * @param string $shopUrl
      * @param string $shopBoUrl
-     * @param string $physicalUri
-     * @param string $virtualUri
      *
      * @return void
      *
-     * @throws \Exception
      */
     public function trackMaxRefreshTokenAttempts(
         $userUid,
         $userEmail,
         $shopUid,
         $shopUrl,
-        $shopBoUrl,
-        $physicalUri,
-        $virtualUri
+        $shopBoUrl
     ) {
-        $shopFrontUrl = rtrim($shopUrl, '/') . rtrim($physicalUri, '/') . rtrim($virtualUri, '/');
         $this->track([
             'event' => 'Unintentionally Dissociated',
             'userId' => $userUid,
             'anonymousId' => $this->getAnonymousId(),
             'properties' => [
                 'shopUid' => $shopUid,
-                'shopUrl' => $shopFrontUrl,
+                'shopUrl' => $shopUrl,
                 'shopBoUrl' => $shopBoUrl,
                 'ownerEmail' => $userEmail,
                 'dissociatedAt' => (new \DateTime())->format('Y-m-d'),
