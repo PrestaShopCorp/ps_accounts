@@ -80,8 +80,8 @@ class AnalyticsService
         string $shopUid,
         string $shopUrl,
         string $shopBoUrl,
-        ?string $triggeredBy=null,
-        ?string $errorCode=null
+        ?string $triggeredBy = null,
+        ?string $errorCode = null
     ): void {
         $this->track([
             'event' => 'Unintentionally Dissociated',
