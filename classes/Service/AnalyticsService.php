@@ -121,6 +121,7 @@ class AnalyticsService
      *
      * @return void
      *
+     * @throws \Exception
      */
     public function trackMaxRefreshTokenAttempts(
         $userUid,
