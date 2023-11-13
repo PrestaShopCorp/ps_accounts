@@ -68,7 +68,15 @@ class AnalyticsService
         ]);
     }
 
-    public function trackUserSignedIntoBackOfficeLocally(?string $userUid, string $userEmail): void
+    /**
+     * @param string|null $userUid
+     * @param string $userEmail
+     *
+     * @return void
+     *
+     * @throws \Exception
+     */
+    public function trackUserSignedIntoBackOfficeLocally($userUid, $userEmail)
     {
         $this->track([
             'event' => 'User Signed Into Back Office Locally',
