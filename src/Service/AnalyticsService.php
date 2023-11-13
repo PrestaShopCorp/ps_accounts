@@ -74,11 +74,6 @@ class AnalyticsService
         ]);
     }
 
-    private function removeLastSlash(string $string): string
-    {
-        return substr($string, -1) === '/' ? substr($string, 0, -1) : $string;
-    }
-
     public function trackMaxRefreshTokenAttempts(
         ?string $userUid,
         string $userEmail,
@@ -88,7 +83,7 @@ class AnalyticsService
         string $physicalUri,
         string $virtualUri
     ): void {
-        $shopFrontUrl = $this->removeLastSlash($shopUrl) . $this->removeLastSlash($physicalUri) . $this->removeLastSlash($virtualUri);
+        $shopFrontUrl = rtrim($shopUrl, '/') . rtrim($physicalUri, '/') . rtrim($virtualUri, '/');
         $this->track([
             'event' => 'Unintentionally Dissociated',
             'userId' => $userUid,
@@ -98,7 +93,7 @@ class AnalyticsService
                 'shopUrl' => $shopFrontUrl,
                 'shopBoUrl' => $shopBoUrl,
                 'ownerEmail' => $userEmail,
-                'dissociatedAt' => (new \DateTimeImmutable())->getTimestamp(),
+                'dissociatedAt' => (new \DateTime())->format('Y-m-d'),
                 'psStoreVersion' => \Ps_accounts::VERSION,
                 'psAccountVersion' => _PS_VERSION_,
             ],
