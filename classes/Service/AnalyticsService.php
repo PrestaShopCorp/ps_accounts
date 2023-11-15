@@ -141,7 +141,7 @@ class AnalyticsService
                 'shopUrl' => $shopUrl,
                 'shopBoUrl' => $shopBoUrl,
                 'ownerEmail' => $userEmail,
-                'dissociatedAt' => (new \DateTime())->format('Y-m-d'),
+                'dissociatedAt' => (new \DateTime())->format('Uv'),
                 'psStoreVersion' => _PS_VERSION_,
                 'psAccountVersion' => \Ps_accounts::VERSION,
                 'triggeredBy' => $triggeredBy,
