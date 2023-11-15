@@ -1,10 +1,10 @@
 {
     "_readme": [
         "This file locks the dependencies of your project to a known state",
-        "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
+        "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "75b98c7d9f9f14a8d904459459637c3a",
+    "content-hash": "d11f81e0cf7021cf183c3683baef72cd",
     "packages": [
         {
             "name": "guzzlehttp/guzzle",
@@ -729,6 +729,106 @@
             "time": "2017-10-23T01:57:42+00:00"
         },
         {
+            "name": "ramsey/uuid",
+            "version": "3.9.7",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/ramsey/uuid.git",
+                "reference": "dc75aa439eb4c1b77f5379fd958b3dc0e6014178"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/ramsey/uuid/zipball/dc75aa439eb4c1b77f5379fd958b3dc0e6014178",
+                "reference": "dc75aa439eb4c1b77f5379fd958b3dc0e6014178",
+                "shasum": ""
+            },
+            "require": {
+                "ext-json": "*",
+                "paragonie/random_compat": "^1 | ^2 | ^9.99.99",
+                "php": "^5.4 | ^7.0 | ^8.0",
+                "symfony/polyfill-ctype": "^1.8"
+            },
+            "replace": {
+                "rhumsaa/uuid": "self.version"
+            },
+            "require-dev": {
+                "codeception/aspect-mock": "^1 | ^2",
+                "doctrine/annotations": "^1.2",
+                "goaop/framework": "1.0.0-alpha.2 | ^1 | >=2.1.0 <=2.3.2",
+                "mockery/mockery": "^0.9.11 | ^1",
+                "moontoast/math": "^1.1",
+                "nikic/php-parser": "<=4.5.0",
+                "paragonie/random-lib": "^2",
+                "php-mock/php-mock-phpunit": "^0.3 | ^1.1 | ^2.6",
+                "php-parallel-lint/php-parallel-lint": "^1.3",
+                "phpunit/phpunit": ">=4.8.36 <9.0.0 | >=9.3.0",
+                "squizlabs/php_codesniffer": "^3.5",
+                "yoast/phpunit-polyfills": "^1.0"
+            },
+            "suggest": {
+                "ext-ctype": "Provides support for PHP Ctype functions",
+                "ext-libsodium": "Provides the PECL libsodium extension for use with the SodiumRandomGenerator",
+                "ext-openssl": "Provides the OpenSSL extension for use with the OpenSslGenerator",
+                "ext-uuid": "Provides the PECL UUID extension for use with the PeclUuidTimeGenerator and PeclUuidRandomGenerator",
+                "moontoast/math": "Provides support for converting UUID to 128-bit integer (in string form).",
+                "paragonie/random-lib": "Provides RandomLib for use with the RandomLibAdapter",
+                "ramsey/uuid-console": "A console application for generating UUIDs with ramsey/uuid",
+                "ramsey/uuid-doctrine": "Allows the use of Ramsey\\Uuid\\Uuid as Doctrine field type."
+            },
+            "type": "library",
+            "autoload": {
+                "files": [
+                    "src/functions.php"
+                ],
+                "psr-4": {
+                    "Ramsey\\Uuid\\": "src/"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Ben Ramsey",
+                    "email": "ben@benramsey.com",
+                    "homepage": "https://benramsey.com"
+                },
+                {
+                    "name": "Marijn Huizendveld",
+                    "email": "marijn.huizendveld@gmail.com"
+                },
+                {
+                    "name": "Thibaud Fabre",
+                    "email": "thibaud@aztech.io"
+                }
+            ],
+            "description": "Formerly rhumsaa/uuid. A PHP 5.4+ library for generating RFC 4122 version 1, 3, 4, and 5 universally unique identifiers (UUID).",
+            "homepage": "https://github.com/ramsey/uuid",
+            "keywords": [
+                "guid",
+                "identifier",
+                "uuid"
+            ],
+            "support": {
+                "issues": "https://github.com/ramsey/uuid/issues",
+                "rss": "https://github.com/ramsey/uuid/releases.atom",
+                "source": "https://github.com/ramsey/uuid",
+                "wiki": "https://github.com/ramsey/uuid/wiki"
+            },
+            "funding": [
+                {
+                    "url": "https://github.com/ramsey",
+                    "type": "github"
+                },
+                {
+                    "url": "https://tidelift.com/funding/github/packagist/ramsey/uuid",
+                    "type": "tidelift"
+                }
+            ],
+            "time": "2022-12-19T21:55:10+00:00"
+        },
+        {
             "name": "react/promise",
             "version": "v2.8.0",
             "source": {
@@ -773,6 +873,61 @@
                 "promises"
             ],
             "time": "2020-05-12T15:16:56+00:00"
+        },
+        {
+            "name": "segmentio/analytics-php",
+            "version": "1.8.0",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/segmentio/analytics-php.git",
+                "reference": "7e25b2f6094632bbfb79e33ca024d533899a2ffe"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/segmentio/analytics-php/zipball/7e25b2f6094632bbfb79e33ca024d533899a2ffe",
+                "reference": "7e25b2f6094632bbfb79e33ca024d533899a2ffe",
+                "shasum": ""
+            },
+            "require": {
+                "php": ">=5.3.3"
+            },
+            "require-dev": {
+                "overtrue/phplint": "^1.1",
+                "phpunit/phpunit": "~4.0",
+                "squizlabs/php_codesniffer": "^3.3"
+            },
+            "bin": [
+                "bin/analytics"
+            ],
+            "type": "library",
+            "autoload": {
+                "files": [
+                    "lib/Segment.php"
+                ]
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Segment.io <friends@segment.com>",
+                    "homepage": "https://segment.com/"
+                }
+            ],
+            "description": "Segment Analytics PHP Library",
+            "homepage": "https://segment.com/libraries/php",
+            "keywords": [
+                "analytics",
+                "analytics.js",
+                "segment",
+                "segmentio"
+            ],
+            "support": {
+                "issues": "https://github.com/segmentio/analytics-php/issues",
+                "source": "https://github.com/segmentio/analytics-php/tree/1.8.0"
+            },
+            "time": "2021-05-31T22:44:22+00:00"
         },
         {
             "name": "sentry/sentry",
@@ -3785,5 +3940,6 @@
     "platform-dev": [],
     "platform-overrides": {
         "php": "5.6"
-    }
+    },
+    "plugin-api-version": "2.3.0"
 }
