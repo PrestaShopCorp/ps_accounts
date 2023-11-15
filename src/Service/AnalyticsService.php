@@ -23,8 +23,8 @@ class AnalyticsService
     public function __construct(string $segmentWriteKey, Logger $logger)
     {
         Segment::init($segmentWriteKey);
-        $this->initAnonymousId();
         $this->logger = $logger;
+        $this->initAnonymousId();
     }
 
     public function track(array $message): void
@@ -70,6 +70,33 @@ class AnalyticsService
             'properties' => [
                 'type' => $type,
                 'description' => $description,
+            ],
+        ]);
+    }
+
+    public function trackMaxRefreshTokenAttempts(
+        ?string $userUid,
+        string $userEmail,
+        string $shopUid,
+        string $shopUrl,
+        string $shopBoUrl,
+        ?string $triggeredBy = null,
+        ?string $errorCode = null
+    ): void {
+        $this->track([
+            'event' => 'Unintentionally Dissociated',
+            'userId' => $userUid,
+            'anonymousId' => $this->getAnonymousId(),
+            'properties' => [
+                'shopUid' => $shopUid,
+                'shopUrl' => $shopUrl,
+                'shopBoUrl' => $shopBoUrl,
+                'ownerEmail' => $userEmail,
+                'dissociatedAt' => (new \DateTime())->format('Uv'),
+                'psStoreVersion' => _PS_VERSION_,
+                'psAccountVersion' => \Ps_accounts::VERSION,
+                'triggeredBy' => $triggeredBy,
+                'errorCode' => $errorCode,
             ],
         ]);
     }
@@ -157,7 +184,11 @@ class AnalyticsService
         if (!isset(self::$anonymousId)) {
             if (!isset($_COOKIE[self::COOKIE_ANONYMOUS_ID])) {
                 self::$anonymousId = Uuid::uuid4();
-                setcookie(self::COOKIE_ANONYMOUS_ID, self::$anonymousId, time() + 3600);
+                try {
+                    setcookie(self::COOKIE_ANONYMOUS_ID, self::$anonymousId, time() + 3600);
+                } catch (\Exception $e) {
+                    $this->logger->error($e->getMessage());
+                }
             } else {
                 self::$anonymousId = $_COOKIE[self::COOKIE_ANONYMOUS_ID];
             }

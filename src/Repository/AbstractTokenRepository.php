@@ -27,6 +27,8 @@ use Lcobucci\JWT\Token\InvalidTokenStructure;
 use Module;
 use PrestaShop\Module\PsAccounts\Exception\RefreshTokenException;
 use PrestaShop\Module\PsAccounts\Log\Logger;
+use PrestaShop\Module\PsAccounts\Provider\ShopProvider;
+use PrestaShop\Module\PsAccounts\Service\AnalyticsService;
 use PrestaShop\Module\PsAccounts\Service\ShopLinkAccountService;
 use Ps_accounts;
 
@@ -47,6 +49,11 @@ abstract class AbstractTokenRepository
     protected $configuration;
 
     /**
+     * @var AnalyticsService
+     */
+    private $analyticsService;
+
+    /**
      * @var string
      */
     protected $tokenType;
@@ -62,9 +69,11 @@ abstract class AbstractTokenRepository
      * @param ConfigurationRepository $configuration
      */
     public function __construct(
-        ConfigurationRepository $configuration
+        ConfigurationRepository $configuration,
+        AnalyticsService $analyticsService
     ) {
         $this->configuration = $configuration;
+        $this->analyticsService = $analyticsService;
     }
 
     /**
@@ -186,7 +195,7 @@ abstract class AbstractTokenRepository
         }
 
         if ($response['httpCode'] >= 400 && $response['httpCode'] < 500) {
-            $this->onRefreshTokenFailure();
+            $this->onRefreshTokenFailure($response);
         }
 
         throw new RefreshTokenException('Unable to refresh ' . static::TOKEN_TYPE . ' token : ' . $response['httpCode'] . ' ' . print_r($response['body']['message'] ?? '', true));
@@ -213,14 +222,18 @@ abstract class AbstractTokenRepository
     }
 
     /**
+     * @param array $response
+     *
      * @return void
+     *
+     * @throws Exception
      */
-    protected function onRefreshTokenFailure()
+    protected function onRefreshTokenFailure($response)
     {
         $attempt = $this->configuration->getRefreshTokenFailure(static::TOKEN_TYPE);
 
         if ($attempt >= (static::MAX_TRIES_BEFORE_CLEAN_CREDENTIALS_ON_REFRESH_TOKEN_FAILURE - 1)) {
-            $this->onMaxRefreshTokenAttempts();
+            $this->onMaxRefreshTokenAttempts($response);
             $this->configuration->updateRefreshTokenFailure(static::TOKEN_TYPE, 0);
 
             return;
@@ -241,11 +254,13 @@ abstract class AbstractTokenRepository
     }
 
     /**
+     * @param array $response
+     *
      * @return void
      *
-     * @throws Exception
+     * @throws \PrestaShopException
      */
-    protected function onMaxRefreshTokenAttempts()
+    protected function onMaxRefreshTokenAttempts($response)
     {
         /** @var Ps_accounts $module */
         $module = Module::getInstanceByName('ps_accounts');
@@ -253,8 +268,27 @@ abstract class AbstractTokenRepository
         /** @var ShopLinkAccountService $service */
         $service = $module->getService(ShopLinkAccountService::class);
 
+        /** @var ShopProvider $shopProvider */
+        $shopProvider = $module->getService(ShopProvider::class);
+
+        $shopData = $shopProvider->formatShopData((array) \Shop::getShop(
+            $this->configuration->getShopId()),
+            'ps_accounts',
+            false
+        );
+
         $service->resetLinkAccount();
         $this->configuration->updateShopUnlinkedAuto(true);
+
+        $this->analyticsService->trackMaxRefreshTokenAttempts(
+            (string) $shopData['user']['uuid'],
+            (string) $shopData['user']['email'],
+            (string) $shopData['uuid'],
+            (string) $shopData['frontUrl'],
+            (string) $shopData['url'],
+            static::TOKEN_TYPE . ' token',
+            $response['httpCode']
+        );
     }
 
     /**

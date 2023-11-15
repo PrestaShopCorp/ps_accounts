@@ -174,12 +174,14 @@ services:
     public: true
     arguments:
       - '@PrestaShop\Module\PsAccounts\Repository\ConfigurationRepository'
+      - '@PrestaShop\Module\PsAccounts\Service\AnalyticsService'
 
   PrestaShop\Module\PsAccounts\Repository\UserTokenRepository:
     class: PrestaShop\Module\PsAccounts\Repository\UserTokenRepository
     public: true
     arguments:
       - '@PrestaShop\Module\PsAccounts\Repository\ConfigurationRepository'
+      - '@PrestaShop\Module\PsAccounts\Service\AnalyticsService'
 
   #####################
   # presenters

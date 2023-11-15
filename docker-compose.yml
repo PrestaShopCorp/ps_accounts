@@ -7,7 +7,7 @@ services:
       - PS_DOMAIN=localhost
       - PS_ENABLE_SSL=0
       - PS_DEV_MODE=1
-      - XDEBUG_MODE=coverage
+      #- XDEBUG_MODE=coverage
       - XDEBUG_ENABLED=1
     volumes:
       - ./:/var/www/html/modules/ps_accounts

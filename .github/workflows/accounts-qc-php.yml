@@ -83,13 +83,9 @@ jobs:
       - name: Install dependencies
         run: composer install
 
-#      - name: PHPUnit tests 1.7
-#        run: |
-#          DOCKER_INTERNAL="1.7" make phpunit
-
-      - name: PHPUnit tests nightly
+      - name: PHPUnit tests 8
         run: |
-          DOCKER_INTERNAL="nightly" make phpunit
+          DOCKER_INTERNAL="8" make phpunit
 
   header-stamp:
     name: Check license headers
