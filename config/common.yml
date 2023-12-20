@@ -16,6 +16,22 @@ services:
     public: true
     factory: [ 'PrestaShop\Module\PsAccounts\Factory\PsAccountsLogger', 'create' ]
 
+  PrestaShop\Module\PsAccounts\Provider\OAuth2\PrestaShopClientProvider:
+    class: PrestaShop\Module\PsAccounts\Provider\OAuth2\PrestaShopClientProvider
+    public: true
+    factory: [ 'PrestaShop\Module\PsAccounts\Provider\OAuth2\PrestaShopClientProvider', 'create' ]
+
+  PrestaShop\Module\PsAccounts\Provider\OAuth2\PrestaShopSession:
+    class: PrestaShop\Module\PsAccounts\Provider\OAuth2\PrestaShopSession
+    public: true
+    factory: [ 'PrestaShop\Module\PsAccounts\Factory\PrestaShopSessionFactory', 'create' ]
+
+  PrestaShop\Module\PsAccounts\Provider\OAuth2\Oauth2Client:
+    class: PrestaShop\Module\PsAccounts\Provider\OAuth2\Oauth2Client
+    public: true
+    arguments:
+      - '@PrestaShop\Module\PsAccounts\Repository\ConfigurationRepository'
+
   PrestaShop\Module\PsAccounts\Context\ShopContext:
     class: PrestaShop\Module\PsAccounts\Context\ShopContext
     public: true

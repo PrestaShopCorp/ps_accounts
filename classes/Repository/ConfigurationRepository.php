@@ -347,6 +347,60 @@ class ConfigurationRepository
     }
 
     /**
+     * @return bool
+     */
+    public function getLoginEnabled()
+    {
+        return (bool) $this->configuration->get(ConfigurationKeys::PS_ACCOUNTS_LOGIN_ENABLED);
+    }
+
+    /**
+     * @param bool $enabled
+     *
+     * @return void
+     */
+    public function updateLoginEnabled($enabled)
+    {
+        $this->configuration->set(ConfigurationKeys::PS_ACCOUNTS_LOGIN_ENABLED, (string) $enabled);
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getOauth2ClientId()
+    {
+        return $this->configuration->get(ConfigurationKeys::PS_ACCOUNTS_OAUTH2_CLIENT_ID);
+    }
+
+    /**
+     * @param string $clientId
+     *
+     * @return void
+     */
+    public function updateOauth2ClientId($clientId)
+    {
+        $this->configuration->set(ConfigurationKeys::PS_ACCOUNTS_OAUTH2_CLIENT_ID, $clientId);
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getOauth2ClientSecret()
+    {
+        return $this->configuration->get(ConfigurationKeys::PS_ACCOUNTS_OAUTH2_CLIENT_SECRET);
+    }
+
+    /**
+     * @param string $secret
+     *
+     * @return void
+     */
+    public function updateOauth2ClientSecret($secret)
+    {
+        $this->configuration->set(ConfigurationKeys::PS_ACCOUNTS_OAUTH2_CLIENT_SECRET, $secret);
+    }
+
+    /**
      * @param string $type
      *
      * @return int

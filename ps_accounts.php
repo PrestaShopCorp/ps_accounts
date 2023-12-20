@@ -119,6 +119,7 @@ class Ps_accounts extends Module
         $this->adminControllers = [
             'ajax' => 'AdminAjaxPsAccounts',
             'debug' => 'AdminDebugPsAccounts',
+            'oauth2' => 'AdminOAuth2PsAccounts',
         ];
     }
 
@@ -236,6 +237,18 @@ class Ps_accounts extends Module
     public function getParameter($name)
     {
         return $this->getServiceContainer()->getContainer()->getParameter($name);
+    }
+
+    /**
+     * @param string $name
+     *
+     * @return bool
+     *
+     * @throws Exception
+     */
+    public function hasParameter($name)
+    {
+        return $this->getServiceContainer()->getContainer()->hasParameter($name);
     }
 
     /**
