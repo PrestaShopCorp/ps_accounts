@@ -63,7 +63,7 @@ trait Guzzle5AdapterTrait
     /**
      * @return int|null
      */
-    protected function getGuzzleMajorVersionNumber()
+    public function getGuzzleMajorVersionNumber()
     {
         // Guzzle 7 and above
         if (defined('\GuzzleHttp\ClientInterface::MAJOR_VERSION')) {

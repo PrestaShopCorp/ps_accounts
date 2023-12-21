@@ -72,6 +72,8 @@ class AdminOAuth2PsAccountsController extends ModuleAdminController
 
         $this->ajax = true;
         $this->content_only = true;
+
+        $this->oauth2ErrorLog('Runtime GuzzleV[' . $this->getProvider()->getGuzzleMajorVersionNumber() . ']');
     }
 
     /**

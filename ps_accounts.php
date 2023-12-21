@@ -24,6 +24,8 @@ require_once __DIR__ . '/vendor/autoload.php';
 
 class Ps_accounts extends Module
 {
+    use \PrestaShop\Module\PsAccounts\Provider\OAuth2\PrestaShopLogoutTrait;
+
     const DEFAULT_ENV = '';
 
     // Needed in order to retrieve the module version easier (in api call headers) than instanciate
@@ -52,6 +54,7 @@ class Ps_accounts extends Module
         'actionObjectShopDeleteAfter',
         'actionObjectShopUrlUpdateAfter',
         'displayDashboardTop',
+        'actionAdminControllerInitBefore',
         'actionModuleInstallAfter',
         self::HOOK_DISPLAY_ACCOUNT_UPDATE_WARNING,
         self::HOOK_ACTION_SHOP_ACCOUNT_LINK_AFTER,
@@ -624,6 +627,27 @@ class Ps_accounts extends Module
     }
 
     /**
+     * @param array $params
+     *
+     * @return void
+     *
+     * @throws Exception
+     */
+    public function hookActionAdminControllerInitBefore($params)
+    {
+        /** @var \PrestaShop\Module\PsAccounts\Service\PsAccountsService $psAccountsService */
+        $psAccountsService = $this->getService(\PrestaShop\Module\PsAccounts\Service\PsAccountsService::class);
+
+        if (isset($_GET['logout'])) {
+            if ($psAccountsService->getLoginActivated()) {
+                $this->oauth2Logout();
+            } else {
+                $this->getOauth2Session()->clear();
+            }
+        }
+    }
+
+    /**
      * @param array{shopUuid: string, shopId: string} $params
      *
      * @return void
@@ -784,6 +808,46 @@ class Ps_accounts extends Module
     public function getCustomHooks()
     {
         return $this->customHooks;
+    }
+
+    /**
+     * @return \PrestaShop\Module\PsAccounts\Provider\OAuth2\Oauth2Client
+     *
+     * @throws Exception
+     */
+    public function getOauth2Client()
+    {
+        return $this->getService(\PrestaShop\Module\PsAccounts\Provider\OAuth2\Oauth2Client::class);
+    }
+
+    /**
+     * @return \PrestaShop\Module\PsAccounts\Provider\OAuth2\PrestaShopClientProvider
+     *
+     * @throws Exception
+     */
+    protected function getProvider()
+    {
+        return $this->getService(\PrestaShop\Module\PsAccounts\Provider\OAuth2\PrestaShopClientProvider::class);
+    }
+
+    /**
+     * @return bool
+     *
+     * @throws Exception
+     */
+    protected function isOauth2LogoutEnabled()
+    {
+        return $this->hasParameter('ps_accounts.oauth2_url_session_logout');
+    }
+
+    /**
+     * @return \PrestaShop\Module\PsAccounts\Provider\OAuth2\PrestaShopSession
+     *
+     * @throws Exception
+     */
+    protected function getOauth2Session()
+    {
+        return $this->getService(\PrestaShop\Module\PsAccounts\Provider\OAuth2\PrestaShopSession::class);
     }
 
     /**

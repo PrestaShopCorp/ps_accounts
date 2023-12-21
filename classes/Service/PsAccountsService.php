@@ -283,4 +283,19 @@ class PsAccountsService
             }
         }
     }
+
+    /**
+     * @return bool
+     *
+     * @throws \Exception
+     */
+    public function getLoginActivated()
+    {
+        /** @var ConfigurationRepository $configuration */
+        $configuration = $this->module->getService(ConfigurationRepository::class);
+
+        return $configuration->getLoginEnabled() &&
+            $configuration->getOauth2ClientId() &&
+            $configuration->getOauth2ClientSecret();
+    }
 }
