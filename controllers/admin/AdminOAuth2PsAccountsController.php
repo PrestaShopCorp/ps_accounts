@@ -145,7 +145,8 @@ class AdminOAuth2PsAccountsController extends ModuleAdminController
         /* @phpstan-ignore-next-line  */
         $cookie->remote_addr = $context->employee->remote_addr;
 
-        if (intval(_PS_VERSION_[0]) >= 8) {
+        // FIXME: if (intval(_PS_VERSION_[0]) >= 8) {
+        if (class_exists('EmployeeSession')) {
             $cookie->registerSession(new EmployeeSession());
         }
 

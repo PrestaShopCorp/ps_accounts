@@ -40,27 +40,6 @@ trait Guzzle5AdapterTrait
         );
     }
 
-//    /**
-//     * Creates a PSR-7 request instance.
-//     *
-//     * @param  string $method
-//     * @param  string $url
-//     * @param  AccessTokenInterface|string|null $token
-//     * @param  array $options
-//     * @return RequestInterface
-//     */
-//    protected function createRequest($method, $url, $token, array $options)
-//    {
-//        $defaults = [
-//            'headers' => $this->getHeaders($token),
-//        ];
-//
-//        $options = array_merge_recursive($defaults, $options);
-//        $factory = $this->getRequestFactory();
-//
-//        return $factory->getRequestWithOptions($method, $url, $options);
-//    }
-
     /**
      * Sends a request instance and returns a response instance.
      *

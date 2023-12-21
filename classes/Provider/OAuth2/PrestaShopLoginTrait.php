@@ -24,6 +24,7 @@ use League\OAuth2\Client\Provider\Exception\IdentityProviderException;
 use League\OAuth2\Client\Token\AccessToken;
 use PrestaShop\Module\PsAccounts\Log\Logger;
 use PrestaShop\OAuth2\Client\Provider\PrestaShopUser;
+use PrestaShop\PrestaShop\Core\Exception\ContainerNotFoundException;
 use Symfony\Component\HttpFoundation\Session\SessionInterface;
 use Tools;
 
@@ -105,6 +106,8 @@ trait PrestaShopLoginTrait
      * @param string $locale
      *
      * @return void
+     *
+     * @throws ContainerNotFoundException
      */
     private function oauth2Redirect($locale)
     {
@@ -137,6 +140,8 @@ trait PrestaShopLoginTrait
 
     /**
      * @return string
+     *
+     * @throws ContainerNotFoundException
      */
     private function getSessionReturnTo()
     {
@@ -147,6 +152,8 @@ trait PrestaShopLoginTrait
      * @param string $returnTo
      *
      * @return void
+     *
+     * @throws ContainerNotFoundException
      */
     private function setSessionReturnTo($returnTo)
     {
