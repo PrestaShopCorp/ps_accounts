@@ -2,8 +2,6 @@
 
 namespace PrestaShop\Module\PsAccounts\Provider\OAuth2;
 
-use PrestaShop\Module\PsAccounts\Log\Logger;
-
 /**
  * {"issuer":"https://oauth.prestashop.localhost",
  * "authorization_endpoint":"https://oauth.prestashop.localhost/oauth2/auth",
@@ -127,16 +125,17 @@ class WellKnown
      *
      * @throws \Exception
      */
-    public static function fetch($serverUrl, $verifyCert=true)
+    public static function fetch($serverUrl, $verifyCert = true)
     {
         $wellKnownUrl = $serverUrl . '/.well-known/openid-configuration';
         /** @var WellKnown $wellKnown */
         $wellKnown = json_decode(file_get_contents($wellKnownUrl, false, stream_context_create([
-            "ssl"=> [
-                "verify_peer"=>$verifyCert,
-                "verify_peer_name"=>$verifyCert,
+            'ssl' => [
+                'verify_peer' => $verifyCert,
+                'verify_peer_name' => $verifyCert,
             ],
         ])));
+
         return $wellKnown;
     }
 }

@@ -69,7 +69,7 @@ class PrestaShopClientProvider extends PrestaShop
         );
 
         // Disable certificate verification from local configuration
-        $options['verify'] = (bool)$this->module->getParameter(
+        $options['verify'] = (bool) $this->module->getParameter(
             'ps_accounts.check_api_ssl_cert'
         );
 
@@ -114,7 +114,7 @@ class PrestaShopClientProvider extends PrestaShop
      *
      * @throws \Exception
      */
-    public function getParameter($name, $default='')
+    public function getParameter($name, $default = '')
     {
         return $this->module->hasParameter($name)
             ? $this->module->getParameter($name)
@@ -208,4 +208,3 @@ class PrestaShopClientProvider extends PrestaShop
         return $this->oauth2Client;
     }
 }
-
