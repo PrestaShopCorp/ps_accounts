@@ -20,6 +20,7 @@
 
 namespace PrestaShop\Module\PsAccounts\Provider\OAuth2;
 
+use League\OAuth2\Client\Provider\AbstractProvider;
 use League\OAuth2\Client\Token\AccessToken;
 use PrestaShop\OAuth2\Client\Provider\PrestaShop;
 
@@ -45,6 +46,11 @@ class PrestaShopClientProvider extends PrestaShop
     private $oauth2Client;
 
     /**
+     * @var WellKnown
+     */
+    private $wellKnown;
+
+    /**
      * @param array $options
      * @param array $collaborators
      *
@@ -57,6 +63,10 @@ class PrestaShopClientProvider extends PrestaShop
         $this->module = $module;
         $this->context = $module->getContext();
         $this->oauth2Client = $module->getService(Oauth2Client::class);
+        $this->wellKnown = WellKnown::fetch(
+            $this->getParameter('ps_accounts.oauth2_url'),
+            false
+        );
 
         // Disable certificate verification from local configuration
         $options['verify'] = (bool)$this->module->getParameter(
@@ -72,6 +82,7 @@ class PrestaShopClientProvider extends PrestaShop
             'clientSecret' => $this->oauth2Client->getClientSecret(),
             'redirectUri' => $this->getRedirectUri(),
             'postLogoutCallbackUri' => $this->getPostLogoutRedirectUri(),
+            'pkceMethod' => AbstractProvider::PKCE_METHOD_S256,
         ], $options), $collaborators);
     }
 
@@ -103,7 +114,7 @@ class PrestaShopClientProvider extends PrestaShop
      *
      * @throws \Exception
      */
-    public function getParameter($name, $default)
+    public function getParameter($name, $default='')
     {
         return $this->module->hasParameter($name)
             ? $this->module->getParameter($name)
@@ -119,7 +130,8 @@ class PrestaShopClientProvider extends PrestaShop
     {
         return $this->getParameter(
             'ps_accounts.oauth2_url_authorize',
-            parent::getBaseAuthorizationUrl()
+            $this->wellKnown->authorization_endpoint ?:
+                parent::getBaseAuthorizationUrl()
         );
     }
 
@@ -132,7 +144,8 @@ class PrestaShopClientProvider extends PrestaShop
     {
         return $this->getParameter(
             'ps_accounts.oauth2_url_access_token',
-            parent::getBaseAccessTokenUrl($params)
+            $this->wellKnown->token_endpoint ?:
+                parent::getBaseAccessTokenUrl($params)
         );
     }
 
@@ -145,7 +158,8 @@ class PrestaShopClientProvider extends PrestaShop
     {
         return $this->getParameter(
             'ps_accounts.oauth2_url_resource_owner_details',
-            parent::getResourceOwnerDetailsUrl($token)
+            $this->wellKnown->userinfo_endpoint ?:
+                parent::getResourceOwnerDetailsUrl($token)
         );
     }
 
@@ -168,7 +182,8 @@ class PrestaShopClientProvider extends PrestaShop
     {
         return $this->getParameter(
             'ps_accounts.oauth2_url_session_logout',
-            parent::getBaseSessionLogoutUrl()
+            $this->wellKnown->end_session_endpoint ?:
+                parent::getBaseSessionLogoutUrl()
         );
     }
 

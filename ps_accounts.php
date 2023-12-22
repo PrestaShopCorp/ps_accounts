@@ -638,12 +638,28 @@ class Ps_accounts extends Module
         /** @var \PrestaShop\Module\PsAccounts\Service\PsAccountsService $psAccountsService */
         $psAccountsService = $this->getService(\PrestaShop\Module\PsAccounts\Service\PsAccountsService::class);
 
+        $session = $this->getOauth2Session();
+
         if (isset($_GET['logout'])) {
             if ($psAccountsService->getLoginActivated()) {
                 $this->oauth2Logout();
+                // FIXME: too much implicit logic here
+                // After logout redirect will reach this line cause oauth2Logout will not redirect
+                \Tools::redirectLink($this->getProvider()->getRedirectUri());
             } else {
-                $this->getOauth2Session()->clear();
+                $session->clear();
             }
+        } else {
+            // We keep token fresh !
+            $session->getOrRefreshAccessToken();
+
+            // Client credentials example :
+            //$provider = $this->getProvider();
+            //$token = $provider->getAccessToken('client_credentials');
+            //$this->getLogger()->info('CLIENT_CREDENTIALS ' . json_encode($token->jsonSerialize(), JSON_PRETTY_PRINT));
+
+            // tests 1.6
+            // unified version
         }
     }
 
@@ -837,7 +853,9 @@ class Ps_accounts extends Module
      */
     protected function isOauth2LogoutEnabled()
     {
-        return $this->hasParameter('ps_accounts.oauth2_url_session_logout');
+        // return $this->hasParameter('ps_accounts.oauth2_url_session_logout');
+        // FIXME
+        return true;
     }
 
     /**

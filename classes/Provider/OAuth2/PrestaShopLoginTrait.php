@@ -89,6 +89,9 @@ trait PrestaShopLoginTrait
 
             throw new \Exception('Invalid state');
         } else {
+            // Restore the PKCE code before the `getAccessToken()` call.
+            $provider->setPkceCode($this->getSession()->get('oauth2pkceCode'));
+
             // Try to get an access token using the authorization code grant.
             /** @var AccessToken $accessToken */
             $accessToken = $provider->getAccessToken('authorization_code', [
@@ -117,6 +120,10 @@ trait PrestaShopLoginTrait
         // urlAuthorize option and generates and applies any necessary parameters
         // (e.g. state).
         $authorizationUrl = $provider->getAuthorizationUrl(['ui_locales' => $locale]);
+
+        // Store the PKCE code after the `getAuthorizationUrl()` call.
+        //$_SESSION['oauth2pkceCode'] = $provider->getPkceCode();
+        $this->getSession()->set('oauth2pkceCode', $provider->getPkceCode());
 
         // Get the state generated for you and store it to the session.
         $this->getSession()->set('oauth2state', $provider->getState());
