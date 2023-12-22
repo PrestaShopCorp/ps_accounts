@@ -46,10 +46,79 @@ class WellKnown
     public $token_endpoint;
 
     /** @var string */
+    public $jwks_uri;
+
+    /** @var array */
+    public $subject_types_supported;
+
+    /** @var array */
+    public $response_types_supported;
+
+    /** @var array */
+    public $claims_supported;
+
+    /** @var array */
+    public $grant_types_supported;
+
+    /** @var array */
+    public $response_modes_supported;
+
+    /** @var string */
     public $userinfo_endpoint;
+
+    /** @var array */
+    public $scopes_supported;
+
+    /** @var array */
+    public $token_endpoint_auth_methods_supported;
+
+    /** @var array */
+    public $userinfo_signing_alg_values_supported;
+
+    /** @var array */
+    public $id_token_signing_alg_values_supported;
+
+    /** @var array */
+    public $id_token_signed_response_alg;
+
+    /** @var array */
+    public $userinfo_signed_response_alg;
+
+    /** @var bool */
+    public $request_parameter_supported;
+
+    /** @var bool */
+    public $request_uri_parameter_supported;
+
+    /** @var bool */
+    public $require_request_uri_registration;
+
+    /** @var bool */
+    public $claims_parameter_supported;
+
+    /** @var string */
+    public $revocation_endpoint;
+
+    /** @var bool */
+    public $backchannel_logout_supported;
+
+    /** @var bool */
+    public $backchannel_logout_session_supported;
+
+    /** @var bool */
+    public $frontchannel_logout_supported;
+
+    /** @var bool */
+    public $frontchannel_logout_session_supported;
 
     /** @var string */
     public $end_session_endpoint;
+
+    /** @var array */
+    public $request_object_signing_alg_values_supported;
+
+    /** @var array */
+    public $code_challenge_methods_supported;
 
     /**
      * @param string $serverUrl
@@ -61,7 +130,6 @@ class WellKnown
     public static function fetch($serverUrl, $verifyCert=true)
     {
         $wellKnownUrl = $serverUrl . '/.well-known/openid-configuration';
-
         /** @var WellKnown $wellKnown */
         $wellKnown = json_decode(file_get_contents($wellKnownUrl, false, stream_context_create([
             "ssl"=> [
