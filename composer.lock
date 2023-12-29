@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "13585b37dfb93c287edf7be7ccb0e098",
+    "content-hash": "5af07933729712712bd5e01b594b4da0",
     "packages": [
         {
             "name": "guzzlehttp/guzzle",
@@ -590,16 +590,16 @@
         },
         {
             "name": "phpseclib/phpseclib",
-            "version": "2.0.45",
+            "version": "2.0.46",
             "source": {
                 "type": "git",
                 "url": "https://github.com/phpseclib/phpseclib.git",
-                "reference": "28d8f438a0064c9de80857e3270d071495544640"
+                "reference": "498e67a0c82bd5791fda9b0dd0f4ec8e8aebb02d"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/phpseclib/phpseclib/zipball/28d8f438a0064c9de80857e3270d071495544640",
-                "reference": "28d8f438a0064c9de80857e3270d071495544640",
+                "url": "https://api.github.com/repos/phpseclib/phpseclib/zipball/498e67a0c82bd5791fda9b0dd0f4ec8e8aebb02d",
+                "reference": "498e67a0c82bd5791fda9b0dd0f4ec8e8aebb02d",
                 "shasum": ""
             },
             "require": {
@@ -680,7 +680,7 @@
             ],
             "support": {
                 "issues": "https://github.com/phpseclib/phpseclib/issues",
-                "source": "https://github.com/phpseclib/phpseclib/tree/2.0.45"
+                "source": "https://github.com/phpseclib/phpseclib/tree/2.0.46"
             },
             "funding": [
                 {
@@ -696,7 +696,7 @@
                     "type": "tidelift"
                 }
             ],
-            "time": "2023-09-15T20:55:47+00:00"
+            "time": "2023-12-29T01:52:43+00:00"
         },
         {
             "name": "prestashop/module-lib-cache-directory-provider",
@@ -803,11 +803,17 @@
         },
         {
             "name": "prestashopcorp/oauth2-prestashop",
-            "version": "dev-main",
+            "version": "dev-refactor/php-compat-range",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/PrestaShopCorp/oauth2-prestashop.git",
+                "reference": "b568a7e8d9ff1ae85e3750b7da17bf68abd9b7dd"
+            },
             "dist": {
-                "type": "path",
-                "url": "../../../../../oauth2-prestashop",
-                "reference": "d3b065a3b8a118400a62433cacde8b3712c3f548"
+                "type": "zip",
+                "url": "https://api.github.com/repos/PrestaShopCorp/oauth2-prestashop/zipball/b568a7e8d9ff1ae85e3750b7da17bf68abd9b7dd",
+                "reference": "b568a7e8d9ff1ae85e3750b7da17bf68abd9b7dd",
+                "shasum": ""
             },
             "require": {
                 "league/oauth2-client": "^2.0",
@@ -824,19 +830,7 @@
                     "PrestaShop\\OAuth2\\Client\\": "src/"
                 }
             },
-            "autoload-dev": {
-                "psr-4": {
-                    "PrestaShop\\OAuth2\\Client\\Test\\": "tests/src/"
-                }
-            },
-            "scripts": {
-                "phpunit": [
-                    "./vendor/bin/phpunit --coverage-text"
-                ],
-                "php-cs-fixer": [
-                    "./vendor/bin/php-cs-fixer fix --config .php_cs.dist.php --diff"
-                ]
-            },
+            "notification-url": "https://packagist.org/downloads/",
             "license": [
                 "MIT"
             ],
@@ -848,8 +842,8 @@
             ],
             "description": "PrestaShop OAuth 2.0 support for the PHP League's OAuth 2.0 Client",
             "keywords": [
+                "Authentication",
                 "api",
-                "authentication",
                 "authorization",
                 "client",
                 "oauth",
@@ -857,9 +851,11 @@
                 "php",
                 "prestashop"
             ],
-            "transport-options": {
-                "relative": true
-            }
+            "support": {
+                "issues": "https://github.com/PrestaShopCorp/oauth2-prestashop/issues",
+                "source": "https://github.com/PrestaShopCorp/oauth2-prestashop/tree/refactor/php-compat-range"
+            },
+            "time": "2023-12-20T17:48:30+00:00"
         },
         {
             "name": "psr/cache",
