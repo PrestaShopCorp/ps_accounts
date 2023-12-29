@@ -29,7 +29,7 @@ trait Guzzle5AdapterTrait
         /** @var $this PrestaShop */
         $client_options = $this->getAllowedClientOptions($options);
 
-        if ($this->getGuzzleMajorVersionNumber() >= 6) {
+        if (! $this->adapterNeeded()) {
             return null;
         }
 
@@ -54,6 +54,10 @@ trait Guzzle5AdapterTrait
      */
     public function getResponse(RequestInterface $request)
     {
+        if (! $this->adapterNeeded()) {
+            return parent::getResponse($request);
+        }
+
         /** @var $this PrestaShop */
         $guzzle5Response = $this->getHttpClient()->send($this->createGuzzleRequest($request));
 
@@ -78,6 +82,14 @@ trait Guzzle5AdapterTrait
         }
 
         return null;
+    }
+
+    /**
+     * @return bool
+     */
+    public function adapterNeeded()
+    {
+        return $this->getGuzzleMajorVersionNumber() < 6;
     }
 
     /**
