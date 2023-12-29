@@ -654,12 +654,9 @@ class Ps_accounts extends Module
             $session->getOrRefreshAccessToken();
 
             // Client credentials example :
-            //$provider = $this->getProvider();
-            //$token = $provider->getAccessToken('client_credentials');
-            //$this->getLogger()->info('CLIENT_CREDENTIALS ' . json_encode($token->jsonSerialize(), JSON_PRETTY_PRINT));
-
-            // tests 1.6
-            // unified version
+            $provider = $this->getProvider();
+            $token = $provider->getAccessToken('client_credentials');
+            $this->getLogger()->info('CLIENT_CREDENTIALS ' . json_encode($token->jsonSerialize(), JSON_PRETTY_PRINT));
         }
     }
 
