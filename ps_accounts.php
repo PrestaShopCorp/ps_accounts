@@ -56,6 +56,7 @@ class Ps_accounts extends Module
         'displayDashboardTop',
         'actionAdminControllerInitBefore',
         'actionModuleInstallAfter',
+        'actionAdminLoginControllerSetMedia',
         self::HOOK_DISPLAY_ACCOUNT_UPDATE_WARNING,
         self::HOOK_ACTION_SHOP_ACCOUNT_LINK_AFTER,
         self::HOOK_ACTION_SHOP_ACCOUNT_UNLINK_AFTER,
@@ -165,8 +166,17 @@ class Ps_accounts extends Module
         $status = $installer->installInMenu()
             //&& $installer->installDatabaseTables()
             && parent::install()
-            && $this->addCustomHooks($this->customHooks)
-            && $this->registerHook($this->hookToInstall);
+            && $this->addCustomHooks($this->customHooks);
+            //&& $this->registerHook($this->hookToInstall);
+
+        try {
+            foreach ($this->hookToInstall as $hookName) {
+                $status = $status && $this->registerHook($hookName);
+            }
+        } catch (PrestaShopException $e) {
+            $this->getLogger()->error('Can\'t register hook : "' . $hookName . '"');
+        }
+
 
         // Removed controller
         $uninstaller = new PrestaShop\Module\PsAccounts\Module\Uninstall($this, Db::getInstance());
@@ -236,6 +246,8 @@ class Ps_accounts extends Module
      * @param string $name
      *
      * @return mixed
+     *
+     * @throws Exception
      */
     public function getParameter($name)
     {
@@ -299,22 +311,6 @@ class Ps_accounts extends Module
 //        }
 //        return $this->container->get($serviceName);
 //    }
-
-    /**
-     * @param array $params
-     *
-     * @return void
-     *
-     * @throws Exception
-     */
-    public function hookDisplayBackOfficeHeader($params)
-    {
-        // Multistore On/Off switch
-        /* @phpstan-ignore-next-line */
-        if ('AdminPreferences' === $this->context->controller->controller_name || !$this->getShopContext()->isShop17()) {
-            $this->switchConfigMultishopMode();
-        }
-    }
 
     /**
      * @return mixed
@@ -635,29 +631,34 @@ class Ps_accounts extends Module
      */
     public function hookActionAdminControllerInitBefore($params)
     {
-        /** @var \PrestaShop\Module\PsAccounts\Service\PsAccountsService $psAccountsService */
-        $psAccountsService = $this->getService(\PrestaShop\Module\PsAccounts\Service\PsAccountsService::class);
+        $this->manageOAuth2Login();
+    }
 
-        $session = $this->getOauth2Session();
-
-        if (isset($_GET['logout'])) {
-            if ($psAccountsService->getLoginActivated()) {
-                $this->oauth2Logout();
-                // FIXME: too much implicit logic here
-                // After logout redirect will reach this line cause oauth2Logout will not redirect
-                \Tools::redirectLink($this->getProvider()->getRedirectUri());
-            } else {
-                $session->clear();
-            }
-        } else {
-            // We keep token fresh !
-            $session->getOrRefreshAccessToken();
-
-            // Client credentials example :
-            $provider = $this->getProvider();
-            $token = $provider->getAccessToken('client_credentials');
-            $this->getLogger()->info('CLIENT_CREDENTIALS ' . json_encode($token->jsonSerialize(), JSON_PRETTY_PRINT));
+    /**
+     * @return void
+     *
+     * @throws \League\OAuth2\Client\Provider\Exception\IdentityProviderException
+     */
+    public function hookDisplayBackOfficeHeader()
+    {
+        // Multistore On/Off switch
+        /* @phpstan-ignore-next-line */
+        if ('AdminPreferences' === $this->context->controller->controller_name || !$this->getShopContext()->isShop17()) {
+            $this->switchConfigMultishopMode();
         }
+        //$this->getLogger()->error('### Manage hookDisplayBackOfficeHeader');
+        $this->manageOAuth2Login();
+    }
+
+    /**
+     * @return void
+     *
+     * @throws \League\OAuth2\Client\Provider\Exception\IdentityProviderException
+     */
+    public function hookActionAdminLoginControllerSetMedia()
+    {
+        //$this->getLogger()->error('### Manage hookActionAdminLoginControllerSetMedia');
+        $this->manageOAuth2Login();
     }
 
     /**
@@ -834,6 +835,26 @@ class Ps_accounts extends Module
     }
 
     /**
+     * @return \Symfony\Component\HttpFoundation\Session\SessionInterface
+     *
+     * @throws \PrestaShop\PrestaShop\Core\Exception\ContainerNotFoundException
+     */
+    public function getSession()
+    {
+        if (method_exists($this, 'getContainer')) {
+            /* @phpstan-ignore-next-line  */
+            return $this->getContainer()->get('session');
+        } else {
+            // FIXME return a session like with configuration storage
+            /** @phpstan-ignore-next-line  */
+            return new \PrestaShop\Module\PsAccounts\Provider\OAuth2\FallbackSession(
+                $this->getService(\PrestaShop\Module\PsAccounts\Adapter\Configuration::class)
+            );
+            // FIXME : getContainer
+        }
+    }
+
+    /**
      * @return \PrestaShop\Module\PsAccounts\Provider\OAuth2\PrestaShopClientProvider
      *
      * @throws Exception
@@ -881,5 +902,36 @@ class Ps_accounts extends Module
         /** @var \PrestaShop\Module\PsAccounts\Api\Client\SsoClient $ssoClient */
         $ssoClient = $this->getService(\PrestaShop\Module\PsAccounts\Api\Client\SsoClient::class);
         $ssoClient->getCircuitBreaker()->reset();
+    }
+
+    /**
+     * @return void
+     * @throws \League\OAuth2\Client\Provider\Exception\IdentityProviderException
+     */
+    private function manageOAuth2Login()
+    {
+        /** @var \PrestaShop\Module\PsAccounts\Service\PsAccountsService $psAccountsService */
+        $psAccountsService = $this->getService(\PrestaShop\Module\PsAccounts\Service\PsAccountsService::class);
+
+        $session = $this->getOauth2Session();
+
+        if (isset($_GET['logout'])) {
+            if ($psAccountsService->getLoginActivated()) {
+                $this->oauth2Logout();
+                // FIXME: too much implicit logic here
+                // After logout redirect will reach this line cause oauth2Logout will not redirect
+                \Tools::redirectLink($this->getProvider()->getRedirectUri());
+            } else {
+                $session->clear();
+            }
+        } else {
+            // We keep token fresh !
+            $session->getOrRefreshAccessToken();
+
+            // Client credentials example :
+            //$provider = $this->getProvider();
+            //$token = $provider->getAccessToken('client_credentials');
+            //$this->getLogger()->info('CLIENT_CREDENTIALS ' . json_encode($token->jsonSerialize(), JSON_PRETTY_PRINT));
+        }
     }
 }

@@ -18,6 +18,9 @@
  * @license   https://opensource.org/licenses/AFL-3.0 Academic Free License version 3.0
  */
 
+// FIXME : needed on 1.6
+require_once __DIR__ . '/../../classes/Provider/OAuth2/PrestaShopLoginTrait.php';
+
 use Doctrine\ORM\EntityManagerInterface;
 use League\OAuth2\Client\Provider\Exception\IdentityProviderException;
 use PrestaShop\Module\PsAccounts\Entity\EmployeeAccount;
@@ -31,7 +34,6 @@ use PrestaShop\Module\PsAccounts\Provider\OAuth2\PrestaShopLoginTrait;
 use PrestaShop\Module\PsAccounts\Provider\OAuth2\PrestaShopSession;
 use PrestaShop\Module\PsAccounts\Service\AnalyticsService;
 use PrestaShop\Module\PsAccounts\Service\PsAccountsService;
-use PrestaShop\OAuth2\Client\Provider\PrestaShop;
 use PrestaShop\OAuth2\Client\Provider\PrestaShopUser;
 use PrestaShop\PrestaShop\Core\Exception\ContainerNotFoundException;
 use PrestaShop\PrestaShop\Core\Exception\CoreException;
@@ -84,12 +86,28 @@ class AdminOAuth2PsAccountsController extends ModuleAdminController
         return true;
     }
 
+    public function checkToken()
+    {
+        return true;
+    }
+
+    /**
+     * All BO users can access the login page
+     *
+     * @return bool
+     */
+    public function viewAccess($disable = false)
+    {
+        return true;
+    }
+
     /**
      * @return void
      *
      * @throws ContainerNotFoundException
      */
-    public function display()
+    //public function display()
+    public function init()
     {
         try {
             $this->oauth2Login();
@@ -102,6 +120,7 @@ class AdminOAuth2PsAccountsController extends ModuleAdminController
         } catch (Exception $e) {
             $this->onLoginFailed(new OtherErrorException(null, $e->getMessage()));
         }
+        parent::init();
     }
 
     /**
@@ -291,8 +310,7 @@ class AdminOAuth2PsAccountsController extends ModuleAdminController
      */
     private function getSession()
     {
-        /* @phpstan-ignore-next-line  */
-        return $this->module->getContainer()->get('session');
+        return $this->module->getSession();
     }
 
     /**

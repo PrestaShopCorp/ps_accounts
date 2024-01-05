@@ -19,7 +19,7 @@ class PrestaShopSessionFactory
         $module = \Module::getInstanceByName('ps_accounts');
 
         /** @var SessionInterface $session */
-        $session = $module->getContainer()->get('session');
+        $session = $module->getSession();
 
         /** @var PrestaShopClientProvider $provider */
         $provider = $module->getService(PrestaShopClientProvider::class);

@@ -12,7 +12,7 @@ class PrestaShopSession
     const TOKEN_NAME = 'accessToken';
 
     /**
-     * @var SessionInterface
+     * @var SessionInterface|mixed
      */
     private $session;
 
@@ -21,7 +21,7 @@ class PrestaShopSession
      */
     private $provider;
 
-    public function __construct(SessionInterface $session, PrestaShopClientProvider $provider)
+    public function __construct($session, PrestaShopClientProvider $provider)
     {
         $this->session = $session;
         $this->provider = $provider;
@@ -36,7 +36,7 @@ class PrestaShopSession
     public function getOrRefreshAccessToken()
     {
         $token = $this->getTokenProvider();
-        if ($token && $token->hasExpired()) {
+        if (($token instanceof AccessToken) && $token->hasExpired()) {
             /** @var AccessToken $token */
             $token = $this->provider->getAccessToken('refresh_token', [
                 'refresh_token' => $token->getRefreshToken(),
@@ -56,7 +56,7 @@ class PrestaShopSession
     {
         $token = $this->getTokenProvider();
 
-        return $token ? $token->getValues()['id_token'] : null;
+        return ($token instanceof AccessToken) ? $token->getValues()['id_token'] : null;
     }
 
     /**
@@ -68,7 +68,7 @@ class PrestaShopSession
     {
         $token = $this->getTokenProvider();
 
-        return $token ? $token->getToken() : null;
+        return ($token instanceof AccessToken) ? $token->getToken() : null;
     }
 
     /**

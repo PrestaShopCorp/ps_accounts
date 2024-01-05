@@ -22,6 +22,7 @@ namespace PrestaShop\Module\PsAccounts\Provider\OAuth2;
 
 use League\OAuth2\Client\Provider\AbstractProvider;
 use League\OAuth2\Client\Token\AccessToken;
+use PrestaShop\Module\PsAccounts\Adapter\Link;
 use PrestaShop\OAuth2\Client\Provider\PrestaShop;
 
 class PrestaShopClientProvider extends PrestaShop
@@ -34,11 +35,6 @@ class PrestaShopClientProvider extends PrestaShop
      * @var \Ps_accounts
      */
     private $module;
-
-    /**
-     * @var \Context
-     */
-    private $context;
 
     /**
      * @var Oauth2Client
@@ -61,7 +57,6 @@ class PrestaShopClientProvider extends PrestaShop
         /** @var \Ps_accounts $module */
         $module = \Module::getInstanceByName('ps_accounts');
         $this->module = $module;
-        $this->context = $module->getContext();
         $this->oauth2Client = $module->getService(Oauth2Client::class);
         $this->wellKnown = WellKnown::fetch(
             $this->getParameter('ps_accounts.oauth2_url'),
@@ -167,10 +162,14 @@ class PrestaShopClientProvider extends PrestaShop
      * @example  http://my-shop.mydomain/admin-path/index.php?controller=AdminOAuth2PsAccounts
      *
      * @return string
+     *
+     * @throws \Exception
      */
     public function getRedirectUri()
     {
-        return $this->context->link->getAdminLink('AdminOAuth2PsAccounts', false);
+        /** @var Link $link */
+        $link = $this->module->getService(Link::class);
+        return $link->getAdminLink('AdminOAuth2PsAccounts', false);
     }
 
     /**
@@ -191,10 +190,14 @@ class PrestaShopClientProvider extends PrestaShop
      * @example http://my-shop.mydomain/admin-path/index.php?controller=AdminLogin&logout=1&oauth2Callback=1
      *
      * @return string
+     *
+     * @throws \PrestaShopException
      */
     public function getPostLogoutRedirectUri()
     {
-        return $this->context->link->getAdminLink('AdminLogin', false, [], [
+        /** @var Link $link */
+        $link = $this->module->getService(Link::class);
+        return $link->getAdminLink('AdminLogin', false, [], [
             'logout' => 1,
             self::QUERY_LOGOUT_CALLBACK_PARAM => 1,
         ]);
