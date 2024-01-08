@@ -20,16 +20,27 @@
 
 namespace PrestaShop\Module\PsAccounts\Api\Client;
 
-use GuzzleHttp\Client;
 use PrestaShop\Module\PsAccounts\Api\Client\CircuitBreaker\CircuitBreaker;
 use PrestaShop\Module\PsAccounts\Api\Client\CircuitBreaker\CircuitBreakerFactory;
+use PrestaShop\Module\PsAccounts\Api\Client\Guzzle\AbstractGuzzleClient;
+use PrestaShop\Module\PsAccounts\Api\Client\Guzzle\GuzzleClientFactory;
 use PrestaShop\Module\PsAccounts\Repository\TokenClientInterface;
 
 /**
  * Class ServicesAccountsClient
  */
-class SsoClient extends GenericClient implements TokenClientInterface
+class SsoClient implements TokenClientInterface
 {
+    /**
+     * @var string
+     */
+    private $apiUrl;
+
+    /**
+     * @var AbstractGuzzleClient
+     */
+    private $client;
+
     /**
      * @var CircuitBreaker
      */
@@ -44,39 +55,40 @@ class SsoClient extends GenericClient implements TokenClientInterface
      * ServicesAccountsClient constructor.
      *
      * @param string $apiUrl
-     * @param Client|null $client
+     * @param AbstractGuzzleClient|null $client
      * @param int $defaultTimeout
-     *
-     * @throws \Exception
      */
     public function __construct(
-        $apiUrl,
-        Client $client = null,
-        $defaultTimeout = 20
+        string $apiUrl,
+        AbstractGuzzleClient $client = null,
+        int $defaultTimeout = 20
     ) {
-        parent::__construct();
-
+        $this->apiUrl = $apiUrl;
+        $this->client = $client;
         $this->circuitBreaker = CircuitBreakerFactory::create('SSO_CLIENT');
         $this->defaultTimeout = $defaultTimeout;
+    }
 
-        // Client can be provided for tests
-        if (null === $client) {
-            $client = new Client([
-                'base_url' => $apiUrl,
+    /**
+     * @return AbstractGuzzleClient
+     */
+    private function getClient()
+    {
+        if (null === $this->client) {
+            $this->client = (new GuzzleClientFactory())->create([
+                'base_url' => $this->apiUrl,
                 'defaults' => [
-                    'exceptions' => $this->catchExceptions,
                     'headers' => [
                         'Accept' => 'application/json',
                         'X-Module-Version' => \Ps_accounts::VERSION,
                         'X-Prestashop-Version' => _PS_VERSION_,
                     ],
-                    //'timeout' => $this->timeout,
                     'timeout' => $this->defaultTimeout,
                 ],
             ]);
         }
 
-        $this->setClient($client);
+        return $this->client;
     }
 
     /**
@@ -86,9 +98,9 @@ class SsoClient extends GenericClient implements TokenClientInterface
      */
     public function verifyToken($idToken)
     {
-        $this->setRoute('auth/token/verify');
+        $this->getClient()->setRoute('auth/token/verify');
 
-        return $this->post([
+        return $this->getClient()->post([
             'json' => [
                 'token' => $idToken,
             ],
@@ -103,9 +115,9 @@ class SsoClient extends GenericClient implements TokenClientInterface
     public function refreshToken($refreshToken)
     {
         return $this->circuitBreaker->call(function () use ($refreshToken) {
-            $this->setRoute('auth/token/refresh');
+            $this->getClient()->setRoute('auth/token/refresh');
 
-            return $this->post([
+            return $this->getClient()->post([
                 'json' => [
                     'token' => $refreshToken,
                 ],
@@ -116,7 +128,7 @@ class SsoClient extends GenericClient implements TokenClientInterface
     /**
      * @return CircuitBreaker
      */
-    public function getCircuitBreaker()
+    public function getCircuitBreaker(): CircuitBreaker
     {
         return $this->circuitBreaker;
     }
