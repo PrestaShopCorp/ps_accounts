@@ -167,7 +167,7 @@ class Ps_accounts extends Module
             //&& $installer->installDatabaseTables()
             && parent::install()
             && $this->addCustomHooks($this->customHooks);
-            //&& $this->registerHook($this->hookToInstall);
+        //&& $this->registerHook($this->hookToInstall);
 
         try {
             foreach ($this->hookToInstall as $hookName) {
@@ -176,7 +176,6 @@ class Ps_accounts extends Module
         } catch (PrestaShopException $e) {
             $this->getLogger()->error('Can\'t register hook : "' . $hookName . '"');
         }
-
 
         // Removed controller
         $uninstaller = new PrestaShop\Module\PsAccounts\Module\Uninstall($this, Db::getInstance());
@@ -297,7 +296,7 @@ class Ps_accounts extends Module
     public function getPsContainer()
     {
         if (method_exists(Module::class, 'getContainer')) {
-            /** @phpstan-ignore-next-line  */
+            /* @phpstan-ignore-next-line  */
             return parent::getContainer();
         }
 
@@ -846,7 +845,7 @@ class Ps_accounts extends Module
             return $container->get('session');
         } else {
             // FIXME return a session like with configuration storage
-            /** @phpstan-ignore-next-line  */
+            /* @phpstan-ignore-next-line  */
             return new \PrestaShop\Module\PsAccounts\Provider\OAuth2\FallbackSession(
                 $this->getService(\PrestaShop\Module\PsAccounts\Adapter\Configuration::class)
             );
@@ -905,6 +904,7 @@ class Ps_accounts extends Module
 
     /**
      * @return void
+     *
      * @throws \League\OAuth2\Client\Provider\Exception\IdentityProviderException
      */
     private function manageOAuth2Login()

@@ -71,7 +71,7 @@ class FallbackSession
 
     public function has($name)
     {
-        return (bool)$this->configStorage->get($this->generateName($name));
+        return (bool) $this->configStorage->get($this->generateName($name));
     }
 
     public function get($name, $default = null)
@@ -132,6 +132,7 @@ class FallbackSession
 
     /**
      * @param $name
+     *
      * @return string
      */
     private function generateName($name)
@@ -148,6 +149,7 @@ class FallbackSession
             // Session Cookie
             setcookie(self::SESSION_NAME, uniqid());
         }
+
         return $_COOKIE[self::SESSION_NAME];
     }
 }

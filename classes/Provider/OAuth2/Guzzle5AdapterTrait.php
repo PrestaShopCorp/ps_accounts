@@ -29,7 +29,7 @@ trait Guzzle5AdapterTrait
         /** @var $this PrestaShop */
         $client_options = $this->getAllowedClientOptions($options);
 
-        if (! $this->adapterNeeded()) {
+        if (!$this->adapterNeeded()) {
             return null;
         }
 
@@ -54,7 +54,7 @@ trait Guzzle5AdapterTrait
      */
     public function getResponse(RequestInterface $request)
     {
-        if (! $this->adapterNeeded()) {
+        if (!$this->adapterNeeded()) {
             return parent::getResponse($request);
         }
 

@@ -169,6 +169,7 @@ class PrestaShopClientProvider extends PrestaShop
     {
         /** @var Link $link */
         $link = $this->module->getService(Link::class);
+
         return $link->getAdminLink('AdminOAuth2PsAccounts', false);
     }
 
@@ -197,6 +198,7 @@ class PrestaShopClientProvider extends PrestaShop
     {
         /** @var Link $link */
         $link = $this->module->getService(Link::class);
+
         return $link->getAdminLink('AdminLogin', false, [], [
             'logout' => 1,
             self::QUERY_LOGOUT_CALLBACK_PARAM => 1,

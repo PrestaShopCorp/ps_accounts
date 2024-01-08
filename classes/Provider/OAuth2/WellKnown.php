@@ -140,6 +140,7 @@ class WellKnown
     public static function fetch($serverUrl, $verifyCert = true)
     {
         $wellKnownUrl = $serverUrl . '/.well-known/openid-configuration';
+
         return new WellKnown(json_decode(file_get_contents($wellKnownUrl, false, stream_context_create([
             'ssl' => [
                 'verify_peer' => $verifyCert,
