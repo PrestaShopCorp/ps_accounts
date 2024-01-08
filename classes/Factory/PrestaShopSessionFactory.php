@@ -18,7 +18,6 @@
  * @license   https://opensource.org/licenses/AFL-3.0 Academic Free License version 3.0
  */
 
-
 namespace PrestaShop\Module\PsAccounts\Factory;
 
 use PrestaShop\Module\PsAccounts\Provider\OAuth2\PrestaShopClientProvider;
