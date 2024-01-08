@@ -22,7 +22,6 @@ namespace PrestaShop\Module\PsAccounts\Provider\OAuth2;
 
 use PrestaShop\Module\PsAccounts\Adapter\Configuration;
 use PrestaShop\Module\PsAccounts\Log\Logger;
-use Symfony\Component\HttpFoundation\Session\SessionInterface;
 
 class FallbackSession
 {

@@ -124,6 +124,7 @@ trait Guzzle5AdapterTrait
      * @param RequestInterface $request
      *
      * @phpstan-ignore-next-line
+     *
      * @return GuzzleRequest
      */
     private function createGuzzleRequest(RequestInterface $request)
@@ -150,9 +151,11 @@ trait Guzzle5AdapterTrait
      * Converts a Guzzle response into a PSR response.
      *
      * @phpstan-ignore-next-line
+     *
      * @param GuzzleResponse $response
      *
      * @phpstan-ignore-next-line
+     *
      * @return ResponseInterface
      */
     private function createPsrResponse(GuzzleResponse $response)
