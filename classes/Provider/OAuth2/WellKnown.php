@@ -119,6 +119,18 @@ class WellKnown
     public $code_challenge_methods_supported;
 
     /**
+     * @param array|object $infos
+     */
+    public function __construct($infos)
+    {
+        foreach ($infos as $key => $value) {
+            if (property_exists($this, $key)) {
+                $this->$key = $value;
+            }
+        }
+    }
+
+    /**
      * @param string $serverUrl
      *
      * @return WellKnown
@@ -128,14 +140,11 @@ class WellKnown
     public static function fetch($serverUrl, $verifyCert = true)
     {
         $wellKnownUrl = $serverUrl . '/.well-known/openid-configuration';
-        /** @var WellKnown $wellKnown */
-        $wellKnown = json_decode(file_get_contents($wellKnownUrl, false, stream_context_create([
+        return new WellKnown(json_decode(file_get_contents($wellKnownUrl, false, stream_context_create([
             'ssl' => [
                 'verify_peer' => $verifyCert,
                 'verify_peer_name' => $verifyCert,
             ],
-        ])));
-
-        return $wellKnown;
+        ])), JSON_OBJECT_AS_ARRAY));
     }
 }
