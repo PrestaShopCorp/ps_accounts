@@ -7,10 +7,6 @@ use GuzzleHttp\Exception\ConnectException;
 
 abstract class CircuitBreaker
 {
-    const CIRCUIT_BREAKER_STATE_OPEN = 0;
-    const CIRCUIT_BREAKER_STATE_CLOSED = 1;
-    const CIRCUIT_BREAKER_STATE_HALF_OPEN = 2;
-
     /** @var int */
     protected $resetTimeoutMs = 30000;
 
@@ -39,7 +35,7 @@ abstract class CircuitBreaker
      */
     public function call($callback, $fallbackResponse = null)
     {
-        if ($this->state() !== self::CIRCUIT_BREAKER_STATE_OPEN) {
+        if ($this->state() !== State::OPEN) {
             try {
                 $result = $callback();
                 $this->reset();
@@ -115,11 +111,11 @@ abstract class CircuitBreaker
     {
         if ($this->getFailureCount() >= $this->threshold &&
             $this->getCurrentTimestamp() - $this->getLastFailureTime() >= $this->resetTimeoutMs) {
-            return self::CIRCUIT_BREAKER_STATE_HALF_OPEN;
+            return State::HALF_OPEN;
         } elseif ($this->getFailureCount() >= $this->threshold) {
-            return self::CIRCUIT_BREAKER_STATE_OPEN;
+            return State::OPEN;
         } else {
-            return self::CIRCUIT_BREAKER_STATE_CLOSED;
+            return State::CLOSED;
         }
     }
 

@@ -56,7 +56,7 @@ class CircuitBreakerTest extends TestCase
      */
     public function itShouldStartClosed()
     {
-        $this->assertEquals(CircuitBreaker::CIRCUIT_BREAKER_STATE_CLOSED, $this->circuitBreaker->state());
+        $this->assertEquals(State::CLOSED, $this->circuitBreaker->state());
     }
 
     /**
@@ -75,7 +75,7 @@ class CircuitBreakerTest extends TestCase
             });
         }
 
-        $this->assertEquals(CircuitBreaker::CIRCUIT_BREAKER_STATE_OPEN, $circuitBreaker->state());
+        $this->assertEquals(State::OPEN, $circuitBreaker->state());
         $this->assertFalse(isset($response['status']) ? $response['status'] : null);
         $this->assertEquals(500, isset($response['httpCode']) ? $response['httpCode'] : null);
         $this->assertEquals('Circuit Breaker Open', isset($response['body']['message']) ? $response['body']['message'] : null);
@@ -99,7 +99,7 @@ class CircuitBreakerTest extends TestCase
 
         sleep(1);
 
-        $this->assertEquals(CircuitBreaker::CIRCUIT_BREAKER_STATE_HALF_OPEN, $circuitBreaker->state());
+        $this->assertEquals(State::HALF_OPEN, $circuitBreaker->state());
     }
 
     /**
@@ -125,7 +125,7 @@ class CircuitBreakerTest extends TestCase
             throw new ConnectException('Test Timeout Reached', new Request('POST', '/test-route'));
         });
 
-        $this->assertEquals(CircuitBreaker::CIRCUIT_BREAKER_STATE_OPEN, $circuitBreaker->state());
+        $this->assertEquals(State::OPEN, $circuitBreaker->state());
         $this->assertFalse(isset($response['status']) ? $response['status'] : null);
         $this->assertEquals(500, isset($response['httpCode']) ? $response['httpCode'] : null);
         $this->assertEquals('Circuit Breaker Open', isset($response['body']['message']) ? $response['body']['message'] : null);
@@ -153,7 +153,7 @@ class CircuitBreakerTest extends TestCase
             return 'OK';
         });
 
-        $this->assertEquals(CircuitBreaker::CIRCUIT_BREAKER_STATE_CLOSED, $circuitBreaker->state());
+        $this->assertEquals(State::CLOSED, $circuitBreaker->state());
     }
 
     /**
