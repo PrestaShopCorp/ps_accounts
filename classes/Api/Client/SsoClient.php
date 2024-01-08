@@ -59,9 +59,9 @@ class SsoClient implements TokenClientInterface
      * @param int $defaultTimeout
      */
     public function __construct(
-        string $apiUrl,
+        $apiUrl,
         AbstractGuzzleClient $client = null,
-        int $defaultTimeout = 20
+        $defaultTimeout = 20
     ) {
         $this->apiUrl = $apiUrl;
         $this->client = $client;
@@ -128,7 +128,7 @@ class SsoClient implements TokenClientInterface
     /**
      * @return CircuitBreaker
      */
-    public function getCircuitBreaker(): CircuitBreaker
+    public function getCircuitBreaker()
     {
         return $this->circuitBreaker;
     }

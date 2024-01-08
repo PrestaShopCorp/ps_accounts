@@ -70,10 +70,10 @@ class AccountsClient implements TokenClientInterface
      * @param int $defaultTimeout
      */
     public function __construct(
-        string $apiUrl,
+        $apiUrl,
         ShopProvider $shopProvider,
         AbstractGuzzleClient $client = null,
-        int $defaultTimeout = 20
+        $defaultTimeout = 20
     ) {
         $this->apiUrl = $apiUrl;
         $this->shopProvider = $shopProvider;
@@ -226,7 +226,7 @@ class AccountsClient implements TokenClientInterface
     /**
      * @return CircuitBreaker
      */
-    public function getCircuitBreaker(): CircuitBreaker
+    public function getCircuitBreaker()
     {
         return $this->circuitBreaker;
     }
