@@ -291,26 +291,22 @@ class Ps_accounts extends Module
         return $ret;
     }
 
-//    /**
-//     * Override of native function to always retrieve Symfony container instead of legacy admin container on legacy context.
-//     *
-//     * @param string $serviceName
-//     *
-//     * @return mixed
-//     */
-//    public function getService($serviceName)
-//    {
-//        if ((new \PrestaShop\Module\PsAccounts\Context\ShopContext())->isShop173()) {
-//            // 1.7.3
-//            // 1.7.6
-//            //$this->context->controller->getContainer()
-//
-//            if (null === $this->container) {
-//                $this->container = \PrestaShop\PrestaShop\Adapter\SymfonyContainer::getInstance();
-//            }
-//        }
-//        return $this->container->get($serviceName);
-//    }
+    /**
+     * @return \PrestaShop\PrestaShop\Adapter\SymfonyContainer|\Symfony\Component\DependencyInjection\ContainerInterface|null
+     */
+    public function getPsContainer()
+    {
+        if (method_exists(Module::class, 'getContainer')) {
+            /** @phpstan-ignore-next-line  */
+            return parent::getContainer();
+        }
+
+        if (class_exists(\PrestaShop\PrestaShop\Adapter\SymfonyContainer::class)) {
+            return \PrestaShop\PrestaShop\Adapter\SymfonyContainer::getInstance();
+        }
+
+        return null;
+    }
 
     /**
      * @return mixed
@@ -762,6 +758,8 @@ class Ps_accounts extends Module
 
     /**
      * @return string
+     *
+     * @throws Exception
      */
     public function getSsoAccountUrl()
     {
@@ -773,6 +771,8 @@ class Ps_accounts extends Module
 
     /**
      * @return \PrestaShop\Module\PsAccounts\Context\ShopContext
+     *
+     * @throws Exception
      */
     private function getShopContext()
     {
@@ -841,16 +841,15 @@ class Ps_accounts extends Module
      */
     public function getSession()
     {
-        if (method_exists($this, 'getContainer')) {
-            /* @phpstan-ignore-next-line  */
-            return $this->getContainer()->get('session');
+        $container = $this->getPsContainer();
+        if ($container) {
+            return $container->get('session');
         } else {
             // FIXME return a session like with configuration storage
             /** @phpstan-ignore-next-line  */
             return new \PrestaShop\Module\PsAccounts\Provider\OAuth2\FallbackSession(
                 $this->getService(\PrestaShop\Module\PsAccounts\Adapter\Configuration::class)
             );
-            // FIXME : getContainer
         }
     }
 
@@ -925,8 +924,12 @@ class Ps_accounts extends Module
                 $session->clear();
             }
         } else {
-            // We keep token fresh !
-            $session->getOrRefreshAccessToken();
+            try {
+                // We keep token fresh !
+                $session->getOrRefreshAccessToken();
+            } catch (\League\OAuth2\Client\Provider\Exception\IdentityProviderException $e) {
+                $this->getLogger()->err($e->getMessage());
+            }
 
             // Client credentials example :
             //$provider = $this->getProvider();
