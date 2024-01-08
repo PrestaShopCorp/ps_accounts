@@ -320,13 +320,15 @@ class ConfigurationRepository
      * specify id_shop & id_shop_group for shop
      *
      * @return void
+     *
+     * @throws \PrestaShopDatabaseException
      */
     public function migrateToMultiShop()
     {
         $shop = $this->getMainShop();
         \Db::getInstance()->query(
             'UPDATE ' . _DB_PREFIX_ . 'configuration SET id_shop = ' . (int) $shop->id . ', id_shop_group = ' . (int) $shop->id_shop_group .
-            " WHERE name IN('" . join("','", array_values(ConfigurationKeys::getKeys())) . "')" .
+            " WHERE name IN('" . join("','", array_values(ConfigurationKeys::cases())) . "')" .
             ' AND id_shop IS NULL AND id_shop_group IS NULL;'
         );
     }
@@ -335,13 +337,15 @@ class ConfigurationRepository
      * nullify id_shop & id_shop_group for shop
      *
      * @return void
+     *
+     * @throws \PrestaShopDatabaseException
      */
     public function migrateToSingleShop()
     {
         $shop = $this->getMainShop();
         \Db::getInstance()->query(
             'UPDATE ' . _DB_PREFIX_ . 'configuration SET id_shop = NULL, id_shop_group = NULL' .
-            " WHERE name IN('" . join("','", array_values(ConfigurationKeys::getKeys())) . "')" .
+            " WHERE name IN('" . join("','", array_values(ConfigurationKeys::cases())) . "')" .
             ' AND id_shop = ' . (int) $shop->id . ';'
         );
     }

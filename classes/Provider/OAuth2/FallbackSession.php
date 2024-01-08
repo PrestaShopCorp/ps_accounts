@@ -22,6 +22,7 @@ namespace PrestaShop\Module\PsAccounts\Provider\OAuth2;
 
 use PrestaShop\Module\PsAccounts\Adapter\Configuration;
 use PrestaShop\Module\PsAccounts\Log\Logger;
+use Symfony\Component\HttpFoundation\Session\SessionInterface;
 
 class FallbackSession
 {
@@ -47,51 +48,95 @@ class FallbackSession
         $this->sessionId = $this->startSession();
     }
 
+    /**
+     * @return bool
+     */
     public function start()
     {
-        // TODO: Implement start() method.
+        return true;
     }
 
+    /**
+     * @return string
+     */
     public function getId()
     {
-        // TODO: Implement getId() method.
+        return '';
     }
 
+    /**
+     * @param string $id
+     *
+     * @return void
+     */
     public function setId($id)
     {
         // TODO: Implement setId() method.
     }
 
+    /**
+     * @return string
+     */
     public function getName()
     {
-        // TODO: Implement getName() method.
+        return self::SESSION_NAME;
     }
 
+    /**
+     * @param string $name
+     *
+     * @return void
+     */
     public function setName($name)
     {
         // TODO: Implement setName() method.
     }
 
+    /**
+     * @param int $lifetime
+     *
+     * @return bool
+     */
     public function invalidate($lifetime = null)
     {
-        // TODO: Implement invalidate() method.
+        return true;
     }
 
+    /**
+     * @param bool $destroy
+     * @param int $lifetime
+     *
+     * @return bool
+     */
     public function migrate($destroy = false, $lifetime = null)
     {
-        // TODO: Implement migrate() method.
+        return true;
     }
 
+    /**
+     * @return void
+     */
     public function save()
     {
         // TODO: Implement save() method.
     }
 
+    /**
+     * @param string $name
+     *
+     * @return bool
+     */
     public function has($name)
     {
         return (bool) $this->configStorage->get($this->generateName($name));
     }
 
+    /**
+     * @param string $name
+     * @param mixed $default
+     *
+     * @return mixed
+     */
     public function get($name, $default = null)
     {
         $value = unserialize($this->configStorage->get($this->generateName($name), $default));
@@ -99,26 +144,51 @@ class FallbackSession
         return $value;
     }
 
+    /**
+     * @param string $name
+     * @param mixed $value
+     *
+     * @return void
+     */
     public function set($name, $value)
     {
         $this->configStorage->set($this->generateName($name), serialize($value));
     }
 
+    /**
+     * @return array
+     */
     public function all()
     {
         // TODO: Implement all() method.
+        return [];
     }
 
+    /**
+     * @param array $attributes
+     *
+     * @return void
+     */
     public function replace(array $attributes)
     {
         // TODO: Implement replace() method.
     }
 
+    /**
+     * @param string $name
+     *
+     * @return mixed
+     */
     public function remove($name)
     {
         $this->configStorage->set($this->generateName($name), '');
+        // FIXME: return removed value
+        return null;
     }
 
+    /**
+     * @return void
+     */
     public function clear()
     {
         \Db::getInstance()->execute(
@@ -128,28 +198,31 @@ class FallbackSession
         );
     }
 
+    /**
+     * @return bool
+     */
     public function isStarted()
     {
-        // TODO: Implement isStarted() method.
+        return true;
     }
 
 //    public function registerBag(SessionBagInterface $bag)
 //    {
 //        // TODO: Implement registerBag() method.
 //    }
-
-    public function getBag($name)
-    {
-        // TODO: Implement getBag() method.
-    }
-
-    public function getMetadataBag()
-    {
-        // TODO: Implement getMetadataBag() method.
-    }
+//
+//    public function getBag($name)
+//    {
+//        // TODO: Implement getBag() method.
+//    }
+//
+//    public function getMetadataBag()
+//    {
+//        // TODO: Implement getMetadataBag() method.
+//    }
 
     /**
-     * @param $name
+     * @param string $name
      *
      * @return string
      */

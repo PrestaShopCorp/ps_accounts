@@ -42,6 +42,11 @@ use Psr\Http\Message\ResponseInterface;
  */
 trait Guzzle5AdapterTrait
 {
+    /**
+     * @param array $options
+     *
+     * @return Client|null
+     */
     public function buildHttpClient($options)
     {
         /** @var $this PrestaShop */
@@ -53,6 +58,7 @@ trait Guzzle5AdapterTrait
 
         return new Client(
             $this->fixConfig(
+                /* @phpstan-ignore-next-line */
                 array_intersect_key($options, array_flip($client_options))
             )
         );
@@ -77,8 +83,10 @@ trait Guzzle5AdapterTrait
         }
 
         /** @var $this PrestaShop */
+        /* @phpstan-ignore-next-line */
         $guzzle5Response = $this->getHttpClient()->send($this->createGuzzleRequest($request));
 
+        /* @phpstan-ignore-next-line */
         return $this->createPsrResponse($guzzle5Response);
     }
 
@@ -115,6 +123,7 @@ trait Guzzle5AdapterTrait
      *
      * @param RequestInterface $request
      *
+     * @phpstan-ignore-next-line
      * @return GuzzleRequest
      */
     private function createGuzzleRequest(RequestInterface $request)
@@ -129,6 +138,7 @@ trait Guzzle5AdapterTrait
         $body = (string) $request->getBody();
         $options['body'] = '' === $body ? null : $body;
 
+        /* @phpstan-ignore-next-line */
         return $this->getHttpClient()->createRequest(
             $request->getMethod(),
             (string) $request->getUri(),
@@ -139,18 +149,25 @@ trait Guzzle5AdapterTrait
     /**
      * Converts a Guzzle response into a PSR response.
      *
+     * @phpstan-ignore-next-line
      * @param GuzzleResponse $response
      *
+     * @phpstan-ignore-next-line
      * @return ResponseInterface
      */
     private function createPsrResponse(GuzzleResponse $response)
     {
+        /* @phpstan-ignore-next-line */
         $body = $response->getBody();
 
         return new Response(
+            /* @phpstan-ignore-next-line */
             $response->getStatusCode(),
+            /* @phpstan-ignore-next-line */
             $response->getHeaders(),
+            /* @phpstan-ignore-next-line */
             isset($body) ? $body->detach() : null,
+            /* @phpstan-ignore-next-line */
             $response->getProtocolVersion()
         );
     }

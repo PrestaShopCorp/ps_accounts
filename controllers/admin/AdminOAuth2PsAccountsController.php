@@ -86,6 +86,9 @@ class AdminOAuth2PsAccountsController extends ModuleAdminController
         return true;
     }
 
+    /**
+     * @return bool
+     */
     public function checkToken()
     {
         return true;
@@ -93,6 +96,8 @@ class AdminOAuth2PsAccountsController extends ModuleAdminController
 
     /**
      * All BO users can access the login page
+     *
+     * @param bool $disable
      *
      * @return bool
      */
@@ -135,7 +140,7 @@ class AdminOAuth2PsAccountsController extends ModuleAdminController
      */
     private function initUserSession(PrestaShopUser $user)
     {
-        $this->oauth2ErrorLog(json_encode($user->toArray(), JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE));
+        $this->oauth2ErrorLog((string) json_encode($user->toArray(), JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE));
 
         $context = $this->context;
 

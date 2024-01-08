@@ -836,12 +836,13 @@ class Ps_accounts extends Module
     /**
      * @return \Symfony\Component\HttpFoundation\Session\SessionInterface
      *
-     * @throws \PrestaShop\PrestaShop\Core\Exception\ContainerNotFoundException
+     * @throws \PrestaShop\PrestaShop\Core\Exception\ContainerNotFoundException|Exception
      */
     public function getSession()
     {
         $container = $this->getPsContainer();
         if ($container) {
+            /* @phpstan-ignore-next-line */
             return $container->get('session');
         } else {
             // FIXME return a session like with configuration storage

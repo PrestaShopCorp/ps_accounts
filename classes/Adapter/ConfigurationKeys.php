@@ -20,9 +20,9 @@
 
 namespace PrestaShop\Module\PsAccounts\Adapter;
 
-use ReflectionClass;
+use PrestaShop\Module\PsAccounts\Enum;
 
-class ConfigurationKeys
+class ConfigurationKeys extends Enum
 {
     const PSX_UUID_V4 = 'PSX_UUID_V4';
 
@@ -61,12 +61,4 @@ class ConfigurationKeys
     // OAuth2 client setup
     const PS_ACCOUNTS_OAUTH2_CLIENT_ID = 'PS_ACCOUNTS_OAUTH2_CLIENT_ID';
     const PS_ACCOUNTS_OAUTH2_CLIENT_SECRET = 'PS_ACCOUNTS_OAUTH2_CLIENT_SECRET';
-
-    /**
-     * @return array
-     */
-    public static function getKeys()
-    {
-        return (new ReflectionClass(self::class))->getConstants();
-    }
 }

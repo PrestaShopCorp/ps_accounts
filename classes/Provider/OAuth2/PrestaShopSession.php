@@ -39,6 +39,10 @@ class PrestaShopSession
      */
     private $provider;
 
+    /**
+     * @param mixed $session
+     * @param PrestaShopClientProvider $provider
+     */
     public function __construct($session, PrestaShopClientProvider $provider)
     {
         $this->session = $session;

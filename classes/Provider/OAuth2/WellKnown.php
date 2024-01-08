@@ -137,7 +137,7 @@ class WellKnown
     public $code_challenge_methods_supported;
 
     /**
-     * @param array|object $infos
+     * @param array $infos
      */
     public function __construct($infos)
     {
@@ -150,10 +150,9 @@ class WellKnown
 
     /**
      * @param string $serverUrl
+     * @param bool $verifyCert
      *
      * @return WellKnown
-     *
-     * @throws \Exception
      */
     public static function fetch($serverUrl, $verifyCert = true)
     {
@@ -164,6 +163,6 @@ class WellKnown
                 'verify_peer' => $verifyCert,
                 'verify_peer_name' => $verifyCert,
             ],
-        ])), JSON_OBJECT_AS_ARRAY));
+        ])), true));
     }
 }
