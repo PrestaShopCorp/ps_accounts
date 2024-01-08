@@ -172,7 +172,6 @@ class RefreshTokenTest extends TestCase
             ->setConstructorArgs([
                 $this->module->getParameter('ps_accounts.accounts_api_url'),
                 $shopProvider,
-                $this->module->getService(Link::class),
             ])
             ->setMethods($methods)
             ->getMock();
