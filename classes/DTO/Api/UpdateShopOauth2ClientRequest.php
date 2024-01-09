@@ -18,31 +18,24 @@
  * @license   https://opensource.org/licenses/AFL-3.0 Academic Free License version 3.0
  */
 
-namespace PrestaShop\Module\PsAccounts\Controller;
+namespace PrestaShop\Module\PsAccounts\DTO\Api;
 
-use PrestaShop\Module\PsAccounts\Exception\Http\NotFoundException;
-use Shop;
+use PrestaShop\Module\PsAccounts\DTO\AbstractRequest;
 
-class AbstractShopRestController extends AbstractRestController
+class UpdateShopOauth2ClientRequest extends AbstractRequest
 {
-    /**
-     * @var string
-     */
-    public $resourceId = 'shop_id';
+    /** @var string */
+    public $shop_id;
+    /** @var string */
+    public $client_id;
+    /** @var string */
+    public $client_secret;
 
     /**
-     * @param mixed $id
-     *
-     * @return Shop
+     * @var string[]
      */
-    protected function buildResource($id)
-    {
-        $shop = new Shop($id);
-
-        if (!$shop->id) {
-            throw new NotFoundException('Shop not found [' . $id . ']');
-        }
-
-        return $shop;
-    }
+    protected $mandatory = [
+        'client_id',
+        'client_secret',
+    ];
 }

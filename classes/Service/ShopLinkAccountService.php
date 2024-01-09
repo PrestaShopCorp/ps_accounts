@@ -21,9 +21,11 @@
 namespace PrestaShop\Module\PsAccounts\Service;
 
 use Module;
-use PrestaShop\Module\PsAccounts\Adapter\Link;
 use PrestaShop\Module\PsAccounts\Api\Client\AccountsClient;
+use PrestaShop\Module\PsAccounts\DTO\Api\UpdateShopLinkAccountRequest;
+use PrestaShop\Module\PsAccounts\Exception\RefreshTokenException;
 use PrestaShop\Module\PsAccounts\Exception\SshKeysNotFoundException;
+use PrestaShop\Module\PsAccounts\Provider\OAuth2\Oauth2Client;
 use PrestaShop\Module\PsAccounts\Provider\RsaKeysProvider;
 use PrestaShop\Module\PsAccounts\Repository\ConfigurationRepository;
 use PrestaShop\Module\PsAccounts\Repository\ShopTokenRepository;
@@ -48,14 +50,14 @@ class ShopLinkAccountService
     private $userTokenRepository;
 
     /**
+     * @var Oauth2Client
+     */
+    private $oauth2Client;
+
+    /**
      * @var ConfigurationRepository
      */
     private $configuration;
-
-    /**
-     * @var Link
-     */
-    private $link;
 
     /**
      * ShopLinkAccountService constructor.
@@ -64,20 +66,19 @@ class ShopLinkAccountService
      * @param ShopTokenRepository $shopTokenRepository
      * @param UserTokenRepository $userTokenRepository
      * @param ConfigurationRepository $configurationRepository
-     * @param Link $link
      */
     public function __construct(
         RsaKeysProvider $rsaKeysProvider,
         ShopTokenRepository $shopTokenRepository,
         UserTokenRepository $userTokenRepository,
-        ConfigurationRepository $configurationRepository,
-        Link $link
+        Oauth2Client $oauth2Client,
+        ConfigurationRepository $configurationRepository
     ) {
         $this->rsaKeysProvider = $rsaKeysProvider;
         $this->shopTokenRepository = $shopTokenRepository;
         $this->userTokenRepository = $userTokenRepository;
+        $this->oauth2Client = $oauth2Client;
         $this->configuration = $configurationRepository;
-        $this->link = $link;
     }
 
     /**
@@ -108,6 +109,8 @@ class ShopLinkAccountService
      * Empty onboarding configuration values
      *
      * @return void
+     *
+     * @throws \Exception
      */
     public function resetLinkAccount()
     {
@@ -115,10 +118,34 @@ class ShopLinkAccountService
         $this->shopTokenRepository->cleanupCredentials();
         $this->userTokenRepository->cleanupCredentials();
         $this->configuration->updateEmployeeId('');
+        //$this->configuration->updateLoginEnabled(false);
+        //$this->oauth2Client->delete();
         try {
             $this->rsaKeysProvider->generateKeys();
         } catch (\Exception $e) {
         }
+        $this->configuration->updateShopUnlinkedAuto(false);
+    }
+
+    /**
+     * @param UpdateShopLinkAccountRequest $payload
+     * @param bool $verifyTokens
+     *
+     * @return void
+     *
+     * @throws RefreshTokenException
+     */
+    public function updateLinkAccount(UpdateShopLinkAccountRequest $payload, $verifyTokens = false)
+    {
+        if ($verifyTokens) {
+            $payload->shop_token = $this->shopTokenRepository->verifyToken($payload->shop_token, $payload->shop_refresh_token);
+            $payload->user_token = $this->userTokenRepository->verifyToken($payload->user_token, $payload->user_refresh_token);
+        }
+
+        $this->shopTokenRepository->updateCredentials($payload->shop_token, $payload->shop_refresh_token);
+        $this->userTokenRepository->updateCredentials($payload->user_token, $payload->user_refresh_token);
+        $this->configuration->updateEmployeeId($payload->employee_id);
+        $this->configuration->updateLoginEnabled(true);
         $this->configuration->updateShopUnlinkedAuto(false);
     }
 

@@ -18,31 +18,21 @@
  * @license   https://opensource.org/licenses/AFL-3.0 Academic Free License version 3.0
  */
 
-namespace PrestaShop\Module\PsAccounts\Controller;
+namespace PrestaShop\Module\PsAccounts\Exception\Http;
 
-use PrestaShop\Module\PsAccounts\Exception\Http\NotFoundException;
-use Shop;
-
-class AbstractShopRestController extends AbstractRestController
+class MethodNotAllowedException extends HttpException
 {
     /**
-     * @var string
-     */
-    public $resourceId = 'shop_id';
-
-    /**
-     * @param mixed $id
+     * NotFoundException constructor.
      *
-     * @return Shop
+     * @param string $message
+     * @param int $code
+     * @param \Exception|null $previous
      */
-    protected function buildResource($id)
+    public function __construct($message = 'Method Not Allowed', $code = 0, \Exception $previous = null)
     {
-        $shop = new Shop($id);
+        parent::__construct($message, $code, $previous);
 
-        if (!$shop->id) {
-            throw new NotFoundException('Shop not found [' . $id . ']');
-        }
-
-        return $shop;
+        $this->statusCode = 405;
     }
 }

@@ -18,27 +18,22 @@
  * @license   https://opensource.org/licenses/AFL-3.0 Academic Free License version 3.0
  */
 
-namespace PrestaShop\Module\PsAccounts\Controller;
+namespace PrestaShop\Module\PsAccounts\DTO\Api;
 
-class AbstractRestChildController extends AbstractRestController
+use PrestaShop\Module\PsAccounts\DTO\AbstractRequest;
+
+class UpdateShopLinkAccountRequest extends AbstractRequest
 {
-    /**
-     * @var string
-     */
-    public $parentId = 'parent_id';
-
-    /**
-     * @return array
-     */
-    protected function decodePayload()
-    {
-        $payload = parent::decodePayload();
-
-        if (!array_key_exists($this->parentId, $payload) ||
-            !is_integer($payload[$this->parentId])) {
-            $payload[$this->parentId] = $this->context->shop->id;
-        }
-
-        return $payload;
-    }
+    /** @var string */
+    public $shop_id;
+    /** @var string */
+    public $shop_refresh_token;
+    /** @var string */
+    public $user_refresh_token;
+    /** @var string */
+    public $shop_token;
+    /** @var string */
+    public $user_token;
+    /** @var string */
+    public $employee_id = '';
 }

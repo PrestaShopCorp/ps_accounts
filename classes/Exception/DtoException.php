@@ -18,31 +18,8 @@
  * @license   https://opensource.org/licenses/AFL-3.0 Academic Free License version 3.0
  */
 
-namespace PrestaShop\Module\PsAccounts\Controller;
+namespace PrestaShop\Module\PsAccounts\Exception;
 
-use PrestaShop\Module\PsAccounts\Exception\Http\NotFoundException;
-use Shop;
-
-class AbstractShopRestController extends AbstractRestController
+class DtoException extends \Exception
 {
-    /**
-     * @var string
-     */
-    public $resourceId = 'shop_id';
-
-    /**
-     * @param mixed $id
-     *
-     * @return Shop
-     */
-    protected function buildResource($id)
-    {
-        $shop = new Shop($id);
-
-        if (!$shop->id) {
-            throw new NotFoundException('Shop not found [' . $id . ']');
-        }
-
-        return $shop;
-    }
 }

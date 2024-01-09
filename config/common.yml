@@ -81,8 +81,8 @@ services:
       - '@PrestaShop\Module\PsAccounts\Provider\RsaKeysProvider'
       - '@PrestaShop\Module\PsAccounts\Repository\ShopTokenRepository'
       - '@PrestaShop\Module\PsAccounts\Repository\UserTokenRepository'
+      - '@PrestaShop\Module\PsAccounts\Provider\OAuth2\Oauth2Client'
       - '@PrestaShop\Module\PsAccounts\Repository\ConfigurationRepository'
-      - '@PrestaShop\Module\PsAccounts\Adapter\Link'
 
   PrestaShop\Module\PsAccounts\Service\PsBillingService:
     class: PrestaShop\Module\PsAccounts\Service\PsBillingService

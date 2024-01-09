@@ -20,8 +20,10 @@
 
 namespace PrestaShop\Module\PsAccounts\Service;
 
+use Doctrine\ORM\EntityManagerInterface;
 use PrestaShop\Module\PsAccounts\Adapter\Link;
 use PrestaShop\Module\PsAccounts\Api\Client\AccountsClient;
+use PrestaShop\Module\PsAccounts\Entity\EmployeeAccount;
 use PrestaShop\Module\PsAccounts\Provider\ShopProvider;
 use PrestaShop\Module\PsAccounts\Repository\ConfigurationRepository;
 use PrestaShop\Module\PsAccounts\Repository\ShopTokenRepository;
@@ -298,4 +300,29 @@ class PsAccountsService
             $configuration->getOauth2ClientId() &&
             $configuration->getOauth2ClientSecret();
     }
+
+//    /**
+//     * @return EmployeeAccount|null
+//     */
+//    public function getEmployeeAccount()
+//    {
+//        $employeeId = $this->module->getContext()->employee->id;
+//
+//        if (!empty($employeeId)) {
+//            /** @var EntityManagerInterface $entityManager */
+//            $entityManager = $this->module->getContainer()->get('doctrine.orm.entity_manager');
+//
+//            $employeeAccountRepository = $entityManager->getRepository(EmployeeAccount::class);
+//
+//            /**
+//             * @var EmployeeAccount $employeeAccount
+//             * @phpstan-ignore-next-line
+//             */
+//            $employeeAccount = $employeeAccountRepository->findOneBy(['employeeId' => $employeeId]);
+//            // $employeeAccount = $employeeAccountRepository->findOneByUid($uid);
+//            return $employeeAccount;
+//        }
+//
+//        return null;
+//    }
 }
