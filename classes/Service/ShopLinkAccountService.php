@@ -23,7 +23,6 @@ namespace PrestaShop\Module\PsAccounts\Service;
 use Module;
 use PrestaShop\Module\PsAccounts\Adapter\Link;
 use PrestaShop\Module\PsAccounts\Api\Client\AccountsClient;
-use PrestaShop\Module\PsAccounts\Exception\HmacException;
 use PrestaShop\Module\PsAccounts\Exception\SshKeysNotFoundException;
 use PrestaShop\Module\PsAccounts\Provider\RsaKeysProvider;
 use PrestaShop\Module\PsAccounts\Repository\ConfigurationRepository;
@@ -150,27 +149,5 @@ class ShopLinkAccountService
         return $this->shopTokenRepository->getOrRefreshToken()
             && !$this->userTokenRepository->getOrRefreshToken()
             && $this->userTokenRepository->getTokenEmail();
-    }
-
-    /**
-     * @param string $hmac
-     * @param string $uid
-     * @param string $path
-     *
-     * @return void
-     *
-     * @throws HmacException
-     */
-    public function writeHmac($hmac, $uid, $path)
-    {
-        if (!is_dir($path)) {
-            mkdir($path);
-        }
-
-        if (!is_writable($path)) {
-            throw new HmacException('Directory isn\'t writable');
-        }
-
-        file_put_contents($path . $uid . '.txt', $hmac);
     }
 }

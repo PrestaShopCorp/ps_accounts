@@ -22,7 +22,6 @@ namespace PrestaShop\Module\PsAccounts\Api\Client;
 
 use PrestaShop\Module\PsAccounts\Api\Client\Guzzle\AbstractGuzzleClient;
 use PrestaShop\Module\PsAccounts\Api\Client\Guzzle\GuzzleClientFactory;
-use PrestaShop\Module\PsAccounts\Exception\OptionResolutionException;
 use PrestaShop\Module\PsAccounts\Provider\ShopProvider;
 use PrestaShop\Module\PsAccounts\Service\PsAccountsService;
 
@@ -44,7 +43,6 @@ class ServicesBillingClient
      * @param ShopProvider $shopProvider
      * @param AbstractGuzzleClient|null $client
      *
-     * @throws OptionResolutionException
      * @throws \PrestaShopException
      * @throws \Exception
      */
