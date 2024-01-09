@@ -269,6 +269,9 @@ class Ps_accounts extends Module
      * @param array $customHooks
      *
      * @return bool
+     *
+     * @throws PrestaShopDatabaseException
+     * @throws PrestaShopException
      */
     public function addCustomHooks($customHooks)
     {
@@ -291,16 +294,15 @@ class Ps_accounts extends Module
     }
 
     /**
-     * @return \PrestaShop\PrestaShop\Adapter\SymfonyContainer|\Symfony\Component\DependencyInjection\ContainerInterface|null
+     * @return \Symfony\Component\DependencyInjection\ContainerInterface|null
      */
-    public function getPsContainer()
+    public function getPrestaShopContainer()
     {
-        if (method_exists(Module::class, 'getContainer')) {
-            /* @phpstan-ignore-next-line  */
-            return parent::getContainer();
+        if (method_exists($this, 'getContainer')) {
+            return $this->getContainer();
         }
 
-        if (class_exists(\PrestaShop\PrestaShop\Adapter\SymfonyContainer::class)) {
+        if (class_exists('\PrestaShop\PrestaShop\Adapter\SymfonyContainer')) {
             return \PrestaShop\PrestaShop\Adapter\SymfonyContainer::getInstance();
         }
 
@@ -697,8 +699,7 @@ class Ps_accounts extends Module
      */
     public function getModuleEnvVar()
     {
-        /* @phpstan-ignore-next-line  */
-        return strtoupper($this->name) . '_ENV';
+        return strtoupper((string) $this->name) . '_ENV';
     }
 
     /**
@@ -834,19 +835,20 @@ class Ps_accounts extends Module
     }
 
     /**
-     * @return \Symfony\Component\HttpFoundation\Session\SessionInterface
+     * @return \PrestaShop\Module\PsAccounts\Provider\OAuth2\FallbackSession
      *
-     * @throws \PrestaShop\PrestaShop\Core\Exception\ContainerNotFoundException|Exception
+     * @throws Exception
      */
     public function getSession()
     {
-        $container = $this->getPsContainer();
+        $container = $this->getPrestaShopContainer();
         if ($container) {
-            /* @phpstan-ignore-next-line */
-            return $container->get('session');
+            /** @var \PrestaShop\Module\PsAccounts\Provider\OAuth2\FallbackSession $session */
+            $session = $container->get('session');
+
+            return $session;
         } else {
             // FIXME return a session like with configuration storage
-            /* @phpstan-ignore-next-line  */
             return new \PrestaShop\Module\PsAccounts\Provider\OAuth2\FallbackSession(
                 $this->getService(\PrestaShop\Module\PsAccounts\Adapter\Configuration::class)
             );

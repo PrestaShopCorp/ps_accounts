@@ -35,9 +35,6 @@ use PrestaShop\Module\PsAccounts\Provider\OAuth2\PrestaShopSession;
 use PrestaShop\Module\PsAccounts\Service\AnalyticsService;
 use PrestaShop\Module\PsAccounts\Service\PsAccountsService;
 use PrestaShop\OAuth2\Client\Provider\PrestaShopUser;
-use PrestaShop\PrestaShop\Core\Exception\ContainerNotFoundException;
-use PrestaShop\PrestaShop\Core\Exception\CoreException;
-use Symfony\Component\HttpFoundation\Session\SessionInterface;
 
 /**
  * Controller for all ajax calls.
@@ -108,8 +105,6 @@ class AdminOAuth2PsAccountsController extends ModuleAdminController
 
     /**
      * @return void
-     *
-     * @throws ContainerNotFoundException
      */
     //public function display()
     public function init()
@@ -133,10 +128,8 @@ class AdminOAuth2PsAccountsController extends ModuleAdminController
      *
      * @return bool
      *
-     * @throws ContainerNotFoundException
      * @throws EmailNotVerifiedException
      * @throws EmployeeNotFoundException
-     * @throws CoreException
      */
     private function initUserSession(PrestaShopUser $user)
     {
@@ -171,8 +164,7 @@ class AdminOAuth2PsAccountsController extends ModuleAdminController
         /* @phpstan-ignore-next-line  */
         $cookie->remote_addr = $context->employee->remote_addr;
 
-        // FIXME: if (intval(_PS_VERSION_[0]) >= 8) {
-        if (class_exists('EmployeeSession')) {
+        if (class_exists('EmployeeSession') && method_exists($cookie, 'registerSession')) {
             $cookie->registerSession(new EmployeeSession());
         }
 
@@ -207,8 +199,6 @@ class AdminOAuth2PsAccountsController extends ModuleAdminController
      * @param string $email
      *
      * @return Employee
-     *
-     * @throws ContainerNotFoundException
      */
     private function getEmployeeByUidOrEmail($uid, $email)
     {
@@ -250,9 +240,11 @@ class AdminOAuth2PsAccountsController extends ModuleAdminController
     }
 
     /**
+     * @param AccountLoginException $e
+     *
      * @return void
      *
-     * @throws ContainerNotFoundException
+     * @throws PrestaShopException
      */
     private function onLoginFailed(AccountLoginException $e)
     {
@@ -309,9 +301,9 @@ class AdminOAuth2PsAccountsController extends ModuleAdminController
     }
 
     /**
-     * @return SessionInterface
+     * @return \PrestaShop\Module\PsAccounts\Provider\OAuth2\FallbackSession
      *
-     * @throws ContainerNotFoundException
+     * @throws Exception
      */
     private function getSession()
     {
@@ -319,11 +311,11 @@ class AdminOAuth2PsAccountsController extends ModuleAdminController
     }
 
     /**
-     * @param string $error
+     * @param mixed $error
      *
      * @return void
      *
-     * @throws ContainerNotFoundException
+     * @throws Exception
      */
     private function setLoginError($error)
     {
