@@ -29,6 +29,11 @@ class FallbackSession
     const SESSION_NAME = '_pssesid';
 
     /**
+     * @var int
+     */
+    private $gcLifetimeSeconds;
+
+    /**
      * @var Configuration
      */
     private $configStorage;
@@ -40,11 +45,14 @@ class FallbackSession
 
     /**
      * @param Configuration $configStorage
+     * @param int $gcLifetimeSeconds
      */
-    public function __construct(Configuration $configStorage)
+    public function __construct(Configuration $configStorage, $gcLifetimeSeconds = 3600)
     {
         $this->configStorage = $configStorage;
+        $this->gcLifetimeSeconds = $gcLifetimeSeconds;
         $this->sessionId = $this->startSession();
+        $this->gcClear();
     }
 
     /**
@@ -191,9 +199,8 @@ class FallbackSession
     public function clear()
     {
         \Db::getInstance()->execute(
-            "DELETE FROM ps_configuration WHERE name like 'SESSION_" .
-            $this->sessionId .
-            "_%'"
+            'DELETE FROM ' . _DB_PREFIX_ . 'configuration ' .
+            "WHERE name like '" . $this->generateName('') . "%'"
         );
     }
 
@@ -219,6 +226,19 @@ class FallbackSession
 //    {
 //        // TODO: Implement getMetadataBag() method.
 //    }
+
+    /**
+     * @return void
+     */
+    protected function gcClear()
+    {
+        $datetime = (new \DateTime("-{$this->gcLifetimeSeconds} seconds"))->format('c');
+        \Db::getInstance()->execute(
+            'DELETE FROM ' . _DB_PREFIX_ . 'configuration ' .
+            "WHERE name like '" . self::SESSION_PREFIX . "_%' " .
+            "AND date_upd < '{$datetime}'"
+        );
+    }
 
     /**
      * @param string $name
