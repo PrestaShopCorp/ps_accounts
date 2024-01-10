@@ -35,13 +35,6 @@ use ReflectionParameter;
 
 abstract class AbstractRestController extends \ModuleFrontController
 {
-    const METHOD_INDEX = 'index';
-    const METHOD_SHOW = 'show';
-    const METHOD_UPDATE = 'update';
-    const METHOD_DELETE = 'delete';
-    const METHOD_STORE = 'store';
-
-    const PAYLOAD_PARAM = 'data';
     const TOKEN_HEADER = 'X-PrestaShop-Signature';
 
     /**
@@ -87,15 +80,10 @@ abstract class AbstractRestController extends \ModuleFrontController
                 'error' => true,
                 'message' => $e->getMessage(),
             ], $e->getStatusCode());
+        } catch (\Exception $e) {
+            $this->handleError($e);
         } catch (\Throwable $e) {
-            Sentry::capture($e);
-
-            $this->module->getLogger()->error($e);
-
-            $this->dieWithResponseJson([
-                'error' => true,
-                'message' => 'Failed processing your request',
-            ], 500);
+            $this->handleError($e);
         }
     }
 
@@ -139,21 +127,21 @@ abstract class AbstractRestController extends \ModuleFrontController
         switch ($httpMethod) {
             case 'GET':
                 $method = null !== $id
-                    ? self::METHOD_SHOW
-                    : self::METHOD_INDEX;
+                    ? RestMethod::SHOW
+                    : RestMethod::INDEX;
                 break;
             case 'POST':
                 list($method, $statusCode) = null !== $id
-                    ? [self::METHOD_UPDATE, $statusCode]
-                    : [self::METHOD_STORE, 201];
+                    ? [RestMethod::UPDATE, $statusCode]
+                    : [RestMethod::STORE, 201];
                 break;
             case 'PUT':
             case 'PATCH':
-                $method = self::METHOD_UPDATE;
+                $method = RestMethod::UPDATE;
                 break;
             case 'DELETE':
                 $statusCode = 204;
-                $method = self::METHOD_DELETE;
+                $method = RestMethod::DELETE;
                 break;
             default:
                 throw new \Exception('Invalid Method : ' . $httpMethod);
@@ -327,5 +315,24 @@ abstract class AbstractRestController extends \ModuleFrontController
     protected function geolocationManagement($defaultCountry)
     {
         return false;
+    }
+
+    /**
+     * @param \Exception|\Throwable $e
+     *
+     * @return void
+     *
+     * @throws \PrestaShopException
+     */
+    private function handleError($e)
+    {
+        Sentry::capture($e);
+
+        $this->module->getLogger()->error($e);
+
+        $this->dieWithResponseJson([
+            'error' => true,
+            'message' => 'Failed processing your request',
+        ], 500);
     }
 }
