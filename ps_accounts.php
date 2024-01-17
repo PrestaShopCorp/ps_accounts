@@ -24,8 +24,6 @@ require_once __DIR__ . '/vendor/autoload.php';
 
 class Ps_accounts extends Module
 {
-    use \PrestaShop\Module\PsAccounts\Provider\OAuth2\PrestaShopLogoutTrait;
-
     const DEFAULT_ENV = '';
 
     // Needed in order to retrieve the module version easier (in api call headers) than instanciate
@@ -54,7 +52,6 @@ class Ps_accounts extends Module
         'actionObjectShopDeleteAfter',
         'actionObjectShopUrlUpdateAfter',
         'displayDashboardTop',
-        'actionAdminControllerInitBefore',
         'actionModuleInstallAfter',
         'actionAdminLoginControllerSetMedia',
         self::HOOK_DISPLAY_ACCOUNT_UPDATE_WARNING,
@@ -95,6 +92,11 @@ class Ps_accounts extends Module
     private $serviceContainer;
 
     /**
+     * @var \PrestaShop\Module\PsAccounts\Middleware\Oauth2Middleware
+     */
+    private $oauth2Middleware;
+
+    /**
      * Ps_accounts constructor.
      */
     public function __construct()
@@ -125,6 +127,7 @@ class Ps_accounts extends Module
             'debug' => 'AdminDebugPsAccounts',
             'oauth2' => 'AdminOAuth2PsAccounts',
         ];
+        $this->oauth2Middleware = new \PrestaShop\Module\PsAccounts\Middleware\Oauth2Middleware($this);
     }
 
     /**
@@ -620,18 +623,6 @@ class Ps_accounts extends Module
     }
 
     /**
-     * @param array $params
-     *
-     * @return void
-     *
-     * @throws Exception
-     */
-    public function hookActionAdminControllerInitBefore($params)
-    {
-        $this->manageOAuth2Login();
-    }
-
-    /**
      * @return void
      *
      * @throws \League\OAuth2\Client\Provider\Exception\IdentityProviderException
@@ -643,19 +634,19 @@ class Ps_accounts extends Module
         if ('AdminPreferences' === $this->context->controller->controller_name || !$this->getShopContext()->isShop17()) {
             $this->switchConfigMultishopMode();
         }
-        //$this->getLogger()->error('### Manage hookDisplayBackOfficeHeader');
-        $this->manageOAuth2Login();
+        $this->oauth2Middleware->execute();
     }
 
     /**
+     * @deprecated Only needed for Prestashop < 1.7
+     *
      * @return void
      *
      * @throws \League\OAuth2\Client\Provider\Exception\IdentityProviderException
      */
     public function hookActionAdminLoginControllerSetMedia()
     {
-        //$this->getLogger()->error('### Manage hookActionAdminLoginControllerSetMedia');
-        $this->manageOAuth2Login();
+        $this->oauth2Middleware->execute();
     }
 
     /**
@@ -856,38 +847,6 @@ class Ps_accounts extends Module
     }
 
     /**
-     * @return \PrestaShop\Module\PsAccounts\Provider\OAuth2\PrestaShopClientProvider
-     *
-     * @throws Exception
-     */
-    protected function getProvider()
-    {
-        return $this->getService(\PrestaShop\Module\PsAccounts\Provider\OAuth2\PrestaShopClientProvider::class);
-    }
-
-    /**
-     * @return bool
-     *
-     * @throws Exception
-     */
-    protected function isOauth2LogoutEnabled()
-    {
-        // return $this->hasParameter('ps_accounts.oauth2_url_session_logout');
-        // FIXME
-        return true;
-    }
-
-    /**
-     * @return \PrestaShop\Module\PsAccounts\Provider\OAuth2\PrestaShopSession
-     *
-     * @throws Exception
-     */
-    protected function getOauth2Session()
-    {
-        return $this->getService(\PrestaShop\Module\PsAccounts\Provider\OAuth2\PrestaShopSession::class);
-    }
-
-    /**
      * @return void
      *
      * @throws Exception
@@ -903,41 +862,5 @@ class Ps_accounts extends Module
         /** @var \PrestaShop\Module\PsAccounts\Api\Client\SsoClient $ssoClient */
         $ssoClient = $this->getService(\PrestaShop\Module\PsAccounts\Api\Client\SsoClient::class);
         $ssoClient->getCircuitBreaker()->reset();
-    }
-
-    /**
-     * @return void
-     *
-     * @throws \League\OAuth2\Client\Provider\Exception\IdentityProviderException
-     */
-    private function manageOAuth2Login()
-    {
-        /** @var \PrestaShop\Module\PsAccounts\Service\PsAccountsService $psAccountsService */
-        $psAccountsService = $this->getService(\PrestaShop\Module\PsAccounts\Service\PsAccountsService::class);
-
-        $session = $this->getOauth2Session();
-
-        if (isset($_GET['logout'])) {
-            if ($psAccountsService->getLoginActivated()) {
-                $this->oauth2Logout();
-                // FIXME: too much implicit logic here
-                // After logout redirect will reach this line cause oauth2Logout will not redirect
-                \Tools::redirectLink($this->getProvider()->getRedirectUri());
-            } else {
-                $session->clear();
-            }
-        } else {
-            try {
-                // We keep token fresh !
-                $session->getOrRefreshAccessToken();
-            } catch (\League\OAuth2\Client\Provider\Exception\IdentityProviderException $e) {
-                $this->getLogger()->err($e->getMessage());
-            }
-
-            // Client credentials example :
-            //$provider = $this->getProvider();
-            //$token = $provider->getAccessToken('client_credentials');
-            //$this->getLogger()->info('CLIENT_CREDENTIALS ' . json_encode($token->jsonSerialize(), JSON_PRETTY_PRINT));
-        }
     }
 }
