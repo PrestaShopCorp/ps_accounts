@@ -223,24 +223,6 @@ class ConfigurationRepository
     }
 
     /**
-     * @return string
-     */
-    public function getAccountsRsaSignData()
-    {
-        return $this->configuration->get(ConfigurationKeys::PS_ACCOUNTS_RSA_SIGN_DATA);
-    }
-
-    /**
-     * @param string $signData
-     *
-     * @return void
-     */
-    public function updateAccountsRsaSignData($signData)
-    {
-        $this->configuration->set(ConfigurationKeys::PS_ACCOUNTS_RSA_SIGN_DATA, $signData);
-    }
-
-    /**
      * @return bool
      */
     public function sslEnabled()

@@ -28,11 +28,9 @@ class GenerateKeysTest extends TestCase
         // Empty DB
         $configuration->updateAccountsRsaPrivateKey(null);
         $configuration->updateAccountsRsaPublicKey(null);
-        $configuration->updateAccountsRsaSignData(null);
 
         $this->assertEmpty($configuration->getAccountsRsaPrivateKey());
         $this->assertEmpty($configuration->getAccountsRsaPublicKey());
-        $this->assertEmpty($configuration->getAccountsRsaSignData());
 
         $service->generateKeys();
 
@@ -40,7 +38,6 @@ class GenerateKeysTest extends TestCase
 
         $this->assertNotEmpty($configuration->getAccountsRsaPrivateKey());
         $this->assertNotEmpty($configuration->getAccountsRsaPublicKey());
-        $this->assertNotEmpty($configuration->getAccountsRsaSignData());
 
         $data = $this->faker->sentence();
         $signedData = $service->signData($configuration->getAccountsRsaPrivateKey(), $data);
