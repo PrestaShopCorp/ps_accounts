@@ -30,7 +30,7 @@ class AdminLoginPsAccountsController extends AdminLoginControllerCore
     const PARAM_MODE_LOCAL = 'local';
 
     /** @var string */
-    public $template = 'content.tpl';
+    public $template = 'login.tpl';
 
     /** @var bool */
     private $loginWithPsAccounts = false;
@@ -183,23 +183,9 @@ class AdminLoginPsAccountsController extends AdminLoginControllerCore
         );
 
         return $this->context->smarty->createTemplate(
-            $this->getPsAccountsTemplateDir() . $this->template, $this->context->smarty
+            $this->psAccounts->getLocalPath() . '/views/templates/admin/' . $this->template,
+            $this->context->smarty
         );
-    }
-
-    /**
-     * @return string
-     */
-    protected function getPsAccountsTemplateDir()
-    {
-        return _PS_MODULE_DIR_ .
-            DIRECTORY_SEPARATOR . 'ps_accounts' .
-            DIRECTORY_SEPARATOR . 'views' .
-            DIRECTORY_SEPARATOR . 'templates' .
-            DIRECTORY_SEPARATOR . 'override' .
-            DIRECTORY_SEPARATOR . 'controllers' .
-            DIRECTORY_SEPARATOR . 'login' .
-            DIRECTORY_SEPARATOR;
     }
 
     /**
