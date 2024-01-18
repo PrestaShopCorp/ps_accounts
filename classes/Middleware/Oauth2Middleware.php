@@ -21,6 +21,7 @@
 namespace PrestaShop\Module\PsAccounts\Middleware;
 
 use Exception;
+use PrestaShop\Module\PsAccounts\Adapter\Link;
 use PrestaShop\Module\PsAccounts\Provider\OAuth2\PrestaShopClientProvider;
 use PrestaShop\Module\PsAccounts\Provider\OAuth2\PrestaShopLogoutTrait;
 use PrestaShop\Module\PsAccounts\Provider\OAuth2\PrestaShopSession;
@@ -35,6 +36,11 @@ class Oauth2Middleware
      * @var Ps_accounts
      */
     private $module;
+
+    /**
+     * @var bool
+     */
+    private $bypassLoginPage = false;
 
     public function __construct(Ps_accounts $ps_accounts)
     {
@@ -59,7 +65,7 @@ class Oauth2Middleware
                 $this->oauth2Logout();
                 // FIXME: too much implicit logic here
                 // We reach this line after redirect at callback time
-                \Tools::redirectLink($this->getProvider()->getRedirectUri());
+                $this->onLogoutCallback();
             } else {
                 $session->clear();
             }
@@ -71,12 +77,12 @@ class Oauth2Middleware
                 $this->module->getLogger()->err($e->getMessage());
             }
 
-            try {
-                // Test client credentials grant
-                $session->getClientCredentialsAccessToken((string) $psAccountsService->getShopUuid());
-            } catch (\League\OAuth2\Client\Provider\Exception\IdentityProviderException $e) {
-                $this->module->getLogger()->err($e->getMessage());
-            }
+//            try {
+//                // Test client credentials grant
+//                $session->getClientCredentialsAccessToken((string) $psAccountsService->getShopUuid());
+//            } catch (\League\OAuth2\Client\Provider\Exception\IdentityProviderException $e) {
+//                $this->module->getLogger()->err($e->getMessage());
+//            }
         }
     }
 
@@ -110,5 +116,16 @@ class Oauth2Middleware
         // return $this->module->hasParameter('ps_accounts.oauth2_url_session_logout');
         // FIXME
         return true;
+    }
+
+    /**
+     * @return void
+     * @throws Exception
+     */
+    protected function onLogoutCallback()
+    {
+        if ($this->bypassLoginPage) {
+            \Tools::redirectLink($this->getProvider()->getRedirectUri());
+        }
     }
 }

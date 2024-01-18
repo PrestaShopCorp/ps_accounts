@@ -105,6 +105,8 @@ class AdminOAuth2PsAccountsController extends ModuleAdminController
 
     /**
      * @return void
+     *
+     * @throws PrestaShopException
      */
     //public function display()
     public function init()

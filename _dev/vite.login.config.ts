@@ -1,27 +1,21 @@
 import { defineConfig } from "vite";
-import vue from "@vitejs/plugin-vue";
 import path from "path";
 
 // https://vitejs.dev/config/
 export default defineConfig({
-  plugins: [vue()],
-  define: {
-    "process.env.NODE_ENV": '"production"',
-  },
   build: {
     lib: {
-      entry: path.resolve(__dirname, "apps/configuration/main.ts"),
-      name: "Accounts",
+      entry: path.resolve(__dirname, "apps/login/index.ts"),
+      name: "AccountsLogin",
       formats: ["es"],
-      fileName: () => `js/app.${process.env.npm_package_version}.js`,
+      fileName: () => `js/login.js`,
     },
     outDir: "../views",
     assetsDir: "../views/css",
     emptyOutDir: false,
     rollupOptions: {
       output: {
-        assetFileNames: `css/app.${process.env.npm_package_version}.[ext]`,
-        chunkFileNames: `js/chunk-vendors.${process.env.npm_package_version}.js`,
+        assetFileNames: `css/login.[ext]`,
       },
     },
   },

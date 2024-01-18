@@ -86,7 +86,18 @@ class Install
      */
     public function installDatabaseTables()
     {
-        $dbInstallFile = "{$this->module->getLocalPath()}/sql/install.sql";
+        // run iterative database migrations
+        return $this->runMigration('create_employee_account_table');
+    }
+
+    /**
+     * @param string $migration
+     *
+     * @return bool
+     */
+    public function runMigration($migration)
+    {
+        $dbInstallFile = "{$this->module->getLocalPath()}/sql/{$migration}.sql";
 
         if (!file_exists($dbInstallFile)) {
             return false;

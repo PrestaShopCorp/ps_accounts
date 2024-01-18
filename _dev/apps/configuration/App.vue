@@ -16,25 +16,25 @@
  * @license   https://opensource.org/licenses/AFL-3.0 Academic Free License 3.0 (AFL-3.0)
  * International Registered Trademark & Property of PrestaShop SA
  *-->
- <template>
-    <div id="settingsApp">
-      <div class="onboarding">
-        <section class="onboarding-header">
-          <ConfigInformation />
-        </section>
-  
-        <section class="onboarding-content">
-          <prestashop-accounts></prestashop-accounts>
-        </section>
-      </div>
+<template>
+  <div id="settingsApp">
+    <div class="onboarding">
+      <section class="onboarding-header">
+        <ConfigInformation />
+      </section>
+
+      <section class="onboarding-content">
+        <prestashop-accounts></prestashop-accounts>
+      </section>
     </div>
-  </template>
-  
+  </div>
+</template>
+
 <script setup lang="ts">
-import ConfigInformation from "@/components/ConfigInformation.vue";
+import ConfigInformation from "@/configuration/components/ConfigInformation.vue";
 import { onMounted } from "vue";
 import { init } from "prestashop_accounts_vue_components"
-  
+
 onMounted(async () => {
   if (window?.psaccountsVue) {
     return window?.psaccountsVue?.init();
@@ -42,28 +42,28 @@ onMounted(async () => {
   init();
 });
 </script>
-  <style lang="scss">
-  #settingsApp {
-    font-family: Open Sans, Helvetica, Arial, sans-serif;
+<style lang="scss">
+#settingsApp {
+  font-family: Open Sans, Helvetica, Arial, sans-serif;
+}
+.nobootstrap {
+  background-color: unset !important;
+  padding: 100px 10px 100px;
+  min-width: unset !important;
+}
+.page-sidebar.mobile #content.nobootstrap {
+  @apply psacc-ml-0;
+}
+.onboarding {
+  @apply psacc-pt-24 psacc-max-w-screen-lg psacc-mx-auto;
+  &-header {
+    @apply psacc-mb-2;
   }
-  .nobootstrap {
-    background-color: unset !important;
-    padding: 100px 10px 100px;
-    min-width: unset !important;
-  }
-  .page-sidebar.mobile #content.nobootstrap {
-    @apply psacc-ml-0;
-  }
-  .onboarding {
-    @apply psacc-pt-24 psacc-max-w-screen-lg psacc-mx-auto;
+  @screen md {
+    @apply psacc-pt-4;
     &-header {
-      @apply psacc-mb-2;
-    }
-    @screen md {
-      @apply psacc-pt-4;
-      &-header {
-        @apply psacc-mb-4;
-      }
+      @apply psacc-mb-4;
     }
   }
-  </style>
+}
+</style>

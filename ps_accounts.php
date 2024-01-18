@@ -17,6 +17,9 @@
  * @copyright Since 2007 PrestaShop SA and Contributors
  * @license   https://opensource.org/licenses/AFL-3.0 Academic Free License version 3.0
  */
+
+use PrestaShop\Module\PsAccounts\Adapter\Link;
+
 if (!defined('_PS_VERSION_')) {
     exit;
 }
@@ -28,7 +31,7 @@ class Ps_accounts extends Module
 
     // Needed in order to retrieve the module version easier (in api call headers) than instanciate
     // the module each time to get the version
-    const VERSION = '5.3.6';
+    const VERSION = '6.4.0';
 
     const HOOK_ACTION_SHOP_ACCOUNT_LINK_AFTER = 'actionShopAccountLinkAfter';
     const HOOK_ACTION_SHOP_ACCOUNT_UNLINK_AFTER = 'actionShopAccountUnlinkAfter';
@@ -53,6 +56,7 @@ class Ps_accounts extends Module
         'actionObjectShopUrlUpdateAfter',
         'displayDashboardTop',
         'actionModuleInstallAfter',
+        //'actionAdminControllerInitBefore',
         'actionAdminLoginControllerSetMedia',
         self::HOOK_DISPLAY_ACCOUNT_UPDATE_WARNING,
         self::HOOK_ACTION_SHOP_ACCOUNT_LINK_AFTER,
@@ -109,7 +113,7 @@ class Ps_accounts extends Module
 
         // We cannot use the const VERSION because the const is not computed by addons marketplace
         // when the zip is uploaded
-        $this->version = '5.3.6';
+        $this->version = '6.4.0';
 
         $this->module_key = 'abf2cd758b4d629b2944d3922ef9db73';
 
@@ -126,6 +130,7 @@ class Ps_accounts extends Module
             'ajax' => 'AdminAjaxPsAccounts',
             'debug' => 'AdminDebugPsAccounts',
             'oauth2' => 'AdminOAuth2PsAccounts',
+            'login' => 'AdminLoginPsAccounts',
         ];
         $this->oauth2Middleware = new \PrestaShop\Module\PsAccounts\Middleware\Oauth2Middleware($this);
     }
@@ -167,18 +172,10 @@ class Ps_accounts extends Module
         $installer = new PrestaShop\Module\PsAccounts\Module\Install($this, Db::getInstance());
 
         $status = $installer->installInMenu()
-            //&& $installer->installDatabaseTables()
+            && $installer->installDatabaseTables()
             && parent::install()
-            && $this->addCustomHooks($this->customHooks);
-        //&& $this->registerHook($this->hookToInstall);
-
-        try {
-            foreach ($this->hookToInstall as $hookName) {
-                $status = $status && $this->registerHook($hookName);
-            }
-        } catch (PrestaShopException $e) {
-            $this->getLogger()->error('Can\'t register hook : "' . $hookName . '"');
-        }
+            && $this->addCustomHooks($this->customHooks)
+            && $this->registerHook($this->hookToInstall);
 
         // Removed controller
         $uninstaller = new PrestaShop\Module\PsAccounts\Module\Uninstall($this, Db::getInstance());
@@ -209,7 +206,7 @@ class Ps_accounts extends Module
         $uninstaller = new PrestaShop\Module\PsAccounts\Module\Uninstall($this, Db::getInstance());
 
         return $uninstaller->uninstallMenu()
-            //&& $uninstaller->uninstallDatabaseTables()
+            && $uninstaller->uninstallDatabaseTables()
             && parent::uninstall();
     }
 
@@ -637,16 +634,41 @@ class Ps_accounts extends Module
         $this->oauth2Middleware->execute();
     }
 
+//    /**
+//     * @param array $params
+//     *
+//     * @return void
+//     *
+//     * @throws Exception
+//     */
+//    public function hookActionAdminControllerInitBefore($params)
+//    {
+//        $this->oauth2Middleware->execute();
+//
+//        if (Tools::getValue('mode') !== 'local') {
+//            /** @var Link $link */
+//            $link = $this->getService(Link::class);
+//
+//            Tools::redirectLink($link->getAdminLink('AdminLoginPsAccounts', false));
+//        }
+//    }
+
     /**
-     * @deprecated Only needed for Prestashop < 1.7
-     *
      * @return void
      *
+     * @throws PrestaShopException
      * @throws \League\OAuth2\Client\Provider\Exception\IdentityProviderException
      */
     public function hookActionAdminLoginControllerSetMedia()
     {
         $this->oauth2Middleware->execute();
+
+        if (Tools::getValue('mode') !== 'local') {
+            /** @var Link $link */
+            $link = $this->getService(Link::class);
+
+            Tools::redirectLink($link->getAdminLink('AdminLoginPsAccounts', false));
+        }
     }
 
     /**
@@ -728,7 +750,7 @@ class Ps_accounts extends Module
      */
     protected function loadAssets()
     {
-        $this->context->smarty->assign('pathVendor', $this->_path . 'views/js/chunk-vendors.' . $this->version . '.js');
+        //$this->context->smarty->assign('pathVendor', $this->_path . 'views/js/chunk-vendors.' . $this->version . '.js');
         $this->context->smarty->assign('pathApp', $this->_path . 'views/js/app.' . $this->version . '.js');
         $this->context->smarty->assign('pathAppAssets', $this->_path . 'views/css/app.' . $this->version . '.css');
         $this->context->smarty->assign('urlAccountsCdn', $this->getParameter('ps_accounts.accounts_cdn_url'));
@@ -813,6 +835,14 @@ class Ps_accounts extends Module
     public function getCustomHooks()
     {
         return $this->customHooks;
+    }
+
+    /**
+     * @return bool
+     */
+    public function isShopEdition()
+    {
+        return Module::isEnabled('smb_edition');
     }
 
     /**
