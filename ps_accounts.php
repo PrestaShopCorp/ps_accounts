@@ -663,7 +663,9 @@ class Ps_accounts extends Module
     {
         $this->oauth2Middleware->execute();
 
-        if (Tools::getValue('mode') !== 'local') {
+        if ($this->getShopContext()->isShop17() &&
+            Tools::getValue('mode') !== 'local') {
+
             /** @var Link $link */
             $link = $this->getService(Link::class);
 
