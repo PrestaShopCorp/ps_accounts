@@ -104,7 +104,6 @@ class AdminLoginPsAccountsController extends AdminLoginControllerCore
             $provider = $this->psAccounts->getService(PrestaShopClientProvider::class);
 
             $testimonials = $this->getTestimonials();
-            $this->logger->error(print_r($testimonials, true));
 
             /** @var SessionInterface $session */
             $session = $this->psAccounts->getSession();
@@ -145,9 +144,6 @@ class AdminLoginPsAccountsController extends AdminLoginControllerCore
     {
         $data = [];
         try {
-//            $data = json_decode((new \GuzzleHttp\Client())->get(
-//                $this->psAccounts->getParameter('ps_accounts.testimonials_url')
-//            )->getBody()->getContents(), true);
             $data = json_decode(file_get_contents(
                 $this->psAccounts->getParameter('ps_accounts.testimonials_url')
             ), true);

@@ -675,7 +675,9 @@ class Ps_accounts extends Module
             /** @var Link $link */
             $link = $this->getService(Link::class);
 
-            Tools::redirectLink($link->getAdminLink('AdminLoginPsAccounts', false));
+            //Tools::redirectLink($link->getAdminLink('AdminLoginPsAccounts', false));
+            (new AdminLoginPsAccountsController())->run();
+            exit;
         }
     }
 
