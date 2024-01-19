@@ -658,14 +658,20 @@ class Ps_accounts extends Module
      *
      * @throws PrestaShopException
      * @throws \League\OAuth2\Client\Provider\Exception\IdentityProviderException
+     * @throws Exception
      */
     public function hookActionAdminLoginControllerSetMedia()
     {
         $this->oauth2Middleware->execute();
 
-        if ($this->getShopContext()->isShop17() &&
-            Tools::getValue('mode') !== 'local') {
+        /** @var \PrestaShop\Module\PsAccounts\Service\PsAccountsService $psAccountsService */
+        $psAccountsService = $this->getService(\PrestaShop\Module\PsAccounts\Service\PsAccountsService::class);
+        $local = Tools::getValue('mode') === AdminLoginPsAccountsController::PARAM_MODE_LOCAL ||
+            !$psAccountsService->getLoginActivated();
 
+        $this->trackLoginEvent($local);
+
+        if ($this->getShopContext()->isShop17() && !$local) {
             /** @var Link $link */
             $link = $this->getService(Link::class);
 
@@ -894,5 +900,31 @@ class Ps_accounts extends Module
         /** @var \PrestaShop\Module\PsAccounts\Api\Client\SsoClient $ssoClient */
         $ssoClient = $this->getService(\PrestaShop\Module\PsAccounts\Api\Client\SsoClient::class);
         $ssoClient->getCircuitBreaker()->reset();
+    }
+
+    /**
+     * @param bool $local
+     *
+     * @return void
+     *
+     * @throws Exception
+     */
+    private function trackLoginEvent($local = false)
+    {
+        if ($this->isShopEdition()) {
+            /** @var \PrestaShop\Module\PsAccounts\Service\PsAccountsService $psAccountsService */
+            $psAccountsService = $this->getService(\PrestaShop\Module\PsAccounts\Service\PsAccountsService::class);
+            $account = $psAccountsService->getEmployeeAccount();
+            $userId = $account ? $account->getUid() : null;
+
+            /** @var \PrestaShop\Module\PsAccounts\Service\AnalyticsService $analytics */
+            $analytics = $this->getService(\PrestaShop\Module\PsAccounts\Service\AnalyticsService::class);
+
+            if (!$local) {
+                $analytics->pageAccountsBoLogin($userId);
+            } else {
+                $analytics->pageLocalBoLogin($userId);
+            }
+        }
     }
 }

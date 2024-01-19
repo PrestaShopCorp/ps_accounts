@@ -21,7 +21,6 @@
 namespace PrestaShop\Module\PsAccounts\Middleware;
 
 use Exception;
-use PrestaShop\Module\PsAccounts\Adapter\Link;
 use PrestaShop\Module\PsAccounts\Provider\OAuth2\PrestaShopClientProvider;
 use PrestaShop\Module\PsAccounts\Provider\OAuth2\PrestaShopLogoutTrait;
 use PrestaShop\Module\PsAccounts\Provider\OAuth2\PrestaShopSession;
@@ -120,6 +119,7 @@ class Oauth2Middleware
 
     /**
      * @return void
+     *
      * @throws Exception
      */
     protected function onLogoutCallback()

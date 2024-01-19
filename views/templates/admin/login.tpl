@@ -47,10 +47,10 @@
                         <li class="splide__slide">
                             <div class="psacc-w-10/12 psacc-ml-10 psacc-font-primary">
                                 <p class="psacc-mb-4 psacc-text-lg">
-                                    {$testimonial->$isoCode->sentence|default:$testimonial->$defaultIsoCode->sentence}
+                                    {$testimonial[$isoCode]['sentence']|default:$testimonial[$defaultIsoCode]['sentence']}
                                 </p>
                                 <p class="puik-body-default psacc-font-primary">
-                                    <span class="psacc-font-bold">{$testimonial->$isoCode->name|default:$testimonial->$defaultIsoCode->name}</span>, {$testimonial->$isoCode->enterprise|default:$testimonial->$defaultIsoCode->enterprise}
+                                    <span class="psacc-font-bold">{$testimonial[$isoCode]['name']|default:$testimonial[$defaultIsoCode]['name']}</span>, {$testimonial[$isoCode]['enterprise']|default:$testimonial[$defaultIsoCode]['enterprise']}
                                 </p>
                             </div>
                         </li>
