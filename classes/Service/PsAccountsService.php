@@ -310,20 +310,22 @@ class PsAccountsService
 
         // FIXME: v1.6 compat
         if (!empty($employeeId) && method_exists($this->module, 'getContainer')) {
-            /** @var EntityManagerInterface $entityManager */
+            /**
+             * @phpstan-ignore-next-line
+             * @var EntityManagerInterface $entityManager
+             */
             $entityManager = $this->module->getContainer()->get('doctrine.orm.entity_manager');
 
+            /* @phpstan-ignore-next-line */
             $employeeAccountRepository = $entityManager->getRepository(EmployeeAccount::class);
 
             /**
              * @var EmployeeAccount $employeeAccount
-             * @phpstan-ignore-next-line
              */
             $employeeAccount = $employeeAccountRepository->findOneBy(['employeeId' => $employeeId]);
             // $employeeAccount = $employeeAccountRepository->findOneByUid($uid);
             return $employeeAccount;
         }
-
         return null;
     }
 }

@@ -18,7 +18,6 @@
  * @license   https://opensource.org/licenses/AFL-3.0 Academic Free License version 3.0
  */
 
-use GuzzleHttp\Exception\GuzzleException;
 use Monolog\Logger;
 use PrestaShop\Module\PsAccounts\Provider\OAuth2\PrestaShopClientProvider;
 use Symfony\Component\HttpFoundation\Session\SessionInterface;
@@ -91,50 +90,46 @@ class AdminLoginPsAccountsController extends AdminLoginControllerCore
     }
 
     /**
-     * @param mixed $tpl_name
+     * @param string $tpl_name
      *
-     * @return Smarty_Internal_Template|void
-     *
-     * @throws \Exception
+     * @phpstan-ignore-next-line
+     * @return Smarty_Internal_Template
      */
     public function createTemplate($tpl_name)
     {
-        try {
-            /** @var PrestaShopClientProvider $provider */
-            $provider = $this->psAccounts->getService(PrestaShopClientProvider::class);
+        /** @var PrestaShopClientProvider $provider */
+        $provider = $this->psAccounts->getService(PrestaShopClientProvider::class);
 
-            $testimonials = $this->getTestimonials();
+        $testimonials = $this->getTestimonials();
 
-            /** @var SessionInterface $session */
-            $session = $this->psAccounts->getSession();
+        $session = $this->psAccounts->getSession();
 
-            $this->context->smarty->assign('shopUrl', $this->context->shop->getBaseUrl(true));
+        /* @phpstan-ignore-next-line */
+        $this->context->smarty->assign('shopUrl', $this->context->shop->getBaseUrl(true));
 
-            $this->context->smarty->assign('oauthRedirectUri', $provider->getRedirectUri());
-            $this->context->smarty->assign('legacyLoginUri', $this->context->link->getAdminLink('AdminLogin', true, [], [
-                'mode' => self::PARAM_MODE_LOCAL,
-            ]));
+        $this->context->smarty->assign('oauthRedirectUri', $provider->getRedirectUri());
+        $this->context->smarty->assign('legacyLoginUri', $this->context->link->getAdminLink('AdminLogin', true, [], [
+            'mode' => self::PARAM_MODE_LOCAL,
+        ]));
 
-            $isoCode = $this->context->currentLocale->getCode();
-            $this->context->smarty->assign('isoCode', substr($isoCode, 0, 2));
-            $this->context->smarty->assign('defaultIsoCode', 'en');
-            $this->context->smarty->assign('testimonials', $testimonials);
+        /* @phpstan-ignore-next-line */
+        $isoCode = $this->context->currentLocale->getCode();
 
-            $this->context->smarty->assign('loginError', $session->remove('loginError'));
-            $this->context->smarty->assign('meta_title', '');
-            $this->context->smarty->assign('ssoResendVerificationEmail',
-                $this->psAccounts->getParameter('ps_accounts.sso_resend_verification_email_url')
-            );
+        $this->context->smarty->assign('isoCode', substr($isoCode, 0, 2));
+        $this->context->smarty->assign('defaultIsoCode', 'en');
+        $this->context->smarty->assign('testimonials', $testimonials);
 
-            return $this->context->smarty->createTemplate(
-                $this->psAccounts->getLocalPath() . '/views/templates/admin/' . $this->template,
-                $this->context->smarty
-            );
-        } catch (\Exception $e) {
-            $this->logger->error('Error while creating the ps accounts login template', ['error' => $e->getMessage()]);
-        }
+        $this->context->smarty->assign('loginError', $session->remove('loginError'));
+        $this->context->smarty->assign('meta_title', '');
+        $this->context->smarty->assign('ssoResendVerificationEmail',
+            $this->psAccounts->getParameter('ps_accounts.sso_resend_verification_email_url')
+        );
 
-        //return parent::createTemplate($tpl_name);
+        /* @phpstan-ignore-next-line */
+        return $this->context->smarty->createTemplate(
+            $this->psAccounts->getLocalPath() . '/views/templates/admin/' . $this->template,
+            $this->context->smarty
+        );
     }
 
     /**
@@ -149,10 +144,8 @@ class AdminLoginPsAccountsController extends AdminLoginControllerCore
             ), true);
         } catch (Exception $e) {
             $this->logger->error('Error while getting the testimonials', ['error' => $e->getMessage()]);
-
         } catch (Throwable $e) {
             $this->logger->error('Error while getting the testimonials', ['error' => $e->getMessage()]);
-
         } finally {
             return $data;
         }
