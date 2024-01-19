@@ -2,7 +2,7 @@
 <module>
     <name>ps_accounts</name>
     <displayName><![CDATA[PrestaShop Account]]></displayName>
-    <version><![CDATA[5.3.2]]></version>
+    <version><![CDATA[6.4.0]]></version>
     <description><![CDATA[Link your store to your PrestaShop account to activate and manage your subscriptions in your back office. Do not uninstall this module if you have a current subscription.]]></description>
     <author><![CDATA[PrestaShop]]></author>
     <tab><![CDATA[administration]]></tab>
