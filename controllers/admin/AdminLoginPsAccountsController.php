@@ -20,7 +20,6 @@
 
 use Monolog\Logger;
 use PrestaShop\Module\PsAccounts\Provider\OAuth2\PrestaShopClientProvider;
-use Symfony\Component\HttpFoundation\Session\SessionInterface;
 
 class AdminLoginPsAccountsController extends AdminLoginControllerCore
 {
@@ -93,6 +92,7 @@ class AdminLoginPsAccountsController extends AdminLoginControllerCore
      * @param string $tpl_name
      *
      * @phpstan-ignore-next-line
+     *
      * @return Smarty_Internal_Template
      */
     public function createTemplate($tpl_name)

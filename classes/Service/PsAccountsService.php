@@ -312,6 +312,7 @@ class PsAccountsService
         if (!empty($employeeId) && method_exists($this->module, 'getContainer')) {
             /**
              * @phpstan-ignore-next-line
+             *
              * @var EntityManagerInterface $entityManager
              */
             $entityManager = $this->module->getContainer()->get('doctrine.orm.entity_manager');
@@ -326,6 +327,7 @@ class PsAccountsService
             // $employeeAccount = $employeeAccountRepository->findOneByUid($uid);
             return $employeeAccount;
         }
+
         return null;
     }
 }
