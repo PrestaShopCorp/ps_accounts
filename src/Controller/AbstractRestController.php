@@ -24,6 +24,7 @@ use Context;
 use Lcobucci\JWT\Parser;
 use Lcobucci\JWT\Signer\Hmac\Sha256;
 use Lcobucci\JWT\Signer\Key;
+use ModuleFrontController;
 use PrestaShop\Module\PsAccounts\Exception\Http\HttpException;
 use PrestaShop\Module\PsAccounts\Exception\Http\MethodNotAllowedException;
 use PrestaShop\Module\PsAccounts\Exception\Http\UnauthorizedException;
@@ -33,7 +34,7 @@ use PrestaShop\Module\PsAccounts\Repository\ConfigurationRepository;
 use ReflectionException;
 use ReflectionParameter;
 
-abstract class AbstractRestController extends \ModuleFrontController
+abstract class AbstractRestController extends ModuleFrontController
 {
     const TOKEN_HEADER = 'X-PrestaShop-Signature';
 

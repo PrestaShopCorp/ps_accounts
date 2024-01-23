@@ -43,6 +43,9 @@ views/files/*
 /views/js/settings*.js.map
 /views/js/settingsOnBoarding*.js
 /views/js/settingsOnBoarding*.js.map
+/views/js/login*.js
+/views/js/login*.js.map
+/views/css/login*.css
 /views/css/index.css
 /views/css/chunk-vendors.css
 /views/favicon.ico
@@ -52,6 +55,3 @@ views/files/*
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
-
-.vscode
-/tests/local_config.php

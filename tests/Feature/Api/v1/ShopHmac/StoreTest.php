@@ -25,11 +25,11 @@ class StoreTest extends FeatureTestCase
 
         $response = $this->client->post('/module/ps_accounts/apiV1ShopHmac', [
             'headers' => [
-                AbstractRestController::TOKEN_HEADER => $this->encodePayload($payload),
+                AbstractRestController::TOKEN_HEADER => (string) $this->encodePayload($payload),
             ],
         ]);
 
-        $json = $response->json();
+        $json = $this->getResponseJson($response);
 
         $this->module->getLogger()->info(print_r($json, true));
 

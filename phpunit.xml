@@ -6,16 +6,16 @@
          convertErrorsToExceptions="true"
          convertNoticesToExceptions="true"
          convertWarningsToExceptions="true"
-         defaultTestSuite="unit"
+         defaultTestSuite="all"
 >
   <testsuites>
     <testsuite name="all">
       <directory suffix="Test.php">./tests</directory>
-      <directory suffix="Test.php">./classes</directory>
+      <directory suffix="Test.php">./src</directory>
     </testsuite>
     <testsuite name="unit">
       <directory suffix="Test.php">./tests/Unit</directory>
-      <directory suffix="Test.php">./classes</directory>
+      <directory suffix="Test.php">./src</directory>
     </testsuite>
     <testsuite name="feature">
       <directory suffix="Test.php">./tests/Feature</directory>
@@ -23,8 +23,8 @@
   </testsuites>
   <filter>
     <whitelist>
-      <directory suffix=".php">./controllers</directory>
-      <directory suffix=".php">./classes</directory>
+      <directory suffix=".php">controllers</directory>
+      <directory suffix=".php">src</directory>
     </whitelist>
   </filter>
   <logging>

@@ -17,9 +17,6 @@
  * @copyright Since 2007 PrestaShop SA and Contributors
  * @license   https://opensource.org/licenses/AFL-3.0 Academic Free License version 3.0
  */
-
-use PrestaShop\Module\PsAccounts\Adapter\Link;
-
 if (!defined('_PS_VERSION_')) {
     exit;
 }
@@ -48,16 +45,20 @@ class Ps_accounts extends Module
      * @var array
      */
     private $hookToInstall = [
+        'displaybackOfficeEmployeeMenu',
         'displayBackOfficeHeader',
+        'displayDashboardTop',
+        'displayAccountUpdateWarning',
         'actionObjectShopAddAfter',
         'actionObjectShopUpdateAfter',
         'actionObjectShopDeleteBefore',
         'actionObjectShopDeleteAfter',
         'actionObjectShopUrlUpdateAfter',
-        'displayDashboardTop',
         'actionModuleInstallAfter',
         //'actionAdminControllerInitBefore',
         'actionAdminLoginControllerSetMedia',
+        'actionAdminLoginControllerLoginAfter',
+        'actionModuleInstallAfter',
         self::HOOK_DISPLAY_ACCOUNT_UPDATE_WARNING,
         self::HOOK_ACTION_SHOP_ACCOUNT_LINK_AFTER,
         self::HOOK_ACTION_SHOP_ACCOUNT_UNLINK_AFTER,
@@ -211,6 +212,22 @@ class Ps_accounts extends Module
     }
 
     /**
+     * @return \Symfony\Component\DependencyInjection\ContainerInterface|null
+     */
+    public function getCoreServiceContainer()
+    {
+        if (method_exists($this, 'getContainer')) {
+            return $this->getContainer();
+        }
+
+        if (class_exists('\PrestaShop\PrestaShop\Adapter\SymfonyContainer')) {
+            return \PrestaShop\PrestaShop\Adapter\SymfonyContainer::getInstance();
+        }
+
+        return null;
+    }
+
+    /**
      * @return \PrestaShop\Module\PsAccounts\DependencyInjection\ServiceContainer
      *
      * @throws Exception
@@ -294,19 +311,28 @@ class Ps_accounts extends Module
     }
 
     /**
-     * @return \Symfony\Component\DependencyInjection\ContainerInterface|null
+     * @param array $params
+     *
+     * @return void
+     *
+     * @throws Exception
      */
-    public function getPrestaShopContainer()
+    public function hookDisplaybackOfficeEmployeeMenu($params)
     {
-        if (method_exists($this, 'getContainer')) {
-            return $this->getContainer();
-        }
+        $bar = $params['links'];
 
-        if (class_exists('\PrestaShop\PrestaShop\Adapter\SymfonyContainer')) {
-            return \PrestaShop\PrestaShop\Adapter\SymfonyContainer::getInstance();
-        }
+        $link = $this->getParameter('ps_accounts.accounts_ui_url') . '?' . http_build_query([
+            'utm_source' => Tools::getShopDomain(),
+            'utm_medium' => 'back-office',
+            'utm_campaign' => $this->name,
+            'utm_content' => 'headeremployeedropdownlink',
+        ]);
 
-        return null;
+        $bar->add(
+            new PrestaShop\PrestaShop\Core\Action\ActionsBarButton(
+                '', ['link' => $link, 'icon' => 'open_in_new'], $this->l('Manage your PrestaShop account')
+            )
+        );
     }
 
     /**
@@ -492,7 +518,7 @@ class Ps_accounts extends Module
             } elseif (true !== $response['status']) {
                 $this->getLogger()->debug(
                     'Error trying to PATCH shop : ' . $response['httpCode'] .
-                    ' ' . print_r($response['body']['message'], true)
+                    ' ' . print_r($response['body']['message'] ? $response['body']['message'] : '', true)
                 );
             }
         }
@@ -563,7 +589,7 @@ class Ps_accounts extends Module
         } elseif (true !== $response['status']) {
             $this->getLogger()->debug(
                 'Error trying to PATCH shop : ' . $response['httpCode'] .
-                ' ' . print_r($response['body']['message'], true)
+                ' ' . print_r($response['body']['message'] ? $response['body']['message'] : '', true)
             );
         }
 
@@ -652,6 +678,26 @@ class Ps_accounts extends Module
 //            Tools::redirectLink($link->getAdminLink('AdminLoginPsAccounts', false));
 //        }
 //    }
+//    /**
+//     * @param array $params
+//     *
+//     * @return void
+//     *
+//     * @throws Exception
+//     */
+//    public function hookActionAdminControllerInitBefore($params)
+//    {
+//        /** @var \PrestaShop\Module\PsAccounts\Service\PsAccountsService $psAccountsService */
+//        $psAccountsService = $this->getService(\PrestaShop\Module\PsAccounts\Service\PsAccountsService::class);
+//
+//        if (isset($_GET['logout'])) {
+//            if ($psAccountsService->getLoginActivated()) {
+//                $this->oauth2Logout();
+//            } else {
+//                $this->getOauth2Session()->clear();
+//            }
+//        }
+//    }
 
     /**
      * @return void
@@ -669,13 +715,12 @@ class Ps_accounts extends Module
         $local = Tools::getValue('mode') === AdminLoginPsAccountsController::PARAM_MODE_LOCAL ||
             !$psAccountsService->getLoginActivated();
 
-        $this->trackLoginEvent($local);
+        $this->trackLoginPage($local);
 
         if ($this->getShopContext()->isShop17() && !$local) {
-            /** @var Link $link */
-            $link = $this->getService(Link::class);
-
-            //Tools::redirectLink($link->getAdminLink('AdminLoginPsAccounts', false));
+//            /** @var \PrestaShop\Module\PsAccounts\Adapter\Link $link */
+//            $link = $this->getService(\PrestaShop\Module\PsAccounts\Adapter\Link::class);
+//            Tools::redirectLink($link->getAdminLink('AdminLoginPsAccounts', false));
             (new AdminLoginPsAccountsController())->run();
             exit;
         }
@@ -715,6 +760,18 @@ class Ps_accounts extends Module
     public function hookActionModuleInstallAfter($module)
     {
         $this->resetCircuitBreaker();
+    }
+
+    /**
+     * @param array $params
+     *
+     * @return void
+     *
+     * @throws Exception
+     */
+    public function hookActionAdminLoginControllerLoginAfter($params)
+    {
+        $this->trackLoginEvent($params['employee']);
     }
 
     /**
@@ -872,7 +929,7 @@ class Ps_accounts extends Module
      */
     public function getSession()
     {
-        $container = $this->getPrestaShopContainer();
+        $container = $this->getCoreServiceContainer();
         if ($container) {
             /** @var \PrestaShop\Module\PsAccounts\Provider\OAuth2\FallbackSession $session */
             $session = $container->get('session');
@@ -911,7 +968,7 @@ class Ps_accounts extends Module
      *
      * @throws Exception
      */
-    private function trackLoginEvent($local = false)
+    private function trackLoginPage($local = false)
     {
         if ($this->isShopEdition()) {
             /** @var \PrestaShop\Module\PsAccounts\Service\PsAccountsService $psAccountsService */
@@ -927,6 +984,37 @@ class Ps_accounts extends Module
             } else {
                 $analytics->pageLocalBoLogin($userId);
             }
+        }
+    }
+
+    /**
+     * @param Employee $employee
+     *
+     * @return void
+     *
+     * @throws Exception
+     */
+    private function trackLoginEvent(Employee $employee)
+    {
+        /** @var \PrestaShop\Module\PsAccounts\Service\AnalyticsService $analyticsService */
+        $analyticsService = $this->getService(\PrestaShop\Module\PsAccounts\Service\AnalyticsService::class);
+
+        /** @var \PrestaShop\Module\PsAccounts\Service\PsAccountsService $psAccountsService */
+        $psAccountsService = $this->getService(\PrestaShop\Module\PsAccounts\Service\PsAccountsService::class);
+
+        $account = $psAccountsService->getEmployeeAccount();
+
+        if ($this->isShopEdition()) {
+            $uid = null;
+            if ($account) {
+                $uid = $account->getUid();
+                $email = $account->getEmail();
+            } else {
+                $email = $employee->email;
+            }
+            $analyticsService->identify($uid, null, $email);
+            $analyticsService->group($uid, (string)$psAccountsService->getShopUuid());
+            $analyticsService->trackUserSignedIntoBackOfficeLocally($uid, $email);
         }
     }
 }

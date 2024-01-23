@@ -20,7 +20,9 @@
 
 namespace PrestaShop\Module\PsAccounts\Service;
 
+use Doctrine\ORM\EntityManager;
 use Doctrine\ORM\EntityManagerInterface;
+use Employee;
 use PrestaShop\Module\PsAccounts\Adapter\Link;
 use PrestaShop\Module\PsAccounts\Api\Client\AccountsClient;
 use PrestaShop\Module\PsAccounts\Entity\EmployeeAccount;

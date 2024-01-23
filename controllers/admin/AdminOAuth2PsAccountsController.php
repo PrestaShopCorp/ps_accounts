@@ -19,7 +19,7 @@
  */
 
 // FIXME : needed on 1.6
-require_once __DIR__ . '/../../classes/Provider/OAuth2/PrestaShopLoginTrait.php';
+require_once __DIR__ . '/../../src/Provider/OAuth2/PrestaShopLoginTrait.php';
 
 use Doctrine\ORM\EntityManagerInterface;
 use League\OAuth2\Client\Provider\Exception\IdentityProviderException;
@@ -132,6 +132,7 @@ class AdminOAuth2PsAccountsController extends ModuleAdminController
      *
      * @throws EmailNotVerifiedException
      * @throws EmployeeNotFoundException
+     * @throws Exception
      */
     private function initUserSession(PrestaShopUser $user)
     {
@@ -177,68 +178,9 @@ class AdminOAuth2PsAccountsController extends ModuleAdminController
 
         $cookie->write();
 
-//        if ($this->module->isShopEdition()) {
-//            $this->analyticsService->identify(
-//                $user->getId(),
-//                $user->getName(),
-//                $user->getEmail()
-//            );
-//            $this->analyticsService->group(
-//                $user->getId(),
-//                (string) $this->psAccountsService->getShopUuid()
-//            );
-//            $this->analyticsService->trackUserSignedIntoApp(
-//                $user->getId(),
-//                'smb-edition'
-//            );
-//        }
+        $this->trackLoginEvent($user);
 
         return true;
-    }
-
-    /**
-     * @param string $uid
-     * @param string $email
-     *
-     * @return Employee
-     */
-    private function getEmployeeByUidOrEmail($uid, $email)
-    {
-//        /** @var EntityManagerInterface $entityManager */
-//        $entityManager = $this->module->getContainer()->get('doctrine.orm.entity_manager');
-//
-//        $employeeAccountRepository = $entityManager->getRepository(EmployeeAccount::class);
-//
-//        /**
-//         * @var EmployeeAccount $employeeAccount
-//         * @phpstan-ignore-next-line
-//         */
-//        $employeeAccount = $employeeAccountRepository->findOneBy(['uid' => $uid]);
-//        // $employeeAccount = $employeeAccountRepository->findOneByUid($uid);
-//
-//        /* @phpstan-ignore-next-line */
-//        if ($employeeAccount) {
-//            $employee = new Employee($employeeAccount->getEmployeeId());
-//        } else {
-//            $employeeAccount = new EmployeeAccount();
-//            $employee = new Employee();
-//            $employee->getByEmail($email);
-//        }
-//
-//        // Update account
-//        if ($employee->id) {
-//            $employeeAccount->setEmployeeId($employee->id)
-//                ->setUid($uid)
-//                ->setEmail($email);
-//
-//            $entityManager->persist($employeeAccount);
-//            $entityManager->flush();
-//        }
-
-        $employee = new Employee();
-        $employee->getByEmail($email);
-
-        return $employee;
     }
 
     /**
@@ -247,29 +189,16 @@ class AdminOAuth2PsAccountsController extends ModuleAdminController
      * @return void
      *
      * @throws PrestaShopException
+     * @throws Exception
      */
     private function onLoginFailed(AccountLoginException $e)
     {
-//        if ($this->module->isShopEdition() && (
-//                $e instanceof EmployeeNotFoundException ||
-//                $e instanceof EmailNotVerifiedException
-//            )) {
-//            $user = $e->getPrestaShopUser();
-//            $this->analyticsService->identify(
-//                $user->getId(),
-//                $user->getName(),
-//                $user->getEmail()
-//            );
-//            $this->analyticsService->group(
-//                $user->getId(),
-//                (string) $this->psAccountsService->getShopUuid()
-//            );
-//            $this->analyticsService->trackBackOfficeSSOSignInFailed(
-//                $user->getId(),
-//                $e->getType(),
-//                $e->getMessage()
-//            );
-//        }
+        if ($this->module->isShopEdition() && (
+                $e instanceof EmployeeNotFoundException ||
+                $e instanceof EmailNotVerifiedException
+            )) {
+            $this->trackLoginFailedEvent($e);
+        }
 
         $this->oauth2ErrorLog($e->getMessage());
         $this->setLoginError($e->getType());
@@ -332,5 +261,107 @@ class AdminOAuth2PsAccountsController extends ModuleAdminController
     protected function getOauth2Session()
     {
         return $this->module->getService(PrestaShopSession::class);
+    }
+
+    /**
+     * @param PrestaShopUser $user
+     *
+     * @return void
+     *
+     * @throws Exception
+     */
+    private function trackLoginEvent(PrestaShopUser $user)
+    {
+        if ($this->module->isShopEdition()) {
+            $this->analyticsService->identify(
+                $user->getId(),
+                $user->getName(),
+                $user->getEmail()
+            );
+            $this->analyticsService->group(
+                $user->getId(),
+                (string)$this->psAccountsService->getShopUuid()
+            );
+            $this->analyticsService->trackUserSignedIntoApp(
+                $user->getId(),
+                'smb-edition'
+            );
+        }
+    }
+
+    /**
+     * @param EmployeeNotFoundException|EmailNotVerifiedException $e
+     *
+     * @return void
+     *
+     * @throws Exception
+     */
+    private function trackLoginFailedEvent($e)
+    {
+        $user = $e->getPrestaShopUser();
+        $this->analyticsService->identify(
+            $user->getId(),
+            $user->getName(),
+            $user->getEmail()
+        );
+        $this->analyticsService->group(
+            $user->getId(),
+            (string)$this->psAccountsService->getShopUuid()
+        );
+        $this->analyticsService->trackBackOfficeSSOSignInFailed(
+            $user->getId(),
+            $e->getType(),
+            $e->getMessage()
+        );
+    }
+
+    /**
+     * @param string $uid
+     * @param string $email
+     *
+     * @return Employee
+     *
+     * @throws Exception
+     */
+    private function getEmployeeByUidOrEmail($uid, $email)
+    {
+        if (method_exists($this->module, 'getContainer')) {
+
+            /** @var EntityManagerInterface $entityManager */
+            $entityManager = $this->module->getContainer()->get('doctrine.orm.entity_manager');
+
+            $employeeAccountRepository = $entityManager->getRepository(EmployeeAccount::class);
+
+            /**
+             * @var EmployeeAccount $employeeAccount
+             * @phpstan-ignore-next-line
+             */
+            $employeeAccount = $employeeAccountRepository->findOneBy(['uid' => $uid]);
+            // $employeeAccount = $employeeAccountRepository->findOneByUid($uid);
+
+            /* @phpstan-ignore-next-line */
+            if ($employeeAccount) {
+                $employee = new Employee($employeeAccount->getEmployeeId());
+            } else {
+                $employeeAccount = new EmployeeAccount();
+                $employee = new Employee();
+                $employee->getByEmail($email);
+            }
+
+            // Update account
+            if ($employee->id) {
+                $employeeAccount->setEmployeeId($employee->id)
+                    ->setUid($uid)
+                    ->setEmail($email);
+
+                $entityManager->persist($employeeAccount);
+                $entityManager->flush();
+            }
+        } else {
+            $employee = new Employee();
+            $employee->getByEmail($email);
+        }
+
+        return $employee;
     }
 }

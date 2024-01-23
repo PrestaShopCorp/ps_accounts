@@ -10,8 +10,8 @@ PACKAGE ?= "${MODULE}-${VERSION}"
 PHPSTAN_VERSION ?= 0.12
 PHPUNIT_VERSION ?= latest
 PS_VERSION ?= latest #1.6.1.21|1.7.7.1|latest
-NEON_FILE ?= phpstan-PS-1.7.neon #phpstan-PS-1.7.neon
-DOCKER_INTERNAL ?= 1.7 # 1.7|nightly
+NEON_FILE ?= phpstan-PS-1.7.neon #phpstan-PS-1.6.neon
+DOCKER_INTERNAL ?= 1.7 # 1.7|8|nightly
 CONTAINER_INSTALL_DIR="/var/www/html/modules/ps_accounts"
 
 # target: default                                - Calling build by default

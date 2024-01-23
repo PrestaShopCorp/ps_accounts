@@ -10,7 +10,7 @@
     },
     "autoload": {
         "psr-4": {
-            "PrestaShop\\Module\\PsAccounts\\": "classes/"
+            "PrestaShop\\Module\\PsAccounts\\": "src/"
         },
         "classmap": [
             "ps_accounts.php",

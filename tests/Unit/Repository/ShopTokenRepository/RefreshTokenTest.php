@@ -74,6 +74,7 @@ class RefreshTokenTest extends TestCase
     /**
      * @test
      *
+     * @throws RefreshTokenException
      * @throws Exception
      */
     public function itShouldThrowExceptionOnErrorResponse()

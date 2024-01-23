@@ -50,8 +50,8 @@ class Sentry
      * @throws \Raven_Exception
      */
     public function __construct(
-        $sentryCredentials,
-        $environment,
+        string $sentryCredentials,
+        string $environment,
         ConfigurationRepository $configuration
     ) {
         $this->configuration = $configuration;
@@ -107,12 +107,5 @@ class Sentry
         self::capture($exception);
 
         throw $exception;
-    }
-
-    /**
-     * @return void
-     */
-    private function __clone()
-    {
     }
 }
