@@ -15,7 +15,7 @@ function upgrade_module_5_0_0($module)
     // Ignore fail on ps_eventbus install
     $moduleInstaller->installModule('ps_eventbus');
 
-    $module->registerHook($module->getHookToInstall());
+    $module->registerHook($module->getHooksToRegister());
 
     /** @var \PrestaShop\Module\PsAccounts\Service\PsAccountsService $psAccountService */
     $psAccountService = $module->getService(\PrestaShop\Module\PsAccounts\Service\PsAccountsService::class);

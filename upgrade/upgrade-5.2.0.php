@@ -10,7 +10,7 @@
 function upgrade_module_5_2_0($module)
 {
     $module->addCustomHooks($module->getCustomHooks());
-    $module->registerHook($module->getHookToInstall());
+    $module->registerHook($module->getHooksToRegister());
 
     updateShopUrl($module);
 

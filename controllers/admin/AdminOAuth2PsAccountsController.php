@@ -280,7 +280,7 @@ class AdminOAuth2PsAccountsController extends ModuleAdminController
             );
             $this->analyticsService->group(
                 $user->getId(),
-                (string)$this->psAccountsService->getShopUuid()
+                (string) $this->psAccountsService->getShopUuid()
             );
             $this->analyticsService->trackUserSignedIntoApp(
                 $user->getId(),
@@ -306,7 +306,7 @@ class AdminOAuth2PsAccountsController extends ModuleAdminController
         );
         $this->analyticsService->group(
             $user->getId(),
-            (string)$this->psAccountsService->getShopUuid()
+            (string) $this->psAccountsService->getShopUuid()
         );
         $this->analyticsService->trackBackOfficeSSOSignInFailed(
             $user->getId(),
@@ -326,7 +326,6 @@ class AdminOAuth2PsAccountsController extends ModuleAdminController
     private function getEmployeeByUidOrEmail($uid, $email)
     {
         if (method_exists($this->module, 'getContainer')) {
-
             /** @var EntityManagerInterface $entityManager */
             $entityManager = $this->module->getContainer()->get('doctrine.orm.entity_manager');
 

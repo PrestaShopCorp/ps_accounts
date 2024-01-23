@@ -21,6 +21,8 @@
 use PrestaShop\Module\PsAccounts\Controller\AbstractShopRestController;
 use PrestaShop\Module\PsAccounts\DTO\Api\UpdateShopLinkAccountRequest;
 use PrestaShop\Module\PsAccounts\Exception\RefreshTokenException;
+use PrestaShop\Module\PsAccounts\Hook\ActionShopAccountLinkAfter;
+use PrestaShop\Module\PsAccounts\Hook\ActionShopAccountUnlinkAfter;
 use PrestaShop\Module\PsAccounts\Service\PsAccountsService;
 use PrestaShop\Module\PsAccounts\Service\ShopLinkAccountService;
 
@@ -65,7 +67,7 @@ class ps_AccountsApiV1ShopLinkAccountModuleFrontController extends AbstractShopR
             $this->module->getParameter('ps_accounts.verify_account_tokens')
         );
 
-        Hook::exec(Ps_accounts::HOOK_ACTION_SHOP_ACCOUNT_LINK_AFTER, [
+        Hook::exec(ActionShopAccountLinkAfter::getName(), [
             'shopUuid' => $this->psAccountsService->getShopUuid(),
             'shopId' => $shop->id,
         ]);
@@ -94,7 +96,7 @@ class ps_AccountsApiV1ShopLinkAccountModuleFrontController extends AbstractShopR
 
         $this->shopLinkAccountService->resetLinkAccount();
 
-        Hook::exec(Ps_accounts::HOOK_ACTION_SHOP_ACCOUNT_UNLINK_AFTER, $hookData);
+        Hook::exec(ActionShopAccountUnlinkAfter::getName(), $hookData);
 
         return [
             'success' => true,

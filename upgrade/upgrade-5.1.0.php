@@ -9,7 +9,7 @@
  */
 function upgrade_module_5_1_0($module)
 {
-    $module->registerHook($module->getHookToInstall());
+    $module->registerHook($module->getHooksToRegister());
 
     return true;
 }

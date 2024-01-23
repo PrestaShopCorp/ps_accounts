@@ -10,7 +10,7 @@
 function upgrade_module_5_3_6($module)
 {
     $module->addCustomHooks($module->getCustomHooks());
-    $module->registerHook($module->getHookToInstall());
+    $module->registerHook($module->getHooksToRegister());
 
     return true;
 }
