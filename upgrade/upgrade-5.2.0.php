@@ -40,7 +40,7 @@ function updateShopUrl($module)
             $shopContext->execInShopContext($shop['id'], function () use ($accountsService, $shop, $accountsApi, $module) {
                 try {
                     if ($accountsService->isAccountLinked()) {
-                        $response = $accountsApi->updateUserShop(new \PrestaShop\Module\PsAccounts\DTO\UpdateShop([
+                        $response = $accountsApi->updateUserShop(new \PrestaShop\Module\PsAccounts\Dto\UpdateShop([
                             'shopId' => (string) $shop['id'],
                             'name' => $shop['name'],
                             'domain' => 'http://' . $shop['domain'],

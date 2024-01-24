@@ -27,15 +27,12 @@ use PrestaShop\Module\PsAccounts\Repository\ConfigurationRepository;
 use PrestaShop\Module\PsAccounts\Repository\ShopTokenRepository;
 
 /**
+ * @deprecated
+ *
  * Construct the psbilling service.
  */
 class PsBillingService
 {
-//    /**
-//     * @var \Symfony\Component\DependencyInjection\ContainerInterface
-//     */
-//    protected $container;
-
     /**
      * @var ConfigurationRepository
      */
@@ -67,22 +64,6 @@ class PsBillingService
         $this->shopTokenRepository = $shopTokenRepository;
         $this->configuration = $configuration;
     }
-
-//    /**
-//     * Override of native function to always retrieve Symfony container instead of legacy admin container on legacy context.
-//     *
-//     * @param string $serviceName
-//     *
-//     * @return mixed
-//     */
-//    public function get($serviceName)
-//    {
-//        if (null === $this->container) {
-//            $this->container = \PrestaShop\PrestaShop\Adapter\SymfonyContainer::getInstance();
-//        }
-//
-//        return $this->container->get($serviceName);
-//    }
 
     /**
      * Create a Billing customer if needed, and subscribe to $planName.

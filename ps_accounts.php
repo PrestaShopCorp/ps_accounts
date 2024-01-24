@@ -24,7 +24,7 @@ require_once __DIR__ . '/vendor/autoload.php';
 
 class Ps_accounts extends Module
 {
-    use \PrestaShop\Module\PsAccounts\Hook\TriggerHooksTrait;
+    use \PrestaShop\Module\PsAccounts\Hook\HookableTrait;
 
     const DEFAULT_ENV = '';
 
@@ -33,6 +33,8 @@ class Ps_accounts extends Module
     const VERSION = '6.4.0';
 
     /**
+     * Admin tabs
+     *
      * @var array
      */
     private $adminControllers = [
@@ -43,7 +45,7 @@ class Ps_accounts extends Module
     ];
 
     /**
-     * List of hook to install at the installation of the module
+     * Hooks to register
      *
      * @var array
      */
@@ -66,7 +68,7 @@ class Ps_accounts extends Module
     ];
 
     /**
-     * List of new hooks to create at the installation of the module
+     * Hooks exposed by the module
      *
      * @var array
      */
@@ -307,6 +309,73 @@ class Ps_accounts extends Module
     }
 
     /**
+     * @return array
+     */
+    public function getHooksToRegister()
+    {
+        return array_map(function ($className) {
+            return $className::getName();
+        }, $this->hooks);
+    }
+
+    /**
+     * @return array
+     */
+    public function getCustomHooks()
+    {
+        return $this->customHooks;
+    }
+
+    /**
+     * @return string
+     */
+    public function getModuleEnvVar()
+    {
+        return strtoupper((string) $this->name) . '_ENV';
+    }
+
+    /**
+     * @param string $default
+     *
+     * @return string
+     */
+    public function getModuleEnv($default = null)
+    {
+        return getenv($this->getModuleEnvVar()) ?: $default ?: self::DEFAULT_ENV;
+    }
+
+    /**
+     * Render the configuration form.
+     *
+     * @return string
+     *
+     * @throws PrestaShopException
+     * @throws \PrestaShop\Module\PsAccounts\Exception\SshKeysNotFoundException
+     */
+    public function getContent()
+    {
+        //$this->context->smarty->assign('pathVendor', $this->_path . 'views/js/chunk-vendors.' . $this->version . '.js');
+        $this->context->smarty->assign('pathApp', $this->_path . 'views/js/app.' . $this->version . '.js');
+        $this->context->smarty->assign('pathAppAssets', $this->_path . 'views/css/app.' . $this->version . '.css');
+        $this->context->smarty->assign('urlAccountsCdn', $this->getParameter('ps_accounts.accounts_cdn_url'));
+
+        $storePresenter = new PrestaShop\Module\PsAccounts\Presenter\Store\StorePresenter($this, $this->context);
+
+        Media::addJsDef([
+            'storePsAccounts' => $storePresenter->present(),
+        ]);
+
+        /** @var \PrestaShop\Module\PsAccounts\Presenter\PsAccountsPresenter $psAccountsPresenter */
+        $psAccountsPresenter = $this->getService(\PrestaShop\Module\PsAccounts\Presenter\PsAccountsPresenter::class);
+
+        Media::addJsDef([
+            'contextPsAccounts' => $psAccountsPresenter->present((string) $this->name),
+        ]);
+
+        return $this->display(__FILE__, 'views/templates/admin/app.tpl');
+    }
+
+    /**
      * @return mixed
      *
      * @throws Exception
@@ -342,68 +411,6 @@ class Ps_accounts extends Module
 
     /**
      * @return string
-     */
-    public function getModuleEnvVar()
-    {
-        return strtoupper((string) $this->name) . '_ENV';
-    }
-
-    /**
-     * @param string $default
-     *
-     * @return string
-     */
-    public function getModuleEnv($default = null)
-    {
-        return getenv($this->getModuleEnvVar()) ?: $default ?: self::DEFAULT_ENV;
-    }
-
-    /**
-     * Load the configuration form.
-     *
-     * @return string
-     *
-     * @throws PrestaShopException
-     * @throws \PrestaShop\Module\PsAccounts\Exception\SshKeysNotFoundException
-     */
-    public function getContent()
-    {
-        $this->loadAssets();
-
-        return $this->display(__FILE__, 'views/templates/admin/app.tpl');
-    }
-
-    /**
-     * Load VueJs App and set JS variable for Vuex
-     *
-     * @return void
-     *
-     * @throws PrestaShopException
-     * @throws \PrestaShop\Module\PsAccounts\Exception\SshKeysNotFoundException
-     */
-    protected function loadAssets()
-    {
-        //$this->context->smarty->assign('pathVendor', $this->_path . 'views/js/chunk-vendors.' . $this->version . '.js');
-        $this->context->smarty->assign('pathApp', $this->_path . 'views/js/app.' . $this->version . '.js');
-        $this->context->smarty->assign('pathAppAssets', $this->_path . 'views/css/app.' . $this->version . '.css');
-        $this->context->smarty->assign('urlAccountsCdn', $this->getParameter('ps_accounts.accounts_cdn_url'));
-
-        $storePresenter = new PrestaShop\Module\PsAccounts\Presenter\Store\StorePresenter($this, $this->context);
-
-        Media::addJsDef([
-            'storePsAccounts' => $storePresenter->present(),
-        ]);
-
-        /** @var \PrestaShop\Module\PsAccounts\Presenter\PsAccountsPresenter $psAccountsPresenter */
-        $psAccountsPresenter = $this->getService(\PrestaShop\Module\PsAccounts\Presenter\PsAccountsPresenter::class);
-
-        Media::addJsDef([
-            'contextPsAccounts' => $psAccountsPresenter->present((string) $this->name),
-        ]);
-    }
-
-    /**
-     * @return string
      *
      * @throws Exception
      */
@@ -426,6 +433,14 @@ class Ps_accounts extends Module
     }
 
     /**
+     * @return \PrestaShop\Module\PsAccounts\Middleware\Oauth2Middleware
+     */
+    public function getOauth2Middleware()
+    {
+        return $this->oauth2Middleware;
+    }
+
+    /**
      * @return void
      *
      * @throws Exception
@@ -443,51 +458,11 @@ class Ps_accounts extends Module
     }
 
     /**
-     * @return void
-     *
-     * @throws PrestaShopException
-     */
-    private function autoReonboardOnV5()
-    {
-        /** @var \PrestaShop\Module\PsAccounts\Service\PsAccountsService $psAccountsService */
-        $psAccountsService = $this->getService(\PrestaShop\Module\PsAccounts\Service\PsAccountsService::class);
-        $psAccountsService->autoReonboardOnV5();
-    }
-
-    /**
-     * @return array
-     */
-    public function getHooksToRegister()
-    {
-        return array_map(function ($className) {
-            return $className::getName();
-        }, $this->hooks);
-    }
-
-    /**
-     * @return array
-     */
-    public function getCustomHooks()
-    {
-        return $this->customHooks;
-    }
-
-    /**
      * @return bool
      */
     public function isShopEdition()
     {
         return Module::isEnabled('smb_edition');
-    }
-
-    /**
-     * @return \PrestaShop\Module\PsAccounts\Provider\OAuth2\Oauth2Client
-     *
-     * @throws Exception
-     */
-    public function getOauth2Client()
-    {
-        return $this->getService(\PrestaShop\Module\PsAccounts\Provider\OAuth2\Oauth2Client::class);
     }
 
     /**
@@ -530,10 +505,16 @@ class Ps_accounts extends Module
     }
 
     /**
-     * @return \PrestaShop\Module\PsAccounts\Middleware\Oauth2Middleware
+     * @deprecated
+     *
+     * @return void
+     *
+     * @throws PrestaShopException
      */
-    public function getOauth2Middleware()
+    private function autoReonboardOnV5()
     {
-        return $this->oauth2Middleware;
+        /** @var \PrestaShop\Module\PsAccounts\Service\PsAccountsService $psAccountsService */
+        $psAccountsService = $this->getService(\PrestaShop\Module\PsAccounts\Service\PsAccountsService::class);
+        $psAccountsService->autoReonboardOnV5();
     }
 }

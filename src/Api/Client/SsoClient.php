@@ -20,11 +20,10 @@
 
 namespace PrestaShop\Module\PsAccounts\Api\Client;
 
-use PrestaShop\Module\PsAccounts\Api\Client\CircuitBreaker\CircuitBreaker;
-use PrestaShop\Module\PsAccounts\Api\Client\Guzzle\GuzzleClient;
-use PrestaShop\Module\PsAccounts\Api\Client\Guzzle\GuzzleClientFactory;
 use PrestaShop\Module\PsAccounts\Factory\CircuitBreakerFactory;
-use PrestaShop\Module\PsAccounts\Repository\TokenClientInterface;
+use PrestaShop\Module\PsAccounts\Http\Client\CircuitBreaker\CircuitBreaker;
+use PrestaShop\Module\PsAccounts\Http\Client\Guzzle\GuzzleClient;
+use PrestaShop\Module\PsAccounts\Http\Client\Guzzle\GuzzleClientFactory;
 
 /**
  * Class ServicesAccountsClient
@@ -78,15 +77,6 @@ class SsoClient implements TokenClientInterface
     {
         if (null === $this->client) {
             $this->client = (new GuzzleClientFactory())->create([
-//                'base_url' => $this->apiUrl,
-//                'defaults' => [
-//                    'headers' => [
-//                        'Accept' => 'application/json',
-//                        'X-Module-Version' => \Ps_accounts::VERSION,
-//                        'X-Prestashop-Version' => _PS_VERSION_,
-//                    ],
-//                    'timeout' => $this->defaultTimeout,
-//                ],
                 'base_uri' => $this->apiUrl,
                 'headers' => [
                     'Accept' => 'application/json',

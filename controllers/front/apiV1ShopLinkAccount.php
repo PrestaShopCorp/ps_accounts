@@ -19,7 +19,7 @@
  */
 
 use PrestaShop\Module\PsAccounts\Controller\AbstractShopRestController;
-use PrestaShop\Module\PsAccounts\DTO\Api\UpdateShopLinkAccountRequest;
+use PrestaShop\Module\PsAccounts\Dto\Api\UpdateShopLinkAccountRequest;
 use PrestaShop\Module\PsAccounts\Exception\RefreshTokenException;
 use PrestaShop\Module\PsAccounts\Hook\ActionShopAccountLinkAfter;
 use PrestaShop\Module\PsAccounts\Hook\ActionShopAccountUnlinkAfter;

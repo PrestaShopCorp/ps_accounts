@@ -18,55 +18,55 @@
  * @license   https://opensource.org/licenses/AFL-3.0 Academic Free License version 3.0
  */
 
-namespace PrestaShop\Module\PsAccounts\Api\Client\CircuitBreaker;
+namespace PrestaShop\Module\PsAccounts\Dto;
 
-class InMemoryCircuitBreaker extends CircuitBreaker
+class UpdateShop extends AbstractDto
 {
-    /** @var int */
-    private $failureCount;
-
-    /** @var int|null */
-    private $lastFailureTime;
+    /**
+     * @var string
+     */
+    public $shopId;
 
     /**
-     * @param string $resourceId
+     * @var string
      */
-    public function __construct($resourceId)
-    {
-        parent::__construct($resourceId);
-
-        $this->reset();
-    }
+    public $name;
 
     /**
-     * @return int
+     * @var string
      */
-    public function getFailureCount()
-    {
-        return $this->failureCount;
-    }
+    public $virtualUri;
 
     /**
-     * @param int $failureCount
+     * @var string
      */
-    public function setFailureCount($failureCount)
-    {
-        $this->failureCount = $failureCount;
-    }
+    public $physicalUri;
 
     /**
-     * @return int|null
+     * @var string
      */
-    public function getLastFailureTime()
-    {
-        return $this->lastFailureTime;
-    }
+    public $domain;
 
     /**
-     * @param int|null $lastFailureTime
+     * @var string
      */
-    public function setLastFailureTime($lastFailureTime)
-    {
-        $this->lastFailureTime = $lastFailureTime;
-    }
+    public $sslDomain;
+
+    /**
+     * @var string
+     */
+    public $boBaseUrl;
+
+    /**
+     * @var string[]
+     */
+    public $mandatory = [
+        'shopId',
+        'name',
+        'virtualUri',
+        'physicalUri',
+        'domain',
+        'sslDomain',
+        'boBaseUrl',
+    ];
 }

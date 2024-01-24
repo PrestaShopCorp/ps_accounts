@@ -2,7 +2,7 @@
 
 namespace PrestaShop\Module\PsAccounts\Tests\Feature\Api\v1\ShopToken;
 
-use PrestaShop\Module\PsAccounts\Adapter\ConfigurationKeys;
+use PrestaShop\Module\PsAccounts\Repository\ConfigurationKeys;
 use PrestaShop\Module\PsAccounts\Controller\AbstractRestController;
 use PrestaShop\Module\PsAccounts\Tests\Feature\FeatureTestCase;
 

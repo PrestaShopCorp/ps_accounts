@@ -28,7 +28,7 @@ use ModuleFrontController;
 use PrestaShop\Module\PsAccounts\Exception\Http\HttpException;
 use PrestaShop\Module\PsAccounts\Exception\Http\MethodNotAllowedException;
 use PrestaShop\Module\PsAccounts\Exception\Http\UnauthorizedException;
-use PrestaShop\Module\PsAccounts\Handler\Error\Sentry;
+use PrestaShop\Module\PsAccounts\Service\SentryService;
 use PrestaShop\Module\PsAccounts\Provider\RsaKeysProvider;
 use PrestaShop\Module\PsAccounts\Repository\ConfigurationRepository;
 use ReflectionException;
@@ -327,7 +327,7 @@ abstract class AbstractRestController extends ModuleFrontController
      */
     private function handleError($e)
     {
-        Sentry::capture($e);
+        SentryService::capture($e);
 
         $this->module->getLogger()->error($e);
 

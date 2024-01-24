@@ -118,8 +118,8 @@ services:
   #####################
   # handlers
 
-  PrestaShop\Module\PsAccounts\Handler\Error\Sentry:
-    class: PrestaShop\Module\PsAccounts\Handler\Error\Sentry
+  PrestaShop\Module\PsAccounts\Service\SentryService:
+    class: PrestaShop\Module\PsAccounts\Service\SentryService
     public: true
     arguments:
       - '%ps_accounts.sentry_credentials%'

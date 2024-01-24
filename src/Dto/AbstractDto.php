@@ -18,7 +18,7 @@
  * @license   https://opensource.org/licenses/AFL-3.0 Academic Free License version 3.0
  */
 
-namespace PrestaShop\Module\PsAccounts\DTO;
+namespace PrestaShop\Module\PsAccounts\Dto;
 
 use PrestaShop\Module\PsAccounts\Exception\DtoException;
 

@@ -18,55 +18,26 @@
  * @license   https://opensource.org/licenses/AFL-3.0 Academic Free License version 3.0
  */
 
-namespace PrestaShop\Module\PsAccounts\DTO;
+namespace PrestaShop\Module\PsAccounts\Http\Client\Guzzle;
 
-class UpdateShop extends AbstractDto
+use GuzzleHttp\Client;
+
+class Guzzle5Client extends GuzzleClient
 {
-    /**
-     * @var string
-     */
-    public $shopId;
+    public function __construct($options)
+    {
+        /** @var \Ps_accounts $module */
+        $module = \Module::getInstanceByName('ps_accounts');
 
-    /**
-     * @var string
-     */
-    public $name;
+        $options = (new Guzzle5OptionsMapper())->fromGuzzle7Options(array_merge(
+            [
+                'timeout' => $this->timeout,
+                'exceptions' => $this->catchExceptions,
+                'verify' => (bool) $module->getParameter('ps_accounts.check_api_ssl_cert'),
+            ],
+            $options
+        ));
 
-    /**
-     * @var string
-     */
-    public $virtualUri;
-
-    /**
-     * @var string
-     */
-    public $physicalUri;
-
-    /**
-     * @var string
-     */
-    public $domain;
-
-    /**
-     * @var string
-     */
-    public $sslDomain;
-
-    /**
-     * @var string
-     */
-    public $boBaseUrl;
-
-    /**
-     * @var string[]
-     */
-    public $mandatory = [
-        'shopId',
-        'name',
-        'virtualUri',
-        'physicalUri',
-        'domain',
-        'sslDomain',
-        'boBaseUrl',
-    ];
+        $this->client = new Client($options);
+    }
 }

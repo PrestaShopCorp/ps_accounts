@@ -18,10 +18,10 @@
  * @license   https://opensource.org/licenses/AFL-3.0 Academic Free License version 3.0
  */
 
-namespace PrestaShop\Module\PsAccounts\Api\Client\Guzzle;
+namespace PrestaShop\Module\PsAccounts\Http\Client\Guzzle;
 
 use GuzzleHttp\Client;
-use PrestaShop\Module\PsAccounts\Api\Client\ClientInterface;
+use PrestaShop\Module\PsAccounts\Http\Client\ClientInterface;
 
 abstract class GuzzleClient implements ClientInterface
 {
@@ -219,7 +219,6 @@ abstract class GuzzleClient implements ClientInterface
                 $logger->debug('options ' . var_export($options, true));
                 $logger->debug('response ' . var_export($response, true));
             } catch (\Exception $e) {
-                //
             }
         }
     }

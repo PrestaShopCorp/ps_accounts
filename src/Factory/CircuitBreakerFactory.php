@@ -21,8 +21,8 @@
 namespace PrestaShop\Module\PsAccounts\Factory;
 
 use PrestaShop\Module\PsAccounts\Adapter\Configuration;
-use PrestaShop\Module\PsAccounts\Api\Client\CircuitBreaker\CircuitBreaker;
-use PrestaShop\Module\PsAccounts\Api\Client\CircuitBreaker\PersistentCircuitBreaker;
+use PrestaShop\Module\PsAccounts\Http\Client\CircuitBreaker\CircuitBreaker;
+use PrestaShop\Module\PsAccounts\Http\Client\CircuitBreaker\PersistentCircuitBreaker;
 
 class CircuitBreakerFactory
 {

@@ -18,21 +18,24 @@
  * @license   https://opensource.org/licenses/AFL-3.0 Academic Free License version 3.0
  */
 
-namespace PrestaShop\Module\PsAccounts\Repository;
+namespace PrestaShop\Module\PsAccounts\Http\Client\Guzzle;
 
-interface TokenClientInterface
+use GuzzleHttp\Client;
+
+class Guzzle7Client extends GuzzleClient
 {
-    /**
-     * @param string $refreshToken
-     *
-     * @return array response
-     */
-    public function refreshToken($refreshToken);
+    public function __construct($options)
+    {
+        /** @var \Ps_accounts $module */
+        $module = \Module::getInstanceByName('ps_accounts');
 
-    /**
-     * @param string $idToken
-     *
-     * @return array response
-     */
-    public function verifyToken($idToken);
+        $this->client = new Client(array_merge(
+            [
+                'timeout' => $this->timeout,
+                'http_errors' => $this->catchExceptions,
+                'verify' => (bool) $module->getParameter('ps_accounts.check_api_ssl_cert'),
+            ],
+            $options
+        ));
+    }
 }

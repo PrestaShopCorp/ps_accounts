@@ -20,8 +20,8 @@
 
 namespace PrestaShop\Module\PsAccounts\Api\Client;
 
-use PrestaShop\Module\PsAccounts\Api\Client\Guzzle\GuzzleClient;
-use PrestaShop\Module\PsAccounts\Api\Client\Guzzle\GuzzleClientFactory;
+use PrestaShop\Module\PsAccounts\Http\Client\Guzzle\GuzzleClient;
+use PrestaShop\Module\PsAccounts\Http\Client\Guzzle\GuzzleClientFactory;
 use PrestaShop\Module\PsAccounts\Provider\ShopProvider;
 use PrestaShop\Module\PsAccounts\Service\PsAccountsService;
 
@@ -59,18 +59,6 @@ class ServicesBillingClient
         // Client can be provided for tests
         if (null === $client) {
             $client = (new GuzzleClientFactory())->create([
-//                'base_url' => $apiUrl,
-//                'defaults' => [
-//                    'headers' => [
-//                        // Commented, else does not work anymore with API.
-//                        //'Content-Type' => 'application/vnd.accounts.v1+json', // api version to use
-//                        'Accept' => 'application/json',
-//                        'Authorization' => 'Bearer ' . (string) $token,
-//                        'Shop-Id' => $shopId,
-//                        'Module-Version' => \Ps_accounts::VERSION, // version of the module
-//                        'Prestashop-Version' => _PS_VERSION_, // prestashop version
-//                    ],
-//                ],
                 'base_uri' => $apiUrl,
                 'headers' => [
                     // Commented, else does not work anymore with API.

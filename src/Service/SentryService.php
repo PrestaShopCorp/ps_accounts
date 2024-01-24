@@ -18,17 +18,14 @@
  * @license   https://opensource.org/licenses/AFL-3.0 Academic Free License version 3.0
  */
 
-namespace PrestaShop\Module\PsAccounts\Handler\Error;
+namespace PrestaShop\Module\PsAccounts\Service;
 
 use Module;
 use PrestaShop\Module\PsAccounts\Repository\ConfigurationRepository;
 use Ps_accounts;
 use Raven_Client;
 
-/**
- * Handle Error.
- */
-class Sentry
+class SentryService
 {
     /**
      * @var Raven_Client
@@ -50,8 +47,8 @@ class Sentry
      * @throws \Raven_Exception
      */
     public function __construct(
-        string $sentryCredentials,
-        string $environment,
+        $sentryCredentials,
+        $environment,
         ConfigurationRepository $configuration
     ) {
         $this->configuration = $configuration;

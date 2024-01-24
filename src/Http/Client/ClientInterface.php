@@ -18,29 +18,48 @@
  * @license   https://opensource.org/licenses/AFL-3.0 Academic Free License version 3.0
  */
 
-namespace PrestaShop\Module\PsAccounts\DTO;
+namespace PrestaShop\Module\PsAccounts\Http\Client;
 
-use PrestaShop\Module\PsAccounts\Exception\DtoException;
-use PrestaShop\Module\PsAccounts\Exception\Http\BadRequestException;
+use GuzzleHttp\Client;
 
-abstract class AbstractRequest extends AbstractDto
+/**
+ * Interface that the guzzle client class implement
+ */
+interface ClientInterface
 {
     /**
-     * @var bool
+     * Abtract client constructor
+     *
+     * @param array $options
      */
-    protected $throwOnUnexpectedProperties = false;
+    public function __construct($options);
 
     /**
-     * @param array $values
-     *
-     * @throws \Exception
+     * @return Client
      */
-    public function __construct($values = [])
-    {
-        try {
-            parent::__construct($values);
-        } catch (DtoException $e) {
-            throw new BadRequestException($e->getMessage());
-        }
-    }
+    public function getClient();
+
+    /**
+     * @param mixed $response
+     *
+     * @return array
+     */
+    public function handleResponse($response);
+
+    /**
+     * Check if the response is successful or not (response code 200 to 299).
+     *
+     * @param array $responseContents
+     * @param int $httpStatusCode
+     *
+     * @return bool
+     */
+    public function responseIsSuccessful($responseContents, $httpStatusCode);
+
+    /**
+     * @param mixed $response
+     *
+     * @return mixed
+     */
+    public function getResponseJson($response);
 }

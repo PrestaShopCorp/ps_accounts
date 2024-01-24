@@ -21,7 +21,7 @@
 namespace PrestaShop\Module\PsAccounts\Repository;
 
 use PrestaShop\Module\PsAccounts\Adapter\Configuration;
-use PrestaShop\Module\PsAccounts\Adapter\ConfigurationKeys;
+use PrestaShop\Module\PsAccounts\Repository\ConfigurationKeys;
 
 class ConfigurationRepository
 {

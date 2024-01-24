@@ -18,26 +18,22 @@
  * @license   https://opensource.org/licenses/AFL-3.0 Academic Free License version 3.0
  */
 
-namespace PrestaShop\Module\PsAccounts\Api\Client\Guzzle;
+namespace PrestaShop\Module\PsAccounts\Dto\Api;
 
-use GuzzleHttp\Client;
+use PrestaShop\Module\PsAccounts\Dto\AbstractRequest;
 
-class Guzzle5Client extends GuzzleClient
+class UpdateShopLinkAccountRequest extends AbstractRequest
 {
-    public function __construct($options)
-    {
-        /** @var \Ps_accounts $module */
-        $module = \Module::getInstanceByName('ps_accounts');
-
-        $options = (new Guzzle5OptionsMapper())->fromGuzzle7Options(array_merge(
-            [
-                'timeout' => $this->timeout,
-                'exceptions' => $this->catchExceptions,
-                'verify' => (bool) $module->getParameter('ps_accounts.check_api_ssl_cert'),
-            ],
-            $options
-        ));
-
-        $this->client = new Client($options);
-    }
+    /** @var string */
+    public $shop_id;
+    /** @var string */
+    public $shop_refresh_token;
+    /** @var string */
+    public $user_refresh_token;
+    /** @var string */
+    public $shop_token;
+    /** @var string */
+    public $user_token;
+    /** @var string */
+    public $employee_id = '';
 }

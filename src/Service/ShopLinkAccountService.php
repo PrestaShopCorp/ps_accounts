@@ -22,7 +22,7 @@ namespace PrestaShop\Module\PsAccounts\Service;
 
 use Module;
 use PrestaShop\Module\PsAccounts\Api\Client\AccountsClient;
-use PrestaShop\Module\PsAccounts\DTO\Api\UpdateShopLinkAccountRequest;
+use PrestaShop\Module\PsAccounts\Dto\Api\UpdateShopLinkAccountRequest;
 use PrestaShop\Module\PsAccounts\Exception\RefreshTokenException;
 use PrestaShop\Module\PsAccounts\Exception\SshKeysNotFoundException;
 use PrestaShop\Module\PsAccounts\Provider\OAuth2\Oauth2Client;
@@ -118,8 +118,8 @@ class ShopLinkAccountService
         $this->shopTokenRepository->cleanupCredentials();
         $this->userTokenRepository->cleanupCredentials();
         $this->configuration->updateEmployeeId('');
-        //$this->configuration->updateLoginEnabled(false);
-        //$this->oauth2Client->delete();
+        $this->configuration->updateLoginEnabled(false);
+        $this->oauth2Client->delete();
         try {
             $this->rsaKeysProvider->generateKeys();
         } catch (\Exception $e) {

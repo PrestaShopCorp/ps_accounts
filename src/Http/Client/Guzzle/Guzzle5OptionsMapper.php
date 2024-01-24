@@ -18,8 +18,7 @@
  * @license   https://opensource.org/licenses/AFL-3.0 Academic Free License version 3.0
  */
 
-
-namespace PrestaShop\Module\PsAccounts\Api\Client\Guzzle;
+namespace PrestaShop\Module\PsAccounts\Http\Client\Guzzle;
 
 class Guzzle5OptionsMapper
 {

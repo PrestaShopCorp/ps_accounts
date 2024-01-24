@@ -23,7 +23,7 @@ namespace PrestaShop\Module\PsAccounts\Hook;
 use Exception;
 use PrestaShop\Module\PsAccounts\Adapter\Link;
 use PrestaShop\Module\PsAccounts\Api\Client\AccountsClient;
-use PrestaShop\Module\PsAccounts\DTO\UpdateShop;
+use PrestaShop\Module\PsAccounts\Dto\UpdateShop;
 
 class ActionObjectShopUpdateAfter extends Hook
 {

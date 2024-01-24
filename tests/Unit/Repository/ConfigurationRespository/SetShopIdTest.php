@@ -3,7 +3,7 @@
 namespace PrestaShop\Module\PsAccounts\Tests\Unit\Repository\ConfigurationRespository;
 
 use PrestaShop\Module\PsAccounts\Adapter\Configuration;
-use PrestaShop\Module\PsAccounts\Adapter\ConfigurationKeys;
+use PrestaShop\Module\PsAccounts\Repository\ConfigurationKeys;
 use PrestaShop\Module\PsAccounts\Repository\ConfigurationRepository;
 use PrestaShop\Module\PsAccounts\Tests\TestCase;
 

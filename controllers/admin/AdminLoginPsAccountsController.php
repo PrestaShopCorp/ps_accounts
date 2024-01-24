@@ -150,9 +150,10 @@ class AdminLoginPsAccountsController extends AdminLoginControllerCore
                         'verify_peer' => $verify,
                         'verify_peer_name' => $verify,
                     ],
-                    'http' => [ 'ignore_errors' => '1',
-                        ],
-                    ])
+                    'http' => [
+                        'ignore_errors' => '1',
+                    ],
+                ])
             ),
             true
         ) ?: [];

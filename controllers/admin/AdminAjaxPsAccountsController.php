@@ -18,7 +18,7 @@
  * @license   https://opensource.org/licenses/AFL-3.0 Academic Free License version 3.0
  */
 
-use PrestaShop\Module\PsAccounts\Handler\Error\Sentry;
+use PrestaShop\Module\PsAccounts\Service\SentryService;
 use PrestaShop\Module\PsAccounts\Presenter\PsAccountsPresenter;
 use PrestaShop\Module\PsAccounts\Provider\OAuth2\PrestaShopSession;
 use PrestaShop\Module\PsAccounts\Repository\ShopTokenRepository;
@@ -64,7 +64,7 @@ class AdminAjaxPsAccountsController extends ModuleAdminController
                 ])
             );
         } catch (Exception $e) {
-            Sentry::captureAndRethrow($e);
+            SentryService::captureAndRethrow($e);
         }
     }
 
@@ -88,7 +88,7 @@ class AdminAjaxPsAccountsController extends ModuleAdminController
 
             $this->ajaxDie(json_encode($response['body']));
         } catch (Exception $e) {
-            Sentry::captureAndRethrow($e);
+            SentryService::captureAndRethrow($e);
         }
     }
 
@@ -109,7 +109,7 @@ class AdminAjaxPsAccountsController extends ModuleAdminController
 
             $this->ajaxDie(json_encode(['message' => 'success']));
         } catch (Exception $e) {
-            Sentry::captureAndRethrow($e);
+            SentryService::captureAndRethrow($e);
         }
     }
 
@@ -130,7 +130,7 @@ class AdminAjaxPsAccountsController extends ModuleAdminController
 
             $this->ajaxDie(json_encode($presenter->present($psxName)));
         } catch (Exception $e) {
-            Sentry::captureAndRethrow($e);
+            SentryService::captureAndRethrow($e);
         }
     }
 
@@ -153,7 +153,7 @@ class AdminAjaxPsAccountsController extends ModuleAdminController
                 ])
             );
         } catch (Exception $e) {
-            Sentry::captureAndRethrow($e);
+            SentryService::captureAndRethrow($e);
         }
     }
 
@@ -186,7 +186,7 @@ class AdminAjaxPsAccountsController extends ModuleAdminController
                 );
             }
         } catch (Exception $e) {
-            Sentry::captureAndRethrow($e);
+            SentryService::captureAndRethrow($e);
         }
     }
 }

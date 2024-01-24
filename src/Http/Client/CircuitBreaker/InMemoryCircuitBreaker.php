@@ -18,48 +18,55 @@
  * @license   https://opensource.org/licenses/AFL-3.0 Academic Free License version 3.0
  */
 
-namespace PrestaShop\Module\PsAccounts\Api\Client;
+namespace PrestaShop\Module\PsAccounts\Http\Client\CircuitBreaker;
 
-use GuzzleHttp\Client;
-
-/**
- * Interface that the guzzle client class implement
- */
-interface ClientInterface
+class InMemoryCircuitBreaker extends CircuitBreaker
 {
-    /**
-     * Abtract client constructor
-     *
-     * @param array $options
-     */
-    public function __construct($options);
+    /** @var int */
+    private $failureCount;
+
+    /** @var int|null */
+    private $lastFailureTime;
 
     /**
-     * @return Client
+     * @param string $resourceId
      */
-    public function getClient();
+    public function __construct($resourceId)
+    {
+        parent::__construct($resourceId);
+
+        $this->reset();
+    }
 
     /**
-     * @param mixed $response
-     *
-     * @return array
+     * @return int
      */
-    public function handleResponse($response);
+    public function getFailureCount()
+    {
+        return $this->failureCount;
+    }
 
     /**
-     * Check if the response is successful or not (response code 200 to 299).
-     *
-     * @param array $responseContents
-     * @param int $httpStatusCode
-     *
-     * @return bool
+     * @param int $failureCount
      */
-    public function responseIsSuccessful($responseContents, $httpStatusCode);
+    public function setFailureCount($failureCount)
+    {
+        $this->failureCount = $failureCount;
+    }
 
     /**
-     * @param mixed $response
-     *
-     * @return mixed
+     * @return int|null
      */
-    public function getResponseJson($response);
+    public function getLastFailureTime()
+    {
+        return $this->lastFailureTime;
+    }
+
+    /**
+     * @param int|null $lastFailureTime
+     */
+    public function setLastFailureTime($lastFailureTime)
+    {
+        $this->lastFailureTime = $lastFailureTime;
+    }
 }

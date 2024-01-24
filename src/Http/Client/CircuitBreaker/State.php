@@ -18,22 +18,13 @@
  * @license   https://opensource.org/licenses/AFL-3.0 Academic Free License version 3.0
  */
 
-namespace PrestaShop\Module\PsAccounts\DTO\Api;
+namespace PrestaShop\Module\PsAccounts\Http\Client\CircuitBreaker;
 
-use PrestaShop\Module\PsAccounts\DTO\AbstractRequest;
+use PrestaShop\Module\PsAccounts\Enum;
 
-class UpdateShopLinkAccountRequest extends AbstractRequest
+class State extends Enum
 {
-    /** @var string */
-    public $shop_id;
-    /** @var string */
-    public $shop_refresh_token;
-    /** @var string */
-    public $user_refresh_token;
-    /** @var string */
-    public $shop_token;
-    /** @var string */
-    public $user_token;
-    /** @var string */
-    public $employee_id = '';
+    const OPEN = 0;
+    const CLOSED = 1;
+    const HALF_OPEN = 2;
 }

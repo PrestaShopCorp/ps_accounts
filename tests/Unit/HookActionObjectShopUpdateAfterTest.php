@@ -6,7 +6,7 @@ use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\ORM\OptimisticLockException;
 use Exception;
 use PrestaShop\Module\PsAccounts\Api\Client\AccountsClient;
-use PrestaShop\Module\PsAccounts\DTO\UpdateShop;
+use PrestaShop\Module\PsAccounts\Dto\UpdateShop;
 use PrestaShop\Module\PsAccounts\Provider\ShopProvider;
 use PrestaShop\Module\PsAccounts\Tests\TestCase;
 use PrestaShop\PrestaShop\Adapter\Meta\ShopUrlDataConfiguration;

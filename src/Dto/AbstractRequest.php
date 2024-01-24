@@ -18,13 +18,29 @@
  * @license   https://opensource.org/licenses/AFL-3.0 Academic Free License version 3.0
  */
 
-namespace PrestaShop\Module\PsAccounts\Api\Client\CircuitBreaker;
+namespace PrestaShop\Module\PsAccounts\Dto;
 
-use PrestaShop\Module\PsAccounts\Enum;
+use PrestaShop\Module\PsAccounts\Exception\DtoException;
+use PrestaShop\Module\PsAccounts\Exception\Http\BadRequestException;
 
-class State extends Enum
+abstract class AbstractRequest extends AbstractDto
 {
-    const OPEN = 0;
-    const CLOSED = 1;
-    const HALF_OPEN = 2;
+    /**
+     * @var bool
+     */
+    protected $throwOnUnexpectedProperties = false;
+
+    /**
+     * @param array $values
+     *
+     * @throws \Exception
+     */
+    public function __construct($values = [])
+    {
+        try {
+            parent::__construct($values);
+        } catch (DtoException $e) {
+            throw new BadRequestException($e->getMessage());
+        }
+    }
 }

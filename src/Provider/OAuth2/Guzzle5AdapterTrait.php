@@ -25,8 +25,8 @@ use GuzzleHttp\Exception\GuzzleException;
 use GuzzleHttp\Message\RequestInterface as GuzzleRequest;
 use GuzzleHttp\Message\ResponseInterface as GuzzleResponse;
 use GuzzleHttp\Psr7\Response;
-use PrestaShop\Module\PsAccounts\Api\Client\Guzzle\Guzzle5OptionsMapper;
-use PrestaShop\Module\PsAccounts\Api\Client\Guzzle\GuzzleClientFactory;
+use PrestaShop\Module\PsAccounts\Http\Client\Guzzle\Guzzle5OptionsMapper;
+use PrestaShop\Module\PsAccounts\Http\Client\Guzzle\GuzzleClientFactory;
 use PrestaShop\OAuth2\Client\Provider\PrestaShop;
 use Psr\Http\Message\RequestInterface;
 use Psr\Http\Message\ResponseInterface;
@@ -52,6 +52,7 @@ trait Guzzle5AdapterTrait
     public function buildHttpClient($options)
     {
         /** @var $this PrestaShop */
+        /* @phpstan-ignore-next-line */
         $client_options = $this->getAllowedClientOptions($options);
 
         if (!$this->isGuzzle5()) {

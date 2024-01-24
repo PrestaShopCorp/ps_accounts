@@ -21,8 +21,8 @@
 
 namespace PrestaShop\Module\PsAccounts\Api\Client;
 
-use PrestaShop\Module\PsAccounts\Api\Client\Guzzle\GuzzleClient;
-use PrestaShop\Module\PsAccounts\Api\Client\Guzzle\GuzzleClientFactory;
+use PrestaShop\Module\PsAccounts\Http\Client\Guzzle\GuzzleClient;
+use PrestaShop\Module\PsAccounts\Http\Client\Guzzle\GuzzleClientFactory;
 use PrestaShop\Module\PsAccounts\Repository\ShopTokenRepository;
 use PrestaShop\Module\PsAccounts\Repository\UserTokenRepository;
 
@@ -85,10 +85,6 @@ class IndirectChannelClient
     {
         if (null === $this->client) {
             $this->client = (new GuzzleClientFactory())->create([
-//                'base_url' => $this->apiUrl,
-//                'defaults' => [
-//                    'headers' => $this->getHeaders(),
-//                ],
                 'base_uri' => $this->apiUrl,
                 'headers' => $this->getHeaders(),
             ]);
