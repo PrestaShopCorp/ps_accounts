@@ -18,7 +18,6 @@
  * @license   https://opensource.org/licenses/AFL-3.0 Academic Free License version 3.0
  */
 
-use Monolog\Logger;
 use PrestaShop\Module\PsAccounts\Provider\OAuth2\PrestaShopClientProvider;
 
 class AdminLoginPsAccountsController extends AdminLoginControllerCore
@@ -31,9 +30,6 @@ class AdminLoginPsAccountsController extends AdminLoginControllerCore
     /** @var Ps_accounts */
     private $psAccounts;
 
-    /** @var Logger */
-    private $logger;
-
     /**
      * @throws Exception
      */
@@ -45,8 +41,6 @@ class AdminLoginPsAccountsController extends AdminLoginControllerCore
         $module = Module::getInstanceByName('ps_accounts');
 
         $this->psAccounts = $module;
-
-        $this->logger = $this->psAccounts->getLogger();
     }
 
     /**

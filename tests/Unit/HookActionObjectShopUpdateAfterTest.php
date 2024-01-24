@@ -6,7 +6,7 @@ use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\ORM\OptimisticLockException;
 use Exception;
 use PrestaShop\Module\PsAccounts\Api\Client\AccountsClient;
-use PrestaShop\Module\PsAccounts\Dto\UpdateShop;
+use PrestaShop\Module\PsAccounts\Api\Client\UpdateShopDto;
 use PrestaShop\Module\PsAccounts\Provider\ShopProvider;
 use PrestaShop\Module\PsAccounts\Tests\TestCase;
 use PrestaShop\PrestaShop\Adapter\Meta\ShopUrlDataConfiguration;
@@ -50,7 +50,7 @@ class HookActionObjectShopUpdateAfterTest extends TestCase
 
         $apiClient->expects($this->once())
             ->method('updateUserShop')
-            ->willReturnCallback(function (UpdateShop $updateShopDto) {
+            ->willReturnCallback(function (UpdateShopDto $updateShopDto) {
                 $boBaseUrl = $updateShopDto->boBaseUrl;
                 error_log('############### ' . $boBaseUrl);
             });

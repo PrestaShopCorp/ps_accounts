@@ -18,21 +18,30 @@
  * @license   https://opensource.org/licenses/AFL-3.0 Academic Free License version 3.0
  */
 
-namespace PrestaShop\Module\PsAccounts\Exception\Http;
+namespace PrestaShop\Module\PsAccounts\Http\Request;
 
-class NotFoundException extends HttpException
+use PrestaShop\Module\PsAccounts\Dto;
+use PrestaShop\Module\PsAccounts\Exception\DtoException;
+use PrestaShop\Module\PsAccounts\Http\Exception\BadRequestException;
+
+abstract class Request extends Dto
 {
     /**
-     * NotFoundException constructor.
-     *
-     * @param string $message
-     * @param int $code
-     * @param \Exception|null $previous
+     * @var bool
      */
-    public function __construct($message = 'Not Found', $code = 0, \Exception $previous = null)
-    {
-        parent::__construct($message, $code, $previous);
+    protected $throwOnUnexpectedProperties = false;
 
-        $this->statusCode = 404;
+    /**
+     * @param array $values
+     *
+     * @throws \Exception
+     */
+    public function __construct($values = [])
+    {
+        try {
+            parent::__construct($values);
+        } catch (DtoException $e) {
+            throw new BadRequestException($e->getMessage());
+        }
     }
 }

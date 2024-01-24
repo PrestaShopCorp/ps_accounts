@@ -18,11 +18,11 @@
  * @license   https://opensource.org/licenses/AFL-3.0 Academic Free License version 3.0
  */
 
-namespace PrestaShop\Module\PsAccounts\Dto;
+namespace PrestaShop\Module\PsAccounts;
 
 use PrestaShop\Module\PsAccounts\Exception\DtoException;
 
-abstract class AbstractDto implements \JsonSerializable
+abstract class Dto implements \JsonSerializable
 {
     /**
      * @var array

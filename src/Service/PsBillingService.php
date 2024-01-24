@@ -29,7 +29,7 @@ use PrestaShop\Module\PsAccounts\Repository\ShopTokenRepository;
 /**
  * @deprecated
  *
- * Construct the psbilling service.
+ * Construct the psbilling service
  */
 class PsBillingService
 {

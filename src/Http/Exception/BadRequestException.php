@@ -18,29 +18,21 @@
  * @license   https://opensource.org/licenses/AFL-3.0 Academic Free License version 3.0
  */
 
-namespace PrestaShop\Module\PsAccounts\Dto;
+namespace PrestaShop\Module\PsAccounts\Http\Exception;
 
-use PrestaShop\Module\PsAccounts\Exception\DtoException;
-use PrestaShop\Module\PsAccounts\Exception\Http\BadRequestException;
-
-abstract class AbstractRequest extends AbstractDto
+class BadRequestException extends HttpException
 {
     /**
-     * @var bool
-     */
-    protected $throwOnUnexpectedProperties = false;
-
-    /**
-     * @param array $values
+     * UnauthorizedException constructor.
      *
-     * @throws \Exception
+     * @param string $message
+     * @param int $code
+     * @param \Exception|null $previous
      */
-    public function __construct($values = [])
+    public function __construct($message = 'Bad Request', $code = 0, \Exception $previous = null)
     {
-        try {
-            parent::__construct($values);
-        } catch (DtoException $e) {
-            throw new BadRequestException($e->getMessage());
-        }
+        parent::__construct($message, $code, $previous);
+
+        $this->statusCode = 400;
     }
 }

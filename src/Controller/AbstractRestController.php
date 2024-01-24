@@ -25,12 +25,12 @@ use Lcobucci\JWT\Parser;
 use Lcobucci\JWT\Signer\Hmac\Sha256;
 use Lcobucci\JWT\Signer\Key;
 use ModuleFrontController;
-use PrestaShop\Module\PsAccounts\Exception\Http\HttpException;
-use PrestaShop\Module\PsAccounts\Exception\Http\MethodNotAllowedException;
-use PrestaShop\Module\PsAccounts\Exception\Http\UnauthorizedException;
-use PrestaShop\Module\PsAccounts\Service\SentryService;
+use PrestaShop\Module\PsAccounts\Http\Exception\HttpException;
+use PrestaShop\Module\PsAccounts\Http\Exception\MethodNotAllowedException;
+use PrestaShop\Module\PsAccounts\Http\Exception\UnauthorizedException;
 use PrestaShop\Module\PsAccounts\Provider\RsaKeysProvider;
 use PrestaShop\Module\PsAccounts\Repository\ConfigurationRepository;
+use PrestaShop\Module\PsAccounts\Service\SentryService;
 use ReflectionException;
 use ReflectionParameter;
 

@@ -23,7 +23,7 @@ namespace PrestaShop\Module\PsAccounts\Hook;
 use Exception;
 use PrestaShop\Module\PsAccounts\Adapter\Link;
 use PrestaShop\Module\PsAccounts\Api\Client\AccountsClient;
-use PrestaShop\Module\PsAccounts\Dto\UpdateShop;
+use PrestaShop\Module\PsAccounts\Api\Client\UpdateShopDto;
 
 class ActionObjectShopUpdateAfter extends Hook
 {
@@ -49,7 +49,7 @@ class ActionObjectShopUpdateAfter extends Hook
         $domain = $params['object']->domain;
         $sslDomain = $params['object']->domain_ssl;
 
-        $response = $accountsApi->updateUserShop(new UpdateShop([
+        $response = $accountsApi->updateUserShop(new UpdateShopDto([
             'shopId' => (string) $params['object']->id,
             'name' => $params['object']->name,
             'domain' => 'http://' . $shop->domain,

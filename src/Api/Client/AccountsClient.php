@@ -20,7 +20,7 @@
 
 namespace PrestaShop\Module\PsAccounts\Api\Client;
 
-use PrestaShop\Module\PsAccounts\Dto\UpdateShop;
+use PrestaShop\Module\PsAccounts\Api\Client\UpdateShopDto;
 use PrestaShop\Module\PsAccounts\Factory\CircuitBreakerFactory;
 use PrestaShop\Module\PsAccounts\Http\Client\CircuitBreaker\CircuitBreaker;
 use PrestaShop\Module\PsAccounts\Http\Client\Guzzle\GuzzleClient;
@@ -188,13 +188,13 @@ class AccountsClient implements TokenClientInterface
     }
 
     /**
-     * @param UpdateShop $shop
+     * @param \PrestaShop\Module\PsAccounts\Api\\PrestaShop\Module\PsAccounts\Dto\UpdateShopDto $shop
      *
      * @return array|null
      *
      * @throws \Exception
      */
-    public function updateUserShop(UpdateShop $shop)
+    public function updateUserShop(UpdateShopDto $shop)
     {
         return $this->shopProvider->getShopContext()->execInShopContext((int) $shop->shopId, function () use ($shop) {
             $userToken = $this->getUserTokenRepository();

@@ -18,14 +18,22 @@
  * @license   https://opensource.org/licenses/AFL-3.0 Academic Free License version 3.0
  */
 
-namespace PrestaShop\Module\PsAccounts\Dto\Api;
+namespace PrestaShop\Module\PsAccounts\Http\Request;
 
-use PrestaShop\Module\PsAccounts\Dto\AbstractRequest;
-
-class UpdateShopHmacRequest extends AbstractRequest
+class UpdateShopOauth2ClientRequest extends Request
 {
     /** @var string */
     public $shop_id;
     /** @var string */
-    public $hmac;
+    public $client_id;
+    /** @var string */
+    public $client_secret;
+
+    /**
+     * @var string[]
+     */
+    protected $mandatory = [
+        'client_id',
+        'client_secret',
+    ];
 }

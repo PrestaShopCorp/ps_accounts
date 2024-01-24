@@ -18,21 +18,57 @@
  * @license   https://opensource.org/licenses/AFL-3.0 Academic Free License version 3.0
  */
 
-namespace PrestaShop\Module\PsAccounts\Exception\Http;
+namespace PrestaShop\Module\PsAccounts\Api\Client;
 
-class MethodNotAllowedException extends HttpException
+use PrestaShop\Module\PsAccounts\Dto;
+
+class UpdateShopDto extends Dto
 {
     /**
-     * NotFoundException constructor.
-     *
-     * @param string $message
-     * @param int $code
-     * @param \Exception|null $previous
+     * @var string
      */
-    public function __construct($message = 'Method Not Allowed', $code = 0, \Exception $previous = null)
-    {
-        parent::__construct($message, $code, $previous);
+    public $shopId;
 
-        $this->statusCode = 405;
-    }
+    /**
+     * @var string
+     */
+    public $name;
+
+    /**
+     * @var string
+     */
+    public $virtualUri;
+
+    /**
+     * @var string
+     */
+    public $physicalUri;
+
+    /**
+     * @var string
+     */
+    public $domain;
+
+    /**
+     * @var string
+     */
+    public $sslDomain;
+
+    /**
+     * @var string
+     */
+    public $boBaseUrl;
+
+    /**
+     * @var string[]
+     */
+    public $mandatory = [
+        'shopId',
+        'name',
+        'virtualUri',
+        'physicalUri',
+        'domain',
+        'sslDomain',
+        'boBaseUrl',
+    ];
 }
