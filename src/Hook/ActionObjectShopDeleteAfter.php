@@ -22,7 +22,7 @@ namespace PrestaShop\Module\PsAccounts\Hook;
 
 use Exception;
 
-class ActionObjectShopDeleteAfter extends BaseHook
+class ActionObjectShopDeleteAfter extends Hook
 {
     /**
      * @param array $params

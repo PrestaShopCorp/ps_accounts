@@ -25,7 +25,7 @@ use PrestaShop\Module\PsAccounts\Adapter\Link;
 use PrestaShop\Module\PsAccounts\Api\Client\AccountsClient;
 use PrestaShop\Module\PsAccounts\DTO\UpdateShop;
 
-class ActionObjectShopUpdateAfter extends BaseHook
+class ActionObjectShopUpdateAfter extends Hook
 {
     /**
      * @param array $params

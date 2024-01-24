@@ -23,7 +23,7 @@ namespace PrestaShop\Module\PsAccounts\Hook;
 use Exception;
 use PrestaShop\Module\PsAccounts\Service\PsAccountsService;
 
-class DisplayAccountUpdateWarning extends BaseHook
+class DisplayAccountUpdateWarning extends Hook
 {
     /**
      * @return mixed

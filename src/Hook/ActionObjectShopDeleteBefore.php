@@ -23,7 +23,7 @@ namespace PrestaShop\Module\PsAccounts\Hook;
 use Exception;
 use PrestaShop\Module\PsAccounts\Api\Client\AccountsClient;
 
-class ActionObjectShopDeleteBefore extends BaseHook
+class ActionObjectShopDeleteBefore extends Hook
 {
     /**
      * @param array $params

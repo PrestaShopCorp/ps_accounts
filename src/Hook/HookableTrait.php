@@ -18,17 +18,47 @@
  * @license   https://opensource.org/licenses/AFL-3.0 Academic Free License version 3.0
  */
 
+
 namespace PrestaShop\Module\PsAccounts\Hook;
 
-class ActionShopAccountUnlinkAfter extends Hook
+trait HookableTrait
 {
     /**
-     * @param array $params
+     * @param string $methodName
      *
      * @return mixed
+     *
+     * @throws \Exception
      */
-    public function execute(array $params = [])
+    private function executeHook($methodName, array $params = [])
     {
-        // TODO implement execute method
+        $hookNamespace = __NAMESPACE__;
+
+        if (strpos($methodName, 'hook') === 0) {
+            $class = $hookNamespace . '\\' . ucfirst(preg_replace('/^hook/', '', $methodName));
+
+            if (class_exists($class)) {
+//                $this->getLogger()->debug("execute hook : [{$class}]");
+                /** @var Hook $hook */
+                $hook = (new $class($this));
+
+                return $hook->execute($params);
+            }
+        }
+
+        return null;
+    }
+
+    /**
+     * @param string $name
+     * @param array $arguments
+     *
+     * @return void
+     *
+     * @throws \Exception
+     */
+    public function __call($name, array $arguments)
+    {
+        $this->executeHook($name, $arguments[0]);
     }
 }

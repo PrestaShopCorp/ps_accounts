@@ -134,20 +134,27 @@ class AdminLoginPsAccountsController extends AdminLoginControllerCore
 
     /**
      * @return array
+     *
+     * @throws Exception
      */
     private function getTestimonials()
     {
-        $data = [];
-        try {
-            $data = json_decode(file_get_contents(
-                $this->psAccounts->getParameter('ps_accounts.testimonials_url')
-            ), true);
-        } catch (Exception $e) {
-            $this->logger->error('Error while getting the testimonials', ['error' => $e->getMessage()]);
-        } catch (Throwable $e) {
-            $this->logger->error('Error while getting the testimonials', ['error' => $e->getMessage()]);
-        } finally {
-            return $data;
-        }
+        $verify = (bool) $this->psAccounts->getParameter('ps_accounts.check_api_ssl_cert');
+
+        return json_decode(
+            file_get_contents(
+                $this->psAccounts->getParameter('ps_accounts.testimonials_url'),
+                false,
+                stream_context_create([
+                    'ssl' => [
+                        'verify_peer' => $verify,
+                        'verify_peer_name' => $verify,
+                    ],
+                    'http' => [ 'ignore_errors' => '1',
+                        ],
+                    ])
+            ),
+            true
+        ) ?: [];
     }
 }

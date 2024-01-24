@@ -60,7 +60,7 @@ class PrestaShopClientProvider extends PrestaShop
         $this->oauth2Client = $module->getService(Oauth2Client::class);
         $this->wellKnown = WellKnown::fetch(
             $this->getParameter('ps_accounts.oauth2_url'),
-            false
+            (bool) $this->module->getParameter('ps_accounts.check_api_ssl_cert')
         );
 
         // Disable certificate verification from local configuration

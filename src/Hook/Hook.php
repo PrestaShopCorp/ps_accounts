@@ -22,7 +22,7 @@ namespace PrestaShop\Module\PsAccounts\Hook;
 
 use Ps_accounts;
 
-abstract class BaseHook
+abstract class Hook
 {
     /**
      * @var Ps_accounts

@@ -25,6 +25,8 @@ use GuzzleHttp\Exception\GuzzleException;
 use GuzzleHttp\Message\RequestInterface as GuzzleRequest;
 use GuzzleHttp\Message\ResponseInterface as GuzzleResponse;
 use GuzzleHttp\Psr7\Response;
+use PrestaShop\Module\PsAccounts\Api\Client\Guzzle\Guzzle5OptionsMapper;
+use PrestaShop\Module\PsAccounts\Api\Client\Guzzle\GuzzleClientFactory;
 use PrestaShop\OAuth2\Client\Provider\PrestaShop;
 use Psr\Http\Message\RequestInterface;
 use Psr\Http\Message\ResponseInterface;
@@ -52,12 +54,12 @@ trait Guzzle5AdapterTrait
         /** @var $this PrestaShop */
         $client_options = $this->getAllowedClientOptions($options);
 
-        if (!$this->adapterNeeded()) {
+        if (!$this->isGuzzle5()) {
             return null;
         }
 
         return new Client(
-            $this->fixConfig(
+            (new Guzzle5OptionsMapper())->fromGuzzle7Options(
                 /* @phpstan-ignore-next-line */
                 array_intersect_key($options, array_flip($client_options))
             )
@@ -78,7 +80,7 @@ trait Guzzle5AdapterTrait
      */
     public function getResponse(RequestInterface $request)
     {
-        if (!$this->adapterNeeded()) {
+        if (!$this->isGuzzle5()) {
             return parent::getResponse($request);
         }
 
@@ -91,31 +93,19 @@ trait Guzzle5AdapterTrait
     }
 
     /**
-     * @return int|null
+     * @return bool
      */
-    public function getGuzzleMajorVersionNumber()
+    public function isGuzzle5()
     {
-        // Guzzle 7 and above
-        if (defined('\GuzzleHttp\ClientInterface::MAJOR_VERSION')) {
-            // @phpstan-ignore-next-line
-            return (int) \GuzzleHttp\ClientInterface::MAJOR_VERSION;
-        }
-
-        // Before Guzzle 7
-        if (defined('\GuzzleHttp\ClientInterface::VERSION')) {
-            // @phpstan-ignore-next-line
-            return (int) \GuzzleHttp\ClientInterface::VERSION[0];
-        }
-
-        return null;
+        return GuzzleClientFactory::getGuzzleMajorVersionNumber() < 6;
     }
 
     /**
      * @return bool
      */
-    public function adapterNeeded()
+    public function getGuzzleMajorVersionNumber()
     {
-        return $this->getGuzzleMajorVersionNumber() < 6;
+        return GuzzleClientFactory::getGuzzleMajorVersionNumber();
     }
 
     /**
@@ -173,44 +163,5 @@ trait Guzzle5AdapterTrait
             /* @phpstan-ignore-next-line */
             $response->getProtocolVersion()
         );
-    }
-
-    /**
-     * When a client is created with the config of another version,
-     * this method makes sure the keys match.
-     *
-     * @param array<string, mixed> $config
-     *
-     * @return array<string, mixed>
-     */
-    private function fixConfig(array $config)
-    {
-        if (isset($config['timeout'])) {
-            $config['defaults']['timeout'] = $config['timeout'];
-            unset($config['timeout']);
-        }
-
-        if (isset($config['headers'])) {
-            $config['defaults']['headers'] = $config['headers'];
-            unset($config['headers']);
-        }
-
-        if (isset($config['http_errors'])) {
-            $config['defaults']['exceptions'] = $config['http_errors'];
-            unset($config['http_errors']);
-        }
-
-        if (isset($config['verify'])) {
-            $config['defaults']['verify'] = $config['verify'];
-            unset($config['verify']);
-        }
-
-        if (isset($config['base_uri'])) {
-            $config['base_url'] = $config['base_uri'];
-
-            unset($config['base_uri']);
-        }
-
-        return $config;
     }
 }

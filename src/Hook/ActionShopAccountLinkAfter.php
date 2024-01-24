@@ -20,7 +20,7 @@
 
 namespace PrestaShop\Module\PsAccounts\Hook;
 
-class ActionShopAccountLinkAfter extends BaseHook
+class ActionShopAccountLinkAfter extends Hook
 {
     /**
      * @param array $params

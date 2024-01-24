@@ -24,7 +24,7 @@ use Exception;
 use Link;
 use Tools;
 
-class ActionAdminControllerInitBefore extends BaseHook
+class ActionAdminControllerInitBefore extends Hook
 {
     /**
      * @param array $params

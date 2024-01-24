@@ -27,7 +27,7 @@ use PrestaShop\Module\PsAccounts\Service\AnalyticsService;
 use PrestaShop\Module\PsAccounts\Service\PsAccountsService;
 use Tools;
 
-class ActionAdminLoginControllerSetMedia extends BaseHook
+class ActionAdminLoginControllerSetMedia extends Hook
 {
     /**
      * @return void

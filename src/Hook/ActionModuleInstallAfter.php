@@ -22,7 +22,7 @@ namespace PrestaShop\Module\PsAccounts\Hook;
 
 use Exception;
 
-class ActionModuleInstallAfter extends BaseHook
+class ActionModuleInstallAfter extends Hook
 {
     /**
      * @param array $params

@@ -25,7 +25,7 @@ use Exception;
 use PrestaShop\Module\PsAccounts\Service\AnalyticsService;
 use PrestaShop\Module\PsAccounts\Service\PsAccountsService;
 
-class ActionAdminLoginControllerLoginAfter extends BaseHook
+class ActionAdminLoginControllerLoginAfter extends Hook
 {
     /**
      * @param array $params

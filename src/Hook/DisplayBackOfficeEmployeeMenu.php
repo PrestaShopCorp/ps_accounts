@@ -22,7 +22,7 @@ namespace PrestaShop\Module\PsAccounts\Hook;
 
 use PrestaShop\PrestaShop\Core\Action\ActionsBarButton;
 
-class DisplayBackOfficeEmployeeMenu extends BaseHook
+class DisplayBackOfficeEmployeeMenu extends Hook
 {
     /**
      * @param array $params

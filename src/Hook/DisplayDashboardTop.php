@@ -25,7 +25,7 @@ use PrestaShop\Module\PsAccounts\Context\ShopContext;
 use PrestaShop\Module\PsAccounts\Provider\ShopProvider;
 use PrestaShop\Module\PsAccounts\Service\PsAccountsService;
 
-class DisplayDashboardTop extends BaseHook
+class DisplayDashboardTop extends Hook
 {
     /**
      * @param array $params

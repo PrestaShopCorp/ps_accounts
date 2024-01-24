@@ -149,20 +149,28 @@ class WellKnown
     }
 
     /**
-     * @param string $serverUrl
-     * @param bool $verifyCert
+     * @param string $url
+     * @param bool $verify
      *
      * @return WellKnown
+     *
+     * @throws \Exception
      */
-    public static function fetch($serverUrl, $verifyCert = true)
+    public static function fetch($url, $verify = true)
     {
-        $wellKnownUrl = $serverUrl . '/.well-known/openid-configuration';
+        $wellKnownUrl = $url;
+        if (strpos($wellKnownUrl, '/.well-known') === false) {
+            $wellKnownUrl = preg_replace('/\/?$/', '/.well-known/openid-configuration', $wellKnownUrl);
+        }
 
         return new WellKnown(json_decode(file_get_contents($wellKnownUrl, false, stream_context_create([
             'ssl' => [
-                'verify_peer' => $verifyCert,
-                'verify_peer_name' => $verifyCert,
+                'verify_peer' => $verify,
+                'verify_peer_name' => $verify,
             ],
-        ])), true));
+            'http' => [
+                'ignore_errors' => '1',
+            ],
+        ])), true) ?: []);
     }
 }
