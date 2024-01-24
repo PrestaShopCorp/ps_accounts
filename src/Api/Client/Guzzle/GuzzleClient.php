@@ -23,10 +23,7 @@ namespace PrestaShop\Module\PsAccounts\Api\Client\Guzzle;
 use GuzzleHttp\Client;
 use PrestaShop\Module\PsAccounts\Api\Client\ClientInterface;
 
-/**
- * Construct the client used to make call to differents api.
- */
-abstract class AbstractGuzzleClient implements ClientInterface
+abstract class GuzzleClient implements ClientInterface
 {
     /**
      * Guzzle Client.
@@ -58,6 +55,32 @@ abstract class AbstractGuzzleClient implements ClientInterface
     protected $catchExceptions = false;
 
     /**
+     * @param mixed $response
+     *
+     * @return array
+     */
+    public function handleResponse($response)
+    {
+        $responseContents = $this->getResponseJson($response);
+
+        return [
+            'status' => $this->responseIsSuccessful($responseContents, $response->getStatusCode()),
+            'httpCode' => $response->getStatusCode(),
+            'body' => $responseContents,
+        ];
+    }
+
+    /**
+     * @param mixed $response
+     *
+     * @return mixed
+     */
+    public function getResponseJson($response)
+    {
+        return json_decode($response->getBody()->getContents(), true);
+    }
+
+    /**
      * Wrapper of method post from guzzle client.
      *
      * @param array $options payload
@@ -68,17 +91,7 @@ abstract class AbstractGuzzleClient implements ClientInterface
     {
         $response = $this->getClient()->post($this->getRoute(), $options);
         $response = $this->handleResponse($response);
-        // If response is not successful only
-        if (\Configuration::get('PS_ACCOUNTS_DEBUG_LOGS_ENABLED') && !$response['status']) {
-            /**
-             * @var \Ps_accounts
-             */
-            $module = \Module::getInstanceByName('ps_accounts');
-            $logger = $module->getLogger();
-            $logger->debug('route ' . $this->getRoute());
-            $logger->debug('options ' . var_export($options, true));
-            $logger->debug('response ' . var_export($response, true));
-        }
+        $this->logResponseError($response, $options);
 
         return $response;
     }
@@ -94,17 +107,7 @@ abstract class AbstractGuzzleClient implements ClientInterface
     {
         $response = $this->getClient()->patch($this->getRoute(), $options);
         $response = $this->handleResponse($response);
-        // If response is not successful only
-        if (\Configuration::get('PS_ACCOUNTS_DEBUG_LOGS_ENABLED') && !$response['status']) {
-            /**
-             * @var \Ps_accounts
-             */
-            $module = \Module::getInstanceByName('ps_accounts');
-            $logger = $module->getLogger();
-            $logger->debug('route ' . $this->getRoute());
-            $logger->debug('options ' . var_export($options, true));
-            $logger->debug('response ' . var_export($response, true));
-        }
+        $this->logResponseError($response, $options);
 
         return $response;
     }
@@ -120,17 +123,7 @@ abstract class AbstractGuzzleClient implements ClientInterface
     {
         $response = $this->getClient()->get($this->getRoute(), $options);
         $response = $this->handleResponse($response);
-        // If response is not successful only
-        if (\Configuration::get('PS_ACCOUNTS_DEBUG_LOGS_ENABLED') && !$response['status']) {
-            /**
-             * @var \Ps_accounts
-             */
-            $module = \Module::getInstanceByName('ps_accounts');
-            $logger = $module->getLogger();
-            $logger->debug('route ' . $this->getRoute());
-            $logger->debug('options ' . var_export($options, true));
-            $logger->debug('response ' . var_export($response, true));
-        }
+        $this->logResponseError($response, $options);
 
         return $response;
     }
@@ -146,17 +139,7 @@ abstract class AbstractGuzzleClient implements ClientInterface
     {
         $response = $this->getClient()->delete($this->getRoute(), $options);
         $response = $this->handleResponse($response);
-        // If response is not successful only
-        if (\Configuration::get('PS_ACCOUNTS_DEBUG_LOGS_ENABLED') && !$response['status']) {
-            /**
-             * @var \Ps_accounts
-             */
-            $module = \Module::getInstanceByName('ps_accounts');
-            $logger = $module->getLogger();
-            $logger->debug('route ' . $this->getRoute());
-            $logger->debug('options ' . var_export($options, true));
-            $logger->debug('response ' . var_export($response, true));
-        }
+        $this->logResponseError($response, $options);
 
         return $response;
     }
@@ -216,5 +199,28 @@ abstract class AbstractGuzzleClient implements ClientInterface
     public function setRoute($route)
     {
         $this->route = $route;
+    }
+
+    /**
+     * @param array $response
+     * @param array $options
+     *
+     * @return void
+     */
+    private function logResponseError(array $response, array $options)
+    {
+        // If response is not successful only
+        if (\Configuration::get('PS_ACCOUNTS_DEBUG_LOGS_ENABLED') && !$response['status']) {
+            /** @var \Ps_accounts $module */
+            $module = \Module::getInstanceByName('ps_accounts');
+            try {
+                $logger = $module->getLogger();
+                $logger->debug('route ' . $this->getRoute());
+                $logger->debug('options ' . var_export($options, true));
+                $logger->debug('response ' . var_export($response, true));
+            } catch (\Exception $e) {
+                //
+            }
+        }
     }
 }

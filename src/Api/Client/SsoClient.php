@@ -21,9 +21,9 @@
 namespace PrestaShop\Module\PsAccounts\Api\Client;
 
 use PrestaShop\Module\PsAccounts\Api\Client\CircuitBreaker\CircuitBreaker;
-use PrestaShop\Module\PsAccounts\Api\Client\CircuitBreaker\CircuitBreakerFactory;
-use PrestaShop\Module\PsAccounts\Api\Client\Guzzle\AbstractGuzzleClient;
+use PrestaShop\Module\PsAccounts\Api\Client\Guzzle\GuzzleClient;
 use PrestaShop\Module\PsAccounts\Api\Client\Guzzle\GuzzleClientFactory;
+use PrestaShop\Module\PsAccounts\Factory\CircuitBreakerFactory;
 use PrestaShop\Module\PsAccounts\Repository\TokenClientInterface;
 
 /**
@@ -37,7 +37,7 @@ class SsoClient implements TokenClientInterface
     private $apiUrl;
 
     /**
-     * @var AbstractGuzzleClient
+     * @var GuzzleClient
      */
     private $client;
 
@@ -55,12 +55,14 @@ class SsoClient implements TokenClientInterface
      * ServicesAccountsClient constructor.
      *
      * @param string $apiUrl
-     * @param AbstractGuzzleClient|null $client
+     * @param GuzzleClient|null $client
      * @param int $defaultTimeout
+     *
+     * @throws \Exception
      */
     public function __construct(
         $apiUrl,
-        AbstractGuzzleClient $client = null,
+        GuzzleClient $client = null,
         $defaultTimeout = 20
     ) {
         $this->apiUrl = $apiUrl;
@@ -70,21 +72,28 @@ class SsoClient implements TokenClientInterface
     }
 
     /**
-     * @return AbstractGuzzleClient
+     * @return GuzzleClient
      */
     private function getClient()
     {
         if (null === $this->client) {
             $this->client = (new GuzzleClientFactory())->create([
-                'base_url' => $this->apiUrl,
-                'defaults' => [
-                    'headers' => [
-                        'Accept' => 'application/json',
-                        'X-Module-Version' => \Ps_accounts::VERSION,
-                        'X-Prestashop-Version' => _PS_VERSION_,
-                    ],
-                    'timeout' => $this->defaultTimeout,
+//                'base_url' => $this->apiUrl,
+//                'defaults' => [
+//                    'headers' => [
+//                        'Accept' => 'application/json',
+//                        'X-Module-Version' => \Ps_accounts::VERSION,
+//                        'X-Prestashop-Version' => _PS_VERSION_,
+//                    ],
+//                    'timeout' => $this->defaultTimeout,
+//                ],
+                'base_uri' => $this->apiUrl,
+                'headers' => [
+                    'Accept' => 'application/json',
+                    'X-Module-Version' => \Ps_accounts::VERSION,
+                    'X-Prestashop-Version' => _PS_VERSION_,
                 ],
+                'timeout' => $this->defaultTimeout,
             ]);
         }
 

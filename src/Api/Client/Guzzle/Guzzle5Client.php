@@ -22,64 +22,22 @@ namespace PrestaShop\Module\PsAccounts\Api\Client\Guzzle;
 
 use GuzzleHttp\Client;
 
-/**
- * Construct the Guzzle client before PrestaShop 8
- */
-class Guzzle5Client extends AbstractGuzzleClient
+class Guzzle5Client extends GuzzleClient
 {
-    /**
-     * Constructor for client before PrestaShop 8
-     */
     public function __construct($options)
     {
         /** @var \Ps_accounts $module */
         $module = \Module::getInstanceByName('ps_accounts');
 
-        if (!isset($options['defaults']['timeout'])) {
-            $options['defaults']['timeout'] = $this->timeout;
-        }
+        $options = (new Guzzle5OptionsMapper())->fromGuzzle7Options(array_merge(
+            [
+                'timeout' => $this->timeout,
+                'exceptions' => $this->catchExceptions,
+                'verify' => (bool) $module->getParameter('ps_accounts.check_api_ssl_cert'),
+            ],
+            $options
+        ));
 
-        if (!isset($options['defaults']['exceptions'])) {
-            $options['defaults']['exceptions'] = $this->catchExceptions;
-        }
-
-        $client = new Client($options);
-
-        /* @phpstan-ignore-next-line */
-        $client->setDefaultOption(
-            'verify',
-            (bool) $module->getParameter('ps_accounts.check_api_ssl_cert')
-        );
-
-        $this->client = $client;
-    }
-
-    /**
-     * @param mixed $response
-     *
-     * @return array
-     */
-    public function handleResponse($response)
-    {
-        $responseContents = $this->getResponseJson($response);
-
-        return [
-            /* @phpstan-ignore-next-line */
-            'status' => $this->responseIsSuccessful($responseContents, $response->getStatusCode()),
-            /* @phpstan-ignore-next-line */
-            'httpCode' => $response->getStatusCode(),
-            'body' => $responseContents,
-        ];
-    }
-
-    /**
-     * @param mixed $response
-     *
-     * @return mixed
-     */
-    public function getResponseJson($response)
-    {
-        /* @phpstan-ignore-next-line */
-        return json_decode($response->getBody()->getContents(), true);
+        $this->client = new Client($options);
     }
 }

@@ -23,76 +23,20 @@ namespace PrestaShop\Module\PsAccounts\Api\Client\Guzzle;
 use GuzzleHttp\Client;
 use GuzzleHttp\Psr7\Response;
 
-/**
- * Construct the client with the new guzzle version of PrestaShop 8
- * In the case of prestashop 8, guzzle version 7 is used
- */
-class Guzzle7Client extends AbstractGuzzleClient
+class Guzzle7Client extends GuzzleClient
 {
-    /**
-     * Constructor for client after PrestaShop 8
-     */
     public function __construct($options)
     {
         /** @var \Ps_accounts $module */
         $module = \Module::getInstanceByName('ps_accounts');
 
-        $payload = [];
-
-        if (isset($options['defaults']['headers'])) {
-            $payload['headers'] = $options['defaults']['headers'];
-        }
-
-        if (isset($options['defaults']['timeout'])) {
-            $payload['timeout'] = $options['defaults']['timeout'];
-        }
-
-        if (isset($options['defaults']['exceptions'])) {
-            $payload['http_errors'] = $options['defaults']['exceptions'];
-        }
-
-        $this->client = new Client(
-            array_merge(
-                [
-                    'base_uri' => $options['base_url'],
-                    'verify' => (bool) $module->getParameter('ps_accounts.check_api_ssl_cert'),
-                    'timeout' => $this->timeout,
-                    'http_errors' => $this->catchExceptions,
-                ],
-                $payload
-            )
-        );
-    }
-
-    // FIXME Lots of phpstan error because it doesn't exist in current guzzle package
-
-    /**
-     * @phpstan-ignore-next-line
-     *
-     * @param Response $response
-     *
-     * @return array
-     */
-    public function handleResponse($response)
-    {
-        $responseContents = $this->getResponseJson($response);
-
-        return [
-            'status' => $this->responseIsSuccessful($responseContents, $response->getStatusCode()),
-            'httpCode' => $response->getStatusCode(),
-            'body' => $responseContents,
-        ];
-    }
-
-    /**
-     * @phpstan-ignore-next-line
-     *
-     * @param Response $response
-     *
-     * @return mixed
-     */
-    public function getResponseJson($response)
-    {
-        return json_decode($response->getBody()->getContents(), true);
+        $this->client = new Client(array_merge(
+            [
+                'timeout' => $this->timeout,
+                'http_errors' => $this->catchExceptions,
+                'verify' => (bool) $module->getParameter('ps_accounts.check_api_ssl_cert'),
+            ],
+            $options
+        ));
     }
 }

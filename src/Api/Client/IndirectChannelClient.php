@@ -21,7 +21,7 @@
 
 namespace PrestaShop\Module\PsAccounts\Api\Client;
 
-use PrestaShop\Module\PsAccounts\Api\Client\Guzzle\AbstractGuzzleClient;
+use PrestaShop\Module\PsAccounts\Api\Client\Guzzle\GuzzleClient;
 use PrestaShop\Module\PsAccounts\Api\Client\Guzzle\GuzzleClientFactory;
 use PrestaShop\Module\PsAccounts\Repository\ShopTokenRepository;
 use PrestaShop\Module\PsAccounts\Repository\UserTokenRepository;
@@ -37,7 +37,7 @@ class IndirectChannelClient
     private $apiUrl;
 
     /**
-     * @var AbstractGuzzleClient
+     * @var GuzzleClient
      */
     private $client;
 
@@ -45,11 +45,11 @@ class IndirectChannelClient
      * ServicesAccountsClient constructor.
      *
      * @param string $apiUrl
-     * @param AbstractGuzzleClient|null $client
+     * @param GuzzleClient|null $client
      */
     public function __construct(
         $apiUrl,
-        AbstractGuzzleClient $client = null
+        GuzzleClient $client = null
     ) {
         $this->apiUrl = $apiUrl;
         $this->client = $client;
@@ -59,6 +59,8 @@ class IndirectChannelClient
      * @param array $additionalHeaders
      *
      * @return array
+     *
+     * @throws \Exception
      */
     private function getHeaders($additionalHeaders = [])
     {
@@ -75,16 +77,20 @@ class IndirectChannelClient
     }
 
     /**
-     * @return AbstractGuzzleClient
+     * @return GuzzleClient
+     *
+     * @throws \Exception
      */
     private function getClient()
     {
         if (null === $this->client) {
             $this->client = (new GuzzleClientFactory())->create([
-                'base_url' => $this->apiUrl,
-                'defaults' => [
-                    'headers' => $this->getHeaders(),
-                ],
+//                'base_url' => $this->apiUrl,
+//                'defaults' => [
+//                    'headers' => $this->getHeaders(),
+//                ],
+                'base_uri' => $this->apiUrl,
+                'headers' => $this->getHeaders(),
             ]);
         }
 

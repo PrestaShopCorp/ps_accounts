@@ -18,9 +18,11 @@
  * @license   https://opensource.org/licenses/AFL-3.0 Academic Free License version 3.0
  */
 
-namespace PrestaShop\Module\PsAccounts\Api\Client\CircuitBreaker;
+namespace PrestaShop\Module\PsAccounts\Factory;
 
 use PrestaShop\Module\PsAccounts\Adapter\Configuration;
+use PrestaShop\Module\PsAccounts\Api\Client\CircuitBreaker\CircuitBreaker;
+use PrestaShop\Module\PsAccounts\Api\Client\CircuitBreaker\PersistentCircuitBreaker;
 
 class CircuitBreakerFactory
 {

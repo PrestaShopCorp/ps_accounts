@@ -23,6 +23,7 @@ namespace PrestaShop\Module\PsAccounts\Api\Client\CircuitBreaker;
 use GuzzleHttp\Exception\ConnectException;
 use GuzzleHttp\Message\Request;
 use PHPUnit\Framework\TestCase;
+use PrestaShop\Module\PsAccounts\Factory\CircuitBreakerFactory;
 
 class CircuitBreakerTest extends TestCase
 {

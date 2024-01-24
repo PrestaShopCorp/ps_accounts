@@ -8,7 +8,7 @@ use GuzzleHttp\Message\ResponseInterface;
 use Lcobucci\JWT\Builder;
 use Lcobucci\JWT\Signer\Hmac\Sha256;
 use Lcobucci\JWT\Signer\Key;
-use PrestaShop\Module\PsAccounts\Api\Client\Guzzle\AbstractGuzzleClient;
+use PrestaShop\Module\PsAccounts\Api\Client\Guzzle\GuzzleClient;
 use PrestaShop\Module\PsAccounts\Api\Client\Guzzle\GuzzleClientFactory;
 use PrestaShop\Module\PsAccounts\Provider\RsaKeysProvider;
 use PrestaShop\Module\PsAccounts\Repository\UserTokenRepository;
@@ -28,7 +28,7 @@ class FeatureTestCase extends TestCase
     protected $client;
 
     /**
-     * @var AbstractGuzzleClient
+     * @var GuzzleClient
      */
     protected $guzzleClient;
 

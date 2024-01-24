@@ -28,11 +28,11 @@ class GuzzleClientFactory
     /**
      * @param array $options
      *
-     * @return AbstractGuzzleClient
+     * @return GuzzleClient
      */
     public function create($options)
     {
-        return $this->getGuzzleMajorVersionNumber() >= 7
+        return self::getGuzzleMajorVersionNumber() >= 7
             ? new Guzzle7Client($options)
             : new Guzzle5Client($options);
     }
@@ -40,7 +40,7 @@ class GuzzleClientFactory
     /**
      * @return int|null
      */
-    public function getGuzzleMajorVersionNumber()
+    public static function getGuzzleMajorVersionNumber()
     {
         // Guzzle 7 and above
         if (defined('\GuzzleHttp\ClientInterface::MAJOR_VERSION')) {
