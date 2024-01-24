@@ -43,6 +43,8 @@ class FeatureTestCase extends TestCase
     protected $userTokenRepository;
 
     /**
+     * @return void
+     *
      * @throws \Exception
      */
     public function setUp()

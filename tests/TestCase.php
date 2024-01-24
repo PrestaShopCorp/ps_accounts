@@ -45,7 +45,7 @@ class TestCase extends \PHPUnit\Framework\TestCase
      *
      * @throws \Exception
      */
-    protected function setUp(): void
+    protected function setUp()
     {
         parent::setUp();
 
@@ -69,7 +69,7 @@ class TestCase extends \PHPUnit\Framework\TestCase
     /**
      * @return void
      */
-    public function tearDown(): void
+    public function tearDown()
     {
         $this->rollback();
 

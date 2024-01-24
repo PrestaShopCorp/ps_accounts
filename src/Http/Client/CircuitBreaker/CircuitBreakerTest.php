@@ -21,7 +21,7 @@
 namespace PrestaShop\Module\PsAccounts\Http\Client\CircuitBreaker;
 
 use GuzzleHttp\Exception\ConnectException;
-use GuzzleHttp\Message\Request;
+use GuzzleHttp\Psr7\Request;
 use PHPUnit\Framework\TestCase;
 use PrestaShop\Module\PsAccounts\Factory\CircuitBreakerFactory;
 

@@ -188,9 +188,9 @@ class AccountsClient implements TokenClientInterface
     }
 
     /**
-     * @param \PrestaShop\Module\PsAccounts\Api\\PrestaShop\Module\PsAccounts\Dto\UpdateShopDto $shop
+     * @param UpdateShopDto $shop
      *
-     * @return array|null
+     * @return mixed
      *
      * @throws \Exception
      */
