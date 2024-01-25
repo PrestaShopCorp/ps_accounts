@@ -35,13 +35,14 @@ trait HookableTrait
 
         if (strpos($methodName, 'hook') === 0) {
             $class = $hookNamespace . '\\' . ucfirst(preg_replace('/^hook/', '', $methodName));
+            $method = 'execute';
 
-            if (class_exists($class)) {
+            if (is_a($class, Hook::class, true)) {
                 $this->getLogger()->debug("execute hook : [{$class}]");
                 /** @var Hook $hook */
                 $hook = (new $class($this));
 
-                return $hook->execute($params);
+                return $hook->$method($params);
             }
         }
 
