@@ -21,7 +21,7 @@
 namespace PrestaShop\Module\PsAccounts\Hook;
 
 use Exception;
-use Link;
+use PrestaShop\Module\PsAccounts\Adapter\Link;
 use Tools;
 
 class ActionAdminControllerInitBefore extends Hook

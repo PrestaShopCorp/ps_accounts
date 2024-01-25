@@ -20,10 +20,10 @@
 
 namespace PrestaShop\Module\PsAccounts\Hook;
 
-use Employee;
 use Exception;
 use PrestaShop\Module\PsAccounts\Service\AnalyticsService;
 use PrestaShop\Module\PsAccounts\Service\PsAccountsService;
+use PrestaShop\PrestaShop\Adapter\Entity\Employee;
 
 class ActionAdminLoginControllerLoginAfter extends Hook
 {
