@@ -123,10 +123,21 @@ class Ps_accounts extends Module
 
         parent::__construct();
 
-        $this->displayName = $this->l('PrestaShop Account');
-        $this->description = $this->l('Link your store to your PrestaShop account to activate and manage your subscriptions in your back office. Do not uninstall this module if you have a current subscription.');
-        $this->description_full = $this->l('Link your store to your PrestaShop account to activate and manage your subscriptions in your back office. Do not uninstall this module if you have a current subscription.');
-        $this->confirmUninstall = $this->l('This action will prevent immediately your PrestaShop services and Community services from working as they are using PrestaShop Accounts module for authentication.');
+        $this->displayName = $this->l(
+            'PrestaShop Account'
+        );
+        $this->description = $this->l(
+            'Link your store to your PrestaShop account to activate and manage your subscriptions in your ' .
+            'back office. Do not uninstall this module if you have a current subscription.'
+        );
+        $this->description_full = $this->l(
+            'Link your store to your PrestaShop account to activate and manage your subscriptions in your ' .
+            'back office. Do not uninstall this module if you have a current subscription.'
+        );
+        $this->confirmUninstall = $this->l(
+            'This action will prevent immediately your PrestaShop services and Community services from ' .
+            'working as they are using PrestaShop Accounts module for authentication.'
+        );
 
         $this->ps_versions_compliancy = ['min' => '1.6.1', 'max' => _PS_VERSION_];
 
@@ -168,16 +179,8 @@ class Ps_accounts extends Module
             && $this->addCustomHooks($this->customHooks)
             && $this->registerHook($this->getHooksToRegister());
 
-        if ($this->getShopContext()->isShop17()) {
-            /** @var \PrestaShop\Module\PsAccounts\Installer\Installer $moduleInstaller */
-            $moduleInstaller = $this->getService(\PrestaShop\Module\PsAccounts\Installer\Installer::class);
-
-            // Ignore fail on ps_eventbus install
-            $moduleInstaller->installModule('ps_eventbus');
-        }
-
+        $this->installEventBus();
         $this->fixMultiShopConfig();
-
         $this->autoReonboardOnV5();
 
         $this->getLogger()->info('Install - Loading ' . $this->name . ' Env : [' . $this->getModuleEnv() . ']');
@@ -517,5 +520,23 @@ class Ps_accounts extends Module
         /** @var \PrestaShop\Module\PsAccounts\Service\PsAccountsService $psAccountsService */
         $psAccountsService = $this->getService(\PrestaShop\Module\PsAccounts\Service\PsAccountsService::class);
         $psAccountsService->autoReonboardOnV5();
+    }
+
+    /**
+     * @deprecated shouldn't exist anymore
+     *
+     * @return void
+     *
+     * @throws Exception
+     */
+    private function installEventBus()
+    {
+        if ($this->getShopContext()->isShop17()) {
+            /** @var \PrestaShop\Module\PsAccounts\Installer\Installer $moduleInstaller */
+            $moduleInstaller = $this->getService(\PrestaShop\Module\PsAccounts\Installer\Installer::class);
+
+            // Ignore fail on ps_eventbus install
+            $moduleInstaller->installModule('ps_eventbus');
+        }
     }
 }
