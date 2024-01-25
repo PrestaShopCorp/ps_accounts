@@ -26,7 +26,7 @@ use PrestaShop\Module\PsAccounts\Service\PsAccountsService;
 class DisplayAccountUpdateWarning extends Hook
 {
     /**
-     * @return mixed
+     * @return string
      *
      * @throws Exception
      */
@@ -41,5 +41,6 @@ class DisplayAccountUpdateWarning extends Hook
             // Some users may have the same and couldn't render the configuration page
             return $this->ps_accounts->renderUpdateWarningView();
         }
+        return '';
     }
 }
