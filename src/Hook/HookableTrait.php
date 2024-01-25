@@ -37,7 +37,7 @@ trait HookableTrait
             $class = $hookNamespace . '\\' . ucfirst(preg_replace('/^hook/', '', $methodName));
 
             if (class_exists($class)) {
-//                $this->getLogger()->debug("execute hook : [{$class}]");
+                $this->getLogger()->debug("execute hook : [{$class}]");
                 /** @var Hook $hook */
                 $hook = (new $class($this));
 
