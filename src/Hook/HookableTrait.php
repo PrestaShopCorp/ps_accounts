@@ -39,7 +39,6 @@ trait HookableTrait
 
             if (is_a($class, Hook::class, true)) {
                 $this->getLogger()->debug("execute hook : [{$class}]");
-                /** @var Hook $hook */
                 $hook = (new $class($this));
 
                 return $hook->$method($params);
