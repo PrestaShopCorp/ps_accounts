@@ -38,33 +38,10 @@ class Ps_accounts extends Module
      * @var array
      */
     private $adminControllers = [
-        'ajax' => 'AdminAjaxPsAccounts',
-        'debug' => 'AdminDebugPsAccounts',
-        'oauth2' => 'AdminOAuth2PsAccounts',
-        'login' => 'AdminLoginPsAccounts',
-    ];
-
-    /**
-     * Hooks to register
-     *
-     * @var array
-     */
-    private $hooks = [
-//        \PrestaShop\Module\PsAccounts\Hook\ActionAdminControllerInitBefore::class,
-        \PrestaShop\Module\PsAccounts\Hook\ActionAdminLoginControllerLoginAfter::class,
-        \PrestaShop\Module\PsAccounts\Hook\ActionAdminLoginControllerSetMedia::class,
-        \PrestaShop\Module\PsAccounts\Hook\ActionModuleInstallAfter::class,
-        \PrestaShop\Module\PsAccounts\Hook\ActionObjectShopAddAfter::class,
-        \PrestaShop\Module\PsAccounts\Hook\ActionObjectShopDeleteAfter::class,
-        \PrestaShop\Module\PsAccounts\Hook\ActionObjectShopDeleteBefore::class,
-        \PrestaShop\Module\PsAccounts\Hook\ActionObjectShopUpdateAfter::class,
-        \PrestaShop\Module\PsAccounts\Hook\ActionObjectShopUrlUpdateAfter::class,
-        \PrestaShop\Module\PsAccounts\Hook\ActionShopAccountLinkAfter::class,
-        \PrestaShop\Module\PsAccounts\Hook\ActionShopAccountUnlinkAfter::class,
-        \PrestaShop\Module\PsAccounts\Hook\DisplayAccountUpdateWarning::class,
-        \PrestaShop\Module\PsAccounts\Hook\DisplayBackOfficeHeader::class,
-        \PrestaShop\Module\PsAccounts\Hook\DisplayBackOfficeEmployeeMenu::class,
-        \PrestaShop\Module\PsAccounts\Hook\DisplayDashboardTop::class,
+        AdminAjaxPsAccountsController::class,
+        AdminDebugPsAccountsController::class,
+        AdminOAuth2PsAccountsController::class,
+        AdminLoginPsAccountsController::class,
     ];
 
     /**
@@ -92,6 +69,29 @@ class Ps_accounts extends Module
             'description' => 'Shop unlinked with PrestaShop Account',
             'position' => 1,
         ],
+    ];
+
+    /**
+     * Hooks to register
+     *
+     * @var array
+     */
+    private $hooks = [
+//        \PrestaShop\Module\PsAccounts\Hook\ActionAdminControllerInitBefore::class,
+        \PrestaShop\Module\PsAccounts\Hook\ActionAdminLoginControllerLoginAfter::class,
+        \PrestaShop\Module\PsAccounts\Hook\ActionAdminLoginControllerSetMedia::class,
+        \PrestaShop\Module\PsAccounts\Hook\ActionModuleInstallAfter::class,
+        \PrestaShop\Module\PsAccounts\Hook\ActionObjectShopAddAfter::class,
+        \PrestaShop\Module\PsAccounts\Hook\ActionObjectShopDeleteAfter::class,
+        \PrestaShop\Module\PsAccounts\Hook\ActionObjectShopDeleteBefore::class,
+        \PrestaShop\Module\PsAccounts\Hook\ActionObjectShopUpdateAfter::class,
+        \PrestaShop\Module\PsAccounts\Hook\ActionObjectShopUrlUpdateAfter::class,
+        \PrestaShop\Module\PsAccounts\Hook\ActionShopAccountLinkAfter::class,
+        \PrestaShop\Module\PsAccounts\Hook\ActionShopAccountUnlinkAfter::class,
+        \PrestaShop\Module\PsAccounts\Hook\DisplayAccountUpdateWarning::class,
+        \PrestaShop\Module\PsAccounts\Hook\DisplayBackOfficeHeader::class,
+        \PrestaShop\Module\PsAccounts\Hook\DisplayBackOfficeEmployeeMenu::class,
+        \PrestaShop\Module\PsAccounts\Hook\DisplayDashboardTop::class,
     ];
 
     /**
@@ -152,14 +152,6 @@ class Ps_accounts extends Module
     }
 
     /**
-     * @return array
-     */
-    public function getAdminControllers()
-    {
-        return $this->adminControllers;
-    }
-
-    /**
      * @return bool
      *
      * @throws PrestaShopDatabaseException
@@ -175,10 +167,6 @@ class Ps_accounts extends Module
             && parent::install()
             && $this->addCustomHooks($this->customHooks)
             && $this->registerHook($this->getHooksToRegister());
-
-        // Removed controller
-        $uninstaller = new PrestaShop\Module\PsAccounts\Module\Uninstall($this, Db::getInstance());
-        $uninstaller->deleteAdminTab('AdminConfigureHmacPsAccounts');
 
         if ($this->getShopContext()->isShop17()) {
             /** @var \PrestaShop\Module\PsAccounts\Installer\Installer $moduleInstaller */
@@ -199,6 +187,9 @@ class Ps_accounts extends Module
 
     /**
      * @return bool
+     *
+     * @throws PrestaShopDatabaseException
+     * @throws PrestaShopException
      */
     public function uninstall()
     {
@@ -281,6 +272,34 @@ class Ps_accounts extends Module
     }
 
     /**
+     * @return array
+     */
+    public function getAdminControllers()
+    {
+        return array_map(function ($className) {
+            return preg_replace('/^.*?(\w+)Controller$/', '\1', $className);
+        }, $this->adminControllers);
+    }
+
+    /**
+     * @return array
+     */
+    public function getHooksToRegister()
+    {
+        return array_map(function ($className) {
+            return $className::getName();
+        }, $this->hooks);
+    }
+
+    /**
+     * @return array
+     */
+    public function getCustomHooks()
+    {
+        return $this->customHooks;
+    }
+
+    /**
      * @param array $customHooks
      *
      * @return bool
@@ -306,24 +325,6 @@ class Ps_accounts extends Module
         }
 
         return $ret;
-    }
-
-    /**
-     * @return array
-     */
-    public function getHooksToRegister()
-    {
-        return array_map(function ($className) {
-            return $className::getName();
-        }, $this->hooks);
-    }
-
-    /**
-     * @return array
-     */
-    public function getCustomHooks()
-    {
-        return $this->customHooks;
     }
 
     /**

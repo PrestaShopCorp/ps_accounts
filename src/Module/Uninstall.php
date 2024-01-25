@@ -43,6 +43,9 @@ class Uninstall
      * uninstallMenu.
      *
      * @return bool
+     *
+     * @throws \PrestaShopDatabaseException
+     * @throws \PrestaShopException
      */
     public function uninstallMenu()
     {
@@ -63,9 +66,12 @@ class Uninstall
     }
 
     /**
-     * @param string $controllerName
+     * @param $controllerName
      *
      * @return void
+     *
+     * @throws \PrestaShopDatabaseException
+     * @throws \PrestaShopException
      */
     public function deleteAdminTab($controllerName)
     {
