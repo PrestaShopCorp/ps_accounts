@@ -326,7 +326,6 @@ class AdminOAuth2PsAccountsController extends ModuleAdminController
     {
         if (method_exists($this->module, 'getContainer') &&
             class_exists('\Doctrine\ORM\EntityManagerInterface')) {
-
             /** @var \Doctrine\ORM\EntityManagerInterface $entityManager */
             $entityManager = $this->module->getContainer()->get('doctrine.orm.entity_manager');
 

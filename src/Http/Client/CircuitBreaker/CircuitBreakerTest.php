@@ -205,6 +205,7 @@ class CircuitBreakerTest extends TestCase
      * @param string $uri
      *
      * @phpstan-ignore-next-line
+     *
      * @return \GuzzleHttp\Message\Request|\GuzzleHttp\Psr7\Request
      */
     private function getRequest($method = 'POST', $uri = '/foo/bar')
