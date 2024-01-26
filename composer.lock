@@ -807,17 +807,17 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/PrestaShopCorp/oauth2-prestashop.git",
-                "reference": "b568a7e8d9ff1ae85e3750b7da17bf68abd9b7dd"
+                "reference": "a21a492295b8625060e465fe6873fd7b638c1f29"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/PrestaShopCorp/oauth2-prestashop/zipball/b568a7e8d9ff1ae85e3750b7da17bf68abd9b7dd",
-                "reference": "b568a7e8d9ff1ae85e3750b7da17bf68abd9b7dd",
+                "url": "https://api.github.com/repos/PrestaShopCorp/oauth2-prestashop/zipball/a21a492295b8625060e465fe6873fd7b638c1f29",
+                "reference": "a21a492295b8625060e465fe6873fd7b638c1f29",
                 "shasum": ""
             },
             "require": {
                 "league/oauth2-client": "^2.0",
-                "php": "^5.6"
+                "php": ">=5.6"
             },
             "require-dev": {
                 "phpstan/phpstan": "^1.7",
@@ -855,7 +855,7 @@
                 "issues": "https://github.com/PrestaShopCorp/oauth2-prestashop/issues",
                 "source": "https://github.com/PrestaShopCorp/oauth2-prestashop/tree/refactor/php-compat-range"
             },
-            "time": "2023-12-20T17:48:30+00:00"
+            "time": "2024-01-26T17:26:01+00:00"
         },
         {
             "name": "psr/cache",
