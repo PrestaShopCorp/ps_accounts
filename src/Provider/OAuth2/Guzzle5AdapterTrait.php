@@ -102,7 +102,7 @@ trait Guzzle5AdapterTrait
     }
 
     /**
-     * @return bool
+     * @return int|null
      */
     public function getGuzzleMajorVersionNumber()
     {
