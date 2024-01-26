@@ -110,6 +110,7 @@ phpstan: check-docker
 	  -e _PS_ROOT_DIR_=/var/www/html \
 	  --workdir=/web/module \
 	  phpstan/phpstan:${PHPSTAN_VERSION} analyse \
+	  --memory-limit=-1 \
 	  --configuration=/web/module/tests/phpstan/${NEON_FILE}
 	docker volume rm ps-volume
 
