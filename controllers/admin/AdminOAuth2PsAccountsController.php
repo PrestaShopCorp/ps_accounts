@@ -21,7 +21,6 @@
 // FIXME : needed on 1.6
 require_once __DIR__ . '/../../src/Provider/OAuth2/PrestaShopLoginTrait.php';
 
-use Doctrine\ORM\EntityManagerInterface;
 use League\OAuth2\Client\Provider\Exception\IdentityProviderException;
 use PrestaShop\Module\PsAccounts\Entity\EmployeeAccount;
 use PrestaShop\Module\PsAccounts\Exception\AccountLogin\AccountLoginException;
@@ -325,8 +324,10 @@ class AdminOAuth2PsAccountsController extends ModuleAdminController
      */
     private function getEmployeeByUidOrEmail($uid, $email)
     {
-        if (method_exists($this->module, 'getContainer')) {
-            /** @var EntityManagerInterface $entityManager */
+        if (method_exists($this->module, 'getContainer') &&
+            class_exists('\Doctrine\ORM\EntityManagerInterface')) {
+
+            /** @var \Doctrine\ORM\EntityManagerInterface $entityManager */
             $entityManager = $this->module->getContainer()->get('doctrine.orm.entity_manager');
 
             $employeeAccountRepository = $entityManager->getRepository(EmployeeAccount::class);

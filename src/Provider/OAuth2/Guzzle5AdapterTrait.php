@@ -98,7 +98,7 @@ trait Guzzle5AdapterTrait
      */
     public function isGuzzle5()
     {
-        return GuzzleClientFactory::getGuzzleMajorVersionNumber() < 6;
+        return (int) GuzzleClientFactory::getGuzzleMajorVersionNumber() < 6;
     }
 
     /**

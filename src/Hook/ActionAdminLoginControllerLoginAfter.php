@@ -23,7 +23,6 @@ namespace PrestaShop\Module\PsAccounts\Hook;
 use Exception;
 use PrestaShop\Module\PsAccounts\Service\AnalyticsService;
 use PrestaShop\Module\PsAccounts\Service\PsAccountsService;
-use PrestaShop\PrestaShop\Adapter\Entity\Employee;
 
 class ActionAdminLoginControllerLoginAfter extends Hook
 {
@@ -40,13 +39,13 @@ class ActionAdminLoginControllerLoginAfter extends Hook
     }
 
     /**
-     * @param Employee $employee
+     * @param \Employee $employee
      *
      * @return void
      *
      * @throws Exception
      */
-    protected function trackLoginEvent(Employee $employee)
+    protected function trackLoginEvent(\Employee $employee)
     {
         /** @var AnalyticsService $analyticsService */
         $analyticsService = $this->ps_accounts->getService(AnalyticsService::class);

@@ -20,8 +20,6 @@
 
 namespace PrestaShop\Module\PsAccounts\Hook;
 
-use PrestaShop\PrestaShop\Core\Action\ActionsBarButton;
-
 class DisplayBackOfficeEmployeeMenu extends Hook
 {
     /**
@@ -42,10 +40,12 @@ class DisplayBackOfficeEmployeeMenu extends Hook
                 'utm_content' => 'headeremployeedropdownlink',
             ]);
 
-        $bar->add(
-            new ActionsBarButton(
-                '', ['link' => $link, 'icon' => 'open_in_new'], $this->ps_accounts->l('Manage your PrestaShop account')
-            )
-        );
+        if (class_exists('\PrestaShop\PrestaShop\Core\Action\ActionsBarButton')) {
+            $bar->add(
+                new \PrestaShop\PrestaShop\Core\Action\ActionsBarButton(
+                    '', ['link' => $link, 'icon' => 'open_in_new'], $this->ps_accounts->l('Manage your PrestaShop account')
+                )
+            );
+        }
     }
 }
