@@ -60,6 +60,7 @@ abstract class CircuitBreaker
 
                 return $result;
             } catch (ConnectException $e) {
+                // FIXME: CircuitBreak bound to GuzzleException
                 $this->setLastFailure();
             }
         }

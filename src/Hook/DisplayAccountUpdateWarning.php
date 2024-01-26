@@ -41,6 +41,7 @@ class DisplayAccountUpdateWarning extends Hook
             // Some users may have the same and couldn't render the configuration page
             return $this->ps_accounts->renderUpdateWarningView();
         }
+
         return '';
     }
 }

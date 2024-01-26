@@ -15,13 +15,15 @@ use PrestaShopBundle\Entity\Shop;
 class HookActionObjectShopUpdateAfterTest extends TestCase
 {
     /**
-     * @not_a_test
+     * @test
      *
      * @throws Exception
      * @throws OptimisticLockException
      */
     public function itShouldUpdateBoBaseUrlInBoContext()
     {
+        $this->markTestSkipped('Not implemented.');
+
         // TODO: spy on update shop api call boBaseUrl
         ///** @var AccountsClient $tokenRepos */
         $apiClient = $this->getMockBuilder(AccountsClient::class)
