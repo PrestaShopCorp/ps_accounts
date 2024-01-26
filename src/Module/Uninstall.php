@@ -66,7 +66,7 @@ class Uninstall
     }
 
     /**
-     * @param $controllerName
+     * @param string $controllerName
      *
      * @return void
      *

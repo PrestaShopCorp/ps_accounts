@@ -52,7 +52,7 @@ trait HookableTrait
      * @param string $name
      * @param array $arguments
      *
-     * @return void
+     * @return mixed
      *
      * @throws \Exception
      */

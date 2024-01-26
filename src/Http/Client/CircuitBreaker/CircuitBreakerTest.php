@@ -204,6 +204,7 @@ class CircuitBreakerTest extends TestCase
      * @param string $method
      * @param string $uri
      *
+     * @phpstan-ignore-next-line
      * @return \GuzzleHttp\Message\Request|\GuzzleHttp\Psr7\Request
      */
     private function getRequest($method = 'POST', $uri = '/foo/bar')
@@ -212,6 +213,7 @@ class CircuitBreakerTest extends TestCase
         if (GuzzleClientFactory::getGuzzleMajorVersionNumber() >= 7) {
             return new \GuzzleHttp\Psr7\Request($method, $uri);
         } else {
+            /* @phpstan-ignore-next-line */
             return new \GuzzleHttp\Message\Request($method, $uri);
         }
     }
