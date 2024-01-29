@@ -3,9 +3,9 @@ PHP = $(shell which php 2> /dev/null)
 DOCKER = $(shell docker ps 2> /dev/null)
 NPM = $(shell which npm 2> /dev/null)
 YARN = $(shell which yarn 2> /dev/null)
+MODULE ?= $(shell basename ${PWD})
 
 VERSION ?= 5.2.0#$(shell git describe --tags | sed 's/^v//')
-MODULE ?= $(shell basename ${PWD})
 PACKAGE ?= "${MODULE}-${VERSION}"
 PHPSTAN_VERSION ?= 0.12
 PHPUNIT_VERSION ?= latest
@@ -118,11 +118,11 @@ phpunit-pull:
 	docker pull prestashop/docker-internal-images:${DOCKER_INTERNAL}
 
 phpunit-start:
-	@docker-compose up -d
+	@DOCKER_INTERNAL=${DOCKER_INTERNAL} docker-compose up -d
 	@echo phpunit started
 
 phpunit-stop:
-	@docker-compose down
+	@DOCKER_INTERNAL=${DOCKER_INTERNAL} docker-compose down
 	@echo phpunit stopped
 
 phpunit-restart: phpunit-stop phpunit-start

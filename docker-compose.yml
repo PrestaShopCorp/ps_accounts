@@ -2,7 +2,7 @@ version: "3.7"
 services:
   phpunit:
     container_name: phpunit
-    image: prestashop/docker-internal-images:1.7
+    image: prestashop/docker-internal-images:${DOCKER_INTERNAL}
     environment:
       - PS_DOMAIN=localhost
       - PS_ENABLE_SSL=0
