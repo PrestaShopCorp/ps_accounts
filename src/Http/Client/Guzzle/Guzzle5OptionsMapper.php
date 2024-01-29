@@ -54,7 +54,6 @@ class Guzzle5OptionsMapper
 
         if (isset($config['base_uri'])) {
             $config['base_url'] = $config['base_uri'];
-
             unset($config['base_uri']);
         }
 

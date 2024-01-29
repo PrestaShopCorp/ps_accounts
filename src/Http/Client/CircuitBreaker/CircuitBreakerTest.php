@@ -211,7 +211,7 @@ class CircuitBreakerTest extends TestCase
     private function getRequest($method = 'POST', $uri = '/foo/bar')
     {
         // FIXME: CircuitBreak bound to GuzzleException
-        if (GuzzleClientFactory::getGuzzleMajorVersionNumber() >= 7) {
+        if (GuzzleClientFactory::getGuzzleMajorVersionNumber() >= 6) {
             return new \GuzzleHttp\Psr7\Request($method, $uri);
         } else {
             /* @phpstan-ignore-next-line */

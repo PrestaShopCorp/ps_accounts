@@ -32,7 +32,7 @@ class GuzzleClientFactory
      */
     public function create($options)
     {
-        return self::getGuzzleMajorVersionNumber() >= 7
+        return self::getGuzzleMajorVersionNumber() >= 6
             ? new Guzzle7Client($options)
             : new Guzzle5Client($options);
     }

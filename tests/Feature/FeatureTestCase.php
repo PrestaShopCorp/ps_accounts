@@ -14,7 +14,6 @@ use PrestaShop\Module\PsAccounts\Provider\RsaKeysProvider;
 use PrestaShop\Module\PsAccounts\Repository\UserTokenRepository;
 use PrestaShop\Module\PsAccounts\Tests\TestCase;
 
-
 class FeatureTestCase extends TestCase
 {
     /**
@@ -53,22 +52,22 @@ class FeatureTestCase extends TestCase
 
         $scheme = $this->configuration->get('PS_SSL_ENABLED') ? 'https://' : 'http://';
         $domain = $this->configuration->get('PS_SHOP_DOMAIN');
-        $baseUrl = $scheme . $domain;
+        $baseUrl = $scheme . $domain . '/';
 
-        //$this->client = new Client([
         $this->guzzleClient = (new GuzzleClientFactory())->create([
-            'base_url' => $baseUrl,
-            'defaults' => [
-                'verify' => false,
-                'timeout' => 60,
-                'exceptions' => false,
-                'allow_redirects' => false,
-                'query' => [],
-                'headers' => [
-                    'Accept' => 'application/json',
-                ],
+            'base_uri' => $baseUrl,
+            'headers' => [
+                'Accept' => 'application/json',
             ],
+            'verify' => false,
+            'timeout' => 60,
+            'http_errors' => false,
+            //
+            'allow_redirects' => false,
+            'query' => [],
         ]);
+
+        $this->module->getLogger()->debug('Using ' . get_class($this->guzzleClient));
 
         $this->client = $this->guzzleClient->getClient();
 
