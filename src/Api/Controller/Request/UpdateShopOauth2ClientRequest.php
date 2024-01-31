@@ -18,21 +18,22 @@
  * @license   https://opensource.org/licenses/AFL-3.0 Academic Free License version 3.0
  */
 
-namespace PrestaShop\Module\PsAccounts\Http\Exception;
+namespace PrestaShop\Module\PsAccounts\Api\Controller\Request;
 
-class BadRequestException extends HttpException
+class UpdateShopOauth2ClientRequest extends Request
 {
-    /**
-     * UnauthorizedException constructor.
-     *
-     * @param string $message
-     * @param int $code
-     * @param \Exception|null $previous
-     */
-    public function __construct($message = 'Bad Request', $code = 0, \Exception $previous = null)
-    {
-        parent::__construct($message, $code, $previous);
+    /** @var string */
+    public $shop_id;
+    /** @var string */
+    public $client_id;
+    /** @var string */
+    public $client_secret;
 
-        $this->statusCode = 400;
-    }
+    /**
+     * @var string[]
+     */
+    protected $mandatory = [
+        'client_id',
+        'client_secret',
+    ];
 }

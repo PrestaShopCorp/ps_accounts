@@ -20,7 +20,7 @@
 
 namespace PrestaShop\Module\PsAccounts\Http\Client\CircuitBreaker;
 
-use PrestaShop\Module\PsAccounts\Enum;
+use PrestaShop\Module\PsAccounts\Type\Enum;
 
 class State extends Enum
 {

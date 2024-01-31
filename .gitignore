@@ -17,6 +17,7 @@ node_modules/
 install.lock
 composer-dev.json
 composer-dev.lock
+.env
 
 ### PHPUnit ###
 .phpunit.result.cache

@@ -18,22 +18,21 @@
  * @license   https://opensource.org/licenses/AFL-3.0 Academic Free License version 3.0
  */
 
-namespace PrestaShop\Module\PsAccounts\Http\Request;
+namespace PrestaShop\Module\PsAccounts\Exception\Http;
 
-class UpdateShopOauth2ClientRequest extends Request
+class MethodNotAllowedException extends HttpException
 {
-    /** @var string */
-    public $shop_id;
-    /** @var string */
-    public $client_id;
-    /** @var string */
-    public $client_secret;
-
     /**
-     * @var string[]
+     * NotFoundException constructor.
+     *
+     * @param string $message
+     * @param int $code
+     * @param \Exception|null $previous
      */
-    protected $mandatory = [
-        'client_id',
-        'client_secret',
-    ];
+    public function __construct($message = 'Method Not Allowed', $code = 0, \Exception $previous = null)
+    {
+        parent::__construct($message, $code, $previous);
+
+        $this->statusCode = 405;
+    }
 }

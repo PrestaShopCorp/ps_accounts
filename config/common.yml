@@ -1,3 +1,6 @@
+imports:
+  - { resource: command.yml }
+
 services:
   ps_accounts.module:
     class: Ps_accounts
@@ -37,7 +40,6 @@ services:
     public: true
     arguments:
       - '@PrestaShop\Module\PsAccounts\Repository\ConfigurationRepository'
-      - '@PrestaShop\Module\PsAccounts\Repository\UserTokenRepository'
       - '@ps_accounts.context'
 
   PrestaShop\Module\PsAccounts\Adapter\Configuration:
@@ -70,8 +72,8 @@ services:
     public: true
     arguments:
       - '@ps_accounts.module'
-      - '@PrestaShop\Module\PsAccounts\Repository\ShopTokenRepository'
-      - '@PrestaShop\Module\PsAccounts\Repository\UserTokenRepository'
+      - '@PrestaShop\Module\PsAccounts\Account\Session\ShopSession'
+      - '@PrestaShop\Module\PsAccounts\Account\Session\OwnerSession'
       - '@PrestaShop\Module\PsAccounts\Adapter\Link'
 
   PrestaShop\Module\PsAccounts\Service\ShopLinkAccountService:
@@ -79,9 +81,8 @@ services:
     public: true
     arguments:
       - '@PrestaShop\Module\PsAccounts\Provider\RsaKeysProvider'
-      - '@PrestaShop\Module\PsAccounts\Repository\ShopTokenRepository'
-      - '@PrestaShop\Module\PsAccounts\Repository\UserTokenRepository'
-      - '@PrestaShop\Module\PsAccounts\Provider\OAuth2\Oauth2Client'
+      - '@PrestaShop\Module\PsAccounts\Account\Session\ShopSession'
+      - '@PrestaShop\Module\PsAccounts\Account\Session\OwnerSession'
       - '@PrestaShop\Module\PsAccounts\Repository\ConfigurationRepository'
 
   PrestaShop\Module\PsAccounts\Service\PsBillingService:
@@ -163,6 +164,20 @@ services:
   #####################
   # repositories
 
+  PrestaShop\Module\PsAccounts\Account\Session\ShopSession:
+    class: PrestaShop\Module\PsAccounts\Account\Session\ShopSession
+    arguments:
+      - '@PrestaShop\Module\PsAccounts\Api\Client\AccountsClient'
+      - '@PrestaShop\Module\PsAccounts\Repository\ConfigurationRepository'
+      - '@PrestaShop\Module\PsAccounts\Service\AnalyticsService'
+
+  PrestaShop\Module\PsAccounts\Account\Session\OwnerSession:
+    class: PrestaShop\Module\PsAccounts\Account\Session\OwnerSession
+    arguments:
+      - '@PrestaShop\Module\PsAccounts\Api\Client\SsoClient'
+      - '@PrestaShop\Module\PsAccounts\Repository\ConfigurationRepository'
+      - '@PrestaShop\Module\PsAccounts\Service\AnalyticsService'
+
   PrestaShop\Module\PsAccounts\Repository\ConfigurationRepository:
     class: PrestaShop\Module\PsAccounts\Repository\ConfigurationRepository
     public: true
@@ -174,14 +189,14 @@ services:
     public: true
     arguments:
       - '@PrestaShop\Module\PsAccounts\Repository\ConfigurationRepository'
-      - '@PrestaShop\Module\PsAccounts\Service\AnalyticsService'
+      - '@PrestaShop\Module\PsAccounts\Account\Session\ShopSession'
 
   PrestaShop\Module\PsAccounts\Repository\UserTokenRepository:
     class: PrestaShop\Module\PsAccounts\Repository\UserTokenRepository
     public: true
     arguments:
       - '@PrestaShop\Module\PsAccounts\Repository\ConfigurationRepository'
-      - '@PrestaShop\Module\PsAccounts\Service\AnalyticsService'
+      - '@PrestaShop\Module\PsAccounts\Account\Session\OwnerSession'
 
   #####################
   # presenters
@@ -195,4 +210,13 @@ services:
       - '@PrestaShop\Module\PsAccounts\Service\ShopLinkAccountService'
       - '@PrestaShop\Module\PsAccounts\Installer\Installer'
       - '@PrestaShop\Module\PsAccounts\Repository\ConfigurationRepository'
+      - '@ps_accounts.module'
+
+
+  #####################
+  # CQRS
+
+  PrestaShop\Module\PsAccounts\Cqrs\CommandBus:
+    class: PrestaShop\Module\PsAccounts\Cqrs\CommandBus
+    arguments:
       - '@ps_accounts.module'

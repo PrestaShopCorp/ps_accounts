@@ -18,27 +18,20 @@
  * @license   https://opensource.org/licenses/AFL-3.0 Academic Free License version 3.0
  */
 
-use PrestaShop\Module\PsAccounts\Account\Session\ShopSession;
-use PrestaShop\Module\PsAccounts\Api\Controller\AbstractShopRestController;
+namespace PrestaShop\Module\PsAccounts\Exception\Http;
 
-class ps_AccountsApiV1ShopTokenModuleFrontController extends AbstractShopRestController
+class HttpException extends \RuntimeException
 {
     /**
-     * @param Shop $shop
-     * @param array $payload
-     *
-     * @return string[]
-     *
-     * @throws Exception
+     * @var int
      */
-    public function show(Shop $shop, array $payload)
-    {
-        /** @var ShopSession $shopSession */
-        $shopSession = $this->module->getService(ShopSession::class);
+    protected $statusCode;
 
-        return [
-            'token' => (string) $shopSession->getOrRefreshToken(),
-            'refresh_token' => (string) $shopSession->getToken()->getRefreshToken(),
-        ];
+    /**
+     * @return int
+     */
+    public function getStatusCode()
+    {
+        return $this->statusCode;
     }
 }

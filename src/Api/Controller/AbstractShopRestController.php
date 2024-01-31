@@ -18,27 +18,31 @@
  * @license   https://opensource.org/licenses/AFL-3.0 Academic Free License version 3.0
  */
 
-use PrestaShop\Module\PsAccounts\Account\Session\ShopSession;
-use PrestaShop\Module\PsAccounts\Api\Controller\AbstractShopRestController;
+namespace PrestaShop\Module\PsAccounts\Api\Controller;
 
-class ps_AccountsApiV1ShopTokenModuleFrontController extends AbstractShopRestController
+use PrestaShop\Module\PsAccounts\Exception\Http\NotFoundException;
+use Shop;
+
+class AbstractShopRestController extends AbstractRestController
 {
     /**
-     * @param Shop $shop
-     * @param array $payload
-     *
-     * @return string[]
-     *
-     * @throws Exception
+     * @var string
      */
-    public function show(Shop $shop, array $payload)
-    {
-        /** @var ShopSession $shopSession */
-        $shopSession = $this->module->getService(ShopSession::class);
+    public $resourceId = 'shop_id';
 
-        return [
-            'token' => (string) $shopSession->getOrRefreshToken(),
-            'refresh_token' => (string) $shopSession->getToken()->getRefreshToken(),
-        ];
+    /**
+     * @param mixed $id
+     *
+     * @return Shop
+     */
+    protected function buildResource($id)
+    {
+        $shop = new Shop($id);
+
+        if (!$shop->id) {
+            throw new NotFoundException('Shop not found [' . $id . ']');
+        }
+
+        return $shop;
     }
 }

@@ -18,27 +18,57 @@
  * @license   https://opensource.org/licenses/AFL-3.0 Academic Free License version 3.0
  */
 
-use PrestaShop\Module\PsAccounts\Account\Session\ShopSession;
-use PrestaShop\Module\PsAccounts\Api\Controller\AbstractShopRestController;
+namespace PrestaShop\Module\PsAccounts\Account\Dto;
 
-class ps_AccountsApiV1ShopTokenModuleFrontController extends AbstractShopRestController
+use PrestaShop\Module\PsAccounts\Type\Dto;
+
+class UpdateShop extends Dto
 {
     /**
-     * @param Shop $shop
-     * @param array $payload
-     *
-     * @return string[]
-     *
-     * @throws Exception
+     * @var string
      */
-    public function show(Shop $shop, array $payload)
-    {
-        /** @var ShopSession $shopSession */
-        $shopSession = $this->module->getService(ShopSession::class);
+    public $shopId;
 
-        return [
-            'token' => (string) $shopSession->getOrRefreshToken(),
-            'refresh_token' => (string) $shopSession->getToken()->getRefreshToken(),
-        ];
-    }
+    /**
+     * @var string
+     */
+    public $name;
+
+    /**
+     * @var string
+     */
+    public $virtualUri;
+
+    /**
+     * @var string
+     */
+    public $physicalUri;
+
+    /**
+     * @var string
+     */
+    public $domain;
+
+    /**
+     * @var string
+     */
+    public $sslDomain;
+
+    /**
+     * @var string
+     */
+    public $boBaseUrl;
+
+    /**
+     * @var string[]
+     */
+    public $mandatory = [
+        'shopId',
+        'name',
+        'virtualUri',
+        'physicalUri',
+        'domain',
+        'sslDomain',
+        'boBaseUrl',
+    ];
 }

@@ -18,21 +18,15 @@
  * @license   https://opensource.org/licenses/AFL-3.0 Academic Free License version 3.0
  */
 
-namespace PrestaShop\Module\PsAccounts\Http\Exception;
+namespace PrestaShop\Module\PsAccounts\Api\Controller;
 
-class UnauthorizedException extends HttpException
+use PrestaShop\Module\PsAccounts\Type\Enum;
+
+class RestMethod extends Enum
 {
-    /**
-     * UnauthorizedException constructor.
-     *
-     * @param string $message
-     * @param int $code
-     * @param \Exception|null $previous
-     */
-    public function __construct($message = 'Unauthorized', $code = 0, \Exception $previous = null)
-    {
-        parent::__construct($message, $code, $previous);
-
-        $this->statusCode = 401;
-    }
+    const INDEX = 'index';
+    const STORE = 'store';
+    const UPDATE = 'update';
+    const DELETE = 'delete';
+    const SHOW = 'show';
 }

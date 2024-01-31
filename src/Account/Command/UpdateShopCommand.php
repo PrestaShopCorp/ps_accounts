@@ -18,27 +18,19 @@
  * @license   https://opensource.org/licenses/AFL-3.0 Academic Free License version 3.0
  */
 
-use PrestaShop\Module\PsAccounts\Account\Session\ShopSession;
-use PrestaShop\Module\PsAccounts\Api\Controller\AbstractShopRestController;
+namespace PrestaShop\Module\PsAccounts\Account\Command;
 
-class ps_AccountsApiV1ShopTokenModuleFrontController extends AbstractShopRestController
+use PrestaShop\Module\PsAccounts\Account\Dto\UpdateShop;
+
+class UpdateShopCommand
 {
     /**
-     * @param Shop $shop
-     * @param array $payload
-     *
-     * @return string[]
-     *
-     * @throws Exception
+     * @var UpdateShop
      */
-    public function show(Shop $shop, array $payload)
-    {
-        /** @var ShopSession $shopSession */
-        $shopSession = $this->module->getService(ShopSession::class);
+    public $payload;
 
-        return [
-            'token' => (string) $shopSession->getOrRefreshToken(),
-            'refresh_token' => (string) $shopSession->getToken()->getRefreshToken(),
-        ];
+    public function __construct(UpdateShop $payload)
+    {
+        $this->payload = $payload;
     }
 }

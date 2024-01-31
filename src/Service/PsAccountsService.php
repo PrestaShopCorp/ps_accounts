@@ -21,13 +21,14 @@
 namespace PrestaShop\Module\PsAccounts\Service;
 
 use Doctrine\ORM\EntityManagerInterface;
+use PrestaShop\Module\PsAccounts\Account\Command\MigrateAndLinkV4ShopCommand;
+use PrestaShop\Module\PsAccounts\Account\Session\OwnerSession;
+use PrestaShop\Module\PsAccounts\Account\Session\ShopSession;
 use PrestaShop\Module\PsAccounts\Adapter\Link;
-use PrestaShop\Module\PsAccounts\Api\Client\AccountsClient;
+use PrestaShop\Module\PsAccounts\Cqrs\CommandBus;
 use PrestaShop\Module\PsAccounts\Entity\EmployeeAccount;
 use PrestaShop\Module\PsAccounts\Provider\ShopProvider;
 use PrestaShop\Module\PsAccounts\Repository\ConfigurationRepository;
-use PrestaShop\Module\PsAccounts\Repository\ShopTokenRepository;
-use PrestaShop\Module\PsAccounts\Repository\UserTokenRepository;
 
 /**
  * Class PsAccountsService
@@ -45,32 +46,32 @@ class PsAccountsService
     private $module;
 
     /**
-     * @var ShopTokenRepository
+     * @var ShopSession
      */
-    private $shopTokenRepository;
+    private $shopSession;
 
     /**
-     * @var UserTokenRepository
+     * @var OwnerSession
      */
-    private $userTokenRepository;
+    private $ownerSession;
 
     /**
      * PsAccountsService constructor.
      *
      * @param \Ps_accounts $module
-     * @param ShopTokenRepository $shopTokenRepository
-     * @param UserTokenRepository $userTokenRepository
+     * @param ShopSession $shopSession
+     * @param OwnerSession $ownerSession
      * @param Link $link
      */
     public function __construct(
         \Ps_accounts $module,
-        ShopTokenRepository $shopTokenRepository,
-        UserTokenRepository $userTokenRepository,
+        ShopSession $shopSession,
+        OwnerSession $ownerSession,
         Link $link
     ) {
         $this->module = $module;
-        $this->shopTokenRepository = $shopTokenRepository;
-        $this->userTokenRepository = $userTokenRepository;
+        $this->shopSession = $shopSession;
+        $this->ownerSession = $ownerSession;
         $this->link = $link;
     }
 
@@ -93,11 +94,11 @@ class PsAccountsService
     }
 
     /**
-     * @return string|false
+     * @return string
      */
     public function getShopUuid()
     {
-        return $this->shopTokenRepository->getTokenUuid();
+        return $this->shopSession->getToken()->getUuid();
     }
 
     /**
@@ -109,7 +110,7 @@ class PsAccountsService
      */
     public function getOrRefreshToken()
     {
-        return (string) $this->shopTokenRepository->getOrRefreshToken();
+        return (string) $this->shopSession->getOrRefreshToken();
     }
 
     /**
@@ -117,31 +118,35 @@ class PsAccountsService
      */
     public function getRefreshToken()
     {
-        return $this->shopTokenRepository->getRefreshToken();
+        return $this->shopSession->getToken()->getRefreshToken();
     }
 
     /**
      * @return string|null
+     *
+     * @throws \Exception
      */
     public function getToken()
     {
-        return (string) $this->shopTokenRepository->getOrRefreshToken();
+        return (string) $this->shopSession->getOrRefreshToken();
     }
 
     /**
-     * @deprecated
-     *
      * @return string|null
+     *
+     * @throws \Exception
+     *
+     * @deprecated
      */
     public function getUserToken()
     {
-        return (string) $this->userTokenRepository->getOrRefreshToken();
+        return (string) $this->ownerSession->getOrRefreshToken();
     }
 
     /**
-     * @deprecated deprecated since version 5.1.1
+     * @return string
      *
-     * @return string|false
+     * @deprecated deprecated since version 5.1.1
      */
     public function getUserUuidV4()
     {
@@ -149,11 +154,11 @@ class PsAccountsService
     }
 
     /**
-     * @return string|false
+     * @return string
      */
     public function getUserUuid()
     {
-        return $this->userTokenRepository->getTokenUuid();
+        return $this->ownerSession->getToken()->getUuid();
     }
 
     /**
@@ -163,7 +168,7 @@ class PsAccountsService
      */
     public function isEmailValidated()
     {
-        return $this->userTokenRepository->getTokenEmailVerified();
+        return $this->ownerSession->isEmailVerified();
     }
 
     /**
@@ -171,7 +176,7 @@ class PsAccountsService
      */
     public function getEmail()
     {
-        return $this->userTokenRepository->getTokenEmail();
+        return $this->ownerSession->getToken()->getEmail();
     }
 
     /**
@@ -218,6 +223,8 @@ class PsAccountsService
 
     /**
      * @return string
+     *
+     * @throws \Exception
      */
     public function getAccountsVueCdn()
     {
@@ -226,6 +233,8 @@ class PsAccountsService
 
     /**
      * @return string
+     *
+     * @throws \Exception
      */
     public function getAccountsCdn()
     {
@@ -236,6 +245,7 @@ class PsAccountsService
      * @return void
      *
      * @throws \PrestaShopException
+     * @throws \Exception
      */
     public function autoReonboardOnV5()
     {
@@ -266,20 +276,20 @@ class PsAccountsService
         });
         foreach ($flattenShops as $shop) {
             if ($shop['isLinkedV4']) {
+                $id = $conf->getShopId();
                 if ($isAlreadyReonboard) {
-                    $id = $conf->getShopId();
                     $conf->setShopId((int) $shop['id']);
 
                     $shopLinkAccountService->resetLinkAccount();
 
                     $conf->setShopId($id);
                 } else {
-                    /** @var AccountsClient $accountsClient */
-                    $accountsClient = $this->module->getService(AccountsClient::class);
-
                     $shop['employeeId'] = null;
 
-                    $accountsClient->reonboardShop($shop);
+                    /** @var CommandBus $commandBus */
+                    $commandBus = $this->module->getService(CommandBus::class);
+                    $commandBus->handle(new MigrateAndLinkV4ShopCommand($id, $shop));
+
                     $isAlreadyReonboard = true;
                 }
             }

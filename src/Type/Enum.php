@@ -18,20 +18,36 @@
  * @license   https://opensource.org/licenses/AFL-3.0 Academic Free License version 3.0
  */
 
-namespace PrestaShop\Module\PsAccounts\Http\Exception;
+namespace PrestaShop\Module\PsAccounts\Type;
 
-class HttpException extends \RuntimeException
+use ReflectionClass;
+
+abstract class Enum
 {
     /**
-     * @var int
+     * @return array
      */
-    protected $statusCode;
+    public static function cases()
+    {
+        return (new ReflectionClass(static::class))->getConstants();
+    }
 
     /**
-     * @return int
+     * @return array
      */
-    public function getStatusCode()
+    public static function values()
     {
-        return $this->statusCode;
+        return array_values(static::cases());
+    }
+
+    /**
+     * @param mixed $value
+     * @param bool $strict
+     *
+     * @return bool
+     */
+    public static function includes($value, $strict = false)
+    {
+        return in_array($value, array_values(static::cases()), $strict);
     }
 }

@@ -1,0 +1,46 @@
+services:
+  _defaults:
+    public: true
+
+  PrestaShop\Module\PsAccounts\Account\CommandHandler\LinkShopHandler:
+    class: PrestaShop\Module\PsAccounts\Account\CommandHandler\LinkShopHandler
+    tags:
+      - { name: tactician.handler, command: 'PrestaShop\Module\PsAccounts\Domain\Shop\Command\LinkShopCommand' }
+    arguments:
+      - '@PrestaShop\Module\PsAccounts\Account\Session\ShopSession'
+      - '@PrestaShop\Module\PsAccounts\Account\Session\OwnerSession'
+
+  PrestaShop\Module\PsAccounts\Account\CommandHandler\MigrateAndLinkV4ShopHandler:
+    class: PrestaShop\Module\PsAccounts\Account\CommandHandler\MigrateAndLinkV4ShopHandler
+    tags:
+      - { name: tactician.handler, command: 'PrestaShop\Module\PsAccounts\Domain\Shop\Command\MigrateAndLinkV4ShopCommand' }
+    arguments:
+      - '@PrestaShop\Module\PsAccounts\Api\Client\AccountsClient'
+      - '@PrestaShop\Module\PsAccounts\Context\ShopContext'
+      - '@PrestaShop\Module\PsAccounts\Account\Session\ShopSession'
+
+  PrestaShop\Module\PsAccounts\Account\CommandHandler\DeleteUserShopHandler:
+    class: PrestaShop\Module\PsAccounts\Account\CommandHandler\DeleteUserShopHandler
+    tags:
+      - { name: tactician.handler, command: 'PrestaShop\Module\PsAccounts\Domain\Shop\Command\DeleteUserShopCommand' }
+    arguments:
+      - '@PrestaShop\Module\PsAccounts\Api\Client\AccountsClient'
+      - '@PrestaShop\Module\PsAccounts\Context\ShopContext'
+      - '@PrestaShop\Module\PsAccounts\Account\Session\ShopSession'
+      - '@PrestaShop\Module\PsAccounts\Account\Session\OwnerSession'
+
+  PrestaShop\Module\PsAccounts\Account\CommandHandler\UnlinkShopHandler:
+    class: PrestaShop\Module\PsAccounts\Account\CommandHandler\UnlinkShopHandler
+    tags:
+      - { name: tactician.handler, command: 'PrestaShop\Module\PsAccounts\Domain\Shop\Command\UnlinkShopCommand' }
+    arguments:
+      - '@PrestaShop\Module\PsAccounts\Service\ShopLinkAccountService'
+
+  PrestaShop\Module\PsAccounts\Account\CommandHandler\UpdateShopHandler:
+    class: PrestaShop\Module\PsAccounts\Account\CommandHandler\UpdateShopHandler
+    tags:
+      - { name: tactician.handler, command: 'PrestaShop\Module\PsAccounts\Domain\Shop\Command\UpdateShopCommand' }
+    arguments:
+      - '@PrestaShop\Module\PsAccounts\Api\Client\AccountsClient'
+      - '@PrestaShop\Module\PsAccounts\Context\ShopContext'
+      - '@PrestaShop\Module\PsAccounts\Service\ShopLinkAccountService'

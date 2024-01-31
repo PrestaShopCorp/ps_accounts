@@ -18,20 +18,30 @@
  * @license   https://opensource.org/licenses/AFL-3.0 Academic Free License version 3.0
  */
 
-namespace PrestaShop\Module\PsAccounts\Http\Request;
+namespace PrestaShop\Module\PsAccounts\Api\Controller\Request;
 
-class UpdateShopLinkAccountRequest extends Request
+use PrestaShop\Module\PsAccounts\Exception\DtoException;
+use PrestaShop\Module\PsAccounts\Exception\Http\BadRequestException;
+use PrestaShop\Module\PsAccounts\Type\Dto;
+
+abstract class Request extends Dto
 {
-    /** @var string */
-    public $shop_id;
-    /** @var string */
-    public $shop_refresh_token;
-    /** @var string */
-    public $user_refresh_token;
-    /** @var string */
-    public $shop_token;
-    /** @var string */
-    public $user_token;
-    /** @var string */
-    public $employee_id = '';
+    /**
+     * @var bool
+     */
+    protected $throwOnUnexpectedProperties = false;
+
+    /**
+     * @param array $values
+     *
+     * @throws \Exception
+     */
+    public function __construct($values = [])
+    {
+        try {
+            parent::__construct($values);
+        } catch (DtoException $e) {
+            throw new BadRequestException($e->getMessage());
+        }
+    }
 }

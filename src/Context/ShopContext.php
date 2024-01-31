@@ -21,8 +21,8 @@
 namespace PrestaShop\Module\PsAccounts\Context;
 
 use Context;
+use PrestaShop\Module\PsAccounts\Account\Session\OwnerSession;
 use PrestaShop\Module\PsAccounts\Repository\ConfigurationRepository;
-use PrestaShop\Module\PsAccounts\Repository\UserTokenRepository;
 
 /**
  * Get the shop context
@@ -35,11 +35,6 @@ class ShopContext
     private $configuration;
 
     /**
-     * @var UserTokenRepository
-     */
-    private $userTokenRepository;
-
-    /**
      * @var Context
      */
     private $context;
@@ -48,16 +43,13 @@ class ShopContext
      * ShopContext constructor.
      *
      * @param ConfigurationRepository $configuration
-     * @param UserTokenRepository $userTokenRepository
      * @param Context $context
      */
     public function __construct(
         ConfigurationRepository $configuration,
-        UserTokenRepository $userTokenRepository,
         Context $context
     ) {
         $this->configuration = $configuration;
-        $this->userTokenRepository = $userTokenRepository;
         $this->context = $context;
     }
 
@@ -126,15 +118,15 @@ class ShopContext
     }
 
     /**
-     * is multishop active "right now"
+     * is multi-shop active "right now"
      *
      * @return bool
      */
     public function isMultishopActive()
     {
         //return \Shop::isFeatureActive();
-        return $feature_active = (bool) \Db::getInstance()->getValue('SELECT value FROM `' . _DB_PREFIX_ . 'configuration` WHERE `name` = "PS_MULTISHOP_FEATURE_ACTIVE"')
-                && (\Db::getInstance()->getValue('SELECT COUNT(*) FROM ' . _DB_PREFIX_ . 'shop') > 1);
+        return \Db::getInstance()->getValue('SELECT value FROM `' . _DB_PREFIX_ . 'configuration` WHERE `name` = "PS_MULTISHOP_FEATURE_ACTIVE"')
+            && (\Db::getInstance()->getValue('SELECT COUNT(*) FROM ' . _DB_PREFIX_ . 'shop') > 1);
     }
 
     /**
@@ -150,7 +142,7 @@ class ShopContext
      */
     public function getProtocol()
     {
-        return false == $this->sslEnabled() ? 'http' : 'https';
+        return !$this->sslEnabled() ? 'http' : 'https';
     }
 
     /**
@@ -167,14 +159,6 @@ class ShopContext
     public function getConfiguration()
     {
         return $this->configuration;
-    }
-
-    /**
-     * @return UserTokenRepository
-     */
-    public function getUserToken()
-    {
-        return $this->userTokenRepository;
     }
 
     /**

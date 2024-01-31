@@ -18,8 +18,8 @@
  * @license   https://opensource.org/licenses/AFL-3.0 Academic Free License version 3.0
  */
 
-use PrestaShop\Module\PsAccounts\Controller\AbstractShopRestController;
-use PrestaShop\Module\PsAccounts\Http\Request\UpdateShopOauth2ClientRequest;
+use PrestaShop\Module\PsAccounts\Api\Controller\AbstractShopRestController;
+use PrestaShop\Module\PsAccounts\Api\Controller\Request\UpdateShopOauth2ClientRequest;
 use PrestaShop\Module\PsAccounts\Provider\OAuth2\Oauth2Client;
 use PrestaShop\Module\PsAccounts\Repository\ConfigurationRepository;
 

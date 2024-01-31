@@ -18,27 +18,20 @@
  * @license   https://opensource.org/licenses/AFL-3.0 Academic Free License version 3.0
  */
 
-use PrestaShop\Module\PsAccounts\Account\Session\ShopSession;
-use PrestaShop\Module\PsAccounts\Api\Controller\AbstractShopRestController;
+namespace PrestaShop\Module\PsAccounts\Cqrs;
 
-class ps_AccountsApiV1ShopTokenModuleFrontController extends AbstractShopRestController
+class CommandBus extends Bus
 {
     /**
-     * @param Shop $shop
-     * @param array $payload
+     * @param string $className
      *
-     * @return string[]
-     *
-     * @throws Exception
+     * @return string
      */
-    public function show(Shop $shop, array $payload)
+    public function resolveHandlerClass($className)
     {
-        /** @var ShopSession $shopSession */
-        $shopSession = $this->module->getService(ShopSession::class);
-
-        return [
-            'token' => (string) $shopSession->getOrRefreshToken(),
-            'refresh_token' => (string) $shopSession->getToken()->getRefreshToken(),
-        ];
+        return preg_replace(
+            '/((Command)(\\\\([^\\\\]*?)(Command)?$))/',
+            '${2}Handler\\\\${4}Handler',
+            $className, 1);
     }
 }

@@ -18,25 +18,32 @@
  * @license   https://opensource.org/licenses/AFL-3.0 Academic Free License version 3.0
  */
 
-use PrestaShop\Module\PsAccounts\Controller\AbstractShopRestController;
+use PrestaShop\Module\PsAccounts\Account\Command\LinkShopCommand;
+use PrestaShop\Module\PsAccounts\Account\Command\UnlinkShopCommand;
+use PrestaShop\Module\PsAccounts\Account\Dto\LinkShop;
+use PrestaShop\Module\PsAccounts\Account\Session\OwnerSession;
+use PrestaShop\Module\PsAccounts\Account\Session\ShopSession;
+use PrestaShop\Module\PsAccounts\Api\Controller\AbstractShopRestController;
+use PrestaShop\Module\PsAccounts\Api\Controller\Request\UpdateShopLinkAccountRequest;
+use PrestaShop\Module\PsAccounts\Cqrs\CommandBus;
 use PrestaShop\Module\PsAccounts\Exception\RefreshTokenException;
-use PrestaShop\Module\PsAccounts\Hook\ActionShopAccountLinkAfter;
-use PrestaShop\Module\PsAccounts\Hook\ActionShopAccountUnlinkAfter;
-use PrestaShop\Module\PsAccounts\Http\Request\UpdateShopLinkAccountRequest;
-use PrestaShop\Module\PsAccounts\Service\PsAccountsService;
-use PrestaShop\Module\PsAccounts\Service\ShopLinkAccountService;
 
 class ps_AccountsApiV1ShopLinkAccountModuleFrontController extends AbstractShopRestController
 {
     /**
-     * @var ShopLinkAccountService
+     * @var CommandBus
      */
-    private $shopLinkAccountService;
+    private $commandBus;
 
     /**
-     * @var PsAccountsService
+     * @var ShopSession
      */
-    private $psAccountsService;
+    private $shopSession;
+
+    /**
+     * @var OwnerSession
+     */
+    private $ownerSession;
 
     /**
      * ps_AccountsApiV1ShopLinkAccountModuleFrontController constructor.
@@ -47,9 +54,10 @@ class ps_AccountsApiV1ShopLinkAccountModuleFrontController extends AbstractShopR
     {
         parent::__construct();
 
-        $this->shopLinkAccountService = $this->module->getService(ShopLinkAccountService::class);
-
-        $this->psAccountsService = $this->module->getService(PsAccountsService::class);
+        $this->commandBus = $this->module->getService(CommandBus::class);
+        //$this->commandBus = $this->module->getContainer()->get('prestashop.command_bus');
+        $this->shopSession = $this->module->getService(ShopSession::class);
+        $this->ownerSession = $this->module->getService(OwnerSession::class);
     }
 
     /**
@@ -58,19 +66,33 @@ class ps_AccountsApiV1ShopLinkAccountModuleFrontController extends AbstractShopR
      *
      * @return array
      *
-     * @throws RefreshTokenException|PrestaShopException
+     * @throws RefreshTokenException
+     * @throws Exception
      */
     public function update(Shop $shop, UpdateShopLinkAccountRequest $request)
     {
-        $this->shopLinkAccountService->updateLinkAccount(
-            $request,
-            $this->module->getParameter('ps_accounts.verify_account_tokens')
-        );
+        $shopToken = $request->shop_token;
+        $userToken = $request->user_token;
 
-        Hook::exec(ActionShopAccountLinkAfter::getName(), [
-            'shopUuid' => $this->psAccountsService->getShopUuid(),
-            'shopId' => $shop->id,
-        ]);
+        if ($this->module->getParameter('ps_accounts.verify_account_tokens')) {
+            if (false === $this->shopSession->verifyToken($shopToken)) {
+                $shopToken = $this->shopSession->refreshToken($request->shop_refresh_token);
+            }
+            if (false === $this->ownerSession->verifyToken($userToken)) {
+                $userToken = $this->ownerSession->refreshToken($request->user_refresh_token);
+            }
+        }
+
+        $this->commandBus->handle(new LinkShopCommand(
+            new LinkShop([
+                'shopId' => $request->shop_id,
+                'shopToken' => $shopToken,
+                'userToken' => $userToken,
+                'shopRefreshToken' => $request->shop_refresh_token,
+                'userRefreshToken' => $request->user_refresh_token,
+                'employeeId' => $request->employee_id,
+            ])
+        ));
 
         return [
             'success' => true,
@@ -89,14 +111,7 @@ class ps_AccountsApiV1ShopLinkAccountModuleFrontController extends AbstractShopR
      */
     public function delete(Shop $shop, array $payload)
     {
-        $hookData = [
-            'shopUuid' => $this->psAccountsService->getShopUuid(),
-            'shopId' => $shop->id,
-        ];
-
-        $this->shopLinkAccountService->resetLinkAccount();
-
-        Hook::exec(ActionShopAccountUnlinkAfter::getName(), $hookData);
+        $this->commandBus->handle(new UnlinkShopCommand($shop->id));
 
         return [
             'success' => true,

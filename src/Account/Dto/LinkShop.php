@@ -18,12 +18,22 @@
  * @license   https://opensource.org/licenses/AFL-3.0 Academic Free License version 3.0
  */
 
-namespace PrestaShop\Module\PsAccounts\Http\Request;
+namespace PrestaShop\Module\PsAccounts\Account\Dto;
 
-class UpdateShopHmacRequest extends Request
+use PrestaShop\Module\PsAccounts\Type\Dto;
+
+class LinkShop extends Dto
 {
     /** @var string */
-    public $shop_id;
+    public $shopId;
     /** @var string */
-    public $hmac;
+    public $shopRefreshToken;
+    /** @var string */
+    public $userRefreshToken;
+    /** @var string */
+    public $shopToken;
+    /** @var string */
+    public $userToken;
+    /** @var string */
+    public $employeeId = '';
 }

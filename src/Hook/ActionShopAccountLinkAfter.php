@@ -20,15 +20,23 @@
 
 namespace PrestaShop\Module\PsAccounts\Hook;
 
+use PrestaShop\Module\PsAccounts\Repository\ConfigurationRepository;
+
 class ActionShopAccountLinkAfter extends Hook
 {
     /**
      * @param array $params
      *
      * @return mixed
+     *
+     * @throws \Exception
      */
     public function execute(array $params = [])
     {
-        // TODO implement execute method
+        /** @var ConfigurationRepository $configuration */
+        $configuration = $this->ps_accounts->getService(ConfigurationRepository::class);
+
+        $configuration->updateLoginEnabled(true);
+        $configuration->updateShopUnlinkedAuto(false);
     }
 }

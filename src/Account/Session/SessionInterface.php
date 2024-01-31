@@ -18,37 +18,51 @@
  * @license   https://opensource.org/licenses/AFL-3.0 Academic Free License version 3.0
  */
 
-namespace PrestaShop\Module\PsAccounts\Repository;
+namespace PrestaShop\Module\PsAccounts\Account\Session;
 
-use PrestaShop\Module\PsAccounts\Account\Session\OwnerSession;
-
-/**
- * Class UserTokenRepository
- *
- * @deprecated
- */
-class UserTokenRepository extends TokenRepository
+interface SessionInterface
 {
-    /**
-     * @var OwnerSession
-     */
-    protected $session;
-
     /**
      * @return string
      */
-    public function getTokenEmail()
-    {
-        return $this->session->getToken()->getEmail();
-    }
+    public static function getSessionName();
 
     /**
-     * @return bool
-     *
-     * @throws \Exception
+     * @return \PrestaShop\Module\PsAccounts\Account\Token\Token
      */
-    public function getTokenEmailVerified()
-    {
-        return $this->session->isEmailVerified();
-    }
+    public function getToken();
+
+    /**
+     * @param string $token
+     * @param string $refreshToken
+     *
+     * @return void
+     */
+    public function setToken($token, $refreshToken);
+
+    /**
+     * @param string $token
+     *
+     * @return bool
+     */
+    public function verifyToken($token);
+
+    /**
+     * @param string $refreshToken
+     *
+     * @return \PrestaShop\Module\PsAccounts\Account\Token\Token
+     */
+    public function refreshToken($refreshToken);
+
+    /**
+     * @param bool $forceRefresh
+     *
+     * @return \PrestaShop\Module\PsAccounts\Account\Token\Token
+     */
+    public function getOrRefreshToken($forceRefresh = false);
+
+    /**
+     * @return void
+     */
+    public function cleanup();
 }

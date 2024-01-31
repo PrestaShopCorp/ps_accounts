@@ -20,15 +20,30 @@
 
 namespace PrestaShop\Module\PsAccounts\Hook;
 
+use PrestaShop\Module\PsAccounts\Middleware\Oauth2Middleware;
+use PrestaShop\Module\PsAccounts\Provider\OAuth2\Oauth2Client;
+use PrestaShop\Module\PsAccounts\Repository\ConfigurationRepository;
+
 class ActionShopAccountUnlinkAfter extends Hook
 {
     /**
      * @param array $params
      *
-     * @return mixed
+     * @return void
+     *
+     * @throws \Exception
      */
     public function execute(array $params = [])
     {
-        // TODO implement execute method
+        /** @var Oauth2Client $oauth2Client */
+        $oauth2Client = $this->ps_accounts->getService(Oauth2Middleware::class);
+
+        /** @var ConfigurationRepository $configuration */
+        $configuration = $this->ps_accounts->getService(ConfigurationRepository::class);
+
+        if ($oauth2Client->exists()) {
+            $oauth2Client->delete();
+            $configuration->updateLoginEnabled(false);
+        }
     }
 }

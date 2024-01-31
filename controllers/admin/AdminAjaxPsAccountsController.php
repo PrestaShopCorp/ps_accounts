@@ -18,9 +18,12 @@
  * @license   https://opensource.org/licenses/AFL-3.0 Academic Free License version 3.0
  */
 
+use PrestaShop\Module\PsAccounts\Account\Command\DeleteUserShopCommand;
+use PrestaShop\Module\PsAccounts\Account\Session\ShopSession;
+use PrestaShop\Module\PsAccounts\Cqrs\CommandBus;
 use PrestaShop\Module\PsAccounts\Presenter\PsAccountsPresenter;
 use PrestaShop\Module\PsAccounts\Provider\OAuth2\PrestaShopSession;
-use PrestaShop\Module\PsAccounts\Repository\ShopTokenRepository;
+use PrestaShop\Module\PsAccounts\Repository\ConfigurationRepository;
 use PrestaShop\Module\PsAccounts\Service\SentryService;
 use PrestaShop\Module\PsAccounts\Service\ShopLinkAccountService;
 
@@ -35,6 +38,11 @@ class AdminAjaxPsAccountsController extends ModuleAdminController
     public $module;
 
     /**
+     * @var CommandBus
+     */
+    private $commandBus;
+
+    /**
      * AdminAjaxPsAccountsController constructor.
      *
      * @throws Exception
@@ -42,6 +50,8 @@ class AdminAjaxPsAccountsController extends ModuleAdminController
     public function __construct()
     {
         parent::__construct();
+
+        $this->commandBus = $this->module->getService(CommandBus::class);
     }
 
     /**
@@ -52,15 +62,17 @@ class AdminAjaxPsAccountsController extends ModuleAdminController
     public function ajaxProcessGetOrRefreshToken()
     {
         try {
-            /** @var ShopTokenRepository $shopTokenService */
-            $shopTokenService = $this->module->getService(ShopTokenRepository::class);
+            /** @var ShopSession $shopSession */
+            $shopSession = $this->module->getService(ShopSession::class);
 
             header('Content-Type: text/json');
 
+            $token = $shopSession->getOrRefreshToken();
+
             $this->ajaxDie(
                 json_encode([
-                    'token' => (string) $shopTokenService->getOrRefreshToken(),
-                    'refreshToken' => $shopTokenService->getRefreshToken(),
+                    'token' => (string) $token->getJwt(),
+                    'refreshToken' => $token->getRefreshToken(),
                 ])
             );
         } catch (Exception $e) {
@@ -77,10 +89,12 @@ class AdminAjaxPsAccountsController extends ModuleAdminController
     public function ajaxProcessUnlinkShop()
     {
         try {
-            /** @var ShopLinkAccountService $shopLinkAccountService */
-            $shopLinkAccountService = $this->module->getService(ShopLinkAccountService::class);
+            /** @var ConfigurationRepository $configurationRepository */
+            $configurationRepository = $this->module->getService(ConfigurationRepository::class);
 
-            $response = $shopLinkAccountService->unlinkShop();
+            $response = $this->commandBus->handle(new DeleteUserShopCommand(
+                $configurationRepository->getShopId()
+            ));
 
             http_response_code($response['httpCode']);
 

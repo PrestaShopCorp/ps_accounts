@@ -18,15 +18,15 @@
  * @license   https://opensource.org/licenses/AFL-3.0 Academic Free License version 3.0
  */
 
-namespace PrestaShop\Module\PsAccounts\Controller;
+namespace PrestaShop\Module\PsAccounts\Account\Token;
 
-use PrestaShop\Module\PsAccounts\Enum;
-
-class RestMethod extends Enum
+class NullToken extends \Lcobucci\JWT\Token
 {
-    const INDEX = 'index';
-    const STORE = 'store';
-    const UPDATE = 'update';
-    const DELETE = 'delete';
-    const SHOW = 'show';
+    /**
+     * @return string
+     */
+    public function toString()
+    {
+        return '';
+    }
 }

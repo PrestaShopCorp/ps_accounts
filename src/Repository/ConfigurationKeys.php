@@ -20,7 +20,7 @@
 
 namespace PrestaShop\Module\PsAccounts\Repository;
 
-use PrestaShop\Module\PsAccounts\Enum;
+use PrestaShop\Module\PsAccounts\Type\Enum;
 
 class ConfigurationKeys extends Enum
 {

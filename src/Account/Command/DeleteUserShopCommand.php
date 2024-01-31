@@ -18,36 +18,20 @@
  * @license   https://opensource.org/licenses/AFL-3.0 Academic Free License version 3.0
  */
 
-namespace PrestaShop\Module\PsAccounts;
+namespace PrestaShop\Module\PsAccounts\Account\Command;
 
-use ReflectionClass;
-
-abstract class Enum
+class DeleteUserShopCommand
 {
     /**
-     * @return array
+     * @var int
      */
-    public static function cases()
-    {
-        return (new ReflectionClass(static::class))->getConstants();
-    }
+    public $shopId;
 
     /**
-     * @return array
+     * @param int $shopId
      */
-    public static function values()
+    public function __construct($shopId)
     {
-        return array_values(static::cases());
-    }
-
-    /**
-     * @param mixed $value
-     * @param bool $strict
-     *
-     * @return bool
-     */
-    public static function includes($value, $strict = false)
-    {
-        return in_array($value, array_values(static::cases()), $strict);
+        $this->shopId = $shopId;
     }
 }

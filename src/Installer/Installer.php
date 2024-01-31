@@ -29,6 +29,8 @@ use PrestaShop\PrestaShop\Core\Addon\Module\ModuleManagerBuilder;
 use Tools;
 
 /**
+ * @deprecated Dependency management out of scope in PsAccounts module
+ *
  * Install ps_accounts module
  */
 class Installer

@@ -20,17 +20,11 @@
 
 namespace PrestaShop\Module\PsAccounts\Service;
 
-use Module;
-use PrestaShop\Module\PsAccounts\Api\Client\AccountsClient;
-use PrestaShop\Module\PsAccounts\Exception\RefreshTokenException;
-use PrestaShop\Module\PsAccounts\Exception\SshKeysNotFoundException;
-use PrestaShop\Module\PsAccounts\Http\Request\UpdateShopLinkAccountRequest;
-use PrestaShop\Module\PsAccounts\Provider\OAuth2\Oauth2Client;
+use PrestaShop\Module\PsAccounts\Account\Session\OwnerSession;
+use PrestaShop\Module\PsAccounts\Account\Session\ShopSession;
+use PrestaShop\Module\PsAccounts\Account\Token\NullToken;
 use PrestaShop\Module\PsAccounts\Provider\RsaKeysProvider;
 use PrestaShop\Module\PsAccounts\Repository\ConfigurationRepository;
-use PrestaShop\Module\PsAccounts\Repository\ShopTokenRepository;
-use PrestaShop\Module\PsAccounts\Repository\UserTokenRepository;
-use Ps_accounts;
 
 class ShopLinkAccountService
 {
@@ -40,69 +34,38 @@ class ShopLinkAccountService
     private $rsaKeysProvider;
 
     /**
-     * @var ShopTokenRepository
+     * @var OwnerSession
      */
-    private $shopTokenRepository;
+    private $ownerSession;
 
     /**
-     * @var UserTokenRepository
+     * @var ShopSession
      */
-    private $userTokenRepository;
-
-    /**
-     * @var Oauth2Client
-     */
-    private $oauth2Client;
+    private $shopSession;
 
     /**
      * @var ConfigurationRepository
      */
-    private $configuration;
+    private $configurationRepository;
 
     /**
      * ShopLinkAccountService constructor.
      *
      * @param RsaKeysProvider $rsaKeysProvider
-     * @param ShopTokenRepository $shopTokenRepository
-     * @param UserTokenRepository $userTokenRepository
+     * @param ShopSession $shopSession
+     * @param OwnerSession $ownerSession
      * @param ConfigurationRepository $configurationRepository
      */
     public function __construct(
         RsaKeysProvider $rsaKeysProvider,
-        ShopTokenRepository $shopTokenRepository,
-        UserTokenRepository $userTokenRepository,
-        Oauth2Client $oauth2Client,
+        ShopSession $shopSession,
+        OwnerSession $ownerSession,
         ConfigurationRepository $configurationRepository
     ) {
         $this->rsaKeysProvider = $rsaKeysProvider;
-        $this->shopTokenRepository = $shopTokenRepository;
-        $this->userTokenRepository = $userTokenRepository;
-        $this->oauth2Client = $oauth2Client;
-        $this->configuration = $configurationRepository;
-    }
-
-    /**
-     * @return AccountsClient
-     *
-     * @throws \Exception
-     */
-    public function getAccountsClient()
-    {
-        /** @var Ps_accounts $module */
-        $module = Module::getInstanceByName('ps_accounts');
-
-        return $module->getService(AccountsClient::class);
-    }
-
-    /**
-     * @return array
-     *
-     * @throws \Exception
-     */
-    public function unlinkShop()
-    {
-        return $this->getAccountsClient()
-            ->deleteUserShop($this->configuration->getShopId());
+        $this->shopSession = $shopSession;
+        $this->ownerSession = $ownerSession;
+        $this->configurationRepository = $configurationRepository;
     }
 
     /**
@@ -115,66 +78,55 @@ class ShopLinkAccountService
     public function resetLinkAccount()
     {
         $this->rsaKeysProvider->cleanupKeys();
-        $this->shopTokenRepository->cleanupCredentials();
-        $this->userTokenRepository->cleanupCredentials();
-        $this->configuration->updateEmployeeId('');
-        $this->configuration->updateLoginEnabled(false);
-        $this->oauth2Client->delete();
+        $this->shopSession->cleanup();
+        $this->ownerSession->cleanup();
         try {
             $this->rsaKeysProvider->generateKeys();
         } catch (\Exception $e) {
         }
-        $this->configuration->updateShopUnlinkedAuto(false);
-    }
 
-    /**
-     * @param UpdateShopLinkAccountRequest $payload
-     * @param bool $verifyTokens
-     *
-     * @return void
-     *
-     * @throws RefreshTokenException
-     */
-    public function updateLinkAccount(UpdateShopLinkAccountRequest $payload, $verifyTokens = false)
-    {
-        if ($verifyTokens) {
-            $payload->shop_token = $this->shopTokenRepository->verifyToken($payload->shop_token, $payload->shop_refresh_token);
-            $payload->user_token = $this->userTokenRepository->verifyToken($payload->user_token, $payload->user_refresh_token);
-        }
-
-        $this->shopTokenRepository->updateCredentials($payload->shop_token, $payload->shop_refresh_token);
-        $this->userTokenRepository->updateCredentials($payload->user_token, $payload->user_refresh_token);
-        $this->configuration->updateEmployeeId($payload->employee_id);
-        $this->configuration->updateLoginEnabled(true);
-        $this->configuration->updateShopUnlinkedAuto(false);
-    }
-
-    /**
-     * @return void
-     *
-     * @throws SshKeysNotFoundException
-     */
-    public function prepareLinkAccount()
-    {
-        $this->rsaKeysProvider->generateKeys();
+        // TODO: on unlink reaction
+        //$this->configuration->updateLoginEnabled(false);
+        //$this->oauth2Client->delete();
+        $this->configurationRepository->updateShopUnlinkedAuto(false);
     }
 
     /**
      * @return bool
+     *
+     * @throws \Exception
      */
     public function isAccountLinked()
     {
-        return $this->shopTokenRepository->getOrRefreshToken()
-            && $this->userTokenRepository->getOrRefreshToken();
+        return !($this->shopSession->getOrRefreshToken()->getJwt() instanceof NullToken)
+            && !($this->ownerSession->getOrRefreshToken()->getJwt() instanceof NullToken);
     }
 
     /**
      * @return bool
+     *
+     * @throws \Exception
      */
     public function isAccountLinkedV4()
     {
-        return $this->shopTokenRepository->getOrRefreshToken()
-            && !$this->userTokenRepository->getOrRefreshToken()
-            && $this->userTokenRepository->getTokenEmail();
+        return !($this->shopSession->getOrRefreshToken()->getJwt() instanceof NullToken)
+            && ($this->ownerSession->getOrRefreshToken()->getJwt() instanceof NullToken)
+            && $this->configurationRepository->getFirebaseEmail();
+    }
+
+    /**
+     * @return OwnerSession
+     */
+    public function getOwnerSession()
+    {
+        return $this->ownerSession;
+    }
+
+    /**
+     * @return ShopSession
+     */
+    public function getShopSession()
+    {
+        return $this->shopSession;
     }
 }

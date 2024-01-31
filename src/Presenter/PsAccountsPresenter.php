@@ -20,13 +20,13 @@
 
 namespace PrestaShop\Module\PsAccounts\Presenter;
 
-use PrestaShop\Module\PsAccounts\Exception\SshKeysNotFoundException;
 use PrestaShop\Module\PsAccounts\Installer\Installer;
 use PrestaShop\Module\PsAccounts\Log\Logger;
 use PrestaShop\Module\PsAccounts\Provider\ShopProvider;
 use PrestaShop\Module\PsAccounts\Repository\ConfigurationRepository;
 use PrestaShop\Module\PsAccounts\Service\PsAccountsService;
 use PrestaShop\Module\PsAccounts\Service\ShopLinkAccountService;
+use PrestaShopException;
 
 /**
  * Construct the psaccounts module.
@@ -94,7 +94,7 @@ class PsAccountsPresenter implements PresenterInterface
      *
      * @return array
      *
-     * @throws SshKeysNotFoundException
+     * @throws PrestaShopException
      */
     public function present($psxName = 'ps_accounts')
     {

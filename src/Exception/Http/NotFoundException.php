@@ -18,57 +18,21 @@
  * @license   https://opensource.org/licenses/AFL-3.0 Academic Free License version 3.0
  */
 
-namespace PrestaShop\Module\PsAccounts\Api\Client;
+namespace PrestaShop\Module\PsAccounts\Exception\Http;
 
-use PrestaShop\Module\PsAccounts\Dto;
-
-class UpdateShopDto extends Dto
+class NotFoundException extends HttpException
 {
     /**
-     * @var string
+     * NotFoundException constructor.
+     *
+     * @param string $message
+     * @param int $code
+     * @param \Exception|null $previous
      */
-    public $shopId;
+    public function __construct($message = 'Not Found', $code = 0, \Exception $previous = null)
+    {
+        parent::__construct($message, $code, $previous);
 
-    /**
-     * @var string
-     */
-    public $name;
-
-    /**
-     * @var string
-     */
-    public $virtualUri;
-
-    /**
-     * @var string
-     */
-    public $physicalUri;
-
-    /**
-     * @var string
-     */
-    public $domain;
-
-    /**
-     * @var string
-     */
-    public $sslDomain;
-
-    /**
-     * @var string
-     */
-    public $boBaseUrl;
-
-    /**
-     * @var string[]
-     */
-    public $mandatory = [
-        'shopId',
-        'name',
-        'virtualUri',
-        'physicalUri',
-        'domain',
-        'sslDomain',
-        'boBaseUrl',
-    ];
+        $this->statusCode = 404;
+    }
 }
