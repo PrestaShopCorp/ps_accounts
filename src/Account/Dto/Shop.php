@@ -62,4 +62,14 @@ class Shop extends Dto
         }
         parent::__construct($values);
     }
+
+    /**
+     * @return array|mixed
+     */
+    public function jsonSerialize()
+    {
+        return array_merge(parent::jsonSerialize(), [
+            'user' => $this->user->jsonSerialize()
+        ]);
+    }
 }

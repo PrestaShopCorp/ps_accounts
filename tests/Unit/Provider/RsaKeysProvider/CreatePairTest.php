@@ -10,15 +10,17 @@ class CreatePairTest extends TestCase
     /**
      * @test
      */
-    public function itShouldGenerateKeyPair()
+    public function itShouldCreateKeyPair()
     {
-        /** @var RsaKeysProvider $service */
-        $service = $this->module->getService(RsaKeysProvider::class);
+        /** @var RsaKeysProvider $publicKey */
+        $publicKey = $this->module->getService(RsaKeysProvider::class);
 
-        $key = $service->createPair();
-        $this->assertArrayHasKey('privatekey', $key, "Key 'privatekey' don't exist in Array");
-        $this->assertArrayHasKey('publickey', $key, "Key 'publickey' don't exist in Array");
-        $this->assertEquals('string', gettype($key['privatekey']), "'privatekey' isn't string");
-        $this->assertEquals('string', gettype($key['publickey']), "'privatekey' isn't string");
+        $key = $publicKey->createPair();
+
+        $this->assertArrayHasKey('privatekey', $key);
+        $this->assertArrayHasKey('publickey', $key);
+
+        $this->assertEquals('string', gettype($key['privatekey']));
+        $this->assertEquals('string', gettype($key['publickey']));
     }
 }

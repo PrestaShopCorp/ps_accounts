@@ -33,24 +33,16 @@ use PrestaShop\Module\PsAccounts\Account\Token\NullToken;
 abstract class TokenRepository
 {
     /**
-     * @var ConfigurationRepository
-     */
-    protected $configuration;
-
-    /**
      * @var Session
      */
     protected $session;
 
     /**
-     * @param ConfigurationRepository $configuration
      * @param Session $session
      */
     public function __construct(
-        ConfigurationRepository $configuration,
         Session $session
     ) {
-        $this->configuration = $configuration;
         $this->session = $session;
     }
 

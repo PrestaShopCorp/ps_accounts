@@ -100,11 +100,6 @@ class Ps_accounts extends Module
     private $serviceContainer;
 
     /**
-     * @var \PrestaShop\Module\PsAccounts\Middleware\Oauth2Middleware
-     */
-    private $oauth2Middleware;
-
-    /**
      * Ps_accounts constructor.
      */
     public function __construct()
@@ -140,8 +135,6 @@ class Ps_accounts extends Module
         );
 
         $this->ps_versions_compliancy = ['min' => '1.6.1', 'max' => _PS_VERSION_];
-
-        $this->oauth2Middleware = new \PrestaShop\Module\PsAccounts\Middleware\Oauth2Middleware($this);
     }
 
     /**
@@ -441,7 +434,7 @@ class Ps_accounts extends Module
      */
     public function getOauth2Middleware()
     {
-        return $this->oauth2Middleware;
+        return $this->getService(\PrestaShop\Module\PsAccounts\Middleware\Oauth2Middleware::class);
     }
 
     /**

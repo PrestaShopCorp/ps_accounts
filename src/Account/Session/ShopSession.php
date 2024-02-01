@@ -84,7 +84,7 @@ class ShopSession extends Session implements SessionInterface
     {
         $parsed = (new Parser())->parse($token);
 
-        $this->configurationRepository->updateShopUuid($parsed->claims()->get('user_id'));
+        $this->configurationRepository->updateShopUuid($parsed->claims()->get(Token::ID_OWNER_CLAIM));
         $this->configurationRepository->updateFirebaseIdAndRefreshTokens($token, $refreshToken);
     }
 

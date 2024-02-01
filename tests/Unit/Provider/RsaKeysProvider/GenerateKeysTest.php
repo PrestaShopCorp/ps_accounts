@@ -13,12 +13,14 @@ class GenerateKeysTest extends TestCase
     /**
      * @test
      *
+     * @return void
+     *
      * @throws SshKeysNotFoundException
      */
-    public function itShouldCreateRsaKeys()
+    public function itShouldGenerateKeys()
     {
-        /** @var RsaKeysProvider $service */
-        $service = $this->module->getService(RsaKeysProvider::class);
+        /** @var RsaKeysProvider $publicKey */
+        $publicKey = $this->module->getService(RsaKeysProvider::class);
 
         /** @var ConfigurationRepository $configuration */
         $configuration = $this->module->getService(ConfigurationRepository::class);
@@ -32,7 +34,7 @@ class GenerateKeysTest extends TestCase
         $this->assertEmpty($configuration->getAccountsRsaPrivateKey());
         $this->assertEmpty($configuration->getAccountsRsaPublicKey());
 
-        $service->generateKeys();
+        $publicKey->generateKeys();
 
         //echo "B\n" . $configuration->getAccountsRsaPrivateKey() . "\n";
 
@@ -40,31 +42,14 @@ class GenerateKeysTest extends TestCase
         $this->assertNotEmpty($configuration->getAccountsRsaPublicKey());
 
         $data = $this->faker->sentence();
-        $signedData = $service->signData($configuration->getAccountsRsaPrivateKey(), $data);
+        $signedData = $publicKey->signData($configuration->getAccountsRsaPrivateKey(), $data);
 
         $this->assertTrue(
-            $service->verifySignature(
+            $publicKey->verifySignature(
                 $configuration->getAccountsRsaPublicKey(),
                 $signedData,
                 $data
             )
         );
-    }
-
-    /**
-     * @test
-     */
-    public function itShouldGenerateKeyPair()
-    {
-        /** @var RsaKeysProvider $service */
-        $service = $this->module->getService(RsaKeysProvider::class);
-
-        $key = $service->createPair();
-
-        $this->assertArrayHasKey('privatekey', $key);
-        $this->assertArrayHasKey('publickey', $key);
-
-        $this->assertEquals('string', gettype($key['privatekey']));
-        $this->assertEquals('string', gettype($key['publickey']));
     }
 }

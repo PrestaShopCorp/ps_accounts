@@ -20,9 +20,9 @@ class IsAccountLinkedV4Test extends TestCase
 
         /** @var ShopTokenRepository $tokenRepos */
         $tokenRepos = $this->module->getService(ShopTokenRepository::class);
-        $tokenRepos->updateCredentials($token, base64_encode($this->faker->name));
+        $tokenRepos->updateCredentials((string) $token, base64_encode($this->faker->name));
 
-        /** @var ConfigurationRepository $config */
+        /** @var \PrestaShop\Module\PsAccounts\Repository\ConfigurationRepository $config */
         $config = $this->module->getService(ConfigurationRepository::class);
         $config->updateUserFirebaseIdToken('');
         $config->updateFirebaseEmail($this->faker->safeEmail);
@@ -44,9 +44,9 @@ class IsAccountLinkedV4Test extends TestCase
 
         /** @var ShopTokenRepository $tokenRepos */
         $tokenRepos = $this->module->getService(ShopTokenRepository::class);
-        $tokenRepos->updateCredentials($token, base64_encode($this->faker->name));
+        $tokenRepos->updateCredentials((string) $token, base64_encode($this->faker->name));
 
-        /** @var ConfigurationRepository $config */
+        /** @var \PrestaShop\Module\PsAccounts\Repository\ConfigurationRepository $config */
         $config = $this->module->getService(ConfigurationRepository::class);
         $config->updateFirebaseEmail('');
 

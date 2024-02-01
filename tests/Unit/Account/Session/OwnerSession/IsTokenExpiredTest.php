@@ -1,9 +1,8 @@
 <?php
 
-namespace PrestaShop\Module\PsAccounts\Tests\Unit\Repository\UserTokenRepository;
+namespace PrestaShop\Module\PsAccounts\Tests\Unit\Account\Session\OwnerSession;
 
-use PrestaShop\Module\PsAccounts\Repository\ConfigurationRepository;
-use PrestaShop\Module\PsAccounts\Repository\UserTokenRepository;
+use PrestaShop\Module\PsAccounts\Account\Session\OwnerSession;
 use PrestaShop\Module\PsAccounts\Tests\TestCase;
 
 class IsTokenExpiredTest extends TestCase
@@ -22,12 +21,12 @@ class IsTokenExpiredTest extends TestCase
 
         $refreshToken = $this->makeJwtToken(new \DateTimeImmutable('+1 year'));
 
-        /** @var UserTokenRepository $tokenRepos */
-        $tokenRepos = $this->module->getService(UserTokenRepository::class);
+        /** @var OwnerSession $ownerSession */
+        $ownerSession = $this->module->getService(OwnerSession::class);
 
-        $tokenRepos->updateCredentials((string) $idToken, (string) $refreshToken);
+        $ownerSession->setToken((string) $idToken, (string) $refreshToken);
 
-        $this->assertTrue($tokenRepos->isTokenExpired());
+        $this->assertTrue($ownerSession->getToken()->isExpired());
     }
 
     /**
@@ -44,11 +43,11 @@ class IsTokenExpiredTest extends TestCase
 
         $refreshToken = $this->makeJwtToken(new \DateTimeImmutable('+1 year'));
 
-        /** @var UserTokenRepository $tokenRepos */
-        $tokenRepos = $this->module->getService(UserTokenRepository::class);
+        /** @var OwnerSession $ownerSession */
+        $ownerSession = $this->module->getService(OwnerSession::class);
 
-        $tokenRepos->updateCredentials((string) $idToken, (string) $refreshToken);
+        $ownerSession->setToken((string) $idToken, (string) $refreshToken);
 
-        $this->assertFalse($tokenRepos->isTokenExpired());
+        $this->assertFalse($ownerSession->getToken()->isExpired());
     }
 }

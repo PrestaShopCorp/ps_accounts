@@ -3,7 +3,7 @@
 namespace PrestaShop\Module\PsAccounts\Tests\Feature\Api\v1\ShopLinkAccount;
 
 use PrestaShop\Module\PsAccounts\Repository\ConfigurationKeys;
-use PrestaShop\Module\PsAccounts\Controller\AbstractRestController;
+use PrestaShop\Module\PsAccounts\Api\Controller\AbstractRestController;
 use PrestaShop\Module\PsAccounts\Tests\Feature\FeatureTestCase;
 
 class StoreTest extends FeatureTestCase
@@ -24,8 +24,8 @@ class StoreTest extends FeatureTestCase
 
         $payload = [
             'shop_id' => 1,
-            'shop_token' => (string) $this->makeJwtToken($expiry, ['user_id' => $shopUuid]),
-            'user_token' => (string) $this->makeJwtToken($expiry, ['user_id' => $userUuid,'email' => $email]),
+            'shop_token' => (string) $this->makeJwtToken($expiry, ['sub' => $shopUuid]),
+            'user_token' => (string) $this->makeJwtToken($expiry, ['sub' => $userUuid,'email' => $email]),
             'shop_refresh_token' => (string) $this->makeJwtToken($expiry),
             'user_refresh_token' => (string) $this->makeJwtToken($expiry),
             'employee_id' => $employeeId,
@@ -75,8 +75,8 @@ class StoreTest extends FeatureTestCase
 
         $payload = [
             'shop_id' => 1,
-            'shop_token' => (string) $this->makeJwtToken($expiry, ['user_id' => $shopUuid]),
-            'user_token' => (string) $this->makeJwtToken($expiry, ['user_id' => $userUuid,'email' => $email]),
+            'shop_token' => (string) $this->makeJwtToken($expiry, ['sub' => $shopUuid]),
+            'user_token' => (string) $this->makeJwtToken($expiry, ['sub' => $userUuid,'email' => $email]),
             'shop_refresh_token' => (string) $this->makeJwtToken($expiry),
             'user_refresh_token' => (string) $this->makeJwtToken($expiry)
         ];

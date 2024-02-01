@@ -129,7 +129,10 @@ abstract class Session implements SessionInterface
             $response['body']['message'] :
             '';
 
-        throw new RefreshTokenException('Unable to refresh ' . static::getSessionName() . ' token : ' . $response['httpCode'] . ' ' . print_r($errorMsg, true));
+        throw new RefreshTokenException(
+            'Unable to refresh ' . static::getSessionName() . ' token : ' .
+            $response['httpCode'] . ' ' . print_r($errorMsg, true)
+        );
     }
 
     /**
@@ -211,14 +214,15 @@ abstract class Session implements SessionInterface
      * @return void
      *
      * @throws \PrestaShopException
+     * @throws \Exception
      */
     protected function onMaxRefreshTokenAttempts(array $response)
     {
         /** @var Ps_accounts $module */
         $module = \Module::getInstanceByName('ps_accounts');
 
-        /** @var ShopLinkAccountService $association */
-        $association = $module->getService(ShopLinkAccountService::class);
+        /** @var ShopLinkAccountService $shopLinkAccountService */
+        $shopLinkAccountService = $module->getService(ShopLinkAccountService::class);
 
         /** @var ShopProvider $shopProvider */
         $shopProvider = $module->getService(ShopProvider::class);

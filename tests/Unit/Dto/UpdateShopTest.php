@@ -1,11 +1,11 @@
 <?php
 
-namespace PrestaShop\Module\PsAccounts\Tests\Unit\DTO;
+namespace PrestaShop\Module\PsAccounts\Tests\Unit\Dto;
 
-use PrestaShop\Module\PsAccounts\Api\Client\UpdateShopDto;
+use PrestaShop\Module\PsAccounts\Account\Dto\UpdateShop;
 use PrestaShop\Module\PsAccounts\Tests\TestCase;
 
-class UpdateShopDTOTest extends TestCase
+class UpdateShopTest extends TestCase
 {
     /**
      * @test
@@ -14,7 +14,7 @@ class UpdateShopDTOTest extends TestCase
     {
         $this->expectException(\Exception::class);
 
-        new UpdateShopDto([
+        new UpdateShop([
             'shopId' => 4,
             //'name' => $this->faker->slug,
             'virtualUri' => $this->faker->domainWord,
@@ -32,7 +32,7 @@ class UpdateShopDTOTest extends TestCase
     {
         $this->expectException(\Exception::class);
 
-        new \PrestaShop\Module\PsAccounts\Api\Client\UpdateShopDto([
+        new \PrestaShop\Module\PsAccounts\Account\Dto\UpdateShop([
             'foo' => 'bar',
             'shopId' => 4,
             'name' => $this->faker->slug,

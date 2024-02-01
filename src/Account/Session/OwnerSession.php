@@ -88,7 +88,7 @@ class OwnerSession extends Session implements SessionInterface
     {
         $parsed = (new Parser())->parse((string) $token);
 
-        $uuid = $parsed->claims()->get('user_id');
+        $uuid = $parsed->claims()->get(Token::ID_OWNER_CLAIM);
         $this->configurationRepository->updateUserFirebaseUuid($uuid);
         $this->configurationRepository->updateUserFirebaseIdToken($token);
         $this->configurationRepository->updateUserFirebaseRefreshToken($refreshToken);

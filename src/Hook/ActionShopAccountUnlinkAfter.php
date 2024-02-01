@@ -36,7 +36,7 @@ class ActionShopAccountUnlinkAfter extends Hook
     public function execute(array $params = [])
     {
         /** @var Oauth2Client $oauth2Client */
-        $oauth2Client = $this->ps_accounts->getService(Oauth2Middleware::class);
+        $oauth2Client = $this->ps_accounts->getService(Oauth2Client::class);
 
         /** @var ConfigurationRepository $configuration */
         $configuration = $this->ps_accounts->getService(ConfigurationRepository::class);

@@ -1,9 +1,8 @@
 <?php
 
-namespace PrestaShop\Module\PsAccounts\Tests\Unit\Repository\ShopTokenRepository;
+namespace PrestaShop\Module\PsAccounts\Tests\Unit\Account\Session\ShopSession;
 
-use PrestaShop\Module\PsAccounts\Repository\ConfigurationRepository;
-use PrestaShop\Module\PsAccounts\Repository\ShopTokenRepository;
+use PrestaShop\Module\PsAccounts\Account\Session\ShopSession;
 use PrestaShop\Module\PsAccounts\Tests\TestCase;
 
 class IsTokenExpiredTest extends TestCase
@@ -21,12 +20,12 @@ class IsTokenExpiredTest extends TestCase
 
         $refreshToken = $this->makeJwtToken(new \DateTimeImmutable('+1 year'));
 
-        /** @var ShopTokenRepository $tokenRepos */
-        $tokenRepos = $this->module->getService(ShopTokenRepository::class);
+        /** @var ShopSession $shopSession */
+        $shopSession = $this->module->getService(ShopSession::class);
 
-        $tokenRepos->updateCredentials((string) $idToken, (string) $refreshToken);
+        $shopSession->setToken((string) $idToken, (string) $refreshToken);
 
-        $this->assertTrue($tokenRepos->isTokenExpired());
+        $this->assertTrue($shopSession->getToken()->isExpired());
     }
 
     /**
@@ -42,11 +41,11 @@ class IsTokenExpiredTest extends TestCase
 
         $refreshToken = $this->makeJwtToken(new \DateTimeImmutable('+1 year'));
 
-        /** @var ShopTokenRepository $tokenRepos */
-        $tokenRepos = $this->module->getService(ShopTokenRepository::class);
+        /** @var ShopSession $shopSession */
+        $shopSession = $this->module->getService(ShopSession::class);
 
-        $tokenRepos->updateCredentials((string) $idToken, (string) $refreshToken);
+        $shopSession->setToken((string) $idToken, (string) $refreshToken);
 
-        $this->assertFalse($tokenRepos->isTokenExpired());
+        $this->assertFalse($shopSession->getToken()->isExpired());
     }
 }

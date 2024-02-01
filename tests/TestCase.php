@@ -112,7 +112,7 @@ class TestCase extends \PHPUnit\Framework\TestCase
             $expiresAt = new \DateTimeImmutable('tomorrow');
         }
         return $this->makeJwtToken($expiresAt, array_merge([
-            'user_id' => $this->faker->uuid,
+            'sub' => $this->faker->uuid,
             'email' => $this->faker->safeEmail,
             'email_verified' => $this->faker->boolean,
         ], $claims));

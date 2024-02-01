@@ -21,7 +21,6 @@
 namespace PrestaShop\Module\PsAccounts\Context;
 
 use Context;
-use PrestaShop\Module\PsAccounts\Account\Session\OwnerSession;
 use PrestaShop\Module\PsAccounts\Repository\ConfigurationRepository;
 
 /**

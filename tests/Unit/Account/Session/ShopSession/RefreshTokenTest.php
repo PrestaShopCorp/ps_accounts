@@ -18,14 +18,15 @@
  * International Registered Trademark & Property of PrestaShop SA
  */
 
-namespace PrestaShop\Module\PsAccounts\Tests\Unit\Repository\UserTokenRepository;
+namespace PrestaShop\Module\PsAccounts\Tests\Unit\Account\Session\ShopSession;
 
 use Exception;
-use Lcobucci\JWT\Token;
-use PrestaShop\Module\PsAccounts\Api\Client\SsoClient;
+use PrestaShop\Module\PsAccounts\Account\Session\Session;
+use PrestaShop\Module\PsAccounts\Account\Session\ShopSession;
+use PrestaShop\Module\PsAccounts\Account\Token\Token;
+use PrestaShop\Module\PsAccounts\Api\Client\AccountsClient;
 use PrestaShop\Module\PsAccounts\Exception\RefreshTokenException;
-use PrestaShop\Module\PsAccounts\Repository\AbstractTokenRepository;
-use PrestaShop\Module\PsAccounts\Repository\UserTokenRepository;
+use PrestaShop\Module\PsAccounts\Provider\ShopProvider;
 use PrestaShop\Module\PsAccounts\Service\AnalyticsService;
 use PrestaShop\Module\PsAccounts\Service\ShopLinkAccountService;
 use PrestaShop\Module\PsAccounts\Tests\TestCase;
@@ -51,83 +52,81 @@ class RefreshTokenTest extends TestCase
     public function itShouldRefreshTokenWhenExpired()
     {
         $idToken = $this->makeJwtToken(new \DateTimeImmutable('yesterday'), [
-            'user_id' => $this->faker->uuid,
-            'email' => $this->faker->safeEmail,
+            'sub' => $this->faker->uuid,
         ]);
 
         $idTokenRefreshed = $this->makeJwtToken(new \DateTimeImmutable('tomorrow'));
 
         $refreshToken = $this->makeJwtToken(new \DateTimeImmutable('+1 year'));
 
-        $tokenRepos = $this->getUserTokenRepositoryMock(['refreshToken']);
-        $tokenRepos->method('refreshToken')
-            ->willReturn($idTokenRefreshed);
+        $shopSession = $this->getShopSessionMock(['refreshToken']);
+        $shopSession->method('refreshToken')
+            ->willReturn(new Token($idTokenRefreshed, $refreshToken));
 
-        $tokenRepos->updateCredentials((string) $idToken, (string) $refreshToken);
+        $shopSession->setToken((string) $idToken, (string) $refreshToken);
 
-        $this->assertEquals((string) $idTokenRefreshed, $tokenRepos->refreshToken((string) $refreshToken));
+        $this->assertEquals((string) $idTokenRefreshed, $shopSession->refreshToken((string) $refreshToken)->getJwt());
 
-        $this->assertEquals((string) $refreshToken, $tokenRepos->getRefreshToken());
+        $this->assertEquals((string) $refreshToken, $shopSession->getToken()->getRefreshToken());
     }
 
     /**
      * @test
      *
      * @throws RefreshTokenException
-     *
      * @throws Exception
      */
     public function itShouldThrowExceptionOnErrorResponse()
     {
         $refreshToken = $this->makeJwtToken(new \DateTimeImmutable('+1 year'));
 
-        $client = $this->getSsoClientMock(['refreshToken']);
+        $client = $this->getAccountsClientMock(['refreshToken']);
         $client->method('refreshToken')
             ->willReturn([
                 'status' => false,
                 'httpCode' => 403
             ]);
 
-        $tokenRepos = $this->getUserTokenRepositoryMock(['client']);
-        $tokenRepos->method('client')
+        $sessionMock = $this->getShopSessionMock(['getApiClient']);
+        $sessionMock->method('getApiClient')
             ->willReturn($client);
 
         $this->expectException(RefreshTokenException::class);
 
-        $tokenRepos->refreshToken((string) $refreshToken);
+        $sessionMock->refreshToken((string) $refreshToken);
     }
 
     /**
      * @test
+     * @throws Exception
      */
     public function itShouldCleanupCredentialsOnFailure()
     {
         $idToken = $this->makeJwtToken(new \DateTimeImmutable('yesterday'), [
-            'user_id' => $this->faker->uuid,
-            'email' => $this->faker->safeEmail,
+            'sub' => $this->faker->uuid,
         ]);
 
         $refreshToken = $this->makeJwtToken(new \DateTimeImmutable('+1 year'));
 
-        $client = $this->getSsoClientMock(['refreshToken']);
+        $client = $this->getAccountsClientMock(['refreshToken']);
         $client->method('refreshToken')
             ->willReturn([
                 'status' => false,
                 'httpCode' => 403
             ]);
 
-        $tokenRepos = $this->getUserTokenRepositoryMock(['client']);
-        $tokenRepos->method('client')
+        $sessionMock = $this->getShopSessionMock(['getApiClient']);
+        $sessionMock->method('getApiClient')
             ->willReturn($client);
 
-        $tokenRepos->updateCredentials((string) $idToken, (string) $refreshToken);
+        $sessionMock->setToken((string) $idToken, (string) $refreshToken);
         $this->configurationRepository->updateShopUnlinkedAuto(false);
-        $this->configurationRepository->updateRefreshTokenFailure('user', 0);
+        $this->configurationRepository->updateRefreshTokenFailure('shop', 0);
 
-        $this->assertEquals(0, $this->configurationRepository->getRefreshTokenFailure('user'));
+        $this->assertEquals(0, $this->configurationRepository->getRefreshTokenFailure('shop'));
         $this->assertFalse($this->configurationRepository->getShopUnlinkedAuto());
-        $this->assertEquals($idToken, (string) $tokenRepos->getToken());
-        $this->assertEquals($refreshToken, (string) $tokenRepos->getRefreshToken());
+        $this->assertEquals($idToken, (string) $sessionMock->getToken()->getJwt());
+        $this->assertEquals($refreshToken, (string) $sessionMock->getToken()->getRefreshToken());
 
         $this->analytics->expects($this->once())
             ->method('trackMaxRefreshTokenAttempts')
@@ -137,40 +136,39 @@ class RefreshTokenTest extends TestCase
                                            $shopUrl) use ($idToken) {
                 // FIXME make a test including both user and shop tokens
                 //error_log(print_r([$userUid, $userEmail, $shopUid, $shopUrl], true));
-                $this->assertEquals($idToken->claims()->get('user_id'), $userUid);
-                $this->assertEquals($idToken->claims()->get('email'), $userEmail);
+                $this->assertEquals($idToken->claims()->get(TOKEN::ID_OWNER_CLAIM), $shopUid);
                 $this->assertNotEmpty($shopUrl);
             });
 
-        for ($i = 0; $i < AbstractTokenRepository::MAX_TRIES_BEFORE_CLEAN_CREDENTIALS_ON_REFRESH_TOKEN_FAILURE; $i++) {
+        for ($i = 0; $i < Session::MAX_REFRESH_TOKEN_ATTEMPTS; $i++) {
             try {
-                $tokenRepos->refreshToken((string) $refreshToken);
+                $sessionMock->refreshToken((string) $refreshToken);
             } catch (RefreshTokenException $e) {
             }
         }
 
-        $this->assertEquals(0, $this->configurationRepository->getRefreshTokenFailure('user'));
+        $this->assertEquals(0, $this->configurationRepository->getRefreshTokenFailure('shop'));
         $this->assertTrue($this->configurationRepository->getShopUnlinkedAuto());
-        $this->assertEquals(null, (string) $tokenRepos->getToken());
-        $this->assertEquals(null, (string) $tokenRepos->getRefreshToken());
+        $this->assertEquals(null, (string) $sessionMock->getToken()->getJwt());
+        $this->assertEquals(null, (string) $sessionMock->getToken()->getRefreshToken());
 
-        /** @var ShopLinkAccountService $linkAccountService */
-        $linkAccountService = $this->module->getService(ShopLinkAccountService::class);
-        $this->assertFalse($linkAccountService->isAccountLinked());
+        /** @var ShopLinkAccountService $association */
+        $association = $this->module->getService(ShopLinkAccountService::class);
+        $this->assertFalse($association->isAccountLinked());
     }
 
     /**
      * @param array $methods
+     * @return \PHPUnit_Framework_MockObject_MockObject|AccountsClient
      *
-     * @return \PHPUnit_Framework_MockObject_MockObject|SsoClient
-     *
-     * @throws \Exception
+     * @throws Exception
      */
-    protected function getSsoClientMock(array $methods = [])
+    protected function getAccountsClientMock(array $methods = [])
     {
-        return $this->getMockBuilder(SsoClient::class)
+        return $this->getMockBuilder(AccountsClient::class)
             ->setConstructorArgs([
-                $this->module->getParameter('ps_accounts.sso_api_url')
+                $this->module->getParameter('ps_accounts.accounts_api_url'),
+                $this->module->getService(ShopProvider::class),
             ])
             ->setMethods($methods)
             ->getMock();
@@ -178,13 +176,17 @@ class RefreshTokenTest extends TestCase
 
     /**
      * @param array $methods
-     *
-     * @return \PHPUnit_Framework_MockObject_MockObject|UserTokenRepository
+     * @return \PHPUnit_Framework_MockObject_MockObject|ShopSession
+     * @throws Exception
      */
-    protected function getUserTokenRepositoryMock(array $methods = [])
+    protected function getShopSessionMock(array $methods = [])
     {
-        return $this->getMockBuilder(UserTokenRepository::class)
-            ->setConstructorArgs([$this->configurationRepository, $this->analytics])
+        return $this->getMockBuilder(ShopSession::class)
+            ->setConstructorArgs([
+                $this->module->getService(AccountsClient::class),
+                $this->configurationRepository,
+                $this->analytics
+            ])
             ->setMethods($methods)
             ->getMock();
     }

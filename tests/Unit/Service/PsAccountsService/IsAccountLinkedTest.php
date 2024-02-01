@@ -20,14 +20,14 @@ class IsAccountLinkedTest extends TestCase
         /** @var ShopTokenRepository $repos */
         $repos = $this->module->getService(ShopTokenRepository::class);
         $repos->updateCredentials(
-            $this->makeFirebaseToken(null, ['email_verified' => true]),
+            (string) $this->makeFirebaseToken(null, ['email_verified' => true]),
             base64_encode($this->faker->name)
         );
 
         /** @var UserTokenRepository $tokenRepos */
         $repos = $this->module->getService(UserTokenRepository::class);
         $repos->updateCredentials(
-            $this->makeFirebaseToken(null, ['email_verified' => true]),
+            (string) $this->makeFirebaseToken(null, ['email_verified' => true]),
             base64_encode($this->faker->name)
         );
 
@@ -47,7 +47,7 @@ class IsAccountLinkedTest extends TestCase
         /** @var ShopTokenRepository $repos */
         $repos = $this->module->getService(ShopTokenRepository::class);
         $repos->updateCredentials(
-            $this->makeFirebaseToken(null, ['email_verified' => true]),
+            (string) $this->makeFirebaseToken(null, ['email_verified' => true]),
             base64_encode($this->faker->name)
         );
 

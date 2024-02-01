@@ -188,14 +188,12 @@ services:
     class: PrestaShop\Module\PsAccounts\Repository\ShopTokenRepository
     public: true
     arguments:
-      - '@PrestaShop\Module\PsAccounts\Repository\ConfigurationRepository'
       - '@PrestaShop\Module\PsAccounts\Account\Session\ShopSession'
 
   PrestaShop\Module\PsAccounts\Repository\UserTokenRepository:
     class: PrestaShop\Module\PsAccounts\Repository\UserTokenRepository
     public: true
     arguments:
-      - '@PrestaShop\Module\PsAccounts\Repository\ConfigurationRepository'
       - '@PrestaShop\Module\PsAccounts\Account\Session\OwnerSession'
 
   #####################
@@ -212,11 +210,18 @@ services:
       - '@PrestaShop\Module\PsAccounts\Repository\ConfigurationRepository'
       - '@ps_accounts.module'
 
-
   #####################
   # CQRS
 
   PrestaShop\Module\PsAccounts\Cqrs\CommandBus:
     class: PrestaShop\Module\PsAccounts\Cqrs\CommandBus
+    arguments:
+      - '@ps_accounts.module'
+
+  #####################
+  # Middleware
+
+  PrestaShop\Module\PsAccounts\Middleware\Oauth2Middleware:
+    class: PrestaShop\Module\PsAccounts\Middleware\Oauth2Middleware
     arguments:
       - '@ps_accounts.module'

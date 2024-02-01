@@ -25,6 +25,8 @@ use Lcobucci\JWT\Token\InvalidTokenStructure;
 
 class Token
 {
+    const ID_OWNER_CLAIM = 'sub';
+
     /**
      * @var string
      */
@@ -76,7 +78,7 @@ class Token
      */
     public function getUuid()
     {
-        return $this->getJwt()->claims()->get('sub');
+        return $this->getJwt()->claims()->get(static::ID_OWNER_CLAIM);
     }
 
     /**
