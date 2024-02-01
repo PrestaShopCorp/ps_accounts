@@ -86,6 +86,11 @@ class TestCase extends \PHPUnit\Framework\TestCase
     {
         $builder = (new Builder())->expiresAt($expiresAt);
 
+        if (isset($claims['sub'])) {
+            $builder->relatedTo($claims['sub']);
+            unset($claims['sub']);
+        }
+
         foreach ($claims as $claim => $value) {
             $builder->withClaim($claim, $value);
         }

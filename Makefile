@@ -146,9 +146,6 @@ phpunit-permissions:
 phpunit-run-unit: phpunit-permissions
 	@docker exec -w ${CONTAINER_INSTALL_DIR} phpunit ./vendor/bin/phpunit --testsuite unit
 
-#phpunit-run-domain: phpunit-permissions
-#	@docker exec -w ${CONTAINER_INSTALL_DIR} phpunit ./vendor/bin/phpunit --testsuite domain
-
 phpunit-run-feature: phpunit-permissions
 	@docker exec -w ${CONTAINER_INSTALL_DIR} phpunit ./vendor/bin/phpunit --testsuite feature
 
