@@ -129,10 +129,7 @@ abstract class Session implements SessionInterface
             $response['body']['message'] :
             '';
 
-        throw new RefreshTokenException(
-            'Unable to refresh ' . static::getSessionName() . ' token : ' .
-            $response['httpCode'] . ' ' . print_r($errorMsg, true)
-        );
+        throw new RefreshTokenException('Unable to refresh ' . static::getSessionName() . ' token : ' . $response['httpCode'] . ' ' . print_r($errorMsg, true));
     }
 
     /**

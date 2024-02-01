@@ -69,7 +69,7 @@ class Shop extends Dto
     public function jsonSerialize()
     {
         return array_merge(parent::jsonSerialize(), [
-            'user' => $this->user->jsonSerialize()
+            'user' => $this->user->jsonSerialize(),
         ]);
     }
 }
