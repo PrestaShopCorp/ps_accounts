@@ -62,7 +62,6 @@ abstract class Dto implements \JsonSerializable
         }
     }
 
-
     /**
      * @return array|mixed
      */
