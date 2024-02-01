@@ -431,6 +431,8 @@ class Ps_accounts extends Module
 
     /**
      * @return \PrestaShop\Module\PsAccounts\Middleware\Oauth2Middleware
+     *
+     * @throws Exception
      */
     public function getOauth2Middleware()
     {

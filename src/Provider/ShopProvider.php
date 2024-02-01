@@ -94,7 +94,7 @@ class ShopProvider
                 'user' => [
                     'email' => $ownerSession->getToken()->getEmail() ?: null,
                     'uuid' => $ownerSession->getToken()->getUuid() ?: null,
-                    //'emailIsValidated' => $ownerSession->isEmailVerified(),
+                    'emailIsValidated' => null,
                 ],
                 'url' => $this->link->getAdminLink(
                     'AdminModules',
@@ -105,7 +105,7 @@ class ShopProvider
                         'setShopContext' => 's-' . $shopData['id_shop'],
                     ]
                 ),
-                //'isLinkedV4' => $shopLinkAccountService->isAccountLinkedV4(),
+                'isLinkedV4' => null,
                 'unlinkedAuto' => $configuration->getShopUnlinkedAuto(),
             ]);
 
@@ -129,7 +129,7 @@ class ShopProvider
     {
         $shop = $this->formatShopData((array) \Shop::getShop($this->shopContext->getContext()->shop->id), $psxName);
 
-        return array_merge((array) $shop, [
+        return array_merge($shop->jsonSerialize(), [
             'multishop' => $this->shopContext->isMultishopActive(),
             'moduleName' => $psxName,
             'psVersion' => _PS_VERSION_,
@@ -153,7 +153,7 @@ class ShopProvider
             foreach ($groupData['shops'] as $shopId => $shopData) {
                 $shop = $this->formatShopData((array) $shopData, $psxName);
 
-                $shops[] = array_merge((array) $shop, [
+                $shops[] = array_merge($shop->jsonSerialize(), [
                     'multishop' => $this->shopContext->isMultishopActive(),
                     'moduleName' => $psxName,
                     'psVersion' => _PS_VERSION_,

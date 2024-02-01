@@ -166,6 +166,7 @@ services:
 
   PrestaShop\Module\PsAccounts\Account\Session\ShopSession:
     class: PrestaShop\Module\PsAccounts\Account\Session\ShopSession
+    public: true
     arguments:
       - '@PrestaShop\Module\PsAccounts\Api\Client\AccountsClient'
       - '@PrestaShop\Module\PsAccounts\Repository\ConfigurationRepository'
@@ -173,6 +174,7 @@ services:
 
   PrestaShop\Module\PsAccounts\Account\Session\OwnerSession:
     class: PrestaShop\Module\PsAccounts\Account\Session\OwnerSession
+    public: true
     arguments:
       - '@PrestaShop\Module\PsAccounts\Api\Client\SsoClient'
       - '@PrestaShop\Module\PsAccounts\Repository\ConfigurationRepository'
@@ -215,6 +217,7 @@ services:
 
   PrestaShop\Module\PsAccounts\Cqrs\CommandBus:
     class: PrestaShop\Module\PsAccounts\Cqrs\CommandBus
+    public: true
     arguments:
       - '@ps_accounts.module'
 
@@ -223,5 +226,6 @@ services:
 
   PrestaShop\Module\PsAccounts\Middleware\Oauth2Middleware:
     class: PrestaShop\Module\PsAccounts\Middleware\Oauth2Middleware
+    public: true
     arguments:
       - '@ps_accounts.module'

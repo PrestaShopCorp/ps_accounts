@@ -1,9 +1,7 @@
 services:
-  _defaults:
-    public: true
-
   PrestaShop\Module\PsAccounts\Account\CommandHandler\LinkShopHandler:
     class: PrestaShop\Module\PsAccounts\Account\CommandHandler\LinkShopHandler
+    public: true
     tags:
       - { name: tactician.handler, command: 'PrestaShop\Module\PsAccounts\Domain\Shop\Command\LinkShopCommand' }
     arguments:
@@ -12,6 +10,7 @@ services:
 
   PrestaShop\Module\PsAccounts\Account\CommandHandler\MigrateAndLinkV4ShopHandler:
     class: PrestaShop\Module\PsAccounts\Account\CommandHandler\MigrateAndLinkV4ShopHandler
+    public: true
     tags:
       - { name: tactician.handler, command: 'PrestaShop\Module\PsAccounts\Domain\Shop\Command\MigrateAndLinkV4ShopCommand' }
     arguments:
@@ -21,6 +20,7 @@ services:
 
   PrestaShop\Module\PsAccounts\Account\CommandHandler\DeleteUserShopHandler:
     class: PrestaShop\Module\PsAccounts\Account\CommandHandler\DeleteUserShopHandler
+    public: true
     tags:
       - { name: tactician.handler, command: 'PrestaShop\Module\PsAccounts\Domain\Shop\Command\DeleteUserShopCommand' }
     arguments:
@@ -31,6 +31,7 @@ services:
 
   PrestaShop\Module\PsAccounts\Account\CommandHandler\UnlinkShopHandler:
     class: PrestaShop\Module\PsAccounts\Account\CommandHandler\UnlinkShopHandler
+    public: true
     tags:
       - { name: tactician.handler, command: 'PrestaShop\Module\PsAccounts\Domain\Shop\Command\UnlinkShopCommand' }
     arguments:
@@ -38,6 +39,7 @@ services:
 
   PrestaShop\Module\PsAccounts\Account\CommandHandler\UpdateShopHandler:
     class: PrestaShop\Module\PsAccounts\Account\CommandHandler\UpdateShopHandler
+    public: true
     tags:
       - { name: tactician.handler, command: 'PrestaShop\Module\PsAccounts\Domain\Shop\Command\UpdateShopCommand' }
     arguments:

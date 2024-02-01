@@ -62,9 +62,11 @@ abstract class Dto implements \JsonSerializable
         }
     }
 
+
     /**
      * @return array|mixed
      */
+    #[\ReturnTypeWillChange]
     public function jsonSerialize()
     {
         return array_filter((array) $this, function ($attrValue, $attrName) {

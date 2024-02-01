@@ -230,7 +230,7 @@ abstract class Session implements SessionInterface
             false
         );
 
-        $association->resetLinkAccount();
+        $shopLinkAccountService->resetLinkAccount();
         $this->configurationRepository->updateShopUnlinkedAuto(true);
 
         $this->analyticsService->trackMaxRefreshTokenAttempts(
