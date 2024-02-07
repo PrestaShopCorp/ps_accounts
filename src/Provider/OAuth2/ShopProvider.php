@@ -25,7 +25,7 @@ use League\OAuth2\Client\Token\AccessToken;
 use PrestaShop\Module\PsAccounts\Adapter\Link;
 use PrestaShop\OAuth2\Client\Provider\PrestaShop;
 
-class PrestaShopClientProvider extends PrestaShop
+class ShopProvider extends PrestaShop
 {
     use Guzzle5AdapterTrait;
 
@@ -58,10 +58,8 @@ class PrestaShopClientProvider extends PrestaShop
         $module = \Module::getInstanceByName('ps_accounts');
         $this->module = $module;
         $this->oauth2Client = $module->getService(Oauth2Client::class);
-        $this->wellKnown = WellKnown::fetch(
-            $this->getParameter('ps_accounts.oauth2_url'),
-            (bool) $this->module->getParameter('ps_accounts.check_api_ssl_cert')
-        );
+
+        $this->fetchWellKnown();
 
         // Disable certificate verification from local configuration
         $options['verify'] = (bool) $this->module->getParameter(
@@ -99,21 +97,6 @@ class PrestaShopClientProvider extends PrestaShop
     public static function create()
     {
         return new self();
-    }
-
-    /**
-     * @param string $name
-     * @param string $default
-     *
-     * @return string
-     *
-     * @throws \Exception
-     */
-    public function getParameter($name, $default = '')
-    {
-        return $this->module->hasParameter($name)
-            ? $this->module->getParameter($name)
-            : $default;
     }
 
     /**
@@ -211,5 +194,35 @@ class PrestaShopClientProvider extends PrestaShop
     public function getOauth2Client()
     {
         return $this->oauth2Client;
+    }
+
+    /**
+     * @param string $name
+     * @param string $default
+     *
+     * @return string
+     *
+     * @throws \Exception
+     */
+    protected function getParameter($name, $default = '')
+    {
+        return $this->module->hasParameter($name)
+            ? $this->module->getParameter($name)
+            : $default;
+    }
+
+    /**
+     * @return void
+     */
+    private function fetchWellKnown()
+    {
+        try {
+            $this->wellKnown = WellKnown::fetch(
+                $this->getParameter('ps_accounts.oauth2_url'),
+                (bool)$this->module->getParameter('ps_accounts.check_api_ssl_cert')
+            );
+        } catch (\Exception $e) {
+            $this->wellKnown = new WellKnown([]);
+        }
     }
 }

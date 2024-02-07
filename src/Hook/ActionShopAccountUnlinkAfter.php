@@ -40,9 +40,7 @@ class ActionShopAccountUnlinkAfter extends Hook
         /** @var ConfigurationRepository $configuration */
         $configuration = $this->ps_accounts->getService(ConfigurationRepository::class);
 
-        if ($oauth2Client->exists()) {
-            $oauth2Client->delete();
-            $configuration->updateLoginEnabled(false);
-        }
+        $oauth2Client->delete();
+        $configuration->updateLoginEnabled(false);
     }
 }

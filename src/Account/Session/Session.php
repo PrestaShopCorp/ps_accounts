@@ -20,56 +20,14 @@
 
 namespace PrestaShop\Module\PsAccounts\Account\Session;
 
+use GuzzleHttp\Exception\ConnectException;
 use PrestaShop\Module\PsAccounts\Account\Token\NullToken;
 use PrestaShop\Module\PsAccounts\Account\Token\Token;
-use PrestaShop\Module\PsAccounts\Api\Client\TokenClientInterface;
 use PrestaShop\Module\PsAccounts\Exception\RefreshTokenException;
 use PrestaShop\Module\PsAccounts\Log\Logger;
-use PrestaShop\Module\PsAccounts\Provider\ShopProvider;
-use PrestaShop\Module\PsAccounts\Repository\ConfigurationRepository;
-use PrestaShop\Module\PsAccounts\Service\AnalyticsService;
-use PrestaShop\Module\PsAccounts\Service\ShopLinkAccountService;
-use Ps_accounts;
 
 abstract class Session implements SessionInterface
 {
-    const MAX_REFRESH_TOKEN_ATTEMPTS = 3;
-
-    /**
-     * @var TokenClientInterface
-     */
-    protected $apiClient;
-
-    /**
-     * @var ConfigurationRepository
-     */
-    protected $configurationRepository;
-
-    /**
-     * @var AnalyticsService
-     */
-    protected $analyticsService;
-
-    /**
-     * @var array
-     */
-    private $refreshTokenErrors;
-
-    /**
-     * @param TokenClientInterface $apiClient
-     * @param ConfigurationRepository $configurationRepository
-     * @param AnalyticsService $analyticsService
-     */
-    public function __construct(
-        TokenClientInterface $apiClient,
-        ConfigurationRepository $configurationRepository,
-        AnalyticsService $analyticsService
-    ) {
-        $this->apiClient = $apiClient;
-        $this->configurationRepository = $configurationRepository;
-        $this->analyticsService = $analyticsService;
-    }
-
     /**
      * @param bool $forceRefresh
      *
@@ -80,68 +38,18 @@ abstract class Session implements SessionInterface
     public function getOrRefreshToken($forceRefresh = false)
     {
         $token = $this->getToken();
-        $refreshToken = $token->getRefreshToken();
-
-        if (!is_string($refreshToken) || '' === $refreshToken) {
-            return $this->getToken();
-        }
-
-        if ($this->getRefreshTokenErrors($refreshToken)) {
-            return $this->getToken();
-        }
-
         if (true === $forceRefresh || $token->isExpired()) {
             try {
-                $token = $this->refreshToken($refreshToken);
-                $this->setToken((string) $token->getJwt(), $token->getRefreshToken());
+                $token = $this->refreshToken(null);
+                $this->setToken((string) $token->getJwt()/*, $token->getRefreshToken()*/);
             } catch (RefreshTokenException $e) {
-                $this->setRefreshTokenErrors($refreshToken);
-                Logger::getInstance()->debug($e);
+                Logger::getInstance()->error($e->getMessage());
+            } catch (ConnectException $e) {
+                Logger::getInstance()->error($e->getMessage());
             }
         }
 
         return $token;
-    }
-
-    /**
-     * @param string $refreshToken
-     *
-     * @return Token idToken
-     *
-     * @throws RefreshTokenException
-     * @throws \Exception
-     */
-    public function refreshToken($refreshToken)
-    {
-        $response = $this->getApiClient()->refreshToken($refreshToken);
-
-        if ($response && true === $response['status']) {
-            $this->onRefreshTokenSuccess();
-
-            return $this->getTokenFromRefreshResponse($response);
-        }
-
-        if ($response['httpCode'] >= 400 && $response['httpCode'] < 500) {
-            $this->onRefreshTokenFailure($response);
-        }
-
-        $errorMsg = isset($response['body']['message']) ?
-            $response['body']['message'] :
-            '';
-
-        throw new RefreshTokenException('Unable to refresh ' . static::getSessionName() . ' token : ' . $response['httpCode'] . ' ' . print_r($errorMsg, true));
-    }
-
-    /**
-     * @param string $token
-     *
-     * @return bool
-     */
-    public function verifyToken($token)
-    {
-        $response = $this->getApiClient()->verifyToken($token);
-
-        return $response && true === $response['status'];
     }
 
     /**
@@ -164,111 +72,5 @@ abstract class Session implements SessionInterface
         }
 
         return (bool) $jwt->claims()->get('email_verified');
-    }
-
-    /**
-     * @param array $response
-     *
-     * @return Token
-     */
-    abstract protected function getTokenFromRefreshResponse(array $response);
-
-    /**
-     * @param array $response
-     *
-     * @return void
-     *
-     * @throws \PrestaShopException
-     */
-    protected function onRefreshTokenFailure(array $response)
-    {
-        $attempt = $this->configurationRepository->getRefreshTokenFailure(static::getSessionName());
-
-        if ($attempt >= (static::MAX_REFRESH_TOKEN_ATTEMPTS - 1)) {
-            $this->onMaxRefreshTokenAttempts($response);
-            $this->configurationRepository->updateRefreshTokenFailure(static::getSessionName(), 0);
-
-            return;
-        }
-
-        $this->configurationRepository->updateRefreshTokenFailure(
-            static::getSessionName(),
-            ++$attempt
-        );
-    }
-
-    /**
-     * @return void
-     */
-    protected function onRefreshTokenSuccess()
-    {
-        $this->configurationRepository->updateRefreshTokenFailure(static::getSessionName(), 0);
-    }
-
-    /**
-     * @param array $response
-     *
-     * @return void
-     *
-     * @throws \PrestaShopException
-     * @throws \Exception
-     */
-    protected function onMaxRefreshTokenAttempts(array $response)
-    {
-        /** @var Ps_accounts $module */
-        $module = \Module::getInstanceByName('ps_accounts');
-
-        /** @var ShopLinkAccountService $shopLinkAccountService */
-        $shopLinkAccountService = $module->getService(ShopLinkAccountService::class);
-
-        /** @var ShopProvider $shopProvider */
-        $shopProvider = $module->getService(ShopProvider::class);
-
-        $shop = $shopProvider->formatShopData((array) \Shop::getShop(
-            $this->configurationRepository->getShopId()),
-            'ps_accounts',
-            false
-        );
-
-        $shopLinkAccountService->resetLinkAccount();
-        $this->configurationRepository->updateShopUnlinkedAuto(true);
-
-        $this->analyticsService->trackMaxRefreshTokenAttempts(
-            $shop->user->uuid,
-            $shop->user->email,
-            $shop->uuid,
-            $shop->frontUrl,
-            $shop->url,
-            static::getSessionName() . ' token',
-            $response['httpCode']
-        );
-    }
-
-    /**
-     * @return TokenClientInterface
-     */
-    protected function getApiClient()
-    {
-        return $this->apiClient;
-    }
-
-    /**
-     * @param string $refreshToken
-     *
-     * @return bool
-     */
-    protected function getRefreshTokenErrors($refreshToken)
-    {
-        return isset($this->refreshTokenErrors[$refreshToken]) && $this->refreshTokenErrors[$refreshToken];
-    }
-
-    /**
-     * @param string $refreshToken
-     *
-     * @return void
-     */
-    protected function setRefreshTokenErrors($refreshToken)
-    {
-        $this->refreshTokenErrors[$refreshToken] = true;
     }
 }

@@ -21,7 +21,7 @@
 namespace PrestaShop\Module\PsAccounts\Hook;
 
 use Exception;
-use PrestaShop\Module\PsAccounts\Account\Command\UpdateShopCommand;
+use PrestaShop\Module\PsAccounts\Account\Command\UpdateUserShopCommand;
 use PrestaShop\Module\PsAccounts\Account\Dto\UpdateShop;
 use PrestaShop\Module\PsAccounts\Adapter\Link;
 use PrestaShop\Module\PsAccounts\Cqrs\CommandBus;
@@ -48,7 +48,7 @@ class ActionObjectShopUpdateAfter extends Hook
         /** @var CommandBus $commandBus */
         $commandBus = $this->ps_accounts->getService(CommandBus::class);
 
-        $response = $commandBus->handle(new UpdateShopCommand(new UpdateShop([
+        $response = $commandBus->handle(new UpdateUserShopCommand(new UpdateShop([
             'shopId' => (string) $params['object']->id,
             'name' => $params['object']->name,
             'domain' => 'http://' . $shop->domain,

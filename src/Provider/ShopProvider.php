@@ -21,10 +21,12 @@
 namespace PrestaShop\Module\PsAccounts\Provider;
 
 use PrestaShop\Module\PsAccounts\Account\Dto\Shop;
+use PrestaShop\Module\PsAccounts\Account\LinkShop;
+use PrestaShop\Module\PsAccounts\Account\Session\Firebase\OwnerSession;
+use PrestaShop\Module\PsAccounts\Account\Session\Firebase\ShopSession;
 use PrestaShop\Module\PsAccounts\Adapter\Link;
 use PrestaShop\Module\PsAccounts\Context\ShopContext;
 use PrestaShop\Module\PsAccounts\Repository\ConfigurationRepository;
-use PrestaShop\Module\PsAccounts\Service\ShopLinkAccountService;
 
 class ShopProvider
 {
@@ -67,10 +69,14 @@ class ShopProvider
             /** @var \Ps_accounts $module */
             $module = \Module::getInstanceByName('ps_accounts');
 
-            /** @var ShopLinkAccountService $linkAccountService */
-            $linkAccountService = $module->getService(ShopLinkAccountService::class);
-            $shopSession = $linkAccountService->getShopSession();
-            $ownerSession = $linkAccountService->getOwnerSession();
+            /** @var LinkShop $linkAccountService */
+            $linkAccountService = $module->getService(LinkShop::class);
+
+            /** @var ShopSession $shopSession */
+            $shopSession = $module->getService(ShopSession::class);
+
+            /** @var OwnerSession $ownerSession */
+            $ownerSession = $module->getService(OwnerSession::class);
 
             /** @var RsaKeysProvider $rsaKeyProvider */
             $rsaKeyProvider = $module->getService(RsaKeysProvider::class);
@@ -90,7 +96,7 @@ class ShopProvider
                 // LinkAccount
                 'uuid' => $shopSession->getToken()->getUuid() ?: null,
                 'publicKey' => $rsaKeyProvider->getOrGenerateAccountsRsaPublicKey() ?: null,
-                'employeeId' => (int) $ownerSession->getEmployeeId() ?: null,
+                'employeeId' => (int) $linkAccountService->getEmployeeId() ?: null,
                 'user' => [
                     'email' => $ownerSession->getToken()->getEmail() ?: null,
                     'uuid' => $ownerSession->getToken()->getUuid() ?: null,
@@ -106,12 +112,12 @@ class ShopProvider
                     ]
                 ),
                 'isLinkedV4' => null,
-                'unlinkedAuto' => $configuration->getShopUnlinkedAuto(),
+                'unlinkedAuto' => false,
             ]);
 
             if ($refreshTokens) {
                 $shop->user->emailIsValidated = $ownerSession->isEmailVerified();
-                $shop->isLinkedV4 = $linkAccountService->isAccountLinkedV4();
+                $shop->isLinkedV4 = $linkAccountService->existsV4();
             }
 
             return $shop;

@@ -22,13 +22,13 @@ namespace PrestaShop\Module\PsAccounts\Tests\Unit\Account\Session\ShopSession;
 
 use Exception;
 use PrestaShop\Module\PsAccounts\Account\Session\Session;
-use PrestaShop\Module\PsAccounts\Account\Session\ShopSession;
+use PrestaShop\Module\PsAccounts\Account\Session\Firebase\ShopSession;
 use PrestaShop\Module\PsAccounts\Account\Token\Token;
 use PrestaShop\Module\PsAccounts\Api\Client\AccountsClient;
 use PrestaShop\Module\PsAccounts\Exception\RefreshTokenException;
 use PrestaShop\Module\PsAccounts\Provider\ShopProvider;
 use PrestaShop\Module\PsAccounts\Service\AnalyticsService;
-use PrestaShop\Module\PsAccounts\Service\ShopLinkAccountService;
+use PrestaShop\Module\PsAccounts\Account\LinkShop;
 use PrestaShop\Module\PsAccounts\Tests\TestCase;
 
 class RefreshTokenTest extends TestCase
@@ -120,7 +120,6 @@ class RefreshTokenTest extends TestCase
             ->willReturn($client);
 
         $sessionMock->setToken((string) $idToken, (string) $refreshToken);
-        $this->configurationRepository->updateShopUnlinkedAuto(false);
         $this->configurationRepository->updateRefreshTokenFailure('shop', 0);
 
         $this->assertEquals(0, $this->configurationRepository->getRefreshTokenFailure('shop'));
@@ -152,9 +151,9 @@ class RefreshTokenTest extends TestCase
         $this->assertEquals(null, (string) $sessionMock->getToken()->getJwt());
         $this->assertEquals(null, (string) $sessionMock->getToken()->getRefreshToken());
 
-        /** @var ShopLinkAccountService $association */
-        $association = $this->module->getService(ShopLinkAccountService::class);
-        $this->assertFalse($association->isAccountLinked());
+        /** @var LinkShop $linkShop */
+        $linkShop = $this->module->getService(LinkShop::class);
+        $this->assertFalse($linkShop->exists());
     }
 
     /**

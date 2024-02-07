@@ -150,13 +150,13 @@ class WellKnown
 
     /**
      * @param string $url
-     * @param bool $verify
+     * @param bool $secure
      *
      * @return WellKnown
      *
      * @throws \Exception
      */
-    public static function fetch($url, $verify = true)
+    public static function fetch($url, $secure = true)
     {
         $wellKnownUrl = $url;
         if (strpos($wellKnownUrl, '/.well-known') === false) {
@@ -165,8 +165,8 @@ class WellKnown
 
         return new WellKnown(json_decode(file_get_contents($wellKnownUrl, false, stream_context_create([
             'ssl' => [
-                'verify_peer' => $verify,
-                'verify_peer_name' => $verify,
+                'verify_peer' => $secure,
+                'verify_peer_name' => $secure,
             ],
             'http' => [
                 'ignore_errors' => '1',

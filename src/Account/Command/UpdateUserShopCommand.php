@@ -18,21 +18,19 @@
  * @license   https://opensource.org/licenses/AFL-3.0 Academic Free License version 3.0
  */
 
-namespace PrestaShop\Module\PsAccounts\Api\Client;
+namespace PrestaShop\Module\PsAccounts\Account\Command;
 
-interface TokenClientInterface
+use PrestaShop\Module\PsAccounts\Account\Dto\UpdateShop;
+
+class UpdateUserShopCommand
 {
     /**
-     * @param string $refreshToken
-     *
-     * @return array response
+     * @var UpdateShop
      */
-    public function refreshToken($refreshToken);
+    public $payload;
 
-    /**
-     * @param string $idToken
-     *
-     * @return array response
-     */
-    public function verifyToken($idToken);
+    public function __construct(UpdateShop $payload)
+    {
+        $this->payload = $payload;
+    }
 }

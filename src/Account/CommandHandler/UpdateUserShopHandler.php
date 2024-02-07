@@ -20,12 +20,14 @@
 
 namespace PrestaShop\Module\PsAccounts\Account\CommandHandler;
 
-use PrestaShop\Module\PsAccounts\Account\Command\UpdateShopCommand;
+use PrestaShop\Module\PsAccounts\Account\Command\UpdateUserShopCommand;
+use PrestaShop\Module\PsAccounts\Account\Session\Firebase\OwnerSession;
+use PrestaShop\Module\PsAccounts\Account\Session\Firebase\ShopSession;
 use PrestaShop\Module\PsAccounts\Api\Client\AccountsClient;
 use PrestaShop\Module\PsAccounts\Context\ShopContext;
-use PrestaShop\Module\PsAccounts\Service\ShopLinkAccountService;
+use PrestaShop\Module\PsAccounts\Account\LinkShop;
 
-class UpdateShopHandler
+class UpdateUserShopHandler
 {
     /**
      * @var AccountsClient
@@ -38,41 +40,45 @@ class UpdateShopHandler
     private $shopContext;
 
     /**
-     * @var ShopLinkAccountService
+     * @var ShopSession
      */
-    private $shopLinkAccountService;
+    private $shopSession;
+
+    /**
+     * @var OwnerSession
+     */
+    private $ownerSession;
 
     /**
      * @param AccountsClient $accountClient
      * @param ShopContext $shopContext
-     * @param ShopLinkAccountService $shopLinkAccountService
+     * @param ShopSession $shopSession
+     * @param OwnerSession $ownerSession
      */
     public function __construct(
         AccountsClient $accountClient,
         ShopContext $shopContext,
-        ShopLinkAccountService $shopLinkAccountService
+        ShopSession $shopSession,
+        OwnerSession $ownerSession
     ) {
         $this->accountClient = $accountClient;
         $this->shopContext = $shopContext;
-        $this->shopLinkAccountService = $shopLinkAccountService;
+        $this->shopSession = $shopSession;
+        $this->ownerSession = $ownerSession;
     }
 
     /**
-     * @param UpdateShopCommand $command
+     * @param UpdateUserShopCommand $command
      *
      * @return array
      *
      * @throws \Exception
      */
-    public function handle(UpdateShopCommand $command)
+    public function handle(UpdateUserShopCommand $command)
     {
         return $this->shopContext->execInShopContext((int) $command->payload->shopId, function () use ($command) {
-            if (!$this->shopLinkAccountService->isAccountLinked()) {
-                return null;
-            }
-
-            $shopToken = $this->shopLinkAccountService->getShopSession()->getOrRefreshToken();
-            $ownerToken = $this->shopLinkAccountService->getOwnerSession()->getOrRefreshToken();
+            $shopToken = $this->shopSession->getOrRefreshToken();
+            $ownerToken = $this->ownerSession->getOrRefreshToken();
 
             return $this->accountClient->updateUserShop(
                 $ownerToken->getUuid(),

@@ -28,9 +28,9 @@ use PrestaShop\Module\PsAccounts\Exception\AccountLogin\EmailNotVerifiedExceptio
 use PrestaShop\Module\PsAccounts\Exception\AccountLogin\EmployeeNotFoundException;
 use PrestaShop\Module\PsAccounts\Exception\AccountLogin\Oauth2Exception;
 use PrestaShop\Module\PsAccounts\Exception\AccountLogin\OtherErrorException;
-use PrestaShop\Module\PsAccounts\Provider\OAuth2\PrestaShopClientProvider;
 use PrestaShop\Module\PsAccounts\Provider\OAuth2\PrestaShopLoginTrait;
 use PrestaShop\Module\PsAccounts\Provider\OAuth2\PrestaShopSession;
+use PrestaShop\Module\PsAccounts\Provider\OAuth2\ShopProvider;
 use PrestaShop\Module\PsAccounts\Service\AnalyticsService;
 use PrestaShop\Module\PsAccounts\Service\PsAccountsService;
 use PrestaShop\OAuth2\Client\Provider\PrestaShopUser;
@@ -209,13 +209,13 @@ class AdminOAuth2PsAccountsController extends ModuleAdminController
     }
 
     /**
-     * @return PrestaShopClientProvider
+     * @return ShopProvider
      *
      * @throws Exception
      */
     private function getProvider()
     {
-        return $this->module->getService(PrestashopClientProvider::class);
+        return $this->module->getService(ShopProvider::class);
     }
 
     /**

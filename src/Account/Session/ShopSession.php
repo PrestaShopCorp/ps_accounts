@@ -20,38 +20,59 @@
 
 namespace PrestaShop\Module\PsAccounts\Account\Session;
 
-use Lcobucci\JWT\Parser;
+use League\OAuth2\Client\Provider\Exception\IdentityProviderException;
+use League\OAuth2\Client\Token\AccessToken;
+use League\OAuth2\Client\Token\AccessTokenInterface;
+use PrestaShop\Module\PsAccounts\Account\LinkShop;
 use PrestaShop\Module\PsAccounts\Account\Token\Token;
-use PrestaShop\Module\PsAccounts\Api\Client\AccountsClient;
+use PrestaShop\Module\PsAccounts\Exception\RefreshTokenException;
+use PrestaShop\Module\PsAccounts\Log\Logger;
+use PrestaShop\Module\PsAccounts\Provider\OAuth2\ShopProvider;
 use PrestaShop\Module\PsAccounts\Repository\ConfigurationRepository;
-use PrestaShop\Module\PsAccounts\Service\AnalyticsService;
+use PrestaShop\OAuth2\Client\Provider\PrestaShop;
 
 class ShopSession extends Session implements SessionInterface
 {
     /**
-     * @var AccountsClient
+     * @var PrestaShop
      */
-    protected $apiClient;
+    protected $oauth2ClientProvider;
 
     /**
-     * @param AccountsClient $apiClient
+     * @var ConfigurationRepository
+     */
+    protected $configurationRepository;
+
+    /**
      * @param ConfigurationRepository $configurationRepository
-     * @param AnalyticsService $analyticsService
+     * @param ShopProvider $oauth2ClientProvider
      */
     public function __construct(
-        AccountsClient $apiClient,
         ConfigurationRepository $configurationRepository,
-        AnalyticsService $analyticsService
+        ShopProvider $oauth2ClientProvider
     ) {
-        parent::__construct($apiClient, $configurationRepository, $analyticsService);
+        $this->configurationRepository = $configurationRepository;
+        $this->oauth2ClientProvider = $oauth2ClientProvider;
     }
 
     /**
-     * @return string
+     * @param string $refreshToken
+     *
+     * @return Token
+     *
+     * @throws RefreshTokenException
      */
-    public static function getSessionName()
+    public function refreshToken($refreshToken)
     {
-        return 'shop';
+        $shopUuid = $this->getShopUuid();
+
+        try {
+            $accessToken = $this->getAccessToken($shopUuid);
+        } catch (IdentityProviderException $e) {
+            throw new RefreshTokenException('Unable to refresh shop token : ' . $e->getMessage());
+        }
+
+        return new Token($accessToken->getToken(), $accessToken->getRefreshToken());
     }
 
     /**
@@ -59,19 +80,7 @@ class ShopSession extends Session implements SessionInterface
      */
     public function getToken()
     {
-        return new Token(
-            $this->configurationRepository->getFirebaseIdToken(),
-            $this->configurationRepository->getFirebaseRefreshToken()
-        );
-    }
-
-    /**
-     * @return void
-     */
-    public function cleanup()
-    {
-        $this->configurationRepository->updateShopUuid('');
-        $this->configurationRepository->updateFirebaseIdAndRefreshTokens('', '');
+        return new Token($this->configurationRepository->getAccessToken());
     }
 
     /**
@@ -80,24 +89,55 @@ class ShopSession extends Session implements SessionInterface
      *
      * @return void
      */
-    public function setToken($token, $refreshToken)
+    public function setToken($token, $refreshToken = null)
     {
-        $parsed = (new Parser())->parse($token);
-
-        $this->configurationRepository->updateShopUuid($parsed->claims()->get(Token::ID_OWNER_CLAIM));
-        $this->configurationRepository->updateFirebaseIdAndRefreshTokens($token, $refreshToken);
+        $this->configurationRepository->updateAccessToken($token);
     }
 
     /**
-     * @param array $response
-     *
-     * @return Token
+     * @return void
      */
-    protected function getTokenFromRefreshResponse(array $response)
+    public function cleanup()
     {
-        return new Token(
-            $response['body']['token'],
-            $response['body']['refresh_token']
-        );
+        $this->configurationRepository->updateAccessToken('');
+    }
+
+    /**
+     * @param string $shopUid
+     *
+     * @return AccessToken|AccessTokenInterface
+     *
+     * @throws IdentityProviderException
+     * @throws \Exception
+     */
+    protected function getAccessToken($shopUid)
+    {
+        $audience = [
+            'shop_' . $shopUid,
+            // 'another.audience'
+        ];
+        $token = $this->oauth2ClientProvider->getAccessToken('client_credentials', [
+            //'scope' => 'read.all write.all',
+            'audience' => implode(' ', $audience),
+        ]);
+        Logger::getInstance()->debug(__METHOD__ . json_encode($token->jsonSerialize(), JSON_PRETTY_PRINT));
+
+        return $token;
+    }
+
+    /**
+     * @return string
+     *
+     * @throws \Exception
+     */
+    private function getShopUuid()
+    {
+        /** @var \Ps_accounts $module */
+        $module = \Module::getInstanceByName('ps_accounts');
+
+        /** @var LinkShop $linkShop */
+        $linkShop = $module->getService(LinkShop::class);
+
+        return $linkShop->getShopUuid();
     }
 }

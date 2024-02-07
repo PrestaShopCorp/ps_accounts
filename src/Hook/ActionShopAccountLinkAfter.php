@@ -37,6 +37,5 @@ class ActionShopAccountLinkAfter extends Hook
         $configuration = $this->ps_accounts->getService(ConfigurationRepository::class);
 
         $configuration->updateLoginEnabled(true);
-        $configuration->updateShopUnlinkedAuto(false);
     }
 }

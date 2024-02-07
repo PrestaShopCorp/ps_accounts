@@ -2,7 +2,7 @@
 
 namespace PrestaShop\Module\PsAccounts\Tests\Unit\Account\Session\OwnerSession;
 
-use PrestaShop\Module\PsAccounts\Account\Session\OwnerSession;
+use PrestaShop\Module\PsAccounts\Account\Session\Firebase\OwnerSession;
 use PrestaShop\Module\PsAccounts\Tests\TestCase;
 
 class GetTokenEmailVerifiedTest extends TestCase

@@ -81,9 +81,9 @@ abstract class AbstractRestController extends ModuleFrontController
                 'error' => true,
                 'message' => $e->getMessage(),
             ], $e->getStatusCode());
-        } catch (\Exception $e) {
+        } catch (\Error $e) {
             $this->handleError($e);
-        } catch (\Throwable $e) {
+        } catch (\Exception $e) {
             $this->handleError($e);
         }
     }
@@ -319,7 +319,7 @@ abstract class AbstractRestController extends ModuleFrontController
     }
 
     /**
-     * @param \Exception|\Throwable $e
+     * @param \Error|\Exception $e
      *
      * @return void
      *

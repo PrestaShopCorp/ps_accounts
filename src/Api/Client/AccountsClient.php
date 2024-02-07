@@ -21,26 +21,18 @@
 namespace PrestaShop\Module\PsAccounts\Api\Client;
 
 use PrestaShop\Module\PsAccounts\Account\Dto\UpdateShop;
+use PrestaShop\Module\PsAccounts\Account\LinkShop;
 use PrestaShop\Module\PsAccounts\Factory\CircuitBreakerFactory;
 use PrestaShop\Module\PsAccounts\Http\Client\CircuitBreaker\CircuitBreaker;
 use PrestaShop\Module\PsAccounts\Http\Client\Guzzle\GuzzleClient;
 use PrestaShop\Module\PsAccounts\Http\Client\Guzzle\GuzzleClientFactory;
-use PrestaShop\Module\PsAccounts\Provider\ShopProvider;
 
-/**
- * Class ServicesAccountsClient
- */
-class AccountsClient implements TokenClientInterface
+class AccountsClient
 {
     /**
      * @var string
      */
     private $apiUrl;
-
-    /**
-     * @var ShopProvider
-     */
-    private $shopProvider;
 
     /**
      * @var GuzzleClient
@@ -61,20 +53,17 @@ class AccountsClient implements TokenClientInterface
      * ServicesAccountsClient constructor.
      *
      * @param string $apiUrl
-     * @param ShopProvider $shopProvider
      * @param GuzzleClient|null $client
      * @param int $defaultTimeout
      *
      * @throws \Exception
      */
     public function __construct(
-        $apiUrl,
-        ShopProvider $shopProvider,
+                     $apiUrl,
         GuzzleClient $client = null,
-        $defaultTimeout = 20
+                     $defaultTimeout = 20
     ) {
         $this->apiUrl = $apiUrl;
-        $this->shopProvider = $shopProvider;
         $this->client = $client;
         $this->circuitBreaker = CircuitBreakerFactory::create('ACCOUNTS_CLIENT');
         $this->defaultTimeout = $defaultTimeout;
@@ -96,42 +85,48 @@ class AccountsClient implements TokenClientInterface
         return $this->client;
     }
 
+//    /**
+//     * @param string $refreshToken
+//     *
+//     * @return array response
+//     *
+//     * $response['body']['token'],
+//     * $response['body']['refresh_token']
+//     */
+//    public function refreshToken($refreshToken)
+//    {
+//        return $this->circuitBreaker->call(function () use ($refreshToken) {
+//            $this->getClient()->setRoute('v1/shop/token/refresh');
+//
+//            return $this->getClient()->post([
+//                'headers' => $this->getHeaders([
+//                    'X-Shop-Id' => $this->getCurrentShopUuid(),
+//                ]),
+//                'json' => [
+//                    'token' => $refreshToken,
+//                ],
+//            ]);
+//        });
+//    }
+
     /**
-     * @param string $idToken
+     * @param string $accessToken
      *
-     * @return array response
-     */
-    public function verifyToken($idToken)
-    {
-        $this->getClient()->setRoute('shop/token/verify');
-
-        return $this->getClient()->post([
-            'headers' => $this->getHeaders([
-                'X-Shop-Id' => $this->getShopUuid(),
-            ]),
-            'json' => [
-                'token' => $idToken,
-            ],
-        ]);
-    }
-
-    /**
-     * @param string $refreshToken
+     * @return array
      *
-     * @return array response
+     * $response['body']['userToken']
+     * $response['body']['shopToken']
      */
-    public function refreshToken($refreshToken)
+    public function firebaseTokens($accessToken)
     {
-        return $this->circuitBreaker->call(function () use ($refreshToken) {
-            $this->getClient()->setRoute('shop/token/refresh');
+        return $this->circuitBreaker->call(function () use ($accessToken) {
+            $this->getClient()->setRoute('v1/shop/token/refresh');
+            $this->getClient()->setRoute('v2/shop/firebase/tokens');
 
-            return $this->getClient()->post([
+            return $this->getClient()->get([
                 'headers' => $this->getHeaders([
-                    'X-Shop-Id' => $this->getShopUuid(),
+                    'Authorization' => 'Bearer ' . $accessToken,
                 ]),
-                'json' => [
-                    'token' => $refreshToken,
-                ],
             ]);
         });
     }
@@ -145,12 +140,12 @@ class AccountsClient implements TokenClientInterface
      */
     public function deleteUserShop($ownerUid, $shopUid, $ownerToken)
     {
-        $this->client->setRoute('user/' . $ownerUid . '/shop/' . $shopUid);
+        $this->client->setRoute('v1/user/' . $ownerUid . '/shop/' . $shopUid);
 
         return $this->getClient()->delete([
             'headers' => $this->getHeaders([
                 'Authorization' => 'Bearer ' . $ownerToken,
-                'X-Shop-Id' => $this->getShopUuid(),
+                'X-Shop-Id' => $shopUid,
             ]),
         ]);
     }
@@ -164,7 +159,7 @@ class AccountsClient implements TokenClientInterface
      */
     public function reonboardShop($shopUid, $shopToken, $payload)
     {
-        $this->getClient()->setRoute('shop/' . $shopUid . '/reonboard');
+        $this->getClient()->setRoute('v1/shop/' . $shopUid . '/reonboard');
 
         return $this->getClient()->post([
             'headers' => $this->getHeaders([
@@ -185,7 +180,7 @@ class AccountsClient implements TokenClientInterface
      */
     public function updateUserShop($ownerUid, $shopUid, $ownerToken, UpdateShop $shop)
     {
-        $this->getClient()->setRoute('user/' . $ownerUid . '/shop/' . $shopUid);
+        $this->getClient()->setRoute('v1/user/' . $ownerUid . '/shop/' . $shopUid);
 
         return $this->getClient()->patch([
             'headers' => $this->getHeaders([
@@ -216,13 +211,5 @@ class AccountsClient implements TokenClientInterface
     public function getCircuitBreaker()
     {
         return $this->circuitBreaker;
-    }
-
-    /**
-     * @return string
-     */
-    private function getShopUuid()
-    {
-        return $this->shopProvider->getShopContext()->getConfiguration()->getShopUuid();
     }
 }

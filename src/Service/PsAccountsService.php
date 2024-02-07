@@ -22,8 +22,9 @@ namespace PrestaShop\Module\PsAccounts\Service;
 
 use Doctrine\ORM\EntityManagerInterface;
 use PrestaShop\Module\PsAccounts\Account\Command\MigrateAndLinkV4ShopCommand;
-use PrestaShop\Module\PsAccounts\Account\Session\OwnerSession;
-use PrestaShop\Module\PsAccounts\Account\Session\ShopSession;
+use PrestaShop\Module\PsAccounts\Account\LinkShop;
+use PrestaShop\Module\PsAccounts\Account\Session\Firebase\OwnerSession;
+use PrestaShop\Module\PsAccounts\Account\Session\Firebase\ShopSession;
 use PrestaShop\Module\PsAccounts\Adapter\Link;
 use PrestaShop\Module\PsAccounts\Cqrs\CommandBus;
 use PrestaShop\Module\PsAccounts\Entity\EmployeeAccount;
@@ -186,10 +187,10 @@ class PsAccountsService
      */
     public function isAccountLinked()
     {
-        /** @var ShopLinkAccountService $shopLinkAccountService */
-        $shopLinkAccountService = $this->module->getService(ShopLinkAccountService::class);
+        /** @var LinkShop $linkShop */
+        $linkShop = $this->module->getService(LinkShop::class);
 
-        return $shopLinkAccountService->isAccountLinked();
+        return $linkShop->exists();
     }
 
     /**
@@ -199,10 +200,10 @@ class PsAccountsService
      */
     public function isAccountLinkedV4()
     {
-        /** @var ShopLinkAccountService $shopLinkAccountService */
-        $shopLinkAccountService = $this->module->getService(ShopLinkAccountService::class);
+        /** @var LinkShop $linkShop */
+        $linkShop = $this->module->getService(LinkShop::class);
 
-        return $shopLinkAccountService->isAccountLinkedV4();
+        return $linkShop->existsV4();
     }
 
     /**
@@ -255,8 +256,8 @@ class PsAccountsService
         /** @var ConfigurationRepository $conf */
         $conf = $this->module->getService(ConfigurationRepository::class);
 
-        /** @var ShopLinkAccountService $shopLinkAccountService */
-        $shopLinkAccountService = $this->module->getService(ShopLinkAccountService::class);
+        /** @var LinkShop $linkShop */
+        $linkShop = $this->module->getService(LinkShop::class);
 
         $allShops = $shopProvider->getShopsTree((string) $this->module->name);
 
@@ -280,7 +281,7 @@ class PsAccountsService
                 if ($isAlreadyReonboard) {
                     $conf->setShopId((int) $shop['id']);
 
-                    $shopLinkAccountService->resetLinkAccount();
+                    $linkShop->delete();
 
                     $conf->setShopId($id);
                 } else {

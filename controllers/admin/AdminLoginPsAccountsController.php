@@ -18,7 +18,7 @@
  * @license   https://opensource.org/licenses/AFL-3.0 Academic Free License version 3.0
  */
 
-use PrestaShop\Module\PsAccounts\Provider\OAuth2\PrestaShopClientProvider;
+use PrestaShop\Module\PsAccounts\Provider\OAuth2\ShopProvider;
 
 class AdminLoginPsAccountsController extends AdminLoginControllerCore
 {
@@ -78,7 +78,7 @@ class AdminLoginPsAccountsController extends AdminLoginControllerCore
      */
     public function setMedia($isNewTheme = false)
     {
-        $this->addCss(_PS_MODULE_DIR_ . 'ps_accounts/views/css/login.css');
+        $this->addCss(_PS_MODULE_DIR_ . '/ps_accounts/views/css/login.css');
         $this->addJS(_PS_MODULE_DIR_ . '/ps_accounts/views/js/login.js');
     }
 
@@ -91,8 +91,8 @@ class AdminLoginPsAccountsController extends AdminLoginControllerCore
      */
     public function createTemplate($tpl_name)
     {
-        /** @var PrestaShopClientProvider $provider */
-        $provider = $this->psAccounts->getService(PrestaShopClientProvider::class);
+        /** @var ShopProvider $provider */
+        $provider = $this->psAccounts->getService(ShopProvider::class);
 
         $testimonials = $this->getTestimonials();
 

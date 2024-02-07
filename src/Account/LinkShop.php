@@ -18,15 +18,15 @@
  * @license   https://opensource.org/licenses/AFL-3.0 Academic Free License version 3.0
  */
 
-namespace PrestaShop\Module\PsAccounts\Service;
+namespace PrestaShop\Module\PsAccounts\Account;
 
-use PrestaShop\Module\PsAccounts\Account\Session\OwnerSession;
-use PrestaShop\Module\PsAccounts\Account\Session\ShopSession;
+use PrestaShop\Module\PsAccounts\Account\Session\Firebase\OwnerSession;
+use PrestaShop\Module\PsAccounts\Account\Session\Firebase\ShopSession;
 use PrestaShop\Module\PsAccounts\Account\Token\NullToken;
 use PrestaShop\Module\PsAccounts\Provider\RsaKeysProvider;
 use PrestaShop\Module\PsAccounts\Repository\ConfigurationRepository;
 
-class ShopLinkAccountService
+class LinkShop
 {
     /**
      * @var RsaKeysProvider
@@ -46,7 +46,7 @@ class ShopLinkAccountService
     /**
      * @var ConfigurationRepository
      */
-    private $configurationRepository;
+    private $configuration;
 
     /**
      * ShopLinkAccountService constructor.
@@ -54,52 +54,48 @@ class ShopLinkAccountService
      * @param RsaKeysProvider $rsaKeysProvider
      * @param ShopSession $shopSession
      * @param OwnerSession $ownerSession
-     * @param ConfigurationRepository $configurationRepository
+     * @param ConfigurationRepository $configuration
      */
     public function __construct(
         RsaKeysProvider $rsaKeysProvider,
         ShopSession $shopSession,
         OwnerSession $ownerSession,
-        ConfigurationRepository $configurationRepository
+        ConfigurationRepository $configuration
     ) {
         $this->rsaKeysProvider = $rsaKeysProvider;
         $this->shopSession = $shopSession;
         $this->ownerSession = $ownerSession;
-        $this->configurationRepository = $configurationRepository;
+        $this->configuration = $configuration;
     }
 
     /**
-     * Empty onboarding configuration values
-     *
      * @return void
      *
      * @throws \Exception
      */
-    public function resetLinkAccount()
+    public function delete()
     {
-        $this->rsaKeysProvider->cleanupKeys();
         $this->shopSession->cleanup();
         $this->ownerSession->cleanup();
+        $this->setEmployeeId(null);
+
         try {
+            $this->rsaKeysProvider->cleanupKeys();
             $this->rsaKeysProvider->generateKeys();
         } catch (\Exception $e) {
         }
-
-        // TODO: on unlink reaction
-        //$this->configuration->updateLoginEnabled(false);
-        //$this->oauth2Client->delete();
-        $this->configurationRepository->updateShopUnlinkedAuto(false);
     }
 
     /**
-     * @return bool
+     * @param Dto\LinkShop $payload
      *
-     * @throws \Exception
+     * @return void
      */
-    public function isAccountLinked()
+    public function update(Dto\LinkShop $payload)
     {
-        return !($this->shopSession->getOrRefreshToken()->getJwt() instanceof NullToken)
-            && !($this->ownerSession->getOrRefreshToken()->getJwt() instanceof NullToken);
+        $this->shopSession->setToken($payload->shopToken, $payload->shopRefreshToken);
+        $this->ownerSession->setToken($payload->userToken, $payload->userRefreshToken);
+        $this->setEmployeeId((int) $payload->employeeId ?: null);
     }
 
     /**
@@ -107,26 +103,60 @@ class ShopLinkAccountService
      *
      * @throws \Exception
      */
-    public function isAccountLinkedV4()
+    public function exists()
+    {
+        return (bool) $this->getShopUuid();
+//        return !($this->shopSession->getOrRefreshToken()->getJwt() instanceof NullToken)
+//            && !($this->ownerSession->getOrRefreshToken()->getJwt() instanceof NullToken);
+    }
+
+    /**
+     * @return bool
+     *
+     * @throws \Exception
+     *
+     * @deprecated
+     */
+    public function existsV4()
     {
         return !($this->shopSession->getOrRefreshToken()->getJwt() instanceof NullToken)
             && ($this->ownerSession->getOrRefreshToken()->getJwt() instanceof NullToken)
-            && $this->configurationRepository->getFirebaseEmail();
+            && $this->configuration->getFirebaseEmail();
     }
 
     /**
-     * @return OwnerSession
+     * @return string
      */
-    public function getOwnerSession()
+    public function getShopUuid()
     {
-        return $this->ownerSession;
+        return $this->configuration->getShopUuid();
     }
 
     /**
-     * @return ShopSession
+     * @param string $uuid
+     *
+     * @return void
      */
-    public function getShopSession()
+    public function setShopUuid($uuid)
     {
-        return $this->shopSession;
+        $this->configuration->updateShopUuid($uuid);
+    }
+
+    /**
+     * @return int|null
+     */
+    public function getEmployeeId()
+    {
+        return (int) $this->configuration->getEmployeeId();
+    }
+
+    /**
+     * @param int|null $employeeId
+     *
+     * @return void
+     */
+    public function setEmployeeId($employeeId)
+    {
+        $this->configuration->updateEmployeeId((string) $employeeId);
     }
 }

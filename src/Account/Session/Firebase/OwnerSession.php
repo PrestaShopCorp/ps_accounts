@@ -18,40 +18,79 @@
  * @license   https://opensource.org/licenses/AFL-3.0 Academic Free License version 3.0
  */
 
-namespace PrestaShop\Module\PsAccounts\Account\Session;
+namespace PrestaShop\Module\PsAccounts\Account\Session\Firebase;
 
 use Lcobucci\JWT\Parser;
+use PrestaShop\Module\PsAccounts\Account\Session\Session;
+use PrestaShop\Module\PsAccounts\Account\Session\SessionInterface;
 use PrestaShop\Module\PsAccounts\Account\Token\Token;
-use PrestaShop\Module\PsAccounts\Api\Client\SsoClient;
+use PrestaShop\Module\PsAccounts\Api\Client\AccountsClient;
+use PrestaShop\Module\PsAccounts\Exception\RefreshTokenException;
 use PrestaShop\Module\PsAccounts\Repository\ConfigurationRepository;
-use PrestaShop\Module\PsAccounts\Service\AnalyticsService;
 
 class OwnerSession extends Session implements SessionInterface
 {
     /**
-     * @var SsoClient
+     * @var AccountsClient
      */
     protected $apiClient;
 
     /**
-     * @param SsoClient $apiClient
+     * @var \PrestaShop\Module\PsAccounts\Account\Session\ShopSession
+     */
+    protected $shopSession;
+
+    /**
+     * @var ConfigurationRepository
+     */
+    protected $configurationRepository;
+
+    /**
      * @param ConfigurationRepository $configurationRepository
-     * @param AnalyticsService $analyticsService
+     * @param AccountsClient $apiClient
+     * @param \PrestaShop\Module\PsAccounts\Account\Session\ShopSession $shopSession
      */
     public function __construct(
-        SsoClient $apiClient,
         ConfigurationRepository $configurationRepository,
-        AnalyticsService $analyticsService
+        AccountsClient $apiClient,
+        \PrestaShop\Module\PsAccounts\Account\Session\ShopSession $shopSession
     ) {
-        parent::__construct($apiClient, $configurationRepository, $analyticsService);
+        $this->configurationRepository = $configurationRepository;
+        $this->apiClient = $apiClient;
+        $this->shopSession = $shopSession;
     }
 
     /**
-     * @return string
+     * @param string $refreshToken
+     *
+     * @return Token
+     *
+     * @throws RefreshTokenException
+     * @throws \Exception
      */
-    public static function getSessionName()
+    public function refreshToken($refreshToken)
     {
-        return 'user';
+        $accessToken = $this->shopSession->getOrRefreshToken();
+
+        $response = $this->apiClient->firebaseTokens($accessToken->getJwt());
+
+        if ($response && true === $response['status']) {
+            // FIXME : strange to receive both tokens here
+            return new Token(
+                $response['body']['userToken']
+//                $response['body']['shopToken']
+            );
+        }
+
+//        if ($response['httpCode'] >= 400 && $response['httpCode'] < 500) {
+//            // TODO
+//        }
+
+        $errorMsg = isset($response['body']['message']) ?
+            $response['body']['message'] :
+            '';
+
+        throw new RefreshTokenException('Unable to refresh owner token : ' . $response['httpCode'] . ' ' . print_r($errorMsg, true));
     }
 
     /**
@@ -60,8 +99,7 @@ class OwnerSession extends Session implements SessionInterface
     public function getToken()
     {
         return new Token(
-            $this->configurationRepository->getUserFirebaseIdToken(),
-            $this->configurationRepository->getUserFirebaseRefreshToken()
+            $this->configurationRepository->getUserFirebaseIdToken()
         );
     }
 
@@ -70,12 +108,8 @@ class OwnerSession extends Session implements SessionInterface
      */
     public function cleanup()
     {
-        $this->configurationRepository->updateUserFirebaseUuid('');
         $this->configurationRepository->updateUserFirebaseIdToken('');
-        $this->configurationRepository->updateUserFirebaseRefreshToken('');
         $this->configurationRepository->updateFirebaseEmail('');
-        $this->configurationRepository->updateEmployeeId('');
-        //$this->configuration->updateFirebaseEmailIsVerified(false);
     }
 
     /**
@@ -84,46 +118,13 @@ class OwnerSession extends Session implements SessionInterface
      *
      * @return void
      */
-    public function setToken($token, $refreshToken)
+    public function setToken($token, $refreshToken = null)
     {
         $parsed = (new Parser())->parse((string) $token);
 
         $uuid = $parsed->claims()->get(Token::ID_OWNER_CLAIM);
-        $this->configurationRepository->updateUserFirebaseUuid($uuid);
         $this->configurationRepository->updateUserFirebaseIdToken($token);
-        $this->configurationRepository->updateUserFirebaseRefreshToken($refreshToken);
 
         $this->configurationRepository->updateFirebaseEmail($parsed->claims()->get('email'));
-    }
-
-    /**
-     * @return int|null
-     */
-    public function getEmployeeId()
-    {
-        return (int) $this->configurationRepository->getEmployeeId();
-    }
-
-    /**
-     * @param int|null $employeeId
-     *
-     * @return void
-     */
-    public function setEmployeeId($employeeId)
-    {
-        $this->configurationRepository->updateEmployeeId((string) $employeeId);
-    }
-
-    /**
-     * @param array $response
-     *
-     * @return Token
-     */
-    protected function getTokenFromRefreshResponse(array $response)
-    {
-        return new Token(
-            $response['body']['idToken'],
-            $response['body']['refreshToken']
-        );
     }
 }

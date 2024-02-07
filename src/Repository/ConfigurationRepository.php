@@ -66,14 +66,6 @@ class ConfigurationRepository
     }
 
     /**
-     * @return string
-     */
-    public function getFirebaseRefreshToken()
-    {
-        return $this->configuration->get(ConfigurationKeys::PS_ACCOUNTS_FIREBASE_REFRESH_TOKEN);
-    }
-
-    /**
      * @param string $idToken
      * @param string $refreshToken
      *
@@ -88,21 +80,14 @@ class ConfigurationRepository
             $this->configuration->set(ConfigurationKeys::PS_PSX_FIREBASE_REFRESH_DATE, date('Y-m-d H:i:s'));
         }
         $this->configuration->set(ConfigurationKeys::PS_ACCOUNTS_FIREBASE_ID_TOKEN, $idToken);
-        $this->configuration->set(ConfigurationKeys::PS_ACCOUNTS_FIREBASE_REFRESH_TOKEN, $refreshToken);
     }
 
     /**
-     * Check if we have a refresh token.
+     * Owner Email
      *
-     * @return bool
-     */
-    public function hasFirebaseRefreshToken()
-    {
-        return !empty($this->configuration->get(ConfigurationKeys::PS_ACCOUNTS_FIREBASE_REFRESH_TOKEN));
-    }
-
-    /**
      * @return string|null
+     *
+     * @deprecated
      */
     public function getFirebaseEmail()
     {
@@ -138,30 +123,6 @@ class ConfigurationRepository
     public function updateEmployeeId($employeeId)
     {
         $this->configuration->set(ConfigurationKeys::PS_ACCOUNTS_EMPLOYEE_ID, $employeeId);
-    }
-
-    /**
-     * @return bool
-     */
-    public function firebaseEmailIsVerified()
-    {
-        return in_array(
-            $this->configuration->get(ConfigurationKeys::PS_ACCOUNTS_FIREBASE_EMAIL_IS_VERIFIED),
-            ['1', 1, true]
-        );
-    }
-
-    /**
-     * @param bool $status
-     *
-     * @return void
-     */
-    public function updateFirebaseEmailIsVerified($status)
-    {
-        $this->configuration->set(
-            ConfigurationKeys::PS_ACCOUNTS_FIREBASE_EMAIL_IS_VERIFIED,
-            (string) $status
-        );
     }
 
     /**
@@ -233,24 +194,6 @@ class ConfigurationRepository
     /**
      * @return mixed
      */
-    public function getUserFirebaseUuid()
-    {
-        return $this->configuration->get(ConfigurationKeys::PS_ACCOUNTS_USER_FIREBASE_UUID);
-    }
-
-    /**
-     * @param string $uuid
-     *
-     * @return void
-     */
-    public function updateUserFirebaseUuid($uuid)
-    {
-        $this->configuration->set(ConfigurationKeys::PS_ACCOUNTS_USER_FIREBASE_UUID, $uuid);
-    }
-
-    /**
-     * @return mixed
-     */
     public function getUserFirebaseIdToken()
     {
         return $this->configuration->get(ConfigurationKeys::PS_ACCOUNTS_USER_FIREBASE_ID_TOKEN);
@@ -264,24 +207,6 @@ class ConfigurationRepository
     public function updateUserFirebaseIdToken($idToken)
     {
         $this->configuration->set(ConfigurationKeys::PS_ACCOUNTS_USER_FIREBASE_ID_TOKEN, $idToken);
-    }
-
-    /**
-     * @return mixed
-     */
-    public function getUserFirebaseRefreshToken()
-    {
-        return $this->configuration->get(ConfigurationKeys::PS_ACCOUNTS_USER_FIREBASE_REFRESH_TOKEN);
-    }
-
-    /**
-     * @param string $refreshToken
-     *
-     * @return void
-     */
-    public function updateUserFirebaseRefreshToken($refreshToken)
-    {
-        $this->configuration->set(ConfigurationKeys::PS_ACCOUNTS_USER_FIREBASE_REFRESH_TOKEN, $refreshToken);
     }
 
     /**
@@ -386,58 +311,20 @@ class ConfigurationRepository
     }
 
     /**
-     * @param string $type
-     *
-     * @return int
+     * @return string|null
      */
-    public function getRefreshTokenFailure($type)
+    public function getAccessToken()
     {
-        if ($type === 'shop') {
-            return (int) $this->configuration->get(ConfigurationKeys::PS_ACCOUNTS_FIREBASE_REFRESH_TOKEN_FAILURE, '0');
-        }
-
-        if ($type === 'user') {
-            return (int) $this->configuration->get(ConfigurationKeys::PS_ACCOUNTS_USER_FIREBASE_REFRESH_TOKEN_FAILURE, '0');
-        }
-
-        return 0;
+        return $this->configuration->get(ConfigurationKeys::PS_ACCOUNTS_ACCESS_TOKEN);
     }
 
     /**
-     * @param string $type
-     * @param int $attempt
+     * @param string $accessToken
      *
      * @return void
      */
-    public function updateRefreshTokenFailure($type, $attempt)
+    public function updateAccessToken($accessToken)
     {
-        switch ($type) {
-            case 'shop':
-                $this->configuration->set(ConfigurationKeys::PS_ACCOUNTS_FIREBASE_REFRESH_TOKEN_FAILURE, (string) $attempt);
-                break;
-            case 'user':
-                $this->configuration->set(ConfigurationKeys::PS_ACCOUNTS_USER_FIREBASE_REFRESH_TOKEN_FAILURE, (string) $attempt);
-                break;
-            default:
-                break;
-        }
-    }
-
-    /**
-     * @return bool
-     */
-    public function getShopUnlinkedAuto()
-    {
-        return (bool) $this->configuration->get(ConfigurationKeys::PS_ACCOUNTS_SHOP_UNLINKED_AUTO, '0');
-    }
-
-    /**
-     * @param bool $status
-     *
-     * @return void
-     */
-    public function updateShopUnlinkedAuto($status)
-    {
-        $this->configuration->set(ConfigurationKeys::PS_ACCOUNTS_SHOP_UNLINKED_AUTO, (string) $status);
+        $this->configuration->set(ConfigurationKeys::PS_ACCOUNTS_ACCESS_TOKEN, $accessToken);
     }
 }

@@ -21,13 +21,13 @@
 namespace PrestaShop\Module\PsAccounts\Tests\Unit\Account\Session\OwnerSession;
 
 use Exception;
-use PrestaShop\Module\PsAccounts\Account\Session\OwnerSession;
+use PrestaShop\Module\PsAccounts\Account\Session\Firebase\OwnerSession;
 use PrestaShop\Module\PsAccounts\Account\Session\Session;
 use PrestaShop\Module\PsAccounts\Account\Token\Token;
 use PrestaShop\Module\PsAccounts\Api\Client\SsoClient;
 use PrestaShop\Module\PsAccounts\Exception\RefreshTokenException;
 use PrestaShop\Module\PsAccounts\Service\AnalyticsService;
-use PrestaShop\Module\PsAccounts\Service\ShopLinkAccountService;
+use PrestaShop\Module\PsAccounts\Account\LinkShop;
 use PrestaShop\Module\PsAccounts\Tests\TestCase;
 
 class RefreshTokenTest extends TestCase
@@ -123,7 +123,6 @@ class RefreshTokenTest extends TestCase
             ->willReturn($client);
 
         $ownerSession->setToken((string) $idToken, (string) $refreshToken);
-        $this->configurationRepository->updateShopUnlinkedAuto(false);
         $this->configurationRepository->updateRefreshTokenFailure('user', 0);
 
         $this->assertEquals(0, $this->configurationRepository->getRefreshTokenFailure('user'));
@@ -156,9 +155,9 @@ class RefreshTokenTest extends TestCase
         $this->assertEquals(null, (string) $ownerSession->getToken()->getJwt());
         $this->assertEquals(null, (string) $ownerSession->getToken()->getRefreshToken());
 
-        /** @var ShopLinkAccountService $association */
-        $association = $this->module->getService(ShopLinkAccountService::class);
-        $this->assertFalse($association->isAccountLinked());
+        /** @var LinkShop $linkShop */
+        $linkShop = $this->module->getService(LinkShop::class);
+        $this->assertFalse($linkShop->exists());
     }
 
     /**
@@ -180,7 +179,7 @@ class RefreshTokenTest extends TestCase
 
     /**
      * @param array $methods
-     * @return OwnerSession|\PHPUnit_Framework_MockObject_MockObject
+     * @return \PrestaShop\Module\PsAccounts\Account\Session\Firebase\OwnerSession|\PHPUnit_Framework_MockObject_MockObject
      * @throws Exception
      */
     protected function getOwnerSessionMock(array $methods = [])

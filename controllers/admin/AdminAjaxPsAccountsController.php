@@ -19,13 +19,14 @@
  */
 
 use PrestaShop\Module\PsAccounts\Account\Command\DeleteUserShopCommand;
-use PrestaShop\Module\PsAccounts\Account\Session\ShopSession;
+use PrestaShop\Module\PsAccounts\Account\LinkShop;
+use PrestaShop\Module\PsAccounts\Account\Session\Firebase\ShopSession;
+use PrestaShop\Module\PsAccounts\Api\Client\IndirectChannelClient;
 use PrestaShop\Module\PsAccounts\Cqrs\CommandBus;
 use PrestaShop\Module\PsAccounts\Presenter\PsAccountsPresenter;
 use PrestaShop\Module\PsAccounts\Provider\OAuth2\PrestaShopSession;
 use PrestaShop\Module\PsAccounts\Repository\ConfigurationRepository;
 use PrestaShop\Module\PsAccounts\Service\SentryService;
-use PrestaShop\Module\PsAccounts\Service\ShopLinkAccountService;
 
 /**
  * Controller for all ajax calls.
@@ -114,10 +115,10 @@ class AdminAjaxPsAccountsController extends ModuleAdminController
     public function ajaxProcessResetLinkAccount()
     {
         try {
-            /** @var ShopLinkAccountService $shopLinkAccountService */
-            $shopLinkAccountService = $this->module->getService(ShopLinkAccountService::class);
+            /** @var LinkShop $linkShop */
+            $linkShop = $this->module->getService(LinkShop::class);
 
-            $shopLinkAccountService->resetLinkAccount();
+            $linkShop->delete();
 
             header('Content-Type: text/json');
 
@@ -181,7 +182,7 @@ class AdminAjaxPsAccountsController extends ModuleAdminController
         try {
             header('Content-Type: text/json');
             $indirectsApi = $this->module->getService(
-                \PrestaShop\Module\PsAccounts\Api\Client\IndirectChannelClient::class
+                IndirectChannelClient::class
             );
             $response = $indirectsApi->getInvitations();
 

@@ -41,7 +41,7 @@ class Token
      * @param string $token
      * @param string $refreshToken
      */
-    public function __construct($token, $refreshToken)
+    public function __construct($token, $refreshToken = null)
     {
         $this->token = $token;
         $this->refreshToken = $refreshToken;

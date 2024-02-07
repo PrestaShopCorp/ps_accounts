@@ -22,7 +22,6 @@ namespace PrestaShop\Module\PsAccounts\Provider\OAuth2;
 
 use League\OAuth2\Client\Provider\Exception\IdentityProviderException;
 use League\OAuth2\Client\Token\AccessToken;
-use PrestaShop\Module\PsAccounts\Log\Logger;
 use PrestaShop\OAuth2\Client\Provider\PrestaShopUser;
 use Symfony\Component\HttpFoundation\Session\SessionInterface;
 
@@ -36,15 +35,15 @@ class PrestaShopSession
     private $session;
 
     /**
-     * @var PrestaShopClientProvider
+     * @var ShopProvider
      */
     private $provider;
 
     /**
      * @param mixed $session
-     * @param PrestaShopClientProvider $provider
+     * @param ShopProvider $provider
      */
-    public function __construct($session, PrestaShopClientProvider $provider)
+    public function __construct($session, ShopProvider $provider)
     {
         $this->session = $session;
         $this->provider = $provider;
@@ -68,28 +67,6 @@ class PrestaShopSession
         }
 
         return $this->getAccessToken();
-    }
-
-    /**
-     * @param string $shopUid
-     *
-     * @return mixed|string|null
-     *
-     * @throws IdentityProviderException
-     */
-    public function getClientCredentialsAccessToken($shopUid)
-    {
-        $audience = [
-            'shop-' . $shopUid,
-            // 'another.audience'
-        ];
-        $token = $this->provider->getAccessToken('client_credentials', [
-            //'scope' => 'read.all write.all',
-            'audience' => implode(' ', $audience),
-        ]);
-        Logger::getInstance()->debug(__METHOD__ . json_encode($token->jsonSerialize(), JSON_PRETTY_PRINT));
-
-        return ($token instanceof AccessToken) ? $token->getToken() : null;
     }
 
     /**

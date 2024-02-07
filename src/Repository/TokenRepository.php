@@ -26,8 +26,6 @@ use PrestaShop\Module\PsAccounts\Account\Session\Session;
 use PrestaShop\Module\PsAccounts\Account\Token\NullToken;
 
 /**
- * Class AbstractTokenRepository
- *
  * @deprecated
  */
 abstract class TokenRepository

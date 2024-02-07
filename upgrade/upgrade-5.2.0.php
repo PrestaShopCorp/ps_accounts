@@ -43,7 +43,7 @@ function updateShopUrl($module)
                         $commandBus = $this->ps_accounts->getService(\PrestaShop\Module\PsAccounts\Cqrs\CommandBus::class);
 
                         $response = $commandBus->handle(
-                            new \PrestaShop\Module\PsAccounts\Account\Command\UpdateShopCommand(
+                            new \PrestaShop\Module\PsAccounts\Account\Command\UpdateUserShopCommand(
                                 new \PrestaShop\Module\PsAccounts\Api\Client\UpdateShopDto([
                                     'shopId' => (string) $shop['id'],
                                     'name' => $shop['name'],

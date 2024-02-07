@@ -29,7 +29,7 @@ use Tools;
 trait PrestaShopLoginTrait
 {
     /**
-     * @return PrestaShopClientProvider
+     * @return ShopProvider
      */
     abstract protected function getProvider();
 

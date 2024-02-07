@@ -21,8 +21,8 @@
 namespace PrestaShop\Module\PsAccounts\Account\CommandHandler;
 
 use PrestaShop\Module\PsAccounts\Account\Command\DeleteUserShopCommand;
-use PrestaShop\Module\PsAccounts\Account\Session\OwnerSession;
-use PrestaShop\Module\PsAccounts\Account\Session\ShopSession;
+use PrestaShop\Module\PsAccounts\Account\Session\Firebase\OwnerSession;
+use PrestaShop\Module\PsAccounts\Account\Session\Firebase\ShopSession;
 use PrestaShop\Module\PsAccounts\Api\Client\AccountsClient;
 use PrestaShop\Module\PsAccounts\Context\ShopContext;
 
@@ -44,15 +44,15 @@ class DeleteUserShopHandler
     private $shopSession;
 
     /**
-     * @var OwnerSession
+     * @var \PrestaShop\Module\PsAccounts\Account\Session\Firebase\OwnerSession
      */
     private $ownerSession;
 
     /**
      * @param AccountsClient $accountClient
      * @param ShopContext $shopContext
-     * @param ShopSession $shopSession
-     * @param OwnerSession $ownerSession
+     * @param \PrestaShop\Module\PsAccounts\Account\Session\Firebase\ShopSession $shopSession
+     * @param \PrestaShop\Module\PsAccounts\Account\Session\Firebase\OwnerSession $ownerSession
      */
     public function __construct(
         AccountsClient $accountClient,

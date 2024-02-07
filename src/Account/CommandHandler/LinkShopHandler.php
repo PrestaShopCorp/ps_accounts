@@ -22,29 +22,20 @@ namespace PrestaShop\Module\PsAccounts\Account\CommandHandler;
 
 use Hook;
 use PrestaShop\Module\PsAccounts\Account\Command\LinkShopCommand;
-use PrestaShop\Module\PsAccounts\Account\Session\OwnerSession;
-use PrestaShop\Module\PsAccounts\Account\Session\ShopSession;
+use PrestaShop\Module\PsAccounts\Account\LinkShop;
 use PrestaShop\Module\PsAccounts\Hook\ActionShopAccountLinkAfter;
 use PrestaShopException;
 
 class LinkShopHandler
 {
     /**
-     * @var ShopSession
+     * @var LinkShop
      */
-    private $shopSession;
+    private $linkShop;
 
-    /**
-     * @var OwnerSession
-     */
-    private $ownerSession;
-
-    public function __construct(
-        ShopSession $shopSession,
-        OwnerSession $ownerSession
-    ) {
-        $this->shopSession = $shopSession;
-        $this->ownerSession = $ownerSession;
+    public function __construct(LinkShop $linkShop)
+    {
+        $this->linkShop = $linkShop;
     }
 
     /**
@@ -56,14 +47,10 @@ class LinkShopHandler
      */
     public function handle(LinkShopCommand $command)
     {
-        $payload = $command->payload;
-
-        $this->shopSession->setToken($payload->shopToken, $payload->shopRefreshToken);
-        $this->ownerSession->setToken($payload->userToken, $payload->userRefreshToken);
-        $this->ownerSession->setEmployeeId((int) $payload->employeeId ?: null);
+        $this->linkShop->update($command->payload);
 
         Hook::exec(ActionShopAccountLinkAfter::getName(), [
-            'shopUuid' => $this->shopSession->getToken()->getUuid(),
+            'shopUuid' => $this->linkShop->getShopUuid(),
             'shopId' => $command->payload->shopId,
         ]);
     }

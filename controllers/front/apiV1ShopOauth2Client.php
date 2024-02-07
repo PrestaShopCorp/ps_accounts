@@ -21,15 +21,9 @@
 use PrestaShop\Module\PsAccounts\Api\Controller\AbstractShopRestController;
 use PrestaShop\Module\PsAccounts\Api\Controller\Request\UpdateShopOauth2ClientRequest;
 use PrestaShop\Module\PsAccounts\Provider\OAuth2\Oauth2Client;
-use PrestaShop\Module\PsAccounts\Repository\ConfigurationRepository;
 
 class ps_AccountsApiV1ShopOauth2ClientModuleFrontController extends AbstractShopRestController
 {
-    /**
-     * @var ConfigurationRepository
-     */
-    private $configuration;
-
     /**
      * @var Oauth2Client
      */
@@ -44,7 +38,6 @@ class ps_AccountsApiV1ShopOauth2ClientModuleFrontController extends AbstractShop
     {
         parent::__construct();
 
-        $this->configuration = $this->module->getService(ConfigurationRepository::class);
         $this->oauth2Client = $this->module->getService(Oauth2Client::class);
     }
 
@@ -57,7 +50,6 @@ class ps_AccountsApiV1ShopOauth2ClientModuleFrontController extends AbstractShop
     public function update(Shop $shop, UpdateShopOauth2ClientRequest $request)
     {
         $this->oauth2Client->update($request->client_id, $request->client_secret);
-        $this->configuration->updateLoginEnabled(true);
 
         return [
             'success' => true,

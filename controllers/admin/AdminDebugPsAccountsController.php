@@ -18,7 +18,8 @@
  * @license   https://opensource.org/licenses/AFL-3.0 Academic Free License version 3.0
  */
 
-use PrestaShop\Module\PsAccounts\Repository\ConfigurationRepository;
+use PrestaShop\Module\PsAccounts\Account\Session\Firebase\OwnerSession;
+use PrestaShop\Module\PsAccounts\Account\Session\Firebase\ShopSession;
 use PrestaShop\Module\PsAccounts\Service\PsAccountsService;
 
 /**
@@ -47,29 +48,6 @@ class AdminDebugPsAccountsController extends ModuleAdminController
     public $module;
 
     /**
-     * @var ConfigurationRepository
-     */
-    private $configuration;
-
-    /**
-     * @var PsAccountsService
-     */
-    private $psAccountsService;
-
-    /**
-     * AdminDebugController constructor.
-     *
-     * @throws Exception
-     */
-    public function __construct()
-    {
-        parent::__construct();
-
-        $this->configuration = $this->module->getService(ConfigurationRepository::class);
-        $this->psAccountsService = $this->module->getService(PsAccountsService::class);
-    }
-
-    /**
      * @return void
      *
      * @throws SmartyException
@@ -77,19 +55,28 @@ class AdminDebugPsAccountsController extends ModuleAdminController
      */
     public function initContent()
     {
+        /** @var OwnerSession $ownerSession */
+        $ownerSession = $this->module->getService(OwnerSession::class);
+
+        /** @var ShopSession $shopSession */
+        $shopSession = $this->module->getService(ShopSession::class);
+
+        /** @var PsAccountsService $psAccountsService */
+        $psAccountsService = $this->module->getService(PsAccountsService::class);
+
         $this->context->smarty->assign([
             'config' => [
                 'shopId' => (int) $this->context->shop->id,
-                'shopUuidV4' => $this->configuration->getShopUuid(),
+                'shopUuidV4' => $shopSession->getToken()->getUuid(),
                 'moduleVersion' => \Ps_accounts::VERSION,
                 'psVersion' => _PS_VERSION_,
                 'phpVersion' => phpversion(),
-                'firebase_email' => $this->configuration->getFirebaseEmail(),
-                'firebase_email_is_verified' => $this->configuration->firebaseEmailIsVerified(),
-                'firebase_id_token' => $this->configuration->getFirebaseIdToken(),
-                'firebase_refresh_token' => $this->configuration->getFirebaseRefreshToken(),
-                'adminAjaxUrl' => $this->psAccountsService->getAdminAjaxUrl(),
-                'isShopLinked' => $this->psAccountsService->isAccountLinked(),
+                'firebase_email' => $ownerSession->getToken()->getEmail(),
+                'firebase_email_is_verified' => $ownerSession->isEmailVerified(),
+                'firebase_id_token' => (string) $shopSession->getToken(),
+                'firebase_refresh_token' => '',
+                'adminAjaxUrl' => $psAccountsService->getAdminAjaxUrl(),
+                'isShopLinked' => $psAccountsService->isAccountLinked(),
             ],
         ]);
         $this->content = $this->context->smarty->fetch($this->module->getLocalPath() . '/views/templates/admin/debug.tpl');

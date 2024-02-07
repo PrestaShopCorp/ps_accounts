@@ -20,7 +20,7 @@
 
 namespace PrestaShop\Module\PsAccounts\Repository;
 
-use PrestaShop\Module\PsAccounts\Account\Session\OwnerSession;
+use PrestaShop\Module\PsAccounts\Account\Session\Firebase\OwnerSession;
 
 /**
  * Class UserTokenRepository

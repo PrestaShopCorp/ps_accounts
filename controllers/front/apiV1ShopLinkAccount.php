@@ -21,8 +21,6 @@
 use PrestaShop\Module\PsAccounts\Account\Command\LinkShopCommand;
 use PrestaShop\Module\PsAccounts\Account\Command\UnlinkShopCommand;
 use PrestaShop\Module\PsAccounts\Account\Dto\LinkShop;
-use PrestaShop\Module\PsAccounts\Account\Session\OwnerSession;
-use PrestaShop\Module\PsAccounts\Account\Session\ShopSession;
 use PrestaShop\Module\PsAccounts\Api\Controller\AbstractShopRestController;
 use PrestaShop\Module\PsAccounts\Api\Controller\Request\UpdateShopLinkAccountRequest;
 use PrestaShop\Module\PsAccounts\Cqrs\CommandBus;
@@ -36,18 +34,6 @@ class ps_AccountsApiV1ShopLinkAccountModuleFrontController extends AbstractShopR
     private $commandBus;
 
     /**
-     * @var ShopSession
-     */
-    private $shopSession;
-
-    /**
-     * @var OwnerSession
-     */
-    private $ownerSession;
-
-    /**
-     * ps_AccountsApiV1ShopLinkAccountModuleFrontController constructor.
-     *
      * @throws Exception
      */
     public function __construct()
@@ -56,8 +42,6 @@ class ps_AccountsApiV1ShopLinkAccountModuleFrontController extends AbstractShopR
 
         $this->commandBus = $this->module->getService(CommandBus::class);
         //$this->commandBus = $this->module->getContainer()->get('prestashop.command_bus');
-        $this->shopSession = $this->module->getService(ShopSession::class);
-        $this->ownerSession = $this->module->getService(OwnerSession::class);
     }
 
     /**
@@ -71,23 +55,11 @@ class ps_AccountsApiV1ShopLinkAccountModuleFrontController extends AbstractShopR
      */
     public function update(Shop $shop, UpdateShopLinkAccountRequest $request)
     {
-        $shopToken = $request->shop_token;
-        $userToken = $request->user_token;
-
-        if ($this->module->getParameter('ps_accounts.verify_account_tokens')) {
-            if (false === $this->shopSession->verifyToken($shopToken)) {
-                $shopToken = $this->shopSession->refreshToken($request->shop_refresh_token);
-            }
-            if (false === $this->ownerSession->verifyToken($userToken)) {
-                $userToken = $this->ownerSession->refreshToken($request->user_refresh_token);
-            }
-        }
-
         $this->commandBus->handle(new LinkShopCommand(
             new LinkShop([
                 'shopId' => $request->shop_id,
-                'shopToken' => $shopToken,
-                'userToken' => $userToken,
+                'shopToken' => $request->shop_token,
+                'userToken' => $request->user_token,
                 'shopRefreshToken' => $request->shop_refresh_token,
                 'userRefreshToken' => $request->user_refresh_token,
                 'employeeId' => $request->employee_id,

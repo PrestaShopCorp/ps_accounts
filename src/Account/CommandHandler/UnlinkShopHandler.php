@@ -22,22 +22,22 @@ namespace PrestaShop\Module\PsAccounts\Account\CommandHandler;
 
 use Hook;
 use PrestaShop\Module\PsAccounts\Account\Command\UnlinkShopCommand;
+use PrestaShop\Module\PsAccounts\Account\LinkShop;
 use PrestaShop\Module\PsAccounts\Hook\ActionShopAccountUnlinkAfter;
-use PrestaShop\Module\PsAccounts\Service\ShopLinkAccountService;
 
 class UnlinkShopHandler
 {
     /**
-     * @var ShopLinkAccountService
+     * @var LinkShop
      */
-    private $shopLinkAccountService;
+    private $linkShop;
 
     /**
-     * @param ShopLinkAccountService $shopLinkAccountService
+     * @param LinkShop $linkShop
      */
-    public function __construct(ShopLinkAccountService $shopLinkAccountService)
+    public function __construct(LinkShop $linkShop)
     {
-        $this->shopLinkAccountService = $shopLinkAccountService;
+        $this->linkShop = $linkShop;
     }
 
     /**
@@ -53,11 +53,11 @@ class UnlinkShopHandler
         // FIXME: exec in shop context with $command->shopId
 
         $hookData = [
-            'shopUuid' => $this->shopLinkAccountService->getShopSession()->getToken()->getUuid(),
+            'shopUuid' => $this->linkShop->getShopUuid(),
             'shopId' => $command->shopId,
         ];
 
-        $this->shopLinkAccountService->resetLinkAccount();
+        $this->linkShop->delete();
 
         Hook::exec(ActionShopAccountUnlinkAfter::getName(), $hookData);
     }

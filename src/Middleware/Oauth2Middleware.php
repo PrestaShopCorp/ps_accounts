@@ -21,9 +21,10 @@
 namespace PrestaShop\Module\PsAccounts\Middleware;
 
 use Exception;
-use PrestaShop\Module\PsAccounts\Provider\OAuth2\PrestaShopClientProvider;
+use League\OAuth2\Client\Provider\Exception\IdentityProviderException;
 use PrestaShop\Module\PsAccounts\Provider\OAuth2\PrestaShopLogoutTrait;
 use PrestaShop\Module\PsAccounts\Provider\OAuth2\PrestaShopSession;
+use PrestaShop\Module\PsAccounts\Provider\OAuth2\ShopProvider;
 use PrestaShop\Module\PsAccounts\Service\PsAccountsService;
 use Ps_accounts;
 
@@ -49,7 +50,7 @@ class Oauth2Middleware
     /**
      * @return void
      *
-     * @throws \League\OAuth2\Client\Provider\Exception\IdentityProviderException
+     * @throws IdentityProviderException
      * @throws Exception
      */
     public function execute()
@@ -72,27 +73,20 @@ class Oauth2Middleware
             try {
                 // We keep token fresh !
                 $session->getOrRefreshAccessToken();
-            } catch (\League\OAuth2\Client\Provider\Exception\IdentityProviderException $e) {
+            } catch (IdentityProviderException $e) {
                 $this->module->getLogger()->err($e->getMessage());
             }
-
-//            try {
-//                // Test client credentials grant
-//                $session->getClientCredentialsAccessToken((string) $psAccountsService->getShopUuid());
-//            } catch (\League\OAuth2\Client\Provider\Exception\IdentityProviderException $e) {
-//                $this->module->getLogger()->err($e->getMessage());
-//            }
         }
     }
 
     /**
-     * @return PrestaShopClientProvider
+     * @return ShopProvider
      *
      * @throws Exception
      */
     protected function getProvider()
     {
-        return $this->module->getService(PrestaShopClientProvider::class);
+        return $this->module->getService(ShopProvider::class);
     }
 
     /**

@@ -2,7 +2,7 @@
 
 namespace PrestaShop\Module\PsAccounts\Tests\Unit\Account\Session\OwnerSession;
 
-use PrestaShop\Module\PsAccounts\Account\Session\OwnerSession;
+use PrestaShop\Module\PsAccounts\Account\Session\Firebase\OwnerSession;
 use PrestaShop\Module\PsAccounts\Api\Client\SsoClient;
 use PrestaShop\Module\PsAccounts\Repository\ConfigurationRepository;
 use PrestaShop\Module\PsAccounts\Service\AnalyticsService;
@@ -24,7 +24,7 @@ class GetOrRefreshTokenTest extends TestCase
 
         $refreshToken = $this->makeJwtToken(new \DateTimeImmutable('+1 year'));
 
-        /** @var OwnerSession $ownerSession */
+        /** @var \PrestaShop\Module\PsAccounts\Account\Session\Firebase\OwnerSession $ownerSession */
         $ownerSession = $this->module->getService(OwnerSession::class);
 
         $ownerSession->setToken((string) $idToken, (string) $refreshToken);

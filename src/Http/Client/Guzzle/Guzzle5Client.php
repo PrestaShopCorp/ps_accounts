@@ -32,7 +32,7 @@ class Guzzle5Client extends GuzzleClient
         $options = (new Guzzle5OptionsMapper())->fromGuzzle7Options(array_merge(
             [
                 'timeout' => $this->timeout,
-                'exceptions' => $this->catchExceptions,
+                'http_errors' => $this->catchExceptions,
                 'verify' => (bool) $module->getParameter('ps_accounts.check_api_ssl_cert'),
             ],
             $options
