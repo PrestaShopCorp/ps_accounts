@@ -23,6 +23,8 @@ namespace PrestaShop\Module\PsAccounts\Api\Client;
 
 use PrestaShop\Module\PsAccounts\Account\Session\Firebase\OwnerSession;
 use PrestaShop\Module\PsAccounts\Account\Session\Firebase\ShopSession;
+use PrestaShop\Module\PsAccounts\Factory\CircuitBreakerFactory;
+use PrestaShop\Module\PsAccounts\Http\Client\CircuitBreaker\CircuitBreaker;
 use PrestaShop\Module\PsAccounts\Http\Client\Guzzle\GuzzleClient;
 use PrestaShop\Module\PsAccounts\Http\Client\Guzzle\GuzzleClientFactory;
 
@@ -42,17 +44,30 @@ class IndirectChannelClient
     private $client;
 
     /**
-     * ServicesAccountsClient constructor.
-     *
+     * @var CircuitBreaker
+     */
+    private $circuitBreaker;
+
+    /**
+     * @var int
+     */
+    private $defaultTimeout;
+
+    /**
      * @param string $apiUrl
      * @param GuzzleClient|null $client
+     *
+     * @throws \Exception
      */
     public function __construct(
         $apiUrl,
-        GuzzleClient $client = null
+        GuzzleClient $client = null,
+        $defaultTimeout = 20
     ) {
         $this->apiUrl = $apiUrl;
         $this->client = $client;
+        $this->circuitBreaker = CircuitBreakerFactory::create('INDIRECT_CHANNEL_CLIENT');
+        $this->defaultTimeout = $defaultTimeout;
     }
 
     /**
@@ -87,6 +102,7 @@ class IndirectChannelClient
             $this->client = (new GuzzleClientFactory())->create([
                 'base_uri' => $this->apiUrl,
                 'headers' => $this->getHeaders(),
+                'timeout' => $this->defaultTimeout,
             ]);
         }
 
@@ -100,9 +116,18 @@ class IndirectChannelClient
      */
     public function getInvitations()
     {
-        $this->getClient()->setRoute('invitations');
+        return $this->circuitBreaker->call(function () {
+            $this->getClient()->setRoute('invitations');
+            return $this->getClient()->get(['query' => ['pending' => 'true']]);
+        });
+    }
 
-        return $this->getClient()->get(['query' => ['pending' => 'true']]);
+    /**
+     * @return CircuitBreaker
+     */
+    public function getCircuitBreaker()
+    {
+        return $this->circuitBreaker;
     }
 
     /**

@@ -119,7 +119,6 @@ class AccountsClient
     public function firebaseTokens($accessToken)
     {
         return $this->circuitBreaker->call(function () use ($accessToken) {
-            $this->getClient()->setRoute('v1/shop/token/refresh');
             $this->getClient()->setRoute('v2/shop/firebase/tokens');
 
             return $this->getClient()->get([
