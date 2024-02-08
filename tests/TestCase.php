@@ -9,8 +9,6 @@ use Lcobucci\JWT\Builder;
 use Lcobucci\JWT\Configuration;
 use Lcobucci\JWT\Token;
 use Module;
-use PrestaShop\Module\PsAccounts\Adapter\Configuration as ConfigurationAdapter;
-use PrestaShop\Module\PsAccounts\Repository\ConfigurationRepository;
 use Ps_accounts;
 
 class TestCase extends \PHPUnit\Framework\TestCase
@@ -26,12 +24,14 @@ class TestCase extends \PHPUnit\Framework\TestCase
     public $module;
 
     /**
-     * @var ConfigurationAdapter
+     * @buildService
+     * @var \PrestaShop\Module\PsAccounts\Adapter\Configuration
      */
     public $configuration;
 
     /**
-     * @var ConfigurationRepository
+     * @buildService
+     * @var \PrestaShop\Module\PsAccounts\Repository\ConfigurationRepository
      */
     public $configurationRepository;
 
@@ -57,13 +57,7 @@ class TestCase extends \PHPUnit\Framework\TestCase
 
         $this->module = $this->getModuleInstance();
 
-        $this->configuration = $this->module->getService(
-            ConfigurationAdapter::class
-        );
-
-        $this->configurationRepository = $this->module->getService(
-            ConfigurationRepository::class
-        );
+        $this->buildClassProperties();
     }
 
     /**
@@ -140,6 +134,33 @@ class TestCase extends \PHPUnit\Framework\TestCase
     }
 
     /**
+     * @return Ps_accounts
+     *
+     * @throws Exception
+     */
+    protected function getModuleInstance()
+    {
+        /** @var Ps_accounts|false $module */
+        $module = Module::getInstanceByName('ps_accounts');
+
+        if ($module === false) {
+            throw new Exception('Module not installed');
+        }
+
+        return $module;
+    }
+
+    /**
+     * @param $className
+     *
+     * @return string
+     */
+    protected function lcClassName($className)
+    {
+        return lcfirst(preg_replace('/^.*\\\\/', '', $className));
+    }
+
+    /**
      * @param array $services
      *
      * @return void
@@ -160,29 +181,26 @@ class TestCase extends \PHPUnit\Framework\TestCase
     }
 
     /**
-     * @param $className
-     *
-     * @return string
-     */
-    protected function lcClassName($className)
-    {
-        return lcfirst(preg_replace('/^.*\\\\/', '', $className));
-    }
-
-    /**
-     * @return Ps_accounts
+     * @return void
      *
      * @throws Exception
      */
-    private function getModuleInstance()
+    protected function buildClassProperties($tag = 'buildService')
     {
-        /** @var Ps_accounts|false $module */
-        $module = Module::getInstanceByName('ps_accounts');
-
-        if ($module === false) {
-            throw new Exception('Module not installed');
+        $mirror = new \ReflectionClass($this);
+        $props = $mirror->getProperties();
+        $classes = [];
+        foreach ($props as $prop) {
+            $doc = $prop->getDocComment();
+            if (preg_match("/@$tag/", $doc)) {
+                //echo $prop->name . ' => ';
+                if (preg_match('/@var\s+([\w\\\\]+)/', $doc, $m)) {
+                    $class = preg_replace('/^\\\\/', '', $m[1]);
+                    //echo $class . "\n";
+                    $classes[] = [$prop->name => $class];
+                }
+            }
         }
-
-        return $module;
+        $this->buildServices($classes);
     }
 }
