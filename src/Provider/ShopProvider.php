@@ -69,20 +69,14 @@ class ShopProvider
             /** @var \Ps_accounts $module */
             $module = \Module::getInstanceByName('ps_accounts');
 
-            /** @var LinkShop $linkAccountService */
-            $linkAccountService = $module->getService(LinkShop::class);
-
-            /** @var ShopSession $shopSession */
-            $shopSession = $module->getService(ShopSession::class);
+            /** @var LinkShop $linkShop */
+            $linkShop = $module->getService(LinkShop::class);
 
             /** @var OwnerSession $ownerSession */
             $ownerSession = $module->getService(OwnerSession::class);
 
             /** @var RsaKeysProvider $rsaKeyProvider */
             $rsaKeyProvider = $module->getService(RsaKeysProvider::class);
-
-            /** @var ConfigurationRepository $configuration */
-            $configuration = $module->getService(ConfigurationRepository::class);
 
             $shop = new Shop([
                 'id' => (string) $shopData['id_shop'],
@@ -94,9 +88,9 @@ class ShopProvider
                 'frontUrl' => $this->getShopUrl($shopData),
 
                 // LinkAccount
-                'uuid' => $shopSession->getToken()->getUuid() ?: null,
+                'uuid' => $linkShop->getShopUuid() ?: null,
                 'publicKey' => $rsaKeyProvider->getOrGenerateAccountsRsaPublicKey() ?: null,
-                'employeeId' => (int) $linkAccountService->getEmployeeId() ?: null,
+                'employeeId' => (int) $linkShop->getEmployeeId() ?: null,
                 'user' => [
                     'email' => $ownerSession->getToken()->getEmail() ?: null,
                     'uuid' => $ownerSession->getToken()->getUuid() ?: null,
@@ -117,7 +111,7 @@ class ShopProvider
 
             if ($refreshTokens) {
                 $shop->user->emailIsValidated = $ownerSession->isEmailVerified();
-                $shop->isLinkedV4 = $linkAccountService->existsV4();
+                $shop->isLinkedV4 = $linkShop->existsV4();
             }
 
             return $shop;

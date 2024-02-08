@@ -72,9 +72,6 @@ services:
     public: true
     arguments:
       - '@ps_accounts.module'
-      - '@PrestaShop\Module\PsAccounts\Account\Session\Firebase\ShopSession'
-      - '@PrestaShop\Module\PsAccounts\Account\Session\Firebase\OwnerSession'
-      - '@PrestaShop\Module\PsAccounts\Adapter\Link'
 
   PrestaShop\Module\PsAccounts\Account\LinkShop:
     class: PrestaShop\Module\PsAccounts\Account\LinkShop

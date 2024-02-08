@@ -58,23 +58,21 @@ class PsAccountsService
     private $ownerSession;
 
     /**
-     * PsAccountsService constructor.
-     *
-     * @param \Ps_accounts $module
-     * @param ShopSession $shopSession
-     * @param OwnerSession $ownerSession
-     * @param Link $link
+     * @var LinkShop
      */
-    public function __construct(
-        \Ps_accounts $module,
-        ShopSession $shopSession,
-        OwnerSession $ownerSession,
-        Link $link
-    ) {
+    private $linkShop;
+
+    /**
+     * @param \Ps_accounts $module
+     *
+     * @throws \Exception
+     */
+    public function __construct(\Ps_accounts $module) {
         $this->module = $module;
-        $this->shopSession = $shopSession;
-        $this->ownerSession = $ownerSession;
-        $this->link = $link;
+        $this->shopSession = $this->module->getService(ShopSession::class);
+        $this->ownerSession = $this->module->getService(OwnerSession::class);
+        $this->link = $this->module->getService(Link::class);
+        $this->linkShop = $module->getService(LinkShop::class);
     }
 
     /**
@@ -86,9 +84,9 @@ class PsAccountsService
     }
 
     /**
-     * @deprecated deprecated since version 5.0
+     * @return string
      *
-     * @return string|false
+     * @deprecated deprecated since version 5.0
      */
     public function getShopUuidV4()
     {
@@ -100,12 +98,10 @@ class PsAccountsService
      */
     public function getShopUuid()
     {
-        return $this->shopSession->getToken()->getUuid();
+        return $this->linkShop->getShopUuid();
     }
 
     /**
-     * Get the user firebase token.
-     *
      * @return string
      *
      * @throws \Exception
@@ -188,10 +184,7 @@ class PsAccountsService
      */
     public function isAccountLinked()
     {
-        /** @var LinkShop $linkShop */
-        $linkShop = $this->module->getService(LinkShop::class);
-
-        return $linkShop->exists();
+        return $this->linkShop->exists();
     }
 
     /**
@@ -201,10 +194,7 @@ class PsAccountsService
      */
     public function isAccountLinkedV4()
     {
-        /** @var LinkShop $linkShop */
-        $linkShop = $this->module->getService(LinkShop::class);
-
-        return $linkShop->existsV4();
+        return $this->linkShop->existsV4();
     }
 
     /**
