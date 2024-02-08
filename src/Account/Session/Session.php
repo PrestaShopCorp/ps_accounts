@@ -20,7 +20,6 @@
 
 namespace PrestaShop\Module\PsAccounts\Account\Session;
 
-use GuzzleHttp\Exception\ConnectException;
 use PrestaShop\Module\PsAccounts\Account\Token\NullToken;
 use PrestaShop\Module\PsAccounts\Account\Token\Token;
 use PrestaShop\Module\PsAccounts\Exception\RefreshTokenException;
@@ -28,6 +27,11 @@ use PrestaShop\Module\PsAccounts\Log\Logger;
 
 abstract class Session implements SessionInterface
 {
+    /**
+     * @var array
+     */
+    protected $refreshTokenErrors = [];
+
     /**
      * @param bool $forceRefresh
      *
@@ -38,6 +42,11 @@ abstract class Session implements SessionInterface
     public function getOrRefreshToken($forceRefresh = false)
     {
         $token = $this->getToken();
+
+        if ($this->getRefreshTokenErrors(static::class)) {
+            return $token;
+        }
+
         if (true === $forceRefresh || $token->isExpired()) {
             try {
                 $token = $this->refreshToken(null);
@@ -50,6 +59,7 @@ abstract class Session implements SessionInterface
 //                Logger::getInstance()->error($e->getMessage());
             }
             if (isset($e)) {
+                $this->setRefreshTokenErrors(static::class);
                 Logger::getInstance()->error($e->getMessage());
             }
         }
@@ -105,5 +115,25 @@ abstract class Session implements SessionInterface
             '';
 
         throw new RefreshTokenException('Unable to refresh ' . $name . ' token : ' . $response['httpCode'] . ' ' . print_r($errorMsg, true));
+    }
+
+    /**
+     * @param string $refreshToken
+     *
+     * @return bool
+     */
+    protected function getRefreshTokenErrors($refreshToken)
+    {
+        return isset($this->refreshTokenErrors[$refreshToken]) && $this->refreshTokenErrors[$refreshToken];
+    }
+
+    /**
+     * @param string $refreshToken
+     *
+     * @return void
+     */
+    protected function setRefreshTokenErrors($refreshToken)
+    {
+        $this->refreshTokenErrors[$refreshToken] = true;
     }
 }
