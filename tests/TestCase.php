@@ -140,6 +140,21 @@ class TestCase extends \PHPUnit\Framework\TestCase
     }
 
     /**
+     * @param array $services
+     *
+     * @return array
+     *
+     * @throws \Exception
+     */
+    protected  function buildServices(array $services = [])
+    {
+        array_walk($services, function ($class, $property) {
+            echo $class;
+            $this->$property = $this->module->getService($class);
+        });
+    }
+
+    /**
      * @return Ps_accounts
      *
      * @throws Exception
