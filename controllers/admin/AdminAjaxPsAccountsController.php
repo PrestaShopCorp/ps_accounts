@@ -19,6 +19,7 @@
  */
 
 use PrestaShop\Module\PsAccounts\Account\Command\DeleteUserShopCommand;
+use PrestaShop\Module\PsAccounts\Account\Command\UnlinkShopCommand;
 use PrestaShop\Module\PsAccounts\Account\LinkShop;
 use PrestaShop\Module\PsAccounts\Account\Session\Firebase\ShopSession;
 use PrestaShop\Module\PsAccounts\Api\Client\IndirectChannelClient;
@@ -118,7 +119,7 @@ class AdminAjaxPsAccountsController extends ModuleAdminController
             /** @var LinkShop $linkShop */
             $linkShop = $this->module->getService(LinkShop::class);
 
-            $linkShop->delete();
+            $this->commandBus->handle(new UnlinkShopCommand($linkShop->getShopUuid()));
 
             header('Content-Type: text/json');
 

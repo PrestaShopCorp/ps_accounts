@@ -58,10 +58,7 @@ class ps_AccountsApiV1ShopLinkAccountModuleFrontController extends AbstractShopR
         $this->commandBus->handle(new LinkShopCommand(
             new LinkShop([
                 'shopId' => $request->shop_id,
-                'shopToken' => $request->shop_token,
-                'userToken' => $request->user_token,
-                'shopRefreshToken' => $request->shop_refresh_token,
-                'userRefreshToken' => $request->user_refresh_token,
+                'uid' => $request->uid,
                 'employeeId' => $request->employee_id,
             ])
         ));

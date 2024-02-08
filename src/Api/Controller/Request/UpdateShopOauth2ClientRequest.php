@@ -28,6 +28,8 @@ class UpdateShopOauth2ClientRequest extends Request
     public $client_id;
     /** @var string */
     public $client_secret;
+    /** @var string */
+    public $uid;
 
     /**
      * @var string[]
@@ -35,5 +37,6 @@ class UpdateShopOauth2ClientRequest extends Request
     protected $mandatory = [
         'client_id',
         'client_secret',
+        'uid',
     ];
 }

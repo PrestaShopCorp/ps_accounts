@@ -80,9 +80,6 @@ services:
     class: PrestaShop\Module\PsAccounts\Account\LinkShop
     public: true
     arguments:
-      - '@PrestaShop\Module\PsAccounts\Provider\RsaKeysProvider'
-      - '@PrestaShop\Module\PsAccounts\Account\Session\Firebase\ShopSession'
-      - '@PrestaShop\Module\PsAccounts\Account\Session\Firebase\OwnerSession'
       - '@PrestaShop\Module\PsAccounts\Repository\ConfigurationRepository'
 
   PrestaShop\Module\PsAccounts\Service\PsBillingService:

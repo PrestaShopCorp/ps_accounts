@@ -18,6 +18,7 @@
  * @license   https://opensource.org/licenses/AFL-3.0 Academic Free License version 3.0
  */
 
+use PrestaShop\Module\PsAccounts\Account\LinkShop;
 use PrestaShop\Module\PsAccounts\Account\Session\Firebase\OwnerSession;
 use PrestaShop\Module\PsAccounts\Account\Session\Firebase\ShopSession;
 use PrestaShop\Module\PsAccounts\Service\PsAccountsService;
@@ -64,10 +65,13 @@ class AdminDebugPsAccountsController extends ModuleAdminController
         /** @var PsAccountsService $psAccountsService */
         $psAccountsService = $this->module->getService(PsAccountsService::class);
 
+        /** @var LinkShop $linkShop */
+        $linkShop = $this->module->getService(LinkShop::class);
+
         $this->context->smarty->assign([
             'config' => [
                 'shopId' => (int) $this->context->shop->id,
-                'shopUuidV4' => $shopSession->getToken()->getUuid(),
+                'shopUuidV4' => $linkShop->getShopUuid(),
                 'moduleVersion' => \Ps_accounts::VERSION,
                 'psVersion' => _PS_VERSION_,
                 'phpVersion' => phpversion(),

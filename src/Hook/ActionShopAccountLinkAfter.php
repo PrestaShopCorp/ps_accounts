@@ -20,6 +20,7 @@
 
 namespace PrestaShop\Module\PsAccounts\Hook;
 
+use PrestaShop\Module\PsAccounts\Account\Session\ShopSession;
 use PrestaShop\Module\PsAccounts\Repository\ConfigurationRepository;
 
 class ActionShopAccountLinkAfter extends Hook
@@ -27,7 +28,7 @@ class ActionShopAccountLinkAfter extends Hook
     /**
      * @param array $params
      *
-     * @return mixed
+     * @return void
      *
      * @throws \Exception
      */
@@ -35,7 +36,6 @@ class ActionShopAccountLinkAfter extends Hook
     {
         /** @var ConfigurationRepository $configuration */
         $configuration = $this->ps_accounts->getService(ConfigurationRepository::class);
-
         $configuration->updateLoginEnabled(true);
     }
 }

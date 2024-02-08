@@ -34,4 +34,14 @@ class UpdateShopLinkAccountRequest extends Request
     public $user_token;
     /** @var string */
     public $employee_id = '';
+    /** @var string */
+    public $uid;
+
+    /**
+     * @var string[]
+     */
+    protected $mandatory = [
+        'shop_id',
+        'uid',
+    ];
 }

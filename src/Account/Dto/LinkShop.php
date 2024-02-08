@@ -27,13 +27,18 @@ class LinkShop extends Dto
     /** @var string */
     public $shopId;
     /** @var string */
-    public $shopRefreshToken;
-    /** @var string */
-    public $userRefreshToken;
-    /** @var string */
-    public $shopToken;
-    /** @var string */
-    public $userToken;
+    public $uid;
     /** @var string */
     public $employeeId = '';
+
+//    /** @var string */
+//    public $ownerUid;
+//
+//    /** @var string */
+//    public $ownerEmail;
+
+    protected $mandatory = [
+        'shopId',
+        'uid',
+    ];
 }

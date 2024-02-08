@@ -20,29 +20,10 @@
 
 namespace PrestaShop\Module\PsAccounts\Account;
 
-use PrestaShop\Module\PsAccounts\Account\Session\Firebase\OwnerSession;
-use PrestaShop\Module\PsAccounts\Account\Session\Firebase\ShopSession;
-use PrestaShop\Module\PsAccounts\Account\Token\NullToken;
-use PrestaShop\Module\PsAccounts\Provider\RsaKeysProvider;
 use PrestaShop\Module\PsAccounts\Repository\ConfigurationRepository;
 
 class LinkShop
 {
-    /**
-     * @var RsaKeysProvider
-     */
-    private $rsaKeysProvider;
-
-    /**
-     * @var OwnerSession
-     */
-    private $ownerSession;
-
-    /**
-     * @var ShopSession
-     */
-    private $shopSession;
-
     /**
      * @var ConfigurationRepository
      */
@@ -51,20 +32,11 @@ class LinkShop
     /**
      * ShopLinkAccountService constructor.
      *
-     * @param RsaKeysProvider $rsaKeysProvider
-     * @param ShopSession $shopSession
-     * @param OwnerSession $ownerSession
      * @param ConfigurationRepository $configuration
      */
     public function __construct(
-        RsaKeysProvider $rsaKeysProvider,
-        ShopSession $shopSession,
-        OwnerSession $ownerSession,
         ConfigurationRepository $configuration
     ) {
-        $this->rsaKeysProvider = $rsaKeysProvider;
-        $this->shopSession = $shopSession;
-        $this->ownerSession = $ownerSession;
         $this->configuration = $configuration;
     }
 
@@ -75,15 +47,8 @@ class LinkShop
      */
     public function delete()
     {
-        $this->shopSession->cleanup();
-        $this->ownerSession->cleanup();
+        $this->setShopUuid(null);
         $this->setEmployeeId(null);
-
-        try {
-            $this->rsaKeysProvider->cleanupKeys();
-            $this->rsaKeysProvider->generateKeys();
-        } catch (\Exception $e) {
-        }
     }
 
     /**
@@ -93,8 +58,7 @@ class LinkShop
      */
     public function update(Dto\LinkShop $payload)
     {
-        //$this->shopSession->setToken($payload->shopToken, $payload->shopRefreshToken);
-        //$this->ownerSession->setToken($payload->userToken, $payload->userRefreshToken);
+        $this->setShopUuid($payload->uid);
         $this->setEmployeeId((int) $payload->employeeId ?: null);
     }
 
@@ -106,8 +70,6 @@ class LinkShop
     public function exists()
     {
         return (bool) $this->getShopUuid();
-//        return !($this->shopSession->getOrRefreshToken()->getJwt() instanceof NullToken)
-//            && !($this->ownerSession->getOrRefreshToken()->getJwt() instanceof NullToken);
     }
 
     /**
@@ -119,8 +81,8 @@ class LinkShop
      */
     public function existsV4()
     {
-        return !($this->shopSession->getOrRefreshToken()->getJwt() instanceof NullToken)
-            && ($this->ownerSession->getOrRefreshToken()->getJwt() instanceof NullToken)
+        return $this->configuration->getFirebaseIdToken()
+            && !$this->configuration->getUserFirebaseIdToken()
             && $this->configuration->getFirebaseEmail();
     }
 

@@ -22,6 +22,7 @@ namespace PrestaShop\Module\PsAccounts\Service;
 
 use Doctrine\ORM\EntityManagerInterface;
 use PrestaShop\Module\PsAccounts\Account\Command\MigrateAndLinkV4ShopCommand;
+use PrestaShop\Module\PsAccounts\Account\Command\UnlinkShopCommand;
 use PrestaShop\Module\PsAccounts\Account\LinkShop;
 use PrestaShop\Module\PsAccounts\Account\Session\Firebase\OwnerSession;
 use PrestaShop\Module\PsAccounts\Account\Session\Firebase\ShopSession;
@@ -259,6 +260,9 @@ class PsAccountsService
         /** @var LinkShop $linkShop */
         $linkShop = $this->module->getService(LinkShop::class);
 
+        /** @var CommandBus $commandBus */
+        $commandBus = $this->module->getService(CommandBus::class);
+
         $allShops = $shopProvider->getShopsTree((string) $this->module->name);
 
         $flattenShops = [];
@@ -275,20 +279,19 @@ class PsAccountsService
         usort($flattenShops, function ($firstShop, $secondShop) {
             return (int) $firstShop['id'] - (int) $secondShop['id'];
         });
+
         foreach ($flattenShops as $shop) {
             if ($shop['isLinkedV4']) {
                 $id = $conf->getShopId();
                 if ($isAlreadyReonboard) {
                     $conf->setShopId((int) $shop['id']);
 
-                    $linkShop->delete();
+                    $commandBus->handle(new UnlinkShopCommand($linkShop->getShopUuid()));
 
                     $conf->setShopId($id);
                 } else {
                     $shop['employeeId'] = null;
 
-                    /** @var CommandBus $commandBus */
-                    $commandBus = $this->module->getService(CommandBus::class);
                     $commandBus->handle(new MigrateAndLinkV4ShopCommand($id, $shop));
 
                     $isAlreadyReonboard = true;
