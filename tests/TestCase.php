@@ -148,9 +148,15 @@ class TestCase extends \PHPUnit\Framework\TestCase
      */
     protected  function buildServices(array $services = [])
     {
-        array_walk($services, function ($class, $property) {
-            echo $class;
-            $this->$property = $this->module->getService($class);
+        //return lcfirst(preg_replace('/^.*\\\\/', '', static::class));
+        array_walk($services, function ($class) {
+            if (is_array($class)) {
+                $propName = array_keys($class)[0];
+                $class = $class[$propName];
+            } else {
+                $propName = lcfirst(preg_replace('/^.*\\\\/', '', $class));
+            }
+            $this->$propName = $this->module->getService($class);
         });
     }
 
