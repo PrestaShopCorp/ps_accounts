@@ -86,6 +86,7 @@ class Ps_accounts extends Module
         \PrestaShop\Module\PsAccounts\Hook\ActionObjectShopDeleteBefore::class,
         \PrestaShop\Module\PsAccounts\Hook\ActionObjectShopUpdateAfter::class,
         \PrestaShop\Module\PsAccounts\Hook\ActionObjectShopUrlUpdateAfter::class,
+        \PrestaShop\Module\PsAccounts\Hook\ActionShopAccessTokenRefreshAfter::class,
         \PrestaShop\Module\PsAccounts\Hook\ActionShopAccountLinkAfter::class,
         \PrestaShop\Module\PsAccounts\Hook\ActionShopAccountUnlinkAfter::class,
         \PrestaShop\Module\PsAccounts\Hook\DisplayAccountUpdateWarning::class,

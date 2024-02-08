@@ -72,25 +72,7 @@ class OwnerSession extends Session implements SessionInterface
     {
         $accessToken = $this->shopSession->getOrRefreshToken();
 
-        $response = $this->apiClient->firebaseTokens($accessToken->getJwt());
-
-        if ($response && true === $response['status']) {
-            // FIXME : strange to receive both tokens here
-            return new Token(
-                $response['body']['userToken']
-//                $response['body']['shopToken']
-            );
-        }
-
-//        if ($response['httpCode'] >= 400 && $response['httpCode'] < 500) {
-//            // TODO
-//        }
-
-        $errorMsg = isset($response['body']['message']) ?
-            $response['body']['message'] :
-            '';
-
-        throw new RefreshTokenException('Unable to refresh owner token : ' . $response['httpCode'] . ' ' . print_r($errorMsg, true));
+        return $this->getToken();
     }
 
     /**

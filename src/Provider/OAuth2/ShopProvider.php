@@ -219,7 +219,7 @@ class ShopProvider extends PrestaShop
         try {
             $this->wellKnown = WellKnown::fetch(
                 $this->getParameter('ps_accounts.oauth2_url'),
-                (bool)$this->module->getParameter('ps_accounts.check_api_ssl_cert')
+                (bool) $this->module->getParameter('ps_accounts.check_api_ssl_cert')
             );
         } catch (\Exception $e) {
             $this->wellKnown = new WellKnown([]);

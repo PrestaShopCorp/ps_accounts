@@ -78,7 +78,6 @@ class PsAccountsPresenter implements PresenterInterface
         $this->linkShop = $module->getService(LinkShop::class);
         $this->installer = $module->getService(Installer::class);
         $this->configuration = $module->getService(ConfigurationRepository::class);
-
     }
 
     /**

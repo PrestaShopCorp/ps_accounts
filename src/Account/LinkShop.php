@@ -93,8 +93,8 @@ class LinkShop
      */
     public function update(Dto\LinkShop $payload)
     {
-        $this->shopSession->setToken($payload->shopToken, $payload->shopRefreshToken);
-        $this->ownerSession->setToken($payload->userToken, $payload->userRefreshToken);
+        //$this->shopSession->setToken($payload->shopToken, $payload->shopRefreshToken);
+        //$this->ownerSession->setToken($payload->userToken, $payload->userRefreshToken);
         $this->setEmployeeId((int) $payload->employeeId ?: null);
     }
 

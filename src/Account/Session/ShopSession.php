@@ -26,6 +26,7 @@ use League\OAuth2\Client\Token\AccessTokenInterface;
 use PrestaShop\Module\PsAccounts\Account\LinkShop;
 use PrestaShop\Module\PsAccounts\Account\Token\Token;
 use PrestaShop\Module\PsAccounts\Exception\RefreshTokenException;
+use PrestaShop\Module\PsAccounts\Hook\ActionShopAccessTokenRefreshAfter;
 use PrestaShop\Module\PsAccounts\Log\Logger;
 use PrestaShop\Module\PsAccounts\Provider\OAuth2\ShopProvider;
 use PrestaShop\Module\PsAccounts\Repository\ConfigurationRepository;
@@ -56,6 +57,29 @@ class ShopSession extends Session implements SessionInterface
     }
 
     /**
+     * @param bool $forceRefresh
+     *
+     * @return Token
+     *
+     * @throws \Exception
+     */
+    public function getOrRefreshToken($forceRefresh = false)
+    {
+        $token = parent::getOrRefreshToken($forceRefresh);
+
+        try {
+            \Hook::exec(ActionShopAccessTokenRefreshAfter::getName(), ['token' => $token]);
+        } catch (\Error $e) {
+        } catch (\Exception $e) {
+        }
+        if (isset($e)) {
+            Logger::getInstance()->error('Unable to get or refresh shop token : ' . $e->getMessage());
+        }
+
+        return $token;
+    }
+
+    /**
      * @param string $refreshToken
      *
      * @return Token
@@ -64,15 +88,16 @@ class ShopSession extends Session implements SessionInterface
      */
     public function refreshToken($refreshToken)
     {
-        $shopUuid = $this->getShopUuid();
-
         try {
+            $shopUuid = $this->getShopUuid();
             $accessToken = $this->getAccessToken($shopUuid);
-        } catch (IdentityProviderException $e) {
-            throw new RefreshTokenException('Unable to refresh shop token : ' . $e->getMessage());
-        }
 
-        return new Token($accessToken->getToken(), $accessToken->getRefreshToken());
+            return new Token($accessToken->getToken(), $accessToken->getRefreshToken());
+        } catch (IdentityProviderException $e) {
+        } catch (\Error $e) {
+        } catch (\Exception $e) {
+        }
+        throw new RefreshTokenException('Unable to refresh shop token : ' . $e->getMessage());
     }
 
     /**
