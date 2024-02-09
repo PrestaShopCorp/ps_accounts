@@ -118,6 +118,7 @@ class IndirectChannelClient
     {
         return $this->circuitBreaker->call(function () {
             $this->getClient()->setRoute('invitations');
+
             return $this->getClient()->get(['query' => ['pending' => 'true']]);
         });
     }

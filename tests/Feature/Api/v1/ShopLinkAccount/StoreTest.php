@@ -2,12 +2,38 @@
 
 namespace PrestaShop\Module\PsAccounts\Tests\Feature\Api\v1\ShopLinkAccount;
 
-use PrestaShop\Module\PsAccounts\Repository\ConfigurationKeys;
+use PrestaShop\Module\PsAccounts\Account\LinkShop;
+use PrestaShop\Module\PsAccounts\Account\Session\Firebase\OwnerSession;
+use PrestaShop\Module\PsAccounts\Account\Session\Firebase\ShopSession;
 use PrestaShop\Module\PsAccounts\Api\Controller\AbstractRestController;
 use PrestaShop\Module\PsAccounts\Tests\Feature\FeatureTestCase;
 
 class StoreTest extends FeatureTestCase
 {
+    /**
+     * @inject
+     * @var LinkShop
+     */
+    protected $linkShop;
+
+    /**
+     * @inject
+     * @var ShopSession
+     */
+    protected $shopSession;
+
+    /**
+     * @inject
+     * @var OwnerSession
+     */
+    protected $ownerSession;
+
+    /**
+     * @inject
+     * @var \PrestaShop\Module\PsAccounts\Account\Session\ShopSession
+     */
+    protected $session;
+
     /**
      * @test
      *
@@ -20,15 +46,12 @@ class StoreTest extends FeatureTestCase
         $email = $this->faker->safeEmail;
         $employeeId = $this->faker->numberBetween(1);
 
-        $expiry = new \DateTimeImmutable('+10 days');
-
         $payload = [
             'shop_id' => 1,
-            'shop_token' => (string) $this->makeJwtToken($expiry, ['sub' => $shopUuid]),
-            'user_token' => (string) $this->makeJwtToken($expiry, ['sub' => $userUuid,'email' => $email]),
-            'shop_refresh_token' => (string) $this->makeJwtToken($expiry),
-            'user_refresh_token' => (string) $this->makeJwtToken($expiry),
+            'uid' => $shopUuid,
             'employee_id' => $employeeId,
+            'user_uid' => $this->faker->uuid,
+            'email' => $this->faker->safeEmail,
         ];
 
         $response = $this->client->post('/module/ps_accounts/apiV1ShopLinkAccount', [
@@ -42,22 +65,15 @@ class StoreTest extends FeatureTestCase
         $this->module->getLogger()->info(print_r($json, true));
 
         $this->assertResponseOk($response);
-
         $this->assertArraySubset(['success' => true], $json);
 
         \Configuration::clearConfigurationCacheForTesting();
         \Configuration::loadConfiguration();
 
-        $this->assertEquals($payload['shop_token'], $this->configuration->get(ConfigurationKeys::PS_ACCOUNTS_FIREBASE_ID_TOKEN));
-        $this->assertEquals($payload['shop_refresh_token'], $this->configuration->get(ConfigurationKeys::PS_ACCOUNTS_FIREBASE_REFRESH_TOKEN));
-
-        $this->assertEquals($userUuid, $this->configuration->get(ConfigurationKeys::PS_ACCOUNTS_USER_FIREBASE_UUID));
-        $this->assertEquals($payload['user_token'], $this->configuration->get(ConfigurationKeys::PS_ACCOUNTS_USER_FIREBASE_ID_TOKEN));
-        $this->assertEquals($payload['user_refresh_token'], $this->configuration->get(ConfigurationKeys::PS_ACCOUNTS_USER_FIREBASE_REFRESH_TOKEN));
-
-        $this->assertEquals($email, $this->configuration->get(ConfigurationKeys::PS_ACCOUNTS_FIREBASE_EMAIL));
-        $this->assertEquals($shopUuid, $this->configuration->get(ConfigurationKeys::PSX_UUID_V4));
-        $this->assertEquals($employeeId, $this->configuration->get(ConfigurationKeys::PS_ACCOUNTS_EMPLOYEE_ID));
+        $this->assertEquals($shopUuid, $this->linkShop->getShopUuid());
+        $this->assertEquals($employeeId, $this->linkShop->getEmployeeId());
+        $this->assertEquals($userUuid, $this->linkShop->getOwnerUuid());
+        $this->assertEquals($email, $this->linkShop->getOwnerEmail());
     }
 
     /**
@@ -71,14 +87,10 @@ class StoreTest extends FeatureTestCase
         $userUuid = $this->faker->uuid;
         $email = $this->faker->safeEmail;
 
-        $expiry = new \DateTimeImmutable('+10 days');
-
         $payload = [
             'shop_id' => 1,
-            'shop_token' => (string) $this->makeJwtToken($expiry, ['sub' => $shopUuid]),
-            'user_token' => (string) $this->makeJwtToken($expiry, ['sub' => $userUuid,'email' => $email]),
-            'shop_refresh_token' => (string) $this->makeJwtToken($expiry),
-            'user_refresh_token' => (string) $this->makeJwtToken($expiry)
+            'uid' => $shopUuid,
+            //'employee_id' => $employeeId,
         ];
 
         $response = $this->client->post('/module/ps_accounts/apiV1ShopLinkAccount', [
@@ -92,22 +104,13 @@ class StoreTest extends FeatureTestCase
         $this->module->getLogger()->info(print_r($json, true));
 
         $this->assertResponseOk($response);
-
         $this->assertArraySubset(['success' => true], $json);
 
         \Configuration::clearConfigurationCacheForTesting();
         \Configuration::loadConfiguration();
 
-        $this->assertEquals($payload['shop_token'], $this->configuration->get(ConfigurationKeys::PS_ACCOUNTS_FIREBASE_ID_TOKEN));
-        $this->assertEquals($payload['shop_refresh_token'], $this->configuration->get(ConfigurationKeys::PS_ACCOUNTS_FIREBASE_REFRESH_TOKEN));
-
-        $this->assertEquals($userUuid, $this->configuration->get(ConfigurationKeys::PS_ACCOUNTS_USER_FIREBASE_UUID));
-        $this->assertEquals($payload['user_token'], $this->configuration->get(ConfigurationKeys::PS_ACCOUNTS_USER_FIREBASE_ID_TOKEN));
-        $this->assertEquals($payload['user_refresh_token'], $this->configuration->get(ConfigurationKeys::PS_ACCOUNTS_USER_FIREBASE_REFRESH_TOKEN));
-
-        $this->assertEquals($email, $this->configuration->get(ConfigurationKeys::PS_ACCOUNTS_FIREBASE_EMAIL));
-        $this->assertEquals($shopUuid, $this->configuration->get(ConfigurationKeys::PSX_UUID_V4));
-        $this->assertEquals('', $this->configuration->get(ConfigurationKeys::PS_ACCOUNTS_EMPLOYEE_ID));
+        $this->assertEquals($shopUuid, $this->linkShop->getShopUuid());
+        $this->assertEquals(null, $this->linkShop->getEmployeeId());
     }
 
 }

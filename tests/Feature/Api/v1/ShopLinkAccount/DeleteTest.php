@@ -2,33 +2,36 @@
 
 namespace PrestaShop\Module\PsAccounts\Tests\Feature\Api\v1\ShopLinkAccount;
 
+use PrestaShop\Module\PsAccounts\Account\LinkShop;
+use PrestaShop\Module\PsAccounts\Account\Session\Firebase\OwnerSession;
+use PrestaShop\Module\PsAccounts\Account\Session\Firebase\ShopSession;
 use PrestaShop\Module\PsAccounts\Account\Token\NullToken;
-use PrestaShop\Module\PsAccounts\Repository\ConfigurationKeys;
 use PrestaShop\Module\PsAccounts\Api\Controller\AbstractRestController;
+use PrestaShop\Module\PsAccounts\Repository\ConfigurationKeys;
 use PrestaShop\Module\PsAccounts\Tests\Feature\FeatureTestCase;
 
 class DeleteTest extends FeatureTestCase
 {
     /**
-     * @buildService
-     * @var \PrestaShop\Module\PsAccounts\Account\LinkShop
+     * @inject
+     * @var LinkShop
      */
     protected $linkShop;
 
     /**
-     * @buildService
-     * @var \PrestaShop\Module\PsAccounts\Account\Session\Firebase\ShopSession
+     * @inject
+     * @var ShopSession
      */
     protected $shopSession;
 
     /**
-     * @buildService
-     * @var \PrestaShop\Module\PsAccounts\Account\Session\Firebase\OwnerSession
+     * @inject
+     * @var OwnerSession
      */
     protected $ownerSession;
 
     /**
-     * @buildService
+     * @inject
      * @var \PrestaShop\Module\PsAccounts\Account\Session\ShopSession
      */
     protected $session;
@@ -45,6 +48,7 @@ class DeleteTest extends FeatureTestCase
             'uid' => $this->faker->uuid,
             'employeeId' => $this->faker->numberBetween()
         ]));
+
         $this->shopSession->setToken((string) $this->makeJwtToken(new \DateTimeImmutable(), ['foo' => 'bar']));
         $this->ownerSession->setToken((string) $this->makeJwtToken(new \DateTimeImmutable(), ['foo' => 'bar']));
         $this->session->setToken((string) $this->makeJwtToken(new \DateTimeImmutable(), ['foo' => 'bar']));
@@ -72,6 +76,9 @@ class DeleteTest extends FeatureTestCase
 
         $this->assertEmpty($this->linkShop->getShopUuid());
         $this->assertEmpty($this->linkShop->getEmployeeId());
+        $this->assertEmpty($this->linkShop->getOwnerUuid());
+        $this->assertEmpty($this->linkShop->getOwnerEmail());
+
         $this->assertInstanceOf(NullToken::class, $this->shopSession->getToken()->getJwt());
         $this->assertInstanceOf(NullToken::class, $this->ownerSession->getToken()->getJwt());
         $this->assertInstanceOf(NullToken::class, $this->session->getToken()->getJwt());

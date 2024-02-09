@@ -67,7 +67,8 @@ class PsAccountsService
      *
      * @throws \Exception
      */
-    public function __construct(\Ps_accounts $module) {
+    public function __construct(\Ps_accounts $module)
+    {
         $this->module = $module;
         $this->shopSession = $this->module->getService(ShopSession::class);
         $this->ownerSession = $this->module->getService(OwnerSession::class);

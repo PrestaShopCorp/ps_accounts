@@ -24,13 +24,13 @@ class TestCase extends \PHPUnit\Framework\TestCase
     public $module;
 
     /**
-     * @buildService
+     * @inject
      * @var \PrestaShop\Module\PsAccounts\Adapter\Configuration
      */
     public $configuration;
 
     /**
-     * @buildService
+     * @inject
      * @var \PrestaShop\Module\PsAccounts\Repository\ConfigurationRepository
      */
     public $configurationRepository;
@@ -57,7 +57,9 @@ class TestCase extends \PHPUnit\Framework\TestCase
 
         $this->module = $this->getModuleInstance();
 
-        $this->buildClassProperties();
+        (new ServiceInjector($this, function ($propName, $class) {
+            $this->$propName = $this->module->getService($class);
+        }))->resolveServices();
     }
 
     /**
@@ -148,59 +150,5 @@ class TestCase extends \PHPUnit\Framework\TestCase
         }
 
         return $module;
-    }
-
-    /**
-     * @param $className
-     *
-     * @return string
-     */
-    protected function lcClassName($className)
-    {
-        return lcfirst(preg_replace('/^.*\\\\/', '', $className));
-    }
-
-    /**
-     * @param array $services
-     *
-     * @return void
-     *
-     * @throws \Exception
-     */
-    protected  function buildServices(array $services = [])
-    {
-        array_walk($services, function ($class) {
-            if (is_array($class)) {
-                $propName = array_keys($class)[0];
-                $class = $class[$propName];
-            } else {
-                $propName = $this->lcClassName($class);
-            }
-            $this->$propName = $this->module->getService($class);
-        });
-    }
-
-    /**
-     * @return void
-     *
-     * @throws Exception
-     */
-    protected function buildClassProperties($tag = 'buildService')
-    {
-        $mirror = new \ReflectionClass($this);
-        $props = $mirror->getProperties();
-        $classes = [];
-        foreach ($props as $prop) {
-            $doc = $prop->getDocComment();
-            if (preg_match("/@$tag/", $doc)) {
-                //echo $prop->name . ' => ';
-                if (preg_match('/@var\s+([\w\\\\]+)/', $doc, $m)) {
-                    $class = preg_replace('/^\\\\/', '', $m[1]);
-                    //echo $class . "\n";
-                    $classes[] = [$prop->name => $class];
-                }
-            }
-        }
-        $this->buildServices($classes);
     }
 }

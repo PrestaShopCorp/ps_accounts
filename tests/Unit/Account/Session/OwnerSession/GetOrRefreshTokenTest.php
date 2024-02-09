@@ -3,13 +3,19 @@
 namespace PrestaShop\Module\PsAccounts\Tests\Unit\Account\Session\OwnerSession;
 
 use PrestaShop\Module\PsAccounts\Account\Session\Firebase\OwnerSession;
-use PrestaShop\Module\PsAccounts\Api\Client\SsoClient;
+use PrestaShop\Module\PsAccounts\Api\Client\AccountsClient;
 use PrestaShop\Module\PsAccounts\Repository\ConfigurationRepository;
 use PrestaShop\Module\PsAccounts\Service\AnalyticsService;
 use PrestaShop\Module\PsAccounts\Tests\TestCase;
 
 class GetOrRefreshTokenTest extends TestCase
 {
+    /**
+     * @inject
+     * @var OwnerSession
+     */
+    protected $ownerSession;
+
     /**
      * @test
      *
@@ -22,14 +28,9 @@ class GetOrRefreshTokenTest extends TestCase
             'email' => $this->faker->safeEmail,
         ]);
 
-        $refreshToken = $this->makeJwtToken(new \DateTimeImmutable('+1 year'));
+        $this->ownerSession->setToken((string) $idToken);
 
-        /** @var \PrestaShop\Module\PsAccounts\Account\Session\Firebase\OwnerSession $ownerSession */
-        $ownerSession = $this->module->getService(OwnerSession::class);
-
-        $ownerSession->setToken((string) $idToken, (string) $refreshToken);
-
-        $this->assertEquals((string) $idToken, $ownerSession->getOrRefreshToken()->getJwt());
+        $this->assertEquals((string) $idToken, (string) $this->ownerSession->getOrRefreshToken());
     }
 
     /**
@@ -43,17 +44,16 @@ class GetOrRefreshTokenTest extends TestCase
             'sub' => $this->faker->uuid,
             'email' => $this->faker->safeEmail,
         ]);
-        $refreshToken = $this->makeJwtToken(new \DateTimeImmutable('+1 year'));
         $idTokenRefreshed = $this->makeJwtToken(new \DateTimeImmutable('tomorrow'));
 
         $payload = [
-            'idToken' => $idTokenRefreshed,
-            'refreshToken' => $refreshToken,
+            'userToken' => $idTokenRefreshed,
+            'shopToken' => $idTokenRefreshed,
         ];
 
         $response = $this->createApiResponse($payload, 200, true);
-        $client = $this->createMock(SsoClient::class);
-        $client->method('refreshToken')->willReturn($response);
+        $client = $this->createMock(AccountsClient::class);
+        $client->method('firebaseTokens')->willReturn($response);
 
         /** @var ConfigurationRepository $configurationRepository */
         $configurationRepository = $this->module->getService(ConfigurationRepository::class);
@@ -62,7 +62,7 @@ class GetOrRefreshTokenTest extends TestCase
         $analyticsService = $this->createMock(AnalyticsService::class);
 
         $ownerSession = new OwnerSession($client, $configurationRepository, $analyticsService);
-        $ownerSession->setToken((string) $idToken, (string) $refreshToken);
+        $ownerSession->setToken((string) $idToken);
 
         $this->assertEquals((string) $idTokenRefreshed, $ownerSession->getOrRefreshToken()->getJwt());
     }

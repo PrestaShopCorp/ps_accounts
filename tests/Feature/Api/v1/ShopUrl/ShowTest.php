@@ -3,10 +3,17 @@
 namespace PrestaShop\Module\PsAccounts\Tests\Feature\Api\v1\ShopUrl;
 
 use PrestaShop\Module\PsAccounts\Api\Controller\AbstractRestController;
+use PrestaShop\Module\PsAccounts\Provider\ShopProvider;
 use PrestaShop\Module\PsAccounts\Tests\Feature\FeatureTestCase;
 
 class ShowTest extends FeatureTestCase
 {
+    /**
+     * @inject
+     * @var ShopProvider
+     */
+    protected $shopContext;
+
     /**
      * @test
      *
@@ -14,6 +21,8 @@ class ShowTest extends FeatureTestCase
      */
     public function itShouldSucceed()
     {
+        $shop = $this->shopContext->formatShopData((array) \Shop::getShop(1));
+
         $response = $this->client->get('/module/ps_accounts/apiV1ShopUrl', [
             'headers' => [
                 AbstractRestController::TOKEN_HEADER => (string) $this->encodePayload([
@@ -28,17 +37,11 @@ class ShowTest extends FeatureTestCase
 
         $this->assertResponseOk($response);
 
-        $this->assertArrayHasKey('domain', $json);
-        $this->assertArrayHasKey('domain_ssl', $json);
-        $this->assertArrayHasKey('physical_uri', $json);
-        $this->assertArrayHasKey('virtual_uri', $json);
-        $this->assertArrayHasKey('ssl_activated', $json);
-
-        $this->assertInternalType('string', $json['domain']);
-        $this->assertInternalType('string', $json['domain_ssl']);
-        $this->assertInternalType('string', $json['physical_uri']);
-        $this->assertInternalType('string', $json['virtual_uri']);
-        $this->assertInternalType('bool', $json['ssl_activated']);
+        $this->assertEquals($shop->domain, $json['domain']);
+        $this->assertEquals($shop->domainSsl, $json['domain_ssl']);
+        $this->assertEquals($shop->physicalUri, $json['physical_uri']);
+        $this->assertEquals($shop->virtualUri, $json['virtual_uri']);
+        $this->assertEquals($this->configurationRepository->sslEnabled(), $json['ssl_activated']);
     }
 
     /**

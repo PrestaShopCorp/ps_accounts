@@ -20,7 +20,6 @@
 
 namespace PrestaShop\Module\PsAccounts\Hook;
 
-use PrestaShop\Module\PsAccounts\Account\Session\ShopSession;
 use PrestaShop\Module\PsAccounts\Repository\ConfigurationRepository;
 
 class ActionShopAccountLinkAfter extends Hook

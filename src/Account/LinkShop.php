@@ -121,4 +121,42 @@ class LinkShop
     {
         $this->configuration->updateEmployeeId((string) $employeeId);
     }
+
+    /**
+     * @return string|null
+     */
+    public function getOwnerUuid()
+    {
+        // FIXME: implement method
+        //return (int) $this->configuration->getEmployeeId();
+    }
+
+    /**
+     * @param string|null $uuid
+     *
+     * @return void
+     */
+    public function setOwnerUuid($uuid)
+    {
+        // FIXME: implement method
+        //$this->configuration->updateEmployeeId((string) $uuid);
+    }
+
+    /**
+     * @return string|null
+     */
+    public function getOwnerEmail()
+    {
+        return (int) $this->configuration->getFirebaseEmail();
+    }
+
+    /**
+     * @param string|null $email
+     *
+     * @return void
+     */
+    public function setOwnerEmail($email)
+    {
+        $this->configuration->updateFirebaseEmail($email);
+    }
 }
