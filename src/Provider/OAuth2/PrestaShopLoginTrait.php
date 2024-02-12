@@ -23,6 +23,7 @@ namespace PrestaShop\Module\PsAccounts\Provider\OAuth2;
 use League\OAuth2\Client\Provider\Exception\IdentityProviderException;
 use League\OAuth2\Client\Token\AccessToken;
 use PrestaShop\Module\PsAccounts\Log\Logger;
+use PrestaShop\Module\PsAccounts\Session\Session;
 use PrestaShop\OAuth2\Client\Provider\PrestaShopUser;
 use Tools;
 
@@ -46,7 +47,7 @@ trait PrestaShopLoginTrait
     abstract protected function redirectAfterLogin();
 
     /**
-     * @return \PrestaShop\Module\PsAccounts\Provider\OAuth2\FallbackSession
+     * @return Session
      */
     abstract protected function getSession();
 

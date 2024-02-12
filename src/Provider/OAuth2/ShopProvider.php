@@ -24,6 +24,7 @@ use League\OAuth2\Client\Provider\AbstractProvider;
 use League\OAuth2\Client\Token\AccessToken;
 use PrestaShop\Module\PsAccounts\Adapter\Link;
 use PrestaShop\OAuth2\Client\Provider\PrestaShop;
+use PrestaShop\OAuth2\Client\Provider\WellKnown;
 
 class ShopProvider extends PrestaShop
 {
@@ -217,12 +218,12 @@ class ShopProvider extends PrestaShop
     private function fetchWellKnown()
     {
         try {
-            $this->wellKnown = WellKnown::fetch(
+            $this->wellKnown = new WellKnown(
                 $this->getParameter('ps_accounts.oauth2_url'),
                 (bool) $this->module->getParameter('ps_accounts.check_api_ssl_cert')
             );
         } catch (\Exception $e) {
-            $this->wellKnown = new WellKnown([]);
+            $this->wellKnown = new WellKnown();
         }
     }
 }

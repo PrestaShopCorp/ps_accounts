@@ -18,12 +18,16 @@
  * @license   https://opensource.org/licenses/AFL-3.0 Academic Free License version 3.0
  */
 
-namespace PrestaShop\Module\PsAccounts\Provider\OAuth2;
+namespace PrestaShop\Module\PsAccounts\Session;
 
 use PrestaShop\Module\PsAccounts\Adapter\Configuration;
-use PrestaShop\Module\PsAccounts\Log\Logger;
 
-class FallbackSession
+/**
+ * @deprecated
+ *
+ * @todo Not production ready for ps1.6
+ */
+class FallbackSession implements Session
 {
     const SESSION_PREFIX = 'SESSION';
     const SESSION_NAME = '_pssesid';

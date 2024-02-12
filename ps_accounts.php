@@ -466,7 +466,7 @@ class Ps_accounts extends Module
     }
 
     /**
-     * @return \PrestaShop\Module\PsAccounts\Provider\OAuth2\FallbackSession
+     * @return \PrestaShop\Module\PsAccounts\Session\Session
      *
      * @throws Exception
      */
@@ -474,13 +474,13 @@ class Ps_accounts extends Module
     {
         $container = $this->getCoreServiceContainer();
         if ($container) {
-            /** @var \PrestaShop\Module\PsAccounts\Provider\OAuth2\FallbackSession $session */
+            /** @var \PrestaShop\Module\PsAccounts\Session\Session $session */
             $session = $container->get('session');
 
             return $session;
         } else {
             // FIXME return a session like with configuration storage
-            return new \PrestaShop\Module\PsAccounts\Provider\OAuth2\FallbackSession(
+            return new \PrestaShop\Module\PsAccounts\Session\FallbackSession(
                 $this->getService(\PrestaShop\Module\PsAccounts\Adapter\Configuration::class)
             );
         }

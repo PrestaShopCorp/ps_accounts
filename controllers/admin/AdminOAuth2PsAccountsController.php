@@ -33,6 +33,7 @@ use PrestaShop\Module\PsAccounts\Provider\OAuth2\PrestaShopSession;
 use PrestaShop\Module\PsAccounts\Provider\OAuth2\ShopProvider;
 use PrestaShop\Module\PsAccounts\Service\AnalyticsService;
 use PrestaShop\Module\PsAccounts\Service\PsAccountsService;
+use PrestaShop\Module\PsAccounts\Session\Session;
 use PrestaShop\OAuth2\Client\Provider\PrestaShopUser;
 
 /**
@@ -231,7 +232,7 @@ class AdminOAuth2PsAccountsController extends ModuleAdminController
     }
 
     /**
-     * @return \PrestaShop\Module\PsAccounts\Provider\OAuth2\FallbackSession
+     * @return Session
      *
      * @throws Exception
      */
