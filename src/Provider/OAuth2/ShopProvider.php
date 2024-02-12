@@ -93,21 +93,6 @@ class ShopProvider extends PrestaShop
     }
 
     /**
-     * @param string $name
-     * @param string $default
-     *
-     * @return string
-     *
-     * @throws \Exception
-     */
-    protected function getParameter($name, $default = '')
-    {
-        return $this->module->hasParameter($name)
-            ? $this->module->getParameter($name)
-            : $default;
-    }
-
-    /**
      * @param array $options
      *
      * @return array|string[]
