@@ -24,17 +24,11 @@ use Lcobucci\JWT\Parser;
 use PrestaShop\Module\PsAccounts\Account\Session\Session;
 use PrestaShop\Module\PsAccounts\Account\Session\SessionInterface;
 use PrestaShop\Module\PsAccounts\Account\Token\Token;
-use PrestaShop\Module\PsAccounts\Api\Client\AccountsClient;
 use PrestaShop\Module\PsAccounts\Exception\RefreshTokenException;
 use PrestaShop\Module\PsAccounts\Repository\ConfigurationRepository;
 
 class ShopSession extends Session implements SessionInterface
 {
-    /**
-     * @var AccountsClient
-     */
-    protected $apiClient;
-
     /**
      * @var \PrestaShop\Module\PsAccounts\Account\Session\ShopSession
      */
@@ -47,16 +41,13 @@ class ShopSession extends Session implements SessionInterface
 
     /**
      * @param ConfigurationRepository $configurationRepository
-     * @param AccountsClient $apiClient
      * @param \PrestaShop\Module\PsAccounts\Account\Session\ShopSession $shopSession
      */
     public function __construct(
         ConfigurationRepository $configurationRepository,
-        AccountsClient $apiClient,
        \PrestaShop\Module\PsAccounts\Account\Session\ShopSession $shopSession
     ) {
         $this->configurationRepository = $configurationRepository;
-        $this->apiClient = $apiClient;
         $this->shopSession = $shopSession;
     }
 
@@ -68,7 +59,7 @@ class ShopSession extends Session implements SessionInterface
      * @throws RefreshTokenException
      * @throws \Exception
      */
-    public function refreshToken($refreshToken)
+    public function refreshToken($refreshToken = null)
     {
         $this->shopSession->getOrRefreshToken();
 

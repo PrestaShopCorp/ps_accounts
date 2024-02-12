@@ -1,12 +1,19 @@
 <?php
 
-namespace PrestaShop\Module\PsAccounts\Tests\Unit\Account\Session\ShopSession;
+namespace PrestaShop\Module\PsAccounts\Tests\Unit\Account\Session\Firebase\ShopSession;
 
 use PrestaShop\Module\PsAccounts\Account\Session\Firebase\ShopSession;
 use PrestaShop\Module\PsAccounts\Tests\TestCase;
 
 class IsTokenExpiredTest extends TestCase
 {
+    /**
+     * @inject
+     *
+     * @var ShopSession
+     */
+    protected $session;
+
     /**
      * @test
      *
@@ -20,12 +27,9 @@ class IsTokenExpiredTest extends TestCase
 
         $refreshToken = $this->makeJwtToken(new \DateTimeImmutable('+1 year'));
 
-        /** @var \PrestaShop\Module\PsAccounts\Account\Session\Firebase\ShopSession $shopSession */
-        $shopSession = $this->module->getService(ShopSession::class);
+        $this->session->setToken((string) $idToken, (string) $refreshToken);
 
-        $shopSession->setToken((string) $idToken, (string) $refreshToken);
-
-        $this->assertTrue($shopSession->getToken()->isExpired());
+        $this->assertTrue($this->session->getToken()->isExpired());
     }
 
     /**
@@ -41,11 +45,8 @@ class IsTokenExpiredTest extends TestCase
 
         $refreshToken = $this->makeJwtToken(new \DateTimeImmutable('+1 year'));
 
-        /** @var \PrestaShop\Module\PsAccounts\Account\Session\Firebase\ShopSession $shopSession */
-        $shopSession = $this->module->getService(ShopSession::class);
+        $this->session->setToken((string) $idToken, (string) $refreshToken);
 
-        $shopSession->setToken((string) $idToken, (string) $refreshToken);
-
-        $this->assertFalse($shopSession->getToken()->isExpired());
+        $this->assertFalse($this->session->getToken()->isExpired());
     }
 }

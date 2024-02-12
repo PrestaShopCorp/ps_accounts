@@ -56,6 +56,7 @@ class IndirectChannelClient
     /**
      * @param string $apiUrl
      * @param GuzzleClient|null $client
+     * @param int $defaultTimeout
      *
      * @throws \Exception
      */

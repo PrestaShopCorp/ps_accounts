@@ -20,10 +20,7 @@
 
 namespace PrestaShop\Module\PsAccounts\Hook;
 
-use PrestaShop\Module\PsAccounts\Account\Session\Firebase\OwnerSession;
-use PrestaShop\Module\PsAccounts\Account\Session\Firebase\ShopSession;
 use PrestaShop\Module\PsAccounts\Account\Token\Token;
-use PrestaShop\Module\PsAccounts\Api\Client\AccountsClient;
 
 class ActionShopAccessTokenRefreshAfter extends Hook
 {
@@ -39,16 +36,6 @@ class ActionShopAccessTokenRefreshAfter extends Hook
         /** @var Token $token */
         $token = $params['token'];
 
-        /** @var AccountsClient $apiClient */
-        $apiClient = $this->ps_accounts->getService(AccountsClient::class);
-        $response = $apiClient->firebaseTokens($token);
-
-        /** @var OwnerSession $ownerSession */
-        $ownerSession = $this->ps_accounts->getService(OwnerSession::class);
-        $ownerSession->refreshTokenFromResponse('userToken', $response);
-
-        /** @var ShopSession $shopSession */
-        $shopSession = $this->ps_accounts->getService(ShopSession::class);
-        $shopSession->refreshTokenFromResponse('shopToken', $response);
+        // TODO: something with the token
     }
 }

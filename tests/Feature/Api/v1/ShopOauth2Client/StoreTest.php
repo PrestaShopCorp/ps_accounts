@@ -14,18 +14,21 @@ class StoreTest extends FeatureTestCase
 {
     /**
      * @inject
+     *
      * @var Oauth2Client
      */
     protected $oauth2Client;
 
     /**
      * @inject
+     *
      * @var ShopSession
      */
     protected $shopSession;
 
     /**
      * @inject
+     *
      * @var OwnerSession
      */
     protected $ownerSession;

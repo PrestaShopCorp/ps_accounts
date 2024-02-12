@@ -2,14 +2,19 @@
 
 namespace PrestaShop\Module\PsAccounts\Tests\Unit\Provider\RsaKeysProvider;
 
-use Db;
 use PrestaShop\Module\PsAccounts\Exception\SshKeysNotFoundException;
-use PrestaShop\Module\PsAccounts\Repository\ConfigurationRepository;
 use PrestaShop\Module\PsAccounts\Provider\RsaKeysProvider;
 use PrestaShop\Module\PsAccounts\Tests\TestCase;
 
 class GenerateKeysTest extends TestCase
 {
+    /**
+     * @inject
+     *
+     * @var RsaKeysProvider
+     */
+    protected $rsaKeysProvider;
+
     /**
      * @test
      *
@@ -19,34 +24,27 @@ class GenerateKeysTest extends TestCase
      */
     public function itShouldGenerateKeys()
     {
-        /** @var RsaKeysProvider $publicKey */
-        $publicKey = $this->module->getService(RsaKeysProvider::class);
-
-        /** @var ConfigurationRepository $configuration */
-        $configuration = $this->module->getService(ConfigurationRepository::class);
-
         //echo "A\n" . $configuration->getAccountsRsaPrivateKey() . "\n";
 
         // Empty DB
-        $configuration->updateAccountsRsaPrivateKey(null);
-        $configuration->updateAccountsRsaPublicKey(null);
+        $this->rsaKeysProvider->cleanupKeys();
 
-        $this->assertEmpty($configuration->getAccountsRsaPrivateKey());
-        $this->assertEmpty($configuration->getAccountsRsaPublicKey());
+        $this->assertEmpty($this->rsaKeysProvider->getPrivateKey());
+        $this->assertEmpty($this->rsaKeysProvider->getPublicKey());
 
-        $publicKey->generateKeys();
+        $this->rsaKeysProvider->generateKeys();
 
         //echo "B\n" . $configuration->getAccountsRsaPrivateKey() . "\n";
 
-        $this->assertNotEmpty($configuration->getAccountsRsaPrivateKey());
-        $this->assertNotEmpty($configuration->getAccountsRsaPublicKey());
+        $this->assertNotEmpty($this->rsaKeysProvider->getPrivateKey());
+        $this->assertNotEmpty($this->rsaKeysProvider->getPublicKey());
 
         $data = $this->faker->sentence();
-        $signedData = $publicKey->signData($configuration->getAccountsRsaPrivateKey(), $data);
+        $signedData = $this->rsaKeysProvider->signData($this->rsaKeysProvider->getPrivateKey(), $data);
 
         $this->assertTrue(
-            $publicKey->verifySignature(
-                $configuration->getAccountsRsaPublicKey(),
+            $this->rsaKeysProvider->verifySignature(
+                $this->rsaKeysProvider->getPublicKey(),
                 $signedData,
                 $data
             )

@@ -108,9 +108,13 @@ class ServiceInjector
      */
     protected function extractClassUses(\ReflectionClass $class)
     {
-        if (preg_match_all('/use\s+(\S+);/', file_get_contents($class->getFileName()), $matches)) {
-            return $matches[1];
+        // FIXME support aliases (as...)
+        if (preg_match('/(.*)class/ms', file_get_contents($class->getFileName()), $uses)) {
+            if (preg_match_all('/use\s+(\S+);/', $uses[1], $matches)) {
+                return $matches[1];
+            }
         }
+
         return [];
     }
 

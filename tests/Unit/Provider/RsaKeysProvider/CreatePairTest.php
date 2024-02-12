@@ -8,14 +8,20 @@ use PrestaShop\Module\PsAccounts\Tests\TestCase;
 class CreatePairTest extends TestCase
 {
     /**
+     * @inject
+     *
+     * @var RsaKeysProvider
+     */
+    protected $rsaKeyService;
+
+    /**
      * @test
+     *
+     * @throws \Exception
      */
     public function itShouldCreateKeyPair()
     {
-        /** @var RsaKeysProvider $publicKey */
-        $publicKey = $this->module->getService(RsaKeysProvider::class);
-
-        $key = $publicKey->createPair();
+        $key = $this->rsaKeyService->createPair();
 
         $this->assertArrayHasKey('privatekey', $key);
         $this->assertArrayHasKey('publickey', $key);

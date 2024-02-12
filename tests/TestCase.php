@@ -151,4 +151,20 @@ class TestCase extends \PHPUnit\Framework\TestCase
 
         return $module;
     }
+
+    /**
+     * @param array $body
+     * @param int $httpCode
+     * @param bool $status
+     *
+     * @return array
+     */
+    protected function createApiResponse(array $body, $httpCode, $status)
+    {
+        return [
+            'status' => $status,
+            'httpCode' => $httpCode,
+            'body' => $body,
+        ];
+    }
 }

@@ -95,7 +95,7 @@ class LinkShop
     }
 
     /**
-     * @param string $uuid
+     * @param string|null $uuid
      *
      * @return void
      */
@@ -147,7 +147,7 @@ class LinkShop
      */
     public function getOwnerEmail()
     {
-        return (int) $this->configuration->getFirebaseEmail();
+        return $this->configuration->getFirebaseEmail();
     }
 
     /**

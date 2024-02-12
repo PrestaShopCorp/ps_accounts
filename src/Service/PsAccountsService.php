@@ -277,7 +277,7 @@ class PsAccountsService
                 if ($isAlreadyReonboard) {
                     $conf->setShopId((int) $shop['id']);
 
-                    $commandBus->handle(new UnlinkShopCommand($linkShop->getShopUuid()));
+                    $commandBus->handle(new UnlinkShopCommand($shop['id']));
 
                     $conf->setShopId($id);
                 } else {

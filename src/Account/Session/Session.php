@@ -90,34 +90,6 @@ abstract class Session implements SessionInterface
     }
 
     /**
-     * @param string $name
-     * @param array $response
-     *
-     * @return void
-     *
-     * @throws RefreshTokenException
-     */
-    public function refreshTokenFromResponse($name, $response)
-    {
-        //$response = $this->apiClient->getCachedResponse('firebaseTokens');
-        if (!isset($response)) {
-            return;
-        }
-
-        if ($response && true === $response['status']) {
-            $this->setToken($response['body'][$name]);
-
-            return;
-        }
-
-        $errorMsg = isset($response['body']['message']) ?
-            $response['body']['message'] :
-            '';
-
-        throw new RefreshTokenException('Unable to refresh ' . $name . ' token : ' . $response['httpCode'] . ' ' . print_r($errorMsg, true));
-    }
-
-    /**
      * @param string $refreshToken
      *
      * @return bool

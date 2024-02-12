@@ -161,7 +161,6 @@ services:
     public: true
     arguments:
       - '@PrestaShop\Module\PsAccounts\Repository\ConfigurationRepository'
-      - '@PrestaShop\Module\PsAccounts\Api\Client\AccountsClient'
       - '@PrestaShop\Module\PsAccounts\Account\Session\ShopSession'
 
   PrestaShop\Module\PsAccounts\Account\Session\Firebase\OwnerSession:
@@ -169,7 +168,6 @@ services:
     public: true
     arguments:
       - '@PrestaShop\Module\PsAccounts\Repository\ConfigurationRepository'
-      - '@PrestaShop\Module\PsAccounts\Api\Client\AccountsClient'
       - '@PrestaShop\Module\PsAccounts\Account\Session\ShopSession'
 
   PrestaShop\Module\PsAccounts\Repository\ConfigurationRepository:

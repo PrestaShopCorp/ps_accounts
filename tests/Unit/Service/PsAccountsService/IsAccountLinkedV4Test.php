@@ -2,7 +2,6 @@
 
 namespace PrestaShop\Module\PsAccounts\Tests\Unit\Service\PsAccountsService;
 
-use PrestaShop\Module\PsAccounts\Repository\ConfigurationRepository;
 use PrestaShop\Module\PsAccounts\Repository\ShopTokenRepository;
 use PrestaShop\Module\PsAccounts\Service\PsAccountsService;
 use PrestaShop\Module\PsAccounts\Tests\TestCase;
@@ -22,10 +21,8 @@ class IsAccountLinkedV4Test extends TestCase
         $tokenRepos = $this->module->getService(ShopTokenRepository::class);
         $tokenRepos->updateCredentials((string) $token, base64_encode($this->faker->name));
 
-        /** @var \PrestaShop\Module\PsAccounts\Repository\ConfigurationRepository $config */
-        $config = $this->module->getService(ConfigurationRepository::class);
-        $config->updateUserFirebaseIdToken('');
-        $config->updateFirebaseEmail($this->faker->safeEmail);
+        $this->configurationRepository->updateUserFirebaseIdToken('');
+        $this->configurationRepository->updateFirebaseEmail($this->faker->safeEmail);
 
         /** @var PsAccountsService $service */
         $service = $this->module->getService(PsAccountsService::class);
@@ -46,9 +43,7 @@ class IsAccountLinkedV4Test extends TestCase
         $tokenRepos = $this->module->getService(ShopTokenRepository::class);
         $tokenRepos->updateCredentials((string) $token, base64_encode($this->faker->name));
 
-        /** @var \PrestaShop\Module\PsAccounts\Repository\ConfigurationRepository $config */
-        $config = $this->module->getService(ConfigurationRepository::class);
-        $config->updateFirebaseEmail('');
+        $this->configurationRepository->updateFirebaseEmail('');
 
         /** @var PsAccountsService $service */
         $service = $this->module->getService(PsAccountsService::class);

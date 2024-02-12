@@ -2,7 +2,8 @@
 
 namespace PrestaShop\Module\PsAccounts\Tests\Unit\Service\PsAccountsService;
 
-use PrestaShop\Module\PsAccounts\Repository\ConfigurationRepository;
+use PrestaShop\Module\PsAccounts\Account\LinkShop;
+use PrestaShop\Module\PsAccounts\Cqrs\CommandBus;
 use PrestaShop\Module\PsAccounts\Repository\ShopTokenRepository;
 use PrestaShop\Module\PsAccounts\Repository\UserTokenRepository;
 use PrestaShop\Module\PsAccounts\Service\PsAccountsService;
@@ -11,30 +12,32 @@ use PrestaShop\Module\PsAccounts\Tests\TestCase;
 class IsAccountLinkedTest extends TestCase
 {
     /**
+     * @inject
+     *
+     * @var LinkShop
+     */
+    protected $linkShop;
+
+    /**
+     * @inject
+     *
+     * @var PsAccountsService
+     */
+    protected $service;
+
+    /**
      * @test
      *
      * @throws \Exception
      */
     public function itShouldReturnTrue()
     {
-        /** @var ShopTokenRepository $repos */
-        $repos = $this->module->getService(ShopTokenRepository::class);
-        $repos->updateCredentials(
-            (string) $this->makeFirebaseToken(null, ['email_verified' => true]),
-            base64_encode($this->faker->name)
-        );
+        $this->linkShop->delete();
 
-        /** @var UserTokenRepository $tokenRepos */
-        $repos = $this->module->getService(UserTokenRepository::class);
-        $repos->updateCredentials(
-            (string) $this->makeFirebaseToken(null, ['email_verified' => true]),
-            base64_encode($this->faker->name)
-        );
+        $this->linkShop->setShopUuid($this->faker->uuid);
+        $this->linkShop->setOwnerEmail($this->faker->safeEmail);
 
-        /** @var PsAccountsService $service */
-        $service = $this->module->getService(PsAccountsService::class);
-
-        $this->assertTrue($service->isAccountLinked());
+        $this->assertTrue($this->service->isAccountLinked());
     }
 
     /**
@@ -44,20 +47,8 @@ class IsAccountLinkedTest extends TestCase
      */
     public function itShouldReturnFalse()
     {
-        /** @var ShopTokenRepository $repos */
-        $repos = $this->module->getService(ShopTokenRepository::class);
-        $repos->updateCredentials(
-            (string) $this->makeFirebaseToken(null, ['email_verified' => true]),
-            base64_encode($this->faker->name)
-        );
+        $this->linkShop->delete();
 
-        /** @var UserTokenRepository $tokenRepos */
-        $repos = $this->module->getService(UserTokenRepository::class);
-        $repos->cleanupCredentials();
-
-        /** @var PsAccountsService $service */
-        $service = $this->module->getService(PsAccountsService::class);
-
-        $this->assertFalse($service->isAccountLinked());
+        $this->assertFalse($this->service->isAccountLinked());
     }
 }

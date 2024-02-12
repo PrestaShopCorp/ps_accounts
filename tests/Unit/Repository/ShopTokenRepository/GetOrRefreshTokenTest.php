@@ -8,6 +8,13 @@ use PrestaShop\Module\PsAccounts\Tests\TestCase;
 class GetOrRefreshTokenTest extends TestCase
 {
     /**
+     * @inject
+     *
+     * @var ShopTokenRepository
+     */
+    protected $repository;
+
+    /**
      * @test
      *
      * @throws \Exception
@@ -20,11 +27,8 @@ class GetOrRefreshTokenTest extends TestCase
 
         $refreshToken = $this->makeJwtToken(new \DateTimeImmutable('+1 year'));
 
-        /** @var ShopTokenRepository $service */
-        $service = $this->module->getService(ShopTokenRepository::class);
+        $this->repository->updateCredentials((string) $idToken, (string) $refreshToken);
 
-        $service->updateCredentials((string) $idToken, (string) $refreshToken);
-
-        $this->assertEquals((string) $idToken, $service->getOrRefreshToken());
+        $this->assertEquals((string) $idToken, $this->repository->getOrRefreshToken());
     }
 }

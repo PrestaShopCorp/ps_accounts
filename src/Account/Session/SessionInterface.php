@@ -46,7 +46,7 @@ interface SessionInterface
      *
      * @throws RefreshTokenException|ConnectException
      */
-    public function refreshToken($refreshToken);
+    public function refreshToken($refreshToken = null);
 
     /**
      * @param bool $forceRefresh

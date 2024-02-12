@@ -1,12 +1,19 @@
 <?php
 
-namespace PrestaShop\Module\PsAccounts\Tests\Unit\Account\Session\OwnerSession;
+namespace PrestaShop\Module\PsAccounts\Tests\Unit\Account\Session\Firebase\OwnerSession;
 
 use PrestaShop\Module\PsAccounts\Account\Session\Firebase\OwnerSession;
 use PrestaShop\Module\PsAccounts\Tests\TestCase;
 
 class GetTokenEmailVerifiedTest extends TestCase
 {
+    /**
+     * @inject
+     *
+     * @var OwnerSession
+     */
+    protected $session;
+
     /**
      * @test
      *
@@ -22,12 +29,9 @@ class GetTokenEmailVerifiedTest extends TestCase
 
         $refreshToken = $this->makeJwtToken(new \DateTimeImmutable('+1 year'));
 
-        /** @var OwnerSession $ownerSession */
-        $ownerSession = $this->module->getService(OwnerSession::class);
+        $this->session->setToken((string) $idToken, (string) $refreshToken);
 
-        $ownerSession->setToken((string) $idToken, (string) $refreshToken);
-
-        $this->assertTrue($ownerSession->isEmailVerified());
+        $this->assertTrue($this->session->isEmailVerified());
     }
 
     /**
@@ -45,11 +49,8 @@ class GetTokenEmailVerifiedTest extends TestCase
 
         $refreshToken = null; //$this->makeJwtToken(new \DateTimeImmutable('+1 year'));
 
-        /** @var OwnerSession $ownerSession */
-        $ownerSession = $this->module->getService(OwnerSession::class);
+        $this->session->setToken((string) $idToken, (string) $refreshToken);
 
-        $ownerSession->setToken((string) $idToken, (string) $refreshToken);
-
-        $this->assertFalse($ownerSession->isEmailVerified());
+        $this->assertFalse($this->session->isEmailVerified());
     }
 }

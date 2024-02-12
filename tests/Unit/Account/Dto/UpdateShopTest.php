@@ -1,20 +1,22 @@
 <?php
 
-namespace PrestaShop\Module\PsAccounts\Tests\Unit\Dto;
+namespace PrestaShop\Module\PsAccounts\Tests\Unit\Account\Dto;
 
-use PrestaShop\Module\PsAccounts\Account\Dto\UpdateShop;
+use PrestaShop\Module\PsAccounts\Account\Dto;
 use PrestaShop\Module\PsAccounts\Tests\TestCase;
 
 class UpdateShopTest extends TestCase
 {
     /**
      * @test
+     *
+     * @throws \Exception
      */
     public function itShouldFailOnMissingMandatoryProperty()
     {
         $this->expectException(\Exception::class);
 
-        new UpdateShop([
+        new Dto\UpdateShop([
             'shopId' => 4,
             //'name' => $this->faker->slug,
             'virtualUri' => $this->faker->domainWord,
@@ -27,12 +29,13 @@ class UpdateShopTest extends TestCase
 
     /**
      * @test
+     * @throws \Exception
      */
     public function itShouldFailOnUnexpectedProperty()
     {
         $this->expectException(\Exception::class);
 
-        new \PrestaShop\Module\PsAccounts\Account\Dto\UpdateShop([
+        new Dto\UpdateShop([
             'foo' => 'bar',
             'shopId' => 4,
             'name' => $this->faker->slug,

@@ -2,12 +2,18 @@
 
 namespace PrestaShop\Module\PsAccounts\Tests\Unit\Repository\UserTokenRepository;
 
-use PrestaShop\Module\PsAccounts\Repository\ConfigurationRepository;
 use PrestaShop\Module\PsAccounts\Repository\UserTokenRepository;
 use PrestaShop\Module\PsAccounts\Tests\TestCase;
 
 class GetTokenEmailVerifiedTest extends TestCase
 {
+    /**
+     * @inject
+     *
+     * @var UserTokenRepository
+     */
+    protected $repository;
+
     /**
      * @test
      *
@@ -23,12 +29,9 @@ class GetTokenEmailVerifiedTest extends TestCase
 
         $refreshToken = $this->makeJwtToken(new \DateTimeImmutable('+1 year'));
 
-        /** @var UserTokenRepository $tokenRepos */
-        $tokenRepos = $this->module->getService(UserTokenRepository::class);
+        $this->repository->updateCredentials((string) $idToken, (string) $refreshToken);
 
-        $tokenRepos->updateCredentials((string) $idToken, (string) $refreshToken);
-
-        $this->assertTrue($tokenRepos->getTokenEmailVerified());
+        $this->assertTrue($this->repository->getTokenEmailVerified());
     }
 
     /**
@@ -46,11 +49,8 @@ class GetTokenEmailVerifiedTest extends TestCase
 
         $refreshToken = null; //$this->makeJwtToken(new \DateTimeImmutable('+1 year'));
 
-        /** @var UserTokenRepository $tokenRepos */
-        $tokenRepos = $this->module->getService(UserTokenRepository::class);
+        $this->repository->updateCredentials((string) $idToken, (string) $refreshToken);
 
-        $tokenRepos->updateCredentials((string) $idToken, (string) $refreshToken);
-
-        $this->assertFalse($tokenRepos->getTokenEmailVerified());
+        $this->assertFalse($this->repository->getTokenEmailVerified());
     }
 }

@@ -10,6 +10,7 @@ class ShowTest extends FeatureTestCase
 {
     /**
      * @inject
+     *
      * @var ShopSession
      */
     protected $shopSession;

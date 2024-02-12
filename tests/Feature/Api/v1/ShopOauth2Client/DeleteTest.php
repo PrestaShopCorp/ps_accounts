@@ -10,12 +10,14 @@ class DeleteTest extends FeatureTestCase
 {
     /**
      * @inject
+     *
      * @var Oauth2Client
      */
     protected $oauth2Client;
 
     /**
      * @test
+     *
      * @throws \Exception
      */
     public function itShouldSucceed()

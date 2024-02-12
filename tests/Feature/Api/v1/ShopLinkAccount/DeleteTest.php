@@ -14,24 +14,28 @@ class DeleteTest extends FeatureTestCase
 {
     /**
      * @inject
+     *
      * @var LinkShop
      */
     protected $linkShop;
 
     /**
      * @inject
+     *
      * @var ShopSession
      */
     protected $shopSession;
 
     /**
      * @inject
+     *
      * @var OwnerSession
      */
     protected $ownerSession;
 
     /**
      * @inject
+     *
      * @var \PrestaShop\Module\PsAccounts\Account\Session\ShopSession
      */
     protected $session;
@@ -73,6 +77,8 @@ class DeleteTest extends FeatureTestCase
 
         \Configuration::clearConfigurationCacheForTesting();
         \Configuration::loadConfiguration();
+
+        $this->assertFalse($this->linkShop->exists());
 
         $this->assertEmpty($this->linkShop->getShopUuid());
         $this->assertEmpty($this->linkShop->getEmployeeId());

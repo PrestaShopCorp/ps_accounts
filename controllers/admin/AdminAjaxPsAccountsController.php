@@ -116,10 +116,12 @@ class AdminAjaxPsAccountsController extends ModuleAdminController
     public function ajaxProcessResetLinkAccount()
     {
         try {
-            /** @var LinkShop $linkShop */
-            $linkShop = $this->module->getService(LinkShop::class);
+            /** @var ConfigurationRepository $configurationRepository */
+            $configurationRepository = $this->module->getService(ConfigurationRepository::class);
 
-            $this->commandBus->handle(new UnlinkShopCommand($linkShop->getShopUuid()));
+            $this->commandBus->handle(new UnlinkShopCommand(
+                $configurationRepository->getShopId()
+            ));
 
             header('Content-Type: text/json');
 

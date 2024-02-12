@@ -12,24 +12,28 @@ class StoreTest extends FeatureTestCase
 {
     /**
      * @inject
+     *
      * @var LinkShop
      */
     protected $linkShop;
 
     /**
      * @inject
+     *
      * @var ShopSession
      */
     protected $shopSession;
 
     /**
      * @inject
+     *
      * @var OwnerSession
      */
     protected $ownerSession;
 
     /**
      * @inject
+     *
      * @var \PrestaShop\Module\PsAccounts\Account\Session\ShopSession
      */
     protected $session;
@@ -70,6 +74,7 @@ class StoreTest extends FeatureTestCase
         \Configuration::clearConfigurationCacheForTesting();
         \Configuration::loadConfiguration();
 
+        $this->assertTrue($this->linkShop->exists());
         $this->assertEquals($shopUuid, $this->linkShop->getShopUuid());
         $this->assertEquals($employeeId, $this->linkShop->getEmployeeId());
         $this->assertEquals($userUuid, $this->linkShop->getOwnerUuid());
@@ -109,6 +114,7 @@ class StoreTest extends FeatureTestCase
         \Configuration::clearConfigurationCacheForTesting();
         \Configuration::loadConfiguration();
 
+        $this->assertTrue($this->linkShop->exists());
         $this->assertEquals($shopUuid, $this->linkShop->getShopUuid());
         $this->assertEquals(null, $this->linkShop->getEmployeeId());
     }

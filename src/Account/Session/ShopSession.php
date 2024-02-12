@@ -34,6 +34,8 @@ use PrestaShop\OAuth2\Client\Provider\PrestaShop;
 
 class ShopSession extends Session implements SessionInterface
 {
+    use RefreshFirebaseTokens;
+
     /**
      * @var PrestaShop
      */
@@ -68,6 +70,8 @@ class ShopSession extends Session implements SessionInterface
         $token = parent::getOrRefreshToken($forceRefresh);
 
         try {
+            $this->refreshFirebaseTokens($token);
+
             \Hook::exec(ActionShopAccessTokenRefreshAfter::getName(), ['token' => $token]);
         } catch (\Error $e) {
         } catch (\Exception $e) {
@@ -86,7 +90,7 @@ class ShopSession extends Session implements SessionInterface
      *
      * @throws RefreshTokenException
      */
-    public function refreshToken($refreshToken)
+    public function refreshToken($refreshToken = null)
     {
         try {
             $shopUuid = $this->getShopUuid();
