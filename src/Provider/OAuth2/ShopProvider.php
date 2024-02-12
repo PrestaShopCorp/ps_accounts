@@ -83,13 +83,13 @@ class ShopProvider extends PrestaShop
     }
 
     /**
-     * @return void
+     * @return string
      *
      * @throws \Exception
      */
     public function getOauth2Url()
     {
-        $this->module->getParameter('ps_accounts.oauth2_url');
+        return $this->module->getParameter('ps_accounts.oauth2_url');
     }
 
     /**
