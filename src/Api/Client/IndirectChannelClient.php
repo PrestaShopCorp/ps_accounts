@@ -67,7 +67,7 @@ class IndirectChannelClient
     ) {
         $this->apiUrl = $apiUrl;
         $this->client = $client;
-        $this->circuitBreaker = CircuitBreakerFactory::create('INDIRECT_CHANNEL_CLIENT');
+        $this->circuitBreaker = CircuitBreakerFactory::create(static::class);
         $this->defaultTimeout = $defaultTimeout;
     }
 
@@ -122,14 +122,6 @@ class IndirectChannelClient
 
             return $this->getClient()->get(['query' => ['pending' => 'true']]);
         });
-    }
-
-    /**
-     * @return CircuitBreaker
-     */
-    public function getCircuitBreaker()
-    {
-        return $this->circuitBreaker;
     }
 
     /**

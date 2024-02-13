@@ -46,3 +46,11 @@ services:
       - '@PrestaShop\Module\PsAccounts\Context\ShopContext'
       - '@PrestaShop\Module\PsAccounts\Account\Session\Firebase\ShopSession'
       - '@PrestaShop\Module\PsAccounts\Account\Session\Firebase\OwnerSession'
+
+  PrestaShop\Module\PsAccounts\Account\CommandHandler\UpdateModuleHandler:
+    class: PrestaShop\Module\PsAccounts\Account\CommandHandler\UpdateModuleHandler
+    public: true
+    arguments:
+      - '@PrestaShop\Module\PsAccounts\Api\Client\AccountsClient'
+      - '@PrestaShop\Module\PsAccounts\Account\LinkShop'
+      - '@PrestaShop\Module\PsAccounts\Account\Session\Firebase\ShopSession'

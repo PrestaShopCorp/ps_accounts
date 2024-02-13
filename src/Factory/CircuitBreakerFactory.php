@@ -21,11 +21,26 @@
 namespace PrestaShop\Module\PsAccounts\Factory;
 
 use PrestaShop\Module\PsAccounts\Adapter\Configuration;
+use PrestaShop\Module\PsAccounts\Api\Client\AccountsClient;
+use PrestaShop\Module\PsAccounts\Api\Client\IndirectChannelClient;
 use PrestaShop\Module\PsAccounts\Http\Client\CircuitBreaker\CircuitBreaker;
 use PrestaShop\Module\PsAccounts\Http\Client\CircuitBreaker\PersistentCircuitBreaker;
 
 class CircuitBreakerFactory
 {
+    /**
+     * @var array
+     */
+    private static $provides = [
+        AccountsClient::class,
+        IndirectChannelClient::class,
+    ];
+
+    /**
+     * @var array
+     */
+    private static $instances = [];
+
     /**
      * @param string $resourceId
      *
@@ -46,7 +61,35 @@ class CircuitBreakerFactory
             'httpCode' => 500,
             'body' => ['message' => 'Circuit Breaker Open'],
         ]);
+        static::$instances[$resourceId] = $instance;
 
         return $instance;
+    }
+
+    /**
+     * @param $resourceId
+     *
+     * @return CircuitBreaker
+     *
+     * @throws \Exception
+     */
+    public static function getOrCreate($resourceId)
+    {
+        if (! array_key_exists($resourceId, static::$instances)) {
+            static::create($resourceId);
+        }
+        return static::$instances[$resourceId];
+    }
+
+    /**
+     * @return void
+     *
+     * @throws \Exception
+     */
+    public static function resetAll()
+    {
+        foreach (static::$provides as $class) {
+            static::getOrCreate($class)->reset();
+        }
     }
 }

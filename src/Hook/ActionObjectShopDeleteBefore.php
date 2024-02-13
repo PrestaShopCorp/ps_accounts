@@ -36,10 +36,7 @@ class ActionObjectShopDeleteBefore extends Hook
     public function execute(array $params = [])
     {
         try {
-            /** @var CommandBus $commandBus */
-            $commandBus = $this->ps_accounts->getService(CommandBus::class);
-
-            $response = $commandBus->handle(new DeleteUserShopCommand($params['object']->id));
+            $response = $this->commandBus->handle(new DeleteUserShopCommand($params['object']->id));
 
             if (!$response) {
                 $this->ps_accounts->getLogger()->debug(

@@ -49,10 +49,7 @@ class ActionObjectShopUrlUpdateAfter extends Hook
             $domain = $params['object']->domain;
             $sslDomain = $params['object']->domain_ssl;
 
-            /** @var CommandBus $commandBus */
-            $commandBus = $this->ps_accounts->getService(CommandBus::class);
-
-            $response = $commandBus->handle(new UpdateUserShopCommand(new UpdateShop([
+            $response = $this->commandBus->handle(new UpdateUserShopCommand(new UpdateShop([
                 'shopId' => (string) $params['object']->id,
                 'name' => $shop->name,
                 'domain' => 'http://' . $domain,

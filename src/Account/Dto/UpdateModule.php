@@ -18,28 +18,21 @@
  * @license   https://opensource.org/licenses/AFL-3.0 Academic Free License version 3.0
  */
 
-namespace PrestaShop\Module\PsAccounts\Hook;
+namespace PrestaShop\Module\PsAccounts\Account\Dto;
 
-use Exception;
-use PrestaShop\Module\PsAccounts\Account\Command\UpdateModuleCommand;
-use PrestaShop\Module\PsAccounts\Account\Dto;
-use PrestaShop\Module\PsAccounts\Factory\CircuitBreakerFactory;
+use PrestaShop\Module\PsAccounts\Type\Dto;
 
-class ActionModuleInstallAfter extends Hook
+class UpdateModule extends Dto
 {
     /**
-     * @param array $params
-     *
-     * @return void
-     *
-     * @throws Exception
+     * @var string
      */
-    public function execute(array $params = [])
-    {
-        CircuitBreakerFactory::resetAll();
+    public $version;
 
-        $this->commandBus->handle(new UpdateModuleCommand(new Dto\UpdateModule([
-            'version' => \Ps_accounts::VERSION
-        ])));
-    }
+    /**
+     * @var string[]
+     */
+    public $mandatory = [
+        'version',
+    ];
 }

@@ -20,6 +20,7 @@
 
 namespace PrestaShop\Module\PsAccounts\Api\Client;
 
+use PrestaShop\Module\PsAccounts\Account\Dto\UpdateModule;
 use PrestaShop\Module\PsAccounts\Account\Dto\UpdateShop;
 use PrestaShop\Module\PsAccounts\Factory\CircuitBreakerFactory;
 use PrestaShop\Module\PsAccounts\Http\Client\CircuitBreaker\CircuitBreaker;
@@ -64,7 +65,7 @@ class AccountsClient
     ) {
         $this->apiUrl = $apiUrl;
         $this->client = $client;
-        $this->circuitBreaker = CircuitBreakerFactory::create('ACCOUNTS_CLIENT');
+        $this->circuitBreaker = CircuitBreakerFactory::create(static::class);
         $this->defaultTimeout = $defaultTimeout;
     }
 
@@ -190,6 +191,26 @@ class AccountsClient
     }
 
     /**
+     * @param string $shopUid
+     * @param string $shopToken
+     * @param UpdateModule $data
+     *
+     * @return array
+     */
+    public function updateShopModule($shopUid, $shopToken, UpdateModule $data)
+    {
+        $this->getClient()->setRoute('/v2/shop/module/update');
+
+        return $this->getClient()->post([
+            'headers' => $this->getHeaders([
+                'Authorization' => 'Bearer ' . $shopToken,
+                'X-Shop-Id' => $shopUid,
+            ]),
+            'json' => $data->jsonSerialize(),
+        ]);
+    }
+
+    /**
      * @param array $additionalHeaders
      *
      * @return array
@@ -201,13 +222,5 @@ class AccountsClient
             'X-Module-Version' => \Ps_accounts::VERSION,
             'X-Prestashop-Version' => _PS_VERSION_,
         ], $additionalHeaders);
-    }
-
-    /**
-     * @return CircuitBreaker
-     */
-    public function getCircuitBreaker()
-    {
-        return $this->circuitBreaker;
     }
 }

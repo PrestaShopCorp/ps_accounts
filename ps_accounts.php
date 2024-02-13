@@ -487,24 +487,6 @@ class Ps_accounts extends Module
     }
 
     /**
-     * @return void
-     *
-     * @throws Exception
-     */
-    public function resetCircuitBreaker()
-    {
-        $this->getLogger()->info(__METHOD__);
-
-        /** @var \PrestaShop\Module\PsAccounts\Api\Client\AccountsClient $accountsClient */
-        $accountsClient = $this->getService(\PrestaShop\Module\PsAccounts\Api\Client\AccountsClient::class);
-        $accountsClient->getCircuitBreaker()->reset();
-
-        /** @var \PrestaShop\Module\PsAccounts\Api\Client\IndirectChannelClient $indirectChannelClient */
-        $indirectChannelClient = $this->getService(\PrestaShop\Module\PsAccounts\Api\Client\IndirectChannelClient::class);
-        $indirectChannelClient->getCircuitBreaker()->reset();
-    }
-
-    /**
      * @deprecated
      *
      * @return void
