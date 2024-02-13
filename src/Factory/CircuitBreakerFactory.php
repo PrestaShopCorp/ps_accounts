@@ -67,7 +67,7 @@ class CircuitBreakerFactory
     }
 
     /**
-     * @param $resourceId
+     * @param string $resourceId
      *
      * @return CircuitBreaker
      *
@@ -75,9 +75,10 @@ class CircuitBreakerFactory
      */
     public static function getOrCreate($resourceId)
     {
-        if (! array_key_exists($resourceId, static::$instances)) {
+        if (!array_key_exists($resourceId, static::$instances)) {
             static::create($resourceId);
         }
+
         return static::$instances[$resourceId];
     }
 

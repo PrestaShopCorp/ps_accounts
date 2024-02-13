@@ -22,7 +22,6 @@ namespace PrestaShop\Module\PsAccounts\Hook;
 
 use Exception;
 use PrestaShop\Module\PsAccounts\Account\Command\DeleteUserShopCommand;
-use PrestaShop\Module\PsAccounts\Cqrs\CommandBus;
 
 class ActionObjectShopDeleteBefore extends Hook
 {

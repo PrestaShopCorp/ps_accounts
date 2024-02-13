@@ -39,7 +39,7 @@ class ActionModuleInstallAfter extends Hook
         CircuitBreakerFactory::resetAll();
 
         $this->commandBus->handle(new UpdateModuleCommand(new Dto\UpdateModule([
-            'version' => \Ps_accounts::VERSION
+            'version' => \Ps_accounts::VERSION,
         ])));
     }
 }
