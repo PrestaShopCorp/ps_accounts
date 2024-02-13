@@ -20,7 +20,6 @@
 
 namespace PrestaShop\Module\PsAccounts\Account\Session\Firebase;
 
-use Lcobucci\JWT\Parser;
 use PrestaShop\Module\PsAccounts\Account\Session\Session;
 use PrestaShop\Module\PsAccounts\Account\Session\SessionInterface;
 use PrestaShop\Module\PsAccounts\Account\Token\Token;

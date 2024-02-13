@@ -131,7 +131,7 @@ class LinkShop
      */
     public function getOwnerUuid()
     {
-        return (int) $this->configuration->getUserFirebaseUuid();
+        return $this->configuration->getUserFirebaseUuid();
     }
 
     /**

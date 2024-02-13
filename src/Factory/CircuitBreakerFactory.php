@@ -132,6 +132,6 @@ class CircuitBreakerFactory
      */
     protected function className($className)
     {
-        return strtoupper(preg_replace(["/^.*\\\\/", "/([^A-Z])([A-Z])/"], ["", "$1_$2"], $className));
+        return strtoupper(preg_replace(['/^.*\\\\/', '/([^A-Z])([A-Z])/'], ['', '$1_$2'], $className));
     }
 }

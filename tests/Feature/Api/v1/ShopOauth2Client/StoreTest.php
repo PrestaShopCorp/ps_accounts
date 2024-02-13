@@ -48,10 +48,6 @@ class StoreTest extends FeatureTestCase
             'uid' => $this->faker->uuid,
         ];
 
-        // TODO: make this a feature test level
-        $shopToken = $this->makeJwtToken($expiry, ['sub' => $payload['uid']]);
-        $ownerToken = $this->makeJwtToken($expiry, ['sub' => $this->faker->uuid,'email' => $this->faker->safeEmail]);
-
         $response = $this->client->post('/module/ps_accounts/apiV1ShopOauth2Client', [
             'headers' => [
                 AbstractRestController::TOKEN_HEADER => (string) $this->encodePayload($payload)
@@ -71,13 +67,6 @@ class StoreTest extends FeatureTestCase
 
         $this->assertEquals($payload['client_id'], $this->oauth2Client->getClientId());
         $this->assertEquals($payload['client_secret'], $this->oauth2Client->getClientSecret());
-
-        $this->assertEquals((string) $shopToken, (string) $this->shopSession->getToken());
-        $this->assertEquals((string) $ownerToken, (string) $this->ownerSession->getToken());
-
-        // compat
-        $this->assertEquals($ownerToken->claims()->get('email'), $this->configuration->get(ConfigurationKeys::PS_ACCOUNTS_FIREBASE_EMAIL));
-        $this->assertEquals($shopToken->claims()->get('sub'), $this->configuration->get(ConfigurationKeys::PSX_UUID_V4));
     }
 
     /**

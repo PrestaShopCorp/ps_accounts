@@ -45,17 +45,12 @@ class StoreTest extends FeatureTestCase
      */
     public function itShouldSucceed()
     {
-        $shopUuid = $this->faker->uuid;
-        $userUuid = $this->faker->uuid;
-        $email = $this->faker->safeEmail;
-        $employeeId = $this->faker->numberBetween(1);
-
         $payload = [
             'shop_id' => 1,
-            'uid' => $shopUuid,
-            'employee_id' => $employeeId,
-            'user_uid' => $this->faker->uuid,
-            'email' => $this->faker->safeEmail,
+            'uid' => $this->faker->uuid,
+            'employee_id' => $this->faker->numberBetween(1),
+            'owner_uid' => $this->faker->uuid,
+            'owner_email' => $this->faker->safeEmail,
         ];
 
         $response = $this->client->post('/module/ps_accounts/apiV1ShopLinkAccount', [
@@ -75,10 +70,10 @@ class StoreTest extends FeatureTestCase
         \Configuration::loadConfiguration();
 
         $this->assertTrue($this->linkShop->exists());
-        $this->assertEquals($shopUuid, $this->linkShop->getShopUuid());
-        $this->assertEquals($employeeId, $this->linkShop->getEmployeeId());
-        $this->assertEquals($userUuid, $this->linkShop->getOwnerUuid());
-        $this->assertEquals($email, $this->linkShop->getOwnerEmail());
+        $this->assertEquals($payload['uid'], $this->linkShop->getShopUuid());
+        $this->assertEquals($payload['employee_id'], $this->linkShop->getEmployeeId());
+        $this->assertEquals($payload['owner_uid'], $this->linkShop->getOwnerUuid());
+        $this->assertEquals($payload['owner_email'], $this->linkShop->getOwnerEmail());
     }
 
     /**
