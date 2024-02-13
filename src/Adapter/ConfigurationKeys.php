@@ -18,7 +18,7 @@
  * @license   https://opensource.org/licenses/AFL-3.0 Academic Free License version 3.0
  */
 
-namespace PrestaShop\Module\PsAccounts\Repository;
+namespace PrestaShop\Module\PsAccounts\Adapter;
 
 use PrestaShop\Module\PsAccounts\Type\Enum;
 
@@ -31,6 +31,7 @@ class ConfigurationKeys extends Enum
 
     // PS User Account
     const PS_ACCOUNTS_USER_FIREBASE_ID_TOKEN = 'PS_ACCOUNTS_USER_FIREBASE_ID_TOKEN';
+    const PS_ACCOUNTS_USER_FIREBASE_UUID = 'PS_ACCOUNTS_USER_FIREBASE_UUID';
     /* @deprecated */
     const PS_ACCOUNTS_FIREBASE_EMAIL = 'PS_ACCOUNTS_FIREBASE_EMAIL';
 

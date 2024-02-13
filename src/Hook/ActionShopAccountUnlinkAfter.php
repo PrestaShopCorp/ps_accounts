@@ -20,8 +20,8 @@
 
 namespace PrestaShop\Module\PsAccounts\Hook;
 
-use PrestaShop\Module\PsAccounts\Account\Session\Firebase\OwnerSession;
-use PrestaShop\Module\PsAccounts\Account\Session\Firebase\ShopSession;
+use PrestaShop\Module\PsAccounts\Account\Session\Firebase;
+use PrestaShop\Module\PsAccounts\Account\Session\ShopSession;
 use PrestaShop\Module\PsAccounts\Provider\OAuth2\Oauth2Client;
 use PrestaShop\Module\PsAccounts\Provider\RsaKeysProvider;
 use PrestaShop\Module\PsAccounts\Repository\ConfigurationRepository;
@@ -45,16 +45,16 @@ class ActionShopAccountUnlinkAfter extends Hook
         $configuration = $this->ps_accounts->getService(ConfigurationRepository::class);
         $configuration->updateLoginEnabled(false);
 
-        /** @var ShopSession $shopSession */
-        $shopSession = $this->ps_accounts->getService(ShopSession::class);
+        /** @var Firebase\ShopSession $shopSession */
+        $shopSession = $this->ps_accounts->getService(Firebase\ShopSession::class);
         $shopSession->cleanup();
 
-        /** @var OwnerSession $ownerSession */
-        $ownerSession = $this->ps_accounts->getService(OwnerSession::class);
+        /** @var Firebase\OwnerSession $ownerSession */
+        $ownerSession = $this->ps_accounts->getService(Firebase\OwnerSession::class);
         $ownerSession->cleanup();
 
-        /** @var \PrestaShop\Module\PsAccounts\Account\Session\ShopSession $session */
-        $session = $this->ps_accounts->getService(\PrestaShop\Module\PsAccounts\Account\Session\ShopSession::class);
+        /** @var ShopSession $session */
+        $session = $this->ps_accounts->getService(ShopSession::class);
         $session->cleanup();
 
         /** @var RsaKeysProvider $rsaKeysProvider */

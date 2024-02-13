@@ -80,7 +80,6 @@ class Ps_accounts extends Module
 //        \PrestaShop\Module\PsAccounts\Hook\ActionAdminControllerInitBefore::class,
         \PrestaShop\Module\PsAccounts\Hook\ActionAdminLoginControllerLoginAfter::class,
         \PrestaShop\Module\PsAccounts\Hook\ActionAdminLoginControllerSetMedia::class,
-        \PrestaShop\Module\PsAccounts\Hook\ActionModuleInstallAfter::class,
         \PrestaShop\Module\PsAccounts\Hook\ActionObjectShopAddAfter::class,
         \PrestaShop\Module\PsAccounts\Hook\ActionObjectShopDeleteAfter::class,
         \PrestaShop\Module\PsAccounts\Hook\ActionObjectShopDeleteBefore::class,
@@ -173,9 +172,7 @@ class Ps_accounts extends Module
             && $this->addCustomHooks($this->customHooks)
             && $this->registerHook($this->getHooksToRegister());
 
-        $this->installEventBus();
-        $this->fixMultiShopConfig();
-        $this->autoReonboardOnV5();
+        $this->onModuleInstallAfter();
 
         $this->getLogger()->info('Install - Loading ' . $this->name . ' Env : [' . $this->getModuleEnv() . ']');
 
@@ -516,5 +513,29 @@ class Ps_accounts extends Module
             // Ignore fail on ps_eventbus install
             $moduleInstaller->installModule('ps_eventbus');
         }
+    }
+
+    /**
+     * @return void
+     *
+     * @throws Exception
+     */
+    private function onModuleInstallAfter()
+    {
+        /** @var \PrestaShop\Module\PsAccounts\Factory\CircuitBreakerFactory $circuitBreakerFactory */
+        $circuitBreakerFactory = $this->getService(\PrestaShop\Module\PsAccounts\Factory\CircuitBreakerFactory::class);
+        $circuitBreakerFactory->resetAll();
+
+        /** @var \PrestaShop\Module\PsAccounts\Cqrs\CommandBus $commandBus */
+        $commandBus = $this->getService(\PrestaShop\Module\PsAccounts\Cqrs\CommandBus::class);
+        $commandBus->handle(new \PrestaShop\Module\PsAccounts\Account\Command\UpdateModuleCommand(
+            new \PrestaShop\Module\PsAccounts\Account\Dto\UpdateModule([
+                'version' => \Ps_accounts::VERSION,
+            ])
+        ));
+
+        $this->installEventBus();
+        $this->fixMultiShopConfig();
+        $this->autoReonboardOnV5();
     }
 }

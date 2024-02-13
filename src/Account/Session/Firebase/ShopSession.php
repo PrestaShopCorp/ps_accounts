@@ -81,7 +81,6 @@ class ShopSession extends Session implements SessionInterface
      */
     public function cleanup()
     {
-        $this->configurationRepository->updateShopUuid('');
         $this->configurationRepository->updateFirebaseIdAndRefreshTokens('', '');
     }
 
@@ -93,9 +92,6 @@ class ShopSession extends Session implements SessionInterface
      */
     public function setToken($token, $refreshToken = null)
     {
-        $parsed = (new Parser())->parse($token);
-
-        $this->configurationRepository->updateShopUuid($parsed->claims()->get(Token::ID_OWNER_CLAIM));
         $this->configurationRepository->updateFirebaseIdAndRefreshTokens($token, $refreshToken);
     }
 }

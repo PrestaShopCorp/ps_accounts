@@ -51,7 +51,7 @@ class ServiceInjector
                 $propName = array_keys($class)[0];
                 $class = $class[$propName];
             } else {
-                $propName = $this->lcClassName($class);
+                $propName = $this->lcfirstClassName($class);
             }
             $builder = $this->builder;
             $builder($propName, $class);
@@ -70,6 +70,7 @@ class ServiceInjector
         foreach ($props as $prop) {
             $tags = $this->extractPropertyTags($prop);
             if (isset($tags[$tag]) && isset($tags['var'])) {
+                // FIXME: do it without eval
                 $class = $this->evalWithUses($tags['var'] . '::class;', 'class', $this->uses);
                 $classes[] = [$prop->name => $class];
             }
@@ -82,7 +83,7 @@ class ServiceInjector
      *
      * @return string
      */
-    public function lcClassName($className)
+    public function lcfirstClassName($className)
     {
         return lcfirst(preg_replace('/^.*\\\\/', '', $className));
     }

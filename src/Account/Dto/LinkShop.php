@@ -30,15 +30,15 @@ class LinkShop extends Dto
     public $uid;
     /** @var string */
     public $employeeId = '';
-
-//    /** @var string */
-//    public $ownerUid;
-//
-//    /** @var string */
-//    public $ownerEmail;
+    /** @var string */
+    public $ownerUid;
+    /** @var string */
+    public $ownerEmail;
 
     protected $mandatory = [
         'shopId',
         'uid',
+//        'ownerUid',
+//        'ownerEmail',
     ];
 }

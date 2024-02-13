@@ -21,6 +21,7 @@
 namespace PrestaShop\Module\PsAccounts\Repository;
 
 use PrestaShop\Module\PsAccounts\Adapter\Configuration;
+use PrestaShop\Module\PsAccounts\Adapter\ConfigurationKeys;
 
 class ConfigurationRepository
 {
@@ -105,6 +106,24 @@ class ConfigurationRepository
             $this->configuration->set(ConfigurationKeys::PS_PSX_FIREBASE_EMAIL, $email);
         }
         $this->configuration->set(ConfigurationKeys::PS_ACCOUNTS_FIREBASE_EMAIL, $email);
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getUserFirebaseUuid()
+    {
+        return $this->configuration->get(ConfigurationKeys::PS_ACCOUNTS_USER_FIREBASE_UUID);
+    }
+
+    /**
+     * @param string $uuid
+     *
+     * @return void
+     */
+    public function updateUserFirebaseUuid($uuid)
+    {
+        $this->configuration->set(ConfigurationKeys::PS_ACCOUNTS_USER_FIREBASE_UUID, $uuid);
     }
 
     /**

@@ -110,6 +110,12 @@ services:
     arguments:
       - '@PrestaShop\Module\PsAccounts\Repository\ConfigurationRepository'
 
+  PrestaShop\Module\PsAccounts\Factory\CircuitBreakerFactory:
+    class: PrestaShop\Module\PsAccounts\Factory\CircuitBreakerFactory
+    public: true
+    arguments:
+      - '@PrestaShop\Module\PsAccounts\Adapter\Configuration'
+
   #####################
   # handlers
 

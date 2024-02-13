@@ -49,6 +49,8 @@ class LinkShop
     {
         $this->setShopUuid(null);
         $this->setEmployeeId(null);
+        $this->setOwnerUuid(null);
+        $this->setOwnerEmail(null);
     }
 
     /**
@@ -60,6 +62,8 @@ class LinkShop
     {
         $this->setShopUuid($payload->uid);
         $this->setEmployeeId((int) $payload->employeeId ?: null);
+        $this->setOwnerUuid($payload->ownerUid);
+        $this->setOwnerEmail($payload->ownerEmail);
     }
 
     /**
@@ -123,12 +127,11 @@ class LinkShop
     }
 
     /**
-     * @return string|null
+     * @return int
      */
     public function getOwnerUuid()
     {
-        // FIXME: implement method
-        //return (int) $this->configuration->getEmployeeId();
+        return (int) $this->configuration->getUserFirebaseUuid();
     }
 
     /**
@@ -138,8 +141,7 @@ class LinkShop
      */
     public function setOwnerUuid($uuid)
     {
-        // FIXME: implement method
-        //$this->configuration->updateEmployeeId((string) $uuid);
+        $this->configuration->updateUserFirebaseUuid((string) $uuid);
     }
 
     /**

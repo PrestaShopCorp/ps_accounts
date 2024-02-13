@@ -59,6 +59,8 @@ class ps_AccountsApiV1ShopLinkAccountModuleFrontController extends AbstractShopR
             new LinkShop([
                 'shopId' => $request->shop_id,
                 'uid' => $request->uid,
+                'ownerUid' => $request->owner_uid,
+                'ownerEmail' => $request->owner_email,
                 'employeeId' => $request->employee_id,
             ])
         ));

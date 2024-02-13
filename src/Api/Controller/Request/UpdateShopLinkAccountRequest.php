@@ -25,17 +25,13 @@ class UpdateShopLinkAccountRequest extends Request
     /** @var string */
     public $shop_id;
     /** @var string */
-    public $shop_refresh_token;
-    /** @var string */
-    public $user_refresh_token;
-    /** @var string */
-    public $shop_token;
-    /** @var string */
-    public $user_token;
-    /** @var string */
     public $employee_id = '';
     /** @var string */
     public $uid;
+    /** @var string */
+    public $owner_uid;
+    /** @var string */
+    public $owner_email;
 
     /**
      * @var string[]

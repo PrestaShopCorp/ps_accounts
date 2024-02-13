@@ -31,7 +31,7 @@ class CircuitBreakerFactory
     /**
      * @var array
      */
-    private static $provides = [
+    private $provides = [
         AccountsClient::class,
         IndirectChannelClient::class,
     ];
@@ -39,7 +39,73 @@ class CircuitBreakerFactory
     /**
      * @var array
      */
-    private static $instances = [];
+    private $instances = [];
+
+    /**
+     * @var Configuration
+     */
+    private $configStorage;
+
+    /**
+     * @param Configuration $configStorage
+     */
+    public function __construct(
+        Configuration $configStorage
+    ) {
+        $this->configStorage = $configStorage;
+    }
+
+    /**
+     * @param string $resourceId
+     *
+     * @return CircuitBreaker
+     *
+     * @throws \Exception
+     */
+    public function createInstance($resourceId)
+    {
+        $instance = new PersistentCircuitBreaker(
+            static::className($resourceId),
+            'PS_ACCOUNTS',
+            $this->configStorage
+        );
+        $instance->setDefaultFallbackResponse([
+            'status' => false,
+            'httpCode' => 500,
+            'body' => ['message' => 'Circuit Breaker Open'],
+        ]);
+        $this->instances[$resourceId] = $instance;
+
+        return $instance;
+    }
+
+    /**
+     * @param string $resourceId
+     *
+     * @return CircuitBreaker
+     *
+     * @throws \Exception
+     */
+    public function getOrCreate($resourceId)
+    {
+        if (!array_key_exists($resourceId, $this->instances)) {
+            static::createInstance($resourceId);
+        }
+
+        return $this->instances[$resourceId];
+    }
+
+    /**
+     * @return void
+     *
+     * @throws \Exception
+     */
+    public function resetAll()
+    {
+        foreach ($this->provides as $class) {
+            static::getOrCreate($class)->reset();
+        }
+    }
 
     /**
      * @param string $resourceId
@@ -52,45 +118,20 @@ class CircuitBreakerFactory
     {
         /** @var \Ps_accounts $module */
         $module = \Module::getInstanceByName('ps_accounts');
-        /** @var Configuration $config */
-        $config = $module->getService(Configuration::class);
 
-        $instance = new PersistentCircuitBreaker($resourceId, 'PS_ACCOUNTS', $config);
-        $instance->setDefaultFallbackResponse([
-            'status' => false,
-            'httpCode' => 500,
-            'body' => ['message' => 'Circuit Breaker Open'],
-        ]);
-        static::$instances[$resourceId] = $instance;
+        /** @var CircuitBreakerFactory $factory */
+        $factory = $module->getService(CircuitBreakerFactory::class);
 
-        return $instance;
+        return $factory->createInstance($resourceId);
     }
 
     /**
-     * @param string $resourceId
+     * @param string $className
      *
-     * @return CircuitBreaker
-     *
-     * @throws \Exception
+     * @return string
      */
-    public static function getOrCreate($resourceId)
+    protected function className($className)
     {
-        if (!array_key_exists($resourceId, static::$instances)) {
-            static::create($resourceId);
-        }
-
-        return static::$instances[$resourceId];
-    }
-
-    /**
-     * @return void
-     *
-     * @throws \Exception
-     */
-    public static function resetAll()
-    {
-        foreach (static::$provides as $class) {
-            static::getOrCreate($class)->reset();
-        }
+        return strtoupper(preg_replace(["/^.*\\\\/", "/([^A-Z])([A-Z])/"], ["", "$1_$2"], $className));
     }
 }

@@ -82,7 +82,6 @@ class OwnerSession extends Session implements SessionInterface
     public function cleanup()
     {
         $this->configurationRepository->updateUserFirebaseIdToken('');
-        $this->configurationRepository->updateFirebaseEmail('');
     }
 
     /**
@@ -93,11 +92,6 @@ class OwnerSession extends Session implements SessionInterface
      */
     public function setToken($token, $refreshToken = null)
     {
-        $parsed = (new Parser())->parse((string) $token);
-
-        $uuid = $parsed->claims()->get(Token::ID_OWNER_CLAIM);
         $this->configurationRepository->updateUserFirebaseIdToken($token);
-
-        $this->configurationRepository->updateFirebaseEmail($parsed->claims()->get('email'));
     }
 }
