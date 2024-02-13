@@ -44,7 +44,7 @@ class IsEmailValidatedTest extends TestCase
     public function itShouldReturnFalse()
     {
         $this->ownerSession->setToken(
-            $this->makeFirebaseToken(null, ['email_verified' => false]),
+            $this->makeFirebaseToken(null, ['email_verified' => false])
         );
 
         $this->assertFalse($this->service->isEmailValidated());
