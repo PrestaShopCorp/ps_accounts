@@ -326,7 +326,7 @@ class AdminOAuth2PsAccountsController extends ModuleAdminController
     private function getEmployeeByUidOrEmail($uid, $email)
     {
         if (method_exists($this->module, 'getContainer') &&
-            class_exists('\Doctrine\ORM\EntityManagerInterface')) {
+            interface_exists('\Doctrine\ORM\EntityManagerInterface')) {
             /**
              * @phpstan-ignore-next-line
              *

@@ -307,6 +307,21 @@ class PsAccountsService
     }
 
     /**
+     * @param bool $enabled
+     *
+     * @return void
+     *
+     * @throws \Exception
+     */
+    public function enableLogin($enabled = true)
+    {
+        /** @var ConfigurationRepository $configuration */
+        $configuration = $this->module->getService(ConfigurationRepository::class);
+
+        $configuration->updateLoginEnabled($enabled);
+    }
+
+    /**
      * @return EmployeeAccount|null
      */
     public function getEmployeeAccount()

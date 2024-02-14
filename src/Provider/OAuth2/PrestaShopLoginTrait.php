@@ -146,6 +146,8 @@ trait PrestaShopLoginTrait
 
     /**
      * @return string
+     *
+     * @throws \Exception
      */
     private function getSessionReturnTo()
     {
@@ -156,6 +158,8 @@ trait PrestaShopLoginTrait
      * @param string $returnTo
      *
      * @return void
+     *
+     * @throws \Exception
      */
     private function setSessionReturnTo($returnTo)
     {
