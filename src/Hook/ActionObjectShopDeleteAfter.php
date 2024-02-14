@@ -33,7 +33,7 @@ class ActionObjectShopDeleteAfter extends Hook
      */
     public function execute(array $params = [])
     {
-        $this->ps_accounts->fixMultiShopConfig();
+        $this->module->fixMultiShopConfig();
 
         return true;
     }

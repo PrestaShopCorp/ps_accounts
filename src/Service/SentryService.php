@@ -71,7 +71,7 @@ class SentryService
                     'ps_accounts_version' => \Ps_accounts::VERSION,
                     'prestashop_version' => _PS_VERSION_,
                     'ps_accounts_is_enabled' => \Module::isEnabled('ps_accounts'),
-                    'email' => $ownerSession->getToken()->getEmail(),
+                    'email' => $linkShop->getOwnerEmail(),
                     'shop_uuid' => $linkShop->getShopUuid(),
                 ],
             ]

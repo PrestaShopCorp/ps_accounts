@@ -157,7 +157,7 @@ class PsAccountsService
      */
     public function getUserUuid()
     {
-        return $this->ownerSession->getToken()->getUuid();
+        return $this->linkShop->getOwnerUuid();
     }
 
     /**
@@ -175,7 +175,7 @@ class PsAccountsService
      */
     public function getEmail()
     {
-        return $this->ownerSession->getToken()->getEmail();
+        return $this->linkShop->getOwnerEmail();
     }
 
     /**

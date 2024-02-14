@@ -37,16 +37,16 @@ class ActionAdminLoginControllerSetMedia extends Hook
      */
     public function execute(array $params = [])
     {
-        $this->ps_accounts->getOauth2Middleware()->execute();
+        $this->module->getOauth2Middleware()->execute();
 
         /** @var PsAccountsService $psAccountsService */
-        $psAccountsService = $this->ps_accounts->getService(PsAccountsService::class);
+        $psAccountsService = $this->module->getService(PsAccountsService::class);
         $local = Tools::getValue('mode') === AdminLoginPsAccountsController::PARAM_MODE_LOCAL ||
             !$psAccountsService->getLoginActivated();
 
         $this->trackLoginPage($local);
 
-        if ($this->ps_accounts->getShopContext()->isShop17() && !$local) {
+        if ($this->module->getShopContext()->isShop17() && !$local) {
 //            /** @var \PrestaShop\Module\PsAccounts\Adapter\Link $link */
 //            $link = $this->getService(\PrestaShop\Module\PsAccounts\Adapter\Link::class);
 //            Tools::redirectLink($link->getAdminLink('AdminLoginPsAccounts', false));
@@ -64,14 +64,14 @@ class ActionAdminLoginControllerSetMedia extends Hook
      */
     protected function trackLoginPage($local = false)
     {
-        if ($this->ps_accounts->isShopEdition()) {
+        if ($this->module->isShopEdition()) {
             /** @var PsAccountsService $psAccountsService */
-            $psAccountsService = $this->ps_accounts->getService(PsAccountsService::class);
+            $psAccountsService = $this->module->getService(PsAccountsService::class);
             $account = $psAccountsService->getEmployeeAccount();
             $userId = $account ? $account->getUid() : null;
 
             /** @var AnalyticsService $analytics */
-            $analytics = $this->ps_accounts->getService(AnalyticsService::class);
+            $analytics = $this->module->getService(AnalyticsService::class);
 
             if (!$local) {
                 $analytics->pageAccountsBoLogin($userId);

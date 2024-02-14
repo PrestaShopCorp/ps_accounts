@@ -37,7 +37,7 @@ class ActionObjectShopUpdateAfter extends Hook
     public function execute(array $params = [])
     {
         /** @var Link $link */
-        $link = $this->ps_accounts->getService(Link::class);
+        $link = $this->module->getService(Link::class);
 
         $shop = new \Shop($params['object']->id);
 
@@ -58,18 +58,18 @@ class ActionObjectShopUpdateAfter extends Hook
                 false,
                 [],
                 [
-                    'configure' => $this->ps_accounts->name,
+                    'configure' => $this->module->name,
                     'setShopContext' => 's-' . $params['object']->id,
                 ]
             ),
         ])));
 
         if (!$response) {
-            $this->ps_accounts->getLogger()->debug(
+            $this->module->getLogger()->debug(
                 'Error trying to PATCH shop : No $response object'
             );
         } elseif (true !== $response['status']) {
-            $this->ps_accounts->getLogger()->debug(
+            $this->module->getLogger()->debug(
                 'Error trying to PATCH shop : ' . $response['httpCode'] .
                 ' ' . print_r($response['body']['message'] ?: '', true)
             );

@@ -90,8 +90,8 @@ class ShopProvider
                 'publicKey' => $rsaKeyProvider->getOrGenerateAccountsRsaPublicKey() ?: null,
                 'employeeId' => (int) $linkShop->getEmployeeId() ?: null,
                 'user' => [
-                    'email' => $ownerSession->getToken()->getEmail() ?: null,
-                    'uuid' => $ownerSession->getToken()->getUuid() ?: null,
+                    'email' => $linkShop->getOwnerEmail() ?: null,
+                    'uuid' => $linkShop->getOwnerUuid() ?: null,
                     'emailIsValidated' => null,
                 ],
                 'url' => $this->link->getAdminLink(

@@ -46,11 +46,11 @@ class ActionAdminControllerInitBefore extends Hook
 //            }
 //        }
 
-        $this->ps_accounts->getOauth2Middleware()->execute();
+        $this->module->getOauth2Middleware()->execute();
 
         if (Tools::getValue('mode') !== 'local') {
             /** @var Link $link */
-            $link = $this->ps_accounts->getService(Link::class);
+            $link = $this->module->getService(Link::class);
 
             Tools::redirectLink($link->getAdminLink('AdminLoginPsAccounts', false));
         }

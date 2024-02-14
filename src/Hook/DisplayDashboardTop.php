@@ -36,10 +36,10 @@ class DisplayDashboardTop extends Hook
      */
     public function execute(array $params = [])
     {
-        $shopContext = $this->ps_accounts->getShopContext();
+        $shopContext = $this->module->getShopContext();
 
         /** @var PsAccountsService $accountsService */
-        $accountsService = $this->ps_accounts->getService(PsAccountsService::class);
+        $accountsService = $this->module->getService(PsAccountsService::class);
 
         if ('AdminShopUrl' === $_GET['controller']) {
             return $this->renderAdminShopUrlWarningIfLinked($shopContext, $accountsService);
@@ -69,7 +69,7 @@ class DisplayDashboardTop extends Hook
         }
 
         /** @var ShopProvider $shopProvider */
-        $shopProvider = $this->ps_accounts->getService(ShopProvider::class);
+        $shopProvider = $this->module->getService(ShopProvider::class);
 
         $shopsTree = $shopProvider->getShopsTree('ps_accounts');
         foreach ($shopsTree as $shopGroup) {
@@ -78,7 +78,7 @@ class DisplayDashboardTop extends Hook
                     return $accountsService->isAccountLinked();
                 });
                 if ($isLink) {
-                    return $this->ps_accounts->renderDeleteWarningView();
+                    return $this->module->renderDeleteWarningView();
                 }
             }
         }
@@ -102,7 +102,7 @@ class DisplayDashboardTop extends Hook
 
         return $shopContext->execInShopContext($shopId, function () use ($accountsService) {
             if ($accountsService->isAccountLinked()) {
-                return $this->ps_accounts->renderUpdateWarningView();
+                return $this->module->renderUpdateWarningView();
             }
         });
     }

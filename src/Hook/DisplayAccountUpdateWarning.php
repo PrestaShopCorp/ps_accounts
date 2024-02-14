@@ -33,13 +33,13 @@ class DisplayAccountUpdateWarning extends Hook
     public function execute(array $params = [])
     {
         /** @var PsAccountsService $psAccountsService */
-        $psAccountsService = $this->ps_accounts->getService(PsAccountsService::class);
+        $psAccountsService = $this->module->getService(PsAccountsService::class);
 
         if ($psAccountsService->isAccountLinked() &&
-            !$this->ps_accounts->getShopContext()->isMultishopActive()) {
+            !$this->module->getShopContext()->isMultishopActive()) {
             // I don't load with $this->get('twig') since i had this error https://github.com/PrestaShop/PrestaShop/issues/20505
             // Some users may have the same and couldn't render the configuration page
-            return $this->ps_accounts->renderUpdateWarningView();
+            return $this->module->renderUpdateWarningView();
         }
 
         return '';

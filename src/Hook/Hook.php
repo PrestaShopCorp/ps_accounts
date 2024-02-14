@@ -28,7 +28,7 @@ abstract class Hook
     /**
      * @var Ps_accounts
      */
-    protected $ps_accounts;
+    protected $module;
 
     /**
      * @var CommandBus
@@ -42,7 +42,7 @@ abstract class Hook
      */
     public function __construct(Ps_accounts $ps_accounts)
     {
-        $this->ps_accounts = $ps_accounts;
+        $this->module = $ps_accounts;
         $this->commandBus = $ps_accounts->getService(CommandBus::class);
     }
 
@@ -64,8 +64,8 @@ abstract class Hook
     /**
      * @return Ps_accounts
      */
-    public function getPsAccounts()
+    public function getModule()
     {
-        return $this->ps_accounts;
+        return $this->module;
     }
 }

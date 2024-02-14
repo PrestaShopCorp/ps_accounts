@@ -34,7 +34,7 @@ class ActionShopAccountLinkAfter extends Hook
     public function execute(array $params = [])
     {
         /** @var ConfigurationRepository $configuration */
-        $configuration = $this->ps_accounts->getService(ConfigurationRepository::class);
+        $configuration = $this->module->getService(ConfigurationRepository::class);
         $configuration->updateLoginEnabled(true);
     }
 }

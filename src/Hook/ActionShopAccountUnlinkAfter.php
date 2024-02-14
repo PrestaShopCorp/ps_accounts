@@ -38,27 +38,27 @@ class ActionShopAccountUnlinkAfter extends Hook
     public function execute(array $params = [])
     {
         /** @var Oauth2Client $oauth2Client */
-        $oauth2Client = $this->ps_accounts->getService(Oauth2Client::class);
+        $oauth2Client = $this->module->getService(Oauth2Client::class);
         $oauth2Client->delete();
 
         /** @var ConfigurationRepository $configuration */
-        $configuration = $this->ps_accounts->getService(ConfigurationRepository::class);
+        $configuration = $this->module->getService(ConfigurationRepository::class);
         $configuration->updateLoginEnabled(false);
 
         /** @var Firebase\ShopSession $shopSession */
-        $shopSession = $this->ps_accounts->getService(Firebase\ShopSession::class);
+        $shopSession = $this->module->getService(Firebase\ShopSession::class);
         $shopSession->cleanup();
 
         /** @var Firebase\OwnerSession $ownerSession */
-        $ownerSession = $this->ps_accounts->getService(Firebase\OwnerSession::class);
+        $ownerSession = $this->module->getService(Firebase\OwnerSession::class);
         $ownerSession->cleanup();
 
         /** @var ShopSession $session */
-        $session = $this->ps_accounts->getService(ShopSession::class);
+        $session = $this->module->getService(ShopSession::class);
         $session->cleanup();
 
         /** @var RsaKeysProvider $rsaKeysProvider */
-        $rsaKeysProvider = $this->ps_accounts->getService(RsaKeysProvider::class);
+        $rsaKeysProvider = $this->module->getService(RsaKeysProvider::class);
         try {
             $rsaKeysProvider->cleanupKeys();
             $rsaKeysProvider->generateKeys();
