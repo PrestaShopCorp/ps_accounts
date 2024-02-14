@@ -22,8 +22,6 @@ namespace PrestaShop\Module\PsAccounts\Api\Client;
 
 use PrestaShop\Module\PsAccounts\Account\Dto\UpdateModule;
 use PrestaShop\Module\PsAccounts\Account\Dto\UpdateShop;
-use PrestaShop\Module\PsAccounts\Factory\CircuitBreakerFactory;
-use PrestaShop\Module\PsAccounts\Http\Client\CircuitBreaker\CircuitBreaker;
 use PrestaShop\Module\PsAccounts\Http\Client\Guzzle\GuzzleClient;
 use PrestaShop\Module\PsAccounts\Http\Client\Guzzle\GuzzleClientFactory;
 
@@ -38,11 +36,6 @@ class AccountsClient
      * @var GuzzleClient
      */
     private $client;
-
-    /**
-     * @var CircuitBreaker
-     */
-    private $circuitBreaker;
 
     /**
      * @var int
@@ -65,7 +58,6 @@ class AccountsClient
     ) {
         $this->apiUrl = $apiUrl;
         $this->client = $client;
-        $this->circuitBreaker = CircuitBreakerFactory::create(static::class);
         $this->defaultTimeout = $defaultTimeout;
     }
 
@@ -76,6 +68,7 @@ class AccountsClient
     {
         if (null === $this->client) {
             $this->client = (new GuzzleClientFactory())->create([
+                'name' => static::class,
                 'base_uri' => $this->apiUrl,
                 'headers' => $this->getHeaders(),
                 'timeout' => $this->defaultTimeout,
@@ -84,30 +77,6 @@ class AccountsClient
 
         return $this->client;
     }
-
-//    /**
-//     * @param string $refreshToken
-//     *
-//     * @return array response
-//     *
-//     * $response['body']['token'],
-//     * $response['body']['refresh_token']
-//     */
-//    public function refreshToken($refreshToken)
-//    {
-//        return $this->circuitBreaker->call(function () use ($refreshToken) {
-//            $this->getClient()->setRoute('v1/shop/token/refresh');
-//
-//            return $this->getClient()->post([
-//                'headers' => $this->getHeaders([
-//                    'X-Shop-Id' => $this->getCurrentShopUuid(),
-//                ]),
-//                'json' => [
-//                    'token' => $refreshToken,
-//                ],
-//            ]);
-//        });
-//    }
 
     /**
      * @param string $accessToken
@@ -119,15 +88,13 @@ class AccountsClient
      */
     public function firebaseTokens($accessToken)
     {
-        return $this->circuitBreaker->call(function () use ($accessToken) {
-            $this->getClient()->setRoute('v2/shop/firebase/tokens');
+        $this->getClient()->setRoute('v2/shop/firebase/tokens');
 
-            return $this->getClient()->get([
-                'headers' => $this->getHeaders([
-                    'Authorization' => 'Bearer ' . $accessToken,
-                ]),
-            ]);
-        });
+        return $this->getClient()->get([
+            'headers' => $this->getHeaders([
+                'Authorization' => 'Bearer ' . $accessToken,
+            ]),
+        ]);
     }
 
     /**

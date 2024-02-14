@@ -62,16 +62,13 @@ class ShopProvider extends PrestaShop
             $collaborators['httpClient'] = $this->buildHttpClient($options);
         }
 
-        try {
-            parent::__construct(array_merge([
-                'clientId' => $this->oauth2Client->getClientId(),
-                'clientSecret' => $this->oauth2Client->getClientSecret(),
-                'redirectUri' => $this->getRedirectUri(),
-                'postLogoutCallbackUri' => $this->getPostLogoutRedirectUri(),
-                'pkceMethod' => AbstractProvider::PKCE_METHOD_S256,
-            ], $options), $collaborators);
-        } catch (\Exception $e) {
-        }
+        parent::__construct(array_merge([
+            'clientId' => $this->oauth2Client->getClientId(),
+            'clientSecret' => $this->oauth2Client->getClientSecret(),
+            'redirectUri' => $this->getRedirectUri(),
+            'postLogoutCallbackUri' => $this->getPostLogoutRedirectUri(),
+            'pkceMethod' => AbstractProvider::PKCE_METHOD_S256,
+        ], $options), $collaborators);
     }
 
     /**

@@ -26,6 +26,8 @@ class Guzzle5Client extends GuzzleClient
 {
     public function __construct($options)
     {
+        parent::__construct($options);
+
         /** @var \Ps_accounts $module */
         $module = \Module::getInstanceByName('ps_accounts');
 

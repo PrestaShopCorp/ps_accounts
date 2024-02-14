@@ -21,38 +21,49 @@
 namespace PrestaShop\Module\PsAccounts\Http\Client\Guzzle;
 
 use GuzzleHttp\Client;
+use PrestaShop\Module\PsAccounts\Factory\CircuitBreakerFactory;
+use PrestaShop\Module\PsAccounts\Http\Client\CircuitBreaker\CircuitBreaker;
 use PrestaShop\Module\PsAccounts\Http\Client\ClientInterface;
 
 abstract class GuzzleClient implements ClientInterface
 {
     /**
-     * Guzzle Client.
-     *
      * @var Client
      */
     protected $client;
 
     /**
-     * Api route.
-     *
      * @var string
      */
     protected $route;
 
     /**
-     * Set how long guzzle will wait a response before end it up.
-     *
      * @var int
      */
     protected $timeout = 10;
 
     /**
-     * If set to false, you will not be able to catch the error
-     * guzzle will show a different error message.
-     *
      * @var bool
      */
     protected $catchExceptions = false;
+
+    /**
+     * @var CircuitBreaker
+     */
+    protected $circuitBreaker;
+
+    /**
+     * @param array $options
+     *
+     * @throws \Exception
+     */
+    public function __construct($options)
+    {
+        $this->circuitBreaker = CircuitBreakerFactory::create(
+            isset($options['name']) ? $options['name'] : static::class
+        );
+        unset($options['name']);
+    }
 
     /**
      * @param mixed $response
@@ -81,72 +92,70 @@ abstract class GuzzleClient implements ClientInterface
     }
 
     /**
-     * Wrapper of method post from guzzle client.
-     *
      * @param array $options payload
      *
      * @return array return response or false if no response
      */
     public function post(array $options = [])
     {
-        $response = $this->getClient()->post($this->getRoute(), $options);
-        $response = $this->handleResponse($response);
-        $this->logResponseError($response, $options);
+        return $this->circuitBreaker->call(function () use ($options) {
+            $response = $this->getClient()->post($this->getRoute(), $options);
+            $response = $this->handleResponse($response);
+            $this->logResponseError($response, $options);
 
-        return $response;
+            return $response;
+        });
     }
 
     /**
-     * Wrapper of method patch from guzzle client.
-     *
      * @param array $options payload
      *
      * @return array return response or false if no response
      */
     public function patch(array $options = [])
     {
-        $response = $this->getClient()->patch($this->getRoute(), $options);
-        $response = $this->handleResponse($response);
-        $this->logResponseError($response, $options);
+        return $this->circuitBreaker->call(function () use ($options) {
+            $response = $this->getClient()->patch($this->getRoute(), $options);
+            $response = $this->handleResponse($response);
+            $this->logResponseError($response, $options);
 
-        return $response;
+            return $response;
+        });
     }
 
     /**
-     * Wrapper of method post from guzzle client.
-     *
      * @param array $options payload
      *
      * @return array return response or false if no response
      */
     public function get(array $options = [])
     {
-        $response = $this->getClient()->get($this->getRoute(), $options);
-        $response = $this->handleResponse($response);
-        $this->logResponseError($response, $options);
+        return $this->circuitBreaker->call(function () use ($options) {
+            $response = $this->getClient()->get($this->getRoute(), $options);
+            $response = $this->handleResponse($response);
+            $this->logResponseError($response, $options);
 
-        return $response;
+            return $response;
+        });
     }
 
     /**
-     * Wrapper of method delete from guzzle client.
-     *
      * @param array $options payload
      *
      * @return array return response array
      */
     public function delete(array $options = [])
     {
-        $response = $this->getClient()->delete($this->getRoute(), $options);
-        $response = $this->handleResponse($response);
-        $this->logResponseError($response, $options);
+        return $this->circuitBreaker->call(function () use ($options) {
+            $response = $this->getClient()->delete($this->getRoute(), $options);
+            $response = $this->handleResponse($response);
+            $this->logResponseError($response, $options);
 
-        return $response;
+            return $response;
+        });
     }
 
     /**
-     * Check if the response is successful or not (response code 200 to 299).
-     *
      * @param array $responseContents
      * @param int $httpStatusCode
      *
@@ -168,8 +177,6 @@ abstract class GuzzleClient implements ClientInterface
     }
 
     /**
-     * Setter for client.
-     *
      * @param Client $client
      *
      * @return void
@@ -180,18 +187,14 @@ abstract class GuzzleClient implements ClientInterface
     }
 
     /**
-     * Getter for route.
-     *
      * @return string
      */
-    protected function getRoute()
+    public function getRoute()
     {
         return $this->route;
     }
 
     /**
-     * Setter for route.
-     *
      * @param string $route
      *
      * @return void

@@ -23,8 +23,6 @@ namespace PrestaShop\Module\PsAccounts\Api\Client;
 
 use PrestaShop\Module\PsAccounts\Account\Session\Firebase\OwnerSession;
 use PrestaShop\Module\PsAccounts\Account\Session\Firebase\ShopSession;
-use PrestaShop\Module\PsAccounts\Factory\CircuitBreakerFactory;
-use PrestaShop\Module\PsAccounts\Http\Client\CircuitBreaker\CircuitBreaker;
 use PrestaShop\Module\PsAccounts\Http\Client\Guzzle\GuzzleClient;
 use PrestaShop\Module\PsAccounts\Http\Client\Guzzle\GuzzleClientFactory;
 
@@ -42,11 +40,6 @@ class IndirectChannelClient
      * @var GuzzleClient
      */
     private $client;
-
-    /**
-     * @var CircuitBreaker
-     */
-    private $circuitBreaker;
 
     /**
      * @var int
@@ -67,7 +60,6 @@ class IndirectChannelClient
     ) {
         $this->apiUrl = $apiUrl;
         $this->client = $client;
-        $this->circuitBreaker = CircuitBreakerFactory::create(static::class);
         $this->defaultTimeout = $defaultTimeout;
     }
 
@@ -101,6 +93,7 @@ class IndirectChannelClient
     {
         if (null === $this->client) {
             $this->client = (new GuzzleClientFactory())->create([
+                'name' => static::class,
                 'base_uri' => $this->apiUrl,
                 'headers' => $this->getHeaders(),
                 'timeout' => $this->defaultTimeout,
@@ -117,11 +110,9 @@ class IndirectChannelClient
      */
     public function getInvitations()
     {
-        return $this->circuitBreaker->call(function () {
-            $this->getClient()->setRoute('invitations');
+        $this->getClient()->setRoute('invitations');
 
-            return $this->getClient()->get(['query' => ['pending' => 'true']]);
-        });
+        return $this->getClient()->get(['query' => ['pending' => 'true']]);
     }
 
     /**
