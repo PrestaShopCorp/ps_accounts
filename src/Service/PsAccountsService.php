@@ -20,7 +20,6 @@
 
 namespace PrestaShop\Module\PsAccounts\Service;
 
-use Doctrine\ORM\EntityManagerInterface;
 use PrestaShop\Module\PsAccounts\Account\Command\MigrateAndLinkV4ShopCommand;
 use PrestaShop\Module\PsAccounts\Account\Command\UnlinkShopCommand;
 use PrestaShop\Module\PsAccounts\Account\LinkShop;
@@ -31,6 +30,7 @@ use PrestaShop\Module\PsAccounts\Cqrs\CommandBus;
 use PrestaShop\Module\PsAccounts\Entity\EmployeeAccount;
 use PrestaShop\Module\PsAccounts\Provider\ShopProvider;
 use PrestaShop\Module\PsAccounts\Repository\ConfigurationRepository;
+use PrestaShop\Module\PsAccounts\Repository\EmployeeAccountRepository;
 
 /**
  * Class PsAccountsService
@@ -326,26 +326,11 @@ class PsAccountsService
      */
     public function getEmployeeAccount()
     {
-        $employeeId = $this->module->getContext()->employee->id;
-
-        // FIXME: v1.6 compat
-        if (!empty($employeeId) && method_exists($this->module, 'getContainer')) {
-            /**
-             * @phpstan-ignore-next-line
-             *
-             * @var EntityManagerInterface $entityManager
-             */
-            $entityManager = $this->module->getContainer()->get('doctrine.orm.entity_manager');
-
-            /* @phpstan-ignore-next-line */
-            $employeeAccountRepository = $entityManager->getRepository(EmployeeAccount::class);
-
-            /**
-             * @var EmployeeAccount $employeeAccount
-             */
-            $employeeAccount = $employeeAccountRepository->findOneBy(['employeeId' => $employeeId]);
-            // $employeeAccount = $employeeAccountRepository->findOneByUid($uid);
-            return $employeeAccount;
+        $repository = new EmployeeAccountRepository();
+        if ($repository->isCompatPs16()) {
+            return $repository->findByEmployeeId(
+                $this->module->getContext()->employee->id
+            );
         }
 
         return null;

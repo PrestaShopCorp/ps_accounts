@@ -20,9 +20,7 @@
 
 namespace PrestaShop\Module\PsAccounts\Hook;
 
-use Doctrine\ORM\EntityManagerInterface;
-use Exception;
-use PrestaShop\Module\PsAccounts\Entity\EmployeeAccount;
+use PrestaShop\Module\PsAccounts\Repository\EmployeeAccountRepository;
 
 class ActionObjectEmployeeDeleteAfter extends Hook
 {
@@ -31,36 +29,17 @@ class ActionObjectEmployeeDeleteAfter extends Hook
      *
      * @return void
      *
-     * @throws Exception
+     * @throws \Exception
      */
     public function execute(array $params = [])
     {
-        if (method_exists($this->module, 'getContainer') &&
-            interface_exists('\Doctrine\ORM\EntityManagerInterface')) {
-            /** @var \Employee $employee */
-            $employee = $params['object'];
+        /** @var \Employee $employee */
+        $employee = $params['object'];
 
-            /**
-             * @phpstan-ignore-next-line
-             *
-             * @var EntityManagerInterface $entityManager
-             */
-            $entityManager = $this->module->getContainer()->get('doctrine.orm.entity_manager');
-
-            $employeeAccountRepository = $entityManager->getRepository(EmployeeAccount::class);
-
-            /**
-             * @var EmployeeAccount $employeeAccount
-             *
-             * @phpstan-ignore-next-line
-             */
-            $employeeAccount = $employeeAccountRepository->findOneByEmployeeId($employee->id);
-
-            /* @phpstan-ignore-next-line */
-            if ($employeeAccount) {
-                $entityManager->remove($employeeAccount);
-                $entityManager->flush();
-            }
+        $repository = new EmployeeAccountRepository();
+        if ($repository->isCompatPs16() &&
+            $employeeAccount = $repository->findByEmployeeId($employee->id)) {
+            $repository->delete($employeeAccount);
         }
     }
 }

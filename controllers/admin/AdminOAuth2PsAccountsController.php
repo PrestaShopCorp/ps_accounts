@@ -31,6 +31,7 @@ use PrestaShop\Module\PsAccounts\Exception\AccountLogin\OtherErrorException;
 use PrestaShop\Module\PsAccounts\Provider\OAuth2\PrestaShopLoginTrait;
 use PrestaShop\Module\PsAccounts\Provider\OAuth2\PrestaShopSession;
 use PrestaShop\Module\PsAccounts\Provider\OAuth2\ShopProvider;
+use PrestaShop\Module\PsAccounts\Repository\EmployeeAccountRepository;
 use PrestaShop\Module\PsAccounts\Service\AnalyticsService;
 use PrestaShop\Module\PsAccounts\Service\PsAccountsService;
 use PrestaShop\Module\PsAccounts\Session\Session;
@@ -325,23 +326,10 @@ class AdminOAuth2PsAccountsController extends ModuleAdminController
      */
     private function getEmployeeByUidOrEmail($uid, $email)
     {
-        if (method_exists($this->module, 'getContainer') &&
-            interface_exists('\Doctrine\ORM\EntityManagerInterface')) {
-            /**
-             * @phpstan-ignore-next-line
-             *
-             * @var \Doctrine\ORM\EntityManagerInterface $entityManager
-             */
-            $entityManager = $this->module->getContainer()->get('doctrine.orm.entity_manager');
+        $repository = new EmployeeAccountRepository();
 
-            $employeeAccountRepository = $entityManager->getRepository(EmployeeAccount::class);
-
-            /**
-             * @var EmployeeAccount $employeeAccount
-             * @phpstan-ignore-next-line
-             */
-            $employeeAccount = $employeeAccountRepository->findOneBy(['uid' => $uid]);
-            // $employeeAccount = $employeeAccountRepository->findOneByUid($uid);
+        if ($repository->isCompatPs16()) {
+            $employeeAccount = $repository->findByUid($uid);
 
             /* @phpstan-ignore-next-line */
             if ($employeeAccount) {
@@ -354,12 +342,12 @@ class AdminOAuth2PsAccountsController extends ModuleAdminController
 
             // Update account
             if ($employee->id) {
-                $employeeAccount->setEmployeeId($employee->id)
-                    ->setUid($uid)
-                    ->setEmail($email);
-
-                $entityManager->persist($employeeAccount);
-                $entityManager->flush();
+                $repository->upsert(
+                    $employeeAccount
+                        ->setEmployeeId($employee->id)
+                        ->setUid($uid)
+                        ->setEmail($email)
+                );
             }
         } else {
             $employee = new Employee();
