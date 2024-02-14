@@ -20,13 +20,12 @@
 
 namespace PrestaShop\Module\PsAccounts\Repository;
 
-use Doctrine\ORM\EntityManagerInterface;
 use PrestaShop\Module\PsAccounts\Entity\EmployeeAccount;
 
 class EmployeeAccountRepository
 {
     /**
-     * @var EntityManagerInterface
+     * @var mixed
      */
     private $entityManager;
 

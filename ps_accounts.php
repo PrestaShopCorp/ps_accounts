@@ -77,7 +77,6 @@ class Ps_accounts extends Module
      * @var array
      */
     private $hooks = [
-//        \PrestaShop\Module\PsAccounts\Hook\ActionAdminControllerInitBefore::class,
         \PrestaShop\Module\PsAccounts\Hook\ActionAdminLoginControllerLoginAfter::class,
         \PrestaShop\Module\PsAccounts\Hook\ActionAdminLoginControllerSetMedia::class,
         \PrestaShop\Module\PsAccounts\Hook\ActionObjectEmployeeDeleteAfter::class,
