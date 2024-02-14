@@ -155,6 +155,7 @@ class ShopProvider
                     'multishop' => $this->shopContext->isMultishopActive(),
                     'moduleName' => $psxName,
                     'psVersion' => _PS_VERSION_,
+                    'moduleVersion' => \Ps_accounts::VERSION,
                 ]);
             }
 
