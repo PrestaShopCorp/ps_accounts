@@ -157,7 +157,7 @@ class PsAccountsService
      */
     public function getUserUuid()
     {
-        return $this->linkShop->getOwnerUuid();
+        return (string) $this->linkShop->getOwnerUuid();
     }
 
     /**
