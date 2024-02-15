@@ -26,16 +26,24 @@ use PrestaShop\Module\PsAccounts\Service\PsAccountsService;
 class DisplayAccountUpdateWarning extends Hook
 {
     /**
+     * @var PsAccountsService
+     */
+    private $accountsService;
+
+    public function __construct(\Ps_accounts $module)
+    {
+        parent::__construct($module);
+        $this->accountsService = $this->module->getService(PsAccountsService::class);
+    }
+
+    /**
      * @return string
      *
      * @throws Exception
      */
     public function execute(array $params = [])
     {
-        /** @var PsAccountsService $psAccountsService */
-        $psAccountsService = $this->module->getService(PsAccountsService::class);
-
-        if ($psAccountsService->isAccountLinked() &&
+        if ($this->accountsService->isAccountLinked() &&
             !$this->module->getShopContext()->isMultishopActive()) {
             // I don't load with $this->get('twig') since i had this error https://github.com/PrestaShop/PrestaShop/issues/20505
             // Some users may have the same and couldn't render the configuration page

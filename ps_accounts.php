@@ -77,8 +77,9 @@ class Ps_accounts extends Module
      * @var array
      */
     private $hooks = [
+        \PrestaShop\Module\PsAccounts\Hook\ActionAdminControllerInitBefore::class,
         \PrestaShop\Module\PsAccounts\Hook\ActionAdminLoginControllerLoginAfter::class,
-        \PrestaShop\Module\PsAccounts\Hook\ActionAdminLoginControllerSetMedia::class,
+//        \PrestaShop\Module\PsAccounts\Hook\ActionAdminLoginControllerSetMedia::class,
         \PrestaShop\Module\PsAccounts\Hook\ActionObjectEmployeeDeleteAfter::class,
         \PrestaShop\Module\PsAccounts\Hook\ActionObjectShopAddAfter::class,
         \PrestaShop\Module\PsAccounts\Hook\ActionObjectShopDeleteAfter::class,
@@ -89,7 +90,7 @@ class Ps_accounts extends Module
         \PrestaShop\Module\PsAccounts\Hook\ActionShopAccountLinkAfter::class,
         \PrestaShop\Module\PsAccounts\Hook\ActionShopAccountUnlinkAfter::class,
         \PrestaShop\Module\PsAccounts\Hook\DisplayAccountUpdateWarning::class,
-        \PrestaShop\Module\PsAccounts\Hook\DisplayBackOfficeHeader::class,
+//        \PrestaShop\Module\PsAccounts\Hook\DisplayBackOfficeHeader::class,
         \PrestaShop\Module\PsAccounts\Hook\DisplayBackOfficeEmployeeMenu::class,
         \PrestaShop\Module\PsAccounts\Hook\DisplayDashboardTop::class,
     ];
@@ -444,6 +445,8 @@ class Ps_accounts extends Module
      */
     public function fixMultiShopConfig()
     {
+        $this->getLogger()->debug('####### ' . __FUNCTION__);
+
         /** @var \PrestaShop\Module\PsAccounts\Repository\ConfigurationRepository $config */
         $config = $this->getService(\PrestaShop\Module\PsAccounts\Repository\ConfigurationRepository::class);
 

@@ -36,14 +36,14 @@ abstract class Hook
     protected $commandBus;
 
     /**
-     * @param Ps_accounts $ps_accounts
+     * @param Ps_accounts $module
      *
      * @throws \Exception
      */
-    public function __construct(Ps_accounts $ps_accounts)
+    public function __construct(Ps_accounts $module)
     {
-        $this->module = $ps_accounts;
-        $this->commandBus = $ps_accounts->getService(CommandBus::class);
+        $this->module = $module;
+        $this->commandBus = $module->getService(CommandBus::class);
     }
 
     /**

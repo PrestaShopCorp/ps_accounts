@@ -31,16 +31,16 @@ class DisplayBackOfficeEmployeeMenu extends Hook
      */
     public function execute(array $params = [])
     {
-        $bar = $params['links'];
-
-        $link = $this->module->getParameter('ps_accounts.accounts_ui_url') . '?' . http_build_query([
-                'utm_source' => \Tools::getShopDomain(),
-                'utm_medium' => 'back-office',
-                'utm_campaign' => $this->module->name,
-                'utm_content' => 'headeremployeedropdownlink',
-            ]);
-
         if (class_exists('\PrestaShop\PrestaShop\Core\Action\ActionsBarButton')) {
+            $bar = $params['links'];
+
+            $link = $this->module->getParameter('ps_accounts.accounts_ui_url') . '?' . http_build_query([
+                    'utm_source' => \Tools::getShopDomain(),
+                    'utm_medium' => 'back-office',
+                    'utm_campaign' => $this->module->name,
+                    'utm_content' => 'headeremployeedropdownlink',
+                ]);
+
             $bar->add(
                 new \PrestaShop\PrestaShop\Core\Action\ActionsBarButton(
                     '', ['link' => $link, 'icon' => 'open_in_new'], $this->module->l('Manage your PrestaShop account')

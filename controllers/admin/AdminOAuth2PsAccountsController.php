@@ -18,9 +18,6 @@
  * @license   https://opensource.org/licenses/AFL-3.0 Academic Free License version 3.0
  */
 
-// FIXME : needed on 1.6
-require_once __DIR__ . '/../../src/Provider/OAuth2/PrestaShopLoginTrait.php';
-
 use League\OAuth2\Client\Provider\Exception\IdentityProviderException;
 use PrestaShop\Module\PsAccounts\Entity\EmployeeAccount;
 use PrestaShop\Module\PsAccounts\Exception\AccountLogin\AccountLoginException;
