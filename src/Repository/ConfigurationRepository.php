@@ -22,6 +22,8 @@ namespace PrestaShop\Module\PsAccounts\Repository;
 
 use PrestaShop\Module\PsAccounts\Adapter\Configuration;
 use PrestaShop\Module\PsAccounts\Adapter\ConfigurationKeys;
+use PrestaShop\Module\PsAccounts\Context\ShopContext;
+use PrestaShop\Module\PsAccounts\Log\Logger;
 
 class ConfigurationRepository
 {
@@ -34,6 +36,8 @@ class ConfigurationRepository
      * ConfigurationRepository constructor.
      *
      * @param Configuration|null $configuration
+     *
+     * @throws \Exception
      */
     public function __construct(Configuration $configuration = null)
     {
@@ -242,40 +246,6 @@ class ConfigurationRepository
     }
 
     /**
-     * specify id_shop & id_shop_group for shop
-     *
-     * @return void
-     *
-     * @throws \PrestaShopDatabaseException
-     */
-    public function migrateToMultiShop()
-    {
-        $shop = $this->getMainShop();
-        \Db::getInstance()->query(
-            'UPDATE ' . _DB_PREFIX_ . 'configuration SET id_shop = ' . (int) $shop->id . ', id_shop_group = ' . (int) $shop->id_shop_group .
-            " WHERE name IN('" . join("','", array_values(ConfigurationKeys::cases())) . "')" .
-            ' AND id_shop IS NULL AND id_shop_group IS NULL;'
-        );
-    }
-
-    /**
-     * nullify id_shop & id_shop_group for shop
-     *
-     * @return void
-     *
-     * @throws \PrestaShopDatabaseException
-     */
-    public function migrateToSingleShop()
-    {
-        $shop = $this->getMainShop();
-        \Db::getInstance()->query(
-            'UPDATE ' . _DB_PREFIX_ . 'configuration SET id_shop = NULL, id_shop_group = NULL' .
-            " WHERE name IN('" . join("','", array_values(ConfigurationKeys::cases())) . "')" .
-            ' AND id_shop = ' . (int) $shop->id . ';'
-        );
-    }
-
-    /**
      * @return bool
      */
     public function getLoginEnabled()
@@ -345,5 +315,67 @@ class ConfigurationRepository
     public function updateAccessToken($accessToken)
     {
         $this->configuration->set(ConfigurationKeys::PS_ACCOUNTS_ACCESS_TOKEN, $accessToken);
+    }
+
+    /**
+     * @return void
+     *
+     * @throws \Exception
+     */
+    public function fixMultiShopConfig()
+    {
+        Logger::getInstance()->error('## ' . __METHOD__);
+
+        if ($this->isMultishopActive()) {
+            $this->migrateToMultiShop();
+        } else {
+            $this->migrateToSingleShop();
+        }
+    }
+
+    /**
+     * is multi-shop active "right now"
+     *
+     * @return bool
+     */
+    public function isMultishopActive()
+    {
+        //return \Shop::isFeatureActive();
+        return \Db::getInstance()->getValue('SELECT value FROM `' . _DB_PREFIX_ . 'configuration` WHERE `name` = "PS_MULTISHOP_FEATURE_ACTIVE"')
+            && (\Db::getInstance()->getValue('SELECT COUNT(*) FROM ' . _DB_PREFIX_ . 'shop') > 1);
+    }
+
+    /**
+     * specify id_shop & id_shop_group for shop
+     *
+     * @return void
+     *
+     * @throws \PrestaShopDatabaseException
+     */
+    protected function migrateToMultiShop()
+    {
+        $shop = $this->getMainShop();
+        \Db::getInstance()->query(
+            'UPDATE ' . _DB_PREFIX_ . 'configuration SET id_shop = ' . (int) $shop->id . ', id_shop_group = ' . (int) $shop->id_shop_group .
+            " WHERE name IN('" . join("','", array_values(ConfigurationKeys::cases())) . "')" .
+            ' AND id_shop IS NULL AND id_shop_group IS NULL;'
+        );
+    }
+
+    /**
+     * nullify id_shop & id_shop_group for shop
+     *
+     * @return void
+     *
+     * @throws \PrestaShopDatabaseException
+     */
+    protected function migrateToSingleShop()
+    {
+        $shop = $this->getMainShop();
+        \Db::getInstance()->query(
+            'UPDATE ' . _DB_PREFIX_ . 'configuration SET id_shop = NULL, id_shop_group = NULL' .
+            " WHERE name IN('" . join("','", array_values(ConfigurationKeys::cases())) . "')" .
+            ' AND id_shop = ' . (int) $shop->id . ';'
+        );
     }
 }

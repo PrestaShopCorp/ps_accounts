@@ -81,8 +81,8 @@ class Ps_accounts extends Module
         \PrestaShop\Module\PsAccounts\Hook\ActionAdminLoginControllerLoginAfter::class,
 //        \PrestaShop\Module\PsAccounts\Hook\ActionAdminLoginControllerSetMedia::class,
         \PrestaShop\Module\PsAccounts\Hook\ActionObjectEmployeeDeleteAfter::class,
-        \PrestaShop\Module\PsAccounts\Hook\ActionObjectShopAddAfter::class,
-        \PrestaShop\Module\PsAccounts\Hook\ActionObjectShopDeleteAfter::class,
+//        \PrestaShop\Module\PsAccounts\Hook\ActionObjectShopAddAfter::class,
+//        \PrestaShop\Module\PsAccounts\Hook\ActionObjectShopDeleteAfter::class,
         \PrestaShop\Module\PsAccounts\Hook\ActionObjectShopDeleteBefore::class,
         \PrestaShop\Module\PsAccounts\Hook\ActionObjectShopUpdateAfter::class,
         \PrestaShop\Module\PsAccounts\Hook\ActionObjectShopUrlUpdateAfter::class,
@@ -93,6 +93,7 @@ class Ps_accounts extends Module
 //        \PrestaShop\Module\PsAccounts\Hook\DisplayBackOfficeHeader::class,
         \PrestaShop\Module\PsAccounts\Hook\DisplayBackOfficeEmployeeMenu::class,
         \PrestaShop\Module\PsAccounts\Hook\DisplayDashboardTop::class,
+//        \PrestaShop\Module\PsAccounts\Hook\ActionObjectUpdateAfter::class,
     ];
 
     /**
@@ -439,25 +440,6 @@ class Ps_accounts extends Module
     }
 
     /**
-     * @return void
-     *
-     * @throws Exception
-     */
-    public function fixMultiShopConfig()
-    {
-        $this->getLogger()->debug('####### ' . __FUNCTION__);
-
-        /** @var \PrestaShop\Module\PsAccounts\Repository\ConfigurationRepository $config */
-        $config = $this->getService(\PrestaShop\Module\PsAccounts\Repository\ConfigurationRepository::class);
-
-        if ($this->getShopContext()->isMultishopActive()) {
-            $config->migrateToMultiShop();
-        } else {
-            $config->migrateToSingleShop();
-        }
-    }
-
-    /**
      * @return bool
      */
     public function isShopEdition()
@@ -537,8 +519,11 @@ class Ps_accounts extends Module
             ])
         ));
 
+        /** @var \PrestaShop\Module\PsAccounts\Repository\ConfigurationRepository $configurationRepository */
+        $configurationRepository = $this->getService(\PrestaShop\Module\PsAccounts\Repository\ConfigurationRepository::class);
+        $configurationRepository->fixMultiShopConfig();
+
         $this->installEventBus();
-        $this->fixMultiShopConfig();
         $this->autoReonboardOnV5();
     }
 }
