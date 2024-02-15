@@ -22,7 +22,6 @@ namespace PrestaShop\Module\PsAccounts\Repository;
 
 use PrestaShop\Module\PsAccounts\Adapter\Configuration;
 use PrestaShop\Module\PsAccounts\Adapter\ConfigurationKeys;
-use PrestaShop\Module\PsAccounts\Context\ShopContext;
 use PrestaShop\Module\PsAccounts\Log\Logger;
 
 class ConfigurationRepository

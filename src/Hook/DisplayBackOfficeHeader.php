@@ -33,12 +33,6 @@ class DisplayBackOfficeHeader extends Hook
      */
     public function execute(array $params = [])
     {
-        // Multistore On/Off switch
-        /* @phpstan-ignore-next-line */
-        if ('AdminPreferences' === $this->module->getContext()->controller->controller_name ||
-            !$this->module->getShopContext()->isShop17()) {
-            $this->module->fixMultiShopConfig();
-        }
         $this->module->getOauth2Middleware()->execute();
     }
 }
