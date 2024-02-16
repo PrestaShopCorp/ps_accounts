@@ -1,0 +1,83 @@
+#!/bin/bash
+
+rootDir=$1
+
+environment=$2
+
+configFile=./${rootDir}/config/config.yml
+
+version=$(grep '<version>' "./${rootDir}/config.xml" | sed 's/^.*\[CDATA\[\(.*\)\]\].*/\1/')
+
+module=$(grep '<name>' "./${rootDir}/config.xml" | sed 's/^.*<name>\(.*\)<\/name>.*/\1/')
+
+branch=$(git -C "./${rootDir}" branch | grep '\*' | sed 's/^\*\s\+\(.*\)$/\1/' | sed 's/\//\_/g')
+
+filename=${module}-${version}-${branch}.${environment}.zip
+
+filename=$(echo "$filename" | sed -E 's/[.]{2,}/./')
+
+#composer=`which composer`
+composer='php composer.phar'
+
+function makePhpVendor () {
+  cd "./${rootDir}" || return;
+  rm -rf ./vendor
+  $composer install --no-dev -o
+  $composer dump-autoload --classmap-authoritative
+  cd ..
+}
+
+function bundleModule () {
+  rm -f "$filename"
+  zip -r "${filename}" "./${rootDir}" -x \
+    \*.git/* \
+    \*.github/* \
+    \*.docker/* \
+    \*.idea/* \
+    \*_dev/* \
+    \*tests/* \
+    \*scripts/* \
+    '*config/config.yml.*' \
+    \*.bak/* \
+    '*composer.*' \
+    '*crowdin.*' \
+    '*TODO.*' \
+    '*docker-compose.*' \
+    '*phpunit.*' \
+    '*Makefile' \
+    '*callApi' \
+    '*/.*' \
+    -q
+}
+
+function backupEnvironment () {
+  if [[ -f $configFile ]]; then
+    mv "$configFile" "${configFile}.bak"
+  fi
+  if [[ -d "./${rootDir}/vendor" ]]; then
+    mv "./${rootDir}/vendor" "./${rootDir}/vendor.bak"
+  fi
+}
+
+function restoreEnvironment () {
+  if [[ -f "${configFile}.bak" ]]; then
+    mv "${configFile}".bak "$configFile"
+  fi
+  if [[ -d "./${rootDir}/vendor.bak" ]]; then
+    rm -rf "./${rootDir}/vendor"
+    mv "./${rootDir}/vendor.bak" "./$rootDir/vendor"
+  fi
+}
+
+echo "${filename} ..."
+
+if [ "$environment" ]; then
+  backupEnvironment
+  cp "${configFile}"."${environment}" "$configFile"
+  makePhpVendor
+  bundleModule
+  restoreEnvironment
+else
+  bundleModule
+fi
+
