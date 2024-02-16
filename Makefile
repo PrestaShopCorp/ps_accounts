@@ -4,6 +4,8 @@ DOCKER = $(shell docker ps 2> /dev/null)
 NPM = $(shell which npm 2> /dev/null)
 YARN = $(shell which yarn 2> /dev/null)
 MODULE ?= $(shell basename ${PWD})
+CURRENT_UID := $(shell id -u)
+CURRENT_GID := $(shell id -g)
 
 VERSION ?= 5.2.0#$(shell git describe --tags | sed 's/^v//')
 PACKAGE ?= "${MODULE}-${VERSION}"
@@ -177,3 +179,19 @@ fix-lint: vendor/bin/php-cs-fixer
 
 vendor/bin/php-cs-fixer:
 	./composer.phar install
+
+# target: php-scoper-build
+php-scoper-pull:
+	docker pull humbugphp/php-scoper:latest
+
+php-scoper: vendor
+	docker run -ti -v ${PWD}:/src -w /src -u ${CURRENT_UID}:${CURRENT_GID} \
+		humbugphp/php-scoper:latest add-prefix --output-dir build/ps_accounts --force
+
+php-scoper-build: php-scoper
+	cd build && ./bundle-module ps_accounts local
+#	./composer.phar dump-autoload --working-dir build/ps_accounts --classmap-authoritative
+
+vendor:
+	./composer.phar install --no-dev --prefer-dist
+
