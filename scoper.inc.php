@@ -111,6 +111,7 @@ return [
     //
     // For more see: https://github.com/humbug/php-scoper/blob/master/docs/configuration.md#patchers
     'patchers' => [
+        // FIXME: @var typehints
         /*static function (string $filePath, string $prefix, string $contents): string {
             // Change the contents here.
             return $contents;
@@ -147,15 +148,12 @@ return [
         '\Media',
         '\Shop',
         '\Employee',
+        '\Cache',
         '\ModuleAdminController',
-        '\AdminDebugPsAccountsController',
-        '\AdminAjaxPsAccountsController',
-        '\AdminLoginPsAccountsController',
-        '\AdminOAuth2PsAccountsController',
+        '\ModuleFrontController',
     ],
     'exclude-functions' => [
         // 'mb_str_split',
-        //'array_merge'
     ],
     'exclude-constants' => [
         // 'STDIN',
@@ -174,7 +172,13 @@ return [
         // '',                            // Any namespace
         //'~^PrestaShop\\\\Module\\\\PsAccounts~'
     ],
-    'expose-classes' => [],
+    'expose-classes' => [
+        '\PsAccounts',
+        '\AdminDebugPsAccountsController',
+        '\AdminAjaxPsAccountsController',
+        '\AdminLoginPsAccountsController',
+        '\AdminOAuth2PsAccountsController',
+    ],
     'expose-functions' => [],
     'expose-constants' => [],
 ];
