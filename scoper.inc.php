@@ -20,6 +20,8 @@
 
 declare(strict_types=1);
 
+#ini_set('memory_limit', '1024M');
+
 use Isolated\Symfony\Component\Finder\Finder;
 
 // You can do your own things here, e.g. collecting symbols to expose dynamically
@@ -66,7 +68,7 @@ return [
         Finder::create()
             ->files()
             ->ignoreVCS(true)
-            ->notName('/LICENSE|.*\\.md|.*\\.dist|Makefile|composer\\.json|composer\\.lock/')
+            ->notName('/LICENSE|.*\\.md|.*\\.dist|Makefile|composer\\.json|composer\\.lock|Dockerfile/')
             ->exclude([
                 'doc',
                 'test',
@@ -89,7 +91,6 @@ return [
             'LICENSE',
             'logo.png',
             'ps_accounts.php',
-            'composer.json',
         ]),
     ],
 
@@ -110,11 +111,10 @@ return [
     //
     // For more see: https://github.com/humbug/php-scoper/blob/master/docs/configuration.md#patchers
     'patchers' => [
-        static function (string $filePath, string $prefix, string $contents): string {
+        /*static function (string $filePath, string $prefix, string $contents): string {
             // Change the contents here.
-
             return $contents;
-        },
+        },*/
     ],
 
     // List of symbols to consider internal i.e. to leave untouched.
@@ -123,18 +123,39 @@ return [
     'exclude-namespaces' => [
         // 'Acme\Foo'                     // The Acme\Foo namespace (and sub-namespaces)
         // '~^PHPUnit\\\\Framework$~',    // The whole namespace PHPUnit\Framework (but not sub-namespaces)
-        // '~^$~',                        // The root namespace only
+        //'~^$~',                        // The root namespace only
         // '',
-        //'~^Composer\\\\~',
-        //'~^PrestaShop\\\\Module\\\\PsAccounts~'
+        '~^PrestaShop\\\\Module\\\\PsAccounts~',
+        '~^PrestaShop\\\\PrestaShop~',
+        '~^PrestaShopBundle~',
+        // FIXME
+        '~^Symfony~',
     ],
     'exclude-classes' => [
         // 'ReflectionClassConstant',
-        'Ps_accounts',
-        'Module',
+        //'\Ps_accounts',
+        '\Module',
+        '\Db',
+        '\Tab',
+        '\Language',
+        '\Tools',
+        '\Hook',
+        '\Configuration',
+        '\Context',
+        '\Link',
+        '\PrestaShopException',
+        '\Media',
+        '\Shop',
+        '\Employee',
+        '\ModuleAdminController',
+        '\AdminDebugPsAccountsController',
+        '\AdminAjaxPsAccountsController',
+        '\AdminLoginPsAccountsController',
+        '\AdminOAuth2PsAccountsController',
     ],
     'exclude-functions' => [
         // 'mb_str_split',
+        //'array_merge'
     ],
     'exclude-constants' => [
         // 'STDIN',

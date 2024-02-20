@@ -21,9 +21,9 @@ composer='php composer.phar'
 
 function makePhpVendor () {
   cd "./${rootDir}" || return;
-  rm -rf ./vendor
-  $composer install --no-dev -o
-  $composer dump-autoload --classmap-authoritative
+  #rm -rf ./vendor
+  #$composer install --no-dev -o
+  #$composer dump-autoload --classmap-authoritative
   cd ..
 }
 
@@ -54,19 +54,19 @@ function backupEnvironment () {
   if [[ -f $configFile ]]; then
     mv "$configFile" "${configFile}.bak"
   fi
-  if [[ -d "./${rootDir}/vendor" ]]; then
-    mv "./${rootDir}/vendor" "./${rootDir}/vendor.bak"
-  fi
+#  if [[ -d "./${rootDir}/vendor" ]]; then
+#    mv "./${rootDir}/vendor" "./${rootDir}/vendor.bak"
+#  fi
 }
 
 function restoreEnvironment () {
   if [[ -f "${configFile}.bak" ]]; then
     mv "${configFile}".bak "$configFile"
   fi
-  if [[ -d "./${rootDir}/vendor.bak" ]]; then
-    rm -rf "./${rootDir}/vendor"
-    mv "./${rootDir}/vendor.bak" "./$rootDir/vendor"
-  fi
+#  if [[ -d "./${rootDir}/vendor.bak" ]]; then
+#    rm -rf "./${rootDir}/vendor"
+#    mv "./${rootDir}/vendor.bak" "./$rootDir/vendor"
+#  fi
 }
 
 echo "${filename} ..."

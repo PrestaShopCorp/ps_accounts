@@ -185,11 +185,20 @@ php-scoper-pull:
 	docker pull humbugphp/php-scoper:latest
 
 php-scoper: vendor
-	docker run -ti -v ${PWD}:/src -w /src -u ${CURRENT_UID}:${CURRENT_GID} \
+	docker run -ti -v ${PWD}:/input -w /input -u ${CURRENT_UID}:${CURRENT_GID} \
 		humbugphp/php-scoper:latest add-prefix --output-dir build/ps_accounts --force
 
-php-scoper-build: php-scoper
+php-scoper-dump-autoload:
+	./composer.phar dump-autoload --working-dir build/ps_accounts --classmap-authoritative
+
+php-scoper-fix-autoloader:
+	cd build && php fix-autoloader.php
+
+php-scoper-bundle:
 	cd build && ./bundle-module ps_accounts local
+
+php-scoper-build: php-scoper php-scoper-dump-autoload php-scoper-fix-autoloader php-scoper-bundle
+#	cd build && ./bundle-module ps_accounts local
 #	./composer.phar dump-autoload --working-dir build/ps_accounts --classmap-authoritative
 
 vendor:
