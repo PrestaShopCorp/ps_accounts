@@ -37,7 +37,7 @@ use PrestaShop\OAuth2\Client\Provider\PrestaShopUser;
 /**
  * Controller for all ajax calls.
  */
-class AdminOAuth2PsAccountsController extends ModuleAdminController
+class AdminOAuth2PsAccountsController extends \PrestaShop\Module\PsAccounts\Controller\ModuleAdminController
 {
     use PrestaShopLoginTrait;
 

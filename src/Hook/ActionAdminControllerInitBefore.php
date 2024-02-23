@@ -22,6 +22,7 @@ namespace PrestaShop\Module\PsAccounts\Hook;
 
 use AdminLoginPsAccountsController;
 use Exception;
+use PrestaShop\Module\PsAccounts\Log\Logger;
 use PrestaShop\Module\PsAccounts\Service\AnalyticsService;
 use PrestaShop\Module\PsAccounts\Service\PsAccountsService;
 use Tools;
@@ -41,6 +42,7 @@ class ActionAdminControllerInitBefore extends Hook
     public function __construct(\Ps_accounts $module)
     {
         parent::__construct($module);
+
         $this->accountsService = $this->module->getService(PsAccountsService::class);
         $this->analytics = $this->module->getService(AnalyticsService::class);
     }
@@ -58,16 +60,19 @@ class ActionAdminControllerInitBefore extends Hook
 
         $this->module->getOauth2Middleware()->execute();
 
-        if (get_class($controller) === 'AdminLoginController') {
+        $className = preg_replace('/^.*\\\\/', '', get_class($controller));
+        Logger::getInstance()->error('########################### ' . __CLASS__ . ' ' . $className);
+
+        if ($className === 'AdminLoginController') {
             $local = Tools::getValue('mode') === AdminLoginPsAccountsController::PARAM_MODE_LOCAL ||
                 !$this->accountsService->getLoginActivated();
 
             $this->trackLoginPage($local);
 
             if ($this->module->getShopContext()->isShop17() && !$local) {
-//            /** @var \PrestaShop\Module\PsAccounts\Adapter\Link $link */
-//            $link = $this->getService(\PrestaShop\Module\PsAccounts\Adapter\Link::class);
-//            Tools::redirectLink($link->getAdminLink('AdminLoginPsAccounts', false));
+//                /** @var \PrestaShop\Module\PsAccounts\Adapter\Link $link */
+//                $link = $this->module->getService(\PrestaShop\Module\PsAccounts\Adapter\Link::class);
+//                Tools::redirectLink($link->getAdminLink('AdminLoginPsAccounts', false));
                 (new AdminLoginPsAccountsController())->run();
                 exit;
             }

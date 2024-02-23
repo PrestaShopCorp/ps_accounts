@@ -77,12 +77,8 @@ class Ps_accounts extends Module
      * @var array
      */
     private $hooks = [
-        \PrestaShop\Module\PsAccounts\Hook\ActionAdminControllerInitBefore::class,
         \PrestaShop\Module\PsAccounts\Hook\ActionAdminLoginControllerLoginAfter::class,
-//        \PrestaShop\Module\PsAccounts\Hook\ActionAdminLoginControllerSetMedia::class,
         \PrestaShop\Module\PsAccounts\Hook\ActionObjectEmployeeDeleteAfter::class,
-//        \PrestaShop\Module\PsAccounts\Hook\ActionObjectShopAddAfter::class,
-//        \PrestaShop\Module\PsAccounts\Hook\ActionObjectShopDeleteAfter::class,
         \PrestaShop\Module\PsAccounts\Hook\ActionObjectShopDeleteBefore::class,
         \PrestaShop\Module\PsAccounts\Hook\ActionObjectShopUpdateAfter::class,
         \PrestaShop\Module\PsAccounts\Hook\ActionObjectShopUrlUpdateAfter::class,
@@ -90,10 +86,20 @@ class Ps_accounts extends Module
         \PrestaShop\Module\PsAccounts\Hook\ActionShopAccountLinkAfter::class,
         \PrestaShop\Module\PsAccounts\Hook\ActionShopAccountUnlinkAfter::class,
         \PrestaShop\Module\PsAccounts\Hook\DisplayAccountUpdateWarning::class,
-//        \PrestaShop\Module\PsAccounts\Hook\DisplayBackOfficeHeader::class,
         \PrestaShop\Module\PsAccounts\Hook\DisplayBackOfficeEmployeeMenu::class,
         \PrestaShop\Module\PsAccounts\Hook\DisplayDashboardTop::class,
+
+        // toggle single/multi-shop
+//        \PrestaShop\Module\PsAccounts\Hook\ActionObjectShopAddAfter::class,
+//        \PrestaShop\Module\PsAccounts\Hook\ActionObjectShopDeleteAfter::class,
 //        \PrestaShop\Module\PsAccounts\Hook\ActionObjectUpdateAfter::class,
+
+        // Login/Logout OAuth
+        // PS 1.6 - 1.7
+//        \PrestaShop\Module\PsAccounts\Hook\DisplayBackOfficeHeader::class,
+//        \PrestaShop\Module\PsAccounts\Hook\ActionAdminLoginControllerSetMedia::class,
+        // PS >= 8
+//        \PrestaShop\Module\PsAccounts\Hook\ActionAdminControllerInitBefore::class,
     ];
 
     /**
@@ -274,6 +280,7 @@ class Ps_accounts extends Module
     {
         return array_map(function ($className) {
             return preg_replace('/^.*?(\w+)Controller$/', '\1', $className);
+            //return preg_replace('/^(.*?)Controller$/', '\1', $className);
         }, $this->adminControllers);
     }
 
@@ -522,6 +529,10 @@ class Ps_accounts extends Module
         /** @var \PrestaShop\Module\PsAccounts\Repository\ConfigurationRepository $configurationRepository */
         $configurationRepository = $this->getService(\PrestaShop\Module\PsAccounts\Repository\ConfigurationRepository::class);
         $configurationRepository->fixMultiShopConfig();
+
+//        /** @var \PrestaShop\Module\PsAccounts\Module\Uninstall $uninstaller */
+//        $uninstaller = new PrestaShop\Module\PsAccounts\Module\Uninstall($this, Db::getInstance());
+//        $uninstaller->deleteAdminTab('AdminLogin');
 
         $this->installEventBus();
         $this->autoReonboardOnV5();

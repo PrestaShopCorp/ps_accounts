@@ -191,15 +191,16 @@ php-scoper: vendor
 php-scoper-dump-autoload:
 	./composer.phar dump-autoload --working-dir build/ps_accounts --classmap-authoritative
 
-php-scoper-fix-autoloader:
+php-scoper-fix-autoload:
 	cd build && php fix-autoloader.php
+
+#php-scoper-fix-admin-controllers:
+#	cd build && php fix-admin-controllers.php
 
 php-scoper-bundle:
 	cd build && ./bundle-module ps_accounts local
 
-php-scoper-build: php-scoper php-scoper-dump-autoload php-scoper-fix-autoloader php-scoper-bundle
-#	cd build && ./bundle-module ps_accounts local
-#	./composer.phar dump-autoload --working-dir build/ps_accounts --classmap-authoritative
+php-scoper-build: php-scoper php-scoper-dump-autoload php-scoper-fix-autoload php-scoper-bundle
 
 vendor:
 	./composer.phar install --no-dev --prefer-dist

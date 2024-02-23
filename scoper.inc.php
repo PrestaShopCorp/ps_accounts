@@ -101,7 +101,7 @@ return [
     'exclude-files' => [
         // 'src/an-excluded-file.php',
         //...$excludedFiles,
-        //'ps_accounts.php'
+        'controllers/admin/AdminLoginController.php',
     ],
 
     // When scoping PHP files, there will be scenarios where some of the code being scoped indirectly references the
@@ -111,11 +111,24 @@ return [
     //
     // For more see: https://github.com/humbug/php-scoper/blob/master/docs/configuration.md#patchers
     'patchers' => [
-        // FIXME: @var typehints
-        /*static function (string $filePath, string $prefix, string $contents): string {
-            // Change the contents here.
+        static function (string $filePath, string $prefix, string $contents): string {
+            if ($filePath === __DIR__ . '/vendor/league/oauth2-client/src/Grant/GrantFactory.php') {
+                return str_replace(
+                    "\$class = 'League\\\\OAuth2\\\\Client\\\\Grant\\\\' . \$class;",
+                    "\$class = '{$prefix}\\\\League\\\\OAuth2\\\\Client\\\\Grant\\\\' . \$class;",
+                    $contents
+                );
+            }
+            if ($filePath === __DIR__ . '/vendor/sentry/sentry/lib/Raven/Client.php') {
+                return str_replace(
+                    "\$new_processor = new \$processor(\$this);",
+                    "\$new_processor = new (\"{$prefix}\\\\\$processor\")(\$this);",
+                    $contents
+                );
+            }
+
             return $contents;
-        },*/
+        },
     ],
 
     // List of symbols to consider internal i.e. to leave untouched.
@@ -124,7 +137,7 @@ return [
     'exclude-namespaces' => [
         // 'Acme\Foo'                     // The Acme\Foo namespace (and sub-namespaces)
         // '~^PHPUnit\\\\Framework$~',    // The whole namespace PHPUnit\Framework (but not sub-namespaces)
-        //'~^$~',                        // The root namespace only
+        //'~^\\\\$~',                        // The root namespace only
         // '',
         '~^PrestaShop\\\\Module\\\\PsAccounts~',
         '~^PrestaShop\\\\PrestaShop~',
@@ -134,23 +147,27 @@ return [
     ],
     'exclude-classes' => [
         // 'ReflectionClassConstant',
-        //'\Ps_accounts',
-        '\Module',
-        '\Db',
-        '\Tab',
-        '\Language',
-        '\Tools',
-        '\Hook',
+        '\Cache',
         '\Configuration',
         '\Context',
-        '\Link',
-        '\PrestaShopException',
-        '\Media',
-        '\Shop',
+        '\Db',
         '\Employee',
-        '\Cache',
+        '\Hook',
+        '\Language',
+        '\Link',
+        '\Media',
+        '\Module',
+        '\PrestaShopException',
+        '\Shop',
+        '\Tab',
+        '\Tools',
+        '\Validate',
+        '\AdminController',
+        '\AdminLoginControllerCore',
         '\ModuleAdminController',
+        '\ModuleAdminControllerCore',
         '\ModuleFrontController',
+        '\ModuleFrontControllerCore',
     ],
     'exclude-functions' => [
         // 'mb_str_split',
@@ -170,15 +187,10 @@ return [
         // '~^PHPUnit\\\\Framework$~',    // The whole namespace PHPUnit\Framework (but not sub-namespaces)
         // '~^$~',                        // The root namespace only
         // '',                            // Any namespace
-        //'~^PrestaShop\\\\Module\\\\PsAccounts~'
     ],
-    'expose-classes' => [
-        '\PsAccounts',
-        '\AdminDebugPsAccountsController',
-        '\AdminAjaxPsAccountsController',
-        '\AdminLoginPsAccountsController',
-        '\AdminOAuth2PsAccountsController',
-    ],
+    'expose-classes' => [],
     'expose-functions' => [],
     'expose-constants' => [],
+    // controllers admin SANS namespace, trouver un moyen de ne pas ajouter un namespace aux classes globales
+    // nom de la classe avec \\
 ];

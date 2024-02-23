@@ -20,7 +20,7 @@
 
 use PrestaShop\Module\PsAccounts\Provider\OAuth2\ShopProvider;
 
-class AdminLoginPsAccountsController extends AdminLoginControllerCore
+class AdminLoginPsAccountsController extends \AdminController
 {
     const PARAM_MODE_LOCAL = 'local';
 
@@ -35,12 +35,55 @@ class AdminLoginPsAccountsController extends AdminLoginControllerCore
      */
     public function __construct()
     {
+        $this->bootstrap = true;
+
         parent::__construct();
+
+        $this->errors = array();
+
+        $this->display_header = false;
+        $this->display_footer = false;
 
         /** @var Ps_accounts $module */
         $module = Module::getInstanceByName('ps_accounts');
 
         $this->psAccounts = $module;
+
+        if (!headers_sent()) {
+            header('Login: true');
+        }
+    }
+
+    public function initContent()
+    {
+//        if (file_exists(_PS_ADMIN_DIR_ . '/../install')) {
+//            $this->context->smarty->assign('wrong_install_name', true);
+//        }
+//
+//        // Redirect to admin panel
+//        if (Tools::isSubmit('redirect') && Validate::isControllerName(Tools::getValue('redirect'))) {
+//            $this->context->smarty->assign('redirect', Tools::getValue('redirect'));
+//        } else {
+//            $tab = new Tab((int) $this->context->employee->default_tab);
+//            $this->context->smarty->assign('redirect', $this->context->link->getAdminLink($tab->class_name));
+//        }
+//
+//        if ($nb_errors = count($this->errors)) {
+//            $this->context->smarty->assign(array(
+//                'errors' => $this->errors,
+//                'nbErrors' => $nb_errors,
+//                'shop_name' => Tools::safeOutput(Configuration::get('PS_SHOP_NAME')),
+//                'disableDefaultErrorOutPut' => true,
+//            ));
+//        }
+
+        $this->setMedia($isNewTheme = false);
+        $this->initHeader();
+        parent::initContent();
+        $this->initFooter();
+
+        //force to disable modals
+        $this->context->smarty->assign('modals', null);
     }
 
     /**
@@ -78,8 +121,8 @@ class AdminLoginPsAccountsController extends AdminLoginControllerCore
      */
     public function setMedia($isNewTheme = false)
     {
-        $this->addCss(_PS_MODULE_DIR_ . '/ps_accounts/views/css/login.css');
-        $this->addJS(_PS_MODULE_DIR_ . '/ps_accounts/views/js/login.js');
+        $this->addCss($this->psAccounts->getLocalPath() . '/views/css/login.css');
+        $this->addJS($this->psAccounts->getLocalPath() . '/views/js/login.js');
     }
 
     /**
