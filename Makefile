@@ -192,7 +192,7 @@ SCOPED_DIR := vendor-scoped
 php-scoper-pull:
 	docker pull humbugphp/php-scoper:latest
 
-php-scoper-add-prefix:
+php-scoper-add-prefix: composer-install
 	docker run -v ${PWD}:/input -w /input -u ${CURRENT_UID}:${CURRENT_GID} \
 		humbugphp/php-scoper:latest add-prefix --output-dir ${SCOPED_DIR} --force --quiet
 	#for d in ${VENDOR_DIRS}; do rm -rf ./vendor/$$d && mv ./${SCOPED_DIR}/$$d ./vendor/; done;
@@ -213,6 +213,6 @@ php-scoper-zip: composer-install php-scoper
 
 php-scoper: php-scoper-add-prefix php-scoper-dump-autoload php-scoper-fix-autoload
 
-composer-install:
-	if [ -f ./composer.phar ]; then rm -rf ./vendor; ./composer.phar install --prefer-dist --quiet; fi;
+composer-install: composer.phar
+	rm -rf ./vendor && ./composer.phar install --prefer-dist --quiet
 
