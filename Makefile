@@ -86,13 +86,11 @@ ifndef PHP
 endif
 	./scripts/composer-install.sh
 
-# target: tests                                  - Launch the tests/lints suite front and back
+##########################################################
+# target: tests
+
 tests: test-back test-front lint-back
-
-# target: test-back                              - Launch the tests back
 test-back: lint-back phpstan phpunit
-
-# target: lint-back                              - Launch the back linting
 lint-back:
 	vendor/bin/php-cs-fixer fix --dry-run --diff --using-cache=no --diff-format udiff
 
@@ -101,7 +99,9 @@ ifndef DOCKER
     $(error "DOCKER is unavailable on your system")
 endif
 
-# target: phpstan                                - Start phpstan
+##########################################################
+# target: phpstan
+
 phpstan: check-docker php-scoper
 	docker pull phpstan/phpstan:${PHPSTAN_VERSION}
 	docker pull prestashop/prestashop:${PS_VERSION}
@@ -114,6 +114,9 @@ phpstan: check-docker php-scoper
 	  --memory-limit=-1 \
 	  --configuration=/web/module/tests/phpstan/${NEON_FILE}
 	docker volume rm ps-volume
+
+##########################################################
+# target: php-unit
 
 phpunit-pull:
 	docker pull prestashop/docker-internal-images:${DOCKER_INTERNAL}
@@ -158,7 +161,6 @@ phpunit-delay-5:
 	@echo waiting 5 seconds
 	@sleep 5
 
-# target: phpunit                                - Start phpunit
 phpunit: phpunit-pull phpunit-restart phpunit-delay-5 phpunit-module-install phpunit-run-feature phpunit-run-unit
 	@echo phpunit passed
 
@@ -168,11 +170,12 @@ phpunit-dev: phpunit-pull phpunit-restart phpunit-delay-5 phpunit-module-install
 vendor/phpunit/phpunit:
 	./composer.phar install
 
-# target: test-front                             - Launch the tests front (does not work linter is not configured)
 test-front:
 	npm --prefix=./_dev run lint
 
-# target: fix-lint                               - Launch php cs fixer and npm run lint
+##########################################################
+# target: fix-lint
+
 fix-lint: vendor/bin/php-cs-fixer
 	vendor/bin/php-cs-fixer fix --using-cache=no
 	npm --prefix=./_dev run lint --fix
@@ -180,7 +183,9 @@ fix-lint: vendor/bin/php-cs-fixer
 vendor/bin/php-cs-fixer:
 	./composer.phar install
 
+##########################################################
 # target: php-scoper
+
 VENDOR_DIRS := guzzlehttp league prestashopcorp
 SCOPED_DIR := "vendor-scoped"
 
