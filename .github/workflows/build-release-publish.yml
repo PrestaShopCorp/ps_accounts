@@ -24,8 +24,12 @@ jobs:
           VERSION=$(echo "${{ github.event.release.tag_name }}" | sed 's/^v//' | cut -d'-' -f1) \
           make version
 
-      - name: Install composer dependencies
-        run: composer install --no-dev -o
+#      - name: Install composer dependencies
+#        run: composer install --no-dev -o
+
+      - name: Scoped dependencies
+        run: |
+          COMPOSER_OPTIONS="--no-dev -o" make php-scoper
 
       - name: Get yarn cache directory path 🛠
         id: yarn-cache-dir-path

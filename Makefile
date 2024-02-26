@@ -188,6 +188,7 @@ vendor/bin/php-cs-fixer:
 
 VENDOR_DIRS := guzzlehttp league prestashopcorp
 SCOPED_DIR := vendor-scoped
+COMPOSER_OPTIONS := --prefer-dist --quiet
 
 php-scoper-pull:
 	docker pull humbugphp/php-scoper:latest
@@ -211,5 +212,5 @@ php-scoper-zip: php-scoper
 php-scoper: php-scoper-add-prefix php-scoper-dump-autoload php-scoper-fix-autoload
 
 composer-install: composer.phar
-	rm -rf ./vendor && ./composer.phar install --prefer-dist --quiet
+	rm -rf ./vendor && ./composer.phar install ${COMPOSER_OPTIONS}
 
