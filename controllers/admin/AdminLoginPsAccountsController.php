@@ -61,12 +61,12 @@ class AdminLoginPsAccountsController extends \AdminController
     public function initContent()
     {
         if ($nb_errors = count($this->errors)) {
-            $this->context->smarty->assign(array(
+            $this->context->smarty->assign([
                 'errors' => $this->errors,
                 'nbErrors' => $nb_errors,
-                'shop_name' => Tools::safeOutput(Configuration::get('PS_SHOP_NAME')),
+                'shop_name' => Tools::safeOutput((string) Configuration::get('PS_SHOP_NAME')),
                 'disableDefaultErrorOutPut' => true,
-            ));
+            ]);
         }
 
         $this->setMedia($isNewTheme = false);
