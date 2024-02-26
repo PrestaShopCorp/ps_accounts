@@ -193,7 +193,7 @@ php-scoper-pull:
 	docker pull humbugphp/php-scoper:latest
 
 php-scoper-add-prefix:
-	docker run -ti -v ${PWD}:/input -w /input -u ${CURRENT_UID}:${CURRENT_GID} \
+	docker run -v ${PWD}:/input -w /input -u ${CURRENT_UID}:${CURRENT_GID} \
 		humbugphp/php-scoper:latest add-prefix --output-dir ${SCOPED_DIR} --force --quiet
 	#for d in ${VENDOR_DIRS}; do rm -rf ./vendor/$$d && mv ./${SCOPED_DIR}/$$d ./vendor/; done;
 	$(foreach DIR,$(VENDOR_DIRS), rm -rf "./vendor/${DIR}" && mv "./${SCOPED_DIR}/${DIR}" ./vendor/;)
