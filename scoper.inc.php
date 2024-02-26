@@ -18,7 +18,7 @@
  * @license   https://opensource.org/licenses/AFL-3.0 Academic Free License version 3.0
  */
 
-declare(strict_types=1);
+//declare(strict_types=1);
 
 //ini_set('memory_limit', '1024M');
 
