@@ -21,7 +21,7 @@
 namespace PrestaShop\Module\PsAccounts\Hook;
 
 use Exception;
-use League\OAuth2\Client\Provider\Exception\IdentityProviderException;
+use PrestaShop\Module\PsAccounts\Vendor\League\OAuth2\Client\Provider\Exception\IdentityProviderException;
 
 class DisplayBackOfficeHeader extends Hook
 {

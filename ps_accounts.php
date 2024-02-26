@@ -21,7 +21,7 @@ if (!defined('_PS_VERSION_')) {
     exit;
 }
 require_once __DIR__ . '/vendor/autoload.php';
-require_once __DIR__ . '/upgrade/fix_upgrade.php';
+require_once __DIR__ . '/fix_upgrade.php';
 
 class Ps_accounts extends Module
 {
@@ -281,7 +281,7 @@ class Ps_accounts extends Module
     {
         return array_map(function ($className) {
             return preg_replace('/^.*?(\w+)Controller$/', '\1', $className);
-            //return preg_replace('/^(.*?)Controller$/', '\1', $className);
+        //return preg_replace('/^(.*?)Controller$/', '\1', $className);
         }, $this->adminControllers);
     }
 

@@ -26,6 +26,11 @@ use PrestaShop\Module\PsAccounts\Service\PsAccountsService;
 class AdminDebugPsAccountsController extends \ModuleAdminController
 {
     /**
+     * @var Ps_accounts
+     */
+    public $module;
+
+    /**
      * @return void
      *
      * @throws SmartyException

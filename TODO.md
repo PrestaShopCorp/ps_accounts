@@ -25,8 +25,8 @@
 * login.css pété après un build
 
 ### 
+* tester sans les namespace dans le composer
 * refaire bundle module (targets Makefile)
-* refaire targets Makefile et variabiliser les modules à scoper
 * variabiliser le module pour fix l'autoload
 * brancher le Guzzle Accounts sur les clients API
 * finir la nouvelle page de login

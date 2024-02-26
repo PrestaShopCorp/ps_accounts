@@ -20,10 +20,10 @@
 
 namespace PrestaShop\Module\PsAccounts\Http\Client\CircuitBreaker;
 
-use GuzzleHttp\Exception\ConnectException;
 use PHPUnit\Framework\TestCase;
 use PrestaShop\Module\PsAccounts\Factory\CircuitBreakerFactory;
-use PrestaShop\Module\PsAccounts\Http\Client\Guzzle\GuzzleClientFactory;
+use PrestaShop\Module\PsAccounts\Vendor\GuzzleHttp\Exception\ConnectException;
+use PrestaShop\Module\PsAccounts\Vendor\GuzzleHttp\Psr7\Request;
 
 class CircuitBreakerTest extends TestCase
 {
@@ -89,7 +89,6 @@ class CircuitBreakerTest extends TestCase
 
         for ($i = 0; $i <= $circuitBreaker->getThreshold(); ++$i) {
             $response = $circuitBreaker->call(function () {
-                /* @phpstan-ignore-next-line  */
                 throw new ConnectException('Test Timeout Reached', $this->getRequest());
             });
         }
@@ -111,7 +110,6 @@ class CircuitBreakerTest extends TestCase
 
         for ($i = 0; $i <= $circuitBreaker->getThreshold(); ++$i) {
             $response = $circuitBreaker->call(function () {
-                /* @phpstan-ignore-next-line  */
                 throw new ConnectException('Test Timeout Reached', $this->getRequest());
             });
         }
@@ -132,7 +130,6 @@ class CircuitBreakerTest extends TestCase
 
         for ($i = 0; $i <= $circuitBreaker->getThreshold(); ++$i) {
             $response = $circuitBreaker->call(function () {
-                /* @phpstan-ignore-next-line  */
                 throw new ConnectException('Test Timeout Reached', $this->getRequest());
             });
         }
@@ -140,7 +137,6 @@ class CircuitBreakerTest extends TestCase
         sleep(1);
 
         $response = $circuitBreaker->call(function () {
-            /* @phpstan-ignore-next-line  */
             throw new ConnectException('Test Timeout Reached', $this->getRequest());
         });
 
@@ -161,7 +157,6 @@ class CircuitBreakerTest extends TestCase
 
         for ($i = 0; $i <= $circuitBreaker->getThreshold(); ++$i) {
             $response = $circuitBreaker->call(function () {
-                /* @phpstan-ignore-next-line  */
                 throw new ConnectException('Test Timeout Reached', $this->getRequest());
             });
         }
@@ -206,16 +201,10 @@ class CircuitBreakerTest extends TestCase
      *
      * @phpstan-ignore-next-line
      *
-     * @return \GuzzleHttp\Message\Request|\GuzzleHttp\Psr7\Request
+     * @return Request
      */
     private function getRequest($method = 'POST', $uri = '/foo/bar')
     {
-        // FIXME: CircuitBreak bound to GuzzleException
-        if (GuzzleClientFactory::getGuzzleMajorVersionNumber() >= 6) {
-            return new \GuzzleHttp\Psr7\Request($method, $uri);
-        } else {
-            /* @phpstan-ignore-next-line */
-            return new \GuzzleHttp\Message\Request($method, $uri);
-        }
+        return new Request($method, $uri);
     }
 }

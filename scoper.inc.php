@@ -20,7 +20,7 @@
 
 declare(strict_types=1);
 
-#ini_set('memory_limit', '1024M');
+//ini_set('memory_limit', '1024M');
 
 use Isolated\Symfony\Component\Finder\Finder;
 

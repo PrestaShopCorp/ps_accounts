@@ -6,7 +6,7 @@
  *
  * More information also found here: https://github.com/humbug/php-scoper/issues/298
  */
-$controllers_path =  __DIR__ . '/ps_accounts/controllers/admin';
+$controllers_path = __DIR__ . '/ps_accounts/controllers/admin';
 echo "Fixing $controllers_path \n";
 foreach (glob($controllers_path . '/*Controller.*') as $filename) {
     $contents = file_get_contents($filename);

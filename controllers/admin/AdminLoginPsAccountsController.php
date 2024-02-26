@@ -39,7 +39,7 @@ class AdminLoginPsAccountsController extends \AdminController
 
         parent::__construct();
 
-        $this->errors = array();
+        $this->errors = [];
 
         $this->display_header = false;
         $this->display_footer = false;
@@ -54,6 +54,9 @@ class AdminLoginPsAccountsController extends \AdminController
         }
     }
 
+    /**
+     * @return void
+     */
     public function initContent()
     {
 //        if (file_exists(_PS_ADMIN_DIR_ . '/../install')) {

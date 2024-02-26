@@ -21,7 +21,7 @@
 namespace PrestaShop\Module\PsAccounts\Http\Client\CircuitBreaker;
 
 use DateTime;
-use GuzzleHttp\Exception\ConnectException;
+use PrestaShop\Module\PsAccounts\Vendor\GuzzleHttp\Exception\ConnectException;
 
 abstract class CircuitBreaker
 {
