@@ -30,6 +30,7 @@ function bundleModule () {
     ../index.php \
     ../LICENSE \
     ../logo.png \
+    ../fix_upgrade.php \
     ../ps_accounts.php;
   rm -f "./$filename"
   zip -r "${filename}" "./$module" \

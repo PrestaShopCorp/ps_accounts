@@ -102,7 +102,7 @@ ifndef DOCKER
 endif
 
 # target: phpstan                                - Start phpstan
-phpstan: check-docker
+phpstan: check-docker php-scoper
 	docker pull phpstan/phpstan:${PHPSTAN_VERSION}
 	docker pull prestashop/prestashop:${PS_VERSION}
 	docker run --rm -d -v ps-volume:/var/www/html --entrypoint /bin/sleep --name test-phpstan prestashop/prestashop:${PS_VERSION} 2s
@@ -206,5 +206,6 @@ php-scoper: php-scoper-add-prefix php-scoper-dump-autoload php-scoper-fix-autolo
 
 composer-install:
 	rm -rf ./vendor
-	./composer.phar install --no-dev --prefer-dist --quiet
+	#./composer.phar install --no-dev --prefer-dist --quiet
+	./composer.phar install --prefer-dist --quiet
 
