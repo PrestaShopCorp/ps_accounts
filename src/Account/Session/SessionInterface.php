@@ -20,9 +20,9 @@
 
 namespace PrestaShop\Module\PsAccounts\Account\Session;
 
-use GuzzleHttp\Exception\ConnectException;
 use PrestaShop\Module\PsAccounts\Account\Token\Token;
 use PrestaShop\Module\PsAccounts\Exception\RefreshTokenException;
+use PrestaShop\Module\PsAccounts\Vendor\GuzzleHttp\Exception\ConnectException;
 
 interface SessionInterface
 {
