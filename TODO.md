@@ -17,10 +17,17 @@
   * billing
   * eventbus
   * shipping
-* 
 
 ### TO BE FIXED
 * activate login PsAccountsService::enableLogin(true)
 * Maj LCOBUCCI (require php 7.1 min ? OU phpscoper)
 * Override (fichier vide & tab->delete()
 * login.css pété après un build
+
+### 
+* refaire bundle module (targets Makefile)
+* refaire targets Makefile et variabiliser les modules à scoper
+* variabiliser le module pour fix l'autoload
+* brancher le Guzzle Accounts sur les clients API
+* finir la nouvelle page de login
+* scoper LCOBUCCI

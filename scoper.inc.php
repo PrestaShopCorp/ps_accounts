@@ -41,12 +41,22 @@ use Isolated\Symfony\Component\Finder\Finder;
 //    ),
 //);
 
+$dirExcludes = [
+    'doc',
+    'test',
+    'test_old',
+    'tests',
+    'Tests',
+    'vendor-bin',
+];
+$fileExcludes = '/LICENSE|.*\\.md|.*\\.dist|Makefile|composer\\.json|composer\\.lock|Dockerfile/';
+
 return [
     // The prefix configuration. If a non-null value is used, a random prefix
     // will be generated instead.
     //
     // For more see: https://github.com/humbug/php-scoper/blob/master/docs/configuration.md#prefix
-    'prefix' => null,
+    'prefix' => 'PrestaShop\Module\PsAccounts\Vendor',
 
     // The base output directory for the prefixed files.
     // This will be overridden by the 'output-dir' command line option if present.
@@ -60,38 +70,24 @@ return [
     //
     // For more see: https://github.com/humbug/php-scoper/blob/master/docs/configuration.md#finders-and-paths
     'finders' => [
-        Finder::create()->files()->in('config'),
-        Finder::create()->files()->in('controllers'),
-        Finder::create()->files()->in('scripts'),
-        Finder::create()->files()->in('sql'),
-        Finder::create()->files()->in('src'),
         Finder::create()
             ->files()
             ->ignoreVCS(true)
-            ->notName('/LICENSE|.*\\.md|.*\\.dist|Makefile|composer\\.json|composer\\.lock|Dockerfile/')
-            ->exclude([
-                'doc',
-                'test',
-                'test_old',
-                'tests',
-                'Tests',
-                'vendor-bin',
-            ])
-            ->in('vendor'),
-        Finder::create()->files()->in('translations'),
-        Finder::create()->files()->in('upgrade'),
-        Finder::create()->files()->in('views'),
-        Finder::create()->append([
-            'CHANGELOG.md',
-            'composer.json',
-            'composer.lock',
-            'composer.phar',
-            'config.xml',
-            'index.php',
-            'LICENSE',
-            'logo.png',
-            'ps_accounts.php',
-        ]),
+            ->notName($fileExcludes)
+            ->exclude($dirExcludes)
+            ->in('vendor/guzzlehttp'),
+        Finder::create()
+            ->files()
+            ->ignoreVCS(true)
+            ->notName($fileExcludes)
+            ->exclude($dirExcludes)
+            ->in('vendor/league'),
+        Finder::create()
+            ->files()
+            ->ignoreVCS(true)
+            ->notName($fileExcludes)
+            ->exclude($dirExcludes)
+            ->in('vendor/prestashopcorp'),
     ],
 
     // List of excluded files, i.e. files for which the content will be left untouched.
@@ -101,7 +97,6 @@ return [
     'exclude-files' => [
         // 'src/an-excluded-file.php',
         //...$excludedFiles,
-        'controllers/admin/AdminLoginController.php',
     ],
 
     // When scoping PHP files, there will be scenarios where some of the code being scoped indirectly references the
@@ -112,6 +107,7 @@ return [
     // For more see: https://github.com/humbug/php-scoper/blob/master/docs/configuration.md#patchers
     'patchers' => [
         static function (string $filePath, string $prefix, string $contents): string {
+            // Modify the content of the file to change the namespace
             if ($filePath === __DIR__ . '/vendor/league/oauth2-client/src/Grant/GrantFactory.php') {
                 return str_replace(
                     "\$class = 'League\\\\OAuth2\\\\Client\\\\Grant\\\\' . \$class;",
@@ -119,13 +115,13 @@ return [
                     $contents
                 );
             }
-            if ($filePath === __DIR__ . '/vendor/sentry/sentry/lib/Raven/Client.php') {
-                return str_replace(
-                    "\$new_processor = new \$processor(\$this);",
-                    "\$new_processor = new (\"{$prefix}\\\\\$processor\")(\$this);",
-                    $contents
-                );
-            }
+//            if ($filePath === __DIR__ . '/vendor/sentry/sentry/lib/Raven/Client.php') {
+//                return str_replace(
+//                    "\$new_processor = new \$processor(\$this);",
+//                    "\$new_processor = new (\"{$prefix}\\\\\$processor\")(\$this);",
+//                    $contents
+//                );
+//            }
 
             return $contents;
         },
@@ -135,40 +131,11 @@ return [
     //
     // For more information see: https://github.com/humbug/php-scoper/blob/master/docs/configuration.md#excluded-symbols
     'exclude-namespaces' => [
-        // 'Acme\Foo'                     // The Acme\Foo namespace (and sub-namespaces)
-        // '~^PHPUnit\\\\Framework$~',    // The whole namespace PHPUnit\Framework (but not sub-namespaces)
-        //'~^\\\\$~',                        // The root namespace only
-        // '',
-        '~^PrestaShop\\\\Module\\\\PsAccounts~',
-        '~^PrestaShop\\\\PrestaShop~',
-        '~^PrestaShopBundle~',
-        // FIXME
+        '~^Psr~',
         '~^Symfony~',
+        '~^PrestaShop\\\\OAuth2\\\\Client~',
     ],
-    'exclude-classes' => [
-        // 'ReflectionClassConstant',
-        '\Cache',
-        '\Configuration',
-        '\Context',
-        '\Db',
-        '\Employee',
-        '\Hook',
-        '\Language',
-        '\Link',
-        '\Media',
-        '\Module',
-        '\PrestaShopException',
-        '\Shop',
-        '\Tab',
-        '\Tools',
-        '\Validate',
-        '\AdminController',
-        '\AdminLoginControllerCore',
-        '\ModuleAdminController',
-        '\ModuleAdminControllerCore',
-        '\ModuleFrontController',
-        '\ModuleFrontControllerCore',
-    ],
+    'exclude-classes' => [],
     'exclude-functions' => [
         // 'mb_str_split',
     ],
@@ -186,7 +153,7 @@ return [
         // 'Acme\Foo'                     // The Acme\Foo namespace (and sub-namespaces)
         // '~^PHPUnit\\\\Framework$~',    // The whole namespace PHPUnit\Framework (but not sub-namespaces)
         // '~^$~',                        // The root namespace only
-        // '',                            // Any namespace
+        //'',                            // Any namespace
     ],
     'expose-classes' => [],
     'expose-functions' => [],

@@ -20,13 +20,13 @@
 
 namespace PrestaShop\Module\PsAccounts\Provider\OAuth2;
 
-use League\OAuth2\Client\Provider\AbstractProvider;
 use PrestaShop\Module\PsAccounts\Adapter\Link;
+use PrestaShop\Module\PsAccounts\Vendor\League\OAuth2\Client\Provider\AbstractProvider;
 use PrestaShop\OAuth2\Client\Provider\PrestaShop;
 
 class ShopProvider extends PrestaShop
 {
-    use Guzzle5AdapterTrait;
+#    use Guzzle5AdapterTrait;
 
     const QUERY_LOGOUT_CALLBACK_PARAM = 'oauth2Callback';
 

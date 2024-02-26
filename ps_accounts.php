@@ -21,6 +21,7 @@ if (!defined('_PS_VERSION_')) {
     exit;
 }
 require_once __DIR__ . '/vendor/autoload.php';
+require_once __DIR__ . '/upgrade/fix_upgrade.php';
 
 class Ps_accounts extends Module
 {
@@ -96,8 +97,8 @@ class Ps_accounts extends Module
 
         // Login/Logout OAuth
         // PS 1.6 - 1.7
-//        \PrestaShop\Module\PsAccounts\Hook\DisplayBackOfficeHeader::class,
-//        \PrestaShop\Module\PsAccounts\Hook\ActionAdminLoginControllerSetMedia::class,
+        \PrestaShop\Module\PsAccounts\Hook\DisplayBackOfficeHeader::class,
+        \PrestaShop\Module\PsAccounts\Hook\ActionAdminLoginControllerSetMedia::class,
         // PS >= 8
 //        \PrestaShop\Module\PsAccounts\Hook\ActionAdminControllerInitBefore::class,
     ];

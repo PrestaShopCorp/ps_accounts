@@ -23,7 +23,7 @@ use PrestaShop\Module\PsAccounts\Account\Session\Firebase\OwnerSession;
 use PrestaShop\Module\PsAccounts\Account\Session\Firebase\ShopSession;
 use PrestaShop\Module\PsAccounts\Service\PsAccountsService;
 
-class AdminDebugPsAccountsController extends \PrestaShop\Module\PsAccounts\Controller\ModuleAdminController
+class AdminDebugPsAccountsController extends \ModuleAdminController
 {
     /**
      * @return void

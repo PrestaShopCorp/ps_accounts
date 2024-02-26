@@ -180,28 +180,31 @@ fix-lint: vendor/bin/php-cs-fixer
 vendor/bin/php-cs-fixer:
 	./composer.phar install
 
-# target: php-scoper-build
+# target: php-scoper
+VENDOR_DIRS := guzzlehttp league prestashopcorp
+SCOPED_DIR := "vendor-scoped"
+
 php-scoper-pull:
 	docker pull humbugphp/php-scoper:latest
 
-php-scoper: vendor
-	docker run -ti -v ${PWD}:/input -w /input -u ${CURRENT_UID}:${CURRENT_GID} \
-		humbugphp/php-scoper:latest add-prefix --output-dir build/ps_accounts --force
+php-scoper-add-prefix: composer-install
+	@docker run -ti -v ${PWD}:/input -w /input -u ${CURRENT_UID}:${CURRENT_GID} \
+		humbugphp/php-scoper:latest add-prefix --output-dir ${SCOPED_DIR} --force --quiet
+	@for d in ${VENDOR_DIRS}; do rm -rf ./vendor/$$d && mv ./${SCOPED_DIR}/$$d ./vendor/; done;
+	@rmdir ./${SCOPED_DIR}
 
 php-scoper-dump-autoload:
-	./composer.phar dump-autoload --working-dir build/ps_accounts --classmap-authoritative
+	./composer.phar dump-autoload --classmap-authoritative
 
 php-scoper-fix-autoload:
-	cd build && php fix-autoloader.php
+	php fix-autoload.php
 
-#php-scoper-fix-admin-controllers:
-#	cd build && php fix-admin-controllers.php
+php-scoper-zip: php-scoper
+	./bundle-module '' local
 
-php-scoper-bundle:
-	cd build && ./bundle-module ps_accounts local
+php-scoper: php-scoper-add-prefix php-scoper-dump-autoload php-scoper-fix-autoload
 
-php-scoper-build: php-scoper php-scoper-dump-autoload php-scoper-fix-autoload php-scoper-bundle
-
-vendor:
-	./composer.phar install --no-dev --prefer-dist
+composer-install:
+	rm -rf ./vendor
+	./composer.phar install --no-dev --prefer-dist --quiet
 
