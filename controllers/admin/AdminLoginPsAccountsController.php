@@ -60,26 +60,14 @@ class AdminLoginPsAccountsController extends \AdminController
      */
     public function initContent()
     {
-//        if (file_exists(_PS_ADMIN_DIR_ . '/../install')) {
-//            $this->context->smarty->assign('wrong_install_name', true);
-//        }
-//
-//        // Redirect to admin panel
-//        if (Tools::isSubmit('redirect') && Validate::isControllerName(Tools::getValue('redirect'))) {
-//            $this->context->smarty->assign('redirect', Tools::getValue('redirect'));
-//        } else {
-//            $tab = new Tab((int) $this->context->employee->default_tab);
-//            $this->context->smarty->assign('redirect', $this->context->link->getAdminLink($tab->class_name));
-//        }
-//
-//        if ($nb_errors = count($this->errors)) {
-//            $this->context->smarty->assign(array(
-//                'errors' => $this->errors,
-//                'nbErrors' => $nb_errors,
-//                'shop_name' => Tools::safeOutput(Configuration::get('PS_SHOP_NAME')),
-//                'disableDefaultErrorOutPut' => true,
-//            ));
-//        }
+        if ($nb_errors = count($this->errors)) {
+            $this->context->smarty->assign(array(
+                'errors' => $this->errors,
+                'nbErrors' => $nb_errors,
+                'shop_name' => Tools::safeOutput(Configuration::get('PS_SHOP_NAME')),
+                'disableDefaultErrorOutPut' => true,
+            ));
+        }
 
         $this->setMedia($isNewTheme = false);
         $this->initHeader();

@@ -22,9 +22,9 @@
 * activate login PsAccountsService::enableLogin(true)
 * Maj LCOBUCCI (require php 7.1 min ? OU phpscoper)
 * Override (fichier vide & tab->delete()
-* login.css pété après un build
 
 ### 
 * tester sans les namespace dans le composer
 * finir la nouvelle page de login
 * scoper LCOBUCCI
+* login.css pété après un build
