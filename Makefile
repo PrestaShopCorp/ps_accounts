@@ -1,4 +1,3 @@
-.PHONY: clean help build bundle zip version bundle-prod bundle-inte build-front build-back
 PHP = $(shell which php 2> /dev/null)
 DOCKER = $(shell docker ps 2> /dev/null)
 NPM = $(shell which npm 2> /dev/null)
@@ -7,84 +6,25 @@ MODULE ?= $(shell basename ${PWD})
 CURRENT_UID := $(shell id -u)
 CURRENT_GID := $(shell id -g)
 
-VERSION ?= 5.2.0#$(shell git describe --tags | sed 's/^v//')
-PACKAGE ?= "${MODULE}-${VERSION}"
-PHPSTAN_VERSION ?= 0.12
-PS_VERSION ?= latest #1.6.1.21|1.7.7.1|latest
-NEON_FILE ?= phpstan-PS-1.7.neon #phpstan-PS-1.6.neon
-DOCKER_INTERNAL ?= 1.7 # 1.7|8|nightly
-CONTAINER_INSTALL_DIR="/var/www/html/modules/ps_accounts"
+default: php-scoper-zip
 
-# target: default                                - Calling build by default
-default: build
-
-# target: help                                   - Get help on this file
 help:
 	@egrep "^# target" Makefile
 
-# target: build                                  - Clean up the repository
 clean:
 	git -c core.excludesfile=/dev/null clean -X -d -f
 
-# target: bundle                                 - Bundle local sources into a ZIP file
-bundle: bundle-inte bundle-prod
+##########################################################
+# target: version
 
-# target: zip                                    - Alias of target: bundle
-zip: bundle
+VERSION ?= 5.2.0#$(shell git describe --tags | sed 's/^v//')
 
-# target: dist                                   - A directory to save zip bundles
-dist:
-	mkdir -p ./dist
-
-# target: version                                - Replace version in files
 version:
 	@echo "...$(VERSION)..."
 	sed -i -e "s/\(VERSION = \).*/\1\'${VERSION}\';/" ps_accounts.php
 	sed -i -e "s/\($this->version = \).*/\1\'${VERSION}\';/" ps_accounts.php
 	sed -i -e 's/\(<version><!\[CDATA\[\)[0-9a-z\.\-]\{1,\}.*\]\]><\/version>/\1'${VERSION}']]><\/version>/' config.xml
 	sed -i -e "s/\(\"version\"\: \).*/\1\"${VERSION}\",/" ./_dev/package.json
-
-# target: bundle-prod                            - Bundle a production zip
-bundle-prod: dist ./vendor ./views/index.php
-	cd .. && zip -r ${PACKAGE}_prod.zip ${MODULE} -x '*.git*' \
-	  ${MODULE}/_dev/\* \
-	  ${MODULE}/dist/\* \
-	  ${MODULE}/composer.phar \
-	  ${MODULE}/Makefile
-	mv ../${PACKAGE}_prod.zip ./dist
-
-# target: bundle-inte                            - Bundle an integration zip
-bundle-inte: dist ./vendor ./views/index.php
-	cp config/config.yml config/config.yml.local
-	cp config/config.preprod.yml config/config.yml
-	cd .. && zip -r ${PACKAGE}_inte.zip ${MODULE} -x '*.git*' \
-	  ${MODULE}/_dev/\* \
-	  ${MODULE}/dist/\* \
-	  ${MODULE}/composer.phar \
-	  ${MODULE}/Makefile
-	mv ../${PACKAGE}_inte.zip ./dist
-	mv config/config.yml.local config/config.yml
-
-# target: build                                  - Setup PHP & Node.js locally
-build: build-front build-back
-
-# target: build-front                            - Build front for prod locally
-build-front:
-ifndef YARN
-    $(error "YARN is unavailable on your system, try `npm i -g yarn`")
-endif
-	yarn --cwd ./_dev --frozen-lockfile
-	yarn --cwd ./_dev build
-
-# target: build-back                             - Build production dependencies
-build-back: composer.phar
-	./composer.phar install --no-dev
-
-composer.phar:
-ifndef PHP
-    $(error "PHP is unavailable on your system")
-endif
-	./scripts/composer-install.sh
 
 ##########################################################
 # target: tests
@@ -102,6 +42,10 @@ endif
 ##########################################################
 # target: phpstan
 
+PHPSTAN_VERSION ?= 0.12
+PS_VERSION ?= latest #1.6.1.21|1.7.7.1|latest
+NEON_FILE ?= phpstan-PS-1.7.neon #phpstan-PS-1.6.neon
+
 phpstan: check-docker
 	docker pull phpstan/phpstan:${PHPSTAN_VERSION}
 	docker pull prestashop/prestashop:${PS_VERSION}
@@ -117,6 +61,9 @@ phpstan: check-docker
 
 ##########################################################
 # target: php-unit
+
+DOCKER_INTERNAL ?= 1.7 # 1.7|8|nightly
+CONTAINER_INSTALL_DIR="/var/www/html/modules/ps_accounts"
 
 phpunit-pull:
 	docker pull prestashop/docker-internal-images:${DOCKER_INTERNAL}
@@ -193,7 +140,7 @@ COMPOSER_OPTIONS := --prefer-dist --quiet
 php-scoper-pull:
 	docker pull humbugphp/php-scoper:latest
 
-php-scoper-add-prefix: composer-install
+php-scoper-add-prefix: scoper.inc.php vendor
 	docker run -v ${PWD}:/input -w /input -u ${CURRENT_UID}:${CURRENT_GID} \
 		humbugphp/php-scoper:latest add-prefix --output-dir ${SCOPED_DIR} --force --quiet
 	#for d in ${VENDOR_DIRS}; do rm -rf ./vendor/$$d && mv ./${SCOPED_DIR}/$$d ./vendor/; done;
@@ -211,6 +158,22 @@ php-scoper-zip: php-scoper
 
 php-scoper: php-scoper-add-prefix php-scoper-dump-autoload php-scoper-fix-autoload
 
-composer-install: composer.phar
+.PHONY: vendor
+vendor: composer.phar
 	rm -rf ./vendor && ./composer.phar install ${COMPOSER_OPTIONS}
+
+##########################################################
+
+build-front:
+ifndef YARN
+    $(error "YARN is unavailable on your system, try `npm i -g yarn`")
+endif
+	yarn --cwd ./_dev --frozen-lockfile
+	yarn --cwd ./_dev build
+
+composer.phar:
+ifndef PHP
+    $(error "PHP is unavailable on your system")
+endif
+	./scripts/composer-install.sh
 

@@ -26,8 +26,5 @@
 
 ### 
 * tester sans les namespace dans le composer
-* refaire bundle module (targets Makefile)
-* variabiliser le module pour fix l'autoload
-* brancher le Guzzle Accounts sur les clients API
 * finir la nouvelle page de login
 * scoper LCOBUCCI
