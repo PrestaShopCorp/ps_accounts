@@ -205,7 +205,8 @@ php-scoper-zip: php-scoper
 php-scoper: php-scoper-add-prefix php-scoper-dump-autoload php-scoper-fix-autoload
 
 composer-install:
-	rm -rf ./vendor
-	#./composer.phar install --no-dev --prefer-dist --quiet
-	./composer.phar install --prefer-dist --quiet
+	if [ -f ./composer.phar ]; then \
+		rm -rf ./vendor; \
+		./composer.phar install --prefer-dist --quiet; \
+	fi;
 

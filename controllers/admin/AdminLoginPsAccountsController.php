@@ -42,7 +42,7 @@ class AdminLoginPsAccountsController extends \AdminController
         $this->errors = [];
 
         $this->display_header = false;
-        $this->display_footer = false;
+        $this->display_footer = '';
 
         /** @var Ps_accounts $module */
         $module = Module::getInstanceByName('ps_accounts');
