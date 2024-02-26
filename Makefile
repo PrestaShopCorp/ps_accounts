@@ -6,7 +6,7 @@ MODULE ?= $(shell basename ${PWD})
 CURRENT_UID := $(shell id -u)
 CURRENT_GID := $(shell id -g)
 
-default: php-scoper-zip
+default: bundle
 
 help:
 	@egrep "^# target" Makefile
@@ -153,9 +153,6 @@ php-scoper-dump-autoload:
 php-scoper-fix-autoload:
 	php fix-autoload.php
 
-php-scoper-zip: php-scoper
-	./bundle-module '' local
-
 php-scoper: php-scoper-add-prefix php-scoper-dump-autoload php-scoper-fix-autoload
 
 .PHONY: vendor
@@ -163,6 +160,18 @@ vendor: composer.phar
 	rm -rf ./vendor && ./composer.phar install ${COMPOSER_OPTIONS}
 
 ##########################################################
+
+bundle: php-scoper config/config.yml.local
+	./bundle-module '' local
+
+prod: php-scoper config/config.yml.prod
+	./bundle-module '' prod
+
+inte: php-scoper config/config.yml.inte
+	./bundle-module '' inte
+
+bulle: php-scoper config/config.yml.bulle6
+	./bundle-module '' bulle6
 
 build-front:
 ifndef YARN
