@@ -102,7 +102,7 @@ endif
 ##########################################################
 # target: phpstan
 
-phpstan: check-docker php-scoper
+phpstan: check-docker
 	docker pull phpstan/phpstan:${PHPSTAN_VERSION}
 	docker pull prestashop/prestashop:${PS_VERSION}
 	docker run --rm -d -v ps-volume:/var/www/html --entrypoint /bin/sleep --name test-phpstan prestashop/prestashop:${PS_VERSION} 2s
@@ -199,16 +199,13 @@ php-scoper-add-prefix: composer-install
 	$(foreach DIR,$(VENDOR_DIRS), rm -rf "./vendor/${DIR}" && mv "./${SCOPED_DIR}/${DIR}" ./vendor/;)
 	rmdir "./${SCOPED_DIR}"
 
-php-scoper-list:
-	$(foreach DIR,$(VENDOR_DIRS), ls -al "./vendor/${DIR}")
-
 php-scoper-dump-autoload:
 	./composer.phar dump-autoload --classmap-authoritative
 
 php-scoper-fix-autoload:
 	php fix-autoload.php
 
-php-scoper-zip: composer-install php-scoper
+php-scoper-zip: php-scoper
 	./bundle-module '' local
 
 php-scoper: php-scoper-add-prefix php-scoper-dump-autoload php-scoper-fix-autoload
