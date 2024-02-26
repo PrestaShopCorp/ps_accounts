@@ -133,9 +133,9 @@ vendor/bin/php-cs-fixer:
 ##########################################################
 # target: php-scoper
 
-VENDOR_DIRS := guzzlehttp league prestashopcorp
+VENDOR_DIRS = guzzlehttp league prestashopcorp
 SCOPED_DIR := vendor-scoped
-COMPOSER_OPTIONS := --prefer-dist --quiet
+COMPOSER_OPTIONS ?= --prefer-dist --quiet
 
 php-scoper-pull:
 	docker pull humbugphp/php-scoper:latest

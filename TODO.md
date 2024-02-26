@@ -25,6 +25,5 @@
 
 ### 
 * tester sans les namespace dans le composer
-* finir la nouvelle page de login
 * scoper LCOBUCCI
 * login.css pété après un build
