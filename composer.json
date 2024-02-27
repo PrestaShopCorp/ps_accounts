@@ -14,7 +14,8 @@
             "PrestaShop\\Module\\PsAccounts\\Vendor\\GuzzleHttp\\": "vendor/guzzlehttp/guzzle/src",
             "PrestaShop\\Module\\PsAccounts\\Vendor\\GuzzleHttp\\Promise\\": "vendor/guzzlehttp/promises/src",
             "PrestaShop\\Module\\PsAccounts\\Vendor\\GuzzleHttp\\Psr7\\": "vendor/guzzlehttp/psr7/src",
-            "PrestaShop\\Module\\PsAccounts\\Vendor\\League\\OAuth2\\Client\\": "vendor/league/oauth2-client/src"
+            "PrestaShop\\Module\\PsAccounts\\Vendor\\League\\OAuth2\\Client\\": "vendor/league/oauth2-client/src",
+            "PrestaShop\\Module\\PsAccounts\\Vendor\\Lcobucci\\JWT\\": "vendor/lcobucci/jwt/src"
         },
         "classmap": [
             "ps_accounts.php",

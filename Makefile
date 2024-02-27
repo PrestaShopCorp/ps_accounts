@@ -133,9 +133,13 @@ vendor/bin/php-cs-fixer:
 ##########################################################
 # target: php-scoper
 
-VENDOR_DIRS = guzzlehttp league prestashopcorp
+#VENDOR_DIRS = guzzlehttp league prestashopcorp
+VENDOR_DIRS = $(shell cat scoper.inc.php | grep 'dirScoped =' | sed 's/^.*\$dirScoped = \[\(.*\)\].*/\1/' | sed "s/[' ,]\+/ /g")
 SCOPED_DIR := vendor-scoped
 COMPOSER_OPTIONS ?= --prefer-dist --quiet
+
+php-scoper-list:
+	@echo "${VENDOR_DIRS}"
 
 php-scoper-pull:
 	docker pull humbugphp/php-scoper:latest
@@ -162,16 +166,16 @@ vendor: composer.phar
 ##########################################################
 
 bundle: php-scoper config/config.yml.local
-	@./scripts/bundle-module.bash '' local
+	@./scripts/bundle-module.sh '' local
 
 prod: php-scoper config/config.yml.prod
-	@./scripts/bundle-module.bash '' prod
+	@./scripts/bundle-module.sh '' prod
 
 inte: php-scoper config/config.yml.inte
-	@./scripts/bundle-module.bash '' inte
+	@./scripts/bundle-module.sh '' inte
 
 bulle: php-scoper config/config.yml.bulle6
-	@./scripts/bundle-module.bash '' bulle6
+	@./scripts/bundle-module.sh '' bulle6
 
 build-front:
 ifndef YARN

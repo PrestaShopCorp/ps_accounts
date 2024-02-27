@@ -5,10 +5,10 @@ namespace PrestaShop\Module\PsAccounts\Tests;
 use Db;
 use Exception;
 use Faker\Generator;
-use Lcobucci\JWT\Builder;
-use Lcobucci\JWT\Configuration;
-use Lcobucci\JWT\Token;
 use Module;
+use PrestaShop\Module\PsAccounts\Vendor\Lcobucci\JWT\Builder;
+use PrestaShop\Module\PsAccounts\Vendor\Lcobucci\JWT\Configuration;
+use PrestaShop\Module\PsAccounts\Vendor\Lcobucci\JWT\Token;
 use Ps_accounts;
 
 class TestCase extends \PHPUnit\Framework\TestCase

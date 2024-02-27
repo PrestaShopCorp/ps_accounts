@@ -20,8 +20,8 @@
 
 namespace PrestaShop\Module\PsAccounts\Account\Token;
 
-use Lcobucci\JWT\Parser;
-use Lcobucci\JWT\Token\InvalidTokenStructure;
+use PrestaShop\Module\PsAccounts\Vendor\Lcobucci\JWT\Parser;
+use PrestaShop\Module\PsAccounts\Vendor\Lcobucci\JWT\Token\InvalidTokenStructure;
 
 class Token
 {
@@ -48,7 +48,7 @@ class Token
     }
 
     /**
-     * @return \Lcobucci\JWT\Token
+     * @return NullToken|\PrestaShop\Module\PsAccounts\Vendor\Lcobucci\JWT\Token
      */
     public function getJwt()
     {
@@ -101,7 +101,7 @@ class Token
     /**
      * @param string $token
      *
-     * @return \Lcobucci\JWT\Token
+     * @return \PrestaShop\Module\PsAccounts\Vendor\Lcobucci\JWT\Token
      */
     protected function parseToken($token)
     {
@@ -113,7 +113,7 @@ class Token
     }
 
     /**
-     * @return \Lcobucci\JWT\Token
+     * @return \PrestaShop\Module\PsAccounts\Vendor\Lcobucci\JWT\Token
      */
     protected function getNullToken()
     {

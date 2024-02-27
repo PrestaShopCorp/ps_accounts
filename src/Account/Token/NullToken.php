@@ -20,7 +20,7 @@
 
 namespace PrestaShop\Module\PsAccounts\Account\Token;
 
-class NullToken extends \Lcobucci\JWT\Token
+class NullToken extends \PrestaShop\Module\PsAccounts\Vendor\Lcobucci\JWT\Token
 {
     /**
      * @return string

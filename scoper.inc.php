@@ -31,6 +31,10 @@ use Isolated\Symfony\Component\Finder\Finder;
 // to auto-load any code here: it can result in a conflict or even corrupt
 // the PHP-Scoper analysis.
 
+// Vendor dependency dirs your want to scope
+// Note: you'll have to manually add namespaces in your composer.json
+$dirScoped = ['guzzlehttp', 'league', 'prestashopcorp', 'lcobucci'];
+
 // Example of collecting files to include in the scoped build but to not scope
 // leveraging the isolated finder.
 //$excludedFiles = array_map(
@@ -40,7 +44,6 @@ use Isolated\Symfony\Component\Finder\Finder;
 //        false,
 //    ),
 //);
-
 $dirExcludes = [
     'doc',
     'test',
@@ -69,26 +72,14 @@ return [
     // This configuration entry is completely ignored when using Box.
     //
     // For more see: https://github.com/humbug/php-scoper/blob/master/docs/configuration.md#finders-and-paths
-    'finders' => [
-        Finder::create()
+    'finders' => array_map(function ($dir) use ($fileExcludes, $dirExcludes) {
+        return Finder::create()
             ->files()
             ->ignoreVCS(true)
             ->notName($fileExcludes)
             ->exclude($dirExcludes)
-            ->in('vendor/guzzlehttp'),
-        Finder::create()
-            ->files()
-            ->ignoreVCS(true)
-            ->notName($fileExcludes)
-            ->exclude($dirExcludes)
-            ->in('vendor/league'),
-        Finder::create()
-            ->files()
-            ->ignoreVCS(true)
-            ->notName($fileExcludes)
-            ->exclude($dirExcludes)
-            ->in('vendor/prestashopcorp'),
-    ],
+            ->in('vendor/' . $dir);
+    }, $dirScoped),
 
     // List of excluded files, i.e. files for which the content will be left untouched.
     // Paths are relative to the configuration file unless if they are already absolute
