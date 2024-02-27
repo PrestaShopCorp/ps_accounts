@@ -30,7 +30,6 @@ mkdir "./$module"
 cp -pr -t "./$module" \
   ../config \
   ../controllers \
-  ../scripts \
   ../sql \
   ../src \
   ../translations \
