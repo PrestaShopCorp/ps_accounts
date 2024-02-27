@@ -1,5 +1,12 @@
 # Change Log
 
+## [7.0.1] - ?
+
+### Changed
+* Dependency scoping
+* Makefile bundle,prod,inte,bulle1..6 targets
+* Reworked login page without inheritance from AdminLogin
+
 ## [7.0.0] - 2024-02-14
 
 ### Added

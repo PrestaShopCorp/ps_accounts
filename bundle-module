@@ -1,17 +1,27 @@
 #!/bin/bash
 
-rootDir=$1
+filename=$1
 environment=$2
-dist=./dist
 
-configFile=./${rootDir}/config/config.yml
-version=$(grep '<version>' "./${rootDir}/config.xml" | sed 's/^.*\[CDATA\[\(.*\)\]\].*/\1/')
-module=$(grep '<name>' "./${rootDir}/config.xml" | sed 's/^.*<name>\(.*\)<\/name>.*/\1/')
-branch=$(git -C "./${rootDir}" branch | grep '\*' | sed 's/^\*\s\+\(.*\)$/\1/' | sed 's/\//\_/g')
-filename=${module}-${version}-${branch}.${environment}.zip
-filename=$(echo "$filename" | sed -E 's/[.]{2,}/./')
+rootDir=./
+dist=./dist
+configFile=${rootDir}/config/config.yml
+
+module=$(grep '<name>' "${rootDir}/config.xml" | sed 's/^.*<name>\(.*\)<\/name>.*/\1/')
+if [ -z "$module" ]; then
+  echo "not a valid module"
+  exit
+fi
+
+if [ -z "$filename" ]; then
+  version=$(grep '<version>' "${rootDir}/config.xml" | sed 's/^.*\[CDATA\[\(.*\)\]\].*/\1/')
+  branch=$(git -C "${rootDir}" branch | grep '\*' | sed 's/^\*\s\+\(.*\)$/\1/' | sed 's/\//\_/g')
+  filename=${module}-${version}-${branch}.${environment}.zip
+  filename=$(echo "$filename" | sed -E 's/[.]{2,}/./')
+fi
 
 function bundleModule () {
+  echo "${filename} ..."
   cd $dist || return;
   rm -rf "./$module"
   mkdir "./$module"
@@ -63,9 +73,8 @@ function restoreEnvironment () {
   fi
 }
 
-echo "${filename} ..."
-
 if [ "$environment" ]; then
+  echo "using provided environment [${environment}]"
   backupEnvironment
   cp "${configFile}"."${environment}" "$configFile"
   bundleModule
