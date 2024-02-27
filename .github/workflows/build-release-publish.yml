@@ -90,8 +90,8 @@ jobs:
 
       - name: Prepare the production zip
         run: |
-          cd ${{ github.event.repository.name }}
-          bash ./scripts/bundle-module.bash ${{ github.event.repository.name }}.zip
+          cd ${{ github.event.repository.name }}/${{ github.event.repository.name }}
+          sh ./scripts/bundle-module.sh ${{ github.event.repository.name }}.zip
 #          zip -r ${{ github.event.repository.name }}.zip ${{ github.event.repository.name }} -x '*.git*' '*config/config.yml.*'
         env:
           ENV_FILE: ${{ secrets.PS_ACCOUNTS_ENV_PROD }}
@@ -132,8 +132,8 @@ jobs:
 
       - name: Prepare the preprod zip
         run: |
-          cd ${{ github.event.repository.name }}
-          bash ./scripts/bundle-module.bash ${{ github.event.repository.name }}_preprod.zip
+          cd ${{ github.event.repository.name }}/${{ github.event.repository.name }}
+          sh ./scripts/bundle-module.sh ${{ github.event.repository.name }}_preprod.zip
 #          zip -r ${{ github.event.repository.name }}_preprod.zip ${{ github.event.repository.name }}  -x '*.git*' '*config/config.yml.*'
 
       - name: Publish the preprod zip
