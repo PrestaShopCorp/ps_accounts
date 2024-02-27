@@ -20,6 +20,8 @@ if [ -z "$filename" ]; then
 fi
 
 echo "${filename} ..."
+
+mkdir -p "./${dist}"
 cd $dist || exit;
 
 rm -rf "./$module"
