@@ -3,8 +3,8 @@
 filename=$1
 environment=$2
 
-rootDir=./
-dist=./dist
+rootDir="."
+dist=${rootDir}/dist
 configFile=${rootDir}/config/config.yml
 
 module=$(grep '<name>' "${rootDir}/config.xml" | sed 's/^.*<name>\(.*\)<\/name>.*/\1/')

@@ -162,16 +162,16 @@ vendor: composer.phar
 ##########################################################
 
 bundle: php-scoper config/config.yml.local
-	./bundle-module '' local
+	@./scripts/bundle-module.bash '' local
 
 prod: php-scoper config/config.yml.prod
-	./bundle-module '' prod
+	@./scripts/bundle-module.bash '' prod
 
 inte: php-scoper config/config.yml.inte
-	./bundle-module '' inte
+	@./scripts/bundle-module.bash '' inte
 
 bulle: php-scoper config/config.yml.bulle6
-	./bundle-module '' bulle6
+	@./scripts/bundle-module.bash '' bulle6
 
 build-front:
 ifndef YARN
