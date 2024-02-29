@@ -41,7 +41,6 @@ cp -pr -t "./$module" \
   ../index.php \
   ../LICENSE \
   ../logo.png \
-  ../fix_upgrade.php \
   ../ps_accounts.php;
 
 if [ "$environment" ]; then

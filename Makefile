@@ -136,7 +136,7 @@ vendor/bin/php-cs-fixer:
 #VENDOR_DIRS = guzzlehttp league prestashopcorp
 VENDOR_DIRS = $(shell cat scoper.inc.php | grep 'dirScoped =' | sed 's/^.*\$dirScoped = \[\(.*\)\].*/\1/' | sed "s/[' ,]\+/ /g")
 SCOPED_DIR := vendor-scoped
-COMPOSER_OPTIONS ?= --prefer-dist --quiet
+COMPOSER_OPTIONS ?= --prefer-dist -o --quiet
 
 php-scoper-list:
 	@echo "${VENDOR_DIRS}"

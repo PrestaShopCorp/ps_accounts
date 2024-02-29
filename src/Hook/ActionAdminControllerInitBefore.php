@@ -61,7 +61,7 @@ class ActionAdminControllerInitBefore extends Hook
         $this->module->getOauth2Middleware()->execute();
 
         $className = preg_replace('/^.*\\\\/', '', get_class($controller));
-        Logger::getInstance()->error('########################### ' . __CLASS__ . ' ' . $className);
+//        Logger::getInstance()->error('########################### ' . __CLASS__ . ' ' . $className);
 
         if ($className === 'AdminLoginController') {
             $local = Tools::getValue('mode') === AdminLoginPsAccountsController::PARAM_MODE_LOCAL ||
