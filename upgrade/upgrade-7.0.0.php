@@ -5,6 +5,7 @@
  * @return bool
  *
  * @throws Exception
+ * @throws Throwable
  */
 function upgrade_module_7_0_0($module)
 {
@@ -37,17 +38,25 @@ function upgrade_module_7_0_0($module)
         $conf->getFirebaseIdToken(),
         [
             'version' => \Ps_accounts::VERSION,
-        ]
+        ],
+        (bool) $module->getParameter('ps_accounts.check_api_ssl_cert')
     );
 
     return true;
 }
 
-function updateShopModule_7_0_0($uri, $shopUid, $shopToken, $data)
+/**
+ * @param string $uri
+ * @param string $shopUid
+ * @param string $shopToken
+ * @param array $data
+ * @param bool $verify
+ *
+ * @return array
+ */
+function updateShopModule_7_0_0($uri, $shopUid, $shopToken, $data, $verify)
 {
     $formData = http_build_query($data);
-    $verify = false;
-
     return json_decode(
         file_get_contents(
             $uri,
