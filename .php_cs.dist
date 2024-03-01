@@ -7,6 +7,7 @@ $config
     ->getFinder()
     ->in(__DIR__)
     ->exclude('vendor')
+    ->exclude('dist')
     ->exclude('tests');
 
 return $config;

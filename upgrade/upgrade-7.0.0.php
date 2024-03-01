@@ -57,6 +57,7 @@ function upgrade_module_7_0_0($module)
 function updateShopModule_7_0_0($uri, $shopUid, $shopToken, $data, $verify)
 {
     $formData = http_build_query($data);
+
     return json_decode(
         file_get_contents(
             $uri,
