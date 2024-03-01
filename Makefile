@@ -165,17 +165,11 @@ vendor: composer.phar
 
 ##########################################################
 
+BUNDLE_ENV ?= local
+BUNDLE_ZIP ?=
+
 bundle: php-scoper config/config.yml.local
-	@./scripts/bundle-module.sh '' local
-
-prod: php-scoper config/config.yml.prod
-	@./scripts/bundle-module.sh '' prod
-
-inte: php-scoper config/config.yml.inte
-	@./scripts/bundle-module.sh '' inte
-
-bulle: php-scoper config/config.yml.bulle6
-	@./scripts/bundle-module.sh '' bulle6
+	@./scripts/bundle-module.sh "${BUNDLE_ZIP}" "${BUNDLE_ENV}"
 
 build-front:
 ifndef YARN
