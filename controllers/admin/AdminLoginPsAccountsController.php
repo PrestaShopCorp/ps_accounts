@@ -171,7 +171,7 @@ class AdminLoginPsAccountsController extends \AdminController
         $verify = (bool) $this->psAccounts->getParameter('ps_accounts.check_api_ssl_cert');
 
         return json_decode(
-            file_get_contents(
+            Tools::file_get_contents(
                 $this->psAccounts->getParameter('ps_accounts.testimonials_url'),
                 false,
                 stream_context_create([

@@ -31,7 +31,7 @@ function upgrade_module_7_0_0($module)
     $conf = $module->getService(\PrestaShop\Module\PsAccounts\Repository\ConfigurationRepository::class);
 
     $currentShopId = $conf->getShopId();
-    foreach (get_shops_7_0_0($conf->isMultishopActive()) as $id) {
+    foreach (get_shops_7_0_0(is_multi_7_0_0()) as $id) {
         if ($id !== null) {
             $conf->setShopId($id);
         }
@@ -92,7 +92,7 @@ function update_shop_module_7_0_0($uri, $shopUid, $shopToken, $data, $verify)
     $formData = http_build_query($data);
 
     return json_decode(
-        file_get_contents(
+        Tools::file_get_contents(
             $uri,
             false,
             stream_context_create([
@@ -113,4 +113,14 @@ function update_shop_module_7_0_0($uri, $shopUid, $shopToken, $data, $verify)
         ),
         true
     ) ?: [];
+}
+
+/**
+ * @return bool
+ */
+function is_multi_7_0_0()
+{
+    //return \Shop::isFeatureActive();
+    return \Db::getInstance()->getValue('SELECT value FROM `' . _DB_PREFIX_ . 'configuration` WHERE `name` = "PS_MULTISHOP_FEATURE_ACTIVE"')
+        && (\Db::getInstance()->getValue('SELECT COUNT(*) FROM ' . _DB_PREFIX_ . 'shop') > 1);
 }
