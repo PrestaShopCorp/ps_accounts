@@ -148,7 +148,7 @@ class ShopProvider extends PrestaShop
      */
     public function getWellKnown()
     {
-        if (! $this->wellKnown) {
+        if (!$this->wellKnown) {
             try {
                 $this->wellKnown = new WellKnown(
                     $this->fetchWellKnown($this->getOauth2Url(), $this->verify)
@@ -160,6 +160,7 @@ class ShopProvider extends PrestaShop
                 $this->wellKnown = new WellKnown();
             }
         }
+
         return $this->wellKnown;
     }
 
