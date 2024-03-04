@@ -6,7 +6,11 @@
 * Dependency scoping for collision mitigation
 * Makefile refactoring : module bundle targets for CI & add php-scoper
 * Reworked login page without inheritance from AdminLogin
-* AdminLoginPsAccounts no more inherits from AdminLogin
+* Stop installing Eventbus at install
+* Stop re-onboarding from v4 at install
+
+### Added
+* AdminLoginPsAccounts dedicated login page
 
 ## [7.0.0] - 2024-02-14
 

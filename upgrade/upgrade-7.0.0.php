@@ -13,8 +13,6 @@ function upgrade_module_7_0_0($module)
                  //'displayBackOfficeHeader',
                  //'actionAdminLoginControllerSetMedia',
                  'actionAdminControllerInitBefore',
-                 'actionObjectShopAddAfter',
-                 'actionObjectShopDeleteAfter',
                  'actionModuleInstallAfter',
              ] as $hook) {
         $module->unregisterHook($hook);
@@ -32,17 +30,51 @@ function upgrade_module_7_0_0($module)
     /** @var \PrestaShop\Module\PsAccounts\Repository\ConfigurationRepository $conf */
     $conf = $module->getService(\PrestaShop\Module\PsAccounts\Repository\ConfigurationRepository::class);
 
-    updateShopModule_7_0_0(
-        $module->getParameter('ps_accounts.accounts_api_url') . 'v2/shop/module/update',
-        $conf->getShopUuid(),
-        $conf->getFirebaseIdToken(),
-        [
-            'version' => \Ps_accounts::VERSION,
-        ],
-        (bool) $module->getParameter('ps_accounts.check_api_ssl_cert')
-    );
+    $currentShopId = $conf->getShopId();
+    foreach (get_shops_7_0_0($conf->isMultishopActive()) as $id) {
+        if ($id !== null) {
+            $conf->setShopId($id);
+        }
+        $shopUuid = $conf->getShopUuid();
+        $shopToken = $conf->getFirebaseIdToken();
+
+        // Trigger update for linked shop only
+        if ($shopUuid && $shopToken) {
+            update_shop_module_7_0_0(
+                $module->getParameter('ps_accounts.accounts_api_url') . 'v2/shop/module/update',
+                $shopUuid,
+                $shopToken,
+                [
+                    'version' => \Ps_accounts::VERSION,
+                ],
+                (bool) $module->getParameter('ps_accounts.check_api_ssl_cert')
+            );
+        }
+    }
+    $conf->setShopId($currentShopId);
 
     return true;
+}
+
+/**
+ * @param $multishop
+ *
+ * @return array|null[]
+ *
+ * @throws PrestaShopDatabaseException
+ */
+function get_shops_7_0_0($multishop)
+{
+    $shops = [null];
+    if ($multishop) {
+        $shops = [];
+        $db  = \Db::getInstance();
+        $result = $db->query('SELECT id_shop FROM ' . _DB_PREFIX_ . 'shop');
+        while ($row = $db->nextRow($result)) {
+            $shops[] = $row['id_shop'];
+        }
+    }
+    return $shops;
 }
 
 /**
@@ -54,7 +86,7 @@ function upgrade_module_7_0_0($module)
  *
  * @return array
  */
-function updateShopModule_7_0_0($uri, $shopUid, $shopToken, $data, $verify)
+function update_shop_module_7_0_0($uri, $shopUid, $shopToken, $data, $verify)
 {
     $formData = http_build_query($data);
 

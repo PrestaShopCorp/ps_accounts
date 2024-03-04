@@ -56,27 +56,27 @@ class ActionAdminControllerInitBefore extends Hook
      */
     public function execute(array $params = [])
     {
-        $controller = $params['controller'];
-
-        $this->module->getOauth2Middleware()->execute();
-
-        $className = preg_replace('/^.*\\\\/', '', get_class($controller));
-//        Logger::getInstance()->error('########################### ' . __CLASS__ . ' ' . $className);
-
-        if ($className === 'AdminLoginController') {
-            $local = Tools::getValue('mode') === AdminLoginPsAccountsController::PARAM_MODE_LOCAL ||
-                !$this->accountsService->getLoginActivated();
-
-            $this->trackLoginPage($local);
-
-            if ($this->module->getShopContext()->isShop17() && !$local) {
-//                /** @var \PrestaShop\Module\PsAccounts\Adapter\Link $link */
-//                $link = $this->module->getService(\PrestaShop\Module\PsAccounts\Adapter\Link::class);
-//                Tools::redirectLink($link->getAdminLink('AdminLoginPsAccounts', false));
-                (new AdminLoginPsAccountsController())->run();
-                exit;
-            }
-        }
+//        $controller = $params['controller'];
+//
+//        $this->module->getOauth2Middleware()->execute();
+//
+//        $className = preg_replace('/^.*\\\\/', '', get_class($controller));
+////        Logger::getInstance()->error('########################### ' . __CLASS__ . ' ' . $className);
+//
+//        if ($className === 'AdminLoginController') {
+//            $local = Tools::getValue('mode') === AdminLoginPsAccountsController::PARAM_MODE_LOCAL ||
+//                !$this->accountsService->getLoginActivated();
+//
+//            $this->trackLoginPage($local);
+//
+//            if ($this->module->getShopContext()->isShop17() && !$local) {
+////                /** @var \PrestaShop\Module\PsAccounts\Adapter\Link $link */
+////                $link = $this->module->getService(\PrestaShop\Module\PsAccounts\Adapter\Link::class);
+////                Tools::redirectLink($link->getAdminLink('AdminLoginPsAccounts', false));
+//                (new AdminLoginPsAccountsController())->run();
+//                exit;
+//            }
+//        }
     }
 
     /**

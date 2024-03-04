@@ -84,6 +84,8 @@ class Ps_accounts extends Module
         //\PrestaShop\Module\PsAccounts\Hook\ActionAdminLoginControllerLoginAfter::class,
         'actionAdminLoginControllerLoginAfter',
         'actionObjectEmployeeDeleteAfter',
+        'actionObjectShopAddAfter',
+        'actionObjectShopDeleteAfter',
         'actionObjectShopDeleteBefore',
         'actionObjectShopUpdateAfter',
         'actionObjectShopUrlUpdateAfter',
@@ -531,13 +533,13 @@ class Ps_accounts extends Module
         $uninstaller = new PrestaShop\Module\PsAccounts\Module\Uninstall($this, Db::getInstance());
         $uninstaller->deleteAdminTab('AdminLogin');
 
-        /** @var \PrestaShop\Module\PsAccounts\Cqrs\CommandBus $commandBus */
-        $commandBus = $this->getService(\PrestaShop\Module\PsAccounts\Cqrs\CommandBus::class);
-        $commandBus->handle(new \PrestaShop\Module\PsAccounts\Account\Command\UpdateModuleCommand(
-            new \PrestaShop\Module\PsAccounts\Account\Dto\UpdateModule([
-                'version' => \Ps_accounts::VERSION,
-            ])
-        ));
+//        /** @var \PrestaShop\Module\PsAccounts\Cqrs\CommandBus $commandBus */
+//        $commandBus = $this->getService(\PrestaShop\Module\PsAccounts\Cqrs\CommandBus::class);
+//        $commandBus->handle(new \PrestaShop\Module\PsAccounts\Account\Command\UpdateModuleCommand(
+//            new \PrestaShop\Module\PsAccounts\Account\Dto\UpdateModule([
+//                'version' => \Ps_accounts::VERSION,
+//            ])
+//        ));
 //        $this->installEventBus();
 //        $this->autoReonboardOnV5();
     }
