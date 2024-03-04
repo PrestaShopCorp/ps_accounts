@@ -68,12 +68,13 @@ function get_shops_7_0_0($multishop)
     $shops = [null];
     if ($multishop) {
         $shops = [];
-        $db  = \Db::getInstance();
+        $db = \Db::getInstance();
         $result = $db->query('SELECT id_shop FROM ' . _DB_PREFIX_ . 'shop');
         while ($row = $db->nextRow($result)) {
             $shops[] = $row['id_shop'];
         }
     }
+
     return $shops;
 }
 
