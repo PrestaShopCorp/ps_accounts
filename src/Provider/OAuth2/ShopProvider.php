@@ -144,7 +144,7 @@ class ShopProvider extends PrestaShop
     }
 
     /**
-     * @inheritDoc
+     * {@inheritDoc}
      */
     public function getAccessToken($grant, array $options = [])
     {
@@ -154,7 +154,7 @@ class ShopProvider extends PrestaShop
     }
 
     /**
-     * @inheritDoc
+     * {@inheritDoc}
      */
     protected function getAuthorizationParameters(array $options)
     {
