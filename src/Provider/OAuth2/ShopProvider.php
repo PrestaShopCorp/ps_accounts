@@ -148,7 +148,7 @@ class ShopProvider extends PrestaShop
      */
     public function getWellKnown()
     {
-        if (!$this->wellKnown) {
+        if (!isset($this->wellKnown)) {
             try {
                 $this->wellKnown = new WellKnown(
                     $this->fetchWellKnown($this->getOauth2Url(), $this->verify)
@@ -179,7 +179,7 @@ class ShopProvider extends PrestaShop
             $wellKnownUrl = preg_replace('/\/?$/', '/.well-known/openid-configuration', $wellKnownUrl);
         }
 
-        return json_decode(\Tools::file_get_contents($wellKnownUrl, false, stream_context_create([
+        return json_decode((string) \Tools::file_get_contents($wellKnownUrl, false, stream_context_create([
             'ssl' => [
                 'verify_peer' => $secure,
                 'verify_peer_name' => $secure,
