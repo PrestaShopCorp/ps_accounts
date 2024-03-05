@@ -144,6 +144,26 @@ class ShopProvider extends PrestaShop
     }
 
     /**
+     * @inheritDoc
+     */
+    public function getAccessToken($grant, array $options = [])
+    {
+        $this->syncOauth2ClientProps();
+
+        return parent::getAccessToken($grant, $options);
+    }
+
+    /**
+     * @inheritDoc
+     */
+    protected function getAuthorizationParameters(array $options)
+    {
+        $this->syncOauth2ClientProps();
+
+        return parent::getAuthorizationParameters($options);
+    }
+
+    /**
      * @return WellKnown
      */
     public function getWellKnown()
@@ -188,5 +208,14 @@ class ShopProvider extends PrestaShop
                 'ignore_errors' => '1',
             ],
         ])), true) ?: [];
+    }
+
+    /**
+     * @return void
+     */
+    private function syncOauth2ClientProps()
+    {
+        $this->clientId = $this->getOauth2Client()->getClientId();
+        $this->clientSecret = $this->getOauth2Client()->getClientSecret();
     }
 }
