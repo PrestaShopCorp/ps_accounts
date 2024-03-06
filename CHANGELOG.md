@@ -24,11 +24,11 @@
 * Merge code of branches 6 & 5 into a unique version
 * Unbound Shop Linked Status & Token Validity
 * Generalized Circuit Breaker to all api calls
-* No more auto-enable login with PrestaShop after linkshop
-* Replace AdminLogin override with a dedicated AdminLoginPsAccounts page & internal redirect
+* Login with PrestaShop after linkshop requires to be activated explicitly
+* AdminLogin override replaced with a redirect to a dedicated AdminLoginPsAccounts page 
 
 ### Fixed
-* No more invalid tokens with Shop Oauth2 Client
+* Shop unliked on firebase token expiration
 
 
 

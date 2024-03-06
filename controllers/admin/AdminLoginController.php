@@ -19,7 +19,7 @@
  */
 
 /**
- * @deprecated starting ps_accounts 6.4.0
+ * @deprecated removed starting ps_accounts 7.0.0
  */
 class AdminLoginController extends \AdminLoginControllerCore
 {
