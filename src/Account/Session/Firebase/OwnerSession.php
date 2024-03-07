@@ -60,7 +60,7 @@ class OwnerSession extends Session implements SessionInterface
      */
     public function refreshToken($refreshToken = null)
     {
-        $this->shopSession->getOrRefreshToken();
+        $this->shopSession->getOrRefreshToken(false, true);
 
         return $this->getToken();
     }

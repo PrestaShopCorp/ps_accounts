@@ -70,6 +70,14 @@ class ConfigurationRepository
     }
 
     /**
+     * @return string
+     */
+    public function getFirebaseRefreshToken()
+    {
+        return $this->configuration->get(ConfigurationKeys::PS_ACCOUNTS_FIREBASE_REFRESH_TOKEN);
+    }
+
+    /**
      * @param string $idToken
      * @param string $refreshToken
      *
@@ -84,6 +92,7 @@ class ConfigurationRepository
             $this->configuration->set(ConfigurationKeys::PS_PSX_FIREBASE_REFRESH_DATE, date('Y-m-d H:i:s'));
         }
         $this->configuration->set(ConfigurationKeys::PS_ACCOUNTS_FIREBASE_ID_TOKEN, $idToken);
+        $this->configuration->set(ConfigurationKeys::PS_ACCOUNTS_FIREBASE_REFRESH_TOKEN, $refreshToken);
     }
 
     /**

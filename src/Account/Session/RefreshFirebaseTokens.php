@@ -77,15 +77,18 @@ trait RefreshFirebaseTokens
      */
     protected function refreshFirebaseTokens($token)
     {
-        $response = $this->getAccountsClient()->firebaseTokens($token);
+        if ($this->getOwnerFirebaseSession()->getToken()->isExpired() ||
+            $this->getShopFirebaseSession()->getToken()->isExpired()) {
+            $response = $this->getAccountsClient()->firebaseTokens($token);
 
-        $this->getOwnerFirebaseSession()->setToken(
-            (string) $this->getFirebaseTokenFromResponse($response, 'userToken')
-        );
+            $this->getOwnerFirebaseSession()->setToken(
+                (string) $this->getFirebaseTokenFromResponse($response, 'userToken')
+            );
 
-        $this->getShopFirebaseSession()->setToken(
-            (string) $this->getFirebaseTokenFromResponse($response, 'shopToken')
-        );
+            $this->getShopFirebaseSession()->setToken(
+                (string) $this->getFirebaseTokenFromResponse($response, 'shopToken')
+            );
+        }
     }
 
     /**

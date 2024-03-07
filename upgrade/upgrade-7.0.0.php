@@ -27,31 +27,31 @@ function upgrade_module_7_0_0($module)
     $installer = new PrestaShop\Module\PsAccounts\Module\Install($module, Db::getInstance());
     $installer->installInMenu();
 
-    /** @var \PrestaShop\Module\PsAccounts\Repository\ConfigurationRepository $conf */
-    $conf = $module->getService(\PrestaShop\Module\PsAccounts\Repository\ConfigurationRepository::class);
-
-    $currentShopId = $conf->getShopId();
-    foreach (get_shops_7_0_0(is_multi_7_0_0()) as $id) {
-        if ($id !== null) {
-            $conf->setShopId($id);
-        }
-        $shopUuid = $conf->getShopUuid();
-        $shopToken = $conf->getFirebaseIdToken();
-
-        // Trigger update for linked shop only
-        if ($shopUuid && $shopToken) {
-            update_shop_module_7_0_0(
-                $module->getParameter('ps_accounts.accounts_api_url') . 'v2/shop/module/update',
-                $shopUuid,
-                $shopToken,
-                [
-                    'version' => \Ps_accounts::VERSION,
-                ],
-                (bool) $module->getParameter('ps_accounts.check_api_ssl_cert')
-            );
-        }
-    }
-    $conf->setShopId($currentShopId);
+//    /** @var \PrestaShop\Module\PsAccounts\Repository\ConfigurationRepository $conf */
+//    $conf = $module->getService(\PrestaShop\Module\PsAccounts\Repository\ConfigurationRepository::class);
+//
+//    $currentShopId = $conf->getShopId();
+//    foreach (get_shops_7_0_0(is_multi_7_0_0()) as $id) {
+//        if ($id !== null) {
+//            $conf->setShopId($id);
+//        }
+//        $shopUuid = $conf->getShopUuid();
+//        $shopToken = $conf->getFirebaseIdToken();
+//
+//        // Trigger update for linked shop only
+//        if ($shopUuid && $shopToken) {
+//            update_shop_module_7_0_0(
+//                $module->getParameter('ps_accounts.accounts_api_url') . 'v2/shop/module/update',
+//                $shopUuid,
+//                $shopToken,
+//                [
+//                    'version' => \Ps_accounts::VERSION,
+//                ],
+//                (bool) $module->getParameter('ps_accounts.check_api_ssl_cert')
+//            );
+//        }
+//    }
+//    $conf->setShopId($currentShopId);
 
     return true;
 }

@@ -21,10 +21,33 @@
 namespace PrestaShop\Module\PsAccounts\Hook;
 
 use Exception;
+use PrestaShop\Module\PsAccounts\Account\Command\UpdateModuleCommand;
+use PrestaShop\Module\PsAccounts\Account\Dto\UpdateModule;
+use PrestaShop\Module\PsAccounts\Account\Session\Firebase\ShopSession;
+use PrestaShop\Module\PsAccounts\Api\Client\AccountsClient;
+use PrestaShop\Module\PsAccounts\Repository\ConfigurationRepository;
 use PrestaShop\Module\PsAccounts\Vendor\League\OAuth2\Client\Provider\Exception\IdentityProviderException;
 
 class DisplayBackOfficeHeader extends Hook
 {
+    /**
+     * @var ConfigurationRepository
+     */
+    private $configRepo;
+
+    /**
+     * @var ShopSession
+     */
+    private $shopSession;
+
+    public function __construct(\Ps_accounts $module)
+    {
+        parent::__construct($module);
+
+        $this->shopSession = $this->module->getService(ShopSession::class);
+        $this->configRepo = $this->module->getService(ConfigurationRepository::class);
+    }
+
     /**
      * @return void
      *
@@ -34,5 +57,39 @@ class DisplayBackOfficeHeader extends Hook
     public function execute(array $params = [])
     {
         $this->module->getOauth2Middleware()->execute();
+
+        // TODO: update all shops at once ?
+        // OAuthClient must be updated
+        if ($this->configRepo->getFirebaseRefreshToken()) {
+            // last call to refresh shop token & force null refreshToken
+            $this->shopSession->setToken($this->getOrRefreshShopToken(), null);
+            $this->commandBus->handle(new UpdateModuleCommand(new UpdateModule([
+                'version' => \Ps_accounts::VERSION,
+            ])));
+        }
+    }
+
+    /**
+     * @return string
+     *
+     * @throws Exception
+     */
+    private function getOrRefreshShopToken()
+    {
+        $token = $this->shopSession->getToken();
+        if ($token->isExpired()) {
+            /** @var AccountsClient $accountsApi */
+            $accountsApi = $this->module->getService(AccountsClient::class);
+            $response = $accountsApi->refreshShopToken(
+                $this->configRepo->getFirebaseRefreshToken(),
+                $this->configRepo->getShopUuid()
+            );
+
+            if (isset($response['body']['token'])) {
+                return $response['body']['token'];
+            }
+        }
+
+        return (string) $token;
     }
 }

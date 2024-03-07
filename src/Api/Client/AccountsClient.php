@@ -98,6 +98,26 @@ class AccountsClient
     }
 
     /**
+     * @param string $refreshToken
+     * @param string $shopUuid
+     *
+     * @return array response
+     */
+    public function refreshShopToken($refreshToken, $shopUuid)
+    {
+        $this->getClient()->setRoute('v1/shop/token/refresh');
+
+        return $this->getClient()->post([
+            'headers' => $this->getHeaders([
+                'X-Shop-Id' => $shopUuid,
+            ]),
+            'json' => [
+                'token' => $refreshToken,
+            ],
+        ]);
+    }
+
+    /**
      * @param string $ownerUid
      * @param string $shopUid
      * @param string $ownerToken

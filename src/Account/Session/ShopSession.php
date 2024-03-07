@@ -60,17 +60,20 @@ class ShopSession extends Session implements SessionInterface
 
     /**
      * @param bool $forceRefresh
+     * @param bool $refreshFirebaseTokens
      *
      * @return Token
      *
      * @throws \Exception
      */
-    public function getOrRefreshToken($forceRefresh = false)
+    public function getOrRefreshToken($forceRefresh = false, $refreshFirebaseTokens = false)
     {
         $token = parent::getOrRefreshToken($forceRefresh);
 
         try {
-            $this->refreshFirebaseTokens($token);
+            if ($refreshFirebaseTokens) {
+                $this->refreshFirebaseTokens($token);
+            }
 
             \Hook::exec(ActionShopAccessTokenRefreshAfter::getName(), ['token' => $token]);
         } catch (\Error $e) {
