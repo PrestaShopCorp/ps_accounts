@@ -24,6 +24,8 @@ use PrestaShop\Module\PsAccounts\Account\Command\UpdateModuleCommand;
 use PrestaShop\Module\PsAccounts\Account\LinkShop;
 use PrestaShop\Module\PsAccounts\Account\Session\Firebase\ShopSession;
 use PrestaShop\Module\PsAccounts\Api\Client\AccountsClient;
+use PrestaShop\Module\PsAccounts\Context\ShopContext;
+use PrestaShop\Module\PsAccounts\Repository\ConfigurationRepository;
 
 class UpdateModuleHandler
 {
@@ -42,14 +44,26 @@ class UpdateModuleHandler
      */
     private $accountsClient;
 
+    /**
+     * @var ConfigurationRepository
+     */
+    private $configRepo;
+
+    /**
+     * @var ShopContext
+     */
+    private $shopContext;
+
     public function __construct(
         AccountsClient $accountsClient,
         LinkShop $linkShop,
-        ShopSession $shopSession
+        ShopSession $shopSession,
+        ShopContext $shopContext
     ) {
         $this->accountsClient = $accountsClient;
         $this->linkShop = $linkShop;
         $this->shopSession = $shopSession;
+        $this->shopContext = $shopContext;
     }
 
     /**
@@ -59,10 +73,42 @@ class UpdateModuleHandler
      */
     public function handle(UpdateModuleCommand $command)
     {
-        $this->accountsClient->updateShopModule(
-            $this->linkShop->getShopUuid(),
-            (string) $this->shopSession->getToken(),
-            $command->payload
-        );
+        $this->shopContext->execInShopContext($command->payload->shopId, function () use ($command) {
+            //if ($this->configRepo->getFirebaseRefreshToken()) {
+            if ($this->shopSession->getToken()->getRefreshToken()) {
+                // last call to refresh shop token & force null refreshToken
+                $this->shopSession->setToken($this->getOrRefreshShopToken(), null);
+
+                $this->accountsClient->updateShopModule(
+                    $this->linkShop->getShopUuid(),
+                    (string) $this->shopSession->getToken(),
+                    $command->payload
+                );
+            }
+        });
+    }
+
+    /**
+     * @return string
+     *
+     * @throws \Exception
+     */
+    private function getOrRefreshShopToken()
+    {
+        $token = $this->shopSession->getToken();
+        if ($token->isExpired()) {
+            $response = $this->accountsClient->refreshShopToken(
+                //$this->configRepo->getFirebaseRefreshToken(),
+                $this->shopSession->getToken()->getRefreshToken(),
+                //$this->configRepo->getShopUuid()
+                $this->linkShop->getShopUuid()
+            );
+
+            if (isset($response['body']['token'])) {
+                return $response['body']['token'];
+            }
+        }
+
+        return (string) $token;
     }
 }

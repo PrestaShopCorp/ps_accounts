@@ -3,14 +3,6 @@
 * disseminate tests and filter on module build
 
 ## TEST
-* Version PrestaShop: 1.6.1.2 / 1.7.5.6 / 1.7.8.2 / 8
-* Tests d'upgrade :
-  * 5.6 -> 7.0.0
-  * 6.3 -> 7.0.0
-* Test upgrade et maintient de la connexion
-  * une shop avec des tokens valides qui upgrade ne doit plus être déconnectée si les tokens sont supprimés
-* tracking login edition
-  * uniquement en 8
 * interaction avec les PSXs 
   * checkout
   * facebook
@@ -18,12 +10,33 @@
   * eventbus
   * shipping
 
-### TO BE FIXED
-* activate login PsAccountsService::enableLogin(true)
-* Maj LCOBUCCI (require php 7.1 min ? OU phpscoper)
-* Override (fichier vide & tab->delete()
+# Tests
+  * .md doc on Notion
+  * ServiceInjector
+
+# Marketplace
+  * easy to fake module upgrade
+    * 1.6
+      * Install latest -1 & Tools::addonsRequest (upload local ./upload/ps_accounts.zip)
+    * 1.7+
+      * Install latest -1 & AddonsDataProvider::request (upload local ./upload/ps_accounts.zip)
+
+# External dependencies
+  * activate login PsAccountsService::enableLogin(true)
 
 ### 
+* Override (fichier vide & tab->delete()
 * tester sans les namespace dans le composer
-* scoper LCOBUCCI
-* login.css pété après un build
+* _dev
+  * login.css pété après un build
+  * build bulles 1-6 & build _dev
+* flashlight
+* reset Password
+* doc partie scoper
+
+delete from ps_hook_module where id_module=280 and id_hook IN (178, 57);
+select ps_module.id_module, ps_module.name, ps_hook_module.id_hook, ps_hook.name
+from ps_hook_module
+inner join ps_module on (ps_module.id_module=ps_hook_module.id_module)
+inner join ps_hook on (ps_hook_module.id_hook=ps_hook.id_hook)
+where ps_module.name='ps_accounts' and id_shop=1;

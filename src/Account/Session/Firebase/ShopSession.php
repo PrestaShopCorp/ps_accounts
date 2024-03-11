@@ -71,7 +71,8 @@ class ShopSession extends Session implements SessionInterface
     public function getToken()
     {
         return new Token(
-            $this->configurationRepository->getFirebaseIdToken()
+            $this->configurationRepository->getFirebaseIdToken(),
+            $this->configurationRepository->getFirebaseRefreshToken()
         );
     }
 
