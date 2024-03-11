@@ -545,7 +545,7 @@ function ps_accounts_fix_upgrade()
 {
     $root = __DIR__;
     $requires = array_merge([
-//        $root . '/src/Module/Install.php',
+        $root . '/src/Module/Install.php',
 //        $root . '/src/Hook/Hook.php',
         $root . '/src/Hook/HookableTrait.php',
     ], []/*, glob($root . '/src/Hook/*.php')*/);
