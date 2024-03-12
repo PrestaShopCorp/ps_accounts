@@ -2,7 +2,7 @@
 
 ## 1. Install module version n-1
 
-Install any version before the latest release to trigger upgrade button.
+Install any version **before** the latest release to trigger upgrade button.
 
 ## 2. Prestashop classes to modify locally
 
@@ -21,7 +21,7 @@ if ($request == 'module' && $params['id_module'] == 49648) {
             'verify_peer_name' => false,
         ),
         'http' => array(
-            'method'  => 'POST',
+            'method'  => 'GET',
             'timeout' => 5,
         )
     ));
@@ -44,7 +44,7 @@ Modify method `AddonsDataProvider::request` (upload local ./upload/ps_accounts.z
               'verify_peer_name' => false,
           ),
           'http' => array(
-              'method'  => 'POST',
+              'method'  => 'GET',
               'timeout' => 5,
           )
       ));

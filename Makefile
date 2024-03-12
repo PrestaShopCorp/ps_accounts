@@ -165,10 +165,10 @@ vendor: composer.phar
 
 ##########################################################
 
-BUNDLE_ENV ?= local
-BUNDLE_ZIP ?=
+BUNDLE_ENV ?= # ex: local|preprod|prod
+BUNDLE_ZIP ?= # ex: ps_accounts_flavor.zip
 
-bundle: php-scoper config/config.yml.local
+bundle: php-scoper config/config.yml
 	@./scripts/bundle-module.sh "${BUNDLE_ZIP}" "${BUNDLE_ENV}"
 
 build-front:

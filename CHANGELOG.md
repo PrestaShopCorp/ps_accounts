@@ -6,8 +6,8 @@
 * Dependency scoping for collision mitigation
 * Makefile refactoring : module bundle targets for CI & add php-scoper
 * Reworked login page without inheritance from AdminLogin
-* Stop installing Eventbus at install
-* Stop re-onboarding from v4 at install
+* Stop installing Eventbus at install/reset
+* Stop re-onboarding from v4 at install/reset
 
 ### Added
 * AdminLoginPsAccounts dedicated login page
@@ -28,7 +28,8 @@
 * AdminLogin override replaced with a redirect to a dedicated AdminLoginPsAccounts page 
 
 ### Fixed
-* Shop unliked on firebase token expiration
+* Shop are unliked when firebase token expires
+* Can't login again with PrestaShop using an account recreated after deletion in BO
 
 
 
