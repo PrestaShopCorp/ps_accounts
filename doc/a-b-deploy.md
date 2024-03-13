@@ -25,4 +25,6 @@
 
 #### 2. Find a way to specify both lower AND upper limit when publishing new versions on Addons Marketplace (only a `from_version` is defined for now)
 
+Also use semver to define compatibility, not just exact version numbers
+
 See: `./github/mktp-metadata.json`

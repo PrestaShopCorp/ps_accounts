@@ -27,7 +27,6 @@ if ($request == 'module' && $params['id_module'] == 49648) {
     ));
     // "https://api.addons.prestashop.com?method=module&id_module=49648&version=1.6.1"
     $zip =  Tools::file_get_contents('http://localhost/upload/ps_accounts.zip', false, $context);
-    //error_log('################### ' . __FUNCTION__ . $zip);
     return $zip;
 }
 ```
@@ -50,7 +49,6 @@ Modify method `AddonsDataProvider::request` (upload local ./upload/ps_accounts.z
       ));
       // "https://api.addons.prestashop.com?method=module&id_module=49648&version=1.7.5"
       $zip =  \Tools::file_get_contents('http://localhost/upload/ps_accounts.zip', false, $context);
-      //error_log('################### ' . __FUNCTION__ . $zip);
       return $zip;
   }
 ```
