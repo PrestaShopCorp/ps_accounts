@@ -14,7 +14,7 @@ Vendor directories to scope are primarily defined in `scoper.inc.php`
 $dirScoped = ['guzzlehttp', 'league', 'prestashopcorp', 'lcobucci'];
 ```
 
-You'll still have to explicitly define namespaces in `composer.json` :
+You'll still have to manually define namespaces in `composer.json` :
 
 ```json
 "autoload": {
@@ -28,6 +28,8 @@ You'll still have to explicitly define namespaces in `composer.json` :
     },
 },
 ```
+
+NOTE: you also have to use prefixed namespaces in the module's code. We only scope vendors dirs here.
 
 For in-string namespaces references ("indirect" references), we need to use Patchers :
 see: https://github.com/humbug/php-scoper/blob/master/docs/configuration.md#patchers
