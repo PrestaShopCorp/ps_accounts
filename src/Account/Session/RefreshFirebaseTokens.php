@@ -98,6 +98,7 @@ trait RefreshFirebaseTokens
     /**
      * @param array $response
      * @param string $name
+     * @param string $refreshName
      *
      * @return Token
      *

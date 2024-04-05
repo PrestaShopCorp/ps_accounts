@@ -376,7 +376,7 @@ class ConfigurationRepository
     }
 
     /**
-     * @return void
+     * @return string
      */
     public function getLastUpdate()
     {
