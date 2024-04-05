@@ -231,6 +231,14 @@ class ConfigurationRepository
     }
 
     /**
+     * @return mixed
+     */
+    public function getUserFirebaseRefreshToken()
+    {
+        return $this->configuration->get(ConfigurationKeys::PS_ACCOUNTS_USER_FIREBASE_ID_TOKEN);
+    }
+
+    /**
      * @param string $idToken
      *
      * @return void

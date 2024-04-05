@@ -59,18 +59,23 @@ class GetOrRefreshTokenTest extends TestCase
             'sub' => $this->faker->uuid,
             'email' => $this->faker->safeEmail,
         ]);
+        $userRefreshToken = $this->faker->randomAscii;
+        $shopRefreshToken = $this->faker->randomAscii;
         $shopSession = $this->getMockedShopSession($this->createApiResponse([
             'userToken' => (string) $refreshed,
+            'userRefreshToken' => $userRefreshToken,
             'shopToken' => (string) $refreshed,
+            'shopRefreshToken' => $shopRefreshToken,
         ], 200, true));
 
         $session = new Firebase\ShopSession($this->configurationRepository, $shopSession);
 
         //$shopSession->setToken((string) $expired);
-        $session->setToken((string) $expired);
+        $session->setToken((string) $expired, $shopRefreshToken);
 
         $this->assertEquals((string) $expired, (string) $session->getToken());
         $this->assertEquals((string) $refreshed, (string) $session->getOrRefreshToken());
+        $this->assertEquals($shopRefreshToken, $this->configurationRepository->getFirebaseRefreshToken());
     }
 
     /**
