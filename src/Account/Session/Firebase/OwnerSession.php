@@ -91,6 +91,6 @@ class OwnerSession extends Session implements SessionInterface
      */
     public function setToken($token, $refreshToken = null)
     {
-        $this->configurationRepository->updateUserFirebaseIdToken($token);
+        $this->configurationRepository->updateUserFirebaseIdAndRefreshToken($token, $refreshToken);
     }
 }

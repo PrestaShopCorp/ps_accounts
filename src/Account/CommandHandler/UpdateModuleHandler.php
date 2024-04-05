@@ -58,12 +58,14 @@ class UpdateModuleHandler
         AccountsClient $accountsClient,
         LinkShop $linkShop,
         ShopSession $shopSession,
-        ShopContext $shopContext
+        ShopContext $shopContext,
+        ConfigurationRepository $configurationRepository
     ) {
         $this->accountsClient = $accountsClient;
         $this->linkShop = $linkShop;
         $this->shopSession = $shopSession;
         $this->shopContext = $shopContext;
+        $this->configRepo = $configurationRepository;
     }
 
     /**
@@ -73,11 +75,18 @@ class UpdateModuleHandler
      */
     public function handle(UpdateModuleCommand $command)
     {
-        $this->shopContext->execInShopContext($command->payload->shopId, function () use ($command) {
+        /** @var \Ps_accounts $module */
+        $module = \Module::getInstanceByName('ps_accounts');
+
+        $this->shopContext->execInShopContext($command->payload->shopId, function () use ($command, $module) {
             //if ($this->configRepo->getFirebaseRefreshToken()) {
-            if ($this->shopSession->getToken()->getRefreshToken()) {
+            if ($this->configRepo->getLastUpdate() !== $module::VERSION) {
+                $this->configRepo->setLastUpdate($module::VERSION);
                 // last call to refresh shop token & force null refreshToken
-                $this->shopSession->setToken($this->getOrRefreshShopToken(), null);
+                $this->shopSession->setToken(
+                    $this->getOrRefreshShopToken(),
+                    $this->shopSession->getToken()->getRefreshToken()
+                );
 
                 $this->accountsClient->updateShopModule(
                     $this->linkShop->getShopUuid(),

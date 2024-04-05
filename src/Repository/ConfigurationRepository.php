@@ -241,6 +241,18 @@ class ConfigurationRepository
     }
 
     /**
+     * @param string $idToken
+     * @param string $refreshToken
+     *
+     * @return void
+     */
+    public function updateUserFirebaseIdAndRefreshToken($idToken, $refreshToken)
+    {
+        $this->configuration->set(ConfigurationKeys::PS_ACCOUNTS_USER_FIREBASE_ID_TOKEN, $idToken);
+        $this->configuration->set(ConfigurationKeys::PS_ACCOUNTS_USER_FIREBASE_REFRESH_TOKEN, $refreshToken);
+    }
+
+    /**
      *   Get shop who is defined as main in the prestashop
      *
      *   @return \Shop
@@ -351,6 +363,24 @@ class ConfigurationRepository
         //return \Shop::isFeatureActive();
         return \Db::getInstance()->getValue('SELECT value FROM `' . _DB_PREFIX_ . 'configuration` WHERE `name` = "PS_MULTISHOP_FEATURE_ACTIVE"')
             && (\Db::getInstance()->getValue('SELECT COUNT(*) FROM ' . _DB_PREFIX_ . 'shop') > 1);
+    }
+
+    /**
+     * @param string $update
+     *
+     * @return void
+     */
+    public function setLastUpdate($update)
+    {
+        $this->configuration->set(ConfigurationKeys::PS_ACCOUNTS_LAST_UPDATE, $update);
+    }
+
+    /**
+     * @return void
+     */
+    public function getLastUpdate()
+    {
+        return $this->configuration->get(ConfigurationKeys::PS_ACCOUNTS_LAST_UPDATE);
     }
 
     /**

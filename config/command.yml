@@ -55,6 +55,7 @@ services:
       - '@PrestaShop\Module\PsAccounts\Account\LinkShop'
       - '@PrestaShop\Module\PsAccounts\Account\Session\Firebase\ShopSession'
       - '@PrestaShop\Module\PsAccounts\Context\ShopContext'
+      - '@PrestaShop\Module\PsAccounts\Repository\ConfigurationRepository'
 
   PrestaShop\Module\PsAccounts\Account\CommandHandler\UpdateModuleMultiHandler:
     class: PrestaShop\Module\PsAccounts\Account\CommandHandler\UpdateModuleMultiHandler
