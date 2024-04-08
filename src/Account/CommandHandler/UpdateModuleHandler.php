@@ -75,13 +75,10 @@ class UpdateModuleHandler
      */
     public function handle(UpdateModuleCommand $command)
     {
-        /** @var \Ps_accounts $module */
-        $module = \Module::getInstanceByName('ps_accounts');
-
-        $this->shopContext->execInShopContext($command->payload->shopId, function () use ($command, $module) {
+        $this->shopContext->execInShopContext($command->payload->shopId, function () use ($command) {
             //if ($this->configRepo->getFirebaseRefreshToken()) {
-            if ($this->configRepo->getLastUpdate() !== $module::VERSION) {
-                $this->configRepo->setLastUpdate($module::VERSION);
+            if ($this->configRepo->getLastUpdate() !== \Ps_accounts::VERSION) {
+                $this->configRepo->setLastUpdate(\Ps_accounts::VERSION);
                 // last call to refresh shop token & force null refreshToken
                 $this->shopSession->setToken(
                     $this->getOrRefreshShopToken(),

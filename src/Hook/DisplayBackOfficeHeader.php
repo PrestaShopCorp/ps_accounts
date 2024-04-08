@@ -40,7 +40,7 @@ class DisplayBackOfficeHeader extends Hook
         /** @var ConfigurationRepository $configurationRepository */
         $configurationRepository = $this->module->getService(ConfigurationRepository::class);
 
-        if ($configurationRepository->getLastUpdate() !== $this->module::VERSION) {
+        if ($configurationRepository->getLastUpdate() !== \Ps_Accounts::VERSION) {
             $this->commandBus->handle(new UpdateModuleMultiCommand());
         }
     }
