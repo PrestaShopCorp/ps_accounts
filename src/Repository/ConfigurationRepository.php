@@ -378,17 +378,17 @@ class ConfigurationRepository
      *
      * @return void
      */
-    public function setLastUpdate($update)
+    public function setLastUpgrade($upgrade)
     {
-        $this->configuration->set(ConfigurationKeys::PS_ACCOUNTS_LAST_UPDATE, $update);
+        $this->configuration->set(ConfigurationKeys::PS_ACCOUNTS_LAST_UPGRADE, $upgrade);
     }
 
     /**
      * @return string
      */
-    public function getLastUpdate()
+    public function getLastUpgrade()
     {
-        return $this->configuration->get(ConfigurationKeys::PS_ACCOUNTS_LAST_UPDATE);
+        return $this->configuration->get(ConfigurationKeys::PS_ACCOUNTS_LAST_UPGRADE);
     }
 
     /**

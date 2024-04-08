@@ -69,5 +69,5 @@ class ConfigurationKeys extends Enum
     const PS_ACCOUNTS_ACCESS_TOKEN = 'PS_ACCOUNTS_ACCESS_TOKEN';
 
     // Last version we call to update the version on accounts-api
-    const PS_ACCOUNTS_LAST_UPDATE = 'PS_ACCOUNTS_LAST_UPDATE';
+    const PS_ACCOUNTS_LAST_UPGRADE = 'PS_ACCOUNTS_LAST_UPGRADE';
 }

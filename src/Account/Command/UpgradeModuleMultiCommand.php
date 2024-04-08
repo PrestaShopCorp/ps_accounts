@@ -20,20 +20,6 @@
 
 namespace PrestaShop\Module\PsAccounts\Account\Command;
 
-use PrestaShop\Module\PsAccounts\Account\Dto;
-
-class UpdateModuleCommand
+class UpgradeModuleMultiCommand
 {
-    /**
-     * @var Dto\UpdateModule
-     */
-    public $payload;
-
-    /**
-     * @param Dto\UpdateModule $payload
-     */
-    public function __construct(Dto\UpdateModule $payload)
-    {
-        $this->payload = $payload;
-    }
 }

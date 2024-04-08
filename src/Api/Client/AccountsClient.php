@@ -210,4 +210,21 @@ class AccountsClient
             'X-Prestashop-Version' => _PS_VERSION_,
         ], $additionalHeaders);
     }
+
+    /**
+     * @deprecated
+     * @param string $idToken
+     *
+     * @return array response
+     */
+    public function verifyToken($idToken)
+    {
+        $this->getClient()->setRoute('/v1/shop/token/verify');
+
+        return $this->getClient()->post([
+            'json' => [
+                'token' => $idToken,
+            ],
+        ]);
+    }
 }

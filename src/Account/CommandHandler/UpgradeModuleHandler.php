@@ -20,14 +20,14 @@
 
 namespace PrestaShop\Module\PsAccounts\Account\CommandHandler;
 
-use PrestaShop\Module\PsAccounts\Account\Command\UpdateModuleCommand;
+use PrestaShop\Module\PsAccounts\Account\Command\UpgradeModuleCommand;
 use PrestaShop\Module\PsAccounts\Account\LinkShop;
 use PrestaShop\Module\PsAccounts\Account\Session\Firebase\ShopSession;
 use PrestaShop\Module\PsAccounts\Api\Client\AccountsClient;
 use PrestaShop\Module\PsAccounts\Context\ShopContext;
 use PrestaShop\Module\PsAccounts\Repository\ConfigurationRepository;
 
-class UpdateModuleHandler
+class UpgradeModuleHandler
 {
     /**
      * @var LinkShop
@@ -69,16 +69,16 @@ class UpdateModuleHandler
     }
 
     /**
-     * @param UpdateModuleCommand $command
+     * @param UpgradeModuleCommand $command
      *
      * @return void
      */
-    public function handle(UpdateModuleCommand $command)
+    public function handle(UpgradeModuleCommand $command)
     {
         $this->shopContext->execInShopContext($command->payload->shopId, function () use ($command) {
             //if ($this->configRepo->getFirebaseRefreshToken()) {
-            if ($this->configRepo->getLastUpdate() !== \Ps_accounts::VERSION) {
-                $this->configRepo->setLastUpdate(\Ps_accounts::VERSION);
+            if ($this->configRepo->getLastUpgrade() !== \Ps_accounts::VERSION) {
+                $this->configRepo->setLastUpgrade(\Ps_accounts::VERSION);
                 // last call to refresh shop token & force null refreshToken
                 $this->shopSession->setToken(
                     $this->getOrRefreshShopToken(),
