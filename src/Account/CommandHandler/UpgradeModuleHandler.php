@@ -76,10 +76,9 @@ class UpgradeModuleHandler
     public function handle(UpgradeModuleCommand $command)
     {
         $this->shopContext->execInShopContext($command->payload->shopId, function () use ($command) {
-            //if ($this->configRepo->getFirebaseRefreshToken()) {
             if ($this->configRepo->getLastUpgrade() !== \Ps_accounts::VERSION) {
                 $this->configRepo->setLastUpgrade(\Ps_accounts::VERSION);
-                // last call to refresh shop token & force null refreshToken
+                // call to refresh shop firebase token at the moment, in the future, use oauth shop token
                 $this->shopSession->setToken(
                     $this->getOrRefreshShopToken(),
                     $this->shopSession->getToken()->getRefreshToken()

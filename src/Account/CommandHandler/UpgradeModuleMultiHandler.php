@@ -22,7 +22,7 @@ namespace PrestaShop\Module\PsAccounts\Account\CommandHandler;
 
 use PrestaShop\Module\PsAccounts\Account\Command\UpgradeModuleCommand;
 use PrestaShop\Module\PsAccounts\Account\Command\UpgradeModuleMultiCommand;
-use PrestaShop\Module\PsAccounts\Account\Dto\UpdateModule;
+use PrestaShop\Module\PsAccounts\Account\Dto\UpgradeModule;
 use PrestaShop\Module\PsAccounts\Cqrs\CommandBus;
 use PrestaShop\Module\PsAccounts\Repository\ConfigurationRepository;
 use PrestaShopDatabaseException;
@@ -57,7 +57,7 @@ class UpgradeModuleMultiHandler
     public function handle(UpgradeModuleMultiCommand $command)
     {
         foreach ($this->getShops($this->configRepo->isMultishopActive()) as $id) {
-            $this->commandBus->handle(new UpgradeModuleCommand(new UpdateModule([
+            $this->commandBus->handle(new UpgradeModuleCommand(new UpgradeModule([
                 'shopId' => $id,
                 'version' => \Ps_accounts::VERSION,
             ])));

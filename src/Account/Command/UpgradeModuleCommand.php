@@ -25,14 +25,14 @@ use PrestaShop\Module\PsAccounts\Account\Dto;
 class UpgradeModuleCommand
 {
     /**
-     * @var Dto\UpdateModule
+     * @var Dto\UpgradeModule
      */
     public $payload;
 
     /**
-     * @param Dto\UpdateModule $payload
+     * @param Dto\UpgradeModule $payload
      */
-    public function __construct(Dto\UpdateModule $payload)
+    public function __construct(Dto\UpgradeModule $payload)
     {
         $this->payload = $payload;
     }

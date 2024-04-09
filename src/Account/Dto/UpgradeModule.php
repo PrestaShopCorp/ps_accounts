@@ -22,7 +22,7 @@ namespace PrestaShop\Module\PsAccounts\Account\Dto;
 
 use PrestaShop\Module\PsAccounts\Type\Dto;
 
-class UpdateModule extends Dto
+class UpgradeModule extends Dto
 {
     /**
      * @var string
