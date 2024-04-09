@@ -84,7 +84,7 @@ class UpgradeModuleHandler
                     $this->shopSession->getToken()->getRefreshToken()
                 );
 
-                $this->accountsClient->updateShopModule(
+                $this->accountsClient->upgradeShopModule(
                     $this->linkShop->getShopUuid(),
                     (string) $this->shopSession->getToken(),
                     $command->payload

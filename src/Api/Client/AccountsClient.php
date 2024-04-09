@@ -184,7 +184,7 @@ class AccountsClient
      *
      * @return array
      */
-    public function updateShopModule($shopUid, $shopToken, UpgradeModule $data)
+    public function upgradeShopModule($shopUid, $shopToken, UpgradeModule $data)
     {
         $this->getClient()->setRoute('/v2/shop/module/update');
 
