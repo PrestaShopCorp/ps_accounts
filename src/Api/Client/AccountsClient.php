@@ -213,6 +213,7 @@ class AccountsClient
 
     /**
      * @deprecated
+     *
      * @param string $idToken
      *
      * @return array response
