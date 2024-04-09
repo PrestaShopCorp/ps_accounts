@@ -68,7 +68,6 @@ class GetOrRefreshTokenTest extends TestCase
 
         $session = new Firebase\OwnerSession($this->configurationRepository, $shopSession);
 
-        //$shopSession->setToken((string) $expired);
         $session->setToken((string) $expired, $userRefreshToken);
 
         $this->assertEquals((string) $expired, (string) $session->getToken());

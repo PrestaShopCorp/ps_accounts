@@ -71,7 +71,8 @@ class OwnerSession extends Session implements SessionInterface
     public function getToken()
     {
         return new Token(
-            $this->configurationRepository->getUserFirebaseIdToken()
+            $this->configurationRepository->getUserFirebaseIdToken(),
+            $this->configurationRepository->getUserFirebaseRefreshToken()
         );
     }
 
