@@ -374,7 +374,7 @@ class ConfigurationRepository
     }
 
     /**
-     * @param string $update
+     * @param string $upgrade
      *
      * @return void
      */
