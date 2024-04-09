@@ -57,8 +57,8 @@ class GetOrRefreshTokenTest extends TestCase
             'sub' => $this->faker->uuid,
             'email' => $this->faker->safeEmail,
         ]);
-        $userRefreshToken = $this->faker->randomAscii;
-        $shopRefreshToken = $this->faker->randomAscii;
+        $userRefreshToken = $this->faker->regexify('[a-zA-Z\d]{40}');
+        $shopRefreshToken = $this->faker->regexify('[a-zA-Z\d]{40}');
         $shopSession = $this->getMockedShopSession($this->createApiResponse([
             'userToken' => (string) $refreshed,
             'userRefreshToken' => $userRefreshToken,
@@ -87,8 +87,8 @@ class GetOrRefreshTokenTest extends TestCase
             'sub' => $this->faker->uuid,
             'email' => $this->faker->safeEmail,
         ]);
-        $userRefreshToken = $this->faker->randomAscii;
-        $shopRefreshToken = $this->faker->randomAscii;
+        $userRefreshToken = $this->faker->regexify('[a-zA-Z\d]{40}');
+        $shopRefreshToken = $this->faker->regexify('[a-zA-Z\d]{40}');
         $shopSession = $this->getMockedShopSession($this->createApiResponse([
             'userToken' => (string) $refreshed,
             'userRefreshToken' => $userRefreshToken,
@@ -103,6 +103,6 @@ class GetOrRefreshTokenTest extends TestCase
 
         $this->assertEquals((string) $refreshed, (string) $session->getToken());
         $this->assertEquals((string) $refreshed, (string) $session->getOrRefreshToken());
-        $this->assertEquals((string) $refreshed, $this->configurationRepository->getFirebaseRefreshToken());
+        $this->assertEquals($userRefreshToken, $this->configurationRepository->getUserFirebaseRefreshToken());
     }
 }
