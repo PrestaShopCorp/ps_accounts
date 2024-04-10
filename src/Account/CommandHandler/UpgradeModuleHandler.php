@@ -113,14 +113,14 @@ class UpgradeModuleHandler
             if (isset($response['body']['token'])) {
                 return [
                     'token' => $response['body']['token'],
-                    'refresh_token' => $response['body']['refresh_token']
+                    'refresh_token' => $response['body']['refresh_token'],
                 ];
             }
         }
 
         return [
             'token' => $token,
-            'refresh_token' => $this->shopSession->getToken()->getRefreshToken()
+            'refresh_token' => $this->shopSession->getToken()->getRefreshToken(),
         ];
     }
 }
