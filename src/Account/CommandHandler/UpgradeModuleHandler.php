@@ -79,9 +79,10 @@ class UpgradeModuleHandler
             if ($this->configRepo->getLastUpgrade() !== \Ps_accounts::VERSION) {
                 $this->configRepo->setLastUpgrade(\Ps_accounts::VERSION);
                 // call to refresh shop firebase token at the moment, in the future, use oauth shop token
+                $tokens = $this->getOrRefreshShopToken();
                 $this->shopSession->setToken(
-                    $this->getOrRefreshShopToken(),
-                    $this->shopSession->getToken()->getRefreshToken()
+                    $tokens['token'],
+                    $tokens['refresh_token']
                 );
 
                 $this->accountsClient->upgradeShopModule(
@@ -94,7 +95,7 @@ class UpgradeModuleHandler
     }
 
     /**
-     * @return string
+     * @return array
      *
      * @throws \Exception
      */
@@ -110,10 +111,16 @@ class UpgradeModuleHandler
             );
 
             if (isset($response['body']['token'])) {
-                return $response['body']['token'];
+                return [
+                    'token' => $response['body']['token'],
+                    'refresh_token' => $response['body']['refresh_token']
+                ];
             }
         }
 
-        return (string) $token;
+        return [
+            'token' => $token,
+            'refresh_token' => $this->shopSession->getToken()->getRefreshToken()
+        ];
     }
 }
