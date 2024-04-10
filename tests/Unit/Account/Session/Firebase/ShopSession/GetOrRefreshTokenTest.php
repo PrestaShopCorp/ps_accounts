@@ -75,7 +75,7 @@ class GetOrRefreshTokenTest extends TestCase
 
         $this->assertEquals((string) $expired, (string) $session->getToken());
         $this->assertEquals((string) $refreshed, (string) $session->getOrRefreshToken());
-        $this->assertEquals($shopRefreshToken, $this->configurationRepository->getFirebaseRefreshToken());
+        $this->assertEquals($shopRefreshToken, $session->getToken()->getRefreshToken());
     }
 
     /**
