@@ -119,8 +119,8 @@ class UpgradeModuleHandler
         }
 
         return [
-            'token' => $token,
-            'refresh_token' => $this->shopSession->getToken()->getRefreshToken(),
+            'token' => (string) $token,
+            'refresh_token' => $token->getRefreshToken(),
         ];
     }
 }
