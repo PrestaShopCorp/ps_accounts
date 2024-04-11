@@ -38,7 +38,6 @@ cp -pr -t "./$module" \
   ../views \
   ../CHANGELOG.md \
   ../config.xml \
-  ../index.php \
   ../LICENSE \
   ../logo.png \
   ../ps_accounts.php;
@@ -52,6 +51,8 @@ if [ "$environment" ]; then
     echo "file not found [${configFileEnv}]"
   fi
 fi
+
+../tools/vendor/bin/autoindex prestashop:add:index "./"
 
 rm -f "./$filename"
 zip -r "${filename}" "./$module" \
