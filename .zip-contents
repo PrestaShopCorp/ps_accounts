@@ -1,0 +1,13 @@
+config
+controllers
+sql
+src
+translations
+upgrade
+vendor
+views
+CHANGELOG.md
+config.xml
+LICENSE
+logo.png
+ps_accounts.php

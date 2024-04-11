@@ -21,27 +21,14 @@ fi
 
 echo "${filename} ..."
 
-mkdir -p "./${dist}"
+rm -rf "./${dist}/${module}"
+mkdir -p "./${dist}/${module}"
+cp -pr -t "./${dist}/${module}" $(cat .zip-contents)
+./tools/vendor/bin/autoindex prestashop:add:index "./${dist}"
+
 cd $dist || exit;
 
-rm -rf "./$module"
-mkdir "./$module"
-
-cp -pr -t "./$module" \
-  ../config \
-  ../controllers \
-  ../sql \
-  ../src \
-  ../translations \
-  ../upgrade \
-  ../vendor \
-  ../views \
-  ../CHANGELOG.md \
-  ../config.xml \
-  ../LICENSE \
-  ../logo.png \
-  ../ps_accounts.php;
-
+# switch request configuration env
 if [ "$environment" ]; then
   configFileEnv="./${module}/config/config.yml.${environment}"
   if [ -f "$configFileEnv" ]; then
@@ -52,23 +39,6 @@ if [ "$environment" ]; then
   fi
 fi
 
-../tools/vendor/bin/autoindex prestashop:add:index "./"
-
 rm -f "./$filename"
-zip -r "${filename}" "./$module" \
-  -x \
-  \*.git/* \
-  \*.github/* \
-  \*.build/* \
-  \*.docker/* \
-  \*.idea/* \
-  \*tests/* \
-  '*config/config.yml.*' \
-  \*.bak/* \
-  \*.md/* \
-  '*composer.*' \
-  '*Dockerfile.*' \
-  '*Makefile' \
-  '*/.*' \
-  -q
+zip -r "${filename}" "./$module" -q -x $(cat ../.zip-excludes)
 
