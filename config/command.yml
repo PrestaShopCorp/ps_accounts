@@ -47,17 +47,18 @@ services:
       - '@PrestaShop\Module\PsAccounts\Account\Session\Firebase\ShopSession'
       - '@PrestaShop\Module\PsAccounts\Account\Session\Firebase\OwnerSession'
 
-  PrestaShop\Module\PsAccounts\Account\CommandHandler\UpdateModuleHandler:
-    class: PrestaShop\Module\PsAccounts\Account\CommandHandler\UpdateModuleHandler
+  PrestaShop\Module\PsAccounts\Account\CommandHandler\UpgradeModuleHandler:
+    class: PrestaShop\Module\PsAccounts\Account\CommandHandler\UpgradeModuleHandler
     public: true
     arguments:
       - '@PrestaShop\Module\PsAccounts\Api\Client\AccountsClient'
       - '@PrestaShop\Module\PsAccounts\Account\LinkShop'
       - '@PrestaShop\Module\PsAccounts\Account\Session\Firebase\ShopSession'
       - '@PrestaShop\Module\PsAccounts\Context\ShopContext'
+      - '@PrestaShop\Module\PsAccounts\Repository\ConfigurationRepository'
 
-  PrestaShop\Module\PsAccounts\Account\CommandHandler\UpdateModuleMultiHandler:
-    class: PrestaShop\Module\PsAccounts\Account\CommandHandler\UpdateModuleMultiHandler
+  PrestaShop\Module\PsAccounts\Account\CommandHandler\UpgradeModuleMultiHandler:
+    class: PrestaShop\Module\PsAccounts\Account\CommandHandler\UpgradeModuleMultiHandler
     public: true
     arguments:
       - '@PrestaShop\Module\PsAccounts\Cqrs\CommandBus'

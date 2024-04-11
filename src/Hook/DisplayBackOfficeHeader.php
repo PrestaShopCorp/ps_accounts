@@ -21,8 +21,8 @@
 namespace PrestaShop\Module\PsAccounts\Hook;
 
 use Exception;
-use PrestaShop\Module\PsAccounts\Account\Command\UpdateModuleMultiCommand;
-use PrestaShop\Module\PsAccounts\Account\Session\Firebase\ShopSession;
+use PrestaShop\Module\PsAccounts\Account\Command\UpgradeModuleMultiCommand;
+use PrestaShop\Module\PsAccounts\Repository\ConfigurationRepository;
 use PrestaShop\Module\PsAccounts\Vendor\League\OAuth2\Client\Provider\Exception\IdentityProviderException;
 
 class DisplayBackOfficeHeader extends Hook
@@ -37,10 +37,11 @@ class DisplayBackOfficeHeader extends Hook
     {
         $this->module->getOauth2Middleware()->execute();
 
-        /** @var ShopSession $shopSession */
-        $shopSession = $this->module->getService(ShopSession::class);
-        if ($shopSession->getToken()->getRefreshToken()) {
-            $this->commandBus->handle(new UpdateModuleMultiCommand());
+        /** @var ConfigurationRepository $configurationRepository */
+        $configurationRepository = $this->module->getService(ConfigurationRepository::class);
+
+        if ($configurationRepository->getLastUpgrade() !== \Ps_accounts::VERSION) {
+            $this->commandBus->handle(new UpgradeModuleMultiCommand());
         }
     }
 }

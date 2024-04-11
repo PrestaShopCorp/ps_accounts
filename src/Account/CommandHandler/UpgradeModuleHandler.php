@@ -20,14 +20,14 @@
 
 namespace PrestaShop\Module\PsAccounts\Account\CommandHandler;
 
-use PrestaShop\Module\PsAccounts\Account\Command\UpdateModuleCommand;
+use PrestaShop\Module\PsAccounts\Account\Command\UpgradeModuleCommand;
 use PrestaShop\Module\PsAccounts\Account\LinkShop;
 use PrestaShop\Module\PsAccounts\Account\Session\Firebase\ShopSession;
 use PrestaShop\Module\PsAccounts\Api\Client\AccountsClient;
 use PrestaShop\Module\PsAccounts\Context\ShopContext;
 use PrestaShop\Module\PsAccounts\Repository\ConfigurationRepository;
 
-class UpdateModuleHandler
+class UpgradeModuleHandler
 {
     /**
      * @var LinkShop
@@ -58,28 +58,34 @@ class UpdateModuleHandler
         AccountsClient $accountsClient,
         LinkShop $linkShop,
         ShopSession $shopSession,
-        ShopContext $shopContext
+        ShopContext $shopContext,
+        ConfigurationRepository $configurationRepository
     ) {
         $this->accountsClient = $accountsClient;
         $this->linkShop = $linkShop;
         $this->shopSession = $shopSession;
         $this->shopContext = $shopContext;
+        $this->configRepo = $configurationRepository;
     }
 
     /**
-     * @param UpdateModuleCommand $command
+     * @param UpgradeModuleCommand $command
      *
      * @return void
      */
-    public function handle(UpdateModuleCommand $command)
+    public function handle(UpgradeModuleCommand $command)
     {
         $this->shopContext->execInShopContext($command->payload->shopId, function () use ($command) {
-            //if ($this->configRepo->getFirebaseRefreshToken()) {
-            if ($this->shopSession->getToken()->getRefreshToken()) {
-                // last call to refresh shop token & force null refreshToken
-                $this->shopSession->setToken($this->getOrRefreshShopToken(), null);
+            if ($this->configRepo->getLastUpgrade() !== \Ps_accounts::VERSION) {
+                $this->configRepo->setLastUpgrade(\Ps_accounts::VERSION);
+                // call to refresh shop firebase token at the moment, in the future, use oauth shop token
+                $tokens = $this->getOrRefreshShopToken();
+                $this->shopSession->setToken(
+                    $tokens['token'],
+                    $tokens['refresh_token']
+                );
 
-                $this->accountsClient->updateShopModule(
+                $this->accountsClient->upgradeShopModule(
                     $this->linkShop->getShopUuid(),
                     (string) $this->shopSession->getToken(),
                     $command->payload
@@ -89,7 +95,7 @@ class UpdateModuleHandler
     }
 
     /**
-     * @return string
+     * @return array
      *
      * @throws \Exception
      */
@@ -105,10 +111,16 @@ class UpdateModuleHandler
             );
 
             if (isset($response['body']['token'])) {
-                return $response['body']['token'];
+                return [
+                    'token' => $response['body']['token'],
+                    'refresh_token' => $response['body']['refresh_token'],
+                ];
             }
         }
 
-        return (string) $token;
+        return [
+            'token' => (string) $token,
+            'refresh_token' => $token->getRefreshToken(),
+        ];
     }
 }

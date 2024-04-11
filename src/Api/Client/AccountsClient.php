@@ -20,8 +20,8 @@
 
 namespace PrestaShop\Module\PsAccounts\Api\Client;
 
-use PrestaShop\Module\PsAccounts\Account\Dto\UpdateModule;
 use PrestaShop\Module\PsAccounts\Account\Dto\UpdateShop;
+use PrestaShop\Module\PsAccounts\Account\Dto\UpgradeModule;
 use PrestaShop\Module\PsAccounts\Http\Client\Guzzle\GuzzleClient;
 use PrestaShop\Module\PsAccounts\Http\Client\Guzzle\GuzzleClientFactory;
 
@@ -180,11 +180,11 @@ class AccountsClient
     /**
      * @param string $shopUid
      * @param string $shopToken
-     * @param UpdateModule $data
+     * @param UpgradeModule $data
      *
      * @return array
      */
-    public function updateShopModule($shopUid, $shopToken, UpdateModule $data)
+    public function upgradeShopModule($shopUid, $shopToken, UpgradeModule $data)
     {
         $this->getClient()->setRoute('/v2/shop/module/update');
 
@@ -209,5 +209,23 @@ class AccountsClient
             'X-Module-Version' => \Ps_accounts::VERSION,
             'X-Prestashop-Version' => _PS_VERSION_,
         ], $additionalHeaders);
+    }
+
+    /**
+     * @deprecated
+     *
+     * @param string $idToken
+     *
+     * @return array response
+     */
+    public function verifyToken($idToken)
+    {
+        $this->getClient()->setRoute('/v1/shop/token/verify');
+
+        return $this->getClient()->post([
+            'json' => [
+                'token' => $idToken,
+            ],
+        ]);
     }
 }
