@@ -144,7 +144,7 @@ php-scoper-list:
 php-scoper-pull:
 	docker pull humbugphp/php-scoper:latest
 
-php-scoper-add-prefix: scoper.inc.php vendor
+php-scoper-add-prefix: scoper.inc.php vendor tools/vendor
 	docker run -v ${PWD}:/input -w /input -u ${CURRENT_UID}:${CURRENT_GID} \
 		humbugphp/php-scoper:latest add-prefix --output-dir ${SCOPED_DIR} --force --quiet
 	#for d in ${VENDOR_DIRS}; do rm -rf ./vendor/$$d && mv ./${SCOPED_DIR}/$$d ./vendor/; done;
@@ -168,7 +168,7 @@ vendor: composer.phar
 BUNDLE_ENV ?= # ex: local|preprod|prod
 BUNDLE_ZIP ?= # ex: ps_accounts_flavor.zip
 
-bundle: php-scoper config/config.yml vendor-tools
+bundle: php-scoper config/config.yml tools/vendor
 	@./scripts/bundle-module.sh "${BUNDLE_ZIP}" "${BUNDLE_ENV}"
 
 build-front:
@@ -178,8 +178,8 @@ endif
 	yarn --cwd ./_dev --frozen-lockfile
 	yarn --cwd ./_dev build
 
-.PHONY: vendor-tools
-vendor-tools: composer.phar
+.PHONY: tools/vendor
+tools/vendor: composer.phar
 	./composer.phar -d ./tools/ install
 
 composer.phar:
