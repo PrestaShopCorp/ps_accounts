@@ -168,7 +168,7 @@ vendor: composer.phar
 BUNDLE_ENV ?= # ex: local|preprod|prod
 BUNDLE_ZIP ?= # ex: ps_accounts_flavor.zip
 
-bundle: php-scoper config/config.yml
+bundle: php-scoper config/config.yml vendor-tools
 	@./scripts/bundle-module.sh "${BUNDLE_ZIP}" "${BUNDLE_ENV}"
 
 build-front:
@@ -177,6 +177,10 @@ ifndef YARN
 endif
 	yarn --cwd ./_dev --frozen-lockfile
 	yarn --cwd ./_dev build
+
+.PHONY: vendor-tools
+vendor-tools: composer.phar
+	./composer.phar -d ./tools/ install
 
 composer.phar:
 ifndef PHP
