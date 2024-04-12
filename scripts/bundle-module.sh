@@ -24,7 +24,7 @@ echo "${filename} ..."
 rm -rf "./${dist}/${module}"
 mkdir -p "./${dist}/${module}"
 cp -pr -t "./${dist}/${module}" $(cat .zip-contents)
-./tools/vendor/bin/autoindex prestashop:add:index "./${dist}"
+php ./tools/vendor/bin/autoindex prestashop:add:index "./${dist}"
 
 cd $dist || exit;
 
