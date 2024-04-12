@@ -160,6 +160,9 @@ php-scoper-fix-autoload:
 
 php-scoper: php-scoper-add-prefix php-scoper-dump-autoload php-scoper-fix-autoload
 
+php-scoper-dev: COMPOSER_OPTIONS = --prefer-dist -o
+php-scoper-dev: php-scoper
+
 .PHONY: vendor
 vendor: composer.phar
 	rm -rf ./vendor && ./composer.phar install ${COMPOSER_OPTIONS}
