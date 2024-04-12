@@ -136,7 +136,8 @@ vendor/bin/php-cs-fixer:
 #VENDOR_DIRS = guzzlehttp league prestashopcorp
 VENDOR_DIRS = $(shell cat scoper.inc.php | grep 'dirScoped =' | sed 's/^.*\$dirScoped = \[\(.*\)\].*/\1/' | sed "s/[' ,]\+/ /g")
 SCOPED_DIR := vendor-scoped
-COMPOSER_OPTIONS ?= --prefer-dist -o --quiet
+#COMPOSER_OPTIONS ?= --prefer-dist -o --quiet
+COMPOSER_OPTIONS ?= --prefer-dist -o --no-dev --quiet
 
 php-scoper-list:
 	@echo "${VENDOR_DIRS}"
@@ -168,8 +169,17 @@ vendor: composer.phar
 BUNDLE_ENV ?= # ex: local|preprod|prod
 BUNDLE_ZIP ?= # ex: ps_accounts_flavor.zip
 
+#bundle: COMPOSER_OPTIONS = --prefer-dist -o --no-dev --quiet
 bundle: php-scoper config/config.yml tools/vendor
 	@./scripts/bundle-module.sh "${BUNDLE_ZIP}" "${BUNDLE_ENV}"
+
+#bundle-prod: COMPOSER_OPTIONS = --prefer-dist -o --no-dev
+bundle-prod: php-scoper config/config.yml tools/vendor
+	@./scripts/bundle-module.sh "ps_accounts.zip" "prod"
+
+#bundle-inte: COMPOSER_OPTIONS = --prefer-dist -o --no-dev
+bundle-inte: php-scoper config/config.yml tools/vendor
+	@./scripts/bundle-module.sh "ps_accounts_inte.zip" "inte"
 
 build-front:
 ifndef YARN
