@@ -23,11 +23,6 @@ Attempted to load trait \"ArrayAccessorTrait\" from namespace \"PrestaShop\\Modu
 ### 
 * Override (fichier vide & tab->delete()
 * tester sans les namespace dans le composer
-* _dev
-  * login.css pété après un build
-  * build bulles 1-6 & build _dev
-* flashlight
-* reset Password
 
 delete from ps_hook_module where id_module=280 and id_hook IN (178, 57);
 select ps_module.id_module, ps_module.name, ps_hook_module.id_hook, ps_hook.name

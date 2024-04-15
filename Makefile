@@ -172,15 +172,12 @@ vendor: composer.phar
 BUNDLE_ENV ?= # ex: local|preprod|prod
 BUNDLE_ZIP ?= # ex: ps_accounts_flavor.zip
 
-#bundle: COMPOSER_OPTIONS = --prefer-dist -o --no-dev --quiet
 bundle: php-scoper config/config.yml tools/vendor
 	@./scripts/bundle-module.sh "${BUNDLE_ZIP}" "${BUNDLE_ENV}"
 
-#bundle-prod: COMPOSER_OPTIONS = --prefer-dist -o --no-dev
 bundle-prod: php-scoper config/config.yml.prod tools/vendor
 	@./scripts/bundle-module.sh "ps_accounts.zip" "prod"
 
-#bundle-inte: COMPOSER_OPTIONS = --prefer-dist -o --no-dev
 bundle-inte: php-scoper config/config.yml.inte tools/vendor
 	@./scripts/bundle-module.sh "ps_accounts_inte.zip" "inte"
 
