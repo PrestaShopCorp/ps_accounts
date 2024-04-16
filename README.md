@@ -59,7 +59,7 @@ This modules manages the following tokens:
 | JWT Name                  | Status         | Description                                                                                                                     |
 |---------------------------|----------------|---------------------------------------------------------------------------------------------------------------------------------|
 | Shop Token (legacy)       | Deprecated 7.x | This token can be used to act as the shop. It should be used only for machine to machine communication without user interaction |
-| Shop Owner Token (legacy) | Deprectade 7.X | This token is created for the owner who associate the shop.                                                                     |
+| Shop Owner Token (legacy) | Deprecated 7.X | This token is created for the owner who associate the shop.                                                                     |
 | Authenticated User Token  | Introduced 6.x | ex: Backend Login with PrestaShop SSO                                                                                           |
 | OAuth Shop Access Token   | Introduced 7.X | For machine to machine calls. (also used to keep up to date legacy Shop and Owner tokens).                                      |
 
