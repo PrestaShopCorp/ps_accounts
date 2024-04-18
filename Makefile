@@ -95,10 +95,10 @@ phpunit-permissions:
 	@docker exec phpunit sh -c "if [ -d ./cache ]; then chown -R www-data:www-data ./cache; fi" # PS1.6
 	@docker exec phpunit sh -c "if [ -d ./log ]; then chown -R www-data:www-data ./log; fi" # PS1.6
 
-phpunit-run-unit: phpunit-permissions
+phpunit-run-unit: phpunit-permissions vendor/bin/phpunit
 	@docker exec -w ${CONTAINER_INSTALL_DIR} phpunit ./vendor/bin/phpunit --testsuite unit
 
-phpunit-run-feature: phpunit-permissions
+phpunit-run-feature: phpunit-permissions vendor/bin/phpunit
 	@docker exec -w ${CONTAINER_INSTALL_DIR} phpunit ./vendor/bin/phpunit --testsuite feature
 
 phpunit-xdebug:
@@ -114,7 +114,9 @@ phpunit: phpunit-pull phpunit-restart phpunit-delay-5 phpunit-module-install php
 phpunit-dev: phpunit-pull phpunit-restart phpunit-delay-5 phpunit-module-install phpunit-permissions
 	@echo phpunit container is ready
 
-vendor/phpunit/phpunit:
+# will force install dev dependencies if not present
+.PHONY: vendor/bin/phpunit
+vendor/bin/phpunit:
 	./composer.phar install
 
 test-front:
@@ -160,25 +162,25 @@ php-scoper-fix-autoload:
 
 php-scoper: php-scoper-add-prefix php-scoper-dump-autoload php-scoper-fix-autoload
 
-php-scoper-dev: COMPOSER_OPTIONS = --prefer-dist -o
-php-scoper-dev: php-scoper
-
 .PHONY: vendor
 vendor: composer.phar
 	rm -rf ./vendor && ./composer.phar install ${COMPOSER_OPTIONS}
 
 ##########################################################
+# target: bundle
+# target: bundle-prod
+# target: bundle-inte
 
 BUNDLE_ENV ?= # ex: local|preprod|prod
 BUNDLE_ZIP ?= # ex: ps_accounts_flavor.zip
 
-bundle: php-scoper config/config.yml tools/vendor
+bundle: php-scoper config/config.yml
 	@./scripts/bundle-module.sh "${BUNDLE_ZIP}" "${BUNDLE_ENV}"
 
-bundle-prod: php-scoper config/config.yml.prod tools/vendor
+bundle-prod: php-scoper config/config.yml.prod
 	@./scripts/bundle-module.sh "ps_accounts.zip" "prod"
 
-bundle-inte: php-scoper config/config.yml.inte tools/vendor
+bundle-inte: php-scoper config/config.yml.inte
 	@./scripts/bundle-module.sh "ps_accounts_inte.zip" "inte"
 
 build-front:
@@ -188,13 +190,28 @@ endif
 	yarn --cwd ./_dev --frozen-lockfile
 	yarn --cwd ./_dev build
 
-.PHONY: tools/vendor
-tools/vendor: composer.phar
-	./composer.phar -d ./tools/ install
-
 composer.phar:
 ifndef PHP
     $(error "PHP is unavailable on your system")
 endif
 	./scripts/composer-install.sh
+
+##########################################################
+# target: php-cs-fixer
+# target: autoindex
+# target: header-stamp
+
+php-cs-fixer: tools/vendor
+	php ./tools/vendor/bin/php-cs-fixer fix
+
+DIST_DIR ?= ./dist
+autoindex: tools/vendor
+	php ./tools/vendor/bin/autoindex prestashop:add:index "${DIST_DIR}"
+
+header-stamp: tools/vendor
+	php ./tools/vendor/bin/header-stamp --license="assets/afl.txt" --exclude=".github,node_modules,vendor,vendor,tests,_dev"
+
+.PHONY: tools/vendor
+tools/vendor: composer.phar
+	./composer.phar -d ./tools/ install
 
