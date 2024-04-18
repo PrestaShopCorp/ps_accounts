@@ -201,6 +201,8 @@ endif
 # target: autoindex
 # target: header-stamp
 
+# FIXME: we may not need a php-tool directory as we can easily switch between development and production mode using --no-dev switch with composer install
+
 php-cs-fixer: tools/vendor
 	php ./tools/vendor/bin/php-cs-fixer fix
 
