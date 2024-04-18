@@ -139,7 +139,7 @@ class SentryService
         /** @var self $instance */
         $instance = $psAccounts->getService(self::class);
 
-        $psAccounts->getLogger()->debug($exception);
+        $psAccounts->getLogger()->error($exception);
 
         $instance->client->captureException($exception);
     }
