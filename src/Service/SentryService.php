@@ -29,10 +29,6 @@ use Raven_Client;
 
 /**
  * FIXME: outdated sentry client due to PHP 5.6 support
- * TODO: new sentry key
- * TODO: rate limiting
- * TODO: filter errors from module
- * TODO: cover sensitive parts of the code (association, etc.)
  */
 class SentryService
 {
@@ -42,14 +38,24 @@ class SentryService
     protected $client;
 
     /**
-     * @var float
+     * @var float [0.00 - 1.00] * 100% events
      */
     private $sampleRateFront = 0.2;
 
     /**
-     * @var float
+     * @var float [0.00 - 1.00] * 100% events
      */
     private $sampleRateBack = 1;
+
+    /**
+     * @var string
+     */
+    private $moduleName = 'ps_accounts';
+
+    /**
+     * @var string
+     */
+    private $productionEnv = 'production';
 
     /**
      * @var int
@@ -92,16 +98,17 @@ class SentryService
             ]
         );
 
-        $moduleName = 'ps_accounts';
-
         // We use realpath to get errors even if module is behind a symbolic link
-        $this->client->setAppPath(realpath(_PS_MODULE_DIR_ . $moduleName . '/'));
+        $this->client->setAppPath(realpath(_PS_MODULE_DIR_ . $this->moduleName . '/'));
         // - Do no not add the shop root folder, it will exclude everything even if specified in the app path.
         // - Excluding vendor/ avoids errors comming from one of your libraries library when called by another module.
         $this->client->setExcludedAppPaths([
-            realpath(_PS_MODULE_DIR_ . $moduleName . '/vendor/'),
+            realpath(_PS_MODULE_DIR_ . $this->moduleName . '/vendor/'),
         ]);
-        $this->client->setExcludedDomains(['127.0.0.1', 'localhost', '.local']);
+
+        if ($environment === $this->productionEnv) {
+            $this->client->setExcludedDomains(['127.0.0.1', 'localhost', '.local']);
+        }
 
         // Other conditions can be done here to prevent the full installation of the client:
         // - PHP versions,
@@ -109,10 +116,10 @@ class SentryService
         // - Integration environment,
         // - ...
 
-//        if (version_compare((string) phpversion(), '7.4.0', '>=') &&
-//            version_compare(_PS_VERSION_, '1.7.8.0', '<')) {
-//            return;
-//        }
+        if (version_compare((string) phpversion(), '7.4.0', '>=') &&
+            version_compare(_PS_VERSION_, '1.7.8.0', '<')) {
+            return;
+        }
 
         $this->client->install();
     }

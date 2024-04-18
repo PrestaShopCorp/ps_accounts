@@ -2,6 +2,7 @@
 
 namespace PrestaShop\Module\PsAccounts\Service\Sentry;
 
+use PrestaShop\Module\PsAccounts\Log\Logger;
 use Raven_Client;
 
 /**
@@ -27,6 +28,8 @@ class ModuleFilteredRavenClient extends Raven_Client
      * @param mixed $vars
      *
      * @return array|mixed|null
+     *
+     * @throws \Exception
      */
     public function capture($data, $stack = null, $vars = null)
     {
