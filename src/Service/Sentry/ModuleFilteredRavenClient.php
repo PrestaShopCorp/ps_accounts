@@ -2,7 +2,6 @@
 
 namespace PrestaShop\Module\PsAccounts\Service\Sentry;
 
-use PrestaShop\Module\PsAccounts\Log\Logger;
 use Raven_Client;
 
 /**
