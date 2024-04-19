@@ -46,7 +46,7 @@ PHPSTAN_VERSION ?= 0.12
 PS_VERSION ?= latest #1.6.1.21|1.7.7.1|latest
 NEON_FILE ?= phpstan-PS-1.7.neon #phpstan-PS-1.6.neon
 
-phpstan: check-docker
+phpstan: check-docker vendor/bin/phpunit
 	docker pull phpstan/phpstan:${PHPSTAN_VERSION}
 	docker pull prestashop/prestashop:${PS_VERSION}
 	docker run --rm -d -v ps-volume:/var/www/html --entrypoint /bin/sleep --name test-phpstan prestashop/prestashop:${PS_VERSION} 2s
@@ -147,7 +147,7 @@ php-scoper-list:
 php-scoper-pull:
 	docker pull humbugphp/php-scoper:latest
 
-php-scoper-add-prefix: scoper.inc.php vendor tools/vendor
+php-scoper-add-prefix: scoper.inc.php vendor
 	docker run -v ${PWD}:/input -w /input -u ${CURRENT_UID}:${CURRENT_GID} \
 		humbugphp/php-scoper:latest add-prefix --output-dir ${SCOPED_DIR} --force --quiet
 	#for d in ${VENDOR_DIRS}; do rm -rf ./vendor/$$d && mv ./${SCOPED_DIR}/$$d ./vendor/; done;
