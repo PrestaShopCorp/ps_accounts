@@ -24,7 +24,7 @@ echo "${filename} ..."
 rm -rf "./${dist}/${module}"
 mkdir -p "./${dist}/${module}"
 cp -pr -t "./${dist}/${module}" $(cat .zip-contents)
-make autoindex
+WORKDIR="${dist}" make autoindex
 
 cd $dist || exit;
 

@@ -46,7 +46,7 @@ PHPSTAN_VERSION ?= 0.12
 PS_VERSION ?= latest #1.6.1.21|1.7.7.1|latest
 NEON_FILE ?= phpstan-PS-1.7.neon #phpstan-PS-1.6.neon
 
-phpstan: check-docker vendor/bin/phpunit
+phpstan: check-docker vendor-dev
 	docker pull phpstan/phpstan:${PHPSTAN_VERSION}
 	docker pull prestashop/prestashop:${PS_VERSION}
 	docker run --rm -d -v ps-volume:/var/www/html --entrypoint /bin/sleep --name test-phpstan prestashop/prestashop:${PS_VERSION} 2s
@@ -95,10 +95,10 @@ phpunit-permissions:
 	@docker exec phpunit sh -c "if [ -d ./cache ]; then chown -R www-data:www-data ./cache; fi" # PS1.6
 	@docker exec phpunit sh -c "if [ -d ./log ]; then chown -R www-data:www-data ./log; fi" # PS1.6
 
-phpunit-run-unit: phpunit-permissions vendor/bin/phpunit
+phpunit-run-unit: phpunit-permissions vendor-dev
 	@docker exec -w ${CONTAINER_INSTALL_DIR} phpunit ./vendor/bin/phpunit --testsuite unit
 
-phpunit-run-feature: phpunit-permissions vendor/bin/phpunit
+phpunit-run-feature: phpunit-permissions vendor-dev
 	@docker exec -w ${CONTAINER_INSTALL_DIR} phpunit ./vendor/bin/phpunit --testsuite feature
 
 phpunit-xdebug:
@@ -113,11 +113,6 @@ phpunit: phpunit-pull phpunit-restart phpunit-delay-5 phpunit-module-install php
 
 phpunit-dev: phpunit-pull phpunit-restart phpunit-delay-5 phpunit-module-install phpunit-permissions
 	@echo phpunit container is ready
-
-# will force install dev dependencies if not present
-.PHONY: vendor/bin/phpunit
-vendor/bin/phpunit:
-	./composer.phar install
 
 test-front:
 	npm --prefix=./_dev run lint
@@ -138,8 +133,6 @@ vendor/bin/php-cs-fixer:
 #VENDOR_DIRS = guzzlehttp league prestashopcorp
 VENDOR_DIRS = $(shell cat scoper.inc.php | grep 'dirScoped =' | sed 's/^.*\$dirScoped = \[\(.*\)\].*/\1/' | sed "s/[' ,]\+/ /g")
 SCOPED_DIR := vendor-scoped
-#COMPOSER_OPTIONS ?= --prefer-dist -o --quiet
-COMPOSER_OPTIONS ?= --prefer-dist -o --no-dev --quiet
 
 php-scoper-list:
 	@echo "${VENDOR_DIRS}"
@@ -147,7 +140,7 @@ php-scoper-list:
 php-scoper-pull:
 	docker pull humbugphp/php-scoper:latest
 
-php-scoper-add-prefix: scoper.inc.php vendor
+php-scoper-add-prefix: scoper.inc.php vendor-clean vendor
 	docker run -v ${PWD}:/input -w /input -u ${CURRENT_UID}:${CURRENT_GID} \
 		humbugphp/php-scoper:latest add-prefix --output-dir ${SCOPED_DIR} --force --quiet
 	#for d in ${VENDOR_DIRS}; do rm -rf ./vendor/$$d && mv ./${SCOPED_DIR}/$$d ./vendor/; done;
@@ -161,10 +154,6 @@ php-scoper-fix-autoload:
 	php fix-autoload.php
 
 php-scoper: php-scoper-add-prefix php-scoper-dump-autoload php-scoper-fix-autoload
-
-.PHONY: vendor
-vendor: composer.phar
-	rm -rf ./vendor && ./composer.phar install ${COMPOSER_OPTIONS}
 
 ##########################################################
 # target: bundle
@@ -201,19 +190,27 @@ endif
 # target: autoindex
 # target: header-stamp
 
-# FIXME: we may not need a php-tool directory as we can easily switch between development and production mode using --no-dev switch with composer install
+WORKDIR ?= ./
 
-php-cs-fixer: tools/vendor
-	php ./tools/vendor/bin/php-cs-fixer fix
+php-cs-fixer: vendor-dev
+	php ./vendor/bin/php-cs-fixer fix
 
-DIST_DIR ?= ./dist
-autoindex: tools/vendor
-	php ./tools/vendor/bin/autoindex prestashop:add:index "${DIST_DIR}"
+autoindex: vendor-dev
+	php ./vendor/bin/autoindex prestashop:add:index "${WORKDIR}"
 
-header-stamp: tools/vendor
-	php ./tools/vendor/bin/header-stamp --license="assets/afl.txt" --exclude=".github,node_modules,vendor,vendor,tests,_dev"
+header-stamp: vendor-dev
+	php ./vendor/bin/header-stamp --target="${WORKDIR}" --license="assets/afl.txt" --exclude=".github,node_modules,vendor,vendor,tests,_dev"
 
-.PHONY: tools/vendor
-tools/vendor: composer.phar
-	./composer.phar -d ./tools/ install
+##########################################################
+COMPOSER_OPTIONS ?= --prefer-dist -o --no-dev --quiet
+
+vendor-clean:
+	rm -rf ./vendor
+
+.PHONY: vendor
+vendor: composer.phar
+	./composer.phar install ${COMPOSER_OPTIONS}
+
+vendor-dev: COMPOSER_OPTIONS = --prefer-dist -o --quiet
+vendor-dev: vendor
 
