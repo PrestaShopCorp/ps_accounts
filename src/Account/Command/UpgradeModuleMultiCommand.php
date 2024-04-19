@@ -18,26 +18,8 @@
  * @license   https://opensource.org/licenses/AFL-3.0 Academic Free License version 3.0
  */
 
-namespace PrestaShop\Module\PsAccounts\Hook;
+namespace PrestaShop\Module\PsAccounts\Account\Command;
 
-use Exception;
-use PrestaShop\Module\PsAccounts\Repository\ConfigurationRepository;
-
-class ActionObjectShopAddAfter extends Hook
+class UpgradeModuleMultiCommand
 {
-    /**
-     * @param array $params
-     *
-     * @return bool
-     *
-     * @throws Exception
-     */
-    public function execute(array $params = [])
-    {
-        /** @var ConfigurationRepository $configurationRepository */
-        $configurationRepository = $this->module->getService(ConfigurationRepository::class);
-        $configurationRepository->fixMultiShopConfig();
-
-        return true;
-    }
 }

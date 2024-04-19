@@ -5,14 +5,15 @@ namespace PrestaShop\Module\PsAccounts\Tests\Feature;
 use Db;
 use GuzzleHttp\Client;
 use GuzzleHttp\Message\ResponseInterface;
-use Lcobucci\JWT\Builder;
-use Lcobucci\JWT\Signer\Hmac\Sha256;
-use Lcobucci\JWT\Signer\Key;
 use PrestaShop\Module\PsAccounts\Http\Client\Guzzle\GuzzleClient;
 use PrestaShop\Module\PsAccounts\Http\Client\Guzzle\GuzzleClientFactory;
 use PrestaShop\Module\PsAccounts\Provider\RsaKeysProvider;
 use PrestaShop\Module\PsAccounts\Repository\UserTokenRepository;
 use PrestaShop\Module\PsAccounts\Tests\TestCase;
+use PrestaShop\Module\PsAccounts\Vendor\Lcobucci\JWT\Builder;
+use PrestaShop\Module\PsAccounts\Vendor\Lcobucci\JWT\Signer\Hmac\Sha256;
+use PrestaShop\Module\PsAccounts\Vendor\Lcobucci\JWT\Signer\Key;
+use PrestaShop\Module\PsAccounts\Vendor\Lcobucci\JWT\Token;
 
 class FeatureTestCase extends TestCase
 {
@@ -85,7 +86,7 @@ class FeatureTestCase extends TestCase
     /**
      * @param array $payload
      *
-     * @return \Lcobucci\JWT\Token
+     * @return Token
      *
      * @throws \Exception
      */

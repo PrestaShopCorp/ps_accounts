@@ -21,11 +21,11 @@
 namespace PrestaShop\Module\PsAccounts\Middleware;
 
 use Exception;
-use League\OAuth2\Client\Provider\Exception\IdentityProviderException;
 use PrestaShop\Module\PsAccounts\Provider\OAuth2\PrestaShopLogoutTrait;
 use PrestaShop\Module\PsAccounts\Provider\OAuth2\PrestaShopSession;
 use PrestaShop\Module\PsAccounts\Provider\OAuth2\ShopProvider;
 use PrestaShop\Module\PsAccounts\Service\PsAccountsService;
+use PrestaShop\Module\PsAccounts\Vendor\League\OAuth2\Client\Provider\Exception\IdentityProviderException;
 use Ps_accounts;
 
 class Oauth2Middleware

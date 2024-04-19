@@ -20,7 +20,7 @@
 
 use PrestaShop\Module\PsAccounts\Provider\OAuth2\ShopProvider;
 
-class AdminLoginPsAccountsController extends AdminLoginControllerCore
+class AdminLoginPsAccountsController extends \AdminController
 {
     const PARAM_MODE_LOCAL = 'local';
 
@@ -35,12 +35,47 @@ class AdminLoginPsAccountsController extends AdminLoginControllerCore
      */
     public function __construct()
     {
+        $this->bootstrap = true;
+
         parent::__construct();
+
+        $this->errors = [];
+
+        $this->display_header = false;
+        /* @phpstan-ignore-next-line */
+        $this->display_footer = false;
 
         /** @var Ps_accounts $module */
         $module = Module::getInstanceByName('ps_accounts');
 
         $this->psAccounts = $module;
+
+        if (!headers_sent()) {
+            header('Login: true');
+        }
+    }
+
+    /**
+     * @return void
+     */
+    public function initContent()
+    {
+        if ($nb_errors = count($this->errors)) {
+            $this->context->smarty->assign([
+                'errors' => $this->errors,
+                'nbErrors' => $nb_errors,
+                'shop_name' => Tools::safeOutput((string) Configuration::get('PS_SHOP_NAME')),
+                'disableDefaultErrorOutPut' => true,
+            ]);
+        }
+
+        $this->setMedia($isNewTheme = false);
+        $this->initHeader();
+        parent::initContent();
+        $this->initFooter();
+
+        //force to disable modals
+        $this->context->smarty->assign('modals', null);
     }
 
     /**
@@ -78,8 +113,8 @@ class AdminLoginPsAccountsController extends AdminLoginControllerCore
      */
     public function setMedia($isNewTheme = false)
     {
-        $this->addCss(_PS_MODULE_DIR_ . '/ps_accounts/views/css/login.css');
-        $this->addJS(_PS_MODULE_DIR_ . '/ps_accounts/views/js/login.js');
+        $this->addCss($this->psAccounts->getLocalPath() . '/views/css/login.css');
+        $this->addJS($this->psAccounts->getLocalPath() . '/views/js/login.js');
     }
 
     /**
@@ -99,25 +134,25 @@ class AdminLoginPsAccountsController extends AdminLoginControllerCore
         $session = $this->psAccounts->getSession();
 
         /* @phpstan-ignore-next-line */
-        $this->context->smarty->assign('shopUrl', $this->context->shop->getBaseUrl(true));
-
-        $this->context->smarty->assign('oauthRedirectUri', $provider->getRedirectUri());
-        $this->context->smarty->assign('legacyLoginUri', $this->context->link->getAdminLink('AdminLogin', true, [], [
-            'mode' => self::PARAM_MODE_LOCAL,
-        ]));
-
-        /* @phpstan-ignore-next-line */
         $isoCode = $this->context->currentLocale->getCode();
 
-        $this->context->smarty->assign('isoCode', substr($isoCode, 0, 2));
-        $this->context->smarty->assign('defaultIsoCode', 'en');
-        $this->context->smarty->assign('testimonials', $testimonials);
-
-        $this->context->smarty->assign('loginError', $session->remove('loginError'));
-        $this->context->smarty->assign('meta_title', '');
-        $this->context->smarty->assign('ssoResendVerificationEmail',
-            $this->psAccounts->getParameter('ps_accounts.sso_resend_verification_email_url')
-        );
+        $this->context->smarty->assign([
+            /* @phpstan-ignore-next-line */
+            'shopUrl' => $this->context->shop->getBaseUrl(true),
+            'oauthRedirectUri' => $provider->getRedirectUri(),
+            'legacyLoginUri' => $this->context->link->getAdminLink(
+                'AdminLogin', true, [], [
+                'mode' => self::PARAM_MODE_LOCAL,
+            ]),
+            'isoCode' => substr($isoCode, 0, 2),
+            'defaultIsoCode' => 'en',
+            'testimonials' => $testimonials,
+            'loginError' => $session->remove('loginError'),
+            'meta_title' => '',
+            'ssoResendVerificationEmail' => $this->psAccounts->getParameter(
+                'ps_accounts.sso_resend_verification_email_url'
+            ),
+        ]);
 
         /* @phpstan-ignore-next-line */
         return $this->context->smarty->createTemplate(
@@ -136,7 +171,7 @@ class AdminLoginPsAccountsController extends AdminLoginControllerCore
         $verify = (bool) $this->psAccounts->getParameter('ps_accounts.check_api_ssl_cert');
 
         return json_decode(
-            file_get_contents(
+            (string) Tools::file_get_contents(
                 $this->psAccounts->getParameter('ps_accounts.testimonials_url'),
                 false,
                 stream_context_create([

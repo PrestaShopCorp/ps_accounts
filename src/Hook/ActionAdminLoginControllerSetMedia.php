@@ -22,9 +22,9 @@ namespace PrestaShop\Module\PsAccounts\Hook;
 
 use AdminLoginPsAccountsController;
 use Exception;
-use League\OAuth2\Client\Provider\Exception\IdentityProviderException;
 use PrestaShop\Module\PsAccounts\Service\AnalyticsService;
 use PrestaShop\Module\PsAccounts\Service\PsAccountsService;
+use PrestaShop\Module\PsAccounts\Vendor\League\OAuth2\Client\Provider\Exception\IdentityProviderException;
 use Tools;
 
 class ActionAdminLoginControllerSetMedia extends Hook
@@ -42,6 +42,7 @@ class ActionAdminLoginControllerSetMedia extends Hook
         /** @var PsAccountsService $psAccountsService */
         $psAccountsService = $this->module->getService(PsAccountsService::class);
         $local = Tools::getValue('mode') === AdminLoginPsAccountsController::PARAM_MODE_LOCAL ||
+            !empty(Tools::getValue('reset_token')) ||
             !$psAccountsService->getLoginActivated();
 
         $this->trackLoginPage($local);

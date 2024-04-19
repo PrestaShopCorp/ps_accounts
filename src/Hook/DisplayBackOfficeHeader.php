@@ -21,7 +21,9 @@
 namespace PrestaShop\Module\PsAccounts\Hook;
 
 use Exception;
-use League\OAuth2\Client\Provider\Exception\IdentityProviderException;
+use PrestaShop\Module\PsAccounts\Account\Command\UpgradeModuleMultiCommand;
+use PrestaShop\Module\PsAccounts\Repository\ConfigurationRepository;
+use PrestaShop\Module\PsAccounts\Vendor\League\OAuth2\Client\Provider\Exception\IdentityProviderException;
 
 class DisplayBackOfficeHeader extends Hook
 {
@@ -34,5 +36,12 @@ class DisplayBackOfficeHeader extends Hook
     public function execute(array $params = [])
     {
         $this->module->getOauth2Middleware()->execute();
+
+        /** @var ConfigurationRepository $configurationRepository */
+        $configurationRepository = $this->module->getService(ConfigurationRepository::class);
+
+        if ($configurationRepository->getLastUpgrade() !== \Ps_accounts::VERSION) {
+            $this->commandBus->handle(new UpgradeModuleMultiCommand());
+        }
     }
 }

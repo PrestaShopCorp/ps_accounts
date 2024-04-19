@@ -77,20 +77,28 @@ trait RefreshFirebaseTokens
      */
     protected function refreshFirebaseTokens($token)
     {
-        $response = $this->getAccountsClient()->firebaseTokens($token);
+        if ($this->getOwnerFirebaseSession()->getToken()->isExpired() ||
+            $this->getShopFirebaseSession()->getToken()->isExpired()) {
+            $response = $this->getAccountsClient()->firebaseTokens($token);
+            $userTokens = $this->getFirebaseTokenFromResponse($response, 'userToken', 'userRefreshToken');
+            $shopTokens = $this->getFirebaseTokenFromResponse($response, 'shopToken', 'shopRefreshToken');
 
-        $this->getOwnerFirebaseSession()->setToken(
-            (string) $this->getFirebaseTokenFromResponse($response, 'userToken')
-        );
+            $this->getOwnerFirebaseSession()->setToken(
+                (string) $userTokens->getJwt(),
+                (string) $userTokens->getRefreshToken()
+            );
 
-        $this->getShopFirebaseSession()->setToken(
-            (string) $this->getFirebaseTokenFromResponse($response, 'shopToken')
-        );
+            $this->getShopFirebaseSession()->setToken(
+                (string) $shopTokens->getJwt(),
+                (string) $shopTokens->getRefreshToken()
+            );
+        }
     }
 
     /**
      * @param array $response
      * @param string $name
+     * @param string $refreshName
      *
      * @return Token
      *
@@ -98,10 +106,14 @@ trait RefreshFirebaseTokens
      */
     protected function getFirebaseTokenFromResponse(
         array $response,
-        $name
+        $name,
+        $refreshName
     ) {
         if ($response && true === $response['status']) {
-            return new Token($response['body'][$name]);
+            return new Token(
+                $response['body'][$name],
+                $response['body'][$refreshName]
+            );
         }
 
         $errorMsg = isset($response['body']['message']) ?

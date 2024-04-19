@@ -18,22 +18,27 @@
  * @license   https://opensource.org/licenses/AFL-3.0 Academic Free License version 3.0
  */
 
-namespace PrestaShop\Module\PsAccounts\Account\Command;
+namespace PrestaShop\Module\PsAccounts\Account\Dto;
 
-use PrestaShop\Module\PsAccounts\Account\Dto;
+use PrestaShop\Module\PsAccounts\Type\Dto;
 
-class UpdateModuleCommand
+class UpgradeModule extends Dto
 {
     /**
-     * @var Dto\UpdateModule
+     * @var string
      */
-    public $payload;
+    public $version;
 
     /**
-     * @param Dto\UpdateModule $payload
+     * @var int
      */
-    public function __construct(Dto\UpdateModule $payload)
-    {
-        $this->payload = $payload;
-    }
+    public $shopId;
+
+    /**
+     * @var string[]
+     */
+    public $mandatory = [
+        'version',
+        'shopId',
+    ];
 }

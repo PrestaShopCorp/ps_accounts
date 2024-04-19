@@ -31,7 +31,7 @@ use PrestaShop\Module\PsAccounts\Service\SentryService;
 /**
  * Controller for all ajax calls.
  */
-class AdminAjaxPsAccountsController extends ModuleAdminController
+class AdminAjaxPsAccountsController extends \ModuleAdminController
 {
     /**
      * @var Ps_accounts

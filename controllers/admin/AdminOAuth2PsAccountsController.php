@@ -18,7 +18,6 @@
  * @license   https://opensource.org/licenses/AFL-3.0 Academic Free License version 3.0
  */
 
-use League\OAuth2\Client\Provider\Exception\IdentityProviderException;
 use PrestaShop\Module\PsAccounts\Entity\EmployeeAccount;
 use PrestaShop\Module\PsAccounts\Exception\AccountLogin\AccountLoginException;
 use PrestaShop\Module\PsAccounts\Exception\AccountLogin\EmailNotVerifiedException;
@@ -32,12 +31,13 @@ use PrestaShop\Module\PsAccounts\Repository\EmployeeAccountRepository;
 use PrestaShop\Module\PsAccounts\Service\AnalyticsService;
 use PrestaShop\Module\PsAccounts\Service\PsAccountsService;
 use PrestaShop\Module\PsAccounts\Session\Session;
+use PrestaShop\Module\PsAccounts\Vendor\League\OAuth2\Client\Provider\Exception\IdentityProviderException;
 use PrestaShop\OAuth2\Client\Provider\PrestaShopUser;
 
 /**
  * Controller for all ajax calls.
  */
-class AdminOAuth2PsAccountsController extends ModuleAdminController
+class AdminOAuth2PsAccountsController extends \ModuleAdminController
 {
     use PrestaShopLoginTrait;
 
@@ -69,8 +69,6 @@ class AdminOAuth2PsAccountsController extends ModuleAdminController
 
         $this->ajax = true;
         $this->content_only = true;
-
-        $this->oauth2ErrorLog('Runtime GuzzleV[' . $this->getProvider()->getGuzzleMajorVersionNumber() . ']');
     }
 
     /**

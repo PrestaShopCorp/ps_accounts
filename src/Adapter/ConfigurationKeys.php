@@ -28,9 +28,14 @@ class ConfigurationKeys extends Enum
 
     // PS Shop Account
     const PS_ACCOUNTS_FIREBASE_ID_TOKEN = 'PS_ACCOUNTS_FIREBASE_ID_TOKEN';
+    /* @deprecated */
+    const PS_ACCOUNTS_FIREBASE_REFRESH_TOKEN = 'PS_ACCOUNTS_FIREBASE_REFRESH_TOKEN';
 
     // PS User Account
     const PS_ACCOUNTS_USER_FIREBASE_ID_TOKEN = 'PS_ACCOUNTS_USER_FIREBASE_ID_TOKEN';
+    /* @deprecated */
+    const PS_ACCOUNTS_USER_FIREBASE_REFRESH_TOKEN = 'PS_ACCOUNTS_USER_FIREBASE_REFRESH_TOKEN';
+
     const PS_ACCOUNTS_USER_FIREBASE_UUID = 'PS_ACCOUNTS_USER_FIREBASE_UUID';
     /* @deprecated */
     const PS_ACCOUNTS_FIREBASE_EMAIL = 'PS_ACCOUNTS_FIREBASE_EMAIL';
@@ -62,4 +67,7 @@ class ConfigurationKeys extends Enum
     const PS_ACCOUNTS_OAUTH2_CLIENT_SECRET = 'PS_ACCOUNTS_OAUTH2_CLIENT_SECRET';
 
     const PS_ACCOUNTS_ACCESS_TOKEN = 'PS_ACCOUNTS_ACCESS_TOKEN';
+
+    // Last version we call to update the version on accounts-api
+    const PS_ACCOUNTS_LAST_UPGRADE = 'PS_ACCOUNTS_LAST_UPGRADE';
 }

@@ -70,6 +70,14 @@ class ConfigurationRepository
     }
 
     /**
+     * @return string
+     */
+    public function getFirebaseRefreshToken()
+    {
+        return $this->configuration->get(ConfigurationKeys::PS_ACCOUNTS_FIREBASE_REFRESH_TOKEN);
+    }
+
+    /**
      * @param string $idToken
      * @param string $refreshToken
      *
@@ -84,6 +92,7 @@ class ConfigurationRepository
             $this->configuration->set(ConfigurationKeys::PS_PSX_FIREBASE_REFRESH_DATE, date('Y-m-d H:i:s'));
         }
         $this->configuration->set(ConfigurationKeys::PS_ACCOUNTS_FIREBASE_ID_TOKEN, $idToken);
+        $this->configuration->set(ConfigurationKeys::PS_ACCOUNTS_FIREBASE_REFRESH_TOKEN, $refreshToken);
     }
 
     /**
@@ -222,6 +231,14 @@ class ConfigurationRepository
     }
 
     /**
+     * @return mixed
+     */
+    public function getUserFirebaseRefreshToken()
+    {
+        return $this->configuration->get(ConfigurationKeys::PS_ACCOUNTS_USER_FIREBASE_REFRESH_TOKEN);
+    }
+
+    /**
      * @param string $idToken
      *
      * @return void
@@ -229,6 +246,18 @@ class ConfigurationRepository
     public function updateUserFirebaseIdToken($idToken)
     {
         $this->configuration->set(ConfigurationKeys::PS_ACCOUNTS_USER_FIREBASE_ID_TOKEN, $idToken);
+    }
+
+    /**
+     * @param string $idToken
+     * @param string $refreshToken
+     *
+     * @return void
+     */
+    public function updateUserFirebaseIdAndRefreshToken($idToken, $refreshToken)
+    {
+        $this->configuration->set(ConfigurationKeys::PS_ACCOUNTS_USER_FIREBASE_ID_TOKEN, $idToken);
+        $this->configuration->set(ConfigurationKeys::PS_ACCOUNTS_USER_FIREBASE_REFRESH_TOKEN, $refreshToken);
     }
 
     /**
@@ -323,7 +352,7 @@ class ConfigurationRepository
      */
     public function fixMultiShopConfig()
     {
-        Logger::getInstance()->error('## ' . __METHOD__);
+        Logger::getInstance()->error(__METHOD__);
 
         if ($this->isMultishopActive()) {
             $this->migrateToMultiShop();
@@ -342,6 +371,24 @@ class ConfigurationRepository
         //return \Shop::isFeatureActive();
         return \Db::getInstance()->getValue('SELECT value FROM `' . _DB_PREFIX_ . 'configuration` WHERE `name` = "PS_MULTISHOP_FEATURE_ACTIVE"')
             && (\Db::getInstance()->getValue('SELECT COUNT(*) FROM ' . _DB_PREFIX_ . 'shop') > 1);
+    }
+
+    /**
+     * @param string $upgrade
+     *
+     * @return void
+     */
+    public function setLastUpgrade($upgrade)
+    {
+        $this->configuration->set(ConfigurationKeys::PS_ACCOUNTS_LAST_UPGRADE, $upgrade);
+    }
+
+    /**
+     * @return string
+     */
+    public function getLastUpgrade()
+    {
+        return $this->configuration->get(ConfigurationKeys::PS_ACCOUNTS_LAST_UPGRADE);
     }
 
     /**

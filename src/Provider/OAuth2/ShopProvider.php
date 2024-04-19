@@ -20,13 +20,14 @@
 
 namespace PrestaShop\Module\PsAccounts\Provider\OAuth2;
 
-use League\OAuth2\Client\Provider\AbstractProvider;
 use PrestaShop\Module\PsAccounts\Adapter\Link;
+use PrestaShop\Module\PsAccounts\Vendor\League\OAuth2\Client\Provider\AbstractProvider;
 use PrestaShop\OAuth2\Client\Provider\PrestaShop;
+use PrestaShop\OAuth2\Client\Provider\WellKnown;
 
 class ShopProvider extends PrestaShop
 {
-    use Guzzle5AdapterTrait;
+//    use Guzzle5AdapterTrait;
 
     const QUERY_LOGOUT_CALLBACK_PARAM = 'oauth2Callback';
 
@@ -140,5 +141,81 @@ class ShopProvider extends PrestaShop
     public function getOauth2Client()
     {
         return $this->oauth2Client;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public function getAccessToken($grant, array $options = [])
+    {
+        $this->syncOauth2ClientProps();
+
+        return parent::getAccessToken($grant, $options);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    protected function getAuthorizationParameters(array $options)
+    {
+        $this->syncOauth2ClientProps();
+
+        return parent::getAuthorizationParameters($options);
+    }
+
+    /**
+     * @return WellKnown
+     */
+    public function getWellKnown()
+    {
+        if (!isset($this->wellKnown)) {
+            try {
+                $this->wellKnown = new WellKnown(
+                    $this->fetchWellKnown($this->getOauth2Url(), $this->verify)
+                );
+            } catch (\Error $e) {
+            } catch (\Exception $e) {
+            }
+            if (isset($e)) {
+                $this->wellKnown = new WellKnown();
+            }
+        }
+
+        return $this->wellKnown;
+    }
+
+    /**
+     * @param string $url
+     * @param bool $secure
+     *
+     * @return array
+     *
+     * @throws \Exception
+     */
+    protected function fetchWellKnown($url, $secure = true)
+    {
+        $wellKnownUrl = $url;
+        if (strpos($wellKnownUrl, '/.well-known') === false) {
+            $wellKnownUrl = preg_replace('/\/?$/', '/.well-known/openid-configuration', $wellKnownUrl);
+        }
+
+        return json_decode((string) \Tools::file_get_contents($wellKnownUrl, false, stream_context_create([
+            'ssl' => [
+                'verify_peer' => $secure,
+                'verify_peer_name' => $secure,
+            ],
+            'http' => [
+                'ignore_errors' => '1',
+            ],
+        ])), true) ?: [];
+    }
+
+    /**
+     * @return void
+     */
+    private function syncOauth2ClientProps()
+    {
+        $this->clientId = $this->getOauth2Client()->getClientId();
+        $this->clientSecret = $this->getOauth2Client()->getClientSecret();
     }
 }

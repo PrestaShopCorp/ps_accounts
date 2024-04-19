@@ -22,6 +22,10 @@ if (!defined('_PS_VERSION_')) {
 }
 require_once __DIR__ . '/vendor/autoload.php';
 
+if (!class_exists('\PrestaShop\Module\PsAccounts\Hook\HookableTrait')) {
+    ps_accounts_fix_upgrade();
+}
+
 class Ps_accounts extends Module
 {
     use \PrestaShop\Module\PsAccounts\Hook\HookableTrait;
@@ -35,13 +39,13 @@ class Ps_accounts extends Module
     /**
      * Admin tabs
      *
-     * @var array
+     * @var array class names
      */
     private $adminControllers = [
-        AdminAjaxPsAccountsController::class,
-        AdminDebugPsAccountsController::class,
-        AdminOAuth2PsAccountsController::class,
-        AdminLoginPsAccountsController::class,
+        'AdminAjaxPsAccountsController',
+        'AdminDebugPsAccountsController',
+        'AdminOAuth2PsAccountsController',
+        'AdminLoginPsAccountsController',
     ];
 
     /**
@@ -74,26 +78,34 @@ class Ps_accounts extends Module
     /**
      * Hooks to register
      *
-     * @var array
+     * @var array hook or class names
      */
     private $hooks = [
-        \PrestaShop\Module\PsAccounts\Hook\ActionAdminControllerInitBefore::class,
-        \PrestaShop\Module\PsAccounts\Hook\ActionAdminLoginControllerLoginAfter::class,
-//        \PrestaShop\Module\PsAccounts\Hook\ActionAdminLoginControllerSetMedia::class,
-        \PrestaShop\Module\PsAccounts\Hook\ActionObjectEmployeeDeleteAfter::class,
-//        \PrestaShop\Module\PsAccounts\Hook\ActionObjectShopAddAfter::class,
-//        \PrestaShop\Module\PsAccounts\Hook\ActionObjectShopDeleteAfter::class,
-        \PrestaShop\Module\PsAccounts\Hook\ActionObjectShopDeleteBefore::class,
-        \PrestaShop\Module\PsAccounts\Hook\ActionObjectShopUpdateAfter::class,
-        \PrestaShop\Module\PsAccounts\Hook\ActionObjectShopUrlUpdateAfter::class,
-        \PrestaShop\Module\PsAccounts\Hook\ActionShopAccessTokenRefreshAfter::class,
-        \PrestaShop\Module\PsAccounts\Hook\ActionShopAccountLinkAfter::class,
-        \PrestaShop\Module\PsAccounts\Hook\ActionShopAccountUnlinkAfter::class,
-        \PrestaShop\Module\PsAccounts\Hook\DisplayAccountUpdateWarning::class,
-//        \PrestaShop\Module\PsAccounts\Hook\DisplayBackOfficeHeader::class,
-        \PrestaShop\Module\PsAccounts\Hook\DisplayBackOfficeEmployeeMenu::class,
-        \PrestaShop\Module\PsAccounts\Hook\DisplayDashboardTop::class,
-//        \PrestaShop\Module\PsAccounts\Hook\ActionObjectUpdateAfter::class,
+        //\PrestaShop\Module\PsAccounts\Hook\ActionAdminLoginControllerLoginAfter::class,
+        'actionAdminLoginControllerLoginAfter',
+        'actionObjectEmployeeDeleteAfter',
+        'actionObjectShopAddAfter',
+        'actionObjectShopDeleteAfter',
+        'actionObjectShopDeleteBefore',
+        'actionObjectShopUpdateAfter',
+        'actionObjectShopUrlUpdateAfter',
+        'actionShopAccessTokenRefreshAfter',
+        'actionShopAccountLinkAfter',
+        'actionShopAccountUnlinkAfter',
+        'displayAccountUpdateWarning',
+        'displayBackOfficeEmployeeMenu',
+        'displayDashboardTop',
+
+        // toggle single/multi-shop
+//        'actionObjectShopAddAfter',
+//        'actionObjectShopDeleteAfter',
+
+        // Login/Logout OAuth
+        // PS 1.6 - 1.7
+        'displayBackOfficeHeader',
+        'actionAdminLoginControllerSetMedia',
+        // PS >= 8
+//        'actionAdminControllerInitBefore',
     ];
 
     /**
@@ -174,7 +186,7 @@ class Ps_accounts extends Module
             && $this->addCustomHooks($this->customHooks)
             && $this->registerHook($this->getHooksToRegister());
 
-        $this->onModuleInstallAfter();
+        $this->onModuleReset();
 
         $this->getLogger()->info('Install - Loading ' . $this->name . ' Env : [' . $this->getModuleEnv() . ']');
 
@@ -220,9 +232,9 @@ class Ps_accounts extends Module
     public function getServiceContainer()
     {
         if (null === $this->serviceContainer) {
+            // append version number to force cache generation (1.6 Core won't clear it)
             $this->serviceContainer = new \PrestaShop\Module\PsAccounts\DependencyInjection\ServiceContainer(
-                // append version number to force cache generation (1.6 Core won't clear it)
-                $this->name . str_replace(['.', '-'], '', $this->version),
+                $this->name . str_replace(['.', '-', '+'], '', $this->version),
                 $this->getLocalPath(),
                 $this->getModuleEnv()
             );
@@ -274,6 +286,7 @@ class Ps_accounts extends Module
     {
         return array_map(function ($className) {
             return preg_replace('/^.*?(\w+)Controller$/', '\1', $className);
+        //return preg_replace('/^(.*?)Controller$/', '\1', $className);
         }, $this->adminControllers);
     }
 
@@ -283,7 +296,8 @@ class Ps_accounts extends Module
     public function getHooksToRegister()
     {
         return array_map(function ($className) {
-            return $className::getName();
+            return is_a($className, '\PrestaShop\Module\PsAccounts\Hook\Hook', true) ?
+                $className::getName() : $className;
         }, $this->hooks);
     }
 
@@ -505,25 +519,38 @@ class Ps_accounts extends Module
      *
      * @throws Exception
      */
-    private function onModuleInstallAfter()
+    public function onModuleReset()
     {
         /** @var \PrestaShop\Module\PsAccounts\Factory\CircuitBreakerFactory $circuitBreakerFactory */
         $circuitBreakerFactory = $this->getService(\PrestaShop\Module\PsAccounts\Factory\CircuitBreakerFactory::class);
         $circuitBreakerFactory->resetAll();
 
-        /** @var \PrestaShop\Module\PsAccounts\Cqrs\CommandBus $commandBus */
-        $commandBus = $this->getService(\PrestaShop\Module\PsAccounts\Cqrs\CommandBus::class);
-        $commandBus->handle(new \PrestaShop\Module\PsAccounts\Account\Command\UpdateModuleCommand(
-            new \PrestaShop\Module\PsAccounts\Account\Dto\UpdateModule([
-                'version' => \Ps_accounts::VERSION,
-            ])
-        ));
-
         /** @var \PrestaShop\Module\PsAccounts\Repository\ConfigurationRepository $configurationRepository */
         $configurationRepository = $this->getService(\PrestaShop\Module\PsAccounts\Repository\ConfigurationRepository::class);
         $configurationRepository->fixMultiShopConfig();
 
-        $this->installEventBus();
-        $this->autoReonboardOnV5();
+        // FIXME: this wont prevent from re-implanting override on reset of module
+        $uninstaller = new PrestaShop\Module\PsAccounts\Module\Uninstall($this, Db::getInstance());
+        $uninstaller->deleteAdminTab('AdminLogin');
+
+//        $this->installEventBus();
+//        $this->autoReonboardOnV5();
+    }
+}
+
+/**
+ * @return void
+ */
+function ps_accounts_fix_upgrade()
+{
+    $root = __DIR__;
+    $requires = array_merge([
+        $root . '/src/Module/Install.php',
+//        $root . '/src/Hook/Hook.php',
+        $root . '/src/Hook/HookableTrait.php',
+    ], []/*, glob($root . '/src/Hook/*.php')*/);
+
+    foreach ($requires as $filename) {
+        require_once $filename;
     }
 }

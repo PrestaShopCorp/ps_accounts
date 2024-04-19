@@ -20,8 +20,8 @@
 
 namespace PrestaShop\Module\PsAccounts\Provider\OAuth2;
 
-use League\OAuth2\Client\Provider\Exception\IdentityProviderException;
-use League\OAuth2\Client\Token\AccessToken;
+use PrestaShop\Module\PsAccounts\Vendor\League\OAuth2\Client\Provider\Exception\IdentityProviderException;
+use PrestaShop\Module\PsAccounts\Vendor\League\OAuth2\Client\Token\AccessToken;
 use PrestaShop\OAuth2\Client\Provider\PrestaShopUser;
 use Symfony\Component\HttpFoundation\Session\SessionInterface;
 

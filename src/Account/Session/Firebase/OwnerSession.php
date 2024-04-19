@@ -60,7 +60,7 @@ class OwnerSession extends Session implements SessionInterface
      */
     public function refreshToken($refreshToken = null)
     {
-        $this->shopSession->getOrRefreshToken();
+        $this->shopSession->getOrRefreshToken(false, true);
 
         return $this->getToken();
     }
@@ -71,7 +71,8 @@ class OwnerSession extends Session implements SessionInterface
     public function getToken()
     {
         return new Token(
-            $this->configurationRepository->getUserFirebaseIdToken()
+            $this->configurationRepository->getUserFirebaseIdToken(),
+            $this->configurationRepository->getUserFirebaseRefreshToken()
         );
     }
 
@@ -91,6 +92,6 @@ class OwnerSession extends Session implements SessionInterface
      */
     public function setToken($token, $refreshToken = null)
     {
-        $this->configurationRepository->updateUserFirebaseIdToken($token);
+        $this->configurationRepository->updateUserFirebaseIdAndRefreshToken($token, $refreshToken);
     }
 }

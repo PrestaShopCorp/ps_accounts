@@ -21,9 +21,9 @@
 namespace PrestaShop\Module\PsAccounts\Repository;
 
 use Exception;
-use Lcobucci\JWT\Token;
 use PrestaShop\Module\PsAccounts\Account\Session\Session;
 use PrestaShop\Module\PsAccounts\Account\Token\NullToken;
+use PrestaShop\Module\PsAccounts\Vendor\Lcobucci\JWT\Token;
 
 /**
  * @deprecated

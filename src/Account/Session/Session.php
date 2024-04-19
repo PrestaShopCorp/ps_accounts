@@ -50,7 +50,7 @@ abstract class Session implements SessionInterface
         if (true === $forceRefresh || $token->isExpired()) {
             try {
                 $token = $this->refreshToken(null);
-                $this->setToken((string) $token->getJwt()/*, $token->getRefreshToken()*/);
+                $this->setToken((string) $token->getJwt(), $token->getRefreshToken());
             } catch (\Error $e) {
             } catch (\Exception $e) {
 //            } catch (RefreshTokenException $e) {
