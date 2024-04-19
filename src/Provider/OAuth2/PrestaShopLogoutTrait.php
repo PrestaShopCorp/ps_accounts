@@ -22,23 +22,34 @@ namespace PrestaShop\Module\PsAccounts\Provider\OAuth2;
 
 trait PrestaShopLogoutTrait
 {
-    abstract protected function getProvider(): PrestaShopClientProvider;
-
-    abstract protected function getOauth2Session(): PrestaShopSession;
-
-    abstract protected function isOauth2LogoutEnabled(): bool;
+    /**
+     * @return ShopProvider
+     */
+    abstract protected function getProvider();
 
     /**
+     * @return PrestaShopSession
+     */
+    abstract protected function getOauth2Session();
+
+    /**
+     * @return bool
+     */
+    abstract protected function isOauth2LogoutEnabled();
+
+    /**
+     * @return void
+     *
      * @throws \Exception
      */
-    public function oauth2Logout(): void
+    public function oauth2Logout()
     {
         if (!$this->isOauth2LogoutEnabled()) {
             return;
         }
 
         $oauth2Session = $this->getOauth2Session();
-        if (!isset($_GET[PrestaShopClientProvider::QUERY_LOGOUT_CALLBACK_PARAM])) {
+        if (!isset($_GET[ShopProvider::QUERY_LOGOUT_CALLBACK_PARAM])) {
             $idToken = $oauth2Session->getIdToken();
 
             if (empty($idToken)) {

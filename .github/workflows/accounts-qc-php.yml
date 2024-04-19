@@ -4,11 +4,13 @@ on: [pull_request]
 
 jobs:
   php-linter:
-    name: PHP Syntax check 7.2|7.3
+    name: PHP Syntax check 5.6|7.2|7.3
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
-        uses: actions/checkout@v2.0.0
+        uses: actions/checkout@v3
+      - name: PHP syntax checker 5.6
+        uses: prestashop/github-action-php-lint/5.6@master
       - name: PHP syntax checker 7.2
         uses: prestashop/github-action-php-lint/7.2@master
       - name: PHP syntax checker 7.3
@@ -19,7 +21,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
-        uses: actions/checkout@v2.0.0
+        uses: actions/checkout@v3
       - name: Run PHP-CS-Fixer
         uses: prestashopcorp/github-action-php-cs-fixer@master
 
@@ -28,7 +30,8 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        presta-versions: ["latest"]
+        presta-versions: ["latest", "1.7.6.5", "1.6.1.21"]
+#        presta-versions: ["latest", "1.7.6.5", "1.7.0.3", "1.6.1.21", "1.6.1.0"]
     steps:
       - name: Checkout
         uses: actions/checkout@v3
@@ -40,13 +43,16 @@ jobs:
           key: php-${{ hashFiles('composer.lock') }}
 
       - name: Cache composer folder
-        uses: actions/cache@v1
+        uses: actions/cache@v3
         with:
           path: ~/.composer/cache
           key: php-composer-cache
 
-      - name: Install dependencies
-        run: composer install
+#      - name: Install dependencies
+#        run: composer install
+
+      - name: Scoped dependencies
+        run: make php-scoper
 
       - name: Select .neon file compatible with PrestaShop ${{ matrix.presta-versions }}
         id: neon
@@ -62,8 +68,11 @@ jobs:
 
 
   phpunit:
-    name: PHPUNIT
+    name: PHPUNIT for Prestashop ${{ matrix.presta-versions }}
     runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        presta-versions: ["1.6", "1.7", "latest"]
     steps:
       - name: Checkout
         uses: actions/checkout@v3
@@ -80,12 +89,15 @@ jobs:
           path: ~/.composer/cache
           key: php-composer-cache
 
-      - name: Install dependencies
-        run: composer install
+#      - name: Install dependencies
+#        run: composer install
 
-      - name: PHPUnit tests 8
+      - name: Scoped dependencies
+        run: make php-scoper
+
+      - name: PHPUnit tests
         run: |
-          DOCKER_INTERNAL="8" make phpunit
+          DOCKER_INTERNAL="${{ matrix.presta-versions }}" make phpunit
 
   header-stamp:
     name: Check license headers

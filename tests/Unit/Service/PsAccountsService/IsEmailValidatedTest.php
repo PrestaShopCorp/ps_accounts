@@ -2,12 +2,26 @@
 
 namespace PrestaShop\Module\PsAccounts\Tests\Unit\Service\PsAccountsService;
 
-use PrestaShop\Module\PsAccounts\Repository\UserTokenRepository;
+use PrestaShop\Module\PsAccounts\Account\Session\Firebase\OwnerSession;
 use PrestaShop\Module\PsAccounts\Service\PsAccountsService;
 use PrestaShop\Module\PsAccounts\Tests\TestCase;
 
 class IsEmailValidatedTest extends TestCase
 {
+    /**
+     * @inject
+     *
+     * @var OwnerSession
+     */
+    protected $ownerSession;
+
+    /**
+     * @inject
+     *
+     * @var PsAccountsService
+     */
+    protected $service;
+
     /**
      * @test
      *
@@ -15,17 +29,11 @@ class IsEmailValidatedTest extends TestCase
      */
     public function itShouldReturnTrue()
     {
-        /** @var UserTokenRepository $tokenRepos */
-        $tokenRepos = $this->module->getService(UserTokenRepository::class);
-
         $token = $this->makeFirebaseToken(null, ['email_verified' => true]);
 
-        $tokenRepos->updateCredentials($token, base64_encode($this->faker->name));
+        $this->ownerSession->setToken($token);
 
-        /** @var PsAccountsService $service */
-        $service = $this->module->getService(PsAccountsService::class);
-
-        $this->assertTrue($service->isEmailValidated());
+        $this->assertTrue($this->service->isEmailValidated());
     }
 
     /**
@@ -35,17 +43,10 @@ class IsEmailValidatedTest extends TestCase
      */
     public function itShouldReturnFalse()
     {
-        /** @var UserTokenRepository $tokenRepos */
-        $tokenRepos = $this->module->getService(UserTokenRepository::class);
-
-        $tokenRepos->updateCredentials(
-            $this->makeFirebaseToken(null, ['email_verified' => false]),
-            null //base64_encode($this->faker->name)
+        $this->ownerSession->setToken(
+            $this->makeFirebaseToken(null, ['email_verified' => false])
         );
 
-        /** @var PsAccountsService $service */
-        $service = $this->module->getService(PsAccountsService::class);
-
-        $this->assertFalse($service->isEmailValidated());
+        $this->assertFalse($this->service->isEmailValidated());
     }
 }

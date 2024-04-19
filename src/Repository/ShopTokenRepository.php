@@ -20,76 +20,17 @@
 
 namespace PrestaShop\Module\PsAccounts\Repository;
 
-use Lcobucci\JWT\Parser;
-use Lcobucci\JWT\Token;
-use PrestaShop\Module\PsAccounts\Api\Client\AccountsClient;
+use PrestaShop\Module\PsAccounts\Account\Session\Firebase\ShopSession;
 
 /**
  * Class ShopTokenRepository
+ *
+ * @deprecated
  */
-class ShopTokenRepository extends AbstractTokenRepository
+class ShopTokenRepository extends TokenRepository
 {
-    public const TOKEN_TYPE = 'shop';
-    protected const TOKEN_KEY = 'token';
-    protected const REFRESH_TOKEN_KEY = 'refresh_token';
-
     /**
-     * @return AccountsClient
-     *
-     * @throws \Exception
+     * @var ShopSession
      */
-    protected function client()
-    {
-        /** @var \Ps_accounts $module */
-        $module = \Module::getInstanceByName('ps_accounts');
-
-        return $module->getService(AccountsClient::class);
-    }
-
-    /**
-     * @return Token|null
-     */
-    public function getToken()
-    {
-        return $this->parseToken($this->configuration->getFirebaseIdToken());
-    }
-
-    /**
-     * @return string
-     */
-    public function getTokenUuid()
-    {
-        return $this->configuration->getShopUuid();
-    }
-
-    /**
-     * @return string
-     */
-    public function getRefreshToken()
-    {
-        return $this->configuration->getFirebaseRefreshToken();
-    }
-
-    /**
-     * @return void
-     */
-    public function cleanupCredentials()
-    {
-        $this->configuration->updateShopUuid('');
-        $this->configuration->updateFirebaseIdAndRefreshTokens('', '');
-    }
-
-    /**
-     * @param string $idToken
-     * @param string $refreshToken
-     *
-     * @return void
-     */
-    public function updateCredentials($idToken, $refreshToken)
-    {
-        $token = (new Parser())->parse((string) $idToken);
-
-        $this->configuration->updateShopUuid($token->getClaim('user_id'));
-        $this->configuration->updateFirebaseIdAndRefreshTokens((string) $idToken, (string) $refreshToken);
-    }
+    protected $session;
 }

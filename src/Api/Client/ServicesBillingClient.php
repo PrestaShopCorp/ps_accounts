@@ -20,9 +20,8 @@
 
 namespace PrestaShop\Module\PsAccounts\Api\Client;
 
-use PrestaShop\Module\PsAccounts\Api\Client\Guzzle\AbstractGuzzleClient;
-use PrestaShop\Module\PsAccounts\Api\Client\Guzzle\GuzzleClientFactory;
-use PrestaShop\Module\PsAccounts\Exception\OptionResolutionException;
+use PrestaShop\Module\PsAccounts\Http\Client\Guzzle\GuzzleClient;
+use PrestaShop\Module\PsAccounts\Http\Client\Guzzle\GuzzleClientFactory;
 use PrestaShop\Module\PsAccounts\Provider\ShopProvider;
 use PrestaShop\Module\PsAccounts\Service\PsAccountsService;
 
@@ -32,7 +31,7 @@ use PrestaShop\Module\PsAccounts\Service\PsAccountsService;
 class ServicesBillingClient
 {
     /**
-     * @var AbstractGuzzleClient
+     * @var GuzzleClient
      */
     private $client;
 
@@ -42,9 +41,8 @@ class ServicesBillingClient
      * @param string $apiUrl
      * @param PsAccountsService $psAccountsService
      * @param ShopProvider $shopProvider
-     * @param AbstractGuzzleClient|null $client
+     * @param GuzzleClient|null $client
      *
-     * @throws OptionResolutionException
      * @throws \PrestaShopException
      * @throws \Exception
      */
@@ -52,7 +50,7 @@ class ServicesBillingClient
         $apiUrl,
         PsAccountsService $psAccountsService,
         ShopProvider $shopProvider,
-        AbstractGuzzleClient $client = null
+        GuzzleClient $client = null
     ) {
         $shopId = $shopProvider->getCurrentShop()['id'];
 
@@ -61,17 +59,15 @@ class ServicesBillingClient
         // Client can be provided for tests
         if (null === $client) {
             $client = (new GuzzleClientFactory())->create([
-                'base_url' => $apiUrl,
-                'defaults' => [
-                    'headers' => [
-                        // Commented, else does not work anymore with API.
-                        //'Content-Type' => 'application/vnd.accounts.v1+json', // api version to use
-                        'Accept' => 'application/json',
-                        'Authorization' => 'Bearer ' . (string) $token,
-                        'Shop-Id' => $shopId,
-                        'Module-Version' => \Ps_accounts::VERSION, // version of the module
-                        'Prestashop-Version' => _PS_VERSION_, // prestashop version
-                    ],
+                'base_uri' => $apiUrl,
+                'headers' => [
+                    // Commented, else does not work anymore with API.
+                    //'Content-Type' => 'application/vnd.accounts.v1+json', // api version to use
+                    'Accept' => 'application/json',
+                    'Authorization' => 'Bearer ' . (string) $token,
+                    'Shop-Id' => $shopId,
+                    'Module-Version' => \Ps_accounts::VERSION, // version of the module
+                    'Prestashop-Version' => _PS_VERSION_, // prestashop version
                 ],
             ]);
         }

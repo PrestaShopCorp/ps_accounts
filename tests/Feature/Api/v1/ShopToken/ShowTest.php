@@ -2,12 +2,19 @@
 
 namespace PrestaShop\Module\PsAccounts\Tests\Feature\Api\v1\ShopToken;
 
-use PrestaShop\Module\PsAccounts\Adapter\ConfigurationKeys;
-use PrestaShop\Module\PsAccounts\Controller\AbstractRestController;
+use PrestaShop\Module\PsAccounts\Account\Session\Firebase\ShopSession;
+use PrestaShop\Module\PsAccounts\Api\Controller\AbstractRestController;
 use PrestaShop\Module\PsAccounts\Tests\Feature\FeatureTestCase;
 
 class ShowTest extends FeatureTestCase
 {
+    /**
+     * @inject
+     *
+     * @var ShopSession
+     */
+    protected $shopSession;
+
     /**
      * @test
      *
@@ -15,6 +22,11 @@ class ShowTest extends FeatureTestCase
      */
     public function itShouldSucceed()
     {
+        $expiry = new \DateTimeImmutable('+10 days');
+        $shopToken = $this->makeJwtToken($expiry, ['sub' => $this->faker->uuid]);
+
+        $this->shopSession->setToken((string) $shopToken);
+
         $response = $this->client->get('/module/ps_accounts/apiV1ShopToken', [
             'headers' => [
                 AbstractRestController::TOKEN_HEADER => (string) $this->encodePayload([
@@ -30,11 +42,9 @@ class ShowTest extends FeatureTestCase
         $this->assertResponseOk($response);
 
         $this->assertArraySubset([
-            'token' => $this->configuration->get(ConfigurationKeys::PS_ACCOUNTS_FIREBASE_ID_TOKEN),
-            'refresh_token' => $this->configuration->get(ConfigurationKeys::PS_ACCOUNTS_FIREBASE_REFRESH_TOKEN),
+            'token' => (string) $shopToken,
+            'refresh_token' => null,
         ], $json);
-
-        $this->assertEquals(0, $this->configuration->get(ConfigurationKeys::PS_ACCOUNTS_FIREBASE_REFRESH_TOKEN_FAILURE));
     }
 
     /**

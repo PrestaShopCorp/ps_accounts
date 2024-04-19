@@ -8,19 +8,23 @@ use PrestaShop\Module\PsAccounts\Tests\TestCase;
 class VerifySignatureTest extends TestCase
 {
     /**
+     * @inject
+     *
+     * @var RsaKeysProvider
+     */
+    protected $rsaKeysProvider;
+
+    /**
      * @test
      */
     public function itShouldVerifySignature()
     {
-        /** @var RsaKeysProvider $service */
-        $service = $this->module->getService(RsaKeysProvider::class);
-
-        $key = $service->createPair();
+        $key = $this->rsaKeysProvider->createPair();
 
         $data = 'data-to-sign';
 
-        $signature = $service->signData($key['privatekey'], $data);
+        $signature = $this->rsaKeysProvider->signData($key['privatekey'], $data);
 
-        $this->assertEquals(1, $service->verifySignature($key['publickey'], $signature, $data));
+        $this->assertEquals(1, $this->rsaKeysProvider->verifySignature($key['publickey'], $signature, $data));
     }
 }

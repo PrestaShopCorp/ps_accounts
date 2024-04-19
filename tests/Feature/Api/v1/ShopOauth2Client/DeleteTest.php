@@ -2,19 +2,27 @@
 
 namespace PrestaShop\Module\PsAccounts\Tests\Feature\Api\v1\ShopOauth2Client;
 
-use PrestaShop\Module\PsAccounts\Adapter\ConfigurationKeys;
-use PrestaShop\Module\PsAccounts\Controller\AbstractRestController;
+use PrestaShop\Module\PsAccounts\Provider\OAuth2\Oauth2Client;
+use PrestaShop\Module\PsAccounts\Api\Controller\AbstractRestController;
 use PrestaShop\Module\PsAccounts\Tests\Feature\FeatureTestCase;
 
 class DeleteTest extends FeatureTestCase
 {
     /**
+     * @inject
+     *
+     * @var Oauth2Client
+     */
+    protected $oauth2Client;
+
+    /**
      * @test
+     *
+     * @throws \Exception
      */
     public function itShouldSucceed()
     {
-        $this->configuration->set(ConfigurationKeys::PS_ACCOUNTS_OAUTH2_CLIENT_ID, $this->faker->slug);
-        $this->configuration->set(ConfigurationKeys::PS_ACCOUNTS_OAUTH2_CLIENT_SECRET, $this->faker->password);
+        $this->oauth2Client->update($this->faker->slug, $this->faker->password);
 
         $response = $this->client->delete('/module/ps_accounts/apiV1ShopOauth2Client', [
             'headers' => [
@@ -37,7 +45,10 @@ class DeleteTest extends FeatureTestCase
         \Configuration::clearConfigurationCacheForTesting();
         \Configuration::loadConfiguration();
 
-        $this->assertEmpty($this->configuration->get(ConfigurationKeys::PS_ACCOUNTS_OAUTH2_CLIENT_ID));
-        $this->assertEmpty($this->configuration->get(ConfigurationKeys::PS_ACCOUNTS_OAUTH2_CLIENT_SECRET));
+        $this->assertEmpty($this->oauth2Client->getClientId());
+        $this->assertEmpty($this->oauth2Client->getClientSecret());
+        $this->assertFalse($this->oauth2Client->exists());
+
+
     }
 }

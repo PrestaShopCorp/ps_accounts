@@ -21,10 +21,10 @@
 
 namespace PrestaShop\Module\PsAccounts\Api\Client;
 
-use PrestaShop\Module\PsAccounts\Api\Client\Guzzle\AbstractGuzzleClient;
-use PrestaShop\Module\PsAccounts\Api\Client\Guzzle\GuzzleClientFactory;
-use PrestaShop\Module\PsAccounts\Repository\ShopTokenRepository;
-use PrestaShop\Module\PsAccounts\Repository\UserTokenRepository;
+use PrestaShop\Module\PsAccounts\Account\Session\Firebase\OwnerSession;
+use PrestaShop\Module\PsAccounts\Account\Session\Firebase\ShopSession;
+use PrestaShop\Module\PsAccounts\Http\Client\Guzzle\GuzzleClient;
+use PrestaShop\Module\PsAccounts\Http\Client\Guzzle\GuzzleClientFactory;
 
 /**
  * Class IndirectChannelClient
@@ -37,54 +37,66 @@ class IndirectChannelClient
     private $apiUrl;
 
     /**
-     * @var AbstractGuzzleClient
+     * @var GuzzleClient
      */
     private $client;
 
     /**
-     * ServicesAccountsClient constructor.
-     *
+     * @var int
+     */
+    private $defaultTimeout;
+
+    /**
      * @param string $apiUrl
-     * @param AbstractGuzzleClient|null $client
+     * @param GuzzleClient|null $client
+     * @param int $defaultTimeout
+     *
+     * @throws \Exception
      */
     public function __construct(
         $apiUrl,
-        AbstractGuzzleClient $client = null
+        GuzzleClient $client = null,
+        $defaultTimeout = 20
     ) {
         $this->apiUrl = $apiUrl;
         $this->client = $client;
+        $this->defaultTimeout = $defaultTimeout;
     }
 
     /**
      * @param array $additionalHeaders
      *
      * @return array
+     *
+     * @throws \Exception
      */
     private function getHeaders($additionalHeaders = [])
     {
-        $userToken = $this->getUserTokenRepository();
-        $shopToken = $this->getShopTokenRepository();
+        $userToken = $this->getOwnerSession();
+        $shopToken = $this->getShopSession();
 
         return array_merge([
             'Accept' => 'application/json',
             'X-Module-Version' => \Ps_accounts::VERSION,
             'X-Prestashop-Version' => _PS_VERSION_,
             'Authorization' => 'Bearer ' . $userToken->getOrRefreshToken(),
-            'X-Shop-Id' => $shopToken->getTokenUuid(),
+            'X-Shop-Id' => $shopToken->getToken()->getUuid(),
         ], $additionalHeaders);
     }
 
     /**
-     * @return AbstractGuzzleClient
+     * @return GuzzleClient
+     *
+     * @throws \Exception
      */
     private function getClient()
     {
         if (null === $this->client) {
             $this->client = (new GuzzleClientFactory())->create([
-                'base_url' => $this->apiUrl,
-                'defaults' => [
-                    'headers' => $this->getHeaders(),
-                ],
+                'name' => static::class,
+                'base_uri' => $this->apiUrl,
+                'headers' => $this->getHeaders(),
+                'timeout' => $this->defaultTimeout,
             ]);
         }
 
@@ -104,28 +116,28 @@ class IndirectChannelClient
     }
 
     /**
-     * @return ShopTokenRepository
+     * @return ShopSession
      *
      * @throws \Exception
      */
-    private function getShopTokenRepository()
+    private function getShopSession()
     {
         /** @var \Ps_accounts $module */
         $module = \Module::getInstanceByName('ps_accounts');
 
-        return $module->getService(ShopTokenRepository::class);
+        return $module->getService(ShopSession::class);
     }
 
     /**
-     * @return UserTokenRepository
+     * @return OwnerSession
      *
      * @throws \Exception
      */
-    private function getUserTokenRepository()
+    private function getOwnerSession()
     {
         /** @var \Ps_accounts $module */
         $module = \Module::getInstanceByName('ps_accounts');
 
-        return $module->getService(UserTokenRepository::class);
+        return $module->getService(OwnerSession::class);
     }
 }

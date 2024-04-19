@@ -34,7 +34,12 @@ abstract class AccountLoginException extends \Exception
      */
     private $type;
 
-    public function __construct(?PrestaShopUser $user, string $message = '', string $type = '')
+    /**
+     * @param PrestaShopUser|null $user
+     * @param string $message
+     * @param string $type
+     */
+    public function __construct($user, $message = '', $type = '')
     {
         parent::__construct($message);
 
@@ -45,7 +50,7 @@ abstract class AccountLoginException extends \Exception
     /**
      * @return PrestaShopUser|null
      */
-    public function getPrestaShopUser(): ?PrestaShopUser
+    public function getPrestaShopUser()
     {
         return $this->user;
     }
@@ -53,7 +58,7 @@ abstract class AccountLoginException extends \Exception
     /**
      * @return string
      */
-    public function getType(): string
+    public function getType()
     {
         return $this->type;
     }

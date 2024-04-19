@@ -2,12 +2,12 @@
 
 namespace PrestaShop\Module\PsAccounts\Tests\Feature\Api\v1;
 
-use Lcobucci\JWT\Parser;
-use Lcobucci\JWT\Signer\Hmac\Sha256;
-use Lcobucci\JWT\Signer\Key;
-use PrestaShop\Module\PsAccounts\Controller\AbstractRestController;
+use PrestaShop\Module\PsAccounts\Api\Controller\AbstractRestController;
 use PrestaShop\Module\PsAccounts\Provider\RsaKeysProvider;
 use PrestaShop\Module\PsAccounts\Tests\Feature\FeatureTestCase;
+use PrestaShop\Module\PsAccounts\Vendor\Lcobucci\JWT\Parser;
+use PrestaShop\Module\PsAccounts\Vendor\Lcobucci\JWT\Signer\Hmac\Sha256;
+use PrestaShop\Module\PsAccounts\Vendor\Lcobucci\JWT\Signer\Key;
 
 class DecodePayloadTest extends FeatureTestCase
 {

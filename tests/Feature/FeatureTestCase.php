@@ -5,15 +5,15 @@ namespace PrestaShop\Module\PsAccounts\Tests\Feature;
 use Db;
 use GuzzleHttp\Client;
 use GuzzleHttp\Message\ResponseInterface;
-use Lcobucci\JWT\Builder;
-use Lcobucci\JWT\Signer\Hmac\Sha256;
-use Lcobucci\JWT\Signer\Key;
-use PrestaShop\Module\PsAccounts\Api\Client\Guzzle\AbstractGuzzleClient;
-use PrestaShop\Module\PsAccounts\Api\Client\Guzzle\GuzzleClientFactory;
+use PrestaShop\Module\PsAccounts\Http\Client\Guzzle\GuzzleClient;
+use PrestaShop\Module\PsAccounts\Http\Client\Guzzle\GuzzleClientFactory;
 use PrestaShop\Module\PsAccounts\Provider\RsaKeysProvider;
 use PrestaShop\Module\PsAccounts\Repository\UserTokenRepository;
 use PrestaShop\Module\PsAccounts\Tests\TestCase;
-
+use PrestaShop\Module\PsAccounts\Vendor\Lcobucci\JWT\Builder;
+use PrestaShop\Module\PsAccounts\Vendor\Lcobucci\JWT\Signer\Hmac\Sha256;
+use PrestaShop\Module\PsAccounts\Vendor\Lcobucci\JWT\Signer\Key;
+use PrestaShop\Module\PsAccounts\Vendor\Lcobucci\JWT\Token;
 
 class FeatureTestCase extends TestCase
 {
@@ -28,7 +28,7 @@ class FeatureTestCase extends TestCase
     protected $client;
 
     /**
-     * @var AbstractGuzzleClient
+     * @var GuzzleClient
      */
     protected $guzzleClient;
 
@@ -43,29 +43,32 @@ class FeatureTestCase extends TestCase
     protected $userTokenRepository;
 
     /**
+     * @return void
+     *
      * @throws \Exception
      */
-    public function setUp(): void
+    public function setUp()
     {
         parent::setUp();
 
         $scheme = $this->configuration->get('PS_SSL_ENABLED') ? 'https://' : 'http://';
         $domain = $this->configuration->get('PS_SHOP_DOMAIN');
-        $baseUrl = $scheme . $domain;
+        $baseUrl = $scheme . $domain . '/';
 
-        //$this->client = new Client([
         $this->guzzleClient = (new GuzzleClientFactory())->create([
-            'base_url' => $baseUrl,
-            'defaults' => [
-                'timeout' => 60,
-                'exceptions' => false,
-                'allow_redirects' => false,
-                'query' => [],
-                'headers' => [
-                    'Accept' => 'application/json',
-                ],
+            'base_uri' => $baseUrl,
+            'headers' => [
+                'Accept' => 'application/json',
             ],
+            'verify' => false,
+            'timeout' => 60,
+            'http_errors' => false,
+            //
+            'allow_redirects' => false,
+            'query' => [],
         ]);
+
+        $this->module->getLogger()->debug('Using ' . get_class($this->guzzleClient));
 
         $this->client = $this->guzzleClient->getClient();
 
@@ -83,7 +86,7 @@ class FeatureTestCase extends TestCase
     /**
      * @param array $payload
      *
-     * @return \Lcobucci\JWT\Token
+     * @return Token
      *
      * @throws \Exception
      */

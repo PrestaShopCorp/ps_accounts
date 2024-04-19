@@ -2,112 +2,33 @@
 
 namespace PrestaShop\Module\PsAccounts\Tests\Unit\Repository\ShopTokenRepository;
 
-use PrestaShop\Module\PsAccounts\Api\Client\AccountsClient;
-use PrestaShop\Module\PsAccounts\Repository\ConfigurationRepository;
 use PrestaShop\Module\PsAccounts\Repository\ShopTokenRepository;
-use PrestaShop\Module\PsAccounts\Service\AnalyticsService;
 use PrestaShop\Module\PsAccounts\Tests\TestCase;
 
 class GetOrRefreshTokenTest extends TestCase
 {
     /**
+     * @inject
+     *
+     * @var ShopTokenRepository
+     */
+    protected $repository;
+
+    /**
      * @test
+     *
+     * @throws \Exception
      */
     public function itShouldReturnValidToken()
     {
         $idToken = $this->makeJwtToken(new \DateTimeImmutable('tomorrow'), [
-            'user_id' => $this->faker->uuid,
+            'sub' => $this->faker->uuid,
         ]);
 
         $refreshToken = $this->makeJwtToken(new \DateTimeImmutable('+1 year'));
 
-        /** @var ShopTokenRepository $service */
-        $service = $this->module->getService(ShopTokenRepository::class);
+        $this->repository->updateCredentials((string) $idToken, (string) $refreshToken);
 
-        $service->updateCredentials((string) $idToken, (string) $refreshToken);
-
-        $this->assertEquals((string) $idToken, $service->getOrRefreshToken());
-    }
-
-    /**
-     * @test
-     */
-    public function itShouldRefreshExpiredToken()
-    {
-        $idToken = $this->makeJwtToken(new \DateTimeImmutable('yesterday'), [
-            'user_id' => $this->faker->uuid,
-        ]);
-
-        $idTokenRefreshed = $this->makeJwtToken(new \DateTimeImmutable('tomorrow'), [
-            'user_id' => $idToken->claims()->get('user_id'),
-        ]);
-
-        $refreshToken = $this->makeJwtToken(new \DateTimeImmutable('+1 year'));
-
-        /** @var ConfigurationRepository $configuration */
-        $configuration = $this->module->getService(ConfigurationRepository::class);
-
-        /** @var AnalyticsService $analytics */
-        $analytics = $this->module->getService(AnalyticsService::class);
-
-        /** @var ShopTokenRepository $tokenRepos */
-        $tokenRepos = $this->getMockBuilder(ShopTokenRepository::class)
-            ->setConstructorArgs([$configuration, $analytics])
-            ->setMethods(['refreshToken'])
-            ->getMock();
-        $tokenRepos->method('refreshToken')
-            ->willReturn($idTokenRefreshed);
-
-        $tokenRepos->updateCredentials((string) $idToken, (string) $refreshToken);
-
-        $this->assertEquals((string) $idTokenRefreshed, (string) $tokenRepos->getOrRefreshToken());
-    }
-
-    /**
-     * @test
-     * @throws \Exception
-     */
-    public function itShouldUpdateRefreshToken()
-    {
-        $payload = [
-            'token' => $this->makeJwtToken(new \DateTimeImmutable('yesterday'), [
-                'user_id' => $this->faker->uuid,
-            ]),
-            'refresh_token' => $this->makeJwtToken(new \DateTimeImmutable('+1 year')),
-        ];
-
-        $client = $this->createMock(AccountsClient::class);
-        $client->method('refreshToken')->willReturn($payload);
-
-        /** @var ConfigurationRepository $configuration */
-        $configuration = $this->module->getService(ConfigurationRepository::class);
-
-        /** @var AnalyticsService $analytics */
-        $analytics = $this->module->getService(AnalyticsService::class);
-
-        /** @var ShopTokenRepository $tokenRepos */
-        $tokenRepos = $this->getMockBuilder(ShopTokenRepository::class)
-            ->setConstructorArgs([$configuration, $analytics])
-            //->disableOriginalConstructor()
-            //->disableOriginalClone()
-            ->disableArgumentCloning()
-            ->disallowMockingUnknownTypes()
-            ->getMock();
-
-        $tokenRepos->method('client')
-            ->willReturn($client);
-
-        $tokenRepos->updateCredentials(
-            $this->makeJwtToken(new \DateTimeImmutable('yesterday'), [
-                'user_id' => $this->faker->uuid,
-                'email' => $this->faker->safeEmail,
-            ]),
-            $this->makeJwtToken(new \DateTimeImmutable('+1 year'))
-        );
-
-        $tokenRepos->getOrRefreshToken();
-
-        $this->assertEquals($payload['token'], $tokenRepos->getToken());
-        $this->assertEquals($payload['refresh_token'], $tokenRepos->getRefreshToken());
+        $this->assertEquals((string) $idToken, $this->repository->getOrRefreshToken());
     }
 }

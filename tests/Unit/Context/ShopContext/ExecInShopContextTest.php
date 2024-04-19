@@ -9,6 +9,8 @@ class ExecInShopContextTest extends TestCase
 {
     /**
      * @test
+     *
+     * @throws \Exception
      */
     public function itShouldSetAndRestoreShopContext()
     {
@@ -27,6 +29,8 @@ class ExecInShopContextTest extends TestCase
 
     /**
      * @test
+     *
+     * @throws \Exception
      */
     public function itShouldRestoreShopContextOnException()
     {

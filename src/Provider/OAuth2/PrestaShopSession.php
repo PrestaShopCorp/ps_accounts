@@ -1,9 +1,27 @@
 <?php
+/**
+ * Copyright since 2007 PrestaShop SA and Contributors
+ * PrestaShop is an International Registered Trademark & Property of PrestaShop SA
+ *
+ * NOTICE OF LICENSE
+ *
+ * This source file is subject to the Academic Free License version 3.0
+ * that is bundled with this package in the file LICENSE.md.
+ * It is also available through the world-wide-web at this URL:
+ * https://opensource.org/licenses/AFL-3.0
+ * If you did not receive a copy of the license and are unable to
+ * obtain it through the world-wide-web, please send an email
+ * to license@prestashop.com so we can send you a copy immediately.
+ *
+ * @author    PrestaShop SA and Contributors <contact@prestashop.com>
+ * @copyright Since 2007 PrestaShop SA and Contributors
+ * @license   https://opensource.org/licenses/AFL-3.0 Academic Free License version 3.0
+ */
 
 namespace PrestaShop\Module\PsAccounts\Provider\OAuth2;
 
-use League\OAuth2\Client\Provider\Exception\IdentityProviderException;
-use League\OAuth2\Client\Token\AccessToken;
+use PrestaShop\Module\PsAccounts\Vendor\League\OAuth2\Client\Provider\Exception\IdentityProviderException;
+use PrestaShop\Module\PsAccounts\Vendor\League\OAuth2\Client\Token\AccessToken;
 use PrestaShop\OAuth2\Client\Provider\PrestaShopUser;
 use Symfony\Component\HttpFoundation\Session\SessionInterface;
 
@@ -12,29 +30,35 @@ class PrestaShopSession
     const TOKEN_NAME = 'accessToken';
 
     /**
-     * @var SessionInterface
+     * @var SessionInterface|mixed
      */
     private $session;
 
     /**
-     * @var PrestaShopClientProvider
+     * @var ShopProvider
      */
     private $provider;
 
-    public function __construct(SessionInterface $session, PrestaShopClientProvider $provider)
+    /**
+     * @param mixed $session
+     * @param ShopProvider $provider
+     */
+    public function __construct($session, ShopProvider $provider)
     {
         $this->session = $session;
         $this->provider = $provider;
     }
 
     /**
+     * @return string|null
+     *
      * @throws IdentityProviderException
      * @throws \Exception
      */
-    public function getOrRefreshAccessToken(): ?string
+    public function getOrRefreshAccessToken()
     {
         $token = $this->getTokenProvider();
-        if ($token && $token->hasExpired()) {
+        if (($token instanceof AccessToken) && $token->hasExpired()) {
             /** @var AccessToken $token */
             $token = $this->provider->getAccessToken('refresh_token', [
                 'refresh_token' => $token->getRefreshToken(),
@@ -46,52 +70,71 @@ class PrestaShopSession
     }
 
     /**
+     * @return string|null
+     *
      * @throws \Exception
      */
-    public function getIdToken(): ?string
+    public function getIdToken()
     {
         $token = $this->getTokenProvider();
 
-        return $token ? $token->getValues()['id_token'] : null;
+        return ($token instanceof AccessToken) ? $token->getValues()['id_token'] : null;
     }
 
     /**
+     * @return string|null
+     *
      * @throws \Exception
      */
-    public function getAccessToken(): ?string
+    public function getAccessToken()
     {
         $token = $this->getTokenProvider();
 
-        return $token ? $token->getToken() : null;
+        return ($token instanceof AccessToken) ? $token->getToken() : null;
     }
 
-    public function setTokenProvider(AccessToken $token): void
+    /**
+     * @param AccessToken $token
+     *
+     * @return void
+     */
+    public function setTokenProvider(AccessToken $token)
     {
         $this->session->set(self::TOKEN_NAME, $token);
     }
 
-    public function isAuthenticated(): bool
+    /**
+     * @return bool
+     */
+    public function isAuthenticated()
     {
         return $this->session->has(self::TOKEN_NAME);
     }
 
     /**
+     * @return PrestaShopUser
+     *
      * @throws \Exception
      */
-    public function getPrestashopUser(): PrestaShopUser
+    public function getPrestashopUser()
     {
         return $this->provider->getResourceOwner($this->getTokenProvider());
     }
 
-    public function clear(): void
+    /**
+     * @return void
+     */
+    public function clear()
     {
         $this->session->remove(self::TOKEN_NAME);
     }
 
     /**
+     * @return AccessToken|null
+     *
      * @throws \Exception
      */
-    private function getTokenProvider(): ?AccessToken
+    private function getTokenProvider()
     {
         if (!$this->provider->getOauth2Client()->exists()) {
             $this->clear();

@@ -75,6 +75,8 @@ class ServiceContainer
 
     /**
      * @return ContainerInterface
+     *
+     * @throws \Exception
      */
     public function getContainer()
     {

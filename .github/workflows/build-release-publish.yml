@@ -15,7 +15,7 @@ jobs:
       - name: Setup node env 🏗
         uses: actions/setup-node@v3
         with:
-          node-version: 16
+          node-version: 18
           registry-url: 'https://registry.npmjs.org'
           scope: '@prestashopcorp'
 
@@ -24,8 +24,12 @@ jobs:
           VERSION=$(echo "${{ github.event.release.tag_name }}" | sed 's/^v//' | cut -d'-' -f1) \
           make version
 
-      - name: Install composer dependencies
-        run: composer install --no-dev -o
+#      - name: Install composer dependencies
+#        run: composer install --no-dev -o
+
+      - name: Scoped dependencies
+        run: |
+          COMPOSER_OPTIONS="--no-dev -o" make php-scoper
 
       - name: Get yarn cache directory path 🛠
         id: yarn-cache-dir-path
@@ -86,8 +90,9 @@ jobs:
 
       - name: Prepare the production zip
         run: |
-          cd ${{ github.event.repository.name }}
-          zip -r ${{ github.event.repository.name }}.zip ${{ github.event.repository.name }} -x '*.git*' '*config/config.yml.*'
+          cd ${{ github.event.repository.name }}/${{ github.event.repository.name }}
+          sh ./scripts/bundle-module.sh ${{ github.event.repository.name }}.zip
+#          zip -r ${{ github.event.repository.name }}.zip ${{ github.event.repository.name }} -x '*.git*' '*config/config.yml.*'
         env:
           ENV_FILE: ${{ secrets.PS_ACCOUNTS_ENV_PROD }}
 
@@ -97,7 +102,7 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           upload_url: ${{ github.event.release.upload_url }}
-          asset_path: ./${{ github.event.repository.name }}/${{ github.event.repository.name }}.zip
+          asset_path: ./${{ github.event.repository.name }}/${{ github.event.repository.name }}/dist/${{ github.event.repository.name }}.zip
           asset_name: ${{ github.event.repository.name }}.zip
           asset_content_type: application/zip
 
@@ -127,8 +132,9 @@ jobs:
 
       - name: Prepare the preprod zip
         run: |
-          cd ${{ github.event.repository.name }}
-          zip -r ${{ github.event.repository.name }}_preprod.zip ${{ github.event.repository.name }}  -x '*.git*' '*config/config.yml.*'
+          cd ${{ github.event.repository.name }}/${{ github.event.repository.name }}
+          sh ./scripts/bundle-module.sh ${{ github.event.repository.name }}_preprod.zip
+#          zip -r ${{ github.event.repository.name }}_preprod.zip ${{ github.event.repository.name }}  -x '*.git*' '*config/config.yml.*'
 
       - name: Publish the preprod zip
         uses: actions/upload-release-asset@v1.0.1
@@ -136,7 +142,7 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           upload_url: ${{ github.event.release.upload_url }}
-          asset_path: ./${{ github.event.repository.name }}/${{ github.event.repository.name }}_preprod.zip
+          asset_path: ./${{ github.event.repository.name }}/${{ github.event.repository.name }}/dist/${{ github.event.repository.name }}_preprod.zip
           asset_name: ${{ github.event.repository.name }}_preprod.zip
           asset_content_type: application/zip
 

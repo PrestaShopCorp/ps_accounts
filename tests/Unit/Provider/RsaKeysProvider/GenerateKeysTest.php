@@ -2,72 +2,52 @@
 
 namespace PrestaShop\Module\PsAccounts\Tests\Unit\Provider\RsaKeysProvider;
 
-use Db;
 use PrestaShop\Module\PsAccounts\Exception\SshKeysNotFoundException;
-use PrestaShop\Module\PsAccounts\Repository\ConfigurationRepository;
 use PrestaShop\Module\PsAccounts\Provider\RsaKeysProvider;
 use PrestaShop\Module\PsAccounts\Tests\TestCase;
 
 class GenerateKeysTest extends TestCase
 {
     /**
+     * @inject
+     *
+     * @var RsaKeysProvider
+     */
+    protected $rsaKeysProvider;
+
+    /**
      * @test
+     *
+     * @return void
      *
      * @throws SshKeysNotFoundException
      */
-    public function itShouldCreateRsaKeys()
+    public function itShouldGenerateKeys()
     {
-        /** @var RsaKeysProvider $service */
-        $service = $this->module->getService(RsaKeysProvider::class);
-
-        /** @var ConfigurationRepository $configuration */
-        $configuration = $this->module->getService(ConfigurationRepository::class);
-
         //echo "A\n" . $configuration->getAccountsRsaPrivateKey() . "\n";
 
         // Empty DB
-        $configuration->updateAccountsRsaPrivateKey(null);
-        $configuration->updateAccountsRsaPublicKey(null);
-        $configuration->updateAccountsRsaSignData(null);
+        $this->rsaKeysProvider->cleanupKeys();
 
-        $this->assertEmpty($configuration->getAccountsRsaPrivateKey());
-        $this->assertEmpty($configuration->getAccountsRsaPublicKey());
-        $this->assertEmpty($configuration->getAccountsRsaSignData());
+        $this->assertEmpty($this->rsaKeysProvider->getPrivateKey());
+        $this->assertEmpty($this->rsaKeysProvider->getPublicKey());
 
-        $service->generateKeys();
+        $this->rsaKeysProvider->generateKeys();
 
         //echo "B\n" . $configuration->getAccountsRsaPrivateKey() . "\n";
 
-        $this->assertNotEmpty($configuration->getAccountsRsaPrivateKey());
-        $this->assertNotEmpty($configuration->getAccountsRsaPublicKey());
-        $this->assertNotEmpty($configuration->getAccountsRsaSignData());
+        $this->assertNotEmpty($this->rsaKeysProvider->getPrivateKey());
+        $this->assertNotEmpty($this->rsaKeysProvider->getPublicKey());
 
         $data = $this->faker->sentence();
-        $signedData = $service->signData($configuration->getAccountsRsaPrivateKey(), $data);
+        $signedData = $this->rsaKeysProvider->signData($this->rsaKeysProvider->getPrivateKey(), $data);
 
         $this->assertTrue(
-            $service->verifySignature(
-                $configuration->getAccountsRsaPublicKey(),
+            $this->rsaKeysProvider->verifySignature(
+                $this->rsaKeysProvider->getPublicKey(),
                 $signedData,
                 $data
             )
         );
-    }
-
-    /**
-     * @test
-     */
-    public function itShouldGenerateKeyPair()
-    {
-        /** @var RsaKeysProvider $service */
-        $service = $this->module->getService(RsaKeysProvider::class);
-
-        $key = $service->createPair();
-
-        $this->assertArrayHasKey('privatekey', $key);
-        $this->assertArrayHasKey('publickey', $key);
-
-        $this->assertEquals('string', gettype($key['privatekey']));
-        $this->assertEquals('string', gettype($key['publickey']));
     }
 }

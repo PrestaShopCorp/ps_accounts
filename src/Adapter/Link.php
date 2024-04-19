@@ -66,6 +66,11 @@ class Link
      */
     public function getAdminLink($controller, $withToken = true, $sfRouteParams = [], $params = [])
     {
+        // Cannot generate admin link from front
+        if (!defined('_PS_ADMIN_DIR_')) {
+            return '';
+        }
+
         if ($this->shopContext->isShop17()) {
             return $this->link->getAdminLink($controller, $withToken, $sfRouteParams, $params);
         }
@@ -96,6 +101,8 @@ class Link
      * @param array $params
      *
      * @return string
+     *
+     * @throws \PrestaShopException
      */
     public function getAdminLinkWithCustomDomain($sslDomain, $domain, $controller, $withToken = true, $sfRouteParams = [], $params = [])
     {

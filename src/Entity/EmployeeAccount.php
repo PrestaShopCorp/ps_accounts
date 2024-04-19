@@ -119,7 +119,7 @@ class EmployeeAccount
      *
      * @return EmployeeAccount
      */
-    public function setEmail(string $email)
+    public function setEmail($email)
     {
         $this->email = $email;
 
@@ -139,7 +139,7 @@ class EmployeeAccount
      *
      * @return EmployeeAccount
      */
-    public function setUid(string $uid)
+    public function setUid($uid)
     {
         $this->uid = $uid;
 

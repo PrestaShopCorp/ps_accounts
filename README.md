@@ -15,10 +15,13 @@ We aims to follow partially the Prestashop compatibility charts
 - [Compatibility Chart Prestashop 1.6 & 1.7](https://devdocs.prestashop.com/1.7/basics/installation/system-requirements/#php-compatibility-chart)
 - [Compatibility Chart Prestashop 8.0](https://devdocs.prestashop.com/8/basics/installation/system-requirements/#php-compatibility-chart)
 
-| ps_accounts version | Prestashop Version | PHP Version   |
-|---------------------|--------------------|---------------|
-| 5.x                 | \>=1.6 && <8.0.0   | PHP 5.6 - 7.4 |        
-| 6.x                 | \>=8.0.0           | PHP 7.2 - 8   |
+| ps_accounts version | Prestashop Version | PHP Version    |
+|---------------------|-------------------|----------------|
+| 7.x (unified)       | \>=1.6 && <9.x    | PHP 5.6 - 8    |
+| 6.x                 | \>=8.0.0          | PHP 7.2 - 8    |
+| 5.x                 | \>=1.6 && <8.0.0  | PHP 5.6 - 7.4  |
+
+
 
 ### Integration along with your Prestashop module
 
@@ -38,27 +41,27 @@ Example: I want to get the authenticated user token in order make action on his 
 
 Here are listed custom hooks provided with this module:
 
-| Hook name                    | Payload          | Description                                          |
-|------------------------------|------------------|------------------------------------------------------|
-| actionShopAccountLinkAfter   | shopId, shopUuid | Triggered after link has been acknowledged by shop   |
-| actionShopAccountUnlinkAfter | shopId, shopUuid | Triggered after unlink has been acknowledged by shop |
+| Hook name                         | Payload          | Description                                          |
+|-----------------------------------|------------------|------------------------------------------------------|
+| actionShopAccountLinkAfter        | shopId, shopUuid | Triggered after link has been acknowledged by shop   |
+| actionShopAccountUnlinkAfter      | shopId, shopUuid | Triggered after unlink has been acknowledged by shop |
+| actionShopAccessTokenRefreshAfter | token            | Trigger after OAuth access token has been refreshed  |
 
 
-### JWT
+## JWT
 
 [JSON Web Token RFC (JWT)](https://datatracker.ietf.org/doc/html/rfc7519).
 
 All the tokens exposed follow the OpenId Connect Token and Access Tokens [Specs](https://openid.net/specs/openid-connect-core-1_0.html#IDToken).
 
-This modules manages three tokens:
+This modules manages the following tokens:
 
-| JWT Name                    | Description                                                                                            |
-|-----------------------------|--------------------------------------------------------------------------------------------------------|
-| Shop Token                  | This token can be used to act as the shop. It should be used only for machine to machine communication without user interaction |
-| Shop Owner Token            | This token is created for the owner who associate the shop. This token is under depreciation           |
-| Authenticated User Token    | Token for the current authenticated user when this user has performed an authentication through Prestashop Authentication system |
-
-:warning: The Shop Owner token is under depreciation.
+| JWT Name                  | Status         | Description                                                                                                                     |
+|---------------------------|----------------|---------------------------------------------------------------------------------------------------------------------------------|
+| Shop Token (legacy)       | Deprecated 7.x | This token can be used to act as the shop. It should be used only for machine to machine communication without user interaction |
+| Shop Owner Token (legacy) | Deprecated 7.X | This token is created for the owner who associate the shop.                                                                     |
+| Authenticated User Token  | Introduced 6.x | ex: Backend Login with PrestaShop SSO                                                                                           |
+| OAuth Shop Access Token   | Introduced 7.X | For machine to machine calls. (also used to keep up to date legacy Shop and Owner tokens).                                      |
 
 ## Development
 
@@ -93,17 +96,7 @@ There are 2 Firebase projects:
 - **prestashop-newsso-production** is the Firebase Authentication project we're using to authenticate **users** _(prestashop-newsso-staging) for staging environment_
 - **prestashop-ready-prod** is the Firebase Authentication project we're using to authenticate **shops** _(psessentials-integration) for integration environment_
 
-Here is a recap of the configuration variables used to manage a shop account
-
-| ps_configuration                      | User account (Firebase SSO) | Shop (Firebase Ready) | What for ?
-|---------------------------------------|-----|-------|---
-| PS_ACCOUNTS_FIREBASE_ID_TOKEN         |     | X     | authenticate your shop, query accounts-api, billing-api...
-| PS_ACCOUNTS_FIREBASE_REFRESH_TOKEN    |     | X     |          
-| PSX_UUID_V4                           |     | X     | identify your shop          
-| PS_ACCOUNTS_FIREBASE_EMAIL            | X   |       | identify your account
-| PS_ACCOUNTS_FIREBASE_EMAIL_IS_VERIFIED| X   |       |
-
-### How to refresh the JWT
+### How to get upd to date (legacy) JWT Tokens
 
 ```php
 use PrestaShop\PsAccountsInstaller\Installer\Installer;
@@ -112,7 +105,12 @@ use PrestaShop\PsAccountsInstaller\Installer\Facade\PsAccounts;
 define('MIN_PS_ACCOUNTS_VERSION', '4.0.0');
 
 $facade = new PsAccounts(new Installer(MIN_PS_ACCOUNTS_VERSION));
+
+// Get or refresh shop token
 $shopToken = $facade->getPsAccountsService()->getOrRefreshToken();
+
+// Get or refresh shop owner token 
+$ownerToken = $facade->getPsAccountsService()->getUserToken();
 ```
 
 see: [PrestaShop Accounts Installer](http://github.com/PrestaShopCorp/prestashop-accounts-installer) for more details on how to setup Installer.

@@ -24,10 +24,15 @@ use PrestaShop\OAuth2\Client\Provider\PrestaShopUser;
 
 class OtherErrorException extends AccountLoginException
 {
+    /**
+     * @param PrestaShopUser|null $user
+     * @param string $message
+     * @param string $type
+     */
     public function __construct(
-        ?PrestaShopUser $user,
-        string $message = 'Other error',
-        string $type = 'error_other'
+        $user,
+        $message = 'Other error',
+        $type = 'error_other'
     ) {
         parent::__construct($user, $message, $type);
     }

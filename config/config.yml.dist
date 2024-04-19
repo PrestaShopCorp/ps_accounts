@@ -9,7 +9,7 @@ parameters:
   # In order to manage multiple config files you can use PS_ACCOUNTS_ENV=[myenv] environment variable
   # to load a specific services_[myenv].yml
 
-  ps_accounts.accounts_api_url: 'https://accounts-api.prestashop.localhost/v1/'
+  ps_accounts.accounts_api_url: 'https://accounts-api.prestashop.localhost/'
   ps_accounts.accounts_ui_url: 'https://accounts.prestashop.localhost'
   ps_accounts.sso_api_url: 'https://auth-preprod.prestashop.com/api/v1/'
   ps_accounts.sso_account_url: 'https://authv2-preprod.prestashop.com/login'
@@ -27,11 +27,8 @@ parameters:
   # a page to display "Update Your Module" message
   ps_accounts.svc_accounts_ui_url: 'https://accounts.psessentials-integration.net'
 
-  # OAuth2 setup
-  ps_accounts.oauth2_url_authorize: 'http://hydra:4444/oauth2/auth'
-  ps_accounts.oauth2_url_access_token: 'http://hydra:4444/oauth2/token'
-  ps_accounts.oauth2_url_resource_owner_details: 'http://hydra:4444/userinfo'
-  ps_accounts.oauth2_url_session_logout: 'http://hydra:4444/oauth2/sessions/logout'
+  # OAuth2 configuration url
+  ps_accounts.oauth2_url: 'https://oauth.prestashop.localhost'
 
   # Login page testimonials url
   ps_accounts.testimonials_url: 'https://assets.prestashop3.com/dst/accounts/assets/testimonials.json'

@@ -9,6 +9,13 @@ use PrestaShop\Module\PsAccounts\Tests\TestCase;
 class IsTokenExpiredTest extends TestCase
 {
     /**
+     * @inject
+     *
+     * @var ShopTokenRepository
+     */
+    protected $repository;
+
+    /**
      * @test
      *
      * @throws \Exception
@@ -16,17 +23,14 @@ class IsTokenExpiredTest extends TestCase
     public function itShouldReturnTrue()
     {
         $idToken = $this->makeJwtToken(new \DateTimeImmutable('yesterday'), [
-            'user_id' => $this->faker->uuid,
+            'sub' => $this->faker->uuid,
         ]);
 
         $refreshToken = $this->makeJwtToken(new \DateTimeImmutable('+1 year'));
 
-        /** @var ShopTokenRepository $tokenRepos */
-        $tokenRepos = $this->module->getService(ShopTokenRepository::class);
+        $this->repository->updateCredentials((string) $idToken, (string) $refreshToken);
 
-        $tokenRepos->updateCredentials((string) $idToken, (string) $refreshToken);
-
-        $this->assertTrue($tokenRepos->isTokenExpired());
+        $this->assertTrue($this->repository->isTokenExpired());
     }
 
     /**
@@ -37,16 +41,13 @@ class IsTokenExpiredTest extends TestCase
     public function itShouldReturnFalse()
     {
         $idToken = $this->makeJwtToken(new \DateTimeImmutable('+2 hours'), [
-            'user_id' => $this->faker->uuid,
+            'sub' => $this->faker->uuid,
         ]);
 
         $refreshToken = $this->makeJwtToken(new \DateTimeImmutable('+1 year'));
 
-        /** @var ShopTokenRepository $tokenRepos */
-        $tokenRepos = $this->module->getService(ShopTokenRepository::class);
+        $this->repository->updateCredentials((string) $idToken, (string) $refreshToken);
 
-        $tokenRepos->updateCredentials((string) $idToken, (string) $refreshToken);
-
-        $this->assertFalse($tokenRepos->isTokenExpired());
+        $this->assertFalse($this->repository->isTokenExpired());
     }
 }

@@ -23,12 +23,14 @@ namespace PrestaShop\Module\PsAccounts\Installer;
 use Module;
 use PrestaShop\Module\PsAccounts\Adapter\Link;
 use PrestaShop\Module\PsAccounts\Context\ShopContext;
-use PrestaShop\Module\PsAccounts\Handler\Error\Sentry;
+use PrestaShop\Module\PsAccounts\Service\SentryService;
 use PrestaShop\PrestaShop\Adapter\SymfonyContainer;
 use PrestaShop\PrestaShop\Core\Addon\Module\ModuleManagerBuilder;
 use Tools;
 
 /**
+ * @deprecated Dependency management out of scope in PsAccounts module
+ *
  * Install ps_accounts module
  */
 class Installer
@@ -82,7 +84,7 @@ class Installer
         $moduleIsInstalled = $moduleManager->install($module);
 
         if (false === $moduleIsInstalled) {
-            Sentry::capture(new \Exception("Module ${module} can't be installed"));
+            SentryService::capture(new \Exception("Module ${module} can't be installed"));
         }
 
         return $moduleIsInstalled;

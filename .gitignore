@@ -17,6 +17,7 @@ node_modules/
 install.lock
 composer-dev.json
 composer-dev.lock
+.env
 
 ### PHPUnit ###
 .phpunit.result.cache
@@ -50,10 +51,9 @@ views/files/*
 /views/css/chunk-vendors.css
 /views/favicon.ico
 /views/index.html
+./_dev/.npmrc
 
 # Log files
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
-
-.vscode
