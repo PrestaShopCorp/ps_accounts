@@ -48,14 +48,14 @@ class ActionAdminLoginControllerLoginAfter extends Hook
     protected function trackLoginEvent(\Employee $employee)
     {
         /** @var AnalyticsService $analyticsService */
-        $analyticsService = $this->ps_accounts->getService(AnalyticsService::class);
+        $analyticsService = $this->module->getService(AnalyticsService::class);
 
         /** @var PsAccountsService $psAccountsService */
-        $psAccountsService = $this->ps_accounts->getService(PsAccountsService::class);
+        $psAccountsService = $this->module->getService(PsAccountsService::class);
 
         $account = $psAccountsService->getEmployeeAccount();
 
-        if ($this->ps_accounts->isShopEdition()) {
+        if ($this->module->isShopEdition()) {
             $uid = null;
             if ($account) {
                 $uid = $account->getUid();

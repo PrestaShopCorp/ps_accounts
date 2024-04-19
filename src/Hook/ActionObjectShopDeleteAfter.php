@@ -21,6 +21,7 @@
 namespace PrestaShop\Module\PsAccounts\Hook;
 
 use Exception;
+use PrestaShop\Module\PsAccounts\Repository\ConfigurationRepository;
 
 class ActionObjectShopDeleteAfter extends Hook
 {
@@ -33,7 +34,9 @@ class ActionObjectShopDeleteAfter extends Hook
      */
     public function execute(array $params = [])
     {
-        $this->ps_accounts->fixMultiShopConfig();
+        /** @var ConfigurationRepository $configurationRepository */
+        $configurationRepository = $this->module->getService(ConfigurationRepository::class);
+        $configurationRepository->fixMultiShopConfig();
 
         return true;
     }

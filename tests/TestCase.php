@@ -5,12 +5,10 @@ namespace PrestaShop\Module\PsAccounts\Tests;
 use Db;
 use Exception;
 use Faker\Generator;
-use Lcobucci\JWT\Builder;
-use Lcobucci\JWT\Configuration;
-use Lcobucci\JWT\Token;
 use Module;
-use PrestaShop\Module\PsAccounts\Adapter\Configuration as ConfigurationAdapter;
-use PrestaShop\Module\PsAccounts\Repository\ConfigurationRepository;
+use PrestaShop\Module\PsAccounts\Vendor\Lcobucci\JWT\Builder;
+use PrestaShop\Module\PsAccounts\Vendor\Lcobucci\JWT\Configuration;
+use PrestaShop\Module\PsAccounts\Vendor\Lcobucci\JWT\Token;
 use Ps_accounts;
 
 class TestCase extends \PHPUnit\Framework\TestCase
@@ -26,12 +24,14 @@ class TestCase extends \PHPUnit\Framework\TestCase
     public $module;
 
     /**
-     * @var ConfigurationAdapter
+     * @inject
+     * @var \PrestaShop\Module\PsAccounts\Adapter\Configuration
      */
     public $configuration;
 
     /**
-     * @var ConfigurationRepository
+     * @inject
+     * @var \PrestaShop\Module\PsAccounts\Repository\ConfigurationRepository
      */
     public $configurationRepository;
 
@@ -57,13 +57,9 @@ class TestCase extends \PHPUnit\Framework\TestCase
 
         $this->module = $this->getModuleInstance();
 
-        $this->configuration = $this->module->getService(
-            ConfigurationAdapter::class
-        );
-
-        $this->configurationRepository = $this->module->getService(
-            ConfigurationRepository::class
-        );
+        (new ServiceInjector($this, function ($propName, $class) {
+            $this->$propName = $this->module->getService($class);
+        }))->resolveServices();
     }
 
     /**
@@ -85,6 +81,11 @@ class TestCase extends \PHPUnit\Framework\TestCase
     public function makeJwtToken(\DateTimeImmutable $expiresAt = null, array $claims = [])
     {
         $builder = (new Builder())->expiresAt($expiresAt);
+
+        if (isset($claims['sub'])) {
+            $builder->relatedTo($claims['sub']);
+            unset($claims['sub']);
+        }
 
         foreach ($claims as $claim => $value) {
             $builder->withClaim($claim, $value);
@@ -112,7 +113,7 @@ class TestCase extends \PHPUnit\Framework\TestCase
             $expiresAt = new \DateTimeImmutable('tomorrow');
         }
         return $this->makeJwtToken($expiresAt, array_merge([
-            'user_id' => $this->faker->uuid,
+            'sub' => $this->faker->uuid,
             'email' => $this->faker->safeEmail,
             'email_verified' => $this->faker->boolean,
         ], $claims));
@@ -139,7 +140,7 @@ class TestCase extends \PHPUnit\Framework\TestCase
      *
      * @throws Exception
      */
-    private function getModuleInstance()
+    protected function getModuleInstance()
     {
         /** @var Ps_accounts|false $module */
         $module = Module::getInstanceByName('ps_accounts');
@@ -149,5 +150,21 @@ class TestCase extends \PHPUnit\Framework\TestCase
         }
 
         return $module;
+    }
+
+    /**
+     * @param array $body
+     * @param int $httpCode
+     * @param bool $status
+     *
+     * @return array
+     */
+    protected function createApiResponse(array $body, $httpCode, $status)
+    {
+        return [
+            'status' => $status,
+            'httpCode' => $httpCode,
+            'body' => $body,
+        ];
     }
 }

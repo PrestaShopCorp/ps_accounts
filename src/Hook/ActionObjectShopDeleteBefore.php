@@ -21,7 +21,7 @@
 namespace PrestaShop\Module\PsAccounts\Hook;
 
 use Exception;
-use PrestaShop\Module\PsAccounts\Api\Client\AccountsClient;
+use PrestaShop\Module\PsAccounts\Account\Command\DeleteUserShopCommand;
 
 class ActionObjectShopDeleteBefore extends Hook
 {
@@ -34,25 +34,21 @@ class ActionObjectShopDeleteBefore extends Hook
      */
     public function execute(array $params = [])
     {
-        /** @var AccountsClient $accountsApi */
-        $accountsApi = $this->ps_accounts->getService(
-            AccountsClient::class
-        );
-
         try {
-            $response = $accountsApi->deleteUserShop($params['object']->id);
+            $response = $this->commandBus->handle(new DeleteUserShopCommand($params['object']->id));
+
             if (!$response) {
-                $this->ps_accounts->getLogger()->debug(
+                $this->module->getLogger()->debug(
                     'Error trying to DELETE shop : No $response object'
                 );
             } elseif (true !== $response['status']) {
-                $this->ps_accounts->getLogger()->debug(
+                $this->module->getLogger()->debug(
                     'Error trying to DELETE shop : ' . $response['httpCode'] .
                     ' ' . print_r($response['body']['message'], true)
                 );
             }
         } catch (Exception $e) {
-            $this->ps_accounts->getLogger()->debug(
+            $this->module->getLogger()->debug(
                 'Error curl while trying to DELETE shop : ' . print_r($e->getMessage(), true)
             );
         }

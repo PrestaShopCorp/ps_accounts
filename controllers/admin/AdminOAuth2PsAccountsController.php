@@ -18,27 +18,26 @@
  * @license   https://opensource.org/licenses/AFL-3.0 Academic Free License version 3.0
  */
 
-// FIXME : needed on 1.6
-require_once __DIR__ . '/../../src/Provider/OAuth2/PrestaShopLoginTrait.php';
-
-use League\OAuth2\Client\Provider\Exception\IdentityProviderException;
 use PrestaShop\Module\PsAccounts\Entity\EmployeeAccount;
 use PrestaShop\Module\PsAccounts\Exception\AccountLogin\AccountLoginException;
 use PrestaShop\Module\PsAccounts\Exception\AccountLogin\EmailNotVerifiedException;
 use PrestaShop\Module\PsAccounts\Exception\AccountLogin\EmployeeNotFoundException;
 use PrestaShop\Module\PsAccounts\Exception\AccountLogin\Oauth2Exception;
 use PrestaShop\Module\PsAccounts\Exception\AccountLogin\OtherErrorException;
-use PrestaShop\Module\PsAccounts\Provider\OAuth2\PrestaShopClientProvider;
 use PrestaShop\Module\PsAccounts\Provider\OAuth2\PrestaShopLoginTrait;
 use PrestaShop\Module\PsAccounts\Provider\OAuth2\PrestaShopSession;
+use PrestaShop\Module\PsAccounts\Provider\OAuth2\ShopProvider;
+use PrestaShop\Module\PsAccounts\Repository\EmployeeAccountRepository;
 use PrestaShop\Module\PsAccounts\Service\AnalyticsService;
 use PrestaShop\Module\PsAccounts\Service\PsAccountsService;
+use PrestaShop\Module\PsAccounts\Session\Session;
+use PrestaShop\Module\PsAccounts\Vendor\League\OAuth2\Client\Provider\Exception\IdentityProviderException;
 use PrestaShop\OAuth2\Client\Provider\PrestaShopUser;
 
 /**
  * Controller for all ajax calls.
  */
-class AdminOAuth2PsAccountsController extends ModuleAdminController
+class AdminOAuth2PsAccountsController extends \ModuleAdminController
 {
     use PrestaShopLoginTrait;
 
@@ -70,8 +69,6 @@ class AdminOAuth2PsAccountsController extends ModuleAdminController
 
         $this->ajax = true;
         $this->content_only = true;
-
-        $this->oauth2ErrorLog('Runtime GuzzleV[' . $this->getProvider()->getGuzzleMajorVersionNumber() . ']');
     }
 
     /**
@@ -209,13 +206,13 @@ class AdminOAuth2PsAccountsController extends ModuleAdminController
     }
 
     /**
-     * @return PrestaShopClientProvider
+     * @return ShopProvider
      *
      * @throws Exception
      */
     private function getProvider()
     {
-        return $this->module->getService(PrestashopClientProvider::class);
+        return $this->module->getService(ShopProvider::class);
     }
 
     /**
@@ -231,7 +228,7 @@ class AdminOAuth2PsAccountsController extends ModuleAdminController
     }
 
     /**
-     * @return \PrestaShop\Module\PsAccounts\Provider\OAuth2\FallbackSession
+     * @return Session
      *
      * @throws Exception
      */
@@ -324,23 +321,10 @@ class AdminOAuth2PsAccountsController extends ModuleAdminController
      */
     private function getEmployeeByUidOrEmail($uid, $email)
     {
-        if (method_exists($this->module, 'getContainer') &&
-            class_exists('\Doctrine\ORM\EntityManagerInterface')) {
-            /**
-             * @phpstan-ignore-next-line
-             *
-             * @var \Doctrine\ORM\EntityManagerInterface $entityManager
-             */
-            $entityManager = $this->module->getContainer()->get('doctrine.orm.entity_manager');
+        $repository = new EmployeeAccountRepository();
 
-            $employeeAccountRepository = $entityManager->getRepository(EmployeeAccount::class);
-
-            /**
-             * @var EmployeeAccount $employeeAccount
-             * @phpstan-ignore-next-line
-             */
-            $employeeAccount = $employeeAccountRepository->findOneBy(['uid' => $uid]);
-            // $employeeAccount = $employeeAccountRepository->findOneByUid($uid);
+        if ($repository->isCompatPs16()) {
+            $employeeAccount = $repository->findByUid($uid);
 
             /* @phpstan-ignore-next-line */
             if ($employeeAccount) {
@@ -353,12 +337,12 @@ class AdminOAuth2PsAccountsController extends ModuleAdminController
 
             // Update account
             if ($employee->id) {
-                $employeeAccount->setEmployeeId($employee->id)
-                    ->setUid($uid)
-                    ->setEmail($email);
-
-                $entityManager->persist($employeeAccount);
-                $entityManager->flush();
+                $repository->upsert(
+                    $employeeAccount
+                        ->setEmployeeId($employee->id)
+                        ->setUid($uid)
+                        ->setEmail($email)
+                );
             }
         } else {
             $employee = new Employee();

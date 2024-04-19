@@ -29,15 +29,20 @@ class GuzzleClientFactory
      * @param array $options
      *
      * @return GuzzleClient
+     *
+     * @throws \Exception
      */
     public function create($options)
     {
-        return self::getGuzzleMajorVersionNumber() >= 6
-            ? new Guzzle7Client($options)
-            : new Guzzle5Client($options);
+//        return self::getGuzzleMajorVersionNumber() >= 6
+//            ? new Guzzle7Client($options)
+//            : new Guzzle5Client($options);
+        return new Guzzle7Client($options);
     }
 
     /**
+     * @deprecated
+     *
      * @return int|null
      */
     public static function getGuzzleMajorVersionNumber()

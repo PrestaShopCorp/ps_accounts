@@ -22,9 +22,9 @@ namespace PrestaShop\Module\PsAccounts\Hook;
 
 use Cache;
 use Exception;
+use PrestaShop\Module\PsAccounts\Account\Command\UpdateUserShopCommand;
+use PrestaShop\Module\PsAccounts\Account\Dto\UpdateShop;
 use PrestaShop\Module\PsAccounts\Adapter\Link;
-use PrestaShop\Module\PsAccounts\Api\Client\AccountsClient;
-use PrestaShop\Module\PsAccounts\Api\Client\UpdateShopDto;
 
 class ActionObjectShopUrlUpdateAfter extends Hook
 {
@@ -38,13 +38,8 @@ class ActionObjectShopUrlUpdateAfter extends Hook
     public function execute(array $params = [])
     {
         if ($params['object']->main) {
-            /** @var AccountsClient $accountsApi */
-            $accountsApi = $this->ps_accounts->getService(
-                AccountsClient::class
-            );
-
             /** @var Link $link */
-            $link = $this->ps_accounts->getService(Link::class);
+            $link = $this->module->getService(Link::class);
 
             Cache::clean('Shop::setUrl_' . (int) $params['object']->id);
 
@@ -53,7 +48,7 @@ class ActionObjectShopUrlUpdateAfter extends Hook
             $domain = $params['object']->domain;
             $sslDomain = $params['object']->domain_ssl;
 
-            $response = $accountsApi->updateUserShop(new UpdateShopDto([
+            $response = $this->commandBus->handle(new UpdateUserShopCommand(new UpdateShop([
                 'shopId' => (string) $params['object']->id,
                 'name' => $shop->name,
                 'domain' => 'http://' . $domain,
@@ -67,18 +62,18 @@ class ActionObjectShopUrlUpdateAfter extends Hook
                     false,
                     [],
                     [
-                        'configure' => $this->ps_accounts->name,
+                        'configure' => $this->module->name,
                         'setShopContext' => 's-' . $params['object']->id,
                     ]
                 ),
-            ]));
+            ])));
 
             if (!$response) {
-                $this->ps_accounts->getLogger()->debug(
+                $this->module->getLogger()->debug(
                     'Error trying to PATCH shop : No $response object'
                 );
             } elseif (true !== $response['status']) {
-                $this->ps_accounts->getLogger()->debug(
+                $this->module->getLogger()->debug(
                     'Error trying to PATCH shop : ' . $response['httpCode'] .
                     ' ' . print_r($response['body']['message'] ?: '', true)
                 );

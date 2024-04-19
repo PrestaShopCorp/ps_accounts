@@ -20,12 +20,14 @@
 
 namespace PrestaShop\Module\PsAccounts\Http\Client\Guzzle;
 
-use GuzzleHttp\Client;
+use PrestaShop\Module\PsAccounts\Vendor\GuzzleHttp\Client;
 
 class Guzzle7Client extends GuzzleClient
 {
     public function __construct($options)
     {
+        parent::__construct($options);
+
         /** @var \Ps_accounts $module */
         $module = \Module::getInstanceByName('ps_accounts');
 

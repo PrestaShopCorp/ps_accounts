@@ -18,8 +18,8 @@
  * @license   https://opensource.org/licenses/AFL-3.0 Academic Free License version 3.0
  */
 
-use PrestaShop\Module\PsAccounts\Controller\AbstractShopRestController;
-use PrestaShop\Module\PsAccounts\Repository\ShopTokenRepository;
+use PrestaShop\Module\PsAccounts\Account\Session\Firebase\ShopSession;
+use PrestaShop\Module\PsAccounts\Api\Controller\AbstractShopRestController;
 
 class ps_AccountsApiV1ShopTokenModuleFrontController extends AbstractShopRestController
 {
@@ -33,12 +33,12 @@ class ps_AccountsApiV1ShopTokenModuleFrontController extends AbstractShopRestCon
      */
     public function show(Shop $shop, array $payload)
     {
-        /** @var ShopTokenRepository $shopTokenRepository */
-        $shopTokenRepository = $this->module->getService(ShopTokenRepository::class);
+        /** @var ShopSession $shopSession */
+        $shopSession = $this->module->getService(ShopSession::class);
 
         return [
-            'token' => (string) $shopTokenRepository->getOrRefreshToken(),
-            'refresh_token' => (string) $shopTokenRepository->getRefreshToken(),
+            'token' => (string) $shopSession->getOrRefreshToken(),
+            'refresh_token' => (string) $shopSession->getToken()->getRefreshToken(),
         ];
     }
 }

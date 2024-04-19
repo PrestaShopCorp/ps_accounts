@@ -21,7 +21,8 @@
 namespace PrestaShop\Module\PsAccounts\Service;
 
 use Module;
-use PrestaShop\Module\PsAccounts\Repository\ConfigurationRepository;
+use PrestaShop\Module\PsAccounts\Account\LinkShop;
+use PrestaShop\Module\PsAccounts\Account\Session\Firebase\OwnerSession;
 use Ps_accounts;
 use Raven_Client;
 
@@ -33,25 +34,32 @@ class SentryService
     protected $client;
 
     /**
-     * @var ConfigurationRepository
+     * @var Ps_accounts
      */
-    private $configuration;
+    private $module;
 
     /**
      * ErrorHandler constructor.
      *
      * @param string $sentryCredentials
      * @param string $environment
-     * @param ConfigurationRepository $configuration
+     * @param Ps_accounts $module
      *
      * @throws \Raven_Exception
+     * @throws \Exception
      */
     public function __construct(
         $sentryCredentials,
         $environment,
-        ConfigurationRepository $configuration
+        Ps_accounts $module
     ) {
-        $this->configuration = $configuration;
+        $this->module = $module;
+
+        /** @var OwnerSession $ownerSession */
+        $ownerSession = $module->getService(OwnerSession::class);
+
+        /** @var LinkShop $linkShop */
+        $linkShop = $this->module->getService(LinkShop::class);
 
         $this->client = new Raven_Client(
             $sentryCredentials,
@@ -63,8 +71,8 @@ class SentryService
                     'ps_accounts_version' => \Ps_accounts::VERSION,
                     'prestashop_version' => _PS_VERSION_,
                     'ps_accounts_is_enabled' => \Module::isEnabled('ps_accounts'),
-                    'email' => $this->configuration->getFirebaseEmail(),
-                    'shop_uuid' => $this->configuration->getShopUuid(),
+                    'email' => $linkShop->getOwnerEmail(),
+                    'shop_uuid' => $linkShop->getShopUuid(),
                 ],
             ]
         );

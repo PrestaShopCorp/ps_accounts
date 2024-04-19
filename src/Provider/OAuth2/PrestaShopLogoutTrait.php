@@ -23,7 +23,7 @@ namespace PrestaShop\Module\PsAccounts\Provider\OAuth2;
 trait PrestaShopLogoutTrait
 {
     /**
-     * @return PrestaShopClientProvider
+     * @return ShopProvider
      */
     abstract protected function getProvider();
 
@@ -49,7 +49,7 @@ trait PrestaShopLogoutTrait
         }
 
         $oauth2Session = $this->getOauth2Session();
-        if (!isset($_GET[PrestaShopClientProvider::QUERY_LOGOUT_CALLBACK_PARAM])) {
+        if (!isset($_GET[ShopProvider::QUERY_LOGOUT_CALLBACK_PARAM])) {
             $idToken = $oauth2Session->getIdToken();
 
             if (empty($idToken)) {

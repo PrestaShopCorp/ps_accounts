@@ -2,12 +2,44 @@
 
 namespace PrestaShop\Module\PsAccounts\Tests\Feature\Api\v1\ShopLinkAccount;
 
-use PrestaShop\Module\PsAccounts\Repository\ConfigurationKeys;
-use PrestaShop\Module\PsAccounts\Controller\AbstractRestController;
+use PrestaShop\Module\PsAccounts\Account\LinkShop;
+use PrestaShop\Module\PsAccounts\Account\Session\Firebase\OwnerSession;
+use PrestaShop\Module\PsAccounts\Account\Session\Firebase\ShopSession;
+use PrestaShop\Module\PsAccounts\Account\Token\NullToken;
+use PrestaShop\Module\PsAccounts\Api\Controller\AbstractRestController;
+use PrestaShop\Module\PsAccounts\Adapter\ConfigurationKeys;
 use PrestaShop\Module\PsAccounts\Tests\Feature\FeatureTestCase;
 
 class DeleteTest extends FeatureTestCase
 {
+    /**
+     * @inject
+     *
+     * @var LinkShop
+     */
+    protected $linkShop;
+
+    /**
+     * @inject
+     *
+     * @var ShopSession
+     */
+    protected $shopSession;
+
+    /**
+     * @inject
+     *
+     * @var OwnerSession
+     */
+    protected $ownerSession;
+
+    /**
+     * @inject
+     *
+     * @var \PrestaShop\Module\PsAccounts\Account\Session\ShopSession
+     */
+    protected $session;
+
     /**
      * @test
      *
@@ -15,7 +47,15 @@ class DeleteTest extends FeatureTestCase
      */
     public function itShouldSucceed()
     {
-        $this->configuration->set(ConfigurationKeys::PS_ACCOUNTS_FIREBASE_ID_TOKEN, 'foobar');
+        $this->linkShop->update(new \PrestaShop\Module\PsAccounts\Account\Dto\LinkShop([
+            'shopId' => $this->faker->numberBetween(),
+            'uid' => $this->faker->uuid,
+            'employeeId' => $this->faker->numberBetween()
+        ]));
+
+        $this->shopSession->setToken((string) $this->makeJwtToken(new \DateTimeImmutable(), ['foo' => 'bar']));
+        $this->ownerSession->setToken((string) $this->makeJwtToken(new \DateTimeImmutable(), ['foo' => 'bar']));
+        $this->session->setToken((string) $this->makeJwtToken(new \DateTimeImmutable(), ['foo' => 'bar']));
 
         $response = $this->client->delete('/module/ps_accounts/apiV1ShopLinkAccount', [
             'headers' => [
@@ -38,15 +78,19 @@ class DeleteTest extends FeatureTestCase
         \Configuration::clearConfigurationCacheForTesting();
         \Configuration::loadConfiguration();
 
-        $this->assertEmpty($this->configuration->get(ConfigurationKeys::PS_ACCOUNTS_FIREBASE_ID_TOKEN));
-        $this->assertEmpty($this->configuration->get(ConfigurationKeys::PS_ACCOUNTS_FIREBASE_REFRESH_TOKEN));
+        $this->assertFalse($this->linkShop->exists());
 
-        $this->assertEmpty($this->configuration->get(ConfigurationKeys::PS_ACCOUNTS_USER_FIREBASE_UUID));
-        $this->assertEmpty($this->configuration->get(ConfigurationKeys::PS_ACCOUNTS_USER_FIREBASE_ID_TOKEN));
-        $this->assertEmpty($this->configuration->get(ConfigurationKeys::PS_ACCOUNTS_USER_FIREBASE_REFRESH_TOKEN));
+        $this->assertEmpty($this->linkShop->getShopUuid());
+        $this->assertEmpty($this->linkShop->getEmployeeId());
+        $this->assertEmpty($this->linkShop->getOwnerUuid());
+        $this->assertEmpty($this->linkShop->getOwnerEmail());
 
+        $this->assertInstanceOf(NullToken::class, $this->shopSession->getToken()->getJwt());
+        $this->assertInstanceOf(NullToken::class, $this->ownerSession->getToken()->getJwt());
+        $this->assertInstanceOf(NullToken::class, $this->session->getToken()->getJwt());
+
+        // compat
         $this->assertEmpty($this->configuration->get(ConfigurationKeys::PS_ACCOUNTS_FIREBASE_EMAIL));
         $this->assertEmpty($this->configuration->get(ConfigurationKeys::PSX_UUID_V4));
-        $this->assertEmpty($this->configuration->get(ConfigurationKeys::PS_ACCOUNTS_EMPLOYEE_ID));
     }
 }

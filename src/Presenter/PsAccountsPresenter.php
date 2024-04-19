@@ -20,13 +20,13 @@
 
 namespace PrestaShop\Module\PsAccounts\Presenter;
 
-use PrestaShop\Module\PsAccounts\Exception\SshKeysNotFoundException;
+use PrestaShop\Module\PsAccounts\Account\LinkShop;
 use PrestaShop\Module\PsAccounts\Installer\Installer;
 use PrestaShop\Module\PsAccounts\Log\Logger;
 use PrestaShop\Module\PsAccounts\Provider\ShopProvider;
 use PrestaShop\Module\PsAccounts\Repository\ConfigurationRepository;
 use PrestaShop\Module\PsAccounts\Service\PsAccountsService;
-use PrestaShop\Module\PsAccounts\Service\ShopLinkAccountService;
+use PrestaShopException;
 
 /**
  * Construct the psaccounts module.
@@ -39,9 +39,9 @@ class PsAccountsPresenter implements PresenterInterface
     protected $shopProvider;
 
     /**
-     * @var ShopLinkAccountService
+     * @var LinkShop
      */
-    protected $shopLinkAccountService;
+    protected $linkShop;
 
     /**
      * @var ConfigurationRepository
@@ -64,29 +64,22 @@ class PsAccountsPresenter implements PresenterInterface
     private $module;
 
     /**
-     * PsAccountsPresenter constructor.
-     *
-     * @param PsAccountsService $psAccountsService
-     * @param ShopProvider $shopProvider
-     * @param ShopLinkAccountService $shopLinkAccountService
-     * @param Installer $installer
-     * @param ConfigurationRepository $configuration
      * @param \Ps_accounts $module
+     *
+     * @throws \Exception
      */
     public function __construct(
-        PsAccountsService $psAccountsService,
-        ShopProvider $shopProvider,
-        ShopLinkAccountService $shopLinkAccountService,
-        Installer $installer,
-        ConfigurationRepository $configuration,
         \Ps_accounts $module
     ) {
-        $this->psAccountsService = $psAccountsService;
-        $this->shopProvider = $shopProvider;
-        $this->shopLinkAccountService = $shopLinkAccountService;
-        $this->installer = $installer;
-        $this->configuration = $configuration;
         $this->module = $module;
+
+        $this->psAccountsService = $module->getService(PsAccountsService::class);
+        $this->shopProvider = $module->getService(ShopProvider::class);
+        $this->linkShop = $module->getService(LinkShop::class);
+        $this->installer = $module->getService(Installer::class);
+        $this->configuration = $module->getService(ConfigurationRepository::class);
+
+        $this->configuration->fixMultiShopConfig();
     }
 
     /**
@@ -94,7 +87,7 @@ class PsAccountsPresenter implements PresenterInterface
      *
      * @return array
      *
-     * @throws SshKeysNotFoundException
+     * @throws PrestaShopException
      */
     public function present($psxName = 'ps_accounts')
     {

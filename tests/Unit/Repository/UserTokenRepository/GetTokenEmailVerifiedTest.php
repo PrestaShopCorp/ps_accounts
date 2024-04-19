@@ -2,12 +2,18 @@
 
 namespace PrestaShop\Module\PsAccounts\Tests\Unit\Repository\UserTokenRepository;
 
-use PrestaShop\Module\PsAccounts\Repository\ConfigurationRepository;
 use PrestaShop\Module\PsAccounts\Repository\UserTokenRepository;
 use PrestaShop\Module\PsAccounts\Tests\TestCase;
 
 class GetTokenEmailVerifiedTest extends TestCase
 {
+    /**
+     * @inject
+     *
+     * @var UserTokenRepository
+     */
+    protected $repository;
+
     /**
      * @test
      *
@@ -16,19 +22,16 @@ class GetTokenEmailVerifiedTest extends TestCase
     public function itShouldReturnTrue()
     {
         $idToken = $this->makeJwtToken(new \DateTimeImmutable('tomorrow'), [
-            'user_id' => $this->faker->uuid,
+            'sub' => $this->faker->uuid,
             'email' => $this->faker->safeEmail,
             'email_verified' => true,
         ]);
 
         $refreshToken = $this->makeJwtToken(new \DateTimeImmutable('+1 year'));
 
-        /** @var UserTokenRepository $tokenRepos */
-        $tokenRepos = $this->module->getService(UserTokenRepository::class);
+        $this->repository->updateCredentials((string) $idToken, (string) $refreshToken);
 
-        $tokenRepos->updateCredentials((string) $idToken, (string) $refreshToken);
-
-        $this->assertTrue($tokenRepos->getTokenEmailVerified());
+        $this->assertTrue($this->repository->getTokenEmailVerified());
     }
 
     /**
@@ -39,18 +42,15 @@ class GetTokenEmailVerifiedTest extends TestCase
     public function itShouldReturnFalse()
     {
         $idToken = $this->makeJwtToken(new \DateTimeImmutable('tomorrow'), [
-            'user_id' => $this->faker->uuid,
+            'sub' => $this->faker->uuid,
             'email' => $this->faker->safeEmail,
             'email_verified' => false,
         ]);
 
         $refreshToken = null; //$this->makeJwtToken(new \DateTimeImmutable('+1 year'));
 
-        /** @var UserTokenRepository $tokenRepos */
-        $tokenRepos = $this->module->getService(UserTokenRepository::class);
+        $this->repository->updateCredentials((string) $idToken, (string) $refreshToken);
 
-        $tokenRepos->updateCredentials((string) $idToken, (string) $refreshToken);
-
-        $this->assertFalse($tokenRepos->getTokenEmailVerified());
+        $this->assertFalse($this->repository->getTokenEmailVerified());
     }
 }

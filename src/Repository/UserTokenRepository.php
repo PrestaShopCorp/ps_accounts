@@ -20,93 +20,26 @@
 
 namespace PrestaShop\Module\PsAccounts\Repository;
 
-use Lcobucci\JWT\Parser;
-use Lcobucci\JWT\Token;
-use PrestaShop\Module\PsAccounts\Api\Client\SsoClient;
-use PrestaShop\Module\PsAccounts\Exception\RefreshTokenException;
+use PrestaShop\Module\PsAccounts\Account\Session\Firebase\OwnerSession;
 
 /**
  * Class UserTokenRepository
+ *
+ * @deprecated
  */
-class UserTokenRepository extends AbstractTokenRepository
+class UserTokenRepository extends TokenRepository
 {
-    const TOKEN_TYPE = 'user';
-    const TOKEN_KEY = 'idToken';
-    const REFRESH_TOKEN_KEY = 'refreshToken';
-
     /**
-     * @return SsoClient
-     *
-     * @throws \Exception
+     * @var OwnerSession
      */
-    protected function client()
-    {
-        /** @var \Ps_accounts $module */
-        $module = \Module::getInstanceByName('ps_accounts');
-
-        return $module->getService(SsoClient::class);
-    }
-
-    /**
-     * @return Token|null
-     */
-    public function getToken()
-    {
-        return $this->parseToken($this->configuration->getUserFirebaseIdToken());
-    }
-
-    /**
-     * @return string
-     */
-    public function getTokenUuid()
-    {
-        return $this->configuration->getUserFirebaseUuid();
-    }
-
-    /**
-     * @return string
-     */
-    public function getRefreshToken()
-    {
-        return $this->configuration->getUserFirebaseRefreshToken();
-    }
-
-    /**
-     * @return void
-     */
-    public function cleanupCredentials()
-    {
-        $this->configuration->updateUserFirebaseUuid('');
-        $this->configuration->updateUserFirebaseIdToken('');
-        $this->configuration->updateUserFirebaseRefreshToken('');
-        $this->configuration->updateFirebaseEmail('');
-        //$this->configuration->updateFirebaseEmailIsVerified(false);
-    }
-
-    /**
-     * @param string $idToken
-     * @param string $refreshToken
-     *
-     * @return void
-     */
-    public function updateCredentials($idToken, $refreshToken)
-    {
-        $token = (new Parser())->parse((string) $idToken);
-
-        $uuid = $token->claims()->get('user_id');
-        $this->configuration->updateUserFirebaseUuid($uuid);
-        $this->configuration->updateUserFirebaseIdToken($idToken);
-        $this->configuration->updateUserFirebaseRefreshToken($refreshToken);
-
-        $this->configuration->updateFirebaseEmail($token->claims()->get('email'));
-    }
+    protected $session;
 
     /**
      * @return string
      */
     public function getTokenEmail()
     {
-        return $this->configuration->getFirebaseEmail();
+        return $this->session->getToken()->getEmail();
     }
 
     /**
@@ -116,16 +49,6 @@ class UserTokenRepository extends AbstractTokenRepository
      */
     public function getTokenEmailVerified()
     {
-        $token = $this->getToken();
-
-        // FIXME : just query sso api and don't refresh token everytime
-        if (null !== $token && !$token->claims()->get('email_verified')) {
-            try {
-                $token = $this->getOrRefreshToken(true);
-            } catch (RefreshTokenException $e) {
-            }
-        }
-
-        return null !== $token && (bool) $token->claims()->get('email_verified');
+        return $this->session->isEmailVerified();
     }
 }

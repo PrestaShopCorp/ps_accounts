@@ -22,9 +22,9 @@ namespace PrestaShop\Module\PsAccounts\Hook;
 
 use AdminLoginPsAccountsController;
 use Exception;
-use League\OAuth2\Client\Provider\Exception\IdentityProviderException;
 use PrestaShop\Module\PsAccounts\Service\AnalyticsService;
 use PrestaShop\Module\PsAccounts\Service\PsAccountsService;
+use PrestaShop\Module\PsAccounts\Vendor\League\OAuth2\Client\Provider\Exception\IdentityProviderException;
 use Tools;
 
 class ActionAdminLoginControllerSetMedia extends Hook
@@ -37,16 +37,17 @@ class ActionAdminLoginControllerSetMedia extends Hook
      */
     public function execute(array $params = [])
     {
-        $this->ps_accounts->getOauth2Middleware()->execute();
+        $this->module->getOauth2Middleware()->execute();
 
         /** @var PsAccountsService $psAccountsService */
-        $psAccountsService = $this->ps_accounts->getService(PsAccountsService::class);
+        $psAccountsService = $this->module->getService(PsAccountsService::class);
         $local = Tools::getValue('mode') === AdminLoginPsAccountsController::PARAM_MODE_LOCAL ||
+            !empty(Tools::getValue('reset_token')) ||
             !$psAccountsService->getLoginActivated();
 
         $this->trackLoginPage($local);
 
-        if ($this->ps_accounts->getShopContext()->isShop17() && !$local) {
+        if ($this->module->getShopContext()->isShop17() && !$local) {
 //            /** @var \PrestaShop\Module\PsAccounts\Adapter\Link $link */
 //            $link = $this->getService(\PrestaShop\Module\PsAccounts\Adapter\Link::class);
 //            Tools::redirectLink($link->getAdminLink('AdminLoginPsAccounts', false));
@@ -64,14 +65,14 @@ class ActionAdminLoginControllerSetMedia extends Hook
      */
     protected function trackLoginPage($local = false)
     {
-        if ($this->ps_accounts->isShopEdition()) {
+        if ($this->module->isShopEdition()) {
             /** @var PsAccountsService $psAccountsService */
-            $psAccountsService = $this->ps_accounts->getService(PsAccountsService::class);
+            $psAccountsService = $this->module->getService(PsAccountsService::class);
             $account = $psAccountsService->getEmployeeAccount();
             $userId = $account ? $account->getUid() : null;
 
             /** @var AnalyticsService $analytics */
-            $analytics = $this->ps_accounts->getService(AnalyticsService::class);
+            $analytics = $this->module->getService(AnalyticsService::class);
 
             if (!$local) {
                 $analytics->pageAccountsBoLogin($userId);

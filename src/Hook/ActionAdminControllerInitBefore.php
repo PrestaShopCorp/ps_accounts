@@ -20,12 +20,33 @@
 
 namespace PrestaShop\Module\PsAccounts\Hook;
 
+use AdminLoginPsAccountsController;
 use Exception;
-use PrestaShop\Module\PsAccounts\Adapter\Link;
+use PrestaShop\Module\PsAccounts\Log\Logger;
+use PrestaShop\Module\PsAccounts\Service\AnalyticsService;
+use PrestaShop\Module\PsAccounts\Service\PsAccountsService;
 use Tools;
 
 class ActionAdminControllerInitBefore extends Hook
 {
+    /**
+     * @var PsAccountsService
+     */
+    private $accountsService;
+
+    /**
+     * @var AnalyticsService
+     */
+    private $analytics;
+
+    public function __construct(\Ps_accounts $module)
+    {
+        parent::__construct($module);
+
+        $this->accountsService = $this->module->getService(PsAccountsService::class);
+        $this->analytics = $this->module->getService(AnalyticsService::class);
+    }
+
     /**
      * @param array $params
      *
@@ -35,24 +56,47 @@ class ActionAdminControllerInitBefore extends Hook
      */
     public function execute(array $params = [])
     {
-//        /** @var \PrestaShop\Module\PsAccounts\Service\PsAccountsService $psAccountsService */
-//        $psAccountsService = $this->getService(\PrestaShop\Module\PsAccounts\Service\PsAccountsService::class);
+//        $controller = $params['controller'];
 //
-//        if (isset($_GET['logout'])) {
-//            if ($psAccountsService->getLoginActivated()) {
-//                $this->oauth2Logout();
-//            } else {
-//                $this->getOauth2Session()->clear();
+//        $this->module->getOauth2Middleware()->execute();
+//
+//        $className = preg_replace('/^.*\\\\/', '', get_class($controller));
+////        Logger::getInstance()->error('########################### ' . __CLASS__ . ' ' . $className);
+//
+//        if ($className === 'AdminLoginController') {
+//            $local = Tools::getValue('mode') === AdminLoginPsAccountsController::PARAM_MODE_LOCAL ||
+//                !$this->accountsService->getLoginActivated();
+//
+//            $this->trackLoginPage($local);
+//
+//            if ($this->module->getShopContext()->isShop17() && !$local) {
+////                /** @var \PrestaShop\Module\PsAccounts\Adapter\Link $link */
+////                $link = $this->module->getService(\PrestaShop\Module\PsAccounts\Adapter\Link::class);
+////                Tools::redirectLink($link->getAdminLink('AdminLoginPsAccounts', false));
+//                (new AdminLoginPsAccountsController())->run();
+//                exit;
 //            }
 //        }
+    }
 
-        $this->ps_accounts->getOauth2Middleware()->execute();
+    /**
+     * @param bool $local
+     *
+     * @return void
+     *
+     * @throws Exception
+     */
+    protected function trackLoginPage($local = false)
+    {
+        if ($this->module->isShopEdition()) {
+            $account = $this->accountsService->getEmployeeAccount();
+            $userId = $account ? $account->getUid() : null;
 
-        if (Tools::getValue('mode') !== 'local') {
-            /** @var Link $link */
-            $link = $this->ps_accounts->getService(Link::class);
-
-            Tools::redirectLink($link->getAdminLink('AdminLoginPsAccounts', false));
+            if (!$local) {
+                $this->analytics->pageAccountsBoLogin($userId);
+            } else {
+                $this->analytics->pageLocalBoLogin($userId);
+            }
         }
     }
 }

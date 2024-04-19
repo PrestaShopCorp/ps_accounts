@@ -20,16 +20,17 @@
 
 namespace PrestaShop\Module\PsAccounts\Provider\OAuth2;
 
-use League\OAuth2\Client\Provider\Exception\IdentityProviderException;
-use League\OAuth2\Client\Token\AccessToken;
 use PrestaShop\Module\PsAccounts\Log\Logger;
+use PrestaShop\Module\PsAccounts\Session\Session;
+use PrestaShop\Module\PsAccounts\Vendor\League\OAuth2\Client\Provider\Exception\IdentityProviderException;
+use PrestaShop\Module\PsAccounts\Vendor\League\OAuth2\Client\Token\AccessToken;
 use PrestaShop\OAuth2\Client\Provider\PrestaShopUser;
 use Tools;
 
 trait PrestaShopLoginTrait
 {
     /**
-     * @return PrestaShopClientProvider
+     * @return ShopProvider
      */
     abstract protected function getProvider();
 
@@ -46,7 +47,7 @@ trait PrestaShopLoginTrait
     abstract protected function redirectAfterLogin();
 
     /**
-     * @return \PrestaShop\Module\PsAccounts\Provider\OAuth2\FallbackSession
+     * @return Session
      */
     abstract protected function getSession();
 
@@ -145,6 +146,8 @@ trait PrestaShopLoginTrait
 
     /**
      * @return string
+     *
+     * @throws \Exception
      */
     private function getSessionReturnTo()
     {
@@ -155,6 +158,8 @@ trait PrestaShopLoginTrait
      * @param string $returnTo
      *
      * @return void
+     *
+     * @throws \Exception
      */
     private function setSessionReturnTo($returnTo)
     {

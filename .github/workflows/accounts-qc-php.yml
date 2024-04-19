@@ -48,8 +48,11 @@ jobs:
           path: ~/.composer/cache
           key: php-composer-cache
 
-      - name: Install dependencies
-        run: composer install
+#      - name: Install dependencies
+#        run: composer install
+
+      - name: Scoped dependencies
+        run: make php-scoper
 
       - name: Select .neon file compatible with PrestaShop ${{ matrix.presta-versions }}
         id: neon
@@ -86,8 +89,11 @@ jobs:
           path: ~/.composer/cache
           key: php-composer-cache
 
-      - name: Install dependencies
-        run: composer install
+#      - name: Install dependencies
+#        run: composer install
+
+      - name: Scoped dependencies
+        run: make php-scoper
 
       - name: PHPUnit tests
         run: |

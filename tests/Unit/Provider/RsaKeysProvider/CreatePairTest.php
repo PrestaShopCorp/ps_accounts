@@ -8,17 +8,25 @@ use PrestaShop\Module\PsAccounts\Tests\TestCase;
 class CreatePairTest extends TestCase
 {
     /**
-     * @test
+     * @inject
+     *
+     * @var RsaKeysProvider
      */
-    public function itShouldGenerateKeyPair()
-    {
-        /** @var RsaKeysProvider $service */
-        $service = $this->module->getService(RsaKeysProvider::class);
+    protected $rsaKeyService;
 
-        $key = $service->createPair();
-        $this->assertArrayHasKey('privatekey', $key, "Key 'privatekey' don't exist in Array");
-        $this->assertArrayHasKey('publickey', $key, "Key 'publickey' don't exist in Array");
-        $this->assertEquals('string', gettype($key['privatekey']), "'privatekey' isn't string");
-        $this->assertEquals('string', gettype($key['publickey']), "'privatekey' isn't string");
+    /**
+     * @test
+     *
+     * @throws \Exception
+     */
+    public function itShouldCreateKeyPair()
+    {
+        $key = $this->rsaKeyService->createPair();
+
+        $this->assertArrayHasKey('privatekey', $key);
+        $this->assertArrayHasKey('publickey', $key);
+
+        $this->assertEquals('string', gettype($key['privatekey']));
+        $this->assertEquals('string', gettype($key['publickey']));
     }
 }

@@ -20,19 +20,21 @@
 
 namespace PrestaShop\Module\PsAccounts\Http\Client\Guzzle;
 
-use GuzzleHttp\Client;
+use PrestaShop\Module\PsAccounts\Vendor\GuzzleHttp\Client;
 
 class Guzzle5Client extends GuzzleClient
 {
     public function __construct($options)
     {
+        parent::__construct($options);
+
         /** @var \Ps_accounts $module */
         $module = \Module::getInstanceByName('ps_accounts');
 
         $options = (new Guzzle5OptionsMapper())->fromGuzzle7Options(array_merge(
             [
                 'timeout' => $this->timeout,
-                'exceptions' => $this->catchExceptions,
+                'http_errors' => $this->catchExceptions,
                 'verify' => (bool) $module->getParameter('ps_accounts.check_api_ssl_cert'),
             ],
             $options

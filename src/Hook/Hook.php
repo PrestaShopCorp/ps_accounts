@@ -20,6 +20,7 @@
 
 namespace PrestaShop\Module\PsAccounts\Hook;
 
+use PrestaShop\Module\PsAccounts\Cqrs\CommandBus;
 use Ps_accounts;
 
 abstract class Hook
@@ -27,14 +28,22 @@ abstract class Hook
     /**
      * @var Ps_accounts
      */
-    protected $ps_accounts;
+    protected $module;
 
     /**
-     * @param Ps_accounts $ps_accounts
+     * @var CommandBus
      */
-    public function __construct(Ps_accounts $ps_accounts)
+    protected $commandBus;
+
+    /**
+     * @param Ps_accounts $module
+     *
+     * @throws \Exception
+     */
+    public function __construct(Ps_accounts $module)
     {
-        $this->ps_accounts = $ps_accounts;
+        $this->module = $module;
+        $this->commandBus = $module->getService(CommandBus::class);
     }
 
     /**
@@ -50,5 +59,13 @@ abstract class Hook
     public static function getName()
     {
         return lcfirst(preg_replace('/^.*\\\\/', '', static::class));
+    }
+
+    /**
+     * @return Ps_accounts
+     */
+    public function getModule()
+    {
+        return $this->module;
     }
 }
