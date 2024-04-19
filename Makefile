@@ -43,8 +43,8 @@ endif
 # target: phpstan
 
 PHPSTAN_VERSION ?= 0.12
-PS_VERSION ?= latest #1.6.1.21|1.7.7.1|latest
-NEON_FILE ?= phpstan-PS-1.7.neon #phpstan-PS-1.6.neon
+PS_VERSION ?= latest
+NEON_FILE ?= phpstan-PS-1.7.neon
 
 phpstan: check-docker vendor-dev
 	docker pull phpstan/phpstan:${PHPSTAN_VERSION}
@@ -58,6 +58,10 @@ phpstan: check-docker vendor-dev
 	  --memory-limit=-1 \
 	  --configuration=/web/module/tests/phpstan/${NEON_FILE}
 	docker volume rm ps-volume
+
+phpstan16: PS_VERSION = 1.6.1.21
+phpstan16: NEON_FILE = phpstan-PS-1.6.neon
+phpstan16: phpstan
 
 ##########################################################
 # target: php-unit
