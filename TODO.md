@@ -2,19 +2,9 @@
 * create a HttpClientResponse not an "array"
 * disseminate tests and filter on module build
 
-[2024-03-11 14:34:49] request.CRITICAL: Uncaught PHP Exception Symfony\Component\ErrorHandler\Error\ClassNotFoundError: 
-"Attempted to load trait "ArrayAccessorTrait" from namespace "PrestaShop\Module\PsAccounts\Vendor\League\OAuth2\Client\Tool". 
-Did you forget a "use" statement for another namespace?" at 
-/var/www/html/modules/ps_accounts/vendor/league/oauth2-client/src/Provider/AbstractProvider.php line 40 
-{"exception":"[object] (Symfony\\Component\\ErrorHandler\\Error\\ClassNotFoundError(code: 0): 
-Attempted to load trait \"ArrayAccessorTrait\" from namespace \"PrestaShop\\Module\\PsAccounts\\Vendor\\League\\OAuth2\\Client\\Tool\".
-\nDid you forget a \"use\" statement for another namespace? at 
-/var/www/html/modules/ps_accounts/vendor/league/oauth2-client/src/Provider/AbstractProvider.php:40)"} []
-
 # External dependencies
   * activate login PsAccountsService::enableLogin(true)
 
-# #./tools/vendor/bin/autoindex prestashop:add:index ${TMP_DIR}
 # Bug upgrade 8.1
 # Bug ServiceContainer init on 1.6 (potentially critical)
 # Bug Edition LoginPage broken CSS (padding top & broken when rebuilt)
