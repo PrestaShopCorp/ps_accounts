@@ -1,0 +1,18 @@
+{
+  "name": "prestashopcorp/ps_accounts_tools",
+  "config": {
+    "preferred-install": "dist",
+    "platform": {
+      "php": "8.1"
+    },
+    "optimize-autoloader": true,
+    "prepend-autoloader": false,
+    "platform-check": false
+  },
+  "require-dev": {
+    "prestashop/php-dev-tools": "^4.3"
+  },
+  "author": "PrestaShop",
+  "license": "AFL-3.0",
+  "type": "prestashop-module-tools"
+}

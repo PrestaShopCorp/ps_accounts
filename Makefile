@@ -42,19 +42,21 @@ endif
 ##########################################################
 # target: phpstan
 
-PHPSTAN_VERSION ?= 0.12
-PS_VERSION ?= latest
+PHPSTAN_VERSION ?= 0.12.87 #1.10.15
+PS_VERSION ?= nightly-7.2
 NEON_FILE ?= phpstan-PS-1.7.neon
 
+#ghcr.io/phpstan/phpstan:0.12.57
+
 phpstan: check-docker vendor-dev
-	docker pull phpstan/phpstan:${PHPSTAN_VERSION}
+	docker pull ghcr.io/phpstan/phpstan:${PHPSTAN_VERSION}
 	docker pull prestashop/prestashop:${PS_VERSION}
 	docker run --rm -d -v ps-volume:/var/www/html --entrypoint /bin/sleep --name test-phpstan prestashop/prestashop:${PS_VERSION} 2s
 	docker run --rm --volumes-from test-phpstan \
 	  -v ${PWD}:/web/module \
 	  -e _PS_ROOT_DIR_=/var/www/html \
 	  --workdir=/web/module \
-	  phpstan/phpstan:${PHPSTAN_VERSION} analyse \
+	  ghcr.io/phpstan/phpstan:${PHPSTAN_VERSION} analyse \
 	  --memory-limit=-1 \
 	  --configuration=/web/module/tests/phpstan/${NEON_FILE}
 	docker volume rm ps-volume
