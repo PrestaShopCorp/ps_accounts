@@ -45,7 +45,7 @@ class SentryService
     /**
      * @var float [0.00 - 1.00] * 100% events
      */
-    private $sampleRateBack = 1;
+    private $sampleRateBack = 0.2;
 
     /**
      * @var string
