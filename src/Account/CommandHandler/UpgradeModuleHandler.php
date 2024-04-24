@@ -72,18 +72,19 @@ class UpgradeModuleHandler
      * @param UpgradeModuleCommand $command
      *
      * @return void
+     *
+     * @throws \Exception
      */
     public function handle(UpgradeModuleCommand $command)
     {
         $this->shopContext->execInShopContext($command->payload->shopId, function () use ($command) {
             if ($this->configRepo->getLastUpgrade() !== \Ps_accounts::VERSION) {
                 $this->configRepo->setLastUpgrade(\Ps_accounts::VERSION);
-                // call to refresh shop firebase token at the moment, in the future, use oauth shop token
-                $tokens = $this->getOrRefreshShopToken();
-                $this->shopSession->setToken(
-                    $tokens['token'],
-                    $tokens['refresh_token']
-                );
+
+                // FIXME: to be removed once oauth client has been updated
+                if (version_compare($this->configRepo->getLastUpgrade(), '7.0.0', '<')) {
+                    $this->lastChanceToRefreshShopToken();
+                }
 
                 $this->accountsClient->upgradeShopModule(
                     $this->linkShop->getShopUuid(),
@@ -122,5 +123,19 @@ class UpgradeModuleHandler
             'token' => (string) $token,
             'refresh_token' => $token->getRefreshToken(),
         ];
+    }
+
+    /**
+     * @return void
+     *
+     * @throws \Exception
+     */
+    private function lastChanceToRefreshShopToken()
+    {
+        $tokens = $this->getOrRefreshShopToken();
+        $this->shopSession->setToken(
+            $tokens['token'],
+            $tokens['refresh_token']
+        );
     }
 }

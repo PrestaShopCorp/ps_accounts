@@ -388,7 +388,7 @@ class ConfigurationRepository
      */
     public function getLastUpgrade()
     {
-        return $this->configuration->get(ConfigurationKeys::PS_ACCOUNTS_LAST_UPGRADE);
+        return $this->configuration->getUncached(ConfigurationKeys::PS_ACCOUNTS_LAST_UPGRADE);
     }
 
     /**
