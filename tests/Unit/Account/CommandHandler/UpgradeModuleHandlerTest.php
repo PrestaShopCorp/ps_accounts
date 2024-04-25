@@ -68,6 +68,7 @@ class UpgradeModuleHandlerTest extends TestCase
             ], 200, true),
         ]);
 
+        // token expired just NOW
         $token = new Token((string) $this->makeJwtToken(new \DateTimeImmutable()), 'not-fresh');
         $this->shopSession = $this->createMockWithMethods(ShopSession::class, [
             'getOrRefreshToken' => $token,
@@ -180,7 +181,7 @@ class UpgradeModuleHandlerTest extends TestCase
         $currentVersion = '7.3.2';
         $upgradeVersion = '8.0.0';
 
-        $token = new Token((string) $this->makeJwtToken(new \DateTimeImmutable()), 'not-fresh');
+        $token = new Token((string)$this->makeJwtToken(new \DateTimeImmutable()), 'not-fresh');
         $this->shopSession = $this->createMockWithMethods(ShopSession::class, [
             'getOrRefreshToken' => $token,
             'getToken' => $token,
@@ -207,11 +208,6 @@ class UpgradeModuleHandlerTest extends TestCase
             'version' => $upgradeVersion,
             'shopId' => null,
         ])));
-    }
-
-    public function itShouldNotFailIfTokenCantBeRefreshed()
-    {
-        // TODO implement test
     }
 
     public function itShouldDealWithConcurrentRequests()
