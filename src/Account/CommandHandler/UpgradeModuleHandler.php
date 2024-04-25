@@ -78,11 +78,14 @@ class UpgradeModuleHandler
     public function handle(UpgradeModuleCommand $command)
     {
         $this->shopContext->execInShopContext($command->payload->shopId, function () use ($command) {
-            if ($this->configRepo->getLastUpgrade() !== \Ps_accounts::VERSION) {
+            $lastUpgrade = $this->configRepo->getLastUpgrade(false);
+
+            if (version_compare($lastUpgrade,\Ps_accounts::VERSION, '<')) {
+                // Set new version a soon as we can to avoid duplicate calls
                 $this->configRepo->setLastUpgrade(\Ps_accounts::VERSION);
 
                 // FIXME: to be removed once oauth client has been updated
-                if (version_compare($this->configRepo->getLastUpgrade(), '7.0.0', '<')) {
+                if (version_compare($lastUpgrade, '7.0.0', '<')) {
                     $this->lastChanceToRefreshShopToken();
                 }
 

@@ -104,12 +104,21 @@ class Configuration
     /**
      * @param string $key
      * @param string|bool $default
+     * @param bool $cached
      *
      * @return mixed
+     *
+     * @throws \PrestaShopDatabaseException
+     * @throws \PrestaShopException
      */
-    public function get($key, $default = false)
+    public function get($key, $default = false, $cached = true)
     {
-        return $this->getRaw($key, $this->idLang, $this->idShopGroup, $this->idShop, $default);
+        if ($cached) {
+            return $this->getRaw($key, $this->idLang, $this->idShopGroup, $this->idShop, $default);
+        } else {
+            // FIXME: idLang ??
+            return $this->getUncached($key, $this->idShopGroup, $this->idShop, $default);
+        }
     }
 
     /**
