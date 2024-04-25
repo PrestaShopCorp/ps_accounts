@@ -80,9 +80,9 @@ class UpgradeModuleHandler
         $this->shopContext->execInShopContext($command->payload->shopId, function () use ($command) {
             $lastUpgrade = $this->configRepo->getLastUpgrade(false);
 
-            if (version_compare($lastUpgrade, \Ps_accounts::VERSION, '<')) {
+            if (version_compare($lastUpgrade, $command->payload->version, '<')) {
                 // Set new version a soon as we can to avoid duplicate calls
-                $this->configRepo->setLastUpgrade(\Ps_accounts::VERSION);
+                $this->configRepo->setLastUpgrade($command->payload->version);
 
                 // FIXME: to be removed once oauth client has been updated
                 if (version_compare($lastUpgrade, '7.0.0', '<')) {

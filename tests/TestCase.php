@@ -167,4 +167,18 @@ class TestCase extends \PHPUnit\Framework\TestCase
             'body' => $body,
         ];
     }
+
+    /**
+     * @param $class
+     * @param $methods
+     * @return \#o#Э#A#M#C\PrestaShop\Module\PsAccounts\Tests\TestCase.createMockWithMethods.0|(\#o#Э#A#M#C\PrestaShop\Module\PsAccounts\Tests\TestCase.createMockWithMethods.0&\PHPUnit_Framework_MockObject_MockObject)|\PHPUnit_Framework_MockObject_MockObject
+     */
+    protected function createMockWithMethods($class, $methods = [])
+    {
+        $mock = $this->createMock($class);
+        foreach ($methods as $method => $return) {
+            $mock->method($method)->willReturn($return);
+        }
+        return $mock;
+    }
 }
