@@ -20,12 +20,16 @@
 
 namespace PrestaShop\Module\PsAccounts\Service;
 
+use Context;
 use Module;
 use PrestaShop\Module\PsAccounts\Account\LinkShop;
-use PrestaShop\Module\PsAccounts\Account\Session\Firebase\OwnerSession;
+use PrestaShop\Module\PsAccounts\Service\Sentry\ModuleFilteredRavenClient;
 use Ps_accounts;
 use Raven_Client;
 
+/**
+ * FIXME: outdated sentry client due to PHP 5.6 support
+ */
 class SentryService
 {
     /**
@@ -34,34 +38,47 @@ class SentryService
     protected $client;
 
     /**
-     * @var Ps_accounts
+     * @var float [0.00 - 1.00] * 100% events
      */
-    private $module;
+    private $sampleRateFront = 0.2;
+
+    /**
+     * @var float [0.00 - 1.00] * 100% events
+     */
+    private $sampleRateBack = 0.2;
+
+    /**
+     * @var string
+     */
+    private $moduleName = 'ps_accounts';
+
+    /**
+     * @var string
+     */
+    private $productionEnv = 'production';
+
+    /**
+     * @var int
+     */
+    private $errorTypes = E_ALL & ~E_STRICT & ~E_DEPRECATED & ~E_USER_DEPRECATED & ~E_NOTICE & ~E_USER_NOTICE;
 
     /**
      * ErrorHandler constructor.
      *
      * @param string $sentryCredentials
      * @param string $environment
-     * @param Ps_accounts $module
+     * @param LinkShop $linkShop
+     * @param Context $context
      *
      * @throws \Raven_Exception
-     * @throws \Exception
      */
     public function __construct(
         $sentryCredentials,
         $environment,
-        Ps_accounts $module
+        LinkShop $linkShop,
+        Context $context
     ) {
-        $this->module = $module;
-
-        /** @var OwnerSession $ownerSession */
-        $ownerSession = $module->getService(OwnerSession::class);
-
-        /** @var LinkShop $linkShop */
-        $linkShop = $this->module->getService(LinkShop::class);
-
-        $this->client = new Raven_Client(
+        $this->client = new ModuleFilteredRavenClient(
             $sentryCredentials,
             [
                 'environment' => $environment,
@@ -74,8 +91,35 @@ class SentryService
                     'email' => $linkShop->getOwnerEmail(),
                     'shop_uuid' => $linkShop->getShopUuid(),
                 ],
+                'error_types' => $this->errorTypes,
+                'sample_rate' => $this->isContextInFrontOffice($context) ?
+                    $this->sampleRateFront :
+                    $this->sampleRateBack,
             ]
         );
+
+        // We use realpath to get errors even if module is behind a symbolic link
+        $this->client->setAppPath(realpath(_PS_MODULE_DIR_ . $this->moduleName . '/'));
+        // - Do no not add the shop root folder, it will exclude everything even if specified in the app path.
+        // - Excluding vendor/ avoids errors comming from one of your libraries library when called by another module.
+        $this->client->setExcludedAppPaths([
+            realpath(_PS_MODULE_DIR_ . $this->moduleName . '/vendor/'),
+        ]);
+
+        if ($environment === $this->productionEnv) {
+            $this->client->setExcludedDomains(['127.0.0.1', 'localhost', '.local']);
+        }
+
+        // Other conditions can be done here to prevent the full installation of the client:
+        // - PHP versions,
+        // - PS versions,
+        // - Integration environment,
+        // - ...
+
+        if (version_compare((string) phpversion(), '7.4.0', '>=') &&
+            version_compare(_PS_VERSION_, '1.7.8.0', '<')) {
+            return;
+        }
 
         $this->client->install();
     }
@@ -95,7 +139,7 @@ class SentryService
         /** @var self $instance */
         $instance = $psAccounts->getService(self::class);
 
-        $psAccounts->getLogger()->debug($exception);
+        $psAccounts->getLogger()->error($exception);
 
         $instance->client->captureException($exception);
     }
@@ -112,5 +156,27 @@ class SentryService
         self::capture($exception);
 
         throw $exception;
+    }
+
+    /**
+     * @return bool
+     */
+    private function isContextInFrontOffice(Context $context = null)
+    {
+        /*
+        Some shops have trouble to refresh the cache of the service container.
+        To avoid issues on production after an upgrade, context has been made optional.
+        ToDo: Remove the nullable later.
+        */
+        if (!$context) {
+            return false;
+        }
+        /** @var \Controller|null $controller */
+        $controller = $context->controller;
+        if (!$controller) {
+            return false;
+        }
+
+        return in_array($controller->controller_type, ['front', 'modulefront']);
     }
 }

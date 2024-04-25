@@ -22,10 +22,10 @@ namespace PrestaShop\Module\PsAccounts\Presenter;
 
 use PrestaShop\Module\PsAccounts\Account\LinkShop;
 use PrestaShop\Module\PsAccounts\Installer\Installer;
-use PrestaShop\Module\PsAccounts\Log\Logger;
 use PrestaShop\Module\PsAccounts\Provider\ShopProvider;
 use PrestaShop\Module\PsAccounts\Repository\ConfigurationRepository;
 use PrestaShop\Module\PsAccounts\Service\PsAccountsService;
+use PrestaShop\Module\PsAccounts\Service\SentryService;
 use PrestaShopException;
 
 /**
@@ -163,7 +163,7 @@ class PsAccountsPresenter implements PresenterInterface
                 (new DependenciesPresenter())->present($psxName)
             );
         } catch (\Exception $e) {
-            Logger::getInstance()->debug($e);
+            SentryService::capture($e);
         }
 
         return [];
