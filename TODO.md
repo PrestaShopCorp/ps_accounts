@@ -35,4 +35,4 @@ where ps_module.name='ps_accounts' and id_shop=1;
 * Define module's public API
 * Remove symfony dep (standalone simple service container)
 * ShopModuleUpdatedEvent duplicates (in memory OR db lock ?)
-* UnlinkShop : method not allowed 405
+* UnlinkShop : method not allowed 405 (flashlight problem ?)
