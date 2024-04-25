@@ -88,7 +88,7 @@ class UpgradeModuleHandler
 
                 $this->accountsClient->upgradeShopModule(
                     $this->linkShop->getShopUuid(),
-                    (string) $this->shopSession->getToken(),
+                    (string) $this->shopSession->getOrRefreshToken(),
                     $command->payload
                 );
             }
