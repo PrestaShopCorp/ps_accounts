@@ -125,7 +125,8 @@ services:
     arguments:
       - '%ps_accounts.sentry_credentials%'
       - '%ps_accounts.environment%'
-      - '@ps_accounts.module'
+      - '@PrestaShop\Module\PsAccounts\Account\LinkShop'
+      - '@ps_accounts.context'
 
   ###############
   # api clients

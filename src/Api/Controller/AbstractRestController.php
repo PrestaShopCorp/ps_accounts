@@ -329,8 +329,6 @@ abstract class AbstractRestController extends ModuleFrontController
     {
         SentryService::capture($e);
 
-        $this->module->getLogger()->error($e);
-
         $this->dieWithResponseJson([
             'error' => true,
             'message' => 'Failed processing your request',
