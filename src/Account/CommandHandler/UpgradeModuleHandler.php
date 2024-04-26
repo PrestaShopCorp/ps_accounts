@@ -86,7 +86,7 @@ class UpgradeModuleHandler
 
                 // FIXME: to be removed once oauth client has been updated
                 //if (version_compare($lastUpgrade, '7.0.0', '<')) {
-                    $this->lastChanceToRefreshShopToken();
+                $this->lastChanceToRefreshShopToken();
                 //}
 
                 $this->accountsClient->upgradeShopModule(
