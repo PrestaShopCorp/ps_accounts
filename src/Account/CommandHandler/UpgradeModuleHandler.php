@@ -72,22 +72,26 @@ class UpgradeModuleHandler
      * @param UpgradeModuleCommand $command
      *
      * @return void
+     *
+     * @throws \Exception
      */
     public function handle(UpgradeModuleCommand $command)
     {
         $this->shopContext->execInShopContext($command->payload->shopId, function () use ($command) {
-            if ($this->configRepo->getLastUpgrade() !== \Ps_accounts::VERSION) {
-                $this->configRepo->setLastUpgrade(\Ps_accounts::VERSION);
-                // call to refresh shop firebase token at the moment, in the future, use oauth shop token
-                $tokens = $this->getOrRefreshShopToken();
-                $this->shopSession->setToken(
-                    $tokens['token'],
-                    $tokens['refresh_token']
-                );
+            $lastUpgrade = $this->configRepo->getLastUpgrade(false);
+
+            if (version_compare($lastUpgrade, $command->payload->version, '<')) {
+                // Set new version a soon as we can to avoid duplicate calls
+                $this->configRepo->setLastUpgrade($command->payload->version);
+
+                // FIXME: to be removed once oauth client has been updated
+                //if (version_compare($lastUpgrade, '7.0.0', '<')) {
+                $this->lastChanceToRefreshShopToken();
+                //}
 
                 $this->accountsClient->upgradeShopModule(
                     $this->linkShop->getShopUuid(),
-                    (string) $this->shopSession->getToken(),
+                    (string) $this->shopSession->getOrRefreshToken(),
                     $command->payload
                 );
             }
@@ -122,5 +126,19 @@ class UpgradeModuleHandler
             'token' => (string) $token,
             'refresh_token' => $token->getRefreshToken(),
         ];
+    }
+
+    /**
+     * @return void
+     *
+     * @throws \Exception
+     */
+    private function lastChanceToRefreshShopToken()
+    {
+        $tokens = $this->getOrRefreshShopToken();
+        $this->shopSession->setToken(
+            $tokens['token'],
+            $tokens['refresh_token']
+        );
     }
 }

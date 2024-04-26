@@ -34,3 +34,4 @@ where ps_module.name='ps_accounts' and id_shop=1;
 * Shouldn't we expose shop access token ?
 * Define module's public API
 * Remove symfony dep (standalone simple service container)
+* UnlinkShop : method not allowed 405 (flashlight problem ?)

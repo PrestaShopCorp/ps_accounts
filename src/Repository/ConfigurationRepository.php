@@ -384,11 +384,16 @@ class ConfigurationRepository
     }
 
     /**
+     * @param bool $cached
+     *
      * @return string
+     *
+     * @throws \PrestaShopDatabaseException
+     * @throws \PrestaShopException
      */
-    public function getLastUpgrade()
+    public function getLastUpgrade($cached = true)
     {
-        return $this->configuration->get(ConfigurationKeys::PS_ACCOUNTS_LAST_UPGRADE);
+        return $this->configuration->get(ConfigurationKeys::PS_ACCOUNTS_LAST_UPGRADE, false, $cached);
     }
 
     /**
