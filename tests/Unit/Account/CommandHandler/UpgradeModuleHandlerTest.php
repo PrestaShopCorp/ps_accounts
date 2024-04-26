@@ -178,6 +178,8 @@ class UpgradeModuleHandlerTest extends TestCase
      */
     public function itShouldNotAttemptToRefreshTokenWithFirebaseRefreshToken()
     {
+        $this->markTestSkipped('Not needed as long as we maintain refresh tokens for billing');
+
         $currentVersion = '7.3.2';
         $upgradeVersion = '8.0.0';
 
