@@ -59,6 +59,7 @@ class UpgradeModuleMultiHandler
         foreach ($this->getShops($this->configRepo->isMultishopActive()) as $id) {
             $this->commandBus->handle(new UpgradeModuleCommand(new UpgradeModule([
                 'shopId' => $id,
+                // FIXME: should be part of the command payload
                 'version' => \Ps_accounts::VERSION,
             ])));
         }
