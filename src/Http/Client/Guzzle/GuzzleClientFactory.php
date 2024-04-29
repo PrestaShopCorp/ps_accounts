@@ -34,31 +34,6 @@ class GuzzleClientFactory
      */
     public function create($options)
     {
-//        return self::getGuzzleMajorVersionNumber() >= 6
-//            ? new Guzzle7Client($options)
-//            : new Guzzle5Client($options);
         return new Guzzle7Client($options);
-    }
-
-    /**
-     * @deprecated
-     *
-     * @return int|null
-     */
-    public static function getGuzzleMajorVersionNumber()
-    {
-        // Guzzle 7 and above
-        if (defined('\GuzzleHttp\ClientInterface::MAJOR_VERSION')) {
-            // @phpstan-ignore-next-line
-            return (int) \GuzzleHttp\ClientInterface::MAJOR_VERSION;
-        }
-
-        // Before Guzzle 7
-        if (defined('\GuzzleHttp\ClientInterface::VERSION')) {
-            // @phpstan-ignore-next-line
-            return (int) \GuzzleHttp\ClientInterface::VERSION[0];
-        }
-
-        return null;
     }
 }
