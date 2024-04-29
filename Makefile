@@ -43,21 +43,26 @@ endif
 # target: phpstan
 
 PHPSTAN_VERSION ?= 0.12
-PS_VERSION ?= latest #1.6.1.21|1.7.7.1|latest
-NEON_FILE ?= phpstan-PS-1.7.neon #phpstan-PS-1.6.neon
+PS_VERSION ?= latest
+NEON_FILE ?= phpstan-PS-1.7.neon
 
-phpstan: check-docker
+phpstan: check-docker vendor-dev
+	-docker volume rm ps-volume
 	docker pull phpstan/phpstan:${PHPSTAN_VERSION}
 	docker pull prestashop/prestashop:${PS_VERSION}
-	docker run --rm -d -v ps-volume:/var/www/html --entrypoint /bin/sleep --name test-phpstan prestashop/prestashop:${PS_VERSION} 2s
-	docker run --rm --volumes-from test-phpstan \
+	docker run --rm -d -v ps-volume:/var/www/html --entrypoint /bin/sleep --name test-phpstan-${PS_VERSION} prestashop/prestashop:${PS_VERSION} 2s
+	docker run --rm --volumes-from test-phpstan-${PS_VERSION} \
 	  -v ${PWD}:/web/module \
 	  -e _PS_ROOT_DIR_=/var/www/html \
 	  --workdir=/web/module \
 	  phpstan/phpstan:${PHPSTAN_VERSION} analyse \
 	  --memory-limit=-1 \
 	  --configuration=/web/module/tests/phpstan/${NEON_FILE}
-	docker volume rm ps-volume
+#	docker volume rm ps-volume
+
+phpstan16: PS_VERSION = 1.6.1.21
+phpstan16: NEON_FILE = phpstan-PS-1.6.neon
+phpstan16: phpstan
 
 ##########################################################
 # target: php-unit
@@ -95,10 +100,10 @@ phpunit-permissions:
 	@docker exec phpunit sh -c "if [ -d ./cache ]; then chown -R www-data:www-data ./cache; fi" # PS1.6
 	@docker exec phpunit sh -c "if [ -d ./log ]; then chown -R www-data:www-data ./log; fi" # PS1.6
 
-phpunit-run-unit: phpunit-permissions
+phpunit-run-unit: phpunit-permissions vendor-dev
 	@docker exec -w ${CONTAINER_INSTALL_DIR} phpunit ./vendor/bin/phpunit --testsuite unit
 
-phpunit-run-feature: phpunit-permissions
+phpunit-run-feature: phpunit-permissions vendor-dev
 	@docker exec -w ${CONTAINER_INSTALL_DIR} phpunit ./vendor/bin/phpunit --testsuite feature
 
 phpunit-xdebug:
@@ -113,9 +118,6 @@ phpunit: phpunit-pull phpunit-restart phpunit-delay-5 phpunit-module-install php
 
 phpunit-dev: phpunit-pull phpunit-restart phpunit-delay-5 phpunit-module-install phpunit-permissions
 	@echo phpunit container is ready
-
-vendor/phpunit/phpunit:
-	./composer.phar install
 
 test-front:
 	npm --prefix=./_dev run lint
@@ -136,7 +138,6 @@ vendor/bin/php-cs-fixer:
 #VENDOR_DIRS = guzzlehttp league prestashopcorp
 VENDOR_DIRS = $(shell cat scoper.inc.php | grep 'dirScoped =' | sed 's/^.*\$dirScoped = \[\(.*\)\].*/\1/' | sed "s/[' ,]\+/ /g")
 SCOPED_DIR := vendor-scoped
-COMPOSER_OPTIONS ?= --prefer-dist -o --quiet
 
 php-scoper-list:
 	@echo "${VENDOR_DIRS}"
@@ -144,7 +145,7 @@ php-scoper-list:
 php-scoper-pull:
 	docker pull humbugphp/php-scoper:latest
 
-php-scoper-add-prefix: scoper.inc.php vendor
+php-scoper-add-prefix: scoper.inc.php vendor-clean vendor
 	docker run -v ${PWD}:/input -w /input -u ${CURRENT_UID}:${CURRENT_GID} \
 		humbugphp/php-scoper:latest add-prefix --output-dir ${SCOPED_DIR} --force --quiet
 	#for d in ${VENDOR_DIRS}; do rm -rf ./vendor/$$d && mv ./${SCOPED_DIR}/$$d ./vendor/; done;
@@ -159,17 +160,22 @@ php-scoper-fix-autoload:
 
 php-scoper: php-scoper-add-prefix php-scoper-dump-autoload php-scoper-fix-autoload
 
-.PHONY: vendor
-vendor: composer.phar
-	rm -rf ./vendor && ./composer.phar install ${COMPOSER_OPTIONS}
-
 ##########################################################
+# target: bundle
+# target: bundle-prod
+# target: bundle-inte
 
 BUNDLE_ENV ?= # ex: local|preprod|prod
 BUNDLE_ZIP ?= # ex: ps_accounts_flavor.zip
 
 bundle: php-scoper config/config.yml
 	@./scripts/bundle-module.sh "${BUNDLE_ZIP}" "${BUNDLE_ENV}"
+
+bundle-prod: php-scoper config/config.yml.prod
+	@./scripts/bundle-module.sh "ps_accounts.zip" "prod"
+
+bundle-inte: php-scoper config/config.yml.inte
+	@./scripts/bundle-module.sh "ps_accounts_inte.zip" "inte"
 
 build-front:
 ifndef YARN
@@ -183,4 +189,33 @@ ifndef PHP
     $(error "PHP is unavailable on your system")
 endif
 	./scripts/composer-install.sh
+
+##########################################################
+# target: php-cs-fixer
+# target: autoindex
+# target: header-stamp
+
+WORKDIR ?= ./
+
+php-cs-fixer: vendor-dev
+	php ./vendor/bin/php-cs-fixer fix
+
+autoindex: vendor-dev
+	php ./vendor/bin/autoindex prestashop:add:index "${WORKDIR}"
+
+header-stamp: vendor-dev
+	php ./vendor/bin/header-stamp --target="${WORKDIR}" --license="assets/afl.txt" --exclude=".github,node_modules,vendor,vendor,tests,_dev"
+
+##########################################################
+COMPOSER_OPTIONS ?= --prefer-dist -o --no-dev --quiet
+
+vendor-clean:
+	rm -rf ./vendor
+
+.PHONY: vendor
+vendor: composer.phar
+	./composer.phar install ${COMPOSER_OPTIONS}
+
+vendor-dev: COMPOSER_OPTIONS = --prefer-dist -o --quiet
+vendor-dev: vendor
 

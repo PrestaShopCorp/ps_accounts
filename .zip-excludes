@@ -1,0 +1,13 @@
+*.git/*
+*.github/*
+*.build/*
+*.docker/*
+*.idea/*
+*tests/*
+*config/config.yml.*
+*.bak/*
+*.md/*
+*composer.*
+*Dockerfile.*
+*Makefile
+*/.*

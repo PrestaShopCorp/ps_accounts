@@ -27,8 +27,6 @@ use PrestaShop\OAuth2\Client\Provider\WellKnown;
 
 class ShopProvider extends PrestaShop
 {
-//    use Guzzle5AdapterTrait;
-
     const QUERY_LOGOUT_CALLBACK_PARAM = 'oauth2Callback';
 
     /**
