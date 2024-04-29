@@ -24,7 +24,10 @@ echo "${filename} ..."
 rm -rf "./${dist}/${module}"
 mkdir -p "./${dist}/${module}"
 cp -pr -t "./${dist}/${module}" $(cat .zip-contents)
-WORKDIR="${dist}" make autoindex
+
+#WORKDIR="${dist}" make autoindex
+./composer.phar -o --quiet install
+php ./vendor/bin/autoindex prestashop:add:index "${dist}"
 
 cd $dist || exit;
 
