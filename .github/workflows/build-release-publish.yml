@@ -57,6 +57,8 @@ jobs:
 
 #      - name: Clean-up project
 #        uses: PrestaShopCorp/github-action-clean-before-deploy@v1.0
+      - name: Clean-up project
+        run: rm -rf ./.git
 
       - name: Create & upload artifact
         uses: actions/upload-artifact@v1
@@ -91,6 +93,7 @@ jobs:
       - name: Prepare the production zip
         run: |
           cd ${{ github.event.repository.name }}/${{ github.event.repository.name }}
+          chmod +x ./composer.phar
           sh ./scripts/bundle-module.sh ${{ github.event.repository.name }}.zip
         env:
           ENV_FILE: ${{ secrets.PS_ACCOUNTS_ENV_PROD }}
@@ -132,6 +135,7 @@ jobs:
       - name: Prepare the preprod zip
         run: |
           cd ${{ github.event.repository.name }}/${{ github.event.repository.name }}
+          chmod +x ./composer.phar
           sh ./scripts/bundle-module.sh ${{ github.event.repository.name }}_preprod.zip
 
       - name: Publish the preprod zip
