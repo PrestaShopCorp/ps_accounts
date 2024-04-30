@@ -58,7 +58,9 @@ jobs:
 #      - name: Clean-up project
 #        uses: PrestaShopCorp/github-action-clean-before-deploy@v1.0
       - name: Clean-up project
-        run: rm -rf ./.git
+        run: |
+          rm -rf .git
+          rm -rf _dev
 
       - name: Create & upload artifact
         uses: actions/upload-artifact@v1
