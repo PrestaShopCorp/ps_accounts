@@ -55,8 +55,8 @@ jobs:
         working-directory: ./_dev
         run: yarn build
 
-      - name: Clean-up project
-        uses: PrestaShopCorp/github-action-clean-before-deploy@v1.0
+#      - name: Clean-up project
+#        uses: PrestaShopCorp/github-action-clean-before-deploy@v1.0
 
       - name: Create & upload artifact
         uses: actions/upload-artifact@v1
@@ -92,7 +92,6 @@ jobs:
         run: |
           cd ${{ github.event.repository.name }}/${{ github.event.repository.name }}
           sh ./scripts/bundle-module.sh ${{ github.event.repository.name }}.zip
-#          zip -r ${{ github.event.repository.name }}.zip ${{ github.event.repository.name }} -x '*.git*' '*config/config.yml.*'
         env:
           ENV_FILE: ${{ secrets.PS_ACCOUNTS_ENV_PROD }}
 
@@ -134,7 +133,6 @@ jobs:
         run: |
           cd ${{ github.event.repository.name }}/${{ github.event.repository.name }}
           sh ./scripts/bundle-module.sh ${{ github.event.repository.name }}_preprod.zip
-#          zip -r ${{ github.event.repository.name }}_preprod.zip ${{ github.event.repository.name }}  -x '*.git*' '*config/config.yml.*'
 
       - name: Publish the preprod zip
         uses: actions/upload-release-asset@v1.0.1
