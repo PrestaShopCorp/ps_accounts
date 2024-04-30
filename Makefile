@@ -2,6 +2,7 @@ PHP = $(shell which php 2> /dev/null)
 DOCKER = $(shell docker ps 2> /dev/null)
 NPM = $(shell which npm 2> /dev/null)
 YARN = $(shell which yarn 2> /dev/null)
+COMPOSER = ${PHP} ./composer.phar
 MODULE ?= $(shell basename ${PWD})
 CURRENT_UID := $(shell id -u)
 CURRENT_GID := $(shell id -g)
@@ -17,7 +18,7 @@ clean:
 ##########################################################
 # target: version
 
-VERSION ?= 5.2.0#$(shell git describe --tags | sed 's/^v//')
+VERSION ?= $(shell git describe --tags | sed 's/^v//' | cut -d'-' -f1)
 
 version:
 	@echo "...$(VERSION)..."
@@ -125,12 +126,9 @@ test-front:
 ##########################################################
 # target: fix-lint
 
-fix-lint: vendor/bin/php-cs-fixer
+fix-lint: vendor-dev
 	vendor/bin/php-cs-fixer fix --using-cache=no
 	npm --prefix=./_dev run lint --fix
-
-vendor/bin/php-cs-fixer:
-	./composer.phar install
 
 ##########################################################
 # target: php-scoper
@@ -153,7 +151,7 @@ php-scoper-add-prefix: scoper.inc.php vendor-clean vendor
 	rmdir "./${SCOPED_DIR}"
 
 php-scoper-dump-autoload:
-	./composer.phar dump-autoload --classmap-authoritative
+	${COMPOSER} dump-autoload --classmap-authoritative
 
 php-scoper-fix-autoload:
 	php fix-autoload.php
@@ -198,13 +196,13 @@ endif
 WORKDIR ?= ./
 
 php-cs-fixer: vendor-dev
-	php ./vendor/bin/php-cs-fixer fix
+	${PHP} ./vendor/bin/php-cs-fixer fix --using-cache=no
 
 autoindex: vendor-dev
-	php ./vendor/bin/autoindex prestashop:add:index "${WORKDIR}"
+	${PHP} ./vendor/bin/autoindex prestashop:add:index "${WORKDIR}"
 
 header-stamp: vendor-dev
-	php ./vendor/bin/header-stamp --target="${WORKDIR}" --license="assets/afl.txt" --exclude=".github,node_modules,vendor,vendor,tests,_dev"
+	${PHP} ./vendor/bin/header-stamp --target="${WORKDIR}" --license="assets/afl.txt" --exclude=".github,node_modules,vendor,vendor,tests,_dev"
 
 ##########################################################
 COMPOSER_OPTIONS ?= --prefer-dist -o --no-dev --quiet
@@ -214,7 +212,7 @@ vendor-clean:
 
 .PHONY: vendor
 vendor: composer.phar
-	./composer.phar install ${COMPOSER_OPTIONS}
+	${COMPOSER} install ${COMPOSER_OPTIONS}
 
 vendor-dev: COMPOSER_OPTIONS = --prefer-dist -o --quiet
 vendor-dev: vendor
