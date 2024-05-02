@@ -8,6 +8,8 @@ jobs:
   build:
     name: Build the base artifact
     runs-on: ubuntu-latest
+    outputs:
+      version: ${{ steps.set_version.outputs.version }}
     steps:
       - name: Checkout
         uses: actions/checkout@v2.0.0
@@ -19,9 +21,14 @@ jobs:
           registry-url: 'https://registry.npmjs.org'
           scope: '@prestashopcorp'
 
+      - name: Set version
+        id: set_version
+        run: |
+          echo "version=$(echo "${{ github.event.release.tag_name }}" | sed 's/^v//' | cut -d'-' -f1)" >> "GITHUB_OUTPUT"
+
       - name: Bump version
         run: |
-          VERSION=$(echo "${{ github.event.release.tag_name }}" | sed 's/^v//' | cut -d'-' -f1) \
+          VERSION=$(echo "${{ steps.set_version.outputs.version }}" \
           make version
 
 #      - name: Install composer dependencies
@@ -71,16 +78,19 @@ jobs:
     name: Upload the production zip asset to the release
     runs-on: ubuntu-latest
     needs: build
+    outputs:
+      zip_file: ${{ steps.set_zip_file.outputs.zip_file }}
     steps:
-      - name: Set version
-        id: set_version
-        run: |
-          echo "version=$(echo "${{ github.event.release.tag_name }}" | sed 's/^v//' | cut -d'-' -f1)" >> "$GITHUB_ENV"
+#      - name: Set version
+#        id: set_version
+#        run: |
+#          echo "version=$(echo "${{ github.event.release.tag_name }}" | sed 's/^v//' | cut -d'-' -f1)" >> "$GITHUB_ENV"
 
       - name: Set the zip file
         id: set_zip_file
         run: |
-          echo "zip_file=${{ github.event.repository.name }}-${{ env.version }}.zip" >> "$GITHUB_ENV"
+          echo "zip_file=${{ github.event.repository.name }}-${{ needs.build.outputs.version }}.zip" >> "$GITHUB_ENV"
+          echo "zip_file=${{ github.event.repository.name }}-${{ needs.build.outputs.version }}.zip" >> "$GITHUB_OUTPUT"
 
       - name: Download artifact
         uses: actions/download-artifact@v1
@@ -125,15 +135,15 @@ jobs:
     env:
       VERSION: $(echo "${{ github.event.release.tag_name }}" | sed 's/^v//' | cut -d'-' -f1)
     steps:
-      - name: Set version
-        id: set_version
-        run: |
-          echo "version=$(echo "${{ github.event.release.tag_name }}" | sed 's/^v//' | cut -d'-' -f1)" >> "$GITHUB_ENV"
+#      - name: Set version
+#        id: set_version
+#        run: |
+#          echo "version=$(echo "${{ github.event.release.tag_name }}" | sed 's/^v//' | cut -d'-' -f1)" >> "$GITHUB_ENV"
 
       - name: Set the zip file
         id: set_zip_file
         run: |
-          echo "zip_file=${{ github.event.repository.name }}_preprod-${{ env.version }}.zip" >> "$GITHUB_ENV"
+          echo "zip_file=${{ github.event.repository.name }}_preprod-${{ needs.build.outputs.version }}.zip" >> "$GITHUB_ENV"
 
       - name: Download artifact
         uses: actions/download-artifact@v1
@@ -183,7 +193,7 @@ jobs:
         with:
           repo: ${{ github.event.repository.full_name }}
           version: ${{ github.event.release.id }}
-          file: ${{ github.event.repository.name }}.zip
+          file: ${{ needs.upload_release_asset_production.outputs.zip_file }}
           token: ${{ secrets.JARVIS_TOKEN }}
 
       - name: Prepare publishing tool
@@ -192,6 +202,10 @@ jobs:
 
       - name: Release zip
         run: |
-          ~/.composer/vendor/bin/publish-on-marketplace --archive=$PWD/${{ github.event.repository.name }}.zip --metadata-json=$PWD/.github/mktp-metadata.json --changelog="${{ github.event.release.body }}" --debug
+          ~/.composer/vendor/bin/publish-on-marketplace \
+            --archive=$PWD/${{ needs.upload_release_asset_production.outputs.zip_file }} \
+            --metadata-json=$PWD/.github/mktp-metadata.json \
+            --changelog="${{ github.event.release.body }}" \
+            --debug
         env:
           MARKETPLACE_API_KEY: ${{ secrets.MARKETPLACE_API_KEY }}
