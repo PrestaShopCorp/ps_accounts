@@ -28,7 +28,7 @@ jobs:
 
       - name: Bump version
         run: |
-          VERSION=$(echo "${{ steps.set_version.outputs.version }}" \
+          VERSION=${{ steps.set_version.outputs.version }} \
           make version
 
 #      - name: Install composer dependencies
