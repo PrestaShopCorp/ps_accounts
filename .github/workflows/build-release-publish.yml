@@ -93,8 +93,9 @@ jobs:
 
       - name: Prepare the production zip
         run: |
-          cd ${{ github.event.repository.name }}/${{ github.event.repository.name }}
-          sh ./scripts/bundle-module.sh ${{ github.event.repository.name }}.zip
+          make cd-zip-prod
+#          cd ${{ github.event.repository.name }}/${{ github.event.repository.name }}
+#          sh ./scripts/bundle-module.sh ${{ github.event.repository.name }}.zip
         env:
           ENV_FILE: ${{ secrets.PS_ACCOUNTS_ENV_PROD }}
 
@@ -135,7 +136,8 @@ jobs:
       - name: Prepare the preprod zip
         run: |
           cd ${{ github.event.repository.name }}/${{ github.event.repository.name }}
-          sh ./scripts/bundle-module.sh ${{ github.event.repository.name }}_preprod.zip
+          VERSION=$(echo "${{ github.event.release.tag_name }}" | sed 's/^v//' | cut -d'-' -f1) \
+          sh ./scripts/bundle-module.sh ${{ github.event.repository.name }}_preprod-${VERSION}.zip
 
       - name: Publish the preprod zip
         uses: actions/upload-release-asset@v1.0.1

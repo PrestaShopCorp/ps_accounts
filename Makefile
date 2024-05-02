@@ -172,8 +172,14 @@ bundle: php-scoper config/config.yml
 bundle-prod: php-scoper config/config.yml.prod
 	@./scripts/bundle-module.sh "ps_accounts.zip" "prod"
 
-bundle-inte: php-scoper config/config.yml.inte
-	@./scripts/bundle-module.sh "ps_accounts_inte.zip" "inte"
+bundle-preprod: php-scoper config/config.yml.preprod
+	@./scripts/bundle-module.sh "ps_accounts_preprod.zip" "preprod"
+
+cd-zip-prod: config/config.yml vendor
+	@./scripts/bundle-module.sh "ps_accounts-${VERSION}.zip"
+
+cd-zip-preprod: config/config.yml vendor
+	@./scripts/bundle-module.sh "ps_accounts_preprod-${VERSION}.zip"
 
 build-front:
 ifndef YARN

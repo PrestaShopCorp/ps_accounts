@@ -12,7 +12,6 @@ if [ -z "$module" ]; then
   exit
 fi
 
-#VERSION ?= $(shell git describe --tags 2> /dev/null || echo "v0.0.0")
 if [ -z "$filename" ]; then
   version=$(grep '<version>' "${rootDir}/config.xml" | sed 's/^.*\[CDATA\[\(.*\)\]\].*/\1/')
   branch=$(git -C "${rootDir}" branch | grep '\*' | sed 's/^\*\s\+\(.*\)$/\1/' | sed 's/\//\_/g')
