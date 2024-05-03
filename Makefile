@@ -175,12 +175,6 @@ bundle-prod: php-scoper config/config.yml.prod
 bundle-preprod: php-scoper config/config.yml.preprod
 	@./scripts/bundle-module.sh "ps_accounts_preprod.zip" "preprod"
 
-cd-zip-prod: config/config.yml vendor
-	@./scripts/bundle-module.sh "ps_accounts-${VERSION}.zip"
-
-cd-zip-preprod: config/config.yml vendor
-	@./scripts/bundle-module.sh "ps_accounts_preprod-${VERSION}.zip"
-
 build-front:
 ifndef YARN
     $(error "YARN is unavailable on your system, try `npm i -g yarn`")
