@@ -81,11 +81,6 @@ jobs:
     outputs:
       zip_file: ${{ steps.set_zip_file.outputs.zip_file }}
     steps:
-#      - name: Set version
-#        id: set_version
-#        run: |
-#          echo "version=$(echo "${{ github.event.release.tag_name }}" | sed 's/^v//' | cut -d'-' -f1)" >> "$GITHUB_ENV"
-
       - name: Set the zip file
         id: set_zip_file
         run: |
@@ -132,14 +127,7 @@ jobs:
     name: Upload the preprod zip asset to the release
     runs-on: ubuntu-latest
     needs: build
-    env:
-      VERSION: $(echo "${{ github.event.release.tag_name }}" | sed 's/^v//' | cut -d'-' -f1)
     steps:
-#      - name: Set version
-#        id: set_version
-#        run: |
-#          echo "version=$(echo "${{ github.event.release.tag_name }}" | sed 's/^v//' | cut -d'-' -f1)" >> "$GITHUB_ENV"
-
       - name: Set the zip file
         id: set_zip_file
         run: |
