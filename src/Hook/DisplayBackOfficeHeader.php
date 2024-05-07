@@ -37,17 +37,6 @@ class DisplayBackOfficeHeader extends Hook
     {
         $this->module->getOauth2Middleware()->execute();
 
-        /** @var ConfigurationRepository $configurationRepository */
-        $configurationRepository = $this->module->getService(ConfigurationRepository::class);
-
-        // FIXME: this test is harmless here but should be removed
-        if (version_compare(
-            // FIXME: getUncached will be called with idShop = 1 here and return null default value
-            $configurationRepository->getLastUpgrade(false),
-            \Ps_accounts::VERSION,
-            '<'
-        )) {
-            $this->commandBus->handle(new UpgradeModuleMultiCommand());
-        }
+        $this->commandBus->handle(new UpgradeModuleMultiCommand());
     }
 }
