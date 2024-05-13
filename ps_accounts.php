@@ -470,8 +470,14 @@ class Ps_accounts extends Module
     {
         $container = $this->getCoreServiceContainer();
         if ($container) {
-            /** @var \PrestaShop\Module\PsAccounts\Session\Session $session */
-            $session = $container->get('session');
+            try {
+                /** @var \PrestaShop\Module\PsAccounts\Session\Session $session */
+                $session = $container->get('session');
+            } catch (\Symfony\Component\DependencyInjection\Exception\ServiceNotFoundException $e) {
+                // FIXME: fix for 1.7.7.x
+                global $kernel;
+                $session = $kernel->getContainer()->get('session');
+            }
 
             return $session;
         } else {
