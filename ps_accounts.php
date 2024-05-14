@@ -73,6 +73,12 @@ class Ps_accounts extends Module
             'description' => 'Shop unlinked with PrestaShop Account',
             'position' => 1,
         ],
+        [
+            'name' => 'actionShopAccessTokenRefreshAfter',
+            'title' => 'Shop access token refreshed event',
+            'description' => 'Shop access token refreshed event',
+            'position' => 1,
+        ],
     ];
 
     /**
@@ -89,7 +95,6 @@ class Ps_accounts extends Module
         'actionObjectShopDeleteBefore',
         'actionObjectShopUpdateAfter',
         'actionObjectShopUrlUpdateAfter',
-        'actionShopAccessTokenRefreshAfter',
         'actionShopAccountLinkAfter',
         'actionShopAccountUnlinkAfter',
         'displayAccountUpdateWarning',
