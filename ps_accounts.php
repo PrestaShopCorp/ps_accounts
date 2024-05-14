@@ -476,7 +476,9 @@ class Ps_accounts extends Module
             } catch (\Symfony\Component\DependencyInjection\Exception\ServiceNotFoundException $e) {
                 // FIXME: fix for 1.7.7.x
                 global $kernel;
-                $session = $kernel->getContainer()->get('session');
+                if (is_object($kernel) && method_exists($kernel, 'getContainer')) {
+                    $session = $kernel->getContainer()->get('session');
+                }
             }
 
             return $session;
