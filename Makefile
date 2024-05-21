@@ -21,11 +21,11 @@ clean:
 VERSION ?= $(shell git describe --tags | sed 's/^v//' | cut -d'-' -f1)
 
 version:
-	@echo "...$(VERSION)..."
-	sed -i -e "s/\(VERSION = \).*/\1\'${VERSION}\';/" ps_accounts.php
-	sed -i -e "s/\($this->version = \).*/\1\'${VERSION}\';/" ps_accounts.php
-	sed -i -e 's/\(<version><!\[CDATA\[\)[0-9a-z\.\-]\{1,\}.*\]\]><\/version>/\1'${VERSION}']]><\/version>/' config.xml
-	sed -i -e "s/\(\"version\"\: \).*/\1\"${VERSION}\",/" ./_dev/package.json
+	@echo "Setting up version number : $(VERSION)..."
+	@sed -i -e "s/\(VERSION = \).*/\1\'${VERSION}\';/" ps_accounts.php
+	@sed -i -e "s/\($this->version = \).*/\1\'${VERSION}\';/" ps_accounts.php
+	@sed -i -e 's/\(<version><!\[CDATA\[\)[0-9a-z\.\-]\{1,\}.*\]\]><\/version>/\1'${VERSION}']]><\/version>/' config.xml
+	@sed -i -e "s/\(\"version\"\: \).*/\1\"${VERSION}\",/" ./_dev/package.json
 
 ##########################################################
 # target: tests
@@ -165,22 +165,30 @@ php-scoper: php-scoper-add-prefix php-scoper-dump-autoload php-scoper-fix-autolo
 
 BUNDLE_ENV ?= # ex: local|preprod|prod
 BUNDLE_ZIP ?= # ex: ps_accounts_flavor.zip
+BUNDLE_VERSION ?= $(shell grep "<version>" config.xml | sed 's/^.*\([0-9]\+\.[0-9]\+\.[0-9]\+\).*/\1/')
+BUNDLE_JS ?= views/js/app.${BUNDLE_VERSION}.js
 
-bundle: php-scoper config/config.yml
+bundle: php-scoper config/config.yml build-front
 	@./scripts/bundle-module.sh "${BUNDLE_ZIP}" "${BUNDLE_ENV}"
 
-bundle-prod: php-scoper config/config.yml.prod
+bundle-prod: php-scoper config/config.yml.prod build-front
 	@./scripts/bundle-module.sh "ps_accounts.zip" "prod"
 
-bundle-preprod: php-scoper config/config.yml.preprod
+bundle-preprod: php-scoper config/config.yml.preprod build-front
 	@./scripts/bundle-module.sh "ps_accounts_preprod.zip" "preprod"
 
-build-front:
+define build_front
+	yarn --cwd ./_dev --frozen-lockfile
+	yarn --cwd ./_dev build
+endef
+
+${BUNDLE_JS}:
 ifndef YARN
     $(error "YARN is unavailable on your system, try `npm i -g yarn`")
 endif
-	yarn --cwd ./_dev --frozen-lockfile
-	yarn --cwd ./_dev build
+	$(call build_front)
+
+build-front: ${BUNDLE_JS}
 
 composer.phar:
 ifndef PHP
