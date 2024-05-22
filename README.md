@@ -1,4 +1,11 @@
+
 # PrestaShop Account
+
+[![Source Code](https://img.shields.io/badge/source-PrestaShopCorp/ps_accounts-blue.svg?style=flat-square)](https://github.com/PrestaShopCorp/ps_accounts)
+[![Latest Version](https://img.shields.io/github/release/PrestaShopCorp/ps_accounts.svg?style=flat-square)](https://github.com/PrestaShopCorp/ps_accounts/releases)
+[![Software License](https://img.shields.io/badge/license-MIT-brightgreen.svg?style=flat-square)](https://github.com/PrestaShopCorp/oauth2-prestashop/blob/main/LICENSE)
+[![Build Status](https://img.shields.io/github/actions/workflow/status/PrestaShopCorp/ps_accounts/.github/workflows/php.yml?label=CI&logo=github&style=flat-square)](https://github.com/PrestaShopCorp/ps_accounts/actions?query=workflow%3ACI)
+[![Total Downloads](https://img.shields.io/packagist/dt/PrestaShopCorp/ps_accounts.svg?style=flat-square)](https://packagist.org/packages/prestashopcorp/ps_accounts)
 
 The module **ps_accounts** is the interface between your module and PrestaShop's services. It manages:
 - Shop association and dissociation processes.
@@ -67,15 +74,15 @@ This modules manages the following tokens:
 
 This module has three parts:
 - [PS Accounts module](http://github.com/PrestaShopCorp/ps_accounts)
-    - This module must be installed.
-    - It's your interface between your module and PrestaShop Accounts service.
+  - This module must be installed.
+  - It's your interface between your module and PrestaShop Accounts service.
 - [PS Accounts Installer (Composer Library)](http://github.com/PrestaShopCorp/prestashop-accounts-installer)
-    - This library's role is here to compensate a lack of security between modules dependencies. If PS Accounts is removed while your module is still installed: it causes a crash of the PrestaShop module's page/feature.
-    - This library is here to install automatically PS Accounts if it's missing.
-    - It's your interface between your module and PrestaShop Accounts module
-    - You should never require directly PrestaShop\Module\PsAccounts namespace classes
+  - This library's role is here to compensate a lack of security between modules dependencies. If PS Accounts is removed while your module is still installed: it causes a crash of the PrestaShop module's page/feature.
+  - This library is here to install automatically PS Accounts if it's missing.
+  - It's your interface between your module and PrestaShop Accounts module
+  - You should never require directly PrestaShop\Module\PsAccounts namespace classes
 - [PrestaShop Accounts Vue Components](http://github.com/PrestaShopCorp/prestashop_accounts_vue_components)
-    - It's the front-end component you need to integrate into your module's configuration page.
+  - It's the front-end component you need to integrate into your module's configuration page.
 
 ## How to start working with PS Accounts as a PSx or Community Service developer?
 
@@ -149,12 +156,3 @@ Those API has been removed:
 - `/orders`
 - `/products`
 - `/themes`
-
-## Custom hooks
-
-Here are listed custom hooks provided with this module :
-
-| Hook name                    | Payload          | Description                                          |
-|------------------------------|------------------|------------------------------------------------------|
-| actionShopAccountLinkAfter   | shopId, shopUuid | Triggered after link has been acknowledged by shop   |
-| actionShopAccountUnlinkAfter | shopId, shopUuid | Triggered after unlink has been acknowledged by shop |
