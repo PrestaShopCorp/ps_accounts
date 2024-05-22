@@ -12,9 +12,6 @@ default: bundle
 help:
 	@egrep "^# target" Makefile
 
-clean:
-	git -c core.excludesfile=/dev/null clean -X -d -f
-
 ##########################################################
 # target: version
 
@@ -195,6 +192,9 @@ ifndef PHP
     $(error "PHP is unavailable on your system")
 endif
 	./scripts/composer-install.sh
+
+#clean:
+#	git -c core.excludesfile=/dev/null clean -X -d -f
 
 ##########################################################
 # target: php-cs-fixer

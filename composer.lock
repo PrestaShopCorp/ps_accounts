@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "156a8a7265bab31a90749944d2d56b30",
+    "content-hash": "98e8498a3566cb10fc3cb6e99e0441c9",
     "packages": [
         {
             "name": "guzzlehttp/guzzle",
@@ -803,16 +803,16 @@
         },
         {
             "name": "prestashopcorp/oauth2-prestashop",
-            "version": "dev-refactor/php-compat-range",
+            "version": "v2.0.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/PrestaShopCorp/oauth2-prestashop.git",
-                "reference": "eff1c2891a0815bd0df9c63c9f4fdd45a085146b"
+                "reference": "694ea5b33527f3d5d2ef91d3f7e040a5dd2ec048"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/PrestaShopCorp/oauth2-prestashop/zipball/eff1c2891a0815bd0df9c63c9f4fdd45a085146b",
-                "reference": "eff1c2891a0815bd0df9c63c9f4fdd45a085146b",
+                "url": "https://api.github.com/repos/PrestaShopCorp/oauth2-prestashop/zipball/694ea5b33527f3d5d2ef91d3f7e040a5dd2ec048",
+                "reference": "694ea5b33527f3d5d2ef91d3f7e040a5dd2ec048",
                 "shasum": ""
             },
             "require": {
@@ -853,9 +853,9 @@
             ],
             "support": {
                 "issues": "https://github.com/PrestaShopCorp/oauth2-prestashop/issues",
-                "source": "https://github.com/PrestaShopCorp/oauth2-prestashop/tree/refactor/php-compat-range"
+                "source": "https://github.com/PrestaShopCorp/oauth2-prestashop/tree/v2.0.0"
             },
-            "time": "2024-03-05T08:20:27+00:00"
+            "time": "2024-05-22T12:33:38+00:00"
         },
         {
             "name": "psr/cache",
@@ -4404,16 +4404,16 @@
         },
         {
             "name": "squizlabs/php_codesniffer",
-            "version": "3.9.0",
+            "version": "3.10.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/PHPCSStandards/PHP_CodeSniffer.git",
-                "reference": "d63cee4890a8afaf86a22e51ad4d97c91dd4579b"
+                "reference": "57e09801c2fbae2d257b8b75bebb3deeb7e9deb2"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/PHPCSStandards/PHP_CodeSniffer/zipball/d63cee4890a8afaf86a22e51ad4d97c91dd4579b",
-                "reference": "d63cee4890a8afaf86a22e51ad4d97c91dd4579b",
+                "url": "https://api.github.com/repos/PHPCSStandards/PHP_CodeSniffer/zipball/57e09801c2fbae2d257b8b75bebb3deeb7e9deb2",
+                "reference": "57e09801c2fbae2d257b8b75bebb3deeb7e9deb2",
                 "shasum": ""
             },
             "require": {
@@ -4480,7 +4480,7 @@
                     "type": "open_collective"
                 }
             ],
-            "time": "2024-02-16T15:06:51+00:00"
+            "time": "2024-05-20T08:11:32+00:00"
         },
         {
             "name": "symfony/console",
@@ -5096,9 +5096,7 @@
     ],
     "aliases": [],
     "minimum-stability": "stable",
-    "stability-flags": {
-        "prestashopcorp/oauth2-prestashop": 20
-    },
+    "stability-flags": [],
     "prefer-stable": false,
     "prefer-lowest": false,
     "platform": {
