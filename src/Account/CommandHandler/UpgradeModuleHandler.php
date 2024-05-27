@@ -77,6 +77,9 @@ class UpgradeModuleHandler
      */
     public function handle(UpgradeModuleCommand $command)
     {
+        // TODO: dissociate on error + send segment event
+        // TODO: throw error on fail refresh
+
         $this->shopContext->execInShopContext($command->payload->shopId, function () use ($command) {
             $lastUpgrade = $this->configRepo->getLastUpgrade(false);
 
@@ -89,11 +92,15 @@ class UpgradeModuleHandler
                 $this->lastChanceToRefreshShopToken();
                 //}
 
-                $this->accountsClient->upgradeShopModule(
+                $response = $this->accountsClient->upgradeShopModule(
                     $this->linkShop->getShopUuid(),
                     (string) $this->shopSession->getOrRefreshToken(),
                     $command->payload
                 );
+
+                if (! $response['status']) {
+                    $this->linkShop->delete();
+                }
             }
         });
     }
