@@ -126,7 +126,7 @@ class AccountsClient
      */
     public function deleteUserShop($ownerUid, $shopUid, $ownerToken)
     {
-        $this->client->setRoute('v1/user/' . $ownerUid . '/shop/' . $shopUid);
+        $this->getClient()->setRoute('v1/user/' . $ownerUid . '/shop/' . $shopUid);
 
         return $this->getClient()->delete([
             'headers' => $this->getHeaders([
