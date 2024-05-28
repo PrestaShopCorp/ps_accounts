@@ -202,9 +202,6 @@ class ShopProvider extends PrestaShop
                 'verify_peer' => $secure,
                 'verify_peer_name' => $secure,
             ],
-            'http' => [
-                'ignore_errors' => '1',
-            ],
         ])), true) ?: [];
     }
 
