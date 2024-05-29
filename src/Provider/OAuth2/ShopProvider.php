@@ -21,6 +21,7 @@
 namespace PrestaShop\Module\PsAccounts\Provider\OAuth2;
 
 use PrestaShop\Module\PsAccounts\Adapter\Link;
+use PrestaShop\Module\PsAccounts\Log\Logger;
 use PrestaShop\Module\PsAccounts\Vendor\League\OAuth2\Client\Provider\AbstractProvider;
 use PrestaShop\OAuth2\Client\Provider\PrestaShop;
 use PrestaShop\OAuth2\Client\Provider\WellKnown;
@@ -163,9 +164,15 @@ class ShopProvider extends PrestaShop
 
     /**
      * @return WellKnown
+     *
+     * @throws \Exception
      */
     public function getWellKnown()
     {
+        if (! $this->verify) {
+            return parent::getWellKnown();
+        }
+
         if (!isset($this->wellKnown)) {
             try {
                 $this->wellKnown = new WellKnown(
@@ -175,6 +182,7 @@ class ShopProvider extends PrestaShop
             } catch (\Exception $e) {
             }
             if (isset($e)) {
+                Logger::getInstance()->error($e->getMessage());
                 $this->wellKnown = new WellKnown();
             }
         }
@@ -197,12 +205,7 @@ class ShopProvider extends PrestaShop
             $wellKnownUrl = preg_replace('/\/?$/', '/.well-known/openid-configuration', $wellKnownUrl);
         }
 
-        return json_decode((string) \Tools::file_get_contents($wellKnownUrl, false, stream_context_create([
-            'ssl' => [
-                'verify_peer' => $secure,
-                'verify_peer_name' => $secure,
-            ],
-        ])), true) ?: [];
+        return json_decode((string) \Tools::file_get_contents($wellKnownUrl), true) ?: [];
     }
 
     /**
