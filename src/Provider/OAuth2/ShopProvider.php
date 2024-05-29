@@ -169,7 +169,7 @@ class ShopProvider extends PrestaShop
      */
     public function getWellKnown()
     {
-        if (! $this->verify) {
+        if (!$this->verify) {
             return parent::getWellKnown();
         }
 
