@@ -37,7 +37,7 @@
         "sentry/sentry": "^1.0",
         "segmentio/analytics-php": "^1.8",
         "ramsey/uuid": "^3.9",
-        "prestashopcorp/oauth2-prestashop": "dev-refactor/php-compat-range",
+        "prestashopcorp/oauth2-prestashop": "^2.0",
         "guzzlehttp/guzzle": "^6.0"
     },
     "require-dev": {
