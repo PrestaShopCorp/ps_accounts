@@ -161,50 +161,6 @@ class ShopProvider extends PrestaShop
     }
 
     /**
-     * @return WellKnown
-     */
-    public function getWellKnown()
-    {
-        if (!isset($this->wellKnown)) {
-            try {
-                $this->wellKnown = new WellKnown(
-                    $this->fetchWellKnown($this->getOauth2Url(), $this->verify)
-                );
-            } catch (\Error $e) {
-            } catch (\Exception $e) {
-            }
-            if (isset($e)) {
-                $this->wellKnown = new WellKnown();
-            }
-        }
-
-        return $this->wellKnown;
-    }
-
-    /**
-     * @param string $url
-     * @param bool $secure
-     *
-     * @return array
-     *
-     * @throws \Exception
-     */
-    protected function fetchWellKnown($url, $secure = true)
-    {
-        $wellKnownUrl = $url;
-        if (strpos($wellKnownUrl, '/.well-known') === false) {
-            $wellKnownUrl = preg_replace('/\/?$/', '/.well-known/openid-configuration', $wellKnownUrl);
-        }
-
-        return json_decode((string) \Tools::file_get_contents($wellKnownUrl, false, stream_context_create([
-            'ssl' => [
-                'verify_peer' => $secure,
-                'verify_peer_name' => $secure,
-            ],
-        ])), true) ?: [];
-    }
-
-    /**
      * @return void
      */
     private function syncOauth2ClientProps()
