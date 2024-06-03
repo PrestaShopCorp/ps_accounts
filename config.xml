@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<module>
+    <name>ps_accounts</name>
+    <displayName><![CDATA[PrestaShop Account]]></displayName>
+    <version><![CDATA[7.0.2]]></version>
+    <description><![CDATA[Link your store to your PrestaShop account to activate and manage your subscriptions in your back office. Do not uninstall this module if you have a current subscription.]]></description>
+    <author><![CDATA[PrestaShop]]></author>
+    <tab><![CDATA[administration]]></tab>
+	<confirmUninstall><![CDATA[This action will prevent immediately your PrestaShop services and Community services from working as they are using PrestaShop Accounts module for authentication.]]></confirmUninstall>
+    <is_configurable>1</is_configurable>
+    <need_instance>0</need_instance>
+	<limited_countries></limited_countries>
+</module>

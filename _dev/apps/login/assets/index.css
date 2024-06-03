@@ -1,0 +1,16 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+
+.splide__pagination {
+    @apply !psacc-mb-6;
+}
+
+.splide__pagination__page {
+    @apply psacc-w-4 !psacc-bg-primary-800/25 psacc-mx-4 psacc-rounded-md psacc-h-1.5 psacc-duration-200;
+}
+
+.splide__pagination__page.is-active {
+    @apply psacc-w-10 psacc-h-1.5 !psacc-bg-primary-800;
+}

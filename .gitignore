@@ -1,0 +1,59 @@
+### Manually built zip
+/dist/
+
+### VUEJS BUILD ARTEFACT ###
+app.js
+
+### IDE ###
+.idea
+.vscode
+
+### Composer ###
+composer.phar
+/vendor/
+node_modules/
+.php_cs.cache
+.php_cs
+install.lock
+composer-dev.json
+composer-dev.lock
+.env
+
+### PHPUnit ###
+.phpunit.result.cache
+
+### Configuration ###
+config/config*.yml
+config/**/services_*.yml
+!config/config.yml.dist
+!config/admin/services.yml
+!config/front/services.yml
+
+### Module files ###
+!views/files
+views/files/*
+!views/files/.gitkeep
+
+### Vuejs ignore build files ###
+/views/js/app*.js
+/views/js/app*.js.map
+/views/css/app*.css
+/views/js/chunk-vendors*.js
+/views/js/chunk-vendors*.js.map
+/views/js/settings*.js
+/views/js/settings*.js.map
+/views/js/settingsOnBoarding*.js
+/views/js/settingsOnBoarding*.js.map
+/views/js/login*.js
+/views/js/login*.js.map
+/views/css/login*.css
+/views/css/index.css
+/views/css/chunk-vendors.css
+/views/favicon.ico
+/views/index.html
+./_dev/.npmrc
+
+# Log files
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*

@@ -1,0 +1,65 @@
+services:
+  PrestaShop\Module\PsAccounts\Account\CommandHandler\LinkShopHandler:
+    class: PrestaShop\Module\PsAccounts\Account\CommandHandler\LinkShopHandler
+    public: true
+    tags:
+      - { name: tactician.handler, command: 'PrestaShop\Module\PsAccounts\Domain\Shop\Command\LinkShopCommand' }
+    arguments:
+      - '@PrestaShop\Module\PsAccounts\Account\LinkShop'
+
+  PrestaShop\Module\PsAccounts\Account\CommandHandler\MigrateAndLinkV4ShopHandler:
+    class: PrestaShop\Module\PsAccounts\Account\CommandHandler\MigrateAndLinkV4ShopHandler
+    public: true
+    tags:
+      - { name: tactician.handler, command: 'PrestaShop\Module\PsAccounts\Domain\Shop\Command\MigrateAndLinkV4ShopCommand' }
+    arguments:
+      - '@PrestaShop\Module\PsAccounts\Api\Client\AccountsClient'
+      - '@PrestaShop\Module\PsAccounts\Context\ShopContext'
+      - '@PrestaShop\Module\PsAccounts\Account\Session\Firebase\ShopSession'
+
+  PrestaShop\Module\PsAccounts\Account\CommandHandler\DeleteUserShopHandler:
+    class: PrestaShop\Module\PsAccounts\Account\CommandHandler\DeleteUserShopHandler
+    public: true
+    tags:
+      - { name: tactician.handler, command: 'PrestaShop\Module\PsAccounts\Domain\Shop\Command\DeleteUserShopCommand' }
+    arguments:
+      - '@PrestaShop\Module\PsAccounts\Api\Client\AccountsClient'
+      - '@PrestaShop\Module\PsAccounts\Context\ShopContext'
+      - '@PrestaShop\Module\PsAccounts\Account\Session\Firebase\ShopSession'
+      - '@PrestaShop\Module\PsAccounts\Account\Session\Firebase\OwnerSession'
+
+  PrestaShop\Module\PsAccounts\Account\CommandHandler\UnlinkShopHandler:
+    class: PrestaShop\Module\PsAccounts\Account\CommandHandler\UnlinkShopHandler
+    public: true
+    tags:
+      - { name: tactician.handler, command: 'PrestaShop\Module\PsAccounts\Domain\Shop\Command\UnlinkShopCommand' }
+    arguments:
+      - '@PrestaShop\Module\PsAccounts\Account\LinkShop'
+
+  PrestaShop\Module\PsAccounts\Account\CommandHandler\UpdateUserShopHandler:
+    class: PrestaShop\Module\PsAccounts\Account\CommandHandler\UpdateUserShopHandler
+    public: true
+    tags:
+      - { name: tactician.handler, command: 'PrestaShop\Module\PsAccounts\Domain\Shop\Command\UpdateShopCommand' }
+    arguments:
+      - '@PrestaShop\Module\PsAccounts\Api\Client\AccountsClient'
+      - '@PrestaShop\Module\PsAccounts\Context\ShopContext'
+      - '@PrestaShop\Module\PsAccounts\Account\Session\Firebase\ShopSession'
+      - '@PrestaShop\Module\PsAccounts\Account\Session\Firebase\OwnerSession'
+
+  PrestaShop\Module\PsAccounts\Account\CommandHandler\UpgradeModuleHandler:
+    class: PrestaShop\Module\PsAccounts\Account\CommandHandler\UpgradeModuleHandler
+    public: true
+    arguments:
+      - '@PrestaShop\Module\PsAccounts\Api\Client\AccountsClient'
+      - '@PrestaShop\Module\PsAccounts\Account\LinkShop'
+      - '@PrestaShop\Module\PsAccounts\Account\Session\Firebase\ShopSession'
+      - '@PrestaShop\Module\PsAccounts\Context\ShopContext'
+      - '@PrestaShop\Module\PsAccounts\Repository\ConfigurationRepository'
+
+  PrestaShop\Module\PsAccounts\Account\CommandHandler\UpgradeModuleMultiHandler:
+    class: PrestaShop\Module\PsAccounts\Account\CommandHandler\UpgradeModuleMultiHandler
+    public: true
+    arguments:
+      - '@PrestaShop\Module\PsAccounts\Cqrs\CommandBus'
+      - '@PrestaShop\Module\PsAccounts\Repository\ConfigurationRepository'

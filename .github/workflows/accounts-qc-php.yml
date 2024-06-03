@@ -1,0 +1,124 @@
+name: Accounts Quality Control PHP
+
+on: [pull_request]
+
+jobs:
+  php-linter:
+    name: PHP Syntax check 5.6|7.2|7.3
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+      - name: PHP syntax checker 5.6
+        uses: prestashop/github-action-php-lint/5.6@master
+      - name: PHP syntax checker 7.2
+        uses: prestashop/github-action-php-lint/7.2@master
+      - name: PHP syntax checker 7.3
+        uses: prestashop/github-action-php-lint/7.3@master
+
+  php-cs-fixer:
+    name: PHP-CS-FIXER
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+      - name: Run PHP-CS-Fixer
+        uses: prestashopcorp/github-action-php-cs-fixer@master
+
+  phpstan:
+    name: PHPStan
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        presta-versions: ["latest", "1.7.6.5", "1.6.1.21"]
+#        presta-versions: ["latest", "1.7.6.5", "1.7.0.3", "1.6.1.21", "1.6.1.0"]
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+
+      - name: Cache vendor folder
+        uses: actions/cache@v3
+        with:
+          path: vendor
+          key: php-${{ hashFiles('composer.lock') }}
+
+      - name: Cache composer folder
+        uses: actions/cache@v3
+        with:
+          path: ~/.composer/cache
+          key: php-composer-cache
+
+#      - name: Install dependencies
+#        run: composer install
+
+      - name: Scoped dependencies
+        run: make php-scoper
+
+      - name: Select .neon file compatible with PrestaShop ${{ matrix.presta-versions }}
+        id: neon
+        run: |
+          PS_VERSION="${{ matrix.presta-versions }}"
+          [[ "${PS_VERSION:0:3}" != '1.6' ]] && echo ::set-output name=filename::phpstan-PS-1.7.neon || echo ::set-output name=filename::phpstan-PS-1.6.neon
+
+      - name: PHPStan PrestaShop ${{ matrix.presta-versions }}
+        run: |
+          PS_VERSION="${{ matrix.presta-versions }}" \
+          NEON_FILE=${{steps.neon.outputs.filename}} \
+          make phpstan
+
+
+  phpunit:
+    name: PHPUNIT for Prestashop ${{ matrix.presta-versions }}
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        presta-versions: ["1.6", "1.7", "latest"]
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+
+      - name: Cache vendor folder
+        uses: actions/cache@v3
+        with:
+          path: vendor
+          key: php-${{ hashFiles('composer.lock') }}
+
+      - name: Cache composer folder
+        uses: actions/cache@v3
+        with:
+          path: ~/.composer/cache
+          key: php-composer-cache
+
+#      - name: Install dependencies
+#        run: composer install
+
+      - name: Scoped dependencies
+        run: make php-scoper
+
+      - name: PHPUnit tests
+        run: |
+          DOCKER_INTERNAL="${{ matrix.presta-versions }}" make phpunit
+
+  header-stamp:
+    name: Check license headers
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+
+      - name: Cache vendor folder
+        uses: actions/cache@v3
+        with:
+          path: vendor
+          key: php-${{ hashFiles('composer.lock') }}
+
+      - name: Cache composer folder
+        uses: actions/cache@v3
+        with:
+          path: ~/.composer/cache
+          key: php-composer-cache
+
+      - run: composer install
+
+      - name: Run Header Stamp in Dry Run mode
+        run: php vendor/bin/header-stamp --license=vendor/prestashop/header-stamp/assets/afl.txt --exclude=.github,node_modules,vendor,vendor,tests,_dev --dry-run

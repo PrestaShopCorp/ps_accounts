@@ -1,0 +1,43 @@
+includes:
+	- %currentWorkingDirectory%/vendor/prestashop/php-dev-tools/phpstan/ps-module-extension.neon
+parameters:
+	checkMissingIterableValueType: false
+	reportUnmatchedIgnoredErrors: false
+	paths:
+		- ../../src
+		- ../../controllers
+		- ../../ps_accounts.php
+	dynamicConstantNames:
+		- _PS_VERSION_
+	ignoreErrors:
+		- '#Property TabCore::\$name \(string\) does not accept array.#'
+		- '#Parameter \#1 \$value of method ControllerCore::ajaxDie\(\) expects string\|null, string\|false given.#'
+		- '#Parameter \#4 \$ssl of method LinkCore::getModuleLink\(\) expects null, true given.#'
+		- '#Parameter \#6 \$idShop of method LinkCore::getModuleLink\(\) expects null, int given.#'
+		- '#Result of method ps_accountsDispatchWebHookModuleFrontController::generateHttpResponse\(\) \(void\) is used.#'
+		- '#Method ps_accountsDispatchWebHookModuleFrontController::display\(\) with return type void returns void but should not return anything.#'
+		- '#Parameter \#1 \$json of function json_decode expects string, string\|false given.#'
+		- '#Parameter \#2 \$message of method PrestaShop\\Module\\PsAccounts\\WebHook\\Validator::getError\(\) expects string, string\|false given.#'
+		- '#Return type \(void\) of method ps_accountsDispatchWebHookModuleFrontController::display\(\) should be compatible with return type \(bool\) of method FrontControllerCore::display\(\)#'
+		- '#Parameter \#1 \$hook_name of method ModuleCore::registerHook\(\) expects string, array given.#'
+		- '#Access to an undefined property AdminController\|FrontController::\$controller_name.#'
+		- '#Method ps_accountsDispatchWebHookModuleFrontController::display\(\) with return type void returns mixed but should not return anything.#'
+		- '#Call to static method getAvailable\(\) on an unknown class Theme.#'
+		- '#Call to static method getByDirectory\(\) on an unknown class Theme.#'
+		- '#Call to static method getThemeInfo\(\) on an unknown class Theme.#'
+		- '#Access to an undefined property Context::\$theme.#'
+		- '#Access to an undefined property Shop::\$theme.#'
+		- '#Call to method buildRepository\(\) on an unknown class PrestaShop\\PrestaShop\\Core\\Addon\\Theme\\ThemeManagerBuilder.#'
+		- '#Instantiated class PrestaShop\\PrestaShop\\Core\\Addon\\Theme\\ThemeManagerBuilder not found.#'
+		- '#Class Theme not found.#'
+		- '#Access to property \$id on an unknown class Theme.#'
+		- '#Property Ps_accounts::\$serviceContainer has unknown class PrestaShop\\ModuleLibServiceContainer\\DependencyInjection\\ServiceContainer as its type.#'
+		- '#Instantiated class PrestaShop\\ModuleLibServiceContainer\\DependencyInjection\\ServiceContainer not found.#'
+		- '#Call to method getService\(\) on an unknown class PrestaShop\\ModuleLibServiceContainer\\DependencyInjection\\ServiceContainer.#'
+		- '#Cannot access property \$id on Module\|false.#'
+		- '#Symfony\\Component\\Config\\ResourceCheckerConfigCache::write\(\) expects string, array\|string given.#'
+		- '#Call to method get\(\) on an unknown class PrestaShop\\PrestaShop\\Adapter\\SymfonyContainer.#'
+		- '#Call to static method getInstance\(\) on an unknown class PrestaShop\\PrestaShop\\Adapter\\SymfonyContainer.#'
+		- '#Call to an undefined method object::generate\(\).#'
+
+	level: 7
