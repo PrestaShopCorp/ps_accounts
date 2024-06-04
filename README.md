@@ -5,7 +5,6 @@
 [![Latest Version](https://img.shields.io/github/release/PrestaShopCorp/ps_accounts.svg?style=flat-square)](https://github.com/PrestaShopCorp/ps_accounts/releases)
 [![Software License](https://img.shields.io/badge/license-MIT-brightgreen.svg?style=flat-square)](https://github.com/PrestaShopCorp/oauth2-prestashop/blob/main/LICENSE)
 [![Build Status](https://img.shields.io/github/actions/workflow/status/PrestaShopCorp/ps_accounts/.github/workflows/php.yml?label=CI&logo=github&style=flat-square)](https://github.com/PrestaShopCorp/ps_accounts/actions?query=workflow%3ACI)
-[![Total Downloads](https://img.shields.io/packagist/dt/PrestaShopCorp/ps_accounts.svg?style=flat-square)](https://packagist.org/packages/prestashopcorp/ps_accounts)
 
 The module **ps_accounts** is the interface between your module and PrestaShop's services. It manages:
 - Shop association and dissociation processes.
