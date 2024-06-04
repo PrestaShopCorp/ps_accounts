@@ -21,7 +21,6 @@
 namespace PrestaShop\Module\PsAccounts\Account\Session;
 
 use PrestaShop\Module\PsAccounts\Account\LinkShop;
-use PrestaShop\Module\PsAccounts\Account\Token\NullToken;
 use PrestaShop\Module\PsAccounts\Account\Token\Token;
 use PrestaShop\Module\PsAccounts\Exception\RefreshTokenException;
 use PrestaShop\Module\PsAccounts\Hook\ActionShopAccessTokenRefreshAfter;
@@ -35,8 +34,6 @@ use PrestaShop\OAuth2\Client\Provider\PrestaShop;
 
 class ShopSession extends Session implements SessionInterface
 {
-    //use RefreshFirebaseTokens;
-
     /**
      * @var PrestaShop
      */
@@ -58,30 +55,6 @@ class ShopSession extends Session implements SessionInterface
         $this->configurationRepository = $configurationRepository;
         $this->oauth2ClientProvider = $oauth2ClientProvider;
     }
-
-//    /**
-//     * @param bool $forceRefresh
-//     * @param bool $refreshFirebaseTokens
-//     *
-//     * @return Token
-//     */
-//    public function getOrRefreshToken($forceRefresh = false, $refreshFirebaseTokens = false)
-//    {
-//        $token = parent::getOrRefreshToken($forceRefresh);
-//
-//        try {
-//            if ($refreshFirebaseTokens && ! ($token->getJwt() instanceof NullToken)) {
-//                $this->refreshFirebaseTokens($token);
-//            }
-//
-//            \Hook::exec(ActionShopAccessTokenRefreshAfter::getName(), ['token' => $token]);
-//        } catch (RefreshTokenException $e) {
-//            Logger::getInstance()->error('Unable to get or refresh shop token : ' . $e->getMessage());
-//        }
-//
-//        return $token;
-//    }
-
 
     /**
      * @inheritDoc

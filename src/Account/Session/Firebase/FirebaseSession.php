@@ -18,15 +18,16 @@
  * @license   https://opensource.org/licenses/AFL-3.0 Academic Free License version 3.0
  */
 
-namespace PrestaShop\Module\PsAccounts\Account\Session;
+namespace PrestaShop\Module\PsAccounts\Account\Session\Firebase;
 
-use PrestaShop\Module\PsAccounts\Account\Session;
+use PrestaShop\Module\PsAccounts\Account\Session\Session;
+use PrestaShop\Module\PsAccounts\Account\Session\SessionInterface;
 use PrestaShop\Module\PsAccounts\Account\Token\NullToken;
 use PrestaShop\Module\PsAccounts\Account\Token\Token;
 use PrestaShop\Module\PsAccounts\Api\Client\AccountsClient;
 use PrestaShop\Module\PsAccounts\Exception\RefreshTokenException;
 
-trait RefreshFirebaseTokens
+abstract class FirebaseSession extends Session implements SessionInterface
 {
     /**
      * @return AccountsClient
@@ -56,7 +57,7 @@ trait RefreshFirebaseTokens
 
         $response = $this->getAccountsClient()->firebaseTokens($token);
 
-        $type = $this instanceof Firebase\ShopSession ? 'shop' : 'user';
+        $type = $this instanceof ShopSession ? 'shop' : 'user';
 
         return $this->getFirebaseTokenFromResponse($response, $type . 'Token', $type . 'RefreshToken');
     }
@@ -72,8 +73,8 @@ trait RefreshFirebaseTokens
      */
     protected function getFirebaseTokenFromResponse(
         array $response,
-        $name,
-        $refreshName
+              $name,
+              $refreshName
     ) {
         if ($response && true === $response['status']) {
             return new Token(
