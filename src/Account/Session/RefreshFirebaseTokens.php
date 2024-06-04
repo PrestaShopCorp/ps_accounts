@@ -73,7 +73,6 @@ trait RefreshFirebaseTokens
      * @return void
      *
      * @throws RefreshTokenException
-     * @throws \Exception
      */
     protected function refreshFirebaseTokens($token)
     {

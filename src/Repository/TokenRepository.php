@@ -20,9 +20,11 @@
 
 namespace PrestaShop\Module\PsAccounts\Repository;
 
+use Analog\Handler\Null;
 use Exception;
 use PrestaShop\Module\PsAccounts\Account\Session\Session;
 use PrestaShop\Module\PsAccounts\Account\Token\NullToken;
+use PrestaShop\Module\PsAccounts\Exception\RefreshTokenException;
 use PrestaShop\Module\PsAccounts\Vendor\Lcobucci\JWT\Token;
 
 /**
@@ -45,11 +47,12 @@ abstract class TokenRepository
     }
 
     /**
-     * @return Token|NullToken
+     * @return Token|null
      */
     public function getToken()
     {
-        return $this->session->getToken()->getJwt();
+        $token = $this->session->getToken()->getJwt();
+        return $token instanceof NullToken ? null : $token;
     }
 
     /**
@@ -91,12 +94,11 @@ abstract class TokenRepository
      * @param bool $forceRefresh
      *
      * @return Token|null
-     *
-     * @throws Exception
      */
     public function getOrRefreshToken($forceRefresh = false)
     {
-        return $this->session->getOrRefreshToken($forceRefresh)->getJwt();
+        $token = $this->session->getOrRefreshToken($forceRefresh)->getJwt();
+        return $token instanceof NullToken ? null : $token;
     }
 
     /**

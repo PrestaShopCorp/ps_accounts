@@ -63,8 +63,6 @@ class ShopSession extends Session implements SessionInterface
      * @param bool $refreshFirebaseTokens
      *
      * @return Token
-     *
-     * @throws \Exception
      */
     public function getOrRefreshToken($forceRefresh = false, $refreshFirebaseTokens = false)
     {
@@ -76,10 +74,7 @@ class ShopSession extends Session implements SessionInterface
             }
 
             \Hook::exec(ActionShopAccessTokenRefreshAfter::getName(), ['token' => $token]);
-        } catch (\Error $e) {
-        } catch (\Exception $e) {
-        }
-        if (isset($e)) {
+        } catch (RefreshTokenException $e) {
             Logger::getInstance()->error('Unable to get or refresh shop token : ' . $e->getMessage());
         }
 
