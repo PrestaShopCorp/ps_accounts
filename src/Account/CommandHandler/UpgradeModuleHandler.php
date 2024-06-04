@@ -26,6 +26,7 @@ use PrestaShop\Module\PsAccounts\Account\Session\Firebase\ShopSession;
 use PrestaShop\Module\PsAccounts\Api\Client\AccountsClient;
 use PrestaShop\Module\PsAccounts\Context\ShopContext;
 use PrestaShop\Module\PsAccounts\Repository\ConfigurationRepository;
+use PrestaShop\Module\PsAccounts\Service\AnalyticsService;
 
 class UpgradeModuleHandler
 {
@@ -89,11 +90,21 @@ class UpgradeModuleHandler
                 $this->lastChanceToRefreshShopToken();
                 //}
 
-                $this->accountsClient->upgradeShopModule(
+                $response = $this->accountsClient->upgradeShopModule(
                     $this->linkShop->getShopUuid(),
                     (string) $this->shopSession->getOrRefreshToken(),
                     $command->payload
                 );
+
+                if (! $response['status']) {
+                    $this->linkShop->delete();
+
+                    // TODO: dissociate on error + send segment event
+                    // TODO: throw error on fail refresh
+                    /** @var AnalyticsService $analyticsService */
+                    $analyticsService = null;
+                    $analyticsService->trackMaxRefreshTokenAttempts();
+                }
             }
         });
     }

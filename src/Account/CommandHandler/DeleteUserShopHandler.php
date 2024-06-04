@@ -44,15 +44,15 @@ class DeleteUserShopHandler
     private $shopSession;
 
     /**
-     * @var \PrestaShop\Module\PsAccounts\Account\Session\Firebase\OwnerSession
+     * @var OwnerSession
      */
     private $ownerSession;
 
     /**
      * @param AccountsClient $accountClient
      * @param ShopContext $shopContext
-     * @param \PrestaShop\Module\PsAccounts\Account\Session\Firebase\ShopSession $shopSession
-     * @param \PrestaShop\Module\PsAccounts\Account\Session\Firebase\OwnerSession $ownerSession
+     * @param ShopSession $shopSession
+     * @param OwnerSession $ownerSession
      */
     public function __construct(
         AccountsClient $accountClient,
