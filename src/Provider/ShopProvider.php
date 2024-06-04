@@ -25,6 +25,12 @@ use PrestaShop\Module\PsAccounts\Account\LinkShop;
 use PrestaShop\Module\PsAccounts\Account\Session\Firebase\OwnerSession;
 use PrestaShop\Module\PsAccounts\Adapter\Link;
 use PrestaShop\Module\PsAccounts\Context\ShopContext;
+<<<<<<< HEAD
+=======
+use PrestaShop\Module\PsAccounts\Domain\Shop\Dto\Shop;
+use PrestaShop\Module\PsAccounts\Domain\Shop\Entity\Association;
+use PrestaShop\Module\PsAccounts\Domain\Shop\Entity\PublicKey;
+>>>>>>> 6da8cbe1 (Refacto DDD-CQRS2)
 
 class ShopProvider
 {
@@ -61,6 +67,7 @@ class ShopProvider
      *
      * @throws \Exception
      */
+<<<<<<< HEAD
     public function formatShopData(array $shopData, $psxName = '', $refreshTokens = true)
     {
         return $this->getShopContext()->execInShopContext($shopData['id_shop'], function () use ($shopData, $psxName, $refreshTokens) {
@@ -94,6 +101,41 @@ class ShopProvider
                     'uuid' => $linkShop->getOwnerUuid() ?: null,
                     'emailIsValidated' => null,
                 ],
+=======
+    public function formatShopData(array $shopData, string $psxName = ''): Shop
+    {
+        return $this->getShopContext()->execInShopContext($shopData['id_shop'], function () use ($shopData, $psxName) {
+            /** @var \Ps_accounts $module */
+            $module = \Module::getInstanceByName('ps_accounts');
+
+            /** @var Association $association */
+            $association = $module->getService(Association::class);
+            $shopSession = $association->getShopSession();
+            $ownerSession = $association->getOwnerSession();
+
+            /** @var PublicKey $rsaKeyProvider */
+            $rsaKeyProvider = $module->getService(PublicKey::class);
+
+            return new Shop([
+                'id' => (string) $shopData['id_shop'],
+                'name' => $shopData['name'],
+                'domain' => $shopData['domain'],
+                'domainSsl' => $shopData['domain_ssl'],
+                'physicalUri' => $this->getShopPhysicalUri($shopData['id_shop']),
+                'virtualUri' => $this->getShopVirtualUri($shopData['id_shop']),
+                'frontUrl' => $this->getShopUrl($shopData),
+
+                // LinkAccount
+                'uuid' => $shopSession->getToken()->getUuid() ?: null,
+                'publicKey' => $rsaKeyProvider->getOrGeneratePublicKey() ?: null,
+                'employeeId' => (int) $ownerSession->getEmployeeId() ?: null,
+                'user' => [
+                    'email' => $ownerSession->getToken()->getEmail() ?: null,
+                    'uuid' => $ownerSession->getToken()->getUuid() ?: null,
+                    'emailIsValidated' => $ownerSession->isEmailVerified(),
+                ],
+
+>>>>>>> 6da8cbe1 (Refacto DDD-CQRS2)
                 'url' => $this->link->getAdminLink(
                     'AdminModules',
                     true,
@@ -103,6 +145,7 @@ class ShopProvider
                         'setShopContext' => 's-' . $shopData['id_shop'],
                     ]
                 ),
+<<<<<<< HEAD
                 'isLinkedV4' => null,
                 'unlinkedAuto' => false,
             ]);
@@ -113,6 +156,10 @@ class ShopProvider
             }
 
             return $shop;
+=======
+                'isLinkedV4' => $association->isLinkedV4(),
+            ]);
+>>>>>>> 6da8cbe1 (Refacto DDD-CQRS2)
         });
     }
 
@@ -123,11 +170,15 @@ class ShopProvider
      *
      * @throws \PrestaShopException|\Exception
      */
-    public function getCurrentShop($psxName = '')
+    public function getCurrentShop(string $psxName = ''): array
     {
         $shop = $this->formatShopData((array) \Shop::getShop($this->shopContext->getContext()->shop->id), $psxName);
 
+<<<<<<< HEAD
         return array_merge($shop->jsonSerialize(), [
+=======
+        return array_merge((array) $data, [
+>>>>>>> 6da8cbe1 (Refacto DDD-CQRS2)
             'multishop' => $this->shopContext->isMultishopActive(),
             'moduleName' => $psxName,
             'psVersion' => _PS_VERSION_,
@@ -139,10 +190,14 @@ class ShopProvider
      *
      * @return array
      *
+<<<<<<< HEAD
      * @throws \PrestaShopException
      * @throws \Exception
+=======
+     * @throws \PrestaShopException|\Exception
+>>>>>>> 6da8cbe1 (Refacto DDD-CQRS2)
      */
-    public function getShopsTree($psxName)
+    public function getShopsTree(string $psxName): array
     {
         $shopList = [];
 
@@ -151,7 +206,11 @@ class ShopProvider
             foreach ($groupData['shops'] as $shopId => $shopData) {
                 $shop = $this->formatShopData((array) $shopData, $psxName);
 
+<<<<<<< HEAD
                 $shops[] = array_merge($shop->jsonSerialize(), [
+=======
+                $shops[] = array_merge((array) $data, [
+>>>>>>> 6da8cbe1 (Refacto DDD-CQRS2)
                     'multishop' => $this->shopContext->isMultishopActive(),
                     'moduleName' => $psxName,
                     'psVersion' => _PS_VERSION_,
@@ -180,7 +239,7 @@ class ShopProvider
      *
      * @throws \PrestaShopException
      */
-    public function getUnlinkedShops($psxName, $employeeId)
+    public function getUnlinkedShops(string $psxName, int $employeeId): array
     {
         $shopTree = $this->getShopsTree($psxName);
         $shops = [];
@@ -219,7 +278,7 @@ class ShopProvider
     /**
      * @return ShopContext
      */
-    public function getShopContext()
+    public function getShopContext(): ShopContext
     {
         return $this->shopContext;
     }
@@ -229,7 +288,7 @@ class ShopProvider
      *
      * @return false|string
      */
-    private function getShopPhysicalUri($shopId)
+    private function getShopPhysicalUri(int $shopId)
     {
         return \Db::getInstance()->getValue(
             'SELECT physical_uri FROM ' . _DB_PREFIX_ . 'shop_url WHERE id_shop=' . (int) $shopId . ' AND main=1'
@@ -241,7 +300,7 @@ class ShopProvider
      *
      * @return false|string
      */
-    private function getShopVirtualUri($shopId)
+    private function getShopVirtualUri(int $shopId)
     {
         return \Db::getInstance()->getValue(
             'SELECT virtual_uri FROM ' . _DB_PREFIX_ . 'shop_url WHERE id_shop=' . (int) $shopId . ' AND main=1'
@@ -253,7 +312,7 @@ class ShopProvider
      *
      * @return string|null
      */
-    private function getShopUrl($shopData)
+    private function getShopUrl(array $shopData): ?string
     {
         if (!$shopData['domain']) {
             return null;

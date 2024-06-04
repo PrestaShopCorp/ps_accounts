@@ -18,6 +18,7 @@
  * @license   https://opensource.org/licenses/AFL-3.0 Academic Free License version 3.0
  */
 
+<<<<<<< HEAD
 use PrestaShop\Module\PsAccounts\Account\Command\LinkShopCommand;
 use PrestaShop\Module\PsAccounts\Account\Command\UnlinkShopCommand;
 use PrestaShop\Module\PsAccounts\Account\Dto\LinkShop;
@@ -25,6 +26,17 @@ use PrestaShop\Module\PsAccounts\Api\Controller\AbstractShopRestController;
 use PrestaShop\Module\PsAccounts\Api\Controller\Request\UpdateShopLinkAccountRequest;
 use PrestaShop\Module\PsAccounts\Cqrs\CommandBus;
 use PrestaShop\Module\PsAccounts\Exception\RefreshTokenException;
+=======
+use PrestaShop\Module\PsAccounts\Controller\AbstractShopRestController;
+use PrestaShop\Module\PsAccounts\Cqrs\CommandBus;
+use PrestaShop\Module\PsAccounts\Domain\Shop\Command\LinkShopCommand;
+use PrestaShop\Module\PsAccounts\Domain\Shop\Command\UnlinkShopCommand;
+use PrestaShop\Module\PsAccounts\Domain\Shop\Dto\LinkShop;
+use PrestaShop\Module\PsAccounts\Domain\Shop\Entity\OwnerSession;
+use PrestaShop\Module\PsAccounts\Domain\Shop\Entity\ShopSession;
+use PrestaShop\Module\PsAccounts\Domain\Shop\Exception\RefreshTokenException;
+use PrestaShop\Module\PsAccounts\Dto\Api\UpdateShopLinkAccountRequest;
+>>>>>>> 6da8cbe1 (Refacto DDD-CQRS2)
 
 class ps_AccountsApiV1ShopLinkAccountModuleFrontController extends AbstractShopRestController
 {
@@ -34,6 +46,21 @@ class ps_AccountsApiV1ShopLinkAccountModuleFrontController extends AbstractShopR
     private $commandBus;
 
     /**
+<<<<<<< HEAD
+=======
+     * @var ShopSession
+     */
+    private $shopSession;
+
+    /**
+     * @var OwnerSession
+     */
+    private $ownerSession;
+
+    /**
+     * ps_AccountsApiV1ShopLinkAccountModuleFrontController constructor.
+     *
+>>>>>>> 6da8cbe1 (Refacto DDD-CQRS2)
      * @throws Exception
      */
     public function __construct()
@@ -42,6 +69,7 @@ class ps_AccountsApiV1ShopLinkAccountModuleFrontController extends AbstractShopR
 
         $this->commandBus = $this->module->getService(CommandBus::class);
         //$this->commandBus = $this->module->getContainer()->get('prestashop.command_bus');
+<<<<<<< HEAD
     }
 
     /**
@@ -50,17 +78,46 @@ class ps_AccountsApiV1ShopLinkAccountModuleFrontController extends AbstractShopR
      *
      * @return array
      *
+=======
+        $this->shopSession = $this->module->getService(ShopSession::class);
+        $this->ownerSession = $this->module->getService(OwnerSession::class);
+    }
+
+    /**
+>>>>>>> 6da8cbe1 (Refacto DDD-CQRS2)
      * @throws RefreshTokenException
      * @throws Exception
      */
     public function update(Shop $shop, UpdateShopLinkAccountRequest $request)
     {
+<<<<<<< HEAD
         $this->commandBus->handle(new LinkShopCommand(
             new LinkShop([
                 'shopId' => $request->shop_id,
                 'uid' => $request->uid,
                 'ownerUid' => $request->owner_uid,
                 'ownerEmail' => $request->owner_email,
+=======
+        $shopToken = $request->shop_token;
+        $userToken = $request->user_token;
+
+        if ($this->module->getParameter('ps_accounts.verify_account_tokens')) {
+            if (false === $this->shopSession->verifyToken($shopToken)) {
+                $shopToken = $this->shopSession->refreshToken($request->shop_refresh_token);
+            }
+            if (false === $this->ownerSession->verifyToken($userToken)) {
+                $userToken = $this->ownerSession->refreshToken($request->user_refresh_token);
+            }
+        }
+
+        $this->commandBus->handle(new LinkShopCommand(
+            new LinkShop([
+                'shopId' => $request->shop_id,
+                'shopToken' => $shopToken,
+                'userToken' => $userToken,
+                'shopRefreshToken' => $request->shop_refresh_token,
+                'userRefreshToken' => $request->user_refresh_token,
+>>>>>>> 6da8cbe1 (Refacto DDD-CQRS2)
                 'employeeId' => $request->employee_id,
             ])
         ));
@@ -72,12 +129,15 @@ class ps_AccountsApiV1ShopLinkAccountModuleFrontController extends AbstractShopR
     }
 
     /**
+<<<<<<< HEAD
      * @param Shop $shop
      * @param array $payload
      *
      * @return array
      *
      * @throws PrestaShopException
+=======
+>>>>>>> 6da8cbe1 (Refacto DDD-CQRS2)
      * @throws Exception
      */
     public function delete(Shop $shop, array $payload)

@@ -66,6 +66,7 @@ class Link
      */
     public function getAdminLink($controller, $withToken = true, $sfRouteParams = [], $params = [])
     {
+<<<<<<< HEAD
         // Cannot generate admin link from front
         if (!defined('_PS_ADMIN_DIR_')) {
             return '';
@@ -80,6 +81,9 @@ class Link
         }
 
         return \Tools::getShopDomainSsl(true) . __PS_BASE_URI__ . basename(_PS_ADMIN_DIR_) . '/' . $this->link->getAdminLink($controller, $withToken) . $paramsAsString;
+=======
+        return $this->link->getAdminLink($controller, $withToken, $sfRouteParams, $params);
+>>>>>>> 6da8cbe1 (Refacto DDD-CQRS2)
     }
 
     /**

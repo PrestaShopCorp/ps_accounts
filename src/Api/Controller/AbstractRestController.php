@@ -21,6 +21,7 @@
 namespace PrestaShop\Module\PsAccounts\Api\Controller;
 
 use Context;
+<<<<<<< HEAD:src/Api/Controller/AbstractRestController.php
 use ModuleFrontController;
 use PrestaShop\Module\PsAccounts\Exception\Http\HttpException;
 use PrestaShop\Module\PsAccounts\Exception\Http\MethodNotAllowedException;
@@ -31,6 +32,17 @@ use PrestaShop\Module\PsAccounts\Service\SentryService;
 use PrestaShop\Module\PsAccounts\Vendor\Lcobucci\JWT\Parser;
 use PrestaShop\Module\PsAccounts\Vendor\Lcobucci\JWT\Signer\Hmac\Sha256;
 use PrestaShop\Module\PsAccounts\Vendor\Lcobucci\JWT\Signer\Key;
+=======
+use Lcobucci\JWT\Parser;
+use Lcobucci\JWT\Signer\Hmac\Sha256;
+use Lcobucci\JWT\Signer\Key;
+use PrestaShop\Module\PsAccounts\Domain\Shop\Entity\PublicKey;
+use PrestaShop\Module\PsAccounts\Exception\Http\HttpException;
+use PrestaShop\Module\PsAccounts\Exception\Http\MethodNotAllowedException;
+use PrestaShop\Module\PsAccounts\Exception\Http\UnauthorizedException;
+use PrestaShop\Module\PsAccounts\Repository\ConfigurationRepository;
+use PrestaShop\Module\PsAccounts\Service\SentryService;
+>>>>>>> 6da8cbe1 (Refacto DDD-CQRS2):src/Controller/AbstractRestController.php
 use ReflectionException;
 use ReflectionParameter;
 
@@ -81,10 +93,22 @@ abstract class AbstractRestController extends ModuleFrontController
                 'error' => true,
                 'message' => $e->getMessage(),
             ], $e->getStatusCode());
+<<<<<<< HEAD:src/Api/Controller/AbstractRestController.php
         } catch (\Error $e) {
             $this->handleError($e);
         } catch (\Exception $e) {
             $this->handleError($e);
+=======
+        } catch (\Throwable $e) {
+            SentryService::capture($e);
+
+            $this->module->getLogger()->error($e);
+
+            $this->dieWithResponseJson([
+                'error' => true,
+                'message' => 'Failed processing your request',
+            ], 500);
+>>>>>>> 6da8cbe1 (Refacto DDD-CQRS2):src/Controller/AbstractRestController.php
         }
     }
 
@@ -221,8 +245,8 @@ abstract class AbstractRestController extends ModuleFrontController
      */
     protected function decodePayload()
     {
-        /** @var RsaKeysProvider $shopKeysService */
-        $shopKeysService = $this->module->getService(RsaKeysProvider::class);
+        /** @var PublicKey $shopKeysService */
+        $shopKeysService = $this->module->getService(PublicKey::class);
 
         $jwtString = $this->getRequestHeader(self::TOKEN_HEADER);
 

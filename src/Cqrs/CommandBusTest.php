@@ -1,4 +1,5 @@
 <?php
+<<<<<<< HEAD
 /**
  * Copyright since 2007 PrestaShop SA and Contributors
  * PrestaShop is an International Registered Trademark & Property of PrestaShop SA
@@ -22,6 +23,13 @@ namespace PrestaShop\Module\PsAccounts\Cqrs;
 
 use PrestaShop\Module\PsAccounts\Account\Command\LinkShopCommand;
 use PrestaShop\Module\PsAccounts\Account\CommandHandler\LinkShopHandler;
+=======
+
+namespace PrestaShop\Module\PsAccounts\Cqrs;
+
+use PrestaShop\Module\PsAccounts\Domain\Account\Command\ForgetOauth2ClientCommand;
+use PrestaShop\Module\PsAccounts\Domain\Account\CommandHandler\ForgetOauth2ClientHandler;
+>>>>>>> 6da8cbe1 (Refacto DDD-CQRS2)
 use PrestaShop\Module\PsAccounts\Tests\TestCase;
 
 class CommandBusTest extends TestCase
@@ -31,12 +39,16 @@ class CommandBusTest extends TestCase
      */
     private $commandBus;
 
+<<<<<<< HEAD
     /**
      * @return void
      *
      * @throws \Exception
      */
     public function setUp()
+=======
+    public function setUp(): void
+>>>>>>> 6da8cbe1 (Refacto DDD-CQRS2)
     {
         parent::setUp();
 
@@ -47,10 +59,15 @@ class CommandBusTest extends TestCase
      * @test
      *
      * @throws \Exception
+<<<<<<< HEAD
      *
      * @return void
      */
     public function itShouldResolveHandler()
+=======
+     */
+    public function itShouldResolveHandler(): void
+>>>>>>> 6da8cbe1 (Refacto DDD-CQRS2)
     {
         $command = 'PrestaShop\Module\PsAccounts\Domain\Account\Command\ForgetOauth2ClientCommand';
         $handler = 'PrestaShop\Module\PsAccounts\Domain\Account\CommandHandler\ForgetOauth2ClientHandler';
@@ -62,6 +79,7 @@ class CommandBusTest extends TestCase
      * @test
      *
      * @throws \Exception
+<<<<<<< HEAD
      *
      * @return void
      */
@@ -69,6 +87,13 @@ class CommandBusTest extends TestCase
     {
         $command = LinkShopCommand::class;
         $handler = LinkShopHandler::class;
+=======
+     */
+    public function itShouldResolveExistingHandler(): void
+    {
+        $command = ForgetOauth2ClientCommand::class;
+        $handler = ForgetOauth2ClientHandler::class;
+>>>>>>> 6da8cbe1 (Refacto DDD-CQRS2)
 
         $this->assertEquals($handler, $this->commandBus->resolveHandlerClass($command));
     }

@@ -92,12 +92,17 @@ jobs:
 #      - name: Install dependencies
 #        run: composer install
 
+<<<<<<< HEAD
       - name: Scoped dependencies
         run: make php-scoper
 
       - name: PHPUnit tests
         run: |
           DOCKER_INTERNAL="${{ matrix.presta-versions }}" make phpunit
+=======
+      - name: PHPUnit tests v8
+        run: make phpunit
+>>>>>>> 6da8cbe1 (Refacto DDD-CQRS2)
 
   header-stamp:
     name: Check license headers

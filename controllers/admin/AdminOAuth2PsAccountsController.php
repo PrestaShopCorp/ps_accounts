@@ -18,6 +18,7 @@
  * @license   https://opensource.org/licenses/AFL-3.0 Academic Free License version 3.0
  */
 
+<<<<<<< HEAD
 use PrestaShop\Module\PsAccounts\Entity\EmployeeAccount;
 use PrestaShop\Module\PsAccounts\Exception\AccountLogin\AccountLoginException;
 use PrestaShop\Module\PsAccounts\Exception\AccountLogin\EmailNotVerifiedException;
@@ -32,6 +33,21 @@ use PrestaShop\Module\PsAccounts\Service\AnalyticsService;
 use PrestaShop\Module\PsAccounts\Service\PsAccountsService;
 use PrestaShop\Module\PsAccounts\Session\Session;
 use PrestaShop\Module\PsAccounts\Vendor\League\OAuth2\Client\Provider\Exception\IdentityProviderException;
+=======
+use Doctrine\ORM\EntityManagerInterface;
+use League\OAuth2\Client\Provider\Exception\IdentityProviderException;
+use PrestaShop\Module\PsAccounts\Domain\Account\Entity\AccountSession;
+use PrestaShop\Module\PsAccounts\Entity\EmployeeAccount;
+use PrestaShop\Module\PsAccounts\Exception\Account\AccountLoginException;
+use PrestaShop\Module\PsAccounts\Exception\Account\EmailNotVerifiedException;
+use PrestaShop\Module\PsAccounts\Exception\Account\EmployeeNotFoundException;
+use PrestaShop\Module\PsAccounts\Exception\Account\Oauth2Exception;
+use PrestaShop\Module\PsAccounts\Exception\Account\OtherErrorException;
+use PrestaShop\Module\PsAccounts\Provider\OAuth2\PrestaShopClientProvider;
+use PrestaShop\Module\PsAccounts\Provider\OAuth2\PrestaShopLoginTrait;
+use PrestaShop\Module\PsAccounts\Service\AnalyticsService;
+use PrestaShop\Module\PsAccounts\Service\PsAccountsService;
+>>>>>>> 6da8cbe1 (Refacto DDD-CQRS2)
 use PrestaShop\OAuth2\Client\Provider\PrestaShopUser;
 
 /**
@@ -349,6 +365,32 @@ class AdminOAuth2PsAccountsController extends \ModuleAdminController
             $employee->getByEmail($email);
         }
 
+<<<<<<< HEAD
         return $employee;
+=======
+    /**
+     * @throws ContainerNotFoundException
+     */
+    private function getSession(): SessionInterface
+    {
+        /* @phpstan-ignore-next-line  */
+        return $this->module->getContainer()->get('session');
+    }
+
+    /**
+     * @throws ContainerNotFoundException
+     */
+    private function setLoginError(string $error): void
+    {
+        $this->getSession()->set('loginError', $error);
+    }
+
+    /**
+     * @throws Exception
+     */
+    protected function getOauth2Session(): AccountSession
+    {
+        return $this->module->getService(AccountSession::class);
+>>>>>>> 6da8cbe1 (Refacto DDD-CQRS2)
     }
 }

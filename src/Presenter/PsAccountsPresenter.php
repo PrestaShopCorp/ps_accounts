@@ -20,6 +20,7 @@
 
 namespace PrestaShop\Module\PsAccounts\Presenter;
 
+<<<<<<< HEAD
 use PrestaShop\Module\PsAccounts\Account\LinkShop;
 use PrestaShop\Module\PsAccounts\Installer\Installer;
 use PrestaShop\Module\PsAccounts\Provider\ShopProvider;
@@ -27,10 +28,14 @@ use PrestaShop\Module\PsAccounts\Repository\ConfigurationRepository;
 use PrestaShop\Module\PsAccounts\Service\PsAccountsService;
 use PrestaShop\Module\PsAccounts\Service\SentryService;
 use PrestaShopException;
+=======
+use PrestaShop\Module\PsAccounts\Installer\Installer;
+use PrestaShop\Module\PsAccounts\Logger\Logger;
+use PrestaShop\Module\PsAccounts\Provider\ShopProvider;
+use PrestaShop\Module\PsAccounts\Repository\ConfigurationRepository;
+use PrestaShop\Module\PsAccounts\Service\PsAccountsService;
+>>>>>>> 6da8cbe1 (Refacto DDD-CQRS2)
 
-/**
- * Construct the psaccounts module.
- */
 class PsAccountsPresenter implements PresenterInterface
 {
     /**
@@ -39,11 +44,14 @@ class PsAccountsPresenter implements PresenterInterface
     protected $shopProvider;
 
     /**
+<<<<<<< HEAD
      * @var LinkShop
      */
     protected $linkShop;
 
     /**
+=======
+>>>>>>> 6da8cbe1 (Refacto DDD-CQRS2)
      * @var ConfigurationRepository
      */
     protected $configuration;
@@ -64,13 +72,35 @@ class PsAccountsPresenter implements PresenterInterface
     private $module;
 
     /**
+<<<<<<< HEAD
+=======
+     * PsAccountsPresenter constructor.
+     *
+     * @param PsAccountsService $psAccountsService
+     * @param ShopProvider $shopProvider
+     * @param Installer $installer
+     * @param ConfigurationRepository $configuration
+>>>>>>> 6da8cbe1 (Refacto DDD-CQRS2)
      * @param \Ps_accounts $module
      *
      * @throws \Exception
      */
     public function __construct(
+<<<<<<< HEAD
         \Ps_accounts $module
     ) {
+=======
+        PsAccountsService $psAccountsService,
+        ShopProvider $shopProvider,
+        Installer $installer,
+        ConfigurationRepository $configuration,
+        \Ps_accounts $module
+    ) {
+        $this->psAccountsService = $psAccountsService;
+        $this->shopProvider = $shopProvider;
+        $this->installer = $installer;
+        $this->configuration = $configuration;
+>>>>>>> 6da8cbe1 (Refacto DDD-CQRS2)
         $this->module = $module;
 
         $this->psAccountsService = $module->getService(PsAccountsService::class);
@@ -87,7 +117,11 @@ class PsAccountsPresenter implements PresenterInterface
      *
      * @return array
      *
+<<<<<<< HEAD
      * @throws PrestaShopException
+=======
+     * @throws \PrestaShopException
+>>>>>>> 6da8cbe1 (Refacto DDD-CQRS2)
      */
     public function present($psxName = 'ps_accounts')
     {

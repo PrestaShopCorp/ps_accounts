@@ -5,10 +5,20 @@ namespace PrestaShop\Module\PsAccounts\Tests\Feature;
 use Db;
 use GuzzleHttp\Client;
 use GuzzleHttp\Message\ResponseInterface;
+<<<<<<< HEAD
 use PrestaShop\Module\PsAccounts\Http\Client\Guzzle\GuzzleClient;
 use PrestaShop\Module\PsAccounts\Http\Client\Guzzle\GuzzleClientFactory;
 use PrestaShop\Module\PsAccounts\Provider\RsaKeysProvider;
 use PrestaShop\Module\PsAccounts\Repository\UserTokenRepository;
+=======
+use Lcobucci\JWT\Builder;
+use Lcobucci\JWT\Signer\Hmac\Sha256;
+use Lcobucci\JWT\Signer\Key;
+use PrestaShop\Module\PsAccounts\Api\Client\Guzzle\AbstractGuzzleClient;
+use PrestaShop\Module\PsAccounts\Api\Client\Guzzle\GuzzleClientFactory;
+use PrestaShop\Module\PsAccounts\Domain\Shop\Entity\OwnerSession;
+use PrestaShop\Module\PsAccounts\Domain\Shop\Entity\PublicKey;
+>>>>>>> 6da8cbe1 (Refacto DDD-CQRS2)
 use PrestaShop\Module\PsAccounts\Tests\TestCase;
 use PrestaShop\Module\PsAccounts\Vendor\Lcobucci\JWT\Builder;
 use PrestaShop\Module\PsAccounts\Vendor\Lcobucci\JWT\Signer\Hmac\Sha256;
@@ -33,14 +43,14 @@ class FeatureTestCase extends TestCase
     protected $guzzleClient;
 
     /**
-     * @var RsaKeysProvider
+     * @var PublicKey
      */
-    protected $rsaKeysProvider;
+    protected $publicKey;
 
     /**
-     * @var UserTokenRepository
+     * @var OwnerSession
      */
-    protected $userTokenRepository;
+    protected $ownerSession;
 
     /**
      * @return void
@@ -56,9 +66,21 @@ class FeatureTestCase extends TestCase
         $baseUrl = $scheme . $domain . '/';
 
         $this->guzzleClient = (new GuzzleClientFactory())->create([
+<<<<<<< HEAD
             'base_uri' => $baseUrl,
             'headers' => [
                 'Accept' => 'application/json',
+=======
+            'base_url' => $baseUrl,
+            'defaults' => [
+                'timeout' => 10,
+                'exceptions' => false,
+                'allow_redirects' => false,
+                'query' => [],
+                'headers' => [
+                    'Accept' => 'application/json',
+                ],
+>>>>>>> 6da8cbe1 (Refacto DDD-CQRS2)
             ],
             'verify' => false,
             'timeout' => 60,
@@ -72,11 +94,11 @@ class FeatureTestCase extends TestCase
 
         $this->client = $this->guzzleClient->getClient();
 
-        $this->rsaKeysProvider = $this->module->getService(RsaKeysProvider::class);
-        $this->rsaKeysProvider->regenerateKeys();
+        $this->publicKey = $this->module->getService(PublicKey::class);
+        $this->publicKey->regenerateKeys();
 
-        $this->userTokenRepository = $this->module->getService(UserTokenRepository::class);
-        $this->userTokenRepository->cleanupCredentials();
+        $this->ownerSession = $this->module->getService(OwnerSession::class);
+        $this->ownerSession->cleanup();
 
         // FIXME: Link::getModuleLink
         // FIXME: OR activate friendly urls
@@ -102,7 +124,7 @@ class FeatureTestCase extends TestCase
 
         return $builder->getToken(
             new Sha256(),
-            new Key($this->rsaKeysProvider->getPublicKey())
+            new Key($this->publicKey->getPublicKey())
         );
     }
 

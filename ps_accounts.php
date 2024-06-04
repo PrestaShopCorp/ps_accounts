@@ -34,7 +34,15 @@ class Ps_accounts extends Module
 
     // Needed in order to retrieve the module version easier (in api call headers) than instanciate
     // the module each time to get the version
+<<<<<<< HEAD
     const VERSION = '7.0.2';
+=======
+    const VERSION = '6.3.0';
+
+    const HOOK_ACTION_SHOP_ACCOUNT_LINK_AFTER = 'actionShopAccountLinkAfter';
+    const HOOK_ACTION_SHOP_ACCOUNT_UNLINK_AFTER = 'actionShopAccountUnlinkAfter';
+    const HOOK_DISPLAY_ACCOUNT_UPDATE_WARNING = 'displayAccountUpdateWarning';
+>>>>>>> 6da8cbe1 (Refacto DDD-CQRS2)
 
     /**
      * Admin tabs
@@ -131,7 +139,11 @@ class Ps_accounts extends Module
 
         // We cannot use the const VERSION because the const is not computed by addons marketplace
         // when the zip is uploaded
+<<<<<<< HEAD
         $this->version = '7.0.2';
+=======
+        $this->version = '6.3.0';
+>>>>>>> 6da8cbe1 (Refacto DDD-CQRS2)
 
         $this->module_key = 'abf2cd758b4d629b2944d3922ef9db73';
 
@@ -179,7 +191,10 @@ class Ps_accounts extends Module
      *
      * @throws PrestaShopDatabaseException
      * @throws PrestaShopException
+<<<<<<< HEAD
      * @throws Exception
+=======
+>>>>>>> 6da8cbe1 (Refacto DDD-CQRS2)
      */
     public function install()
     {
@@ -191,7 +206,23 @@ class Ps_accounts extends Module
             && $this->addCustomHooks($this->customHooks)
             && $this->registerHook($this->getHooksToRegister());
 
+<<<<<<< HEAD
         $this->onModuleReset();
+=======
+        // Removed controller
+        $uninstaller = new PrestaShop\Module\PsAccounts\Module\Uninstall($this, Db::getInstance());
+        $uninstaller->deleteAdminTab('AdminConfigureHmacPsAccounts');
+
+        /** @var \PrestaShop\Module\PsAccounts\Installer\Installer $moduleInstaller */
+        $moduleInstaller = $this->getService(\PrestaShop\Module\PsAccounts\Installer\Installer::class);
+
+        // Ignore fail on ps_eventbus install
+        $moduleInstaller->installModule('ps_eventbus');
+
+        $this->switchConfigMultishopMode();
+
+        $this->autoReonboardOnV5();
+>>>>>>> 6da8cbe1 (Refacto DDD-CQRS2)
 
         $this->getLogger()->info('Install - Loading ' . $this->name . ' Env : [' . $this->getModuleEnv() . ']');
 
@@ -343,6 +374,433 @@ class Ps_accounts extends Module
     }
 
     /**
+<<<<<<< HEAD
+=======
+     * @param array $params
+     *
+     * @return void
+     *
+     * @throws Exception
+     */
+    public function hookDisplaybackOfficeEmployeeMenu($params)
+    {
+        $bar = $params['links'];
+
+        $link = $this->getParameter('ps_accounts.accounts_ui_url') . '?' . http_build_query([
+            'utm_source' => Tools::getShopDomain(),
+            'utm_medium' => 'back-office',
+            'utm_campaign' => $this->name,
+            'utm_content' => 'headeremployeedropdownlink',
+        ]);
+
+        $bar->add(
+            new PrestaShop\PrestaShop\Core\Action\ActionsBarButton(
+                '', ['link' => $link, 'icon' => 'open_in_new'], $this->l('Manage your PrestaShop account')
+            )
+        );
+    }
+
+    /**
+     * @param array $params
+     *
+     * @return void
+     *
+     * @throws Exception
+     */
+    public function hookDisplayBackOfficeHeader($params)
+    {
+        // Multistore On/Off switch
+        /* @phpstan-ignore-next-line */
+        if ('AdminPreferences' === $this->context->controller->controller_name) {
+            $this->switchConfigMultishopMode();
+        }
+    }
+
+    /**
+     * @return mixed
+     *
+     * @throws Exception
+     */
+    public function renderUpdateWarningView()
+    {
+        /* @phpstan-ignore-next-line */
+        return PrestaShop\PrestaShop\Adapter\SymfonyContainer::getInstance()
+            ->get('twig')
+            ->render('@Modules/ps_accounts/views/templates/backoffice/update_url_warning.twig');
+    }
+
+    /**
+     * @return mixed
+     *
+     * @throws Exception
+     */
+    public function renderDeleteWarningView()
+    {
+        /* @phpstan-ignore-next-line */
+        return PrestaShop\PrestaShop\Adapter\SymfonyContainer::getInstance()
+            ->get('twig')
+            ->render('@Modules/ps_accounts/views/templates/backoffice/delete_url_warning.twig');
+    }
+
+    /**
+     * @param \PrestaShop\Module\PsAccounts\Context\ShopContext $shopContext
+     * @param \PrestaShop\Module\PsAccounts\Service\PsAccountsService $accountsService
+     *
+     * @return mixed
+     *
+     * @throws Exception
+     */
+    private function renderAdminShopUrlWarningIfLinked($shopContext, $accountsService)
+    {
+        if (!isset($_GET['updateshop_url'])) {
+            return null;
+        }
+
+        $shopId = $shopContext->getShopIdFromShopUrlId((int) $_GET['id_shop_url']);
+
+        return $shopContext->execInShopContext($shopId, function () use ($accountsService) {
+            if ($accountsService->isAccountLinked()) {
+                return $this->renderUpdateWarningView();
+            }
+        });
+    }
+
+    /**
+     * @param \PrestaShop\Module\PsAccounts\Context\ShopContext $shopContext
+     * @param \PrestaShop\Module\PsAccounts\Service\PsAccountsService $accountsService
+     *
+     * @return mixed
+     *
+     * @throws Exception
+     */
+    private function renderAdminShopWarningIfLinked($shopContext, $accountsService)
+    {
+        if (isset($_GET['addshop'])) {
+            return null;
+        }
+
+        if (isset($_GET['updateshop'])) {
+            return null;
+        }
+
+        /** @var \PrestaShop\Module\PsAccounts\Provider\ShopProvider $shopProvider */
+        $shopProvider = $this->getService(\PrestaShop\Module\PsAccounts\Provider\ShopProvider::class);
+
+        $shopsTree = $shopProvider->getShopsTree('ps_accounts');
+        foreach ($shopsTree as $shopGroup) {
+            foreach ($shopGroup['shops'] as $shop) {
+                $isLink = $shopContext->execInShopContext($shop['id'], function () use ($accountsService) {
+                    return $accountsService->isAccountLinked();
+                });
+                if ($isLink) {
+                    return $this->renderDeleteWarningView();
+                }
+            }
+        }
+    }
+
+    /**
+     * @param array $params
+     *
+     * @return mixed
+     *
+     * @throws Exception
+     */
+    public function hookDisplayDashboardTop($params)
+    {
+        $shopContext = $this->getShopContext();
+
+        /** @var \PrestaShop\Module\PsAccounts\Service\PsAccountsService $accountsService */
+        $accountsService = $this->getService(\PrestaShop\Module\PsAccounts\Service\PsAccountsService::class);
+
+        if ('AdminShopUrl' === $_GET['controller']) {
+            return $this->renderAdminShopUrlWarningIfLinked($shopContext, $accountsService);
+        }
+
+        if ('AdminShop' === $_GET['controller']) {
+            return $this->renderAdminShopWarningIfLinked($shopContext, $accountsService);
+        }
+    }
+
+    /**
+     * @return mixed
+     *
+     * @throws Exception
+     */
+    public function hookDisplayAccountUpdateWarning()
+    {
+        /** @var \PrestaShop\Module\PsAccounts\Service\PsAccountsService $psAccountsService */
+        $psAccountsService = $this->getService(\PrestaShop\Module\PsAccounts\Service\PsAccountsService::class);
+
+        if ($psAccountsService->isAccountLinked() && !$this->getShopContext()->isMultishopActive()) {
+            // I don't load with $this->get('twig') since i had this error https://github.com/PrestaShop/PrestaShop/issues/20505
+            // Some users may have the same and couldn't render the configuration page
+            return $this->renderUpdateWarningView();
+        }
+    }
+
+    /**
+     * @param array $params
+     *
+     * @return bool
+     *
+     * @throws Exception
+     */
+    public function hookActionObjectShopUrlUpdateAfter($params)
+    {
+        if ($params['object']->main) {
+            /** @var \PrestaShop\Module\PsAccounts\Adapter\Link $link */
+            $link = $this->getService(\PrestaShop\Module\PsAccounts\Adapter\Link::class);
+
+            Cache::clean('Shop::setUrl_' . (int) $params['object']->id);
+
+            $shop = new \Shop($params['object']->id);
+
+            $domain = $params['object']->domain;
+            $sslDomain = $params['object']->domain_ssl;
+
+            $response = $this->getCommandBus()->handle(
+                new \PrestaShop\Module\PsAccounts\Domain\Shop\Command\UpdateShopCommand(
+                    new \PrestaShop\Module\PsAccounts\Dto\UpdateShop([
+                        'shopId' => (string) $params['object']->id,
+                        'name' => $shop->name,
+                        'domain' => $domain,
+                        'sslDomain' => $sslDomain,
+                        'physicalUri' => $params['object']->physical_uri,
+                        'virtualUri' => $params['object']->virtual_uri,
+                        'boBaseUrl' => $link->getAdminLinkWithCustomDomain(
+                            $sslDomain,
+                            $domain,
+                            'AdminModules',
+                            false,
+                            [],
+                            [
+                                'configure' => $this->name,
+                                'setShopContext' => 's-' . $params['object']->id,
+                            ]
+                        ),
+                    ])
+                )
+            );
+
+            if (!$response) {
+                $this->getLogger()->debug(
+                    'Error trying to PATCH shop : No $response object'
+                );
+            } elseif (true !== $response['status']) {
+                $this->getLogger()->debug(
+                    'Error trying to PATCH shop : ' . $response['httpCode'] .
+                    ' ' . print_r($response['body']['message'] ?? '', true)
+                );
+            }
+        }
+
+        return true;
+    }
+
+    /**
+     * @param array $params
+     *
+     * @return bool
+     *
+     * @throws Exception
+     */
+    public function hookActionObjectShopAddAfter($params)
+    {
+        $this->switchConfigMultishopMode();
+
+        return true;
+    }
+
+    /**
+     * @param array $params
+     *
+     * @return bool
+     *
+     * @throws Exception
+     */
+    public function hookActionObjectShopUpdateAfter($params)
+    {
+        /** @var \PrestaShop\Module\PsAccounts\Adapter\Link $link */
+        $link = $this->getService(\PrestaShop\Module\PsAccounts\Adapter\Link::class);
+
+        $shop = new \Shop($params['object']->id);
+
+        $domain = $params['object']->domain;
+        $sslDomain = $params['object']->domain_ssl;
+
+        $response = $this->getCommandBus()->handle(
+            new \PrestaShop\Module\PsAccounts\Domain\Shop\Command\UpdateShopCommand(
+                new \PrestaShop\Module\PsAccounts\Dto\UpdateShop([
+                    'shopId' => (string) $params['object']->id,
+                    'name' => $params['object']->name,
+                    'domain' => $shop->domain,
+                    'sslDomain' => $shop->domain_ssl,
+                    'physicalUri' => $shop->physical_uri,
+                    'virtualUri' => $shop->virtual_uri,
+                    'boBaseUrl' => $link->getAdminLinkWithCustomDomain(
+                        $sslDomain,
+                        $domain,
+                        'AdminModules',
+                        false,
+                        [],
+                        [
+                            'configure' => $this->name,
+                            'setShopContext' => 's-' . $params['object']->id,
+                        ]
+                    ),
+                ])
+            )
+        );
+
+        if (!$response) {
+            $this->getLogger()->debug(
+                'Error trying to PATCH shop : No $response object'
+            );
+        } elseif (true !== $response['status']) {
+            $this->getLogger()->debug(
+                'Error trying to PATCH shop : ' . $response['httpCode'] .
+                ' ' . print_r($response['body']['message'] ?? '', true)
+            );
+        }
+
+        return true;
+    }
+
+    /**
+     * @param array $params
+     *
+     * @return bool
+     *
+     * @throws Exception
+     */
+    public function hookActionObjectShopDeleteAfter($params)
+    {
+        $this->switchConfigMultishopMode();
+
+        return true;
+    }
+
+    /**
+     * @param array $params
+     *
+     * @return bool
+     *
+     * @throws Exception
+     */
+    public function hookActionObjectShopDeleteBefore($params)
+    {
+        try {
+            $response = $this->getCommandBus()->handle(
+                new \PrestaShop\Module\PsAccounts\Domain\Shop\Command\DeleteUserShopCommand(
+                    $params['object']->id
+                )
+            );
+            if (!$response) {
+                $this->getLogger()->debug(
+                    'Error trying to DELETE shop : No $response object'
+                );
+            } elseif (true !== $response['status']) {
+                $this->getLogger()->debug(
+                    'Error trying to DELETE shop : ' . $response['httpCode'] .
+                    ' ' . print_r($response['body']['message'], true)
+                );
+            }
+        } catch (Exception $e) {
+            $this->getLogger()->debug(
+                'Error curl while trying to DELETE shop : ' . print_r($e->getMessage(), true)
+            );
+        }
+
+        return true;
+    }
+
+    /**
+     * @param array $params
+     *
+     * @return void
+     *
+     * @throws Exception
+     */
+    public function hookActionAdminLoginControllerLoginAfter($params)
+    {
+        /** @var Employee $employee */
+        $employee = $params['employee'];
+
+        /** @var \PrestaShop\Module\PsAccounts\Service\AnalyticsService $analyticsService */
+        $analyticsService = $this->getService(\PrestaShop\Module\PsAccounts\Service\AnalyticsService::class);
+
+        /** @var \PrestaShop\Module\PsAccounts\Service\PsAccountsService $psAccountsService */
+        $psAccountsService = $this->getService(\PrestaShop\Module\PsAccounts\Service\PsAccountsService::class);
+
+        $account = $psAccountsService->getEmployeeAccount();
+
+        if ($this->isShopEdition()) {
+            $uid = null;
+            if ($account) {
+                $uid = $account->getUid();
+                $email = $account->getEmail();
+            } else {
+                $email = $employee->email;
+            }
+            $analyticsService->identify($uid, null, $email);
+            $analyticsService->group($uid, (string) $psAccountsService->getShopUuid());
+            $analyticsService->trackUserSignedIntoBackOfficeLocally($uid, $email);
+        }
+    }
+
+    /**
+     * @param array $params
+     *
+     * @return void
+     *
+     * @throws Exception
+     */
+    public function hookActionAdminControllerInitBefore($params)
+    {
+        /** @var \PrestaShop\Module\PsAccounts\Domain\Account\Entity\Login $login */
+        $login = $this->getService(\PrestaShop\Module\PsAccounts\Domain\Account\Entity\Login::class);
+
+        if (isset($_GET['logout'])) {
+            if ($login->isEnabled()) {
+                $this->oauth2Logout();
+            } else {
+                $this->getOauth2Session()->clear();
+            }
+        }
+    }
+
+    /**
+     * @param array{shopUuid: string, shopId: string} $params
+     *
+     * @return void
+     *
+     * @throws Exception
+     */
+    public function hookActionShopAccountLinkAfter($params)
+    {
+        // login is supposed to be enabled when OauthClient is registered
+        ///** @var \PrestaShop\Module\PsAccounts\Domain\Account\Entity\Login $login */
+        //$login = $this->getService(\PrestaShop\Module\PsAccounts\Domain\Account\Entity\Login::class);
+        //$login->enable();
+    }
+
+    /**
+     * @param array{shopUuid: string, shopId: string} $params
+     *
+     * @return void
+     *
+     * @throws Exception
+     */
+    public function hookActionShopAccountUnlinkAfter($params)
+    {
+        $this->getCommandBus()->handle(
+            new \PrestaShop\Module\PsAccounts\Domain\Account\Command\ForgetOauth2ClientCommand()
+        );
+    }
+
+    /**
+>>>>>>> 6da8cbe1 (Refacto DDD-CQRS2)
      * @return string
      */
     public function getModuleEnvVar()
@@ -366,11 +824,32 @@ class Ps_accounts extends Module
      * @return string
      *
      * @throws PrestaShopException
+<<<<<<< HEAD
      * @throws \PrestaShop\Module\PsAccounts\Exception\SshKeysNotFoundException
      */
     public function getContent()
     {
         //$this->context->smarty->assign('pathVendor', $this->_path . 'views/js/chunk-vendors.' . $this->version . '.js');
+=======
+     */
+    public function getContent()
+    {
+        $this->loadAssets();
+
+        return $this->display(__FILE__, 'views/templates/admin/app.tpl');
+    }
+
+    /**
+     * Load VueJs App and set JS variable for Vuex
+     *
+     * @return void
+     *
+     * @throws PrestaShopException
+     */
+    protected function loadAssets()
+    {
+        $this->context->smarty->assign('pathVendor', $this->_path . 'views/js/chunk-vendors.' . $this->version . '.js');
+>>>>>>> 6da8cbe1 (Refacto DDD-CQRS2)
         $this->context->smarty->assign('pathApp', $this->_path . 'views/js/app.' . $this->version . '.js');
         $this->context->smarty->assign('pathAppAssets', $this->_path . 'views/css/app.' . $this->version . '.css');
         $this->context->smarty->assign('urlAccountsCdn', $this->getParameter('ps_accounts.accounts_cdn_url'));
@@ -540,6 +1019,7 @@ class Ps_accounts extends Module
         $configurationRepository = $this->getService(\PrestaShop\Module\PsAccounts\Repository\ConfigurationRepository::class);
         $configurationRepository->fixMultiShopConfig();
 
+<<<<<<< HEAD
         // FIXME: this wont prevent from re-implanting override on reset of module
         $uninstaller = new PrestaShop\Module\PsAccounts\Module\Uninstall($this, Db::getInstance());
         $uninstaller->deleteAdminTab('AdminLogin');
@@ -563,5 +1043,35 @@ function ps_accounts_fix_upgrade()
 
     foreach ($requires as $filename) {
         require_once $filename;
+=======
+    protected function getProvider(): PrestaShop\Module\PsAccounts\Provider\OAuth2\PrestaShopClientProvider
+    {
+        return $this->getService(\PrestaShop\Module\PsAccounts\Provider\OAuth2\PrestaShopClientProvider::class);
+    }
+
+    protected function isOauth2LogoutEnabled(): bool
+    {
+        return $this->hasParameter('ps_accounts.oauth2_url_session_logout');
+    }
+
+    protected function getOauth2Session(): PrestaShop\Module\PsAccounts\Domain\Account\Entity\AccountSession
+    {
+        return $this->getService(\PrestaShop\Module\PsAccounts\Domain\Account\Entity\AccountSession::class);
+    }
+
+    /**
+     * @return \PrestaShop\Module\PsAccounts\Cqrs\CommandBus
+     *
+     * @throws Exception
+     */
+    private function getCommandBus(): PrestaShop\Module\PsAccounts\Cqrs\CommandBus
+    {
+        /** @var \PrestaShop\Module\PsAccounts\Cqrs\CommandBus $commandBus */
+        $commandBus = $this->getService(
+            \PrestaShop\Module\PsAccounts\Cqrs\CommandBus::class
+        );
+
+        return $commandBus;
+>>>>>>> 6da8cbe1 (Refacto DDD-CQRS2)
     }
 }

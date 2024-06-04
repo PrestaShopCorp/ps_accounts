@@ -22,6 +22,9 @@ composer-dev.lock
 ### PHPUnit ###
 .phpunit.result.cache
 
+### PHPUnit ###
+.phpunit.result.cache
+
 ### Configuration ###
 config/config*.yml
 config/**/services_*.yml

@@ -1,0 +1,20 @@
+services:
+  _defaults:
+    public: true
+
+  PrestaShop\Module\PsAccounts\Domain\Account\QueryHandler\GetOrRefreshAccessTokenHandler:
+    class: PrestaShop\Module\PsAccounts\Domain\Account\QueryHandler\GetOrRefreshAccessTokenHandler
+    tags:
+      - { name: tactician.handler, command: 'PrestaShop\Module\PsAccounts\Domain\Account\Query\GetOrRefreshAccessToken' }
+    arguments:
+      - '@PrestaShop\Module\PsAccounts\Domain\Account\Entity\AccountSession'
+
+  PrestaShop\Module\PsAccounts\Domain\Shop\QueryHandler\GetOrRefreshShopTokenHandler:
+    class: PrestaShop\Module\PsAccounts\Domain\Shop\QueryHandler\GetOrRefreshShopTokenHandler
+    tags:
+      - { name: tactician.handler, command: 'PrestaShop\Module\PsAccounts\Domain\Shop\Query\GetOrRefreshShopToken' }
+    arguments:
+      - '@PrestaShop\Module\PsAccounts\Domain\Shop\Entity\ShopSession'
+
+
+

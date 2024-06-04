@@ -18,11 +18,33 @@
  * @license   https://opensource.org/licenses/AFL-3.0 Academic Free License version 3.0
  */
 
+<<<<<<< HEAD
 use PrestaShop\Module\PsAccounts\Account\Session\Firebase\ShopSession;
 use PrestaShop\Module\PsAccounts\Api\Controller\AbstractShopRestController;
+=======
+use PrestaShop\Module\PsAccounts\Controller\AbstractShopRestController;
+use PrestaShop\Module\PsAccounts\Cqrs\QueryBus;
+use PrestaShop\Module\PsAccounts\Domain\Shop\Entity\Token;
+use PrestaShop\Module\PsAccounts\Domain\Shop\Query\GetOrRefreshShopToken;
+>>>>>>> 6da8cbe1 (Refacto DDD-CQRS2)
 
 class ps_AccountsApiV1ShopTokenModuleFrontController extends AbstractShopRestController
 {
+    /**
+     * @var QueryBus
+     */
+    private $queryBus;
+
+    /**
+     * @throws Exception
+     */
+    public function __construct()
+    {
+        parent::__construct();
+
+        $this->queryBus = $this->module->getService(QueryBus::class);
+    }
+
     /**
      * @param Shop $shop
      * @param array $payload
@@ -33,12 +55,21 @@ class ps_AccountsApiV1ShopTokenModuleFrontController extends AbstractShopRestCon
      */
     public function show(Shop $shop, array $payload)
     {
+<<<<<<< HEAD
         /** @var ShopSession $shopSession */
         $shopSession = $this->module->getService(ShopSession::class);
 
         return [
             'token' => (string) $shopSession->getOrRefreshToken(),
             'refresh_token' => (string) $shopSession->getToken()->getRefreshToken(),
+=======
+        /** @var Token $token */
+        $token = $this->queryBus->handle(new GetOrRefreshShopToken());
+
+        return [
+            'token' => (string) $token->getJwt(),
+            'refresh_token' => (string) $token->getRefreshToken(),
+>>>>>>> 6da8cbe1 (Refacto DDD-CQRS2)
         ];
     }
 }
