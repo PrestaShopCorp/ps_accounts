@@ -82,6 +82,19 @@ class ShopSession extends Session implements SessionInterface
 //        return $token;
 //    }
 
+
+    /**
+     * @inheritDoc
+     */
+    public function getOrRefreshToken($forceRefresh = false)
+    {
+        $token = parent::getOrRefreshToken($forceRefresh);
+
+        \Hook::exec(ActionShopAccessTokenRefreshAfter::getName(), ['token' => $token]);
+
+        return $token;
+    }
+
     /**
      * @param string $refreshToken
      *

@@ -25,7 +25,6 @@ use PrestaShop\Module\PsAccounts\Account\Session\Session;
 use PrestaShop\Module\PsAccounts\Account\Session\SessionInterface;
 use PrestaShop\Module\PsAccounts\Account\Token\Token;
 use PrestaShop\Module\PsAccounts\Exception\RefreshTokenException;
-use PrestaShop\Module\PsAccounts\Hook\ActionShopAccessTokenRefreshAfter;
 use PrestaShop\Module\PsAccounts\Log\Logger;
 use PrestaShop\Module\PsAccounts\Repository\ConfigurationRepository;
 
@@ -67,11 +66,7 @@ class ShopSession extends Session implements SessionInterface
         $token = $this->shopSession->getOrRefreshToken();
 
         try {
-            $this->refreshFirebaseTokens($token);
-
-            \Hook::exec(ActionShopAccessTokenRefreshAfter::getName(), ['token' => $token]);
-
-            return $this->getToken();
+            return $this->refreshFirebaseTokens($token);
         } catch (RefreshTokenException $e) {
             Logger::getInstance()->error('Unable to get or refresh shop token : ' . $e->getMessage());
             throw $e;

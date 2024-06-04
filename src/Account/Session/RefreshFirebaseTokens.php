@@ -20,8 +20,7 @@
 
 namespace PrestaShop\Module\PsAccounts\Account\Session;
 
-use PrestaShop\Module\PsAccounts\Account\Session\Firebase\OwnerSession as OwnerFirebaseSession;
-use PrestaShop\Module\PsAccounts\Account\Session\Firebase\ShopSession as ShopFirebaseSession;
+use PrestaShop\Module\PsAccounts\Account\Session;
 use PrestaShop\Module\PsAccounts\Account\Token\NullToken;
 use PrestaShop\Module\PsAccounts\Account\Token\Token;
 use PrestaShop\Module\PsAccounts\Api\Client\AccountsClient;
@@ -34,7 +33,7 @@ trait RefreshFirebaseTokens
      *
      * @throws \Exception
      */
-    public function getAccountsClient()
+    protected function getAccountsClient()
     {
         /** @var \Ps_accounts $module */
         $module = \Module::getInstanceByName('ps_accounts');
@@ -43,61 +42,23 @@ trait RefreshFirebaseTokens
     }
 
     /**
-     * @return OwnerFirebaseSession
-     *
-     * @throws \Exception
-     */
-    public function getOwnerFirebaseSession()
-    {
-        /** @var \Ps_accounts $module */
-        $module = \Module::getInstanceByName('ps_accounts');
-
-        return $module->getService(OwnerFirebaseSession::class);
-    }
-
-    /**
-     * @return ShopFirebaseSession
-     *
-     * @throws \Exception
-     */
-    public function getShopFirebaseSession()
-    {
-        /** @var \Ps_accounts $module */
-        $module = \Module::getInstanceByName('ps_accounts');
-
-        return $module->getService(ShopFirebaseSession::class);
-    }
-
-    /**
      * @param string $token
      *
-     * @return void
+     * @return Token
      *
      * @throws RefreshTokenException
      */
     protected function refreshFirebaseTokens($token)
     {
-        if ($this->getOwnerFirebaseSession()->getToken()->isExpired() ||
-            $this->getShopFirebaseSession()->getToken()->isExpired()) {
-
-            if ($token instanceof NullToken) {
-                throw new RefreshTokenException('No valid access token.');
-            }
-
-            $response = $this->getAccountsClient()->firebaseTokens($token);
-            $userTokens = $this->getFirebaseTokenFromResponse($response, 'userToken', 'userRefreshToken');
-            $shopTokens = $this->getFirebaseTokenFromResponse($response, 'shopToken', 'shopRefreshToken');
-
-            $this->getOwnerFirebaseSession()->setToken(
-                (string) $userTokens->getJwt(),
-                (string) $userTokens->getRefreshToken()
-            );
-
-            $this->getShopFirebaseSession()->setToken(
-                (string) $shopTokens->getJwt(),
-                (string) $shopTokens->getRefreshToken()
-            );
+        if ($token instanceof NullToken) {
+            throw new RefreshTokenException('No valid access token.');
         }
+
+        $response = $this->getAccountsClient()->firebaseTokens($token);
+
+        $type = $this instanceof Firebase\ShopSession ? 'shop' : 'user';
+
+        return $this->getFirebaseTokenFromResponse($response, $type . 'Token', $type . 'RefreshToken');
     }
 
     /**
