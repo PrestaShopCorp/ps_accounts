@@ -43,7 +43,7 @@ abstract class Session implements SessionInterface
          * if it fails once, it will subsequently fail
          */
         if ($this->getRefreshTokenErrors(static::class)) {
-            $this->setToken(null);
+            $this->setToken('');
 
             return $this->getToken();
         }
@@ -60,7 +60,7 @@ abstract class Session implements SessionInterface
             } catch (\Exception $e) {
             }
             if (isset($e)) {
-                $this->setToken(null);
+                $this->setToken('');
                 $this->setRefreshTokenErrors(static::class);
                 Logger::getInstance()->error($e->getMessage());
             }
