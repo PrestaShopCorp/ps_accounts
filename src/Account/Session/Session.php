@@ -22,7 +22,6 @@ namespace PrestaShop\Module\PsAccounts\Account\Session;
 
 use PrestaShop\Module\PsAccounts\Account\Token\NullToken;
 use PrestaShop\Module\PsAccounts\Account\Token\Token;
-use PrestaShop\Module\PsAccounts\Exception\RefreshTokenException;
 use PrestaShop\Module\PsAccounts\Log\Logger;
 
 abstract class Session implements SessionInterface
@@ -45,6 +44,7 @@ abstract class Session implements SessionInterface
          */
         if ($this->getRefreshTokenErrors(static::class)) {
             $this->setToken(null);
+
             return $this->getToken();
         }
 

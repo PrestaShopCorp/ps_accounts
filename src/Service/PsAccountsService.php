@@ -109,6 +109,7 @@ class PsAccountsService
     public function getOrRefreshToken()
     {
         $token = $this->shopSession->getOrRefreshToken()->getJwt();
+
         return $token instanceof NullToken ? null : (string) $token;
     }
 
@@ -136,6 +137,7 @@ class PsAccountsService
     public function getUserToken()
     {
         $token = $this->ownerSession->getOrRefreshToken()->getJwt();
+
         return $token instanceof NullToken ? null : (string) $token;
     }
 
