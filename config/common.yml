@@ -162,6 +162,7 @@ services:
     arguments:
       - '@PrestaShop\Module\PsAccounts\Repository\ConfigurationRepository'
       - '@PrestaShop\Module\PsAccounts\Provider\OAuth2\ShopProvider'
+      - '@PrestaShop\Module\PsAccounts\Account\LinkShop'
 
   PrestaShop\Module\PsAccounts\Account\Session\Firebase\ShopSession:
     class: PrestaShop\Module\PsAccounts\Account\Session\Firebase\ShopSession
@@ -169,6 +170,7 @@ services:
     arguments:
       - '@PrestaShop\Module\PsAccounts\Repository\ConfigurationRepository'
       - '@PrestaShop\Module\PsAccounts\Account\Session\ShopSession'
+      - '@PrestaShop\Module\PsAccounts\Account\LinkShop'
 
   PrestaShop\Module\PsAccounts\Account\Session\Firebase\OwnerSession:
     class: PrestaShop\Module\PsAccounts\Account\Session\Firebase\OwnerSession
@@ -176,6 +178,7 @@ services:
     arguments:
       - '@PrestaShop\Module\PsAccounts\Repository\ConfigurationRepository'
       - '@PrestaShop\Module\PsAccounts\Account\Session\ShopSession'
+      - '@PrestaShop\Module\PsAccounts\Account\LinkShop'
 
   PrestaShop\Module\PsAccounts\Repository\ConfigurationRepository:
     class: PrestaShop\Module\PsAccounts\Repository\ConfigurationRepository

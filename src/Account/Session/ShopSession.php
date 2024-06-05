@@ -47,13 +47,20 @@ class ShopSession extends Session implements SessionInterface
     protected $configurationRepository;
 
     /**
+     * @var LinkShop
+     */
+    protected $linkShop;
+
+    /**
      * @param ConfigurationRepository $configurationRepository
      * @param ShopProvider $oauth2ClientProvider
      */
     public function __construct(
         ConfigurationRepository $configurationRepository,
-        ShopProvider $oauth2ClientProvider
+        ShopProvider $oauth2ClientProvider,
+        LinkShop $linkShop
     ) {
+        $this->linkShop = $linkShop;
         $this->configurationRepository = $configurationRepository;
         $this->oauth2ClientProvider = $oauth2ClientProvider;
     }
@@ -96,6 +103,14 @@ class ShopSession extends Session implements SessionInterface
     public function refreshToken($refreshToken = null)
     {
         try {
+            if (
+                empty($this->oauth2ClientProvider->getOauth2Client()->getClientId())
+                || empty($this->oauth2ClientProvider->getOauth2Client()->getClientSecret())
+            ) {
+                $this->linkShop->delete();
+                $this->configurationRepository->clearLinkContext();
+                throw new RefreshTokenException('Oauth2 client id or Oauth secret is empty');
+            }
             $shopUuid = $this->getShopUuid();
             $accessToken = $this->getAccessToken($shopUuid);
 
