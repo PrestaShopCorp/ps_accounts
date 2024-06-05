@@ -39,15 +39,17 @@ interface SessionInterface
     public function setToken($token, $refreshToken = null);
 
     /**
-     * @param string|null $refreshToken
+     * Refreshes and saves refreshed token
      *
-     * @return Token
+     * @param string|null $refreshToken
      *
      * @throws RefreshTokenException
      */
     public function refreshToken($refreshToken = null);
 
     /**
+     * Get or refreshes and saves token
+     *
      * @param bool $forceRefresh
      *
      * @return Token

@@ -31,8 +31,6 @@ abstract class FirebaseSession extends Session implements SessionInterface
 {
     /**
      * @return AccountsClient
-     *
-     * @throws \Exception
      */
     protected function getAccountsClient()
     {
@@ -40,6 +38,28 @@ abstract class FirebaseSession extends Session implements SessionInterface
         $module = \Module::getInstanceByName('ps_accounts');
 
         return $module->getService(AccountsClient::class);
+    }
+
+    /**
+     * @return OwnerSession
+     */
+    public function getOwnerSession()
+    {
+        /** @var \Ps_accounts $module */
+        $module = \Module::getInstanceByName('ps_accounts');
+
+        return $module->getService(OwnerSession::class);
+    }
+
+    /**
+     * @return ShopSession
+     */
+    public function getShopSession()
+    {
+        /** @var \Ps_accounts $module */
+        $module = \Module::getInstanceByName('ps_accounts');
+
+        return $module->getService(ShopSession::class);
     }
 
     /**
@@ -57,9 +77,14 @@ abstract class FirebaseSession extends Session implements SessionInterface
 
         $response = $this->getAccountsClient()->firebaseTokens($token);
 
-        $type = $this instanceof ShopSession ? 'shop' : 'user';
+        $shopToken = $this->getFirebaseTokenFromResponse($response, 'shopToken', 'shopRefreshToken');
+        $ownerToken = $this->getFirebaseTokenFromResponse($response, 'userToken', 'userRefreshToken');
 
-        return $this->getFirebaseTokenFromResponse($response, $type . 'Token', $type . 'RefreshToken');
+        // saving both tokens here
+        $this->getShopSession()->setToken((string) $shopToken, $shopToken->getRefreshToken());
+        $this->getOwnerSession()->setToken((string) $ownerToken, $ownerToken->getRefreshToken());
+
+        return $this instanceof ShopSession ? $shopToken : $ownerToken;
     }
 
     /**

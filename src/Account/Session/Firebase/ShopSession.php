@@ -53,8 +53,6 @@ class ShopSession extends FirebaseSession implements SessionInterface
     /**
      * @param string $refreshToken
      *
-     * @return Token
-     *
      * @throws RefreshTokenException
      */
     public function refreshToken($refreshToken = null)
@@ -62,7 +60,7 @@ class ShopSession extends FirebaseSession implements SessionInterface
         $token = $this->shopSession->getOrRefreshToken();
 
         try {
-            return $this->refreshFirebaseTokens($token);
+            $this->refreshFirebaseTokens($token);
         } catch (RefreshTokenException $e) {
             Logger::getInstance()->error('Unable to get or refresh shop token : ' . $e->getMessage());
             throw $e;

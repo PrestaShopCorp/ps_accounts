@@ -71,8 +71,6 @@ class ShopSession extends Session implements SessionInterface
     /**
      * @param string $refreshToken
      *
-     * @return Token
-     *
      * @throws RefreshTokenException
      */
     public function refreshToken($refreshToken = null)
@@ -81,7 +79,12 @@ class ShopSession extends Session implements SessionInterface
             $shopUuid = $this->getShopUuid();
             $accessToken = $this->getAccessToken($shopUuid);
 
-            return new Token($accessToken->getToken(), $accessToken->getRefreshToken());
+            //return new Token($accessToken->getToken(), $accessToken->getRefreshToken());
+            $this->setToken(
+                $accessToken->getToken(),
+                $accessToken->getRefreshToken()
+            );
+
         } catch (IdentityProviderException $e) {
         } catch (\Error $e) {
         } catch (\Exception $e) {
