@@ -1,6 +1,6 @@
 {
   "name": "prestashopcorp/ps_accounts",
-  "description": "PrestaShop EventBus is an enabler to help you share data with other modules",
+  "description": "PS Accounts authentifies stores in the PrestaShop Cloud, which enable secure communications for any PrestaShop modules.",
   "type": "prestashop-module",
   "authors": [
     {
