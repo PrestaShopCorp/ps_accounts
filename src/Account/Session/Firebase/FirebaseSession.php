@@ -65,8 +65,6 @@ abstract class FirebaseSession extends Session implements SessionInterface
     /**
      * @param Token $token
      *
-     * @return Token
-     *
      * @throws RefreshTokenException
      */
     protected function refreshFirebaseTokens($token)
@@ -81,10 +79,8 @@ abstract class FirebaseSession extends Session implements SessionInterface
         $ownerToken = $this->getFirebaseTokenFromResponse($response, 'userToken', 'userRefreshToken');
 
         // saving both tokens here
-        $this->getShopSession()->setToken((string) $shopToken, $shopToken->getRefreshToken());
-        $this->getOwnerSession()->setToken((string) $ownerToken, $ownerToken->getRefreshToken());
-
-        return $this instanceof ShopSession ? $shopToken : $ownerToken;
+        $this->getShopSession()->setToken((string) $shopToken->getJwt(), $shopToken->getRefreshToken());
+        $this->getOwnerSession()->setToken((string) $ownerToken->getJwt(), $ownerToken->getRefreshToken());
     }
 
     /**
