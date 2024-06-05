@@ -103,10 +103,7 @@ class ShopSession extends Session implements SessionInterface
     public function refreshToken($refreshToken = null)
     {
         try {
-            if (
-                empty($this->oauth2ClientProvider->getOauth2Client()->getClientId())
-                || empty($this->oauth2ClientProvider->getOauth2Client()->getClientSecret())
-            ) {
+            if (!$this->oauth2ClientProvider->getOauth2Client()->exists()) {
                 $this->linkShop->delete();
                 $this->configurationRepository->clearLinkContext();
                 throw new RefreshTokenException('Oauth2 client id or Oauth secret is empty');
