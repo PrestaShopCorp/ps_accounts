@@ -74,7 +74,7 @@ abstract class Session implements SessionInterface
         if (!$jwt instanceof NullToken &&
             !$jwt->claims()->get('email_verified')
         ) {
-            $jwt = $this->getOrRefreshToken(true)->getJwt();
+            //$jwt = $this->getOrRefreshToken(true)->getJwt();
         }
 
         return (bool) $jwt->claims()->get('email_verified');
