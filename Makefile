@@ -99,13 +99,13 @@ phpunit-permissions:
 	@docker exec phpunit sh -c "if [ -d ./log ]; then chown -R www-data:www-data ./log; fi" # PS1.6
 
 phpunit-run-unit: phpunit-permissions vendor-dev
-	@docker exec -w ${CONTAINER_INSTALL_DIR} phpunit ./vendor/bin/phpunit --testsuite unit
+	@docker exec -w ${CONTAINER_INSTALL_DIR} phpunit ./vendor/bin/phpunit --debug --testsuite unit
 
 phpunit-run-feature: phpunit-permissions vendor-dev
-	@docker exec -w ${CONTAINER_INSTALL_DIR} phpunit ./vendor/bin/phpunit --testsuite feature
+	@docker exec -w ${CONTAINER_INSTALL_DIR} phpunit ./vendor/bin/phpunit --debug --testsuite feature
 
-phpunit-xdebug:
-	-@docker exec phpunit sh -c "docker-php-ext-enable xdebug"
+#phpunit-xdebug:
+#	-@docker exec phpunit sh -c "docker-php-ext-enable xdebug"
 
 phpunit-delay-5:
 	@echo waiting 5 seconds
