@@ -139,7 +139,7 @@ class ShopSession extends Session implements SessionInterface
         /**
          * /!\ Potential scoping issue here :
          *
-         * using 'client_credentials' as a string literal alternative for grant will trigger the following error with PPHUnit context,
+         * using 'client_credentials' as a string literal alternative for grant will trigger the following error with PHPUnit context,
          * so better avoid it in case it triggers an error elsewhere :
          *
          * PHP Fatal error:  Cannot declare class PrestaShop\Module\PsAccounts\Vendor\League\OAuth2\Client\Grant\ClientCredentials,

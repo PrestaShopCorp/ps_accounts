@@ -22,7 +22,6 @@ namespace PrestaShop\Module\PsAccounts\Provider\OAuth2;
 
 use PrestaShop\Module\PsAccounts\Adapter\Link;
 use PrestaShop\Module\PsAccounts\Vendor\League\OAuth2\Client\Provider\AbstractProvider;
-use PrestaShop\Module\PsAccounts\Vendor\League\OAuth2\Client\Token\AccessToken;
 use PrestaShop\OAuth2\Client\Provider\PrestaShop;
 
 class ShopProvider extends PrestaShop

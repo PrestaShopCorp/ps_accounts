@@ -52,6 +52,7 @@ class OwnerSession extends FirebaseSession implements SessionInterface
 
     /**
      * FIXME: duplicate code with ShopSession
+     *
      * @param string $refreshToken
      *
      * @return Token
