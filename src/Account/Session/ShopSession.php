@@ -71,6 +71,8 @@ class ShopSession extends Session implements SessionInterface
     /**
      * @param string $refreshToken
      *
+     * @return Token
+     *
      * @throws RefreshTokenException
      */
     public function refreshToken($refreshToken = null)
@@ -84,6 +86,7 @@ class ShopSession extends Session implements SessionInterface
                 $accessToken->getToken(),
                 $accessToken->getRefreshToken()
             );
+            return $this->getToken();
 
         } catch (IdentityProviderException $e) {
         } catch (\Error $e) {

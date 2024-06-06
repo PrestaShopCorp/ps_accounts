@@ -22,6 +22,7 @@ namespace PrestaShop\Module\PsAccounts\Account\Session;
 
 use PrestaShop\Module\PsAccounts\Account\Token\NullToken;
 use PrestaShop\Module\PsAccounts\Account\Token\Token;
+use PrestaShop\Module\PsAccounts\Exception\RefreshTokenException;
 use PrestaShop\Module\PsAccounts\Log\Logger;
 
 abstract class Session implements SessionInterface
@@ -51,15 +52,8 @@ abstract class Session implements SessionInterface
         $currentToken = $this->getToken();
         if (true === $forceRefresh || $currentToken->isExpired()) {
             try {
-                $refreshedToken = $this->refreshToken(null);
-                $this->setToken(
-                    (string) $refreshedToken->getJwt(),
-                    $refreshedToken->getRefreshToken()
-                );
-            } catch (\Error $e) {
-            } catch (\Exception $e) {
-            }
-            if (isset($e)) {
+                $this->refreshToken(null);
+            } catch (RefreshTokenException $e) {
                 $this->setToken('');
                 $this->setRefreshTokenErrors(static::class);
                 Logger::getInstance()->error($e->getMessage());
@@ -91,9 +85,18 @@ abstract class Session implements SessionInterface
      *
      * @return bool
      */
-    protected function getRefreshTokenErrors($refreshToken)
+    public function getRefreshTokenErrors($refreshToken)
     {
         return isset($this->refreshTokenErrors[$refreshToken]) && $this->refreshTokenErrors[$refreshToken];
+    }
+
+
+    /**
+     * @return void
+     */
+    public function resetRefreshTokenErrors()
+    {
+        $this->refreshTokenErrors = [];
     }
 
     /**
@@ -103,6 +106,7 @@ abstract class Session implements SessionInterface
      */
     protected function setRefreshTokenErrors($refreshToken)
     {
+        Logger::getInstance()->error('### ' . static::class . ' :: ' . __FUNCTION__);
         $this->refreshTokenErrors[$refreshToken] = true;
     }
 }

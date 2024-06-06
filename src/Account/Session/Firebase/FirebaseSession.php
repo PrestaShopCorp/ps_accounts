@@ -70,7 +70,7 @@ abstract class FirebaseSession extends Session implements SessionInterface
     protected function refreshFirebaseTokens($token)
     {
         if ($token->getJwt() instanceof NullToken) {
-            throw new RefreshTokenException('No valid access token.');
+            throw new RefreshTokenException('Invalid access token: NullToken');
         }
 
         $response = $this->getAccountsClient()->firebaseTokens($token);

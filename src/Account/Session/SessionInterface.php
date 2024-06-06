@@ -43,6 +43,8 @@ interface SessionInterface
      *
      * @param string|null $refreshToken
      *
+     * @return Token
+     *
      * @throws RefreshTokenException
      */
     public function refreshToken($refreshToken = null);

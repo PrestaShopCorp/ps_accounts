@@ -6,6 +6,8 @@ use Db;
 use Exception;
 use Faker\Generator;
 use Module;
+use PrestaShop\Module\PsAccounts\Account\Session\Firebase;
+use PrestaShop\Module\PsAccounts\Account\Session\ShopSession;
 use PrestaShop\Module\PsAccounts\Vendor\Lcobucci\JWT\Builder;
 use PrestaShop\Module\PsAccounts\Vendor\Lcobucci\JWT\Configuration;
 use PrestaShop\Module\PsAccounts\Vendor\Lcobucci\JWT\Token;
@@ -68,6 +70,15 @@ class TestCase extends \PHPUnit\Framework\TestCase
     public function tearDown()
     {
         $this->rollback();
+
+        // FIXME: shouldn't every test class do its cleanup ?
+        foreach ([
+                     ShopSession::class,
+                     Firebase\ShopSession::class,
+                     Firebase\OwnerSession::class
+                 ] as $class) {
+            $this->module->getService($class)->resetRefreshTokenErrors();
+        }
 
         parent::tearDown();
     }
