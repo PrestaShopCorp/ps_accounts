@@ -30,12 +30,11 @@ use PrestaShop\Module\PsAccounts\Repository\ConfigurationRepository;
 use PrestaShop\Module\PsAccounts\Vendor\League\OAuth2\Client\Provider\Exception\IdentityProviderException;
 use PrestaShop\Module\PsAccounts\Vendor\League\OAuth2\Client\Token\AccessToken;
 use PrestaShop\Module\PsAccounts\Vendor\League\OAuth2\Client\Token\AccessTokenInterface;
-use PrestaShop\OAuth2\Client\Provider\PrestaShop;
 
 class ShopSession extends Session implements SessionInterface
 {
     /**
-     * @var PrestaShop
+     * @var ShopProvider
      */
     protected $oauth2ClientProvider;
 
@@ -79,13 +78,13 @@ class ShopSession extends Session implements SessionInterface
     {
         try {
             $shopUuid = $this->getShopUuid();
-            $accessToken = $this->getAccessToken($shopUuid);
-
-            //return new Token($accessToken->getToken(), $accessToken->getRefreshToken());
-            $this->setToken(
-                $accessToken->getToken(),
-                $accessToken->getRefreshToken()
-            );
+//            $accessToken = $this->getAccessToken($shopUuid);
+//
+//            //return new Token($accessToken->getToken(), $accessToken->getRefreshToken());
+//            $this->setToken(
+//                $accessToken->getToken(),
+//                $accessToken->getRefreshToken()
+//            );
 
             return $this->getToken();
         } catch (IdentityProviderException $e) {

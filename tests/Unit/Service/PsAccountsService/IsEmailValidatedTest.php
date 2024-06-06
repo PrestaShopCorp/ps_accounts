@@ -36,11 +36,6 @@ class IsEmailValidatedTest extends TestCase
         $this->assertTrue($this->service->isEmailValidated());
     }
 
-    /** PHP Fatal error:  Cannot declare class PrestaShop\Module\PsAccounts\Vendor\League\OAuth2\Client\Grant\ClientCredentials,
-     *  because the name is already in use in
-     *  /var/www/html/modules/ps_accounts/vendor/league/oauth2-client/src/Grant/ClientCredentials.php on line 22
-     */
-
     /**
      * @test
      *
