@@ -57,8 +57,9 @@ class getOrRefreshTokenTest extends TestCase
      *
      * @throws \Exception
      */
-    public function itShouldReturnNullOnExpiredToken()
+    public function itShouldReturnNullOnError()
     {
+        // FIXME: we assume we can't resolve external apis here
         $this->shopSession->setToken((string) $this->makeJwtToken(new \DateTimeImmutable('yesterday')));
 
         $this->assertNull($this->service->getOrRefreshToken());
