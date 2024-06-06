@@ -7,7 +7,7 @@ use PrestaShop\Module\PsAccounts\Provider\OAuth2\Oauth2Client;
 use PrestaShop\Module\PsAccounts\Service\PsAccountsService;
 use PrestaShop\Module\PsAccounts\Tests\TestCase;
 
-class getOrRefreshTokenTest extends TestCase
+class GetOrRefreshTokenTest extends TestCase
 {
     /**
      * @inject
@@ -47,9 +47,11 @@ class getOrRefreshTokenTest extends TestCase
      */
     public function itShouldReturnAValidToken()
     {
-        $this->shopSession->setToken((string) $this->makeJwtToken(new \DateTimeImmutable('+1 hour')));
+        $validToken = $this->makeJwtToken(new \DateTimeImmutable('+1 hour'));
 
-        $this->assertNotEmpty($this->service->getOrRefreshToken());
+        $this->shopSession->setToken((string) $validToken);
+
+        $this->assertEquals($validToken, $this->service->getOrRefreshToken());
     }
 
     /**
