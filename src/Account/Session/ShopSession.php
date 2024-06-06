@@ -78,13 +78,13 @@ class ShopSession extends Session implements SessionInterface
     {
         try {
             $shopUuid = $this->getShopUuid();
-//            $accessToken = $this->getAccessToken($shopUuid);
-//
-//            //return new Token($accessToken->getToken(), $accessToken->getRefreshToken());
-//            $this->setToken(
-//                $accessToken->getToken(),
-//                $accessToken->getRefreshToken()
-//            );
+            $accessToken = $this->getAccessToken($shopUuid);
+
+            //return new Token($accessToken->getToken(), $accessToken->getRefreshToken());
+            $this->setToken(
+                $accessToken->getToken(),
+                $accessToken->getRefreshToken()
+            );
 
             return $this->getToken();
         } catch (IdentityProviderException $e) {
