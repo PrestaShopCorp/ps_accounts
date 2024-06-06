@@ -36,17 +36,17 @@ class IsEmailValidatedTest extends TestCase
         $this->assertTrue($this->service->isEmailValidated());
     }
 
-//    /**
-//     * @test
-//     *
-//     * @throws \Exception
-//     */
-//    public function itShouldReturnFalse()
-//    {
-//        $this->ownerSession->setToken(
-//            $this->makeFirebaseToken(null, ['email_verified' => false])
-//        );
-//
-//        $this->assertFalse($this->service->isEmailValidated());
-//    }
+    /**
+     * @test
+     *
+     * @throws \Exception
+     */
+    public function itShouldReturnFalse()
+    {
+        $this->ownerSession->setToken(
+            $this->makeFirebaseToken(null, ['email_verified' => false])
+        );
+
+        $this->assertFalse($this->service->isEmailValidated());
+    }
 }
