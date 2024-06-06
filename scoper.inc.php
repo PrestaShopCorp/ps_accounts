@@ -102,7 +102,7 @@ return [
             if ($filePath === __DIR__ . '/vendor/league/oauth2-client/src/Grant/GrantFactory.php') {
                 return str_replace(
                     "\$class = 'League\\\\OAuth2\\\\Client\\\\Grant\\\\' . \$class;",
-                    "\$class = '{$prefix}\\\\League\\\\OAuth2\\\\Client\\\\Grant\\\\' . \$class;",
+                    "\$class = '{$prefix}\\League\\OAuth2\\Client\\Grant\\\\' . \$class;",
                     $contents
                 );
             }

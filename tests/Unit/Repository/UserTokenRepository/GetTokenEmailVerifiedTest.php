@@ -34,23 +34,23 @@ class GetTokenEmailVerifiedTest extends TestCase
         $this->assertTrue($this->repository->getTokenEmailVerified());
     }
 
-//    /**
-//     * @test
-//     *
-//     * @throws \Exception
-//     */
-//    public function itShouldReturnFalse()
-//    {
-//        $idToken = $this->makeJwtToken(new \DateTimeImmutable('tomorrow'), [
-//            'sub' => $this->faker->uuid,
-//            'email' => $this->faker->safeEmail,
-//            'email_verified' => false,
-//        ]);
-//
-//        $refreshToken = null; //$this->makeJwtToken(new \DateTimeImmutable('+1 year'));
-//
-//        $this->repository->updateCredentials((string) $idToken, (string) $refreshToken);
-//
-//        $this->assertFalse($this->repository->getTokenEmailVerified());
-//    }
+    /**
+     * @test
+     *
+     * @throws \Exception
+     */
+    public function itShouldReturnFalse()
+    {
+        $idToken = $this->makeJwtToken(new \DateTimeImmutable('tomorrow'), [
+            'sub' => $this->faker->uuid,
+            'email' => $this->faker->safeEmail,
+            'email_verified' => false,
+        ]);
+
+        $refreshToken = null; //$this->makeJwtToken(new \DateTimeImmutable('+1 year'));
+
+        $this->repository->updateCredentials((string) $idToken, (string) $refreshToken);
+
+        $this->assertFalse($this->repository->getTokenEmailVerified());
+    }
 }

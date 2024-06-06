@@ -54,28 +54,28 @@ class GetOrRefreshTokenTest extends TestCase
         $this->assertEquals($validToken, $this->service->getOrRefreshToken());
     }
 
-//    /**
-//     * @test
-//     *
-//     * @throws \Exception
-//     */
-//    public function itShouldReturnNullOnError()
-//    {
-//        // FIXME: we assume we can't resolve external apis here
-//        $this->shopSession->setToken((string) $this->makeJwtToken(new \DateTimeImmutable('yesterday')));
-//
-//        $this->assertNull($this->service->getOrRefreshToken());
-//    }
-//
-//    /**
-//     * @test
-//     *
-//     * @throws \Exception
-//     */
-//    public function itShouldReturnNullOnEmptyToken()
-//    {
-//        $this->shopSession->setToken('');
-//
-//        $this->assertNull($this->service->getOrRefreshToken());
-//    }
+    /**
+     * @test
+     *
+     * @throws \Exception
+     */
+    public function itShouldReturnNullOnError()
+    {
+        // FIXME: we assume we can't resolve external apis here
+        $this->shopSession->setToken((string) $this->makeJwtToken(new \DateTimeImmutable('yesterday')));
+
+        $this->assertNull($this->service->getOrRefreshToken());
+    }
+
+    /**
+     * @test
+     *
+     * @throws \Exception
+     */
+    public function itShouldReturnNullOnEmptyToken()
+    {
+        $this->shopSession->setToken('');
+
+        $this->assertNull($this->service->getOrRefreshToken());
+    }
 }
