@@ -148,8 +148,7 @@ class ShopProvider extends PrestaShop
     {
         $this->syncOauth2ClientProps();
 
-        //return parent::getAccessToken($grant, $options);
-        return new AccessToken(['access_token' => 'foo']);
+        return parent::getAccessToken($grant, $options);
     }
 
     /**

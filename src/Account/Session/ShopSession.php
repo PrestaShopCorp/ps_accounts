@@ -133,7 +133,7 @@ class ShopSession extends Session implements SessionInterface
     {
         $audience = [
             'shop_' . $shopUid,
-            // 'another.audience'
+            //'another.audience'
         ];
         $token = $this->oauth2ClientProvider->getAccessToken('client_credentials', [
             //'scope' => 'read.all write.all',
