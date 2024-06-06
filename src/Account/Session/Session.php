@@ -90,7 +90,6 @@ abstract class Session implements SessionInterface
         return isset($this->refreshTokenErrors[$refreshToken]) && $this->refreshTokenErrors[$refreshToken];
     }
 
-
     /**
      * @return void
      */

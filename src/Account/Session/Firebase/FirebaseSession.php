@@ -65,6 +65,8 @@ abstract class FirebaseSession extends Session implements SessionInterface
     /**
      * @param Token $token
      *
+     * @return void
+     *
      * @throws RefreshTokenException
      */
     protected function refreshFirebaseTokens($token)

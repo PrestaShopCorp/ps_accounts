@@ -57,7 +57,7 @@ class ShopSession extends Session implements SessionInterface
     }
 
     /**
-     * @inheritDoc
+     * {@inheritDoc}
      */
     public function getOrRefreshToken($forceRefresh = false)
     {
@@ -86,8 +86,8 @@ class ShopSession extends Session implements SessionInterface
                 $accessToken->getToken(),
                 $accessToken->getRefreshToken()
             );
-            return $this->getToken();
 
+            return $this->getToken();
         } catch (IdentityProviderException $e) {
         } catch (\Error $e) {
         } catch (\Exception $e) {
