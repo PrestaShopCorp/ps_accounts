@@ -20,46 +20,78 @@
 
 namespace PrestaShop\Module\PsAccounts\Account\Session\Firebase;
 
+use PrestaShop\Module\PsAccounts\Account\Session\Firebase;
 use PrestaShop\Module\PsAccounts\Account\Session\Session;
 use PrestaShop\Module\PsAccounts\Account\Session\SessionInterface;
+use PrestaShop\Module\PsAccounts\Account\Session\ShopSession;
 use PrestaShop\Module\PsAccounts\Account\Token\NullToken;
 use PrestaShop\Module\PsAccounts\Account\Token\Token;
 use PrestaShop\Module\PsAccounts\Api\Client\AccountsClient;
 use PrestaShop\Module\PsAccounts\Exception\RefreshTokenException;
+use PrestaShop\Module\PsAccounts\Log\Logger;
 
 abstract class FirebaseSession extends Session implements SessionInterface
 {
     /**
-     * @return AccountsClient
+     * @var ShopSession
      */
-    protected function getAccountsClient()
-    {
-        /** @var \Ps_accounts $module */
-        $module = \Module::getInstanceByName('ps_accounts');
+    protected $shopSession;
 
-        return $module->getService(AccountsClient::class);
+    /**
+     * @var \Ps_accounts
+     */
+    private $module;
+
+    public function __construct(ShopSession $shopSession)
+    {
+        $this->shopSession = $shopSession;
+        $this->module = $module = \Module::getInstanceByName('ps_accounts');
     }
 
     /**
-     * @return OwnerSession
+     * @return AccountsClient
+     */
+    public function getAccountsClient()
+    {
+        return $this->module->getService(AccountsClient::class);
+    }
+
+    /**
+     * @return Firebase\OwnerSession
      */
     public function getOwnerSession()
     {
-        /** @var \Ps_accounts $module */
-        $module = \Module::getInstanceByName('ps_accounts');
-
-        return $module->getService(OwnerSession::class);
+        return $this->module->getService(Firebase\OwnerSession::class);
     }
 
     /**
-     * @return ShopSession
+     * @return Firebase\ShopSession
      */
     public function getShopSession()
     {
-        /** @var \Ps_accounts $module */
-        $module = \Module::getInstanceByName('ps_accounts');
+        return $this->module->getService(Firebase\ShopSession::class);
+    }
 
-        return $module->getService(ShopSession::class);
+    /**
+     * @param string $refreshToken
+     *
+     * @return Token
+     *
+     * @throws RefreshTokenException
+     */
+    public function refreshToken($refreshToken = null)
+    {
+        $token = $this->shopSession->getOrRefreshToken();
+
+        try {
+            $this->refreshFirebaseTokens($token);
+        } catch (RefreshTokenException $e) {
+            $type = static::class instanceof Firebase\OwnerSession ? 'owner' : 'shop';
+            Logger::getInstance()->error('Unable to get or refresh ' . $type . ' token : ' . $e->getMessage());
+            throw $e;
+        }
+
+        return $this->getToken();
     }
 
     /**
@@ -72,7 +104,7 @@ abstract class FirebaseSession extends Session implements SessionInterface
     protected function refreshFirebaseTokens($token)
     {
         if ($token->getJwt() instanceof NullToken) {
-            throw new RefreshTokenException('Invalid access token: NullToken');
+            throw new RefreshTokenException('Unable to refresh owner & shop tokens : null access token');
         }
 
         $response = $this->getAccountsClient()->firebaseTokens($token);

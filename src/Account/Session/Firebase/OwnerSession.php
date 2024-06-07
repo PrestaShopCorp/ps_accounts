@@ -22,17 +22,10 @@ namespace PrestaShop\Module\PsAccounts\Account\Session\Firebase;
 
 use PrestaShop\Module\PsAccounts\Account\Session\SessionInterface;
 use PrestaShop\Module\PsAccounts\Account\Token\Token;
-use PrestaShop\Module\PsAccounts\Exception\RefreshTokenException;
-use PrestaShop\Module\PsAccounts\Log\Logger;
 use PrestaShop\Module\PsAccounts\Repository\ConfigurationRepository;
 
 class OwnerSession extends FirebaseSession implements SessionInterface
 {
-    /**
-     * @var \PrestaShop\Module\PsAccounts\Account\Session\ShopSession
-     */
-    protected $shopSession;
-
     /**
      * @var ConfigurationRepository
      */
@@ -47,30 +40,8 @@ class OwnerSession extends FirebaseSession implements SessionInterface
         \PrestaShop\Module\PsAccounts\Account\Session\ShopSession $shopSession
     ) {
         $this->configurationRepository = $configurationRepository;
-        $this->shopSession = $shopSession;
-    }
 
-    /**
-     * FIXME: duplicate code with ShopSession
-     *
-     * @param string $refreshToken
-     *
-     * @return Token
-     *
-     * @throws RefreshTokenException
-     */
-    public function refreshToken($refreshToken = null)
-    {
-        $token = $this->shopSession->getOrRefreshToken();
-
-        try {
-            $this->refreshFirebaseTokens($token);
-        } catch (RefreshTokenException $e) {
-            Logger::getInstance()->error('Unable to get or refresh owner token : ' . $e->getMessage());
-            throw $e;
-        }
-
-        return $this->getToken();
+        parent::__construct($shopSession);
     }
 
     /**
