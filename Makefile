@@ -94,7 +94,7 @@ phpunit-module-install: phpunit-debug phpunit-module-config phpunit-module-versi
 	@docker exec phpunit sh -c "if [ ! -f ./bin/console ]; then php -d memory_limit=-1 ./modules/ps_accounts/tests/install-module.php; fi"
 
 phpunit-debug:
-	@echo "<?php include './vendor/guzzlehttp/guzzle/src/functions.php'; var_dump(PrestaShop\Module\PsAccounts\Vendor\GuzzleHttp\\\\normalize_header_keys([]));" | php
+	@echo './vendor/guzzlehttp/guzzle/src/functions.php'
 
 phpunit-permissions:
 	@docker exec phpunit sh -c "if [ -d ./var ]; then chown -R www-data:www-data ./var; fi"
