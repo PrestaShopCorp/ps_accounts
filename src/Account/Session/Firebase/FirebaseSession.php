@@ -45,7 +45,9 @@ abstract class FirebaseSession extends Session implements SessionInterface
     public function __construct(ShopSession $shopSession)
     {
         $this->shopSession = $shopSession;
-        $this->module = $module = \Module::getInstanceByName('ps_accounts');
+
+        /* @phpstan-ignore-next-line */
+        $this->module = \Module::getInstanceByName('ps_accounts');
     }
 
     /**
@@ -86,8 +88,7 @@ abstract class FirebaseSession extends Session implements SessionInterface
         try {
             $this->refreshFirebaseTokens($token);
         } catch (RefreshTokenException $e) {
-            $type = static::class instanceof Firebase\OwnerSession ? 'owner' : 'shop';
-            Logger::getInstance()->error('Unable to get or refresh ' . $type . ' token : ' . $e->getMessage());
+            Logger::getInstance()->error('Unable to get or refresh owner/shop token : ' . $e->getMessage());
             throw $e;
         }
 
