@@ -93,6 +93,9 @@ phpunit-module-install: phpunit-debug phpunit-module-config phpunit-module-versi
 	@docker exec phpunit sh -c "if [ -f ./bin/console ]; then php -d memory_limit=-1 ./bin/console prestashop:module install ps_accounts; fi"
 	@docker exec phpunit sh -c "if [ ! -f ./bin/console ]; then php -d memory_limit=-1 ./modules/ps_accounts/tests/install-module.php; fi"
 
+phpunit-debug:
+	@echo "<?php include './vendor/guzzlehttp/guzzle/src/functions.php'; var_dump(PrestaShop\Module\PsAccounts\Vendor\GuzzleHttp\\\\normalize_header_keys([]));" | php
+
 phpunit-permissions:
 	@docker exec phpunit sh -c "if [ -d ./var ]; then chown -R www-data:www-data ./var; fi"
 	@docker exec phpunit sh -c "if [ -d ./cache ]; then chown -R www-data:www-data ./cache; fi" # PS1.6
@@ -110,9 +113,6 @@ phpunit-run-feature: phpunit-permissions vendor-dev
 phpunit-delay-5:
 	@echo waiting 5 seconds
 	@sleep 5
-
-phpunit-debug:
-	@echo "<?php include './vendor/guzzlehttp/guzzle/src/functions.php'; var_dump(PrestaShop\Module\PsAccounts\Vendor\GuzzleHttp\\\\normalize_header_keys([]));" | php
 
 phpunit: phpunit-pull phpunit-restart phpunit-delay-5 phpunit-module-install phpunit-run-feature phpunit-run-unit
 	@echo phpunit passed
