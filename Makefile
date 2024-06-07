@@ -89,12 +89,9 @@ phpunit-module-version:
 	@docker exec -w ${CONTAINER_INSTALL_DIR} phpunit \
 		sh -c "echo \"Module v\`cat config.xml | grep '<version>' | sed 's/^.*\[CDATA\[\(.*\)\]\].*/\1/'\`\n\""
 
-phpunit-module-install: phpunit-debug phpunit-module-config phpunit-module-version
+phpunit-module-install: phpunit-module-config phpunit-module-version
 	@docker exec phpunit sh -c "if [ -f ./bin/console ]; then php -d memory_limit=-1 ./bin/console prestashop:module install ps_accounts; fi"
 	@docker exec phpunit sh -c "if [ ! -f ./bin/console ]; then php -d memory_limit=-1 ./modules/ps_accounts/tests/install-module.php; fi"
-
-phpunit-debug:
-	@cat './vendor/guzzlehttp/guzzle/src/functions.php'
 
 phpunit-permissions:
 	@docker exec phpunit sh -c "if [ -d ./var ]; then chown -R www-data:www-data ./var; fi"
@@ -134,22 +131,22 @@ fix-lint: vendor-dev
 # target: php-scoper
 
 #VENDOR_DIRS = guzzlehttp league prestashopcorp
-VENDOR_DIRS = $(shell cat scoper.inc.php | grep 'dirScoped =' | sed 's/^.*\$dirScoped = \[\(.*\)\].*/\1/' | sed "s/[' ,]\+/ /g")
-SCOPED_DIR := vendor-scoped
+PHP_SCOPER_VENDOR_DIRS = $(shell cat scoper.inc.php | grep 'dirScoped =' | sed 's/^.*\$dirScoped = \[\(.*\)\].*/\1/' | sed "s/[' ,]\+/ /g")
+PHP_SCOPER_OUTPUT_DIR := vendor-scoped
 PHP_SCOPER_VERSION := 0.18.11
 
 php-scoper-list:
-	@echo "${VENDOR_DIRS}"
+	@echo "${PHP_SCOPER_VENDOR_DIRS}"
 
 php-scoper-pull:
 	docker pull humbugphp/php-scoper:${PHP_SCOPER_VERSION}
 
 php-scoper-add-prefix: scoper.inc.php vendor-clean vendor php-scoper-pull
 	docker run -v ${PWD}:/input -w /input -u ${CURRENT_UID}:${CURRENT_GID} \
-		humbugphp/php-scoper:${PHP_SCOPER_VERSION} add-prefix --output-dir ${SCOPED_DIR} --force --quiet
+		humbugphp/php-scoper:${PHP_SCOPER_VERSION} add-prefix --output-dir ${PHP_SCOPER_OUTPUT_DIR} --force --quiet
 	#for d in ${VENDOR_DIRS}; do rm -rf ./vendor/$$d && mv ./${SCOPED_DIR}/$$d ./vendor/; done;
-	$(foreach DIR,$(VENDOR_DIRS), rm -rf "./vendor/${DIR}" && mv "./${SCOPED_DIR}/${DIR}" ./vendor/;)
-	rmdir "./${SCOPED_DIR}"
+	$(foreach DIR,$(PHP_SCOPER_VENDOR_DIRS), rm -rf "./vendor/${DIR}" && mv "./${PHP_SCOPER_OUTPUT_DIR}/${DIR}" ./vendor/;)
+	rmdir "./${PHP_SCOPER_OUTPUT_DIR}"
 
 php-scoper-dump-autoload:
 	${COMPOSER} dump-autoload --classmap-authoritative
