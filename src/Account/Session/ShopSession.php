@@ -136,17 +136,7 @@ class ShopSession extends Session implements SessionInterface
             'shop_' . $shopUid,
             //'another.audience'
         ];
-        /**
-         * /!\ Potential scoping issue here :
-         *
-         * using 'client_credentials' as a string literal alternative for grant will trigger the following error with PHPUnit context,
-         * so better avoid it in case it triggers an error elsewhere :
-         *
-         * PHP Fatal error:  Cannot declare class PrestaShop\Module\PsAccounts\Vendor\League\OAuth2\Client\Grant\ClientCredentials,
-         * because the name is already in use in
-         * /var/www/html/modules/ps_accounts/vendor/league/oauth2-client/src/Grant/ClientCredentials.php on line 22
-         */
-        $token = $this->oauth2ClientProvider->getAccessToken(new ClientCredentials(), /*'client_credentials',*/ [
+        $token = $this->oauth2ClientProvider->getAccessToken(new ClientCredentials(), [
             //'scope' => 'read.all write.all',
             'audience' => implode(' ', $audience),
         ]);
