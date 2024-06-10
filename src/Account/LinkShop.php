@@ -127,7 +127,7 @@ class LinkShop
     }
 
     /**
-     * @return int
+     * @return string
      */
     public function getOwnerUuid()
     {

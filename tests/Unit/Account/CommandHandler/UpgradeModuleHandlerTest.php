@@ -9,8 +9,9 @@ use PrestaShop\Module\PsAccounts\Account\LinkShop;
 use PrestaShop\Module\PsAccounts\Account\Session\Firebase\ShopSession;
 use PrestaShop\Module\PsAccounts\Account\Token\Token;
 use PrestaShop\Module\PsAccounts\Api\Client\AccountsClient;
-use PrestaShop\Module\PsAccounts\Context\ShopContext;
+use PrestaShop\Module\PsAccounts\Provider\ShopProvider;
 use PrestaShop\Module\PsAccounts\Repository\ConfigurationRepository;
+use PrestaShop\Module\PsAccounts\Service\AnalyticsService;
 use PrestaShop\Module\PsAccounts\Tests\TestCase;
 
 class UpgradeModuleHandlerTest extends TestCase
@@ -32,9 +33,9 @@ class UpgradeModuleHandlerTest extends TestCase
     /**
      * @inject
      *
-     * @var ShopContext
+     * @var ShopProvider
      */
-    protected $shopContext;
+    protected $shopProvider;
 
     /**
      * @inject
@@ -42,6 +43,13 @@ class UpgradeModuleHandlerTest extends TestCase
      * @var AccountsClient
      */
     protected $accountsClient;
+
+    /**
+     * @inject
+     *
+     * @var AnalyticsService
+     */
+    protected $analyticsService;
 
     public function setUp()
     {
@@ -61,6 +69,8 @@ class UpgradeModuleHandlerTest extends TestCase
                 'token' => (string) $this->firebaseRefreshedToken->getJwt(),
                 'refresh_token' => $this->firebaseRefreshedToken->getRefreshToken(),
             ], 200, true));
+
+        $this->analyticsService = $this->createMock(AnalyticsService::class);
 
         $this->shopSession = $this->createMock(ShopSession::class);
         $this->shopSession->method('getOrRefreshToken')->willReturn($this->firebaseRefreshedToken);
@@ -85,8 +95,9 @@ class UpgradeModuleHandlerTest extends TestCase
             $this->accountsClient,
             $this->linkShop,
             $this->shopSession,
-            $this->shopContext,
-            $this->conf
+            $this->shopProvider,
+            $this->conf,
+            $this->analyticsService
         );
 
         $this->accountsClient
@@ -120,8 +131,9 @@ class UpgradeModuleHandlerTest extends TestCase
             $this->accountsClient,
             $this->linkShop,
             $this->shopSession,
-            $this->shopContext,
-            $this->conf
+            $this->shopProvider,
+            $this->conf,
+            $this->analyticsService
         );
 
         $this->accountsClient
@@ -150,8 +162,9 @@ class UpgradeModuleHandlerTest extends TestCase
             $this->accountsClient,
             $this->linkShop,
             $this->shopSession,
-            $this->shopContext,
-            $this->conf
+            $this->shopProvider,
+            $this->conf,
+            $this->analyticsService
         );
 
         $this->accountsClient
@@ -195,7 +208,7 @@ class UpgradeModuleHandlerTest extends TestCase
             $this->accountsClient,
             $this->linkShop,
             $this->shopSession,
-            $this->shopContext,
+            $this->shopProvider,
             $this->conf
         );
 

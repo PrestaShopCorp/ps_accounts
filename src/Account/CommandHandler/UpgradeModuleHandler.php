@@ -111,7 +111,7 @@ class UpgradeModuleHandler
                 );
 
                 // UnlinkShop on failed upgrade
-                if (! $response['status']) {
+                if (!$response['status']) {
                     $shop = $this->shopProvider->formatShopData((array) \Shop::getShop($this->shopContext->getContext()->shop->id));
                     $this->analyticsService->trackMaxRefreshTokenAttempts(
                         $this->linkShop->getOwnerUuid(),
