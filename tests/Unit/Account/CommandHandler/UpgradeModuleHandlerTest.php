@@ -223,7 +223,7 @@ class UpgradeModuleHandlerTest extends TestCase
         );
         $this->analyticsService
             ->expects($this->once())
-            ->method('trackMaxRefreshTokenAttempts')
+            ->method('trackShopUnlinkedOnError')
             ->with(
                 $this->linkShop->getOwnerUuid(),
                 $this->linkShop->getOwnerEmail(),
