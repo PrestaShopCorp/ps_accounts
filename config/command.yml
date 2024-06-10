@@ -54,8 +54,9 @@ services:
       - '@PrestaShop\Module\PsAccounts\Api\Client\AccountsClient'
       - '@PrestaShop\Module\PsAccounts\Account\LinkShop'
       - '@PrestaShop\Module\PsAccounts\Account\Session\Firebase\ShopSession'
-      - '@PrestaShop\Module\PsAccounts\Context\ShopContext'
+      - '@PrestaShop\Module\PsAccounts\Provider\ShopProvider'
       - '@PrestaShop\Module\PsAccounts\Repository\ConfigurationRepository'
+      - '@PrestaShop\Module\PsAccounts\Service\AnalyticsService'
 
   PrestaShop\Module\PsAccounts\Account\CommandHandler\UpgradeModuleMultiHandler:
     class: PrestaShop\Module\PsAccounts\Account\CommandHandler\UpgradeModuleMultiHandler
