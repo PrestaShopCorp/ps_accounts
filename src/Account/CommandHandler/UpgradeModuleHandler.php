@@ -110,7 +110,6 @@ class UpgradeModuleHandler
                     $command->payload
                 );
 
-                // UnlinkShop on failed upgrade
                 if (!$response['status']) {
                     $shop = $this->shopProvider->formatShopData(
                         (array) \Shop::getShop($this->shopContext->getContext()->shop->id)
