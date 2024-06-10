@@ -131,21 +131,22 @@ fix-lint: vendor-dev
 # target: php-scoper
 
 #VENDOR_DIRS = guzzlehttp league prestashopcorp
-VENDOR_DIRS = $(shell cat scoper.inc.php | grep 'dirScoped =' | sed 's/^.*\$dirScoped = \[\(.*\)\].*/\1/' | sed "s/[' ,]\+/ /g")
-SCOPED_DIR := vendor-scoped
+PHP_SCOPER_VENDOR_DIRS = $(shell cat scoper.inc.php | grep 'dirScoped =' | sed 's/^.*\$dirScoped = \[\(.*\)\].*/\1/' | sed "s/[' ,]\+/ /g")
+PHP_SCOPER_OUTPUT_DIR := vendor-scoped
+PHP_SCOPER_VERSION := 0.18.11
 
 php-scoper-list:
-	@echo "${VENDOR_DIRS}"
+	@echo "${PHP_SCOPER_VENDOR_DIRS}"
 
 php-scoper-pull:
-	docker pull humbugphp/php-scoper:latest
+	docker pull humbugphp/php-scoper:${PHP_SCOPER_VERSION}
 
-php-scoper-add-prefix: scoper.inc.php vendor-clean vendor
+php-scoper-add-prefix: scoper.inc.php vendor-clean vendor php-scoper-pull
 	docker run -v ${PWD}:/input -w /input -u ${CURRENT_UID}:${CURRENT_GID} \
-		humbugphp/php-scoper:latest add-prefix --output-dir ${SCOPED_DIR} --force --quiet
+		humbugphp/php-scoper:${PHP_SCOPER_VERSION} add-prefix --output-dir ${PHP_SCOPER_OUTPUT_DIR} --force --quiet
 	#for d in ${VENDOR_DIRS}; do rm -rf ./vendor/$$d && mv ./${SCOPED_DIR}/$$d ./vendor/; done;
-	$(foreach DIR,$(VENDOR_DIRS), rm -rf "./vendor/${DIR}" && mv "./${SCOPED_DIR}/${DIR}" ./vendor/;)
-	rmdir "./${SCOPED_DIR}"
+	$(foreach DIR,$(PHP_SCOPER_VENDOR_DIRS), rm -rf "./vendor/${DIR}" && mv "./${PHP_SCOPER_OUTPUT_DIR}/${DIR}" ./vendor/;)
+	rmdir "./${PHP_SCOPER_OUTPUT_DIR}"
 
 php-scoper-dump-autoload:
 	${COMPOSER} dump-autoload --classmap-authoritative
