@@ -22,14 +22,14 @@ namespace PrestaShop\Module\PsAccounts\Tests\Unit\Account\Session\Firebase\ShopS
 
 use PrestaShop\Module\PsAccounts\Account\Session\Firebase;
 use PrestaShop\Module\PsAccounts\Account\Session\ShopSession;
+use PrestaShop\Module\PsAccounts\Account\Token\Token;
 use PrestaShop\Module\PsAccounts\Exception\RefreshTokenException;
 use PrestaShop\Module\PsAccounts\Provider\OAuth2\ShopProvider;
 use PrestaShop\Module\PsAccounts\Tests\TestCase;
-use PrestaShop\Module\PsAccounts\Tests\Unit\Account\Session\SessionHelpers;
 
 class RefreshTokenTest extends TestCase
 {
-    use SessionHelpers;
+    use \PrestaShop\Module\PsAccounts\Tests\Unit\Account\Session\SessionHelpers;
 
     /**
      * @inject
@@ -53,30 +53,39 @@ class RefreshTokenTest extends TestCase
      */
     public function itShouldRefreshExpiredToken()
     {
-        $expired = $this->makeJwtToken(new \DateTimeImmutable('yesterday'), [
+        $expiredToken = $this->makeJwtToken(new \DateTimeImmutable('yesterday'), [
             'sub' => $this->faker->uuid,
             'email' => $this->faker->safeEmail,
         ]);
-        $refreshed = $this->makeJwtToken(new \DateTimeImmutable('tomorrow'), [
-            'sub' => $this->faker->uuid,
-            'email' => $this->faker->safeEmail,
-        ]);
-        $userRefreshToken = $this->faker->randomAscii;
-        $shopRefreshToken = $this->faker->randomAscii;
-        $shopSession = $this->getMockedShopSession($this->createApiResponse([
-            'userToken' => (string) $refreshed,
-            'userRefreshToken' => $userRefreshToken,
-            'shopToken' => (string) $refreshed,
-            'shopRefreshToken' => $shopRefreshToken,
-        ], 200, true));
+        $refreshToken = $this->makeJwtToken(new \DateTimeImmutable('+1 year'));
 
-        $session = new Firebase\ShopSession($this->configurationRepository, $shopSession);
+        $userRefreshedToken = $this->makeJwtToken(new \DateTimeImmutable('tomorrow'), [
+            'sub' => $this->faker->uuid,
+            'email' => $this->faker->safeEmail,
+        ]);
+        $shopRefreshedToken = $this->makeJwtToken(new \DateTimeImmutable('tomorrow'), [
+            'sub' => $this->faker->uuid,
+            'email' => $this->faker->safeEmail,
+        ]);
+        $userRefreshToken = $this->faker->regexify('[a-zA-Z\d]{40}');
+        $shopRefreshToken = $this->faker->regexify('[a-zA-Z\d]{40}');
+
+        $session = $this->getMockedFirebaseSession(
+            Firebase\ShopSession::class,
+            $this->createApiResponse([
+                'userToken' => (string) $userRefreshedToken,
+                'userRefreshToken' => $userRefreshToken,
+                'shopToken' => (string) $shopRefreshedToken,
+                'shopRefreshToken' => $shopRefreshToken,
+            ], 200, true),
+            $this->getMockedShopSession(new Token($this->makeJwtToken(new \DateTimeImmutable())))
+        );
 
         //$shopSession->setToken((string) $expired);
-        $session->setToken((string) $expired, $shopRefreshToken);
+        $session->setToken((string) $expiredToken, (string) $refreshToken);
 
-        $this->assertEquals((string) $expired, (string) $session->getToken());
-        $this->assertEquals((string) $refreshed, (string) $session->refreshToken());
+        $this->assertEquals((string) $expiredToken, (string) $session->getToken());
+        $this->assertEquals((string) $shopRefreshedToken, (string) $session->refreshToken());
         $this->assertEquals($shopRefreshToken, $session->getToken()->getRefreshToken());
     }
 
@@ -87,21 +96,28 @@ class RefreshTokenTest extends TestCase
      *
      * @throws \Exception
      */
-    public function itShouldKeepTokenOnApiError()
+    public function itShouldKeepPreviousTokenOnApiError()
     {
         $expired = $this->makeJwtToken(new \DateTimeImmutable('yesterday'), [
             'sub' => $this->faker->uuid,
             'email' => $this->faker->safeEmail,
         ]);
-        $shopSession = $this->getMockedShopSession($this->createApiResponse([
-            'message' => 'Error !',
-        ], 403, false));
 
-        $session = new Firebase\ShopSession($this->configurationRepository, $shopSession);
+        $session = $this->getMockedFirebaseSession(
+            Firebase\ShopSession::class,
+            $this->createApiResponse([
+                'message' => 'Error !',
+            ], 403, false),
+            $this->getMockedShopSession(new Token($this->makeJwtToken(new \DateTimeImmutable())))
+        );
 
         //$shopSession->setToken((string) $expired);
         $session->setToken((string) $expired);
 
-        $this->assertEquals((string) $expired, (string) $session->refreshToken());
+        $this->expectException(RefreshTokenException::class);
+
+        $session->refreshToken();
+
+        $this->assertEquals((string) $expired, (string) $session->getToken());
     }
 }

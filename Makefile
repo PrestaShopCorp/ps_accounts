@@ -104,8 +104,8 @@ phpunit-run-unit: phpunit-permissions vendor-dev
 phpunit-run-feature: phpunit-permissions vendor-dev
 	@docker exec -w ${CONTAINER_INSTALL_DIR} phpunit ./vendor/bin/phpunit --testsuite feature
 
-phpunit-xdebug:
-	-@docker exec phpunit sh -c "docker-php-ext-enable xdebug"
+#phpunit-xdebug:
+#	-@docker exec phpunit sh -c "docker-php-ext-enable xdebug"
 
 phpunit-delay-5:
 	@echo waiting 5 seconds

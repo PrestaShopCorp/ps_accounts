@@ -36,41 +36,35 @@ abstract class Session implements SessionInterface
      * @param bool $forceRefresh
      *
      * @return Token
-     *
-     * @throws \Exception
      */
     public function getOrRefreshToken($forceRefresh = false)
     {
-        $token = $this->getToken();
-
+        /*
+         * Avoid multiple refreshToken calls in the same runtime:
+         * if it fails once, it will subsequently fail
+         */
         if ($this->getRefreshTokenErrors(static::class)) {
-            return $token;
+            $this->setToken('');
+
+            return $this->getToken();
         }
 
-        if (true === $forceRefresh || $token->isExpired()) {
+        $currentToken = $this->getToken();
+        if (true === $forceRefresh || $currentToken->isExpired()) {
             try {
-                $token = $this->refreshToken(null);
-                $this->setToken((string) $token->getJwt(), $token->getRefreshToken());
-            } catch (\Error $e) {
-            } catch (\Exception $e) {
-//            } catch (RefreshTokenException $e) {
-//                Logger::getInstance()->error($e->getMessage());
-//            } catch (ConnectException $e) {
-//                Logger::getInstance()->error($e->getMessage());
-            }
-            if (isset($e)) {
+                $this->refreshToken(null);
+            } catch (RefreshTokenException $e) {
+                $this->setToken('');
                 $this->setRefreshTokenErrors(static::class);
                 Logger::getInstance()->error($e->getMessage());
             }
         }
 
-        return $token;
+        return $this->getToken();
     }
 
     /**
      * @return bool
-     *
-     * @throws \Exception
      */
     public function isEmailVerified()
     {
@@ -80,10 +74,7 @@ abstract class Session implements SessionInterface
         if (!$jwt instanceof NullToken &&
             !$jwt->claims()->get('email_verified')
         ) {
-            try {
-                $jwt = $this->getOrRefreshToken(true)->getJwt();
-            } catch (RefreshTokenException $e) {
-            }
+            $jwt = $this->getOrRefreshToken(true)->getJwt();
         }
 
         return (bool) $jwt->claims()->get('email_verified');
@@ -94,9 +85,17 @@ abstract class Session implements SessionInterface
      *
      * @return bool
      */
-    protected function getRefreshTokenErrors($refreshToken)
+    public function getRefreshTokenErrors($refreshToken)
     {
         return isset($this->refreshTokenErrors[$refreshToken]) && $this->refreshTokenErrors[$refreshToken];
+    }
+
+    /**
+     * @return void
+     */
+    public function resetRefreshTokenErrors()
+    {
+        $this->refreshTokenErrors = [];
     }
 
     /**
@@ -106,6 +105,7 @@ abstract class Session implements SessionInterface
      */
     protected function setRefreshTokenErrors($refreshToken)
     {
+        Logger::getInstance()->error('### ' . static::class . ' :: ' . __FUNCTION__);
         $this->refreshTokenErrors[$refreshToken] = true;
     }
 }
