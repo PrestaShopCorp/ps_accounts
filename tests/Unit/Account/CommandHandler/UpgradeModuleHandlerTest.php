@@ -195,6 +195,95 @@ class UpgradeModuleHandlerTest extends TestCase
      *
      * @throws \Exception
      */
+    public function itShouldTriggerSegmentEventOnFailure()
+    {
+        $currentVersion = '6.3.2';
+        $upgradeVersion = '7.0.0';
+
+        $this->conf->method('getLastUpgrade')->willReturn($currentVersion);
+
+        $this->accountsClient = $this->createMock(AccountsClient::class);
+        $this->accountsClient
+            ->method('upgradeShopModule')
+            ->willReturn($this->createApiResponse([
+                'message' => 'Failed upgrading module',
+            ], 500, false));
+
+        $handler = new UpgradeModuleHandler(
+            $this->accountsClient,
+            $this->linkShop,
+            $this->shopSession,
+            $this->shopProvider,
+            $this->conf,
+            $this->analyticsService
+        );
+
+        $shop = $this->shopProvider->formatShopData((array) \Shop::getShop(
+            $this->shopProvider->getShopContext()->getContext()->shop->id)
+        );
+        $this->analyticsService
+            ->expects($this->once())
+            ->method('trackMaxRefreshTokenAttempts')
+            ->with(
+                $this->linkShop->getOwnerUuid(),
+                $this->linkShop->getOwnerEmail(),
+                $this->linkShop->getShopUuid(),
+                $shop->frontUrl,
+                $shop->url,
+                'ps_accounts',
+                500
+            );
+
+        $handler->handle(new UpgradeModuleCommand(new UpgradeModule([
+            'version' => $upgradeVersion,
+            'shopId' => null,
+        ])));
+    }
+
+
+    /**
+     * @test
+     *
+     * @throws \Exception
+     */
+    public function itShouldUnlinkOnFailure()
+    {
+        $currentVersion = '6.3.2';
+        $upgradeVersion = '7.0.0';
+
+        $this->conf->method('getLastUpgrade')->willReturn($currentVersion);
+
+        $this->accountsClient = $this->createMock(AccountsClient::class);
+        $this->accountsClient
+            ->method('upgradeShopModule')
+            ->willReturn($this->createApiResponse([
+                'message' => 'Failed upgrading module',
+            ], 500, false));
+
+        $this->linkShop = $this->createMock(LinkShop::class);
+        $this->linkShop
+            ->expects($this->once())
+            ->method('delete');
+
+        $handler = new UpgradeModuleHandler(
+            $this->accountsClient,
+            $this->linkShop,
+            $this->shopSession,
+            $this->shopProvider,
+            $this->conf,
+            $this->analyticsService
+        );
+
+        $handler->handle(new UpgradeModuleCommand(new UpgradeModule([
+            'version' => $upgradeVersion,
+            'shopId' => null,
+        ])));
+    }
+    /**
+     * @test
+     *
+     * @throws \Exception
+     */
     public function itShouldNotAttemptToRefreshTokenWithFirebaseRefreshToken()
     {
         $this->markTestSkipped('Not needed as long as we maintain refresh tokens for billing');
@@ -209,7 +298,8 @@ class UpgradeModuleHandlerTest extends TestCase
             $this->linkShop,
             $this->shopSession,
             $this->shopProvider,
-            $this->conf
+            $this->conf,
+            $this->analyticsService
         );
 
         $this->accountsClient
