@@ -48,6 +48,11 @@ abstract class AbstractRestController extends ModuleFrontController
      */
     public $module;
 
+    /**
+     * @var bool
+     */
+    protected $authenticated = true;
+
     public function __construct()
     {
         parent::__construct();
@@ -221,6 +226,10 @@ abstract class AbstractRestController extends ModuleFrontController
      */
     protected function decodePayload()
     {
+        if (! $this->authenticated) {
+            return $_GET;
+        }
+
         /** @var RsaKeysProvider $shopKeysService */
         $shopKeysService = $this->module->getService(RsaKeysProvider::class);
 
