@@ -19,8 +19,8 @@
  */
 
 use PrestaShop\Module\PsAccounts\Account\LinkShop;
-use PrestaShop\Module\PsAccounts\Account\Session\ShopSession;
 use PrestaShop\Module\PsAccounts\Account\Session\Firebase;
+use PrestaShop\Module\PsAccounts\Account\Session\ShopSession;
 use PrestaShop\Module\PsAccounts\Account\Token\NullToken;
 use PrestaShop\Module\PsAccounts\Api\Controller\AbstractShopRestController;
 use PrestaShop\Module\PsAccounts\Provider\OAuth2\Oauth2Client;
@@ -37,6 +37,7 @@ class ps_AccountsApiV1ShopHealthCheckModuleFrontController extends AbstractShopR
      *
      * @param Shop $shop
      * @param array $payload
+     *
      * @return array
      *
      * @throws Exception
@@ -52,14 +53,11 @@ class ps_AccountsApiV1ShopHealthCheckModuleFrontController extends AbstractShopR
         /** @var ShopSession $shopSession */
         $shopSession = $this->module->getService(ShopSession::class);
 
-        /** @var Firebase\ShopSession $shopFirebaseSession */
+        /** @var Firebase\ShopSession $firebaseShopSession */
         $firebaseShopSession = $this->module->getService(Firebase\ShopSession::class);
 
-        /** @var Firebase\OwnerSession $shopFirebaseSession */
+        /** @var Firebase\OwnerSession $firebaseOwnerSession */
         $firebaseOwnerSession = $this->module->getService(Firebase\OwnerSession::class);
-
-        // FIXME: non authenticated route
-        // FIXME: specify shop id
 
         return [
             'module_version' => Ps_accounts::VERSION,
@@ -69,12 +67,12 @@ class ps_AccountsApiV1ShopHealthCheckModuleFrontController extends AbstractShopR
             'allow_url_fopen' => (bool) ini_get('allow_url_fopen'),
             'link_status' => (bool) $linkShop->getShopUuid(),
             'tokens' => [
-                'access_token' => ! ($shopSession->getToken()->getJwt() instanceof NullToken) &&
-                    ! $shopSession->getToken()->isExpired(),
-                'firebase_shop_token' => ! ($firebaseShopSession->getToken()->getJwt() instanceof NullToken) &&
-                    ! $firebaseShopSession->getToken()->isExpired(),
-                'firebase_owner_token' => ! ($firebaseOwnerSession->getToken()->getJwt() instanceof NullToken) &&
-                    ! $firebaseOwnerSession->getToken()->isExpired(),
+                'access_token' => !($shopSession->getToken()->getJwt() instanceof NullToken) &&
+                    !$shopSession->getToken()->isExpired(),
+                'firebase_shop_token' => !($firebaseShopSession->getToken()->getJwt() instanceof NullToken) &&
+                    !$firebaseShopSession->getToken()->isExpired(),
+                'firebase_owner_token' => !($firebaseOwnerSession->getToken()->getJwt() instanceof NullToken) &&
+                    !$firebaseOwnerSession->getToken()->isExpired(),
             ],
         ];
     }

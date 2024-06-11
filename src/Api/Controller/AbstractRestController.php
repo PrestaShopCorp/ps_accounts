@@ -226,7 +226,7 @@ abstract class AbstractRestController extends ModuleFrontController
      */
     protected function decodePayload()
     {
-        if (! $this->authenticated) {
+        if (!$this->authenticated) {
             return $_GET;
         }
 
