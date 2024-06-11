@@ -1,5 +1,16 @@
 {
     "name": "prestashopcorp/ps_accounts",
+    "description": "PS Accounts authentifies stores in the PrestaShop Cloud, which enable secure communications for any PrestaShop modules.",
+    "type": "prestashop-module",
+    "authors": [
+        {
+            "name": "Account team",
+            "email": "account-support@prestashop.com",
+            "homepage": "https://github.com/PrestaShopCorp/ps_accounts",
+            "role": "Maintainer"
+        }
+    ],
+    "license": "AFL-3.0",
     "config": {
         "preferred-install": "dist",
         "platform": {
@@ -52,7 +63,5 @@
         ],
         "phpunit": "docker exec -u www-data -ti phpunit-dev ./vendor/bin/phpunit --configuration './phpunit.xml' --test-suffix 'Test.php,.phpt'"
     },
-    "author": "PrestaShop",
-    "license": "AFL-3.0",
-    "type": "prestashop-module"
+    "author": "PrestaShop"
 }
