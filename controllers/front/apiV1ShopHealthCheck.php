@@ -22,8 +22,10 @@ use PrestaShop\Module\PsAccounts\Account\LinkShop;
 use PrestaShop\Module\PsAccounts\Account\Session\Firebase;
 use PrestaShop\Module\PsAccounts\Account\Session\ShopSession;
 use PrestaShop\Module\PsAccounts\Account\Token\Token;
+use PrestaShop\Module\PsAccounts\Api\Client\AccountsClient;
 use PrestaShop\Module\PsAccounts\Api\Controller\AbstractShopRestController;
 use PrestaShop\Module\PsAccounts\Provider\OAuth2\Oauth2Client;
+use PrestaShop\Module\PsAccounts\Service\PsAccountsService;
 
 class ps_AccountsApiV1ShopHealthCheckModuleFrontController extends AbstractShopRestController
 {
@@ -57,6 +59,16 @@ class ps_AccountsApiV1ShopHealthCheckModuleFrontController extends AbstractShopR
      */
     private $firebaseOwnerSession;
 
+    /**
+     * @var PsAccountsService
+     */
+    private $psAccountsService;
+
+    /**
+     * @var AccountsClient
+     */
+    private $accountsClient;
+
     public function __construct()
     {
         parent::__construct();
@@ -66,6 +78,8 @@ class ps_AccountsApiV1ShopHealthCheckModuleFrontController extends AbstractShopR
         $this->shopSession = $this->module->getService(ShopSession::class);
         $this->firebaseShopSession = $this->module->getService(Firebase\ShopSession::class);
         $this->firebaseOwnerSession = $this->module->getService(Firebase\OwnerSession::class);
+        $this->accountsClient = $this->module->getService(AccountsClient::class);
+        $this->psAccountsService = $this->module->getService(PsAccountsService::class);
     }
 
     /**
@@ -88,14 +102,18 @@ class ps_AccountsApiV1ShopHealthCheckModuleFrontController extends AbstractShopR
         $shopToken = $this->shopSession->getToken();
 
         return [
+            'moduleVersion' => Ps_accounts::VERSION,
+            'psVersion' => _PS_VERSION_,
+            'phpVersion' => phpversion(),
+            'oauth2Client' => $this->oauth2Client->exists(),
             'shopLinked' => (bool) $this->linkShop->getShopUuid(),
-            'isSsoEnabled' => null,
+            'isSsoEnabled' => $this->psAccountsService->getLoginActivated(),
             'oauthTokens' => $this->tokenInfos($shopToken),
             'firebaseUserTokens' => $this->tokenInfos($firebaseOwnerToken),
             'firebaseShopTokens' => $this->tokenInfos($firebaseShopToken),
             'fopenActive' => (bool) ini_get('allow_url_fopen'),
-            'curlActive' => '', //(bool) ini_get(''),
-            'accountsApiConnectivy' => '', // TODO
+            'curlActive' => extension_loaded('curl'), //function_exists('curl_version'),
+            'accountsApiConnectivy' => $this->accountsApiHealthCheck(),
             'env' => [
                 'oauth2Url' => $this->module->getParameter('ps_accounts.oauth2_url'),
                 'accountsApiUrl' => $this->module->getParameter('ps_accounts.accounts_api_url'),
@@ -103,13 +121,6 @@ class ps_AccountsApiV1ShopHealthCheckModuleFrontController extends AbstractShopR
                 'accountsCdnUrl' => $this->module->getParameter('ps_accounts.accounts_cdn_url'),
                 'testimonialsUrl' => $this->module->getParameter('ps_accounts.testimonials_url'),
                 'checkApiSslCert' => $this->module->getParameter('ps_accounts.check_api_ssl_cert'),
-            ],
-            // FIXME
-            'toBeDiscussed' => [
-                'module_version' => Ps_accounts::VERSION,
-                'ps_version' => _PS_VERSION_,
-                'php_version' => '',
-                'oauth2_client' => $this->oauth2Client->exists(),
             ],
         ];
     }
@@ -156,5 +167,15 @@ class ps_AccountsApiV1ShopHealthCheckModuleFrontController extends AbstractShopR
             'issuedAt' => $claims->get('iat'),
             'expDate' => $claims->get('exp'),
         ];
+    }
+
+    /**
+     * @return int
+     */
+    private function accountsApiHealthCheck()
+    {
+        $response = $this->accountsClient->healthCheck();
+
+        return $response['httpCode'];
     }
 }
