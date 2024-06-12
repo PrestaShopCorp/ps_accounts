@@ -30,11 +30,6 @@ use PrestaShop\Module\PsAccounts\Service\PsAccountsService;
 class ps_AccountsApiV1ShopHealthCheckModuleFrontController extends AbstractShopRestController
 {
     /**
-     * @var bool
-     */
-    protected $authenticated = false;
-
-    /**
      * @var LinkShop
      */
     private $linkShop;
@@ -72,6 +67,9 @@ class ps_AccountsApiV1ShopHealthCheckModuleFrontController extends AbstractShopR
     public function __construct()
     {
         parent::__construct();
+
+        // public healthcheck
+        $this->authenticated = false;
 
         $this->linkShop = $this->module->getService(LinkShop::class);
         $this->oauth2Client = $this->module->getService(Oauth2Client::class);

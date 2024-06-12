@@ -71,7 +71,10 @@ abstract class AbstractRestController extends ModuleFrontController
     public function postProcess()
     {
         try {
-            $payload = $this->decodePayload();
+            $payload = $this->authenticated ?
+                $this->decodePayload() :
+                $_REQUEST;
+
             $method = $_SERVER['REQUEST_METHOD'];
             // detect method from payload (hack with some shop server configuration)
             if (isset($payload['method'])) {
@@ -176,7 +179,7 @@ abstract class AbstractRestController extends ModuleFrontController
             }
 
             if (null !== $payload) {
-                $args[] = $this->buildPayload($payload, $params[1]);
+                $args[] = $this->buildArg($payload, $params[1]);
             }
 
             return $method->invokeArgs($this, $args);
@@ -203,7 +206,7 @@ abstract class AbstractRestController extends ModuleFrontController
      *
      * @throws ReflectionException
      */
-    protected function buildPayload(array $payload, ReflectionParameter $reflectionParam)
+    protected function buildArg(array $payload, ReflectionParameter $reflectionParam)
     {
 //        if ($reflectionParam->getType()->isBuiltin()) {
 //            return $payload;
@@ -226,10 +229,6 @@ abstract class AbstractRestController extends ModuleFrontController
      */
     protected function decodePayload()
     {
-        if (!$this->authenticated) {
-            return $_GET;
-        }
-
         /** @var RsaKeysProvider $shopKeysService */
         $shopKeysService = $this->module->getService(RsaKeysProvider::class);
 
