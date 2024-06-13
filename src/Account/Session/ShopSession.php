@@ -27,17 +27,15 @@ use PrestaShop\Module\PsAccounts\Hook\ActionShopAccessTokenRefreshAfter;
 use PrestaShop\Module\PsAccounts\Log\Logger;
 use PrestaShop\Module\PsAccounts\Provider\OAuth2\ShopProvider;
 use PrestaShop\Module\PsAccounts\Repository\ConfigurationRepository;
+use PrestaShop\Module\PsAccounts\Vendor\League\OAuth2\Client\Grant\ClientCredentials;
 use PrestaShop\Module\PsAccounts\Vendor\League\OAuth2\Client\Provider\Exception\IdentityProviderException;
 use PrestaShop\Module\PsAccounts\Vendor\League\OAuth2\Client\Token\AccessToken;
 use PrestaShop\Module\PsAccounts\Vendor\League\OAuth2\Client\Token\AccessTokenInterface;
-use PrestaShop\OAuth2\Client\Provider\PrestaShop;
 
 class ShopSession extends Session implements SessionInterface
 {
-    use RefreshFirebaseTokens;
-
     /**
-     * @var PrestaShop
+     * @var ShopProvider
      */
     protected $oauth2ClientProvider;
 
@@ -59,29 +57,13 @@ class ShopSession extends Session implements SessionInterface
     }
 
     /**
-     * @param bool $forceRefresh
-     * @param bool $refreshFirebaseTokens
-     *
-     * @return Token
-     *
-     * @throws \Exception
+     * {@inheritDoc}
      */
-    public function getOrRefreshToken($forceRefresh = false, $refreshFirebaseTokens = false)
+    public function getOrRefreshToken($forceRefresh = false)
     {
         $token = parent::getOrRefreshToken($forceRefresh);
 
-        try {
-            if ($refreshFirebaseTokens) {
-                $this->refreshFirebaseTokens($token);
-            }
-
-            \Hook::exec(ActionShopAccessTokenRefreshAfter::getName(), ['token' => $token]);
-        } catch (\Error $e) {
-        } catch (\Exception $e) {
-        }
-        if (isset($e)) {
-            Logger::getInstance()->error('Unable to get or refresh shop token : ' . $e->getMessage());
-        }
+        \Hook::exec(ActionShopAccessTokenRefreshAfter::getName(), ['token' => $token]);
 
         return $token;
     }
@@ -99,7 +81,13 @@ class ShopSession extends Session implements SessionInterface
             $shopUuid = $this->getShopUuid();
             $accessToken = $this->getAccessToken($shopUuid);
 
-            return new Token($accessToken->getToken(), $accessToken->getRefreshToken());
+            //return new Token($accessToken->getToken(), $accessToken->getRefreshToken());
+            $this->setToken(
+                $accessToken->getToken(),
+                $accessToken->getRefreshToken()
+            );
+
+            return $this->getToken();
         } catch (IdentityProviderException $e) {
         } catch (\Error $e) {
         } catch (\Exception $e) {
@@ -146,9 +134,9 @@ class ShopSession extends Session implements SessionInterface
     {
         $audience = [
             'shop_' . $shopUid,
-            // 'another.audience'
+            //'another.audience'
         ];
-        $token = $this->oauth2ClientProvider->getAccessToken('client_credentials', [
+        $token = $this->oauth2ClientProvider->getAccessToken(new ClientCredentials(), [
             //'scope' => 'read.all write.all',
             'audience' => implode(' ', $audience),
         ]);
