@@ -25,7 +25,6 @@ use PrestaShop\Module\PsAccounts\Account\Command\UnlinkShopCommand;
 use PrestaShop\Module\PsAccounts\Account\LinkShop;
 use PrestaShop\Module\PsAccounts\Account\Session\Firebase\OwnerSession;
 use PrestaShop\Module\PsAccounts\Account\Session\Firebase\ShopSession;
-use PrestaShop\Module\PsAccounts\Account\Token\NullToken;
 use PrestaShop\Module\PsAccounts\Adapter\Link;
 use PrestaShop\Module\PsAccounts\Cqrs\CommandBus;
 use PrestaShop\Module\PsAccounts\Entity\EmployeeAccount;
@@ -104,13 +103,11 @@ class PsAccountsService
     }
 
     /**
-     * @return string|null
+     * @return string
      */
     public function getOrRefreshToken()
     {
-        $token = $this->shopSession->getOrRefreshToken()->getJwt();
-
-        return $token instanceof NullToken ? null : (string) $token;
+        return (string) $this->shopSession->getOrRefreshToken()->getJwt();
     }
 
     /**
@@ -122,7 +119,7 @@ class PsAccountsService
     }
 
     /**
-     * @return string|null
+     * @return string
      */
     public function getToken()
     {
@@ -130,15 +127,13 @@ class PsAccountsService
     }
 
     /**
-     * @return string|null
+     * @return string
      *
      * @deprecated
      */
     public function getUserToken()
     {
-        $token = $this->ownerSession->getOrRefreshToken()->getJwt();
-
-        return $token instanceof NullToken ? null : (string) $token;
+        return (string) $this->ownerSession->getOrRefreshToken()->getJwt();
     }
 
     /**

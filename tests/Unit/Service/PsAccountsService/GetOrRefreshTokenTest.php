@@ -59,12 +59,12 @@ class GetOrRefreshTokenTest extends TestCase
      *
      * @throws \Exception
      */
-    public function itShouldReturnNullOnError()
+    public function itShouldReturnEmptyStringOnError()
     {
         // FIXME: we assume we can't resolve external apis here
         $this->shopSession->setToken((string) $this->makeJwtToken(new \DateTimeImmutable('yesterday')));
 
-        $this->assertNull($this->service->getOrRefreshToken());
+        $this->assertEquals('', $this->service->getOrRefreshToken());
     }
 
     /**
@@ -72,10 +72,10 @@ class GetOrRefreshTokenTest extends TestCase
      *
      * @throws \Exception
      */
-    public function itShouldReturnNullOnEmptyToken()
+    public function itShouldReturnEmptyStringOnEmptyToken()
     {
         $this->shopSession->setToken('');
 
-        $this->assertNull($this->service->getOrRefreshToken());
+        $this->assertEquals('', $this->service->getOrRefreshToken());
     }
 }
