@@ -105,7 +105,6 @@ abstract class Session implements SessionInterface
      */
     protected function setRefreshTokenErrors($refreshToken)
     {
-        Logger::getInstance()->error('### ' . static::class . ' :: ' . __FUNCTION__);
         $this->refreshTokenErrors[$refreshToken] = true;
     }
 }
