@@ -125,8 +125,10 @@ class ps_AccountsApiV2ShopHealthCheckModuleFrontController extends AbstractShopR
             'firebaseShopToken' => $this->tokenInfos($firebaseShopToken),
             'fopenActive' => (bool) ini_get('allow_url_fopen'),
             'curlActive' => extension_loaded('curl'), //function_exists('curl_version'),
-            'oauthApiConnectivy' => (bool) $this->shopProvider->getWellKnown()->issuer,
-            'accountsApiConnectivy' => $this->accountsApiHealthCheck(),
+            'oauthApiConnectivity' => (bool) $this->shopProvider->getWellKnown()->issuer,
+            'accountsApiConnectivity' => $this->accountsApiHealthCheck(),
+            'serverUTC' => time(),
+            'mysqlUTC' => $this->getDatabaseTimestamp(),
             'env' => [
                 'oauth2Url' => $this->module->getParameter('ps_accounts.oauth2_url'),
                 'accountsApiUrl' => $this->module->getParameter('ps_accounts.accounts_api_url'),
@@ -187,18 +189,30 @@ class ps_AccountsApiV2ShopHealthCheckModuleFrontController extends AbstractShopR
         return [
             'issuer' => $claims->get('iss'),
             'issuedAt' => $iat->getTimestamp(),
-            'expDate' => $exp->getTimestamp(),
+            'expireAt' => $exp->getTimestamp(),
             'isExpired' => $token->isExpired(),
         ];
     }
 
     /**
-     * @return int
+     * @return bool
      */
     private function accountsApiHealthCheck()
     {
         $response = $this->accountsClient->healthCheck();
 
-        return $response['httpCode'];
+        return (bool) $response['status'];
+    }
+
+    /**
+     * @return int
+     */
+    private function getDatabaseTimestamp()
+    {
+        try {
+            return (new DateTime(\Db::getInstance()->getRow('SELECT NOW() AS utc')['utc']))->getTimestamp();
+        } catch(Exception $e) {
+            return 0;
+        }
     }
 }
