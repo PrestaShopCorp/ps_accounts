@@ -15,7 +15,7 @@ class StoreTest extends FeatureTestCase
      *
      * @var LinkShop
      */
-    protected $linkShop;
+    public $linkShop;
 
     /**
      * @inject
