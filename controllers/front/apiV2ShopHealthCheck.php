@@ -210,9 +210,12 @@ class ps_AccountsApiV2ShopHealthCheckModuleFrontController extends AbstractShopR
     private function getDatabaseTimestamp()
     {
         try {
-            return (new DateTime(\Db::getInstance()->getRow('SELECT NOW() AS utc')['utc']))->getTimestamp();
-        } catch(Exception $e) {
-            return 0;
+            $row = \Db::getInstance()->getRow('SELECT NOW() AS utc');
+            if (is_array($row) && isset($row['utc'])) {
+                return (new DateTime($row['utc']))->getTimestamp();
+            }
+        } catch (Exception $e) {
         }
+        return  0;
     }
 }
