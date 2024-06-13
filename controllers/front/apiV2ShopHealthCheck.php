@@ -216,6 +216,7 @@ class ps_AccountsApiV2ShopHealthCheckModuleFrontController extends AbstractShopR
             }
         } catch (Exception $e) {
         }
-        return  0;
+
+        return 0;
     }
 }
