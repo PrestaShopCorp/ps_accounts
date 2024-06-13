@@ -25,6 +25,7 @@ use PrestaShop\Module\PsAccounts\Account\Token\NullToken;
 use PrestaShop\Module\PsAccounts\Account\Token\Token;
 use PrestaShop\Module\PsAccounts\Api\Client\AccountsClient;
 use PrestaShop\Module\PsAccounts\Api\Controller\AbstractShopRestController;
+use PrestaShop\Module\PsAccounts\Api\Controller\Request\ShopHealthCheckRequest;
 use PrestaShop\Module\PsAccounts\Provider\OAuth2\Oauth2Client;
 use PrestaShop\Module\PsAccounts\Provider\OAuth2\ShopProvider;
 use PrestaShop\Module\PsAccounts\Service\PsAccountsService;
@@ -92,18 +93,18 @@ class ps_AccountsApiV2ShopHealthCheckModuleFrontController extends AbstractShopR
      * ?fc=module&module=ps_accounts&controller=apiV1ShopHealthCheck&shop_id=1&autoheal
      *
      * @param Shop $shop
-     * @param array $payload
+     * @param ShopHealthCheckRequest $request
      *
      * @return array
      *
      * @throws Exception
      */
-    public function show(Shop $shop, array $payload)
+    public function show(Shop $shop, ShopHealthCheckRequest $request)
     {
         // refreshing one of firebase tokens will trigger a global refresh
-        $firebaseShopToken = isset($payload['autoheal']) ?
-            $this->firebaseShopSession->getToken() :
-            $this->firebaseShopSession->getOrRefreshToken();
+        $firebaseShopToken = $request->autoheal ?
+            $this->firebaseShopSession->getOrRefreshToken() :
+            $this->firebaseShopSession->getToken();
         $firebaseOwnerToken = $this->firebaseOwnerSession->getToken();
         $shopToken = $this->shopSession->getToken();
 
