@@ -45,21 +45,4 @@ class AbstractShopRestController extends AbstractRestController
 
         return $shop;
     }
-
-    /**
-     * @param $httpMethod
-     * @param array $payload
-     *
-     * @return void
-     *
-     * @throws \Exception
-     */
-    protected function dispatchVerb($httpMethod, array $payload)
-    {
-        if (!isset($payload[$this->resourceId])) {
-            // default context fallback
-            $payload[$this->resourceId] = $this->module->getContext()->shop->id;
-        }
-        parent::dispatchVerb($httpMethod, $payload);
-    }
 }

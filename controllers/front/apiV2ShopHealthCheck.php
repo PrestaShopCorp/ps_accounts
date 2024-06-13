@@ -21,13 +21,15 @@
 use PrestaShop\Module\PsAccounts\Account\LinkShop;
 use PrestaShop\Module\PsAccounts\Account\Session\Firebase;
 use PrestaShop\Module\PsAccounts\Account\Session\ShopSession;
+use PrestaShop\Module\PsAccounts\Account\Token\NullToken;
 use PrestaShop\Module\PsAccounts\Account\Token\Token;
 use PrestaShop\Module\PsAccounts\Api\Client\AccountsClient;
 use PrestaShop\Module\PsAccounts\Api\Controller\AbstractShopRestController;
 use PrestaShop\Module\PsAccounts\Provider\OAuth2\Oauth2Client;
+use PrestaShop\Module\PsAccounts\Provider\OAuth2\ShopProvider;
 use PrestaShop\Module\PsAccounts\Service\PsAccountsService;
 
-class ps_AccountsApiV1ShopHealthCheckModuleFrontController extends AbstractShopRestController
+class ps_AccountsApiV2ShopHealthCheckModuleFrontController extends AbstractShopRestController
 {
     /**
      * @var LinkShop
@@ -64,6 +66,11 @@ class ps_AccountsApiV1ShopHealthCheckModuleFrontController extends AbstractShopR
      */
     private $accountsClient;
 
+    /**
+     * @var ShopProvider
+     */
+    private $shopProvider;
+
     public function __construct()
     {
         parent::__construct();
@@ -78,6 +85,7 @@ class ps_AccountsApiV1ShopHealthCheckModuleFrontController extends AbstractShopR
         $this->firebaseOwnerSession = $this->module->getService(Firebase\OwnerSession::class);
         $this->accountsClient = $this->module->getService(AccountsClient::class);
         $this->psAccountsService = $this->module->getService(PsAccountsService::class);
+        $this->shopProvider = $this->module->getService(ShopProvider::class);
     }
 
     /**
@@ -99,18 +107,24 @@ class ps_AccountsApiV1ShopHealthCheckModuleFrontController extends AbstractShopR
         $firebaseOwnerToken = $this->firebaseOwnerSession->getToken();
         $shopToken = $this->shopSession->getToken();
 
+//        $privateInfo = [
+//            'shopId' => $shop->id,
+//            'shopBoUri' => '',
+//            'moduleVersion' => Ps_accounts::VERSION,
+//            'psVersion' => _PS_VERSION_,
+//            'phpVersion' => phpversion(),
+//        ];
+
         return [
-            'moduleVersion' => Ps_accounts::VERSION,
-            'psVersion' => _PS_VERSION_,
-            'phpVersion' => phpversion(),
             'oauth2Client' => $this->oauth2Client->exists(),
             'shopLinked' => (bool) $this->linkShop->getShopUuid(),
             'isSsoEnabled' => $this->psAccountsService->getLoginActivated(),
-            'oauthTokens' => $this->tokenInfos($shopToken),
-            'firebaseUserTokens' => $this->tokenInfos($firebaseOwnerToken),
-            'firebaseShopTokens' => $this->tokenInfos($firebaseShopToken),
+            'oauthToken' => $this->tokenInfos($shopToken),
+            'firebaseUserToken' => $this->tokenInfos($firebaseOwnerToken),
+            'firebaseShopToken' => $this->tokenInfos($firebaseShopToken),
             'fopenActive' => (bool) ini_get('allow_url_fopen'),
             'curlActive' => extension_loaded('curl'), //function_exists('curl_version'),
+            'oauthApiConnectivy' => (bool) $this->shopProvider->getWellKnown()->issuer,
             'accountsApiConnectivy' => $this->accountsApiHealthCheck(),
             'env' => [
                 'oauth2Url' => $this->module->getParameter('ps_accounts.oauth2_url'),
@@ -125,10 +139,8 @@ class ps_AccountsApiV1ShopHealthCheckModuleFrontController extends AbstractShopR
 
     /**
      * {
-     * "aud": [
-     *  "shop_58d55d88-ee76-4d25-8a34-2bc370abcdef"
-     * ],
-     * "client_id": "374c21dd-8b34-47fd-82fc-e2264faabcdef",
+     * "aud": ["shop_58d..."],
+     * "client_id": "374c21dd-8b34-...",
      * "exp": {
      *  "date": "2024-06-11 17:53:26.000000",
      *  "timezone_type": 1,
@@ -149,7 +161,7 @@ class ps_AccountsApiV1ShopHealthCheckModuleFrontController extends AbstractShopR
      *  "timezone": "+00:00"
      * },
      * "scp": [],
-     * "sub": "374c21dd-8b34-47fd-82fc-e2264fabcdef"
+     * "sub": "374c21dd-8b34-..."
      * }
      *
      * @param Token $token
@@ -158,12 +170,24 @@ class ps_AccountsApiV1ShopHealthCheckModuleFrontController extends AbstractShopR
      */
     private function tokenInfos(Token $token)
     {
-        $claims = $token->getJwt()->claims();
+        $jwt = $token->getJwt();
+        if ($jwt instanceof NullToken) {
+            return [];
+        }
+
+        $claims = $jwt->claims();
+
+        /** @var DateTimeImmutable $iat */
+        $iat = $claims->get('iat');
+
+        /** @var DateTimeImmutable $exp */
+        $exp = $claims->get('exp');
 
         return [
             'issuer' => $claims->get('iss'),
-            'issuedAt' => $claims->get('iat'),
-            'expDate' => $claims->get('exp'),
+            'issuedAt' => $iat->getTimestamp(),
+            'expDate' => $exp->getTimestamp(),
+            'isExpired' => $token->isExpired(),
         ];
     }
 

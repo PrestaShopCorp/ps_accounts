@@ -59,6 +59,7 @@ abstract class AbstractRestController extends ModuleFrontController
 
         $this->ajax = true;
         $this->content_only = true;
+        $this->controller_type = 'module';
     }
 
     /**
@@ -71,10 +72,7 @@ abstract class AbstractRestController extends ModuleFrontController
     public function postProcess()
     {
         try {
-            $payload = $this->authenticated ?
-                $this->decodePayload() :
-                $_REQUEST;
-
+            $payload = $this->extractPayload();
             $method = $_SERVER['REQUEST_METHOD'];
             // detect method from payload (hack with some shop server configuration)
             if (isset($payload['method'])) {
@@ -224,10 +222,43 @@ abstract class AbstractRestController extends ModuleFrontController
 
     /**
      * @return array
-     *
-     * @throws \Exception
      */
-    protected function decodePayload()
+    protected function extractPayload()
+    {
+        $defaultShopId = Context::getContext()->shop->id;
+        if ($this->authenticated) {
+            return $this->decodePayload($defaultShopId);
+        }
+
+        return $this->decodeRawPayload($defaultShopId);
+    }
+
+    /**
+     * @param int $defaultShopId
+     *
+     * @return array
+     */
+    protected function decodeRawPayload($defaultShopId = null)
+    {
+        $payload = $_REQUEST;
+        if (!isset($payload['shop_id'])) {
+            // context fallback
+            $payload['shop_id'] = $defaultShopId;
+        }
+        $shop = new \Shop((int) $payload['shop_id']);
+        if ($shop->id) {
+            $this->setContextShop($shop);
+        }
+
+        return $payload;
+    }
+
+    /**
+     * @param int $defaultShopId
+     *
+     * @return array
+     */
+    protected function decodePayload($defaultShopId = null)
     {
         /** @var RsaKeysProvider $shopKeysService */
         $shopKeysService = $this->module->getService(RsaKeysProvider::class);
@@ -237,7 +268,7 @@ abstract class AbstractRestController extends ModuleFrontController
         if ($jwtString) {
             $jwt = (new Parser())->parse($jwtString);
 
-            $shop = new \Shop((int) $jwt->claims()->get('shop_id'));
+            $shop = new \Shop((int) $jwt->claims()->get('shop_id', $defaultShopId));
 
             if ($shop->id) {
                 $this->setContextShop($shop);
