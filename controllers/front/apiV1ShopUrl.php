@@ -57,6 +57,7 @@ class ps_AccountsApiV1ShopUrlModuleFrontController extends AbstractShopRestContr
      */
     public function show(Shop $shop, array $payload)
     {
+<<<<<<< HEAD
         $shopDto = $this->shopProvider->formatShopData((array) \Shop::getShop($shop->id));
 
         return [
@@ -64,6 +65,15 @@ class ps_AccountsApiV1ShopUrlModuleFrontController extends AbstractShopRestContr
             'domain_ssl' => $shopDto->domainSsl,
             'physical_uri' => $shopDto->physicalUri,
             'virtual_uri' => $shopDto->virtualUri,
+=======
+        $shop = $this->shopProvider->formatShopData((array) \Shop::getShop($shop->id));
+
+        return [
+            'domain' => $shop->domain,
+            'domain_ssl' => $shop->domainSsl,
+            'physical_uri' => $shop->physicalUri,
+            'virtual_uri' => $shop->virtualUri,
+>>>>>>> 6da8cbe1 (Refacto DDD-CQRS2)
             'ssl_activated' => $this->configuration->sslEnabled(),
         ];
     }

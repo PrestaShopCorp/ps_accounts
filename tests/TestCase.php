@@ -3,6 +3,7 @@
 namespace PrestaShop\Module\PsAccounts\Tests;
 
 use Db;
+use DMS\PHPUnitExtensions\ArraySubset\ArraySubsetAsserts;
 use Exception;
 use Faker\Generator;
 use Module;
@@ -13,6 +14,8 @@ use Ps_accounts;
 
 class TestCase extends \PHPUnit\Framework\TestCase
 {
+    use ArraySubsetAsserts;
+
     /**
      * @var Generator
      */

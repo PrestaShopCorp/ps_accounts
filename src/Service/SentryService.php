@@ -20,15 +20,24 @@
 
 namespace PrestaShop\Module\PsAccounts\Service;
 
+<<<<<<< HEAD
 use Context;
 use Module;
 use PrestaShop\Module\PsAccounts\Account\LinkShop;
 use PrestaShop\Module\PsAccounts\Service\Sentry\ModuleFilteredRavenClient;
+=======
+use Module;
+use PrestaShop\Module\PsAccounts\Repository\ConfigurationRepository;
+>>>>>>> 6da8cbe1 (Refacto DDD-CQRS2)
 use Ps_accounts;
 use Raven_Client;
 
 /**
+<<<<<<< HEAD
  * FIXME: outdated sentry client due to PHP 5.6 support
+=======
+ * Handle Error.
+>>>>>>> 6da8cbe1 (Refacto DDD-CQRS2)
  */
 class SentryService
 {
@@ -38,6 +47,7 @@ class SentryService
     protected $client;
 
     /**
+<<<<<<< HEAD
      * @var float [0.00 - 1.00] * 100% events
      */
     private $sampleRateFront = 0.2;
@@ -61,24 +71,43 @@ class SentryService
      * @var int
      */
     private $errorTypes = E_ALL & ~E_STRICT & ~E_DEPRECATED & ~E_USER_DEPRECATED & ~E_NOTICE & ~E_USER_NOTICE;
+=======
+     * @var ConfigurationRepository
+     */
+    private $configuration;
+>>>>>>> 6da8cbe1 (Refacto DDD-CQRS2)
 
     /**
      * ErrorHandler constructor.
      *
      * @param string $sentryCredentials
      * @param string $environment
+<<<<<<< HEAD
      * @param LinkShop $linkShop
      * @param Context $context
+=======
+     * @param ConfigurationRepository $configuration
+>>>>>>> 6da8cbe1 (Refacto DDD-CQRS2)
      *
      * @throws \Raven_Exception
      */
     public function __construct(
+<<<<<<< HEAD
         $sentryCredentials,
         $environment,
         LinkShop $linkShop,
         Context $context
     ) {
         $this->client = new ModuleFilteredRavenClient(
+=======
+        string $sentryCredentials,
+        string $environment,
+        ConfigurationRepository $configuration
+    ) {
+        $this->configuration = $configuration;
+
+        $this->client = new Raven_Client(
+>>>>>>> 6da8cbe1 (Refacto DDD-CQRS2)
             $sentryCredentials,
             [
                 'environment' => $environment,
@@ -88,6 +117,7 @@ class SentryService
                     'ps_accounts_version' => \Ps_accounts::VERSION,
                     'prestashop_version' => _PS_VERSION_,
                     'ps_accounts_is_enabled' => \Module::isEnabled('ps_accounts'),
+<<<<<<< HEAD
                     'email' => $linkShop->getOwnerEmail(),
                     'shop_uuid' => $linkShop->getShopUuid(),
                 ],
@@ -121,6 +151,14 @@ class SentryService
             return;
         }
 
+=======
+                    'email' => $this->configuration->getFirebaseEmail(),
+                    'shop_uuid' => $this->configuration->getShopUuid(),
+                ],
+            ]
+        );
+
+>>>>>>> 6da8cbe1 (Refacto DDD-CQRS2)
         $this->client->install();
     }
 
@@ -139,7 +177,11 @@ class SentryService
         /** @var self $instance */
         $instance = $psAccounts->getService(self::class);
 
+<<<<<<< HEAD
         $psAccounts->getLogger()->error($exception);
+=======
+        $psAccounts->getLogger()->debug($exception);
+>>>>>>> 6da8cbe1 (Refacto DDD-CQRS2)
 
         $instance->client->captureException($exception);
     }
@@ -157,6 +199,7 @@ class SentryService
 
         throw $exception;
     }
+<<<<<<< HEAD
 
     /**
      * @return bool
@@ -179,4 +222,6 @@ class SentryService
 
         return in_array($controller->controller_type, ['front', 'modulefront']);
     }
+=======
+>>>>>>> 6da8cbe1 (Refacto DDD-CQRS2)
 }

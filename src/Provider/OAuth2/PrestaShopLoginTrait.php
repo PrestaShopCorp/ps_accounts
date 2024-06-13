@@ -20,19 +20,41 @@
 
 namespace PrestaShop\Module\PsAccounts\Provider\OAuth2;
 
+<<<<<<< HEAD
 use PrestaShop\Module\PsAccounts\Log\Logger;
 use PrestaShop\Module\PsAccounts\Session\Session;
 use PrestaShop\Module\PsAccounts\Vendor\League\OAuth2\Client\Provider\Exception\IdentityProviderException;
 use PrestaShop\Module\PsAccounts\Vendor\League\OAuth2\Client\Token\AccessToken;
 use PrestaShop\OAuth2\Client\Provider\PrestaShopUser;
+=======
+use League\OAuth2\Client\Provider\Exception\IdentityProviderException;
+use League\OAuth2\Client\Token\AccessToken;
+use PrestaShop\Module\PsAccounts\Domain\Account\Entity\AccountSession;
+use PrestaShop\Module\PsAccounts\Logger\Logger;
+use PrestaShop\OAuth2\Client\Provider\PrestaShopUser;
+use PrestaShop\PrestaShop\Core\Exception\ContainerNotFoundException;
+use Symfony\Component\HttpFoundation\Session\SessionInterface;
+>>>>>>> 6da8cbe1 (Refacto DDD-CQRS2)
 use Tools;
 
 trait PrestaShopLoginTrait
 {
+<<<<<<< HEAD
     /**
      * @return ShopProvider
      */
     abstract protected function getProvider();
+=======
+    abstract protected function getProvider(): PrestaShopClientProvider;
+
+    abstract protected function initUserSession(PrestaShopUser $user): bool;
+
+    abstract protected function redirectAfterLogin(): void;
+
+    abstract protected function getSession(): SessionInterface;
+
+    abstract protected function getOauth2Session(): AccountSession;
+>>>>>>> 6da8cbe1 (Refacto DDD-CQRS2)
 
     /**
      * @param PrestaShopUser $user
@@ -105,6 +127,7 @@ trait PrestaShopLoginTrait
     }
 
     /**
+<<<<<<< HEAD
      * @param string $locale
      *
      * @return void
@@ -112,6 +135,11 @@ trait PrestaShopLoginTrait
      * @throws \Exception
      */
     private function oauth2Redirect($locale)
+=======
+     * @throws ContainerNotFoundException
+     */
+    private function oauth2Redirect(string $locale): void
+>>>>>>> 6da8cbe1 (Refacto DDD-CQRS2)
     {
         $provider = $this->getProvider();
 
@@ -133,6 +161,7 @@ trait PrestaShopLoginTrait
     }
 
     /**
+<<<<<<< HEAD
      * @param string $msg
      *
      * @return void
@@ -140,21 +169,33 @@ trait PrestaShopLoginTrait
      * @throws \Exception
      */
     private function oauth2ErrorLog($msg)
+=======
+     * @throws \Exception
+     */
+    private function oauth2ErrorLog(string $msg): void
+>>>>>>> 6da8cbe1 (Refacto DDD-CQRS2)
     {
         Logger::getInstance()->error('[OAuth2] ' . $msg);
     }
 
     /**
+<<<<<<< HEAD
      * @return string
      *
      * @throws \Exception
      */
     private function getSessionReturnTo()
+=======
+     * @throws ContainerNotFoundException
+     */
+    private function getSessionReturnTo(): string
+>>>>>>> 6da8cbe1 (Refacto DDD-CQRS2)
     {
         return $this->getSession()->get($this->getReturnToParam(), '');
     }
 
     /**
+<<<<<<< HEAD
      * @param string $returnTo
      *
      * @return void
@@ -162,6 +203,11 @@ trait PrestaShopLoginTrait
      * @throws \Exception
      */
     private function setSessionReturnTo($returnTo)
+=======
+     * @throws ContainerNotFoundException
+     */
+    private function setSessionReturnTo(string $returnTo): void
+>>>>>>> 6da8cbe1 (Refacto DDD-CQRS2)
     {
         $this->getSession()->set($this->getReturnToParam(), $returnTo);
     }

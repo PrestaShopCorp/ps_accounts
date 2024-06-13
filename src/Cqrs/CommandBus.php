@@ -1,4 +1,5 @@
 <?php
+<<<<<<< HEAD
 /**
  * Copyright since 2007 PrestaShop SA and Contributors
  * PrestaShop is an International Registered Trademark & Property of PrestaShop SA
@@ -21,13 +22,23 @@
 namespace PrestaShop\Module\PsAccounts\Cqrs;
 
 class CommandBus extends Bus
+=======
+
+namespace PrestaShop\Module\PsAccounts\Cqrs;
+
+class CommandBus extends AbstractBus
+>>>>>>> 6da8cbe1 (Refacto DDD-CQRS2)
 {
     /**
      * @param string $className
      *
      * @return string
      */
+<<<<<<< HEAD
     public function resolveHandlerClass($className)
+=======
+    public function resolveHandlerClass(string $className): string
+>>>>>>> 6da8cbe1 (Refacto DDD-CQRS2)
     {
         return preg_replace(
             '/((Command)(\\\\([^\\\\]*?)(Command)?$))/',

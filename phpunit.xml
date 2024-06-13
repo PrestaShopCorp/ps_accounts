@@ -11,7 +11,12 @@
   <testsuites>
     <testsuite name="all">
       <directory suffix="Test.php">./tests</directory>
+<<<<<<< HEAD
       <directory suffix="Test.php">./src</directory>
+=======
+      <directory suffix="Test.php">./src/Domain</directory>
+      <directory suffix="Test.php">./src/Cqrs</directory>
+>>>>>>> 6da8cbe1 (Refacto DDD-CQRS2)
     </testsuite>
     <testsuite name="unit">
       <directory suffix="Test.php">./tests/Unit</directory>
@@ -19,6 +24,12 @@
     </testsuite>
     <testsuite name="feature">
       <directory suffix="Test.php">./tests/Feature</directory>
+    </testsuite>
+    <testsuite name="domain">
+      <directory suffix="Test.php">./src/Domain</directory>
+    </testsuite>
+    <testsuite name="cqrs">
+      <directory suffix="Test.php">./src/Cqrs</directory>
     </testsuite>
   </testsuites>
   <filter>

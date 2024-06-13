@@ -153,7 +153,39 @@ class ConfigurationRepository
      */
     public function updateEmployeeId($employeeId)
     {
+<<<<<<< HEAD
         $this->configuration->set(ConfigurationKeys::PS_ACCOUNTS_EMPLOYEE_ID, $employeeId);
+=======
+        $this->configuration->set(Configuration::PS_ACCOUNTS_EMPLOYEE_ID, $employeeId);
+    }
+
+    /**
+     * @return bool
+     *
+     * @deprecated
+     */
+    public function firebaseEmailIsVerified()
+    {
+        return in_array(
+            $this->configuration->get(Configuration::PS_ACCOUNTS_FIREBASE_EMAIL_IS_VERIFIED),
+            ['1', 1, true]
+        );
+    }
+
+    /**
+     * @param bool $status
+     *
+     * @return void
+     *
+     * @deprecated
+     */
+    public function updateFirebaseEmailIsVerified($status)
+    {
+        $this->configuration->set(
+            Configuration::PS_ACCOUNTS_FIREBASE_EMAIL_IS_VERIFIED,
+            (string) $status
+        );
+>>>>>>> 6da8cbe1 (Refacto DDD-CQRS2)
     }
 
     /**
@@ -210,7 +242,11 @@ class ConfigurationRepository
      */
     public function updateAccountsRsaPublicKey($key)
     {
+<<<<<<< HEAD
         $this->configuration->set(ConfigurationKeys::PS_ACCOUNTS_RSA_PUBLIC_KEY, $key);
+=======
+        $this->configuration->set(Configuration::PS_ACCOUNTS_RSA_PUBLIC_KEY, $key);
+>>>>>>> 6da8cbe1 (Refacto DDD-CQRS2)
     }
 
     /**

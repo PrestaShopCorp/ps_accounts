@@ -38,11 +38,25 @@ class ShowTest extends FeatureTestCase
 
         $this->assertResponseOk($response);
 
+<<<<<<< HEAD
         $this->assertEquals($shop->domain, $json['domain']);
         $this->assertEquals($shop->domainSsl, $json['domain_ssl']);
         $this->assertEquals($shop->physicalUri, $json['physical_uri']);
         $this->assertEquals($shop->virtualUri, $json['virtual_uri']);
         $this->assertEquals($this->configurationRepository->sslEnabled(), $json['ssl_activated']);
+=======
+        $this->assertArrayHasKey('domain', $json);
+        $this->assertArrayHasKey('domain_ssl', $json);
+        $this->assertArrayHasKey('physical_uri', $json);
+        $this->assertArrayHasKey('virtual_uri', $json);
+        $this->assertArrayHasKey('ssl_activated', $json);
+
+        $this->assertIsString($json['domain']);
+        $this->assertIsString($json['domain_ssl']);
+        $this->assertIsString($json['physical_uri']);
+        $this->assertIsString($json['virtual_uri']);
+        $this->assertIsBool($json['ssl_activated']);
+>>>>>>> 6da8cbe1 (Refacto DDD-CQRS2)
     }
 
     /**

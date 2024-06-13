@@ -2,7 +2,11 @@ version: "3.7"
 services:
   phpunit:
     container_name: phpunit
+<<<<<<< HEAD
     image: prestashop/docker-internal-images:${DOCKER_INTERNAL}
+=======
+    image: prestashop/docker-internal-images:8
+>>>>>>> 6da8cbe1 (Refacto DDD-CQRS2)
     environment:
       - PS_DOMAIN=localhost
       - PS_ENABLE_SSL=0
@@ -11,4 +15,7 @@ services:
       - XDEBUG_ENABLED=1
     volumes:
       - ./:/var/www/html/modules/ps_accounts
+<<<<<<< HEAD
 
+=======
+>>>>>>> 6da8cbe1 (Refacto DDD-CQRS2)

@@ -18,6 +18,7 @@
  * @license   https://opensource.org/licenses/AFL-3.0 Academic Free License version 3.0
  */
 
+<<<<<<< HEAD
 use PrestaShop\Module\PsAccounts\Account\Command\DeleteUserShopCommand;
 use PrestaShop\Module\PsAccounts\Account\Command\UnlinkShopCommand;
 use PrestaShop\Module\PsAccounts\Account\Session\Firebase\ShopSession;
@@ -25,6 +26,16 @@ use PrestaShop\Module\PsAccounts\Api\Client\IndirectChannelClient;
 use PrestaShop\Module\PsAccounts\Cqrs\CommandBus;
 use PrestaShop\Module\PsAccounts\Presenter\PsAccountsPresenter;
 use PrestaShop\Module\PsAccounts\Provider\OAuth2\PrestaShopSession;
+=======
+use Account\Query\GetOrRefreshAccessToken;
+use PrestaShop\Module\PsAccounts\Cqrs\CommandBus;
+use PrestaShop\Module\PsAccounts\Cqrs\QueryBus;
+use PrestaShop\Module\PsAccounts\Domain\Shop\Command\DeleteUserShopCommand;
+use PrestaShop\Module\PsAccounts\Domain\Shop\Entity\Association;
+use PrestaShop\Module\PsAccounts\Domain\Shop\Entity\Token;
+use PrestaShop\Module\PsAccounts\Domain\Shop\Query\GetOrRefreshShopToken;
+use PrestaShop\Module\PsAccounts\Presenter\PsAccountsPresenter;
+>>>>>>> 6da8cbe1 (Refacto DDD-CQRS2)
 use PrestaShop\Module\PsAccounts\Repository\ConfigurationRepository;
 use PrestaShop\Module\PsAccounts\Service\SentryService;
 
@@ -44,6 +55,14 @@ class AdminAjaxPsAccountsController extends \ModuleAdminController
     private $commandBus;
 
     /**
+<<<<<<< HEAD
+=======
+     * @var QueryBus
+     */
+    private $queryBus;
+
+    /**
+>>>>>>> 6da8cbe1 (Refacto DDD-CQRS2)
      * AdminAjaxPsAccountsController constructor.
      *
      * @throws Exception
@@ -52,6 +71,10 @@ class AdminAjaxPsAccountsController extends \ModuleAdminController
     {
         parent::__construct();
 
+<<<<<<< HEAD
+=======
+        $this->queryBus = $this->module->getService(QueryBus::class);
+>>>>>>> 6da8cbe1 (Refacto DDD-CQRS2)
         $this->commandBus = $this->module->getService(CommandBus::class);
     }
 
@@ -63,8 +86,13 @@ class AdminAjaxPsAccountsController extends \ModuleAdminController
     public function ajaxProcessGetOrRefreshToken()
     {
         try {
+<<<<<<< HEAD
             /** @var ShopSession $shopSession */
             $shopSession = $this->module->getService(ShopSession::class);
+=======
+            /** @var Token $token */
+            $token = $this->queryBus->handle(new GetOrRefreshShopToken());
+>>>>>>> 6da8cbe1 (Refacto DDD-CQRS2)
 
             header('Content-Type: text/json');
 
@@ -115,12 +143,19 @@ class AdminAjaxPsAccountsController extends \ModuleAdminController
     public function ajaxProcessResetLinkAccount()
     {
         try {
+<<<<<<< HEAD
             /** @var ConfigurationRepository $configurationRepository */
             $configurationRepository = $this->module->getService(ConfigurationRepository::class);
 
             $this->commandBus->handle(new UnlinkShopCommand(
                 $configurationRepository->getShopId()
             ));
+=======
+            /** @var Association $association */
+            $association = $this->module->getService(Association::class);
+
+            $association->resetLink();
+>>>>>>> 6da8cbe1 (Refacto DDD-CQRS2)
 
             header('Content-Type: text/json');
 
@@ -159,18 +194,18 @@ class AdminAjaxPsAccountsController extends \ModuleAdminController
     public function ajaxProcessGetOrRefreshAccessToken()
     {
         try {
-            /** @var PrestaShopSession $oauthSession */
-            $oauthSession = $this->module->getService(PrestaShopSession::class);
-
             header('Content-Type: text/json');
 
             $this->ajaxDie(
                 json_encode([
-                    'token' => (string) $oauthSession->getOrRefreshAccessToken(),
+                    'token' => (string) $this->queryBus->handle(
+                        new GetOrRefreshAccessToken()
+                    ),
                 ])
             );
         } catch (Exception $e) {
             SentryService::captureAndRethrow($e);
+<<<<<<< HEAD
         }
     }
 
@@ -204,6 +239,8 @@ class AdminAjaxPsAccountsController extends \ModuleAdminController
             }
         } catch (Exception $e) {
             SentryService::captureAndRethrow($e);
+=======
+>>>>>>> 6da8cbe1 (Refacto DDD-CQRS2)
         }
     }
 }

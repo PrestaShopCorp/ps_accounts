@@ -20,6 +20,7 @@
 
 namespace PrestaShop\Module\PsAccounts\Service;
 
+<<<<<<< HEAD
 use PrestaShop\Module\PsAccounts\Account\Command\MigrateAndLinkV4ShopCommand;
 use PrestaShop\Module\PsAccounts\Account\Command\UnlinkShopCommand;
 use PrestaShop\Module\PsAccounts\Account\LinkShop;
@@ -31,6 +32,18 @@ use PrestaShop\Module\PsAccounts\Entity\EmployeeAccount;
 use PrestaShop\Module\PsAccounts\Provider\ShopProvider;
 use PrestaShop\Module\PsAccounts\Repository\ConfigurationRepository;
 use PrestaShop\Module\PsAccounts\Repository\EmployeeAccountRepository;
+=======
+use PrestaShop\Module\PsAccounts\Adapter\Link;
+use PrestaShop\Module\PsAccounts\Cqrs\CommandBus;
+use PrestaShop\Module\PsAccounts\Domain\Account\Entity\Login;
+use PrestaShop\Module\PsAccounts\Domain\Shop\Command\MigrateAndLinkV4ShopCommand;
+use PrestaShop\Module\PsAccounts\Domain\Shop\Entity\Association;
+use PrestaShop\Module\PsAccounts\Domain\Shop\Entity\OwnerSession;
+use PrestaShop\Module\PsAccounts\Domain\Shop\Entity\ShopSession;
+use PrestaShop\Module\PsAccounts\Entity\EmployeeAccount;
+use PrestaShop\Module\PsAccounts\Provider\ShopProvider;
+use PrestaShop\Module\PsAccounts\Repository\ConfigurationRepository;
+>>>>>>> 6da8cbe1 (Refacto DDD-CQRS2)
 
 /**
  * Class PsAccountsService
@@ -56,6 +69,7 @@ class PsAccountsService
      * @var OwnerSession
      */
     private $ownerSession;
+<<<<<<< HEAD
 
     /**
      * @var LinkShop
@@ -74,26 +88,40 @@ class PsAccountsService
         $this->ownerSession = $this->module->getService(OwnerSession::class);
         $this->link = $this->module->getService(Link::class);
         $this->linkShop = $module->getService(LinkShop::class);
+=======
+
+    public function __construct(
+        \Ps_accounts $module,
+        ShopSession $shopSession,
+        OwnerSession $ownerSession,
+        Link $link
+    ) {
+        $this->module = $module;
+        $this->shopSession = $shopSession;
+        $this->ownerSession = $ownerSession;
+        $this->link = $link;
+>>>>>>> 6da8cbe1 (Refacto DDD-CQRS2)
     }
 
-    /**
-     * @return string
-     */
-    public function getSuperAdminEmail()
+    public function getSuperAdminEmail(): string
     {
         return (new \Employee(1))->email;
     }
 
     /**
+<<<<<<< HEAD
      * @return string
      *
+=======
+>>>>>>> 6da8cbe1 (Refacto DDD-CQRS2)
      * @deprecated deprecated since version 5.0
      */
-    public function getShopUuidV4()
+    public function getShopUuidV4(): string
     {
         return $this->getShopUuid();
     }
 
+<<<<<<< HEAD
     /**
      * @return string
      */
@@ -105,18 +133,36 @@ class PsAccountsService
     /**
      * @return string
      *
-     * @throws \Exception
-     */
-    public function getOrRefreshToken()
+=======
+    public function getShopUuid(): string
     {
-        return (string) $this->shopSession->getOrRefreshToken();
+        return (string) $this->shopSession->getToken()->getUuid();
     }
 
     /**
-     * @return string|null
+>>>>>>> 6da8cbe1 (Refacto DDD-CQRS2)
+     * @throws \Exception
      */
-    public function getRefreshToken()
+    public function getOrRefreshToken(): string
     {
+<<<<<<< HEAD
+        return (string) $this->shopSession->getOrRefreshToken();
+=======
+        return (string) $this->shopSession->getOrRefreshToken()->getJwt();
+    }
+
+    public function getRefreshToken(): ?string
+    {
+        return $this->shopSession->getToken()->getRefreshToken();
+>>>>>>> 6da8cbe1 (Refacto DDD-CQRS2)
+    }
+
+    /**
+     * @throws \Exception
+     */
+    public function getToken(): ?string
+    {
+<<<<<<< HEAD
         return $this->shopSession->getToken()->getRefreshToken();
     }
 
@@ -145,29 +191,40 @@ class PsAccountsService
     /**
      * @return string
      *
+=======
+        return (string) $this->shopSession->getOrRefreshToken()->getJwt();
+    }
+
+    /**
+>>>>>>> 6da8cbe1 (Refacto DDD-CQRS2)
      * @deprecated deprecated since version 5.1.1
      */
-    public function getUserUuidV4()
+    public function getUserUuidV4(): string
     {
         return $this->getUserUuid();
     }
 
+<<<<<<< HEAD
     /**
      * @return string
      */
     public function getUserUuid()
     {
         return (string) $this->linkShop->getOwnerUuid();
+=======
+    public function getUserUuid(): string
+    {
+        return (string) $this->ownerSession->getToken()->getUuid();
+>>>>>>> 6da8cbe1 (Refacto DDD-CQRS2)
     }
 
     /**
-     * @return bool
-     *
      * @throws \Exception
      */
-    public function isEmailValidated()
+    public function isEmailValidated(): bool
     {
         return $this->ownerSession->isEmailVerified();
+<<<<<<< HEAD
     }
 
     /**
@@ -181,21 +238,43 @@ class PsAccountsService
     /**
      * @return bool
      *
-     * @throws \Exception
-     */
-    public function isAccountLinked()
+=======
+    }
+
+    public function getEmail(): ?string
     {
-        return $this->linkShop->exists();
+        return $this->ownerSession->getToken()->getEmail();
     }
 
     /**
-     * @return bool
-     *
+>>>>>>> 6da8cbe1 (Refacto DDD-CQRS2)
      * @throws \Exception
      */
-    public function isAccountLinkedV4()
+    public function isAccountLinked(): bool
     {
+<<<<<<< HEAD
+        return $this->linkShop->exists();
+=======
+        /** @var Association $association */
+        $association = $this->module->getService(Association::class);
+
+        return $association->isLinked();
+>>>>>>> 6da8cbe1 (Refacto DDD-CQRS2)
+    }
+
+    /**
+     * @throws \Exception
+     */
+    public function isAccountLinkedV4(): bool
+    {
+<<<<<<< HEAD
         return $this->linkShop->existsV4();
+=======
+        /** @var Association $association */
+        $association = $this->module->getService(Association::class);
+
+        return $association->isLinkedV4();
+>>>>>>> 6da8cbe1 (Refacto DDD-CQRS2)
     }
 
     /**
@@ -203,38 +282,45 @@ class PsAccountsService
      * available via PsAccountsPresenter into page dom,
      * ex :
      * let url = window.contextPsAccounts.adminAjaxLink + '&action=unlinkShop'
-     *
-     * @return string
+
      *
      * @throws \PrestaShopException
      */
-    public function getAdminAjaxUrl()
+    public function getAdminAjaxUrl(): string
     {
-//        Tools::getAdminTokenLite('AdminAjaxPsAccounts'));
         return $this->link->getAdminLink('AdminAjaxPsAccounts', true, [], ['ajax' => 1]);
     }
 
     /**
+<<<<<<< HEAD
      * @return string
+=======
+     * for compat only
+>>>>>>> 6da8cbe1 (Refacto DDD-CQRS2)
      *
      * @throws \Exception
      */
-    public function getAccountsVueCdn()
+    public function getAccountsVueCdn(): string
     {
         return $this->module->getParameter('ps_accounts.accounts_vue_cdn_url');
     }
 
     /**
+<<<<<<< HEAD
      * @return string
      *
+=======
+>>>>>>> 6da8cbe1 (Refacto DDD-CQRS2)
      * @throws \Exception
      */
-    public function getAccountsCdn()
+    public function getAccountsCdn(): string
     {
         return $this->module->getParameter('ps_accounts.accounts_cdn_url');
     }
 
     /**
+     * @deprecated
+     *
      * @return void
      *
      * @throws \PrestaShopException
@@ -242,17 +328,25 @@ class PsAccountsService
      */
     public function autoReonboardOnV5()
     {
+        /** @var CommandBus $commandBus */
+        $commandBus = $this->module->getService(CommandBus::class);
+
         /** @var ShopProvider $shopProvider */
         $shopProvider = $this->module->getService(ShopProvider::class);
 
         /** @var ConfigurationRepository $conf */
         $conf = $this->module->getService(ConfigurationRepository::class);
 
+<<<<<<< HEAD
         /** @var LinkShop $linkShop */
         $linkShop = $this->module->getService(LinkShop::class);
 
         /** @var CommandBus $commandBus */
         $commandBus = $this->module->getService(CommandBus::class);
+=======
+        /** @var Association $association */
+        $association = $this->module->getService(Association::class);
+>>>>>>> 6da8cbe1 (Refacto DDD-CQRS2)
 
         $allShops = $shopProvider->getShopsTree((string) $this->module->name);
 
@@ -277,14 +371,22 @@ class PsAccountsService
                 if ($isAlreadyReonboard) {
                     $conf->setShopId((int) $shop['id']);
 
+<<<<<<< HEAD
                     $commandBus->handle(new UnlinkShopCommand($shop['id']));
+=======
+                    $association->resetLink();
+>>>>>>> 6da8cbe1 (Refacto DDD-CQRS2)
 
                     $conf->setShopId($id);
                 } else {
                     $shop['employeeId'] = null;
 
+<<<<<<< HEAD
                     $commandBus->handle(new MigrateAndLinkV4ShopCommand($id, $shop));
 
+=======
+                    $commandBus->handle(new MigrateAndLinkV4ShopCommand($shop['id'], $shop));
+>>>>>>> 6da8cbe1 (Refacto DDD-CQRS2)
                     $isAlreadyReonboard = true;
                 }
             }
@@ -292,21 +394,26 @@ class PsAccountsService
     }
 
     /**
+<<<<<<< HEAD
      * @return bool
      *
      * @throws \Exception
      */
     public function getLoginActivated()
+=======
+     * @throws \Exception
+     */
+    public function getLoginActivated(): bool
+>>>>>>> 6da8cbe1 (Refacto DDD-CQRS2)
     {
-        /** @var ConfigurationRepository $configuration */
-        $configuration = $this->module->getService(ConfigurationRepository::class);
+        /** @var Login $login */
+        $login = $this->module->getService(Login::class);
 
-        return $configuration->getLoginEnabled() &&
-            $configuration->getOauth2ClientId() &&
-            $configuration->getOauth2ClientSecret();
+        return $login->isEnabled();
     }
 
     /**
+<<<<<<< HEAD
      * @param bool $enabled
      *
      * @return void
@@ -334,5 +441,15 @@ class PsAccountsService
         }
 
         return null;
+=======
+     * @throws \Exception
+     */
+    public function getEmployeeAccount(): ?EmployeeAccount
+    {
+        /** @var Login $login */
+        $login = $this->module->getService(Login::class);
+
+        return $login->getLoggedInEmployeeAccount();
+>>>>>>> 6da8cbe1 (Refacto DDD-CQRS2)
     }
 }

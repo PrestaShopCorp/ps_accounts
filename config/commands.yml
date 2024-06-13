@@ -1,0 +1,76 @@
+services:
+  _defaults:
+    public: true
+
+  PrestaShop\Module\PsAccounts\Domain\Shop\CommandHandler\LinkShopHandler:
+    class: PrestaShop\Module\PsAccounts\Domain\Shop\CommandHandler\LinkShopHandler
+    tags:
+      - { name: tactician.handler, command: 'PrestaShop\Module\PsAccounts\Domain\Shop\Command\LinkShopCommand' }
+    arguments:
+      - '@PrestaShop\Module\PsAccounts\Domain\Shop\Entity\ShopSession'
+      - '@PrestaShop\Module\PsAccounts\Domain\Shop\Entity\OwnerSession'
+
+  PrestaShop\Module\PsAccounts\Domain\Shop\CommandHandler\MigrateAndLinkV4ShopHandler:
+    class: PrestaShop\Module\PsAccounts\Domain\Shop\CommandHandler\MigrateAndLinkV4ShopHandler
+    tags:
+      - { name: tactician.handler, command: 'PrestaShop\Module\PsAccounts\Domain\Shop\Command\MigrateAndLinkV4ShopCommand' }
+    arguments:
+      - '@PrestaShop\Module\PsAccounts\Api\Client\AccountsClient'
+      - '@PrestaShop\Module\PsAccounts\Context\ShopContext'
+      - '@PrestaShop\Module\PsAccounts\Domain\Shop\Entity\ShopSession'
+
+  PrestaShop\Module\PsAccounts\Domain\Shop\CommandHandler\DeleteUserShopHandler:
+    class: PrestaShop\Module\PsAccounts\Domain\Shop\CommandHandler\DeleteUserShopHandler
+    tags:
+      - { name: tactician.handler, command: 'PrestaShop\Module\PsAccounts\Domain\Shop\Command\DeleteUserShopCommand' }
+    arguments:
+      - '@PrestaShop\Module\PsAccounts\Api\Client\AccountsClient'
+      - '@PrestaShop\Module\PsAccounts\Context\ShopContext'
+      - '@PrestaShop\Module\PsAccounts\Domain\Shop\Entity\ShopSession'
+      - '@PrestaShop\Module\PsAccounts\Domain\Shop\Entity\OwnerSession'
+
+  PrestaShop\Module\PsAccounts\Domain\Shop\CommandHandler\UnlinkShopHandler:
+    class: PrestaShop\Module\PsAccounts\Domain\Shop\CommandHandler\UnlinkShopHandler
+    tags:
+      - { name: tactician.handler, command: 'PrestaShop\Module\PsAccounts\Domain\Shop\Command\UnlinkShopCommand' }
+    arguments:
+      - '@PrestaShop\Module\PsAccounts\Domain\Shop\Entity\Association'
+
+  PrestaShop\Module\PsAccounts\Domain\Shop\CommandHandler\UpdateShopHandler:
+    class: PrestaShop\Module\PsAccounts\Domain\Shop\CommandHandler\UpdateShopHandler
+    tags:
+      - { name: tactician.handler, command: 'PrestaShop\Module\PsAccounts\Domain\Shop\Command\UpdateShopCommand' }
+    arguments:
+      - '@PrestaShop\Module\PsAccounts\Api\Client\AccountsClient'
+      - '@PrestaShop\Module\PsAccounts\Context\ShopContext'
+      - '@PrestaShop\Module\PsAccounts\Domain\Shop\Entity\Association'
+
+  PrestaShop\Module\PsAccounts\Domain\Account\CommandHandler\RegisterOauth2ClientHandler:
+    class: PrestaShop\Module\PsAccounts\Domain\Account\CommandHandler\RegisterOauth2ClientHandler
+    tags:
+      - { name: tactician.handler, command: 'PrestaShop\Module\PsAccounts\Domain\Account\Command\RegisterOauth2ClientCommand' }
+    arguments:
+      - '@PrestaShop\Module\PsAccounts\Domain\Account\Entity\Oauth2Client'
+      - '@PrestaShop\Module\PsAccounts\Cqrs\CommandBus'
+
+  PrestaShop\Module\PsAccounts\Domain\Account\CommandHandler\ForgetOauth2ClientHandler:
+    class: PrestaShop\Module\PsAccounts\Domain\Account\CommandHandler\ForgetOauth2ClientHandler
+    tags:
+      - { name: tactician.handler, command: 'PrestaShop\Module\PsAccounts\Domain\Account\Command\ForgetOauth2ClientCommand' }
+    arguments:
+      - '@PrestaShop\Module\PsAccounts\Domain\Account\Entity\Oauth2Client'
+      - '@PrestaShop\Module\PsAccounts\Cqrs\CommandBus'
+
+  PrestaShop\Module\PsAccounts\Domain\Account\CommandHandler\EnableLoginHandler:
+    class: PrestaShop\Module\PsAccounts\Domain\Account\CommandHandler\EnableLoginHandler
+    tags:
+      - { name: tactician.handler, command: 'PrestaShop\Module\PsAccounts\Domain\Account\Command\EnableLoginCommand' }
+    arguments:
+      - '@PrestaShop\Module\PsAccounts\Domain\Account\Entity\Login'
+
+  PrestaShop\Module\PsAccounts\Domain\Account\CommandHandler\DisableLoginHandler:
+    class: PrestaShop\Module\PsAccounts\Domain\Account\CommandHandler\DisableLoginHandler
+    tags:
+      - { name: tactician.handler, command: 'PrestaShop\Module\PsAccounts\Domain\Account\Command\DisableLoginCommand' }
+    arguments:
+      - '@PrestaShop\Module\PsAccounts\Domain\Account\Entity\Login'

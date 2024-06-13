@@ -33,3 +33,6 @@ parameters:
   # Login page testimonials url
   ps_accounts.testimonials_url: 'https://assets.prestashop3.com/dst/accounts/assets/testimonials.json'
 
+  # Login page testimonials url
+  ps_accounts.testimonials_url: 'https://assets.prestashop3.com/dst/accounts/assets/testimonials.json'
+

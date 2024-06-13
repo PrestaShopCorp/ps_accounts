@@ -20,8 +20,13 @@
 
 namespace PrestaShop\Module\PsAccounts\Provider\OAuth2;
 
+<<<<<<< HEAD:src/Provider/OAuth2/ShopProvider.php
 use PrestaShop\Module\PsAccounts\Adapter\Link;
 use PrestaShop\Module\PsAccounts\Vendor\League\OAuth2\Client\Provider\AbstractProvider;
+=======
+use League\OAuth2\Client\Token\AccessToken;
+use PrestaShop\Module\PsAccounts\Domain\Account\Entity\Oauth2Client;
+>>>>>>> 6da8cbe1 (Refacto DDD-CQRS2):src/Provider/OAuth2/PrestaShopClientProvider.php
 use PrestaShop\OAuth2\Client\Provider\PrestaShop;
 
 class ShopProvider extends PrestaShop
@@ -36,6 +41,14 @@ class ShopProvider extends PrestaShop
     /**
      * @var Oauth2Client
      */
+<<<<<<< HEAD:src/Provider/OAuth2/ShopProvider.php
+=======
+    private $context;
+
+    /**
+     * @var Oauth2Client
+     */
+>>>>>>> 6da8cbe1 (Refacto DDD-CQRS2):src/Provider/OAuth2/PrestaShopClientProvider.php
     private $oauth2Client;
 
     /**
@@ -49,6 +62,10 @@ class ShopProvider extends PrestaShop
         /** @var \Ps_accounts $module */
         $module = \Module::getInstanceByName('ps_accounts');
         $this->module = $module;
+<<<<<<< HEAD:src/Provider/OAuth2/ShopProvider.php
+=======
+        $this->context = $module->getContext();
+>>>>>>> 6da8cbe1 (Refacto DDD-CQRS2):src/Provider/OAuth2/PrestaShopClientProvider.php
         $this->oauth2Client = $module->getService(Oauth2Client::class);
 
         // Disable certificate verification from local configuration
@@ -135,6 +152,7 @@ class ShopProvider extends PrestaShop
     /**
      * @return Oauth2Client
      */
+<<<<<<< HEAD:src/Provider/OAuth2/ShopProvider.php
     public function getOauth2Client()
     {
         return $this->oauth2Client;
@@ -168,4 +186,10 @@ class ShopProvider extends PrestaShop
         $this->clientId = $this->getOauth2Client()->getClientId();
         $this->clientSecret = $this->getOauth2Client()->getClientSecret();
     }
+=======
+    public function getOauth2Client(): Oauth2Client
+    {
+        return $this->oauth2Client;
+    }
+>>>>>>> 6da8cbe1 (Refacto DDD-CQRS2):src/Provider/OAuth2/PrestaShopClientProvider.php
 }

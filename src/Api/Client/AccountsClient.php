@@ -20,10 +20,18 @@
 
 namespace PrestaShop\Module\PsAccounts\Api\Client;
 
+<<<<<<< HEAD
 use PrestaShop\Module\PsAccounts\Account\Dto\UpdateShop;
 use PrestaShop\Module\PsAccounts\Account\Dto\UpgradeModule;
 use PrestaShop\Module\PsAccounts\Http\Client\Guzzle\GuzzleClient;
 use PrestaShop\Module\PsAccounts\Http\Client\Guzzle\GuzzleClientFactory;
+=======
+use PrestaShop\Module\PsAccounts\Api\Client\Guzzle\AbstractGuzzleClient;
+use PrestaShop\Module\PsAccounts\Api\Client\Guzzle\GuzzleClientFactory;
+use PrestaShop\Module\PsAccounts\Domain\Shop\Contract\TokenClientInterface;
+use PrestaShop\Module\PsAccounts\Dto\UpdateShop;
+use PrestaShop\Module\PsAccounts\Repository\ConfigurationRepository;
+>>>>>>> 6da8cbe1 (Refacto DDD-CQRS2)
 
 class AccountsClient
 {
@@ -31,12 +39,21 @@ class AccountsClient
      * @var string
      */
     private $apiUrl;
+<<<<<<< HEAD
+=======
+
+    /**
+     * @var ConfigurationRepository
+     */
+    private $configurationRepository;
+>>>>>>> 6da8cbe1 (Refacto DDD-CQRS2)
 
     /**
      * @var GuzzleClient
      */
     private $client;
 
+<<<<<<< HEAD
     /**
      * @var int
      */
@@ -57,10 +74,20 @@ class AccountsClient
                      $defaultTimeout = 20
     ) {
         $this->apiUrl = $apiUrl;
+=======
+    public function __construct(
+        string $apiUrl,
+        ConfigurationRepository $configurationRepository,
+        ?AbstractGuzzleClient $client = null
+    ) {
+        $this->apiUrl = $apiUrl;
+        $this->configurationRepository = $configurationRepository;
+>>>>>>> 6da8cbe1 (Refacto DDD-CQRS2)
         $this->client = $client;
         $this->defaultTimeout = $defaultTimeout;
     }
 
+<<<<<<< HEAD
     /**
      * @return GuzzleClient
      */
@@ -112,11 +139,37 @@ class AccountsClient
                 'X-Shop-Id' => $shopUuid,
             ]),
             'json' => [
+=======
+    public function verifyToken(string $idToken): array
+    {
+        $this->getClient()->setRoute('shop/token/verify');
+
+        return $this->getClient()->post([
+            'json' => [
+                'headers' => $this->getHeaders([
+                    'X-Shop-Id' => $this->configurationRepository->getShopUuid(),
+                ]),
+                'token' => $idToken,
+            ],
+        ]);
+    }
+
+    public function refreshToken(string $refreshToken): array
+    {
+        $this->getClient()->setRoute('shop/token/refresh');
+
+        return $this->getClient()->post([
+            'json' => [
+                'headers' => $this->getHeaders([
+                    'X-Shop-Id' => $this->configurationRepository->getShopUuid(),
+                ]),
+>>>>>>> 6da8cbe1 (Refacto DDD-CQRS2)
                 'token' => $refreshToken,
             ],
         ]);
     }
 
+<<<<<<< HEAD
     /**
      * @param string $ownerUid
      * @param string $shopUid
@@ -127,15 +180,25 @@ class AccountsClient
     public function deleteUserShop($ownerUid, $shopUid, $ownerToken)
     {
         $this->getClient()->setRoute('v1/user/' . $ownerUid . '/shop/' . $shopUid);
+=======
+    public function deleteUserShop(string $ownerUid, string $shopUid, string $ownerToken): array
+    {
+        $this->client->setRoute('user/' . $ownerUid . '/shop/' . $shopUid);
+>>>>>>> 6da8cbe1 (Refacto DDD-CQRS2)
 
         return $this->getClient()->delete([
             'headers' => $this->getHeaders([
                 'Authorization' => 'Bearer ' . $ownerToken,
+<<<<<<< HEAD
                 'X-Shop-Id' => $shopUid,
+=======
+                'X-Shop-Id' => $this->configurationRepository->getShopUuid(),
+>>>>>>> 6da8cbe1 (Refacto DDD-CQRS2)
             ]),
         ]);
     }
 
+<<<<<<< HEAD
     /**
      * @param string $shopUid
      * @param string $shopToken
@@ -167,6 +230,24 @@ class AccountsClient
     public function updateUserShop($ownerUid, $shopUid, $ownerToken, UpdateShop $shop)
     {
         $this->getClient()->setRoute('v1/user/' . $ownerUid . '/shop/' . $shopUid);
+=======
+    public function reonboardShop(string $shopUid, string $shopToken, array $payload): array
+    {
+        $this->getClient()->setRoute('shop/' . $shopUid . '/reonboard');
+
+        return $this->getClient()->post([
+                'headers' => $this->getHeaders([
+                    'Authorization' => 'Bearer ' . $shopToken,
+                    'X-Shop-Id' => $shopUid,
+                ]),
+                'json' => $payload,
+            ]);
+    }
+
+    public function updateUserShop(string $ownerUid, string $shopUid, string $ownerToken, UpdateShop $shop): array
+    {
+        $this->getClient()->setRoute('user/' . $ownerUid . '/shop/' . $shopUid);
+>>>>>>> 6da8cbe1 (Refacto DDD-CQRS2)
 
         return $this->getClient()->patch([
             'headers' => $this->getHeaders([
@@ -175,6 +256,7 @@ class AccountsClient
             ]),
             'json' => $shop->jsonSerialize(),
         ]);
+<<<<<<< HEAD
     }
 
     /**
@@ -195,14 +277,11 @@ class AccountsClient
             ]),
             'json' => $data->jsonSerialize(),
         ]);
+=======
+>>>>>>> 6da8cbe1 (Refacto DDD-CQRS2)
     }
 
-    /**
-     * @param array $additionalHeaders
-     *
-     * @return array
-     */
-    private function getHeaders($additionalHeaders = [])
+    private function getHeaders(array $additionalHeaders = []): array
     {
         return array_merge([
             'Accept' => 'application/json',
@@ -211,6 +290,7 @@ class AccountsClient
         ], $additionalHeaders);
     }
 
+<<<<<<< HEAD
     /**
      * @deprecated
      *
@@ -227,5 +307,19 @@ class AccountsClient
                 'token' => $idToken,
             ],
         ]);
+=======
+    private function getClient(): AbstractGuzzleClient
+    {
+        if (null === $this->client) {
+            $this->client = (new GuzzleClientFactory())->create([
+                'base_url' => $this->apiUrl,
+                'defaults' => [
+                    'headers' => $this->getHeaders(),
+                ],
+            ]);
+        }
+
+        return $this->client;
+>>>>>>> 6da8cbe1 (Refacto DDD-CQRS2)
     }
 }

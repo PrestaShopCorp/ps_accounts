@@ -20,12 +20,22 @@
 
 namespace PrestaShop\Module\PsAccounts\Provider\OAuth2;
 
+use PrestaShop\Module\PsAccounts\Domain\Account\Entity\AccountSession;
+
 trait PrestaShopLogoutTrait
 {
+<<<<<<< HEAD
     /**
      * @return ShopProvider
      */
     abstract protected function getProvider();
+=======
+    abstract protected function getProvider(): PrestaShopClientProvider;
+
+    abstract protected function getOauth2Session(): AccountSession;
+
+    abstract protected function isOauth2LogoutEnabled(): bool;
+>>>>>>> 6da8cbe1 (Refacto DDD-CQRS2)
 
     /**
      * @return PrestaShopSession

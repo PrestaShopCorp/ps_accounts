@@ -4,8 +4,18 @@ NPM = $(shell which npm 2> /dev/null)
 YARN = $(shell which yarn 2> /dev/null)
 COMPOSER = ${PHP} ./composer.phar
 MODULE ?= $(shell basename ${PWD})
+<<<<<<< HEAD
 CURRENT_UID := $(shell id -u)
 CURRENT_GID := $(shell id -g)
+=======
+PACKAGE ?= "${MODULE}-${VERSION}"
+PHPSTAN_VERSION ?= 0.12
+PHPUNIT_VERSION ?= latest
+PS_VERSION ?= latest #1.7.7.1
+NEON_FILE ?= phpstan-PS-1.7.neon
+DOCKER_INTERNAL ?= 8 # 1.7|nightly
+CONTAINER_INSTALL_DIR="/var/www/html/modules/ps_accounts"
+>>>>>>> 6da8cbe1 (Refacto DDD-CQRS2)
 
 default: bundle
 
@@ -58,6 +68,7 @@ phpstan: check-docker vendor-dev
 	  --configuration=/web/module/tests/phpstan/${NEON_FILE}
 #	docker volume rm ps-volume
 
+<<<<<<< HEAD
 phpstan16: PS_VERSION = 1.6.1.21
 phpstan16: NEON_FILE = phpstan-PS-1.6.neon
 phpstan16: phpstan
@@ -68,15 +79,25 @@ phpstan16: phpstan
 DOCKER_INTERNAL ?= 1.7 # 1.7|8|nightly
 CONTAINER_INSTALL_DIR="/var/www/html/modules/ps_accounts"
 
+=======
+>>>>>>> 6da8cbe1 (Refacto DDD-CQRS2)
 phpunit-pull:
 	docker pull prestashop/docker-internal-images:${DOCKER_INTERNAL}
 
 phpunit-start:
+<<<<<<< HEAD
 	@DOCKER_INTERNAL=${DOCKER_INTERNAL} docker-compose up -d
 	@echo phpunit started
 
 phpunit-stop:
 	@DOCKER_INTERNAL=${DOCKER_INTERNAL} docker-compose down
+=======
+	@docker-compose up -d
+	@echo phpunit started
+
+phpunit-stop:
+	@docker-compose down
+>>>>>>> 6da8cbe1 (Refacto DDD-CQRS2)
 	@echo phpunit stopped
 
 phpunit-restart: phpunit-stop phpunit-start
@@ -90,6 +111,7 @@ phpunit-module-version:
 		sh -c "echo \"Module v\`cat config.xml | grep '<version>' | sed 's/^.*\[CDATA\[\(.*\)\]\].*/\1/'\`\n\""
 
 phpunit-module-install: phpunit-module-config phpunit-module-version
+<<<<<<< HEAD
 	@docker exec phpunit sh -c "if [ -f ./bin/console ]; then php -d memory_limit=-1 ./bin/console prestashop:module install ps_accounts; fi"
 	@docker exec phpunit sh -c "if [ ! -f ./bin/console ]; then php -d memory_limit=-1 ./modules/ps_accounts/tests/install-module.php; fi"
 
@@ -106,16 +128,43 @@ phpunit-run-feature: phpunit-permissions vendor-dev
 
 phpunit-xdebug:
 	-@docker exec phpunit sh -c "docker-php-ext-enable xdebug"
+=======
+	@#@docker exec phpunit sh -c "docker-php-ext-enable xdebug"
+	@docker exec phpunit sh -c "php -d memory_limit=-1 ./bin/console prestashop:module install ps_accounts"
+
+phpunit-permissions:
+	@docker exec phpunit sh -c "chown -R www-data:www-data ./var"
+
+phpunit-run-unit: phpunit-permissions
+	@docker exec -w ${CONTAINER_INSTALL_DIR} phpunit ./vendor/bin/phpunit --testsuite unit
+
+phpunit-run-domain: phpunit-permissions
+	@docker exec -w ${CONTAINER_INSTALL_DIR} phpunit ./vendor/bin/phpunit --testsuite domain
+
+phpunit-run-feature: phpunit-permissions
+	@docker exec -w ${CONTAINER_INSTALL_DIR} phpunit ./vendor/bin/phpunit --testsuite feature
+>>>>>>> 6da8cbe1 (Refacto DDD-CQRS2)
 
 phpunit-delay-5:
 	@echo waiting 5 seconds
 	@sleep 5
 
+<<<<<<< HEAD
 phpunit: phpunit-pull phpunit-restart phpunit-delay-5 phpunit-module-install phpunit-run-feature phpunit-run-unit
+=======
+# target: phpunit                                - Start phpunit
+phpunit: phpunit-pull phpunit-restart phpunit-delay-5 phpunit-module-install phpunit-run-feature phpunit-run-domain phpunit-run-unit
+>>>>>>> 6da8cbe1 (Refacto DDD-CQRS2)
 	@echo phpunit passed
 
 phpunit-dev: phpunit-pull phpunit-restart phpunit-delay-5 phpunit-module-install phpunit-permissions
 	@echo phpunit container is ready
+<<<<<<< HEAD
+=======
+
+vendor/phpunit/phpunit:
+	./composer.phar install
+>>>>>>> 6da8cbe1 (Refacto DDD-CQRS2)
 
 test-front:
 	npm --prefix=./_dev run lint
