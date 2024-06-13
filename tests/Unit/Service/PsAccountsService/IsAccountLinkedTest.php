@@ -14,13 +14,6 @@ class IsAccountLinkedTest extends TestCase
     /**
      * @inject
      *
-     * @var LinkShop
-     */
-    protected $linkShop;
-
-    /**
-     * @inject
-     *
      * @var PsAccountsService
      */
     protected $service;
