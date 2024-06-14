@@ -81,6 +81,12 @@ class StoreTest extends FeatureTestCase
         ];
 
         $response = $this->client->post('/module/ps_accounts/apiV1ShopOauth2Client', [
+//        $response = $this->client->post('/index.php', [
+//            'query' => [
+//                'fc' => 'module',
+//                'module' => 'ps_accounts',
+//                'controller' => 'apiV1ShopOauth2Client',
+//            ],
             'headers' => [
                 AbstractRestController::TOKEN_HEADER => (string) $this->encodePayload($payload)
             ],

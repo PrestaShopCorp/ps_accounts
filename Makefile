@@ -65,18 +65,21 @@ phpstan16: phpstan
 ##########################################################
 # target: php-unit
 
-DOCKER_INTERNAL ?= 1.7 # 1.7|8|nightly
+PHPUNIT_REPO ?= prestashop/prestashop-flashlight
+PHPUNIT_TAG ?= 8.1.5-7.4
+PHPUNIT_IMAGE ?= ${PHPUNIT_REPO}:${PHPUNIT_TAG}
+
 CONTAINER_INSTALL_DIR="/var/www/html/modules/ps_accounts"
 
 phpunit-pull:
-	docker pull prestashop/docker-internal-images:${DOCKER_INTERNAL}
+	docker pull ${PHPUNIT_IMAGE}
 
 phpunit-start:
-	@DOCKER_INTERNAL=${DOCKER_INTERNAL} docker-compose up -d
+	@PHPUNIT_IMAGE=${PHPUNIT_IMAGE} docker-compose -f docker-compose.flashlight.yml up -d
 	@echo phpunit started
 
 phpunit-stop:
-	@DOCKER_INTERNAL=${DOCKER_INTERNAL} docker-compose down
+	@PHPUNIT_IMAGE=${PHPUNIT_IMAGE} docker-compose -f docker-compose.flashlight.yml down
 	@echo phpunit stopped
 
 phpunit-restart: phpunit-stop phpunit-start
@@ -87,7 +90,7 @@ phpunit-module-config:
 
 phpunit-module-version:
 	@docker exec -w ${CONTAINER_INSTALL_DIR} phpunit \
-		sh -c "echo \"Module v\`cat config.xml | grep '<version>' | sed 's/^.*\[CDATA\[\(.*\)\]\].*/\1/'\`\n\""
+		sh -c "echo \"Module v\`cat config.xml | grep '<version>' | sed 's/^.*\[CDATA\[\(.*\)\]\].*/\1/'\`\""
 
 phpunit-module-install: phpunit-module-config phpunit-module-version
 	@docker exec phpunit sh -c "if [ -f ./bin/console ]; then php -d memory_limit=-1 ./bin/console prestashop:module install ps_accounts; fi"
@@ -107,14 +110,14 @@ phpunit-run-feature: phpunit-permissions vendor-dev
 #phpunit-xdebug:
 #	-@docker exec phpunit sh -c "docker-php-ext-enable xdebug"
 
-phpunit-delay-5:
-	@echo waiting 5 seconds
-	@sleep 5
+# FIXME: check for PrestaShop & DB coming alive
+phpunit-is-alive:
+	sleep 10
 
-phpunit: phpunit-pull phpunit-restart phpunit-delay-5 phpunit-module-install phpunit-run-feature phpunit-run-unit
+phpunit: phpunit-pull phpunit-restart phpunit-is-alive phpunit-module-install phpunit-run-feature phpunit-run-unit
 	@echo phpunit passed
 
-phpunit-dev: phpunit-pull phpunit-restart phpunit-delay-5 phpunit-module-install phpunit-permissions
+phpunit-dev: phpunit-pull phpunit-restart phpunit-is-alive phpunit-module-install phpunit-permissions
 	@echo phpunit container is ready
 
 test-front:

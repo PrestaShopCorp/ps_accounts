@@ -1,0 +1,43 @@
+version: "3.7"
+services:
+  prestashop:
+    container_name: phpunit
+    #image: 'prestashop/prestashop-flashlight:8.1.5-7.4'
+    #image: 'prestashop/prestashop-flashlight:1.6.1.24'
+    image: ${PHPUNIT_IMAGE}
+    user: root
+    environment:
+      - PS_DOMAIN=localhost
+#      - PS_ENABLE_SSL=0
+#      - PS_DEV_MODE=0
+      - XDEBUG_MODE=coverage
+      - XDEBUG_ENABLED=1
+    volumes:
+      - ./:/var/www/html/modules/ps_accounts
+    depends_on:
+      - mysql
+
+  mysql:
+    image: mariadb:10.8.2
+    healthcheck:
+      test:
+        [
+          "CMD",
+          "mysqladmin",
+          "ping",
+          "--host=localhost",
+          "--user=root",
+          "--password=prestashop",
+        ]
+      interval: 10s
+      timeout: 10s
+      retries: 5
+    environment:
+      - TZ=UTC
+      - MYSQL_HOST=mysql
+      - MYSQL_USER=prestashop
+      - MYSQL_PASSWORD=prestashop
+      - MYSQL_ROOT_PASSWORD=prestashop
+      - MYSQL_DATABASE=prestashop
+      - MYSQL_PORT=3306
+
