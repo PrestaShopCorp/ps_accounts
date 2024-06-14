@@ -121,7 +121,7 @@ class ps_AccountsApiV2ShopHealthCheckModuleFrontController extends AbstractShopR
             'shopLinked' => (bool) $this->linkShop->getShopUuid(),
             'isSsoEnabled' => $this->psAccountsService->getLoginActivated(),
             'oauthToken' => $this->tokenInfos($shopToken),
-            'firebaseUserToken' => $this->tokenInfos($firebaseOwnerToken),
+            'firebaseOwnerToken' => $this->tokenInfos($firebaseOwnerToken),
             'firebaseShopToken' => $this->tokenInfos($firebaseShopToken),
             'fopenActive' => (bool) ini_get('allow_url_fopen'),
             'curlActive' => extension_loaded('curl'), //function_exists('curl_version'),
