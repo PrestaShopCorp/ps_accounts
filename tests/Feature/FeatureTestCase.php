@@ -64,9 +64,13 @@ class FeatureTestCase extends TestCase
             'timeout' => 60,
             'http_errors' => false,
             //
-            'allow_redirects' => false,
+            'allow_redirects' => true,
             'query' => [],
         ]);
+
+        // FIXME: Link::getModuleLink
+        // FIXME: OR activate friendly urls
+        $this->configuration->set('PS_REWRITING_SETTINGS', '1');
 
         $this->module->getLogger()->debug('Using ' . get_class($this->guzzleClient));
 
@@ -77,10 +81,6 @@ class FeatureTestCase extends TestCase
 
         $this->userTokenRepository = $this->module->getService(UserTokenRepository::class);
         $this->userTokenRepository->cleanupCredentials();
-
-        // FIXME: Link::getModuleLink
-        // FIXME: OR activate friendly urls
-        //$this->configuration->set('PS_REWRITING_SETTINGS', '1');
     }
 
     /**
