@@ -88,7 +88,7 @@ class ShopSession extends Session implements SessionInterface
             if (!$this->oauth2ClientProvider->getOauth2Client()->exists()) {
                 $this->linkShop->delete();
                 $this->configurationRepository->clearLinkContext();
-                throw new RefreshTokenException('Oauth2 client id or Oauth secret is empty');
+                throw new RefreshTokenException('Invalid OAuth2 client');
             }
             $shopUuid = $this->getShopUuid();
             $accessToken = $this->getAccessToken($shopUuid);
