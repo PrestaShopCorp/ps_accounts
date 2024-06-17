@@ -227,5 +227,5 @@ vendor: composer.phar
 	${COMPOSER} install ${COMPOSER_OPTIONS}
 
 vendor-dev: COMPOSER_OPTIONS = --prefer-dist -o --quiet
-vendor-dev: vendor
+vendor-dev: vendor php-scoper-fix-autoload
 
