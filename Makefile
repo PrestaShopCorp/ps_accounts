@@ -101,11 +101,11 @@ phpunit-permissions:
 	@docker exec phpunit sh -c "if [ -d ./cache ]; then chown -R www-data:www-data ./cache; fi" # PS1.6
 	@docker exec phpunit sh -c "if [ -d ./log ]; then chown -R www-data:www-data ./log; fi" # PS1.6
 
-phpunit-run-unit: phpunit-permissions vendor-dev
-	@docker exec -w ${CONTAINER_INSTALL_DIR} phpunit ./vendor/bin/phpunit --testsuite unit
+phpunit-run-unit: phpunit-permissions tests/vendor
+	@docker exec -w ${CONTAINER_INSTALL_DIR}/tests phpunit ./vendor/bin/phpunit --testsuite unit
 
-phpunit-run-feature: phpunit-permissions vendor-dev
-	@docker exec -w ${CONTAINER_INSTALL_DIR} phpunit ./vendor/bin/phpunit --testsuite feature
+phpunit-run-feature: phpunit-permissions tests/vendor
+	@docker exec -w ${CONTAINER_INSTALL_DIR}/tests phpunit ./vendor/bin/phpunit --testsuite feature
 
 #phpunit-xdebug:
 #	-@docker exec phpunit sh -c "docker-php-ext-enable xdebug"
@@ -228,4 +228,8 @@ vendor: composer.phar
 
 vendor-dev: COMPOSER_OPTIONS = --prefer-dist -o --quiet
 vendor-dev: vendor php-scoper-fix-autoload
+
+.PHONY: vendor-tools
+tests/vendor:
+	${COMPOSER} require phpunit/phpunit --dev --working-dir=./tests/
 

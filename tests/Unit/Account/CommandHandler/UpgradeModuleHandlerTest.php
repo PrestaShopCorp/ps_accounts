@@ -43,7 +43,7 @@ class UpgradeModuleHandlerTest extends TestCase
      */
     protected $accountsClient;
 
-    public function setUp()
+    public function setUp(): void
     {
         parent::setUp();
 

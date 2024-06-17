@@ -10,15 +10,14 @@ if (!defined('_PS_MODE_DEV_')) {
 $rootDirectory = getenv('_PS_ROOT_DIR_') ?: __DIR__ . '/../../..';
 require_once $rootDirectory . '/config/config.inc.php';
 
-//$projectDir = __DIR__ . '/../';
-//require_once $projectDir . '/vendor/autoload.php';
+require_once '../vendor/autoload.php';
 
-if (version_compare(_PS_VERSION_, '1.7', '>=')) {
-    // FIXME: load kernel when necessary
-    global $kernel;
-    if(!$kernel){
-        require_once _PS_ROOT_DIR_.'/app/AppKernel.php';
-        $kernel = new \AppKernel('dev', true);
-        $kernel->boot();
-    }
-}
+//if (version_compare(_PS_VERSION_, '1.7', '>=')) {
+//    // FIXME: load kernel when necessary
+//    global $kernel;
+//    if(!$kernel){
+//        require_once _PS_ROOT_DIR_.'/app/AppKernel.php';
+//        $kernel = new \AppKernel('dev', true);
+//        $kernel->boot();
+//    }
+//}
