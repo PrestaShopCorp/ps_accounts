@@ -114,7 +114,7 @@ phpunit-run-feature: phpunit-permissions tests/vendor
 phpunit-is-alive:
 	sleep 10
 
-phpunit: phpunit-pull phpunit-restart phpunit-is-alive phpunit-module-install phpunit-run-feature phpunit-run-unit
+phpunit: phpunit-pull phpunit-restart phpunit-is-alive phpunit-module-install phpunit-run-unit phpunit-run-feature
 	@echo phpunit passed
 
 phpunit-dev: phpunit-pull phpunit-restart phpunit-is-alive phpunit-module-install phpunit-permissions
