@@ -125,22 +125,27 @@ phpunit-dev: phpunit-pull phpunit-restart phpunit-is-alive phpunit-module-instal
 #	yarn --cwd ./_dev build
 #endef
 
-tag = 1.6.1.24-7.1
-phpunit-${tag}: PHPUNIT_TAG=${tag}
-phpunit-${tag}: COMPOSER_FILE=composer16.json
-phpunit-${tag}: phpunit
+# TODO: use docker-internal for PrestaShop 1.6 with php 5.6
 
-tag = 1.7.8.5-7.4
-phpunit-${tag}: PHPUNIT_TAG=${tag}
-phpunit-${tag}: phpunit
+tag0 = 1.6.1.24-7.1
+phpunit-${tag0}: PHPUNIT_TAG=${tag0}
+phpunit-${tag0}: COMPOSER_FILE=composer16.json
+phpunit-${tag0}: phpunit
 
-tag = 8.1.5-7.4
-phpunit-${tag}: PHPUNIT_TAG=${tag}
-phpunit-${tag}: phpunit
+tag1 = 1.7.8.5-7.4
+phpunit-${tag1}: PHPUNIT_TAG=${tag1}
+phpunit-${tag1}: phpunit
 
-tag = nightly
-phpunit-${tag}: PHPUNIT_TAG=${tag}
-phpunit-${tag}: phpunit
+tag2 = 8.1.5-7.4
+phpunit-${tag2}: PHPUNIT_TAG=${tag2}
+phpunit-${tag2}: phpunit
+
+tag3 = nightly
+phpunit-${tag3}: PHPUNIT_TAG=${tag3}
+phpunit-${tag3}: phpunit
+
+#phpunit16-dev: COMPOSER_FILE=composer16.json
+#phpunit16-dev: phpunit-dev
 
 test-front:
 	npm --prefix=./_dev run lint
