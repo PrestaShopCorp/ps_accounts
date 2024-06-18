@@ -120,6 +120,28 @@ phpunit: phpunit-pull phpunit-restart phpunit-is-alive phpunit-module-install ph
 phpunit-dev: phpunit-pull phpunit-restart phpunit-is-alive phpunit-module-install phpunit-permissions
 	@echo phpunit container is ready
 
+#define phpunit
+#	yarn --cwd ./_dev --frozen-lockfile
+#	yarn --cwd ./_dev build
+#endef
+
+tag = 1.6.1.24-7.1
+phpunit-${tag}: PHPUNIT_TAG=${tag}
+phpunit-${tag}: COMPOSER_FILE=composer16.json
+phpunit-${tag}: phpunit
+
+tag = 1.7.8.5-7.4
+phpunit-${tag}: PHPUNIT_TAG=${tag}
+phpunit-${tag}: phpunit
+
+tag = 8.1.5-7.4
+phpunit-${tag}: PHPUNIT_TAG=${tag}
+phpunit-${tag}: phpunit
+
+tag = nightly
+phpunit-${tag}: PHPUNIT_TAG=${tag}
+phpunit-${tag}: phpunit
+
 test-front:
 	npm --prefix=./_dev run lint
 
@@ -184,17 +206,11 @@ define build_front
 endef
 
 ${BUNDLE_JS}:
-ifndef YARN
-    $(error "YARN is unavailable on your system, try `npm i -g yarn`")
-endif
 	$(call build_front)
 
 build-front: ${BUNDLE_JS}
 
 composer.phar:
-ifndef PHP
-    $(error "PHP is unavailable on your system")
-endif
 	./scripts/composer-install.sh
 
 #clean:
@@ -229,7 +245,10 @@ vendor: composer.phar
 vendor-dev: COMPOSER_OPTIONS = --prefer-dist -o --quiet
 vendor-dev: vendor php-scoper-fix-autoload
 
+COMPOSER_FILE ?= composer.json
+#COMPOSER_FILE ?= composer16.json
 .PHONY: tests/vendor
 tests/vendor: vendor-dev
-	${COMPOSER} install --working-dir=./tests/
+	rm -rf ./tests/vendor
+	env COMPOSER=${COMPOSER_FILE} ${COMPOSER} install --working-dir=./tests/
 
