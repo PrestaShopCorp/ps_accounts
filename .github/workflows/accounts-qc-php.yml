@@ -95,6 +95,9 @@ jobs:
       - name: Scoped dependencies
         run: make php-scoper
 
+      - name: Dedicated deps for testing
+        run: make tests/vendor
+
       - name: PHPUnit tests
         run: |
           DOCKER_INTERNAL="${{ matrix.presta-versions }}" make phpunit

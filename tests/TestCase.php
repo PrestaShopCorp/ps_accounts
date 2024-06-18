@@ -15,6 +15,8 @@ use Ps_accounts;
 
 class TestCase extends \PHPUnit\Framework\TestCase
 {
+    use \DMS\PHPUnitExtensions\ArraySubset\ArraySubsetAsserts;
+
     /**
      * @var Generator
      */
