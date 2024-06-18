@@ -10,15 +10,15 @@
 >
   <testsuites>
     <testsuite name="all">
-      <directory suffix="Test.php">./src</directory>
+      <directory suffix="Test.php">./</directory>
       <directory suffix="Test.php">../src</directory>
     </testsuite>
     <testsuite name="unit">
-      <directory suffix="Test.php">./src/Unit</directory>
+      <directory suffix="Test.php">./Unit</directory>
       <directory suffix="Test.php">../src</directory>
     </testsuite>
     <testsuite name="feature">
-      <directory suffix="Test.php">./src/Feature</directory>
+      <directory suffix="Test.php">./Feature</directory>
     </testsuite>
   </testsuites>
   <filter>

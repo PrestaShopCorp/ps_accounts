@@ -231,5 +231,5 @@ vendor-dev: vendor php-scoper-fix-autoload
 
 .PHONY: tests/vendor
 tests/vendor: vendor-dev
-	${COMPOSER} install --dev --working-dir=./tests/
+	${COMPOSER} install --working-dir=./tests/
 

@@ -10,7 +10,7 @@ if (!defined('_PS_MODE_DEV_')) {
 $rootDirectory = getenv('_PS_ROOT_DIR_') ?: __DIR__ . '/../../..';
 require_once $rootDirectory . '/config/config.inc.php';
 
-require_once '../vendor/autoload.php';
+require_once __DIR__ . '/../vendor/autoload.php';
 
 //if (version_compare(_PS_VERSION_, '1.7', '>=')) {
 //    // FIXME: load kernel when necessary
