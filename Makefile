@@ -121,28 +121,24 @@ phpunit-dev: phpunit-pull phpunit-restart phpunit-is-alive phpunit-module-instal
 	@echo phpunit container is ready
 
 define phpunit-version
-	$(eval tag = $1)
+	$(eval tag = $(shell echo $1 | sed 's/^phpunit-//'))
 	$(eval composer = $2)
 	PHPUNIT_TAG=${tag} COMPOSER_FILE=${composer} $(MAKE) phpunit-mode
 endef
 
 # TODO: use docker-internal for PrestaShop 1.6 with php 5.6
 
-tag0 = 1.6.1.24-7.1
-phpunit-${tag0}:
-	$(call phpunit-version,${tag0},composer16.json)
+phpunit-1.6.1.24-7.1:
+	$(call phpunit-version,$@,composer16.json)
 
-tag1 = 1.7.8.5-7.4
-phpunit-${tag1}:
-	$(call phpunit-version,${tag1})
+phpunit-1.7.8.5-7.4:
+	$(call phpunit-version,$@)
 
-tag2 = 8.1.5-7.4
-phpunit-${tag2}:
-	$(call phpunit-version,${tag2})
+phpunit-8.1.5-7.4:
+	$(call phpunit-version,$@)
 
-tag3 = nightly
-phpunit-${tag3}:
-	$(call phpunit-version,${tag3})
+phpunit-nightly:
+	$(call phpunit-version,$@)
 
 PHPUNIT_MODE ?=
 phpunit-mode: phpunit${PHPUNIT_MODE}
