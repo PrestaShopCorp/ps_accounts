@@ -230,6 +230,6 @@ vendor-dev: COMPOSER_OPTIONS = --prefer-dist -o --quiet
 vendor-dev: vendor php-scoper-fix-autoload
 
 .PHONY: tests/vendor
-tests/vendor:
+tests/vendor: vendor-dev
 	${COMPOSER} install --dev --working-dir=./tests/
 
