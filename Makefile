@@ -120,32 +120,32 @@ phpunit: phpunit-pull phpunit-restart phpunit-is-alive phpunit-module-install ph
 phpunit-dev: phpunit-pull phpunit-restart phpunit-is-alive phpunit-module-install phpunit-permissions
 	@echo phpunit container is ready
 
-#define phpunit
-#	yarn --cwd ./_dev --frozen-lockfile
-#	yarn --cwd ./_dev build
-#endef
+define phpunit-version
+	$(eval tag = $1)
+	$(eval composer = $2)
+	PHPUNIT_TAG=${tag} COMPOSER_FILE=${composer} $(MAKE) phpunit-mode
+endef
 
 # TODO: use docker-internal for PrestaShop 1.6 with php 5.6
 
 tag0 = 1.6.1.24-7.1
-phpunit-${tag0}: PHPUNIT_TAG=${tag0}
-phpunit-${tag0}: COMPOSER_FILE=composer16.json
-phpunit-${tag0}: phpunit
+phpunit-${tag0}:
+	$(call phpunit-version,${tag0},composer16.json)
 
 tag1 = 1.7.8.5-7.4
-phpunit-${tag1}: PHPUNIT_TAG=${tag1}
-phpunit-${tag1}: phpunit
+phpunit-${tag1}:
+	$(call phpunit-version,${tag1})
 
 tag2 = 8.1.5-7.4
-phpunit-${tag2}: PHPUNIT_TAG=${tag2}
-phpunit-${tag2}: phpunit
+phpunit-${tag2}:
+	$(call phpunit-version,${tag2})
 
 tag3 = nightly
-phpunit-${tag3}: PHPUNIT_TAG=${tag3}
-phpunit-${tag3}: phpunit
+phpunit-${tag3}:
+	$(call phpunit-version,${tag3})
 
-#phpunit16-dev: COMPOSER_FILE=composer16.json
-#phpunit16-dev: phpunit-dev
+PHPUNIT_MODE ?=
+phpunit-mode: phpunit${PHPUNIT_MODE}
 
 test-front:
 	npm --prefix=./_dev run lint
