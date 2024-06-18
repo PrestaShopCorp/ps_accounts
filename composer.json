@@ -52,8 +52,7 @@
     },
     "require-dev": {
         "prestashop/php-dev-tools": "3.*",
-        "friendsofphp/php-cs-fixer": "^2.16",
-        "fzaninotto/faker": "^1.9"
+        "friendsofphp/php-cs-fixer": "^2.16"
     },
     "scripts": {
         "set-license-header": [

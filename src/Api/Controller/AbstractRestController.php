@@ -107,7 +107,7 @@ abstract class AbstractRestController extends ModuleFrontController
         header('Content-Type: text/json');
 
         if (method_exists($this, 'ajaxRender')) {
-            $this->ajaxRender(json_encode($response));
+            $this->ajaxRender((string) json_encode($response));
         } else {
             $this->ajaxDie(json_encode($response));
         }
