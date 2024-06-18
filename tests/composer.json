@@ -8,7 +8,7 @@
     },
     "autoload-dev": {
         "psr-4": {
-            "PrestaShop\\Module\\PsAccounts\\Tests\\": "./"
+            "PrestaShop\\Module\\PsAccounts\\Tests\\": "src/"
         }
     },
     "require": {
