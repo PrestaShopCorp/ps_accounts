@@ -229,7 +229,7 @@ vendor: composer.phar
 vendor-dev: COMPOSER_OPTIONS = --prefer-dist -o --quiet
 vendor-dev: vendor php-scoper-fix-autoload
 
-.PHONY: vendor-tools
+.PHONY: tests/vendor
 tests/vendor:
-	${COMPOSER} require phpunit/phpunit --dev --working-dir=./tests/
+	${COMPOSER} install --dev --working-dir=./tests/
 
