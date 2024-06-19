@@ -59,6 +59,20 @@ phpstan16: phpstan
 PHPUNIT_REPO ?= prestashop/prestashop-flashlight
 PHPUNIT_TAG ?= 8.1.5-7.4
 PHPUNIT_IMAGE ?= ${PHPUNIT_REPO}:${PHPUNIT_TAG}
+PHPUNIT_DOCKER ?= docker-compose.flashlight.yml
+PHPUNIT_MODE ?=
+
+COMPOSER_FILE ?= composer.json
+.PHONY: tests/vendor
+tests/vendor: vendor-dev
+	rm -rf ./tests/vendor
+	env COMPOSER=${COMPOSER_FILE} ${COMPOSER} install --working-dir=./tests/
+
+ifeq ($(PHPUNIT_MODE),dev)
+phpunit-mode: phpunit-initdev
+else
+phpunit-mode: phpunit-ci-run
+endif
 
 CONTAINER_INSTALL_DIR="/var/www/html/modules/ps_accounts"
 
@@ -66,11 +80,11 @@ phpunit-pull:
 	docker pull ${PHPUNIT_IMAGE}
 
 phpunit-start:
-	@PHPUNIT_IMAGE=${PHPUNIT_IMAGE} docker-compose -f docker-compose.flashlight.yml up -d
+	@PHPUNIT_IMAGE=${PHPUNIT_IMAGE} docker-compose -f ${PHPUNIT_DOCKER} up -d
 	@echo phpunit started
 
 phpunit-stop:
-	@PHPUNIT_IMAGE=${PHPUNIT_IMAGE} docker-compose -f docker-compose.flashlight.yml down
+	@PHPUNIT_IMAGE=${PHPUNIT_IMAGE} docker-compose -f ${PHPUNIT_DOCKER} down
 	@echo phpunit stopped
 
 phpunit-restart: phpunit-stop phpunit-start
@@ -111,27 +125,29 @@ phpunit-ci-run: phpunit-pull phpunit-restart phpunit-is-alive phpunit-module-ins
 phpunit-initdev: phpunit-pull phpunit-restart phpunit-is-alive phpunit-module-install phpunit-permissions
 	@echo phpunit container is ready
 
-PHPUNIT_MODE ?=
-ifeq ($(PHPUNIT_MODE),dev)
-phpunit-mode: phpunit-initdev
-else
-phpunit-mode: phpunit-ci-run
-endif
-
 define phpunit-version
-	$(eval tag = $(shell echo $1 | sed 's/^phpunit-//'))
-	$(eval composer = $2)
-	PHPUNIT_TAG=${tag} COMPOSER_FILE=${composer} $(MAKE) phpunit-mode
+	$(eval target = $1)
+	$(eval repo = $2)
+	$(eval tag = $3)
+	$(eval composer = $4)
+
+	$(eval repo = $(if $(repo:-=),$(repo),${PHPUNIT_REPO}))
+	$(eval tag = $(if $(tag:-=),$(tag),$(shell echo $(target) | sed 's/^phpunit\(-[a-z0-9]*\)\?-//')))
+	$(eval composer = $(if $(composer:-=),$(composer),${COMPOSER_FILE}))
+
+	PHPUNIT_REPO=$(repo) \
+	PHPUNIT_TAG=$(tag) \
+	PHPUNIT_DOCKER=$(shell echo 'docker-compose.'$(repo)'.yml' | sed 's/\//@/') \
+	COMPOSER_FILE=${composer} \
+	$(MAKE) phpunit-mode
 endef
 
-# TODO: describe repo + tag & specify dedicated composer.json
-#phpunit-flashlight-1.6.1.24-7.1:
-#	$(call phpunit-version,$@,composer71.json)
-#phpunit-docker-internal-1.6:
-#	$(call phpunit-version,$@,composer56.json)
+#phpunit-internal-1.6:
+#	@docker container stop ps_accounts_mysql_1
+#	$(call phpunit-version,$@,"prestashop/docker-internal-images",,composer71.json)
 
 phpunit-1.6.1.24-7.1:
-	$(call phpunit-version,$@,composer71.json)
+	$(call phpunit-version,$@,,,composer71.json)
 
 phpunit-1.7.8.5-7.4:
 	$(call phpunit-version,$@)
@@ -235,11 +251,4 @@ vendor: composer.phar
 
 vendor-dev: COMPOSER_OPTIONS = --prefer-dist -o --quiet
 vendor-dev: vendor php-scoper-fix-autoload
-
-COMPOSER_FILE ?= composer.json
-#COMPOSER_FILE ?= composer16.json
-.PHONY: tests/vendor
-tests/vendor: vendor-dev
-	rm -rf ./tests/vendor
-	env COMPOSER=${COMPOSER_FILE} ${COMPOSER} install --working-dir=./tests/
 
