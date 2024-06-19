@@ -28,7 +28,7 @@ version:
 # target: tests
 
 tests: test-back test-front lint-back
-test-back: lint-back phpstan phpunit
+test-back: lint-back phpstan phpunit-ci-run
 lint-back:
 	vendor/bin/php-cs-fixer fix --dry-run --diff --using-cache=no --diff-format udiff
 
@@ -64,6 +64,10 @@ phpstan16: phpstan
 
 ##########################################################
 # target: php-unit
+# ex: run tests for a preset version
+# 	make phpunit-1.6.1.24-7.1
+# ex: start phpunit container for dev
+# 	PHPUNIT_MODE=dev make phpunit-1.6.1.24-7.1
 
 PHPUNIT_REPO ?= prestashop/prestashop-flashlight
 PHPUNIT_TAG ?= 8.1.5-7.4
@@ -101,10 +105,10 @@ phpunit-permissions:
 	@docker exec phpunit sh -c "if [ -d ./cache ]; then chown -R www-data:www-data ./cache; fi" # PS1.6
 	@docker exec phpunit sh -c "if [ -d ./log ]; then chown -R www-data:www-data ./log; fi" # PS1.6
 
-phpunit-run-unit: phpunit-permissions tests/vendor
+phpunit-ci-run-unit: phpunit-permissions tests/vendor
 	@docker exec -w ${CONTAINER_INSTALL_DIR}/tests phpunit ./vendor/bin/phpunit --testsuite unit
 
-phpunit-run-feature: phpunit-permissions tests/vendor
+phpunit-ci-run-feature: phpunit-permissions tests/vendor
 	@docker exec -w ${CONTAINER_INSTALL_DIR}/tests phpunit ./vendor/bin/phpunit --testsuite feature
 
 #phpunit-xdebug:
@@ -114,11 +118,18 @@ phpunit-run-feature: phpunit-permissions tests/vendor
 phpunit-is-alive:
 	sleep 10
 
-phpunit: phpunit-pull phpunit-restart phpunit-is-alive phpunit-module-install phpunit-run-unit phpunit-run-feature
+phpunit-ci-run: phpunit-pull phpunit-restart phpunit-is-alive phpunit-module-install phpunit-ci-run-unit phpunit-ci-run-feature
 	@echo phpunit passed
 
-phpunit-dev: phpunit-pull phpunit-restart phpunit-is-alive phpunit-module-install phpunit-permissions
+phpunit-initdev: phpunit-pull phpunit-restart phpunit-is-alive phpunit-module-install phpunit-permissions
 	@echo phpunit container is ready
+
+PHPUNIT_MODE ?=
+ifeq ($(PHPUNIT_MODE),dev)
+phpunit-mode: phpunit-initdev
+else
+phpunit-mode: phpunit-ci-run
+endif
 
 define phpunit-version
 	$(eval tag = $(shell echo $1 | sed 's/^phpunit-//'))
@@ -126,10 +137,14 @@ define phpunit-version
 	PHPUNIT_TAG=${tag} COMPOSER_FILE=${composer} $(MAKE) phpunit-mode
 endef
 
-# TODO: use docker-internal for PrestaShop 1.6 with php 5.6
+# TODO: describe repo + tag & specify dedicated composer.json
+#phpunit-flashlight-1.6.1.24-7.1:
+#	$(call phpunit-version,$@,composer71.json)
+#phpunit-docker-internal-1.6:
+#	$(call phpunit-version,$@,composer56.json)
 
 phpunit-1.6.1.24-7.1:
-	$(call phpunit-version,$@,composer16.json)
+	$(call phpunit-version,$@,composer71.json)
 
 phpunit-1.7.8.5-7.4:
 	$(call phpunit-version,$@)
@@ -139,9 +154,6 @@ phpunit-8.1.5-7.4:
 
 phpunit-nightly:
 	$(call phpunit-version,$@)
-
-PHPUNIT_MODE ?=
-phpunit-mode: phpunit${PHPUNIT_MODE}
 
 test-front:
 	npm --prefix=./_dev run lint
