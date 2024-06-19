@@ -5,20 +5,12 @@ namespace PrestaShop\Module\PsAccounts\Tests\Unit\Account\Session\Oauth2\ShopSes
 use PrestaShop\Module\PsAccounts\Account\Session\ShopSession;
 use PrestaShop\Module\PsAccounts\Account\Token\Token;
 use PrestaShop\Module\PsAccounts\Exception\RefreshTokenException;
-use PrestaShop\Module\PsAccounts\Repository\ShopTokenRepository;
 use PrestaShop\Module\PsAccounts\Tests\TestCase;
 use PrestaShop\Module\PsAccounts\Vendor\League\OAuth2\Client\Token\AccessToken;
 
 class RefreshTokenTest extends TestCase
 {
     use \PrestaShop\Module\PsAccounts\Tests\Unit\Account\Session\SessionHelpers;
-
-    /**
-     * @inject
-     *
-     * @var ShopTokenRepository
-     */
-    protected $repository;
 
     /**
      * @inject
@@ -33,19 +25,21 @@ class RefreshTokenTest extends TestCase
      */
     public function itShouldClearConfigurationAndThrowIfNotOauth()
     {
-        $this->repository->cleanupCredentials();
-        $this->createMockedSession(true, null);
+        $this->shopSession->cleanup();
+        $this->createMockedSession(false, null);
 
         $idToken = $this->makeJwtToken(new \DateTimeImmutable('yesterday'), [
             'sub' => $this->faker->uuid,
         ]);
         $refreshToken = $this->makeJwtToken(new \DateTimeImmutable('+1 year'));
-        $this->repository->updateCredentials((string) $idToken, (string) $refreshToken);
+        $this->shopSession->setToken((string) $idToken, (string) $refreshToken);
         try {
             $this->shopSession->refreshToken();
         } catch (\Exception $e) {
             $this->assertInstanceOf(RefreshTokenException::class, $e);
-            $this->assertEquals(null, $this->repository->getOrRefreshToken());
+            $token = $this->shopSession->getOrRefreshToken();
+            $this->assertEquals("", $token->getJwt());
+            $this->assertEquals("", $token->getRefreshToken());
             return;
         }
         $this->fail('Test should have throw');
@@ -57,7 +51,7 @@ class RefreshTokenTest extends TestCase
      */
     public function itShouldRefreshToken()
     {
-        $this->repository->cleanupCredentials();
+        $this->shopSession->cleanup();
         $newAccessToken = $this->makeJwtToken(new \DateTimeImmutable('tomorrow'));
         $this->createMockedSession(true, new AccessToken([
             'access_token' => $newAccessToken->toString()
