@@ -25,26 +25,13 @@ version:
 	@sed -i -e "s/\(\"version\"\: \).*/\1\"${VERSION}\",/" ./_dev/package.json
 
 ##########################################################
-# target: tests
-
-tests: test-back test-front lint-back
-test-back: lint-back phpstan phpunit-ci-run
-lint-back:
-	vendor/bin/php-cs-fixer fix --dry-run --diff --using-cache=no --diff-format udiff
-
-check-docker:
-ifndef DOCKER
-    $(error "DOCKER is unavailable on your system")
-endif
-
-##########################################################
 # target: phpstan
 
 PHPSTAN_VERSION ?= 0.12
 PS_VERSION ?= latest
 NEON_FILE ?= phpstan-PS-1.7.neon
 
-phpstan: check-docker vendor-dev
+phpstan: vendor-dev
 	-docker volume rm ps-volume
 	docker pull phpstan/phpstan:${PHPSTAN_VERSION}
 	docker pull prestashop/prestashop:${PS_VERSION}
@@ -155,16 +142,6 @@ phpunit-8.1.5-7.4:
 phpunit-nightly:
 	$(call phpunit-version,$@)
 
-test-front:
-	npm --prefix=./_dev run lint
-
-##########################################################
-# target: fix-lint
-
-fix-lint: vendor-dev
-	vendor/bin/php-cs-fixer fix --using-cache=no
-	npm --prefix=./_dev run lint --fix
-
 ##########################################################
 # target: php-scoper
 
@@ -238,6 +215,7 @@ WORKDIR ?= ./
 
 php-cs-fixer: vendor-dev
 	${PHP} ./vendor/bin/php-cs-fixer fix --using-cache=no
+#	vendor/bin/php-cs-fixer fix --dry-run --diff --using-cache=no --diff-format udiff
 
 autoindex: vendor-dev
 	${PHP} ./vendor/bin/autoindex prestashop:add:index "${WORKDIR}"
