@@ -6,15 +6,22 @@ jobs:
   php-linter:
     name: PHP Syntax check 5.6|7.2|7.3
     runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        php-versions: [ "5.6", "7.2", "7.3" ]
     steps:
       - name: Checkout
         uses: actions/checkout@v3
-      - name: PHP syntax checker 5.6
-        uses: prestashop/github-action-php-lint/5.6@master
-      - name: PHP syntax checker 7.2
-        uses: prestashop/github-action-php-lint/7.2@master
-      - name: PHP syntax checker 7.3
-        uses: prestashop/github-action-php-lint/7.3@master
+
+      - name: PHP syntax checker ${{ matrix.presta-versions }}
+        uses: prestashop/github-action-php-lint/${{ matrix.presta-versions }}@master
+        with:
+          folder-to-exclude: "! -path \"./tests/*\""
+
+#      - name: PHP syntax checker 7.2
+#        uses: prestashop/github-action-php-lint/7.2@master
+#      - name: PHP syntax checker 7.3
+#        uses: prestashop/github-action-php-lint/7.3@master
 
   php-cs-fixer:
     name: PHP-CS-FIXER
