@@ -65,7 +65,7 @@ PHPUNIT_MODE ?=
 COMPOSER_FILE ?= composer.json
 .PHONY: tests/vendor
 tests/vendor: vendor-dev
-	rm -rf ./tests/vendor
+#	rm -rf ./tests/vendor
 	env COMPOSER=${COMPOSER_FILE} ${COMPOSER} install --working-dir=./tests/
 
 ifeq ($(PHPUNIT_MODE),dev)
@@ -106,10 +106,10 @@ phpunit-permissions:
 	@docker exec phpunit sh -c "if [ -d ./cache ]; then chown -R www-data:www-data ./cache; fi" # PS1.6
 	@docker exec phpunit sh -c "if [ -d ./log ]; then chown -R www-data:www-data ./log; fi" # PS1.6
 
-phpunit-ci-run-unit: phpunit-permissions tests/vendor
+phpunit-run-unit: phpunit-permissions tests/vendor
 	@docker exec -w ${CONTAINER_INSTALL_DIR}/tests phpunit ./vendor/bin/phpunit --testsuite unit
 
-phpunit-ci-run-feature: phpunit-permissions tests/vendor
+phpunit-run-feature: phpunit-permissions tests/vendor
 	@docker exec -w ${CONTAINER_INSTALL_DIR}/tests phpunit ./vendor/bin/phpunit --testsuite feature
 
 #phpunit-xdebug:
@@ -119,7 +119,7 @@ phpunit-ci-run-feature: phpunit-permissions tests/vendor
 phpunit-is-alive:
 	sleep 10
 
-phpunit-ci-run: phpunit-pull phpunit-restart phpunit-is-alive phpunit-module-install phpunit-ci-run-unit phpunit-ci-run-feature
+phpunit-ci-run: phpunit-pull phpunit-restart phpunit-is-alive phpunit-module-install phpunit-run-unit phpunit-run-feature
 	@echo phpunit passed
 
 phpunit-initdev: phpunit-pull phpunit-restart phpunit-is-alive phpunit-module-install phpunit-permissions
