@@ -104,6 +104,5 @@ class RefreshTokenTest extends TestCase
         $shopProvider->method('getAccessToken')->willReturn($tokenResponse);
         $shopProvider->method('getOauth2Client')->willReturn($oauth2Client);
         return new ShopSession($this->configurationRepository, $shopProvider, $this->linkShop);
-//        $this->replaceDependency($this->shopSession, 'oauth2ClientProvider', $shopProvider);
     }
 }
