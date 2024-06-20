@@ -142,6 +142,7 @@ define phpunit-version
 	$(MAKE) phpunit-mode
 endef
 
+# TODO: try with official images for PHP5.6
 #phpunit-internal-1.6:
 #	@docker container stop ps_accounts_mysql_1
 #	$(call phpunit-version,$@,"prestashop/docker-internal-images",,composer71.json)
@@ -157,6 +158,15 @@ phpunit-8.1.5-7.4:
 
 phpunit-nightly:
 	$(call phpunit-version,$@)
+
+# TODO: run phpstan into prestashop docker
+#phpstan-ng:
+#	COMPOSER_FILE=composer71.json $(MAKE) tests/vendor
+#	${PHP} ./tests/vendor/bin/phpstan analyse --memory-limit=-1 --configuration=./tests/phpstan/${NEON_FILE}
+phpstan-ng: tests/vendor
+	@docker exec -w ${CONTAINER_INSTALL_DIR} phpunit ./tests/vendor/bin/phpstan analyse \
+ 		--memory-limit=-1 \
+ 		--configuration=./tests/phpstan/${NEON_FILE}
 
 ##########################################################
 # target: php-scoper
