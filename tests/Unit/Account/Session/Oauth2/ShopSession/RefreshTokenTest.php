@@ -2,7 +2,6 @@
 
 namespace PrestaShop\Module\PsAccounts\Tests\Unit\Account\Session\Oauth2\ShopSession;
 
-use PrestaShop\Module\PsAccounts\Account\LinkShop;
 use PrestaShop\Module\PsAccounts\Account\Session\ShopSession;
 use PrestaShop\Module\PsAccounts\Account\Token\Token;
 use PrestaShop\Module\PsAccounts\Exception\RefreshTokenException;
@@ -103,6 +102,6 @@ class RefreshTokenTest extends TestCase
         $oauth2Client->method('exists')->willReturn($existResponse);
         $shopProvider->method('getAccessToken')->willReturn($tokenResponse);
         $shopProvider->method('getOauth2Client')->willReturn($oauth2Client);
-        return new ShopSession($this->configurationRepository, $shopProvider, $this->linkShop);
+        return new ShopSession($this->configurationRepository, $shopProvider, $this->linkShop, $this->commandBus);
     }
 }

@@ -27,6 +27,12 @@ class TestCase extends \PHPUnit\Framework\TestCase
 
     /**
      * @inject
+     * @var \PrestaShop\Module\PsAccounts\Cqrs\CommandBus
+     */
+    public $commandBus;
+
+    /**
+     * @inject
      * @var \PrestaShop\Module\PsAccounts\Adapter\Configuration
      */
     public $configuration;
