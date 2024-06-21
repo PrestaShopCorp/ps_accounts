@@ -7,20 +7,12 @@ use PrestaShop\Module\PsAccounts\Account\Token\Token;
 use PrestaShop\Module\PsAccounts\Exception\RefreshTokenException;
 use PrestaShop\Module\PsAccounts\Provider\OAuth2\Oauth2Client;
 use PrestaShop\Module\PsAccounts\Provider\OAuth2\ShopProvider;
-use PrestaShop\Module\PsAccounts\Repository\ConfigurationRepository;
 use PrestaShop\Module\PsAccounts\Tests\TestCase;
 use PrestaShop\Module\PsAccounts\Vendor\League\OAuth2\Client\Token\AccessToken;
 
 class RefreshTokenTest extends TestCase
 {
     use \PrestaShop\Module\PsAccounts\Tests\Unit\Account\Session\SessionHelpers;
-
-    /**
-     * @inject
-     *
-     * @var ConfigurationRepository
-     */
-    protected $repository;
 
     /**
      * @inject
