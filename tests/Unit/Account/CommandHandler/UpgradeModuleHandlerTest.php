@@ -8,8 +8,9 @@ use PrestaShop\Module\PsAccounts\Account\Dto\UpgradeModule;
 use PrestaShop\Module\PsAccounts\Account\Session\Firebase\ShopSession;
 use PrestaShop\Module\PsAccounts\Account\Token\Token;
 use PrestaShop\Module\PsAccounts\Api\Client\AccountsClient;
-use PrestaShop\Module\PsAccounts\Context\ShopContext;
+use PrestaShop\Module\PsAccounts\Provider\ShopProvider;
 use PrestaShop\Module\PsAccounts\Repository\ConfigurationRepository;
+use PrestaShop\Module\PsAccounts\Service\AnalyticsService;
 use PrestaShop\Module\PsAccounts\Tests\TestCase;
 
 class UpgradeModuleHandlerTest extends TestCase
@@ -24,9 +25,9 @@ class UpgradeModuleHandlerTest extends TestCase
     /**
      * @inject
      *
-     * @var ShopContext
+     * @var ShopProvider
      */
-    protected $shopContext;
+    protected $shopProvider;
 
     /**
      * @inject
@@ -34,6 +35,13 @@ class UpgradeModuleHandlerTest extends TestCase
      * @var AccountsClient
      */
     protected $accountsClient;
+
+    /**
+     * @inject
+     *
+     * @var AnalyticsService
+     */
+    protected $analyticsService;
 
     public function setUp()
     {
@@ -53,6 +61,8 @@ class UpgradeModuleHandlerTest extends TestCase
                 'token' => (string) $this->firebaseRefreshedToken->getJwt(),
                 'refresh_token' => $this->firebaseRefreshedToken->getRefreshToken(),
             ], 200, true));
+
+        $this->analyticsService = $this->createMock(AnalyticsService::class);
 
         $this->shopSession = $this->createMock(ShopSession::class);
         $this->shopSession->method('getOrRefreshToken')->willReturn($this->firebaseRefreshedToken);
@@ -77,8 +87,9 @@ class UpgradeModuleHandlerTest extends TestCase
             $this->accountsClient,
             $this->linkShop,
             $this->shopSession,
-            $this->shopContext,
-            $this->conf
+            $this->shopProvider,
+            $this->conf,
+            $this->analyticsService
         );
 
         $this->accountsClient
@@ -112,8 +123,9 @@ class UpgradeModuleHandlerTest extends TestCase
             $this->accountsClient,
             $this->linkShop,
             $this->shopSession,
-            $this->shopContext,
-            $this->conf
+            $this->shopProvider,
+            $this->conf,
+            $this->analyticsService
         );
 
         $this->accountsClient
@@ -142,8 +154,9 @@ class UpgradeModuleHandlerTest extends TestCase
             $this->accountsClient,
             $this->linkShop,
             $this->shopSession,
-            $this->shopContext,
-            $this->conf
+            $this->shopProvider,
+            $this->conf,
+            $this->analyticsService
         );
 
         $this->accountsClient
@@ -174,6 +187,95 @@ class UpgradeModuleHandlerTest extends TestCase
      *
      * @throws \Exception
      */
+    public function itShouldTriggerSegmentEventOnFailure()
+    {
+        $currentVersion = '6.3.2';
+        $upgradeVersion = '7.0.0';
+
+        $this->conf->method('getLastUpgrade')->willReturn($currentVersion);
+
+        $this->accountsClient = $this->createMock(AccountsClient::class);
+        $this->accountsClient
+            ->method('upgradeShopModule')
+            ->willReturn($this->createApiResponse([
+                'message' => 'Failed upgrading module',
+            ], 500, false));
+
+        $handler = new UpgradeModuleHandler(
+            $this->accountsClient,
+            $this->linkShop,
+            $this->shopSession,
+            $this->shopProvider,
+            $this->conf,
+            $this->analyticsService
+        );
+
+        $shop = $this->shopProvider->formatShopData((array) \Shop::getShop(
+            $this->shopProvider->getShopContext()->getContext()->shop->id)
+        );
+        $this->analyticsService
+            ->expects($this->once())
+            ->method('trackShopUnlinkedOnError')
+            ->with(
+                $this->linkShop->getOwnerUuid(),
+                $this->linkShop->getOwnerEmail(),
+                $this->linkShop->getShopUuid(),
+                $shop->frontUrl,
+                $shop->url,
+                'ps_accounts',
+                500
+            );
+
+        $handler->handle(new UpgradeModuleCommand(new UpgradeModule([
+            'version' => $upgradeVersion,
+            'shopId' => null,
+        ])));
+    }
+
+
+    /**
+     * @test
+     *
+     * @throws \Exception
+     */
+    public function itShouldUnlinkOnFailure()
+    {
+        $currentVersion = '6.3.2';
+        $upgradeVersion = '7.0.0';
+
+        $this->conf->method('getLastUpgrade')->willReturn($currentVersion);
+
+        $this->accountsClient = $this->createMock(AccountsClient::class);
+        $this->accountsClient
+            ->method('upgradeShopModule')
+            ->willReturn($this->createApiResponse([
+                'message' => 'Failed upgrading module',
+            ], 500, false));
+
+        $this->linkShop = $this->createMock(LinkShop::class);
+        $this->linkShop
+            ->expects($this->once())
+            ->method('delete');
+
+        $handler = new UpgradeModuleHandler(
+            $this->accountsClient,
+            $this->linkShop,
+            $this->shopSession,
+            $this->shopProvider,
+            $this->conf,
+            $this->analyticsService
+        );
+
+        $handler->handle(new UpgradeModuleCommand(new UpgradeModule([
+            'version' => $upgradeVersion,
+            'shopId' => null,
+        ])));
+    }
+    /**
+     * @test
+     *
+     * @throws \Exception
+     */
     public function itShouldNotAttemptToRefreshTokenWithFirebaseRefreshToken()
     {
         $this->markTestSkipped('Not needed as long as we maintain refresh tokens for billing');
@@ -187,8 +289,9 @@ class UpgradeModuleHandlerTest extends TestCase
             $this->accountsClient,
             $this->linkShop,
             $this->shopSession,
-            $this->shopContext,
-            $this->conf
+            $this->shopProvider,
+            $this->conf,
+            $this->analyticsService
         );
 
         $this->accountsClient

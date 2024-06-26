@@ -25,7 +25,9 @@ use PrestaShop\Module\PsAccounts\Account\LinkShop;
 use PrestaShop\Module\PsAccounts\Account\Session\Firebase\ShopSession;
 use PrestaShop\Module\PsAccounts\Api\Client\AccountsClient;
 use PrestaShop\Module\PsAccounts\Context\ShopContext;
+use PrestaShop\Module\PsAccounts\Provider\ShopProvider;
 use PrestaShop\Module\PsAccounts\Repository\ConfigurationRepository;
+use PrestaShop\Module\PsAccounts\Service\AnalyticsService;
 
 class UpgradeModuleHandler
 {
@@ -50,22 +52,35 @@ class UpgradeModuleHandler
     private $configRepo;
 
     /**
+     * @var ShopProvider
+     */
+    private $shopProvider;
+
+    /**
      * @var ShopContext
      */
     private $shopContext;
+
+    /**
+     * @var AnalyticsService
+     */
+    private $analyticsService;
 
     public function __construct(
         AccountsClient $accountsClient,
         LinkShop $linkShop,
         ShopSession $shopSession,
-        ShopContext $shopContext,
-        ConfigurationRepository $configurationRepository
+        ShopProvider $shopProvider,
+        ConfigurationRepository $configurationRepository,
+        AnalyticsService $analyticsService
     ) {
         $this->accountsClient = $accountsClient;
         $this->linkShop = $linkShop;
         $this->shopSession = $shopSession;
-        $this->shopContext = $shopContext;
+        $this->shopProvider = $shopProvider;
+        $this->shopContext = $shopProvider->getShopContext();
         $this->configRepo = $configurationRepository;
+        $this->analyticsService = $analyticsService;
     }
 
     /**
@@ -89,11 +104,27 @@ class UpgradeModuleHandler
                 $this->lastChanceToRefreshShopToken();
                 //}
 
-                $this->accountsClient->upgradeShopModule(
+                $response = $this->accountsClient->upgradeShopModule(
                     $this->linkShop->getShopUuid(),
                     (string) $this->shopSession->getOrRefreshToken(),
                     $command->payload
                 );
+
+                if (!$response['status']) {
+                    $shop = $this->shopProvider->formatShopData(
+                        (array) \Shop::getShop($this->shopContext->getContext()->shop->id)
+                    );
+                    $this->analyticsService->trackShopUnlinkedOnError(
+                        $this->linkShop->getOwnerUuid(),
+                        $this->linkShop->getOwnerEmail(),
+                        $this->linkShop->getShopUuid(),
+                        $shop->frontUrl,
+                        $shop->url,
+                        'ps_accounts',
+                        $response['httpCode']
+                    );
+                    $this->linkShop->delete();
+                }
             }
         });
     }
