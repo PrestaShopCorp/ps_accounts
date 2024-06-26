@@ -52,23 +52,15 @@ class ShopSession extends Session implements SessionInterface
     protected $oauth2ClientProvider;
 
     /**
-     * @var LinkShop
-     */
-    protected $linkShop;
-
-    /**
      * @param ConfigurationRepository $configurationRepository
      * @param ShopProvider $oauth2ClientProvider
-     * @param LinkShop $linkShop
      * @param CommandBus $commandBus
      */
     public function __construct(
         ConfigurationRepository $configurationRepository,
         ShopProvider $oauth2ClientProvider,
-        LinkShop $linkShop,
         CommandBus $commandBus
     ) {
-        $this->linkShop = $linkShop;
         $this->configurationRepository = $configurationRepository;
         $this->oauth2ClientProvider = $oauth2ClientProvider;
         $this->commandBus = $commandBus;
