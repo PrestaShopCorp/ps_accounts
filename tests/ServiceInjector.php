@@ -79,7 +79,7 @@ class ServiceInjector
     }
 
     /**
-     * @param $className
+     * @param string $className
      *
      * @return string
      */
@@ -110,7 +110,7 @@ class ServiceInjector
     protected function extractClassUses(\ReflectionClass $class)
     {
         // FIXME support aliases (as...)
-        if (preg_match('/(.*)class/ms', file_get_contents($class->getFileName()), $uses)) {
+        if (preg_match('/(.*)class/ms', (string) file_get_contents((string) $class->getFileName()), $uses)) {
             if (preg_match_all('/use\s+(\S+);/', $uses[1], $matches)) {
                 return $matches[1];
             }
@@ -126,8 +126,8 @@ class ServiceInjector
      */
     protected function extractPropertyTags(\ReflectionProperty $prop)
     {
-        if (preg_match_all('/@([\w\-_0-9]+)\s+([^\s*]+)?/', $prop->getDocComment(), $matches)) {
-            return array_combine($matches[1], $matches[2]);
+        if (preg_match_all('/@([\w\-_0-9]+)\s+([^\s*]+)?/', (string) $prop->getDocComment(), $matches)) {
+            return array_combine($matches[1], $matches[2]) ?: [];
         }
         return [];
     }

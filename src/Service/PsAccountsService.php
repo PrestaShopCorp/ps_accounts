@@ -104,12 +104,10 @@ class PsAccountsService
 
     /**
      * @return string
-     *
-     * @throws \Exception
      */
     public function getOrRefreshToken()
     {
-        return (string) $this->shopSession->getOrRefreshToken();
+        return (string) $this->shopSession->getOrRefreshToken()->getJwt();
     }
 
     /**
@@ -121,25 +119,21 @@ class PsAccountsService
     }
 
     /**
-     * @return string|null
-     *
-     * @throws \Exception
+     * @return string
      */
     public function getToken()
     {
-        return (string) $this->shopSession->getOrRefreshToken();
+        return $this->getOrRefreshToken();
     }
 
     /**
-     * @return string|null
-     *
-     * @throws \Exception
+     * @return string
      *
      * @deprecated
      */
     public function getUserToken()
     {
-        return (string) $this->ownerSession->getOrRefreshToken();
+        return (string) $this->ownerSession->getOrRefreshToken()->getJwt();
     }
 
     /**

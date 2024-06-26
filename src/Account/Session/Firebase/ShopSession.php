@@ -20,19 +20,12 @@
 
 namespace PrestaShop\Module\PsAccounts\Account\Session\Firebase;
 
-use PrestaShop\Module\PsAccounts\Account\Session\Session;
 use PrestaShop\Module\PsAccounts\Account\Session\SessionInterface;
 use PrestaShop\Module\PsAccounts\Account\Token\Token;
-use PrestaShop\Module\PsAccounts\Exception\RefreshTokenException;
 use PrestaShop\Module\PsAccounts\Repository\ConfigurationRepository;
 
-class ShopSession extends Session implements SessionInterface
+class ShopSession extends FirebaseSession implements SessionInterface
 {
-    /**
-     * @var \PrestaShop\Module\PsAccounts\Account\Session\ShopSession
-     */
-    protected $shopSession;
-
     /**
      * @var ConfigurationRepository
      */
@@ -44,25 +37,11 @@ class ShopSession extends Session implements SessionInterface
      */
     public function __construct(
         ConfigurationRepository $configurationRepository,
-       \PrestaShop\Module\PsAccounts\Account\Session\ShopSession $shopSession
+        \PrestaShop\Module\PsAccounts\Account\Session\ShopSession $shopSession
     ) {
         $this->configurationRepository = $configurationRepository;
-        $this->shopSession = $shopSession;
-    }
 
-    /**
-     * @param string $refreshToken
-     *
-     * @return Token
-     *
-     * @throws RefreshTokenException
-     * @throws \Exception
-     */
-    public function refreshToken($refreshToken = null)
-    {
-        $this->shopSession->getOrRefreshToken(false, true);
-
-        return $this->getToken();
+        parent::__construct($shopSession);
     }
 
     /**

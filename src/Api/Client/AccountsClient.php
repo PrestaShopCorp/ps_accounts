@@ -80,6 +80,21 @@ class AccountsClient
     }
 
     /**
+     * @param array $additionalHeaders
+     *
+     * @return array
+     */
+    private function getHeaders($additionalHeaders = [])
+    {
+        return array_merge([
+            'Accept' => 'application/json',
+            'X-Module-Version' => \Ps_accounts::VERSION,
+            'X-Prestashop-Version' => _PS_VERSION_,
+            'X-Request-ID' => Uuid::uuid4()->toString(),
+        ], $additionalHeaders);
+    }
+
+    /**
      * @param string $accessToken
      *
      * @return array
@@ -199,21 +214,6 @@ class AccountsClient
     }
 
     /**
-     * @param array $additionalHeaders
-     *
-     * @return array
-     */
-    private function getHeaders($additionalHeaders = [])
-    {
-        return array_merge([
-            'Accept' => 'application/json',
-            'X-Module-Version' => \Ps_accounts::VERSION,
-            'X-Prestashop-Version' => _PS_VERSION_,
-            'X-Request-ID' => Uuid::uuid4()->toString(),
-        ], $additionalHeaders);
-    }
-
-    /**
      * @deprecated
      *
      * @param string $idToken
@@ -230,5 +230,15 @@ class AccountsClient
                 'token' => $idToken,
             ],
         ]);
+    }
+
+    /**
+     * @return array
+     */
+    public function healthCheck()
+    {
+        $this->getClient()->setRoute('/healthcheck');
+
+        return $this->getClient()->get();
     }
 }
