@@ -20,6 +20,7 @@ trait SessionHelpers
             ->setConstructorArgs([
                 $this->configurationRepository,
                 $this->shopProvider,
+                $this->commandBus
             ])
             ->enableOriginalClone()
             ->setMethods(['getOrRefreshToken'])

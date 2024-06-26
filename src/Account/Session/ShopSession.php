@@ -20,8 +20,10 @@
 
 namespace PrestaShop\Module\PsAccounts\Account\Session;
 
+use PrestaShop\Module\PsAccounts\Account\Command\UnlinkShopCommand;
 use PrestaShop\Module\PsAccounts\Account\LinkShop;
 use PrestaShop\Module\PsAccounts\Account\Token\Token;
+use PrestaShop\Module\PsAccounts\Cqrs\CommandBus;
 use PrestaShop\Module\PsAccounts\Exception\RefreshTokenException;
 use PrestaShop\Module\PsAccounts\Hook\ActionShopAccessTokenRefreshAfter;
 use PrestaShop\Module\PsAccounts\Log\Logger;
@@ -35,9 +37,9 @@ use PrestaShop\Module\PsAccounts\Vendor\League\OAuth2\Client\Token\AccessTokenIn
 class ShopSession extends Session implements SessionInterface
 {
     /**
-     * @var ShopProvider
+     * @var CommandBus
      */
-    protected $oauth2ClientProvider;
+    protected $commandBus;
 
     /**
      * @var ConfigurationRepository
@@ -45,15 +47,23 @@ class ShopSession extends Session implements SessionInterface
     protected $configurationRepository;
 
     /**
+     * @var ShopProvider
+     */
+    protected $oauth2ClientProvider;
+
+    /**
      * @param ConfigurationRepository $configurationRepository
      * @param ShopProvider $oauth2ClientProvider
+     * @param CommandBus $commandBus
      */
     public function __construct(
         ConfigurationRepository $configurationRepository,
-        ShopProvider $oauth2ClientProvider
+        ShopProvider $oauth2ClientProvider,
+        CommandBus $commandBus
     ) {
         $this->configurationRepository = $configurationRepository;
         $this->oauth2ClientProvider = $oauth2ClientProvider;
+        $this->commandBus = $commandBus;
     }
 
     /**
@@ -78,6 +88,10 @@ class ShopSession extends Session implements SessionInterface
     public function refreshToken($refreshToken = null)
     {
         try {
+            if (!$this->oauth2ClientProvider->getOauth2Client()->exists()) {
+                $this->commandBus->handle(new UnlinkShopCommand($this->configurationRepository->getShopId()));
+                throw new RefreshTokenException('Invalid OAuth2 client');
+            }
             $shopUuid = $this->getShopUuid();
             $accessToken = $this->getAccessToken($shopUuid);
 
