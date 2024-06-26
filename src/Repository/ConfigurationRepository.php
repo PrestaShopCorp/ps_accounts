@@ -374,19 +374,6 @@ class ConfigurationRepository
     }
 
     /**
-     * Clear all tokens (firebase and oauth) + oauth client id and secret
-     *
-     * @return void
-     */
-    public function clearLinkContext()
-    {
-        $this->updateFirebaseIdAndRefreshTokens('', '');
-        $this->updateUserFirebaseIdAndRefreshToken('', '');
-        $this->updateOauth2ClientId('');
-        $this->updateOauth2ClientSecret('');
-    }
-
-    /**
      * @param string $upgrade
      *
      * @return void
