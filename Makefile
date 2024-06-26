@@ -25,26 +25,13 @@ version:
 	@sed -i -e "s/\(\"version\"\: \).*/\1\"${VERSION}\",/" ./_dev/package.json
 
 ##########################################################
-# target: tests
-
-tests: test-back test-front lint-back
-test-back: lint-back phpstan phpunit
-lint-back:
-	vendor/bin/php-cs-fixer fix --dry-run --diff --using-cache=no --diff-format udiff
-
-check-docker:
-ifndef DOCKER
-    $(error "DOCKER is unavailable on your system")
-endif
-
-##########################################################
 # target: phpstan
 
 PHPSTAN_VERSION ?= 0.12
 PS_VERSION ?= latest
 NEON_FILE ?= phpstan-PS-1.7.neon
 
-phpstan: check-docker vendor-dev
+phpstan: vendor-dev
 	-docker volume rm ps-volume
 	docker pull phpstan/phpstan:${PHPSTAN_VERSION}
 	docker pull prestashop/prestashop:${PS_VERSION}
@@ -64,19 +51,40 @@ phpstan16: phpstan
 
 ##########################################################
 # target: php-unit
+# ex: run tests for a preset version
+# 	make phpunit-1.6.1.24-7.1
+# ex: start phpunit container for dev
+# 	PHPUNIT_MODE=dev make phpunit-1.6.1.24-7.1
 
-DOCKER_INTERNAL ?= 1.7 # 1.7|8|nightly
+PHPUNIT_REPO ?= prestashop/prestashop-flashlight
+PHPUNIT_TAG ?= 8.1.5-7.4
+PHPUNIT_IMAGE ?= ${PHPUNIT_REPO}:${PHPUNIT_TAG}
+PHPUNIT_DOCKER ?= docker-compose.flashlight.yml
+PHPUNIT_MODE ?=
+
+COMPOSER_FILE ?= composer.json
+.PHONY: tests/vendor
+tests/vendor: vendor-dev
+#	rm -rf ./tests/vendor
+	env COMPOSER=${COMPOSER_FILE} ${COMPOSER} install --working-dir=./tests/
+
+ifeq ($(PHPUNIT_MODE),dev)
+phpunit-mode: phpunit-initdev
+else
+phpunit-mode: phpunit-ci-run
+endif
+
 CONTAINER_INSTALL_DIR="/var/www/html/modules/ps_accounts"
 
 phpunit-pull:
-	docker pull prestashop/docker-internal-images:${DOCKER_INTERNAL}
+	docker pull ${PHPUNIT_IMAGE}
 
 phpunit-start:
-	@DOCKER_INTERNAL=${DOCKER_INTERNAL} docker-compose up -d
+	@PHPUNIT_IMAGE=${PHPUNIT_IMAGE} docker-compose -f ${PHPUNIT_DOCKER} up -d
 	@echo phpunit started
 
 phpunit-stop:
-	@DOCKER_INTERNAL=${DOCKER_INTERNAL} docker-compose down
+	@PHPUNIT_IMAGE=${PHPUNIT_IMAGE} docker-compose -f ${PHPUNIT_DOCKER} down
 	@echo phpunit stopped
 
 phpunit-restart: phpunit-stop phpunit-start
@@ -87,7 +95,7 @@ phpunit-module-config:
 
 phpunit-module-version:
 	@docker exec -w ${CONTAINER_INSTALL_DIR} phpunit \
-		sh -c "echo \"Module v\`cat config.xml | grep '<version>' | sed 's/^.*\[CDATA\[\(.*\)\]\].*/\1/'\`\n\""
+		sh -c "echo \"Module v\`cat config.xml | grep '<version>' | sed 's/^.*\[CDATA\[\(.*\)\]\].*/\1/'\`\""
 
 phpunit-module-install: phpunit-module-config phpunit-module-version
 	@docker exec phpunit sh -c "if [ -f ./bin/console ]; then php -d memory_limit=-1 ./bin/console prestashop:module install ps_accounts; fi"
@@ -98,34 +106,60 @@ phpunit-permissions:
 	@docker exec phpunit sh -c "if [ -d ./cache ]; then chown -R www-data:www-data ./cache; fi" # PS1.6
 	@docker exec phpunit sh -c "if [ -d ./log ]; then chown -R www-data:www-data ./log; fi" # PS1.6
 
-phpunit-run-unit: phpunit-permissions vendor-dev
-	@docker exec -w ${CONTAINER_INSTALL_DIR} phpunit ./vendor/bin/phpunit --testsuite unit
+phpunit-run-unit: phpunit-permissions tests/vendor
+	@docker exec -w ${CONTAINER_INSTALL_DIR}/tests phpunit ./vendor/bin/phpunit --testsuite unit
 
-phpunit-run-feature: phpunit-permissions vendor-dev
-	@docker exec -w ${CONTAINER_INSTALL_DIR} phpunit ./vendor/bin/phpunit --testsuite feature
+phpunit-run-feature: phpunit-permissions tests/vendor
+	@docker exec -w ${CONTAINER_INSTALL_DIR}/tests phpunit ./vendor/bin/phpunit --testsuite feature
 
 #phpunit-xdebug:
 #	-@docker exec phpunit sh -c "docker-php-ext-enable xdebug"
 
-phpunit-delay-5:
-	@echo waiting 5 seconds
-	@sleep 5
+# FIXME: check for PrestaShop & DB coming alive
+phpunit-is-alive:
+	sleep 10
 
-phpunit: phpunit-pull phpunit-restart phpunit-delay-5 phpunit-module-install phpunit-run-feature phpunit-run-unit
+phpunit-ci-run: phpunit-pull phpunit-restart phpunit-is-alive phpunit-module-install phpunit-run-unit phpunit-run-feature
 	@echo phpunit passed
 
-phpunit-dev: phpunit-pull phpunit-restart phpunit-delay-5 phpunit-module-install phpunit-permissions
+phpunit-initdev: phpunit-pull phpunit-restart phpunit-is-alive phpunit-module-install phpunit-permissions
 	@echo phpunit container is ready
 
-test-front:
-	npm --prefix=./_dev run lint
+define phpunit-version
+	$(eval target = $1)
+	$(eval repo = $2)
+	$(eval tag = $3)
+	$(eval composer = $4)
 
-##########################################################
-# target: fix-lint
+	$(eval repo = $(if $(repo:-=),$(repo),${PHPUNIT_REPO}))
+	$(eval tag = $(if $(tag:-=),$(tag),$(shell echo $(target) | sed 's/^phpunit\(-[a-z0-9]*\)\?-//')))
+	$(eval composer = $(if $(composer:-=),$(composer),${COMPOSER_FILE}))
 
-fix-lint: vendor-dev
-	vendor/bin/php-cs-fixer fix --using-cache=no
-	npm --prefix=./_dev run lint --fix
+	PHPUNIT_REPO=$(repo) \
+	PHPUNIT_TAG=$(tag) \
+	PHPUNIT_DOCKER=$(shell echo 'docker-compose.'$(repo)'.yml' | sed 's/\//@/') \
+	COMPOSER_FILE=${composer} \
+	$(MAKE) phpunit-mode
+endef
+
+#phpunit-internal-1.6:
+#	@docker container stop ps_accounts_mysql_1
+#	$(call phpunit-version,$@,"prestashop/docker-internal-images",,composer71.json)
+
+phpunit-1.6.1.24-5.6-fpm-stretch:
+	$(call phpunit-version,$@,,,composer71.json)
+
+phpunit-1.6.1.24-7.1:
+	$(call phpunit-version,$@,,,composer71.json)
+
+phpunit-1.7.8.5-7.4:
+	$(call phpunit-version,$@)
+
+phpunit-8.1.5-7.4:
+	$(call phpunit-version,$@)
+
+phpunit-nightly:
+	$(call phpunit-version,$@)
 
 ##########################################################
 # target: php-scoper
@@ -181,17 +215,11 @@ define build_front
 endef
 
 ${BUNDLE_JS}:
-ifndef YARN
-    $(error "YARN is unavailable on your system, try `npm i -g yarn`")
-endif
 	$(call build_front)
 
 build-front: ${BUNDLE_JS}
 
 composer.phar:
-ifndef PHP
-    $(error "PHP is unavailable on your system")
-endif
 	./scripts/composer-install.sh
 
 #clean:
@@ -206,6 +234,7 @@ WORKDIR ?= ./
 
 php-cs-fixer: vendor-dev
 	${PHP} ./vendor/bin/php-cs-fixer fix --using-cache=no
+#	vendor/bin/php-cs-fixer fix --dry-run --diff --using-cache=no --diff-format udiff
 
 autoindex: vendor-dev
 	${PHP} ./vendor/bin/autoindex prestashop:add:index "${WORKDIR}"
@@ -224,5 +253,5 @@ vendor: composer.phar
 	${COMPOSER} install ${COMPOSER_OPTIONS}
 
 vendor-dev: COMPOSER_OPTIONS = --prefer-dist -o --quiet
-vendor-dev: vendor
+vendor-dev: vendor php-scoper-fix-autoload
 

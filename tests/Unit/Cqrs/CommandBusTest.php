@@ -18,10 +18,11 @@
  * @license   https://opensource.org/licenses/AFL-3.0 Academic Free License version 3.0
  */
 
-namespace PrestaShop\Module\PsAccounts\Cqrs;
+namespace PrestaShop\Module\PsAccounts\Tests\Unit\Cqrs;
 
 use PrestaShop\Module\PsAccounts\Account\Command\LinkShopCommand;
 use PrestaShop\Module\PsAccounts\Account\CommandHandler\LinkShopHandler;
+use PrestaShop\Module\PsAccounts\Cqrs\CommandBus;
 use PrestaShop\Module\PsAccounts\Tests\TestCase;
 
 class CommandBusTest extends TestCase
@@ -36,7 +37,7 @@ class CommandBusTest extends TestCase
      *
      * @throws \Exception
      */
-    public function setUp()
+    public function setUp(): void
     {
         parent::setUp();
 

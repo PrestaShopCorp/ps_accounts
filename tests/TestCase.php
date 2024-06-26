@@ -15,6 +15,8 @@ use Ps_accounts;
 
 class TestCase extends \PHPUnit\Framework\TestCase
 {
+    use \DMS\PHPUnitExtensions\ArraySubset\ArraySubsetAsserts;
+
     /**
      * @var Generator
      */
@@ -59,7 +61,7 @@ class TestCase extends \PHPUnit\Framework\TestCase
      *
      * @throws \Exception
      */
-    protected function setUp()
+    protected function setUp(): void
     {
         parent::setUp();
 
@@ -79,7 +81,7 @@ class TestCase extends \PHPUnit\Framework\TestCase
     /**
      * @return void
      */
-    public function tearDown()
+    public function tearDown(): void
     {
         $this->rollback();
 

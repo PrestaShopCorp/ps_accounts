@@ -112,7 +112,12 @@ abstract class AbstractRestController extends ModuleFrontController
 
         header('Content-Type: text/json');
 
-        $this->ajaxDie(json_encode($response));
+        if (method_exists($this, 'ajaxRender')) {
+            /* @phpstan-ignore-next-line */
+            $this->ajaxRender((string) json_encode($response));
+        } else {
+            $this->ajaxDie(json_encode($response));
+        }
     }
 
     /**
