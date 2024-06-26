@@ -2,7 +2,6 @@
 
 namespace PrestaShop\Module\PsAccounts\Tests\Feature\Api\v1\ShopLinkAccount;
 
-use PrestaShop\Module\PsAccounts\Account\LinkShop;
 use PrestaShop\Module\PsAccounts\Account\Session\Firebase\OwnerSession;
 use PrestaShop\Module\PsAccounts\Account\Session\Firebase\ShopSession;
 use PrestaShop\Module\PsAccounts\Api\Controller\AbstractRestController;
@@ -10,13 +9,6 @@ use PrestaShop\Module\PsAccounts\Tests\Feature\FeatureTestCase;
 
 class StoreTest extends FeatureTestCase
 {
-    /**
-     * @inject
-     *
-     * @var LinkShop
-     */
-    protected $linkShop;
-
     /**
      * @inject
      *

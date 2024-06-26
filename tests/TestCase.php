@@ -29,6 +29,12 @@ class TestCase extends \PHPUnit\Framework\TestCase
 
     /**
      * @inject
+     * @var \PrestaShop\Module\PsAccounts\Cqrs\CommandBus
+     */
+    public $commandBus;
+
+    /**
+     * @inject
      * @var \PrestaShop\Module\PsAccounts\Adapter\Configuration
      */
     public $configuration;
@@ -38,6 +44,12 @@ class TestCase extends \PHPUnit\Framework\TestCase
      * @var \PrestaShop\Module\PsAccounts\Repository\ConfigurationRepository
      */
     public $configurationRepository;
+
+    /**
+     * @inject
+     * @var \PrestaShop\Module\PsAccounts\Account\LinkShop
+     */
+    public $linkShop;
 
     /**
      * @var bool
@@ -193,5 +205,20 @@ class TestCase extends \PHPUnit\Framework\TestCase
             $mock->method($method)->willReturn($return);
         }
         return $mock;
+    }
+
+    /**
+     * @param $classInstance
+     * @param $dependencyName
+     * @param $newDependency
+     * @return void
+     * @throws \ReflectionException
+     */
+    protected function replaceDependency($classInstance, $dependencyName, $newDependency)
+    {
+        $reflection = new \ReflectionClass($classInstance);
+        $property = $reflection->getProperty($dependencyName);
+        $property->setAccessible(true);
+        $property->setValue($classInstance, $newDependency);
     }
 }
