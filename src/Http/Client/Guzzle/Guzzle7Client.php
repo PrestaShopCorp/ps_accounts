@@ -45,7 +45,7 @@ class Guzzle7Client extends GuzzleClient
      */
     protected function getVerify()
     {
-        if (version_compare(phpversion(), '7', '>=')) {
+        if (version_compare((string) phpversion(), '7', '>=')) {
             /** @var \Ps_accounts $module */
             $module = \Module::getInstanceByName('ps_accounts');
 
