@@ -49,7 +49,7 @@ class ActionObjectShopDeleteBefore extends Hook
             }
         } catch (Exception $e) {
             $this->module->getLogger()->debug(
-                'Error curl while trying to DELETE shop : ' . print_r($e->getMessage(), true)
+                'Error while trying to DELETE shop : ' . print_r($e->getMessage(), true)
             );
         }
 

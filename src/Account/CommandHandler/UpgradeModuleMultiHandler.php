@@ -24,6 +24,7 @@ use PrestaShop\Module\PsAccounts\Account\Command\UpgradeModuleCommand;
 use PrestaShop\Module\PsAccounts\Account\Command\UpgradeModuleMultiCommand;
 use PrestaShop\Module\PsAccounts\Account\Dto\UpgradeModule;
 use PrestaShop\Module\PsAccounts\Cqrs\CommandBus;
+use PrestaShop\Module\PsAccounts\Exception\RefreshTokenException;
 use PrestaShop\Module\PsAccounts\Repository\ConfigurationRepository;
 use PrestaShopDatabaseException;
 
@@ -52,7 +53,7 @@ class UpgradeModuleMultiHandler
      *
      * @return void
      *
-     * @throws PrestaShopDatabaseException
+     * @throws PrestaShopDatabaseException|RefreshTokenException
      */
     public function handle(UpgradeModuleMultiCommand $command)
     {

@@ -21,6 +21,7 @@
 use PrestaShop\Module\PsAccounts\Account\Session\ShopSession;
 use PrestaShop\Module\PsAccounts\Api\Controller\AbstractShopRestController;
 use PrestaShop\Module\PsAccounts\Api\Controller\Request\UpdateShopOauth2ClientRequest;
+use PrestaShop\Module\PsAccounts\Exception\RefreshTokenException;
 use PrestaShop\Module\PsAccounts\Provider\OAuth2\Oauth2Client;
 
 class ps_AccountsApiV1ShopOauth2ClientModuleFrontController extends AbstractShopRestController
@@ -54,12 +55,12 @@ class ps_AccountsApiV1ShopOauth2ClientModuleFrontController extends AbstractShop
      *
      * @return array
      *
-     * @throws Exception
+     * @throws RefreshTokenException
      */
     public function update(Shop $shop, UpdateShopOauth2ClientRequest $request)
     {
         $this->oauth2Client->update($request->client_id, $request->client_secret);
-        $this->session->getOrRefreshToken();
+        $this->session->getValidToken();
 
         return [
             'success' => true,

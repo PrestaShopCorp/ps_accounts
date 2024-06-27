@@ -28,6 +28,7 @@ use PrestaShop\Module\PsAccounts\Account\Session\Firebase\ShopSession;
 use PrestaShop\Module\PsAccounts\Adapter\Link;
 use PrestaShop\Module\PsAccounts\Cqrs\CommandBus;
 use PrestaShop\Module\PsAccounts\Entity\EmployeeAccount;
+use PrestaShop\Module\PsAccounts\Exception\RefreshTokenException;
 use PrestaShop\Module\PsAccounts\Provider\ShopProvider;
 use PrestaShop\Module\PsAccounts\Repository\ConfigurationRepository;
 use PrestaShop\Module\PsAccounts\Repository\EmployeeAccountRepository;
@@ -107,7 +108,11 @@ class PsAccountsService
      */
     public function getOrRefreshToken()
     {
-        return (string) $this->shopSession->getOrRefreshToken()->getJwt();
+        try {
+            return (string) $this->shopSession->getValidToken()->getJwt();
+        } catch (RefreshTokenException $e) {
+            return '';
+        }
     }
 
     /**
@@ -133,7 +138,11 @@ class PsAccountsService
      */
     public function getUserToken()
     {
-        return (string) $this->ownerSession->getOrRefreshToken()->getJwt();
+        try {
+            return (string) $this->ownerSession->getValidToken()->getJwt();
+        } catch (RefreshTokenException $e) {
+            return '';
+        }
     }
 
     /**

@@ -176,6 +176,8 @@ class ShopContext
 
         try {
             $result = $closure();
+        } catch (\Error $e) {
+            $exception = $e;
         } catch (\Exception $e) {
             $exception = $e;
         }

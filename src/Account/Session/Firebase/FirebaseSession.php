@@ -83,7 +83,7 @@ abstract class FirebaseSession extends Session implements SessionInterface
      */
     public function refreshToken($refreshToken = null)
     {
-        $token = $this->shopSession->getOrRefreshToken();
+        $token = $this->shopSession->getValidToken();
 
         try {
             $this->refreshFirebaseTokens($token);
@@ -104,10 +104,6 @@ abstract class FirebaseSession extends Session implements SessionInterface
      */
     protected function refreshFirebaseTokens($token)
     {
-        if ($token->getJwt() instanceof NullToken) {
-            throw new RefreshTokenException('Unable to refresh owner & shop tokens : null access token');
-        }
-
         $response = $this->getAccountsClient()->firebaseTokens($token);
 
         $shopToken = $this->getFirebaseTokenFromResponse($response, 'shopToken', 'shopRefreshToken');
