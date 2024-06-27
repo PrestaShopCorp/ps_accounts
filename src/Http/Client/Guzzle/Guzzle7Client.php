@@ -28,16 +28,39 @@ class Guzzle7Client extends GuzzleClient
     {
         parent::__construct($options);
 
-        /** @var \Ps_accounts $module */
-        $module = \Module::getInstanceByName('ps_accounts');
+//        \Tools::refreshCACertFile();
 
         $this->client = new Client(array_merge(
             [
                 'timeout' => $this->timeout,
                 'http_errors' => $this->catchExceptions,
-                'verify' => (bool) $module->getParameter('ps_accounts.check_api_ssl_cert'),
+                'verify' => $this->getVerify(),
             ],
             $options
         ));
+    }
+
+    /**
+     * @return bool|string
+     */
+    protected function getVerify()
+    {
+        if (version_compare((string) phpversion(), '7', '>=')) {
+            /** @var \Ps_accounts $module */
+            $module = \Module::getInstanceByName('ps_accounts');
+
+            return (bool) $module->getParameter('ps_accounts.check_api_ssl_cert');
+        }
+        // bypass certificate expiration issue with PHP5.6
+        return false;
+
+//        if ((bool) $module->getParameter('ps_accounts.check_api_ssl_cert')) {
+//            if (defined('_PS_CACHE_CA_CERT_FILE_') && file_exists(constant('_PS_CACHE_CA_CERT_FILE_'))) {
+//                return constant('_PS_CACHE_CA_CERT_FILE_');
+//            }
+//
+//            return true;
+//        }
+//        return false;
     }
 }
