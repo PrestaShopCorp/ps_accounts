@@ -55,7 +55,7 @@ class UpgradeModuleHandlerTest extends TestCase
             ], 200, true));
 
         $this->shopSession = $this->createMock(ShopSession::class);
-        $this->shopSession->method('getOrRefreshToken')->willReturn($this->firebaseRefreshedToken);
+        $this->shopSession->method('getValidToken')->willReturn($this->firebaseRefreshedToken);
         $this->shopSession->method('getToken')->willReturn($this->firebaseToken);
 
         $this->conf = $this->createMock(ConfigurationRepository::class);
