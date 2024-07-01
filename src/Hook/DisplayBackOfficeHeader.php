@@ -20,25 +20,20 @@
 
 namespace PrestaShop\Module\PsAccounts\Hook;
 
-use Exception;
 use PrestaShop\Module\PsAccounts\Account\Command\UpgradeModuleMultiCommand;
-use PrestaShop\Module\PsAccounts\Exception\RefreshTokenException;
-use PrestaShop\Module\PsAccounts\Vendor\League\OAuth2\Client\Provider\Exception\IdentityProviderException;
 
 class DisplayBackOfficeHeader extends Hook
 {
     /**
      * @return void
-     *
-     * @throws Exception
      */
     public function execute(array $params = [])
     {
         try {
             $this->module->getOauth2Middleware()->execute();
             $this->commandBus->handle(new UpgradeModuleMultiCommand());
-        } catch (IdentityProviderException $e) {
-        } catch (RefreshTokenException $e) {
+        } catch (\Exception $e) {
+            $this->module->getLogger()->error('Failed to execute hook: ' . $e->getMessage());
         }
     }
 }
