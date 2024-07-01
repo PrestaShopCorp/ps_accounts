@@ -35,8 +35,6 @@ class Oauth2Client
     }
 
     /**
-     * @throws \Exception
-     *
      * @return bool
      */
     public function exists()
@@ -46,8 +44,6 @@ class Oauth2Client
     }
 
     /**
-     * @throws \Exception
-     *
      * @return void
      */
     public function delete()

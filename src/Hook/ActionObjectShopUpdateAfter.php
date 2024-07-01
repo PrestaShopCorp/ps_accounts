@@ -24,6 +24,7 @@ use Exception;
 use PrestaShop\Module\PsAccounts\Account\Command\UpdateUserShopCommand;
 use PrestaShop\Module\PsAccounts\Account\Dto\UpdateShop;
 use PrestaShop\Module\PsAccounts\Adapter\Link;
+use PrestaShop\Module\PsAccounts\Exception\RefreshTokenException;
 
 class ActionObjectShopUpdateAfter extends Hook
 {
@@ -44,34 +45,41 @@ class ActionObjectShopUpdateAfter extends Hook
         $domain = $params['object']->domain;
         $sslDomain = $params['object']->domain_ssl;
 
-        $response = $this->commandBus->handle(new UpdateUserShopCommand(new UpdateShop([
-            'shopId' => (string) $params['object']->id,
-            'name' => $params['object']->name,
-            'domain' => 'http://' . $shop->domain,
-            'sslDomain' => 'https://' . $shop->domain_ssl,
-            'physicalUri' => $shop->physical_uri,
-            'virtualUri' => $shop->virtual_uri,
-            'boBaseUrl' => $link->getAdminLinkWithCustomDomain(
-                $sslDomain,
-                $domain,
-                'AdminModules',
-                false,
-                [],
-                [
-                    'configure' => $this->module->name,
-                    'setShopContext' => 's-' . $params['object']->id,
-                ]
-            ),
-        ])));
+        try {
+            $response = $this->commandBus->handle(new UpdateUserShopCommand(new UpdateShop([
+                'shopId' => (string) $params['object']->id,
+                'name' => $params['object']->name,
+                'domain' => 'http://' . $shop->domain,
+                'sslDomain' => 'https://' . $shop->domain_ssl,
+                'physicalUri' => $shop->physical_uri,
+                'virtualUri' => $shop->virtual_uri,
+                'boBaseUrl' => $link->getAdminLinkWithCustomDomain(
+                    $sslDomain,
+                    $domain,
+                    'AdminModules',
+                    false,
+                    [],
+                    [
+                        'configure' => $this->module->name,
+                        'setShopContext' => 's-' . $params['object']->id,
+                    ]
+                ),
+            ])));
 
-        if (!$response) {
+            if (!$response) {
+                $this->module->getLogger()->debug(
+                    'Error trying to PATCH shop : No $response object'
+                );
+            } elseif (true !== $response['status']) {
+                $this->module->getLogger()->debug(
+                    'Error trying to PATCH shop : ' . $response['httpCode'] .
+                    ' ' . print_r($response['body']['message'] ?: '', true)
+                );
+            }
+        } catch (RefreshTokenException $e) {
             $this->module->getLogger()->debug(
-                'Error trying to PATCH shop : No $response object'
-            );
-        } elseif (true !== $response['status']) {
-            $this->module->getLogger()->debug(
-                'Error trying to PATCH shop : ' . $response['httpCode'] .
-                ' ' . print_r($response['body']['message'] ?: '', true)
+                'Error trying to PATCH shop: ' .
+                $e->getMessage()
             );
         }
 

@@ -53,7 +53,6 @@ class PrestaShopSession
      * @return string|null
      *
      * @throws IdentityProviderException
-     * @throws \Exception
      */
     public function getOrRefreshAccessToken()
     {
@@ -71,8 +70,6 @@ class PrestaShopSession
 
     /**
      * @return string|null
-     *
-     * @throws \Exception
      */
     public function getIdToken()
     {
@@ -83,8 +80,6 @@ class PrestaShopSession
 
     /**
      * @return string|null
-     *
-     * @throws \Exception
      */
     public function getAccessToken()
     {
@@ -113,8 +108,6 @@ class PrestaShopSession
 
     /**
      * @return PrestaShopUser
-     *
-     * @throws \Exception
      */
     public function getPrestashopUser()
     {
@@ -131,8 +124,6 @@ class PrestaShopSession
 
     /**
      * @return AccessToken|null
-     *
-     * @throws \Exception
      */
     private function getTokenProvider()
     {

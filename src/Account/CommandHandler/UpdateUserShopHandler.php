@@ -25,6 +25,7 @@ use PrestaShop\Module\PsAccounts\Account\Session\Firebase\OwnerSession;
 use PrestaShop\Module\PsAccounts\Account\Session\Firebase\ShopSession;
 use PrestaShop\Module\PsAccounts\Api\Client\AccountsClient;
 use PrestaShop\Module\PsAccounts\Context\ShopContext;
+use PrestaShop\Module\PsAccounts\Exception\RefreshTokenException;
 
 class UpdateUserShopHandler
 {
@@ -71,13 +72,13 @@ class UpdateUserShopHandler
      *
      * @return array
      *
-     * @throws \Exception
+     * @throws RefreshTokenException
      */
     public function handle(UpdateUserShopCommand $command)
     {
         return $this->shopContext->execInShopContext((int) $command->payload->shopId, function () use ($command) {
-            $shopToken = $this->shopSession->getOrRefreshToken();
-            $ownerToken = $this->ownerSession->getOrRefreshToken();
+            $shopToken = $this->shopSession->getValidToken();
+            $ownerToken = $this->ownerSession->getValidToken();
 
             return $this->accountClient->updateUserShop(
                 $ownerToken->getUuid(),

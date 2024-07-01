@@ -24,7 +24,6 @@ use PrestaShop\Module\PsAccounts\Account\Session\Firebase;
 use PrestaShop\Module\PsAccounts\Account\Session\Session;
 use PrestaShop\Module\PsAccounts\Account\Session\SessionInterface;
 use PrestaShop\Module\PsAccounts\Account\Session\ShopSession;
-use PrestaShop\Module\PsAccounts\Account\Token\NullToken;
 use PrestaShop\Module\PsAccounts\Account\Token\Token;
 use PrestaShop\Module\PsAccounts\Api\Client\AccountsClient;
 use PrestaShop\Module\PsAccounts\Exception\RefreshTokenException;
@@ -83,7 +82,7 @@ abstract class FirebaseSession extends Session implements SessionInterface
      */
     public function refreshToken($refreshToken = null)
     {
-        $token = $this->shopSession->getOrRefreshToken();
+        $token = $this->shopSession->getValidToken();
 
         try {
             $this->refreshFirebaseTokens($token);
@@ -104,10 +103,6 @@ abstract class FirebaseSession extends Session implements SessionInterface
      */
     protected function refreshFirebaseTokens($token)
     {
-        if ($token->getJwt() instanceof NullToken) {
-            throw new RefreshTokenException('Unable to refresh owner & shop tokens : null access token');
-        }
-
         $response = $this->getAccountsClient()->firebaseTokens($token);
 
         $shopToken = $this->getFirebaseTokenFromResponse($response, 'shopToken', 'shopRefreshToken');

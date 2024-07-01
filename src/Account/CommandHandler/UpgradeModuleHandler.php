@@ -25,6 +25,7 @@ use PrestaShop\Module\PsAccounts\Account\LinkShop;
 use PrestaShop\Module\PsAccounts\Account\Session\Firebase\ShopSession;
 use PrestaShop\Module\PsAccounts\Api\Client\AccountsClient;
 use PrestaShop\Module\PsAccounts\Context\ShopContext;
+use PrestaShop\Module\PsAccounts\Exception\RefreshTokenException;
 use PrestaShop\Module\PsAccounts\Repository\ConfigurationRepository;
 
 class UpgradeModuleHandler
@@ -73,7 +74,7 @@ class UpgradeModuleHandler
      *
      * @return void
      *
-     * @throws \Exception
+     * @throws RefreshTokenException
      */
     public function handle(UpgradeModuleCommand $command)
     {
@@ -91,7 +92,7 @@ class UpgradeModuleHandler
 
                 $this->accountsClient->upgradeShopModule(
                     $this->linkShop->getShopUuid(),
-                    (string) $this->shopSession->getOrRefreshToken(),
+                    (string) $this->shopSession->getValidToken(),
                     $command->payload
                 );
             }
@@ -100,8 +101,6 @@ class UpgradeModuleHandler
 
     /**
      * @return array
-     *
-     * @throws \Exception
      */
     private function getOrRefreshShopToken()
     {
@@ -130,8 +129,6 @@ class UpgradeModuleHandler
 
     /**
      * @return void
-     *
-     * @throws \Exception
      */
     private function lastChanceToRefreshShopToken()
     {

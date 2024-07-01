@@ -68,7 +68,7 @@ class AdminAjaxPsAccountsController extends \ModuleAdminController
 
             header('Content-Type: text/json');
 
-            $token = $shopSession->getOrRefreshToken();
+            $token = $shopSession->getValidToken();
 
             $this->ajaxDie(
                 json_encode([
