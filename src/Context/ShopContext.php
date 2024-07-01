@@ -172,20 +172,19 @@ class ShopContext
         $backup = $this->configuration->getShopId();
         $this->configuration->setShopId($shopId);
 
-        $exception = null;
+        $e = null;
+        $result = null;
 
         try {
             $result = $closure();
         } catch (\Error $e) {
-            $exception = $e;
         } catch (\Exception $e) {
-            $exception = $e;
         }
         $this->configuration->setShopId($backup);
 
-        if (null === $exception) {
+        if (null === $e) {
             return $result;
         }
-        throw $exception;
+        throw $e;
     }
 }
