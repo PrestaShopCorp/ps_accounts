@@ -54,7 +54,7 @@ abstract class Session implements SessionInterface
      */
     public function getValidToken($forceRefresh = false, $throw = true)
     {
-        /**
+        /*
          * Avoid multiple refreshToken calls in the same runtime:
          * if it fails once, it will subsequently fail
          */

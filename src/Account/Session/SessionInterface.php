@@ -62,7 +62,7 @@ interface SessionInterface
 
     /**
      * Get or refreshes and saves token
-     * 
+     *
      * @param bool $forceRefresh
      * @param bool $throw
      *

@@ -72,7 +72,7 @@ class AdminAjaxPsAccountsController extends \ModuleAdminController
 
             $this->ajaxDie(
                 json_encode([
-                    'token' => (string)$token->getJwt(),
+                    'token' => (string) $token->getJwt(),
                     'refreshToken' => $token->getRefreshToken(),
                 ])
             );

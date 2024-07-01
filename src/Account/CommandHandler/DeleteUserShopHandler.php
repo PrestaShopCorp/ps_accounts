@@ -20,7 +20,6 @@
 
 namespace PrestaShop\Module\PsAccounts\Account\CommandHandler;
 
-use Exception;
 use PrestaShop\Module\PsAccounts\Account\Command\DeleteUserShopCommand;
 use PrestaShop\Module\PsAccounts\Account\Session\Firebase\OwnerSession;
 use PrestaShop\Module\PsAccounts\Account\Session\Firebase\ShopSession;
