@@ -35,14 +35,7 @@ class ActionObjectShopUpdateAfter extends Hook
      */
     public function execute(array $params = [])
     {
-        // FIXME: why is that necessary ?
-        $shop = new \Shop($params['object']->id);
-        $shop->clearCache(true);
-
-        Logger::getInstance()->error('#### ' . $params['object']->name);
-        Logger::getInstance()->error('#### ' . $params['object']->domain);
-
-        $this->updateUserShop($shop);
+        $this->updateUserShop($params['object']);
 
         return true;
     }
