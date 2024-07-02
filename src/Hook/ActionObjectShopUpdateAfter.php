@@ -24,7 +24,7 @@ use Exception;
 use PrestaShop\Module\PsAccounts\Account\Command\UpdateUserShopCommand;
 use PrestaShop\Module\PsAccounts\Account\Dto\UpdateShop;
 use PrestaShop\Module\PsAccounts\Adapter\Link;
-use PrestaShop\Module\PsAccounts\Exception\RefreshTokenException;
+use PrestaShop\Module\PsAccounts\Log\Logger;
 
 class ActionObjectShopUpdateAfter extends Hook
 {
@@ -32,57 +32,61 @@ class ActionObjectShopUpdateAfter extends Hook
      * @param array $params
      *
      * @return bool
-     *
-     * @throws Exception
      */
     public function execute(array $params = [])
+    {
+        // FIXME: why is that necessary ?
+        $shop = new \Shop($params['object']->id);
+        $shop->clearCache(true);
+
+        Logger::getInstance()->error('#### ' . $params['object']->name);
+        Logger::getInstance()->error('#### ' . $params['object']->domain);
+
+        $this->updateUserShop($shop);
+
+        return true;
+    }
+
+    /**
+     * @param \Shop $shop
+     *
+     * @return void
+     */
+    protected function updateUserShop(\Shop $shop)
     {
         /** @var Link $link */
         $link = $this->module->getService(Link::class);
 
-        $shop = new \Shop($params['object']->id);
-
-        $domain = $params['object']->domain;
-        $sslDomain = $params['object']->domain_ssl;
-
         try {
             $response = $this->commandBus->handle(new UpdateUserShopCommand(new UpdateShop([
-                'shopId' => (string) $params['object']->id,
-                'name' => $params['object']->name,
+                'shopId' => (string) $shop->id,
+                'name' => $shop->name,
                 'domain' => 'http://' . $shop->domain,
                 'sslDomain' => 'https://' . $shop->domain_ssl,
                 'physicalUri' => $shop->physical_uri,
                 'virtualUri' => $shop->virtual_uri,
                 'boBaseUrl' => $link->getAdminLinkWithCustomDomain(
-                    $sslDomain,
-                    $domain,
+                    $shop->domain_ssl,
+                    $shop->domain,
                     'AdminModules',
                     false,
                     [],
                     [
                         'configure' => $this->module->name,
-                        'setShopContext' => 's-' . $params['object']->id,
+                        'setShopContext' => 's-' . $shop->id,
                     ]
                 ),
             ])));
 
             if (!$response) {
-                $this->module->getLogger()->debug(
-                    'Error trying to PATCH shop : No $response object'
-                );
+                $this->module->getLogger()->debug('Error trying to PATCH shop : No $response object');
             } elseif (true !== $response['status']) {
-                $this->module->getLogger()->debug(
-                    'Error trying to PATCH shop : ' . $response['httpCode'] .
+                $this->module->getLogger()->debug('Error trying to PATCH shop : ' . $response['httpCode'] .
                     ' ' . print_r($response['body']['message'] ?: '', true)
                 );
             }
-        } catch (RefreshTokenException $e) {
-            $this->module->getLogger()->debug(
-                'Error trying to PATCH shop: ' .
-                $e->getMessage()
-            );
+        } catch (Exception $e) {
+            $this->module->getLogger()->debug('Error trying to PATCH shop: ' . $e->getMessage());
         }
-
-        return true;
     }
 }

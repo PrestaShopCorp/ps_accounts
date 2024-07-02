@@ -28,7 +28,7 @@ class RefreshTokenTest extends TestCase
      */
     protected $oauth2Client;
 
-    function tearDown()
+    public function tearDown()
     {
         parent::tearDown();
 
