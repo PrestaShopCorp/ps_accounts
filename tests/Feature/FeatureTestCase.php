@@ -87,8 +87,6 @@ class FeatureTestCase extends TestCase
      * @param array $payload
      *
      * @return Token
-     *
-     * @throws \Exception
      */
     public function encodePayload(array $payload)
     {
