@@ -61,7 +61,8 @@ class ps_AccountsApiV1ShopOauth2ClientModuleFrontController extends AbstractShop
 
         try {
             $this->session->getValidToken();
-        } catch (RefreshTokenException $e) {}
+        } catch (RefreshTokenException $e) {
+        }
 
         return [
             'success' => true,
