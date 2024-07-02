@@ -115,9 +115,6 @@ class ActionObjectShopUpdateAfterTest extends TestCase
         /** @var \ShopUrl $shopUrl */
         $shopUrl = (\ShopUrl::getShopUrls(1))->getFirst();
 
-        /** @var ShopUrlDataConfiguration $sudc */
-        $infos = $this->module->getCoreServiceContainer()->get('prestashop.adapter.meta.shop_url.configuration');
-
         /** @var Params $params */
         $params = null;
 
