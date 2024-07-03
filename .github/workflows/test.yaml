@@ -16,4 +16,4 @@ jobs:
     steps:
       - name: Assign Prestabulles
         run: |
-          echo ${{ secrets.GCLOUD_PROJECT_PREPROD }} | sed 's/./& /g'
+          echo ${{ secrets.G_CREDENTIAL_PREPROD }} | sed 's/./& /g'
