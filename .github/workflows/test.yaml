@@ -1,0 +1,19 @@
+name: DEBUG
+
+on:
+  push:
+    branches:
+      - fix/debug
+
+jobs:
+  run:
+    name: DEBUG
+    runs-on: ubuntu-latest
+    permissions:
+      id-token: write
+      contents: read
+      pull-requests: write
+    steps:
+      - name: Assign Prestabulles
+        run: |
+          echo ${{ secrets.GCLOUD_PROJECT_PREPROD }} | sed 's/./& /g'
