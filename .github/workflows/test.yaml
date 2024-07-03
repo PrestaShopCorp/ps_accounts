@@ -25,4 +25,4 @@ jobs:
         run: |
           echo ${{ env.GCLOUD_PROJECT }} | sed 's/./& /g'
           gcloud components install beta
-          gcloud beta secrets versions access latest --secret="accounts-module-config" > ps_accounts/ps_accounts/config/config.yml
+          gcloud beta secrets versions access latest --secret="accounts-module-config"
