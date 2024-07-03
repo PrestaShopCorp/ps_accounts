@@ -8,7 +8,6 @@ use PrestaShop\Module\PsAccounts\Account\Session\Firebase;
 use PrestaShop\Module\PsAccounts\Account\Token\Token;
 use PrestaShop\Module\PsAccounts\Api\Client\AccountsClient;
 use PrestaShop\Module\PsAccounts\Tests\TestCase;
-use PrestaShop\PrestaShop\Adapter\Meta\ShopUrlDataConfiguration;
 
 class Params {
     /** @var string */
@@ -29,41 +28,6 @@ class ActionObjectShopUpdateAfterTest extends TestCase
      * @var UpdateUserShopHandler
      */
     protected $updateUserShopHandler;
-
-    /**
-     * @inject
-     *
-     * @var AccountsClient
-     */
-    protected $accountClient;
-
-    /**
-     * @inject
-     *
-     * @var Firebase\ShopSession
-     */
-    protected $shopSession;
-
-    /**
-     * @inject
-     *
-     * @var Firebase\OwnerSession
-     */
-    protected $ownerSession;
-
-    public function setUp()
-    {
-        parent::setUp();
-    }
-
-    public function tearDown()
-    {
-        parent::tearDown();
-
-        $this->replaceProperty($this->updateUserShopHandler, 'accountClient', $this->accountClient);
-        $this->replaceProperty($this->updateUserShopHandler, 'shopSession', $this->shopSession);
-        $this->replaceProperty($this->updateUserShopHandler, 'ownerSession', $this->ownerSession);
-    }
 
     /**
      * @test

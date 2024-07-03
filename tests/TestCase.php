@@ -55,6 +55,11 @@ class TestCase extends \PHPUnit\Framework\TestCase
     protected $enableTransactions = true;
 
     /**
+     * @var ServiceProperty[]
+     */
+    protected $replacedProperties = [];
+
+    /**
      * @return void
      *
      * @throws \Exception
@@ -91,6 +96,8 @@ class TestCase extends \PHPUnit\Framework\TestCase
                  ] as $class) {
             $this->module->getService($class)->resetRefreshTokenErrors();
         }
+
+        $this->restoreProperties();
 
         parent::tearDown();
     }
@@ -222,6 +229,40 @@ class TestCase extends \PHPUnit\Framework\TestCase
         $reflection = new \ReflectionClass($object);
         $property = $reflection->getProperty($propertyName);
         $property->setAccessible(true);
+        $this->setPropertyToRestore($object, $propertyName, $property->getValue($object));
         $property->setValue($object, $replacement);
+    }
+
+    /**
+     * @param mixed $object
+     * @param string $propertyName
+     * @param mixed $originalValue
+     *
+     * @return void
+     */
+    protected function setPropertyToRestore($object, $propertyName, $originalValue)
+    {
+        $prop = new ServiceProperty();
+        $prop->object = $object;
+        $prop->propertyName = $propertyName;
+        $prop->originalValue = $originalValue;
+        $this->replacedProperties[] = $prop;
+    }
+
+    /**
+     * @return void
+     *
+     * @throws \ReflectionException
+     */
+    protected function restoreProperties()
+    {
+        foreach ($this->replacedProperties as $property) {
+            $this->replaceProperty(
+                $property->object,
+                $property->propertyName,
+                $property->originalValue,
+            );
+        }
+        $this->replacedProperties = [];
     }
 }
