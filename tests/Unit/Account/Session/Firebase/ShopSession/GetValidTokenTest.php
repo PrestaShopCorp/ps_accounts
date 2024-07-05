@@ -29,8 +29,6 @@ class GetValidTokenTest extends TestCase
 
     /**
      * @test
-     *
-     * @throws \Exception
      */
     public function itShouldReturnValidToken()
     {
@@ -47,8 +45,6 @@ class GetValidTokenTest extends TestCase
 
     /**
      * @test
-     *
-     * @throws \Exception
      */
     public function itShouldRefreshExpiredToken()
     {
@@ -90,8 +86,6 @@ class GetValidTokenTest extends TestCase
 
     /**
      * @test
-     *
-     * @throws \Exception
      */
     public function itShouldNotRefreshValidToken()
     {

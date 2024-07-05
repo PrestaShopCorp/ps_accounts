@@ -20,7 +20,7 @@ class GetValidTokenTest extends TestCase
      *
      * @var Firebase\OwnerSession
      */
-    protected $ownerSession;
+    protected $session;
 
     /**
      * @inject
@@ -39,10 +39,10 @@ class GetValidTokenTest extends TestCase
             'email' => $this->faker->safeEmail,
         ]);
 
-        $this->ownerSession->setToken((string) $idToken);
+        $this->session->setToken((string) $idToken);
 
-        $this->assertEquals((string) $idToken, (string) $this->ownerSession->getValidToken());
-        $this->assertEquals((string) $idToken, (string) $this->ownerSession->getOrRefreshToken());
+        $this->assertEquals((string) $idToken, (string) $this->session->getValidToken());
+        $this->assertEquals((string) $idToken, (string) $this->session->getOrRefreshToken());
     }
 
     /**
