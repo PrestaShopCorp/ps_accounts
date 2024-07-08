@@ -21,7 +21,9 @@
 namespace PrestaShop\Module\PsAccounts\Http\Client\CircuitBreaker;
 
 use DateTime;
+use PrestaShop\Module\PsAccounts\Log\Logger;
 use PrestaShop\Module\PsAccounts\Vendor\GuzzleHttp\Exception\ConnectException;
+use PrestaShop\Module\PsAccounts\Vendor\GuzzleHttp\Exception\RequestException;
 
 abstract class CircuitBreaker
 {
@@ -62,6 +64,9 @@ abstract class CircuitBreaker
             } catch (ConnectException $e) {
                 // FIXME: CircuitBreak bound to GuzzleException
                 $this->setLastFailure();
+                Logger::getInstance()->error($e->getMessage());
+            } catch (RequestException $e) {
+                Logger::getInstance()->error($e->getMessage());
             }
         }
 
