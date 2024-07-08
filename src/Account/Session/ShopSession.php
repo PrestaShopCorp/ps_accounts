@@ -95,8 +95,7 @@ class ShopSession extends Session implements SessionInterface
     public function refreshToken($refreshToken = null)
     {
         try {
-            if ($this->linkShop->exists() &&
-                !$this->oauth2ClientProvider->getOauth2Client()->exists()) {
+            if ($this->inconsistentAssociationState()) {
                 $this->commandBus->handle(new UnlinkShopCommand($this->configurationRepository->getShopId()));
                 throw new RefreshTokenException('Invalid OAuth2 client');
             }
@@ -150,7 +149,6 @@ class ShopSession extends Session implements SessionInterface
      * @return AccessToken|AccessTokenInterface
      *
      * @throws IdentityProviderException
-     * @throws \Exception
      */
     protected function getAccessToken($shopUid)
     {
@@ -169,11 +167,18 @@ class ShopSession extends Session implements SessionInterface
 
     /**
      * @return string
-     *
-     * @throws \Exception
      */
     private function getShopUuid()
     {
         return $this->linkShop->getShopUuid();
+    }
+
+    /**
+     * @return bool
+     */
+    public function inconsistentAssociationState()
+    {
+        return $this->linkShop->exists() &&
+            !$this->oauth2ClientProvider->getOauth2Client()->exists();
     }
 }
