@@ -8,6 +8,7 @@ $config
     ->in(__DIR__)
     ->exclude('vendor')
     ->exclude('dist')
+    ->exclude('_dev')
     ->exclude('tests');
 
 return $config;
