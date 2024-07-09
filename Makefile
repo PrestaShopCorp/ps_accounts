@@ -132,7 +132,8 @@ fix-lint: vendor-dev
 # target: php-scoper
 
 #VENDOR_DIRS = guzzlehttp league prestashopcorp
-PHP_SCOPER_VENDOR_DIRS = $(shell cat scoper.inc.php | grep 'dirScoped =' | sed 's/^.*\$dirScoped = \[\(.*\)\].*/\1/' | sed "s/[' ,]\+/ /g")
+#PHP_SCOPER_VENDOR_DIRS = $(shell cat scoper.inc.php | grep 'dirScoped =' | sed 's/^.*\$dirScoped = \[\(.*\)\].*/\1/' | sed "s/[' ,]\+/ /g")
+PHP_SCOPER_VENDOR_DIRS = $(shell cat .dir-scoped)
 PHP_SCOPER_OUTPUT_DIR := vendor-scoped
 PHP_SCOPER_VERSION := 0.18.11
 

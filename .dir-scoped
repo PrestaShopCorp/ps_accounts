@@ -1,0 +1,9 @@
+symfony
+psr
+guzzlehttp
+league
+prestashopcorp
+lcobucci
+prestashop/module-lib-service-container
+prestashop/module-lib-cache-directory-provider
+monolog

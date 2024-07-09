@@ -20,8 +20,10 @@
 
 namespace PrestaShop\Module\PsAccounts\Factory;
 
-use Monolog\Handler\RotatingFileHandler;
-use Monolog\Logger;
+
+
+use PrestaShop\Module\PsAccounts\Vendor\Monolog\Handler\RotatingFileHandler;
+use PrestaShop\Module\PsAccounts\Vendor\Monolog\Logger;
 
 class PsAccountsLogger
 {
@@ -30,7 +32,7 @@ class PsAccountsLogger
     /**
      * Create logger.
      *
-     * @return \Monolog\Logger
+     * @return Logger
      */
     public static function create()
     {

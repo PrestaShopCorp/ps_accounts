@@ -33,7 +33,7 @@ use Isolated\Symfony\Component\Finder\Finder;
 
 // Vendor dependency dirs your want to scope
 // Note: you'll have to manually add namespaces in your composer.json
-$dirScoped = ['symfony', 'psr', 'guzzlehttp', 'league', 'prestashopcorp', 'lcobucci', 'prestashop/module-lib-service-container', 'prestashop/module-lib-cache-directory-provider'];
+$dirScoped = explode("\n", shell_exec('cat .dir-scoped'));
 
 // Example of collecting files to include in the scoped build but to not scope
 // leveraging the isolated finder.
@@ -110,6 +110,22 @@ return [
                 return str_replace(
                     "'PrestaShop\\\\Module\\\\PsAccounts\\\\Vendor\\\\array_merge'",
                     "'\\array_merge'",
+                    $contents
+                );
+            }
+            // TODO: fix all polyfill bootstraps
+            if (
+                $filePath === __DIR__ . '/vendor/symfony/polyfill-apcu/bootstrap.php' ||
+                $filePath === __DIR__ . '/vendor/symfony/polyfill-ctype/bootstrap.php' ||
+                $filePath === __DIR__ . '/vendor/symfony/polyfill-intl-idn/bootstrap.php' ||
+                $filePath === __DIR__ . '/vendor/symfony/polyfill-intl-normalizer/bootstrap.php' ||
+                $filePath === __DIR__ . '/vendor/symfony/polyfill-mbstring/bootstrap.php' ||
+                $filePath === __DIR__ . '/vendor/symfony/polyfill-php70/bootstrap.php' ||
+                $filePath === __DIR__ . '/vendor/symfony/polyfill-php72/bootstrap.php'
+            ) {
+                return preg_replace(
+                    "/function_exists\('(\w+)'\)/",
+                    'function_exists(\'PrestaShop\Module\PsAccounts\Vendor\\\\\1\')',
                     $contents
                 );
             }
