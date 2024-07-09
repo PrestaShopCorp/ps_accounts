@@ -33,7 +33,7 @@ use Isolated\Symfony\Component\Finder\Finder;
 
 // Vendor dependency dirs your want to scope
 // Note: you'll have to manually add namespaces in your composer.json
-$dirScoped = ['psr', 'guzzlehttp', 'league', 'prestashopcorp', 'lcobucci'];
+$dirScoped = ['symfony', 'psr', 'guzzlehttp', 'league', 'prestashopcorp', 'lcobucci', 'prestashop/module-lib-service-container', 'prestashop/module-lib-cache-directory-provider'];
 
 // Example of collecting files to include in the scoped build but to not scope
 // leveraging the isolated finder.
@@ -106,6 +106,13 @@ return [
                     $contents
                 );
             }
+            if ($filePath === __DIR__ . '/vendor/symfony/dependency-injection/Compiler/PassConfig.php') {
+                return str_replace(
+                    "'PrestaShop\\\\Module\\\\PsAccounts\\\\Vendor\\\\array_merge'",
+                    "'\\array_merge'",
+                    $contents
+                );
+            }
 //            if ($filePath === __DIR__ . '/vendor/sentry/sentry/lib/Raven/Client.php') {
 //                return str_replace(
 //                    "\$new_processor = new \$processor(\$this);",
@@ -123,11 +130,12 @@ return [
     // For more information see: https://github.com/humbug/php-scoper/blob/master/docs/configuration.md#excluded-symbols
     'exclude-namespaces' => [
 //        '~^Psr~',
-        '~^Symfony~',
+//        '~^Symfony~',
         '~^PrestaShop\\\\OAuth2\\\\Client~',
     ],
     'exclude-classes' => [],
     'exclude-functions' => [
+        'array_merge',
         // 'mb_str_split',
     ],
     'exclude-constants' => [

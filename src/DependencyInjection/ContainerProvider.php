@@ -20,13 +20,13 @@
 
 namespace PrestaShop\Module\PsAccounts\DependencyInjection;
 
-use PrestaShop\ModuleLibCacheDirectoryProvider\Cache\CacheDirectoryProvider;
-use Symfony\Component\Config\ConfigCache;
-use Symfony\Component\Config\FileLocator;
-use Symfony\Component\DependencyInjection\ContainerBuilder;
-use Symfony\Component\DependencyInjection\ContainerInterface;
-use Symfony\Component\DependencyInjection\Dumper\PhpDumper;
-use Symfony\Component\DependencyInjection\Loader\YamlFileLoader;
+use PrestaShop\Module\PsAccounts\Vendor\PrestaShop\ModuleLibCacheDirectoryProvider\Cache\CacheDirectoryProvider;
+use PrestaShop\Module\PsAccounts\Vendor\Symfony\Component\Config\ConfigCache;
+use PrestaShop\Module\PsAccounts\Vendor\Symfony\Component\Config\FileLocator;
+use PrestaShop\Module\PsAccounts\Vendor\Symfony\Component\DependencyInjection\ContainerBuilder;
+use PrestaShop\Module\PsAccounts\Vendor\Symfony\Component\DependencyInjection\ContainerInterface;
+use PrestaShop\Module\PsAccounts\Vendor\Symfony\Component\DependencyInjection\Dumper\PhpDumper;
+use PrestaShop\Module\PsAccounts\Vendor\Symfony\Component\DependencyInjection\Loader\YamlFileLoader;
 
 class ContainerProvider
 {

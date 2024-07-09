@@ -6,7 +6,7 @@
  *
  * More information also found here: https://github.com/humbug/php-scoper/issues/298
  */
-$match = 'guzzlehttp';
+$match = '(guzzlehttp|symfony)';
 $scoper_path = __DIR__ . '/vendor/composer';
 $static_loader_path = $scoper_path . '/autoload_static.php';
 echo "Fixing $static_loader_path \n";

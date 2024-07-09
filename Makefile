@@ -99,10 +99,10 @@ phpunit-permissions:
 	@docker exec phpunit sh -c "if [ -d ./cache ]; then chown -R www-data:www-data ./cache; fi" # PS1.6
 	@docker exec phpunit sh -c "if [ -d ./log ]; then chown -R www-data:www-data ./log; fi" # PS1.6
 
-phpunit-run-unit: phpunit-permissions vendor-dev
+phpunit-run-unit: phpunit-permissions
 	@docker exec -w ${CONTAINER_INSTALL_DIR} phpunit ./vendor/bin/phpunit --testsuite unit
 
-phpunit-run-feature: phpunit-permissions vendor-dev
+phpunit-run-feature: phpunit-permissions
 	@docker exec -w ${CONTAINER_INSTALL_DIR} phpunit ./vendor/bin/phpunit --testsuite feature
 
 #phpunit-xdebug:
@@ -146,8 +146,8 @@ php-scoper-add-prefix: scoper.inc.php vendor-clean vendor php-scoper-pull
 	docker run -v ${PWD}:/input -w /input -u ${CURRENT_UID}:${CURRENT_GID} \
 		humbugphp/php-scoper:${PHP_SCOPER_VERSION} add-prefix --output-dir ${PHP_SCOPER_OUTPUT_DIR} --force --quiet
 	#for d in ${VENDOR_DIRS}; do rm -rf ./vendor/$$d && mv ./${SCOPED_DIR}/$$d ./vendor/; done;
-	$(foreach DIR,$(PHP_SCOPER_VENDOR_DIRS), rm -rf "./vendor/${DIR}" && mv "./${PHP_SCOPER_OUTPUT_DIR}/${DIR}" ./vendor/;)
-	rmdir "./${PHP_SCOPER_OUTPUT_DIR}"
+	$(foreach DIR,$(PHP_SCOPER_VENDOR_DIRS), rm -rf "./vendor/${DIR}" && mv "./${PHP_SCOPER_OUTPUT_DIR}/${DIR}" ./vendor/${DIR};)
+	rm -rf "./${PHP_SCOPER_OUTPUT_DIR}"
 
 php-scoper-dump-autoload:
 	${COMPOSER} dump-autoload --classmap-authoritative
@@ -156,6 +156,9 @@ php-scoper-fix-autoload:
 	php fix-autoload.php
 
 php-scoper: php-scoper-add-prefix php-scoper-dump-autoload php-scoper-fix-autoload
+
+php-scoper-dev: COMPOSER_OPTIONS = --prefer-dist -o --quiet --ignore-platform-reqs
+php-scoper-dev: php-scoper
 
 ##########################################################
 # target: bundle

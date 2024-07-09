@@ -93,7 +93,7 @@ jobs:
 #        run: composer install
 
       - name: Scoped dependencies
-        run: make php-scoper
+        run: make php-scoper-dev
 
       - name: PHPUnit tests
         run: |
