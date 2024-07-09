@@ -64,7 +64,7 @@ class EmployeeAccountRepository
      */
     protected function assertCompatible()
     {
-        if (! isset($this->repository)) {
+        if (!isset($this->repository)) {
             throw new \Exception('Employee accounts repository has not been set');
         }
     }
@@ -91,6 +91,7 @@ class EmployeeAccountRepository
     public function findByUid($uuid)
     {
         $this->assertCompatible();
+
         return $this->repository->findOneBy(['uid' => $uuid]);
     }
 
