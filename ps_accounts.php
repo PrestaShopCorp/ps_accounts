@@ -214,7 +214,8 @@ class Ps_accounts extends Module
     }
 
     /**
-     * @return \Symfony\Component\DependencyInjection\ContainerInterface|null
+     * @phpstan-ignore-next-line
+     * @return \PrestaShop\PrestaShop\Adapter\SymfonyContainer|\Symfony\Component\DependencyInjection\ContainerInterface|null
      */
     public function getCoreServiceContainer()
     {
@@ -476,8 +477,12 @@ class Ps_accounts extends Module
         $container = $this->getCoreServiceContainer();
         if ($container) {
             try {
-                /** @var \PrestaShop\Module\PsAccounts\Session\Session $session */
+                /**
+                 * @var \PrestaShop\Module\PsAccounts\Session\Session $session
+                 * @phpstan-ignore-next-line
+                 */
                 $session = $container->get('session');
+                /** @phpstan-ignore-next-line  */
             } catch (\Symfony\Component\DependencyInjection\Exception\ServiceNotFoundException $e) {
                 // FIXME: fix for 1.7.7.x
                 global $kernel;

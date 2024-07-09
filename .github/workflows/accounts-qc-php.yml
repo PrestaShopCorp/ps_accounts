@@ -52,7 +52,7 @@ jobs:
 #        run: composer install
 
       - name: Scoped dependencies
-        run: make php-scoper
+        run: make php-scoper-dev
 
       - name: Select .neon file compatible with PrestaShop ${{ matrix.presta-versions }}
         id: neon

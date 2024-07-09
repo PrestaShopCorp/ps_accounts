@@ -33,11 +33,6 @@ test-back: lint-back phpstan phpunit
 lint-back:
 	vendor/bin/php-cs-fixer fix --dry-run --diff --using-cache=no --diff-format udiff
 
-check-docker:
-ifndef DOCKER
-    $(error "DOCKER is unavailable on your system")
-endif
-
 ##########################################################
 # target: phpstan
 
@@ -45,7 +40,7 @@ PHPSTAN_VERSION ?= 0.12
 PS_VERSION ?= latest
 NEON_FILE ?= phpstan-PS-1.7.neon
 
-phpstan: check-docker vendor-dev
+phpstan:
 	-docker volume rm ps-volume
 	docker pull phpstan/phpstan:${PHPSTAN_VERSION}
 	docker pull prestashop/prestashop:${PS_VERSION}
@@ -209,13 +204,13 @@ endif
 
 WORKDIR ?= ./
 
-php-cs-fixer: vendor-dev
+php-cs-fixer:
 	${PHP} ./vendor/bin/php-cs-fixer fix --using-cache=no
 
-autoindex: vendor-dev
+autoindex:
 	${PHP} ./vendor/bin/autoindex prestashop:add:index "${WORKDIR}"
 
-header-stamp: vendor-dev
+header-stamp:
 	${PHP} ./vendor/bin/header-stamp --target="${WORKDIR}" --license="assets/afl.txt" --exclude=".github,node_modules,vendor,vendor,tests,_dev"
 
 ##########################################################
