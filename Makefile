@@ -148,7 +148,7 @@ endef
 #	$(call phpunit-version,$@,"prestashop/docker-internal-images",,composer71.json)
 
 phpunit-1.6.1.24-5.6-fpm-stretch:
-	$(call phpunit-version,$@,,,composer71.json)
+	$(call phpunit-version,$@,,,composer56.json)
 
 phpunit-1.6.1.24-7.1:
 	$(call phpunit-version,$@,,,composer71.json)
