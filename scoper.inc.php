@@ -48,7 +48,8 @@ $dirExcludes = [
     'doc',
     'test',
     'test_old',
-    'tests',
+// FIXME: firendsofphp/php-cs-fixer is referencing Test namespace from src
+//    'tests',
     'Tests',
     'vendor-bin',
 ];
@@ -114,21 +115,31 @@ return [
                 );
             }
             // TODO: fix all polyfill bootstraps
-            if (
-                $filePath === __DIR__ . '/vendor/symfony/polyfill-apcu/bootstrap.php' ||
-                $filePath === __DIR__ . '/vendor/symfony/polyfill-ctype/bootstrap.php' ||
-                $filePath === __DIR__ . '/vendor/symfony/polyfill-intl-idn/bootstrap.php' ||
-                $filePath === __DIR__ . '/vendor/symfony/polyfill-intl-normalizer/bootstrap.php' ||
-                $filePath === __DIR__ . '/vendor/symfony/polyfill-mbstring/bootstrap.php' ||
-                $filePath === __DIR__ . '/vendor/symfony/polyfill-php70/bootstrap.php' ||
-                $filePath === __DIR__ . '/vendor/symfony/polyfill-php72/bootstrap.php'
-            ) {
+            if (in_array($filePath, array_map(function($path) {
+                return __DIR__ . '/vendor/symfony' . $path;
+            }, [
+                '/polyfill-apcu/bootstrap.php',
+                '/polyfill-ctype/bootstrap.php',
+                '/polyfill-intl-idn/bootstrap.php',
+                '/polyfill-intl-normalizer/bootstrap.php',
+                '/polyfill-mbstring/bootstrap.php',
+                '/polyfill-php70/bootstrap.php',
+                '/polyfill-php72/bootstrap.php',
+            ]))) {
                 return preg_replace(
                     "/function_exists\('(\w+)'\)/",
                     'function_exists(\'PrestaShop\Module\PsAccounts\Vendor\\\\\1\')',
                     $contents
                 );
             }
+//            if ($filePath === __DIR__ . '/vendor/friendsofphp/php-cs-fixer/src/FixerFactory.php') {
+//                // $fixerClass = 'PhpCsFixer\\Fixer\\' . ($relativeNamespace ? $relativeNamespace . '\\' : '') . $file->getBasename('.php');
+//                return preg_replace(
+//                    "/'(PhpCsFixer\\\\\\\Fixer\\\\\\\)'/",
+//                    "'{$prefix}\\PhpCsFixer\\Fixer\\\\\\\\'",
+//                    $contents
+//                );
+//            }
 //            if ($filePath === __DIR__ . '/vendor/sentry/sentry/lib/Raven/Client.php') {
 //                return str_replace(
 //                    "\$new_processor = new \$processor(\$this);",
@@ -148,6 +159,7 @@ return [
 //        '~^Psr~',
 //        '~^Symfony~',
         '~^PrestaShop\\\\OAuth2\\\\Client~',
+        '~^Composer\\\\~',
     ],
     'exclude-classes' => [],
     'exclude-functions' => [
