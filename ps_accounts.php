@@ -483,7 +483,7 @@ class Ps_accounts extends Module
                  * @phpstan-ignore-next-line
                  */
                 $session = $container->get('session');
-                /** @phpstan-ignore-next-line  */
+                /* @phpstan-ignore-next-line */
             } catch (\Symfony\Component\DependencyInjection\Exception\ServiceNotFoundException $e) {
                 // FIXME: fix for 1.7.7.x
                 global $kernel;
