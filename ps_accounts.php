@@ -215,6 +215,7 @@ class Ps_accounts extends Module
 
     /**
      * @phpstan-ignore-next-line
+     *
      * @return \PrestaShop\PrestaShop\Adapter\SymfonyContainer|\Symfony\Component\DependencyInjection\ContainerInterface|null
      */
     public function getCoreServiceContainer()

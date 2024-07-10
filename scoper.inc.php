@@ -115,7 +115,7 @@ return [
                 );
             }
             // TODO: fix all polyfill bootstraps
-            if (in_array($filePath, array_map(function($path) {
+            if (in_array($filePath, array_map(function ($path) {
                 return __DIR__ . '/vendor/symfony' . $path;
             }, [
                 '/polyfill-apcu/bootstrap.php',
