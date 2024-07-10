@@ -205,7 +205,7 @@ endif
 WORKDIR ?= ./
 
 php-cs-fixer:
-	${PHP} ./vendor/bin/php-cs-fixer fix --using-cache=no
+	PHP_CS_FIXER_IGNORE_ENV=1 ${PHP} ./vendor/bin/php-cs-fixer fix --using-cache=no
 
 autoindex:
 	${PHP} ./vendor/bin/autoindex prestashop:add:index "${WORKDIR}"
