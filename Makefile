@@ -143,7 +143,7 @@ php-scoper-add-prefix: scoper.inc.php vendor-clean vendor php-scoper-pull
 		humbugphp/php-scoper:${PHP_SCOPER_VERSION} add-prefix --output-dir ${PHP_SCOPER_OUTPUT_DIR} --force --quiet
 	#for d in ${VENDOR_DIRS}; do rm -rf ./vendor/$$d && mv ./${SCOPED_DIR}/$$d ./vendor/; done;
 	$(foreach DIR,$(PHP_SCOPER_VENDOR_DIRS), rm -rf "./vendor/${DIR}" && mv "./${PHP_SCOPER_OUTPUT_DIR}/${DIR}" ./vendor/${DIR};)
-	rm -rf "./${PHP_SCOPER_OUTPUT_DIR}"
+	if [ ! -z ${PHP_SCOPER_OUTPUT_DIR} ]; then rm -rf "./${PHP_SCOPER_OUTPUT_DIR}"; fi
 
 php-scoper-dump-autoload:
 	${COMPOSER} dump-autoload --classmap-authoritative
