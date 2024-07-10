@@ -287,9 +287,10 @@ abstract class AbstractRestController extends ModuleFrontController
                 ) {
                     return $jwt->claims()->all();
                 }
+                $this->module->getLogger()->error('Failed to verify token: ' . $jwtString);
             }
 
-            $this->module->getLogger()->info('Failed to verify token');
+            $this->module->getLogger()->error('Failed to decode payload: ' . $jwtString);
         }
 
         throw new UnauthorizedException();

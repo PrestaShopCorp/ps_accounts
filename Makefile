@@ -3,6 +3,7 @@ DOCKER = $(shell docker ps 2> /dev/null)
 NPM = $(shell which npm 2> /dev/null)
 YARN = $(shell which yarn 2> /dev/null)
 COMPOSER = ${PHP} ./composer.phar
+DOCKER_COMPOSE := $(shell which docker) compose
 MODULE ?= $(shell basename ${PWD})
 CURRENT_UID := $(shell id -u)
 CURRENT_GID := $(shell id -g)
@@ -80,11 +81,11 @@ phpunit-pull:
 	docker pull ${PHPUNIT_IMAGE}
 
 phpunit-start:
-	@PHPUNIT_IMAGE=${PHPUNIT_IMAGE} docker-compose -f ${PHPUNIT_DOCKER} up -d
+	@PHPUNIT_IMAGE=${PHPUNIT_IMAGE} ${DOCKER_COMPOSE} -f ${PHPUNIT_DOCKER} up -d
 	@echo phpunit started
 
 phpunit-stop:
-	@PHPUNIT_IMAGE=${PHPUNIT_IMAGE} docker-compose -f ${PHPUNIT_DOCKER} down
+	@PHPUNIT_IMAGE=${PHPUNIT_IMAGE} ${DOCKER_COMPOSE} -f ${PHPUNIT_DOCKER} down
 	@echo phpunit stopped
 
 phpunit-restart: phpunit-stop phpunit-start
@@ -232,18 +233,17 @@ composer.phar:
 
 WORKDIR ?= ./
 
-php-cs-fixer: vendor-dev
-	${PHP} ./vendor/bin/php-cs-fixer fix --using-cache=no
-#	vendor/bin/php-cs-fixer fix --dry-run --diff --using-cache=no --diff-format udiff
+php-cs-fixer:
+	PHP_CS_FIXER_IGNORE_ENV=1 ${PHP} ./vendor/bin/php-cs-fixer fix --using-cache=no
 
-autoindex: vendor-dev
+autoindex:
 	${PHP} ./vendor/bin/autoindex prestashop:add:index "${WORKDIR}"
 
-header-stamp: vendor-dev
+header-stamp:
 	${PHP} ./vendor/bin/header-stamp --target="${WORKDIR}" --license="assets/afl.txt" --exclude=".github,node_modules,vendor,vendor,tests,_dev"
 
 ##########################################################
-COMPOSER_OPTIONS ?= --prefer-dist -o --no-dev --quiet
+COMPOSER_OPTIONS ?= --prefer-dist -o --no-dev --quiet --ignore-platform-reqs
 
 vendor-clean:
 	rm -rf ./vendor
@@ -251,7 +251,4 @@ vendor-clean:
 .PHONY: vendor
 vendor: composer.phar
 	${COMPOSER} install ${COMPOSER_OPTIONS}
-
-vendor-dev: COMPOSER_OPTIONS = --prefer-dist -o --quiet
-vendor-dev: vendor php-scoper-fix-autoload
 
