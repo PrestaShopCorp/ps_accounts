@@ -1,0 +1,30 @@
+{
+    "config": {
+        "platform": {
+            "php": "5.6"
+        },
+        "preferred-install": "dist",
+        "optimize-autoloader": true,
+        "prepend-autoloader": false
+    },
+    "autoload": {
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "PrestaShop\\Module\\PsAccounts\\Tests\\": "./"
+        }
+    },
+    "require": {
+        "php": ">=5.6"
+    },
+    "require-dev": {
+      "prestashop/php-dev-tools": "3.*",
+      "friendsofphp/php-cs-fixer": "^2.16",
+        "phpunit/phpunit": "^5.7",
+        "fzaninotto/faker": "^1.9"
+    },
+    "scripts": {
+        "phpunit": "docker exec -u www-data -ti phpunit-dev ./vendor/bin/phpunit --configuration './phpunit.xml' --test-suffix 'Test.php,.phpt'"
+    },
+    "author": "PrestaShop"
+}

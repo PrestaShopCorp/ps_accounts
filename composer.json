@@ -46,10 +46,6 @@
         "prestashopcorp/oauth2-prestashop": "^2.0",
         "guzzlehttp/guzzle": "^6.0"
     },
-    "require-dev": {
-        "prestashop/php-dev-tools": "3.*",
-        "friendsofphp/php-cs-fixer": "^2.16"
-    },
     "scripts": {
         "set-license-header": [
             "@php ./vendor/bin/header-stamp --license=\"assets/afl.txt\" --exclude=\".github,node_modules,vendor,vendor,tests,_dev\""

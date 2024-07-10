@@ -32,7 +32,7 @@ PHPSTAN_VERSION ?= 0.12
 PS_VERSION ?= latest
 NEON_FILE ?= phpstan-PS-1.7.neon
 
-phpstan: vendor-dev
+phpstan:
 	-docker volume rm ps-volume
 	docker pull phpstan/phpstan:${PHPSTAN_VERSION}
 	docker pull prestashop/prestashop:${PS_VERSION}
@@ -65,9 +65,9 @@ PHPUNIT_MODE ?=
 
 COMPOSER_FILE ?= composer.json
 .PHONY: tests/vendor
-tests/vendor: vendor-dev
+tests/vendor:
 #	rm -rf ./tests/vendor
-	env COMPOSER=${COMPOSER_FILE} ${COMPOSER} install --working-dir=./tests/
+	env COMPOSER=${COMPOSER_FILE} ${COMPOSER} install --working-dir=./tests/ --ignore-platform-reqs
 
 ifeq ($(PHPUNIT_MODE),dev)
 phpunit-mode: phpunit-initdev
@@ -233,8 +233,10 @@ composer.phar:
 
 WORKDIR ?= ./
 
-php-cs-fixer:
-	PHP_CS_FIXER_IGNORE_ENV=1 ${PHP} ./vendor/bin/php-cs-fixer fix --using-cache=no
+php-cs-fixer: COMPOSER_FILE := composer56.json
+php-cs-fixer: tests/vendor
+	PHP_CS_FIXER_IGNORE_ENV=1 ${PHP} ./tests/vendor/bin/php-cs-fixer fix --using-cache=no
+#	vendor/bin/php-cs-fixer fix --dry-run --diff --using-cache=no --diff-format udiff
 
 autoindex:
 	${PHP} ./vendor/bin/autoindex prestashop:add:index "${WORKDIR}"

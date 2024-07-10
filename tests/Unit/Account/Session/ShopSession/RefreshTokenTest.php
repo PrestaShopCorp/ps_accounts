@@ -1,6 +1,6 @@
 <?php
 
-namespace PrestaShop\Module\PsAccounts\Tests\Unit\Account\Session\Oauth2\ShopSession;
+namespace PrestaShop\Module\PsAccounts\Tests\Unit\Account\Session\ShopSession;
 
 use PrestaShop\Module\PsAccounts\Account\Session\ShopSession;
 use PrestaShop\Module\PsAccounts\Account\Token\Token;
@@ -21,7 +21,7 @@ class RefreshTokenTest extends TestCase
      */
     protected $shopSession;
 
-    function tearDown()
+    function tearDown(): void
     {
         parent::tearDown();
         $this->shopSession->cleanup();
