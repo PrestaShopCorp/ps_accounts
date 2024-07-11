@@ -181,8 +181,10 @@ endef
 phpunit-1.6.1.24-5.6-fpm-stretch: phpunit-fix-compat-php56
 	$(call phpunit-version,$@,,,composer56.json)
 
-phpunit-1.6.1.24-7.1: phpstan phpstan16
+phpunit-1.6.1.24-7.1:
 	$(call phpunit-version,$@,,,composer71.json)
+	$(MAKE) phpstan
+	$(MAKE) phpstan16
 
 phpunit-1.7.8.5-7.4:
 	$(call phpunit-version,$@)
