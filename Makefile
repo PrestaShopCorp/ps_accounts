@@ -67,7 +67,7 @@ COMPOSER_FILE ?= composer.json
 .PHONY: tests/vendor
 tests/vendor:
 #	rm -rf ./tests/vendor
-	env COMPOSER=${COMPOSER_FILE} ${COMPOSER} install --working-dir=./tests/ --ignore-platform-reqs
+	env COMPOSER=${COMPOSER_FILE} ${COMPOSER} install --working-dir=./tests/
 
 ifeq ($(PHPUNIT_MODE),dev)
 phpunit-mode: phpunit-initdev
@@ -98,7 +98,7 @@ phpunit-module-version:
 	@docker exec -w ${CONTAINER_INSTALL_DIR} phpunit \
 		sh -c "echo \"Module v\`cat config.xml | grep '<version>' | sed 's/^.*\[CDATA\[\(.*\)\]\].*/\1/'\`\""
 
-phpunit-module-install: phpunit-module-config phpunit-module-version
+phpunit-module-install: tests/vendor phpunit-module-config phpunit-module-version
 	@docker exec phpunit sh -c "if [ -f ./bin/console ]; then php -d memory_limit=-1 ./bin/console prestashop:module install ps_accounts; fi"
 	@docker exec phpunit sh -c "if [ ! -f ./bin/console ]; then php -d memory_limit=-1 ./modules/ps_accounts/tests/install-module.php; fi"
 
@@ -107,11 +107,36 @@ phpunit-permissions:
 	@docker exec phpunit sh -c "if [ -d ./cache ]; then chown -R www-data:www-data ./cache; fi" # PS1.6
 	@docker exec phpunit sh -c "if [ -d ./log ]; then chown -R www-data:www-data ./log; fi" # PS1.6
 
-phpunit-run-unit: phpunit-permissions tests/vendor
+phpunit-run-unit: phpunit-permissions
 	@docker exec -w ${CONTAINER_INSTALL_DIR}/tests phpunit ./vendor/bin/phpunit --testsuite unit
 
-phpunit-run-feature: phpunit-permissions tests/vendor
+phpunit-run-feature: phpunit-permissions
 	@docker exec -w ${CONTAINER_INSTALL_DIR}/tests phpunit ./vendor/bin/phpunit --testsuite feature
+
+# FIXME: should only run for PHP 5.6
+phpunit-run-php-cs-fixer-test:
+	@docker exec -w ${CONTAINER_INSTALL_DIR} phpunit ./tests/vendor/bin/php-cs-fixer fix --dry-run --diff --diff-format udiff
+
+phpunit-run-php-cs-fixer:
+	@docker exec -w ${CONTAINER_INSTALL_DIR} phpunit ./tests/vendor/bin/php-cs-fixer fix --using-cache=no
+
+REGEX_COMPAT_VOID := "s/\(function \(setUp\|tearDown\)()\)\(: void\)\?/\1/"
+REGEX_COMPAT_TRAIT := "s/\#\?\(use \\\\DMS\\\\PHPUnitExtensions\\\\ArraySubset\\\\ArraySubsetAsserts;\)/\#\1/"
+phpunit-fix-compat-php56:
+	@echo "fixing compat for php56..."
+	find ./tests -type f -name "TestCase.php" -exec sed -i -e ${REGEX_COMPAT_TRAIT} {} \;
+	find ./tests -type f -name "TestCase.php" -exec sed -i -e ${REGEX_COMPAT_VOID} {} \;
+	find ./tests/Unit -type f -name "*.php" -exec sed -i -e ${REGEX_COMPAT_VOID} {} \;
+	find ./tests/Feature -type f -name "*.php" -exec sed -i -e ${REGEX_COMPAT_VOID} {} \;
+
+phpunit-reset-compat-php56: REGEX_COMPAT_VOID := "s/\(function \(setUp\|tearDown\)()\)\(: void\)\?/\1: void/"
+phpunit-reset-compat-php56: REGEX_COMPAT_TRAIT := "s/\#\?\(use \\\\DMS\\\\PHPUnitExtensions\\\\ArraySubset\\\\ArraySubsetAsserts;\)/\1/"
+phpunit-reset-compat-php56: phpunit-fix-compat-php56
+
+#phpunit-run-phpstan:
+#	@docker exec -w ${CONTAINER_INSTALL_DIR}/tests phpunit ./vendor/bin/phpstan analyse \
+#	  --memory-limit=-1 \
+#	  --configuration=./phpstan/${NEON_FILE}
 
 #phpunit-xdebug:
 #	-@docker exec phpunit sh -c "docker-php-ext-enable xdebug"
@@ -147,7 +172,7 @@ endef
 #	@docker container stop ps_accounts_mysql_1
 #	$(call phpunit-version,$@,"prestashop/docker-internal-images",,composer71.json)
 
-phpunit-1.6.1.24-5.6-fpm-stretch:
+phpunit-1.6.1.24-5.6-fpm-stretch: phpunit-fix-compat-php56
 	$(call phpunit-version,$@,,,composer56.json)
 
 phpunit-1.6.1.24-7.1:
@@ -238,14 +263,16 @@ php-cs-fixer: tests/vendor
 	PHP_CS_FIXER_IGNORE_ENV=1 ${PHP} ./tests/vendor/bin/php-cs-fixer fix --using-cache=no
 #	vendor/bin/php-cs-fixer fix --dry-run --diff --using-cache=no --diff-format udiff
 
-autoindex:
-	${PHP} ./vendor/bin/autoindex prestashop:add:index "${WORKDIR}"
+autoindex: COMPOSER_FILE := composer56.json
+autoindex: tests/vendor
+	${PHP} ./tests/vendor/bin/autoindex prestashop:add:index "${WORKDIR}"
 
-header-stamp:
+header-stamp: COMPOSER_FILE := composer56.json
+header-stamp: tests/vendor
 	${PHP} ./vendor/bin/header-stamp --target="${WORKDIR}" --license="assets/afl.txt" --exclude=".github,node_modules,vendor,vendor,tests,_dev"
 
 ##########################################################
-COMPOSER_OPTIONS ?= --prefer-dist -o --no-dev --quiet --ignore-platform-reqs
+COMPOSER_OPTIONS ?= --prefer-dist -o --no-dev --quiet
 
 vendor-clean:
 	rm -rf ./vendor
