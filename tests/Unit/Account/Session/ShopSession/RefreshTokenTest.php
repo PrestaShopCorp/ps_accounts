@@ -92,7 +92,11 @@ class RefreshTokenTest extends TestCase
             ->disableOriginalConstructor()
             ->getMock();
         $oauth2Client->method('exists')->willReturn($existResponse);
-        $shopProvider->method('getAccessToken')->willReturn($tokenResponse);
+        if ($tokenResponse) {
+            $shopProvider->method('getAccessToken')->willReturn($tokenResponse);
+        } else {
+            $shopProvider->method('getAccessToken')->willThrowException(new \Exception('Fail !!'));
+        }
         $shopProvider->method('getOauth2Client')->willReturn($oauth2Client);
         return new ShopSession(
             $this->configurationRepository,

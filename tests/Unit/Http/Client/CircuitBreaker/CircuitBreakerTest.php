@@ -76,7 +76,7 @@ class CircuitBreakerTest extends TestCase
             });
         }
 
-        $this->assertEquals(State::OPEN, $circuitBreaker->state());
+        $this->assertEquals(State::OPEN, $circuitBreaker->state(), (string) $this->circuitBreaker);
         $this->assertFalse(isset($response['status']) ? $response['status'] : null);
         $this->assertEquals(500, isset($response['httpCode']) ? $response['httpCode'] : null);
         $this->assertEquals('Circuit Breaker Open', isset($response['body']['message']) ? $response['body']['message'] : null);
@@ -99,7 +99,7 @@ class CircuitBreakerTest extends TestCase
 
         sleep(1);
 
-        $this->assertEquals(State::HALF_OPEN, $circuitBreaker->state());
+        $this->assertEquals(State::HALF_OPEN, $circuitBreaker->state(), (string) $this->circuitBreaker);
     }
 
     /**
@@ -123,7 +123,7 @@ class CircuitBreakerTest extends TestCase
             throw new ConnectException('Test Timeout Reached', $this->getRequest());
         });
 
-        $this->assertEquals(State::OPEN, $circuitBreaker->state());
+        $this->assertEquals(State::OPEN, $circuitBreaker->state(), (string) $this->circuitBreaker);
         $this->assertFalse(isset($response['status']) ? $response['status'] : null);
         $this->assertEquals(500, isset($response['httpCode']) ? $response['httpCode'] : null);
         $this->assertEquals('Circuit Breaker Open', isset($response['body']['message']) ? $response['body']['message'] : null);
@@ -150,7 +150,7 @@ class CircuitBreakerTest extends TestCase
             return 'OK';
         });
 
-        $this->assertEquals(State::CLOSED, $circuitBreaker->state());
+        $this->assertEquals(State::CLOSED, $circuitBreaker->state(), (string) $this->circuitBreaker);
     }
 
     /**
@@ -174,6 +174,7 @@ class CircuitBreakerTest extends TestCase
         $circuitBreaker->setResetTimeoutMs($resetTimeoutMs);
         $circuitBreaker->setThreshold($threshold);
         $circuitBreaker->setDefaultFallbackResponse($defaultResponse);
+        //$circuitBreaker->reset();
 
         return $circuitBreaker;
     }
