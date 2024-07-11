@@ -28,27 +28,27 @@ version:
 ##########################################################
 # target: phpstan
 
-PHPSTAN_VERSION ?= 0.12
-PS_VERSION ?= latest
-NEON_FILE ?= phpstan-PS-1.7.neon
-
-phpstan:
-	-docker volume rm ps-volume
-	docker pull phpstan/phpstan:${PHPSTAN_VERSION}
-	docker pull prestashop/prestashop:${PS_VERSION}
-	docker run --rm -d -v ps-volume:/var/www/html --entrypoint /bin/sleep --name test-phpstan-${PS_VERSION} prestashop/prestashop:${PS_VERSION} 2s
-	docker run --rm --volumes-from test-phpstan-${PS_VERSION} \
-	  -v ${PWD}:/web/module \
-	  -e _PS_ROOT_DIR_=/var/www/html \
-	  --workdir=/web/module \
-	  phpstan/phpstan:${PHPSTAN_VERSION} analyse \
-	  --memory-limit=-1 \
-	  --configuration=/web/module/tests/phpstan/${NEON_FILE}
-#	docker volume rm ps-volume
-
-phpstan16: PS_VERSION = 1.6.1.21
-phpstan16: NEON_FILE = phpstan-PS-1.6.neon
-phpstan16: phpstan
+#PHPSTAN_VERSION ?= 0.12
+#PS_VERSION ?= latest
+#NEON_FILE ?= phpstan-PS-1.7.neon
+#
+#phpstan:
+#	-docker volume rm ps-volume
+#	docker pull phpstan/phpstan:${PHPSTAN_VERSION}
+#	docker pull prestashop/prestashop:${PS_VERSION}
+#	docker run --rm -d -v ps-volume:/var/www/html --entrypoint /bin/sleep --name test-phpstan-${PS_VERSION} prestashop/prestashop:${PS_VERSION} 2s
+#	docker run --rm --volumes-from test-phpstan-${PS_VERSION} \
+#	  -v ${PWD}:/web/module \
+#	  -e _PS_ROOT_DIR_=/var/www/html \
+#	  --workdir=/web/module \
+#	  phpstan/phpstan:${PHPSTAN_VERSION} analyse \
+#	  --memory-limit=-1 \
+#	  --configuration=/web/module/tests/phpstan/${NEON_FILE}
+##	docker volume rm ps-volume
+#
+#phpstan16: PS_VERSION = 1.6.1.21
+#phpstan16: NEON_FILE = phpstan-PS-1.6.neon
+#phpstan16: phpstan
 
 ##########################################################
 # target: php-unit
@@ -113,13 +113,6 @@ phpunit-run-unit: phpunit-permissions
 phpunit-run-feature: phpunit-permissions
 	@docker exec -w ${CONTAINER_INSTALL_DIR}/tests phpunit ./vendor/bin/phpunit --testsuite feature
 
-# FIXME: should only run for PHP 5.6
-phpunit-run-php-cs-fixer-test:
-	@docker exec -w ${CONTAINER_INSTALL_DIR} phpunit ./tests/vendor/bin/php-cs-fixer fix --dry-run --diff --diff-format udiff
-
-phpunit-run-php-cs-fixer:
-	@docker exec -w ${CONTAINER_INSTALL_DIR} phpunit ./tests/vendor/bin/php-cs-fixer fix --using-cache=no
-
 REGEX_COMPAT_VOID := "s/\(function \(setUp\|tearDown\)()\)\(: void\)\?/\1/"
 REGEX_COMPAT_TRAIT := "s/\#\?\(use \\\\DMS\\\\PHPUnitExtensions\\\\ArraySubset\\\\ArraySubsetAsserts;\)/\#\1/"
 phpunit-fix-compat-php56:
@@ -133,10 +126,23 @@ phpunit-reset-compat-php56: REGEX_COMPAT_VOID := "s/\(function \(setUp\|tearDown
 phpunit-reset-compat-php56: REGEX_COMPAT_TRAIT := "s/\#\?\(use \\\\DMS\\\\PHPUnitExtensions\\\\ArraySubset\\\\ArraySubsetAsserts;\)/\1/"
 phpunit-reset-compat-php56: phpunit-fix-compat-php56
 
-#phpunit-run-phpstan:
-#	@docker exec -w ${CONTAINER_INSTALL_DIR}/tests phpunit ./vendor/bin/phpstan analyse \
-#	  --memory-limit=-1 \
-#	  --configuration=./phpstan/${NEON_FILE}
+# FIXME: should only run for PHP 5.6
+phpunit-run-php-cs-fixer-test:
+	@docker exec -w ${CONTAINER_INSTALL_DIR} phpunit ./tests/vendor/bin/php-cs-fixer fix --dry-run --diff --diff-format udiff
+
+phpunit-run-php-cs-fixer:
+	@docker exec -w ${CONTAINER_INSTALL_DIR} phpunit ./tests/vendor/bin/php-cs-fixer fix --using-cache=no
+
+NEON_FILE = phpstan-PS-1.7.neon
+phpstan:
+	@docker exec -w ${CONTAINER_INSTALL_DIR}/tests -e _PS_ROOT_DIR_=${CONTAINER_INSTALL_DIR}/../.. \
+	  phpunit ./vendor/bin/phpstan analyse \
+	  --autoload-file=bootstrap.php \
+	  --memory-limit=-1 \
+	  --configuration=./phpstan/${NEON_FILE}
+
+phpstan16: NEON_FILE := phpstan-PS-1.6.neon
+phpstan16: phpstan
 
 #phpunit-xdebug:
 #	-@docker exec phpunit sh -c "docker-php-ext-enable xdebug"
@@ -175,7 +181,7 @@ endef
 phpunit-1.6.1.24-5.6-fpm-stretch: phpunit-fix-compat-php56
 	$(call phpunit-version,$@,,,composer56.json)
 
-phpunit-1.6.1.24-7.1:
+phpunit-1.6.1.24-7.1: phpstan phpstan16
 	$(call phpunit-version,$@,,,composer71.json)
 
 phpunit-1.7.8.5-7.4:
