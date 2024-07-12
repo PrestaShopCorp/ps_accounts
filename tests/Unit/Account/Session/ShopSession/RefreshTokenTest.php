@@ -21,6 +21,9 @@ class RefreshTokenTest extends TestCase
      */
     protected $shopSession;
 
+    /**
+     * @return void
+     */
     function tearDown(): void
     {
         parent::tearDown();
