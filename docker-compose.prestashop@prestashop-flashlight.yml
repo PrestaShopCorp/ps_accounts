@@ -2,8 +2,8 @@ version: "3.7"
 services:
   prestashop:
     container_name: phpunit
-    #image: 'prestashop/prestashop-flashlight:8.1.5-7.4'
-    image: ${PHPUNIT_IMAGE}
+#    image: 'prestashop/prestashop-flashlight:1.7.7.8-7.1'
+    image: ${PLATFORM_IMAGE}
     user: root
     environment:
       - PS_DOMAIN=localhost

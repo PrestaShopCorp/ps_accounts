@@ -50,18 +50,13 @@ version:
 #phpstan16: NEON_FILE = phpstan-PS-1.6.neon
 #phpstan16: phpstan
 
-##########################################################
-# target: php-unit
-# ex: run tests for a preset version
-# 	make phpunit-1.6.1.24-7.1
-# ex: start phpunit container for dev
-# 	PHPUNIT_MODE=dev make phpunit-1.6.1.24-7.1
+##########
+# PLATFORM
 
-PHPUNIT_REPO ?= prestashop/prestashop-flashlight
-PHPUNIT_TAG ?= 8.1.5-7.4
-PHPUNIT_IMAGE ?= ${PHPUNIT_REPO}:${PHPUNIT_TAG}
-PHPUNIT_DOCKER ?= docker-compose.flashlight.yml
-PHPUNIT_MODE ?=
+PLATFORM_REPO ?= prestashop/prestashop-flashlight
+PLATFORM_REPO_TAG ?= 8.1.5-7.4
+PLATFORM_IMAGE ?= ${PLATFORM_REPO}:${PHPUNIT_TAG}
+PLATFORM_COMPOSE_FILE ?= docker-compose.flashlight.yml
 
 COMPOSER_FILE ?= composer.json
 .PHONY: tests/vendor
@@ -69,49 +64,100 @@ tests/vendor:
 #	rm -rf ./tests/vendor
 	env COMPOSER=${COMPOSER_FILE} ${COMPOSER} install --working-dir=./tests/
 
-ifeq ($(PHPUNIT_MODE),dev)
-phpunit-mode: phpunit-initdev
-else
-phpunit-mode: phpunit-ci-run
-endif
-
 CONTAINER_INSTALL_DIR="/var/www/html/modules/ps_accounts"
 
-phpunit-pull:
-	docker pull ${PHPUNIT_IMAGE}
+platform-pull:
+	docker pull ${PLATFORM_IMAGE}
 
-phpunit-start:
-	@PHPUNIT_IMAGE=${PHPUNIT_IMAGE} ${DOCKER_COMPOSE} -f ${PHPUNIT_DOCKER} up -d
+platform-start:
+	@PLATFORM_IMAGE=${PLATFORM_IMAGE} ${DOCKER_COMPOSE} -f ${PLATFORM_COMPOSE_FILE} up -d
 	@echo phpunit started
 
-phpunit-stop:
-	@PHPUNIT_IMAGE=${PHPUNIT_IMAGE} ${DOCKER_COMPOSE} -f ${PHPUNIT_DOCKER} down
+platform-stop:
+	@PLATFORM_IMAGE=${PLATFORM_IMAGE} ${DOCKER_COMPOSE} -f ${PLATFORM_COMPOSE_FILE} down
 	@echo phpunit stopped
 
-phpunit-restart: phpunit-stop phpunit-start
+platform-restart: platform-stop platform-start
 
-phpunit-module-config:
+platform-module-config:
 	@docker exec -w ${CONTAINER_INSTALL_DIR} phpunit \
 		sh -c "if [ ! -f ./config/config.yml ]; then cp ./config/config.yml.dist ./config/config.yml; fi"
 
-phpunit-module-version:
+platform-module-version:
 	@docker exec -w ${CONTAINER_INSTALL_DIR} phpunit \
 		sh -c "echo \"Module v\`cat config.xml | grep '<version>' | sed 's/^.*\[CDATA\[\(.*\)\]\].*/\1/'\`\""
 
-phpunit-module-install: tests/vendor phpunit-module-config phpunit-module-version
+platform-module-install: tests/vendor platform-module-config platform-module-version
 	@docker exec phpunit sh -c "if [ -f ./bin/console ]; then php -d memory_limit=-1 ./bin/console prestashop:module install ps_accounts; fi"
 	@docker exec phpunit sh -c "if [ ! -f ./bin/console ]; then php -d memory_limit=-1 ./modules/ps_accounts/tests/install-module.php; fi"
 
-phpunit-permissions:
+platform-fix-permissions:
 	@docker exec phpunit sh -c "if [ -d ./var ]; then chown -R www-data:www-data ./var; fi"
 	@docker exec phpunit sh -c "if [ -d ./cache ]; then chown -R www-data:www-data ./cache; fi" # PS1.6
 	@docker exec phpunit sh -c "if [ -d ./log ]; then chown -R www-data:www-data ./log; fi" # PS1.6
 
-phpunit-run-unit: phpunit-permissions
+#phpunit-xdebug:
+#	-@docker exec phpunit sh -c "docker-php-ext-enable xdebug"
+
+define build-platform
+	$(eval target = $1)
+	$(eval repo = $2)
+	$(eval tag = $3)
+	$(eval composer = $4)
+
+	$(eval repo = $(if $(repo:-=),$(repo),${PLATFORM_REPO}))
+	$(eval tag = $(if $(tag:-=),$(tag),$(shell echo $(target) | sed 's/^platform\(-[a-z0-9]*\)\?-//')))
+	$(eval composer = $(if $(composer:-=),$(composer),${COMPOSER_FILE}))
+
+	PLATFORM_REPO=$(repo) \
+	PHPUNIT_TAG=$(tag) \
+	PLATFORM_COMPOSE_FILE=$(shell echo 'docker-compose.'$(repo)'.yml' | sed 's/\//@/') \
+	COMPOSER_FILE=${composer} \
+	$(MAKE) platform-init
+endef
+
+# FIXME: check for PrestaShop & DB coming alive
+platform-is-alive:
+	sleep 10
+
+platform-init: platform-pull platform-restart platform-is-alive platform-module-install platform-fix-permissions
+	@echo platform container is ready
+
+##################
+# PLATFORM PRESETS
+
+platform-1.6.1.24-5.6-fpm-stretch:
+	$(call build-platform,$@,,,composer56.json)
+
+platform-1.6.1.24-7.1:
+	$(call build-platform,$@,,,composer71.json)
+
+platform-1.7.7.8-7.1:
+	$(call build-platform,$@,,,composer71.json)
+
+platform-1.7.8.5-7.4:
+	$(call build-platform,$@)
+
+platform-8.1.5-7.4:
+	$(call build-platform,$@)
+
+platform-nightly:
+	$(call build-platform,$@)
+
+platform-internal-1.6:
+	@docker container stop ps_accounts_mysql_1
+	$(call build-platform,$@,"prestashop/docker-internal-images",,composer71.json)
+
+#########
+# PHPUNIT
+
+phpunit-run-unit: platform-fix-permissions
 	@docker exec -w ${CONTAINER_INSTALL_DIR}/tests phpunit ./vendor/bin/phpunit --testsuite unit
 
-phpunit-run-feature: phpunit-permissions
+phpunit-run-feature: platform-fix-permissions
 	@docker exec -w ${CONTAINER_INSTALL_DIR}/tests phpunit ./vendor/bin/phpunit --testsuite feature
+
+phpunit-run-all: phpunit-run-unit phpunit-run-feature
 
 REGEX_COMPAT_VOID := "s/\(function \(setUp\|tearDown\)()\)\(: void\)\?/\1/"
 REGEX_COMPAT_TRAIT := "s/\#\?\(use \\\\DMS\\\\PHPUnitExtensions\\\\ArraySubset\\\\ArraySubsetAsserts;\)/\#\1/"
@@ -126,12 +172,8 @@ phpunit-reset-compat-php56: REGEX_COMPAT_VOID := "s/\(function \(setUp\|tearDown
 phpunit-reset-compat-php56: REGEX_COMPAT_TRAIT := "s/\#\?\(use \\\\DMS\\\\PHPUnitExtensions\\\\ArraySubset\\\\ArraySubsetAsserts;\)/\1/"
 phpunit-reset-compat-php56: phpunit-fix-compat-php56
 
-# FIXME: should only run for PHP 5.6
-phpunit-run-php-cs-fixer-test:
-	@docker exec -w ${CONTAINER_INSTALL_DIR} phpunit ./tests/vendor/bin/php-cs-fixer fix --dry-run --diff --diff-format udiff
-
-phpunit-run-php-cs-fixer:
-	@docker exec -w ${CONTAINER_INSTALL_DIR} phpunit ./tests/vendor/bin/php-cs-fixer fix --using-cache=no
+#########
+# PHPSTAN
 
 NEON_FILE = phpstan-PS-1.7.neon
 phpstan:
@@ -144,59 +186,38 @@ phpstan:
 phpstan16: NEON_FILE := phpstan-PS-1.6.neon
 phpstan16: phpstan
 
-#phpunit-xdebug:
-#	-@docker exec phpunit sh -c "docker-php-ext-enable xdebug"
+##############
+# PHP-CS-FIXER
 
-# FIXME: check for PrestaShop & DB coming alive
-phpunit-is-alive:
-	sleep 10
+platform-php-cs-fixer-test:
+	@docker exec -w ${CONTAINER_INSTALL_DIR} phpunit ./tests/vendor/bin/php-cs-fixer fix --dry-run --diff --diff-format udiff
+platform-php-cs-fixer:
+	@docker exec -w ${CONTAINER_INSTALL_DIR} phpunit ./tests/vendor/bin/php-cs-fixer fix --using-cache=no
 
-phpunit-ci-run: phpunit-pull phpunit-restart phpunit-is-alive phpunit-module-install phpunit-run-unit phpunit-run-feature
-	@echo phpunit passed
-
-phpunit-initdev: phpunit-pull phpunit-restart phpunit-is-alive phpunit-module-install phpunit-permissions
-	@echo phpunit container is ready
-
-define phpunit-version
-	$(eval target = $1)
-	$(eval repo = $2)
-	$(eval tag = $3)
-	$(eval composer = $4)
-
-	$(eval repo = $(if $(repo:-=),$(repo),${PHPUNIT_REPO}))
-	$(eval tag = $(if $(tag:-=),$(tag),$(shell echo $(target) | sed 's/^phpunit\(-[a-z0-9]*\)\?-//')))
-	$(eval composer = $(if $(composer:-=),$(composer),${COMPOSER_FILE}))
-
-	PHPUNIT_REPO=$(repo) \
-	PHPUNIT_TAG=$(tag) \
-	PHPUNIT_DOCKER=$(shell echo 'docker-compose.'$(repo)'.yml' | sed 's/\//@/') \
-	COMPOSER_FILE=${composer} \
-	$(MAKE) phpunit-mode
-endef
+#################
+# TESTING TARGETS
 
 #phpunit-internal-1.6:
 #	@docker container stop ps_accounts_mysql_1
 #	$(call phpunit-version,$@,"prestashop/docker-internal-images",,composer71.json)
 
-phpunit-1.6.1.24-5.6-fpm-stretch: phpunit-fix-compat-php56
-	$(call phpunit-version,$@,,,composer56.json)
+phpunit-1.6.1.24-5.6-fpm-stretch: platform-1.6.1.24-5.6-fpm-stretch phpunit-fix-compat-php56 phpunit-run-all
+phpunit-1.6.1.24-7.1:             platform-1.6.1.24-7.1 phpunit-run-all
+phpunit-1.7.7.8-7.1:              platform-1.7.7.8-7.1 phpunit-run-all
+phpunit-1.7.8.5-7.4:              platform-1.7.8.5-7.4 phpunit-run-all
+phpunit-8.1.5-7.4:                platform-8.1.5-7.4 phpunit-run-all
+phpunit-nightly:                  platform-nightly phpunit-run-all
+#phpunit-internal-1.6:             platform-internal-1.6 phpunit-run-all
 
-phpunit-1.6.1.24-7.1:
-	$(call phpunit-version,$@,,,composer71.json)
-	$(MAKE) phpstan
-	$(MAKE) phpstan16
+#"latest", "1.7.6.5", "1.6.1.21"
+phpstan-1.6.1.24-7.1: platform-1.6.1.24-7.1 phpstan16
+phpstan-1.7.7.8-7.1:  platform-1.7.7.8-7.1 phpstan
 
-phpunit-1.7.8.5-7.4:
-	$(call phpunit-version,$@)
+php-cs-fixer-test-1.6.1.24-5.6-fpm-stretch: platform-1.6.1.24-5.6-fpm-stretch platform-php-cs-fixer-test
+php-cs-fixer-1.6.1.24-5.6-fpm-stretch: platform-1.6.1.24-5.6-fpm-stretch platform-php-cs-fixer
 
-phpunit-8.1.5-7.4:
-	$(call phpunit-version,$@)
-
-phpunit-nightly:
-	$(call phpunit-version,$@)
-
-##########################################################
-# target: php-scoper
+############
+# PHP-SCOPER
 
 #VENDOR_DIRS = guzzlehttp league prestashopcorp
 PHP_SCOPER_VENDOR_DIRS = $(shell cat scoper.inc.php | grep 'dirScoped =' | sed 's/^.*\$dirScoped = \[\(.*\)\].*/\1/' | sed "s/[' ,]\+/ /g")
@@ -224,10 +245,8 @@ php-scoper-fix-autoload:
 
 php-scoper: php-scoper-add-prefix php-scoper-dump-autoload php-scoper-fix-autoload
 
-##########################################################
-# target: bundle
-# target: bundle-prod
-# target: bundle-inte
+##########
+# BUNDLING
 
 BUNDLE_ENV ?= # ex: local|preprod|prod
 BUNDLE_ZIP ?= # ex: ps_accounts_flavor.zip
@@ -259,10 +278,8 @@ composer.phar:
 #clean:
 #	git -c core.excludesfile=/dev/null clean -X -d -f
 
-##########################################################
-# target: php-cs-fixer
-# target: autoindex
-# target: header-stamp
+#######
+# TOOLS
 
 WORKDIR ?= ./
 
