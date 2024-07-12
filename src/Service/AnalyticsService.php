@@ -34,7 +34,7 @@ class AnalyticsService
     private $logger;
 
     /**
-     * @var string
+     * @var string|null
      */
     private static $anonymousId;
 

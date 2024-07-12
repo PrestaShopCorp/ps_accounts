@@ -88,8 +88,8 @@ platform-module-version:
 		sh -c "echo \"Module v\`cat config.xml | grep '<version>' | sed 's/^.*\[CDATA\[\(.*\)\]\].*/\1/'\`\""
 
 platform-module-install: tests/vendor platform-module-config platform-module-version
-	@docker exec phpunit sh -c "if [ -f ./bin/console ]; then php -d memory_limit=-1 ./bin/console prestashop:module install ps_accounts; fi"
-	@docker exec phpunit sh -c "if [ ! -f ./bin/console ]; then php -d memory_limit=-1 ./modules/ps_accounts/tests/install-module.php; fi"
+	-@docker exec phpunit sh -c "if [ -f ./bin/console ]; then php -d memory_limit=-1 ./bin/console prestashop:module install ps_accounts; fi"
+	-@docker exec phpunit sh -c "if [ ! -f ./bin/console ]; then php -d memory_limit=-1 ./modules/ps_accounts/tests/install-module.php; fi"
 
 platform-fix-permissions:
 	@docker exec phpunit sh -c "if [ -d ./var ]; then chown -R www-data:www-data ./var; fi"
@@ -125,6 +125,13 @@ platform-init: platform-pull platform-restart platform-is-alive platform-module-
 
 ##################
 # PLATFORM PRESETS
+
+# example:
+# major x php range x vendor
+# PS16  | 5.6 - 7.1 | vendor56
+# PS17  | 7.1 - 8.0 | vendor71
+# PS80  | 7.4 - 8.0 | vendor71
+# PS90  | 8.O - *   | vendor80
 
 platform-1.6.1.24-5.6-fpm-stretch:
 	$(call build-platform,$@,,,composer56.json)
@@ -196,10 +203,6 @@ platform-php-cs-fixer:
 
 #################
 # TESTING TARGETS
-
-#phpunit-internal-1.6:
-#	@docker container stop ps_accounts_mysql_1
-#	$(call phpunit-version,$@,"prestashop/docker-internal-images",,composer71.json)
 
 phpunit-1.6.1.24-5.6-fpm-stretch: platform-1.6.1.24-5.6-fpm-stretch phpunit-fix-compat-php56 phpunit-run-all
 phpunit-1.6.1.24-7.1:             platform-1.6.1.24-7.1 phpunit-run-all

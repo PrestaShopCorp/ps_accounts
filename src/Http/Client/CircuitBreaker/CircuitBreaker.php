@@ -148,7 +148,7 @@ abstract class CircuitBreaker
      */
     public function __toString()
     {
-        return \json_encode([
+        return (string) \json_encode([
             'state' => $this->state(),
             'threshold' => $this->getThreshold(),
             'reset_timeout_ms' => $this->getResetTimeoutMs(),
