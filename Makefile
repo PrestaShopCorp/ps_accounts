@@ -25,31 +25,6 @@ version:
 	@sed -i -e 's/\(<version><!\[CDATA\[\)[0-9a-z\.\-]\{1,\}.*\]\]><\/version>/\1'${VERSION}']]><\/version>/' config.xml
 	@sed -i -e "s/\(\"version\"\: \).*/\1\"${VERSION}\",/" ./_dev/package.json
 
-##########################################################
-# target: phpstan
-
-#PHPSTAN_VERSION ?= 0.12
-#PS_VERSION ?= latest
-#NEON_FILE ?= phpstan-PS-1.7.neon
-#
-#phpstan:
-#	-docker volume rm ps-volume
-#	docker pull phpstan/phpstan:${PHPSTAN_VERSION}
-#	docker pull prestashop/prestashop:${PS_VERSION}
-#	docker run --rm -d -v ps-volume:/var/www/html --entrypoint /bin/sleep --name test-phpstan-${PS_VERSION} prestashop/prestashop:${PS_VERSION} 2s
-#	docker run --rm --volumes-from test-phpstan-${PS_VERSION} \
-#	  -v ${PWD}:/web/module \
-#	  -e _PS_ROOT_DIR_=/var/www/html \
-#	  --workdir=/web/module \
-#	  phpstan/phpstan:${PHPSTAN_VERSION} analyse \
-#	  --memory-limit=-1 \
-#	  --configuration=/web/module/tests/phpstan/${NEON_FILE}
-##	docker volume rm ps-volume
-#
-#phpstan16: PS_VERSION = 1.6.1.21
-#phpstan16: NEON_FILE = phpstan-PS-1.6.neon
-#phpstan16: phpstan
-
 ##########
 # PLATFORM
 
@@ -85,9 +60,14 @@ platform-module-config:
 
 platform-module-version:
 	@docker exec -w ${CONTAINER_INSTALL_DIR} phpunit \
-		sh -c "echo \"Module v\`cat config.xml | grep '<version>' | sed 's/^.*\[CDATA\[\(.*\)\]\].*/\1/'\`\""
+		sh -c "echo \"installing module: [\`cat config.xml | grep '<version>' | sed 's/^.*\[CDATA\[\(.*\)\]\].*/v\1/'\`]\""
 
-platform-module-install: tests/vendor platform-module-config platform-module-version
+platform-phpstan-config:
+	@echo "installing neon file: [${NEON_FILE}]"
+	@docker exec -w ${CONTAINER_INSTALL_DIR}/tests phpunit \
+		sh -c "if [ -f ./phpstan/${NEON_FILE} ]; then cp ./phpstan/${NEON_FILE} ./phpstan/phpstan.neon; fi"
+
+platform-module-install: tests/vendor platform-phpstan-config platform-module-config platform-module-version
 	-@docker exec phpunit sh -c "if [ -f ./bin/console ]; then php -d memory_limit=-1 ./bin/console prestashop:module install ps_accounts; fi"
 	-@docker exec phpunit sh -c "if [ ! -f ./bin/console ]; then php -d memory_limit=-1 ./modules/ps_accounts/tests/install-module.php; fi"
 
@@ -99,20 +79,24 @@ platform-fix-permissions:
 #phpunit-xdebug:
 #	-@docker exec phpunit sh -c "docker-php-ext-enable xdebug"
 
+# FIXME: set neon file for platform
 define build-platform
 	$(eval target = $1)
 	$(eval repo = $2)
 	$(eval tag = $3)
 	$(eval composer = $4)
+	$(eval neonfile = $5)
 
 	$(eval repo = $(if $(repo:-=),$(repo),${PLATFORM_REPO}))
 	$(eval tag = $(if $(tag:-=),$(tag),$(shell echo $(target) | sed 's/^platform\(-[a-z0-9]*\)\?-//')))
 	$(eval composer = $(if $(composer:-=),$(composer),${COMPOSER_FILE}))
+	$(eval neonfile = $(if $(neonfile:-=),$(neonfile),${NEON_FILE}))
 
 	PLATFORM_REPO=$(repo) \
 	PHPUNIT_TAG=$(tag) \
 	PLATFORM_COMPOSE_FILE=$(shell echo 'docker-compose.'$(repo)'.yml' | sed 's/\//@/') \
 	COMPOSER_FILE=${composer} \
+	NEON_FILE=${neonfile} \
 	$(MAKE) platform-init
 endef
 
@@ -133,11 +117,11 @@ platform-init: platform-pull platform-restart platform-is-alive platform-module-
 # PS80  | 7.4 - 8.0 | vendor71
 # PS90  | 8.O - *   | vendor80
 
-platform-1.6.1.24-5.6-fpm-stretch:
-	$(call build-platform,$@,,,composer56.json)
+platform-1.6.1.24-5.6-fpm-stretch: phpunit-fix-compat-php56
+	$(call build-platform,$@,,,composer56.json,phpstan\-PS\-1.6.neon)
 
 platform-1.6.1.24-7.1:
-	$(call build-platform,$@,,,composer71.json)
+	$(call build-platform,$@,,,composer71.json,phpstan\-PS\-1.6.neon)
 
 platform-1.7.7.8-7.1:
 	$(call build-platform,$@,,,composer71.json)
@@ -164,7 +148,7 @@ phpunit-run-unit: platform-fix-permissions
 phpunit-run-feature: platform-fix-permissions
 	@docker exec -w ${CONTAINER_INSTALL_DIR}/tests phpunit ./vendor/bin/phpunit --testsuite feature
 
-phpunit-run-all: phpunit-run-unit phpunit-run-feature
+phpunit: phpunit-run-unit phpunit-run-feature
 
 REGEX_COMPAT_VOID := "s/\(function \(setUp\|tearDown\)()\)\(: void\)\?/\1/"
 REGEX_COMPAT_TRAIT := "s/\#\?\(use \\\\DMS\\\\PHPUnitExtensions\\\\ArraySubset\\\\ArraySubsetAsserts;\)/\#\1/"
@@ -182,16 +166,16 @@ phpunit-reset-compat-php56: phpunit-fix-compat-php56
 #########
 # PHPSTAN
 
-NEON_FILE = phpstan-PS-1.7.neon
+NEON_FILE ?= phpstan-PS-1.7.neon
 phpstan:
 	@docker exec -w ${CONTAINER_INSTALL_DIR}/tests -e _PS_ROOT_DIR_=${CONTAINER_INSTALL_DIR}/../.. \
 	  phpunit ./vendor/bin/phpstan analyse \
 	  --autoload-file=bootstrap.php \
 	  --memory-limit=-1 \
-	  --configuration=./phpstan/${NEON_FILE}
+	  --configuration=./phpstan/phpstan.neon
 
-phpstan16: NEON_FILE := phpstan-PS-1.6.neon
-phpstan16: phpstan
+#phpstan16: NEON_FILE := phpstan-PS-1.6.neon
+#phpstan16: phpstan
 
 ##############
 # PHP-CS-FIXER
@@ -204,17 +188,17 @@ platform-php-cs-fixer:
 #################
 # TESTING TARGETS
 
-phpunit-1.6.1.24-5.6-fpm-stretch: platform-1.6.1.24-5.6-fpm-stretch phpunit-fix-compat-php56 phpunit-run-all
-phpunit-1.6.1.24-7.1:             platform-1.6.1.24-7.1 phpunit-run-all
-phpunit-1.7.7.8-7.1:              platform-1.7.7.8-7.1 phpunit-run-all
-phpunit-1.7.8.5-7.4:              platform-1.7.8.5-7.4 phpunit-run-all
-phpunit-8.1.5-7.4:                platform-8.1.5-7.4 phpunit-run-all
-phpunit-nightly:                  platform-nightly phpunit-run-all
-#phpunit-internal-1.6:             platform-internal-1.6 phpunit-run-all
+phpunit-1.6.1.24-5.6-fpm-stretch: platform-1.6.1.24-5.6-fpm-stretch phpunit
+phpunit-1.6.1.24-7.1:             platform-1.6.1.24-7.1             phpunit
+phpunit-1.7.7.8-7.1:              platform-1.7.7.8-7.1              phpunit
+phpunit-1.7.8.5-7.4:              platform-1.7.8.5-7.4              phpunit
+phpunit-8.1.5-7.4:                platform-8.1.5-7.4                phpunit
+phpunit-nightly:                  platform-nightly                  phpunit
+#phpunit-internal-1.6:             platform-internal-1.6 phpunit
 
 #"latest", "1.7.6.5", "1.6.1.21"
-phpstan-1.6.1.24-7.1: platform-1.6.1.24-7.1 phpstan16
-phpstan-1.7.7.8-7.1:  platform-1.7.7.8-7.1 phpstan
+phpstan-1.6.1.24-7.1: platform-1.6.1.24-7.1 phpstan
+phpstan-1.7.7.8-7.1:  platform-1.7.7.8-7.1  phpstan
 
 php-cs-fixer-test-1.6.1.24-5.6-fpm-stretch: platform-1.6.1.24-5.6-fpm-stretch platform-php-cs-fixer-test
 php-cs-fixer-1.6.1.24-5.6-fpm-stretch: platform-1.6.1.24-5.6-fpm-stretch platform-php-cs-fixer

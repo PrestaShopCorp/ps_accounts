@@ -103,16 +103,15 @@ jobs:
         run: |
           make phpunit-${{ matrix.presta-versions }}
 
+# alternatively :
 #      - name: Platform build
 #        run: |
 #          make platform-${{ matrix.presta-versions }}
 #
-#      # FIXME: move fix-compat to platform build
 #      - name: PHPUnit
 #        run: |
-#          make phpunit-run-all
+#          make phpunit
 #
-#      # FIXME: move neon file conf into platform
 #      - name: PHPStan
 #        run: |
 #          make phpstan
