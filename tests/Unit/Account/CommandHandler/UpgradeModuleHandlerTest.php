@@ -5,7 +5,6 @@ namespace PrestaShop\Module\PsAccounts\Tests\Unit\Account\CommandHandler;
 use PrestaShop\Module\PsAccounts\Account\Command\UpgradeModuleCommand;
 use PrestaShop\Module\PsAccounts\Account\CommandHandler\UpgradeModuleHandler;
 use PrestaShop\Module\PsAccounts\Account\Dto\UpgradeModule;
-use PrestaShop\Module\PsAccounts\Account\LinkShop;
 use PrestaShop\Module\PsAccounts\Account\Session\Firebase\ShopSession;
 use PrestaShop\Module\PsAccounts\Account\Token\Token;
 use PrestaShop\Module\PsAccounts\Api\Client\AccountsClient;
@@ -16,13 +15,6 @@ use PrestaShop\Module\PsAccounts\Tests\TestCase;
 
 class UpgradeModuleHandlerTest extends TestCase
 {
-    /**
-     * @inject
-     *
-     * @var LinkShop
-     */
-    protected $linkShop;
-
     /**
      * @inject
      *

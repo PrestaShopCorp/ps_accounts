@@ -3,13 +3,13 @@
 namespace PrestaShop\Module\PsAccounts\Tests\Unit\Account\Session\Firebase\OwnerSession;
 
 use PrestaShop\Module\PsAccounts\Account\Session\Firebase;
+use PrestaShop\Module\PsAccounts\Account\Token\Token;
 use PrestaShop\Module\PsAccounts\Provider\OAuth2\ShopProvider;
 use PrestaShop\Module\PsAccounts\Tests\TestCase;
-use PrestaShop\Module\PsAccounts\Tests\Unit\Account\Session\SessionHelpers;
 
 class GetOrRefreshTokenTest extends TestCase
 {
-    use SessionHelpers;
+    use \PrestaShop\Module\PsAccounts\Tests\Unit\Account\Session\SessionHelpers;
 
     /**
      * @inject
@@ -32,7 +32,7 @@ class GetOrRefreshTokenTest extends TestCase
      */
     public function itShouldReturnValidToken()
     {
-        $idToken = $this->makeJwtToken(new \DateTimeImmutable('tomorrow'), [
+        $idToken = $this->makeJwtToken(new \DateTimeImmutable('+1 hours'), [
             'sub' => $this->faker->uuid,
             'email' => $this->faker->safeEmail,
         ]);
@@ -49,29 +49,38 @@ class GetOrRefreshTokenTest extends TestCase
      */
     public function itShouldRefreshExpiredToken()
     {
-        $expired = $this->makeJwtToken(new \DateTimeImmutable('yesterday'), [
+        $expiredToken = $this->makeJwtToken(new \DateTimeImmutable('yesterday'), [
             'sub' => $this->faker->uuid,
             'email' => $this->faker->safeEmail,
         ]);
-        $refreshed = $this->makeJwtToken(new \DateTimeImmutable('tomorrow'), [
+        $refreshToken = $this->makeJwtToken(new \DateTimeImmutable('+1 year'));
+
+        $userRefreshedToken = $this->makeJwtToken(new \DateTimeImmutable('tomorrow'), [
+            'sub' => $this->faker->uuid,
+            'email' => $this->faker->safeEmail,
+        ]);
+        $shopRefreshedToken = $this->makeJwtToken(new \DateTimeImmutable('tomorrow'), [
             'sub' => $this->faker->uuid,
             'email' => $this->faker->safeEmail,
         ]);
         $userRefreshToken = $this->faker->regexify('[a-zA-Z\d]{40}');
         $shopRefreshToken = $this->faker->regexify('[a-zA-Z\d]{40}');
-        $shopSession = $this->getMockedShopSession($this->createApiResponse([
-            'userToken' => (string) $refreshed,
-            'userRefreshToken' => $userRefreshToken,
-            'shopToken' => (string) $refreshed,
-            'shopRefreshToken' => $shopRefreshToken,
-        ], 200, true));
 
-        $session = new Firebase\OwnerSession($this->configurationRepository, $shopSession);
+        $session = $this->getMockedFirebaseSession(
+            Firebase\OwnerSession::class,
+            $this->createApiResponse([
+                'userToken' => (string) $userRefreshedToken,
+                'userRefreshToken' => $userRefreshToken,
+                'shopToken' => (string) $shopRefreshedToken,
+                'shopRefreshToken' => $shopRefreshToken,
+            ], 200, true),
+            $this->getMockedShopSession(new Token($this->makeJwtToken(new \DateTimeImmutable())))
+        );
 
-        $session->setToken((string) $expired, $userRefreshToken);
+        $session->setToken((string) $expiredToken, (string) $refreshToken);
 
-        $this->assertEquals((string) $expired, (string) $session->getToken());
-        $this->assertEquals((string) $refreshed, (string) $session->getOrRefreshToken());
+        $this->assertEquals((string) $expiredToken, (string) $session->getToken());
+        $this->assertEquals((string) $userRefreshedToken, (string) $session->getOrRefreshToken());
         $this->assertEquals($userRefreshToken, $session->getToken()->getRefreshToken());
     }
 
@@ -82,26 +91,39 @@ class GetOrRefreshTokenTest extends TestCase
      */
     public function itShouldNotRefreshValidToken()
     {
-        $refreshed = $this->makeJwtToken(new \DateTimeImmutable('tomorrow'), [
+        $notExpired = $this->makeJwtToken(new \DateTimeImmutable('+1 hour'), [
+            'sub' => $this->faker->uuid,
+            'email' => $this->faker->safeEmail,
+        ]);
+        $notExpiredRefresh = $this->makeJwtToken(new \DateTimeImmutable('+1 year'));
+
+        $userRefreshedToken = $this->makeJwtToken(new \DateTimeImmutable('tomorrow'), [
+            'sub' => $this->faker->uuid,
+            'email' => $this->faker->safeEmail,
+        ]);
+        $shopRefreshedToken = $this->makeJwtToken(new \DateTimeImmutable('tomorrow'), [
             'sub' => $this->faker->uuid,
             'email' => $this->faker->safeEmail,
         ]);
         $userRefreshToken = $this->faker->regexify('[a-zA-Z\d]{40}');
         $shopRefreshToken = $this->faker->regexify('[a-zA-Z\d]{40}');
-        $shopSession = $this->getMockedShopSession($this->createApiResponse([
-            'userToken' => (string) $refreshed,
-            'userRefreshToken' => $userRefreshToken,
-            'shopToken' => (string) $refreshed,
-            'shopRefreshToken' => $shopRefreshToken,
-        ], 200, true));
 
-        $session = new Firebase\OwnerSession($this->configurationRepository, $shopSession);
+        $session = $this->getMockedFirebaseSession(
+            Firebase\OwnerSession::class,
+            $this->createApiResponse([
+                'userToken' => (string) $userRefreshedToken,
+                'userRefreshToken' => $userRefreshToken,
+                'shopToken' => (string) $shopRefreshedToken,
+                'shopRefreshToken' => $shopRefreshToken,
+            ], 200, true),
+            $this->getMockedShopSession(new Token('')) // Empty token
+        );
 
         //$shopSession->setToken((string) $expired);
-        $session->setToken((string) $refreshed, $userRefreshToken);
+        $session->setToken((string) $notExpired, (string) $notExpiredRefresh);
 
-        $this->assertEquals((string) $refreshed, (string) $session->getToken());
-        $this->assertEquals((string) $refreshed, (string) $session->getOrRefreshToken());
-        $this->assertEquals($userRefreshToken, $session->getToken()->getRefreshToken());
+        $this->assertEquals((string) $notExpired, (string) $session->getToken());
+        $this->assertEquals((string) $notExpired, (string) $session->getOrRefreshToken());
+        $this->assertEquals($notExpiredRefresh, $session->getToken()->getRefreshToken());
     }
 }

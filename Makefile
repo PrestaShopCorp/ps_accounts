@@ -3,6 +3,7 @@ DOCKER = $(shell docker ps 2> /dev/null)
 NPM = $(shell which npm 2> /dev/null)
 YARN = $(shell which yarn 2> /dev/null)
 COMPOSER = ${PHP} ./composer.phar
+DOCKER_COMPOSE := $(shell which docker) compose
 MODULE ?= $(shell basename ${PWD})
 CURRENT_UID := $(shell id -u)
 CURRENT_GID := $(shell id -g)
@@ -72,11 +73,11 @@ phpunit-pull:
 	docker pull prestashop/docker-internal-images:${DOCKER_INTERNAL}
 
 phpunit-start:
-	@DOCKER_INTERNAL=${DOCKER_INTERNAL} docker-compose up -d
+	@DOCKER_INTERNAL=${DOCKER_INTERNAL} ${DOCKER_COMPOSE} up -d
 	@echo phpunit started
 
 phpunit-stop:
-	@DOCKER_INTERNAL=${DOCKER_INTERNAL} docker-compose down
+	@DOCKER_INTERNAL=${DOCKER_INTERNAL} ${DOCKER_COMPOSE} down
 	@echo phpunit stopped
 
 phpunit-restart: phpunit-stop phpunit-start
@@ -104,8 +105,8 @@ phpunit-run-unit: phpunit-permissions vendor-dev
 phpunit-run-feature: phpunit-permissions vendor-dev
 	@docker exec -w ${CONTAINER_INSTALL_DIR} phpunit ./vendor/bin/phpunit --testsuite feature
 
-phpunit-xdebug:
-	-@docker exec phpunit sh -c "docker-php-ext-enable xdebug"
+#phpunit-xdebug:
+#	-@docker exec phpunit sh -c "docker-php-ext-enable xdebug"
 
 phpunit-delay-5:
 	@echo waiting 5 seconds
@@ -205,7 +206,7 @@ endif
 WORKDIR ?= ./
 
 php-cs-fixer: vendor-dev
-	${PHP} ./vendor/bin/php-cs-fixer fix --using-cache=no
+	PHP_CS_FIXER_IGNORE_ENV=1 ${PHP} ./vendor/bin/php-cs-fixer fix --using-cache=no
 
 autoindex: vendor-dev
 	${PHP} ./vendor/bin/autoindex prestashop:add:index "${WORKDIR}"
@@ -214,7 +215,7 @@ header-stamp: vendor-dev
 	${PHP} ./vendor/bin/header-stamp --target="${WORKDIR}" --license="assets/afl.txt" --exclude=".github,node_modules,vendor,vendor,tests,_dev"
 
 ##########################################################
-COMPOSER_OPTIONS ?= --prefer-dist -o --no-dev --quiet
+COMPOSER_OPTIONS ?= --prefer-dist -o --no-dev --quiet --ignore-platform-reqs
 
 vendor-clean:
 	rm -rf ./vendor
@@ -223,6 +224,6 @@ vendor-clean:
 vendor: composer.phar
 	${COMPOSER} install ${COMPOSER_OPTIONS}
 
-vendor-dev: COMPOSER_OPTIONS = --prefer-dist -o --quiet
+vendor-dev: COMPOSER_OPTIONS = --prefer-dist -o --quiet --ignore-platform-reqs
 vendor-dev: vendor
 

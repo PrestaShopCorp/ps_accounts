@@ -162,6 +162,8 @@ services:
     arguments:
       - '@PrestaShop\Module\PsAccounts\Repository\ConfigurationRepository'
       - '@PrestaShop\Module\PsAccounts\Provider\OAuth2\ShopProvider'
+      - '@PrestaShop\Module\PsAccounts\Account\LinkShop'
+      - '@PrestaShop\Module\PsAccounts\Cqrs\CommandBus'
 
   PrestaShop\Module\PsAccounts\Account\Session\Firebase\ShopSession:
     class: PrestaShop\Module\PsAccounts\Account\Session\Firebase\ShopSession

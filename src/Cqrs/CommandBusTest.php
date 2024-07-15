@@ -29,7 +29,7 @@ class CommandBusTest extends TestCase
     /**
      * @var CommandBus
      */
-    private $commandBus;
+    public $commandBus;
 
     /**
      * @return void
