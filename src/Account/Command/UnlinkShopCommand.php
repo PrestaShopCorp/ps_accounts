@@ -28,10 +28,16 @@ class UnlinkShopCommand
     public $shopId;
 
     /**
+     * @var string|null
+     */
+    public $errorMsg;
+
+    /**
      * @param int $shopId
      */
-    public function __construct($shopId)
+    public function __construct($shopId, $errorMsg)
     {
         $this->shopId = $shopId;
+        $this->errorMsg = $errorMsg;
     }
 }

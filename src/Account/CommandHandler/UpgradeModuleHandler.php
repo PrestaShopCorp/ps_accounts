@@ -20,14 +20,14 @@
 
 namespace PrestaShop\Module\PsAccounts\Account\CommandHandler;
 
+use PrestaShop\Module\PsAccounts\Account\Command\UnlinkShopCommand;
 use PrestaShop\Module\PsAccounts\Account\Command\UpgradeModuleCommand;
 use PrestaShop\Module\PsAccounts\Account\LinkShop;
 use PrestaShop\Module\PsAccounts\Account\Session\Firebase\ShopSession;
 use PrestaShop\Module\PsAccounts\Api\Client\AccountsClient;
 use PrestaShop\Module\PsAccounts\Context\ShopContext;
-use PrestaShop\Module\PsAccounts\Provider\ShopProvider;
+use PrestaShop\Module\PsAccounts\Cqrs\CommandBus;
 use PrestaShop\Module\PsAccounts\Repository\ConfigurationRepository;
-use PrestaShop\Module\PsAccounts\Service\AnalyticsService;
 
 class UpgradeModuleHandler
 {
@@ -52,35 +52,29 @@ class UpgradeModuleHandler
     private $configRepo;
 
     /**
-     * @var ShopProvider
-     */
-    private $shopProvider;
-
-    /**
      * @var ShopContext
      */
     private $shopContext;
 
     /**
-     * @var AnalyticsService
+     * @var CommandBus
      */
-    private $analyticsService;
+    private $commandBus;
 
     public function __construct(
         AccountsClient $accountsClient,
         LinkShop $linkShop,
         ShopSession $shopSession,
-        ShopProvider $shopProvider,
+        ShopContext $shopContext,
         ConfigurationRepository $configurationRepository,
-        AnalyticsService $analyticsService
+        CommandBus $commandBus
     ) {
         $this->accountsClient = $accountsClient;
         $this->linkShop = $linkShop;
         $this->shopSession = $shopSession;
-        $this->shopProvider = $shopProvider;
-        $this->shopContext = $shopProvider->getShopContext();
+        $this->shopContext = $shopContext;
         $this->configRepo = $configurationRepository;
-        $this->analyticsService = $analyticsService;
+        $this->commandBus = $commandBus;
     }
 
     /**
@@ -110,21 +104,12 @@ class UpgradeModuleHandler
                     $command->payload
                 );
 
-                if (!$response['status']) {
-                    $shop = $this->shopProvider->formatShopData(
-                        (array) \Shop::getShop($this->shopContext->getContext()->shop->id)
-                    );
-                    $this->analyticsService->trackShopUnlinkedOnError(
-                        $this->linkShop->getOwnerUuid(),
-                        $this->linkShop->getOwnerEmail(),
-                        $this->linkShop->getShopUuid(),
-                        $shop->frontUrl,
-                        $shop->url,
-                        'ps_accounts',
-                        $response['httpCode']
-                    );
-                    $this->linkShop->delete();
-                }
+//                if (!$response['status']) {
+//                    $this->commandBus->handle(new UnlinkShopCommand(
+//                        $this->configRepo->getShopId(),
+//                        $response['httpCode']
+//                    ));
+//                }
             }
         });
     }

@@ -24,6 +24,8 @@ use Hook;
 use PrestaShop\Module\PsAccounts\Account\Command\UnlinkShopCommand;
 use PrestaShop\Module\PsAccounts\Account\LinkShop;
 use PrestaShop\Module\PsAccounts\Hook\ActionShopAccountUnlinkAfter;
+use PrestaShop\Module\PsAccounts\Provider\ShopProvider;
+use PrestaShop\Module\PsAccounts\Service\AnalyticsService;
 
 class UnlinkShopHandler
 {
@@ -33,11 +35,25 @@ class UnlinkShopHandler
     private $linkShop;
 
     /**
-     * @param LinkShop $linkShop
+     * @var AnalyticsService
      */
-    public function __construct(LinkShop $linkShop)
+    private $analytics;
+
+    /**
+     * @var ShopProvider
+     */
+    private $shopProvider;
+
+    /**
+     * @param LinkShop $linkShop
+     * @param AnalyticsService $analytics
+     * @param ShopProvider $shopProvider
+     */
+    public function __construct(LinkShop $linkShop, AnalyticsService $analytics, ShopProvider $shopProvider)
     {
         $this->linkShop = $linkShop;
+        $this->analytics = $analytics;
+        $this->shopProvider = $shopProvider;
     }
 
     /**
@@ -58,6 +74,21 @@ class UnlinkShopHandler
         ];
 
         $this->linkShop->delete();
+
+        if ($command->errorMsg) {
+            $shop = $this->shopProvider->formatShopData(
+                (array) \Shop::getShop($command->shopId)
+            );
+            $this->analytics->trackShopUnlinkedOnError(
+                $this->linkShop->getOwnerUuid(),
+                $this->linkShop->getOwnerEmail(),
+                $this->linkShop->getShopUuid(),
+                $shop->frontUrl,
+                $shop->url,
+                'ps_accounts',
+                $command->errorMsg
+            );
+        }
 
         Hook::exec(ActionShopAccountUnlinkAfter::getName(), $hookData);
     }
