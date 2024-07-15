@@ -24,6 +24,7 @@ use PrestaShop\Module\PsAccounts\Account\Command\UnlinkShopCommand;
 use PrestaShop\Module\PsAccounts\Account\Command\UpgradeModuleCommand;
 use PrestaShop\Module\PsAccounts\Account\LinkShop;
 use PrestaShop\Module\PsAccounts\Account\Session\Firebase\ShopSession;
+use PrestaShop\Module\PsAccounts\Account\Token\NullToken;
 use PrestaShop\Module\PsAccounts\Api\Client\AccountsClient;
 use PrestaShop\Module\PsAccounts\Context\ShopContext;
 use PrestaShop\Module\PsAccounts\Cqrs\CommandBus;
@@ -98,18 +99,22 @@ class UpgradeModuleHandler
                 $this->lastChanceToRefreshShopToken();
                 //}
 
-                $response = $this->accountsClient->upgradeShopModule(
-                    $this->linkShop->getShopUuid(),
-                    (string) $this->shopSession->getOrRefreshToken(),
-                    $command->payload
-                );
+                $token = $this->shopSession->getOrRefreshToken();
 
-//                if (!$response['status']) {
-//                    $this->commandBus->handle(new UnlinkShopCommand(
-//                        $this->configRepo->getShopId(),
-//                        $response['httpCode']
-//                    ));
-//                }
+                if (! $token->getJwt() instanceof NullToken) {
+                    $response = $this->accountsClient->upgradeShopModule(
+                        $this->linkShop->getShopUuid(),
+                        (string) $token,
+                        $command->payload
+                    );
+
+                    if (!$response['status']) {
+                        $this->commandBus->handle(new UnlinkShopCommand(
+                            $this->configRepo->getShopId(),
+                            $response['httpCode']
+                        ));
+                    }
+                }
             }
         });
     }
