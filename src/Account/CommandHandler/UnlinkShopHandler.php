@@ -72,6 +72,11 @@ class UnlinkShopHandler
             'shopUuid' => $this->linkShop->getShopUuid(),
             'shopId' => $command->shopId,
         ];
+        $analyticsData = [
+            'ownerUuid' => $this->linkShop->getOwnerUuid(),
+            'ownerEmail' => $this->linkShop->getOwnerEmail(),
+            'shopUuid' => $this->linkShop->getShopUuid(),
+        ];
 
         $this->linkShop->delete();
 
@@ -82,9 +87,9 @@ class UnlinkShopHandler
                 (array) \Shop::getShop($command->shopId)
             );
             $this->analytics->trackShopUnlinkedOnError(
-                $this->linkShop->getOwnerUuid(),
-                $this->linkShop->getOwnerEmail(),
-                $this->linkShop->getShopUuid(),
+                $analyticsData['ownerUuid'],
+                $analyticsData['ownerEmail'],
+                $analyticsData['shopUuid'],
                 $shop->frontUrl,
                 $shop->url,
                 'ps_accounts',

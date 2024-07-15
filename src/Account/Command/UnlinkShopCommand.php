@@ -34,6 +34,7 @@ class UnlinkShopCommand
 
     /**
      * @param int $shopId
+     * @param string $errorMsg
      */
     public function __construct($shopId, $errorMsg = '')
     {

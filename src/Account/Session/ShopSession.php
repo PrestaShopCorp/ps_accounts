@@ -178,6 +178,8 @@ class ShopSession extends Session implements SessionInterface
 
     /**
      * @throws InconsistentAssociationStateException
+     *
+     * return void
      */
     public function assertAssociationState()
     {
