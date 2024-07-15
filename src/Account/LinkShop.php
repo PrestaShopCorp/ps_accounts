@@ -51,6 +51,7 @@ class LinkShop
         $this->setEmployeeId(null);
         $this->setOwnerUuid(null);
         $this->setOwnerEmail(null);
+        $this->setUnlinkedOnError(null);
     }
 
     /**
@@ -64,6 +65,7 @@ class LinkShop
         $this->setEmployeeId((int) $payload->employeeId ?: null);
         $this->setOwnerUuid($payload->ownerUid);
         $this->setOwnerEmail($payload->ownerEmail);
+        $this->setUnlinkedOnError('');
     }
 
     /**
@@ -160,5 +162,23 @@ class LinkShop
     public function setOwnerEmail($email)
     {
         $this->configuration->updateFirebaseEmail($email);
+    }
+
+    /**
+     * @return string|null
+     */
+    public function getUnlinkedOnError()
+    {
+        return $this->configuration->getUnlinkedOnError();
+    }
+
+    /**
+     * @param string|null $errorMsg
+     *
+     * @return void
+     */
+    public function setUnlinkedOnError($errorMsg)
+    {
+        $this->configuration->updateUnlinkedOnError($errorMsg);
     }
 }

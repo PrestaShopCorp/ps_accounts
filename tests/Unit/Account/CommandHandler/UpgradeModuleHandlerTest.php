@@ -98,7 +98,7 @@ class UpgradeModuleHandlerTest extends TestCase
 
         $this->conf
             ->expects($this->once())
-            ->method('setLastUpgrade')
+            ->method('updateLastUpgrade')
             ->with($upgradeVersion);
 
         $handler->handle(new UpgradeModuleCommand(new UpgradeModule([
@@ -168,7 +168,7 @@ class UpgradeModuleHandlerTest extends TestCase
 
         $this->conf
             ->expects($this->once())
-            ->method('setLastUpgrade')
+            ->method('updateLastUpgrade')
             ->with($upgradeVersion);
 
         $this->shopSession
@@ -303,7 +303,7 @@ class UpgradeModuleHandlerTest extends TestCase
 
         $this->conf
             ->expects($this->once())
-            ->method('setLastUpgrade')
+            ->method('updateLastUpgrade')
             ->with($upgradeVersion);
 
         $this->shopSession

@@ -76,6 +76,8 @@ class UnlinkShopHandler
         $this->linkShop->delete();
 
         if ($command->errorMsg) {
+            $this->linkShop->setUnlinkedOnError($command->errorMsg);
+
             $shop = $this->shopProvider->formatShopData(
                 (array) \Shop::getShop($command->shopId)
             );

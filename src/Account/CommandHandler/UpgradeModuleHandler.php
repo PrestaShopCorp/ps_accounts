@@ -92,7 +92,7 @@ class UpgradeModuleHandler
 
             if (version_compare($lastUpgrade, $command->payload->version, '<')) {
                 // Set new version a soon as we can to avoid duplicate calls
-                $this->configRepo->setLastUpgrade($command->payload->version);
+                $this->configRepo->updateLastUpgrade($command->payload->version);
 
                 // FIXME: to be removed once oauth client has been updated
                 //if (version_compare($lastUpgrade, '7.0.0', '<')) {
@@ -101,7 +101,7 @@ class UpgradeModuleHandler
 
                 $token = $this->shopSession->getOrRefreshToken();
 
-                if (! $token->getJwt() instanceof NullToken) {
+                if (!$token->getJwt() instanceof NullToken) {
                     $response = $this->accountsClient->upgradeShopModule(
                         $this->linkShop->getShopUuid(),
                         (string) $token,
@@ -127,10 +127,10 @@ class UpgradeModuleHandler
     private function getOrRefreshShopToken()
     {
         $token = $this->shopSession->getToken();
-        if ($token->isExpired()) {
+        if ($token->isExpired() && !empty($token->getRefreshToken())) {
             $response = $this->accountsClient->refreshShopToken(
                 //$this->configRepo->getFirebaseRefreshToken(),
-                $this->shopSession->getToken()->getRefreshToken(),
+                $token->getRefreshToken(),
                 //$this->configRepo->getShopUuid()
                 $this->linkShop->getShopUuid()
             );
