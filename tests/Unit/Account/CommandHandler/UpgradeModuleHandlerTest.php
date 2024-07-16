@@ -2,15 +2,17 @@
 
 namespace PrestaShop\Module\PsAccounts\Tests\Unit\Account\CommandHandler;
 
+use PrestaShop\Module\PsAccounts\Account\Command\UnlinkShopCommand;
 use PrestaShop\Module\PsAccounts\Account\Command\UpgradeModuleCommand;
 use PrestaShop\Module\PsAccounts\Account\CommandHandler\UpgradeModuleHandler;
 use PrestaShop\Module\PsAccounts\Account\Dto\UpgradeModule;
 use PrestaShop\Module\PsAccounts\Account\Session\Firebase\ShopSession;
 use PrestaShop\Module\PsAccounts\Account\Token\Token;
 use PrestaShop\Module\PsAccounts\Api\Client\AccountsClient;
+use PrestaShop\Module\PsAccounts\Context\ShopContext;
+use PrestaShop\Module\PsAccounts\Cqrs\CommandBus;
 use PrestaShop\Module\PsAccounts\Provider\ShopProvider;
 use PrestaShop\Module\PsAccounts\Repository\ConfigurationRepository;
-use PrestaShop\Module\PsAccounts\Service\AnalyticsService;
 use PrestaShop\Module\PsAccounts\Tests\TestCase;
 
 class UpgradeModuleHandlerTest extends TestCase
@@ -21,6 +23,13 @@ class UpgradeModuleHandlerTest extends TestCase
      * @var ShopSession
      */
     protected $shopSession;
+
+    /**
+     * @inject
+     *
+     * @var ShopContext
+     */
+    protected $shopContext;
 
     /**
      * @inject
@@ -37,11 +46,9 @@ class UpgradeModuleHandlerTest extends TestCase
     protected $accountsClient;
 
     /**
-     * @inject
-     *
-     * @var AnalyticsService
+     * @var int
      */
-    protected $analyticsService;
+    protected $shopId = 1;
 
     public function setUp()
     {
@@ -62,13 +69,14 @@ class UpgradeModuleHandlerTest extends TestCase
                 'refresh_token' => $this->firebaseRefreshedToken->getRefreshToken(),
             ], 200, true));
 
-        $this->analyticsService = $this->createMock(AnalyticsService::class);
-
         $this->shopSession = $this->createMock(ShopSession::class);
         $this->shopSession->method('getOrRefreshToken')->willReturn($this->firebaseRefreshedToken);
         $this->shopSession->method('getToken')->willReturn($this->firebaseToken);
 
         $this->conf = $this->createMock(ConfigurationRepository::class);
+        $this->conf->method('getShopId')->willReturn($this->shopId);
+
+        $this->shopId = $this->shopProvider->getShopContext()->getContext()->shop->id;
     }
 
     /**
@@ -83,15 +91,6 @@ class UpgradeModuleHandlerTest extends TestCase
 
         $this->conf->method('getLastUpgrade')->willReturn($currentVersion);
 
-        $handler = new UpgradeModuleHandler(
-            $this->accountsClient,
-            $this->linkShop,
-            $this->shopSession,
-            $this->shopProvider,
-            $this->conf,
-            $this->analyticsService
-        );
-
         $this->accountsClient
             ->expects($this->once())
             ->method('upgradeShopModule');
@@ -101,9 +100,9 @@ class UpgradeModuleHandlerTest extends TestCase
             ->method('updateLastUpgrade')
             ->with($upgradeVersion);
 
-        $handler->handle(new UpgradeModuleCommand(new UpgradeModule([
+        $this->getUpgradeModuleHandler()->handle(new UpgradeModuleCommand(new UpgradeModule([
             'version' => $upgradeVersion,
-            'shopId' => null,
+            'shopId' => $this->shopId,
         ])));
     }
 
@@ -119,22 +118,13 @@ class UpgradeModuleHandlerTest extends TestCase
 
         $this->conf->method('getLastUpgrade')->willReturn($currentVersion);
 
-        $handler = new UpgradeModuleHandler(
-            $this->accountsClient,
-            $this->linkShop,
-            $this->shopSession,
-            $this->shopProvider,
-            $this->conf,
-            $this->analyticsService
-        );
-
         $this->accountsClient
             ->expects($this->exactly(0))
             ->method('upgradeShopModule');
 
-        $handler->handle(new UpgradeModuleCommand(new UpgradeModule([
+        $this->getUpgradeModuleHandler()->handle(new UpgradeModuleCommand(new UpgradeModule([
             'version' => $upgradeVersion,
-            'shopId' => null,
+            'shopId' => $this->shopId,
         ])));
     }
 
@@ -150,15 +140,6 @@ class UpgradeModuleHandlerTest extends TestCase
 
         $this->conf->method('getLastUpgrade')->willReturn($currentVersion);
 
-        $handler = new UpgradeModuleHandler(
-            $this->accountsClient,
-            $this->linkShop,
-            $this->shopSession,
-            $this->shopProvider,
-            $this->conf,
-            $this->analyticsService
-        );
-
         $this->accountsClient
             ->expects($this->once())
             ->method('upgradeShopModule');
@@ -176,9 +157,9 @@ class UpgradeModuleHandlerTest extends TestCase
             ->method('setToken')
             ->with((string) $this->firebaseRefreshedToken->getJwt(), $this->firebaseRefreshedToken->getRefreshToken());
 
-        $handler->handle(new UpgradeModuleCommand(new UpgradeModule([
+        $this->getUpgradeModuleHandler()->handle(new UpgradeModuleCommand(new UpgradeModule([
             'version' => $upgradeVersion,
-            'shopId' => null,
+            'shopId' => $this->shopId,
         ])));
     }
 
@@ -187,7 +168,7 @@ class UpgradeModuleHandlerTest extends TestCase
      *
      * @throws \Exception
      */
-    public function itShouldTriggerSegmentEventOnFailure()
+    public function itShouldTriggerUnlinkShopCommandOnFailure()
     {
         $currentVersion = '6.3.2';
         $upgradeVersion = '7.0.0';
@@ -201,76 +182,18 @@ class UpgradeModuleHandlerTest extends TestCase
                 'message' => 'Failed upgrading module',
             ], 500, false));
 
-        $handler = new UpgradeModuleHandler(
-            $this->accountsClient,
-            $this->linkShop,
-            $this->shopSession,
-            $this->shopProvider,
-            $this->conf,
-            $this->analyticsService
-        );
-
-        $shop = $this->shopProvider->formatShopData((array) \Shop::getShop(
-            $this->shopProvider->getShopContext()->getContext()->shop->id)
-        );
-        $this->analyticsService
+        $this->commandBus = $this->createMock(CommandBus::class);
+        $this->commandBus
             ->expects($this->once())
-            ->method('trackShopUnlinkedOnError')
-            ->with(
-                $this->linkShop->getOwnerUuid(),
-                $this->linkShop->getOwnerEmail(),
-                $this->linkShop->getShopUuid(),
-                $shop->frontUrl,
-                $shop->url,
-                'ps_accounts',
-                500
-            );
+            ->method('handle')
+            ->with(new UnlinkShopCommand($this->shopId, 500));
 
-        $handler->handle(new UpgradeModuleCommand(new UpgradeModule([
+        $this->getUpgradeModuleHandler()->handle(new UpgradeModuleCommand(new UpgradeModule([
             'version' => $upgradeVersion,
-            'shopId' => null,
+            'shopId' => $this->shopId,
         ])));
     }
 
-
-    /**
-     * @test
-     *
-     * @throws \Exception
-     */
-    public function itShouldUnlinkOnFailure()
-    {
-        $currentVersion = '6.3.2';
-        $upgradeVersion = '7.0.0';
-
-        $this->conf->method('getLastUpgrade')->willReturn($currentVersion);
-
-        $this->accountsClient = $this->createMock(AccountsClient::class);
-        $this->accountsClient
-            ->method('upgradeShopModule')
-            ->willReturn($this->createApiResponse([
-                'message' => 'Failed upgrading module',
-            ], 500, false));
-
-        $this->linkShop = $this->createMock(LinkShop::class);
-        $this->linkShop
-            ->expects($this->once())
-            ->method('delete');
-
-        $handler = new UpgradeModuleHandler(
-            $this->accountsClient,
-            $this->linkShop,
-            $this->shopSession,
-            $this->shopProvider,
-            $this->conf,
-            $this->analyticsService
-        );
-
-        $handler->handle(new UpgradeModuleCommand(new UpgradeModule([
-            'version' => $upgradeVersion,
-            'shopId' => null,
-        ])));
-    }
     /**
      * @test
      *
@@ -284,15 +207,6 @@ class UpgradeModuleHandlerTest extends TestCase
         $upgradeVersion = '8.0.0';
 
         $this->conf->method('getLastUpgrade')->willReturn($currentVersion);
-
-        $handler = new UpgradeModuleHandler(
-            $this->accountsClient,
-            $this->linkShop,
-            $this->shopSession,
-            $this->shopProvider,
-            $this->conf,
-            $this->analyticsService
-        );
 
         $this->accountsClient
             ->expects($this->once())
@@ -311,14 +225,29 @@ class UpgradeModuleHandlerTest extends TestCase
             ->method('setToken')
             ->with((string) $this->firebaseRefreshedToken->getJwt(), $this->firebaseRefreshedToken->getRefreshToken());
 
-        $handler->handle(new UpgradeModuleCommand(new UpgradeModule([
+        $this->getUpgradeModuleHandler()->handle(new UpgradeModuleCommand(new UpgradeModule([
             'version' => $upgradeVersion,
-            'shopId' => null,
+            'shopId' => $this->shopId,
         ])));
     }
 
     public function itShouldDealWithConcurrentRequests()
     {
         // TODO implement test
+    }
+
+    /**
+     * @return UpgradeModuleHandler
+     */
+    private function getUpgradeModuleHandler()
+    {
+        return new UpgradeModuleHandler(
+            $this->accountsClient,
+            $this->linkShop,
+            $this->shopSession,
+            $this->shopContext,
+            $this->conf,
+            $this->commandBus
+        );
     }
 }
