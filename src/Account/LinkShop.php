@@ -65,7 +65,7 @@ class LinkShop
         $this->setEmployeeId((int) $payload->employeeId ?: null);
         $this->setOwnerUuid($payload->ownerUid);
         $this->setOwnerEmail($payload->ownerEmail);
-        $this->setUnlinkedOnError('');
+        $this->setUnlinkedOnError(null);
     }
 
     /**
