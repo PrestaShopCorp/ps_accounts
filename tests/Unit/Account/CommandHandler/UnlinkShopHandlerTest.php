@@ -34,7 +34,7 @@ class UnlinkShopHandlerTest extends TestCase
     /**
      * @test
      */
-    function itShouldTriggerSegmentEventWithErrorMsg()
+    public function itShouldTriggerSegmentEventWithErrorMsg()
     {
         $shopId = $this->shopProvider->getShopContext()->getContext()->shop->id;
         $shop = $this->shopProvider->formatShopData((array) \Shop::getShop($shopId));
