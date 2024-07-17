@@ -235,7 +235,7 @@ class TestCase extends \PHPUnit\Framework\TestCase
     protected function assertBodySubset($subset, $array, $message = '')
     {
         if (is_array($array)) {
-            parent::assertArraySubset($subset, $array, $message);
+            $this->assertArraySubset($subset, $array, $message);
         } else {
             $this->markTestIncomplete('WARNING: Cannot evaluate response [body is empty]');
         }
