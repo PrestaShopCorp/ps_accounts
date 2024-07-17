@@ -37,7 +37,7 @@ COMPOSER_FILE ?= composer.json
 .PHONY: tests/vendor
 tests/vendor:
 #	rm -rf ./tests/vendor
-	env COMPOSER=${COMPOSER_FILE} ${COMPOSER} install --working-dir=./tests/
+	env COMPOSER=${COMPOSER_FILE} ${COMPOSER} install --working-dir=./tests/ --quiet
 
 CONTAINER_INSTALL_DIR="/var/www/html/modules/ps_accounts"
 
