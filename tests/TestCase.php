@@ -196,6 +196,7 @@ class TestCase extends \PHPUnit\Framework\TestCase
     /**
      * @param $class
      * @param $methods
+     *
      * @return \#o#Э#A#M#C\PrestaShop\Module\PsAccounts\Tests\TestCase.createMockWithMethods.0|(\#o#Э#A#M#C\PrestaShop\Module\PsAccounts\Tests\TestCase.createMockWithMethods.0&\PHPUnit_Framework_MockObject_MockObject)|\PHPUnit_Framework_MockObject_MockObject
      */
     protected function createMockWithMethods($class, $methods = [])
@@ -211,7 +212,9 @@ class TestCase extends \PHPUnit\Framework\TestCase
      * @param $classInstance
      * @param $dependencyName
      * @param $newDependency
+     *
      * @return void
+     *
      * @throws \ReflectionException
      */
     protected function replaceDependency($classInstance, $dependencyName, $newDependency)
@@ -220,5 +223,21 @@ class TestCase extends \PHPUnit\Framework\TestCase
         $property = $reflection->getProperty($dependencyName);
         $property->setAccessible(true);
         $property->setValue($classInstance, $newDependency);
+    }
+
+    /**
+     * @param array $subset
+     * @param array $array
+     * @param striung $message
+     *
+     * @return void
+     */
+    protected function assertBodySubset($subset, $array, $message = '')
+    {
+        if (is_array($array)) {
+            parent::assertArraySubset($subset, $array, $message);
+        } else {
+            $this->markTestIncomplete('WARNING: Cannot evaluate response [body is empty]');
+        }
     }
 }

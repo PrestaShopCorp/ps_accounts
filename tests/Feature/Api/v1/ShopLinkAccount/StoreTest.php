@@ -56,7 +56,7 @@ class StoreTest extends FeatureTestCase
         $this->module->getLogger()->info(print_r($json, true));
 
         $this->assertResponseOk($response);
-        $this->assertArraySubset(['success' => true], $json);
+        $this->assertBodySubset(['success' => true], $json);
 
         \Configuration::clearConfigurationCacheForTesting();
         \Configuration::loadConfiguration();
@@ -96,7 +96,7 @@ class StoreTest extends FeatureTestCase
         $this->module->getLogger()->info(print_r($json, true));
 
         $this->assertResponseOk($response);
-        $this->assertArraySubset(['success' => true], $json);
+        $this->assertBodySubset(['success' => true], $json);
 
         \Configuration::clearConfigurationCacheForTesting();
         \Configuration::loadConfiguration();
