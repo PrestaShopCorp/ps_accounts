@@ -228,7 +228,7 @@ class TestCase extends \PHPUnit\Framework\TestCase
     /**
      * @param array $subset
      * @param array $array
-     * @param striung $message
+     * @param string $message
      *
      * @return void
      */
