@@ -249,7 +249,7 @@ class TestCase extends \PHPUnit\Framework\TestCase
      *
      * @return void
      */
-    protected function assertBodySubsetOrMarkTestIncomplete($subset, $array, $message = '')
+    protected function assertBodySubsetOrMarkAsIncomplete($subset, $array, $message = '')
     {
         $this->assertBodySubset($subset, $array, $message, true);
     }
