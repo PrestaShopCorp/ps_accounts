@@ -45,17 +45,17 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v3
 
-      - name: Cache vendor folder
-        uses: actions/cache@v3
-        with:
-          path: vendor
-          key: php-${{ hashFiles('composer.lock') }}
-
-      - name: Cache composer folder
-        uses: actions/cache@v3
-        with:
-          path: ~/.composer/cache
-          key: php-composer-cache
+#      - name: Cache vendor folder
+#        uses: actions/cache@v3
+#        with:
+#          path: vendor
+#          key: php-${{ hashFiles('composer.lock') }}
+#
+#      - name: Cache composer folder
+#        uses: actions/cache@v3
+#        with:
+#          path: ~/.composer/cache
+#          key: php-composer-cache
 
 #      - name: Install dependencies
 #        run: composer install
@@ -77,17 +77,17 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v3
 
-      - name: Cache vendor folder
-        uses: actions/cache@v3
-        with:
-          path: vendor
-          key: php-${{ hashFiles('composer.lock') }}
-
-      - name: Cache composer folder
-        uses: actions/cache@v3
-        with:
-          path: ~/.composer/cache
-          key: php-composer-cache
+#      - name: Cache vendor folder
+#        uses: actions/cache@v3
+#        with:
+#          path: vendor
+#          key: php-${{ hashFiles('composer.lock') }}
+#
+#      - name: Cache composer folder
+#        uses: actions/cache@v3
+#        with:
+#          path: ~/.composer/cache
+#          key: php-composer-cache
 
 #      - name: Install dependencies
 #        run: composer install
