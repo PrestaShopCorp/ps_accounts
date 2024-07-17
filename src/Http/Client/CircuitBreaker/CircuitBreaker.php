@@ -66,9 +66,6 @@ abstract class CircuitBreaker
                 $this->setLastFailure();
                 Logger::getInstance()->error($e->getMessage());
             } catch (RequestException $e) {
-                // FIXME: Do something different
-                // TODO: log error
-                $this->setLastFailure();
                 Logger::getInstance()->error($e->getMessage());
             }
         }

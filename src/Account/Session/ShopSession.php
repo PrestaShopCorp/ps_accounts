@@ -52,6 +52,11 @@ class ShopSession extends Session implements SessionInterface
     protected $oauth2ClientProvider;
 
     /**
+     * @var LinkShop
+     */
+    protected $linkShop;
+
+    /**
      * @param ConfigurationRepository $configurationRepository
      * @param ShopProvider $oauth2ClientProvider
      * @param CommandBus $commandBus
@@ -59,10 +64,12 @@ class ShopSession extends Session implements SessionInterface
     public function __construct(
         ConfigurationRepository $configurationRepository,
         ShopProvider $oauth2ClientProvider,
+        LinkShop $linkShop,
         CommandBus $commandBus
     ) {
         $this->configurationRepository = $configurationRepository;
         $this->oauth2ClientProvider = $oauth2ClientProvider;
+        $this->linkShop = $linkShop;
         $this->commandBus = $commandBus;
     }
 
@@ -76,7 +83,7 @@ class ShopSession extends Session implements SessionInterface
     public function refreshToken($refreshToken = null)
     {
         try {
-            if (!$this->oauth2ClientProvider->getOauth2Client()->exists()) {
+            if ($this->inconsistentAssociationState()) {
                 $this->commandBus->handle(new UnlinkShopCommand($this->configurationRepository->getShopId()));
                 throw new RefreshTokenException('Invalid OAuth2 client');
             }
@@ -134,7 +141,6 @@ class ShopSession extends Session implements SessionInterface
      * @return AccessToken|AccessTokenInterface
      *
      * @throws IdentityProviderException
-     * @throws \Exception
      */
     protected function getAccessToken($shopUid)
     {
@@ -153,17 +159,18 @@ class ShopSession extends Session implements SessionInterface
 
     /**
      * @return string
-     *
-     * @throws \Exception
      */
     private function getShopUuid()
     {
-        /** @var \Ps_accounts $module */
-        $module = \Module::getInstanceByName('ps_accounts');
+        return $this->linkShop->getShopUuid();
+    }
 
-        /** @var LinkShop $linkShop */
-        $linkShop = $module->getService(LinkShop::class);
-
-        return $linkShop->getShopUuid();
+    /**
+     * @return bool
+     */
+    public function inconsistentAssociationState()
+    {
+        return $this->linkShop->exists() &&
+            !$this->oauth2ClientProvider->getOauth2Client()->exists();
     }
 }
