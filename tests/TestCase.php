@@ -241,4 +241,16 @@ class TestCase extends \PHPUnit\Framework\TestCase
             $this->markTestIncomplete('WARNING: Cannot evaluate response [body is empty]');
         }
     }
+
+    /**
+     * @param array $subset
+     * @param array $array
+     * @param string $message
+     *
+     * @return void
+     */
+    protected function assertBodySubsetOrMarkTestIncomplete($subset, $array, $message = '')
+    {
+        $this->assertBodySubset($subset, $array, $message, true);
+    }
 }
