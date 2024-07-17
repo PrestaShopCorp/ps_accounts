@@ -59,7 +59,7 @@ class StoreTest extends FeatureTestCase
         $this->module->getLogger()->info(print_r($json, true));
 
         $this->assertResponseOk($response);
-        $this->assertBodySubset(['success' => true], $json);
+        $this->assertBodySubset(['success' => true], $json, '', true);
 
         \Configuration::clearConfigurationCacheForTesting();
         \Configuration::loadConfiguration();
@@ -91,7 +91,7 @@ class StoreTest extends FeatureTestCase
 
         if ($response->getStatusCode() !== 400) {
             // trigger incomplete test status with some PHP5.6 environments
-            $this->assertBodySubset(['error' => true], $json);
+            $this->assertBodySubset(['error' => true], $json, '', true);
         }
 
         $this->assertResponseBadRequest($response);
