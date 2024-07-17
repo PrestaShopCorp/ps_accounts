@@ -260,7 +260,7 @@ class TestCase extends \PHPUnit\Framework\TestCase
             $this->replaceProperty(
                 $property->object,
                 $property->propertyName,
-                $property->originalValue,
+                $property->originalValue
             );
         }
         $this->replacedProperties = [];
