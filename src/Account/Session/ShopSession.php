@@ -21,6 +21,7 @@
 namespace PrestaShop\Module\PsAccounts\Account\Session;
 
 use PrestaShop\Module\PsAccounts\Account\Command\UnlinkShopCommand;
+use PrestaShop\Module\PsAccounts\Account\Exception\InconsistentAssociationStateException;
 use PrestaShop\Module\PsAccounts\Account\LinkShop;
 use PrestaShop\Module\PsAccounts\Account\Token\Token;
 use PrestaShop\Module\PsAccounts\Cqrs\CommandBus;
@@ -83,10 +84,7 @@ class ShopSession extends Session implements SessionInterface
     public function refreshToken($refreshToken = null)
     {
         try {
-            if ($this->inconsistentAssociationState()) {
-                $this->commandBus->handle(new UnlinkShopCommand($this->configurationRepository->getShopId()));
-                throw new RefreshTokenException('Invalid OAuth2 client');
-            }
+            $this->assertAssociationState();
             $shopUuid = $this->getShopUuid();
             $accessToken = $this->getAccessToken($shopUuid);
 
@@ -101,6 +99,11 @@ class ShopSession extends Session implements SessionInterface
             \Hook::exec(ActionShopAccessTokenRefreshAfter::getName(), ['token' => $token]);
 
             return $token;
+        } catch (InconsistentAssociationStateException $e) {
+            $this->commandBus->handle(new UnlinkShopCommand(
+                $this->configurationRepository->getShopId(),
+                $e->getMessage()
+            ));
         } catch (IdentityProviderException $e) {
         } catch (\Error $e) {
         } catch (\Exception $e) {
@@ -166,11 +169,15 @@ class ShopSession extends Session implements SessionInterface
     }
 
     /**
-     * @return bool
+     * @throws InconsistentAssociationStateException
+     *
+     * @return void
      */
-    public function inconsistentAssociationState()
+    public function assertAssociationState()
     {
-        return $this->linkShop->exists() &&
-            !$this->oauth2ClientProvider->getOauth2Client()->exists();
+        if ($this->linkShop->exists() &&
+            !$this->oauth2ClientProvider->getOauth2Client()->exists()) {
+            throw new InconsistentAssociationStateException('Invalid OAuth2 client');
+        }
     }
 }
