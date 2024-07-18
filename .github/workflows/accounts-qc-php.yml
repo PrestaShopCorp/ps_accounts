@@ -1,6 +1,8 @@
 name: Accounts Quality Control PHP
 
-on: [pull_request]
+on:
+  pull_request:
+    types: [opened, reopened, synchronize, labeled]
 
 jobs:
   php-linter:
@@ -105,3 +107,19 @@ jobs:
 
       - name: Run Header Stamp in Dry Run mode
         run: php vendor/bin/header-stamp --license=vendor/prestashop/header-stamp/assets/afl.txt --exclude=.github,node_modules,vendor,vendor,tests,_dev --dry-run
+
+  notify-earth:
+    if: ${{ github.event.action == 'labeled' && github.event.label.name == 'ready to review' }}
+    runs-on: ubuntu-latest
+    steps:
+      - name: Notify everyone when PR is ready to be reviewed
+        uses: rtCamp/action-slack-notify@v2
+        env:
+          SLACK_WEBHOOK: ${{ secrets.SLACK_WEBHOOK }}
+          SLACK_COLOR: 2986CC
+          SLACK_TITLE: 👀 it's review time!
+          SLACK_MESSAGE: "🥷 ${{ github.event.pull_request.title }}"
+          SLACK_FOOTER: "https://github.com/PrestaShopCorp/ps_accounts/pull/${{ github.event.pull_request.number }}"
+          SLACK_USERNAME: QABot
+          SLACK_CHANNEL: squad-account-dev
+          SLACK_ICON: https://avatars.githubusercontent.com/u/56089550?s=48&v=4

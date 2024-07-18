@@ -182,7 +182,7 @@ jobs:
           repo: ${{ github.event.repository.full_name }}
           version: ${{ github.event.release.id }}
           file: ${{ needs.upload_release_asset_production.outputs.zip_file }}
-          token: ${{ secrets.JARVIS_TOKEN }}
+          token: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Prepare publishing tool
         run: |
