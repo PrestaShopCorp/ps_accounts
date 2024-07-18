@@ -52,7 +52,7 @@ class ActionObjectShopUpdateAfterTest extends TestCase
         $this->initResponse($params, $updateUserShopResponse);
         $this->initTokens($shopToken, $ownerToken);
 
-        $newName = $this->faker->slug();
+        $newName = str_split($this->faker->slug(), 64)[0];
 
         $shop->name = $newName;
         $shop->update();

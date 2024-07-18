@@ -56,7 +56,7 @@ class RefreshTokenTest extends TestCase
 
         $this->assertInstanceOf(RefreshTokenException::class, $e);
         $token = $shopSession->getToken();
-        $this->assertEquals('', $token->getJwt());
+        $this->assertEquals('', (string) $token->getJwt());
         $this->assertEquals('', $token->getRefreshToken());
     }
 
