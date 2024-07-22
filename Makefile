@@ -94,7 +94,7 @@ define build-platform
 
 	PLATFORM_REPO=$(repo) \
 	PHPUNIT_TAG=$(tag) \
-	PLATFORM_COMPOSE_FILE=$(shell echo '.docker/docker-compose.'$(repo)'.yml' | sed 's/\//@/') \
+	PLATFORM_COMPOSE_FILE=.docker/$(shell echo 'docker-compose.'$(repo)'.yml' | sed 's/\//@/') \
 	COMPOSER_FILE=${composer} \
 	NEON_FILE=${neonfile} \
 	$(MAKE) platform-init
