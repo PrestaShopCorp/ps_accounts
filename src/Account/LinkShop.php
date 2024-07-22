@@ -119,7 +119,7 @@ class LinkShop
     }
 
     /**
-     * @param int $employeeId
+     * @param int|string $employeeId
      *
      * @return void
      */
