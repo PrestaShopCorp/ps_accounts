@@ -47,11 +47,11 @@ class LinkShop
      */
     public function delete()
     {
-        $this->setShopUuid(null);
-        $this->setEmployeeId(null);
-        $this->setOwnerUuid(null);
-        $this->setOwnerEmail(null);
-        $this->setUnlinkedOnError(null);
+        $this->setShopUuid('');
+        $this->setEmployeeId('');
+        $this->setOwnerUuid('');
+        $this->setOwnerEmail('');
+        $this->setUnlinkedOnError('');
     }
 
     /**
@@ -62,10 +62,10 @@ class LinkShop
     public function update(Dto\LinkShop $payload)
     {
         $this->setShopUuid($payload->uid);
-        $this->setEmployeeId((int) $payload->employeeId ?: null);
+        $this->setEmployeeId((int) $payload->employeeId ?: '');
         $this->setOwnerUuid($payload->ownerUid);
         $this->setOwnerEmail($payload->ownerEmail);
-        $this->setUnlinkedOnError(null);
+        $this->setUnlinkedOnError('');
     }
 
     /**
@@ -101,7 +101,7 @@ class LinkShop
     }
 
     /**
-     * @param string|null $uuid
+     * @param string $uuid
      *
      * @return void
      */
@@ -111,7 +111,7 @@ class LinkShop
     }
 
     /**
-     * @return int|null
+     * @return int
      */
     public function getEmployeeId()
     {
@@ -119,7 +119,7 @@ class LinkShop
     }
 
     /**
-     * @param int|null $employeeId
+     * @param int $employeeId
      *
      * @return void
      */
@@ -137,7 +137,7 @@ class LinkShop
     }
 
     /**
-     * @param string|null $uuid
+     * @param string $uuid
      *
      * @return void
      */
@@ -147,7 +147,7 @@ class LinkShop
     }
 
     /**
-     * @return string|null
+     * @return string
      */
     public function getOwnerEmail()
     {
@@ -155,7 +155,7 @@ class LinkShop
     }
 
     /**
-     * @param string|null $email
+     * @param string $email
      *
      * @return void
      */
@@ -165,7 +165,7 @@ class LinkShop
     }
 
     /**
-     * @return string|null
+     * @return string
      */
     public function getUnlinkedOnError()
     {
