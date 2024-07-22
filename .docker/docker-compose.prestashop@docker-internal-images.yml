@@ -10,5 +10,5 @@ services:
       - XDEBUG_MODE=coverage
       - XDEBUG_ENABLED=1
     volumes:
-      - ./:/var/www/html/modules/ps_accounts
+      - ../:/var/www/html/modules/ps_accounts
 
