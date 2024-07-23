@@ -7,7 +7,7 @@
  * More information also found here: https://github.com/humbug/php-scoper/issues/298
  */
 // TODO: fix all scoped deps
-$match = '(guzzlehttp|symfony|lcobucci\/jwt|ramsey\/uuid|paragonie\/random_compat)';
+$match = '(guzzlehttp|symfony|lcobucci\/jwt|ramsey\/uuid|paragonie\/random_compat|ralouphie\/getallheaders|phpseclib\/phpseclib\/phpseclib)';
 $scoper_path = __DIR__ . '/vendor/composer';
 $static_loader_path = $scoper_path . '/autoload_static.php';
 echo "Fixing $static_loader_path \n";

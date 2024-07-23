@@ -30,6 +30,7 @@
             "PrestaShop\\Module\\PsAccounts\\Vendor\\Monolog\\": "vendor/monolog/monolog/src/Monolog",
             "PrestaShop\\Module\\PsAccounts\\Vendor\\PhpCsFixer\\": "vendor/friendsofphp/php-cs-fixer/src",
             "PrestaShop\\Module\\PsAccounts\\Vendor\\PhpCsFixer\\Tests\\": "vendor/friendsofphp/php-cs-fixer/tests",
+            "PrestaShop\\Module\\PsAccounts\\Vendor\\phpseclib\\": "vendor/phpseclib/phpseclib/phpseclib",
             "PrestaShop\\Module\\PsAccounts\\Vendor\\Psr\\Cache\\": "vendor/psr/cache/src",
             "PrestaShop\\Module\\PsAccounts\\Vendor\\Psr\\Container\\": "vendor/psr/container/src",
             "PrestaShop\\Module\\PsAccounts\\Vendor\\Psr\\Http\\Message\\": "vendor/psr/http-message/src",

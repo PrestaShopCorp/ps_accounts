@@ -9,3 +9,5 @@ prestashop/module-lib-cache-directory-provider
 monolog
 ramsey/uuid
 paragonie/random_compat
+ralouphie/getallheaders
+phpseclib/phpseclib/phpseclib
