@@ -23,6 +23,7 @@ use PrestaShop\Module\PsAccounts\Account\Command\UnlinkShopCommand;
 use PrestaShop\Module\PsAccounts\Account\Session\Firebase\ShopSession;
 use PrestaShop\Module\PsAccounts\Api\Client\IndirectChannelClient;
 use PrestaShop\Module\PsAccounts\Cqrs\CommandBus;
+use PrestaShop\Module\PsAccounts\Polyfill\Traits\AjaxRender;
 use PrestaShop\Module\PsAccounts\Presenter\PsAccountsPresenter;
 use PrestaShop\Module\PsAccounts\Provider\OAuth2\PrestaShopSession;
 use PrestaShop\Module\PsAccounts\Repository\ConfigurationRepository;
@@ -33,6 +34,8 @@ use PrestaShop\Module\PsAccounts\Service\SentryService;
  */
 class AdminAjaxPsAccountsController extends \ModuleAdminController
 {
+    use AjaxRender;
+
     /**
      * @var Ps_accounts
      */
@@ -70,8 +73,8 @@ class AdminAjaxPsAccountsController extends \ModuleAdminController
 
             $token = $shopSession->getValidToken();
 
-            $this->ajaxDie(
-                json_encode([
+            $this->ajaxRender(
+                (string) json_encode([
                     'token' => (string) $token->getJwt(),
                     'refreshToken' => $token->getRefreshToken(),
                 ])
@@ -101,7 +104,7 @@ class AdminAjaxPsAccountsController extends \ModuleAdminController
 
             header('Content-Type: text/json');
 
-            $this->ajaxDie(json_encode($response['body']));
+            $this->ajaxRender((string) json_encode($response['body']));
         } catch (Exception $e) {
             SentryService::captureAndRethrow($e);
         }
@@ -124,7 +127,7 @@ class AdminAjaxPsAccountsController extends \ModuleAdminController
 
             header('Content-Type: text/json');
 
-            $this->ajaxDie(json_encode(['message' => 'success']));
+            $this->ajaxRender((string) json_encode(['message' => 'success']));
         } catch (Exception $e) {
             SentryService::captureAndRethrow($e);
         }
@@ -145,7 +148,7 @@ class AdminAjaxPsAccountsController extends \ModuleAdminController
 
             header('Content-Type: text/json');
 
-            $this->ajaxDie(json_encode($presenter->present($psxName)));
+            $this->ajaxRender((string) json_encode($presenter->present($psxName)));
         } catch (Exception $e) {
             SentryService::captureAndRethrow($e);
         }
@@ -164,8 +167,8 @@ class AdminAjaxPsAccountsController extends \ModuleAdminController
 
             header('Content-Type: text/json');
 
-            $this->ajaxDie(
-                json_encode([
+            $this->ajaxRender(
+                (string) json_encode([
                     'token' => (string) $oauthSession->getOrRefreshAccessToken(),
                 ])
             );
@@ -190,14 +193,14 @@ class AdminAjaxPsAccountsController extends \ModuleAdminController
 
             if (!$response || true !== $response['status']) {
                 // TODO log error
-                $this->ajaxDie(
-                    json_encode([
+                $this->ajaxRender(
+                    (string) json_encode([
                         'invitations' => [],
                     ])
                 );
             } else {
-                $this->ajaxDie(
-                    json_encode([
+                $this->ajaxRender(
+                    (string) json_encode([
                         'invitations' => $response['body']['invitations'],
                     ])
                 );

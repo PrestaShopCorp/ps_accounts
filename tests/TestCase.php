@@ -15,6 +15,8 @@ use Ps_accounts;
 
 class TestCase extends \PHPUnit\Framework\TestCase
 {
+    use \DMS\PHPUnitExtensions\ArraySubset\ArraySubsetAsserts;
+
     /**
      * @var Generator
      */
@@ -64,7 +66,7 @@ class TestCase extends \PHPUnit\Framework\TestCase
      *
      * @throws \Exception
      */
-    protected function setUp()
+    protected function setUp(): void
     {
         parent::setUp();
 
@@ -84,7 +86,7 @@ class TestCase extends \PHPUnit\Framework\TestCase
     /**
      * @return void
      */
-    public function tearDown()
+    public function tearDown(): void
     {
         $this->rollback();
 
@@ -216,9 +218,9 @@ class TestCase extends \PHPUnit\Framework\TestCase
     /**
      * FIXME: hard dependency with non public members
      *
-     * @param $object
-     * @param $propertyName
-     * @param $replacement
+     * @param mixed $object
+     * @param string $propertyName
+     * @param mixed $replacement
      *
      * @return void
      *
@@ -264,5 +266,34 @@ class TestCase extends \PHPUnit\Framework\TestCase
             );
         }
         $this->replacedProperties = [];
+    }
+
+    /**
+     * @param array $subset
+     * @param array $array
+     * @param string $message
+     * @param bool $markTestIncomplete
+     *
+     * @return void
+     */
+    protected function assertBodySubset($subset, $array, $message = '', $markTestIncomplete = false)
+    {
+        if (!$markTestIncomplete || is_array($array)) {
+            $this->assertArraySubset($subset, $array, $message);
+        } else {
+            $this->markTestIncomplete('WARNING: Cannot evaluate response [body is empty]');
+        }
+    }
+
+    /**
+     * @param array $subset
+     * @param array $array
+     * @param string $message
+     *
+     * @return void
+     */
+    protected function assertBodySubsetOrMarkAsIncomplete($subset, $array, $message = '')
+    {
+        $this->assertBodySubset($subset, $array, $message, true);
     }
 }

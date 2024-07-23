@@ -53,7 +53,7 @@ abstract class Bus
     {
         $this->module->getLogger()->debug('resolving handler : ' . get_class($command));
 
-        $handler = $this->module->getService($this->resolveHandlerClass(get_class($command)));
+        $handler = $this->module->getService($this->resolveHandlerClass((string) get_class($command)));
 
         if ($handler && method_exists($handler, 'handle')) {
             /* @phpstan-ignore-next-line */

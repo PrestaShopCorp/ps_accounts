@@ -1,8 +1,8 @@
 version: "3.7"
 services:
-  phpunit:
+  prestashop:
     container_name: phpunit
-    image: prestashop/docker-internal-images:${DOCKER_INTERNAL}
+    image: ${PLATFORM_IMAGE}
     environment:
       - PS_DOMAIN=localhost
       - PS_ENABLE_SSL=0
@@ -10,5 +10,5 @@ services:
       - XDEBUG_MODE=coverage
       - XDEBUG_ENABLED=1
     volumes:
-      - ./:/var/www/html/modules/ps_accounts
+      - ../:/var/www/html/modules/ps_accounts
 
