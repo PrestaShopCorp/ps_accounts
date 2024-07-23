@@ -25,6 +25,7 @@ use ModuleFrontController;
 use PrestaShop\Module\PsAccounts\Exception\Http\HttpException;
 use PrestaShop\Module\PsAccounts\Exception\Http\MethodNotAllowedException;
 use PrestaShop\Module\PsAccounts\Exception\Http\UnauthorizedException;
+use PrestaShop\Module\PsAccounts\Polyfill\Traits\AjaxRender;
 use PrestaShop\Module\PsAccounts\Provider\RsaKeysProvider;
 use PrestaShop\Module\PsAccounts\Repository\ConfigurationRepository;
 use PrestaShop\Module\PsAccounts\Service\SentryService;
@@ -36,6 +37,8 @@ use ReflectionParameter;
 
 abstract class AbstractRestController extends ModuleFrontController
 {
+    use AjaxRender;
+
     const TOKEN_HEADER = 'X-PrestaShop-Signature';
 
     /**
@@ -112,12 +115,7 @@ abstract class AbstractRestController extends ModuleFrontController
 
         header('Content-Type: text/json');
 
-        if (method_exists($this, 'ajaxRender')) {
-            /* @phpstan-ignore-next-line */
-            $this->ajaxRender((string) json_encode($response));
-        } else {
-            $this->ajaxDie(json_encode($response));
-        }
+        $this->ajaxRender((string) json_encode($response));
     }
 
     /**
