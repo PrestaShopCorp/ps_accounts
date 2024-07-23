@@ -5,10 +5,9 @@ namespace PrestaShop\Module\PsAccounts\Tests\Feature;
 use Db;
 use GuzzleHttp\Client;
 use GuzzleHttp\Message\ResponseInterface;
-use PrestaShop\Module\PsAccounts\Http\Client\Guzzle\GuzzleClient;
-use PrestaShop\Module\PsAccounts\Http\Client\Guzzle\GuzzleClientFactory;
 use PrestaShop\Module\PsAccounts\Provider\RsaKeysProvider;
 use PrestaShop\Module\PsAccounts\Repository\UserTokenRepository;
+use PrestaShop\Module\PsAccounts\Tests\GuzzleTestClient;
 use PrestaShop\Module\PsAccounts\Tests\TestCase;
 use PrestaShop\Module\PsAccounts\Vendor\Lcobucci\JWT\Builder;
 use PrestaShop\Module\PsAccounts\Vendor\Lcobucci\JWT\Signer\Hmac\Sha256;
@@ -28,11 +27,6 @@ class FeatureTestCase extends TestCase
     protected $client;
 
     /**
-     * @var GuzzleClient
-     */
-    protected $guzzleClient;
-
-    /**
      * @var RsaKeysProvider
      */
     protected $rsaKeysProvider;
@@ -47,7 +41,7 @@ class FeatureTestCase extends TestCase
      *
      * @throws \Exception
      */
-    public function setUp()
+    public function setUp(): void
     {
         parent::setUp();
 
@@ -55,32 +49,30 @@ class FeatureTestCase extends TestCase
         $domain = $this->configuration->get('PS_SHOP_DOMAIN');
         $baseUrl = $scheme . $domain . '/';
 
-        $this->guzzleClient = (new GuzzleClientFactory())->create([
+        $this->client = new GuzzleTestClient([
             'base_uri' => $baseUrl,
             'headers' => [
                 'Accept' => 'application/json',
             ],
-            'verify' => false,
+            'verify' => $this->module->getParameter('ps_accounts.check_api_ssl_cert'),
             'timeout' => 60,
             'http_errors' => false,
             //
-            'allow_redirects' => false,
+            'allow_redirects' => true,
             'query' => [],
-        ]);
+        ], true);
 
-        $this->module->getLogger()->debug('Using ' . get_class($this->guzzleClient));
+        // FIXME: Link::getModuleLink
+        // FIXME: OR activate friendly urls
+        //$this->configuration->set('PS_REWRITING_SETTINGS', '1');
 
-        $this->client = $this->guzzleClient->getClient();
+        $this->module->getLogger()->debug('Using ' . get_class($this->client));
 
         $this->rsaKeysProvider = $this->module->getService(RsaKeysProvider::class);
         $this->rsaKeysProvider->regenerateKeys();
 
         $this->userTokenRepository = $this->module->getService(UserTokenRepository::class);
         $this->userTokenRepository->cleanupCredentials();
-
-        // FIXME: Link::getModuleLink
-        // FIXME: OR activate friendly urls
-        //$this->configuration->set('PS_REWRITING_SETTINGS', '1');
     }
 
     /**
@@ -183,7 +175,7 @@ class FeatureTestCase extends TestCase
      */
     public function getResponseJson($response)
     {
-        return $this->guzzleClient->getResponseJson($response);
+        return json_decode($response->getBody()->getContents(), true);
     }
 
     /**

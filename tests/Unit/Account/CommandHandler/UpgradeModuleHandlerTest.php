@@ -50,7 +50,7 @@ class UpgradeModuleHandlerTest extends TestCase
      */
     protected $shopId = 1;
 
-    public function setUp()
+    public function setUp(): void
     {
         parent::setUp();
 
@@ -73,10 +73,10 @@ class UpgradeModuleHandlerTest extends TestCase
         $this->shopSession->method('getOrRefreshToken')->willReturn($this->firebaseRefreshedToken);
         $this->shopSession->method('getToken')->willReturn($this->firebaseToken);
 
+        $this->shopId = $this->shopProvider->getShopContext()->getContext()->shop->id;
+
         $this->conf = $this->createMock(ConfigurationRepository::class);
         $this->conf->method('getShopId')->willReturn($this->shopId);
-
-        $this->shopId = $this->shopProvider->getShopContext()->getContext()->shop->id;
     }
 
     /**

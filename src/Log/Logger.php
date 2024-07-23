@@ -26,8 +26,6 @@ class Logger
 {
     /**
      * @return \Monolog\Logger
-     *
-     * @throws \Exception
      */
     public static function getInstance()
     {
