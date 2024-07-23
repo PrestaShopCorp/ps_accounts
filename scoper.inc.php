@@ -36,7 +36,6 @@ use Isolated\Symfony\Component\Finder\Finder;
 $dirScoped = explode("\n", shell_exec('cat .dir-scoped'));
 /**
  * TODO:
- * paragonie/random_compat
  * ralouphie/getallheaders
  * segmentio/analytics-php
  * sentry/sentry
