@@ -25,9 +25,7 @@ use Ps_accounts;
 class Logger
 {
     /**
-     * @return \PrestaShop\Module\PsAccounts\Vendor\Monolog\Logger
-     *
-     * @throws \Exception
+     * @return \Monolog\Logger
      */
     public static function getInstance()
     {

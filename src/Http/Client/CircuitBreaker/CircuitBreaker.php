@@ -144,6 +144,22 @@ abstract class CircuitBreaker
     }
 
     /**
+     * @return string
+     */
+    public function __toString()
+    {
+        return (string) \json_encode([
+            'state' => $this->state(),
+            'threshold' => $this->getThreshold(),
+            'reset_timeout_ms' => $this->getResetTimeoutMs(),
+            'last_failure_time' => $this->getLastFailureTime(),
+            'current_timestamp' => $this->getCurrentTimestamp(),
+            'diff' => ($this->getCurrentTimestamp() - $this->getLastFailureTime()),
+            'failure_count' => $this->getFailureCount(),
+        ], JSON_PRETTY_PRINT);
+    }
+
+    /**
      * @return void
      */
     protected function setLastFailure()
@@ -157,7 +173,8 @@ abstract class CircuitBreaker
      */
     protected function getCurrentTimestamp()
     {
-        return (int) (new DateTime())->format('Uv');
+        //return (int) (new DateTime())->format('Uv');
+        return (int) floor(microtime(true) * 1000);
     }
 
     /**

@@ -9,6 +9,7 @@ $config
     ->exclude('vendor')
     ->exclude('dist')
     ->exclude('_dev')
-    ->exclude('tests');
+    ->exclude('tests')
+    ->exclude('_dev');
 
 return $config;

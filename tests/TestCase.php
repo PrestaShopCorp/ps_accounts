@@ -15,6 +15,8 @@ use Ps_accounts;
 
 class TestCase extends \PHPUnit\Framework\TestCase
 {
+    use \DMS\PHPUnitExtensions\ArraySubset\ArraySubsetAsserts;
+
     /**
      * @var Generator
      */
@@ -59,7 +61,7 @@ class TestCase extends \PHPUnit\Framework\TestCase
      *
      * @throws \Exception
      */
-    protected function setUp()
+    protected function setUp(): void
     {
         parent::setUp();
 
@@ -79,7 +81,7 @@ class TestCase extends \PHPUnit\Framework\TestCase
     /**
      * @return void
      */
-    public function tearDown()
+    public function tearDown(): void
     {
         $this->rollback();
 
@@ -194,6 +196,7 @@ class TestCase extends \PHPUnit\Framework\TestCase
     /**
      * @param $class
      * @param $methods
+     *
      * @return \#o#Э#A#M#C\PrestaShop\Module\PsAccounts\Tests\TestCase.createMockWithMethods.0|(\#o#Э#A#M#C\PrestaShop\Module\PsAccounts\Tests\TestCase.createMockWithMethods.0&\PHPUnit_Framework_MockObject_MockObject)|\PHPUnit_Framework_MockObject_MockObject
      */
     protected function createMockWithMethods($class, $methods = [])
@@ -209,7 +212,9 @@ class TestCase extends \PHPUnit\Framework\TestCase
      * @param $classInstance
      * @param $dependencyName
      * @param $newDependency
+     *
      * @return void
+     *
      * @throws \ReflectionException
      */
     protected function replaceDependency($classInstance, $dependencyName, $newDependency)
@@ -218,5 +223,34 @@ class TestCase extends \PHPUnit\Framework\TestCase
         $property = $reflection->getProperty($dependencyName);
         $property->setAccessible(true);
         $property->setValue($classInstance, $newDependency);
+    }
+
+    /**
+     * @param array $subset
+     * @param array $array
+     * @param string $message
+     * @param bool $markTestIncomplete
+     *
+     * @return void
+     */
+    protected function assertBodySubset($subset, $array, $message = '', $markTestIncomplete = false)
+    {
+        if (!$markTestIncomplete || is_array($array)) {
+            $this->assertArraySubset($subset, $array, $message);
+        } else {
+            $this->markTestIncomplete('WARNING: Cannot evaluate response [body is empty]');
+        }
+    }
+
+    /**
+     * @param array $subset
+     * @param array $array
+     * @param string $message
+     *
+     * @return void
+     */
+    protected function assertBodySubsetOrMarkAsIncomplete($subset, $array, $message = '')
+    {
+        $this->assertBodySubset($subset, $array, $message, true);
     }
 }

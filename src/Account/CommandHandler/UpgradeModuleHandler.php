@@ -20,11 +20,14 @@
 
 namespace PrestaShop\Module\PsAccounts\Account\CommandHandler;
 
+use PrestaShop\Module\PsAccounts\Account\Command\UnlinkShopCommand;
 use PrestaShop\Module\PsAccounts\Account\Command\UpgradeModuleCommand;
 use PrestaShop\Module\PsAccounts\Account\LinkShop;
 use PrestaShop\Module\PsAccounts\Account\Session\Firebase\ShopSession;
+use PrestaShop\Module\PsAccounts\Account\Token\NullToken;
 use PrestaShop\Module\PsAccounts\Api\Client\AccountsClient;
 use PrestaShop\Module\PsAccounts\Context\ShopContext;
+use PrestaShop\Module\PsAccounts\Cqrs\CommandBus;
 use PrestaShop\Module\PsAccounts\Repository\ConfigurationRepository;
 
 class UpgradeModuleHandler
@@ -54,18 +57,25 @@ class UpgradeModuleHandler
      */
     private $shopContext;
 
+    /**
+     * @var CommandBus
+     */
+    private $commandBus;
+
     public function __construct(
         AccountsClient $accountsClient,
         LinkShop $linkShop,
         ShopSession $shopSession,
         ShopContext $shopContext,
-        ConfigurationRepository $configurationRepository
+        ConfigurationRepository $configurationRepository,
+        CommandBus $commandBus
     ) {
         $this->accountsClient = $accountsClient;
         $this->linkShop = $linkShop;
         $this->shopSession = $shopSession;
         $this->shopContext = $shopContext;
         $this->configRepo = $configurationRepository;
+        $this->commandBus = $commandBus;
     }
 
     /**
@@ -82,18 +92,29 @@ class UpgradeModuleHandler
 
             if (version_compare($lastUpgrade, $command->payload->version, '<')) {
                 // Set new version a soon as we can to avoid duplicate calls
-                $this->configRepo->setLastUpgrade($command->payload->version);
+                $this->configRepo->updateLastUpgrade($command->payload->version);
 
                 // FIXME: to be removed once oauth client has been updated
                 //if (version_compare($lastUpgrade, '7.0.0', '<')) {
                 $this->lastChanceToRefreshShopToken();
                 //}
 
-                $this->accountsClient->upgradeShopModule(
-                    $this->linkShop->getShopUuid(),
-                    (string) $this->shopSession->getOrRefreshToken(),
-                    $command->payload
-                );
+                $token = $this->shopSession->getOrRefreshToken();
+
+                if (!$token->getJwt() instanceof NullToken) {
+                    $response = $this->accountsClient->upgradeShopModule(
+                        $this->linkShop->getShopUuid(),
+                        (string) $token,
+                        $command->payload
+                    );
+
+                    if (!$response['status']) {
+                        $this->commandBus->handle(new UnlinkShopCommand(
+                            $this->configRepo->getShopId(),
+                            $response['httpCode']
+                        ));
+                    }
+                }
             }
         });
     }
@@ -106,10 +127,10 @@ class UpgradeModuleHandler
     private function getOrRefreshShopToken()
     {
         $token = $this->shopSession->getToken();
-        if ($token->isExpired()) {
+        if ($token->isExpired() && !empty($token->getRefreshToken())) {
             $response = $this->accountsClient->refreshShopToken(
                 //$this->configRepo->getFirebaseRefreshToken(),
-                $this->shopSession->getToken()->getRefreshToken(),
+                $token->getRefreshToken(),
                 //$this->configRepo->getShopUuid()
                 $this->linkShop->getShopUuid()
             );

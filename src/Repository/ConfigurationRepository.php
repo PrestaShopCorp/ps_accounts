@@ -378,7 +378,7 @@ class ConfigurationRepository
      *
      * @return void
      */
-    public function setLastUpgrade($upgrade)
+    public function updateLastUpgrade($upgrade)
     {
         $this->configuration->set(ConfigurationKeys::PS_ACCOUNTS_LAST_UPGRADE, $upgrade);
     }
@@ -387,13 +387,28 @@ class ConfigurationRepository
      * @param bool $cached
      *
      * @return string
-     *
-     * @throws \PrestaShopDatabaseException
-     * @throws \PrestaShopException
      */
     public function getLastUpgrade($cached = true)
     {
         return $this->configuration->get(ConfigurationKeys::PS_ACCOUNTS_LAST_UPGRADE, false, $cached);
+    }
+
+    /**
+     * @return string|null
+     */
+    public function getUnlinkedOnError()
+    {
+        return $this->configuration->get(ConfigurationKeys::PS_ACCOUNTS_UNLINKED_ON_ERROR);
+    }
+
+    /**
+     * @param string|null $error
+     *
+     * @return void
+     */
+    public function updateUnlinkedOnError($error)
+    {
+        $this->configuration->set(ConfigurationKeys::PS_ACCOUNTS_UNLINKED_ON_ERROR, $error);
     }
 
     /**

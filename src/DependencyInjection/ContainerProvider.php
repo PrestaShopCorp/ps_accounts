@@ -87,7 +87,10 @@ class ContainerProvider
         if ($containerConfigCache->isFresh()) {
             require_once $containerFilePath;
 
-            return new $containerClassName();
+            /** @var ContainerInterface $instance */
+            $instance = new $containerClassName();
+
+            return $instance;
         }
 
         $containerBuilder = new ContainerBuilder();

@@ -34,7 +34,7 @@ class AnalyticsService
     private $logger;
 
     /**
-     * @var string
+     * @var string|null
      */
     private static $anonymousId;
 
@@ -141,7 +141,7 @@ class AnalyticsService
      *
      * @throws \Exception
      */
-    public function trackMaxRefreshTokenAttempts(
+    public function trackShopUnlinkedOnError(
         $userUid,
         $userEmail,
         $shopUid,
