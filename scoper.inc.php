@@ -35,7 +35,7 @@ use Isolated\Symfony\Component\Finder\Finder;
 // Note: you'll have to manually add namespaces in your composer.json
 $dirScoped = explode("\n", shell_exec('cat .dir-scoped'));
 /**
- * TODO:
+ * TODO: cannot scope psr0 libs
  * segmentio/analytics-php
  * sentry/sentry
  */
