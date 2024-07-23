@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<phpunit bootstrap="tests/bootstrap.php"
+<phpunit bootstrap="bootstrap.php"
          colors="true"
          stopOnFailure="false"
          verbose="true"
@@ -10,15 +10,15 @@
 >
   <testsuites>
     <testsuite name="all">
-      <directory suffix="Test.php">./tests</directory>
-      <directory suffix="Test.php">./src</directory>
+      <directory suffix="Test.php">./</directory>
+      <directory suffix="Test.php">../src</directory>
     </testsuite>
     <testsuite name="unit">
-      <directory suffix="Test.php">./tests/Unit</directory>
-      <directory suffix="Test.php">./src</directory>
+      <directory suffix="Test.php">./Unit</directory>
+      <directory suffix="Test.php">../src</directory>
     </testsuite>
     <testsuite name="feature">
-      <directory suffix="Test.php">./tests/Feature</directory>
+      <directory suffix="Test.php">./Feature</directory>
     </testsuite>
   </testsuites>
   <filter>

@@ -89,7 +89,7 @@ class PsBillingService
         $uuid = $this->configuration->getShopUuid();
         $toReturn = ['shopAccountId' => $uuid];
 
-        if ($uuid && strlen($uuid) > 0) {
+        if (strlen($uuid) > 0) {
             $billingClient = $this->servicesBillingClient;
 
             $response = $billingClient->getBillingCustomer($uuid);

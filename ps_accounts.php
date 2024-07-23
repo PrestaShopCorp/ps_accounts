@@ -499,30 +499,14 @@ class Ps_accounts extends Module
      * @return void
      *
      * @throws PrestaShopException
+     *
+     * @phpstan-ignore-next-line
      */
     private function autoReonboardOnV5()
     {
         /** @var \PrestaShop\Module\PsAccounts\Service\PsAccountsService $psAccountsService */
         $psAccountsService = $this->getService(\PrestaShop\Module\PsAccounts\Service\PsAccountsService::class);
         $psAccountsService->autoReonboardOnV5();
-    }
-
-    /**
-     * @deprecated shouldn't exist anymore
-     *
-     * @return void
-     *
-     * @throws Exception
-     */
-    private function installEventBus()
-    {
-        if ($this->getShopContext()->isShop17()) {
-            /** @var \PrestaShop\Module\PsAccounts\Installer\Installer $moduleInstaller */
-            $moduleInstaller = $this->getService(\PrestaShop\Module\PsAccounts\Installer\Installer::class);
-
-            // Ignore fail on ps_eventbus install
-            $moduleInstaller->installModule('ps_eventbus');
-        }
     }
 
     /**

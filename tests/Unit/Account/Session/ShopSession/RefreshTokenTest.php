@@ -1,6 +1,6 @@
 <?php
 
-namespace PrestaShop\Module\PsAccounts\Tests\Unit\Account\Session\Oauth2\ShopSession;
+namespace PrestaShop\Module\PsAccounts\Tests\Unit\Account\Session\ShopSession;
 
 use PrestaShop\Module\PsAccounts\Account\Session\ShopSession;
 use PrestaShop\Module\PsAccounts\Account\Token\Token;
@@ -21,7 +21,10 @@ class RefreshTokenTest extends TestCase
      */
     protected $shopSession;
 
-    function tearDown()
+    /**
+     * @return void
+     */
+    function tearDown(): void
     {
         parent::tearDown();
         $this->shopSession->cleanup();
@@ -92,7 +95,11 @@ class RefreshTokenTest extends TestCase
             ->disableOriginalConstructor()
             ->getMock();
         $oauth2Client->method('exists')->willReturn($existResponse);
-        $shopProvider->method('getAccessToken')->willReturn($tokenResponse);
+        if ($tokenResponse) {
+            $shopProvider->method('getAccessToken')->willReturn($tokenResponse);
+        } else {
+            $shopProvider->method('getAccessToken')->willThrowException(new \Exception('Fail !!'));
+        }
         $shopProvider->method('getOauth2Client')->willReturn($oauth2Client);
         return new ShopSession(
             $this->configurationRepository,
