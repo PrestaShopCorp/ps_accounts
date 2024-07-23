@@ -76,8 +76,10 @@ class ActionObjectShopUpdateAfterTest extends TestCase
     {
         $shop = new \Shop(1);
 
+        $shopUrls = \ShopUrl::getShopUrls(1);
+
         /** @var \ShopUrl $shopUrl */
-        $shopUrl = (\ShopUrl::getShopUrls(1))->getFirst();
+        $shopUrl = $shopUrls->getFirst();
 
         /** @var Params $params */
         $params = null;
