@@ -2,15 +2,14 @@
 
 namespace PrestaShop\Module\PsAccounts\Polyfill\Traits;
 
-use PrestaShop\Module\PsAccounts\Log\Logger;
 use PrestaShopException;
 
 trait AjaxRender
 {
     /**
-     * @param null|string $value
-     * @param null|string $controller
-     * @param null|string $method
+     * @param string|null $value
+     * @param string|null $controller
+     * @param string|null $method
      *
      * @return void
      *
