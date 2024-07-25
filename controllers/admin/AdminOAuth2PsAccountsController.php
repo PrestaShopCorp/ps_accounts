@@ -22,8 +22,6 @@ use PrestaShop\Module\PsAccounts\Entity\EmployeeAccount;
 use PrestaShop\Module\PsAccounts\Exception\AccountLogin\AccountLoginException;
 use PrestaShop\Module\PsAccounts\Exception\AccountLogin\EmailNotVerifiedException;
 use PrestaShop\Module\PsAccounts\Exception\AccountLogin\EmployeeNotFoundException;
-use PrestaShop\Module\PsAccounts\Exception\AccountLogin\Oauth2Exception;
-use PrestaShop\Module\PsAccounts\Exception\AccountLogin\OtherErrorException;
 use PrestaShop\Module\PsAccounts\Provider\OAuth2\PrestaShopLoginTrait;
 use PrestaShop\Module\PsAccounts\Provider\OAuth2\PrestaShopSession;
 use PrestaShop\Module\PsAccounts\Provider\OAuth2\ShopProvider;
@@ -31,7 +29,6 @@ use PrestaShop\Module\PsAccounts\Repository\EmployeeAccountRepository;
 use PrestaShop\Module\PsAccounts\Service\AnalyticsService;
 use PrestaShop\Module\PsAccounts\Service\PsAccountsService;
 use PrestaShop\Module\PsAccounts\Session\Session;
-use PrestaShop\Module\PsAccounts\Vendor\League\OAuth2\Client\Provider\Exception\IdentityProviderException;
 use PrestaShop\OAuth2\Client\Provider\PrestaShopUser;
 
 /**
@@ -103,14 +100,10 @@ class AdminOAuth2PsAccountsController extends \ModuleAdminController
     {
         try {
             $this->oauth2Login();
-        } catch (IdentityProviderException $e) {
-            $this->onLoginFailed(new Oauth2Exception($e->getMessage()));
-        } catch (EmailNotVerifiedException $e) {
-            $this->onLoginFailed($e);
-        } catch (EmployeeNotFoundException $e) {
+        } catch (AccountLoginException $e) {
             $this->onLoginFailed($e);
         } catch (Exception $e) {
-            $this->onLoginFailed(new OtherErrorException($e->getMessage()));
+            $this->onLoginFailed(new AccountLoginException($e->getMessage(), null, $e));
         }
         parent::init();
     }
@@ -223,8 +216,6 @@ class AdminOAuth2PsAccountsController extends \ModuleAdminController
 
     /**
      * @return Session
-     *
-     * @throws Exception
      */
     private function getSession()
     {
@@ -235,8 +226,6 @@ class AdminOAuth2PsAccountsController extends \ModuleAdminController
      * @param mixed $error
      *
      * @return void
-     *
-     * @throws Exception
      */
     private function setLoginError($error)
     {
@@ -245,8 +234,6 @@ class AdminOAuth2PsAccountsController extends \ModuleAdminController
 
     /**
      * @return PrestaShopSession
-     *
-     * @throws Exception
      */
     protected function getOauth2Session()
     {
@@ -317,7 +304,7 @@ class AdminOAuth2PsAccountsController extends \ModuleAdminController
     {
         $repository = new EmployeeAccountRepository();
 
-        if ($repository->isCompatPs16()) {
+        try {
             $employeeAccount = $repository->findByUid($uid);
 
             /* @phpstan-ignore-next-line */
@@ -338,7 +325,7 @@ class AdminOAuth2PsAccountsController extends \ModuleAdminController
                         ->setEmail($email)
                 );
             }
-        } else {
+        } catch (\Exception $e) {
             $employee = new Employee();
             $employee->getByEmail($email);
         }

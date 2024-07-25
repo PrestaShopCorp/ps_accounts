@@ -470,8 +470,6 @@ class Ps_accounts extends Module
 
     /**
      * @return \PrestaShop\Module\PsAccounts\Session\Session
-     *
-     * @throws Exception
      */
     public function getSession()
     {

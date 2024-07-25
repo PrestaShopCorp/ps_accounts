@@ -321,12 +321,12 @@ class PsAccountsService
     public function getEmployeeAccount()
     {
         $repository = new EmployeeAccountRepository();
-        if ($repository->isCompatPs16()) {
+        try {
             return $repository->findByEmployeeId(
                 $this->module->getContext()->employee->id
             );
+        } catch (\Exception $e) {
+            return null;
         }
-
-        return null;
     }
 }
