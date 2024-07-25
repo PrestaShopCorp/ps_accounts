@@ -485,14 +485,20 @@ class Ps_accounts extends Module
                 $session = $container->get('session');
                 /* @phpstan-ignore-next-line */
             } catch (\Symfony\Component\DependencyInjection\Exception\ServiceNotFoundException $e) {
-                // FIXME: fix for 1.7.7.x
-                global $kernel;
-                $session = $kernel->getContainer()->get('session');
+                try {
+                    // FIXME: fix for 1.7.7.x
+                    global $kernel;
+                    $session = $kernel->getContainer()->get('session');
+                } catch (\Symfony\Component\DependencyInjection\Exception\ServiceNotFoundException $e) {
+                    // FIXME: fix for 9.x
+                    global $request;
+                    $session = $request->getSession();
+                }
             }
 
             return $session;
         } else {
-            // FIXME return a session like with configuration storage
+            // FIXME: return a session like with configuration storage
             return new \PrestaShop\Module\PsAccounts\Session\FallbackSession(
                 $this->getService(\PrestaShop\Module\PsAccounts\Adapter\Configuration::class)
             );
