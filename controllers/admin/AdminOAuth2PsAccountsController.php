@@ -62,6 +62,8 @@ class AdminOAuth2PsAccountsController extends \ModuleAdminController
      */
     public function __construct()
     {
+        $this->setAllowAnonymous(true);
+
         parent::__construct();
 
         $this->analyticsService = $this->module->getService(AnalyticsService::class);
@@ -69,14 +71,6 @@ class AdminOAuth2PsAccountsController extends \ModuleAdminController
 
         $this->ajax = true;
         $this->content_only = true;
-    }
-
-    /**
-     * @return bool
-     */
-    protected function isAnonymousAllowed()
-    {
-        return true;
     }
 
     /**
@@ -110,13 +104,13 @@ class AdminOAuth2PsAccountsController extends \ModuleAdminController
         try {
             $this->oauth2Login();
         } catch (IdentityProviderException $e) {
-            $this->onLoginFailed(new Oauth2Exception(null, $e->getMessage()));
+            $this->onLoginFailed(new Oauth2Exception($e->getMessage()));
         } catch (EmailNotVerifiedException $e) {
             $this->onLoginFailed($e);
         } catch (EmployeeNotFoundException $e) {
             $this->onLoginFailed($e);
         } catch (Exception $e) {
-            $this->onLoginFailed(new OtherErrorException(null, $e->getMessage()));
+            $this->onLoginFailed(new OtherErrorException($e->getMessage()));
         }
         parent::init();
     }
@@ -144,9 +138,9 @@ class AdminOAuth2PsAccountsController extends \ModuleAdminController
             $context->employee->logout();
 
             if (empty($emailVerified)) {
-                throw new EmailNotVerifiedException($user);
+                throw new EmailNotVerifiedException('Your account email is not verified', $user);
             }
-            throw new EmployeeNotFoundException($user);
+            throw new EmployeeNotFoundException('The email address is not associated to a PrestaShop backoffice account.', $user);
         }
 
         $context->employee->remote_addr = (int) ip2long(Tools::getRemoteAddr());
@@ -294,7 +288,7 @@ class AdminOAuth2PsAccountsController extends \ModuleAdminController
      */
     private function trackLoginFailedEvent($e)
     {
-        $user = $e->getPrestaShopUser();
+        $user = $e->getUser();
         $this->analyticsService->identify(
             $user->getId(),
             $user->getName(),

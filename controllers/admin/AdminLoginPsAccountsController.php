@@ -35,6 +35,8 @@ class AdminLoginPsAccountsController extends \AdminController
      */
     public function __construct()
     {
+        $this->setAllowAnonymous(true);
+
         $this->bootstrap = true;
 
         parent::__construct();
@@ -76,14 +78,6 @@ class AdminLoginPsAccountsController extends \AdminController
 
         //force to disable modals
         $this->context->smarty->assign('modals', null);
-    }
-
-    /**
-     * @return bool
-     */
-    protected function isAnonymousAllowed()
-    {
-        return true;
     }
 
     /**
