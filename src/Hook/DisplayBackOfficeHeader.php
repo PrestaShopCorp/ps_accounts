@@ -34,7 +34,9 @@ class DisplayBackOfficeHeader extends Hook
         try {
             $this->module->getOauth2Middleware()->execute();
         } catch (IdentityProviderException $e) {
+            $this->logger->error('error while executing middleware : ' . $e->getMessage());
         } catch (ServiceNotFoundException $e) {
+            $this->logger->error('error while executing middleware : ' . $e->getMessage());
         }
 
         $this->commandBus->handle(new UpgradeModuleMultiCommand());
