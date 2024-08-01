@@ -28,6 +28,7 @@ use PrestaShop\Module\PsAccounts\Account\Token\NullToken;
 use PrestaShop\Module\PsAccounts\Api\Client\AccountsClient;
 use PrestaShop\Module\PsAccounts\Context\ShopContext;
 use PrestaShop\Module\PsAccounts\Cqrs\CommandBus;
+use PrestaShop\Module\PsAccounts\Log\Logger;
 use PrestaShop\Module\PsAccounts\Repository\ConfigurationRepository;
 
 class UpgradeModuleHandler
@@ -89,6 +90,10 @@ class UpgradeModuleHandler
     {
         $this->shopContext->execInShopContext($command->payload->shopId, function () use ($command) {
             $lastUpgrade = $this->configRepo->getLastUpgrade(false);
+
+            Logger::getInstance()->error('##### last : ' . $lastUpgrade);
+            Logger::getInstance()->error('##### payload : ' . $command->payload->version);
+            Logger::getInstance()->error('##### bool : ' . (int) version_compare($lastUpgrade, $command->payload->version, '<'));
 
             if (version_compare($lastUpgrade, $command->payload->version, '<')) {
                 // Set new version a soon as we can to avoid duplicate calls
