@@ -1,13 +1,13 @@
 <?php
 
-namespace PrestaShop\Module\PsAccounts\Tests\Feature\Api\v1;
+namespace PrestaShop\Module\PsAccounts\Tests\Feature\Api;
 
 use PrestaShop\Module\PsAccounts\Adapter\ConfigurationKeys;
 use PrestaShop\Module\PsAccounts\Adapter\Link;
 use PrestaShop\Module\PsAccounts\Tests\Feature\FeatureTestCase;
 use PrestaShop\Module\PsAccounts\Vendor\GuzzleHttp\Cookie\CookieJar;
 
-class DecodePayloadTest extends FeatureTestCase
+class UpgradeModuleHandlerTest extends FeatureTestCase
 {
     /**
      * @inject
