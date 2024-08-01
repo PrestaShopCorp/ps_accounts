@@ -74,7 +74,7 @@ class UpgradeModuleMultiHandler
      */
     private function getShops($multishop)
     {
-        $shops = [$this->configRepo->getShopId()];
+        $shops = [null];
         if ($multishop) {
             $shops = [];
             $db = \Db::getInstance();
