@@ -29,7 +29,7 @@ $_MODULE['<{ps_accounts}prestashop>settingstranslations_6a26f548831e6a8c26bfbbd9
 $_MODULE['<{ps_accounts}prestashop>settingstranslations_b7ca62f12bc3b8e0d6422c028473a265'] = 'Votre compte PrestaShop';
 $_MODULE['<{ps_accounts}prestashop>settingstranslations_53c4c7fe12fffd658daacfa5b41eb495'] = 'Un seul compte pour gérer toutes vos boutiques PrestaShop';
 $_MODULE['<{ps_accounts}prestashop>settingstranslations_655aa4af96bbb20cf78e14b560affb38'] = 'Créer votre compte PrestaShop ou vous connecter à votre compte existant';
-$_MODULE['<{ps_accounts}prestashop>settingstranslations_a60d78ec73c0c133ce16b10419a3fdf6'] = 'Liez votre magasin à votre compte';
+$_MODULE['<{ps_accounts}prestashop>settingstranslations_a60d78ec73c0c133ce16b10419a3fdf6'] = 'Liez votre boutique à votre compte';
 $_MODULE['<{ps_accounts}prestashop>content_23feb5280da1e3a86dc0fcc048f1a58d'] = 'Un back-office simple à prendre en main';
 $_MODULE['<{ps_accounts}prestashop>content_e661ffe463ad9b9bcea4c49d744058e7'] = 'Gérez toute votre activité au même endroit : catalogue de produits, commandes, paiements, livraisons et bien plus encore.';
 $_MODULE['<{ps_accounts}prestashop>content_8ea4efcd82809db344ff0d7a76695448'] = 'Tous les indispensables pour votre business';
