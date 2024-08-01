@@ -24,6 +24,7 @@ use PrestaShop\Module\PsAccounts\Account\Command\MigrateAndLinkV4ShopCommand;
 use PrestaShop\Module\PsAccounts\Account\Session\Firebase\ShopSession;
 use PrestaShop\Module\PsAccounts\Api\Client\AccountsClient;
 use PrestaShop\Module\PsAccounts\Context\ShopContext;
+use PrestaShop\Module\PsAccounts\Exception\RefreshTokenException;
 
 class MigrateAndLinkV4ShopHandler
 {
@@ -57,12 +58,12 @@ class MigrateAndLinkV4ShopHandler
      *
      * @return array
      *
-     * @throws \Exception
+     * @throws RefreshTokenException
      */
     public function handle(MigrateAndLinkV4ShopCommand $command)
     {
         return $this->shopContext->execInShopContext((int) $command->shopId, function () use ($command) {
-            $shopToken = $this->shopSession->getOrRefreshToken();
+            $shopToken = $this->shopSession->getValidToken();
 
             return $this->accountClient->reonboardShop(
                 $shopToken->getUuid(),

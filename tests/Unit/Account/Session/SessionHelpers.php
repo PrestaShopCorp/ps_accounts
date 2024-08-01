@@ -24,9 +24,9 @@ trait SessionHelpers
                 $this->commandBus
             ])
             ->enableOriginalClone()
-            ->setMethods(['getOrRefreshToken'])
+            ->setMethods(['getValidToken'])
             ->getMock();
-        $shopSession->method('getOrRefreshToken')->willReturn($token);
+        $shopSession->method('getValidToken')->willReturn($token);
         return $shopSession;
     }
 

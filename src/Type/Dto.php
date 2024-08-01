@@ -42,7 +42,7 @@ abstract class Dto implements \JsonSerializable
     /**
      * @param array $values
      *
-     * @throws \Exception
+     * @throws DtoException
      */
     public function __construct($values = [])
     {

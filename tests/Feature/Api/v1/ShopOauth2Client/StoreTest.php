@@ -38,8 +38,6 @@ class StoreTest extends FeatureTestCase
      */
     public function itShouldSucceed()
     {
-        $expiry = new \DateTimeImmutable('+10 days');
-
         $payload = [
             'shop_id' => 1,
             'client_id' => $this->faker->slug,

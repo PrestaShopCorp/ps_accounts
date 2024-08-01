@@ -49,33 +49,32 @@ class Oauth2Middleware
 
     /**
      * @return void
-     *
-     * @throws IdentityProviderException
-     * @throws Exception
      */
     public function execute()
     {
-        /** @var PsAccountsService $psAccountsService */
-        $psAccountsService = $this->module->getService(PsAccountsService::class);
+        try {
+            /** @var PsAccountsService $psAccountsService */
+            $psAccountsService = $this->module->getService(PsAccountsService::class);
 
-        $session = $this->getOauth2Session();
+            $session = $this->getOauth2Session();
 
-        if (isset($_GET['logout'])) {
-            if ($psAccountsService->getLoginActivated()) {
-                $this->oauth2Logout();
-                // FIXME: too much implicit logic here
-                // We reach this line after redirect at callback time
-                $this->onLogoutCallback();
+            if (isset($_GET['logout'])) {
+                if ($psAccountsService->getLoginActivated()) {
+                    $this->oauth2Logout();
+                    // FIXME: too much implicit logic here
+                    // We reach this line after redirect at callback time
+                    $this->onLogoutCallback();
+                } else {
+                    $session->clear();
+                }
             } else {
-                $session->clear();
-            }
-        } else {
-            try {
                 // We keep token fresh !
                 $session->getOrRefreshAccessToken();
-            } catch (IdentityProviderException $e) {
-                $this->module->getLogger()->err($e->getMessage());
             }
+        } catch (IdentityProviderException $e) {
+            $this->module->getLogger()->err($e->getMessage());
+        } catch (Exception $e) {
+            $this->module->getLogger()->err($e->getMessage());
         }
     }
 

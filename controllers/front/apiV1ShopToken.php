@@ -20,6 +20,7 @@
 
 use PrestaShop\Module\PsAccounts\Account\Session\Firebase\ShopSession;
 use PrestaShop\Module\PsAccounts\Api\Controller\AbstractShopRestController;
+use PrestaShop\Module\PsAccounts\Exception\RefreshTokenException;
 
 class ps_AccountsApiV1ShopTokenModuleFrontController extends AbstractShopRestController
 {
@@ -29,7 +30,7 @@ class ps_AccountsApiV1ShopTokenModuleFrontController extends AbstractShopRestCon
      *
      * @return string[]
      *
-     * @throws Exception
+     * @throws RefreshTokenException
      */
     public function show(Shop $shop, array $payload)
     {
@@ -37,7 +38,7 @@ class ps_AccountsApiV1ShopTokenModuleFrontController extends AbstractShopRestCon
         $shopSession = $this->module->getService(ShopSession::class);
 
         return [
-            'token' => (string) $shopSession->getOrRefreshToken(),
+            'token' => (string) $shopSession->getValidToken(),
             'refresh_token' => (string) $shopSession->getToken()->getRefreshToken(),
         ];
     }
