@@ -23,6 +23,11 @@ class UpgradeModuleHandlerTest extends FeatureTestCase
 
     public function setUp(): void
     {
+        if (version_compare(_PS_VERSION_, '1.7.0.0', '<') ||
+            version_compare(_PS_VERSION_, '9', '>=')) {
+            $this->markTestSkipped('Login test compatible with 1.7 & 8 only');
+        }
+
         parent::setUp();
 
         $this->cookieJar = new CookieJar();
@@ -33,23 +38,11 @@ class UpgradeModuleHandlerTest extends FeatureTestCase
      */
     public function itShouldUpdateModuleVersion()
     {
-        $this->setVersion('7.0.1');
+        $this->setVersion($this->incrementVersion(\Ps_accounts::VERSION, -1));
 
-        echo 'Initial Version : ' . $this->getVersion();
-        echo "\n";
-        echo 'Initial Version : ' . $this->configurationRepository->getLastUpgrade();
-
-        $response = $this->loginIntoBackoffice();
-
-        echo "\n----\n";
-        echo 'Initial Version : ' . $this->getVersion();
-        echo "\n";
-        echo 'Initial Version : ' . $this->configurationRepository->getLastUpgrade();
-
-        $json = $this->getResponseJson($response);
-        $this->module->getLogger()->info(print_r($json, true));
-
-        $this->assertResponseOk($response);
+        $this->assertResponseOk(
+            $this->loginIntoBackoffice()
+        );
 
         $this->assertEquals(\Ps_accounts::VERSION, $this->getVersion());
     }
@@ -59,26 +52,48 @@ class UpgradeModuleHandlerTest extends FeatureTestCase
      */
     public function itShouldNotUpdateModuleVersion()
     {
-        $this->setVersion('7.0.9');
+        $incrementedVersion = $this->incrementVersion(\Ps_accounts::VERSION, +1);
 
-        $response = $this->loginIntoBackoffice();
+        $this->setVersion($incrementedVersion);
 
-        $json = $this->getResponseJson($response);
-        $this->module->getLogger()->info(print_r($json, true));
+        $this->assertResponseOk(
+            $this->loginIntoBackoffice()
+        );
 
-        $this->assertResponseOk($response);
-
-        $this->assertEquals('7.0.9', $this->getVersion());
+        $this->assertEquals($incrementedVersion, $this->getVersion());
     }
 
-    /**
-     * @test
-     */
-    public function itShouldUpdateModuleVersionOnlyOnce()
-    {
-        // TODO expect updateLastUpgrade called 0 times
-        //$this->replaceDependency();
-    }
+//    /**
+//     * @test
+//     */
+//    public function itShouldUpdateModuleVersionOnlyOnce()
+//    {
+//        $this->setVersion('7.0.1');
+//
+//        $response = $this->loginIntoBackoffice();
+//
+//        $json = $this->getResponseJson($response);
+//
+//        $conf = $this->getUncachedConfiguration(ConfigurationKeys::PS_ACCOUNTS_LAST_UPGRADE);
+//
+//        $this->assertEquals(\Ps_accounts::VERSION, $conf->value);
+//
+//        $t1 = $conf->date_upd;
+//        echo "T1: " . $t1 . "(" . $conf->date_add . ")\n";
+//
+//        sleep(5);
+//
+//        $this->displayBackofficePage($json['redirect'], $this->cookieJar);
+//
+//        $conf2 = $this->getUncachedConfiguration(ConfigurationKeys::PS_ACCOUNTS_LAST_UPGRADE);
+//
+//        $this->assertEquals(\Ps_accounts::VERSION, $conf2->value);
+//
+//        $t2 = $conf2->date_upd;
+//        echo "T1: " . $t2 . "(" . $conf2->date_add . ")\n";
+//
+//        $this->assertEquals($t1, $t2);
+//    }
 
     /**
      * @param string $version
@@ -112,8 +127,9 @@ class UpgradeModuleHandlerTest extends FeatureTestCase
     {
         $jar = $this->cookieJar;
 
-        $res = $this->displayLoginPage($jar);
-        $this->assertResponseOk($res);
+        $this->assertResponseOk(
+            $this->displayLoginPage($jar)
+        );
 
         $res = $this->postLogionForm([
             'ajax' => 1,
@@ -127,9 +143,12 @@ class UpgradeModuleHandlerTest extends FeatureTestCase
         $this->assertResponseOk($res);
 
         $json = $this->getResponseJson($res);
-        $this->module->getLogger()->info(print_r($json, true));
 
-        return $this->displayBackofficePage($json['redirect'], $jar);
+        $this->assertResponseOk(
+            $this->displayBackofficePage($json['redirect'], $jar)
+        );
+
+        return $res;
     }
 
     /**
@@ -139,10 +158,9 @@ class UpgradeModuleHandlerTest extends FeatureTestCase
      */
     protected function displayLoginPage(CookieJar $jar)
     {
-        $response = $this->client->get('/admin-dev/index.php?controller=AdminLogin', [
+        return $this->client->get('/admin-dev/index.php?controller=AdminLogin', [
             'cookies' => $jar,
         ]);
-        return $response;
     }
 
     /**
@@ -153,11 +171,10 @@ class UpgradeModuleHandlerTest extends FeatureTestCase
      */
     protected function postLogionForm(array $form, CookieJar $jar)
     {
-        $response = $this->client->post('/admin-dev/index.php?rand=' . time(), [
+        return $this->client->post('/admin-dev/index.php?rand=' . time(), [
             'form_params' => $form,
             'cookies' => $jar,
         ]);
-        return $response;
     }
 
     /**
@@ -171,5 +188,51 @@ class UpgradeModuleHandlerTest extends FeatureTestCase
         return $this->client->get($redirect, [
             'cookies' => $jar,
         ]);
+    }
+
+    /**
+     * @param string $version
+     * @param int $increment
+     *
+     * @return string
+     */
+    protected function incrementVersion($version, $increment)
+    {
+        list($major, $minor, $patch) = explode('.', $version);
+
+        if ($increment > 0) {
+            return $major . '.' . $minor . '.' . ($patch + 1);
+        } else {
+            foreach (['patch', 'minor', 'major'] as $part) {
+                if ($$part -1 > 0) {
+                    $$part -= 1;
+                    break;
+                }
+            }
+            return $major . '.' . $minor . '.' . $patch;
+        }
+    }
+
+    /**
+     * @param string $key
+     * @param int|null $idShopGroup
+     * @param int|null $idShop
+     * @param mixed $default
+     *
+     * @return \Configuration
+     *
+     * @throw \Exception
+     */
+    protected function getUncachedConfiguration($key, $idShopGroup = null, $idShop = null, $default = false)
+    {
+        $id = \Configuration::getIdByName($key, $idShopGroup, $idShop);
+        if ($id > 0) {
+            $found = (new \Configuration($id));
+            $found->clearCache();
+
+            return $found;
+        }
+
+        throw new \Exception('Configuration entry not found');
     }
 }
