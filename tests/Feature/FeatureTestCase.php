@@ -4,16 +4,18 @@ namespace PrestaShop\Module\PsAccounts\Tests\Feature;
 
 use Db;
 
+use GuzzleHttp\Client;
+use GuzzleHttp\Message\ResponseInterface;
 use PrestaShop\Module\PsAccounts\Provider\RsaKeysProvider;
 use PrestaShop\Module\PsAccounts\Repository\UserTokenRepository;
 use PrestaShop\Module\PsAccounts\Tests\GuzzleTestClient;
 use PrestaShop\Module\PsAccounts\Tests\TestCase;
-use PrestaShop\Module\PsAccounts\Vendor\GuzzleHttp\Client;
+//use PrestaShop\Module\PsAccounts\Vendor\GuzzleHttp\Client;
 use PrestaShop\Module\PsAccounts\Vendor\Lcobucci\JWT\Builder;
 use PrestaShop\Module\PsAccounts\Vendor\Lcobucci\JWT\Signer\Hmac\Sha256;
 use PrestaShop\Module\PsAccounts\Vendor\Lcobucci\JWT\Signer\Key;
 use PrestaShop\Module\PsAccounts\Vendor\Lcobucci\JWT\Token;
-use Psr\Http\Message\ResponseInterface;
+//use Psr\Http\Message\ResponseInterface;
 
 class FeatureTestCase extends TestCase
 {
