@@ -176,7 +176,10 @@ class FeatureTestCase extends TestCase
      */
     public function getResponseJson($response)
     {
-        return json_decode($response->getBody()->getContents(), true);
+        $ary = json_decode($response->getBody()->getContents(), true);
+        $response->getBody()->rewind();
+
+        return $ary;
     }
 
     /**
