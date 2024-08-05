@@ -23,12 +23,12 @@ class UpgradeModuleHandlerTest extends FeatureTestCase
 
     public function setUp(): void
     {
+        parent::setUp();
+
         if (version_compare(_PS_VERSION_, '1.7.0.0', '<') ||
             version_compare(_PS_VERSION_, '9', '>=')) {
             $this->markTestSkipped('Login test compatible with 1.7 & 8 only');
         }
-
-        parent::setUp();
 
         $this->cookieJar = new CookieJar();
     }
