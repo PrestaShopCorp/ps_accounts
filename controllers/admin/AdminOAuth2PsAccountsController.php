@@ -22,6 +22,7 @@ use PrestaShop\Module\PsAccounts\Entity\EmployeeAccount;
 use PrestaShop\Module\PsAccounts\Exception\AccountLogin\AccountLoginException;
 use PrestaShop\Module\PsAccounts\Exception\AccountLogin\EmailNotVerifiedException;
 use PrestaShop\Module\PsAccounts\Exception\AccountLogin\EmployeeNotFoundException;
+use PrestaShop\Module\PsAccounts\Polyfill\Traits\AdminController\IsAnonymousAllowed;
 use PrestaShop\Module\PsAccounts\Provider\OAuth2\PrestaShopLoginTrait;
 use PrestaShop\Module\PsAccounts\Provider\OAuth2\PrestaShopSession;
 use PrestaShop\Module\PsAccounts\Provider\OAuth2\ShopProvider;
@@ -36,7 +37,7 @@ use PrestaShop\OAuth2\Client\Provider\PrestaShopUser;
  */
 class AdminOAuth2PsAccountsController extends \ModuleAdminController
 {
-    use PrestaShopLoginTrait;
+    use PrestaShopLoginTrait, IsAnonymousAllowed;
 
     /**
      * @var Ps_accounts
@@ -59,8 +60,6 @@ class AdminOAuth2PsAccountsController extends \ModuleAdminController
      */
     public function __construct()
     {
-        $this->setAllowAnonymous(true);
-
         parent::__construct();
 
         $this->analyticsService = $this->module->getService(AnalyticsService::class);

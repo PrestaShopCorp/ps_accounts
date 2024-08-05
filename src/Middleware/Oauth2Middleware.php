@@ -52,7 +52,7 @@ class Oauth2Middleware
      * @return void
      *
      * @throws IdentityProviderException
-     * @throws ServiceNotFoundException
+     * @throws Exception
      */
     public function execute()
     {

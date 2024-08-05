@@ -18,10 +18,13 @@
  * @license   https://opensource.org/licenses/AFL-3.0 Academic Free License version 3.0
  */
 
+use PrestaShop\Module\PsAccounts\Polyfill\Traits\AdminController\IsAnonymousAllowed;
 use PrestaShop\Module\PsAccounts\Provider\OAuth2\ShopProvider;
 
 class AdminLoginPsAccountsController extends \AdminController
 {
+    use IsAnonymousAllowed;
+
     const PARAM_MODE_LOCAL = 'local';
 
     /** @var string */
@@ -35,8 +38,6 @@ class AdminLoginPsAccountsController extends \AdminController
      */
     public function __construct()
     {
-        $this->setAllowAnonymous(true);
-
         $this->bootstrap = true;
 
         parent::__construct();

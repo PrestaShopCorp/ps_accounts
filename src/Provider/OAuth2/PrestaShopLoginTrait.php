@@ -65,6 +65,7 @@ trait PrestaShopLoginTrait
      * @throws EmailNotVerifiedException
      * @throws EmployeeNotFoundException
      * @throws Oauth2Exception
+     * @throws \Exception
      */
     public function oauth2Login()
     {

@@ -487,6 +487,7 @@ class Ps_accounts extends Module
                     // FIXME: fix for 1.7.7.x
                     global $kernel;
                     $session = $kernel->getContainer()->get('session');
+                    /* @phpstan-ignore-next-line */
                 } catch (\Symfony\Component\DependencyInjection\Exception\ServiceNotFoundException $e) {
                     // FIXME: fix for 9.x
                     global $request;
