@@ -27,7 +27,6 @@ use PrestaShop\Module\PsAccounts\Provider\OAuth2\ShopProvider;
 use PrestaShop\Module\PsAccounts\Service\PsAccountsService;
 use PrestaShop\Module\PsAccounts\Vendor\League\OAuth2\Client\Provider\Exception\IdentityProviderException;
 use Ps_accounts;
-use Symfony\Component\DependencyInjection\Exception\ServiceNotFoundException;
 
 class Oauth2Middleware
 {

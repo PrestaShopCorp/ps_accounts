@@ -37,7 +37,8 @@ use PrestaShop\OAuth2\Client\Provider\PrestaShopUser;
  */
 class AdminOAuth2PsAccountsController extends \ModuleAdminController
 {
-    use PrestaShopLoginTrait, IsAnonymousAllowed;
+    use PrestaShopLoginTrait;
+    use IsAnonymousAllowed;
 
     /**
      * @var Ps_accounts
