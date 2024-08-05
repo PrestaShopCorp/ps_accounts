@@ -1,6 +1,6 @@
 <?php
 
-namespace PrestaShop\Module\PsAccounts\Tests\Feature\Api;
+namespace PrestaShop\Module\PsAccounts\Tests\Feature\Api\Account\CommandHandler;
 
 use PrestaShop\Module\PsAccounts\Adapter\ConfigurationKeys;
 use PrestaShop\Module\PsAccounts\Adapter\Link;
