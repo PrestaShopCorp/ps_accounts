@@ -15,7 +15,7 @@ services:
     factory: [ 'Context', 'getContext' ]
 
   ps_accounts.logger:
-    class: Monolog\Logger
+    class: PrestaShop\Module\PsAccounts\Vendor\Monolog\Logger
     public: true
     factory: [ 'PrestaShop\Module\PsAccounts\Factory\PsAccountsLogger', 'create' ]
 

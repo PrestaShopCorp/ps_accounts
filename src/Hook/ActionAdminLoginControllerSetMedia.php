@@ -49,7 +49,7 @@ class ActionAdminLoginControllerSetMedia extends Hook
 
         if ($this->module->getShopContext()->isShop17() && !$local) {
 //            /** @var \PrestaShop\Module\PsAccounts\Adapter\Link $link */
-//            $link = $this->getService(\PrestaShop\Module\PsAccounts\Adapter\Link::class);
+//            $link = $this->module->getService(\PrestaShop\Module\PsAccounts\Adapter\Link::class);
 //            Tools::redirectLink($link->getAdminLink('AdminLoginPsAccounts', false));
             (new AdminLoginPsAccountsController())->run();
             exit;

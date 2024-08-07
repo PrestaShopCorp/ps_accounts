@@ -33,7 +33,12 @@ use Isolated\Symfony\Component\Finder\Finder;
 
 // Vendor dependency dirs your want to scope
 // Note: you'll have to manually add namespaces in your composer.json
-$dirScoped = ['guzzlehttp', 'league', 'prestashopcorp', 'lcobucci'];
+$dirScoped = explode("\n", shell_exec('cat .dir-scoped'));
+/**
+ * TODO: cannot scope psr0 libs
+ * segmentio/analytics-php
+ * sentry/sentry
+ */
 
 // Example of collecting files to include in the scoped build but to not scope
 // leveraging the isolated finder.
@@ -48,7 +53,8 @@ $dirExcludes = [
     'doc',
     'test',
     'test_old',
-    'tests',
+// FIXME: firendsofphp/php-cs-fixer is referencing Test namespace from src
+//    'tests',
     'Tests',
     'vendor-bin',
 ];
@@ -106,6 +112,39 @@ return [
                     $contents
                 );
             }
+            if ($filePath === __DIR__ . '/vendor/symfony/dependency-injection/Compiler/PassConfig.php') {
+                return str_replace(
+                    "'PrestaShop\\\\Module\\\\PsAccounts\\\\Vendor\\\\array_merge'",
+                    "'\\array_merge'",
+                    $contents
+                );
+            }
+            // TODO: fix all polyfill bootstraps
+            if (in_array($filePath, array_map(function ($path) {
+                return __DIR__ . '/vendor/symfony' . $path;
+            }, [
+                '/polyfill-apcu/bootstrap.php',
+                '/polyfill-ctype/bootstrap.php',
+                '/polyfill-intl-idn/bootstrap.php',
+                '/polyfill-intl-normalizer/bootstrap.php',
+                '/polyfill-mbstring/bootstrap.php',
+                '/polyfill-php70/bootstrap.php',
+                '/polyfill-php72/bootstrap.php',
+            ]))) {
+                return preg_replace(
+                    "/function_exists\('(\w+)'\)/",
+                    'function_exists(\'PrestaShop\Module\PsAccounts\Vendor\\\\\1\')',
+                    $contents
+                );
+            }
+//            if ($filePath === __DIR__ . '/vendor/friendsofphp/php-cs-fixer/src/FixerFactory.php') {
+//                // $fixerClass = 'PhpCsFixer\\Fixer\\' . ($relativeNamespace ? $relativeNamespace . '\\' : '') . $file->getBasename('.php');
+//                return preg_replace(
+//                    "/'(PhpCsFixer\\\\\\\Fixer\\\\\\\)'/",
+//                    "'{$prefix}\\PhpCsFixer\\Fixer\\\\\\\\'",
+//                    $contents
+//                );
+//            }
 //            if ($filePath === __DIR__ . '/vendor/sentry/sentry/lib/Raven/Client.php') {
 //                return str_replace(
 //                    "\$new_processor = new \$processor(\$this);",
@@ -122,12 +161,14 @@ return [
     //
     // For more information see: https://github.com/humbug/php-scoper/blob/master/docs/configuration.md#excluded-symbols
     'exclude-namespaces' => [
-        '~^Psr~',
-        '~^Symfony~',
+//        '~^Psr~',
+//        '~^Symfony~',
         '~^PrestaShop\\\\OAuth2\\\\Client~',
+        '~^Composer\\\\~',
     ],
     'exclude-classes' => [],
     'exclude-functions' => [
+        'array_merge',
         // 'mb_str_split',
     ],
     'exclude-constants' => [

@@ -25,7 +25,7 @@ use ModuleFrontController;
 use PrestaShop\Module\PsAccounts\Exception\Http\HttpException;
 use PrestaShop\Module\PsAccounts\Exception\Http\MethodNotAllowedException;
 use PrestaShop\Module\PsAccounts\Exception\Http\UnauthorizedException;
-use PrestaShop\Module\PsAccounts\Polyfill\Traits\AjaxRender;
+use PrestaShop\Module\PsAccounts\Polyfill\Traits\Controller\AjaxRender;
 use PrestaShop\Module\PsAccounts\Provider\RsaKeysProvider;
 use PrestaShop\Module\PsAccounts\Repository\ConfigurationRepository;
 use PrestaShop\Module\PsAccounts\Service\SentryService;
