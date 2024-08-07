@@ -170,7 +170,11 @@ class ConfigurationRepository
     public function getShopUuidDateUpd()
     {
         try {
-            $entry = $this->configuration->getUncachedConfiguration(ConfigurationKeys::PSX_UUID_V4, $this->idShopGroup, $this->idShop);
+            $entry = $this->configuration->getUncachedConfiguration(
+                ConfigurationKeys::PSX_UUID_V4,
+                $this->configuration->getIdShopGroup(),
+                $this->configuration->getIdShop());
+
             return $entry->date_upd;
         } catch (\Exception $e) {
             return null;
