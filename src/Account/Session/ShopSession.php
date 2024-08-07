@@ -177,17 +177,14 @@ class ShopSession extends Session implements SessionInterface
     }
 
     /**
-     * @throws InconsistentAssociationStateException
+     * @param int $waitForOAuth2ClientSeconds
      *
      * @return void
+     *
+     * @throws InconsistentAssociationStateException
      */
-    public function assertAssociationState()
+    public function assertAssociationState($waitForOAuth2ClientSeconds = 60)
     {
-        // TODO: try to reproduce disconnect with a delay before receiving oauth2client
-        // TODO: send oauth2 client with link shop payload
-        // TODO: check linkshop exists for [timeout] before unlinking
-
-        $waitForOAuth2ClientSeconds = 60;
         $linkedAtTs = $currentTs = time();
         if ($this->linkShop->linkedAt()) {
             $linkedAtTs = (new \DateTime($this->linkShop->linkedAt()))->getTimestamp();
