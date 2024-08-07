@@ -58,6 +58,11 @@ class ShopSession extends Session implements SessionInterface
     protected $linkShop;
 
     /**
+     * @var int
+     */
+    protected $waitForOAuth2ClientSeconds = 60;
+
+    /**
      * @param ConfigurationRepository $configurationRepository
      * @param ShopProvider $oauth2ClientProvider
      * @param CommandBus $commandBus
@@ -96,7 +101,7 @@ class ShopSession extends Session implements SessionInterface
     public function refreshToken($refreshToken = null)
     {
         try {
-            $this->assertAssociationState();
+            $this->assertAssociationState($this->waitForOAuth2ClientSeconds);
             $shopUuid = $this->getShopUuid();
             $accessToken = $this->getAccessToken($shopUuid);
 
@@ -147,6 +152,14 @@ class ShopSession extends Session implements SessionInterface
     }
 
     /**
+     * @param int $waitForOAuth2ClientSeconds
+     */
+    public function setWaitForOAuth2ClientSeconds($waitForOAuth2ClientSeconds)
+    {
+        $this->waitForOAuth2ClientSeconds = $waitForOAuth2ClientSeconds;
+    }
+
+    /**
      * @param string $shopUid
      *
      * @return AccessToken|AccessTokenInterface
@@ -169,21 +182,13 @@ class ShopSession extends Session implements SessionInterface
     }
 
     /**
-     * @return string
-     */
-    private function getShopUuid()
-    {
-        return $this->linkShop->getShopUuid();
-    }
-
-    /**
      * @param int $waitForOAuth2ClientSeconds
      *
      * @return void
      *
      * @throws InconsistentAssociationStateException
      */
-    public function assertAssociationState($waitForOAuth2ClientSeconds = 60)
+    protected function assertAssociationState($waitForOAuth2ClientSeconds = 60)
     {
         $linkedAtTs = $currentTs = time();
         if ($this->linkShop->linkedAt()) {
@@ -195,5 +200,13 @@ class ShopSession extends Session implements SessionInterface
             !$this->oauth2ClientProvider->getOauth2Client()->exists()) {
             throw new InconsistentAssociationStateException('Invalid OAuth2 client');
         }
+    }
+
+    /**
+     * @return string
+     */
+    private function getShopUuid()
+    {
+        return $this->linkShop->getShopUuid();
     }
 }

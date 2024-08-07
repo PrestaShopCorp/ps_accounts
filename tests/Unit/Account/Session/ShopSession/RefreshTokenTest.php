@@ -4,6 +4,7 @@ namespace PrestaShop\Module\PsAccounts\Tests\Unit\Account\Session\ShopSession;
 
 use PrestaShop\Module\PsAccounts\Account\Session\ShopSession;
 use PrestaShop\Module\PsAccounts\Account\Token\Token;
+use PrestaShop\Module\PsAccounts\Cqrs\CommandBus;
 use PrestaShop\Module\PsAccounts\Exception\RefreshTokenException;
 use PrestaShop\Module\PsAccounts\Provider\OAuth2\Oauth2Client;
 use PrestaShop\Module\PsAccounts\Provider\OAuth2\ShopProvider;
@@ -22,11 +23,54 @@ class RefreshTokenTest extends TestCase
     protected $shopSession;
 
     /**
+     * @inject
+     *
+     * @var Oauth2Client
+     */
+    protected $oauth2Client;
+
+    /**
+     * @inject
+     *
+     * @var ShopProvider
+     */
+    protected $shopProvider;
+
+    /**
+     * @var \PrestaShop\Module\PsAccounts\Vendor\Lcobucci\JWT\Token
+     */
+    protected $validAccessToken;
+
+    function setUp(): void
+    {
+        parent::setUp();
+
+        $this->validAccessToken = $this->makeJwtToken(new \DateTimeImmutable('tomorrow'));
+        $shopProvider = $this->createMock(ShopProvider::class);
+        $shopProvider->method('getAccessToken')
+            ->willReturn(new AccessToken([
+                'access_token' => (string)$this->validAccessToken
+            ]));
+        $shopProvider->method('getOauth2Client')
+            ->willReturn($this->oauth2Client);
+
+        $commandBus = $this->createMock(CommandBus::class);
+
+        $this->shopSession = new ShopSession(
+            $this->configurationRepository,
+            $shopProvider,
+            $this->linkShop,
+            $commandBus
+        );
+    }
+
+    /**
      * @return void
      */
     function tearDown(): void
     {
         parent::tearDown();
+
         $this->shopSession->cleanup();
     }
 
@@ -35,24 +79,70 @@ class RefreshTokenTest extends TestCase
      */
     public function itShouldClearConfigurationAndThrowIfNotOauth()
     {
-        $shopSession = $this->createMockedSession(false, null);
-        $shopSession->cleanup();
-
-        $idToken = $this->makeJwtToken(new \DateTimeImmutable('yesterday'), [
-            'sub' => $this->faker->uuid,
-        ]);
-        $refreshToken = $this->makeJwtToken(new \DateTimeImmutable('+1 year'));
-        $shopSession->setToken((string) $idToken, (string) $refreshToken);
+        $e = null;
         try {
-            $shopSession->refreshToken();
-        } catch (\Exception $e) {
-            $this->assertInstanceOf(RefreshTokenException::class, $e);
-            $token = $shopSession->getOrRefreshToken();
-            $this->assertEquals("", $token->getJwt());
-            $this->assertEquals("", $token->getRefreshToken());
-            return;
+            // Fix single shop context
+            $this->configuration->setIdShop(null);
+            $this->configuration->setIdShopGroup(null);
+
+            // Shop is linked
+            $this->linkShop->update(new \PrestaShop\Module\PsAccounts\Account\Dto\LinkShop([
+                'shopId' => 1,
+                'uid' => $this->faker->uuid,
+            ]));
+
+            // OAuth2Client has been cleared
+            $this->oauth2Client->delete();
+
+            $this->shopSession->setWaitForOAuth2ClientSeconds(1);
+
+            sleep(2);
+
+            $this->shopSession->refreshToken();
+        } catch (RefreshTokenException $e) {
+            //$this->module->getLogger()->info($e->getMessage());
         }
-        $this->fail('Test should have throw');
+
+        $this->assertInstanceOf(RefreshTokenException::class, $e);
+        $this->assertMatchesRegularExpression('/Invalid OAuth2 client/', $e->getMessage());
+        $token = $this->shopSession->getOrRefreshToken();
+        $this->assertEquals("", (string) $token->getJwt());
+        $this->assertEquals("", (string) $token->getRefreshToken());
+    }
+
+    /**
+     * @test
+     */
+    public function itShouldNotClearConfigurationAndThrowIfNotOauth()
+    {
+        $e = null;
+        try {
+            // Fix single shop context
+            $this->configuration->setIdShop(null);
+            $this->configuration->setIdShopGroup(null);
+
+            // Shop is linked
+            $this->linkShop->update(new \PrestaShop\Module\PsAccounts\Account\Dto\LinkShop([
+                'shopId' => 1,
+                'uid' => $this->faker->uuid,
+            ]));
+
+            // OAuth2Client has been cleared
+            $this->oauth2Client->delete();
+
+            $this->shopSession->setWaitForOAuth2ClientSeconds(1);
+
+            //sleep(2);
+
+            $this->shopSession->refreshToken();
+        } catch (RefreshTokenException $e) {
+            //$this->module->getLogger()->info($e->getMessage());
+        }
+
+        $this->assertNull($e);
+        $token = $this->shopSession->getToken();
+        $this->assertEquals((string) $this->validAccessToken, (string) $token->getJwt());
+        $this->assertEquals("", (string) $token->getRefreshToken());
     }
 
     /**
@@ -60,52 +150,37 @@ class RefreshTokenTest extends TestCase
      */
     public function itShouldRefreshToken()
     {
-        $newAccessToken = $this->makeJwtToken(new \DateTimeImmutable('tomorrow'));
-        $shopSession = $this->createMockedSession(true, new AccessToken([
-            'access_token' => $newAccessToken->toString()
-        ]));
-        $shopSession->cleanup();
-
-        $clientId = $this->faker->uuid;
-        $clientSecret = $this->faker->uuid;
-
-        $this->configurationRepository->updateOauth2ClientId($clientId);
-        $this->configurationRepository->updateOauth2ClientSecret($clientSecret);
-
+        $e = null;
         try {
-            $token = $shopSession->refreshToken();
-        } catch (\Exception $e) {
-            $this->fail('Test shouldn\'t throw');
+            // Fix single shop context
+            //$this->configuration->setIdShop(null);
+            //$this->configuration->setIdShopGroup(null);
+            $this->shopSession->cleanup();
+
+            // Shop is linked
+            $this->linkShop->update(new \PrestaShop\Module\PsAccounts\Account\Dto\LinkShop([
+                'shopId' => 1,
+                'uid' => $this->faker->uuid,
+            ]));
+
+            // OAuth2Client exists
+            $this->oauth2Client->update(
+                $this->faker->uuid,
+                $this->faker->password
+            );
+
+            $this->shopSession->setWaitForOAuth2ClientSeconds(1);
+
+            //sleep(2);
+
+            $token = $this->shopSession->refreshToken();
+        } catch (RefreshTokenException $e) {
+            //$this->module->getLogger()->info($e->getMessage());
         }
 
-        $this->assertEquals($this->configurationRepository->getAccessToken(), $newAccessToken->toString());
-        $this->assertEquals($token, new Token($newAccessToken));
-    }
-
-    /**
-     * @param $existResponse boolean
-     * @param $tokenResponse AccessToken
-     * @return ShopSession
-     */
-    private function createMockedSession($existResponse, $tokenResponse) {
-        $shopProvider = $this->getMockBuilder(ShopProvider::class)
-            ->disableOriginalConstructor()
-            ->getMock();
-        $oauth2Client = $this->getMockBuilder(Oauth2Client::class)
-            ->disableOriginalConstructor()
-            ->getMock();
-        $oauth2Client->method('exists')->willReturn($existResponse);
-        if ($tokenResponse) {
-            $shopProvider->method('getAccessToken')->willReturn($tokenResponse);
-        } else {
-            $shopProvider->method('getAccessToken')->willThrowException(new \Exception('Fail !!'));
-        }
-        $shopProvider->method('getOauth2Client')->willReturn($oauth2Client);
-        return new ShopSession(
-            $this->configurationRepository,
-            $shopProvider,
-            $this->linkShop,
-            $this->commandBus
-        );
+        $this->assertNull($e);
+        $this->assertEquals((string) $this->validAccessToken, (string) $token->getJwt());
+        $this->assertEquals("", (string) $token->getRefreshToken());
+        $this->assertEquals(new Token($this->validAccessToken), $token);
     }
 }
