@@ -153,6 +153,8 @@ class ShopSession extends Session implements SessionInterface
 
     /**
      * @param int $waitForOAuth2ClientSeconds
+     *
+     * @return void
      */
     public function setWaitForOAuth2ClientSeconds($waitForOAuth2ClientSeconds)
     {
