@@ -165,6 +165,19 @@ class ConfigurationRepository
     }
 
     /**
+     * @return string|null
+     */
+    public function getShopUuidDateUpd()
+    {
+        try {
+            $entry = $this->configuration->getUncachedConfiguration(ConfigurationKeys::PSX_UUID_V4, $this->idShopGroup, $this->idShop);
+            return $entry->date_upd;
+        } catch (\Exception $e) {
+            return null;
+        }
+    }
+
+    /**
      * @param string $uuid Firebase User UUID
      *
      * @return void
