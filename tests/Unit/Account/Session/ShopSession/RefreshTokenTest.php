@@ -104,7 +104,7 @@ class RefreshTokenTest extends TestCase
         }
 
         $this->assertInstanceOf(RefreshTokenException::class, $e);
-        $this->assertMatchesRegularExpression('/Invalid OAuth2 client/', $e->getMessage());
+        $this->assertEquals(1, preg_match('/Invalid OAuth2 client/', $e->getMessage()));
         $token = $this->shopSession->getOrRefreshToken();
         $this->assertEquals("", (string) $token->getJwt());
         $this->assertEquals("", (string) $token->getRefreshToken());
