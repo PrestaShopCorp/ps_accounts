@@ -62,6 +62,11 @@ class RefreshTokenTest extends TestCase
             $this->linkShop,
             $commandBus
         );
+
+        // Fix single shop context
+        $this->configuration->setIdShop(null);
+        $this->configuration->setIdShopGroup(null);
+        $this->shopSession->cleanup();
     }
 
     /**
@@ -81,15 +86,14 @@ class RefreshTokenTest extends TestCase
     {
         $e = null;
         try {
-            // Fix single shop context
-            $this->configuration->setIdShop(null);
-            $this->configuration->setIdShopGroup(null);
-
             // Shop is linked
             $this->linkShop->update(new \PrestaShop\Module\PsAccounts\Account\Dto\LinkShop([
                 'shopId' => 1,
                 'uid' => $this->faker->uuid,
             ]));
+
+            echo "now : " . (new \DateTime())->getTimestamp() . "\n";
+            echo "At : " . (new \DateTime($this->linkShop->linkedAt()))->getTimestamp() . "\n";
 
             // OAuth2Client has been cleared
             $this->oauth2Client->delete();
@@ -98,6 +102,9 @@ class RefreshTokenTest extends TestCase
 
             sleep(2);
 
+            echo "now : " . (new \DateTime())->getTimestamp() . "\n";
+            echo "At : " . (new \DateTime($this->linkShop->linkedAt()))->getTimestamp() . "\n";
+
             $this->shopSession->refreshToken();
         } catch (RefreshTokenException $e) {
             //$this->module->getLogger()->info($e->getMessage());
@@ -105,7 +112,7 @@ class RefreshTokenTest extends TestCase
 
         $this->assertInstanceOf(RefreshTokenException::class, $e);
         $this->assertEquals(1, preg_match('/Invalid OAuth2 client/', $e->getMessage()));
-        $token = $this->shopSession->getOrRefreshToken();
+        $token = $this->shopSession->getToken();
         $this->assertEquals("", (string) $token->getJwt());
         $this->assertEquals("", (string) $token->getRefreshToken());
     }
@@ -117,10 +124,6 @@ class RefreshTokenTest extends TestCase
     {
         $e = null;
         try {
-            // Fix single shop context
-            $this->configuration->setIdShop(null);
-            $this->configuration->setIdShopGroup(null);
-
             // Shop is linked
             $this->linkShop->update(new \PrestaShop\Module\PsAccounts\Account\Dto\LinkShop([
                 'shopId' => 1,
@@ -152,11 +155,6 @@ class RefreshTokenTest extends TestCase
     {
         $e = null;
         try {
-            // Fix single shop context
-            //$this->configuration->setIdShop(null);
-            //$this->configuration->setIdShopGroup(null);
-            $this->shopSession->cleanup();
-
             // Shop is linked
             $this->linkShop->update(new \PrestaShop\Module\PsAccounts\Account\Dto\LinkShop([
                 'shopId' => 1,
