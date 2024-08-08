@@ -199,4 +199,27 @@ class Configuration
 
         return $default;
     }
+
+    /**
+     * @param string $key
+     * @param int|null $idShopGroup
+     * @param int|null $idShop
+     * @param mixed $default
+     *
+     * @return \Configuration
+     *
+     * @throw \Exception
+     */
+    public function getUncachedConfiguration($key, $idShopGroup = null, $idShop = null, $default = false)
+    {
+        $id = \Configuration::getIdByName($key, $idShopGroup, $idShop);
+        if ($id > 0) {
+            $found = (new \Configuration($id));
+            $found->clearCache();
+
+            return $found;
+        }
+
+        throw new \Exception('Configuration entry not found');
+    }
 }

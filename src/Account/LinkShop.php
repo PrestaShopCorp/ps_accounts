@@ -79,6 +79,14 @@ class LinkShop
     }
 
     /**
+     * @return string|null
+     */
+    public function linkedAt()
+    {
+        return $this->configuration->getShopUuidDateUpd();
+    }
+
+    /**
      * @return bool
      *
      * @throws \Exception
