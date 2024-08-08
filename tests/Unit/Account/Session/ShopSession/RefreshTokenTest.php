@@ -81,11 +81,18 @@ class RefreshTokenTest extends TestCase
 
     /**
      * @test
+     *
+     * @runInSeparateProcess
      */
     public function itShouldClearConfigurationAndThrowIfNotOauth()
     {
         $e = null;
         try {
+            $this->shopSession->setWaitForOAuth2ClientSeconds(1);
+
+            // OAuth2Client has been cleared
+            $this->oauth2Client->delete();
+
             // Shop is linked
             $this->linkShop->update(new \PrestaShop\Module\PsAccounts\Account\Dto\LinkShop([
                 'shopId' => 1,
@@ -94,11 +101,6 @@ class RefreshTokenTest extends TestCase
 
             echo "now : " . (new \DateTime())->getTimestamp() . "\n";
             echo "At : " . (new \DateTime($this->linkShop->linkedAt()))->getTimestamp() . "\n";
-
-            // OAuth2Client has been cleared
-            $this->oauth2Client->delete();
-
-            $this->shopSession->setWaitForOAuth2ClientSeconds(1);
 
             sleep(2);
 
