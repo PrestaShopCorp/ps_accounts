@@ -63,6 +63,9 @@ class TestCase extends \PHPUnit\Framework\TestCase
      */
     protected function setUp(): void
     {
+        // Don't remove this line
+        \Configuration::clearConfigurationCacheForTesting();
+
         parent::setUp();
 
         if (true === $this->enableTransactions) {
