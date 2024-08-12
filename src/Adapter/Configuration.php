@@ -117,6 +117,7 @@ class Configuration
             return $this->getRaw($key, $this->idLang, $this->idShopGroup, $this->idShop, $default);
         } else {
             // FIXME: idLang ??
+            // FIXME: beware in single shop context idShop must be set
             return $this->getUncached($key, $this->idShopGroup, $this->idShop, $default);
         }
     }
