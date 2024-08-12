@@ -100,15 +100,15 @@ class ps_AccountsApiV2ShopHealthCheckModuleFrontController extends AbstractShopR
      */
     public function show(Shop $shop, ShopHealthCheckRequest $request)
     {
-        // refreshing one of firebase tokens will trigger a global refresh
-        try {
-            $firebaseShopToken = $request->autoheal ?
-                $this->firebaseShopSession->getValidToken() :
-                $this->firebaseShopSession->getToken();
-        } catch (RefreshTokenException $e) {
-            $firebaseShopToken = $this->firebaseShopSession->getToken();
+        if ($request->autoheal) {
+            try {
+                $this->firebaseShopSession->getValidToken();
+                $this->firebaseOwnerSession->getValidToken();
+            } catch (RefreshTokenException $e) {
+            }
         }
 
+        $firebaseShopToken = $this->firebaseShopSession->getToken();
         $firebaseOwnerToken = $this->firebaseOwnerSession->getToken();
         $shopToken = $this->shopSession->getToken();
 

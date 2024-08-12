@@ -64,8 +64,7 @@ abstract class Session implements SessionInterface
             return $this->getToken();
         }
 
-        $currentToken = $this->getToken();
-        if (true === $forceRefresh || $currentToken->isExpired()) {
+        if (true === $forceRefresh || $this->getToken()->isExpired()) {
             try {
                 $this->refreshToken(null);
             } catch (RefreshTokenException $e) {
