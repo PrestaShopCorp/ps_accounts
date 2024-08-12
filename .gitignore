@@ -19,6 +19,12 @@ composer-dev.json
 composer-dev.lock
 .env
 
+### PHP Scoper ###
+php-scoper.phar
+
+# Mac OS
+.DS_Store
+
 ### PHPUnit ###
 .phpunit.result.cache
 
