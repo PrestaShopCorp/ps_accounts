@@ -211,15 +211,13 @@ PHP_SCOPER_VENDOR_DIRS = $(shell cat scoper.inc.php | grep 'dirScoped =' | sed '
 PHP_SCOPER_OUTPUT_DIR := vendor-scoped
 PHP_SCOPER_VERSION := 0.18.11
 
-php-scoper-list:
-	@echo "${PHP_SCOPER_VENDOR_DIRS}"
+php-scoper.phar:
+	curl -s -f -L -O "https://github.com/humbug/php-scoper/releases/download/${PHP_SCOPER_VERSION}/php-scoper.phar"
+	chmod +x php-scoper.phar
 
-php-scoper-pull:
-	docker pull humbugphp/php-scoper:${PHP_SCOPER_VERSION}
-
-php-scoper-add-prefix: scoper.inc.php vendor-clean vendor php-scoper-pull
-	docker run -v ${PWD}:/input -w /input -u ${CURRENT_UID}:${CURRENT_GID} \
-		humbugphp/php-scoper:${PHP_SCOPER_VERSION} add-prefix --output-dir ${PHP_SCOPER_OUTPUT_DIR} --force --quiet
+php-scoper-add-prefix: php-scoper.phar scoper.inc.php vendor-clean vendor
+	./php-scoper.phar add-prefix --output-dir ${PHP_SCOPER_OUTPUT_DIR} --force --quiet
+	ls ${PHP_SCOPER_OUTPUT_DIR}
 	#for d in ${VENDOR_DIRS}; do rm -rf ./vendor/$$d && mv ./${SCOPED_DIR}/$$d ./vendor/; done;
 	$(foreach DIR,$(PHP_SCOPER_VENDOR_DIRS), rm -rf "./vendor/${DIR}" && mv "./${PHP_SCOPER_OUTPUT_DIR}/${DIR}" ./vendor/;)
 	rmdir "./${PHP_SCOPER_OUTPUT_DIR}"
@@ -262,8 +260,8 @@ build-front: ${BUNDLE_JS}
 composer.phar:
 	./scripts/composer-install.sh
 
-#clean:
-#	git -c core.excludesfile=/dev/null clean -X -d -f
+clean:
+	git -c core.excludesfile=/dev/null clean -X -d -f
 
 #######
 # TOOLS
