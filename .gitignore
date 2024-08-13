@@ -7,10 +7,11 @@ app.js
 ### IDE ###
 .idea
 .vscode
+*.bak
 
 ### Composer ###
 composer.phar
-/vendor/
+vendor/
 node_modules/
 .php_cs.cache
 .php_cs
@@ -29,9 +30,7 @@ php-scoper.phar
 .phpunit.result.cache
 
 ### Configuration ###
-config/config*.yml
 config/**/services_*.yml
-!config/config.yml.dist
 !config/admin/services.yml
 !config/front/services.yml
 
@@ -58,6 +57,7 @@ views/files/*
 /views/favicon.ico
 /views/index.html
 ./_dev/.npmrc
+.npmrc
 
 # Log files
 npm-debug.log*

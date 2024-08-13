@@ -30,7 +30,7 @@ cd $dist || exit;
 
 # switch request configuration env
 if [ "$environment" ]; then
-  configFileEnv="./${module}/config/config.yml.${environment}"
+  configFileEnv="./.config.${environment}.yml"
   if [ -f "$configFileEnv" ]; then
     echo "using provided environment [${environment}]"
     cp "$configFileEnv" "./${module}/config/config.yml"

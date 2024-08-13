@@ -54,10 +54,6 @@ platform-stop:
 
 platform-restart: platform-stop platform-start
 
-platform-module-config:
-	@docker exec -w ${CONTAINER_INSTALL_DIR} phpunit \
-		sh -c "if [ ! -f ./config/config.yml ]; then cp ./config/config.yml.dist ./config/config.yml; fi"
-
 platform-module-version:
 	@docker exec -w ${CONTAINER_INSTALL_DIR} phpunit \
 		sh -c "echo \"installing module: [\`cat config.xml | grep '<version>' | sed 's/^.*\[CDATA\[\(.*\)\]\].*/v\1/'\`]\""
@@ -67,7 +63,7 @@ platform-phpstan-config:
 	@docker exec -w ${CONTAINER_INSTALL_DIR}/tests phpunit \
 		sh -c "if [ -f ./phpstan/${NEON_FILE} ]; then cp ./phpstan/${NEON_FILE} ./phpstan/phpstan.neon; fi"
 
-platform-module-install: tests/vendor platform-phpstan-config platform-module-config platform-module-version
+platform-module-install: tests/vendor platform-phpstan-config platform-module-version
 	-@docker exec phpunit sh -c "if [ -f ./bin/console ]; then php -d memory_limit=-1 ./bin/console prestashop:module install ps_accounts; fi"
 	-@docker exec phpunit sh -c "if [ ! -f ./bin/console ]; then php -d memory_limit=-1 ./modules/ps_accounts/tests/install-module.php; fi"
 
@@ -279,7 +275,7 @@ autoindex: tests/vendor
 
 header-stamp: COMPOSER_FILE := composer56.json
 header-stamp: tests/vendor
-	${PHP} ./vendor/bin/header-stamp --target="${WORKDIR}" --license="assets/afl.txt" --exclude=".github,node_modules,vendor,vendor,tests,_dev"
+	${PHP} ./vendor/bin/header-stamp --target="${WORKDIR}" --license="assets/afl.txt" --exclude=".github,node_modules,vendor,tests,_dev"
 
 ##########################################################
 COMPOSER_OPTIONS ?= --prefer-dist -o --no-dev --quiet
@@ -287,7 +283,6 @@ COMPOSER_OPTIONS ?= --prefer-dist -o --no-dev --quiet
 vendor-clean:
 	rm -rf ./vendor
 
-.PHONY: vendor
 vendor: composer.phar
 	${COMPOSER} install ${COMPOSER_OPTIONS}
 
