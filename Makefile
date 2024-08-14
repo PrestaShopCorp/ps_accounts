@@ -56,7 +56,7 @@ platform-restart: platform-stop platform-start
 
 platform-module-config:
 	@docker exec -w ${CONTAINER_INSTALL_DIR} phpunit \
-		sh -c "if [ ! -f ./config/config.yml ]; then cp ./config/config.yml.dist ./config/config.yml; fi"
+		sh -c "if [ ! -f ./container/config.yml ]; then cp ./container/config.yml.dist ./container/config.yml; fi"
 
 platform-module-version:
 	@docker exec -w ${CONTAINER_INSTALL_DIR} phpunit \
@@ -241,13 +241,13 @@ BUNDLE_ZIP ?= # ex: ps_accounts_flavor.zip
 BUNDLE_VERSION ?= $(shell grep "<version>" config.xml | sed 's/^.*\([0-9]\+\.[0-9]\+\.[0-9]\+\).*/\1/')
 BUNDLE_JS ?= views/js/app.${BUNDLE_VERSION}.js
 
-bundle: php-scoper config/config.yml build-front
+bundle: php-scoper container/config.yml build-front
 	@./scripts/bundle-module.sh "${BUNDLE_ZIP}" "${BUNDLE_ENV}"
 
-bundle-prod: php-scoper config/config.yml.prod build-front
+bundle-prod: php-scoper container/config.yml.prod build-front
 	@./scripts/bundle-module.sh "ps_accounts.zip" "prod"
 
-bundle-preprod: php-scoper config/config.yml.preprod build-front
+bundle-preprod: php-scoper container/config.yml.preprod build-front
 	@./scripts/bundle-module.sh "ps_accounts_preprod.zip" "preprod"
 
 define build_front

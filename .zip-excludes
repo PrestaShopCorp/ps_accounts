@@ -4,7 +4,7 @@
 *.docker/*
 *.idea/*
 *tests/*
-*config/config.yml.*
+*container/config.yml.*
 *.bak/*
 *.md/*
 *composer.*

@@ -75,7 +75,7 @@ class ActionObjectShopUrlUpdateAfter extends Hook
             } elseif (true !== $response['status']) {
                 $this->module->getLogger()->debug(
                     'Error trying to PATCH shop : ' . $response['httpCode'] .
-                    ' ' . print_r($response['body']['message'] ?: '', true)
+                    ' ' . print_r(isset($response['body']['message']) ? $response['body']['message'] : '', true)
                 );
             }
         }

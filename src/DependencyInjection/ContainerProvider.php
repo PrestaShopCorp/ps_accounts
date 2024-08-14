@@ -81,7 +81,9 @@ class ContainerProvider
             . ucfirst($containerName)
             . 'Container'
         ;
-        $containerFilePath = $this->cacheDirectory->getPath() . '/' . $containerClassName . '.php';
+
+        //$containerFilePath = $this->cacheDirectory->getPath() . '/' . $containerClassName . '.php';
+        $containerFilePath = $this->moduleLocalPath . 'cache/' . $containerClassName . '.php';
         $containerConfigCache = new ConfigCache($containerFilePath, _PS_MODE_DEV_);
 
         if ($containerConfigCache->isFresh()) {
@@ -94,12 +96,18 @@ class ContainerProvider
         }
 
         $containerBuilder = new ContainerBuilder();
-        $containerBuilder->set(
-            $this->moduleName . '.cache.directory',
-            $this->cacheDirectory
-        );
+//        FIXME: what is this for ?
+//        $containerBuilder->set(
+//            $this->moduleName . '.cache.directory',
+//            $this->cacheDirectory
+//        );
+
+//        $moduleConfigPath = $this->moduleLocalPath
+//            . 'config/'
+//            . $containerName
+//        ;
         $moduleConfigPath = $this->moduleLocalPath
-            . 'config/'
+            . 'container/'
             . $containerName
         ;
 

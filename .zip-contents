@@ -2,6 +2,7 @@ config
 controllers
 sql
 src
+container
 translations
 upgrade
 vendor

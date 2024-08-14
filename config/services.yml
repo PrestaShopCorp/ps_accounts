@@ -1,0 +1,10 @@
+services:
+  _defaults:
+    public: true
+
+  PrestaShop\Module\PsAccounts\Controller\AdminLoginController:
+    class: PrestaShop\Module\PsAccounts\Controller\AdminLoginController
+    autowire: true
+    autoconfigure: true
+#    arguments:
+#      - '@doctrine.cache.provider'

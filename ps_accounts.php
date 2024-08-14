@@ -183,6 +183,8 @@ class Ps_accounts extends Module
      */
     public function install()
     {
+        $this->cleanCache();
+
         $installer = new PrestaShop\Module\PsAccounts\Module\Install($this, Db::getInstance());
 
         $status = $installer->installInMenu()
@@ -541,6 +543,14 @@ class Ps_accounts extends Module
 
 //        $this->installEventBus();
 //        $this->autoReonboardOnV5();
+    }
+
+    /**
+     * @return void
+     */
+    private function cleanCache()
+    {
+        array_map('unlink', glob($this->getLocalPath() . '/cache/*'));
     }
 }
 
