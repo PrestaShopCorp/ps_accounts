@@ -57,19 +57,19 @@ tests/vendor:
 ##########
 # BUNDLING
 
-.PHONY: bundle
-bundle: bundle-local bundle-preprod bundle-prod
+.PHONY: zip
+zip: zip-local zip-preprod zip-prod
 
-.PHONY: bundle-local
-bundle-local: dist php-scoper build-front
+.PHONY: zip-local
+zip-local: dist php-scoper build-front
 	$(call zip_it,.config.local.yml,${PACKAGE}_local.zip)
 
-.PHONY: bundle-preprod
-bundle-preprod: dist php-scoper build-front
+.PHONY: zip-preprod
+zip-preprod: dist php-scoper build-front
 	$(call zip_it,.config.preprod.yml,${PACKAGE}_preprod.zip)
 
-.PHONY: bundle-prod
-bundle-prod: dist php-scoper build-front
+.PHONY: zip-prod
+zip-prod: dist php-scoper build-front
 	$(call zip_it,.config.prod.yml,${PACKAGE}.zip)
 
 ${BUNDLE_JS}: _dev/node_modules
