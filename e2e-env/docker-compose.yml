@@ -1,0 +1,98 @@
+services:
+  prestashop:
+    image: ${DOCKER_IMAGE_PRESTASHOP:?See e2e-env/.env.dist}
+    depends_on:
+      mysql:
+        condition: service_healthy
+    healthcheck:
+      test:
+        [
+          "CMD",
+          "curl",
+          "-sI",
+          "-H",
+          "Host: localhost:8000",
+          "http://localhost:80/index.php?fc=module&module=ps_accounts&controller=apiV2ShopHealthCheck",
+        ]
+      interval: 30s
+    volumes:
+      - ..:/var/www/html/modules/ps_accounts:rw
+      - ./init-scripts:/tmp/init-scripts:ro
+      # Notice: you might enable this if your uid is not 1000, or encounter permission issues
+      # - /var/www/html/modules/ps_accounts/vendor
+      # - /var/www/html/modules/ps_accounts/tools/vendor
+    environment:
+      - PS_DOMAIN=localhost:8000
+      - ON_INIT_SCRIPT_FAILURE=fail
+      - DEBUG_MODE=true
+      - INIT_SCRIPTS_USER=root
+    ports:
+      - ${HOST_PORT_BIND_PRESTASHOP:?See e2e-env/.env.dist}:80
+    networks:
+      - prestashop
+
+  mysql:
+    image: mariadb:${DOCKER_VERSION_MARIADB:?See e2e-env/.env.dist}
+    healthcheck:
+      test: ["CMD", "healthcheck.sh", "--connect"]
+    environment:
+      - MYSQL_HOST=mysql
+      - MYSQL_USER=prestashop
+      - MYSQL_PASSWORD=prestashop
+      - MYSQL_ROOT_PASSWORD=prestashop
+      - MYSQL_PORT=3306
+      - MYSQL_DATABASE=prestashop
+    ports:
+      - ${HOST_PORT_BIND_MYSQL:?See e2e-env/.env.dist}:3306
+    networks:
+      - prestashop
+
+  phpmyadmin:
+    image: phpmyadmin:latest
+    depends_on:
+      mysql:
+        condition: service_healthy
+    ports:
+      - ${HOST_PORT_BIND_PHP_MY_ADMIN:?See e2e-env/.env.dist}:80
+    environment:
+      - PMA_HOST=mysql
+      - PMA_PORT=3306
+      - PMA_USER=prestashop
+      - PMA_PASSWORD=prestashop
+      - MYSQL_ROOT_PASSWORD=prestashop
+    networks:
+      - prestashop
+
+  cloudsync-mock:
+    build:
+      context: ./cloudsync-mock
+      dockerfile: Dockerfile
+    environment:
+      - RUN_IN_DOCKER=1
+    healthcheck:
+      test: ["CMD", "curl", "-sI", "http://localhost:8080"]
+    volumes:
+      - ./cloudsync-mock/src:/home/node/src:ro
+    ports:
+      - ${SYNC_API_PORT:?See e2e-env/.env.dist}:3232
+      - ${COLLECTOR_API_PORT:?See e2e-env/.env.dist}:3333
+      - ${LIVE_SYNC_API_PORT:?See e2e-env/.env.dist}:3434
+      - ${WS_PORT:?See e2e-env/.env.dist}:8080
+    networks:
+      - prestashop
+
+  reverse-proxy:
+    image: nginx:stable-alpine
+    healthcheck:
+      test: ["CMD", "curl", "-sI", "http://localhost:80/nginx_status"]
+    volumes:
+      - ./nginx.conf:/etc/nginx/nginx.conf:ro,cached
+    command: [nginx-debug, "-g", "daemon off;"]
+    networks:
+      - prestashop
+    ports:
+      - ${HOST_PORT_BIND_CLOUDSYNC_REVERSE_PROXY:?See e2e-env/.env.dist}:80
+
+networks:
+  prestashop:
+    driver: bridge

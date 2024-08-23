@@ -1,0 +1,42 @@
+{
+  "name": "cloudsync-mock",
+  "version": "0.0.0",
+  "main": "dist/src/app.js",
+  "type": "module",
+  "private": true,
+  "engines": {
+    "yarn": "please use pnpm",
+    "npm": "please use pnpm",
+    "node": ">=18",
+    "pnpm": ">=8"
+  },
+  "scripts": {
+    "start": "node dist/src/app.js",
+    "start:dev": "nodemon",
+    "build": "npx swc ./src -d ./dist && pnpm fix-esm-js-ext",
+    "fix-esm-js-ext": "find ./dist -type f -name '*.js' -exec sed -i -E 's/import (.+) from (\\x22|\\x27)\\.\\/([^.]+)(\\.ts|\\.js)?(\\x22|\\x27)/import \\1 from \"\\.\\/\\3.js\"/g' {} \\;",
+    "lint:fix": "eslint 'src/**/*.ts' --fix",
+    "format": "prettier --check ./src/**/*",
+    "format:fix": "prettier --write ./src/**/*",
+    "fix": "pnpm format:fix && pnpm lint:fix"
+  },
+  "dependencies": {
+    "express": "^4.19.2",
+    "ws": "^8.17.0",
+    "multer": "^1.4.5-lts.1"
+  },
+  "devDependencies": {
+    "@swc/cli": "^0.3.12",
+    "@swc/core": "^1.5.6",
+    "@types/express": "^4.17.21",
+    "@types/node": "^20.12.12",
+    "@types/ws": "^8.5.10",
+    "@typescript-eslint/eslint-plugin": "^7.9.0",
+    "eslint": "^9.2.0",
+    "eslint-plugin-import": "^2.29.1",
+    "nodemon": "^3.1.0",
+    "rimraf": "^5.0.7",
+    "typescript": "^5.4.5",
+    "@types/multer": "^1.4.11"
+  }
+}

@@ -47,7 +47,7 @@ jobs:
 
       - name: Install _dev dependencies
         working-directory: ./_dev
-        run: pnpm ci
+        run: pnpm install
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN_RO }}
 

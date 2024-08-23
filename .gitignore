@@ -12,19 +12,23 @@ app.js
 ### Composer ###
 composer.phar
 vendor/
-node_modules/
 .php_cs.cache
 .php_cs
 install.lock
 composer-dev.json
 composer-dev.lock
-.env
+.env*
+!.env.dist
+!.env.example
 
 ### PHP Scoper ###
 php-scoper.phar
 
 # Mac OS
 .DS_Store
+
+# Node.js
+node_modules/
 
 ### PHPUnit ###
 .phpunit.result.cache
@@ -63,3 +67,6 @@ views/files/*
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
+
+# PrestaShop sources
+/prestashop

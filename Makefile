@@ -18,6 +18,10 @@ BUNDLE_JS ?= views/js/app.${SEM_VERSION}.js
 COMPOSER_OPTIONS ?= --prefer-dist -o --no-dev --quiet
 CONTAINER_INSTALL_DIR="/var/www/html/modules/ps_accounts"
 
+export PHP_CS_FIXER_IGNORE_ENV = 1
+export _PS_ROOT_DIR_ ?= ${PS_ROOT_DIR}
+export PATH := ./vendor/bin:./tests/vendor/bin:$(PATH)
+
 # target: (default)                                            - Build the module
 default: build
 
@@ -34,7 +38,7 @@ help:
 # target: clean                                                - Clean up the repository (but keep you .npmrc)
 .PHONY: clean
 clean:
-	git clean -X -n --exclude="!.npmrc"
+	git clean -X -f --exclude="!.npmrc" --exclude="!.env*"
 
 # target: vendor-clean                                         - Remove composer dependencies
 .PHONY: vendor-clean
@@ -42,8 +46,8 @@ vendor-clean:
 	rm -rf ./vendor tests/vendor
 
 # target: clean-deps                                           - Remove composer and npm dependencies
-.PHONY: clean-deps vendor-clean
-clean-deps:
+.PHONY: clean-deps
+clean-deps: vendor-clean
 	rm -rf ./_dev/node_modules
 
 # target: zip                                                  - Make all zip bundles
@@ -78,7 +82,7 @@ ${BUNDLE_JS}: _dev/node_modules
 build-front: _dev/node_modules ${BUNDLE_JS}
 
 _dev/node_modules:
-	pnpm --filter ./_dev ci
+	pnpm --filter ./_dev install
 
 composer.phar:
 	@php -r "copy('https://getcomposer.org/installer', 'composer-setup.php');";
@@ -89,8 +93,76 @@ vendor: composer.phar
 	./composer.phar install ${COMPOSER_OPTIONS}
 
 tests/vendor:
-	./composer.phar install --working-dir=./tests/ --quiet
+	./composer.phar install --working-dir tests -o
 
+prestashop:
+	@mkdir -p ./prestashop
+
+prestashop/prestashop-${PS_VERSION}: prestashop composer.phar
+	@if [ ! -d "prestashop/prestashop-${PS_VERSION}" ]; then \
+		git clone --depth 1 --branch ${PS_VERSION} https://github.com/PrestaShop/PrestaShop.git prestashop/prestashop-${PS_VERSION} > /dev/null; \
+		if [ "${PS_VERSION}" != "1.6.1.24" ]; then \
+			./composer.phar -d ./prestashop/prestashop-${PS_VERSION} install; \
+    fi \
+	fi;
+
+# target: lint (or docker-lint)                                - Lint the code and expose errors
+.PHONY: lint docker-lint
+lint: php-cs-fixer php-lint
+docker-lint: docker-php-cs-fixer docker-php-lint
+
+# target: lint-fix (or docker-lint-fix)                        - Automatically fix the linting errors
+.PHONY: lint-fix docker-lint-fix fix
+fix: lint-fix
+lint-fix: php-cs-fixer-fix
+docker-lint-fix: docker-php-cs-fixer-fix
+
+# target: php-cs-fixer (or docker-php-cs-fixer)                - Lint the code and expose errors
+.PHONY: php-cs-fixer docker-php-cs-fixer  
+php-cs-fixer: tests/vendor
+	@php-cs-fixer fix --dry-run --diff;
+docker-php-cs-fixer: tests/vendor
+	@$(call in_docker,make,lint)
+
+# target: php-cs-fixer-fix (or docker-php-cs-fixer-fix)        - Lint the code and fix it
+.PHONY: php-cs-fixer-fix docker-php-cs-fixer-fix
+php-cs-fixer-fix: tests/vendor
+	@php-cs-fixer fix
+docker-php-cs-fixer-fix: tests/vendor
+	@$(call in_docker,make,lint-fix)
+
+# target: php-lint (or docker-php-lint)                        - Lint the code with the php linter
+.PHONY: php-lint docker-php-lint
+php-lint:
+	@find . -type f -name '*.php' -not -path "./vendor/*" -not -path "./tests/*" -not -path "./prestashop/*" -print0 | xargs -0 -n1 php -l -n | (! grep -v "No syntax errors" );
+	@echo "php $(shell php -r 'echo PHP_VERSION;') lint passed";
+docker-php-lint:
+	@$(call in_docker,make,php-lint)
+
+# target: phpunit (or docker-phpunit)                          - Run phpunit tests
+.PHONY: phpunit docker-phpunit
+phpunit: tests/vendor
+	phpunit --configuration=./tests/phpunit.xml;
+docker-phpunit: tests/vendor
+	@$(call in_docker,make,phpunit)
+
+# target: phpunit-cov (or docker-phpunit-cov)                  - Run phpunit with coverage and allure
+.PHONY: phpunit-cov docker-phpunit-cov
+phpunit-cov: tests/vendor
+	php -dxdebug.mode=coverage phpunit --coverage-html ./coverage-reports/coverage-html --configuration=./tests/phpunit-cov.xml;
+docker-phpunit-cov: tests/vendor
+	@$(call in_docker,make,phpunit-cov)
+
+# target: phpstan (or docker-phpstan)                          - Run phpstan
+.PHONY: phpstan docker-phpstan
+phpstan: tests/vendor prestashop/prestashop-${PS_VERSION}
+	phpstan analyse --memory-limit=-1 --configuration=./tests/phpstan/phpstan-local.neon;
+docker-phpstan:
+	@$(call in_docker,/usr/bin/phpstan,analyse --memory-limit=-1 --configuration=./tests/phpstan/phpstan-docker.neon)
+
+
+# PLATFORM
+##########
 platform-start:
 	@PLATFORM_IMAGE=${PLATFORM_IMAGE} docker compose -f ${PLATFORM_COMPOSE_FILE} up -d
 	$(call replace_version,./,${SEM_VERSION})
@@ -195,44 +267,34 @@ phpunit-reset-compat-php56: phpunit-fix-compat-php56
 #########
 # PHPSTAN
 
-NEON_FILE ?= phpstan-PS-1.7.neon
-phpstan:
-	@docker exec -w ${CONTAINER_INSTALL_DIR}/tests -e _PS_ROOT_DIR_=${CONTAINER_INSTALL_DIR}/../.. \
-	  phpunit ./vendor/bin/phpstan analyse \
-	  --autoload-file=bootstrap.php \
-	  --memory-limit=-1 \
-	  --configuration=./phpstan/phpstan.neon
+# NEON_FILE ?= phpstan-PS-1.7.neon
+# phpstan:
+# 	@docker exec -w ${CONTAINER_INSTALL_DIR}/tests -e _PS_ROOT_DIR_=${CONTAINER_INSTALL_DIR}/../.. \
+# 	  phpunit ./vendor/bin/phpstan analyse \
+# 	  --autoload-file=bootstrap.php \
+# 	  --memory-limit=-1 \
+# 	  --configuration=./phpstan/phpstan.neon
 
 #phpstan16: NEON_FILE := phpstan-PS-1.6.neon
 #phpstan16: phpstan
 
-##############
-# PHP-CS-FIXER
-
-.PHONY: platform-php-cs-fixer-test
-platform-php-cs-fixer-test:
-	@docker exec -w ${CONTAINER_INSTALL_DIR} phpunit ./tests/vendor/bin/php-cs-fixer fix --dry-run --diff --diff-format udiff
-.PHONY: platform-php-cs-fixer
-platform-php-cs-fixer:
-	@docker exec -w ${CONTAINER_INSTALL_DIR} phpunit ./tests/vendor/bin/php-cs-fixer fix --using-cache=no
-
 #################
 # TESTING TARGETS
 
-phpunit-1.6.1.24-5.6-fpm-stretch: platform-1.6.1.24-5.6-fpm-stretch phpunit
-phpunit-1.6.1.24-7.1:             platform-1.6.1.24-7.1             phpunit
-phpunit-1.7.7.8-7.1:              platform-1.7.7.8-7.1              phpunit
-phpunit-1.7.8.5-7.4:              platform-1.7.8.5-7.4              phpunit
-phpunit-8.1.5-7.4:                platform-8.1.5-7.4                phpunit
-phpunit-nightly:                  platform-nightly                  phpunit
+# phpunit-1.6.1.24-5.6-fpm-stretch: platform-1.6.1.24-5.6-fpm-stretch phpunit
+# phpunit-1.6.1.24-7.1:             platform-1.6.1.24-7.1             phpunit
+# phpunit-1.7.7.8-7.1:              platform-1.7.7.8-7.1              phpunit
+# phpunit-1.7.8.5-7.4:              platform-1.7.8.5-7.4              phpunit
+# phpunit-8.1.5-7.4:                platform-8.1.5-7.4                phpunit
+# phpunit-nightly:                  platform-nightly                  phpunit
 #phpunit-internal-1.6:             platform-internal-1.6 phpunit
 
 #"latest", "1.7.6.5", "1.6.1.21"
-phpstan-1.6.1.24-7.1: platform-1.6.1.24-7.1 phpstan
-phpstan-1.7.7.8-7.1:  platform-1.7.7.8-7.1  phpstan
+# phpstan-1.6.1.24-7.1: platform-1.6.1.24-7.1 phpstan
+# phpstan-1.7.7.8-7.1:  platform-1.7.7.8-7.1  phpstan
 
-php-cs-fixer-test-1.6.1.24-5.6-fpm-stretch: platform-1.6.1.24-5.6-fpm-stretch platform-php-cs-fixer-test
-php-cs-fixer-1.6.1.24-5.6-fpm-stretch: platform-1.6.1.24-5.6-fpm-stretch platform-php-cs-fixer
+# php-cs-fixer-test-1.6.1.24-5.6-fpm-stretch: platform-1.6.1.24-5.6-fpm-stretch platform-php-cs-fixer-test
+# php-cs-fixer-1.6.1.24-5.6-fpm-stretch: platform-1.6.1.24-5.6-fpm-stretch platform-php-cs-fixer
 
 ############
 # PHP-SCOPER
@@ -268,11 +330,9 @@ php-scoper: php-scoper-add-prefix php-scoper-dump-autoload php-scoper-fix-autolo
 #######
 # TOOLS
 
-WORKDIR ?= ./
-
-php-cs-fixer: COMPOSER_FILE := composer56.json
-php-cs-fixer: tests/vendor
-	PHP_CS_FIXER_IGNORE_ENV=1 php ./tests/vendor/bin/php-cs-fixer fix --using-cache=no
+# php-cs-fixer: COMPOSER_FILE := composer56.json
+# php-cs-fixer: tests/vendor
+# 	PHP_CS_FIXER_IGNORE_ENV=1 php ./tests/vendor/bin/php-cs-fixer fix --using-cache=no
 #	vendor/bin/php-cs-fixer fix --dry-run --diff --using-cache=no --diff-format udiff
 
 # target: autoindex                                            - Automatically add index.php to each folder (fix for misconfigured servers)
@@ -305,4 +365,12 @@ define zip_it
 	cd ${TMP_DIR} && zip -9 -r $2 ./${MODULE_NAME};
 	mv ${TMP_DIR}/$2 ./dist;
 	rm -rf ${TMP_DIR};
+endef
+
+define in_docker
+	docker run \
+	--rm \
+	--workdir /var/www/html/modules/${MODULE_NAME} \
+	--volume $(shell pwd):/var/www/html/modules/${MODULE_NAME}:rw \
+	--entrypoint $1 ${TESTING_IMAGE} $2
 endef
