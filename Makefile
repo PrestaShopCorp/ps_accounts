@@ -1,9 +1,9 @@
-SHELL=/bin/bash -o pipefail
+SHELL = /bin/bash -o pipefail
 MODULE_NAME = ps_accounts
 VERSION ?= $(shell git describe --tags 2> /dev/null || echo "v0.0.0")
 SEM_VERSION ?= $(shell echo ${VERSION} | sed 's/^v//')
-BRANCH_NAME ?= $(shell git branch | grep '\*' | sed 's/^\*\s\+\(.*\)$/\1/' | sed 's/\//\_/g')
-PACKAGE ?= ${MODULE_NAME}-${VERSION}-${BRANCH_NAME}
+BRANCH_NAME ?= $(shell git rev-parse --abbrev-ref HEAD | sed -e 's/\//_/g')
+PACKAGE ?= ${MODULE_NAME}-${VERSION}
 PLATFORM_REPO ?= prestashop/prestashop-flashlight
 PLATFORM_REPO_TAG ?= 8.1.5-7.4
 PLATFORM_IMAGE ?= ${PLATFORM_REPO}:${PHPUNIT_TAG}
@@ -31,6 +31,7 @@ define zip_it
 	cp -r $(shell cat .zip-contents) ${TMP_DIR}/${MODULE_NAME};
 	./tests/vendor/bin/autoindex prestashop:add:index ${TMP_DIR}
 	cp $1 ${TMP_DIR}/${MODULE_NAME}/config/config.yml
+	$(call replace_version,${TMP_DIR},${SEM_VERSION})
 	cd ${TMP_DIR} && zip -9 -r $2 ./${MODULE_NAME};
 	mv ${TMP_DIR}/$2 ./dist;
 	rm -rf ${TMP_DIR};
@@ -43,7 +44,6 @@ dist:
 
 .PHONY: build
 build: dist php-scoper build-front
-	$(call replace_version,./,${SEM_VERSION})
 
 .PHONY: help
 help:
@@ -62,24 +62,27 @@ zip: zip-local zip-preprod zip-prod
 
 .PHONY: zip-local
 zip-local: dist php-scoper build-front
-	$(call zip_it,.config.local.yml,${PACKAGE}_local.zip)
+	$(eval PACKAGE := $(if $(filter main,$(BRANCH_NAME)),${PACKAGE},${PACKAGE}-${BRANCH_NAME}))
+	$(call zip_it,.config.local.yml,${PACKAGE}-local.zip)
 
 .PHONY: zip-preprod
 zip-preprod: dist php-scoper build-front
+	$(eval PACKAGE := $(if $(filter main,$(BRANCH_NAME)),${PACKAGE},${PACKAGE}-${BRANCH_NAME}))
 	$(call zip_it,.config.preprod.yml,${PACKAGE}_preprod.zip)
 
 .PHONY: zip-prod
 zip-prod: dist php-scoper build-front
+	$(eval PACKAGE := $(if $(filter main,$(BRANCH_NAME)),${PACKAGE},${PACKAGE}-${BRANCH_NAME}))
 	$(call zip_it,.config.prod.yml,${PACKAGE}.zip)
 
 ${BUNDLE_JS}: _dev/node_modules
-	pnpm --cwd ./_dev build
+	pnpm --filter ./_dev build
 
 .PHONY: build-front
 build-front: _dev/node_modules ${BUNDLE_JS}
 
 _dev/node_modules:
-	pnpm --cwd ./_dev --frozen-lockfile
+	pnpm --filter ./_dev ci
 
 composer.phar:
 	@php -r "copy('https://getcomposer.org/installer', 'composer-setup.php');";

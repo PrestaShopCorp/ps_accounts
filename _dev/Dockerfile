@@ -1,17 +1,18 @@
 # Build package
-FROM node:14-slim as package
+FROM node:20-slim as package
 WORKDIR /app
 
-ADD ./package.json ./yarn.lock ./
+ADD ./package.json ./pnpm-lock.yaml ./
 
-RUN yarn --frozen-lockfile
+RUN npm install -g pnpm \
+  && pnpm ci
 
 # Build vuejs
 FROM package as builder
 ADD . .
 
 WORKDIR /app
-RUN yarn run build-storybook
+RUN pnpm run build-storybook
 
 
 ### Build clean docker image with only needed files
