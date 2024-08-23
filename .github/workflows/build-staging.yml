@@ -1,0 +1,48 @@
+---
+name: Build staging module
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+  workflow_call:
+
+env:
+  PHP_BUILDER_VERSION: "8.3"
+
+jobs:
+  update_staging_release:
+    name: Build and update staging assets
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: ${{ env.PHP_BUILDER_VERSION }}
+
+      - name: Bundle zips
+        run: make zip
+        env:
+          VERSION: staging
+
+      - name: Move the staging tag
+        run: |
+          git tag -d staging | true
+          git tag staging
+          git push origin :refs/tags/staging
+          git push origin staging
+
+      - name: Release
+        uses: softprops/action-gh-release@v2
+        with:
+          name: staging
+          tag_name: staging
+          prerelease: true
+          files: |
+            ./dist/ps_accounts-staging.zip
+            ./dist/ps_accounts-staging_e2e.zip
+            ./dist/ps_accounts-staging_preproduction.zip

@@ -1,55 +1,109 @@
-PHP = $(shell which php 2> /dev/null)
-DOCKER = $(shell docker ps 2> /dev/null)
-NPM = $(shell which npm 2> /dev/null)
-YARN = $(shell which yarn 2> /dev/null)
-COMPOSER = ${PHP} ./composer.phar
-DOCKER_COMPOSE := $(shell which docker) compose
-MODULE ?= $(shell basename ${PWD})
-CURRENT_UID := $(shell id -u)
-CURRENT_GID := $(shell id -g)
-
-default: bundle
-
-help:
-	@egrep "^# target" Makefile
-
-##########################################################
-# target: version
-
-VERSION ?= $(shell git describe --tags | sed 's/^v//' | cut -d'-' -f1)
-
-version:
-	@echo "Setting up version number : $(VERSION)..."
-	@sed -i -e "s/\(VERSION = \).*/\1\'${VERSION}\';/" ps_accounts.php
-	@sed -i -e "s/\($this->version = \).*/\1\'${VERSION}\';/" ps_accounts.php
-	@sed -i -e 's/\(<version><!\[CDATA\[\)[0-9a-z\.\-]\{1,\}.*\]\]><\/version>/\1'${VERSION}']]><\/version>/' config.xml
-	@sed -i -e "s/\(\"version\"\: \).*/\1\"${VERSION}\",/" ./_dev/package.json
-
-##########
-# PLATFORM
-
+SHELL=/bin/bash -o pipefail
+MODULE_NAME = ps_accounts
+VERSION ?= $(shell git describe --tags 2> /dev/null || echo "v0.0.0")
+SEM_VERSION ?= $(shell echo ${VERSION} | sed 's/^v//')
+BRANCH_NAME ?= $(shell git branch | grep '\*' | sed 's/^\*\s\+\(.*\)$/\1/' | sed 's/\//\_/g')
+PACKAGE ?= ${MODULE_NAME}-${VERSION}-${BRANCH_NAME}
 PLATFORM_REPO ?= prestashop/prestashop-flashlight
 PLATFORM_REPO_TAG ?= 8.1.5-7.4
 PLATFORM_IMAGE ?= ${PLATFORM_REPO}:${PHPUNIT_TAG}
 PLATFORM_COMPOSE_FILE ?= docker-compose.flashlight.yml
-
 COMPOSER_FILE ?= composer.json
+BUNDLE_ENV ?= # ex: local | preprod | prod
+BUNDLE_ZIP ?= # ex: ps_accounts_preprod.zip
+BUNDLE_JS ?= views/js/app.${SEM_VERSION}.js
+COMPOSER_OPTIONS ?= --prefer-dist -o --no-dev --quiet
+CONTAINER_INSTALL_DIR="/var/www/html/modules/ps_accounts"
+
+define replace_version
+	echo "Setting up version: ${VERSION}..."
+	sed -i.bak -e "s/\(VERSION = \).*/\1\'${2}\';/" ${1}/${MODULE_NAME}.php
+	sed -i.bak -e "s/\($this->version = \).*/\1\'${2}\';/" ${1}/${MODULE_NAME}.php
+	sed -i.bak -e "s|\(<version><!\[CDATA\[\)[0-9a-z.-]\{1,\}]]></version>|\1${2}]]></version>|" ${1}/config.xml
+	sed -i.bak -e "s/\(\"version\"\: \).*/\1\"${2}\",/" ${1}/_dev/package.json
+	rm -f ${1}/${MODULE_NAME}.php.bak ${1}/config.xml.bak ${1}/_dev/package.json.bak
+endef
+
+define zip_it
+	# si on n'est pas sur main, ça serait cool d'avoir le nom de la branche.
+	$(eval TMP_DIR := $(shell mktemp -d))
+	mkdir -p ${TMP_DIR}/${MODULE_NAME};
+	cp -r $(shell cat .zip-contents) ${TMP_DIR}/${MODULE_NAME};
+	./tests/vendor/bin/autoindex prestashop:add:index ${TMP_DIR}
+	cp $1 ${TMP_DIR}/${MODULE_NAME}/config/config.yml
+	cd ${TMP_DIR} && zip -9 -r $2 ./${MODULE_NAME};
+	mv ${TMP_DIR}/$2 ./dist;
+	rm -rf ${TMP_DIR};
+endef
+
+default: build
+
+dist:
+	@mkdir -p ./dist
+
+.PHONY: build
+build: dist php-scoper build-front
+	$(call replace_version,./,${SEM_VERSION})
+
+.PHONY: help
+help:
+	@egrep "^# target" Makefile
+
 .PHONY: tests/vendor
 tests/vendor:
 #	rm -rf ./tests/vendor
-	env COMPOSER=${COMPOSER_FILE} ${COMPOSER} install --working-dir=./tests/ --quiet
+	env COMPOSER=${COMPOSER_FILE} ./composer.phar install --working-dir=./tests/ --quiet
 
-CONTAINER_INSTALL_DIR="/var/www/html/modules/ps_accounts"
+##########
+# BUNDLING
 
-platform-pull:
-	docker pull ${PLATFORM_IMAGE}
+.PHONY: bundle
+bundle: bundle-local bundle-preprod bundle-prod
+
+.PHONY: bundle-local
+bundle-local: dist php-scoper build-front
+	$(call zip_it,.config.local.yml,${PACKAGE}_local.zip)
+
+.PHONY: bundle-preprod
+bundle-preprod: dist php-scoper build-front
+	$(call zip_it,.config.preprod.yml,${PACKAGE}_preprod.zip)
+
+.PHONY: bundle-prod
+bundle-prod: dist php-scoper build-front
+	$(call zip_it,.config.prod.yml,${PACKAGE}.zip)
+
+${BUNDLE_JS}: _dev/node_modules
+	pnpm --cwd ./_dev build
+
+.PHONY: build-front
+build-front: _dev/node_modules ${BUNDLE_JS}
+
+_dev/node_modules:
+	pnpm --cwd ./_dev --frozen-lockfile
+
+composer.phar:
+	@php -r "copy('https://getcomposer.org/installer', 'composer-setup.php');";
+	@php composer-setup.php;
+	@php -r "unlink('composer-setup.php');";
+
+vendor: composer.phar
+	./composer.phar install ${COMPOSER_OPTIONS}
+
+.PHONY: vendor-clean
+vendor-clean:
+	rm -rf ./vendor
+
+.PHONY: clean
+clean:
+	git clean -X -n --exclude="!.npmrc"
 
 platform-start:
-	@PLATFORM_IMAGE=${PLATFORM_IMAGE} ${DOCKER_COMPOSE} -f ${PLATFORM_COMPOSE_FILE} up -d
+	@PLATFORM_IMAGE=${PLATFORM_IMAGE} docker compose -f ${PLATFORM_COMPOSE_FILE} up -d
+	$(call replace_version,./,${SEM_VERSION})
 	@echo phpunit started
 
 platform-stop:
-	@PLATFORM_IMAGE=${PLATFORM_IMAGE} ${DOCKER_COMPOSE} -f ${PLATFORM_COMPOSE_FILE} down
+	@PLATFORM_IMAGE=${PLATFORM_IMAGE} docker compose -f ${PLATFORM_COMPOSE_FILE} down
 	@echo phpunit stopped
 
 platform-restart: platform-stop platform-start
@@ -176,8 +230,10 @@ phpstan:
 ##############
 # PHP-CS-FIXER
 
+.PHONY: platform-php-cs-fixer-test
 platform-php-cs-fixer-test:
 	@docker exec -w ${CONTAINER_INSTALL_DIR} phpunit ./tests/vendor/bin/php-cs-fixer fix --dry-run --diff --diff-format udiff
+.PHONY: platform-php-cs-fixer
 platform-php-cs-fixer:
 	@docker exec -w ${CONTAINER_INSTALL_DIR} phpunit ./tests/vendor/bin/php-cs-fixer fix --using-cache=no
 
@@ -211,6 +267,7 @@ php-scoper.phar:
 	curl -s -f -L -O "https://github.com/humbug/php-scoper/releases/download/${PHP_SCOPER_VERSION}/php-scoper.phar"
 	chmod +x php-scoper.phar
 
+.PHONY: php-scoper-add-prefix
 php-scoper-add-prefix: php-scoper.phar scoper.inc.php vendor-clean vendor
 	./php-scoper.phar add-prefix --output-dir ${PHP_SCOPER_OUTPUT_DIR} --force --quiet
 	ls ${PHP_SCOPER_OUTPUT_DIR}
@@ -218,46 +275,16 @@ php-scoper-add-prefix: php-scoper.phar scoper.inc.php vendor-clean vendor
 	$(foreach DIR,$(PHP_SCOPER_VENDOR_DIRS), rm -rf "./vendor/${DIR}" && mv "./${PHP_SCOPER_OUTPUT_DIR}/${DIR}" ./vendor/;)
 	rmdir "./${PHP_SCOPER_OUTPUT_DIR}"
 
+.PHONY: php-scoper-dump-autoload
 php-scoper-dump-autoload:
-	${COMPOSER} dump-autoload --classmap-authoritative
+	./composer.phar dump-autoload --classmap-authoritative
 
+.PHONY: php-scoper-fix-autoload
 php-scoper-fix-autoload:
 	php fix-autoload.php
 
+.PHONY: php-scoper
 php-scoper: php-scoper-add-prefix php-scoper-dump-autoload php-scoper-fix-autoload
-
-##########
-# BUNDLING
-
-BUNDLE_ENV ?= # ex: local|preprod|prod
-BUNDLE_ZIP ?= # ex: ps_accounts_flavor.zip
-BUNDLE_VERSION ?= $(shell grep "<version>" config.xml | sed 's/^.*\([0-9]\+\.[0-9]\+\.[0-9]\+\).*/\1/')
-BUNDLE_JS ?= views/js/app.${BUNDLE_VERSION}.js
-
-bundle: php-scoper config/config.yml build-front
-	@./scripts/bundle-module.sh "${BUNDLE_ZIP}" "${BUNDLE_ENV}"
-
-bundle-prod: php-scoper config/config.yml.prod build-front
-	@./scripts/bundle-module.sh "ps_accounts.zip" "prod"
-
-bundle-preprod: php-scoper config/config.yml.preprod build-front
-	@./scripts/bundle-module.sh "ps_accounts_preprod.zip" "preprod"
-
-define build_front
-	yarn --cwd ./_dev --frozen-lockfile
-	yarn --cwd ./_dev build
-endef
-
-${BUNDLE_JS}:
-	$(call build_front)
-
-build-front: ${BUNDLE_JS}
-
-composer.phar:
-	./scripts/composer-install.sh
-
-clean:
-	git -c core.excludesfile=/dev/null clean -X -d -f
 
 #######
 # TOOLS
@@ -266,23 +293,14 @@ WORKDIR ?= ./
 
 php-cs-fixer: COMPOSER_FILE := composer56.json
 php-cs-fixer: tests/vendor
-	PHP_CS_FIXER_IGNORE_ENV=1 ${PHP} ./tests/vendor/bin/php-cs-fixer fix --using-cache=no
+	PHP_CS_FIXER_IGNORE_ENV=1 php ./tests/vendor/bin/php-cs-fixer fix --using-cache=no
 #	vendor/bin/php-cs-fixer fix --dry-run --diff --using-cache=no --diff-format udiff
 
 autoindex: COMPOSER_FILE := composer56.json
 autoindex: tests/vendor
-	${PHP} ./tests/vendor/bin/autoindex prestashop:add:index "${WORKDIR}"
+	php ./tests/vendor/bin/autoindex prestashop:add:index "${WORKDIR}"
 
 header-stamp: COMPOSER_FILE := composer56.json
 header-stamp: tests/vendor
-	${PHP} ./vendor/bin/header-stamp --target="${WORKDIR}" --license="assets/afl.txt" --exclude=".github,node_modules,vendor,tests,_dev"
-
-##########################################################
-COMPOSER_OPTIONS ?= --prefer-dist -o --no-dev --quiet
-
-vendor-clean:
-	rm -rf ./vendor
-
-vendor: composer.phar
-	${COMPOSER} install ${COMPOSER_OPTIONS}
+	php ./vendor/bin/header-stamp --target="${WORKDIR}" --license="assets/afl.txt" --exclude=".github,node_modules,vendor,tests,_dev"
 

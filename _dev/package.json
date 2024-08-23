@@ -46,7 +46,9 @@
   "author": "PrestaShop",
   "license": "AFL-3.0",
   "engines": {
-    "npm": ">=6.14.0",
-    "node": ">=14.20.0"
+    "yarn": "please use pnpm",
+    "npm": "please use pnpm",
+    "node": ">=20",
+    "pnpm": ">=9"
   }
 }

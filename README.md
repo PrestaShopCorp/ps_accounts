@@ -86,6 +86,7 @@ This module has three parts:
 
 - [Read the official documentation here](https://devdocs.prestashop-project.org/8/modules/)
 - Clone this repository
+- Setup your .npmrc to be able to retrieve `@prestashopcorp/ps-accounts-sdk`, as part of `./_dev` dependencies
 
 ### Testing
 
