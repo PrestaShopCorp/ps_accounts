@@ -4,76 +4,72 @@ VERSION ?= $(shell git describe --tags 2> /dev/null || echo "v0.0.0")
 SEM_VERSION ?= $(shell echo ${VERSION} | sed 's/^v//')
 BRANCH_NAME ?= $(shell git rev-parse --abbrev-ref HEAD | sed -e 's/\//_/g')
 PACKAGE ?= ${MODULE_NAME}-${VERSION}
+PS_VERSION ?= 8.1.7
+TESTING_IMAGE ?= prestashop/prestashop-flashlight:${PS_VERSION}
+PS_ROOT_DIR ?= $(shell pwd)/prestashop/prestashop-${PS_VERSION}
+WORKDIR ?= ./
+
 PLATFORM_REPO ?= prestashop/prestashop-flashlight
 PLATFORM_REPO_TAG ?= 8.1.5-7.4
 PLATFORM_IMAGE ?= ${PLATFORM_REPO}:${PHPUNIT_TAG}
 PLATFORM_COMPOSE_FILE ?= docker-compose.flashlight.yml
 COMPOSER_FILE ?= composer.json
-BUNDLE_ENV ?= # ex: local | preprod | prod
-BUNDLE_ZIP ?= # ex: ps_accounts_preprod.zip
 BUNDLE_JS ?= views/js/app.${SEM_VERSION}.js
 COMPOSER_OPTIONS ?= --prefer-dist -o --no-dev --quiet
 CONTAINER_INSTALL_DIR="/var/www/html/modules/ps_accounts"
 
-define replace_version
-	echo "Setting up version: ${VERSION}..."
-	sed -i.bak -e "s/\(VERSION = \).*/\1\'${2}\';/" ${1}/${MODULE_NAME}.php
-	sed -i.bak -e "s/\($this->version = \).*/\1\'${2}\';/" ${1}/${MODULE_NAME}.php
-	sed -i.bak -e "s|\(<version><!\[CDATA\[\)[0-9a-z.-]\{1,\}]]></version>|\1${2}]]></version>|" ${1}/config.xml
-	sed -i.bak -e "s/\(\"version\"\: \).*/\1\"${2}\",/" ${1}/_dev/package.json
-	rm -f ${1}/${MODULE_NAME}.php.bak ${1}/config.xml.bak ${1}/_dev/package.json.bak
-endef
-
-define zip_it
-	# si on n'est pas sur main, ça serait cool d'avoir le nom de la branche.
-	$(eval TMP_DIR := $(shell mktemp -d))
-	mkdir -p ${TMP_DIR}/${MODULE_NAME};
-	cp -r $(shell cat .zip-contents) ${TMP_DIR}/${MODULE_NAME};
-	./tests/vendor/bin/autoindex prestashop:add:index ${TMP_DIR}
-	cp $1 ${TMP_DIR}/${MODULE_NAME}/config/config.yml
-	$(call replace_version,${TMP_DIR},${SEM_VERSION})
-	cd ${TMP_DIR} && zip -9 -r $2 ./${MODULE_NAME};
-	mv ${TMP_DIR}/$2 ./dist;
-	rm -rf ${TMP_DIR};
-endef
-
+# target: (default)                                            - Build the module
 default: build
 
-dist:
-	@mkdir -p ./dist
-
+# target: build                                                - Install dependencies and build assets
 .PHONY: build
 build: dist php-scoper build-front
 
+# target: help                                                 - Get help on this file
 .PHONY: help
 help:
+	@echo -e "##\n# ${MODULE_NAME}:\n#  version: ${VERSION}\n#  branch: ${BRANCH_NAME}\n##"
 	@egrep "^# target" Makefile
 
-.PHONY: tests/vendor
-tests/vendor:
-#	rm -rf ./tests/vendor
-	env COMPOSER=${COMPOSER_FILE} ./composer.phar install --working-dir=./tests/ --quiet
+# target: clean                                                - Clean up the repository (but keep you .npmrc)
+.PHONY: clean
+clean:
+	git clean -X -n --exclude="!.npmrc"
 
-##########
-# BUNDLING
+# target: vendor-clean                                         - Remove composer dependencies
+.PHONY: vendor-clean
+vendor-clean:
+	rm -rf ./vendor tests/vendor
 
+# target: clean-deps                                           - Remove composer and npm dependencies
+.PHONY: clean-deps vendor-clean
+clean-deps:
+	rm -rf ./_dev/node_modules
+
+# target: zip                                                  - Make all zip bundles
 .PHONY: zip
 zip: zip-local zip-preprod zip-prod
 
+# target: zip-local                                            - Bundle a local E2E compatible zip
 .PHONY: zip-local
 zip-local: dist php-scoper build-front
 	$(eval PACKAGE := $(if $(filter main,$(BRANCH_NAME)),${PACKAGE},${PACKAGE}-${BRANCH_NAME}))
 	$(call zip_it,.config.local.yml,${PACKAGE}-local.zip)
 
+# target: zip-preprod                                          - Bundle a pre-production zip
 .PHONY: zip-preprod
 zip-preprod: dist php-scoper build-front
 	$(eval PACKAGE := $(if $(filter main,$(BRANCH_NAME)),${PACKAGE},${PACKAGE}-${BRANCH_NAME}))
 	$(call zip_it,.config.preprod.yml,${PACKAGE}_preprod.zip)
 
+# target: zip-prod                                             - Bundle a production zip
 .PHONY: zip-prod
 zip-prod: dist php-scoper build-front
 	$(eval PACKAGE := $(if $(filter main,$(BRANCH_NAME)),${PACKAGE},${PACKAGE}-${BRANCH_NAME}))
 	$(call zip_it,.config.prod.yml,${PACKAGE}.zip)
+
+dist:
+	@mkdir -p ./dist 
 
 ${BUNDLE_JS}: _dev/node_modules
 	pnpm --filter ./_dev build
@@ -92,13 +88,8 @@ composer.phar:
 vendor: composer.phar
 	./composer.phar install ${COMPOSER_OPTIONS}
 
-.PHONY: vendor-clean
-vendor-clean:
-	rm -rf ./vendor
-
-.PHONY: clean
-clean:
-	git clean -X -n --exclude="!.npmrc"
+tests/vendor:
+	./composer.phar install --working-dir=./tests/ --quiet
 
 platform-start:
 	@PLATFORM_IMAGE=${PLATFORM_IMAGE} docker compose -f ${PLATFORM_COMPOSE_FILE} up -d
@@ -129,9 +120,6 @@ platform-fix-permissions:
 	@docker exec phpunit sh -c "if [ -d ./cache ]; then chown -R www-data:www-data ./cache; fi" # PS1.6
 	@docker exec phpunit sh -c "if [ -d ./log ]; then chown -R www-data:www-data ./log; fi" # PS1.6
 
-#phpunit-xdebug:
-#	-@docker exec phpunit sh -c "docker-php-ext-enable xdebug"
-
 # FIXME: set neon file for platform
 define build-platform
 	$(eval target = $1)
@@ -153,22 +141,10 @@ define build-platform
 	$(MAKE) platform-init
 endef
 
-# FIXME: check for PrestaShop & DB coming alive
-platform-is-alive:
-	sleep 10
-
-platform-init: platform-pull platform-restart platform-is-alive platform-module-install platform-fix-permissions
+# PLATFORM
+##########
+platform-init: platform-pull platform-restart platform-module-install platform-fix-permissions
 	@echo platform container is ready
-
-##################
-# PLATFORM PRESETS
-
-# example:
-# major x php range x vendor
-# PS16  | 5.6 - 7.1 | vendor56
-# PS17  | 7.1 - 8.0 | vendor71
-# PS80  | 7.4 - 8.0 | vendor71
-# PS90  | 8.O - *   | vendor80
 
 platform-1.6.1.24-5.6-fpm-stretch: phpunit-fix-compat-php56
 	$(call build-platform,$@,,,composer56.json,phpstan\-PS\-1.6.neon)
@@ -299,11 +275,34 @@ php-cs-fixer: tests/vendor
 	PHP_CS_FIXER_IGNORE_ENV=1 php ./tests/vendor/bin/php-cs-fixer fix --using-cache=no
 #	vendor/bin/php-cs-fixer fix --dry-run --diff --using-cache=no --diff-format udiff
 
+# target: autoindex                                            - Automatically add index.php to each folder (fix for misconfigured servers)
 autoindex: COMPOSER_FILE := composer56.json
 autoindex: tests/vendor
 	php ./tests/vendor/bin/autoindex prestashop:add:index "${WORKDIR}"
 
+# target: header-stamp                                         - Add header stamp to files
 header-stamp: COMPOSER_FILE := composer56.json
 header-stamp: tests/vendor
 	php ./vendor/bin/header-stamp --target="${WORKDIR}" --license="assets/afl.txt" --exclude=".github,node_modules,vendor,tests,_dev"
 
+define replace_version
+	echo "Setting up version: ${VERSION}..."
+	sed -i.bak -e "s/\(VERSION = \).*/\1\'${2}\';/" ${1}/${MODULE_NAME}.php
+	sed -i.bak -e "s/\($this->version = \).*/\1\'${2}\';/" ${1}/${MODULE_NAME}.php
+	sed -i.bak -e "s|\(<version><!\[CDATA\[\)[0-9a-z.-]\{1,\}]]></version>|\1${2}]]></version>|" ${1}/config.xml
+	sed -i.bak -e "s/\(\"version\"\: \).*/\1\"${2}\",/" ${1}/_dev/package.json
+	rm -f ${1}/${MODULE_NAME}.php.bak ${1}/config.xml.bak ${1}/_dev/package.json.bak
+endef
+
+define zip_it
+	# si on n'est pas sur main, ça serait cool d'avoir le nom de la branche.
+	$(eval TMP_DIR := $(shell mktemp -d))
+	mkdir -p ${TMP_DIR}/${MODULE_NAME};
+	cp -r $(shell cat .zip-contents) ${TMP_DIR}/${MODULE_NAME};
+	./tests/vendor/bin/autoindex prestashop:add:index ${TMP_DIR}
+	cp $1 ${TMP_DIR}/${MODULE_NAME}/config/config.yml
+	$(call replace_version,${TMP_DIR},${SEM_VERSION})
+	cd ${TMP_DIR} && zip -9 -r $2 ./${MODULE_NAME};
+	mv ${TMP_DIR}/$2 ./dist;
+	rm -rf ${TMP_DIR};
+endef
