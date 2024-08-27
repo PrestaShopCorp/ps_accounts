@@ -27,7 +27,7 @@ default: build
 
 # target: build                                                - Install dependencies and build assets
 .PHONY: build
-build: dist php-scoper build-front
+build: dist php-scoper vendor tests/vendor build-front
 
 # target: help                                                 - Get help on this file
 .PHONY: help
@@ -57,20 +57,20 @@ zip: zip-local zip-preprod zip-prod
 # target: zip-local                                            - Bundle a local E2E compatible zip
 .PHONY: zip-local
 zip-local: dist php-scoper build-front
-	$(eval PACKAGE := $(if $(filter main,$(BRANCH_NAME)),${PACKAGE},${PACKAGE}-${BRANCH_NAME}))
-	$(call zip_it,.config.local.yml,${PACKAGE}-local.zip)
+	$(eval PKG_LOCAL := $(if $(filter main,$(BRANCH_NAME)),${PACKAGE},${PACKAGE}-${BRANCH_NAME}))
+	$(call zip_it,.config.local.yml,${PKG_LOCAL}-local.zip)
 
 # target: zip-preprod                                          - Bundle a pre-production zip
 .PHONY: zip-preprod
 zip-preprod: dist php-scoper build-front
-	$(eval PACKAGE := $(if $(filter main,$(BRANCH_NAME)),${PACKAGE},${PACKAGE}-${BRANCH_NAME}))
-	$(call zip_it,.config.preprod.yml,${PACKAGE}_preprod.zip)
+	$(eval PKG_PREPROD := $(if $(filter main,$(BRANCH_NAME)),${PACKAGE},${PACKAGE}-${BRANCH_NAME}))
+	$(call zip_it,.config.preprod.yml,${PKG_PREPROD}_preprod.zip)
 
 # target: zip-prod                                             - Bundle a production zip
 .PHONY: zip-prod
 zip-prod: dist php-scoper build-front
-	$(eval PACKAGE := $(if $(filter main,$(BRANCH_NAME)),${PACKAGE},${PACKAGE}-${BRANCH_NAME}))
-	$(call zip_it,.config.prod.yml,${PACKAGE}.zip)
+	$(eval PKG_PROD := $(if $(filter main,$(BRANCH_NAME)),${PACKAGE},${PACKAGE}-${BRANCH_NAME}))
+	$(call zip_it,.config.prod.yml,${PKG_PROD}.zip)
 
 dist:
 	@mkdir -p ./dist 
@@ -92,7 +92,7 @@ composer.phar:
 vendor: composer.phar
 	./composer.phar install ${COMPOSER_OPTIONS}
 
-tests/vendor:
+tests/vendor: composer.phar
 	./composer.phar install --working-dir tests -o
 
 prestashop:
@@ -161,141 +161,6 @@ docker-phpstan:
 	@$(call in_docker,/usr/bin/phpstan,analyse --memory-limit=-1 --configuration=./tests/phpstan/phpstan-docker.neon)
 
 
-# PLATFORM
-##########
-platform-start:
-	@PLATFORM_IMAGE=${PLATFORM_IMAGE} docker compose -f ${PLATFORM_COMPOSE_FILE} up -d
-	$(call replace_version,./,${SEM_VERSION})
-	@echo phpunit started
-
-platform-stop:
-	@PLATFORM_IMAGE=${PLATFORM_IMAGE} docker compose -f ${PLATFORM_COMPOSE_FILE} down
-	@echo phpunit stopped
-
-platform-restart: platform-stop platform-start
-
-platform-module-version:
-	@docker exec -w ${CONTAINER_INSTALL_DIR} phpunit \
-		sh -c "echo \"installing module: [\`cat config.xml | grep '<version>' | sed 's/^.*\[CDATA\[\(.*\)\]\].*/v\1/'\`]\""
-
-platform-phpstan-config:
-	@echo "installing neon file: [${NEON_FILE}]"
-	@docker exec -w ${CONTAINER_INSTALL_DIR}/tests phpunit \
-		sh -c "if [ -f ./phpstan/${NEON_FILE} ]; then cp ./phpstan/${NEON_FILE} ./phpstan/phpstan.neon; fi"
-
-platform-module-install: tests/vendor platform-phpstan-config platform-module-version
-	-@docker exec phpunit sh -c "if [ -f ./bin/console ]; then php -d memory_limit=-1 ./bin/console prestashop:module install ps_accounts; fi"
-	-@docker exec phpunit sh -c "if [ ! -f ./bin/console ]; then php -d memory_limit=-1 ./modules/ps_accounts/tests/install-module.php; fi"
-
-platform-fix-permissions:
-	@docker exec phpunit sh -c "if [ -d ./var ]; then chown -R www-data:www-data ./var; fi"
-	@docker exec phpunit sh -c "if [ -d ./cache ]; then chown -R www-data:www-data ./cache; fi" # PS1.6
-	@docker exec phpunit sh -c "if [ -d ./log ]; then chown -R www-data:www-data ./log; fi" # PS1.6
-
-# FIXME: set neon file for platform
-define build-platform
-	$(eval target = $1)
-	$(eval repo = $2)
-	$(eval tag = $3)
-	$(eval composer = $4)
-	$(eval neonfile = $5)
-
-	$(eval repo = $(if $(repo:-=),$(repo),${PLATFORM_REPO}))
-	$(eval tag = $(if $(tag:-=),$(tag),$(shell echo $(target) | sed 's/^platform\(-[a-z0-9]*\)\?-//')))
-	$(eval composer = $(if $(composer:-=),$(composer),${COMPOSER_FILE}))
-	$(eval neonfile = $(if $(neonfile:-=),$(neonfile),${NEON_FILE}))
-
-	PLATFORM_REPO=$(repo) \
-	PHPUNIT_TAG=$(tag) \
-	PLATFORM_COMPOSE_FILE=.docker/$(shell echo 'docker-compose.'$(repo)'.yml' | sed 's/\//@/') \
-	COMPOSER_FILE=${composer} \
-	NEON_FILE=${neonfile} \
-	$(MAKE) platform-init
-endef
-
-# PLATFORM
-##########
-platform-init: platform-pull platform-restart platform-module-install platform-fix-permissions
-	@echo platform container is ready
-
-platform-1.6.1.24-5.6-fpm-stretch: phpunit-fix-compat-php56
-	$(call build-platform,$@,,,composer56.json,phpstan\-PS\-1.6.neon)
-
-platform-1.6.1.24-7.1:
-	$(call build-platform,$@,,,composer71.json,phpstan\-PS\-1.6.neon)
-
-platform-1.7.7.8-7.1:
-	$(call build-platform,$@,,,composer71.json)
-
-platform-1.7.8.5-7.4:
-	$(call build-platform,$@)
-
-platform-8.1.5-7.4:
-	$(call build-platform,$@)
-
-platform-nightly:
-	$(call build-platform,$@)
-
-platform-internal-1.6:
-	@docker container stop ps_accounts_mysql_1
-	$(call build-platform,$@,"prestashop/docker-internal-images",,composer71.json)
-
-#########
-# PHPUNIT
-
-phpunit-run-unit: platform-fix-permissions
-	@docker exec -w ${CONTAINER_INSTALL_DIR}/tests phpunit ./vendor/bin/phpunit --testsuite unit
-
-phpunit-run-feature: platform-fix-permissions
-	@docker exec -w ${CONTAINER_INSTALL_DIR}/tests phpunit ./vendor/bin/phpunit --testsuite feature
-
-phpunit: phpunit-run-unit phpunit-run-feature
-
-REGEX_COMPAT_VOID := "s/\(function \(setUp\|tearDown\)()\)\(: void\)\?/\1/"
-REGEX_COMPAT_TRAIT := "s/\#\?\(use \\\\DMS\\\\PHPUnitExtensions\\\\ArraySubset\\\\ArraySubsetAsserts;\)/\#\1/"
-phpunit-fix-compat-php56:
-	@echo "fixing compat for php56..."
-	find ./tests -type f -name "TestCase.php" -exec sed -i -e ${REGEX_COMPAT_TRAIT} {} \;
-	find ./tests -type f -name "TestCase.php" -exec sed -i -e ${REGEX_COMPAT_VOID} {} \;
-	find ./tests/Unit -type f -name "*.php" -exec sed -i -e ${REGEX_COMPAT_VOID} {} \;
-	find ./tests/Feature -type f -name "*.php" -exec sed -i -e ${REGEX_COMPAT_VOID} {} \;
-
-phpunit-reset-compat-php56: REGEX_COMPAT_VOID := "s/\(function \(setUp\|tearDown\)()\)\(: void\)\?/\1: void/"
-phpunit-reset-compat-php56: REGEX_COMPAT_TRAIT := "s/\#\?\(use \\\\DMS\\\\PHPUnitExtensions\\\\ArraySubset\\\\ArraySubsetAsserts;\)/\1/"
-phpunit-reset-compat-php56: phpunit-fix-compat-php56
-
-#########
-# PHPSTAN
-
-# NEON_FILE ?= phpstan-PS-1.7.neon
-# phpstan:
-# 	@docker exec -w ${CONTAINER_INSTALL_DIR}/tests -e _PS_ROOT_DIR_=${CONTAINER_INSTALL_DIR}/../.. \
-# 	  phpunit ./vendor/bin/phpstan analyse \
-# 	  --autoload-file=bootstrap.php \
-# 	  --memory-limit=-1 \
-# 	  --configuration=./phpstan/phpstan.neon
-
-#phpstan16: NEON_FILE := phpstan-PS-1.6.neon
-#phpstan16: phpstan
-
-#################
-# TESTING TARGETS
-
-# phpunit-1.6.1.24-5.6-fpm-stretch: platform-1.6.1.24-5.6-fpm-stretch phpunit
-# phpunit-1.6.1.24-7.1:             platform-1.6.1.24-7.1             phpunit
-# phpunit-1.7.7.8-7.1:              platform-1.7.7.8-7.1              phpunit
-# phpunit-1.7.8.5-7.4:              platform-1.7.8.5-7.4              phpunit
-# phpunit-8.1.5-7.4:                platform-8.1.5-7.4                phpunit
-# phpunit-nightly:                  platform-nightly                  phpunit
-#phpunit-internal-1.6:             platform-internal-1.6 phpunit
-
-#"latest", "1.7.6.5", "1.6.1.21"
-# phpstan-1.6.1.24-7.1: platform-1.6.1.24-7.1 phpstan
-# phpstan-1.7.7.8-7.1:  platform-1.7.7.8-7.1  phpstan
-
-# php-cs-fixer-test-1.6.1.24-5.6-fpm-stretch: platform-1.6.1.24-5.6-fpm-stretch platform-php-cs-fixer-test
-# php-cs-fixer-1.6.1.24-5.6-fpm-stretch: platform-1.6.1.24-5.6-fpm-stretch platform-php-cs-fixer
-
 ############
 # PHP-SCOPER
 
@@ -309,7 +174,7 @@ php-scoper.phar:
 	chmod +x php-scoper.phar
 
 .PHONY: php-scoper-add-prefix
-php-scoper-add-prefix: php-scoper.phar scoper.inc.php vendor-clean vendor
+php-scoper-add-prefix: php-scoper.phar scoper.inc.php vendor
 	./php-scoper.phar add-prefix --output-dir ${PHP_SCOPER_OUTPUT_DIR} --force --quiet
 	ls ${PHP_SCOPER_OUTPUT_DIR}
 	#for d in ${VENDOR_DIRS}; do rm -rf ./vendor/$$d && mv ./${SCOPED_DIR}/$$d ./vendor/; done;
@@ -336,32 +201,32 @@ php-scoper: php-scoper-add-prefix php-scoper-dump-autoload php-scoper-fix-autolo
 #	vendor/bin/php-cs-fixer fix --dry-run --diff --using-cache=no --diff-format udiff
 
 # target: autoindex                                            - Automatically add index.php to each folder (fix for misconfigured servers)
-autoindex: COMPOSER_FILE := composer56.json
 autoindex: tests/vendor
 	php ./tests/vendor/bin/autoindex prestashop:add:index "${WORKDIR}"
 
 # target: header-stamp                                         - Add header stamp to files
-header-stamp: COMPOSER_FILE := composer56.json
 header-stamp: tests/vendor
-	php ./vendor/bin/header-stamp --target="${WORKDIR}" --license="assets/afl.txt" --exclude=".github,node_modules,vendor,tests,_dev"
+	php ./tests/vendor/bin/header-stamp --target="${WORKDIR}" --license="assets/afl.txt" --exclude=".github,node_modules,vendor,tests,_dev"
 
 define replace_version
 	echo "Setting up version: ${VERSION}..."
 	sed -i.bak -e "s/\(VERSION = \).*/\1\'${2}\';/" ${1}/${MODULE_NAME}.php
 	sed -i.bak -e "s/\($this->version = \).*/\1\'${2}\';/" ${1}/${MODULE_NAME}.php
 	sed -i.bak -e "s|\(<version><!\[CDATA\[\)[0-9a-z.-]\{1,\}]]></version>|\1${2}]]></version>|" ${1}/config.xml
-	sed -i.bak -e "s/\(\"version\"\: \).*/\1\"${2}\",/" ${1}/_dev/package.json
-	rm -f ${1}/${MODULE_NAME}.php.bak ${1}/config.xml.bak ${1}/_dev/package.json.bak
+	if [ -f "${1}/_dev/package.json" ]; then \
+		sed -i.bak -e "s/\(\"version\"\: \).*/\1\"${2}\",/" "${1}/_dev/package.json"; \
+		rm -f "${1}/_dev/package.json.bak"; \
+	fi
+	rm -f ${1}/${MODULE_NAME}.php.bak ${1}/config.xml.bak
 endef
 
 define zip_it
-	# si on n'est pas sur main, ça serait cool d'avoir le nom de la branche.
 	$(eval TMP_DIR := $(shell mktemp -d))
 	mkdir -p ${TMP_DIR}/${MODULE_NAME};
 	cp -r $(shell cat .zip-contents) ${TMP_DIR}/${MODULE_NAME};
-	./tests/vendor/bin/autoindex prestashop:add:index ${TMP_DIR}
+	WORKDIR=${TMP_DIR} make autoindex
 	cp $1 ${TMP_DIR}/${MODULE_NAME}/config/config.yml
-	$(call replace_version,${TMP_DIR},${SEM_VERSION})
+	$(call replace_version,${TMP_DIR}/${MODULE_NAME},${SEM_VERSION})
 	cd ${TMP_DIR} && zip -9 -r $2 ./${MODULE_NAME};
 	mv ${TMP_DIR}/$2 ./dist;
 	rm -rf ${TMP_DIR};
