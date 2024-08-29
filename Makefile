@@ -4,33 +4,28 @@ VERSION ?= $(shell git describe --tags 2> /dev/null || echo "v0.0.0")
 SEM_VERSION ?= $(shell echo ${VERSION} | sed 's/^v//')
 BRANCH_NAME ?= $(shell git rev-parse --abbrev-ref HEAD | sed -e 's/\//_/g')
 PACKAGE ?= ${MODULE_NAME}-${VERSION}
+WORKDIR ?= .
+
 PS_VERSION ?= 8.1.7
 TESTING_IMAGE ?= prestashop/prestashop-flashlight:${PS_VERSION}
 PS_ROOT_DIR ?= $(shell pwd)/prestashop/prestashop-${PS_VERSION}
 PHP_SCOPER_VENDOR_DIRS = $(shell cat scoper.inc.php | grep 'dirScoped =' | sed 's/^.*\$dirScoped = \[\(.*\)\].*/\1/' | sed "s/[' ,]\+/ /g")
 PHP_SCOPER_OUTPUT_DIR := vendor-scoped
 PHP_SCOPER_VERSION := 0.18.11
-WORKDIR ?= ./
-
-PLATFORM_REPO ?= prestashop/prestashop-flashlight
-PLATFORM_REPO_TAG ?= 8.1.5-7.4
-PLATFORM_IMAGE ?= ${PLATFORM_REPO}:${PHPUNIT_TAG}
-PLATFORM_COMPOSE_FILE ?= docker-compose.flashlight.yml
-COMPOSER_FILE ?= composer.json
 BUNDLE_JS ?= ${WORKDIR}/views/js/app.${SEM_VERSION}.js
 COMPOSER_OPTIONS ?= --prefer-dist -o --no-dev --quiet
-CONTAINER_INSTALL_DIR="/var/www/html/modules/ps_accounts"
+BUILD_DEPENDENCIES = ${WORKDIR}/dist ${WORKDIR}/vendor ${WORKDIR}/tests/vendor ${WORKDIR}/_dev/node_modules/.modules.yaml ${WORKDIR}/vendor/.scoped
 
 export PHP_CS_FIXER_IGNORE_ENV = 1
 export _PS_ROOT_DIR_ ?= ${PS_ROOT_DIR}
-export PATH := ${WORKDIR}/vendor/bin:./tests/vendor/bin:$(PATH)
+export PATH := ${WORKDIR}/vendor/bin:${WORKDIR}/tests/vendor/bin:$(PATH)
 
 # target: (default)                                            - Build the module
 default: build
 
 # target: build                                                - Install dependencies and build assets
 .PHONY: build
-build: dist vendor tests/vendor _dev/node_modules ${BUNDLE_JS} php-scoper
+build: ${BUILD_DEPENDENCIES}
 
 # target: help                                                 - Get help on this file
 .PHONY: help
@@ -59,19 +54,19 @@ zip: zip-local zip-preprod zip-prod
 
 # target: zip-local                                            - Bundle a local E2E compatible zip
 .PHONY: zip-local
-zip-local: dist _dev/node_modules ${BUNDLE_JS} php-scoper
+zip-local: ${BUILD_DEPENDENCIES}
 	$(eval PKG_LOCAL := $(if $(filter main,$(BRANCH_NAME)),${PACKAGE},${PACKAGE}-${BRANCH_NAME}))
 	$(call zip_it,.config.local.yml,${PKG_LOCAL}-local.zip)
 
 # target: zip-preprod                                          - Bundle a pre-production zip
 .PHONY: zip-preprod
-zip-preprod: dist _dev/node_modules ${BUNDLE_JS} php-scoper
+zip-preprod: ${BUILD_DEPENDENCIES}
 	$(eval PKG_PREPROD := $(if $(filter main,$(BRANCH_NAME)),${PACKAGE},${PACKAGE}-${BRANCH_NAME}))
 	$(call zip_it,.config.preprod.yml,${PKG_PREPROD}_preprod.zip)
 
 # target: zip-prod                                             - Bundle a production zip
 .PHONY: zip-prod
-zip-prod: dist _dev/node_modules ${BUNDLE_JS} php-scoper
+zip-prod: ${BUILD_DEPENDENCIES}
 	$(eval PKG_PROD := $(if $(filter main,$(BRANCH_NAME)),${PACKAGE},${PACKAGE}-${BRANCH_NAME}))
 	$(call zip_it,.config.prod.yml,${PKG_PROD}.zip)
 
@@ -85,7 +80,7 @@ ${BUNDLE_JS}: ${WORKDIR}/_dev/node_modules
 .PHONY: _dev/node_modules ${BUNDLE_JS}
 build-front: _dev/node_modules ${BUNDLE_JS}
 
-${WORKDIR}/_dev/node_modules:
+${WORKDIR}/_dev/node_modules/.modules.yaml:
 	pnpm --filter ${WORKDIR}/_dev install
 
 ${WORKDIR}/composer.phar:
@@ -164,7 +159,6 @@ phpstan: tests/vendor prestashop/prestashop-${PS_VERSION}
 docker-phpstan:
 	@$(call in_docker,/usr/bin/phpstan,analyse --memory-limit=-1 --configuration=./tests/phpstan/phpstan-docker.neon)
 
-
 ${WORKDIR}/php-scoper.phar:
 	curl -s -f -L -O "https://github.com/humbug/php-scoper/releases/download/${PHP_SCOPER_VERSION}/php-scoper.phar"
 	chmod +x ${WORKDIR}/php-scoper.phar
@@ -193,11 +187,11 @@ fix-autoload:
 php-scoper: ${WORKDIR}/vendor ${WORKDIR}/vendor/.scoped
 
 # target: autoindex                                            - Automatically add index.php to each folder (fix for misconfigured servers)
-autoindex: tests/vendor
+autoindex: ${WORKDIR}/tests/vendor
 	autoindex prestashop:add:index "${WORKDIR}"
 
 # target: header-stamp                                         - Add header stamp to files
-header-stamp: tests/vendor
+header-stamp: ${WORKDIR}/tests/vendor
 	header-stamp --target="${WORKDIR}" --license="assets/afl.txt" --exclude=".github,node_modules,vendor,tests,_dev"
 
 # target: version                                              - Update the version in various files
