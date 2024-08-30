@@ -143,7 +143,7 @@ docker-php-lint:
 phpunit: tests/vendor tests/vendor prestashop/prestashop-${PS_VERSION}
 	phpunit --configuration=./tests/phpunit.xml;
 docker-phpunit: tests/vendor
-	@$(call in_docker,phpunit,--configuration=./tests/phpunit.xml)
+	@$(call in_docker,make,phpunit)
 
 # target: phpunit-cov (or docker-phpunit-cov)                  - Run phpunit with coverage and allure
 .PHONY: phpunit-cov docker-phpunit-cov
@@ -155,9 +155,9 @@ docker-phpunit-cov: tests/vendor
 # target: phpstan (or docker-phpstan)                          - Run phpstan
 .PHONY: phpstan docker-phpstan
 phpstan: tests/vendor prestashop/prestashop-${PS_VERSION}
-	phpstan analyse --memory-limit=-1 --configuration=./tests/phpstan/phpstan-local.neon;
+	cd ./tests && phpstan analyse --memory-limit=-1 --configuration=./phpstan/phpstan.neon;
 docker-phpstan:
-	@$(call in_docker,phpstan,analyse --memory-limit=-1 --configuration=./tests/phpstan/phpstan-docker.neon)
+	$(call in_docker,make,phpstan)
 
 ${WORKDIR}/php-scoper.phar:
 	curl -s -f -L -O "https://github.com/humbug/php-scoper/releases/download/${PHP_SCOPER_VERSION}/php-scoper.phar"
