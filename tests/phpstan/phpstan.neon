@@ -1,7 +1,4 @@
-includes:
-	- %currentWorkingDirectory%/tests/vendor/prestashop/php-dev-tools/phpstan/ps-module-extension.neon
 parameters:
-	checkMissingIterableValueType: false
 	reportUnmatchedIgnoredErrors: false
 	paths:
 		- ../../src
@@ -39,5 +36,4 @@ parameters:
 		- '#Call to method get\(\) on an unknown class PrestaShop\\PrestaShop\\Adapter\\SymfonyContainer.#'
 		- '#Call to static method getInstance\(\) on an unknown class PrestaShop\\PrestaShop\\Adapter\\SymfonyContainer.#'
 		- '#Call to an undefined method object::generate\(\).#'
-
 	level: 7
