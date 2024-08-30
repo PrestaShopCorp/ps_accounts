@@ -63,36 +63,6 @@ services:
     networks:
       - prestashop
 
-  cloudsync-mock:
-    build:
-      context: ./cloudsync-mock
-      dockerfile: Dockerfile
-    environment:
-      - RUN_IN_DOCKER=1
-    healthcheck:
-      test: ["CMD", "curl", "-sI", "http://localhost:8080"]
-    volumes:
-      - ./cloudsync-mock/src:/home/node/src:ro
-    ports:
-      - ${SYNC_API_PORT:?See e2e-env/.env.dist}:3232
-      - ${COLLECTOR_API_PORT:?See e2e-env/.env.dist}:3333
-      - ${LIVE_SYNC_API_PORT:?See e2e-env/.env.dist}:3434
-      - ${WS_PORT:?See e2e-env/.env.dist}:8080
-    networks:
-      - prestashop
-
-  reverse-proxy:
-    image: nginx:stable-alpine
-    healthcheck:
-      test: ["CMD", "curl", "-sI", "http://localhost:80/nginx_status"]
-    volumes:
-      - ./nginx.conf:/etc/nginx/nginx.conf:ro,cached
-    command: [nginx-debug, "-g", "daemon off;"]
-    networks:
-      - prestashop
-    ports:
-      - ${HOST_PORT_BIND_CLOUDSYNC_REVERSE_PROXY:?See e2e-env/.env.dist}:80
-
 networks:
   prestashop:
     driver: bridge
