@@ -1,0 +1,144 @@
+name: PRs Quality Check
+
+env:
+  NODE_BUILDER_VERSION: "20"
+
+on:
+  pull_request:
+    types: [opened, reopened, synchronize]
+
+jobs:
+  php-linter:
+    name: PHP Syntax check
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    strategy:
+      matrix:
+        php_version: ["5.6", "7.1", "7.2", "7.3", "7.4", "8.0", "8.1", "8.2"]
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: PHP syntax checker ${{ matrix.php_version }}
+        run: make docker-php-lint
+        env:
+          PHP_VERSION: ${{ matrix.php_version }}
+          TESTING_IMAGE: php:${{ matrix.php_version }}
+
+  composer-validate:
+    name: Composer validate
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Run composer validate
+        run: make composer-validate
+
+  php-cs-fixer:
+    name: PHP-CS-FIXER
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Cache vendor folder
+        uses: actions/cache@v3
+        with:
+          path: vendor
+          key: php-${{ hashFiles('composer.lock') }}
+      - name: Run PHP-CS-Fixer
+        run: make lint
+
+  phpstan:
+    name: PHPStan for PrestaShop ${{ matrix.presta-versions }}
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        ps_version: ["1.6.1.11", "1.7.8.10", "8.1.7"]
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Cache vendor folder
+        uses: actions/cache@v3
+        with:
+          path: vendor
+          key: php-${{ hashFiles('composer.lock') }}
+      - name: PHPStan PrestaShop ${{ matrix.ps_version }}
+        run: PS_VERSION="${{ matrix.ps_version }}" make docker-phpstan
+
+  phpunit:
+    name: PHP Unit for PrestaShop
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Cache vendor folder
+        uses: actions/cache@v3
+        with:
+          path: vendor
+          key: php-${{ hashFiles('composer.lock') }}
+      - name: PHP unit
+        run: make docker-phpunit
+
+  e2e-tests:
+    name: E2E Tests
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    if: ${{ github.event_name == 'pull_request' }}
+    strategy:
+      matrix:
+        ps_version: ["1.6.1.11", "1.7.8.10", "8.1.4", "nightly"]
+    steps:
+      - name: Checkout the repository
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.ref }}
+      - uses: pnpm/action-setup@v3
+        with:
+          version: latest
+      - uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_BUILDER_VERSION }}
+          cache: "pnpm"
+          cache-dependency-path: e2e/pnpm-lock.yaml
+      - name: Cache vendor folder
+        uses: actions/cache@v3
+        with:
+          path: vendor
+          key: php-${{ hashFiles('composer.lock') }}
+      - name: Install dependencies and setup e2e
+        run: pnpm install --no-optional --force
+        working-directory: e2e
+      - name: Setup e2e-env with Prestashop ${{ matrix.ps_version }}
+        run: |
+          cp .env.dist .env
+          docker compose up --detach --wait
+        env:
+          DOCKER_IMAGE_PRESTASHOP: prestashop/prestashop-flashlight:${{matrix.ps_version}}
+        working-directory: e2e-env
+      - name: Run e2e:tests with Prestashop ${{ matrix.ps_version }}
+        run: pnpm test:e2e
+        working-directory: e2e
+      - name: More logs on failure
+        if: failure()
+        run: |
+          docker compose logs prestashop
+          docker compose down -v
+        working-directory: e2e-env
+
+  notify-earth:
+    if: ${{ github.event.action == 'labeled' && github.event.label.name == 'ready to review' }}
+    runs-on: ubuntu-latest
+    steps:
+      - name: Notify everyone when PR is ready to be reviewed
+        uses: rtCamp/action-slack-notify@v2
+        env:
+          SLACK_WEBHOOK: ${{ secrets.SLACK_WEBHOOK }}
+          SLACK_COLOR: 2986CC
+          SLACK_TITLE: 👀 it's review time!
+          SLACK_MESSAGE: "🥷 ${{ github.event.pull_request.title }}"
+          SLACK_FOOTER: "https://github.com/PrestaShopCorp/ps_accounts/pull/${{ github.event.pull_request.number }}"
+          SLACK_USERNAME: QABot
+          SLACK_CHANNEL: squad-account-dev
+          SLACK_ICON: https://avatars.githubusercontent.com/u/56089550?s=48&v=4

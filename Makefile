@@ -105,6 +105,21 @@ ${WORKDIR}/prestashop/prestashop-${PS_VERSION}: prestashop composer.phar
     fi \
 	fi;
 
+# target: test                                                 - Static and unit testing
+.PHONY: test
+test: composer-validate lint php-lint phpstan phpunit
+
+# target: docker-test                                          - Static and unit testing in docker
+.PHONY: docker-test
+docker-test: docker-lint docker-phpstan docker-phpunit
+
+# target: composer-validate (or docker-composer-validate)      - Validates composer.json and composer.lock
+.PHONY: composer-validate
+composer-validate: vendor
+	@./composer.phar validate --no-check-publish
+docker-composer-validate:
+	@$(call in_docker,make,composer-validate)
+
 # target: lint (or docker-lint)                                - Lint the code and expose errors
 .PHONY: lint docker-lint
 lint: php-cs-fixer php-lint
