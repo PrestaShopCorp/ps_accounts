@@ -15,6 +15,7 @@ PHP_SCOPER_VERSION := 0.18.11
 BUNDLE_JS ?= ${WORKDIR}/views/js/app.${SEM_VERSION}.js
 COMPOSER_OPTIONS ?= --prefer-dist -o --no-dev --quiet
 BUILD_DEPENDENCIES = ${WORKDIR}/dist ${WORKDIR}/vendor ${WORKDIR}/tests/vendor ${WORKDIR}/_dev/node_modules/.modules.yaml ${WORKDIR}/vendor/.scoped
+TOOLS = ${WORKDIR}/tests/vendor
 
 export PATH := ${WORKDIR}/vendor/bin:${WORKDIR}/tests/vendor/bin:$(PATH)
 export UID=$(id -u)
@@ -99,7 +100,7 @@ ${WORKDIR}/tests/vendor: ${WORKDIR}/composer.phar
 ${WORKDIR}/prestashop:
 	@mkdir -p ${WORKDIR}/prestashop
 
-${WORKDIR}/${WORKDIR}/prestashop/prestashop-${PS_VERSION}: prestashop composer.phar
+${WORKDIR}/${WORKDIR}/prestashop/prestashop-${PS_VERSION}: ${WORKDIR}/prestashop ${WORKDIR}/composer.phar
 	@if [ ! -d "${WORKDIR}/prestashop/prestashop-${PS_VERSION}" ]; then \
 		git clone --depth 1 --branch ${PS_VERSION} https://github.com/PrestaShop/PrestaShop.git ${WORKDIR}/prestashop/prestashop-${PS_VERSION} > /dev/null; \
 		if [ "${PS_VERSION}" != "1.6.1.24" ]; then \
@@ -135,16 +136,16 @@ docker-lint-fix: docker-php-cs-fixer-fix
 
 # target: php-cs-fixer (or docker-php-cs-fixer)                - Lint the code and expose errors
 .PHONY: php-cs-fixer docker-php-cs-fixer  
-php-cs-fixer: tests/vendor
+php-cs-fixer: ${TOOLS}
 	@php-cs-fixer fix --dry-run --diff --config=${WORKDIR}/tests/php-cs-fixer.config.php
-docker-php-cs-fixer: tests/vendor
+docker-php-cs-fixer: ${TOOLS}
 	@$(call in_docker,make,lint)
 
 # target: php-cs-fixer-fix (or docker-php-cs-fixer-fix)        - Lint the code and fix it
 .PHONY: php-cs-fixer-fix docker-php-cs-fixer-fix
-php-cs-fixer-fix: tests/vendor
+php-cs-fixer-fix: ${TOOLS}
 	@php-cs-fixer fix --config=${WORKDIR}/tests/php-cs-fixer.config.php
-docker-php-cs-fixer-fix: tests/vendor
+docker-php-cs-fixer-fix: ${TOOLS}
 	@$(call in_docker,make,lint-fix)
 
 # target: php-lint (or docker-php-lint)                        - Lint the code with the php linter
@@ -157,21 +158,21 @@ docker-php-lint:
 
 # target: phpunit (or docker-phpunit)                          - Run phpunit tests
 .PHONY: phpunit docker-phpunit
-phpunit: tests/vendor tests/vendor ${WORKDIR}/prestashop/prestashop-${PS_VERSION}
-	phpunit --configuration=${WORKDIR}/tests/phpunit.xml;
-docker-phpunit: tests/vendor
+phpunit: ${TOOLS} ${WORKDIR}/prestashop/prestashop-${PS_VERSION}
+	cd ${WORKDIR}/tests &&  phpunit --configuration=phpunit.xml;
+docker-phpunit: ${TOOLS}
 	@$(call in_docker,make,phpunit)
 
 # target: phpunit-cov (or docker-phpunit-cov)                  - Run phpunit with coverage and allure
 .PHONY: phpunit-cov docker-phpunit-cov
-phpunit-cov: tests/vendor
-	php -dxdebug.mode=coverage phpunit --coverage-html ${WORKDIR}/coverage-reports/coverage-html --configuration=${WORKDIR}/tests/phpunit-cov.xml;
-docker-phpunit-cov: tests/vendor
+phpunit-cov: ${TOOLS}
+	cd ${WORKDIR}/tests && phpunit --coverage-html ./coverage-reports/coverage-html --configuration=phpunit-cov.xml;
+docker-phpunit-cov: ${TOOLS}
 	@$(call in_docker,make,phpunit-cov)
 
 # target: phpstan (or docker-phpstan)                          - Run phpstan
 .PHONY: phpstan docker-phpstan
-phpstan: tests/vendor ${WORKDIR}/prestashop/prestashop-${PS_VERSION}
+phpstan: ${TOOLS} ${WORKDIR}/prestashop/prestashop-${PS_VERSION}
 	cd ${WORKDIR}/tests && phpstan analyse --memory-limit=-1 --configuration=./phpstan/phpstan.neon;
 docker-phpstan:
 	$(call in_docker,make,phpstan)
@@ -204,11 +205,11 @@ fix-autoload:
 php-scoper: ${WORKDIR}/vendor ${WORKDIR}/vendor/.scoped
 
 # target: autoindex                                            - Automatically add index.php to each folder (fix for misconfigured servers)
-autoindex: ${WORKDIR}/tests/vendor
+autoindex: ${TOOLS}
 	autoindex prestashop:add:index "${WORKDIR}"
 
 # target: header-stamp                                         - Add header stamp to files
-header-stamp: ${WORKDIR}/tests/vendor
+header-stamp: ${TOOLS}
 	header-stamp --target="${WORKDIR}" --license="assets/afl.txt" --exclude=".github,node_modules,vendor,tests,_dev"
 
 # target: version                                              - Update the version in various files

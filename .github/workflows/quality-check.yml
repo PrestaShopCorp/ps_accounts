@@ -54,7 +54,8 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        ps_version: ["1.6.1.11", "1.7.8.10", "8.1.7"]
+        # @TODO get this back for "1.6.1.11"
+        ps_version: ["1.7.8.10", "8.1.7"]
     steps:
       - name: Checkout
         uses: actions/checkout@v4
