@@ -9,7 +9,7 @@ WORKDIR ?= .
 PS_VERSION ?= 8.1.7
 TESTING_IMAGE ?= prestashop/prestashop-flashlight:${PS_VERSION}
 PS_ROOT_DIR ?= $(shell cd ${WORKDIR} && pwd)/prestashop/prestashop-${PS_VERSION}
-PHP_SCOPER_VENDOR_DIRS = $(shell cat scoper.inc.php | grep 'dirScoped =' | sed 's/^.*\$dirScoped = \[\(.*\)\].*/\1/' | sed "s/[' ,]\+/ /g")
+PHP_SCOPER_VENDOR_DIRS = $(shell cat ${WORKDIR}/scoper.inc.php | grep 'dirScoped =' | sed 's/^.*\$dirScoped = \[\(.*\)\].*/\1/' | sed "s/[' ,]\+/ /g")
 PHP_SCOPER_OUTPUT_DIR := vendor-scoped
 PHP_SCOPER_VERSION := 0.18.11
 BUNDLE_JS ?= ${WORKDIR}/views/js/app.${SEM_VERSION}.js
@@ -88,11 +88,11 @@ ${WORKDIR}/composer.phar:
 	@php composer-setup.php;
 	@php -r "unlink('composer-setup.php');";
 
-${WORKDIR}/vendor: composer.phar
-	./composer.phar install ${COMPOSER_OPTIONS}
+${WORKDIR}/vendor: ${WORKDIR}/composer.phar
+	${WORKDIR}/composer.phar install ${COMPOSER_OPTIONS}
 
-${WORKDIR}/tests/vendor: composer.phar
-	./composer.phar install --working-dir tests -o
+${WORKDIR}/tests/vendor: ${WORKDIR}/composer.phar
+	${WORKDIR}/composer.phar install --working-dir tests -o
 
 ${WORKDIR}/prestashop:
 	@mkdir -p ${WORKDIR}/prestashop
@@ -101,7 +101,7 @@ ${WORKDIR}/prestashop/prestashop-${PS_VERSION}: prestashop composer.phar
 	@if [ ! -d "prestashop/prestashop-${PS_VERSION}" ]; then \
 		git clone --depth 1 --branch ${PS_VERSION} https://github.com/PrestaShop/PrestaShop.git prestashop/prestashop-${PS_VERSION} > /dev/null; \
 		if [ "${PS_VERSION}" != "1.6.1.24" ]; then \
-			./composer.phar -d ${WORKDIR}/prestashop/prestashop-${PS_VERSION} install; \
+			${WORKDIR}/composer.phar -d ${WORKDIR}/prestashop/prestashop-${PS_VERSION} install; \
     fi \
 	fi;
 
@@ -119,14 +119,14 @@ docker-lint-fix: docker-php-cs-fixer-fix
 # target: php-cs-fixer (or docker-php-cs-fixer)                - Lint the code and expose errors
 .PHONY: php-cs-fixer docker-php-cs-fixer  
 php-cs-fixer: tests/vendor
-	@php-cs-fixer fix --dry-run --diff --config=./tests/php-cs-fixer.config.php
+	@php-cs-fixer fix --dry-run --diff --config=${WORKDIR}/tests/php-cs-fixer.config.php
 docker-php-cs-fixer: tests/vendor
 	@$(call in_docker,make,lint)
 
 # target: php-cs-fixer-fix (or docker-php-cs-fixer-fix)        - Lint the code and fix it
 .PHONY: php-cs-fixer-fix docker-php-cs-fixer-fix
 php-cs-fixer-fix: tests/vendor
-	@php-cs-fixer fix --config=./tests/php-cs-fixer.config.php
+	@php-cs-fixer fix --config=${WORKDIR}/tests/php-cs-fixer.config.php
 docker-php-cs-fixer-fix: tests/vendor
 	@$(call in_docker,make,lint-fix)
 
@@ -141,21 +141,21 @@ docker-php-lint:
 # target: phpunit (or docker-phpunit)                          - Run phpunit tests
 .PHONY: phpunit docker-phpunit
 phpunit: tests/vendor tests/vendor prestashop/prestashop-${PS_VERSION}
-	phpunit --configuration=./tests/phpunit.xml;
+	phpunit --configuration=${WORKDIR}/tests/phpunit.xml;
 docker-phpunit: tests/vendor
 	@$(call in_docker,make,phpunit)
 
 # target: phpunit-cov (or docker-phpunit-cov)                  - Run phpunit with coverage and allure
 .PHONY: phpunit-cov docker-phpunit-cov
 phpunit-cov: tests/vendor
-	php -dxdebug.mode=coverage phpunit --coverage-html ${WORKDIR}/coverage-reports/coverage-html --configuration=./tests/phpunit-cov.xml;
+	php -dxdebug.mode=coverage phpunit --coverage-html ${WORKDIR}/coverage-reports/coverage-html --configuration=${WORKDIR}/tests/phpunit-cov.xml;
 docker-phpunit-cov: tests/vendor
 	@$(call in_docker,make,phpunit-cov)
 
 # target: phpstan (or docker-phpstan)                          - Run phpstan
 .PHONY: phpstan docker-phpstan
 phpstan: tests/vendor prestashop/prestashop-${PS_VERSION}
-	cd ./tests && phpstan analyse --memory-limit=-1 --configuration=./phpstan/phpstan.neon;
+	cd ${WORKDIR}/tests && phpstan analyse --memory-limit=-1 --configuration=./phpstan/phpstan.neon;
 docker-phpstan:
 	$(call in_docker,make,phpstan)
 
@@ -163,11 +163,11 @@ ${WORKDIR}/php-scoper.phar:
 	curl -s -f -L -O "https://github.com/humbug/php-scoper/releases/download/${PHP_SCOPER_VERSION}/php-scoper.phar"
 	chmod +x ${WORKDIR}/php-scoper.phar
 
-${WORKDIR}/vendor/.scoped: php-scoper.phar scoper.inc.php vendor
-	./php-scoper.phar add-prefix --output-dir ${PHP_SCOPER_OUTPUT_DIR} --force --quiet
+${WORKDIR}/vendor/.scoped: ${WORKDIR}/php-scoper.phar ${WORKDIR}/scoper.inc.php vendor
+	${WORKDIR}/php-scoper.phar add-prefix --output-dir ${PHP_SCOPER_OUTPUT_DIR} --force --quiet
 	#for d in ${VENDOR_DIRS}; do rm -rf ${WORKDIR}/vendor/$$d && mv ${WORKDIR}/${SCOPED_DIR}/$$d ${WORKDIR}/vendor/; done;
-	$(foreach DIR,$(PHP_SCOPER_VENDOR_DIRS), rm -rf "./vendor/${DIR}" && mv "./${PHP_SCOPER_OUTPUT_DIR}/${DIR}" ${WORKDIR}/vendor/;)
-	rmdir "./${PHP_SCOPER_OUTPUT_DIR}"
+	$(foreach DIR,$(PHP_SCOPER_VENDOR_DIRS), rm -rf "${WORKDIR}/vendor/${DIR}" && mv "${WORKDIR}/${PHP_SCOPER_OUTPUT_DIR}/${DIR}" ${WORKDIR}/vendor/;)
+	rmdir "${WORKDIR}/${PHP_SCOPER_OUTPUT_DIR}"
 	make dump-autoload
 	make fix-autoload
 	touch ${WORKDIR}/vendor/.scoped
@@ -175,12 +175,12 @@ ${WORKDIR}/vendor/.scoped: php-scoper.phar scoper.inc.php vendor
 # target: dump-autoload                                        - Call the autoload dump from composer
 .PHONY: dump-autoload
 dump-autoload: ${WORKDIR}/composer.phar ${WORKDIR}/vendor
-	./composer.phar dump-autoload --classmap-authoritative
+	${WORKDIR}/composer.phar dump-autoload --classmap-authoritative
 
 # target: fix-autoload                                         - Call a custom script to fix the autoload for php-scoper
 .PHONY: fix-autoload
 fix-autoload:
-	php fix-autoload.php
+	php ${WORKDIR}/tests/fix-autoload.php
 
 # target: php-scoper                                           - Scope the composer dependencies
 .PHONY: php-scoper

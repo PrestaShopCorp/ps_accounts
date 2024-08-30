@@ -12,6 +12,7 @@ app.js
 ### Composer ###
 composer.phar
 vendor/
+vendor-scoped/
 .php_cs.cache
 .php_cs
 install.lock
