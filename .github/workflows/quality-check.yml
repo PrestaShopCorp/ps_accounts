@@ -50,7 +50,7 @@ jobs:
         run: make lint
 
   phpstan:
-    name: PHPStan for PrestaShop ${{ matrix.presta-versions }}
+    name: PHPStan for PrestaShop ${{ matrix.ps_version }}
     runs-on: ubuntu-latest
     strategy:
       matrix:
