@@ -8,7 +8,7 @@ WORKDIR ?= .
 
 PS_VERSION ?= 8.1.7
 TESTING_IMAGE ?= prestashop/prestashop-flashlight:${PS_VERSION}
-PS_ROOT_DIR ?= $(shell pwd)/prestashop/prestashop-${PS_VERSION}
+PS_ROOT_DIR ?= $(shell cd ${WORKDIR} && pwd)/prestashop/prestashop-${PS_VERSION}
 PHP_SCOPER_VENDOR_DIRS = $(shell cat scoper.inc.php | grep 'dirScoped =' | sed 's/^.*\$dirScoped = \[\(.*\)\].*/\1/' | sed "s/[' ,]\+/ /g")
 PHP_SCOPER_OUTPUT_DIR := vendor-scoped
 PHP_SCOPER_VERSION := 0.18.11
@@ -119,14 +119,14 @@ docker-lint-fix: docker-php-cs-fixer-fix
 # target: php-cs-fixer (or docker-php-cs-fixer)                - Lint the code and expose errors
 .PHONY: php-cs-fixer docker-php-cs-fixer  
 php-cs-fixer: tests/vendor
-	@php-cs-fixer fix --dry-run --diff;
+	@php-cs-fixer fix --dry-run --diff --config=./tests/php-cs-fixer.config.php
 docker-php-cs-fixer: tests/vendor
 	@$(call in_docker,make,lint)
 
 # target: php-cs-fixer-fix (or docker-php-cs-fixer-fix)        - Lint the code and fix it
 .PHONY: php-cs-fixer-fix docker-php-cs-fixer-fix
 php-cs-fixer-fix: tests/vendor
-	@php-cs-fixer fix
+	@php-cs-fixer fix --config=./tests/php-cs-fixer.config.php
 docker-php-cs-fixer-fix: tests/vendor
 	@$(call in_docker,make,lint-fix)
 
@@ -140,10 +140,10 @@ docker-php-lint:
 
 # target: phpunit (or docker-phpunit)                          - Run phpunit tests
 .PHONY: phpunit docker-phpunit
-phpunit: tests/vendor
+phpunit: tests/vendor tests/vendor prestashop/prestashop-${PS_VERSION}
 	phpunit --configuration=./tests/phpunit.xml;
 docker-phpunit: tests/vendor
-	@$(call in_docker,make,phpunit)
+	@$(call in_docker,phpunit,--configuration=./tests/phpunit.xml)
 
 # target: phpunit-cov (or docker-phpunit-cov)                  - Run phpunit with coverage and allure
 .PHONY: phpunit-cov docker-phpunit-cov
@@ -157,7 +157,7 @@ docker-phpunit-cov: tests/vendor
 phpstan: tests/vendor prestashop/prestashop-${PS_VERSION}
 	phpstan analyse --memory-limit=-1 --configuration=./tests/phpstan/phpstan-local.neon;
 docker-phpstan:
-	@$(call in_docker,/usr/bin/phpstan,analyse --memory-limit=-1 --configuration=./tests/phpstan/phpstan-docker.neon)
+	@$(call in_docker,phpstan,analyse --memory-limit=-1 --configuration=./tests/phpstan/phpstan-docker.neon)
 
 ${WORKDIR}/php-scoper.phar:
 	curl -s -f -L -O "https://github.com/humbug/php-scoper/releases/download/${PHP_SCOPER_VERSION}/php-scoper.phar"
@@ -221,7 +221,8 @@ endef
 define in_docker
 	docker run \
 	--rm \
+	--env _PS_ROOT_DIR_=/var/www/html \
 	--workdir /var/www/html/modules/${MODULE_NAME} \
-	--volume $(shell pwd):/var/www/html/modules/${MODULE_NAME}:rw \
+	--volume $(shell cd ${WORKDIR} && pwd):/var/www/html/modules/${MODULE_NAME}:rw \
 	--entrypoint $1 ${TESTING_IMAGE} $2
 endef
