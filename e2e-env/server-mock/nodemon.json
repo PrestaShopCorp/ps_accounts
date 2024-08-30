@@ -1,6 +1,0 @@
-{
-    "ignore": ["node_modules"],
-    "watch": ["src"],
-    "exec": "pnpm run build && pnpm run start",
-    "ext": "ts"
-}
