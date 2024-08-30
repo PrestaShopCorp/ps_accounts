@@ -8,7 +8,7 @@ WORKDIR ?= .
 
 PS_VERSION ?= 8.1.7
 TESTING_IMAGE ?= prestashop/prestashop-flashlight:${PS_VERSION}
-PS_ROOT_DIR ?= $(shell cd ${WORKDIR} && pwd)/prestashop/prestashop-${PS_VERSION}
+PS_ROOT_DIR ?= $(shell cd ${WORKDIR} && pwd)/${WORKDIR}/prestashop/prestashop-${PS_VERSION}
 PHP_SCOPER_VENDOR_DIRS = $(shell cat ${WORKDIR}/scoper.inc.php | grep 'dirScoped =' | sed 's/^.*\$dirScoped = \[\(.*\)\].*/\1/' | sed "s/[' ,]\+/ /g")
 PHP_SCOPER_OUTPUT_DIR := vendor-scoped
 PHP_SCOPER_VERSION := 0.18.11
@@ -99,11 +99,11 @@ ${WORKDIR}/tests/vendor: ${WORKDIR}/composer.phar
 ${WORKDIR}/prestashop:
 	@mkdir -p ${WORKDIR}/prestashop
 
-${WORKDIR}/prestashop/prestashop-${PS_VERSION}: prestashop composer.phar
-	@if [ ! -d "prestashop/prestashop-${PS_VERSION}" ]; then \
-		git clone --depth 1 --branch ${PS_VERSION} https://github.com/PrestaShop/PrestaShop.git prestashop/prestashop-${PS_VERSION} > /dev/null; \
+${WORKDIR}/${WORKDIR}/prestashop/prestashop-${PS_VERSION}: prestashop composer.phar
+	@if [ ! -d "${WORKDIR}/prestashop/prestashop-${PS_VERSION}" ]; then \
+		git clone --depth 1 --branch ${PS_VERSION} https://github.com/PrestaShop/PrestaShop.git ${WORKDIR}/prestashop/prestashop-${PS_VERSION} > /dev/null; \
 		if [ "${PS_VERSION}" != "1.6.1.24" ]; then \
-			${WORKDIR}/composer.phar -d ${WORKDIR}/prestashop/prestashop-${PS_VERSION} install; \
+			${WORKDIR}/composer.phar -d ${WORKDIR}/${WORKDIR}/prestashop/prestashop-${PS_VERSION} install; \
     fi \
 	fi;
 
@@ -157,7 +157,7 @@ docker-php-lint:
 
 # target: phpunit (or docker-phpunit)                          - Run phpunit tests
 .PHONY: phpunit docker-phpunit
-phpunit: tests/vendor tests/vendor prestashop/prestashop-${PS_VERSION}
+phpunit: tests/vendor tests/vendor ${WORKDIR}/prestashop/prestashop-${PS_VERSION}
 	phpunit --configuration=${WORKDIR}/tests/phpunit.xml;
 docker-phpunit: tests/vendor
 	@$(call in_docker,make,phpunit)
@@ -171,7 +171,7 @@ docker-phpunit-cov: tests/vendor
 
 # target: phpstan (or docker-phpstan)                          - Run phpstan
 .PHONY: phpstan docker-phpstan
-phpstan: tests/vendor prestashop/prestashop-${PS_VERSION}
+phpstan: tests/vendor ${WORKDIR}/prestashop/prestashop-${PS_VERSION}
 	cd ${WORKDIR}/tests && phpstan analyse --memory-limit=-1 --configuration=./phpstan/phpstan.neon;
 docker-phpstan:
 	$(call in_docker,make,phpstan)
