@@ -16,9 +16,11 @@ BUNDLE_JS ?= ${WORKDIR}/views/js/app.${SEM_VERSION}.js
 COMPOSER_OPTIONS ?= --prefer-dist -o --no-dev --quiet
 BUILD_DEPENDENCIES = ${WORKDIR}/dist ${WORKDIR}/vendor ${WORKDIR}/tests/vendor ${WORKDIR}/_dev/node_modules/.modules.yaml ${WORKDIR}/vendor/.scoped
 
+export PATH := ${WORKDIR}/vendor/bin:${WORKDIR}/tests/vendor/bin:$(PATH)
+export UID=$(id -u)
+export GID=$(id -g)
 export PHP_CS_FIXER_IGNORE_ENV = 1
 export _PS_ROOT_DIR_ ?= ${PS_ROOT_DIR}
-export PATH := ${WORKDIR}/vendor/bin:${WORKDIR}/tests/vendor/bin:$(PATH)
 
 # target: (default)                                            - Build the module
 default: build
@@ -236,6 +238,7 @@ endef
 define in_docker
 	docker run \
 	--rm \
+	--user ${UID}:${GID} \
 	--env _PS_ROOT_DIR_=/var/www/html \
 	--workdir /var/www/html/modules/${MODULE_NAME} \
 	--volume $(shell cd ${WORKDIR} && pwd):/var/www/html/modules/${MODULE_NAME}:rw \
