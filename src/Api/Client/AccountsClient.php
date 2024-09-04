@@ -241,4 +241,23 @@ class AccountsClient
 
         return $this->getClient()->get();
     }
+
+    /**
+     * @var string $backOfficeUrl
+     * @var string $frontendUrl
+     * @var int $multiShopId
+     *
+     * @return array
+     */
+    public function createOauth2Client($backOfficeUrl, $frontendUrl, $multiShopId) {
+        $this->getClient()->setRoute('/v2/shops/identity');
+
+        return $this->getClient()->post([
+            'json' => [
+                'backOfficeUrl' => $backOfficeUrl,
+                'frontendUrl' => $frontendUrl,
+                'multiShopId' => $multiShopId
+            ]
+        ]);
+    }
 }

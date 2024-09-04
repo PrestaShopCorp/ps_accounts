@@ -34,7 +34,7 @@ class Ps_accounts extends Module
 
     // Needed in order to retrieve the module version easier (in api call headers) than instanciate
     // the module each time to get the version
-    const VERSION = '7.0.4';
+    const VERSION = '8.0.0';
 
     /**
      * Admin tabs
@@ -131,7 +131,7 @@ class Ps_accounts extends Module
 
         // We cannot use the const VERSION because the const is not computed by addons marketplace
         // when the zip is uploaded
-        $this->version = '7.0.4';
+        $this->version = '8.0.0';
 
         $this->module_key = 'abf2cd758b4d629b2944d3922ef9db73';
 
@@ -528,8 +528,9 @@ class Ps_accounts extends Module
         $uninstaller = new PrestaShop\Module\PsAccounts\Module\Uninstall($this, Db::getInstance());
         $uninstaller->deleteAdminTab('AdminLogin');
 
-//        $this->installEventBus();
-//        $this->autoReonboardOnV5();
+        /** @var \PrestaShop\Module\PsAccounts\Cqrs\CommandBus $commandBus */
+        $commandBus = $this->getService(\PrestaShop\Module\PsAccounts\Cqrs\CommandBus::class);
+        $commandBus->handle(new \PrestaShop\Module\PsAccounts\Account\Command\Oauth2InstallMultiCommand([]));
     }
 }
 

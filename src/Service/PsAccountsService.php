@@ -242,9 +242,6 @@ class PsAccountsService
         /** @var ConfigurationRepository $conf */
         $conf = $this->module->getService(ConfigurationRepository::class);
 
-        /** @var LinkShop $linkShop */
-        $linkShop = $this->module->getService(LinkShop::class);
-
         /** @var CommandBus $commandBus */
         $commandBus = $this->module->getService(CommandBus::class);
 

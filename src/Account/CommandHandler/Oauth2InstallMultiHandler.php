@@ -20,15 +20,13 @@
 
 namespace PrestaShop\Module\PsAccounts\Account\CommandHandler;
 
-use PrestaShop\Module\PsAccounts\Account\Command\UpgradeModuleCommand;
-use PrestaShop\Module\PsAccounts\Account\Command\UpgradeModuleMultiCommand;
+use PrestaShop\Module\PsAccounts\Account\Command\Oauth2InstallCommand;
+use PrestaShop\Module\PsAccounts\Account\Command\Oauth2InstallMultiCommand;
 use PrestaShop\Module\PsAccounts\Account\CommandHandler\AbstractClass\GetShopAbstract;
-use PrestaShop\Module\PsAccounts\Account\Dto\UpgradeModule;
 use PrestaShop\Module\PsAccounts\Cqrs\CommandBus;
 use PrestaShop\Module\PsAccounts\Repository\ConfigurationRepository;
-use PrestaShopDatabaseException;
 
-class UpgradeModuleMultiHandler extends GetShopAbstract
+class Oauth2InstallMultiHandler extends GetShopAbstract
 {
     /**
      * @var ConfigurationRepository
@@ -40,29 +38,31 @@ class UpgradeModuleMultiHandler extends GetShopAbstract
      */
     private $commandBus;
 
+    /**
+     * @param CommandBus $commandBus
+     * @param ConfigurationRepository $configRepo
+     */
     public function __construct(
         CommandBus $commandBus,
         ConfigurationRepository $configRepo
-    ) {
+    )
+    {
         $this->commandBus = $commandBus;
         $this->configRepo = $configRepo;
     }
 
     /**
-     * @param UpgradeModuleMultiCommand $command
+     * @param Oauth2InstallMultiCommand $command
      *
      * @return void
      *
-     * @throws PrestaShopDatabaseException
+     * @throws \PrestaShopException
+     * @throws \Exception
      */
-    public function handle(UpgradeModuleMultiCommand $command)
+    public function handle(Oauth2InstallMultiCommand $command)
     {
         foreach ($this->getShops($this->configRepo->isMultishopActive()) as $id) {
-            $this->commandBus->handle(new UpgradeModuleCommand(new UpgradeModule([
-                'shopId' => $id,
-                // FIXME: should be part of the command payload
-                'version' => \Ps_accounts::VERSION,
-            ])));
+            $this->commandBus->handle(new Oauth2InstallCommand($id, []));
         }
     }
 }
