@@ -3,11 +3,13 @@
 namespace PrestaShop\Module\PsAccounts\Tests\Unit\Account\Session\Firebase\ShopSession;
 
 use PrestaShop\Module\PsAccounts\Account\Session\Firebase;
+use PrestaShop\Module\PsAccounts\Account\Token\NullToken;
 use PrestaShop\Module\PsAccounts\Account\Token\Token;
+use PrestaShop\Module\PsAccounts\Exception\RefreshTokenException;
 use PrestaShop\Module\PsAccounts\Provider\OAuth2\ShopProvider;
 use PrestaShop\Module\PsAccounts\Tests\TestCase;
 
-class GetOrRefreshTokenTest extends TestCase
+class GetValidTokenTest extends TestCase
 {
     use \PrestaShop\Module\PsAccounts\Tests\Unit\Account\Session\SessionHelpers;
 
@@ -27,8 +29,6 @@ class GetOrRefreshTokenTest extends TestCase
 
     /**
      * @test
-     *
-     * @throws \Exception
      */
     public function itShouldReturnValidToken()
     {
@@ -39,13 +39,12 @@ class GetOrRefreshTokenTest extends TestCase
 
         $this->session->setToken((string) $idToken);
 
+        $this->assertEquals((string) $idToken, (string) $this->session->getValidToken());
         $this->assertEquals((string) $idToken, (string) $this->session->getOrRefreshToken());
     }
 
     /**
      * @test
-     *
-     * @throws \Exception
      */
     public function itShouldRefreshExpiredToken()
     {
@@ -80,14 +79,13 @@ class GetOrRefreshTokenTest extends TestCase
         $session->setToken((string) $expiredToken, (string) $refreshToken);
 
         $this->assertEquals((string) $expiredToken, (string) $session->getToken());
+        $this->assertEquals((string) $shopRefreshedToken, (string) $session->getValidToken());
         $this->assertEquals((string) $shopRefreshedToken, (string) $session->getOrRefreshToken());
         $this->assertEquals($shopRefreshToken, $session->getToken()->getRefreshToken());
     }
 
     /**
      * @test
-     *
-     * @throws \Exception
      */
     public function itShouldNotRefreshValidToken()
     {
@@ -123,7 +121,39 @@ class GetOrRefreshTokenTest extends TestCase
         $session->setToken((string) $notExpired, (string) $notExpiredRefresh);
 
         $this->assertEquals((string) $notExpired, (string) $session->getToken());
+        $this->assertEquals((string) $notExpired, (string) $session->getValidToken());
         $this->assertEquals((string) $notExpired, (string) $session->getOrRefreshToken());
         $this->assertEquals($notExpiredRefresh, $session->getToken()->getRefreshToken());
+    }
+
+    /**
+     * @test
+     */
+    public function itShouldThrowRefreshTokenExceptionOnApiError()
+    {
+        $expired = $this->makeJwtToken(new \DateTimeImmutable('yesterday'), [
+            'sub' => $this->faker->uuid,
+            'email' => $this->faker->safeEmail,
+        ]);
+
+        $session = $this->getMockedFirebaseSession(
+            Firebase\ShopSession::class,
+            $this->createApiResponse([
+                'message' => 'Error !',
+            ], 403, false),
+            $this->getMockedShopSession(new Token($this->makeJwtToken(new \DateTimeImmutable())))
+        );
+
+        $session->setToken((string) $expired);
+
+        $e = null;
+        try {
+            $session->getValidToken();
+        } catch (RefreshTokenException $e) {
+        }
+
+        $this->assertInstanceOf(RefreshTokenException::class, $e);
+        $this->assertEquals('', (string) $session->getToken());
+        $this->assertInstanceOf(NullToken::class, $session->getToken()->getJwt());
     }
 }

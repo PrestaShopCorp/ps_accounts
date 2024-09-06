@@ -79,7 +79,7 @@ class IndirectChannelClient
             'Accept' => 'application/json',
             'X-Module-Version' => \Ps_accounts::VERSION,
             'X-Prestashop-Version' => _PS_VERSION_,
-            'Authorization' => 'Bearer ' . $userToken->getOrRefreshToken(),
+            'Authorization' => 'Bearer ' . $userToken->getValidToken(false, false),
             'X-Shop-Id' => $shopToken->getToken()->getUuid(),
         ], $additionalHeaders);
     }

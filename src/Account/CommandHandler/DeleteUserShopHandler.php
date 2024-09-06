@@ -25,6 +25,7 @@ use PrestaShop\Module\PsAccounts\Account\Session\Firebase\OwnerSession;
 use PrestaShop\Module\PsAccounts\Account\Session\Firebase\ShopSession;
 use PrestaShop\Module\PsAccounts\Api\Client\AccountsClient;
 use PrestaShop\Module\PsAccounts\Context\ShopContext;
+use PrestaShop\Module\PsAccounts\Exception\RefreshTokenException;
 
 class DeleteUserShopHandler
 {
@@ -71,13 +72,13 @@ class DeleteUserShopHandler
      *
      * @return array
      *
-     * @throws \Exception
+     * @throws RefreshTokenException
      */
     public function handle(DeleteUserShopCommand $command)
     {
         return $this->shopContext->execInShopContext((int) $command->shopId, function () {
-            $ownerToken = $this->ownerSession->getOrRefreshToken();
-            $shopToken = $this->shopSession->getOrRefreshToken();
+            $ownerToken = $this->ownerSession->getValidToken();
+            $shopToken = $this->shopSession->getValidToken();
 
             return $this->accountClient->deleteUserShop(
                 $ownerToken->getUuid(),
