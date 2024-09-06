@@ -20,17 +20,17 @@
 
 namespace PrestaShop\Module\PsAccounts\Exception\Http;
 
-class BadRequestException extends HttpException
+class InternalServerErrorException extends HttpException
 {
     /**
      * @param string $message
      * @param int $code
      * @param \Exception|null $previous
      */
-    public function __construct($message = 'Bad Request', $code = 0, \Exception $previous = null)
+    public function __construct($message = 'Internal Server Error', $code = 0, \Exception $previous = null)
     {
         parent::__construct($message, $code, $previous);
 
-        $this->statusCode = 400;
+        $this->statusCode = 500;
     }
 }
