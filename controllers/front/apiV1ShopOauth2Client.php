@@ -63,7 +63,10 @@ class ps_AccountsApiV1ShopOauth2ClientModuleFrontController extends AbstractShop
         try {
             $this->session->getValidToken();
         } catch (RefreshTokenException $e) {
-            throw new InternalServerErrorException('Could not retrieve a valid token');
+            return [
+                'error' => true,
+                'message' => 'Could not retrieve a valid token',
+            ];
         }
 
         return [
