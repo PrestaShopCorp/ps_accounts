@@ -50,6 +50,8 @@ interface SessionInterface
     public function refreshToken($refreshToken = null);
 
     /**
+     * @deprecated use getValidToken instead
+     *
      * Get or refreshes and saves token
      *
      * @param bool $forceRefresh
@@ -57,6 +59,18 @@ interface SessionInterface
      * @return Token
      */
     public function getOrRefreshToken($forceRefresh = false);
+
+    /**
+     * Get or refreshes and saves token
+     *
+     * @param bool $forceRefresh
+     * @param bool $throw
+     *
+     * @return Token
+     *
+     * @throws RefreshTokenException
+     */
+    public function getValidToken($forceRefresh = false, $throw = true);
 
     /**
      * @return void
