@@ -91,11 +91,11 @@ class UpgradeModuleHandler
         $this->shopContext->execInShopContext($command->payload->shopId, function () use ($command) {
             $lastUpgrade = $this->configRepo->getLastUpgrade(false);
 
-            Logger::getInstance()->error(
-                'attempt upgrade [' . $lastUpgrade . ' to ' . $command->payload->version . ']'
-            );
-
             if (version_compare($lastUpgrade, $command->payload->version, '<')) {
+                Logger::getInstance()->info(
+                    'attempt upgrade [' . $lastUpgrade . ' to ' . $command->payload->version . ']'
+                );
+
                 // Set new version a soon as we can to avoid duplicate calls
                 $this->configRepo->updateLastUpgrade($command->payload->version);
 
