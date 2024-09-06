@@ -33,7 +33,7 @@ abstract class Session implements SessionInterface
     protected $refreshTokenErrors = [];
 
     /**
-     * @deprecated
+     * @deprecated use getValidToken instead
      *
      * @param bool $forceRefresh
      *

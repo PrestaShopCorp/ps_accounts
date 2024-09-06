@@ -50,7 +50,7 @@ interface SessionInterface
     public function refreshToken($refreshToken = null);
 
     /**
-     * @deprecated
+     * @deprecated use getValidToken instead
      *
      * Get or refreshes and saves token
      *
