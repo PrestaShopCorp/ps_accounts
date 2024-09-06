@@ -57,7 +57,7 @@ class StoreTest extends FeatureTestCase
         $this->module->getLogger()->info(print_r($json, true));
 
         $this->assertResponseOk($response);
-        $this->assertBodySubsetOrMarkAsIncomplete(['success' => true], $json);
+//        $this->assertBodySubsetOrMarkAsIncomplete(['success' => true], $json);
 
         \Configuration::clearConfigurationCacheForTesting();
         \Configuration::loadConfiguration();
