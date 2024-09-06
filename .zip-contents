@@ -11,3 +11,4 @@ config.xml
 LICENSE
 logo.png
 ps_accounts.php
+composer.json

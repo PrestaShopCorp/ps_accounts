@@ -1,0 +1,68 @@
+services:
+  prestashop:
+    image: ${DOCKER_IMAGE_PRESTASHOP:?See e2e-env/.env.dist}
+    depends_on:
+      mysql:
+        condition: service_healthy
+    healthcheck:
+      test:
+        [
+          "CMD",
+          "curl",
+          "-sI",
+          "-H",
+          "Host: localhost:8000",
+          "http://localhost:80/index.php?fc=module&module=ps_accounts&controller=apiV2ShopHealthCheck",
+        ]
+      interval: 30s
+    volumes:
+      - ..:/var/www/html/modules/ps_accounts:rw
+      - ./init-scripts:/tmp/init-scripts:ro
+      # Notice: you might enable this if your uid is not 1000, or encounter permission issues
+      # - /var/www/html/modules/ps_accounts/vendor
+      # - /var/www/html/modules/ps_accounts/tools/vendor
+    environment:
+      - PS_DOMAIN=localhost:8000
+      - ON_INIT_SCRIPT_FAILURE=fail
+      - DEBUG_MODE=true
+      - INIT_SCRIPTS_USER=root
+    ports:
+      - ${HOST_PORT_BIND_PRESTASHOP:?See e2e-env/.env.dist}:80
+    networks:
+      - prestashop
+
+  mysql:
+    image: mariadb:${DOCKER_VERSION_MARIADB:?See e2e-env/.env.dist}
+    healthcheck:
+      test: ["CMD", "healthcheck.sh", "--connect"]
+    environment:
+      - MYSQL_HOST=mysql
+      - MYSQL_USER=prestashop
+      - MYSQL_PASSWORD=prestashop
+      - MYSQL_ROOT_PASSWORD=prestashop
+      - MYSQL_PORT=3306
+      - MYSQL_DATABASE=prestashop
+    ports:
+      - ${HOST_PORT_BIND_MYSQL:?See e2e-env/.env.dist}:3306
+    networks:
+      - prestashop
+
+  phpmyadmin:
+    image: phpmyadmin:latest
+    depends_on:
+      mysql:
+        condition: service_healthy
+    ports:
+      - ${HOST_PORT_BIND_PHP_MY_ADMIN:?See e2e-env/.env.dist}:80
+    environment:
+      - PMA_HOST=mysql
+      - PMA_PORT=3306
+      - PMA_USER=prestashop
+      - PMA_PASSWORD=prestashop
+      - MYSQL_ROOT_PASSWORD=prestashop
+    networks:
+      - prestashop
+
+networks:
+  prestashop:
+    driver: bridge

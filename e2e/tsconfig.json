@@ -1,0 +1,18 @@
+{
+  "compilerOptions": {
+    "target": "es2022",
+    "outDir": "dist",
+    "rootDir": "src",
+    "module": "CommonJS",
+    "baseUrl": ".",
+    "incremental": false,
+    "removeComments": true,
+    "esModuleInterop": true,
+    "resolveJsonModule": true
+  },
+  "ts-node": {
+    "require": ["tsconfig-paths/register"]
+  },
+  "exclude": ["node_modules", "dist"],
+  "include": ["src/"]
+}
