@@ -20,7 +20,7 @@
 
 namespace PrestaShop\Module\PsAccounts\Account\CommandHandler\AbstractClass;
 
-class GetShopAbstract
+class MultiShopHandlerAbstract
 {
     /**
      * @param bool $multishop

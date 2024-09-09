@@ -22,11 +22,11 @@ namespace PrestaShop\Module\PsAccounts\Account\CommandHandler;
 
 use PrestaShop\Module\PsAccounts\Account\Command\Oauth2InstallCommand;
 use PrestaShop\Module\PsAccounts\Account\Command\Oauth2InstallMultiCommand;
-use PrestaShop\Module\PsAccounts\Account\CommandHandler\AbstractClass\GetShopAbstract;
+use PrestaShop\Module\PsAccounts\Account\CommandHandler\AbstractClass\MultiShopHandlerAbstract;
 use PrestaShop\Module\PsAccounts\Cqrs\CommandBus;
 use PrestaShop\Module\PsAccounts\Repository\ConfigurationRepository;
 
-class Oauth2InstallMultiHandler extends GetShopAbstract
+class Oauth2InstallMultiHandler extends MultiShopHandlerAbstract
 {
     /**
      * @var ConfigurationRepository

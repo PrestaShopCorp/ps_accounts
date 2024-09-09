@@ -73,8 +73,9 @@ services:
     arguments:
       - '@PrestaShop\Module\PsAccounts\Api\Client\AccountsClient'
       - '@PrestaShop\Module\PsAccounts\Provider\ShopProvider'
-      - '@PrestaShop\Module\PsAccounts\Repository\ConfigurationRepository'
+      - '@PrestaShop\Module\PsAccounts\Provider\OAuth2\Oauth2Client'
       - '@PrestaShop\Module\PsAccounts\Context\ShopContext'
+      - '@PrestaShop\Module\PsAccounts\Account\LinkShop'
 
   PrestaShop\Module\PsAccounts\Account\CommandHandler\Oauth2InstallMultiHandler:
     class: PrestaShop\Module\PsAccounts\Account\CommandHandler\Oauth2InstallMultiHandler

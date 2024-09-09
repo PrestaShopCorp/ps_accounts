@@ -249,7 +249,7 @@ class AccountsClient
      *
      * @return array
      */
-    public function createOauth2Client($backOfficeUrl, $frontendUrl, $multiShopId) {
+    public function createShopIdentity($backOfficeUrl, $frontendUrl, $multiShopId) {
         $this->getClient()->setRoute('/v2/shops/identity');
 
         return $this->getClient()->post([
