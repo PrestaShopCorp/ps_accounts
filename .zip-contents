@@ -1,8 +1,9 @@
 config
+config_module
 controllers
 sql
 src
-container
+templates
 translations
 upgrade
 vendor

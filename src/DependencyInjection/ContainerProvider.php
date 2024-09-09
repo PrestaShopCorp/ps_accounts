@@ -51,6 +51,11 @@ class ContainerProvider
     private $cacheDirectory;
 
     /**
+     * @var string
+     */
+    private $configDir = 'config_module';
+
+    /**
      * @param string $moduleName
      * @param string $moduleLocalPath
      * @param string $moduleEnv
@@ -107,7 +112,7 @@ class ContainerProvider
 //            . $containerName
 //        ;
         $moduleConfigPath = $this->moduleLocalPath
-            . 'container/'
+            . $this->configDir . '/'
             . $containerName
         ;
 

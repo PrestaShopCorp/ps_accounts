@@ -2,8 +2,8 @@ services:
   _defaults:
     public: true
 
-  PrestaShop\Module\PsAccounts\Controller\AdminLoginController:
-    class: PrestaShop\Module\PsAccounts\Controller\AdminLoginController
+  PrestaShop\Module\PsAccounts\Controller\Admin\LoginController:
+    class: PrestaShop\Module\PsAccounts\Controller\Admin\LoginController
     autowire: true
     autoconfigure: true
 #    arguments:

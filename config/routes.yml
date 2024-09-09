@@ -2,4 +2,4 @@ ps_accounts_login:
   path: ps_accounts/login
   methods: [GET]
   defaults:
-    _controller: 'PrestaShop\Module\PsAccounts\Controller\AdminLoginController::loginPage'
+    _controller: 'PrestaShop\Module\PsAccounts\Controller\Admin\LoginController::loginPage'
