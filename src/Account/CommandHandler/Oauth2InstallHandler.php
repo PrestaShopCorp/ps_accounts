@@ -67,8 +67,7 @@ class Oauth2InstallHandler
         Oauth2Client $oauth2Client,
         ShopContext $shopContext,
         LinkShop $linkShop
-    )
-    {
+    ) {
         $this->accountsClient = $accountsClient;
         $this->shopProvider = $shopProvider;
         $this->oauth2Client = $oauth2Client;
@@ -86,7 +85,7 @@ class Oauth2InstallHandler
      */
     public function handle(Oauth2InstallCommand $command)
     {
-        $this->shopContext->execInShopContext($command->shopId, function () use ($command) {
+        $this->shopContext->execInShopContext($command->shopId, function () {
             if (!$this->oauth2Client->exists()) {
                 $currentShop = $this->shopProvider->getCurrentShop();
                 $url = rtrim($currentShop['frontUrl'], '/');
@@ -102,4 +101,3 @@ class Oauth2InstallHandler
         });
     }
 }
-

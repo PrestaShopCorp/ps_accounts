@@ -45,8 +45,7 @@ class Oauth2InstallMultiHandler extends MultiShopHandlerAbstract
     public function __construct(
         CommandBus $commandBus,
         ConfigurationRepository $configRepo
-    )
-    {
+    ) {
         $this->commandBus = $commandBus;
         $this->configRepo = $configRepo;
     }

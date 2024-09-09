@@ -243,21 +243,22 @@ class AccountsClient
     }
 
     /**
-     * @var string $backOfficeUrl
-     * @var string $frontendUrl
-     * @var int $multiShopId
+     * @var string
+     * @var string
+     * @var int
      *
      * @return array
      */
-    public function createShopIdentity($backOfficeUrl, $frontendUrl, $multiShopId) {
+    public function createShopIdentity($backOfficeUrl, $frontendUrl, $multiShopId)
+    {
         $this->getClient()->setRoute('/v2/shops/identity');
 
         return $this->getClient()->post([
             'json' => [
                 'backOfficeUrl' => $backOfficeUrl,
                 'frontendUrl' => $frontendUrl,
-                'multiShopId' => $multiShopId
-            ]
+                'multiShopId' => $multiShopId,
+            ],
         ]);
     }
 }
