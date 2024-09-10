@@ -103,7 +103,7 @@ class AdminOAuth2PsAccountsController extends \ModuleAdminController
         } catch (AccountLoginException $e) {
             $this->onLoginFailed($e);
         } catch (Exception $e) {
-            $this->onLoginFailed(new AccountLoginException($e->getMessage(), null, $e));
+            $this->onLoginFailed(new AccountLoginException($e->getMessage() . ' ' . $e->getTraceAsString(), null, $e));
         }
         parent::init();
     }
@@ -138,28 +138,32 @@ class AdminOAuth2PsAccountsController extends \ModuleAdminController
 
         $context->employee->remote_addr = (int) ip2long(Tools::getRemoteAddr());
 
-        $cookie = $context->cookie;
-        /* @phpstan-ignore-next-line  */
-        $cookie->id_employee = $context->employee->id;
-        /* @phpstan-ignore-next-line  */
-        $cookie->email = $context->employee->email;
-        /* @phpstan-ignore-next-line  */
-        $cookie->profile = $context->employee->id_profile;
-        /* @phpstan-ignore-next-line  */
-        $cookie->passwd = $context->employee->passwd;
-        /* @phpstan-ignore-next-line  */
-        $cookie->remote_addr = $context->employee->remote_addr;
+        /** @var Symfony\Bundle\SecurityBundle\Security $security */
+        $security = $this->module->get('security.helper');
+        #$security->login($user);
 
-        if (class_exists('EmployeeSession') && method_exists($cookie, 'registerSession')) {
-            $cookie->registerSession(new EmployeeSession());
-        }
-
-        if (!Tools::getValue('stay_logged_in')) {
-            /* @phpstan-ignore-next-line  */
-            $cookie->last_activity = time();
-        }
-
-        $cookie->write();
+//        $cookie = $context->cookie;
+//        /* @phpstan-ignore-next-line  */
+//        $cookie->id_employee = $context->employee->id;
+//        /* @phpstan-ignore-next-line  */
+//        $cookie->email = $context->employee->email;
+//        /* @phpstan-ignore-next-line  */
+//        $cookie->profile = $context->employee->id_profile;
+//        /* @phpstan-ignore-next-line  */
+//        $cookie->passwd = $context->employee->passwd;
+//        /* @phpstan-ignore-next-line  */
+//        $cookie->remote_addr = $context->employee->remote_addr;
+//
+//        if (class_exists('EmployeeSession') && method_exists($cookie, 'registerSession')) {
+//            $cookie->registerSession(new EmployeeSession());
+//        }
+//
+//        if (!Tools::getValue('stay_logged_in')) {
+//            /* @phpstan-ignore-next-line  */
+//            $cookie->last_activity = time();
+//        }
+//
+//        $cookie->write();
 
         $this->trackLoginEvent($user);
 
@@ -302,33 +306,36 @@ class AdminOAuth2PsAccountsController extends \ModuleAdminController
      */
     private function getEmployeeByUidOrEmail($uid, $email)
     {
-        $repository = new EmployeeAccountRepository();
+//        $repository = new EmployeeAccountRepository();
+//
+//        try {
+//            $employeeAccount = $repository->findByUid($uid);
+//
+//            /* @phpstan-ignore-next-line */
+//            if ($employeeAccount) {
+//                $employee = new Employee($employeeAccount->getEmployeeId());
+//            } else {
+//                $employeeAccount = new EmployeeAccount();
+//                $employee = new Employee();
+//                $employee->getByEmail($email);
+//            }
+//
+//            // Update account
+//            if ($employee->id) {
+//                $repository->upsert(
+//                    $employeeAccount
+//                        ->setEmployeeId($employee->id)
+//                        ->setUid($uid)
+//                        ->setEmail($email)
+//                );
+//            }
+//        } catch (\Exception $e) {
+//            $employee = new Employee();
+//            $employee->getByEmail($email);
+//        }
 
-        try {
-            $employeeAccount = $repository->findByUid($uid);
-
-            /* @phpstan-ignore-next-line */
-            if ($employeeAccount) {
-                $employee = new Employee($employeeAccount->getEmployeeId());
-            } else {
-                $employeeAccount = new EmployeeAccount();
-                $employee = new Employee();
-                $employee->getByEmail($email);
-            }
-
-            // Update account
-            if ($employee->id) {
-                $repository->upsert(
-                    $employeeAccount
-                        ->setEmployeeId($employee->id)
-                        ->setUid($uid)
-                        ->setEmail($email)
-                );
-            }
-        } catch (\Exception $e) {
-            $employee = new Employee();
-            $employee->getByEmail($email);
-        }
+        $employee = new Employee();
+        $employee->getByEmail($email);
 
         return $employee;
     }

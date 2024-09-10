@@ -161,7 +161,7 @@ class PsAccountsPresenter implements PresenterInterface
 
                     'accountsUiUrl' => $this->module->getParameter('ps_accounts.accounts_ui_url'),
 
-                    'loginLink' => SymfonyContainer::getInstance()->get('router')->generate('ps_accounts_login')
+                    'loginLink' => SymfonyContainer::getInstance()->get('router')->generate('ps_accounts_oauth2')
                 ],
                 (new DependenciesPresenter())->present($psxName)
             );

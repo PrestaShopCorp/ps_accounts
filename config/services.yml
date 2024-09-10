@@ -2,9 +2,9 @@ services:
   _defaults:
     public: true
 
-  PrestaShop\Module\PsAccounts\Controller\Admin\LoginController:
-    class: PrestaShop\Module\PsAccounts\Controller\Admin\LoginController
-    autowire: true
-    autoconfigure: true
+  PrestaShop\Module\PsAccounts\Controller\Admin\OAuth2Controller:
+    class: PrestaShop\Module\PsAccounts\Controller\Admin\OAuth2Controller
+#    autowire: true
+#    autoconfigure: true
 #    arguments:
-#      - '@doctrine.cache.provider'
+#      - '@security.helper'
