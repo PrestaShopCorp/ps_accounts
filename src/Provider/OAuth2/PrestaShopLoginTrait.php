@@ -28,6 +28,7 @@ use PrestaShop\Module\PsAccounts\Session\Session;
 use PrestaShop\Module\PsAccounts\Vendor\League\OAuth2\Client\Provider\Exception\IdentityProviderException;
 use PrestaShop\Module\PsAccounts\Vendor\League\OAuth2\Client\Token\AccessToken;
 use PrestaShop\OAuth2\Client\Provider\PrestaShopUser;
+use Symfony\Component\HttpFoundation\RedirectResponse;
 use Tools;
 
 trait PrestaShopLoginTrait
@@ -60,7 +61,7 @@ trait PrestaShopLoginTrait
     abstract protected function getOauth2Session();
 
     /**
-     * @return void
+     * @return RedirectResponse
      *
      * @throws EmailNotVerifiedException
      * @throws EmployeeNotFoundException
@@ -109,7 +110,7 @@ trait PrestaShopLoginTrait
             $oauth2Session->setTokenProvider($accessToken);
 
             if ($this->initUserSession($oauth2Session->getPrestashopUser())) {
-                $this->redirectAfterLogin();
+                return $this->redirectAfterLogin();
             }
         }
     }

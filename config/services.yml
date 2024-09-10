@@ -1,10 +1,5 @@
 services:
-  _defaults:
-    public: true
-
   PrestaShop\Module\PsAccounts\Controller\Admin\OAuth2Controller:
     class: PrestaShop\Module\PsAccounts\Controller\Admin\OAuth2Controller
 #    autowire: true
 #    autoconfigure: true
-#    arguments:
-#      - '@security.helper'

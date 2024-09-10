@@ -35,7 +35,7 @@ use PrestaShop\OAuth2\Client\Provider\PrestaShopUser;
 /**
  * Controller for all ajax calls.
  */
-class AdminOAuth2PsAccountsController extends \ModuleAdminController
+class DeprecatedAdminOAuth2PsAccountsController extends \ModuleAdminController
 {
     use PrestaShopLoginTrait;
     use IsAnonymousAllowed;

@@ -23,6 +23,7 @@ namespace PrestaShop\Module\PsAccounts\Provider\OAuth2;
 use PrestaShop\Module\PsAccounts\Adapter\Link;
 use PrestaShop\Module\PsAccounts\Vendor\League\OAuth2\Client\Provider\AbstractProvider;
 use PrestaShop\OAuth2\Client\Provider\PrestaShop;
+use PrestaShop\PrestaShop\Adapter\SymfonyContainer;
 
 class ShopProvider extends PrestaShop
 {
@@ -111,7 +112,13 @@ class ShopProvider extends PrestaShop
         /** @var Link $link */
         $link = $this->module->getService(Link::class);
 
-        return $link->getAdminLink('AdminOAuth2PsAccounts', false);
+        return $link->getAdminLink('SfAdminOAuth2PsAccounts', false, [
+            'route' => 'ps_accounts_oauth2',
+        ]);
+//
+//        $router = SymfonyContainer::getInstance()->get('router');
+//
+//        return $router->generate('ps_accounts_oauth2');
     }
 
     /**
