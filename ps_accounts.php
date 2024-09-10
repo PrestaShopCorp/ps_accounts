@@ -494,22 +494,6 @@ class Ps_accounts extends Module
     }
 
     /**
-     * @deprecated
-     *
-     * @return void
-     *
-     * @throws PrestaShopException
-     *
-     * @phpstan-ignore-next-line
-     */
-    private function autoReonboardOnV5()
-    {
-        /** @var \PrestaShop\Module\PsAccounts\Service\PsAccountsService $psAccountsService */
-        $psAccountsService = $this->getService(\PrestaShop\Module\PsAccounts\Service\PsAccountsService::class);
-        $psAccountsService->autoReonboardOnV5();
-    }
-
-    /**
      * @return void
      *
      * @throws Exception
@@ -530,7 +514,7 @@ class Ps_accounts extends Module
 
         /** @var \PrestaShop\Module\PsAccounts\Cqrs\CommandBus $commandBus */
         $commandBus = $this->getService(\PrestaShop\Module\PsAccounts\Cqrs\CommandBus::class);
-        $commandBus->handle(new \PrestaShop\Module\PsAccounts\Account\Command\Oauth2InstallMultiCommand([]));
+        $commandBus->handle(new \PrestaShop\Module\PsAccounts\Account\Command\MultiCreateIdentityCommand([]));
     }
 }
 

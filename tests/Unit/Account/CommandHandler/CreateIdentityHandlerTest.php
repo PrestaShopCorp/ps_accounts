@@ -2,15 +2,15 @@
 
 namespace PrestaShop\Module\PsAccounts\Tests\Unit\Account\CommandHandler;
 
-use PrestaShop\Module\PsAccounts\Account\Command\Oauth2InstallCommand;
-use PrestaShop\Module\PsAccounts\Account\CommandHandler\Oauth2InstallHandler;
+use PrestaShop\Module\PsAccounts\Account\Command\CreateIdentityCommand;
+use PrestaShop\Module\PsAccounts\Account\CommandHandler\CreateIdentityHandler;
 use PrestaShop\Module\PsAccounts\Api\Client\AccountsClient;
 use PrestaShop\Module\PsAccounts\Context\ShopContext;
 use PrestaShop\Module\PsAccounts\Provider\OAuth2\Oauth2Client;
 use PrestaShop\Module\PsAccounts\Provider\ShopProvider;
 use PrestaShop\Module\PsAccounts\Tests\TestCase;
 
-class Oauth2InstallHandlerTest extends TestCase
+class CreateIdentityHandlerTest extends TestCase
 {
     /**
      * @inject
@@ -86,7 +86,7 @@ class Oauth2InstallHandlerTest extends TestCase
             ->method('createOauth2Client')
             ->with([$clientId, $clientSecret]);
 
-        $this->getOauth2InstallHandler()->handle(new Oauth2InstallCommand(1, []));
+        $this->getCreateIdentityHandler()->handle(new CreateIdentityCommand(1, []));
     }
 
 
@@ -122,15 +122,15 @@ class Oauth2InstallHandlerTest extends TestCase
             ->method('createOauth2Client')
             ->with([$clientId, $clientSecret]);
 
-        $this->getOauth2InstallHandler()->handle(new Oauth2InstallCommand(1, []));
+        $this->getCreateIdentityHandler()->handle(new CreateIdentityCommand(1, []));
     }
 
     /**
-     * @return Oauth2InstallHandler
+     * @return CreateIdentityHandler
      */
-    private function getOauth2InstallHandler()
+    private function getCreateIdentityHandler()
     {
-        return new Oauth2InstallHandler(
+        return new CreateIdentityHandler(
             $this->accountsClient,
             $this->shopProvider,
             $this->oauth2Client,

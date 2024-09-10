@@ -229,60 +229,6 @@ class PsAccountsService
     }
 
     /**
-     * @return void
-     *
-     * @throws \PrestaShopException
-     * @throws \Exception
-     */
-    public function autoReonboardOnV5()
-    {
-        /** @var ShopProvider $shopProvider */
-        $shopProvider = $this->module->getService(ShopProvider::class);
-
-        /** @var ConfigurationRepository $conf */
-        $conf = $this->module->getService(ConfigurationRepository::class);
-
-        /** @var CommandBus $commandBus */
-        $commandBus = $this->module->getService(CommandBus::class);
-
-        $allShops = $shopProvider->getShopsTree((string) $this->module->name);
-
-        $flattenShops = [];
-
-        foreach ($allShops as $shopGroup) {
-            foreach ($shopGroup['shops'] as $shop) {
-                $shop['multishop'] = (bool) $shopGroup['multishop'];
-                $flattenShops[] = $shop;
-            }
-        }
-
-        $isAlreadyReonboard = false;
-
-        usort($flattenShops, function ($firstShop, $secondShop) {
-            return (int) $firstShop['id'] - (int) $secondShop['id'];
-        });
-
-        foreach ($flattenShops as $shop) {
-            if ($shop['isLinkedV4']) {
-                $id = $conf->getShopId();
-                if ($isAlreadyReonboard) {
-                    $conf->setShopId((int) $shop['id']);
-
-                    $commandBus->handle(new UnlinkShopCommand($shop['id']));
-
-                    $conf->setShopId($id);
-                } else {
-                    $shop['employeeId'] = null;
-
-                    $commandBus->handle(new MigrateAndLinkV4ShopCommand($id, $shop));
-
-                    $isAlreadyReonboard = true;
-                }
-            }
-        }
-    }
-
-    /**
      * @return bool
      *
      * @throws \Exception

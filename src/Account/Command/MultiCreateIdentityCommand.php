@@ -21,7 +21,7 @@
 
 namespace PrestaShop\Module\PsAccounts\Account\Command;
 
-class Oauth2InstallMultiCommand
+class MultiCreateIdentityCommand
 {
     /**
      * @var array

@@ -20,13 +20,13 @@
 
 namespace PrestaShop\Module\PsAccounts\Account\CommandHandler;
 
-use PrestaShop\Module\PsAccounts\Account\Command\Oauth2InstallCommand;
-use PrestaShop\Module\PsAccounts\Account\Command\Oauth2InstallMultiCommand;
+use PrestaShop\Module\PsAccounts\Account\Command\CreateIdentityCommand;
+use PrestaShop\Module\PsAccounts\Account\Command\MultiCreateIdentityCommand;
 use PrestaShop\Module\PsAccounts\Account\CommandHandler\AbstractClass\MultiShopHandlerAbstract;
 use PrestaShop\Module\PsAccounts\Cqrs\CommandBus;
 use PrestaShop\Module\PsAccounts\Repository\ConfigurationRepository;
 
-class Oauth2InstallMultiHandler extends MultiShopHandlerAbstract
+class MultiCreateIdentityHandler extends MultiShopHandlerAbstract
 {
     /**
      * @var ConfigurationRepository
@@ -51,17 +51,17 @@ class Oauth2InstallMultiHandler extends MultiShopHandlerAbstract
     }
 
     /**
-     * @param Oauth2InstallMultiCommand $command
+     * @param MultiCreateIdentityCommand $command
      *
      * @return void
      *
      * @throws \PrestaShopException
      * @throws \Exception
      */
-    public function handle(Oauth2InstallMultiCommand $command)
+    public function handle(MultiCreateIdentityCommand $command)
     {
         foreach ($this->getShops($this->configRepo->isMultishopActive()) as $id) {
-            $this->commandBus->handle(new Oauth2InstallCommand($id, []));
+            $this->commandBus->handle(new CreateIdentityCommand($id, []));
         }
     }
 }

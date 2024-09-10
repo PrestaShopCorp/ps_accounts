@@ -20,14 +20,14 @@
 
 namespace PrestaShop\Module\PsAccounts\Account\CommandHandler;
 
-use PrestaShop\Module\PsAccounts\Account\Command\Oauth2InstallCommand;
+use PrestaShop\Module\PsAccounts\Account\Command\CreateIdentityCommand;
 use PrestaShop\Module\PsAccounts\Account\LinkShop;
 use PrestaShop\Module\PsAccounts\Api\Client\AccountsClient;
 use PrestaShop\Module\PsAccounts\Context\ShopContext;
 use PrestaShop\Module\PsAccounts\Provider\OAuth2\Oauth2Client;
 use PrestaShop\Module\PsAccounts\Provider\ShopProvider;
 
-class Oauth2InstallHandler
+class CreateIdentityHandler
 {
     /**
      * @var AccountsClient
@@ -76,14 +76,14 @@ class Oauth2InstallHandler
     }
 
     /**
-     * @param Oauth2InstallCommand $command
+     * @param CreateIdentityCommand $command
      *
      * @return void
      *
      * @throws \PrestaShopException
      * @throws \Exception
      */
-    public function handle(Oauth2InstallCommand $command)
+    public function handle(CreateIdentityCommand $command)
     {
         $this->shopContext->execInShopContext($command->shopId, function () {
             if (!$this->oauth2Client->exists()) {

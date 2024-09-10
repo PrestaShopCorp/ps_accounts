@@ -21,7 +21,7 @@
 
 namespace PrestaShop\Module\PsAccounts\Account\Command;
 
-class Oauth2InstallCommand
+class CreateIdentityCommand
 {
     /**
      * @var int|null
