@@ -223,9 +223,9 @@ class AccountsClient
     }
 
     /**
-     * @var string
-     * @var string
-     * @var int
+     * @var string $backOfficeUrl
+     * @var string $frontendUrl
+     * @var int $multiShopId
      *
      * @return array
      */
