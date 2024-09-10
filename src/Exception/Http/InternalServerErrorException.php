@@ -18,29 +18,19 @@
  * @license   https://opensource.org/licenses/AFL-3.0 Academic Free License version 3.0
  */
 
-namespace PrestaShop\Module\PsAccounts\Hook;
+namespace PrestaShop\Module\PsAccounts\Exception\Http;
 
-use Cache;
-use ShopUrl;
-
-class ActionObjectShopUrlUpdateAfter extends ActionObjectShopUpdateAfter
+class InternalServerErrorException extends HttpException
 {
     /**
-     * @param array $params
-     *
-     * @return bool
+     * @param string $message
+     * @param int $code
+     * @param \Exception|null $previous
      */
-    public function execute(array $params = [])
+    public function __construct($message = 'Internal Server Error', $code = 0, \Exception $previous = null)
     {
-        /** @var ShopUrl $shopUrl */
-        $shopUrl = $params['object'];
+        parent::__construct($message, $code, $previous);
 
-        if ($shopUrl->main) {
-            Cache::clean('Shop::setUrl_' . (int) $shopUrl->id);
-
-            $this->updateUserShop(new \Shop($shopUrl->id_shop));
-        }
-
-        return true;
+        $this->statusCode = 500;
     }
 }

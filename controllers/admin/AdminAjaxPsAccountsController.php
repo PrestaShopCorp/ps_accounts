@@ -71,7 +71,7 @@ class AdminAjaxPsAccountsController extends \ModuleAdminController
 
             header('Content-Type: text/json');
 
-            $token = $shopSession->getOrRefreshToken();
+            $token = $shopSession->getValidToken();
 
             $this->ajaxRender(
                 (string) json_encode([

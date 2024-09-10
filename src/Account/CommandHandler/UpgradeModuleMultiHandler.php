@@ -25,8 +25,9 @@ use PrestaShop\Module\PsAccounts\Account\Command\UpgradeModuleMultiCommand;
 use PrestaShop\Module\PsAccounts\Account\CommandHandler\AbstractClass\MultiShopHandlerAbstract;
 use PrestaShop\Module\PsAccounts\Account\Dto\UpgradeModule;
 use PrestaShop\Module\PsAccounts\Cqrs\CommandBus;
+use PrestaShop\Module\PsAccounts\Exception\DtoException;
+use PrestaShop\Module\PsAccounts\Exception\RefreshTokenException;
 use PrestaShop\Module\PsAccounts\Repository\ConfigurationRepository;
-use PrestaShopDatabaseException;
 
 class UpgradeModuleMultiHandler extends MultiShopHandlerAbstract
 {
@@ -52,17 +53,19 @@ class UpgradeModuleMultiHandler extends MultiShopHandlerAbstract
      * @param UpgradeModuleMultiCommand $command
      *
      * @return void
-     *
-     * @throws PrestaShopDatabaseException
      */
     public function handle(UpgradeModuleMultiCommand $command)
     {
         foreach ($this->getShops($this->configRepo->isMultishopActive()) as $id) {
-            $this->commandBus->handle(new UpgradeModuleCommand(new UpgradeModule([
-                'shopId' => $id,
-                // FIXME: should be part of the command payload
-                'version' => \Ps_accounts::VERSION,
-            ])));
+            try {
+                $this->commandBus->handle(new UpgradeModuleCommand(new UpgradeModule([
+                    'shopId' => $id,
+                    // FIXME: should be part of the command payload
+                    'version' => \Ps_accounts::VERSION,
+                ])));
+            } catch (RefreshTokenException $e) {
+            } catch (DtoException $e) {
+            }
         }
     }
 }

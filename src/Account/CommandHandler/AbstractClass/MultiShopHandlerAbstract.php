@@ -20,6 +20,8 @@
 
 namespace PrestaShop\Module\PsAccounts\Account\CommandHandler\AbstractClass;
 
+use PrestaShop\PrestaShop\Adapter\Entity\PrestaShopDatabaseException;
+
 class MultiShopHandlerAbstract
 {
     /**
@@ -35,10 +37,14 @@ class MultiShopHandlerAbstract
         if ($multishop) {
             $shops = [];
             $db = \Db::getInstance();
-            $result = $db->query('SELECT id_shop FROM ' . _DB_PREFIX_ . 'shop');
-            while ($row = $db->nextRow($result)) {
-                /* @phpstan-ignore-next-line */
-                $shops[] = $row['id_shop'];
+            try {
+                $result = $db->query('SELECT id_shop FROM ' . _DB_PREFIX_ . 'shop');
+                while ($row = $db->nextRow($result)) {
+                    /* @phpstan-ignore-next-line */
+                    $shops[] = $row['id_shop'];
+                }
+            } catch (PrestaShopDatabaseException $e) {
+                return [];
             }
         }
 
