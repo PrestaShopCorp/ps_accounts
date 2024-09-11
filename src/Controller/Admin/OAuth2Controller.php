@@ -97,6 +97,7 @@ class OAuth2Controller extends FrameworkBundleAdminController
         // TODO: update oauth2 client
         // TODO: FIXME: migrate getTestimonials
         // TODO: try to preserve original uris with legacy_link & legacy_controllers & supprimer l'ancien controller
+        // TODO: refactor logout (listen sf events)
     }
 
     /**
