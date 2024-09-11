@@ -63,6 +63,7 @@ class CreateIdentityHandlerTest extends TestCase
     {
         $clientId = $this->faker->uuid;
         $clientSecret = $this->faker->uuid;
+        $cloudShopId = $this->faker->uuid;
 
         $this->oauth2Client->method('exists')->willReturn(false);
         $this->oauth2Client->method('update');
@@ -71,7 +72,8 @@ class CreateIdentityHandlerTest extends TestCase
             ->method('createShopIdentity')
             ->willReturn($this->createApiResponse([
                 'clientId' => $clientId,
-                'clientSecret' => $clientSecret
+                'clientSecret' => $clientSecret,
+                "cloudShopId" => $cloudShopId
             ], 200, true));
 
         $this->accountsClient
@@ -99,6 +101,7 @@ class CreateIdentityHandlerTest extends TestCase
     {
         $clientId = $this->faker->uuid;
         $clientSecret = $this->faker->uuid;
+        $cloudShopId = $this->faker->uuid;
 
         $this->oauth2Client->method('exists')->willReturn(true);
         $this->oauth2Client->method('update');
@@ -107,7 +110,8 @@ class CreateIdentityHandlerTest extends TestCase
             ->method('createShopIdentity')
             ->willReturn($this->createApiResponse([
                 'clientId' => $clientId,
-                'clientSecret' => $clientSecret
+                'clientSecret' => $clientSecret,
+                "cloudShopId" => $cloudShopId
             ], 200, true));
 
         $this->accountsClient
