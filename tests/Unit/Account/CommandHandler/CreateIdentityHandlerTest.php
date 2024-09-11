@@ -64,11 +64,11 @@ class CreateIdentityHandlerTest extends TestCase
         $clientId = $this->faker->uuid;
         $clientSecret = $this->faker->uuid;
 
-        $this->oauth2Client->method('exist')->willReturn(false);
+        $this->oauth2Client->method('exists')->willReturn(false);
         $this->oauth2Client->method('update');
 
         $this->accountsClient
-            ->method('createOauth2Client')
+            ->method('createShopIdentity')
             ->willReturn($this->createApiResponse([
                 'clientId' => $clientId,
                 'clientSecret' => $clientSecret
@@ -76,15 +76,15 @@ class CreateIdentityHandlerTest extends TestCase
 
         $this->accountsClient
             ->expects($this->once())
-            ->method('createOauth2Client');
+            ->method('createShopIdentity');
 
         $this->oauth2Client
             ->expects($this->once())
-            ->method('exist');
+            ->method('exists');
         $this->oauth2Client
             ->expects($this->once())
-            ->method('createOauth2Client')
-            ->with([$clientId, $clientSecret]);
+            ->method('update')
+            ->with($clientId, $clientSecret);
 
         $this->getCreateIdentityHandler()->handle(new CreateIdentityCommand(1, []));
     }
@@ -100,11 +100,11 @@ class CreateIdentityHandlerTest extends TestCase
         $clientId = $this->faker->uuid;
         $clientSecret = $this->faker->uuid;
 
-        $this->oauth2Client->method('exist')->willReturn(true);
+        $this->oauth2Client->method('exists')->willReturn(true);
         $this->oauth2Client->method('update');
 
         $this->accountsClient
-            ->method('createOauth2Client')
+            ->method('createShopIdentity')
             ->willReturn($this->createApiResponse([
                 'clientId' => $clientId,
                 'clientSecret' => $clientSecret
@@ -112,15 +112,14 @@ class CreateIdentityHandlerTest extends TestCase
 
         $this->accountsClient
             ->expects($this->never())
-            ->method('createOauth2Client');
+            ->method('createShopIdentity');
 
         $this->oauth2Client
             ->expects($this->once())
-            ->method('exist');
+            ->method('exists');
         $this->oauth2Client
             ->expects($this->never())
-            ->method('createOauth2Client')
-            ->with([$clientId, $clientSecret]);
+            ->method('update');
 
         $this->getCreateIdentityHandler()->handle(new CreateIdentityCommand(1, []));
     }
