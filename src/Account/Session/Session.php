@@ -33,11 +33,26 @@ abstract class Session implements SessionInterface
     protected $refreshTokenErrors = [];
 
     /**
+     * @deprecated use getValidToken instead
+     *
      * @param bool $forceRefresh
      *
      * @return Token
      */
     public function getOrRefreshToken($forceRefresh = false)
+    {
+        return $this->getValidToken($forceRefresh, false);
+    }
+
+    /**
+     * @param bool $forceRefresh
+     * @param bool $throw
+     *
+     * @return Token
+     *
+     * @throws RefreshTokenException
+     */
+    public function getValidToken($forceRefresh = false, $throw = true)
     {
         /*
          * Avoid multiple refreshToken calls in the same runtime:
@@ -49,14 +64,17 @@ abstract class Session implements SessionInterface
             return $this->getToken();
         }
 
-        $currentToken = $this->getToken();
-        if (true === $forceRefresh || $currentToken->isExpired()) {
+        if (true === $forceRefresh || $this->getToken()->isExpired()) {
             try {
                 $this->refreshToken(null);
             } catch (RefreshTokenException $e) {
                 $this->setToken('');
                 $this->setRefreshTokenErrors(static::class);
                 Logger::getInstance()->error($e->getMessage());
+
+                if ($throw) {
+                    throw $e;
+                }
             }
         }
 
@@ -68,16 +86,20 @@ abstract class Session implements SessionInterface
      */
     public function isEmailVerified()
     {
-        $jwt = $this->getToken()->getJwt();
+        try {
+            $jwt = $this->getToken()->getJwt();
 
-        // FIXME : just query sso api and don't refresh token everytime
-        if (!$jwt instanceof NullToken &&
-            !$jwt->claims()->get('email_verified')
-        ) {
-            $jwt = $this->getOrRefreshToken(true)->getJwt();
+            // FIXME : just query sso api and don't refresh token everytime
+            if (!$jwt instanceof NullToken &&
+                !$jwt->claims()->get('email_verified')
+            ) {
+                $jwt = $this->getValidToken(true)->getJwt();
+            }
+
+            return (bool) $jwt->claims()->get('email_verified');
+        } catch (RefreshTokenException $e) {
+            return false;
         }
-
-        return (bool) $jwt->claims()->get('email_verified');
     }
 
     /**

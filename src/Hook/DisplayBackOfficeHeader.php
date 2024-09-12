@@ -34,6 +34,7 @@ class DisplayBackOfficeHeader extends Hook
             && version_compare(_PS_VERSION_, '1.7', '>=')) {
             try {
                 $this->module->getOauth2Middleware()->execute();
+                $this->commandBus->handle(new UpgradeModuleMultiCommand());
             } catch (IdentityProviderException $e) {
                 $this->logger->error('error while executing middleware : ' . $e->getMessage());
                 /* @phpstan-ignore-next-line */
@@ -42,7 +43,5 @@ class DisplayBackOfficeHeader extends Hook
                 $this->logger->error('error while executing middleware : ' . $e->getMessage());
             }
         }
-
-        $this->commandBus->handle(new UpgradeModuleMultiCommand());
     }
 }

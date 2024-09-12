@@ -158,8 +158,6 @@ class Ps_accounts extends Module
 
     /**
      * @return \PrestaShop\Module\PsAccounts\Vendor\Monolog\Logger
-     *
-     * @throws Exception
      */
     public function getLogger()
     {
@@ -254,8 +252,6 @@ class Ps_accounts extends Module
      * @param string $serviceName
      *
      * @return mixed
-     *
-     * @throws Exception
      */
     public function getService($serviceName)
     {
@@ -266,8 +262,6 @@ class Ps_accounts extends Module
      * @param string $name
      *
      * @return mixed
-     *
-     * @throws Exception
      */
     public function getParameter($name)
     {
@@ -278,8 +272,6 @@ class Ps_accounts extends Module
      * @param string $name
      *
      * @return bool
-     *
-     * @throws Exception
      */
     public function hasParameter($name)
     {
@@ -368,7 +360,6 @@ class Ps_accounts extends Module
      * @return string
      *
      * @throws PrestaShopException
-     * @throws \PrestaShop\Module\PsAccounts\Exception\SshKeysNotFoundException
      */
     public function getContent()
     {
@@ -429,8 +420,6 @@ class Ps_accounts extends Module
 
     /**
      * @return string
-     *
-     * @throws Exception
      */
     public function getSsoAccountUrl()
     {
@@ -442,8 +431,6 @@ class Ps_accounts extends Module
 
     /**
      * @return \PrestaShop\Module\PsAccounts\Context\ShopContext
-     *
-     * @throws Exception
      */
     public function getShopContext()
     {
@@ -452,8 +439,6 @@ class Ps_accounts extends Module
 
     /**
      * @return \PrestaShop\Module\PsAccounts\Middleware\Oauth2Middleware
-     *
-     * @throws Exception
      */
     public function getOauth2Middleware()
     {
