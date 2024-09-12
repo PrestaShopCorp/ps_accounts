@@ -104,6 +104,7 @@ class OAuth2Controller extends FrameworkBundleAdminController
         // TODO: compat with v8
         // -- API
         // TODO: update oauth2 clients redirect_uri
+        // TODO: remove 1.6 fake session and oauth2 login middleware for versions < 8
     }
 
     /**
