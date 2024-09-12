@@ -161,8 +161,6 @@ return [
     //
     // For more information see: https://github.com/humbug/php-scoper/blob/master/docs/configuration.md#excluded-symbols
     'exclude-namespaces' => [
-//        '~^Psr~',
-//        '~^Symfony~',
         '~^PrestaShop\\\\OAuth2\\\\Client~',
         '~^Composer\\\\~',
     ],
