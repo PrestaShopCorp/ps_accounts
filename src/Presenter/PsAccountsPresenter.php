@@ -27,7 +27,6 @@ use PrestaShop\Module\PsAccounts\Repository\ConfigurationRepository;
 use PrestaShop\Module\PsAccounts\Service\PsAccountsService;
 use PrestaShop\Module\PsAccounts\Service\SentryService;
 use PrestaShopException;
-use PrestaShop\PrestaShop\Adapter\SymfonyContainer;
 
 /**
  * Construct the psaccounts module.
@@ -160,8 +159,6 @@ class PsAccountsPresenter implements PresenterInterface
                     'adminAjaxLink' => $this->psAccountsService->getAdminAjaxUrl(),
 
                     'accountsUiUrl' => $this->module->getParameter('ps_accounts.accounts_ui_url'),
-
-                    'loginLink' => SymfonyContainer::getInstance()->get('router')->generate('ps_accounts_oauth2')
                 ],
                 (new DependenciesPresenter())->present($psxName)
             );

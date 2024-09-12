@@ -24,6 +24,7 @@ use PrestaShop\Module\PsAccounts\Adapter\Link;
 use PrestaShop\Module\PsAccounts\Vendor\League\OAuth2\Client\Provider\AbstractProvider;
 use PrestaShop\OAuth2\Client\Provider\PrestaShop;
 use PrestaShop\PrestaShop\Adapter\SymfonyContainer;
+use Symfony\Component\Routing\Exception\RouteNotFoundException;
 
 class ShopProvider extends PrestaShop
 {
@@ -105,20 +106,30 @@ class ShopProvider extends PrestaShop
      *
      * @return string
      *
-     * @throws \Exception
+     * @throws \PrestaShopException
      */
     public function getRedirectUri()
     {
         /** @var Link $link */
         $link = $this->module->getService(Link::class);
 
-        return $link->getAdminLink('SfAdminOAuth2PsAccounts', false, [
-            'route' => 'ps_accounts_oauth2',
-        ]);
-//
-//        $router = SymfonyContainer::getInstance()->get('router');
-//
-//        return $router->generate('ps_accounts_oauth2');
+        // FIXME: Potentially
+        // FIXME: middleware
+        // TODO: create a syncProperties lazy Method and catch exceptions
+
+//        try {
+//          $router = SymfonyContainer::getInstance()->get('router');
+//          return $router->generate('ps_accounts_oauth2');
+//          return $link->getAdminLink('AdminOAuth2PsAccounts', false, [
+//             'route' => 'ps_accounts_oauth2',
+//          ]);
+
+            $uri = $link->getAdminLink('AdminOAuth2PsAccounts', false);
+            $this->module->getLogger()->info('## redirect uri : ' . $uri);
+            return $uri;
+//        } catch (RouteNotFoundException $e) {
+//            return $link->getAdminLink('', false) . 'modules/ps_accounts/oauth2';
+//        }
     }
 
     /**

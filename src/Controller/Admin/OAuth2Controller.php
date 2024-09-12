@@ -89,7 +89,6 @@ class OAuth2Controller extends FrameworkBundleAdminController
             return $this->onLoginFailed(new AccountLoginException($e->getMessage() . ' ' . $e->getTraceAsString(), null, $e));
         }
 
-        // TODO: create a flashlight image with the anonymous fix PR
         // TODO: access the session from DI
         // TODO: preserve legacy cookie login
         // TODO: fix the EmployeeAccount bug
@@ -98,6 +97,13 @@ class OAuth2Controller extends FrameworkBundleAdminController
         // TODO: FIXME: migrate getTestimonials
         // TODO: try to preserve original uris with legacy_link & legacy_controllers & supprimer l'ancien controller
         // TODO: refactor logout (listen sf events)
+
+        // TODO: fix login page blank page (debug=off)
+        // TODO: fix compromised message on login
+        // TODO: implement logout
+        // TODO: compat with v8
+        // -- API
+        // TODO: update oauth2 clients redirect_uri
     }
 
     /**
