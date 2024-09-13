@@ -454,7 +454,9 @@ class Ps_accounts extends Module
     }
 
     /**
-     * @return \PrestaShop\Module\PsAccounts\Session\Session
+     * @return \Symfony\Component\HttpFoundation\Session\SessionInterface
+     *
+     * @throws Exception
      */
     public function getSession()
     {
@@ -462,7 +464,7 @@ class Ps_accounts extends Module
         if ($container) {
             try {
                 /**
-                 * @var \PrestaShop\Module\PsAccounts\Session\Session $session
+                 * @var \Symfony\Component\HttpFoundation\Session\SessionInterface $session
                  * @phpstan-ignore-next-line
                  */
                 $session = $container->get('session');
@@ -481,12 +483,8 @@ class Ps_accounts extends Module
             }
 
             return $session;
-        } else {
-            // FIXME: return a session like with configuration storage
-            return new \PrestaShop\Module\PsAccounts\Session\FallbackSession(
-                $this->getService(\PrestaShop\Module\PsAccounts\Adapter\Configuration::class)
-            );
         }
+        throw new \Exception("Feature not available");
     }
 
     /**

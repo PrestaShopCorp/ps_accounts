@@ -31,7 +31,7 @@ class DisplayBackOfficeHeader extends Hook
     public function execute(array $params = [])
     {
         if (defined('_PS_VERSION_')
-            && version_compare(_PS_VERSION_, '1.7', '>=')) {
+            && version_compare(_PS_VERSION_, '8', '>=')) {
             try {
                 $this->module->getOauth2Middleware()->execute();
                 $this->commandBus->handle(new UpgradeModuleMultiCommand());
