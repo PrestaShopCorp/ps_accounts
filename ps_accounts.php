@@ -484,7 +484,7 @@ class Ps_accounts extends Module
 
             return $session;
         }
-        throw new \Exception("Feature not available");
+        throw new \Exception('Feature not available');
     }
 
     /**
