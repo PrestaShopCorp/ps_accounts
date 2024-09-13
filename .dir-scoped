@@ -1,4 +1,9 @@
-symfony
+symfony/cache
+symfony/config
+symfony/dependency-injection
+symfony/expression-language
+symfony/filesystem
+symfony/yaml
 psr
 guzzlehttp
 league
