@@ -119,24 +119,6 @@ return [
                     $contents
                 );
             }
-            // TODO: fix all polyfill bootstraps
-            if (in_array($filePath, array_map(function ($path) {
-                return __DIR__ . '/vendor/symfony' . $path;
-            }, [
-                '/polyfill-apcu/bootstrap.php',
-                '/polyfill-ctype/bootstrap.php',
-                '/polyfill-intl-idn/bootstrap.php',
-                '/polyfill-intl-normalizer/bootstrap.php',
-                '/polyfill-mbstring/bootstrap.php',
-                '/polyfill-php70/bootstrap.php',
-                '/polyfill-php72/bootstrap.php',
-            ]))) {
-                return preg_replace(
-                    "/function_exists\('(\w+)'\)/",
-                    'function_exists(\'PrestaShop\Module\PsAccounts\Vendor\\\\\1\')',
-                    $contents
-                );
-            }
 //            if ($filePath === __DIR__ . '/vendor/friendsofphp/php-cs-fixer/src/FixerFactory.php') {
 //                // $fixerClass = 'PhpCsFixer\\Fixer\\' . ($relativeNamespace ? $relativeNamespace . '\\' : '') . $file->getBasename('.php');
 //                return preg_replace(
@@ -161,10 +143,15 @@ return [
     //
     // For more information see: https://github.com/humbug/php-scoper/blob/master/docs/configuration.md#excluded-symbols
     'exclude-namespaces' => [
-//        '~^Psr~',
-//        '~^Symfony~',
         '~^PrestaShop\\\\OAuth2\\\\Client~',
         '~^Composer\\\\~',
+        '~^Symfony\\Polyfill\\Apcu\\',
+        '~^Symfony\\Polyfill\\Ctype\\',
+        '~^Symfony\\Polyfill\\IntlIdn\\',
+        '~^Symfony\\Polyfill\\IntlNormalizer\\',
+        '~^Symfony\\Polyfill\\Mbstring\\',
+        '~^Symfony\\Polyfill\\Php70\\',
+        '~^Symfony\\Polyfill\\Php72\\',
     ],
     'exclude-classes' => [],
     'exclude-functions' => [

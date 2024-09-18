@@ -31,7 +31,7 @@ class DisplayBackOfficeHeader extends Hook
     public function execute(array $params = [])
     {
         if (defined('_PS_VERSION_')
-            && version_compare(_PS_VERSION_, '1.7', '>=')) {
+            && version_compare(_PS_VERSION_, '8', '>=')) {
             try {
                 $this->module->getOauth2Middleware()->execute();
             } catch (IdentityProviderException $e) {
@@ -43,6 +43,11 @@ class DisplayBackOfficeHeader extends Hook
             }
         }
 
-        $this->commandBus->handle(new UpgradeModuleMultiCommand());
+        try {
+            $this->commandBus->handle(new UpgradeModuleMultiCommand());
+        } catch (\Exception $e) {
+            /* @phpstan-ignore-next-line */
+            $this->logger->error('error during upgrade : ' . $e->getMessage());
+        }
     }
 }

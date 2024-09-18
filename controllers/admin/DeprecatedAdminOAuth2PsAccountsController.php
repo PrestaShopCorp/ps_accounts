@@ -29,8 +29,8 @@ use PrestaShop\Module\PsAccounts\Provider\OAuth2\ShopProvider;
 use PrestaShop\Module\PsAccounts\Repository\EmployeeAccountRepository;
 use PrestaShop\Module\PsAccounts\Service\AnalyticsService;
 use PrestaShop\Module\PsAccounts\Service\PsAccountsService;
-use PrestaShop\Module\PsAccounts\Session\Session;
 use PrestaShop\OAuth2\Client\Provider\PrestaShopUser;
+use Symfony\Component\HttpFoundation\Session\SessionInterface;
 
 /**
  * Controller for all ajax calls.
@@ -103,7 +103,7 @@ class DeprecatedAdminOAuth2PsAccountsController extends \ModuleAdminController
         } catch (AccountLoginException $e) {
             $this->onLoginFailed($e);
         } catch (Exception $e) {
-            $this->onLoginFailed(new AccountLoginException($e->getMessage() . ' ' . $e->getTraceAsString(), null, $e));
+            $this->onLoginFailed(new AccountLoginException($e->getMessage(), null, $e));
         }
         parent::init();
     }
@@ -219,7 +219,7 @@ class DeprecatedAdminOAuth2PsAccountsController extends \ModuleAdminController
     }
 
     /**
-     * @return Session
+     * @return SessionInterface
      */
     private function getSession()
     {
