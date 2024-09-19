@@ -10,17 +10,16 @@ use PrestaShop\Module\PsAccounts\Adapter\Link;
 use PrestaShop\Module\PsAccounts\Exception\AccountLogin\AccountLoginException;
 use PrestaShop\Module\PsAccounts\Exception\AccountLogin\EmailNotVerifiedException;
 use PrestaShop\Module\PsAccounts\Exception\AccountLogin\EmployeeNotFoundException;
-use PrestaShop\Module\PsAccounts\Exception\AccountLogin\Oauth2Exception;
 use PrestaShop\Module\PsAccounts\Provider\OAuth2;
 use PrestaShop\Module\PsAccounts\Service\AnalyticsService;
 use PrestaShop\Module\PsAccounts\Service\PsAccountsService;
-use PrestaShop\Module\PsAccounts\Session\Session;
 use PrestaShop\OAuth2\Client\Provider\PrestaShopUser;
 use PrestaShopBundle\Controller\Admin\FrameworkBundleAdminController;
 use PrestaShopBundle\Entity\Employee\Employee as EmployeeEntity;
 use Ps_accounts;
 use Symfony\Bundle\SecurityBundle\Security;
 use Symfony\Component\HttpFoundation\RedirectResponse;
+use Symfony\Component\HttpFoundation\Session\SessionInterface;
 
 class OAuth2Controller extends FrameworkBundleAdminController
 {
@@ -47,7 +46,7 @@ class OAuth2Controller extends FrameworkBundleAdminController
     private $link;
 
     /**
-     * @var Session
+     * @var SessionInterface
      */
     private $session;
 
@@ -104,7 +103,11 @@ class OAuth2Controller extends FrameworkBundleAdminController
         // TODO: compat with v8
         // -- API
         // TODO: update oauth2 clients redirect_uri
-        // TODO: remove 1.6 fake session and oauth2 login middleware for versions < 8
+    }
+
+    public function initOAuth2FlowLegacy()
+    {
+        // TODO implement legacy login
     }
 
     /**
@@ -139,40 +142,64 @@ class OAuth2Controller extends FrameworkBundleAdminController
             throw new EmployeeNotFoundException('The email address is not associated to a PrestaShop backoffice account.', $user);
         }
 
-//        $context->employee->remote_addr = (int) ip2long(Tools::getRemoteAddr());
+        if (defined('_PS_VERSION_')
+            && version_compare(_PS_VERSION_, '9', '>=')) {
+            $this->doLoginV9($context, $this->entityManager, $this->security);
 
-        // $authenticator = 'security.authenticator.remember_me.main'
-        $authenticator = 'security.authenticator.form_login.main';
-        $employeeRepository = $this->entityManager->getRepository(EmployeeEntity::class);
-        $employeeEntity = $employeeRepository->findById($context->employee->id);
-        $this->security->login($employeeEntity[0], $authenticator);
-
-//        $cookie = $context->cookie;
-//        /* @phpstan-ignore-next-line  */
-//        $cookie->id_employee = $context->employee->id;
-//        /* @phpstan-ignore-next-line  */
-//        $cookie->email = $context->employee->email;
-//        /* @phpstan-ignore-next-line  */
-//        $cookie->profile = $context->employee->id_profile;
-//        /* @phpstan-ignore-next-line  */
-//        $cookie->passwd = $context->employee->passwd;
-//        /* @phpstan-ignore-next-line  */
-//        $cookie->remote_addr = $context->employee->remote_addr;
-//
-//        if (class_exists('EmployeeSession') && method_exists($cookie, 'registerSession')) {
-//            $cookie->registerSession(new EmployeeSession());
-//        }
-//
-//        if (!Tools::getValue('stay_logged_in')) {
-//            /* @phpstan-ignore-next-line  */
-//            $cookie->last_activity = time();
-//        }
-//
-//        $cookie->write();
+        } else {
+            $this->doLoginLegacy($context);
+        }
 
         $this->trackLoginEvent($user);
 
         return true;
+    }
+
+    /**
+     * @param \Context $context
+     *
+     * @return void
+     */
+    protected function doLoginLegacy(\Context $context)
+    {
+        $context->employee->remote_addr = (int)ip2long(Tools::getRemoteAddr());
+
+        $cookie = $context->cookie;
+        /* @phpstan-ignore-next-line */
+        $cookie->id_employee = $context->employee->id;
+        /* @phpstan-ignore-next-line */
+        $cookie->email = $context->employee->email;
+        /* @phpstan-ignore-next-line */
+        $cookie->profile = $context->employee->id_profile;
+        /* @phpstan-ignore-next-line */
+        $cookie->passwd = $context->employee->passwd;
+        /* @phpstan-ignore-next-line */
+        $cookie->remote_addr = $context->employee->remote_addr;
+
+        if (class_exists('EmployeeSession') && method_exists($cookie, 'registerSession')) {
+            $cookie->registerSession(new EmployeeSession());
+        }
+
+        if (!Tools::getValue('stay_logged_in')) {
+            /* @phpstan-ignore-next-line */
+            $cookie->last_activity = time();
+        }
+
+        $cookie->write();
+    }
+
+    /**
+     * @param \Context $context
+     *
+     * @return void
+     */
+    protected function doLoginV9(\Context $context, EntityManager $entityManager, Security $security)
+    {
+        // $authenticator = 'security.authenticator.remember_me.main'
+        $authenticator = 'security.authenticator.form_login.main';
+        $employeeRepository = $entityManager->getRepository(EmployeeEntity::class);
+        $employeeEntity = $employeeRepository->findById($context->employee->id);
+        $security->login($employeeEntity[0], $authenticator);
     }
 
     /**
@@ -189,7 +216,7 @@ class OAuth2Controller extends FrameworkBundleAdminController
     }
 
     /**
-     * @return Session
+     * @return SessionInterface
      */
     protected function getSession()
     {

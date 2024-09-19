@@ -113,23 +113,14 @@ class ShopProvider extends PrestaShop
         /** @var Link $link */
         $link = $this->module->getService(Link::class);
 
-        // FIXME: Potentially
-        // FIXME: middleware
-        // TODO: create a syncProperties lazy Method and catch exceptions
-
-//        try {
 //          $router = SymfonyContainer::getInstance()->get('router');
 //          return $router->generate('ps_accounts_oauth2');
 //          return $link->getAdminLink('AdminOAuth2PsAccounts', false, [
 //             'route' => 'ps_accounts_oauth2',
 //          ]);
-
-            $uri = $link->getAdminLink('AdminOAuth2PsAccounts', false);
+            $uri = $link->getAdminLink('SfAdminOAuth2PsAccounts', false);
             $this->module->getLogger()->info('## redirect uri : ' . $uri);
             return $uri;
-//        } catch (RouteNotFoundException $e) {
-//            return $link->getAdminLink('', false) . 'modules/ps_accounts/oauth2';
-//        }
     }
 
     /**

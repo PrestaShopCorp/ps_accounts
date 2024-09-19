@@ -35,7 +35,7 @@ use Symfony\Component\HttpFoundation\Session\SessionInterface;
 /**
  * Controller for all ajax calls.
  */
-class DeprecatedAdminOAuth2PsAccountsController extends \ModuleAdminController
+class AdminOAuth2PsAccountsController extends \ModuleAdminController
 {
     use PrestaShopLoginTrait;
     use IsAnonymousAllowed;
@@ -138,32 +138,28 @@ class DeprecatedAdminOAuth2PsAccountsController extends \ModuleAdminController
 
         $context->employee->remote_addr = (int) ip2long(Tools::getRemoteAddr());
 
-        /** @var Symfony\Bundle\SecurityBundle\Security $security */
-        $security = $this->module->get('security.helper');
-        #$security->login($user);
+        $cookie = $context->cookie;
+        /* @phpstan-ignore-next-line  */
+        $cookie->id_employee = $context->employee->id;
+        /* @phpstan-ignore-next-line  */
+        $cookie->email = $context->employee->email;
+        /* @phpstan-ignore-next-line  */
+        $cookie->profile = $context->employee->id_profile;
+        /* @phpstan-ignore-next-line  */
+        $cookie->passwd = $context->employee->passwd;
+        /* @phpstan-ignore-next-line  */
+        $cookie->remote_addr = $context->employee->remote_addr;
 
-//        $cookie = $context->cookie;
-//        /* @phpstan-ignore-next-line  */
-//        $cookie->id_employee = $context->employee->id;
-//        /* @phpstan-ignore-next-line  */
-//        $cookie->email = $context->employee->email;
-//        /* @phpstan-ignore-next-line  */
-//        $cookie->profile = $context->employee->id_profile;
-//        /* @phpstan-ignore-next-line  */
-//        $cookie->passwd = $context->employee->passwd;
-//        /* @phpstan-ignore-next-line  */
-//        $cookie->remote_addr = $context->employee->remote_addr;
-//
-//        if (class_exists('EmployeeSession') && method_exists($cookie, 'registerSession')) {
-//            $cookie->registerSession(new EmployeeSession());
-//        }
-//
-//        if (!Tools::getValue('stay_logged_in')) {
-//            /* @phpstan-ignore-next-line  */
-//            $cookie->last_activity = time();
-//        }
-//
-//        $cookie->write();
+        if (class_exists('EmployeeSession') && method_exists($cookie, 'registerSession')) {
+            $cookie->registerSession(new EmployeeSession());
+        }
+
+        if (!Tools::getValue('stay_logged_in')) {
+            /* @phpstan-ignore-next-line  */
+            $cookie->last_activity = time();
+        }
+
+        $cookie->write();
 
         $this->trackLoginEvent($user);
 
@@ -306,36 +302,33 @@ class DeprecatedAdminOAuth2PsAccountsController extends \ModuleAdminController
      */
     private function getEmployeeByUidOrEmail($uid, $email)
     {
-//        $repository = new EmployeeAccountRepository();
-//
-//        try {
-//            $employeeAccount = $repository->findByUid($uid);
-//
-//            /* @phpstan-ignore-next-line */
-//            if ($employeeAccount) {
-//                $employee = new Employee($employeeAccount->getEmployeeId());
-//            } else {
-//                $employeeAccount = new EmployeeAccount();
-//                $employee = new Employee();
-//                $employee->getByEmail($email);
-//            }
-//
-//            // Update account
-//            if ($employee->id) {
-//                $repository->upsert(
-//                    $employeeAccount
-//                        ->setEmployeeId($employee->id)
-//                        ->setUid($uid)
-//                        ->setEmail($email)
-//                );
-//            }
-//        } catch (\Exception $e) {
-//            $employee = new Employee();
-//            $employee->getByEmail($email);
-//        }
+        $repository = new EmployeeAccountRepository();
 
-        $employee = new Employee();
-        $employee->getByEmail($email);
+        try {
+            $employeeAccount = $repository->findByUid($uid);
+
+            /* @phpstan-ignore-next-line */
+            if ($employeeAccount) {
+                $employee = new Employee($employeeAccount->getEmployeeId());
+            } else {
+                $employeeAccount = new EmployeeAccount();
+                $employee = new Employee();
+                $employee->getByEmail($email);
+            }
+
+            // Update account
+            if ($employee->id) {
+                $repository->upsert(
+                    $employeeAccount
+                        ->setEmployeeId($employee->id)
+                        ->setUid($uid)
+                        ->setEmail($email)
+                );
+            }
+        } catch (\Exception $e) {
+            $employee = new Employee();
+            $employee->getByEmail($email);
+        }
 
         return $employee;
     }
