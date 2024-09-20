@@ -101,6 +101,8 @@ class OAuth2Controller extends FrameworkBundleAdminController
         // -- API
         // TODO: update oauth2 clients redirect_uri
         // TODO: factoriser les deux controlleurs
+        // TODO: cleanup files from previous updates (big cleanup)
+        // TODO: update oauth clients & implement new local state based upgrade process
     }
 
     public function displayLogin()
