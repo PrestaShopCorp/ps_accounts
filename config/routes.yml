@@ -7,6 +7,36 @@ ps_accounts_oauth2:
     _legacy_controller: SfAdminOAuth2PsAccounts
     _legacy_link: SfAdminOAuth2PsAccounts
 
+## override login (+ forward original login)
+#ps_accounts_login:
+#  path: /login
+#  methods: [GET]
+#  defaults:
+#    _controller: 'PrestaShop\Module\PsAccounts\Controller\Admin\OAuth2Controller::displayLogin'
+#    _anonymous_controller: true
+#    _legacy_controller: SfAdminLoginPsAccounts
+#    _legacy_link: SfAdminLoginPsAccounts
+#    _disable_module_prefix: true
+#
+#ps_accounts_local_login:
+#  path: /local-login
+#  methods: [GET]
+#  defaults:
+#    _controller: 'PrestaShop\Module\PsAccounts\Controller\Admin\OAuth2Controller::displayLocalLogin'
+#    _anonymous_controller: true
+#    _legacy_controller: SfAdminLocalLoginPsAccounts
+#    _legacy_link: SfAdminLocalLoginPsAccounts
+#    _disable_module_prefix: true
+
+ps_accounts_login:
+  path: ps_accounts/login
+  methods: [GET]
+  defaults:
+    _controller: 'PrestaShop\Module\PsAccounts\Controller\Admin\OAuth2Controller::displayLogin'
+    _anonymous_controller: true
+    _legacy_controller: SfAdminLoginPsAccounts
+    _legacy_link: SfAdminLoginPsAccounts
+
 # TODO: Or we preserve original legacy controller or we create a legacy sf route
 #ps_accounts_oauth2_legacy:
 #  path: ps_accounts/oauth2_legacy

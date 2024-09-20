@@ -89,26 +89,82 @@ class OAuth2Controller extends FrameworkBundleAdminController
         }
 
         // TODO: access the session from DI
-        // TODO: preserve legacy cookie login
         // TODO: fix the EmployeeAccount bug
         // TODO: upgrade script (cleanup files)
         // TODO: update oauth2 client
         // TODO: FIXME: migrate getTestimonials
         // TODO: try to preserve original uris with legacy_link & legacy_controllers & supprimer l'ancien controller
         // TODO: refactor logout (listen sf events)
-
-        // TODO: fix login page blank page (debug=off)
         // TODO: fix compromised message on login
         // TODO: implement logout
         // TODO: compat with v8
         // -- API
         // TODO: update oauth2 clients redirect_uri
+        // TODO: factoriser les deux controlleurs
     }
 
-    public function initOAuth2FlowLegacy()
+    public function displayLogin()
     {
-        // TODO implement legacy login
+        /** @var OAuth2\ShopProvider $provider */
+        $provider = $this->module->getService(OAuth2\ShopProvider::class);
+        $session = $this->module->getSession();
+        // FIXME
+        $isoCode = 'en'; //$this->getContext()->getCurrentLocale()->getCode();
+
+        return $this->render('@Modules/ps_accounts/templates/admin/login.html.twig', [
+            /* @phpstan-ignore-next-line */
+            'shopUrl' => $this->getContext()->shop->getBaseUrl(true),
+            //'oauthRedirectUri' => $this->generateUrl('ps_accounts_oauth2'),
+            'oauthRedirectUri' => $provider->getRedirectUri(),
+            'legacyLoginUri' => $this->generateUrl('admin_login', [
+                'mode' => 'local'
+            ]),
+            'isoCode' => substr($isoCode, 0, 2),
+            'locale' => substr($isoCode, 0, 2),
+            'defaultIsoCode' => 'en',
+            'testimonials' => $this->getTestimonials(),
+            'loginError' => $session->remove('loginError'),
+            'meta_title' => '',
+            'ssoResendVerificationEmail' => $this->module->getParameter(
+                'ps_accounts.sso_resend_verification_email_url'
+            ),
+            // FIXME
+            'redirect' => '',
+            // FIXME: integration with the appropriate login layout & blocks
+            'linkCss' => '/modules/ps_accounts/views/css/login.css',
+            'linkJs' => '/modules/ps_accounts/views/js/login.js',
+        ]);
     }
+
+    /**
+     * @return array
+     */
+    private function getTestimonials()
+    {
+        $verify = (bool) $this->module->getParameter('ps_accounts.check_api_ssl_cert');
+
+        return json_decode(
+            (string) file_get_contents(
+                $this->module->getParameter('ps_accounts.testimonials_url'),
+                false,
+                stream_context_create([
+                    'ssl' => [
+                        'verify_peer' => $verify,
+                        'verify_peer_name' => $verify,
+                    ],
+                    'http' => [
+                        'ignore_errors' => '1',
+                    ],
+                ])
+            ),
+            true
+        ) ?: [];
+    }
+
+//    public function displayLocalLogin()
+//    {
+//        return $this->forward(PrestaShopBundle\Controller\Admin\LoginController::class . '@loginAction');
+//    }
 
     /**
      * @return OAuth2\ShopProvider
@@ -142,64 +198,15 @@ class OAuth2Controller extends FrameworkBundleAdminController
             throw new EmployeeNotFoundException('The email address is not associated to a PrestaShop backoffice account.', $user);
         }
 
-        if (defined('_PS_VERSION_')
-            && version_compare(_PS_VERSION_, '9', '>=')) {
-            $this->doLoginV9($context, $this->entityManager, $this->security);
-
-        } else {
-            $this->doLoginLegacy($context);
-        }
+        // $authenticator = 'security.authenticator.remember_me.main'
+        $authenticator = 'security.authenticator.form_login.main';
+        $employeeRepository = $this->entityManager->getRepository(EmployeeEntity::class);
+        $employeeEntity = $employeeRepository->findById($context->employee->id);
+        $this->security->login($employeeEntity[0], $authenticator);
 
         $this->trackLoginEvent($user);
 
         return true;
-    }
-
-    /**
-     * @param \Context $context
-     *
-     * @return void
-     */
-    protected function doLoginLegacy(\Context $context)
-    {
-        $context->employee->remote_addr = (int)ip2long(Tools::getRemoteAddr());
-
-        $cookie = $context->cookie;
-        /* @phpstan-ignore-next-line */
-        $cookie->id_employee = $context->employee->id;
-        /* @phpstan-ignore-next-line */
-        $cookie->email = $context->employee->email;
-        /* @phpstan-ignore-next-line */
-        $cookie->profile = $context->employee->id_profile;
-        /* @phpstan-ignore-next-line */
-        $cookie->passwd = $context->employee->passwd;
-        /* @phpstan-ignore-next-line */
-        $cookie->remote_addr = $context->employee->remote_addr;
-
-        if (class_exists('EmployeeSession') && method_exists($cookie, 'registerSession')) {
-            $cookie->registerSession(new EmployeeSession());
-        }
-
-        if (!Tools::getValue('stay_logged_in')) {
-            /* @phpstan-ignore-next-line */
-            $cookie->last_activity = time();
-        }
-
-        $cookie->write();
-    }
-
-    /**
-     * @param \Context $context
-     *
-     * @return void
-     */
-    protected function doLoginV9(\Context $context, EntityManager $entityManager, Security $security)
-    {
-        // $authenticator = 'security.authenticator.remember_me.main'
-        $authenticator = 'security.authenticator.form_login.main';
-        $employeeRepository = $entityManager->getRepository(EmployeeEntity::class);
-        $employeeEntity = $employeeRepository->findById($context->employee->id);
-        $security->login($employeeEntity[0], $authenticator);
     }
 
     /**
