@@ -77,8 +77,8 @@ services:
       - '@PrestaShop\Module\PsAccounts\Context\ShopContext'
       - '@PrestaShop\Module\PsAccounts\Account\LinkShop'
 
-  PrestaShop\Module\PsAccounts\Account\CommandHandler\Oauth2InstallMultiHandler:
-    class: PrestaShop\Module\PsAccounts\Account\CommandHandler\Oauth2InstallMultiHandler
+  PrestaShop\Module\PsAccounts\Account\CommandHandler\MultiCreateIdentityHandler:
+    class: PrestaShop\Module\PsAccounts\Account\CommandHandler\MultiCreateIdentityHandler
     public: true
     arguments:
       - '@PrestaShop\Module\PsAccounts\Cqrs\CommandBus'
