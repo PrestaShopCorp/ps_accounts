@@ -67,8 +67,8 @@ services:
       - '@PrestaShop\Module\PsAccounts\Cqrs\CommandBus'
       - '@PrestaShop\Module\PsAccounts\Repository\ConfigurationRepository'
 
-  PrestaShop\Module\PsAccounts\Account\CommandHandler\Oauth2InstallHandler:
-    class: PrestaShop\Module\PsAccounts\Account\CommandHandler\Oauth2InstallHandler
+  PrestaShop\Module\PsAccounts\Account\CommandHandler\CreateIdentityHandler:
+    class: PrestaShop\Module\PsAccounts\Account\CommandHandler\CreateIdentityHandler
     public: true
     arguments:
       - '@PrestaShop\Module\PsAccounts\Api\Client\AccountsClient'
