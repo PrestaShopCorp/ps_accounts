@@ -7,6 +7,7 @@ use Doctrine\ORM\EntityManager;
 use Doctrine\ORM\EntityManagerInterface;
 use Employee;
 use PrestaShop\Module\PsAccounts\Adapter\Link;
+use PrestaShop\Module\PsAccounts\Api\Client\ExternalAssetsClient;
 use PrestaShop\Module\PsAccounts\Exception\AccountLogin\AccountLoginException;
 use PrestaShop\Module\PsAccounts\Exception\AccountLogin\EmailNotVerifiedException;
 use PrestaShop\Module\PsAccounts\Exception\AccountLogin\EmployeeNotFoundException;
@@ -60,6 +61,11 @@ class OAuth2Controller extends FrameworkBundleAdminController
      */
     private $entityManager;
 
+    /**
+     * @var ExternalAssetsClient
+     */
+    private $externalAssetsClient;
+
     public function __construct()
     {
         $this->module = \Module::getInstanceByName('ps_accounts');
@@ -67,6 +73,7 @@ class OAuth2Controller extends FrameworkBundleAdminController
         $this->session = $this->module->getSession();
         $this->analyticsService = $this->module->getService(AnalyticsService::class);
         $this->psAccountsService = $this->module->getService(PsAccountsService::class);
+        $this->externalAssetsClient = $this->module->getService(ExternalAssetsClient::class);
     }
 
     /**
@@ -92,7 +99,6 @@ class OAuth2Controller extends FrameworkBundleAdminController
         // TODO: fix the EmployeeAccount bug
         // TODO: upgrade script (cleanup files)
         // TODO: update oauth2 client
-        // TODO: FIXME: migrate getTestimonials
         // TODO: try to preserve original uris with legacy_link & legacy_controllers & supprimer l'ancien controller
         // TODO: refactor logout (listen sf events)
         // TODO: fix compromised message on login
@@ -143,24 +149,11 @@ class OAuth2Controller extends FrameworkBundleAdminController
      */
     private function getTestimonials()
     {
-        $verify = (bool) $this->module->getParameter('ps_accounts.check_api_ssl_cert');
+        $res = $this->externalAssetsClient->getTestimonials(
+            $this->module->getParameter('ps_accounts.testimonials_url')
+        );
 
-        return json_decode(
-            (string) file_get_contents(
-                $this->module->getParameter('ps_accounts.testimonials_url'),
-                false,
-                stream_context_create([
-                    'ssl' => [
-                        'verify_peer' => $verify,
-                        'verify_peer_name' => $verify,
-                    ],
-                    'http' => [
-                        'ignore_errors' => '1',
-                    ],
-                ])
-            ),
-            true
-        ) ?: [];
+        return $res['status'] ? $res['body'] : [];
     }
 
 //    public function displayLocalLogin()
