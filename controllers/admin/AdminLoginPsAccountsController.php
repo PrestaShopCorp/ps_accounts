@@ -28,11 +28,15 @@ class AdminLoginPsAccountsController extends \AdminController
 
     const PARAM_MODE_LOCAL = 'local';
 
-    /** @var string */
+    /**
+     * @var string
+     */
     public $template = 'login.tpl';
 
-    /** @var Ps_accounts */
-    private $module;
+    /**
+     * @var Ps_accounts
+     */
+    public $module;
 
     /**
      * @var ExternalAssetsClient

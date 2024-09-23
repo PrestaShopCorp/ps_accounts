@@ -79,6 +79,25 @@ class Oauth2Middleware
     }
 
     /**
+     * @return void
+     *
+     * @throws Exception
+     */
+    public function executeLogout()
+    {
+        /** @var PsAccountsService $psAccountsService */
+        $psAccountsService = $this->module->getService(PsAccountsService::class);
+
+        $session = $this->getOauth2Session();
+
+        if ($psAccountsService->getLoginActivated()) {
+            $this->oauth2Logout();
+        } else {
+            $session->clear();
+        }
+    }
+
+    /**
      * @return ShopProvider
      *
      * @throws Exception

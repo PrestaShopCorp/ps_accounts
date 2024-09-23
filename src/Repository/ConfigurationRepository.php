@@ -352,7 +352,7 @@ class ConfigurationRepository
      */
     public function fixMultiShopConfig()
     {
-        Logger::getInstance()->error(__METHOD__);
+        Logger::getInstance()->info(__METHOD__);
 
         if ($this->isMultishopActive()) {
             $this->migrateToMultiShop();
