@@ -129,7 +129,7 @@ class ShopProvider extends PrestaShop
 
     /**
      * @example http://my-shop.mydomain/admin-path/index.php?controller=AdminLogin&logout=1&oauth2Callback=1
-     * @example http://my-shop.mydomain/admin-path/logout
+     * @example http://my-shop.mydomain/admin-path/logout?oauth2Callback=1
      *
      * @return string
      *

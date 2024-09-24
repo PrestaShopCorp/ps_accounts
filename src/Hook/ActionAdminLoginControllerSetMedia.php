@@ -22,9 +22,9 @@ namespace PrestaShop\Module\PsAccounts\Hook;
 
 use AdminLoginPsAccountsController;
 use Exception;
+use PrestaShop\Module\PsAccounts\Adapter\Link;
 use PrestaShop\Module\PsAccounts\Service\AnalyticsService;
 use PrestaShop\Module\PsAccounts\Service\PsAccountsService;
-use PrestaShop\Module\PsAccounts\Vendor\League\OAuth2\Client\Provider\Exception\IdentityProviderException;
 use Tools;
 
 class ActionAdminLoginControllerSetMedia extends Hook
@@ -32,26 +32,21 @@ class ActionAdminLoginControllerSetMedia extends Hook
     /**
      * @return void
      *
-     * @throws IdentityProviderException
      * @throws Exception
      */
     public function execute(array $params = [])
     {
         $this->module->getOauth2Middleware()->execute();
 
-        /** @var PsAccountsService $psAccountsService */
-        $psAccountsService = $this->module->getService(PsAccountsService::class);
-        $local = Tools::getValue('mode') === AdminLoginPsAccountsController::PARAM_MODE_LOCAL ||
-            !empty(Tools::getValue('reset_token')) ||
-            !$psAccountsService->getLoginActivated();
+        $local = $this->isLocalLogin();
 
-        $this->trackLoginPage($local);
+        $this->trackEditionLoginPage($local);
 
         if (defined('_PS_VERSION_')
             && version_compare(_PS_VERSION_, '8', '>=') && !$local) {
 
-            /** @var \PrestaShop\Module\PsAccounts\Adapter\Link $link */
-            $link = $this->module->getService(\PrestaShop\Module\PsAccounts\Adapter\Link::class);
+            /** @var Link $link */
+            $link = $this->module->getService(Link::class);
 
             if (version_compare(_PS_VERSION_, '9', '<')) {
                 //Tools::redirectLink($link->getAdminLink('AdminLoginPsAccounts', false));
@@ -70,7 +65,7 @@ class ActionAdminLoginControllerSetMedia extends Hook
      *
      * @throws Exception
      */
-    protected function trackLoginPage($local = false)
+    protected function trackEditionLoginPage($local = false)
     {
         if ($this->module->isShopEdition()) {
             /** @var PsAccountsService $psAccountsService */
@@ -87,5 +82,18 @@ class ActionAdminLoginControllerSetMedia extends Hook
                 $analytics->pageLocalBoLogin($userId);
             }
         }
+    }
+
+    /**
+     * @return bool
+     */
+    public function isLocalLogin()
+    {
+        /** @var PsAccountsService $psAccountsService */
+        $psAccountsService = $this->module->getService(PsAccountsService::class);
+
+        return Tools::getValue('mode') === AdminLoginPsAccountsController::PARAM_MODE_LOCAL ||
+            !empty(Tools::getValue('reset_token')) ||
+            !$psAccountsService->getLoginActivated();
     }
 }

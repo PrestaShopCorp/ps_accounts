@@ -105,6 +105,7 @@ class OAuth2Controller extends FrameworkBundleAdminController
         // -- Nice to have
         // TODO: access the session from DI
         // TODO: try to preserve original uris with legacy_link & legacy_controllers & supprimer l'ancien controller
+        // TODO: tester la page de login sf en 1.7 & 8
         // -- API
         // TODO: factoriser les deux controlleurs
         // TODO: cleanup files from previous updates (big cleanup)
@@ -210,7 +211,7 @@ class OAuth2Controller extends FrameworkBundleAdminController
     {
         $returnTo = $this->getSessionReturnTo() ?: 'AdminDashboard';
         if (preg_match('/^([A-Z][a-z0-9]+)+$/', $returnTo)) {
-            $returnTo = $this->link->getAdminLink($returnTo, true);
+            $returnTo = $this->link->getAdminLink($returnTo);
         }
         //\Tools::redirectAdmin($returnTo);
         return $this->redirect($returnTo);
