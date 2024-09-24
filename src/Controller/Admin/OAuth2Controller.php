@@ -8,11 +8,13 @@ use Doctrine\ORM\EntityManagerInterface;
 use Employee;
 use PrestaShop\Module\PsAccounts\Adapter\Link;
 use PrestaShop\Module\PsAccounts\Api\Client\ExternalAssetsClient;
+use PrestaShop\Module\PsAccounts\Entity\EmployeeAccount;
 use PrestaShop\Module\PsAccounts\Exception\AccountLogin\AccountLoginException;
 use PrestaShop\Module\PsAccounts\Exception\AccountLogin\EmailNotVerifiedException;
 use PrestaShop\Module\PsAccounts\Exception\AccountLogin\EmployeeNotFoundException;
 use PrestaShop\Module\PsAccounts\Log\Logger;
 use PrestaShop\Module\PsAccounts\Provider\OAuth2;
+use PrestaShop\Module\PsAccounts\Repository\EmployeeAccountRepository;
 use PrestaShop\Module\PsAccounts\Service\AnalyticsService;
 use PrestaShop\Module\PsAccounts\Service\PsAccountsService;
 use PrestaShop\OAuth2\Client\Provider\PrestaShopUser;
@@ -114,8 +116,6 @@ class OAuth2Controller extends FrameworkBundleAdminController
             return $this->onLoginFailed(new AccountLoginException($e->getMessage() . ' ' . $e->getTraceAsString(), null, $e));
         }
 
-        // TODO: fix compromised message on login
-        // TODO: fix the EmployeeAccount bug
         // TODO: update oauth2 client
         // TODO: trigger oauth2 client update & implement new local state based upgrade process
         // TODO: cache cleanup / cache directory
@@ -357,36 +357,33 @@ class OAuth2Controller extends FrameworkBundleAdminController
      */
     private function getEmployeeByUidOrEmail($uid, $email)
     {
-//        $repository = new EmployeeAccountRepository();
-//
-//        try {
-//            $employeeAccount = $repository->findByUid($uid);
-//
-//            /* @phpstan-ignore-next-line */
-//            if ($employeeAccount) {
-//                $employee = new Employee($employeeAccount->getEmployeeId());
-//            } else {
-//                $employeeAccount = new EmployeeAccount();
-//                $employee = new Employee();
-//                $employee->getByEmail($email);
-//            }
-//
-//            // Update account
-//            if ($employee->id) {
-//                $repository->upsert(
-//                    $employeeAccount
-//                        ->setEmployeeId($employee->id)
-//                        ->setUid($uid)
-//                        ->setEmail($email)
-//                );
-//            }
-//        } catch (\Exception $e) {
-//            $employee = new Employee();
-//            $employee->getByEmail($email);
-//        }
+        $repository = new EmployeeAccountRepository();
 
-        $employee = new Employee();
-        if (Employee::employeeExists($email)) {
+        try {
+            $employeeAccount = $repository->findByUid($uid);
+
+            /* @phpstan-ignore-next-line */
+            if ($employeeAccount) {
+                $employee = new Employee($employeeAccount->getEmployeeId());
+            } else {
+                $employeeAccount = new EmployeeAccount();
+                $employee = new Employee();
+                if (Employee::employeeExists($email)) {
+                    $employee->getByEmail($email);
+                }
+            }
+
+            // Update account
+            if ($employee->id) {
+                $repository->upsert(
+                    $employeeAccount
+                        ->setEmployeeId($employee->id)
+                        ->setUid($uid)
+                        ->setEmail($email)
+                );
+            }
+        } catch (\Exception $e) {
+            $employee = new Employee();
             $employee->getByEmail($email);
         }
 
