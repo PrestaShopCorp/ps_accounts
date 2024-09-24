@@ -116,6 +116,7 @@ class OAuth2Controller extends FrameworkBundleAdminController
             return $this->onLoginFailed(new AccountLoginException($e->getMessage() . ' ' . $e->getTraceAsString(), null, $e));
         }
 
+        // TODO: redirect after login
         // TODO: update oauth2 client
         // TODO: trigger oauth2 client update & implement new local state based upgrade process
         // TODO: cache cleanup / cache directory
