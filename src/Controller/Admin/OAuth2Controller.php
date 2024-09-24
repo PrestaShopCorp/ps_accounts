@@ -11,16 +11,20 @@ use PrestaShop\Module\PsAccounts\Api\Client\ExternalAssetsClient;
 use PrestaShop\Module\PsAccounts\Exception\AccountLogin\AccountLoginException;
 use PrestaShop\Module\PsAccounts\Exception\AccountLogin\EmailNotVerifiedException;
 use PrestaShop\Module\PsAccounts\Exception\AccountLogin\EmployeeNotFoundException;
+use PrestaShop\Module\PsAccounts\Log\Logger;
 use PrestaShop\Module\PsAccounts\Provider\OAuth2;
 use PrestaShop\Module\PsAccounts\Service\AnalyticsService;
 use PrestaShop\Module\PsAccounts\Service\PsAccountsService;
 use PrestaShop\OAuth2\Client\Provider\PrestaShopUser;
 use PrestaShopBundle\Controller\Admin\FrameworkBundleAdminController;
 use PrestaShopBundle\Entity\Employee\Employee as EmployeeEntity;
+use PrestaShopBundle\Service\Routing\Router;
 use Ps_accounts;
 use Symfony\Bundle\SecurityBundle\Security;
 use Symfony\Component\HttpFoundation\RedirectResponse;
+use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpFoundation\Session\SessionInterface;
+use Symfony\Component\Security\Csrf\CsrfTokenManagerInterface;
 
 class OAuth2Controller extends FrameworkBundleAdminController
 {
@@ -62,9 +66,19 @@ class OAuth2Controller extends FrameworkBundleAdminController
     private $entityManager;
 
     /**
+     * @var CsrfTokenManagerInterface
+     */
+    private $tokenManager;
+
+    /**
      * @var ExternalAssetsClient
      */
     private $externalAssetsClient;
+
+    /**
+     * @var RedirectResponse
+     */
+    private $redirectResponse;
 
     public function __construct()
     {
@@ -79,13 +93,18 @@ class OAuth2Controller extends FrameworkBundleAdminController
     /**
      * @param Security $security
      * @param EntityManagerInterface $entityManager
+     * @param CsrfTokenManagerInterface $tokenManager
      *
      * @return RedirectResponse
      */
-    public function initOAuth2Flow(Security $security, EntityManagerInterface $entityManager)
-    {
+    public function initOAuth2Flow(
+        Security $security,
+        EntityManagerInterface $entityManager,
+        CsrfTokenManagerInterface $tokenManager
+    ) {
         $this->security = $security;
         $this->entityManager = $entityManager;
+        $this->tokenManager = $tokenManager;
 
         try {
             return $this->oauth2Login();
@@ -171,7 +190,9 @@ class OAuth2Controller extends FrameworkBundleAdminController
 
     protected function initUserSession(PrestaShopUser $user)
     {
-        $this->oauth2ErrorLog((string) json_encode($user->toArray(), JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE));
+        Logger::getInstance()->error(
+            '[OAuth2] ' . (string) json_encode($user->toArray(), JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE)
+        );
 
         //$context = $this->context;
         /** @var \Context $context */
@@ -193,13 +214,17 @@ class OAuth2Controller extends FrameworkBundleAdminController
             throw new EmployeeNotFoundException('The email address is not associated to a PrestaShop backoffice account.', $user);
         }
 
-        // $authenticator = 'security.authenticator.remember_me.main'
         $authenticator = 'security.authenticator.form_login.main';
         $employeeRepository = $this->entityManager->getRepository(EmployeeEntity::class);
-        $employeeEntity = $employeeRepository->findById($context->employee->id);
-        $this->security->login($employeeEntity[0], $authenticator);
+        $employeeEntity = $employeeRepository->findById($context->employee->id)[0];
 
-        $this->trackLoginEvent($user);
+        $response = $this->security->login($employeeEntity, $authenticator);
+
+        if ($response instanceof RedirectResponse) {
+            $this->redirectResponse = $response;
+        }
+
+        $this->trackEditionLoginEvent($user);
 
         return true;
     }
@@ -209,12 +234,21 @@ class OAuth2Controller extends FrameworkBundleAdminController
      */
     protected function redirectAfterLogin()
     {
-        $returnTo = $this->getSessionReturnTo() ?: 'AdminDashboard';
-        if (preg_match('/^([A-Z][a-z0-9]+)+$/', $returnTo)) {
-            $returnTo = $this->link->getAdminLink($returnTo);
-        }
-        //\Tools::redirectAdmin($returnTo);
-        return $this->redirect($returnTo);
+//        // @see https://github.com/PrestaShop/PrestaShop/blob/66cc51a90ed500f9684e94f2aab710b152e96e4c/src/PrestaShopBundle/EventListener/Admin/EmployeeSessionSubscriber.php#L112
+//        // FIXME: admin link token is invalid here
+//
+//        $returnTo = /*$this->getSessionReturnTo() ?:*/ 'AdminDashboard';
+//        if (preg_match('/^([A-Z][a-z0-9]+)+$/', $returnTo)) {
+//            $returnTo = $this->link->getAdminLink($returnTo, false);
+//        }
+//
+//        $tokenizedUrl = Router::generateTokenizedUrl(
+//            $returnTo, $this->tokenManager->refreshToken('AdminDashboard'/*$this->employeeEntity->getId()*/)->getValue()
+//        );
+//
+//        return $this->redirect($tokenizedUrl);
+
+        return $this->redirectResponse;
     }
 
     /**
@@ -255,7 +289,7 @@ class OAuth2Controller extends FrameworkBundleAdminController
                 $e instanceof EmployeeNotFoundException ||
                 $e instanceof EmailNotVerifiedException
             )) {
-            $this->trackLoginFailedEvent($e);
+            $this->trackEditionLoginFailedEvent($e);
         }
 
         $this->oauth2ErrorLog($e->getMessage());
@@ -272,7 +306,7 @@ class OAuth2Controller extends FrameworkBundleAdminController
      *
      * @return void
      */
-    private function trackLoginEvent(PrestaShopUser $user)
+    private function trackEditionLoginEvent(PrestaShopUser $user)
     {
         if ($this->module->isShopEdition()) {
             $this->analyticsService->identify(
@@ -296,7 +330,7 @@ class OAuth2Controller extends FrameworkBundleAdminController
      *
      * @return void
      */
-    private function trackLoginFailedEvent($e)
+    private function trackEditionLoginFailedEvent($e)
     {
         $user = $e->getUser();
         $this->analyticsService->identify(

@@ -22,6 +22,7 @@ use PrestaShop\Module\PsAccounts\Entity\EmployeeAccount;
 use PrestaShop\Module\PsAccounts\Exception\AccountLogin\AccountLoginException;
 use PrestaShop\Module\PsAccounts\Exception\AccountLogin\EmailNotVerifiedException;
 use PrestaShop\Module\PsAccounts\Exception\AccountLogin\EmployeeNotFoundException;
+use PrestaShop\Module\PsAccounts\Log\Logger;
 use PrestaShop\Module\PsAccounts\Polyfill\Traits\AdminController\IsAnonymousAllowed;
 use PrestaShop\Module\PsAccounts\Provider\OAuth2\PrestaShopLoginTrait;
 use PrestaShop\Module\PsAccounts\Provider\OAuth2\PrestaShopSession;
@@ -119,7 +120,9 @@ class AdminOAuth2PsAccountsController extends \ModuleAdminController
      */
     private function initUserSession(PrestaShopUser $user)
     {
-        $this->oauth2ErrorLog((string) json_encode($user->toArray(), JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE));
+        Logger::getInstance()->error(
+            '[OAuth2] ' . (string) json_encode($user->toArray(), JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE)
+        );
 
         $context = $this->context;
 
@@ -161,7 +164,7 @@ class AdminOAuth2PsAccountsController extends \ModuleAdminController
 
         $cookie->write();
 
-        $this->trackLoginEvent($user);
+        $this->trackEditionLoginEvent($user);
 
         return true;
     }
@@ -180,7 +183,7 @@ class AdminOAuth2PsAccountsController extends \ModuleAdminController
                 $e instanceof EmployeeNotFoundException ||
                 $e instanceof EmailNotVerifiedException
             )) {
-            $this->trackLoginFailedEvent($e);
+            $this->trackEditionLoginFailedEvent($e);
         }
 
         $this->oauth2ErrorLog($e->getMessage());
@@ -247,7 +250,7 @@ class AdminOAuth2PsAccountsController extends \ModuleAdminController
      *
      * @throws Exception
      */
-    private function trackLoginEvent(PrestaShopUser $user)
+    private function trackEditionLoginEvent(PrestaShopUser $user)
     {
         if ($this->module->isShopEdition()) {
             $this->analyticsService->identify(
@@ -273,7 +276,7 @@ class AdminOAuth2PsAccountsController extends \ModuleAdminController
      *
      * @throws Exception
      */
-    private function trackLoginFailedEvent($e)
+    private function trackEditionLoginFailedEvent($e)
     {
         $user = $e->getUser();
         $this->analyticsService->identify(
