@@ -44,7 +44,6 @@ class ActionAdminLoginControllerSetMedia extends Hook
 
         if (defined('_PS_VERSION_')
             && version_compare(_PS_VERSION_, '8', '>=') && !$local) {
-
             /** @var Link $link */
             $link = $this->module->getService(Link::class);
 

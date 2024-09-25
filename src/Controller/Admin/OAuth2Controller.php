@@ -20,13 +20,12 @@ use PrestaShop\Module\PsAccounts\Service\PsAccountsService;
 use PrestaShop\OAuth2\Client\Provider\PrestaShopUser;
 use PrestaShopBundle\Controller\Admin\FrameworkBundleAdminController;
 use PrestaShopBundle\Entity\Employee\Employee as EmployeeEntity;
-use PrestaShopBundle\Service\Routing\Router;
 use Ps_accounts;
 use Symfony\Bundle\SecurityBundle\Security;
 use Symfony\Component\HttpFoundation\RedirectResponse;
+use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpFoundation\Session\SessionInterface;
-use Symfony\Component\Security\Csrf\CsrfTokenManagerInterface;
 
 class OAuth2Controller extends FrameworkBundleAdminController
 {
@@ -68,11 +67,6 @@ class OAuth2Controller extends FrameworkBundleAdminController
     private $entityManager;
 
     /**
-     * @var CsrfTokenManagerInterface
-     */
-    private $tokenManager;
-
-    /**
      * @var ExternalAssetsClient
      */
     private $externalAssetsClient;
@@ -86,77 +80,74 @@ class OAuth2Controller extends FrameworkBundleAdminController
     {
         $this->module = \Module::getInstanceByName('ps_accounts');
         $this->link = $this->module->getService(Link::class);
-        $this->session = $this->module->getSession();
         $this->analyticsService = $this->module->getService(AnalyticsService::class);
         $this->psAccountsService = $this->module->getService(PsAccountsService::class);
         $this->externalAssetsClient = $this->module->getService(ExternalAssetsClient::class);
     }
 
     /**
+     * @param Request $request
      * @param Security $security
      * @param EntityManagerInterface $entityManager
-     * @param CsrfTokenManagerInterface $tokenManager
      *
      * @return RedirectResponse
      */
-    public function initOAuth2Flow(
+    public function initOAuth2FlowAction(
+        Request $request,
         Security $security,
         EntityManagerInterface $entityManager,
-        CsrfTokenManagerInterface $tokenManager
     ) {
         $this->security = $security;
         $this->entityManager = $entityManager;
-        $this->tokenManager = $tokenManager;
+        $this->session = $request->getSession();
 
         try {
             return $this->oauth2Login();
         } catch (AccountLoginException $e) {
             return $this->onLoginFailed($e);
         } catch (\Exception $e) {
-            return $this->onLoginFailed(new AccountLoginException($e->getMessage() . ' ' . $e->getTraceAsString(), null, $e));
+            return $this->onLoginFailed(new AccountLoginException($e->getMessage(), null, $e));
         }
 
-        // TODO: redirect after login
-        // TODO: update oauth2 client
-        // TODO: trigger oauth2 client update & implement new local state based upgrade process
         // TODO: cache cleanup / cache directory
-        // TODO: extends login layout
-        // TODO: translations sf style
-        // -- Nice to have
-        // TODO: access the session from DI
-        // TODO: try to preserve original uris with legacy_link & legacy_controllers & supprimer l'ancien controller
-        // TODO: tester la page de login sf en 1.7 & 8
-        // -- API
         // TODO: factoriser les deux controlleurs
-        // TODO: cleanup files from previous updates (big cleanup)
     }
 
-    public function displayLogin()
+    /**
+     * @param Request $request
+     *
+     * @return Response|null
+     *
+     * @throws \PrestaShopException
+     *
+     * TODO: translations sf style
+     */
+    public function displayLoginAction(Request $request)
     {
         /** @var OAuth2\ShopProvider $provider */
         $provider = $this->module->getService(OAuth2\ShopProvider::class);
-        $session = $this->module->getSession();
-        // FIXME
+        // FIXME: get current locale
         $isoCode = 'en'; //$this->getContext()->getCurrentLocale()->getCode();
 
+        // FIXME: extends login layout
         return $this->render('@Modules/ps_accounts/templates/admin/login.html.twig', [
             /* @phpstan-ignore-next-line */
             'shopUrl' => $this->getContext()->shop->getBaseUrl(true),
             //'oauthRedirectUri' => $this->generateUrl('ps_accounts_oauth2'),
             'oauthRedirectUri' => $provider->getRedirectUri(),
             'legacyLoginUri' => $this->generateUrl('admin_login', [
-                'mode' => 'local'
+                'mode' => 'local',
             ]),
             'isoCode' => substr($isoCode, 0, 2),
             'locale' => substr($isoCode, 0, 2),
             'defaultIsoCode' => 'en',
             'testimonials' => $this->getTestimonials(),
-            'loginError' => $session->remove('loginError'),
+            'loginError' => $request->getSession()->remove('loginError'),
             'meta_title' => '',
             'ssoResendVerificationEmail' => $this->module->getParameter(
                 'ps_accounts.sso_resend_verification_email_url'
             ),
-            // FIXME
+            // FIXME: get intended redirect uri
             'redirect' => '',
             // FIXME: integration with the appropriate login layout & blocks
             'linkCss' => '/modules/ps_accounts/views/css/login.css',
@@ -175,11 +166,6 @@ class OAuth2Controller extends FrameworkBundleAdminController
 
         return $res['status'] ? $res['body'] : [];
     }
-
-//    public function displayLocalLogin()
-//    {
-//        return $this->forward(PrestaShopBundle\Controller\Admin\LoginController::class . '@loginAction');
-//    }
 
     /**
      * @return OAuth2\ShopProvider
@@ -221,6 +207,7 @@ class OAuth2Controller extends FrameworkBundleAdminController
 
         $response = $this->security->login($employeeEntity, $authenticator);
 
+        // FIXME: what if no redirect response ?
         if ($response instanceof RedirectResponse) {
             $this->redirectResponse = $response;
         }
@@ -235,20 +222,7 @@ class OAuth2Controller extends FrameworkBundleAdminController
      */
     protected function redirectAfterLogin()
     {
-//        // @see https://github.com/PrestaShop/PrestaShop/blob/66cc51a90ed500f9684e94f2aab710b152e96e4c/src/PrestaShopBundle/EventListener/Admin/EmployeeSessionSubscriber.php#L112
-//        // FIXME: admin link token is invalid here
-//
-//        $returnTo = /*$this->getSessionReturnTo() ?:*/ 'AdminDashboard';
-//        if (preg_match('/^([A-Z][a-z0-9]+)+$/', $returnTo)) {
-//            $returnTo = $this->link->getAdminLink($returnTo, false);
-//        }
-//
-//        $tokenizedUrl = Router::generateTokenizedUrl(
-//            $returnTo, $this->tokenManager->refreshToken('AdminDashboard'/*$this->employeeEntity->getId()*/)->getValue()
-//        );
-//
-//        return $this->redirect($tokenizedUrl);
-
+        // FIXME: requires some testing
         return $this->redirectResponse;
     }
 
@@ -267,7 +241,6 @@ class OAuth2Controller extends FrameworkBundleAdminController
     {
         return $this->module->getService(Oauth2\PrestaShopSession::class);
     }
-
 
     /**
      * @param mixed $error
@@ -295,6 +268,7 @@ class OAuth2Controller extends FrameworkBundleAdminController
 
         $this->oauth2ErrorLog($e->getMessage());
         $this->setLoginError($e->getType());
+
         return $this->redirect(
             $this->link->getAdminLink('AdminLogin', true, [], [
                 'logout' => 1,

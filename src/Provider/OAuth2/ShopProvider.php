@@ -24,8 +24,6 @@ use PrestaShop\Module\PsAccounts\Adapter\Link;
 use PrestaShop\Module\PsAccounts\Vendor\League\OAuth2\Client\Provider\AbstractProvider;
 use PrestaShop\OAuth2\Client\Provider\PrestaShop;
 use PrestaShop\PrestaShop\Adapter\SymfonyContainer;
-use Symfony\Component\Routing\Exception\RouteNotFoundException;
-use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 
 class ShopProvider extends PrestaShop
 {
@@ -124,6 +122,7 @@ class ShopProvider extends PrestaShop
             && version_compare(_PS_VERSION_, '9', '>=')) {
             return $link->getAdminLink('SfAdminOAuth2PsAccounts', false);
         }
+
         return $link->getAdminLink('AdminOAuth2PsAccounts', false);
     }
 
