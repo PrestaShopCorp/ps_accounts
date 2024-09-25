@@ -95,7 +95,7 @@ class OAuth2Controller extends FrameworkBundleAdminController
     public function initOAuth2FlowAction(
         Request $request,
         Security $security,
-        EntityManagerInterface $entityManager,
+        EntityManagerInterface $entityManager
     ) {
         $this->security = $security;
         $this->entityManager = $entityManager;
@@ -153,18 +153,6 @@ class OAuth2Controller extends FrameworkBundleAdminController
             'linkCss' => '/modules/ps_accounts/views/css/login.css',
             'linkJs' => '/modules/ps_accounts/views/js/login.js',
         ]);
-    }
-
-    /**
-     * @return array
-     */
-    private function getTestimonials()
-    {
-        $res = $this->externalAssetsClient->getTestimonials(
-            $this->module->getParameter('ps_accounts.testimonials_url')
-        );
-
-        return $res['status'] ? $res['body'] : [];
     }
 
     /**
@@ -363,5 +351,17 @@ class OAuth2Controller extends FrameworkBundleAdminController
         }
 
         return $employee;
+    }
+
+    /**
+     * @return array
+     */
+    private function getTestimonials()
+    {
+        $res = $this->externalAssetsClient->getTestimonials(
+            $this->module->getParameter('ps_accounts.testimonials_url')
+        );
+
+        return $res['status'] ? $res['body'] : [];
     }
 }

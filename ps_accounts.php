@@ -490,22 +490,6 @@ class Ps_accounts extends Module
     }
 
     /**
-     * @deprecated
-     *
-     * @return void
-     *
-     * @throws PrestaShopException
-     *
-     * @phpstan-ignore-next-line
-     */
-    private function autoReonboardOnV5()
-    {
-        /** @var \PrestaShop\Module\PsAccounts\Service\PsAccountsService $psAccountsService */
-        $psAccountsService = $this->getService(\PrestaShop\Module\PsAccounts\Service\PsAccountsService::class);
-        $psAccountsService->autoReonboardOnV5();
-    }
-
-    /**
      * @return void
      *
      * @throws Exception
@@ -523,9 +507,6 @@ class Ps_accounts extends Module
         // FIXME: this wont prevent from re-implanting override on reset of module
         $uninstaller = new PrestaShop\Module\PsAccounts\Module\Uninstall($this, Db::getInstance());
         $uninstaller->deleteAdminTab('AdminLogin');
-
-//        $this->installEventBus();
-//        $this->autoReonboardOnV5();
     }
 
     /**
@@ -533,6 +514,7 @@ class Ps_accounts extends Module
      */
     private function cleanCache()
     {
+        // FIXME: find best strategy to manage module cache & maybe deal with the upgrade sequence
         array_map('unlink', glob($this->getLocalPath() . '/cache/*'));
     }
 }
