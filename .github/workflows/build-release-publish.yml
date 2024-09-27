@@ -91,7 +91,7 @@ jobs:
         uses: actions/download-artifact@v4
         with:
           name: ${{ github.event.repository.name }}
-#          path: ${{ github.workspace }}
+          path: ${{ github.workspace }}
 
       - name: Set up Cloud SDK
         uses: google-github-actions/setup-gcloud@v0
@@ -103,7 +103,7 @@ jobs:
       - name: Copy env files
         run: |
           gcloud components install beta
-          gcloud beta secrets versions access latest --secret="accounts-module-config" > ps_accounts/ps_accounts/config/config.yml
+          gcloud beta secrets versions access latest --secret="accounts-module-config" > ps_accounts/config/config.yml
         env:
           GOOGLE_APPLICATION_CREDENTIALS: ${{ secrets.G_CREDENTIAL_PRODUCTION }}
 
