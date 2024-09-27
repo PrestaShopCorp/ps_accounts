@@ -91,7 +91,7 @@ jobs:
         uses: actions/download-artifact@v4
         with:
           name: ${{ github.event.repository.name }}
-          path: ${{ github.workspace }}
+#          path: ${{ github.workspace }}
 
       - name: Set up Cloud SDK
         uses: google-github-actions/setup-gcloud@v0
@@ -135,7 +135,7 @@ jobs:
           echo "zip_file=${{ github.event.repository.name }}_preprod-${{ needs.build.outputs.version }}.zip" >> "$GITHUB_ENV"
 
       - name: Download artifact
-        uses: actions/download-artifact@v1
+        uses: actions/download-artifact@v4
         with:
           name: ${{ github.event.repository.name }}
 
