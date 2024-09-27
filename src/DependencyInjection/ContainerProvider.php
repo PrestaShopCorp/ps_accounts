@@ -87,7 +87,9 @@ class ContainerProvider
             . 'Container'
         ;
 
-        //$containerFilePath = $this->cacheDirectory->getPath() . '/' . $containerClassName . '.php';
+        // FIXME: not used (just for PHPStan)
+        $originalContainerFilePath = $this->cacheDirectory->getPath() . '/' . $containerClassName . '.php';
+
         $containerFilePath = $this->moduleLocalPath . 'cache/' . $containerClassName . '.php';
         $containerConfigCache = new ConfigCache($containerFilePath, _PS_MODE_DEV_);
 

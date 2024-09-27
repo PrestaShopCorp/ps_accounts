@@ -78,7 +78,9 @@ class OAuth2Controller extends FrameworkBundleAdminController
 
     public function __construct()
     {
-        $this->module = \Module::getInstanceByName('ps_accounts');
+        /** @var Ps_accounts $module */
+        $module = \Module::getInstanceByName('ps_accounts');
+        $this->module = $module;
         $this->link = $this->module->getService(Link::class);
         $this->analyticsService = $this->module->getService(AnalyticsService::class);
         $this->psAccountsService = $this->module->getService(PsAccountsService::class);
@@ -163,6 +165,14 @@ class OAuth2Controller extends FrameworkBundleAdminController
         return $this->module->getService(Oauth2\ShopProvider::class);
     }
 
+    /**
+     * @param PrestaShopUser $user
+     *
+     * @return bool
+     *
+     * @throws EmailNotVerifiedException
+     * @throws EmployeeNotFoundException
+     */
     protected function initUserSession(PrestaShopUser $user)
     {
         Logger::getInstance()->error(

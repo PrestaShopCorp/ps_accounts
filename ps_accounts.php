@@ -515,7 +515,10 @@ class Ps_accounts extends Module
     private function cleanCache()
     {
         // FIXME: find best strategy to manage module cache & maybe deal with the upgrade sequence
-        array_map('unlink', glob($this->getLocalPath() . '/cache/*'));
+        $cacheFiles =  glob($this->getLocalPath() . '/cache/*');
+        if (is_array($cacheFiles)) {
+            array_map('unlink', $cacheFiles);
+        }
     }
 }
 

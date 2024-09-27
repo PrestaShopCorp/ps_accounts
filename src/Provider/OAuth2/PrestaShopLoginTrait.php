@@ -46,7 +46,7 @@ trait PrestaShopLoginTrait
     abstract protected function initUserSession(PrestaShopUser $user);
 
     /**
-     * @return void
+     * @return mixed
      */
     abstract protected function redirectAfterLogin();
 
@@ -61,7 +61,7 @@ trait PrestaShopLoginTrait
     abstract protected function getOauth2Session();
 
     /**
-     * @return RedirectResponse
+     * @return mixed
      *
      * @throws EmailNotVerifiedException
      * @throws EmployeeNotFoundException
