@@ -70,10 +70,10 @@ jobs:
 
       - name: Create & upload artifact
         uses: actions/upload-artifact@v4
-        include-hidden-files: true
         with:
           name: ${{ github.event.repository.name }}
           path: ${{ github.workspace }}
+          include-hidden-files: true
 
   upload_release_asset_production:
     name: Upload the production zip asset to the release
