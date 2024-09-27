@@ -72,7 +72,8 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: ${{ github.event.repository.name }}
-          path: ../
+          path: ${{ github.workspace }}
+          include-hidden-files: true
 
   upload_release_asset_production:
     name: Upload the production zip asset to the release
@@ -88,9 +89,10 @@ jobs:
           echo "zip_file=${{ github.event.repository.name }}-${{ needs.build.outputs.version }}.zip" >> "$GITHUB_OUTPUT"
 
       - name: Download artifact
-        uses: actions/download-artifact@v1
+        uses: actions/download-artifact@v4
         with:
           name: ${{ github.event.repository.name }}
+          path: ${{ github.workspace }}
 
       - name: Set up Cloud SDK
         uses: google-github-actions/setup-gcloud@v0
@@ -102,13 +104,13 @@ jobs:
       - name: Copy env files
         run: |
           gcloud components install beta
-          gcloud beta secrets versions access latest --secret="accounts-module-config" > ps_accounts/ps_accounts/config/config.yml
+          gcloud beta secrets versions access latest --secret="accounts-module-config" > ${{ github.workspace }}/config/config.yml
         env:
           GOOGLE_APPLICATION_CREDENTIALS: ${{ secrets.G_CREDENTIAL_PRODUCTION }}
 
       - name: Prepare the production zip
         run: |
-          cd ${{ github.event.repository.name }}/${{ github.event.repository.name }}
+          cd ${{ github.workspace }}
           sh ./scripts/bundle-module.sh ${{ env.zip_file }}
         env:
           ENV_FILE: ${{ secrets.PS_ACCOUNTS_ENV_PROD }}
@@ -119,7 +121,7 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           upload_url: ${{ github.event.release.upload_url }}
-          asset_path: ./${{ github.event.repository.name }}/${{ github.event.repository.name }}/dist/${{ env.zip_file }}
+          asset_path: ${{ github.workspace }}/dist/${{ env.zip_file }}
           asset_name: ${{ env.zip_file }}
           asset_content_type: application/zip
 
@@ -134,9 +136,10 @@ jobs:
           echo "zip_file=${{ github.event.repository.name }}_preprod-${{ needs.build.outputs.version }}.zip" >> "$GITHUB_ENV"
 
       - name: Download artifact
-        uses: actions/download-artifact@v1
+        uses: actions/download-artifact@v4
         with:
           name: ${{ github.event.repository.name }}
+          path: ${{ github.workspace }}
 
       - name: Set up Cloud SDK
         uses: google-github-actions/setup-gcloud@v0
@@ -148,13 +151,13 @@ jobs:
       - name: Copy env files
         run: |
           gcloud components install beta
-          gcloud beta secrets versions access latest --secret="accounts-module-config" > ps_accounts/ps_accounts/config/config.yml
+          gcloud beta secrets versions access latest --secret="accounts-module-config" > ${{ github.workspace }}/config/config.yml
         env:
           GOOGLE_APPLICATION_CREDENTIALS: ${{ secrets.G_CREDENTIAL_PREPROD }}
 
       - name: Prepare the preprod zip
         run: |
-          cd ${{ github.event.repository.name }}/${{ github.event.repository.name }}
+          cd ${{ github.workspace }}
           sh ./scripts/bundle-module.sh ${{ env.zip_file }}
 
       - name: Publish the preprod zip
@@ -163,7 +166,7 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           upload_url: ${{ github.event.release.upload_url }}
-          asset_path: ./${{ github.event.repository.name }}/${{ github.event.repository.name }}/dist/${{ env.zip_file }}
+          asset_path: ${{ github.workspace }}/dist/${{ env.zip_file }}
           asset_name: ${{ env.zip_file }}
           asset_content_type: application/zip
 
