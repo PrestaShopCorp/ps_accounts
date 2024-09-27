@@ -88,7 +88,7 @@ jobs:
           echo "zip_file=${{ github.event.repository.name }}-${{ needs.build.outputs.version }}.zip" >> "$GITHUB_OUTPUT"
 
       - name: Download artifact
-        uses: actions/download-artifact@v1
+        uses: actions/download-artifact@v4
         with:
           name: ${{ github.event.repository.name }}
           path: ${{ github.workspace }}
