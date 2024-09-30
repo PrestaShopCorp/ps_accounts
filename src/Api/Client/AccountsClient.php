@@ -231,7 +231,7 @@ class AccountsClient
      */
     public function createShopIdentity($backOfficeUrl, $frontendUrl, $multiShopId)
     {
-        $this->getClient()->setRoute('/v2/shops/identity');
+        $this->getClient()->setRoute('/v1/shop-identities');
 
         return $this->getClient()->post([
             'json' => [
