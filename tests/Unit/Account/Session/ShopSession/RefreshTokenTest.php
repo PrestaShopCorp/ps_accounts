@@ -118,7 +118,7 @@ class RefreshTokenTest extends TestCase
     /**
      * @test
      */
-    public function itShouldNotClearConfigurationAndThrowIfNotOauth()
+    public function itShouldNotClearConfigurationAndThrowIfNoOauth()
     {
         $e = null;
         try {
