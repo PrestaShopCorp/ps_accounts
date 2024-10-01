@@ -18,22 +18,19 @@
  * @license   https://opensource.org/licenses/AFL-3.0 Academic Free License version 3.0
  */
 
-namespace PrestaShop\Module\PsAccounts\Exception\AccountLogin;
+namespace PrestaShop\Module\PsAccounts\Exception\Http;
 
-use PrestaShop\OAuth2\Client\Provider\PrestaShopUser;
-
-class OtherErrorException extends AccountLoginException
+class InternalServerErrorException extends HttpException
 {
     /**
-     * @param PrestaShopUser|null $user
      * @param string $message
-     * @param string $type
+     * @param int $code
+     * @param \Exception|null $previous
      */
-    public function __construct(
-        $user,
-        $message = 'Other error',
-        $type = 'error_other'
-    ) {
-        parent::__construct($user, $message, $type);
+    public function __construct($message = 'Internal Server Error', $code = 0, \Exception $previous = null)
+    {
+        parent::__construct($message, $code, $previous);
+
+        $this->statusCode = 500;
     }
 }

@@ -20,9 +20,9 @@
 
 namespace PrestaShop\Module\PsAccounts\Provider;
 
-use phpseclib\Crypt\RSA;
 use PrestaShop\Module\PsAccounts\Exception\SshKeysNotFoundException;
 use PrestaShop\Module\PsAccounts\Repository\ConfigurationRepository;
+use PrestaShop\Module\PsAccounts\Vendor\phpseclib\Crypt\RSA;
 
 /**
  * Manage RSA

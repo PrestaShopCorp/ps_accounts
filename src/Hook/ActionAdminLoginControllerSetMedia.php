@@ -47,9 +47,10 @@ class ActionAdminLoginControllerSetMedia extends Hook
 
         $this->trackLoginPage($local);
 
-        if ($this->module->getShopContext()->isShop17() && !$local) {
+        if (defined('_PS_VERSION_')
+            && version_compare(_PS_VERSION_, '8', '>=') && !$local) {
 //            /** @var \PrestaShop\Module\PsAccounts\Adapter\Link $link */
-//            $link = $this->getService(\PrestaShop\Module\PsAccounts\Adapter\Link::class);
+//            $link = $this->module->getService(\PrestaShop\Module\PsAccounts\Adapter\Link::class);
 //            Tools::redirectLink($link->getAdminLink('AdminLoginPsAccounts', false));
             (new AdminLoginPsAccountsController())->run();
             exit;

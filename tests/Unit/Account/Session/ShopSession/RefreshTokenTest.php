@@ -2,6 +2,7 @@
 
 namespace PrestaShop\Module\PsAccounts\Tests\Unit\Account\Session\ShopSession;
 
+use PrestaShop\Module\PsAccounts\Account\LinkShop;
 use PrestaShop\Module\PsAccounts\Account\Session\ShopSession;
 use PrestaShop\Module\PsAccounts\Account\Token\Token;
 use PrestaShop\Module\PsAccounts\Cqrs\CommandBus;
@@ -72,7 +73,7 @@ class RefreshTokenTest extends TestCase
     /**
      * @return void
      */
-    function tearDown(): void
+    public function tearDown(): void
     {
         parent::tearDown();
 
@@ -82,7 +83,7 @@ class RefreshTokenTest extends TestCase
     /**
      * @test
      */
-    public function itShouldClearConfigurationAndThrowIfNotOauth()
+    public function itShouldClearConfigurationAndThrowIfNoOauth()
     {
         $e = null;
         try {
