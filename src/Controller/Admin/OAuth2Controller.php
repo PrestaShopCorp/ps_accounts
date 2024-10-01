@@ -3,7 +3,6 @@
 namespace PrestaShop\Module\PsAccounts\Controller\Admin;
 
 //use PrestaShopBundle\Controller\Admin\PrestaShopAdminController;
-use Doctrine\ORM\EntityManager;
 use Doctrine\ORM\EntityManagerInterface;
 use Employee;
 use PrestaShop\Module\PsAccounts\Adapter\Link;
