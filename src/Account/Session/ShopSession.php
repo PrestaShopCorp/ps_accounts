@@ -60,7 +60,7 @@ class ShopSession extends Session implements SessionInterface
     /**
      * @var int
      */
-    protected $waitForOAuth2ClientSeconds = 60;
+    protected $oauth2ClientReceiptTimeout = 60;
 
     /**
      * @param ConfigurationRepository $configurationRepository
@@ -101,7 +101,7 @@ class ShopSession extends Session implements SessionInterface
     public function refreshToken($refreshToken = null)
     {
         try {
-            $this->assertAssociationState($this->waitForOAuth2ClientSeconds);
+            $this->assertAssociationState($this->oauth2ClientReceiptTimeout);
             $shopUuid = $this->getShopUuid();
             $accessToken = $this->getAccessToken($shopUuid);
 
@@ -152,13 +152,13 @@ class ShopSession extends Session implements SessionInterface
     }
 
     /**
-     * @param int $waitForOAuth2ClientSeconds
+     * @param int $oauth2ClientReceiptTimeout
      *
      * @return void
      */
-    public function setWaitForOAuth2ClientSeconds($waitForOAuth2ClientSeconds)
+    public function setOauth2ClientReceiptTimeout($oauth2ClientReceiptTimeout)
     {
-        $this->waitForOAuth2ClientSeconds = $waitForOAuth2ClientSeconds;
+        $this->oauth2ClientReceiptTimeout = $oauth2ClientReceiptTimeout;
     }
 
     /**

@@ -98,7 +98,7 @@ class RefreshTokenTest extends TestCase
                 'ownerEmail' => $this->faker->safeEmail,
             ]));
 
-            $this->shopSession->setWaitForOAuth2ClientSeconds(1);
+            $this->shopSession->setOauth2ClientReceiptTimeout(1);
 
             sleep(2);
 
@@ -130,7 +130,7 @@ class RefreshTokenTest extends TestCase
             // OAuth2Client has been cleared
             $this->oauth2Client->delete();
 
-            $this->shopSession->setWaitForOAuth2ClientSeconds(1);
+            $this->shopSession->setOauth2ClientReceiptTimeout(1);
 
             //sleep(2);
 
@@ -164,7 +164,7 @@ class RefreshTokenTest extends TestCase
                 $this->faker->password
             );
 
-            $this->shopSession->setWaitForOAuth2ClientSeconds(1);
+            $this->shopSession->setOauth2ClientReceiptTimeout(1);
 
             //sleep(2);
 
