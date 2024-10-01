@@ -62,7 +62,7 @@ class OAuth2Controller extends FrameworkBundleAdminController
     private $security;
 
     /**
-     * @var EntityManager
+     * @var EntityManagerInterface
      */
     private $entityManager;
 
