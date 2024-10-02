@@ -43,8 +43,7 @@ class ActionAdminLoginControllerSetMedia extends Hook
         $psAccountsService = $this->module->getService(PsAccountsService::class);
         $local = Tools::getValue('mode') === AdminLoginPsAccountsController::PARAM_MODE_LOCAL ||
             !empty(Tools::getValue('reset_token')) ||
-            !$psAccountsService->getLoginActivated() ||
-            !$this->module->isShopEdition();
+            !$psAccountsService->getLoginActivated();
 
         $this->trackLoginPage($local);
 
