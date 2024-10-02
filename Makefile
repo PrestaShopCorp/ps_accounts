@@ -71,10 +71,14 @@ platform-module-install: tests/vendor platform-phpstan-config platform-module-co
 	-@docker exec phpunit sh -c "if [ -f ./bin/console ]; then php -d memory_limit=-1 ./bin/console prestashop:module install ps_accounts; fi"
 	-@docker exec phpunit sh -c "if [ ! -f ./bin/console ]; then php -d memory_limit=-1 ./modules/ps_accounts/tests/install-module.php; fi"
 
+# TODO: set group permissions on module dir for www-data
 platform-fix-permissions:
-	@docker exec phpunit sh -c "if [ -d ./var ]; then chown -R www-data:www-data ./var; fi"
-	@docker exec phpunit sh -c "if [ -d ./cache ]; then chown -R www-data:www-data ./cache; fi" # PS1.6
-	@docker exec phpunit sh -c "if [ -d ./log ]; then chown -R www-data:www-data ./log; fi" # PS1.6
+	@docker exec -u root phpunit sh -c "if [ -d ./var ]; then chown -R www-data:www-data ./var; fi"
+	@docker exec -u root phpunit sh -c "if [ -d ./cache ]; then chown -R www-data:www-data ./cache; fi" # PS1.6
+	@docker exec -u root phpunit sh -c "if [ -d ./log ]; then chown -R www-data:www-data ./log; fi" # PS1.6
+	@docker exec -u root phpunit sh -c "chgrp -R www-data ${CONTAINER_INSTALL_DIR}"
+	@docker exec -u root phpunit sh -c "find ${CONTAINER_INSTALL_DIR} -type d -exec chmod g+r,g+w,g+x {} \;"
+	@docker exec -u root phpunit sh -c "find ${CONTAINER_INSTALL_DIR} -type f -exec chmod g+r,g+w {} \;"
 
 #phpunit-xdebug:
 #	-@docker exec phpunit sh -c "docker-php-ext-enable xdebug"
@@ -104,7 +108,7 @@ endef
 platform-is-alive:
 	sleep 10
 
-platform-init: platform-pull platform-restart platform-is-alive platform-module-install platform-fix-permissions
+platform-init: platform-pull platform-restart platform-is-alive platform-fix-permissions platform-module-install
 	@echo platform container is ready
 
 ##################

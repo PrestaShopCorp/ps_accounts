@@ -4,7 +4,7 @@ services:
     container_name: phpunit
 #    image: 'prestashop/prestashop-flashlight:1.7.6.9-7.2'
     image: ${PLATFORM_IMAGE}
-    user: root
+#    user: root
     environment:
       - PS_DOMAIN=localhost
 #      - PS_ENABLE_SSL=0
