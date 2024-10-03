@@ -28,11 +28,11 @@ class PsAccountsLogger
     const MAX_FILES = 15;
 
     /**
-     * Create logger.
+     * @param int $logLevel
      *
      * @return Logger
      */
-    public static function create()
+    public static function create($logLevel = Logger::INFO)
     {
         $path = _PS_ROOT_DIR_ . '/var/logs/ps_accounts';
 
@@ -44,7 +44,8 @@ class PsAccountsLogger
 
         $rotatingFileHandler = new RotatingFileHandler(
             $path,
-            static::MAX_FILES
+            static::MAX_FILES,
+            $logLevel
         );
         $logger = new Logger('ps_accounts');
         $logger->pushHandler($rotatingFileHandler);
