@@ -178,6 +178,7 @@ class ConfigurationRepository
             return $entry->date_upd;
         } catch (\Exception $e) {
             Logger::getInstance()->error(__METHOD__ . ': ' . $e->getMessage());
+
             return null;
         }
     }

@@ -183,7 +183,6 @@ class Configuration
      * @param string|bool $default
      *
      * @return mixed
-     *
      */
     public function getUncached($key, $idShopGroup = null, $idShop = null, $default = false)
     {
@@ -198,13 +197,14 @@ class Configuration
      * @param string $key
      * @param int|null $idShopGroup
      * @param int|null $idShop
+     *
      * @return \Configuration
      *
      * @throw \Exception
      */
     public function getUncachedConfiguration($key, $idShopGroup = null, $idShop = null)
     {
-        if (! $this->isMultishopActive()) {
+        if (!$this->isMultishopActive()) {
             $idShopGroup = $idShop = null;
         }
         $id = \Configuration::getIdByName($key, $idShopGroup, $idShop);

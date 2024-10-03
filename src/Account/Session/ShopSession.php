@@ -180,7 +180,7 @@ class ShopSession extends Session implements SessionInterface
      *
      * @return void
      *
-     * @throws InconsistentAssociationStateException|\DateMalformedStringException
+     * @throws InconsistentAssociationStateException
      */
     protected function assertAssociationState($oauth2ClientReceiptTimeout = 60)
     {
