@@ -218,9 +218,9 @@ abstract class GuzzleClient implements ClientInterface
             $module = \Module::getInstanceByName('ps_accounts');
             try {
                 $logger = $module->getLogger();
-                $logger->debug('route ' . $this->getRoute());
-                $logger->debug('options ' . var_export($options, true));
-                $logger->debug('response ' . var_export($response, true));
+                $logger->error('route ' . $this->getRoute());
+                $logger->error('options ' . var_export($options, true));
+                $logger->error('response ' . var_export($response, true));
             } catch (\Exception $e) {
             }
         }
