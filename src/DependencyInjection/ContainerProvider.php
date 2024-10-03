@@ -51,6 +51,11 @@ class ContainerProvider
     private $cacheDirectory;
 
     /**
+     * @var string
+     */
+    private $configDir = 'config_module';
+
+    /**
      * @param string $moduleName
      * @param string $moduleLocalPath
      * @param string $moduleEnv
@@ -81,7 +86,11 @@ class ContainerProvider
             . ucfirst($containerName)
             . 'Container'
         ;
-        $containerFilePath = $this->cacheDirectory->getPath() . '/' . $containerClassName . '.php';
+
+        // FIXME: not used (just for PHPStan)
+        $originalContainerFilePath = $this->cacheDirectory->getPath() . '/' . $containerClassName . '.php';
+
+        $containerFilePath = $this->moduleLocalPath . 'cache/' . $containerClassName . '.php';
         $containerConfigCache = new ConfigCache($containerFilePath, _PS_MODE_DEV_);
 
         if ($containerConfigCache->isFresh()) {
@@ -94,12 +103,18 @@ class ContainerProvider
         }
 
         $containerBuilder = new ContainerBuilder();
-        $containerBuilder->set(
-            $this->moduleName . '.cache.directory',
-            $this->cacheDirectory
-        );
+//        FIXME: what is this for ?
+//        $containerBuilder->set(
+//            $this->moduleName . '.cache.directory',
+//            $this->cacheDirectory
+//        );
+
+//        $moduleConfigPath = $this->moduleLocalPath
+//            . 'config/'
+//            . $containerName
+//        ;
         $moduleConfigPath = $this->moduleLocalPath
-            . 'config/'
+            . $this->configDir . '/'
             . $containerName
         ;
 

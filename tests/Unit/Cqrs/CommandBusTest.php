@@ -28,21 +28,11 @@ use PrestaShop\Module\PsAccounts\Tests\TestCase;
 class CommandBusTest extends TestCase
 {
     /**
+     * @inject
+     *
      * @var CommandBus
      */
     public $commandBus;
-
-    /**
-     * @return void
-     *
-     * @throws \Exception
-     */
-    public function setUp(): void
-    {
-        parent::setUp();
-
-        $this->commandBus = $this->module->getService(CommandBus::class);
-    }
 
     /**
      * @test
