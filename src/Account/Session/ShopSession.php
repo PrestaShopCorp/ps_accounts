@@ -176,13 +176,13 @@ class ShopSession extends Session implements SessionInterface
     }
 
     /**
-     * @param int $waitForOAuth2ClientSeconds
+     * @param int $oauth2ClientReceiptTimeout
      *
      * @return void
      *
-     * @throws InconsistentAssociationStateException
+     * @throws InconsistentAssociationStateException|\DateMalformedStringException
      */
-    protected function assertAssociationState($waitForOAuth2ClientSeconds = 60)
+    protected function assertAssociationState($oauth2ClientReceiptTimeout = 60)
     {
         $linkedAtTs = $currentTs = time();
         if ($this->linkShop->linkedAt()) {
@@ -190,7 +190,7 @@ class ShopSession extends Session implements SessionInterface
         }
 
         if ($this->linkShop->exists() &&
-            $currentTs - $linkedAtTs > $waitForOAuth2ClientSeconds &&
+            $currentTs - $linkedAtTs > $oauth2ClientReceiptTimeout &&
             !$this->oauth2ClientProvider->getOauth2Client()->exists()) {
             throw new InconsistentAssociationStateException('Invalid OAuth2 client');
         }
