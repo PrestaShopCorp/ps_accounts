@@ -1,6 +1,6 @@
 <?php
 
-namespace PrestaShop\Module\PsAccounts\Polyfill\Traits;
+namespace PrestaShop\Module\PsAccounts\Polyfill\Traits\Controller;
 
 use PrestaShopException;
 

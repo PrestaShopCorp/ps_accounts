@@ -24,7 +24,7 @@ use PrestaShop\Module\PsAccounts\Account\Dto\UpdateShop;
 use PrestaShop\Module\PsAccounts\Account\Dto\UpgradeModule;
 use PrestaShop\Module\PsAccounts\Http\Client\Guzzle\GuzzleClient;
 use PrestaShop\Module\PsAccounts\Http\Client\Guzzle\GuzzleClientFactory;
-use Ramsey\Uuid\Uuid;
+use PrestaShop\Module\PsAccounts\Vendor\Ramsey\Uuid\Uuid;
 
 class AccountsClient
 {

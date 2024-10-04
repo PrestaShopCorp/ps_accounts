@@ -39,5 +39,6 @@ parameters:
 		- '#Call to method get\(\) on an unknown class PrestaShop\\PrestaShop\\Adapter\\SymfonyContainer.#'
 		- '#Call to static method getInstance\(\) on an unknown class PrestaShop\\PrestaShop\\Adapter\\SymfonyContainer.#'
 		- '#Call to an undefined method object::generate\(\).#'
+		- '#Symfony\\Component\\HttpFoundation\\Session\\SessionInterface#'
 
 	level: 7
