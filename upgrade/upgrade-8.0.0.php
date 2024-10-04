@@ -1,4 +1,8 @@
 <?php
+
+use PrestaShop\Module\PsAccounts\Account\Command\CreateIdentitiesCommand;
+use PrestaShop\Module\PsAccounts\Cqrs\CommandBus;
+
 /**
  * @param Ps_accounts $module
  *
@@ -9,9 +13,9 @@
  */
 function upgrade_module_8_0_0($module)
 {
-    /** @var \PrestaShop\Module\PsAccounts\Cqrs\CommandBus $commandBus */
-    $commandBus = $module->getService(\PrestaShop\Module\PsAccounts\Cqrs\CommandBus::class);
-    $commandBus->handle(new \PrestaShop\Module\PsAccounts\Account\Command\CreateIdentitiesCommand([]));
+    /** @var CommandBus $commandBus */
+    $commandBus = $module->getService(CommandBus::class);
+    $commandBus->handle(new CreateIdentitiesCommand());
 
     return true;
 }

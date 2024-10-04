@@ -24,15 +24,8 @@ namespace PrestaShop\Module\PsAccounts\Account\Command;
 class CreateIdentitiesCommand
 {
     /**
-     * @var array
      */
-    public $payload;
-
-    /**
-     * @param array $payload
-     */
-    public function __construct(array $payload)
+    public function __construct()
     {
-        $this->payload = $payload;
     }
 }
