@@ -20,48 +20,51 @@
 
 namespace PrestaShop\Module\PsAccounts\Account\CommandHandler;
 
-use PrestaShop\Module\PsAccounts\Account\Command\CreateIdentityCommand;
-use PrestaShop\Module\PsAccounts\Account\Command\MultiCreateIdentityCommand;
-use PrestaShop\Module\PsAccounts\Account\CommandHandler\AbstractClass\MultiShopHandlerAbstract;
+use PrestaShop\Module\PsAccounts\Context\ShopContext;
 use PrestaShop\Module\PsAccounts\Cqrs\CommandBus;
-use PrestaShop\Module\PsAccounts\Repository\ConfigurationRepository;
 
-class MultiCreateIdentityHandler extends MultiShopHandlerAbstract
+abstract class MultiShopHandlerAbstract
 {
     /**
-     * @var ConfigurationRepository
+     * @var ShopContext
      */
-    private $configRepo;
+    protected $shopContext;
 
     /**
      * @var CommandBus
      */
-    private $commandBus;
+    protected $commandBus;
 
-    /**
-     * @param CommandBus $commandBus
-     * @param ConfigurationRepository $configRepo
-     */
     public function __construct(
-        CommandBus $commandBus,
-        ConfigurationRepository $configRepo
+        ShopContext $shopContext,
+        CommandBus $commandBus
     ) {
+        $this->shopContext = $shopContext;
         $this->commandBus = $commandBus;
-        $this->configRepo = $configRepo;
     }
 
     /**
-     * @param MultiCreateIdentityCommand $command
+     * @param \Closure $handler
      *
      * @return void
-     *
-     * @throws \PrestaShopException
-     * @throws \Exception
      */
-    public function handle(MultiCreateIdentityCommand $command)
-    {
-        foreach ($this->getShops($this->configRepo->isMultishopActive()) as $id) {
-            $this->commandBus->handle(new CreateIdentityCommand($id, []));
+    protected function handleMulti($handler) {
+        foreach ($this->getShopIds() as $multiShopId) {
+            $this->shopContext->execInShopContext($multiShopId, function () use ($handler, $multiShopId) {
+                $handler($multiShopId);
+            });
         }
+    }
+
+    /**
+     * @return array|null[]
+     */
+    protected function getShopIds()
+    {
+        if ($this->shopContext->isMultishopActive()) {
+            return $this->shopContext->getMultiShopIds();
+        }
+        // FIXME: very unclear why we do that
+        return [null];
     }
 }

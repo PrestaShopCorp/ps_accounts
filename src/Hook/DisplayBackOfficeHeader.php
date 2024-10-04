@@ -20,7 +20,7 @@
 
 namespace PrestaShop\Module\PsAccounts\Hook;
 
-use PrestaShop\Module\PsAccounts\Account\Command\UpgradeModuleMultiCommand;
+use PrestaShop\Module\PsAccounts\Account\Command\UpgradeModulesCommand;
 use PrestaShop\Module\PsAccounts\Vendor\League\OAuth2\Client\Provider\Exception\IdentityProviderException;
 
 class DisplayBackOfficeHeader extends Hook
@@ -44,7 +44,7 @@ class DisplayBackOfficeHeader extends Hook
         }
 
         try {
-            $this->commandBus->handle(new UpgradeModuleMultiCommand());
+            $this->commandBus->handle(new UpgradeModulesCommand());
         } catch (\Exception $e) {
             /* @phpstan-ignore-next-line */
             $this->logger->error('error during upgrade : ' . $e->getMessage());

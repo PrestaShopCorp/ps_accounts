@@ -29,17 +29,10 @@ class CreateIdentityCommand
     public $shopId;
 
     /**
-     * @var array
-     */
-    public $payload;
-
-    /**
      * @param int|null $shopId
-     * @param array $payload
      */
-    public function __construct($shopId, array $payload)
+    public function __construct($shopId)
     {
         $this->shopId = $shopId;
-        $this->payload = $payload;
     }
 }

@@ -20,6 +20,6 @@
 
 namespace PrestaShop\Module\PsAccounts\Account\Command;
 
-class UpgradeModuleMultiCommand
+class UpgradeModulesCommand
 {
 }

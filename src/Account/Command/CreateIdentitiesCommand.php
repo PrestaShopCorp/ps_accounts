@@ -21,7 +21,7 @@
 
 namespace PrestaShop\Module\PsAccounts\Account\Command;
 
-class MultiCreateIdentityCommand
+class CreateIdentitiesCommand
 {
     /**
      * @var array

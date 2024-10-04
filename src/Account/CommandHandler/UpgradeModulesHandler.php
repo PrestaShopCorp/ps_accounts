@@ -21,51 +21,33 @@
 namespace PrestaShop\Module\PsAccounts\Account\CommandHandler;
 
 use PrestaShop\Module\PsAccounts\Account\Command\UpgradeModuleCommand;
-use PrestaShop\Module\PsAccounts\Account\Command\UpgradeModuleMultiCommand;
-use PrestaShop\Module\PsAccounts\Account\CommandHandler\AbstractClass\MultiShopHandlerAbstract;
+use PrestaShop\Module\PsAccounts\Account\Command\UpgradeModulesCommand;
 use PrestaShop\Module\PsAccounts\Account\Dto\UpgradeModule;
-use PrestaShop\Module\PsAccounts\Cqrs\CommandBus;
 use PrestaShop\Module\PsAccounts\Exception\DtoException;
 use PrestaShop\Module\PsAccounts\Exception\RefreshTokenException;
-use PrestaShop\Module\PsAccounts\Repository\ConfigurationRepository;
+use PrestaShop\Module\PsAccounts\Log\Logger;
 
-class UpgradeModuleMultiHandler extends MultiShopHandlerAbstract
+class UpgradeModulesHandler extends MultiShopHandlerAbstract
 {
     /**
-     * @var ConfigurationRepository
-     */
-    private $configRepo;
-
-    /**
-     * @var CommandBus
-     */
-    private $commandBus;
-
-    public function __construct(
-        CommandBus $commandBus,
-        ConfigurationRepository $configRepo
-    ) {
-        $this->commandBus = $commandBus;
-        $this->configRepo = $configRepo;
-    }
-
-    /**
-     * @param UpgradeModuleMultiCommand $command
+     * @param UpgradeModulesCommand $command
      *
      * @return void
      */
-    public function handle(UpgradeModuleMultiCommand $command)
+    public function handle(UpgradeModulesCommand $command)
     {
-        foreach ($this->getShops($this->configRepo->isMultishopActive()) as $id) {
+        $this->handleMulti(function ($multiShopId) {
             try {
                 $this->commandBus->handle(new UpgradeModuleCommand(new UpgradeModule([
-                    'shopId' => $id,
+                    'shopId' => $multiShopId,
                     // FIXME: should be part of the command payload
                     'version' => \Ps_accounts::VERSION,
                 ])));
             } catch (RefreshTokenException $e) {
+                Logger::getInstance()->error(__METHOD__ . ': ' . $e->getMessage());
             } catch (DtoException $e) {
+                Logger::getInstance()->error(__METHOD__ . ': ' . $e->getMessage());
             }
-        }
+        });
     }
 }

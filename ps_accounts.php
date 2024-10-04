@@ -508,7 +508,7 @@ class Ps_accounts extends Module
 
         /** @var \PrestaShop\Module\PsAccounts\Cqrs\CommandBus $commandBus */
         $commandBus = $this->getService(\PrestaShop\Module\PsAccounts\Cqrs\CommandBus::class);
-        $commandBus->handle(new \PrestaShop\Module\PsAccounts\Account\Command\MultiCreateIdentityCommand([]));
+        $commandBus->handle(new \PrestaShop\Module\PsAccounts\Account\Command\CreateIdentitiesCommand([]));
     }
 }
 

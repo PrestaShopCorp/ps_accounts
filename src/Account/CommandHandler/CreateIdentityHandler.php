@@ -45,11 +45,6 @@ class CreateIdentityHandler
     private $shopProvider;
 
     /**
-     * @var ShopContext
-     */
-    private $shopContext;
-
-    /**
      * @var LinkShop
      */
     private $linkShop;
@@ -58,20 +53,17 @@ class CreateIdentityHandler
      * @param AccountsClient $accountsClient
      * @param ShopProvider $shopProvider
      * @param Oauth2Client $oauth2Client
-     * @param ShopContext $shopContext
      * @param LinkShop $linkShop
      */
     public function __construct(
         AccountsClient $accountsClient,
         ShopProvider $shopProvider,
         Oauth2Client $oauth2Client,
-        ShopContext $shopContext,
         LinkShop $linkShop
     ) {
         $this->accountsClient = $accountsClient;
         $this->shopProvider = $shopProvider;
         $this->oauth2Client = $oauth2Client;
-        $this->shopContext = $shopContext;
         $this->linkShop = $linkShop;
     }
 
@@ -79,25 +71,25 @@ class CreateIdentityHandler
      * @param CreateIdentityCommand $command
      *
      * @return void
-     *
-     * @throws \PrestaShopException
-     * @throws \Exception
      */
     public function handle(CreateIdentityCommand $command)
     {
-        $this->shopContext->execInShopContext($command->shopId, function () {
-            if (!$this->oauth2Client->exists()) {
-                $currentShop = $this->shopProvider->getCurrentShop();
-                $url = rtrim($currentShop['frontUrl'], '/');
-                $backOfficeUrl = explode('/index.php', $currentShop['url'])[0];
-                $resp = $this->accountsClient->createShopIdentity($backOfficeUrl, $url, intval($currentShop['id']));
-                if ($resp['status'] === true && $resp['body']) {
-                    $this->oauth2Client->update($resp['body']['clientId'], $resp['body']['clientSecret']);
-                    $this->linkShop->setShopUuid($resp['body']['cloudShopId']);
-                } else {
-                    // TODO Add bad request handling here
-                }
+        if (! $this->oauth2Client->exists()) {
+
+            $response = $this->accountsClient->createShopIdentity(
+                explode('/index.php', $this->shopProvider->getBackendUrl($command->shopId))[0],
+                rtrim($this->shopProvider->getFrontendUrl($command->shopId),'/'),
+                $command->shopId
+            );
+
+            if ($response['status'] === true && isset($response['body'])) {
+                $body = $response['body'];
+                //
+                $this->oauth2Client->update($body['clientId'], $body['clientSecret']);
+                $this->linkShop->setShopUuid($body['cloudShopId']);
+            } else {
+                // TODO Add bad request handling here
             }
-        });
+        }
     }
 }

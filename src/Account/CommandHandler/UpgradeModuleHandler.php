@@ -26,7 +26,6 @@ use PrestaShop\Module\PsAccounts\Account\LinkShop;
 use PrestaShop\Module\PsAccounts\Account\Session\Firebase\ShopSession;
 use PrestaShop\Module\PsAccounts\Account\Token\NullToken;
 use PrestaShop\Module\PsAccounts\Api\Client\AccountsClient;
-use PrestaShop\Module\PsAccounts\Context\ShopContext;
 use PrestaShop\Module\PsAccounts\Cqrs\CommandBus;
 use PrestaShop\Module\PsAccounts\Exception\RefreshTokenException;
 use PrestaShop\Module\PsAccounts\Log\Logger;
@@ -55,11 +54,6 @@ class UpgradeModuleHandler
     private $configRepo;
 
     /**
-     * @var ShopContext
-     */
-    private $shopContext;
-
-    /**
      * @var CommandBus
      */
     private $commandBus;
@@ -68,14 +62,12 @@ class UpgradeModuleHandler
         AccountsClient $accountsClient,
         LinkShop $linkShop,
         ShopSession $shopSession,
-        ShopContext $shopContext,
         ConfigurationRepository $configurationRepository,
         CommandBus $commandBus
     ) {
         $this->accountsClient = $accountsClient;
         $this->linkShop = $linkShop;
         $this->shopSession = $shopSession;
-        $this->shopContext = $shopContext;
         $this->configRepo = $configurationRepository;
         $this->commandBus = $commandBus;
     }
@@ -89,40 +81,38 @@ class UpgradeModuleHandler
      */
     public function handle(UpgradeModuleCommand $command)
     {
-        $this->shopContext->execInShopContext($command->payload->shopId, function () use ($command) {
-            $lastUpgrade = $this->configRepo->getLastUpgrade(false);
+        $lastUpgrade = $this->configRepo->getLastUpgrade(false);
 
-            if (version_compare($lastUpgrade, $command->payload->version, '<')) {
-                Logger::getInstance()->info(
-                    'attempt upgrade [' . $lastUpgrade . ' to ' . $command->payload->version . ']'
+        if (version_compare($lastUpgrade, $command->payload->version, '<')) {
+            Logger::getInstance()->info(
+                'attempt upgrade [' . $lastUpgrade . ' to ' . $command->payload->version . ']'
+            );
+
+            // Set new version a soon as we can to avoid duplicate calls
+            $this->configRepo->updateLastUpgrade($command->payload->version);
+
+            // FIXME: to be removed once oauth client has been updated
+            //if (version_compare($lastUpgrade, '7.0.0', '<')) {
+            $this->lastChanceToRefreshShopToken();
+            //}
+
+            $token = $this->shopSession->getValidToken();
+
+            if (!$token->getJwt() instanceof NullToken) {
+                $response = $this->accountsClient->upgradeShopModule(
+                    $this->linkShop->getShopUuid(),
+                    (string) $token,
+                    $command->payload
                 );
 
-                // Set new version a soon as we can to avoid duplicate calls
-                $this->configRepo->updateLastUpgrade($command->payload->version);
-
-                // FIXME: to be removed once oauth client has been updated
-                //if (version_compare($lastUpgrade, '7.0.0', '<')) {
-                $this->lastChanceToRefreshShopToken();
-                //}
-
-                $token = $this->shopSession->getValidToken();
-
-                if (!$token->getJwt() instanceof NullToken) {
-                    $response = $this->accountsClient->upgradeShopModule(
-                        $this->linkShop->getShopUuid(),
-                        (string) $token,
-                        $command->payload
-                    );
-
-                    if (!$response['status']) {
-                        $this->commandBus->handle(new UnlinkShopCommand(
-                            $this->configRepo->getShopId(),
-                            $response['httpCode']
-                        ));
-                    }
+                if (!$response['status']) {
+                    $this->commandBus->handle(new UnlinkShopCommand(
+                        $this->configRepo->getShopId(),
+                        $response['httpCode']
+                    ));
                 }
             }
-        });
+        }
     }
 
     /**

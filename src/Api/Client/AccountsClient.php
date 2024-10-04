@@ -205,7 +205,6 @@ class AccountsClient
         $this->getClient()->setRoute('/v1/shop/token/verify');
 
         return $this->getClient()->post([
-            'headers' => $this->getHeaders(),
             'json' => [
                 'token' => $idToken,
             ],

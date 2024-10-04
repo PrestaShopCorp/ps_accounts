@@ -18,32 +18,21 @@
  * @license   https://opensource.org/licenses/AFL-3.0 Academic Free License version 3.0
  */
 
-namespace PrestaShop\Module\PsAccounts\Account\CommandHandler\AbstractClass;
+namespace PrestaShop\Module\PsAccounts\Account\CommandHandler;
 
-class MultiShopHandlerAbstract
+use PrestaShop\Module\PsAccounts\Account\Command\CreateIdentityCommand;
+use PrestaShop\Module\PsAccounts\Account\Command\CreateIdentitiesCommand;
+class CreateIdentitiesHandler extends MultiShopHandlerAbstract
 {
     /**
-     * @param bool $multishop
+     * @param CreateIdentitiesCommand $command
      *
-     * @return array|null[]
+     * @return void
      */
-    protected function getShops($multishop)
+    public function handle(CreateIdentitiesCommand $command)
     {
-        $shops = [null];
-        if ($multishop) {
-            $shops = [];
-            $db = \Db::getInstance();
-            try {
-                $result = $db->query('SELECT id_shop FROM ' . _DB_PREFIX_ . 'shop');
-                while ($row = $db->nextRow($result)) {
-                    /* @phpstan-ignore-next-line */
-                    $shops[] = $row['id_shop'];
-                }
-            } catch (\Throwable $e) {
-                return [];
-            }
-        }
-
-        return $shops;
+        $this->handleMulti(function ($multiShopId) {
+            $this->commandBus->handle(new CreateIdentityCommand($multiShopId));
+        });
     }
 }
