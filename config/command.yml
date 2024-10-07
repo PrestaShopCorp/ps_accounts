@@ -56,16 +56,15 @@ services:
       - '@PrestaShop\Module\PsAccounts\Api\Client\AccountsClient'
       - '@PrestaShop\Module\PsAccounts\Account\LinkShop'
       - '@PrestaShop\Module\PsAccounts\Account\Session\Firebase\ShopSession'
-      - '@PrestaShop\Module\PsAccounts\Context\ShopContext'
       - '@PrestaShop\Module\PsAccounts\Repository\ConfigurationRepository'
       - '@PrestaShop\Module\PsAccounts\Cqrs\CommandBus'
 
-  PrestaShop\Module\PsAccounts\Account\CommandHandler\UpgradeModuleMultiHandler:
-    class: PrestaShop\Module\PsAccounts\Account\CommandHandler\UpgradeModuleMultiHandler
+  PrestaShop\Module\PsAccounts\Account\CommandHandler\UpgradeModulesHandler:
+    class: PrestaShop\Module\PsAccounts\Account\CommandHandler\UpgradeModulesHandler
     public: true
     arguments:
+      - '@PrestaShop\Module\PsAccounts\Context\ShopContext'
       - '@PrestaShop\Module\PsAccounts\Cqrs\CommandBus'
-      - '@PrestaShop\Module\PsAccounts\Repository\ConfigurationRepository'
 
   PrestaShop\Module\PsAccounts\Account\CommandHandler\CreateIdentityHandler:
     class: PrestaShop\Module\PsAccounts\Account\CommandHandler\CreateIdentityHandler
@@ -74,12 +73,11 @@ services:
       - '@PrestaShop\Module\PsAccounts\Api\Client\AccountsClient'
       - '@PrestaShop\Module\PsAccounts\Provider\ShopProvider'
       - '@PrestaShop\Module\PsAccounts\Provider\OAuth2\Oauth2Client'
-      - '@PrestaShop\Module\PsAccounts\Context\ShopContext'
       - '@PrestaShop\Module\PsAccounts\Account\LinkShop'
 
-  PrestaShop\Module\PsAccounts\Account\CommandHandler\MultiCreateIdentityHandler:
-    class: PrestaShop\Module\PsAccounts\Account\CommandHandler\MultiCreateIdentityHandler
+  PrestaShop\Module\PsAccounts\Account\CommandHandler\CreateIdentitiesHandler:
+    class: PrestaShop\Module\PsAccounts\Account\CommandHandler\CreateIdentitiesHandler
     public: true
     arguments:
+      - '@PrestaShop\Module\PsAccounts\Context\ShopContext'
       - '@PrestaShop\Module\PsAccounts\Cqrs\CommandBus'
-      - '@PrestaShop\Module\PsAccounts\Repository\ConfigurationRepository'
