@@ -27,7 +27,7 @@ use PrestaShop\Module\PsAccounts\Exception\DtoException;
 use PrestaShop\Module\PsAccounts\Exception\RefreshTokenException;
 use PrestaShop\Module\PsAccounts\Log\Logger;
 
-class UpgradeModulesHandler extends MultiShopHandlerAbstract
+class UpgradeModulesHandler extends MultiShopHandler
 {
     /**
      * @param UpgradeModulesCommand $command

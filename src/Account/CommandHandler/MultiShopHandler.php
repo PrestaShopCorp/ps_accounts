@@ -23,7 +23,7 @@ namespace PrestaShop\Module\PsAccounts\Account\CommandHandler;
 use PrestaShop\Module\PsAccounts\Context\ShopContext;
 use PrestaShop\Module\PsAccounts\Cqrs\CommandBus;
 
-abstract class MultiShopHandlerAbstract
+abstract class MultiShopHandler
 {
     /**
      * @var ShopContext
