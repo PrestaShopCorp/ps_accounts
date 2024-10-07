@@ -48,7 +48,8 @@ abstract class MultiShopHandler
      *
      * @return void
      */
-    protected function handleMulti($handler) {
+    protected function handleMulti($handler)
+    {
         foreach ($this->getShopIds() as $multiShopId) {
             $this->shopContext->execInShopContext($multiShopId, function () use ($handler, $multiShopId) {
                 $handler($multiShopId);

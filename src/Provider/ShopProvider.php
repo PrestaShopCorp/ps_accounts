@@ -266,7 +266,7 @@ class ShopProvider
     }
 
     /**
-     * @param $shopId
+     * @param int $shopId
      *
      * @return string|null
      */
@@ -276,7 +276,7 @@ class ShopProvider
     }
 
     /**
-     * @param $shopId
+     * @param int $shopId
      *
      * @return string
      */

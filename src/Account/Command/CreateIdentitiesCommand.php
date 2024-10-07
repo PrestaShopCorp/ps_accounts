@@ -23,8 +23,6 @@ namespace PrestaShop\Module\PsAccounts\Account\Command;
 
 class CreateIdentitiesCommand
 {
-    /**
-     */
     public function __construct()
     {
     }

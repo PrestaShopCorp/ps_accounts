@@ -23,7 +23,6 @@ namespace PrestaShop\Module\PsAccounts\Account\CommandHandler;
 use PrestaShop\Module\PsAccounts\Account\Command\CreateIdentityCommand;
 use PrestaShop\Module\PsAccounts\Account\LinkShop;
 use PrestaShop\Module\PsAccounts\Api\Client\AccountsClient;
-use PrestaShop\Module\PsAccounts\Context\ShopContext;
 use PrestaShop\Module\PsAccounts\Provider\OAuth2\Oauth2Client;
 use PrestaShop\Module\PsAccounts\Provider\ShopProvider;
 
@@ -75,11 +74,10 @@ class CreateIdentityHandler
     public function handle(CreateIdentityCommand $command)
     {
         // FIXME: remove that test
-        if (! $this->oauth2Client->exists()) {
-
+        if (!$this->oauth2Client->exists()) {
             $response = $this->accountsClient->createShopIdentity(
                 explode('/index.php', $this->shopProvider->getBackendUrl($command->shopId))[0],
-                rtrim($this->shopProvider->getFrontendUrl($command->shopId),'/'),
+                rtrim($this->shopProvider->getFrontendUrl($command->shopId), '/'),
                 $command->shopId
             );
 

@@ -20,8 +20,9 @@
 
 namespace PrestaShop\Module\PsAccounts\Account\CommandHandler;
 
-use PrestaShop\Module\PsAccounts\Account\Command\CreateIdentityCommand;
 use PrestaShop\Module\PsAccounts\Account\Command\CreateIdentitiesCommand;
+use PrestaShop\Module\PsAccounts\Account\Command\CreateIdentityCommand;
+
 class CreateIdentitiesHandler extends MultiShopHandler
 {
     /**

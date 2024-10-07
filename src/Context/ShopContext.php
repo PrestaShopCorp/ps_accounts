@@ -204,11 +204,14 @@ class ShopContext
             }
         } catch (\Error $e) {
             Logger::getInstance()->error(__METHOD__ . ': ' . $e->getMessage());
+
             return [];
         } catch (\Exception $e) {
             Logger::getInstance()->error(__METHOD__ . ': ' . $e->getMessage());
+
             return [];
         }
+
         return $shops;
     }
 }

@@ -15,13 +15,6 @@ class CreateIdentityHandlerTest extends TestCase
     /**
      * @inject
      *
-     * @var ShopContext
-     */
-    protected $shopContext;
-
-    /**
-     * @inject
-     *
      * @var ShopProvider
      */
     protected $shopProvider;
@@ -137,7 +130,6 @@ class CreateIdentityHandlerTest extends TestCase
             $this->accountsClient,
             $this->shopProvider,
             $this->oauth2Client,
-            $this->shopContext,
             $this->linkShop
         );
     }
