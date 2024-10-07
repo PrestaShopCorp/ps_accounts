@@ -74,6 +74,7 @@ class CreateIdentityHandler
      */
     public function handle(CreateIdentityCommand $command)
     {
+        // FIXME: remove that test
         if (! $this->oauth2Client->exists()) {
 
             $response = $this->accountsClient->createShopIdentity(
@@ -84,7 +85,7 @@ class CreateIdentityHandler
 
             if ($response['status'] === true && isset($response['body'])) {
                 $body = $response['body'];
-                //
+                // FIXME: should we refactor those kind of "entities" ?
                 $this->oauth2Client->update($body['clientId'], $body['clientSecret']);
                 $this->linkShop->setShopUuid($body['cloudShopId']);
             } else {
