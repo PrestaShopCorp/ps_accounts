@@ -161,7 +161,7 @@ class ShopContext
     }
 
     /**
-     * @param int $shopId
+     * @param int|null $shopId
      * @param \Closure $closure
      *
      * @return mixed

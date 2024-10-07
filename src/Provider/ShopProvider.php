@@ -277,6 +277,7 @@ class ShopProvider
 
     /**
      * @param int $shopId
+     * @param string $psxName
      *
      * @return string
      */
