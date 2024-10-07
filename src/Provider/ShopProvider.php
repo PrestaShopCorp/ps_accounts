@@ -264,4 +264,33 @@ class ShopProvider
             ($shopData['domain_ssl'] ?: $shopData['domain']) .
             $shopData['uri'];
     }
+
+    /**
+     * @param int $shopId
+     *
+     * @return string|null
+     */
+    public function getFrontendUrl($shopId)
+    {
+        return $this->getShopUrl((array) \Shop::getShop($shopId));
+    }
+
+    /**
+     * @param int $shopId
+     * @param string $psxName
+     *
+     * @return string
+     */
+    public function getBackendUrl($shopId, $psxName = 'ps_accounts')
+    {
+        return $this->link->getAdminLink(
+            'AdminModules',
+            true,
+            [],
+            [
+                'configure' => $psxName,
+                'setShopContext' => 's-' . $shopId,
+            ]
+        );
+    }
 }

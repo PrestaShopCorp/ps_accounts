@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Copyright since 2007 PrestaShop SA and Contributors
  * PrestaShop is an International Registered Trademark & Property of PrestaShop SA
@@ -20,25 +21,9 @@
 
 namespace PrestaShop\Module\PsAccounts\Account\Command;
 
-class MigrateAndLinkV4ShopCommand
+class CreateIdentitiesCommand
 {
-    /**
-     * @var int
-     */
-    public $shopId;
-
-    /**
-     * @var array
-     */
-    public $payload;
-
-    /**
-     * @param int $shopId
-     * @param array $payload
-     */
-    public function __construct($shopId, array $payload)
+    public function __construct()
     {
-        $this->shopId = $shopId;
-        $this->payload = $payload;
     }
 }
