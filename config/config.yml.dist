@@ -33,3 +33,5 @@ parameters:
   # Login page testimonials url
   ps_accounts.testimonials_url: 'https://assets.prestashop3.com/dst/accounts/assets/testimonials.json'
 
+  ps_accounts.log_level: !php/const PrestaShop\Module\PsAccounts\Vendor\Monolog\Logger::ERROR
+
