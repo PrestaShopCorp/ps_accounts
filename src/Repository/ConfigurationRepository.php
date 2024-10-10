@@ -177,6 +177,8 @@ class ConfigurationRepository
 
             return $entry->date_upd;
         } catch (\Exception $e) {
+            Logger::getInstance()->error(__METHOD__ . ': ' . $e->getMessage());
+
             return null;
         }
     }
@@ -386,8 +388,7 @@ class ConfigurationRepository
     public function isMultishopActive()
     {
         //return \Shop::isFeatureActive();
-        return \Db::getInstance()->getValue('SELECT value FROM `' . _DB_PREFIX_ . 'configuration` WHERE `name` = "PS_MULTISHOP_FEATURE_ACTIVE"')
-            && (\Db::getInstance()->getValue('SELECT COUNT(*) FROM ' . _DB_PREFIX_ . 'shop') > 1);
+        return $this->configuration->isMultishopActive();
     }
 
     /**

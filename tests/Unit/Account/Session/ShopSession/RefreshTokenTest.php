@@ -64,9 +64,6 @@ class RefreshTokenTest extends TestCase
             $commandBus
         );
 
-        // Fix single shop context
-        $this->configuration->setIdShop(null);
-        $this->configuration->setIdShopGroup(null);
         $this->shopSession->cleanup();
     }
 
