@@ -20,8 +20,9 @@
 
 namespace PrestaShop\Module\PsAccounts\Account\CommandHandler;
 
+use Hook;
 use PrestaShop\Module\PsAccounts\Account\Command\CreateIdentityCommand;
-use PrestaShop\Module\PsAccounts\Account\LinkShop;
+use PrestaShop\Module\PsAccounts\Account\ShopIdentity;
 use PrestaShop\Module\PsAccounts\Api\Client\AccountsClient;
 use PrestaShop\Module\PsAccounts\Provider\OAuth2\Oauth2Client;
 use PrestaShop\Module\PsAccounts\Provider\ShopProvider;
@@ -44,26 +45,26 @@ class CreateIdentityHandler
     private $shopProvider;
 
     /**
-     * @var LinkShop
+     * @var ShopIdentity
      */
-    private $linkShop;
+    private $shopIdentity;
 
     /**
      * @param AccountsClient $accountsClient
      * @param ShopProvider $shopProvider
      * @param Oauth2Client $oauth2Client
-     * @param LinkShop $linkShop
+     * @param ShopIdentity $shopIdentity
      */
     public function __construct(
         AccountsClient $accountsClient,
         ShopProvider $shopProvider,
         Oauth2Client $oauth2Client,
-        LinkShop $linkShop
+        ShopIdentity $shopIdentity
     ) {
         $this->accountsClient = $accountsClient;
         $this->shopProvider = $shopProvider;
         $this->oauth2Client = $oauth2Client;
-        $this->linkShop = $linkShop;
+        $this->shopIdentity = $shopIdentity;
     }
 
     /**
@@ -74,6 +75,11 @@ class CreateIdentityHandler
     public function handle(CreateIdentityCommand $command)
     {
         // FIXME: remove that test
+        // FIXME: migration from v7 -> v8 event modeling
+        // - cleanup configuration storage
+        // - identify shop (when ?) -> be sure we send version with it & when to trigger it ?
+        // - UX associated ?
+        // - Migrate routes using user token
         if (!$this->oauth2Client->exists()) {
             $response = $this->accountsClient->createShopIdentity(
                 explode('/index.php', $this->shopProvider->getBackendUrl($command->shopId))[0],
@@ -84,8 +90,10 @@ class CreateIdentityHandler
             if ($response['status'] === true && isset($response['body'])) {
                 $body = $response['body'];
                 // FIXME: should we refactor those kind of "entities" ?
+                // FIXME: oauthClientRepository->getClientByShopId ?
+                // FIXME: shopIdentityRepository->getIdentityByShopId ?
                 $this->oauth2Client->update($body['clientId'], $body['clientSecret']);
-                $this->linkShop->setShopUuid($body['cloudShopId']);
+                $this->shopIdentity->setShopUuid($body['cloudShopId']);
             } else {
                 // TODO Add bad request handling here
             }

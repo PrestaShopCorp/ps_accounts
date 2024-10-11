@@ -5,8 +5,8 @@ use PHPUnit\Framework\TestCase;
 use PrestaShop\Module\PsAccounts\Factory\CircuitBreakerFactory;
 use PrestaShop\Module\PsAccounts\Http\Client\CircuitBreaker\CircuitBreaker;
 use PrestaShop\Module\PsAccounts\Http\Client\CircuitBreaker\State;
-use PrestaShop\Module\PsAccounts\Vendor\GuzzleHttp\Exception\ConnectException;
-use PrestaShop\Module\PsAccounts\Vendor\GuzzleHttp\Psr7\Request;
+use PrestaShop\Module\PsAccounts800\Vendor\GuzzleHttp\Exception\ConnectException;
+use PrestaShop\Module\PsAccounts800\Vendor\GuzzleHttp\Psr7\Request;
 
 class CircuitBreakerTest extends TestCase
 {

@@ -20,11 +20,13 @@
 if (!defined('_PS_VERSION_')) {
     exit;
 }
-require_once __DIR__ . '/vendor/autoload.php';
+//require_once __DIR__ . '/vendor/autoload.php';
+require __DIR__ . '/src/autoload_module.php';
 
-if (!class_exists('\PrestaShop\Module\PsAccounts\Hook\HookableTrait')) {
-    ps_accounts_fix_upgrade();
-}
+
+//if (!class_exists('\PrestaShop\Module\PsAccounts\Hook\HookableTrait')) {
+//    ps_accounts_fix_upgrade();
+//}
 
 class Ps_accounts extends Module
 {
@@ -508,7 +510,9 @@ class Ps_accounts extends Module
 
         /** @var \PrestaShop\Module\PsAccounts\Cqrs\CommandBus $commandBus */
         $commandBus = $this->getService(\PrestaShop\Module\PsAccounts\Cqrs\CommandBus::class);
+        // FIXME: async guzzle requests
         $commandBus->handle(new \PrestaShop\Module\PsAccounts\Account\Command\CreateIdentitiesCommand());
+        $commandBus->handle(new \PrestaShop\Module\PsAccounts\Account\Command\UpgradeModulesCommand());
     }
 }
 

@@ -24,7 +24,7 @@ use Exception;
 use PrestaShop\Module\PsAccounts\Account\Session\Session;
 use PrestaShop\Module\PsAccounts\Account\Token\NullToken;
 use PrestaShop\Module\PsAccounts\Exception\RefreshTokenException;
-use PrestaShop\Module\PsAccounts\Vendor\Lcobucci\JWT\Token;
+use PrestaShop\Module\PsAccounts800\Vendor\Lcobucci\JWT\Token;
 
 /**
  * @deprecated

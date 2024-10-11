@@ -20,7 +20,7 @@
 
 namespace PrestaShop\Module\PsAccounts\Service;
 
-use PrestaShop\Module\PsAccounts\Account\LinkShop;
+use PrestaShop\Module\PsAccounts\Account\ShopIdentity;
 use PrestaShop\Module\PsAccounts\Account\Session\Firebase\OwnerSession;
 use PrestaShop\Module\PsAccounts\Account\Session\Firebase\ShopSession;
 use PrestaShop\Module\PsAccounts\Adapter\Link;
@@ -55,9 +55,9 @@ class PsAccountsService
     private $ownerSession;
 
     /**
-     * @var LinkShop
+     * @var ShopIdentity
      */
-    private $linkShop;
+    private $shopIdentity;
 
     /**
      * @param \Ps_accounts $module
@@ -70,7 +70,7 @@ class PsAccountsService
         $this->shopSession = $this->module->getService(ShopSession::class);
         $this->ownerSession = $this->module->getService(OwnerSession::class);
         $this->link = $this->module->getService(Link::class);
-        $this->linkShop = $module->getService(LinkShop::class);
+        $this->shopIdentity = $module->getService(ShopIdentity::class);
     }
 
     /**
@@ -96,7 +96,7 @@ class PsAccountsService
      */
     public function getShopUuid()
     {
-        return $this->linkShop->getShopUuid();
+        return $this->shopIdentity->getShopUuid();
     }
 
     /**
@@ -156,7 +156,7 @@ class PsAccountsService
      */
     public function getUserUuid()
     {
-        return (string) $this->linkShop->getOwnerUuid();
+        return (string) $this->shopIdentity->getOwnerUuid();
     }
 
     /**
@@ -174,7 +174,7 @@ class PsAccountsService
      */
     public function getEmail()
     {
-        return $this->linkShop->getOwnerEmail();
+        return $this->shopIdentity->getOwnerEmail();
     }
 
     /**
@@ -184,7 +184,7 @@ class PsAccountsService
      */
     public function isAccountLinked()
     {
-        return $this->linkShop->exists();
+        return $this->shopIdentity->exists();
     }
 
     /**
@@ -194,7 +194,7 @@ class PsAccountsService
      */
     public function isAccountLinkedV4()
     {
-        return $this->linkShop->existsV4();
+        return $this->shopIdentity->existsV4();
     }
 
     /**

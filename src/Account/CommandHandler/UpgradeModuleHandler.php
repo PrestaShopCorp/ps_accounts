@@ -20,26 +20,23 @@
 
 namespace PrestaShop\Module\PsAccounts\Account\CommandHandler;
 
-use PrestaShop\Module\PsAccounts\Account\Command\UnlinkShopCommand;
 use PrestaShop\Module\PsAccounts\Account\Command\UpgradeModuleCommand;
-use PrestaShop\Module\PsAccounts\Account\LinkShop;
-use PrestaShop\Module\PsAccounts\Account\Session\Firebase\ShopSession;
+use PrestaShop\Module\PsAccounts\Account\ShopIdentity;
+use PrestaShop\Module\PsAccounts\Account\Session;
 use PrestaShop\Module\PsAccounts\Account\Token\NullToken;
 use PrestaShop\Module\PsAccounts\Api\Client\AccountsClient;
-use PrestaShop\Module\PsAccounts\Cqrs\CommandBus;
 use PrestaShop\Module\PsAccounts\Exception\RefreshTokenException;
 use PrestaShop\Module\PsAccounts\Log\Logger;
-use PrestaShop\Module\PsAccounts\Repository\ConfigurationRepository;
 
 class UpgradeModuleHandler
 {
     /**
-     * @var LinkShop
+     * @var ShopIdentity
      */
-    private $linkShop;
+    private $shopIdentity;
 
     /**
-     * @var ShopSession
+     * @var Session\ShopSession
      */
     private $shopSession;
 
@@ -48,28 +45,14 @@ class UpgradeModuleHandler
      */
     private $accountsClient;
 
-    /**
-     * @var ConfigurationRepository
-     */
-    private $configRepo;
-
-    /**
-     * @var CommandBus
-     */
-    private $commandBus;
-
     public function __construct(
-        AccountsClient $accountsClient,
-        LinkShop $linkShop,
-        ShopSession $shopSession,
-        ConfigurationRepository $configurationRepository,
-        CommandBus $commandBus
+        AccountsClient          $accountsClient,
+        ShopIdentity            $shopIdentity,
+        Session\ShopSession     $shopSession
     ) {
         $this->accountsClient = $accountsClient;
-        $this->linkShop = $linkShop;
+        $this->shopIdentity = $shopIdentity;
         $this->shopSession = $shopSession;
-        $this->configRepo = $configurationRepository;
-        $this->commandBus = $commandBus;
     }
 
     /**
@@ -81,77 +64,19 @@ class UpgradeModuleHandler
      */
     public function handle(UpgradeModuleCommand $command)
     {
-        $lastUpgrade = $this->configRepo->getLastUpgrade(false);
-
-        if (version_compare($lastUpgrade, $command->payload->version, '<')) {
-            Logger::getInstance()->info(
-                'attempt upgrade [' . $lastUpgrade . ' to ' . $command->payload->version . ']'
-            );
-
-            // Set new version a soon as we can to avoid duplicate calls
-            $this->configRepo->updateLastUpgrade($command->payload->version);
-
-            // FIXME: to be removed once oauth client has been updated
-            //if (version_compare($lastUpgrade, '7.0.0', '<')) {
-            $this->lastChanceToRefreshShopToken();
-            //}
-
-            $token = $this->shopSession->getValidToken();
-
-            if (!$token->getJwt() instanceof NullToken) {
-                $response = $this->accountsClient->upgradeShopModule(
-                    $this->linkShop->getShopUuid(),
-                    (string) $token,
-                    $command->payload
-                );
-
-                if (!$response['status']) {
-                    $this->commandBus->handle(new UnlinkShopCommand(
-                        $this->configRepo->getShopId(),
-                        $response['httpCode']
-                    ));
-                }
-            }
-        }
-    }
-
-    /**
-     * @return array
-     */
-    private function getOrRefreshShopToken()
-    {
-        $token = $this->shopSession->getToken();
-        if ($token->isExpired() && !empty($token->getRefreshToken())) {
-            $response = $this->accountsClient->refreshShopToken(
-                //$this->configRepo->getFirebaseRefreshToken(),
-                $token->getRefreshToken(),
-                //$this->configRepo->getShopUuid()
-                $this->linkShop->getShopUuid()
-            );
-
-            if (isset($response['body']['token'])) {
-                return [
-                    'token' => $response['body']['token'],
-                    'refresh_token' => $response['body']['refresh_token'],
-                ];
-            }
-        }
-
-        return [
-            'token' => (string) $token,
-            'refresh_token' => $token->getRefreshToken(),
-        ];
-    }
-
-    /**
-     * @return void
-     */
-    private function lastChanceToRefreshShopToken()
-    {
-        $tokens = $this->getOrRefreshShopToken();
-        $this->shopSession->setToken(
-            $tokens['token'],
-            $tokens['refresh_token']
+        Logger::getInstance()->info(
+            'attempt upgrade [' . $command->payload->version . ']'
         );
+
+        $token = $this->shopSession->getValidToken();
+
+        if (!$token->getJwt() instanceof NullToken) {
+            // FIXME: Migrate to a Hydra Token compatible route
+            $this->accountsClient->upgradeShopModule(
+                $this->shopIdentity->getShopUuid(),
+                (string) $token,
+                $command->payload
+            );
+        }
     }
 }

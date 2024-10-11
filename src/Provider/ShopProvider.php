@@ -21,7 +21,7 @@
 namespace PrestaShop\Module\PsAccounts\Provider;
 
 use PrestaShop\Module\PsAccounts\Account\Dto\Shop;
-use PrestaShop\Module\PsAccounts\Account\LinkShop;
+use PrestaShop\Module\PsAccounts\Account\ShopIdentity;
 use PrestaShop\Module\PsAccounts\Account\Session\Firebase\OwnerSession;
 use PrestaShop\Module\PsAccounts\Adapter\Link;
 use PrestaShop\Module\PsAccounts\Context\ShopContext;
@@ -67,8 +67,8 @@ class ShopProvider
             /** @var \Ps_accounts $module */
             $module = \Module::getInstanceByName('ps_accounts');
 
-            /** @var LinkShop $linkShop */
-            $linkShop = $module->getService(LinkShop::class);
+            /** @var ShopIdentity $shopIdentity */
+            $shopIdentity = $module->getService(ShopIdentity::class);
 
             /** @var OwnerSession $ownerSession */
             $ownerSession = $module->getService(OwnerSession::class);
@@ -86,12 +86,12 @@ class ShopProvider
                 'frontUrl' => $this->getShopUrl($shopData),
 
                 // LinkAccount
-                'uuid' => $linkShop->getShopUuid() ?: null,
+                'uuid' => $shopIdentity->getShopUuid() ?: null,
                 'publicKey' => $rsaKeyProvider->getOrGenerateAccountsRsaPublicKey() ?: null,
-                'employeeId' => (int) $linkShop->getEmployeeId() ?: null,
+                'employeeId' => (int) $shopIdentity->getEmployeeId() ?: null,
                 'user' => [
-                    'email' => $linkShop->getOwnerEmail() ?: null,
-                    'uuid' => $linkShop->getOwnerUuid() ?: null,
+                    'email' => $shopIdentity->getOwnerEmail() ?: null,
+                    'uuid' => $shopIdentity->getOwnerUuid() ?: null,
                     'emailIsValidated' => null,
                 ],
                 'url' => $this->link->getAdminLink(
@@ -104,12 +104,12 @@ class ShopProvider
                     ]
                 ),
                 'isLinkedV4' => null,
-                'unlinkedAuto' => !empty($linkShop->getUnlinkedOnError()),
+                'unlinkedAuto' => !empty($shopIdentity->getUnlinkedOnError()),
             ]);
 
             if ($refreshTokens) {
                 $shop->user->emailIsValidated = $ownerSession->isEmailVerified();
-                $shop->isLinkedV4 = $linkShop->existsV4();
+                $shop->isLinkedV4 = $shopIdentity->existsV4();
             }
 
             return $shop;
@@ -255,7 +255,7 @@ class ShopProvider
      */
     private function getShopUrl($shopData)
     {
-        if (!$shopData['domain']) {
+        if (!isset($shopData['domain'])) {
             return null;
         }
 

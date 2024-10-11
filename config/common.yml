@@ -73,8 +73,8 @@ services:
     arguments:
       - '@ps_accounts.module'
 
-  PrestaShop\Module\PsAccounts\Account\LinkShop:
-    class: PrestaShop\Module\PsAccounts\Account\LinkShop
+  PrestaShop\Module\PsAccounts\Account\ShopIdentity:
+    class: PrestaShop\Module\PsAccounts\Account\ShopIdentity
     public: true
     arguments:
       - '@PrestaShop\Module\PsAccounts\Repository\ConfigurationRepository'
@@ -125,7 +125,7 @@ services:
     arguments:
       - '%ps_accounts.sentry_credentials%'
       - '%ps_accounts.environment%'
-      - '@PrestaShop\Module\PsAccounts\Account\LinkShop'
+      - '@PrestaShop\Module\PsAccounts\Account\ShopIdentity'
       - '@ps_accounts.context'
 
   ###############
@@ -162,7 +162,7 @@ services:
     arguments:
       - '@PrestaShop\Module\PsAccounts\Repository\ConfigurationRepository'
       - '@PrestaShop\Module\PsAccounts\Provider\OAuth2\ShopProvider'
-      - '@PrestaShop\Module\PsAccounts\Account\LinkShop'
+      - '@PrestaShop\Module\PsAccounts\Account\ShopIdentity'
       - '@PrestaShop\Module\PsAccounts\Cqrs\CommandBus'
 
   PrestaShop\Module\PsAccounts\Account\Session\Firebase\ShopSession:

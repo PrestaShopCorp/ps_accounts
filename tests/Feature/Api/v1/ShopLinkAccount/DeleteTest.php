@@ -2,7 +2,7 @@
 
 namespace PrestaShop\Module\PsAccounts\Tests\Feature\Api\v1\ShopLinkAccount;
 
-use PrestaShop\Module\PsAccounts\Account\LinkShop;
+use PrestaShop\Module\PsAccounts\Account\ShopIdentity;
 use PrestaShop\Module\PsAccounts\Account\Session\Firebase\OwnerSession;
 use PrestaShop\Module\PsAccounts\Account\Session\Firebase\ShopSession;
 use PrestaShop\Module\PsAccounts\Account\Token\NullToken;
@@ -40,7 +40,7 @@ class DeleteTest extends FeatureTestCase
      */
     public function itShouldSucceed()
     {
-        $this->linkShop->update(new \PrestaShop\Module\PsAccounts\Account\Dto\LinkShop([
+        $this->shopIdentity->update(new \PrestaShop\Module\PsAccounts\Account\Dto\LinkShop([
             'shopId' => $this->faker->numberBetween(),
             'uid' => $this->faker->uuid,
             'employeeId' => $this->faker->numberBetween()
@@ -71,12 +71,12 @@ class DeleteTest extends FeatureTestCase
         \Configuration::clearConfigurationCacheForTesting();
         \Configuration::loadConfiguration();
 
-        $this->assertFalse($this->linkShop->exists());
+        $this->assertFalse($this->shopIdentity->exists());
 
-        $this->assertEmpty($this->linkShop->getShopUuid());
-        $this->assertEmpty($this->linkShop->getEmployeeId());
-        $this->assertEmpty($this->linkShop->getOwnerUuid());
-        $this->assertEmpty($this->linkShop->getOwnerEmail());
+        $this->assertEmpty($this->shopIdentity->getShopUuid());
+        $this->assertEmpty($this->shopIdentity->getEmployeeId());
+        $this->assertEmpty($this->shopIdentity->getOwnerUuid());
+        $this->assertEmpty($this->shopIdentity->getOwnerEmail());
 
         $this->assertInstanceOf(NullToken::class, $this->shopSession->getToken()->getJwt());
         $this->assertInstanceOf(NullToken::class, $this->ownerSession->getToken()->getJwt());

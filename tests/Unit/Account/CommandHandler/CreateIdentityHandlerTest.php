@@ -130,7 +130,7 @@ class CreateIdentityHandlerTest extends TestCase
             $this->accountsClient,
             $this->shopProvider,
             $this->oauth2Client,
-            $this->linkShop
+            $this->shopIdentity
         );
     }
 }
