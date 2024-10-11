@@ -1,19 +1,19 @@
 <?php
 // $module->clearCache();
 
-$filename = __DIR__ . '/../vendor/composer/autoload_real.php';
+$autoloadReal = __DIR__ . '/../vendor/composer/autoload_real.php';
 
-if (! file_exists($filename)) {
+if (! file_exists($autoloadReal)) {
     exit(0);
 }
 
-$contents = file_get_contents($filename);
+$contents = file_get_contents($autoloadReal);
 if (preg_match('/(ComposerAutoloaderInit[\w\d]*)/m', $contents, $matches)) {
-    $className = $matches[1];
+    $autoloaderClass = $matches[1];
 
-    if (!class_exists($className)) {
-        error_log('## ps_accounts autoload : [' . $className . ']' . PHP_EOL);
-        require $filename;
-        return $className::getLoader();
+    if (!class_exists($autoloaderClass)) {
+        error_log('## ps_accounts autoload : [' . $autoloaderClass . ']' . PHP_EOL);
+        require $autoloadReal;
+        return $autoloaderClass::getLoader();
     }
 }
