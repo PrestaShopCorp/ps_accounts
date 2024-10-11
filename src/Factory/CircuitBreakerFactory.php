@@ -22,7 +22,6 @@ namespace PrestaShop\Module\PsAccounts\Factory;
 
 use PrestaShop\Module\PsAccounts\Adapter\Configuration;
 use PrestaShop\Module\PsAccounts\Api\Client\AccountsClient;
-use PrestaShop\Module\PsAccounts\Api\Client\IndirectChannelClient;
 use PrestaShop\Module\PsAccounts\Http\Client\CircuitBreaker\CircuitBreaker;
 use PrestaShop\Module\PsAccounts\Http\Client\CircuitBreaker\PersistentCircuitBreaker;
 
@@ -33,7 +32,6 @@ class CircuitBreakerFactory
      */
     private $provides = [
         AccountsClient::class,
-        IndirectChannelClient::class,
     ];
 
     /**
