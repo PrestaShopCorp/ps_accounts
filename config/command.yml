@@ -83,3 +83,12 @@ services:
     arguments:
       - '@PrestaShop\Module\PsAccounts\Cqrs\CommandBus'
       - '@PrestaShop\Module\PsAccounts\Repository\ConfigurationRepository'
+
+  PrestaShop\Module\PsAccounts\Account\CommandHandler\VerifyUrlAuthenticityHandler:
+    class: PrestaShop\Module\PsAccounts\Account\CommandHandler\VerifyUrlAuthenticityHandler
+    public: true
+    arguments:
+      - '@PrestaShop\Module\PsAccounts\Api\Client\AccountsClient'
+      - '@PrestaShop\Module\PsAccounts\Provider\ShopProvider'
+      - '@PrestaShop\Module\PsAccounts\Provider\OAuth2\Oauth2Client'
+      - '@PrestaShop\Module\PsAccounts\Context\ShopContext'

@@ -412,6 +412,24 @@ class ConfigurationRepository
     }
 
     /**
+     * @return string|null
+     */
+    public function getProof()
+    {
+        return $this->configuration->get(ConfigurationKeys::PS_ACCOUNTS_IDENTITY_VERIFICATION_PROOF);
+    }
+
+    /**
+     * @param string|null $proof
+     *
+     * @return void
+     */
+    public function updateProof($proof)
+    {
+        $this->configuration->set(ConfigurationKeys::PS_ACCOUNTS_IDENTITY_VERIFICATION_PROOF, $proof);
+    }
+
+    /**
      * specify id_shop & id_shop_group for shop
      *
      * @return void

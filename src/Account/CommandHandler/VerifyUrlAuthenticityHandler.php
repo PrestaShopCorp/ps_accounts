@@ -20,15 +20,16 @@
 
 namespace PrestaShop\Module\PsAccounts\Account\CommandHandler;
 
-use PrestaShop\Module\PsAccounts\Account\Command\CreateIdentityCommand;
-use PrestaShop\Module\PsAccounts\Account\LinkShop;
+use PrestaShop\Module\PsAccounts\Account\Command\VerifyUrlAuthenticityCommand;
+use PrestaShop\Module\PsAccounts\Account\ManageProof;
+use PrestaShop\Module\PsAccounts\Account\Session\ShopSession;
 use PrestaShop\Module\PsAccounts\Api\Client\AccountsClient;
 use PrestaShop\Module\PsAccounts\Api\Client\ShopUrl;
 use PrestaShop\Module\PsAccounts\Context\ShopContext;
 use PrestaShop\Module\PsAccounts\Provider\OAuth2\Oauth2Client;
 use PrestaShop\Module\PsAccounts\Provider\ShopProvider;
 
-class CreateIdentityHandler
+class VerifyUrlAuthenticityHandler
 {
     /**
      * @var AccountsClient
@@ -51,54 +52,74 @@ class CreateIdentityHandler
     private $shopContext;
 
     /**
-     * @var LinkShop
+     * @var ShopSession
      */
-    private $linkShop;
+    private $shopSession;
+
+    /**
+     * @var ManageProof
+     */
+    private $manageProof;
 
     /**
      * @param AccountsClient $accountsClient
      * @param ShopProvider $shopProvider
      * @param Oauth2Client $oauth2Client
      * @param ShopContext $shopContext
-     * @param LinkShop $linkShop
+     * @param ShopSession $shopSession
+     * @param ManageProof $manageProof
      */
     public function __construct(
         AccountsClient $accountsClient,
         ShopProvider $shopProvider,
         Oauth2Client $oauth2Client,
         ShopContext $shopContext,
-        LinkShop $linkShop
+        ShopSession $shopSession,
+        ManageProof $manageProof
     ) {
         $this->accountsClient = $accountsClient;
         $this->shopProvider = $shopProvider;
         $this->oauth2Client = $oauth2Client;
         $this->shopContext = $shopContext;
-        $this->linkShop = $linkShop;
+        $this->shopSession = $shopSession;
+        $this->manageProof = $manageProof;
     }
 
     /**
-     * @param CreateIdentityCommand $command
+     * @param VerifyUrlAuthenticityCommand $command
      *
      * @return void
      *
      * @throws \PrestaShopException
      * @throws \Exception
      */
-    public function handle(CreateIdentityCommand $command)
+    public function handle(VerifyUrlAuthenticityCommand $command)
     {
         $this->shopContext->execInShopContext($command->shopId, function () {
             if (!$this->oauth2Client->exists()) {
-                $currentShop = $this->shopProvider->getCurrentShop();
+                // TODO: call Create Identity Command ? or just log ? or throw ? or juste remove this condition ?
+                return;
+            }
 
-                $shopUrl = ShopUrl::createFromShopData($currentShop);
+            // TODO: Que faire si on arrive pas obtenir un token ?
+            $token = $this->shopSession->getValidToken();
 
-                $resp = $this->accountsClient->createShopIdentity($shopUrl);
-                if ($resp['status'] === true && $resp['body']) {
-                    $this->oauth2Client->update($resp['body']['clientId'], $resp['body']['clientSecret']);
-                    $this->linkShop->setShopUuid($resp['body']['cloudShopId']);
-                } else {
-                    // TODO Add bad request handling here
-                }
+            $proof = $this->manageProof->generateProof();
+
+            $currentShop = $this->shopProvider->getCurrentShop();
+
+            $shopUrl = ShopUrl::createFromShopData($currentShop);
+
+            $response = $this->accountsClient->verifyUrlAuthenticity(
+                $currentShop['uuid'],
+                $token,
+                $shopUrl,
+                $proof
+            );
+            if ($response['status'] === true && $response['body']) {
+                // TODO: get the first token with verified scope or clear the token in configuration table ?
+            } else {
+                // TODO Add bad request handling here
             }
         });
     }
