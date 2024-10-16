@@ -20,13 +20,14 @@
 
 namespace PrestaShop\Module\PsAccounts\Account\CommandHandler;
 
-use PrestaShop\Module\PsAccounts\Account\Command\CreateIdentityCommand;
-use PrestaShop\Module\PsAccounts\Account\ShopIdentity;
+use PrestaShop\Module\PsAccounts\Account\Command\VerifyAuthenticityCommand;
+use PrestaShop\Module\PsAccounts\Account\ManageProof;
+use PrestaShop\Module\PsAccounts\Account\Session\ShopSession;
 use PrestaShop\Module\PsAccounts\Api\Client\AccountsClient;
 use PrestaShop\Module\PsAccounts\Provider\OAuth2\Oauth2Client;
 use PrestaShop\Module\PsAccounts\Provider\ShopProvider;
 
-class CreateIdentityHandler
+class VerifyAuthenticityHandler
 {
     /**
      * @var AccountsClient
@@ -44,56 +45,68 @@ class CreateIdentityHandler
     private $shopProvider;
 
     /**
-     * @var ShopIdentity
+     * @var ShopSession
      */
-    private $shopIdentity;
+    private $shopSession;
+
+    /**
+     * @var ManageProof
+     */
+    private $manageProof;
 
     /**
      * @param AccountsClient $accountsClient
      * @param ShopProvider $shopProvider
      * @param Oauth2Client $oauth2Client
-     * @param ShopIdentity $shopIdentity
+     * @param ShopSession $shopSession
+     * @param ManageProof $manageProof
      */
     public function __construct(
         AccountsClient $accountsClient,
         ShopProvider $shopProvider,
         Oauth2Client $oauth2Client,
-        ShopIdentity $shopIdentity
+        ShopSession $shopSession,
+        ManageProof $manageProof
     ) {
         $this->accountsClient = $accountsClient;
         $this->shopProvider = $shopProvider;
         $this->oauth2Client = $oauth2Client;
-        $this->shopIdentity = $shopIdentity;
+        $this->shopSession = $shopSession;
+        $this->manageProof = $manageProof;
     }
 
     /**
-     * @param CreateIdentityCommand $command
+     * @param VerifyAuthenticityCommand $command
      *
      * @return void
+     *
+     * @throws \PrestaShopException
+     * @throws \Exception
      */
-    public function handle(CreateIdentityCommand $command)
+    public function handle(VerifyAuthenticityCommand $command)
     {
-        // FIXME: remove that test
-        // FIXME: migration from v7 -> v8 event modeling
-        // - cleanup configuration storage
-        // - identify shop (when ?) -> be sure we send version with it & when to trigger it ?
-        // - UX associated ?
-        // - Migrate routes using user token
         if (!$this->oauth2Client->exists()) {
-            $response = $this->accountsClient->createShopIdentity(
-                $this->shopProvider->getUrl($command->shopId)
-            );
+            // TODO: call Create Identity Command ? or just log ? or throw ? or juste remove this condition ?
+            return;
+        }
 
-            if ($response['status'] === true && isset($response['body'])) {
-                $body = $response['body'];
-                // FIXME: should we refactor those kind of "entities" ?
-                // FIXME: oauthClientRepository->getClientByShopId ?
-                // FIXME: shopIdentityRepository->getIdentityByShopId ?
-                $this->oauth2Client->update($body['clientId'], $body['clientSecret']);
-                $this->shopIdentity->setShopUuid($body['cloudShopId']);
-            } else {
-                // TODO Add bad request handling here
-            }
+        // TODO: Que faire si on arrive pas obtenir un token ?
+        $token = $this->shopSession->getValidToken();
+
+        $proof = $this->manageProof->generateProof();
+
+        $currentShop = $this->shopProvider->getCurrentShop();
+
+        $response = $this->accountsClient->verifyUrlAuthenticity(
+            $currentShop['uuid'],
+            $token,
+            $this->shopProvider->getUrl($command->shopId),
+            $proof
+        );
+        if ($response['status'] === true && $response['body']) {
+            // TODO: get the first token with verified scope or clear the token in configuration table ?
+        } else {
+            // TODO Add bad request handling here
         }
     }
 }

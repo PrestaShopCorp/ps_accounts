@@ -71,5 +71,5 @@ class ConfigurationKeys extends Enum
     // Last version we call to update the version on accounts-api
     const PS_ACCOUNTS_LAST_UPGRADE = 'PS_ACCOUNTS_LAST_UPGRADE';
 
-    const PS_ACCOUNTS_UNLINKED_ON_ERROR = 'PS_ACCOUNTS_UNLINKED_ON_ERROR';
+    const PS_ACCOUNTS_IDENTITY_VERIFICATION_PROOF = 'PS_ACCOUNTS_IDENTITY_VERIFICATION_PROOF';
 }
