@@ -95,7 +95,7 @@ class VerifyUrlAuthenticityHandler
      */
     public function handle(VerifyUrlAuthenticityCommand $command)
     {
-        $this->shopContext->execInShopContext($command->shopId, function () {
+        $this->shopContext->execInShopContext($command->shopId, function () use ($command) {
             if (!$this->oauth2Client->exists()) {
                 // TODO: call Create Identity Command ? or just log ? or throw ? or juste remove this condition ?
                 return;
@@ -113,7 +113,7 @@ class VerifyUrlAuthenticityHandler
             $response = $this->accountsClient->verifyUrlAuthenticity(
                 $currentShop['uuid'],
                 $token,
-                $shopUrl,
+                $this->shopProvider->getUrl($command->shopId),
                 $proof
             );
             if ($response['status'] === true && $response['body']) {

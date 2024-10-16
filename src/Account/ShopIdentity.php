@@ -22,7 +22,7 @@ namespace PrestaShop\Module\PsAccounts\Account;
 
 use PrestaShop\Module\PsAccounts\Repository\ConfigurationRepository;
 
-class LinkShop
+class ShopIdentity
 {
     /**
      * @var ConfigurationRepository
@@ -76,6 +76,14 @@ class LinkShop
     public function exists()
     {
         return (bool) $this->getShopUuid();
+    }
+
+    /**
+     * @return string|null
+     */
+    public function linkedAt()
+    {
+        return $this->configuration->getShopUuidDateUpd();
     }
 
     /**

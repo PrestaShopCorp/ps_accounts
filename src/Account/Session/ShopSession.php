@@ -22,7 +22,7 @@ namespace PrestaShop\Module\PsAccounts\Account\Session;
 
 use PrestaShop\Module\PsAccounts\Account\Command\UnlinkShopCommand;
 use PrestaShop\Module\PsAccounts\Account\Exception\InconsistentAssociationStateException;
-use PrestaShop\Module\PsAccounts\Account\LinkShop;
+use PrestaShop\Module\PsAccounts\Account\ShopIdentity;
 use PrestaShop\Module\PsAccounts\Account\Token\Token;
 use PrestaShop\Module\PsAccounts\Cqrs\CommandBus;
 use PrestaShop\Module\PsAccounts\Exception\RefreshTokenException;
@@ -30,10 +30,10 @@ use PrestaShop\Module\PsAccounts\Hook\ActionShopAccessTokenRefreshAfter;
 use PrestaShop\Module\PsAccounts\Log\Logger;
 use PrestaShop\Module\PsAccounts\Provider\OAuth2\ShopProvider;
 use PrestaShop\Module\PsAccounts\Repository\ConfigurationRepository;
-use PrestaShop\Module\PsAccounts\Vendor\League\OAuth2\Client\Grant\ClientCredentials;
-use PrestaShop\Module\PsAccounts\Vendor\League\OAuth2\Client\Provider\Exception\IdentityProviderException;
-use PrestaShop\Module\PsAccounts\Vendor\League\OAuth2\Client\Token\AccessToken;
-use PrestaShop\Module\PsAccounts\Vendor\League\OAuth2\Client\Token\AccessTokenInterface;
+use PrestaShop\Module\PsAccounts800\Vendor\League\OAuth2\Client\Grant\ClientCredentials;
+use PrestaShop\Module\PsAccounts800\Vendor\League\OAuth2\Client\Provider\Exception\IdentityProviderException;
+use PrestaShop\Module\PsAccounts800\Vendor\League\OAuth2\Client\Token\AccessToken;
+use PrestaShop\Module\PsAccounts800\Vendor\League\OAuth2\Client\Token\AccessTokenInterface;
 
 class ShopSession extends Session implements SessionInterface
 {
@@ -53,9 +53,9 @@ class ShopSession extends Session implements SessionInterface
     protected $oauth2ClientProvider;
 
     /**
-     * @var LinkShop
+     * @var ShopIdentity
      */
-    protected $linkShop;
+    protected $shopIdentity;
 
     /**
      * @param ConfigurationRepository $configurationRepository
@@ -64,13 +64,13 @@ class ShopSession extends Session implements SessionInterface
      */
     public function __construct(
         ConfigurationRepository $configurationRepository,
-        ShopProvider $oauth2ClientProvider,
-        LinkShop $linkShop,
-        CommandBus $commandBus
+        ShopProvider            $oauth2ClientProvider,
+        ShopIdentity            $shopIdentity,
+        CommandBus              $commandBus
     ) {
         $this->configurationRepository = $configurationRepository;
         $this->oauth2ClientProvider = $oauth2ClientProvider;
-        $this->linkShop = $linkShop;
+        $this->shopIdentity = $shopIdentity;
         $this->commandBus = $commandBus;
     }
 
@@ -84,7 +84,6 @@ class ShopSession extends Session implements SessionInterface
     public function refreshToken($refreshToken = null)
     {
         try {
-            $this->assertAssociationState();
             $shopUuid = $this->getShopUuid();
             $accessToken = $this->getAccessToken($shopUuid);
 
@@ -99,11 +98,6 @@ class ShopSession extends Session implements SessionInterface
             \Hook::exec(ActionShopAccessTokenRefreshAfter::getName(), ['token' => $token]);
 
             return $token;
-        } catch (InconsistentAssociationStateException $e) {
-            $this->commandBus->handle(new UnlinkShopCommand(
-                $this->configurationRepository->getShopId(),
-                $e->getMessage()
-            ));
         } catch (IdentityProviderException $e) {
         } catch (\Error $e) {
         } catch (\Exception $e) {
@@ -165,19 +159,6 @@ class ShopSession extends Session implements SessionInterface
      */
     private function getShopUuid()
     {
-        return $this->linkShop->getShopUuid();
-    }
-
-    /**
-     * @throws InconsistentAssociationStateException
-     *
-     * @return void
-     */
-    public function assertAssociationState()
-    {
-        if ($this->linkShop->exists() &&
-            !$this->oauth2ClientProvider->getOauth2Client()->exists()) {
-            throw new InconsistentAssociationStateException('Invalid OAuth2 client');
-        }
+        return $this->shopIdentity->getShopUuid();
     }
 }

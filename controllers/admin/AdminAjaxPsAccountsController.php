@@ -19,11 +19,11 @@
  */
 
 use PrestaShop\Module\PsAccounts\Account\Command\DeleteUserShopCommand;
-use PrestaShop\Module\PsAccounts\Account\Command\UnlinkShopCommand;
 use PrestaShop\Module\PsAccounts\Account\Session\Firebase\ShopSession;
 use PrestaShop\Module\PsAccounts\Api\Client\IndirectChannelClient;
 use PrestaShop\Module\PsAccounts\Cqrs\CommandBus;
-use PrestaShop\Module\PsAccounts\Polyfill\Traits\AjaxRender;
+use PrestaShop\Module\PsAccounts\Hook\ActionShopAccountUnlinkAfter;
+use PrestaShop\Module\PsAccounts\Polyfill\Traits\Controller\AjaxRender;
 use PrestaShop\Module\PsAccounts\Presenter\PsAccountsPresenter;
 use PrestaShop\Module\PsAccounts\Provider\OAuth2\PrestaShopSession;
 use PrestaShop\Module\PsAccounts\Repository\ConfigurationRepository;
@@ -121,9 +121,14 @@ class AdminAjaxPsAccountsController extends \ModuleAdminController
             /** @var ConfigurationRepository $configurationRepository */
             $configurationRepository = $this->module->getService(ConfigurationRepository::class);
 
-            $this->commandBus->handle(new UnlinkShopCommand(
-                $configurationRepository->getShopId()
-            ));
+//            $this->commandBus->handle(new UnlinkShopCommand(
+//                $configurationRepository->getShopId()
+//            ));
+
+            Hook::exec(ActionShopAccountUnlinkAfter::getName(), [
+                'shopUuid' =>$configurationRepository->getShopUuid(),
+                'shopId' => $configurationRepository->getShopId(),
+            ]);
 
             header('Content-Type: text/json');
 

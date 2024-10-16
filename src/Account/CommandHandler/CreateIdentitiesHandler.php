@@ -20,38 +20,20 @@
 
 namespace PrestaShop\Module\PsAccounts\Account\CommandHandler;
 
-use Hook;
-use PrestaShop\Module\PsAccounts\Account\Command\LinkShopCommand;
-use PrestaShop\Module\PsAccounts\Account\LinkShop;
-use PrestaShop\Module\PsAccounts\Hook\ActionShopAccountLinkAfter;
-use PrestaShopException;
+use PrestaShop\Module\PsAccounts\Account\Command\CreateIdentitiesCommand;
+use PrestaShop\Module\PsAccounts\Account\Command\CreateIdentityCommand;
 
-class LinkShopHandler
+class CreateIdentitiesHandler extends MultiShopHandler
 {
     /**
-     * @var LinkShop
-     */
-    private $linkShop;
-
-    public function __construct(LinkShop $linkShop)
-    {
-        $this->linkShop = $linkShop;
-    }
-
-    /**
-     * @param LinkShopCommand $command
+     * @param CreateIdentitiesCommand $command
      *
      * @return void
-     *
-     * @throws PrestaShopException
      */
-    public function handle(LinkShopCommand $command)
+    public function handle(CreateIdentitiesCommand $command)
     {
-        $this->linkShop->update($command->payload);
-
-        Hook::exec(ActionShopAccountLinkAfter::getName(), [
-            'shopUuid' => $this->linkShop->getShopUuid(),
-            'shopId' => $command->payload->shopId,
-        ]);
+        $this->handleMulti(function ($multiShopId) {
+            $this->commandBus->handle(new CreateIdentityCommand($multiShopId));
+        });
     }
 }

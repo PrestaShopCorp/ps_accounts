@@ -18,32 +18,8 @@
  * @license   https://opensource.org/licenses/AFL-3.0 Academic Free License version 3.0
  */
 
-namespace PrestaShop\Module\PsAccounts\Account\CommandHandler\AbstractClass;
+namespace PrestaShop\Module\PsAccounts\Account\Command;
 
-class MultiShopHandlerAbstract
+class UpgradeModulesCommand
 {
-    /**
-     * @param bool $multishop
-     *
-     * @return array|null[]
-     */
-    protected function getShops($multishop)
-    {
-        $shops = [null];
-        if ($multishop) {
-            $shops = [];
-            $db = \Db::getInstance();
-            try {
-                $result = $db->query('SELECT id_shop FROM ' . _DB_PREFIX_ . 'shop');
-                while ($row = $db->nextRow($result)) {
-                    /* @phpstan-ignore-next-line */
-                    $shops[] = $row['id_shop'];
-                }
-            } catch (\Throwable $e) {
-                return [];
-            }
-        }
-
-        return $shops;
-    }
 }

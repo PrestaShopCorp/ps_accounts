@@ -20,8 +20,8 @@
 
 namespace PrestaShop\Module\PsAccounts\DependencyInjection;
 
-use PrestaShop\ModuleLibCacheDirectoryProvider\Cache\CacheDirectoryProvider;
-use Symfony\Component\DependencyInjection\ContainerInterface;
+use PrestaShop\Module\PsAccounts800\Vendor\PrestaShop\ModuleLibCacheDirectoryProvider\Cache\CacheDirectoryProvider;
+use PrestaShop\Module\PsAccounts800\Vendor\Symfony\Component\DependencyInjection\ContainerInterface;
 
 class ServiceContainer
 {

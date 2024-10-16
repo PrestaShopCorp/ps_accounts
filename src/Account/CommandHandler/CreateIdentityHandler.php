@@ -21,10 +21,8 @@
 namespace PrestaShop\Module\PsAccounts\Account\CommandHandler;
 
 use PrestaShop\Module\PsAccounts\Account\Command\CreateIdentityCommand;
-use PrestaShop\Module\PsAccounts\Account\LinkShop;
+use PrestaShop\Module\PsAccounts\Account\ShopIdentity;
 use PrestaShop\Module\PsAccounts\Api\Client\AccountsClient;
-use PrestaShop\Module\PsAccounts\Api\Client\ShopUrl;
-use PrestaShop\Module\PsAccounts\Context\ShopContext;
 use PrestaShop\Module\PsAccounts\Provider\OAuth2\Oauth2Client;
 use PrestaShop\Module\PsAccounts\Provider\ShopProvider;
 
@@ -46,60 +44,56 @@ class CreateIdentityHandler
     private $shopProvider;
 
     /**
-     * @var ShopContext
+     * @var ShopIdentity
      */
-    private $shopContext;
-
-    /**
-     * @var LinkShop
-     */
-    private $linkShop;
+    private $shopIdentity;
 
     /**
      * @param AccountsClient $accountsClient
      * @param ShopProvider $shopProvider
      * @param Oauth2Client $oauth2Client
-     * @param ShopContext $shopContext
-     * @param LinkShop $linkShop
+     * @param ShopIdentity $shopIdentity
      */
     public function __construct(
         AccountsClient $accountsClient,
         ShopProvider $shopProvider,
         Oauth2Client $oauth2Client,
-        ShopContext $shopContext,
-        LinkShop $linkShop
+        ShopIdentity $shopIdentity
     ) {
         $this->accountsClient = $accountsClient;
         $this->shopProvider = $shopProvider;
         $this->oauth2Client = $oauth2Client;
-        $this->shopContext = $shopContext;
-        $this->linkShop = $linkShop;
+        $this->shopIdentity = $shopIdentity;
     }
 
     /**
      * @param CreateIdentityCommand $command
      *
      * @return void
-     *
-     * @throws \PrestaShopException
-     * @throws \Exception
      */
     public function handle(CreateIdentityCommand $command)
     {
-        $this->shopContext->execInShopContext($command->shopId, function () {
-            if (!$this->oauth2Client->exists()) {
-                $currentShop = $this->shopProvider->getCurrentShop();
+        // FIXME: remove that test
+        // FIXME: migration from v7 -> v8 event modeling
+        // - cleanup configuration storage
+        // - identify shop (when ?) -> be sure we send version with it & when to trigger it ?
+        // - UX associated ?
+        // - Migrate routes using user token
+        if (!$this->oauth2Client->exists()) {
+            $response = $this->accountsClient->createShopIdentity(
+                $this->shopProvider->getUrl($command->shopId)
+            );
 
-                $shopUrl = ShopUrl::createFromShopData($currentShop);
-
-                $resp = $this->accountsClient->createShopIdentity($shopUrl);
-                if ($resp['status'] === true && $resp['body']) {
-                    $this->oauth2Client->update($resp['body']['clientId'], $resp['body']['clientSecret']);
-                    $this->linkShop->setShopUuid($resp['body']['cloudShopId']);
-                } else {
-                    // TODO Add bad request handling here
-                }
+            if ($response['status'] === true && isset($response['body'])) {
+                $body = $response['body'];
+                // FIXME: should we refactor those kind of "entities" ?
+                // FIXME: oauthClientRepository->getClientByShopId ?
+                // FIXME: shopIdentityRepository->getIdentityByShopId ?
+                $this->oauth2Client->update($body['clientId'], $body['clientSecret']);
+                $this->shopIdentity->setShopUuid($body['cloudShopId']);
+            } else {
+                // TODO Add bad request handling here
             }
-        });
+        }
     }
 }

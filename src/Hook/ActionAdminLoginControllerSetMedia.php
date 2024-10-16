@@ -24,7 +24,7 @@ use AdminLoginPsAccountsController;
 use Exception;
 use PrestaShop\Module\PsAccounts\Service\AnalyticsService;
 use PrestaShop\Module\PsAccounts\Service\PsAccountsService;
-use PrestaShop\Module\PsAccounts\Vendor\League\OAuth2\Client\Provider\Exception\IdentityProviderException;
+use PrestaShop\Module\PsAccounts800\Vendor\League\OAuth2\Client\Provider\Exception\IdentityProviderException;
 use Tools;
 
 class ActionAdminLoginControllerSetMedia extends Hook
@@ -47,9 +47,10 @@ class ActionAdminLoginControllerSetMedia extends Hook
 
         $this->trackLoginPage($local);
 
-        if ($this->module->getShopContext()->isShop17() && !$local) {
+        if (defined('_PS_VERSION_')
+            && version_compare(_PS_VERSION_, '8', '>=') && !$local) {
 //            /** @var \PrestaShop\Module\PsAccounts\Adapter\Link $link */
-//            $link = $this->getService(\PrestaShop\Module\PsAccounts\Adapter\Link::class);
+//            $link = $this->module->getService(\PrestaShop\Module\PsAccounts\Adapter\Link::class);
 //            Tools::redirectLink($link->getAdminLink('AdminLoginPsAccounts', false));
             (new AdminLoginPsAccountsController())->run();
             exit;

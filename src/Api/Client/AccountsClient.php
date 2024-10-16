@@ -24,7 +24,7 @@ use PrestaShop\Module\PsAccounts\Account\Dto\UpdateShop;
 use PrestaShop\Module\PsAccounts\Account\Dto\UpgradeModule;
 use PrestaShop\Module\PsAccounts\Http\Client\Guzzle\GuzzleClient;
 use PrestaShop\Module\PsAccounts\Http\Client\Guzzle\GuzzleClientFactory;
-use Ramsey\Uuid\Uuid;
+use PrestaShop\Module\PsAccounts800\Vendor\Ramsey\Uuid\Uuid;
 
 class AccountsClient
 {
@@ -205,7 +205,6 @@ class AccountsClient
         $this->getClient()->setRoute('/v1/shop/token/verify');
 
         return $this->getClient()->post([
-            'headers' => $this->getHeaders(),
             'json' => [
                 'token' => $idToken,
             ],

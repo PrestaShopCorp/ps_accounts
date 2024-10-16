@@ -21,6 +21,7 @@
 namespace PrestaShop\Module\PsAccounts\Context;
 
 use Context;
+use PrestaShop\Module\PsAccounts\Log\Logger;
 use PrestaShop\Module\PsAccounts\Repository\ConfigurationRepository;
 
 /**
@@ -160,7 +161,7 @@ class ShopContext
     }
 
     /**
-     * @param int $shopId
+     * @param int|null $shopId
      * @param \Closure $closure
      *
      * @return mixed
@@ -186,5 +187,31 @@ class ShopContext
             return $result;
         }
         throw $e;
+    }
+
+    /**
+     * @return array|null[]
+     */
+    public function getMultiShopIds()
+    {
+        $shops = [];
+        $db = \Db::getInstance();
+        try {
+            $result = $db->query('SELECT id_shop FROM ' . _DB_PREFIX_ . 'shop');
+            while ($row = $db->nextRow($result)) {
+                /* @phpstan-ignore-next-line */
+                $shops[] = $row['id_shop'];
+            }
+        } catch (\Error $e) {
+            Logger::getInstance()->error(__METHOD__ . ': ' . $e->getMessage());
+
+            return [];
+        } catch (\Exception $e) {
+            Logger::getInstance()->error(__METHOD__ . ': ' . $e->getMessage());
+
+            return [];
+        }
+
+        return $shops;
     }
 }

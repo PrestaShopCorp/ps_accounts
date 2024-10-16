@@ -245,7 +245,6 @@ class UpgradeModuleHandlerTest extends TestCase
             $this->accountsClient,
             $this->linkShop,
             $this->shopSession,
-            $this->shopContext,
             $this->conf,
             $this->commandBus
         );
