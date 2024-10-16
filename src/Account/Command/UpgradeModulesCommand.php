@@ -20,25 +20,6 @@
 
 namespace PrestaShop\Module\PsAccounts\Account\Command;
 
-class UnlinkShopCommand
+class UpgradeModulesCommand
 {
-    /**
-     * @var int
-     */
-    public $shopId;
-
-    /**
-     * @var string|null
-     */
-    public $errorMsg;
-
-    /**
-     * @param int $shopId
-     * @param string $errorMsg
-     */
-    public function __construct($shopId, $errorMsg = '')
-    {
-        $this->shopId = $shopId;
-        $this->errorMsg = $errorMsg;
-    }
 }

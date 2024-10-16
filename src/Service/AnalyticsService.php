@@ -20,8 +20,8 @@
 
 namespace PrestaShop\Module\PsAccounts\Service;
 
-use PrestaShop\Module\PsAccounts\Vendor\Monolog\Logger;
-use PrestaShop\Module\PsAccounts\Vendor\Ramsey\Uuid\Uuid;
+use PrestaShop\Module\PsAccounts800\Vendor\Monolog\Logger;
+use PrestaShop\Module\PsAccounts800\Vendor\Ramsey\Uuid\Uuid;
 use Segment;
 
 class AnalyticsService

@@ -20,56 +20,52 @@
 
 namespace PrestaShop\Module\PsAccounts\Account\CommandHandler;
 
-use PrestaShop\Module\PsAccounts\Account\Command\MigrateAndLinkV4ShopCommand;
-use PrestaShop\Module\PsAccounts\Account\Session\Firebase\ShopSession;
-use PrestaShop\Module\PsAccounts\Api\Client\AccountsClient;
 use PrestaShop\Module\PsAccounts\Context\ShopContext;
-use PrestaShop\Module\PsAccounts\Exception\RefreshTokenException;
+use PrestaShop\Module\PsAccounts\Cqrs\CommandBus;
 
-class MigrateAndLinkV4ShopHandler
+abstract class MultiShopHandler
 {
-    /**
-     * @var AccountsClient
-     */
-    private $accountClient;
-
     /**
      * @var ShopContext
      */
-    private $shopContext;
+    protected $shopContext;
 
     /**
-     * @var ShopSession
+     * @var CommandBus
      */
-    private $shopSession;
+    protected $commandBus;
 
     public function __construct(
-        AccountsClient $accountClient,
         ShopContext $shopContext,
-        ShopSession $shopSession
+        CommandBus $commandBus
     ) {
-        $this->accountClient = $accountClient;
         $this->shopContext = $shopContext;
-        $this->shopSession = $shopSession;
+        $this->commandBus = $commandBus;
     }
 
     /**
-     * @param MigrateAndLinkV4ShopCommand $command
+     * @param \Closure $handler
      *
-     * @return array
-     *
-     * @throws RefreshTokenException
+     * @return void
      */
-    public function handle(MigrateAndLinkV4ShopCommand $command)
+    protected function handleMulti($handler)
     {
-        return $this->shopContext->execInShopContext((int) $command->shopId, function () use ($command) {
-            $shopToken = $this->shopSession->getValidToken();
+        foreach ($this->getShopIds() as $multiShopId) {
+            $this->shopContext->execInShopContext($multiShopId, function () use ($handler, $multiShopId) {
+                $handler($multiShopId);
+            });
+        }
+    }
 
-            return $this->accountClient->reonboardShop(
-                $shopToken->getUuid(),
-                $shopToken->getJwt(),
-                $command->payload
-            );
-        });
+    /**
+     * @return array|null[]
+     */
+    protected function getShopIds()
+    {
+        if ($this->shopContext->isMultishopActive()) {
+            return $this->shopContext->getMultiShopIds();
+        }
+        // FIXME: very unclear why we do that
+        return [null];
     }
 }

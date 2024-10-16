@@ -24,7 +24,7 @@ use PrestaShop\Module\PsAccounts\Account\Dto\UpdateShop;
 use PrestaShop\Module\PsAccounts\Account\Dto\UpgradeModule;
 use PrestaShop\Module\PsAccounts\Http\Client\Guzzle\GuzzleClient;
 use PrestaShop\Module\PsAccounts\Http\Client\Guzzle\GuzzleClientFactory;
-use PrestaShop\Module\PsAccounts\Vendor\Ramsey\Uuid\Uuid;
+use PrestaShop\Module\PsAccounts800\Vendor\Ramsey\Uuid\Uuid;
 
 class AccountsClient
 {
@@ -153,26 +153,6 @@ class AccountsClient
     }
 
     /**
-     * @param string $shopUid
-     * @param string $shopToken
-     * @param array $payload
-     *
-     * @return array
-     */
-    public function reonboardShop($shopUid, $shopToken, $payload)
-    {
-        $this->getClient()->setRoute('v1/shop/' . $shopUid . '/reonboard');
-
-        return $this->getClient()->post([
-            'headers' => $this->getHeaders([
-                'Authorization' => 'Bearer ' . $shopToken,
-                'X-Shop-Id' => $shopUid,
-            ]),
-            'json' => $payload,
-        ]);
-    }
-
-    /**
      * @param string $ownerUid
      * @param string $shopUid
      * @param string $ownerToken
@@ -225,7 +205,6 @@ class AccountsClient
         $this->getClient()->setRoute('/v1/shop/token/verify');
 
         return $this->getClient()->post([
-            'headers' => $this->getHeaders(),
             'json' => [
                 'token' => $idToken,
             ],
@@ -240,5 +219,25 @@ class AccountsClient
         $this->getClient()->setRoute('/healthcheck');
 
         return $this->getClient()->get();
+    }
+
+    /**
+     * @param string $backOfficeUrl
+     * @param string $frontendUrl
+     * @param int $multiShopId
+     *
+     * @return array
+     */
+    public function createShopIdentity($backOfficeUrl, $frontendUrl, $multiShopId)
+    {
+        $this->getClient()->setRoute('/v1/shop-identities');
+
+        return $this->getClient()->post([
+            'json' => [
+                'backOfficeUrl' => $backOfficeUrl,
+                'frontendUrl' => $frontendUrl,
+                'multiShopId' => $multiShopId,
+            ],
+        ]);
     }
 }

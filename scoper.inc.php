@@ -65,7 +65,7 @@ return [
     // will be generated instead.
     //
     // For more see: https://github.com/humbug/php-scoper/blob/master/docs/configuration.md#prefix
-    'prefix' => 'PrestaShop\Module\PsAccounts\Vendor',
+    'prefix' => 'PrestaShop\Module\PsAccounts800\Vendor',
 
     // The base output directory for the prefixed files.
     // This will be overridden by the 'output-dir' command line option if present.
@@ -114,7 +114,7 @@ return [
             }
             if ($filePath === __DIR__ . '/vendor/symfony/dependency-injection/Compiler/PassConfig.php') {
                 return str_replace(
-                    "'PrestaShop\\\\Module\\\\PsAccounts\\\\Vendor\\\\array_merge'",
+                    "'PrestaShop\\\\Module\\\\PsAccounts800\\\\Vendor\\\\array_merge'",
                     "'\\array_merge'",
                     $contents
                 );

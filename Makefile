@@ -225,13 +225,22 @@ php-scoper-add-prefix: scoper.inc.php vendor-clean vendor php-scoper-pull
 	$(foreach DIR,$(PHP_SCOPER_VENDOR_DIRS), rm -rf "./vendor/${DIR}" && mv "./${PHP_SCOPER_OUTPUT_DIR}/${DIR}" ./vendor/${DIR};)
 	if [ ! -z ${PHP_SCOPER_OUTPUT_DIR} ]; then rm -rf "./${PHP_SCOPER_OUTPUT_DIR}"; fi
 
+# TODO: scoper.inc.php, fix-autoload.php, Makefile
+REGEX_UPDATE_PREFIX := "s/PrestaShop\\\\Module\\\\PsAccounts\([0-9]*\)\\\\Vendor/PrestaShop\\\\Module\\\\PsAccounts800\\\\Vendor/"
+REGEX_UPDATE_PREFIX2 := "s/PrestaShop\\\\\\\\Module\\\\\\\\PsAccounts\([0-9]*\)\\\\\\\\Vendor/PrestaShop\\\\\\\\Module\\\\\\\\PsAccounts800\\\\\\\\Vendor/"
+php-scoper-update-prefix:
+	@echo "updating prefix..."
+	find ./tests -type f -exec sed -i -e ${REGEX_UPDATE_PREFIX} {} \;
+	find ./src -type f -exec sed -i -e ${REGEX_UPDATE_PREFIX} {} \;
+	sed -i -e ${REGEX_UPDATE_PREFIX2} ./composer.json
+
 php-scoper-dump-autoload:
 	${COMPOSER} dump-autoload --classmap-authoritative
 
 php-scoper-fix-autoload:
 	php fix-autoload.php
 
-php-scoper: php-scoper-add-prefix php-scoper-dump-autoload php-scoper-fix-autoload
+php-scoper: php-scoper-add-prefix php-scoper-update-prefix php-scoper-dump-autoload php-scoper-fix-autoload
 
 ##########
 # BUNDLING
