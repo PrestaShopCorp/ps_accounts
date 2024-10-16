@@ -20,16 +20,14 @@
 
 namespace PrestaShop\Module\PsAccounts\Account\CommandHandler;
 
-use PrestaShop\Module\PsAccounts\Account\Command\VerifyUrlAuthenticityCommand;
+use PrestaShop\Module\PsAccounts\Account\Command\VerifyAuthenticityCommand;
 use PrestaShop\Module\PsAccounts\Account\ManageProof;
 use PrestaShop\Module\PsAccounts\Account\Session\ShopSession;
 use PrestaShop\Module\PsAccounts\Api\Client\AccountsClient;
-use PrestaShop\Module\PsAccounts\Api\Client\ShopUrl;
-use PrestaShop\Module\PsAccounts\Context\ShopContext;
 use PrestaShop\Module\PsAccounts\Provider\OAuth2\Oauth2Client;
 use PrestaShop\Module\PsAccounts\Provider\ShopProvider;
 
-class VerifyUrlAuthenticityHandler
+class VerifyAuthenticityHandler
 {
     /**
      * @var AccountsClient
@@ -47,11 +45,6 @@ class VerifyUrlAuthenticityHandler
     private $shopProvider;
 
     /**
-     * @var ShopContext
-     */
-    private $shopContext;
-
-    /**
      * @var ShopSession
      */
     private $shopSession;
@@ -65,7 +58,6 @@ class VerifyUrlAuthenticityHandler
      * @param AccountsClient $accountsClient
      * @param ShopProvider $shopProvider
      * @param Oauth2Client $oauth2Client
-     * @param ShopContext $shopContext
      * @param ShopSession $shopSession
      * @param ManageProof $manageProof
      */
@@ -73,54 +65,48 @@ class VerifyUrlAuthenticityHandler
         AccountsClient $accountsClient,
         ShopProvider $shopProvider,
         Oauth2Client $oauth2Client,
-        ShopContext $shopContext,
         ShopSession $shopSession,
         ManageProof $manageProof
     ) {
         $this->accountsClient = $accountsClient;
         $this->shopProvider = $shopProvider;
         $this->oauth2Client = $oauth2Client;
-        $this->shopContext = $shopContext;
         $this->shopSession = $shopSession;
         $this->manageProof = $manageProof;
     }
 
     /**
-     * @param VerifyUrlAuthenticityCommand $command
+     * @param VerifyAuthenticityCommand $command
      *
      * @return void
      *
      * @throws \PrestaShopException
      * @throws \Exception
      */
-    public function handle(VerifyUrlAuthenticityCommand $command)
+    public function handle(VerifyAuthenticityCommand $command)
     {
-        $this->shopContext->execInShopContext($command->shopId, function () use ($command) {
-            if (!$this->oauth2Client->exists()) {
-                // TODO: call Create Identity Command ? or just log ? or throw ? or juste remove this condition ?
-                return;
-            }
+        if (!$this->oauth2Client->exists()) {
+            // TODO: call Create Identity Command ? or just log ? or throw ? or juste remove this condition ?
+            return;
+        }
 
-            // TODO: Que faire si on arrive pas obtenir un token ?
-            $token = $this->shopSession->getValidToken();
+        // TODO: Que faire si on arrive pas obtenir un token ?
+        $token = $this->shopSession->getValidToken();
 
-            $proof = $this->manageProof->generateProof();
+        $proof = $this->manageProof->generateProof();
 
-            $currentShop = $this->shopProvider->getCurrentShop();
+        $currentShop = $this->shopProvider->getCurrentShop();
 
-            $shopUrl = ShopUrl::createFromShopData($currentShop);
-
-            $response = $this->accountsClient->verifyUrlAuthenticity(
-                $currentShop['uuid'],
-                $token,
-                $this->shopProvider->getUrl($command->shopId),
-                $proof
-            );
-            if ($response['status'] === true && $response['body']) {
-                // TODO: get the first token with verified scope or clear the token in configuration table ?
-            } else {
-                // TODO Add bad request handling here
-            }
-        });
+        $response = $this->accountsClient->verifyUrlAuthenticity(
+            $currentShop['uuid'],
+            $token,
+            $this->shopProvider->getUrl($command->shopId),
+            $proof
+        );
+        if ($response['status'] === true && $response['body']) {
+            // TODO: get the first token with verified scope or clear the token in configuration table ?
+        } else {
+            // TODO Add bad request handling here
+        }
     }
 }

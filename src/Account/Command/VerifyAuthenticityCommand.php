@@ -21,7 +21,7 @@
 
 namespace PrestaShop\Module\PsAccounts\Account\Command;
 
-class VerifyUrlAuthenticityCommand
+class VerifyAuthenticityCommand
 {
     /**
      * @var int|null
@@ -29,17 +29,10 @@ class VerifyUrlAuthenticityCommand
     public $shopId;
 
     /**
-     * @var array
-     */
-    public $payload;
-
-    /**
      * @param int|null $shopId
-     * @param array $payload
      */
-    public function __construct($shopId, array $payload)
+    public function __construct($shopId)
     {
         $this->shopId = $shopId;
-        $this->payload = $payload;
     }
 }

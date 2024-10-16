@@ -52,11 +52,12 @@ services:
       - '@PrestaShop\Module\PsAccounts\Context\ShopContext'
       - '@PrestaShop\Module\PsAccounts\Cqrs\CommandBus'
 
-  PrestaShop\Module\PsAccounts\Account\CommandHandler\VerifyUrlAuthenticityHandler:
-    class: PrestaShop\Module\PsAccounts\Account\CommandHandler\VerifyUrlAuthenticityHandler
+  PrestaShop\Module\PsAccounts\Account\CommandHandler\VerifyAuthenticityHandler:
+    class: PrestaShop\Module\PsAccounts\Account\CommandHandler\VerifyAuthenticityHandler
     public: true
     arguments:
       - '@PrestaShop\Module\PsAccounts\Api\Client\AccountsClient'
       - '@PrestaShop\Module\PsAccounts\Provider\ShopProvider'
       - '@PrestaShop\Module\PsAccounts\Provider\OAuth2\Oauth2Client'
-      - '@PrestaShop\Module\PsAccounts\Context\ShopContext'
+      - '@PrestaShop\Module\PsAccounts\Account\Session\Firebase\ShopSession'
+      - '@PrestaShop\Module\PsAccounts\Account\ManageProof'
