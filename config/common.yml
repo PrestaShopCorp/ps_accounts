@@ -203,6 +203,12 @@ services:
     arguments:
       - '@PrestaShop\Module\PsAccounts\Account\Session\Firebase\OwnerSession'
 
+  PrestaShop\Module\PsAccounts\Identity\Domain\IdentityManager:
+    class: PrestaShop\Module\PsAccounts\Identity\Infrastructure\ConfigurationIdentityManager
+    public: true
+    arguments:
+      - '@PrestaShop\Module\PsAccounts\Repository\ConfigurationRepository'
+
   #####################
   # presenters
 

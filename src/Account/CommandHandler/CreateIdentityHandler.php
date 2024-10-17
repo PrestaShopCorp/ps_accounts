@@ -21,9 +21,9 @@
 namespace PrestaShop\Module\PsAccounts\Account\CommandHandler;
 
 use PrestaShop\Module\PsAccounts\Account\Command\CreateIdentityCommand;
-use PrestaShop\Module\PsAccounts\Account\ShopIdentity;
 use PrestaShop\Module\PsAccounts\Api\Client\AccountsClient;
-use PrestaShop\Module\PsAccounts\Provider\OAuth2\Oauth2Client;
+use PrestaShop\Module\PsAccounts\Identity\Domain\IdentityManager;
+use PrestaShop\Module\PsAccounts\Identity\Domain\OAuth2Client;
 use PrestaShop\Module\PsAccounts\Provider\ShopProvider;
 
 class CreateIdentityHandler
@@ -34,36 +34,28 @@ class CreateIdentityHandler
     private $accountsClient;
 
     /**
-     * @var Oauth2Client
-     */
-    private $oauth2Client;
-
-    /**
      * @var ShopProvider
      */
     private $shopProvider;
 
     /**
-     * @var ShopIdentity
+     * @var IdentityManager
      */
-    private $shopIdentity;
+    private $identityManager;
 
     /**
      * @param AccountsClient $accountsClient
      * @param ShopProvider $shopProvider
-     * @param Oauth2Client $oauth2Client
-     * @param ShopIdentity $shopIdentity
+     * @param IdentityManager $identityManager
      */
     public function __construct(
         AccountsClient $accountsClient,
         ShopProvider $shopProvider,
-        Oauth2Client $oauth2Client,
-        ShopIdentity $shopIdentity
+        IdentityManager $identityManager
     ) {
         $this->accountsClient = $accountsClient;
         $this->shopProvider = $shopProvider;
-        $this->oauth2Client = $oauth2Client;
-        $this->shopIdentity = $shopIdentity;
+        $this->identityManager = $identityManager;
     }
 
     /**
@@ -79,18 +71,21 @@ class CreateIdentityHandler
         // - identify shop (when ?) -> be sure we send version with it & when to trigger it ?
         // - UX associated ?
         // - Migrate routes using user token
-        if (!$this->oauth2Client->exists()) {
+
+        $identity = $this->identityManager->get();
+
+        if (!$identity->hasOAuth2Client()) {
             $response = $this->accountsClient->createShopIdentity(
                 $this->shopProvider->getUrl($command->shopId)
             );
 
             if ($response['status'] === true && isset($response['body'])) {
                 $body = $response['body'];
-                // FIXME: should we refactor those kind of "entities" ?
-                // FIXME: oauthClientRepository->getClientByShopId ?
-                // FIXME: shopIdentityRepository->getIdentityByShopId ?
-                $this->oauth2Client->update($body['clientId'], $body['clientSecret']);
-                $this->shopIdentity->setShopUuid($body['cloudShopId']);
+
+                $oauth2Client = new OAuth2Client($body['clientId'], $body['clientSecret']);
+                $identity->create($body['cloudShopId'], $oauth2Client);
+
+                $this->identityManager->save($identity);
             } else {
                 // TODO Add bad request handling here
             }

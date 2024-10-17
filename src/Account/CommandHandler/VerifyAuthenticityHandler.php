@@ -24,7 +24,7 @@ use PrestaShop\Module\PsAccounts\Account\Command\VerifyAuthenticityCommand;
 use PrestaShop\Module\PsAccounts\Account\ManageProof;
 use PrestaShop\Module\PsAccounts\Account\Session\ShopSession;
 use PrestaShop\Module\PsAccounts\Api\Client\AccountsClient;
-use PrestaShop\Module\PsAccounts\Provider\OAuth2\Oauth2Client;
+use PrestaShop\Module\PsAccounts\Identity\Domain\IdentityManager;
 use PrestaShop\Module\PsAccounts\Provider\ShopProvider;
 
 class VerifyAuthenticityHandler
@@ -33,11 +33,6 @@ class VerifyAuthenticityHandler
      * @var AccountsClient
      */
     private $accountsClient;
-
-    /**
-     * @var Oauth2Client
-     */
-    private $oauth2Client;
 
     /**
      * @var ShopProvider
@@ -50,6 +45,11 @@ class VerifyAuthenticityHandler
     private $shopSession;
 
     /**
+     * @var IdentityManager
+     */
+    private $identityManager;
+
+    /**
      * @var ManageProof
      */
     private $manageProof;
@@ -57,21 +57,21 @@ class VerifyAuthenticityHandler
     /**
      * @param AccountsClient $accountsClient
      * @param ShopProvider $shopProvider
-     * @param Oauth2Client $oauth2Client
      * @param ShopSession $shopSession
+     * @param IdentityManager $identityManager
      * @param ManageProof $manageProof
      */
     public function __construct(
         AccountsClient $accountsClient,
         ShopProvider $shopProvider,
-        Oauth2Client $oauth2Client,
         ShopSession $shopSession,
+        IdentityManager $identityManager,
         ManageProof $manageProof
     ) {
         $this->accountsClient = $accountsClient;
         $this->shopProvider = $shopProvider;
-        $this->oauth2Client = $oauth2Client;
         $this->shopSession = $shopSession;
+        $this->identityManager = $identityManager;
         $this->manageProof = $manageProof;
     }
 
@@ -85,7 +85,9 @@ class VerifyAuthenticityHandler
      */
     public function handle(VerifyAuthenticityCommand $command)
     {
-        if (!$this->oauth2Client->exists()) {
+        $identity = $this->identityManager->get();
+
+        if (!$identity->hasOAuth2Client()) {
             // TODO: call Create Identity Command ? or just log ? or throw ? or juste remove this condition ?
             return;
         }
@@ -95,16 +97,18 @@ class VerifyAuthenticityHandler
 
         $proof = $this->manageProof->generateProof();
 
-        $currentShop = $this->shopProvider->getCurrentShop();
-
         $response = $this->accountsClient->verifyUrlAuthenticity(
-            $currentShop['uuid'],
+            $identity->cloudShopId(),
             $token,
             $this->shopProvider->getUrl($command->shopId),
             $proof
         );
         if ($response['status'] === true && $response['body']) {
-            // TODO: get the first token with verified scope or clear the token in configuration table ?
+            $identity->verify();
+
+            $this->identityManager->save($identity);
+
+            // TODO: or just get the first token with verified scope or clear the token in configuration table ?
         } else {
             // TODO Add bad request handling here
         }
