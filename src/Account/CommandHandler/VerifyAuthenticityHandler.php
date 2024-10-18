@@ -85,7 +85,7 @@ class VerifyAuthenticityHandler
      */
     public function handle(VerifyAuthenticityCommand $command)
     {
-        $identity = $this->identityManager->get();
+        $identity = $this->identityManager->get($command->shopId);
 
         if (!$identity->hasOAuth2Client()) {
             // TODO: call Create Identity Command ? or just log ? or throw ? or juste remove this condition ?

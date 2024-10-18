@@ -72,7 +72,7 @@ class CreateIdentityHandler
         // - UX associated ?
         // - Migrate routes using user token
 
-        $identity = $this->identityManager->get();
+        $identity = $this->identityManager->get($command->shopId);
 
         if (!$identity->hasOAuth2Client()) {
             $response = $this->accountsClient->createShopIdentity(
