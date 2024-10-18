@@ -20,8 +20,8 @@
 
 namespace PrestaShop\Module\PsAccounts\Factory;
 
-use PrestaShop\Module\PsAccounts\Vendor\Monolog\Handler\RotatingFileHandler;
-use PrestaShop\Module\PsAccounts\Vendor\Monolog\Logger;
+use PrestaShop\Module\PsAccounts800\Vendor\Monolog\Handler\RotatingFileHandler;
+use PrestaShop\Module\PsAccounts800\Vendor\Monolog\Logger;
 
 class PsAccountsLogger
 {

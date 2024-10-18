@@ -18,22 +18,22 @@
  * @license   https://opensource.org/licenses/AFL-3.0 Academic Free License version 3.0
  */
 
-namespace PrestaShop\Module\PsAccounts\Account\Command;
+namespace PrestaShop\Module\PsAccounts\Account\CommandHandler;
 
-use PrestaShop\Module\PsAccounts\Account\Dto\LinkShop;
+use PrestaShop\Module\PsAccounts\Account\Command\CreateIdentitiesCommand;
+use PrestaShop\Module\PsAccounts\Account\Command\CreateIdentityCommand;
 
-class LinkShopCommand
+class CreateIdentitiesHandler extends MultiShopHandler
 {
     /**
-     * @var LinkShop
+     * @param CreateIdentitiesCommand $command
+     *
+     * @return void
      */
-    public $payload;
-
-    /**
-     * @param LinkShop $payload
-     */
-    public function __construct(LinkShop $payload)
+    public function handle(CreateIdentitiesCommand $command)
     {
-        $this->payload = $payload;
+        $this->handleMulti(function ($multiShopId) {
+            $this->commandBus->handle(new CreateIdentityCommand($multiShopId));
+        });
     }
 }

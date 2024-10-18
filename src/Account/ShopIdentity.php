@@ -22,7 +22,7 @@ namespace PrestaShop\Module\PsAccounts\Account;
 
 use PrestaShop\Module\PsAccounts\Repository\ConfigurationRepository;
 
-class LinkShop
+class ShopIdentity
 {
     /**
      * @var ConfigurationRepository
