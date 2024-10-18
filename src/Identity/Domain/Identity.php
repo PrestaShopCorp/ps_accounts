@@ -2,6 +2,8 @@
 
 namespace PrestaShop\Module\PsAccounts\Identity\Domain;
 
+use Error;
+
 class Identity
 {
     /**
@@ -10,7 +12,7 @@ class Identity
 	private $shopId;
 
     /**
-     * @var string
+     * @var string|null
      */
 	private $cloudShopId;
 
@@ -23,10 +25,10 @@ class Identity
      * Identity constructor
      *
      * @param string $shopId
-     * @param string $cloudShopId
+     * @param string|null $cloudShopId
      * @param Oauth2Client|null $oauth2Client
      */
-	public function __construct($shopId, $cloudShopId, Oauth2Client $oauth2Client = null)
+	public function __construct($shopId, $cloudShopId = null, Oauth2Client $oauth2Client = null)
     {
 		$this->shopId = $shopId;
 		$this->cloudShopId = $cloudShopId;
@@ -38,6 +40,10 @@ class Identity
      */
 	public function create($shopId, $cloudShopId, Oauth2Client $oauth2Client)
 	{
+        if ($this->cloudShopId && $this->hasOAuth2Client()) {
+            throw new Error('The store already have an identity');
+        }
+
 		$this->shopId = $shopId;
 		$this->cloudShopId = $cloudShopId;
 		$this->oauth2Client = $oauth2Client;
@@ -50,6 +56,10 @@ class Identity
      */
 	public function verify()
 	{
+        if (!$this->cloudShopId || !$this->hasOAuth2Client()) {
+            throw new Error('The store does not have an identity');
+        }
+
 		// $this->record(new IdentityVerified($this->id));
 	}
 
