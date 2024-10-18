@@ -7,7 +7,7 @@ interface IdentityManager
     /**
      * @return Identity
      */
-	public function get();
+    public function get($shopId);
 
     /**
      * @param Identity $identity

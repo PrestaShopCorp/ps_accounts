@@ -7,22 +7,28 @@ class Identity
     /**
      * @var string
      */
-	private $cloudShopId;
+	private $shopId;
 
-    // TODO: add local shop id ?
+    /**
+     * @var string
+     */
+	private $cloudShopId;
 
     /**
      * @var Oauth2Client
      */
 	private $oauth2Client;
 
-	public function __construct($cloudShopId, Oauth2Client $oauth2Client = null) {
+	public function __construct($shopId, $cloudShopId, Oauth2Client $oauth2Client = null)
+    {
+		$this->shopId = $shopId;
 		$this->cloudShopId = $cloudShopId;
 		$this->oauth2Client = $oauth2Client;
 	}
 
-	public function create($cloudShopId, Oauth2Client $oauth2Client)
+	public function create($shopId, $cloudShopId, Oauth2Client $oauth2Client)
 	{
+		$this->shopId = $shopId;
 		$this->cloudShopId = $cloudShopId;
 		$this->oauth2Client = $oauth2Client;
 
@@ -32,6 +38,11 @@ class Identity
 	public function verify()
 	{
 		// $this->record(new IdentityVerified($this->id));
+	}
+
+	public function shopId(): string
+	{
+		return $this->shopId;
 	}
 
 	public function cloudShopId(): string

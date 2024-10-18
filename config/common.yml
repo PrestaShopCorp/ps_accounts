@@ -207,6 +207,7 @@ services:
     class: PrestaShop\Module\PsAccounts\Identity\Infrastructure\ConfigurationIdentityManager
     public: true
     arguments:
+      - '@PrestaShop\Module\PsAccounts\Context\ShopContext'
       - '@PrestaShop\Module\PsAccounts\Repository\ConfigurationRepository'
 
   #####################
