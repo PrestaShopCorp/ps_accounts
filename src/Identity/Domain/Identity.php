@@ -40,12 +40,12 @@ class Identity
 		// $this->record(new IdentityVerified($this->id));
 	}
 
-	public function shopId(): string
+	public function shopId()
 	{
 		return $this->shopId;
 	}
 
-	public function cloudShopId(): string
+	public function cloudShopId()
 	{
 		return $this->cloudShopId;
 	}
