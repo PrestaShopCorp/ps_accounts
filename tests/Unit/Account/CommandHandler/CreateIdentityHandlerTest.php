@@ -6,6 +6,8 @@ use PrestaShop\Module\PsAccounts\Account\Command\CreateIdentityCommand;
 use PrestaShop\Module\PsAccounts\Account\CommandHandler\CreateIdentityHandler;
 use PrestaShop\Module\PsAccounts\Api\Client\AccountsClient;
 use PrestaShop\Module\PsAccounts\Context\ShopContext;
+use PrestaShop\Module\PsAccounts\Identity\Domain\IdentityManager;
+use PrestaShop\Module\PsAccounts\Identity\Infrastructure\ConfigurationIdentityManager;
 use PrestaShop\Module\PsAccounts\Provider\OAuth2\Oauth2Client;
 use PrestaShop\Module\PsAccounts\Provider\ShopProvider;
 use PrestaShop\Module\PsAccounts\Tests\TestCase;
@@ -27,9 +29,9 @@ class CreateIdentityHandlerTest extends TestCase
     protected $accountsClient;
 
     /**
-     * @var Oauth2Client
+     * @var ConfigurationIdentityManager
      */
-    protected $oauth2Client;
+    protected $identityManager;
 
     /**
      * @var int
@@ -44,7 +46,7 @@ class CreateIdentityHandlerTest extends TestCase
 
         $this->shopId = $this->shopProvider->getShopContext()->getContext()->shop->id;
 
-        $this->oauth2Client = $this->createMock(Oauth2Client::class);
+        $this->identityManager = $this->createMock(ConfigurationIdentityManager::class);
     }
 
     /**
@@ -58,8 +60,8 @@ class CreateIdentityHandlerTest extends TestCase
         $clientSecret = $this->faker->uuid;
         $cloudShopId = $this->faker->uuid;
 
-        $this->oauth2Client->method('exists')->willReturn(false);
-        $this->oauth2Client->method('update');
+        $this->identityManager->method('get')->willReturn(false);
+        $this->identityManager->method('save');
 
         $this->accountsClient
             ->method('createShopIdentity')
@@ -73,12 +75,12 @@ class CreateIdentityHandlerTest extends TestCase
             ->expects($this->once())
             ->method('createShopIdentity');
 
-        $this->oauth2Client
+        $this->identityManager
             ->expects($this->once())
-            ->method('exists');
-        $this->oauth2Client
+            ->method('get');
+        $this->identityManager
             ->expects($this->once())
-            ->method('update')
+            ->method('save')
             ->with($clientId, $clientSecret);
 
         $this->getCreateIdentityHandler()->handle(new CreateIdentityCommand(1, []));
@@ -96,8 +98,8 @@ class CreateIdentityHandlerTest extends TestCase
         $clientSecret = $this->faker->uuid;
         $cloudShopId = $this->faker->uuid;
 
-        $this->oauth2Client->method('exists')->willReturn(true);
-        $this->oauth2Client->method('update');
+        $this->identityManager->method('get')->willReturn(true);
+        $this->identityManager->method('save');
 
         $this->accountsClient
             ->method('createShopIdentity')
@@ -111,12 +113,12 @@ class CreateIdentityHandlerTest extends TestCase
             ->expects($this->never())
             ->method('createShopIdentity');
 
-        $this->oauth2Client
+        $this->identityManager
             ->expects($this->once())
-            ->method('exists');
-        $this->oauth2Client
+            ->method('get');
+        $this->identityManager
             ->expects($this->never())
-            ->method('update');
+            ->method('save');
 
         $this->getCreateIdentityHandler()->handle(new CreateIdentityCommand(1, []));
     }
@@ -129,8 +131,7 @@ class CreateIdentityHandlerTest extends TestCase
         return new CreateIdentityHandler(
             $this->accountsClient,
             $this->shopProvider,
-            $this->oauth2Client,
-            $this->shopIdentity
+            $this->identityManager
         );
     }
 }
