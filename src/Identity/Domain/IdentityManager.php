@@ -5,6 +5,8 @@ namespace PrestaShop\Module\PsAccounts\Identity\Domain;
 interface IdentityManager
 {
     /**
+     * @param string $shopId
+     *
      * @return Identity
      */
     public function get($shopId);

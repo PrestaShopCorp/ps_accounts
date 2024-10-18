@@ -15,10 +15,17 @@ class Identity
 	private $cloudShopId;
 
     /**
-     * @var Oauth2Client
+     * @var Oauth2Client|null
      */
 	private $oauth2Client;
 
+    /**
+     * Identity constructor
+     *
+     * @param string $shopId
+     * @param string $cloudShopId
+     * @param Oauth2Client|null $oauth2Client
+     */
 	public function __construct($shopId, $cloudShopId, Oauth2Client $oauth2Client = null)
     {
 		$this->shopId = $shopId;
@@ -26,6 +33,9 @@ class Identity
 		$this->oauth2Client = $oauth2Client;
 	}
 
+    /**
+     * @return void
+     */
 	public function create($shopId, $cloudShopId, Oauth2Client $oauth2Client)
 	{
 		$this->shopId = $shopId;
@@ -35,26 +45,41 @@ class Identity
 		// $this->record(new IdentityCreated($this->id, $this->oauth2Client));
 	}
 
+    /**
+     * @return void
+     */
 	public function verify()
 	{
 		// $this->record(new IdentityVerified($this->id));
 	}
 
+    /**
+     * @return string
+     */
 	public function shopId()
 	{
 		return $this->shopId;
 	}
 
+    /**
+     * @return string
+     */
 	public function cloudShopId()
 	{
 		return $this->cloudShopId;
 	}
 
-	public function oauth2Client(): OAuth2Client
+    /**
+     * @return OAuth2Client
+     */
+	public function oauth2Client()
 	{
 		return $this->oauth2Client;
 	}
 
+    /**
+     * @return boolean
+     */
     public function hasOAuth2Client()
     {
         return (bool) $this->oauth2Client;
