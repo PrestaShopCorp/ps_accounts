@@ -9,6 +9,8 @@
  */
 function upgrade_module_7_0_0($module)
 {
+    require __DIR__ . '/../src/enforce_autoload.php';
+
     foreach ([
                  //'displayBackOfficeHeader',
                  //'actionAdminLoginControllerSetMedia',

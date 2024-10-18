@@ -211,6 +211,10 @@ php-cs-fixer-1.6.1.24-5.6-fpm-stretch: platform-1.6.1.24-5.6-fpm-stretch platfor
 PHP_SCOPER_VENDOR_DIRS = $(shell cat .dir-scoped)
 PHP_SCOPER_OUTPUT_DIR := vendor-scoped
 PHP_SCOPER_VERSION := 0.18.11
+PHP_SCOPER_VERSION_PREFIX = $(shell cat .ver-scoped)
+
+php-scoper-version-prefix:
+	@echo "${PHP_SCOPER_VERSION_PREFIX}"
 
 php-scoper-list:
 	@echo "${PHP_SCOPER_VENDOR_DIRS}"
@@ -225,9 +229,8 @@ php-scoper-add-prefix: scoper.inc.php vendor-clean vendor php-scoper-pull
 	$(foreach DIR,$(PHP_SCOPER_VENDOR_DIRS), rm -rf "./vendor/${DIR}" && mv "./${PHP_SCOPER_OUTPUT_DIR}/${DIR}" ./vendor/${DIR};)
 	if [ ! -z ${PHP_SCOPER_OUTPUT_DIR} ]; then rm -rf "./${PHP_SCOPER_OUTPUT_DIR}"; fi
 
-# TODO: scoper.inc.php, fix-autoload.php, Makefile
-REGEX_UPDATE_PREFIX := "s/PrestaShop\\\\Module\\\\PsAccounts\([0-9]*\)\\\\Vendor/PrestaShop\\\\Module\\\\PsAccounts800\\\\Vendor/"
-REGEX_UPDATE_PREFIX2 := "s/PrestaShop\\\\\\\\Module\\\\\\\\PsAccounts\([0-9]*\)\\\\\\\\Vendor/PrestaShop\\\\\\\\Module\\\\\\\\PsAccounts800\\\\\\\\Vendor/"
+REGEX_UPDATE_PREFIX := "s/PrestaShop\\\\Module\\\\PsAccounts\([0-9]*\)\\\\Vendor/PrestaShop\\\\Module\\\\${PHP_SCOPER_VERSION_PREFIX}\\\\Vendor/"
+REGEX_UPDATE_PREFIX2 := "s/PrestaShop\\\\\\\\Module\\\\\\\\PsAccounts\([0-9]*\)\\\\\\\\Vendor/PrestaShop\\\\\\\\Module\\\\\\\\${PHP_SCOPER_VERSION_PREFIX}\\\\\\\\Vendor/"
 php-scoper-update-prefix:
 	@echo "updating prefix..."
 	find ./tests -type f -exec sed -i -e ${REGEX_UPDATE_PREFIX} {} \;
