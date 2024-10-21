@@ -183,35 +183,30 @@ class Configuration
      * @param string|bool $default
      *
      * @return mixed
-     *
-     * @throws \PrestaShopDatabaseException
-     * @throws \PrestaShopException
      */
     public function getUncached($key, $idShopGroup = null, $idShop = null, $default = false)
     {
-        $id = \Configuration::getIdByName($key, $idShopGroup, $idShop);
-        if ($id > 0) {
-            $found = (new \Configuration($id));
-            $found->clearCache();
-
-            return $found->value;
+        try {
+            return $this->getUncachedConfiguration($key, $idShopGroup, $idShop)->value;
+        } catch (\Exception $e) {
+            return $default;
         }
-
-        return $default;
     }
 
     /**
      * @param string $key
      * @param int|null $idShopGroup
      * @param int|null $idShop
-     * @param mixed $default
      *
      * @return \Configuration
      *
      * @throw \Exception
      */
-    public function getUncachedConfiguration($key, $idShopGroup = null, $idShop = null, $default = false)
+    public function getUncachedConfiguration($key, $idShopGroup = null, $idShop = null)
     {
+        if (!$this->isMultishopActive()) {
+            $idShopGroup = $idShop = null;
+        }
         $id = \Configuration::getIdByName($key, $idShopGroup, $idShop);
         if ($id > 0) {
             $found = (new \Configuration($id));
@@ -220,6 +215,18 @@ class Configuration
             return $found;
         }
 
-        throw new \Exception('Configuration entry not found');
+        throw new \Exception('Configuration entry not found: ' . $key . '|grp:' . $idShopGroup . '|shop:' . $idShop);
+    }
+
+    /**
+     * is multi-shop active "right now"
+     *
+     * @return bool
+     */
+    public function isMultishopActive()
+    {
+        //return \Shop::isFeatureActive();
+        return \Db::getInstance()->getValue('SELECT value FROM `' . _DB_PREFIX_ . 'configuration` WHERE `name` = "PS_MULTISHOP_FEATURE_ACTIVE"')
+            && (\Db::getInstance()->getValue('SELECT COUNT(*) FROM ' . _DB_PREFIX_ . 'shop') > 1);
     }
 }
