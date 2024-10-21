@@ -103,6 +103,9 @@ class PsAccountsService
     }
 
     /**
+     * Currently in v7, this get the Shop firebase token
+     * In v8+ this will be an Hydra token with a breaking change
+     * @deprecated
      * @return string
      */
     public function getOrRefreshToken()
