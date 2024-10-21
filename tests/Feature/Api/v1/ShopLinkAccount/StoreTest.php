@@ -61,11 +61,11 @@ class StoreTest extends FeatureTestCase
         \Configuration::clearConfigurationCacheForTesting();
         \Configuration::loadConfiguration();
 
-        $this->assertTrue($this->linkShop->exists());
-        $this->assertEquals($payload['uid'], $this->linkShop->getShopUuid());
-        $this->assertEquals($payload['employee_id'], $this->linkShop->getEmployeeId());
-        $this->assertEquals($payload['owner_uid'], $this->linkShop->getOwnerUuid());
-        $this->assertEquals($payload['owner_email'], $this->linkShop->getOwnerEmail());
+        $this->assertTrue($this->shopIdentity->exists());
+        $this->assertEquals($payload['uid'], $this->shopIdentity->getShopUuid());
+        $this->assertEquals($payload['employee_id'], $this->shopIdentity->getEmployeeId());
+        $this->assertEquals($payload['owner_uid'], $this->shopIdentity->getOwnerUuid());
+        $this->assertEquals($payload['owner_email'], $this->shopIdentity->getOwnerEmail());
     }
 
     /**
@@ -101,9 +101,9 @@ class StoreTest extends FeatureTestCase
         \Configuration::clearConfigurationCacheForTesting();
         \Configuration::loadConfiguration();
 
-        $this->assertTrue($this->linkShop->exists());
-        $this->assertEquals($shopUuid, $this->linkShop->getShopUuid());
-        $this->assertEquals(null, $this->linkShop->getEmployeeId());
+        $this->assertTrue($this->shopIdentity->exists());
+        $this->assertEquals($shopUuid, $this->shopIdentity->getShopUuid());
+        $this->assertEquals(null, $this->shopIdentity->getEmployeeId());
     }
 
 }

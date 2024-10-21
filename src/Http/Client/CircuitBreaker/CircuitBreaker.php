@@ -22,8 +22,8 @@ namespace PrestaShop\Module\PsAccounts\Http\Client\CircuitBreaker;
 
 use DateTime;
 use PrestaShop\Module\PsAccounts\Log\Logger;
-use PrestaShop\Module\PsAccounts\Vendor\GuzzleHttp\Exception\ConnectException;
-use PrestaShop\Module\PsAccounts\Vendor\GuzzleHttp\Exception\RequestException;
+use PrestaShop\Module\PsAccounts800\Vendor\GuzzleHttp\Exception\ConnectException;
+use PrestaShop\Module\PsAccounts800\Vendor\GuzzleHttp\Exception\RequestException;
 
 abstract class CircuitBreaker
 {

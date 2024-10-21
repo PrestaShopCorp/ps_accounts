@@ -18,7 +18,7 @@
  * @license   https://opensource.org/licenses/AFL-3.0 Academic Free License version 3.0
  */
 
-use PrestaShop\Module\PsAccounts\Account\LinkShop;
+use PrestaShop\Module\PsAccounts\Account\ShopIdentity;
 use PrestaShop\Module\PsAccounts\Account\Session\Firebase;
 use PrestaShop\Module\PsAccounts\Account\Session\ShopSession;
 use PrestaShop\Module\PsAccounts\Account\Token\NullToken;
@@ -34,9 +34,9 @@ use PrestaShop\Module\PsAccounts\Service\PsAccountsService;
 class ps_AccountsApiV2ShopHealthCheckModuleFrontController extends AbstractShopRestController
 {
     /**
-     * @var LinkShop
+     * @var ShopIdentity
      */
-    private $linkShop;
+    private $shopIdentity;
 
     /**
      * @var Oauth2Client
@@ -80,7 +80,7 @@ class ps_AccountsApiV2ShopHealthCheckModuleFrontController extends AbstractShopR
         // public healthcheck
         $this->authenticated = false;
 
-        $this->linkShop = $this->module->getService(LinkShop::class);
+        $this->shopIdentity = $this->module->getService(ShopIdentity::class);
         $this->oauth2Client = $this->module->getService(Oauth2Client::class);
         $this->shopSession = $this->module->getService(ShopSession::class);
         $this->firebaseShopSession = $this->module->getService(Firebase\ShopSession::class);
@@ -122,7 +122,7 @@ class ps_AccountsApiV2ShopHealthCheckModuleFrontController extends AbstractShopR
 
         return [
             'oauth2Client' => $this->oauth2Client->exists(),
-            'shopLinked' => (bool) $this->linkShop->getShopUuid(),
+            'shopLinked' => (bool) $this->shopIdentity->getShopUuid(),
             'isSsoEnabled' => $this->psAccountsService->getLoginActivated(),
             'oauthToken' => $this->tokenInfos($shopToken),
             'firebaseOwnerToken' => $this->tokenInfos($firebaseOwnerToken),

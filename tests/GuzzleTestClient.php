@@ -3,7 +3,7 @@
 namespace PrestaShop\Module\PsAccounts\Tests;
 
 use PrestaShop\Module\PsAccounts\Log\Logger;
-use PrestaShop\Module\PsAccounts\Vendor\GuzzleHttp\Client;
+use PrestaShop\Module\PsAccounts800\Vendor\GuzzleHttp\Client;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\UriInterface;
 

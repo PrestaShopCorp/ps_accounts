@@ -20,16 +20,12 @@
 
 namespace PrestaShop\Module\PsAccounts\Service;
 
-use PrestaShop\Module\PsAccounts\Account\Command\MigrateAndLinkV4ShopCommand;
-use PrestaShop\Module\PsAccounts\Account\Command\UnlinkShopCommand;
-use PrestaShop\Module\PsAccounts\Account\LinkShop;
+use PrestaShop\Module\PsAccounts\Account\ShopIdentity;
 use PrestaShop\Module\PsAccounts\Account\Session\Firebase\OwnerSession;
 use PrestaShop\Module\PsAccounts\Account\Session\Firebase\ShopSession;
 use PrestaShop\Module\PsAccounts\Adapter\Link;
-use PrestaShop\Module\PsAccounts\Cqrs\CommandBus;
 use PrestaShop\Module\PsAccounts\Entity\EmployeeAccount;
 use PrestaShop\Module\PsAccounts\Exception\RefreshTokenException;
-use PrestaShop\Module\PsAccounts\Provider\ShopProvider;
 use PrestaShop\Module\PsAccounts\Repository\ConfigurationRepository;
 use PrestaShop\Module\PsAccounts\Repository\EmployeeAccountRepository;
 
@@ -59,9 +55,9 @@ class PsAccountsService
     private $ownerSession;
 
     /**
-     * @var LinkShop
+     * @var ShopIdentity
      */
-    private $linkShop;
+    private $shopIdentity;
 
     /**
      * @param \Ps_accounts $module
@@ -74,7 +70,7 @@ class PsAccountsService
         $this->shopSession = $this->module->getService(ShopSession::class);
         $this->ownerSession = $this->module->getService(OwnerSession::class);
         $this->link = $this->module->getService(Link::class);
-        $this->linkShop = $module->getService(LinkShop::class);
+        $this->shopIdentity = $module->getService(ShopIdentity::class);
     }
 
     /**
@@ -100,7 +96,7 @@ class PsAccountsService
      */
     public function getShopUuid()
     {
-        return $this->linkShop->getShopUuid();
+        return $this->shopIdentity->getShopUuid();
     }
 
     /**
@@ -160,7 +156,7 @@ class PsAccountsService
      */
     public function getUserUuid()
     {
-        return (string) $this->linkShop->getOwnerUuid();
+        return (string) $this->shopIdentity->getOwnerUuid();
     }
 
     /**
@@ -178,7 +174,7 @@ class PsAccountsService
      */
     public function getEmail()
     {
-        return $this->linkShop->getOwnerEmail();
+        return $this->shopIdentity->getOwnerEmail();
     }
 
     /**
@@ -188,7 +184,7 @@ class PsAccountsService
      */
     public function isAccountLinked()
     {
-        return $this->linkShop->exists();
+        return $this->shopIdentity->exists();
     }
 
     /**
@@ -198,7 +194,7 @@ class PsAccountsService
      */
     public function isAccountLinkedV4()
     {
-        return $this->linkShop->existsV4();
+        return $this->shopIdentity->existsV4();
     }
 
     /**
@@ -235,63 +231,6 @@ class PsAccountsService
     public function getAccountsCdn()
     {
         return $this->module->getParameter('ps_accounts.accounts_cdn_url');
-    }
-
-    /**
-     * @return void
-     *
-     * @throws \PrestaShopException
-     * @throws \Exception
-     */
-    public function autoReonboardOnV5()
-    {
-        /** @var ShopProvider $shopProvider */
-        $shopProvider = $this->module->getService(ShopProvider::class);
-
-        /** @var ConfigurationRepository $conf */
-        $conf = $this->module->getService(ConfigurationRepository::class);
-
-        /** @var LinkShop $linkShop */
-        $linkShop = $this->module->getService(LinkShop::class);
-
-        /** @var CommandBus $commandBus */
-        $commandBus = $this->module->getService(CommandBus::class);
-
-        $allShops = $shopProvider->getShopsTree((string) $this->module->name);
-
-        $flattenShops = [];
-
-        foreach ($allShops as $shopGroup) {
-            foreach ($shopGroup['shops'] as $shop) {
-                $shop['multishop'] = (bool) $shopGroup['multishop'];
-                $flattenShops[] = $shop;
-            }
-        }
-
-        $isAlreadyReonboard = false;
-
-        usort($flattenShops, function ($firstShop, $secondShop) {
-            return (int) $firstShop['id'] - (int) $secondShop['id'];
-        });
-
-        foreach ($flattenShops as $shop) {
-            if ($shop['isLinkedV4']) {
-                $id = $conf->getShopId();
-                if ($isAlreadyReonboard) {
-                    $conf->setShopId((int) $shop['id']);
-
-                    $commandBus->handle(new UnlinkShopCommand($shop['id']));
-
-                    $conf->setShopId($id);
-                } else {
-                    $shop['employeeId'] = null;
-
-                    $commandBus->handle(new MigrateAndLinkV4ShopCommand($id, $shop));
-
-                    $isAlreadyReonboard = true;
-                }
-            }
-        }
     }
 
     /**
