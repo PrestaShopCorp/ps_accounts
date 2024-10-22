@@ -148,6 +148,9 @@ phpunit-run-unit: platform-fix-permissions
 phpunit-run-feature: platform-fix-permissions
 	@docker exec -w ${CONTAINER_INSTALL_DIR}/tests phpunit ./vendor/bin/phpunit --testsuite feature
 
+phpunit-display-logs:
+	@docker exec  -w ${CONTAINER_INSTALL_DIR}/tests phpunit cat var/logs/ps_accounts-2024-10-22
+
 phpunit: phpunit-run-unit phpunit-run-feature
 
 REGEX_COMPAT_VOID := "s/\(function \(setUp\|tearDown\)()\)\(: void\)\?/\1/"
