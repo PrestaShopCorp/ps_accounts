@@ -149,7 +149,7 @@ phpunit-run-feature: platform-fix-permissions
 	@docker exec -w ${CONTAINER_INSTALL_DIR}/tests phpunit ./vendor/bin/phpunit --testsuite feature
 
 phpunit-display-logs:
-	@docker exec  -w ${CONTAINER_INSTALL_DIR}/tests phpunit cat var/logs/ps_accounts-2024-10-22
+	@docker exec phpunit cat var/logs/ps_accounts-$(shell date --iso)
 
 phpunit: phpunit-run-unit phpunit-run-feature
 
