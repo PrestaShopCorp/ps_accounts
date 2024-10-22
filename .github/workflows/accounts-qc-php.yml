@@ -73,11 +73,6 @@ jobs:
       - name: Scoped dependencies
         run: make php-scoper
 
-#      - name: PHPUnit tests
-#        run: |
-#          make phpunit-${{ matrix.presta-versions }}
-
-# alternatively :
       - name: Platform build
         run: |
           make platform-${{ matrix.presta-versions }}
