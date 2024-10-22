@@ -91,6 +91,7 @@ jobs:
           make phpunit-run-feature
 
       - name: Display logs
+        if: "!success()"
         run: |
           make phpunit-display-logs
 
