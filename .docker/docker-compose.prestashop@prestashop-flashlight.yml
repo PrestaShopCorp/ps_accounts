@@ -14,7 +14,8 @@ services:
     volumes:
       - ../:/var/www/html/modules/ps_accounts
     depends_on:
-      - mysql
+      mysql:
+        condition: service_healthy
 
   mysql:
     image: mariadb:10.8.2
@@ -39,4 +40,7 @@ services:
       - MYSQL_ROOT_PASSWORD=prestashop
       - MYSQL_DATABASE=prestashop
       - MYSQL_PORT=3306
+    ports:
+      - 9906:3306
+
 
