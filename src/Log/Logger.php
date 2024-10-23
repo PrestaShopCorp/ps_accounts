@@ -46,7 +46,7 @@ class Logger
         $logLevel = self::getLevel($logLevel);
         $monologLevel = MonoLogger::toMonologLevel($logLevel);
         if (!is_int($monologLevel)) {
-            $monologLevel = MonoLogger::DEBUG;
+            $monologLevel = MonoLogger::ERROR;
         }
 
         $path = _PS_ROOT_DIR_ . '/var/logs/ps_accounts';
