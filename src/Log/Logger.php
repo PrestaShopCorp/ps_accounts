@@ -77,7 +77,8 @@ class Logger
     }
 
     /**
-     * @param $logLevel
+     * @param string|null $logLevel
+     *
      * @return mixed
      */
     public static function getLevel($logLevel)
@@ -90,6 +91,7 @@ class Logger
             } catch (InvalidArgumentException $e) {
             }
         }
+
         return $logLevel;
     }
 }
