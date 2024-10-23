@@ -45,7 +45,7 @@ platform-pull:
 	docker pull ${PLATFORM_IMAGE}
 
 platform-start:
-	@PLATFORM_IMAGE=${PLATFORM_IMAGE} ${DOCKER_COMPOSE} -f ${PLATFORM_COMPOSE_FILE} up -d
+	@PLATFORM_IMAGE=${PLATFORM_IMAGE} ${DOCKER_COMPOSE} -f ${PLATFORM_COMPOSE_FILE} up -d --wait
 	@echo phpunit started
 
 platform-stop:
@@ -102,7 +102,7 @@ endef
 
 # FIXME: check for PrestaShop & DB coming alive
 platform-is-alive:
-	sleep 10
+	sleep 0
 
 platform-init: platform-pull platform-restart platform-is-alive platform-module-install platform-fix-permissions
 	@echo platform container is ready
@@ -147,6 +147,10 @@ phpunit-run-unit: platform-fix-permissions
 
 phpunit-run-feature: platform-fix-permissions
 	@docker exec -w ${CONTAINER_INSTALL_DIR}/tests phpunit ./vendor/bin/phpunit --testsuite feature
+
+phpunit-display-logs:
+	-@docker exec phpunit sh -c "if [ -f ./bin/console ]; then cat var/logs/ps_accounts-$(shell date --iso); fi"
+	-@docker exec phpunit sh -c "if [ ! -f ./bin/console ]; then cat log/ps_accounts-$(shell date --iso); fi"
 
 phpunit: phpunit-run-unit phpunit-run-feature
 
