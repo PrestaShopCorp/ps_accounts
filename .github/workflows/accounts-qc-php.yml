@@ -73,7 +73,7 @@ jobs:
       - name: Scoped dependencies
         run: make php-scoper
 
-      - name: Platform build
+      - name: Start container & install module
         run: |
           make platform-${{ matrix.presta-versions }}
 

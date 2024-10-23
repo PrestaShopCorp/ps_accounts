@@ -22,6 +22,7 @@ namespace PrestaShop\Module\PsAccounts\Log;
 
 use PrestaShop\Module\PsAccounts\Vendor\Monolog\Handler\RotatingFileHandler;
 use PrestaShop\Module\PsAccounts\Vendor\Monolog\Logger as MonoLogger;
+use PrestaShop\Module\PsAccounts\Vendor\Psr\Log\InvalidArgumentException;
 use Ps_accounts;
 
 class Logger
@@ -43,9 +44,10 @@ class Logger
      */
     public static function create($logLevel = null)
     {
+        $logLevel = self::getLevel($logLevel);
         $monologLevel = MonoLogger::toMonologLevel($logLevel);
         if (!is_int($monologLevel)) {
-            $monologLevel = Logger::DEBUG;
+            $monologLevel = MonoLogger::DEBUG;
         }
 
         $path = _PS_ROOT_DIR_ . '/var/logs/ps_accounts';
@@ -72,5 +74,22 @@ class Logger
         $psAccounts = \Module::getInstanceByName('ps_accounts');
 
         return $psAccounts->getLogger();
+    }
+
+    /**
+     * @param $logLevel
+     * @return mixed
+     */
+    public static function getLevel($logLevel)
+    {
+        if ($logLevel === null) {
+            try {
+                /** @var Ps_accounts $psAccounts */
+                $psAccounts = \Module::getInstanceByName('ps_accounts');
+                $logLevel = $psAccounts->getParameter('ps_accounts.log_level');
+            } catch (InvalidArgumentException $e) {
+            }
+        }
+        return $logLevel;
     }
 }

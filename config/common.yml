@@ -18,8 +18,8 @@ services:
     class: PrestaShop\Module\PsAccounts\Vendor\Monolog\Logger
     public: true
     factory: [ 'PrestaShop\Module\PsAccounts\Log\Logger', 'create' ]
-    arguments:
-      - '%ps_accounts.log_level%'
+#    arguments:
+#      - '%ps_accounts.log_level%'
 
   PrestaShop\Module\PsAccounts\Provider\OAuth2\ShopProvider:
     class: PrestaShop\Module\PsAccounts\Provider\OAuth2\ShopProvider
