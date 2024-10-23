@@ -45,7 +45,7 @@ platform-pull:
 	docker pull ${PLATFORM_IMAGE}
 
 platform-start:
-	@PLATFORM_IMAGE=${PLATFORM_IMAGE} ${DOCKER_COMPOSE} -f ${PLATFORM_COMPOSE_FILE} up -d
+	@PLATFORM_IMAGE=${PLATFORM_IMAGE} ${DOCKER_COMPOSE} -f ${PLATFORM_COMPOSE_FILE} up -d --wait
 	@echo phpunit started
 
 platform-stop:
@@ -102,7 +102,7 @@ endef
 
 # FIXME: check for PrestaShop & DB coming alive
 platform-is-alive:
-	sleep 10
+	sleep 0
 
 platform-init: platform-pull platform-restart platform-is-alive platform-module-install platform-fix-permissions
 	@echo platform container is ready
