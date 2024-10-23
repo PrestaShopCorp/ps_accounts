@@ -5,6 +5,11 @@ services:
 #    image: 'prestashop/prestashop-flashlight:1.7.6.9-7.2'
 #    image: prestashop/prestashop-flashlight:8.1.5-7.4
     image: ${PLATFORM_IMAGE}
+    healthcheck:
+      test: curl --fail http://localhost:80 || exit 1
+      interval: 10s
+      timeout: 10s
+      retries: 5
     user: www-data
     environment:
       - PS_DOMAIN=localhost
@@ -15,7 +20,8 @@ services:
     volumes:
       - ../:/var/www/html/modules/ps_accounts
     depends_on:
-      - mysql
+      mysql:
+        condition: service_healthy
 
   mysql:
     image: mariadb:10.8.2
@@ -40,4 +46,7 @@ services:
       - MYSQL_ROOT_PASSWORD=prestashop
       - MYSQL_DATABASE=prestashop
       - MYSQL_PORT=3306
+    ports:
+      - 9906:3306
+
 
