@@ -20,12 +20,51 @@
 
 namespace PrestaShop\Module\PsAccounts\Log;
 
+use PrestaShop\Module\PsAccounts\Vendor\Monolog\Handler\RotatingFileHandler;
+use PrestaShop\Module\PsAccounts\Vendor\Monolog\Logger as MonoLogger;
 use Ps_accounts;
 
 class Logger
 {
+    const DEBUG = 'DEBUG';
+    const INFO = 'INFO';
+    const NOTICE = 'NOTICE';
+    const WARNING = 'WARNING';
+    const ERROR = 'ERROR';
+    const CRITICAL = 'CRITICAL';
+    const ALERT = 'ALERT';
+    const EMERGENCY = 'EMERGENCY';
+    const MAX_FILES = 15;
+
     /**
-     * @return \PrestaShop\Module\PsAccounts\Vendor\Monolog\Logger
+     * @param string|null $logLevel
+     *
+     * @return MonoLogger
+     */
+    public static function create($logLevel = null)
+    {
+        $monologLevel = MonoLogger::toMonologLevel($logLevel);
+        if (!is_int($monologLevel)) {
+            $monologLevel = Logger::DEBUG;
+        }
+
+        $path = _PS_ROOT_DIR_ . '/var/logs/ps_accounts';
+
+        if (version_compare(_PS_VERSION_, '1.7', '<')) {
+            $path = _PS_ROOT_DIR_ . '/log/ps_accounts';
+        } elseif (version_compare(_PS_VERSION_, '1.7.4', '<')) {
+            $path = _PS_ROOT_DIR_ . '/app/logs/ps_accounts';
+        }
+
+        $rotatingFileHandler = new RotatingFileHandler($path, static::MAX_FILES, $monologLevel);
+        $logger = new MonoLogger('ps_accounts');
+        $logger->pushHandler($rotatingFileHandler);
+
+        return $logger;
+    }
+
+    /**
+     * @return Monologger
      */
     public static function getInstance()
     {
