@@ -155,12 +155,6 @@ services:
       - '@PrestaShop\Module\PsAccounts\Service\PsAccountsService'
       - '@PrestaShop\Module\PsAccounts\Provider\ShopProvider'
 
-  PrestaShop\Module\PsAccounts\Api\Client\IndirectChannelClient:
-    class: PrestaShop\Module\PsAccounts\Api\Client\IndirectChannelClient
-    public: true
-    arguments:
-      - '%ps_accounts.indirect_channel_api_url%'
-
   #####################
   # repositories
 

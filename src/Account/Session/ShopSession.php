@@ -58,6 +58,11 @@ class ShopSession extends Session implements SessionInterface
     protected $linkShop;
 
     /**
+     * @var int
+     */
+    protected $oauth2ClientReceiptTimeout = 60;
+
+    /**
      * @param ConfigurationRepository $configurationRepository
      * @param ShopProvider $oauth2ClientProvider
      * @param CommandBus $commandBus
@@ -84,7 +89,7 @@ class ShopSession extends Session implements SessionInterface
     public function refreshToken($refreshToken = null)
     {
         try {
-            $this->assertAssociationState();
+            $this->assertAssociationState($this->oauth2ClientReceiptTimeout);
             $shopUuid = $this->getShopUuid();
             $accessToken = $this->getAccessToken($shopUuid);
 
@@ -139,6 +144,16 @@ class ShopSession extends Session implements SessionInterface
     }
 
     /**
+     * @param int $oauth2ClientReceiptTimeout
+     *
+     * @return void
+     */
+    public function setOauth2ClientReceiptTimeout($oauth2ClientReceiptTimeout)
+    {
+        $this->oauth2ClientReceiptTimeout = $oauth2ClientReceiptTimeout;
+    }
+
+    /**
      * @param string $shopUid
      *
      * @return AccessToken|AccessTokenInterface
@@ -161,23 +176,31 @@ class ShopSession extends Session implements SessionInterface
     }
 
     /**
+     * @param int $oauth2ClientReceiptTimeout
+     *
+     * @return void
+     *
+     * @throws InconsistentAssociationStateException
+     */
+    protected function assertAssociationState($oauth2ClientReceiptTimeout = 60)
+    {
+        $linkedAtTs = $currentTs = time();
+        if ($this->linkShop->linkedAt()) {
+            $linkedAtTs = (new \DateTime($this->linkShop->linkedAt()))->getTimestamp();
+        }
+
+        if ($this->linkShop->exists() &&
+            $currentTs - $linkedAtTs > $oauth2ClientReceiptTimeout &&
+            !$this->oauth2ClientProvider->getOauth2Client()->exists()) {
+            throw new InconsistentAssociationStateException('Invalid OAuth2 client');
+        }
+    }
+
+    /**
      * @return string
      */
     private function getShopUuid()
     {
         return $this->linkShop->getShopUuid();
-    }
-
-    /**
-     * @throws InconsistentAssociationStateException
-     *
-     * @return void
-     */
-    public function assertAssociationState()
-    {
-        if ($this->linkShop->exists() &&
-            !$this->oauth2ClientProvider->getOauth2Client()->exists()) {
-            throw new InconsistentAssociationStateException('Invalid OAuth2 client');
-        }
     }
 }
