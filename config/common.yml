@@ -79,6 +79,12 @@ services:
     arguments:
       - '@PrestaShop\Module\PsAccounts\Repository\ConfigurationRepository'
 
+  PrestaShop\Module\PsAccounts\Account\ManageProof:
+    class: PrestaShop\Module\PsAccounts\Account\ManageProof
+    public: true
+    arguments:
+      - '@PrestaShop\Module\PsAccounts\Repository\ConfigurationRepository'
+
   PrestaShop\Module\PsAccounts\Service\PsBillingService:
     class: PrestaShop\Module\PsAccounts\Service\PsBillingService
     public: true
