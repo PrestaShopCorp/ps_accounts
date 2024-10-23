@@ -148,6 +148,10 @@ phpunit-run-unit: platform-fix-permissions
 phpunit-run-feature: platform-fix-permissions
 	@docker exec -w ${CONTAINER_INSTALL_DIR}/tests phpunit ./vendor/bin/phpunit --testsuite feature
 
+phpunit-display-logs:
+	-@docker exec phpunit sh -c "if [ -f ./bin/console ]; then cat var/logs/ps_accounts-$(shell date --iso); fi"
+	-@docker exec phpunit sh -c "if [ ! -f ./bin/console ]; then cat log/ps_accounts-$(shell date --iso); fi"
+
 phpunit: phpunit-run-unit phpunit-run-feature
 
 REGEX_COMPAT_VOID := "s/\(function \(setUp\|tearDown\)()\)\(: void\)\?/\1/"
