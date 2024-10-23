@@ -7,7 +7,7 @@
  * @throws Exception
  * @throws Throwable
  */
-function upgrade_module_7_0_8($module)
+function upgrade_module_7_0_9($module)
 {
     // remove mixed-up yaml
     array_map('unlink', [
