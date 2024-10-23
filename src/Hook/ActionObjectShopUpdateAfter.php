@@ -71,14 +71,14 @@ class ActionObjectShopUpdateAfter extends Hook
             ])));
 
             if (!$response) {
-                $this->module->getLogger()->debug('Error trying to PATCH shop : No $response object');
+                $this->module->getLogger()->error('Error trying to PATCH shop : No $response object');
             } elseif (true !== $response['status']) {
-                $this->module->getLogger()->debug('Error trying to PATCH shop : ' . $response['httpCode'] .
+                $this->module->getLogger()->error('Error trying to PATCH shop : ' . $response['httpCode'] .
                     ' ' . print_r(isset($response['body']['message']) ? $response['body']['message'] : '', true)
                 );
             }
         } catch (Exception $e) {
-            $this->module->getLogger()->debug('Error trying to PATCH shop: ' . $e->getMessage());
+            $this->module->getLogger()->error('Error trying to PATCH shop: ' . $e->getMessage());
         }
     }
 }

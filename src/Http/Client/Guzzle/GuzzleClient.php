@@ -213,14 +213,14 @@ abstract class GuzzleClient implements ClientInterface
     private function logResponseError(array $response, array $options)
     {
         // If response is not successful only
-        if (\Configuration::get('PS_ACCOUNTS_DEBUG_LOGS_ENABLED') && !$response['status']) {
+        if (!$response['status']) {
             /** @var \Ps_accounts $module */
             $module = \Module::getInstanceByName('ps_accounts');
             try {
                 $logger = $module->getLogger();
-                $logger->debug('route ' . $this->getRoute());
-                $logger->debug('options ' . var_export($options, true));
-                $logger->debug('response ' . var_export($response, true));
+                $logger->error('route ' . $this->getRoute());
+                $logger->error('options ' . var_export($options, true));
+                $logger->error('response ' . var_export($response, true));
             } catch (\Exception $e) {
             }
         }
