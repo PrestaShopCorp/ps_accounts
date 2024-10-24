@@ -10,7 +10,8 @@ services:
       interval: 10s
       timeout: 10s
       retries: 5
-    user: www-data
+#    user: www-data
+    user: root
     environment:
       - PS_DOMAIN=localhost
 #      - PS_ENABLE_SSL=0
