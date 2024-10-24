@@ -40,10 +40,6 @@ class ActionShopAccountUnlinkAfter extends Hook
         $oauth2Client = $this->module->getService(Oauth2Client::class);
         $oauth2Client->delete();
 
-//        /** @var ConfigurationRepository $configuration */
-//        $configuration = $this->module->getService(ConfigurationRepository::class);
-//        $configuration->updateLoginEnabled(false);
-
         /** @var Firebase\ShopSession $shopSession */
         $shopSession = $this->module->getService(Firebase\ShopSession::class);
         $shopSession->cleanup();
