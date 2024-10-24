@@ -24,7 +24,6 @@ use PrestaShop\Module\PsAccounts\Account\Session\Firebase;
 use PrestaShop\Module\PsAccounts\Account\Session\ShopSession;
 use PrestaShop\Module\PsAccounts\Provider\OAuth2\Oauth2Client;
 use PrestaShop\Module\PsAccounts\Provider\RsaKeysProvider;
-use PrestaShop\Module\PsAccounts\Repository\ConfigurationRepository;
 
 class ActionShopAccountUnlinkAfter extends Hook
 {
@@ -40,10 +39,6 @@ class ActionShopAccountUnlinkAfter extends Hook
         /** @var Oauth2Client $oauth2Client */
         $oauth2Client = $this->module->getService(Oauth2Client::class);
         $oauth2Client->delete();
-
-        /** @var ConfigurationRepository $configuration */
-        $configuration = $this->module->getService(ConfigurationRepository::class);
-        $configuration->updateLoginEnabled(false);
 
         /** @var Firebase\ShopSession $shopSession */
         $shopSession = $this->module->getService(Firebase\ShopSession::class);
