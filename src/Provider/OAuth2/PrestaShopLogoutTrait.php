@@ -48,22 +48,17 @@ trait PrestaShopLogoutTrait
             return;
         }
 
-        $oauth2Session = $this->getOauth2Session();
-        if (!isset($_GET[ShopProvider::QUERY_LOGOUT_CALLBACK_PARAM])) {
-            $idToken = $oauth2Session->getIdToken();
+        $idToken = $this->getOauth2Session()->getIdToken();
 
-            if (empty($idToken)) {
-                return;
-            }
-
-            $logoutUrl = $this->getProvider()->getLogoutUrl([
-                'id_token_hint' => $idToken,
-            ]);
-
-            header('Location: ' . $logoutUrl);
-            exit;
-        } else {
-            $oauth2Session->clear();
+        if (empty($idToken)) {
+            return;
         }
+
+        $logoutUrl = $this->getProvider()->getLogoutUrl([
+            'id_token_hint' => $idToken,
+        ]);
+
+        header('Location: ' . $logoutUrl);
+        exit;
     }
 }

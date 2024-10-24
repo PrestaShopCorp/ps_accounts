@@ -139,6 +139,14 @@ services:
       - null
       - 10
 
+  PrestaShop\Module\PsAccounts\Api\Client\ExternalAssetsClient:
+    class: PrestaShop\Module\PsAccounts\Api\Client\ExternalAssetsClient
+    public: true
+    arguments:
+      - ''
+      - null
+      - 10
+
   PrestaShop\Module\PsAccounts\Api\Client\ServicesBillingClient:
     class: PrestaShop\Module\PsAccounts\Api\Client\ServicesBillingClient
     public: true

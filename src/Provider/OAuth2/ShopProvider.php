@@ -23,6 +23,7 @@ namespace PrestaShop\Module\PsAccounts\Provider\OAuth2;
 use PrestaShop\Module\PsAccounts\Adapter\Link;
 use PrestaShop\Module\PsAccounts\Vendor\League\OAuth2\Client\Provider\AbstractProvider;
 use PrestaShop\OAuth2\Client\Provider\PrestaShop;
+use PrestaShop\PrestaShop\Adapter\SymfonyContainer;
 
 class ShopProvider extends PrestaShop
 {
@@ -100,22 +101,34 @@ class ShopProvider extends PrestaShop
     }
 
     /**
-     * @example  http://my-shop.mydomain/admin-path/index.php?controller=AdminOAuth2PsAccounts
+     * @example http://my-shop.mydomain/admin-path/index.php?controller=AdminOAuth2PsAccounts
+     * @example http://my-shop.mydomain/admin-path/modules/ps_accounts/oauth2
      *
      * @return string
      *
-     * @throws \Exception
+     * @throws \PrestaShopException
      */
     public function getRedirectUri()
     {
         /** @var Link $link */
         $link = $this->module->getService(Link::class);
 
+//          $router = SymfonyContainer::getInstance()->get('router');
+//          return $router->generate('ps_accounts_oauth2');
+//          return $link->getAdminLink('AdminOAuth2PsAccounts', false, [
+//             'route' => 'ps_accounts_oauth2',
+//          ]);
+        if (defined('_PS_VERSION_')
+            && version_compare(_PS_VERSION_, '9', '>=')) {
+            return $link->getAdminLink('SfAdminOAuth2PsAccounts', false);
+        }
+
         return $link->getAdminLink('AdminOAuth2PsAccounts', false);
     }
 
     /**
      * @example http://my-shop.mydomain/admin-path/index.php?controller=AdminLogin&logout=1&oauth2Callback=1
+     * @example http://my-shop.mydomain/admin-path/logout?oauth2Callback=1
      *
      * @return string
      *
@@ -126,10 +139,13 @@ class ShopProvider extends PrestaShop
         /** @var Link $link */
         $link = $this->module->getService(Link::class);
 
-        return $link->getAdminLink('AdminLogin', false, [], [
-            'logout' => 1,
-            self::QUERY_LOGOUT_CALLBACK_PARAM => 1,
-        ]);
+//        return $link->getAdminLink('AdminLogin', false, [], [
+//            'logout' => 1,
+//            self::QUERY_LOGOUT_CALLBACK_PARAM => 1,
+//        ]);
+        // FIXME: specifying controller 'AdminLogin' always returns a relative URI
+        return $link->getAdminLink('', false) .
+            '?controller=AdminLogin&logout=1&' . self::QUERY_LOGOUT_CALLBACK_PARAM . '=1';
     }
 
     /**
