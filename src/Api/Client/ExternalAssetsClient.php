@@ -53,7 +53,7 @@ class ExternalAssetsClient
                      $defaultTimeout = 20
     ) {
         /** @var \Ps_accounts $module */
-        $module = \Module::getInstanceByName('ps-accounts');
+        $module = \Module::getInstanceByName('ps_accounts');
         $this->module = $module;
         $this->client = $client;
         $this->defaultTimeout = $defaultTimeout;
