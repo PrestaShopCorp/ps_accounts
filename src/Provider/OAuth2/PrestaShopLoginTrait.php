@@ -27,6 +27,8 @@ use PrestaShop\Module\PsAccounts\Exception\AccountLogin\EmployeeNotFoundExceptio
 use PrestaShop\Module\PsAccounts\Exception\AccountLogin\Oauth2Exception;
 use PrestaShop\Module\PsAccounts\Log\Logger;
 use PrestaShop\Module\PsAccounts\Repository\EmployeeAccountRepository;
+use PrestaShop\Module\PsAccounts\Service\AnalyticsService;
+use PrestaShop\Module\PsAccounts\Service\PsAccountsService;
 use PrestaShop\Module\PsAccounts\Vendor\League\OAuth2\Client\Provider\Exception\IdentityProviderException;
 use PrestaShop\Module\PsAccounts\Vendor\League\OAuth2\Client\Token\AccessToken;
 use PrestaShop\OAuth2\Client\Provider\PrestaShopUser;
@@ -61,6 +63,16 @@ trait PrestaShopLoginTrait
      * @return PrestaShopSession
      */
     abstract protected function getOauth2Session();
+
+    /**
+     * @return AnalyticsService
+     */
+    abstract protected function getAnalyticsService();
+
+    /**
+     * @return PsAccountsService
+     */
+    abstract protected function getPsAccountsService();
 
     /**
      * @return mixed
@@ -236,16 +248,16 @@ trait PrestaShopLoginTrait
     protected function trackEditionLoginEvent(PrestaShopUser $user)
     {
         if ($this->module->isShopEdition()) {
-            $this->analyticsService->identify(
+            $this->getAnalyticsService()->identify(
                 $user->getId(),
                 $user->getName(),
                 $user->getEmail()
             );
-            $this->analyticsService->group(
+            $this->getAnalyticsService()->group(
                 $user->getId(),
-                (string) $this->psAccountsService->getShopUuid()
+                (string) $this->getPsAccountsService()->getShopUuid()
             );
-            $this->analyticsService->trackUserSignedIntoApp(
+            $this->getAnalyticsService()->trackUserSignedIntoApp(
                 $user->getId(),
                 'smb-edition'
             );
@@ -260,16 +272,16 @@ trait PrestaShopLoginTrait
     protected function trackEditionLoginFailedEvent($e)
     {
         $user = $e->getUser();
-        $this->analyticsService->identify(
+        $this->getAnalyticsService()->identify(
             $user->getId(),
             $user->getName(),
             $user->getEmail()
         );
-        $this->analyticsService->group(
+        $this->getAnalyticsService()->group(
             $user->getId(),
-            (string) $this->psAccountsService->getShopUuid()
+            (string) $this->getPsAccountsService()->getShopUuid()
         );
-        $this->analyticsService->trackBackOfficeSSOSignInFailed(
+        $this->getAnalyticsService()->trackBackOfficeSSOSignInFailed(
             $user->getId(),
             $e->getType(),
             $e->getMessage()

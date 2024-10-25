@@ -116,7 +116,7 @@ class AdminOAuth2PsAccountsController extends \ModuleAdminController
      * @throws EmployeeNotFoundException
      * @throws Exception
      */
-    private function initUserSession(PrestaShopUser $user)
+    protected function initUserSession(PrestaShopUser $user)
     {
         Logger::getInstance()->error(
             '[OAuth2] ' . (string) json_encode($user->toArray(), JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE)
@@ -168,6 +168,70 @@ class AdminOAuth2PsAccountsController extends \ModuleAdminController
     }
 
     /**
+     * @return ShopProvider
+     *
+     * @throws Exception
+     */
+    protected function getProvider()
+    {
+        return $this->module->getService(ShopProvider::class);
+    }
+
+    /**
+     * @return mixed
+     */
+    protected function redirectAfterLogin()
+    {
+        $returnTo = $this->getSessionReturnTo() ?: 'AdminDashboard';
+        if (preg_match('/^([A-Z][a-z0-9]+)+$/', $returnTo)) {
+            $returnTo = $this->context->link->getAdminLink($returnTo);
+        }
+        Tools::redirectAdmin($returnTo);
+    }
+
+    /**
+     * @return SessionInterface
+     */
+    protected function getSession()
+    {
+        return $this->module->getSession();
+    }
+
+    /**
+     * @return PrestaShopSession
+     */
+    protected function getOauth2Session()
+    {
+        return $this->module->getService(PrestaShopSession::class);
+    }
+
+    /**
+     * @return AnalyticsService
+     */
+    protected function getAnalyticsService()
+    {
+        return $this->analyticsService;
+    }
+
+    /**
+     * @return PsAccountsService
+     */
+    protected function getPsAccountsService()
+    {
+        return $this->psAccountsService;
+    }
+
+    /**
+     * @param mixed $error
+     *
+     * @return void
+     */
+    private function setLoginError($error)
+    {
+        $this->getSession()->set('loginError', $error);
+    }
+
+    /**
      * @param AccountLoginException $e
      *
      * @return void
@@ -191,53 +255,5 @@ class AdminOAuth2PsAccountsController extends \ModuleAdminController
                 'logout' => 1,
             ])
         );
-    }
-
-    /**
-     * @return ShopProvider
-     *
-     * @throws Exception
-     */
-    private function getProvider()
-    {
-        return $this->module->getService(ShopProvider::class);
-    }
-
-    /**
-     * @return mixed
-     */
-    private function redirectAfterLogin()
-    {
-        $returnTo = $this->getSessionReturnTo() ?: 'AdminDashboard';
-        if (preg_match('/^([A-Z][a-z0-9]+)+$/', $returnTo)) {
-            $returnTo = $this->context->link->getAdminLink($returnTo);
-        }
-        Tools::redirectAdmin($returnTo);
-    }
-
-    /**
-     * @return SessionInterface
-     */
-    private function getSession()
-    {
-        return $this->module->getSession();
-    }
-
-    /**
-     * @param mixed $error
-     *
-     * @return void
-     */
-    private function setLoginError($error)
-    {
-        $this->getSession()->set('loginError', $error);
-    }
-
-    /**
-     * @return PrestaShopSession
-     */
-    protected function getOauth2Session()
-    {
-        return $this->module->getService(PrestaShopSession::class);
     }
 }

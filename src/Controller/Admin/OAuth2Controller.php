@@ -237,6 +237,22 @@ class OAuth2Controller extends FrameworkBundleAdminController
     }
 
     /**
+     * @return AnalyticsService
+     */
+    protected function getAnalyticsService()
+    {
+        return $this->analyticsService;
+    }
+
+    /**
+     * @return PsAccountsService
+     */
+    protected function getPsAccountsService()
+    {
+        return $this->psAccountsService;
+    }
+
+    /**
      * @param mixed $error
      *
      * @return void
