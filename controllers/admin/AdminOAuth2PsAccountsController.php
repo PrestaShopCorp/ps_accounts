@@ -31,9 +31,6 @@ use PrestaShop\Module\PsAccounts\Service\PsAccountsService;
 use PrestaShop\OAuth2\Client\Provider\PrestaShopUser;
 use Symfony\Component\HttpFoundation\Session\SessionInterface;
 
-/**
- * Controller for all ajax calls.
- */
 class AdminOAuth2PsAccountsController extends \ModuleAdminController
 {
     use PrestaShopLoginTrait;
@@ -250,6 +247,7 @@ class AdminOAuth2PsAccountsController extends \ModuleAdminController
 
         $this->oauth2ErrorLog($e->getMessage());
         $this->setLoginError($e->getType());
+
         Tools::redirectAdmin(
             $this->context->link->getAdminLink('AdminLogin', true, [], [
                 'logout' => 1,
