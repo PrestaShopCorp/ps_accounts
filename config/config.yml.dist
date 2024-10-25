@@ -32,7 +32,7 @@ parameters:
   # Login page testimonials url
   ps_accounts.testimonials_url: 'https://assets.prestashop3.com/dst/accounts/assets/testimonials.json'
 
-  # alternatively you can use php const
+  # optional log level (defaults to ERROR)
   #ps_accounts.log_level: !php/const PrestaShop\Module\PsAccounts\Log\Logger::ERROR
   ps_accounts.log_level: ERROR
 
