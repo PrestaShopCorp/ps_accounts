@@ -20,10 +20,13 @@
 
 namespace PrestaShop\Module\PsAccounts\Provider\OAuth2;
 
+use Employee;
+use PrestaShop\Module\PsAccounts\Entity\EmployeeAccount;
 use PrestaShop\Module\PsAccounts\Exception\AccountLogin\EmailNotVerifiedException;
 use PrestaShop\Module\PsAccounts\Exception\AccountLogin\EmployeeNotFoundException;
 use PrestaShop\Module\PsAccounts\Exception\AccountLogin\Oauth2Exception;
 use PrestaShop\Module\PsAccounts\Log\Logger;
+use PrestaShop\Module\PsAccounts\Repository\EmployeeAccountRepository;
 use PrestaShop\Module\PsAccounts\Vendor\League\OAuth2\Client\Provider\Exception\IdentityProviderException;
 use PrestaShop\Module\PsAccounts\Vendor\League\OAuth2\Client\Token\AccessToken;
 use PrestaShop\OAuth2\Client\Provider\PrestaShopUser;
@@ -182,5 +185,94 @@ trait PrestaShopLoginTrait
     private function getReturnToParam()
     {
         return 'return_to';
+    }
+
+    /**
+     * @param string $uid
+     * @param string $email
+     *
+     * @return Employee
+     */
+    protected function getEmployeeByUidOrEmail($uid, $email)
+    {
+        $repository = new EmployeeAccountRepository();
+
+        try {
+            $employeeAccount = $repository->findByUid($uid);
+
+            /* @phpstan-ignore-next-line */
+            if ($employeeAccount) {
+                $employee = new Employee($employeeAccount->getEmployeeId());
+            } else {
+                $employeeAccount = new EmployeeAccount();
+                $employee = new Employee();
+                if (Employee::employeeExists($email)) {
+                    $employee->getByEmail($email);
+                }
+            }
+
+            // Update account
+            if ($employee->id) {
+                $repository->upsert(
+                    $employeeAccount
+                        ->setEmployeeId($employee->id)
+                        ->setUid($uid)
+                        ->setEmail($email)
+                );
+            }
+        } catch (\Exception $e) {
+            $employee = new Employee();
+            $employee->getByEmail($email);
+        }
+
+        return $employee;
+    }
+
+    /**
+     * @param PrestaShopUser $user
+     *
+     * @return void
+     */
+    protected function trackEditionLoginEvent(PrestaShopUser $user)
+    {
+        if ($this->module->isShopEdition()) {
+            $this->analyticsService->identify(
+                $user->getId(),
+                $user->getName(),
+                $user->getEmail()
+            );
+            $this->analyticsService->group(
+                $user->getId(),
+                (string) $this->psAccountsService->getShopUuid()
+            );
+            $this->analyticsService->trackUserSignedIntoApp(
+                $user->getId(),
+                'smb-edition'
+            );
+        }
+    }
+
+    /**
+     * @param EmployeeNotFoundException|EmailNotVerifiedException $e
+     *
+     * @return void
+     */
+    protected function trackEditionLoginFailedEvent($e)
+    {
+        $user = $e->getUser();
+        $this->analyticsService->identify(
+            $user->getId(),
+            $user->getName(),
+            $user->getEmail()
+        );
+        $this->analyticsService->group(
+            $user->getId(),
+            (string) $this->psAccountsService->getShopUuid()
+        );
+        $this->analyticsService->trackBackOfficeSSOSignInFailed(
+            $user->getId(),
+            $e->getType(),
+            $e->getMessage()
+        );
     }
 }

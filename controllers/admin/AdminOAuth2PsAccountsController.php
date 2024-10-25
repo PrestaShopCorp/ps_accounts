@@ -18,7 +18,6 @@
  * @license   https://opensource.org/licenses/AFL-3.0 Academic Free License version 3.0
  */
 
-use PrestaShop\Module\PsAccounts\Entity\EmployeeAccount;
 use PrestaShop\Module\PsAccounts\Exception\AccountLogin\AccountLoginException;
 use PrestaShop\Module\PsAccounts\Exception\AccountLogin\EmailNotVerifiedException;
 use PrestaShop\Module\PsAccounts\Exception\AccountLogin\EmployeeNotFoundException;
@@ -27,7 +26,6 @@ use PrestaShop\Module\PsAccounts\Polyfill\Traits\AdminController\IsAnonymousAllo
 use PrestaShop\Module\PsAccounts\Provider\OAuth2\PrestaShopLoginTrait;
 use PrestaShop\Module\PsAccounts\Provider\OAuth2\PrestaShopSession;
 use PrestaShop\Module\PsAccounts\Provider\OAuth2\ShopProvider;
-use PrestaShop\Module\PsAccounts\Repository\EmployeeAccountRepository;
 use PrestaShop\Module\PsAccounts\Service\AnalyticsService;
 use PrestaShop\Module\PsAccounts\Service\PsAccountsService;
 use PrestaShop\OAuth2\Client\Provider\PrestaShopUser;
@@ -241,98 +239,5 @@ class AdminOAuth2PsAccountsController extends \ModuleAdminController
     protected function getOauth2Session()
     {
         return $this->module->getService(PrestaShopSession::class);
-    }
-
-    /**
-     * @param PrestaShopUser $user
-     *
-     * @return void
-     *
-     * @throws Exception
-     */
-    private function trackEditionLoginEvent(PrestaShopUser $user)
-    {
-        if ($this->module->isShopEdition()) {
-            $this->analyticsService->identify(
-                $user->getId(),
-                $user->getName(),
-                $user->getEmail()
-            );
-            $this->analyticsService->group(
-                $user->getId(),
-                (string) $this->psAccountsService->getShopUuid()
-            );
-            $this->analyticsService->trackUserSignedIntoApp(
-                $user->getId(),
-                'smb-edition'
-            );
-        }
-    }
-
-    /**
-     * @param EmployeeNotFoundException|EmailNotVerifiedException $e
-     *
-     * @return void
-     *
-     * @throws Exception
-     */
-    private function trackEditionLoginFailedEvent($e)
-    {
-        $user = $e->getUser();
-        $this->analyticsService->identify(
-            $user->getId(),
-            $user->getName(),
-            $user->getEmail()
-        );
-        $this->analyticsService->group(
-            $user->getId(),
-            (string) $this->psAccountsService->getShopUuid()
-        );
-        $this->analyticsService->trackBackOfficeSSOSignInFailed(
-            $user->getId(),
-            $e->getType(),
-            $e->getMessage()
-        );
-    }
-
-    /**
-     * @param string $uid
-     * @param string $email
-     *
-     * @return Employee
-     *
-     * @throws Exception
-     */
-    private function getEmployeeByUidOrEmail($uid, $email)
-    {
-        $repository = new EmployeeAccountRepository();
-
-        try {
-            $employeeAccount = $repository->findByUid($uid);
-
-            /* @phpstan-ignore-next-line */
-            if ($employeeAccount) {
-                $employee = new Employee($employeeAccount->getEmployeeId());
-            } else {
-                $employeeAccount = new EmployeeAccount();
-                $employee = new Employee();
-                $employee->getByEmail($email);
-            }
-
-            // Update account
-            if ($employee->id) {
-                $repository->upsert(
-                    $employeeAccount
-                        ->setEmployeeId($employee->id)
-                        ->setUid($uid)
-                        ->setEmail($email)
-                );
-            }
-        } catch (\Exception $e) {
-            $employee = new Employee();
-            $employee->getByEmail($email);
-        }
-
-        return $employee;
     }
 }

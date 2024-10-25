@@ -53,8 +53,8 @@ class ExternalAssetsClient
                      $defaultTimeout = 20
     ) {
         /** @var \Ps_accounts $module */
-        $this->module = \Module::getInstanceByName('ps-accounts');
-
+        $module = \Module::getInstanceByName('ps-accounts');
+        $this->module = $module;
         $this->client = $client;
         $this->defaultTimeout = $defaultTimeout;
     }
@@ -67,7 +67,7 @@ class ExternalAssetsClient
         if (null === $this->client) {
             $this->client = (new GuzzleClientFactory())->create([
                 'name' => static::class,
-                'base_uri' => $this->apiUrl,
+                //'base_uri' => $this->apiUrl,
                 'headers' => $this->getHeaders(),
                 'timeout' => $this->defaultTimeout,
             ]);
