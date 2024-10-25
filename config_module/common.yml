@@ -145,7 +145,6 @@ services:
     class: PrestaShop\Module\PsAccounts\Api\Client\ExternalAssetsClient
     public: true
     arguments:
-      - ''
       - null
       - 10
 

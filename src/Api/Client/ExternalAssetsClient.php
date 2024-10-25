@@ -26,9 +26,9 @@ use PrestaShop\Module\PsAccounts\Http\Client\Guzzle\GuzzleClientFactory;
 class ExternalAssetsClient
 {
     /**
-     * @var string
+     * @var \Ps_accounts
      */
-    private $apiUrl;
+    private $module;
 
     /**
      * @var GuzzleClient
@@ -43,18 +43,18 @@ class ExternalAssetsClient
     /**
      * ServicesAccountsClient constructor.
      *
-     * @param string $apiUrl
      * @param GuzzleClient|null $client
      * @param int $defaultTimeout
      *
      * @throws \Exception
      */
     public function __construct(
-                     $apiUrl,
         GuzzleClient $client = null,
                      $defaultTimeout = 20
     ) {
-        $this->apiUrl = $apiUrl;
+        /** @var \Ps_accounts $module */
+        $this->module = \Module::getInstanceByName('ps-accounts');
+
         $this->client = $client;
         $this->defaultTimeout = $defaultTimeout;
     }
@@ -89,13 +89,11 @@ class ExternalAssetsClient
     }
 
     /**
-     * @param string $uri
-     *
      * @return array
      */
-    public function getTestimonials($uri)
+    public function getTestimonials()
     {
-        $this->getClient()->setRoute($uri);
+        $this->getClient()->setRoute($this->module->getParameter('ps_accounts.testimonials_url'));
 
         return $this->getClient()->get();
     }

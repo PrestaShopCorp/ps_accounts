@@ -367,9 +367,7 @@ class OAuth2Controller extends FrameworkBundleAdminController
      */
     private function getTestimonials()
     {
-        $res = $this->externalAssetsClient->getTestimonials(
-            $this->module->getParameter('ps_accounts.testimonials_url')
-        );
+        $res = $this->externalAssetsClient->getTestimonials();
 
         return $res['status'] ? $res['body'] : [];
     }
