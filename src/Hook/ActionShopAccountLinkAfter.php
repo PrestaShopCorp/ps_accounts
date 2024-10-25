@@ -33,8 +33,10 @@ class ActionShopAccountLinkAfter extends Hook
      */
     public function execute(array $params = [])
     {
-//        /** @var PsAccountsService $service */
-//        $service = $this->module->getService(PsAccountsService::class);
-//        $service->enableLogin(true);
+//        if ($this->module->isShopEdition()) {
+//            /** @var PsAccountsService $service */
+//            $service = $this->module->getService(PsAccountsService::class);
+//            $service->enableLogin(true);
+//        }
     }
 }
