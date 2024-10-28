@@ -1,0 +1,8 @@
+tunnel: "c7cd4e87-4774-4175-accc-9af09cdfb0ee"
+credentials-file: /credentials.json
+ingress:
+  - hostname: "1730114143.ervin-klicic-mytun.prestashop.name"
+    service: http://prestashop:80
+    originRequest:
+      httpHostHeader: "1730114143.ervin-klicic-mytun.prestashop.name"
+  - service: http_status:404
