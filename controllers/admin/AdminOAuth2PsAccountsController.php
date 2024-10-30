@@ -187,6 +187,18 @@ class AdminOAuth2PsAccountsController extends \ModuleAdminController
     }
 
     /**
+     * @return mixed
+     */
+    protected function logout()
+    {
+        Tools::redirectAdmin(
+            $this->context->link->getAdminLink('AdminLogin', true, [], [
+                'logout' => 1,
+            ])
+        );
+    }
+
+    /**
      * @return SessionInterface
      */
     protected function getSession()
@@ -216,42 +228,5 @@ class AdminOAuth2PsAccountsController extends \ModuleAdminController
     protected function getPsAccountsService()
     {
         return $this->psAccountsService;
-    }
-
-    /**
-     * @param mixed $error
-     *
-     * @return void
-     */
-    private function setLoginError($error)
-    {
-        $this->getSession()->set('loginError', $error);
-    }
-
-    /**
-     * @param AccountLoginException $e
-     *
-     * @return void
-     *
-     * @throws PrestaShopException
-     * @throws Exception
-     */
-    private function onLoginFailed(AccountLoginException $e)
-    {
-        if ($this->module->isShopEdition() && (
-                $e instanceof EmployeeNotFoundException ||
-                $e instanceof EmailNotVerifiedException
-            )) {
-            $this->trackEditionLoginFailedEvent($e);
-        }
-
-        $this->oauth2ErrorLog($e->getMessage());
-        $this->setLoginError($e->getType());
-
-        Tools::redirectAdmin(
-            $this->context->link->getAdminLink('AdminLogin', true, [], [
-                'logout' => 1,
-            ])
-        );
     }
 }

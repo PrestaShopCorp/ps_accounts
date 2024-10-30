@@ -22,6 +22,7 @@ namespace PrestaShop\Module\PsAccounts\Provider\OAuth2;
 
 use Employee;
 use PrestaShop\Module\PsAccounts\Entity\EmployeeAccount;
+use PrestaShop\Module\PsAccounts\Exception\AccountLogin\AccountLoginException;
 use PrestaShop\Module\PsAccounts\Exception\AccountLogin\EmailNotVerifiedException;
 use PrestaShop\Module\PsAccounts\Exception\AccountLogin\EmployeeNotFoundException;
 use PrestaShop\Module\PsAccounts\Exception\AccountLogin\Oauth2Exception;
@@ -53,6 +54,11 @@ trait PrestaShopLoginTrait
      * @return mixed
      */
     abstract protected function redirectAfterLogin();
+
+    /**
+     * @return mixed
+     */
+    abstract protected function logout();
 
     /**
      * @return SessionInterface
@@ -238,6 +244,36 @@ trait PrestaShopLoginTrait
         }
 
         return $employee;
+    }
+
+    /**
+     * @param AccountLoginException $e
+     *
+     * @return mixed
+     */
+    protected function onLoginFailed(AccountLoginException $e)
+    {
+        if ($this->module->isShopEdition() && (
+                $e instanceof EmployeeNotFoundException ||
+                $e instanceof EmailNotVerifiedException
+            )) {
+            $this->trackEditionLoginFailedEvent($e);
+        }
+
+        $this->oauth2ErrorLog($e->getMessage());
+        $this->setLoginError($e->getType());
+
+        return $this->logout();
+    }
+
+    /**
+     * @param mixed $error
+     *
+     * @return void
+     */
+    protected function setLoginError($error)
+    {
+        $this->getSession()->set('loginError', $error);
     }
 
     /**

@@ -106,9 +106,6 @@ class OAuth2Controller extends FrameworkBundleAdminController
         } catch (\Exception $e) {
             return $this->onLoginFailed(new AccountLoginException($e->getMessage(), null, $e));
         }
-
-        // TODO: cache cleanup / cache directory
-        // TODO: factoriser les deux controlleurs
     }
 
     /**
@@ -221,6 +218,18 @@ class OAuth2Controller extends FrameworkBundleAdminController
     }
 
     /**
+     * @return RedirectResponse
+     */
+    protected function logout()
+    {
+        return $this->redirect(
+            $this->link->getAdminLink('AdminLogin', true, [], [
+                'logout' => 1,
+            ])
+        );
+    }
+
+    /**
      * @return SessionInterface
      */
     protected function getSession()
@@ -250,40 +259,6 @@ class OAuth2Controller extends FrameworkBundleAdminController
     protected function getPsAccountsService()
     {
         return $this->psAccountsService;
-    }
-
-    /**
-     * @param mixed $error
-     *
-     * @return void
-     */
-    private function setLoginError($error)
-    {
-        $this->getSession()->set('loginError', $error);
-    }
-
-    /**
-     * @param AccountLoginException $e
-     *
-     * @return RedirectResponse
-     */
-    private function onLoginFailed(AccountLoginException $e)
-    {
-        if ($this->module->isShopEdition() && (
-                $e instanceof EmployeeNotFoundException ||
-                $e instanceof EmailNotVerifiedException
-            )) {
-            $this->trackEditionLoginFailedEvent($e);
-        }
-
-        $this->oauth2ErrorLog($e->getMessage());
-        $this->setLoginError($e->getType());
-
-        return $this->redirect(
-            $this->link->getAdminLink('AdminLogin', true, [], [
-                'logout' => 1,
-            ])
-        );
     }
 
     /**
