@@ -25,6 +25,8 @@ export class Globals extends GlobalVars {
 
   //Health Check Urls
   public static curl = {
-     oauth2Url: process.env.OAUTH2URL ?? 'localhost empty'
+    oauth2Url: process.env.OAUTH2URL ?? 'localhost empty',
+    accountsApiUrl: process.env.ACCOUNTSAPIURL ?? 'localhost empty',
+    accountsUiUrl: process.env.ACCOUNTSUIURL ?? 'localhost empty'
   };
 }

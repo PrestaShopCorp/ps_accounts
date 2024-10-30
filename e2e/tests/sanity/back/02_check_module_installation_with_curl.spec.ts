@@ -1,15 +1,24 @@
 import {test} from '@playwright/test';
-import CurlRequest from 'services/curl/curl';
+import HealthCheckApi from '~/services/api/healthCheckApi';
 
 // Var
-let curlRequest = new CurlRequest();
+let healthCheckApi = new HealthCheckApi();
 
 test('Check that the Shop Health Check is returning information in json', async () => {
-  await curlRequest.getShopHealthStatus();
+  await healthCheckApi.getShopHealthStatus();
+});
+test('Check the shop is not Oauth2Client', async () => {
+  await healthCheckApi.isOauth2Client();
 });
 test('Check the shop is not linked', async () => {
-  await curlRequest.isShopLinked();
+  await healthCheckApi.isShopLinked();
 });
-test('Check oauth2Url Url', async () => {
-  await curlRequest.checkOauth2Url();
+test('Check oauth2 Url', async () => {
+  await healthCheckApi.checkOauth2Url();
+});
+test('Check accountsApi Url', async () => {
+  await healthCheckApi.checkAccountsApiUrl();
+});
+test('Check accountsUi Url', async () => {
+  await healthCheckApi.checkAccountsUiUrl();
 });
