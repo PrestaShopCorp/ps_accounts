@@ -25,7 +25,7 @@ services:
 
   prestashop:
     restart: unless-stopped
-    image: prestashop/prestashop-flashlight:${SHOP_VERSION}
+    image: prestashop/prestashop-flashlight:${PS_VERSION}
     env_file: .env
     depends_on:
       mysql:
@@ -38,7 +38,7 @@ services:
     volumes:
       - ./init-scripts:/tmp/init-scripts:ro
     ports:
-      - "8888:80"
+      - "8000:80"
     
   phpmyadmin:
       image: phpmyadmin:latest

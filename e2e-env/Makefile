@@ -6,5 +6,5 @@ help: ## Show this help message
 .PHONY: help
 
 docker-build: ## Build 8.0.x docker env
-	SHOP_VERSION=${SHOP_VERSION} PS_DOMAIN=${PS_DOMAIN} PS_ACCOUNTS_VERSION=${PS_ACCOUNTS_VERSION} docker compose up --build --force-recreate -d
+	PS_VERSION=${PS_VERSION} PS_DOMAIN=${PS_DOMAIN} PS_ACCOUNTS_VERSION=${PS_ACCOUNTS_VERSION} docker compose up --build --force-recreate -d
 .PHONY: docker-build

@@ -22,7 +22,7 @@ appUrl="https://$psDomain"
 
 # Exécution de la commande make
 makeFilePath='./'
-makeCommand="make -C $makeFilePath docker-build PS_ACCOUNTS_VERSION=$psAccountsVersion SHOP_VERSION=$shopVersion PS_DOMAIN=$psDomain"
+makeCommand="make -C $makeFilePath docker-build PS_ACCOUNTS_VERSION=$psAccountsVersion PS_VERSION=$shopVersion PS_DOMAIN=$psDomain"
 eval $makeCommand
 
 # Fonction pour ping l'URL
@@ -39,14 +39,14 @@ ping_url() {
 
 ping_url $appUrl
 
-cd ../e2e
-# Ajouter ou écraser les variables dans le fichier .env
-sed -i '' "/^BASE_URL=/c\\
-BASE_URL=${appUrl}/admin-dev/
-" .env
-sed -i '' "/^BASE_URL_FO=/c\\
-BASE_URL_FO=${appUrl}
-" .env
+# cd ../e2e
+# # Ajouter ou écraser les variables dans le fichier .env
+# sed -i '' "/^BASE_URL=/c\\
+# BASE_URL=${appUrl}/admin-dev/
+# " .env
+# sed -i '' "/^BASE_URL_FO=/c\\
+# BASE_URL_FO=${appUrl}
+# " .env
 
 
-echo "Tests environment is available at: $appUrl/admin-dev/"
+# echo "Tests environment is available at: $appUrl/admin-dev/"
