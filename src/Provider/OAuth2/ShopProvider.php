@@ -23,7 +23,6 @@ namespace PrestaShop\Module\PsAccounts\Provider\OAuth2;
 use PrestaShop\Module\PsAccounts\Adapter\Link;
 use PrestaShop\Module\PsAccounts\Vendor\League\OAuth2\Client\Provider\AbstractProvider;
 use PrestaShop\OAuth2\Client\Provider\PrestaShop;
-use PrestaShop\PrestaShop\Adapter\SymfonyContainer;
 
 class ShopProvider extends PrestaShop
 {
@@ -105,8 +104,6 @@ class ShopProvider extends PrestaShop
      * @example http://my-shop.mydomain/admin-path/modules/ps_accounts/oauth2
      *
      * @return string
-     *
-     * @throws \PrestaShopException
      */
     public function getRedirectUri()
     {
@@ -123,7 +120,7 @@ class ShopProvider extends PrestaShop
             return $link->getAdminLink('SfAdminOAuth2PsAccounts', false);
         }
 
-        return $link->getAdminLink('AdminOAuth2PsAccounts', false);
+        return $link->getAdminLink('AdminOAuth2PsAccounts', false, [], [], true);
     }
 
     /**
@@ -131,21 +128,16 @@ class ShopProvider extends PrestaShop
      * @example http://my-shop.mydomain/admin-path/logout?oauth2Callback=1
      *
      * @return string
-     *
-     * @throws \PrestaShopException
      */
     public function getPostLogoutRedirectUri()
     {
         /** @var Link $link */
         $link = $this->module->getService(Link::class);
 
-//        return $link->getAdminLink('AdminLogin', false, [], [
-//            'logout' => 1,
-//            self::QUERY_LOGOUT_CALLBACK_PARAM => 1,
-//        ]);
-        // FIXME: specifying controller 'AdminLogin' always returns a relative URI
-        return $link->getAdminLink('', false) .
-            '?controller=AdminLogin&logout=1&' . self::QUERY_LOGOUT_CALLBACK_PARAM . '=1';
+        return $link->getAdminLink('AdminLogin', false, [], [
+            'logout' => 1,
+            self::QUERY_LOGOUT_CALLBACK_PARAM => 1,
+        ], true);
     }
 
     /**
