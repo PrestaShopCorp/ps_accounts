@@ -18,37 +18,19 @@
  * @license   https://opensource.org/licenses/AFL-3.0 Academic Free License version 3.0
  */
 
-namespace PrestaShop\Module\PsAccounts\Factory;
+namespace PrestaShop\Module\PsAccounts\Exception\Http;
 
-use Monolog\Handler\RotatingFileHandler;
-use Monolog\Logger;
-
-class PsAccountsLogger
+class InternalServerErrorException extends HttpException
 {
-    const MAX_FILES = 15;
-
     /**
-     * Create logger.
-     *
-     * @return \Monolog\Logger
+     * @param string $message
+     * @param int $code
+     * @param \Exception|null $previous
      */
-    public static function create()
+    public function __construct($message = 'Internal Server Error', $code = 0, \Exception $previous = null)
     {
-        $path = _PS_ROOT_DIR_ . '/var/logs/ps_accounts';
+        parent::__construct($message, $code, $previous);
 
-        if (version_compare(_PS_VERSION_, '1.7', '<')) {
-            $path = _PS_ROOT_DIR_ . '/log/ps_accounts';
-        } elseif (version_compare(_PS_VERSION_, '1.7.4', '<')) {
-            $path = _PS_ROOT_DIR_ . '/app/logs/ps_accounts';
-        }
-
-        $rotatingFileHandler = new RotatingFileHandler(
-            $path,
-            static::MAX_FILES
-        );
-        $logger = new Logger('ps_accounts');
-        $logger->pushHandler($rotatingFileHandler);
-
-        return $logger;
+        $this->statusCode = 500;
     }
 }

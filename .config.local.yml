@@ -15,7 +15,6 @@ parameters:
   ps_accounts.sso_account_url: "https://authv2-preprod.prestashop.com/login"
   ps_accounts.sso_resend_verification_email_url: "https://auth-preprod.prestashop.com/account/send-verification-email"
   ps_accounts.billing_api_url: "https://billing-api.psessentials-integration.net"
-  ps_accounts.indirect_channel_api_url: "https://indirect-channel-api-integration.prestashop.net"
   ps_accounts.sentry_credentials: "https://4c7f6c8dd5aa405b8401a35f5cf26ada@o298402.ingest.sentry.io/5354585"
   ps_accounts.segment_write_key: "UITzSdsFTgYsXaiJG09hsCiupUPwgJQB"
   ps_accounts.check_api_ssl_cert: false
@@ -32,3 +31,7 @@ parameters:
 
   # Login page testimonials url
   ps_accounts.testimonials_url: "https://assets.prestashop3.com/dst/accounts/assets/testimonials.json"
+
+  # optional log level (defaults to ERROR)
+  #ps_accounts.log_level: !php/const PrestaShop\Module\PsAccounts\Log\Logger::ERROR
+  ps_accounts.log_level: DEBUG

@@ -1,56 +1,80 @@
 {
-  "name": "prestashopcorp/ps_accounts",
-  "description": "PS Accounts authentifies stores in the PrestaShop Cloud, which enable secure communications for any PrestaShop modules.",
-  "type": "prestashop-module",
-  "authors": [
-    {
-      "name": "Account team",
-      "email": "account-support@prestashop.com",
-      "homepage": "https://github.com/PrestaShopCorp/ps_accounts",
-      "role": "Maintainer"
-    }
-  ],
-  "license": "AFL-3.0",
-  "config": {
-    "platform": {
-      "php": "5.6"
+    "name": "prestashopcorp/ps_accounts",
+    "description": "PS Accounts authentifies stores in the PrestaShop Cloud, which enable secure communications for any PrestaShop modules.",
+    "type": "prestashop-module",
+    "authors": [
+        {
+            "name": "Account team",
+            "email": "account-support@prestashop.com",
+            "homepage": "https://github.com/PrestaShopCorp/ps_accounts",
+            "role": "Maintainer"
+        }
+    ],
+    "license": "AFL-3.0",
+    "config": {
+        "preferred-install": "dist",
+        "platform": {
+            "php": "5.6"
+        },
+        "optimize-autoloader": true,
+        "prepend-autoloader": false
     },
-    "preferred-install": "dist",
-    "optimize-autoloader": true,
-    "prepend-autoloader": false,
-    "classmap-authoritative": true
-  },
-  "autoload": {
-    "psr-4": {
-      "PrestaShop\\Module\\PsAccounts\\": "src/",
-      "PrestaShop\\Module\\PsAccounts\\Vendor\\GuzzleHttp\\": "vendor/guzzlehttp/guzzle/src",
-      "PrestaShop\\Module\\PsAccounts\\Vendor\\GuzzleHttp\\Promise\\": "vendor/guzzlehttp/promises/src",
-      "PrestaShop\\Module\\PsAccounts\\Vendor\\GuzzleHttp\\Psr7\\": "vendor/guzzlehttp/psr7/src",
-      "PrestaShop\\Module\\PsAccounts\\Vendor\\League\\OAuth2\\Client\\": "vendor/league/oauth2-client/src",
-      "PrestaShop\\Module\\PsAccounts\\Vendor\\Lcobucci\\JWT\\": "vendor/lcobucci/jwt/src"
+    "autoload": {
+        "psr-4": {
+            "PrestaShop\\Module\\PsAccounts\\": "src/",
+            "PrestaShop\\Module\\PsAccounts\\Vendor\\GuzzleHttp\\": "vendor/guzzlehttp/guzzle/src",
+            "PrestaShop\\Module\\PsAccounts\\Vendor\\GuzzleHttp\\Promise\\": "vendor/guzzlehttp/promises/src",
+            "PrestaShop\\Module\\PsAccounts\\Vendor\\GuzzleHttp\\Psr7\\": "vendor/guzzlehttp/psr7/src",
+            "PrestaShop\\Module\\PsAccounts\\Vendor\\League\\OAuth2\\Client\\": "vendor/league/oauth2-client/src",
+            "PrestaShop\\Module\\PsAccounts\\Vendor\\Lcobucci\\JWT\\": "vendor/lcobucci/jwt/src",
+            "PrestaShop\\Module\\PsAccounts\\Vendor\\Monolog\\": "vendor/monolog/monolog/src/Monolog",
+            "PrestaShop\\Module\\PsAccounts\\Vendor\\PhpCsFixer\\": "vendor/friendsofphp/php-cs-fixer/src",
+            "PrestaShop\\Module\\PsAccounts\\Vendor\\PhpCsFixer\\Tests\\": "vendor/friendsofphp/php-cs-fixer/tests",
+            "PrestaShop\\Module\\PsAccounts\\Vendor\\phpseclib\\": "vendor/phpseclib/phpseclib/phpseclib",
+            "PrestaShop\\Module\\PsAccounts\\Vendor\\Psr\\Cache\\": "vendor/psr/cache/src",
+            "PrestaShop\\Module\\PsAccounts\\Vendor\\Psr\\Container\\": "vendor/psr/container/src",
+            "PrestaShop\\Module\\PsAccounts\\Vendor\\Psr\\Http\\Message\\": "vendor/psr/http-message/src",
+            "PrestaShop\\Module\\PsAccounts\\Vendor\\Psr\\Log\\": "vendor/psr/log/Psr/Log",
+            "PrestaShop\\Module\\PsAccounts\\Vendor\\Psr\\SimpleCache\\": "vendor/psr/simple-cache/src",
+            "PrestaShop\\Module\\PsAccounts\\Vendor\\Ramsey\\Uuid\\": "vendor/ramsey/uuid/src",
+            "PrestaShop\\Module\\PsAccounts\\Vendor\\Symfony\\Component\\Cache\\": "vendor/symfony/cache",
+            "PrestaShop\\Module\\PsAccounts\\Vendor\\Symfony\\Component\\Config\\": "vendor/symfony/config",
+            "PrestaShop\\Module\\PsAccounts\\Vendor\\Symfony\\Component\\Console\\": "vendor/symfony/console",
+            "PrestaShop\\Module\\PsAccounts\\Vendor\\Symfony\\Component\\Debug\\": "vendor/symfony/debug",
+            "PrestaShop\\Module\\PsAccounts\\Vendor\\Symfony\\Component\\DependencyInjection\\": "vendor/symfony/dependency-injection",
+            "PrestaShop\\Module\\PsAccounts\\Vendor\\Symfony\\Component\\EventDispatcher\\": "vendor/symfony/event-dispatcher",
+            "PrestaShop\\Module\\PsAccounts\\Vendor\\Symfony\\Component\\ExpressionLanguage\\": "vendor/symfony/expression-language",
+            "PrestaShop\\Module\\PsAccounts\\Vendor\\Symfony\\Component\\Filesystem\\": "vendor/symfony/filesystem",
+            "PrestaShop\\Module\\PsAccounts\\Vendor\\Symfony\\Component\\Finder\\": "vendor/symfony/finder",
+            "PrestaShop\\Module\\PsAccounts\\Vendor\\Symfony\\Component\\OptionsResolver\\": "vendor/symfony/options-resolver",
+            "PrestaShop\\Module\\PsAccounts\\Vendor\\Symfony\\Component\\Process\\": "vendor/symfony/process",
+            "PrestaShop\\Module\\PsAccounts\\Vendor\\Symfony\\Component\\Stopwatch\\": "vendor/symfony/stopwatch",
+            "PrestaShop\\Module\\PsAccounts\\Vendor\\Symfony\\Component\\Yaml\\": "vendor/symfony/yaml",
+            "PrestaShop\\Module\\PsAccounts\\Vendor\\PrestaShop\\ModuleLibServiceContainer\\": "vendor/prestashop/module-lib-service-container/src,",
+            "PrestaShop\\Module\\PsAccounts\\Vendor\\PrestaShop\\ModuleLibCacheDirectoryProvider\\": "vendor/prestashop/module-lib-cache-directory-provider/src"
+        },
+        "classmap": [
+            "ps_accounts.php",
+            "controllers/"
+        ]
     },
-    "classmap": [
-      "ps_accounts.php",
-      "controllers/"
-    ]
-  },
-  "require": {
-    "php": ">=5.6",
-    "phpseclib/phpseclib": "^2.0",
-    "ext-json": "*",
-    "lcobucci/jwt": "^3.3",
-    "monolog/monolog": "1.25.3",
-    "prestashop/module-lib-service-container": "^1.2",
-    "sentry/sentry": "^1.0",
-    "segmentio/analytics-php": "^1.8",
-    "ramsey/uuid": "^3.9",
-    "prestashopcorp/oauth2-prestashop": "^2.0",
-    "guzzlehttp/guzzle": "^6.0"
-  },
-  "scripts": {
-    "set-license-header": [
-      "@php ./vendor/bin/header-stamp --license=\"assets/afl.txt\" --exclude=\".github,node_modules,vendor,vendor,tests,_dev\""
-    ]
-  },
-  "author": "PrestaShop"
+    "require": {
+        "php": ">=5.6",
+        "phpseclib/phpseclib": "^2.0",
+        "ext-json": "*",
+        "lcobucci/jwt": "^3.3",
+        "monolog/monolog": "1.25.3",
+        "prestashop/module-lib-service-container": "^1.2",
+        "sentry/sentry": "^1.0",
+        "segmentio/analytics-php": "^1.8",
+        "ramsey/uuid": "^3.9",
+        "prestashopcorp/oauth2-prestashop": "^2.0",
+        "guzzlehttp/guzzle": "^6.0"
+    },
+    "scripts": {
+        "set-license-header": [
+            "@php ./vendor/bin/header-stamp --license=\"assets/afl.txt\" --exclude=\".github,node_modules,vendor,vendor,tests,_dev\""
+        ]
+    },
+    "author": "PrestaShop"
 }

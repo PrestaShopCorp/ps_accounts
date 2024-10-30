@@ -28,6 +28,8 @@ use PrestaShop\Module\PsAccounts\Account\Token\NullToken;
 use PrestaShop\Module\PsAccounts\Api\Client\AccountsClient;
 use PrestaShop\Module\PsAccounts\Context\ShopContext;
 use PrestaShop\Module\PsAccounts\Cqrs\CommandBus;
+use PrestaShop\Module\PsAccounts\Exception\RefreshTokenException;
+use PrestaShop\Module\PsAccounts\Log\Logger;
 use PrestaShop\Module\PsAccounts\Repository\ConfigurationRepository;
 
 class UpgradeModuleHandler
@@ -83,7 +85,7 @@ class UpgradeModuleHandler
      *
      * @return void
      *
-     * @throws \Exception
+     * @throws RefreshTokenException
      */
     public function handle(UpgradeModuleCommand $command)
     {
@@ -91,6 +93,10 @@ class UpgradeModuleHandler
             $lastUpgrade = $this->configRepo->getLastUpgrade(false);
 
             if (version_compare($lastUpgrade, $command->payload->version, '<')) {
+                Logger::getInstance()->info(
+                    'attempt upgrade [' . $lastUpgrade . ' to ' . $command->payload->version . ']'
+                );
+
                 // Set new version a soon as we can to avoid duplicate calls
                 $this->configRepo->updateLastUpgrade($command->payload->version);
 
@@ -99,7 +105,7 @@ class UpgradeModuleHandler
                 $this->lastChanceToRefreshShopToken();
                 //}
 
-                $token = $this->shopSession->getOrRefreshToken();
+                $token = $this->shopSession->getValidToken();
 
                 if (!$token->getJwt() instanceof NullToken) {
                     $response = $this->accountsClient->upgradeShopModule(
@@ -121,8 +127,6 @@ class UpgradeModuleHandler
 
     /**
      * @return array
-     *
-     * @throws \Exception
      */
     private function getOrRefreshShopToken()
     {
@@ -151,8 +155,6 @@ class UpgradeModuleHandler
 
     /**
      * @return void
-     *
-     * @throws \Exception
      */
     private function lastChanceToRefreshShopToken()
     {

@@ -157,9 +157,7 @@ class Ps_accounts extends Module
     }
 
     /**
-     * @return \Monolog\Logger
-     *
-     * @throws Exception
+     * @return \PrestaShop\Module\PsAccounts\Vendor\Monolog\Logger
      */
     public function getLogger()
     {
@@ -214,7 +212,9 @@ class Ps_accounts extends Module
     }
 
     /**
-     * @return \Symfony\Component\DependencyInjection\ContainerInterface|null
+     * @phpstan-ignore-next-line
+     *
+     * @return \PrestaShop\PrestaShop\Adapter\SymfonyContainer|\Symfony\Component\DependencyInjection\ContainerInterface|null
      */
     public function getCoreServiceContainer()
     {
@@ -252,8 +252,6 @@ class Ps_accounts extends Module
      * @param string $serviceName
      *
      * @return mixed
-     *
-     * @throws Exception
      */
     public function getService($serviceName)
     {
@@ -264,8 +262,6 @@ class Ps_accounts extends Module
      * @param string $name
      *
      * @return mixed
-     *
-     * @throws Exception
      */
     public function getParameter($name)
     {
@@ -276,8 +272,6 @@ class Ps_accounts extends Module
      * @param string $name
      *
      * @return bool
-     *
-     * @throws Exception
      */
     public function hasParameter($name)
     {
@@ -366,7 +360,6 @@ class Ps_accounts extends Module
      * @return string
      *
      * @throws PrestaShopException
-     * @throws \PrestaShop\Module\PsAccounts\Exception\SshKeysNotFoundException
      */
     public function getContent()
     {
@@ -427,8 +420,6 @@ class Ps_accounts extends Module
 
     /**
      * @return string
-     *
-     * @throws Exception
      */
     public function getSsoAccountUrl()
     {
@@ -440,8 +431,6 @@ class Ps_accounts extends Module
 
     /**
      * @return \PrestaShop\Module\PsAccounts\Context\ShopContext
-     *
-     * @throws Exception
      */
     public function getShopContext()
     {
@@ -450,8 +439,6 @@ class Ps_accounts extends Module
 
     /**
      * @return \PrestaShop\Module\PsAccounts\Middleware\Oauth2Middleware
-     *
-     * @throws Exception
      */
     public function getOauth2Middleware()
     {
@@ -467,7 +454,7 @@ class Ps_accounts extends Module
     }
 
     /**
-     * @return \PrestaShop\Module\PsAccounts\Session\Session
+     * @return \Symfony\Component\HttpFoundation\Session\SessionInterface
      *
      * @throws Exception
      */
@@ -476,21 +463,28 @@ class Ps_accounts extends Module
         $container = $this->getCoreServiceContainer();
         if ($container) {
             try {
-                /** @var \PrestaShop\Module\PsAccounts\Session\Session $session */
+                /**
+                 * @var \Symfony\Component\HttpFoundation\Session\SessionInterface $session
+                 * @phpstan-ignore-next-line
+                 */
                 $session = $container->get('session');
+                /* @phpstan-ignore-next-line */
             } catch (\Symfony\Component\DependencyInjection\Exception\ServiceNotFoundException $e) {
-                // FIXME: fix for 1.7.7.x
-                global $kernel;
-                $session = $kernel->getContainer()->get('session');
+                try {
+                    // FIXME: fix for 1.7.7.x
+                    global $kernel;
+                    $session = $kernel->getContainer()->get('session');
+                    /* @phpstan-ignore-next-line */
+                } catch (\Symfony\Component\DependencyInjection\Exception\ServiceNotFoundException $e) {
+                    // FIXME: fix for 9.x
+                    global $request;
+                    $session = $request->getSession();
+                }
             }
 
             return $session;
-        } else {
-            // FIXME return a session like with configuration storage
-            return new \PrestaShop\Module\PsAccounts\Session\FallbackSession(
-                $this->getService(\PrestaShop\Module\PsAccounts\Adapter\Configuration::class)
-            );
         }
+        throw new \Exception('Feature not available');
     }
 
     /**

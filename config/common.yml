@@ -15,9 +15,11 @@ services:
     factory: [ 'Context', 'getContext' ]
 
   ps_accounts.logger:
-    class: Monolog\Logger
+    class: PrestaShop\Module\PsAccounts\Vendor\Monolog\Logger
     public: true
-    factory: [ 'PrestaShop\Module\PsAccounts\Factory\PsAccountsLogger', 'create' ]
+    factory: [ 'PrestaShop\Module\PsAccounts\Log\Logger', 'create' ]
+#    arguments:
+#      - '%ps_accounts.log_level%'
 
   PrestaShop\Module\PsAccounts\Provider\OAuth2\ShopProvider:
     class: PrestaShop\Module\PsAccounts\Provider\OAuth2\ShopProvider
@@ -146,12 +148,6 @@ services:
       - '%ps_accounts.billing_api_url%'
       - '@PrestaShop\Module\PsAccounts\Service\PsAccountsService'
       - '@PrestaShop\Module\PsAccounts\Provider\ShopProvider'
-
-  PrestaShop\Module\PsAccounts\Api\Client\IndirectChannelClient:
-    class: PrestaShop\Module\PsAccounts\Api\Client\IndirectChannelClient
-    public: true
-    arguments:
-      - '%ps_accounts.indirect_channel_api_url%'
 
   #####################
   # repositories

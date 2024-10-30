@@ -59,7 +59,8 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: ${{ github.event.repository.name }}
-          path: ../
+          path: ${{ github.workspace }}
+          include-hidden-files: true
 
   upload_release_asset_production:
     name: Upload the production zip asset to the release
@@ -72,6 +73,7 @@ jobs:
         uses: actions/download-artifact@v4
         with:
           name: ${{ github.event.repository.name }}
+          path: ${{ github.workspace }}
 
       - name: Make the zip for production
         run: make zip:prod
@@ -82,7 +84,7 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           upload_url: ${{ github.event.release.upload_url }}
-          asset_path: ./${{ github.event.repository.name }}/${{ github.event.repository.name }}/dist/${{ env.zip_file }}
+          asset_path: ${{ github.workspace }}/dist/${{ env.zip_file }}
           asset_name: ${{ env.zip_file }}
           asset_content_type: application/zip
 
@@ -92,9 +94,10 @@ jobs:
     needs: build
     steps:
       - name: Download artifact
-        uses: actions/download-artifact@v1
+        uses: actions/download-artifact@v4
         with:
           name: ${{ github.event.repository.name }}
+          path: ${{ github.workspace }}
 
       - name: Make the zip for pre-production
         run: make zip:preprod
@@ -105,7 +108,7 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           upload_url: ${{ github.event.release.upload_url }}
-          asset_path: ./${{ github.event.repository.name }}/${{ github.event.repository.name }}/dist/${{ env.zip_file }}
+          asset_path: ${{ github.workspace }}/dist/${{ env.zip_file }}
           asset_name: ${{ env.zip_file }}
           asset_content_type: application/zip
 

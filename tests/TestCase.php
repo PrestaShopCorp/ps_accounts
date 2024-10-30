@@ -57,12 +57,20 @@ class TestCase extends \PHPUnit\Framework\TestCase
     protected $enableTransactions = true;
 
     /**
+     * @var ServiceProperty[]
+     */
+    protected $replacedProperties = [];
+
+    /**
      * @return void
      *
      * @throws \Exception
      */
     protected function setUp(): void
     {
+        // Don't remove this line
+        \Configuration::clearConfigurationCacheForTesting();
+
         parent::setUp();
 
         if (true === $this->enableTransactions) {
@@ -93,6 +101,8 @@ class TestCase extends \PHPUnit\Framework\TestCase
                  ] as $class) {
             $this->module->getService($class)->resetRefreshTokenErrors();
         }
+
+        $this->restoreProperties();
 
         parent::tearDown();
     }
@@ -209,20 +219,56 @@ class TestCase extends \PHPUnit\Framework\TestCase
     }
 
     /**
-     * @param $classInstance
-     * @param $dependencyName
-     * @param $newDependency
+     * FIXME: hard dependency with non public members
+     *
+     * @param mixed $object
+     * @param string $propertyName
+     * @param mixed $replacement
      *
      * @return void
      *
      * @throws \ReflectionException
      */
-    protected function replaceDependency($classInstance, $dependencyName, $newDependency)
+    protected function replaceProperty($object, $propertyName, $replacement)
     {
-        $reflection = new \ReflectionClass($classInstance);
-        $property = $reflection->getProperty($dependencyName);
+        $reflection = new \ReflectionClass($object);
+        $property = $reflection->getProperty($propertyName);
         $property->setAccessible(true);
-        $property->setValue($classInstance, $newDependency);
+        $this->setPropertyToRestore($object, $propertyName, $property->getValue($object));
+        $property->setValue($object, $replacement);
+    }
+
+    /**
+     * @param mixed $object
+     * @param string $propertyName
+     * @param mixed $originalValue
+     *
+     * @return void
+     */
+    protected function setPropertyToRestore($object, $propertyName, $originalValue)
+    {
+        $prop = new ServiceProperty();
+        $prop->object = $object;
+        $prop->propertyName = $propertyName;
+        $prop->originalValue = $originalValue;
+        $this->replacedProperties[] = $prop;
+    }
+
+    /**
+     * @return void
+     *
+     * @throws \ReflectionException
+     */
+    protected function restoreProperties()
+    {
+        foreach ($this->replacedProperties as $property) {
+            $this->replaceProperty(
+                $property->object,
+                $property->propertyName,
+                $property->originalValue
+            );
+        }
+        $this->replacedProperties = [];
     }
 
     /**

@@ -15,7 +15,6 @@ parameters:
   ps_accounts.billing_api_url: "https://billing-api.distribution-preprod.prestashop.net/"
   ps_accounts.sso_api_url: "https://auth-preprod.prestashop.com/api/v1/"
   ps_accounts.sso_account_url: "https://authv2-preprod.prestashop.com/login"
-  ps_accounts.indirect_channel_api_url: "https://indirect-channel-api-preprod.prestashop.net"
   ps_accounts.segment_api_key: "yO1sKx3Xe9upW4bRDoRXEB0TZEXQm2y3"
   ps_accounts.sso_resend_verification_email_url: "https://auth-preprod.prestashop.com/account/send-verification-email"
   ps_accounts.sentry_credentials: "https://a065bd1f092f8c849e6076fe0640d049@o298402.ingest.us.sentry.io/5354585"
@@ -35,3 +34,5 @@ parameters:
   ps_accounts.oauth2_url: "https://oauth-preprod.prestashop.com"
 
   ps_accounts.testimonials_url: "https://assets.prestashop3.com/dst/accounts/assets/testimonials.json"
+
+  ps_accounts.log_level: ERROR

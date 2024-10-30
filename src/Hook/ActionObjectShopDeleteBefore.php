@@ -38,18 +38,18 @@ class ActionObjectShopDeleteBefore extends Hook
             $response = $this->commandBus->handle(new DeleteUserShopCommand($params['object']->id));
 
             if (!$response) {
-                $this->module->getLogger()->debug(
+                $this->module->getLogger()->error(
                     'Error trying to DELETE shop : No $response object'
                 );
             } elseif (true !== $response['status']) {
-                $this->module->getLogger()->debug(
+                $this->module->getLogger()->error(
                     'Error trying to DELETE shop : ' . $response['httpCode'] .
                     ' ' . print_r($response['body']['message'], true)
                 );
             }
         } catch (Exception $e) {
-            $this->module->getLogger()->debug(
-                'Error curl while trying to DELETE shop : ' . print_r($e->getMessage(), true)
+            $this->module->getLogger()->error(
+                'Error while trying to DELETE shop : ' . print_r($e->getMessage(), true)
             );
         }
 
