@@ -8,6 +8,9 @@ MODULE ?= $(shell basename ${PWD})
 CURRENT_UID := $(shell id -u)
 CURRENT_GID := $(shell id -g)
 WORKDIR ?= .
+PS_VERSION ?= base-8.2-fpm-alpine
+TESTING_IMAGE ?= prestashop/prestashop-flashlight:${PS_VERSION}
+
 
 default: bundle
 
@@ -232,6 +235,9 @@ php-scoper-add-prefix: scoper.inc.php vendor-clean vendor ${WORKDIR}/php-scoper.
 	$(foreach DIR,$(PHP_SCOPER_VENDOR_DIRS), rm -rf "./vendor/${DIR}" && mv "./${PHP_SCOPER_OUTPUT_DIR}/${DIR}" ./vendor/${DIR};)
 	if [ ! -z ${PHP_SCOPER_OUTPUT_DIR} ]; then rm -rf "./${PHP_SCOPER_OUTPUT_DIR}"; fi
 
+docker-php-scoper-add-prefix:
+	$(call in_docker,make,php-scoper-add-prefix)
+
 php-scoper-dump-autoload:
 	${COMPOSER} dump-autoload --classmap-authoritative
 
@@ -301,3 +307,12 @@ vendor-clean:
 vendor: composer.phar
 	${COMPOSER} install ${COMPOSER_OPTIONS}
 
+define in_docker
+	docker run \
+	--rm \
+	--user ${UID}:${GID} \
+	--env _PS_ROOT_DIR_=/var/www/html \
+	--workdir /var/www/html/modules/${MODULE_NAME} \
+	--volume $(shell cd ${WORKDIR} && pwd):/var/www/html/modules/${MODULE_NAME}:rw \
+	--entrypoint $1 ${TESTING_IMAGE} $2
+endef
