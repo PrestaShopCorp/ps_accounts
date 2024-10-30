@@ -14,8 +14,8 @@ use PrestaShop\Module\PsAccounts\Log\Logger;
  */
 function upgrade_module_8_0_0($module)
 {
-    // 1- force load autoload
-    // 2- manage ou own cache
+    require __DIR__ . '/../src/enforce_autoload.php';
+
     try {
         /** @var CommandBus $commandBus */
         $commandBus = $module->getService(CommandBus::class);
