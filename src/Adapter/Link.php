@@ -145,10 +145,10 @@ class Link
     }
 
     /**
-     * @param $url
-     * @param $absolute
+     * @param string $url
+     * @param bool $absolute
      *
-     * @return mixed|string
+     * @return string
      */
     protected function rel2abs($url, $absolute)
     {
