@@ -26,19 +26,19 @@ use PrestaShop\Module\PsAccounts\Vendor\Symfony\Component\DependencyInjection\Co
 class ServiceContainer
 {
     /**
-     * @var string Module Name
+     * @var string
      */
     private $moduleName;
 
     /**
-     * @var string Module Local Path
+     * @var string
      */
-    private $moduleLocalPath;
+    private $moduleConfigDir;
 
     /**
      * @var string
      */
-    private $moduleEnv;
+    private $version;
 
     /**
      * @var ContainerInterface
@@ -47,16 +47,16 @@ class ServiceContainer
 
     /**
      * @param string $moduleName
-     * @param string $moduleLocalPath
-     * @param string $moduleEnv
+     * @param string $moduleConfigDir
+     * @param string $version
      *
      * @throws \Exception
      */
-    public function __construct($moduleName, $moduleLocalPath, $moduleEnv)
+    public function __construct($moduleName, $moduleConfigDir, $version)
     {
         $this->moduleName = $moduleName;
-        $this->moduleLocalPath = $moduleLocalPath;
-        $this->moduleEnv = $moduleEnv;
+        $this->moduleConfigDir = $moduleConfigDir;
+        $this->version = $version;
 
         $this->initContainer();
     }
@@ -101,7 +101,7 @@ class ServiceContainer
             _PS_ROOT_DIR_,
             _PS_MODE_DEV_
         );
-        $containerProvider = new ContainerProvider($this->moduleName, $this->moduleLocalPath, $this->moduleEnv, $cacheDirectory);
+        $containerProvider = new ContainerProvider($this->moduleName, $this->moduleConfigDir, $this->version, $cacheDirectory);
 
         $this->container = $containerProvider->get(defined('_PS_ADMIN_DIR_') || defined('PS_INSTALLATION_IN_PROGRESS') ? 'admin' : 'front');
     }

@@ -31,19 +31,19 @@ use PrestaShop\Module\PsAccounts\Vendor\Symfony\Component\DependencyInjection\Lo
 class ContainerProvider
 {
     /**
-     * @var string Module Name
+     * @var string
      */
     private $moduleName;
 
     /**
-     * @var string Module Local Path
+     * @var string
      */
-    private $moduleLocalPath;
+    private $moduleConfigDir;
 
     /**
      * @var string
      */
-    private $moduleEnv;
+    private $version;
 
     /**
      * @var CacheDirectoryProvider
@@ -51,25 +51,20 @@ class ContainerProvider
     private $cacheDirectory;
 
     /**
-     * @var string
-     */
-    private $configDir = 'config_module';
-
-    /**
      * @param string $moduleName
-     * @param string $moduleLocalPath
-     * @param string $moduleEnv
+     * @param string $moduleConfigDir
+     * @param string $version
      * @param CacheDirectoryProvider $cacheDirectory
      */
     public function __construct(
         $moduleName,
-        $moduleLocalPath,
-        $moduleEnv,
+        $moduleConfigDir,
+        $version,
         CacheDirectoryProvider $cacheDirectory
     ) {
         $this->moduleName = $moduleName;
-        $this->moduleLocalPath = $moduleLocalPath;
-        $this->moduleEnv = $moduleEnv;
+        $this->moduleConfigDir = $moduleConfigDir;
+        $this->version = $version;
         $this->cacheDirectory = $cacheDirectory;
     }
 
@@ -82,15 +77,14 @@ class ContainerProvider
      */
     public function get($containerName)
     {
-        $containerClassName = ucfirst($this->moduleName)
-            . ucfirst($containerName)
-            . 'Container'
+        $containerClassName = ucfirst($this->moduleName) .
+            ucfirst($containerName) .
+            // append version number to force cache generation (1.6 Core won't clear it)
+            str_replace(['.', '-', '+'], '', $this->version) .
+            'Container'
         ;
 
-        // FIXME: not used (just for PHPStan)
-        $originalContainerFilePath = $this->cacheDirectory->getPath() . '/' . $containerClassName . '.php';
-
-        $containerFilePath = $this->moduleLocalPath . 'cache/' . $containerClassName . '.php';
+        $containerFilePath = $this->cacheDirectory->getPath() . '/' . $this->moduleName . '/' . $containerClassName . '.php';
         $containerConfigCache = new ConfigCache($containerFilePath, _PS_MODE_DEV_);
 
         if ($containerConfigCache->isFresh()) {
@@ -103,24 +97,14 @@ class ContainerProvider
         }
 
         $containerBuilder = new ContainerBuilder();
-//        FIXME: what is this for ?
-//        $containerBuilder->set(
-//            $this->moduleName . '.cache.directory',
-//            $this->cacheDirectory
-//        );
+        $containerBuilder->set(
+            $this->moduleName . '.cache.directory',
+            $this->cacheDirectory
+        );
 
-//        $moduleConfigPath = $this->moduleLocalPath
-//            . 'config/'
-//            . $containerName
-//        ;
-        $moduleConfigPath = $this->moduleLocalPath
-            . $this->configDir . '/'
-            . $containerName
-        ;
-
+        $moduleConfigPath = $this->moduleConfigDir . '/' . $containerName;
         $loader = new YamlFileLoader($containerBuilder, new FileLocator($moduleConfigPath));
-
-        $loader->load('services' . ($this->moduleEnv ? '_' . $this->moduleEnv : '') . '.yml');
+        $loader->load('services.yml');
 
         $containerBuilder->compile();
         $dumper = new PhpDumper($containerBuilder);

@@ -30,11 +30,12 @@ class Ps_accounts extends Module
 {
     use \PrestaShop\Module\PsAccounts\Hook\HookableTrait;
 
-    const DEFAULT_ENV = '';
-
     // Needed in order to retrieve the module version easier (in api call headers) than instanciate
     // the module each time to get the version
     const VERSION = '7.0.9';
+
+    // Module own container configuration
+    const CONFIG_MODULE = 'config_module';
 
     /**
      * Admin tabs
@@ -181,7 +182,7 @@ class Ps_accounts extends Module
      */
     public function install()
     {
-        $this->cleanCache();
+        //$this->clearCache();
 
         $installer = new PrestaShop\Module\PsAccounts\Module\Install($this, Db::getInstance());
 
@@ -192,8 +193,6 @@ class Ps_accounts extends Module
             && $this->registerHook($this->getHooksToRegister());
 
         $this->onModuleReset();
-
-        $this->getLogger()->info('Install - Loading ' . $this->name . ' Env : [' . $this->getModuleEnv() . ']');
 
         return $status;
     }
@@ -239,11 +238,10 @@ class Ps_accounts extends Module
     public function getServiceContainer()
     {
         if (null === $this->serviceContainer) {
-            // append version number to force cache generation (1.6 Core won't clear it)
             $this->serviceContainer = new \PrestaShop\Module\PsAccounts\DependencyInjection\ServiceContainer(
-                $this->name . str_replace(['.', '-', '+'], '', $this->version),
-                $this->getLocalPath(),
-                $this->getModuleEnv()
+                $this->name,
+                $this->getLocalPath() . '/' . self::CONFIG_MODULE,
+                $this->version
             );
         }
 
@@ -336,24 +334,6 @@ class Ps_accounts extends Module
         }
 
         return $ret;
-    }
-
-    /**
-     * @return string
-     */
-    public function getModuleEnvVar()
-    {
-        return strtoupper((string) $this->name) . '_ENV';
-    }
-
-    /**
-     * @param string $default
-     *
-     * @return string
-     */
-    public function getModuleEnv($default = null)
-    {
-        return getenv($this->getModuleEnvVar()) ?: $default ?: self::DEFAULT_ENV;
     }
 
     /**
@@ -509,17 +489,21 @@ class Ps_accounts extends Module
         $uninstaller->deleteAdminTab('AdminLogin');
     }
 
-    /**
-     * @return void
-     */
-    private function cleanCache()
-    {
-        // FIXME: find best strategy to manage module cache & maybe deal with the upgrade sequence
-        $cacheFiles = glob($this->getLocalPath() . '/cache/*');
-        if (is_array($cacheFiles)) {
-            array_map('unlink', $cacheFiles);
-        }
-    }
+//    /**
+//     * @return void
+//     */
+//    public function clearCache()
+//    {
+//        $cacheDirectory = new \PrestaShop\Module\PsAccounts\Vendor\PrestaShop\ModuleLibCacheDirectoryProvider\Cache\CacheDirectoryProvider(
+//            _PS_VERSION_,
+//            _PS_ROOT_DIR_,
+//            _PS_MODE_DEV_
+//        );
+//        $cacheFiles = glob($cacheDirectory->getPath() . '/' . $this->name . '/*');
+//        if (is_array($cacheFiles)) {
+//            array_map('unlink', $cacheFiles);
+//        }
+//    }
 }
 
 /**
