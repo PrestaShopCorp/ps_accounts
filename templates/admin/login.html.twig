@@ -17,13 +17,18 @@
  * @license   https://opensource.org/licenses/AFL-3.0 Academic Free License version 3.0
  *#}
 <!DOCTYPE html>
-<html lang="en">
+<!--[if lt IE 7]> <html class="no-js lt-ie9 lt-ie8 lt-ie7 lt-ie6"> <![endif]-->
+<!--[if IE 7]>    <html class="no-js lt-ie9 lt-ie8 ie7"> <![endif]-->
+<!--[if IE 8]>    <html class="no-js lt-ie9 ie8"> <![endif]-->
+<!--[if gt IE 8]> <html class="no-js ie9"> <![endif]-->
+<html lang="{{ ps.isoUser }}">
 <head>
   <title>Login with PrestaShop</title>
   <link rel="stylesheet" href="{{ linkCss }}">
   <script src="{{ linkJs }}"></script>
+  <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
 </head>
-<body>
+<body class="lang-{{ ps.isoUser }}{% if ps.isRtlLanguage %} lang-rtl{% endif %}">
 <div class="psacc-grid psacc-h-screen lg:psacc-grid-cols-2">
   <div
     class="psacc-hidden lg:psacc-flex psacc-flex-col psacc-items-center psacc-justify-end psacc-bg-cover psacc-bg-no-repeat psacc-bg-bicycle"
@@ -78,15 +83,15 @@
           <div class="puik-alert__text">
             <span class="puik-alert__description">
                 {% if loginError == 'employee_not_found' %}
-                    {{ 'You cannot access the back office with this account. Try another account or contact your administrator.'|trans({}, 'ps_accounts', locale)|raw }}
+                    {{ 'You cannot access the back office with this account. Try another account or contact your administrator.'|trans({}, 'Modules.Psaccounts.Login', locale)|raw }}
                 {% elseif loginError == 'email_not_verified' %}
-                    {{ 'You need to activate your account first by clicking the link in the email.'|trans({}, 'ps_accounts', locale)|raw }}
-                    {{ 'If you need to receive a new activation link'|trans({}, 'ps_accounts', locale) }}
+                    {{ 'You need to activate your account first by clicking the link in the email.'|trans({}, 'Modules.Psaccounts.Login', locale)|raw }}
+                    {{ 'If you need to receive a new activation link'|trans({}, 'Modules.Psaccounts.Login', locale) }}
                     <a class="puik-link" href="{{ ssoResendVerificationEmail }}" target="_blank">
-                      {{ 'please click here'|trans({}, 'ps_accounts', locale) }}
+                      {{ 'please click here'|trans({}, 'Modules.Psaccounts.Login', locale) }}
                     </a>
                 {% elseif loginError == 'error_from_hydra' or loginError == 'error_other' %}
-                    {{ 'An error occured during login, please contact PrestaShop support'|trans({}, 'ps_accounts', locale)|raw }}
+                    {{ 'An error occured during login, please contact PrestaShop support'|trans({}, 'Modules.Psaccounts.Login', locale)|raw }}
                 {% else %}
                     {{ loginError }}
                 {% endif %}
@@ -104,17 +109,18 @@
 
       <div class="psacc-flex psacc-flex-col psacc-items-start psacc-max-w-xl psacc-font-primary">
         <br class="puik-h2 psacc-mb-10">
-          {{ 'Welcome'|trans({}, 'ps_accounts', locale)|raw }}</br>
+          {{ 'Welcome'|trans({}, 'Modules.Psaccounts.Login', locale)|raw }}</br>
         </h2>
         <p class="psacc-mb-10 ">
-          {{ 'Access your back office to manage your store.'|trans({}, 'ps_accounts', locale)|raw }}
+          {{ 'Access your back office to manage your store.'|trans({}, 'Modules.Psaccounts.Login', locale)|raw }}
         </p>
         <button id="ps-accounts-login" class="puik-button puik-button--primary puik-button--lg psacc-w-full">
-          {{ 'Go to the back office'|trans({}, 'ps_accounts', locale)|raw }}
+          {{ 'Go to the back office'|trans({}, 'Modules.Psaccounts.Login', locale)|raw }}
         </button>
       </div>
       <a class="puik-link psacc-mt-auto psacc-self-center" href="{{ legacyLoginUri }}">
         {{ 'Connect with another method'|trans({}, 'ps_accounts', locale)|raw }}
+        {{ 'Connect with another method'|trans({}, 'Modules.Psaccounts.Login', locale)|raw }}
       </a>
     </div>
     {% else %}

@@ -114,15 +114,12 @@ class OAuth2Controller extends FrameworkBundleAdminController
      * @return Response|null
      *
      * @throws \PrestaShopException
-     *
-     * TODO: translations sf style
      */
     public function displayLoginAction(Request $request)
     {
         /** @var OAuth2\ShopProvider $provider */
         $provider = $this->module->getService(OAuth2\ShopProvider::class);
-        // FIXME: get current locale
-        $isoCode = 'en'; //$this->getContext()->getCurrentLocale()->getCode();
+        $isoCode = $this->getContext()->getCurrentLocale()->getCode();
 
         // FIXME: extends login layout
         return $this->render('@Modules/ps_accounts/templates/admin/login.html.twig', [
