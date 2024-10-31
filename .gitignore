@@ -7,25 +7,35 @@ app.js
 ### IDE ###
 .idea
 .vscode
+*.bak
 
 ### Composer ###
 composer.phar
-/vendor/
-node_modules/
+vendor/
+vendor-scoped/
 .php_cs.cache
 .php_cs
 install.lock
 composer-dev.json
 composer-dev.lock
-.env
+.env*
+!.env.dist
+!.env.example
+
+### PHP Scoper ###
+php-scoper.phar
+
+# Mac OS
+.DS_Store
+
+# Node.js
+node_modules/
 
 ### PHPUnit ###
 .phpunit.result.cache
 
 ### Configuration ###
-config/config*.yml
 config/**/services_*.yml
-!config/config.yml.dist
 !config/admin/services.yml
 !config/front/services.yml
 
@@ -52,8 +62,12 @@ views/files/*
 /views/favicon.ico
 /views/index.html
 ./_dev/.npmrc
+.npmrc
 
 # Log files
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
+
+# PrestaShop sources
+/prestashop
