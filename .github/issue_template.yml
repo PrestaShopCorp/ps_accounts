@@ -1,0 +1,23 @@
+**Issue Summary**  
+- A brief description of the issue or request.
+
+**Expected Behavior**  
+- Describe what you expected to happen or the outcome you’re hoping for.
+
+**Current Behavior**  
+- Outline what actually happens and how it differs from your expectations.
+
+**Steps to Reproduce**  
+1. Step-by-step instructions to reproduce the issue.
+2. Include any relevant configuration settings or code examples if applicable.
+
+**Environment Information**  
+- **PrestaShop Version**: (e.g., 1.7, 8, 9)
+- **PHP Version**: (e.g., 7.4, 8.1)
+- **Module Version**: (if applicable)
+
+**Screenshots or Logs**  
+- Attach any relevant screenshots, error messages, or logs to help diagnose the issue.
+
+**Additional Context**  
+- Add any other context about the problem here, including potential solutions or suggestions.
