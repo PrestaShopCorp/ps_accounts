@@ -83,15 +83,15 @@
           <div class="puik-alert__text">
             <span class="puik-alert__description">
                 {% if loginError == 'employee_not_found' %}
-                    {{ 'You cannot access the back office with this account. Try another account or contact your administrator.'|trans({}, 'Modules.Psaccounts.Login')|raw }}
+                    {{ 'You cannot access the back office with this account. Try another account or contact your administrator.'|trans({}, 'Modules.Ps_accounts.Content')|raw }}
                 {% elseif loginError == 'email_not_verified' %}
-                    {{ 'You need to activate your account first by clicking the link in the email.'|trans({}, 'Modules.Psaccounts.Login')|raw }}
-                    {{ 'If you need to receive a new activation link'|trans({}, 'Modules.Psaccounts.Login') }}
+                    {{ 'You need to activate your account first by clicking the link in the email.'|trans({}, 'Modules.Ps_accounts.Content')|raw }}
+                    {{ 'If you need to receive a new activation link'|trans({}, 'Modules.Ps_accounts.Content') }}
                     <a class="puik-link" href="{{ ssoResendVerificationEmail }}" target="_blank">
-                      {{ 'please click here'|trans({}, 'Modules.Psaccounts.Login') }}
+                      {{ 'please click here'|trans({}, 'Modules.Ps_accounts.Content') }}
                     </a>
                 {% elseif loginError == 'error_from_hydra' or loginError == 'error_other' %}
-                    {{ 'An error occured during login, please contact PrestaShop support'|trans({}, 'Modules.Psaccounts.Login')|raw }}
+                    {{ 'An error occured during login, please contact PrestaShop support'|trans({}, 'Modules.Ps_accounts.Content')|raw }}
                 {% else %}
                     {{ loginError }}
                 {% endif %}
@@ -109,19 +109,17 @@
 
       <div class="psacc-flex psacc-flex-col psacc-items-start psacc-max-w-xl psacc-font-primary">
         <br class="puik-h2 psacc-mb-10">
-          {{ 'Welcome'|trans({}, 'Modules.Psaccounts.Login')|raw }}</br>
+          {{ 'Welcome'|trans({}, 'Modules.Ps_accounts.Content')|raw }}</br>
         </h2>
         <p class="psacc-mb-10 ">
-          {{ 'Access your back office to manage your store.'|trans({}, 'Modules.Psaccounts.Login')|raw }}
+          {{ 'Access your back office to manage your store.'|trans({}, 'Modules.Ps_accounts.Content')|raw }}
         </p>
         <button id="ps-accounts-login" class="puik-button puik-button--primary puik-button--lg psacc-w-full">
-          {{ 'Go to the back office'|trans({}, 'Modules.Psaccounts.Login')|raw }}
+          {{ 'Go to the back office'|trans({}, 'Modules.Ps_accounts.Content')|raw }}
         </button>
       </div>
       <a class="puik-link psacc-mt-auto psacc-self-center" href="{{ legacyLoginUri }}">
-        {{ 'Connect with another method'|trans({}, 'ps_accounts', locale)|raw }}
-        {{ 'Connect with another method'|trans({}, 'Modules.Psaccounts.Login', locale)|raw }}
-        {{ 'Connect with another method'|trans({}, 'Modules.Psaccounts.Ps_accounts.php')|raw }}
+        {{ 'Connect with another method'|trans({}, 'Modules.Ps_accounts.Content')|raw }}
       </a>
     </div>
     {% else %}
