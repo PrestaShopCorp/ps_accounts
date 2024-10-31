@@ -23,7 +23,7 @@ echo "${filename} ..."
 
 rm -rf "./${dist}/${module}"
 mkdir -p "./${dist}/${module}"
-cp -pr -t "./${dist}/${module}" $(cat .zip-contents)
+cp -r $(cat .zip-contents) "./${dist}/${module}"
 WORKDIR="${dist}" make autoindex
 
 cd $dist || exit;
