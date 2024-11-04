@@ -25,13 +25,15 @@ use PrestaShop\Module\PsAccounts\Api\Client\ServicesBillingClient;
 use PrestaShop\Module\PsAccounts\Exception\BillingException;
 use PrestaShop\Module\PsAccounts\Repository\ConfigurationRepository;
 use PrestaShop\Module\PsAccounts\Repository\ShopTokenRepository;
+use PrestaShop\Module\PsAccounts\ServiceContainer\IServiceContainerService;
+use PrestaShop\Module\PsAccounts\ServiceContainer\ServiceContainer;
 
 /**
  * @deprecated
  *
  * Construct the psbilling service
  */
-class PsBillingService
+class PsBillingService implements IServiceContainerService
 {
     /**
      * @var ConfigurationRepository
@@ -146,5 +148,19 @@ class PsBillingService
         }
 
         throw new \Exception('Shop account unknown.', 10);
+    }
+
+    /**
+     * @param ServiceContainer $serviceContainer
+     *
+     * @return static
+     */
+    static function getInstance(ServiceContainer $serviceContainer)
+    {
+        return new static(
+            $serviceContainer->get(ServicesBillingClient::class),
+            $serviceContainer->get(ShopTokenRepository::class),
+            $serviceContainer->get(ConfigurationRepository::class)
+        );
     }
 }

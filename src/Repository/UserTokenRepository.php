@@ -21,13 +21,15 @@
 namespace PrestaShop\Module\PsAccounts\Repository;
 
 use PrestaShop\Module\PsAccounts\Account\Session\Firebase\OwnerSession;
+use PrestaShop\Module\PsAccounts\ServiceContainer\IServiceContainerService;
+use PrestaShop\Module\PsAccounts\ServiceContainer\ServiceContainer;
 
 /**
  * Class UserTokenRepository
  *
  * @deprecated
  */
-class UserTokenRepository extends TokenRepository
+class UserTokenRepository extends TokenRepository implements IServiceContainerService
 {
     /**
      * @var OwnerSession
@@ -50,5 +52,17 @@ class UserTokenRepository extends TokenRepository
     public function getTokenEmailVerified()
     {
         return $this->session->isEmailVerified();
+    }
+
+    /**
+     * @param ServiceContainer $serviceContainer
+     *
+     * @return static
+     */
+    static function getInstance(ServiceContainer $serviceContainer)
+    {
+        return new static(
+            $serviceContainer->get(OwnerSession::class)
+        );
     }
 }

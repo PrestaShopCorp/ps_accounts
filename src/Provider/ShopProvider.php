@@ -25,8 +25,10 @@ use PrestaShop\Module\PsAccounts\Account\LinkShop;
 use PrestaShop\Module\PsAccounts\Account\Session\Firebase\OwnerSession;
 use PrestaShop\Module\PsAccounts\Adapter\Link;
 use PrestaShop\Module\PsAccounts\Context\ShopContext;
+use PrestaShop\Module\PsAccounts\ServiceContainer\IServiceContainerService;
+use PrestaShop\Module\PsAccounts\ServiceContainer\ServiceContainer;
 
-class ShopProvider
+class ShopProvider implements IServiceContainerService
 {
     /**
      * @var ShopContext
@@ -263,5 +265,18 @@ class ShopProvider
             ($shopData['domain_ssl'] ? 'https://' : 'http://') .
             ($shopData['domain_ssl'] ?: $shopData['domain']) .
             $shopData['uri'];
+    }
+
+    /**
+     * @param ServiceContainer $serviceContainer
+     *
+     * @return static
+     */
+    static function getInstance(ServiceContainer $serviceContainer)
+    {
+        return new static(
+            $serviceContainer->get(ShopContext::class),
+            $serviceContainer->get(Link::class)
+        );
     }
 }

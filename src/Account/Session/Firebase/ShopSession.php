@@ -23,8 +23,10 @@ namespace PrestaShop\Module\PsAccounts\Account\Session\Firebase;
 use PrestaShop\Module\PsAccounts\Account\Session\SessionInterface;
 use PrestaShop\Module\PsAccounts\Account\Token\Token;
 use PrestaShop\Module\PsAccounts\Repository\ConfigurationRepository;
+use PrestaShop\Module\PsAccounts\ServiceContainer\IServiceContainerService;
+use PrestaShop\Module\PsAccounts\ServiceContainer\ServiceContainer;
 
-class ShopSession extends FirebaseSession implements SessionInterface
+class ShopSession extends FirebaseSession implements SessionInterface, IServiceContainerService
 {
     /**
      * @var ConfigurationRepository
@@ -72,5 +74,18 @@ class ShopSession extends FirebaseSession implements SessionInterface
     public function setToken($token, $refreshToken = null)
     {
         $this->configurationRepository->updateFirebaseIdAndRefreshTokens($token, $refreshToken);
+    }
+
+    /**
+     * @param ServiceContainer $serviceContainer
+     *
+     * @return static
+     */
+    static function getInstance(ServiceContainer $serviceContainer)
+    {
+        return new static(
+            $serviceContainer->get(ConfigurationRepository::class),
+            $serviceContainer->get(\PrestaShop\Module\PsAccounts\Account\Session\ShopSession::class)
+        );
     }
 }

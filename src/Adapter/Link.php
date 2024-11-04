@@ -21,11 +21,13 @@
 namespace PrestaShop\Module\PsAccounts\Adapter;
 
 use PrestaShop\Module\PsAccounts\Context\ShopContext;
+use PrestaShop\Module\PsAccounts\ServiceContainer\IServiceContainerService;
+use PrestaShop\Module\PsAccounts\ServiceContainer\ServiceContainer;
 
 /**
  * Link adapter
  */
-class Link
+class Link implements IServiceContainerService
 {
     /**
      * @var ShopContext
@@ -118,5 +120,17 @@ class Link
         }
 
         return $boBaseUrl;
+    }
+
+    /**
+     * @param ServiceContainer $serviceContainer
+     *
+     * @return static
+     */
+    static function getInstance(ServiceContainer $serviceContainer)
+    {
+        return new static(
+            $serviceContainer->get(ShopContext::class)
+        );
     }
 }

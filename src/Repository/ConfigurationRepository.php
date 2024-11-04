@@ -23,8 +23,10 @@ namespace PrestaShop\Module\PsAccounts\Repository;
 use PrestaShop\Module\PsAccounts\Adapter\Configuration;
 use PrestaShop\Module\PsAccounts\Adapter\ConfigurationKeys;
 use PrestaShop\Module\PsAccounts\Log\Logger;
+use PrestaShop\Module\PsAccounts\ServiceContainer\IServiceContainerService;
+use PrestaShop\Module\PsAccounts\ServiceContainer\ServiceContainer;
 
-class ConfigurationRepository
+class ConfigurationRepository implements IServiceContainerService
 {
     /**
      * @var Configuration
@@ -460,6 +462,18 @@ class ConfigurationRepository
             'UPDATE ' . _DB_PREFIX_ . 'configuration SET id_shop = NULL, id_shop_group = NULL' .
             " WHERE name IN('" . join("','", array_values(ConfigurationKeys::cases())) . "')" .
             ' AND id_shop = ' . (int) $shop->id . ';'
+        );
+    }
+
+    /**
+     * @param ServiceContainer $serviceContainer
+     *
+     * @return static
+     */
+    static function getInstance(ServiceContainer $serviceContainer)
+    {
+        return new static(
+            $serviceContainer->get(Configuration::class)
         );
     }
 }

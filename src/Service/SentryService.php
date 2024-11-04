@@ -24,13 +24,15 @@ use Context;
 use Module;
 use PrestaShop\Module\PsAccounts\Account\LinkShop;
 use PrestaShop\Module\PsAccounts\Service\Sentry\ModuleFilteredRavenClient;
+use PrestaShop\Module\PsAccounts\ServiceContainer\IServiceContainerService;
+use PrestaShop\Module\PsAccounts\ServiceContainer\ServiceContainer;
 use Ps_accounts;
 use Raven_Client;
 
 /**
  * FIXME: outdated sentry client due to PHP 5.6 support
  */
-class SentryService
+class SentryService implements IServiceContainerService
 {
     /**
      * @var Raven_Client
@@ -178,5 +180,20 @@ class SentryService
         }
 
         return in_array($controller->controller_type, ['front', 'modulefront']);
+    }
+
+    /**
+     * @param ServiceContainer $serviceContainer
+     *
+     * @return static
+     */
+    static function getInstance(ServiceContainer $serviceContainer)
+    {
+        return new static(
+            $serviceContainer->getParameter('ps_accounts.sentry_credentials'),
+            $serviceContainer->getParameter('ps_accounts.environment'),
+            $serviceContainer->get(LinkShop::class),
+            $serviceContainer->get('ps_accounts.context')
+        );
     }
 }

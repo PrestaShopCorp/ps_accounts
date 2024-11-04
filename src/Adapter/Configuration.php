@@ -20,7 +20,10 @@
 
 namespace PrestaShop\Module\PsAccounts\Adapter;
 
-class Configuration
+use PrestaShop\Module\PsAccounts\ServiceContainer\IServiceContainerService;
+use PrestaShop\Module\PsAccounts\ServiceContainer\ServiceContainer;
+
+class Configuration implements IServiceContainerService
 {
     /**
      * @var int
@@ -228,5 +231,17 @@ class Configuration
         //return \Shop::isFeatureActive();
         return \Db::getInstance()->getValue('SELECT value FROM `' . _DB_PREFIX_ . 'configuration` WHERE `name` = "PS_MULTISHOP_FEATURE_ACTIVE"')
             && (\Db::getInstance()->getValue('SELECT COUNT(*) FROM ' . _DB_PREFIX_ . 'shop') > 1);
+    }
+
+    /**
+     * @param ServiceContainer $serviceContainer
+     *
+     * @return static
+     */
+    static function getInstance(ServiceContainer $serviceContainer)
+    {
+        return new static(
+            $serviceContainer->get('ps_accounts.context')
+        );
     }
 }

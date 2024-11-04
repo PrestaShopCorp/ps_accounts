@@ -30,12 +30,14 @@ use PrestaShop\Module\PsAccounts\Hook\ActionShopAccessTokenRefreshAfter;
 use PrestaShop\Module\PsAccounts\Log\Logger;
 use PrestaShop\Module\PsAccounts\Provider\OAuth2\ShopProvider;
 use PrestaShop\Module\PsAccounts\Repository\ConfigurationRepository;
+use PrestaShop\Module\PsAccounts\ServiceContainer\IServiceContainerService;
+use PrestaShop\Module\PsAccounts\ServiceContainer\ServiceContainer;
 use PrestaShop\Module\PsAccounts\Vendor\League\OAuth2\Client\Grant\ClientCredentials;
 use PrestaShop\Module\PsAccounts\Vendor\League\OAuth2\Client\Provider\Exception\IdentityProviderException;
 use PrestaShop\Module\PsAccounts\Vendor\League\OAuth2\Client\Token\AccessToken;
 use PrestaShop\Module\PsAccounts\Vendor\League\OAuth2\Client\Token\AccessTokenInterface;
 
-class ShopSession extends Session implements SessionInterface
+class ShopSession extends Session implements SessionInterface, IServiceContainerService
 {
     /**
      * @var CommandBus
@@ -202,5 +204,20 @@ class ShopSession extends Session implements SessionInterface
     private function getShopUuid()
     {
         return $this->linkShop->getShopUuid();
+    }
+
+    /**
+     * @param ServiceContainer $serviceContainer
+     *
+     * @return static
+     */
+    static function getInstance(ServiceContainer $serviceContainer)
+    {
+        return new static(
+            $serviceContainer->get(ConfigurationRepository::class),
+            $serviceContainer->get(ShopProvider::class),
+            $serviceContainer->get(LinkShop::class),
+            $serviceContainer->get(CommandBus::class)
+        );
     }
 }

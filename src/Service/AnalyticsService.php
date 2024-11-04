@@ -20,11 +20,13 @@
 
 namespace PrestaShop\Module\PsAccounts\Service;
 
+use PrestaShop\Module\PsAccounts\ServiceContainer\IServiceContainerService;
+use PrestaShop\Module\PsAccounts\ServiceContainer\ServiceContainer;
 use PrestaShop\Module\PsAccounts\Vendor\Monolog\Logger;
 use PrestaShop\Module\PsAccounts\Vendor\Ramsey\Uuid\Uuid;
 use Segment;
 
-class AnalyticsService
+class AnalyticsService implements IServiceContainerService
 {
     const COOKIE_ANONYMOUS_ID = 'ajs_anonymous_id';
 
@@ -314,5 +316,18 @@ class AnalyticsService
                 self::$anonymousId = $_COOKIE[self::COOKIE_ANONYMOUS_ID];
             }
         }
+    }
+
+    /**
+     * @param ServiceContainer $serviceContainer
+     *
+     * @return static
+     */
+    static function getInstance(ServiceContainer $serviceContainer)
+    {
+        return new static(
+            $serviceContainer->getParameter('ps_accounts.segment_write_key'),
+            $serviceContainer->get('ps_accounts.logger')
+        );
     }
 }

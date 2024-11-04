@@ -21,8 +21,10 @@
 namespace PrestaShop\Module\PsAccounts\Provider\OAuth2;
 
 use PrestaShop\Module\PsAccounts\Repository\ConfigurationRepository;
+use PrestaShop\Module\PsAccounts\ServiceContainer\IServiceContainerService;
+use PrestaShop\Module\PsAccounts\ServiceContainer\ServiceContainer;
 
-class Oauth2Client
+class Oauth2Client implements IServiceContainerService
 {
     /**
      * @var ConfigurationRepository
@@ -78,5 +80,17 @@ class Oauth2Client
     public function getClientSecret()
     {
         return $this->cfRepos->getOauth2ClientSecret();
+    }
+
+    /**
+     * @param ServiceContainer $serviceContainer
+     *
+     * @return static
+     */
+    static function getInstance(ServiceContainer $serviceContainer)
+    {
+        return new static(
+            $serviceContainer->get(ConfigurationRepository::class)
+        );
     }
 }

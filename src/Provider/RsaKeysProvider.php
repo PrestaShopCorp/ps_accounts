@@ -22,12 +22,14 @@ namespace PrestaShop\Module\PsAccounts\Provider;
 
 use PrestaShop\Module\PsAccounts\Exception\SshKeysNotFoundException;
 use PrestaShop\Module\PsAccounts\Repository\ConfigurationRepository;
+use PrestaShop\Module\PsAccounts\ServiceContainer\IServiceContainerService;
+use PrestaShop\Module\PsAccounts\ServiceContainer\ServiceContainer;
 use PrestaShop\Module\PsAccounts\Vendor\phpseclib\Crypt\RSA;
 
 /**
  * Manage RSA
  */
-class RsaKeysProvider
+class RsaKeysProvider implements IServiceContainerService
 {
     /**
      * @var RSA
@@ -190,5 +192,17 @@ class RsaKeysProvider
     {
         $this->configuration->updateAccountsRsaPrivateKey('');
         $this->configuration->updateAccountsRsaPublicKey('');
+    }
+
+    /**
+     * @param ServiceContainer $serviceContainer
+     *
+     * @return static
+     */
+    static function getInstance(ServiceContainer $serviceContainer)
+    {
+        return new static(
+            $serviceContainer->get(ConfigurationRepository::class)
+        );
     }
 }

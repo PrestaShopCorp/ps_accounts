@@ -20,7 +20,10 @@
 
 namespace PrestaShop\Module\PsAccounts\Cqrs;
 
-class CommandBus extends Bus
+use PrestaShop\Module\PsAccounts\ServiceContainer\IServiceContainerService;
+use PrestaShop\Module\PsAccounts\ServiceContainer\ServiceContainer;
+
+class CommandBus extends Bus implements IServiceContainerService
 {
     /**
      * @param string $className
@@ -33,5 +36,17 @@ class CommandBus extends Bus
             '/((Command)(\\\\([^\\\\]*?)(Command)?$))/',
             '${2}Handler\\\\${4}Handler',
             $className, 1);
+    }
+
+    /**
+     * @param ServiceContainer $serviceContainer
+     *
+     * @return static
+     */
+    static function getInstance(ServiceContainer $serviceContainer)
+    {
+        return new static(
+            $serviceContainer->get('ps_accounts.module')
+        );
     }
 }

@@ -24,9 +24,11 @@ use Hook;
 use PrestaShop\Module\PsAccounts\Account\Command\LinkShopCommand;
 use PrestaShop\Module\PsAccounts\Account\LinkShop;
 use PrestaShop\Module\PsAccounts\Hook\ActionShopAccountLinkAfter;
+use PrestaShop\Module\PsAccounts\ServiceContainer\IServiceContainerService;
+use PrestaShop\Module\PsAccounts\ServiceContainer\ServiceContainer;
 use PrestaShopException;
 
-class LinkShopHandler
+class LinkShopHandler implements IServiceContainerService
 {
     /**
      * @var LinkShop
@@ -53,5 +55,17 @@ class LinkShopHandler
             'shopUuid' => $this->linkShop->getShopUuid(),
             'shopId' => $command->payload->shopId,
         ]);
+    }
+
+    /**
+     * @param ServiceContainer $serviceContainer
+     *
+     * @return static
+     */
+    static function getInstance(ServiceContainer $serviceContainer)
+    {
+        return new static(
+            $serviceContainer->get(LinkShop::class)
+        );
     }
 }

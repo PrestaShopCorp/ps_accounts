@@ -22,11 +22,13 @@ namespace PrestaShop\Module\PsAccounts\Context;
 
 use Context;
 use PrestaShop\Module\PsAccounts\Repository\ConfigurationRepository;
+use PrestaShop\Module\PsAccounts\ServiceContainer\IServiceContainerService;
+use PrestaShop\Module\PsAccounts\ServiceContainer\ServiceContainer;
 
 /**
  * Get the shop context
  */
-class ShopContext
+class ShopContext implements IServiceContainerService
 {
     /**
      * @var ConfigurationRepository
@@ -186,5 +188,18 @@ class ShopContext
             return $result;
         }
         throw $e;
+    }
+
+    /**
+     * @param ServiceContainer $serviceContainer
+     *
+     * @return static
+     */
+    static function getInstance(ServiceContainer $serviceContainer)
+    {
+        return new static(
+            $serviceContainer->get(ConfigurationRepository::class),
+            $serviceContainer->get('ps_accounts.context')
+        );
     }
 }

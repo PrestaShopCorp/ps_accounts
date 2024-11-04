@@ -20,12 +20,14 @@
 
 namespace PrestaShop\Module\PsAccounts\Provider\OAuth2;
 
+use PrestaShop\Module\PsAccounts\ServiceContainer\IServiceContainerService;
+use PrestaShop\Module\PsAccounts\ServiceContainer\ServiceContainer;
 use PrestaShop\Module\PsAccounts\Vendor\League\OAuth2\Client\Provider\Exception\IdentityProviderException;
 use PrestaShop\Module\PsAccounts\Vendor\League\OAuth2\Client\Token\AccessToken;
 use PrestaShop\OAuth2\Client\Provider\PrestaShopUser;
 use Symfony\Component\HttpFoundation\Session\SessionInterface;
 
-class PrestaShopSession
+class PrestaShopSession implements IServiceContainerService
 {
     const TOKEN_NAME = 'accessToken';
 
@@ -132,5 +134,15 @@ class PrestaShopSession
         }
 
         return $this->session->get(self::TOKEN_NAME);
+    }
+
+    /**
+     * @param ServiceContainer $serviceContainer
+     *
+     * @return static
+     */
+    static function getInstance(ServiceContainer $serviceContainer)
+    {
+        return \PrestaShop\Module\PsAccounts\Factory\PrestaShopSessionFactory::create();
     }
 }
