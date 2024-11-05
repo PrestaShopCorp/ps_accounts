@@ -57,9 +57,10 @@ platform-stop:
 
 platform-restart: platform-stop platform-start
 
-platform-module-config:
+.PHONY: config.php
+config.php:
 	@docker exec -w ${CONTAINER_INSTALL_DIR} phpunit \
-		sh -c "if [ ! -f ./config/config.yml ]; then cp ./config/config.yml.dist ./config/config.yml; fi"
+		sh -c "if [ ! -f ./config.php ]; then cp ./config.dist.php ./config.php; fi"
 
 platform-module-version:
 	@docker exec -w ${CONTAINER_INSTALL_DIR} phpunit \
@@ -70,7 +71,7 @@ platform-phpstan-config:
 	@docker exec -w ${CONTAINER_INSTALL_DIR}/tests phpunit \
 		sh -c "if [ -f ./phpstan/${NEON_FILE} ]; then cp ./phpstan/${NEON_FILE} ./phpstan/phpstan.neon; fi"
 
-platform-module-install: tests/vendor platform-phpstan-config platform-module-config platform-module-version
+platform-module-install: tests/vendor platform-phpstan-config config.php platform-module-version
 	-@docker exec phpunit sh -c "if [ -f ./bin/console ]; then php -d memory_limit=-1 ./bin/console prestashop:module install ps_accounts; fi"
 	-@docker exec phpunit sh -c "if [ ! -f ./bin/console ]; then php -d memory_limit=-1 ./modules/ps_accounts/tests/install-module.php; fi"
 
@@ -189,7 +190,7 @@ header-stamp-test:
 	phpunit ./tests/vendor/bin/header-stamp \
 	--target="${WORKDIR}" \
 	--license=./tests/vendor/prestashop/header-stamp/assets/afl.txt \
-	--exclude=.github,node_modules,vendor,vendor,tests,_dev \
+	--exclude=.github,node_modules,vendor,dist,tests,_dev \
 	--dry-run
 
 header-stamp:
@@ -197,7 +198,7 @@ header-stamp:
 	phpunit ./tests/vendor/bin/header-stamp \
 	--target="${WORKDIR}" \
 	--license=./tests/vendor/prestashop/header-stamp/assets/afl.txt \
-	--exclude=.github,node_modules,vendor,vendor,tests,_dev
+	--exclude=.github,node_modules,vendor,dist,tests,_dev
 
 #phpstan16: NEON_FILE := phpstan-PS-1.6.neon
 #phpstan16: phpstan
@@ -273,13 +274,13 @@ BUNDLE_ZIP ?= # ex: ps_accounts_flavor.zip
 BUNDLE_VERSION ?= $(shell grep "<version>" config.xml | sed 's/^.*\([0-9]\+\.[0-9]\+\.[0-9]\+\).*/\1/')
 BUNDLE_JS ?= views/js/app.${BUNDLE_VERSION}.js
 
-bundle: php-scoper config/config.yml build-front
+bundle: php-scoper build-front
 	@./scripts/bundle-module.sh "${BUNDLE_ZIP}" "${BUNDLE_ENV}"
 
-bundle-prod: php-scoper config/config.yml.prod build-front
+bundle-prod: php-scoper config.php.prod build-front
 	@./scripts/bundle-module.sh "ps_accounts.zip" "prod"
 
-bundle-preprod: php-scoper config/config.yml.preprod build-front
+bundle-preprod: php-scoper config.php.preprod build-front
 	@./scripts/bundle-module.sh "ps_accounts_preprod.zip" "preprod"
 
 define build_front
