@@ -116,6 +116,7 @@ class ServiceContainer
      * @return mixed
      *
      * @throws ServiceNotFoundException
+     * @throws ProviderNotFoundException
      */
     public function get($name)
     {
@@ -145,6 +146,7 @@ class ServiceContainer
      * @return mixed
      *
      * @throws ServiceNotFoundException
+     * @throws ProviderNotFoundException
      */
     public function getService($name)
     {

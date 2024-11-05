@@ -236,16 +236,6 @@ class Ps_accounts extends Module
      */
     public function getServiceContainer()
     {
-//        if (null === $this->serviceContainer) {
-//            // append version number to force cache generation (1.6 Core won't clear it)
-//            $this->serviceContainer = new \PrestaShop\Module\PsAccounts\DependencyInjection\ServiceContainer(
-//                $this->name . str_replace(['.', '-', '+'], '', $this->version),
-//                $this->getLocalPath(),
-//                $this->getModuleEnv()
-//            );
-//        }
-//
-//        return $this->serviceContainer;
         return \PrestaShop\Module\PsAccounts\ServiceContainer\ServiceContainer::getInstance();
     }
 
