@@ -256,7 +256,6 @@ class Ps_accounts extends Module
      */
     public function getParameter($name)
     {
-        //return $this->getServiceContainer()->getContainer()->getParameter($name);
         return $this->getServiceContainer()->getParameter($name);
     }
 
@@ -267,7 +266,6 @@ class Ps_accounts extends Module
      */
     public function hasParameter($name)
     {
-        //return $this->getServiceContainer()->getContainer()->hasParameter($name);
         return $this->getServiceContainer()->hasParameter($name);
     }
 
