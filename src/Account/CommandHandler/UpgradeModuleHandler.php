@@ -31,10 +31,8 @@ use PrestaShop\Module\PsAccounts\Cqrs\CommandBus;
 use PrestaShop\Module\PsAccounts\Exception\RefreshTokenException;
 use PrestaShop\Module\PsAccounts\Log\Logger;
 use PrestaShop\Module\PsAccounts\Repository\ConfigurationRepository;
-use PrestaShop\Module\PsAccounts\ServiceContainer\IServiceContainerService;
-use PrestaShop\Module\PsAccounts\ServiceContainer\ServiceContainer;
 
-class UpgradeModuleHandler implements IServiceContainerService
+class UpgradeModuleHandler
 {
     /**
      * @var LinkShop
@@ -164,23 +162,6 @@ class UpgradeModuleHandler implements IServiceContainerService
         $this->shopSession->setToken(
             $tokens['token'],
             $tokens['refresh_token']
-        );
-    }
-
-    /**
-     * @param ServiceContainer $serviceContainer
-     *
-     * @return self
-     */
-    public static function getInstance(ServiceContainer $serviceContainer)
-    {
-        return new self(
-            $serviceContainer->get(AccountsClient::class),
-            $serviceContainer->get(LinkShop::class),
-            $serviceContainer->get(ShopSession::class),
-            $serviceContainer->get(ShopContext::class),
-            $serviceContainer->get(ConfigurationRepository::class),
-            $serviceContainer->get(CommandBus::class)
         );
     }
 }

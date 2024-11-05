@@ -24,8 +24,6 @@ use Module;
 use PrestaShop\Module\PsAccounts\Adapter\Link;
 use PrestaShop\Module\PsAccounts\Context\ShopContext;
 use PrestaShop\Module\PsAccounts\Service\SentryService;
-use PrestaShop\Module\PsAccounts\ServiceContainer\IServiceContainerService;
-use PrestaShop\Module\PsAccounts\ServiceContainer\ServiceContainer;
 use PrestaShop\PrestaShop\Adapter\SymfonyContainer;
 use PrestaShop\PrestaShop\Core\Addon\Module\ModuleManagerBuilder;
 use Tools;
@@ -35,7 +33,7 @@ use Tools;
  *
  * Install ps_accounts module
  */
-class Installer implements IServiceContainerService
+class Installer
 {
     /**
      * @var ShopContext
@@ -173,18 +171,5 @@ class Installer implements IServiceContainerService
         $moduleManager = ModuleManagerBuilder::getInstance()->build();
 
         return $moduleManager->isEnabled($module);
-    }
-
-    /**
-     * @param ServiceContainer $serviceContainer
-     *
-     * @return self
-     */
-    public static function getInstance(ServiceContainer $serviceContainer)
-    {
-        return new self(
-            $serviceContainer->get(ShopContext::class),
-            $serviceContainer->get(Link::class)
-        );
     }
 }

@@ -26,14 +26,12 @@ use PrestaShop\Module\PsAccounts\Provider\ShopProvider;
 use PrestaShop\Module\PsAccounts\Repository\ConfigurationRepository;
 use PrestaShop\Module\PsAccounts\Service\PsAccountsService;
 use PrestaShop\Module\PsAccounts\Service\SentryService;
-use PrestaShop\Module\PsAccounts\ServiceContainer\IServiceContainerService;
-use PrestaShop\Module\PsAccounts\ServiceContainer\ServiceContainer;
 use PrestaShopException;
 
 /**
  * Construct the psaccounts module.
  */
-class PsAccountsPresenter implements PresenterInterface, IServiceContainerService
+class PsAccountsPresenter implements PresenterInterface
 {
     /**
      * @var ShopProvider
@@ -169,17 +167,5 @@ class PsAccountsPresenter implements PresenterInterface, IServiceContainerServic
         }
 
         return [];
-    }
-
-    /**
-     * @param ServiceContainer $serviceContainer
-     *
-     * @return self
-     */
-    public static function getInstance(ServiceContainer $serviceContainer)
-    {
-        return new self(
-            $serviceContainer->get('ps_accounts.module')
-        );
     }
 }

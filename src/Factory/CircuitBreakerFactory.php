@@ -24,10 +24,8 @@ use PrestaShop\Module\PsAccounts\Adapter\Configuration;
 use PrestaShop\Module\PsAccounts\Api\Client\AccountsClient;
 use PrestaShop\Module\PsAccounts\Http\Client\CircuitBreaker\CircuitBreaker;
 use PrestaShop\Module\PsAccounts\Http\Client\CircuitBreaker\PersistentCircuitBreaker;
-use PrestaShop\Module\PsAccounts\ServiceContainer\IServiceContainerService;
-use PrestaShop\Module\PsAccounts\ServiceContainer\ServiceContainer;
 
-class CircuitBreakerFactory implements IServiceContainerService
+class CircuitBreakerFactory
 {
     /**
      * @var array
@@ -133,17 +131,5 @@ class CircuitBreakerFactory implements IServiceContainerService
     protected function className($className)
     {
         return strtoupper(preg_replace(['/^.*\\\\/', '/([^A-Z])([A-Z])/'], ['', '$1_$2'], $className));
-    }
-
-    /**
-     * @param ServiceContainer $serviceContainer
-     *
-     * @return self
-     */
-    public static function getInstance(ServiceContainer $serviceContainer)
-    {
-        return new self(
-            $serviceContainer->get(Configuration::class)
-        );
     }
 }

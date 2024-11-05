@@ -18,37 +18,8 @@
  * @license   https://opensource.org/licenses/AFL-3.0 Academic Free License version 3.0
  */
 
-namespace PrestaShop\Module\PsAccounts\Repository;
+namespace PrestaShop\Module\PsAccounts\ServiceContainer\Exception;
 
-use PrestaShop\Module\PsAccounts\Account\Session\Firebase\OwnerSession;
-
-/**
- * Class UserTokenRepository
- *
- * @deprecated
- */
-class UserTokenRepository extends TokenRepository
+class ProviderNotFoundException extends \Exception
 {
-    /**
-     * @var OwnerSession
-     */
-    protected $session;
-
-    /**
-     * @return string
-     */
-    public function getTokenEmail()
-    {
-        return $this->session->getToken()->getEmail();
-    }
-
-    /**
-     * @return bool
-     *
-     * @throws \Exception
-     */
-    public function getTokenEmailVerified()
-    {
-        return $this->session->isEmailVerified();
-    }
 }

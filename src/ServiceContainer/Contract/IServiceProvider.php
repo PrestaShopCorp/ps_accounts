@@ -18,40 +18,16 @@
  * @license   https://opensource.org/licenses/AFL-3.0 Academic Free License version 3.0
  */
 
-namespace PrestaShop\Module\PsAccounts\Account\CommandHandler;
+namespace PrestaShop\Module\PsAccounts\ServiceContainer\Contract;
 
-use Hook;
-use PrestaShop\Module\PsAccounts\Account\Command\LinkShopCommand;
-use PrestaShop\Module\PsAccounts\Account\LinkShop;
-use PrestaShop\Module\PsAccounts\Hook\ActionShopAccountLinkAfter;
-use PrestaShopException;
+use PrestaShop\Module\PsAccounts\ServiceContainer\ServiceContainer;
 
-class LinkShopHandler
+interface IServiceProvider
 {
     /**
-     * @var LinkShop
-     */
-    private $linkShop;
-
-    public function __construct(LinkShop $linkShop)
-    {
-        $this->linkShop = $linkShop;
-    }
-
-    /**
-     * @param LinkShopCommand $command
+     * @param ServiceContainer $container
      *
      * @return void
-     *
-     * @throws PrestaShopException
      */
-    public function handle(LinkShopCommand $command)
-    {
-        $this->linkShop->update($command->payload);
-
-        Hook::exec(ActionShopAccountLinkAfter::getName(), [
-            'shopUuid' => $this->linkShop->getShopUuid(),
-            'shopId' => $command->payload->shopId,
-        ]);
-    }
+    public function provide(ServiceContainer $container);
 }

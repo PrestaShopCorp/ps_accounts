@@ -21,30 +21,16 @@
 namespace PrestaShop\Module\PsAccounts\Repository;
 
 use PrestaShop\Module\PsAccounts\Account\Session\Firebase\ShopSession;
-use PrestaShop\Module\PsAccounts\ServiceContainer\IServiceContainerService;
-use PrestaShop\Module\PsAccounts\ServiceContainer\ServiceContainer;
 
 /**
  * Class ShopTokenRepository
  *
  * @deprecated
  */
-class ShopTokenRepository extends TokenRepository implements IServiceContainerService
+class ShopTokenRepository extends TokenRepository
 {
     /**
      * @var ShopSession
      */
     protected $session;
-
-    /**
-     * @param ServiceContainer $serviceContainer
-     *
-     * @return self
-     */
-    public static function getInstance(ServiceContainer $serviceContainer)
-    {
-        return new self(
-            $serviceContainer->get(ShopSession::class)
-        );
-    }
 }

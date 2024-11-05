@@ -26,10 +26,8 @@ use PrestaShop\Module\PsAccounts\Account\Session\Firebase\ShopSession;
 use PrestaShop\Module\PsAccounts\Api\Client\AccountsClient;
 use PrestaShop\Module\PsAccounts\Context\ShopContext;
 use PrestaShop\Module\PsAccounts\Exception\RefreshTokenException;
-use PrestaShop\Module\PsAccounts\ServiceContainer\IServiceContainerService;
-use PrestaShop\Module\PsAccounts\ServiceContainer\ServiceContainer;
 
-class UpdateUserShopHandler implements IServiceContainerService
+class UpdateUserShopHandler
 {
     /**
      * @var AccountsClient
@@ -89,20 +87,5 @@ class UpdateUserShopHandler implements IServiceContainerService
                 $command->payload
             );
         });
-    }
-
-    /**
-     * @param ServiceContainer $serviceContainer
-     *
-     * @return self
-     */
-    public static function getInstance(ServiceContainer $serviceContainer)
-    {
-        return new self(
-            $serviceContainer->get(AccountsClient::class),
-            $serviceContainer->get(ShopContext::class),
-            $serviceContainer->get(ShopSession::class),
-            $serviceContainer->get(OwnerSession::class)
-        );
     }
 }

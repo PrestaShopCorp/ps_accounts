@@ -21,12 +21,10 @@
 namespace PrestaShop\Module\PsAccounts\Provider\OAuth2;
 
 use PrestaShop\Module\PsAccounts\Adapter\Link;
-use PrestaShop\Module\PsAccounts\ServiceContainer\IServiceContainerService;
-use PrestaShop\Module\PsAccounts\ServiceContainer\ServiceContainer;
 use PrestaShop\Module\PsAccounts\Vendor\League\OAuth2\Client\Provider\AbstractProvider;
 use PrestaShop\OAuth2\Client\Provider\PrestaShop;
 
-class ShopProvider extends PrestaShop implements IServiceContainerService
+class ShopProvider extends PrestaShop
 {
     const QUERY_LOGOUT_CALLBACK_PARAM = 'oauth2Callback';
 
@@ -169,15 +167,5 @@ class ShopProvider extends PrestaShop implements IServiceContainerService
     {
         $this->clientId = $this->getOauth2Client()->getClientId();
         $this->clientSecret = $this->getOauth2Client()->getClientSecret();
-    }
-
-    /**
-     * @param ServiceContainer $serviceContainer
-     *
-     * @return PrestaShop
-     */
-    public static function getInstance(ServiceContainer $serviceContainer)
-    {
-        return \PrestaShop\Module\PsAccounts\Provider\OAuth2\ShopProvider::create();
     }
 }

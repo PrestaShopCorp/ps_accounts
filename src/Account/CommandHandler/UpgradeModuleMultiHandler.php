@@ -27,11 +27,9 @@ use PrestaShop\Module\PsAccounts\Cqrs\CommandBus;
 use PrestaShop\Module\PsAccounts\Exception\DtoException;
 use PrestaShop\Module\PsAccounts\Exception\RefreshTokenException;
 use PrestaShop\Module\PsAccounts\Repository\ConfigurationRepository;
-use PrestaShop\Module\PsAccounts\ServiceContainer\IServiceContainerService;
-use PrestaShop\Module\PsAccounts\ServiceContainer\ServiceContainer;
 use PrestaShopDatabaseException;
 
-class UpgradeModuleMultiHandler implements IServiceContainerService
+class UpgradeModuleMultiHandler
 {
     /**
      * @var ConfigurationRepository
@@ -94,18 +92,5 @@ class UpgradeModuleMultiHandler implements IServiceContainerService
         }
 
         return $shops;
-    }
-
-    /**
-     * @param ServiceContainer $serviceContainer
-     *
-     * @return self
-     */
-    public static function getInstance(ServiceContainer $serviceContainer)
-    {
-        return new self(
-            $serviceContainer->get(CommandBus::class),
-            $serviceContainer->get(ConfigurationRepository::class)
-        );
     }
 }

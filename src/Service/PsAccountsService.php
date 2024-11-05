@@ -32,13 +32,11 @@ use PrestaShop\Module\PsAccounts\Exception\RefreshTokenException;
 use PrestaShop\Module\PsAccounts\Provider\ShopProvider;
 use PrestaShop\Module\PsAccounts\Repository\ConfigurationRepository;
 use PrestaShop\Module\PsAccounts\Repository\EmployeeAccountRepository;
-use PrestaShop\Module\PsAccounts\ServiceContainer\IServiceContainerService;
-use PrestaShop\Module\PsAccounts\ServiceContainer\ServiceContainer;
 
 /**
  * Class PsAccountsService
  */
-class PsAccountsService implements IServiceContainerService
+class PsAccountsService
 {
     /**
      * @var Link
@@ -339,17 +337,5 @@ class PsAccountsService implements IServiceContainerService
         } catch (\Exception $e) {
             return null;
         }
-    }
-
-    /**
-     * @param ServiceContainer $serviceContainer
-     *
-     * @return self
-     */
-    public static function getInstance(ServiceContainer $serviceContainer)
-    {
-        return new self(
-            $serviceContainer->get('ps_accounts.module')
-        );
     }
 }

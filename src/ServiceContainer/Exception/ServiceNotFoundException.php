@@ -18,7 +18,7 @@
  * @license   https://opensource.org/licenses/AFL-3.0 Academic Free License version 3.0
  */
 
-namespace PrestaShop\Module\PsAccounts\ServiceContainer;
+namespace PrestaShop\Module\PsAccounts\ServiceContainer\Exception;
 
 class ServiceNotFoundException extends \Exception
 {

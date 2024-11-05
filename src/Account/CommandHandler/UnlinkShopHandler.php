@@ -26,10 +26,8 @@ use PrestaShop\Module\PsAccounts\Account\LinkShop;
 use PrestaShop\Module\PsAccounts\Hook\ActionShopAccountUnlinkAfter;
 use PrestaShop\Module\PsAccounts\Provider\ShopProvider;
 use PrestaShop\Module\PsAccounts\Service\AnalyticsService;
-use PrestaShop\Module\PsAccounts\ServiceContainer\IServiceContainerService;
-use PrestaShop\Module\PsAccounts\ServiceContainer\ServiceContainer;
 
-class UnlinkShopHandler implements IServiceContainerService
+class UnlinkShopHandler
 {
     /**
      * @var LinkShop
@@ -100,19 +98,5 @@ class UnlinkShopHandler implements IServiceContainerService
         }
 
         Hook::exec(ActionShopAccountUnlinkAfter::getName(), $hookData);
-    }
-
-    /**
-     * @param ServiceContainer $serviceContainer
-     *
-     * @return self
-     */
-    public static function getInstance(ServiceContainer $serviceContainer)
-    {
-        return new self(
-            $serviceContainer->get(LinkShop::class),
-            $serviceContainer->get(AnalyticsService::class),
-            $serviceContainer->get(ShopProvider::class)
-        );
     }
 }

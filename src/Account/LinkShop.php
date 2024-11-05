@@ -21,10 +21,8 @@
 namespace PrestaShop\Module\PsAccounts\Account;
 
 use PrestaShop\Module\PsAccounts\Repository\ConfigurationRepository;
-use PrestaShop\Module\PsAccounts\ServiceContainer\IServiceContainerService;
-use PrestaShop\Module\PsAccounts\ServiceContainer\ServiceContainer;
 
-class LinkShop implements IServiceContainerService
+class LinkShop
 {
     /**
      * @var ConfigurationRepository
@@ -190,17 +188,5 @@ class LinkShop implements IServiceContainerService
     public function setUnlinkedOnError($errorMsg)
     {
         $this->configuration->updateUnlinkedOnError($errorMsg);
-    }
-
-    /**
-     * @param ServiceContainer $serviceContainer
-     *
-     * @return self
-     */
-    public static function getInstance(ServiceContainer $serviceContainer)
-    {
-        return new self(
-            $serviceContainer->get(ConfigurationRepository::class)
-        );
     }
 }

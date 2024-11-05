@@ -24,13 +24,11 @@ use PrestaShop\Module\PsAccounts\Http\Client\Guzzle\GuzzleClient;
 use PrestaShop\Module\PsAccounts\Http\Client\Guzzle\GuzzleClientFactory;
 use PrestaShop\Module\PsAccounts\Provider\ShopProvider;
 use PrestaShop\Module\PsAccounts\Service\PsAccountsService;
-use PrestaShop\Module\PsAccounts\ServiceContainer\IServiceContainerService;
-use PrestaShop\Module\PsAccounts\ServiceContainer\ServiceContainer;
 
 /**
  * Handle call api Services
  */
-class ServicesBillingClient implements IServiceContainerService
+class ServicesBillingClient
 {
     /**
      * @var GuzzleClient
@@ -131,19 +129,5 @@ class ServicesBillingClient implements IServiceContainerService
         return $this->client->post([
             'body' => $bodyHttp,
         ]);
-    }
-
-    /**
-     * @param ServiceContainer $serviceContainer
-     *
-     * @return self
-     */
-    public static function getInstance(ServiceContainer $serviceContainer)
-    {
-        return new self(
-            $serviceContainer->getParameter('ps_accounts.billing_api_url'),
-            $serviceContainer->get(PsAccountsService::class),
-            $serviceContainer->get(ShopProvider::class)
-        );
     }
 }

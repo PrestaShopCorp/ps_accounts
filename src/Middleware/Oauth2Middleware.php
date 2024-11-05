@@ -25,12 +25,10 @@ use PrestaShop\Module\PsAccounts\Provider\OAuth2\PrestaShopLogoutTrait;
 use PrestaShop\Module\PsAccounts\Provider\OAuth2\PrestaShopSession;
 use PrestaShop\Module\PsAccounts\Provider\OAuth2\ShopProvider;
 use PrestaShop\Module\PsAccounts\Service\PsAccountsService;
-use PrestaShop\Module\PsAccounts\ServiceContainer\IServiceContainerService;
-use PrestaShop\Module\PsAccounts\ServiceContainer\ServiceContainer;
 use PrestaShop\Module\PsAccounts\Vendor\League\OAuth2\Client\Provider\Exception\IdentityProviderException;
 use Ps_accounts;
 
-class Oauth2Middleware implements IServiceContainerService
+class Oauth2Middleware
 {
     use PrestaShopLogoutTrait;
 
@@ -122,17 +120,5 @@ class Oauth2Middleware implements IServiceContainerService
         if ($this->bypassLoginPage) {
             \Tools::redirectLink($this->getProvider()->getRedirectUri());
         }
-    }
-
-    /**
-     * @param ServiceContainer $serviceContainer
-     *
-     * @return self
-     */
-    public static function getInstance(ServiceContainer $serviceContainer)
-    {
-        return new self(
-            $serviceContainer->get('ps_accounts.module')
-        );
     }
 }
