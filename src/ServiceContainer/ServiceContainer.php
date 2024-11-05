@@ -31,7 +31,7 @@ class ServiceContainer
 
     public function __construct()
     {
-        $this->config = require __DIR__ . '/../../' . $this->configName . '.php';
+        $this->config = require_once __DIR__ . '/../../' . $this->configName . '.php';
 
         $this->providers = [
             'ps_accounts.context' => function () {
