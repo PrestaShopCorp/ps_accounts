@@ -468,11 +468,11 @@ class ConfigurationRepository implements IServiceContainerService
     /**
      * @param ServiceContainer $serviceContainer
      *
-     * @return static
+     * @return self
      */
-    static function getInstance(ServiceContainer $serviceContainer)
+    public static function getInstance(ServiceContainer $serviceContainer)
     {
-        return new static(
+        return new self(
             $serviceContainer->get(Configuration::class)
         );
     }

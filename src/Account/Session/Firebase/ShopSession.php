@@ -79,11 +79,11 @@ class ShopSession extends FirebaseSession implements SessionInterface, IServiceC
     /**
      * @param ServiceContainer $serviceContainer
      *
-     * @return static
+     * @return self
      */
-    static function getInstance(ServiceContainer $serviceContainer)
+    public static function getInstance(ServiceContainer $serviceContainer)
     {
-        return new static(
+        return new self(
             $serviceContainer->get(ConfigurationRepository::class),
             $serviceContainer->get(\PrestaShop\Module\PsAccounts\Account\Session\ShopSession::class)
         );

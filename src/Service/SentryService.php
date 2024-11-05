@@ -185,11 +185,11 @@ class SentryService implements IServiceContainerService
     /**
      * @param ServiceContainer $serviceContainer
      *
-     * @return static
+     * @return self
      */
-    static function getInstance(ServiceContainer $serviceContainer)
+    public static function getInstance(ServiceContainer $serviceContainer)
     {
-        return new static(
+        return new self(
             $serviceContainer->getParameter('ps_accounts.sentry_credentials'),
             $serviceContainer->getParameter('ps_accounts.environment'),
             $serviceContainer->get(LinkShop::class),

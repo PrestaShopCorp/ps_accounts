@@ -113,10 +113,10 @@ class Ps_accounts extends Module
 //        'actionAdminControllerInitBefore',
     ];
 
-    /**
-     * @var \PrestaShop\Module\PsAccounts\DependencyInjection\ServiceContainer
-     */
-    private $serviceContainer;
+//    /**
+//     * @var \PrestaShop\Module\PsAccounts\DependencyInjection\ServiceContainer
+//     */
+//    private $serviceContainer;
 
     /**
      * Ps_accounts constructor.

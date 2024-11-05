@@ -321,11 +321,11 @@ class AnalyticsService implements IServiceContainerService
     /**
      * @param ServiceContainer $serviceContainer
      *
-     * @return static
+     * @return self
      */
-    static function getInstance(ServiceContainer $serviceContainer)
+    public static function getInstance(ServiceContainer $serviceContainer)
     {
-        return new static(
+        return new self(
             $serviceContainer->getParameter('ps_accounts.segment_write_key'),
             $serviceContainer->get('ps_accounts.logger')
         );

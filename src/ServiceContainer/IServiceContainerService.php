@@ -9,5 +9,5 @@ interface IServiceContainerService
      *
      * @return mixed
      */
-    static function getInstance(ServiceContainer $serviceContainer);
+    public static function getInstance(ServiceContainer $serviceContainer);
 }

@@ -176,7 +176,7 @@ class ShopProvider extends PrestaShop implements IServiceContainerService
      *
      * @return PrestaShop
      */
-    static function getInstance(ServiceContainer $serviceContainer)
+    public static function getInstance(ServiceContainer $serviceContainer)
     {
         return \PrestaShop\Module\PsAccounts\Provider\OAuth2\ShopProvider::create();
     }

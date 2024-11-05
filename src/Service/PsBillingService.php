@@ -153,11 +153,11 @@ class PsBillingService implements IServiceContainerService
     /**
      * @param ServiceContainer $serviceContainer
      *
-     * @return static
+     * @return self
      */
-    static function getInstance(ServiceContainer $serviceContainer)
+    public static function getInstance(ServiceContainer $serviceContainer)
     {
-        return new static(
+        return new self(
             $serviceContainer->get(ServicesBillingClient::class),
             $serviceContainer->get(ShopTokenRepository::class),
             $serviceContainer->get(ConfigurationRepository::class)

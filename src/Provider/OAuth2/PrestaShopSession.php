@@ -139,9 +139,9 @@ class PrestaShopSession implements IServiceContainerService
     /**
      * @param ServiceContainer $serviceContainer
      *
-     * @return static
+     * @return self
      */
-    static function getInstance(ServiceContainer $serviceContainer)
+    public static function getInstance(ServiceContainer $serviceContainer)
     {
         return \PrestaShop\Module\PsAccounts\Factory\PrestaShopSessionFactory::create();
     }

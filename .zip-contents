@@ -6,7 +6,7 @@ translations
 upgrade
 vendor
 views
-CHANGELOG.md
+config.php
 config.xml
 LICENSE
 logo.png

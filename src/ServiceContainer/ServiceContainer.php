@@ -12,7 +12,7 @@ class ServiceContainer
     /**
      * @var array
      */
-    protected $services  = [];
+    protected $services = [];
 
     /**
      * @var array|\Closure[]
@@ -31,7 +31,7 @@ class ServiceContainer
 
     public function __construct()
     {
-        $this->config = require __DIR__ . '/../../config/' . $this->configName . '.php';
+        $this->config = require __DIR__ . '/../../' . $this->configName . '.php';
 
         $this->providers = [
             'ps_accounts.context' => function () {
@@ -42,7 +42,7 @@ class ServiceContainer
             },
             'ps_accounts.module' => function () {
                 return \Module::getInstanceByName('ps_accounts');
-            }
+            },
         ];
     }
 
@@ -54,6 +54,7 @@ class ServiceContainer
         if (null === self::$instance) {
             self::$instance = new ServiceContainer();
         }
+
         return self::$instance;
     }
 
@@ -72,6 +73,7 @@ class ServiceContainer
         if (array_key_exists($name, $this->providers)) {
             return $this->providers[$name]();
         }
+
         return $this->provideInstanceFromClassname($name);
     }
 
