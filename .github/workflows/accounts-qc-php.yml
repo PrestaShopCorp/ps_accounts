@@ -36,27 +36,8 @@ jobs:
       - name: Run PHP-CS-Fixer
         uses: prestashopcorp/github-action-php-cs-fixer@master
 
-#  phpstan:
-#    name: PHPStan for Prestashop ${{ matrix.presta-versions }}
-#    runs-on: ubuntu-latest
-#    strategy:
-#      matrix:
-#        presta-versions:
-#          - "1.7.7.8-7.1"
-#          - "1.6.1.24-7.1"
-#    steps:
-#      - name: Checkout
-#        uses: actions/checkout@v3
-#
-#      - name: Scoped dependencies
-#        run: make php-scoper
-#
-#      - name: PHPStan
-#        run: |
-#          make phpstan-${{ matrix.presta-versions }}
-
   phpunit:
-    name: PHPUNIT for Prestashop ${{ matrix.presta-versions }}
+    name: Testsuite for Prestashop ${{ matrix.presta-versions }}
     runs-on: ubuntu-latest
     strategy:
       matrix:
@@ -99,30 +80,6 @@ jobs:
         if: matrix.presta-versions == '1.6.1.24-5.6-fpm-stretch'
         run: |
           make header-stamp-test
-
-#  header-stamp:
-#    name: Check license headers
-#    runs-on: ubuntu-20.04
-#    steps:
-#      - name: Checkout
-#        uses: actions/checkout@v3
-#
-#      - name: Cache vendor folder
-#        uses: actions/cache@v3
-#        with:
-#          path: vendor
-#          key: php-${{ hashFiles('composer.lock') }}
-#
-#      - name: Cache composer folder
-#        uses: actions/cache@v3
-#        with:
-#          path: ~/.composer/cache
-#          key: php-composer-cache
-#
-#      - run: composer install
-#
-#      - name: Run Header Stamp in Dry Run mode
-#        run: php vendor/bin/header-stamp --license=vendor/prestashop/header-stamp/assets/afl.txt --exclude=.github,node_modules,vendor,vendor,tests,_dev --dry-run
 
   notify-earth:
     if: ${{ github.event.action == 'labeled' && github.event.label.name == 'ready to review' }}
