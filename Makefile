@@ -181,6 +181,24 @@ phpstan:
 	  --memory-limit=-1 \
 	  --configuration=./phpstan/phpstan.neon
 
+##############
+# HEADER-STAMP
+
+header-stamp-test:
+	@docker exec -w ${CONTAINER_INSTALL_DIR} \
+	phpunit ./tests/vendor/bin/header-stamp \
+	--target="${WORKDIR}" \
+	--license=./tests/vendor/prestashop/header-stamp/assets/afl.txt \
+	--exclude=.github,node_modules,vendor,vendor,tests,_dev \
+	--dry-run
+
+header-stamp:
+	@docker exec -w ${CONTAINER_INSTALL_DIR} \
+	phpunit ./tests/vendor/bin/header-stamp \
+	--target="${WORKDIR}" \
+	--license=./tests/vendor/prestashop/header-stamp/assets/afl.txt \
+	--exclude=.github,node_modules,vendor,vendor,tests,_dev
+
 #phpstan16: NEON_FILE := phpstan-PS-1.6.neon
 #phpstan16: phpstan
 
@@ -293,10 +311,6 @@ php-cs-fixer: tests/vendor
 autoindex: COMPOSER_FILE := composer56.json
 autoindex: tests/vendor
 	${PHP} ./tests/vendor/bin/autoindex prestashop:add:index "${WORKDIR}"
-
-header-stamp: COMPOSER_FILE := composer56.json
-header-stamp: tests/vendor
-	${PHP} ./tests/vendor/bin/header-stamp --target="${WORKDIR}" --license="assets/afl.txt" --exclude=".github,node_modules,vendor,vendor,tests,_dev"
 
 ##########################################################
 COMPOSER_OPTIONS ?= --prefer-dist -o --no-dev --quiet
