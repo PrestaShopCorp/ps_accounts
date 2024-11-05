@@ -124,7 +124,8 @@ class ServiceContainer
         }
 
         if ($this->hasProvider($name)) {
-            $service = $this->getProvider($name)();
+            $callback = $this->getProvider($name);
+            $service = $callback();
         } else {
             $service = $this->provideInstanceFromClassname($name);
         }
