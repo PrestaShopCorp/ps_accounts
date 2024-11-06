@@ -23,9 +23,11 @@ namespace PrestaShop\Module\PsAccounts\Account\CommandHandler;
 use PrestaShop\Module\PsAccounts\Account\Command\VerifyAuthenticityCommand;
 use PrestaShop\Module\PsAccounts\Account\ManageProof;
 use PrestaShop\Module\PsAccounts\Account\Session\ShopSession;
+use PrestaShop\Module\PsAccounts\Account\ShopIdentity;
 use PrestaShop\Module\PsAccounts\Api\Client\AccountsClient;
 use PrestaShop\Module\PsAccounts\Provider\OAuth2\Oauth2Client;
 use PrestaShop\Module\PsAccounts\Provider\ShopProvider;
+use PrestaShop\Module\PsAccounts\Log\Logger;
 
 class VerifyAuthenticityHandler
 {
@@ -38,6 +40,11 @@ class VerifyAuthenticityHandler
      * @var Oauth2Client
      */
     private $oauth2Client;
+
+    /**
+     * @var ShopIdentity
+     */
+    private $shopIdentity;
 
     /**
      * @var ShopProvider
@@ -57,6 +64,7 @@ class VerifyAuthenticityHandler
     /**
      * @param AccountsClient $accountsClient
      * @param ShopProvider $shopProvider
+     * @param ShopIdentity $shopIdentity
      * @param Oauth2Client $oauth2Client
      * @param ShopSession $shopSession
      * @param ManageProof $manageProof
@@ -64,12 +72,14 @@ class VerifyAuthenticityHandler
     public function __construct(
         AccountsClient $accountsClient,
         ShopProvider $shopProvider,
+        ShopIdentity $shopIdentity,
         Oauth2Client $oauth2Client,
         ShopSession $shopSession,
         ManageProof $manageProof
     ) {
         $this->accountsClient = $accountsClient;
         $this->shopProvider = $shopProvider;
+        $this->shopIdentity = $shopIdentity;
         $this->oauth2Client = $oauth2Client;
         $this->shopSession = $shopSession;
         $this->manageProof = $manageProof;
@@ -95,10 +105,8 @@ class VerifyAuthenticityHandler
 
         $proof = $this->manageProof->generateProof();
 
-        $currentShop = $this->shopProvider->getCurrentShop();
-
         $response = $this->accountsClient->verifyUrlAuthenticity(
-            $currentShop['uuid'],
+            $this->shopIdentity->getShopUuid(),
             $token,
             $this->shopProvider->getUrl($command->shopId),
             $proof
@@ -107,6 +115,7 @@ class VerifyAuthenticityHandler
             // TODO: get the first token with verified scope or clear the token in configuration table ?
         } else {
             // TODO Add bad request handling here
+            Logger::getInstance()->error($response);
         }
     }
 }

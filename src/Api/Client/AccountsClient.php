@@ -232,9 +232,9 @@ class AccountsClient
 
         return $this->getClient()->post([
             'json' => [
-                'backOfficeUrl' => $backOfficeUrl,
-                'frontendUrl' => $frontendUrl,
-                'multiShopId' => $multiShopId,
+                'backOfficeUrl' => $shopUrl->getBackOfficeUrl(),
+                'frontendUrl' => $shopUrl->getFrontendUrl(),
+                'multiShopId' => $shopUrl->getMultiShopId(),
             ],
         ]);
     }

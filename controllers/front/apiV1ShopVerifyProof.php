@@ -18,48 +18,40 @@
  * @license   https://opensource.org/licenses/AFL-3.0 Academic Free License version 3.0
  */
 
-namespace PrestaShop\Module\PsAccounts\Account;
+use PrestaShop\Module\PsAccounts\Account\ManageProof;
+use PrestaShop\Module\PsAccounts\Api\Controller\AbstractV2ShopRestController;
 
-use PrestaShop\Module\PsAccounts\Repository\ConfigurationRepository;
-use PrestaShop\Module\PsAccounts800\Vendor\Ramsey\Uuid\Uuid;
-
-class ManageProof
+class ps_AccountsApiV1ShopVerifyProofModuleFrontController extends AbstractV2ShopRestController
 {
     /**
-     * @var ConfigurationRepository
+     * @var ManageProof
      */
-    private $configuration;
+    private $manageProof;
 
     /**
-     * ManageProof constructor.
+     * ps_AccountsApiV1ShopVerifyProofModuleFrontController constructor.
      *
-     * @param ConfigurationRepository $configuration
+     * @throws Exception
      */
-    public function __construct(
-        ConfigurationRepository $configuration
-    ) {
-        $this->configuration = $configuration;
+    public function __construct()
+    {
+        parent::__construct();
+
+        $this->manageProof = $this->module->getService(ManageProof::class);
     }
 
     /**
-     * @return string
+     * @param Shop $shop
+     * @param array $payload
      *
-     * @throws \Exception
+     * @return array
+     *
+     * @throws Exception
      */
-    public function generateProof()
+    public function show(Shop $shop, array $payload)
     {
-        $proof = Uuid::uuid4()->toString();
-
-        $this->configuration->updateProof($proof);
-
-        return $proof;
-    }
-
-    /**
-     * @return string|null
-     */
-    public function getProof()
-    {
-        return $this->configuration->getProof();
+        return [
+            'proof' => $this->manageProof->getProof(),
+        ];
     }
 }

@@ -25,6 +25,7 @@ use PrestaShop\Module\PsAccounts\Account\ShopIdentity;
 use PrestaShop\Module\PsAccounts\Api\Client\AccountsClient;
 use PrestaShop\Module\PsAccounts\Provider\OAuth2\Oauth2Client;
 use PrestaShop\Module\PsAccounts\Provider\ShopProvider;
+use PrestaShop\Module\PsAccounts\Log\Logger;
 
 class CreateIdentityHandler
 {
@@ -93,6 +94,7 @@ class CreateIdentityHandler
                 $this->shopIdentity->setShopUuid($body['cloudShopId']);
             } else {
                 // TODO Add bad request handling here
+                Logger::getInstance()->error($response);
             }
         }
     }

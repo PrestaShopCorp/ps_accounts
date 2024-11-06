@@ -18,48 +18,31 @@
  * @license   https://opensource.org/licenses/AFL-3.0 Academic Free License version 3.0
  */
 
-namespace PrestaShop\Module\PsAccounts\Account;
+namespace PrestaShop\Module\PsAccounts\Api\Controller;
 
-use PrestaShop\Module\PsAccounts\Repository\ConfigurationRepository;
-use PrestaShop\Module\PsAccounts800\Vendor\Ramsey\Uuid\Uuid;
+use PrestaShop\Module\PsAccounts\Exception\Http\NotFoundException;
+use Shop;
 
-class ManageProof
+class AbstractV2ShopRestController extends AbstractV2RestController
 {
     /**
-     * @var ConfigurationRepository
+     * @var string
      */
-    private $configuration;
+    public $resourceId = 'shop_id';
 
     /**
-     * ManageProof constructor.
+     * @param mixed $id
      *
-     * @param ConfigurationRepository $configuration
+     * @return Shop
      */
-    public function __construct(
-        ConfigurationRepository $configuration
-    ) {
-        $this->configuration = $configuration;
-    }
-
-    /**
-     * @return string
-     *
-     * @throws \Exception
-     */
-    public function generateProof()
+    protected function buildResource($id)
     {
-        $proof = Uuid::uuid4()->toString();
+        $shop = new Shop($id);
 
-        $this->configuration->updateProof($proof);
+        if (!$shop->id) {
+            throw new NotFoundException('Shop not found [' . $id . ']');
+        }
 
-        return $proof;
-    }
-
-    /**
-     * @return string|null
-     */
-    public function getProof()
-    {
-        return $this->configuration->getProof();
+        return $shop;
     }
 }
