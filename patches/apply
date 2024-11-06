@@ -1,0 +1,4 @@
+#!/bin/sh
+# sh ./apply -R to reverse
+BASEDIR=$(dirname "$0")
+patch $1 ${BASEDIR}/../vendor/monolog/monolog/src/Monolog/Logger.php patches/monolog.patch

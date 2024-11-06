@@ -1,0 +1,11 @@
+--- vendor/monolog/monolog/src/Monolog/Logger.php	2024-11-06 14:05:55.776977601 +0100
++++ vendor/monolog/monolog/src/Monolog/Logger-fixed.php	2024-11-06 14:24:25.133540610 +0100
+@@ -271,7 +271,7 @@
+         if ($this->microsecondTimestamps && \PHP_VERSION_ID < 70100) {
+             $ts = \DateTime::createFromFormat('U.u', \sprintf('%.6F', \microtime(\true)), static::$timezone);
+         } else {
+-            $ts = new \DateTime(null, static::$timezone);
++            $ts = new \DateTime('', static::$timezone);
+         }
+         $ts->setTimezone(static::$timezone);
+         $record = array('message' => (string) $message, 'context' => $context, 'level' => $level, 'level_name' => $levelName, 'channel' => $this->name, 'datetime' => $ts, 'extra' => array());
