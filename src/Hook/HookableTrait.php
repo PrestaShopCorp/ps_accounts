@@ -58,6 +58,6 @@ trait HookableTrait
      */
     public function __call($name, array $arguments)
     {
-        return $this->executeHook($name, $arguments[0]);
+        return $this->executeHook($name, is_array($arguments[0]) ? $arguments[0] : []);
     }
 }
