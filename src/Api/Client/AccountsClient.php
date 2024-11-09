@@ -22,8 +22,8 @@ namespace PrestaShop\Module\PsAccounts\Api\Client;
 
 use PrestaShop\Module\PsAccounts\Account\Dto\UpdateShop;
 use PrestaShop\Module\PsAccounts\Account\Dto\UpgradeModule;
-use PrestaShop\Module\PsAccounts\Http\Client\Guzzle\GuzzleClient;
-use PrestaShop\Module\PsAccounts\Http\Client\Guzzle\GuzzleClientFactory;
+use PrestaShop\Module\PsAccounts\Http\Client\Curl\HttpClient;
+use PrestaShop\Module\PsAccounts\Http\Client\Curl\HttpClientFactory;
 use PrestaShop\Module\PsAccounts\Vendor\Ramsey\Uuid\Uuid;
 
 class AccountsClient
@@ -34,7 +34,7 @@ class AccountsClient
     private $apiUrl;
 
     /**
-     * @var GuzzleClient
+     * @var HttpClient
      */
     private $client;
 
@@ -47,15 +47,15 @@ class AccountsClient
      * ServicesAccountsClient constructor.
      *
      * @param string $apiUrl
-     * @param GuzzleClient|null $client
+     * @param HttpClient|null $client
      * @param int $defaultTimeout
      *
      * @throws \Exception
      */
     public function __construct(
-                     $apiUrl,
-        GuzzleClient $client = null,
-                     $defaultTimeout = 20
+        $apiUrl,
+        HttpClient $client = null,
+        $defaultTimeout = 20
     ) {
         $this->apiUrl = $apiUrl;
         $this->client = $client;
@@ -63,12 +63,12 @@ class AccountsClient
     }
 
     /**
-     * @return GuzzleClient
+     * @return HttpClient
      */
     private function getClient()
     {
         if (null === $this->client) {
-            $this->client = (new GuzzleClientFactory())->create([
+            $this->client = (new HttpClientFactory())->create([
                 'name' => static::class,
                 'base_uri' => $this->apiUrl,
                 'headers' => $this->getHeaders(),

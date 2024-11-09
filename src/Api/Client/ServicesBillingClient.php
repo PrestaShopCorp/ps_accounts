@@ -20,8 +20,8 @@
 
 namespace PrestaShop\Module\PsAccounts\Api\Client;
 
-use PrestaShop\Module\PsAccounts\Http\Client\Guzzle\GuzzleClient;
-use PrestaShop\Module\PsAccounts\Http\Client\Guzzle\GuzzleClientFactory;
+use PrestaShop\Module\PsAccounts\Http\Client\Curl\HttpClient;
+use PrestaShop\Module\PsAccounts\Http\Client\Curl\HttpClientFactory;
 use PrestaShop\Module\PsAccounts\Provider\ShopProvider;
 use PrestaShop\Module\PsAccounts\Service\PsAccountsService;
 
@@ -31,7 +31,7 @@ use PrestaShop\Module\PsAccounts\Service\PsAccountsService;
 class ServicesBillingClient
 {
     /**
-     * @var GuzzleClient
+     * @var HttpClient
      */
     private $client;
 
@@ -41,7 +41,7 @@ class ServicesBillingClient
      * @param string $apiUrl
      * @param PsAccountsService $psAccountsService
      * @param ShopProvider $shopProvider
-     * @param GuzzleClient|null $client
+     * @param HttpClient|null $client
      *
      * @throws \PrestaShopException
      * @throws \Exception
@@ -50,7 +50,7 @@ class ServicesBillingClient
         $apiUrl,
         PsAccountsService $psAccountsService,
         ShopProvider $shopProvider,
-        GuzzleClient $client = null
+        HttpClient $client = null
     ) {
         $shopId = $shopProvider->getCurrentShop()['id'];
 
@@ -58,7 +58,7 @@ class ServicesBillingClient
 
         // Client can be provided for tests
         if (null === $client) {
-            $client = (new GuzzleClientFactory())->create([
+            $client = (new HttpClientFactory())->create([
                 'base_uri' => $apiUrl,
                 'headers' => [
                     // Commented, else does not work anymore with API.

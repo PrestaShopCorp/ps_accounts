@@ -18,13 +18,13 @@
  * @license   https://opensource.org/licenses/AFL-3.0 Academic Free License version 3.0
  */
 
-namespace PrestaShop\Module\PsAccounts\Http\Client\Guzzle;
+namespace PrestaShop\Module\PsAccounts\Http\Client\Curl;
 
 use PrestaShop\Module\PsAccounts\Factory\CircuitBreakerFactory;
 use PrestaShop\Module\PsAccounts\Http\Client\CircuitBreaker\CircuitBreaker;
 use PrestaShop\Module\PsAccounts\Log\Logger;
 
-class GuzzleClient
+class HttpClient
 {
     /**
      * @var string
@@ -38,11 +38,13 @@ class GuzzleClient
 
     /**
      * @var bool
+     * FIXME TODO: implement exceptions
      */
     protected $catchExceptions = false;
 
     /**
      * @var CircuitBreaker
+     * FIXME TODO: implement circuit breaker
      */
     protected $circuitBreaker;
 
@@ -57,19 +59,7 @@ class GuzzleClient
             isset($options['name']) ? $options['name'] : static::class
         );
         unset($options['name']);
-
 //        \Tools::refreshCACertFile();
-
-        // TODO: http_errors
-        // TODO: circuit breaker
-//        $this->client = new Client(array_merge(
-//            [
-//                'timeout' => $this->timeout,
-//                'http_errors' => $this->catchExceptions,
-//                'verify' => $this->getVerify(),
-//            ],
-//            $options
-//        ));
     }
 
     /**
@@ -80,11 +70,6 @@ class GuzzleClient
     public function post(array $options = [])
     {
 //        return $this->circuitBreaker->call(function () use ($options) {
-//            $response = $this->getClient()->post($this->getRoute(), $options);
-//            $response = $this->handleResponse($response);
-//            $this->logResponseError($response, $options);
-//
-//            return $response;
 //        });
 
         $ch = $this->initCurl($options);
@@ -108,11 +93,6 @@ class GuzzleClient
     public function patch(array $options = [])
     {
 //        return $this->circuitBreaker->call(function () use ($options) {
-//            $response = $this->getClient()->patch($this->getRoute(), $options);
-//            $response = $this->handleResponse($response);
-//            $this->logResponseError($response, $options);
-//
-//            return $response;
 //        });
 
         $ch = $this->initCurl($options);
@@ -136,11 +116,6 @@ class GuzzleClient
     public function get(array $options = [])
     {
 //        return $this->circuitBreaker->call(function () use ($options) {
-//            $response = $this->getClient()->get($this->getRoute(), $options);
-//            $response = $this->handleResponse($response);
-//            $this->logResponseError($response, $options);
-//
-//            return $response;
 //        });
         $ch = $this->initCurl($options);
 
@@ -159,11 +134,6 @@ class GuzzleClient
     public function delete(array $options = [])
     {
 //        return $this->circuitBreaker->call(function () use ($options) {
-//            $response = $this->getClient()->delete($this->getRoute(), $options);
-//            $response = $this->handleResponse($response);
-//            $this->logResponseError($response, $options);
-//
-//            return $response;
 //        });
 
         $ch = $this->initCurl($options);

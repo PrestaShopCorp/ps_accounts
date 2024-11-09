@@ -18,13 +18,24 @@
  * @license   https://opensource.org/licenses/AFL-3.0 Academic Free License version 3.0
  */
 
-namespace PrestaShop\Module\PsAccounts\Http\Client\Guzzle;
+namespace PrestaShop\Module\PsAccounts\Http\Client\Curl;
 
-use PrestaShop\Module\PsAccounts\Vendor\GuzzleHttp\Client;
+use PrestaShop\Module\PsAccounts\Http\Client\Curl\HttpClient;
 
-class Guzzle7Client extends GuzzleClient
+/**
+ * Construct the guzzle client depending on PrestaShop version
+ */
+class HttpClientFactory
 {
-
-
-
+    /**
+     * @param array $options
+     *
+     * @return HttpClient
+     *
+     * @throws \Exception
+     */
+    public function create($options)
+    {
+        return new HttpClient($options);
+    }
 }
