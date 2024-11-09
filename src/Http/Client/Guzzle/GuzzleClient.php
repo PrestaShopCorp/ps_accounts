@@ -22,16 +22,10 @@ namespace PrestaShop\Module\PsAccounts\Http\Client\Guzzle;
 
 use PrestaShop\Module\PsAccounts\Factory\CircuitBreakerFactory;
 use PrestaShop\Module\PsAccounts\Http\Client\CircuitBreaker\CircuitBreaker;
-use PrestaShop\Module\PsAccounts\Http\Client\ClientInterface;
-use PrestaShop\Module\PsAccounts\Vendor\GuzzleHttp\Client;
+use PrestaShop\Module\PsAccounts\Log\Logger;
 
-abstract class GuzzleClient implements ClientInterface
+class GuzzleClient
 {
-    /**
-     * @var Client
-     */
-    protected $client;
-
     /**
      * @var string
      */
@@ -63,32 +57,19 @@ abstract class GuzzleClient implements ClientInterface
             isset($options['name']) ? $options['name'] : static::class
         );
         unset($options['name']);
-    }
 
-    /**
-     * @param mixed $response
-     *
-     * @return array
-     */
-    public function handleResponse($response)
-    {
-        $responseContents = $this->getResponseJson($response);
+//        \Tools::refreshCACertFile();
 
-        return [
-            'status' => $this->responseIsSuccessful($responseContents, $response->getStatusCode()),
-            'httpCode' => $response->getStatusCode(),
-            'body' => $responseContents,
-        ];
-    }
-
-    /**
-     * @param mixed $response
-     *
-     * @return mixed
-     */
-    public function getResponseJson($response)
-    {
-        return json_decode($response->getBody()->getContents(), true);
+        // TODO: http_errors
+        // TODO: circuit breaker
+//        $this->client = new Client(array_merge(
+//            [
+//                'timeout' => $this->timeout,
+//                'http_errors' => $this->catchExceptions,
+//                'verify' => $this->getVerify(),
+//            ],
+//            $options
+//        ));
     }
 
     /**
@@ -98,13 +79,25 @@ abstract class GuzzleClient implements ClientInterface
      */
     public function post(array $options = [])
     {
-        return $this->circuitBreaker->call(function () use ($options) {
-            $response = $this->getClient()->post($this->getRoute(), $options);
-            $response = $this->handleResponse($response);
-            $this->logResponseError($response, $options);
+//        return $this->circuitBreaker->call(function () use ($options) {
+//            $response = $this->getClient()->post($this->getRoute(), $options);
+//            $response = $this->handleResponse($response);
+//            $this->logResponseError($response, $options);
+//
+//            return $response;
+//        });
 
-            return $response;
-        });
+        $ch = $this->initCurl($options);
+
+        curl_setopt($ch, CURLOPT_POST, true);
+
+        $this->initPayloadJson($options, $ch);
+
+        $response = $this->getResponse($ch, curl_exec($ch));
+
+        curl_close($ch);
+
+        return $response;
     }
 
     /**
@@ -114,13 +107,25 @@ abstract class GuzzleClient implements ClientInterface
      */
     public function patch(array $options = [])
     {
-        return $this->circuitBreaker->call(function () use ($options) {
-            $response = $this->getClient()->patch($this->getRoute(), $options);
-            $response = $this->handleResponse($response);
-            $this->logResponseError($response, $options);
+//        return $this->circuitBreaker->call(function () use ($options) {
+//            $response = $this->getClient()->patch($this->getRoute(), $options);
+//            $response = $this->handleResponse($response);
+//            $this->logResponseError($response, $options);
+//
+//            return $response;
+//        });
 
-            return $response;
-        });
+        $ch = $this->initCurl($options);
+
+        curl_setopt($ch, CURLOPT_CUSTOMREQUEST, 'PATCH');
+
+        $this->initPayloadJson($options, $ch);
+
+        $response = $this->getResponse($ch, curl_exec($ch));
+
+        curl_close($ch);
+
+        return $response;
     }
 
     /**
@@ -130,13 +135,20 @@ abstract class GuzzleClient implements ClientInterface
      */
     public function get(array $options = [])
     {
-        return $this->circuitBreaker->call(function () use ($options) {
-            $response = $this->getClient()->get($this->getRoute(), $options);
-            $response = $this->handleResponse($response);
-            $this->logResponseError($response, $options);
+//        return $this->circuitBreaker->call(function () use ($options) {
+//            $response = $this->getClient()->get($this->getRoute(), $options);
+//            $response = $this->handleResponse($response);
+//            $this->logResponseError($response, $options);
+//
+//            return $response;
+//        });
+        $ch = $this->initCurl($options);
 
-            return $response;
-        });
+        $response = $this->getResponse($ch, curl_exec($ch));
+
+        curl_close($ch);
+
+        return $response;
     }
 
     /**
@@ -146,13 +158,23 @@ abstract class GuzzleClient implements ClientInterface
      */
     public function delete(array $options = [])
     {
-        return $this->circuitBreaker->call(function () use ($options) {
-            $response = $this->getClient()->delete($this->getRoute(), $options);
-            $response = $this->handleResponse($response);
-            $this->logResponseError($response, $options);
+//        return $this->circuitBreaker->call(function () use ($options) {
+//            $response = $this->getClient()->delete($this->getRoute(), $options);
+//            $response = $this->handleResponse($response);
+//            $this->logResponseError($response, $options);
+//
+//            return $response;
+//        });
 
-            return $response;
-        });
+        $ch = $this->initCurl($options);
+
+        curl_setopt($ch, CURLOPT_CUSTOMREQUEST, 'DELETE');
+
+        $response = $this->getResponse($ch, curl_exec($ch));
+
+        curl_close($ch);
+
+        return $response;
     }
 
     /**
@@ -164,26 +186,6 @@ abstract class GuzzleClient implements ClientInterface
     public function responseIsSuccessful($responseContents, $httpStatusCode)
     {
         return '2' === substr((string) $httpStatusCode, 0, 1);
-    }
-
-    /**
-     * Getter for client.
-     *
-     * @return Client
-     */
-    public function getClient()
-    {
-        return $this->client;
-    }
-
-    /**
-     * @param Client $client
-     *
-     * @return void
-     */
-    public function setClient(Client $client)
-    {
-        $this->client = $client;
     }
 
     /**
@@ -205,24 +207,142 @@ abstract class GuzzleClient implements ClientInterface
     }
 
     /**
+     * @param resource $ch
+     * @param string $response
+     *
+     * @return array
+     */
+    public function getResponse($ch, $response)
+    {
+        $statusCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+        $res =  [
+            'status' => $this->responseIsSuccessful([], $statusCode),
+            'httpCode' => $statusCode,
+            'body' => \json_decode($response, true),
+        ];
+        $this->logResponse($response, $ch);
+
+        return $res;
+    }
+
+    /**
      * @param array $response
-     * @param array $options
+     * @param mixed $chr
      *
      * @return void
      */
-    private function logResponseError(array $response, array $options)
+    private function logResponse(array $response, array $chr)
     {
         // If response is not successful only
         if (!$response['status']) {
-            /** @var \Ps_accounts $module */
-            $module = \Module::getInstanceByName('ps_accounts');
             try {
-                $logger = $module->getLogger();
+                $logger = Logger::getInstance();
                 $logger->error('route ' . $this->getRoute());
-                $logger->error('options ' . var_export($options, true));
+                $logger->error('options ' . var_export(curl_getinfo($chr), true));
                 $logger->error('response ' . var_export($response, true));
             } catch (\Exception $e) {
             }
         }
+    }
+
+    /**
+     * @param array $options
+     * @param resource $ch
+     *
+     * @return void
+     */
+    public function initHeaders(array $options, $ch)
+    {
+        if (array_key_exists('headers', $options)) {
+            $headers = [];
+            foreach ($options['headers'] as $header => $value) {
+                $headers[] = "$header: $value";
+            }
+            curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
+        }
+    }
+
+    /**
+     * @return resource
+     */
+    public function initRoute()
+    {
+        /** @var \Ps_accounts $module */
+        $module = \Module::getInstanceByName('ps_accounts');
+        $apiRoute = $module->getParameter('ps_accounts.accounts_api_url');
+        $absRoute = preg_replace('/\/$/', '', $apiRoute) . preg_replace('/\/+/', '/', '/' . $this->getRoute());
+
+        $ch = curl_init();
+
+        curl_setopt($ch, CURLOPT_URL, $absRoute);
+        curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, $this->timeout);
+        curl_setopt($ch, CURLOPT_TIMEOUT, $this->timeout);
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+        //curl_setopt($ch, CURLOPT_VERBOSE, true);
+
+        return $ch;
+    }
+
+    /**
+     * @param resource $ch
+     *
+     * @return void
+     */
+    public function initSsl($ch)
+    {
+        $checkSsl = $this->getVerify();
+        curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, $checkSsl);
+        curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, $checkSsl);
+    }
+
+    /**
+     * @param array $options
+     * @param resource $ch
+     *
+     * @return void
+     */
+    public function initPayloadJson(array $options, $ch)
+    {
+        if (array_key_exists('json', $options)) {
+            curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($options['json']));
+            curl_setopt($ch, CURLOPT_HTTPHEADER, array('Content-Type: application/json'));
+        }
+    }
+
+    /**
+     * @return bool
+     */
+    protected function getVerify()
+    {
+        if (version_compare((string) phpversion(), '7', '>=')) {
+            /** @var \Ps_accounts $module */
+            $module = \Module::getInstanceByName('ps_accounts');
+
+            return (bool) $module->getParameter('ps_accounts.check_api_ssl_cert');
+        }
+        // bypass certificate expiration issue with PHP5.6
+        return false;
+
+//        if ((bool) $module->getParameter('ps_accounts.check_api_ssl_cert')) {
+//            if (defined('_PS_CACHE_CA_CERT_FILE_') && file_exists(constant('_PS_CACHE_CA_CERT_FILE_'))) {
+//                return constant('_PS_CACHE_CA_CERT_FILE_');
+//            }
+//
+//            return true;
+//        }
+//        return false;
+    }
+
+    /**
+     * @param array $options
+     *
+     * @return resource
+     */
+    public function initCurl(array $options)
+    {
+        $ch = $this->initRoute();
+        $this->initHeaders($options, $ch);
+        $this->initSsl($ch);
+        return $ch;
     }
 }

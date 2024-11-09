@@ -34,6 +34,6 @@ class GuzzleClientFactory
      */
     public function create($options)
     {
-        return new Guzzle7Client($options);
+        return new GuzzleClient($options);
     }
 }
