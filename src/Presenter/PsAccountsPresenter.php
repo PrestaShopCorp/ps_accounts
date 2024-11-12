@@ -96,6 +96,7 @@ class PsAccountsPresenter implements PresenterInterface
         $moduleName = (string) $this->module->name;
 
         $employee = $shopContext->getContext()->employee;
+        /* @phpstan-ignore-next-line */
         if (!$employee) {
             $employee = new \Employee();
         }
