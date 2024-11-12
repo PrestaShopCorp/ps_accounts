@@ -21,12 +21,12 @@
 namespace PrestaShop\Module\PsAccounts\DependencyInjection;
 
 use PrestaShop\Module\PsAccounts\Vendor\PrestaShop\ModuleLibCacheDirectoryProvider\Cache\CacheDirectoryProvider;
-use Symfony\Component\Config\ConfigCache;
-use Symfony\Component\Config\FileLocator;
 use PrestaShop\Module\PsAccounts\Vendor\Symfony\Component\DependencyInjection\ContainerBuilder;
 use PrestaShop\Module\PsAccounts\Vendor\Symfony\Component\DependencyInjection\ContainerInterface;
 use PrestaShop\Module\PsAccounts\Vendor\Symfony\Component\DependencyInjection\Dumper\PhpDumper;
 use PrestaShop\Module\PsAccounts\Vendor\Symfony\Component\DependencyInjection\Loader\YamlFileLoader;
+use Symfony\Component\Config\ConfigCache;
+use Symfony\Component\Config\FileLocator;
 
 class ContainerProvider
 {

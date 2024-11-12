@@ -20,8 +20,8 @@
 
 namespace PrestaShop\Module\PsAccounts\Hook;
 
-use PrestaShop\Module\PsAccounts\Cqrs\CommandBus;
 use Monolog\Logger;
+use PrestaShop\Module\PsAccounts\Cqrs\CommandBus;
 use Ps_accounts;
 
 abstract class Hook

@@ -145,6 +145,7 @@ return [
     'exclude-namespaces' => [
         '~^PrestaShop\\\\OAuth2\\\\Client~',
         '~^Composer\\\\~',
+        'Monolog\\',
         //'~^Symfony\\\\Component\\\\Config~',
         'Symfony\\Component\\Config\\',
         'Symfony\\Polyfill\\Apcu\\',
