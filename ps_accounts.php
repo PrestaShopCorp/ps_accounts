@@ -157,7 +157,7 @@ class Ps_accounts extends Module
     }
 
     /**
-     * @return \PrestaShop\Module\PsAccounts\Vendor\Monolog\Logger
+     * @return \Monolog\Logger
      */
     public function getLogger()
     {
