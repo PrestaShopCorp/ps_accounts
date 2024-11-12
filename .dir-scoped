@@ -1,5 +1,4 @@
 symfony/cache
-symfony/config
 symfony/dependency-injection
 symfony/expression-language
 symfony/filesystem
@@ -7,11 +6,10 @@ symfony/yaml
 psr
 guzzlehttp
 league
-prestashopcorp
+prestashopcorp/oauth2-prestashop
 lcobucci
 prestashop/module-lib-service-container
 prestashop/module-lib-cache-directory-provider
-monolog
 ramsey/uuid
 ralouphie/getallheaders
 phpseclib/phpseclib/phpseclib
