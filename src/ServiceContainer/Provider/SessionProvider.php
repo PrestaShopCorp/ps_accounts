@@ -39,7 +39,7 @@ class SessionProvider implements IServiceProvider
     public function provide(ServiceContainer $container)
     {
         // Sessions
-        $container->registerProvider(ShopSession::class, function () use ($container) {
+        $container->registerProvider(ShopSession::class, static function () use ($container) {
             return new ShopSession(
                 $container->get(ConfigurationRepository::class),
                 $container->get(ShopProvider::class),
@@ -47,13 +47,13 @@ class SessionProvider implements IServiceProvider
                 $container->get(CommandBus::class)
             );
         });
-        $container->registerProvider(Firebase\OwnerSession::class, function () use ($container) {
+        $container->registerProvider(Firebase\OwnerSession::class, static function () use ($container) {
             return new Firebase\OwnerSession(
                 $container->get(ConfigurationRepository::class),
                 $container->get(ShopSession::class)
             );
         });
-        $container->registerProvider(Firebase\ShopSession::class, function () use ($container) {
+        $container->registerProvider(Firebase\ShopSession::class, static function () use ($container) {
             return new Firebase\ShopSession(
                 $container->get(ConfigurationRepository::class),
                 $container->get(ShopSession::class)

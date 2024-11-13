@@ -49,52 +49,52 @@ class DefaultProvider implements IServiceProvider
      */
     public function provide(ServiceContainer $container)
     {
-        $container->registerProvider('ps_accounts.context', function () {
+        $container->registerProvider('ps_accounts.context', static function () {
             return \Context::getContext();
         });
-        $container->registerProvider('ps_accounts.logger', function () {
+        $container->registerProvider('ps_accounts.logger', static function () {
             return \PrestaShop\Module\PsAccounts\Log\Logger::create();
         });
-        $container->registerProvider('ps_accounts.module', function () {
+        $container->registerProvider('ps_accounts.module', static function () {
             return \Module::getInstanceByName('ps_accounts');
         });
         // Entities ?
-        $container->registerProvider(LinkShop::class, function () use ($container) {
+        $container->registerProvider(LinkShop::class, static function () use ($container) {
             return new LinkShop(
                 $container->get(ConfigurationRepository::class)
             );
         });
         // Adapter
-        $container->registerProvider(Adapter\Configuration::class, function () use ($container) {
+        $container->registerProvider(Adapter\Configuration::class, static function () use ($container) {
             return new Adapter\Configuration(
                 $container->get('ps_accounts.context')
             );
         });
-        $container->registerProvider(Adapter\Link::class, function () use ($container) {
+        $container->registerProvider(Adapter\Link::class, static function () use ($container) {
             return new Adapter\Link(
                 $container->get(ShopContext::class)
             );
         });
         // Services
-        $container->registerProvider(AnalyticsService::class, function () use ($container) {
+        $container->registerProvider(AnalyticsService::class, static function () use ($container) {
             return new AnalyticsService(
                 $container->getParameter('ps_accounts.segment_write_key'),
                 $container->get('ps_accounts.logger')
             );
         });
-        $container->registerProvider(PsAccountsService::class, function () use ($container) {
+        $container->registerProvider(PsAccountsService::class, static function () use ($container) {
             return new PsAccountsService(
                 $container->get('ps_accounts.module')
             );
         });
-        $container->registerProvider(PsBillingService::class, function () use ($container) {
+        $container->registerProvider(PsBillingService::class, static function () use ($container) {
             return new PsBillingService(
                 $container->get(ServicesBillingClient::class),
                 $container->get(ShopTokenRepository::class),
                 $container->get(ConfigurationRepository::class)
             );
         });
-        $container->registerProvider(SentryService::class, function () use ($container) {
+        $container->registerProvider(SentryService::class, static function () use ($container) {
             return new SentryService(
                 $container->getParameter('ps_accounts.sentry_credentials'),
                 $container->getParameter('ps_accounts.environment'),
@@ -103,45 +103,45 @@ class DefaultProvider implements IServiceProvider
             );
         });
         // "Providers"
-        $container->registerProvider(Provider\RsaKeysProvider::class, function () use ($container) {
+        $container->registerProvider(Provider\RsaKeysProvider::class, static function () use ($container) {
             return new Provider\RsaKeysProvider(
                 $container->get(ConfigurationRepository::class)
             );
         });
-        $container->registerProvider(Provider\ShopProvider::class, function () use ($container) {
+        $container->registerProvider(Provider\ShopProvider::class, static function () use ($container) {
             return new Provider\ShopProvider(
                 $container->get(ShopContext::class),
                 $container->get(Link::class)
             );
         });
         // Context
-        $container->registerProvider(ShopContext::class, function () use ($container) {
+        $container->registerProvider(ShopContext::class, static function () use ($container) {
             return new ShopContext(
                 $container->get(ConfigurationRepository::class),
                 $container->get('ps_accounts.context')
             );
         });
         // CQRS
-        $container->registerProvider(CommandBus::class, function () use ($container) {
+        $container->registerProvider(CommandBus::class, static function () use ($container) {
             return new CommandBus(
                 $container->get('ps_accounts.module')
             );
         });
         // Factories
-        $container->registerProvider(CircuitBreakerFactory::class, function () use ($container) {
+        $container->registerProvider(CircuitBreakerFactory::class, static function () use ($container) {
             return new CircuitBreakerFactory(
                 $container->get(Configuration::class)
             );
         });
         // Installer
-        $container->registerProvider(Installer::class, function () use ($container) {
+        $container->registerProvider(Installer::class, static function () use ($container) {
             return new Installer(
                 $container->get(ShopContext::class),
                 $container->get(Link::class)
             );
         });
         // Presenter
-        $container->registerProvider(PsAccountsPresenter::class, function () use ($container) {
+        $container->registerProvider(PsAccountsPresenter::class, static function () use ($container) {
             return new PsAccountsPresenter(
                 $container->get('ps_accounts.module')
             );

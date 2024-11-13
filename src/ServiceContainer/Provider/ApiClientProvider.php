@@ -36,14 +36,14 @@ class ApiClientProvider implements IServiceProvider
      */
     public function provide(ServiceContainer $container)
     {
-        $container->registerProvider(AccountsClient::class, function () use ($container) {
+        $container->registerProvider(AccountsClient::class, static function () use ($container) {
             return new AccountsClient(
                 $container->getParameter('ps_accounts.accounts_api_url'),
                 null,
                 10
             );
         });
-        $container->registerProvider(ServicesBillingClient::class, function () use ($container) {
+        $container->registerProvider(ServicesBillingClient::class, static function () use ($container) {
             return new ServicesBillingClient(
                 $container->getParameter('ps_accounts.billing_api_url'),
                 $container->get(PsAccountsService::class),

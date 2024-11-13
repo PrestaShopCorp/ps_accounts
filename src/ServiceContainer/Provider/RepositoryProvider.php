@@ -39,17 +39,17 @@ class RepositoryProvider implements IServiceProvider
     public function provide(ServiceContainer $container)
     {
         // Repositories
-        $container->registerProvider(ConfigurationRepository::class, function () use ($container) {
+        $container->registerProvider(ConfigurationRepository::class, static function () use ($container) {
             return new ConfigurationRepository(
                 $container->get(Configuration::class)
             );
         });
-        $container->registerProvider(ShopTokenRepository::class, function () use ($container) {
+        $container->registerProvider(ShopTokenRepository::class, static function () use ($container) {
             return new ShopTokenRepository(
                 $container->get(Firebase\ShopSession::class)
             );
         });
-        $container->registerProvider(UserTokenRepository::class, function () use ($container) {
+        $container->registerProvider(UserTokenRepository::class, static function () use ($container) {
             return new UserTokenRepository(
                 $container->get(OwnerSession::class)
             );

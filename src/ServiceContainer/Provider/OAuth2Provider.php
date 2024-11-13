@@ -37,19 +37,19 @@ class OAuth2Provider implements IServiceProvider
     public function provide(ServiceContainer $container)
     {
         // OAuth2
-        $container->registerProvider(Provider\OAuth2\Oauth2Client::class, function () use ($container) {
+        $container->registerProvider(Provider\OAuth2\Oauth2Client::class, static function () use ($container) {
             return new Provider\OAuth2\Oauth2Client(
                 $container->get(ConfigurationRepository::class)
             );
         });
-        $container->registerProvider(Provider\OAuth2\PrestaShopSession::class, function () {
+        $container->registerProvider(Provider\OAuth2\PrestaShopSession::class, static function () {
             return PrestaShopSessionFactory::create();
         });
-        $container->registerProvider(Provider\OAuth2\ShopProvider::class, function () {
+        $container->registerProvider(Provider\OAuth2\ShopProvider::class, static function () {
             return Provider\OAuth2\ShopProvider::create();
         });
         // Middleware
-        $container->registerProvider(Oauth2Middleware::class, function () use ($container) {
+        $container->registerProvider(Oauth2Middleware::class, static function () use ($container) {
             return new Oauth2Middleware(
                 $container->get('ps_accounts.module')
             );
