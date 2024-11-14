@@ -39,7 +39,9 @@ class ActionObjectEmployeeDeleteAfter extends Hook
         $repository = new EmployeeAccountRepository();
         try {
             $employeeAccount = $repository->findByEmployeeId($employee->id);
-            $repository->delete($employeeAccount);
+            if ($employeeAccount) {
+                $repository->delete($employeeAccount);
+            }
         } catch (\Exception $e) {
         }
     }
