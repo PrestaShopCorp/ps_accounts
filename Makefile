@@ -72,8 +72,8 @@ platform-phpstan-config:
 		sh -c "if [ -f ./phpstan/${NEON_FILE} ]; then cp ./phpstan/${NEON_FILE} ./phpstan/phpstan.neon; fi"
 
 platform-module-install: tests/vendor platform-phpstan-config config.php platform-module-version
-	-@docker exec phpunit sh -c "if [ -f ./bin/console ]; then php -d memory_limit=-1 ./bin/console prestashop:module install ps_accounts; fi"
-	-@docker exec phpunit sh -c "if [ ! -f ./bin/console ]; then php -d memory_limit=-1 ./modules/ps_accounts/tests/install-module.php; fi"
+	@docker exec phpunit sh -c "if [ -f ./bin/console ]; then php -d memory_limit=-1 ./bin/console prestashop:module install ps_accounts; fi"
+	@docker exec phpunit sh -c "if [ ! -f ./bin/console ]; then php -d memory_limit=-1 ./modules/ps_accounts/tests/install-module.php; fi"
 
 platform-fix-permissions:
 	@docker exec phpunit sh -c "if [ -d ./var ]; then chown -R www-data:www-data ./var; fi"
@@ -136,6 +136,11 @@ platform-1.7.8.5-7.4:
 platform-8.1.5-7.4:
 	$(call build-platform,$@)
 
+platform-8.2.0-8.1:
+	$(call build-platform,$@)
+
+# TODO: extends PHPStan for v9
+# TODO: test case delete employee
 platform-nightly:
 	$(call build-platform,$@)
 
