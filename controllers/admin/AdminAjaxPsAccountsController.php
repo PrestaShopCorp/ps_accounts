@@ -20,7 +20,6 @@
 
 use PrestaShop\Module\PsAccounts\Account\Command\DeleteUserShopCommand;
 use PrestaShop\Module\PsAccounts\Account\Session\Firebase\ShopSession;
-use PrestaShop\Module\PsAccounts\Api\Client\IndirectChannelClient;
 use PrestaShop\Module\PsAccounts\Cqrs\CommandBus;
 use PrestaShop\Module\PsAccounts\Hook\ActionShopAccountUnlinkAfter;
 use PrestaShop\Module\PsAccounts\Polyfill\Traits\Controller\AjaxRender;
@@ -177,39 +176,6 @@ class AdminAjaxPsAccountsController extends \ModuleAdminController
                     'token' => (string) $oauthSession->getOrRefreshAccessToken(),
                 ])
             );
-        } catch (Exception $e) {
-            SentryService::captureAndRethrow($e);
-        }
-    }
-
-    /**
-     * @return void
-     *
-     * @throws Exception
-     */
-    public function ajaxProcessGetInvitations()
-    {
-        try {
-            header('Content-Type: text/json');
-            $indirectsApi = $this->module->getService(
-                IndirectChannelClient::class
-            );
-            $response = $indirectsApi->getInvitations();
-
-            if (!$response || true !== $response['status']) {
-                // TODO log error
-                $this->ajaxRender(
-                    (string) json_encode([
-                        'invitations' => [],
-                    ])
-                );
-            } else {
-                $this->ajaxRender(
-                    (string) json_encode([
-                        'invitations' => $response['body']['invitations'],
-                    ])
-                );
-            }
         } catch (Exception $e) {
             SentryService::captureAndRethrow($e);
         }
