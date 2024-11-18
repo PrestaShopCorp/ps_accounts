@@ -20,6 +20,7 @@
 
 namespace PrestaShop\Module\PsAccounts\ServiceContainer;
 
+use PrestaShop\Module\PsAccounts\Log\Logger;
 use PrestaShop\Module\PsAccounts\ServiceContainer\Contract\IServiceContainerService;
 use PrestaShop\Module\PsAccounts\ServiceContainer\Contract\IServiceProvider;
 use PrestaShop\Module\PsAccounts\ServiceContainer\Exception\ParameterNotFoundException;
@@ -31,6 +32,7 @@ use PrestaShop\Module\PsAccounts\ServiceContainer\Provider\DefaultProvider;
 use PrestaShop\Module\PsAccounts\ServiceContainer\Provider\OAuth2Provider;
 use PrestaShop\Module\PsAccounts\ServiceContainer\Provider\RepositoryProvider;
 use PrestaShop\Module\PsAccounts\ServiceContainer\Provider\SessionProvider;
+use PrestaShop\Module\PsAccounts\Vendor\Monolog\Logger as MonologLogger;
 
 class ServiceContainer
 {
@@ -71,11 +73,22 @@ class ServiceContainer
      */
     private static $instance;
 
-    public function __construct()
-    {
-        $this->config = $this->loadConfig();
+    /**
+     * @var MonologLogger
+     */
+    private $logger;
 
-        $this->init();
+    /**
+     * @return ServiceContainer
+     */
+    public static function createInstance()
+    {
+        $container = new ServiceContainer();
+        $container->loadConfig();
+        $container->initLogger();
+        $container->init();
+
+        return $container;
     }
 
     /**
@@ -84,18 +97,18 @@ class ServiceContainer
     public static function getInstance()
     {
         if (null === self::$instance) {
-            self::$instance = new ServiceContainer();
+            self::$instance = self::createInstance();
         }
 
         return self::$instance;
     }
 
     /**
-     * @return mixed
+     * @return void
      */
     public function loadConfig()
     {
-        return require_once __DIR__ . '/../../' . $this->configName . '.php';
+        $this->config = require_once __DIR__ . '/../../' . $this->configName . '.php';
     }
 
     /**
@@ -103,8 +116,12 @@ class ServiceContainer
      */
     public function init()
     {
+        $this->logger->debug('Initializing service container');
+
         foreach ($this->provides as $provider) {
             if (is_a($provider, IServiceProvider::class, true)) {
+                $this->logger->debug('Initializing service provider ' . $provider);
+
                 (new $provider())->provide($this);
             }
         }
@@ -136,6 +153,8 @@ class ServiceContainer
         }
 
         $this->set($name, $service);
+
+        $this->logger->debug('Service Loaded: ' . $name);
 
         return $service;
     }
@@ -191,6 +210,21 @@ class ServiceContainer
 
     /**
      * @param string $name
+     * @param string $default
+     *
+     * @return string
+     */
+    public function getParameterWithDefault($name, $default)
+    {
+        if (array_key_exists($name, $this->config)) {
+            return $this->config[$name];
+        }
+
+        return $default;
+    }
+
+    /**
+     * @param string $name
      *
      * @return bool
      */
@@ -232,7 +266,6 @@ class ServiceContainer
      */
     public function registerProvider($name, \Closure $provider)
     {
-        //echo(sprintf('Initializing "%s"', $name) . PHP_EOL);
         $this->providers[$name] = $provider;
     }
 
@@ -248,5 +281,17 @@ class ServiceContainer
         }
 
         return null;
+    }
+
+    /**
+     * @return void
+     */
+    private function initLogger()
+    {
+        // early stage logger
+        $this->logger = Logger::create(
+            $this->getParameterWithDefault('ps_accounts.log_level', Logger::ERROR)
+        );
+        $this->set('ps_accounts.logger', $this->logger);
     }
 }

@@ -52,9 +52,6 @@ class DefaultProvider implements IServiceProvider
         $container->registerProvider('ps_accounts.context', static function () {
             return \Context::getContext();
         });
-        $container->registerProvider('ps_accounts.logger', static function () {
-            return \PrestaShop\Module\PsAccounts\Log\Logger::create();
-        });
         $container->registerProvider('ps_accounts.module', static function () {
             return \Module::getInstanceByName('ps_accounts');
         });

@@ -102,21 +102,26 @@ class Ps_accounts extends Module
         'displayDashboardTop',
 
         // toggle single/multi-shop
-//        'actionObjectShopAddAfter',
-//        'actionObjectShopDeleteAfter',
+        //'actionObjectShopAddAfter',
+        //'actionObjectShopDeleteAfter',
 
         // Login/Logout OAuth
         // PS 1.6 - 1.7
         'displayBackOfficeHeader',
         'actionAdminLoginControllerSetMedia',
         // PS >= 8
-//        'actionAdminControllerInitBefore',
+        //'actionAdminControllerInitBefore',
     ];
 
 //    /**
 //     * @var \PrestaShop\Module\PsAccounts\DependencyInjection\ServiceContainer
 //     */
 //    private $serviceContainer;
+
+    /**
+     * @var \PrestaShop\Module\PsAccounts\ServiceContainer\ServiceContainer
+     */
+    private $container;
 
     /**
      * Ps_accounts constructor.
@@ -191,8 +196,6 @@ class Ps_accounts extends Module
 
         $this->onModuleReset();
 
-        $this->getLogger()->info('Install - Loading ' . $this->name . ' Env : [' . $this->getModuleEnv() . ']');
-
         return $status;
     }
 
@@ -236,7 +239,12 @@ class Ps_accounts extends Module
      */
     public function getServiceContainer()
     {
-        return \PrestaShop\Module\PsAccounts\ServiceContainer\ServiceContainer::getInstance();
+        //return \PrestaShop\Module\PsAccounts\ServiceContainer\ServiceContainer::getInstance();
+        if (null === $this->container) {
+            $this->container = \PrestaShop\Module\PsAccounts\ServiceContainer\ServiceContainer::createInstance();
+        }
+
+        return $this->container;
     }
 
     /**
@@ -325,24 +333,6 @@ class Ps_accounts extends Module
         }
 
         return $ret;
-    }
-
-    /**
-     * @return string
-     */
-    public function getModuleEnvVar()
-    {
-        return strtoupper((string) $this->name) . '_ENV';
-    }
-
-    /**
-     * @param string $default
-     *
-     * @return string
-     */
-    public function getModuleEnv($default = null)
-    {
-        return getenv($this->getModuleEnvVar()) ?: $default ?: self::DEFAULT_ENV;
     }
 
     /**
@@ -512,9 +502,6 @@ class Ps_accounts extends Module
         // FIXME: this wont prevent from re-implanting override on reset of module
         $uninstaller = new PrestaShop\Module\PsAccounts\Module\Uninstall($this, Db::getInstance());
         $uninstaller->deleteAdminTab('AdminLogin');
-
-//        $this->installEventBus();
-//        $this->autoReonboardOnV5();
     }
 }
 
