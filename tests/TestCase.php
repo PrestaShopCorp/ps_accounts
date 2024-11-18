@@ -8,9 +8,9 @@ use Faker\Generator;
 use Module;
 use PrestaShop\Module\PsAccounts\Account\Session\Firebase;
 use PrestaShop\Module\PsAccounts\Account\Session\ShopSession;
-use PrestaShop\Module\PsAccounts800\Vendor\Lcobucci\JWT\Builder;
-use PrestaShop\Module\PsAccounts800\Vendor\Lcobucci\JWT\Configuration;
-use PrestaShop\Module\PsAccounts800\Vendor\Lcobucci\JWT\Token;
+use PrestaShop\Module\PsAccounts\Vendor\Lcobucci\JWT\Builder;
+use PrestaShop\Module\PsAccounts\Vendor\Lcobucci\JWT\Configuration;
+use PrestaShop\Module\PsAccounts\Vendor\Lcobucci\JWT\Token;
 use Ps_accounts;
 
 class TestCase extends \PHPUnit\Framework\TestCase

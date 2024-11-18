@@ -24,7 +24,7 @@ use AdminLoginPsAccountsController;
 use Exception;
 use PrestaShop\Module\PsAccounts\Service\AnalyticsService;
 use PrestaShop\Module\PsAccounts\Service\PsAccountsService;
-use PrestaShop\Module\PsAccounts800\Vendor\League\OAuth2\Client\Provider\Exception\IdentityProviderException;
+use PrestaShop\Module\PsAccounts\Vendor\League\OAuth2\Client\Provider\Exception\IdentityProviderException;
 use Tools;
 
 class ActionAdminLoginControllerSetMedia extends Hook

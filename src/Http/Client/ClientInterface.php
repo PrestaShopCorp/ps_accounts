@@ -20,7 +20,7 @@
 
 namespace PrestaShop\Module\PsAccounts\Http\Client;
 
-use PrestaShop\Module\PsAccounts800\Vendor\GuzzleHttp\Client;
+use PrestaShop\Module\PsAccounts\Vendor\GuzzleHttp\Client;
 
 /**
  * Interface that the guzzle client class implement

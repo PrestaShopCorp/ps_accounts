@@ -10,7 +10,7 @@ use PrestaShop\Module\PsAccounts\Exception\RefreshTokenException;
 use PrestaShop\Module\PsAccounts\Provider\OAuth2\Oauth2Client;
 use PrestaShop\Module\PsAccounts\Provider\OAuth2\ShopProvider;
 use PrestaShop\Module\PsAccounts\Tests\TestCase;
-use PrestaShop\Module\PsAccounts800\Vendor\League\OAuth2\Client\Token\AccessToken;
+use PrestaShop\Module\PsAccounts\Vendor\League\OAuth2\Client\Token\AccessToken;
 
 class RefreshTokenTest extends TestCase
 {
@@ -38,7 +38,7 @@ class RefreshTokenTest extends TestCase
     protected $shopProvider;
 
     /**
-     * @var \PrestaShop\Module\PsAccounts800\Vendor\Lcobucci\JWT\Token
+     * @var \PrestaShop\Module\PsAccounts\Vendor\Lcobucci\JWT\Token
      */
     protected $validAccessToken;
 

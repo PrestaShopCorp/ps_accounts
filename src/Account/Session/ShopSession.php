@@ -30,10 +30,10 @@ use PrestaShop\Module\PsAccounts\Hook\ActionShopAccessTokenRefreshAfter;
 use PrestaShop\Module\PsAccounts\Log\Logger;
 use PrestaShop\Module\PsAccounts\Provider\OAuth2\ShopProvider;
 use PrestaShop\Module\PsAccounts\Repository\ConfigurationRepository;
-use PrestaShop\Module\PsAccounts800\Vendor\League\OAuth2\Client\Grant\ClientCredentials;
-use PrestaShop\Module\PsAccounts800\Vendor\League\OAuth2\Client\Provider\Exception\IdentityProviderException;
-use PrestaShop\Module\PsAccounts800\Vendor\League\OAuth2\Client\Token\AccessToken;
-use PrestaShop\Module\PsAccounts800\Vendor\League\OAuth2\Client\Token\AccessTokenInterface;
+use PrestaShop\Module\PsAccounts\Vendor\League\OAuth2\Client\Grant\ClientCredentials;
+use PrestaShop\Module\PsAccounts\Vendor\League\OAuth2\Client\Provider\Exception\IdentityProviderException;
+use PrestaShop\Module\PsAccounts\Vendor\League\OAuth2\Client\Token\AccessToken;
+use PrestaShop\Module\PsAccounts\Vendor\League\OAuth2\Client\Token\AccessTokenInterface;
 
 class ShopSession extends Session implements SessionInterface
 {

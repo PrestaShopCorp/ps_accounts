@@ -5,7 +5,7 @@ namespace PrestaShop\Module\PsAccounts\Tests\Feature\Api\Account\CommandHandler;
 use PrestaShop\Module\PsAccounts\Adapter\ConfigurationKeys;
 use PrestaShop\Module\PsAccounts\Adapter\Link;
 use PrestaShop\Module\PsAccounts\Tests\Feature\FeatureTestCase;
-use PrestaShop\Module\PsAccounts800\Vendor\GuzzleHttp\Cookie\CookieJar;
+use PrestaShop\Module\PsAccounts\Vendor\GuzzleHttp\Cookie\CookieJar;
 
 class UpgradeModuleHandlerTest extends FeatureTestCase
 {

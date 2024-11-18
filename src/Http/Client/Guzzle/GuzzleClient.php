@@ -23,7 +23,7 @@ namespace PrestaShop\Module\PsAccounts\Http\Client\Guzzle;
 use PrestaShop\Module\PsAccounts\Factory\CircuitBreakerFactory;
 use PrestaShop\Module\PsAccounts\Http\Client\CircuitBreaker\CircuitBreaker;
 use PrestaShop\Module\PsAccounts\Http\Client\ClientInterface;
-use PrestaShop\Module\PsAccounts800\Vendor\GuzzleHttp\Client;
+use PrestaShop\Module\PsAccounts\Vendor\GuzzleHttp\Client;
 
 abstract class GuzzleClient implements ClientInterface
 {
