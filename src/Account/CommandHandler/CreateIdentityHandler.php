@@ -80,23 +80,24 @@ class CreateIdentityHandler
         // - identify shop (when ?) -> be sure we send version with it & when to trigger it ?
         // - UX associated ?
         // - Migrate routes using user token
-        if (!$this->oauth2Client->exists()) {
-            $response = $this->accountsClient->createShopIdentity(
-                explode('/index.php', $this->shopProvider->getBackendUrl($command->shopId))[0],
-                rtrim($this->shopProvider->getFrontendUrl($command->shopId), '/'),
-                $command->shopId
-            );
+        if (!$this->oauth2Client->exists())
+            return;
 
-            if ($response['status'] === true && isset($response['body'])) {
-                $body = $response['body'];
-                // FIXME: should we refactor those kind of "entities" ?
-                // FIXME: oauthClientRepository->getClientByShopId ?
-                // FIXME: shopIdentityRepository->getIdentityByShopId ?
-                $this->oauth2Client->update($body['clientId'], $body['clientSecret']);
-                $this->shopIdentity->setShopUuid($body['cloudShopId']);
-            } else {
-                // TODO Add bad request handling here
-            }
+        $response = $this->accountsClient->createShopIdentity(
+            explode('/index.php', $this->shopProvider->getBackendUrl($command->shopId))[0],
+            rtrim($this->shopProvider->getFrontendUrl($command->shopId), '/'),
+            $command->shopId
+        );
+
+        if ($response['status'] === true && isset($response['body'])) {
+            $body = $response['body'];
+            // FIXME: should we refactor those kind of "entities" ?
+            // FIXME: oauthClientRepository->getClientByShopId ?
+            // FIXME: shopIdentityRepository->getIdentityByShopId ?
+            $this->oauth2Client->update($body['clientId'], $body['clientSecret']);
+            $this->shopIdentity->setShopUuid($body['cloudShopId']);
+        } else {
+            // TODO Add bad request handling here
         }
     }
 }
