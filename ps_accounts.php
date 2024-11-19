@@ -157,7 +157,7 @@ class Ps_accounts extends Module
     }
 
     /**
-     * @return \PrestaShop\Module\PsAccounts\Vendor\Monolog\Logger
+     * @return \Monolog\Logger
      */
     public function getLogger()
     {
@@ -488,22 +488,6 @@ class Ps_accounts extends Module
     }
 
     /**
-     * @deprecated
-     *
-     * @return void
-     *
-     * @throws PrestaShopException
-     *
-     * @phpstan-ignore-next-line
-     */
-    private function autoReonboardOnV5()
-    {
-        /** @var \PrestaShop\Module\PsAccounts\Service\PsAccountsService $psAccountsService */
-        $psAccountsService = $this->getService(\PrestaShop\Module\PsAccounts\Service\PsAccountsService::class);
-        $psAccountsService->autoReonboardOnV5();
-    }
-
-    /**
      * @return void
      *
      * @throws Exception
@@ -521,9 +505,6 @@ class Ps_accounts extends Module
         // FIXME: this wont prevent from re-implanting override on reset of module
         $uninstaller = new PrestaShop\Module\PsAccounts\Module\Uninstall($this, Db::getInstance());
         $uninstaller->deleteAdminTab('AdminLogin');
-
-//        $this->installEventBus();
-//        $this->autoReonboardOnV5();
     }
 }
 
