@@ -27,7 +27,6 @@
             "PrestaShop\\Module\\PsAccounts\\Vendor\\GuzzleHttp\\Psr7\\": "vendor/guzzlehttp/psr7/src",
             "PrestaShop\\Module\\PsAccounts\\Vendor\\League\\OAuth2\\Client\\": "vendor/league/oauth2-client/src",
             "PrestaShop\\Module\\PsAccounts\\Vendor\\Lcobucci\\JWT\\": "vendor/lcobucci/jwt/src",
-            "PrestaShop\\Module\\PsAccounts\\Vendor\\Monolog\\": "vendor/monolog/monolog/src/Monolog",
             "PrestaShop\\Module\\PsAccounts\\Vendor\\phpseclib\\": "vendor/phpseclib/phpseclib/phpseclib",
             "PrestaShop\\Module\\PsAccounts\\Vendor\\Psr\\Http\\Message\\": "vendor/psr/http-message/src",
             "PrestaShop\\Module\\PsAccounts\\Vendor\\Psr\\Log\\": "vendor/psr/log/Psr/Log",
