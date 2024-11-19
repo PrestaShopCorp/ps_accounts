@@ -37,6 +37,11 @@ use PrestaShop\Module\PsAccounts\Vendor\Monolog\Logger as MonologLogger;
 class ServiceContainer
 {
     /**
+     * @var string
+     */
+    protected $configPath = __DIR__ . '/../../config.php';
+
+    /**
      * @var array
      */
     protected $config = [];
@@ -62,11 +67,6 @@ class ServiceContainer
         RepositoryProvider::class,
         SessionProvider::class,
     ];
-
-    /**
-     * @var string
-     */
-    protected $configName = 'config';
 
     /**
      * @var ServiceContainer
@@ -108,7 +108,7 @@ class ServiceContainer
      */
     public function loadConfig()
     {
-        $this->config = require_once __DIR__ . '/../../' . $this->configName . '.php';
+        $this->config = require_once $this->configPath;
     }
 
     /**
