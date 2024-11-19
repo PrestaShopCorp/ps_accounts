@@ -22,7 +22,7 @@ namespace PrestaShop\Module\PsAccounts\ServiceContainer\Contract;
 
 use PrestaShop\Module\PsAccounts\ServiceContainer\ServiceContainer;
 
-interface IServiceContainerService
+interface ISingletonService
 {
     /**
      * @param ServiceContainer $serviceContainer

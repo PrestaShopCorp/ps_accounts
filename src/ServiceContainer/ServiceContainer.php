@@ -21,17 +21,11 @@
 namespace PrestaShop\Module\PsAccounts\ServiceContainer;
 
 use PrestaShop\Module\PsAccounts\Log\Logger;
-use PrestaShop\Module\PsAccounts\ServiceContainer\Contract\IServiceContainerService;
+use PrestaShop\Module\PsAccounts\ServiceContainer\Contract\ISingletonService;
 use PrestaShop\Module\PsAccounts\ServiceContainer\Contract\IServiceProvider;
 use PrestaShop\Module\PsAccounts\ServiceContainer\Exception\ParameterNotFoundException;
 use PrestaShop\Module\PsAccounts\ServiceContainer\Exception\ProviderNotFoundException;
 use PrestaShop\Module\PsAccounts\ServiceContainer\Exception\ServiceNotFoundException;
-use PrestaShop\Module\PsAccounts\ServiceContainer\Provider\ApiClientProvider;
-use PrestaShop\Module\PsAccounts\ServiceContainer\Provider\CommandProvider;
-use PrestaShop\Module\PsAccounts\ServiceContainer\Provider\DefaultProvider;
-use PrestaShop\Module\PsAccounts\ServiceContainer\Provider\OAuth2Provider;
-use PrestaShop\Module\PsAccounts\ServiceContainer\Provider\RepositoryProvider;
-use PrestaShop\Module\PsAccounts\ServiceContainer\Provider\SessionProvider;
 use PrestaShop\Module\PsAccounts\Vendor\Monolog\Logger as MonologLogger;
 
 class ServiceContainer
@@ -39,7 +33,7 @@ class ServiceContainer
     /**
      * @var string
      */
-    protected $configPath = __DIR__ . '/../../config.php';
+    protected $configPath;
 
     /**
      * @var array
@@ -52,7 +46,7 @@ class ServiceContainer
     protected $services = [];
 
     /**
-     * @var array|\Closure[]
+     * @var \Closure[]
      */
     protected $providers = [];
 
@@ -60,18 +54,15 @@ class ServiceContainer
      * @var string[]
      */
     protected $provides = [
-        ApiClientProvider::class,
-        CommandProvider::class,
-        DefaultProvider::class,
-        OAuth2Provider::class,
-        RepositoryProvider::class,
-        SessionProvider::class,
+        Provider\ApiClientProvider::class,
+        Provider\CommandProvider::class,
+        Provider\DefaultProvider::class,
+        Provider\OAuth2Provider::class,
+        Provider\RepositoryProvider::class,
+        Provider\SessionProvider::class,
     ];
 
-    /**
-     * @var ServiceContainer
-     */
-    private static $instance;
+    // Container / Provider / ProviderProvider
 
     /**
      * @var MonologLogger
@@ -79,28 +70,26 @@ class ServiceContainer
     private $logger;
 
     /**
+     * @param string $configPath
+     */
+    public function __construct($configPath)
+    {
+        $this->configPath = $configPath;
+    }
+
+    /**
+     * @param string $configPath
+     *
      * @return ServiceContainer
      */
-    public static function createInstance()
+    public static function createInstance($configPath)
     {
-        $container = new ServiceContainer();
+        $container = new ServiceContainer($configPath);
         $container->loadConfig();
         $container->initLogger();
         $container->init();
 
         return $container;
-    }
-
-    /**
-     * @return ServiceContainer
-     */
-    public static function getInstance()
-    {
-        if (null === self::$instance) {
-            self::$instance = self::createInstance();
-        }
-
-        return self::$instance;
     }
 
     /**
@@ -276,7 +265,7 @@ class ServiceContainer
      */
     protected function provideInstanceFromClassname($className)
     {
-        if (is_a($className, IServiceContainerService::class, true)) {
+        if (is_a($className, ISingletonService::class, true)) {
             return $className::getInstance($this);
         }
 
