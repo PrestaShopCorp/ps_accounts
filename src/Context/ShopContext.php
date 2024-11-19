@@ -178,7 +178,8 @@ class ShopContext
 
         try {
             $result = $closure();
-        } catch (\Error $e) {
+            /* @phpstan-ignore-next-line */
+        } catch (\Throwable $e) {
         } catch (\Exception $e) {
         }
         $this->configuration->setShopId($backup);
@@ -202,7 +203,8 @@ class ShopContext
                 /* @phpstan-ignore-next-line */
                 $shops[] = $row['id_shop'];
             }
-        } catch (\Error $e) {
+            /* @phpstan-ignore-next-line */
+        } catch (\Throwable $e) {
             Logger::getInstance()->error(__METHOD__ . ': ' . $e->getMessage());
 
             return [];
