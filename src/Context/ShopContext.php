@@ -165,7 +165,7 @@ class ShopContext
      *
      * @return mixed
      *
-     * @throws \Exception
+     * @throws \Throwable|\Exception
      */
     public function execInShopContext($shopId, $closure)
     {
@@ -177,7 +177,8 @@ class ShopContext
 
         try {
             $result = $closure();
-        } catch (\Error $e) {
+        } catch (\Throwable $e) {
+            /* @phpstan-ignore-next-line */
         } catch (\Exception $e) {
         }
         $this->configuration->setShopId($backup);

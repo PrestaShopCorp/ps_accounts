@@ -153,26 +153,6 @@ class AccountsClient
     }
 
     /**
-     * @param string $shopUid
-     * @param string $shopToken
-     * @param array $payload
-     *
-     * @return array
-     */
-    public function reonboardShop($shopUid, $shopToken, $payload)
-    {
-        $this->getClient()->setRoute('v1/shop/' . $shopUid . '/reonboard');
-
-        return $this->getClient()->post([
-            'headers' => $this->getHeaders([
-                'Authorization' => 'Bearer ' . $shopToken,
-                'X-Shop-Id' => $shopUid,
-            ]),
-            'json' => $payload,
-        ]);
-    }
-
-    /**
      * @param string $ownerUid
      * @param string $shopUid
      * @param string $ownerToken

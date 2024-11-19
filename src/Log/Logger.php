@@ -20,8 +20,9 @@
 
 namespace PrestaShop\Module\PsAccounts\Log;
 
-use PrestaShop\Module\PsAccounts\Vendor\Monolog\Handler\RotatingFileHandler;
-use PrestaShop\Module\PsAccounts\Vendor\Monolog\Logger as MonologLogger;
+use Monolog\Handler\RotatingFileHandler;
+use Monolog\Logger as MonologLogger;
+use Ps_accounts;
 
 class Logger
 {
@@ -116,7 +117,7 @@ class Logger
      */
     public static function getInstance()
     {
-        /** @var \Ps_accounts $psAccounts */
+        /** @var Ps_accounts $psAccounts */
         $psAccounts = \Module::getInstanceByName('ps_accounts');
 
         return $psAccounts->getLogger();

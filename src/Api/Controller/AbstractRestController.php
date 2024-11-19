@@ -90,8 +90,9 @@ abstract class AbstractRestController extends ModuleFrontController
                 'error' => true,
                 'message' => $e->getMessage(),
             ], $e->getStatusCode());
-        } catch (\Error $e) {
+        } catch (\Throwable $e) {
             $this->handleError($e);
+            /* @phpstan-ignore-next-line */
         } catch (\Exception $e) {
             $this->handleError($e);
         }
@@ -362,7 +363,7 @@ abstract class AbstractRestController extends ModuleFrontController
     }
 
     /**
-     * @param \Error|\Exception $e
+     * @param \Throwable|\Exception $e
      *
      * @return void
      *
