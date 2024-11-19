@@ -167,27 +167,29 @@ class ShopContext
      * @return mixed
      *
      * @throws \Exception
+     * @throws \Throwable
      */
     public function execInShopContext($shopId, $closure)
     {
         $backup = $this->configuration->getShopId();
         $this->configuration->setShopId($shopId);
 
-        $e = null;
+        $exception = null;
         $result = null;
 
         try {
             $result = $closure();
+        } catch (\Throwable $exception) {
             /* @phpstan-ignore-next-line */
-        } catch (\Throwable $e) {
-        } catch (\Exception $e) {
+        } catch (\Exception $exception) {
         }
+
         $this->configuration->setShopId($backup);
 
-        if (null === $e) {
-            return $result;
-        }
-        throw $e;
+        if (null !== $exception)
+            throw $exception;
+
+        return $result;
     }
 
     /**
@@ -203,11 +205,11 @@ class ShopContext
                 /* @phpstan-ignore-next-line */
                 $shops[] = $row['id_shop'];
             }
-            /* @phpstan-ignore-next-line */
         } catch (\Throwable $e) {
             Logger::getInstance()->error(__METHOD__ . ': ' . $e->getMessage());
 
             return [];
+            /* @phpstan-ignore-next-line */
         } catch (\Exception $e) {
             Logger::getInstance()->error(__METHOD__ . ': ' . $e->getMessage());
 
