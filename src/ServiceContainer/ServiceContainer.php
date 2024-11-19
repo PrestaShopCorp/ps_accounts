@@ -20,13 +20,13 @@
 
 namespace PrestaShop\Module\PsAccounts\ServiceContainer;
 
+use Monolog\Logger as MonologLogger;
 use PrestaShop\Module\PsAccounts\Log\Logger;
 use PrestaShop\Module\PsAccounts\ServiceContainer\Contract\IServiceProvider;
 use PrestaShop\Module\PsAccounts\ServiceContainer\Contract\ISingletonService;
 use PrestaShop\Module\PsAccounts\ServiceContainer\Exception\ParameterNotFoundException;
 use PrestaShop\Module\PsAccounts\ServiceContainer\Exception\ProviderNotFoundException;
 use PrestaShop\Module\PsAccounts\ServiceContainer\Exception\ServiceNotFoundException;
-use Monolog\Logger as MonologLogger;
 
 class ServiceContainer
 {
