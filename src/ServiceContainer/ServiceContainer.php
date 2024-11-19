@@ -26,7 +26,7 @@ use PrestaShop\Module\PsAccounts\ServiceContainer\Contract\ISingletonService;
 use PrestaShop\Module\PsAccounts\ServiceContainer\Exception\ParameterNotFoundException;
 use PrestaShop\Module\PsAccounts\ServiceContainer\Exception\ProviderNotFoundException;
 use PrestaShop\Module\PsAccounts\ServiceContainer\Exception\ServiceNotFoundException;
-use PrestaShop\Module\PsAccounts\Vendor\Monolog\Logger as MonologLogger;
+use Monolog\Logger as MonologLogger;
 
 class ServiceContainer
 {
