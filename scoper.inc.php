@@ -105,7 +105,7 @@ return [
     //
     // For more see: https://github.com/humbug/php-scoper/blob/master/docs/configuration.md#patchers
     'patchers' => [
-        static function ($filePath, $prefix, $contents) {
+        static function ($filePath, $prefix, $versionPrefix, $contents) {
             // Modify the content of the file to change the namespace
             if ($filePath === __DIR__ . '/vendor/league/oauth2-client/src/Grant/GrantFactory.php') {
                 return str_replace(
@@ -116,7 +116,7 @@ return [
             }
             if ($filePath === __DIR__ . '/vendor/symfony/dependency-injection/Compiler/PassConfig.php') {
                 return str_replace(
-                    "'PrestaShop\\\\Module\\\\PsAccounts800\\\\Vendor\\\\array_merge'",
+                    "'PrestaShop\\\\Module\\\\" . $versionPrefix . "\\\\Vendor\\\\array_merge'",
                     "'\\array_merge'",
                     $contents
                 );
