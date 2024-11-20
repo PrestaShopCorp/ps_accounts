@@ -72,7 +72,7 @@ jobs:
           make phpunit-display-logs
 
       - name: PHPStan
-        if: matrix.presta-versions == '1.6.1.24-7.1' || matrix.presta-versions == '1.7.7.8-7.1'
+        if: matrix.presta-versions == '1.6.1.24-7.1' || matrix.presta-versions == '8.1.5-7.4'
         run: |
           make phpstan
 

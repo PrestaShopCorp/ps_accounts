@@ -32,8 +32,8 @@ version:
 # PLATFORM
 
 PLATFORM_REPO ?= prestashop/prestashop-flashlight
-PLATFORM_REPO_TAG ?= 8.1.5-7.4
-PLATFORM_IMAGE ?= ${PLATFORM_REPO}:${PHPUNIT_TAG}
+PLATFORM_TAG ?= 8.1.5-7.4
+PLATFORM_IMAGE ?= ${PLATFORM_REPO}:${PLATFORM_TAG}
 PLATFORM_COMPOSE_FILE ?= docker-compose.flashlight.yml
 
 COMPOSER_FILE ?= composer.json
@@ -80,6 +80,9 @@ platform-fix-permissions:
 	@docker exec phpunit sh -c "if [ -d ./cache ]; then chown -R www-data:www-data ./cache; fi" # PS1.6
 	@docker exec phpunit sh -c "if [ -d ./log ]; then chown -R www-data:www-data ./log; fi" # PS1.6
 
+#platform-status:
+#	COMPOSER=composer71.json ./composer.phar outdated --locked -m --working-dir=./tests/
+
 #phpunit-xdebug:
 #	-@docker exec phpunit sh -c "docker-php-ext-enable xdebug"
 
@@ -97,7 +100,7 @@ define build-platform
 	$(eval neonfile = $(if $(neonfile:-=),$(neonfile),${NEON_FILE}))
 
 	PLATFORM_REPO=$(repo) \
-	PHPUNIT_TAG=$(tag) \
+	PLATFORM_TAG=$(tag) \
 	PLATFORM_COMPOSE_FILE=.docker/$(shell echo 'docker-compose.'$(repo)'.yml' | sed 's/\//@/') \
 	COMPOSER_FILE=${composer} \
 	NEON_FILE=${neonfile} \
@@ -139,8 +142,6 @@ platform-8.1.5-7.4:
 platform-8.2.0-8.1:
 	$(call build-platform,$@)
 
-# TODO: extends PHPStan for v9
-# TODO: test case delete employee
 platform-nightly:
 	$(call build-platform,$@)
 

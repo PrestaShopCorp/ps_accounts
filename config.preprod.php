@@ -46,5 +46,5 @@ return [
 
     'ps_accounts.testimonials_url' => 'https://assets.prestashop3.com/dst/accounts/assets/testimonials.json',
 
-    'ps_accounts.log_level' => 'ERROR',
+    'ps_accounts.log_level' => 'DEBUG',
 ];

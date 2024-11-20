@@ -62,8 +62,6 @@ class ServiceContainer
         Provider\SessionProvider::class,
     ];
 
-    // Container / Provider / ProviderProvider
-
     /**
      * @var MonologLogger
      */

@@ -279,9 +279,8 @@ abstract class AbstractRestController extends ModuleFrontController
                 $publicKey = $shopKeysService->getPublicKey();
 
                 if (
-                    null !== $publicKey &&
-                    false !== $publicKey &&
-                    '' !== $publicKey &&
+                    ! empty($publicKey) &&
+                    is_string($publicKey) &&
                     true === $jwt->verify(new Sha256(), new Key((string) $publicKey))
                 ) {
                     return $jwt->claims()->all();

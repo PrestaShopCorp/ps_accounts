@@ -221,6 +221,7 @@ class Ps_accounts extends Module
      */
     public function getCoreServiceContainer()
     {
+        /* @phpstan-ignore-next-line */
         if (method_exists($this, 'getContainer')) {
             return $this->getContainer();
         }
