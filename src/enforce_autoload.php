@@ -8,7 +8,7 @@ if (!file_exists($autoloadReal)) {
     exit(0);
 }
 
-$contents = file_get_contents($autoloadReal);
+$contents = (string) file_get_contents($autoloadReal);
 if (preg_match('/(ComposerAutoloaderInit[\w\d]*)/m', $contents, $matches)) {
     $autoloaderClass = $matches[1];
 

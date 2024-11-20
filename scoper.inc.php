@@ -105,7 +105,7 @@ return [
     //
     // For more see: https://github.com/humbug/php-scoper/blob/master/docs/configuration.md#patchers
     'patchers' => [
-        static function ($filePath, $prefix, $versionPrefix, $contents) {
+        static function ($filePath, $prefix, $contents) use ($versionPrefix) {
             // Modify the content of the file to change the namespace
             if ($filePath === __DIR__ . '/vendor/league/oauth2-client/src/Grant/GrantFactory.php') {
                 return str_replace(
