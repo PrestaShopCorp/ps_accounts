@@ -21,8 +21,8 @@
 namespace PrestaShop\Module\PsAccounts\Account\CommandHandler;
 
 use PrestaShop\Module\PsAccounts\Account\Command\UpgradeModuleCommand;
-use PrestaShop\Module\PsAccounts\Account\ShopIdentity;
 use PrestaShop\Module\PsAccounts\Account\Session;
+use PrestaShop\Module\PsAccounts\Account\ShopIdentity;
 use PrestaShop\Module\PsAccounts\Account\Token\NullToken;
 use PrestaShop\Module\PsAccounts\Api\Client\AccountsClient;
 use PrestaShop\Module\PsAccounts\Exception\RefreshTokenException;
@@ -46,9 +46,9 @@ class UpgradeModuleHandler
     private $accountsClient;
 
     public function __construct(
-        AccountsClient          $accountsClient,
-        ShopIdentity            $shopIdentity,
-        Session\ShopSession     $shopSession
+        AccountsClient $accountsClient,
+        ShopIdentity $shopIdentity,
+        Session\ShopSession $shopSession
     ) {
         $this->accountsClient = $accountsClient;
         $this->shopIdentity = $shopIdentity;

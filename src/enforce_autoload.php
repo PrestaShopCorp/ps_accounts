@@ -1,9 +1,10 @@
 <?php
+
 // $module->clearCache();
 
 $autoloadReal = __DIR__ . '/../vendor/composer/autoload_real.php';
 
-if (! file_exists($autoloadReal)) {
+if (!file_exists($autoloadReal)) {
     exit(0);
 }
 
@@ -14,6 +15,7 @@ if (preg_match('/(ComposerAutoloaderInit[\w\d]*)/m', $contents, $matches)) {
     if (!class_exists($autoloaderClass)) {
         error_log('## ps_accounts autoload : [' . $autoloaderClass . ']' . PHP_EOL);
         require $autoloadReal;
+
         return $autoloaderClass::getLoader();
     }
 }

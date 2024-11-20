@@ -23,7 +23,6 @@ if (!defined('_PS_VERSION_')) {
 require_once __DIR__ . '/vendor/autoload.php';
 //require __DIR__ . '/src/autoload_module.php';
 
-
 //if (!class_exists('\PrestaShop\Module\PsAccounts\Hook\HookableTrait')) {
 //    ps_accounts_fix_upgrade();
 //}

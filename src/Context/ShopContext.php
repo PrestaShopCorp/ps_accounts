@@ -185,8 +185,9 @@ class ShopContext
 
         $this->configuration->setShopId($backup);
 
-        if (null !== $exception)
+        if (null !== $exception) {
             throw $exception;
+        }
 
         return $result;
     }

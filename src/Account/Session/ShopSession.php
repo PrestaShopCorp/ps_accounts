@@ -20,8 +20,6 @@
 
 namespace PrestaShop\Module\PsAccounts\Account\Session;
 
-use PrestaShop\Module\PsAccounts\Account\Command\UnlinkShopCommand;
-use PrestaShop\Module\PsAccounts\Account\Exception\InconsistentAssociationStateException;
 use PrestaShop\Module\PsAccounts\Account\ShopIdentity;
 use PrestaShop\Module\PsAccounts\Account\Token\Token;
 use PrestaShop\Module\PsAccounts\Cqrs\CommandBus;
@@ -64,9 +62,9 @@ class ShopSession extends Session implements SessionInterface
      */
     public function __construct(
         ConfigurationRepository $configurationRepository,
-        ShopProvider            $oauth2ClientProvider,
-        ShopIdentity            $shopIdentity,
-        CommandBus              $commandBus
+        ShopProvider $oauth2ClientProvider,
+        ShopIdentity $shopIdentity,
+        CommandBus $commandBus
     ) {
         $this->configurationRepository = $configurationRepository;
         $this->oauth2ClientProvider = $oauth2ClientProvider;

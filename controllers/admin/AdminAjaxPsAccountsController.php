@@ -125,7 +125,7 @@ class AdminAjaxPsAccountsController extends \ModuleAdminController
 //            ));
 
             Hook::exec(ActionShopAccountUnlinkAfter::getName(), [
-                'shopUuid' =>$configurationRepository->getShopUuid(),
+                'shopUuid' => $configurationRepository->getShopUuid(),
                 'shopId' => $configurationRepository->getShopId(),
             ]);
 

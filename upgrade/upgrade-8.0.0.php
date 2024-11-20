@@ -1,4 +1,5 @@
 <?php
+
 use PrestaShop\Module\PsAccounts\Account\Command\CreateIdentitiesCommand;
 use PrestaShop\Module\PsAccounts\Account\Command\UpgradeModulesCommand;
 use PrestaShop\Module\PsAccounts\Cqrs\CommandBus;
@@ -23,11 +24,11 @@ function upgrade_module_8_0_0($module)
         // FIXME: curl version of those calls
         $commandBus->handle(new CreateIdentitiesCommand());
         $commandBus->handle(new UpgradeModulesCommand());
+        /* @phpstan-ignore-next-line */
+    } catch (\Throwable $e) {
     } catch (\Exception $e) {
-        Logger::getInstance()>error('error during upgrade : ' . $e->getMessage());
+        Logger::getInstance() > error('error during upgrade : ' . $e->getMessage());
     }
 
     return true;
 }
-
-
