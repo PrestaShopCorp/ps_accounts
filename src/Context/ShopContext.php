@@ -166,8 +166,7 @@ class ShopContext
      *
      * @return mixed
      *
-     * @throws \Exception
-     * @throws \Throwable
+     * @throws \Throwable|\Exception
      */
     public function execInShopContext($shopId, $closure)
     {

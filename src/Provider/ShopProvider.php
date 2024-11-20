@@ -99,6 +99,7 @@ class ShopProvider
                     true,
                     [],
                     [
+                        'module_name' => $psxName,
                         'configure' => $psxName,
                         'setShopContext' => 's-' . $shopData['id_shop'],
                     ]
@@ -123,7 +124,7 @@ class ShopProvider
      *
      * @throws \PrestaShopException|\Exception
      */
-    public function getCurrentShop($psxName = '')
+    public function getCurrentShop($psxName = 'ps_accounts')
     {
         $shop = $this->formatShopData((array) \Shop::getShop($this->shopContext->getContext()->shop->id), $psxName);
 

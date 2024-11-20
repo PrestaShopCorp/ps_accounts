@@ -99,7 +99,8 @@ class ShopSession extends Session implements SessionInterface
 
             return $token;
         } catch (IdentityProviderException $e) {
-        } catch (\Error $e) {
+        } catch (\Throwable $e) {
+            /* @phpstan-ignore-next-line */
         } catch (\Exception $e) {
         }
         throw new RefreshTokenException('Unable to refresh shop token : ' . $e->getMessage());

@@ -95,10 +95,13 @@ class PsAccountsPresenter implements PresenterInterface
 
         $moduleName = (string) $this->module->name;
 
-        $unlinkedShops = $this->shopProvider->getUnlinkedShops(
-            $psxName,
-            $shopContext->getContext()->employee->id
-        );
+        $employee = $shopContext->getContext()->employee;
+        /* @phpstan-ignore-next-line */
+        if (!$employee) {
+            $employee = new \Employee();
+        }
+
+        $unlinkedShops = $this->shopProvider->getUnlinkedShops($psxName, (int) $employee->id);
         $shopBase64 = base64_encode(
             (string) json_encode(array_values($unlinkedShops))
         );
@@ -136,12 +139,12 @@ class PsAccountsPresenter implements PresenterInterface
                         'uuid' => $this->psAccountsService->getUserUuid() ?: null,
                         'email' => $this->psAccountsService->getEmail() ?: null,
                         'emailIsValidated' => $this->psAccountsService->isEmailValidated(),
-                        'isSuperAdmin' => $shopContext->getContext()->employee->isSuperAdmin(),
+                        'isSuperAdmin' => $employee->isSuperAdmin(),
                     ],
                     'backendUser' => [
-                        'email' => $shopContext->getContext()->employee->email,
-                        'employeeId' => $shopContext->getContext()->employee->id,
-                        'isSuperAdmin' => $shopContext->getContext()->employee->isSuperAdmin(),
+                        'email' => $employee->email,
+                        'employeeId' => $employee->id,
+                        'isSuperAdmin' => $employee->isSuperAdmin(),
                     ],
                     'currentShop' => $this->shopProvider->getCurrentShop($psxName),
                     'isShopContext' => $shopContext->isShopContext(),
