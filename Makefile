@@ -230,7 +230,7 @@ phpunit-nightly:                  platform-nightly                  phpunit
 
 #"latest", "1.7.6.5", "1.6.1.21"
 phpstan-1.6.1.24-7.1: platform-1.6.1.24-7.1 phpstan
-phpstan-1.7.7.8-7.1:  platform-1.7.7.8-7.1  phpstan
+phpstan-8.1.5-7.4:    platform-8.1.5-7.4    phpstan
 
 php-cs-fixer-test-1.6.1.24-5.6-fpm-stretch: platform-1.6.1.24-5.6-fpm-stretch platform-php-cs-fixer-test
 php-cs-fixer-1.6.1.24-5.6-fpm-stretch: platform-1.6.1.24-5.6-fpm-stretch platform-php-cs-fixer
