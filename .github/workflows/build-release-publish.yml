@@ -101,19 +101,10 @@ jobs:
           service_account_key: ${{ secrets.G_CREDENTIAL_PRODUCTION }}
           export_default_credentials: true
 
-#      - name: Copy config files
-#        run: |
-#          gcloud components install beta
-#          gcloud beta secrets versions access latest --secret="accounts-module-config" > ${{ github.workspace }}/config/config.yml
-#        env:
-#          GOOGLE_APPLICATION_CREDENTIALS: ${{ secrets.G_CREDENTIAL_PRODUCTION }}
-
       - name: Prepare the production zip
         run: |
           cd ${{ github.workspace }}
           sh ./scripts/bundle-module.sh ${{ env.zip_file }} 'prod'
-#        env:
-#          ENV_FILE: ${{ secrets.PS_ACCOUNTS_ENV_PROD }}
 
       - name: Publish the production zip
         uses: actions/upload-release-asset@v1.0.1
@@ -147,13 +138,6 @@ jobs:
           project_id: ${{ secrets.GCLOUD_PROJECT_PREPROD }}
           service_account_key: ${{ secrets.G_CREDENTIAL_PREPROD }}
           export_default_credentials: true
-
-#      - name: Copy config files
-#        run: |
-#          gcloud components install beta
-#          gcloud beta secrets versions access latest --secret="accounts-module-config" > ${{ github.workspace }}/config/config.yml
-#        env:
-#          GOOGLE_APPLICATION_CREDENTIALS: ${{ secrets.G_CREDENTIAL_PREPROD }}
 
       - name: Prepare the preprod zip
         run: |
