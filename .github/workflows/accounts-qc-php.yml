@@ -38,7 +38,7 @@ jobs:
       - name: PHP syntax checker 8.3
         uses: prestashop/github-action-php-lint/8.3@master
         with:
-          folder-to-exclude: "! -path \"./tests/*\" ! -path \"./vendor/symfony/polyfill-*\""
+          folder-to-exclude: "! -path \"./tests/*\" ! -path \"./vendor/symfony/polyfill-*\" ! path \"./vendor/segmentio/analytics-php/*\""
 
   php-cs-fixer:
     name: PHP-CS-FIXER
