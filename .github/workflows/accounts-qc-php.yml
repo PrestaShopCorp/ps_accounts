@@ -115,22 +115,24 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v3
 
-      - name: Cache vendor folder
-        uses: actions/cache@v3
-        with:
-          path: vendor
-          key: php-${{ hashFiles('composer.lock') }}
+      - run: make header-stamp-test
 
-      - name: Cache composer folder
-        uses: actions/cache@v3
-        with:
-          path: ~/.composer/cache
-          key: php-composer-cache
-
-      - run: composer install
-
-      - name: Run Header Stamp in Dry Run mode
-        run: php vendor/bin/header-stamp --license=vendor/prestashop/header-stamp/assets/afl.txt --exclude=.github,node_modules,vendor,vendor,tests,_dev --dry-run
+#      - name: Cache vendor folder
+#        uses: actions/cache@v3
+#        with:
+#          path: vendor
+#          key: php-${{ hashFiles('composer.lock') }}
+#
+#      - name: Cache composer folder
+#        uses: actions/cache@v3
+#        with:
+#          path: ~/.composer/cache
+#          key: php-composer-cache
+#
+#      - run: composer install
+#
+#      - name: Run Header Stamp in Dry Run mode
+#        run: php vendor/bin/header-stamp --license=vendor/prestashop/header-stamp/assets/afl.txt --exclude=.github,node_modules,vendor,vendor,tests,_dev --dry-run
 
   notify-earth:
     if: ${{ github.event.action == 'labeled' && github.event.label.name == 'ready to review' }}
