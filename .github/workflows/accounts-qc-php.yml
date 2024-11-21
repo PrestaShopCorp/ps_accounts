@@ -12,30 +12,33 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v3
 
+      - name: Scoped dependencies
+        run: make php-scoper
+
       - name: PHP syntax checker 5.6
         uses: prestashop/github-action-php-lint/5.6@master
         with:
-          folder-to-exclude: "! -path \"./tests/*\""
+          folder-to-exclude: "! -path \"./tests/*\" ! -path \"./vendor/*\""
 
       - name: PHP syntax checker 7.2
         uses: prestashop/github-action-php-lint/7.2@master
         with:
-          folder-to-exclude: "! -path \"./tests/*\""
+          folder-to-exclude: "! -path \"./tests/*\" ! -path \"./vendor/symfony/polyfill-*\""
 
       - name: PHP syntax checker 7.3
         uses: prestashop/github-action-php-lint/7.3@master
         with:
-          folder-to-exclude: "! -path \"./tests/*\""
+          folder-to-exclude: "! -path \"./tests/*\" ! -path \"./vendor/symfony/polyfill-*\""
 
       - name: PHP syntax checker 8.1
         uses: prestashop/github-action-php-lint/8.1@master
         with:
-          folder-to-exclude: "! -path \"./tests/*\""
+          folder-to-exclude: "! -path \"./tests/*\" ! -path \"./vendor/symfony/polyfill-*\""
 
       - name: PHP syntax checker 8.3
         uses: prestashop/github-action-php-lint/8.3@master
         with:
-          folder-to-exclude: "! -path \"./tests/*\""
+          folder-to-exclude: "! -path \"./tests/*\" ! -path \"./vendor/symfony/polyfill-*\""
 
   php-cs-fixer:
     name: PHP-CS-FIXER

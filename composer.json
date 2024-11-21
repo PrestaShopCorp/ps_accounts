@@ -42,7 +42,7 @@
         "phpseclib/phpseclib": "^2.0",
         "ext-json": "*",
         "lcobucci/jwt": "^3.3",
-        "monolog/monolog": "1.25.3",
+        "monolog/monolog": "^1.25.3",
         "sentry/sentry": "^1.0",
         "segmentio/analytics-php": "^1.8",
         "ramsey/uuid": "^3.9",
