@@ -24,7 +24,7 @@ jobs:
       - name: PHP syntax checker 7.2
         uses: prestashop/github-action-php-lint/7.2@master
         with:
-          folder-to-exclude: "! -path \"./tests/*\""
+          folder-to-exclude: "! -path \"./tests/*\" ! -path \"./vendor/symfony/polyfill-*\"
 
       - name: PHP syntax checker 7.3
         uses: prestashop/github-action-php-lint/7.3@master
