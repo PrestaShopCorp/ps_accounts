@@ -84,7 +84,7 @@ class Installer
         $moduleIsInstalled = $moduleManager->install($module);
 
         if (false === $moduleIsInstalled) {
-            SentryService::capture(new \Exception("Module ${module} can't be installed"));
+            SentryService::capture(new \Exception('Module ' . $module . " can't be installed"));
         }
 
         return $moduleIsInstalled;
