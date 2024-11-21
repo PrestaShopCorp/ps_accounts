@@ -5,14 +5,6 @@ services:
     arguments:
       - '@PrestaShop\Module\PsAccounts\Account\LinkShop'
 
-  PrestaShop\Module\PsAccounts\Account\CommandHandler\MigrateAndLinkV4ShopHandler:
-    class: PrestaShop\Module\PsAccounts\Account\CommandHandler\MigrateAndLinkV4ShopHandler
-    public: true
-    arguments:
-      - '@PrestaShop\Module\PsAccounts\Api\Client\AccountsClient'
-      - '@PrestaShop\Module\PsAccounts\Context\ShopContext'
-      - '@PrestaShop\Module\PsAccounts\Account\Session\Firebase\ShopSession'
-
   PrestaShop\Module\PsAccounts\Account\CommandHandler\DeleteUserShopHandler:
     class: PrestaShop\Module\PsAccounts\Account\CommandHandler\DeleteUserShopHandler
     public: true
