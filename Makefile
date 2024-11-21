@@ -38,7 +38,7 @@ PLATFORM_COMPOSE_FILE ?= docker-compose.flashlight.yml
 
 COMPOSER_FILE ?= composer.json
 .PHONY: tests/vendor
-tests/vendor:
+tests/vendor: composer.phar
 #	rm -rf ./tests/vendor
 	env COMPOSER=${COMPOSER_FILE} ${COMPOSER} install --working-dir=./tests/ --quiet
 
