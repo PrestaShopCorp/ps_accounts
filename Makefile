@@ -296,11 +296,11 @@ autoindex: tests/vendor
 
 header-stamp: COMPOSER_FILE := composer56.json
 header-stamp: tests/vendor
-	${PHP} ./tests/vendor/bin/header-stamp --target="${WORKDIR}" --license="assets/afl.txt" --exclude=".github,node_modules,vendor,vendor,tests,_dev"
+	${PHP} ./tests/vendor/bin/header-stamp --quiet --target="${WORKDIR}" --license="assets/afl.txt" --exclude=".github,node_modules,vendor,vendor,tests,_dev"
 
 header-stamp-test: COMPOSER_FILE := composer56.json
 header-stamp-test: tests/vendor
-	${PHP} ./tests/vendor/bin/header-stamp --dry-run --target="${WORKDIR}" --license="assets/afl.txt" --exclude=".github,node_modules,vendor,vendor,tests,_dev"
+	${PHP} ./tests/vendor/bin/header-stamp --dry-run --quiet --target="${WORKDIR}" --license="assets/afl.txt" --exclude=".github,node_modules,vendor,vendor,tests,_dev"
 
 ##########################################################
 COMPOSER_OPTIONS ?= --prefer-dist -o --no-dev --quiet
