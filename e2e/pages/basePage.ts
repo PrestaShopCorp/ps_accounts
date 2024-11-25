@@ -8,6 +8,7 @@ export default class BasePage extends CommonPage {
   public readonly passwordInput: Locator;
   public readonly submitLoginButton: Locator;
   private readonly anotherMethodLink: Locator;
+  private readonly secureModeMethodLink: Locator;
 
   /* <<<<<<<<<<<<<<< SHIPPING >>>>>>>>>>>>>>>>>>>>>> */
   public readonly shippingParentLink: Locator;
@@ -28,6 +29,7 @@ export default class BasePage extends CommonPage {
     this.passwordInput = this.page.locator('#passwd');
     this.submitLoginButton = this.page.getByRole('button', {name: 'Log in'});
     this.anotherMethodLink = this.page.getByRole('link', {name: 'Connect with another method'});
+    this.secureModeMethodLink = this.page.getByRole('link', {name: 'log in to secure mode (https://)'});
 
     /* <<<<<<<<<<<<<<< SHIPPING >>>>>>>>>>>>>>>>>>>>>> */
     this.shippingParentLink = this.page.locator('#subtab-AdminParentShipping');
@@ -39,6 +41,22 @@ export default class BasePage extends CommonPage {
     this.moduleManagerLink = this.page.locator('#subtab-AdminModulesSf');
 
     this.openMenuSelector = (menuSelector) => menuSelector.and(this.page.locator('.open'));
+  }
+
+  /**
+   * Is Link for Secure Mode method is visible
+   * @returns
+   * True if another login method visible
+   */
+  isSecureModeMethodLinkVisible(): Promise<boolean> {
+    return this.isVisible(this.secureModeMethodLink, 1000);
+  }
+
+  /**
+   * Click on connect with Secure Mode
+   */
+  async connectSecureModeMethodLink(): Promise<void> {
+    await this.clickAndWaitForLoadState(this.secureModeMethodLink, 'networkidle');
   }
 
   /**
