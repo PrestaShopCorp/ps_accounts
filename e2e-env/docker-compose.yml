@@ -29,14 +29,16 @@ services:
     env_file: .env
     depends_on:
       mysql:
-        condition: service_healthy
+        condition: service_started
     environment:
       ADMIN_MAIL: "ervin.klicic@prestashop.com"
       ADMIN_PASSWD: "prestashop"
       PS_DOMAIN: ${PS_DOMAIN}
       SSL_REDIRECT: true
+      INSTALL_MODULES_DIR: /modules/downloads/auto-install
     volumes:
       - ./init-scripts:/tmp/init-scripts:ro
+      - ./modules:/modules
     ports:
       - "8000:80"
     
@@ -54,28 +56,11 @@ services:
         - PMA_PASSWORD=prestashop
         - MYSQL_ROOT_PASSWORD=prestashop
 
-  mytun-config:
-    restart: 'no'
-    extends:
-      file: ./myTun/docker-compose.yml
-      service: config-generator
-    environment:
-      ACCOUNT_TAG: ${ACCOUNT_TAG}
-      TUNNEL_SECRET: ${TUNNEL_SECRET}
-      TUNNEL_ID: ${TUNNEL_ID}
-      PS_DOMAIN: ${PS_DOMAIN}
-
   mytun:
     restart: always
     image: cloudflare/cloudflared:latest
     command: tunnel --config /config.yml run
-    depends_on:
-      mytun-config:
-        condition: service_completed_successfully
     volumes:
-      - ./myTun/config/mytun-config.yml:/config.yml
-      - ./myTun/config/mytun-credentials.json:/credentials.json
+    - ./myTun/config/mytun-config.yml:/config.yml:ro
+    - ./myTun/config/mytun-credentials.json:/credentials.json:ro
 
-volumes:
-  modules:
-    driver: local

@@ -17,30 +17,49 @@ currentDate=$(date +%s)
 shopVersion=$1
 psDomain="${currentDate}.${DOMAIN}"
 psAccountsVersion="${PS_ACCOUNTS_VERSION}"
+accountTag="${ACCOUNT_TAG}"
+tunnelSecret="${TUNNEL_SECRET}"
+tunnelId="${TUNNEL_ID}"
 # Ping de l'URL
 appUrl="https://$psDomain"
 
 # Exécution de la commande make
 makeFilePath='./'
-makeCommand="make -C $makeFilePath docker-build PS_ACCOUNTS_VERSION=$psAccountsVersion PS_VERSION=$shopVersion PS_DOMAIN=$psDomain"
+makeCommand="make -C $makeFilePath docker-build PS_ACCOUNTS_VERSION=$psAccountsVersion PS_VERSION=$shopVersion PS_DOMAIN=$psDomain TUNNEL_ID=$tunnelId TUNNEL_SECRET=$tunnelSecret ACCOUNT_TAG=$accountTag"
 eval $makeCommand
 
 # Fonction pour ping l'URL
 ping_url() {
-  url=$1
-  attempts=0
-  max_attempts=12
+  local url=$1
+  local timeout_duration=30
+  local start_time=$(date +%s)
+
+  if [ -z "$url" ]; then
+    echo "Error: No URL specified."
+    exit 1
+  fi
+
+  echo "Pinging URL: $url"
+
   while true; do
-    response_code=$(curl -s -o /dev/null -w "%{http_code}" $url)
-    if [ $response_code -eq 200 ]; then
-      echo "L'URL est accessible : $url"
-      break
+    # Calcul du temps écoulé
+    local current_time=$(date +%s)
+    local elapsed_time=$((current_time - start_time))
+
+    # Vérifier si le délai est dépassé
+    if [ $elapsed_time -ge $timeout_duration ]; then
+      echo "Timeout: The URL did not respond within $timeout_duration seconds. Exiting."
+      exit 1
     fi
-    attempts=$((attempts+1))
-    if [ $attempts -ge $max_attempts ]; then
-      echo "Échec de la vérification de l'URL après plusieurs tentatives : $url"
-      break
+
+    # Tester l'URL
+    response=$(curl -o /dev/null -s -w '%{http_code}' "$url")
+    if [ "$response" -eq 200 ] || [ "$response" -eq 302 ]; then
+      echo "URL is reachable."
+      return 0
     fi
+
+    echo "Waiting for URL to be reachable... (elapsed: $elapsed_time seconds, last response: $response)"
     sleep 5
   done
 }
