@@ -1,0 +1,78 @@
+name: Account Back autom tests
+
+on:
+  workflow_dispatch:
+
+env:
+  QA_BASE_URL: ${{secrets.BASE_URL}}
+  QA_BASE_URL_FO: ${{secrets.BASE_URL_FO}}
+  QA_ADMIN_EMAIL: ${{secrets.ADMIN_EMAIL}}
+  QA_ADMIN_PASSWORD: ${{secrets.ADMIN_PASSWORD}}
+  QA_DB_HOST: ${{secrets.DB_HOST}}
+  QA_DB_PORT: ${{secrets.DB_PORT}}
+  QA_DB_USER: ${{secrets.DB_USER}}
+  QA_DB_PASSWORD: ${{secrets.DB_PASSWORD}}
+  QA_DB_NAME: ${{secrets.DB_NAME}}
+  QA_OAUTH2URL: ${{secrets.OAUTH2URL}}
+  QA_ACCOUNTSAPIURL: ${{secrets.ACCOUNTSAPIURL}}
+  QA_ACCOUNTSUIURL: ${{secrets.ACCOUNTSUIURL}}
+
+
+jobs:
+  run-test:
+    name: Run Shipping tests
+    runs-on: ubuntu-22.04
+
+    steps:
+      - name: Checkout Repository
+        uses: 'actions/checkout@v4'
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 'node'
+
+      - name: Install dependencies
+        working-directory: ./e2e
+        run: |
+          npm install
+
+      - name: Install playwright browsers
+        working-directory: ./e2e
+        run: |
+          npx playwright install
+
+      - name: Generate .env file
+        run: |
+          echo "QA_ACCOUNT_TAG=${{ secrets.ACCOUNT_TAG }}" >> e2e-env/.env
+          echo "QA_TUNNEL_SECRET=${{ secrets.TUNNEL_SECRET }}" >> e2e-env/.env
+          echo "QA_TUNNEL_ID=${{ secrets.TUNNEL_ID }}" >> e2e-env/.env
+          echo "QA_PS_DOMAIN=${{ secrets.PS_DOMAIN }}" >> e2e-env/.env
+          echo "QA_DOMAIN=${{ secrets.DOMAIN }}" >> e2e-env/.env
+          echo "QA_DOWNLOADER_TOKEN=${{ secrets.DOWNLOADER_TOKEN }}" >> e2e-env/.env
+          echo "QA_DOCKER_IMAGE_PRESTASHOP=${{ secrets.DOCKER_IMAGE_PRESTASHOP }}" >> e2e-env/.env
+          echo "QA_DOCKER_VERSION_MARIADB=${{ secrets.DOCKER_VERSION_MARIADB }}" >> e2e-env/.env
+          echo "QA_HOST_PORT_BIND_PHP_MY_ADMIN=${{ secrets.HOST_PORT_BIND_PHP_MY_ADMIN }}" >> e2e-env/.env
+          echo "QA_PS_BIND_PORT=${{ secrets.PS_BIND_PORT }}" >> e2e-env/.env
+          echo "QA_DB_BIND_PORT=${{ secrets.DB_BIND_PORT }}" >> e2e-env/.env
+          echo "QA_PS_VERSION=${{ secrets.PS_VERSION }}" >> e2e-env/.env
+          echo "QA_PS_ACCOUNTS_VERSION=${{ secrets.PS_ACCOUNTS_VERSION }}" >> e2e-env/.env
+
+
+      - name: Run test
+        working-directory: ./e2e
+        run: npm run test-all-version
+        continue-on-error: true
+      
+      - name: Generate Allur Repport
+        working-directory: ./e2e
+        run: npm run generate-allure-report
+
+      - name: Upload Playwright Test Reports
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: playwright-report-account-back testing
+          path: e2e/playwright-report/
+
+

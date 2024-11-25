@@ -6,6 +6,10 @@ cd "$(dirname $0)" || exit 1
 GITHUB_REPOSITORY="PrestaShopCorp/ps_accounts"
 TARGET_ASSET="ps_accounts_preprod-${PS_ACCOUNTS_VERSION#v}.zip"
 TARGET_VERSION=${PS_ACCOUNTS_VERSION}
+if [[ "$TARGET_VERSION" == *"beta"* ]]; then
+    CLEANED_VERSION="${PS_ACCOUNTS_VERSION%-beta.*}" 
+   TARGET_ASSET="ps_accounts_preprod-${CLEANED_VERSION#v}.zip"
+fi
 echo "* [ps_accounts] downloading..."
 wget -q -O /tmp/ps_accounts.zip "https://github.com/${GITHUB_REPOSITORY}/releases/download/${TARGET_VERSION}/${TARGET_ASSET}"
 echo "* [ps_accounts] unziping..."
