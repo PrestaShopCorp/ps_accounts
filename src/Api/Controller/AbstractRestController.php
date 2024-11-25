@@ -67,6 +67,13 @@ abstract class AbstractRestController extends ModuleFrontController
 
     /**
      * @return void
+     */
+    public function initContent()
+    {
+    }
+
+    /**
+     * @return void
      *
      * @throws \PrestaShopException
      */
