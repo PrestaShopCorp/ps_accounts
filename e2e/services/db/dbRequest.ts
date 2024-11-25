@@ -23,7 +23,7 @@ export default class DbRequest {
   // Method to check the module version
   async checkModuleVersion() {
     const module = await this.getModuleDetails();
-    expect(module.version).toContain(modulePsAccount.version.replace(/^v/, ''));
+    expect(module.version).toContain(modulePsAccount.version);
   }
 
   // Method to check if the module is active

@@ -5,7 +5,6 @@ export class Globals extends GlobalVars {
   //URLs
   public static base_url = process.env.BASE_URL ?? 'localhost empty';
   public static base_url_fo = process.env.BASE_URL_FO ?? 'localhost empty';
-  public static mbe_base_url = process.env.MBE_BASE_URL ?? 'localhost empty';
   public static account_base_url_prefixe = process.env.ACCOUNT_BASE_URL_PREFIXE ?? 'localhost empty';
   //Secrets
   public static admin_email = process.env.ADMIN_EMAIL ?? 'email empty';
