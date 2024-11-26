@@ -37,8 +37,8 @@ use PrestaShop\Module\PsAccounts\Service\AnalyticsService;
 use PrestaShop\Module\PsAccounts\Service\PsAccountsService;
 use PrestaShop\Module\PsAccounts\Service\PsBillingService;
 use PrestaShop\Module\PsAccounts\Service\SentryService;
-use PrestaShopCorp\LightweightContainer\ServiceContainer\Contract\IServiceProvider;
-use PrestaShopCorp\LightweightContainer\ServiceContainer\ServiceContainer;
+use PrestaShop\Module\PsAccounts\Vendor\PrestaShopCorp\LightweightContainer\ServiceContainer\Contract\IServiceProvider;
+use PrestaShop\Module\PsAccounts\Vendor\PrestaShopCorp\LightweightContainer\ServiceContainer\ServiceContainer;
 
 class DefaultProvider implements IServiceProvider
 {

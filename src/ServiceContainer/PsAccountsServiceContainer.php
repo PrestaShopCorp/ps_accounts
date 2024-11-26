@@ -22,7 +22,7 @@ namespace PrestaShop\Module\PsAccounts\ServiceContainer;
 
 use Monolog\Logger;
 use PrestaShop\Module\PsAccounts\Log\Logger as LoggerFactory;
-use PrestaShopCorp\LightweightContainer\ServiceContainer\ServiceContainer;
+use PrestaShop\Module\PsAccounts\Vendor\PrestaShopCorp\LightweightContainer\ServiceContainer\ServiceContainer;
 
 class PsAccountsServiceContainer extends ServiceContainer
 {

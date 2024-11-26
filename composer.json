@@ -30,7 +30,8 @@
             "PrestaShop\\Module\\PsAccounts\\Vendor\\phpseclib\\": "vendor/phpseclib/phpseclib/phpseclib",
             "PrestaShop\\Module\\PsAccounts\\Vendor\\Psr\\Http\\Message\\": "vendor/psr/http-message/src",
             "PrestaShop\\Module\\PsAccounts\\Vendor\\Psr\\Log\\": "vendor/psr/log/Psr/Log",
-            "PrestaShop\\Module\\PsAccounts\\Vendor\\Ramsey\\Uuid\\": "vendor/ramsey/uuid/src"
+            "PrestaShop\\Module\\PsAccounts\\Vendor\\Ramsey\\Uuid\\": "vendor/ramsey/uuid/src",
+            "PrestaShop\\Module\\PsAccounts\\Vendor\\PrestaShopCorp\\LightweightContainer\\": "vendor/prestashopcorp/lightweight-container/src"
         },
         "classmap": [
             "ps_accounts.php",
