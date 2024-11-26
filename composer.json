@@ -57,10 +57,5 @@
         "url": "git@github.com:PrestaShopCorp/lightweight-container.git"
       }
     ],
-    "scripts": {
-        "set-license-header": [
-            "@php ./vendor/bin/header-stamp --license=\"assets/afl.txt\" --exclude=\".github,node_modules,vendor,vendor,tests,_dev\""
-        ]
-    },
     "author": "PrestaShop"
 }
