@@ -5,20 +5,6 @@ on:
     types: [opened, reopened, synchronize]
   workflow_dispatch:
 
-env:
-  QA_BASE_URL: ${{secrets.BASE_URL}}
-  QA_BASE_URL_FO: ${{secrets.BASE_URL_FO}}
-  QA_ADMIN_EMAIL: ${{secrets.ADMIN_EMAIL}}
-  QA_ADMIN_PASSWORD: ${{secrets.ADMIN_PASSWORD}}
-  QA_DB_HOST: ${{secrets.DB_HOST}}
-  QA_DB_PORT: ${{secrets.DB_PORT}}
-  QA_DB_USER: ${{secrets.DB_USER}}
-  QA_DB_PASSWORD: ${{secrets.DB_PASSWORD}}
-  QA_DB_NAME: ${{secrets.DB_NAME}}
-  QA_OAUTH2URL: ${{secrets.OAUTH2URL}}
-  QA_ACCOUNTSAPIURL: ${{secrets.ACCOUNTSAPIURL}}
-  QA_ACCOUNTSUIURL: ${{secrets.ACCOUNTSUIURL}}
-
 
 jobs:
   run-test:
@@ -46,6 +32,18 @@ jobs:
 
       - name: Generate .env file
         run: |
+          echo "QA_BASE_URL=${{secrets.BASE_URL}}" >> e2e-env/.env
+          echo "QA_BASE_URL_FO=${{secrets.BASE_URL_FO}}">> e2e-env/.env
+          echo "QA_ADMIN_EMAIL=${{secrets.ADMIN_EMAIL}}" >> e2e-env/.env
+          echo "QA_ADMIN_PASSWORD=${{secrets.ADMIN_PASSWORD}}" >> e2e-env/.env
+          echo "QA_DB_HOST=${{secrets.DB_HOST}}" >> e2e-env/.env
+          echo "QA_DB_PORT=${{secrets.DB_PORT}} ">> e2e-env/.env
+          echo "QA_DB_USER=${{secrets.DB_USER}}" >> e2e-env/.env
+          echo "QA_DB_PASSWORD=${{secrets.DB_PASSWORD}}" >> e2e-env/.env
+          echo "QA_DB_NAME=${{secrets.DB_NAME}}" >> e2e-env/.env
+          echo "QA_OAUTH2URL=${{secrets.OAUTH2URL}}" >> e2e-env/.env
+          echo "QA_ACCOUNTSAPIURL=${{secrets.ACCOUNTSAPIURL}}" >> e2e-env/.env
+          echo "QA_ACCOUNTSUIURL=${{secrets.ACCOUNTSUIURL}}" >> e2e-env/.env
           echo "QA_ACCOUNT_TAG=${{ secrets.ACCOUNT_TAG }}" >> e2e-env/.env
           echo "QA_TUNNEL_SECRET=${{ secrets.TUNNEL_SECRET }}" >> e2e-env/.env
           echo "QA_TUNNEL_ID=${{ secrets.TUNNEL_ID }}" >> e2e-env/.env
