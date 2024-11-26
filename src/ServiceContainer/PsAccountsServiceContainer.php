@@ -53,6 +53,7 @@ class PsAccountsServiceContainer extends ServiceContainer
                 $this->getParameterWithDefault('ps_accounts.log_level', LoggerFactory::ERROR)
             );
         }
+
         return $this->logger;
     }
 }
