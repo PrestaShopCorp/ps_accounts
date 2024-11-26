@@ -95,14 +95,14 @@ jobs:
         run: |
           make header-stamp-test
 
-  header-stamp:
-    name: Check license headers
-    runs-on: ubuntu-20.04
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v3
-
-      - run: make header-stamp-test
+#  header-stamp:
+#    name: Check license headers
+#    runs-on: ubuntu-20.04
+#    steps:
+#      - name: Checkout
+#        uses: actions/checkout@v3
+#
+#      - run: make header-stamp-test
 
   notify-earth:
     if: ${{ github.event.action == 'labeled' && github.event.label.name == 'ready to review' }}
