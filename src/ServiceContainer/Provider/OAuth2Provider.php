@@ -24,8 +24,8 @@ use PrestaShop\Module\PsAccounts\Factory\PrestaShopSessionFactory;
 use PrestaShop\Module\PsAccounts\Middleware\Oauth2Middleware;
 use PrestaShop\Module\PsAccounts\Provider;
 use PrestaShop\Module\PsAccounts\Repository\ConfigurationRepository;
-use PrestaShop\Module\PsAccounts\ServiceContainer\Contract\IServiceProvider;
-use PrestaShop\Module\PsAccounts\ServiceContainer\ServiceContainer;
+use PrestaShopCorp\LightweightContainer\ServiceContainer\Contract\IServiceProvider;
+use PrestaShopCorp\LightweightContainer\ServiceContainer\ServiceContainer;
 
 class OAuth2Provider implements IServiceProvider
 {

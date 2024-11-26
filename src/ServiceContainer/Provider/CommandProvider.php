@@ -35,8 +35,8 @@ use PrestaShop\Module\PsAccounts\Cqrs\CommandBus;
 use PrestaShop\Module\PsAccounts\Provider\ShopProvider;
 use PrestaShop\Module\PsAccounts\Repository\ConfigurationRepository;
 use PrestaShop\Module\PsAccounts\Service\AnalyticsService;
-use PrestaShop\Module\PsAccounts\ServiceContainer\Contract\IServiceProvider;
-use PrestaShop\Module\PsAccounts\ServiceContainer\ServiceContainer;
+use PrestaShopCorp\LightweightContainer\ServiceContainer\Contract\IServiceProvider;
+use PrestaShopCorp\LightweightContainer\ServiceContainer\ServiceContainer;
 
 class CommandProvider implements IServiceProvider
 {

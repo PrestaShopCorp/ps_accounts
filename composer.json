@@ -47,8 +47,15 @@
         "segmentio/analytics-php": "^1.8",
         "ramsey/uuid": "^3.9",
         "prestashopcorp/oauth2-prestashop": "^2.0",
-        "guzzlehttp/guzzle": "^6.0"
+        "guzzlehttp/guzzle": "^6.0",
+        "prestashopcorp/lightweight-container": "dev-main"
     },
+    "repositories": [
+      {
+        "type": "vcs",
+        "url": "git@github.com:PrestaShopCorp/lightweight-container.git"
+      }
+    ],
     "scripts": {
         "set-license-header": [
             "@php ./vendor/bin/header-stamp --license=\"assets/afl.txt\" --exclude=\".github,node_modules,vendor,vendor,tests,_dev\""

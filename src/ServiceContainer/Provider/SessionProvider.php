@@ -26,8 +26,8 @@ use PrestaShop\Module\PsAccounts\Account\Session\ShopSession;
 use PrestaShop\Module\PsAccounts\Cqrs\CommandBus;
 use PrestaShop\Module\PsAccounts\Provider\OAuth2\ShopProvider;
 use PrestaShop\Module\PsAccounts\Repository\ConfigurationRepository;
-use PrestaShop\Module\PsAccounts\ServiceContainer\Contract\IServiceProvider;
-use PrestaShop\Module\PsAccounts\ServiceContainer\ServiceContainer;
+use PrestaShopCorp\LightweightContainer\ServiceContainer\Contract\IServiceProvider;
+use PrestaShopCorp\LightweightContainer\ServiceContainer\ServiceContainer;
 
 class SessionProvider implements IServiceProvider
 {

@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "1835e233658f5c06321a3acaf0b5b1c8",
+    "content-hash": "e1e08bc9be7000c8d1553fbbafe15167",
     "packages": [
         {
             "name": "guzzlehttp/guzzle",
@@ -701,6 +701,43 @@
                 }
             ],
             "time": "2024-02-26T04:55:38+00:00"
+        },
+        {
+            "name": "prestashopcorp/lightweight-container",
+            "version": "dev-main",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/PrestaShopCorp/lightweight-container.git",
+                "reference": "2eee4e137f380011627ee95a934ce29984c0b42f"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/PrestaShopCorp/lightweight-container/zipball/2eee4e137f380011627ee95a934ce29984c0b42f",
+                "reference": "2eee4e137f380011627ee95a934ce29984c0b42f",
+                "shasum": ""
+            },
+            "require": {
+                "php": ">=5.6"
+            },
+            "default-branch": true,
+            "type": "library",
+            "autoload": {
+                "psr-4": {
+                    "PrestaShopCorp\\LightweightContainer\\": "src/"
+                }
+            },
+            "authors": [
+                {
+                    "name": "hschoenenberger",
+                    "email": "herve.schoenenberger@prestashop.com"
+                }
+            ],
+            "description": "No-deps lightweight service container",
+            "support": {
+                "source": "https://github.com/PrestaShopCorp/lightweight-container/tree/main",
+                "issues": "https://github.com/PrestaShopCorp/lightweight-container/issues"
+            },
+            "time": "2024-11-26T13:26:04+00:00"
         },
         {
             "name": "prestashopcorp/oauth2-prestashop",
@@ -1539,7 +1576,9 @@
     "packages-dev": [],
     "aliases": [],
     "minimum-stability": "stable",
-    "stability-flags": [],
+    "stability-flags": {
+        "prestashopcorp/lightweight-container": 20
+    },
     "prefer-stable": false,
     "prefer-lowest": false,
     "platform": {

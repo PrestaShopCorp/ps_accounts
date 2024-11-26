@@ -37,8 +37,8 @@ use PrestaShop\Module\PsAccounts\Service\AnalyticsService;
 use PrestaShop\Module\PsAccounts\Service\PsAccountsService;
 use PrestaShop\Module\PsAccounts\Service\PsBillingService;
 use PrestaShop\Module\PsAccounts\Service\SentryService;
-use PrestaShop\Module\PsAccounts\ServiceContainer\Contract\IServiceProvider;
-use PrestaShop\Module\PsAccounts\ServiceContainer\ServiceContainer;
+use PrestaShopCorp\LightweightContainer\ServiceContainer\Contract\IServiceProvider;
+use PrestaShopCorp\LightweightContainer\ServiceContainer\ServiceContainer;
 
 class DefaultProvider implements IServiceProvider
 {
@@ -49,6 +49,8 @@ class DefaultProvider implements IServiceProvider
      */
     public function provide(ServiceContainer $container)
     {
+        $container->set('ps_accounts.logger', $container->getLogger());
+
         $container->registerProvider('ps_accounts.context', static function () {
             return \Context::getContext();
         });

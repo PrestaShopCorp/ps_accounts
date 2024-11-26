@@ -26,8 +26,8 @@ use PrestaShop\Module\PsAccounts\Adapter\Configuration;
 use PrestaShop\Module\PsAccounts\Repository\ConfigurationRepository;
 use PrestaShop\Module\PsAccounts\Repository\ShopTokenRepository;
 use PrestaShop\Module\PsAccounts\Repository\UserTokenRepository;
-use PrestaShop\Module\PsAccounts\ServiceContainer\Contract\IServiceProvider;
-use PrestaShop\Module\PsAccounts\ServiceContainer\ServiceContainer;
+use PrestaShopCorp\LightweightContainer\ServiceContainer\Contract\IServiceProvider;
+use PrestaShopCorp\LightweightContainer\ServiceContainer\ServiceContainer;
 
 class RepositoryProvider implements IServiceProvider
 {

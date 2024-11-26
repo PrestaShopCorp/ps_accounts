@@ -119,7 +119,7 @@ class Ps_accounts extends Module
 //    private $serviceContainer;
 
     /**
-     * @var \PrestaShop\Module\PsAccounts\ServiceContainer\ServiceContainer
+     * @var \PrestaShop\Module\PsAccounts\ServiceContainer\PsAccountsServiceContainer
      */
     private $container;
 
@@ -234,14 +234,14 @@ class Ps_accounts extends Module
     }
 
     /**
-     * @return \PrestaShop\Module\PsAccounts\ServiceContainer\ServiceContainer
+     * @return \PrestaShop\Module\PsAccounts\ServiceContainer\PsAccountsServiceContainer
      *
      * @throws Exception
      */
     public function getServiceContainer()
     {
         if (null === $this->container) {
-            $this->container = \PrestaShop\Module\PsAccounts\ServiceContainer\ServiceContainer::createInstance(
+            $this->container = \PrestaShop\Module\PsAccounts\ServiceContainer\PsAccountsServiceContainer::createInstance(
                 __DIR__ . '/config.php'
             );
         }
