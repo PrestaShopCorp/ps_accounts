@@ -99,13 +99,13 @@ class CreateIdentityHandlerTest extends TestCase
         $this->oauth2Client->method('exists')->willReturn(true);
         $this->oauth2Client->method('update');
 
-        $this->accountsClient
-            ->method('createShopIdentity')
-            ->willReturn($this->createApiResponse([
-                'clientId' => $clientId,
-                'clientSecret' => $clientSecret,
-                "cloudShopId" => $cloudShopId
-            ], 200, true));
+//        $this->accountsClient
+//            ->method('createShopIdentity')
+//            ->willReturn($this->createApiResponse([
+//                'clientId' => $clientId,
+//                'clientSecret' => $clientSecret,
+//                "cloudShopId" => $cloudShopId
+//            ], 200, true));
 
         $this->accountsClient
             ->expects($this->never())

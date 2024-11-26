@@ -79,7 +79,7 @@ class CreateIdentityHandler
         // - identify shop (when ?) -> be sure we send version with it & when to trigger it ?
         // - UX associated ?
         // - Migrate routes using user token
-        if (!$this->oauth2Client->exists()) {
+        if ($this->oauth2Client->exists()) {
             return;
         }
 
