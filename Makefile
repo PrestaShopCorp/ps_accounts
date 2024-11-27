@@ -323,15 +323,15 @@ autoindex: COMPOSER_FILE := composer56.json
 autoindex: tests/vendor
 	${PHP} ./tests/vendor/bin/autoindex prestashop:add:index "${WORKDIR}"
 
-#HEADER_STAMP_DRY_RUN ?= ''
-#header-stamp: COMPOSER_FILE := composer56.json
-#header-stamp: tests/vendor
-#	${PHP} -d error_reporting=1 ./tests/vendor/bin/header-stamp --target="${WORKDIR}" ${HEADER_STAMP_DRY_RUN} \
-#		--license="assets/afl.txt" --exclude=".github,node_modules,vendor,vendor,tests,_dev"
-#
-#header-stamp-test: COMPOSER_FILE := composer56.json
-#header-stamp-test: HEADER_STAMP_DRY_RUN := '--dry-run'
-#header-stamp-test: tests/vendor header-stamp
+HEADER_STAMP_DRY_RUN ?= ''
+header-stamp-local: COMPOSER_FILE := composer56.json
+header-stamp-local: tests/vendor
+	${PHP} -d error_reporting=1 ./tests/vendor/bin/header-stamp --target="${WORKDIR}" ${HEADER_STAMP_DRY_RUN} \
+		--license="assets/afl.txt" --exclude=".github,node_modules,vendor,vendor,tests,_dev"
+
+header-stamp-local-test: COMPOSER_FILE := composer56.json
+header-stamp-local-test: HEADER_STAMP_DRY_RUN := '--dry-run'
+header-stamp-local-test: tests/vendor header-stamp-local
 
 ##########################################################
 COMPOSER_OPTIONS ?= --prefer-dist -o --no-dev --quiet
