@@ -5,6 +5,8 @@ on:
     types: [opened, reopened, synchronize]
   workflow_dispatch:
 
+env:
+  QA_DOMAIN: ${{ secrets.DOMAIN }}
 
 jobs:
   run-test:
