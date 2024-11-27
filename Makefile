@@ -8,8 +8,8 @@ MODULE ?= $(shell basename ${PWD})
 CURRENT_UID := $(shell id -u)
 CURRENT_GID := $(shell id -g)
 WORKDIR ?= .
-PS_VERSION ?= base-8.2-fpm-alpine
-TESTING_IMAGE ?= prestashop/prestashop-flashlight:${PS_VERSION}
+TESTING_IMAGE_TAG ?= base-8.2-fpm-alpine
+TESTING_IMAGE ?= prestashop/prestashop-flashlight:${TESTING_IMAGE_TAG}
 
 default: bundle
 
