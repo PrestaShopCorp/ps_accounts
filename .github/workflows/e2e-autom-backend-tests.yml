@@ -58,6 +58,8 @@ jobs:
           echo "QA_PS_VERSION=${{ secrets.PS_VERSION }}" >> e2e-env/.env
           echo "QA_PS_ACCOUNTS_VERSION=${{ secrets.PS_ACCOUNTS_VERSION }}" >> e2e-env/.env
 
+      - name: Check .env content
+        run: cat e2e-env/.env
 
       - name: Run test
         working-directory: ./e2e
@@ -68,11 +70,10 @@ jobs:
         working-directory: ./e2e
         run: npm run generate-allure-report
 
-      - name: Upload Playwright Test Reports
+      - name: Upload Allure Report
         uses: actions/upload-artifact@v4
-        if: always()
         with:
-          name: playwright-report-account-back testing
-          path: e2e/playwright-report/
+          name: allure-report
+          path: ./e2e/allure-report/
 
 
