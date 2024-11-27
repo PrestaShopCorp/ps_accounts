@@ -28,21 +28,10 @@
             "PrestaShop\\Module\\PsAccounts\\Vendor\\League\\OAuth2\\Client\\": "vendor/league/oauth2-client/src",
             "PrestaShop\\Module\\PsAccounts\\Vendor\\Lcobucci\\JWT\\": "vendor/lcobucci/jwt/src",
             "PrestaShop\\Module\\PsAccounts\\Vendor\\phpseclib\\": "vendor/phpseclib/phpseclib/phpseclib",
-            "PrestaShop\\Module\\PsAccounts\\Vendor\\Psr\\Cache\\": "vendor/psr/cache/src",
-            "PrestaShop\\Module\\PsAccounts\\Vendor\\Psr\\Container\\": "vendor/psr/container/src",
             "PrestaShop\\Module\\PsAccounts\\Vendor\\Psr\\Http\\Message\\": "vendor/psr/http-message/src",
             "PrestaShop\\Module\\PsAccounts\\Vendor\\Psr\\Log\\": "vendor/psr/log/Psr/Log",
-            "PrestaShop\\Module\\PsAccounts\\Vendor\\Psr\\SimpleCache\\": "vendor/psr/simple-cache/src",
             "PrestaShop\\Module\\PsAccounts\\Vendor\\Ramsey\\Uuid\\": "vendor/ramsey/uuid/src",
-
-            "PrestaShop\\Module\\PsAccounts\\Vendor\\Symfony\\Component\\Cache\\": "vendor/symfony/cache",
-            "PrestaShop\\Module\\PsAccounts\\Vendor\\Symfony\\Component\\DependencyInjection\\": "vendor/symfony/dependency-injection",
-            "PrestaShop\\Module\\PsAccounts\\Vendor\\Symfony\\Component\\ExpressionLanguage\\": "vendor/symfony/expression-language",
-            "PrestaShop\\Module\\PsAccounts\\Vendor\\Symfony\\Component\\Filesystem\\": "vendor/symfony/filesystem",
-            "PrestaShop\\Module\\PsAccounts\\Vendor\\Symfony\\Component\\Yaml\\": "vendor/symfony/yaml",
-
-            "PrestaShop\\Module\\PsAccounts\\Vendor\\PrestaShop\\ModuleLibServiceContainer\\": "vendor/prestashop/module-lib-service-container/src",
-            "PrestaShop\\Module\\PsAccounts\\Vendor\\PrestaShop\\ModuleLibCacheDirectoryProvider\\": "vendor/prestashop/module-lib-cache-directory-provider/src"
+            "PrestaShop\\Module\\PsAccounts\\Vendor\\PrestaShopCorp\\LightweightContainer\\": "vendor/prestashopcorp/lightweight-container/src"
         },
         "classmap": [
             "ps_accounts.php",
@@ -54,18 +43,19 @@
         "phpseclib/phpseclib": "^2.0",
         "ext-json": "*",
         "lcobucci/jwt": "^3.3",
-        "monolog/monolog": "1.25.3",
-        "prestashop/module-lib-service-container": "^1.2",
+        "monolog/monolog": "^1.25.3",
         "sentry/sentry": "^1.0",
         "segmentio/analytics-php": "^1.8",
         "ramsey/uuid": "^3.9",
         "prestashopcorp/oauth2-prestashop": "^2.0",
-        "guzzlehttp/guzzle": "^6.0"
+        "guzzlehttp/guzzle": "^6.0",
+        "prestashopcorp/lightweight-container": "dev-main"
     },
-    "scripts": {
-        "set-license-header": [
-            "@php ./vendor/bin/header-stamp --license=\"assets/afl.txt\" --exclude=\".github,node_modules,vendor,vendor,tests,_dev\""
-        ]
-    },
+    "repositories": [
+      {
+        "type": "vcs",
+        "url": "git@github.com:PrestaShopCorp/lightweight-container.git"
+      }
+    ],
     "author": "PrestaShop"
 }

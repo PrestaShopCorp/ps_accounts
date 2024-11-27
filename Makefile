@@ -32,13 +32,13 @@ version:
 # PLATFORM
 
 PLATFORM_REPO ?= prestashop/prestashop-flashlight
-PLATFORM_REPO_TAG ?= 8.1.5-7.4
-PLATFORM_IMAGE ?= ${PLATFORM_REPO}:${PHPUNIT_TAG}
+PLATFORM_TAG ?= 8.1.5-7.4
+PLATFORM_IMAGE ?= ${PLATFORM_REPO}:${PLATFORM_TAG}
 PLATFORM_COMPOSE_FILE ?= docker-compose.flashlight.yml
 
 COMPOSER_FILE ?= composer.json
 .PHONY: tests/vendor
-tests/vendor:
+tests/vendor: composer.phar
 #	rm -rf ./tests/vendor
 	env COMPOSER=${COMPOSER_FILE} ${COMPOSER} install --working-dir=./tests/ --quiet
 
@@ -57,9 +57,10 @@ platform-stop:
 
 platform-restart: platform-stop platform-start
 
-platform-module-config:
+.PHONY: config.php
+config.php:
 	@docker exec -w ${CONTAINER_INSTALL_DIR} phpunit \
-		sh -c "if [ ! -f ./config_module/config.yml ]; then cp ./config_module/config.yml.dist ./config_module/config.yml; fi"
+		sh -c "if [ ! -f ./config.php ]; then cp ./config.dist.php ./config.php; fi"
 
 platform-module-version:
 	@docker exec -w ${CONTAINER_INSTALL_DIR} phpunit \
@@ -70,17 +71,21 @@ platform-phpstan-config:
 	@docker exec -w ${CONTAINER_INSTALL_DIR}/tests phpunit \
 		sh -c "if [ -f ./phpstan/${NEON_FILE} ]; then cp ./phpstan/${NEON_FILE} ./phpstan/phpstan.neon; fi"
 
-platform-module-install: tests/vendor platform-phpstan-config platform-module-config platform-module-version
-	-@docker exec phpunit sh -c "if [ -f ./bin/console ]; then php -d memory_limit=-1 ./bin/console prestashop:module install ps_accounts; fi"
-	-@docker exec phpunit sh -c "if [ ! -f ./bin/console ]; then php -d memory_limit=-1 ./modules/ps_accounts/tests/install-module.php; fi"
+platform-module-install: tests/vendor platform-phpstan-config config.php platform-module-version
+	@docker exec phpunit sh -c "if [ -f ./bin/console ]; then php -d memory_limit=-1 ./bin/console prestashop:module install ps_accounts; fi"
+	@docker exec phpunit sh -c "if [ ! -f ./bin/console ]; then php -d memory_limit=-1 ./modules/ps_accounts/tests/install-module.php; fi"
 
 platform-fix-permissions:
-	@docker exec -u root phpunit sh -c "if [ -d ./var ]; then chown -R www-data:www-data ./var; fi"
-	@docker exec -u root phpunit sh -c "if [ -d ./cache ]; then chown -R www-data:www-data ./cache; fi" # PS1.6
-	@docker exec -u root phpunit sh -c "if [ -d ./log ]; then chown -R www-data:www-data ./log; fi" # PS1.6
-	@docker exec -u root phpunit sh -c "chgrp -R www-data ${CONTAINER_INSTALL_DIR}"
-	@docker exec -u root phpunit sh -c "find ${CONTAINER_INSTALL_DIR} -type d -exec chmod g+r,g+w,g+x {} \;"
-	@docker exec -u root phpunit sh -c "find ${CONTAINER_INSTALL_DIR} -type f -exec chmod g+r,g+w {} \;"
+	@docker exec phpunit sh -c "if [ -d ./var ]; then chown -R www-data:www-data ./var; fi"
+	@docker exec phpunit sh -c "if [ -d ./cache ]; then chown -R www-data:www-data ./cache; fi" # PS1.6
+	@docker exec phpunit sh -c "if [ -d ./log ]; then chown -R www-data:www-data ./log; fi" # PS1.6
+	#@docker exec -u root phpunit sh -c "chgrp -R www-data ${CONTAINER_INSTALL_DIR}"
+	#@docker exec -u root phpunit sh -c "find ${CONTAINER_INSTALL_DIR} -type d -exec chmod g+r,g+w,g+x {} \;"
+	#@docker exec -u root phpunit sh -c "find ${CONTAINER_INSTALL_DIR} -type f -exec chmod g+r,g+w {} \;"
+
+
+#platform-status:
+#	COMPOSER=composer71.json ./composer.phar outdated --locked -m --working-dir=./tests/
 
 #phpunit-xdebug:
 #	-@docker exec phpunit sh -c "docker-php-ext-enable xdebug"
@@ -99,7 +104,7 @@ define build-platform
 	$(eval neonfile = $(if $(neonfile:-=),$(neonfile),${NEON_FILE}))
 
 	PLATFORM_REPO=$(repo) \
-	PHPUNIT_TAG=$(tag) \
+	PLATFORM_TAG=$(tag) \
 	PLATFORM_COMPOSE_FILE=.docker/$(shell echo 'docker-compose.'$(repo)'.yml' | sed 's/\//@/') \
 	COMPOSER_FILE=${composer} \
 	NEON_FILE=${neonfile} \
@@ -136,6 +141,9 @@ platform-1.7.8.5-7.4:
 	$(call build-platform,$@)
 
 platform-8.1.5-7.4:
+	$(call build-platform,$@)
+
+platform-8.2.0-8.1:
 	$(call build-platform,$@)
 
 platform-nightly:
@@ -184,6 +192,24 @@ phpstan:
 	  --memory-limit=-1 \
 	  --configuration=./phpstan/phpstan.neon
 
+##############
+# HEADER-STAMP
+
+header-stamp-test:
+	@docker exec -w ${CONTAINER_INSTALL_DIR} \
+	phpunit ./tests/vendor/bin/header-stamp \
+	--target="${WORKDIR}" \
+	--license=./tests/vendor/prestashop/header-stamp/assets/afl.txt \
+	--exclude=.github,node_modules,vendor,dist,tests,_dev \
+	--dry-run
+
+header-stamp:
+	@docker exec -w ${CONTAINER_INSTALL_DIR} \
+	phpunit ./tests/vendor/bin/header-stamp \
+	--target="${WORKDIR}" \
+	--license=./tests/vendor/prestashop/header-stamp/assets/afl.txt \
+	--exclude=.github,node_modules,vendor,dist,tests,_dev
+
 #phpstan16: NEON_FILE := phpstan-PS-1.6.neon
 #phpstan16: phpstan
 
@@ -208,7 +234,7 @@ phpunit-nightly:                  platform-nightly                  phpunit
 
 #"latest", "1.7.6.5", "1.6.1.21"
 phpstan-1.6.1.24-7.1: platform-1.6.1.24-7.1 phpstan
-phpstan-1.7.7.8-7.1:  platform-1.7.7.8-7.1  phpstan
+phpstan-8.1.5-7.4:    platform-8.1.5-7.4    phpstan
 
 php-cs-fixer-test-1.6.1.24-5.6-fpm-stretch: platform-1.6.1.24-5.6-fpm-stretch platform-php-cs-fixer-test
 php-cs-fixer-1.6.1.24-5.6-fpm-stretch: platform-1.6.1.24-5.6-fpm-stretch platform-php-cs-fixer
@@ -258,13 +284,13 @@ BUNDLE_ZIP ?= # ex: ps_accounts_flavor.zip
 BUNDLE_VERSION ?= $(shell grep "<version>" config.xml | sed 's/^.*\([0-9]\+\.[0-9]\+\.[0-9]\+\).*/\1/')
 BUNDLE_JS ?= views/js/app.${BUNDLE_VERSION}.js
 
-bundle: php-scoper config_module/config.yml build-front
+bundle: php-scoper build-front
 	@./scripts/bundle-module.sh "${BUNDLE_ZIP}" "${BUNDLE_ENV}"
 
-bundle-prod: php-scoper config_module/config.yml.prod build-front
+bundle-prod: php-scoper config.php.prod build-front
 	@./scripts/bundle-module.sh "ps_accounts.zip" "prod"
 
-bundle-preprod: php-scoper config_module/config.yml.preprod build-front
+bundle-preprod: php-scoper config.php.preprod build-front
 	@./scripts/bundle-module.sh "ps_accounts_preprod.zip" "preprod"
 
 define build_front
@@ -297,9 +323,15 @@ autoindex: COMPOSER_FILE := composer56.json
 autoindex: tests/vendor
 	${PHP} ./tests/vendor/bin/autoindex prestashop:add:index "${WORKDIR}"
 
-header-stamp: COMPOSER_FILE := composer56.json
-header-stamp: tests/vendor
-	${PHP} ./tests/vendor/bin/header-stamp --target="${WORKDIR}" --license="assets/afl.txt" --exclude=".github,node_modules,vendor,vendor,tests,_dev"
+#HEADER_STAMP_DRY_RUN ?= ''
+#header-stamp: COMPOSER_FILE := composer56.json
+#header-stamp: tests/vendor
+#	${PHP} -d error_reporting=1 ./tests/vendor/bin/header-stamp --target="${WORKDIR}" ${HEADER_STAMP_DRY_RUN} \
+#		--license="assets/afl.txt" --exclude=".github,node_modules,vendor,vendor,tests,_dev"
+#
+#header-stamp-test: COMPOSER_FILE := composer56.json
+#header-stamp-test: HEADER_STAMP_DRY_RUN := '--dry-run'
+#header-stamp-test: tests/vendor header-stamp
 
 ##########################################################
 COMPOSER_OPTIONS ?= --prefer-dist -o --no-dev --quiet

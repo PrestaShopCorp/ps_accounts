@@ -1,5 +1,3 @@
-config
-config_module
 controllers
 sql
 src
@@ -8,7 +6,11 @@ translations
 upgrade
 vendor
 views
-CHANGELOG.md
+config
+config.php
+config.local.php
+config.prod.php
+config.preprod.php
 config.xml
 LICENSE
 logo.png

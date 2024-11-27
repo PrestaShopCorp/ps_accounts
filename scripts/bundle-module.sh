@@ -30,10 +30,10 @@ cd $dist || exit;
 
 # switch request configuration env
 if [ "$environment" ]; then
-  configFileEnv="./${module}/config_module/config.yml.${environment}"
+  configFileEnv="./${module}/config.${environment}.php"
   if [ -f "$configFileEnv" ]; then
     echo "using provided environment [${environment}]"
-    cp "$configFileEnv" "./${module}/config_module/config.yml"
+    cp "$configFileEnv" "./${module}/config.php"
   else
     echo "file not found [${configFileEnv}]"
   fi

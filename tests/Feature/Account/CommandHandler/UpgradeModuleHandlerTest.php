@@ -1,6 +1,6 @@
 <?php
 
-namespace PrestaShop\Module\PsAccounts\Tests\Feature\Api\Account\CommandHandler;
+namespace PrestaShop\Module\PsAccounts\Tests\Feature\Account\CommandHandler;
 
 use PrestaShop\Module\PsAccounts\Adapter\ConfigurationKeys;
 use PrestaShop\Module\PsAccounts\Adapter\Link;
@@ -126,6 +126,10 @@ class UpgradeModuleHandlerTest extends FeatureTestCase
     protected function loginIntoBackoffice()
     {
         $jar = $this->cookieJar;
+
+        $resLoginPage = $this->displayLoginPage($jar);
+
+        $this->module->getLogger()->info(print_r($resLoginPage->getBody(), true));
 
         $this->assertResponseOk(
             $this->displayLoginPage($jar)

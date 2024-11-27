@@ -34,9 +34,6 @@ class Ps_accounts extends Module
     // the module each time to get the version
     const VERSION = '7.0.9';
 
-    // Module own container configuration
-    const CONFIG_MODULE = 'config_module';
-
     /**
      * Admin tabs
      *
@@ -103,21 +100,26 @@ class Ps_accounts extends Module
         'displayDashboardTop',
 
         // toggle single/multi-shop
-//        'actionObjectShopAddAfter',
-//        'actionObjectShopDeleteAfter',
+        //'actionObjectShopAddAfter',
+        //'actionObjectShopDeleteAfter',
 
         // Login/Logout OAuth
         // PS 1.6 - 1.7
         'displayBackOfficeHeader',
         'actionAdminLoginControllerSetMedia',
         // PS >= 8
-//        'actionAdminControllerInitBefore',
+        //'actionAdminControllerInitBefore',
     ];
 
+//    /**
+//     * @var \PrestaShop\Module\PsAccounts\DependencyInjection\ServiceContainer
+//     */
+//    private $serviceContainer;
+
     /**
-     * @var \PrestaShop\Module\PsAccounts\DependencyInjection\ServiceContainer
+     * @var \PrestaShop\Module\PsAccounts\ServiceContainer\PsAccountsServiceContainer
      */
-    private $serviceContainer;
+    private $container;
 
     /**
      * Ps_accounts constructor.
@@ -182,8 +184,6 @@ class Ps_accounts extends Module
      */
     public function install()
     {
-        //$this->clearCache();
-
         $installer = new PrestaShop\Module\PsAccounts\Module\Install($this, Db::getInstance());
 
         $status = $installer->installInMenu()
@@ -219,6 +219,7 @@ class Ps_accounts extends Module
      */
     public function getCoreServiceContainer()
     {
+        /* @phpstan-ignore-next-line */
         if (method_exists($this, 'getContainer')) {
             return $this->getContainer();
         }
@@ -231,21 +232,19 @@ class Ps_accounts extends Module
     }
 
     /**
-     * @return \PrestaShop\Module\PsAccounts\DependencyInjection\ServiceContainer
+     * @return \PrestaShop\Module\PsAccounts\ServiceContainer\PsAccountsServiceContainer
      *
      * @throws Exception
      */
     public function getServiceContainer()
     {
-        if (null === $this->serviceContainer) {
-            $this->serviceContainer = new \PrestaShop\Module\PsAccounts\DependencyInjection\ServiceContainer(
-                $this->name,
-                $this->getLocalPath() . '/' . self::CONFIG_MODULE,
-                $this->version
+        if (null === $this->container) {
+            $this->container = \PrestaShop\Module\PsAccounts\ServiceContainer\PsAccountsServiceContainer::createInstance(
+                __DIR__ . '/config.php'
             );
         }
 
-        return $this->serviceContainer;
+        return $this->container;
     }
 
     /**
@@ -265,7 +264,7 @@ class Ps_accounts extends Module
      */
     public function getParameter($name)
     {
-        return $this->getServiceContainer()->getContainer()->getParameter($name);
+        return $this->getServiceContainer()->getParameter($name);
     }
 
     /**
@@ -275,7 +274,7 @@ class Ps_accounts extends Module
      */
     public function hasParameter($name)
     {
-        return $this->getServiceContainer()->getContainer()->hasParameter($name);
+        return $this->getServiceContainer()->hasParameter($name);
     }
 
     /**
@@ -488,22 +487,6 @@ class Ps_accounts extends Module
         $uninstaller = new PrestaShop\Module\PsAccounts\Module\Uninstall($this, Db::getInstance());
         $uninstaller->deleteAdminTab('AdminLogin');
     }
-
-//    /**
-//     * @return void
-//     */
-//    public function clearCache()
-//    {
-//        $cacheDirectory = new \PrestaShop\Module\PsAccounts\Vendor\PrestaShop\ModuleLibCacheDirectoryProvider\Cache\CacheDirectoryProvider(
-//            _PS_VERSION_,
-//            _PS_ROOT_DIR_,
-//            _PS_MODE_DEV_
-//        );
-//        $cacheFiles = glob($cacheDirectory->getPath() . '/' . $this->name . '/*');
-//        if (is_array($cacheFiles)) {
-//            array_map('unlink', $cacheFiles);
-//        }
-//    }
 }
 
 /**

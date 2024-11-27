@@ -2,7 +2,7 @@ version: "3.7"
 services:
   prestashop:
     container_name: phpunit
-#    image: 'prestashop/prestashop-flashlight:1.7.6.9-7.2'
+#    image: 'prestashop/prestashop-flashlight:1.7.6'
 #    image: prestashop/prestashop-flashlight:8.1.5-7.4
     image: ${PLATFORM_IMAGE}
     healthcheck:
