@@ -69,6 +69,7 @@ if (defined('_PS_VERSION_')
         public static function getSubscribedEvents()
         {
             // TODO: Implement getSubscribedEvents() method.
+            return [];
         }
     }
 }
