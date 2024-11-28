@@ -13,8 +13,8 @@
     "test-shop-nightly": "npm run build-shop -- nightly && npx playwright test back || true && mkdir -p allure-results-nightly && for file in allure-results/*.json; do jq '.labels[] |= if .name == \"parentSuite\" then .value |= . + \"-nightly\" else . end | .testCaseId |= . + \"-nightly\" | .historyId |= . + \"-nightly\"' \"$file\" > \"$file.tmp\" && mv \"$file.tmp\" \"$file\"; done && cp -r allure-results/* allure-results-nightly/ && rm -rf allure-results/*",
     "merge-allure-results": "rm -rf allure-results && mkdir allure-results && for dir in allure-results-*; do cp -r \"$dir\"/* allure-results/; done && rm -rf allure-results-*",
     "test-all-version": "npx npm-run-all --serial test-shop-1.7.8.7 test-shop-1.6.1.24 test-shop-1.7.8.11 test-shop-1.7.8.8 test-shop-8.1.0-8.1 test-shop-8.1.1 test-shop-8.1.5 test-shop-nightly && npm run merge-allure-results",
-    "generate-allure-report": "allure generate allure-results --clean -o allure-report && allure open",
-    "clean-test-results": "rm -rf allure-report allure-results test-results"
+    "generate-allure-report": "allure generate allure-results --clean -o allure-report",
+    "clean-test-results": "rm -rf allure-report allure-results allure-results-* test-results"
   },
   "dependencies": {
     "@prestashopcorp/tests-framework": "4.0.3",
