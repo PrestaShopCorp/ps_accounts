@@ -273,7 +273,7 @@ class ShopProvider
      */
     public function getFrontendUrl($shopId)
     {
-        return $this->getShopUrl((array) \Shop::getShop($shopId));
+        return rtrim($this->getShopUrl((array) \Shop::getShop($shopId)), '/');
     }
 
     /**
@@ -284,7 +284,7 @@ class ShopProvider
      */
     public function getBackendUrl($shopId, $psxName = 'ps_accounts')
     {
-        return $this->link->getAdminLink(
+        $url = $this->link->getAdminLink(
             'AdminModules',
             true,
             [],
@@ -293,5 +293,6 @@ class ShopProvider
                 'setShopContext' => 's-' . $shopId,
             ]
         );
+        return explode('/index.php', $url)[0];
     }
 }

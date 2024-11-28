@@ -70,8 +70,6 @@ class ShopIdentity
 
     /**
      * @return bool
-     *
-     * @throws \Exception
      */
     public function exists()
     {
