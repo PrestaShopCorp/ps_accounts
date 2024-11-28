@@ -90,6 +90,7 @@ class AccountsClient
             'Accept' => 'application/json',
             'X-Module-Version' => \Ps_accounts::VERSION,
             'X-Prestashop-Version' => _PS_VERSION_,
+            'X-Multishop-Enabled' => \Shop::isFeatureActive(),
             'X-Request-ID' => Uuid::uuid4()->toString(),
         ], $additionalHeaders);
     }
