@@ -100,6 +100,9 @@ class PsAccountsService
     }
 
     /**
+     * Returns a Shop Token from the Legacy Authority: https://securetoken.google.com/prestashop-newsso-production
+     * and an empty string if any error occurs
+     * @deprecated please move to hyra tokens as soon as possible 
      * @return string
      */
     public function getOrRefreshToken()
@@ -109,6 +112,15 @@ class PsAccountsService
         } catch (RefreshTokenException $e) {
             return '';
         }
+    }
+
+    /**
+     * Returns Shop Token with the new authority: https://oauth.prestashop.com
+     * @return string
+     */
+    public function getShopToken()
+    {
+        // @TODO
     }
 
     /**
