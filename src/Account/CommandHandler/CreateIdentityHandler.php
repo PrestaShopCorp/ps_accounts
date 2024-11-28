@@ -92,6 +92,7 @@ class CreateIdentityHandler
             $this->oauth2Client->update($body['clientId'], $body['clientSecret']);
             $this->shopIdentity->setShopUuid($body['cloudShopId']);
         } else {
+            // TODO: create a domain exception
             Throw new \Exception('Cannot create identity : ' .
                 $response['httpCode'] .
                 ' ' . print_r($response['body'])
