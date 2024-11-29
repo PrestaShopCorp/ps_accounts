@@ -21,8 +21,8 @@
 namespace PrestaShop\Module\PsAccounts\Service;
 
 use PrestaShop\Module\PsAccounts\Account\LinkShop;
-use PrestaShop\Module\PsAccounts\Account\Session\Firebase\OwnerSession;
-use PrestaShop\Module\PsAccounts\Account\Session\Firebase\ShopSession;
+use PrestaShop\Module\PsAccounts\Account\Session\Firebase;
+use PrestaShop\Module\PsAccounts\Account\Session\ShopSession;
 use PrestaShop\Module\PsAccounts\Account\Token\Token;
 use PrestaShop\Module\PsAccounts\Adapter\Link;
 use PrestaShop\Module\PsAccounts\Entity\EmployeeAccount;
@@ -46,17 +46,17 @@ class PsAccountsService
     private $module;
 
     /**
-     * @var \PrestaShop\Module\PsAccounts\Account\Session\ShopSession
+     * @var ShopSession
      */
     private $session;
 
     /**
-     * @var ShopSession
+     * @var Firebase\ShopSession
      */
     private $shopSession;
 
     /**
-     * @var OwnerSession
+     * @var Firebase\OwnerSession
      */
     private $ownerSession;
 
@@ -73,8 +73,9 @@ class PsAccountsService
     public function __construct(\Ps_accounts $module)
     {
         $this->module = $module;
-        $this->shopSession = $this->module->getService(ShopSession::class);
-        $this->ownerSession = $this->module->getService(OwnerSession::class);
+        $this->session = $this->module->getService(ShopSession::class);
+        $this->shopSession = $this->module->getService(Firebase\ShopSession::class);
+        $this->ownerSession = $this->module->getService(Firebase\OwnerSession::class);
         $this->link = $this->module->getService(Link::class);
         $this->linkShop = $module->getService(LinkShop::class);
     }
@@ -137,7 +138,6 @@ class PsAccountsService
     {
         return $this->getOrRefreshToken();
     }
-
 
     /**
      * Returns Shop Token with the new authority: https://oauth.prestashop.com
