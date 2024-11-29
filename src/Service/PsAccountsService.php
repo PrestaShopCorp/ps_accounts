@@ -142,13 +142,13 @@ class PsAccountsService
     /**
      * Returns Shop Token with the new authority: https://oauth.prestashop.com
      *
-     * @return Token
+     * @return string
      *
      * @throws RefreshTokenException
      */
     public function getShopToken()
     {
-        return $this->session->getValidToken();
+        return (string) $this->session->getValidToken();
     }
 
     /**
