@@ -21,8 +21,9 @@
 namespace PrestaShop\Module\PsAccounts\Service;
 
 use PrestaShop\Module\PsAccounts\Account\LinkShop;
-use PrestaShop\Module\PsAccounts\Account\Session\Firebase\OwnerSession;
-use PrestaShop\Module\PsAccounts\Account\Session\Firebase\ShopSession;
+use PrestaShop\Module\PsAccounts\Account\Session\Firebase;
+use PrestaShop\Module\PsAccounts\Account\Session\ShopSession;
+use PrestaShop\Module\PsAccounts\Account\Token\Token;
 use PrestaShop\Module\PsAccounts\Adapter\Link;
 use PrestaShop\Module\PsAccounts\Entity\EmployeeAccount;
 use PrestaShop\Module\PsAccounts\Exception\RefreshTokenException;
@@ -47,10 +48,15 @@ class PsAccountsService
     /**
      * @var ShopSession
      */
+    private $session;
+
+    /**
+     * @var Firebase\ShopSession
+     */
     private $shopSession;
 
     /**
-     * @var OwnerSession
+     * @var Firebase\OwnerSession
      */
     private $ownerSession;
 
@@ -67,8 +73,9 @@ class PsAccountsService
     public function __construct(\Ps_accounts $module)
     {
         $this->module = $module;
-        $this->shopSession = $this->module->getService(ShopSession::class);
-        $this->ownerSession = $this->module->getService(OwnerSession::class);
+        $this->session = $this->module->getService(ShopSession::class);
+        $this->shopSession = $this->module->getService(Firebase\ShopSession::class);
+        $this->ownerSession = $this->module->getService(Firebase\OwnerSession::class);
         $this->link = $this->module->getService(Link::class);
         $this->linkShop = $module->getService(LinkShop::class);
     }
@@ -100,7 +107,12 @@ class PsAccountsService
     }
 
     /**
+     *  Returns a Shop Token from the Legacy Authority: https://securetoken.google.com/prestashop-newsso-production
+     *  and an empty string if any error occurs
+     *
      * @return string
+     *
+     * @deprecated please move to hydra tokens as soon as possible
      */
     public function getOrRefreshToken()
     {
@@ -125,6 +137,18 @@ class PsAccountsService
     public function getToken()
     {
         return $this->getOrRefreshToken();
+    }
+
+    /**
+     * Returns Shop Token with the new authority: https://oauth.prestashop.com
+     *
+     * @return string
+     *
+     * @throws RefreshTokenException
+     */
+    public function getShopToken()
+    {
+        return (string) $this->session->getValidToken();
     }
 
     /**
