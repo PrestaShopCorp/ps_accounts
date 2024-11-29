@@ -87,6 +87,9 @@ platform-fix-permissions:
 #platform-status:
 #	COMPOSER=composer71.json ./composer.phar outdated --locked -m --working-dir=./tests/
 
+#platform-status:
+#	COMPOSER=composer71.json ./composer.phar outdated --locked -m --working-dir=./tests/
+
 #phpunit-xdebug:
 #	-@docker exec phpunit sh -c "docker-php-ext-enable xdebug"
 

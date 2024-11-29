@@ -52,10 +52,10 @@
         "prestashopcorp/lightweight-container": "dev-main"
     },
     "repositories": [
-        {
-            "type": "vcs",
+      {
+        "type": "vcs",
             "url": "git@github.com:PrestaShopCorp/lightweight-container.git"
-        }
+      }
     ],
     "author": "PrestaShop"
 }
