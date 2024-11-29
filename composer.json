@@ -54,7 +54,7 @@
     "repositories": [
       {
         "type": "vcs",
-        "url": "git@github.com:PrestaShopCorp/lightweight-container.git"
+            "url": "git@github.com:PrestaShopCorp/lightweight-container.git"
       }
     ],
     "author": "PrestaShop"

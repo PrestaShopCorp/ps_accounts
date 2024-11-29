@@ -1,6 +1,7 @@
 controllers
 sql
 src
+templates
 translations
 upgrade
 vendor
