@@ -144,7 +144,7 @@ class ps_AccountsApiV2ShopHealthCheckModuleFrontController extends AbstractShopR
             ],
         ];
 
-        if($securedRequest) {
+        if ($securedRequest) {
             $healthCheckMessage = array_merge($healthCheckMessage, [
                 'ps_version' => _PS_VERSION_,
                 'module_version' => Ps_accounts::VERSION,
