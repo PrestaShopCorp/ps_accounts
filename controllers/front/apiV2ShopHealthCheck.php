@@ -100,6 +100,8 @@ class ps_AccountsApiV2ShopHealthCheckModuleFrontController extends AbstractShopR
      */
     public function show(Shop $shop, ShopHealthCheckRequest $request)
     {
+        // TODO add access check
+        $securedRequest = true;
         if ($request->autoheal) {
             try {
                 $this->firebaseShopSession->getValidToken();
@@ -119,8 +121,7 @@ class ps_AccountsApiV2ShopHealthCheckModuleFrontController extends AbstractShopR
 //            'psVersion' => _PS_VERSION_,
 //            'phpVersion' => phpversion(),
 //        ];
-
-        return [
+        $healthCheckMessage = [
             'oauth2Client' => $this->oauth2Client->exists(),
             'shopLinked' => (bool) $this->linkShop->getShopUuid(),
             'isSsoEnabled' => $this->psAccountsService->getLoginActivated(),
@@ -142,6 +143,20 @@ class ps_AccountsApiV2ShopHealthCheckModuleFrontController extends AbstractShopR
                 'checkApiSslCert' => $this->module->getParameter('ps_accounts.check_api_ssl_cert'),
             ],
         ];
+
+        if($securedRequest) {
+            $healthCheckMessage = array_merge($healthCheckMessage, [
+                'ps_version' => _PS_VERSION_,
+                'module_version' => Ps_accounts::VERSION,
+                'php_version' => phpversion(),
+                'cloud_shop_id' => $this->linkShop->getShopUuid(),
+                'shop_name' => $shop->name,
+                'owner_email' => $this->linkShop->getOwnerEmail(),
+                'public_key' => $this->linkShop->getPublicKey(),
+            ]);
+        }
+
+        return $healthCheckMessage;
     }
 
     /**
