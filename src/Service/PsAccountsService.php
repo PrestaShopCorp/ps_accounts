@@ -23,6 +23,7 @@ namespace PrestaShop\Module\PsAccounts\Service;
 use PrestaShop\Module\PsAccounts\Account\LinkShop;
 use PrestaShop\Module\PsAccounts\Account\Session\Firebase\OwnerSession;
 use PrestaShop\Module\PsAccounts\Account\Session\Firebase\ShopSession;
+use PrestaShop\Module\PsAccounts\Account\Token\Token;
 use PrestaShop\Module\PsAccounts\Adapter\Link;
 use PrestaShop\Module\PsAccounts\Entity\EmployeeAccount;
 use PrestaShop\Module\PsAccounts\Exception\RefreshTokenException;
@@ -43,6 +44,11 @@ class PsAccountsService
      * @var \Ps_accounts
      */
     private $module;
+
+    /**
+     * @var \PrestaShop\Module\PsAccounts\Account\Session\ShopSession
+     */
+    private $session;
 
     /**
      * @var ShopSession
@@ -100,7 +106,12 @@ class PsAccountsService
     }
 
     /**
+     *  Returns a Shop Token from the Legacy Authority: https://securetoken.google.com/prestashop-newsso-production
+     *  and an empty string if any error occurs
+     *
      * @return string
+     *
+     * @deprecated please move to hydra tokens as soon as possible
      */
     public function getOrRefreshToken()
     {
@@ -125,6 +136,19 @@ class PsAccountsService
     public function getToken()
     {
         return $this->getOrRefreshToken();
+    }
+
+
+    /**
+     * Returns Shop Token with the new authority: https://oauth.prestashop.com
+     *
+     * @return Token
+     *
+     * @throws RefreshTokenException
+     */
+    public function getShopToken()
+    {
+        return $this->session->getValidToken();
     }
 
     /**
