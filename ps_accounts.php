@@ -102,21 +102,21 @@ class Ps_accounts extends Module
         'displayDashboardTop',
 
         // toggle single/multi-shop
-//        'actionObjectShopAddAfter',
-//        'actionObjectShopDeleteAfter',
+        //'actionObjectShopAddAfter',
+        //'actionObjectShopDeleteAfter',
 
         // Login/Logout OAuth
         // PS 1.6 - 1.7
         'displayBackOfficeHeader',
         'actionAdminLoginControllerSetMedia',
         // PS >= 8
-//        'actionAdminControllerInitBefore',
+        //'actionAdminControllerInitBefore',
     ];
 
     /**
-     * @var \PrestaShop\Module\PsAccounts\DependencyInjection\ServiceContainer
+     * @var \PrestaShop\Module\PsAccounts\ServiceContainer\PsAccountsServiceContainer
      */
-    private $serviceContainer;
+    private $moduleContainer;
 
     /**
      * Ps_accounts constructor.
@@ -191,8 +191,6 @@ class Ps_accounts extends Module
 
         $this->onModuleReset();
 
-        $this->getLogger()->info('Install - Loading ' . $this->name . ' Env : [' . $this->getModuleEnv() . ']');
-
         return $status;
     }
 
@@ -218,6 +216,7 @@ class Ps_accounts extends Module
      */
     public function getCoreServiceContainer()
     {
+        /* @phpstan-ignore-next-line */
         if (method_exists($this, 'getContainer')) {
             return $this->getContainer();
         }
@@ -230,22 +229,19 @@ class Ps_accounts extends Module
     }
 
     /**
-     * @return \PrestaShop\Module\PsAccounts\DependencyInjection\ServiceContainer
+     * @return \PrestaShop\Module\PsAccounts\ServiceContainer\PsAccountsServiceContainer
      *
      * @throws Exception
      */
     public function getServiceContainer()
     {
-        if (null === $this->serviceContainer) {
-            // append version number to force cache generation (1.6 Core won't clear it)
-            $this->serviceContainer = new \PrestaShop\Module\PsAccounts\DependencyInjection\ServiceContainer(
-                $this->name . str_replace(['.', '-', '+'], '', $this->version),
-                $this->getLocalPath(),
-                $this->getModuleEnv()
+        if (null === $this->moduleContainer) {
+            $this->moduleContainer = \PrestaShop\Module\PsAccounts\ServiceContainer\PsAccountsServiceContainer::createInstance(
+                __DIR__ . '/config.php'
             );
         }
 
-        return $this->serviceContainer;
+        return $this->moduleContainer;
     }
 
     /**
@@ -265,7 +261,7 @@ class Ps_accounts extends Module
      */
     public function getParameter($name)
     {
-        return $this->getServiceContainer()->getContainer()->getParameter($name);
+        return $this->getServiceContainer()->getParameter($name);
     }
 
     /**
@@ -275,7 +271,7 @@ class Ps_accounts extends Module
      */
     public function hasParameter($name)
     {
-        return $this->getServiceContainer()->getContainer()->hasParameter($name);
+        return $this->getServiceContainer()->hasParameter($name);
     }
 
     /**
@@ -334,24 +330,6 @@ class Ps_accounts extends Module
         }
 
         return $ret;
-    }
-
-    /**
-     * @return string
-     */
-    public function getModuleEnvVar()
-    {
-        return strtoupper((string) $this->name) . '_ENV';
-    }
-
-    /**
-     * @param string $default
-     *
-     * @return string
-     */
-    public function getModuleEnv($default = null)
-    {
-        return getenv($this->getModuleEnvVar()) ?: $default ?: self::DEFAULT_ENV;
     }
 
     /**

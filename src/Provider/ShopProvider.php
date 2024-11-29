@@ -102,7 +102,8 @@ class ShopProvider
                         'module_name' => $psxName,
                         'configure' => $psxName,
                         'setShopContext' => 's-' . $shopData['id_shop'],
-                    ]
+                    ],
+                    true
                 ),
                 'isLinkedV4' => null,
                 'unlinkedAuto' => !empty($linkShop->getUnlinkedOnError()),
