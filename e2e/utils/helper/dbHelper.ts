@@ -3,7 +3,7 @@ import {createPool} from 'mysql2/promise';
 
 // Import types
 import type {FieldPacket, Pool, RowDataPacket, ResultSetHeader} from 'mysql2/promise';
-import {Globals} from 'utils/globals'
+import { dbConfig } from '~/data/dbConfig/dbConfig';
 
 class DbHelper {
   /**
@@ -11,7 +11,7 @@ class DbHelper {
    * @param db
    * @returns {Pool}
    */
-  createPool(db = Globals.db): Pool {
+  createPool(db = dbConfig): Pool {
     return createPool(db);
   }
 

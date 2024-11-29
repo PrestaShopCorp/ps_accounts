@@ -6,11 +6,17 @@ on:
   workflow_dispatch:
 
 env:
-  QA_DOMAIN: ${{ secrets.DOMAIN }}
+  QA_BASE_URL: ${{secrets.BASE_URL}}
+  QA_BASE_URL_FO: ${{secrets.BASE_URL_FO}}
+  QA_ADMIN_EMAIL: ${{ secrets.ADMIN_EMAIL }}
+  QA_ADMIN_PASSWORD: ${{ secrets.ADMIN_PASSWORD }}
+  QA_OAUTH2URL: ${{ secrets.OAUTH2URL }}
+  QA_ACCOUNTSAPIURL: ${{ secrets.ACCOUNTSAPIURL }}
+  QA_ACCOUNTSUIURL: ${{ secrets.ACCOUNTSUIURL }}
 
 jobs:
   run-test:
-    name: Run Shipping tests
+    name: Run Account Back tests
     runs-on: ubuntu-22.04
 
     steps:
@@ -34,29 +40,12 @@ jobs:
 
       - name: Generate .env file
         run: |
-          echo "QA_BASE_URL=${{secrets.BASE_URL}}" >> e2e-env/.env
-          echo "QA_BASE_URL_FO=${{secrets.BASE_URL_FO}}">> e2e-env/.env
-          echo "QA_ADMIN_EMAIL=${{secrets.ADMIN_EMAIL}}" >> e2e-env/.env
-          echo "QA_ADMIN_PASSWORD=${{secrets.ADMIN_PASSWORD}}" >> e2e-env/.env
-          echo "QA_DB_HOST=${{secrets.DB_HOST}}" >> e2e-env/.env
-          echo "QA_DB_PORT=${{secrets.DB_PORT}} ">> e2e-env/.env
-          echo "QA_DB_USER=${{secrets.DB_USER}}" >> e2e-env/.env
-          echo "QA_DB_PASSWORD=${{secrets.DB_PASSWORD}}" >> e2e-env/.env
-          echo "QA_DB_NAME=${{secrets.DB_NAME}}" >> e2e-env/.env
-          echo "QA_OAUTH2URL=${{secrets.OAUTH2URL}}" >> e2e-env/.env
-          echo "QA_ACCOUNTSAPIURL=${{secrets.ACCOUNTSAPIURL}}" >> e2e-env/.env
-          echo "QA_ACCOUNTSUIURL=${{secrets.ACCOUNTSUIURL}}" >> e2e-env/.env
           echo "QA_ACCOUNT_TAG=${{ secrets.ACCOUNT_TAG }}" >> e2e-env/.env
           echo "QA_TUNNEL_SECRET=${{ secrets.TUNNEL_SECRET }}" >> e2e-env/.env
           echo "QA_TUNNEL_ID=${{ secrets.TUNNEL_ID }}" >> e2e-env/.env
           echo "QA_PS_DOMAIN=${{ secrets.PS_DOMAIN }}" >> e2e-env/.env
           echo "QA_DOMAIN=${{ secrets.DOMAIN }}" >> e2e-env/.env
           echo "QA_DOWNLOADER_TOKEN=${{ secrets.DOWNLOADER_TOKEN }}" >> e2e-env/.env
-          echo "QA_DOCKER_IMAGE_PRESTASHOP=${{ secrets.DOCKER_IMAGE_PRESTASHOP }}" >> e2e-env/.env
-          echo "QA_DOCKER_VERSION_MARIADB=${{ secrets.DOCKER_VERSION_MARIADB }}" >> e2e-env/.env
-          echo "QA_HOST_PORT_BIND_PHP_MY_ADMIN=${{ secrets.HOST_PORT_BIND_PHP_MY_ADMIN }}" >> e2e-env/.env
-          echo "QA_PS_BIND_PORT=${{ secrets.PS_BIND_PORT }}" >> e2e-env/.env
-          echo "QA_DB_BIND_PORT=${{ secrets.DB_BIND_PORT }}" >> e2e-env/.env
           echo "QA_PS_VERSION=${{ secrets.PS_VERSION }}" >> e2e-env/.env
           echo "QA_PS_ACCOUNTS_VERSION=${{ secrets.PS_ACCOUNTS_VERSION }}" >> e2e-env/.env
 

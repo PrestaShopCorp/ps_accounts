@@ -21,7 +21,7 @@ services:
       timeout: 10s
       retries: 5
     ports:
-      - "${DB_BIND_PORT}:3306"
+      - "3307:3306"
 
   prestashop:
     restart: unless-stopped
@@ -31,7 +31,7 @@ services:
       mysql:
         condition: service_started
     environment:
-      ADMIN_MAIL: "ervin.klicic@prestashop.com"
+      ADMIN_MAIL: "admin@prestashop.com"
       ADMIN_PASSWD: "prestashop"
       PS_DOMAIN: ${PS_DOMAIN}
       SSL_REDIRECT: true
@@ -48,7 +48,7 @@ services:
         mysql:
           condition: service_healthy
       ports:
-        - ${HOST_PORT_BIND_PHP_MY_ADMIN:?See e2e-env/.env.dist}:80
+        - 3006:80
       environment:
         - PMA_HOST=mysql
         - PMA_PORT=3306
@@ -63,4 +63,3 @@ services:
     volumes:
     - ./myTun/config/mytun-config.yml:/config.yml:ro
     - ./myTun/config/mytun-credentials.json:/credentials.json:ro
-
