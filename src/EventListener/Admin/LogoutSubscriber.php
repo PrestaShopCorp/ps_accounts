@@ -29,19 +29,6 @@ if (defined('_PS_VERSION_')
     class LogoutSubscriber implements EventSubscriberInterface
     {
         /**
-         * @var Oauth2Middleware
-         */
-        private $oauth2Middleware;
-
-        public function __construct()
-        {
-            /** @var \Ps_accounts $module */
-            $module = \Module::getInstanceByName('ps_accounts');
-
-            $this->oauth2Middleware = $module->getService(Oauth2Middleware::class);
-        }
-
-        /**
          * @return string[]
          */
         public static function getSubscribedEvents()
@@ -60,7 +47,12 @@ if (defined('_PS_VERSION_')
          */
         public function onLogout(LogoutEvent $event)
         {
-            $this->oauth2Middleware->executeLogout();
+            /** @var \Ps_accounts $module */
+            $module = \Module::getInstanceByName('ps_accounts');
+
+            /** @var Oauth2Middleware $oauth2Middleware */
+            $oauth2Middleware = $module->getService(Oauth2Middleware::class);
+            $oauth2Middleware->executeLogout();
         }
     }
 } else {
@@ -68,7 +60,6 @@ if (defined('_PS_VERSION_')
     {
         public static function getSubscribedEvents()
         {
-            // TODO: Implement getSubscribedEvents() method.
             return [];
         }
     }
