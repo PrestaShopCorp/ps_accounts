@@ -127,6 +127,10 @@ class UpgradeModuleHandlerTest extends FeatureTestCase
     {
         $jar = $this->cookieJar;
 
+        $resLoginPage = $this->displayLoginPage($jar);
+
+        $this->module->getLogger()->info(print_r($resLoginPage->getBody(), true));
+
         $this->assertResponseOk(
             $this->displayLoginPage($jar)
         );

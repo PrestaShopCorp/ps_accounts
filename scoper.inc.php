@@ -114,13 +114,13 @@ return [
                     $contents
                 );
             }
-            if ($filePath === __DIR__ . '/vendor/symfony/dependency-injection/Compiler/PassConfig.php') {
-                return str_replace(
-                    "'PrestaShop\\\\Module\\\\" . $versionPrefix . "\\\\Vendor\\\\array_merge'",
-                    "'\\array_merge'",
-                    $contents
-                );
-            }
+//            if ($filePath === __DIR__ . '/vendor/symfony/dependency-injection/Compiler/PassConfig.php') {
+//                return str_replace(
+//                    "'PrestaShop\\\\Module\\\\" . $versionPrefix . "\\\\Vendor\\\\array_merge'",
+//                    "'\\array_merge'",
+//                    $contents
+//                );
+//            }
 //            if ($filePath === __DIR__ . '/vendor/friendsofphp/php-cs-fixer/src/FixerFactory.php') {
 //                // $fixerClass = 'PhpCsFixer\\Fixer\\' . ($relativeNamespace ? $relativeNamespace . '\\' : '') . $file->getBasename('.php');
 //                return preg_replace(
