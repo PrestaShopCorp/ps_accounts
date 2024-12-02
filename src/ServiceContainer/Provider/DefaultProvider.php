@@ -20,7 +20,7 @@
 
 namespace PrestaShop\Module\PsAccounts\ServiceContainer\Provider;
 
-use PrestaShop\Module\PsAccounts\Account\LinkShop;
+use PrestaShop\Module\PsAccounts\Account\ShopIdentity;
 use PrestaShop\Module\PsAccounts\Adapter;
 use PrestaShop\Module\PsAccounts\Adapter\Configuration;
 use PrestaShop\Module\PsAccounts\Adapter\Link;
@@ -58,8 +58,8 @@ class DefaultProvider implements IServiceProvider
             return \Module::getInstanceByName('ps_accounts');
         });
         // Entities ?
-        $container->registerProvider(LinkShop::class, static function () use ($container) {
-            return new LinkShop(
+        $container->registerProvider(ShopIdentity::class, static function () use ($container) {
+            return new ShopIdentity(
                 $container->get(ConfigurationRepository::class)
             );
         });
@@ -97,7 +97,7 @@ class DefaultProvider implements IServiceProvider
             return new SentryService(
                 $container->getParameter('ps_accounts.sentry_credentials'),
                 $container->getParameter('ps_accounts.environment'),
-                $container->get(LinkShop::class),
+                $container->get(ShopIdentity::class),
                 $container->get('ps_accounts.context')
             );
         });

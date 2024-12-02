@@ -42,6 +42,7 @@ class ActionObjectEmployeeDeleteAfter extends Hook
             if ($employeeAccount) {
                 $repository->delete($employeeAccount);
             }
+        } catch (\Throwable $e) {
         } catch (\Exception $e) {
         }
     }
