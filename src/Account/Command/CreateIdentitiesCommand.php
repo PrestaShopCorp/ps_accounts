@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Copyright since 2007 PrestaShop SA and Contributors
  * PrestaShop is an International Registered Trademark & Property of PrestaShop SA
@@ -20,20 +21,6 @@
 
 namespace PrestaShop\Module\PsAccounts\Account\Command;
 
-use PrestaShop\Module\PsAccounts\Account\Dto\LinkShop;
-
-class LinkShopCommand
+class CreateIdentitiesCommand
 {
-    /**
-     * @var LinkShop
-     */
-    public $payload;
-
-    /**
-     * @param LinkShop $payload
-     */
-    public function __construct(LinkShop $payload)
-    {
-        $this->payload = $payload;
-    }
 }

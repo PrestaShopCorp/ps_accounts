@@ -18,32 +18,31 @@
  * @license   https://opensource.org/licenses/AFL-3.0 Academic Free License version 3.0
  */
 
-namespace PrestaShop\Module\PsAccounts\Hook;
+namespace PrestaShop\Module\PsAccounts\Api\Controller;
 
-use PrestaShop\Module\PsAccounts\Repository\EmployeeAccountRepository;
+use PrestaShop\Module\PsAccounts\Exception\Http\NotFoundException;
+use Shop;
 
-class ActionObjectEmployeeDeleteAfter extends Hook
+class AbstractV2ShopRestController extends AbstractV2RestController
 {
     /**
-     * @param array $params
-     *
-     * @return void
-     *
-     * @throws \Exception
+     * @var string
      */
-    public function execute(array $params = [])
-    {
-        /** @var \Employee $employee */
-        $employee = $params['object'];
+    public $resourceId = 'shop_id';
 
-        $repository = new EmployeeAccountRepository();
-        try {
-            $employeeAccount = $repository->findByEmployeeId($employee->id);
-            if ($employeeAccount) {
-                $repository->delete($employeeAccount);
-            }
-        } catch (\Throwable $e) {
-        } catch (\Exception $e) {
+    /**
+     * @param mixed $id
+     *
+     * @return Shop
+     */
+    protected function buildResource($id)
+    {
+        $shop = new Shop($id);
+
+        if (!$shop->id) {
+            throw new NotFoundException('Shop not found [' . $id . ']');
         }
+
+        return $shop;
     }
 }

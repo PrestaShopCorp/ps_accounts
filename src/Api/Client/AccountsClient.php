@@ -90,6 +90,7 @@ class AccountsClient
             'Accept' => 'application/json',
             'X-Module-Version' => \Ps_accounts::VERSION,
             'X-Prestashop-Version' => _PS_VERSION_,
+            'X-Multishop-Enabled' => (bool) \Shop::isFeatureActive(),
             'X-Request-ID' => Uuid::uuid4()->toString(),
         ], $additionalHeaders);
     }
@@ -115,17 +116,17 @@ class AccountsClient
 
     /**
      * @param string $refreshToken
-     * @param string $shopUuid
+     * @param string $cloudShopId
      *
      * @return array response
      */
-    public function refreshShopToken($refreshToken, $shopUuid)
+    public function refreshShopToken($refreshToken, $cloudShopId)
     {
         $this->getClient()->setRoute('v1/shop/token/refresh');
 
         return $this->getClient()->post([
             'headers' => $this->getHeaders([
-                'X-Shop-Id' => $shopUuid,
+                'X-Shop-Id' => $cloudShopId,
             ]),
             'json' => [
                 'token' => $refreshToken,
@@ -135,59 +136,59 @@ class AccountsClient
 
     /**
      * @param string $ownerUid
-     * @param string $shopUid
+     * @param string $cloudShopId
      * @param string $ownerToken
      *
      * @return array
      */
-    public function deleteUserShop($ownerUid, $shopUid, $ownerToken)
+    public function deleteUserShop($ownerUid, $cloudShopId, $ownerToken)
     {
-        $this->getClient()->setRoute('v1/user/' . $ownerUid . '/shop/' . $shopUid);
+        $this->getClient()->setRoute('v1/user/' . $ownerUid . '/shop/' . $cloudShopId);
 
         return $this->getClient()->delete([
             'headers' => $this->getHeaders([
                 'Authorization' => 'Bearer ' . $ownerToken,
-                'X-Shop-Id' => $shopUid,
+                'X-Shop-Id' => $cloudShopId,
             ]),
         ]);
     }
 
     /**
      * @param string $ownerUid
-     * @param string $shopUid
+     * @param string $cloudShopId
      * @param string $ownerToken
      * @param UpdateShop $shop
      *
      * @return array
      */
-    public function updateUserShop($ownerUid, $shopUid, $ownerToken, UpdateShop $shop)
+    public function updateUserShop($ownerUid, $cloudShopId, $ownerToken, UpdateShop $shop)
     {
-        $this->getClient()->setRoute('v1/user/' . $ownerUid . '/shop/' . $shopUid);
+        $this->getClient()->setRoute('v1/user/' . $ownerUid . '/shop/' . $cloudShopId);
 
         return $this->getClient()->patch([
             'headers' => $this->getHeaders([
                 'Authorization' => 'Bearer ' . $ownerToken,
-                'X-Shop-Id' => $shopUid,
+                'X-Shop-Id' => $cloudShopId,
             ]),
             'json' => $shop->jsonSerialize(),
         ]);
     }
 
     /**
-     * @param string $shopUid
+     * @param string $cloudShopId
      * @param string $shopToken
      * @param UpgradeModule $data
      *
      * @return array
      */
-    public function upgradeShopModule($shopUid, $shopToken, UpgradeModule $data)
+    public function upgradeShopModule($cloudShopId, $shopToken, UpgradeModule $data)
     {
         $this->getClient()->setRoute('/v2/shop/module/update');
 
         return $this->getClient()->post([
             'headers' => $this->getHeaders([
                 'Authorization' => 'Bearer ' . $shopToken,
-                'X-Shop-Id' => $shopUid,
+                'X-Shop-Id' => $cloudShopId,
             ]),
             'json' => $data->jsonSerialize(),
         ]);
@@ -205,7 +206,6 @@ class AccountsClient
         $this->getClient()->setRoute('/v1/shop/token/verify');
 
         return $this->getClient()->post([
-            'headers' => $this->getHeaders(),
             'json' => [
                 'token' => $idToken,
             ],
@@ -220,5 +220,51 @@ class AccountsClient
         $this->getClient()->setRoute('/healthcheck');
 
         return $this->getClient()->get();
+    }
+
+    /**
+     * @param ShopUrl $shopUrl
+     *
+     * @return array
+     */
+    public function createShopIdentity(ShopUrl $shopUrl)
+    {
+        $this->getClient()->setRoute('/v1/shop-identities');
+
+        return $this->getClient()->post([
+            'json' => [
+                'backOfficeUrl' => $shopUrl->getBackOfficeUrl(),
+                'frontendUrl' => $shopUrl->getFrontendUrl(),
+                'multiShopId' => $shopUrl->getMultiShopId(),
+            ],
+        ]);
+    }
+
+    /**
+     * Undocumented function
+     *
+     * @param string $cloudShopId
+     * @param string $shopToken
+     * @param ShopUrl $shopUrl
+     * @param string $proof
+     *
+     * @return array
+     */
+    public function verifyUrlAuthenticity($cloudShopId, $shopToken, ShopUrl $shopUrl, $proof)
+    {
+        $this->getClient()->setRoute('/v1/shop-verifications/' . $cloudShopId);
+
+        return $this->getClient()->put([
+            'headers' => $this->getHeaders([
+                'Authorization' => 'Bearer ' . $shopToken,
+                'X-Shop-Id' => $cloudShopId,
+            ]),
+            'json' => [
+                'backOfficeUrl' => $shopUrl->getBackOfficeUrl(),
+                'frontendUrl' => $shopUrl->getFrontendUrl(),
+                'multiShopId' => $shopUrl->getMultiShopId(),
+                'proof' => $proof,
+            ],
+        ]);
     }
 }

@@ -18,27 +18,48 @@
  * @license   https://opensource.org/licenses/AFL-3.0 Academic Free License version 3.0
  */
 
-namespace PrestaShop\Module\PsAccounts\Account\Command;
+namespace PrestaShop\Module\PsAccounts\Account;
 
-class UnlinkShopCommand
+use PrestaShop\Module\PsAccounts\Repository\ConfigurationRepository;
+use PrestaShop\Module\PsAccounts800\Vendor\Ramsey\Uuid\Uuid;
+
+class ManageProof
 {
     /**
-     * @var int
+     * @var ConfigurationRepository
      */
-    public $shopId;
+    private $configuration;
 
     /**
-     * @var string|null
+     * ManageProof constructor.
+     *
+     * @param ConfigurationRepository $configuration
      */
-    public $errorMsg;
+    public function __construct(
+        ConfigurationRepository $configuration
+    ) {
+        $this->configuration = $configuration;
+    }
 
     /**
-     * @param int $shopId
-     * @param string $errorMsg
+     * @return string
+     *
+     * @throws \Exception
      */
-    public function __construct($shopId, $errorMsg = '')
+    public function generateProof()
     {
-        $this->shopId = $shopId;
-        $this->errorMsg = $errorMsg;
+        $proof = Uuid::uuid4()->toString();
+
+        $this->configuration->updateProof($proof);
+
+        return $proof;
+    }
+
+    /**
+     * @return string|null
+     */
+    public function getProof()
+    {
+        return $this->configuration->getProof();
     }
 }

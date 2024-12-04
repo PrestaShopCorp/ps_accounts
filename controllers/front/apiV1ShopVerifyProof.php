@@ -18,32 +18,40 @@
  * @license   https://opensource.org/licenses/AFL-3.0 Academic Free License version 3.0
  */
 
-namespace PrestaShop\Module\PsAccounts\Hook;
+use PrestaShop\Module\PsAccounts\Account\ManageProof;
+use PrestaShop\Module\PsAccounts\Api\Controller\AbstractV2ShopRestController;
 
-use PrestaShop\Module\PsAccounts\Repository\EmployeeAccountRepository;
-
-class ActionObjectEmployeeDeleteAfter extends Hook
+class ps_AccountsApiV1ShopVerifyProofModuleFrontController extends AbstractV2ShopRestController
 {
     /**
-     * @param array $params
-     *
-     * @return void
-     *
-     * @throws \Exception
+     * @var ManageProof
      */
-    public function execute(array $params = [])
-    {
-        /** @var \Employee $employee */
-        $employee = $params['object'];
+    private $manageProof;
 
-        $repository = new EmployeeAccountRepository();
-        try {
-            $employeeAccount = $repository->findByEmployeeId($employee->id);
-            if ($employeeAccount) {
-                $repository->delete($employeeAccount);
-            }
-        } catch (\Throwable $e) {
-        } catch (\Exception $e) {
-        }
+    /**
+     * ps_AccountsApiV1ShopVerifyProofModuleFrontController constructor.
+     *
+     * @throws Exception
+     */
+    public function __construct()
+    {
+        parent::__construct();
+
+        $this->manageProof = $this->module->getService(ManageProof::class);
+    }
+
+    /**
+     * @param Shop $shop
+     * @param array $payload
+     *
+     * @return array
+     *
+     * @throws Exception
+     */
+    public function show(Shop $shop, array $payload)
+    {
+        return [
+            'proof' => $this->manageProof->getProof(),
+        ];
     }
 }

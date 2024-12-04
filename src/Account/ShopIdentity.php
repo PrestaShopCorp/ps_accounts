@@ -22,7 +22,7 @@ namespace PrestaShop\Module\PsAccounts\Account;
 
 use PrestaShop\Module\PsAccounts\Repository\ConfigurationRepository;
 
-class LinkShop
+class ShopIdentity
 {
     /**
      * @var ConfigurationRepository
@@ -70,8 +70,6 @@ class LinkShop
 
     /**
      * @return bool
-     *
-     * @throws \Exception
      */
     public function exists()
     {

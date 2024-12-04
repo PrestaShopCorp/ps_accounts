@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Copyright since 2007 PrestaShop SA and Contributors
  * PrestaShop is an International Registered Trademark & Property of PrestaShop SA
@@ -18,40 +19,20 @@
  * @license   https://opensource.org/licenses/AFL-3.0 Academic Free License version 3.0
  */
 
-namespace PrestaShop\Module\PsAccounts\Account\CommandHandler;
+namespace PrestaShop\Module\PsAccounts\Account\Command;
 
-use Hook;
-use PrestaShop\Module\PsAccounts\Account\Command\LinkShopCommand;
-use PrestaShop\Module\PsAccounts\Account\LinkShop;
-use PrestaShop\Module\PsAccounts\Hook\ActionShopAccountLinkAfter;
-use PrestaShopException;
-
-class LinkShopHandler
+class VerifyAuthenticityCommand
 {
     /**
-     * @var LinkShop
+     * @var int|null
      */
-    private $linkShop;
-
-    public function __construct(LinkShop $linkShop)
-    {
-        $this->linkShop = $linkShop;
-    }
+    public $shopId;
 
     /**
-     * @param LinkShopCommand $command
-     *
-     * @return void
-     *
-     * @throws PrestaShopException
+     * @param int|null $shopId
      */
-    public function handle(LinkShopCommand $command)
+    public function __construct($shopId)
     {
-        $this->linkShop->update($command->payload);
-
-        Hook::exec(ActionShopAccountLinkAfter::getName(), [
-            'shopUuid' => $this->linkShop->getShopUuid(),
-            'shopId' => $command->payload->shopId,
-        ]);
+        $this->shopId = $shopId;
     }
 }

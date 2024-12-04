@@ -18,32 +18,22 @@
  * @license   https://opensource.org/licenses/AFL-3.0 Academic Free License version 3.0
  */
 
-namespace PrestaShop\Module\PsAccounts\Hook;
+namespace PrestaShop\Module\PsAccounts\Account\CommandHandler;
 
-use PrestaShop\Module\PsAccounts\Repository\EmployeeAccountRepository;
+use PrestaShop\Module\PsAccounts\Account\Command\VerifyAuthenticitiesCommand;
+use PrestaShop\Module\PsAccounts\Account\Command\VerifyAuthenticityCommand;
 
-class ActionObjectEmployeeDeleteAfter extends Hook
+class VerifyAuthenticitiesHandler extends MultiShopHandler
 {
     /**
-     * @param array $params
+     * @param VerifyAuthenticitiesCommand $command
      *
      * @return void
-     *
-     * @throws \Exception
      */
-    public function execute(array $params = [])
+    public function handle(VerifyAuthenticitiesCommand $command)
     {
-        /** @var \Employee $employee */
-        $employee = $params['object'];
-
-        $repository = new EmployeeAccountRepository();
-        try {
-            $employeeAccount = $repository->findByEmployeeId($employee->id);
-            if ($employeeAccount) {
-                $repository->delete($employeeAccount);
-            }
-        } catch (\Throwable $e) {
-        } catch (\Exception $e) {
-        }
+        $this->handleMulti(function ($multiShopId) {
+            $this->commandBus->handle(new VerifyAuthenticityCommand($multiShopId));
+        });
     }
 }
