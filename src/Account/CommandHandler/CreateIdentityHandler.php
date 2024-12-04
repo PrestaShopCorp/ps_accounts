@@ -79,12 +79,6 @@ class CreateIdentityHandler
             return;
         }
 
-//        $response = $this->accountsClient->createShopIdentity(
-//            $this->shopProvider->getBackendUrl($command->shopId),
-//            $this->shopProvider->getFrontendUrl($command->shopId),
-//            $command->shopId
-//        );
-
         $response = $this->accountsClient->createShopIdentity(
             $this->shopProvider->getUrl($command->shopId)
         );
@@ -97,10 +91,7 @@ class CreateIdentityHandler
             $this->shopIdentity->setShopUuid($body['cloudShopId']);
         } else {
             // TODO: create a domain exception
-            Throw new \Exception('Cannot create identity : ' .
-                $response['httpCode'] .
-                ' ' . print_r($response['body'])
-            );
+            throw new \Exception('Cannot create identity : ' . $response['httpCode'] . ' ' . print_r($response['body']));
         }
     }
 

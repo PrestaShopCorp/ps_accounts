@@ -26,6 +26,9 @@ use PrestaShop\Module\PsAccounts\Account\CommandHandler\DeleteUserShopHandler;
 use PrestaShop\Module\PsAccounts\Account\CommandHandler\UpdateUserShopHandler;
 use PrestaShop\Module\PsAccounts\Account\CommandHandler\UpgradeModuleHandler;
 use PrestaShop\Module\PsAccounts\Account\CommandHandler\UpgradeModulesHandler;
+use PrestaShop\Module\PsAccounts\Account\CommandHandler\VerifyAuthenticitiesHandler;
+use PrestaShop\Module\PsAccounts\Account\CommandHandler\VerifyAuthenticityHandler;
+use PrestaShop\Module\PsAccounts\Account\ManageProof;
 use PrestaShop\Module\PsAccounts\Account\Session;
 use PrestaShop\Module\PsAccounts\Account\ShopIdentity;
 use PrestaShop\Module\PsAccounts\Api\Client\AccountsClient;
@@ -80,6 +83,22 @@ class CommandProvider implements IServiceProvider
         });
         $container->registerProvider(CreateIdentitiesHandler::class, static function () use ($container) {
             return new CreateIdentitiesHandler(
+                $container->get(ShopContext::class),
+                $container->get(CommandBus::class)
+            );
+        });
+        $container->registerProvider(VerifyAuthenticityHandler::class, static function () use ($container) {
+            return new VerifyAuthenticityHandler(
+                $container->get(AccountsClient::class),
+                $container->get(ShopProvider::class),
+                $container->get(ShopIdentity::class),
+                $container->get(Oauth2Client::class),
+                $container->get(Session\ShopSession::class),
+                $container->get(ManageProof::class)
+            );
+        });
+        $container->registerProvider(VerifyAuthenticitiesHandler::class, static function () use ($container) {
+            return new VerifyAuthenticitiesHandler(
                 $container->get(ShopContext::class),
                 $container->get(CommandBus::class)
             );

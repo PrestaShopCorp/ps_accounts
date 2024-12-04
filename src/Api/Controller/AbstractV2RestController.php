@@ -49,11 +49,12 @@ abstract class AbstractV2RestController extends AbstractRestController
     protected function extractPayload()
     {
         $defaultShopId = Context::getContext()->shop->id;
+
         return $this->decodeRawPayload($defaultShopId);
     }
 
     /**
-     * @return boolean
+     * @return bool
      */
     protected function checkAuthorization()
     {
@@ -65,6 +66,5 @@ abstract class AbstractV2RestController extends AbstractRestController
         $token = trim(str_replace('Bearer', '', $authorizationHeader));
 
         Logger::getInstance()->error($token);
-
     }
 }

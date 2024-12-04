@@ -20,6 +20,7 @@
 
 namespace PrestaShop\Module\PsAccounts\ServiceContainer\Provider;
 
+use PrestaShop\Module\PsAccounts\Account\ManageProof;
 use PrestaShop\Module\PsAccounts\Account\ShopIdentity;
 use PrestaShop\Module\PsAccounts\Adapter;
 use PrestaShop\Module\PsAccounts\Adapter\Configuration;
@@ -99,6 +100,11 @@ class DefaultProvider implements IServiceProvider
                 $container->getParameter('ps_accounts.environment'),
                 $container->get(ShopIdentity::class),
                 $container->get('ps_accounts.context')
+            );
+        });
+        $container->registerProvider(ManageProof::class, static function () use ($container) {
+            return new ManageProof(
+                $container->get(ConfigurationRepository::class)
             );
         });
         // "Providers"
