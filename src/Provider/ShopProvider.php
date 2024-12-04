@@ -24,6 +24,7 @@ use PrestaShop\Module\PsAccounts\Account\Dto\Shop;
 use PrestaShop\Module\PsAccounts\Account\Session\Firebase\OwnerSession;
 use PrestaShop\Module\PsAccounts\Account\ShopIdentity;
 use PrestaShop\Module\PsAccounts\Adapter\Link;
+use PrestaShop\Module\PsAccounts\Api\Client\ShopUrl;
 use PrestaShop\Module\PsAccounts\Context\ShopContext;
 
 class ShopProvider
@@ -295,5 +296,18 @@ class ShopProvider
             ]
         );
         return explode('/index.php', $url)[0];
+    }
+
+    /**
+     * @param string $shopId
+     *
+     * @return ShopUrl
+     */
+    public function getUrl($shopId)
+    {
+        $backOfficeUrl = explode('/index.php', $this->getBackendUrl($shopId))[0];
+        $frontendUrl = rtrim($this->getFrontendUrl($shopId), '/');
+
+        return new ShopUrl($backOfficeUrl, $frontendUrl, $shopId);
     }
 }

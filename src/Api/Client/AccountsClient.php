@@ -223,21 +223,47 @@ class AccountsClient
     }
 
     /**
-     * @param string $backOfficeUrl
-     * @param string $frontendUrl
-     * @param int $multiShopId
+     * @param ShopUrl $shopUrl
      *
      * @return array
      */
-    public function createShopIdentity($backOfficeUrl, $frontendUrl, $multiShopId)
+    public function createShopIdentity(ShopUrl $shopUrl)
     {
         $this->getClient()->setRoute('/v1/shop-identities');
 
         return $this->getClient()->post([
             'json' => [
-                'backOfficeUrl' => $backOfficeUrl,
-                'frontendUrl' => $frontendUrl,
-                'multiShopId' => $multiShopId,
+                'backOfficeUrl' => $shopUrl->getBackOfficeUrl(),
+                'frontendUrl' => $shopUrl->getFrontendUrl(),
+                'multiShopId' => $shopUrl->getMultiShopId(),
+            ],
+        ]);
+    }
+
+    /**
+     * Undocumented function
+     *
+     * @param string $cloudShopId
+     * @param string $shopToken
+     * @param ShopUrl $shopUrl
+     * @param string $proof
+     *
+     * @return void
+     */
+    public function verifyUrlAuthenticity($cloudShopId, $shopToken, ShopUrl $shopUrl, $proof)
+    {
+        $this->getClient()->setRoute('/v1/shop-verifications/' . $cloudShopId);
+
+        return $this->getClient()->put([
+            'headers' => $this->getHeaders([
+                'Authorization' => 'Bearer ' . $shopToken,
+                'X-Shop-Id' => $cloudShopId,
+            ]),
+            'json' => [
+                'backOfficeUrl' => $shopUrl->getBackOfficeUrl(),
+                'frontendUrl' => $shopUrl->getFrontendUrl(),
+                'multiShopId' => $shopUrl->getMultiShopId(),
+                'proof' => $proof,
             ],
         ]);
     }

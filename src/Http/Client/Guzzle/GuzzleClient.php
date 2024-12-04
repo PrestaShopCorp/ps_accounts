@@ -128,6 +128,22 @@ abstract class GuzzleClient implements ClientInterface
      *
      * @return array return response or false if no response
      */
+    public function put(array $options = [])
+    {
+        return $this->circuitBreaker->call(function () use ($options) {
+            $response = $this->getClient()->put($this->getRoute(), $options);
+            $response = $this->handleResponse($response);
+            $this->logResponseError($response, $options);
+
+            return $response;
+        });
+    }
+
+    /**
+     * @param array $options payload
+     *
+     * @return array return response or false if no response
+     */
     public function get(array $options = [])
     {
         return $this->circuitBreaker->call(function () use ($options) {
