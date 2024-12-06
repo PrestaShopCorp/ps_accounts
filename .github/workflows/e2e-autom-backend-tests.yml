@@ -6,13 +6,13 @@ on:
   workflow_dispatch:
 
 env:
-  QA_BASE_URL: ${{secrets.BASE_URL}}
-  QA_BASE_URL_FO: ${{secrets.BASE_URL_FO}}
-  QA_ADMIN_EMAIL: ${{ secrets.ADMIN_EMAIL }}
-  QA_ADMIN_PASSWORD: ${{ secrets.ADMIN_PASSWORD }}
-  QA_OAUTH2URL: ${{ secrets.OAUTH2URL }}
-  QA_ACCOUNTSAPIURL: ${{ secrets.ACCOUNTSAPIURL }}
-  QA_ACCOUNTSUIURL: ${{ secrets.ACCOUNTSUIURL }}
+  BASE_URL: ${{secrets.BASE_URL}}
+  BASE_URL_FO: ${{secrets.BASE_URL_FO}}
+  ADMIN_EMAIL: ${{ secrets.ADMIN_EMAIL }}
+  ADMIN_PASSWORD: ${{ secrets.ADMIN_PASSWORD }}
+  OAUTH2URL: ${{ secrets.OAUTH2URL }}
+  ACCOUNTSAPIURL: ${{ secrets.ACCOUNTSAPIURL }}
+  ACCOUNTSUIURL: ${{ secrets.ACCOUNTSUIURL }}
 
 jobs:
   run-test:
@@ -40,17 +40,14 @@ jobs:
 
       - name: Generate .env file
         run: |
-          echo "QA_ACCOUNT_TAG=${{ secrets.ACCOUNT_TAG }}" >> e2e-env/.env
-          echo "QA_TUNNEL_SECRET=${{ secrets.TUNNEL_SECRET }}" >> e2e-env/.env
-          echo "QA_TUNNEL_ID=${{ secrets.TUNNEL_ID }}" >> e2e-env/.env
-          echo "QA_PS_DOMAIN=${{ secrets.PS_DOMAIN }}" >> e2e-env/.env
-          echo "QA_DOMAIN=${{ secrets.DOMAIN }}" >> e2e-env/.env
-          echo "QA_DOWNLOADER_TOKEN=${{ secrets.DOWNLOADER_TOKEN }}" >> e2e-env/.env
-          echo "QA_PS_VERSION=${{ secrets.PS_VERSION }}" >> e2e-env/.env
-          echo "QA_PS_ACCOUNTS_VERSION=${{ secrets.PS_ACCOUNTS_VERSION }}" >> e2e-env/.env
-
-      - name: Check .env content
-        run: cat e2e-env/.env
+          echo "ACCOUNT_TAG=${{ secrets.ACCOUNT_TAG }}" >> e2e-env/.env
+          echo "TUNNEL_SECRET=${{ secrets.TUNNEL_SECRET }}" >> e2e-env/.env
+          echo "TUNNEL_ID=${{ secrets.TUNNEL_ID }}" >> e2e-env/.env
+          echo "PS_DOMAIN=${{ secrets.PS_DOMAIN }}" >> e2e-env/.env
+          echo "DOMAIN=${{ secrets.DOMAIN }}" >> e2e-env/.env
+          echo "DOWNLOADER_TOKEN=${{ secrets.DOWNLOADER_TOKEN }}" >> e2e-env/.env
+          echo "PS_VERSION=${{ secrets.PS_VERSION }}" >> e2e-env/.env
+          echo "PS_ACCOUNTS_VERSION=${{ secrets.PS_ACCOUNTS_VERSION }}" >> e2e-env/.env
 
       - name: Run test
         working-directory: ./e2e
