@@ -5,7 +5,6 @@
 *.idea/*
 *tests/*
 *config/config.yml.*
-*config.*.php
 *.bak/*
 *.md/*
 *composer.*

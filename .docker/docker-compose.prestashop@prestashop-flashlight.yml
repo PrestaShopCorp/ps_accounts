@@ -2,7 +2,7 @@ version: "3.7"
 services:
   prestashop:
     container_name: phpunit
-#    image: 'prestashop/prestashop-flashlight:1.7.6'
+#    image: 'prestashop/prestashop-flashlight:1.7.6.9-7.2'
     image: ${PLATFORM_IMAGE}
     healthcheck:
       test: curl --fail http://localhost:80 || exit 1
