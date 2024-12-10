@@ -25,21 +25,22 @@ use ModuleFrontController;
 use PrestaShop\Module\PsAccounts\Exception\Http\HttpException;
 use PrestaShop\Module\PsAccounts\Exception\Http\MethodNotAllowedException;
 use PrestaShop\Module\PsAccounts\Exception\Http\UnauthorizedException;
+use PrestaShop\Module\PsAccounts\Log\Logger;
 use PrestaShop\Module\PsAccounts\Polyfill\Traits\Controller\AjaxRender;
-use PrestaShop\Module\PsAccounts\Provider\RsaKeysProvider;
+use PrestaShop\Module\PsAccounts\Provider\OAuth2\ShopProvider;
 use PrestaShop\Module\PsAccounts\Repository\ConfigurationRepository;
 use PrestaShop\Module\PsAccounts\Service\SentryService;
-use PrestaShop\Module\PsAccounts\Vendor\Lcobucci\JWT\Parser;
-use PrestaShop\Module\PsAccounts\Vendor\Lcobucci\JWT\Signer\Hmac\Sha256;
-use PrestaShop\Module\PsAccounts\Vendor\Lcobucci\JWT\Signer\Key;
+use PrestaShop\OAuth2\Client\Provider\Exception\AudienceInvalidException;
+use PrestaShop\OAuth2\Client\Provider\Exception\ScopeInvalidException;
+use PrestaShop\OAuth2\Client\Provider\Exception\SignatureInvalidException;
+use PrestaShop\OAuth2\Client\Provider\Exception\TokenExpiredException;
+use PrestaShop\OAuth2\Client\Provider\Exception\TokenInvalidException;
 use ReflectionException;
 use ReflectionParameter;
 
 abstract class AbstractRestController extends ModuleFrontController
 {
     use AjaxRender;
-
-    const TOKEN_HEADER = 'X-PrestaShop-Signature';
 
     /**
      * @var string
@@ -56,6 +57,16 @@ abstract class AbstractRestController extends ModuleFrontController
      */
     protected $authenticated = true;
 
+    /**
+     * @var object
+     */
+    protected $token;
+
+    /**
+     * @var ShopProvider
+     */
+    protected $oauth2Provider;
+
     public function __construct()
     {
         parent::__construct();
@@ -63,6 +74,8 @@ abstract class AbstractRestController extends ModuleFrontController
         $this->ajax = true;
         $this->content_only = true;
         $this->controller_type = 'module';
+
+        $this->oauth2Provider = $this->module->getService(ShopProvider::class);
     }
 
     /**
@@ -73,6 +86,24 @@ abstract class AbstractRestController extends ModuleFrontController
     }
 
     /**
+     * @return array
+     */
+    protected function getScope()
+    {
+        return [];
+    }
+
+    /**
+     * @return array
+     */
+    protected function getAudience()
+    {
+        return [];
+    }
+
+    /**
+     * Controller's entry point
+     *
      * @return void
      *
      * @throws \PrestaShopException
@@ -82,14 +113,10 @@ abstract class AbstractRestController extends ModuleFrontController
     public function postProcess()
     {
         try {
-            $payload = $this->extractPayload();
-            $method = $_SERVER['REQUEST_METHOD'];
-            // detect method from payload (hack with some shop server configuration)
-            if (isset($payload['method'])) {
-                $method = $payload['method'];
-                unset($payload['method']);
+            if ($this->authenticated) {
+                $this->checkAuthorization();
             }
-            $this->dispatchVerb($method, $payload);
+            $this->dispatchVerb($this->decodeJsonPayload());
         } catch (HttpException $e) {
             $this->module->getLogger()->error($e);
 
@@ -127,15 +154,16 @@ abstract class AbstractRestController extends ModuleFrontController
     }
 
     /**
-     * @param string $httpMethod
      * @param array $payload
      *
      * @return void
      *
      * @throws \Exception
      */
-    protected function dispatchVerb($httpMethod, array $payload)
+    protected function dispatchVerb(array $payload)
     {
+        $httpMethod = $this->extractMethod($payload);
+
         $id = array_key_exists($this->resourceId, $payload)
             ? $payload[$this->resourceId]
             : null;
@@ -217,12 +245,6 @@ abstract class AbstractRestController extends ModuleFrontController
      */
     protected function buildArg(array $payload, ReflectionParameter $reflectionParam)
     {
-//        if ($reflectionParam->getType()->isBuiltin()) {
-//            return $payload;
-//        } else {
-//            // Instantiate DTO like value bag
-//            return $reflectionParam->getClass()->newInstance($payload);
-//        }
         if ($reflectionParam->getClass()) {
             // Instantiate DTO like value bag
             return $reflectionParam->getClass()->newInstance($payload);
@@ -233,72 +255,20 @@ abstract class AbstractRestController extends ModuleFrontController
 
     /**
      * @return array
+     *
+     * @throws UnauthorizedException
+     * @throws TokenInvalidException
      */
-    protected function extractPayload()
+    protected function decodeJsonPayload()
     {
         $defaultShopId = Context::getContext()->shop->id;
-        if ($this->authenticated) {
-            return $this->decodePayload($defaultShopId);
-        }
 
-        return $this->decodeRawPayload($defaultShopId);
-    }
+        // FIXME: "PHP message: PHP Deprecated:  Automatically populating $HTTP_RAW_POST_DATA is deprecated and will be removed in a future version.
+        // To avoid this warning set 'always_populate_raw_post_data' to '-1' in php.ini and use the php://input stream instead. in Unknown on line 0"
+        $json = file_get_contents('php://input');
+        $payload = !empty($json) ? json_decode($json, true) : [];
 
-    /**
-     * @param int $defaultShopId
-     *
-     * @return array
-     */
-    protected function decodeRawPayload($defaultShopId = null)
-    {
-        $payload = $_REQUEST;
-        if (!isset($payload['shop_id'])) {
-            // context fallback
-            $payload['shop_id'] = $defaultShopId;
-        }
-        $shop = new \Shop((int) $payload['shop_id']);
-        if ($shop->id) {
-            $this->setContextShop($shop);
-        }
-
-        return $payload;
-    }
-
-    /**
-     * @param int $defaultShopId
-     *
-     * @return array
-     */
-    protected function decodePayload($defaultShopId = null)
-    {
-        /** @var RsaKeysProvider $shopKeysService */
-        $shopKeysService = $this->module->getService(RsaKeysProvider::class);
-
-        $jwtString = $this->getRequestHeader(self::TOKEN_HEADER);
-
-        if ($jwtString) {
-            $jwt = (new Parser())->parse($jwtString);
-
-            $shop = new \Shop((int) $jwt->claims()->get('shop_id', $defaultShopId));
-
-            if ($shop->id) {
-                $this->setContextShop($shop);
-                $publicKey = $shopKeysService->getPublicKey();
-
-                if (
-                    !empty($publicKey) &&
-                    is_string($publicKey) &&
-                    true === $jwt->verify(new Sha256(), new Key((string) $publicKey))
-                ) {
-                    return $jwt->claims()->all();
-                }
-                $this->module->getLogger()->error('Failed to verify token: ' . $jwtString);
-            }
-
-            $this->module->getLogger()->error('Failed to decode payload: ' . $jwtString);
-        }
-
-        throw new UnauthorizedException();
+        return $this->initShopContext($payload, $defaultShopId);
     }
 
     /**
@@ -336,11 +306,50 @@ abstract class AbstractRestController extends ModuleFrontController
     }
 
     /**
+     * @param array $payload
+     * @param int $defaultShopId
+     *
+     * @return array
+     *
+     * @throws \Exception
+     */
+    protected function initShopContext(array $payload, $defaultShopId)
+    {
+        if (!isset($payload['shop_id'])) {
+            // context fallback
+            $payload['shop_id'] = $defaultShopId;
+        }
+        $shop = new \Shop((int) $payload['shop_id']);
+        if ($shop->id) {
+            $this->setContextShop($shop);
+        }
+
+        return $payload;
+    }
+
+    /**
+     * @param array $payload
+     *
+     * @return mixed
+     */
+    protected function extractMethod(array & $payload)
+    {
+        $method = $_SERVER['REQUEST_METHOD'];
+        // detect method from payload (hack with some shop server configuration)
+        if (isset($payload['method'])) {
+            $method = $payload['method'];
+            unset($payload['method']);
+        }
+
+        return $method;
+    }
+
+    /**
      * @return bool
      */
     protected function displayMaintenancePage()
     {
-        return true;
+        return false;
     }
 
     /**
@@ -375,7 +384,7 @@ abstract class AbstractRestController extends ModuleFrontController
      *
      * @throws \PrestaShopException
      */
-    private function handleError($e)
+    protected function handleError($e)
     {
         SentryService::capture($e);
 
@@ -383,5 +392,68 @@ abstract class AbstractRestController extends ModuleFrontController
             'error' => true,
             'message' => 'Failed processing your request',
         ], 500);
+    }
+
+    /**
+     * @return void
+     *
+     * @throws UnauthorizedException
+     */
+    protected function checkAuthorization()
+    {
+        $authorizationHeader = $this->getRequestHeader('Authorization');
+        if (!isset($authorizationHeader)) {
+            throw new UnauthorizedException('Authorization header is required.');
+        }
+
+        $jwtString = trim(str_replace('Bearer', '', $authorizationHeader));
+
+        Logger::getInstance()->info('bearer: ' . $jwtString);
+
+        try {
+            $this->token = $this->oauth2Provider->validateToken($jwtString, $this->getScope(), $this->getAudience());
+        } catch (SignatureInvalidException $e) {
+            throw new UnauthorizedException($e->getMessage());
+        } catch (AudienceInvalidException $e) {
+            throw new UnauthorizedException($e->getMessage());
+        } catch (ScopeInvalidException $e) {
+            throw new UnauthorizedException($e->getMessage());
+        } catch (TokenExpiredException $e) {
+            throw new UnauthorizedException($e->getMessage());
+        } catch (TokenInvalidException $e) {
+            throw new UnauthorizedException($e->getMessage());
+        }
+    }
+
+    /**
+     * @param array $scope
+     *
+     * @return void
+     *
+     * @throws UnauthorizedException
+     */
+    protected function assertScope(array $scope)
+    {
+        try {
+            $this->oauth2Provider->validateScope($this->token, $scope);
+        } catch (ScopeInvalidException $e) {
+            throw new UnauthorizedException($e->getMessage());
+        }
+    }
+
+    /**
+     * @param array $audience
+     *
+     * @return void
+     *
+     * @throw UnauthorizedException
+     */
+    protected function assertAudience(array $audience)
+    {
+        try {
+            $this->oauth2Provider->validateAudience($this->token, $audience);
+        } catch (AudienceInvalidException $e) {
+            throw new UnauthorizedException($e->getMessage());
+        }
     }
 }

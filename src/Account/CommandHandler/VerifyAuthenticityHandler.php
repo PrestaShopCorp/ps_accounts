@@ -24,8 +24,9 @@ use PrestaShop\Module\PsAccounts\Account\Command\VerifyAuthenticityCommand;
 use PrestaShop\Module\PsAccounts\Account\ManageProof;
 use PrestaShop\Module\PsAccounts\Account\Session\ShopSession;
 use PrestaShop\Module\PsAccounts\Account\ShopIdentity;
+use PrestaShop\Module\PsAccounts\Account\Token\Token;
 use PrestaShop\Module\PsAccounts\Api\Client\AccountsClient;
-use PrestaShop\Module\PsAccounts\Log\Logger;
+use PrestaShop\Module\PsAccounts\Exception\RefreshTokenException;
 use PrestaShop\Module\PsAccounts\Provider\OAuth2\Oauth2Client;
 use PrestaShop\Module\PsAccounts\Provider\ShopProvider;
 
@@ -88,34 +89,51 @@ class VerifyAuthenticityHandler
     /**
      * @param VerifyAuthenticityCommand $command
      *
-     * @return void
-     *
-     * @throws \PrestaShopException
-     * @throws \Exception
+     * @return Token|false
      */
     public function handle(VerifyAuthenticityCommand $command)
     {
-        if (!$this->oauth2Client->exists()) {
-            // TODO: call Create Identity Command ? or just log ? or throw ? or juste remove this condition ?
-            return;
+        try {
+            if ($this->isAlreadyVerified()) {
+                return $this->shopSession->getValidToken();
+            }
+
+            $shopId = $command->shopId ?: \Shop::getContextShopID();
+
+            $response = $this->accountsClient->verifyUrlAuthenticity(
+                $this->shopIdentity->getShopUuid(),
+                $this->shopSession->getValidToken(),
+                $this->shopProvider->getUrl($shopId),
+                $this->manageProof->generateProof()
+            );
+
+            if ($response['status'] === true) {
+                return $this->shopSession->getValidToken(true);
+            }
+        } catch (RefreshTokenException $e) {
         }
 
-        // TODO: Que faire si on arrive pas obtenir un token ?
-        $token = $this->shopSession->getValidToken();
+        return false;
+    }
 
-        $proof = $this->manageProof->generateProof();
-
-        $response = $this->accountsClient->verifyUrlAuthenticity(
+    /**
+     * Idempotency check
+     *
+     * @return bool
+     */
+    private function isAlreadyVerified()
+    {
+        $response = $this->accountsClient->shopStatus(
             $this->shopIdentity->getShopUuid(),
-            $token,
-            $this->shopProvider->getUrl($command->shopId),
-            $proof
+            $this->shopSession->getValidToken()
         );
-        if ($response['status'] === true && $response['body']) {
-            // TODO: get the first token with verified scope or clear the token in configuration table ?
-        } else {
-            // TODO Add bad request handling here
-            Logger::getInstance()->error($response);
-        }
+        // FIXME: todo
+        return false;
+//        // FIXME: factoriser
+//        // FIXME: replace with firebase/php-jwt
+//        $scp = $this->shopSession->getValidToken()->getJwt()->claims()->get('scp');
+//        $scp = is_array($scp) ? $scp : [];
+//
+//        return in_array('shop.verified', $scp);
     }
 }

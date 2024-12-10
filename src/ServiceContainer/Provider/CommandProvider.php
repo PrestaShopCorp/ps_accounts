@@ -36,7 +36,6 @@ use PrestaShop\Module\PsAccounts\Context\ShopContext;
 use PrestaShop\Module\PsAccounts\Cqrs\CommandBus;
 use PrestaShop\Module\PsAccounts\Provider\OAuth2\Oauth2Client;
 use PrestaShop\Module\PsAccounts\Provider\ShopProvider;
-use PrestaShop\Module\PsAccounts\Repository\ConfigurationRepository;
 use PrestaShop\Module\PsAccounts\Vendor\PrestaShopCorp\LightweightContainer\ServiceContainer\Contract\IServiceProvider;
 use PrestaShop\Module\PsAccounts\Vendor\PrestaShopCorp\LightweightContainer\ServiceContainer\ServiceContainer;
 
@@ -69,8 +68,8 @@ class CommandProvider implements IServiceProvider
         });
         $container->registerProvider(UpgradeModulesHandler::class, static function () use ($container) {
             return new UpgradeModulesHandler(
-                $container->get(CommandBus::class),
-                $container->get(ConfigurationRepository::class)
+                $container->get(ShopContext::class),
+                $container->get(CommandBus::class)
             );
         });
         $container->registerProvider(CreateIdentityHandler::class, static function () use ($container) {

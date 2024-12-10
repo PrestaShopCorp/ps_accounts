@@ -55,9 +55,13 @@ class ShopIdentity
     }
 
     /**
+     * FIXME: to be refactored
+     *
      * @param Dto\LinkShop $payload
      *
      * @return void
+     *
+     * @deprecated
      */
     public function update(Dto\LinkShop $payload)
     {

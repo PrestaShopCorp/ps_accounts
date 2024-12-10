@@ -18,31 +18,23 @@
  * @license   https://opensource.org/licenses/AFL-3.0 Academic Free License version 3.0
  */
 
-namespace PrestaShop\Module\PsAccounts\Api\Controller;
+namespace PrestaShop\Module\PsAccounts\Hook;
 
-use PrestaShop\Module\PsAccounts\Exception\Http\NotFoundException;
-use Shop;
-
-class AbstractV2ShopRestController extends AbstractV2RestController
+class DisplayAdminAfterHeader extends Hook
 {
     /**
-     * @var string
+     * @return string
      */
-    public $resourceId = 'shop_id';
-
-    /**
-     * @param mixed $id
-     *
-     * @return Shop
-     */
-    protected function buildResource($id)
+    public function execute(array $params = [])
     {
-        $shop = new Shop($id);
-
-        if (!$shop->id) {
-            throw new NotFoundException('Shop not found [' . $id . ']');
-        }
-
-        return $shop;
+        return <<<HTML
+<div class="bootstrap">
+    <div class="alert alert-warning">
+        <button type="button" class="close" data-dismiss="alert">×</button>
+        <!-- img width="57" alt="PrestaShop Account" title="PrestaShop Account" src="/modules/ps_accounts/logo.png"-->
+        Your shop has not been verified : <a>verify my shop</a>
+    </div>
+</div>
+HTML;
     }
 }

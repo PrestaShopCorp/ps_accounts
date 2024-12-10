@@ -19,9 +19,10 @@
  */
 
 use PrestaShop\Module\PsAccounts\Account\ManageProof;
-use PrestaShop\Module\PsAccounts\Api\Controller\AbstractV2ShopRestController;
+use PrestaShop\Module\PsAccounts\Account\ShopIdentity;
+use PrestaShop\Module\PsAccounts\Api\Controller\AbstractShopRestController;
 
-class ps_AccountsApiV1ShopVerifyProofModuleFrontController extends AbstractV2ShopRestController
+class ps_AccountsApiV1ShopVerifyProofModuleFrontController extends AbstractShopRestController
 {
     /**
      * @var ManageProof
@@ -29,15 +30,39 @@ class ps_AccountsApiV1ShopVerifyProofModuleFrontController extends AbstractV2Sho
     private $manageProof;
 
     /**
-     * ps_AccountsApiV1ShopVerifyProofModuleFrontController constructor.
-     *
-     * @throws Exception
+     * @var ShopIdentity
      */
+    private $shopIdentity;
+
+    /**
+     * @var bool
+     */
+    protected $authenticated = true;
+
+    /**
+     * @return array
+     */
+    protected function getScope()
+    {
+        return [
+//            'shop.verify_proof',
+        ];
+    }
+
+    /**
+     * @return array
+     */
+    protected function getAudience()
+    {
+        return [];
+    }
+
     public function __construct()
     {
         parent::__construct();
 
         $this->manageProof = $this->module->getService(ManageProof::class);
+        $this->shopIdentity = $this->module->getService(ShopIdentity::class);
     }
 
     /**
@@ -45,11 +70,15 @@ class ps_AccountsApiV1ShopVerifyProofModuleFrontController extends AbstractV2Sho
      * @param array $payload
      *
      * @return array
-     *
-     * @throws Exception
      */
     public function show(Shop $shop, array $payload)
     {
+        $cloudShopId = $this->shopIdentity->getShopUuid();
+        $this->assertAudience([
+            'shop_' . $cloudShopId,
+            //'https://accounts-api.distribution.prestashop.net/shops/' . $cloudShopId,
+        ]);
+
         return [
             'proof' => $this->manageProof->getProof(),
         ];

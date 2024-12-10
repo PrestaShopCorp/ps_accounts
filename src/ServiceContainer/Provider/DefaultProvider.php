@@ -108,11 +108,6 @@ class DefaultProvider implements IServiceProvider
             );
         });
         // "Providers"
-        $container->registerProvider(Provider\RsaKeysProvider::class, static function () use ($container) {
-            return new Provider\RsaKeysProvider(
-                $container->get(ConfigurationRepository::class)
-            );
-        });
         $container->registerProvider(Provider\ShopProvider::class, static function () use ($container) {
             return new Provider\ShopProvider(
                 $container->get(ShopContext::class),

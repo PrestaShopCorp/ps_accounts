@@ -65,7 +65,7 @@ abstract class MultiShopHandler
         if ($this->shopContext->isMultishopActive()) {
             return $this->shopContext->getMultiShopIds();
         }
-        // FIXME: very unclear why we do that
+
         return [null];
     }
 }

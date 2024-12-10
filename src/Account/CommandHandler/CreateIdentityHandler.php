@@ -79,19 +79,16 @@ class CreateIdentityHandler
             return;
         }
 
+        $shopId = $command->shopId ?: \Shop::getContextShopID();
+
         $response = $this->accountsClient->createShopIdentity(
-            $this->shopProvider->getUrl($command->shopId)
+            $this->shopProvider->getUrl($shopId)
         );
 
-        // TODO Create a better HTTP Client
         if ($response['status'] === true && isset($response['body'])) {
             $body = $response['body'];
-            // TODO Merge refactor DDD by Antoine
             $this->oauth2Client->update($body['clientId'], $body['clientSecret']);
             $this->shopIdentity->setShopUuid($body['cloudShopId']);
-        } else {
-            // TODO: create a domain exception
-            throw new \Exception('Cannot create identity : ' . $response['httpCode'] . ' ' . print_r($response['body']));
         }
     }
 

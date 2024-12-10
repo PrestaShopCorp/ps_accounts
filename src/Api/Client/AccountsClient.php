@@ -241,8 +241,6 @@ class AccountsClient
     }
 
     /**
-     * Undocumented function
-     *
      * @param string $cloudShopId
      * @param string $shopToken
      * @param ShopUrl $shopUrl
@@ -265,6 +263,21 @@ class AccountsClient
                 'multiShopId' => $shopUrl->getMultiShopId(),
                 'proof' => $proof,
             ],
+        ]);
+    }
+
+    /**
+     * @return array
+     */
+    public function shopStatus($cloudShopId, $shopToken)
+    {
+        $this->getClient()->setRoute('/v1/shop-status');
+
+        return $this->getClient()->get([
+            'headers' => $this->getHeaders([
+                'Authorization' => 'Bearer ' . $shopToken,
+                'X-Shop-Id' => $cloudShopId,
+            ]),
         ]);
     }
 }

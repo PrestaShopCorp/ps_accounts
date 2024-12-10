@@ -74,9 +74,6 @@ class ShopProvider
             /** @var OwnerSession $ownerSession */
             $ownerSession = $module->getService(OwnerSession::class);
 
-            /** @var RsaKeysProvider $rsaKeyProvider */
-            $rsaKeyProvider = $module->getService(RsaKeysProvider::class);
-
             $shop = new Shop([
                 'id' => (string) $shopData['id_shop'],
                 'name' => $shopData['name'],
@@ -88,7 +85,7 @@ class ShopProvider
 
                 // LinkAccount
                 'uuid' => $shopIdentity->getShopUuid() ?: null,
-                'publicKey' => $rsaKeyProvider->getOrGenerateAccountsRsaPublicKey() ?: null,
+                'publicKey' => '[deprecated]',
                 'employeeId' => (int) $shopIdentity->getEmployeeId() ?: null,
                 'user' => [
                     'email' => $shopIdentity->getOwnerEmail() ?: null,

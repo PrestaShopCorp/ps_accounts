@@ -21,7 +21,7 @@
 namespace PrestaShop\Module\PsAccounts\Account;
 
 use PrestaShop\Module\PsAccounts\Repository\ConfigurationRepository;
-use PrestaShop\Module\PsAccounts800\Vendor\Ramsey\Uuid\Uuid;
+use PrestaShop\Module\PsAccounts\Vendor\Ramsey\Uuid\Uuid;
 
 class ManageProof
 {
@@ -43,8 +43,6 @@ class ManageProof
 
     /**
      * @return string
-     *
-     * @throws \Exception
      */
     public function generateProof()
     {
