@@ -2,7 +2,7 @@
 
 namespace PrestaShop\Module\PsAccounts\Tests\Unit\Account\Session\ShopSession;
 
-use PrestaShop\Module\PsAccounts\Account\LinkShop;
+use PrestaShop\Module\PsAccounts\Account\ShopIdentity;
 use PrestaShop\Module\PsAccounts\Account\Session\ShopSession;
 use PrestaShop\Module\PsAccounts\Account\Token\Token;
 use PrestaShop\Module\PsAccounts\Cqrs\CommandBus;
@@ -60,7 +60,7 @@ class RefreshTokenTest extends TestCase
         $this->shopSession = new ShopSession(
             $this->configurationRepository,
             $shopProvider,
-            $this->linkShop,
+            $this->shopIdentity,
             $commandBus
         );
 
@@ -80,78 +80,12 @@ class RefreshTokenTest extends TestCase
     /**
      * @test
      */
-    public function itShouldClearConfigurationAndThrowIfNoOauth()
-    {
-        $e = null;
-        try {
-            // OAuth2Client has been cleared
-            $this->oauth2Client->delete();
-
-            // Shop is linked
-            $this->linkShop->update(new \PrestaShop\Module\PsAccounts\Account\Dto\LinkShop([
-                'shopId' => 1,
-                'uid' => $this->faker->uuid,
-                'employeeId' => 5,
-                'ownerUid' => $this->faker->uuid,
-                'ownerEmail' => $this->faker->safeEmail,
-            ]));
-
-            $this->shopSession->setOauth2ClientReceiptTimeout(1);
-
-            sleep(2);
-
-            $this->shopSession->refreshToken();
-        } catch (RefreshTokenException $e) {
-            //$this->module->getLogger()->info($e->getMessage());
-        }
-
-        $this->assertInstanceOf(RefreshTokenException::class, $e);
-        $this->assertEquals(1, preg_match('/Invalid OAuth2 client/', $e->getMessage()));
-        $token = $this->shopSession->getToken();
-        $this->assertEquals("", (string) $token->getJwt());
-        $this->assertEquals("", (string) $token->getRefreshToken());
-    }
-
-    /**
-     * @test
-     */
-    public function itShouldNotClearConfigurationAndThrowIfNoOauth()
-    {
-        $e = null;
-        try {
-            // Shop is linked
-            $this->linkShop->update(new \PrestaShop\Module\PsAccounts\Account\Dto\LinkShop([
-                'shopId' => 1,
-                'uid' => $this->faker->uuid,
-            ]));
-
-            // OAuth2Client has been cleared
-            $this->oauth2Client->delete();
-
-            $this->shopSession->setOauth2ClientReceiptTimeout(1);
-
-            //sleep(2);
-
-            $this->shopSession->refreshToken();
-        } catch (RefreshTokenException $e) {
-            //$this->module->getLogger()->info($e->getMessage());
-        }
-
-        $this->assertNull($e);
-        $token = $this->shopSession->getToken();
-        $this->assertEquals((string) $this->validAccessToken, (string) $token->getJwt());
-        $this->assertEquals("", (string) $token->getRefreshToken());
-    }
-
-    /**
-     * @test
-     */
     public function itShouldRefreshToken()
     {
         $e = null;
         try {
             // Shop is linked
-            $this->linkShop->update(new \PrestaShop\Module\PsAccounts\Account\Dto\LinkShop([
+            $this->shopIdentity->update(new \PrestaShop\Module\PsAccounts\Account\Dto\LinkShop([
                 'shopId' => 1,
                 'uid' => $this->faker->uuid,
             ]));
@@ -162,9 +96,6 @@ class RefreshTokenTest extends TestCase
                 $this->faker->password
             );
 
-            $this->shopSession->setOauth2ClientReceiptTimeout(1);
-
-            //sleep(2);
 
             $token = $this->shopSession->refreshToken();
         } catch (RefreshTokenException $e) {

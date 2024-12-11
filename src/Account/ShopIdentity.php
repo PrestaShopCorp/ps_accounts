@@ -20,9 +20,12 @@
 
 namespace PrestaShop\Module\PsAccounts\Account;
 
+use PrestaShop\Module\PsAccounts\Account\Command\CheckStatusCommand;
+use PrestaShop\Module\PsAccounts\Account\Dto\ShopStatus;
+use PrestaShop\Module\PsAccounts\Cqrs\CommandBus;
 use PrestaShop\Module\PsAccounts\Repository\ConfigurationRepository;
 
-class LinkShop
+class ShopIdentity
 {
     /**
      * @var ConfigurationRepository
@@ -30,14 +33,21 @@ class LinkShop
     private $configuration;
 
     /**
+     * @var CommandBus
+     */
+    private $commandBus;
+
+    /**
      * ShopLinkAccountService constructor.
      *
      * @param ConfigurationRepository $configuration
      */
     public function __construct(
-        ConfigurationRepository $configuration
+        ConfigurationRepository $configuration,
+        CommandBus $commandBus
     ) {
         $this->configuration = $configuration;
+        $this->commandBus = $commandBus;
     }
 
     /**
@@ -51,13 +61,16 @@ class LinkShop
         $this->setEmployeeId('');
         $this->setOwnerUuid('');
         $this->setOwnerEmail('');
-        $this->setUnlinkedOnError('');
     }
 
     /**
+     * FIXME: to be refactored
+     *
      * @param Dto\LinkShop $payload
      *
      * @return void
+     *
+     * @deprecated
      */
     public function update(Dto\LinkShop $payload)
     {
@@ -65,17 +78,27 @@ class LinkShop
         $this->setEmployeeId((int) $payload->employeeId ?: '');
         $this->setOwnerUuid($payload->ownerUid);
         $this->setOwnerEmail($payload->ownerEmail);
-        $this->setUnlinkedOnError('');
     }
 
     /**
      * @return bool
-     *
-     * @throws \Exception
      */
     public function exists()
     {
         return (bool) $this->getShopUuid();
+    }
+
+    /**
+     * @return true
+     */
+    public function isVerified()
+    {
+        // FIXME: define where this code belongs
+
+        /** @var ShopStatus $shopStatus */
+        $shopStatus = $this->commandBus->handle(new CheckStatusCommand());
+
+        return $shopStatus->isVerified;
     }
 
     /**
@@ -170,23 +193,5 @@ class LinkShop
     public function setOwnerEmail($email)
     {
         $this->configuration->updateFirebaseEmail($email);
-    }
-
-    /**
-     * @return string
-     */
-    public function getUnlinkedOnError()
-    {
-        return $this->configuration->getUnlinkedOnError();
-    }
-
-    /**
-     * @param string|null $errorMsg
-     *
-     * @return void
-     */
-    public function setUnlinkedOnError($errorMsg)
-    {
-        $this->configuration->updateUnlinkedOnError($errorMsg);
     }
 }

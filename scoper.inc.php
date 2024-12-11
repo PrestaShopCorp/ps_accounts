@@ -34,6 +34,8 @@ use Isolated\Symfony\Component\Finder\Finder;
 // Vendor dependency dirs your want to scope
 // Note: you'll have to manually add namespaces in your composer.json
 $dirScoped = explode("\n", shell_exec('cat .dir-scoped'));
+$versionPrefix = rtrim(shell_exec('cat .ver-scoped'));
+
 /**
  * TODO: cannot scope psr0 libs
  * segmentio/analytics-php
@@ -65,7 +67,7 @@ return [
     // will be generated instead.
     //
     // For more see: https://github.com/humbug/php-scoper/blob/master/docs/configuration.md#prefix
-    'prefix' => 'PrestaShop\Module\PsAccounts\Vendor',
+    'prefix' => 'PrestaShop\Module\\' . $versionPrefix . '\Vendor',
 
     // The base output directory for the prefixed files.
     // This will be overridden by the 'output-dir' command line option if present.
@@ -114,7 +116,7 @@ return [
             }
 //            if ($filePath === __DIR__ . '/vendor/symfony/dependency-injection/Compiler/PassConfig.php') {
 //                return str_replace(
-//                    "'PrestaShop\\\\Module\\\\PsAccounts\\\\Vendor\\\\array_merge'",
+//                    "'PrestaShop\\\\Module\\\\" . $versionPrefix . "\\\\Vendor\\\\array_merge'",
 //                    "'\\array_merge'",
 //                    $contents
 //                );

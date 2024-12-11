@@ -23,7 +23,6 @@ namespace PrestaShop\Module\PsAccounts\Hook;
 use PrestaShop\Module\PsAccounts\Account\Session\Firebase;
 use PrestaShop\Module\PsAccounts\Account\Session\ShopSession;
 use PrestaShop\Module\PsAccounts\Provider\OAuth2\Oauth2Client;
-use PrestaShop\Module\PsAccounts\Provider\RsaKeysProvider;
 
 class ActionShopAccountUnlinkAfter extends Hook
 {
@@ -51,13 +50,5 @@ class ActionShopAccountUnlinkAfter extends Hook
         /** @var ShopSession $session */
         $session = $this->module->getService(ShopSession::class);
         $session->cleanup();
-
-        /** @var RsaKeysProvider $rsaKeysProvider */
-        $rsaKeysProvider = $this->module->getService(RsaKeysProvider::class);
-        try {
-            $rsaKeysProvider->cleanupKeys();
-            $rsaKeysProvider->generateKeys();
-        } catch (\Exception $e) {
-        }
     }
 }

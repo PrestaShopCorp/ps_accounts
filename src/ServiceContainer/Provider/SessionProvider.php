@@ -20,9 +20,9 @@
 
 namespace PrestaShop\Module\PsAccounts\ServiceContainer\Provider;
 
-use PrestaShop\Module\PsAccounts\Account\LinkShop;
 use PrestaShop\Module\PsAccounts\Account\Session\Firebase;
 use PrestaShop\Module\PsAccounts\Account\Session\ShopSession;
+use PrestaShop\Module\PsAccounts\Account\ShopIdentity;
 use PrestaShop\Module\PsAccounts\Cqrs\CommandBus;
 use PrestaShop\Module\PsAccounts\Provider\OAuth2\ShopProvider;
 use PrestaShop\Module\PsAccounts\Repository\ConfigurationRepository;
@@ -43,7 +43,7 @@ class SessionProvider implements IServiceProvider
             return new ShopSession(
                 $container->get(ConfigurationRepository::class),
                 $container->get(ShopProvider::class),
-                $container->get(LinkShop::class),
+                $container->get(ShopIdentity::class),
                 $container->get(CommandBus::class)
             );
         });

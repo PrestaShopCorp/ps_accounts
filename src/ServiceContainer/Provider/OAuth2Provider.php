@@ -20,9 +20,10 @@
 
 namespace PrestaShop\Module\PsAccounts\ServiceContainer\Provider;
 
-use PrestaShop\Module\PsAccounts\Factory\PrestaShopSessionFactory;
 use PrestaShop\Module\PsAccounts\Middleware\Oauth2Middleware;
 use PrestaShop\Module\PsAccounts\Provider;
+use PrestaShop\Module\PsAccounts\Provider\OAuth2\PrestaShopSession;
+use PrestaShop\Module\PsAccounts\Provider\OAuth2\ShopProvider;
 use PrestaShop\Module\PsAccounts\Repository\ConfigurationRepository;
 use PrestaShop\Module\PsAccounts\Vendor\PrestaShopCorp\LightweightContainer\ServiceContainer\Contract\IServiceProvider;
 use PrestaShop\Module\PsAccounts\Vendor\PrestaShopCorp\LightweightContainer\ServiceContainer\ServiceContainer;
@@ -42,11 +43,14 @@ class OAuth2Provider implements IServiceProvider
                 $container->get(ConfigurationRepository::class)
             );
         });
-        $container->registerProvider(Provider\OAuth2\PrestaShopSession::class, static function () {
-            return PrestaShopSessionFactory::create();
+        $container->registerProvider(Provider\OAuth2\PrestaShopSession::class, static function () use ($container) {
+            return new PrestaShopSession(
+                $container->get('ps_accounts.module')->getSession(),
+                $container->get(ShopProvider::class)
+            );
         });
-        $container->registerProvider(Provider\OAuth2\ShopProvider::class, static function () {
-            return Provider\OAuth2\ShopProvider::create();
+        $container->registerProvider(Provider\OAuth2\ShopProvider::class, static function () use ($container) {
+            return Provider\OAuth2\ShopProvider::create($container);
         });
         // Middleware
         $container->registerProvider(Oauth2Middleware::class, static function () use ($container) {

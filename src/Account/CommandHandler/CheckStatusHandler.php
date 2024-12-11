@@ -20,35 +20,38 @@
 
 namespace PrestaShop\Module\PsAccounts\Account\CommandHandler;
 
-use PrestaShop\Module\PsAccounts\Account\Command\UpgradeModuleCommand;
-use PrestaShop\Module\PsAccounts\Account\Session;
+use PrestaShop\Module\PsAccounts\Account\Command\CheckStatusCommand;
+use PrestaShop\Module\PsAccounts\Account\Dto\ShopStatus;
+use PrestaShop\Module\PsAccounts\Account\Session\ShopSession;
 use PrestaShop\Module\PsAccounts\Account\ShopIdentity;
-use PrestaShop\Module\PsAccounts\Account\Token\NullToken;
 use PrestaShop\Module\PsAccounts\Api\Client\AccountsClient;
+use PrestaShop\Module\PsAccounts\Exception\DtoException;
 use PrestaShop\Module\PsAccounts\Exception\RefreshTokenException;
-use PrestaShop\Module\PsAccounts\Log\Logger;
 
-class UpgradeModuleHandler
+class CheckStatusHandler
 {
+    /**
+     * @var AccountsClient
+     */
+    private $accountsClient;
+
     /**
      * @var ShopIdentity
      */
     private $shopIdentity;
 
     /**
-     * @var Session\ShopSession
+     * @var ShopSession
      */
     private $shopSession;
 
     /**
-     * @var AccountsClient
+     * @param AccountsClient $accountsClient
      */
-    private $accountsClient;
-
     public function __construct(
         AccountsClient $accountsClient,
         ShopIdentity $shopIdentity,
-        Session\ShopSession $shopSession
+        ShopSession $shopSession
     ) {
         $this->accountsClient = $accountsClient;
         $this->shopIdentity = $shopIdentity;
@@ -56,27 +59,28 @@ class UpgradeModuleHandler
     }
 
     /**
-     * @param UpgradeModuleCommand $command
+     * @param CheckStatusCommand $command
      *
-     * @return void
+     * @return ShopStatus
      *
+     * @throws DtoException
      * @throws RefreshTokenException
      */
-    public function handle(UpgradeModuleCommand $command)
+    public function handle(CheckStatusCommand $command)
     {
-        Logger::getInstance()->info(
-            'attempt upgrade [' . $command->payload->version . ']'
+//        $scp = $this->shopSession->getValidToken()->getJwt()->claims()->get('scp');
+//        $scp = is_array($scp) ? $scp : [];
+//
+//        return in_array('shop.verified', $scp);
+
+        $response = $this->accountsClient->shopStatus(
+            $this->shopIdentity->getShopUuid(),
+            $this->shopSession->getValidToken()
         );
-
-        $token = $this->shopSession->getValidToken();
-
-        if (!$token->getJwt() instanceof NullToken) {
-            // FIXME: Migrate to a Hydra Token compatible route
-            $this->accountsClient->upgradeShopModule(
-                $this->shopIdentity->getShopUuid(),
-                (string) $token,
-                $command->payload
-            );
+        if ($response['status'] === true && is_array($response['body'])) {
+            return new ShopStatus($response['body']);
         }
+
+        return new ShopStatus();
     }
 }

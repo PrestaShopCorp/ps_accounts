@@ -18,26 +18,22 @@
  * @license   https://opensource.org/licenses/AFL-3.0 Academic Free License version 3.0
  */
 
-namespace PrestaShop\Module\PsAccounts\Factory;
+namespace PrestaShop\Module\PsAccounts\Account\CommandHandler;
 
-use PrestaShop\Module\PsAccounts\Provider\OAuth2\PrestaShopSession;
-use PrestaShop\Module\PsAccounts\Provider\OAuth2\ShopProvider;
+use PrestaShop\Module\PsAccounts\Account\Command\VerifyIdentitiesCommand;
+use PrestaShop\Module\PsAccounts\Account\Command\VerifyIdentityCommand;
 
-class PrestaShopSessionFactory
+class VerifyIdentitiesHandler extends MultiShopHandler
 {
     /**
-     * @return PrestaShopSession
+     * @param VerifyIdentitiesCommand $command
      *
-     * @throws \Exception
+     * @return void
      */
-    public static function create()
+    public function handle(VerifyIdentitiesCommand $command)
     {
-        /** @var \Ps_accounts $module */
-        $module = \Module::getInstanceByName('ps_accounts');
-
-        /** @var ShopProvider $provider */
-        $provider = $module->getService(ShopProvider::class);
-
-        return new PrestaShopSession($module->getSession(), $provider);
+        $this->handleMulti(function ($multiShopId) {
+            $this->commandBus->handle(new VerifyIdentityCommand($multiShopId));
+        });
     }
 }

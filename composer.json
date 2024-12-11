@@ -22,6 +22,7 @@
     "autoload": {
         "psr-4": {
             "PrestaShop\\Module\\PsAccounts\\": "src/",
+            "PrestaShop\\Module\\PsAccounts\\Vendor\\Firebase\\JWT\\": "vendor/firebase/php-jwt/src",
             "PrestaShop\\Module\\PsAccounts\\Vendor\\GuzzleHttp\\": "vendor/guzzlehttp/guzzle/src",
             "PrestaShop\\Module\\PsAccounts\\Vendor\\GuzzleHttp\\Promise\\": "vendor/guzzlehttp/promises/src",
             "PrestaShop\\Module\\PsAccounts\\Vendor\\GuzzleHttp\\Psr7\\": "vendor/guzzlehttp/psr7/src",
@@ -47,7 +48,7 @@
         "sentry/sentry": "^1.0",
         "segmentio/analytics-php": "^1.8",
         "ramsey/uuid": "^3.9",
-        "prestashopcorp/oauth2-prestashop": "^2.0",
+        "prestashopcorp/oauth2-prestashop": "dev-feat/token-validator",
         "guzzlehttp/guzzle": "^6.0",
         "prestashopcorp/lightweight-container": "dev-main"
     },
@@ -55,6 +56,10 @@
       {
         "type": "vcs",
         "url": "git@github.com:PrestaShopCorp/lightweight-container.git"
+      },
+      {
+        "type": "vcs",
+        "url": "git@github.com:PrestaShopCorp/oauth2-prestashop.git"
       }
     ],
     "author": "PrestaShop"

@@ -18,40 +18,46 @@
  * @license   https://opensource.org/licenses/AFL-3.0 Academic Free License version 3.0
  */
 
-namespace PrestaShop\Module\PsAccounts\Account\CommandHandler;
+namespace PrestaShop\Module\PsAccounts\Account;
 
-use Hook;
-use PrestaShop\Module\PsAccounts\Account\Command\LinkShopCommand;
-use PrestaShop\Module\PsAccounts\Account\LinkShop;
-use PrestaShop\Module\PsAccounts\Hook\ActionShopAccountLinkAfter;
-use PrestaShopException;
+use PrestaShop\Module\PsAccounts\Repository\ConfigurationRepository;
+use PrestaShop\Module\PsAccounts\Vendor\Ramsey\Uuid\Uuid;
 
-class LinkShopHandler
+class ManageProof
 {
     /**
-     * @var LinkShop
+     * @var ConfigurationRepository
      */
-    private $linkShop;
+    private $configuration;
 
-    public function __construct(LinkShop $linkShop)
-    {
-        $this->linkShop = $linkShop;
+    /**
+     * ManageProof constructor.
+     *
+     * @param ConfigurationRepository $configuration
+     */
+    public function __construct(
+        ConfigurationRepository $configuration
+    ) {
+        $this->configuration = $configuration;
     }
 
     /**
-     * @param LinkShopCommand $command
-     *
-     * @return void
-     *
-     * @throws PrestaShopException
+     * @return string
      */
-    public function handle(LinkShopCommand $command)
+    public function generateProof()
     {
-        $this->linkShop->update($command->payload);
+        $proof = Uuid::uuid4()->toString();
 
-        Hook::exec(ActionShopAccountLinkAfter::getName(), [
-            'shopUuid' => $this->linkShop->getShopUuid(),
-            'shopId' => $command->payload->shopId,
-        ]);
+        $this->configuration->updateProof($proof);
+
+        return $proof;
+    }
+
+    /**
+     * @return string|null
+     */
+    public function getProof()
+    {
+        return $this->configuration->getProof();
     }
 }

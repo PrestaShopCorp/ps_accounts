@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Copyright since 2007 PrestaShop SA and Contributors
  * PrestaShop is an International Registered Trademark & Property of PrestaShop SA
@@ -18,32 +19,20 @@
  * @license   https://opensource.org/licenses/AFL-3.0 Academic Free License version 3.0
  */
 
-namespace PrestaShop\Module\PsAccounts\Hook;
+namespace PrestaShop\Module\PsAccounts\Account\Command;
 
-use PrestaShop\Module\PsAccounts\Repository\EmployeeAccountRepository;
-
-class ActionObjectEmployeeDeleteAfter extends Hook
+class CreateIdentityCommand
 {
     /**
-     * @param array $params
-     *
-     * @return void
-     *
-     * @throws \Exception
+     * @var int|null
      */
-    public function execute(array $params = [])
-    {
-        /** @var \Employee $employee */
-        $employee = $params['object'];
+    public $shopId;
 
-        $repository = new EmployeeAccountRepository();
-        try {
-            $employeeAccount = $repository->findByEmployeeId($employee->id);
-            if ($employeeAccount) {
-                $repository->delete($employeeAccount);
-            }
-        } catch (\Throwable $e) {
-        } catch (\Exception $e) {
-        }
+    /**
+     * @param int|null $shopId
+     */
+    public function __construct($shopId)
+    {
+        $this->shopId = $shopId;
     }
 }

@@ -18,32 +18,16 @@
  * @license   https://opensource.org/licenses/AFL-3.0 Academic Free License version 3.0
  */
 
-namespace PrestaShop\Module\PsAccounts\Hook;
+namespace PrestaShop\Module\PsAccounts\Account\Dto;
 
-use PrestaShop\Module\PsAccounts\Repository\EmployeeAccountRepository;
+use PrestaShop\Module\PsAccounts\Type\Dto;
 
-class ActionObjectEmployeeDeleteAfter extends Hook
+class ShopStatus extends Dto
 {
-    /**
-     * @param array $params
-     *
-     * @return void
-     *
-     * @throws \Exception
-     */
-    public function execute(array $params = [])
-    {
-        /** @var \Employee $employee */
-        $employee = $params['object'];
-
-        $repository = new EmployeeAccountRepository();
-        try {
-            $employeeAccount = $repository->findByEmployeeId($employee->id);
-            if ($employeeAccount) {
-                $repository->delete($employeeAccount);
-            }
-        } catch (\Throwable $e) {
-        } catch (\Exception $e) {
-        }
-    }
+    /** @var bool */
+    public $isVerified = false;
+    /** @var int */
+    public $shopVerificationErrorCode;
+    /** @var string */
+    public $frontendUrl;
 }

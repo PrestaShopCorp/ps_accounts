@@ -20,30 +20,31 @@
 
 namespace PrestaShop\Module\PsAccounts\Hook;
 
-use PrestaShop\Module\PsAccounts\Repository\EmployeeAccountRepository;
+use PrestaShop\Module\PsAccounts\Account\ShopIdentity;
 
-class ActionObjectEmployeeDeleteAfter extends Hook
+class DisplayAdminAfterHeader extends Hook
 {
     /**
-     * @param array $params
-     *
-     * @return void
-     *
-     * @throws \Exception
+     * @return string
      */
     public function execute(array $params = [])
     {
-        /** @var \Employee $employee */
-        $employee = $params['object'];
+        /** @var ShopIdentity $shopIdentity */
+        $shopIdentity = $this->module->getService(ShopIdentity::class);
 
-        $repository = new EmployeeAccountRepository();
-        try {
-            $employeeAccount = $repository->findByEmployeeId($employee->id);
-            if ($employeeAccount) {
-                $repository->delete($employeeAccount);
-            }
-        } catch (\Throwable $e) {
-        } catch (\Exception $e) {
+        $html = '';
+        if (!$shopIdentity->isVerified()) {
+            $html .= <<<HTML
+<div class="bootstrap">
+    <div class="alert alert-warning">
+        <button type="button" class="close" data-dismiss="alert">×</button>
+        <!-- img width="57" alt="PrestaShop Account" title="PrestaShop Account" src="/modules/ps_accounts/logo.png"-->
+        Your shop has not been verified : <a>verify my shop</a>
+    </div>
+</div>
+HTML;
         }
+
+        return $html;
     }
 }

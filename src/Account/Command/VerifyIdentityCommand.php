@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Copyright since 2007 PrestaShop SA and Contributors
  * PrestaShop is an International Registered Trademark & Property of PrestaShop SA
@@ -20,25 +21,18 @@
 
 namespace PrestaShop\Module\PsAccounts\Account\Command;
 
-class UnlinkShopCommand
+class VerifyIdentityCommand
 {
     /**
-     * @var int
+     * @var int|null
      */
     public $shopId;
 
     /**
-     * @var string|null
+     * @param int|null $shopId
      */
-    public $errorMsg;
-
-    /**
-     * @param int $shopId
-     * @param string $errorMsg
-     */
-    public function __construct($shopId, $errorMsg = '')
+    public function __construct($shopId)
     {
         $this->shopId = $shopId;
-        $this->errorMsg = $errorMsg;
     }
 }
