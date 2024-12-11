@@ -143,11 +143,12 @@ return [
     //
     // For more information see: https://github.com/humbug/php-scoper/blob/master/docs/configuration.md#excluded-symbols
     'exclude-namespaces' => [
-        '~^PrestaShop\\\\OAuth2\\\\Client~',
+        //'~^PrestaShop\\\\OAuth2\\\\Client~',
         '~^Composer\\\\~',
-        'Monolog\\',
+        //'Monolog\\',
         //'~^Symfony\\\\Component\\\\Config~',
-        'Symfony\\Component\\Config\\',
+        //'Symfony\\Component\\Config\\',
+        // Polyfills can't be scoped by essence
         'Symfony\\Polyfill\\Apcu\\',
         'Symfony\\Polyfill\\Ctype\\',
         'Symfony\\Polyfill\\IntlIdn\\',
