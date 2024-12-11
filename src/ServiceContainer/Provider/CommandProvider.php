@@ -27,8 +27,8 @@ use PrestaShop\Module\PsAccounts\Account\CommandHandler\DeleteUserShopHandler;
 use PrestaShop\Module\PsAccounts\Account\CommandHandler\UpdateUserShopHandler;
 use PrestaShop\Module\PsAccounts\Account\CommandHandler\UpgradeModuleHandler;
 use PrestaShop\Module\PsAccounts\Account\CommandHandler\UpgradeModulesHandler;
-use PrestaShop\Module\PsAccounts\Account\CommandHandler\VerifyAuthenticitiesHandler;
-use PrestaShop\Module\PsAccounts\Account\CommandHandler\VerifyAuthenticityHandler;
+use PrestaShop\Module\PsAccounts\Account\CommandHandler\VerifyIdentitiesHandler;
+use PrestaShop\Module\PsAccounts\Account\CommandHandler\VerifyIdentityHandler;
 use PrestaShop\Module\PsAccounts\Account\ManageProof;
 use PrestaShop\Module\PsAccounts\Account\Session;
 use PrestaShop\Module\PsAccounts\Account\ShopIdentity;
@@ -87,8 +87,8 @@ class CommandProvider implements IServiceProvider
                 $container->get(CommandBus::class)
             );
         });
-        $container->registerProvider(VerifyAuthenticityHandler::class, static function () use ($container) {
-            return new VerifyAuthenticityHandler(
+        $container->registerProvider(VerifyIdentityHandler::class, static function () use ($container) {
+            return new VerifyIdentityHandler(
                 $container->get(AccountsClient::class),
                 $container->get(ShopProvider::class),
                 $container->get(ShopIdentity::class),
@@ -96,8 +96,8 @@ class CommandProvider implements IServiceProvider
                 $container->get(ManageProof::class)
             );
         });
-        $container->registerProvider(VerifyAuthenticitiesHandler::class, static function () use ($container) {
-            return new VerifyAuthenticitiesHandler(
+        $container->registerProvider(VerifyIdentitiesHandler::class, static function () use ($container) {
+            return new VerifyIdentitiesHandler(
                 $container->get(ShopContext::class),
                 $container->get(CommandBus::class)
             );

@@ -490,7 +490,7 @@ class Ps_accounts extends Module
         $commandBus = $this->getService(\PrestaShop\Module\PsAccounts\Cqrs\CommandBus::class);
         // FIXME: async guzzle requests
         $commandBus->handle(new \PrestaShop\Module\PsAccounts\Account\Command\CreateIdentitiesCommand());
-        $commandBus->handle(new \PrestaShop\Module\PsAccounts\Account\Command\VerifyAuthenticitiesCommand());
+        $commandBus->handle(new \PrestaShop\Module\PsAccounts\Account\Command\VerifyIdentitiesCommand());
         $commandBus->handle(new \PrestaShop\Module\PsAccounts\Account\Command\UpgradeModulesCommand());
     }
 }

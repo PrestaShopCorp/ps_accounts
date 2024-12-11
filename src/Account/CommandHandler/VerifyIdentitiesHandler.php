@@ -1,5 +1,4 @@
 <?php
-
 /**
  * Copyright since 2007 PrestaShop SA and Contributors
  * PrestaShop is an International Registered Trademark & Property of PrestaShop SA
@@ -19,11 +18,22 @@
  * @license   https://opensource.org/licenses/AFL-3.0 Academic Free License version 3.0
  */
 
-namespace PrestaShop\Module\PsAccounts\Account\Command;
+namespace PrestaShop\Module\PsAccounts\Account\CommandHandler;
 
-class VerifyAuthenticitiesCommand
+use PrestaShop\Module\PsAccounts\Account\Command\VerifyIdentitiesCommand;
+use PrestaShop\Module\PsAccounts\Account\Command\VerifyIdentityCommand;
+
+class VerifyIdentitiesHandler extends MultiShopHandler
 {
-    public function __construct()
+    /**
+     * @param VerifyIdentitiesCommand $command
+     *
+     * @return void
+     */
+    public function handle(VerifyIdentitiesCommand $command)
     {
+        $this->handleMulti(function ($multiShopId) {
+            $this->commandBus->handle(new VerifyIdentityCommand($multiShopId));
+        });
     }
 }

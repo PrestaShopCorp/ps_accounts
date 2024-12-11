@@ -248,7 +248,7 @@ class AccountsClient
      *
      * @return array
      */
-    public function verifyUrlAuthenticity($cloudShopId, $shopToken, ShopUrl $shopUrl, $proof)
+    public function verifyShopProof($cloudShopId, $shopToken, ShopUrl $shopUrl, $proof)
     {
         $this->getClient()->setRoute('/v1/shop-verifications/' . $cloudShopId);
 

@@ -21,18 +21,9 @@
 
 namespace PrestaShop\Module\PsAccounts\Account\Command;
 
-class VerifyAuthenticityCommand
+class VerifyIdentitiesCommand
 {
-    /**
-     * @var int|null
-     */
-    public $shopId;
-
-    /**
-     * @param int|null $shopId
-     */
-    public function __construct($shopId)
+    public function __construct()
     {
-        $this->shopId = $shopId;
     }
 }

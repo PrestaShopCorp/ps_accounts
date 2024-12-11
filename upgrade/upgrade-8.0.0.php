@@ -2,7 +2,7 @@
 
 use PrestaShop\Module\PsAccounts\Account\Command\CreateIdentitiesCommand;
 use PrestaShop\Module\PsAccounts\Account\Command\UpgradeModulesCommand;
-use PrestaShop\Module\PsAccounts\Account\Command\VerifyAuthenticitiesCommand;
+use PrestaShop\Module\PsAccounts\Account\Command\VerifyIdentitiesCommand;
 use PrestaShop\Module\PsAccounts\Cqrs\CommandBus;
 use PrestaShop\Module\PsAccounts\Log\Logger;
 
@@ -22,7 +22,7 @@ function upgrade_module_8_0_0($module)
         /** @var CommandBus $commandBus */
         $commandBus = $module->getService(CommandBus::class);
         $commandBus->handle(new CreateIdentitiesCommand());
-        $commandBus->handle(new VerifyAuthenticitiesCommand());
+        $commandBus->handle(new VerifyIdentitiesCommand());
         $commandBus->handle(new UpgradeModulesCommand());
         /* @phpstan-ignore-next-line */
     } catch (\Throwable $e) {

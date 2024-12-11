@@ -20,7 +20,7 @@
 
 namespace PrestaShop\Module\PsAccounts\Account\CommandHandler;
 
-use PrestaShop\Module\PsAccounts\Account\Command\VerifyAuthenticityCommand;
+use PrestaShop\Module\PsAccounts\Account\Command\VerifyIdentityCommand;
 use PrestaShop\Module\PsAccounts\Account\ManageProof;
 use PrestaShop\Module\PsAccounts\Account\Session\ShopSession;
 use PrestaShop\Module\PsAccounts\Account\ShopIdentity;
@@ -28,7 +28,7 @@ use PrestaShop\Module\PsAccounts\Api\Client\AccountsClient;
 use PrestaShop\Module\PsAccounts\Exception\RefreshTokenException;
 use PrestaShop\Module\PsAccounts\Provider\ShopProvider;
 
-class VerifyAuthenticityHandler
+class VerifyIdentityHandler
 {
     /**
      * @var AccountsClient
@@ -77,11 +77,11 @@ class VerifyAuthenticityHandler
     }
 
     /**
-     * @param VerifyAuthenticityCommand $command
+     * @param VerifyIdentityCommand $command
      *
      * @return bool
      */
-    public function handle(VerifyAuthenticityCommand $command)
+    public function handle(VerifyIdentityCommand $command)
     {
         try {
             if ($this->shopIdentity->isVerified()) {
@@ -90,7 +90,7 @@ class VerifyAuthenticityHandler
 
             $shopId = $command->shopId ?: \Shop::getContextShopID();
 
-            $response = $this->accountsClient->verifyUrlAuthenticity(
+            $response = $this->accountsClient->verifyShopProof(
                 $this->shopIdentity->getShopUuid(),
                 $this->shopSession->getValidToken(),
                 $this->shopProvider->getUrl($shopId),
