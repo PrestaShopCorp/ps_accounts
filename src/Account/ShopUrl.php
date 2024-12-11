@@ -18,7 +18,7 @@
  * @license   https://opensource.org/licenses/AFL-3.0 Academic Free License version 3.0
  */
 
-namespace PrestaShop\Module\PsAccounts\Api\Client;
+namespace PrestaShop\Module\PsAccounts\Account;
 
 class ShopUrl
 {
@@ -68,7 +68,7 @@ class ShopUrl
     /**
      * @param ShopUrl $shopUrl
      *
-     * @return void
+     * @return bool
      */
     public function equals(ShopUrl $shopUrl)
     {
