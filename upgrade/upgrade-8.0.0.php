@@ -21,8 +21,6 @@ function upgrade_module_8_0_0($module)
     try {
         /** @var CommandBus $commandBus */
         $commandBus = $module->getService(CommandBus::class);
-        // FIXME: async guzzle requests
-        // FIXME: curl version of those calls
         $commandBus->handle(new CreateIdentitiesCommand());
         $commandBus->handle(new VerifyAuthenticitiesCommand());
         $commandBus->handle(new UpgradeModulesCommand());

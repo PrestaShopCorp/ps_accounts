@@ -20,15 +20,15 @@
 
 namespace PrestaShop\Module\PsAccounts\Account\CommandHandler;
 
-use PrestaShop\Module\PsAccounts\Account\Command\VerifyAuthenticityCommand;
-use PrestaShop\Module\PsAccounts\Account\ManageProof;
+use PrestaShop\Module\PsAccounts\Account\Command\CheckStatusCommand;
+use PrestaShop\Module\PsAccounts\Account\Dto\ShopStatus;
 use PrestaShop\Module\PsAccounts\Account\Session\ShopSession;
 use PrestaShop\Module\PsAccounts\Account\ShopIdentity;
 use PrestaShop\Module\PsAccounts\Api\Client\AccountsClient;
+use PrestaShop\Module\PsAccounts\Exception\DtoException;
 use PrestaShop\Module\PsAccounts\Exception\RefreshTokenException;
-use PrestaShop\Module\PsAccounts\Provider\ShopProvider;
 
-class VerifyAuthenticityHandler
+class CheckStatusHandler
 {
     /**
      * @var AccountsClient
@@ -41,68 +41,46 @@ class VerifyAuthenticityHandler
     private $shopIdentity;
 
     /**
-     * @var ShopProvider
-     */
-    private $shopProvider;
-
-    /**
      * @var ShopSession
      */
     private $shopSession;
 
     /**
-     * @var ManageProof
-     */
-    private $manageProof;
-
-    /**
      * @param AccountsClient $accountsClient
-     * @param ShopProvider $shopProvider
-     * @param ShopIdentity $shopIdentity
-     * @param ShopSession $shopSession
-     * @param ManageProof $manageProof
      */
     public function __construct(
         AccountsClient $accountsClient,
-        ShopProvider $shopProvider,
         ShopIdentity $shopIdentity,
-        ShopSession $shopSession,
-        ManageProof $manageProof
+        ShopSession $shopSession
     ) {
         $this->accountsClient = $accountsClient;
-        $this->shopProvider = $shopProvider;
         $this->shopIdentity = $shopIdentity;
         $this->shopSession = $shopSession;
-        $this->manageProof = $manageProof;
     }
 
     /**
-     * @param VerifyAuthenticityCommand $command
+     * @param CheckStatusCommand $command
      *
-     * @return bool
+     * @return ShopStatus
+     *
+     * @throws DtoException
+     * @throws RefreshTokenException
      */
-    public function handle(VerifyAuthenticityCommand $command)
+    public function handle(CheckStatusCommand $command)
     {
-        try {
-            if ($this->shopIdentity->isVerified()) {
-                return true;
-            }
+//        $scp = $this->shopSession->getValidToken()->getJwt()->claims()->get('scp');
+//        $scp = is_array($scp) ? $scp : [];
+//
+//        return in_array('shop.verified', $scp);
 
-            $shopId = $command->shopId ?: \Shop::getContextShopID();
-
-            $response = $this->accountsClient->verifyUrlAuthenticity(
-                $this->shopIdentity->getShopUuid(),
-                $this->shopSession->getValidToken(),
-                $this->shopProvider->getUrl($shopId),
-                $this->manageProof->generateProof()
-            );
-
-            if ($response['status'] === true) {
-                return true;
-            }
-        } catch (RefreshTokenException $e) {
+        $response = $this->accountsClient->shopStatus(
+            $this->shopIdentity->getShopUuid(),
+            $this->shopSession->getValidToken()
+        );
+        if ($response['status'] === true && is_array($response['body'])) {
+            return new ShopStatus($response['body']);
         }
 
-        return false;
+        return new ShopStatus();
     }
 }

@@ -104,7 +104,7 @@ class ShopProvider
                     true
                 ),
                 'isLinkedV4' => null,
-                'unlinkedAuto' => !empty($shopIdentity->getUnlinkedOnError()),
+                'unlinkedAuto' => false,
             ]);
 
             if ($refreshTokens) {

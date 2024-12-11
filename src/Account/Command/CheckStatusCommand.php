@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Copyright since 2007 PrestaShop SA and Contributors
  * PrestaShop is an International Registered Trademark & Property of PrestaShop SA
@@ -18,33 +19,11 @@
  * @license   https://opensource.org/licenses/AFL-3.0 Academic Free License version 3.0
  */
 
-namespace PrestaShop\Module\PsAccounts\Hook;
+namespace PrestaShop\Module\PsAccounts\Account\Command;
 
-use PrestaShop\Module\PsAccounts\Account\ShopIdentity;
-
-class DisplayAdminAfterHeader extends Hook
+class CheckStatusCommand
 {
-    /**
-     * @return string
-     */
-    public function execute(array $params = [])
+    public function __construct()
     {
-        /** @var ShopIdentity $shopIdentity */
-        $shopIdentity = $this->module->getService(ShopIdentity::class);
-
-        $html = '';
-        if (!$shopIdentity->isVerified()) {
-            $html .= <<<HTML
-<div class="bootstrap">
-    <div class="alert alert-warning">
-        <button type="button" class="close" data-dismiss="alert">×</button>
-        <!-- img width="57" alt="PrestaShop Account" title="PrestaShop Account" src="/modules/ps_accounts/logo.png"-->
-        Your shop has not been verified : <a>verify my shop</a>
-    </div>
-</div>
-HTML;
-        }
-
-        return $html;
     }
 }

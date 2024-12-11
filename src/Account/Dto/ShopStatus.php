@@ -18,33 +18,16 @@
  * @license   https://opensource.org/licenses/AFL-3.0 Academic Free License version 3.0
  */
 
-namespace PrestaShop\Module\PsAccounts\Hook;
+namespace PrestaShop\Module\PsAccounts\Account\Dto;
 
-use PrestaShop\Module\PsAccounts\Account\ShopIdentity;
+use PrestaShop\Module\PsAccounts\Type\Dto;
 
-class DisplayAdminAfterHeader extends Hook
+class ShopStatus extends Dto
 {
-    /**
-     * @return string
-     */
-    public function execute(array $params = [])
-    {
-        /** @var ShopIdentity $shopIdentity */
-        $shopIdentity = $this->module->getService(ShopIdentity::class);
-
-        $html = '';
-        if (!$shopIdentity->isVerified()) {
-            $html .= <<<HTML
-<div class="bootstrap">
-    <div class="alert alert-warning">
-        <button type="button" class="close" data-dismiss="alert">×</button>
-        <!-- img width="57" alt="PrestaShop Account" title="PrestaShop Account" src="/modules/ps_accounts/logo.png"-->
-        Your shop has not been verified : <a>verify my shop</a>
-    </div>
-</div>
-HTML;
-        }
-
-        return $html;
-    }
+    /** @var bool */
+    public $isVerified = false;
+    /** @var int */
+    public $shopVerificationErrorCode;
+    /** @var string */
+    public $frontendUrl;
 }

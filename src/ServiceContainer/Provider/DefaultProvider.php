@@ -61,7 +61,8 @@ class DefaultProvider implements IServiceProvider
         // Entities ?
         $container->registerProvider(ShopIdentity::class, static function () use ($container) {
             return new ShopIdentity(
-                $container->get(ConfigurationRepository::class)
+                $container->get(ConfigurationRepository::class),
+                $container->get(CommandBus::class)
             );
         });
         // Adapter

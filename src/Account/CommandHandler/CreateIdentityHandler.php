@@ -99,6 +99,7 @@ class CreateIdentityHandler
      */
     private function isAlreadyCreated()
     {
+        // FIXME: define where this code belongs
         return $this->oauth2Client->exists() && $this->shopIdentity->exists();
     }
 }
