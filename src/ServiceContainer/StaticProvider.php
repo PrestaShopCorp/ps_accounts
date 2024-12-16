@@ -18,16 +18,16 @@
  * @license   https://opensource.org/licenses/AFL-3.0 Academic Free License version 3.0
  */
 
-namespace PrestaShop\Module\PsAccounts\Factory;
+namespace PrestaShop\Module\PsAccounts\ServiceContainer;
 
-class ServiceFactory
+class StaticProvider
 {
     /**
      * @param string $serviceName
      *
      * @return mixed
      */
-    public static function getService($serviceName)
+    public static function provide($serviceName)
     {
         /** @var \Ps_accounts $module */
         $module = \Module::getInstanceByName('ps_accounts');

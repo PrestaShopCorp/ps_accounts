@@ -1,7 +1,3 @@
-services:
-  PrestaShop\Module\PsAccounts\Service\PsAccountsService:
-    class: PrestaShop\Module\PsAccounts\Service\PsAccountsService
-    public: true
-    factory: ['PrestaShop\Module\PsAccounts\Factory\ServiceFactory', 'getService']
-    arguments:
-      - 'PrestaShop\Module\PsAccounts\Service\PsAccountsService'
+imports:
+  - { resource: ../common.yml }
+
