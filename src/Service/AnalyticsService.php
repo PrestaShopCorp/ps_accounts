@@ -20,7 +20,7 @@
 
 namespace PrestaShop\Module\PsAccounts\Service;
 
-use Monolog\Logger;
+use PrestaShop\Module\PsAccounts\Vendor\Monolog\Logger;
 use PrestaShop\Module\PsAccounts\Vendor\Ramsey\Uuid\Uuid;
 use Segment;
 

@@ -20,7 +20,6 @@
 
 namespace PrestaShop\Module\PsAccounts\Hook;
 
-use Exception;
 use PrestaShop\Module\PsAccounts\Context\ShopContext;
 use PrestaShop\Module\PsAccounts\Provider\ShopProvider;
 use PrestaShop\Module\PsAccounts\Service\PsAccountsService;
@@ -31,8 +30,6 @@ class DisplayDashboardTop extends Hook
      * @param array $params
      *
      * @return mixed
-     *
-     * @throws Exception
      */
     public function execute(array $params = [])
     {
@@ -54,18 +51,16 @@ class DisplayDashboardTop extends Hook
      * @param ShopContext $shopContext
      * @param PsAccountsService $accountsService
      *
-     * @return mixed
-     *
-     * @throws Exception
+     * @return string
      */
     protected function renderAdminShopWarningIfLinked($shopContext, $accountsService)
     {
         if (isset($_GET['addshop'])) {
-            return;
+            return '';
         }
 
         if (isset($_GET['updateshop'])) {
-            return;
+            return '';
         }
 
         /** @var ShopProvider $shopProvider */
@@ -78,32 +73,66 @@ class DisplayDashboardTop extends Hook
                     return $accountsService->isAccountLinked();
                 });
                 if ($isLink) {
-                    return $this->module->renderDeleteWarningView();
+                    $msg = $this->module->l(
+                        'Some shops are linked to your PrestaShop account. ' .
+                        'Delete these shops will impact your live settings.',
+                        'Modules.ps_accounts'
+                    );
+
+                    return <<<HTML
+<div class="row">
+  <div class="col-sm">
+    <div class="alert alert-warning" role="alert">
+      <div class="alert-text">
+        $msg
+      </div>
+    </div>
+  </div>
+</div>
+HTML;
                 }
             }
         }
+
+        return '';
     }
 
     /**
      * @param ShopContext $shopContext
      * @param PsAccountsService $accountsService
      *
-     * @return mixed
-     *
-     * @throws Exception
+     * @return string
      */
     protected function renderAdminShopUrlWarningIfLinked($shopContext, $accountsService)
     {
         if (!isset($_GET['updateshop_url'])) {
-            return;
+            return '';
         }
 
         $shopId = $shopContext->getShopIdFromShopUrlId((int) $_GET['id_shop_url']);
 
         return $shopContext->execInShopContext($shopId, function () use ($accountsService) {
             if ($accountsService->isAccountLinked()) {
-                return $this->module->renderUpdateWarningView();
+                $msg = $this->module->l(
+                    'This shop is linked to your PrestaShop account. ' .
+                    'Unlink your shop if you do not want to impact your live settings.',
+                    'ps_accounts'
+                );
+
+                return <<<HTML
+<div class="row">
+  <div class="col-sm">
+    <div class="alert alert-warning" role="alert">
+      <div class="alert-text">
+        $msg
+      </div>
+    </div>
+  </div>
+</div>
+HTML;
             }
+
+            return '';
         });
     }
 }
