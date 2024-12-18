@@ -82,7 +82,8 @@ export default class BasePage extends CommonPage {
    * The page title
    */
   async login(email: string = Globals.admin_email, password: string = Globals.admin_password) {
-    await this.setValue(this.emailInput, email), await this.setValue(this.passwordInput, password);
+    await this.setValue(this.emailInput, email);
+    await this.setValue(this.passwordInput, password);
     await this.clickAndWaitForLoadState(this.submitLoginButton, 'domcontentloaded');
   }
   /**
