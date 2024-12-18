@@ -196,15 +196,16 @@ header-stamp-test:
 	phpunit ./tests/vendor/bin/header-stamp \
 	--target="${WORKDIR}" \
 	--license=./tests/vendor/prestashop/header-stamp/assets/afl.txt \
-	--exclude=.github,node_modules,vendor,dist,tests,_dev \
+	--exclude=.github,node_modules,vendor,dist,tests,e2e,e2e-env,_dev \
 	--dry-run
 
+# 1.6.1.24-5.6-fpm-stretch
 header-stamp:
 	@docker exec -w ${CONTAINER_INSTALL_DIR} \
 	phpunit ./tests/vendor/bin/header-stamp \
 	--target="${WORKDIR}" \
 	--license=./tests/vendor/prestashop/header-stamp/assets/afl.txt \
-	--exclude=.github,node_modules,vendor,dist,tests,_dev
+	--exclude=.github,node_modules,vendor,dist,tests,e2e,e2e-env,_dev
 
 #phpstan16: NEON_FILE := phpstan-PS-1.6.neon
 #phpstan16: phpstan
