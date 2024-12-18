@@ -34,7 +34,7 @@ class Ps_accounts extends Module
 
     // Needed in order to retrieve the module version easier (in api call headers) than instanciate
     // the module each time to get the version
-    const VERSION = '7.0.8';
+    const VERSION = '7.0.9';
 
     /**
      * Admin tabs
@@ -102,21 +102,21 @@ class Ps_accounts extends Module
         'displayDashboardTop',
 
         // toggle single/multi-shop
-//        'actionObjectShopAddAfter',
-//        'actionObjectShopDeleteAfter',
+        //'actionObjectShopAddAfter',
+        //'actionObjectShopDeleteAfter',
 
         // Login/Logout OAuth
         // PS 1.6 - 1.7
         'displayBackOfficeHeader',
         'actionAdminLoginControllerSetMedia',
         // PS >= 8
-//        'actionAdminControllerInitBefore',
+        //'actionAdminControllerInitBefore',
     ];
 
     /**
-     * @var \PrestaShop\Module\PsAccounts\DependencyInjection\ServiceContainer
+     * @var \PrestaShop\Module\PsAccounts\ServiceContainer\PsAccountsContainer
      */
-    private $serviceContainer;
+    private $moduleContainer;
 
     /**
      * Ps_accounts constructor.
@@ -131,7 +131,7 @@ class Ps_accounts extends Module
 
         // We cannot use the const VERSION because the const is not computed by addons marketplace
         // when the zip is uploaded
-        $this->version = '7.0.8';
+        $this->version = '7.0.9';
 
         $this->module_key = 'abf2cd758b4d629b2944d3922ef9db73';
 
@@ -157,7 +157,7 @@ class Ps_accounts extends Module
     }
 
     /**
-     * @return \Monolog\Logger
+     * @return \PrestaShop\Module\PsAccounts\Vendor\Monolog\Logger
      */
     public function getLogger()
     {
@@ -191,8 +191,6 @@ class Ps_accounts extends Module
 
         $this->onModuleReset();
 
-        $this->getLogger()->info('Install - Loading ' . $this->name . ' Env : [' . $this->getModuleEnv() . ']');
-
         return $status;
     }
 
@@ -218,6 +216,7 @@ class Ps_accounts extends Module
      */
     public function getCoreServiceContainer()
     {
+        /* @phpstan-ignore-next-line */
         if (method_exists($this, 'getContainer')) {
             return $this->getContainer();
         }
@@ -230,22 +229,19 @@ class Ps_accounts extends Module
     }
 
     /**
-     * @return \PrestaShop\Module\PsAccounts\DependencyInjection\ServiceContainer
+     * @return \PrestaShop\Module\PsAccounts\ServiceContainer\PsAccountsContainer
      *
      * @throws Exception
      */
     public function getServiceContainer()
     {
-        if (null === $this->serviceContainer) {
-            // append version number to force cache generation (1.6 Core won't clear it)
-            $this->serviceContainer = new \PrestaShop\Module\PsAccounts\DependencyInjection\ServiceContainer(
-                $this->name . str_replace(['.', '-', '+'], '', $this->version),
-                $this->getLocalPath(),
-                $this->getModuleEnv()
+        if (null === $this->moduleContainer) {
+            $this->moduleContainer = \PrestaShop\Module\PsAccounts\ServiceContainer\PsAccountsContainer::createInstance(
+                __DIR__ . '/config.php'
             );
         }
 
-        return $this->serviceContainer;
+        return $this->moduleContainer;
     }
 
     /**
@@ -265,7 +261,7 @@ class Ps_accounts extends Module
      */
     public function getParameter($name)
     {
-        return $this->getServiceContainer()->getContainer()->getParameter($name);
+        return $this->getServiceContainer()->getParameter($name);
     }
 
     /**
@@ -275,7 +271,7 @@ class Ps_accounts extends Module
      */
     public function hasParameter($name)
     {
-        return $this->getServiceContainer()->getContainer()->hasParameter($name);
+        return $this->getServiceContainer()->hasParameter($name);
     }
 
     /**
@@ -337,24 +333,6 @@ class Ps_accounts extends Module
     }
 
     /**
-     * @return string
-     */
-    public function getModuleEnvVar()
-    {
-        return strtoupper((string) $this->name) . '_ENV';
-    }
-
-    /**
-     * @param string $default
-     *
-     * @return string
-     */
-    public function getModuleEnv($default = null)
-    {
-        return getenv($this->getModuleEnvVar()) ?: $default ?: self::DEFAULT_ENV;
-    }
-
-    /**
      * Render the configuration form.
      *
      * @return string
@@ -382,40 +360,6 @@ class Ps_accounts extends Module
         ]);
 
         return $this->display(__FILE__, 'views/templates/admin/app.tpl');
-    }
-
-    /**
-     * @return mixed
-     *
-     * @throws Exception
-     */
-    public function renderUpdateWarningView()
-    {
-        if ($this->getShopContext()->isShop173()) {
-            /* @phpstan-ignore-next-line */
-            return PrestaShop\PrestaShop\Adapter\SymfonyContainer::getInstance()
-                ->get('twig')
-                ->render('@Modules/ps_accounts/views/templates/backoffice/update_url_warning.twig');
-        } else {
-            return '';
-        }
-    }
-
-    /**
-     * @return mixed
-     *
-     * @throws Exception
-     */
-    public function renderDeleteWarningView()
-    {
-        if ($this->getShopContext()->isShop173()) {
-            /* @phpstan-ignore-next-line */
-            return PrestaShop\PrestaShop\Adapter\SymfonyContainer::getInstance()
-                ->get('twig')
-                ->render('@Modules/ps_accounts/views/templates/backoffice/delete_url_warning.twig');
-        } else {
-            return '';
-        }
     }
 
     /**

@@ -25,6 +25,9 @@ use Module;
 use PrestaShop\Module\PsAccounts\Installer\Installer;
 use Ps_accounts;
 
+/**
+ * @deprecated since v7.O.O
+ */
 class DependenciesPresenter implements PresenterInterface
 {
     /**

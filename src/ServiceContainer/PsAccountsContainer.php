@@ -18,61 +18,45 @@
  * @license   https://opensource.org/licenses/AFL-3.0 Academic Free License version 3.0
  */
 
-namespace PrestaShop\Module\PsAccounts\Hook;
+namespace PrestaShop\Module\PsAccounts\ServiceContainer;
 
-use PrestaShop\Module\PsAccounts\Cqrs\CommandBus;
+use PrestaShop\Module\PsAccounts\Log\Logger as LoggerFactory;
 use PrestaShop\Module\PsAccounts\Vendor\Monolog\Logger;
-use Ps_accounts;
+use PrestaShop\Module\PsAccounts\Vendor\PrestaShopCorp\LightweightContainer\ServiceContainer\ServiceContainer;
 
-abstract class Hook
+class PsAccountsContainer extends ServiceContainer
 {
-    /**
-     * @var Ps_accounts
-     */
-    protected $module;
-
-    /**
-     * @var CommandBus
-     */
-    protected $commandBus;
-
     /**
      * @var Logger
      */
     protected $logger;
 
     /**
-     * @param Ps_accounts $module
-     *
-     * @throws \Exception
+     * @var string[]
      */
-    public function __construct(Ps_accounts $module)
-    {
-        $this->module = $module;
-        $this->commandBus = $module->getService(CommandBus::class);
-        $this->logger = $module->getLogger();
-    }
+    protected $provides = [
+        Provider\ApiClientProvider::class,
+        Provider\CommandProvider::class,
+        Provider\DefaultProvider::class,
+        Provider\OAuth2Provider::class,
+        Provider\RepositoryProvider::class,
+        Provider\SessionProvider::class,
+    ];
 
     /**
-     * @param array $params
-     *
-     * @return mixed
+     * @return Logger
      */
-    abstract public function execute(array $params = []);
-
-    /**
-     * @return string
-     */
-    public static function getName()
+    public function getLogger()
     {
-        return lcfirst(preg_replace('/^.*\\\\/', '', static::class));
-    }
+        if (null === $this->logger) {
+            $this->logger = LoggerFactory::create(
+                $this->getParameterWithDefault(
+                    'ps_accounts.log_level',
+                    LoggerFactory::ERROR
+                )
+            );
+        }
 
-    /**
-     * @return Ps_accounts
-     */
-    public function getModule()
-    {
-        return $this->module;
+        return $this->logger;
     }
 }

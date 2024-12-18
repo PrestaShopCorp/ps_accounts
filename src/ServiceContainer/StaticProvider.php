@@ -18,24 +18,20 @@
  * @license   https://opensource.org/licenses/AFL-3.0 Academic Free License version 3.0
  */
 
-namespace PrestaShop\Module\PsAccounts\Exception\AccountLogin;
+namespace PrestaShop\Module\PsAccounts\ServiceContainer;
 
-use PrestaShop\Module\PsAccounts\Vendor\PrestaShop\OAuth2\Client\Provider\PrestaShopUser;
-
-class EmployeeNotFoundException extends AccountLoginException
+class StaticProvider
 {
     /**
-     * @param string $message
-     * @param PrestaShopUser|null $user
-     * @param \Exception $previous
+     * @param string $serviceName
+     *
+     * @return mixed
      */
-    public function __construct(
-        $message = 'The email address is not associated to a PrestaShop backoffice account.',
-        PrestaShopUser $user = null,
-        \Exception $previous = null
-    ) {
-        parent::__construct($message, $user, $previous);
+    public static function provide($serviceName)
+    {
+        /** @var \Ps_accounts $module */
+        $module = \Module::getInstanceByName('ps_accounts');
 
-        $this->type = 'employee_not_found';
+        return $module->getService($serviceName);
     }
 }

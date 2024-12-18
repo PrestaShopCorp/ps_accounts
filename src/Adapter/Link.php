@@ -59,12 +59,11 @@ class Link
      * @param bool $withToken include or not the token in the url
      * @param array $sfRouteParams
      * @param array $params
+     * @param bool $absolute require an absolute uri
      *
      * @return string
-     *
-     * @throws \PrestaShopException
      */
-    public function getAdminLink($controller, $withToken = true, $sfRouteParams = [], $params = [])
+    public function getAdminLink($controller, $withToken = true, $sfRouteParams = [], $params = [], $absolute = false)
     {
         // Cannot generate admin link from front
         if (!defined('_PS_ADMIN_DIR_')) {
@@ -72,14 +71,41 @@ class Link
         }
 
         if ($this->shopContext->isShop17()) {
-            return $this->link->getAdminLink($controller, $withToken, $sfRouteParams, $params);
+            $uri = $this->rel2abs(
+                $this->link->getAdminLink($controller, $withToken, $sfRouteParams, $params),
+                $absolute
+            );
+        } else {
+            $uri = $this->getAdminLink16($controller, $withToken, $params);
         }
+
+        if (!$withToken) {
+            // FIXME: getAdminLink still adds the token (sometimes)
+            $uri = preg_replace('/&_token=[^&]*/', '', $uri);
+        }
+
+        return $uri;
+    }
+
+    /**
+     * @param string $controller
+     * @param bool $withToken
+     * @param array $params
+     *
+     * @return string
+     */
+    public function getAdminLink16($controller, $withToken, array $params)
+    {
         $paramsAsString = '';
         foreach ($params as $key => $value) {
             $paramsAsString .= "&$key=$value";
         }
 
-        return \Tools::getShopDomainSsl(true) . __PS_BASE_URI__ . basename(_PS_ADMIN_DIR_) . '/' . $this->link->getAdminLink($controller, $withToken) . $paramsAsString;
+        return \Tools::getShopDomainSsl(true) . // scheme + domain
+            __PS_BASE_URI__ . // physical + virtual
+            basename(_PS_ADMIN_DIR_) . '/' . // admin path
+            $this->link->getAdminLink($controller, $withToken) .
+            $paramsAsString;
     }
 
     /**
@@ -101,8 +127,6 @@ class Link
      * @param array $params
      *
      * @return string
-     *
-     * @throws \PrestaShopException
      */
     public function getAdminLinkWithCustomDomain($sslDomain, $domain, $controller, $withToken = true, $sfRouteParams = [], $params = [])
     {
@@ -118,5 +142,20 @@ class Link
         }
 
         return $boBaseUrl;
+    }
+
+    /**
+     * @param string $url
+     * @param bool $absolute
+     *
+     * @return string
+     */
+    protected function rel2abs($url, $absolute)
+    {
+        if ($absolute && !preg_match('/https?:\/\//', $url)) {
+            $url = \Tools::getShopDomainSsl(true) . $url;
+        }
+
+        return $url;
     }
 }
