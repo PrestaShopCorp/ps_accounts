@@ -38,11 +38,13 @@ class DisplayDashboardTop extends Hook
         /** @var PsAccountsService $accountsService */
         $accountsService = $this->module->getService(PsAccountsService::class);
 
-        if ('AdminShopUrl' === $_GET['controller']) {
+        $controller = isset($_GET['controller']) ? $_GET['controller'] : '';
+
+        if ('AdminShopUrl' === $controller) {
             return $this->renderAdminShopUrlWarningIfLinked($shopContext, $accountsService);
         }
 
-        if ('AdminShop' === $_GET['controller']) {
+        if ('AdminShop' === $controller) {
             return $this->renderAdminShopWarningIfLinked($shopContext, $accountsService);
         }
     }

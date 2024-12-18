@@ -20,10 +20,16 @@
 
 namespace PrestaShop\Module\PsAccounts\Provider\OAuth2;
 
+use Employee;
+use PrestaShop\Module\PsAccounts\Entity\EmployeeAccount;
+use PrestaShop\Module\PsAccounts\Exception\AccountLogin\AccountLoginException;
 use PrestaShop\Module\PsAccounts\Exception\AccountLogin\EmailNotVerifiedException;
 use PrestaShop\Module\PsAccounts\Exception\AccountLogin\EmployeeNotFoundException;
 use PrestaShop\Module\PsAccounts\Exception\AccountLogin\Oauth2Exception;
 use PrestaShop\Module\PsAccounts\Log\Logger;
+use PrestaShop\Module\PsAccounts\Repository\EmployeeAccountRepository;
+use PrestaShop\Module\PsAccounts\Service\AnalyticsService;
+use PrestaShop\Module\PsAccounts\Service\PsAccountsService;
 use PrestaShop\Module\PsAccounts\Vendor\League\OAuth2\Client\Provider\Exception\IdentityProviderException;
 use PrestaShop\Module\PsAccounts\Vendor\League\OAuth2\Client\Token\AccessToken;
 use PrestaShop\Module\PsAccounts\Vendor\PrestaShop\OAuth2\Client\Provider\PrestaShopUser;
@@ -45,9 +51,14 @@ trait PrestaShopLoginTrait
     abstract protected function initUserSession(PrestaShopUser $user);
 
     /**
-     * @return void
+     * @return mixed
      */
     abstract protected function redirectAfterLogin();
+
+    /**
+     * @return mixed
+     */
+    abstract protected function logout();
 
     /**
      * @return SessionInterface
@@ -60,7 +71,17 @@ trait PrestaShopLoginTrait
     abstract protected function getOauth2Session();
 
     /**
-     * @return void
+     * @return AnalyticsService
+     */
+    abstract protected function getAnalyticsService();
+
+    /**
+     * @return PsAccountsService
+     */
+    abstract protected function getPsAccountsService();
+
+    /**
+     * @return mixed
      *
      * @throws EmailNotVerifiedException
      * @throws EmployeeNotFoundException
@@ -109,7 +130,7 @@ trait PrestaShopLoginTrait
             $oauth2Session->setTokenProvider($accessToken);
 
             if ($this->initUserSession($oauth2Session->getPrestashopUser())) {
-                $this->redirectAfterLogin();
+                return $this->redirectAfterLogin();
             }
         }
     }
@@ -182,5 +203,124 @@ trait PrestaShopLoginTrait
     private function getReturnToParam()
     {
         return 'return_to';
+    }
+
+    /**
+     * @param string $uid
+     * @param string $email
+     *
+     * @return Employee
+     */
+    protected function getEmployeeByUidOrEmail($uid, $email)
+    {
+        $repository = new EmployeeAccountRepository();
+
+        try {
+            $employeeAccount = $repository->findByUid($uid);
+
+            /* @phpstan-ignore-next-line */
+            if ($employeeAccount) {
+                $employee = new Employee($employeeAccount->getEmployeeId());
+            } else {
+                $employeeAccount = new EmployeeAccount();
+                $employee = new Employee();
+                if (Employee::employeeExists($email)) {
+                    $employee->getByEmail($email);
+                }
+            }
+
+            // Update account
+            if ($employee->id) {
+                $repository->upsert(
+                    $employeeAccount
+                        ->setEmployeeId($employee->id)
+                        ->setUid($uid)
+                        ->setEmail($email)
+                );
+            }
+        } catch (\Exception $e) {
+            $employee = new Employee();
+            $employee->getByEmail($email);
+        }
+
+        return $employee;
+    }
+
+    /**
+     * @param AccountLoginException $e
+     *
+     * @return mixed
+     */
+    protected function onLoginFailed(AccountLoginException $e)
+    {
+        if ($this->module->isShopEdition() && (
+                $e instanceof EmployeeNotFoundException ||
+                $e instanceof EmailNotVerifiedException
+            )) {
+            $this->trackEditionLoginFailedEvent($e);
+        }
+
+        $this->oauth2ErrorLog($e->getMessage());
+        $this->setLoginError($e->getType());
+
+        return $this->logout();
+    }
+
+    /**
+     * @param mixed $error
+     *
+     * @return void
+     */
+    protected function setLoginError($error)
+    {
+        $this->getSession()->set('loginError', $error);
+    }
+
+    /**
+     * @param PrestaShopUser $user
+     *
+     * @return void
+     */
+    protected function trackEditionLoginEvent(PrestaShopUser $user)
+    {
+        if ($this->module->isShopEdition()) {
+            $this->getAnalyticsService()->identify(
+                $user->getId(),
+                $user->getName(),
+                $user->getEmail()
+            );
+            $this->getAnalyticsService()->group(
+                $user->getId(),
+                (string) $this->getPsAccountsService()->getShopUuid()
+            );
+            $this->getAnalyticsService()->trackUserSignedIntoApp(
+                $user->getId(),
+                'smb-edition'
+            );
+        }
+    }
+
+    /**
+     * @param EmployeeNotFoundException|EmailNotVerifiedException $e
+     *
+     * @return void
+     */
+    protected function trackEditionLoginFailedEvent($e)
+    {
+        $user = $e->getUser();
+        $this->getAnalyticsService()->identify(
+            $user->getId(),
+            $user->getName(),
+            $user->getEmail()
+        );
+        $this->getAnalyticsService()->group(
+            $user->getId(),
+            (string) $this->getPsAccountsService()->getShopUuid()
+        );
+        $this->getAnalyticsService()->trackBackOfficeSSOSignInFailed(
+            $user->getId(),
+            $e->getType(),
+            $e->getMessage()
+        );
     }
 }

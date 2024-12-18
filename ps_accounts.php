@@ -30,8 +30,6 @@ class Ps_accounts extends Module
 {
     use \PrestaShop\Module\PsAccounts\Hook\HookableTrait;
 
-    const DEFAULT_ENV = '';
-
     // Needed in order to retrieve the module version easier (in api call headers) than instanciate
     // the module each time to get the version
     const VERSION = '7.0.9';
@@ -112,6 +110,11 @@ class Ps_accounts extends Module
         // PS >= 8
         //'actionAdminControllerInitBefore',
     ];
+
+//    /**
+//     * @var \PrestaShop\Module\PsAccounts\DependencyInjection\ServiceContainer
+//     */
+//    private $serviceContainer;
 
     /**
      * @var \PrestaShop\Module\PsAccounts\ServiceContainer\PsAccountsContainer
