@@ -100,9 +100,6 @@ class PsAccountsService
     }
 
     /**
-     * Returns a Shop Token from the Legacy Authority: https://securetoken.google.com/prestashop-newsso-production
-     * and an empty string if any error occurs
-     * @deprecated
      * @return string
      */
     public function getOrRefreshToken()
@@ -115,26 +112,6 @@ class PsAccountsService
     }
 
     /**
-     * Returns a Shop Token from the Legacy Authority: https://securetoken.google.com/prestashop-newsso-production
-     * @deprecated please move to hyra tokens as soon as possible 
-     * @return string
-     * @throws RefreshTokenException
-     */
-    public function getFirebaseShopToken()
-    {
-        return $this->shopSession->getValidToken()->getJwt();
-    }
-
-    /**
-     * Returns Shop Token with the new authority: https://oauth.prestashop.com
-     * @return string
-     */
-    public function getShopToken()
-    {
-        // TODO
-    }
-
-    /**
      * @return string|null
      */
     public function getRefreshToken()
@@ -144,8 +121,6 @@ class PsAccountsService
 
     /**
      * @return string
-     * 
-     * @deprecated
      */
     public function getToken()
     {
