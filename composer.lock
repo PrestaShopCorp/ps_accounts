@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "e1e08bc9be7000c8d1553fbbafe15167",
+    "content-hash": "100f168b5e2fe820e472338caa90567b",
     "packages": [
         {
             "name": "guzzlehttp/guzzle",
@@ -708,12 +708,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/PrestaShopCorp/lightweight-container.git",
-                "reference": "f9eed1986131701fb116157f6b630d799e668a98"
+                "reference": "864578853c19d3c18728d5ccf3e4d2e98141a3de"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/PrestaShopCorp/lightweight-container/zipball/f9eed1986131701fb116157f6b630d799e668a98",
-                "reference": "f9eed1986131701fb116157f6b630d799e668a98",
+                "url": "https://api.github.com/repos/PrestaShopCorp/lightweight-container/zipball/864578853c19d3c18728d5ccf3e4d2e98141a3de",
+                "reference": "864578853c19d3c18728d5ccf3e4d2e98141a3de",
                 "shasum": ""
             },
             "require": {
@@ -737,7 +737,7 @@
                 "source": "https://github.com/PrestaShopCorp/lightweight-container/tree/main",
                 "issues": "https://github.com/PrestaShopCorp/lightweight-container/issues"
             },
-            "time": "2024-11-27T10:30:36+00:00"
+            "time": "2024-11-27T13:13:53+00:00"
         },
         {
             "name": "prestashopcorp/oauth2-prestashop",
@@ -1187,12 +1187,12 @@
             },
             "type": "library",
             "extra": {
+                "thanks": {
+                    "url": "https://github.com/symfony/polyfill",
+                    "name": "symfony/polyfill"
+                },
                 "branch-alias": {
                     "dev-main": "1.19-dev"
-                },
-                "thanks": {
-                    "name": "symfony/polyfill",
-                    "url": "https://github.com/symfony/polyfill"
                 }
             },
             "autoload": {
@@ -1269,12 +1269,12 @@
             },
             "type": "library",
             "extra": {
+                "thanks": {
+                    "url": "https://github.com/symfony/polyfill",
+                    "name": "symfony/polyfill"
+                },
                 "branch-alias": {
                     "dev-main": "1.19-dev"
-                },
-                "thanks": {
-                    "name": "symfony/polyfill",
-                    "url": "https://github.com/symfony/polyfill"
                 }
             },
             "autoload": {
@@ -1354,12 +1354,12 @@
             },
             "type": "library",
             "extra": {
+                "thanks": {
+                    "url": "https://github.com/symfony/polyfill",
+                    "name": "symfony/polyfill"
+                },
                 "branch-alias": {
                     "dev-main": "1.19-dev"
-                },
-                "thanks": {
-                    "name": "symfony/polyfill",
-                    "url": "https://github.com/symfony/polyfill"
                 }
             },
             "autoload": {
@@ -1436,12 +1436,12 @@
             },
             "type": "library",
             "extra": {
+                "thanks": {
+                    "url": "https://github.com/symfony/polyfill",
+                    "name": "symfony/polyfill"
+                },
                 "branch-alias": {
                     "dev-main": "1.19-dev"
-                },
-                "thanks": {
-                    "name": "symfony/polyfill",
-                    "url": "https://github.com/symfony/polyfill"
                 }
             },
             "autoload": {
@@ -1515,12 +1515,12 @@
             },
             "type": "library",
             "extra": {
+                "thanks": {
+                    "url": "https://github.com/symfony/polyfill",
+                    "name": "symfony/polyfill"
+                },
                 "branch-alias": {
                     "dev-main": "1.19-dev"
-                },
-                "thanks": {
-                    "name": "symfony/polyfill",
-                    "url": "https://github.com/symfony/polyfill"
                 }
             },
             "autoload": {
