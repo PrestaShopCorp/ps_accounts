@@ -308,25 +308,26 @@ class Ps_accounts extends Module
      * @param array $customHooks
      *
      * @return bool
-     *
-     * @throws PrestaShopDatabaseException
-     * @throws PrestaShopException
      */
     public function addCustomHooks($customHooks)
     {
         $ret = true;
-
         foreach ($customHooks as $customHook) {
-            $verify = true;
-            if ((bool) Hook::getIdByName($customHook['name']) === false) {
-                $hook = new Hook();
-                $hook->name = $customHook['name'];
-                $hook->title = $customHook['title'];
-                $hook->description = $customHook['description'];
-                $hook->position = $customHook['position'];
-                $verify = $hook->add(); // return true on success
+            try {
+                $verify = true;
+                if ((bool) Hook::getIdByName($customHook['name']) === false) {
+                    $hook = new Hook();
+                    $hook->name = $customHook['name'];
+                    $hook->title = $customHook['title'];
+                    $hook->description = $customHook['description'];
+                    $hook->position = $customHook['position'];
+                    $verify = $hook->add(); // return true on success
+                }
+                $ret = $ret && $verify;
+            } catch (\Throwable $e) {
+                /* @phpstan-ignore-next-line */
+            } catch (\Exception $e) {
             }
-            $ret = $ret && $verify;
         }
 
         return $ret;
