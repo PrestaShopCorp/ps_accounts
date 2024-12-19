@@ -708,16 +708,21 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/PrestaShopCorp/lightweight-container.git",
-                "reference": "864578853c19d3c18728d5ccf3e4d2e98141a3de"
+                "reference": "e584a45110d46d19ceb5eab397eb15f59443cfd9"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/PrestaShopCorp/lightweight-container/zipball/864578853c19d3c18728d5ccf3e4d2e98141a3de",
-                "reference": "864578853c19d3c18728d5ccf3e4d2e98141a3de",
+                "url": "https://api.github.com/repos/PrestaShopCorp/lightweight-container/zipball/e584a45110d46d19ceb5eab397eb15f59443cfd9",
+                "reference": "e584a45110d46d19ceb5eab397eb15f59443cfd9",
                 "shasum": ""
             },
             "require": {
                 "php": ">=5.6"
+            },
+            "require-dev": {
+                "phpstan/phpstan": "^1.7",
+                "phpunit/phpunit": "^8.0 || ^9.0",
+                "prestashop/php-dev-tools": "^4.2"
             },
             "default-branch": true,
             "type": "library",
@@ -726,6 +731,25 @@
                     "PrestaShopCorp\\LightweightContainer\\": "src/"
                 }
             },
+            "autoload-dev": {
+                "psr-4": {
+                    "PrestaShopCorp\\LightweightContainer\\Test\\": "tests/src/"
+                }
+            },
+            "scripts": {
+                "phpunit": [
+                    "./vendor/bin/phpunit --coverage-text"
+                ],
+                "php-cs-fixer": [
+                    "./vendor/bin/php-cs-fixer fix --config .php_cs.dist.php --diff"
+                ],
+                "header-stamp": [
+                    "./vendor/bin/header-stamp --target=\".\" --license=./vendor/prestashop/header-stamp/assets/afl.txt --exclude=.github,vendor,tests"
+                ]
+            },
+            "license": [
+                "AFL-3.0"
+            ],
             "authors": [
                 {
                     "name": "hschoenenberger",
@@ -737,7 +761,7 @@
                 "source": "https://github.com/PrestaShopCorp/lightweight-container/tree/main",
                 "issues": "https://github.com/PrestaShopCorp/lightweight-container/issues"
             },
-            "time": "2024-11-27T13:13:53+00:00"
+            "time": "2024-12-19T09:05:50+00:00"
         },
         {
             "name": "prestashopcorp/oauth2-prestashop",
