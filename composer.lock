@@ -708,12 +708,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/PrestaShopCorp/lightweight-container.git",
-                "reference": "e584a45110d46d19ceb5eab397eb15f59443cfd9"
+                "reference": "d8fc064dc024515a0722cc2a0f834657faed5e79"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/PrestaShopCorp/lightweight-container/zipball/e584a45110d46d19ceb5eab397eb15f59443cfd9",
-                "reference": "e584a45110d46d19ceb5eab397eb15f59443cfd9",
+                "url": "https://api.github.com/repos/PrestaShopCorp/lightweight-container/zipball/d8fc064dc024515a0722cc2a0f834657faed5e79",
+                "reference": "d8fc064dc024515a0722cc2a0f834657faed5e79",
                 "shasum": ""
             },
             "require": {
@@ -761,7 +761,7 @@
                 "source": "https://github.com/PrestaShopCorp/lightweight-container/tree/main",
                 "issues": "https://github.com/PrestaShopCorp/lightweight-container/issues"
             },
-            "time": "2024-12-19T09:05:50+00:00"
+            "time": "2024-12-19T09:21:36+00:00"
         },
         {
             "name": "prestashopcorp/oauth2-prestashop",
