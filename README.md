@@ -157,9 +157,9 @@ With the given response :
 
 Here are listed custom hooks provided with this module:
 
-| Hook name                         | Payload          | Description                                          |
-|-----------------------------------|------------------|------------------------------------------------------|
-| actionShopAccountLinkAfter        | shopId, shopUuid | Triggered after link has been acknowledged by shop   |
-| actionShopAccountUnlinkAfter      | shopId, shopUuid | Triggered after unlink has been acknowledged by shop |
-| actionShopAccessTokenRefreshAfter | token            | Trigger after OAuth access token has been refreshed  ||
+| hook                              | params           | description                                  |
+|-----------------------------------|------------------|----------------------------------------------|
+| actionShopAccountLinkAfter        | shopId, shopUuid | Triggered after link shop acknowledged       |
+| actionShopAccountUnlinkAfter      | shopId, shopUuid | Triggered after unlink shop acknowledged     |
+| actionShopAccessTokenRefreshAfter | token            | Triggered after OAuth access token refreshed |
 
