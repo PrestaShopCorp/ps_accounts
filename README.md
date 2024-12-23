@@ -9,7 +9,7 @@
 
 The module **ps_accounts** is the interface between your module and PrestaShop's services. It manages:
 - Shop association/dissociation process;
-- Providing tokens to communicate safely with PrestaShop services ;
+- Providing tokens to communicate safely with PrestaShop services;
 - Synchronize basic informations about the shops (ex: shop URLs, name, ...).
 
 This module is a basis for other modules using PrestaShop services.
@@ -39,8 +39,8 @@ If you are integrating a module, you should have a look on the [PrestaShop Integ
 ## A preliminary note about PrestaShop modules ecosystem :
 
 ### You should keep in mind that the PrestaShop Core
-- doesn't manage dependencies between modules;
-- doesn't manage composer dependencies globally.
+- **_doesn't_** manage dependencies between modules;
+- **_doesn't_** manage composer dependencies globally.
 
 ### As a consequence you MUST
 - check by yourself that the PsAccounts module is installed;
@@ -50,6 +50,9 @@ If you are integrating a module, you should have a look on the [PrestaShop Integ
 ## Display the PrestaShop Account Component in your module :
 
 ### Load PsAccountsPresenter
+
+The presenter will give basic informations to the components through `contextPsAccounts` object accessible on the page.
+
 ```php
 // My_module.php
 
@@ -71,11 +74,7 @@ Alternatively you can still use : [PrestaShop Accounts Installer](http://github.
 
 ### Load and init the component on your page
 
-```html
-<!--views/templates/admin/app.tpl-->
-
-<!--TODO: describe how to load the component-->
-```
+For detailed usage you can follow the component's documentation : [prestashop_accounts_vue_components](https://github.com/PrestaShopCorp/prestashop_accounts_vue_components)
 
 ## How to get up to date (legacy) JWT Tokens
 
@@ -153,7 +152,7 @@ With the given response :
 }
 ```
 
-# Provided hooks
+## Provided hooks
 
 Here are listed custom hooks provided with this module:
 
@@ -163,3 +162,18 @@ Here are listed custom hooks provided with this module:
 | actionShopAccountUnlinkAfter      | shopId, shopUuid | Triggered after unlink shop acknowledged     |
 | actionShopAccessTokenRefreshAfter | token            | Triggered after OAuth access token refreshed |
 
+# Building the module locally
+
+In case you need to build a zip by yourself :
+
+```shell
+  cp config.dist.php config.php
+  make
+```
+
+OR with multiple environments :
+
+```shell
+  cp config.dist.php config.myenv.php
+  BUNDLE_ENV=myenv make
+```
