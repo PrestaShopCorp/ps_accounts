@@ -61,9 +61,9 @@ class ShopProvider extends PrestaShop
     public static function create(ServiceContainer $container)
     {
         $cacheDir = _PS_CACHE_DIR_ . DIRECTORY_SEPARATOR . '/ps_accounts';
-        $cacheTtl = $container->getParameterWithDefault(
+        $cacheTtl = (int) $container->getParameterWithDefault(
             'ps_accounts.openid_configuration_cache_ttl',
-            60 * 60 * 24
+            (string) (60 * 60 * 24)
         );
 
         $link = $container->get(Link::class);

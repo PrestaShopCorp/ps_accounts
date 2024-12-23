@@ -206,7 +206,7 @@ abstract class AbstractV2RestController extends AbstractRestController
      */
     protected function assertScope(array $scope)
     {
-        if (! $this->authenticated) {
+        if (!$this->authenticated) {
             return;
         }
 
@@ -226,7 +226,7 @@ abstract class AbstractV2RestController extends AbstractRestController
      */
     protected function assertAudience(array $audience)
     {
-        if (! $this->authenticated) {
+        if (!$this->authenticated) {
             return;
         }
 
