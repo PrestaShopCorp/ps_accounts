@@ -18,26 +18,31 @@
  * @license   https://opensource.org/licenses/AFL-3.0 Academic Free License version 3.0
  */
 
-namespace PrestaShop\Module\PsAccounts\Factory;
+namespace PrestaShop\Module\PsAccounts\Api\Controller;
 
-use PrestaShop\Module\PsAccounts\Provider\OAuth2\PrestaShopSession;
-use PrestaShop\Module\PsAccounts\Provider\OAuth2\ShopProvider;
+use PrestaShop\Module\PsAccounts\Exception\Http\NotFoundException;
+use Shop;
 
-class PrestaShopSessionFactory
+class AbstractV2ShopRestController extends AbstractV2RestController
 {
     /**
-     * @return PrestaShopSession
-     *
-     * @throws \Exception
+     * @var string
      */
-    public static function create()
+    public $resourceId = 'shop_id';
+
+    /**
+     * @param mixed $id
+     *
+     * @return Shop
+     */
+    protected function buildResource($id)
     {
-        /** @var \Ps_accounts $module */
-        $module = \Module::getInstanceByName('ps_accounts');
+        $shop = new Shop($id);
 
-        /** @var ShopProvider $provider */
-        $provider = $module->getService(ShopProvider::class);
+        if (!$shop->id) {
+            throw new NotFoundException('Shop not found [' . $id . ']');
+        }
 
-        return new PrestaShopSession($module->getSession(), $provider);
+        return $shop;
     }
 }
