@@ -34,7 +34,7 @@ class Ps_accounts extends Module
 
     // Needed in order to retrieve the module version easier (in api call headers) than instanciate
     // the module each time to get the version
-    const VERSION = '7.0.8';
+    const VERSION = '7.0.9';
 
     /**
      * Admin tabs
@@ -114,7 +114,7 @@ class Ps_accounts extends Module
     ];
 
     /**
-     * @var \PrestaShop\Module\PsAccounts\ServiceContainer\PsAccountsServiceContainer
+     * @var \PrestaShop\Module\PsAccounts\ServiceContainer\PsAccountsContainer
      */
     private $moduleContainer;
 
@@ -131,7 +131,7 @@ class Ps_accounts extends Module
 
         // We cannot use the const VERSION because the const is not computed by addons marketplace
         // when the zip is uploaded
-        $this->version = '7.0.8';
+        $this->version = '7.0.9';
 
         $this->module_key = 'abf2cd758b4d629b2944d3922ef9db73';
 
@@ -157,7 +157,7 @@ class Ps_accounts extends Module
     }
 
     /**
-     * @return \Monolog\Logger
+     * @return \PrestaShop\Module\PsAccounts\Vendor\Monolog\Logger
      */
     public function getLogger()
     {
@@ -229,16 +229,16 @@ class Ps_accounts extends Module
     }
 
     /**
-     * @return \PrestaShop\Module\PsAccounts\ServiceContainer\PsAccountsServiceContainer
+     * @return \PrestaShop\Module\PsAccounts\ServiceContainer\PsAccountsContainer
      *
      * @throws Exception
      */
     public function getServiceContainer()
     {
         if (null === $this->moduleContainer) {
-            $this->moduleContainer = \PrestaShop\Module\PsAccounts\ServiceContainer\PsAccountsServiceContainer::createInstance(
+            $this->moduleContainer = (new \PrestaShop\Module\PsAccounts\ServiceContainer\PsAccountsContainer(
                 __DIR__ . '/config.php'
-            );
+            ))->init();
         }
 
         return $this->moduleContainer;
@@ -308,25 +308,26 @@ class Ps_accounts extends Module
      * @param array $customHooks
      *
      * @return bool
-     *
-     * @throws PrestaShopDatabaseException
-     * @throws PrestaShopException
      */
     public function addCustomHooks($customHooks)
     {
         $ret = true;
-
         foreach ($customHooks as $customHook) {
-            $verify = true;
-            if ((bool) Hook::getIdByName($customHook['name']) === false) {
-                $hook = new Hook();
-                $hook->name = $customHook['name'];
-                $hook->title = $customHook['title'];
-                $hook->description = $customHook['description'];
-                $hook->position = $customHook['position'];
-                $verify = $hook->add(); // return true on success
+            try {
+                $verify = true;
+                if ((bool) Hook::getIdByName($customHook['name']) === false) {
+                    $hook = new Hook();
+                    $hook->name = $customHook['name'];
+                    $hook->title = $customHook['title'];
+                    $hook->description = $customHook['description'];
+                    $hook->position = $customHook['position'];
+                    $verify = $hook->add(); // return true on success
+                }
+                $ret = $ret && $verify;
+            } catch (\Throwable $e) {
+                /* @phpstan-ignore-next-line */
+            } catch (\Exception $e) {
             }
-            $ret = $ret && $verify;
         }
 
         return $ret;
@@ -360,40 +361,6 @@ class Ps_accounts extends Module
         ]);
 
         return $this->display(__FILE__, 'views/templates/admin/app.tpl');
-    }
-
-    /**
-     * @return mixed
-     *
-     * @throws Exception
-     */
-    public function renderUpdateWarningView()
-    {
-        if ($this->getShopContext()->isShop173()) {
-            /* @phpstan-ignore-next-line */
-            return PrestaShop\PrestaShop\Adapter\SymfonyContainer::getInstance()
-                ->get('twig')
-                ->render('@Modules/ps_accounts/views/templates/backoffice/update_url_warning.twig');
-        } else {
-            return '';
-        }
-    }
-
-    /**
-     * @return mixed
-     *
-     * @throws Exception
-     */
-    public function renderDeleteWarningView()
-    {
-        if ($this->getShopContext()->isShop173()) {
-            /* @phpstan-ignore-next-line */
-            return PrestaShop\PrestaShop\Adapter\SymfonyContainer::getInstance()
-                ->get('twig')
-                ->render('@Modules/ps_accounts/views/templates/backoffice/delete_url_warning.twig');
-        } else {
-            return '';
-        }
     }
 
     /**

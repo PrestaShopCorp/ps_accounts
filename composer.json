@@ -27,11 +27,13 @@
             "PrestaShop\\Module\\PsAccounts\\Vendor\\GuzzleHttp\\Psr7\\": "vendor/guzzlehttp/psr7/src",
             "PrestaShop\\Module\\PsAccounts\\Vendor\\League\\OAuth2\\Client\\": "vendor/league/oauth2-client/src",
             "PrestaShop\\Module\\PsAccounts\\Vendor\\Lcobucci\\JWT\\": "vendor/lcobucci/jwt/src",
+            "PrestaShop\\Module\\PsAccounts\\Vendor\\Monolog\\": "vendor/monolog/monolog/src/Monolog",
             "PrestaShop\\Module\\PsAccounts\\Vendor\\phpseclib\\": "vendor/phpseclib/phpseclib/phpseclib",
             "PrestaShop\\Module\\PsAccounts\\Vendor\\Psr\\Http\\Message\\": "vendor/psr/http-message/src",
             "PrestaShop\\Module\\PsAccounts\\Vendor\\Psr\\Log\\": "vendor/psr/log/Psr/Log",
             "PrestaShop\\Module\\PsAccounts\\Vendor\\Ramsey\\Uuid\\": "vendor/ramsey/uuid/src",
-            "PrestaShop\\Module\\PsAccounts\\Vendor\\PrestaShopCorp\\LightweightContainer\\": "vendor/prestashopcorp/lightweight-container/src"
+            "PrestaShop\\Module\\PsAccounts\\Vendor\\PrestaShopCorp\\LightweightContainer\\": "vendor/prestashopcorp/lightweight-container/src",
+            "PrestaShop\\Module\\PsAccounts\\Vendor\\PrestaShop\\OAuth2\\Client\\": "vendor/prestashopcorp/oauth2-prestashop/src"
         },
         "classmap": [
             "ps_accounts.php",
@@ -43,7 +45,7 @@
         "phpseclib/phpseclib": "^2.0",
         "ext-json": "*",
         "lcobucci/jwt": "^3.3",
-        "monolog/monolog": "^1.25.3",
+        "monolog/monolog": "^1.27.1",
         "sentry/sentry": "^1.0",
         "segmentio/analytics-php": "^1.8",
         "ramsey/uuid": "^3.9",
@@ -52,10 +54,10 @@
         "prestashopcorp/lightweight-container": "dev-main"
     },
     "repositories": [
-      {
-        "type": "vcs",
-        "url": "git@github.com:PrestaShopCorp/lightweight-container.git"
-      }
+        {
+            "type": "vcs",
+            "url": "git@github.com:PrestaShopCorp/lightweight-container.git"
+        }
     ],
     "author": "PrestaShop"
 }
