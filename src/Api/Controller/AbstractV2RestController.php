@@ -146,7 +146,7 @@ abstract class AbstractV2RestController extends AbstractRestController
      *
      * @return mixed
      */
-    protected function extractMethod(array & $payload)
+    protected function extractMethod(array &$payload)
     {
         $method = $_SERVER['REQUEST_METHOD'];
         // detect method from payload (hack with some shop server configuration)
