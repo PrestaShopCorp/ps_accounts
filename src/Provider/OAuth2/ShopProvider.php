@@ -56,9 +56,9 @@ class ShopProvider extends PrestaShop
     /**
      * @param ServiceContainer $container
      *
-     * @return static
+     * @return ShopProvider
      */
-    public function create(ServiceContainer $container)
+    public static function create(ServiceContainer $container)
     {
         $cacheDir = _PS_CACHE_DIR_ . DIRECTORY_SEPARATOR . '/ps_accounts';
         $cacheTtl = (int) $container->getParameterWithDefault(
