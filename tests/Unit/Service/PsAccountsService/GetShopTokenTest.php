@@ -67,6 +67,6 @@ class GetShopTokenTest extends TestCase
 
         $this->expectException(RefreshTokenException::class);
 
-        $this->assertEquals('', $this->service->getShopToken());
+        $this->service->getShopToken();
     }
 }
