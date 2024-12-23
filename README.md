@@ -109,7 +109,7 @@ try {
 }
 ```
 
-### How to get up-to-date (legacy) JWT Tokens :
+### How to get up-to-date (legacy) JWT Tokens
 ```php
 // /!\ TODO: Starting here you are responsible to check that the module is installed
 
@@ -153,7 +153,7 @@ $jwtOwner = $service->getUserToken();
 
 [//]: # (```)
 
-### Calling AJAX controller in backend context (legacy shop token only) :
+### Calling AJAX controller in backend context (legacy shop token only)
 That way you will retrieve an up to date **Shop Token**
 ```js
 const response = await fetch("https://<shop-admin-url>/index.php", {
