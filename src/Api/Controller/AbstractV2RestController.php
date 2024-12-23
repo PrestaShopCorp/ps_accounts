@@ -25,11 +25,11 @@ use PrestaShop\Module\PsAccounts\Exception\Http\HttpException;
 use PrestaShop\Module\PsAccounts\Exception\Http\UnauthorizedException;
 use PrestaShop\Module\PsAccounts\Log\Logger;
 use PrestaShop\Module\PsAccounts\Provider\OAuth2\ShopProvider;
-use PrestaShop\OAuth2\Client\Provider\Exception\AudienceInvalidException;
-use PrestaShop\OAuth2\Client\Provider\Exception\ScopeInvalidException;
-use PrestaShop\OAuth2\Client\Provider\Exception\SignatureInvalidException;
-use PrestaShop\OAuth2\Client\Provider\Exception\TokenExpiredException;
-use PrestaShop\OAuth2\Client\Provider\Exception\TokenInvalidException;
+use PrestaShop\Module\PsAccounts\Vendor\PrestaShop\OAuth2\Client\Provider\Exception\AudienceInvalidException;
+use PrestaShop\Module\PsAccounts\Vendor\PrestaShop\OAuth2\Client\Provider\Exception\ScopeInvalidException;
+use PrestaShop\Module\PsAccounts\Vendor\PrestaShop\OAuth2\Client\Provider\Exception\SignatureInvalidException;
+use PrestaShop\Module\PsAccounts\Vendor\PrestaShop\OAuth2\Client\Provider\Exception\TokenExpiredException;
+use PrestaShop\Module\PsAccounts\Vendor\PrestaShop\OAuth2\Client\Provider\Exception\TokenInvalidException;
 
 abstract class AbstractV2RestController extends AbstractRestController
 {
@@ -206,6 +206,10 @@ abstract class AbstractV2RestController extends AbstractRestController
      */
     protected function assertScope(array $scope)
     {
+        if (! $this->authenticated) {
+            return;
+        }
+
         try {
             $this->oauth2Provider->validateScope($this->token, $scope);
         } catch (ScopeInvalidException $e) {
@@ -222,6 +226,10 @@ abstract class AbstractV2RestController extends AbstractRestController
      */
     protected function assertAudience(array $audience)
     {
+        if (! $this->authenticated) {
+            return;
+        }
+
         try {
             $this->oauth2Provider->validateAudience($this->token, $audience);
         } catch (AudienceInvalidException $e) {

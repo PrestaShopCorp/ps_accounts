@@ -24,14 +24,14 @@ use PrestaShop\Module\PsAccounts\Account\Session\ShopSession;
 use PrestaShop\Module\PsAccounts\Account\Token\NullToken;
 use PrestaShop\Module\PsAccounts\Account\Token\Token;
 use PrestaShop\Module\PsAccounts\Api\Client\AccountsClient;
-use PrestaShop\Module\PsAccounts\Api\Controller\AbstractShopRestController;
+use PrestaShop\Module\PsAccounts\Api\Controller\AbstractV2ShopRestController;
 use PrestaShop\Module\PsAccounts\Api\Controller\Request\ShopHealthCheckRequest;
 use PrestaShop\Module\PsAccounts\Exception\RefreshTokenException;
 use PrestaShop\Module\PsAccounts\Provider\OAuth2\Oauth2Client;
 use PrestaShop\Module\PsAccounts\Provider\OAuth2\ShopProvider;
 use PrestaShop\Module\PsAccounts\Service\PsAccountsService;
 
-class ps_AccountsApiV2ShopHealthCheckModuleFrontController extends AbstractShopRestController
+class ps_AccountsApiV2ShopHealthCheckModuleFrontController extends AbstractV2ShopRestController
 {
     /**
      * @var LinkShop
@@ -73,12 +73,31 @@ class ps_AccountsApiV2ShopHealthCheckModuleFrontController extends AbstractShopR
      */
     private $shopProvider;
 
+    /**
+     * @return array
+     */
+    protected function getScope()
+    {
+        return [];
+    }
+
+    /**
+     * @return array
+     */
+    protected function getAudience()
+    {
+        return [];
+    }
+
     public function __construct()
     {
         parent::__construct();
 
         // public healthcheck
         $this->authenticated = false;
+        if ($this->getRequestHeader('Authorization') !== null) {
+            $this->authenticated = true;
+        }
 
         $this->linkShop = $this->module->getService(LinkShop::class);
         $this->oauth2Client = $this->module->getService(Oauth2Client::class);
@@ -100,8 +119,9 @@ class ps_AccountsApiV2ShopHealthCheckModuleFrontController extends AbstractShopR
      */
     public function show(Shop $shop, ShopHealthCheckRequest $request)
     {
-        // TODO add access check
-        $securedRequest = true;
+        $this->assertAudience(['shop_' . $this->linkShop->getShopUuid()]);
+//        $this->assertScope(['shop.health_check']);
+
         if ($request->autoheal) {
             try {
                 $this->firebaseShopSession->getValidToken();
@@ -144,7 +164,7 @@ class ps_AccountsApiV2ShopHealthCheckModuleFrontController extends AbstractShopR
             ],
         ];
 
-        if ($securedRequest) {
+        if ($this->authenticated) {
             $healthCheckMessage = array_merge($healthCheckMessage, [
                 'ps_version' => _PS_VERSION_,
                 'module_version' => Ps_accounts::VERSION,
