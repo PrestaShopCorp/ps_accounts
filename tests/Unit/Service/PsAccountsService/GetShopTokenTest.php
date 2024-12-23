@@ -8,7 +8,7 @@ use PrestaShop\Module\PsAccounts\Provider\OAuth2\Oauth2Client;
 use PrestaShop\Module\PsAccounts\Service\PsAccountsService;
 use PrestaShop\Module\PsAccounts\Tests\TestCase;
 
-class GetOrRefreshTokenTest extends TestCase
+class GetShopTokenTest extends TestCase
 {
     /**
      * @inject
