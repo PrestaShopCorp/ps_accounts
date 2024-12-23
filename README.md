@@ -76,7 +76,7 @@ Alternatively you can still use : [PrestaShop Accounts Installer](http://github.
 
 For detailed usage you can follow the component's documentation : [prestashop_accounts_vue_components](https://github.com/PrestaShopCorp/prestashop_accounts_vue_components)
 
-## How to get up to date (legacy) JWT Tokens
+## How to retrieve tokens with PsAccounts
 
 ### About tokens provided :
 
@@ -91,7 +91,25 @@ This module provides the following tokens:
 - **ShopAccessToken** (provided by [Prestashop OpenId Connect Provider](https://oauth.prestashop.com/.well-known/openid-configuration))  
   For machine to machine calls. (also used to keep up to date legacy Shop and Owner tokens
 
-### Using PsAccountsService (recommended) :
+### How to get up-to-date JWT AccessTokens
+
+```php
+// /!\ TODO: Starting here you are responsible to check that the module is installed
+
+/** @var Ps_accounts $module */
+$module = \Module::getModuleIdByName('ps_accounts');
+
+/** @var \PrestaShop\Module\PsAccounts\Service\PsAccountsService $service */
+$service = $module->getService(\PrestaShop\Module\PsAccounts\Service\PsAccountsService::class);
+
+try {
+    $jwtAccessToken = $service->getShopToken();
+} catch (\PrestaShop\Module\PsAccounts\Exception\RefreshTokenException $e) {
+    // 
+}
+```
+
+### How to get up-to-date (legacy) JWT Tokens :
 ```php
 // /!\ TODO: Starting here you are responsible to check that the module is installed
 
@@ -135,7 +153,7 @@ $jwtOwner = $service->getUserToken();
 
 [//]: # (```)
 
-### Calling AJAX controller in backend context :
+### Calling AJAX controller in backend context (legacy shop token only) :
 That way you will retrieve an up to date **Shop Token**
 ```js
 const response = await fetch("https://<shop-admin-url>/index.php", {
