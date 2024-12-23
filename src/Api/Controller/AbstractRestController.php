@@ -286,9 +286,8 @@ abstract class AbstractRestController extends ModuleFrontController
                 $publicKey = $shopKeysService->getPublicKey();
 
                 if (
-                    null !== $publicKey &&
-                    false !== $publicKey &&
-                    '' !== $publicKey &&
+                    !empty($publicKey) &&
+                    is_string($publicKey) &&
                     true === $jwt->verify(new Sha256(), new Key((string) $publicKey))
                 ) {
                     return $jwt->claims()->all();
@@ -376,7 +375,7 @@ abstract class AbstractRestController extends ModuleFrontController
      *
      * @throws \PrestaShopException
      */
-    private function handleError($e)
+    protected function handleError($e)
     {
         SentryService::capture($e);
 

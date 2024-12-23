@@ -22,21 +22,21 @@ namespace PrestaShop\Module\PsAccounts\Provider\OAuth2;
 
 use PrestaShop\Module\PsAccounts\Adapter\Link;
 use PrestaShop\Module\PsAccounts\Vendor\League\OAuth2\Client\Provider\AbstractProvider;
-use PrestaShop\OAuth2\Client\Provider\PrestaShop;
+use PrestaShop\Module\PsAccounts\Vendor\PrestaShopCorp\LightweightContainer\ServiceContainer\ServiceContainer;
+use PrestaShop\OAuth2\Client\Provider\CachedFile;
+use PrestaShop\Module\PsAccounts\Vendor\PrestaShop\OAuth2\Client\Provider\PrestaShop;
 
 class ShopProvider extends PrestaShop
 {
-    const QUERY_LOGOUT_CALLBACK_PARAM = 'oauth2Callback';
-
-    /**
-     * @var \Ps_accounts
-     */
-    private $module;
-
     /**
      * @var Oauth2Client
      */
-    private $oauth2Client;
+    protected $oauth2Client;
+
+    /**
+     * @var string
+     */
+    protected $oauth2Url;
 
     /**
      * @param array $options
@@ -46,90 +46,68 @@ class ShopProvider extends PrestaShop
      */
     public function __construct(array $options = [], array $collaborators = [])
     {
-        /** @var \Ps_accounts $module */
-        $module = \Module::getInstanceByName('ps_accounts');
-        $this->module = $module;
-        $this->oauth2Client = $module->getService(Oauth2Client::class);
-
-        // Disable certificate verification from local configuration
-        $options['verify'] = (bool) $this->module->getParameter(
-            'ps_accounts.check_api_ssl_cert'
-        );
-
         if (method_exists($this, 'buildHttpClient')) {
             $collaborators['httpClient'] = $this->buildHttpClient($options);
         }
-
-        parent::__construct(array_merge([
-            'clientId' => $this->oauth2Client->getClientId(),
-            'clientSecret' => $this->oauth2Client->getClientSecret(),
-            'redirectUri' => $this->getRedirectUri(),
-            'postLogoutCallbackUri' => $this->getPostLogoutRedirectUri(),
-            'pkceMethod' => AbstractProvider::PKCE_METHOD_S256,
-        ], $options), $collaborators);
+        //parent::__construct(array_merge([], $options), $collaborators);
+        parent::__construct($options, $collaborators);
     }
 
     /**
-     * @return PrestaShop
+     * @param ServiceContainer $container
+     *
+     * @return static
      */
-    public static function create()
+    public static function create(ServiceContainer $container)
     {
-        return new self();
+        $cacheDir = _PS_CACHE_DIR_ . DIRECTORY_SEPARATOR . '/ps_accounts';
+        $cacheTtl = $container->getParameterWithDefault(
+            'ps_accounts.openid_configuration_cache_ttl',
+            60 * 60 * 24
+        );
+
+        $link = $container->get(Link::class);
+
+        // http://my-shop.mydomain/admin-path/index.php?controller=AdminOAuth2PsAccounts
+        $redirectUri = $link->getAdminLink('AdminOAuth2PsAccounts', false);
+
+        // http://my-shop.mydomain/admin-path/index.php?controller=AdminLogin&logout=1&oauth2Callback=1
+        $postLogoutRedirectUri = $link->getAdminLink('AdminLogin', false, [], [
+            'logout' => 1,
+            PrestaShopLogoutTrait::getQueryLogoutCallbackParam() => 1,
+        ]);
+
+        /** @var Oauth2Client $oauth2Client */
+        $oauth2Client = $container->get(Oauth2Client::class);
+
+        return new static(
+            [
+                'redirectUri' => $redirectUri,
+                'postLogoutCallbackUri' => $postLogoutRedirectUri,
+                'oauth2Url' => $container->getParameter('ps_accounts.oauth2_url'),
+                'oauth2Client' => $container->get(Oauth2Client::class),
+                'clientId' => $oauth2Client->getClientId(),
+                'clientSecret' => $oauth2Client->getClientSecret(),
+                'cachedJwks' => new CachedFile($cacheDir . '/jwks.json'),
+                'cachedWellKnown' => new CachedFile(
+                    $cacheDir . '/openid-configuration.json',
+                    $cacheTtl
+                ),
+                'pkceMethod' => AbstractProvider::PKCE_METHOD_S256,
+                // Disable certificate verification from local configuration
+                'verify' => (bool) $container->getParameter(
+                    'ps_accounts.check_api_ssl_cert'
+                ),
+            ]
+        );
     }
 
     /**
      * @return string
-     *
-     * @throws \Exception
      */
     public function getOauth2Url()
     {
-        return $this->module->getParameter('ps_accounts.oauth2_url');
-    }
-
-    /**
-     * @param array $options
-     *
-     * @return array|string[]
-     */
-    protected function getAllowedClientOptions(array $options)
-    {
-        return array_merge(parent::getAllowedClientOptions($options), [
-            'verify',
-        ]);
-    }
-
-    /**
-     * @example  http://my-shop.mydomain/admin-path/index.php?controller=AdminOAuth2PsAccounts
-     *
-     * @return string
-     *
-     * @throws \Exception
-     */
-    public function getRedirectUri()
-    {
-        /** @var Link $link */
-        $link = $this->module->getService(Link::class);
-
-        return $link->getAdminLink('AdminOAuth2PsAccounts', false);
-    }
-
-    /**
-     * @example http://my-shop.mydomain/admin-path/index.php?controller=AdminLogin&logout=1&oauth2Callback=1
-     *
-     * @return string
-     *
-     * @throws \PrestaShopException
-     */
-    public function getPostLogoutRedirectUri()
-    {
-        /** @var Link $link */
-        $link = $this->module->getService(Link::class);
-
-        return $link->getAdminLink('AdminLogin', false, [], [
-            'logout' => 1,
-            self::QUERY_LOGOUT_CALLBACK_PARAM => 1,
-        ]);
+        return $this->oauth2Url;
     }
 
     /**
@@ -148,6 +126,18 @@ class ShopProvider extends PrestaShop
         $this->syncOauth2ClientProps();
 
         return parent::getAccessToken($grant, $options);
+    }
+
+    /**
+     * @param array $options
+     *
+     * @return array|string[]
+     */
+    protected function getAllowedClientOptions(array $options)
+    {
+        return array_merge(parent::getAllowedClientOptions($options), [
+            'verify',
+        ]);
     }
 
     /**
