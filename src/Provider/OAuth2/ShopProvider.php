@@ -58,7 +58,7 @@ class ShopProvider extends PrestaShop
      *
      * @return static
      */
-    public static function create(ServiceContainer $container)
+    public function create(ServiceContainer $container)
     {
         $cacheDir = _PS_CACHE_DIR_ . DIRECTORY_SEPARATOR . '/ps_accounts';
         $cacheTtl = (int) $container->getParameterWithDefault(
@@ -80,7 +80,7 @@ class ShopProvider extends PrestaShop
         /** @var Oauth2Client $oauth2Client */
         $oauth2Client = $container->get(Oauth2Client::class);
 
-        return new static(
+        return new ShopProvider(
             [
                 'redirectUri' => $redirectUri,
                 'postLogoutCallbackUri' => $postLogoutRedirectUri,
@@ -116,6 +116,14 @@ class ShopProvider extends PrestaShop
     public function getOauth2Client()
     {
         return $this->oauth2Client;
+    }
+
+    /**
+     * @return string
+     */
+    public function getRedirectUri()
+    {
+        return $this->redirectUri;
     }
 
     /**
