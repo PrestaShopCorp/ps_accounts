@@ -91,7 +91,7 @@ This module provides the following tokens:
 - **ShopAccessToken** (provided by [Prestashop OpenId Connect Provider](https://oauth.prestashop.com/.well-known/openid-configuration))  
   For machine to machine calls. (also used to keep up to date legacy Shop and Owner tokens
 
-### How to get up-to-date JWT AccessTokens
+### How to get up-to-date JWT Shop Access Tokens
 
 ```php
 // /!\ TODO: Starting here you are responsible to check that the module is installed
