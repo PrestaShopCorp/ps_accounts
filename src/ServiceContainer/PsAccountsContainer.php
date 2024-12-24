@@ -50,7 +50,7 @@ class PsAccountsContainer extends ServiceContainer
     {
         if (null === $this->logger) {
             $this->logger = LoggerFactory::create(
-                $this->getParameterWithDefault(
+                $this->getParameter(
                     'ps_accounts.log_level',
                     LoggerFactory::ERROR
                 )
