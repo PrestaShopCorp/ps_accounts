@@ -1,4 +1,5 @@
 psr
+firebase/php-jwt
 guzzlehttp
 league
 prestashopcorp/oauth2-prestashop
