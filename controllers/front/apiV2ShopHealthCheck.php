@@ -134,13 +134,6 @@ class ps_AccountsApiV2ShopHealthCheckModuleFrontController extends AbstractV2Sho
         $firebaseOwnerToken = $this->firebaseOwnerSession->getToken();
         $shopToken = $this->shopSession->getToken();
 
-//        $privateInfo = [
-//            'shopId' => $shop->id,
-//            'shopBoUri' => '',
-//            'moduleVersion' => Ps_accounts::VERSION,
-//            'psVersion' => _PS_VERSION_,
-//            'phpVersion' => phpversion(),
-//        ];
         $healthCheckMessage = [
             'oauth2Client' => $this->oauth2Client->exists(),
             'shopLinked' => (bool) $this->linkShop->getShopUuid(),
@@ -166,6 +159,8 @@ class ps_AccountsApiV2ShopHealthCheckModuleFrontController extends AbstractV2Sho
 
         if ($this->authenticated) {
             $healthCheckMessage = array_merge($healthCheckMessage, [
+//                'shopId' => $shop->id,
+//                'shopBoUri' => '',
                 'ps_version' => _PS_VERSION_,
                 'module_version' => Ps_accounts::VERSION,
                 'php_version' => phpversion(),
