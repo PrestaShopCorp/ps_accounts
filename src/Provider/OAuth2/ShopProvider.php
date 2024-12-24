@@ -28,6 +28,8 @@ use PrestaShop\Module\PsAccounts\Vendor\PrestaShopCorp\LightweightContainer\Serv
 
 class ShopProvider extends PrestaShop
 {
+    const DEFAULT_OPENID_CONFIGURATION_TTL = 60 * 60 * 24;
+
     /**
      * @var Oauth2Client
      */
@@ -63,7 +65,7 @@ class ShopProvider extends PrestaShop
         $cacheDir = _PS_CACHE_DIR_ . DIRECTORY_SEPARATOR . '/ps_accounts';
         $cacheTtl = (int) $container->getParameter(
             'ps_accounts.openid_configuration_cache_ttl',
-            60 * 60 * 24
+            self::DEFAULT_OPENID_CONFIGURATION_TTL
         );
 
         $link = $container->get(Link::class);
