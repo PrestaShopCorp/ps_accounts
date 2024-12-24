@@ -52,7 +52,7 @@
         "ramsey/uuid": "^3.9",
         "prestashopcorp/oauth2-prestashop": "dev-feat/token-validator",
         "guzzlehttp/guzzle": "^6.0",
-        "prestashopcorp/lightweight-container": "dev-main"
+        "prestashopcorp/lightweight-container": "v0.1.0"
     },
     "repositories": [
         {
