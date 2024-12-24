@@ -262,6 +262,16 @@ class Ps_accounts extends Module
     }
 
     /**
+     * @param string $serviceName
+     *
+     * @return bool
+     */
+    public function hasService($serviceName)
+    {
+        return $this->getServiceContainer()->has($serviceName);
+    }
+
+    /**
      * @param string $name
      *
      * @return mixed
