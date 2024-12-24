@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "100f168b5e2fe820e472338caa90567b",
+    "content-hash": "04e664f2137e342837c03fe0d210f53e",
     "packages": [
         {
             "name": "guzzlehttp/guzzle",
@@ -594,16 +594,16 @@
         },
         {
             "name": "phpseclib/phpseclib",
-            "version": "2.0.47",
+            "version": "2.0.48",
             "source": {
                 "type": "git",
                 "url": "https://github.com/phpseclib/phpseclib.git",
-                "reference": "b7d7d90ee7df7f33a664b4aea32d50a305d35adb"
+                "reference": "eaa7be704b8b93a6913b69eb7f645a59d7731b61"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/phpseclib/phpseclib/zipball/b7d7d90ee7df7f33a664b4aea32d50a305d35adb",
-                "reference": "b7d7d90ee7df7f33a664b4aea32d50a305d35adb",
+                "url": "https://api.github.com/repos/phpseclib/phpseclib/zipball/eaa7be704b8b93a6913b69eb7f645a59d7731b61",
+                "reference": "eaa7be704b8b93a6913b69eb7f645a59d7731b61",
                 "shasum": ""
             },
             "require": {
@@ -684,7 +684,7 @@
             ],
             "support": {
                 "issues": "https://github.com/phpseclib/phpseclib/issues",
-                "source": "https://github.com/phpseclib/phpseclib/tree/2.0.47"
+                "source": "https://github.com/phpseclib/phpseclib/tree/2.0.48"
             },
             "funding": [
                 {
@@ -700,20 +700,20 @@
                     "type": "tidelift"
                 }
             ],
-            "time": "2024-02-26T04:55:38+00:00"
+            "time": "2024-12-14T21:03:54+00:00"
         },
         {
             "name": "prestashopcorp/lightweight-container",
-            "version": "dev-main",
+            "version": "v0.1.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/PrestaShopCorp/lightweight-container.git",
-                "reference": "d8fc064dc024515a0722cc2a0f834657faed5e79"
+                "reference": "75eebcfd72bb2cbfb7f7c91e7f32f0b4ba78326a"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/PrestaShopCorp/lightweight-container/zipball/d8fc064dc024515a0722cc2a0f834657faed5e79",
-                "reference": "d8fc064dc024515a0722cc2a0f834657faed5e79",
+                "url": "https://api.github.com/repos/PrestaShopCorp/lightweight-container/zipball/75eebcfd72bb2cbfb7f7c91e7f32f0b4ba78326a",
+                "reference": "75eebcfd72bb2cbfb7f7c91e7f32f0b4ba78326a",
                 "shasum": ""
             },
             "require": {
@@ -724,7 +724,6 @@
                 "phpunit/phpunit": "^8.0 || ^9.0",
                 "prestashop/php-dev-tools": "^4.2"
             },
-            "default-branch": true,
             "type": "library",
             "autoload": {
                 "psr-4": {
@@ -758,10 +757,10 @@
             ],
             "description": "No-deps lightweight service container",
             "support": {
-                "source": "https://github.com/PrestaShopCorp/lightweight-container/tree/main",
+                "source": "https://github.com/PrestaShopCorp/lightweight-container/tree/v0.1.0",
                 "issues": "https://github.com/PrestaShopCorp/lightweight-container/issues"
             },
-            "time": "2024-12-19T09:21:36+00:00"
+            "time": "2024-12-24T08:26:20+00:00"
         },
         {
             "name": "prestashopcorp/oauth2-prestashop",
@@ -1600,9 +1599,7 @@
     "packages-dev": [],
     "aliases": [],
     "minimum-stability": "stable",
-    "stability-flags": {
-        "prestashopcorp/lightweight-container": 20
-    },
+    "stability-flags": [],
     "prefer-stable": false,
     "prefer-lowest": false,
     "platform": {
