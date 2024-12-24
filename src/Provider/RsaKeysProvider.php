@@ -20,120 +20,138 @@
 
 namespace PrestaShop\Module\PsAccounts\Provider;
 
+use OpenSSLAsymmetricKey;
 use PrestaShop\Module\PsAccounts\Exception\SshKeysNotFoundException;
 use PrestaShop\Module\PsAccounts\Repository\ConfigurationRepository;
-use PrestaShop\Module\PsAccounts\Vendor\phpseclib\Crypt\RSA;
 
 /**
  * Manage RSA
  */
 class RsaKeysProvider
 {
-    /**
-     * @var RSA
-     */
-    private $rsa;
-
-    /**
-     * @var ConfigurationRepository
-     */
-    private $configuration;
+    private ConfigurationRepository $configuration;
 
     public function __construct(ConfigurationRepository $configuration)
     {
-        $this->rsa = new RSA();
-        $this->rsa->setHash('sha256');
-        $this->rsa->setSignatureMode(RSA::SIGNATURE_PKCS1);
-
         $this->configuration = $configuration;
     }
 
     /**
-     * @return array
+     * @return array<string, string>|null
      */
-    public function createPair()
+    public function createPair(): ?array
     {
-        $this->rsa->setPrivateKeyFormat(RSA::PRIVATE_FORMAT_PKCS1);
-        $this->rsa->setPublicKeyFormat(RSA::PUBLIC_FORMAT_PKCS1);
+        $keyConfig = [
+            'private_key_bits' => 2048,
+            'private_key_type' => OPENSSL_KEYTYPE_RSA,
+        ];
 
-        return $this->rsa->createKey();
+        $res = openssl_pkey_new($keyConfig);
+        if ($res === false) {
+            return null;
+        }
+
+        openssl_pkey_export($res, $privateKey);
+        $publicKey = openssl_pkey_get_details($res)['key'] ?? null;
+
+        return $publicKey && $privateKey ? ['privatekey' => $privateKey, 'publickey' => $publicKey] : null;
     }
 
     /**
      * @param string $privateKey
      * @param string $data
-     *
-     * @return string
+     * @return string|null
      */
-    public function signData($privateKey, $data)
+    public function signData(string $privateKey, string $data): ?string
     {
-        $this->rsa->loadKey($privateKey, RSA::PRIVATE_FORMAT_PKCS1);
+        $privateKeyResource = openssl_pkey_get_private($privateKey);
+        if ($privateKeyResource === false) {
+            return null;
+        }
 
-        return base64_encode($this->rsa->sign($data));
+        openssl_sign($data, $signature, $privateKeyResource, OPENSSL_ALGO_SHA256);
+        return base64_encode($signature);
     }
 
     /**
      * @param string $publicKey
      * @param string $signature
      * @param string $data
-     *
-     * @return bool
+     * @return bool|null
      */
-    public function verifySignature($publicKey, $signature, $data)
+    public function verifySignature(string $publicKey, string $signature, string $data): ?bool
     {
-        $this->rsa->loadKey($publicKey, RSA::PUBLIC_FORMAT_PKCS1);
+        $publicKeyResource = openssl_pkey_get_public($publicKey);
+        if ($publicKeyResource === false) {
+            return null;
+        }
 
-        return $this->rsa->verify($data, base64_decode($signature));
+        $signatureDecoded = base64_decode($signature);
+        return openssl_verify($data, $signatureDecoded, $publicKeyResource, OPENSSL_ALGO_SHA256) === 1;
     }
 
     /**
      * @param string $encrypted
-     *
-     * @return false|string
+     * @return string|null
      */
-    public function decrypt($encrypted)
+    public function decrypt(string $encrypted): ?string
     {
-        $this->rsa->loadKey($this->getPrivateKey(), RSA::PRIVATE_FORMAT_PKCS1);
+        $privateKey = $this->getPrivateKey();
+        $privateKeyResource = openssl_pkey_get_private($privateKey);
+        if ($privateKeyResource === false) {
+            return null;
+        }
 
-        return $this->rsa->decrypt($encrypted);
+        openssl_private_decrypt(base64_decode($encrypted), $decrypted, $privateKeyResource);
+        return $decrypted ?: null;
     }
 
     /**
      * @param string $string
-     *
-     * @return false|string
+     * @return string|null
      */
-    public function encrypt($string)
+    public function encrypt(string $string): ?string
     {
-        $this->rsa->loadKey((string) $this->getPublicKey(), RSA::PUBLIC_FORMAT_PKCS1);
-
-        return $this->rsa->encrypt($string);
+        $publicKey = $this->getPublicKey();
+        $publicKeyResource = openssl_pkey_get_public($publicKey);
+        if ($publicKeyResource === false) {
+            return null;
+        }
+    
+        // Use OPENSSL_PKCS1_OAEP_PADDING for better security
+        if (openssl_public_encrypt($string, $encrypted, $publicKeyResource, OPENSSL_PKCS1_OAEP_PADDING)) {
+            return base64_encode($encrypted);
+        }
+    
+        return null; // Return null if encryption fails
     }
 
     /**
      * @param bool $refresh
-     *
      * @return void
-     *
      * @throws SshKeysNotFoundException
      */
-    public function generateKeys($refresh = false)
+    public function generateKeys(bool $refresh = false): void
     {
-        if ($refresh || false === $this->hasKeys()) {
+        if ($refresh || !$this->hasKeys()) {
             $key = $this->createPair();
+            if ($key === null) {
+                throw new SshKeysNotFoundException('Failed to create RSA keys');
+            }
+
             $this->configuration->updateAccountsRsaPrivateKey($key['privatekey']);
             $this->configuration->updateAccountsRsaPublicKey($key['publickey']);
 
-            if (false === $this->hasKeys()) {
+            if (!$this->hasKeys()) {
                 throw new SshKeysNotFoundException('No RSA keys found for the shop');
             }
         }
     }
 
     /**
-     * @return string|bool|null
+     * @return string|null
      */
-    public function getOrGenerateAccountsRsaPublicKey()
+    public function getOrGenerateAccountsRsaPublicKey(): ?string
     {
         $publicKey = $this->getPublicKey();
         if ($publicKey) {
@@ -142,7 +160,6 @@ class RsaKeysProvider
 
         try {
             $this->regenerateKeys();
-
             return $this->getPublicKey();
         } catch (\Exception $e) {
             return null;
@@ -151,10 +168,9 @@ class RsaKeysProvider
 
     /**
      * @return void
-     *
      * @throws SshKeysNotFoundException
      */
-    public function regenerateKeys()
+    public function regenerateKeys(): void
     {
         $this->generateKeys(true);
     }
@@ -162,31 +178,31 @@ class RsaKeysProvider
     /**
      * @return bool
      */
-    public function hasKeys()
+    public function hasKeys(): bool
     {
-        return false === empty($this->configuration->getAccountsRsaPublicKey());
+        return !empty($this->configuration->getAccountsRsaPublicKey());
     }
 
     /**
-     * @return string|bool
+     * @return string|null
      */
-    public function getPublicKey()
+    public function getPublicKey(): ?string
     {
-        return $this->configuration->getAccountsRsaPublicKey();
+        return $this->configuration->getAccountsRsaPublicKey() ?: null;
     }
 
     /**
-     * @return string
+     * @return string|null
      */
-    public function getPrivateKey()
+    public function getPrivateKey(): ?string
     {
-        return $this->configuration->getAccountsRsaPrivateKey();
+        return $this->configuration->getAccountsRsaPrivateKey() ?: null;
     }
 
     /**
      * @return void
      */
-    public function cleanupKeys()
+    public function cleanupKeys(): void
     {
         $this->configuration->updateAccountsRsaPrivateKey('');
         $this->configuration->updateAccountsRsaPublicKey('');
