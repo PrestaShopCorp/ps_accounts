@@ -25,6 +25,7 @@ use PrestaShop\Module\PsAccounts\Exception\Http\HttpException;
 use PrestaShop\Module\PsAccounts\Exception\Http\UnauthorizedException;
 use PrestaShop\Module\PsAccounts\Log\Logger;
 use PrestaShop\Module\PsAccounts\Provider\OAuth2\ShopProvider;
+use PrestaShop\Module\PsAccounts\Service\SentryService;
 use PrestaShop\Module\PsAccounts\Vendor\PrestaShop\OAuth2\Client\Provider\Exception\AudienceInvalidException;
 use PrestaShop\Module\PsAccounts\Vendor\PrestaShop\OAuth2\Client\Provider\Exception\ScopeInvalidException;
 use PrestaShop\Module\PsAccounts\Vendor\PrestaShop\OAuth2\Client\Provider\Exception\SignatureInvalidException;
@@ -51,6 +52,8 @@ abstract class AbstractV2RestController extends AbstractRestController
     }
 
     /**
+     * Controller level scopes
+     *
      * @return array
      */
     protected function getScope()
@@ -59,6 +62,8 @@ abstract class AbstractV2RestController extends AbstractRestController
     }
 
     /**
+     * Controller level audiences
+     *
      * @return array
      */
     protected function getAudience()
@@ -86,26 +91,16 @@ abstract class AbstractV2RestController extends AbstractRestController
             $httpMethod = $this->extractMethod($payload);
 
             $this->dispatchVerb($httpMethod, $payload);
-        } catch (HttpException $e) {
-            $this->module->getLogger()->error($e);
-
-            $this->dieWithResponseJson([
-                'error' => true,
-                'message' => $e->getMessage(),
-            ], $e->getStatusCode());
         } catch (\Throwable $e) {
-            $this->handleError($e);
+            $this->handleException($e);
             /* @phpstan-ignore-next-line */
         } catch (\Exception $e) {
-            $this->handleError($e);
+            $this->handleException($e);
         }
     }
 
     /**
      * @return array
-     *
-     * @throws UnauthorizedException
-     * @throws TokenInvalidException
      */
     protected function decodeJsonPayload()
     {
@@ -167,7 +162,7 @@ abstract class AbstractV2RestController extends AbstractRestController
 //    }
 
     /**
-     * @return void
+     * @return true
      *
      * @throws UnauthorizedException
      */
@@ -182,22 +177,27 @@ abstract class AbstractV2RestController extends AbstractRestController
 
         Logger::getInstance()->info('bearer: ' . $jwtString);
 
+        $errorMsg = 'Invalid token';
         try {
             $this->token = $this->oauth2Provider->validateToken($jwtString, $this->getScope(), $this->getAudience());
+
+            return true;
         } catch (SignatureInvalidException $e) {
-            throw new UnauthorizedException($e->getMessage());
         } catch (AudienceInvalidException $e) {
-            throw new UnauthorizedException($e->getMessage());
+            $errorMsg = 'Invalid audience';
         } catch (ScopeInvalidException $e) {
-            throw new UnauthorizedException($e->getMessage());
+            $errorMsg = 'Invalid scope';
         } catch (TokenExpiredException $e) {
-            throw new UnauthorizedException($e->getMessage());
         } catch (TokenInvalidException $e) {
-            throw new UnauthorizedException($e->getMessage());
         }
+        $this->module->getLogger()->error($e);
+
+        throw new UnauthorizedException($errorMsg, 0, $e);
     }
 
     /**
+     * Method level scope checking
+     *
      * @param array $scope
      *
      * @return void
@@ -213,11 +213,15 @@ abstract class AbstractV2RestController extends AbstractRestController
         try {
             $this->oauth2Provider->validateScope($this->token, $scope);
         } catch (ScopeInvalidException $e) {
-            throw new UnauthorizedException($e->getMessage());
+            $this->module->getLogger()->error($e);
+
+            throw new UnauthorizedException('Invalid scope', 0, $e);
         }
     }
 
     /**
+     * Method level audience checking
+     *
      * @param array $audience
      *
      * @return void
@@ -233,7 +237,34 @@ abstract class AbstractV2RestController extends AbstractRestController
         try {
             $this->oauth2Provider->validateAudience($this->token, $audience);
         } catch (AudienceInvalidException $e) {
-            throw new UnauthorizedException($e->getMessage());
+            $this->module->getLogger()->error($e);
+
+            throw new UnauthorizedException('Invalid audience', 0, $e);
+        }
+    }
+
+    /**
+     * @param \Throwable|\Exception $e
+     * @param string|null $message
+     *
+     * @return void
+     */
+    protected function handleException($e, $message = null)
+    {
+        if ($e instanceof HttpException) {
+            $this->module->getLogger()->error($e);
+
+            $this->dieWithResponseJson([
+                'error' => true,
+                'message' => $message ?: $e->getMessage(),
+            ], $e->getStatusCode());
+        } else {
+            SentryService::capture($e);
+
+            $this->dieWithResponseJson([
+                'error' => true,
+                'message' => $message ?: 'Failed processing your request',
+            ], 500);
         }
     }
 }

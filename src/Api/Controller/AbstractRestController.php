@@ -318,6 +318,8 @@ abstract class AbstractRestController extends ModuleFrontController
     }
 
     /**
+     * Force shop context
+     *
      * @param \Shop $shop
      *
      * @return void
