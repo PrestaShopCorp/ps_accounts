@@ -8,7 +8,7 @@ services:
   PrestaShop\Module\PsAccounts\Service\PsAccountsService:
     class: PrestaShop\Module\PsAccounts\Service\PsAccountsService
     public: true
-    factory: ['PrestaShop\Module\PsAccounts\ServiceContainer\StaticProvider', 'provide']
+    factory: ['PrestaShop\Module\PsAccounts\ServiceProvider\StaticProvider', 'provide']
     arguments:
       - 'PrestaShop\Module\PsAccounts\Service\PsAccountsService'
 
@@ -16,21 +16,21 @@ services:
 #  PrestaShop\Module\PsAccounts\Service\PsBillingService:
 #    class: PrestaShop\Module\PsAccounts\Service\PsBillingService
 #    public: true
-#    factory: [ 'PrestaShop\Module\PsAccounts\ServiceContainer\StaticProvider', 'provide' ]
+#    factory: [ 'PrestaShop\Module\PsAccounts\ServiceProvider\StaticProvider', 'provide' ]
 #    arguments:
 #      - 'PrestaShop\Module\PsAccounts\Service\PsBillingService'
 
   PrestaShop\Module\PsAccounts\Repository\UserTokenRepository:
     class: PrestaShop\Module\PsAccounts\Repository\UserTokenRepository
     public: true
-    factory: ['PrestaShop\Module\PsAccounts\ServiceContainer\StaticProvider', 'provide']
+    factory: ['PrestaShop\Module\PsAccounts\ServiceProvider\StaticProvider', 'provide']
     arguments:
       - 'PrestaShop\Module\PsAccounts\Repository\UserTokenRepository'
 
   PrestaShop\Module\PsAccounts\Presenter\PsAccountsPresenter:
     class: PrestaShop\Module\PsAccounts\Presenter\PsAccountsPresenter
     public: true
-    factory: ['PrestaShop\Module\PsAccounts\ServiceContainer\StaticProvider', 'provide']
+    factory: ['PrestaShop\Module\PsAccounts\ServiceProvider\StaticProvider', 'provide']
     arguments:
       - 'PrestaShop\Module\PsAccounts\Presenter\PsAccountsPresenter'
 
