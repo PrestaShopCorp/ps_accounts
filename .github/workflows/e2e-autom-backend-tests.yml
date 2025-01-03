@@ -1,10 +1,12 @@
-name: Account Back autom tests
+name: Account Module Installation autom tests
 
 on:
   pull_request:
     types: [opened, reopened, synchronize]
   workflow_dispatch:
-
+  schedule:
+    - cron: '0 10 * * 1-5'
+    
 env:
   BASE_URL: ${{secrets.BASE_URL}}
   BASE_URL_FO: ${{secrets.BASE_URL_FO}}
