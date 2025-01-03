@@ -18,18 +18,17 @@
  * @license   https://opensource.org/licenses/AFL-3.0 Academic Free License version 3.0
  */
 
-namespace PrestaShop\Module\PsAccounts\ServiceContainer\Provider;
+namespace PrestaShop\Module\PsAccounts\ServiceProvider;
 
-use PrestaShop\Module\PsAccounts\Account\LinkShop;
-use PrestaShop\Module\PsAccounts\Account\Session\Firebase;
-use PrestaShop\Module\PsAccounts\Account\Session\ShopSession;
-use PrestaShop\Module\PsAccounts\Cqrs\CommandBus;
+use PrestaShop\Module\PsAccounts\Middleware\Oauth2Middleware;
+use PrestaShop\Module\PsAccounts\Provider;
+use PrestaShop\Module\PsAccounts\Provider\OAuth2\PrestaShopSession;
 use PrestaShop\Module\PsAccounts\Provider\OAuth2\ShopProvider;
 use PrestaShop\Module\PsAccounts\Repository\ConfigurationRepository;
 use PrestaShop\Module\PsAccounts\Vendor\PrestaShopCorp\LightweightContainer\ServiceContainer\Contract\IServiceProvider;
 use PrestaShop\Module\PsAccounts\Vendor\PrestaShopCorp\LightweightContainer\ServiceContainer\ServiceContainer;
 
-class SessionProvider implements IServiceProvider
+class OAuth2Provider implements IServiceProvider
 {
     /**
      * @param ServiceContainer $container
@@ -38,25 +37,25 @@ class SessionProvider implements IServiceProvider
      */
     public function provide(ServiceContainer $container)
     {
-        // Sessions
-        $container->registerProvider(ShopSession::class, static function () use ($container) {
-            return new ShopSession(
-                $container->get(ConfigurationRepository::class),
-                $container->get(ShopProvider::class),
-                $container->get(LinkShop::class),
-                $container->get(CommandBus::class)
+        // OAuth2
+        $container->registerProvider(Provider\OAuth2\Oauth2Client::class, static function () use ($container) {
+            return new Provider\OAuth2\Oauth2Client(
+                $container->get(ConfigurationRepository::class)
             );
         });
-        $container->registerProvider(Firebase\OwnerSession::class, static function () use ($container) {
-            return new Firebase\OwnerSession(
-                $container->get(ConfigurationRepository::class),
-                $container->get(ShopSession::class)
+        $container->registerProvider(Provider\OAuth2\PrestaShopSession::class, static function () use ($container) {
+            return new PrestaShopSession(
+                $container->get('ps_accounts.module')->getSession(),
+                $container->get(ShopProvider::class)
             );
         });
-        $container->registerProvider(Firebase\ShopSession::class, static function () use ($container) {
-            return new Firebase\ShopSession(
-                $container->get(ConfigurationRepository::class),
-                $container->get(ShopSession::class)
+        $container->registerProvider(Provider\OAuth2\ShopProvider::class, static function () use ($container) {
+            return Provider\OAuth2\ShopProvider::create($container);
+        });
+        // Middleware
+        $container->registerProvider(Oauth2Middleware::class, static function () use ($container) {
+            return new Oauth2Middleware(
+                $container->get('ps_accounts.module')
             );
         });
     }

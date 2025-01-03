@@ -21,6 +21,7 @@
 namespace PrestaShop\Module\PsAccounts\ServiceContainer;
 
 use PrestaShop\Module\PsAccounts\Log\Logger as LoggerFactory;
+use PrestaShop\Module\PsAccounts\ServiceProvider;
 use PrestaShop\Module\PsAccounts\Vendor\Monolog\Logger;
 use PrestaShop\Module\PsAccounts\Vendor\PrestaShopCorp\LightweightContainer\ServiceContainer\ServiceContainer;
 
@@ -35,12 +36,12 @@ class PsAccountsContainer extends ServiceContainer
      * @var string[]
      */
     protected $provides = [
-        Provider\ApiClientProvider::class,
-        Provider\CommandProvider::class,
-        Provider\DefaultProvider::class,
-        Provider\OAuth2Provider::class,
-        Provider\RepositoryProvider::class,
-        Provider\SessionProvider::class,
+        ServiceProvider\ApiClientProvider::class,
+        ServiceProvider\CommandProvider::class,
+        ServiceProvider\DefaultProvider::class,
+        ServiceProvider\OAuth2Provider::class,
+        ServiceProvider\RepositoryProvider::class,
+        ServiceProvider\SessionProvider::class,
     ];
 
     /**

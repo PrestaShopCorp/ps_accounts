@@ -32,6 +32,9 @@ trait AjaxRender
      * @return void
      *
      * @throws PrestaShopException
+     *
+     * FIXME: this method might exit OR not
+     * TODO: rename to 'ajaxDie' & exit every time
      */
     protected function ajaxRender($value = null, $controller = null, $method = null)
     {
@@ -41,6 +44,7 @@ trait AjaxRender
             if (method_exists($controllerBaseClass, 'ajaxRender')) {
                 /* @phpstan-ignore-next-line */
                 parent::ajaxRender($value, $controller, $method);
+            //exit;
             } else {
                 parent::ajaxDie($value, $controller, $method);
             }

@@ -18,18 +18,18 @@
  * @license   https://opensource.org/licenses/AFL-3.0 Academic Free License version 3.0
  */
 
-namespace PrestaShop\Module\PsAccounts\ServiceContainer\Provider;
+namespace PrestaShop\Module\PsAccounts\ServiceProvider;
 
+use PrestaShop\Module\PsAccounts\Account\LinkShop;
 use PrestaShop\Module\PsAccounts\Account\Session\Firebase;
-use PrestaShop\Module\PsAccounts\Account\Session\Firebase\OwnerSession;
-use PrestaShop\Module\PsAccounts\Adapter\Configuration;
+use PrestaShop\Module\PsAccounts\Account\Session\ShopSession;
+use PrestaShop\Module\PsAccounts\Cqrs\CommandBus;
+use PrestaShop\Module\PsAccounts\Provider\OAuth2\ShopProvider;
 use PrestaShop\Module\PsAccounts\Repository\ConfigurationRepository;
-use PrestaShop\Module\PsAccounts\Repository\ShopTokenRepository;
-use PrestaShop\Module\PsAccounts\Repository\UserTokenRepository;
 use PrestaShop\Module\PsAccounts\Vendor\PrestaShopCorp\LightweightContainer\ServiceContainer\Contract\IServiceProvider;
 use PrestaShop\Module\PsAccounts\Vendor\PrestaShopCorp\LightweightContainer\ServiceContainer\ServiceContainer;
 
-class RepositoryProvider implements IServiceProvider
+class SessionProvider implements IServiceProvider
 {
     /**
      * @param ServiceContainer $container
@@ -38,20 +38,25 @@ class RepositoryProvider implements IServiceProvider
      */
     public function provide(ServiceContainer $container)
     {
-        // Repositories
-        $container->registerProvider(ConfigurationRepository::class, static function () use ($container) {
-            return new ConfigurationRepository(
-                $container->get(Configuration::class)
+        // Sessions
+        $container->registerProvider(ShopSession::class, static function () use ($container) {
+            return new ShopSession(
+                $container->get(ConfigurationRepository::class),
+                $container->get(ShopProvider::class),
+                $container->get(LinkShop::class),
+                $container->get(CommandBus::class)
             );
         });
-        $container->registerProvider(ShopTokenRepository::class, static function () use ($container) {
-            return new ShopTokenRepository(
-                $container->get(Firebase\ShopSession::class)
+        $container->registerProvider(Firebase\OwnerSession::class, static function () use ($container) {
+            return new Firebase\OwnerSession(
+                $container->get(ConfigurationRepository::class),
+                $container->get(ShopSession::class)
             );
         });
-        $container->registerProvider(UserTokenRepository::class, static function () use ($container) {
-            return new UserTokenRepository(
-                $container->get(OwnerSession::class)
+        $container->registerProvider(Firebase\ShopSession::class, static function () use ($container) {
+            return new Firebase\ShopSession(
+                $container->get(ConfigurationRepository::class),
+                $container->get(ShopSession::class)
             );
         });
     }
