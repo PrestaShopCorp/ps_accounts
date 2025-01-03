@@ -251,14 +251,7 @@ class Ps_accounts extends Module
      */
     public function getService($serviceName)
     {
-        try {
-            return $this->getServiceContainer()->getService($serviceName);
-        } catch (\PrestaShop\Module\PsAccounts\Vendor\PrestaShopCorp\LightweightContainer\ServiceContainer\Exception\ServiceNotFoundException $e) {
-            if (class_exists('\Symfony\Component\DependencyInjection\Exception\ServiceNotFoundException')) {
-                throw new \Symfony\Component\DependencyInjection\Exception\ServiceNotFoundException($serviceName);
-            }
-            throw $e;
-        }
+        return $this->getServiceContainer()->getService($serviceName);
     }
 
     /**
