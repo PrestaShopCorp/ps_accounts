@@ -12,13 +12,12 @@ services:
     arguments:
       - 'PrestaShop\Module\PsAccounts\Service\PsAccountsService'
 
-# FIXME: probably totally useless now
-#  PrestaShop\Module\PsAccounts\Service\PsBillingService:
-#    class: PrestaShop\Module\PsAccounts\Service\PsBillingService
-#    public: true
-#    factory: [ 'PrestaShop\Module\PsAccounts\ServiceProvider\StaticProvider', 'provide' ]
-#    arguments:
-#      - 'PrestaShop\Module\PsAccounts\Service\PsBillingService'
+  PrestaShop\Module\PsAccounts\Service\PsBillingService:
+    class: PrestaShop\Module\PsAccounts\Service\PsBillingService
+    public: true
+    factory: [ 'PrestaShop\Module\PsAccounts\ServiceProvider\StaticProvider', 'provide' ]
+    arguments:
+      - 'PrestaShop\Module\PsAccounts\Service\PsBillingService'
 
   PrestaShop\Module\PsAccounts\Repository\UserTokenRepository:
     class: PrestaShop\Module\PsAccounts\Repository\UserTokenRepository
