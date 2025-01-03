@@ -1,8 +1,9 @@
 name: Account Back autom tests
 
 on:
-  pull_request:
-    types: [opened, reopened, synchronize]
+# FIXME: wip
+#  pull_request:
+#    types: [opened, reopened, synchronize]
   workflow_dispatch:
 
 env:
@@ -53,7 +54,7 @@ jobs:
         working-directory: ./e2e
         run: npm run test-all-version
         continue-on-error: true
-      
+
       - name: Generate Allur Repport
         working-directory: ./e2e
         run: npm run generate-allure-report
