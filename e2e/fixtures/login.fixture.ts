@@ -7,11 +7,7 @@ export const gotToModuleManagerPage = base.extend<ShippingFixtures>({
   page: async ({page}, use) => {
     const pm = new PageManager(page);
     await page.goto(Globals.base_url);
-    if (await pm.frombasePage().isAnotherMethodLinkVisible()) {
-      await pm.frombasePage().connectWithAnotherMethod();
-    }else if (await pm.fromDashboardPage().isSecureModeMethodLinkVisible()) {
-      await pm.fromDashboardPage().connectSecureModeMethodLink();
-    }
+    await pm.frombasePage().handleConnectionMode();
     await pm.frombasePage().login(Globals.admin_email, Globals.admin_password);
     await page.waitForTimeout(5000);
     if (await pm.fromDashboardPage().isPopupVisible()) {

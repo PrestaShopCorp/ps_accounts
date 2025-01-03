@@ -4,11 +4,6 @@ import type {FrameLocator, Locator, Page} from '@playwright/test';
 import {Globals} from '../utils/globals';
 
 export default class BasePage extends CommonPage {
-  public readonly emailInput: Locator;
-  public readonly passwordInput: Locator;
-  public readonly submitLoginButton: Locator;
-  private readonly anotherMethodLink: Locator;
-  private readonly secureModeMethodLink: Locator;
 
   /* <<<<<<<<<<<<<<< SHIPPING >>>>>>>>>>>>>>>>>>>>>> */
   public readonly shippingParentLink: Locator;
@@ -24,13 +19,6 @@ export default class BasePage extends CommonPage {
   constructor(page: Page) {
     super(page);
 
-    /* <<<<<<<<<<<<<<< Selectors >>>>>>>>>>>>>>>>>>>>>> */
-    this.emailInput = this.page.locator('#email');
-    this.passwordInput = this.page.locator('#passwd');
-    this.submitLoginButton = this.page.getByRole('button', {name: 'Log in'});
-    this.anotherMethodLink = this.page.getByRole('link', {name: 'Connect with another method'});
-    this.secureModeMethodLink = this.page.getByRole('link', {name: 'log in to secure mode (https://)'});
-
     /* <<<<<<<<<<<<<<< SHIPPING >>>>>>>>>>>>>>>>>>>>>> */
     this.shippingParentLink = this.page.locator('#subtab-AdminParentShipping');
     this.shippingCarriersLink = this.page.locator('#subtab-AdminCarriers');
@@ -44,35 +32,29 @@ export default class BasePage extends CommonPage {
   }
 
   /**
-   * Is Link for Secure Mode method is visible
-   * @returns
-   * True if another login method visible
-   */
-  isSecureModeMethodLinkVisible(): Promise<boolean> {
-    return this.isVisible(this.secureModeMethodLink, 1000);
-  }
-
-  /**
-   * Click on connect with Secure Mode
-   */
-  async connectSecureModeMethodLink(): Promise<void> {
-    await this.clickAndWaitForLoadState(this.secureModeMethodLink, 'networkidle');
-  }
-
-  /**
-   * Is Link for another method is visible
-   * @returns
-   * True if another login method visible
-   */
-  isAnotherMethodLinkVisible(): Promise<boolean> {
-    return this.isVisible(this.anotherMethodLink, 1000);
-  }
-
-  /**
-   * Click on connect with another method
+   * Click on connect with another method if visible
    */
   async connectWithAnotherMethod(): Promise<void> {
-    await this.clickAndWaitForLoadState(this.anotherMethodLink, 'networkidle');
+    if (await this.page.getByRole('link', {name: 'Connect with another method'}).isVisible()) {
+      await this.page.getByRole('link', {name: 'Connect with another method'}).click();
+    }
+  }
+
+  /**
+   * Click on connect with Secure Mode if visible
+   */
+  async connectSecureModeMethodLink(): Promise<void> {
+    if (await this.page.getByRole('link', {name: 'log in to secure mode (https://)'}).isVisible()) {
+      await this.page.getByRole('link', {name: 'log in to secure mode (https://)'}).click();
+    }
+  }
+
+  /**
+   * Handle connection mode if necessary
+   */
+  async handleConnectionMode(): Promise<void> {
+    await this.connectWithAnotherMethod();
+    await this.connectSecureModeMethodLink();
   }
 
   /**
@@ -82,10 +64,11 @@ export default class BasePage extends CommonPage {
    * The page title
    */
   async login(email: string = Globals.admin_email, password: string = Globals.admin_password) {
-    await this.setValue(this.emailInput, email);
-    await this.setValue(this.passwordInput, password);
-    await this.clickAndWaitForLoadState(this.submitLoginButton, 'domcontentloaded');
+    await this.page.locator('#email').fill(email);
+    await this.page.locator('#passwd').fill(password);
+    await this.page.getByRole('button', {name: 'Log in'}).click();
   }
+  
   /**
    * Is a menu with submenus open
    * @param parentLocator {Locator}
