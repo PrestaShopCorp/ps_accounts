@@ -1,10 +1,10 @@
 <?php
 namespace PrestaShop\Module\PsAccounts\Tests\Unit\Http\Client\CircuitBreaker;
 
-use PHPUnit\Framework\TestCase;
 use PrestaShop\Module\PsAccounts\Factory\CircuitBreakerFactory;
 use PrestaShop\Module\PsAccounts\Http\Client\CircuitBreaker\CircuitBreaker;
 use PrestaShop\Module\PsAccounts\Http\Client\CircuitBreaker\State;
+use PrestaShop\Module\PsAccounts\Tests\TestCase;
 use PrestaShop\Module\PsAccounts\Vendor\GuzzleHttp\Exception\ConnectException;
 use PrestaShop\Module\PsAccounts\Vendor\GuzzleHttp\Psr7\Request;
 
@@ -39,9 +39,9 @@ class CircuitBreakerTest extends TestCase
      *
      * @throws \Exception
      */
-    public function setUp(): void
+    public function set_up()
     {
-        parent::setUp();
+        parent::set_up();
 
         $this->circuitBreaker = $this->createCircuitBreaker(
             'FOO_BAR',

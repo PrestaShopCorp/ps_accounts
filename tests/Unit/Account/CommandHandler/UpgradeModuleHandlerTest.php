@@ -50,9 +50,9 @@ class UpgradeModuleHandlerTest extends TestCase
      */
     protected $shopId = 1;
 
-    public function setUp(): void
+    public function set_up()
     {
-        parent::setUp();
+        parent::set_up();
 
         $this->firebaseToken = new Token((string) $this->makeJwtToken(new \DateTimeImmutable()), 'not-fresh');
         $this->firebaseRefreshedToken = new Token((string) $this->makeJwtToken(new \DateTimeImmutable('+1hour')), 'not-fresh');

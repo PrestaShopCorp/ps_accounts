@@ -42,9 +42,9 @@ class RefreshTokenTest extends TestCase
      */
     protected $validAccessToken;
 
-    function setUp(): void
+    function set_up()
     {
-        parent::setUp();
+        parent::set_up();
 
         $this->validAccessToken = $this->makeJwtToken(new \DateTimeImmutable('tomorrow'));
         $shopProvider = $this->createMock(ShopProvider::class);
@@ -70,9 +70,9 @@ class RefreshTokenTest extends TestCase
     /**
      * @return void
      */
-    public function tearDown(): void
+    public function tear_down()
     {
-        parent::tearDown();
+        parent::tear_down();
 
         $this->shopSession->cleanup();
     }
