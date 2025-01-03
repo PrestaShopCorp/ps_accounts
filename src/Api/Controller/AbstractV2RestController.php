@@ -106,7 +106,12 @@ abstract class AbstractV2RestController extends AbstractRestController
     {
         $defaultShopId = Context::getContext()->shop->id;
 
+        // FIXME: shop_id from query param
+        // FIXME: we probably don't want to post anything here because we can't ensure POST method will be available
+
         // FIXME: "PHP message: PHP Deprecated:  Automatically populating $HTTP_RAW_POST_DATA is deprecated and will be removed in a future version.
+        // FIXME: fallback on $_POST ??
+
         // To avoid this warning set 'always_populate_raw_post_data' to '-1' in php.ini and use the php://input stream instead. in Unknown on line 0"
         $json = file_get_contents('php://input');
         $payload = !empty($json) ? json_decode($json, true) : [];
@@ -141,7 +146,7 @@ abstract class AbstractV2RestController extends AbstractRestController
      *
      * @return mixed
      */
-    protected function extractMethod(array &$payload)
+    protected function extractMethod(array & $payload)
     {
         $method = $_SERVER['REQUEST_METHOD'];
         // detect method from payload (hack with some shop server configuration)
