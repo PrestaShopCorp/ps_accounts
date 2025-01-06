@@ -112,13 +112,13 @@ return [
                     $contents
                 );
             }
-            if ($filePath === __DIR__ . '/vendor/symfony/dependency-injection/Compiler/PassConfig.php') {
-                return str_replace(
-                    "'PrestaShop\\\\Module\\\\PsAccounts\\\\Vendor\\\\array_merge'",
-                    "'\\array_merge'",
-                    $contents
-                );
-            }
+//            if ($filePath === __DIR__ . '/vendor/symfony/dependency-injection/Compiler/PassConfig.php') {
+//                return str_replace(
+//                    "'PrestaShop\\\\Module\\\\PsAccounts\\\\Vendor\\\\array_merge'",
+//                    "'\\array_merge'",
+//                    $contents
+//                );
+//            }
 //            if ($filePath === __DIR__ . '/vendor/friendsofphp/php-cs-fixer/src/FixerFactory.php') {
 //                // $fixerClass = 'PhpCsFixer\\Fixer\\' . ($relativeNamespace ? $relativeNamespace . '\\' : '') . $file->getBasename('.php');
 //                return preg_replace(
@@ -143,15 +143,19 @@ return [
     //
     // For more information see: https://github.com/humbug/php-scoper/blob/master/docs/configuration.md#excluded-symbols
     'exclude-namespaces' => [
-        '~^PrestaShop\\\\OAuth2\\\\Client~',
+        //'~^PrestaShop\\\\OAuth2\\\\Client~',
         '~^Composer\\\\~',
-        '~^Symfony\\Polyfill\\Apcu\\',
-        '~^Symfony\\Polyfill\\Ctype\\',
-        '~^Symfony\\Polyfill\\IntlIdn\\',
-        '~^Symfony\\Polyfill\\IntlNormalizer\\',
-        '~^Symfony\\Polyfill\\Mbstring\\',
-        '~^Symfony\\Polyfill\\Php70\\',
-        '~^Symfony\\Polyfill\\Php72\\',
+        //'Monolog\\',
+        //'~^Symfony\\\\Component\\\\Config~',
+        //'Symfony\\Component\\Config\\',
+        // Polyfills can't be scoped by essence
+        'Symfony\\Polyfill\\Apcu\\',
+        'Symfony\\Polyfill\\Ctype\\',
+        'Symfony\\Polyfill\\IntlIdn\\',
+        'Symfony\\Polyfill\\IntlNormalizer\\',
+        'Symfony\\Polyfill\\Mbstring\\',
+        'Symfony\\Polyfill\\Php70\\',
+        'Symfony\\Polyfill\\Php72\\',
     ],
     'exclude-classes' => [],
     'exclude-functions' => [

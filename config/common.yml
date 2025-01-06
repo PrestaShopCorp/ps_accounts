@@ -1,0 +1,35 @@
+services:
+  ##########################
+  # Shared Services :
+  # Those services might be accessed directly from the core container
+  # by some modules.
+  # Doing so we maintain compatibility & ensure the same instance is provided.
+
+  PrestaShop\Module\PsAccounts\Service\PsAccountsService:
+    class: PrestaShop\Module\PsAccounts\Service\PsAccountsService
+    public: true
+    factory: ['PrestaShop\Module\PsAccounts\ServiceProvider\StaticProvider', 'provide']
+    arguments:
+      - 'PrestaShop\Module\PsAccounts\Service\PsAccountsService'
+
+  PrestaShop\Module\PsAccounts\Service\PsBillingService:
+    class: PrestaShop\Module\PsAccounts\Service\PsBillingService
+    public: true
+    factory: [ 'PrestaShop\Module\PsAccounts\ServiceProvider\StaticProvider', 'provide' ]
+    arguments:
+      - 'PrestaShop\Module\PsAccounts\Service\PsBillingService'
+
+  PrestaShop\Module\PsAccounts\Repository\UserTokenRepository:
+    class: PrestaShop\Module\PsAccounts\Repository\UserTokenRepository
+    public: true
+    factory: ['PrestaShop\Module\PsAccounts\ServiceProvider\StaticProvider', 'provide']
+    arguments:
+      - 'PrestaShop\Module\PsAccounts\Repository\UserTokenRepository'
+
+  PrestaShop\Module\PsAccounts\Presenter\PsAccountsPresenter:
+    class: PrestaShop\Module\PsAccounts\Presenter\PsAccountsPresenter
+    public: true
+    factory: ['PrestaShop\Module\PsAccounts\ServiceProvider\StaticProvider', 'provide']
+    arguments:
+      - 'PrestaShop\Module\PsAccounts\Presenter\PsAccountsPresenter'
+

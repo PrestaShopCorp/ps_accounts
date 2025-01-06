@@ -1,157 +1,179 @@
-
-# PrestaShop Account
+# PrestaShop Account module
 
 [![Source Code](https://img.shields.io/badge/source-PrestaShopCorp/ps_accounts-blue.svg?style=flat-square)](https://github.com/PrestaShopCorp/ps_accounts)
 [![Latest Version](https://img.shields.io/github/release/PrestaShopCorp/ps_accounts.svg?style=flat-square)](https://github.com/PrestaShopCorp/ps_accounts/releases)
-[![Software License](https://img.shields.io/badge/license-OSL-brightgreen.svg?style=flat-square)](https://github.com/PrestaShopCorp/oauth2-prestashop/blob/main/LICENSE)
-[![Build Status](https://img.shields.io/github/actions/workflow/status/PrestaShopCorp/ps_accounts/.github/workflows/php.yml?label=CI&logo=github&style=flat-square)](https://github.com/PrestaShopCorp/ps_accounts/actions?query=workflow%3ACI)
+[![Software License](https://img.shields.io/badge/license-OSL-brightgreen.svg?style=flat-square)](https://github.com/PrestaShopCorp/ps_accounts/blob/main/LICENSE)
+[![Build Status](https://img.shields.io/github/actions/workflow/status/PrestaShopCorp/ps_accounts/.github/workflows/accounts-qc-php.yml?label=CI&logo=github&style=flat-square)](https://github.com/PrestaShopCorp/ps_accounts/actions?query=workflow%3ACI)
+
+# Context
 
 The module **ps_accounts** is the interface between your module and PrestaShop's services. It manages:
-- Shop association and dissociation processes.
-- Maintain secure communication between shop and Prestashop services.
-- Synchronize basic informations about the shops (Shop Urls).
+- Shop association/dissociation process;
+- Providing tokens to communicate safely with PrestaShop services;
+- Synchronize basic informations about the shops (ex: shop URLs, name, ...).
 
-## Installation
+This module is a basis for other modules using PrestaShop services.
+
+# Installation
 
 If you need to install and test the module, [you can download the desired zip here](https://github.com/PrestaShopCorp/ps_accounts/releases).
 
-### Compatibility Matrix
+## Compatibility Matrix
 
 We aims to follow partially the Prestashop compatibility charts
 - [Compatibility Chart Prestashop 1.6 & 1.7](https://devdocs.prestashop.com/1.7/basics/installation/system-requirements/#php-compatibility-chart)
 - [Compatibility Chart Prestashop 8.0](https://devdocs.prestashop.com/8/basics/installation/system-requirements/#php-compatibility-chart)
+- [Compatibility Chart Prestashop 9.0](https://devdocs.prestashop.com/9/basics/installation/system-requirements/#php-compatibility-chart)
 
-| ps_accounts version | Prestashop Version | PHP Version    |
-|---------------------|-------------------|----------------|
-| 7.x (unified)       | \>=1.6 && <9.x    | PHP 5.6 - 8    |
-| 6.x                 | \>=8.0.0          | PHP 7.2 - 8    |
-| 5.x                 | \>=1.6 && <8.0.0  | PHP 5.6 - 7.4  |
+| ps_accounts version  | Prestashop Version   | PHP Version       |
+|----------------------|----------------------|-------------------|
+| ^7.0.9               | \>=1.6 && <= 9.x     | PHP 5.6 - 8       |
+| 7.x                  | \>=1.6 && <9.x       | PHP 5.6 - 8       |
+| ~~6.x (deprecated)~~ | ~~\>=8.0.0~~         | ~~PHP 7.2 - 8~~   |
+| ~~5.x (deprecated)~~ | ~~\>=1.6 && <8.0.0~~ | ~~PHP 5.6 - 7.4~~ |
 
-
-
-### Integration along with your Prestashop module
+# Integration along with your Prestashop module
 
 If you are integrating a module, you should have a look on the [PrestaShop Integration Framework Documentation](https://docs.cloud.prestashop.com/).
 
-## APIs
+## A preliminary note about PrestaShop modules ecosystem :
 
-Here are listed Open APIs provided by this module:
+### You should keep in mind that the PrestaShop Core
+- **_doesn't_** manage dependencies between modules;
+- **_doesn't_** manage composer dependencies globally.
 
-| HTTP Verb | Controller          | Method                  | Payload                     | Description                                          |
-|-----------|---------------------|-------------------------|-----------------------------|------------------------------------------------------|
-| GET       | AdminAjaxPsAccounts | getOrRefreshAccessToken | { token: "<access_token>" } | Return a token provided by [Prestashop OpenId Connect Provider](https://oauth.prestashop.com/.well-known/openid-configuration) when the user has been authenticated by this provider |
+### As a consequence you MUST
+- check by yourself that the PsAccounts module is installed;
+- ensure your vendor dependencies won't collide with existing ones.  
+  (loaded by other modules OR coming from the PrestaShop Core)
 
-Example: I want to get the authenticated user token in order make action on his behalf. The request would be `GET https://<shop-admin-url>/index.php?controller=AdminAjaxPsAccounts&action=getOrRefreshAccessToken&ajax=true&token=<token>` where `token` is a Prestashop Admin token.
+## Display the PrestaShop Account Component in your module :
 
-## Custom hooks
+### Load PsAccountsPresenter
+
+The presenter will give basic informations to the components through `contextPsAccounts` object accessible on the page.
+
+```php
+// My_module.php
+
+// /!\ TODO: Starting here you are responsible to check that the module is installed
+
+/** @var Ps_accounts $module */
+$module = \Module::getModuleIdByName('ps_accounts');
+
+/** @var \PrestaShop\Module\PsAccounts\Presenter\PsAccountsPresenter $presenter */
+$presenter = $module->getService(\PrestaShop\Module\PsAccounts\Presenter\PsAccountsPresenter::class);
+
+Media::addJsDef([
+    'contextPsAccounts' => $presenter->present((string) $this->name),
+]);
+
+return $this->display(__FILE__, 'views/templates/admin/app.tpl');
+```
+Alternatively you can still use : [PrestaShop Accounts Installer](http://github.com/PrestaShopCorp/prestashop-accounts-installer) for more details on how to setup Installer.
+
+### Load and init the component on your page
+
+For detailed usage you can follow the component's documentation : [prestashop_accounts_vue_components](https://github.com/PrestaShopCorp/prestashop_accounts_vue_components)
+
+## How to get up to date (legacy) JWT Tokens
+
+### About tokens provided :
+
+All the [JWT](https://datatracker.ietf.org/doc/html/rfc7519) tokens exposed follow the OpenId Connect Token and Access Tokens [Specs](https://openid.net/specs/openid-connect-core-1_0.html#IDToken).
+
+This module provides the following tokens:
+
+- **ShopToken** _(legacy Firebase tokens)_  
+  This token can be used to act as the shop. It should be used only for machine to machine communication without user interaction
+- **OwnerToken** _(legacy Firebase tokens)_  
+  This token is created for the shop owner who associate the shop.
+- **ShopAccessToken** (provided by [Prestashop OpenId Connect Provider](https://oauth.prestashop.com/.well-known/openid-configuration))  
+  For machine to machine calls. (also used to keep up to date legacy Shop and Owner tokens
+
+### Using PsAccountsService (recommended) :
+```php
+// /!\ TODO: Starting here you are responsible to check that the module is installed
+
+/** @var Ps_accounts $module */
+$module = \Module::getModuleIdByName('ps_accounts');
+
+/** @var \PrestaShop\Module\PsAccounts\Service\PsAccountsService $service */
+$service = $module->getService(\PrestaShop\Module\PsAccounts\Service\PsAccountsService::class);
+
+// With this one you can call your API's as the PrestaShop Account Shop
+$jwtShop = $service->getOrRefreshToken();
+
+// With this one you can call your API's as the PrestaShop Account Shop Owner
+$jwtOwner = $service->getUserToken();
+```
+
+[//]: # (OR :)
+
+[//]: # ()
+[//]: # (```php)
+
+[//]: # (use PrestaShop\PsAccountsInstaller\Installer\Installer;)
+
+[//]: # (use PrestaShop\PsAccountsInstaller\Installer\Facade\PsAccounts;)
+
+[//]: # ()
+[//]: # (define&#40;'MIN_PS_ACCOUNTS_VERSION', '7.0.0'&#41;;)
+
+[//]: # ()
+[//]: # ($facade = new PsAccounts&#40;new Installer&#40;MIN_PS_ACCOUNTS_VERSION&#41;&#41;;)
+
+[//]: # ()
+[//]: # (// Get or refresh shop token)
+
+[//]: # ($shopToken = $facade->getPsAccountsService&#40;&#41;->getOrRefreshToken&#40;&#41;;)
+
+[//]: # ()
+[//]: # (// Get or refresh shop owner token )
+
+[//]: # ($ownerToken = $facade->getPsAccountsService&#40;&#41;->getUserToken&#40;&#41;;)
+
+[//]: # (```)
+
+### Calling AJAX controller in backend context :
+That way you will retrieve an up to date **Shop Token**
+```js
+const response = await fetch("https://<shop-admin-url>/index.php", {
+  ajax: true,
+  controller: 'AdminAjaxPsAccounts',
+  action: 'getOrRefreshAccessToken',
+  token: '<admin_token>',
+});
+```
+With the given response :
+```json
+{ 
+  "token": "<access_token>"
+}
+```
+
+## Provided hooks
 
 Here are listed custom hooks provided with this module:
 
-| Hook name                         | Payload          | Description                                          |
-|-----------------------------------|------------------|------------------------------------------------------|
-| actionShopAccountLinkAfter        | shopId, shopUuid | Triggered after link has been acknowledged by shop   |
-| actionShopAccountUnlinkAfter      | shopId, shopUuid | Triggered after unlink has been acknowledged by shop |
-| actionShopAccessTokenRefreshAfter | token            | Trigger after OAuth access token has been refreshed  |
+| hook                              | params           | description                                  |
+|-----------------------------------|------------------|----------------------------------------------|
+| actionShopAccountLinkAfter        | shopId, shopUuid | Triggered after link shop acknowledged       |
+| actionShopAccountUnlinkAfter      | shopId, shopUuid | Triggered after unlink shop acknowledged     |
+| actionShopAccessTokenRefreshAfter | token            | Triggered after OAuth access token refreshed |
 
+# Building the module locally
 
-## JWT
+In case you need to build a zip by yourself :
 
-[JSON Web Token RFC (JWT)](https://datatracker.ietf.org/doc/html/rfc7519).
-
-All the tokens exposed follow the OpenId Connect Token and Access Tokens [Specs](https://openid.net/specs/openid-connect-core-1_0.html#IDToken).
-
-This modules manages the following tokens:
-
-| JWT Name                  | Status         | Description                                                                                                                     |
-|---------------------------|----------------|---------------------------------------------------------------------------------------------------------------------------------|
-| Shop Token (legacy)       | Deprecated 7.x | This token can be used to act as the shop. It should be used only for machine to machine communication without user interaction |
-| Shop Owner Token (legacy) | Deprecated 7.X | This token is created for the owner who associate the shop.                                                                     |
-| Authenticated User Token  | Introduced 6.x | ex: Backend Login with PrestaShop SSO                                                                                           |
-| OAuth Shop Access Token   | Introduced 7.X | For machine to machine calls. (also used to keep up to date legacy Shop and Owner tokens).                                      |
-
-## Development
-
-This module has three parts:
-- [PS Accounts module](http://github.com/PrestaShopCorp/ps_accounts)
-  - This module must be installed.
-  - It's your interface between your module and PrestaShop Accounts service.
-- [PS Accounts Installer (Composer Library)](http://github.com/PrestaShopCorp/prestashop-accounts-installer)
-  - This library's role is here to compensate a lack of security between modules dependencies. If PS Accounts is removed while your module is still installed: it causes a crash of the PrestaShop module's page/feature.
-  - This library is here to install automatically PS Accounts if it's missing.
-  - It's your interface between your module and PrestaShop Accounts module
-  - You should never require directly PrestaShop\Module\PsAccounts namespace classes
-- [PrestaShop Accounts Vue Components](http://github.com/PrestaShopCorp/prestashop_accounts_vue_components)
-  - It's the front-end component you need to integrate into your module's configuration page.
-
-## How to start working with PS Accounts as a PSx or Community Service developer?
-
-- [Read the official documentation here](https://devdocs.prestashop-project.org/8/modules/)
-- Clone this repository
-- Copy paste the `config/config.yml.dist` to `config/config.yml`
-
-### Testing
-
-This repository has a Makefile. Just run for running phpunit `make phpunit` and `make phpstan`.
-
-### JWT
-
-We use JWTs for 2 types of account: the user account and the shop account.
-What we're identifying when we link a PrestaShop shop is **a shop**. A shop belongs to 1 owner (user).
-
-There are 2 Firebase projects:
-- **prestashop-newsso-production** is the Firebase Authentication project we're using to authenticate **users** _(prestashop-newsso-staging) for staging environment_
-- **prestashop-ready-prod** is the Firebase Authentication project we're using to authenticate **shops** _(psessentials-integration) for integration environment_
-
-### How to get upd to date (legacy) JWT Tokens
-
-```php
-use PrestaShop\PsAccountsInstaller\Installer\Installer;
-use PrestaShop\PsAccountsInstaller\Installer\Facade\PsAccounts;
-
-define('MIN_PS_ACCOUNTS_VERSION', '4.0.0');
-
-$facade = new PsAccounts(new Installer(MIN_PS_ACCOUNTS_VERSION));
-
-// Get or refresh shop token
-$shopToken = $facade->getPsAccountsService()->getOrRefreshToken();
-
-// Get or refresh shop owner token 
-$ownerToken = $facade->getPsAccountsService()->getUserToken();
+```shell
+  cp config.dist.php config.php
+  make
 ```
 
-see: [PrestaShop Accounts Installer](http://github.com/PrestaShopCorp/prestashop-accounts-installer) for more details on how to setup Installer.
+OR with multiple environments :
 
-## Breaking Changes
-
-### Removal of the environment variables
-This module don't use a .env file as a configuration file. We are now using YAML files with a Symfony service container to configure services and their injected dependencies as well as configuration parameters.
-You can copy and paste the `config.yml.dist` to `config.yml` but you **MUST NOT COMMIT THIS FILE**
-
-### Composer dependency `prestashop_accounts_auth` deprecated
-This library will be deprecated and no longer needed.
-Please remove it from your module's dependencies.
-
-### New composer dependency `prestashop-accounts-installer`
-**Do not directly import PrestaShop Accounts classes**
-
-If you need to call PrestaShop Accounts public classes's methods, you need to use the service container.
-
-see: [PrestaShop Accounts Installer](http://github.com/PrestaShopCorp/prestashop-accounts-installer)
-
-### PS EventBus is no longer installed for 1.6.x versions
-
-The ps_eventbus module is no longer installed automatically for Prestashop version <1.7.
-
-### APIs removal
-
-Those API has been removed:
-- `/carts`
-- `/categories`
-- `/deletedObjects`
-- `/googleTaxonomies`
-- `/apiHealthCheck`
-- `/info`
-- `/modules`
-- `/orders`
-- `/products`
-- `/themes`
+```shell
+  cp config.dist.php config.myenv.php
+  BUNDLE_ENV=myenv make
+```

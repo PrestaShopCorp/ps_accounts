@@ -21,51 +21,99 @@
 namespace PrestaShop\Module\PsAccounts\Log;
 
 use PrestaShop\Module\PsAccounts\Vendor\Monolog\Handler\RotatingFileHandler;
-use PrestaShop\Module\PsAccounts\Vendor\Monolog\Logger as MonoLogger;
+use PrestaShop\Module\PsAccounts\Vendor\Monolog\Logger as MonologLogger;
 use Ps_accounts;
 
 class Logger
 {
+    /**
+     * Detailed debug information
+     *
+     * @var string
+     */
     const DEBUG = 'DEBUG';
+
+    /**
+     * Interesting events
+     *
+     * @var string
+     */
     const INFO = 'INFO';
+
+    /**
+     * Uncommon events
+     *
+     * @var string
+     */
     const NOTICE = 'NOTICE';
+
+    /**
+     * Exceptional occurrences that are not errors
+     *
+     * @var string
+     */
     const WARNING = 'WARNING';
+
+    /**
+     * Runtime errors
+     *
+     * @var string
+     */
     const ERROR = 'ERROR';
+
+    /**
+     * Critical conditions
+     *
+     * @var string
+     */
     const CRITICAL = 'CRITICAL';
+
+    /**
+     * Action must be taken immediately
+     *
+     * @var string
+     */
     const ALERT = 'ALERT';
+
+    /**
+     * Urgent alert.
+     *
+     * @var string
+     */
     const EMERGENCY = 'EMERGENCY';
+
+    /**
+     * Number of files to rotate
+     *
+     * @var int
+     */
     const MAX_FILES = 15;
 
     /**
-     * @param string|null $logLevel
-     *
-     * @return MonoLogger
+     * @var int
      */
-    public static function create($logLevel = null)
+    const DEFAULT_MONOLOG_LEVEL = MonologLogger::ERROR;
+
+    /**
+     * @param string $level
+     *
+     * @return MonologLogger
+     */
+    public static function create($level = '')
     {
-        $logLevel = self::getLevel($logLevel);
-        $monologLevel = MonoLogger::toMonologLevel($logLevel);
-        if (!is_int($monologLevel)) {
-            $monologLevel = MonoLogger::ERROR;
-        }
-
-        $path = _PS_ROOT_DIR_ . '/var/logs/ps_accounts';
-
-        if (version_compare(_PS_VERSION_, '1.7', '<')) {
-            $path = _PS_ROOT_DIR_ . '/log/ps_accounts';
-        } elseif (version_compare(_PS_VERSION_, '1.7.4', '<')) {
-            $path = _PS_ROOT_DIR_ . '/app/logs/ps_accounts';
-        }
-
-        $rotatingFileHandler = new RotatingFileHandler($path, static::MAX_FILES, $monologLevel);
-        $logger = new MonoLogger('ps_accounts');
-        $logger->pushHandler($rotatingFileHandler);
-
-        return $logger;
+        return (new MonologLogger('ps_accounts'))->pushHandler(
+            new RotatingFileHandler(
+                self::getPath(),
+                static::MAX_FILES,
+                self::getMonologLevel($level)
+            )
+        );
     }
 
     /**
-     * @return Monologger
+     * FIXME: misnamed method
+     *
+     * @return MonologLogger
      */
     public static function getInstance()
     {
@@ -76,21 +124,30 @@ class Logger
     }
 
     /**
-     * @param string|null $logLevel
-     * @param string $parameter
-     *
-     * @return mixed
+     * @return string
      */
-    public static function getLevel($logLevel, $parameter = 'ps_accounts.log_level')
+    protected static function getPath()
     {
-        if ($logLevel === null) {
-            /** @var Ps_accounts $psAccounts */
-            $psAccounts = \Module::getInstanceByName('ps_accounts');
-            if ($psAccounts->hasParameter($parameter)) {
-                $logLevel = $psAccounts->getParameter($parameter);
-            }
+        $path = _PS_ROOT_DIR_ . '/var/logs/ps_accounts';
+        if (version_compare(_PS_VERSION_, '1.7', '<')) {
+            $path = _PS_ROOT_DIR_ . '/log/ps_accounts';
+        } elseif (version_compare(_PS_VERSION_, '1.7.4', '<')) {
+            $path = _PS_ROOT_DIR_ . '/app/logs/ps_accounts';
         }
 
-        return $logLevel;
+        return $path;
+    }
+
+    /**
+     * @param string $level
+     * @param int $default
+     *
+     * @return int
+     */
+    protected static function getMonologLevel($level, $default = self::DEFAULT_MONOLOG_LEVEL)
+    {
+        $logLevel = MonologLogger::toMonologLevel($level);
+        /* @phpstan-ignore-next-line */
+        return is_int($logLevel) ? $logLevel : $default;
     }
 }

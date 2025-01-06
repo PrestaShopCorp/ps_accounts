@@ -5,6 +5,7 @@ translations
 upgrade
 vendor
 views
+config
 config.php
 config.local.php
 config.prod.php

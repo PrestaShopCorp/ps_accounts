@@ -1,7 +1,8 @@
 psr
 guzzlehttp
 league
-prestashopcorp
+prestashopcorp/oauth2-prestashop
+prestashopcorp/lightweight-container
 lcobucci
 monolog
 ramsey/uuid

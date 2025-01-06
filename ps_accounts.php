@@ -34,7 +34,7 @@ class Ps_accounts extends Module
 
     // Needed in order to retrieve the module version easier (in api call headers) than instanciate
     // the module each time to get the version
-    const VERSION = '7.0.8';
+    const VERSION = '7.0.9';
 
     /**
      * Admin tabs
@@ -102,21 +102,21 @@ class Ps_accounts extends Module
         'displayDashboardTop',
 
         // toggle single/multi-shop
-//        'actionObjectShopAddAfter',
-//        'actionObjectShopDeleteAfter',
+        //'actionObjectShopAddAfter',
+        //'actionObjectShopDeleteAfter',
 
         // Login/Logout OAuth
         // PS 1.6 - 1.7
         'displayBackOfficeHeader',
         'actionAdminLoginControllerSetMedia',
         // PS >= 8
-//        'actionAdminControllerInitBefore',
+        //'actionAdminControllerInitBefore',
     ];
 
-//    /**
-//     * @var \PrestaShop\Module\PsAccounts\DependencyInjection\ServiceContainer
-//     */
-//    private $serviceContainer;
+    /**
+     * @var \PrestaShop\Module\PsAccounts\ServiceContainer\PsAccountsContainer
+     */
+    private $moduleContainer;
 
     /**
      * Ps_accounts constructor.
@@ -131,7 +131,7 @@ class Ps_accounts extends Module
 
         // We cannot use the const VERSION because the const is not computed by addons marketplace
         // when the zip is uploaded
-        $this->version = '7.0.8';
+        $this->version = '7.0.9';
 
         $this->module_key = 'abf2cd758b4d629b2944d3922ef9db73';
 
@@ -191,8 +191,6 @@ class Ps_accounts extends Module
 
         $this->onModuleReset();
 
-        $this->getLogger()->info('Install - Loading ' . $this->name . ' Env : [' . $this->getModuleEnv() . ']');
-
         return $status;
     }
 
@@ -218,6 +216,7 @@ class Ps_accounts extends Module
      */
     public function getCoreServiceContainer()
     {
+        /* @phpstan-ignore-next-line */
         if (method_exists($this, 'getContainer')) {
             return $this->getContainer();
         }
@@ -230,13 +229,19 @@ class Ps_accounts extends Module
     }
 
     /**
-     * @return \PrestaShop\Module\PsAccounts\ServiceContainer\ServiceContainer
+     * @return \PrestaShop\Module\PsAccounts\ServiceContainer\PsAccountsContainer
      *
      * @throws Exception
      */
     public function getServiceContainer()
     {
-        return \PrestaShop\Module\PsAccounts\ServiceContainer\ServiceContainer::getInstance();
+        if (null === $this->moduleContainer) {
+            $this->moduleContainer = (new \PrestaShop\Module\PsAccounts\ServiceContainer\PsAccountsContainer(
+                __DIR__ . '/config.php'
+            ))->init();
+        }
+
+        return $this->moduleContainer;
     }
 
     /**
@@ -247,6 +252,16 @@ class Ps_accounts extends Module
     public function getService($serviceName)
     {
         return $this->getServiceContainer()->getService($serviceName);
+    }
+
+    /**
+     * @param string $serviceName
+     *
+     * @return bool
+     */
+    public function hasService($serviceName)
+    {
+        return $this->getServiceContainer()->has($serviceName);
     }
 
     /**
@@ -303,46 +318,29 @@ class Ps_accounts extends Module
      * @param array $customHooks
      *
      * @return bool
-     *
-     * @throws PrestaShopDatabaseException
-     * @throws PrestaShopException
      */
     public function addCustomHooks($customHooks)
     {
         $ret = true;
-
         foreach ($customHooks as $customHook) {
-            $verify = true;
-            if ((bool) Hook::getIdByName($customHook['name']) === false) {
-                $hook = new Hook();
-                $hook->name = $customHook['name'];
-                $hook->title = $customHook['title'];
-                $hook->description = $customHook['description'];
-                $hook->position = $customHook['position'];
-                $verify = $hook->add(); // return true on success
+            try {
+                $verify = true;
+                if ((bool) Hook::getIdByName($customHook['name']) === false) {
+                    $hook = new Hook();
+                    $hook->name = $customHook['name'];
+                    $hook->title = $customHook['title'];
+                    $hook->description = $customHook['description'];
+                    $hook->position = $customHook['position'];
+                    $verify = $hook->add(); // return true on success
+                }
+                $ret = $ret && $verify;
+            } catch (\Throwable $e) {
+                /* @phpstan-ignore-next-line */
+            } catch (\Exception $e) {
             }
-            $ret = $ret && $verify;
         }
 
         return $ret;
-    }
-
-    /**
-     * @return string
-     */
-    public function getModuleEnvVar()
-    {
-        return strtoupper((string) $this->name) . '_ENV';
-    }
-
-    /**
-     * @param string $default
-     *
-     * @return string
-     */
-    public function getModuleEnv($default = null)
-    {
-        return getenv($this->getModuleEnvVar()) ?: $default ?: self::DEFAULT_ENV;
     }
 
     /**
@@ -373,40 +371,6 @@ class Ps_accounts extends Module
         ]);
 
         return $this->display(__FILE__, 'views/templates/admin/app.tpl');
-    }
-
-    /**
-     * @return mixed
-     *
-     * @throws Exception
-     */
-    public function renderUpdateWarningView()
-    {
-        if ($this->getShopContext()->isShop173()) {
-            /* @phpstan-ignore-next-line */
-            return PrestaShop\PrestaShop\Adapter\SymfonyContainer::getInstance()
-                ->get('twig')
-                ->render('@Modules/ps_accounts/views/templates/backoffice/update_url_warning.twig');
-        } else {
-            return '';
-        }
-    }
-
-    /**
-     * @return mixed
-     *
-     * @throws Exception
-     */
-    public function renderDeleteWarningView()
-    {
-        if ($this->getShopContext()->isShop173()) {
-            /* @phpstan-ignore-next-line */
-            return PrestaShop\PrestaShop\Adapter\SymfonyContainer::getInstance()
-                ->get('twig')
-                ->render('@Modules/ps_accounts/views/templates/backoffice/delete_url_warning.twig');
-        } else {
-            return '';
-        }
     }
 
     /**
@@ -479,22 +443,6 @@ class Ps_accounts extends Module
     }
 
     /**
-     * @deprecated
-     *
-     * @return void
-     *
-     * @throws PrestaShopException
-     *
-     * @phpstan-ignore-next-line
-     */
-    private function autoReonboardOnV5()
-    {
-        /** @var \PrestaShop\Module\PsAccounts\Service\PsAccountsService $psAccountsService */
-        $psAccountsService = $this->getService(\PrestaShop\Module\PsAccounts\Service\PsAccountsService::class);
-        $psAccountsService->autoReonboardOnV5();
-    }
-
-    /**
      * @return void
      *
      * @throws Exception
@@ -512,9 +460,6 @@ class Ps_accounts extends Module
         // FIXME: this wont prevent from re-implanting override on reset of module
         $uninstaller = new PrestaShop\Module\PsAccounts\Module\Uninstall($this, Db::getInstance());
         $uninstaller->deleteAdminTab('AdminLogin');
-
-//        $this->installEventBus();
-//        $this->autoReonboardOnV5();
     }
 }
 

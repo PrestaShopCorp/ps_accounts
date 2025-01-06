@@ -18,27 +18,20 @@
  * @license   https://opensource.org/licenses/AFL-3.0 Academic Free License version 3.0
  */
 
-namespace PrestaShop\Module\PsAccounts\Account\Command;
+namespace PrestaShop\Module\PsAccounts\ServiceProvider;
 
-class MigrateAndLinkV4ShopCommand
+class StaticProvider
 {
     /**
-     * @var int
+     * @param string $serviceName
+     *
+     * @return mixed
      */
-    public $shopId;
-
-    /**
-     * @var array
-     */
-    public $payload;
-
-    /**
-     * @param int $shopId
-     * @param array $payload
-     */
-    public function __construct($shopId, array $payload)
+    public static function provide($serviceName)
     {
-        $this->shopId = $shopId;
-        $this->payload = $payload;
+        /** @var \Ps_accounts $module */
+        $module = \Module::getInstanceByName('ps_accounts');
+
+        return $module->getService($serviceName);
     }
 }

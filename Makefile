@@ -8,8 +8,8 @@ MODULE ?= $(shell basename ${PWD})
 CURRENT_UID := $(shell id -u)
 CURRENT_GID := $(shell id -g)
 WORKDIR ?= .
-PS_VERSION ?= base-8.2-fpm-alpine
-TESTING_IMAGE ?= prestashop/prestashop-flashlight:${PS_VERSION}
+TESTING_IMAGE_TAG ?= base-8.2-fpm-alpine
+TESTING_IMAGE ?= prestashop/prestashop-flashlight:${TESTING_IMAGE_TAG}
 
 default: bundle
 
@@ -32,13 +32,13 @@ version:
 # PLATFORM
 
 PLATFORM_REPO ?= prestashop/prestashop-flashlight
-PLATFORM_REPO_TAG ?= 8.1.5-7.4
-PLATFORM_IMAGE ?= ${PLATFORM_REPO}:${PHPUNIT_TAG}
+PLATFORM_TAG ?= 8.1.5-7.4
+PLATFORM_IMAGE ?= ${PLATFORM_REPO}:${PLATFORM_TAG}
 PLATFORM_COMPOSE_FILE ?= docker-compose.flashlight.yml
 
 COMPOSER_FILE ?= composer.json
 .PHONY: tests/vendor
-tests/vendor:
+tests/vendor: composer.phar
 #	rm -rf ./tests/vendor
 	env COMPOSER=${COMPOSER_FILE} ${COMPOSER} install --working-dir=./tests/ --quiet
 
@@ -72,13 +72,16 @@ platform-phpstan-config:
 		sh -c "if [ -f ./phpstan/${NEON_FILE} ]; then cp ./phpstan/${NEON_FILE} ./phpstan/phpstan.neon; fi"
 
 platform-module-install: tests/vendor platform-phpstan-config config.php platform-module-version
-	-@docker exec phpunit sh -c "if [ -f ./bin/console ]; then php -d memory_limit=-1 ./bin/console prestashop:module install ps_accounts; fi"
-	-@docker exec phpunit sh -c "if [ ! -f ./bin/console ]; then php -d memory_limit=-1 ./modules/ps_accounts/tests/install-module.php; fi"
+	@docker exec phpunit sh -c "if [ -f ./bin/console ]; then php -d memory_limit=-1 ./bin/console prestashop:module install ps_accounts; fi"
+	@docker exec phpunit sh -c "if [ ! -f ./bin/console ]; then php -d memory_limit=-1 ./modules/ps_accounts/tests/install-module.php; fi"
 
 platform-fix-permissions:
 	@docker exec phpunit sh -c "if [ -d ./var ]; then chown -R www-data:www-data ./var; fi"
 	@docker exec phpunit sh -c "if [ -d ./cache ]; then chown -R www-data:www-data ./cache; fi" # PS1.6
 	@docker exec phpunit sh -c "if [ -d ./log ]; then chown -R www-data:www-data ./log; fi" # PS1.6
+
+#platform-status:
+#	COMPOSER=composer71.json ./composer.phar outdated --locked -m --working-dir=./tests/
 
 #phpunit-xdebug:
 #	-@docker exec phpunit sh -c "docker-php-ext-enable xdebug"
@@ -97,7 +100,7 @@ define build-platform
 	$(eval neonfile = $(if $(neonfile:-=),$(neonfile),${NEON_FILE}))
 
 	PLATFORM_REPO=$(repo) \
-	PHPUNIT_TAG=$(tag) \
+	PLATFORM_TAG=$(tag) \
 	PLATFORM_COMPOSE_FILE=.docker/$(shell echo 'docker-compose.'$(repo)'.yml' | sed 's/\//@/') \
 	COMPOSER_FILE=${composer} \
 	NEON_FILE=${neonfile} \
@@ -134,6 +137,9 @@ platform-1.7.8.5-7.4:
 	$(call build-platform,$@)
 
 platform-8.1.5-7.4:
+	$(call build-platform,$@)
+
+platform-8.2.0-8.1:
 	$(call build-platform,$@)
 
 platform-nightly:
@@ -190,15 +196,16 @@ header-stamp-test:
 	phpunit ./tests/vendor/bin/header-stamp \
 	--target="${WORKDIR}" \
 	--license=./tests/vendor/prestashop/header-stamp/assets/afl.txt \
-	--exclude=.github,node_modules,vendor,dist,tests,_dev \
+	--exclude=.github,node_modules,vendor,dist,tests,e2e,e2e-env,_dev \
 	--dry-run
 
+# 1.6.1.24-5.6-fpm-stretch
 header-stamp:
 	@docker exec -w ${CONTAINER_INSTALL_DIR} \
 	phpunit ./tests/vendor/bin/header-stamp \
 	--target="${WORKDIR}" \
 	--license=./tests/vendor/prestashop/header-stamp/assets/afl.txt \
-	--exclude=.github,node_modules,vendor,dist,tests,_dev
+	--exclude=.github,node_modules,vendor,dist,tests,e2e,e2e-env,_dev
 
 #phpstan16: NEON_FILE := phpstan-PS-1.6.neon
 #phpstan16: phpstan
@@ -224,7 +231,7 @@ phpunit-nightly:                  platform-nightly                  phpunit
 
 #"latest", "1.7.6.5", "1.6.1.21"
 phpstan-1.6.1.24-7.1: platform-1.6.1.24-7.1 phpstan
-phpstan-1.7.7.8-7.1:  platform-1.7.7.8-7.1  phpstan
+phpstan-8.1.5-7.4:    platform-8.1.5-7.4    phpstan
 
 php-cs-fixer-test-1.6.1.24-5.6-fpm-stretch: platform-1.6.1.24-5.6-fpm-stretch platform-php-cs-fixer-test
 php-cs-fixer-1.6.1.24-5.6-fpm-stretch: platform-1.6.1.24-5.6-fpm-stretch platform-php-cs-fixer
@@ -312,6 +319,16 @@ php-cs-fixer: tests/vendor
 autoindex: COMPOSER_FILE := composer56.json
 autoindex: tests/vendor
 	${PHP} ./tests/vendor/bin/autoindex prestashop:add:index "${WORKDIR}"
+
+#HEADER_STAMP_DRY_RUN ?= ''
+#header-stamp: COMPOSER_FILE := composer56.json
+#header-stamp: tests/vendor
+#	${PHP} -d error_reporting=1 ./tests/vendor/bin/header-stamp --target="${WORKDIR}" ${HEADER_STAMP_DRY_RUN} \
+#		--license="assets/afl.txt" --exclude=".github,node_modules,vendor,vendor,tests,_dev"
+#
+#header-stamp-test: COMPOSER_FILE := composer56.json
+#header-stamp-test: HEADER_STAMP_DRY_RUN := '--dry-run'
+#header-stamp-test: tests/vendor header-stamp
 
 ##########################################################
 COMPOSER_OPTIONS ?= --prefer-dist -o --no-dev --quiet
