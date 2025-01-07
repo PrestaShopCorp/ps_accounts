@@ -24,6 +24,9 @@ use PrestaShop\Module\PsAccounts\Adapter\Link;
 use PrestaShop\Module\PsAccounts\Vendor\League\OAuth2\Client\Provider\AbstractProvider;
 use PrestaShop\Module\PsAccounts\Vendor\PrestaShop\OAuth2\Client\Provider\PrestaShop;
 
+/**
+ * @deprecated
+ */
 class ShopProvider extends PrestaShop
 {
     const QUERY_LOGOUT_CALLBACK_PARAM = 'oauth2Callback';

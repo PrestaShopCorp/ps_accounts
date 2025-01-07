@@ -31,7 +31,7 @@ class AccountsClient
     /**
      * @var string
      */
-    private $apiUrl;
+    private $baseUri;
 
     /**
      * @var HttpClient
@@ -44,22 +44,26 @@ class AccountsClient
     private $defaultTimeout;
 
     /**
+     * @var bool
+     */
+    protected $sslCheck;
+
+    /**
      * ServicesAccountsClient constructor.
      *
-     * @param string $apiUrl
-     * @param HttpClient|null $client
+     * @param string $baseUri
      * @param int $defaultTimeout
      *
      * @throws \Exception
      */
     public function __construct(
-        $apiUrl,
-        HttpClient $client = null,
-        $defaultTimeout = 20
+        $baseUri,
+        $defaultTimeout = 20,
+        $sslCheck = true
     ) {
-        $this->apiUrl = $apiUrl;
-        $this->client = $client;
+        $this->baseUri = $baseUri;
         $this->defaultTimeout = $defaultTimeout;
+        $this->sslCheck = $sslCheck;
     }
 
     /**
@@ -70,9 +74,10 @@ class AccountsClient
         if (null === $this->client) {
             $this->client = (new HttpClientFactory())->create([
                 'name' => static::class,
-                'base_uri' => $this->apiUrl,
+                'baseUri' => $this->baseUri,
                 'headers' => $this->getHeaders(),
                 'timeout' => $this->defaultTimeout,
+                'sslCheck' => $this->sslCheck,
             ]);
         }
 

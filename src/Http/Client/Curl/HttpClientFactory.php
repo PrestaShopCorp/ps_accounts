@@ -20,8 +20,6 @@
 
 namespace PrestaShop\Module\PsAccounts\Http\Client\Curl;
 
-use PrestaShop\Module\PsAccounts\Http\Client\Curl\HttpClient;
-
 /**
  * Construct the guzzle client depending on PrestaShop version
  */

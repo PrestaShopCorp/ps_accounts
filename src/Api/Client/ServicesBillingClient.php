@@ -59,7 +59,7 @@ class ServicesBillingClient
         // Client can be provided for tests
         if (null === $client) {
             $client = (new HttpClientFactory())->create([
-                'base_uri' => $apiUrl,
+                'baseUri' => $apiUrl,
                 'headers' => [
                     // Commented, else does not work anymore with API.
                     //'Content-Type' => 'application/vnd.accounts.v1+json', // api version to use

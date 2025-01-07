@@ -20,7 +20,9 @@
 
 namespace PrestaShop\Module\PsAccounts\ServiceProvider;
 
+use PrestaShop\Module\PsAccounts\Adapter\Link;
 use PrestaShop\Module\PsAccounts\Api\Client\AccountsClient;
+use PrestaShop\Module\PsAccounts\Api\Client\OAuth2Client;
 use PrestaShop\Module\PsAccounts\Api\Client\ServicesBillingClient;
 use PrestaShop\Module\PsAccounts\Provider\ShopProvider;
 use PrestaShop\Module\PsAccounts\Service\PsAccountsService;
@@ -39,8 +41,18 @@ class ApiClientProvider implements IServiceProvider
         $container->registerProvider(AccountsClient::class, static function () use ($container) {
             return new AccountsClient(
                 $container->getParameter('ps_accounts.accounts_api_url'),
-                null,
-                10
+                10,
+                $container->getParameter('ps_accounts.check_api_ssl_cert')
+            );
+        });
+        $container->registerProvider(OAuth2Client::class, static function () use ($container) {
+            return new OAuth2Client(
+                $container->getParameter('ps_accounts.oauth2_url'),
+                $container->get(\PrestaShop\Module\PsAccounts\Provider\OAuth2\Oauth2Client::class),
+                $container->get(Link::class),
+                _PS_CACHE_DIR_ . DIRECTORY_SEPARATOR . 'ps_accounts',
+                10,
+                $container->getParameter('ps_accounts.check_api_ssl_cert')
             );
         });
         $container->registerProvider(ServicesBillingClient::class, static function () use ($container) {

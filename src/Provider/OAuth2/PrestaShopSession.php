@@ -20,9 +20,8 @@
 
 namespace PrestaShop\Module\PsAccounts\Provider\OAuth2;
 
-use PrestaShop\Module\PsAccounts\Vendor\League\OAuth2\Client\Provider\Exception\IdentityProviderException;
-use PrestaShop\Module\PsAccounts\Vendor\League\OAuth2\Client\Token\AccessToken;
-use PrestaShop\Module\PsAccounts\Vendor\PrestaShop\OAuth2\Client\Provider\PrestaShopUser;
+use PrestaShop\Module\PsAccounts\Account\Token\Token;
+use PrestaShop\Module\PsAccounts\Api\Client\OAuth2Client as Oauth2ApiClient;
 use Symfony\Component\HttpFoundation\Session\SessionInterface;
 
 class PrestaShopSession
@@ -35,37 +34,51 @@ class PrestaShopSession
     private $session;
 
     /**
-     * @var ShopProvider
+     * @var Oauth2ApiClient
      */
-    private $provider;
+    private $oauth2ApiClient;
+
+    /**
+     * @var Oauth2Client
+     */
+    private $oauth2Client;
 
     /**
      * @param mixed $session
-     * @param ShopProvider $provider
+     * @param Oauth2ApiClient $oauth2ApiClient
+     * @param Oauth2Client $oauth2Client
      */
-    public function __construct($session, ShopProvider $provider)
+    public function __construct($session, Oauth2ApiClient $oauth2ApiClient, Oauth2Client $oauth2Client)
     {
         $this->session = $session;
-        $this->provider = $provider;
+        $this->oauth2ApiClient = $oauth2ApiClient;
+        $this->oauth2Client = $oauth2Client;
     }
 
     /**
      * @return string|null
-     *
-     * @throws IdentityProviderException
      */
     public function getOrRefreshAccessToken()
     {
         $token = $this->getTokenProvider();
-        if (($token instanceof AccessToken) && $token->hasExpired()) {
-            /** @var AccessToken $token */
-            $token = $this->provider->getAccessToken('refresh_token', [
-                'refresh_token' => $token->getRefreshToken(),
-            ]);
+        if (($token instanceof AccessToken) && $this->hasExpired($token)) {
+            $token = $this->oauth2ApiClient->refreshAccessToken($token->refresh_token);
             $this->setTokenProvider($token);
         }
 
         return $this->getAccessToken();
+    }
+
+    /**
+     * @param AccessToken $accessToken
+     *
+     * @return bool
+     */
+    protected function hasExpired(AccessToken $accessToken)
+    {
+        $token = new Token($accessToken->access_token);
+
+        return $token->isExpired();
     }
 
     /**
@@ -75,7 +88,7 @@ class PrestaShopSession
     {
         $token = $this->getTokenProvider();
 
-        return ($token instanceof AccessToken) ? $token->getValues()['id_token'] : null;
+        return ($token instanceof AccessToken) ? $token->id_token : null;
     }
 
     /**
@@ -85,7 +98,7 @@ class PrestaShopSession
     {
         $token = $this->getTokenProvider();
 
-        return ($token instanceof AccessToken) ? $token->getToken() : null;
+        return ($token instanceof AccessToken) ? $token->access_token : null;
     }
 
     /**
@@ -107,11 +120,11 @@ class PrestaShopSession
     }
 
     /**
-     * @return PrestaShopUser
+     * @return UserInfos
      */
     public function getPrestashopUser()
     {
-        return $this->provider->getResourceOwner($this->getTokenProvider());
+        return $this->oauth2ApiClient->getUserInfos($this->getAccessToken());
     }
 
     /**
@@ -127,7 +140,7 @@ class PrestaShopSession
      */
     private function getTokenProvider()
     {
-        if (!$this->provider->getOauth2Client()->exists()) {
+        if (!$this->oauth2Client->exists()) {
             $this->clear();
         }
 

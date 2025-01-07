@@ -18,8 +18,8 @@
  * @license   https://opensource.org/licenses/AFL-3.0 Academic Free License version 3.0
  */
 
+use PrestaShop\Module\PsAccounts\Api\Client\OAuth2Client;
 use PrestaShop\Module\PsAccounts\Polyfill\Traits\AdminController\IsAnonymousAllowed;
-use PrestaShop\Module\PsAccounts\Provider\OAuth2\ShopProvider;
 
 class AdminLoginPsAccountsController extends \AdminController
 {
@@ -121,8 +121,8 @@ class AdminLoginPsAccountsController extends \AdminController
      */
     public function createTemplate($tpl_name)
     {
-        /** @var ShopProvider $provider */
-        $provider = $this->psAccounts->getService(ShopProvider::class);
+        /** @var OAuth2Client $provider */
+        $provider = $this->psAccounts->getService(OAuth2Client::class);
 
         $testimonials = $this->getTestimonials();
 
@@ -134,7 +134,7 @@ class AdminLoginPsAccountsController extends \AdminController
         $this->context->smarty->assign([
             /* @phpstan-ignore-next-line */
             'shopUrl' => $this->context->shop->getBaseUrl(true),
-            'oauthRedirectUri' => $provider->getRedirectUri(),
+            'oauthRedirectUri' => $provider->getAuthRedirectUri(),
             'legacyLoginUri' => $this->context->link->getAdminLink(
                 'AdminLogin', true, [], [
                 'mode' => self::PARAM_MODE_LOCAL,

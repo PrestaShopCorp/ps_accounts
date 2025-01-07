@@ -45,9 +45,6 @@ class OAuth2Provider implements IServiceProvider
         $container->registerProvider(Provider\OAuth2\PrestaShopSession::class, static function () {
             return PrestaShopSessionFactory::create();
         });
-        $container->registerProvider(Provider\OAuth2\ShopProvider::class, static function () {
-            return Provider\OAuth2\ShopProvider::create();
-        });
         // Middleware
         $container->registerProvider(Oauth2Middleware::class, static function () use ($container) {
             return new Oauth2Middleware(

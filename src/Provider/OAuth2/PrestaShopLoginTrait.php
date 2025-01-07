@@ -20,29 +20,27 @@
 
 namespace PrestaShop\Module\PsAccounts\Provider\OAuth2;
 
+use PrestaShop\Module\PsAccounts\Api\Client\OAuth2Client;
 use PrestaShop\Module\PsAccounts\Exception\AccountLogin\EmailNotVerifiedException;
 use PrestaShop\Module\PsAccounts\Exception\AccountLogin\EmployeeNotFoundException;
 use PrestaShop\Module\PsAccounts\Exception\AccountLogin\Oauth2Exception;
 use PrestaShop\Module\PsAccounts\Log\Logger;
-use PrestaShop\Module\PsAccounts\Vendor\League\OAuth2\Client\Provider\Exception\IdentityProviderException;
-use PrestaShop\Module\PsAccounts\Vendor\League\OAuth2\Client\Token\AccessToken;
-use PrestaShop\Module\PsAccounts\Vendor\PrestaShop\OAuth2\Client\Provider\PrestaShopUser;
 use Symfony\Component\HttpFoundation\Session\SessionInterface;
 use Tools;
 
 trait PrestaShopLoginTrait
 {
     /**
-     * @return ShopProvider
+     * @return OAuth2Client
      */
-    abstract protected function getProvider();
+    abstract protected function getOAuth2Client();
 
     /**
-     * @param PrestaShopUser $user
+     * @param UserInfos $user
      *
      * @return bool
      */
-    abstract protected function initUserSession(PrestaShopUser $user);
+    abstract protected function initUserSession(UserInfos $user);
 
     /**
      * @return void
@@ -69,7 +67,7 @@ trait PrestaShopLoginTrait
      */
     public function oauth2Login()
     {
-        $provider = $this->getProvider();
+        $apiClient = $this->getOAuth2Client();
 
         //$this->getSession()->start();
         $session = $this->getSession();
@@ -93,16 +91,14 @@ trait PrestaShopLoginTrait
 
             throw new \Exception('Invalid state');
         } else {
-            // Restore the PKCE code before the `getAccessToken()` call.
-            $provider->setPkceCode($this->getSession()->get('oauth2pkceCode'));
-
             try {
-                // Try to get an access token using the authorization code grant.
-                /** @var AccessToken $accessToken */
-                $accessToken = $provider->getAccessToken('authorization_code', [
-                    'code' => $_GET['code'],
-                ]);
+                $accessToken = $apiClient->getAccessTokenByAuthorizationCode(
+                    $_GET['code'],
+                    $this->getSession()->get('oauth2pkceCode'),
+                    $apiClient->getAuthRedirectUri()
+                );
             } catch (IdentityProviderException $e) {
+                // FIXME
                 throw new Oauth2Exception($e->getMessage(), null, $e);
             }
 
@@ -123,19 +119,21 @@ trait PrestaShopLoginTrait
      */
     private function oauth2Redirect($locale)
     {
-        $provider = $this->getProvider();
+        $apiClient = $this->getOAuth2Client();
 
-        // Fetch the authorization URL from the provider; this returns the
-        // urlAuthorize option and generates and applies any necessary parameters
-        // (e.g. state).
-        $authorizationUrl = $provider->getAuthorizationUrl(['ui_locales' => $locale]);
+        $state = $apiClient->getRandomState();
+        $pkceCode = $apiClient->getRandomPkceCode();
 
-        // Store the PKCE code after the `getAuthorizationUrl()` call.
-        //$_SESSION['oauth2pkceCode'] = $provider->getPkceCode();
-        $this->getSession()->set('oauth2pkceCode', $provider->getPkceCode());
+        $this->getSession()->set('oauth2state', $state);
+        $this->getSession()->set('oauth2pkceCode', $pkceCode);
 
-        // Get the state generated for you and store it to the session.
-        $this->getSession()->set('oauth2state', $provider->getState());
+        $authorizationUrl = $apiClient->getAuthorizationUri(
+            $state,
+            $apiClient->getAuthRedirectUri(),
+            $pkceCode,
+            'S256',
+            'fr'
+        );
 
         // Redirect the user to the authorization URL.
         header('Location: ' . $authorizationUrl);

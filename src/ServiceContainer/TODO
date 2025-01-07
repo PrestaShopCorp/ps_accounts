@@ -1,3 +1,0 @@
-- cleanup config files -> upgrade script & TESTER LE LOGIN v8 !!!!!!!
-- use module singleton to store ServiceContainer instance
-- check logs on PHP8.1

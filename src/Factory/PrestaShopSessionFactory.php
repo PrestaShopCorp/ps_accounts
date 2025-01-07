@@ -20,8 +20,9 @@
 
 namespace PrestaShop\Module\PsAccounts\Factory;
 
+use PrestaShop\Module\PsAccounts\Api\Client\OAuth2Client as Oauth2ApiClient;
+use PrestaShop\Module\PsAccounts\Provider\OAuth2\Oauth2Client;
 use PrestaShop\Module\PsAccounts\Provider\OAuth2\PrestaShopSession;
-use PrestaShop\Module\PsAccounts\Provider\OAuth2\ShopProvider;
 
 class PrestaShopSessionFactory
 {
@@ -35,9 +36,10 @@ class PrestaShopSessionFactory
         /** @var \Ps_accounts $module */
         $module = \Module::getInstanceByName('ps_accounts');
 
-        /** @var ShopProvider $provider */
-        $provider = $module->getService(ShopProvider::class);
-
-        return new PrestaShopSession($module->getSession(), $provider);
+        return new PrestaShopSession(
+            $module->getSession(),
+            $module->getService(Oauth2ApiClient::class),
+            $module->getService(OAuth2Client::class)
+        );
     }
 }

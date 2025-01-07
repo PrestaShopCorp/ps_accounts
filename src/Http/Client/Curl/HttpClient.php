@@ -22,10 +22,16 @@ namespace PrestaShop\Module\PsAccounts\Http\Client\Curl;
 
 use PrestaShop\Module\PsAccounts\Factory\CircuitBreakerFactory;
 use PrestaShop\Module\PsAccounts\Http\Client\CircuitBreaker\CircuitBreaker;
+use PrestaShop\Module\PsAccounts\Http\Client\CircuitBreaker\CircuitBreakerException;
 use PrestaShop\Module\PsAccounts\Log\Logger;
 
 class HttpClient
 {
+    /**
+     * @var string
+     */
+    protected $baseUri;
+
     /**
      * @var string
      */
@@ -38,15 +44,27 @@ class HttpClient
 
     /**
      * @var bool
-     * FIXME TODO: implement exceptions
+     *
+     * TODO: implement exceptions
      */
     protected $catchExceptions = false;
 
     /**
      * @var CircuitBreaker
-     * FIXME TODO: implement circuit breaker
+     *
+     * TODO: implement circuit breaker
      */
     protected $circuitBreaker;
+
+    /**
+     * @var bool
+     */
+    protected $objectResponse = false;
+
+    /**
+     * @var bool
+     */
+    protected $sslCheck = true;
 
     /**
      * @param array $options
@@ -60,91 +78,95 @@ class HttpClient
         );
         unset($options['name']);
 //        \Tools::refreshCACertFile();
+
+        // FIXME headers
+        foreach (['baseUri', 'timeout', 'objectResponse', 'sslCheck'] as $option) {
+            if (isset($options[$option])) {
+                $this->$option = $options[$option];
+            }
+        }
     }
 
     /**
      * @param array $options payload
      *
-     * @return array return response or false if no response
+     * @return Response|array return response or false if no response
      */
     public function post(array $options = [])
     {
-//        return $this->circuitBreaker->call(function () use ($options) {
-//        });
+        return $this->circuitBreaker->call(function () use ($options) {
+            $ch = $this->initCurl($options);
 
-        $ch = $this->initCurl($options);
+            curl_setopt($ch, CURLOPT_POST, true);
 
-        curl_setopt($ch, CURLOPT_POST, true);
+            $this->initPayload($options, $ch);
 
-        $this->initPayloadJson($options, $ch);
+            $response = $this->getResponse($ch, curl_exec($ch));
 
-        $response = $this->getResponse($ch, curl_exec($ch));
+            curl_close($ch);
 
-        curl_close($ch);
-
-        return $response;
+            return $response;
+        });
     }
 
     /**
      * @param array $options payload
      *
-     * @return array return response or false if no response
+     * @return Response|array return response or false if no response
      */
     public function patch(array $options = [])
     {
-//        return $this->circuitBreaker->call(function () use ($options) {
-//        });
+        return $this->circuitBreaker->call(function () use ($options) {
+            $ch = $this->initCurl($options);
 
-        $ch = $this->initCurl($options);
+            curl_setopt($ch, CURLOPT_CUSTOMREQUEST, 'PATCH');
 
-        curl_setopt($ch, CURLOPT_CUSTOMREQUEST, 'PATCH');
+            $this->initPayload($options, $ch);
 
-        $this->initPayloadJson($options, $ch);
+            $response = $this->getResponse($ch, curl_exec($ch));
 
-        $response = $this->getResponse($ch, curl_exec($ch));
+            curl_close($ch);
 
-        curl_close($ch);
-
-        return $response;
+            return $response;
+        });
     }
 
     /**
      * @param array $options payload
      *
-     * @return array return response or false if no response
+     * @return Response|array return response or false if no response
      */
     public function get(array $options = [])
     {
-//        return $this->circuitBreaker->call(function () use ($options) {
-//        });
-        $ch = $this->initCurl($options);
+        return $this->circuitBreaker->call(function () use ($options) {
+            $ch = $this->initCurl($options);
 
-        $response = $this->getResponse($ch, curl_exec($ch));
+            $response = $this->getResponse($ch, curl_exec($ch));
 
-        curl_close($ch);
+            curl_close($ch);
 
-        return $response;
+            return $response;
+        });
     }
 
     /**
      * @param array $options payload
      *
-     * @return array return response array
+     * @return Response|array return response array
      */
     public function delete(array $options = [])
     {
-//        return $this->circuitBreaker->call(function () use ($options) {
-//        });
+        return $this->circuitBreaker->call(function () use ($options) {
+            $ch = $this->initCurl($options);
 
-        $ch = $this->initCurl($options);
+            curl_setopt($ch, CURLOPT_CUSTOMREQUEST, 'DELETE');
 
-        curl_setopt($ch, CURLOPT_CUSTOMREQUEST, 'DELETE');
+            $response = $this->getResponse($ch, curl_exec($ch));
 
-        $response = $this->getResponse($ch, curl_exec($ch));
+            curl_close($ch);
 
-        curl_close($ch);
-
-        return $response;
+            return $response;
+        });
     }
 
     /**
@@ -178,41 +200,45 @@ class HttpClient
 
     /**
      * @param resource $ch
-     * @param string $response
+     * @param mixed $response
      *
-     * @return array
+     * @return Response|array
      */
     public function getResponse($ch, $response)
     {
+        switch (curl_errno($ch)) {
+            case CURLE_OPERATION_TIMEDOUT:
+            case CURLE_COULDNT_CONNECT:
+                throw new CircuitBreakerException('Curl error: ' . curl_error($ch));
+        }
+
         $statusCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
-        $res =  [
+        $res = [
             'status' => $this->responseIsSuccessful([], $statusCode),
             'httpCode' => $statusCode,
-            'body' => \json_decode($response, true),
+            'body' => is_array($response) ?
+                $response :
+                \json_decode($response, true),
         ];
-        $this->logResponse($response, $ch);
+        $this->logResponse($res, $ch);
+
+        if ($this->objectResponse) {
+            /** @var Response $res */
+            $res = (object) $res;
+        }
 
         return $res;
     }
 
     /**
      * @param array $response
-     * @param mixed $chr
+     * @param resource $ch
      *
      * @return void
      */
-    private function logResponse(array $response, array $chr)
+    private function logResponse($response, $ch)
     {
-        // If response is not successful only
-        if (!$response['status']) {
-            try {
-                $logger = Logger::getInstance();
-                $logger->error('route ' . $this->getRoute());
-                $logger->error('options ' . var_export(curl_getinfo($chr), true));
-                $logger->error('response ' . var_export($response, true));
-            } catch (\Exception $e) {
-            }
-        }
+        Logger::getInstance()->info('response ' . var_export($response, true));
     }
 
     /**
@@ -228,6 +254,7 @@ class HttpClient
             foreach ($options['headers'] as $header => $value) {
                 $headers[] = "$header: $value";
             }
+            Logger::getInstance()->info('headers ' . var_export($headers, true));
             curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
         }
     }
@@ -237,10 +264,10 @@ class HttpClient
      */
     public function initRoute()
     {
-        /** @var \Ps_accounts $module */
-        $module = \Module::getInstanceByName('ps_accounts');
-        $apiRoute = $module->getParameter('ps_accounts.accounts_api_url');
-        $absRoute = preg_replace('/\/$/', '', $apiRoute) . preg_replace('/\/+/', '/', '/' . $this->getRoute());
+        $absRoute = $this->getRoute();
+        if (!empty($this->baseUri) && !preg_match('/^http(s)?:\/\//', $absRoute)) {
+            $absRoute = preg_replace('/\/$/', '', $this->baseUri) . preg_replace('/\/+/', '/', '/' . $absRoute);
+        }
 
         $ch = curl_init();
 
@@ -271,11 +298,15 @@ class HttpClient
      *
      * @return void
      */
-    public function initPayloadJson(array $options, $ch)
+    public function initPayload(array $options, $ch)
     {
         if (array_key_exists('json', $options)) {
+            Logger::getInstance()->info('payload ' . var_export($options['json'], true));
             curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($options['json']));
-            curl_setopt($ch, CURLOPT_HTTPHEADER, array('Content-Type: application/json'));
+            curl_setopt($ch, CURLOPT_HTTPHEADER, ['Content-Type: application/json']);
+        } elseif (array_key_exists('body', $options)) {
+            Logger::getInstance()->info('payload ' . var_export($options['body'], true));
+            curl_setopt($ch, CURLOPT_POSTFIELDS, http_build_query($options['body']));
         }
     }
 
@@ -285,22 +316,10 @@ class HttpClient
     protected function getVerify()
     {
         if (version_compare((string) phpversion(), '7', '>=')) {
-            /** @var \Ps_accounts $module */
-            $module = \Module::getInstanceByName('ps_accounts');
-
-            return (bool) $module->getParameter('ps_accounts.check_api_ssl_cert');
+            return $this->sslCheck;
         }
         // bypass certificate expiration issue with PHP5.6
         return false;
-
-//        if ((bool) $module->getParameter('ps_accounts.check_api_ssl_cert')) {
-//            if (defined('_PS_CACHE_CA_CERT_FILE_') && file_exists(constant('_PS_CACHE_CA_CERT_FILE_'))) {
-//                return constant('_PS_CACHE_CA_CERT_FILE_');
-//            }
-//
-//            return true;
-//        }
-//        return false;
     }
 
     /**
@@ -313,6 +332,9 @@ class HttpClient
         $ch = $this->initRoute();
         $this->initHeaders($options, $ch);
         $this->initSsl($ch);
+
+        Logger::getInstance()->info('options ' . var_export(curl_getinfo($ch), true));
+
         return $ch;
     }
 }

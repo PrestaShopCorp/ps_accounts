@@ -21,11 +21,10 @@
 namespace PrestaShop\Module\PsAccounts\Middleware;
 
 use Exception;
+use PrestaShop\Module\PsAccounts\Api\Client\OAuth2Client;
 use PrestaShop\Module\PsAccounts\Provider\OAuth2\PrestaShopLogoutTrait;
 use PrestaShop\Module\PsAccounts\Provider\OAuth2\PrestaShopSession;
-use PrestaShop\Module\PsAccounts\Provider\OAuth2\ShopProvider;
 use PrestaShop\Module\PsAccounts\Service\PsAccountsService;
-use PrestaShop\Module\PsAccounts\Vendor\League\OAuth2\Client\Provider\Exception\IdentityProviderException;
 use Ps_accounts;
 
 class Oauth2Middleware
@@ -71,21 +70,19 @@ class Oauth2Middleware
                 // We keep token fresh !
                 $session->getOrRefreshAccessToken();
             }
-        } catch (IdentityProviderException $e) {
-            $this->module->getLogger()->err($e->getMessage());
+//        } catch (IdentityProviderException $e) {
+//            $this->module->getLogger()->err($e->getMessage());
         } catch (Exception $e) {
             $this->module->getLogger()->err($e->getMessage());
         }
     }
 
     /**
-     * @return ShopProvider
-     *
-     * @throws Exception
+     * @return OAuth2Client
      */
-    protected function getProvider()
+    protected function getOAuth2Client()
     {
-        return $this->module->getService(ShopProvider::class);
+        return $this->module->getService(OAuth2Client::class);
     }
 
     /**
@@ -118,7 +115,7 @@ class Oauth2Middleware
     protected function onLogoutCallback()
     {
         if ($this->bypassLoginPage) {
-            \Tools::redirectLink($this->getProvider()->getRedirectUri());
+            \Tools::redirectLink($this->getOAuth2Client()->getRedirectUri());
         }
     }
 }

@@ -24,11 +24,11 @@ use PrestaShop\Module\PsAccounts\Account\Session\ShopSession;
 use PrestaShop\Module\PsAccounts\Account\Token\NullToken;
 use PrestaShop\Module\PsAccounts\Account\Token\Token;
 use PrestaShop\Module\PsAccounts\Api\Client\AccountsClient;
+use PrestaShop\Module\PsAccounts\Api\Client\OAuth2Client as OAuth2ApiClient;
 use PrestaShop\Module\PsAccounts\Api\Controller\AbstractShopRestController;
 use PrestaShop\Module\PsAccounts\Api\Controller\Request\ShopHealthCheckRequest;
 use PrestaShop\Module\PsAccounts\Exception\RefreshTokenException;
 use PrestaShop\Module\PsAccounts\Provider\OAuth2\Oauth2Client;
-use PrestaShop\Module\PsAccounts\Provider\OAuth2\ShopProvider;
 use PrestaShop\Module\PsAccounts\Service\PsAccountsService;
 
 class ps_AccountsApiV2ShopHealthCheckModuleFrontController extends AbstractShopRestController
@@ -69,9 +69,9 @@ class ps_AccountsApiV2ShopHealthCheckModuleFrontController extends AbstractShopR
     private $accountsClient;
 
     /**
-     * @var ShopProvider
+     * @var OAuth2ApiClient
      */
-    private $shopProvider;
+    private $oauth2ApiClient;
 
     public function __construct()
     {
@@ -87,7 +87,7 @@ class ps_AccountsApiV2ShopHealthCheckModuleFrontController extends AbstractShopR
         $this->firebaseOwnerSession = $this->module->getService(Firebase\OwnerSession::class);
         $this->accountsClient = $this->module->getService(AccountsClient::class);
         $this->psAccountsService = $this->module->getService(PsAccountsService::class);
-        $this->shopProvider = $this->module->getService(ShopProvider::class);
+        $this->oauth2ApiClient = $this->module->getService(OAuth2ApiClient::class);
     }
 
     /**
@@ -129,7 +129,7 @@ class ps_AccountsApiV2ShopHealthCheckModuleFrontController extends AbstractShopR
             'firebaseShopToken' => $this->tokenInfos($firebaseShopToken),
             'fopenActive' => (bool) ini_get('allow_url_fopen'),
             'curlActive' => extension_loaded('curl'), //function_exists('curl_version'),
-            'oauthApiConnectivity' => (bool) $this->shopProvider->getWellKnown()->issuer,
+            'oauthApiConnectivity' => (bool) $this->oauth2ApiClient->getWellKnown()->issuer,
             'accountsApiConnectivity' => $this->accountsApiHealthCheck(),
             'serverUTC' => time(),
             'mysqlUTC' => $this->getDatabaseTimestamp(),
