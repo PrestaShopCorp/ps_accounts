@@ -21,6 +21,7 @@
 namespace PrestaShop\Module\PsAccounts\Http\Client\Curl;
 
 use PrestaShop\Module\PsAccounts\Http\Client\CircuitBreaker;
+use PrestaShop\Module\PsAccounts\Http\Client\Request;
 use PrestaShop\Module\PsAccounts\Http\Client\Response;
 use PrestaShop\Module\PsAccounts\Log\Logger;
 
@@ -42,16 +43,7 @@ class Client
     protected $timeout = 10;
 
     /**
-     * @var bool
-     *
-     * TODO: implement exceptions
-     */
-    protected $catchExceptions = false;
-
-    /**
      * @var CircuitBreaker\CircuitBreaker
-     *
-     * TODO: implement circuit breaker
      */
     protected $circuitBreaker;
 
@@ -69,6 +61,11 @@ class Client
      * @var bool
      */
     protected $allowRedirects;
+
+    /**
+     * @var array
+     */
+    protected $headers = [];
 
     /**
      * @param array $options
@@ -91,7 +88,7 @@ class Client
 //        \Tools::refreshCACertFile();
 
         // FIXME headers
-        foreach (['baseUri', 'timeout', 'objectResponse', 'sslCheck', 'allowRedirects'] as $option) {
+        foreach (['baseUri', 'timeout', 'objectResponse', 'sslCheck', 'allowRedirects', 'headers'] as $option) {
             if (isset($options[$option])) {
                 $this->$option = $options[$option];
             }
@@ -277,14 +274,18 @@ class Client
      */
     public function initHeaders(array $options, $ch)
     {
-        if (array_key_exists('headers', $options)) {
-            $headers = [];
-            foreach ($options['headers'] as $header => $value) {
-                $headers[] = "$header: $value";
-            }
-            Logger::getInstance()->info('headers ' . var_export($headers, true));
-            curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
+        $assoc = $this->headers;
+        if (array_key_exists(Request::HEADERS, $options)) {
+            $assoc = array_merge($assoc, $options[Request::HEADERS]);
         }
+
+        $headers = [];
+        foreach ($assoc as $header => $value) {
+            $headers[] = "$header: $value";
+        }
+
+        Logger::getInstance()->info('headers ' . var_export($headers, true));
+        curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
     }
 
     /**
@@ -310,7 +311,7 @@ class Client
         curl_setopt($ch, CURLOPT_FOLLOWLOCATION, $this->allowRedirects);
         curl_setopt($ch, CURLOPT_POSTREDIR, $this->allowRedirects ? 3 : 0);
 
-        curl_setopt($ch, CURLOPT_USERAGENT, 'Ps_accounts/' . \Ps_accounts::VERSION);
+        curl_setopt($ch, CURLOPT_USERAGENT, 'ps_accounts/' . \Ps_accounts::VERSION);
         //curl_setopt($ch, CURLOPT_VERBOSE, true);
 
         return $ch;
@@ -336,14 +337,13 @@ class Client
      */
     public function initPayload(array $options, $ch)
     {
-        if (array_key_exists('json', $options)) {
-            Logger::getInstance()->info('payload ' . var_export($options['json'], true));
-            curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($options['json']) ?: '');
+        if (array_key_exists(Request::JSON, $options)) {
+            Logger::getInstance()->info('payload ' . var_export($options[Request::JSON], true));
+            curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($options[Request::JSON]) ?: '');
             curl_setopt($ch, CURLOPT_HTTPHEADER, ['Content-Type: application/json']);
-
-        } elseif (array_key_exists('query', $options)) {
-            Logger::getInstance()->info('payload ' . var_export($options['query'], true));
-            curl_setopt($ch, CURLOPT_POSTFIELDS, http_build_query($options['query']));
+        } elseif (array_key_exists(Request::BODY, $options)) {
+            Logger::getInstance()->info('payload ' . var_export($options[Request::BODY], true));
+            curl_setopt($ch, CURLOPT_POSTFIELDS, http_build_query($options[Request::BODY]));
         }
     }
 

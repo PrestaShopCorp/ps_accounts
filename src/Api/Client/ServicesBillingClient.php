@@ -22,6 +22,7 @@ namespace PrestaShop\Module\PsAccounts\Api\Client;
 
 use PrestaShop\Module\PsAccounts\Http\Client\Curl\Client;
 use PrestaShop\Module\PsAccounts\Http\Client\Factory;
+use PrestaShop\Module\PsAccounts\Http\Client\Request;
 use PrestaShop\Module\PsAccounts\Http\Client\Response;
 use PrestaShop\Module\PsAccounts\Provider\ShopProvider;
 use PrestaShop\Module\PsAccounts\Service\PsAccountsService;
@@ -99,7 +100,7 @@ class ServicesBillingClient
         return $this->client->post(
             '/shops/' . $shopUuidV4,
             [
-                'query' => $bodyHttp,
+                Request::BODY => $bodyHttp,
             ]
         );
     }
@@ -127,7 +128,7 @@ class ServicesBillingClient
         return $this->client->post(
             '/shops/' . $shopUuidV4 . '/subscriptions/' . $module,
             [
-                'query' => $bodyHttp,
+                Request::BODY => $bodyHttp,
             ]
         );
     }

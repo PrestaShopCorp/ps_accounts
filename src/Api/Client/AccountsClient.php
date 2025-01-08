@@ -24,6 +24,7 @@ use PrestaShop\Module\PsAccounts\Account\Dto\UpdateShop;
 use PrestaShop\Module\PsAccounts\Account\Dto\UpgradeModule;
 use PrestaShop\Module\PsAccounts\Http\Client\Curl\Client;
 use PrestaShop\Module\PsAccounts\Http\Client\Factory;
+use PrestaShop\Module\PsAccounts\Http\Client\Request;
 use PrestaShop\Module\PsAccounts\Vendor\Ramsey\Uuid\Uuid;
 
 class AccountsClient
@@ -114,7 +115,7 @@ class AccountsClient
         $res = $this->getClient()->get(
             'v2/shop/firebase/tokens',
             [
-                'headers' => $this->getHeaders([
+                Request::HEADERS => $this->getHeaders([
                     'Authorization' => 'Bearer ' . $accessToken,
                 ]),
             ]);
@@ -134,10 +135,10 @@ class AccountsClient
         $res = $this->getClient()->post(
             'v1/shop/token/refresh',
             [
-                'headers' => $this->getHeaders([
+                Request::HEADERS => $this->getHeaders([
                     'X-Shop-Id' => $shopUuid,
                 ]),
-                'json' => [
+                Request::JSON => [
                     'token' => $refreshToken,
                 ],
             ]
@@ -159,7 +160,7 @@ class AccountsClient
         $res = $this->getClient()->delete(
             'v1/user/' . $ownerUid . '/shop/' . $shopUid,
             [
-                'headers' => $this->getHeaders([
+                Request::HEADERS => $this->getHeaders([
                     'Authorization' => 'Bearer ' . $ownerToken,
                     'X-Shop-Id' => $shopUid,
                 ]),
@@ -183,11 +184,11 @@ class AccountsClient
         $res = $this->getClient()->patch(
             'v1/user/' . $ownerUid . '/shop/' . $shopUid,
             [
-                'headers' => $this->getHeaders([
+                Request::HEADERS => $this->getHeaders([
                     'Authorization' => 'Bearer ' . $ownerToken,
                     'X-Shop-Id' => $shopUid,
                 ]),
-                'json' => $shop->jsonSerialize(),
+                Request::JSON => $shop->jsonSerialize(),
             ]
         );
 
@@ -207,11 +208,11 @@ class AccountsClient
         $res = $this->getClient()->post(
             '/v2/shop/module/update',
             [
-                'headers' => $this->getHeaders([
+                Request::HEADERS => $this->getHeaders([
                     'Authorization' => 'Bearer ' . $shopToken,
                     'X-Shop-Id' => $shopUid,
                 ]),
-                'json' => $data->jsonSerialize(),
+                Request::JSON => $data->jsonSerialize(),
             ]
         );
 
@@ -231,8 +232,8 @@ class AccountsClient
         $res = $this->getClient()->post(
             '/v1/shop/token/verify',
             [
-                'headers' => $this->getHeaders(),
-                'json' => [
+                Request::HEADERS => $this->getHeaders(),
+                Request::JSON => [
                     'token' => $idToken,
                 ],
             ]

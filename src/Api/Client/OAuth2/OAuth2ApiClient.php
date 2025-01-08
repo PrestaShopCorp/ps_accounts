@@ -24,6 +24,7 @@ use PrestaShop\Module\PsAccounts\Adapter\Link;
 use PrestaShop\Module\PsAccounts\Api\Client\OAuth2\OAuth2Client as OauthClient;
 use PrestaShop\Module\PsAccounts\Http\Client\Curl\Client;
 use PrestaShop\Module\PsAccounts\Http\Client\Factory;
+use PrestaShop\Module\PsAccounts\Http\Client\Request;
 use PrestaShop\Module\PsAccounts\Http\Client\Response;
 use PrestaShop\Module\PsAccounts\Vendor\Ramsey\Uuid\Uuid;
 
@@ -189,10 +190,8 @@ class OAuth2ApiClient
             $wellKnownUrl = \preg_replace('/\\/?$/', '/.well-known/openid-configuration', $wellKnownUrl);
         }
 
-        $this->getClient()->setRoute($wellKnownUrl);
-
         /** @var Response $response */
-        $response = $this->getClient()->get();
+        $response = $this->getClient()->get($wellKnownUrl);
 
         return $response->body;
     }
@@ -209,7 +208,7 @@ class OAuth2ApiClient
         $response = $this->getClient()->post(
             $this->getWellKnown()->token_endpoint,
             [
-                'query' => [
+                Request::BODY => [
                     'grant_type' => 'client_credentials',
                     'client_id' => $this->oauth2Client->getClientId(),
                     'client_secret' => $this->oauth2Client->getClientSecret(),
@@ -309,7 +308,7 @@ class OAuth2ApiClient
         $response = $this->getClient()->post(
             $this->getWellKnown()->token_endpoint,
             [
-                'query' => array_merge([
+                Request::BODY => array_merge([
                     'grant_type' => 'authorization_code',
                     'client_id' => $this->oauth2Client->getClientId(),
                     'client_secret' => $this->oauth2Client->getClientSecret(),
@@ -341,7 +340,7 @@ class OAuth2ApiClient
         $response = $this->getClient()->post(
             $this->getWellKnown()->token_endpoint,
             [
-                'query' => [
+                Request::BODY => [
                     'grant_type' => 'refresh_token',
                     'client_id' => $this->oauth2Client->getClientId(),
                     'refresh_token' => $refreshToken,
@@ -367,7 +366,7 @@ class OAuth2ApiClient
         $response = $this->getClient()->get(
             $this->getWellKnown()->userinfo_endpoint,
             [
-                'headers' => $this->getHeaders([
+                Request::HEADERS => $this->getHeaders([
                     'Authorization' => 'Bearer ' . $accessToken,
                 ]),
             ]
