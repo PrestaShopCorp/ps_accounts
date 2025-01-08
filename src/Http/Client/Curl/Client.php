@@ -20,12 +20,11 @@
 
 namespace PrestaShop\Module\PsAccounts\Http\Client\Curl;
 
-use PrestaShop\Module\PsAccounts\Factory\CircuitBreakerFactory;
-use PrestaShop\Module\PsAccounts\Http\Client\CircuitBreaker\CircuitBreaker;
-use PrestaShop\Module\PsAccounts\Http\Client\CircuitBreaker\CircuitBreakerException;
+use PrestaShop\Module\PsAccounts\Http\Client\CircuitBreaker;
+use PrestaShop\Module\PsAccounts\Http\Client\Response;
 use PrestaShop\Module\PsAccounts\Log\Logger;
 
-class HttpClient
+class Client
 {
     /**
      * @var string
@@ -50,7 +49,7 @@ class HttpClient
     protected $catchExceptions = false;
 
     /**
-     * @var CircuitBreaker
+     * @var CircuitBreaker\CircuitBreaker
      *
      * TODO: implement circuit breaker
      */
@@ -73,9 +72,16 @@ class HttpClient
      */
     public function __construct($options)
     {
-        $this->circuitBreaker = CircuitBreakerFactory::create(
+        $this->circuitBreaker = CircuitBreaker\Factory::create(
             isset($options['name']) ? $options['name'] : static::class
         );
+
+        if ($this->objectResponse) {
+            $this->circuitBreaker->setDefaultFallbackResponse(
+                new Response($this->circuitBreaker->getDefaultFallbackResponse())
+            );
+        }
+
         unset($options['name']);
 //        \Tools::refreshCACertFile();
 
@@ -204,14 +210,14 @@ class HttpClient
      *
      * @return Response|array
      *
-     * @throws CircuitBreakerException
+     * @throws CircuitBreaker\CircuitBreakerException
      */
     public function getResponse($ch, $response)
     {
         switch (curl_errno($ch)) {
             case CURLE_OPERATION_TIMEDOUT:
             case CURLE_COULDNT_CONNECT:
-                throw new CircuitBreakerException('Curl error: ' . curl_error($ch));
+                throw new CircuitBreaker\CircuitBreakerException('Curl error: ' . curl_error($ch));
         }
 
         $statusCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
@@ -239,7 +245,11 @@ class HttpClient
      */
     private function logResponse($response, $ch)
     {
-        Logger::getInstance()->info('response ' . var_export($response, true));
+        if (!$response['status']) {
+            Logger::getInstance()->error('response ' . var_export($response, true));
+        } else {
+            Logger::getInstance()->info('response ' . var_export($response, true));
+        }
     }
 
     /**

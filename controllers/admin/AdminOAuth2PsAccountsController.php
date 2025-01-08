@@ -21,12 +21,12 @@
 use PrestaShop\Module\PsAccounts\Account\Exception\AccountLoginException;
 use PrestaShop\Module\PsAccounts\Account\Exception\EmailNotVerifiedException;
 use PrestaShop\Module\PsAccounts\Account\Exception\EmployeeNotFoundException;
-use PrestaShop\Module\PsAccounts\Api\Client\OAuth2Client;
+use PrestaShop\Module\PsAccounts\Api\Client\OAuth2\OAuth2ApiClient;
+use PrestaShop\Module\PsAccounts\Api\Client\OAuth2\PrestaShopLoginTrait;
+use PrestaShop\Module\PsAccounts\Api\Client\OAuth2\PrestaShopSession;
+use PrestaShop\Module\PsAccounts\Api\Client\OAuth2\UserInfos;
 use PrestaShop\Module\PsAccounts\Entity\EmployeeAccount;
 use PrestaShop\Module\PsAccounts\Polyfill\Traits\AdminController\IsAnonymousAllowed;
-use PrestaShop\Module\PsAccounts\Provider\OAuth2\PrestaShopLoginTrait;
-use PrestaShop\Module\PsAccounts\Provider\OAuth2\PrestaShopSession;
-use PrestaShop\Module\PsAccounts\Provider\OAuth2\UserInfos;
 use PrestaShop\Module\PsAccounts\Repository\EmployeeAccountRepository;
 use PrestaShop\Module\PsAccounts\Service\AnalyticsService;
 use PrestaShop\Module\PsAccounts\Service\PsAccountsService;
@@ -193,13 +193,13 @@ class AdminOAuth2PsAccountsController extends \ModuleAdminController
     }
 
     /**
-     * @return OAuth2Client
+     * @return OAuth2ApiClient
      *
      * @throws Exception
      */
     private function getOAuth2Client()
     {
-        return $this->module->getService(OAuth2Client::class);
+        return $this->module->getService(OAuth2ApiClient::class);
     }
 
     /**

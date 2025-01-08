@@ -18,10 +18,8 @@
  * @license   https://opensource.org/licenses/AFL-3.0 Academic Free License version 3.0
  */
 
-namespace PrestaShop\Module\PsAccounts\Provider\OAuth2;
+namespace PrestaShop\Module\PsAccounts\Api\Client\OAuth2;
 
-use PrestaShop\Module\PsAccounts\Account\Token\Token;
-use PrestaShop\Module\PsAccounts\Api\Client\OAuth2Client as Oauth2ApiClient;
 use Symfony\Component\HttpFoundation\Session\SessionInterface;
 
 class PrestaShopSession
@@ -39,16 +37,16 @@ class PrestaShopSession
     private $oauth2ApiClient;
 
     /**
-     * @var Oauth2Client
+     * @var OAuth2Client
      */
     private $oauth2Client;
 
     /**
      * @param mixed $session
-     * @param Oauth2ApiClient $oauth2ApiClient
-     * @param Oauth2Client $oauth2Client
+     * @param OAuth2ApiClient $oauth2ApiClient
+     * @param OAuth2Client $oauth2Client
      */
-    public function __construct($session, Oauth2ApiClient $oauth2ApiClient, Oauth2Client $oauth2Client)
+    public function __construct($session, Oauth2ApiClient $oauth2ApiClient, OAuth2Client $oauth2Client)
     {
         $this->session = $session;
         $this->oauth2ApiClient = $oauth2ApiClient;
@@ -61,24 +59,12 @@ class PrestaShopSession
     public function getOrRefreshAccessToken()
     {
         $token = $this->getTokenProvider();
-        if (($token instanceof AccessToken) && $this->hasExpired($token)) {
+        if (($token instanceof AccessToken) && $token->hasExpired()) {
             $token = $this->oauth2ApiClient->refreshAccessToken($token->refresh_token);
             $this->setTokenProvider($token);
         }
 
         return $this->getAccessToken();
-    }
-
-    /**
-     * @param AccessToken $accessToken
-     *
-     * @return bool
-     */
-    protected function hasExpired(AccessToken $accessToken)
-    {
-        $token = new Token($accessToken->access_token);
-
-        return $token->isExpired();
     }
 
     /**

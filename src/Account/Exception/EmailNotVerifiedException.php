@@ -20,7 +20,7 @@
 
 namespace PrestaShop\Module\PsAccounts\Account\Exception;
 
-use PrestaShop\Module\PsAccounts\Provider\OAuth2\UserInfos;
+use PrestaShop\Module\PsAccounts\Api\Client\OAuth2\UserInfos;
 
 class EmailNotVerifiedException extends AccountLoginException
 {

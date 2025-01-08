@@ -18,20 +18,20 @@
  * @license   https://opensource.org/licenses/AFL-3.0 Academic Free License version 3.0
  */
 
-namespace PrestaShop\Module\PsAccounts\Factory;
+namespace PrestaShop\Module\PsAccounts\Http\Client\CircuitBreaker;
 
 use PrestaShop\Module\PsAccounts\Adapter\Configuration;
 use PrestaShop\Module\PsAccounts\Api\Client\AccountsClient;
-use PrestaShop\Module\PsAccounts\Http\Client\CircuitBreaker\CircuitBreaker;
-use PrestaShop\Module\PsAccounts\Http\Client\CircuitBreaker\PersistentCircuitBreaker;
+use PrestaShop\Module\PsAccounts\Api\Client\OAuth2\OAuth2ApiClient;
 
-class CircuitBreakerFactory
+class Factory
 {
     /**
      * @var array
      */
     private $provides = [
         AccountsClient::class,
+        OAuth2ApiClient::class,
     ];
 
     /**
@@ -117,8 +117,8 @@ class CircuitBreakerFactory
         /** @var \Ps_accounts $module */
         $module = \Module::getInstanceByName('ps_accounts');
 
-        /** @var CircuitBreakerFactory $factory */
-        $factory = $module->getService(CircuitBreakerFactory::class);
+        /** @var Factory $factory */
+        $factory = $module->getService(Factory::class);
 
         return $factory->createInstance($resourceId);
     }

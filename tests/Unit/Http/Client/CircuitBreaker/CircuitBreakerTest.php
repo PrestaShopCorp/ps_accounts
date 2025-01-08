@@ -2,7 +2,7 @@
 namespace PrestaShop\Module\PsAccounts\Tests\Unit\Http\Client\CircuitBreaker;
 
 use PHPUnit\Framework\TestCase;
-use PrestaShop\Module\PsAccounts\Factory\CircuitBreakerFactory;
+use PrestaShop\Module\PsAccounts\Http\Client\CircuitBreaker\Factory;
 use PrestaShop\Module\PsAccounts\Http\Client\CircuitBreaker\CircuitBreaker;
 use PrestaShop\Module\PsAccounts\Http\Client\CircuitBreaker\State;
 use PrestaShop\Module\PsAccounts\Vendor\GuzzleHttp\Exception\ConnectException;
@@ -170,7 +170,7 @@ class CircuitBreakerTest extends TestCase
         $resetTimeoutMs
     ) {
         //$circuitBreaker = new InMemoryCircuitBreaker($resourceId);
-        $circuitBreaker = CircuitBreakerFactory::create($resourceId);
+        $circuitBreaker = Factory::create($resourceId);
         $circuitBreaker->setResetTimeoutMs($resetTimeoutMs);
         $circuitBreaker->setThreshold($threshold);
         $circuitBreaker->setDefaultFallbackResponse($defaultResponse);

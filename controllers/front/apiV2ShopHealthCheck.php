@@ -25,10 +25,10 @@ use PrestaShop\Module\PsAccounts\Account\Session\ShopSession;
 use PrestaShop\Module\PsAccounts\Account\Token\NullToken;
 use PrestaShop\Module\PsAccounts\Account\Token\Token;
 use PrestaShop\Module\PsAccounts\Api\Client\AccountsClient;
-use PrestaShop\Module\PsAccounts\Api\Client\OAuth2Client as OAuth2ApiClient;
+use PrestaShop\Module\PsAccounts\Api\Client\OAuth2\OAuth2ApiClient;
+use PrestaShop\Module\PsAccounts\Api\Client\OAuth2\OAuth2Client;
 use PrestaShop\Module\PsAccounts\Api\Controller\AbstractShopRestController;
 use PrestaShop\Module\PsAccounts\Api\Controller\Request\ShopHealthCheckRequest;
-use PrestaShop\Module\PsAccounts\Provider\OAuth2\Oauth2Client;
 use PrestaShop\Module\PsAccounts\Service\PsAccountsService;
 
 class ps_AccountsApiV2ShopHealthCheckModuleFrontController extends AbstractShopRestController
@@ -39,7 +39,7 @@ class ps_AccountsApiV2ShopHealthCheckModuleFrontController extends AbstractShopR
     private $linkShop;
 
     /**
-     * @var Oauth2Client
+     * @var OAuth2Client
      */
     private $oauth2Client;
 
@@ -81,7 +81,7 @@ class ps_AccountsApiV2ShopHealthCheckModuleFrontController extends AbstractShopR
         $this->authenticated = false;
 
         $this->linkShop = $this->module->getService(LinkShop::class);
-        $this->oauth2Client = $this->module->getService(Oauth2Client::class);
+        $this->oauth2Client = $this->module->getService(OAuth2Client::class);
         $this->shopSession = $this->module->getService(ShopSession::class);
         $this->firebaseShopSession = $this->module->getService(Firebase\ShopSession::class);
         $this->firebaseOwnerSession = $this->module->getService(Firebase\OwnerSession::class);

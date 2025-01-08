@@ -20,9 +20,10 @@
 
 namespace PrestaShop\Module\PsAccounts\ServiceProvider;
 
-use PrestaShop\Module\PsAccounts\Factory\PrestaShopSessionFactory;
+use PrestaShop\Module\PsAccounts\Api\Client\OAuth2\OAuth2ApiClient;
+use PrestaShop\Module\PsAccounts\Api\Client\OAuth2\OAuth2Client;
+use PrestaShop\Module\PsAccounts\Api\Client\OAuth2\PrestaShopSession;
 use PrestaShop\Module\PsAccounts\Middleware\Oauth2Middleware;
-use PrestaShop\Module\PsAccounts\Provider;
 use PrestaShop\Module\PsAccounts\Repository\ConfigurationRepository;
 use PrestaShop\Module\PsAccounts\Vendor\PrestaShopCorp\LightweightContainer\ServiceContainer\Contract\IServiceProvider;
 use PrestaShop\Module\PsAccounts\Vendor\PrestaShopCorp\LightweightContainer\ServiceContainer\ServiceContainer;
@@ -37,13 +38,17 @@ class OAuth2Provider implements IServiceProvider
     public function provide(ServiceContainer $container)
     {
         // OAuth2
-        $container->registerProvider(Provider\OAuth2\Oauth2Client::class, static function () use ($container) {
-            return new Provider\OAuth2\Oauth2Client(
+        $container->registerProvider(OAuth2Client::class, static function () use ($container) {
+            return new OAuth2Client(
                 $container->get(ConfigurationRepository::class)
             );
         });
-        $container->registerProvider(Provider\OAuth2\PrestaShopSession::class, static function () {
-            return PrestaShopSessionFactory::create();
+        $container->registerProvider(PrestaShopSession::class, static function () use ($container) {
+            return new PrestaShopSession(
+                $container->get('ps_accounts.module')->getSession(),
+                $container->getService(OAuth2ApiClient::class),
+                $container->getService(OAuth2Client::class)
+            );
         });
         // Middleware
         $container->registerProvider(Oauth2Middleware::class, static function () use ($container) {

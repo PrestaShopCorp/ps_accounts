@@ -83,6 +83,14 @@ abstract class CircuitBreaker
     }
 
     /**
+     * @return mixed
+     */
+    public function getDefaultFallbackResponse()
+    {
+        return $this->defaultFallbackResponse;
+    }
+
+    /**
      * @param mixed $defaultFallbackResponse
      *
      * @return void

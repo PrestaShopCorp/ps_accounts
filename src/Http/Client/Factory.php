@@ -18,28 +18,21 @@
  * @license   https://opensource.org/licenses/AFL-3.0 Academic Free License version 3.0
  */
 
-namespace PrestaShop\Module\PsAccounts\Factory;
+namespace PrestaShop\Module\PsAccounts\Http\Client;
 
-use PrestaShop\Module\PsAccounts\Api\Client\OAuth2Client as Oauth2ApiClient;
-use PrestaShop\Module\PsAccounts\Provider\OAuth2\Oauth2Client;
-use PrestaShop\Module\PsAccounts\Provider\OAuth2\PrestaShopSession;
+use PrestaShop\Module\PsAccounts\Http\Client\Curl\Client;
 
-class PrestaShopSessionFactory
+class Factory
 {
     /**
-     * @return PrestaShopSession
+     * @param array $options
+     *
+     * @return Client
      *
      * @throws \Exception
      */
-    public static function create()
+    public function create($options)
     {
-        /** @var \Ps_accounts $module */
-        $module = \Module::getInstanceByName('ps_accounts');
-
-        return new PrestaShopSession(
-            $module->getSession(),
-            $module->getService(Oauth2ApiClient::class),
-            $module->getService(OAuth2Client::class)
-        );
+        return new Client($options);
     }
 }

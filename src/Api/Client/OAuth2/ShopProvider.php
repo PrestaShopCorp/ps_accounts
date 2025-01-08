@@ -18,7 +18,7 @@
  * @license   https://opensource.org/licenses/AFL-3.0 Academic Free License version 3.0
  */
 
-namespace PrestaShop\Module\PsAccounts\Provider\OAuth2;
+namespace PrestaShop\Module\PsAccounts\Api\Client\OAuth2;
 
 use PrestaShop\Module\PsAccounts\Adapter\Link;
 use PrestaShop\Module\PsAccounts\Vendor\League\OAuth2\Client\Provider\AbstractProvider;
@@ -37,7 +37,7 @@ class ShopProvider extends PrestaShop
     private $module;
 
     /**
-     * @var Oauth2Client
+     * @var OAuth2Client
      */
     private $oauth2Client;
 
@@ -52,7 +52,7 @@ class ShopProvider extends PrestaShop
         /** @var \Ps_accounts $module */
         $module = \Module::getInstanceByName('ps_accounts');
         $this->module = $module;
-        $this->oauth2Client = $module->getService(Oauth2Client::class);
+        $this->oauth2Client = $module->getService(OAuth2Client::class);
 
         // Disable certificate verification from local configuration
         $options['verify'] = (bool) $this->module->getParameter(
@@ -136,7 +136,7 @@ class ShopProvider extends PrestaShop
     }
 
     /**
-     * @return Oauth2Client
+     * @return OAuth2Client
      */
     public function getOauth2Client()
     {

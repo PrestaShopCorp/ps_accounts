@@ -1,6 +1,8 @@
 <?php
 
-namespace PrestaShop\Module\PsAccounts\Provider\OAuth2;
+namespace PrestaShop\Module\PsAccounts\Api\Client\OAuth2;
+
+use PrestaShop\Module\PsAccounts\Account\Token\Token;
 
 class AccessToken
 {
@@ -54,5 +56,15 @@ class AccessToken
                 $this->$key = $value;
             }
         }
+    }
+
+    /**
+     * @return bool
+     */
+    public function hasExpired()
+    {
+        $token = new Token($this->access_token);
+
+        return $token->isExpired();
     }
 }

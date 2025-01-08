@@ -449,8 +449,8 @@ class Ps_accounts extends Module
      */
     public function onModuleReset()
     {
-        /** @var \PrestaShop\Module\PsAccounts\Factory\CircuitBreakerFactory $circuitBreakerFactory */
-        $circuitBreakerFactory = $this->getService(\PrestaShop\Module\PsAccounts\Factory\CircuitBreakerFactory::class);
+        /** @var \PrestaShop\Module\PsAccounts\Http\Client\CircuitBreaker\Factory $circuitBreakerFactory */
+        $circuitBreakerFactory = $this->getService(\PrestaShop\Module\PsAccounts\Http\Client\CircuitBreaker\Factory::class);
         $circuitBreakerFactory->resetAll();
 
         /** @var \PrestaShop\Module\PsAccounts\Repository\ConfigurationRepository $configurationRepository */

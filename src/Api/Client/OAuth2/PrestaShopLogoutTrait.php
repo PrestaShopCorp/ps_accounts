@@ -18,14 +18,12 @@
  * @license   https://opensource.org/licenses/AFL-3.0 Academic Free License version 3.0
  */
 
-namespace PrestaShop\Module\PsAccounts\Provider\OAuth2;
-
-use PrestaShop\Module\PsAccounts\Api\Client\OAuth2Client;
+namespace PrestaShop\Module\PsAccounts\Api\Client\OAuth2;
 
 trait PrestaShopLogoutTrait
 {
     /**
-     * @return OAuth2Client
+     * @return OAuth2ApiClient
      */
     abstract protected function getOAuth2Client();
 

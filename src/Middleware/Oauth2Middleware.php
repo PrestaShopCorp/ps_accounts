@@ -21,9 +21,9 @@
 namespace PrestaShop\Module\PsAccounts\Middleware;
 
 use Exception;
-use PrestaShop\Module\PsAccounts\Api\Client\OAuth2Client;
-use PrestaShop\Module\PsAccounts\Provider\OAuth2\PrestaShopLogoutTrait;
-use PrestaShop\Module\PsAccounts\Provider\OAuth2\PrestaShopSession;
+use PrestaShop\Module\PsAccounts\Api\Client\OAuth2\OAuth2ApiClient;
+use PrestaShop\Module\PsAccounts\Api\Client\OAuth2\PrestaShopLogoutTrait;
+use PrestaShop\Module\PsAccounts\Api\Client\OAuth2\PrestaShopSession;
 use PrestaShop\Module\PsAccounts\Service\PsAccountsService;
 use Ps_accounts;
 
@@ -78,11 +78,11 @@ class Oauth2Middleware
     }
 
     /**
-     * @return OAuth2Client
+     * @return OAuth2ApiClient
      */
     protected function getOAuth2Client()
     {
-        return $this->module->getService(OAuth2Client::class);
+        return $this->module->getService(OAuth2ApiClient::class);
     }
 
     /**

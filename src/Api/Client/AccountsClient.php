@@ -22,8 +22,8 @@ namespace PrestaShop\Module\PsAccounts\Api\Client;
 
 use PrestaShop\Module\PsAccounts\Account\Dto\UpdateShop;
 use PrestaShop\Module\PsAccounts\Account\Dto\UpgradeModule;
-use PrestaShop\Module\PsAccounts\Factory\HttpClientFactory;
-use PrestaShop\Module\PsAccounts\Http\Client\Curl\HttpClient;
+use PrestaShop\Module\PsAccounts\Http\Client\Curl\Client;
+use PrestaShop\Module\PsAccounts\Http\Client\Factory;
 use PrestaShop\Module\PsAccounts\Vendor\Ramsey\Uuid\Uuid;
 
 class AccountsClient
@@ -34,7 +34,7 @@ class AccountsClient
     private $baseUri;
 
     /**
-     * @var HttpClient
+     * @var Client
      */
     private $client;
 
@@ -67,12 +67,12 @@ class AccountsClient
     }
 
     /**
-     * @return HttpClient
+     * @return Client
      */
     private function getClient()
     {
         if (null === $this->client) {
-            $this->client = (new HttpClientFactory())->create([
+            $this->client = (new Factory())->create([
                 'name' => static::class,
                 'baseUri' => $this->baseUri,
                 'headers' => $this->getHeaders(),

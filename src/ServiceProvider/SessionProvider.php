@@ -23,7 +23,7 @@ namespace PrestaShop\Module\PsAccounts\ServiceProvider;
 use PrestaShop\Module\PsAccounts\Account\LinkShop;
 use PrestaShop\Module\PsAccounts\Account\Session\Firebase;
 use PrestaShop\Module\PsAccounts\Account\Session\ShopSession;
-use PrestaShop\Module\PsAccounts\Api\Client\OAuth2Client;
+use PrestaShop\Module\PsAccounts\Api\Client\OAuth2\OAuth2ApiClient;
 use PrestaShop\Module\PsAccounts\Cqrs\CommandBus;
 use PrestaShop\Module\PsAccounts\Repository\ConfigurationRepository;
 use PrestaShop\Module\PsAccounts\Vendor\PrestaShopCorp\LightweightContainer\ServiceContainer\Contract\IServiceProvider;
@@ -42,7 +42,7 @@ class SessionProvider implements IServiceProvider
         $container->registerProvider(ShopSession::class, static function () use ($container) {
             return new ShopSession(
                 $container->get(ConfigurationRepository::class),
-                $container->get(OAuth2Client::class),
+                $container->get(OAuth2ApiClient::class),
                 $container->get(LinkShop::class),
                 $container->get(CommandBus::class)
             );

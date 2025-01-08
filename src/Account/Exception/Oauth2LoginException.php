@@ -20,9 +20,9 @@
 
 namespace PrestaShop\Module\PsAccounts\Account\Exception;
 
-use PrestaShop\Module\PsAccounts\Provider\OAuth2\UserInfos;
+use PrestaShop\Module\PsAccounts\Api\Client\OAuth2\UserInfos;
 
-class Oauth2Exception extends AccountLoginException
+class Oauth2LoginException extends AccountLoginException
 {
     /**
      * @param string $message

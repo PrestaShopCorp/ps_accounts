@@ -18,20 +18,15 @@
  * @license   https://opensource.org/licenses/AFL-3.0 Academic Free License version 3.0
  */
 
-namespace PrestaShop\Module\PsAccounts\Api\Client;
+namespace PrestaShop\Module\PsAccounts\Api\Client\OAuth2;
 
 use PrestaShop\Module\PsAccounts\Adapter\Link;
-use PrestaShop\Module\PsAccounts\Factory\HttpClientFactory;
-use PrestaShop\Module\PsAccounts\Http\Client\Curl\HttpClient;
-use PrestaShop\Module\PsAccounts\Provider\OAuth2\AccessToken;
-use PrestaShop\Module\PsAccounts\Provider\OAuth2\CachedFile;
-use PrestaShop\Module\PsAccounts\Provider\OAuth2\Oauth2Client as OauthClient;
-use PrestaShop\Module\PsAccounts\Provider\OAuth2\PrestaShopLogoutTrait;
-use PrestaShop\Module\PsAccounts\Provider\OAuth2\UserInfos;
-use PrestaShop\Module\PsAccounts\Provider\OAuth2\WellKnown;
+use PrestaShop\Module\PsAccounts\Api\Client\OAuth2\OAuth2Client as OauthClient;
+use PrestaShop\Module\PsAccounts\Http\Client\Curl\Client;
+use PrestaShop\Module\PsAccounts\Http\Client\Factory;
 use PrestaShop\Module\PsAccounts\Vendor\Ramsey\Uuid\Uuid;
 
-class OAuth2Client
+class OAuth2ApiClient
 {
     /**
      * @var string
@@ -39,7 +34,7 @@ class OAuth2Client
     private $baseUri;
 
     /**
-     * @var HttpClient
+     * @var Client
      */
     private $client;
 
@@ -105,12 +100,12 @@ class OAuth2Client
     }
 
     /**
-     * @return HttpClient
+     * @return Client
      */
     private function getClient()
     {
         if (null === $this->client) {
-            $this->client = (new HttpClientFactory())->create([
+            $this->client = (new Factory())->create([
                 'name' => static::class,
                 'baseUri' => $this->baseUri,
                 'headers' => $this->getHeaders(),
@@ -226,6 +221,10 @@ class OAuth2Client
             ],
         ]);
 
+        if (!$response->status) {
+            throw new OAuth2Exception('Unable to get access token');
+        }
+
         return new AccessToken($response->body);
     }
 
@@ -326,6 +325,10 @@ class OAuth2Client
             ] : []),
         ]);
 
+        if (!$response->status) {
+            throw new OAuth2Exception('Unable to get access token');
+        }
+
         return new AccessToken($response->body);
     }
 
@@ -346,6 +349,10 @@ class OAuth2Client
             ],
         ]);
 
+        if (!$response->status) {
+            throw new OAuth2Exception('Unable to refresh access token');
+        }
+
         return new AccessToken($response->body);
     }
 
@@ -363,6 +370,10 @@ class OAuth2Client
                 'Authorization' => 'Bearer ' . $accessToken,
             ]),
         ]);
+
+        if (!$response->status) {
+            throw new OAuth2Exception('Unable to get user infos');
+        }
 
         return new UserInfos($response->body);
     }
@@ -398,4 +409,9 @@ class OAuth2Client
     // TODO: remove Lcobucci (use firebase/jwt)
     // TODO: instantiate real response types (and throw exceptions)
     // TODO: check response types (HTTPClient)
+
+    // TODO: move Token class
+    // TODO: move Exception classes
+    // TODO: throw Exceptions -> and catch them in Login Trait
+    // TODO: log client errors (onError)
 }

@@ -20,8 +20,8 @@
 
 namespace PrestaShop\Module\PsAccounts\Api\Client;
 
-use PrestaShop\Module\PsAccounts\Factory\HttpClientFactory;
-use PrestaShop\Module\PsAccounts\Http\Client\Curl\HttpClient;
+use PrestaShop\Module\PsAccounts\Http\Client\Curl\Client;
+use PrestaShop\Module\PsAccounts\Http\Client\Factory;
 use PrestaShop\Module\PsAccounts\Provider\ShopProvider;
 use PrestaShop\Module\PsAccounts\Service\PsAccountsService;
 
@@ -31,7 +31,7 @@ use PrestaShop\Module\PsAccounts\Service\PsAccountsService;
 class ServicesBillingClient
 {
     /**
-     * @var HttpClient
+     * @var Client
      */
     private $client;
 
@@ -41,7 +41,7 @@ class ServicesBillingClient
      * @param string $apiUrl
      * @param PsAccountsService $psAccountsService
      * @param ShopProvider $shopProvider
-     * @param HttpClient|null $client
+     * @param Client|null $client
      *
      * @throws \PrestaShopException
      * @throws \Exception
@@ -50,7 +50,7 @@ class ServicesBillingClient
         $apiUrl,
         PsAccountsService $psAccountsService,
         ShopProvider $shopProvider,
-        HttpClient $client = null
+        Client $client = null
     ) {
         $shopId = $shopProvider->getCurrentShop()['id'];
 
@@ -58,7 +58,7 @@ class ServicesBillingClient
 
         // Client can be provided for tests
         if (null === $client) {
-            $client = (new HttpClientFactory())->create([
+            $client = (new Factory())->create([
                 'baseUri' => $apiUrl,
                 'headers' => [
                     // Commented, else does not work anymore with API.

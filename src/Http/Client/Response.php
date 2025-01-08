@@ -1,6 +1,6 @@
 <?php
 
-namespace PrestaShop\Module\PsAccounts\Http\Client\Curl;
+namespace PrestaShop\Module\PsAccounts\Http\Client;
 
 class Response
 {

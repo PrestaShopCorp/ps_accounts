@@ -18,7 +18,7 @@
  * @license   https://opensource.org/licenses/AFL-3.0 Academic Free License version 3.0
  */
 
-use PrestaShop\Module\PsAccounts\Api\Client\OAuth2Client;
+use PrestaShop\Module\PsAccounts\Api\Client\OAuth2\OAuth2ApiClient;
 use PrestaShop\Module\PsAccounts\Polyfill\Traits\AdminController\IsAnonymousAllowed;
 
 class AdminLoginPsAccountsController extends \AdminController
@@ -121,8 +121,8 @@ class AdminLoginPsAccountsController extends \AdminController
      */
     public function createTemplate($tpl_name)
     {
-        /** @var OAuth2Client $provider */
-        $provider = $this->psAccounts->getService(OAuth2Client::class);
+        /** @var OAuth2ApiClient $provider */
+        $provider = $this->psAccounts->getService(OAuth2ApiClient::class);
 
         $testimonials = $this->getTestimonials();
 

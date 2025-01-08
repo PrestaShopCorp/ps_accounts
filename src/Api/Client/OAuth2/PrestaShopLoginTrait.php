@@ -18,12 +18,11 @@
  * @license   https://opensource.org/licenses/AFL-3.0 Academic Free License version 3.0
  */
 
-namespace PrestaShop\Module\PsAccounts\Provider\OAuth2;
+namespace PrestaShop\Module\PsAccounts\Api\Client\OAuth2;
 
 use PrestaShop\Module\PsAccounts\Account\Exception\EmailNotVerifiedException;
 use PrestaShop\Module\PsAccounts\Account\Exception\EmployeeNotFoundException;
-use PrestaShop\Module\PsAccounts\Account\Exception\Oauth2Exception;
-use PrestaShop\Module\PsAccounts\Api\Client\OAuth2Client;
+use PrestaShop\Module\PsAccounts\Account\Exception\Oauth2LoginException;
 use PrestaShop\Module\PsAccounts\Log\Logger;
 use Symfony\Component\HttpFoundation\Session\SessionInterface;
 use Tools;
@@ -31,7 +30,7 @@ use Tools;
 trait PrestaShopLoginTrait
 {
     /**
-     * @return OAuth2Client
+     * @return OAuth2ApiClient
      */
     abstract protected function getOAuth2Client();
 
@@ -62,7 +61,7 @@ trait PrestaShopLoginTrait
      *
      * @throws EmailNotVerifiedException
      * @throws EmployeeNotFoundException
-     * @throws Oauth2Exception
+     * @throws Oauth2LoginException
      * @throws \Exception
      */
     public function oauth2Login()
@@ -97,9 +96,8 @@ trait PrestaShopLoginTrait
                     $this->getSession()->get('oauth2pkceCode'),
                     $apiClient->getAuthRedirectUri()
                 );
-            } catch (IdentityProviderException $e) {
-                // FIXME
-                throw new Oauth2Exception($e->getMessage(), null, $e);
+            } catch (OAuth2Exception $e) {
+                throw new Oauth2LoginException($e->getMessage(), null, $e);
             }
 
             $oauth2Session->setTokenProvider($accessToken);

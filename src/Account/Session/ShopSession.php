@@ -25,10 +25,10 @@ use PrestaShop\Module\PsAccounts\Account\Exception\InconsistentAssociationStateE
 use PrestaShop\Module\PsAccounts\Account\Exception\RefreshTokenException;
 use PrestaShop\Module\PsAccounts\Account\LinkShop;
 use PrestaShop\Module\PsAccounts\Account\Token\Token;
-use PrestaShop\Module\PsAccounts\Api\Client\OAuth2Client;
+use PrestaShop\Module\PsAccounts\Api\Client\OAuth2\AccessToken;
+use PrestaShop\Module\PsAccounts\Api\Client\OAuth2\OAuth2ApiClient;
 use PrestaShop\Module\PsAccounts\Cqrs\CommandBus;
 use PrestaShop\Module\PsAccounts\Hook\ActionShopAccessTokenRefreshAfter;
-use PrestaShop\Module\PsAccounts\Provider\OAuth2\AccessToken;
 use PrestaShop\Module\PsAccounts\Repository\ConfigurationRepository;
 
 class ShopSession extends Session implements SessionInterface
@@ -44,7 +44,7 @@ class ShopSession extends Session implements SessionInterface
     protected $configurationRepository;
 
     /**
-     * @var OAuth2Client
+     * @var OAuth2ApiClient
      */
     protected $oauth2ApiClient;
 
@@ -60,13 +60,13 @@ class ShopSession extends Session implements SessionInterface
 
     /**
      * @param ConfigurationRepository $configurationRepository
-     * @param OAuth2Client $oauth2ApiClient
+     * @param OAuth2ApiClient $oauth2ApiClient
      * @param LinkShop $linkShop
      * @param CommandBus $commandBus
      */
     public function __construct(
         ConfigurationRepository $configurationRepository,
-        OAuth2Client $oauth2ApiClient,
+        OAuth2ApiClient $oauth2ApiClient,
         LinkShop $linkShop,
         CommandBus $commandBus
     ) {
