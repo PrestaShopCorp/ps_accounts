@@ -30,7 +30,6 @@ export default class HealthCheckApi {
   async checkOauth2Url() {
     const data = await this.getShopHealthStatus();
     const oauth2Url = data.env.oauth2Url;
-    console.log(oauth2Url);
 
     expect(oauth2Url).toEqual(Globals.curl.oauth2Url);
   }
@@ -38,7 +37,6 @@ export default class HealthCheckApi {
   async checkAccountsApiUrl() {
     const data = await this.getShopHealthStatus();
     const accountsApiUrl = data.env.accountsApiUrl;
-    console.log(accountsApiUrl);
 
     expect(accountsApiUrl).toEqual(Globals.curl.accountsApiUrl);
   }
@@ -46,7 +44,6 @@ export default class HealthCheckApi {
   async checkAccountsUiUrl() {
     const data = await this.getShopHealthStatus();
     const accountsUiUrl = data.env.accountsUiUrl;
-    console.log(accountsUiUrl);
 
     expect(accountsUiUrl).toEqual(Globals.curl.accountsUiUrl);
   }

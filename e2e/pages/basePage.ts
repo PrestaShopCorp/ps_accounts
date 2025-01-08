@@ -1,15 +1,10 @@
 // Import pages
 import {CommonPage} from '@prestashopcorp/tests-framework';
-import type {FrameLocator, Locator, Page} from '@playwright/test';
+import {expect, Locator, Page} from '@playwright/test';
 import {Globals} from '../utils/globals';
+import {modulePsAccount} from 'data/local/modules/modulePsAccount';
 
 export default class BasePage extends CommonPage {
-
-  /* <<<<<<<<<<<<<<< SHIPPING >>>>>>>>>>>>>>>>>>>>>> */
-  public readonly shippingParentLink: Locator;
-  public readonly shippingCarriersLink: Locator;
-  public readonly shippingPreferencesLink: Locator;
-
   /* <<<<<<<<<<<<<<< MODULEMANAGER >>>>>>>>>>>>>>>>>>>>>> */
   public readonly modulesParentLink: Locator;
   public readonly moduleManagerLink: Locator;
@@ -18,11 +13,6 @@ export default class BasePage extends CommonPage {
 
   constructor(page: Page) {
     super(page);
-
-    /* <<<<<<<<<<<<<<< SHIPPING >>>>>>>>>>>>>>>>>>>>>> */
-    this.shippingParentLink = this.page.locator('#subtab-AdminParentShipping');
-    this.shippingCarriersLink = this.page.locator('#subtab-AdminCarriers');
-    this.shippingPreferencesLink = this.page.locator('#subtab-AdminShipping');
 
     /* <<<<<<<<<<<<<<< MODULEMANAGER >>>>>>>>>>>>>>>>>>>>>> */
     this.modulesParentLink = this.page.locator('#subtab-AdminParentModulesSf');
@@ -68,7 +58,7 @@ export default class BasePage extends CommonPage {
     await this.page.locator('#passwd').fill(password);
     await this.page.getByRole('button', {name: 'Log in'}).click();
   }
-  
+
   /**
    * Is a menu with submenus open
    * @param parentLocator {Locator}
@@ -104,5 +94,10 @@ export default class BasePage extends CommonPage {
       await this.openMenu(parentLocator);
       await this.clickAndWaitForLoadState(linkLocator, 'domcontentloaded');
     }
+  }
+
+  async goToListOfModulesOldPsVersion() {
+    await this.page.locator('.icon-AdminParentModules').hover();
+    await this.page.locator('#subtab-AdminModules').filter({hasText: 'Modules and Services'}).click();
   }
 }

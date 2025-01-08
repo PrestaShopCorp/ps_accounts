@@ -14,7 +14,11 @@ export const gotToModuleManagerPage = base.extend<ShippingFixtures>({
       await pm.fromDashboardPage().closePopup();
     }
     await pm.fromDashboardPage().getPageMainTitle();
-    await pm.frombasePage().goToSubMenu(pm.frombasePage().modulesParentLink, pm.frombasePage().moduleManagerLink);
+     if (await pm.fromDashboardPage().getShopVersion()) {
+       await pm.frombasePage().goToListOfModulesOldPsVersion();
+     } else {
+       await pm.frombasePage().goToSubMenu(pm.frombasePage().modulesParentLink, pm.frombasePage().moduleManagerLink);
+     }
     await use(page);
   }
 });
