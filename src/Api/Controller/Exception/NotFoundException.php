@@ -18,50 +18,19 @@
  * @license   https://opensource.org/licenses/AFL-3.0 Academic Free License version 3.0
  */
 
-namespace PrestaShop\Module\PsAccounts\Exception\AccountLogin;
+namespace PrestaShop\Module\PsAccounts\Api\Controller\Exception;
 
-use PrestaShop\Module\PsAccounts\Provider\OAuth2\UserInfos;
-
-class AccountLoginException extends \Exception
+class NotFoundException extends HttpException
 {
     /**
-     * @var UserInfos|null
-     */
-    protected $user;
-
-    /**
-     * @var string
-     */
-    protected $type = 'error_other';
-
-    /**
      * @param string $message
-     * @param UserInfos|null $user
-     * @param \Exception $previous
+     * @param int $code
+     * @param \Exception|null $previous
      */
-    public function __construct(
-        $message = '',
-        UserInfos $user = null,
-        \Exception $previous = null
-    ) {
-        parent::__construct($message, 0, $previous);
-
-        $this->user = $user;
-    }
-
-    /**
-     * @return UserInfos|null
-     */
-    public function getUser()
+    public function __construct($message = 'Not Found', $code = 0, \Exception $previous = null)
     {
-        return $this->user;
-    }
+        parent::__construct($message, $code, $previous);
 
-    /**
-     * @return string
-     */
-    public function getType()
-    {
-        return $this->type;
+        $this->statusCode = 404;
     }
 }

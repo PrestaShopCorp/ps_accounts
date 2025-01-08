@@ -18,20 +18,19 @@
  * @license   https://opensource.org/licenses/AFL-3.0 Academic Free License version 3.0
  */
 
-namespace PrestaShop\Module\PsAccounts\Exception\Http;
+namespace PrestaShop\Module\PsAccounts\Api\Controller\Exception;
 
-class HttpException extends \RuntimeException
+class UnauthorizedException extends HttpException
 {
     /**
-     * @var int
+     * @param string $message
+     * @param int $code
+     * @param \Exception|null $previous
      */
-    protected $statusCode;
-
-    /**
-     * @return int
-     */
-    public function getStatusCode()
+    public function __construct($message = 'Unauthorized', $code = 0, \Exception $previous = null)
     {
-        return $this->statusCode;
+        parent::__construct($message, $code, $previous);
+
+        $this->statusCode = 401;
     }
 }

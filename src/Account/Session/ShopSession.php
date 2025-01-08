@@ -22,11 +22,11 @@ namespace PrestaShop\Module\PsAccounts\Account\Session;
 
 use PrestaShop\Module\PsAccounts\Account\Command\UnlinkShopCommand;
 use PrestaShop\Module\PsAccounts\Account\Exception\InconsistentAssociationStateException;
+use PrestaShop\Module\PsAccounts\Account\Exception\RefreshTokenException;
 use PrestaShop\Module\PsAccounts\Account\LinkShop;
 use PrestaShop\Module\PsAccounts\Account\Token\Token;
 use PrestaShop\Module\PsAccounts\Api\Client\OAuth2Client;
 use PrestaShop\Module\PsAccounts\Cqrs\CommandBus;
-use PrestaShop\Module\PsAccounts\Exception\RefreshTokenException;
 use PrestaShop\Module\PsAccounts\Hook\ActionShopAccessTokenRefreshAfter;
 use PrestaShop\Module\PsAccounts\Provider\OAuth2\AccessToken;
 use PrestaShop\Module\PsAccounts\Repository\ConfigurationRepository;
@@ -106,7 +106,7 @@ class ShopSession extends Session implements SessionInterface
                 $this->configurationRepository->getShopId(),
                 $e->getMessage()
             ));
-        //} catch (IdentityProviderException $e) {
+            //} catch (IdentityProviderException $e) {
         } catch (\Throwable $e) {
             /* @phpstan-ignore-next-line */
         } catch (\Exception $e) {

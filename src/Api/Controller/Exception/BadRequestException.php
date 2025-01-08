@@ -18,24 +18,19 @@
  * @license   https://opensource.org/licenses/AFL-3.0 Academic Free License version 3.0
  */
 
-namespace PrestaShop\Module\PsAccounts\Exception\AccountLogin;
+namespace PrestaShop\Module\PsAccounts\Api\Controller\Exception;
 
-use PrestaShop\Module\PsAccounts\Provider\OAuth2\UserInfos;
-
-class EmailNotVerifiedException extends AccountLoginException
+class BadRequestException extends HttpException
 {
     /**
      * @param string $message
-     * @param UserInfos|null $user
-     * @param \Exception $previous
+     * @param int $code
+     * @param \Exception|null $previous
      */
-    public function __construct(
-        $message = 'Your account email is not verified',
-        UserInfos $user = null,
-        \Exception $previous = null
-    ) {
-        parent::__construct($message, $user, $previous);
+    public function __construct($message = 'Bad Request', $code = 0, \Exception $previous = null)
+    {
+        parent::__construct($message, $code, $previous);
 
-        $this->type = 'email_not_verified';
+        $this->statusCode = 400;
     }
 }

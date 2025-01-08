@@ -20,10 +20,10 @@
 
 namespace PrestaShop\Module\PsAccounts\Provider\OAuth2;
 
+use PrestaShop\Module\PsAccounts\Account\Exception\EmailNotVerifiedException;
+use PrestaShop\Module\PsAccounts\Account\Exception\EmployeeNotFoundException;
+use PrestaShop\Module\PsAccounts\Account\Exception\Oauth2Exception;
 use PrestaShop\Module\PsAccounts\Api\Client\OAuth2Client;
-use PrestaShop\Module\PsAccounts\Exception\AccountLogin\EmailNotVerifiedException;
-use PrestaShop\Module\PsAccounts\Exception\AccountLogin\EmployeeNotFoundException;
-use PrestaShop\Module\PsAccounts\Exception\AccountLogin\Oauth2Exception;
 use PrestaShop\Module\PsAccounts\Log\Logger;
 use Symfony\Component\HttpFoundation\Session\SessionInterface;
 use Tools;

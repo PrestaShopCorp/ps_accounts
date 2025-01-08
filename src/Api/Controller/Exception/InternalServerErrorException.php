@@ -18,24 +18,19 @@
  * @license   https://opensource.org/licenses/AFL-3.0 Academic Free License version 3.0
  */
 
-namespace PrestaShop\Module\PsAccounts\Exception\AccountLogin;
+namespace PrestaShop\Module\PsAccounts\Api\Controller\Exception;
 
-use PrestaShop\Module\PsAccounts\Provider\OAuth2\UserInfos;
-
-class Oauth2Exception extends AccountLoginException
+class InternalServerErrorException extends HttpException
 {
     /**
      * @param string $message
-     * @param UserInfos|null $user
-     * @param \Exception $previous
+     * @param int $code
+     * @param \Exception|null $previous
      */
-    public function __construct(
-        $message = 'OAuth2 error',
-        UserInfos $user = null,
-        \Exception $previous = null
-    ) {
-        parent::__construct($message, $user, $previous);
+    public function __construct($message = 'Internal Server Error', $code = 0, \Exception $previous = null)
+    {
+        parent::__construct($message, $code, $previous);
 
-        $this->type = 'error_from_hydra';
+        $this->statusCode = 500;
     }
 }

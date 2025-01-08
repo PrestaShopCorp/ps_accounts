@@ -18,9 +18,9 @@
  * @license   https://opensource.org/licenses/AFL-3.0 Academic Free License version 3.0
  */
 
+use PrestaShop\Module\PsAccounts\Account\Exception\RefreshTokenException;
 use PrestaShop\Module\PsAccounts\Account\Session\Firebase\ShopSession;
 use PrestaShop\Module\PsAccounts\Api\Controller\AbstractShopRestController;
-use PrestaShop\Module\PsAccounts\Exception\RefreshTokenException;
 
 class ps_AccountsApiV1ShopTokenModuleFrontController extends AbstractShopRestController
 {

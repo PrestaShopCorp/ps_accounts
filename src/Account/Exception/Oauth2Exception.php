@@ -18,19 +18,24 @@
  * @license   https://opensource.org/licenses/AFL-3.0 Academic Free License version 3.0
  */
 
-namespace PrestaShop\Module\PsAccounts\Exception\Http;
+namespace PrestaShop\Module\PsAccounts\Account\Exception;
 
-class NotFoundException extends HttpException
+use PrestaShop\Module\PsAccounts\Provider\OAuth2\UserInfos;
+
+class Oauth2Exception extends AccountLoginException
 {
     /**
      * @param string $message
-     * @param int $code
-     * @param \Exception|null $previous
+     * @param UserInfos|null $user
+     * @param \Exception $previous
      */
-    public function __construct($message = 'Not Found', $code = 0, \Exception $previous = null)
-    {
-        parent::__construct($message, $code, $previous);
+    public function __construct(
+        $message = 'OAuth2 error',
+        UserInfos $user = null,
+        \Exception $previous = null
+    ) {
+        parent::__construct($message, $user, $previous);
 
-        $this->statusCode = 404;
+        $this->type = 'error_from_hydra';
     }
 }

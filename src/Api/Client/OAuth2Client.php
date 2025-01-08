@@ -21,8 +21,8 @@
 namespace PrestaShop\Module\PsAccounts\Api\Client;
 
 use PrestaShop\Module\PsAccounts\Adapter\Link;
+use PrestaShop\Module\PsAccounts\Factory\HttpClientFactory;
 use PrestaShop\Module\PsAccounts\Http\Client\Curl\HttpClient;
-use PrestaShop\Module\PsAccounts\Http\Client\Curl\HttpClientFactory;
 use PrestaShop\Module\PsAccounts\Provider\OAuth2\AccessToken;
 use PrestaShop\Module\PsAccounts\Provider\OAuth2\CachedFile;
 use PrestaShop\Module\PsAccounts\Provider\OAuth2\Oauth2Client as OauthClient;

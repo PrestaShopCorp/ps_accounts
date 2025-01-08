@@ -22,9 +22,9 @@ namespace PrestaShop\Module\PsAccounts\Api\Controller;
 
 use Context;
 use ModuleFrontController;
-use PrestaShop\Module\PsAccounts\Exception\Http\HttpException;
-use PrestaShop\Module\PsAccounts\Exception\Http\MethodNotAllowedException;
-use PrestaShop\Module\PsAccounts\Exception\Http\UnauthorizedException;
+use PrestaShop\Module\PsAccounts\Api\Controller\Exception\HttpException;
+use PrestaShop\Module\PsAccounts\Api\Controller\Exception\MethodNotAllowedException;
+use PrestaShop\Module\PsAccounts\Api\Controller\Exception\UnauthorizedException;
 use PrestaShop\Module\PsAccounts\Polyfill\Traits\Controller\AjaxRender;
 use PrestaShop\Module\PsAccounts\Provider\RsaKeysProvider;
 use PrestaShop\Module\PsAccounts\Repository\ConfigurationRepository;

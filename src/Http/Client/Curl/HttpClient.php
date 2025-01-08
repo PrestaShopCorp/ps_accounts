@@ -203,6 +203,8 @@ class HttpClient
      * @param mixed $response
      *
      * @return Response|array
+     *
+     * @throws CircuitBreakerException
      */
     public function getResponse($ch, $response)
     {
@@ -223,8 +225,7 @@ class HttpClient
         $this->logResponse($res, $ch);
 
         if ($this->objectResponse) {
-            /** @var Response $res */
-            $res = (object) $res;
+            return new Response($res);
         }
 
         return $res;

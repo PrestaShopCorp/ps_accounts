@@ -18,19 +18,24 @@
  * @license   https://opensource.org/licenses/AFL-3.0 Academic Free License version 3.0
  */
 
-namespace PrestaShop\Module\PsAccounts\Exception\Http;
+namespace PrestaShop\Module\PsAccounts\Factory;
 
-class UnauthorizedException extends HttpException
+use PrestaShop\Module\PsAccounts\Http\Client\Curl\HttpClient;
+
+/**
+ * Construct the guzzle client depending on PrestaShop version
+ */
+class HttpClientFactory
 {
     /**
-     * @param string $message
-     * @param int $code
-     * @param \Exception|null $previous
+     * @param array $options
+     *
+     * @return HttpClient
+     *
+     * @throws \Exception
      */
-    public function __construct($message = 'Unauthorized', $code = 0, \Exception $previous = null)
+    public function create($options)
     {
-        parent::__construct($message, $code, $previous);
-
-        $this->statusCode = 401;
+        return new HttpClient($options);
     }
 }

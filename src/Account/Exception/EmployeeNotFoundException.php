@@ -18,22 +18,24 @@
  * @license   https://opensource.org/licenses/AFL-3.0 Academic Free License version 3.0
  */
 
-namespace PrestaShop\Module\PsAccounts\Http\Client\Curl;
+namespace PrestaShop\Module\PsAccounts\Account\Exception;
 
-/**
- * Construct the guzzle client depending on PrestaShop version
- */
-class HttpClientFactory
+use PrestaShop\Module\PsAccounts\Provider\OAuth2\UserInfos;
+
+class EmployeeNotFoundException extends AccountLoginException
 {
     /**
-     * @param array $options
-     *
-     * @return HttpClient
-     *
-     * @throws \Exception
+     * @param string $message
+     * @param UserInfos|null $user
+     * @param \Exception $previous
      */
-    public function create($options)
-    {
-        return new HttpClient($options);
+    public function __construct(
+        $message = 'The email address is not associated to a PrestaShop backoffice account.',
+        UserInfos $user = null,
+        \Exception $previous = null
+    ) {
+        parent::__construct($message, $user, $previous);
+
+        $this->type = 'employee_not_found';
     }
 }

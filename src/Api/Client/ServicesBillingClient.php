@@ -20,8 +20,8 @@
 
 namespace PrestaShop\Module\PsAccounts\Api\Client;
 
+use PrestaShop\Module\PsAccounts\Factory\HttpClientFactory;
 use PrestaShop\Module\PsAccounts\Http\Client\Curl\HttpClient;
-use PrestaShop\Module\PsAccounts\Http\Client\Curl\HttpClientFactory;
 use PrestaShop\Module\PsAccounts\Provider\ShopProvider;
 use PrestaShop\Module\PsAccounts\Service\PsAccountsService;
 
