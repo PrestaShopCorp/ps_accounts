@@ -205,7 +205,7 @@ class Client
     }
 
     /**
-     * @param resource $ch
+     * @param mixed $ch
      * @param mixed $response
      *
      * @return Response|array
@@ -239,7 +239,7 @@ class Client
 
     /**
      * @param array $response
-     * @param resource $ch
+     * @param mixed $ch
      *
      * @return void
      */
@@ -254,7 +254,7 @@ class Client
 
     /**
      * @param array $options
-     * @param resource $ch
+     * @param mixed $ch
      *
      * @return void
      */
@@ -271,13 +271,17 @@ class Client
     }
 
     /**
-     * @return resource
+     * @return mixed
      */
     public function initRoute()
     {
         $absRoute = $this->getRoute();
         if (!empty($this->baseUri) && !preg_match('/^http(s)?:\/\//', $absRoute)) {
             $absRoute = preg_replace('/\/$/', '', $this->baseUri) . preg_replace('/\/+/', '/', '/' . $absRoute);
+        }
+
+        if (empty($absRoute)) {
+            throw new \InvalidArgumentException('Route must be set before initRoute()');
         }
 
         $ch = curl_init();
@@ -292,20 +296,20 @@ class Client
     }
 
     /**
-     * @param resource $ch
+     * @param mixed $ch
      *
      * @return void
      */
     public function initSsl($ch)
     {
         $checkSsl = $this->getVerify();
-        curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, $checkSsl);
+        curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, $checkSsl ? 2 : 0);
         curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, $checkSsl);
     }
 
     /**
      * @param array $options
-     * @param resource $ch
+     * @param mixed $ch
      *
      * @return void
      */
@@ -313,7 +317,7 @@ class Client
     {
         if (array_key_exists('json', $options)) {
             Logger::getInstance()->info('payload ' . var_export($options['json'], true));
-            curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($options['json']));
+            curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($options['json']) ?: '');
             curl_setopt($ch, CURLOPT_HTTPHEADER, ['Content-Type: application/json']);
         } elseif (array_key_exists('body', $options)) {
             Logger::getInstance()->info('payload ' . var_export($options['body'], true));
@@ -336,7 +340,7 @@ class Client
     /**
      * @param array $options
      *
-     * @return resource
+     * @return mixed
      */
     public function initCurl(array $options)
     {

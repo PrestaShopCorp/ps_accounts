@@ -22,11 +22,14 @@ namespace PrestaShop\Module\PsAccounts\Api\Client;
 
 use PrestaShop\Module\PsAccounts\Http\Client\Curl\Client;
 use PrestaShop\Module\PsAccounts\Http\Client\Factory;
+use PrestaShop\Module\PsAccounts\Http\Client\Response;
 use PrestaShop\Module\PsAccounts\Provider\ShopProvider;
 use PrestaShop\Module\PsAccounts\Service\PsAccountsService;
 
 /**
  * Handle call api Services
+ *
+ * @deprecated since v7.0.0
  */
 class ServicesBillingClient
 {
@@ -78,7 +81,7 @@ class ServicesBillingClient
     /**
      * @param mixed $shopUuidV4
      *
-     * @return array|false
+     * @return Response|array
      */
     public function getBillingCustomer($shopUuidV4)
     {
@@ -91,7 +94,7 @@ class ServicesBillingClient
      * @param mixed $shopUuidV4
      * @param array $bodyHttp
      *
-     * @return array|false
+     * @return Response|array
      */
     public function createBillingCustomer($shopUuidV4, $bodyHttp)
     {
@@ -106,7 +109,7 @@ class ServicesBillingClient
      * @param mixed $shopUuidV4
      * @param string $module
      *
-     * @return array|false
+     * @return Response|array
      */
     public function getBillingSubscriptions($shopUuidV4, $module)
     {
@@ -120,7 +123,7 @@ class ServicesBillingClient
      * @param string $module
      * @param array $bodyHttp
      *
-     * @return array|false
+     * @return Response|array
      */
     public function createBillingSubscriptions($shopUuidV4, $module, $bodyHttp)
     {

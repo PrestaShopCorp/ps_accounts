@@ -32,7 +32,7 @@ class PrestaShopSession
     private $session;
 
     /**
-     * @var Oauth2ApiClient
+     * @var OAuth2ApiClient
      */
     private $oauth2ApiClient;
 
@@ -46,7 +46,7 @@ class PrestaShopSession
      * @param OAuth2ApiClient $oauth2ApiClient
      * @param OAuth2Client $oauth2Client
      */
-    public function __construct($session, Oauth2ApiClient $oauth2ApiClient, OAuth2Client $oauth2Client)
+    public function __construct($session, OAuth2ApiClient $oauth2ApiClient, OAuth2Client $oauth2Client)
     {
         $this->session = $session;
         $this->oauth2ApiClient = $oauth2ApiClient;

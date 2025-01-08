@@ -24,6 +24,7 @@ use PrestaShop\Module\PsAccounts\Adapter\Link;
 use PrestaShop\Module\PsAccounts\Api\Client\OAuth2\OAuth2Client as OauthClient;
 use PrestaShop\Module\PsAccounts\Http\Client\Curl\Client;
 use PrestaShop\Module\PsAccounts\Http\Client\Factory;
+use PrestaShop\Module\PsAccounts\Http\Client\Response;
 use PrestaShop\Module\PsAccounts\Vendor\Ramsey\Uuid\Uuid;
 
 class OAuth2ApiClient
@@ -141,14 +142,7 @@ class OAuth2ApiClient
         /* @phpstan-ignore-next-line */
         if (!isset($this->wellKnown) || $this->cachedWellKnown->isExpired()) {
             try {
-                $this->wellKnown = new WellKnown(
-                    json_decode(
-                        ($this->cachedWellKnown !== null) ?
-                            $this->getCachedWellKnown() :
-                            $this->fetchWellKnown($this->getOauth2Url()),
-                        true
-                    )
-                );
+                $this->wellKnown = new WellKnown(json_decode($this->getCachedWellKnown(), true));
             } catch (\Throwable $e) {
                 /* @phpstan-ignore-next-line */
             } catch (\Exception $e) {
@@ -180,11 +174,11 @@ class OAuth2ApiClient
             );
         }
 
-        return $this->cachedWellKnown->read();
+        return (string) $this->cachedWellKnown->read();
     }
 
     /**
-     * @param string|null $url
+     * @param string $url
      *
      * @return array
      */
@@ -196,6 +190,8 @@ class OAuth2ApiClient
         }
 
         $this->getClient()->setRoute($wellKnownUrl);
+
+        /** @var Response $response */
         $response = $this->getClient()->get();
 
         return $response->body;
@@ -211,6 +207,7 @@ class OAuth2ApiClient
     {
         $this->getClient()->setRoute($this->getWellKnown()->token_endpoint);
 
+        /** @var Response $response */
         $response = $this->getClient()->post([
             'body' => [
                 'grant_type' => 'client_credentials',
@@ -273,24 +270,22 @@ class OAuth2ApiClient
      * @param int $length
      *
      * @return string
-     *
-     * @throws \Random\RandomException
      */
     public function getRandomState($length = 32)
     {
-        return bin2hex(random_bytes($length / 2));
+        /* @phpstan-ignore-next-line */
+        return bin2hex(random_bytes((int) ($length / 2)));
     }
 
     /**
      * @param int $length
      *
-     * @return false|string
-     *
-     * @throws \Random\RandomException
+     * @return string
      */
     public function getRandomPkceCode($length = 64)
     {
-        return substr(strtr(base64_encode(random_bytes($length)), '+/', '-_'), 0, $length);
+        /* @phpstan-ignore-next-line */
+        return (string) substr(strtr(base64_encode(random_bytes($length)), '+/', '-_'), 0, $length);
     }
 
     /**
@@ -311,6 +306,7 @@ class OAuth2ApiClient
     ) {
         $this->getClient()->setRoute($this->getWellKnown()->token_endpoint);
 
+        /** @var Response $response */
         $response = $this->getClient()->post([
             'body' => array_merge([
                 'grant_type' => 'authorization_code',
@@ -341,6 +337,7 @@ class OAuth2ApiClient
     {
         $this->getClient()->setRoute($this->getWellKnown()->token_endpoint);
 
+        /** @var Response $response */
         $response = $this->getClient()->post([
             'body' => [
                 'grant_type' => 'refresh_token',
@@ -365,6 +362,7 @@ class OAuth2ApiClient
     {
         $this->getClient()->setRoute($this->getWellKnown()->userinfo_endpoint);
 
+        /** @var Response $response */
         $response = $this->getClient()->get([
             'headers' => $this->getHeaders([
                 'Authorization' => 'Bearer ' . $accessToken,
@@ -404,6 +402,14 @@ class OAuth2ApiClient
             'logout' => 1,
             PrestaShopLogoutTrait::getQueryLogoutCallbackParam() => 1,
         ]);
+    }
+
+    /**
+     * @return OAuth2Client
+     */
+    public function getOauth2Client()
+    {
+        return $this->oauth2Client;
     }
 
     // TODO: remove Lcobucci (use firebase/jwt)

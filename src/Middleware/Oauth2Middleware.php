@@ -115,7 +115,7 @@ class Oauth2Middleware
     protected function onLogoutCallback()
     {
         if ($this->bypassLoginPage) {
-            \Tools::redirectLink($this->getOAuth2Client()->getRedirectUri());
+            \Tools::redirectLink($this->getOAuth2Client()->getAuthRedirectUri());
         }
     }
 }

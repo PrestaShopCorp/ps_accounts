@@ -2,7 +2,7 @@
 
 namespace PrestaShop\Module\PsAccounts\Tests\Unit\Provider\RsaKeysProvider;
 
-use PrestaShop\Module\PsAccounts\Exception\SshKeysNotFoundException;
+use PrestaShop\Module\PsAccounts\Account\Exception\SshKeysNotFoundException;
 use PrestaShop\Module\PsAccounts\Provider\RsaKeysProvider;
 use PrestaShop\Module\PsAccounts\Tests\TestCase;
 

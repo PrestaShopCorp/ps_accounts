@@ -24,6 +24,7 @@ use PrestaShop\Module\PsAccounts\Account\Dto\UpdateShop;
 use PrestaShop\Module\PsAccounts\Account\Dto\UpgradeModule;
 use PrestaShop\Module\PsAccounts\Http\Client\Curl\Client;
 use PrestaShop\Module\PsAccounts\Http\Client\Factory;
+use PrestaShop\Module\PsAccounts\Http\Client\Response;
 use PrestaShop\Module\PsAccounts\Vendor\Ramsey\Uuid\Uuid;
 
 class AccountsClient
@@ -53,6 +54,7 @@ class AccountsClient
      *
      * @param string $baseUri
      * @param int $defaultTimeout
+     * @param bool $sslCheck
      *
      * @throws \Exception
      */
@@ -111,24 +113,28 @@ class AccountsClient
     {
         $this->getClient()->setRoute('v2/shop/firebase/tokens');
 
-        return $this->getClient()->get([
+        /** @var array $res */
+        $res =  $this->getClient()->get([
             'headers' => $this->getHeaders([
                 'Authorization' => 'Bearer ' . $accessToken,
             ]),
         ]);
+
+        return $res;
     }
 
     /**
      * @param string $refreshToken
      * @param string $shopUuid
      *
-     * @return array response
+     * @return array
      */
     public function refreshShopToken($refreshToken, $shopUuid)
     {
         $this->getClient()->setRoute('v1/shop/token/refresh');
 
-        return $this->getClient()->post([
+        /** @var array $res */
+        $res = $this->getClient()->post([
             'headers' => $this->getHeaders([
                 'X-Shop-Id' => $shopUuid,
             ]),
@@ -136,6 +142,8 @@ class AccountsClient
                 'token' => $refreshToken,
             ],
         ]);
+
+        return $res;
     }
 
     /**
@@ -149,12 +157,15 @@ class AccountsClient
     {
         $this->getClient()->setRoute('v1/user/' . $ownerUid . '/shop/' . $shopUid);
 
-        return $this->getClient()->delete([
+        /** @var array $res */
+        $res = $this->getClient()->delete([
             'headers' => $this->getHeaders([
                 'Authorization' => 'Bearer ' . $ownerToken,
                 'X-Shop-Id' => $shopUid,
             ]),
         ]);
+
+        return $res;
     }
 
     /**
@@ -169,13 +180,16 @@ class AccountsClient
     {
         $this->getClient()->setRoute('v1/user/' . $ownerUid . '/shop/' . $shopUid);
 
-        return $this->getClient()->patch([
+        /** @var array $res */
+        $res =  $this->getClient()->patch([
             'headers' => $this->getHeaders([
                 'Authorization' => 'Bearer ' . $ownerToken,
                 'X-Shop-Id' => $shopUid,
             ]),
             'json' => $shop->jsonSerialize(),
         ]);
+
+        return $res;
     }
 
     /**
@@ -189,13 +203,16 @@ class AccountsClient
     {
         $this->getClient()->setRoute('/v2/shop/module/update');
 
-        return $this->getClient()->post([
+        /** @var array $res */
+        $res =  $this->getClient()->post([
             'headers' => $this->getHeaders([
                 'Authorization' => 'Bearer ' . $shopToken,
                 'X-Shop-Id' => $shopUid,
             ]),
             'json' => $data->jsonSerialize(),
         ]);
+
+        return $res;
     }
 
     /**
@@ -203,18 +220,21 @@ class AccountsClient
      *
      * @param string $idToken
      *
-     * @return array response
+     * @return array
      */
     public function verifyToken($idToken)
     {
         $this->getClient()->setRoute('/v1/shop/token/verify');
 
-        return $this->getClient()->post([
+        /** @var array $res */
+        $res = $this->getClient()->post([
             'headers' => $this->getHeaders(),
             'json' => [
                 'token' => $idToken,
             ],
         ]);
+
+        return $res;
     }
 
     /**
@@ -224,6 +244,9 @@ class AccountsClient
     {
         $this->getClient()->setRoute('/healthcheck');
 
-        return $this->getClient()->get();
+        /** @var array $res */
+        $res = $this->getClient()->get();
+
+        return $res;
     }
 }

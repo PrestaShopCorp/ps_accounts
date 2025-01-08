@@ -27,7 +27,7 @@ class AccessToken
     public $scope;
 
     /**
-     * @var string;
+     * @var string
      */
     public $token_type;
 
