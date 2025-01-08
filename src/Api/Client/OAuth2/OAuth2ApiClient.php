@@ -24,7 +24,7 @@ use PrestaShop\Module\PsAccounts\Adapter\Link;
 use PrestaShop\Module\PsAccounts\Api\Client\OAuth2\OAuth2Client as OauthClient;
 use PrestaShop\Module\PsAccounts\Http\Client\Curl\Client;
 use PrestaShop\Module\PsAccounts\Http\Client\Factory;
-use PrestaShop\Module\PsAccounts\Http\Client\Request;
+use PrestaShop\Module\PsAccounts\Http\Client\Options;
 use PrestaShop\Module\PsAccounts\Http\Client\Response;
 use PrestaShop\Module\PsAccounts\Vendor\Ramsey\Uuid\Uuid;
 
@@ -208,7 +208,7 @@ class OAuth2ApiClient
         $response = $this->getClient()->post(
             $this->getWellKnown()->token_endpoint,
             [
-                Request::BODY => [
+                Options::REQ_FORM => [
                     'grant_type' => 'client_credentials',
                     'client_id' => $this->oauth2Client->getClientId(),
                     'client_secret' => $this->oauth2Client->getClientSecret(),
@@ -308,7 +308,7 @@ class OAuth2ApiClient
         $response = $this->getClient()->post(
             $this->getWellKnown()->token_endpoint,
             [
-                Request::BODY => array_merge([
+                Options::REQ_FORM => array_merge([
                     'grant_type' => 'authorization_code',
                     'client_id' => $this->oauth2Client->getClientId(),
                     'client_secret' => $this->oauth2Client->getClientSecret(),
@@ -340,7 +340,7 @@ class OAuth2ApiClient
         $response = $this->getClient()->post(
             $this->getWellKnown()->token_endpoint,
             [
-                Request::BODY => [
+                Options::REQ_FORM => [
                     'grant_type' => 'refresh_token',
                     'client_id' => $this->oauth2Client->getClientId(),
                     'refresh_token' => $refreshToken,
@@ -366,7 +366,7 @@ class OAuth2ApiClient
         $response = $this->getClient()->get(
             $this->getWellKnown()->userinfo_endpoint,
             [
-                Request::HEADERS => $this->getHeaders([
+                Options::REQ_HEADERS => $this->getHeaders([
                     'Authorization' => 'Bearer ' . $accessToken,
                 ]),
             ]

@@ -21,7 +21,7 @@
 namespace PrestaShop\Module\PsAccounts\Http\Client\Curl;
 
 use PrestaShop\Module\PsAccounts\Http\Client\CircuitBreaker;
-use PrestaShop\Module\PsAccounts\Http\Client\Request;
+use PrestaShop\Module\PsAccounts\Http\Client\Options;
 use PrestaShop\Module\PsAccounts\Http\Client\Response;
 use PrestaShop\Module\PsAccounts\Log\Logger;
 
@@ -275,8 +275,8 @@ class Client
     public function initHeaders(array $options, $ch)
     {
         $assoc = $this->headers;
-        if (array_key_exists(Request::HEADERS, $options)) {
-            $assoc = array_merge($assoc, $options[Request::HEADERS]);
+        if (array_key_exists(Options::REQ_HEADERS, $options)) {
+            $assoc = array_merge($assoc, $options[Options::REQ_HEADERS]);
         }
 
         $headers = [];
@@ -337,13 +337,13 @@ class Client
      */
     public function initPayload(array $options, $ch)
     {
-        if (array_key_exists(Request::JSON, $options)) {
-            Logger::getInstance()->info('payload ' . var_export($options[Request::JSON], true));
-            curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($options[Request::JSON]) ?: '');
+        if (array_key_exists(Options::REQ_JSON, $options)) {
+            Logger::getInstance()->info('payload ' . var_export($options[Options::REQ_JSON], true));
+            curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($options[Options::REQ_JSON]) ?: '');
             curl_setopt($ch, CURLOPT_HTTPHEADER, ['Content-Type: application/json']);
-        } elseif (array_key_exists(Request::BODY, $options)) {
-            Logger::getInstance()->info('payload ' . var_export($options[Request::BODY], true));
-            curl_setopt($ch, CURLOPT_POSTFIELDS, http_build_query($options[Request::BODY]));
+        } elseif (array_key_exists(Options::REQ_FORM, $options)) {
+            Logger::getInstance()->info('payload ' . var_export($options[Options::REQ_FORM], true));
+            curl_setopt($ch, CURLOPT_POSTFIELDS, http_build_query($options[Options::REQ_FORM]));
         }
     }
 
