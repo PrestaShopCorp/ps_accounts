@@ -423,4 +423,5 @@ class OAuth2ApiClient
     // TODO: move Exception classes
     // TODO: throw Exceptions -> and catch them in Login Trait
     // TODO: log client errors (onError)
+    // TODO: USER AGENT
 }
