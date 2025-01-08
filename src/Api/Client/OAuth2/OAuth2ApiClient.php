@@ -205,18 +205,19 @@ class OAuth2ApiClient
      */
     public function getAccessTokenByClientCredentials(array $scope = [], array $audience = [])
     {
-        $this->getClient()->setRoute($this->getWellKnown()->token_endpoint);
-
         /** @var Response $response */
-        $response = $this->getClient()->post([
-            'body' => [
-                'grant_type' => 'client_credentials',
-                'client_id' => $this->oauth2Client->getClientId(),
-                'client_secret' => $this->oauth2Client->getClientSecret(),
-                'scope' => implode(' ', $scope),
-                'audience' => implode(' ', $audience),
-            ],
-        ]);
+        $response = $this->getClient()->post(
+            $this->getWellKnown()->token_endpoint,
+            [
+                'query' => [
+                    'grant_type' => 'client_credentials',
+                    'client_id' => $this->oauth2Client->getClientId(),
+                    'client_secret' => $this->oauth2Client->getClientSecret(),
+                    'scope' => implode(' ', $scope),
+                    'audience' => implode(' ', $audience),
+                ],
+            ]
+        );
 
         if (!$response->status) {
             throw new OAuth2Exception('Unable to get access token');
@@ -304,22 +305,23 @@ class OAuth2ApiClient
         array $scope = [],
         array $audience = []
     ) {
-        $this->getClient()->setRoute($this->getWellKnown()->token_endpoint);
-
         /** @var Response $response */
-        $response = $this->getClient()->post([
-            'body' => array_merge([
-                'grant_type' => 'authorization_code',
-                'client_id' => $this->oauth2Client->getClientId(),
-                'client_secret' => $this->oauth2Client->getClientSecret(),
-                'code' => $code,
-                'scope' => implode(' ', $scope),
-                'audience' => implode(' ', $audience),
-            ], $pkceCode ? [
-                'code_verifier' => $pkceCode,
-                'redirect_uri' => $redirectUri,
-            ] : []),
-        ]);
+        $response = $this->getClient()->post(
+            $this->getWellKnown()->token_endpoint,
+            [
+                'query' => array_merge([
+                    'grant_type' => 'authorization_code',
+                    'client_id' => $this->oauth2Client->getClientId(),
+                    'client_secret' => $this->oauth2Client->getClientSecret(),
+                    'code' => $code,
+                    'scope' => implode(' ', $scope),
+                    'audience' => implode(' ', $audience),
+                ], $pkceCode ? [
+                    'code_verifier' => $pkceCode,
+                    'redirect_uri' => $redirectUri,
+                ] : []),
+            ]
+        );
 
         if (!$response->status) {
             throw new OAuth2Exception('Unable to get access token');
@@ -335,16 +337,17 @@ class OAuth2ApiClient
      */
     public function refreshAccessToken($refreshToken)
     {
-        $this->getClient()->setRoute($this->getWellKnown()->token_endpoint);
-
         /** @var Response $response */
-        $response = $this->getClient()->post([
-            'body' => [
-                'grant_type' => 'refresh_token',
-                'client_id' => $this->oauth2Client->getClientId(),
-                'refresh_token' => $refreshToken,
-            ],
-        ]);
+        $response = $this->getClient()->post(
+            $this->getWellKnown()->token_endpoint,
+            [
+                'query' => [
+                    'grant_type' => 'refresh_token',
+                    'client_id' => $this->oauth2Client->getClientId(),
+                    'refresh_token' => $refreshToken,
+                ],
+            ]
+        );
 
         if (!$response->status) {
             throw new OAuth2Exception('Unable to refresh access token');
@@ -360,14 +363,15 @@ class OAuth2ApiClient
      */
     public function getUserInfos($accessToken)
     {
-        $this->getClient()->setRoute($this->getWellKnown()->userinfo_endpoint);
-
         /** @var Response $response */
-        $response = $this->getClient()->get([
-            'headers' => $this->getHeaders([
-                'Authorization' => 'Bearer ' . $accessToken,
-            ]),
-        ]);
+        $response = $this->getClient()->get(
+            $this->getWellKnown()->userinfo_endpoint,
+            [
+                'headers' => $this->getHeaders([
+                    'Authorization' => 'Bearer ' . $accessToken,
+                ]),
+            ]
+        );
 
         if (!$response->status) {
             throw new OAuth2Exception('Unable to get user infos');

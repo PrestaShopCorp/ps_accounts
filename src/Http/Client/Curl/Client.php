@@ -66,6 +66,11 @@ class Client
     protected $sslCheck = true;
 
     /**
+     * @var bool
+     */
+    protected $allowRedirects;
+
+    /**
      * @param array $options
      *
      * @throws \Exception
@@ -86,7 +91,7 @@ class Client
 //        \Tools::refreshCACertFile();
 
         // FIXME headers
-        foreach (['baseUri', 'timeout', 'objectResponse', 'sslCheck'] as $option) {
+        foreach (['baseUri', 'timeout', 'objectResponse', 'sslCheck', 'allowRedirects'] as $option) {
             if (isset($options[$option])) {
                 $this->$option = $options[$option];
             }
@@ -94,16 +99,19 @@ class Client
     }
 
     /**
+     * @param string $route
      * @param array $options payload
      *
      * @return Response|array return response or false if no response
      */
-    public function post(array $options = [])
+    public function post($route, array $options = [])
     {
-        return $this->circuitBreaker->call(function () use ($options) {
+        return $this->circuitBreaker->call(function () use ($route, $options) {
+            $this->setRoute($route);
+
             $ch = $this->initCurl($options);
 
-            curl_setopt($ch, CURLOPT_POST, true);
+            curl_setopt($ch, CURLOPT_CUSTOMREQUEST, 'POST');
 
             $this->initPayload($options, $ch);
 
@@ -116,13 +124,16 @@ class Client
     }
 
     /**
+     * @param string $route
      * @param array $options payload
      *
      * @return Response|array return response or false if no response
      */
-    public function patch(array $options = [])
+    public function patch($route, array $options = [])
     {
-        return $this->circuitBreaker->call(function () use ($options) {
+        return $this->circuitBreaker->call(function () use ($route, $options) {
+            $this->setRoute($route);
+
             $ch = $this->initCurl($options);
 
             curl_setopt($ch, CURLOPT_CUSTOMREQUEST, 'PATCH');
@@ -138,13 +149,16 @@ class Client
     }
 
     /**
+     * @param string $route
      * @param array $options payload
      *
      * @return Response|array return response or false if no response
      */
-    public function get(array $options = [])
+    public function get($route, array $options = [])
     {
-        return $this->circuitBreaker->call(function () use ($options) {
+        return $this->circuitBreaker->call(function () use ($route, $options) {
+            $this->setRoute($route);
+
             $ch = $this->initCurl($options);
 
             $response = $this->getResponse($ch, curl_exec($ch));
@@ -156,13 +170,16 @@ class Client
     }
 
     /**
+     * @param string $route
      * @param array $options payload
      *
      * @return Response|array return response array
      */
-    public function delete(array $options = [])
+    public function delete($route, array $options = [])
     {
-        return $this->circuitBreaker->call(function () use ($options) {
+        return $this->circuitBreaker->call(function () use ($route, $options) {
+            $this->setRoute($route);
+
             $ch = $this->initCurl($options);
 
             curl_setopt($ch, CURLOPT_CUSTOMREQUEST, 'DELETE');
@@ -220,7 +237,7 @@ class Client
                 throw new CircuitBreaker\CircuitBreakerException('Curl error: ' . curl_error($ch));
         }
 
-        $statusCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+        $statusCode = curl_getinfo($ch, CURLINFO_RESPONSE_CODE);
         $res = [
             'status' => $this->responseIsSuccessful([], $statusCode),
             'httpCode' => $statusCode,
@@ -287,9 +304,13 @@ class Client
         $ch = curl_init();
 
         curl_setopt($ch, CURLOPT_URL, $absRoute);
-        curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, $this->timeout);
         curl_setopt($ch, CURLOPT_TIMEOUT, $this->timeout);
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+
+        curl_setopt($ch, CURLOPT_FOLLOWLOCATION, $this->allowRedirects);
+        curl_setopt($ch, CURLOPT_POSTREDIR, $this->allowRedirects ? 3 : 0);
+
+        curl_setopt($ch, CURLOPT_USERAGENT, 'Ps_accounts/' . \Ps_accounts::VERSION);
         //curl_setopt($ch, CURLOPT_VERBOSE, true);
 
         return $ch;
@@ -319,9 +340,10 @@ class Client
             Logger::getInstance()->info('payload ' . var_export($options['json'], true));
             curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($options['json']) ?: '');
             curl_setopt($ch, CURLOPT_HTTPHEADER, ['Content-Type: application/json']);
-        } elseif (array_key_exists('body', $options)) {
-            Logger::getInstance()->info('payload ' . var_export($options['body'], true));
-            curl_setopt($ch, CURLOPT_POSTFIELDS, http_build_query($options['body']));
+
+        } elseif (array_key_exists('query', $options)) {
+            Logger::getInstance()->info('payload ' . var_export($options['query'], true));
+            curl_setopt($ch, CURLOPT_POSTFIELDS, http_build_query($options['query']));
         }
     }
 

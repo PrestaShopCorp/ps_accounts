@@ -66,7 +66,7 @@ class DeleteTest extends FeatureTestCase
         $this->assertResponseDeleted($response);
 
         // FIXME: empty response
-        // $this->assertArraySubset(['success' => true], $json);
+        //$this->assertArraySubset(['success' => true], $json);
 
         \Configuration::clearConfigurationCacheForTesting();
         \Configuration::loadConfiguration();

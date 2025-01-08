@@ -85,9 +85,7 @@ class ServicesBillingClient
      */
     public function getBillingCustomer($shopUuidV4)
     {
-        $this->client->setRoute('/shops/' . $shopUuidV4);
-
-        return $this->client->get();
+        return $this->client->get('/shops/' . $shopUuidV4);
     }
 
     /**
@@ -98,11 +96,12 @@ class ServicesBillingClient
      */
     public function createBillingCustomer($shopUuidV4, $bodyHttp)
     {
-        $this->client->setRoute('/shops/' . $shopUuidV4);
-
-        return $this->client->post([
-            'body' => $bodyHttp,
-        ]);
+        return $this->client->post(
+            '/shops/' . $shopUuidV4,
+            [
+                'query' => $bodyHttp,
+            ]
+        );
     }
 
     /**
@@ -113,9 +112,7 @@ class ServicesBillingClient
      */
     public function getBillingSubscriptions($shopUuidV4, $module)
     {
-        $this->client->setRoute('/shops/' . $shopUuidV4 . '/subscriptions/' . $module);
-
-        return $this->client->get();
+        return $this->client->get('/shops/' . $shopUuidV4 . '/subscriptions/' . $module);
     }
 
     /**
@@ -127,10 +124,11 @@ class ServicesBillingClient
      */
     public function createBillingSubscriptions($shopUuidV4, $module, $bodyHttp)
     {
-        $this->client->setRoute('/shops/' . $shopUuidV4 . '/subscriptions/' . $module);
-
-        return $this->client->post([
-            'body' => $bodyHttp,
-        ]);
+        return $this->client->post(
+            '/shops/' . $shopUuidV4 . '/subscriptions/' . $module,
+            [
+                'query' => $bodyHttp,
+            ]
+        );
     }
 }

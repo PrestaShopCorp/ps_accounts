@@ -30,4 +30,20 @@ class Response
             }
         }
     }
+
+    /**
+     * @return int
+     */
+    public function getStatusCode()
+    {
+        return $this->httpCode;
+    }
+
+    /**
+     * @return array
+     */
+    public function getBody()
+    {
+        return $this->body;
+    }
 }

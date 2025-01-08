@@ -2,12 +2,11 @@
 
 namespace PrestaShop\Module\PsAccounts\Tests;
 
+use PrestaShop\Module\PsAccounts\Http\Client\Curl\Client;
+use PrestaShop\Module\PsAccounts\Http\Client\Response;
 use PrestaShop\Module\PsAccounts\Log\Logger;
-use PrestaShop\Module\PsAccounts\Vendor\GuzzleHttp\Client;
-use Psr\Http\Message\ResponseInterface;
-use Psr\Http\Message\UriInterface;
 
-class GuzzleTestClient extends Client
+class HttpTestClient extends Client
 {
     /**
      * @var bool
@@ -28,10 +27,10 @@ class GuzzleTestClient extends Client
     }
 
     /**
-     * @param string|UriInterface $uri
+     * @param string $uri
      * @param array $options
      *
-     * @return ResponseInterface
+     * @return Response
      */
     public function get($uri, array $options = [])
     {
@@ -41,10 +40,10 @@ class GuzzleTestClient extends Client
     }
 
     /**
-     * @param string|UriInterface $uri
+     * @param string $uri
      * @param array $options
      *
-     * @return ResponseInterface
+     * @return Response
      */
     public function post($uri, array $options = [])
     {
@@ -55,10 +54,10 @@ class GuzzleTestClient extends Client
 
 
     /**
-     * @param string|UriInterface $uri
+     * @param string $uri
      * @param array $options
      *
-     * @return ResponseInterface
+     * @return Response
      */
     public function patch($uri, array $options = [])
     {
@@ -68,10 +67,10 @@ class GuzzleTestClient extends Client
     }
 
     /**
-     * @param string|UriInterface $uri
+     * @param string $uri
      * @param array $options
      *
-     * @return ResponseInterface
+     * @return Response
      */
     public function delete($uri, array $options = [])
     {
@@ -91,13 +90,13 @@ class GuzzleTestClient extends Client
         if ($this->fixModuleRoutes && preg_match(
                 '/^.*\/(module)\/(ps_accounts)\/([a-zA-Z0-9]+)$/', $route, $matches
             )) {
-            $route = '/index.php';
-            $options['query'] = isset($options['query']) ? $options['query'] : [];
-            $options['query'] = array_merge($options['query'], [
+            $query = isset($options['query']) ? $options['query'] : [];
+            $query = array_merge($query, [
                 'fc' => $matches[1],
                 'module' => $matches[2],
                 'controller' => $matches[3],
             ]);
+            $route = '/index.php?' . http_build_query($query);
         }
     }
 }
