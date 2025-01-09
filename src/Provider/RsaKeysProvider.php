@@ -137,6 +137,7 @@ class RsaKeysProvider
     {
         try {
             $this->generateKeys();
+
             return $this->getPublicKey();
         } catch (\Exception $e) {
             return null;
