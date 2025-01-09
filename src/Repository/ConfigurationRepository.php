@@ -215,11 +215,14 @@ class ConfigurationRepository
     }
 
     /**
+     * @param bool $cached
+     * @param bool|mixed $default
+     *
      * @return string|bool
      */
-    public function getAccountsRsaPublicKey()
+    public function getAccountsRsaPublicKey($default = false, $cached = false)
     {
-        return $this->configuration->get(ConfigurationKeys::PS_ACCOUNTS_RSA_PUBLIC_KEY);
+        return $this->configuration->get(ConfigurationKeys::PS_ACCOUNTS_RSA_PUBLIC_KEY, $default, $cached);
     }
 
     /**
