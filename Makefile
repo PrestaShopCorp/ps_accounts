@@ -330,10 +330,6 @@ autoindex: tests/vendor
 ##########################################################
 COMPOSER_OPTIONS ?= --prefer-dist -o --no-dev --quiet
 
-#
-# TODO: est-ce que c'est ce qu'on veut ? Si j'ai bidouillé mes vendors j'ai le droit de 
-# ne pas les virer systématiquement lors d'un "make".
-#
 vendor-clean:
 	rm -rf ./vendor
 
