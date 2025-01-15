@@ -1,10 +1,9 @@
-name: Account Back autom tests
+name: Account Module Installation autom tests
 
 on:
-# FIXME: wip
-#  pull_request:
-#    types: [opened, reopened, synchronize]
   workflow_dispatch:
+  schedule:
+    - cron: "0 10 * * 1-5"
 
 env:
   BASE_URL: ${{secrets.BASE_URL}}
@@ -22,12 +21,12 @@ jobs:
 
     steps:
       - name: Checkout Repository
-        uses: 'actions/checkout@v4'
+        uses: "actions/checkout@v4"
 
       - name: Set up Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: 'node'
+          node-version: "node"
 
       - name: Install dependencies
         working-directory: ./e2e
@@ -55,7 +54,7 @@ jobs:
         run: npm run test-all-version
         continue-on-error: true
 
-      - name: Generate Allur Repport
+      - name: Generate Allure Report
         working-directory: ./e2e
         run: npm run generate-allure-report
 
@@ -64,5 +63,3 @@ jobs:
         with:
           name: allure-report
           path: ./e2e/allure-report/
-
-

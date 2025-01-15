@@ -23,6 +23,18 @@ export default class DashboardPage extends BasePage {
   }
 
   /**
+   * Get Shop version
+   * @param page {Page} The browser tab
+   * Return Shop Version
+   */
+
+  async getShopVersion(): Promise<boolean> {
+      const versionLocator = this.page.locator('#shop_version');
+      const versionText = await versionLocator.first().textContent();
+      return versionText?.includes('1.6') ?? false;
+  }
+
+  /**
    * Check if Popup is Visible
    * @param page {Page} The browser tab
    * True if Popup Visible
