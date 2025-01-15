@@ -293,8 +293,10 @@ build-front: ${BUNDLE_JS}
 composer.phar:
 	./scripts/composer-install.sh
 
-#clean:
-#	git -c core.excludesfile=/dev/null clean -X -d -f
+# target: clean                                                - Clean up the repository (but keep your .npmrc)
+.PHONY: clean
+clean:
+	git clean -fdX --exclude="!.npmrc" --exclude="!.env*"
 
 #######
 # TOOLS
