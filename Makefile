@@ -19,14 +19,15 @@ help:
 ##########################################################
 # target: version
 
-VERSION ?= $(shell git describe --tags | sed 's/^v//' | cut -d'-' -f1)
+VERSION ?= $(shell git describe --tags 2> /dev/null || echo "v0.0.0")
+SEM_VERSION ?= $(shell echo ${VERSION} | sed 's/^v//')
 
 version:
-	@echo "Setting up version number : $(VERSION)..."
-	@sed -i -e "s/\(VERSION = \).*/\1\'${VERSION}\';/" ps_accounts.php
-	@sed -i -e "s/\($this->version = \).*/\1\'${VERSION}\';/" ps_accounts.php
-	@sed -i -e 's/\(<version><!\[CDATA\[\)[0-9a-z\.\-]\{1,\}.*\]\]><\/version>/\1'${VERSION}']]><\/version>/' config.xml
-	@sed -i -e "s/\(\"version\"\: \).*/\1\"${VERSION}\",/" ./_dev/package.json
+	@echo "Setting up version: ${SEM_VERSION}..."
+	@sed -i -e "s/\(VERSION = \).*/\1\'${SEM_VERSION}\';/" ps_accounts.php
+	@sed -i -e "s/\($this->version = \).*/\1\'${SEM_VERSION}\';/" ps_accounts.php
+	@sed -i -e 's/\(<version><!\[CDATA\[\)[0-9a-z\.\-]\{1,\}.*\]\]><\/version>/\1'${SEM_VERSION}']]><\/version>/' config.xml
+	@sed -i -e "s/\(\"version\"\: \).*/\1\"${SEM_VERSION}\",/" ./_dev/package.json
 
 ##########
 # PLATFORM
