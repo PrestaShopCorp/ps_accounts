@@ -28,6 +28,7 @@ help:
 	@egrep "^# target" Makefile
 
 # target: version                                              - Update the version in various files
+.PHONY: version
 version:
 	@echo "Setting up version: ${SEM_VERSION}..."
 	@sed -i -e "s/\(VERSION = \).*/\1\'${SEM_VERSION}\';/" ps_accounts.php
