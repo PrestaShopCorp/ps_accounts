@@ -130,6 +130,9 @@ platform-1.6.1.24-5.6-fpm-stretch:
 platform-1.6.1.24-7.1:
 	$(call build-platform,$@,,,composer71.json,phpstan\-PS\-1.6.neon)
 
+platform-1.7.5.2-7.1:
+	$(call build-platform,$@,,,composer71.json)
+
 platform-1.7.7.8-7.1:
 	$(call build-platform,$@,,,composer71.json)
 
