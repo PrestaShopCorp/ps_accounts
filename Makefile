@@ -65,7 +65,6 @@ platform-stop:
 
 platform-restart: platform-stop platform-start
 
-.PHONY: config.php
 config.php:
 	@docker exec -w ${CONTAINER_INSTALL_DIR} phpunit \
 		sh -c "if [ ! -f ./config.php ]; then cp ./config.dist.php ./config.php; fi"
@@ -331,6 +330,10 @@ autoindex: tests/vendor
 ##########################################################
 COMPOSER_OPTIONS ?= --prefer-dist -o --no-dev --quiet
 
+#
+# TODO: est-ce que c'est ce qu'on veut ? Si j'ai bidouillé mes vendors j'ai le droit de 
+# ne pas les virer systématiquement lors d'un "make".
+#
 vendor-clean:
 	rm -rf ./vendor
 
