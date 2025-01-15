@@ -54,11 +54,6 @@ class ActionShopAccountUnlinkAfter extends Hook
 
         /** @var RsaKeysProvider $rsaKeysProvider */
         $rsaKeysProvider = $this->module->getService(RsaKeysProvider::class);
-        try {
-            $rsaKeysProvider->cleanupKeys();
-            // FIXME: We MUST generate a new key here to avoid concurrent key re-generation at Presenter display time
-            //$rsaKeysProvider->generateKeys();
-        } catch (\Exception $e) {
-        }
+        $rsaKeysProvider->cleanupKeys();
     }
 }

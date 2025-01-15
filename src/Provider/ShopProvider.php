@@ -87,7 +87,6 @@ class ShopProvider
 
                 // LinkAccount
                 'uuid' => $linkShop->getShopUuid() ?: null,
-                //'publicKey' => $rsaKeyProvider->getOrGenerateAccountsRsaPublicKey() ?: null,
                 'publicKey' => $rsaKeyProvider->getPublicKey() ?: null,
                 'employeeId' => (int) $linkShop->getEmployeeId() ?: null,
                 'user' => [
