@@ -5,7 +5,7 @@ WORKDIR /app
 ADD ./package.json ./pnpm-lock.yaml ./
 
 RUN npm install -g pnpm \
-  && pnpm install --frozen-lockfile
+  && pnpm install --ignore-scripts --frozen-lockfile
 
 # Build vuejs
 FROM package as builder

@@ -1,7 +1,6 @@
 PHP = $(shell which php 2> /dev/null)
 DOCKER = $(shell docker ps 2> /dev/null)
 NPM = $(shell which npm 2> /dev/null)
-YARN = $(shell which yarn 2> /dev/null)
 COMPOSER = ${PHP} ./composer.phar
 DOCKER_COMPOSE := $(shell which docker) compose
 MODULE ?= $(shell basename ${PWD})
@@ -281,8 +280,8 @@ bundle-preprod: php-scoper config.php.preprod build-front
 	@./scripts/bundle-module.sh "ps_accounts_preprod.zip" "preprod"
 
 define build_front
-	yarn --cwd ./_dev --frozen-lockfile
-	yarn --cwd ./_dev build
+	pnpm --cwd ./_dev --frozen-lockfile --ignore-scripts
+	pnpm --cwd ./_dev build
 endef
 
 ${BUNDLE_JS}:

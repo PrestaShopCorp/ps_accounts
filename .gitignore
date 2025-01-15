@@ -55,8 +55,6 @@ views/files/*
 
 # Log files
 npm-debug.log*
-yarn-debug.log*
-yarn-error.log*
 
 # e2e ignore
 /e2e/allure-results
