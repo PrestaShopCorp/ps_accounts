@@ -37,9 +37,9 @@ class CommandBusTest extends TestCase
      *
      * @throws \Exception
      */
-    public function setUp(): void
+    public function set_up()
     {
-        parent::setUp();
+        parent::set_up();
 
         $this->commandBus = $this->module->getService(CommandBus::class);
     }
