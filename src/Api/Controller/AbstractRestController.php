@@ -288,8 +288,7 @@ abstract class AbstractRestController extends ModuleFrontController
                 $this->module->getLogger()->debug('trying to verify token with pkey: ' . $publicKey);
 
                 if (
-                    !empty($publicKey) &&
-                    is_string($publicKey) &&
+                    null !== $publicKey &&
                     true === $jwt->verify(new Sha256(), new Key((string) $publicKey))
                 ) {
                     $this->module->getLogger()->debug('token verified: ' . $jwtString);
