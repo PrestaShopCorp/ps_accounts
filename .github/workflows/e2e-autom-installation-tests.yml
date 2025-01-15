@@ -54,7 +54,7 @@ jobs:
         run: npm run test-all-version
         continue-on-error: true
 
-      - name: Generate Allure Repport
+      - name: Generate Allure Report
         working-directory: ./e2e
         run: npm run generate-allure-report
 

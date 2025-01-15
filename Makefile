@@ -124,11 +124,14 @@ platform-init: platform-pull platform-restart platform-is-alive platform-module-
 # PS80  | 7.4 - 8.0 | vendor71
 # PS90  | 8.O - *   | vendor80
 
-platform-1.6.1.24-5.6-fpm-stretch: phpunit-fix-compat-php56
+platform-1.6.1.24-5.6-fpm-stretch:
 	$(call build-platform,$@,,,composer56.json,phpstan\-PS\-1.6.neon)
 
 platform-1.6.1.24-7.1:
 	$(call build-platform,$@,,,composer71.json,phpstan\-PS\-1.6.neon)
+
+platform-1.7.5.2-7.1:
+	$(call build-platform,$@,,,composer71.json)
 
 platform-1.7.7.8-7.1:
 	$(call build-platform,$@,,,composer71.json)
@@ -163,19 +166,6 @@ phpunit-display-logs:
 	-@docker exec phpunit sh -c "if [ ! -f ./bin/console ]; then cat log/ps_accounts-$(shell date --iso); fi"
 
 phpunit: phpunit-run-unit phpunit-run-feature
-
-REGEX_COMPAT_VOID := "s/\(function \(setUp\|tearDown\)()\)\(: void\)\?/\1/"
-REGEX_COMPAT_TRAIT := "s/\#\?\(use \\\\DMS\\\\PHPUnitExtensions\\\\ArraySubset\\\\ArraySubsetAsserts;\)/\#\1/"
-phpunit-fix-compat-php56:
-	@echo "fixing compat for php56..."
-	find ./tests -type f -name "TestCase.php" -exec sed -i -e ${REGEX_COMPAT_TRAIT} {} \;
-	find ./tests -type f -name "TestCase.php" -exec sed -i -e ${REGEX_COMPAT_VOID} {} \;
-	find ./tests/Unit -type f -name "*.php" -exec sed -i -e ${REGEX_COMPAT_VOID} {} \;
-	find ./tests/Feature -type f -name "*.php" -exec sed -i -e ${REGEX_COMPAT_VOID} {} \;
-
-phpunit-reset-compat-php56: REGEX_COMPAT_VOID := "s/\(function \(setUp\|tearDown\)()\)\(: void\)\?/\1: void/"
-phpunit-reset-compat-php56: REGEX_COMPAT_TRAIT := "s/\#\?\(use \\\\DMS\\\\PHPUnitExtensions\\\\ArraySubset\\\\ArraySubsetAsserts;\)/\1/"
-phpunit-reset-compat-php56: phpunit-fix-compat-php56
 
 #########
 # PHPSTAN
