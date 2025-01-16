@@ -220,7 +220,7 @@ class ConfigurationRepository
      *
      * @return string|bool
      */
-    public function getAccountsRsaPublicKey($default = false, $cached = false)
+    public function getAccountsRsaPublicKey($default = false, $cached = true)
     {
         return $this->configuration->get(ConfigurationKeys::PS_ACCOUNTS_RSA_PUBLIC_KEY, $default, $cached);
     }
