@@ -40,9 +40,9 @@ class FeatureTestCase extends TestCase
      *
      * @throws \Exception
      */
-    public function setUp(): void
+    public function set_up()
     {
-        parent::setUp();
+        parent::set_up();
 
         $scheme = $this->configuration->get('PS_SSL_ENABLED') ? 'https://' : 'http://';
         $domain = $this->configuration->get('PS_SHOP_DOMAIN');

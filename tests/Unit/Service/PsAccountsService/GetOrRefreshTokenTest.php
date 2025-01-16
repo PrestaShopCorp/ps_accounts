@@ -30,9 +30,9 @@ class GetOrRefreshTokenTest extends TestCase
      */
     protected $oauthClient;
 
-    public function setUp(): void
+    public function set_up()
     {
-        parent::setUp();
+        parent::set_up();
 
         $this->configurationRepository->updateAccessToken('');
 

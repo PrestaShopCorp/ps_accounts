@@ -21,9 +21,9 @@ class UpgradeModuleHandlerTest extends FeatureTestCase
      */
     private $cookieJar;
 
-    public function setUp(): void
+    public function set_up()
     {
-        parent::setUp();
+        parent::set_up();
 
         $this->markTestSkipped('Implement cookie management with cURL');
 
