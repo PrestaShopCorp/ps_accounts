@@ -1,3 +1,8 @@
+SHELL = /bin/bash -o pipefail
+MODULE_NAME = ps_accounts
+VERSION ?= $(shell git describe --tags 2> /dev/null || echo "v0.0.0")
+SEM_VERSION ?= $(shell echo ${VERSION} | sed 's/^v//')
+BRANCH_NAME ?= $(shell git rev-parse --abbrev-ref HEAD | sed -e 's/\//_/g')
 PHP = $(shell which php 2> /dev/null)
 DOCKER = $(shell docker ps 2> /dev/null)
 NPM = $(shell which npm 2> /dev/null)
@@ -11,22 +16,25 @@ WORKDIR ?= .
 TESTING_IMAGE_TAG ?= base-8.2-fpm-alpine
 TESTING_IMAGE ?= prestashop/prestashop-flashlight:${TESTING_IMAGE_TAG}
 
+WORKDIR ?= .
+
 default: bundle
 
+# target: help                                                 - Get help on this file
+.PHONY: help
 help:
+	@echo -e "# ==========================================\n# \
+	${MODULE_NAME}:\n#  version: ${VERSION}\n#  branch:  ${BRANCH_NAME}\n# =========================================="
 	@egrep "^# target" Makefile
 
-##########################################################
-# target: version
-
-VERSION ?= $(shell git describe --tags | sed 's/^v//' | cut -d'-' -f1)
-
+# target: version                                              - Update the version in various files
+.PHONY: version
 version:
-	@echo "Setting up version number : $(VERSION)..."
-	@sed -i -e "s/\(VERSION = \).*/\1\'${VERSION}\';/" ps_accounts.php
-	@sed -i -e "s/\($this->version = \).*/\1\'${VERSION}\';/" ps_accounts.php
-	@sed -i -e 's/\(<version><!\[CDATA\[\)[0-9a-z\.\-]\{1,\}.*\]\]><\/version>/\1'${VERSION}']]><\/version>/' config.xml
-	@sed -i -e "s/\(\"version\"\: \).*/\1\"${VERSION}\",/" ./_dev/package.json
+	@echo "Setting up version: ${SEM_VERSION}..."
+	@sed -i -e "s/\(VERSION = \).*/\1\'${SEM_VERSION}\';/" ps_accounts.php
+	@sed -i -e "s/\($this->version = \).*/\1\'${SEM_VERSION}\';/" ps_accounts.php
+	@sed -i -e 's/\(<version><!\[CDATA\[\)[0-9a-z\.\-]\{1,\}.*\]\]><\/version>/\1'${SEM_VERSION}']]><\/version>/' config.xml
+	@sed -i -e "s/\(\"version\"\: \).*/\1\"${SEM_VERSION}\",/" ./_dev/package.json
 
 ##########
 # PLATFORM
@@ -57,7 +65,6 @@ platform-stop:
 
 platform-restart: platform-stop platform-start
 
-.PHONY: config.php
 config.php:
 	@docker exec -w ${CONTAINER_INSTALL_DIR} phpunit \
 		sh -c "if [ ! -f ./config.php ]; then cp ./config.dist.php ./config.php; fi"
@@ -293,13 +300,13 @@ build-front: ${BUNDLE_JS}
 composer.phar:
 	./scripts/composer-install.sh
 
-#clean:
-#	git -c core.excludesfile=/dev/null clean -X -d -f
+# target: clean                                                - Clean up the repository (but keep your .npmrc)
+.PHONY: clean
+clean:
+	git clean -fdX --exclude="!.npmrc" --exclude="!.env*"
 
 #######
 # TOOLS
-
-WORKDIR ?= ./
 
 php-cs-fixer: COMPOSER_FILE := composer56.json
 php-cs-fixer: tests/vendor

@@ -1,5 +1,5 @@
 ### Manually built zip
-/dist/
+dist/
 
 ### VUEJS BUILD ARTEFACT ###
 app.js
@@ -10,7 +10,7 @@ app.js
 
 ### Composer ###
 composer.phar
-/vendor/
+vendor/
 node_modules/
 .php_cs.cache
 .php_cs
@@ -19,15 +19,12 @@ composer-dev.json
 composer-dev.lock
 .env
 
+### PHP Scoper ###
+vendor-scoped/
+php-scoper.phar
+
 ### PHPUnit ###
 .phpunit.result.cache
-
-### Configuration ###
-config/config*.yml
-config/**/services_*.yml
-!config/config.yml.dist
-!config/admin/services.yml
-!config/front/services.yml
 
 ### Module files ###
 !views/files
@@ -51,7 +48,7 @@ views/files/*
 /views/css/chunk-vendors.css
 /views/favicon.ico
 /views/index.html
-./_dev/.npmrc
+.npmrc
 
 # Log files
 npm-debug.log*
@@ -65,8 +62,7 @@ yarn-error.log*
 /e2e/test-results-*
 /e2e/allure-results-*
 /e2e/screenshots
-/e2e/node_modules
-*/node_modules
+node_modules/
 /e2e/test/reports/*
 /e2e/playwright-report
 .DS_Store
@@ -74,3 +70,6 @@ yarn-error.log*
 # e2e-env ignore
 /e2e-env/myTun/config/mytun-credentials.json
 /e2e-env/myTun/config/mytun-config.yml
+
+# PrestaShop sources
+/prestashop
