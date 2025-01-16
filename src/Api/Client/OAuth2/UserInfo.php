@@ -29,7 +29,7 @@ namespace PrestaShop\Module\PsAccounts\Api\Client\OAuth2;
 //     [rat] => 1736251522
 //     [sub] => 4rFN5bm2piPeYpsotUIwcyabcdeF
 // )  [] []
-class UserInfos
+class UserInfo
 {
     /**
      * @var string

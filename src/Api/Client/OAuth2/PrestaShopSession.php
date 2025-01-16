@@ -106,11 +106,11 @@ class PrestaShopSession
     }
 
     /**
-     * @return UserInfos
+     * @return UserInfo
      */
     public function getPrestashopUser()
     {
-        return $this->oauth2ApiClient->getUserInfos($this->getAccessToken());
+        return $this->oauth2ApiClient->getUserInfo($this->getAccessToken());
     }
 
     /**

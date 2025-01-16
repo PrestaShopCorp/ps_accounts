@@ -20,12 +20,12 @@
 
 namespace PrestaShop\Module\PsAccounts\Account\Exception;
 
-use PrestaShop\Module\PsAccounts\Api\Client\OAuth2\UserInfos;
+use PrestaShop\Module\PsAccounts\Api\Client\OAuth2\UserInfo;
 
 class AccountLoginException extends \Exception
 {
     /**
-     * @var UserInfos|null
+     * @var UserInfo|null
      */
     protected $user;
 
@@ -36,12 +36,12 @@ class AccountLoginException extends \Exception
 
     /**
      * @param string $message
-     * @param UserInfos|null $user
+     * @param UserInfo|null $user
      * @param \Exception $previous
      */
     public function __construct(
         $message = '',
-        UserInfos $user = null,
+        UserInfo $user = null,
         \Exception $previous = null
     ) {
         parent::__construct($message, 0, $previous);
@@ -50,7 +50,7 @@ class AccountLoginException extends \Exception
     }
 
     /**
-     * @return UserInfos|null
+     * @return UserInfo|null
      */
     public function getUser()
     {

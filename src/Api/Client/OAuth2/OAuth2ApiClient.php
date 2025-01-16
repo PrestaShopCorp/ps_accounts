@@ -358,9 +358,9 @@ class OAuth2ApiClient
     /**
      * @param string $accessToken
      *
-     * @return UserInfos
+     * @return UserInfo
      */
-    public function getUserInfos($accessToken)
+    public function getUserInfo($accessToken)
     {
         /** @var Response $response */
         $response = $this->getClient()->get(
@@ -376,7 +376,7 @@ class OAuth2ApiClient
             throw new OAuth2Exception('Unable to get user infos');
         }
 
-        return new UserInfos($response->body);
+        return new UserInfo($response->body);
     }
 
     /**

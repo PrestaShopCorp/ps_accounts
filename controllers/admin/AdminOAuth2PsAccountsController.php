@@ -24,7 +24,7 @@ use PrestaShop\Module\PsAccounts\Account\Exception\EmployeeNotFoundException;
 use PrestaShop\Module\PsAccounts\Api\Client\OAuth2\OAuth2ApiClient;
 use PrestaShop\Module\PsAccounts\Api\Client\OAuth2\PrestaShopLoginTrait;
 use PrestaShop\Module\PsAccounts\Api\Client\OAuth2\PrestaShopSession;
-use PrestaShop\Module\PsAccounts\Api\Client\OAuth2\UserInfos;
+use PrestaShop\Module\PsAccounts\Api\Client\OAuth2\UserInfo;
 use PrestaShop\Module\PsAccounts\Entity\EmployeeAccount;
 use PrestaShop\Module\PsAccounts\Polyfill\Traits\AdminController\IsAnonymousAllowed;
 use PrestaShop\Module\PsAccounts\Repository\EmployeeAccountRepository;
@@ -109,7 +109,7 @@ class AdminOAuth2PsAccountsController extends \ModuleAdminController
     }
 
     /**
-     * @param UserInfos $user
+     * @param UserInfo $user
      *
      * @return bool
      *
@@ -117,7 +117,7 @@ class AdminOAuth2PsAccountsController extends \ModuleAdminController
      * @throws EmployeeNotFoundException
      * @throws Exception
      */
-    private function initUserSession(UserInfos $user)
+    private function initUserSession(UserInfo $user)
     {
         $this->oauth2ErrorLog((string) print_r($user, true));
 
@@ -241,13 +241,13 @@ class AdminOAuth2PsAccountsController extends \ModuleAdminController
     }
 
     /**
-     * @param UserInfos $user
+     * @param UserInfo $user
      *
      * @return void
      *
      * @throws Exception
      */
-    private function trackLoginEvent(UserInfos $user)
+    private function trackLoginEvent(UserInfo $user)
     {
         if ($this->module->isShopEdition()) {
             $this->analyticsService->identify(

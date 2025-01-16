@@ -35,11 +35,11 @@ trait PrestaShopLoginTrait
     abstract protected function getOAuth2Client();
 
     /**
-     * @param UserInfos $user
+     * @param UserInfo $user
      *
      * @return bool
      */
-    abstract protected function initUserSession(UserInfos $user);
+    abstract protected function initUserSession(UserInfo $user);
 
     /**
      * @return void
