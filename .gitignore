@@ -10,7 +10,7 @@ app.js
 
 ### Composer ###
 composer.phar
-/vendor/
+vendor/
 node_modules/
 .php_cs.cache
 .php_cs
