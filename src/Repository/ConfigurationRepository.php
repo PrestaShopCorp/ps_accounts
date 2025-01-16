@@ -173,7 +173,8 @@ class ConfigurationRepository
             $entry = $this->configuration->getUncachedConfiguration(
                 ConfigurationKeys::PSX_UUID_V4,
                 $this->configuration->getIdShopGroup(),
-                $this->configuration->getIdShop());
+                $this->configuration->getIdShop()
+            );
 
             return $entry->date_upd;
         } catch (\Exception $e) {
