@@ -173,7 +173,8 @@ class ConfigurationRepository
             $entry = $this->configuration->getUncachedConfiguration(
                 ConfigurationKeys::PSX_UUID_V4,
                 $this->configuration->getIdShopGroup(),
-                $this->configuration->getIdShop());
+                $this->configuration->getIdShop()
+            );
 
             return $entry->date_upd;
         } catch (\Exception $e) {
@@ -220,7 +221,7 @@ class ConfigurationRepository
      *
      * @return string|bool
      */
-    public function getAccountsRsaPublicKey($default = false, $cached = false)
+    public function getAccountsRsaPublicKey($default = false, $cached = true)
     {
         return $this->configuration->get(ConfigurationKeys::PS_ACCOUNTS_RSA_PUBLIC_KEY, $default, $cached);
     }

@@ -159,15 +159,15 @@ class RsaKeysProvider
      */
     public function hasKeys()
     {
-        return false === empty($this->configuration->getAccountsRsaPublicKey(false, false));
+        return null !== $this->getPublicKey();
     }
 
     /**
-     * @return string|bool
+     * @return string|null
      */
     public function getPublicKey()
     {
-        return $this->configuration->getAccountsRsaPublicKey(false, false);
+        return ((string) $this->configuration->getAccountsRsaPublicKey(false, false)) ?: null;
     }
 
     /**
