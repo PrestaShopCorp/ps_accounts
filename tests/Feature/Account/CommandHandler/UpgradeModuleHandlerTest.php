@@ -21,9 +21,9 @@ class UpgradeModuleHandlerTest extends FeatureTestCase
      */
     private $cookieJar;
 
-    public function setUp(): void
+    public function set_up()
     {
-        parent::setUp();
+        parent::set_up();
 
         if (version_compare(_PS_VERSION_, '1.7.0.0', '<') ||
             version_compare(_PS_VERSION_, '9', '>=')) {
