@@ -18,22 +18,8 @@
  * @license   https://opensource.org/licenses/AFL-3.0 Academic Free License version 3.0
  */
 
-namespace PrestaShop\Module\PsAccounts\Http\Client\Guzzle;
+namespace PrestaShop\Module\PsAccounts\Account\Exception;
 
-/**
- * Construct the guzzle client depending on PrestaShop version
- */
-class GuzzleClientFactory
+class SshKeysNotFoundException extends \Exception
 {
-    /**
-     * @param array $options
-     *
-     * @return GuzzleClient
-     *
-     * @throws \Exception
-     */
-    public function create($options)
-    {
-        return new Guzzle7Client($options);
-    }
 }

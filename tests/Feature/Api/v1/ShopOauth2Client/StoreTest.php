@@ -4,7 +4,7 @@ namespace PrestaShop\Module\PsAccounts\Tests\Feature\Api\v1\ShopOauth2Client;
 
 use PrestaShop\Module\PsAccounts\Account\Session\Firebase\OwnerSession;
 use PrestaShop\Module\PsAccounts\Account\Session\Firebase\ShopSession;
-use PrestaShop\Module\PsAccounts\Provider\OAuth2\Oauth2Client;
+use PrestaShop\Module\PsAccounts\Api\Client\OAuth2\OAuth2Client;
 use PrestaShop\Module\PsAccounts\Api\Controller\AbstractRestController;
 use PrestaShop\Module\PsAccounts\Adapter\ConfigurationKeys;
 use PrestaShop\Module\PsAccounts\Tests\Feature\FeatureTestCase;
@@ -15,7 +15,7 @@ class StoreTest extends FeatureTestCase
     /**
      * @inject
      *
-     * @var Oauth2Client
+     * @var OAuth2Client
      */
     protected $oauth2Client;
 

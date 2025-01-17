@@ -18,8 +18,19 @@
  * @license   https://opensource.org/licenses/AFL-3.0 Academic Free License version 3.0
  */
 
-namespace PrestaShop\Module\PsAccounts\Exception;
+namespace PrestaShop\Module\PsAccounts\Api\Controller\Exception;
 
-class RefreshTokenException extends \Exception
+class InternalServerErrorException extends HttpException
 {
+    /**
+     * @param string $message
+     * @param int $code
+     * @param \Exception|null $previous
+     */
+    public function __construct($message = 'Internal Server Error', $code = 0, \Exception $previous = null)
+    {
+        parent::__construct($message, $code, $previous);
+
+        $this->statusCode = 500;
+    }
 }

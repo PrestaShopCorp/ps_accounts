@@ -18,20 +18,8 @@
  * @license   https://opensource.org/licenses/AFL-3.0 Academic Free License version 3.0
  */
 
-namespace PrestaShop\Module\PsAccounts\Exception\Http;
+namespace PrestaShop\Module\PsAccounts\Http\Client\CircuitBreaker;
 
-class HttpException extends \RuntimeException
+class CircuitBreakerException extends \Exception
 {
-    /**
-     * @var int
-     */
-    protected $statusCode;
-
-    /**
-     * @return int
-     */
-    public function getStatusCode()
-    {
-        return $this->statusCode;
-    }
 }

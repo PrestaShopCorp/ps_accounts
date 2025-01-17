@@ -18,8 +18,8 @@
  * @license   https://opensource.org/licenses/AFL-3.0 Academic Free License version 3.0
  */
 
-namespace PrestaShop\Module\PsAccounts\Exception;
+namespace PrestaShop\Module\PsAccounts\Api\Client\OAuth2;
 
-class SshKeysNotFoundException extends \Exception
+class OAuth2Exception extends \Exception
 {
 }

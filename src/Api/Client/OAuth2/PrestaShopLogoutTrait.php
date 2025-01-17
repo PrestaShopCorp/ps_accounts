@@ -18,14 +18,14 @@
  * @license   https://opensource.org/licenses/AFL-3.0 Academic Free License version 3.0
  */
 
-namespace PrestaShop\Module\PsAccounts\Provider\OAuth2;
+namespace PrestaShop\Module\PsAccounts\Api\Client\OAuth2;
 
 trait PrestaShopLogoutTrait
 {
     /**
-     * @return ShopProvider
+     * @return OAuth2ApiClient
      */
-    abstract protected function getProvider();
+    abstract protected function getOAuth2Client();
 
     /**
      * @return PrestaShopSession
@@ -36,6 +36,14 @@ trait PrestaShopLogoutTrait
      * @return bool
      */
     abstract protected function isOauth2LogoutEnabled();
+
+    /**
+     * @return string
+     */
+    public static function getQueryLogoutCallbackParam()
+    {
+        return 'oauth2Callback';
+    }
 
     /**
      * @return void
@@ -49,16 +57,19 @@ trait PrestaShopLogoutTrait
         }
 
         $oauth2Session = $this->getOauth2Session();
-        if (!isset($_GET[ShopProvider::QUERY_LOGOUT_CALLBACK_PARAM])) {
+        if (!isset($_GET[PrestaShopLogoutTrait::getQueryLogoutCallbackParam()])) {
             $idToken = $oauth2Session->getIdToken();
 
             if (empty($idToken)) {
                 return;
             }
 
-            $logoutUrl = $this->getProvider()->getLogoutUrl([
-                'id_token_hint' => $idToken,
-            ]);
+            $oauth2Client = $this->getOAuth2Client();
+
+            $logoutUrl = $oauth2Client->getLogoutUri(
+                $oauth2Client->getPostLogoutRedirectUri(),
+                $idToken
+            );
 
             header('Location: ' . $logoutUrl);
             exit;

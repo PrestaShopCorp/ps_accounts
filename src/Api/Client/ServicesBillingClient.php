@@ -20,18 +20,22 @@
 
 namespace PrestaShop\Module\PsAccounts\Api\Client;
 
-use PrestaShop\Module\PsAccounts\Http\Client\Guzzle\GuzzleClient;
-use PrestaShop\Module\PsAccounts\Http\Client\Guzzle\GuzzleClientFactory;
+use PrestaShop\Module\PsAccounts\Http\Client\Curl\Client;
+use PrestaShop\Module\PsAccounts\Http\Client\Factory;
+use PrestaShop\Module\PsAccounts\Http\Client\Options;
+use PrestaShop\Module\PsAccounts\Http\Client\Response;
 use PrestaShop\Module\PsAccounts\Provider\ShopProvider;
 use PrestaShop\Module\PsAccounts\Service\PsAccountsService;
 
 /**
  * Handle call api Services
+ *
+ * @deprecated since v7.0.0
  */
 class ServicesBillingClient
 {
     /**
-     * @var GuzzleClient
+     * @var Client
      */
     private $client;
 
@@ -41,7 +45,7 @@ class ServicesBillingClient
      * @param string $apiUrl
      * @param PsAccountsService $psAccountsService
      * @param ShopProvider $shopProvider
-     * @param GuzzleClient|null $client
+     * @param Client|null $client
      *
      * @throws \PrestaShopException
      * @throws \Exception
@@ -50,7 +54,7 @@ class ServicesBillingClient
         $apiUrl,
         PsAccountsService $psAccountsService,
         ShopProvider $shopProvider,
-        GuzzleClient $client = null
+        Client $client = null
     ) {
         $shopId = $shopProvider->getCurrentShop()['id'];
 
@@ -58,8 +62,8 @@ class ServicesBillingClient
 
         // Client can be provided for tests
         if (null === $client) {
-            $client = (new GuzzleClientFactory())->create([
-                'base_uri' => $apiUrl,
+            $client = (new Factory())->create([
+                'baseUri' => $apiUrl,
                 'headers' => [
                     // Commented, else does not work anymore with API.
                     //'Content-Type' => 'application/vnd.accounts.v1+json', // api version to use
@@ -78,41 +82,38 @@ class ServicesBillingClient
     /**
      * @param mixed $shopUuidV4
      *
-     * @return array|false
+     * @return Response|array
      */
     public function getBillingCustomer($shopUuidV4)
     {
-        $this->client->setRoute('/shops/' . $shopUuidV4);
-
-        return $this->client->get();
+        return $this->client->get('/shops/' . $shopUuidV4);
     }
 
     /**
      * @param mixed $shopUuidV4
      * @param array $bodyHttp
      *
-     * @return array|false
+     * @return Response|array
      */
     public function createBillingCustomer($shopUuidV4, $bodyHttp)
     {
-        $this->client->setRoute('/shops/' . $shopUuidV4);
-
-        return $this->client->post([
-            'body' => $bodyHttp,
-        ]);
+        return $this->client->post(
+            '/shops/' . $shopUuidV4,
+            [
+                Options::REQ_FORM => $bodyHttp,
+            ]
+        );
     }
 
     /**
      * @param mixed $shopUuidV4
      * @param string $module
      *
-     * @return array|false
+     * @return Response|array
      */
     public function getBillingSubscriptions($shopUuidV4, $module)
     {
-        $this->client->setRoute('/shops/' . $shopUuidV4 . '/subscriptions/' . $module);
-
-        return $this->client->get();
+        return $this->client->get('/shops/' . $shopUuidV4 . '/subscriptions/' . $module);
     }
 
     /**
@@ -120,14 +121,15 @@ class ServicesBillingClient
      * @param string $module
      * @param array $bodyHttp
      *
-     * @return array|false
+     * @return Response|array
      */
     public function createBillingSubscriptions($shopUuidV4, $module, $bodyHttp)
     {
-        $this->client->setRoute('/shops/' . $shopUuidV4 . '/subscriptions/' . $module);
-
-        return $this->client->post([
-            'body' => $bodyHttp,
-        ]);
+        return $this->client->post(
+            '/shops/' . $shopUuidV4 . '/subscriptions/' . $module,
+            [
+                Options::REQ_FORM => $bodyHttp,
+            ]
+        );
     }
 }

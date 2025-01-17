@@ -18,31 +18,19 @@
  * @license   https://opensource.org/licenses/AFL-3.0 Academic Free License version 3.0
  */
 
-namespace PrestaShop\Module\PsAccounts\Api\Controller;
+namespace PrestaShop\Module\PsAccounts\Api\Controller\Exception;
 
-use PrestaShop\Module\PsAccounts\Api\Controller\Exception\NotFoundException;
-use Shop;
-
-class AbstractShopRestController extends AbstractRestController
+class UnauthorizedException extends HttpException
 {
     /**
-     * @var string
+     * @param string $message
+     * @param int $code
+     * @param \Exception|null $previous
      */
-    public $resourceId = 'shop_id';
-
-    /**
-     * @param mixed $id
-     *
-     * @return Shop
-     */
-    protected function buildResource($id)
+    public function __construct($message = 'Unauthorized', $code = 0, \Exception $previous = null)
     {
-        $shop = new Shop($id);
+        parent::__construct($message, $code, $previous);
 
-        if (!$shop->id) {
-            throw new NotFoundException('Shop not found [' . $id . ']');
-        }
-
-        return $shop;
+        $this->statusCode = 401;
     }
 }

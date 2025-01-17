@@ -19,7 +19,7 @@ trait SessionHelpers
         $shopSession = $this->getMockBuilder(ShopSession::class)
             ->setConstructorArgs([
                 $this->configurationRepository,
-                $this->shopProvider,
+                $this->oauth2ApiClient,
                 $this->linkShop,
                 $this->commandBus
             ])

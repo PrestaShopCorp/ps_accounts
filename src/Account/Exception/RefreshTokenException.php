@@ -18,19 +18,8 @@
  * @license   https://opensource.org/licenses/AFL-3.0 Academic Free License version 3.0
  */
 
-namespace PrestaShop\Module\PsAccounts\Exception\Http;
+namespace PrestaShop\Module\PsAccounts\Account\Exception;
 
-class MethodNotAllowedException extends HttpException
+class RefreshTokenException extends \Exception
 {
-    /**
-     * @param string $message
-     * @param int $code
-     * @param \Exception|null $previous
-     */
-    public function __construct($message = 'Method Not Allowed', $code = 0, \Exception $previous = null)
-    {
-        parent::__construct($message, $code, $previous);
-
-        $this->statusCode = 405;
-    }
 }

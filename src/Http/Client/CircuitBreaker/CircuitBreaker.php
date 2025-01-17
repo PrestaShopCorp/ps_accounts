@@ -22,8 +22,6 @@ namespace PrestaShop\Module\PsAccounts\Http\Client\CircuitBreaker;
 
 use DateTime;
 use PrestaShop\Module\PsAccounts\Log\Logger;
-use PrestaShop\Module\PsAccounts\Vendor\GuzzleHttp\Exception\ConnectException;
-use PrestaShop\Module\PsAccounts\Vendor\GuzzleHttp\Exception\RequestException;
 
 abstract class CircuitBreaker
 {
@@ -61,11 +59,13 @@ abstract class CircuitBreaker
                 $this->reset();
 
                 return $result;
-            } catch (ConnectException $e) {
-                // FIXME: CircuitBreak bound to GuzzleException
+            } catch (CircuitBreakerException $e) {
                 $this->setLastFailure();
                 Logger::getInstance()->error($e->getMessage());
-            } catch (RequestException $e) {
+            } catch (\Throwable $e) {
+                Logger::getInstance()->error($e->getMessage());
+                /* @phpstan-ignore-next-line */
+            } catch (\Exception $e) {
                 Logger::getInstance()->error($e->getMessage());
             }
         }
@@ -80,6 +80,14 @@ abstract class CircuitBreaker
     {
         $this->setFailureCount(0);
         $this->setLastFailureTime(null);
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getDefaultFallbackResponse()
+    {
+        return $this->defaultFallbackResponse;
     }
 
     /**

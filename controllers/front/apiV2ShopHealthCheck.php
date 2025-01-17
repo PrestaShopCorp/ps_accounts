@@ -18,17 +18,17 @@
  * @license   https://opensource.org/licenses/AFL-3.0 Academic Free License version 3.0
  */
 
+use PrestaShop\Module\PsAccounts\Account\Exception\RefreshTokenException;
 use PrestaShop\Module\PsAccounts\Account\LinkShop;
 use PrestaShop\Module\PsAccounts\Account\Session\Firebase;
 use PrestaShop\Module\PsAccounts\Account\Session\ShopSession;
 use PrestaShop\Module\PsAccounts\Account\Token\NullToken;
 use PrestaShop\Module\PsAccounts\Account\Token\Token;
 use PrestaShop\Module\PsAccounts\Api\Client\AccountsClient;
+use PrestaShop\Module\PsAccounts\Api\Client\OAuth2\OAuth2ApiClient;
+use PrestaShop\Module\PsAccounts\Api\Client\OAuth2\OAuth2Client;
 use PrestaShop\Module\PsAccounts\Api\Controller\AbstractShopRestController;
 use PrestaShop\Module\PsAccounts\Api\Controller\Request\ShopHealthCheckRequest;
-use PrestaShop\Module\PsAccounts\Exception\RefreshTokenException;
-use PrestaShop\Module\PsAccounts\Provider\OAuth2\Oauth2Client;
-use PrestaShop\Module\PsAccounts\Provider\OAuth2\ShopProvider;
 use PrestaShop\Module\PsAccounts\Service\PsAccountsService;
 
 class ps_AccountsApiV2ShopHealthCheckModuleFrontController extends AbstractShopRestController
@@ -39,7 +39,7 @@ class ps_AccountsApiV2ShopHealthCheckModuleFrontController extends AbstractShopR
     private $linkShop;
 
     /**
-     * @var Oauth2Client
+     * @var OAuth2Client
      */
     private $oauth2Client;
 
@@ -69,9 +69,9 @@ class ps_AccountsApiV2ShopHealthCheckModuleFrontController extends AbstractShopR
     private $accountsClient;
 
     /**
-     * @var ShopProvider
+     * @var OAuth2ApiClient
      */
-    private $shopProvider;
+    private $oauth2ApiClient;
 
     public function __construct()
     {
@@ -81,13 +81,13 @@ class ps_AccountsApiV2ShopHealthCheckModuleFrontController extends AbstractShopR
         $this->authenticated = false;
 
         $this->linkShop = $this->module->getService(LinkShop::class);
-        $this->oauth2Client = $this->module->getService(Oauth2Client::class);
+        $this->oauth2Client = $this->module->getService(OAuth2Client::class);
         $this->shopSession = $this->module->getService(ShopSession::class);
         $this->firebaseShopSession = $this->module->getService(Firebase\ShopSession::class);
         $this->firebaseOwnerSession = $this->module->getService(Firebase\OwnerSession::class);
         $this->accountsClient = $this->module->getService(AccountsClient::class);
         $this->psAccountsService = $this->module->getService(PsAccountsService::class);
-        $this->shopProvider = $this->module->getService(ShopProvider::class);
+        $this->oauth2ApiClient = $this->module->getService(OAuth2ApiClient::class);
     }
 
     /**
@@ -129,7 +129,7 @@ class ps_AccountsApiV2ShopHealthCheckModuleFrontController extends AbstractShopR
             'firebaseShopToken' => $this->tokenInfos($firebaseShopToken),
             'fopenActive' => (bool) ini_get('allow_url_fopen'),
             'curlActive' => extension_loaded('curl'), //function_exists('curl_version'),
-            'oauthApiConnectivity' => (bool) $this->shopProvider->getWellKnown()->issuer,
+            'oauthApiConnectivity' => (bool) $this->oauth2ApiClient->getWellKnown()->issuer,
             'accountsApiConnectivity' => $this->accountsApiHealthCheck(),
             'serverUTC' => time(),
             'mysqlUTC' => $this->getDatabaseTimestamp(),

@@ -18,11 +18,11 @@
  * @license   https://opensource.org/licenses/AFL-3.0 Academic Free License version 3.0
  */
 
-namespace PrestaShop\Module\PsAccounts\Provider\OAuth2;
+namespace PrestaShop\Module\PsAccounts\Api\Client\OAuth2;
 
 use PrestaShop\Module\PsAccounts\Repository\ConfigurationRepository;
 
-class Oauth2Client
+class OAuth2Client
 {
     /**
      * @var ConfigurationRepository

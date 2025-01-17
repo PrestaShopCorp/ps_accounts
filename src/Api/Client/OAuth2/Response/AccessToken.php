@@ -18,48 +18,60 @@
  * @license   https://opensource.org/licenses/AFL-3.0 Academic Free License version 3.0
  */
 
-namespace PrestaShop\Module\PsAccounts\Http\Client;
+namespace PrestaShop\Module\PsAccounts\Api\Client\OAuth2\Response;
 
-use PrestaShop\Module\PsAccounts\Vendor\GuzzleHttp\Client;
+use PrestaShop\Module\PsAccounts\Account\Token\Token;
+use PrestaShop\Module\PsAccounts\Api\Client\Response;
 
-/**
- * Interface that the guzzle client class implement
- */
-interface ClientInterface
+class AccessToken extends Response
 {
     /**
-     * Abtract client constructor
-     *
-     * @param array $options
+     * @var string
      */
-    public function __construct($options);
+    public $access_token;
 
     /**
-     * @return Client
+     * @var string
      */
-    public function getClient();
+    public $refresh_token;
 
     /**
-     * @param mixed $response
-     *
-     * @return array
+     * @var string
      */
-    public function handleResponse($response);
+    public $id_token;
 
     /**
-     * Check if the response is successful or not (response code 200 to 299).
-     *
-     * @param array $responseContents
-     * @param int $httpStatusCode
-     *
+     * @var string
+     */
+    public $scope;
+
+    /**
+     * @var string
+     */
+    public $token_type;
+
+    /**
+     * @var string
+     */
+    public $expires;
+
+    /**
+     * @var string
+     */
+    public $expires_in;
+
+    /**
+     * @var string
+     */
+    public $resource_owner_id;
+
+    /**
      * @return bool
      */
-    public function responseIsSuccessful($responseContents, $httpStatusCode);
+    public function hasExpired()
+    {
+        $token = new Token($this->access_token);
 
-    /**
-     * @param mixed $response
-     *
-     * @return mixed
-     */
-    public function getResponseJson($response);
+        return $token->isExpired();
+    }
 }

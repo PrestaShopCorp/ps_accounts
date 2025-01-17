@@ -18,31 +18,21 @@
  * @license   https://opensource.org/licenses/AFL-3.0 Academic Free License version 3.0
  */
 
-namespace PrestaShop\Module\PsAccounts\Api\Controller;
+namespace PrestaShop\Module\PsAccounts\Http\Client;
 
-use PrestaShop\Module\PsAccounts\Api\Controller\Exception\NotFoundException;
-use Shop;
+use PrestaShop\Module\PsAccounts\Http\Client\Curl\Client;
 
-class AbstractShopRestController extends AbstractRestController
+class Factory
 {
     /**
-     * @var string
-     */
-    public $resourceId = 'shop_id';
-
-    /**
-     * @param mixed $id
+     * @param array $options
      *
-     * @return Shop
+     * @return Client
+     *
+     * @throws \Exception
      */
-    protected function buildResource($id)
+    public function create($options)
     {
-        $shop = new Shop($id);
-
-        if (!$shop->id) {
-            throw new NotFoundException('Shop not found [' . $id . ']');
-        }
-
-        return $shop;
+        return new Client($options);
     }
 }

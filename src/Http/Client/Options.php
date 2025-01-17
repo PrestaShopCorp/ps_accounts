@@ -18,26 +18,11 @@
  * @license   https://opensource.org/licenses/AFL-3.0 Academic Free License version 3.0
  */
 
-namespace PrestaShop\Module\PsAccounts\Factory;
+namespace PrestaShop\Module\PsAccounts\Http\Client;
 
-use PrestaShop\Module\PsAccounts\Provider\OAuth2\PrestaShopSession;
-use PrestaShop\Module\PsAccounts\Provider\OAuth2\ShopProvider;
-
-class PrestaShopSessionFactory
+class Options
 {
-    /**
-     * @return PrestaShopSession
-     *
-     * @throws \Exception
-     */
-    public static function create()
-    {
-        /** @var \Ps_accounts $module */
-        $module = \Module::getInstanceByName('ps_accounts');
-
-        /** @var ShopProvider $provider */
-        $provider = $module->getService(ShopProvider::class);
-
-        return new PrestaShopSession($module->getSession(), $provider);
-    }
+    const REQ_HEADERS = 'headers';
+    const REQ_JSON = 'json';
+    const REQ_FORM = 'form';
 }

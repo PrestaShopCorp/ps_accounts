@@ -3,16 +3,15 @@
 namespace PrestaShop\Module\PsAccounts\Tests\Feature;
 
 use Db;
+use PrestaShop\Module\PsAccounts\Http\Client\Response;
 use PrestaShop\Module\PsAccounts\Provider\RsaKeysProvider;
 use PrestaShop\Module\PsAccounts\Repository\UserTokenRepository;
-use PrestaShop\Module\PsAccounts\Tests\GuzzleTestClient;
+use PrestaShop\Module\PsAccounts\Tests\HttpTestClient;
 use PrestaShop\Module\PsAccounts\Tests\TestCase;
-use PrestaShop\Module\PsAccounts\Vendor\GuzzleHttp\Client;
 use PrestaShop\Module\PsAccounts\Vendor\Lcobucci\JWT\Builder;
 use PrestaShop\Module\PsAccounts\Vendor\Lcobucci\JWT\Signer\Hmac\Sha256;
 use PrestaShop\Module\PsAccounts\Vendor\Lcobucci\JWT\Signer\Key;
 use PrestaShop\Module\PsAccounts\Vendor\Lcobucci\JWT\Token;
-use Psr\Http\Message\ResponseInterface;
 
 class FeatureTestCase extends TestCase
 {
@@ -49,17 +48,26 @@ class FeatureTestCase extends TestCase
         $domain = $this->configuration->get('PS_SHOP_DOMAIN');
         $baseUrl = $scheme . $domain . '/';
 
-        $this->client = new GuzzleTestClient([
-            'base_uri' => $baseUrl,
+        $this->client = new HttpTestClient([
+            'baseUri' => $baseUrl,
             'headers' => [
                 'Accept' => 'application/json',
             ],
-            'verify' => $this->module->getParameter('ps_accounts.check_api_ssl_cert'),
+            'sslCheck' => $this->module->getParameter('ps_accounts.check_api_ssl_cert'),
             'timeout' => 60,
-            'http_errors' => false,
-            //
-            'allow_redirects' => true,
-            'query' => [],
+            'objectResponse' => true,
+            'allowRedirects' => true,
+
+//            'base_uri' => $baseUrl,
+//            'headers' => [
+//                'Accept' => 'application/json',
+//            ],
+//            'verify' => $this->module->getParameter('ps_accounts.check_api_ssl_cert'),
+//            'timeout' => 60,
+//            'http_errors' => false,
+//            //
+//            'allow_redirects' => true,
+//            'query' => [],
         ], true);
 
         // FIXME: Link::getModuleLink
@@ -97,7 +105,7 @@ class FeatureTestCase extends TestCase
     }
 
     /**
-     * @param ResponseInterface $response
+     * @param Response $response
      *
      * @return void
      */
@@ -107,7 +115,7 @@ class FeatureTestCase extends TestCase
     }
 
     /**
-     * @param ResponseInterface $response
+     * @param Response $response
      *
      * @return void
      */
@@ -117,7 +125,7 @@ class FeatureTestCase extends TestCase
     }
 
     /**
-     * @param ResponseInterface $response
+     * @param Response $response
      *
      * @return void
      */
@@ -127,7 +135,7 @@ class FeatureTestCase extends TestCase
     }
 
     /**
-     * @param ResponseInterface $response
+     * @param Response $response
      *
      * @return void
      */
@@ -137,7 +145,7 @@ class FeatureTestCase extends TestCase
     }
 
     /**
-     * @param ResponseInterface $response
+     * @param Response $response
      *
      * @return void
      */
@@ -147,7 +155,7 @@ class FeatureTestCase extends TestCase
     }
 
     /**
-     * @param ResponseInterface $response
+     * @param Response $response
      *
      * @return void
      */
@@ -157,7 +165,7 @@ class FeatureTestCase extends TestCase
     }
 
     /**
-     * @param ResponseInterface $response
+     * @param Response $response
      *
      * @return void
      */
@@ -173,10 +181,13 @@ class FeatureTestCase extends TestCase
      */
     public function getResponseJson($response)
     {
-        $ary = json_decode($response->getBody()->getContents(), true);
-        $response->getBody()->rewind();
+// FIXME
+//        $ary = json_decode($response->getBody()->getContents(), true);
+//        $response->getBody()->rewind();
+//
+//        return $ary;
 
-        return $ary;
+        return $response->getBody();
     }
 
     /**
