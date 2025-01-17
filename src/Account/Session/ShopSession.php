@@ -25,8 +25,8 @@ use PrestaShop\Module\PsAccounts\Account\Exception\InconsistentAssociationStateE
 use PrestaShop\Module\PsAccounts\Account\Exception\RefreshTokenException;
 use PrestaShop\Module\PsAccounts\Account\LinkShop;
 use PrestaShop\Module\PsAccounts\Account\Token\Token;
-use PrestaShop\Module\PsAccounts\Api\Client\OAuth2\AccessToken;
 use PrestaShop\Module\PsAccounts\Api\Client\OAuth2\OAuth2ApiClient;
+use PrestaShop\Module\PsAccounts\Api\Client\OAuth2\Response\AccessToken;
 use PrestaShop\Module\PsAccounts\Cqrs\CommandBus;
 use PrestaShop\Module\PsAccounts\Hook\ActionShopAccessTokenRefreshAfter;
 use PrestaShop\Module\PsAccounts\Repository\ConfigurationRepository;

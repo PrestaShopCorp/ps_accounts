@@ -20,6 +20,8 @@
 
 namespace PrestaShop\Module\PsAccounts\Api\Client\OAuth2;
 
+use PrestaShop\Module\PsAccounts\Api\Client\OAuth2\Response\AccessToken;
+use PrestaShop\Module\PsAccounts\Api\Client\OAuth2\Response\UserInfo;
 use Symfony\Component\HttpFoundation\Session\SessionInterface;
 
 class PrestaShopSession

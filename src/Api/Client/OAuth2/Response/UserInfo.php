@@ -18,7 +18,7 @@
  * @license   https://opensource.org/licenses/AFL-3.0 Academic Free License version 3.0
  */
 
-namespace PrestaShop\Module\PsAccounts\Api\Client\OAuth2;
+namespace PrestaShop\Module\PsAccounts\Api\Client\OAuth2\Response;
 
 // [OAuth2] stdClass Object (
 //     [amr] => Array
@@ -47,7 +47,9 @@ namespace PrestaShop\Module\PsAccounts\Api\Client\OAuth2;
 //     [rat] => 1736251522
 //     [sub] => 4rFN5bm2piPeYpsotUIwcyabcdeF
 // )  [] []
-class UserInfo
+use PrestaShop\Module\PsAccounts\Api\Client\Response;
+
+class UserInfo extends Response
 {
     /**
      * @var string
@@ -83,16 +85,4 @@ class UserInfo
      * @var string
      */
     public $picture;
-
-    /**
-     * @param array $data
-     */
-    public function __construct(array $data = [])
-    {
-        foreach ($data as $key => $value) {
-            if (property_exists($this, $key)) {
-                $this->$key = $value;
-            }
-        }
-    }
 }

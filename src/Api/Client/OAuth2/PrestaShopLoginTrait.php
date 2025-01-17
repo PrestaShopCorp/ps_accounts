@@ -23,6 +23,7 @@ namespace PrestaShop\Module\PsAccounts\Api\Client\OAuth2;
 use PrestaShop\Module\PsAccounts\Account\Exception\EmailNotVerifiedException;
 use PrestaShop\Module\PsAccounts\Account\Exception\EmployeeNotFoundException;
 use PrestaShop\Module\PsAccounts\Account\Exception\Oauth2LoginException;
+use PrestaShop\Module\PsAccounts\Api\Client\OAuth2\Response\UserInfo;
 use PrestaShop\Module\PsAccounts\Log\Logger;
 use Symfony\Component\HttpFoundation\Session\SessionInterface;
 use Tools;

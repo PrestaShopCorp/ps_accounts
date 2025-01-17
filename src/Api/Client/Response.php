@@ -18,24 +18,19 @@
  * @license   https://opensource.org/licenses/AFL-3.0 Academic Free License version 3.0
  */
 
-namespace PrestaShop\Module\PsAccounts\Account\Exception;
+namespace PrestaShop\Module\PsAccounts\Api\Client;
 
-use PrestaShop\Module\PsAccounts\Api\Client\OAuth2\Response\UserInfo;
-
-class EmployeeNotFoundException extends AccountLoginException
+abstract class Response
 {
     /**
-     * @param string $message
-     * @param UserInfo|null $user
-     * @param \Exception $previous
+     * @param array $data
      */
-    public function __construct(
-        $message = 'The email address is not associated to a PrestaShop backoffice account.',
-        UserInfo $user = null,
-        \Exception $previous = null
-    ) {
-        parent::__construct($message, $user, $previous);
-
-        $this->type = 'employee_not_found';
+    public function __construct(array $data = [])
+    {
+        foreach ($data as $key => $value) {
+            if (property_exists($this, $key)) {
+                $this->$key = $value;
+            }
+        }
     }
 }

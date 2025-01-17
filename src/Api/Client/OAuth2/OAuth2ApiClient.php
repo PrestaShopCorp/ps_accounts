@@ -22,6 +22,9 @@ namespace PrestaShop\Module\PsAccounts\Api\Client\OAuth2;
 
 use PrestaShop\Module\PsAccounts\Adapter\Link;
 use PrestaShop\Module\PsAccounts\Api\Client\OAuth2\OAuth2Client as OauthClient;
+use PrestaShop\Module\PsAccounts\Api\Client\OAuth2\Response\AccessToken;
+use PrestaShop\Module\PsAccounts\Api\Client\OAuth2\Response\UserInfo;
+use PrestaShop\Module\PsAccounts\Api\Client\OAuth2\Response\WellKnown;
 use PrestaShop\Module\PsAccounts\Http\Client\Curl\Client;
 use PrestaShop\Module\PsAccounts\Http\Client\Factory;
 use PrestaShop\Module\PsAccounts\Http\Client\Options;

@@ -18,11 +18,12 @@
  * @license   https://opensource.org/licenses/AFL-3.0 Academic Free License version 3.0
  */
 
-namespace PrestaShop\Module\PsAccounts\Api\Client\OAuth2;
+namespace PrestaShop\Module\PsAccounts\Api\Client\OAuth2\Response;
 
 use PrestaShop\Module\PsAccounts\Account\Token\Token;
+use PrestaShop\Module\PsAccounts\Api\Client\Response;
 
-class AccessToken
+class AccessToken extends Response
 {
     /**
      * @var string
@@ -63,18 +64,6 @@ class AccessToken
      * @var string
      */
     public $resource_owner_id;
-
-    /**
-     * @param array $data
-     */
-    public function __construct(array $data = [])
-    {
-        foreach ($data as $key => $value) {
-            if (property_exists($this, $key)) {
-                $this->$key = $value;
-            }
-        }
-    }
 
     /**
      * @return bool

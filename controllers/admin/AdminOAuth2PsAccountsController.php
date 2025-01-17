@@ -24,7 +24,7 @@ use PrestaShop\Module\PsAccounts\Account\Exception\EmployeeNotFoundException;
 use PrestaShop\Module\PsAccounts\Api\Client\OAuth2\OAuth2ApiClient;
 use PrestaShop\Module\PsAccounts\Api\Client\OAuth2\PrestaShopLoginTrait;
 use PrestaShop\Module\PsAccounts\Api\Client\OAuth2\PrestaShopSession;
-use PrestaShop\Module\PsAccounts\Api\Client\OAuth2\UserInfo;
+use PrestaShop\Module\PsAccounts\Api\Client\OAuth2\Response\UserInfo;
 use PrestaShop\Module\PsAccounts\Entity\EmployeeAccount;
 use PrestaShop\Module\PsAccounts\Polyfill\Traits\AdminController\IsAnonymousAllowed;
 use PrestaShop\Module\PsAccounts\Repository\EmployeeAccountRepository;

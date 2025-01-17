@@ -282,6 +282,7 @@ bundle-preprod: php-scoper config.php.preprod build-front
 
 define build_front
 	rm -f ./views/js/app.*.js
+	rm -f ./views/css/app.*.css
 	yarn --cwd ./_dev --frozen-lockfile
 	yarn --cwd ./_dev build
 endef

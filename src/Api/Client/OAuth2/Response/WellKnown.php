@@ -18,7 +18,9 @@
  * @license   https://opensource.org/licenses/AFL-3.0 Academic Free License version 3.0
  */
 
-namespace PrestaShop\Module\PsAccounts\Api\Client\OAuth2;
+namespace PrestaShop\Module\PsAccounts\Api\Client\OAuth2\Response;
+
+use PrestaShop\Module\PsAccounts\Api\Client\Response;
 
 /**
  * {
@@ -52,7 +54,7 @@ namespace PrestaShop\Module\PsAccounts\Api\Client\OAuth2;
  *  "code_challenge_methods_supported":["plain","S256"]
  * }
  */
-class WellKnown
+class WellKnown extends Response
 {
     /** @var string */
     public $issuer;
@@ -137,16 +139,4 @@ class WellKnown
 
     /** @var array */
     public $code_challenge_methods_supported;
-
-    /**
-     * @param array $data WellKnown data
-     */
-    public function __construct(array $data = [])
-    {
-        foreach ($data as $key => $value) {
-            if (property_exists($this, $key)) {
-                $this->$key = $value;
-            }
-        }
-    }
 }
