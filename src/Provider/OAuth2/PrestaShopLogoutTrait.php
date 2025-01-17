@@ -38,6 +38,14 @@ trait PrestaShopLogoutTrait
     abstract protected function isOauth2LogoutEnabled();
 
     /**
+     * @return string
+     */
+    public static function getQueryLogoutCallbackParam()
+    {
+        return 'oauth2Callback';
+    }
+
+    /**
      * @return void
      *
      * @throws \Exception
@@ -49,7 +57,7 @@ trait PrestaShopLogoutTrait
         }
 
         $oauth2Session = $this->getOauth2Session();
-        if (!isset($_GET[ShopProvider::QUERY_LOGOUT_CALLBACK_PARAM])) {
+        if (!isset($_GET[PrestaShopLogoutTrait::getQueryLogoutCallbackParam()])) {
             $idToken = $oauth2Session->getIdToken();
 
             if (empty($idToken)) {
