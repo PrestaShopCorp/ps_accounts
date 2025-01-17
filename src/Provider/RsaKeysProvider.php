@@ -131,17 +131,12 @@ class RsaKeysProvider
     }
 
     /**
-     * @return string|bool|null
+     * @return string|null
      */
     public function getOrGenerateAccountsRsaPublicKey()
     {
-        $publicKey = $this->getPublicKey();
-        if ($publicKey) {
-            return $publicKey;
-        }
-
         try {
-            $this->regenerateKeys();
+            $this->generateKeys();
 
             return $this->getPublicKey();
         } catch (\Exception $e) {
@@ -164,15 +159,15 @@ class RsaKeysProvider
      */
     public function hasKeys()
     {
-        return false === empty($this->configuration->getAccountsRsaPublicKey());
+        return null !== $this->getPublicKey();
     }
 
     /**
-     * @return string|bool
+     * @return string|null
      */
     public function getPublicKey()
     {
-        return $this->configuration->getAccountsRsaPublicKey();
+        return ((string) $this->configuration->getAccountsRsaPublicKey(false, false)) ?: null;
     }
 
     /**

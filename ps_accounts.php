@@ -34,7 +34,7 @@ class Ps_accounts extends Module
 
     // Needed in order to retrieve the module version easier (in api call headers) than instanciate
     // the module each time to get the version
-    const VERSION = '7.1.0';
+    const VERSION = '7.1.1';
 
     /**
      * Admin tabs
@@ -131,7 +131,7 @@ class Ps_accounts extends Module
 
         // We cannot use the const VERSION because the const is not computed by addons marketplace
         // when the zip is uploaded
-        $this->version = '7.1.0';
+        $this->version = '7.1.1';
 
         $this->module_key = 'abf2cd758b4d629b2944d3922ef9db73';
 
@@ -365,6 +365,10 @@ class Ps_accounts extends Module
 
         /** @var \PrestaShop\Module\PsAccounts\Presenter\PsAccountsPresenter $psAccountsPresenter */
         $psAccountsPresenter = $this->getService(\PrestaShop\Module\PsAccounts\Presenter\PsAccountsPresenter::class);
+
+        /** @var \PrestaShop\Module\PsAccounts\Provider\RsaKeysProvider $rsaKeysProvider */
+        $rsaKeysProvider = $this->getService(\PrestaShop\Module\PsAccounts\Provider\RsaKeysProvider::class);
+        $rsaKeysProvider->getOrGenerateAccountsRsaPublicKey();
 
         Media::addJsDef([
             'contextPsAccounts' => $psAccountsPresenter->present((string) $this->name),
