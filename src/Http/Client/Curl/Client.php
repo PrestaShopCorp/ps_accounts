@@ -92,8 +92,15 @@ class Client
         unset($options['name']);
 //        \Tools::refreshCACertFile();
 
-        // FIXME headers
-        foreach (['baseUri', 'timeout', 'objectResponse', 'sslCheck', 'allowRedirects', 'headers'] as $option) {
+        foreach ([
+                     'baseUri',
+                     'userAgent',
+                     'timeout',
+                     'objectResponse',
+                     'sslCheck',
+                     'allowRedirects',
+                     'headers',
+                 ] as $option) {
             if (isset($options[$option])) {
                 $this->$option = $options[$option];
             }
@@ -319,7 +326,9 @@ class Client
         curl_setopt($ch, CURLOPT_FOLLOWLOCATION, $this->allowRedirects);
         curl_setopt($ch, CURLOPT_POSTREDIR, $this->allowRedirects ? 3 : 0);
 
-        curl_setopt($ch, CURLOPT_USERAGENT, $this->getUserAgent());
+        if (!empty($this->userAgent)) {
+            curl_setopt($ch, CURLOPT_USERAGENT, $this->userAgent);
+        }
         //curl_setopt($ch, CURLOPT_VERBOSE, true);
 
         return $ch;
@@ -380,13 +389,5 @@ class Client
         Logger::getInstance()->info('options ' . var_export(curl_getinfo($ch), true));
 
         return $ch;
-    }
-
-    /**
-     * @return string
-     */
-    public function getUserAgent()
-    {
-        return $this->userAgent;
     }
 }
