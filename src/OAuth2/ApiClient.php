@@ -25,7 +25,6 @@ use PrestaShop\Module\PsAccounts\Adapter\Link;
 use PrestaShop\Module\PsAccounts\Http\Client\Curl\Client as HttpClient;
 use PrestaShop\Module\PsAccounts\Http\Client\Factory;
 use PrestaShop\Module\PsAccounts\Http\Client\Options;
-use PrestaShop\Module\PsAccounts\Http\Client\Response;
 use PrestaShop\Module\PsAccounts\OAuth2\Response\AccessToken;
 use PrestaShop\Module\PsAccounts\OAuth2\Response\UserInfo;
 use PrestaShop\Module\PsAccounts\OAuth2\Response\WellKnown;
@@ -33,6 +32,11 @@ use PrestaShop\Module\PsAccounts\Vendor\Ramsey\Uuid\Uuid;
 
 class ApiClient
 {
+    /**
+     * openid-configuration cache (24 Hours)
+     */
+    const OPENID_CONFIGURATION_CACHE_TTL = 60 * 60 * 24;
+
     /**
      * @var string
      */
@@ -84,12 +88,12 @@ class ApiClient
      * @throws \Exception
      */
     public function __construct(
-               $baseUri,
+        $baseUri,
         Client $client,
         Link $link,
-               $cacheDir = null,
-               $defaultTimeout = 20,
-               $sslCheck = true
+        $cacheDir = null,
+        $defaultTimeout = 20,
+        $sslCheck = true
     ) {
         $this->baseUri = $baseUri;
         $this->client = $client;
@@ -97,10 +101,9 @@ class ApiClient
         $this->defaultTimeout = $defaultTimeout;
         $this->sslCheck = $sslCheck;
 
-        // FIXME configuration parameter
         $this->cachedWellKnown = new CachedFile(
             $cacheDir . '/openid-configuration.json',
-            60 * 60 * 24
+            self::OPENID_CONFIGURATION_CACHE_TTL
         );
     }
 
@@ -116,7 +119,6 @@ class ApiClient
                 'headers' => $this->getHeaders(),
                 'timeout' => $this->defaultTimeout,
                 'sslCheck' => $this->sslCheck,
-                'objectResponse' => true,
             ]);
         }
 
@@ -193,10 +195,8 @@ class ApiClient
             $wellKnownUrl = \preg_replace('/\\/?$/', '/.well-known/openid-configuration', $wellKnownUrl);
         }
 
-        /** @var Response $response */
-        $response = $this->getHttpClient()->get($wellKnownUrl);
-
-        return $response->body;
+        return $this->getHttpClient()->get($wellKnownUrl)
+            ->getBody();
     }
 
     /**
@@ -204,10 +204,13 @@ class ApiClient
      * @param array $audience
      *
      * @return AccessToken access token
+     *
+     * @throws OAuth2Exception
      */
     public function getAccessTokenByClientCredentials(array $scope = [], array $audience = [])
     {
-        /** @var Response $response */
+        $this->assertClientExists();
+
         $response = $this->getHttpClient()->post(
             $this->getWellKnown()->token_endpoint,
             [
@@ -236,6 +239,8 @@ class ApiClient
      * @param string $uiLocales
      *
      * @return string authorization flow uri
+     *
+     * @throws OAuth2Exception
      */
     public function getAuthorizationUri(
         $state,
@@ -244,6 +249,8 @@ class ApiClient
         $pkceMethod = 'S256',
         $uiLocales = 'fr'
     ) {
+        $this->assertClientExists();
+
         return $this->getWellKnown()->authorization_endpoint . '?' .
             http_build_query(array_merge([
                 'ui_locales' => $uiLocales,
@@ -299,6 +306,8 @@ class ApiClient
      * @param array $audience
      *
      * @return AccessToken access token
+     *
+     * @throws OAuth2Exception
      */
     public function getAccessTokenByAuthorizationCode(
         $code,
@@ -307,7 +316,8 @@ class ApiClient
         array $scope = [],
         array $audience = []
     ) {
-        /** @var Response $response */
+        $this->assertClientExists();
+
         $response = $this->getHttpClient()->post(
             $this->getWellKnown()->token_endpoint,
             [
@@ -336,10 +346,13 @@ class ApiClient
      * @param string $refreshToken
      *
      * @return AccessToken
+     *
+     * @throws OAuth2Exception
      */
     public function refreshAccessToken($refreshToken)
     {
-        /** @var Response $response */
+        $this->assertClientExists();
+
         $response = $this->getHttpClient()->post(
             $this->getWellKnown()->token_endpoint,
             [
@@ -365,7 +378,6 @@ class ApiClient
      */
     public function getUserInfo($accessToken)
     {
-        /** @var Response $response */
         $response = $this->getHttpClient()->get(
             $this->getWellKnown()->userinfo_endpoint,
             [
@@ -416,5 +428,17 @@ class ApiClient
     public function getClient()
     {
         return $this->client;
+    }
+
+    /**
+     * @return void
+     *
+     * @throws OAuth2Exception
+     */
+    protected function assertClientExists()
+    {
+        if (!$this->client->exists()) {
+            throw new OAuth2Exception('OAuth2 client not configured');
+        }
     }
 }

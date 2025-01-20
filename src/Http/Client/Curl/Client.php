@@ -55,11 +55,6 @@ class Client
     /**
      * @var bool
      */
-    protected $objectResponse = false;
-
-    /**
-     * @var bool
-     */
     protected $sslCheck = true;
 
     /**
@@ -83,12 +78,6 @@ class Client
             isset($options['name']) ? $options['name'] : static::class
         );
 
-        if ($this->objectResponse) {
-            $this->circuitBreaker->setDefaultFallbackResponse(
-                new Response($this->circuitBreaker->getDefaultFallbackResponse())
-            );
-        }
-
         unset($options['name']);
 //        \Tools::refreshCACertFile();
 
@@ -96,7 +85,6 @@ class Client
                      'baseUri',
                      'userAgent',
                      'timeout',
-                     'objectResponse',
                      'sslCheck',
                      'allowRedirects',
                      'headers',
@@ -111,7 +99,7 @@ class Client
      * @param string $route
      * @param array $options payload
      *
-     * @return Response|array return response or false if no response
+     * @return Response return response or false if no response
      */
     public function post($route, array $options = [])
     {
@@ -136,7 +124,7 @@ class Client
      * @param string $route
      * @param array $options payload
      *
-     * @return Response|array return response or false if no response
+     * @return Response return response or false if no response
      */
     public function patch($route, array $options = [])
     {
@@ -161,7 +149,7 @@ class Client
      * @param string $route
      * @param array $options payload
      *
-     * @return Response|array return response or false if no response
+     * @return Response return response or false if no response
      */
     public function get($route, array $options = [])
     {
@@ -182,7 +170,7 @@ class Client
      * @param string $route
      * @param array $options payload
      *
-     * @return Response|array return response array
+     * @return Response return response array
      */
     public function delete($route, array $options = [])
     {
@@ -234,7 +222,7 @@ class Client
      * @param mixed $ch
      * @param mixed $response
      *
-     * @return Response|array
+     * @return Response
      *
      * @throws CircuitBreaker\CircuitBreakerException
      */
@@ -247,31 +235,27 @@ class Client
         }
 
         $statusCode = curl_getinfo($ch, CURLINFO_RESPONSE_CODE);
-        $res = [
+        $response = new Response([
             'status' => $this->responseIsSuccessful([], $statusCode),
             'httpCode' => $statusCode,
             'body' => is_array($response) ?
                 $response :
                 \json_decode($response, true),
-        ];
-        $this->logResponse($res, $ch);
+        ]);
+        $this->logResponse($response, $ch);
 
-        if ($this->objectResponse) {
-            return new Response($res);
-        }
-
-        return $res;
+        return $response;
     }
 
     /**
-     * @param array $response
+     * @param Response $response
      * @param mixed $ch
      *
      * @return void
      */
-    private function logResponse($response, $ch)
+    private function logResponse(Response $response, $ch)
     {
-        if (!$response['status']) {
+        if (!$response->status) {
             Logger::getInstance()->error('response ' . var_export($response, true));
         } else {
             Logger::getInstance()->info('response ' . var_export($response, true));
@@ -341,7 +325,7 @@ class Client
      */
     public function initSsl($ch)
     {
-        $checkSsl = $this->getVerify();
+        $checkSsl = $this->getSslCheck();
         curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, $checkSsl ? 2 : 0);
         curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, $checkSsl);
     }
@@ -366,7 +350,7 @@ class Client
     /**
      * @return bool
      */
-    protected function getVerify()
+    protected function getSslCheck()
     {
         if (version_compare((string) phpversion(), '7', '>=')) {
             return $this->sslCheck;

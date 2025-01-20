@@ -28,6 +28,7 @@ use PrestaShop\Module\PsAccounts\Account\Token\Token;
 use PrestaShop\Module\PsAccounts\Cqrs\CommandBus;
 use PrestaShop\Module\PsAccounts\Hook\ActionShopAccessTokenRefreshAfter;
 use PrestaShop\Module\PsAccounts\OAuth2\ApiClient;
+use PrestaShop\Module\PsAccounts\OAuth2\OAuth2Exception;
 use PrestaShop\Module\PsAccounts\OAuth2\Response\AccessToken;
 use PrestaShop\Module\PsAccounts\Repository\ConfigurationRepository;
 
@@ -106,7 +107,7 @@ class ShopSession extends Session implements SessionInterface
                 $this->configurationRepository->getShopId(),
                 $e->getMessage()
             ));
-            //} catch (IdentityProviderException $e) {
+        } catch (OAuth2Exception $e) {
         } catch (\Throwable $e) {
             /* @phpstan-ignore-next-line */
         } catch (\Exception $e) {
@@ -155,6 +156,8 @@ class ShopSession extends Session implements SessionInterface
      * @param string $shopUid
      *
      * @return AccessToken
+     *
+     * @throws OAuth2Exception
      */
     protected function getAccessToken($shopUid)
     {
@@ -163,9 +166,7 @@ class ShopSession extends Session implements SessionInterface
             //'another.audience'
         ];
 
-        $accessToken = $this->oauth2ApiClient->getAccessTokenByClientCredentials([], $audience);
-
-        return $accessToken;
+        return $this->oauth2ApiClient->getAccessTokenByClientCredentials([], $audience);
     }
 
     /**

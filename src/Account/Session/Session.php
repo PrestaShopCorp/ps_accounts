@@ -70,11 +70,11 @@ abstract class Session implements SessionInterface
             } catch (RefreshTokenException $e) {
                 $this->setToken('');
                 $this->setRefreshTokenErrors(static::class);
-                Logger::getInstance()->error($e->getMessage());
 
                 if ($throw) {
                     throw $e;
                 }
+                Logger::getInstance()->error($e->getMessage());
             }
         }
 

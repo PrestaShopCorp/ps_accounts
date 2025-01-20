@@ -22,6 +22,7 @@ namespace PrestaShop\Module\PsAccounts\Http\Client\CircuitBreaker;
 
 use PrestaShop\Module\PsAccounts\Adapter\Configuration;
 use PrestaShop\Module\PsAccounts\Api\Client\AccountsClient;
+use PrestaShop\Module\PsAccounts\Http\Client\Response;
 use PrestaShop\Module\PsAccounts\OAuth2\ApiClient;
 
 class Factory
@@ -67,11 +68,11 @@ class Factory
             'PS_ACCOUNTS',
             $this->configStorage
         );
-        $instance->setDefaultFallbackResponse([
+        $instance->setDefaultFallbackResponse(new Response([
             'status' => false,
             'httpCode' => 500,
             'body' => ['message' => 'Circuit Breaker Open'],
-        ]);
+        ]));
         $this->instances[$resourceId] = $instance;
 
         return $instance;

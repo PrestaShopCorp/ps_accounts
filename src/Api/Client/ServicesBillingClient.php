@@ -23,7 +23,6 @@ namespace PrestaShop\Module\PsAccounts\Api\Client;
 use PrestaShop\Module\PsAccounts\Http\Client\Curl\Client;
 use PrestaShop\Module\PsAccounts\Http\Client\Factory;
 use PrestaShop\Module\PsAccounts\Http\Client\Options;
-use PrestaShop\Module\PsAccounts\Http\Client\Response;
 use PrestaShop\Module\PsAccounts\Provider\ShopProvider;
 use PrestaShop\Module\PsAccounts\Service\PsAccountsService;
 
@@ -82,18 +81,19 @@ class ServicesBillingClient
     /**
      * @param mixed $shopUuidV4
      *
-     * @return Response|array
+     * @return array
      */
     public function getBillingCustomer($shopUuidV4)
     {
-        return $this->client->get('/shops/' . $shopUuidV4);
+        return $this->client->get('/shops/' . $shopUuidV4)
+            ->toLegacy();
     }
 
     /**
      * @param mixed $shopUuidV4
      * @param array $bodyHttp
      *
-     * @return Response|array
+     * @return array
      */
     public function createBillingCustomer($shopUuidV4, $bodyHttp)
     {
@@ -102,18 +102,19 @@ class ServicesBillingClient
             [
                 Options::REQ_FORM => $bodyHttp,
             ]
-        );
+        )->toLegacy();
     }
 
     /**
      * @param mixed $shopUuidV4
      * @param string $module
      *
-     * @return Response|array
+     * @return array
      */
     public function getBillingSubscriptions($shopUuidV4, $module)
     {
-        return $this->client->get('/shops/' . $shopUuidV4 . '/subscriptions/' . $module);
+        return $this->client->get('/shops/' . $shopUuidV4 . '/subscriptions/' . $module)
+            ->toLegacy();
     }
 
     /**
@@ -121,7 +122,7 @@ class ServicesBillingClient
      * @param string $module
      * @param array $bodyHttp
      *
-     * @return Response|array
+     * @return array
      */
     public function createBillingSubscriptions($shopUuidV4, $module, $bodyHttp)
     {
@@ -130,6 +131,6 @@ class ServicesBillingClient
             [
                 Options::REQ_FORM => $bodyHttp,
             ]
-        );
+        )->toLegacy();
     }
 }

@@ -64,4 +64,16 @@ class Response
     {
         return $this->body;
     }
+
+    /**
+     * @return array
+     */
+    public function toLegacy()
+    {
+        return [
+            'status' => $this->status,
+            'httpCode' => $this->httpCode,
+            'body' => $this->body,
+        ];
+    }
 }

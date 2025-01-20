@@ -111,16 +111,13 @@ class AccountsClient
      */
     public function firebaseTokens($accessToken)
     {
-        /** @var array $res */
-        $res = $this->getClient()->get(
+        return $this->getClient()->get(
             'v2/shop/firebase/tokens',
             [
                 Options::REQ_HEADERS => $this->getHeaders([
                     'Authorization' => 'Bearer ' . $accessToken,
                 ]),
-            ]);
-
-        return $res;
+            ])->toLegacy();
     }
 
     /**
@@ -131,8 +128,7 @@ class AccountsClient
      */
     public function refreshShopToken($refreshToken, $shopUuid)
     {
-        /** @var array $res */
-        $res = $this->getClient()->post(
+        return $this->getClient()->post(
             'v1/shop/token/refresh',
             [
                 Options::REQ_HEADERS => $this->getHeaders([
@@ -142,9 +138,7 @@ class AccountsClient
                     'token' => $refreshToken,
                 ],
             ]
-        );
-
-        return $res;
+        )->toLegacy();
     }
 
     /**
@@ -156,8 +150,7 @@ class AccountsClient
      */
     public function deleteUserShop($ownerUid, $shopUid, $ownerToken)
     {
-        /** @var array $res */
-        $res = $this->getClient()->delete(
+        return $this->getClient()->delete(
             'v1/user/' . $ownerUid . '/shop/' . $shopUid,
             [
                 Options::REQ_HEADERS => $this->getHeaders([
@@ -165,9 +158,7 @@ class AccountsClient
                     'X-Shop-Id' => $shopUid,
                 ]),
             ]
-        );
-
-        return $res;
+        )->toLegacy();
     }
 
     /**
@@ -180,8 +171,7 @@ class AccountsClient
      */
     public function updateUserShop($ownerUid, $shopUid, $ownerToken, UpdateShop $shop)
     {
-        /** @var array $res */
-        $res = $this->getClient()->patch(
+        return $this->getClient()->patch(
             'v1/user/' . $ownerUid . '/shop/' . $shopUid,
             [
                 Options::REQ_HEADERS => $this->getHeaders([
@@ -190,9 +180,7 @@ class AccountsClient
                 ]),
                 Options::REQ_JSON => $shop->jsonSerialize(),
             ]
-        );
-
-        return $res;
+        )->toLegacy();
     }
 
     /**
@@ -204,8 +192,7 @@ class AccountsClient
      */
     public function upgradeShopModule($shopUid, $shopToken, UpgradeModule $data)
     {
-        /** @var array $res */
-        $res = $this->getClient()->post(
+        return $this->getClient()->post(
             '/v2/shop/module/update',
             [
                 Options::REQ_HEADERS => $this->getHeaders([
@@ -214,9 +201,7 @@ class AccountsClient
                 ]),
                 Options::REQ_JSON => $data->jsonSerialize(),
             ]
-        );
-
-        return $res;
+        )->toLegacy();
     }
 
     /**
@@ -228,8 +213,7 @@ class AccountsClient
      */
     public function verifyToken($idToken)
     {
-        /** @var array $res */
-        $res = $this->getClient()->post(
+        return $this->getClient()->post(
             '/v1/shop/token/verify',
             [
                 Options::REQ_HEADERS => $this->getHeaders(),
@@ -237,9 +221,7 @@ class AccountsClient
                     'token' => $idToken,
                 ],
             ]
-        );
-
-        return $res;
+        )->toLegacy();
     }
 
     /**
@@ -247,9 +229,6 @@ class AccountsClient
      */
     public function healthCheck()
     {
-        /** @var array $res */
-        $res = $this->getClient()->get('/healthcheck');
-
-        return $res;
+        return $this->getClient()->get('/healthcheck')->toLegacy();
     }
 }
