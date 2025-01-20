@@ -18,14 +18,14 @@
  * @license   https://opensource.org/licenses/AFL-3.0 Academic Free License version 3.0
  */
 
-use PrestaShop\Module\PsAccounts\Account\Exception\AccountLoginException;
-use PrestaShop\Module\PsAccounts\Account\Exception\EmailNotVerifiedException;
-use PrestaShop\Module\PsAccounts\Account\Exception\EmployeeNotFoundException;
-use PrestaShop\Module\PsAccounts\Api\Client\OAuth2\OAuth2ApiClient;
-use PrestaShop\Module\PsAccounts\Api\Client\OAuth2\PrestaShopLoginTrait;
-use PrestaShop\Module\PsAccounts\Api\Client\OAuth2\PrestaShopSession;
-use PrestaShop\Module\PsAccounts\Api\Client\OAuth2\Response\UserInfo;
+use PrestaShop\Module\PsAccounts\AccountLogin\Exception\AccountLoginException;
+use PrestaShop\Module\PsAccounts\AccountLogin\Exception\EmailNotVerifiedException;
+use PrestaShop\Module\PsAccounts\AccountLogin\Exception\EmployeeNotFoundException;
+use PrestaShop\Module\PsAccounts\AccountLogin\OAuth2LoginTrait;
+use PrestaShop\Module\PsAccounts\AccountLogin\OAuth2Session;
 use PrestaShop\Module\PsAccounts\Entity\EmployeeAccount;
+use PrestaShop\Module\PsAccounts\OAuth2\ApiClient;
+use PrestaShop\Module\PsAccounts\OAuth2\Response\UserInfo;
 use PrestaShop\Module\PsAccounts\Polyfill\Traits\AdminController\IsAnonymousAllowed;
 use PrestaShop\Module\PsAccounts\Repository\EmployeeAccountRepository;
 use PrestaShop\Module\PsAccounts\Service\AnalyticsService;
@@ -37,7 +37,7 @@ use Symfony\Component\HttpFoundation\Session\SessionInterface;
  */
 class AdminOAuth2PsAccountsController extends \ModuleAdminController
 {
-    use PrestaShopLoginTrait;
+    use OAuth2LoginTrait;
     use IsAnonymousAllowed;
 
     /**
@@ -193,13 +193,13 @@ class AdminOAuth2PsAccountsController extends \ModuleAdminController
     }
 
     /**
-     * @return OAuth2ApiClient
+     * @return ApiClient
      *
      * @throws Exception
      */
     private function getOAuth2Client()
     {
-        return $this->module->getService(OAuth2ApiClient::class);
+        return $this->module->getService(ApiClient::class);
     }
 
     /**
@@ -233,11 +233,11 @@ class AdminOAuth2PsAccountsController extends \ModuleAdminController
     }
 
     /**
-     * @return PrestaShopSession
+     * @return OAuth2Session
      */
     protected function getOauth2Session()
     {
-        return $this->module->getService(PrestaShopSession::class);
+        return $this->module->getService(OAuth2Session::class);
     }
 
     /**

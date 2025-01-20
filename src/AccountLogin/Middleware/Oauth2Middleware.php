@@ -18,18 +18,18 @@
  * @license   https://opensource.org/licenses/AFL-3.0 Academic Free License version 3.0
  */
 
-namespace PrestaShop\Module\PsAccounts\Middleware;
+namespace PrestaShop\Module\PsAccounts\AccountLogin\Middleware;
 
 use Exception;
-use PrestaShop\Module\PsAccounts\Api\Client\OAuth2\OAuth2ApiClient;
-use PrestaShop\Module\PsAccounts\Api\Client\OAuth2\PrestaShopLogoutTrait;
-use PrestaShop\Module\PsAccounts\Api\Client\OAuth2\PrestaShopSession;
+use PrestaShop\Module\PsAccounts\AccountLogin\OAuth2LogoutTrait;
+use PrestaShop\Module\PsAccounts\AccountLogin\OAuth2Session;
+use PrestaShop\Module\PsAccounts\OAuth2\ApiClient;
 use PrestaShop\Module\PsAccounts\Service\PsAccountsService;
 use Ps_accounts;
 
 class Oauth2Middleware
 {
-    use PrestaShopLogoutTrait;
+    use OAuth2LogoutTrait;
 
     /**
      * @var Ps_accounts
@@ -78,21 +78,21 @@ class Oauth2Middleware
     }
 
     /**
-     * @return OAuth2ApiClient
+     * @return ApiClient
      */
     protected function getOAuth2Client()
     {
-        return $this->module->getService(OAuth2ApiClient::class);
+        return $this->module->getService(ApiClient::class);
     }
 
     /**
-     * @return PrestaShopSession
+     * @return OAuth2Session
      *
      * @throws Exception
      */
     protected function getOauth2Session()
     {
-        return $this->module->getService(PrestaShopSession::class);
+        return $this->module->getService(OAuth2Session::class);
     }
 
     /**

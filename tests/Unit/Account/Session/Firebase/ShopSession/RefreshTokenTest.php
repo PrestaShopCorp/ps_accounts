@@ -24,7 +24,7 @@ use PrestaShop\Module\PsAccounts\Account\Session\Firebase;
 use PrestaShop\Module\PsAccounts\Account\Session\ShopSession;
 use PrestaShop\Module\PsAccounts\Account\Token\Token;
 use PrestaShop\Module\PsAccounts\Account\Exception\RefreshTokenException;
-use PrestaShop\Module\PsAccounts\Api\Client\OAuth2\OAuth2ApiClient;
+use PrestaShop\Module\PsAccounts\OAuth2\ApiClient;
 use PrestaShop\Module\PsAccounts\Tests\TestCase;
 
 class RefreshTokenTest extends TestCase
@@ -41,7 +41,7 @@ class RefreshTokenTest extends TestCase
     /**
      * @inject
      *
-     * @var OAuth2ApiClient
+     * @var ApiClient
      */
     protected $oauth2ApiClient;
 

@@ -25,10 +25,10 @@ use PrestaShop\Module\PsAccounts\Account\Exception\InconsistentAssociationStateE
 use PrestaShop\Module\PsAccounts\Account\Exception\RefreshTokenException;
 use PrestaShop\Module\PsAccounts\Account\LinkShop;
 use PrestaShop\Module\PsAccounts\Account\Token\Token;
-use PrestaShop\Module\PsAccounts\Api\Client\OAuth2\OAuth2ApiClient;
-use PrestaShop\Module\PsAccounts\Api\Client\OAuth2\Response\AccessToken;
 use PrestaShop\Module\PsAccounts\Cqrs\CommandBus;
 use PrestaShop\Module\PsAccounts\Hook\ActionShopAccessTokenRefreshAfter;
+use PrestaShop\Module\PsAccounts\OAuth2\ApiClient;
+use PrestaShop\Module\PsAccounts\OAuth2\Response\AccessToken;
 use PrestaShop\Module\PsAccounts\Repository\ConfigurationRepository;
 
 class ShopSession extends Session implements SessionInterface
@@ -44,7 +44,7 @@ class ShopSession extends Session implements SessionInterface
     protected $configurationRepository;
 
     /**
-     * @var OAuth2ApiClient
+     * @var ApiClient
      */
     protected $oauth2ApiClient;
 
@@ -60,13 +60,13 @@ class ShopSession extends Session implements SessionInterface
 
     /**
      * @param ConfigurationRepository $configurationRepository
-     * @param OAuth2ApiClient $oauth2ApiClient
+     * @param ApiClient $oauth2ApiClient
      * @param LinkShop $linkShop
      * @param CommandBus $commandBus
      */
     public function __construct(
         ConfigurationRepository $configurationRepository,
-        OAuth2ApiClient $oauth2ApiClient,
+        ApiClient $oauth2ApiClient,
         LinkShop $linkShop,
         CommandBus $commandBus
     ) {
@@ -184,7 +184,7 @@ class ShopSession extends Session implements SessionInterface
 
         if ($this->linkShop->exists() &&
             $currentTs - $linkedAtTs > $oauth2ClientReceiptTimeout &&
-            !$this->oauth2ApiClient->getOauth2Client()->exists()) {
+            !$this->oauth2ApiClient->getClient()->exists()) {
             throw new InconsistentAssociationStateException('Invalid OAuth2 client');
         }
     }

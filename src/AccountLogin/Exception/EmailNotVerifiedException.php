@@ -18,11 +18,11 @@
  * @license   https://opensource.org/licenses/AFL-3.0 Academic Free License version 3.0
  */
 
-namespace PrestaShop\Module\PsAccounts\Account\Exception;
+namespace PrestaShop\Module\PsAccounts\AccountLogin\Exception;
 
-use PrestaShop\Module\PsAccounts\Api\Client\OAuth2\Response\UserInfo;
+use PrestaShop\Module\PsAccounts\OAuth2\Response\UserInfo;
 
-class Oauth2LoginException extends AccountLoginException
+class EmailNotVerifiedException extends AccountLoginException
 {
     /**
      * @param string $message
@@ -30,12 +30,12 @@ class Oauth2LoginException extends AccountLoginException
      * @param \Exception $previous
      */
     public function __construct(
-        $message = 'OAuth2 error',
+        $message = 'Your account email is not verified',
         UserInfo $user = null,
         \Exception $previous = null
     ) {
         parent::__construct($message, $user, $previous);
 
-        $this->type = 'error_from_hydra';
+        $this->type = 'email_not_verified';
     }
 }

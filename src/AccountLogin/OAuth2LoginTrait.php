@@ -18,20 +18,22 @@
  * @license   https://opensource.org/licenses/AFL-3.0 Academic Free License version 3.0
  */
 
-namespace PrestaShop\Module\PsAccounts\Api\Client\OAuth2;
+namespace PrestaShop\Module\PsAccounts\AccountLogin;
 
-use PrestaShop\Module\PsAccounts\Account\Exception\EmailNotVerifiedException;
-use PrestaShop\Module\PsAccounts\Account\Exception\EmployeeNotFoundException;
-use PrestaShop\Module\PsAccounts\Account\Exception\Oauth2LoginException;
-use PrestaShop\Module\PsAccounts\Api\Client\OAuth2\Response\UserInfo;
+use PrestaShop\Module\PsAccounts\AccountLogin\Exception\EmailNotVerifiedException;
+use PrestaShop\Module\PsAccounts\AccountLogin\Exception\EmployeeNotFoundException;
+use PrestaShop\Module\PsAccounts\AccountLogin\Exception\Oauth2LoginException;
 use PrestaShop\Module\PsAccounts\Log\Logger;
+use PrestaShop\Module\PsAccounts\OAuth2\ApiClient;
+use PrestaShop\Module\PsAccounts\OAuth2\OAuth2Exception;
+use PrestaShop\Module\PsAccounts\OAuth2\Response\UserInfo;
 use Symfony\Component\HttpFoundation\Session\SessionInterface;
 use Tools;
 
-trait PrestaShopLoginTrait
+trait OAuth2LoginTrait
 {
     /**
-     * @return OAuth2ApiClient
+     * @return ApiClient
      */
     abstract protected function getOAuth2Client();
 
@@ -53,7 +55,7 @@ trait PrestaShopLoginTrait
     abstract protected function getSession();
 
     /**
-     * @return PrestaShopSession
+     * @return OAuth2Session
      */
     abstract protected function getOauth2Session();
 
@@ -103,7 +105,7 @@ trait PrestaShopLoginTrait
 
             $oauth2Session->setTokenProvider($accessToken);
 
-            if ($this->initUserSession($oauth2Session->getPrestashopUser())) {
+            if ($this->initUserSession($oauth2Session->getUserInfo())) {
                 $this->redirectAfterLogin();
             }
         }

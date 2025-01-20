@@ -38,6 +38,11 @@ class Client
     protected $route;
 
     /**
+     * @var string
+     */
+    protected $userAgent = 'ps_accounts/' . \Ps_accounts::VERSION;
+
+    /**
      * @var int
      */
     protected $timeout = 10;
@@ -314,7 +319,7 @@ class Client
         curl_setopt($ch, CURLOPT_FOLLOWLOCATION, $this->allowRedirects);
         curl_setopt($ch, CURLOPT_POSTREDIR, $this->allowRedirects ? 3 : 0);
 
-        curl_setopt($ch, CURLOPT_USERAGENT, 'ps_accounts/' . \Ps_accounts::VERSION);
+        curl_setopt($ch, CURLOPT_USERAGENT, $this->getUserAgent());
         //curl_setopt($ch, CURLOPT_VERBOSE, true);
 
         return $ch;
@@ -375,5 +380,13 @@ class Client
         Logger::getInstance()->info('options ' . var_export(curl_getinfo($ch), true));
 
         return $ch;
+    }
+
+    /**
+     * @return string
+     */
+    public function getUserAgent()
+    {
+        return $this->userAgent;
     }
 }

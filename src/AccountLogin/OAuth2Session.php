@@ -18,13 +18,15 @@
  * @license   https://opensource.org/licenses/AFL-3.0 Academic Free License version 3.0
  */
 
-namespace PrestaShop\Module\PsAccounts\Api\Client\OAuth2;
+namespace PrestaShop\Module\PsAccounts\AccountLogin;
 
-use PrestaShop\Module\PsAccounts\Api\Client\OAuth2\Response\AccessToken;
-use PrestaShop\Module\PsAccounts\Api\Client\OAuth2\Response\UserInfo;
+use PrestaShop\Module\PsAccounts\OAuth2\ApiClient;
+use PrestaShop\Module\PsAccounts\OAuth2\Client;
+use PrestaShop\Module\PsAccounts\OAuth2\Response\AccessToken;
+use PrestaShop\Module\PsAccounts\OAuth2\Response\UserInfo;
 use Symfony\Component\HttpFoundation\Session\SessionInterface;
 
-class PrestaShopSession
+class OAuth2Session
 {
     const TOKEN_NAME = 'accessToken';
 
@@ -34,21 +36,21 @@ class PrestaShopSession
     private $session;
 
     /**
-     * @var OAuth2ApiClient
+     * @var ApiClient
      */
     private $oauth2ApiClient;
 
     /**
-     * @var OAuth2Client
+     * @var Client
      */
     private $oauth2Client;
 
     /**
      * @param mixed $session
-     * @param OAuth2ApiClient $oauth2ApiClient
-     * @param OAuth2Client $oauth2Client
+     * @param ApiClient $oauth2ApiClient
+     * @param Client $oauth2Client
      */
-    public function __construct($session, OAuth2ApiClient $oauth2ApiClient, OAuth2Client $oauth2Client)
+    public function __construct($session, ApiClient $oauth2ApiClient, Client $oauth2Client)
     {
         $this->session = $session;
         $this->oauth2ApiClient = $oauth2ApiClient;
@@ -110,7 +112,7 @@ class PrestaShopSession
     /**
      * @return UserInfo
      */
-    public function getPrestashopUser()
+    public function getUserInfo()
     {
         return $this->oauth2ApiClient->getUserInfo($this->getAccessToken());
     }

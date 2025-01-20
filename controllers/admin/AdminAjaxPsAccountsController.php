@@ -22,7 +22,7 @@ require_once __DIR__ . '/../../src/Polyfill/Traits/Controller/AjaxRender.php';
 use PrestaShop\Module\PsAccounts\Account\Command\DeleteUserShopCommand;
 use PrestaShop\Module\PsAccounts\Account\Command\UnlinkShopCommand;
 use PrestaShop\Module\PsAccounts\Account\Session\Firebase\ShopSession;
-use PrestaShop\Module\PsAccounts\Api\Client\OAuth2\PrestaShopSession;
+use PrestaShop\Module\PsAccounts\AccountLogin\OAuth2Session;
 use PrestaShop\Module\PsAccounts\Cqrs\CommandBus;
 use PrestaShop\Module\PsAccounts\Polyfill\Traits\Controller\AjaxRender;
 use PrestaShop\Module\PsAccounts\Presenter\PsAccountsPresenter;
@@ -162,14 +162,14 @@ class AdminAjaxPsAccountsController extends \ModuleAdminController
     public function ajaxProcessGetOrRefreshAccessToken()
     {
         try {
-            /** @var PrestaShopSession $oauthSession */
-            $oauthSession = $this->module->getService(PrestaShopSession::class);
+            /** @var OAuth2Session $oauth2Session */
+            $oauth2Session = $this->module->getService(OAuth2Session::class);
 
             header('Content-Type: text/json');
 
             $this->ajaxRender(
                 (string) json_encode([
-                    'token' => (string) $oauthSession->getOrRefreshAccessToken(),
+                    'token' => (string) $oauth2Session->getOrRefreshAccessToken(),
                 ])
             );
         } catch (Exception $e) {

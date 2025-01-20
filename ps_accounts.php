@@ -397,11 +397,11 @@ class Ps_accounts extends Module
     }
 
     /**
-     * @return \PrestaShop\Module\PsAccounts\Middleware\Oauth2Middleware
+     * @return \PrestaShop\Module\PsAccounts\AccountLogin\Middleware\Oauth2Middleware
      */
     public function getOauth2Middleware()
     {
-        return $this->getService(\PrestaShop\Module\PsAccounts\Middleware\Oauth2Middleware::class);
+        return $this->getService(\PrestaShop\Module\PsAccounts\AccountLogin\Middleware\Oauth2Middleware::class);
     }
 
     /**

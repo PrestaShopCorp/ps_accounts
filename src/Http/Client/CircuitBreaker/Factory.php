@@ -22,7 +22,7 @@ namespace PrestaShop\Module\PsAccounts\Http\Client\CircuitBreaker;
 
 use PrestaShop\Module\PsAccounts\Adapter\Configuration;
 use PrestaShop\Module\PsAccounts\Api\Client\AccountsClient;
-use PrestaShop\Module\PsAccounts\Api\Client\OAuth2\OAuth2ApiClient;
+use PrestaShop\Module\PsAccounts\OAuth2\ApiClient;
 
 class Factory
 {
@@ -31,7 +31,7 @@ class Factory
      */
     private $provides = [
         AccountsClient::class,
-        OAuth2ApiClient::class,
+        ApiClient::class,
     ];
 
     /**

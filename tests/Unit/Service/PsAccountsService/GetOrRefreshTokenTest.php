@@ -3,7 +3,7 @@
 namespace PrestaShop\Module\PsAccounts\Tests\Unit\Service\PsAccountsService;
 
 use PrestaShop\Module\PsAccounts\Account\Session\Firebase\ShopSession;
-use PrestaShop\Module\PsAccounts\Api\Client\OAuth2\OAuth2Client;
+use PrestaShop\Module\PsAccounts\OAuth2\Client;
 use PrestaShop\Module\PsAccounts\Service\PsAccountsService;
 use PrestaShop\Module\PsAccounts\Tests\TestCase;
 
@@ -26,7 +26,7 @@ class GetOrRefreshTokenTest extends TestCase
     /**
      * @inject
      *
-     * @var OAuth2Client
+     * @var Client
      */
     protected $oauthClient;
 

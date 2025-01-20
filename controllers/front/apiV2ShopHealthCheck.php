@@ -25,10 +25,10 @@ use PrestaShop\Module\PsAccounts\Account\Session\ShopSession;
 use PrestaShop\Module\PsAccounts\Account\Token\NullToken;
 use PrestaShop\Module\PsAccounts\Account\Token\Token;
 use PrestaShop\Module\PsAccounts\Api\Client\AccountsClient;
-use PrestaShop\Module\PsAccounts\Api\Client\OAuth2\OAuth2ApiClient;
-use PrestaShop\Module\PsAccounts\Api\Client\OAuth2\OAuth2Client;
 use PrestaShop\Module\PsAccounts\Api\Controller\AbstractShopRestController;
 use PrestaShop\Module\PsAccounts\Api\Controller\Request\ShopHealthCheckRequest;
+use PrestaShop\Module\PsAccounts\OAuth2\ApiClient;
+use PrestaShop\Module\PsAccounts\OAuth2\Client;
 use PrestaShop\Module\PsAccounts\Service\PsAccountsService;
 
 class ps_AccountsApiV2ShopHealthCheckModuleFrontController extends AbstractShopRestController
@@ -39,7 +39,7 @@ class ps_AccountsApiV2ShopHealthCheckModuleFrontController extends AbstractShopR
     private $linkShop;
 
     /**
-     * @var OAuth2Client
+     * @var Client
      */
     private $oauth2Client;
 
@@ -69,7 +69,7 @@ class ps_AccountsApiV2ShopHealthCheckModuleFrontController extends AbstractShopR
     private $accountsClient;
 
     /**
-     * @var OAuth2ApiClient
+     * @var ApiClient
      */
     private $oauth2ApiClient;
 
@@ -81,13 +81,13 @@ class ps_AccountsApiV2ShopHealthCheckModuleFrontController extends AbstractShopR
         $this->authenticated = false;
 
         $this->linkShop = $this->module->getService(LinkShop::class);
-        $this->oauth2Client = $this->module->getService(OAuth2Client::class);
+        $this->oauth2Client = $this->module->getService(Client::class);
         $this->shopSession = $this->module->getService(ShopSession::class);
         $this->firebaseShopSession = $this->module->getService(Firebase\ShopSession::class);
         $this->firebaseOwnerSession = $this->module->getService(Firebase\OwnerSession::class);
         $this->accountsClient = $this->module->getService(AccountsClient::class);
         $this->psAccountsService = $this->module->getService(PsAccountsService::class);
-        $this->oauth2ApiClient = $this->module->getService(OAuth2ApiClient::class);
+        $this->oauth2ApiClient = $this->module->getService(ApiClient::class);
     }
 
     /**

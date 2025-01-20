@@ -18,17 +18,19 @@
  * @license   https://opensource.org/licenses/AFL-3.0 Academic Free License version 3.0
  */
 
-namespace PrestaShop\Module\PsAccounts\Api\Client\OAuth2;
+namespace PrestaShop\Module\PsAccounts\AccountLogin;
 
-trait PrestaShopLogoutTrait
+use PrestaShop\Module\PsAccounts\OAuth2\ApiClient;
+
+trait OAuth2LogoutTrait
 {
     /**
-     * @return OAuth2ApiClient
+     * @return ApiClient
      */
     abstract protected function getOAuth2Client();
 
     /**
-     * @return PrestaShopSession
+     * @return OAuth2Session
      */
     abstract protected function getOauth2Session();
 
@@ -57,7 +59,7 @@ trait PrestaShopLogoutTrait
         }
 
         $oauth2Session = $this->getOauth2Session();
-        if (!isset($_GET[PrestaShopLogoutTrait::getQueryLogoutCallbackParam()])) {
+        if (!isset($_GET[OAuth2LogoutTrait::getQueryLogoutCallbackParam()])) {
             $idToken = $oauth2Session->getIdToken();
 
             if (empty($idToken)) {

@@ -18,9 +18,9 @@
  * @license   https://opensource.org/licenses/AFL-3.0 Academic Free License version 3.0
  */
 
-namespace PrestaShop\Module\PsAccounts\Account\Exception;
+namespace PrestaShop\Module\PsAccounts\AccountLogin\Exception;
 
-use PrestaShop\Module\PsAccounts\Api\Client\OAuth2\Response\UserInfo;
+use PrestaShop\Module\PsAccounts\OAuth2\Response\UserInfo;
 
 class AccountLoginException extends \Exception
 {

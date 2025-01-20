@@ -18,24 +18,8 @@
  * @license   https://opensource.org/licenses/AFL-3.0 Academic Free License version 3.0
  */
 
-namespace PrestaShop\Module\PsAccounts\Account\Exception;
+namespace PrestaShop\Module\PsAccounts\OAuth2;
 
-use PrestaShop\Module\PsAccounts\Api\Client\OAuth2\Response\UserInfo;
-
-class EmailNotVerifiedException extends AccountLoginException
+class OAuth2Exception extends \Exception
 {
-    /**
-     * @param string $message
-     * @param UserInfo|null $user
-     * @param \Exception $previous
-     */
-    public function __construct(
-        $message = 'Your account email is not verified',
-        UserInfo $user = null,
-        \Exception $previous = null
-    ) {
-        parent::__construct($message, $user, $previous);
-
-        $this->type = 'email_not_verified';
-    }
 }

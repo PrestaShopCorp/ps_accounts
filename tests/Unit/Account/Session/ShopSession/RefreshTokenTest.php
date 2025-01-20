@@ -4,11 +4,11 @@ namespace PrestaShop\Module\PsAccounts\Tests\Unit\Account\Session\ShopSession;
 
 use PrestaShop\Module\PsAccounts\Account\Session\ShopSession;
 use PrestaShop\Module\PsAccounts\Account\Token\Token;
-use PrestaShop\Module\PsAccounts\Api\Client\OAuth2\Response\AccessToken;
-use PrestaShop\Module\PsAccounts\Api\Client\OAuth2\OAuth2ApiClient;
+use PrestaShop\Module\PsAccounts\OAuth2\Response\AccessToken;
+use PrestaShop\Module\PsAccounts\OAuth2\ApiClient;
 use PrestaShop\Module\PsAccounts\Cqrs\CommandBus;
 use PrestaShop\Module\PsAccounts\Account\Exception\RefreshTokenException;
-use PrestaShop\Module\PsAccounts\Api\Client\OAuth2\OAuth2Client;
+use PrestaShop\Module\PsAccounts\OAuth2\Client;
 use PrestaShop\Module\PsAccounts\Tests\TestCase;
 
 class RefreshTokenTest extends TestCase
@@ -25,14 +25,14 @@ class RefreshTokenTest extends TestCase
     /**
      * @inject
      *
-     * @var OAuth2Client
+     * @var Client
      */
     protected $oauth2Client;
 
     /**
      * @inject
      *
-     * @var OAuth2ApiClient
+     * @var ApiClient
      */
     protected $oauth2ApiClient;
 
@@ -46,7 +46,7 @@ class RefreshTokenTest extends TestCase
         parent::set_up();
 
         $this->validAccessToken = $this->makeJwtToken(new \DateTimeImmutable('tomorrow'));
-        $shopProvider = $this->createMock(OAuth2ApiClient::class);
+        $shopProvider = $this->createMock(ApiClient::class);
         $shopProvider->method('getAccessTokenByClientCredentials')
             ->willReturn(new AccessToken([
                 'access_token' => (string)$this->validAccessToken

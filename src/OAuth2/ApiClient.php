@@ -18,20 +18,20 @@
  * @license   https://opensource.org/licenses/AFL-3.0 Academic Free License version 3.0
  */
 
-namespace PrestaShop\Module\PsAccounts\Api\Client\OAuth2;
+namespace PrestaShop\Module\PsAccounts\OAuth2;
 
+use PrestaShop\Module\PsAccounts\AccountLogin\OAuth2LogoutTrait;
 use PrestaShop\Module\PsAccounts\Adapter\Link;
-use PrestaShop\Module\PsAccounts\Api\Client\OAuth2\OAuth2Client as OauthClient;
-use PrestaShop\Module\PsAccounts\Api\Client\OAuth2\Response\AccessToken;
-use PrestaShop\Module\PsAccounts\Api\Client\OAuth2\Response\UserInfo;
-use PrestaShop\Module\PsAccounts\Api\Client\OAuth2\Response\WellKnown;
-use PrestaShop\Module\PsAccounts\Http\Client\Curl\Client;
+use PrestaShop\Module\PsAccounts\Http\Client\Curl\Client as HttpClient;
 use PrestaShop\Module\PsAccounts\Http\Client\Factory;
 use PrestaShop\Module\PsAccounts\Http\Client\Options;
 use PrestaShop\Module\PsAccounts\Http\Client\Response;
+use PrestaShop\Module\PsAccounts\OAuth2\Response\AccessToken;
+use PrestaShop\Module\PsAccounts\OAuth2\Response\UserInfo;
+use PrestaShop\Module\PsAccounts\OAuth2\Response\WellKnown;
 use PrestaShop\Module\PsAccounts\Vendor\Ramsey\Uuid\Uuid;
 
-class OAuth2ApiClient
+class ApiClient
 {
     /**
      * @var string
@@ -39,9 +39,9 @@ class OAuth2ApiClient
     private $baseUri;
 
     /**
-     * @var Client
+     * @var HttpClient
      */
-    private $client;
+    private $httpClient;
 
     /**
      * @var WellKnown
@@ -54,9 +54,9 @@ class OAuth2ApiClient
     private $cachedWellKnown;
 
     /**
-     * @var OauthClient
+     * @var Client
      */
-    private $oauth2Client;
+    private $client;
 
     /**
      * @var Link
@@ -75,7 +75,7 @@ class OAuth2ApiClient
 
     /**
      * @param string $baseUri
-     * @param OauthClient $oauth2Client
+     * @param Client $client
      * @param Link $link
      * @param string $cacheDir
      * @param int $defaultTimeout
@@ -84,15 +84,15 @@ class OAuth2ApiClient
      * @throws \Exception
      */
     public function __construct(
-        $baseUri,
-        OauthClient $oauth2Client,
+               $baseUri,
+        Client $client,
         Link $link,
-        $cacheDir = null,
-        $defaultTimeout = 20,
-        $sslCheck = true
+               $cacheDir = null,
+               $defaultTimeout = 20,
+               $sslCheck = true
     ) {
         $this->baseUri = $baseUri;
-        $this->oauth2Client = $oauth2Client;
+        $this->client = $client;
         $this->link = $link;
         $this->defaultTimeout = $defaultTimeout;
         $this->sslCheck = $sslCheck;
@@ -105,12 +105,12 @@ class OAuth2ApiClient
     }
 
     /**
-     * @return Client
+     * @return HttpClient
      */
-    private function getClient()
+    private function getHttpClient()
     {
-        if (null === $this->client) {
-            $this->client = (new Factory())->create([
+        if (null === $this->httpClient) {
+            $this->httpClient = (new Factory())->create([
                 'name' => static::class,
                 'baseUri' => $this->baseUri,
                 'headers' => $this->getHeaders(),
@@ -120,7 +120,7 @@ class OAuth2ApiClient
             ]);
         }
 
-        return $this->client;
+        return $this->httpClient;
     }
 
     /**
@@ -194,7 +194,7 @@ class OAuth2ApiClient
         }
 
         /** @var Response $response */
-        $response = $this->getClient()->get($wellKnownUrl);
+        $response = $this->getHttpClient()->get($wellKnownUrl);
 
         return $response->body;
     }
@@ -208,13 +208,13 @@ class OAuth2ApiClient
     public function getAccessTokenByClientCredentials(array $scope = [], array $audience = [])
     {
         /** @var Response $response */
-        $response = $this->getClient()->post(
+        $response = $this->getHttpClient()->post(
             $this->getWellKnown()->token_endpoint,
             [
                 Options::REQ_FORM => [
                     'grant_type' => 'client_credentials',
-                    'client_id' => $this->oauth2Client->getClientId(),
-                    'client_secret' => $this->oauth2Client->getClientSecret(),
+                    'client_id' => $this->client->getClientId(),
+                    'client_secret' => $this->client->getClientSecret(),
                     'scope' => implode(' ', $scope),
                     'audience' => implode(' ', $audience),
                 ],
@@ -252,7 +252,7 @@ class OAuth2ApiClient
                 'response_type' => 'code',
                 'approval_prompt' => 'auto',
                 'redirect_uri' => $redirectUri,
-                'client_id' => $this->oauth2Client->getClientId(),
+                'client_id' => $this->client->getClientId(),
             ], $pkceCode ? [
                 'code_challenge' => trim(strtr(base64_encode(hash('sha256', $pkceCode, true)), '+/', '-_'), '='),
                 'code_challenge_method' => $pkceMethod,
@@ -308,13 +308,13 @@ class OAuth2ApiClient
         array $audience = []
     ) {
         /** @var Response $response */
-        $response = $this->getClient()->post(
+        $response = $this->getHttpClient()->post(
             $this->getWellKnown()->token_endpoint,
             [
                 Options::REQ_FORM => array_merge([
                     'grant_type' => 'authorization_code',
-                    'client_id' => $this->oauth2Client->getClientId(),
-                    'client_secret' => $this->oauth2Client->getClientSecret(),
+                    'client_id' => $this->client->getClientId(),
+                    'client_secret' => $this->client->getClientSecret(),
                     'code' => $code,
                     'scope' => implode(' ', $scope),
                     'audience' => implode(' ', $audience),
@@ -340,12 +340,12 @@ class OAuth2ApiClient
     public function refreshAccessToken($refreshToken)
     {
         /** @var Response $response */
-        $response = $this->getClient()->post(
+        $response = $this->getHttpClient()->post(
             $this->getWellKnown()->token_endpoint,
             [
                 Options::REQ_FORM => [
                     'grant_type' => 'refresh_token',
-                    'client_id' => $this->oauth2Client->getClientId(),
+                    'client_id' => $this->client->getClientId(),
                     'refresh_token' => $refreshToken,
                 ],
             ]
@@ -366,7 +366,7 @@ class OAuth2ApiClient
     public function getUserInfo($accessToken)
     {
         /** @var Response $response */
-        $response = $this->getClient()->get(
+        $response = $this->getHttpClient()->get(
             $this->getWellKnown()->userinfo_endpoint,
             [
                 Options::REQ_HEADERS => $this->getHeaders([
@@ -406,25 +406,15 @@ class OAuth2ApiClient
     {
         return $this->link->getAdminLink('AdminLogin', false, [], [
             'logout' => 1,
-            PrestaShopLogoutTrait::getQueryLogoutCallbackParam() => 1,
+            OAuth2LogoutTrait::getQueryLogoutCallbackParam() => 1,
         ]);
     }
 
     /**
-     * @return OAuth2Client
+     * @return Client
      */
-    public function getOauth2Client()
+    public function getClient()
     {
-        return $this->oauth2Client;
+        return $this->client;
     }
-
-    // TODO: remove Lcobucci (use firebase/jwt)
-    // TODO: instantiate real response types (and throw exceptions)
-    // TODO: check response types (HTTPClient)
-
-    // TODO: move Token class
-    // TODO: move Exception classes
-    // TODO: throw Exceptions -> and catch them in Login Trait
-    // TODO: log client errors (onError)
-    // TODO: USER AGENT
 }
