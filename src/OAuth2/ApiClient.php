@@ -58,6 +58,11 @@ class ApiClient
     private $cachedWellKnown;
 
     /**
+     * @var CachedFile
+     */
+    private $cachedJwks;
+
+    /**
      * @var Client
      */
     private $client;
@@ -104,6 +109,9 @@ class ApiClient
         $this->cachedWellKnown = new CachedFile(
             $cacheDir . '/openid-configuration.json',
             self::OPENID_CONFIGURATION_CACHE_TTL
+        );
+        $this->cachedJwks = new CachedFile(
+            $cacheDir . '/jwks.json'
         );
     }
 
@@ -197,6 +205,29 @@ class ApiClient
 
         return $this->getHttpClient()->get($wellKnownUrl)
             ->getBody();
+    }
+
+    /**
+     * @param bool $forceRefresh
+     *
+     * @return array
+     *
+     * @throws \Exception
+     */
+    public function getJwks($forceRefresh = false)
+    {
+        if (null === $this->cachedJwks) {
+            throw new \Exception('Cache file not configured');
+        }
+
+        if ($this->cachedJwks->isExpired() || $forceRefresh) {
+            $this->cachedJwks->write(
+                $this->getHttpClient()->get($this->getWellKnown()->jwks_uri)
+                    ->getBody()
+            );
+        }
+
+        return json_decode($this->cachedJwks->read(), true);
     }
 
     /**

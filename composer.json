@@ -22,6 +22,7 @@
     "autoload": {
         "psr-4": {
             "PrestaShop\\Module\\PsAccounts\\": "src/",
+            "PrestaShop\\Module\\PsAccounts\\Vendor\\Firebase\\JWT\\": "vendor/firebase/php-jwt/src",
             "PrestaShop\\Module\\PsAccounts\\Vendor\\Lcobucci\\JWT\\": "vendor/lcobucci/jwt/src",
             "PrestaShop\\Module\\PsAccounts\\Vendor\\Monolog\\": "vendor/monolog/monolog/src/Monolog",
             "PrestaShop\\Module\\PsAccounts\\Vendor\\phpseclib\\": "vendor/phpseclib/phpseclib/phpseclib",
@@ -43,7 +44,8 @@
         "sentry/sentry": "^1.0",
         "segmentio/analytics-php": "^1.8",
         "ramsey/uuid": "^3.9",
-        "prestashopcorp/lightweight-container": "v0.1.0"
+        "prestashopcorp/lightweight-container": "v0.1.0",
+        "firebase/php-jwt": "6.00"
     },
     "repositories": [
         {

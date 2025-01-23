@@ -64,13 +64,15 @@ class AccessToken extends Response
      */
     public $resource_owner_id;
 
-    /**
-     * @return bool
-     */
-    public function hasExpired()
-    {
-        $token = new Token($this->access_token);
-
-        return $token->isExpired();
-    }
+//    /**
+//     * @return bool
+//     *
+//     * @deprecated
+//     */
+//    public function hasExpired()
+//    {
+//        $token = new Token($this->access_token);
+//
+//        return $token->isExpired();
+//    }
 }

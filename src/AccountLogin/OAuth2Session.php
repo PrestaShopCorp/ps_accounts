@@ -22,8 +22,10 @@ namespace PrestaShop\Module\PsAccounts\AccountLogin;
 
 use PrestaShop\Module\PsAccounts\OAuth2\ApiClient;
 use PrestaShop\Module\PsAccounts\OAuth2\Client;
+use PrestaShop\Module\PsAccounts\OAuth2\OAuth2Exception;
 use PrestaShop\Module\PsAccounts\OAuth2\Response\AccessToken;
 use PrestaShop\Module\PsAccounts\OAuth2\Response\UserInfo;
+use PrestaShop\Module\PsAccounts\OAuth2\Token\Validator\Validator;
 use Symfony\Component\HttpFoundation\Session\SessionInterface;
 
 class OAuth2Session
@@ -62,10 +64,14 @@ class OAuth2Session
      */
     public function getOrRefreshAccessToken()
     {
+        $validator = new Validator($this->oauth2ApiClient);
         $token = $this->getTokenProvider();
-        if (($token instanceof AccessToken) && $token->hasExpired()) {
-            $token = $this->oauth2ApiClient->refreshAccessToken($token->refresh_token);
-            $this->setTokenProvider($token);
+        if ($token instanceof AccessToken && $validator->hasExpired($token->access_token)) {
+            try {
+                $token = $this->oauth2ApiClient->refreshAccessToken($token->refresh_token);
+                $this->setTokenProvider($token);
+            } catch (OAuth2Exception $e) {
+            }
         }
 
         return $this->getAccessToken();
