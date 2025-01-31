@@ -341,7 +341,7 @@ class Client
         $curlErrno = curl_errno($ch);
         $curlError = curl_error($ch);
 
-        $message = 'curl info : ' . var_export(curl_getinfo($ch), true);
+        $message = '- Request : ' . var_export(curl_getinfo($ch), true);
 
         if ($curlErrno) {
             Logger::getInstance()->error($message);
@@ -367,7 +367,8 @@ class Client
      */
     protected function logResponse(Response $response)
     {
-        $message = 'response ' . var_export($response, true);
+        $message = '- Response : ' . var_export($response, true);
+
         if (!$response->isValid()) {
             Logger::getInstance()->error($message);
         } else {
