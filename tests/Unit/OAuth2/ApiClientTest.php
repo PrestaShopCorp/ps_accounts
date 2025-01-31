@@ -340,7 +340,7 @@ JSON
         $this->accessTokenResponse = $this->createResponse('{}', 403);
 
         $this->expectException(OAuth2Exception::class);
-        $this->expectExceptionMessageMatches('/^403 -/');
+        $this->expectExceptionMessage('403 - Unable to get access token');
         $this->apiClient->getAccessTokenByAuthorizationCode('authorization_code');
     }
 }
