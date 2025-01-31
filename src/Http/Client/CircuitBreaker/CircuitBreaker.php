@@ -60,12 +60,9 @@ abstract class CircuitBreaker
 
                 return $result;
             } catch (CircuitBreakerException $e) {
-                $this->setLastFailure();
-                Logger::getInstance()->error($e->getMessage());
-            } catch (\Throwable $e) {
-                Logger::getInstance()->error($e->getMessage());
-                /* @phpstan-ignore-next-line */
-            } catch (\Exception $e) {
+                if ($e->isBreaking()) {
+                    $this->setLastFailure();
+                }
                 Logger::getInstance()->error($e->getMessage());
             }
         }

@@ -20,6 +20,10 @@
 
 namespace PrestaShop\Module\PsAccounts\Http\Client\CircuitBreaker;
 
-class CircuitBreakerException extends \Exception
+interface CircuitBreakerException
 {
+    /**
+     * @return bool
+     */
+    public function isBreaking();
 }

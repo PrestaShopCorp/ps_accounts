@@ -21,6 +21,8 @@
 namespace PrestaShop\Module\PsAccounts\Http\Client\Curl;
 
 use PrestaShop\Module\PsAccounts\Http\Client\CircuitBreaker;
+use PrestaShop\Module\PsAccounts\Http\Client\ClientException;
+use PrestaShop\Module\PsAccounts\Http\Client\ConnectException;
 use PrestaShop\Module\PsAccounts\Http\Client\Options;
 use PrestaShop\Module\PsAccounts\Http\Client\Response;
 use PrestaShop\Module\PsAccounts\Log\Logger;
@@ -98,19 +100,11 @@ class Client
      */
     public function post($route, array $options = [])
     {
-        return $this->circuitBreaker->call(function () use ($route, $options) {
-            $ch = $this->initRequest($route, $options);
+        $ch = $this->initRequest($route, $options);
+        $this->initPayload($options, $ch);
+        $this->initMethod($ch, 'POST');
 
-            $this->initPayload($options, $ch);
-
-            curl_setopt($ch, CURLOPT_CUSTOMREQUEST, 'POST');
-
-            $response = $this->getResponse($ch);
-
-            curl_close($ch);
-
-            return $response;
-        });
+        return $this->getSafeResponse($ch);
     }
 
     /**
@@ -121,19 +115,11 @@ class Client
      */
     public function patch($route, array $options = [])
     {
-        return $this->circuitBreaker->call(function () use ($route, $options) {
-            $ch = $this->initRequest($route, $options);
+        $ch = $this->initRequest($route, $options);
+        $this->initPayload($options, $ch);
+        $this->initMethod($ch, 'PATCH');
 
-            $this->initPayload($options, $ch);
-
-            curl_setopt($ch, CURLOPT_CUSTOMREQUEST, 'PATCH');
-
-            $response = $this->getResponse($ch);
-
-            curl_close($ch);
-
-            return $response;
-        });
+        return $this->getSafeResponse($ch);
     }
 
     /**
@@ -144,15 +130,9 @@ class Client
      */
     public function get($route, array $options = [])
     {
-        return $this->circuitBreaker->call(function () use ($route, $options) {
-            $ch = $this->initRequest($route, $options);
+        $ch = $this->initRequest($route, $options);
 
-            $response = $this->getResponse($ch);
-
-            curl_close($ch);
-
-            return $response;
-        });
+        return $this->getSafeResponse($ch);
     }
 
     /**
@@ -163,17 +143,10 @@ class Client
      */
     public function delete($route, array $options = [])
     {
-        return $this->circuitBreaker->call(function () use ($route, $options) {
-            $ch = $this->initRequest($route, $options);
+        $ch = $this->initRequest($route, $options);
+        $this->initMethod($ch, 'DELETE');
 
-            curl_setopt($ch, CURLOPT_CUSTOMREQUEST, 'DELETE');
-
-            $response = $this->getResponse($ch);
-
-            curl_close($ch);
-
-            return $response;
-        });
+        return $this->getSafeResponse($ch);
     }
 
     /**
@@ -181,22 +154,13 @@ class Client
      *
      * @return Response
      *
-     * @throws CircuitBreaker\CircuitBreakerException
+     * @throws ClientException
+     * @throws ConnectException
      */
-    public function getResponse($ch)
+    protected function getResponse($ch)
     {
         $res = curl_exec($ch);
-
-        switch (curl_errno($ch)) {
-            case CURLE_OPERATION_TIMEDOUT:
-            case CURLE_COULDNT_CONNECT:
-                throw new CircuitBreaker\CircuitBreakerException('Curl error: ' . curl_error($ch));
-            default:
-                // TODO: manage curl_errors
-                // TODO: unbind CircuitBreaker
-                // TODO: log properly error/request
-                break;
-        }
+        $this->handleError($ch);
 
         $decodedBody = json_decode((string) $res, true);
         $statusCode = curl_getinfo($ch, CURLINFO_RESPONSE_CODE);
@@ -204,18 +168,31 @@ class Client
             is_array($decodedBody) ? $decodedBody : [],
             $statusCode
         );
-        $this->logResponse($response, $ch);
+        $this->logResponse($response);
+
+        curl_close($ch);
 
         return $response;
     }
 
     /**
-     * @param Response $response
      * @param mixed $ch
+     *
+     * @return Response
+     */
+    protected function getSafeResponse($ch)
+    {
+        return $this->circuitBreaker->call(function () use ($ch) {
+            return $this->getResponse($ch);
+        });
+    }
+
+    /**
+     * @param Response $response
      *
      * @return void
      */
-    private function logResponse(Response $response, $ch)
+    protected function logResponse(Response $response)
     {
         if (!$response->isValid()) {
             Logger::getInstance()->error('response ' . var_export($response, true));
@@ -230,14 +207,14 @@ class Client
      *
      * @return void
      */
-    public function initHeaders($ch, array $options)
+    protected function initHeaders($ch, array $options)
     {
-        $assoc = $this->headers;
+        $assoc = [];
+        if (array_key_exists(Options::REQ_HEADERS, $options)) {
+            $assoc = array_merge($this->headers, $options[Options::REQ_HEADERS]);
+        }
         if (array_key_exists(Options::REQ_JSON, $options)) {
             $assoc['Content-Type'] = 'application/json';
-        }
-        if (array_key_exists(Options::REQ_HEADERS, $options)) {
-            $assoc = array_merge($assoc, $options[Options::REQ_HEADERS]);
         }
 
         $headers = [];
@@ -246,6 +223,7 @@ class Client
         }
 
         Logger::getInstance()->info('headers ' . var_export($headers, true));
+
         curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
     }
 
@@ -255,7 +233,7 @@ class Client
      *
      * @return void
      */
-    public function initRoute($ch, $route)
+    protected function initRoute($ch, $route)
     {
         $absRoute = $route;
         if (!empty($this->baseUri) && !preg_match('/^http(s)?:\/\//', $absRoute)) {
@@ -275,7 +253,7 @@ class Client
      *
      * @return void
      */
-    public function initTimeout($ch, $timeout)
+    protected function initTimeout($ch, $timeout)
     {
         curl_setopt($ch, CURLOPT_TIMEOUT, $timeout);
     }
@@ -285,7 +263,7 @@ class Client
      *
      * @return void
      */
-    public function initSsl($ch)
+    protected function initSsl($ch)
     {
         $checkSsl = $this->getSslCheck();
         curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, $checkSsl ? 2 : 0);
@@ -298,9 +276,10 @@ class Client
      *
      * @return void
      */
-    public function initPayload(array $options, $ch)
+    protected function initPayload(array $options, $ch)
     {
         curl_setopt($ch, CURLOPT_POST, true);
+
         if (array_key_exists(Options::REQ_JSON, $options)) {
             Logger::getInstance()->info('payload ' . var_export($options[Options::REQ_JSON], true));
             curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($options[Options::REQ_JSON]) ?: '');
@@ -308,6 +287,21 @@ class Client
             Logger::getInstance()->info('payload ' . var_export($options[Options::REQ_FORM], true));
             curl_setopt($ch, CURLOPT_POSTFIELDS, http_build_query($options[Options::REQ_FORM]));
         }
+    }
+
+    /**
+     * @param mixed $ch
+     * @param string $method
+     *
+     * @return void
+     */
+    protected function initMethod($ch, $method)
+    {
+        if (empty($method)) {
+            throw new \InvalidArgumentException('method must not be empty');
+        }
+
+        curl_setopt($ch, CURLOPT_CUSTOMREQUEST, $method);
     }
 
     /**
@@ -350,5 +344,31 @@ class Client
         Logger::getInstance()->info('options ' . var_export(curl_getinfo($ch), true));
 
         return $ch;
+    }
+
+    /**
+     * @param mixed $ch
+     *
+     * @return void
+     *
+     * @throws ClientException
+     * @throws ConnectException
+     */
+    protected function handleError($ch)
+    {
+        $curlErrno = curl_errno($ch);
+        $curlError = curl_error($ch);
+
+        if ($curlErrno) {
+            curl_close($ch);
+
+            switch ($curlErrno) {
+                case CURLE_OPERATION_TIMEDOUT:
+                case CURLE_COULDNT_CONNECT:
+                    throw new ConnectException('Curl error: ' . $curlError, $curlErrno);
+                default:
+                    throw new ClientException('Curl error: ' . $curlError, $curlErrno);
+            }
+        }
     }
 }

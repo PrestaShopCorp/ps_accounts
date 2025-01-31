@@ -5,6 +5,8 @@ use PrestaShop\Module\PsAccounts\Http\Client\CircuitBreaker\CircuitBreakerExcept
 use PrestaShop\Module\PsAccounts\Http\Client\CircuitBreaker\Factory;
 use PrestaShop\Module\PsAccounts\Http\Client\CircuitBreaker\CircuitBreaker;
 use PrestaShop\Module\PsAccounts\Http\Client\CircuitBreaker\State;
+use PrestaShop\Module\PsAccounts\Http\Client\ClientException;
+use PrestaShop\Module\PsAccounts\Http\Client\ConnectException;
 use PrestaShop\Module\PsAccounts\Tests\TestCase;
 
 class CircuitBreakerTest extends TestCase
@@ -71,11 +73,32 @@ class CircuitBreakerTest extends TestCase
 
         for ($i = 0; $i <= $circuitBreaker->getThreshold(); ++$i) {
             $response = $circuitBreaker->call(function () {
-                throw new CircuitBreakerException('Test Timeout Reached');
+                throw new ConnectException('Test Timeout Reached');
             });
         }
 
         $this->assertEquals(State::OPEN, $circuitBreaker->state(), (string) $this->circuitBreaker);
+        $this->assertFalse(isset($response['status']) ? $response['status'] : null);
+        $this->assertEquals(500, isset($response['httpCode']) ? $response['httpCode'] : null);
+        $this->assertEquals('Circuit Breaker Open', isset($response['body']['message']) ? $response['body']['message'] : null);
+    }
+
+    /**
+     * @test
+     *
+     * @return void
+     */
+    public function itShouldNotOpenCircuitOnNonBreakingException()
+    {
+        $circuitBreaker = $this->circuitBreaker;
+
+        for ($i = 0; $i <= $circuitBreaker->getThreshold(); ++$i) {
+            $response = $circuitBreaker->call(function () {
+                throw new ClientException('Test Timeout Reached');
+            });
+        }
+
+        $this->assertEquals(State::CLOSED, $circuitBreaker->state(), (string) $this->circuitBreaker);
         $this->assertFalse(isset($response['status']) ? $response['status'] : null);
         $this->assertEquals(500, isset($response['httpCode']) ? $response['httpCode'] : null);
         $this->assertEquals('Circuit Breaker Open', isset($response['body']['message']) ? $response['body']['message'] : null);
@@ -92,7 +115,7 @@ class CircuitBreakerTest extends TestCase
 
         for ($i = 0; $i <= $circuitBreaker->getThreshold(); ++$i) {
             $response = $circuitBreaker->call(function () {
-                throw new CircuitBreakerException('Test Timeout Reached');
+                throw new ConnectException('Test Timeout Reached');
             });
         }
 
@@ -112,14 +135,14 @@ class CircuitBreakerTest extends TestCase
 
         for ($i = 0; $i <= $circuitBreaker->getThreshold(); ++$i) {
             $response = $circuitBreaker->call(function () {
-                throw new CircuitBreakerException('Test Timeout Reached');
+                throw new ConnectException('Test Timeout Reached');
             });
         }
 
         sleep(1);
 
         $response = $circuitBreaker->call(function () {
-            throw new CircuitBreakerException('Test Timeout Reached');
+            throw new ConnectException('Test Timeout Reached');
         });
 
         $this->assertEquals(State::OPEN, $circuitBreaker->state(), (string) $this->circuitBreaker);
@@ -139,7 +162,7 @@ class CircuitBreakerTest extends TestCase
 
         for ($i = 0; $i <= $circuitBreaker->getThreshold(); ++$i) {
             $response = $circuitBreaker->call(function () {
-                throw new CircuitBreakerException('Test Timeout Reached');
+                throw new ConnectException('Test Timeout Reached');
             });
         }
 
