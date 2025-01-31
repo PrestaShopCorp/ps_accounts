@@ -101,7 +101,6 @@ class Client
     public function post($route, array $options = [])
     {
         $ch = $this->initRequest($route, $options);
-        $this->initPayload($options, $ch);
         $this->initMethod($ch, 'POST');
 
         return $this->getSafeResponse($ch);
@@ -116,7 +115,6 @@ class Client
     public function patch($route, array $options = [])
     {
         $ch = $this->initRequest($route, $options);
-        $this->initPayload($options, $ch);
         $this->initMethod($ch, 'PATCH');
 
         return $this->getSafeResponse($ch);
@@ -160,6 +158,7 @@ class Client
     protected function getResponse($ch)
     {
         $res = curl_exec($ch);
+
         $this->handleError($ch);
 
         $decodedBody = json_decode((string) $res, true);
@@ -168,9 +167,10 @@ class Client
             is_array($decodedBody) ? $decodedBody : [],
             $statusCode
         );
-        $this->logResponse($response);
 
         curl_close($ch);
+
+        $this->logResponse($response);
 
         return $response;
     }
@@ -188,20 +188,6 @@ class Client
     }
 
     /**
-     * @param Response $response
-     *
-     * @return void
-     */
-    protected function logResponse(Response $response)
-    {
-        if (!$response->isValid()) {
-            Logger::getInstance()->error('response ' . var_export($response, true));
-        } else {
-            Logger::getInstance()->info('response ' . var_export($response, true));
-        }
-    }
-
-    /**
      * @param mixed $ch
      * @param array $options
      *
@@ -209,9 +195,9 @@ class Client
      */
     protected function initHeaders($ch, array $options)
     {
-        $assoc = [];
+        $assoc = $this->headers;
         if (array_key_exists(Options::REQ_HEADERS, $options)) {
-            $assoc = array_merge($this->headers, $options[Options::REQ_HEADERS]);
+            $assoc = array_merge($assoc, $options[Options::REQ_HEADERS]);
         }
         if (array_key_exists(Options::REQ_JSON, $options)) {
             $assoc['Content-Type'] = 'application/json';
@@ -221,8 +207,6 @@ class Client
         foreach ($assoc as $header => $value) {
             $headers[] = "$header: $value";
         }
-
-        Logger::getInstance()->info('headers ' . var_export($headers, true));
 
         curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
     }
@@ -271,20 +255,17 @@ class Client
     }
 
     /**
-     * @param array $options
      * @param mixed $ch
+     * @param array $options
      *
      * @return void
      */
-    protected function initPayload(array $options, $ch)
+    protected function initPayload($ch, array $options)
     {
         curl_setopt($ch, CURLOPT_POST, true);
-
         if (array_key_exists(Options::REQ_JSON, $options)) {
-            Logger::getInstance()->info('payload ' . var_export($options[Options::REQ_JSON], true));
             curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($options[Options::REQ_JSON]) ?: '');
         } elseif (array_key_exists(Options::REQ_FORM, $options)) {
-            Logger::getInstance()->info('payload ' . var_export($options[Options::REQ_FORM], true));
             curl_setopt($ch, CURLOPT_POSTFIELDS, http_build_query($options[Options::REQ_FORM]));
         }
     }
@@ -331,17 +312,17 @@ class Client
         $this->initHeaders($ch, $options);
         $this->initSsl($ch);
         $this->initTimeout($ch, $this->timeout);
+        $this->initPayload($ch, $options);
 
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
         curl_setopt($ch, CURLOPT_FOLLOWLOCATION, $this->allowRedirects);
         curl_setopt($ch, CURLOPT_POSTREDIR, $this->allowRedirects ? 3 : 0);
+        curl_setopt($ch, CURLINFO_HEADER_OUT, true);
 
         if (!empty($this->userAgent)) {
             curl_setopt($ch, CURLOPT_USERAGENT, $this->userAgent);
         }
         //curl_setopt($ch, CURLOPT_VERBOSE, true);
-
-        Logger::getInstance()->info('options ' . var_export(curl_getinfo($ch), true));
 
         return $ch;
     }
@@ -359,7 +340,11 @@ class Client
         $curlErrno = curl_errno($ch);
         $curlError = curl_error($ch);
 
+        $message = 'curl info : ' . var_export(curl_getinfo($ch), true);
+
         if ($curlErrno) {
+            Logger::getInstance()->error($message);
+
             curl_close($ch);
 
             switch ($curlErrno) {
@@ -369,6 +354,23 @@ class Client
                 default:
                     throw new ClientException('Curl error: ' . $curlError, $curlErrno);
             }
+        } else {
+            Logger::getInstance()->info($message);
+        }
+    }
+
+    /**
+     * @param Response $response
+     *
+     * @return void
+     */
+    protected function logResponse(Response $response)
+    {
+        $message = 'response ' . var_export($response, true);
+        if (!$response->isValid()) {
+            Logger::getInstance()->error($message);
+        } else {
+            Logger::getInstance()->info($message);
         }
     }
 }
