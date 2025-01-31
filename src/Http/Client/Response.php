@@ -25,28 +25,27 @@ class Response
     /**
      * @var array
      */
-    public $body;
+    protected $body;
 
     /**
      * @var int
      */
-    public $httpCode;
+    protected $statusCode;
 
     /**
      * @var bool
      */
-    public $status;
+    protected $isValid;
 
     /**
-     * @param array $data
+     * @param array $body
+     * @param int $statusCode
      */
-    public function __construct(array $data = [])
+    public function __construct(array $body, $statusCode)
     {
-        foreach ($data as $key => $value) {
-            if (property_exists($this, $key)) {
-                $this->$key = $value;
-            }
-        }
+        $this->body = $body;
+        $this->statusCode = (int) $statusCode;
+        $this->isValid = '2' === substr((string) $statusCode, 0, 1);
     }
 
     /**
@@ -54,7 +53,7 @@ class Response
      */
     public function getStatusCode()
     {
-        return $this->httpCode;
+        return $this->statusCode;
     }
 
     /**
@@ -66,13 +65,21 @@ class Response
     }
 
     /**
+     * @return bool
+     */
+    public function isValid()
+    {
+        return $this->isValid;
+    }
+
+    /**
      * @return array
      */
     public function toLegacy()
     {
         return [
-            'status' => $this->status,
-            'httpCode' => $this->httpCode,
+            'status' => $this->isValid,
+            'httpCode' => $this->statusCode,
             'body' => $this->body,
         ];
     }

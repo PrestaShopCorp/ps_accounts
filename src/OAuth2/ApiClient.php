@@ -25,6 +25,7 @@ use PrestaShop\Module\PsAccounts\Adapter\Link;
 use PrestaShop\Module\PsAccounts\Http\Client\Curl\Client as HttpClient;
 use PrestaShop\Module\PsAccounts\Http\Client\Factory;
 use PrestaShop\Module\PsAccounts\Http\Client\Options;
+use PrestaShop\Module\PsAccounts\Http\Client\Response;
 use PrestaShop\Module\PsAccounts\OAuth2\Response\AccessToken;
 use PrestaShop\Module\PsAccounts\OAuth2\Response\UserInfo;
 use PrestaShop\Module\PsAccounts\OAuth2\Response\WellKnown;
@@ -36,6 +37,8 @@ class ApiClient
      * openid-configuration cache (24 Hours)
      */
     const OPENID_CONFIGURATION_CACHE_TTL = 60 * 60 * 24;
+    const OPENID_CONFIGURATION_JSON = 'openid-configuration.json';
+    const JWKS_JSON = 'jwks.json';
 
     /**
      * @var string
@@ -96,7 +99,7 @@ class ApiClient
         $baseUri,
         Client $client,
         Link $link,
-        $cacheDir = null,
+        $cacheDir,
         $defaultTimeout = 20,
         $sslCheck = true
     ) {
@@ -107,18 +110,18 @@ class ApiClient
         $this->sslCheck = $sslCheck;
 
         $this->cachedWellKnown = new CachedFile(
-            $cacheDir . '/openid-configuration.json',
+            $cacheDir . '/' . self::OPENID_CONFIGURATION_JSON,
             self::OPENID_CONFIGURATION_CACHE_TTL
         );
         $this->cachedJwks = new CachedFile(
-            $cacheDir . '/jwks.json'
+            $cacheDir . '/' . self::JWKS_JSON
         );
     }
 
     /**
      * @return HttpClient
      */
-    private function getHttpClient()
+    public function getHttpClient()
     {
         if (null === $this->httpClient) {
             $this->httpClient = (new Factory())->create([
@@ -131,6 +134,16 @@ class ApiClient
         }
 
         return $this->httpClient;
+    }
+
+    /**
+     * @param HttpClient $httpClient
+     *
+     * @return void
+     */
+    public function setHttpClient(HttpClient $httpClient)
+    {
+        $this->httpClient = $httpClient;
     }
 
     /**
@@ -149,21 +162,23 @@ class ApiClient
     }
 
     /**
+     * @return string
+     */
+    public function getOpenIdConfigurationUri()
+    {
+        return \preg_replace('/\\/?$/', '/.well-known/openid-configuration', $this->baseUri);
+    }
+
+    /**
      * @return WellKnown
+     *
+     * @throws OAuth2Exception
      */
     public function getWellKnown()
     {
         /* @phpstan-ignore-next-line */
         if (!isset($this->wellKnown) || $this->cachedWellKnown->isExpired()) {
-            try {
-                $this->wellKnown = new WellKnown(json_decode($this->getCachedWellKnown(), true));
-            } catch (\Throwable $e) {
-                /* @phpstan-ignore-next-line */
-            } catch (\Exception $e) {
-            }
-            if (isset($e)) {
-                $this->wellKnown = new WellKnown();
-            }
+            $this->wellKnown = new WellKnown(json_decode($this->getWellKnownFromCache(), true));
         }
 
         return $this->wellKnown;
@@ -174,17 +189,13 @@ class ApiClient
      *
      * @return string
      *
-     * @throws \Exception
+     * @throws OAuth2Exception
      */
-    protected function getCachedWellKnown($forceRefresh = false)
+    protected function getWellKnownFromCache($forceRefresh = false)
     {
-        if (null === $this->cachedWellKnown) {
-            throw new \Exception('Cache file not configured');
-        }
-
         if ($this->cachedWellKnown->isExpired() || $forceRefresh) {
             $this->cachedWellKnown->write(
-                json_encode($this->fetchWellKnown($this->baseUri), JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES)
+                json_encode($this->fetchWellKnown(), JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES)
             );
         }
 
@@ -192,19 +203,19 @@ class ApiClient
     }
 
     /**
-     * @param string $url
-     *
      * @return array
+     *
+     * @throws OAuth2Exception
      */
-    protected function fetchWellKnown($url = null)
+    protected function fetchWellKnown()
     {
-        $wellKnownUrl = $url ?: $this->baseUri;
-        if (\strpos($wellKnownUrl, '/.well-known') === \false) {
-            $wellKnownUrl = \preg_replace('/\\/?$/', '/.well-known/openid-configuration', $wellKnownUrl);
+        $response = $this->getHttpClient()->get($this->getOpenIdConfigurationUri());
+
+        if (!$response->isValid()) {
+            throw new OAuth2Exception($this->getResponseErrorMsg($response, 'Unable to get openid-configuration'));
         }
 
-        return $this->getHttpClient()->get($wellKnownUrl)
-            ->getBody();
+        return $response->getBody();
     }
 
     /**
@@ -212,18 +223,16 @@ class ApiClient
      *
      * @return array
      *
-     * @throws \Exception
+     * @throws OAuth2Exception
      */
     public function getJwks($forceRefresh = false)
     {
-        if (null === $this->cachedJwks) {
-            throw new \Exception('Cache file not configured');
-        }
-
         if ($this->cachedJwks->isExpired() || $forceRefresh) {
             $this->cachedJwks->write(
-                $this->getHttpClient()->get($this->getWellKnown()->jwks_uri)
-                    ->getBody()
+                json_encode(
+                    $this->getHttpClient()->get($this->getWellKnown()->jwks_uri)
+                        ->getBody(), JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES
+                )
             );
         }
 
@@ -255,11 +264,11 @@ class ApiClient
             ]
         );
 
-        if (!$response->status) {
-            throw new OAuth2Exception('Unable to get access token');
+        if (!$response->isValid()) {
+            throw new OAuth2Exception($this->getResponseErrorMsg($response, 'Unable to get access token'));
         }
 
-        return new AccessToken($response->body);
+        return new AccessToken($response->getBody());
     }
 
     /**
@@ -268,6 +277,7 @@ class ApiClient
      * @param string|null $pkceCode
      * @param string $pkceMethod
      * @param string $uiLocales
+     * @param string $acrValues
      *
      * @return string authorization flow uri
      *
@@ -278,7 +288,8 @@ class ApiClient
         $redirectUri,
         $pkceCode = null,
         $pkceMethod = 'S256',
-        $uiLocales = 'fr'
+        $uiLocales = 'fr',
+        $acrValues = 'prompt:login'
     ) {
         $this->assertClientExists();
 
@@ -291,6 +302,7 @@ class ApiClient
                 'approval_prompt' => 'auto',
                 'redirect_uri' => $redirectUri,
                 'client_id' => $this->client->getClientId(),
+                'acr_values' => $acrValues,
             ], $pkceCode ? [
                 'code_challenge' => trim(strtr(base64_encode(hash('sha256', $pkceCode, true)), '+/', '-_'), '='),
                 'code_challenge_method' => $pkceMethod,
@@ -366,11 +378,11 @@ class ApiClient
             ]
         );
 
-        if (!$response->status) {
-            throw new OAuth2Exception('Unable to get access token');
+        if (!$response->isValid()) {
+            throw new OAuth2Exception($this->getResponseErrorMsg($response, 'Unable to get access token'));
         }
 
-        return new AccessToken($response->body);
+        return new AccessToken($response->getBody());
     }
 
     /**
@@ -395,11 +407,11 @@ class ApiClient
             ]
         );
 
-        if (!$response->status) {
-            throw new OAuth2Exception('Unable to refresh access token');
+        if (!$response->isValid()) {
+            throw new OAuth2Exception($this->getResponseErrorMsg($response, 'Unable to refresh access token'));
         }
 
-        return new AccessToken($response->body);
+        return new AccessToken($response->getBody());
     }
 
     /**
@@ -418,11 +430,11 @@ class ApiClient
             ]
         );
 
-        if (!$response->status) {
-            throw new OAuth2Exception('Unable to get user infos');
+        if (!$response->isValid()) {
+            throw new OAuth2Exception($this->getResponseErrorMsg($response, 'Unable to get user infos'));
         }
 
-        return new UserInfo($response->body);
+        return new UserInfo($response->getBody());
     }
 
     /**
@@ -463,6 +475,31 @@ class ApiClient
 
     /**
      * @return void
+     */
+    public function clearCache()
+    {
+        $this->cachedJwks->clear();
+        $this->cachedWellKnown->clear();
+    }
+
+    /**
+     * @return CachedFile
+     */
+    public function getCachedWellKnown()
+    {
+        return $this->cachedWellKnown;
+    }
+
+    /**
+     * @return CachedFile
+     */
+    public function getCachedJwks()
+    {
+        return $this->cachedJwks;
+    }
+
+    /**
+     * @return void
      *
      * @throws OAuth2Exception
      */
@@ -471,5 +508,24 @@ class ApiClient
         if (!$this->client->exists()) {
             throw new OAuth2Exception('OAuth2 client not configured');
         }
+    }
+
+    /**
+     * @param Response $response
+     * @param string $defaultMessage
+     *
+     * @return string
+     */
+    protected function getResponseErrorMsg(Response $response, $defaultMessage = '')
+    {
+        $msg = $defaultMessage;
+        $body = $response->getBody();
+        if (isset($body['error']) &&
+            isset($body['error_description'])
+        ) {
+            $msg = $body['error'] . ': ' . $body['error_description'];
+        }
+
+        return $response->getStatusCode() . ' - ' . $msg;
     }
 }

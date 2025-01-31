@@ -109,6 +109,16 @@ class CachedFile
     }
 
     /**
+     * @param int $ttl
+     *
+     * @return void
+     */
+    public function setTtl($ttl)
+    {
+        $this->ttl = $ttl;
+    }
+
+    /**
      * @return bool
      */
     protected function initDirectory()

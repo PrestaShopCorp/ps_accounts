@@ -68,11 +68,10 @@ class Factory
             'PS_ACCOUNTS',
             $this->configStorage
         );
-        $instance->setDefaultFallbackResponse(new Response([
-            'status' => false,
-            'httpCode' => 500,
-            'body' => ['message' => 'Circuit Breaker Open'],
-        ]));
+        $instance->setDefaultFallbackResponse(new Response(
+            ['message' => 'Circuit Breaker Open'],
+            500
+        ));
         $this->instances[$resourceId] = $instance;
 
         return $instance;

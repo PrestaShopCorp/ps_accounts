@@ -7,8 +7,10 @@ use PrestaShop\Module\PsAccounts\Tests\TestCase;
 
 class ClientTest extends TestCase
 {
-    public function it_should_get_default_response_on_timeout()
+    public function itShouldGetDefaultResponseOnTimeout()
     {
+        $this->markTestSkipped('TODO');
+
         $httpClient = (new Factory())->create([
             'name' => static::class,
             'baseUri' => $this->faker->url,

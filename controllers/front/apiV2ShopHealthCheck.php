@@ -29,6 +29,7 @@ use PrestaShop\Module\PsAccounts\Api\Controller\AbstractShopRestController;
 use PrestaShop\Module\PsAccounts\Api\Controller\Request\ShopHealthCheckRequest;
 use PrestaShop\Module\PsAccounts\OAuth2\ApiClient;
 use PrestaShop\Module\PsAccounts\OAuth2\Client;
+use PrestaShop\Module\PsAccounts\OAuth2\OAuth2Exception;
 use PrestaShop\Module\PsAccounts\Service\PsAccountsService;
 
 class ps_AccountsApiV2ShopHealthCheckModuleFrontController extends AbstractShopRestController
@@ -129,8 +130,8 @@ class ps_AccountsApiV2ShopHealthCheckModuleFrontController extends AbstractShopR
             'firebaseShopToken' => $this->tokenInfos($firebaseShopToken),
             'fopenActive' => (bool) ini_get('allow_url_fopen'),
             'curlActive' => extension_loaded('curl'), //function_exists('curl_version'),
-            'oauthApiConnectivity' => (bool) $this->oauth2ApiClient->getWellKnown()->issuer,
-            'accountsApiConnectivity' => $this->accountsApiHealthCheck(),
+            'oauthApiConnectivity' => $this->getOauthApiStatus(),
+            'accountsApiConnectivity' => $this->getAccountsApiStatus(),
             'serverUTC' => time(),
             'mysqlUTC' => $this->getDatabaseTimestamp(),
             'env' => [
@@ -201,11 +202,25 @@ class ps_AccountsApiV2ShopHealthCheckModuleFrontController extends AbstractShopR
     /**
      * @return bool
      */
-    private function accountsApiHealthCheck()
+    private function getAccountsApiStatus()
     {
         $response = $this->accountsClient->healthCheck();
 
         return (bool) $response['status'];
+    }
+
+    /**
+     * @return bool
+     */
+    public function getOauthApiStatus()
+    {
+        try {
+            $this->oauth2ApiClient->getWellKnown();
+
+            return true;
+        } catch (OAuth2Exception $e) {
+            return false;
+        }
     }
 
     /**
