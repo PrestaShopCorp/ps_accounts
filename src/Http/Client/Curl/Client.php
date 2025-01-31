@@ -262,10 +262,11 @@ class Client
      */
     protected function initPayload($ch, array $options)
     {
-        curl_setopt($ch, CURLOPT_POST, true);
         if (array_key_exists(Options::REQ_JSON, $options)) {
+            curl_setopt($ch, CURLOPT_POST, true);
             curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($options[Options::REQ_JSON]) ?: '');
         } elseif (array_key_exists(Options::REQ_FORM, $options)) {
+            curl_setopt($ch, CURLOPT_POST, true);
             curl_setopt($ch, CURLOPT_POSTFIELDS, http_build_query($options[Options::REQ_FORM]));
         }
     }
