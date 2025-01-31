@@ -96,7 +96,7 @@ class Client
      * @param string $route
      * @param array $options payload
      *
-     * @return Response return response or false if no response
+     * @return Response
      */
     public function post($route, array $options = [])
     {
@@ -110,7 +110,7 @@ class Client
      * @param string $route
      * @param array $options payload
      *
-     * @return Response return response or false if no response
+     * @return Response
      */
     public function patch($route, array $options = [])
     {
@@ -124,7 +124,7 @@ class Client
      * @param string $route
      * @param array $options payload
      *
-     * @return Response return response or false if no response
+     * @return Response
      */
     public function get($route, array $options = [])
     {
@@ -137,7 +137,7 @@ class Client
      * @param string $route
      * @param array $options payload
      *
-     * @return Response return response array
+     * @return Response
      */
     public function delete($route, array $options = [])
     {
