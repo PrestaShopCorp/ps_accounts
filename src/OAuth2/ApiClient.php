@@ -361,10 +361,6 @@ class ApiClient
     ) {
         $this->assertClientExists();
 
-        if (!preg_match('/^\w+$/', $code)) {
-            throw new \InvalidArgumentException('code must be an alphanumeric string');
-        }
-
         $response = $this->getHttpClient()->post(
             $this->getWellKnown()->token_endpoint,
             [
