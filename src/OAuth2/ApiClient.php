@@ -195,7 +195,7 @@ class ApiClient
     {
         if ($this->cachedWellKnown->isExpired() || $forceRefresh) {
             $this->cachedWellKnown->write(
-                json_encode($this->fetchWellKnown(), JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES)
+                json_encode($this->fetchWellKnown(), JSON_UNESCAPED_SLASHES)
             );
         }
 
@@ -231,7 +231,7 @@ class ApiClient
             $this->cachedJwks->write(
                 json_encode(
                     $this->getHttpClient()->get($this->getWellKnown()->jwks_uri)
-                        ->getBody(), JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES
+                        ->getBody(),  JSON_UNESCAPED_SLASHES
                 )
             );
         }

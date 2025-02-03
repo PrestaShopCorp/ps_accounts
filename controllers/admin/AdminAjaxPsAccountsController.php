@@ -56,6 +56,9 @@ class AdminAjaxPsAccountsController extends \ModuleAdminController
         parent::__construct();
 
         $this->commandBus = $this->module->getService(CommandBus::class);
+
+        $this->ajax = true;
+        $this->content_only = true;
     }
 
     /**
@@ -89,7 +92,6 @@ class AdminAjaxPsAccountsController extends \ModuleAdminController
      *
      * @throws Exception
      */
-    //public function displayAjaxUnlinkShop()
     public function ajaxProcessUnlinkShop()
     {
         try {

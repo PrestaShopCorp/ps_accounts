@@ -170,8 +170,6 @@ class Client
 
         curl_close($ch);
 
-        $this->logResponse($response);
-
         return $response;
     }
 
@@ -182,9 +180,14 @@ class Client
      */
     protected function getSafeResponse($ch)
     {
-        return $this->circuitBreaker->call(function () use ($ch) {
+        /** @var Response $response */
+        $response = $this->circuitBreaker->call(function () use ($ch) {
             return $this->getResponse($ch);
         });
+
+        $this->logResponse($response);
+
+        return $response;
     }
 
     /**
