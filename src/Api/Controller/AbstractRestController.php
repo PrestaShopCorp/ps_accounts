@@ -321,6 +321,8 @@ abstract class AbstractRestController extends ModuleFrontController
     }
 
     /**
+     * Force shop context
+     *
      * @param \Shop $shop
      *
      * @return void
@@ -378,7 +380,7 @@ abstract class AbstractRestController extends ModuleFrontController
      *
      * @throws \PrestaShopException
      */
-    private function handleError($e)
+    protected function handleError($e)
     {
         SentryService::capture($e);
 

@@ -25,14 +25,14 @@ use PrestaShop\Module\PsAccounts\Account\Session\ShopSession;
 use PrestaShop\Module\PsAccounts\Account\Token\NullToken;
 use PrestaShop\Module\PsAccounts\Account\Token\Token;
 use PrestaShop\Module\PsAccounts\Api\Client\AccountsClient;
-use PrestaShop\Module\PsAccounts\Api\Controller\AbstractShopRestController;
+use PrestaShop\Module\PsAccounts\Api\Controller\AbstractV2ShopRestController;
 use PrestaShop\Module\PsAccounts\Api\Controller\Request\ShopHealthCheckRequest;
 use PrestaShop\Module\PsAccounts\OAuth2\ApiClient;
 use PrestaShop\Module\PsAccounts\OAuth2\Client;
 use PrestaShop\Module\PsAccounts\OAuth2\OAuth2Exception;
 use PrestaShop\Module\PsAccounts\Service\PsAccountsService;
 
-class ps_AccountsApiV2ShopHealthCheckModuleFrontController extends AbstractShopRestController
+class ps_AccountsApiV2ShopHealthCheckModuleFrontController extends AbstractV2ShopRestController
 {
     /**
      * @var LinkShop
@@ -74,12 +74,31 @@ class ps_AccountsApiV2ShopHealthCheckModuleFrontController extends AbstractShopR
      */
     private $oauth2ApiClient;
 
+    /**
+     * @return array
+     */
+    protected function getScope()
+    {
+        return [];
+    }
+
+    /**
+     * @return array
+     */
+    protected function getAudience()
+    {
+        return [];
+    }
+
     public function __construct()
     {
         parent::__construct();
 
         // public healthcheck
         $this->authenticated = false;
+        if ($this->getRequestHeader('Authorization') !== null) {
+            $this->authenticated = true;
+        }
 
         $this->linkShop = $this->module->getService(LinkShop::class);
         $this->oauth2Client = $this->module->getService(Client::class);
@@ -101,6 +120,9 @@ class ps_AccountsApiV2ShopHealthCheckModuleFrontController extends AbstractShopR
      */
     public function show(Shop $shop, ShopHealthCheckRequest $request)
     {
+        $this->assertAudience(['shop_' . $this->linkShop->getShopUuid()]);
+//        $this->assertScope(['shop.health_check']);
+
         if ($request->autoheal) {
             try {
                 $this->firebaseShopSession->getValidToken();
@@ -113,15 +135,7 @@ class ps_AccountsApiV2ShopHealthCheckModuleFrontController extends AbstractShopR
         $firebaseOwnerToken = $this->firebaseOwnerSession->getToken();
         $shopToken = $this->shopSession->getToken();
 
-//        $privateInfo = [
-//            'shopId' => $shop->id,
-//            'shopBoUri' => '',
-//            'moduleVersion' => Ps_accounts::VERSION,
-//            'psVersion' => _PS_VERSION_,
-//            'phpVersion' => phpversion(),
-//        ];
-
-        return [
+        $healthCheckMessage = [
             'oauth2Client' => $this->oauth2Client->exists(),
             'shopLinked' => (bool) $this->linkShop->getShopUuid(),
             'isSsoEnabled' => $this->psAccountsService->getLoginActivated(),
@@ -143,6 +157,22 @@ class ps_AccountsApiV2ShopHealthCheckModuleFrontController extends AbstractShopR
                 'checkApiSslCert' => $this->module->getParameter('ps_accounts.check_api_ssl_cert'),
             ],
         ];
+
+        if ($this->authenticated) {
+            $healthCheckMessage = array_merge($healthCheckMessage, [
+//                'shopId' => $shop->id,
+//                'shopBoUri' => '',
+                'ps_version' => _PS_VERSION_,
+                'module_version' => Ps_accounts::VERSION,
+                'php_version' => phpversion(),
+                'cloud_shop_id' => $this->linkShop->getShopUuid(),
+                'shop_name' => $shop->name,
+                'owner_email' => $this->linkShop->getOwnerEmail(),
+                'public_key' => $this->linkShop->getPublicKey(),
+            ]);
+        }
+
+        return $healthCheckMessage;
     }
 
     /**
