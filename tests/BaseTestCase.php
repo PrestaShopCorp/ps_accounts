@@ -277,9 +277,13 @@ class BaseTestCase extends \PHPUnit\Framework\TestCase
      *
      * @return void
      */
-    protected function assertBodySubset($subset, $array, $message = '', $markTestIncomplete = false)
-    {
-        if (!$markTestIncomplete || is_array($array)) {
+    protected function assertBodySubset(
+        $subset,
+        $array,
+        $message = '',
+        $markTestIncomplete = false
+    ) {
+        if (!$markTestIncomplete || is_array($array) && !empty($array)) {
             $this->assertArraySubset($subset, $array, $message);
         } else {
             $this->markTestIncomplete('WARNING: Cannot evaluate response [body is empty]');
