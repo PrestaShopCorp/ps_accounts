@@ -231,7 +231,7 @@ class ApiClient
             $this->cachedJwks->write(
                 json_encode(
                     $this->getHttpClient()->get($this->getWellKnown()->jwks_uri)
-                        ->getBody(),  JSON_UNESCAPED_SLASHES
+                        ->getBody(), JSON_UNESCAPED_SLASHES
                 )
             );
         }
@@ -360,6 +360,10 @@ class ApiClient
         array $audience = []
     ) {
         $this->assertClientExists();
+
+        if (!preg_match('/^\w+$/', $code)) {
+            throw new \InvalidArgumentException('code must be an alphanumeric string');
+        }
 
         $response = $this->getHttpClient()->post(
             $this->getWellKnown()->token_endpoint,

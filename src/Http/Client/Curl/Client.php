@@ -161,10 +161,9 @@ class Client
 
         $this->handleError($ch);
 
-        $decodedBody = json_decode((string) $res, true);
         $statusCode = curl_getinfo($ch, CURLINFO_RESPONSE_CODE);
         $response = new Response(
-            is_array($decodedBody) ? $decodedBody : [],
+            (string) $res,
             $statusCode
         );
 

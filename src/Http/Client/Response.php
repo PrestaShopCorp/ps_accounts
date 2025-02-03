@@ -28,6 +28,11 @@ class Response
     protected $body;
 
     /**
+     * @var mixed
+     */
+    protected $raw;
+
+    /**
      * @var int
      */
     protected $statusCode;
@@ -38,12 +43,13 @@ class Response
     protected $isValid;
 
     /**
-     * @param array $body
+     * @param array|string $body
      * @param int $statusCode
      */
-    public function __construct(array $body, $statusCode)
+    public function __construct($body, $statusCode)
     {
-        $this->body = $body;
+        $this->raw = $body;
+        $this->body = $this->decodeBody($body);
         $this->statusCode = (int) $statusCode;
         $this->isValid = '2' === substr((string) $statusCode, 0, 1);
     }
@@ -65,6 +71,14 @@ class Response
     }
 
     /**
+     * @return mixed
+     */
+    public function getRaw()
+    {
+        return $this->raw;
+    }
+
+    /**
      * @return bool
      */
     public function isValid()
@@ -82,5 +96,21 @@ class Response
             'httpCode' => $this->statusCode,
             'body' => $this->body,
         ];
+    }
+
+    /**
+     * @param array|string $body
+     *
+     * @return array
+     */
+    public function decodeBody($body)
+    {
+        if (is_array($body)) {
+            return $body;
+        } else {
+            $decodedBody = json_decode($body, true);
+
+            return is_array($decodedBody) ? $decodedBody : [];
+        }
     }
 }
