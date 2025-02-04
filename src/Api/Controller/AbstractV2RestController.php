@@ -23,7 +23,6 @@ namespace PrestaShop\Module\PsAccounts\Api\Controller;
 use Context;
 use PrestaShop\Module\PsAccounts\Api\Controller\Exception\HttpException;
 use PrestaShop\Module\PsAccounts\Api\Controller\Exception\UnauthorizedException;
-use PrestaShop\Module\PsAccounts\Log\Logger;
 use PrestaShop\Module\PsAccounts\OAuth2\ApiClient;
 use PrestaShop\Module\PsAccounts\OAuth2\Token\Validator\Exception\AudienceInvalidException;
 use PrestaShop\Module\PsAccounts\OAuth2\Token\Validator\Exception\ScopeInvalidException;
@@ -132,10 +131,17 @@ abstract class AbstractV2RestController extends AbstractRestController
      */
     protected function initShopContext(array $payload, $defaultShopId)
     {
+        // 1- from payload
         if (!isset($payload['shop_id'])) {
-            // context fallback
-            $payload['shop_id'] = $defaultShopId;
+            if (isset($_REQUEST['shop_id'])) {
+                // 2- from query string
+                $payload['shop_id'] = $_REQUEST['shop_id'];
+            } else {
+                // 3- from uri context
+                $payload['shop_id'] = $defaultShopId;
+            }
         }
+
         $shop = new \Shop((int) $payload['shop_id']);
         if ($shop->id) {
             $this->setContextShop($shop);
@@ -182,8 +188,6 @@ abstract class AbstractV2RestController extends AbstractRestController
         }
 
         $jwtString = trim(str_replace('Bearer', '', $authorizationHeader));
-
-        Logger::getInstance()->info('bearer: ' . $jwtString);
 
         $errorMsg = 'Invalid token';
         try {

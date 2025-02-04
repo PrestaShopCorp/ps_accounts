@@ -26,11 +26,13 @@ use PrestaShop\Module\PsAccounts\Account\Token\NullToken;
 use PrestaShop\Module\PsAccounts\Account\Token\Token;
 use PrestaShop\Module\PsAccounts\Api\Client\AccountsClient;
 use PrestaShop\Module\PsAccounts\Api\Controller\AbstractV2ShopRestController;
+use PrestaShop\Module\PsAccounts\Api\Controller\Exception\UnauthorizedException;
 use PrestaShop\Module\PsAccounts\Api\Controller\Request\ShopHealthCheckRequest;
 use PrestaShop\Module\PsAccounts\OAuth2\ApiClient;
 use PrestaShop\Module\PsAccounts\OAuth2\Client;
 use PrestaShop\Module\PsAccounts\OAuth2\OAuth2Exception;
 use PrestaShop\Module\PsAccounts\Service\PsAccountsService;
+use PrestaShop\PrestaShop\Core\Domain\Shop\Exception\ShopException;
 
 class ps_AccountsApiV2ShopHealthCheckModuleFrontController extends AbstractV2ShopRestController
 {
@@ -121,7 +123,12 @@ class ps_AccountsApiV2ShopHealthCheckModuleFrontController extends AbstractV2Sho
     public function show(Shop $shop, ShopHealthCheckRequest $request)
     {
         $this->assertAudience(['shop_' . $this->linkShop->getShopUuid()]);
-//        $this->assertScope(['shop.health_check']);
+
+        try {
+            $this->assertScope(['shop.health']);
+        } catch (UnauthorizedException $e) {
+            $this->assertScope(['admin.shop.health']);
+        }
 
         if ($request->autoheal) {
             try {
@@ -162,13 +169,13 @@ class ps_AccountsApiV2ShopHealthCheckModuleFrontController extends AbstractV2Sho
             $healthCheckMessage = array_merge($healthCheckMessage, [
 //                'shopId' => $shop->id,
 //                'shopBoUri' => '',
-                'ps_version' => _PS_VERSION_,
-                'module_version' => Ps_accounts::VERSION,
-                'php_version' => phpversion(),
-                'cloud_shop_id' => $this->linkShop->getShopUuid(),
-                'shop_name' => $shop->name,
-                'owner_email' => $this->linkShop->getOwnerEmail(),
-                'public_key' => $this->linkShop->getPublicKey(),
+                'psVersion' => _PS_VERSION_,
+                'moduleVersion' => Ps_accounts::VERSION,
+                'phpVersion' => phpversion(),
+                'cloudShopId' => (string) $this->linkShop->getShopUuid(),
+                'shopName' => $shop->name,
+                'ownerEmail' => (string) $this->linkShop->getOwnerEmail(),
+                'publicKey' => (string) $this->linkShop->getPublicKey(),
             ]);
         }
 
