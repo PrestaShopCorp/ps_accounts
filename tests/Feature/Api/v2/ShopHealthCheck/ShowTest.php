@@ -142,8 +142,8 @@ JSON;
                             'shop_' . $shop->uuid,
                         ],
                         'scp' => [
-//                            'shop.health',
-                            'admin.shop.health'
+                            'shop.health',
+//                            'admin.shop.health'
                         ]
                     ]),
             ],

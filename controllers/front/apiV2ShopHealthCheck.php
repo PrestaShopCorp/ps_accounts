@@ -32,7 +32,6 @@ use PrestaShop\Module\PsAccounts\OAuth2\ApiClient;
 use PrestaShop\Module\PsAccounts\OAuth2\Client;
 use PrestaShop\Module\PsAccounts\OAuth2\OAuth2Exception;
 use PrestaShop\Module\PsAccounts\Service\PsAccountsService;
-use PrestaShop\PrestaShop\Core\Domain\Shop\Exception\ShopException;
 
 class ps_AccountsApiV2ShopHealthCheckModuleFrontController extends AbstractV2ShopRestController
 {
@@ -122,13 +121,12 @@ class ps_AccountsApiV2ShopHealthCheckModuleFrontController extends AbstractV2Sho
      */
     public function show(Shop $shop, ShopHealthCheckRequest $request)
     {
-        $this->assertAudience(['shop_' . $this->linkShop->getShopUuid()]);
-
-        try {
-            $this->assertScope(['shop.health']);
-        } catch (UnauthorizedException $e) {
-            $this->assertScope(['admin.shop.health']);
-        }
+        $this->assertAudience([
+            'shop_' . $this->linkShop->getShopUuid()]
+        );
+        $this->assertScope([
+            'shop.health'
+        ]);
 
         if ($request->autoheal) {
             try {
