@@ -26,6 +26,9 @@ php-scoper.phar
 ### PHPUnit ###
 .phpunit.result.cache
 
+### Configuration ###
+config.php
+
 ### Module files ###
 !views/files
 views/files/*
@@ -52,8 +55,6 @@ views/files/*
 
 # Log files
 npm-debug.log*
-yarn-debug.log*
-yarn-error.log*
 
 # e2e ignore
 /e2e/allure-results
