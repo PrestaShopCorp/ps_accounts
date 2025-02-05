@@ -56,10 +56,8 @@ platform-stop:
 
 platform-restart: platform-stop platform-start
 
-.PHONY: config.php
 config.php:
-	@docker exec -w ${CONTAINER_INSTALL_DIR} phpunit \
-		sh -c "if [ ! -f ./config.php ]; then cp ./config.dist.php ./config.php; fi"
+	cp ./config.dist.php ./config.php
 
 platform-module-version:
 	@docker exec -w ${CONTAINER_INSTALL_DIR} phpunit \
@@ -270,7 +268,7 @@ BUNDLE_ZIP ?= # ex: ps_accounts_flavor.zip
 BUNDLE_VERSION ?= $(shell grep "<version>" config.xml | sed 's/^.*\([0-9]\+\.[0-9]\+\.[0-9]\+\).*/\1/')
 BUNDLE_JS ?= views/js/app.${BUNDLE_VERSION}.js
 
-bundle: php-scoper build-front
+bundle: config.php php-scoper build-front
 	@./scripts/bundle-module.sh "${BUNDLE_ZIP}" "${BUNDLE_ENV}"
 
 bundle-prod: php-scoper config.php.prod build-front

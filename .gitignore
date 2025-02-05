@@ -23,6 +23,7 @@ composer-dev.lock
 .phpunit.result.cache
 
 ### Configuration ###
+config.php
 config/config*.yml
 config/**/services_*.yml
 !config/config.yml.dist
