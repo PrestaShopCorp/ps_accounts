@@ -59,7 +59,7 @@ platform-restart: platform-stop platform-start
 .PHONY: config.php
 config.php:
 	@docker exec -w ${CONTAINER_INSTALL_DIR} phpunit \
-		sh -c "if [ ! -f ./config.php ]; then cp ./config.prod.php ./config.php; fi"
+		sh -c "if [ ! -f ./config.php ]; then cp ./config.dist.php ./config.php; fi"
 
 platform-module-version:
 	@docker exec -w ${CONTAINER_INSTALL_DIR} phpunit \
