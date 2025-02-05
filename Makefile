@@ -15,8 +15,6 @@ WORKDIR ?= .
 TESTING_IMAGE_TAG ?= base-8.2-fpm-alpine
 TESTING_IMAGE ?= prestashop/prestashop-flashlight:${TESTING_IMAGE_TAG}
 
-WORKDIR ?= .
-
 default: bundle
 
 # target: help                                                 - Get help on this file
@@ -299,10 +297,10 @@ build-front: ${BUNDLE_JS}
 composer.phar:
 	./scripts/composer-install.sh
 
-# target: clean                                                - Clean up the repository (but keep your .npmrc)
+# target: clean                                                - Clean up the repository (but keep your configuration files)
 .PHONY: clean
 clean:
-	git clean -fdX --exclude="!.npmrc" --exclude="!.env*"
+	git clean -fdX --exclude="!.npmrc" --exclude="!.env*" --exclude="!.config.php*"
 
 #######
 # TOOLS
