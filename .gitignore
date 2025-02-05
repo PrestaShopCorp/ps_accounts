@@ -71,6 +71,3 @@ node_modules/
 # e2e-env ignore
 /e2e-env/myTun/config/mytun-credentials.json
 /e2e-env/myTun/config/mytun-config.yml
-
-# PrestaShop sources
-/prestashop
