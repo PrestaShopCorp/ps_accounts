@@ -1,7 +1,6 @@
 PHP = $(shell which php 2> /dev/null)
 DOCKER = $(shell docker ps 2> /dev/null)
 NPM = $(shell which npm 2> /dev/null)
-YARN = $(shell which yarn 2> /dev/null)
 COMPOSER = ${PHP} ./composer.phar
 DOCKER_COMPOSE := $(shell which docker) compose
 MODULE ?= $(shell basename ${PWD})
@@ -57,10 +56,8 @@ platform-stop:
 
 platform-restart: platform-stop platform-start
 
-.PHONY: config.php
 config.php:
-	@docker exec -w ${CONTAINER_INSTALL_DIR} phpunit \
-		sh -c "if [ ! -f ./config.php ]; then cp ./config.dist.php ./config.php; fi"
+	cp ./config.dist.php ./config.php
 
 platform-module-version:
 	@docker exec -w ${CONTAINER_INSTALL_DIR} phpunit \
@@ -271,7 +268,7 @@ BUNDLE_ZIP ?= # ex: ps_accounts_flavor.zip
 BUNDLE_VERSION ?= $(shell grep "<version>" config.xml | sed 's/^.*\([0-9]\+\.[0-9]\+\.[0-9]\+\).*/\1/')
 BUNDLE_JS ?= views/js/app.${BUNDLE_VERSION}.js
 
-bundle: php-scoper build-front
+bundle: config.php php-scoper build-front
 	@./scripts/bundle-module.sh "${BUNDLE_ZIP}" "${BUNDLE_ENV}"
 
 bundle-prod: php-scoper config.php.prod build-front
@@ -282,8 +279,8 @@ bundle-preprod: php-scoper config.php.preprod build-front
 
 define build_front
 	rm -f ./views/js/app.*.js
-	yarn --cwd ./_dev --frozen-lockfile
-	yarn --cwd ./_dev build
+  pnpm --filter ./_dev install --frozen-lockfile --ignore-scripts
+	pnpm --filter ./_dev build
 endef
 
 ${BUNDLE_JS}:
