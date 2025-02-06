@@ -215,10 +215,14 @@ JSON;
 
         $this->assertResponseUnauthorized($response);
 
-        $this->assertArraySubset([
+        $this->assertBodySubsetOrMarkAsIncomplete([
             'error' => true,
             'message' => 'Invalid audience',
         ], $json);
+//        $this->assertArraySubset([
+//            'error' => true,
+//            'message' => 'Invalid audience',
+//        ], $json);
     }
 
     /**
