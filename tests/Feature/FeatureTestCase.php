@@ -21,7 +21,7 @@ class FeatureTestCase extends TestCase
     protected $enableTransactions = false;
 
     /**
-     * @var Client
+     * @var HttpTestClient
      */
     protected $client;
 

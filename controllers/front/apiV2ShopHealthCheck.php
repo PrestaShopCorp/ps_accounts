@@ -26,7 +26,6 @@ use PrestaShop\Module\PsAccounts\Account\Token\NullToken;
 use PrestaShop\Module\PsAccounts\Account\Token\Token;
 use PrestaShop\Module\PsAccounts\Api\Client\AccountsClient;
 use PrestaShop\Module\PsAccounts\Api\Controller\AbstractV2ShopRestController;
-use PrestaShop\Module\PsAccounts\Api\Controller\Exception\UnauthorizedException;
 use PrestaShop\Module\PsAccounts\Api\Controller\Request\ShopHealthCheckRequest;
 use PrestaShop\Module\PsAccounts\OAuth2\ApiClient;
 use PrestaShop\Module\PsAccounts\OAuth2\Client;
@@ -122,10 +121,10 @@ class ps_AccountsApiV2ShopHealthCheckModuleFrontController extends AbstractV2Sho
     public function show(Shop $shop, ShopHealthCheckRequest $request)
     {
         $this->assertAudience([
-            'shop_' . $this->linkShop->getShopUuid()]
-        );
+            'shop_' . $this->linkShop->getShopUuid(),
+        ]);
         $this->assertScope([
-            'shop.health'
+            'shop.health',
         ]);
 
         if ($request->autoheal) {

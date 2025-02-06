@@ -90,13 +90,24 @@ class HttpTestClient extends Client
         if ($this->fixModuleRoutes && preg_match(
                 '/^.*\/(module)\/(ps_accounts)\/([a-zA-Z0-9]+)$/', $route, $matches
             )) {
-            $query = isset($options['query']) ? $options['query'] : [];
-            $query = array_merge($query, [
+
+//            $query = isset($options['query']) ? $options['query'] : [];
+//            $query = array_merge($query, [
+//                'fc' => $matches[1],
+//                'module' => $matches[2],
+//                'controller' => $matches[3],
+//            ]);
+//            $route = '/index.php?' . http_build_query($query);
+
+            if (!isset($options['query'])) {
+                $options['query'] = [];
+            }
+            $options['query'] = array_merge($options['query'], [
                 'fc' => $matches[1],
                 'module' => $matches[2],
                 'controller' => $matches[3],
             ]);
-            $route = '/index.php?' . http_build_query($query);
+            $route = '/index.php';
         }
     }
 }

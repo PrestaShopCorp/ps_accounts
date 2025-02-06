@@ -173,13 +173,14 @@ JSON;
      */
     public function itShouldFailWithInvalidBearer()
     {
-        // FIXME: transmit shop_id ??
-
         $shop = $this->shopProvider->formatShopData((array) \Shop::getShop(1));
 
         $response = $this->client->get('/module/ps_accounts/apiV2ShopHealthCheck', [
             'headers' => [
                 'Authorization' => 'Bearer: ' . 'some-invalid-bearer',
+            ],
+            'query' => [
+                'shop_id' => $shop->id,
             ],
         ]);
 
@@ -200,10 +201,6 @@ JSON;
      */
     public function itShouldFailWithInvalidAudience()
     {
-        // FIXME: transmit shop_id ??
-
-        $shop = $this->shopProvider->formatShopData((array) \Shop::getShop(1));
-
         $response = $this->client->get('/module/ps_accounts/apiV2ShopHealthCheck', [
             'headers' => [
                 'Authorization' => 'Bearer ' . $this->makeBearer([
@@ -231,22 +228,20 @@ JSON;
      */
     public function itShouldFailWithInvalidShopId()
     {
-        $response = $this->client->get('/module/ps_accounts/apiV2ShopHealthCheck'
-            . '?shop_id=99',
-            [
-                'headers' => [
-                    'Authorization' => 'Bearer ' . $this->makeBearer([
-                            'aud' => [
-                                'shop_' . $this->faker->uuid,
-                            ],
-                        ]),
-                ],
-// TODO: test it later with a POST route
-//
-//            Options::REQ_JSON => [
-//                'shopId' => 99,
-//            ],
-            ]);
+        $shop = $this->shopProvider->formatShopData((array) \Shop::getShop(1));
+
+        $response = $this->client->get('/module/ps_accounts/apiV2ShopHealthCheck', [
+            'headers' => [
+                'Authorization' => 'Bearer ' . $this->makeBearer([
+                        'aud' => [
+                            'shop_' . $shop->id,
+                        ],
+                    ]),
+            ],
+            'query' => [
+                'shop_id' => 99,
+            ],
+        ]);
 
         $json = $this->getResponseJson($response);
 
