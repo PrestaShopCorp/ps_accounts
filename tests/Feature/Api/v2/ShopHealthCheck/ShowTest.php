@@ -220,13 +220,6 @@ JSON;
 
         $this->assertResponseUnauthorized($response);
 
-        // FIXME: fix warnings
-        // FIXME: dev, prod ??
-//        $this->assertBodySubsetOrMarkAsIncomplete([
-//            'error' => true,
-//            'message' => 'Invalid audience',
-//        ], $json);
-
         $this->assertArraySubset([
             'error' => true,
             'message' => 'Invalid audience',

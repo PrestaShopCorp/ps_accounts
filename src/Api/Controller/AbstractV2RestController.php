@@ -89,7 +89,7 @@ abstract class AbstractV2RestController extends AbstractRestController
                 $this->checkAuthorization();
             }
 
-            $payload = $this->decodeJsonPayload();
+            $payload = $this->decodePayload();
             $httpMethod = $this->extractMethod($payload);
 
             $this->dispatchVerb($httpMethod, $payload);
@@ -147,7 +147,7 @@ abstract class AbstractV2RestController extends AbstractRestController
      *
      * @return mixed
      */
-    protected function extractMethod(array & $payload)
+    protected function extractMethod(array &$payload)
     {
         $method = $_SERVER['REQUEST_METHOD'];
         // detect method from payload (hack with some shop server configuration)
