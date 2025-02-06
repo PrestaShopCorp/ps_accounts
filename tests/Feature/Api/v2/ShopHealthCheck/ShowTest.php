@@ -263,12 +263,12 @@ JSON;
      */
     public function makeBearer(array $data)
     {
-//        if (!isset($data['iat'])) {
-//            $data['iat'] = time();
-//        }
-//        if (!isset($data['exp'])) {
-//            $data['exp'] = time() + 3600;
-//        }
+        if (!isset($data['iat'])) {
+            $data['iat'] = time();
+        }
+        if (!isset($data['exp'])) {
+            $data['exp'] = time() + 3600;
+        }
         return JWT::encode($data, $this->privateKey, 'RS256', 'public:hydra.jwt.access-token');
     }
 
