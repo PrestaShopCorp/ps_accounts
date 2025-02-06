@@ -178,14 +178,12 @@ JSON;
      */
     public function itShouldFailWithInvalidBearer()
     {
-        $shop = $this->shopProvider->formatShopData((array) \Shop::getShop(1));
-
         $response = $this->client->get('/module/ps_accounts/apiV2ShopHealthCheck', [
             'headers' => [
                 'Authorization' => 'Bearer: ' . 'some-invalid-bearer',
             ],
             'query' => [
-                'shop_id' => $shop->id,
+                'shop_id' => 1,
             ],
         ]);
 
@@ -239,7 +237,7 @@ JSON;
             'headers' => [
                 'Authorization' => 'Bearer ' . $this->makeBearer([
                         'aud' => [
-                            'shop_' . $shop->id,
+                            'shop_' . $shop->uuid,
                         ],
                     ]),
             ],
@@ -265,6 +263,12 @@ JSON;
      */
     public function makeBearer(array $data)
     {
+//        if (!isset($data['iat'])) {
+//            $data['iat'] = time();
+//        }
+//        if (!isset($data['exp'])) {
+//            $data['exp'] = time() + 3600;
+//        }
         return JWT::encode($data, $this->privateKey, 'RS256', 'public:hydra.jwt.access-token');
     }
 
