@@ -216,10 +216,11 @@ class Client
     /**
      * @param mixed $ch
      * @param string $route
+     * @param array $options
      *
      * @return void
      */
-    protected function initRoute($ch, $route)
+    protected function initRoute($ch, $route, array $options = [])
     {
         $absRoute = $route;
         if (!empty($this->baseUri) && !preg_match('/^http(s)?:\/\//', $absRoute)) {
@@ -228,6 +229,11 @@ class Client
 
         if (empty($absRoute)) {
             throw new \InvalidArgumentException('route must not be empty');
+        }
+
+        if (array_key_exists(Options::REQ_QUERY, $options)) {
+            // FIXME: preserve $route querystring
+            $absRoute .= '?' . http_build_query($options[Options::REQ_QUERY]);
         }
 
         curl_setopt($ch, CURLOPT_URL, $absRoute);
@@ -311,7 +317,8 @@ class Client
     {
         $ch = curl_init();
 
-        $this->initRoute($ch, $route);
+        // FIXME: validate $options array
+        $this->initRoute($ch, $route, $options);
         $this->initHeaders($ch, $options);
         $this->initSsl($ch);
         $this->initTimeout($ch, $this->timeout);
