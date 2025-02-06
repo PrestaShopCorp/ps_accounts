@@ -113,7 +113,11 @@ class BaseTestCase extends \PHPUnit\Framework\TestCase
      */
     public function makeJwtToken(\DateTimeImmutable $expiresAt = null, array $claims = [])
     {
-        $builder = (new Builder())->expiresAt($expiresAt);
+        $issuedAt = new \DateTimeImmutable();
+
+        $builder = (new Builder())
+            ->issuedAt($issuedAt)
+            ->expiresAt($expiresAt);
 
         if (isset($claims['sub'])) {
             $builder->relatedTo($claims['sub']);
