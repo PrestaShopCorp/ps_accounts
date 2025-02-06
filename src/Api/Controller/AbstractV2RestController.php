@@ -102,7 +102,7 @@ abstract class AbstractV2RestController extends AbstractRestController
     }
 
     /**
-     * @param null $defaultShopId
+     * @param int|null $defaultShopId
      *
      * @return array
      */
@@ -124,7 +124,7 @@ abstract class AbstractV2RestController extends AbstractRestController
             $payload['shop_id'] = $defaultShopId;
         }
 
-        return $this->initShopContext($payload, $defaultShopId);
+        return $this->initShopContext($payload);
     }
 
     /**
