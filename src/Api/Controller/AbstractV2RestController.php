@@ -102,46 +102,38 @@ abstract class AbstractV2RestController extends AbstractRestController
     }
 
     /**
+     * @param null $defaultShopId
+     *
      * @return array
      */
-    protected function decodeJsonPayload()
+    protected function decodePayload($defaultShopId = null)
     {
-        $defaultShopId = Context::getContext()->shop->id;
+        if ($defaultShopId === null) {
+            $defaultShopId = Context::getContext()->shop->id;
+        }
 
-        // FIXME: shop_id from query param
-        // FIXME: we probably don't want to post anything here because we can't ensure POST method will be available
+        if (in_array($_SERVER['REQUEST_METHOD'], ['POST', 'PUT', 'PATCH'], true)) {
+            // FIXME To avoid this warning set 'always_populate_raw_post_data' to '-1' in php.ini and use the php://input stream instead. in Unknown on line 0"
+            $json = file_get_contents('php://input');
+            $payload = !empty($json) ? json_decode($json, true) : [];
+        } else {
+            $payload = $_GET;
+        }
 
-        // FIXME: "PHP message: PHP Deprecated:  Automatically populating $HTTP_RAW_POST_DATA is deprecated and will be removed in a future version.
-        // FIXME: fallback on $_POST ??
-
-        // To avoid this warning set 'always_populate_raw_post_data' to '-1' in php.ini and use the php://input stream instead. in Unknown on line 0"
-        $json = file_get_contents('php://input');
-        $payload = !empty($json) ? json_decode($json, true) : [];
+        if (!isset($payload['shop_id'])) {
+            $payload['shop_id'] = $defaultShopId;
+        }
 
         return $this->initShopContext($payload, $defaultShopId);
     }
 
     /**
      * @param array $payload
-     * @param int $defaultShopId
      *
      * @return array
-     *
-     * @throws \Exception
      */
-    protected function initShopContext(array $payload, $defaultShopId)
+    protected function initShopContext(array $payload)
     {
-        // 1- from payload
-        if (!isset($payload['shop_id'])) {
-            if (isset($_REQUEST['shop_id'])) {
-                // 2- from query string
-                $payload['shop_id'] = $_REQUEST['shop_id'];
-            } else {
-                // 3- from uri context
-                $payload['shop_id'] = $defaultShopId;
-            }
-        }
-
         $shop = new \Shop((int) $payload['shop_id']);
         if ($shop->id) {
             $this->setContextShop($shop);
@@ -155,7 +147,7 @@ abstract class AbstractV2RestController extends AbstractRestController
      *
      * @return mixed
      */
-    protected function extractMethod(array &$payload)
+    protected function extractMethod(array & $payload)
     {
         $method = $_SERVER['REQUEST_METHOD'];
         // detect method from payload (hack with some shop server configuration)

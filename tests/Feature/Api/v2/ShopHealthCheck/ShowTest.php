@@ -93,9 +93,13 @@ JSON;
      */
     public function itShouldShowPublicHealthCheck()
     {
-//        $shop = $this->shopContext->formatShopData((array) \Shop::getShop(1));
+        $shop = $this->shopProvider->formatShopData((array) \Shop::getShop(1));
 
-        $response = $this->client->get('/module/ps_accounts/apiV2ShopHealthCheck');
+        $response = $this->client->get('/module/ps_accounts/apiV2ShopHealthCheck', [
+            'query' => [
+                'shop_id' => $shop->id,
+            ]
+        ]);
 
         $json = $this->getResponseJson($response);
 
@@ -131,8 +135,6 @@ JSON;
      */
     public function itShouldShowPrivateHealthCheck()
     {
-        // FIXME: transmit shop_id ??
-
         $shop = $this->shopProvider->formatShopData((array) \Shop::getShop(1));
 
         $response = $this->client->get('/module/ps_accounts/apiV2ShopHealthCheck', [
@@ -147,6 +149,9 @@ JSON;
                         ]
                     ]),
             ],
+//            'query' => [
+//                'shop_id' => $shop->id,
+//            ],
         ]);
 
         $json = $this->getResponseJson($response);
@@ -215,14 +220,17 @@ JSON;
 
         $this->assertResponseUnauthorized($response);
 
-        $this->assertBodySubsetOrMarkAsIncomplete([
-            'error' => true,
-            'message' => 'Invalid audience',
-        ], $json);
-//        $this->assertArraySubset([
+        // FIXME: fix warnings
+        // FIXME: dev, prod ??
+//        $this->assertBodySubsetOrMarkAsIncomplete([
 //            'error' => true,
 //            'message' => 'Invalid audience',
 //        ], $json);
+
+        $this->assertArraySubset([
+            'error' => true,
+            'message' => 'Invalid audience',
+        ], $json);
     }
 
     /**
