@@ -208,7 +208,7 @@ JSON;
             'headers' => [
                 'Authorization' => 'Bearer ' . $this->makeBearer([
                         'aud' => [
-                            'shop_' . $this->faker->uuid,
+                            'shop_' . 'invalid_uid',
                         ],
                     ]),
             ],
