@@ -12,7 +12,7 @@ jobs:
       version: ${{ steps.set_version.outputs.version }}
     steps:
       - name: Checkout
-        uses: actions/checkout@v2.0.0
+        uses: actions/checkout@v4
 
       - name: Install pnpm
         uses: pnpm/action-setup@v4
@@ -27,6 +27,7 @@ jobs:
           registry-url: 'https://registry.npmjs.org'
           scope: '@prestashopcorp'
           cache: 'pnpm'
+          cache-dependency-path: '_dev/pnpm-lock.yaml'
 
 #      - name: Setup node env 🏗
 #        uses: actions/setup-node@v3
