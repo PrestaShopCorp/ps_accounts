@@ -20,6 +20,7 @@ jobs:
           version: 10
           run_install: |
             - cwd: _dev/
+            - package_json_file: _dev/package.json
             - args: [--frozen-lockfile, --ignore-scripts]
 
       - name: Setup node env 🏗
