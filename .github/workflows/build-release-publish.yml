@@ -23,7 +23,7 @@ jobs:
             - package_json_file: _dev/package.json
             - args: [--frozen-lockfile, --ignore-scripts]
         env:
-          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN_RO }}
+          NPM_AUTH_TOKEN: ${{ secrets.NPM_TOKEN_RO }}
 
       - name: Setup node env 🏗
         uses: actions/setup-node@v4
