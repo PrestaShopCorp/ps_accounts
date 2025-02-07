@@ -22,6 +22,8 @@ jobs:
             - cwd: _dev/
             - package_json_file: _dev/package.json
             - args: [--frozen-lockfile, --ignore-scripts]
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN_RO }}
 
       - name: Setup node env 🏗
         uses: actions/setup-node@v4
@@ -57,8 +59,6 @@ jobs:
 
       - name: Build front
         run: pnpm --filter ./_dev build
-        env:
-          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN_RO }}
 
 #      - name: Get yarn cache directory path 🛠
 #        id: yarn-cache-dir-path
