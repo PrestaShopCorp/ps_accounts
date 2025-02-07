@@ -34,7 +34,7 @@ class CachedFile
 
     /**
      * @param string $filename
-     * @param int|null $ttl
+     * @param int|null $ttl TTL in seconds or null (never expires)
      *
      * @throws \Exception
      */
