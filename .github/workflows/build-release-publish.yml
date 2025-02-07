@@ -20,8 +20,8 @@ jobs:
           version: 10
           run_install: |
             - cwd: _dev/
-            - package_json_file: _dev/package.json
-            - args: [--frozen-lockfile, --ignore-scripts]
+              package_json_file: _dev/package.json
+              args: [--frozen-lockfile, --ignore-scripts]
         env:
           NPM_AUTH_TOKEN: ${{ secrets.NPM_TOKEN_RO }}
 
