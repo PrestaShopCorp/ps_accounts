@@ -2,6 +2,7 @@
 
 namespace PrestaShop\Module\PsAccounts\Tests\Feature\Api\v2\ShopHealthCheck;
 
+use PrestaShop\Module\PsAccounts\Log\Logger;
 use PrestaShop\Module\PsAccounts\OAuth2\CachedFile;
 use PrestaShop\Module\PsAccounts\Provider\ShopProvider;
 use PrestaShop\Module\PsAccounts\Tests\Feature\FeatureTestCase;
@@ -15,6 +16,18 @@ class ShowTest extends FeatureTestCase
      * @var ShopProvider
      */
     protected $shopProvider;
+
+    /**
+     * @var string
+     */
+    private $wellKnown = <<<JSON
+{
+    "authorization_endpoint": "https://oauth.foo.bar/oauth2/auth",
+    "token_endpoint": "https://oauth.foo.bar/oauth2/token",
+    "userinfo_endpoint": "https://oauth.foo.bar/userinfo",
+    "jwks_uri": "https://oauth.foo.bar/.well-known/jwks.json"
+}
+JSON;
 
     /**
      * openssl genrsa
@@ -81,9 +94,12 @@ JSON;
 
     public function set_up()
     {
-        parent::set_up();
+        // useless to write wellknown cause JWKS is already present
+        //$this->writeWellKnown();
 
         $this->writeJwks();
+
+        parent::set_up();
     }
 
     /**
@@ -263,12 +279,12 @@ JSON;
      */
     public function makeBearer(array $data)
     {
-        if (!isset($data['iat'])) {
-            $data['iat'] = time();
-        }
-        if (!isset($data['exp'])) {
-            $data['exp'] = time() + 3600;
-        }
+//        if (!isset($data['iat'])) {
+//            $data['iat'] = time();
+//        }
+//        if (!isset($data['exp'])) {
+//            $data['exp'] = time() + 3600;
+//        }
         return JWT::encode($data, $this->privateKey, 'RS256', 'public:hydra.jwt.access-token');
     }
 
@@ -278,7 +294,21 @@ JSON;
      */
     public function writeJwks()
     {
-        $this->cachedJwks = new CachedFile(_PS_CACHE_DIR_ . 'ps_accounts' . '/jwks.json');
+        if (! isset($this->cachedJwks)) {
+            $this->cachedJwks = new CachedFile(_PS_CACHE_DIR_ . 'ps_accounts' . '/jwks.json');
+        }
         $this->cachedJwks->write($this->jwks);
+    }
+
+    /**
+     * @return void
+     * @throws \Exception
+     */
+    public function writeWellKnown()
+    {
+        if (! isset($this->cachedWellKnown)) {
+            $this->cachedWellKnown = new CachedFile(_PS_CACHE_DIR_ . 'ps_accounts' . '/openid-configuration.json');
+        }
+        $this->cachedWellKnown->write($this->wellKnown);
     }
 }

@@ -194,8 +194,10 @@ class ApiClient
     protected function getWellKnownFromCache($forceRefresh = false)
     {
         if ($this->cachedWellKnown->isExpired() || $forceRefresh) {
+            $wellKnown = $this->fetchWellKnown();
+
             $this->cachedWellKnown->write(
-                json_encode($this->fetchWellKnown(), JSON_UNESCAPED_SLASHES)
+                json_encode($wellKnown, JSON_UNESCAPED_SLASHES)
             );
         }
 
@@ -228,11 +230,14 @@ class ApiClient
     public function getJwks($forceRefresh = false)
     {
         if ($this->cachedJwks->isExpired() || $forceRefresh) {
+            $response = $this->getHttpClient()->get($this->getWellKnown()->jwks_uri);
+
+            if (!$response->isValid()) {
+                throw new OAuth2Exception($this->getResponseErrorMsg($response, 'Unable to get JWKS'));
+            }
+
             $this->cachedJwks->write(
-                json_encode(
-                    $this->getHttpClient()->get($this->getWellKnown()->jwks_uri)
-                        ->getBody(), JSON_UNESCAPED_SLASHES
-                )
+                json_encode($response->getBody(), JSON_UNESCAPED_SLASHES)
             );
         }
 
@@ -520,6 +525,7 @@ class ApiClient
     {
         $msg = $defaultMessage;
         $body = $response->getBody();
+
         if (isset($body['error']) &&
             isset($body['error_description'])
         ) {
