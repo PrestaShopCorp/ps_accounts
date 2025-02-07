@@ -14,12 +14,26 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v2.0.0
 
-      - name: Setup node env 🏗
-        uses: actions/setup-node@v3
+      - name: Install pnpm
+        uses: pnpm/action-setup@v4
         with:
-          node-version: 18
+          version: 10
+          run_install: false
+
+      - name: Setup node env 🏗
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
           registry-url: 'https://registry.npmjs.org'
           scope: '@prestashopcorp'
+          cache: 'pnpm'
+
+#      - name: Setup node env 🏗
+#        uses: actions/setup-node@v3
+#        with:
+#          node-version: 18
+#          registry-url: 'https://registry.npmjs.org'
+#          scope: '@prestashopcorp'
 
       - name: Set version
         id: set_version
