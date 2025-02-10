@@ -90,7 +90,7 @@ class ApiClient
      */
     protected $defaultScopes = [
         'openid',
-        'offline_access'
+        'offline_access',
     ];
 
     /**
