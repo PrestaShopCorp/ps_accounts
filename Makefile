@@ -279,7 +279,7 @@ bundle-preprod: php-scoper config.php.preprod build-front
 
 define build_front
 	rm -f ./views/js/app.*.js
-  pnpm --filter ./_dev install --frozen-lockfile --ignore-scripts
+	pnpm --filter ./_dev install --frozen-lockfile --ignore-scripts
 	pnpm --filter ./_dev build
 endef
 
