@@ -135,7 +135,6 @@ trait OAuth2LoginTrait
 
         $authorizationUrl = $apiClient->getAuthorizationUri(
             $state,
-            $apiClient->getAuthRedirectUri(),
             $pkceCode,
             'S256',
             'fr'

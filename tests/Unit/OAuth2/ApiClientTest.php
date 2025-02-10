@@ -125,10 +125,8 @@ JSON
      */
     public function itShouldGenerateAuthorizationUrl()
     {
-        $redirectUri = $this->faker->url;
         $url = $this->apiClient->getAuthorizationUri(
             'not-a-random-state',
-            $redirectUri,
             null,
             '',
             'fr-CA en',
@@ -143,7 +141,7 @@ JSON
 
         $this->assertEquals('openid offline_access', $query['scope']);
         $this->assertEquals($this->client->getClientId(), $query['client_id']);
-        $this->assertEquals($redirectUri, $query['redirect_uri']);
+        $this->assertEquals($this->apiClient->getAuthRedirectUri(), $query['redirect_uri']);
         $this->assertEquals('fr-CA en', $query['ui_locales']);
         $this->assertEquals('prompt:login', $query['acr_values']);
         $this->assertArrayHasKey('response_type', $query);

@@ -86,6 +86,14 @@ class ApiClient
     protected $sslCheck;
 
     /**
+     * @var string[]
+     */
+    protected $defaultScopes = [
+        'openid',
+        'offline_access'
+    ];
+
+    /**
      * @param string $baseUri
      * @param Client $client
      * @param Link $link
@@ -258,8 +266,9 @@ class ApiClient
                     'grant_type' => 'client_credentials',
                     'client_id' => $this->client->getClientId(),
                     'client_secret' => $this->client->getClientSecret(),
-                    'scope' => implode(' ', $scope),
+                    'scope' => $this->getScopes($scope),
                     'audience' => implode(' ', $audience),
+                    'redirect_uri' => $this->getAuthRedirectUri(),
                 ],
             ]
         );
@@ -273,7 +282,6 @@ class ApiClient
 
     /**
      * @param string $state
-     * @param string $redirectUri
      * @param string|null $pkceCode
      * @param string $pkceMethod
      * @param string $uiLocales
@@ -285,7 +293,6 @@ class ApiClient
      */
     public function getAuthorizationUri(
         $state,
-        $redirectUri,
         $pkceCode = null,
         $pkceMethod = 'S256',
         $uiLocales = 'fr',
@@ -297,10 +304,10 @@ class ApiClient
             http_build_query(array_merge([
                 'ui_locales' => $uiLocales,
                 'state' => $state,
-                'scope' => 'openid offline_access',
+                'scope' => $this->getScopes([]),
                 'response_type' => 'code',
                 'approval_prompt' => 'auto',
-                'redirect_uri' => $redirectUri,
+                'redirect_uri' => $this->getAuthRedirectUri(),
                 'client_id' => $this->client->getClientId(),
                 'acr_values' => $acrValues,
             ], $pkceCode ? [
@@ -369,7 +376,7 @@ class ApiClient
                     'client_id' => $this->client->getClientId(),
                     'client_secret' => $this->client->getClientSecret(),
                     'code' => $code,
-                    'scope' => implode(' ', $scope),
+                    'scope' => $this->getScopes($scope),
                     'audience' => implode(' ', $audience),
                 ], $pkceCode ? [
                     'code_verifier' => $pkceCode,
@@ -527,5 +534,15 @@ class ApiClient
         }
 
         return $response->getStatusCode() . ' - ' . $msg;
+    }
+
+    /**
+     * @param array $scope
+     *
+     * @return string
+     */
+    protected function getScopes(array $scope)
+    {
+        return implode(' ', array_merge($this->defaultScopes, $scope));
     }
 }
