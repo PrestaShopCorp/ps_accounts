@@ -93,9 +93,14 @@ trait OAuth2LoginTrait
 
             throw new \Exception('Invalid state');
         } else {
+            $code = $_GET['code'];
+            if (!preg_match('/^[^\s\"\';\(\)]+$/', $code)) {
+                throw new \InvalidArgumentException('Invalid code');
+            }
+
             try {
                 $accessToken = $apiClient->getAccessTokenByAuthorizationCode(
-                    (string) $_GET['code'],
+                    $code,
                     $this->getSession()->get('oauth2pkceCode'),
                     $apiClient->getAuthRedirectUri()
                 );

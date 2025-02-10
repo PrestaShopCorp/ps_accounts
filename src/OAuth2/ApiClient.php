@@ -543,6 +543,10 @@ class ApiClient
      */
     protected function getScopes(array $scope)
     {
-        return implode(' ', array_merge($this->defaultScopes, $scope));
+        if (!empty($scope)) {
+            return implode(' ', $scope);
+        }
+
+        return implode(' ', $this->defaultScopes);
     }
 }
