@@ -259,17 +259,21 @@ class ApiClient
     {
         $this->assertClientExists();
 
+        $scopes = $this->getScopes($scope);
+
         $response = $this->getHttpClient()->post(
             $this->getWellKnown()->token_endpoint,
             [
-                Options::REQ_FORM => [
+                Options::REQ_FORM => array_merge([
                     'grant_type' => 'client_credentials',
                     'client_id' => $this->client->getClientId(),
                     'client_secret' => $this->client->getClientSecret(),
-                    'scope' => $this->getScopes($scope),
+                    'scope' => implode(' ', $scopes),
                     'audience' => implode(' ', $audience),
+                    //'redirect_uri' => $this->getAuthRedirectUri(),
+                ], in_array('openid', $scopes) ? [
                     'redirect_uri' => $this->getAuthRedirectUri(),
-                ],
+                ] : []),
             ]
         );
 
@@ -304,7 +308,7 @@ class ApiClient
             http_build_query(array_merge([
                 'ui_locales' => $uiLocales,
                 'state' => $state,
-                'scope' => $this->getScopes([]),
+                'scope' => implode(' ', $this->getScopes([])),
                 'response_type' => 'code',
                 'approval_prompt' => 'auto',
                 'redirect_uri' => $this->getAuthRedirectUri(),
@@ -374,7 +378,7 @@ class ApiClient
                     'client_id' => $this->client->getClientId(),
                     'client_secret' => $this->client->getClientSecret(),
                     'code' => $code,
-                    'scope' => $this->getScopes($scope),
+                    'scope' => implode(' ', $this->getScopes($scope)),
                     'audience' => implode(' ', $audience),
                     'redirect_uri' => $this->getAuthRedirectUri(),
                 ], $pkceCode ? [
@@ -537,14 +541,14 @@ class ApiClient
     /**
      * @param array $scope
      *
-     * @return string
+     * @return array
      */
     protected function getScopes(array $scope)
     {
         if (!empty($scope)) {
-            return implode(' ', $scope);
+            return $scope;
         }
 
-        return implode(' ', $this->defaultScopes);
+        return $this->defaultScopes;
     }
 }
