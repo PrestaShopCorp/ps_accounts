@@ -38,13 +38,19 @@ class Token
     private $refreshToken;
 
     /**
+     * @var int seconds
+     */
+    private $leeway;
+
+    /**
      * @param string $token
      * @param string $refreshToken
      */
-    public function __construct($token, $refreshToken = null)
+    public function __construct($token, $refreshToken = null, $leeway = 0)
     {
         $this->token = $token;
         $this->refreshToken = $refreshToken;
+        $this->leeway = $leeway;
     }
 
     /**
@@ -64,13 +70,19 @@ class Token
     }
 
     /**
+     * @param int|null $leeway
+     *
      * @return bool
      */
-    public function isExpired()
+    public function isExpired($leeway = null)
     {
+        if (null === $leeway) {
+            $leeway = $this->leeway;
+        }
+
         $token = $this->getJwt();
 
-        return $token->isExpired(new \DateTime());
+        return $token->isExpired(new \DateTime('+' . $leeway . ' seconds'));
     }
 
     /**
