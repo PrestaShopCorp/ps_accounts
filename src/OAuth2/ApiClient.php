@@ -351,7 +351,6 @@ class ApiClient
     /**
      * @param string $code
      * @param string|null $pkceCode
-     * @param string|null $redirectUri
      * @param array $scope
      * @param array $audience
      *
@@ -362,7 +361,6 @@ class ApiClient
     public function getAccessTokenByAuthorizationCode(
         $code,
         $pkceCode = null,
-        $redirectUri = null,
         array $scope = [],
         array $audience = []
     ) {
@@ -378,9 +376,9 @@ class ApiClient
                     'code' => $code,
                     'scope' => $this->getScopes($scope),
                     'audience' => implode(' ', $audience),
+                    'redirect_uri' => $this->getAuthRedirectUri(),
                 ], $pkceCode ? [
                     'code_verifier' => $pkceCode,
-                    'redirect_uri' => $redirectUri,
                 ] : []),
             ]
         );

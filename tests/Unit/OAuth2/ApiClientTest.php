@@ -199,11 +199,7 @@ JSON
         );
 
         $token = $this->apiClient->getAccessTokenByAuthorizationCode(
-            'mock_authorization_code',
-            '',
-            '',
-            [],
-            []
+            $this->faker->sha256
         );
 
         $this->assertEquals('mock_access_token', $token->access_token);
@@ -327,7 +323,7 @@ JSON
 
         $this->expectException(OAuth2Exception::class);
         $this->expectExceptionMessage('403 - error_name: This is the description');
-        $this->apiClient->getAccessTokenByAuthorizationCode('authorization_code');
+        $this->apiClient->getAccessTokenByAuthorizationCode($this->faker->sha256);
     }
 
     /**
@@ -339,6 +335,6 @@ JSON
 
         $this->expectException(OAuth2Exception::class);
         $this->expectExceptionMessage('403 - Unable to get access token');
-        $this->apiClient->getAccessTokenByAuthorizationCode('authorization_code');
+        $this->apiClient->getAccessTokenByAuthorizationCode($this->faker->sha256);
     }
 }

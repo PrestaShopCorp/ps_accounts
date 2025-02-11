@@ -102,8 +102,7 @@ trait OAuth2LoginTrait
             try {
                 $accessToken = $apiClient->getAccessTokenByAuthorizationCode(
                     $code,
-                    $this->getSession()->get('oauth2pkceCode'),
-                    $apiClient->getAuthRedirectUri()
+                    $this->getSession()->get('oauth2pkceCode')
                 );
             } catch (OAuth2Exception $e) {
                 throw new Oauth2LoginException($e->getMessage(), null, $e);
