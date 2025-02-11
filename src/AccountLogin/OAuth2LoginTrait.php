@@ -75,26 +75,28 @@ trait OAuth2LoginTrait
         $session = $this->getSession();
         $oauth2Session = $this->getOauth2Session();
 
-        if (!empty($_GET['error'])) {
+        $error = Tools::getValue('error', '');
+        $state = Tools::getValue('state', '');
+        $code = Tools::getValue('code', '');
+
+        if (!empty($error)) {
             // Got an error, probably user denied access
-            throw new \Exception('Got error: ' . $_GET['error']);
+            throw new \Exception('Got error: ' . $error);
         // If we don't have an authorization code then get one
-        } elseif (!isset($_GET['code'])) {
+        } elseif (empty($code)) {
             // cleanup existing accessToken
             $oauth2Session->clear();
 
             $this->setSessionReturnTo(Tools::getValue($this->getReturnToParam()));
 
-            $this->oauth2Redirect(Tools::getValue('locale'));
+            $this->oauth2Redirect(Tools::getValue('locale', 'en'));
 
         // Check given state against previously stored one to mitigate CSRF attack
-        } elseif (empty($_GET['state']) || ($session->has('oauth2state') && $_GET['state'] !== $session->get('oauth2state'))) {
+        } elseif (empty($state) || ($session->has('oauth2state') && $state !== $session->get('oauth2state'))) {
             $session->remove('oauth2state');
 
             throw new \Exception('Invalid state');
         } else {
-            $code = $_GET['code'];
-
             $this->assertValidCode($code);
 
             try {
@@ -136,7 +138,7 @@ trait OAuth2LoginTrait
             $state,
             $pkceCode,
             'S256',
-            'fr'
+            $locale
         );
 
         // Redirect the user to the authorization URL.
