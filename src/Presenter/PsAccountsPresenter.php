@@ -22,6 +22,7 @@ namespace PrestaShop\Module\PsAccounts\Presenter;
 
 use PrestaShop\Module\PsAccounts\Account\LinkShop;
 use PrestaShop\Module\PsAccounts\Installer\Installer;
+use PrestaShop\Module\PsAccounts\Provider\RsaKeysProvider;
 use PrestaShop\Module\PsAccounts\Provider\ShopProvider;
 use PrestaShop\Module\PsAccounts\Repository\ConfigurationRepository;
 use PrestaShop\Module\PsAccounts\Service\PsAccountsService;
@@ -109,6 +110,9 @@ class PsAccountsPresenter implements PresenterInterface
             . '?shops=' . $shopBase64;
 
         try {
+            $shopsTree = $this->shopProvider->getShopsTree($psxName);
+            $this->generateKeys($shopsTree['shops']);
+
             return array_merge(
                 [
                     'currentContext' => [
@@ -158,7 +162,7 @@ class PsAccountsPresenter implements PresenterInterface
 
                     'isOnboardedV4' => $this->psAccountsService->isAccountLinkedV4(),
 
-                    'shops' => $this->shopProvider->getShopsTree($psxName),
+                    'shops' => $shopsTree,
                     'adminAjaxLink' => $this->psAccountsService->getAdminAjaxUrl(),
 
                     'accountsUiUrl' => $this->module->getParameter('ps_accounts.accounts_ui_url'),
@@ -170,5 +174,30 @@ class PsAccountsPresenter implements PresenterInterface
         }
 
         return [];
+    }
+
+    /**
+     * @param array $shops
+     * @param string $psxName
+     *
+     * @return void
+     */
+    public function generateKeys($shops, $psxName = 'ps_accounts')
+    {
+        /** @var RsaKeysProvider $rsaKeysProvider */
+        $rsaKeysProvider = $this->module->getService(RsaKeysProvider::class);
+
+        if (empty($shops)) {
+            $rsaKeysProvider->getOrGenerateAccountsRsaPublicKey();
+        } else {
+            foreach ($shops as $shop) {
+                return $this->shopProvider->getShopContext()->execInShopContext(
+                    $shop['id'],
+                    function () use ($rsaKeysProvider) {
+                        $rsaKeysProvider->getOrGenerateAccountsRsaPublicKey();
+                    }
+                );
+            }
+        }
     }
 }

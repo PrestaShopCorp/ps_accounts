@@ -366,10 +366,6 @@ class Ps_accounts extends Module
         /** @var \PrestaShop\Module\PsAccounts\Presenter\PsAccountsPresenter $psAccountsPresenter */
         $psAccountsPresenter = $this->getService(\PrestaShop\Module\PsAccounts\Presenter\PsAccountsPresenter::class);
 
-        /** @var \PrestaShop\Module\PsAccounts\Provider\RsaKeysProvider $rsaKeysProvider */
-        $rsaKeysProvider = $this->getService(\PrestaShop\Module\PsAccounts\Provider\RsaKeysProvider::class);
-        $rsaKeysProvider->getOrGenerateAccountsRsaPublicKey();
-
         Media::addJsDef([
             'contextPsAccounts' => $psAccountsPresenter->present((string) $this->name),
         ]);
