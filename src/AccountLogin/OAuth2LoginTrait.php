@@ -94,9 +94,8 @@ trait OAuth2LoginTrait
             throw new \Exception('Invalid state');
         } else {
             $code = $_GET['code'];
-            if (!preg_match('/^[^\s\"\';\(\)]+$/', $code)) {
-                throw new \InvalidArgumentException('Invalid code');
-            }
+
+            $this->assertValidCode($code);
 
             try {
                 $accessToken = $apiClient->getAccessTokenByAuthorizationCode(
@@ -143,6 +142,18 @@ trait OAuth2LoginTrait
         // Redirect the user to the authorization URL.
         header('Location: ' . $authorizationUrl);
         exit;
+    }
+
+    /**
+     * @param string $code
+     *
+     * @return void
+     */
+    private function assertValidCode($code)
+    {
+        if (!preg_match('/^[^\s\"\';\(\)]+$/', $code)) {
+            throw new \InvalidArgumentException('Invalid code');
+        }
     }
 
     /**
