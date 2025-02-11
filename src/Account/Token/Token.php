@@ -45,6 +45,7 @@ class Token
     /**
      * @param string $token
      * @param string $refreshToken
+     * @param int $leeway
      */
     public function __construct($token, $refreshToken = null, $leeway = 0)
     {
