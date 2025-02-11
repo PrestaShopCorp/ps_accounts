@@ -178,11 +178,10 @@ class PsAccountsPresenter implements PresenterInterface
 
     /**
      * @param array $shops
-     * @param string $psxName
      *
      * @return void
      */
-    public function generateKeys($shops, $psxName = 'ps_accounts')
+    public function generateKeys($shops)
     {
         /** @var RsaKeysProvider $rsaKeysProvider */
         $rsaKeysProvider = $this->module->getService(RsaKeysProvider::class);
@@ -191,7 +190,7 @@ class PsAccountsPresenter implements PresenterInterface
             $rsaKeysProvider->getOrGenerateAccountsRsaPublicKey();
         } else {
             foreach ($shops as $shop) {
-                return $this->shopProvider->getShopContext()->execInShopContext(
+                $this->shopProvider->getShopContext()->execInShopContext(
                     $shop['id'],
                     function () use ($rsaKeysProvider) {
                         $rsaKeysProvider->getOrGenerateAccountsRsaPublicKey();
