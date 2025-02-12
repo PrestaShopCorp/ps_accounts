@@ -65,6 +65,11 @@ class PsAccountsPresenter implements PresenterInterface
     private $module;
 
     /**
+     * @var RsaKeysProvider
+     */
+    private $rsaKeysProvider;
+
+    /**
      * @param \Ps_accounts $module
      *
      * @throws \Exception
@@ -79,7 +84,9 @@ class PsAccountsPresenter implements PresenterInterface
         $this->linkShop = $module->getService(LinkShop::class);
         $this->installer = $module->getService(Installer::class);
         $this->configuration = $module->getService(ConfigurationRepository::class);
+        $this->rsaKeysProvider = $module->getService(RsaKeysProvider::class);
 
+        // FIXME: find a better place for this
         $this->configuration->fixMultiShopConfig();
     }
 
@@ -183,19 +190,13 @@ class PsAccountsPresenter implements PresenterInterface
      */
     public function generateKeys($shops)
     {
-        /** @var RsaKeysProvider $rsaKeysProvider */
-        $rsaKeysProvider = $this->module->getService(RsaKeysProvider::class);
-
         if (empty($shops)) {
-            $rsaKeysProvider->getOrGenerateAccountsRsaPublicKey();
+            $this->rsaKeysProvider->getOrGenerateAccountsRsaPublicKey();
         } else {
             foreach ($shops as $shop) {
-                $this->shopProvider->getShopContext()->execInShopContext(
-                    $shop['id'],
-                    function () use ($rsaKeysProvider) {
-                        $rsaKeysProvider->getOrGenerateAccountsRsaPublicKey();
-                    }
-                );
+                $this->shopProvider->getShopContext()->execInShopContext($shop['id'], function () {
+                    $this->rsaKeysProvider->getOrGenerateAccountsRsaPublicKey();
+                });
             }
         }
     }
