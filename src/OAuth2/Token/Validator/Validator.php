@@ -111,12 +111,10 @@ class Validator
      */
     public function validateScope($token, array $scope)
     {
-        if (!property_exists($token, 'scp')) {
-            return;
-        }
-
         // check expected scopes are included
-        $scp = is_array($token->scp) ? array_unique($token->scp) : [];
+        $scp = property_exists($token, 'scp') && is_array($token->scp) ?
+            array_unique($token->scp) : [];
+
         if (count(array_intersect($scope, $scp)) < count($scope)) {
             throw new Exception\ScopeInvalidException('Expected scope not matched: ' . implode(', ', $scope));
         }
@@ -132,12 +130,10 @@ class Validator
      */
     public function validateAudience($token, array $audience)
     {
-        if (!property_exists($token, 'aud')) {
-            return;
-        }
-
         // check expected audiences are included
-        $aud = is_array($token->aud) ? array_unique($token->aud) : [];
+        $aud = property_exists($token, 'aud') && is_array($token->aud) ?
+            array_unique($token->aud) : [];
+
         if (count(array_intersect($audience, $aud)) < count($audience)) {
             throw new Exception\AudienceInvalidException('Expected audience not matched: ' . implode(', ', $audience));
         }
