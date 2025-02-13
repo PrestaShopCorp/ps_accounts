@@ -188,7 +188,7 @@ class PsAccountsPresenter implements PresenterInterface
      *
      * @return void
      */
-    public function generateKeys(& $shopTree)
+    public function generateKeys(&$shopTree)
     {
         foreach ($shopTree as &$group) {
             foreach ($group['shops'] as &$shop) {
