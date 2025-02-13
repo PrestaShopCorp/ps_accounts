@@ -118,7 +118,7 @@ class PsAccountsPresenter implements PresenterInterface
 
         try {
             $shopsTree = $this->shopProvider->getShopsTree($psxName);
-            $this->generateKeys($shopsTree['shops']);
+            $this->generateKeys($shopsTree);
 
             return array_merge(
                 [
@@ -184,18 +184,16 @@ class PsAccountsPresenter implements PresenterInterface
     }
 
     /**
-     * @param array $shops
+     * @param array $shopTree
      *
      * @return void
      */
-    public function generateKeys($shops)
+    public function generateKeys(& $shopTree)
     {
-        if (empty($shops)) {
-            $this->rsaKeysProvider->getOrGenerateAccountsRsaPublicKey();
-        } else {
-            foreach ($shops as $shop) {
-                $this->shopProvider->getShopContext()->execInShopContext($shop['id'], function () {
-                    $this->rsaKeysProvider->getOrGenerateAccountsRsaPublicKey();
+        foreach ($shopTree as &$group) {
+            foreach ($group['shops'] as &$shop) {
+                $this->shopProvider->getShopContext()->execInShopContext($shop['id'], function () use (&$shop) {
+                    $shop['publicKey'] = $this->rsaKeysProvider->getOrGenerateAccountsRsaPublicKey();
                 });
             }
         }
