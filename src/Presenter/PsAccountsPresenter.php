@@ -118,7 +118,7 @@ class PsAccountsPresenter implements PresenterInterface
 
         try {
             $shopsTree = $this->shopProvider->getShopsTree($psxName);
-            $this->generateKeys($shopsTree);
+            $this->generateAndSetPublicKeys($shopsTree);
 
             return array_merge(
                 [
@@ -188,7 +188,7 @@ class PsAccountsPresenter implements PresenterInterface
      *
      * @return void
      */
-    public function generateKeys(&$shopTree)
+    public function generateAndSetPublicKeys(&$shopTree)
     {
         foreach ($shopTree as &$group) {
             foreach ($group['shops'] as &$shop) {
