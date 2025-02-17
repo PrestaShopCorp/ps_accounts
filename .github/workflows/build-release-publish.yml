@@ -103,21 +103,6 @@ jobs:
           asset_name: ${{ env.zip_file }}
           asset_content_type: application/zip
 
-      - name: Slack notification on publish
-        if: success()
-        uses: rtCamp/action-slack-notify@v2
-        env:
-          SLACK_WEBHOOK: ${{ secrets.SLACK_WEBHOOK }}
-          SLACK_COLOR: 0CAD34
-          SLACK_TITLE: [TEST] New release published by ${{ github.event.actor.display_login }}
-          SLACK_MESSAGE: |
-            Release - ${{ github.event.release.tag_name }}
-            ${{ github.event.release.body }}
-          SLACK_FOOTER: ''
-          SLACK_USERNAME: QABot
-          SLACK_CHANNEL: squad-account
-          SLACK_ICON: https://avatars.githubusercontent.com/u/56089550?s=48&v=4
-
   upload_release_asset_preprod:
     name: Upload the preprod zip asset to the release
     runs-on: ubuntu-latest
@@ -187,6 +172,21 @@ jobs:
         env:
           MARKETPLACE_API_KEY: ${{ secrets.MARKETPLACE_API_KEY }}
 
+      - name: Notify Slack
+        if: success()
+        uses: rtCamp/action-slack-notify@v2
+        env:
+          SLACK_WEBHOOK: ${{ secrets.SLACK_WEBHOOK }}
+          SLACK_COLOR: 0CAD34
+          SLACK_TITLE: New release published by ${{ github.event.actor.display_login }}
+          SLACK_MESSAGE: |
+            Release - ${{ github.event.release.tag_name }}
+            ${{ github.event.release.body }}
+          SLACK_FOOTER: ''
+          SLACK_USERNAME: QABot
+          SLACK_CHANNEL: squad-account
+          SLACK_ICON: https://avatars.githubusercontent.com/u/56089550?s=48&v=4
+
         # New release published by hschoenenberger
         #Release - v7.0.1
         #What's Changed
@@ -195,18 +195,3 @@ jobs:
         #• [ACCOUNT-2335] refactor: add index files at bundle time & remove index files from repo by @hschoenenberger in #387
         #• fix: github release workflow by @hschoenenberger in #391
         #Full Changelog: v7.0.0...v7.0.1
-
-#      - name: Slack notification on publish
-#        if: success()
-#        uses: rtCamp/action-slack-notify@v2
-#        env:
-#          SLACK_WEBHOOK: ${{ secrets.SLACK_WEBHOOK }}
-#          SLACK_COLOR: 0CAD34
-#          SLACK_TITLE: New release published by ${{ github.event.actor.display_login }}
-#          SLACK_MESSAGE: |
-#            Release - ${{ github.event.release.tag_name }}
-#            ${{ github.event.release.body }}
-#          SLACK_FOOTER: ''
-#          SLACK_USERNAME: QABot
-#          SLACK_CHANNEL: squad-account
-#          SLACK_ICON: https://avatars.githubusercontent.com/u/56089550?s=48&v=4
