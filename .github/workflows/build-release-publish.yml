@@ -186,12 +186,3 @@ jobs:
           SLACK_USERNAME: QABot
           SLACK_CHANNEL: squad-account
           SLACK_ICON: https://avatars.githubusercontent.com/u/56089550?s=48&v=4
-
-        # New release published by hschoenenberger
-        #Release - v7.0.1
-        #What's Changed
-        #• [ACCOUNT-2378] feat: reboot sentry by @hschoenenberger in #389
-        #• [ACCOUNT-2387] fix: duplicate upgrade module by @hschoenenberger in #390
-        #• [ACCOUNT-2335] refactor: add index files at bundle time & remove index files from repo by @hschoenenberger in #387
-        #• fix: github release workflow by @hschoenenberger in #391
-        #Full Changelog: v7.0.0...v7.0.1

@@ -15,10 +15,7 @@ jobs:
           SLACK_WEBHOOK: ${{ secrets.SLACK_WEBHOOK }}
           SLACK_COLOR: 2986CC
           SLACK_TITLE: 👀 it's review time!
-#          SLACK_MESSAGE: "🥷 ${{ github.event.pull_request.title }}"
-          SLACK_MESSAGE: |
-            🥷 ${{ github.event.pull_request.title }}
-            ${{ github.event.release.body }}
+          SLACK_MESSAGE: "🥷 ${{ github.event.pull_request.title }}"
           SLACK_FOOTER: "https://github.com/PrestaShopCorp/ps_accounts/pull/${{ github.event.pull_request.number }}"
           SLACK_USERNAME: QABot
           SLACK_CHANNEL: squad-account-dev
