@@ -35,18 +35,15 @@ class Oauth2Client
     }
 
     /**
-     * @throws \Exception
-     *
      * @return bool
      */
     public function exists()
     {
-        return (bool) $this->cfRepos->getOauth2ClientId();
+        return (bool) $this->cfRepos->getOauth2ClientId() &&
+            (bool) $this->cfRepos->getOauth2ClientSecret();
     }
 
     /**
-     * @throws \Exception
-     *
      * @return void
      */
     public function delete()

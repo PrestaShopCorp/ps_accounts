@@ -31,50 +31,54 @@ class ActionObjectShopUpdateAfter extends Hook
      * @param array $params
      *
      * @return bool
-     *
-     * @throws Exception
      */
     public function execute(array $params = [])
+    {
+        $this->updateUserShop($params['object']);
+
+        return true;
+    }
+
+    /**
+     * @param \Shop $shop
+     *
+     * @return void
+     */
+    protected function updateUserShop(\Shop $shop)
     {
         /** @var Link $link */
         $link = $this->module->getService(Link::class);
 
-        $shop = new \Shop($params['object']->id);
+        try {
+            $response = $this->commandBus->handle(new UpdateUserShopCommand(new UpdateShop([
+                'shopId' => (string) $shop->id,
+                'name' => $shop->name,
+                'domain' => 'http://' . $shop->domain,
+                'sslDomain' => 'https://' . $shop->domain_ssl,
+                'physicalUri' => $shop->physical_uri,
+                'virtualUri' => $shop->virtual_uri,
+                'boBaseUrl' => $link->getAdminLinkWithCustomDomain(
+                    $shop->domain_ssl,
+                    $shop->domain,
+                    'AdminModules',
+                    false,
+                    [],
+                    [
+                        'configure' => $this->module->name,
+                        'setShopContext' => 's-' . $shop->id,
+                    ]
+                ),
+            ])));
 
-        $domain = $params['object']->domain;
-        $sslDomain = $params['object']->domain_ssl;
-
-        $response = $this->commandBus->handle(new UpdateUserShopCommand(new UpdateShop([
-            'shopId' => (string) $params['object']->id,
-            'name' => $params['object']->name,
-            'domain' => 'http://' . $shop->domain,
-            'sslDomain' => 'https://' . $shop->domain_ssl,
-            'physicalUri' => $shop->physical_uri,
-            'virtualUri' => $shop->virtual_uri,
-            'boBaseUrl' => $link->getAdminLinkWithCustomDomain(
-                $sslDomain,
-                $domain,
-                'AdminModules',
-                false,
-                [],
-                [
-                    'configure' => $this->module->name,
-                    'setShopContext' => 's-' . $params['object']->id,
-                ]
-            ),
-        ])));
-
-        if (!$response) {
-            $this->module->getLogger()->debug(
-                'Error trying to PATCH shop : No $response object'
-            );
-        } elseif (true !== $response['status']) {
-            $this->module->getLogger()->debug(
-                'Error trying to PATCH shop : ' . $response['httpCode'] .
-                ' ' . print_r($response['body']['message'] ?: '', true)
-            );
+            if (!$response) {
+                $this->module->getLogger()->error('Error trying to PATCH shop : No $response object');
+            } elseif (true !== $response['status']) {
+                $this->module->getLogger()->error('Error trying to PATCH shop : ' . $response['httpCode'] .
+                    ' ' . print_r(isset($response['body']['message']) ? $response['body']['message'] : '', true)
+                );
+            }
+        } catch (Exception $e) {
+            $this->module->getLogger()->error('Error trying to PATCH shop: ' . $e->getMessage());
         }
-
-        return true;
     }
 }

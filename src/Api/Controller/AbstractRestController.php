@@ -25,6 +25,7 @@ use ModuleFrontController;
 use PrestaShop\Module\PsAccounts\Exception\Http\HttpException;
 use PrestaShop\Module\PsAccounts\Exception\Http\MethodNotAllowedException;
 use PrestaShop\Module\PsAccounts\Exception\Http\UnauthorizedException;
+use PrestaShop\Module\PsAccounts\Polyfill\Traits\Controller\AjaxRender;
 use PrestaShop\Module\PsAccounts\Provider\RsaKeysProvider;
 use PrestaShop\Module\PsAccounts\Repository\ConfigurationRepository;
 use PrestaShop\Module\PsAccounts\Service\SentryService;
@@ -36,6 +37,8 @@ use ReflectionParameter;
 
 abstract class AbstractRestController extends ModuleFrontController
 {
+    use AjaxRender;
+
     const TOKEN_HEADER = 'X-PrestaShop-Signature';
 
     /**
@@ -48,12 +51,25 @@ abstract class AbstractRestController extends ModuleFrontController
      */
     public $module;
 
+    /**
+     * @var bool
+     */
+    protected $authenticated = true;
+
     public function __construct()
     {
         parent::__construct();
 
         $this->ajax = true;
         $this->content_only = true;
+        $this->controller_type = 'module';
+    }
+
+    /**
+     * @return void
+     */
+    public function initContent()
+    {
     }
 
     /**
@@ -66,7 +82,7 @@ abstract class AbstractRestController extends ModuleFrontController
     public function postProcess()
     {
         try {
-            $payload = $this->decodePayload();
+            $payload = $this->extractPayload();
             $method = $_SERVER['REQUEST_METHOD'];
             // detect method from payload (hack with some shop server configuration)
             if (isset($payload['method'])) {
@@ -81,8 +97,9 @@ abstract class AbstractRestController extends ModuleFrontController
                 'error' => true,
                 'message' => $e->getMessage(),
             ], $e->getStatusCode());
-        } catch (\Error $e) {
+        } catch (\Throwable $e) {
             $this->handleError($e);
+            /* @phpstan-ignore-next-line */
         } catch (\Exception $e) {
             $this->handleError($e);
         }
@@ -106,7 +123,7 @@ abstract class AbstractRestController extends ModuleFrontController
 
         header('Content-Type: text/json');
 
-        $this->ajaxDie(json_encode($response));
+        $this->ajaxRender((string) json_encode($response));
     }
 
     /**
@@ -171,7 +188,7 @@ abstract class AbstractRestController extends ModuleFrontController
             }
 
             if (null !== $payload) {
-                $args[] = $this->buildPayload($payload, $params[1]);
+                $args[] = $this->buildArg($payload, $params[1]);
             }
 
             return $method->invokeArgs($this, $args);
@@ -198,7 +215,7 @@ abstract class AbstractRestController extends ModuleFrontController
      *
      * @throws ReflectionException
      */
-    protected function buildPayload(array $payload, ReflectionParameter $reflectionParam)
+    protected function buildArg(array $payload, ReflectionParameter $reflectionParam)
     {
 //        if ($reflectionParam->getType()->isBuiltin()) {
 //            return $payload;
@@ -216,10 +233,43 @@ abstract class AbstractRestController extends ModuleFrontController
 
     /**
      * @return array
-     *
-     * @throws \Exception
      */
-    protected function decodePayload()
+    protected function extractPayload()
+    {
+        $defaultShopId = Context::getContext()->shop->id;
+        if ($this->authenticated) {
+            return $this->decodePayload($defaultShopId);
+        }
+
+        return $this->decodeRawPayload($defaultShopId);
+    }
+
+    /**
+     * @param int $defaultShopId
+     *
+     * @return array
+     */
+    protected function decodeRawPayload($defaultShopId = null)
+    {
+        $payload = $_REQUEST;
+        if (!isset($payload['shop_id'])) {
+            // context fallback
+            $payload['shop_id'] = $defaultShopId;
+        }
+        $shop = new \Shop((int) $payload['shop_id']);
+        if ($shop->id) {
+            $this->setContextShop($shop);
+        }
+
+        return $payload;
+    }
+
+    /**
+     * @param int $defaultShopId
+     *
+     * @return array
+     */
+    protected function decodePayload($defaultShopId = null)
     {
         /** @var RsaKeysProvider $shopKeysService */
         $shopKeysService = $this->module->getService(RsaKeysProvider::class);
@@ -229,23 +279,26 @@ abstract class AbstractRestController extends ModuleFrontController
         if ($jwtString) {
             $jwt = (new Parser())->parse($jwtString);
 
-            $shop = new \Shop((int) $jwt->claims()->get('shop_id'));
+            $shop = new \Shop((int) $jwt->claims()->get('shop_id', $defaultShopId));
 
             if ($shop->id) {
                 $this->setContextShop($shop);
                 $publicKey = $shopKeysService->getPublicKey();
 
+                $this->module->getLogger()->debug('trying to verify token with pkey: ' . $publicKey);
+
                 if (
                     null !== $publicKey &&
-                    false !== $publicKey &&
-                    '' !== $publicKey &&
                     true === $jwt->verify(new Sha256(), new Key((string) $publicKey))
                 ) {
+                    $this->module->getLogger()->debug('token verified: ' . $jwtString);
+
                     return $jwt->claims()->all();
                 }
+                $this->module->getLogger()->error('Failed to verify token: ' . $jwtString);
             }
 
-            $this->module->getLogger()->info('Failed to verify token');
+            $this->module->getLogger()->error('Failed to decode payload: ' . $jwtString);
         }
 
         throw new UnauthorizedException();
@@ -319,7 +372,7 @@ abstract class AbstractRestController extends ModuleFrontController
     }
 
     /**
-     * @param \Error|\Exception $e
+     * @param \Throwable|\Exception $e
      *
      * @return void
      *

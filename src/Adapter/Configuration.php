@@ -117,6 +117,7 @@ class Configuration
             return $this->getRaw($key, $this->idLang, $this->idShopGroup, $this->idShop, $default);
         } else {
             // FIXME: idLang ??
+            // FIXME: beware in single shop context idShop must be set
             return $this->getUncached($key, $this->idShopGroup, $this->idShop, $default);
         }
     }
@@ -182,20 +183,50 @@ class Configuration
      * @param string|bool $default
      *
      * @return mixed
-     *
-     * @throws \PrestaShopDatabaseException
-     * @throws \PrestaShopException
      */
     public function getUncached($key, $idShopGroup = null, $idShop = null, $default = false)
     {
+        try {
+            return $this->getUncachedConfiguration($key, $idShopGroup, $idShop)->value;
+        } catch (\Exception $e) {
+            return $default;
+        }
+    }
+
+    /**
+     * @param string $key
+     * @param int|null $idShopGroup
+     * @param int|null $idShop
+     *
+     * @return \Configuration
+     *
+     * @throw \Exception
+     */
+    public function getUncachedConfiguration($key, $idShopGroup = null, $idShop = null)
+    {
+        if (!$this->isMultishopActive()) {
+            $idShopGroup = $idShop = null;
+        }
         $id = \Configuration::getIdByName($key, $idShopGroup, $idShop);
         if ($id > 0) {
             $found = (new \Configuration($id));
             $found->clearCache();
 
-            return $found->value;
+            return $found;
         }
 
-        return $default;
+        throw new \Exception('Configuration entry not found: ' . $key . '|grp:' . $idShopGroup . '|shop:' . $idShop);
+    }
+
+    /**
+     * is multi-shop active "right now"
+     *
+     * @return bool
+     */
+    public function isMultishopActive()
+    {
+        //return \Shop::isFeatureActive();
+        return \Db::getInstance()->getValue('SELECT value FROM `' . _DB_PREFIX_ . 'configuration` WHERE `name` = "PS_MULTISHOP_FEATURE_ACTIVE"')
+            && (\Db::getInstance()->getValue('SELECT COUNT(*) FROM ' . _DB_PREFIX_ . 'shop') > 1);
     }
 }

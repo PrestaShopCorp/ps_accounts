@@ -23,17 +23,17 @@ echo "${filename} ..."
 
 rm -rf "./${dist}/${module}"
 mkdir -p "./${dist}/${module}"
-cp -pr -t "./${dist}/${module}" $(cat .zip-contents)
+cp -r $(cat .zip-contents) "./${dist}/${module}"
 WORKDIR="${dist}" make autoindex
 
 cd $dist || exit;
 
 # switch request configuration env
 if [ "$environment" ]; then
-  configFileEnv="./${module}/config/config.yml.${environment}"
+  configFileEnv="./${module}/config.${environment}.php"
   if [ -f "$configFileEnv" ]; then
     echo "using provided environment [${environment}]"
-    cp "$configFileEnv" "./${module}/config/config.yml"
+    cp "$configFileEnv" "./${module}/config.php"
   else
     echo "file not found [${configFileEnv}]"
   fi

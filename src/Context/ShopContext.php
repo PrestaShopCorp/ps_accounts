@@ -164,26 +164,26 @@ class ShopContext
      * @param \Closure $closure
      *
      * @return mixed
-     *
-     * @throws \Exception
      */
     public function execInShopContext($shopId, $closure)
     {
         $backup = $this->configuration->getShopId();
         $this->configuration->setShopId($shopId);
 
-        $exception = null;
+        $e = null;
+        $result = null;
 
         try {
             $result = $closure();
+        } catch (\Throwable $e) {
+            /* @phpstan-ignore-next-line */
         } catch (\Exception $e) {
-            $exception = $e;
         }
         $this->configuration->setShopId($backup);
 
-        if (null === $exception) {
+        if (null === $e) {
             return $result;
         }
-        throw $exception;
+        throw $e;
     }
 }

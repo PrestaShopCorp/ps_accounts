@@ -22,7 +22,7 @@ namespace PrestaShop\Module\PsAccounts\Provider\OAuth2;
 
 use PrestaShop\Module\PsAccounts\Vendor\League\OAuth2\Client\Provider\Exception\IdentityProviderException;
 use PrestaShop\Module\PsAccounts\Vendor\League\OAuth2\Client\Token\AccessToken;
-use PrestaShop\OAuth2\Client\Provider\PrestaShopUser;
+use PrestaShop\Module\PsAccounts\Vendor\PrestaShop\OAuth2\Client\Provider\PrestaShopUser;
 use Symfony\Component\HttpFoundation\Session\SessionInterface;
 
 class PrestaShopSession
@@ -53,7 +53,6 @@ class PrestaShopSession
      * @return string|null
      *
      * @throws IdentityProviderException
-     * @throws \Exception
      */
     public function getOrRefreshAccessToken()
     {
@@ -71,8 +70,6 @@ class PrestaShopSession
 
     /**
      * @return string|null
-     *
-     * @throws \Exception
      */
     public function getIdToken()
     {
@@ -83,8 +80,6 @@ class PrestaShopSession
 
     /**
      * @return string|null
-     *
-     * @throws \Exception
      */
     public function getAccessToken()
     {
@@ -113,8 +108,6 @@ class PrestaShopSession
 
     /**
      * @return PrestaShopUser
-     *
-     * @throws \Exception
      */
     public function getPrestashopUser()
     {
@@ -131,8 +124,6 @@ class PrestaShopSession
 
     /**
      * @return AccessToken|null
-     *
-     * @throws \Exception
      */
     private function getTokenProvider()
     {

@@ -22,17 +22,15 @@ use PrestaShop\Module\PsAccounts\Entity\EmployeeAccount;
 use PrestaShop\Module\PsAccounts\Exception\AccountLogin\AccountLoginException;
 use PrestaShop\Module\PsAccounts\Exception\AccountLogin\EmailNotVerifiedException;
 use PrestaShop\Module\PsAccounts\Exception\AccountLogin\EmployeeNotFoundException;
-use PrestaShop\Module\PsAccounts\Exception\AccountLogin\Oauth2Exception;
-use PrestaShop\Module\PsAccounts\Exception\AccountLogin\OtherErrorException;
+use PrestaShop\Module\PsAccounts\Polyfill\Traits\AdminController\IsAnonymousAllowed;
 use PrestaShop\Module\PsAccounts\Provider\OAuth2\PrestaShopLoginTrait;
 use PrestaShop\Module\PsAccounts\Provider\OAuth2\PrestaShopSession;
 use PrestaShop\Module\PsAccounts\Provider\OAuth2\ShopProvider;
 use PrestaShop\Module\PsAccounts\Repository\EmployeeAccountRepository;
 use PrestaShop\Module\PsAccounts\Service\AnalyticsService;
 use PrestaShop\Module\PsAccounts\Service\PsAccountsService;
-use PrestaShop\Module\PsAccounts\Session\Session;
-use PrestaShop\Module\PsAccounts\Vendor\League\OAuth2\Client\Provider\Exception\IdentityProviderException;
-use PrestaShop\OAuth2\Client\Provider\PrestaShopUser;
+use PrestaShop\Module\PsAccounts\Vendor\PrestaShop\OAuth2\Client\Provider\PrestaShopUser;
+use Symfony\Component\HttpFoundation\Session\SessionInterface;
 
 /**
  * Controller for all ajax calls.
@@ -40,6 +38,7 @@ use PrestaShop\OAuth2\Client\Provider\PrestaShopUser;
 class AdminOAuth2PsAccountsController extends \ModuleAdminController
 {
     use PrestaShopLoginTrait;
+    use IsAnonymousAllowed;
 
     /**
      * @var Ps_accounts
@@ -74,14 +73,6 @@ class AdminOAuth2PsAccountsController extends \ModuleAdminController
     /**
      * @return bool
      */
-    protected function isAnonymousAllowed()
-    {
-        return true;
-    }
-
-    /**
-     * @return bool
-     */
     public function checkToken()
     {
         return true;
@@ -109,14 +100,10 @@ class AdminOAuth2PsAccountsController extends \ModuleAdminController
     {
         try {
             $this->oauth2Login();
-        } catch (IdentityProviderException $e) {
-            $this->onLoginFailed(new Oauth2Exception(null, $e->getMessage()));
-        } catch (EmailNotVerifiedException $e) {
-            $this->onLoginFailed($e);
-        } catch (EmployeeNotFoundException $e) {
+        } catch (AccountLoginException $e) {
             $this->onLoginFailed($e);
         } catch (Exception $e) {
-            $this->onLoginFailed(new OtherErrorException(null, $e->getMessage()));
+            $this->onLoginFailed(new AccountLoginException($e->getMessage(), null, $e));
         }
         parent::init();
     }
@@ -144,9 +131,9 @@ class AdminOAuth2PsAccountsController extends \ModuleAdminController
             $context->employee->logout();
 
             if (empty($emailVerified)) {
-                throw new EmailNotVerifiedException($user);
+                throw new EmailNotVerifiedException('Your account email is not verified', $user);
             }
-            throw new EmployeeNotFoundException($user);
+            throw new EmployeeNotFoundException('The email address is not associated to a PrestaShop backoffice account.', $user);
         }
 
         $context->employee->remote_addr = (int) ip2long(Tools::getRemoteAddr());
@@ -228,9 +215,7 @@ class AdminOAuth2PsAccountsController extends \ModuleAdminController
     }
 
     /**
-     * @return Session
-     *
-     * @throws Exception
+     * @return SessionInterface
      */
     private function getSession()
     {
@@ -241,8 +226,6 @@ class AdminOAuth2PsAccountsController extends \ModuleAdminController
      * @param mixed $error
      *
      * @return void
-     *
-     * @throws Exception
      */
     private function setLoginError($error)
     {
@@ -251,8 +234,6 @@ class AdminOAuth2PsAccountsController extends \ModuleAdminController
 
     /**
      * @return PrestaShopSession
-     *
-     * @throws Exception
      */
     protected function getOauth2Session()
     {
@@ -294,7 +275,7 @@ class AdminOAuth2PsAccountsController extends \ModuleAdminController
      */
     private function trackLoginFailedEvent($e)
     {
-        $user = $e->getPrestaShopUser();
+        $user = $e->getUser();
         $this->analyticsService->identify(
             $user->getId(),
             $user->getName(),
@@ -323,7 +304,7 @@ class AdminOAuth2PsAccountsController extends \ModuleAdminController
     {
         $repository = new EmployeeAccountRepository();
 
-        if ($repository->isCompatPs16()) {
+        try {
             $employeeAccount = $repository->findByUid($uid);
 
             /* @phpstan-ignore-next-line */
@@ -344,7 +325,7 @@ class AdminOAuth2PsAccountsController extends \ModuleAdminController
                         ->setEmail($email)
                 );
             }
-        } else {
+        } catch (\Exception $e) {
             $employee = new Employee();
             $employee->getByEmail($email);
         }

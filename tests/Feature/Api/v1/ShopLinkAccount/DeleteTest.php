@@ -15,13 +15,6 @@ class DeleteTest extends FeatureTestCase
     /**
      * @inject
      *
-     * @var LinkShop
-     */
-    protected $linkShop;
-
-    /**
-     * @inject
-     *
      * @var ShopSession
      */
     protected $shopSession;

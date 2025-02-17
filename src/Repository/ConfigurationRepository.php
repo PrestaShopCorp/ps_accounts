@@ -165,6 +165,26 @@ class ConfigurationRepository
     }
 
     /**
+     * @return string|null
+     */
+    public function getShopUuidDateUpd()
+    {
+        try {
+            $entry = $this->configuration->getUncachedConfiguration(
+                ConfigurationKeys::PSX_UUID_V4,
+                $this->configuration->getIdShopGroup(),
+                $this->configuration->getIdShop()
+            );
+
+            return $entry->date_upd;
+        } catch (\Exception $e) {
+            Logger::getInstance()->error(__METHOD__ . ': ' . $e->getMessage());
+
+            return null;
+        }
+    }
+
+    /**
      * @param string $uuid Firebase User UUID
      *
      * @return void
@@ -196,11 +216,14 @@ class ConfigurationRepository
     }
 
     /**
+     * @param bool $cached
+     * @param bool|mixed $default
+     *
      * @return string|bool
      */
-    public function getAccountsRsaPublicKey()
+    public function getAccountsRsaPublicKey($default = false, $cached = true)
     {
-        return $this->configuration->get(ConfigurationKeys::PS_ACCOUNTS_RSA_PUBLIC_KEY);
+        return $this->configuration->get(ConfigurationKeys::PS_ACCOUNTS_RSA_PUBLIC_KEY, $default, $cached);
     }
 
     /**
@@ -352,7 +375,7 @@ class ConfigurationRepository
      */
     public function fixMultiShopConfig()
     {
-        Logger::getInstance()->error(__METHOD__);
+        Logger::getInstance()->info(__METHOD__);
 
         if ($this->isMultishopActive()) {
             $this->migrateToMultiShop();
@@ -369,8 +392,7 @@ class ConfigurationRepository
     public function isMultishopActive()
     {
         //return \Shop::isFeatureActive();
-        return \Db::getInstance()->getValue('SELECT value FROM `' . _DB_PREFIX_ . 'configuration` WHERE `name` = "PS_MULTISHOP_FEATURE_ACTIVE"')
-            && (\Db::getInstance()->getValue('SELECT COUNT(*) FROM ' . _DB_PREFIX_ . 'shop') > 1);
+        return $this->configuration->isMultishopActive();
     }
 
     /**
@@ -378,7 +400,7 @@ class ConfigurationRepository
      *
      * @return void
      */
-    public function setLastUpgrade($upgrade)
+    public function updateLastUpgrade($upgrade)
     {
         $this->configuration->set(ConfigurationKeys::PS_ACCOUNTS_LAST_UPGRADE, $upgrade);
     }
@@ -387,13 +409,28 @@ class ConfigurationRepository
      * @param bool $cached
      *
      * @return string
-     *
-     * @throws \PrestaShopDatabaseException
-     * @throws \PrestaShopException
      */
     public function getLastUpgrade($cached = true)
     {
         return $this->configuration->get(ConfigurationKeys::PS_ACCOUNTS_LAST_UPGRADE, false, $cached);
+    }
+
+    /**
+     * @return string|null
+     */
+    public function getUnlinkedOnError()
+    {
+        return $this->configuration->get(ConfigurationKeys::PS_ACCOUNTS_UNLINKED_ON_ERROR);
+    }
+
+    /**
+     * @param string|null $error
+     *
+     * @return void
+     */
+    public function updateUnlinkedOnError($error)
+    {
+        $this->configuration->set(ConfigurationKeys::PS_ACCOUNTS_UNLINKED_ON_ERROR, $error);
     }
 
     /**

@@ -20,8 +20,8 @@
 
 namespace PrestaShop\Module\PsAccounts\Service;
 
-use Monolog\Logger;
-use Ramsey\Uuid\Uuid;
+use PrestaShop\Module\PsAccounts\Vendor\Monolog\Logger;
+use PrestaShop\Module\PsAccounts\Vendor\Ramsey\Uuid\Uuid;
 use Segment;
 
 class AnalyticsService
@@ -34,7 +34,7 @@ class AnalyticsService
     private $logger;
 
     /**
-     * @var string
+     * @var string|null
      */
     private static $anonymousId;
 
@@ -141,7 +141,7 @@ class AnalyticsService
      *
      * @throws \Exception
      */
-    public function trackMaxRefreshTokenAttempts(
+    public function trackShopUnlinkedOnError(
         $userUid,
         $userEmail,
         $shopUid,

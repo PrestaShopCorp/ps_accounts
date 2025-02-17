@@ -24,6 +24,7 @@ use PrestaShop\Module\PsAccounts\Account\Dto\UpdateShop;
 use PrestaShop\Module\PsAccounts\Account\Dto\UpgradeModule;
 use PrestaShop\Module\PsAccounts\Http\Client\Guzzle\GuzzleClient;
 use PrestaShop\Module\PsAccounts\Http\Client\Guzzle\GuzzleClientFactory;
+use PrestaShop\Module\PsAccounts\Vendor\Ramsey\Uuid\Uuid;
 
 class AccountsClient
 {
@@ -76,6 +77,21 @@ class AccountsClient
         }
 
         return $this->client;
+    }
+
+    /**
+     * @param array $additionalHeaders
+     *
+     * @return array
+     */
+    private function getHeaders($additionalHeaders = [])
+    {
+        return array_merge([
+            'Accept' => 'application/json',
+            'X-Module-Version' => \Ps_accounts::VERSION,
+            'X-Prestashop-Version' => _PS_VERSION_,
+            'X-Request-ID' => Uuid::uuid4()->toString(),
+        ], $additionalHeaders);
     }
 
     /**
@@ -137,26 +153,6 @@ class AccountsClient
     }
 
     /**
-     * @param string $shopUid
-     * @param string $shopToken
-     * @param array $payload
-     *
-     * @return array
-     */
-    public function reonboardShop($shopUid, $shopToken, $payload)
-    {
-        $this->getClient()->setRoute('v1/shop/' . $shopUid . '/reonboard');
-
-        return $this->getClient()->post([
-            'headers' => $this->getHeaders([
-                'Authorization' => 'Bearer ' . $shopToken,
-                'X-Shop-Id' => $shopUid,
-            ]),
-            'json' => $payload,
-        ]);
-    }
-
-    /**
      * @param string $ownerUid
      * @param string $shopUid
      * @param string $ownerToken
@@ -198,20 +194,6 @@ class AccountsClient
     }
 
     /**
-     * @param array $additionalHeaders
-     *
-     * @return array
-     */
-    private function getHeaders($additionalHeaders = [])
-    {
-        return array_merge([
-            'Accept' => 'application/json',
-            'X-Module-Version' => \Ps_accounts::VERSION,
-            'X-Prestashop-Version' => _PS_VERSION_,
-        ], $additionalHeaders);
-    }
-
-    /**
      * @deprecated
      *
      * @param string $idToken
@@ -223,9 +205,20 @@ class AccountsClient
         $this->getClient()->setRoute('/v1/shop/token/verify');
 
         return $this->getClient()->post([
+            'headers' => $this->getHeaders(),
             'json' => [
                 'token' => $idToken,
             ],
         ]);
+    }
+
+    /**
+     * @return array
+     */
+    public function healthCheck()
+    {
+        $this->getClient()->setRoute('/healthcheck');
+
+        return $this->getClient()->get();
     }
 }

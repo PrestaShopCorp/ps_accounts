@@ -70,6 +70,7 @@ class Install
                 $tab->name[$lang['id_lang']] = $controllerName . ' (' . $this->module->displayName . ')';
             }
 
+            /* @phpstan-ignore-next-line */
             $tab->id_parent = -1 == self::PARENT_TAB_NAME ? (int) \Tab::getIdFromClassName((string) self::PARENT_TAB_NAME) : -1;
             $tab->module = $this->module->name;
 

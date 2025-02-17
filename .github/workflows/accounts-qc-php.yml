@@ -1,20 +1,45 @@
 name: Accounts Quality Control PHP
 
-on: [pull_request]
+on:
+  pull_request:
+    types: [opened, reopened, synchronize, labeled]
 
 jobs:
   php-linter:
-    name: PHP Syntax check 5.6|7.2|7.3
+    name: PHP Syntax check 5.6|7.2|7.3|8.1|8.3
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
         uses: actions/checkout@v3
+
+      - name: Scoped dependencies
+        run: make php-scoper
+
       - name: PHP syntax checker 5.6
         uses: prestashop/github-action-php-lint/5.6@master
+        with:
+          folder-to-exclude: "! -path \"./tests/*\" ! -path \"./vendor/*\""
+          #folder-to-exclude: "! -path \"./tests/*\""
+
       - name: PHP syntax checker 7.2
         uses: prestashop/github-action-php-lint/7.2@master
+        with:
+          folder-to-exclude: "! -path \"./tests/*\" ! -path \"./vendor/symfony/polyfill-*\""
+
       - name: PHP syntax checker 7.3
         uses: prestashop/github-action-php-lint/7.3@master
+        with:
+          folder-to-exclude: "! -path \"./tests/*\" ! -path \"./vendor/symfony/polyfill-*\""
+
+      - name: PHP syntax checker 8.1
+        uses: prestashop/github-action-php-lint/8.1@master
+        with:
+          folder-to-exclude: "! -path \"./tests/*\" ! -path \"./vendor/symfony/polyfill-*\""
+
+      - name: PHP syntax checker 8.3
+        uses: prestashop/github-action-php-lint/8.3@master
+        with:
+          folder-to-exclude: "! -path \"./tests/*\" ! -path \"./vendor/symfony/polyfill-*\" ! path \"./vendor/segmentio/analytics-php/*\""
 
   php-cs-fixer:
     name: PHP-CS-FIXER
@@ -25,100 +50,72 @@ jobs:
       - name: Run PHP-CS-Fixer
         uses: prestashopcorp/github-action-php-cs-fixer@master
 
-  phpstan:
-    name: PHPStan
+  phpunit:
+    name: Testsuite for Prestashop ${{ matrix.presta-versions }}
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        presta-versions: ["latest", "1.7.6.5", "1.6.1.21"]
-#        presta-versions: ["latest", "1.7.6.5", "1.7.0.3", "1.6.1.21", "1.6.1.0"]
+        presta-versions:
+          - "1.6.1.24-5.6-fpm-stretch"
+          - "1.6.1.24-7.1"
+          - "1.7.8.5-7.4"
+          - "8.1.5-7.4"
+          - "nightly"
     steps:
       - name: Checkout
         uses: actions/checkout@v3
 
-      - name: Cache vendor folder
-        uses: actions/cache@v3
-        with:
-          path: vendor
-          key: php-${{ hashFiles('composer.lock') }}
-
-      - name: Cache composer folder
-        uses: actions/cache@v3
-        with:
-          path: ~/.composer/cache
-          key: php-composer-cache
-
-#      - name: Install dependencies
-#        run: composer install
-
       - name: Scoped dependencies
         run: make php-scoper
 
-      - name: Select .neon file compatible with PrestaShop ${{ matrix.presta-versions }}
-        id: neon
+      - name: Start container & install module
         run: |
-          PS_VERSION="${{ matrix.presta-versions }}"
-          [[ "${PS_VERSION:0:3}" != '1.6' ]] && echo ::set-output name=filename::phpstan-PS-1.7.neon || echo ::set-output name=filename::phpstan-PS-1.6.neon
+          make platform-${{ matrix.presta-versions }}
 
-      - name: PHPStan PrestaShop ${{ matrix.presta-versions }}
+      - name: Feature tests
         run: |
-          PS_VERSION="${{ matrix.presta-versions }}" \
-          NEON_FILE=${{steps.neon.outputs.filename}} \
+          make phpunit-run-unit
+
+      - name: E2e tests
+        run: |
+          make phpunit-run-feature
+
+      - name: Display logs
+        if: "!success()"
+        run: |
+          make phpunit-display-logs
+
+      - name: PHPStan
+        if: matrix.presta-versions == '1.6.1.24-7.1' || matrix.presta-versions == '8.1.5-7.4'
+        run: |
           make phpstan
 
-
-  phpunit:
-    name: PHPUNIT for Prestashop ${{ matrix.presta-versions }}
-    runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        presta-versions: ["1.6", "1.7", "latest"]
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v3
-
-      - name: Cache vendor folder
-        uses: actions/cache@v3
-        with:
-          path: vendor
-          key: php-${{ hashFiles('composer.lock') }}
-
-      - name: Cache composer folder
-        uses: actions/cache@v3
-        with:
-          path: ~/.composer/cache
-          key: php-composer-cache
-
-#      - name: Install dependencies
-#        run: composer install
-
-      - name: Scoped dependencies
-        run: make php-scoper
-
-      - name: PHPUnit tests
+      - name: header-stamp
+        if: matrix.presta-versions == '1.6.1.24-5.6-fpm-stretch'
         run: |
-          DOCKER_INTERNAL="${{ matrix.presta-versions }}" make phpunit
+          make header-stamp-test
 
-  header-stamp:
-    name: Check license headers
+#  header-stamp:
+#    name: Check license headers
+#    runs-on: ubuntu-20.04
+#    steps:
+#      - name: Checkout
+#        uses: actions/checkout@v3
+#
+#      - run: make header-stamp-test
+
+  notify-earth:
+    if: ${{ github.event.action == 'labeled' && github.event.label.name == 'ready to review' }}
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout
-        uses: actions/checkout@v3
-
-      - name: Cache vendor folder
-        uses: actions/cache@v3
-        with:
-          path: vendor
-          key: php-${{ hashFiles('composer.lock') }}
-
-      - name: Cache composer folder
-        uses: actions/cache@v3
-        with:
-          path: ~/.composer/cache
-          key: php-composer-cache
-
-      - run: composer install
-
-      - name: Run Header Stamp in Dry Run mode
-        run: php vendor/bin/header-stamp --license=vendor/prestashop/header-stamp/assets/afl.txt --exclude=.github,node_modules,vendor,vendor,tests,_dev --dry-run
+      - name: Notify everyone when PR is ready to be reviewed
+        uses: rtCamp/action-slack-notify@v2
+        env:
+          SLACK_WEBHOOK: ${{ secrets.SLACK_WEBHOOK }}
+          SLACK_COLOR: 2986CC
+          SLACK_TITLE: 👀 it's review time!
+          SLACK_MESSAGE: "🥷 ${{ github.event.pull_request.title }}"
+          SLACK_FOOTER: "https://github.com/PrestaShopCorp/ps_accounts/pull/${{ github.event.pull_request.number }}"
+          SLACK_USERNAME: QABot
+          SLACK_CHANNEL: squad-account-dev
+          SLACK_ICON: https://avatars.githubusercontent.com/u/56089550?s=48&v=4

@@ -87,7 +87,7 @@ class ShopProvider
 
                 // LinkAccount
                 'uuid' => $linkShop->getShopUuid() ?: null,
-                'publicKey' => $rsaKeyProvider->getOrGenerateAccountsRsaPublicKey() ?: null,
+                'publicKey' => $rsaKeyProvider->getPublicKey() ?: null,
                 'employeeId' => (int) $linkShop->getEmployeeId() ?: null,
                 'user' => [
                     'email' => $linkShop->getOwnerEmail() ?: null,
@@ -99,12 +99,14 @@ class ShopProvider
                     true,
                     [],
                     [
+                        'module_name' => $psxName,
                         'configure' => $psxName,
                         'setShopContext' => 's-' . $shopData['id_shop'],
-                    ]
+                    ],
+                    true
                 ),
                 'isLinkedV4' => null,
-                'unlinkedAuto' => false,
+                'unlinkedAuto' => !empty($linkShop->getUnlinkedOnError()),
             ]);
 
             if ($refreshTokens) {
@@ -123,7 +125,7 @@ class ShopProvider
      *
      * @throws \PrestaShopException|\Exception
      */
-    public function getCurrentShop($psxName = '')
+    public function getCurrentShop($psxName = 'ps_accounts')
     {
         $shop = $this->formatShopData((array) \Shop::getShop($this->shopContext->getContext()->shop->id), $psxName);
 

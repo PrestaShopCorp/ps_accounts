@@ -21,7 +21,9 @@
 namespace PrestaShop\Module\PsAccounts\Http\Client\CircuitBreaker;
 
 use DateTime;
+use PrestaShop\Module\PsAccounts\Log\Logger;
 use PrestaShop\Module\PsAccounts\Vendor\GuzzleHttp\Exception\ConnectException;
+use PrestaShop\Module\PsAccounts\Vendor\GuzzleHttp\Exception\RequestException;
 
 abstract class CircuitBreaker
 {
@@ -62,6 +64,9 @@ abstract class CircuitBreaker
             } catch (ConnectException $e) {
                 // FIXME: CircuitBreak bound to GuzzleException
                 $this->setLastFailure();
+                Logger::getInstance()->error($e->getMessage());
+            } catch (RequestException $e) {
+                Logger::getInstance()->error($e->getMessage());
             }
         }
 
@@ -139,6 +144,22 @@ abstract class CircuitBreaker
     }
 
     /**
+     * @return string
+     */
+    public function __toString()
+    {
+        return (string) \json_encode([
+            'state' => $this->state(),
+            'threshold' => $this->getThreshold(),
+            'reset_timeout_ms' => $this->getResetTimeoutMs(),
+            'last_failure_time' => $this->getLastFailureTime(),
+            'current_timestamp' => $this->getCurrentTimestamp(),
+            'diff' => ($this->getCurrentTimestamp() - $this->getLastFailureTime()),
+            'failure_count' => $this->getFailureCount(),
+        ], JSON_PRETTY_PRINT);
+    }
+
+    /**
      * @return void
      */
     protected function setLastFailure()
@@ -152,7 +173,8 @@ abstract class CircuitBreaker
      */
     protected function getCurrentTimestamp()
     {
-        return (int) (new DateTime())->format('Uv');
+        //return (int) (new DateTime())->format('Uv');
+        return (int) floor(microtime(true) * 1000);
     }
 
     /**

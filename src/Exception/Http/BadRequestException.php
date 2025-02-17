@@ -23,8 +23,6 @@ namespace PrestaShop\Module\PsAccounts\Exception\Http;
 class BadRequestException extends HttpException
 {
     /**
-     * UnauthorizedException constructor.
-     *
      * @param string $message
      * @param int $code
      * @param \Exception|null $previous

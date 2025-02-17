@@ -17,12 +17,13 @@
  * @copyright Since 2007 PrestaShop SA and Contributors
  * @license   https://opensource.org/licenses/AFL-3.0 Academic Free License version 3.0
  */
+require_once __DIR__ . '/../../src/Polyfill/Traits/Controller/AjaxRender.php';
 
 use PrestaShop\Module\PsAccounts\Account\Command\DeleteUserShopCommand;
 use PrestaShop\Module\PsAccounts\Account\Command\UnlinkShopCommand;
 use PrestaShop\Module\PsAccounts\Account\Session\Firebase\ShopSession;
-use PrestaShop\Module\PsAccounts\Api\Client\IndirectChannelClient;
 use PrestaShop\Module\PsAccounts\Cqrs\CommandBus;
+use PrestaShop\Module\PsAccounts\Polyfill\Traits\Controller\AjaxRender;
 use PrestaShop\Module\PsAccounts\Presenter\PsAccountsPresenter;
 use PrestaShop\Module\PsAccounts\Provider\OAuth2\PrestaShopSession;
 use PrestaShop\Module\PsAccounts\Repository\ConfigurationRepository;
@@ -33,6 +34,8 @@ use PrestaShop\Module\PsAccounts\Service\SentryService;
  */
 class AdminAjaxPsAccountsController extends \ModuleAdminController
 {
+    use AjaxRender;
+
     /**
      * @var Ps_accounts
      */
@@ -68,10 +71,10 @@ class AdminAjaxPsAccountsController extends \ModuleAdminController
 
             header('Content-Type: text/json');
 
-            $token = $shopSession->getOrRefreshToken();
+            $token = $shopSession->getValidToken();
 
-            $this->ajaxDie(
-                json_encode([
+            $this->ajaxRender(
+                (string) json_encode([
                     'token' => (string) $token->getJwt(),
                     'refreshToken' => $token->getRefreshToken(),
                 ])
@@ -101,7 +104,7 @@ class AdminAjaxPsAccountsController extends \ModuleAdminController
 
             header('Content-Type: text/json');
 
-            $this->ajaxDie(json_encode($response['body']));
+            $this->ajaxRender((string) json_encode($response['body']));
         } catch (Exception $e) {
             SentryService::captureAndRethrow($e);
         }
@@ -124,7 +127,7 @@ class AdminAjaxPsAccountsController extends \ModuleAdminController
 
             header('Content-Type: text/json');
 
-            $this->ajaxDie(json_encode(['message' => 'success']));
+            $this->ajaxRender((string) json_encode(['message' => 'success']));
         } catch (Exception $e) {
             SentryService::captureAndRethrow($e);
         }
@@ -145,7 +148,7 @@ class AdminAjaxPsAccountsController extends \ModuleAdminController
 
             header('Content-Type: text/json');
 
-            $this->ajaxDie(json_encode($presenter->present($psxName)));
+            $this->ajaxRender((string) json_encode($presenter->present($psxName)));
         } catch (Exception $e) {
             SentryService::captureAndRethrow($e);
         }
@@ -164,44 +167,11 @@ class AdminAjaxPsAccountsController extends \ModuleAdminController
 
             header('Content-Type: text/json');
 
-            $this->ajaxDie(
-                json_encode([
+            $this->ajaxRender(
+                (string) json_encode([
                     'token' => (string) $oauthSession->getOrRefreshAccessToken(),
                 ])
             );
-        } catch (Exception $e) {
-            SentryService::captureAndRethrow($e);
-        }
-    }
-
-    /**
-     * @return void
-     *
-     * @throws Exception
-     */
-    public function ajaxProcessGetInvitations()
-    {
-        try {
-            header('Content-Type: text/json');
-            $indirectsApi = $this->module->getService(
-                IndirectChannelClient::class
-            );
-            $response = $indirectsApi->getInvitations();
-
-            if (!$response || true !== $response['status']) {
-                // TODO log error
-                $this->ajaxDie(
-                    json_encode([
-                        'invitations' => [],
-                    ])
-                );
-            } else {
-                $this->ajaxDie(
-                    json_encode([
-                        'invitations' => $response['body']['invitations'],
-                    ])
-                );
-            }
         } catch (Exception $e) {
             SentryService::captureAndRethrow($e);
         }

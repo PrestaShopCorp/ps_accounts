@@ -20,20 +20,22 @@
 
 namespace PrestaShop\Module\PsAccounts\Exception\AccountLogin;
 
-use PrestaShop\OAuth2\Client\Provider\PrestaShopUser;
+use PrestaShop\Module\PsAccounts\Vendor\PrestaShop\OAuth2\Client\Provider\PrestaShopUser;
 
 class EmailNotVerifiedException extends AccountLoginException
 {
     /**
-     * @param PrestaShopUser|null $user
      * @param string $message
-     * @param string $type
+     * @param PrestaShopUser|null $user
+     * @param \Exception $previous
      */
     public function __construct(
-        $user,
         $message = 'Your account email is not verified',
-        $type = 'email_not_verified'
+        PrestaShopUser $user = null,
+        \Exception $previous = null
     ) {
-        parent::__construct($user, $message, $type);
+        parent::__construct($message, $user, $previous);
+
+        $this->type = 'email_not_verified';
     }
 }

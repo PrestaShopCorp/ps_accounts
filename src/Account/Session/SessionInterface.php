@@ -22,7 +22,6 @@ namespace PrestaShop\Module\PsAccounts\Account\Session;
 
 use PrestaShop\Module\PsAccounts\Account\Token\Token;
 use PrestaShop\Module\PsAccounts\Exception\RefreshTokenException;
-use PrestaShop\Module\PsAccounts\Vendor\GuzzleHttp\Exception\ConnectException;
 
 interface SessionInterface
 {
@@ -40,20 +39,38 @@ interface SessionInterface
     public function setToken($token, $refreshToken = null);
 
     /**
+     * Refreshes and saves refreshed token
+     *
      * @param string|null $refreshToken
      *
      * @return Token
      *
-     * @throws RefreshTokenException|ConnectException
+     * @throws RefreshTokenException
      */
     public function refreshToken($refreshToken = null);
 
     /**
+     * @deprecated use getValidToken instead
+     *
+     * Get or refreshes and saves token
+     *
      * @param bool $forceRefresh
      *
      * @return Token
      */
     public function getOrRefreshToken($forceRefresh = false);
+
+    /**
+     * Get or refreshes and saves token
+     *
+     * @param bool $forceRefresh
+     * @param bool $throw
+     *
+     * @return Token
+     *
+     * @throws RefreshTokenException
+     */
+    public function getValidToken($forceRefresh = false, $throw = true);
 
     /**
      * @return void

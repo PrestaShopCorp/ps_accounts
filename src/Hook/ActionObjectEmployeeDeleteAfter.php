@@ -37,9 +37,12 @@ class ActionObjectEmployeeDeleteAfter extends Hook
         $employee = $params['object'];
 
         $repository = new EmployeeAccountRepository();
-        if ($repository->isCompatPs16() &&
-            $employeeAccount = $repository->findByEmployeeId($employee->id)) {
-            $repository->delete($employeeAccount);
+        try {
+            $employeeAccount = $repository->findByEmployeeId($employee->id);
+            if ($employeeAccount) {
+                $repository->delete($employeeAccount);
+            }
+        } catch (\Exception $e) {
         }
     }
 }

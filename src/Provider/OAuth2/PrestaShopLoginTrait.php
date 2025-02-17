@@ -20,11 +20,14 @@
 
 namespace PrestaShop\Module\PsAccounts\Provider\OAuth2;
 
+use PrestaShop\Module\PsAccounts\Exception\AccountLogin\EmailNotVerifiedException;
+use PrestaShop\Module\PsAccounts\Exception\AccountLogin\EmployeeNotFoundException;
+use PrestaShop\Module\PsAccounts\Exception\AccountLogin\Oauth2Exception;
 use PrestaShop\Module\PsAccounts\Log\Logger;
-use PrestaShop\Module\PsAccounts\Session\Session;
 use PrestaShop\Module\PsAccounts\Vendor\League\OAuth2\Client\Provider\Exception\IdentityProviderException;
 use PrestaShop\Module\PsAccounts\Vendor\League\OAuth2\Client\Token\AccessToken;
-use PrestaShop\OAuth2\Client\Provider\PrestaShopUser;
+use PrestaShop\Module\PsAccounts\Vendor\PrestaShop\OAuth2\Client\Provider\PrestaShopUser;
+use Symfony\Component\HttpFoundation\Session\SessionInterface;
 use Tools;
 
 trait PrestaShopLoginTrait
@@ -47,7 +50,7 @@ trait PrestaShopLoginTrait
     abstract protected function redirectAfterLogin();
 
     /**
-     * @return Session
+     * @return SessionInterface
      */
     abstract protected function getSession();
 
@@ -59,7 +62,9 @@ trait PrestaShopLoginTrait
     /**
      * @return void
      *
-     * @throws IdentityProviderException
+     * @throws EmailNotVerifiedException
+     * @throws EmployeeNotFoundException
+     * @throws Oauth2Exception
      * @throws \Exception
      */
     public function oauth2Login()
@@ -91,11 +96,16 @@ trait PrestaShopLoginTrait
             // Restore the PKCE code before the `getAccessToken()` call.
             $provider->setPkceCode($this->getSession()->get('oauth2pkceCode'));
 
-            // Try to get an access token using the authorization code grant.
-            /** @var AccessToken $accessToken */
-            $accessToken = $provider->getAccessToken('authorization_code', [
-                'code' => $_GET['code'],
-            ]);
+            try {
+                // Try to get an access token using the authorization code grant.
+                /** @var AccessToken $accessToken */
+                $accessToken = $provider->getAccessToken('authorization_code', [
+                    'code' => $_GET['code'],
+                ]);
+            } catch (IdentityProviderException $e) {
+                throw new Oauth2Exception($e->getMessage(), null, $e);
+            }
+
             $oauth2Session->setTokenProvider($accessToken);
 
             if ($this->initUserSession($oauth2Session->getPrestashopUser())) {

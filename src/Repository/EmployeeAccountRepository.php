@@ -38,6 +38,7 @@ class EmployeeAccountRepository
     {
         /** @var \Ps_accounts $module */
         $module = \Module::getInstanceByName('ps_accounts');
+        /* @phpstan-ignore-next-line */
         if (method_exists($module, 'getContainer') &&
             interface_exists('\Doctrine\ORM\EntityManagerInterface')) {
             /* @phpstan-ignore-next-line */
@@ -48,11 +49,25 @@ class EmployeeAccountRepository
     }
 
     /**
+     * @deprecated
+     *
      * @return bool
      */
     public function isCompatPs16()
     {
         return isset($this->repository);
+    }
+
+    /**
+     * @return void
+     *
+     * @throws \Exception
+     */
+    protected function assertCompatible()
+    {
+        if (!isset($this->repository)) {
+            throw new \Exception('Employee accounts repository has not been set');
+        }
     }
 
     /**
@@ -62,6 +77,7 @@ class EmployeeAccountRepository
      */
     public function findByEmployeeId($employeeId)
     {
+        $this->assertCompatible();
         //return $this->repository->findOneByEmployeeId($employeeId);
         return $this->repository->findOneBy(['employeeId' => $employeeId]);
     }
@@ -70,9 +86,13 @@ class EmployeeAccountRepository
      * @param string $uuid
      *
      * @return EmployeeAccount|null
+     *
+     * @throws \Exception
      */
     public function findByUid($uuid)
     {
+        $this->assertCompatible();
+
         return $this->repository->findOneBy(['uid' => $uuid]);
     }
 
@@ -80,9 +100,12 @@ class EmployeeAccountRepository
      * @param EmployeeAccount $employeeAccount
      *
      * @return void
+     *
+     * @throws \Exception
      */
     public function delete(EmployeeAccount $employeeAccount)
     {
+        $this->assertCompatible();
         $this->entityManager->remove($employeeAccount);
         $this->entityManager->flush();
     }
@@ -91,9 +114,12 @@ class EmployeeAccountRepository
      * @param EmployeeAccount $employeeAccount
      *
      * @return void
+     *
+     * @throws \Exception
      */
     public function upsert(EmployeeAccount $employeeAccount)
     {
+        $this->assertCompatible();
         $this->entityManager->persist($employeeAccount);
         $this->entityManager->flush();
     }

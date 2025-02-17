@@ -1,0 +1,65 @@
+name: Account Module Installation autom tests
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: "0 10 * * 1-5"
+
+env:
+  BASE_URL: ${{secrets.BASE_URL}}
+  BASE_URL_FO: ${{secrets.BASE_URL_FO}}
+  ADMIN_EMAIL: ${{ secrets.ADMIN_EMAIL }}
+  ADMIN_PASSWORD: ${{ secrets.ADMIN_PASSWORD }}
+  OAUTH2URL: ${{ secrets.OAUTH2URL }}
+  ACCOUNTSAPIURL: ${{ secrets.ACCOUNTSAPIURL }}
+  ACCOUNTSUIURL: ${{ secrets.ACCOUNTSUIURL }}
+
+jobs:
+  run-test:
+    name: Run Account Back tests
+    runs-on: ubuntu-22.04
+
+    steps:
+      - name: Checkout Repository
+        uses: "actions/checkout@v4"
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "node"
+
+      - name: Install dependencies
+        working-directory: ./e2e
+        run: |
+          npm install
+
+      - name: Install playwright browsers
+        working-directory: ./e2e
+        run: |
+          npx playwright install
+
+      - name: Generate .env file
+        run: |
+          echo "ACCOUNT_TAG=${{ secrets.ACCOUNT_TAG }}" >> e2e-env/.env
+          echo "TUNNEL_SECRET=${{ secrets.TUNNEL_SECRET }}" >> e2e-env/.env
+          echo "TUNNEL_ID=${{ secrets.TUNNEL_ID }}" >> e2e-env/.env
+          echo "PS_DOMAIN=${{ secrets.PS_DOMAIN }}" >> e2e-env/.env
+          echo "DOMAIN=${{ secrets.DOMAIN }}" >> e2e-env/.env
+          echo "DOWNLOADER_TOKEN=${{ secrets.DOWNLOADER_TOKEN }}" >> e2e-env/.env
+          echo "PS_VERSION=${{ secrets.PS_VERSION }}" >> e2e-env/.env
+          echo "PS_ACCOUNTS_VERSION=${{ secrets.PS_ACCOUNTS_VERSION }}" >> e2e-env/.env
+
+      - name: Run test
+        working-directory: ./e2e
+        run: npm run test-all-version
+        continue-on-error: true
+
+      - name: Generate Allure Report
+        working-directory: ./e2e
+        run: npm run generate-allure-report
+
+      - name: Upload Allure Report
+        uses: actions/upload-artifact@v4
+        with:
+          name: allure-report
+          path: ./e2e/allure-report/

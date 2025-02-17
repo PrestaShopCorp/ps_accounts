@@ -21,6 +21,7 @@
 namespace PrestaShop\Module\PsAccounts\Hook;
 
 use PrestaShop\Module\PsAccounts\Cqrs\CommandBus;
+use PrestaShop\Module\PsAccounts\Vendor\Monolog\Logger;
 use Ps_accounts;
 
 abstract class Hook
@@ -36,6 +37,11 @@ abstract class Hook
     protected $commandBus;
 
     /**
+     * @var Logger
+     */
+    protected $logger;
+
+    /**
      * @param Ps_accounts $module
      *
      * @throws \Exception
@@ -44,6 +50,7 @@ abstract class Hook
     {
         $this->module = $module;
         $this->commandBus = $module->getService(CommandBus::class);
+        $this->logger = $module->getLogger();
     }
 
     /**

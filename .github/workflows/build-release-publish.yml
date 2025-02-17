@@ -12,14 +12,27 @@ jobs:
       version: ${{ steps.set_version.outputs.version }}
     steps:
       - name: Checkout
-        uses: actions/checkout@v2.0.0
+        uses: actions/checkout@v4
+
+      - name: Install pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 10
+          run_install: |
+            - cwd: _dev/
+              package_json_file: _dev/package.json
+              args: [--frozen-lockfile, --ignore-scripts]
+        env:
+          NPM_AUTH_TOKEN: ${{ secrets.NPM_TOKEN_RO }}
 
       - name: Setup node env 🏗
-        uses: actions/setup-node@v3
+        uses: actions/setup-node@v4
         with:
-          node-version: 18
+          node-version: 20
           registry-url: 'https://registry.npmjs.org'
           scope: '@prestashopcorp'
+          cache: 'pnpm'
+          cache-dependency-path: '_dev/pnpm-lock.yaml'
 
       - name: Set version
         id: set_version
@@ -31,48 +44,23 @@ jobs:
           VERSION=${{ steps.set_version.outputs.version }} \
           make version
 
-#      - name: Install composer dependencies
-#        run: composer install --no-dev -o
-
       - name: Scoped dependencies
         run: make php-scoper
 
-      - name: Get yarn cache directory path 🛠
-        id: yarn-cache-dir-path
-        run: echo "::set-output name=dir::$(yarn cache dir)"
-        working-directory: ./_dev
+      - name: Build front
+        run: pnpm --filter ./_dev build
 
-      - name: Cache node_modules 📦
-        uses: actions/cache@v2
-        id: yarn-cache # use this to check for `cache-hit` (`steps.yarn-cache.outputs.cache-hit != 'true'`)
-        with:
-          path: ${{ steps.yarn-cache-dir-path.outputs.dir }}
-          key: ${{ runner.os }}-yarn-${{ hashFiles('**/yarn.lock') }}
-          restore-keys: |
-            ${{ runner.os }}-yarn-
-
-      - name: Install _dev dependencies 👨🏻‍💻
-        working-directory: ./_dev
-        run: yarn --frozen-lockfile --silent
-        env:
-          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN_RO }}
-
-      - name: Build apps
-        working-directory: ./_dev
-        run: yarn build
-
-#      - name: Clean-up project
-#        uses: PrestaShopCorp/github-action-clean-before-deploy@v1.0
       - name: Clean-up project 🧹
         run: |
           rm -rf .git
           rm -rf _dev
 
       - name: Create & upload artifact
-        uses: actions/upload-artifact@v1
+        uses: actions/upload-artifact@v4
         with:
           name: ${{ github.event.repository.name }}
-          path: ../
+          path: ${{ github.workspace }}
+          include-hidden-files: true
 
   upload_release_asset_production:
     name: Upload the production zip asset to the release
@@ -88,9 +76,10 @@ jobs:
           echo "zip_file=${{ github.event.repository.name }}-${{ needs.build.outputs.version }}.zip" >> "$GITHUB_OUTPUT"
 
       - name: Download artifact
-        uses: actions/download-artifact@v1
+        uses: actions/download-artifact@v4
         with:
           name: ${{ github.event.repository.name }}
+          path: ${{ github.workspace }}
 
       - name: Set up Cloud SDK
         uses: google-github-actions/setup-gcloud@v0
@@ -99,19 +88,10 @@ jobs:
           service_account_key: ${{ secrets.G_CREDENTIAL_PRODUCTION }}
           export_default_credentials: true
 
-      - name: Copy env files
-        run: |
-          gcloud components install beta
-          gcloud beta secrets versions access latest --secret="accounts-module-config" > ps_accounts/ps_accounts/config/config.yml
-        env:
-          GOOGLE_APPLICATION_CREDENTIALS: ${{ secrets.G_CREDENTIAL_PRODUCTION }}
-
       - name: Prepare the production zip
         run: |
-          cd ${{ github.event.repository.name }}/${{ github.event.repository.name }}
-          sh ./scripts/bundle-module.sh ${{ env.zip_file }}
-        env:
-          ENV_FILE: ${{ secrets.PS_ACCOUNTS_ENV_PROD }}
+          cd ${{ github.workspace }}
+          sh ./scripts/bundle-module.sh ${{ env.zip_file }} 'prod'
 
       - name: Publish the production zip
         uses: actions/upload-release-asset@v1.0.1
@@ -119,7 +99,7 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           upload_url: ${{ github.event.release.upload_url }}
-          asset_path: ./${{ github.event.repository.name }}/${{ github.event.repository.name }}/dist/${{ env.zip_file }}
+          asset_path: ${{ github.workspace }}/dist/${{ env.zip_file }}
           asset_name: ${{ env.zip_file }}
           asset_content_type: application/zip
 
@@ -149,9 +129,10 @@ jobs:
           echo "zip_file=${{ github.event.repository.name }}_preprod-${{ needs.build.outputs.version }}.zip" >> "$GITHUB_ENV"
 
       - name: Download artifact
-        uses: actions/download-artifact@v1
+        uses: actions/download-artifact@v4
         with:
           name: ${{ github.event.repository.name }}
+          path: ${{ github.workspace }}
 
       - name: Set up Cloud SDK
         uses: google-github-actions/setup-gcloud@v0
@@ -160,17 +141,10 @@ jobs:
           service_account_key: ${{ secrets.G_CREDENTIAL_PREPROD }}
           export_default_credentials: true
 
-      - name: Copy env files
-        run: |
-          gcloud components install beta
-          gcloud beta secrets versions access latest --secret="accounts-module-config" > ps_accounts/ps_accounts/config/config.yml
-        env:
-          GOOGLE_APPLICATION_CREDENTIALS: ${{ secrets.G_CREDENTIAL_PREPROD }}
-
       - name: Prepare the preprod zip
         run: |
-          cd ${{ github.event.repository.name }}/${{ github.event.repository.name }}
-          sh ./scripts/bundle-module.sh ${{ env.zip_file }}
+          cd ${{ github.workspace }}
+          sh ./scripts/bundle-module.sh ${{ env.zip_file }} 'preprod'
 
       - name: Publish the preprod zip
         uses: actions/upload-release-asset@v1.0.1
@@ -178,7 +152,7 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           upload_url: ${{ github.event.release.upload_url }}
-          asset_path: ./${{ github.event.repository.name }}/${{ github.event.repository.name }}/dist/${{ env.zip_file }}
+          asset_path: ${{ github.workspace }}/dist/${{ env.zip_file }}
           asset_name: ${{ env.zip_file }}
           asset_content_type: application/zip
 
@@ -197,7 +171,7 @@ jobs:
           repo: ${{ github.event.repository.full_name }}
           version: ${{ github.event.release.id }}
           file: ${{ needs.upload_release_asset_production.outputs.zip_file }}
-          token: ${{ secrets.JARVIS_TOKEN }}
+          token: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Prepare publishing tool
         run: |

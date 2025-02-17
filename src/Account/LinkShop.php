@@ -47,10 +47,11 @@ class LinkShop
      */
     public function delete()
     {
-        $this->setShopUuid(null);
-        $this->setEmployeeId(null);
-        $this->setOwnerUuid(null);
-        $this->setOwnerEmail(null);
+        $this->setShopUuid('');
+        $this->setEmployeeId('');
+        $this->setOwnerUuid('');
+        $this->setOwnerEmail('');
+        $this->setUnlinkedOnError('');
     }
 
     /**
@@ -61,9 +62,10 @@ class LinkShop
     public function update(Dto\LinkShop $payload)
     {
         $this->setShopUuid($payload->uid);
-        $this->setEmployeeId((int) $payload->employeeId ?: null);
+        $this->setEmployeeId((int) $payload->employeeId ?: '');
         $this->setOwnerUuid($payload->ownerUid);
         $this->setOwnerEmail($payload->ownerEmail);
+        $this->setUnlinkedOnError('');
     }
 
     /**
@@ -74,6 +76,14 @@ class LinkShop
     public function exists()
     {
         return (bool) $this->getShopUuid();
+    }
+
+    /**
+     * @return string|null
+     */
+    public function linkedAt()
+    {
+        return $this->configuration->getShopUuidDateUpd();
     }
 
     /**
@@ -99,7 +109,7 @@ class LinkShop
     }
 
     /**
-     * @param string|null $uuid
+     * @param string $uuid
      *
      * @return void
      */
@@ -109,7 +119,7 @@ class LinkShop
     }
 
     /**
-     * @return int|null
+     * @return int
      */
     public function getEmployeeId()
     {
@@ -117,7 +127,7 @@ class LinkShop
     }
 
     /**
-     * @param int|null $employeeId
+     * @param int|string $employeeId
      *
      * @return void
      */
@@ -127,7 +137,7 @@ class LinkShop
     }
 
     /**
-     * @return int
+     * @return string
      */
     public function getOwnerUuid()
     {
@@ -135,7 +145,7 @@ class LinkShop
     }
 
     /**
-     * @param string|null $uuid
+     * @param string $uuid
      *
      * @return void
      */
@@ -145,7 +155,7 @@ class LinkShop
     }
 
     /**
-     * @return string|null
+     * @return string
      */
     public function getOwnerEmail()
     {
@@ -153,12 +163,30 @@ class LinkShop
     }
 
     /**
-     * @param string|null $email
+     * @param string $email
      *
      * @return void
      */
     public function setOwnerEmail($email)
     {
         $this->configuration->updateFirebaseEmail($email);
+    }
+
+    /**
+     * @return string
+     */
+    public function getUnlinkedOnError()
+    {
+        return $this->configuration->getUnlinkedOnError();
+    }
+
+    /**
+     * @param string|null $errorMsg
+     *
+     * @return void
+     */
+    public function setUnlinkedOnError($errorMsg)
+    {
+        $this->configuration->updateUnlinkedOnError($errorMsg);
     }
 }
