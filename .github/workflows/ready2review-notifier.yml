@@ -1,4 +1,4 @@
-name: Ready To Review Notifier
+name: Ready review
 
 on:
   pull_request:

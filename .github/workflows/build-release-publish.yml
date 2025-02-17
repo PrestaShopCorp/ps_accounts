@@ -179,9 +179,7 @@ jobs:
           SLACK_WEBHOOK: ${{ secrets.SLACK_WEBHOOK }}
           SLACK_COLOR: 0CAD34
           SLACK_TITLE: New release published by ${{ github.event.actor.display_login }}
-          SLACK_MESSAGE: |
-            Release - ${{ github.event.release.tag_name }}
-            ${{ github.event.release.body }}
+          SLACK_MESSAGE: Release - ${{ github.event.release.tag_name }}
           SLACK_FOOTER: ''
           SLACK_USERNAME: QABot
           SLACK_CHANNEL: squad-account
