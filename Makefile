@@ -17,6 +17,7 @@ TESTING_IMAGE ?= prestashop/prestashop-flashlight:${TESTING_IMAGE_TAG}
 BUILD_ENV ?= # ex: local|preprod|prod
 BUILD_ZIP ?= # ex: ps_accounts_flavor.zip
 BUILD_JS ?= views/js/app.${SEM_VERSION}-${BRANCH_NAME}.js
+COMPOSER_OPTIONS ?= --prefer-dist -o --no-dev --quiet
 
 default: build
 
@@ -34,6 +35,13 @@ build-prod: php-scoper config.php.prod build-front
 
 build-preprod: php-scoper config.php.preprod build-front
 	@./scripts/build-module.sh "ps_accounts_preprod.zip" "preprod"
+
+vendor-clean:
+	rm -rf ./vendor
+
+.PHONY: vendor
+vendor: composer.phar
+	${COMPOSER} install ${COMPOSER_OPTIONS}
 
 define build_front
 	rm -f ./views/js/app.*.js
@@ -83,32 +91,46 @@ tests/vendor: composer.phar
 
 CONTAINER_INSTALL_DIR="/var/www/html/modules/ps_accounts"
 
+# target: platform-pull                                        - Pull the platform's docker image
+.PHONY: platform-pull
 platform-pull:
 	docker pull ${PLATFORM_IMAGE}
 
+# target: platform-start                                       - Start the docker platform
+.PHONY: platform-start
 platform-start:
 	@PLATFORM_IMAGE=${PLATFORM_IMAGE} ${DOCKER_COMPOSE} -f ${PLATFORM_COMPOSE_FILE} up -d --wait
-	@echo phpunit started
 
+# target: platform-stop                                        - Stop the docker platform
+.PHONY: platform-stop
 platform-stop:
 	@PLATFORM_IMAGE=${PLATFORM_IMAGE} ${DOCKER_COMPOSE} -f ${PLATFORM_COMPOSE_FILE} down
-	@echo phpunit stopped
 
+# target: platform-restart                                     - Stop and start the docker platform
+.PHONY: platform-restart
 platform-restart: platform-stop platform-start
 
+# target: platform-module-version                              - Get the module's version within the docker platform
+.PHONY: platform-module-version
 platform-module-version:
 	@docker exec -w ${CONTAINER_INSTALL_DIR} phpunit \
-		sh -c "echo \"installing module: [\`cat config.xml | grep '<version>' | sed 's/^.*\[CDATA\[\(.*\)\]\].*/v\1/'\`]\""
+		sh -c "echo \"module version: [\`cat config.xml | grep '<version>' | sed 's/^.*\[CDATA\[\(.*\)\]\].*/v\1/'\`]\""
 
+# target: platform-module-version                              - Copy the PHP stan configuration to the docker platform
+.PHONY: platform-phpstan-config
 platform-phpstan-config:
 	@echo "installing neon file: [${NEON_FILE}]"
 	@docker exec -w ${CONTAINER_INSTALL_DIR}/tests phpunit \
 		sh -c "if [ -f ./phpstan/${NEON_FILE} ]; then cp ./phpstan/${NEON_FILE} ./phpstan/phpstan.neon; fi"
 
+# target: platform-module-install                              - Trigger the module installation within the docker platform
+.PHONY: platform-module-install
 platform-module-install: tests/vendor platform-phpstan-config config.php platform-module-version
 	@docker exec phpunit sh -c "if [ -f ./bin/console ]; then php -d memory_limit=-1 ./bin/console prestashop:module install ps_accounts; fi"
 	@docker exec phpunit sh -c "if [ ! -f ./bin/console ]; then php -d memory_limit=-1 ./modules/ps_accounts/tests/install-module.php; fi"
 
+# target: platform-module-install                              - Chown recursively the var, cache, log directories to www-data in the docker platform
+.PHONY: platform-fix-permissions
 platform-fix-permissions:
 	@docker exec phpunit sh -c "if [ -d ./var ]; then chown -R www-data:www-data ./var; fi"
 	@docker exec phpunit sh -c "if [ -d ./cache ]; then chown -R www-data:www-data ./cache; fi" # PS1.6
@@ -158,30 +180,40 @@ platform-init: platform-pull platform-restart platform-is-alive platform-module-
 # PS80  | 7.4 - 8.0 | vendor71
 # PS90  | 8.O - *   | vendor80
 
+#TODO: better use a variable than a makefile target IMHO
+.PHONY: platform-1.6.1.24-5.6-fpm-stretch
 platform-1.6.1.24-5.6-fpm-stretch:
 	$(call build-platform,$@,,,composer56.json,phpstan\-PS\-1.6.neon)
 
+.PHONY: platform-1.6.1.24-7.1
 platform-1.6.1.24-7.1:
 	$(call build-platform,$@,,,composer71.json,phpstan\-PS\-1.6.neon)
 
+.PHONY: platform-1.7.5.2-7.1
 platform-1.7.5.2-7.1:
 	$(call build-platform,$@,,,composer71.json)
 
+.PHONY: platform-1.7.7.8-7.1
 platform-1.7.7.8-7.1:
 	$(call build-platform,$@,,,composer71.json)
 
+.PHONY: platform-1.7.8.5-7.4
 platform-1.7.8.5-7.4:
 	$(call build-platform,$@)
 
+.PHONY: platform-8.1.5-7.4
 platform-8.1.5-7.4:
 	$(call build-platform,$@)
 
+.PHONY: platform-8.2.0-8.1
 platform-8.2.0-8.1:
 	$(call build-platform,$@)
 
+.PHONY: platform-nightly
 platform-nightly:
 	$(call build-platform,$@)
 
+.PHONY: platform-internal-1.6
 platform-internal-1.6:
 	@docker container stop ps_accounts_mysql_1
 	$(call build-platform,$@,"prestashop/docker-internal-images",,composer71.json)
@@ -189,16 +221,20 @@ platform-internal-1.6:
 #########
 # PHPUNIT
 
+.PHONY: phpunit-run-unit
 phpunit-run-unit: platform-fix-permissions
 	@docker exec -w ${CONTAINER_INSTALL_DIR}/tests phpunit ./vendor/bin/phpunit --testsuite unit
 
+.PHONY: phpunit-run-feature
 phpunit-run-feature: platform-fix-permissions
 	@docker exec -w ${CONTAINER_INSTALL_DIR}/tests phpunit ./vendor/bin/phpunit --testsuite feature
 
+.PHONY: phpunit-display-logs
 phpunit-display-logs:
 	-@docker exec phpunit sh -c "if [ -f ./bin/console ]; then cat var/logs/ps_accounts-$(shell date --iso); fi"
 	-@docker exec phpunit sh -c "if [ ! -f ./bin/console ]; then cat log/ps_accounts-$(shell date --iso); fi"
 
+.PHONY: phpunit
 phpunit: phpunit-run-unit phpunit-run-feature
 
 #########
@@ -319,14 +355,6 @@ autoindex: tests/vendor
 #header-stamp-test: tests/vendor header-stamp
 
 ##########################################################
-COMPOSER_OPTIONS ?= --prefer-dist -o --no-dev --quiet
-
-vendor-clean:
-	rm -rf ./vendor
-
-.PHONY: vendor
-vendor: composer.phar
-	${COMPOSER} install ${COMPOSER_OPTIONS}
 
 define in_docker
 	docker run \
