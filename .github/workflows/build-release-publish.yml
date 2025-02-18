@@ -12,14 +12,27 @@ jobs:
       version: ${{ steps.set_version.outputs.version }}
     steps:
       - name: Checkout
-        uses: actions/checkout@v2.0.0
+        uses: actions/checkout@v4
+
+      - name: Install pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 10
+          run_install: |
+            - cwd: _dev/
+              package_json_file: _dev/package.json
+              args: [--frozen-lockfile, --ignore-scripts]
+        env:
+          NPM_AUTH_TOKEN: ${{ secrets.NPM_TOKEN_RO }}
 
       - name: Setup node env 🏗
-        uses: actions/setup-node@v3
+        uses: actions/setup-node@v4
         with:
-          node-version: 18
-          registry-url: "https://registry.npmjs.org"
-          scope: "@prestashopcorp"
+          node-version: 20
+          registry-url: 'https://registry.npmjs.org'
+          scope: '@prestashopcorp'
+          cache: 'pnpm'
+          cache-dependency-path: '_dev/pnpm-lock.yaml'
 
       - name: Set version
         id: set_version
@@ -31,38 +44,12 @@ jobs:
           VERSION=${{ steps.set_version.outputs.version }} \
           make version
 
-      #      - name: Install composer dependencies
-      #        run: composer install --no-dev -o
-
       - name: Scoped dependencies
         run: make php-scoper
 
-      - name: Get yarn cache directory path 🛠
-        id: yarn-cache-dir-path
-        run: echo "::set-output name=dir::$(yarn cache dir)"
-        working-directory: ./_dev
+      - name: Build front
+        run: pnpm --filter ./_dev build
 
-      - name: Cache node_modules 📦
-        uses: actions/cache@v2
-        id: yarn-cache # use this to check for `cache-hit` (`steps.yarn-cache.outputs.cache-hit != 'true'`)
-        with:
-          path: ${{ steps.yarn-cache-dir-path.outputs.dir }}
-          key: ${{ runner.os }}-yarn-${{ hashFiles('**/yarn.lock') }}
-          restore-keys: |
-            ${{ runner.os }}-yarn-
-
-      - name: Install _dev dependencies 👨🏻‍💻
-        working-directory: ./_dev
-        run: yarn --frozen-lockfile --silent
-        env:
-          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN_RO }}
-
-      - name: Build apps
-        working-directory: ./_dev
-        run: yarn build
-
-      #      - name: Clean-up project
-      #        uses: PrestaShopCorp/github-action-clean-before-deploy@v1.0
       - name: Clean-up project 🧹
         run: |
           rm -rf .git
