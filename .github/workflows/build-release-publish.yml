@@ -18,8 +18,8 @@ jobs:
         uses: actions/setup-node@v3
         with:
           node-version: 18
-          registry-url: 'https://registry.npmjs.org'
-          scope: '@prestashopcorp'
+          registry-url: "https://registry.npmjs.org"
+          scope: "@prestashopcorp"
 
       - name: Set version
         id: set_version
@@ -31,8 +31,8 @@ jobs:
           VERSION=${{ steps.set_version.outputs.version }} \
           make version
 
-#      - name: Install composer dependencies
-#        run: composer install --no-dev -o
+      #      - name: Install composer dependencies
+      #        run: composer install --no-dev -o
 
       - name: Scoped dependencies
         run: make php-scoper
@@ -61,8 +61,8 @@ jobs:
         working-directory: ./_dev
         run: yarn build
 
-#      - name: Clean-up project
-#        uses: PrestaShopCorp/github-action-clean-before-deploy@v1.0
+      #      - name: Clean-up project
+      #        uses: PrestaShopCorp/github-action-clean-before-deploy@v1.0
       - name: Clean-up project 🧹
         run: |
           rm -rf .git
@@ -104,7 +104,7 @@ jobs:
       - name: Prepare the production zip
         run: |
           cd ${{ github.workspace }}
-          sh ./scripts/bundle-module.sh ${{ env.zip_file }} 'prod'
+          sh ./scripts/build-module.sh ${{ env.zip_file }} 'prod'
 
       - name: Publish the production zip
         uses: actions/upload-release-asset@v1.0.1
@@ -142,7 +142,7 @@ jobs:
       - name: Prepare the preprod zip
         run: |
           cd ${{ github.workspace }}
-          sh ./scripts/bundle-module.sh ${{ env.zip_file }} 'preprod'
+          sh ./scripts/build-module.sh ${{ env.zip_file }} 'preprod'
 
       - name: Publish the preprod zip
         uses: actions/upload-release-asset@v1.0.1
