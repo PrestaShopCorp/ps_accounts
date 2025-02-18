@@ -14,8 +14,37 @@ CURRENT_GID := $(shell id -g)
 WORKDIR ?= .
 TESTING_IMAGE_TAG ?= base-8.2-fpm-alpine
 TESTING_IMAGE ?= prestashop/prestashop-flashlight:${TESTING_IMAGE_TAG}
+BUILD_ENV ?= # ex: local|preprod|prod
+BUILD_ZIP ?= # ex: ps_accounts_flavor.zip
+BUILD_JS ?= views/js/app.${SEM_VERSION}-${BRANCH_NAME}.js
 
-default: bundle
+default: build
+
+config.php:
+	cp ./config.dist.php ./config.php
+
+composer.phar:
+	./scripts/composer-install.sh
+
+build: config.php php-scoper build-front
+	@./scripts/build-module.sh "${BUILD_ZIP}" "${BUILD_ENV}"
+
+build-prod: php-scoper config.php.prod build-front
+	@./scripts/build-module.sh "ps_accounts.zip" "prod"
+
+build-preprod: php-scoper config.php.preprod build-front
+	@./scripts/build-module.sh "ps_accounts_preprod.zip" "preprod"
+
+define build_front
+	rm -f ./views/js/app.*.js
+  pnpm --filter ./_dev install --frozen-lockfile --ignore-scripts
+	pnpm --filter ./_dev build
+endef
+
+${BUILD_JS}:
+	$(call build_front)
+
+build-front: ${BUILD_JS}
 
 # target: help                                                 - Get help on this file
 .PHONY: help
@@ -32,6 +61,11 @@ version:
 	@sed -i -e "s/\($this->version = \).*/\1\'${SEM_VERSION}\';/" ps_accounts.php
 	@sed -i -e 's/\(<version><!\[CDATA\[\)[0-9a-z\.\-]\{1,\}.*\]\]><\/version>/\1'${SEM_VERSION}']]><\/version>/' config.xml
 	@sed -i -e "s/\(\"version\"\: \).*/\1\"${SEM_VERSION}\",/" ./_dev/package.json
+
+# target: clean                                                - Clean up the repository (but keep your configuration files)
+.PHONY: clean
+clean:
+	git clean -fdX --exclude="!.npmrc" --exclude="!.env*" --exclude="!.config.php*"
 
 ##########
 # PLATFORM
@@ -61,9 +95,6 @@ platform-stop:
 	@echo phpunit stopped
 
 platform-restart: platform-stop platform-start
-
-config.php:
-	cp ./config.dist.php ./config.php
 
 platform-module-version:
 	@docker exec -w ${CONTAINER_INSTALL_DIR} phpunit \
@@ -257,7 +288,6 @@ php-scoper-add-prefix: scoper.inc.php vendor-clean vendor ${WORKDIR}/php-scoper.
 	$(foreach DIR,$(PHP_SCOPER_VENDOR_DIRS), rm -rf "./vendor/${DIR}" && mv "./${PHP_SCOPER_OUTPUT_DIR}/${DIR}" ./vendor/${DIR};)
 	if [ ! -z ${PHP_SCOPER_OUTPUT_DIR} ]; then rm -rf "./${PHP_SCOPER_OUTPUT_DIR}"; fi
 
-
 php-scoper-dump-autoload:
 	${COMPOSER} dump-autoload --classmap-authoritative
 
@@ -265,42 +295,6 @@ php-scoper-fix-autoload:
 	php fix-autoload.php
 
 php-scoper: php-scoper-add-prefix php-scoper-dump-autoload php-scoper-fix-autoload
-
-##########
-# BUNDLING
-
-BUNDLE_ENV ?= # ex: local|preprod|prod
-BUNDLE_ZIP ?= # ex: ps_accounts_flavor.zip
-BUNDLE_VERSION ?= $(shell grep "<version>" config.xml | sed 's/^.*\([0-9]\+\.[0-9]\+\.[0-9]\+\).*/\1/')
-BUNDLE_JS ?= views/js/app.${BUNDLE_VERSION}.js
-
-bundle: config.php php-scoper build-front
-	@./scripts/bundle-module.sh "${BUNDLE_ZIP}" "${BUNDLE_ENV}"
-
-bundle-prod: php-scoper config.php.prod build-front
-	@./scripts/bundle-module.sh "ps_accounts.zip" "prod"
-
-bundle-preprod: php-scoper config.php.preprod build-front
-	@./scripts/bundle-module.sh "ps_accounts_preprod.zip" "preprod"
-
-define build_front
-	rm -f ./views/js/app.*.js
-  pnpm --filter ./_dev install --frozen-lockfile --ignore-scripts
-	pnpm --filter ./_dev build
-endef
-
-${BUNDLE_JS}:
-	$(call build_front)
-
-build-front: ${BUNDLE_JS}
-
-composer.phar:
-	./scripts/composer-install.sh
-
-# target: clean                                                - Clean up the repository (but keep your configuration files)
-.PHONY: clean
-clean:
-	git clean -fdX --exclude="!.npmrc" --exclude="!.env*" --exclude="!.config.php*"
 
 #######
 # TOOLS
