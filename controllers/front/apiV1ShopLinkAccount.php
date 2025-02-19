@@ -21,10 +21,10 @@
 use PrestaShop\Module\PsAccounts\Account\Command\LinkShopCommand;
 use PrestaShop\Module\PsAccounts\Account\Command\UnlinkShopCommand;
 use PrestaShop\Module\PsAccounts\Account\Dto\LinkShop;
+use PrestaShop\Module\PsAccounts\Account\Exception\RefreshTokenException;
 use PrestaShop\Module\PsAccounts\Api\Controller\AbstractShopRestController;
 use PrestaShop\Module\PsAccounts\Api\Controller\Request\UpdateShopLinkAccountRequest;
 use PrestaShop\Module\PsAccounts\Cqrs\CommandBus;
-use PrestaShop\Module\PsAccounts\Exception\RefreshTokenException;
 
 class ps_AccountsApiV1ShopLinkAccountModuleFrontController extends AbstractShopRestController
 {

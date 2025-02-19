@@ -24,7 +24,6 @@ use AdminLoginPsAccountsController;
 use Exception;
 use PrestaShop\Module\PsAccounts\Service\AnalyticsService;
 use PrestaShop\Module\PsAccounts\Service\PsAccountsService;
-use PrestaShop\Module\PsAccounts\Vendor\League\OAuth2\Client\Provider\Exception\IdentityProviderException;
 use Tools;
 
 class ActionAdminLoginControllerSetMedia extends Hook
@@ -32,7 +31,6 @@ class ActionAdminLoginControllerSetMedia extends Hook
     /**
      * @return void
      *
-     * @throws IdentityProviderException
      * @throws Exception
      */
     public function execute(array $params = [])

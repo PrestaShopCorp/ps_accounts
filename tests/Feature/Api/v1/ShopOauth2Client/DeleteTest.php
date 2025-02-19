@@ -2,7 +2,7 @@
 
 namespace PrestaShop\Module\PsAccounts\Tests\Feature\Api\v1\ShopOauth2Client;
 
-use PrestaShop\Module\PsAccounts\Provider\OAuth2\Oauth2Client;
+use PrestaShop\Module\PsAccounts\OAuth2\Client;
 use PrestaShop\Module\PsAccounts\Api\Controller\AbstractRestController;
 use PrestaShop\Module\PsAccounts\Tests\Feature\FeatureTestCase;
 
@@ -11,7 +11,7 @@ class DeleteTest extends FeatureTestCase
     /**
      * @inject
      *
-     * @var Oauth2Client
+     * @var Client
      */
     protected $oauth2Client;
 

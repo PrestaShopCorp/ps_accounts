@@ -2,15 +2,14 @@
 
 namespace PrestaShop\Module\PsAccounts\Tests\Unit\Account\Session\ShopSession;
 
-use PrestaShop\Module\PsAccounts\Account\LinkShop;
 use PrestaShop\Module\PsAccounts\Account\Session\ShopSession;
 use PrestaShop\Module\PsAccounts\Account\Token\Token;
+use PrestaShop\Module\PsAccounts\OAuth2\Response\AccessToken;
+use PrestaShop\Module\PsAccounts\OAuth2\ApiClient;
 use PrestaShop\Module\PsAccounts\Cqrs\CommandBus;
-use PrestaShop\Module\PsAccounts\Exception\RefreshTokenException;
-use PrestaShop\Module\PsAccounts\Provider\OAuth2\Oauth2Client;
-use PrestaShop\Module\PsAccounts\Provider\OAuth2\ShopProvider;
+use PrestaShop\Module\PsAccounts\Account\Exception\RefreshTokenException;
+use PrestaShop\Module\PsAccounts\OAuth2\Client;
 use PrestaShop\Module\PsAccounts\Tests\TestCase;
-use PrestaShop\Module\PsAccounts\Vendor\League\OAuth2\Client\Token\AccessToken;
 
 class RefreshTokenTest extends TestCase
 {
@@ -26,16 +25,16 @@ class RefreshTokenTest extends TestCase
     /**
      * @inject
      *
-     * @var Oauth2Client
+     * @var Client
      */
     protected $oauth2Client;
 
     /**
      * @inject
      *
-     * @var ShopProvider
+     * @var ApiClient
      */
-    protected $shopProvider;
+    protected $oauth2ApiClient;
 
     /**
      * @var \PrestaShop\Module\PsAccounts\Vendor\Lcobucci\JWT\Token
@@ -47,12 +46,12 @@ class RefreshTokenTest extends TestCase
         parent::set_up();
 
         $this->validAccessToken = $this->makeJwtToken(new \DateTimeImmutable('tomorrow'));
-        $shopProvider = $this->createMock(ShopProvider::class);
-        $shopProvider->method('getAccessToken')
+        $shopProvider = $this->createMock(ApiClient::class);
+        $shopProvider->method('getAccessTokenByClientCredentials')
             ->willReturn(new AccessToken([
                 'access_token' => (string)$this->validAccessToken
             ]));
-        $shopProvider->method('getOauth2Client')
+        $shopProvider->method('getClient')
             ->willReturn($this->oauth2Client);
 
         $commandBus = $this->createMock(CommandBus::class);

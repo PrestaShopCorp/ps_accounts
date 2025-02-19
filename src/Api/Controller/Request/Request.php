@@ -20,8 +20,8 @@
 
 namespace PrestaShop\Module\PsAccounts\Api\Controller\Request;
 
+use PrestaShop\Module\PsAccounts\Api\Controller\Exception\BadRequestException;
 use PrestaShop\Module\PsAccounts\Exception\DtoException;
-use PrestaShop\Module\PsAccounts\Exception\Http\BadRequestException;
 use PrestaShop\Module\PsAccounts\Type\Dto;
 
 abstract class Request extends Dto

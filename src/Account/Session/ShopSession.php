@@ -22,18 +22,15 @@ namespace PrestaShop\Module\PsAccounts\Account\Session;
 
 use PrestaShop\Module\PsAccounts\Account\Command\UnlinkShopCommand;
 use PrestaShop\Module\PsAccounts\Account\Exception\InconsistentAssociationStateException;
+use PrestaShop\Module\PsAccounts\Account\Exception\RefreshTokenException;
 use PrestaShop\Module\PsAccounts\Account\LinkShop;
 use PrestaShop\Module\PsAccounts\Account\Token\Token;
 use PrestaShop\Module\PsAccounts\Cqrs\CommandBus;
-use PrestaShop\Module\PsAccounts\Exception\RefreshTokenException;
 use PrestaShop\Module\PsAccounts\Hook\ActionShopAccessTokenRefreshAfter;
-use PrestaShop\Module\PsAccounts\Log\Logger;
-use PrestaShop\Module\PsAccounts\Provider\OAuth2\ShopProvider;
+use PrestaShop\Module\PsAccounts\OAuth2\ApiClient;
+use PrestaShop\Module\PsAccounts\OAuth2\OAuth2Exception;
+use PrestaShop\Module\PsAccounts\OAuth2\Response\AccessToken;
 use PrestaShop\Module\PsAccounts\Repository\ConfigurationRepository;
-use PrestaShop\Module\PsAccounts\Vendor\League\OAuth2\Client\Grant\ClientCredentials;
-use PrestaShop\Module\PsAccounts\Vendor\League\OAuth2\Client\Provider\Exception\IdentityProviderException;
-use PrestaShop\Module\PsAccounts\Vendor\League\OAuth2\Client\Token\AccessToken;
-use PrestaShop\Module\PsAccounts\Vendor\League\OAuth2\Client\Token\AccessTokenInterface;
 
 class ShopSession extends Session implements SessionInterface
 {
@@ -48,9 +45,9 @@ class ShopSession extends Session implements SessionInterface
     protected $configurationRepository;
 
     /**
-     * @var ShopProvider
+     * @var ApiClient
      */
-    protected $oauth2ClientProvider;
+    protected $oauth2ApiClient;
 
     /**
      * @var LinkShop
@@ -64,17 +61,18 @@ class ShopSession extends Session implements SessionInterface
 
     /**
      * @param ConfigurationRepository $configurationRepository
-     * @param ShopProvider $oauth2ClientProvider
+     * @param ApiClient $oauth2ApiClient
+     * @param LinkShop $linkShop
      * @param CommandBus $commandBus
      */
     public function __construct(
         ConfigurationRepository $configurationRepository,
-        ShopProvider $oauth2ClientProvider,
+        ApiClient $oauth2ApiClient,
         LinkShop $linkShop,
         CommandBus $commandBus
     ) {
         $this->configurationRepository = $configurationRepository;
-        $this->oauth2ClientProvider = $oauth2ClientProvider;
+        $this->oauth2ApiClient = $oauth2ApiClient;
         $this->linkShop = $linkShop;
         $this->commandBus = $commandBus;
     }
@@ -95,8 +93,8 @@ class ShopSession extends Session implements SessionInterface
 
             //return new Token($accessToken->getToken(), $accessToken->getRefreshToken());
             $this->setToken(
-                $accessToken->getToken(),
-                $accessToken->getRefreshToken()
+                $accessToken->access_token,
+                $accessToken->refresh_token
             );
 
             $token = $this->getToken();
@@ -109,7 +107,7 @@ class ShopSession extends Session implements SessionInterface
                 $this->configurationRepository->getShopId(),
                 $e->getMessage()
             ));
-        } catch (IdentityProviderException $e) {
+        } catch (OAuth2Exception $e) {
         } catch (\Throwable $e) {
             /* @phpstan-ignore-next-line */
         } catch (\Exception $e) {
@@ -157,9 +155,9 @@ class ShopSession extends Session implements SessionInterface
     /**
      * @param string $shopUid
      *
-     * @return AccessToken|AccessTokenInterface
+     * @return AccessToken
      *
-     * @throws IdentityProviderException
+     * @throws OAuth2Exception
      */
     protected function getAccessToken($shopUid)
     {
@@ -167,13 +165,8 @@ class ShopSession extends Session implements SessionInterface
             'shop_' . $shopUid,
             //'another.audience'
         ];
-        $token = $this->oauth2ClientProvider->getAccessToken(new ClientCredentials(), [
-            //'scope' => 'read.all write.all',
-            'audience' => implode(' ', $audience),
-        ]);
-        Logger::getInstance()->debug(__METHOD__ . json_encode($token->jsonSerialize(), JSON_PRETTY_PRINT));
 
-        return $token;
+        return $this->oauth2ApiClient->getAccessTokenByClientCredentials([], $audience);
     }
 
     /**
@@ -192,7 +185,7 @@ class ShopSession extends Session implements SessionInterface
 
         if ($this->linkShop->exists() &&
             $currentTs - $linkedAtTs > $oauth2ClientReceiptTimeout &&
-            !$this->oauth2ClientProvider->getOauth2Client()->exists()) {
+            !$this->oauth2ApiClient->getClient()->exists()) {
             throw new InconsistentAssociationStateException('Invalid OAuth2 client');
         }
     }

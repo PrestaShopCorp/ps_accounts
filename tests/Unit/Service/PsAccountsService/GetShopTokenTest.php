@@ -2,9 +2,9 @@
 
 namespace PrestaShop\Module\PsAccounts\Tests\Unit\Service\PsAccountsService;
 
+use PrestaShop\Module\PsAccounts\Account\Exception\RefreshTokenException;
 use PrestaShop\Module\PsAccounts\Account\Session\ShopSession;
-use PrestaShop\Module\PsAccounts\Exception\RefreshTokenException;
-use PrestaShop\Module\PsAccounts\Provider\OAuth2\Oauth2Client;
+use PrestaShop\Module\PsAccounts\OAuth2\Client;
 use PrestaShop\Module\PsAccounts\Service\PsAccountsService;
 use PrestaShop\Module\PsAccounts\Tests\TestCase;
 
@@ -27,7 +27,7 @@ class GetShopTokenTest extends TestCase
     /**
      * @inject
      *
-     * @var Oauth2Client
+     * @var Client
      */
     protected $oauthClient;
 

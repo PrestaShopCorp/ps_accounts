@@ -34,7 +34,7 @@ class Ps_accounts extends Module
 
     // Needed in order to retrieve the module version easier (in api call headers) than instanciate
     // the module each time to get the version
-    const VERSION = '7.1.1';
+    const VERSION = '7.2.0';
 
     /**
      * Admin tabs
@@ -131,7 +131,7 @@ class Ps_accounts extends Module
 
         // We cannot use the const VERSION because the const is not computed by addons marketplace
         // when the zip is uploaded
-        $this->version = '7.1.1';
+        $this->version = '7.2.0';
 
         $this->module_key = 'abf2cd758b4d629b2944d3922ef9db73';
 
@@ -393,11 +393,11 @@ class Ps_accounts extends Module
     }
 
     /**
-     * @return \PrestaShop\Module\PsAccounts\Middleware\Oauth2Middleware
+     * @return \PrestaShop\Module\PsAccounts\AccountLogin\Middleware\Oauth2Middleware
      */
     public function getOauth2Middleware()
     {
-        return $this->getService(\PrestaShop\Module\PsAccounts\Middleware\Oauth2Middleware::class);
+        return $this->getService(\PrestaShop\Module\PsAccounts\AccountLogin\Middleware\Oauth2Middleware::class);
     }
 
     /**
@@ -449,9 +449,13 @@ class Ps_accounts extends Module
      */
     public function onModuleReset()
     {
-        /** @var \PrestaShop\Module\PsAccounts\Factory\CircuitBreakerFactory $circuitBreakerFactory */
-        $circuitBreakerFactory = $this->getService(\PrestaShop\Module\PsAccounts\Factory\CircuitBreakerFactory::class);
+        /** @var \PrestaShop\Module\PsAccounts\Http\Client\CircuitBreaker\Factory $circuitBreakerFactory */
+        $circuitBreakerFactory = $this->getService(\PrestaShop\Module\PsAccounts\Http\Client\CircuitBreaker\Factory::class);
         $circuitBreakerFactory->resetAll();
+
+        /** @var \PrestaShop\Module\PsAccounts\OAuth2\ApiClient $oauthApiClient */
+        $oauthApiClient = $this->getService(\PrestaShop\Module\PsAccounts\OAuth2\ApiClient::class);
+        $oauthApiClient->clearCache();
 
         /** @var \PrestaShop\Module\PsAccounts\Repository\ConfigurationRepository $configurationRepository */
         $configurationRepository = $this->getService(\PrestaShop\Module\PsAccounts\Repository\ConfigurationRepository::class);
