@@ -20,8 +20,6 @@
 
 namespace PrestaShop\Module\PsAccounts\OAuth2\Response;
 
-use PrestaShop\Module\PsAccounts\Account\Token\Token;
-
 class AccessToken extends Response
 {
     /**
@@ -72,16 +70,4 @@ class AccessToken extends Response
         }
         parent::__construct($data);
     }
-
-//    /**
-//     * @return bool
-//     *
-//     * @deprecated
-//     */
-//    public function hasExpired()
-//    {
-//        $token = new Token($this->access_token);
-//
-//        return $token->isExpired();
-//    }
 }

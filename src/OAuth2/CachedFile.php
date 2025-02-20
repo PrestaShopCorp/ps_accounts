@@ -28,20 +28,20 @@ class CachedFile
     private $filename;
 
     /**
-     * @var int lifetime in seconds
+     * @var int|null lifetime in seconds
      */
     private $ttl;
 
     /**
      * @param string $filename
-     * @param int|null $ttl
+     * @param int|null $ttl TTL in seconds or null (never expires)
      *
      * @throws \Exception
      */
     public function __construct($filename, $ttl = null)
     {
         $this->filename = $filename;
-        $this->ttl = (int) $ttl;
+        $this->ttl = $ttl;
 
         $this->initDirectory();
         $this->assertReadable();
@@ -109,7 +109,7 @@ class CachedFile
     }
 
     /**
-     * @param int $ttl
+     * @param int|null $ttl
      *
      * @return void
      */

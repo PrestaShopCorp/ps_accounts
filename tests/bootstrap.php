@@ -4,7 +4,7 @@ if (!defined('_PS_ADMIN_DIR_')) {
 }
 
 if (!defined('_PS_MODE_DEV_')) {
-    define('_PS_MODE_DEV_', true);
+    define('_PS_MODE_DEV_', false);
 }
 
 $rootDirectory = getenv('_PS_ROOT_DIR_') ?: __DIR__ . '/../../..';
