@@ -91,7 +91,7 @@ jobs:
       - name: Prepare the production zip
         run: |
           cd ${{ github.workspace }}
-          sh ./scripts/bundle-module.sh ${{ env.zip_file }} 'prod'
+          sh ./scripts/build-module.sh ${{ env.zip_file }} 'prod'
 
       - name: Publish the production zip
         uses: actions/upload-release-asset@v1.0.1
@@ -129,7 +129,7 @@ jobs:
       - name: Prepare the preprod zip
         run: |
           cd ${{ github.workspace }}
-          sh ./scripts/bundle-module.sh ${{ env.zip_file }} 'preprod'
+          sh ./scripts/build-module.sh ${{ env.zip_file }} 'preprod'
 
       - name: Publish the preprod zip
         uses: actions/upload-release-asset@v1.0.1
