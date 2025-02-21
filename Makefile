@@ -1,7 +1,6 @@
 PHP = $(shell which php 2> /dev/null)
 DOCKER = $(shell docker ps 2> /dev/null)
 NPM = $(shell which npm 2> /dev/null)
-YARN = $(shell which yarn 2> /dev/null)
 COMPOSER = ${PHP} ./composer.phar
 DOCKER_COMPOSE := $(shell which docker) compose
 MODULE ?= $(shell basename ${PWD})
@@ -57,10 +56,8 @@ platform-stop:
 
 platform-restart: platform-stop platform-start
 
-.PHONY: config.php
 config.php:
-	@docker exec -w ${CONTAINER_INSTALL_DIR} phpunit \
-		sh -c "if [ ! -f ./config.php ]; then cp ./config.dist.php ./config.php; fi"
+	cp ./config.dist.php ./config.php
 
 platform-module-version:
 	@docker exec -w ${CONTAINER_INSTALL_DIR} phpunit \
@@ -131,11 +128,14 @@ platform-init: platform-pull platform-restart platform-is-alive platform-module-
 # PS80  | 7.4 - 8.0 | vendor71
 # PS90  | 8.O - *   | vendor80
 
-platform-1.6.1.24-5.6-fpm-stretch: phpunit-fix-compat-php56
+platform-1.6.1.24-5.6-fpm-stretch:
 	$(call build-platform,$@,,,composer56.json,phpstan\-PS\-1.6.neon)
 
 platform-1.6.1.24-7.1:
 	$(call build-platform,$@,,,composer71.json,phpstan\-PS\-1.6.neon)
+
+platform-1.7.5.2-7.1:
+	$(call build-platform,$@,,,composer71.json)
 
 platform-1.7.7.8-7.1:
 	$(call build-platform,$@,,,composer71.json)
@@ -170,19 +170,6 @@ phpunit-display-logs:
 	-@docker exec phpunit sh -c "if [ ! -f ./bin/console ]; then cat log/ps_accounts-$(shell date --iso); fi"
 
 phpunit: phpunit-run-unit phpunit-run-feature
-
-REGEX_COMPAT_VOID := "s/\(function \(setUp\|tearDown\)()\)\(: void\)\?/\1/"
-REGEX_COMPAT_TRAIT := "s/\#\?\(use \\\\DMS\\\\PHPUnitExtensions\\\\ArraySubset\\\\ArraySubsetAsserts;\)/\#\1/"
-phpunit-fix-compat-php56:
-	@echo "fixing compat for php56..."
-	find ./tests -type f -name "TestCase.php" -exec sed -i -e ${REGEX_COMPAT_TRAIT} {} \;
-	find ./tests -type f -name "TestCase.php" -exec sed -i -e ${REGEX_COMPAT_VOID} {} \;
-	find ./tests/Unit -type f -name "*.php" -exec sed -i -e ${REGEX_COMPAT_VOID} {} \;
-	find ./tests/Feature -type f -name "*.php" -exec sed -i -e ${REGEX_COMPAT_VOID} {} \;
-
-phpunit-reset-compat-php56: REGEX_COMPAT_VOID := "s/\(function \(setUp\|tearDown\)()\)\(: void\)\?/\1: void/"
-phpunit-reset-compat-php56: REGEX_COMPAT_TRAIT := "s/\#\?\(use \\\\DMS\\\\PHPUnitExtensions\\\\ArraySubset\\\\ArraySubsetAsserts;\)/\1/"
-phpunit-reset-compat-php56: phpunit-fix-compat-php56
 
 #########
 # PHPSTAN
@@ -288,7 +275,7 @@ BUNDLE_ZIP ?= # ex: ps_accounts_flavor.zip
 BUNDLE_VERSION ?= $(shell grep "<version>" config.xml | sed 's/^.*\([0-9]\+\.[0-9]\+\.[0-9]\+\).*/\1/')
 BUNDLE_JS ?= views/js/app.${BUNDLE_VERSION}.js
 
-bundle: php-scoper build-front
+bundle: config.php php-scoper build-front
 	@./scripts/bundle-module.sh "${BUNDLE_ZIP}" "${BUNDLE_ENV}"
 
 bundle-prod: php-scoper config.php.prod build-front
@@ -298,8 +285,9 @@ bundle-preprod: php-scoper config.php.preprod build-front
 	@./scripts/bundle-module.sh "ps_accounts_preprod.zip" "preprod"
 
 define build_front
-	yarn --cwd ./_dev --frozen-lockfile
-	yarn --cwd ./_dev build
+	rm -f ./views/js/app.*.js
+	pnpm --filter ./_dev install --frozen-lockfile --ignore-scripts
+	pnpm --filter ./_dev build
 endef
 
 ${BUNDLE_JS}:

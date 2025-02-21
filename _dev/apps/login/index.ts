@@ -1,6 +1,5 @@
 import Splide from '@splidejs/splide';
 import "./assets/index.css"
-import "@prestashopcorp/puik/dist/index.css"
 import '@splidejs/splide/css/core';
 
 document.addEventListener( 'DOMContentLoaded', () => {

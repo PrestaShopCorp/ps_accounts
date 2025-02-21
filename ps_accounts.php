@@ -32,7 +32,7 @@ class Ps_accounts extends Module
 
     // Needed in order to retrieve the module version easier (in api call headers) than instanciate
     // the module each time to get the version
-    const VERSION = '7.0.9';
+    const VERSION = '7.1.1';
 
     /**
      * Admin tabs
@@ -134,7 +134,7 @@ class Ps_accounts extends Module
 
         // We cannot use the const VERSION because the const is not computed by addons marketplace
         // when the zip is uploaded
-        $this->version = '7.0.9';
+        $this->version = '7.1.1';
 
         $this->module_key = 'abf2cd758b4d629b2944d3922ef9db73';
 
@@ -239,9 +239,9 @@ class Ps_accounts extends Module
     public function getServiceContainer()
     {
         if (null === $this->moduleContainer) {
-            $this->moduleContainer = \PrestaShop\Module\PsAccounts\ServiceContainer\PsAccountsContainer::createInstance(
+            $this->moduleContainer = (new \PrestaShop\Module\PsAccounts\ServiceContainer\PsAccountsContainer(
                 __DIR__ . '/config.php'
-            );
+            ))->init();
         }
 
         return $this->moduleContainer;
@@ -255,6 +255,16 @@ class Ps_accounts extends Module
     public function getService($serviceName)
     {
         return $this->getServiceContainer()->getService($serviceName);
+    }
+
+    /**
+     * @param string $serviceName
+     *
+     * @return bool
+     */
+    public function hasService($serviceName)
+    {
+        return $this->getServiceContainer()->has($serviceName);
     }
 
     /**
@@ -311,25 +321,26 @@ class Ps_accounts extends Module
      * @param array $customHooks
      *
      * @return bool
-     *
-     * @throws PrestaShopDatabaseException
-     * @throws PrestaShopException
      */
     public function addCustomHooks($customHooks)
     {
         $ret = true;
-
         foreach ($customHooks as $customHook) {
-            $verify = true;
-            if ((bool) Hook::getIdByName($customHook['name']) === false) {
-                $hook = new Hook();
-                $hook->name = $customHook['name'];
-                $hook->title = $customHook['title'];
-                $hook->description = $customHook['description'];
-                $hook->position = $customHook['position'];
-                $verify = $hook->add(); // return true on success
+            try {
+                $verify = true;
+                if ((bool) Hook::getIdByName($customHook['name']) === false) {
+                    $hook = new Hook();
+                    $hook->name = $customHook['name'];
+                    $hook->title = $customHook['title'];
+                    $hook->description = $customHook['description'];
+                    $hook->position = $customHook['position'];
+                    $verify = $hook->add(); // return true on success
+                }
+                $ret = $ret && $verify;
+            } catch (\Throwable $e) {
+                /* @phpstan-ignore-next-line */
+            } catch (\Exception $e) {
             }
-            $ret = $ret && $verify;
         }
 
         return $ret;

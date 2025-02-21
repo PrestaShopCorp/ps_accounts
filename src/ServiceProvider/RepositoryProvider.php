@@ -18,16 +18,18 @@
  * @license   https://opensource.org/licenses/AFL-3.0 Academic Free License version 3.0
  */
 
-namespace PrestaShop\Module\PsAccounts\ServiceContainer\Provider;
+namespace PrestaShop\Module\PsAccounts\ServiceProvider;
 
-use PrestaShop\Module\PsAccounts\Factory\PrestaShopSessionFactory;
-use PrestaShop\Module\PsAccounts\Middleware\Oauth2Middleware;
-use PrestaShop\Module\PsAccounts\Provider;
+use PrestaShop\Module\PsAccounts\Account\Session\Firebase;
+use PrestaShop\Module\PsAccounts\Account\Session\Firebase\OwnerSession;
+use PrestaShop\Module\PsAccounts\Adapter\Configuration;
 use PrestaShop\Module\PsAccounts\Repository\ConfigurationRepository;
+use PrestaShop\Module\PsAccounts\Repository\ShopTokenRepository;
+use PrestaShop\Module\PsAccounts\Repository\UserTokenRepository;
 use PrestaShop\Module\PsAccounts\Vendor\PrestaShopCorp\LightweightContainer\ServiceContainer\Contract\IServiceProvider;
 use PrestaShop\Module\PsAccounts\Vendor\PrestaShopCorp\LightweightContainer\ServiceContainer\ServiceContainer;
 
-class OAuth2Provider implements IServiceProvider
+class RepositoryProvider implements IServiceProvider
 {
     /**
      * @param ServiceContainer $container
@@ -36,22 +38,20 @@ class OAuth2Provider implements IServiceProvider
      */
     public function provide(ServiceContainer $container)
     {
-        // OAuth2
-        $container->registerProvider(Provider\OAuth2\Oauth2Client::class, static function () use ($container) {
-            return new Provider\OAuth2\Oauth2Client(
-                $container->get(ConfigurationRepository::class)
+        // Repositories
+        $container->registerProvider(ConfigurationRepository::class, static function () use ($container) {
+            return new ConfigurationRepository(
+                $container->get(Configuration::class)
             );
         });
-        $container->registerProvider(Provider\OAuth2\PrestaShopSession::class, static function () {
-            return PrestaShopSessionFactory::create();
+        $container->registerProvider(ShopTokenRepository::class, static function () use ($container) {
+            return new ShopTokenRepository(
+                $container->get(Firebase\ShopSession::class)
+            );
         });
-        $container->registerProvider(Provider\OAuth2\ShopProvider::class, static function () {
-            return Provider\OAuth2\ShopProvider::create();
-        });
-        // Middleware
-        $container->registerProvider(Oauth2Middleware::class, static function () use ($container) {
-            return new Oauth2Middleware(
-                $container->get('ps_accounts.module')
+        $container->registerProvider(UserTokenRepository::class, static function () use ($container) {
+            return new UserTokenRepository(
+                $container->get(OwnerSession::class)
             );
         });
     }

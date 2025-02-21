@@ -2,12 +2,13 @@
 
 namespace PrestaShop\Module\PsAccounts\Tests\Unit\Service\PsAccountsService;
 
-use PrestaShop\Module\PsAccounts\Account\Session\Firebase\ShopSession;
+use PrestaShop\Module\PsAccounts\Account\Session\ShopSession;
+use PrestaShop\Module\PsAccounts\Exception\RefreshTokenException;
 use PrestaShop\Module\PsAccounts\Provider\OAuth2\Oauth2Client;
 use PrestaShop\Module\PsAccounts\Service\PsAccountsService;
 use PrestaShop\Module\PsAccounts\Tests\TestCase;
 
-class GetOrRefreshTokenTest extends TestCase
+class GetShopTokenTest extends TestCase
 {
     /**
      * @inject
@@ -51,7 +52,7 @@ class GetOrRefreshTokenTest extends TestCase
 
         $this->shopSession->setToken((string) $validToken);
 
-        $this->assertEquals($validToken, $this->service->getOrRefreshToken());
+        $this->assertEquals($validToken, $this->service->getShopToken());
     }
 
     /**
@@ -59,23 +60,13 @@ class GetOrRefreshTokenTest extends TestCase
      *
      * @throws \Exception
      */
-    public function itShouldReturnEmptyStringOnError()
+    public function itShouldThrowRefreshTokenExceptionOnError()
     {
         // FIXME: we assume we can't resolve external apis here
         $this->shopSession->setToken((string) $this->makeJwtToken(new \DateTimeImmutable('yesterday')));
 
-        $this->assertEquals('', $this->service->getOrRefreshToken());
-    }
+        $this->expectException(RefreshTokenException::class);
 
-    /**
-     * @test
-     *
-     * @throws \Exception
-     */
-    public function itShouldReturnEmptyStringOnEmptyToken()
-    {
-        $this->shopSession->setToken('');
-
-        $this->assertEquals('', $this->service->getOrRefreshToken());
+        $this->service->getShopToken();
     }
 }

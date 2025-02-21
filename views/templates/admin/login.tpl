@@ -16,6 +16,8 @@
  * @copyright Since 2007 PrestaShop SA and Contributors
  * @license   https://opensource.org/licenses/AFL-3.0 Academic Free License version 3.0
  *}
+<link rel="stylesheet" href="https://unpkg.com/@prestashopcorp/puik-theme/dist/index.css" />
+
 <div class="psacc-grid psacc-h-screen lg:psacc-grid-cols-2">
     <div
         class="psacc-hidden lg:psacc-flex psacc-flex-col psacc-items-center psacc-justify-end psacc-bg-cover psacc-bg-no-repeat psacc-bg-bicycle"

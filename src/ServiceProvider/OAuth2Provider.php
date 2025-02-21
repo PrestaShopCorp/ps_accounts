@@ -18,17 +18,16 @@
  * @license   https://opensource.org/licenses/AFL-3.0 Academic Free License version 3.0
  */
 
-namespace PrestaShop\Module\PsAccounts\ServiceContainer\Provider;
+namespace PrestaShop\Module\PsAccounts\ServiceProvider;
 
-use PrestaShop\Module\PsAccounts\Api\Client\AccountsClient;
-use PrestaShop\Module\PsAccounts\Api\Client\ExternalAssetsClient;
-use PrestaShop\Module\PsAccounts\Api\Client\ServicesBillingClient;
-use PrestaShop\Module\PsAccounts\Provider\ShopProvider;
-use PrestaShop\Module\PsAccounts\Service\PsAccountsService;
+use PrestaShop\Module\PsAccounts\Factory\PrestaShopSessionFactory;
+use PrestaShop\Module\PsAccounts\Middleware\Oauth2Middleware;
+use PrestaShop\Module\PsAccounts\Provider;
+use PrestaShop\Module\PsAccounts\Repository\ConfigurationRepository;
 use PrestaShop\Module\PsAccounts\Vendor\PrestaShopCorp\LightweightContainer\ServiceContainer\Contract\IServiceProvider;
 use PrestaShop\Module\PsAccounts\Vendor\PrestaShopCorp\LightweightContainer\ServiceContainer\ServiceContainer;
 
-class ApiClientProvider implements IServiceProvider
+class OAuth2Provider implements IServiceProvider
 {
     /**
      * @param ServiceContainer $container
@@ -37,24 +36,22 @@ class ApiClientProvider implements IServiceProvider
      */
     public function provide(ServiceContainer $container)
     {
-        $container->registerProvider(AccountsClient::class, static function () use ($container) {
-            return new AccountsClient(
-                $container->getParameter('ps_accounts.accounts_api_url'),
-                null,
-                10
+        // OAuth2
+        $container->registerProvider(Provider\OAuth2\Oauth2Client::class, static function () use ($container) {
+            return new Provider\OAuth2\Oauth2Client(
+                $container->get(ConfigurationRepository::class)
             );
         });
-        $container->registerProvider(ExternalAssetsClient::class, static function () {
-            return new ExternalAssetsClient(
-                null,
-                10
-            );
+        $container->registerProvider(Provider\OAuth2\PrestaShopSession::class, static function () {
+            return PrestaShopSessionFactory::create();
         });
-        $container->registerProvider(ServicesBillingClient::class, static function () use ($container) {
-            return new ServicesBillingClient(
-                $container->getParameter('ps_accounts.billing_api_url'),
-                $container->get(PsAccountsService::class),
-                $container->get(ShopProvider::class)
+        $container->registerProvider(Provider\OAuth2\ShopProvider::class, static function () {
+            return Provider\OAuth2\ShopProvider::create();
+        });
+        // Middleware
+        $container->registerProvider(Oauth2Middleware::class, static function () use ($container) {
+            return new Oauth2Middleware(
+                $container->get('ps_accounts.module')
             );
         });
     }
