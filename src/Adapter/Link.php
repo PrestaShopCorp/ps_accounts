@@ -71,10 +71,11 @@ class Link
         }
 
         if ($this->shopContext->isShop17()) {
-            $uri = $this->rel2abs(
-                $this->link->getAdminLink($controller, $withToken, $sfRouteParams, $params),
-                $absolute
-            );
+//            $uri = $this->rel2abs(
+//                $this->link->getAdminLink($controller, $withToken, $sfRouteParams, $params),
+//                $absolute
+//            );
+            $uri = $this->link->getAdminLink($controller, $withToken, $sfRouteParams, $params);
         } else {
             $uri = $this->getAdminLink16($controller, $withToken, $params);
         }
