@@ -31,7 +31,7 @@ use PrestaShop\Module\PsAccounts\Log\Logger;
 use PrestaShop\Module\PsAccounts\Provider\OAuth2;
 use PrestaShop\Module\PsAccounts\Service\AnalyticsService;
 use PrestaShop\Module\PsAccounts\Service\PsAccountsService;
-use PrestaShop\OAuth2\Client\Provider\PrestaShopUser;
+use PrestaShop\Module\PsAccounts\Vendor\PrestaShop\OAuth2\Client\Provider\PrestaShopUser;
 use PrestaShopBundle\Controller\Admin\FrameworkBundleAdminController;
 use PrestaShopBundle\Entity\Employee\Employee as EmployeeEntity;
 use Ps_accounts;
