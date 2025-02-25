@@ -37,6 +37,7 @@ class LogoutSubscriber implements EventSubscriberInterface
                 LogoutEvent::class => 'onLogout',
             ];
         }
+
         return [];
     }
 
