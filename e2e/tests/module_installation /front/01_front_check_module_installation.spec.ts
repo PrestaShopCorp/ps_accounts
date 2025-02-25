@@ -1,11 +1,10 @@
 //Import
 import {test} from '@playwright/test';
-import {gotToModuleManagerPage} from '~/fixtures/login.fixture';
+import {gotToModuleManagerPage} from '~/fixtures/goToModuleManagerPage.fixture';
 import {PageManager} from '~/pages/managerPage';
 
-//Var
-gotToModuleManagerPage('Check if module is installed', async ({page}) => {
-  const pm = new PageManager(page);
+gotToModuleManagerPage('Check if module is installed', async ({gotToModuleManagerPage}) => {
+  const pm = new PageManager(gotToModuleManagerPage);
   await test.step('check if module is installed and module version', async () => {
     await pm.fromModuleManagePage().getPageMainTitle();
     await pm.fromModuleManagePage().isAccountVisible();

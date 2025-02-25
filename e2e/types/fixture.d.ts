@@ -1,5 +1,7 @@
-export type ShippingFixtures = {
-  gotToModuleManagerPage;
-  goToCarriers;
-  goToPreferences;
+import {Page} from '@playwright/test'
+
+export type MyFixtures = {
+  gotToModuleManagerPage: Page;
+  loginFixture: Page;
+  activeMultistoreAndCreateShop: Page;
 };
