@@ -24,43 +24,36 @@ use PrestaShop\Module\PsAccounts\Middleware\Oauth2Middleware;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 use Symfony\Component\Security\Http\Event\LogoutEvent;
 
-if (defined('_PS_VERSION_')
-    && version_compare(_PS_VERSION_, '9.0', '>=')) {
-    class LogoutSubscriber implements EventSubscriberInterface
+class LogoutSubscriber implements EventSubscriberInterface
+{
+    /**
+     * @return string[]
+     */
+    public static function getSubscribedEvents()
     {
-        /**
-         * @return string[]
-         */
-        public static function getSubscribedEvents()
-        {
+        if (defined('_PS_VERSION_')
+            && version_compare(_PS_VERSION_, '9.0', '>=')) {
             return [
                 LogoutEvent::class => 'onLogout',
             ];
         }
-
-        /**
-         * @param LogoutEvent $event
-         *
-         * @return void
-         *
-         * @throws \Exception
-         */
-        public function onLogout(LogoutEvent $event)
-        {
-            /** @var \Ps_accounts $module */
-            $module = \Module::getInstanceByName('ps_accounts');
-
-            /** @var Oauth2Middleware $oauth2Middleware */
-            $oauth2Middleware = $module->getService(Oauth2Middleware::class);
-            $oauth2Middleware->executeLogout();
-        }
+        return [];
     }
-} else {
-    class LogoutSubscriber implements EventSubscriberInterface
+
+    /**
+     * @param LogoutEvent $event
+     *
+     * @return void
+     *
+     * @throws \Exception
+     */
+    public function onLogout(LogoutEvent $event)
     {
-        public static function getSubscribedEvents()
-        {
-            return [];
-        }
+        /** @var \Ps_accounts $module */
+        $module = \Module::getInstanceByName('ps_accounts');
+
+        /** @var Oauth2Middleware $oauth2Middleware */
+        $oauth2Middleware = $module->getService(Oauth2Middleware::class);
+        $oauth2Middleware->executeLogout();
     }
 }
