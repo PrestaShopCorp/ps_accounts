@@ -63,7 +63,7 @@ class ShopProvider
      */
     public function formatShopData(array $shopData, $psxName = '', $refreshTokens = true)
     {
-        return $this->getShopContext()->execInShopContext($shopData['id_shop'], function () use ($shopData, $psxName, $refreshTokens) {
+        return $this->getShopContext()->execInShopContext($shopData['id_shop'], function () use ($shopData , $refreshTokens) {
             /** @var \Ps_accounts $module */
             $module = \Module::getInstanceByName('ps_accounts');
 
@@ -94,17 +94,7 @@ class ShopProvider
                     'uuid' => $linkShop->getOwnerUuid() ?: null,
                     'emailIsValidated' => null,
                 ],
-                'url' => $this->link->getAdminLink(
-                    'AdminModules',
-                    true,
-                    [],
-                    [
-                        'module_name' => $psxName,
-                        'configure' => $psxName,
-                        'setShopContext' => 's-' . $shopData['id_shop'],
-                    ],
-                    true
-                ),
+                'url' => $this->link->getAdminLink('AdminDashboard', false),
                 'isLinkedV4' => null,
                 'unlinkedAuto' => !empty($linkShop->getUnlinkedOnError()),
             ]);

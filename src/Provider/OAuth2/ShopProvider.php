@@ -110,14 +110,12 @@ class ShopProvider extends PrestaShop
         /** @var Link $link */
         $link = $this->module->getService(Link::class);
 
-//          $router = SymfonyContainer::getInstance()->get('router');
-//          return $router->generate('ps_accounts_oauth2');
-//          return $link->getAdminLink('AdminOAuth2PsAccounts', false, [
-//             'route' => 'ps_accounts_oauth2',
-//          ]);
         if (defined('_PS_VERSION_')
             && version_compare(_PS_VERSION_, '9', '>=')) {
-            return $link->getAdminLink('SfAdminOAuth2PsAccounts', false);
+            return $link->getAdminLink('AdminOAuth2PsAccounts', false, [
+                'route' => 'ps_accounts_oauth2',
+            ]);
+            //return $link->getAdminLink('SfAdminOAuth2PsAccounts', false);
         }
 
         return $link->getAdminLink('AdminOAuth2PsAccounts', false, [], [], true);
