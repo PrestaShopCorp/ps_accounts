@@ -63,7 +63,7 @@ class ShopProvider
      */
     public function formatShopData(array $shopData, $psxName = '', $refreshTokens = true)
     {
-        return $this->getShopContext()->execInShopContext($shopData['id_shop'], function () use ($shopData , $refreshTokens) {
+        return $this->getShopContext()->execInShopContext($shopData['id_shop'], function () use ($shopData, $refreshTokens) {
             /** @var \Ps_accounts $module */
             $module = \Module::getInstanceByName('ps_accounts');
 
