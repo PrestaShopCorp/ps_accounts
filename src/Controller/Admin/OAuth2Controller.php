@@ -160,8 +160,8 @@ class OAuth2Controller extends FrameworkBundleAdminController
             // FIXME: get intended redirect uri
             'redirect' => '',
             // FIXME: integration with the appropriate login layout & blocks
-            'linkCss' => '/modules/ps_accounts/views/css/login.css',
-            'linkJs' => '/modules/ps_accounts/views/js/login.js',
+            'linkCss' => $this->module->getPathUri() . '/views/css/login.css',
+            'linkJs' => $this->module->getPathUri() . '/views/js/login.js',
         ]);
     }
 
