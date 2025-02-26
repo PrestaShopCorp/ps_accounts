@@ -30,10 +30,12 @@ class DisplayBackOfficeHeader extends Hook
      */
     public function execute(array $params = [])
     {
-        if (defined('_PS_VERSION_')
-            && version_compare(_PS_VERSION_, '8', '>=')) {
+        if (defined('_PS_VERSION_') &&
+            version_compare(_PS_VERSION_, '8', '>=') &&
+            version_compare(_PS_VERSION_, '9', '<')
+        ) {
             try {
-                $this->module->getOauth2Middleware()->execute();
+                $this->module->getOauth2Middleware()->handleLogout();
             } catch (IdentityProviderException $e) {
                 $this->logger->error('error while executing middleware : ' . $e->getMessage());
                 /* @phpstan-ignore-next-line */

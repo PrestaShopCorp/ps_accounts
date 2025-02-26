@@ -36,25 +36,85 @@ class ActionAdminLoginControllerSetMedia extends Hook
      */
     public function execute(array $params = [])
     {
-        $this->module->getOauth2Middleware()->execute();
+        if (defined('_PS_VERSION_') &&
+            version_compare(_PS_VERSION_, '8', '>=')) {
+            if (version_compare(_PS_VERSION_, '9', '<')) {
+                $this->executeV8();
+            } else {
+                $this->executeV9();
+            }
+        }
+    }
+
+    /**
+     * @return void
+     *
+     * @throws Exception
+     */
+    protected function executeV8()
+    {
+        // Handle logout
+        $this->module->getOauth2Middleware()->handleLogout();
 
         $local = $this->isLocalLogin();
 
         $this->trackEditionLoginPage($local);
 
-        if (defined('_PS_VERSION_')
-            && version_compare(_PS_VERSION_, '8', '>=') && !$local) {
-            /** @var Link $link */
-            $link = $this->module->getService(Link::class);
-
-            if (version_compare(_PS_VERSION_, '9', '<')) {
-                //Tools::redirectLink($link->getAdminLink('AdminLoginPsAccounts', false));
-                (new AdminLoginPsAccountsController())->run();
-            } else {
-                header('Location: ' . $link->getAdminLink('SfAdminLoginPsAccounts', false));
-            }
-            exit;
+        if (!$local) {
+            $this->redirectLegacyAccountLoginController();
         }
+    }
+
+    /**
+     * @return void
+     *
+     * @throws Exception
+     */
+    protected function executeV9()
+    {
+        $local = $this->isLocalLogin();
+
+        $this->trackEditionLoginPage($local);
+
+        if (!$local) {
+            $this->redirectSymfonyAccountLoginController();
+        }
+    }
+
+    /**
+     * @return bool
+     */
+    protected function isLocalLogin()
+    {
+        /** @var PsAccountsService $psAccountsService */
+        $psAccountsService = $this->module->getService(PsAccountsService::class);
+
+        return Tools::getValue('mode') === AdminLoginPsAccountsController::PARAM_MODE_LOCAL ||
+            !empty(Tools::getValue('reset_token')) ||
+            !$psAccountsService->getLoginActivated();
+    }
+
+    /**
+     * @return void
+     */
+    protected function redirectLegacyAccountLoginController()
+    {
+//        /** @var Link $link */
+//        $link = $this->module->getService(Link::class);
+//        Tools::redirectLink($link->getAdminLink('AdminLoginPsAccounts', false));
+        (new AdminLoginPsAccountsController())->run();
+        exit;
+    }
+
+    /**
+     * @return void
+     */
+    protected function redirectSymfonyAccountLoginController()
+    {
+        /** @var Link $link */
+        $link = $this->module->getService(Link::class);
+        header('Location: ' . $link->getAdminLink('SfAdminLoginPsAccounts', false));
+        exit;
     }
 
     /**
@@ -81,18 +141,5 @@ class ActionAdminLoginControllerSetMedia extends Hook
                 $analytics->pageLocalBoLogin($userId);
             }
         }
-    }
-
-    /**
-     * @return bool
-     */
-    public function isLocalLogin()
-    {
-        /** @var PsAccountsService $psAccountsService */
-        $psAccountsService = $this->module->getService(PsAccountsService::class);
-
-        return Tools::getValue('mode') === AdminLoginPsAccountsController::PARAM_MODE_LOCAL ||
-            !empty(Tools::getValue('reset_token')) ||
-            !$psAccountsService->getLoginActivated();
     }
 }

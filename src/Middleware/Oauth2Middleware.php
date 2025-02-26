@@ -56,8 +56,24 @@ class Oauth2Middleware
 
     /**
      * @return void
+     *
+     * @deprecated since v7.1.2
      */
     public function execute()
+    {
+        try {
+            if (isset($_GET['logout'])) {
+                $this->executeLogout();
+            }
+        } catch (Exception $e) {
+            Logger::getInstance()->err($e->getMessage());
+        }
+    }
+
+    /**
+     * @return void
+     */
+    public function handleLogout()
     {
         try {
             if (isset($_GET['logout'])) {

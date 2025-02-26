@@ -71,10 +71,6 @@ class Link
         }
 
         if ($this->shopContext->isShop17()) {
-//            $uri = $this->rel2abs(
-//                $this->link->getAdminLink($controller, $withToken, $sfRouteParams, $params),
-//                $absolute
-//            );
             $uri = $this->link->getAdminLink($controller, $withToken, $sfRouteParams, $params);
         } else {
             $uri = $this->getAdminLink16($controller, $withToken, $params);
@@ -150,6 +146,8 @@ class Link
      * @param bool $absolute
      *
      * @return string
+     *
+     * @deprecated broken in early PrestaShop v9 beta
      */
     protected function rel2abs($url, $absolute)
     {
