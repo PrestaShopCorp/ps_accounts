@@ -104,7 +104,7 @@ $service = $module->getService(\PrestaShop\Module\PsAccounts\Service\PsAccountsS
 
 try {
     $jwtAccessToken = $service->getShopToken();
-} catch (\PrestaShop\Module\PsAccounts\Exception\RefreshTokenException $e) {
+} catch (\PrestaShop\Module\PsAccounts\Account\Exception\RefreshTokenException $e) {
     // 
 }
 ```
