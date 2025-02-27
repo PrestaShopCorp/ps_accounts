@@ -195,3 +195,7 @@ OR with multiple environments :
   cp config.dist.php config.myenv.php
   BUNDLE_ENV=myenv make
 ```
+
+# Deprecation Notices [WIP]
+
+* PrestaShop\Module\PsAccounts\Provider\OAuth2\PrestaShopSession
