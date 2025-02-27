@@ -115,7 +115,7 @@ class AdminOAuth2PsAccountsController extends \ModuleAdminController
      */
     protected function initUserSession(PrestaShopUser $user)
     {
-        Logger::getInstance()->error(
+        Logger::getInstance()->info(
             '[OAuth2] ' . (string) json_encode($user->toArray(), JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE)
         );
 
