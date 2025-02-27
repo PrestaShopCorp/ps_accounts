@@ -198,4 +198,15 @@ OR with multiple environments :
 
 # Deprecation Notices [WIP]
 
+### v7.2.0
+
+* Prestashop\Module\PsAccounts\Exception\RefreshTokenException
+  * moved to : Prestashop\Module\PsAccounts\Accounts\Exception\RefreshTokenException
+* Prestashop\Module\PsAccounts\Exception\SshKeysNotFoundException
+  * moved to : Prestashop\Module\PsAccounts\Accounts\Exception\SshKeysNotFoundException
+* Namespace : Prestashop\Module\PsAccounts\Exception\AccountLogin
+  * moved to : Prestashop\Module\PsAccounts\AccountLogin\Exception
+* Namespace : Prestashop\Module\PsAccounts\Exception\Http
+  * moved to : Prestashop\Module\PsAccounts\Api\Controller\Exception
 * PrestaShop\Module\PsAccounts\Provider\OAuth2\PrestaShopSession
+* **[dropped]** ~~PrestaShop\Module\PsAccounts\Installer\Installer~~
