@@ -25,6 +25,7 @@ use PrestaShop\Module\PsAccounts\AccountLogin\OAuth2Session;
 use PrestaShop\Module\PsAccounts\Adapter\Link;
 use PrestaShop\Module\PsAccounts\OAuth2\ApiClient;
 use PrestaShop\Module\PsAccounts\OAuth2\Client;
+use PrestaShop\Module\PsAccounts\Provider\OAuth2\PrestaShopSession;
 use PrestaShop\Module\PsAccounts\Repository\ConfigurationRepository;
 use PrestaShop\Module\PsAccounts\Vendor\PrestaShopCorp\LightweightContainer\ServiceContainer\Contract\IServiceProvider;
 use PrestaShop\Module\PsAccounts\Vendor\PrestaShopCorp\LightweightContainer\ServiceContainer\ServiceContainer;
@@ -60,6 +61,9 @@ class OAuth2Provider implements IServiceProvider
                 $container->getService(ApiClient::class),
                 $container->getService(Client::class)
             );
+        });
+        $container->registerProvider(PrestaShopSession::class, static function () use ($container) {
+            return $container->getService(OAuth2Session::class);
         });
         // Middleware
         $container->registerProvider(Oauth2Middleware::class, static function () use ($container) {
