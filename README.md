@@ -209,4 +209,3 @@ OR with multiple environments :
 * Namespace : Prestashop\Module\PsAccounts\Exception\Http
   * moved to : Prestashop\Module\PsAccounts\Api\Controller\Exception
 * PrestaShop\Module\PsAccounts\Provider\OAuth2\PrestaShopSession
-* **[dropped]** ~~PrestaShop\Module\PsAccounts\Installer\Installer~~
