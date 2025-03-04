@@ -18,19 +18,14 @@
  * @license   https://opensource.org/licenses/AFL-3.0 Academic Free License version 3.0
  */
 
-namespace PrestaShop\Module\PsAccounts\Api\Controller\Exception;
+namespace PrestaShop\Module\PsAccounts\Http\Resource;
 
-class InternalServerErrorException extends HttpException
+use PrestaShop\Module\PsAccounts\Type\Dto;
+
+abstract class Resource extends Dto
 {
     /**
-     * @param string $message
-     * @param int $code
-     * @param \Exception|null $previous
+     * @var bool
      */
-    public function __construct($message = 'Internal Server Error', $code = 0, \Exception $previous = null)
-    {
-        parent::__construct($message, $code, $previous);
-
-        $this->statusCode = 500;
-    }
+    protected $throwOnUnexpectedProperties = false;
 }

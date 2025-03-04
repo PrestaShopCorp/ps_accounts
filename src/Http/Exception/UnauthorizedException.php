@@ -18,19 +18,19 @@
  * @license   https://opensource.org/licenses/AFL-3.0 Academic Free License version 3.0
  */
 
-namespace PrestaShop\Module\PsAccounts\Api\Controller\Exception;
+namespace PrestaShop\Module\PsAccounts\Http\Exception;
 
-class NotFoundException extends HttpException
+class UnauthorizedException extends HttpException
 {
     /**
      * @param string $message
      * @param int $code
      * @param \Exception|null $previous
      */
-    public function __construct($message = 'Not Found', $code = 0, \Exception $previous = null)
+    public function __construct($message = 'Unauthorized', $code = 0, \Exception $previous = null)
     {
         parent::__construct($message, $code, $previous);
 
-        $this->statusCode = 404;
+        $this->statusCode = 401;
     }
 }

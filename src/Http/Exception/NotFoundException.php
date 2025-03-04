@@ -18,14 +18,19 @@
  * @license   https://opensource.org/licenses/AFL-3.0 Academic Free License version 3.0
  */
 
-namespace PrestaShop\Module\PsAccounts\OAuth2\Response;
+namespace PrestaShop\Module\PsAccounts\Http\Exception;
 
-use PrestaShop\Module\PsAccounts\Type\Dto;
-
-abstract class Response extends Dto
+class NotFoundException extends HttpException
 {
     /**
-     * @var bool
+     * @param string $message
+     * @param int $code
+     * @param \Exception|null $previous
      */
-    protected $throwOnUnexpectedProperties = false;
+    public function __construct($message = 'Not Found', $code = 0, \Exception $previous = null)
+    {
+        parent::__construct($message, $code, $previous);
+
+        $this->statusCode = 404;
+    }
 }

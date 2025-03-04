@@ -18,7 +18,7 @@
  * @license   https://opensource.org/licenses/AFL-3.0 Academic Free License version 3.0
  */
 
-namespace PrestaShop\Module\PsAccounts\OAuth2\Response;
+namespace PrestaShop\Module\PsAccounts\OAuth2\Resource;
 
 // [OAuth2] stdClass Object (
 //     [amr] => Array
@@ -48,9 +48,9 @@ namespace PrestaShop\Module\PsAccounts\OAuth2\Response;
 //     [sub] => 4rFN5bm2piPeYpsotUIwcyabcdeF
 // )  [] []
 
-use PrestaShop\Module\PsAccounts\OAuth2\Response\Response;
+use PrestaShop\Module\PsAccounts\Http\Resource\Resource;
 
-class UserInfo extends Response
+class UserInfo extends Resource
 {
     /**
      * @var string

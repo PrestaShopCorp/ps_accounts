@@ -26,7 +26,7 @@ use PrestaShop\Module\PsAccounts\AccountLogin\Exception\Oauth2LoginException;
 use PrestaShop\Module\PsAccounts\Log\Logger;
 use PrestaShop\Module\PsAccounts\OAuth2\ApiClient;
 use PrestaShop\Module\PsAccounts\OAuth2\OAuth2Exception;
-use PrestaShop\Module\PsAccounts\OAuth2\Response\UserInfo;
+use PrestaShop\Module\PsAccounts\OAuth2\Resource\UserInfo;
 use Symfony\Component\HttpFoundation\Session\SessionInterface;
 use Tools;
 

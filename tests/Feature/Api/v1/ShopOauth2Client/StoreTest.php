@@ -5,7 +5,7 @@ namespace PrestaShop\Module\PsAccounts\Tests\Feature\Api\v1\ShopOauth2Client;
 use PrestaShop\Module\PsAccounts\Account\Session\Firebase\OwnerSession;
 use PrestaShop\Module\PsAccounts\Account\Session\Firebase\ShopSession;
 use PrestaShop\Module\PsAccounts\OAuth2\Client;
-use PrestaShop\Module\PsAccounts\Api\Controller\AbstractRestController;
+use PrestaShop\Module\PsAccounts\Http\Controller\AbstractRestController;
 use PrestaShop\Module\PsAccounts\Adapter\ConfigurationKeys;
 use PrestaShop\Module\PsAccounts\Tests\Feature\FeatureTestCase;
 use function GuzzleHttp\Psr7\str;

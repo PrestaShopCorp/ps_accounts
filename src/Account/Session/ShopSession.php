@@ -29,7 +29,7 @@ use PrestaShop\Module\PsAccounts\Cqrs\CommandBus;
 use PrestaShop\Module\PsAccounts\Hook\ActionShopAccessTokenRefreshAfter;
 use PrestaShop\Module\PsAccounts\OAuth2\ApiClient;
 use PrestaShop\Module\PsAccounts\OAuth2\OAuth2Exception;
-use PrestaShop\Module\PsAccounts\OAuth2\Response\AccessToken;
+use PrestaShop\Module\PsAccounts\OAuth2\Resource\AccessToken;
 use PrestaShop\Module\PsAccounts\Repository\ConfigurationRepository;
 
 class ShopSession extends Session implements SessionInterface

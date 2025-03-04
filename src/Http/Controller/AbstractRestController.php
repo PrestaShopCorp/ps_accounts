@@ -18,13 +18,13 @@
  * @license   https://opensource.org/licenses/AFL-3.0 Academic Free License version 3.0
  */
 
-namespace PrestaShop\Module\PsAccounts\Api\Controller;
+namespace PrestaShop\Module\PsAccounts\Http\Controller;
 
 use Context;
 use ModuleFrontController;
-use PrestaShop\Module\PsAccounts\Api\Controller\Exception\HttpException;
-use PrestaShop\Module\PsAccounts\Api\Controller\Exception\MethodNotAllowedException;
-use PrestaShop\Module\PsAccounts\Api\Controller\Exception\UnauthorizedException;
+use PrestaShop\Module\PsAccounts\Http\Exception\HttpException;
+use PrestaShop\Module\PsAccounts\Http\Exception\MethodNotAllowedException;
+use PrestaShop\Module\PsAccounts\Http\Exception\UnauthorizedException;
 use PrestaShop\Module\PsAccounts\Polyfill\Traits\Controller\AjaxRender;
 use PrestaShop\Module\PsAccounts\Provider\RsaKeysProvider;
 use PrestaShop\Module\PsAccounts\Repository\ConfigurationRepository;

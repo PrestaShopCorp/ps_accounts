@@ -25,7 +25,7 @@ use PrestaShop\Module\PsAccounts\AccountLogin\OAuth2LoginTrait;
 use PrestaShop\Module\PsAccounts\AccountLogin\OAuth2Session;
 use PrestaShop\Module\PsAccounts\Entity\EmployeeAccount;
 use PrestaShop\Module\PsAccounts\OAuth2\ApiClient;
-use PrestaShop\Module\PsAccounts\OAuth2\Response\UserInfo;
+use PrestaShop\Module\PsAccounts\OAuth2\Resource\UserInfo;
 use PrestaShop\Module\PsAccounts\Polyfill\Traits\AdminController\IsAnonymousAllowed;
 use PrestaShop\Module\PsAccounts\Repository\EmployeeAccountRepository;
 use PrestaShop\Module\PsAccounts\Service\AnalyticsService;

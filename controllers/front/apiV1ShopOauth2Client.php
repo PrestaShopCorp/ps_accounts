@@ -20,8 +20,8 @@
 
 use PrestaShop\Module\PsAccounts\Account\Exception\RefreshTokenException;
 use PrestaShop\Module\PsAccounts\Account\Session\ShopSession;
-use PrestaShop\Module\PsAccounts\Api\Controller\AbstractShopRestController;
-use PrestaShop\Module\PsAccounts\Api\Controller\Request\UpdateShopOauth2ClientRequest;
+use PrestaShop\Module\PsAccounts\Http\Controller\AbstractShopRestController;
+use PrestaShop\Module\PsAccounts\Http\Request\UpdateShopOauth2ClientRequest;
 use PrestaShop\Module\PsAccounts\OAuth2\Client;
 
 class ps_AccountsApiV1ShopOauth2ClientModuleFrontController extends AbstractShopRestController

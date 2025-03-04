@@ -7,8 +7,8 @@ use PrestaShop\Module\PsAccounts\Http\Client\ClientConfig;
 use PrestaShop\Module\PsAccounts\OAuth2\ApiClient;
 use PrestaShop\Module\PsAccounts\OAuth2\Client;
 use PrestaShop\Module\PsAccounts\OAuth2\OAuth2Exception;
-use PrestaShop\Module\PsAccounts\OAuth2\Response\UserInfo;
-use PrestaShop\Module\PsAccounts\OAuth2\Response\WellKnown;
+use PrestaShop\Module\PsAccounts\OAuth2\Resource\UserInfo;
+use PrestaShop\Module\PsAccounts\OAuth2\Resource\WellKnown;
 
 class ApiClientTest extends TestCase
 {

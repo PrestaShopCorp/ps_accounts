@@ -18,12 +18,12 @@
  * @license   https://opensource.org/licenses/AFL-3.0 Academic Free License version 3.0
  */
 
-namespace PrestaShop\Module\PsAccounts\OAuth2\Response;
+namespace PrestaShop\Module\PsAccounts\OAuth2\Resource;
 
 use PrestaShop\Module\PsAccounts\Account\Token\Token;
-use PrestaShop\Module\PsAccounts\OAuth2\Response\Response;
+use PrestaShop\Module\PsAccounts\Http\Resource\Resource;
 
-class AccessToken extends Response
+class AccessToken extends Resource
 {
     /**
      * @var string

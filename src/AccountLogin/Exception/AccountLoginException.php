@@ -20,7 +20,7 @@
 
 namespace PrestaShop\Module\PsAccounts\AccountLogin\Exception;
 
-use PrestaShop\Module\PsAccounts\OAuth2\Response\UserInfo;
+use PrestaShop\Module\PsAccounts\OAuth2\Resource\UserInfo;
 
 class AccountLoginException extends \Exception
 {

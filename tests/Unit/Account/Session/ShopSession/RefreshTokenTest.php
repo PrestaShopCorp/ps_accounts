@@ -4,7 +4,7 @@ namespace PrestaShop\Module\PsAccounts\Tests\Unit\Account\Session\ShopSession;
 
 use PrestaShop\Module\PsAccounts\Account\Session\ShopSession;
 use PrestaShop\Module\PsAccounts\Account\Token\Token;
-use PrestaShop\Module\PsAccounts\OAuth2\Response\AccessToken;
+use PrestaShop\Module\PsAccounts\OAuth2\Resource\AccessToken;
 use PrestaShop\Module\PsAccounts\OAuth2\ApiClient;
 use PrestaShop\Module\PsAccounts\Cqrs\CommandBus;
 use PrestaShop\Module\PsAccounts\Account\Exception\RefreshTokenException;

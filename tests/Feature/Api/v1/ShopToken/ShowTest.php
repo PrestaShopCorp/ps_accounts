@@ -3,7 +3,7 @@
 namespace PrestaShop\Module\PsAccounts\Tests\Feature\Api\v1\ShopToken;
 
 use PrestaShop\Module\PsAccounts\Account\Session\Firebase\ShopSession;
-use PrestaShop\Module\PsAccounts\Api\Controller\AbstractRestController;
+use PrestaShop\Module\PsAccounts\Http\Controller\AbstractRestController;
 use PrestaShop\Module\PsAccounts\Tests\Feature\FeatureTestCase;
 
 class ShowTest extends FeatureTestCase

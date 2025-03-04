@@ -27,9 +27,9 @@ use PrestaShop\Module\PsAccounts\Http\Client\Curl\Client as HttpClient;
 use PrestaShop\Module\PsAccounts\Http\Client\Factory;
 use PrestaShop\Module\PsAccounts\Http\Client\Request;
 use PrestaShop\Module\PsAccounts\Http\Client\Response;
-use PrestaShop\Module\PsAccounts\OAuth2\Response\AccessToken;
-use PrestaShop\Module\PsAccounts\OAuth2\Response\UserInfo;
-use PrestaShop\Module\PsAccounts\OAuth2\Response\WellKnown;
+use PrestaShop\Module\PsAccounts\OAuth2\Resource\AccessToken;
+use PrestaShop\Module\PsAccounts\OAuth2\Resource\UserInfo;
+use PrestaShop\Module\PsAccounts\OAuth2\Resource\WellKnown;
 use PrestaShop\Module\PsAccounts\Vendor\Ramsey\Uuid\Uuid;
 
 class ApiClient

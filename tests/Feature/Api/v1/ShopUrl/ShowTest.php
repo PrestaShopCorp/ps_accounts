@@ -2,7 +2,7 @@
 
 namespace PrestaShop\Module\PsAccounts\Tests\Feature\Api\v1\ShopUrl;
 
-use PrestaShop\Module\PsAccounts\Api\Controller\AbstractRestController;
+use PrestaShop\Module\PsAccounts\Http\Controller\AbstractRestController;
 use PrestaShop\Module\PsAccounts\Provider\ShopProvider;
 use PrestaShop\Module\PsAccounts\Tests\Feature\FeatureTestCase;
 

@@ -18,30 +18,19 @@
  * @license   https://opensource.org/licenses/AFL-3.0 Academic Free License version 3.0
  */
 
-namespace PrestaShop\Module\PsAccounts\Api\Controller\Request;
+namespace PrestaShop\Module\PsAccounts\Http\Exception;
 
-use PrestaShop\Module\PsAccounts\Api\Controller\Exception\BadRequestException;
-use PrestaShop\Module\PsAccounts\Exception\DtoException;
-use PrestaShop\Module\PsAccounts\Type\Dto;
-
-abstract class Request extends Dto
+class InternalServerErrorException extends HttpException
 {
     /**
-     * @var bool
+     * @param string $message
+     * @param int $code
+     * @param \Exception|null $previous
      */
-    protected $throwOnUnexpectedProperties = false;
-
-    /**
-     * @param array $values
-     *
-     * @throws \Exception
-     */
-    public function __construct($values = [])
+    public function __construct($message = 'Internal Server Error', $code = 0, \Exception $previous = null)
     {
-        try {
-            parent::__construct($values);
-        } catch (DtoException $e) {
-            throw new BadRequestException($e->getMessage());
-        }
+        parent::__construct($message, $code, $previous);
+
+        $this->statusCode = 500;
     }
 }

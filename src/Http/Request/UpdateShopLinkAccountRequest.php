@@ -18,20 +18,26 @@
  * @license   https://opensource.org/licenses/AFL-3.0 Academic Free License version 3.0
  */
 
-namespace PrestaShop\Module\PsAccounts\Api\Controller\Exception;
+namespace PrestaShop\Module\PsAccounts\Http\Request;
 
-class HttpException extends \RuntimeException
+class UpdateShopLinkAccountRequest extends Request
 {
-    /**
-     * @var int
-     */
-    protected $statusCode;
+    /** @var string */
+    public $shop_id;
+    /** @var string */
+    public $employee_id = '';
+    /** @var string */
+    public $uid;
+    /** @var string */
+    public $owner_uid;
+    /** @var string */
+    public $owner_email;
 
     /**
-     * @return int
+     * @var string[]
      */
-    public function getStatusCode()
-    {
-        return $this->statusCode;
-    }
+    protected $required = [
+        'shop_id',
+        'uid',
+    ];
 }

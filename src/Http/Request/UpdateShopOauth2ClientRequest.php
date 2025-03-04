@@ -18,19 +18,25 @@
  * @license   https://opensource.org/licenses/AFL-3.0 Academic Free License version 3.0
  */
 
-namespace PrestaShop\Module\PsAccounts\Api\Controller\Exception;
+namespace PrestaShop\Module\PsAccounts\Http\Request;
 
-class UnauthorizedException extends HttpException
+class UpdateShopOauth2ClientRequest extends Request
 {
-    /**
-     * @param string $message
-     * @param int $code
-     * @param \Exception|null $previous
-     */
-    public function __construct($message = 'Unauthorized', $code = 0, \Exception $previous = null)
-    {
-        parent::__construct($message, $code, $previous);
+    /** @var string */
+    public $shop_id;
+    /** @var string */
+    public $client_id;
+    /** @var string */
+    public $client_secret;
+    /** @var string */
+    public $uid;
 
-        $this->statusCode = 401;
-    }
+    /**
+     * @var string[]
+     */
+    protected $required = [
+        'client_id',
+        'client_secret',
+        'uid',
+    ];
 }

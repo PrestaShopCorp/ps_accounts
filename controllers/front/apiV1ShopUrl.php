@@ -18,7 +18,7 @@
  * @license   https://opensource.org/licenses/AFL-3.0 Academic Free License version 3.0
  */
 
-use PrestaShop\Module\PsAccounts\Api\Controller\AbstractShopRestController;
+use PrestaShop\Module\PsAccounts\Http\Controller\AbstractShopRestController;
 use PrestaShop\Module\PsAccounts\Provider\ShopProvider;
 use PrestaShop\Module\PsAccounts\Repository\ConfigurationRepository;
 
