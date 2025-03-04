@@ -26,6 +26,15 @@
   <title>Login with PrestaShop</title>
   <link rel="stylesheet" href="{{ linkCss }}">
   <link rel="stylesheet" href="https://unpkg.com/@prestashopcorp/puik-theme/dist/index.css" />
+  {#**
+    Workaround for the issue with the font not being loaded correctly from puik-theme
+  *#}
+  <style>
+    @font-face {
+      font-family: Prestafont;
+      src: url("https://unpkg.com/@prestashopcorp/puik-theme/assets/Prestafont-Regular.woff2") format("woff2")
+    }
+  </style>
   <script src="{{ linkJs }}"></script>
   <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
 </head>
@@ -84,15 +93,11 @@
           <div class="puik-alert__text">
             <span class="puik-alert__description">
                 {% if loginError == 'employee_not_found' %}
-                    {{ 'You cannot access the back office with this account. Try another account or contact your administrator.'|trans({}, 'Modules.Ps_accounts.Content')|raw }}
+                    {{ 'You cannot access the back office with this account. Try another account or contact your administrator.'|trans({}, 'Modules.Ps_accounts.Login')|raw }}
                 {% elseif loginError == 'email_not_verified' %}
-                    {{ 'You need to activate your account first by clicking the link in the email.'|trans({}, 'Modules.Ps_accounts.Content')|raw }}
-                    {{ 'If you need to receive a new activation link'|trans({}, 'Modules.Ps_accounts.Content') }}
-                    <a class="puik-link" href="{{ ssoResendVerificationEmail }}" target="_blank">
-                      {{ 'please click here'|trans({}, 'Modules.Ps_accounts.Content') }}
-                    </a>
+                    {{ 'You need to activate your account first by clicking the link in the email. If you need to receive a new activation link,[1]please click here[/1]'|trans({'[1]': '<a class="puik-link" href="' ~ ssoResendVerificationEmail ~ '" target="_blank">', '[/1]': '</a>'}, 'Modules.Ps_accounts.Login')|raw }}
                 {% elseif loginError == 'error_from_hydra' or loginError == 'error_other' %}
-                    {{ 'An error occured during login, please contact PrestaShop support'|trans({}, 'Modules.Ps_accounts.Content')|raw }}
+                    {{ 'An error occured during login, please contact PrestaShop support'|trans({}, 'Modules.Ps_accounts.Login')|raw }}
                 {% else %}
                     {{ loginError }}
                 {% endif %}
@@ -109,18 +114,18 @@
       </h1>
 
       <div class="psacc-flex psacc-flex-col psacc-items-start psacc-max-w-xl psacc-font-primary">
-        <br class="puik-h2 psacc-mb-10">
-          {{ 'Welcome'|trans({}, 'Modules.Ps_accounts.Content')|raw }}</br>
+        <h2 class="puik-h2 psacc-mb-10">
+          {{ 'Welcome,'|trans({}, 'Modules.Ps_accounts.Login')|raw }}</br>
         </h2>
         <p class="psacc-mb-10 ">
-          {{ 'Access your back office to manage your store.'|trans({}, 'Modules.Ps_accounts.Content')|raw }}
+          {{ 'Access your back office to manage your store.'|trans({}, 'Modules.Ps_accounts.Login')|raw }}
         </p>
         <button id="ps-accounts-login" class="puik-button puik-button--primary puik-button--lg psacc-w-full">
-          {{ 'Go to the back office'|trans({}, 'Modules.Ps_accounts.Content')|raw }}
+          {{ 'Go to the back office'|trans({}, 'Modules.Ps_accounts.Login')|raw }}
         </button>
       </div>
       <a class="puik-link psacc-mt-auto psacc-self-center" href="{{ legacyLoginUri }}">
-        {{ 'Connect with another method'|trans({}, 'Modules.Ps_accounts.Content')|raw }}
+        {{ 'Connect with another method'|trans({}, 'Modules.Ps_accounts.Login')|raw }}
       </a>
     </div>
     {% else %}

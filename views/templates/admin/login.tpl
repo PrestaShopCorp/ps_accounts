@@ -18,6 +18,16 @@
  *}
 <link rel="stylesheet" href="https://unpkg.com/@prestashopcorp/puik-theme/dist/index.css" />
 
+{**
+    Workaround for the issue with the font not being loaded correctly from puik-theme
+*}
+<style>
+@font-face {
+    font-family: Prestafont;
+    src: url("https://unpkg.com/@prestashopcorp/puik-theme/assets/Prestafont-Regular.woff2") format("woff2")
+}
+</style>
+
 <div class="psacc-grid psacc-h-screen lg:psacc-grid-cols-2">
     <div
         class="psacc-hidden lg:psacc-flex psacc-flex-col psacc-items-center psacc-justify-end psacc-bg-cover psacc-bg-no-repeat psacc-bg-bicycle"
