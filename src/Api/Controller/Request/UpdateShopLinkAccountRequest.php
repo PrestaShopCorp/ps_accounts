@@ -36,7 +36,7 @@ class UpdateShopLinkAccountRequest extends Request
     /**
      * @var string[]
      */
-    protected $mandatory = [
+    protected $required = [
         'shop_id',
         'uid',
     ];

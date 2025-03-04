@@ -20,25 +20,12 @@
 
 namespace PrestaShop\Module\PsAccounts\OAuth2\Response;
 
-abstract class Response
+use PrestaShop\Module\PsAccounts\Type\Dto;
+
+abstract class Response extends Dto
 {
     /**
-     * @param array $data
+     * @var bool
      */
-    public function __construct(array $data = [])
-    {
-        foreach ($data as $key => $value) {
-            if (property_exists($this, $key)) {
-                $this->$key = $value;
-            }
-        }
-    }
-
-    /**
-     * @return array
-     */
-    public function toArray()
-    {
-        return get_object_vars($this);
-    }
+    protected $throwOnUnexpectedProperties = false;
 }

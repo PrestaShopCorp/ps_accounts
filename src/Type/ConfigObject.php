@@ -39,6 +39,8 @@ class ConfigObject extends Enum
 
     /**
      * @param array $values
+     *
+     * @throws \Exception
      */
     public function __construct(array $values)
     {
@@ -106,7 +108,7 @@ class ConfigObject extends Enum
      *
      * @return void
      *
-     * @throw \InvalidArgumentException
+     * @throws \Exception
      */
     protected function assertPropertyExists($name)
     {
@@ -117,6 +119,8 @@ class ConfigObject extends Enum
 
     /**
      * @return void
+     *
+     * @throws \Exception
      */
     protected function assertRequiredProperties()
     {

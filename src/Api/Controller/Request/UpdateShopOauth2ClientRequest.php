@@ -34,7 +34,7 @@ class UpdateShopOauth2ClientRequest extends Request
     /**
      * @var string[]
      */
-    protected $mandatory = [
+    protected $required = [
         'client_id',
         'client_secret',
         'uid',
