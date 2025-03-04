@@ -20,7 +20,7 @@
 
 namespace PrestaShop\Module\PsAccounts\OAuth2\Response;
 
-use PrestaShop\Module\PsAccounts\Api\Client\Response\Response;
+use PrestaShop\Module\PsAccounts\OAuth2\Response\Response;
 
 /**
  * {

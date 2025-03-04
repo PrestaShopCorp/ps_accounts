@@ -21,7 +21,7 @@
 namespace PrestaShop\Module\PsAccounts\OAuth2\Response;
 
 use PrestaShop\Module\PsAccounts\Account\Token\Token;
-use PrestaShop\Module\PsAccounts\Api\Client\Response\Response;
+use PrestaShop\Module\PsAccounts\OAuth2\Response\Response;
 
 class AccessToken extends Response
 {

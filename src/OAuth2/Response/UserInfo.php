@@ -48,7 +48,7 @@ namespace PrestaShop\Module\PsAccounts\OAuth2\Response;
 //     [sub] => 4rFN5bm2piPeYpsotUIwcyabcdeF
 // )  [] []
 
-use PrestaShop\Module\PsAccounts\Api\Client\Response\Response;
+use PrestaShop\Module\PsAccounts\OAuth2\Response\Response;
 
 class UserInfo extends Response
 {
