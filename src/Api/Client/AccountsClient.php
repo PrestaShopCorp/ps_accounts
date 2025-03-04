@@ -84,7 +84,9 @@ class AccountsClient
      * @return array
      *
      * $response['body']['userToken']
+     * $response['body']['userRefreshToken']
      * $response['body']['shopToken']
+     * $response['body']['shopRefreshToken']
      */
     public function firebaseTokens($accessToken)
     {

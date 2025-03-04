@@ -22,7 +22,7 @@ namespace PrestaShop\Module\PsAccounts\Type;
 
 use PrestaShop\Module\PsAccounts\Exception\DtoException;
 
-class Dto implements \JsonSerializable
+abstract class Dto implements \JsonSerializable
 {
     /**
      * @var array
