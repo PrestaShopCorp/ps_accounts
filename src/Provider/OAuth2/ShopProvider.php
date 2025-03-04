@@ -100,26 +100,32 @@ class ShopProvider extends PrestaShop
     }
 
     /**
-     * @example  http://my-shop.mydomain/admin-path/index.php?controller=AdminOAuth2PsAccounts
+     * @example http://my-shop.mydomain/admin-path/index.php?controller=AdminOAuth2PsAccounts
+     * @example http://my-shop.mydomain/admin-path/modules/ps_accounts/oauth2
      *
      * @return string
-     *
-     * @throws \Exception
      */
     public function getRedirectUri()
     {
         /** @var Link $link */
         $link = $this->module->getService(Link::class);
 
-        return $link->getAdminLink('AdminOAuth2PsAccounts', false);
+        if (defined('_PS_VERSION_')
+            && version_compare(_PS_VERSION_, '9', '>=')) {
+            return $link->getAdminLink('AdminOAuth2PsAccounts', false, [
+                'route' => 'ps_accounts_oauth2',
+            ]);
+            //return $link->getAdminLink('SfAdminOAuth2PsAccounts', false);
+        }
+
+        return $link->getAdminLink('AdminOAuth2PsAccounts', false, [], [], true);
     }
 
     /**
      * @example http://my-shop.mydomain/admin-path/index.php?controller=AdminLogin&logout=1&oauth2Callback=1
+     * @example http://my-shop.mydomain/admin-path/logout?oauth2Callback=1
      *
      * @return string
-     *
-     * @throws \PrestaShopException
      */
     public function getPostLogoutRedirectUri()
     {
@@ -129,7 +135,7 @@ class ShopProvider extends PrestaShop
         return $link->getAdminLink('AdminLogin', false, [], [
             'logout' => 1,
             self::QUERY_LOGOUT_CALLBACK_PARAM => 1,
-        ]);
+        ], true);
     }
 
     /**

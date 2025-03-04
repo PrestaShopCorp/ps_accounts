@@ -18,23 +18,19 @@
  * @license   https://opensource.org/licenses/AFL-3.0 Academic Free License version 3.0
  */
 
-use PrestaShop\Module\PsAccounts\Entity\EmployeeAccount;
 use PrestaShop\Module\PsAccounts\Exception\AccountLogin\AccountLoginException;
 use PrestaShop\Module\PsAccounts\Exception\AccountLogin\EmailNotVerifiedException;
 use PrestaShop\Module\PsAccounts\Exception\AccountLogin\EmployeeNotFoundException;
+use PrestaShop\Module\PsAccounts\Log\Logger;
 use PrestaShop\Module\PsAccounts\Polyfill\Traits\AdminController\IsAnonymousAllowed;
 use PrestaShop\Module\PsAccounts\Provider\OAuth2\PrestaShopLoginTrait;
 use PrestaShop\Module\PsAccounts\Provider\OAuth2\PrestaShopSession;
 use PrestaShop\Module\PsAccounts\Provider\OAuth2\ShopProvider;
-use PrestaShop\Module\PsAccounts\Repository\EmployeeAccountRepository;
 use PrestaShop\Module\PsAccounts\Service\AnalyticsService;
 use PrestaShop\Module\PsAccounts\Service\PsAccountsService;
 use PrestaShop\Module\PsAccounts\Vendor\PrestaShop\OAuth2\Client\Provider\PrestaShopUser;
 use Symfony\Component\HttpFoundation\Session\SessionInterface;
 
-/**
- * Controller for all ajax calls.
- */
 class AdminOAuth2PsAccountsController extends \ModuleAdminController
 {
     use PrestaShopLoginTrait;
@@ -117,9 +113,11 @@ class AdminOAuth2PsAccountsController extends \ModuleAdminController
      * @throws EmployeeNotFoundException
      * @throws Exception
      */
-    private function initUserSession(PrestaShopUser $user)
+    protected function initUserSession(PrestaShopUser $user)
     {
-        $this->oauth2ErrorLog((string) json_encode($user->toArray(), JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE));
+        Logger::getInstance()->info(
+            '[OAuth2] ' . (string) json_encode($user->toArray(), JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE)
+        );
 
         $context = $this->context;
 
@@ -161,35 +159,9 @@ class AdminOAuth2PsAccountsController extends \ModuleAdminController
 
         $cookie->write();
 
-        $this->trackLoginEvent($user);
+        $this->trackEditionLoginEvent($user);
 
         return true;
-    }
-
-    /**
-     * @param AccountLoginException $e
-     *
-     * @return void
-     *
-     * @throws PrestaShopException
-     * @throws Exception
-     */
-    private function onLoginFailed(AccountLoginException $e)
-    {
-        if ($this->module->isShopEdition() && (
-                $e instanceof EmployeeNotFoundException ||
-                $e instanceof EmailNotVerifiedException
-            )) {
-            $this->trackLoginFailedEvent($e);
-        }
-
-        $this->oauth2ErrorLog($e->getMessage());
-        $this->setLoginError($e->getType());
-        Tools::redirectAdmin(
-            $this->context->link->getAdminLink('AdminLogin', true, [], [
-                'logout' => 1,
-            ])
-        );
     }
 
     /**
@@ -197,15 +169,15 @@ class AdminOAuth2PsAccountsController extends \ModuleAdminController
      *
      * @throws Exception
      */
-    private function getProvider()
+    protected function getProvider()
     {
         return $this->module->getService(ShopProvider::class);
     }
 
     /**
-     * @return void
+     * @return mixed
      */
-    private function redirectAfterLogin()
+    protected function redirectAfterLogin()
     {
         $returnTo = $this->getSessionReturnTo() ?: 'AdminDashboard';
         if (preg_match('/^([A-Z][a-z0-9]+)+$/', $returnTo)) {
@@ -215,21 +187,23 @@ class AdminOAuth2PsAccountsController extends \ModuleAdminController
     }
 
     /**
-     * @return SessionInterface
+     * @return mixed
      */
-    private function getSession()
+    protected function logout()
     {
-        return $this->module->getSession();
+        Tools::redirectAdmin(
+            $this->context->link->getAdminLink('AdminLogin', true, [], [
+                'logout' => 1,
+            ])
+        );
     }
 
     /**
-     * @param mixed $error
-     *
-     * @return void
+     * @return SessionInterface
      */
-    private function setLoginError($error)
+    protected function getSession()
     {
-        $this->getSession()->set('loginError', $error);
+        return $this->module->getSession();
     }
 
     /**
@@ -241,95 +215,18 @@ class AdminOAuth2PsAccountsController extends \ModuleAdminController
     }
 
     /**
-     * @param PrestaShopUser $user
-     *
-     * @return void
-     *
-     * @throws Exception
+     * @return AnalyticsService
      */
-    private function trackLoginEvent(PrestaShopUser $user)
+    protected function getAnalyticsService()
     {
-        if ($this->module->isShopEdition()) {
-            $this->analyticsService->identify(
-                $user->getId(),
-                $user->getName(),
-                $user->getEmail()
-            );
-            $this->analyticsService->group(
-                $user->getId(),
-                (string) $this->psAccountsService->getShopUuid()
-            );
-            $this->analyticsService->trackUserSignedIntoApp(
-                $user->getId(),
-                'smb-edition'
-            );
-        }
+        return $this->analyticsService;
     }
 
     /**
-     * @param EmployeeNotFoundException|EmailNotVerifiedException $e
-     *
-     * @return void
-     *
-     * @throws Exception
+     * @return PsAccountsService
      */
-    private function trackLoginFailedEvent($e)
+    protected function getPsAccountsService()
     {
-        $user = $e->getUser();
-        $this->analyticsService->identify(
-            $user->getId(),
-            $user->getName(),
-            $user->getEmail()
-        );
-        $this->analyticsService->group(
-            $user->getId(),
-            (string) $this->psAccountsService->getShopUuid()
-        );
-        $this->analyticsService->trackBackOfficeSSOSignInFailed(
-            $user->getId(),
-            $e->getType(),
-            $e->getMessage()
-        );
-    }
-
-    /**
-     * @param string $uid
-     * @param string $email
-     *
-     * @return Employee
-     *
-     * @throws Exception
-     */
-    private function getEmployeeByUidOrEmail($uid, $email)
-    {
-        $repository = new EmployeeAccountRepository();
-
-        try {
-            $employeeAccount = $repository->findByUid($uid);
-
-            /* @phpstan-ignore-next-line */
-            if ($employeeAccount) {
-                $employee = new Employee($employeeAccount->getEmployeeId());
-            } else {
-                $employeeAccount = new EmployeeAccount();
-                $employee = new Employee();
-                $employee->getByEmail($email);
-            }
-
-            // Update account
-            if ($employee->id) {
-                $repository->upsert(
-                    $employeeAccount
-                        ->setEmployeeId($employee->id)
-                        ->setUid($uid)
-                        ->setEmail($email)
-                );
-            }
-        } catch (\Exception $e) {
-            $employee = new Employee();
-            $employee->getByEmail($email);
-        }
-
-        return $employee;
+        return $this->psAccountsService;
     }
 }
