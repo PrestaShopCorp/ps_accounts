@@ -3,6 +3,7 @@
 namespace PrestaShop\Module\PsAccounts\Tests\Unit\OAuth2\Token\Validator;
 
 use PrestaShop\Module\PsAccounts\Adapter\Link;
+use PrestaShop\Module\PsAccounts\Http\Client\ClientConfig;
 use PrestaShop\Module\PsAccounts\OAuth2\ApiClient;
 use PrestaShop\Module\PsAccounts\OAuth2\Client;
 use PrestaShop\Module\PsAccounts\OAuth2\Token\Validator\Exception\AudienceInvalidException;
@@ -161,7 +162,7 @@ JSON;
         parent::set_up();
 
         $this->apiClient = new ApiClient(
-            'https://oauth.test.fr',
+            [ClientConfig::baseUri => 'https://oauth.test.fr',],
             $this->client,
             $this->link,
             $this->getTestCacheDir()

@@ -92,14 +92,12 @@ class PsBillingService
         if (strlen($uuid) > 0) {
             $billingClient = $this->servicesBillingClient;
 
-            /** @var array $response */
             $response = $billingClient->getBillingCustomer($uuid);
 
             if (!$response || !array_key_exists('httpCode', $response)) {
                 throw new BillingException('Billing customer request failed.', 50);
             }
             if ($response['httpCode'] === 404) {
-                /** @var array $response */
                 $response = $billingClient->createBillingCustomer(
                     $uuid,
                     $customerIp ? ['created_from_ip' => $customerIp] : []
@@ -110,14 +108,12 @@ class PsBillingService
             }
             $toReturn['customerId'] = $response['body']['customer']['id'];
 
-            /** @var array $response */
             $response = $billingClient->getBillingSubscriptions($uuid, $module);
             if (!$response || !array_key_exists('httpCode', $response) || $response['httpCode'] >= 500) {
                 throw new BillingException('Billing subscriptions request failed.', 51);
             }
 
             if ($response['httpCode'] === 404) {
-                /** @var array $response */
                 $response = $billingClient->createBillingSubscriptions($uuid, $module, ['plan_id' => $planName, 'module' => $module]);
                 if (!$response || !array_key_exists('httpCode', $response) || $response['httpCode'] >= 400) {
                     if ($response && array_key_exists('body', $response)

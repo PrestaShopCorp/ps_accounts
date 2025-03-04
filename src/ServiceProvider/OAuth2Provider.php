@@ -23,6 +23,7 @@ namespace PrestaShop\Module\PsAccounts\ServiceProvider;
 use PrestaShop\Module\PsAccounts\AccountLogin\Middleware\Oauth2Middleware;
 use PrestaShop\Module\PsAccounts\AccountLogin\OAuth2Session;
 use PrestaShop\Module\PsAccounts\Adapter\Link;
+use PrestaShop\Module\PsAccounts\Http\Client\ClientConfig;
 use PrestaShop\Module\PsAccounts\OAuth2\ApiClient;
 use PrestaShop\Module\PsAccounts\OAuth2\Client;
 use PrestaShop\Module\PsAccounts\Provider\OAuth2\PrestaShopSession;
@@ -42,12 +43,13 @@ class OAuth2Provider implements IServiceProvider
         // OAuth2
         $container->registerProvider(ApiClient::class, static function () use ($container) {
             return new ApiClient(
-                $container->getParameter('ps_accounts.oauth2_url'),
+                [
+                    ClientConfig::baseUri => $container->getParameter('ps_accounts.oauth2_url'),
+                    ClientConfig::sslCheck => $container->getParameter('ps_accounts.check_api_ssl_cert'),
+                ],
                 $container->get(Client::class),
                 $container->get(Link::class),
-                _PS_CACHE_DIR_ . DIRECTORY_SEPARATOR . 'ps_accounts',
-                10,
-                $container->getParameter('ps_accounts.check_api_ssl_cert')
+                _PS_CACHE_DIR_ . DIRECTORY_SEPARATOR . 'ps_accounts'
             );
         });
         $container->registerProvider(Client::class, static function () use ($container) {

@@ -91,7 +91,6 @@ class ShopSession extends Session implements SessionInterface
             $shopUuid = $this->getShopUuid();
             $accessToken = $this->getAccessToken($shopUuid);
 
-            //return new Token($accessToken->getToken(), $accessToken->getRefreshToken());
             $this->setToken(
                 $accessToken->access_token,
                 $accessToken->refresh_token

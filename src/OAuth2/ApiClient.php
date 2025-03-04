@@ -22,9 +22,10 @@ namespace PrestaShop\Module\PsAccounts\OAuth2;
 
 use PrestaShop\Module\PsAccounts\AccountLogin\OAuth2LogoutTrait;
 use PrestaShop\Module\PsAccounts\Adapter\Link;
+use PrestaShop\Module\PsAccounts\Http\Client\ClientConfig;
 use PrestaShop\Module\PsAccounts\Http\Client\Curl\Client as HttpClient;
 use PrestaShop\Module\PsAccounts\Http\Client\Factory;
-use PrestaShop\Module\PsAccounts\Http\Client\Options;
+use PrestaShop\Module\PsAccounts\Http\Client\Request;
 use PrestaShop\Module\PsAccounts\Http\Client\Response;
 use PrestaShop\Module\PsAccounts\OAuth2\Response\AccessToken;
 use PrestaShop\Module\PsAccounts\OAuth2\Response\UserInfo;
@@ -41,14 +42,14 @@ class ApiClient
     const JWKS_JSON = 'jwks.json';
 
     /**
-     * @var string
-     */
-    private $baseUri;
-
-    /**
      * @var HttpClient
      */
     private $httpClient;
+
+    /**
+     * @var array
+     */
+    protected $clientConfig;
 
     /**
      * @var WellKnown
@@ -76,16 +77,6 @@ class ApiClient
     private $link;
 
     /**
-     * @var int
-     */
-    private $defaultTimeout;
-
-    /**
-     * @var bool
-     */
-    protected $sslCheck;
-
-    /**
      * @var string[]
      */
     protected $defaultScopes = [
@@ -94,28 +85,26 @@ class ApiClient
     ];
 
     /**
-     * @param string $baseUri
+     * @param array $config
      * @param Client $client
      * @param Link $link
      * @param string $cacheDir
-     * @param int $defaultTimeout
-     * @param bool $sslCheck
      *
      * @throws \Exception
      */
     public function __construct(
-        $baseUri,
+        array $config,
         Client $client,
         Link $link,
-        $cacheDir,
-        $defaultTimeout = 20,
-        $sslCheck = true
+        $cacheDir
     ) {
-        $this->baseUri = $baseUri;
+        $this->clientConfig = array_merge([
+            ClientConfig::name => static::class,
+            ClientConfig::headers => $this->getHeaders(),
+        ], $config);
+
         $this->client = $client;
         $this->link = $link;
-        $this->defaultTimeout = $defaultTimeout;
-        $this->sslCheck = $sslCheck;
 
         $this->cachedWellKnown = new CachedFile(
             $cacheDir . '/' . self::OPENID_CONFIGURATION_JSON,
@@ -132,13 +121,7 @@ class ApiClient
     public function getHttpClient()
     {
         if (null === $this->httpClient) {
-            $this->httpClient = (new Factory())->create([
-                'name' => static::class,
-                'baseUri' => $this->baseUri,
-                'headers' => $this->getHeaders(),
-                'timeout' => $this->defaultTimeout,
-                'sslCheck' => $this->sslCheck,
-            ]);
+            $this->httpClient = (new Factory())->create($this->clientConfig);
         }
 
         return $this->httpClient;
@@ -167,14 +150,6 @@ class ApiClient
             'X-Prestashop-Version' => _PS_VERSION_,
             'X-Request-ID' => Uuid::uuid4()->toString(),
         ], $additionalHeaders);
-    }
-
-    /**
-     * @return string
-     */
-    public function getOpenIdConfigurationUri()
-    {
-        return \preg_replace('/\\/?$/', '/.well-known/openid-configuration', $this->baseUri);
     }
 
     /**
@@ -217,14 +192,23 @@ class ApiClient
      */
     protected function fetchWellKnown()
     {
-        $response = $this->getHttpClient()->get($this->getOpenIdConfigurationUri());
+        //$response = $this->getHttpClient()->get($this->getOpenIdConfigurationUri());
+        $response = $this->getHttpClient()->get('/.well-known/openid-configuration');
 
-        if (!$response->isValid()) {
+        if (!$response->isSuccessful) {
             throw new OAuth2Exception($this->getResponseErrorMsg($response, 'Unable to get openid-configuration'));
         }
 
-        return $response->getBody();
+        return $response->body;
     }
+
+//    /**
+//     * @return string
+//     */
+//    public function getOpenIdConfigurationUri()
+//    {
+//        return \preg_replace('/\\/?$/', '/.well-known/openid-configuration', $this->baseUri);
+//    }
 
     /**
      * @param bool $forceRefresh
@@ -239,7 +223,7 @@ class ApiClient
             $this->cachedJwks->write(
                 json_encode(
                     $this->getHttpClient()->get($this->getWellKnown()->jwks_uri)
-                        ->getBody(), JSON_UNESCAPED_SLASHES
+                        ->body, JSON_UNESCAPED_SLASHES
                 )
             );
         }
@@ -262,7 +246,7 @@ class ApiClient
         $response = $this->getHttpClient()->post(
             $this->getWellKnown()->token_endpoint,
             [
-                Options::REQ_FORM => [
+                Request::form => [
                     'grant_type' => 'client_credentials',
                     'client_id' => $this->client->getClientId(),
                     'client_secret' => $this->client->getClientSecret(),
@@ -273,11 +257,11 @@ class ApiClient
             ]
         );
 
-        if (!$response->isValid()) {
+        if (!$response->isSuccessful) {
             throw new OAuth2Exception($this->getResponseErrorMsg($response, 'Unable to get access token'));
         }
 
-        return new AccessToken($response->getBody());
+        return new AccessToken($response->body);
     }
 
     /**
@@ -369,7 +353,7 @@ class ApiClient
         $response = $this->getHttpClient()->post(
             $this->getWellKnown()->token_endpoint,
             [
-                Options::REQ_FORM => array_merge([
+                Request::form => array_merge([
                     'grant_type' => 'authorization_code',
                     'client_id' => $this->client->getClientId(),
                     'client_secret' => $this->client->getClientSecret(),
@@ -383,11 +367,11 @@ class ApiClient
             ]
         );
 
-        if (!$response->isValid()) {
+        if (!$response->isSuccessful) {
             throw new OAuth2Exception($this->getResponseErrorMsg($response, 'Unable to get access token'));
         }
 
-        return new AccessToken($response->getBody());
+        return new AccessToken($response->body);
     }
 
     /**
@@ -404,7 +388,7 @@ class ApiClient
         $response = $this->getHttpClient()->post(
             $this->getWellKnown()->token_endpoint,
             [
-                Options::REQ_FORM => [
+                Request::form => [
                     'grant_type' => 'refresh_token',
                     'client_id' => $this->client->getClientId(),
                     'refresh_token' => $refreshToken,
@@ -412,11 +396,11 @@ class ApiClient
             ]
         );
 
-        if (!$response->isValid()) {
+        if (!$response->isSuccessful) {
             throw new OAuth2Exception($this->getResponseErrorMsg($response, 'Unable to refresh access token'));
         }
 
-        return new AccessToken($response->getBody());
+        return new AccessToken($response->body);
     }
 
     /**
@@ -429,17 +413,17 @@ class ApiClient
         $response = $this->getHttpClient()->get(
             $this->getWellKnown()->userinfo_endpoint,
             [
-                Options::REQ_HEADERS => $this->getHeaders([
+                Request::headers => $this->getHeaders([
                     'Authorization' => 'Bearer ' . $accessToken,
                 ]),
             ]
         );
 
-        if (!$response->isValid()) {
+        if (!$response->isSuccessful) {
             throw new OAuth2Exception($this->getResponseErrorMsg($response, 'Unable to get user infos'));
         }
 
-        return new UserInfo($response->getBody());
+        return new UserInfo($response->body);
     }
 
     /**
@@ -524,13 +508,13 @@ class ApiClient
     protected function getResponseErrorMsg(Response $response, $defaultMessage = '')
     {
         $msg = $defaultMessage;
-        $body = $response->getBody();
+        $body = $response->body;
         if (isset($body['error']) &&
             isset($body['error_description'])
         ) {
             $msg = $body['error'] . ': ' . $body['error_description'];
         }
 
-        return $response->getStatusCode() . ' - ' . $msg;
+        return $response->statusCode . ' - ' . $msg;
     }
 }

@@ -20,9 +20,10 @@
 
 namespace PrestaShop\Module\PsAccounts\Api\Client;
 
+use PrestaShop\Module\PsAccounts\Http\Client\ClientConfig;
 use PrestaShop\Module\PsAccounts\Http\Client\Curl\Client;
 use PrestaShop\Module\PsAccounts\Http\Client\Factory;
-use PrestaShop\Module\PsAccounts\Http\Client\Options;
+use PrestaShop\Module\PsAccounts\Http\Client\Request;
 use PrestaShop\Module\PsAccounts\Provider\ShopProvider;
 use PrestaShop\Module\PsAccounts\Service\PsAccountsService;
 
@@ -47,7 +48,6 @@ class ServicesBillingClient
      * @param Client|null $client
      *
      * @throws \PrestaShopException
-     * @throws \Exception
      */
     public function __construct(
         $apiUrl,
@@ -62,8 +62,9 @@ class ServicesBillingClient
         // Client can be provided for tests
         if (null === $client) {
             $client = (new Factory())->create([
-                'baseUri' => $apiUrl,
-                'headers' => [
+                ClientConfig::baseUri => $apiUrl,
+                ClientConfig::name => static::class,
+                ClientConfig::headers => [
                     // Commented, else does not work anymore with API.
                     //'Content-Type' => 'application/vnd.accounts.v1+json', // api version to use
                     'Accept' => 'application/json',
@@ -72,6 +73,8 @@ class ServicesBillingClient
                     'Module-Version' => \Ps_accounts::VERSION, // version of the module
                     'Prestashop-Version' => _PS_VERSION_, // prestashop version
                 ],
+                ClientConfig::timeout => 20,
+                ClientConfig::sslCheck => true,
             ]);
         }
 
@@ -100,7 +103,7 @@ class ServicesBillingClient
         return $this->client->post(
             '/shops/' . $shopUuidV4,
             [
-                Options::REQ_FORM => $bodyHttp,
+                Request::form => $bodyHttp,
             ]
         )->toLegacy();
     }
@@ -129,7 +132,7 @@ class ServicesBillingClient
         return $this->client->post(
             '/shops/' . $shopUuidV4 . '/subscriptions/' . $module,
             [
-                Options::REQ_FORM => $bodyHttp,
+                Request::form => $bodyHttp,
             ]
         )->toLegacy();
     }

@@ -20,9 +20,37 @@
 
 namespace PrestaShop\Module\PsAccounts\Http\Client;
 
-class Options
+use PrestaShop\Module\PsAccounts\Type\ConfigObject;
+
+/**
+ * @property string $name
+ * @property string $baseUri
+ * @property string $userAgent
+ * @property int $timeout
+ * @property bool $sslCheck
+ * @property bool $allowRedirects
+ * @property array $headers
+ */
+class ClientConfig extends ConfigObject
 {
-    const REQ_HEADERS = 'headers';
-    const REQ_JSON = 'json';
-    const REQ_FORM = 'form';
+    const name = 'name';
+    const baseUri = 'baseUri';
+    const userAgent = 'userAgent';
+    const timeout = 'timeout';
+    const sslCheck = 'sslCheck';
+    const allowRedirects = 'allowRedirects';
+    const headers = 'headers';
+
+    protected $defaults = [
+        self::name => '',
+        self::userAgent => '',
+        self::timeout => 10,
+        self::sslCheck => true,
+        self::headers => [],
+        self::allowRedirects => false,
+    ];
+
+    protected $required = [
+        self::baseUri,
+    ];
 }

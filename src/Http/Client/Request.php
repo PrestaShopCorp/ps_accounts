@@ -18,8 +18,27 @@
  * @license   https://opensource.org/licenses/AFL-3.0 Academic Free License version 3.0
  */
 
-namespace PrestaShop\Module\PsAccounts\Account\Exception;
+namespace PrestaShop\Module\PsAccounts\Http\Client;
 
-class SshKeysNotFoundException extends \PrestaShop\Module\PsAccounts\Exception\SshKeysNotFoundException
+use PrestaShop\Module\PsAccounts\Type\ConfigObject;
+
+/**
+ * @property string $uri
+ * @property array $headers
+ * @property array|null $json
+ * @property array|null $form
+ */
+class Request extends ConfigObject
 {
+    const uri = 'uri';
+    const headers = 'headers';
+    const json = 'json';
+    const form = 'form';
+
+    protected $defaults = [
+        self::uri => null,
+        self::headers => [],
+        self::json => null,
+        self::form => null,
+    ];
 }

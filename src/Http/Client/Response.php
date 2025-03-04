@@ -20,27 +20,20 @@
 
 namespace PrestaShop\Module\PsAccounts\Http\Client;
 
-class Response
+use PrestaShop\Module\PsAccounts\Type\ConfigObject;
+
+/**
+ * @property array $body
+ * @property mixed $raw
+ * @property int $statusCode
+ * @property bool $isSuccessful
+ */
+class Response extends ConfigObject
 {
-    /**
-     * @var array
-     */
-    protected $body;
-
-    /**
-     * @var mixed
-     */
-    protected $raw;
-
-    /**
-     * @var int
-     */
-    protected $statusCode;
-
-    /**
-     * @var bool
-     */
-    protected $isValid;
+    const body = 'body';
+    const raw = 'raw';
+    const statusCode = 'statusCode';
+    const isSuccessful = 'isSuccessful';
 
     /**
      * @param array|string $body
@@ -48,42 +41,12 @@ class Response
      */
     public function __construct($body, $statusCode)
     {
-        $this->raw = $body;
-        $this->body = $this->decodeBody($body);
-        $this->statusCode = (int) $statusCode;
-        $this->isValid = '2' === substr((string) $statusCode, 0, 1);
-    }
-
-    /**
-     * @return int
-     */
-    public function getStatusCode()
-    {
-        return $this->statusCode;
-    }
-
-    /**
-     * @return array
-     */
-    public function getBody()
-    {
-        return $this->body;
-    }
-
-    /**
-     * @return mixed
-     */
-    public function getRaw()
-    {
-        return $this->raw;
-    }
-
-    /**
-     * @return bool
-     */
-    public function isValid()
-    {
-        return $this->isValid;
+        parent::__construct([
+            self::raw => $body,
+            self::body => $this->decodeBody($body),
+            self::statusCode => (int) $statusCode,
+            self::isSuccessful => '2' === substr((string) $statusCode, 0, 1),
+        ]);
     }
 
     /**
@@ -92,7 +55,7 @@ class Response
     public function toLegacy()
     {
         return [
-            'status' => $this->isValid,
+            'status' => $this->isSuccessful,
             'httpCode' => $this->statusCode,
             'body' => $this->body,
         ];
@@ -103,7 +66,7 @@ class Response
      *
      * @return array
      */
-    public function decodeBody($body)
+    protected function decodeBody($body)
     {
         if (is_array($body)) {
             return $body;

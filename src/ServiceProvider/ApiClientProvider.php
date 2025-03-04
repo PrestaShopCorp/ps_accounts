@@ -22,6 +22,7 @@ namespace PrestaShop\Module\PsAccounts\ServiceProvider;
 
 use PrestaShop\Module\PsAccounts\Api\Client\AccountsClient;
 use PrestaShop\Module\PsAccounts\Api\Client\ServicesBillingClient;
+use PrestaShop\Module\PsAccounts\Http\Client\ClientConfig;
 use PrestaShop\Module\PsAccounts\Provider\ShopProvider;
 use PrestaShop\Module\PsAccounts\Service\PsAccountsService;
 use PrestaShop\Module\PsAccounts\Vendor\PrestaShopCorp\LightweightContainer\ServiceContainer\Contract\IServiceProvider;
@@ -37,11 +38,10 @@ class ApiClientProvider implements IServiceProvider
     public function provide(ServiceContainer $container)
     {
         $container->registerProvider(AccountsClient::class, static function () use ($container) {
-            return new AccountsClient(
-                $container->getParameter('ps_accounts.accounts_api_url'),
-                10,
-                $container->getParameter('ps_accounts.check_api_ssl_cert')
-            );
+            return new AccountsClient([
+                ClientConfig::baseUri => $container->getParameter('ps_accounts.accounts_api_url'),
+                ClientConfig::sslCheck => $container->getParameter('ps_accounts.check_api_ssl_cert'),
+            ]);
         });
         $container->registerProvider(ServicesBillingClient::class, static function () use ($container) {
             return new ServicesBillingClient(

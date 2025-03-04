@@ -70,8 +70,6 @@ class Oauth2Middleware
                 // We keep token fresh !
                 $session->getOrRefreshAccessToken();
             }
-//        } catch (IdentityProviderException $e) {
-//            $this->module->getLogger()->err($e->getMessage());
         } catch (Exception $e) {
             $this->module->getLogger()->err($e->getMessage());
         }

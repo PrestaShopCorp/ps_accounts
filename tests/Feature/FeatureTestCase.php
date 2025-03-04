@@ -21,7 +21,7 @@ class FeatureTestCase extends TestCase
     protected $enableTransactions = false;
 
     /**
-     * @var Client
+     * @var HttpTestClient
      */
     protected $client;
 
@@ -55,19 +55,7 @@ class FeatureTestCase extends TestCase
             ],
             'sslCheck' => $this->module->getParameter('ps_accounts.check_api_ssl_cert'),
             'timeout' => 60,
-            'objectResponse' => true,
             'allowRedirects' => true,
-
-//            'base_uri' => $baseUrl,
-//            'headers' => [
-//                'Accept' => 'application/json',
-//            ],
-//            'verify' => $this->module->getParameter('ps_accounts.check_api_ssl_cert'),
-//            'timeout' => 60,
-//            'http_errors' => false,
-//            //
-//            'allow_redirects' => true,
-//            'query' => [],
         ], true);
 
         // FIXME: Link::getModuleLink
@@ -111,7 +99,7 @@ class FeatureTestCase extends TestCase
      */
     public function assertResponseOk($response)
     {
-        $this->assertEquals(200, $response->getStatusCode());
+        $this->assertEquals(200, $response->statusCode);
     }
 
     /**
@@ -121,7 +109,7 @@ class FeatureTestCase extends TestCase
      */
     public function assertResponseCreated($response)
     {
-        $this->assertEquals(201, $response->getStatusCode());
+        $this->assertEquals(201, $response->statusCode);
     }
 
     /**
@@ -131,7 +119,7 @@ class FeatureTestCase extends TestCase
      */
     public function assertResponseDeleted($response)
     {
-        $this->assertEquals(204, $response->getStatusCode());
+        $this->assertEquals(204, $response->statusCode);
     }
 
     /**
@@ -141,7 +129,7 @@ class FeatureTestCase extends TestCase
      */
     public function assertResponseUnauthorized($response)
     {
-        $this->assertEquals(401, $response->getStatusCode());
+        $this->assertEquals(401, $response->statusCode);
     }
 
     /**
@@ -151,7 +139,7 @@ class FeatureTestCase extends TestCase
      */
     public function assertResponseNotFound($response)
     {
-        $this->assertEquals(404, $response->getStatusCode());
+        $this->assertEquals(404, $response->statusCode);
     }
 
     /**
@@ -161,7 +149,7 @@ class FeatureTestCase extends TestCase
      */
     public function assertResponseBadRequest($response)
     {
-        $this->assertEquals(400, $response->getStatusCode());
+        $this->assertEquals(400, $response->statusCode);
     }
 
     /**
@@ -171,23 +159,17 @@ class FeatureTestCase extends TestCase
      */
     public function assertResponseError($response)
     {
-        $this->assertGreaterThanOrEqual(500, $response->getStatusCode());
+        $this->assertGreaterThanOrEqual(500, $response->statusCode);
     }
 
     /**
-     * @param $response
+     * @param Response $response
      *
      * @return array|mixed
      */
     public function getResponseJson($response)
     {
-// FIXME
-//        $ary = json_decode($response->getBody()->getContents(), true);
-//        $response->getBody()->rewind();
-//
-//        return $ary;
-
-        return $response->getBody();
+        return $response->body;
     }
 
     /**
