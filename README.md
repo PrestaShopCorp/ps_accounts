@@ -206,8 +206,6 @@ OR with multiple environments :
   * moved to : PrestaShop\Module\PsAccounts\Accounts\Exception\RefreshTokenException
 
 #### Internal usage
-* PrestaShop\Module\PsAccounts\Exception\SshKeysNotFoundException
-  * moved to : PrestaShop\Module\PsAccounts\Accounts\Exception\SshKeysNotFoundException
 * Namespace : PrestaShop\Module\PsAccounts\Exception\AccountLogin
   * moved to : PrestaShop\Module\PsAccounts\AccountLogin\Exception
 * Namespace : PrestaShop\Module\PsAccounts\Exception\Http
