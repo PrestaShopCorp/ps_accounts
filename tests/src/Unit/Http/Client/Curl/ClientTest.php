@@ -18,6 +18,7 @@ class ClientTest extends TestCase
      * TODO: test with accounts-api timeout
      * TODO: test with oauth2 timeout
      * TODO: test with wrong url (404)
+     * TODO: test ssl checks
      */
     public function itShouldGetResponseOk()
     {
