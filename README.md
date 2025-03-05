@@ -200,13 +200,16 @@ OR with multiple environments :
 
 ### v7.2.0
 
+#### External usage
 * PrestaShop\Module\PsAccounts\Api\Client\ServicesBillingClient
 * PrestaShop\Module\PsAccounts\Exception\RefreshTokenException
   * moved to : PrestaShop\Module\PsAccounts\Accounts\Exception\RefreshTokenException
+
+#### Internal usage
 * PrestaShop\Module\PsAccounts\Exception\SshKeysNotFoundException
   * moved to : PrestaShop\Module\PsAccounts\Accounts\Exception\SshKeysNotFoundException
 * Namespace : PrestaShop\Module\PsAccounts\Exception\AccountLogin
   * moved to : PrestaShop\Module\PsAccounts\AccountLogin\Exception
 * Namespace : PrestaShop\Module\PsAccounts\Exception\Http
-  * moved to : PrestaShop\Module\PsAccounts\Api\Controller\Exception
+  * moved to : PrestaShop\Module\PsAccounts\Http\Exception
 * PrestaShop\Module\PsAccounts\Provider\OAuth2\PrestaShopSession

@@ -20,14 +20,14 @@
 
 namespace PrestaShop\Module\PsAccounts\AccountLogin;
 
-use PrestaShop\Module\PsAccounts\OAuth2\ApiClient;
+use PrestaShop\Module\PsAccounts\Service\OAuth2\OAuth2Service;
 
 trait OAuth2LogoutTrait
 {
     /**
-     * @return ApiClient
+     * @return OAuth2Service
      */
-    abstract protected function getOAuth2Client();
+    abstract protected function getOAuth2Service();
 
     /**
      * @return OAuth2Session
@@ -66,7 +66,7 @@ trait OAuth2LogoutTrait
                 return;
             }
 
-            $oauth2Client = $this->getOAuth2Client();
+            $oauth2Client = $this->getOAuth2Service();
 
             $logoutUrl = $oauth2Client->getLogoutUri(
                 $oauth2Client->getPostLogoutRedirectUri(),

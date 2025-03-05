@@ -24,11 +24,11 @@ use PrestaShop\Module\PsAccounts\AccountLogin\Exception\EmployeeNotFoundExceptio
 use PrestaShop\Module\PsAccounts\AccountLogin\OAuth2LoginTrait;
 use PrestaShop\Module\PsAccounts\AccountLogin\OAuth2Session;
 use PrestaShop\Module\PsAccounts\Entity\EmployeeAccount;
-use PrestaShop\Module\PsAccounts\OAuth2\ApiClient;
-use PrestaShop\Module\PsAccounts\OAuth2\Resource\UserInfo;
 use PrestaShop\Module\PsAccounts\Polyfill\Traits\AdminController\IsAnonymousAllowed;
 use PrestaShop\Module\PsAccounts\Repository\EmployeeAccountRepository;
 use PrestaShop\Module\PsAccounts\Service\AnalyticsService;
+use PrestaShop\Module\PsAccounts\Service\OAuth2\OAuth2Service;
+use PrestaShop\Module\PsAccounts\Service\OAuth2\Resource\UserInfo;
 use PrestaShop\Module\PsAccounts\Service\PsAccountsService;
 use Symfony\Component\HttpFoundation\Session\SessionInterface;
 
@@ -193,13 +193,13 @@ class AdminOAuth2PsAccountsController extends \ModuleAdminController
     }
 
     /**
-     * @return ApiClient
+     * @return OAuth2Service
      *
      * @throws Exception
      */
-    private function getOAuth2Client()
+    private function getOAuth2Service()
     {
-        return $this->module->getService(ApiClient::class);
+        return $this->module->getService(OAuth2Service::class);
     }
 
     /**

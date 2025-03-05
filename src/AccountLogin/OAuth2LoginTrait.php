@@ -24,18 +24,18 @@ use PrestaShop\Module\PsAccounts\AccountLogin\Exception\EmailNotVerifiedExceptio
 use PrestaShop\Module\PsAccounts\AccountLogin\Exception\EmployeeNotFoundException;
 use PrestaShop\Module\PsAccounts\AccountLogin\Exception\Oauth2LoginException;
 use PrestaShop\Module\PsAccounts\Log\Logger;
-use PrestaShop\Module\PsAccounts\OAuth2\ApiClient;
-use PrestaShop\Module\PsAccounts\OAuth2\OAuth2Exception;
-use PrestaShop\Module\PsAccounts\OAuth2\Resource\UserInfo;
+use PrestaShop\Module\PsAccounts\Service\OAuth2\OAuth2Exception;
+use PrestaShop\Module\PsAccounts\Service\OAuth2\OAuth2Service;
+use PrestaShop\Module\PsAccounts\Service\OAuth2\Resource\UserInfo;
 use Symfony\Component\HttpFoundation\Session\SessionInterface;
 use Tools;
 
 trait OAuth2LoginTrait
 {
     /**
-     * @return ApiClient
+     * @return OAuth2Service
      */
-    abstract protected function getOAuth2Client();
+    abstract protected function getOAuth2Service();
 
     /**
      * @param UserInfo $user
@@ -69,7 +69,7 @@ trait OAuth2LoginTrait
      */
     public function oauth2Login()
     {
-        $apiClient = $this->getOAuth2Client();
+        $apiClient = $this->getOAuth2Service();
 
         //$this->getSession()->start();
         $session = $this->getSession();
@@ -125,7 +125,7 @@ trait OAuth2LoginTrait
      */
     private function oauth2Redirect($locale)
     {
-        $apiClient = $this->getOAuth2Client();
+        $apiClient = $this->getOAuth2Service();
 
         $state = $apiClient->getRandomState();
         $pkceCode = $apiClient->getRandomPkceCode();

@@ -35,7 +35,7 @@ abstract class CircuitBreaker
     protected $resourceId;
 
     /** @var mixed */
-    protected $defaultFallbackResponse;
+    protected $fallbackResponse;
 
     /**
      * @param string $resourceId
@@ -67,7 +67,7 @@ abstract class CircuitBreaker
             }
         }
 
-        return isset($fallbackResponse) ? $fallbackResponse : $this->defaultFallbackResponse;
+        return isset($fallbackResponse) ? $fallbackResponse : $this->fallbackResponse;
     }
 
     /**
@@ -82,19 +82,19 @@ abstract class CircuitBreaker
     /**
      * @return mixed
      */
-    public function getDefaultFallbackResponse()
+    public function getFallbackResponse()
     {
-        return $this->defaultFallbackResponse;
+        return $this->fallbackResponse;
     }
 
     /**
-     * @param mixed $defaultFallbackResponse
+     * @param mixed $fallbackResponse
      *
      * @return void
      */
-    public function setDefaultFallbackResponse($defaultFallbackResponse)
+    public function setFallbackResponse($fallbackResponse)
     {
-        $this->defaultFallbackResponse = $defaultFallbackResponse;
+        $this->fallbackResponse = $fallbackResponse;
     }
 
     /**

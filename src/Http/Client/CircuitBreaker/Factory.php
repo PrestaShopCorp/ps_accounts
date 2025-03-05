@@ -23,7 +23,7 @@ namespace PrestaShop\Module\PsAccounts\Http\Client\CircuitBreaker;
 use PrestaShop\Module\PsAccounts\Adapter\Configuration;
 use PrestaShop\Module\PsAccounts\Api\Client\AccountsClient;
 use PrestaShop\Module\PsAccounts\Http\Client\Response;
-use PrestaShop\Module\PsAccounts\OAuth2\ApiClient;
+use PrestaShop\Module\PsAccounts\Service\OAuth2\OAuth2Service;
 
 class Factory
 {
@@ -32,7 +32,7 @@ class Factory
      */
     private $provides = [
         AccountsClient::class,
-        ApiClient::class,
+        OAuth2Service::class,
     ];
 
     /**
@@ -68,7 +68,7 @@ class Factory
             'PS_ACCOUNTS',
             $this->configStorage
         );
-        $instance->setDefaultFallbackResponse(
+        $instance->setFallbackResponse(
             new Response([
                 'error' => 'Circuit Breaker Open',
                 'error_description' => 'Circuit Breaker Open',
