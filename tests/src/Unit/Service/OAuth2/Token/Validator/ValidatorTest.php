@@ -162,7 +162,7 @@ JSON;
         parent::set_up();
 
         $this->oAuth2Service = new OAuth2Service(
-            [ClientConfig::baseUri => 'https://oauth.test.fr',],
+            [ClientConfig::BASE_URI => 'https://oauth.test.fr',],
             $this->oAuth2Client,
             $this->link,
             $this->getTestCacheDir()

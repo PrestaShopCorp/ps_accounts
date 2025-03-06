@@ -62,9 +62,9 @@ class ServicesBillingClient
         // Client can be provided for tests
         if (null === $client) {
             $client = (new Factory())->create([
-                ClientConfig::baseUri => $apiUrl,
-                ClientConfig::name => static::class,
-                ClientConfig::headers => [
+                ClientConfig::BASE_URI => $apiUrl,
+                ClientConfig::NAME => static::class,
+                ClientConfig::HEADERS => [
                     // Commented, else does not work anymore with API.
                     //'Content-Type' => 'application/vnd.accounts.v1+json', // api version to use
                     'Accept' => 'application/json',
@@ -73,8 +73,8 @@ class ServicesBillingClient
                     'Module-Version' => \Ps_accounts::VERSION, // version of the module
                     'Prestashop-Version' => _PS_VERSION_, // prestashop version
                 ],
-                ClientConfig::timeout => 20,
-                ClientConfig::sslCheck => true,
+                ClientConfig::TIMEOUT => 20,
+                ClientConfig::SSL_CHECK => true,
             ]);
         }
 
@@ -103,7 +103,7 @@ class ServicesBillingClient
         return $this->client->post(
             '/shops/' . $shopUuidV4,
             [
-                Request::form => $bodyHttp,
+                Request::FORM => $bodyHttp,
             ]
         )->toLegacy();
     }
@@ -132,7 +132,7 @@ class ServicesBillingClient
         return $this->client->post(
             '/shops/' . $shopUuidV4 . '/subscriptions/' . $module,
             [
-                Request::form => $bodyHttp,
+                Request::FORM => $bodyHttp,
             ]
         )->toLegacy();
     }

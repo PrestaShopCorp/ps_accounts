@@ -44,8 +44,8 @@ class OAuth2Provider implements IServiceProvider
         $container->registerProvider(OAuth2Service::class, static function () use ($container) {
             return new OAuth2Service(
                 [
-                    ClientConfig::baseUri => $container->getParameter('ps_accounts.oauth2_url'),
-                    ClientConfig::sslCheck => $container->getParameter('ps_accounts.check_api_ssl_cert'),
+                    ClientConfig::BASE_URI => $container->getParameter('ps_accounts.oauth2_url'),
+                    ClientConfig::SSL_CHECK => $container->getParameter('ps_accounts.check_api_ssl_cert'),
                 ],
                 $container->get(OAuth2Client::class),
                 $container->get(Link::class),

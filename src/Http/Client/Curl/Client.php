@@ -22,8 +22,10 @@ namespace PrestaShop\Module\PsAccounts\Http\Client\Curl;
 
 use PrestaShop\Module\PsAccounts\Http\Client\CircuitBreaker;
 use PrestaShop\Module\PsAccounts\Http\Client\ClientConfig;
-use PrestaShop\Module\PsAccounts\Http\Client\ClientException;
-use PrestaShop\Module\PsAccounts\Http\Client\ConnectException;
+use PrestaShop\Module\PsAccounts\Http\Client\Exception\ClientException;
+use PrestaShop\Module\PsAccounts\Http\Client\Exception\ConnectException;
+use PrestaShop\Module\PsAccounts\Http\Client\Exception\RequiredPropertyException;
+use PrestaShop\Module\PsAccounts\Http\Client\Exception\UndefinedPropertyException;
 use PrestaShop\Module\PsAccounts\Http\Client\Request;
 use PrestaShop\Module\PsAccounts\Http\Client\Response;
 use PrestaShop\Module\PsAccounts\Log\Logger;
@@ -43,12 +45,13 @@ class Client
     /**
      * @param array $options
      *
-     * @throws \Exception
+     * @throws RequiredPropertyException
+     * @throws UndefinedPropertyException
      */
     public function __construct($options)
     {
         $this->config = new ClientConfig(array_merge($options, [
-            ClientConfig::userAgent => 'ps_accounts/' . \Ps_accounts::VERSION,
+            ClientConfig::USER_AGENT => 'ps_accounts/' . \Ps_accounts::VERSION,
         ]));
 
         $this->circuitBreaker = CircuitBreaker\Factory::create(
@@ -69,11 +72,14 @@ class Client
      * @param array $options payload
      *
      * @return Response
+     *
+     * @throws RequiredPropertyException
+     * @throws UndefinedPropertyException
      */
     public function post($route, array $options = [])
     {
         $ch = $this->initRequest(new Request(array_merge($options, [
-            Request::uri => $route,
+            Request::URI => $route,
         ])));
         $this->initMethod($ch, 'POST');
 
@@ -85,11 +91,14 @@ class Client
      * @param array $options payload
      *
      * @return Response
+     *
+     * @throws RequiredPropertyException
+     * @throws UndefinedPropertyException
      */
     public function patch($route, array $options = [])
     {
         $ch = $this->initRequest(new Request(array_merge($options, [
-            Request::uri => $route,
+            Request::URI => $route,
         ])));
         $this->initMethod($ch, 'PATCH');
 
@@ -101,11 +110,14 @@ class Client
      * @param array $options payload
      *
      * @return Response
+     *
+     * @throws RequiredPropertyException
+     * @throws UndefinedPropertyException
      */
     public function get($route, array $options = [])
     {
         $ch = $this->initRequest(new Request(array_merge($options, [
-            Request::uri => $route,
+            Request::URI => $route,
         ])));
 
         return $this->getSafeResponse($ch);
@@ -116,11 +128,14 @@ class Client
      * @param array $options payload
      *
      * @return Response
+     *
+     * @throws RequiredPropertyException
+     * @throws UndefinedPropertyException
      */
     public function delete($route, array $options = [])
     {
         $ch = $this->initRequest(new Request(array_merge($options, [
-            Request::uri => $route,
+            Request::URI => $route,
         ])));
         $this->initMethod($ch, 'DELETE');
 

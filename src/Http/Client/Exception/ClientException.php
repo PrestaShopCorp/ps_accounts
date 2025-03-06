@@ -18,37 +18,14 @@
  * @license   https://opensource.org/licenses/AFL-3.0 Academic Free License version 3.0
  */
 
-namespace PrestaShop\Module\PsAccounts\Http\Client;
+namespace PrestaShop\Module\PsAccounts\Http\Client\Exception;
 
-/**
- * @property string $name
- * @property string $baseUri
- * @property string $userAgent
- * @property int $timeout
- * @property bool $sslCheck
- * @property bool $allowRedirects
- * @property array $headers
- */
-class ClientConfig extends ConfigObject
+use PrestaShop\Module\PsAccounts\Http\Client\CircuitBreaker\CircuitBreakerException;
+
+class ClientException extends \Exception implements CircuitBreakerException
 {
-    const NAME = 'name';
-    const BASE_URI = 'baseUri';
-    const USER_AGENT = 'userAgent';
-    const TIMEOUT = 'timeout';
-    const SSL_CHECK = 'sslCheck';
-    const ALLOW_REDIRECTS = 'allowRedirects';
-    const HEADERS = 'headers';
-
-    protected $defaults = [
-        self::NAME => '',
-        self::USER_AGENT => '',
-        self::TIMEOUT => 10,
-        self::SSL_CHECK => true,
-        self::HEADERS => [],
-        self::ALLOW_REDIRECTS => false,
-    ];
-
-    protected $required = [
-        self::BASE_URI,
-    ];
+    public function isBreaking()
+    {
+        return false;
+    }
 }

@@ -46,8 +46,8 @@ class AccountsClient
     public function __construct(array $config)
     {
         $this->clientConfig = array_merge([
-            ClientConfig::name => static::class,
-            ClientConfig::headers => $this->getHeaders(),
+            ClientConfig::NAME => static::class,
+            ClientConfig::HEADERS => $this->getHeaders(),
         ], $config);
     }
 
@@ -93,7 +93,7 @@ class AccountsClient
         return $this->getClient()->get(
             'v2/shop/firebase/tokens',
             [
-                Request::headers => $this->getHeaders([
+                Request::HEADERS => $this->getHeaders([
                     'Authorization' => 'Bearer ' . $accessToken,
                 ]),
             ])->toLegacy();
@@ -110,10 +110,10 @@ class AccountsClient
         return $this->getClient()->post(
             'v1/shop/token/refresh',
             [
-                Request::headers => $this->getHeaders([
+                Request::HEADERS => $this->getHeaders([
                     'X-Shop-Id' => $shopUuid,
                 ]),
-                Request::json => [
+                Request::JSON => [
                     'token' => $refreshToken,
                 ],
             ]
@@ -132,7 +132,7 @@ class AccountsClient
         return $this->getClient()->delete(
             'v1/user/' . $ownerUid . '/shop/' . $shopUid,
             [
-                Request::headers => $this->getHeaders([
+                Request::HEADERS => $this->getHeaders([
                     'Authorization' => 'Bearer ' . $ownerToken,
                     'X-Shop-Id' => $shopUid,
                 ]),
@@ -153,11 +153,11 @@ class AccountsClient
         return $this->getClient()->patch(
             'v1/user/' . $ownerUid . '/shop/' . $shopUid,
             [
-                Request::headers => $this->getHeaders([
+                Request::HEADERS => $this->getHeaders([
                     'Authorization' => 'Bearer ' . $ownerToken,
                     'X-Shop-Id' => $shopUid,
                 ]),
-                Request::json => $shop->jsonSerialize(),
+                Request::JSON => $shop->jsonSerialize(),
             ]
         )->toLegacy();
     }
@@ -174,11 +174,11 @@ class AccountsClient
         return $this->getClient()->post(
             '/v2/shop/module/update',
             [
-                Request::headers => $this->getHeaders([
+                Request::HEADERS => $this->getHeaders([
                     'Authorization' => 'Bearer ' . $shopToken,
                     'X-Shop-Id' => $shopUid,
                 ]),
-                Request::json => $data->jsonSerialize(),
+                Request::JSON => $data->jsonSerialize(),
             ]
         )->toLegacy();
     }
@@ -195,8 +195,8 @@ class AccountsClient
         return $this->getClient()->post(
             '/v1/shop/token/verify',
             [
-                Request::headers => $this->getHeaders(),
-                Request::json => [
+                Request::HEADERS => $this->getHeaders(),
+                Request::JSON => [
                     'token' => $idToken,
                 ],
             ]

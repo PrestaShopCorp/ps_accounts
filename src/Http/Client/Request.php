@@ -20,8 +20,6 @@
 
 namespace PrestaShop\Module\PsAccounts\Http\Client;
 
-use PrestaShop\Module\PsAccounts\Type\ConfigObject;
-
 /**
  * @property string $uri
  * @property array $headers
@@ -30,15 +28,15 @@ use PrestaShop\Module\PsAccounts\Type\ConfigObject;
  */
 class Request extends ConfigObject
 {
-    const uri = 'uri';
-    const headers = 'headers';
-    const json = 'json';
-    const form = 'form';
+    const URI = 'uri';
+    const HEADERS = 'headers';
+    const JSON = 'json';
+    const FORM = 'form';
 
     protected $defaults = [
-        self::uri => null,
-        self::headers => [],
-        self::json => null,
-        self::form => null,
+        self::URI => null,
+        self::HEADERS => [],
+        self::JSON => null,
+        self::FORM => null,
     ];
 }

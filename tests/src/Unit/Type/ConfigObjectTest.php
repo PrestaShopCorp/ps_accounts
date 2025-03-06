@@ -2,8 +2,8 @@
 
 namespace PrestaShop\Module\PsAccounts\Tests\Unit\Type;
 
+use PrestaShop\Module\PsAccounts\Http\Client\ConfigObject;
 use PrestaShop\Module\PsAccounts\Tests\TestCase;
-use PrestaShop\Module\PsAccounts\Type\ConfigObject;
 
 /**
  * @property string $prop1

@@ -20,8 +20,6 @@
 
 namespace PrestaShop\Module\PsAccounts\Http\Client;
 
-use PrestaShop\Module\PsAccounts\Type\ConfigObject;
-
 /**
  * @property array $body
  * @property mixed $raw
@@ -30,10 +28,10 @@ use PrestaShop\Module\PsAccounts\Type\ConfigObject;
  */
 class Response extends ConfigObject
 {
-    const body = 'body';
-    const raw = 'raw';
-    const statusCode = 'statusCode';
-    const isSuccessful = 'isSuccessful';
+    const BODY = 'body';
+    const RAW = 'raw';
+    const STATUS_CODE = 'statusCode';
+    const IS_SUCCESSFUL = 'isSuccessful';
 
     /**
      * @param array|string $body
@@ -42,10 +40,10 @@ class Response extends ConfigObject
     public function __construct($body, $statusCode)
     {
         parent::__construct([
-            self::raw => $body,
-            self::body => $this->decodeBody($body),
-            self::statusCode => (int) $statusCode,
-            self::isSuccessful => '2' === substr((string) $statusCode, 0, 1),
+            self::RAW => $body,
+            self::BODY => $this->decodeBody($body),
+            self::STATUS_CODE => (int) $statusCode,
+            self::IS_SUCCESSFUL => '2' === substr((string) $statusCode, 0, 1),
         ]);
     }
 

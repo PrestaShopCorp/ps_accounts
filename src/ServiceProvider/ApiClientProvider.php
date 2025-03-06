@@ -39,8 +39,8 @@ class ApiClientProvider implements IServiceProvider
     {
         $container->registerProvider(AccountsClient::class, static function () use ($container) {
             return new AccountsClient([
-                ClientConfig::baseUri => $container->getParameter('ps_accounts.accounts_api_url'),
-                ClientConfig::sslCheck => $container->getParameter('ps_accounts.check_api_ssl_cert'),
+                ClientConfig::BASE_URI => $container->getParameter('ps_accounts.accounts_api_url'),
+                ClientConfig::SSL_CHECK => $container->getParameter('ps_accounts.check_api_ssl_cert'),
             ]);
         });
         $container->registerProvider(ServicesBillingClient::class, static function () use ($container) {

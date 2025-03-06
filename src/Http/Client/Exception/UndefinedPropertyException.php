@@ -18,14 +18,8 @@
  * @license   https://opensource.org/licenses/AFL-3.0 Academic Free License version 3.0
  */
 
-namespace PrestaShop\Module\PsAccounts\Http\Client;
+namespace PrestaShop\Module\PsAccounts\Http\Client\Exception;
 
-use PrestaShop\Module\PsAccounts\Http\Client\CircuitBreaker\CircuitBreakerException;
-
-class ClientException extends \Exception implements CircuitBreakerException
+class UndefinedPropertyException extends \Exception
 {
-    public function isBreaking()
-    {
-        return false;
-    }
 }

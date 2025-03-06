@@ -18,12 +18,8 @@
  * @license   https://opensource.org/licenses/AFL-3.0 Academic Free License version 3.0
  */
 
-namespace PrestaShop\Module\PsAccounts\Http\Client;
+namespace PrestaShop\Module\PsAccounts\Http\Client\Exception;
 
-class ConnectException extends ClientException
+class RequiredPropertyException extends \Exception
 {
-    public function isBreaking()
-    {
-        return true;
-    }
 }

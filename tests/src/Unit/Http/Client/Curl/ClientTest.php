@@ -27,16 +27,16 @@ class ClientTest extends TestCase
         $baseUrl = $scheme . $domain . '/';
 
         $httpClient = (new Factory())->create([
-            ClientConfig::baseUri => $baseUrl,
-            ClientConfig::timeout => 60,
-            ClientConfig::sslCheck => false,
-            ClientConfig::allowRedirects => true,
+            ClientConfig::BASE_URI => $baseUrl,
+            ClientConfig::TIMEOUT => 60,
+            ClientConfig::SSL_CHECK => false,
+            ClientConfig::ALLOW_REDIRECTS => true,
         ]);
 
         $response = $httpClient->get(
             '/index.php?fc=module&module=ps_accounts&controller=apiV2ShopHealthCheck',
             [
-                Request::headers => [
+                Request::HEADERS => [
                     //'Accept' => 'application/json',
                 ],
             ]

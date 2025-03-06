@@ -18,7 +18,11 @@
  * @license   https://opensource.org/licenses/AFL-3.0 Academic Free License version 3.0
  */
 
-namespace PrestaShop\Module\PsAccounts\Type;
+namespace PrestaShop\Module\PsAccounts\Http\Client;
+
+use PrestaShop\Module\PsAccounts\Http\Client\Exception\RequiredPropertyException;
+use PrestaShop\Module\PsAccounts\Http\Client\Exception\UndefinedPropertyException;
+use PrestaShop\Module\PsAccounts\Type\Enum;
 
 class ConfigObject extends Enum
 {
@@ -40,7 +44,8 @@ class ConfigObject extends Enum
     /**
      * @param array $values
      *
-     * @throws \Exception
+     * @throws RequiredPropertyException
+     * @throws UndefinedPropertyException
      */
     public function __construct(array $values)
     {
@@ -57,7 +62,7 @@ class ConfigObject extends Enum
      *
      * @return mixed
      *
-     * @throw \InvalidArgumentException
+     * @throws UndefinedPropertyException
      */
     public function __get($name)
     {
@@ -72,7 +77,7 @@ class ConfigObject extends Enum
      *
      * @return void
      *
-     * @throw \InvalidArgumentException
+     * @throws UndefinedPropertyException
      */
     public function __set($name, $value)
     {
@@ -108,25 +113,25 @@ class ConfigObject extends Enum
      *
      * @return void
      *
-     * @throws \Exception
+     * @throws UndefinedPropertyException
      */
     protected function assertPropertyExists($name)
     {
         if (!in_array($name, $this->getProperties(), true)) {
-            throw new \Exception('Trying to access undefined property : ' . $name . '.');
+            throw new UndefinedPropertyException('Trying to access undefined property : ' . $name . '.');
         }
     }
 
     /**
      * @return void
      *
-     * @throws \Exception
+     * @throws RequiredPropertyException
      */
     protected function assertRequiredProperties()
     {
         foreach ($this->required as $name) {
             if (!property_exists($this, $name)) {
-                throw new \Exception('Missing required property : ' . $name . '.');
+                throw new RequiredPropertyException('Missing required property : ' . $name . '.');
             }
         }
     }

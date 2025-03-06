@@ -5,8 +5,8 @@ use PrestaShop\Module\PsAccounts\Http\Client\CircuitBreaker\CircuitBreakerExcept
 use PrestaShop\Module\PsAccounts\Http\Client\CircuitBreaker\Factory;
 use PrestaShop\Module\PsAccounts\Http\Client\CircuitBreaker\CircuitBreaker;
 use PrestaShop\Module\PsAccounts\Http\Client\CircuitBreaker\State;
-use PrestaShop\Module\PsAccounts\Http\Client\ClientException;
-use PrestaShop\Module\PsAccounts\Http\Client\ConnectException;
+use PrestaShop\Module\PsAccounts\Http\Client\Exception\ClientException;
+use PrestaShop\Module\PsAccounts\Http\Client\Exception\ConnectException;
 use PrestaShop\Module\PsAccounts\Tests\TestCase;
 
 class CircuitBreakerTest extends TestCase

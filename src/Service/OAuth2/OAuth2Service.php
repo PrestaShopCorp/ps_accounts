@@ -93,14 +93,14 @@ class OAuth2Service
      * @throws \Exception
      */
     public function __construct(
-        array        $config,
+        array $config,
         OAuth2Client $oAuth2Client,
-        Link         $link,
+        Link $link,
                      $cacheDir
     ) {
         $this->clientConfig = array_merge([
-            ClientConfig::name => static::class,
-            ClientConfig::headers => $this->getHeaders(),
+            ClientConfig::NAME => static::class,
+            ClientConfig::HEADERS => $this->getHeaders(),
         ], $config);
 
         $this->oAuth2Client = $oAuth2Client;
@@ -246,7 +246,7 @@ class OAuth2Service
         $response = $this->getHttpClient()->post(
             $this->getWellKnown()->token_endpoint,
             [
-                Request::form => [
+                Request::FORM => [
                     'grant_type' => 'client_credentials',
                     'client_id' => $this->oAuth2Client->getClientId(),
                     'client_secret' => $this->oAuth2Client->getClientSecret(),
@@ -353,7 +353,7 @@ class OAuth2Service
         $response = $this->getHttpClient()->post(
             $this->getWellKnown()->token_endpoint,
             [
-                Request::form => array_merge([
+                Request::FORM => array_merge([
                     'grant_type' => 'authorization_code',
                     'client_id' => $this->oAuth2Client->getClientId(),
                     'client_secret' => $this->oAuth2Client->getClientSecret(),
@@ -388,7 +388,7 @@ class OAuth2Service
         $response = $this->getHttpClient()->post(
             $this->getWellKnown()->token_endpoint,
             [
-                Request::form => [
+                Request::FORM => [
                     'grant_type' => 'refresh_token',
                     'client_id' => $this->oAuth2Client->getClientId(),
                     'refresh_token' => $refreshToken,
@@ -413,7 +413,7 @@ class OAuth2Service
         $response = $this->getHttpClient()->get(
             $this->getWellKnown()->userinfo_endpoint,
             [
-                Request::headers => $this->getHeaders([
+                Request::HEADERS => $this->getHeaders([
                     'Authorization' => 'Bearer ' . $accessToken,
                 ]),
             ]
