@@ -20,8 +20,9 @@
 
 namespace PrestaShop\Module\PsAccounts\Api\Client;
 
-use PrestaShop\Module\PsAccounts\Http\Client\Guzzle\GuzzleClient;
-use PrestaShop\Module\PsAccounts\Http\Client\Guzzle\GuzzleClientFactory;
+use PrestaShop\Module\PsAccounts\Http\Client\ClientConfig;
+use PrestaShop\Module\PsAccounts\Http\Client\Curl\Client;
+use PrestaShop\Module\PsAccounts\Http\Client\Factory;
 
 class ExternalAssetsClient
 {
@@ -31,46 +32,37 @@ class ExternalAssetsClient
     private $module;
 
     /**
-     * @var GuzzleClient
+     * @var Client
      */
     private $client;
 
     /**
-     * @var int
+     * @var array
      */
-    private $defaultTimeout;
+    protected $clientConfig;
 
     /**
-     * ServicesAccountsClient constructor.
-     *
-     * @param GuzzleClient|null $client
-     * @param int $defaultTimeout
-     *
-     * @throws \Exception
+     * @param array $config
      */
-    public function __construct(
-        GuzzleClient $client = null,
-                     $defaultTimeout = 20
-    ) {
+    public function __construct(array $config)
+    {
         /** @var \Ps_accounts $module */
         $module = \Module::getInstanceByName('ps_accounts');
         $this->module = $module;
-        $this->client = $client;
-        $this->defaultTimeout = $defaultTimeout;
+
+        $this->clientConfig = array_merge([
+            ClientConfig::NAME => static::class,
+            ClientConfig::HEADERS => $this->getHeaders(),
+        ], $config);
     }
 
     /**
-     * @return GuzzleClient
+     * @return Client
      */
     private function getClient()
     {
         if (null === $this->client) {
-            $this->client = (new GuzzleClientFactory())->create([
-                'name' => static::class,
-                //'base_uri' => $this->apiUrl,
-                'headers' => $this->getHeaders(),
-                'timeout' => $this->defaultTimeout,
-            ]);
+            $this->client = (new Factory())->create($this->clientConfig);
         }
 
         return $this->client;
@@ -93,8 +85,8 @@ class ExternalAssetsClient
      */
     public function getTestimonials()
     {
-        $this->getClient()->setRoute($this->module->getParameter('ps_accounts.testimonials_url'));
-
-        return $this->getClient()->get();
+        return $this->getClient()->get(
+            $this->module->getParameter('ps_accounts.testimonials_url')
+        )->toLegacy();
     }
 }

@@ -51,7 +51,7 @@ class RefreshTokenTest extends TestCase
             ->willReturn(new AccessToken([
                 'access_token' => (string)$this->validAccessToken
             ]));
-        $oAuth2Service->method('getClient')
+        $oAuth2Service->method('getOAuth2Client')
             ->willReturn($this->oauth2Client);
 
         $commandBus = $this->createMock(CommandBus::class);

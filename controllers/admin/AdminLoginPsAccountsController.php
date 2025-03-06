@@ -135,8 +135,6 @@ class AdminLoginPsAccountsController extends \AdminController
         /** @var OAuth2Service $oAuth2Service */
         $oAuth2Service = $this->module->getService(OAuth2Service::class);
 
-        $testimonials = $this->getTestimonials();
-
         $session = $this->module->getSession();
 
         /* @phpstan-ignore-next-line */
@@ -152,7 +150,7 @@ class AdminLoginPsAccountsController extends \AdminController
             ]),
             'isoCode' => substr($isoCode, 0, 2),
             'defaultIsoCode' => 'en',
-            'testimonials' => $testimonials,
+            'testimonials' => $this->getTestimonials(),
             'loginError' => $session->remove('loginError'),
             'meta_title' => '',
             'ssoResendVerificationEmail' => $this->module->getParameter(

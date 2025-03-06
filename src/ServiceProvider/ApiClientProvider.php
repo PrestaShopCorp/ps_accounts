@@ -45,10 +45,9 @@ class ApiClientProvider implements IServiceProvider
             ]);
         });
         $container->registerProvider(ExternalAssetsClient::class, static function () {
-            return new ExternalAssetsClient(
-                null,
-                10
-            );
+            return new ExternalAssetsClient([
+                ClientConfig::BASE_URI => '',
+            ]);
         });
         $container->registerProvider(ServicesBillingClient::class, static function () use ($container) {
             return new ServicesBillingClient(

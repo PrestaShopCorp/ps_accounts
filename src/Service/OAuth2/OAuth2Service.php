@@ -301,13 +301,22 @@ class OAuth2Service
     }
 
     /**
-     * @example  http://my-shop.mydomain/admin-path/index.php?controller=AdminOAuth2PsAccounts
+     * @example http://my-shop.mydomain/admin-path/index.php?controller=AdminOAuth2PsAccounts
+     * @example http://my-shop.mydomain/admin-path/modules/ps_accounts/oauth2
      *
      * @return string
      */
     public function getAuthRedirectUri()
     {
-        return $this->link->getAdminLink('AdminOAuth2PsAccounts', false);
+        if (defined('_PS_VERSION_')
+            && version_compare(_PS_VERSION_, '9', '>=')) {
+            return $this->link->getAdminLink('AdminOAuth2PsAccounts', false, [
+                'route' => 'ps_accounts_oauth2',
+            ]);
+            //return $link->getAdminLink('SfAdminOAuth2PsAccounts', false);
+        }
+
+        return $this->link->getAdminLink('AdminOAuth2PsAccounts', false, [], [], true);
     }
 
     /**
@@ -443,6 +452,7 @@ class OAuth2Service
 
     /**
      * @example http://my-shop.mydomain/admin-path/index.php?controller=AdminLogin&logout=1&oauth2Callback=1
+     * @example http://my-shop.mydomain/admin-path/logout?oauth2Callback=1
      *
      * @return string
      */
@@ -451,7 +461,7 @@ class OAuth2Service
         return $this->link->getAdminLink('AdminLogin', false, [], [
             'logout' => 1,
             OAuth2LogoutTrait::getQueryLogoutCallbackParam() => 1,
-        ]);
+        ], true);
     }
 
     /**

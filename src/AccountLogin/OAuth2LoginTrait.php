@@ -21,18 +21,18 @@
 namespace PrestaShop\Module\PsAccounts\AccountLogin;
 
 use Employee;
-use PrestaShop\Module\PsAccounts\Entity\EmployeeAccount;
-use PrestaShop\Module\PsAccounts\Exception\AccountLogin\AccountLoginException;
+use PrestaShop\Module\PsAccounts\AccountLogin\Exception\AccountLoginException;
 use PrestaShop\Module\PsAccounts\AccountLogin\Exception\EmailNotVerifiedException;
 use PrestaShop\Module\PsAccounts\AccountLogin\Exception\EmployeeNotFoundException;
 use PrestaShop\Module\PsAccounts\AccountLogin\Exception\Oauth2LoginException;
+use PrestaShop\Module\PsAccounts\Entity\EmployeeAccount;
 use PrestaShop\Module\PsAccounts\Log\Logger;
 use PrestaShop\Module\PsAccounts\Repository\EmployeeAccountRepository;
 use PrestaShop\Module\PsAccounts\Service\AnalyticsService;
-use PrestaShop\Module\PsAccounts\Service\PsAccountsService;
 use PrestaShop\Module\PsAccounts\Service\OAuth2\OAuth2Exception;
 use PrestaShop\Module\PsAccounts\Service\OAuth2\OAuth2Service;
 use PrestaShop\Module\PsAccounts\Service\OAuth2\Resource\UserInfo;
+use PrestaShop\Module\PsAccounts\Service\PsAccountsService;
 use Symfony\Component\HttpFoundation\Session\SessionInterface;
 use Tools;
 
@@ -218,5 +218,124 @@ trait OAuth2LoginTrait
     private function getReturnToParam()
     {
         return 'return_to';
+    }
+
+    /**
+     * @param string $uid
+     * @param string $email
+     *
+     * @return Employee
+     */
+    protected function getEmployeeByUidOrEmail($uid, $email)
+    {
+        $repository = new EmployeeAccountRepository();
+
+        try {
+            $employeeAccount = $repository->findByUid($uid);
+
+            /* @phpstan-ignore-next-line */
+            if ($employeeAccount) {
+                $employee = new Employee($employeeAccount->getEmployeeId());
+            } else {
+                $employeeAccount = new EmployeeAccount();
+                $employee = new Employee();
+                if (Employee::employeeExists($email)) {
+                    $employee->getByEmail($email);
+                }
+            }
+
+            // Update account
+            if ($employee->id) {
+                $repository->upsert(
+                    $employeeAccount
+                        ->setEmployeeId($employee->id)
+                        ->setUid($uid)
+                        ->setEmail($email)
+                );
+            }
+        } catch (\Exception $e) {
+            $employee = new Employee();
+            $employee->getByEmail($email);
+        }
+
+        return $employee;
+    }
+
+    /**
+     * @param AccountLoginException $e
+     *
+     * @return mixed
+     */
+    protected function onLoginFailed(AccountLoginException $e)
+    {
+        if ($this->module->isShopEdition() && (
+                $e instanceof EmployeeNotFoundException ||
+                $e instanceof EmailNotVerifiedException
+            )) {
+            $this->trackEditionLoginFailedEvent($e);
+        }
+
+        $this->oauth2ErrorLog($e->getMessage());
+        $this->setLoginError($e->getType());
+
+        return $this->logout();
+    }
+
+    /**
+     * @param mixed $error
+     *
+     * @return void
+     */
+    protected function setLoginError($error)
+    {
+        $this->getSession()->set('loginError', $error);
+    }
+
+    /**
+     * @param UserInfo $user
+     *
+     * @return void
+     */
+    protected function trackEditionLoginEvent(UserInfo $user)
+    {
+        if ($this->module->isShopEdition()) {
+            $this->getAnalyticsService()->identify(
+                $user->sub,
+                $user->name,
+                $user->email
+            );
+            $this->getAnalyticsService()->group(
+                $user->sub,
+                (string) $this->getPsAccountsService()->getShopUuid()
+            );
+            $this->getAnalyticsService()->trackUserSignedIntoApp(
+                $user->sub,
+                'smb-edition'
+            );
+        }
+    }
+
+    /**
+     * @param EmployeeNotFoundException|EmailNotVerifiedException $e
+     *
+     * @return void
+     */
+    protected function trackEditionLoginFailedEvent($e)
+    {
+        $user = $e->getUser();
+        $this->getAnalyticsService()->identify(
+            $user->sub,
+            $user->name,
+            $user->email
+        );
+        $this->getAnalyticsService()->group(
+            $user->sub,
+            (string) $this->getPsAccountsService()->getShopUuid()
+        );
+        $this->getAnalyticsService()->trackBackOfficeSSOSignInFailed(
+            $user->sub,
+            $e->getType(),
+            $e->getMessage()
+        );
     }
 }

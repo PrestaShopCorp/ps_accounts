@@ -20,7 +20,7 @@
 
 namespace PrestaShop\Module\PsAccounts\EventListener\Admin;
 
-use PrestaShop\Module\PsAccounts\Middleware\Oauth2Middleware;
+use PrestaShop\Module\PsAccounts\AccountLogin\Middleware\Oauth2Middleware;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 use Symfony\Component\Security\Http\Event\LogoutEvent;
 
