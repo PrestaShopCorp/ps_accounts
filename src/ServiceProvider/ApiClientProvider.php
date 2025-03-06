@@ -21,6 +21,7 @@
 namespace PrestaShop\Module\PsAccounts\ServiceProvider;
 
 use PrestaShop\Module\PsAccounts\Api\Client\AccountsClient;
+use PrestaShop\Module\PsAccounts\Api\Client\ExternalAssetsClient;
 use PrestaShop\Module\PsAccounts\Api\Client\ServicesBillingClient;
 use PrestaShop\Module\PsAccounts\Http\Client\ClientConfig;
 use PrestaShop\Module\PsAccounts\Provider\ShopProvider;
@@ -42,6 +43,12 @@ class ApiClientProvider implements IServiceProvider
                 ClientConfig::BASE_URI => $container->getParameter('ps_accounts.accounts_api_url'),
                 ClientConfig::SSL_CHECK => $container->getParameter('ps_accounts.check_api_ssl_cert'),
             ]);
+        });
+        $container->registerProvider(ExternalAssetsClient::class, static function () {
+            return new ExternalAssetsClient(
+                null,
+                10
+            );
         });
         $container->registerProvider(ServicesBillingClient::class, static function () use ($container) {
             return new ServicesBillingClient(

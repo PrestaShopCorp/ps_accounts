@@ -30,8 +30,6 @@ class Ps_accounts extends Module
 {
     use \PrestaShop\Module\PsAccounts\Hook\HookableTrait;
 
-    const DEFAULT_ENV = '';
-
     // Needed in order to retrieve the module version easier (in api call headers) than instanciate
     // the module each time to get the version
     const VERSION = '7.2.0';

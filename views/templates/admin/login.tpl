@@ -16,6 +16,18 @@
  * @copyright Since 2007 PrestaShop SA and Contributors
  * @license   https://opensource.org/licenses/AFL-3.0 Academic Free License version 3.0
  *}
+<link rel="stylesheet" href="https://unpkg.com/@prestashopcorp/puik-theme/dist/index.css" />
+
+{**
+    Workaround for the issue with the font not being loaded correctly from puik-theme
+*}
+<style>
+@font-face {
+    font-family: Prestafont;
+    src: url("https://unpkg.com/@prestashopcorp/puik-theme/assets/Prestafont-Regular.woff2") format("woff2")
+}
+</style>
+
 <div class="psacc-grid psacc-h-screen lg:psacc-grid-cols-2">
     <div
         class="psacc-hidden lg:psacc-flex psacc-flex-col psacc-items-center psacc-justify-end psacc-bg-cover psacc-bg-no-repeat psacc-bg-bicycle"
@@ -143,7 +155,7 @@
     document.addEventListener("DOMContentLoaded", function() {
         const returnTo = '{$redirect}';
         const redirectUri = "{$oauthRedirectUri}";
-        const locale = (navigator.language || navigator.userLanguage || 'en').slice(0, 2);
+        const locale = (navigator.language || navigator.userLanguage || 'en').slice(0, 2);
         const oauth2Uri = redirectUri + '&return_to=' + encodeURIComponent(returnTo) + '&locale=' + encodeURIComponent(locale);
 
         document.querySelector('#ps-accounts-login').addEventListener('click', function() {

@@ -20,10 +20,16 @@
 
 namespace PrestaShop\Module\PsAccounts\AccountLogin;
 
+use Employee;
+use PrestaShop\Module\PsAccounts\Entity\EmployeeAccount;
+use PrestaShop\Module\PsAccounts\Exception\AccountLogin\AccountLoginException;
 use PrestaShop\Module\PsAccounts\AccountLogin\Exception\EmailNotVerifiedException;
 use PrestaShop\Module\PsAccounts\AccountLogin\Exception\EmployeeNotFoundException;
 use PrestaShop\Module\PsAccounts\AccountLogin\Exception\Oauth2LoginException;
 use PrestaShop\Module\PsAccounts\Log\Logger;
+use PrestaShop\Module\PsAccounts\Repository\EmployeeAccountRepository;
+use PrestaShop\Module\PsAccounts\Service\AnalyticsService;
+use PrestaShop\Module\PsAccounts\Service\PsAccountsService;
 use PrestaShop\Module\PsAccounts\Service\OAuth2\OAuth2Exception;
 use PrestaShop\Module\PsAccounts\Service\OAuth2\OAuth2Service;
 use PrestaShop\Module\PsAccounts\Service\OAuth2\Resource\UserInfo;
@@ -45,9 +51,14 @@ trait OAuth2LoginTrait
     abstract protected function initUserSession(UserInfo $user);
 
     /**
-     * @return void
+     * @return mixed
      */
     abstract protected function redirectAfterLogin();
+
+    /**
+     * @return mixed
+     */
+    abstract protected function logout();
 
     /**
      * @return SessionInterface
@@ -60,7 +71,17 @@ trait OAuth2LoginTrait
     abstract protected function getOauth2Session();
 
     /**
-     * @return void
+     * @return AnalyticsService
+     */
+    abstract protected function getAnalyticsService();
+
+    /**
+     * @return PsAccountsService
+     */
+    abstract protected function getPsAccountsService();
+
+    /**
+     * @return mixed
      *
      * @throws EmailNotVerifiedException
      * @throws EmployeeNotFoundException
@@ -111,7 +132,7 @@ trait OAuth2LoginTrait
             $oauth2Session->setTokenProvider($accessToken);
 
             if ($this->initUserSession($oauth2Session->getUserInfo())) {
-                $this->redirectAfterLogin();
+                return $this->redirectAfterLogin();
             }
         }
     }

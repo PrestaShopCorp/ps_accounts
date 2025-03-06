@@ -76,6 +76,13 @@ platform-fix-permissions:
 	@docker exec phpunit sh -c "if [ -d ./var ]; then chown -R www-data:www-data ./var; fi"
 	@docker exec phpunit sh -c "if [ -d ./cache ]; then chown -R www-data:www-data ./cache; fi" # PS1.6
 	@docker exec phpunit sh -c "if [ -d ./log ]; then chown -R www-data:www-data ./log; fi" # PS1.6
+	#@docker exec -u root phpunit sh -c "chgrp -R www-data ${CONTAINER_INSTALL_DIR}"
+	#@docker exec -u root phpunit sh -c "find ${CONTAINER_INSTALL_DIR} -type d -exec chmod g+r,g+w,g+x {} \;"
+	#@docker exec -u root phpunit sh -c "find ${CONTAINER_INSTALL_DIR} -type f -exec chmod g+r,g+w {} \;"
+
+
+#platform-status:
+#	COMPOSER=composer71.json ./composer.phar outdated --locked -m --working-dir=./tests/
 
 #platform-status:
 #	COMPOSER=composer71.json ./composer.phar outdated --locked -m --working-dir=./tests/
@@ -309,15 +316,15 @@ autoindex: COMPOSER_FILE := composer56.json
 autoindex: tests/vendor
 	${PHP} ./tests/vendor/bin/autoindex prestashop:add:index "${WORKDIR}"
 
-#HEADER_STAMP_DRY_RUN ?= ''
-#header-stamp: COMPOSER_FILE := composer56.json
-#header-stamp: tests/vendor
-#	${PHP} -d error_reporting=1 ./tests/vendor/bin/header-stamp --target="${WORKDIR}" ${HEADER_STAMP_DRY_RUN} \
-#		--license="assets/afl.txt" --exclude=".github,node_modules,vendor,vendor,tests,_dev"
-#
-#header-stamp-test: COMPOSER_FILE := composer56.json
-#header-stamp-test: HEADER_STAMP_DRY_RUN := '--dry-run'
-#header-stamp-test: tests/vendor header-stamp
+HEADER_STAMP_DRY_RUN ?= ''
+header-stamp-local: COMPOSER_FILE := composer56.json
+header-stamp-local: tests/vendor
+	${PHP} -d error_reporting=1 ./tests/vendor/bin/header-stamp --target="${WORKDIR}" ${HEADER_STAMP_DRY_RUN} \
+		--license="assets/afl.txt" --exclude=".github,node_modules,vendor,vendor,tests,_dev"
+
+header-stamp-local-test: COMPOSER_FILE := composer56.json
+header-stamp-local-test: HEADER_STAMP_DRY_RUN := '--dry-run'
+header-stamp-local-test: tests/vendor header-stamp-local
 
 ##########################################################
 COMPOSER_OPTIONS ?= --prefer-dist -o --no-dev --quiet

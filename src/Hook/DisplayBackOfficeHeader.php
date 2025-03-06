@@ -29,10 +29,12 @@ class DisplayBackOfficeHeader extends Hook
      */
     public function execute(array $params = [])
     {
-        if (defined('_PS_VERSION_')
-            && version_compare(_PS_VERSION_, '8', '>=')) {
+        if (defined('_PS_VERSION_') &&
+            version_compare(_PS_VERSION_, '8', '>=') &&
+            version_compare(_PS_VERSION_, '9', '<')
+        ) {
             try {
-                $this->module->getOauth2Middleware()->execute();
+                $this->module->getOauth2Middleware()->handleLogout();
                 /* @phpstan-ignore-next-line */
             } catch (\Exception $e) {
                 /* @phpstan-ignore-next-line */

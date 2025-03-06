@@ -1,0 +1,18 @@
+ps_accounts_oauth2:
+  path: ps_accounts/oauth2
+  methods: [GET]
+  defaults:
+    _controller: 'PrestaShop\Module\PsAccounts\Controller\Admin\OAuth2Controller::initOAuth2FlowAction'
+    _anonymous_controller: true
+    _legacy_controller: SfAdminOAuth2PsAccounts
+    _legacy_link: SfAdminOAuth2PsAccounts
+
+ps_accounts_login:
+  path: ps_accounts/login
+  methods: [GET]
+  defaults:
+    _controller: 'PrestaShop\Module\PsAccounts\Controller\Admin\OAuth2Controller::displayLoginAction'
+    _anonymous_controller: true
+    _legacy_controller: SfAdminLoginPsAccounts
+    _legacy_link: SfAdminLoginPsAccounts
+#    _disable_module_prefix: true
