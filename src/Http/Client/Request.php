@@ -25,6 +25,7 @@ namespace PrestaShop\Module\PsAccounts\Http\Client;
  * @property array $headers
  * @property array|null $json
  * @property array|null $form
+ * @property array|null $query
  */
 class Request extends ConfigObject
 {
@@ -32,11 +33,13 @@ class Request extends ConfigObject
     const HEADERS = 'headers';
     const JSON = 'json';
     const FORM = 'form';
+    const QUERY = 'query';
 
     protected $defaults = [
         self::URI => null,
         self::HEADERS => [],
         self::JSON => null,
         self::FORM => null,
+        self::QUERY => null,
     ];
 }
