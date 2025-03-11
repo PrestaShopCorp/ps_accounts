@@ -225,7 +225,7 @@ class Client
             throw new \InvalidArgumentException('route must not be empty');
         }
 
-        if (! empty($request->query)) {
+        if (!empty($request->query)) {
             // FIXME: preserve $route querystring
             $absRoute .= '?' . http_build_query($request->query);
         }

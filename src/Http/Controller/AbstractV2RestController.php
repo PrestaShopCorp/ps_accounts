@@ -18,18 +18,18 @@
  * @license   https://opensource.org/licenses/AFL-3.0 Academic Free License version 3.0
  */
 
-namespace PrestaShop\Module\PsAccounts\Api\Controller;
+namespace PrestaShop\Module\PsAccounts\Http\Controller;
 
 use Context;
-use PrestaShop\Module\PsAccounts\Api\Controller\Exception\HttpException;
-use PrestaShop\Module\PsAccounts\Api\Controller\Exception\UnauthorizedException;
-use PrestaShop\Module\PsAccounts\OAuth2\ApiClient;
-use PrestaShop\Module\PsAccounts\OAuth2\Token\Validator\Exception\AudienceInvalidException;
-use PrestaShop\Module\PsAccounts\OAuth2\Token\Validator\Exception\ScopeInvalidException;
-use PrestaShop\Module\PsAccounts\OAuth2\Token\Validator\Exception\SignatureInvalidException;
-use PrestaShop\Module\PsAccounts\OAuth2\Token\Validator\Exception\TokenExpiredException;
-use PrestaShop\Module\PsAccounts\OAuth2\Token\Validator\Exception\TokenInvalidException;
-use PrestaShop\Module\PsAccounts\OAuth2\Token\Validator\Validator;
+use PrestaShop\Module\PsAccounts\Http\Exception\HttpException;
+use PrestaShop\Module\PsAccounts\Http\Exception\UnauthorizedException;
+use PrestaShop\Module\PsAccounts\Service\OAuth2\OAuth2Service;
+use PrestaShop\Module\PsAccounts\Service\OAuth2\Token\Validator\Exception\AudienceInvalidException;
+use PrestaShop\Module\PsAccounts\Service\OAuth2\Token\Validator\Exception\ScopeInvalidException;
+use PrestaShop\Module\PsAccounts\Service\OAuth2\Token\Validator\Exception\SignatureInvalidException;
+use PrestaShop\Module\PsAccounts\Service\OAuth2\Token\Validator\Exception\TokenExpiredException;
+use PrestaShop\Module\PsAccounts\Service\OAuth2\Token\Validator\Exception\TokenInvalidException;
+use PrestaShop\Module\PsAccounts\Service\OAuth2\Token\Validator\Validator;
 use PrestaShop\Module\PsAccounts\Service\SentryService;
 
 abstract class AbstractV2RestController extends AbstractRestController
@@ -49,7 +49,7 @@ abstract class AbstractV2RestController extends AbstractRestController
         parent::__construct();
 
         $this->validator = new Validator(
-            $this->module->getService(ApiClient::class)
+            $this->module->getService(OAuth2Service::class)
         );
     }
 
@@ -147,7 +147,7 @@ abstract class AbstractV2RestController extends AbstractRestController
      *
      * @return mixed
      */
-    protected function extractMethod(array &$payload)
+    protected function extractMethod(array & $payload)
     {
         $method = $_SERVER['REQUEST_METHOD'];
         // detect method from payload (hack with some shop server configuration)

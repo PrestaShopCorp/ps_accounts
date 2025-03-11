@@ -154,7 +154,7 @@ class AccountsClient
             'v1/user/' . $ownerUid . '/shop/' . $shopUid,
             [
                 Request::HEADERS => $this->getHeaders([
-                    # FIXME: use shop access token instead
+                    // FIXME: use shop access token instead
                     'Authorization' => 'Bearer ' . $ownerToken,
                     'X-Shop-Id' => $shopUid,
                 ]),

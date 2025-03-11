@@ -18,9 +18,9 @@
  * @license   https://opensource.org/licenses/AFL-3.0 Academic Free License version 3.0
  */
 
-namespace PrestaShop\Module\PsAccounts\Api\Controller;
+namespace PrestaShop\Module\PsAccounts\Http\Controller;
 
-use PrestaShop\Module\PsAccounts\Api\Controller\Exception\NotFoundException;
+use PrestaShop\Module\PsAccounts\Http\Exception\NotFoundException;
 use Shop;
 
 class AbstractV2ShopRestController extends AbstractV2RestController
