@@ -22,50 +22,33 @@ namespace PrestaShop\Module\PsAccounts\Api\Client;
 
 use PrestaShop\Module\PsAccounts\Account\Dto\UpdateShop;
 use PrestaShop\Module\PsAccounts\Account\Dto\UpgradeModule;
+use PrestaShop\Module\PsAccounts\Http\Client\ClientConfig;
 use PrestaShop\Module\PsAccounts\Http\Client\Curl\Client;
 use PrestaShop\Module\PsAccounts\Http\Client\Factory;
-use PrestaShop\Module\PsAccounts\Http\Client\Options;
+use PrestaShop\Module\PsAccounts\Http\Client\Request;
 use PrestaShop\Module\PsAccounts\Vendor\Ramsey\Uuid\Uuid;
 
 class AccountsClient
 {
-    /**
-     * @var string
-     */
-    private $baseUri;
-
     /**
      * @var Client
      */
     private $client;
 
     /**
-     * @var int
+     * @var array
      */
-    private $defaultTimeout;
+    protected $clientConfig;
 
     /**
-     * @var bool
+     * @param array $config
      */
-    protected $sslCheck;
-
-    /**
-     * ServicesAccountsClient constructor.
-     *
-     * @param string $baseUri
-     * @param int $defaultTimeout
-     * @param bool $sslCheck
-     *
-     * @throws \Exception
-     */
-    public function __construct(
-        $baseUri,
-        $defaultTimeout = 20,
-        $sslCheck = true
-    ) {
-        $this->baseUri = $baseUri;
-        $this->defaultTimeout = $defaultTimeout;
-        $this->sslCheck = $sslCheck;
+    public function __construct(array $config)
+    {
+        $this->clientConfig = array_merge([
+            ClientConfig::NAME => static::class,
+            ClientConfig::HEADERS => $this->getHeaders(),
+        ], $config);
     }
 
     /**
@@ -74,13 +57,7 @@ class AccountsClient
     private function getClient()
     {
         if (null === $this->client) {
-            $this->client = (new Factory())->create([
-                'name' => static::class,
-                'baseUri' => $this->baseUri,
-                'headers' => $this->getHeaders(),
-                'timeout' => $this->defaultTimeout,
-                'sslCheck' => $this->sslCheck,
-            ]);
+            $this->client = (new Factory())->create($this->clientConfig);
         }
 
         return $this->client;
@@ -107,14 +84,16 @@ class AccountsClient
      * @return array
      *
      * $response['body']['userToken']
+     * $response['body']['userRefreshToken']
      * $response['body']['shopToken']
+     * $response['body']['shopRefreshToken']
      */
     public function firebaseTokens($accessToken)
     {
         return $this->getClient()->get(
             'v2/shop/firebase/tokens',
             [
-                Options::REQ_HEADERS => $this->getHeaders([
+                Request::HEADERS => $this->getHeaders([
                     'Authorization' => 'Bearer ' . $accessToken,
                 ]),
             ])->toLegacy();
@@ -131,10 +110,10 @@ class AccountsClient
         return $this->getClient()->post(
             'v1/shop/token/refresh',
             [
-                Options::REQ_HEADERS => $this->getHeaders([
+                Request::HEADERS => $this->getHeaders([
                     'X-Shop-Id' => $shopUuid,
                 ]),
-                Options::REQ_JSON => [
+                Request::JSON => [
                     'token' => $refreshToken,
                 ],
             ]
@@ -153,7 +132,7 @@ class AccountsClient
         return $this->getClient()->delete(
             'v1/user/' . $ownerUid . '/shop/' . $shopUid,
             [
-                Options::REQ_HEADERS => $this->getHeaders([
+                Request::HEADERS => $this->getHeaders([
                     'Authorization' => 'Bearer ' . $ownerToken,
                     'X-Shop-Id' => $shopUid,
                 ]),
@@ -174,11 +153,12 @@ class AccountsClient
         return $this->getClient()->patch(
             'v1/user/' . $ownerUid . '/shop/' . $shopUid,
             [
-                Options::REQ_HEADERS => $this->getHeaders([
+                Request::HEADERS => $this->getHeaders([
+                    # FIXME: use shop access token instead
                     'Authorization' => 'Bearer ' . $ownerToken,
                     'X-Shop-Id' => $shopUid,
                 ]),
-                Options::REQ_JSON => $shop->jsonSerialize(),
+                Request::JSON => $shop->jsonSerialize(),
             ]
         )->toLegacy();
     }
@@ -195,11 +175,11 @@ class AccountsClient
         return $this->getClient()->post(
             '/v2/shop/module/update',
             [
-                Options::REQ_HEADERS => $this->getHeaders([
+                Request::HEADERS => $this->getHeaders([
                     'Authorization' => 'Bearer ' . $shopToken,
                     'X-Shop-Id' => $shopUid,
                 ]),
-                Options::REQ_JSON => $data->jsonSerialize(),
+                Request::JSON => $data->jsonSerialize(),
             ]
         )->toLegacy();
     }
@@ -216,8 +196,8 @@ class AccountsClient
         return $this->getClient()->post(
             '/v1/shop/token/verify',
             [
-                Options::REQ_HEADERS => $this->getHeaders(),
-                Options::REQ_JSON => [
+                Request::HEADERS => $this->getHeaders(),
+                Request::JSON => [
                     'token' => $idToken,
                 ],
             ]

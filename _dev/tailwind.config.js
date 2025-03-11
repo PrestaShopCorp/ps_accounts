@@ -1,4 +1,4 @@
-const { puikTailwindPreset } = require("@prestashopcorp/puik")
+const { puikTailwindPreset } = require('@prestashopcorp/puik-tailwind-preset')
 /** @type {import('tailwindcss').Config} */
 module.exports = {
   important: true,

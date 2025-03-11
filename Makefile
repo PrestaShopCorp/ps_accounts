@@ -1,7 +1,6 @@
 PHP = $(shell which php 2> /dev/null)
 DOCKER = $(shell docker ps 2> /dev/null)
 NPM = $(shell which npm 2> /dev/null)
-YARN = $(shell which yarn 2> /dev/null)
 COMPOSER = ${PHP} ./composer.phar
 DOCKER_COMPOSE := $(shell which docker) compose
 MODULE ?= $(shell basename ${PWD})
@@ -57,10 +56,8 @@ platform-stop:
 
 platform-restart: platform-stop platform-start
 
-.PHONY: config.php
 config.php:
-	@docker exec -w ${CONTAINER_INSTALL_DIR} phpunit \
-		sh -c "if [ ! -f ./config.php ]; then cp ./config.dist.php ./config.php; fi"
+	cp ./config.dist.php ./config.php
 
 platform-module-version:
 	@docker exec -w ${CONTAINER_INSTALL_DIR} phpunit \
@@ -79,6 +76,13 @@ platform-fix-permissions:
 	@docker exec phpunit sh -c "if [ -d ./var ]; then chown -R www-data:www-data ./var; fi"
 	@docker exec phpunit sh -c "if [ -d ./cache ]; then chown -R www-data:www-data ./cache; fi" # PS1.6
 	@docker exec phpunit sh -c "if [ -d ./log ]; then chown -R www-data:www-data ./log; fi" # PS1.6
+	#@docker exec -u root phpunit sh -c "chgrp -R www-data ${CONTAINER_INSTALL_DIR}"
+	#@docker exec -u root phpunit sh -c "find ${CONTAINER_INSTALL_DIR} -type d -exec chmod g+r,g+w,g+x {} \;"
+	#@docker exec -u root phpunit sh -c "find ${CONTAINER_INSTALL_DIR} -type f -exec chmod g+r,g+w {} \;"
+
+
+#platform-status:
+#	COMPOSER=composer71.json ./composer.phar outdated --locked -m --working-dir=./tests/
 
 #platform-status:
 #	COMPOSER=composer71.json ./composer.phar outdated --locked -m --working-dir=./tests/
@@ -271,7 +275,7 @@ BUNDLE_ZIP ?= # ex: ps_accounts_flavor.zip
 BUNDLE_VERSION ?= $(shell grep "<version>" config.xml | sed 's/^.*\([0-9]\+\.[0-9]\+\.[0-9]\+\).*/\1/')
 BUNDLE_JS ?= views/js/app.${BUNDLE_VERSION}.js
 
-bundle: php-scoper build-front
+bundle: config.php php-scoper build-front
 	@./scripts/bundle-module.sh "${BUNDLE_ZIP}" "${BUNDLE_ENV}"
 
 bundle-prod: php-scoper config.php.prod build-front
@@ -283,8 +287,8 @@ bundle-preprod: php-scoper config.php.preprod build-front
 define build_front
 	rm -f ./views/js/app.*.js
 	rm -f ./views/css/app.*.css
-	yarn --cwd ./_dev --frozen-lockfile
-	yarn --cwd ./_dev build
+	pnpm --filter ./_dev install --frozen-lockfile --ignore-scripts
+	pnpm --filter ./_dev build
 endef
 
 ${BUNDLE_JS}:
@@ -312,15 +316,15 @@ autoindex: COMPOSER_FILE := composer56.json
 autoindex: tests/vendor
 	${PHP} ./tests/vendor/bin/autoindex prestashop:add:index "${WORKDIR}"
 
-#HEADER_STAMP_DRY_RUN ?= ''
-#header-stamp: COMPOSER_FILE := composer56.json
-#header-stamp: tests/vendor
-#	${PHP} -d error_reporting=1 ./tests/vendor/bin/header-stamp --target="${WORKDIR}" ${HEADER_STAMP_DRY_RUN} \
-#		--license="assets/afl.txt" --exclude=".github,node_modules,vendor,vendor,tests,_dev"
-#
-#header-stamp-test: COMPOSER_FILE := composer56.json
-#header-stamp-test: HEADER_STAMP_DRY_RUN := '--dry-run'
-#header-stamp-test: tests/vendor header-stamp
+HEADER_STAMP_DRY_RUN ?= ''
+header-stamp-local: COMPOSER_FILE := composer56.json
+header-stamp-local: tests/vendor
+	${PHP} -d error_reporting=1 ./tests/vendor/bin/header-stamp --target="${WORKDIR}" ${HEADER_STAMP_DRY_RUN} \
+		--license="assets/afl.txt" --exclude=".github,node_modules,vendor,vendor,tests,_dev"
+
+header-stamp-local-test: COMPOSER_FILE := composer56.json
+header-stamp-local-test: HEADER_STAMP_DRY_RUN := '--dry-run'
+header-stamp-local-test: tests/vendor header-stamp-local
 
 ##########################################################
 COMPOSER_OPTIONS ?= --prefer-dist -o --no-dev --quiet

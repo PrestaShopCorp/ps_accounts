@@ -21,28 +21,21 @@
 namespace PrestaShop\Module\PsAccounts\Http\Client\Curl;
 
 use PrestaShop\Module\PsAccounts\Http\Client\CircuitBreaker;
-use PrestaShop\Module\PsAccounts\Http\Client\ClientException;
-use PrestaShop\Module\PsAccounts\Http\Client\ConnectException;
-use PrestaShop\Module\PsAccounts\Http\Client\Options;
+use PrestaShop\Module\PsAccounts\Http\Client\ClientConfig;
+use PrestaShop\Module\PsAccounts\Http\Client\Exception\ClientException;
+use PrestaShop\Module\PsAccounts\Http\Client\Exception\ConnectException;
+use PrestaShop\Module\PsAccounts\Http\Client\Exception\RequiredPropertyException;
+use PrestaShop\Module\PsAccounts\Http\Client\Exception\UndefinedPropertyException;
+use PrestaShop\Module\PsAccounts\Http\Client\Request;
 use PrestaShop\Module\PsAccounts\Http\Client\Response;
 use PrestaShop\Module\PsAccounts\Log\Logger;
 
 class Client
 {
     /**
-     * @var string
+     * @var ClientConfig
      */
-    protected $baseUri;
-
-    /**
-     * @var string
-     */
-    protected $userAgent = 'ps_accounts/' . \Ps_accounts::VERSION;
-
-    /**
-     * @var int
-     */
-    protected $timeout = 10;
+    protected $config;
 
     /**
      * @var CircuitBreaker\CircuitBreaker
@@ -50,46 +43,28 @@ class Client
     protected $circuitBreaker;
 
     /**
-     * @var bool
-     */
-    protected $sslCheck = true;
-
-    /**
-     * @var bool
-     */
-    protected $allowRedirects;
-
-    /**
-     * @var array
-     */
-    protected $headers = [];
-
-    /**
      * @param array $options
      *
-     * @throws \Exception
+     * @throws RequiredPropertyException
+     * @throws UndefinedPropertyException
      */
     public function __construct($options)
     {
+        $this->config = new ClientConfig(array_merge($options, [
+            ClientConfig::USER_AGENT => 'ps_accounts/' . \Ps_accounts::VERSION,
+        ]));
+
         $this->circuitBreaker = CircuitBreaker\Factory::create(
-            isset($options['name']) ? $options['name'] : static::class
+            !empty($this->config->name) ? $options['name'] : static::class
         );
+    }
 
-        unset($options['name']);
-//        \Tools::refreshCACertFile();
-
-        foreach ([
-                     'baseUri',
-                     'userAgent',
-                     'timeout',
-                     'sslCheck',
-                     'allowRedirects',
-                     'headers',
-                 ] as $option) {
-            if (isset($options[$option])) {
-                $this->$option = $options[$option];
-            }
-        }
+    /**
+     * @return ClientConfig
+     */
+    public function getConfig()
+    {
+        return $this->config;
     }
 
     /**
@@ -97,10 +72,15 @@ class Client
      * @param array $options payload
      *
      * @return Response
+     *
+     * @throws RequiredPropertyException
+     * @throws UndefinedPropertyException
      */
     public function post($route, array $options = [])
     {
-        $ch = $this->initRequest($route, $options);
+        $ch = $this->initRequest(new Request(array_merge($options, [
+            Request::URI => $route,
+        ])));
         $this->initMethod($ch, 'POST');
 
         return $this->getSafeResponse($ch);
@@ -111,10 +91,15 @@ class Client
      * @param array $options payload
      *
      * @return Response
+     *
+     * @throws RequiredPropertyException
+     * @throws UndefinedPropertyException
      */
     public function patch($route, array $options = [])
     {
-        $ch = $this->initRequest($route, $options);
+        $ch = $this->initRequest(new Request(array_merge($options, [
+            Request::URI => $route,
+        ])));
         $this->initMethod($ch, 'PATCH');
 
         return $this->getSafeResponse($ch);
@@ -125,10 +110,15 @@ class Client
      * @param array $options payload
      *
      * @return Response
+     *
+     * @throws RequiredPropertyException
+     * @throws UndefinedPropertyException
      */
     public function get($route, array $options = [])
     {
-        $ch = $this->initRequest($route, $options);
+        $ch = $this->initRequest(new Request(array_merge($options, [
+            Request::URI => $route,
+        ])));
 
         return $this->getSafeResponse($ch);
     }
@@ -138,10 +128,15 @@ class Client
      * @param array $options payload
      *
      * @return Response
+     *
+     * @throws RequiredPropertyException
+     * @throws UndefinedPropertyException
      */
     public function delete($route, array $options = [])
     {
-        $ch = $this->initRequest($route, $options);
+        $ch = $this->initRequest(new Request(array_merge($options, [
+            Request::URI => $route,
+        ])));
         $this->initMethod($ch, 'DELETE');
 
         return $this->getSafeResponse($ch);
@@ -191,17 +186,17 @@ class Client
 
     /**
      * @param mixed $ch
-     * @param array $options
+     * @param Request $request
      *
      * @return void
      */
-    protected function initHeaders($ch, array $options)
+    protected function initHeaders($ch, Request $request)
     {
-        $assoc = $this->headers;
-        if (array_key_exists(Options::REQ_HEADERS, $options)) {
-            $assoc = array_merge($assoc, $options[Options::REQ_HEADERS]);
+        $assoc = $this->config->headers;
+        if (!empty($request->headers)) {
+            $assoc = array_merge($assoc, $request->headers);
         }
-        if (array_key_exists(Options::REQ_JSON, $options)) {
+        if (!empty($request->json)) {
             $assoc['Content-Type'] = 'application/json';
         }
 
@@ -215,25 +210,24 @@ class Client
 
     /**
      * @param mixed $ch
-     * @param string $route
-     * @param array $options
+     * @param Request $request
      *
      * @return void
      */
-    protected function initRoute($ch, $route, array $options = [])
+    protected function initRoute($ch, Request $request)
     {
-        $absRoute = $route;
-        if (!empty($this->baseUri) && !preg_match('/^http(s)?:\/\//', $absRoute)) {
-            $absRoute = preg_replace('/\/$/', '', $this->baseUri) . preg_replace('/\/+/', '/', '/' . $absRoute);
+        $absRoute = $request->uri;
+        if (!empty($this->config->baseUri) && !preg_match('/^http(s)?:\/\//', $absRoute)) {
+            $absRoute = preg_replace('/\/$/', '', $this->config->baseUri) . preg_replace('/\/+/', '/', '/' . $absRoute);
         }
 
         if (empty($absRoute)) {
             throw new \InvalidArgumentException('route must not be empty');
         }
 
-        if (array_key_exists(Options::REQ_QUERY, $options)) {
+        if (! empty($request->query)) {
             // FIXME: preserve $route querystring
-            $absRoute .= '?' . http_build_query($options[Options::REQ_QUERY]);
+            $absRoute .= '?' . http_build_query($request->query);
         }
 
         curl_setopt($ch, CURLOPT_URL, $absRoute);
@@ -264,18 +258,18 @@ class Client
 
     /**
      * @param mixed $ch
-     * @param array $options
+     * @param Request $request
      *
      * @return void
      */
-    protected function initPayload($ch, array $options)
+    protected function initPayload($ch, Request $request)
     {
-        if (array_key_exists(Options::REQ_JSON, $options)) {
+        if (!empty($request->json)) {
             curl_setopt($ch, CURLOPT_POST, true);
-            curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($options[Options::REQ_JSON]) ?: '');
-        } elseif (array_key_exists(Options::REQ_FORM, $options)) {
+            curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($request->json) ?: '');
+        } elseif (!empty($request->form)) {
             curl_setopt($ch, CURLOPT_POST, true);
-            curl_setopt($ch, CURLOPT_POSTFIELDS, http_build_query($options[Options::REQ_FORM]));
+            curl_setopt($ch, CURLOPT_POSTFIELDS, http_build_query($request->form) ?: '');
         }
     }
 
@@ -301,36 +295,34 @@ class Client
     {
         // bypass certificate expiration issue with PHP5.6
         if (version_compare((string) phpversion(), '7', '>=')) {
-            return $this->sslCheck;
+            return $this->config->sslCheck;
         }
 
         return false;
     }
 
     /**
-     * @param string $route
-     * @param array $options
+     * @param Request $request
      *
      * @return mixed
      */
-    protected function initRequest($route, array $options)
+    protected function initRequest(Request $request)
     {
         $ch = curl_init();
 
-        // FIXME: validate $options array
-        $this->initRoute($ch, $route, $options);
-        $this->initHeaders($ch, $options);
+        $this->initRoute($ch, $request);
+        $this->initHeaders($ch, $request);
         $this->initSsl($ch);
-        $this->initTimeout($ch, $this->timeout);
-        $this->initPayload($ch, $options);
+        $this->initTimeout($ch, $this->config->timeout);
+        $this->initPayload($ch, $request);
 
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-        curl_setopt($ch, CURLOPT_FOLLOWLOCATION, $this->allowRedirects);
-        curl_setopt($ch, CURLOPT_POSTREDIR, $this->allowRedirects ? 3 : 0);
+        curl_setopt($ch, CURLOPT_FOLLOWLOCATION, $this->config->allowRedirects);
+        curl_setopt($ch, CURLOPT_POSTREDIR, $this->config->allowRedirects ? 3 : 0);
         curl_setopt($ch, CURLINFO_HEADER_OUT, true);
 
-        if (!empty($this->userAgent)) {
-            curl_setopt($ch, CURLOPT_USERAGENT, $this->userAgent);
+        if (!empty($this->config->userAgent)) {
+            curl_setopt($ch, CURLOPT_USERAGENT, $this->config->userAgent);
         }
         //curl_setopt($ch, CURLOPT_VERBOSE, true);
 
@@ -378,7 +370,7 @@ class Client
     {
         $message = '- Response : ' . var_export($response, true);
 
-        if (!$response->isValid()) {
+        if (!$response->isSuccessful) {
             Logger::getInstance()->error($message);
         } else {
             Logger::getInstance()->info($message);

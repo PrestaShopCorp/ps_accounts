@@ -20,6 +20,6 @@
 
 namespace PrestaShop\Module\PsAccounts\Account\Exception;
 
-class RefreshTokenException extends \Exception
+class RefreshTokenException extends \PrestaShop\Module\PsAccounts\Exception\RefreshTokenException
 {
 }

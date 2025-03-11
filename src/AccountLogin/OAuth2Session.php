@@ -20,12 +20,12 @@
 
 namespace PrestaShop\Module\PsAccounts\AccountLogin;
 
-use PrestaShop\Module\PsAccounts\OAuth2\ApiClient;
-use PrestaShop\Module\PsAccounts\OAuth2\Client;
-use PrestaShop\Module\PsAccounts\OAuth2\OAuth2Exception;
-use PrestaShop\Module\PsAccounts\OAuth2\Response\AccessToken;
-use PrestaShop\Module\PsAccounts\OAuth2\Response\UserInfo;
-use PrestaShop\Module\PsAccounts\OAuth2\Token\Validator\Validator;
+use PrestaShop\Module\PsAccounts\Service\OAuth2\OAuth2Client;
+use PrestaShop\Module\PsAccounts\Service\OAuth2\OAuth2Exception;
+use PrestaShop\Module\PsAccounts\Service\OAuth2\OAuth2Service;
+use PrestaShop\Module\PsAccounts\Service\OAuth2\Resource\AccessToken;
+use PrestaShop\Module\PsAccounts\Service\OAuth2\Resource\UserInfo;
+use PrestaShop\Module\PsAccounts\Service\OAuth2\Token\Validator\Validator;
 use Symfony\Component\HttpFoundation\Session\SessionInterface;
 
 class OAuth2Session
@@ -38,24 +38,24 @@ class OAuth2Session
     private $session;
 
     /**
-     * @var ApiClient
+     * @var OAuth2Service
      */
-    private $oauth2ApiClient;
+    private $oAuth2Service;
 
     /**
-     * @var Client
+     * @var OAuth2Client
      */
     private $oauth2Client;
 
     /**
      * @param mixed $session
-     * @param ApiClient $oauth2ApiClient
-     * @param Client $oauth2Client
+     * @param OAuth2Service $oAuth2Service
+     * @param OAuth2Client $oauth2Client
      */
-    public function __construct($session, ApiClient $oauth2ApiClient, Client $oauth2Client)
+    public function __construct($session, OAuth2Service $oAuth2Service, OAuth2Client $oauth2Client)
     {
         $this->session = $session;
-        $this->oauth2ApiClient = $oauth2ApiClient;
+        $this->oAuth2Service = $oAuth2Service;
         $this->oauth2Client = $oauth2Client;
     }
 
@@ -64,11 +64,11 @@ class OAuth2Session
      */
     public function getOrRefreshAccessToken()
     {
-        $validator = new Validator($this->oauth2ApiClient);
+        $validator = new Validator($this->oAuth2Service);
         $token = $this->getTokenProvider();
         if ($token instanceof AccessToken && $validator->hasExpired($token->access_token)) {
             try {
-                $token = $this->oauth2ApiClient->refreshAccessToken($token->refresh_token);
+                $token = $this->oAuth2Service->refreshAccessToken($token->refresh_token);
                 $this->setTokenProvider($token);
             } catch (OAuth2Exception $e) {
             }
@@ -120,7 +120,7 @@ class OAuth2Session
      */
     public function getUserInfo()
     {
-        return $this->oauth2ApiClient->getUserInfo($this->getAccessToken());
+        return $this->oAuth2Service->getUserInfo($this->getAccessToken());
     }
 
     /**

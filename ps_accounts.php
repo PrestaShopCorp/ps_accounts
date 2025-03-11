@@ -30,8 +30,6 @@ class Ps_accounts extends Module
 {
     use \PrestaShop\Module\PsAccounts\Hook\HookableTrait;
 
-    const DEFAULT_ENV = '';
-
     // Needed in order to retrieve the module version easier (in api call headers) than instanciate
     // the module each time to get the version
     const VERSION = '7.2.0';
@@ -366,10 +364,6 @@ class Ps_accounts extends Module
         /** @var \PrestaShop\Module\PsAccounts\Presenter\PsAccountsPresenter $psAccountsPresenter */
         $psAccountsPresenter = $this->getService(\PrestaShop\Module\PsAccounts\Presenter\PsAccountsPresenter::class);
 
-        /** @var \PrestaShop\Module\PsAccounts\Provider\RsaKeysProvider $rsaKeysProvider */
-        $rsaKeysProvider = $this->getService(\PrestaShop\Module\PsAccounts\Provider\RsaKeysProvider::class);
-        $rsaKeysProvider->getOrGenerateAccountsRsaPublicKey();
-
         Media::addJsDef([
             'contextPsAccounts' => $psAccountsPresenter->present((string) $this->name),
         ]);
@@ -457,9 +451,9 @@ class Ps_accounts extends Module
         $circuitBreakerFactory = $this->getService(\PrestaShop\Module\PsAccounts\Http\Client\CircuitBreaker\Factory::class);
         $circuitBreakerFactory->resetAll();
 
-        /** @var \PrestaShop\Module\PsAccounts\OAuth2\ApiClient $oauthApiClient */
-        $oauthApiClient = $this->getService(\PrestaShop\Module\PsAccounts\OAuth2\ApiClient::class);
-        $oauthApiClient->clearCache();
+        /** @var \PrestaShop\Module\PsAccounts\Service\OAuth2\OAuth2Service $oAuth2Service */
+        $oAuth2Service = $this->getService(\PrestaShop\Module\PsAccounts\Service\OAuth2\OAuth2Service::class);
+        $oAuth2Service->clearCache();
 
         /** @var \PrestaShop\Module\PsAccounts\Repository\ConfigurationRepository $configurationRepository */
         $configurationRepository = $this->getService(\PrestaShop\Module\PsAccounts\Repository\ConfigurationRepository::class);

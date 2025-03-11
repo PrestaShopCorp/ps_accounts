@@ -23,7 +23,8 @@ namespace PrestaShop\Module\PsAccounts\AccountLogin\Middleware;
 use Exception;
 use PrestaShop\Module\PsAccounts\AccountLogin\OAuth2LogoutTrait;
 use PrestaShop\Module\PsAccounts\AccountLogin\OAuth2Session;
-use PrestaShop\Module\PsAccounts\OAuth2\ApiClient;
+use PrestaShop\Module\PsAccounts\Log\Logger;
+use PrestaShop\Module\PsAccounts\Service\OAuth2\OAuth2Service;
 use PrestaShop\Module\PsAccounts\Service\PsAccountsService;
 use Ps_accounts;
 
@@ -32,57 +33,77 @@ class Oauth2Middleware
     use OAuth2LogoutTrait;
 
     /**
-     * @var Ps_accounts
+     * @var PsAccountsService
      */
-    private $module;
+    private $psAccountsService;
 
     /**
-     * @var bool
+     * @var OAuth2Session
      */
-    private $bypassLoginPage = false;
+    private $oAuth2Session;
 
-    public function __construct(Ps_accounts $ps_accounts)
+    /**
+     * @var OAuth2Service
+     */
+    private $oAuth2Service;
+
+    public function __construct(Ps_accounts $module)
     {
-        $this->module = $ps_accounts;
+        $this->psAccountsService = $module->getService(PsAccountsService::class);
+        $this->oAuth2Session = $module->getService(OAuth2Session::class);
+        $this->oAuth2Service = $module->getService(OAuth2Service::class);
+    }
+
+    /**
+     * @return void
+     *
+     * @deprecated since v7.1.2
+     */
+    public function execute()
+    {
+        try {
+            if (isset($_GET['logout'])) {
+                $this->executeLogout();
+            }
+        } catch (Exception $e) {
+            Logger::getInstance()->err($e->getMessage());
+        }
     }
 
     /**
      * @return void
      */
-    public function execute()
+    public function handleLogout()
     {
         try {
-            /** @var PsAccountsService $psAccountsService */
-            $psAccountsService = $this->module->getService(PsAccountsService::class);
-
-            $session = $this->getOauth2Session();
-
             if (isset($_GET['logout'])) {
-                if ($psAccountsService->getLoginActivated()) {
-                    $this->oauth2Logout();
-                    // FIXME: too much implicit logic here
-                    // We reach this line after redirect at callback time
-                    $this->onLogoutCallback();
-                } else {
-                    $session->clear();
-                }
-            } else {
-                // We keep token fresh !
-                $session->getOrRefreshAccessToken();
+                $this->executeLogout();
             }
-//        } catch (IdentityProviderException $e) {
-//            $this->module->getLogger()->err($e->getMessage());
         } catch (Exception $e) {
-            $this->module->getLogger()->err($e->getMessage());
+            Logger::getInstance()->err($e->getMessage());
         }
     }
 
     /**
-     * @return ApiClient
+     * @return void
+     *
+     * @throws Exception
      */
-    protected function getOAuth2Client()
+    public function executeLogout()
     {
-        return $this->module->getService(ApiClient::class);
+        if ($this->psAccountsService->getLoginActivated() &&
+            !isset($_GET[OAuth2LogoutTrait::getQueryLogoutCallbackParam()])) {
+            $this->oauth2Logout();
+        }
+        $this->getOauth2Session()->clear();
+    }
+
+    /**
+     * @return OAuth2Service
+     */
+    protected function getOAuth2Service()
+    {
+        return $this->oAuth2Service;
     }
 
     /**
@@ -92,7 +113,7 @@ class Oauth2Middleware
      */
     protected function getOauth2Session()
     {
-        return $this->module->getService(OAuth2Session::class);
+        return $this->oAuth2Session;
     }
 
     /**
@@ -105,17 +126,5 @@ class Oauth2Middleware
         // return $this->module->hasParameter('ps_accounts.oauth2_url_session_logout');
         // FIXME
         return true;
-    }
-
-    /**
-     * @return void
-     *
-     * @throws Exception
-     */
-    protected function onLogoutCallback()
-    {
-        if ($this->bypassLoginPage) {
-            \Tools::redirectLink($this->getOAuth2Client()->getAuthRedirectUri());
-        }
     }
 }

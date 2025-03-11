@@ -20,14 +20,14 @@
 
 namespace PrestaShop\Module\PsAccounts\AccountLogin;
 
-use PrestaShop\Module\PsAccounts\OAuth2\ApiClient;
+use PrestaShop\Module\PsAccounts\Service\OAuth2\OAuth2Service;
 
 trait OAuth2LogoutTrait
 {
     /**
-     * @return ApiClient
+     * @return OAuth2Service
      */
-    abstract protected function getOAuth2Client();
+    abstract protected function getOAuth2Service();
 
     /**
      * @return OAuth2Session
@@ -58,25 +58,20 @@ trait OAuth2LogoutTrait
             return;
         }
 
-        $oauth2Session = $this->getOauth2Session();
-        if (!isset($_GET[OAuth2LogoutTrait::getQueryLogoutCallbackParam()])) {
-            $idToken = $oauth2Session->getIdToken();
+        $idToken = $this->getOauth2Session()->getIdToken();
 
-            if (empty($idToken)) {
-                return;
-            }
-
-            $oauth2Client = $this->getOAuth2Client();
-
-            $logoutUrl = $oauth2Client->getLogoutUri(
-                $oauth2Client->getPostLogoutRedirectUri(),
-                $idToken
-            );
-
-            header('Location: ' . $logoutUrl);
-            exit;
-        } else {
-            $oauth2Session->clear();
+        if (empty($idToken)) {
+            return;
         }
+
+        $oauth2Client = $this->getOAuth2Service();
+
+        $logoutUrl = $oauth2Client->getLogoutUri(
+            $oauth2Client->getPostLogoutRedirectUri(),
+            $idToken
+        );
+
+        header('Location: ' . $logoutUrl);
+        exit;
     }
 }

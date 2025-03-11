@@ -25,11 +25,11 @@ use PrestaShop\Module\PsAccounts\Account\Session\ShopSession;
 use PrestaShop\Module\PsAccounts\Account\Token\NullToken;
 use PrestaShop\Module\PsAccounts\Account\Token\Token;
 use PrestaShop\Module\PsAccounts\Api\Client\AccountsClient;
-use PrestaShop\Module\PsAccounts\Api\Controller\AbstractV2ShopRestController;
-use PrestaShop\Module\PsAccounts\Api\Controller\Request\ShopHealthCheckRequest;
-use PrestaShop\Module\PsAccounts\OAuth2\ApiClient;
-use PrestaShop\Module\PsAccounts\OAuth2\Client;
-use PrestaShop\Module\PsAccounts\OAuth2\OAuth2Exception;
+use PrestaShop\Module\PsAccounts\Http\Controller\AbstractV2ShopRestController;
+use PrestaShop\Module\PsAccounts\Http\Request\ShopHealthCheckRequest;
+use PrestaShop\Module\PsAccounts\Service\OAuth2\OAuth2Client;
+use PrestaShop\Module\PsAccounts\Service\OAuth2\OAuth2Exception;
+use PrestaShop\Module\PsAccounts\Service\OAuth2\OAuth2Service;
 use PrestaShop\Module\PsAccounts\Service\PsAccountsService;
 
 class ps_AccountsApiV2ShopHealthCheckModuleFrontController extends AbstractV2ShopRestController
@@ -40,7 +40,7 @@ class ps_AccountsApiV2ShopHealthCheckModuleFrontController extends AbstractV2Sho
     private $linkShop;
 
     /**
-     * @var Client
+     * @var OAuth2Client
      */
     private $oauth2Client;
 
@@ -70,9 +70,9 @@ class ps_AccountsApiV2ShopHealthCheckModuleFrontController extends AbstractV2Sho
     private $accountsClient;
 
     /**
-     * @var ApiClient
+     * @var OAuth2Service
      */
-    private $oauth2ApiClient;
+    private $oauth2Service;
 
     /**
      * @return array
@@ -101,13 +101,13 @@ class ps_AccountsApiV2ShopHealthCheckModuleFrontController extends AbstractV2Sho
         }
 
         $this->linkShop = $this->module->getService(LinkShop::class);
-        $this->oauth2Client = $this->module->getService(Client::class);
+        $this->oauth2Client = $this->module->getService(OAuth2Client::class);
         $this->shopSession = $this->module->getService(ShopSession::class);
         $this->firebaseShopSession = $this->module->getService(Firebase\ShopSession::class);
         $this->firebaseOwnerSession = $this->module->getService(Firebase\OwnerSession::class);
         $this->accountsClient = $this->module->getService(AccountsClient::class);
         $this->psAccountsService = $this->module->getService(PsAccountsService::class);
-        $this->oauth2ApiClient = $this->module->getService(ApiClient::class);
+        $this->oauth2Service = $this->module->getService(OAuth2Service::class);
     }
 
     /**
@@ -249,7 +249,7 @@ class ps_AccountsApiV2ShopHealthCheckModuleFrontController extends AbstractV2Sho
     public function getOauthApiStatus()
     {
         try {
-            $this->oauth2ApiClient->getWellKnown();
+            $this->oauth2Service->getWellKnown();
 
             return true;
         } catch (OAuth2Exception $e) {

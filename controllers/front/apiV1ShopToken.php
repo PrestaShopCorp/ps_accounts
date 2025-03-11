@@ -20,7 +20,7 @@
 
 use PrestaShop\Module\PsAccounts\Account\Exception\RefreshTokenException;
 use PrestaShop\Module\PsAccounts\Account\Session\Firebase\ShopSession;
-use PrestaShop\Module\PsAccounts\Api\Controller\AbstractShopRestController;
+use PrestaShop\Module\PsAccounts\Http\Controller\AbstractShopRestController;
 
 class ps_AccountsApiV1ShopTokenModuleFrontController extends AbstractShopRestController
 {

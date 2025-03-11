@@ -20,22 +20,28 @@
 
 namespace PrestaShop\Module\PsAccounts\AccountLogin;
 
+use Employee;
+use PrestaShop\Module\PsAccounts\AccountLogin\Exception\AccountLoginException;
 use PrestaShop\Module\PsAccounts\AccountLogin\Exception\EmailNotVerifiedException;
 use PrestaShop\Module\PsAccounts\AccountLogin\Exception\EmployeeNotFoundException;
 use PrestaShop\Module\PsAccounts\AccountLogin\Exception\Oauth2LoginException;
+use PrestaShop\Module\PsAccounts\Entity\EmployeeAccount;
 use PrestaShop\Module\PsAccounts\Log\Logger;
-use PrestaShop\Module\PsAccounts\OAuth2\ApiClient;
-use PrestaShop\Module\PsAccounts\OAuth2\OAuth2Exception;
-use PrestaShop\Module\PsAccounts\OAuth2\Response\UserInfo;
+use PrestaShop\Module\PsAccounts\Repository\EmployeeAccountRepository;
+use PrestaShop\Module\PsAccounts\Service\AnalyticsService;
+use PrestaShop\Module\PsAccounts\Service\OAuth2\OAuth2Exception;
+use PrestaShop\Module\PsAccounts\Service\OAuth2\OAuth2Service;
+use PrestaShop\Module\PsAccounts\Service\OAuth2\Resource\UserInfo;
+use PrestaShop\Module\PsAccounts\Service\PsAccountsService;
 use Symfony\Component\HttpFoundation\Session\SessionInterface;
 use Tools;
 
 trait OAuth2LoginTrait
 {
     /**
-     * @return ApiClient
+     * @return OAuth2Service
      */
-    abstract protected function getOAuth2Client();
+    abstract protected function getOAuth2Service();
 
     /**
      * @param UserInfo $user
@@ -45,9 +51,14 @@ trait OAuth2LoginTrait
     abstract protected function initUserSession(UserInfo $user);
 
     /**
-     * @return void
+     * @return mixed
      */
     abstract protected function redirectAfterLogin();
+
+    /**
+     * @return mixed
+     */
+    abstract protected function logout();
 
     /**
      * @return SessionInterface
@@ -60,7 +71,17 @@ trait OAuth2LoginTrait
     abstract protected function getOauth2Session();
 
     /**
-     * @return void
+     * @return AnalyticsService
+     */
+    abstract protected function getAnalyticsService();
+
+    /**
+     * @return PsAccountsService
+     */
+    abstract protected function getPsAccountsService();
+
+    /**
+     * @return mixed
      *
      * @throws EmailNotVerifiedException
      * @throws EmployeeNotFoundException
@@ -69,40 +90,40 @@ trait OAuth2LoginTrait
      */
     public function oauth2Login()
     {
-        $apiClient = $this->getOAuth2Client();
+        $apiClient = $this->getOAuth2Service();
 
         //$this->getSession()->start();
         $session = $this->getSession();
         $oauth2Session = $this->getOauth2Session();
 
-        if (!empty($_GET['error'])) {
+        $error = Tools::getValue('error', '');
+        $state = Tools::getValue('state', '');
+        $code = Tools::getValue('code', '');
+
+        if (!empty($error)) {
             // Got an error, probably user denied access
-            throw new \Exception('Got error: ' . $_GET['error']);
+            throw new \Exception('Got error: ' . $error);
         // If we don't have an authorization code then get one
-        } elseif (!isset($_GET['code'])) {
+        } elseif (empty($code)) {
             // cleanup existing accessToken
             $oauth2Session->clear();
 
             $this->setSessionReturnTo(Tools::getValue($this->getReturnToParam()));
 
-            $this->oauth2Redirect(Tools::getValue('locale'));
+            $this->oauth2Redirect(Tools::getValue('locale', 'en'));
 
         // Check given state against previously stored one to mitigate CSRF attack
-        } elseif (empty($_GET['state']) || ($session->has('oauth2state') && $_GET['state'] !== $session->get('oauth2state'))) {
+        } elseif (empty($state) || ($session->has('oauth2state') && $state !== $session->get('oauth2state'))) {
             $session->remove('oauth2state');
 
             throw new \Exception('Invalid state');
         } else {
-            try {
-                $code = $_GET['code'];
-                if (!preg_match('/^\w+$/', $code)) {
-                    throw new \InvalidArgumentException('code must be an alphanumeric string');
-                }
+            $this->assertValidCode($code);
 
+            try {
                 $accessToken = $apiClient->getAccessTokenByAuthorizationCode(
                     $code,
-                    $this->getSession()->get('oauth2pkceCode'),
-                    $apiClient->getAuthRedirectUri()
+                    $this->getSession()->get('oauth2pkceCode')
                 );
             } catch (OAuth2Exception $e) {
                 throw new Oauth2LoginException($e->getMessage(), null, $e);
@@ -111,7 +132,7 @@ trait OAuth2LoginTrait
             $oauth2Session->setTokenProvider($accessToken);
 
             if ($this->initUserSession($oauth2Session->getUserInfo())) {
-                $this->redirectAfterLogin();
+                return $this->redirectAfterLogin();
             }
         }
     }
@@ -125,7 +146,7 @@ trait OAuth2LoginTrait
      */
     private function oauth2Redirect($locale)
     {
-        $apiClient = $this->getOAuth2Client();
+        $apiClient = $this->getOAuth2Service();
 
         $state = $apiClient->getRandomState();
         $pkceCode = $apiClient->getRandomPkceCode();
@@ -135,15 +156,26 @@ trait OAuth2LoginTrait
 
         $authorizationUrl = $apiClient->getAuthorizationUri(
             $state,
-            $apiClient->getAuthRedirectUri(),
             $pkceCode,
             'S256',
-            'fr'
+            $locale
         );
 
         // Redirect the user to the authorization URL.
         header('Location: ' . $authorizationUrl);
         exit;
+    }
+
+    /**
+     * @param string $code
+     *
+     * @return void
+     */
+    private function assertValidCode($code)
+    {
+        if (!preg_match('/^[^\s\"\';\(\)]+$/', $code)) {
+            throw new \InvalidArgumentException('Invalid code');
+        }
     }
 
     /**
@@ -186,5 +218,124 @@ trait OAuth2LoginTrait
     private function getReturnToParam()
     {
         return 'return_to';
+    }
+
+    /**
+     * @param string $uid
+     * @param string $email
+     *
+     * @return Employee
+     */
+    protected function getEmployeeByUidOrEmail($uid, $email)
+    {
+        $repository = new EmployeeAccountRepository();
+
+        try {
+            $employeeAccount = $repository->findByUid($uid);
+
+            /* @phpstan-ignore-next-line */
+            if ($employeeAccount) {
+                $employee = new Employee($employeeAccount->getEmployeeId());
+            } else {
+                $employeeAccount = new EmployeeAccount();
+                $employee = new Employee();
+                if (Employee::employeeExists($email)) {
+                    $employee->getByEmail($email);
+                }
+            }
+
+            // Update account
+            if ($employee->id) {
+                $repository->upsert(
+                    $employeeAccount
+                        ->setEmployeeId($employee->id)
+                        ->setUid($uid)
+                        ->setEmail($email)
+                );
+            }
+        } catch (\Exception $e) {
+            $employee = new Employee();
+            $employee->getByEmail($email);
+        }
+
+        return $employee;
+    }
+
+    /**
+     * @param AccountLoginException $e
+     *
+     * @return mixed
+     */
+    protected function onLoginFailed(AccountLoginException $e)
+    {
+        if ($this->module->isShopEdition() && (
+                $e instanceof EmployeeNotFoundException ||
+                $e instanceof EmailNotVerifiedException
+            )) {
+            $this->trackEditionLoginFailedEvent($e);
+        }
+
+        $this->oauth2ErrorLog($e->getMessage());
+        $this->setLoginError($e->getType());
+
+        return $this->logout();
+    }
+
+    /**
+     * @param mixed $error
+     *
+     * @return void
+     */
+    protected function setLoginError($error)
+    {
+        $this->getSession()->set('loginError', $error);
+    }
+
+    /**
+     * @param UserInfo $user
+     *
+     * @return void
+     */
+    protected function trackEditionLoginEvent(UserInfo $user)
+    {
+        if ($this->module->isShopEdition()) {
+            $this->getAnalyticsService()->identify(
+                $user->sub,
+                $user->name,
+                $user->email
+            );
+            $this->getAnalyticsService()->group(
+                $user->sub,
+                (string) $this->getPsAccountsService()->getShopUuid()
+            );
+            $this->getAnalyticsService()->trackUserSignedIntoApp(
+                $user->sub,
+                'smb-edition'
+            );
+        }
+    }
+
+    /**
+     * @param EmployeeNotFoundException|EmailNotVerifiedException $e
+     *
+     * @return void
+     */
+    protected function trackEditionLoginFailedEvent($e)
+    {
+        $user = $e->getUser();
+        $this->getAnalyticsService()->identify(
+            $user->sub,
+            $user->name,
+            $user->email
+        );
+        $this->getAnalyticsService()->group(
+            $user->sub,
+            (string) $this->getPsAccountsService()->getShopUuid()
+        );
+        $this->getAnalyticsService()->trackBackOfficeSSOSignInFailed(
+            $user->sub,
+            $e->getType(),
+            $e->getMessage()
+        );
     }
 }

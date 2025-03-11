@@ -22,6 +22,7 @@ namespace PrestaShop\Module\PsAccounts\Hook;
 
 use AdminLoginPsAccountsController;
 use Exception;
+use PrestaShop\Module\PsAccounts\Adapter\Link;
 use PrestaShop\Module\PsAccounts\Service\AnalyticsService;
 use PrestaShop\Module\PsAccounts\Service\PsAccountsService;
 use Tools;
@@ -35,24 +36,85 @@ class ActionAdminLoginControllerSetMedia extends Hook
      */
     public function execute(array $params = [])
     {
-        $this->module->getOauth2Middleware()->execute();
+        if (defined('_PS_VERSION_') &&
+            version_compare(_PS_VERSION_, '8', '>=')) {
+            if (version_compare(_PS_VERSION_, '9', '<')) {
+                $this->executeV8();
+            } else {
+                $this->executeV9();
+            }
+        }
+    }
 
+    /**
+     * @return void
+     *
+     * @throws Exception
+     */
+    protected function executeV8()
+    {
+        // Handle logout
+        $this->module->getOauth2Middleware()->handleLogout();
+
+        $local = $this->isLocalLogin();
+
+        $this->trackEditionLoginPage($local);
+
+        if (!$local) {
+            $this->redirectLegacyAccountLoginController();
+        }
+    }
+
+    /**
+     * @return void
+     *
+     * @throws Exception
+     */
+    protected function executeV9()
+    {
+        $local = $this->isLocalLogin();
+
+        $this->trackEditionLoginPage($local);
+
+        if (!$local) {
+            $this->redirectSymfonyAccountLoginController();
+        }
+    }
+
+    /**
+     * @return bool
+     */
+    protected function isLocalLogin()
+    {
         /** @var PsAccountsService $psAccountsService */
         $psAccountsService = $this->module->getService(PsAccountsService::class);
-        $local = Tools::getValue('mode') === AdminLoginPsAccountsController::PARAM_MODE_LOCAL ||
+
+        return Tools::getValue('mode') === AdminLoginPsAccountsController::PARAM_MODE_LOCAL ||
             !empty(Tools::getValue('reset_token')) ||
             !$psAccountsService->getLoginActivated();
+    }
 
-        $this->trackLoginPage($local);
+    /**
+     * @return void
+     */
+    protected function redirectLegacyAccountLoginController()
+    {
+//        /** @var Link $link */
+//        $link = $this->module->getService(Link::class);
+//        Tools::redirectLink($link->getAdminLink('AdminLoginPsAccounts', false));
+        (new AdminLoginPsAccountsController())->run();
+        exit;
+    }
 
-        if (defined('_PS_VERSION_')
-            && version_compare(_PS_VERSION_, '8', '>=') && !$local) {
-//            /** @var \PrestaShop\Module\PsAccounts\Adapter\Link $link */
-//            $link = $this->module->getService(\PrestaShop\Module\PsAccounts\Adapter\Link::class);
-//            Tools::redirectLink($link->getAdminLink('AdminLoginPsAccounts', false));
-            (new AdminLoginPsAccountsController())->run();
-            exit;
-        }
+    /**
+     * @return void
+     */
+    protected function redirectSymfonyAccountLoginController()
+    {
+        /** @var Link $link */
+        $link = $this->module->getService(Link::class);
+        header('Location: ' . $link->getAdminLink('SfAdminLoginPsAccounts', false));
+        exit;
     }
 
     /**
@@ -62,7 +124,7 @@ class ActionAdminLoginControllerSetMedia extends Hook
      *
      * @throws Exception
      */
-    protected function trackLoginPage($local = false)
+    protected function trackEditionLoginPage($local = false)
     {
         if ($this->module->isShopEdition()) {
             /** @var PsAccountsService $psAccountsService */

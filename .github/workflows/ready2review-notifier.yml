@@ -1,0 +1,22 @@
+name: Ready review
+
+on:
+  pull_request:
+    types: [labeled]
+
+jobs:
+  notify-earth:
+    if: ${{ github.event.action == 'labeled' && github.event.label.name == 'ready to review' }}
+    runs-on: ubuntu-latest
+    steps:
+      - name: Notify everyone when PR is ready to be reviewed
+        uses: rtCamp/action-slack-notify@v2
+        env:
+          SLACK_WEBHOOK: ${{ secrets.SLACK_WEBHOOK }}
+          SLACK_COLOR: 2986CC
+          SLACK_TITLE: 👀 it's review time!
+          SLACK_MESSAGE: "🥷 ${{ github.event.pull_request.title }}"
+          SLACK_FOOTER: "https://github.com/PrestaShopCorp/ps_accounts/pull/${{ github.event.pull_request.number }}"
+          SLACK_USERNAME: QABot
+          SLACK_CHANNEL: squad-account-dev
+          SLACK_ICON: https://avatars.githubusercontent.com/u/56089550?s=48&v=4
