@@ -76,14 +76,28 @@ class Client
      * @throws RequiredPropertyException
      * @throws UndefinedPropertyException
      */
+    public function get($route, array $options = [])
+    {
+        return $this->getSafeResponse($this->initRequest(new Request(array_merge($options, [
+            Request::URI => $route,
+        ]))));
+    }
+
+    /**
+     * @param string $route
+     * @param array $options payload
+     *
+     * @return Response
+     *
+     * @throws RequiredPropertyException
+     * @throws UndefinedPropertyException
+     */
     public function post($route, array $options = [])
     {
-        $ch = $this->initRequest(new Request(array_merge($options, [
+        return $this->getSafeResponse($this->initRequest(new Request(array_merge($options, [
+            Request::METHOD => 'POST',
             Request::URI => $route,
-        ])));
-        $this->initMethod($ch, 'POST');
-
-        return $this->getSafeResponse($ch);
+        ]))));
     }
 
     /**
@@ -97,12 +111,10 @@ class Client
      */
     public function patch($route, array $options = [])
     {
-        $ch = $this->initRequest(new Request(array_merge($options, [
+        return $this->getSafeResponse($this->initRequest(new Request(array_merge($options, [
+            Request::METHOD => 'PATCH',
             Request::URI => $route,
-        ])));
-        $this->initMethod($ch, 'PATCH');
-
-        return $this->getSafeResponse($ch);
+        ]))));
     }
 
     /**
@@ -114,13 +126,12 @@ class Client
      * @throws RequiredPropertyException
      * @throws UndefinedPropertyException
      */
-    public function get($route, array $options = [])
+    public function put($route, array $options = [])
     {
-        $ch = $this->initRequest(new Request(array_merge($options, [
+        return $this->getSafeResponse($this->initRequest(new Request(array_merge($options, [
+            Request::METHOD => 'PUT',
             Request::URI => $route,
-        ])));
-
-        return $this->getSafeResponse($ch);
+        ]))));
     }
 
     /**
@@ -134,49 +145,48 @@ class Client
      */
     public function delete($route, array $options = [])
     {
-        $ch = $this->initRequest(new Request(array_merge($options, [
+        return $this->getSafeResponse($this->initRequest(new Request(array_merge($options, [
+            Request::METHOD => 'DELETE',
             Request::URI => $route,
-        ])));
-        $this->initMethod($ch, 'DELETE');
-
-        return $this->getSafeResponse($ch);
+        ]))));
     }
 
     /**
-     * @param mixed $ch
+     * @param Request $request
      *
      * @return Response
      *
      * @throws ClientException
      * @throws ConnectException
      */
-    protected function getResponse($ch)
+    protected function getResponse(Request $request)
     {
-        $res = curl_exec($ch);
+        $res = curl_exec($request->handler);
 
-        $this->handleError($ch);
+        $this->handleError($request);
 
-        $statusCode = curl_getinfo($ch, CURLINFO_RESPONSE_CODE);
+        $statusCode = curl_getinfo($request->handler, CURLINFO_RESPONSE_CODE);
         $response = new Response(
             (string) $res,
             $statusCode
         );
+        $response->request = $request;
 
-        curl_close($ch);
+        curl_close($request->handler);
 
         return $response;
     }
 
     /**
-     * @param mixed $ch
+     * @param Request $request
      *
      * @return Response
      */
-    protected function getSafeResponse($ch)
+    protected function getSafeResponse(Request $request)
     {
         /** @var Response $response */
-        $response = $this->circuitBreaker->call(function () use ($ch) {
-            return $this->getResponse($ch);
+        $response = $this->circuitBreaker->call(function () use ($request) {
+            return $this->getResponse($request);
         });
 
         $this->logResponse($response);
@@ -185,12 +195,11 @@ class Client
     }
 
     /**
-     * @param mixed $ch
      * @param Request $request
      *
      * @return void
      */
-    protected function initHeaders($ch, Request $request)
+    protected function initHeaders(Request $request)
     {
         $assoc = $this->config->headers;
         if (!empty($request->headers)) {
@@ -205,16 +214,15 @@ class Client
             $headers[] = "$header: $value";
         }
 
-        curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
+        curl_setopt($request->handler, CURLOPT_HTTPHEADER, $headers);
     }
 
     /**
-     * @param mixed $ch
      * @param Request $request
      *
      * @return void
      */
-    protected function initRoute($ch, Request $request)
+    protected function initRoute(Request $request)
     {
         $absRoute = $request->uri;
         if (!empty($this->config->baseUri) && !preg_match('/^http(s)?:\/\//', $absRoute)) {
@@ -225,62 +233,52 @@ class Client
             throw new \InvalidArgumentException('route must not be empty');
         }
 
-        curl_setopt($ch, CURLOPT_URL, $absRoute);
+        if (!empty($request->query)) {
+            $sep = preg_match('/\?/', $absRoute) ? '&' : '?';
+            $absRoute .= $sep . http_build_query($request->query);
+        }
+
+        curl_setopt($request->handler, CURLOPT_URL, $absRoute);
     }
 
     /**
-     * @param mixed $ch
-     * @param int $timeout
-     *
-     * @return void
-     */
-    protected function initTimeout($ch, $timeout)
-    {
-        curl_setopt($ch, CURLOPT_TIMEOUT, $timeout);
-    }
-
-    /**
-     * @param mixed $ch
-     *
-     * @return void
-     */
-    protected function initSsl($ch)
-    {
-        $checkSsl = $this->getSslCheck();
-        curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, $checkSsl ? 2 : 0);
-        curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, $checkSsl);
-    }
-
-    /**
-     * @param mixed $ch
      * @param Request $request
      *
      * @return void
      */
-    protected function initPayload($ch, Request $request)
+    protected function initSsl(Request $request)
+    {
+        $checkSsl = $this->getSslCheck();
+        curl_setopt($request->handler, CURLOPT_SSL_VERIFYHOST, $checkSsl ? 2 : 0);
+        curl_setopt($request->handler, CURLOPT_SSL_VERIFYPEER, $checkSsl);
+    }
+
+    /**
+     * @param Request $request
+     *
+     * @return void
+     */
+    protected function initPayload(Request $request)
     {
         if (!empty($request->json)) {
-            curl_setopt($ch, CURLOPT_POST, true);
-            curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($request->json) ?: '');
+            curl_setopt($request->handler, CURLOPT_POST, true);
+            curl_setopt($request->handler, CURLOPT_POSTFIELDS, json_encode($request->json) ?: '');
         } elseif (!empty($request->form)) {
-            curl_setopt($ch, CURLOPT_POST, true);
-            curl_setopt($ch, CURLOPT_POSTFIELDS, http_build_query($request->form) ?: '');
+            curl_setopt($request->handler, CURLOPT_POST, true);
+            curl_setopt($request->handler, CURLOPT_POSTFIELDS, http_build_query($request->form) ?: '');
         }
     }
 
     /**
-     * @param mixed $ch
-     * @param string $method
+     * @param Request $request
      *
      * @return void
      */
-    protected function initMethod($ch, $method)
+    protected function initMethod(Request $request)
     {
-        if (empty($method)) {
-            throw new \InvalidArgumentException('method must not be empty');
+        if (!empty($request->method)) {
+            curl_setopt($request->handler, CURLOPT_CUSTOMREQUEST, $request->method);
         }
-
-        curl_setopt($ch, CURLOPT_CUSTOMREQUEST, $method);
     }
 
     /**
@@ -299,50 +297,52 @@ class Client
     /**
      * @param Request $request
      *
-     * @return mixed
+     * @return Request
      */
     protected function initRequest(Request $request)
     {
-        $ch = curl_init();
+        $request->handler = curl_init();
 
-        $this->initRoute($ch, $request);
-        $this->initHeaders($ch, $request);
-        $this->initSsl($ch);
-        $this->initTimeout($ch, $this->config->timeout);
-        $this->initPayload($ch, $request);
+        $this->initRoute($request);
+        $this->initHeaders($request);
+        $this->initSsl($request);
+        $this->initPayload($request);
+        $this->initMethod($request);
 
-        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-        curl_setopt($ch, CURLOPT_FOLLOWLOCATION, $this->config->allowRedirects);
-        curl_setopt($ch, CURLOPT_POSTREDIR, $this->config->allowRedirects ? 3 : 0);
-        curl_setopt($ch, CURLINFO_HEADER_OUT, true);
+        curl_setopt($request->handler, CURLOPT_CONNECTTIMEOUT, 10);
+        curl_setopt($request->handler, CURLOPT_TIMEOUT, $this->config->timeout);
+        curl_setopt($request->handler, CURLOPT_RETURNTRANSFER, true);
+        curl_setopt($request->handler, CURLOPT_FOLLOWLOCATION, $this->config->allowRedirects);
+        curl_setopt($request->handler, CURLOPT_POSTREDIR, $this->config->allowRedirects ? 3 : 0);
+        curl_setopt($request->handler, CURLINFO_HEADER_OUT, true);
 
         if (!empty($this->config->userAgent)) {
-            curl_setopt($ch, CURLOPT_USERAGENT, $this->config->userAgent);
+            curl_setopt($request->handler, CURLOPT_USERAGENT, $this->config->userAgent);
         }
-        //curl_setopt($ch, CURLOPT_VERBOSE, true);
+        //curl_setopt($request->handler, CURLOPT_VERBOSE, true);
 
-        return $ch;
+        return $request;
     }
 
     /**
-     * @param mixed $ch
+     * @param Request $request
      *
      * @return void
      *
      * @throws ClientException
      * @throws ConnectException
      */
-    protected function handleError($ch)
+    protected function handleError(Request $request)
     {
-        $curlErrno = curl_errno($ch);
-        $curlError = curl_error($ch);
+        $curlErrno = curl_errno($request->handler);
+        $curlError = curl_error($request->handler);
 
-        $message = '- Request : ' . var_export(curl_getinfo($ch), true);
+        $message = '- Request : ' . var_export(curl_getinfo($request->handler), true);
 
         if ($curlErrno) {
             Logger::getInstance()->error($message);
 
-            curl_close($ch);
+            curl_close($request->handler);
 
             switch ($curlErrno) {
                 case CURLE_OPERATION_TIMEDOUT:
