@@ -185,21 +185,21 @@ phpstan:
 ##############
 # HEADER-STAMP
 
-header-stamp-test:
-	@docker exec -w ${CONTAINER_INSTALL_DIR} \
-	phpunit ./tests/vendor/bin/header-stamp \
-	--target="${WORKDIR}" \
-	--license=./tests/vendor/prestashop/header-stamp/assets/afl.txt \
-	--exclude=.github,node_modules,vendor,dist,tests,e2e,e2e-env,_dev \
-	--dry-run
-
-# 1.6.1.24-5.6-fpm-stretch
-header-stamp:
-	@docker exec -w ${CONTAINER_INSTALL_DIR} \
-	phpunit ./tests/vendor/bin/header-stamp \
-	--target="${WORKDIR}" \
-	--license=./tests/vendor/prestashop/header-stamp/assets/afl.txt \
-	--exclude=.github,node_modules,vendor,dist,tests,e2e,e2e-env,_dev
+#header-stamp-test:
+#	@docker exec -w ${CONTAINER_INSTALL_DIR} \
+#	phpunit ./tests/vendor/bin/header-stamp \
+#	--target="${WORKDIR}" \
+#	--license=./tests/vendor/prestashop/header-stamp/assets/afl.txt \
+#	--exclude=.github,node_modules,vendor,dist,tests,e2e,e2e-env,_dev \
+#	--dry-run
+#
+## 1.6.1.24-5.6-fpm-stretch
+#header-stamp:
+#	@docker exec -w ${CONTAINER_INSTALL_DIR} \
+#	phpunit ./tests/vendor/bin/header-stamp \
+#	--target="${WORKDIR}" \
+#	--license=./tests/vendor/prestashop/header-stamp/assets/afl.txt \
+#	--exclude=.github,node_modules,vendor,dist,tests,e2e,e2e-env,_dev
 
 #phpstan16: NEON_FILE := phpstan-PS-1.6.neon
 #phpstan16: phpstan
@@ -227,8 +227,8 @@ phpunit-nightly:                  platform-nightly                  phpunit
 phpstan-1.6.1.24-7.1: platform-1.6.1.24-7.1 phpstan
 phpstan-8.1.5-7.4:    platform-8.1.5-7.4    phpstan
 
-php-cs-fixer-test-1.6.1.24-5.6-fpm-stretch: platform-1.6.1.24-5.6-fpm-stretch platform-php-cs-fixer-test
-php-cs-fixer-1.6.1.24-5.6-fpm-stretch: platform-1.6.1.24-5.6-fpm-stretch platform-php-cs-fixer
+#php-cs-fixer-test-1.6.1.24-5.6-fpm-stretch: platform-1.6.1.24-5.6-fpm-stretch platform-php-cs-fixer-test
+#php-cs-fixer-1.6.1.24-5.6-fpm-stretch: platform-1.6.1.24-5.6-fpm-stretch platform-php-cs-fixer
 
 ############
 # PHP-SCOPER
@@ -307,24 +307,40 @@ composer.phar:
 
 WORKDIR ?= ./
 
+#################
+# php-cs-fixer
+
+PHP_CS_FIXER_EXTRA_OPTS ?=
 php-cs-fixer: COMPOSER_FILE := composer56.json
 php-cs-fixer: tests/vendor
-	PHP_CS_FIXER_IGNORE_ENV=1 ${PHP} ./tests/vendor/bin/php-cs-fixer fix --using-cache=no
-#	vendor/bin/php-cs-fixer fix --dry-run --diff --using-cache=no --diff-format udiff
+	PHP_CS_FIXER_IGNORE_ENV=1 ${PHP} ./tests/vendor/bin/php-cs-fixer fix \
+		${PHP_CS_FIXER_EXTRA_OPTS} --using-cache=no
+
+php-cs-fixer-test: COMPOSER_FILE := composer56.json
+php-cs-fixer-test: PHP_CS_FIXER_EXTRA_OPTS := --dry-run --diff --diff-format udiff
+php-cs-fixer-test: tests/vendor php-cs-fixer
+
+#################
+# autoindex
 
 autoindex: COMPOSER_FILE := composer56.json
 autoindex: tests/vendor
 	${PHP} ./tests/vendor/bin/autoindex prestashop:add:index "${WORKDIR}"
 
-HEADER_STAMP_DRY_RUN ?= ''
-header-stamp-local: COMPOSER_FILE := composer56.json
-header-stamp-local: tests/vendor
-	${PHP} -d error_reporting=1 ./tests/vendor/bin/header-stamp --target="${WORKDIR}" ${HEADER_STAMP_DRY_RUN} \
-		--license="assets/afl.txt" --exclude=".github,node_modules,vendor,vendor,tests,_dev"
+#################
+# header-stamp
 
-header-stamp-local-test: COMPOSER_FILE := composer56.json
-header-stamp-local-test: HEADER_STAMP_DRY_RUN := '--dry-run'
-header-stamp-local-test: tests/vendor header-stamp-local
+HEADER_STAMP_EXTRA_OPTS ?=
+header-stamp: COMPOSER_FILE := composer56.json
+header-stamp: tests/vendor
+	${PHP} -d error_reporting=0 ./tests/vendor/bin/header-stamp \
+		--target="${WORKDIR}" ${HEADER_STAMP_EXTRA_OPTS} \
+		--license="./tests/vendor/prestashop/header-stamp/assets/afl.txt" \
+		--exclude=".github,node_modules,vendor,dist,tests,e2e,e2e-env,_dev"
+
+header-stamp-test: COMPOSER_FILE := composer56.json
+header-stamp-test: HEADER_STAMP_EXTRA_OPTS := --dry-run
+header-stamp-test: tests/vendor header-stamp
 
 ##########################################################
 COMPOSER_OPTIONS ?= --prefer-dist -o --no-dev --quiet
