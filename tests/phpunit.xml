@@ -31,4 +31,7 @@
   <logging>
     <log type="coverage-text" target="php://stdout" />
   </logging>
+  <php>
+    <env name="SYMFONY_DEPRECATIONS_HELPER" value="weak" />
+  </php>
 </phpunit>

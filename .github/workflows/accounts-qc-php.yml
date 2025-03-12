@@ -42,7 +42,7 @@ jobs:
           folder-to-exclude: "! -path \"./tests/*\" ! -path \"./vendor/symfony/polyfill-*\" ! path \"./vendor/segmentio/analytics-php/*\""
 
   php-linter:
-    name: PHP-CS-FIXER
+    name: PHP Linter
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
@@ -95,17 +95,3 @@ jobs:
         if: "!success()"
         run: |
           make phpunit-display-logs
-#
-#      - name: header-stamp
-#        if: matrix.presta-versions == '1.6.1.24-5.6-fpm-stretch'
-#        run: |
-#          make header-stamp-test
-
-#  header-stamp:
-#    name: Check license headers
-#    runs-on: ubuntu-20.04
-#    steps:
-#      - name: Checkout
-#        uses: actions/checkout@v3
-#
-#      - run: make header-stamp-test
