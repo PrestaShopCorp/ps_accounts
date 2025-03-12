@@ -5,7 +5,7 @@ on:
     types: [opened, reopened, synchronize]
 
 jobs:
-  php-linter:
+  php-syntax:
     name: PHP Syntax check 5.6|7.2|7.3|8.1|8.3
     runs-on: ubuntu-latest
     steps:
@@ -41,15 +41,20 @@ jobs:
         with:
           folder-to-exclude: "! -path \"./tests/*\" ! -path \"./vendor/symfony/polyfill-*\" ! path \"./vendor/segmentio/analytics-php/*\""
 
-  php-cs-fixer:
+  php-linter:
     name: PHP-CS-FIXER
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
         uses: actions/checkout@v3
-      - name: Start container & install module
+
+      - name: php-cs-fixer
         run: |
           make php-cs-fixer-test
+
+      - name: header-stamp
+        run: |
+          make header-stamp-test
 
   phpunit:
     name: Testsuite for Prestashop ${{ matrix.presta-versions }}
@@ -73,6 +78,11 @@ jobs:
         run: |
           make platform-${{ matrix.presta-versions }}
 
+      - name: PHPStan
+        if: matrix.presta-versions == '1.6.1.24-7.1' || matrix.presta-versions == '8.1.5-7.4'
+        run: |
+          make phpstan
+
       - name: Feature tests
         run: |
           make phpunit-run-unit
@@ -85,16 +95,11 @@ jobs:
         if: "!success()"
         run: |
           make phpunit-display-logs
-
-      - name: PHPStan
-        if: matrix.presta-versions == '1.6.1.24-7.1' || matrix.presta-versions == '8.1.5-7.4'
-        run: |
-          make phpstan
-
-      - name: header-stamp
-        if: matrix.presta-versions == '1.6.1.24-5.6-fpm-stretch'
-        run: |
-          make header-stamp-test
+#
+#      - name: header-stamp
+#        if: matrix.presta-versions == '1.6.1.24-5.6-fpm-stretch'
+#        run: |
+#          make header-stamp-test
 
 #  header-stamp:
 #    name: Check license headers
