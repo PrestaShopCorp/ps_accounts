@@ -47,8 +47,11 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v3
-      - name: Run PHP-CS-Fixer
-        uses: prestashopcorp/github-action-php-cs-fixer@master
+      - name: Start container & install module
+        run: |
+          make php-cs-fixer
+#      - name: Run PHP-CS-Fixer
+#        uses: prestashopcorp/github-action-php-cs-fixer@master
 
   phpunit:
     name: Testsuite for Prestashop ${{ matrix.presta-versions }}
