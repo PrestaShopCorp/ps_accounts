@@ -312,6 +312,10 @@ php-cs-fixer: tests/vendor
 	PHP_CS_FIXER_IGNORE_ENV=1 ${PHP} ./tests/vendor/bin/php-cs-fixer fix --using-cache=no
 #	vendor/bin/php-cs-fixer fix --dry-run --diff --using-cache=no --diff-format udiff
 
+php-cs-fixer-test: COMPOSER_FILE := composer56.json
+php-cs-fixer-test: tests/vendor
+	PHP_CS_FIXER_IGNORE_ENV=1 ${PHP} ./tests/vendor/bin/php-cs-fixer fix --dry-run --diff --using-cache=no --diff-format udiff
+
 autoindex: COMPOSER_FILE := composer56.json
 autoindex: tests/vendor
 	${PHP} ./tests/vendor/bin/autoindex prestashop:add:index "${WORKDIR}"
