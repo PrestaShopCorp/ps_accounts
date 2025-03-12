@@ -56,9 +56,9 @@ class ClientTest extends TestCase
 
         $this->client->getConfig()->sslCheck = true;
 
-        $this->assertMatchesRegularExpression(
+        $this->assertTrue((bool) preg_match(
             '@^' . $this->baseUrl . '@', $response->request->getEffectiveUrl()
-        );
+        ));
 
         $this->assertTrue($response->isSuccessful);
     }
@@ -72,9 +72,9 @@ class ClientTest extends TestCase
 
         $this->client->getConfig()->sslCheck = true;
 
-        $this->assertMatchesRegularExpression(
+        $this->assertTrue((bool) preg_match(
             '@^https://www.google.com@', $response->request->getEffectiveUrl()
-        );
+        ));
 
         $this->assertTrue($response->isSuccessful);
     }
