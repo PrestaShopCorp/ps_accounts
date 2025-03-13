@@ -338,9 +338,9 @@ class Client
         $curlErrno = curl_errno($request->handler);
         $curlError = curl_error($request->handler);
 
-        $message = '- Request : ' . var_export(curl_getinfo($request->handler), true);
-
         if ($curlErrno) {
+            $message = '- Request : ' . var_export(curl_getinfo($request->handler), true);
+
             Logger::getInstance()->error($message);
 
             curl_close($request->handler);
@@ -352,8 +352,6 @@ class Client
                 default:
                     throw new ClientException('Curl error: ' . $curlError, $curlErrno);
             }
-        } else {
-            Logger::getInstance()->info($message);
         }
     }
 
