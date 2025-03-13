@@ -21,7 +21,10 @@
 namespace PrestaShop\Module\PsAccounts\Http\Client;
 
 /**
+ * @property mixed $handler
  * @property string $uri
+ * @property string $absUri
+ * @property string|null $method
  * @property array $headers
  * @property array|null $json
  * @property array|null $form
@@ -29,14 +32,20 @@ namespace PrestaShop\Module\PsAccounts\Http\Client;
  */
 class Request extends ConfigObject
 {
+    const HANDLER = 'handler';
     const URI = 'uri';
+    const ABS_URI = 'absUri';
+    const METHOD = 'method';
     const HEADERS = 'headers';
     const JSON = 'json';
     const FORM = 'form';
     const QUERY = 'query';
 
     protected $defaults = [
+        self::HANDLER => null,
         self::URI => null,
+        self::ABS_URI => null,
+        self::METHOD => null,
         self::HEADERS => [],
         self::JSON => null,
         self::FORM => null,

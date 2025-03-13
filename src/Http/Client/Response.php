@@ -25,6 +25,7 @@ namespace PrestaShop\Module\PsAccounts\Http\Client;
  * @property mixed $raw
  * @property int $statusCode
  * @property bool $isSuccessful
+ * @property Request $request
  */
 class Response extends ConfigObject
 {
@@ -32,6 +33,7 @@ class Response extends ConfigObject
     const RAW = 'raw';
     const STATUS_CODE = 'statusCode';
     const IS_SUCCESSFUL = 'isSuccessful';
+    const REQUEST = 'request';
 
     /**
      * @param array|string $body
