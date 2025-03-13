@@ -50,14 +50,14 @@ class ClientTest extends TestCase
      */
     public function itShouldGetHttpResponseOk()
     {
+        $this->client->getConfig()->sslCheck = true;
+
         $response = $this->client->get(
             '/index.php' //?fc=module&module=ps_accounts&controller=apiV2ShopHealthCheck'
         );
 
-        $this->client->getConfig()->sslCheck = true;
-
         $this->assertTrue((bool) preg_match(
-            '@^' . $this->baseUrl . '@', $response->request->getEffectiveUrl()
+            '@^' . $this->baseUrl . '@', $response->request->absUri
         ));
 
         $this->assertTrue($response->isSuccessful);
@@ -68,12 +68,12 @@ class ClientTest extends TestCase
      */
     public function itShouldGetHttpsResponseOK()
     {
-        $response = $this->client->get('https://www.google.com');
-
         $this->client->getConfig()->sslCheck = true;
 
+        $response = $this->client->get('https://www.google.com');
+
         $this->assertTrue((bool) preg_match(
-            '@^https://www.google.com@', $response->request->getEffectiveUrl()
+            '@^https://www.google.com@', $response->request->absUri
         ));
 
         $this->assertTrue($response->isSuccessful);

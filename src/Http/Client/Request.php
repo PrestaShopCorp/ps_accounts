@@ -23,6 +23,7 @@ namespace PrestaShop\Module\PsAccounts\Http\Client;
 /**
  * @property mixed $handler
  * @property string $uri
+ * @property string $absUri
  * @property string|null $method
  * @property array $headers
  * @property array|null $json
@@ -33,6 +34,7 @@ class Request extends ConfigObject
 {
     const HANDLER = 'handler';
     const URI = 'uri';
+    const ABS_URI = 'absUri';
     const METHOD = 'method';
     const HEADERS = 'headers';
     const JSON = 'json';
@@ -42,18 +44,11 @@ class Request extends ConfigObject
     protected $defaults = [
         self::HANDLER => null,
         self::URI => null,
+        self::ABS_URI => null,
         self::METHOD => null,
         self::HEADERS => [],
         self::JSON => null,
         self::FORM => null,
         self::QUERY => null,
     ];
-
-    /**
-     * @return string
-     */
-    public function getEffectiveUrl()
-    {
-        return curl_getinfo($this->handler, CURLINFO_EFFECTIVE_URL);
-    }
 }

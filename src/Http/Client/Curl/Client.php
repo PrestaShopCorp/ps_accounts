@@ -222,23 +222,24 @@ class Client
      *
      * @return void
      */
-    protected function initRoute(Request $request)
+    protected function initUri(Request $request)
     {
-        $absRoute = $request->uri;
-        if (!empty($this->config->baseUri) && !preg_match('/^http(s)?:\/\//', $absRoute)) {
-            $absRoute = preg_replace('/\/$/', '', $this->config->baseUri) . preg_replace('/\/+/', '/', '/' . $absRoute);
+        $absUri = $request->uri;
+        if (!empty($this->config->baseUri) && !preg_match('/^http(s)?:\/\//', $absUri)) {
+            $absUri = preg_replace('/\/$/', '', $this->config->baseUri) . preg_replace('/\/+/', '/', '/' . $absUri);
         }
 
-        if (empty($absRoute)) {
+        if (empty($absUri)) {
             throw new \InvalidArgumentException('route must not be empty');
         }
 
         if (!empty($request->query)) {
-            $sep = preg_match('/\?/', $absRoute) ? '&' : '?';
-            $absRoute .= $sep . http_build_query($request->query);
+            $sep = preg_match('/\?/', $absUri) ? '&' : '?';
+            $absUri .= $sep . http_build_query($request->query);
         }
+        $request->absUri = $absUri;
 
-        curl_setopt($request->handler, CURLOPT_URL, $absRoute);
+        curl_setopt($request->handler, CURLOPT_URL, $request->absUri);
     }
 
     /**
@@ -303,7 +304,7 @@ class Client
     {
         $request->handler = curl_init();
 
-        $this->initRoute($request);
+        $this->initUri($request);
         $this->initHeaders($request);
         $this->initSsl($request);
         $this->initPayload($request);
