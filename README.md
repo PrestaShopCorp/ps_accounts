@@ -8,6 +8,7 @@
 # Context
 
 The module **ps_accounts** is the interface between your module and PrestaShop's services. It manages:
+
 - Shop association/dissociation process;
 - Providing tokens to communicate safely with PrestaShop services;
 - Synchronize basic informations about the shops (ex: shop URLs, name, ...).
@@ -21,12 +22,13 @@ If you need to install and test the module, [you can download the desired zip he
 ## Compatibility Matrix
 
 We aims to follow partially the Prestashop compatibility charts
+
 - [Compatibility Chart Prestashop 1.6 & 1.7](https://devdocs.prestashop.com/1.7/basics/installation/system-requirements/#php-compatibility-chart)
 - [Compatibility Chart Prestashop 8.0](https://devdocs.prestashop.com/8/basics/installation/system-requirements/#php-compatibility-chart)
 - [Compatibility Chart Prestashop 9.0](https://devdocs.prestashop.com/9/basics/installation/system-requirements/#php-compatibility-chart)
 
 | ps_accounts version  | Prestashop Version   | PHP Version       |
-|----------------------|----------------------|-------------------|
+| -------------------- | -------------------- | ----------------- |
 | ^7.0.9               | \>=1.6 && <= 9.x     | PHP 5.6 - 8       |
 | 7.x                  | \>=1.6 && <9.x       | PHP 5.6 - 8       |
 | ~~6.x (deprecated)~~ | ~~\>=8.0.0~~         | ~~PHP 7.2 - 8~~   |
@@ -39,10 +41,12 @@ If you are integrating a module, you should have a look on the [PrestaShop Integ
 ## A preliminary note about PrestaShop modules ecosystem :
 
 ### You should keep in mind that the PrestaShop Core
+
 - **_doesn't_** manage dependencies between modules;
 - **_doesn't_** manage composer dependencies globally.
 
 ### As a consequence you MUST
+
 - check by yourself that the PsAccounts module is installed;
 - ensure your vendor dependencies won't collide with existing ones.  
   (loaded by other modules OR coming from the PrestaShop Core)
@@ -70,13 +74,14 @@ Media::addJsDef([
 
 return $this->display(__FILE__, 'views/templates/admin/app.tpl');
 ```
+
 Alternatively you can still use : [PrestaShop Accounts Installer](http://github.com/PrestaShopCorp/prestashop-accounts-installer) for more details on how to setup Installer.
 
 ### Load and init the component on your page
 
 For detailed usage you can follow the component's documentation : [prestashop_accounts_vue_components](https://github.com/PrestaShopCorp/prestashop_accounts_vue_components)
 
-## How to retrieve tokens with PsAccounts
+## How to get up to date (legacy) JWT Tokens
 
 ### About tokens provided :
 
@@ -91,25 +96,8 @@ This module provides the following tokens:
 - **ShopAccessToken** (provided by [Prestashop OpenId Connect Provider](https://oauth.prestashop.com/.well-known/openid-configuration))  
   For machine to machine calls. (also used to keep up to date legacy Shop and Owner tokens
 
-### How to get up-to-date JWT Shop Access Tokens
+### Using PsAccountsService (recommended) :
 
-```php
-// /!\ TODO: Starting here you are responsible to check that the module is installed
-
-/** @var Ps_accounts $module */
-$module = \Module::getModuleIdByName('ps_accounts');
-
-/** @var \PrestaShop\Module\PsAccounts\Service\PsAccountsService $service */
-$service = $module->getService(\PrestaShop\Module\PsAccounts\Service\PsAccountsService::class);
-
-try {
-    $jwtAccessToken = $service->getShopToken();
-} catch (\PrestaShop\Module\PsAccounts\Exception\RefreshTokenException $e) {
-    // 
-}
-```
-
-### How to get up-to-date (legacy) JWT Tokens
 ```php
 // /!\ TODO: Starting here you are responsible to check that the module is installed
 
@@ -126,46 +114,40 @@ $jwtShop = $service->getOrRefreshToken();
 $jwtOwner = $service->getUserToken();
 ```
 
-[//]: # (OR :)
+[//]: # "OR :"
+[//]: #
+[//]: # "```php"
+[//]: # "use PrestaShop\\PsAccountsInstaller\Installer\Installer;"
+[//]: # "use PrestaShop\\PsAccountsInstaller\Installer\Facade\PsAccounts;"
+[//]: #
+[//]: # "define('MIN_PS_ACCOUNTS_VERSION', '7.0.0');"
+[//]: #
+[//]: # "$facade = new PsAccounts(new Installer(MIN_PS_ACCOUNTS_VERSION));"
+[//]: #
+[//]: # "// Get or refresh shop token"
+[//]: # "$shopToken = $facade->getPsAccountsService()->getOrRefreshToken();"
+[//]: #
+[//]: # "// Get or refresh shop owner token "
+[//]: # "$ownerToken = $facade->getPsAccountsService()->getUserToken();"
+[//]: # "```"
 
-[//]: # ()
-[//]: # (```php)
+### Calling AJAX controller in backend context :
 
-[//]: # (use PrestaShop\PsAccountsInstaller\Installer\Installer;)
-
-[//]: # (use PrestaShop\PsAccountsInstaller\Installer\Facade\PsAccounts;)
-
-[//]: # ()
-[//]: # (define&#40;'MIN_PS_ACCOUNTS_VERSION', '7.0.0'&#41;;)
-
-[//]: # ()
-[//]: # ($facade = new PsAccounts&#40;new Installer&#40;MIN_PS_ACCOUNTS_VERSION&#41;&#41;;)
-
-[//]: # ()
-[//]: # (// Get or refresh shop token)
-
-[//]: # ($shopToken = $facade->getPsAccountsService&#40;&#41;->getOrRefreshToken&#40;&#41;;)
-
-[//]: # ()
-[//]: # (// Get or refresh shop owner token )
-
-[//]: # ($ownerToken = $facade->getPsAccountsService&#40;&#41;->getUserToken&#40;&#41;;)
-
-[//]: # (```)
-
-### Calling AJAX controller in backend context (legacy shop token only)
 That way you will retrieve an up to date **Shop Token**
+
 ```js
 const response = await fetch("https://<shop-admin-url>/index.php", {
   ajax: true,
-  controller: 'AdminAjaxPsAccounts',
-  action: 'getOrRefreshAccessToken',
-  token: '<admin_token>',
+  controller: "AdminAjaxPsAccounts",
+  action: "getOrRefreshAccessToken",
+  token: "<admin_token>",
 });
 ```
+
 With the given response :
+
 ```json
-{ 
+{
   "token": "<access_token>"
 }
 ```
@@ -175,7 +157,7 @@ With the given response :
 Here are listed custom hooks provided with this module:
 
 | hook                              | params           | description                                  |
-|-----------------------------------|------------------|----------------------------------------------|
+| --------------------------------- | ---------------- | -------------------------------------------- |
 | actionShopAccountLinkAfter        | shopId, shopUuid | Triggered after link shop acknowledged       |
 | actionShopAccountUnlinkAfter      | shopId, shopUuid | Triggered after unlink shop acknowledged     |
 | actionShopAccessTokenRefreshAfter | token            | Triggered after OAuth access token refreshed |
