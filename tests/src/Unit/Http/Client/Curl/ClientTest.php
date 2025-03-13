@@ -78,4 +78,17 @@ class ClientTest extends TestCase
 
         $this->assertTrue($response->isSuccessful);
     }
+
+    /**
+     * @test
+     */
+    public function itShouldGetResponseUnsuccessful()
+    {
+        $this->client->getConfig()->sslCheck = true;
+
+        $response = $this->client->get('/foo-bar');
+
+        $this->assertFalse($response->isSuccessful);
+        $this->assertEquals(404, $response->statusCode);
+    }
 }
