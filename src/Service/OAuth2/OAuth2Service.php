@@ -267,6 +267,7 @@ class OAuth2Service
      * @param string $pkceMethod
      * @param string $uiLocales
      * @param string $acrValues
+     * @param string $prompt
      *
      * @return string authorization flow uri
      *
@@ -277,7 +278,8 @@ class OAuth2Service
         $pkceCode = null,
         $pkceMethod = 'S256',
         $uiLocales = 'fr',
-        $acrValues = 'prompt:login'
+        $acrValues = 'prompt:login',
+        $prompt = 'none'
     ) {
         $this->assertClientExists();
 
@@ -291,6 +293,7 @@ class OAuth2Service
                 'redirect_uri' => $this->getAuthRedirectUri(),
                 'client_id' => $this->oAuth2Client->getClientId(),
                 'acr_values' => $acrValues,
+                'prompt' => $prompt,
             ], $pkceCode ? [
                 'code_challenge' => trim(strtr(base64_encode(hash('sha256', $pkceCode, true)), '+/', '-_'), '='),
                 'code_challenge_method' => $pkceMethod,
@@ -301,19 +304,25 @@ class OAuth2Service
      * @example http://my-shop.mydomain/admin-path/index.php?controller=AdminOAuth2PsAccounts
      * @example http://my-shop.mydomain/admin-path/modules/ps_accounts/oauth2
      *
+     * @param array $queryParams
+     *
      * @return string
      */
-    public function getAuthRedirectUri()
+    public function getAuthRedirectUri($queryParams = [])
     {
         if (defined('_PS_VERSION_')
             && version_compare(_PS_VERSION_, '9', '>=')) {
-            return $this->link->getAdminLink('AdminOAuth2PsAccounts', false, [
-                'route' => 'ps_accounts_oauth2',
-            ]);
+            return $this->link->getAdminLink(
+                'AdminOAuth2PsAccounts', false, array_merge($queryParams, [
+                    'route' => 'ps_accounts_oauth2',
+                ])
+            );
             //return $link->getAdminLink('SfAdminOAuth2PsAccounts', false);
         }
 
-        return $this->link->getAdminLink('AdminOAuth2PsAccounts', false, [], [], true);
+        return $this->link->getAdminLink(
+            'AdminOAuth2PsAccounts', false, [], $queryParams, true
+        );
     }
 
     /**
