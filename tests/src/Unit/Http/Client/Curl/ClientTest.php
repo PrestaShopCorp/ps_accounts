@@ -36,12 +36,10 @@ class ClientTest extends TestCase
     }
 
     /**
-     * TODO: LegacyResponseClient
      * TODO: test curl options over PHP Versions
      * TODO: test with accounts-api timeout
      * TODO: test with oauth2 timeout
      * TODO: test ssl checks
-     * TODO: test route
      */
 
     /**
@@ -78,16 +76,21 @@ class ClientTest extends TestCase
         $this->assertTrue($response->isSuccessful);
     }
 
-//    /**
-//     * @test
-//     */
-//    public function itShouldGetResponseUnsuccessful()
-//    {
-//        $this->client->getConfig()->sslCheck = true;
-//
-//        $response = $this->client->get('/foo-bar');
-//
-//        $this->assertFalse($response->isSuccessful);
-//        $this->assertEquals(404, $response->statusCode);
-//    }
+    /**
+     * @test
+     */
+    public function itShouldGetLegacyFormatResponseOK()
+    {
+        $this->client->getConfig()->sslCheck = true;
+
+        $response = $this->client->get('/index.php');
+
+        $this->assertTrue($response->isSuccessful);
+
+        $legacy = $response->toLegacy();
+
+        $this->assertArrayHasKey('status', $legacy);
+        $this->assertArrayHasKey('httpCode', $legacy);
+        $this->assertArrayHasKey('body', $legacy);
+    }
 }
