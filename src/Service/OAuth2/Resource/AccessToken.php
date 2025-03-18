@@ -20,7 +20,6 @@
 
 namespace PrestaShop\Module\PsAccounts\Service\OAuth2\Resource;
 
-use PrestaShop\Module\PsAccounts\Account\Token\Token;
 use PrestaShop\Module\PsAccounts\Http\Resource\Resource;
 
 class AccessToken extends Resource
@@ -73,16 +72,4 @@ class AccessToken extends Resource
         }
         parent::__construct($data);
     }
-
-//    /**
-//     * @return bool
-//     *
-//     * @deprecated
-//     */
-//    public function hasExpired()
-//    {
-//        $token = new Token($this->access_token);
-//
-//        return $token->isExpired();
-//    }
 }
