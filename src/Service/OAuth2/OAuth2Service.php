@@ -104,7 +104,7 @@ class OAuth2Service
         array $config,
         OAuth2Client $oAuth2Client,
         Link $link,
-                     $cacheDir
+        $cacheDir
     ) {
         $this->clientConfig = array_merge([
             ClientConfig::NAME => static::class,
