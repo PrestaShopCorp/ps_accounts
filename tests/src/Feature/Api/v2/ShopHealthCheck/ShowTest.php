@@ -2,9 +2,8 @@
 
 namespace PrestaShop\Module\PsAccounts\Tests\Feature\Api\v2\ShopHealthCheck;
 
-use PrestaShop\Module\PsAccounts\Log\Logger;
-use PrestaShop\Module\PsAccounts\OAuth2\CachedFile;
 use PrestaShop\Module\PsAccounts\Provider\ShopProvider;
+use PrestaShop\Module\PsAccounts\Service\OAuth2\CachedFile;
 use PrestaShop\Module\PsAccounts\Tests\Feature\FeatureTestCase;
 use PrestaShop\Module\PsAccounts\Vendor\Firebase\JWT\JWT;
 
