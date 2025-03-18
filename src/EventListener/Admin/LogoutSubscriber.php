@@ -31,12 +31,12 @@ class LogoutSubscriber implements EventSubscriberInterface
      */
     public static function getSubscribedEvents()
     {
-        if (defined('_PS_VERSION_')
-            && version_compare(_PS_VERSION_, '9.0', '>=')) {
-            return [
-                LogoutEvent::class => 'onLogout',
-            ];
-        }
+//        if (defined('_PS_VERSION_')
+//            && version_compare(_PS_VERSION_, '9.0', '>=')) {
+//            return [
+//                LogoutEvent::class => 'onLogout',
+//            ];
+//        }
 
         return [];
     }
