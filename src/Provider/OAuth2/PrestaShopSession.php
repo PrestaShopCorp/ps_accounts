@@ -27,4 +27,11 @@ use PrestaShop\Module\PsAccounts\AccountLogin\OAuth2Session;
  */
 class PrestaShopSession extends OAuth2Session
 {
+    /**
+     * @return string|null
+     */
+    public function getOrRefreshAccessToken()
+    {
+        return parent::getOrRefreshAccessToken();
+    }
 }
