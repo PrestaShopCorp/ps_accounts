@@ -35,10 +35,18 @@ use PrestaShop\Module\PsAccounts\Vendor\Ramsey\Uuid\Uuid;
 class OAuth2Service
 {
     /**
-     * openid-configuration cache (24 Hours)
+     * cached openid-configuration ttl (24 Hours)
      */
     const OPENID_CONFIGURATION_CACHE_TTL = 60 * 60 * 24;
+
+    /**
+     * cached openid-configuration filename
+     */
     const OPENID_CONFIGURATION_JSON = 'openid-configuration.json';
+
+    /**
+     * cached JWKS (JSON Web Key Set) filename
+     */
     const JWKS_JSON = 'jwks.json';
 
     /**
@@ -96,7 +104,7 @@ class OAuth2Service
         array $config,
         OAuth2Client $oAuth2Client,
         Link $link,
-                     $cacheDir
+        $cacheDir
     ) {
         $this->clientConfig = array_merge([
             ClientConfig::NAME => static::class,
@@ -177,8 +185,10 @@ class OAuth2Service
     protected function getWellKnownFromCache($forceRefresh = false)
     {
         if ($this->cachedWellKnown->isExpired() || $forceRefresh) {
+            $wellKnown = $this->fetchWellKnown();
+
             $this->cachedWellKnown->write(
-                json_encode($this->fetchWellKnown(), JSON_UNESCAPED_SLASHES)
+                json_encode($wellKnown, JSON_UNESCAPED_SLASHES)
             );
         }
 
@@ -202,14 +212,6 @@ class OAuth2Service
         return $response->body;
     }
 
-//    /**
-//     * @return string
-//     */
-//    public function getOpenIdConfigurationUri()
-//    {
-//        return \preg_replace('/\\/?$/', '/.well-known/openid-configuration', $this->baseUri);
-//    }
-
     /**
      * @param bool $forceRefresh
      *
@@ -220,11 +222,14 @@ class OAuth2Service
     public function getJwks($forceRefresh = false)
     {
         if ($this->cachedJwks->isExpired() || $forceRefresh) {
+            $response = $this->getHttpClient()->get($this->getWellKnown()->jwks_uri);
+
+            if (!$response->isSuccessful) {
+                throw new OAuth2Exception($this->getResponseErrorMsg($response, 'Unable to get JWKS'));
+            }
+
             $this->cachedJwks->write(
-                json_encode(
-                    $this->getHttpClient()->get($this->getWellKnown()->jwks_uri)
-                        ->body, JSON_UNESCAPED_SLASHES
-                )
+                json_encode($response->body, JSON_UNESCAPED_SLASHES)
             );
         }
 

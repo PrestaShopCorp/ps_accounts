@@ -162,6 +162,7 @@ class ShopSession extends Session implements SessionInterface
     {
         $audience = [
             'shop_' . $shopUid,
+            //'https://accounts-api.distribution.prestashop.net/shops/' . $shopUid,
             //'another.audience'
         ];
 

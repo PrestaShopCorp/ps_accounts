@@ -324,7 +324,33 @@ JSON;
     /**
      * @test
      */
-    public function itShouldNotValidateTokenWithInvalidScopes()
+    public function itShouldNotValidateTokenWithoutAudience()
+    {
+        $this->expectException(AudienceInvalidException::class);
+
+        $jwtString = $this->encodeToken([
+//            'aud' => [
+//                'https://mashop.net',
+//            ],
+            'scp' => [
+                'entity.read',
+                'entity.write',
+                'entity.delete',
+            ],
+        ]);
+
+        $this->validator->validateToken($jwtString, [
+            'entity.read',
+            'entity.write',
+        ], [
+            'https://shopifees.net',
+        ]);
+    }
+
+    /**
+     * @test
+     */
+    public function itShouldNotValidateTokenWithInvalidScope()
     {
         $this->expectException(ScopeInvalidException::class);
 
@@ -337,6 +363,32 @@ JSON;
                 'entity.write',
                 'entity.delete',
             ],
+        ]);
+
+        $this->validator->validateToken($jwtString, [
+            'entity.read',
+            'entity.write',
+        ], [
+            'https://mashop.net',
+        ]);
+    }
+
+    /**
+     * @test
+     */
+    public function itShouldNotValidateTokenWithoutScope()
+    {
+        $this->expectException(ScopeInvalidException::class);
+
+        $jwtString = $this->encodeToken([
+            'aud' => [
+                'https://mashop.net',
+            ],
+//            'scp' => [
+//                'entity.red',
+//                'entity.write',
+//                'entity.delete',
+//            ],
         ]);
 
         $this->validator->validateToken($jwtString, [
