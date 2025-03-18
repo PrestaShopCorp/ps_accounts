@@ -53,8 +53,8 @@ class ActionAdminLoginControllerSetMedia extends Hook
      */
     protected function executeV8()
     {
-        // Handle logout
-        $this->module->getOauth2Middleware()->handleLogout();
+//        // Handle logout
+//        $this->module->getOauth2Middleware()->handleLogout();
 
         $local = $this->isLocalLogin();
 
