@@ -22,16 +22,18 @@ namespace PrestaShop\Module\PsAccounts\Controller\Admin;
 
 //use PrestaShopBundle\Controller\Admin\PrestaShopAdminController;
 use Doctrine\ORM\EntityManagerInterface;
+use PrestaShop\Module\PsAccounts\AccountLogin\Exception\AccountLoginException;
+use PrestaShop\Module\PsAccounts\AccountLogin\Exception\EmailNotVerifiedException;
+use PrestaShop\Module\PsAccounts\AccountLogin\Exception\EmployeeNotFoundException;
+use PrestaShop\Module\PsAccounts\AccountLogin\OAuth2LoginTrait;
+use PrestaShop\Module\PsAccounts\AccountLogin\OAuth2Session;
 use PrestaShop\Module\PsAccounts\Adapter\Link;
 use PrestaShop\Module\PsAccounts\Api\Client\ExternalAssetsClient;
-use PrestaShop\Module\PsAccounts\Exception\AccountLogin\AccountLoginException;
-use PrestaShop\Module\PsAccounts\Exception\AccountLogin\EmailNotVerifiedException;
-use PrestaShop\Module\PsAccounts\Exception\AccountLogin\EmployeeNotFoundException;
 use PrestaShop\Module\PsAccounts\Log\Logger;
-use PrestaShop\Module\PsAccounts\Provider\OAuth2;
 use PrestaShop\Module\PsAccounts\Service\AnalyticsService;
+use PrestaShop\Module\PsAccounts\Service\OAuth2\OAuth2Service;
+use PrestaShop\Module\PsAccounts\Service\OAuth2\Resource\UserInfo;
 use PrestaShop\Module\PsAccounts\Service\PsAccountsService;
-use PrestaShop\Module\PsAccounts\Vendor\PrestaShop\OAuth2\Client\Provider\PrestaShopUser;
 use PrestaShopBundle\Controller\Admin\FrameworkBundleAdminController;
 use PrestaShopBundle\Entity\Employee\Employee as EmployeeEntity;
 use Ps_accounts;
@@ -43,7 +45,7 @@ use Symfony\Component\HttpFoundation\Session\SessionInterface;
 
 class OAuth2Controller extends FrameworkBundleAdminController
 {
-    use OAuth2\PrestaShopLoginTrait;
+    use OAuth2LoginTrait;
 
     /**
      * @var Ps_accounts
@@ -135,8 +137,9 @@ class OAuth2Controller extends FrameworkBundleAdminController
      */
     public function displayLoginAction(Request $request)
     {
-        /** @var OAuth2\ShopProvider $provider */
-        $provider = $this->module->getService(OAuth2\ShopProvider::class);
+        /** @var OAuth2Service $oAuth2Service */
+        $oAuth2Service = $this->module->getService(OAuth2Service::class);
+
         $isoCode = $this->getContext()->getCurrentLocale()->getCode();
 
         // FIXME: extends login layout
@@ -144,7 +147,7 @@ class OAuth2Controller extends FrameworkBundleAdminController
             /* @phpstan-ignore-next-line */
             'shopUrl' => $this->getContext()->shop->getBaseUrl(true),
             //'oauthRedirectUri' => $this->generateUrl('ps_accounts_oauth2'),
-            'oauthRedirectUri' => $provider->getRedirectUri(),
+            'oauthRedirectUri' => $oAuth2Service->getAuthRedirectUri(),
             'legacyLoginUri' => $this->generateUrl('admin_login', [
                 'mode' => 'local',
             ]),
@@ -166,22 +169,22 @@ class OAuth2Controller extends FrameworkBundleAdminController
     }
 
     /**
-     * @return OAuth2\ShopProvider
+     * @return OAuth2Service
      */
-    protected function getProvider()
+    protected function getOAuth2Service()
     {
-        return $this->module->getService(Oauth2\ShopProvider::class);
+        return $this->module->getService(OAuth2Service::class);
     }
 
     /**
-     * @param PrestaShopUser $user
+     * @param UserInfo $user
      *
      * @return bool
      *
      * @throws EmailNotVerifiedException
      * @throws EmployeeNotFoundException
      */
-    protected function initUserSession(PrestaShopUser $user)
+    protected function initUserSession(UserInfo $user)
     {
         Logger::getInstance()->info(
             '[OAuth2] ' . (string) json_encode($user->toArray(), JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE)
@@ -191,9 +194,9 @@ class OAuth2Controller extends FrameworkBundleAdminController
         /** @var \Context $context */
         $context = $this->module->getService('ps_accounts.context');
 
-        $emailVerified = $user->getEmailVerified();
+        $emailVerified = $user->email_verified;
 
-        $context->employee = $this->getEmployeeByUidOrEmail($user->getId(), $user->getEmail());
+        $context->employee = $this->getEmployeeByUidOrEmail($user->sub, $user->email);
 
         if (!$context->employee->id || empty($emailVerified)) {
             if ($context->employee->isLoggedBack()) {
@@ -253,11 +256,11 @@ class OAuth2Controller extends FrameworkBundleAdminController
     }
 
     /**
-     * @return Oauth2\PrestaShopSession
+     * @return OAuth2Session
      */
     protected function getOauth2Session()
     {
-        return $this->module->getService(Oauth2\PrestaShopSession::class);
+        return $this->module->getService(OAuth2Session::class);
     }
 
     /**

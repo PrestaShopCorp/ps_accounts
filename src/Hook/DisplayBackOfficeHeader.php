@@ -21,7 +21,6 @@
 namespace PrestaShop\Module\PsAccounts\Hook;
 
 use PrestaShop\Module\PsAccounts\Account\Command\UpgradeModuleMultiCommand;
-use PrestaShop\Module\PsAccounts\Vendor\League\OAuth2\Client\Provider\Exception\IdentityProviderException;
 
 class DisplayBackOfficeHeader extends Hook
 {
@@ -36,8 +35,6 @@ class DisplayBackOfficeHeader extends Hook
         ) {
             try {
                 $this->module->getOauth2Middleware()->handleLogout();
-            } catch (IdentityProviderException $e) {
-                $this->logger->error('error while executing middleware : ' . $e->getMessage());
                 /* @phpstan-ignore-next-line */
             } catch (\Exception $e) {
                 /* @phpstan-ignore-next-line */

@@ -22,8 +22,8 @@ namespace PrestaShop\Module\PsAccounts\Hook;
 
 use PrestaShop\Module\PsAccounts\Account\Session\Firebase;
 use PrestaShop\Module\PsAccounts\Account\Session\ShopSession;
-use PrestaShop\Module\PsAccounts\Provider\OAuth2\Oauth2Client;
 use PrestaShop\Module\PsAccounts\Provider\RsaKeysProvider;
+use PrestaShop\Module\PsAccounts\Service\OAuth2\OAuth2Client;
 
 class ActionShopAccountUnlinkAfter extends Hook
 {
@@ -36,8 +36,8 @@ class ActionShopAccountUnlinkAfter extends Hook
      */
     public function execute(array $params = [])
     {
-        /** @var Oauth2Client $oauth2Client */
-        $oauth2Client = $this->module->getService(Oauth2Client::class);
+        /** @var OAuth2Client $oauth2Client */
+        $oauth2Client = $this->module->getService(OAuth2Client::class);
         $oauth2Client->delete();
 
         /** @var Firebase\ShopSession $shopSession */

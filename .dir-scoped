@@ -1,10 +1,7 @@
 psr
-guzzlehttp
-league
-prestashopcorp/oauth2-prestashop
+firebase/php-jwt
 prestashopcorp/lightweight-container
 lcobucci
 monolog
 ramsey/uuid
-ralouphie/getallheaders
 phpseclib/phpseclib/phpseclib

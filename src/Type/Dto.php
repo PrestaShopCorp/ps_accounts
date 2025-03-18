@@ -27,12 +27,17 @@ abstract class Dto implements \JsonSerializable
     /**
      * @var array
      */
-    protected $attributes = [];
+    protected $properties = [];
+
+    /**
+     * @var array
+     */
+    protected $defaults = [];
 
     /**
      * @var string[]
      */
-    protected $mandatory = [];
+    protected $required = [];
 
     /**
      * @var bool
@@ -46,20 +51,13 @@ abstract class Dto implements \JsonSerializable
      */
     public function __construct($values = [])
     {
-        foreach ($values as $attrName => $attrValue) {
-            if (property_exists($this, $attrName)) {
-                $this->$attrName = $attrValue;
-                $this->attributes[] = $attrName;
-            } elseif ($this->throwOnUnexpectedProperties) {
-                throw new DtoException('unexpected property : ' . get_class($this) . '->$' . $attrName);
-            }
-        }
+        foreach (array_merge($this->defaults, $values) as $name => $value) {
+            $this->assertUnexpectedProperty($name);
 
-        foreach ($this->mandatory as $attrName) {
-            if (!in_array($attrName, $this->attributes)) {
-                throw new DtoException('property expected : ' . get_class($this) . '->$' . $attrName);
-            }
+            $this->$name = $value;
+            $this->properties[] = $name;
         }
+        $this->assertRequiredProperties();
     }
 
     /**
@@ -69,7 +67,44 @@ abstract class Dto implements \JsonSerializable
     public function jsonSerialize()
     {
         return array_filter((array) $this, function ($attrValue, $attrName) {
-            return in_array($attrName, $this->attributes);
+            return in_array($attrName, $this->properties);
         }, ARRAY_FILTER_USE_BOTH);
+    }
+
+    /**
+     * @return array
+     */
+    public function toArray()
+    {
+        return get_object_vars($this);
+    }
+
+    /**
+     * @return void
+     *
+     * @throws DtoException
+     */
+    protected function assertRequiredProperties()
+    {
+        foreach ($this->required as $name) {
+            if (!in_array($name, $this->properties)) {
+                throw new DtoException('Missing required property : ' . get_class($this) . '::' . $name);
+            }
+        }
+    }
+
+    /**
+     * @param string $name
+     *
+     * @return void
+     *
+     * @throws DtoException
+     */
+    protected function assertUnexpectedProperty($name)
+    {
+        if (!property_exists($this, $name) &&
+            $this->throwOnUnexpectedProperties) {
+            throw new DtoException('Unexpected property : ' . get_class($this) . '::' . $name);
+        }
     }
 }

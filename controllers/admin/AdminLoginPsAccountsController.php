@@ -20,7 +20,7 @@
 
 use PrestaShop\Module\PsAccounts\Api\Client\ExternalAssetsClient;
 use PrestaShop\Module\PsAccounts\Polyfill\Traits\AdminController\IsAnonymousAllowed;
-use PrestaShop\Module\PsAccounts\Provider\OAuth2\ShopProvider;
+use PrestaShop\Module\PsAccounts\Service\OAuth2\OAuth2Service;
 
 class AdminLoginPsAccountsController extends \AdminController
 {
@@ -132,10 +132,8 @@ class AdminLoginPsAccountsController extends \AdminController
      */
     public function createTemplate($tpl_name)
     {
-        /** @var ShopProvider $provider */
-        $provider = $this->module->getService(ShopProvider::class);
-
-        $testimonials = $this->getTestimonials();
+        /** @var OAuth2Service $oAuth2Service */
+        $oAuth2Service = $this->module->getService(OAuth2Service::class);
 
         $session = $this->module->getSession();
 
@@ -145,14 +143,14 @@ class AdminLoginPsAccountsController extends \AdminController
         $this->context->smarty->assign([
             /* @phpstan-ignore-next-line */
             'shopUrl' => $this->context->shop->getBaseUrl(true),
-            'oauthRedirectUri' => $provider->getRedirectUri(),
+            'oauthRedirectUri' => $oAuth2Service->getAuthRedirectUri(),
             'legacyLoginUri' => $this->context->link->getAdminLink(
                 'AdminLogin', true, [], [
                 'mode' => self::PARAM_MODE_LOCAL,
             ]),
             'isoCode' => substr($isoCode, 0, 2),
             'defaultIsoCode' => 'en',
-            'testimonials' => $testimonials,
+            'testimonials' => $this->getTestimonials(),
             'loginError' => $session->remove('loginError'),
             'meta_title' => '',
             'ssoResendVerificationEmail' => $this->module->getParameter(

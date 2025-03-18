@@ -11,7 +11,7 @@
     },
     "autoload-dev": {
         "psr-4": {
-            "PrestaShop\\Module\\PsAccounts\\Tests\\": "./"
+            "PrestaShop\\Module\\PsAccounts\\Tests\\": "src/"
         }
     },
     "require": {
@@ -22,9 +22,6 @@
         "phpunit/phpunit": "^5.5",
         "prestashop/php-dev-tools": "3.*",
         "friendsofphp/php-cs-fixer": "^2.16"
-    },
-    "scripts": {
-        "phpunit": "docker exec -u www-data -ti phpunit-dev ./vendor/bin/phpunit --configuration './phpunit.xml' --test-suffix 'Test.php,.phpt'"
     },
     "author": "PrestaShop"
 }

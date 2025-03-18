@@ -35,7 +35,7 @@ class LinkShop extends Dto
     /** @var string */
     public $ownerEmail;
 
-    protected $mandatory = [
+    protected $required = [
         'shopId',
         'uid',
 //        'ownerUid',
