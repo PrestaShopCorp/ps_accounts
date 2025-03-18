@@ -35,10 +35,18 @@ use PrestaShop\Module\PsAccounts\Vendor\Ramsey\Uuid\Uuid;
 class OAuth2Service
 {
     /**
-     * openid-configuration cache (24 Hours)
+     * cached openid-configuration ttl (24 Hours)
      */
     const OPENID_CONFIGURATION_CACHE_TTL = 60 * 60 * 24;
+
+    /**
+     * cached openid-configuration filename
+     */
     const OPENID_CONFIGURATION_JSON = 'openid-configuration.json';
+
+    /**
+     * cached JWKS (JSON Web Key Set) filename
+     */
     const JWKS_JSON = 'jwks.json';
 
     /**
