@@ -3,9 +3,3 @@ services:
     class: PrestaShop\Module\PsAccounts\Controller\Admin\OAuth2Controller
 #    autowire: true
 #    autoconfigure: true
-
-  PrestaShop\Module\PsAccounts\EventListener\Admin\LogoutSubscriber:
-    class: PrestaShop\Module\PsAccounts\EventListener\Admin\LogoutSubscriber
-    tags:
-      - name: kernel.event_subscriber
-        dispatcher: security.event_dispatcher.main
