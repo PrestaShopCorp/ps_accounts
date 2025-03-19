@@ -21,7 +21,6 @@
 namespace PrestaShop\Module\PsAccounts\Hook;
 
 use PrestaShop\Module\PsAccounts\Account\Command\UpgradeModuleMultiCommand;
-use PrestaShop\Module\PsAccounts\Vendor\League\OAuth2\Client\Provider\Exception\IdentityProviderException;
 
 class DisplayBackOfficeHeader extends Hook
 {
