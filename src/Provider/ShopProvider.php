@@ -247,13 +247,14 @@ class ShopProvider
      */
     private function getShopUrl($shopData)
     {
-        if (!$shopData['domain']) {
-            return null;
-        }
-
-        return
-            ($shopData['domain_ssl'] ? 'https://' : 'http://') .
-            ($shopData['domain_ssl'] ?: $shopData['domain']) .
-            $shopData['uri'];
+        return $this->link->getLink()->getBaseLink();
+//        if (!$shopData['domain']) {
+//            return null;
+//        }
+//
+//        return
+//            ($shopData['domain_ssl'] ? 'https://' : 'http://') .
+//            ($shopData['domain_ssl'] ?: $shopData['domain']) .
+//            $shopData['uri'];
     }
 }
