@@ -98,7 +98,7 @@ class ShopProvider
                     'uuid' => $linkShop->getOwnerUuid() ?: null,
                     'emailIsValidated' => null,
                 ],
-                'url' => $this->link->getDashboardLink($shopId),
+                'url' => $this->link->getDashboardLink(),
                 'isLinkedV4' => null,
                 'unlinkedAuto' => !empty($linkShop->getUnlinkedOnError()),
             ]);
