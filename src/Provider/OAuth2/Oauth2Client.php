@@ -25,14 +25,24 @@ use PrestaShop\Module\PsAccounts\Repository\ConfigurationRepository;
 
 class Oauth2Client
 {
+    const QUERY_LOGOUT_CALLBACK_PARAM = 'oauth2Callback';
+
     /**
      * @var ConfigurationRepository
      */
     private $cfRepos;
 
-    public function __construct(ConfigurationRepository $configurationRepository)
-    {
+    /**
+     * @var Link
+     */
+    private $link;
+
+    public function __construct(
+        ConfigurationRepository $configurationRepository,
+        Link $link
+    ) {
         $this->cfRepos = $configurationRepository;
+        $this->link = $link;
     }
 
     /**
@@ -56,6 +66,8 @@ class Oauth2Client
     }
 
     /**
+     * FIXME: create individual accessors
+     *
      * @param string $clientId
      * @param string $clientSecret
      * @param string $redirectUri
@@ -111,19 +123,15 @@ class Oauth2Client
      */
     public function generateRedirectUri()
     {
-        /** @var Link $link */
-        $link = \Module::getInstanceByName('ps_accounts')
-            ->getService(Link::class);
-
         if (defined('_PS_VERSION_')
             && version_compare(_PS_VERSION_, '9', '>=')) {
-            return $link->getAdminLink('AdminOAuth2PsAccounts', false, [
+            //return $this->link->getAdminLink('SfAdminOAuth2PsAccounts', false);
+            return $this->link->getAdminLink('AdminOAuth2PsAccounts', false, [
                 'route' => 'ps_accounts_oauth2',
             ]);
-            //return $link->getAdminLink('SfAdminOAuth2PsAccounts', false);
         }
 
-        return $link->getAdminLink('AdminOAuth2PsAccounts', false, [], [], true);
+        return $this->link->getAdminLink('AdminOAuth2PsAccounts', false, [], [], true);
     }
 
     /**
@@ -134,13 +142,9 @@ class Oauth2Client
      */
     public function generatePostLogoutRedirectUri()
     {
-        /** @var Link $link */
-        $link = \Module::getInstanceByName('ps_accounts')
-            ->getService(Link::class);
-
-        return $link->getAdminLink('AdminLogin', false, [], [
+        return $this->link->getAdminLink('AdminLogin', false, [], [
             'logout' => 1,
-            \PrestaShop\Module\PsAccounts\Provider\OAuth2\ShopProvider::QUERY_LOGOUT_CALLBACK_PARAM => 1,
+            self::QUERY_LOGOUT_CALLBACK_PARAM => 1,
         ], true);
     }
 
