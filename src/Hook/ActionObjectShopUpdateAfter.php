@@ -24,6 +24,7 @@ use Exception;
 use PrestaShop\Module\PsAccounts\Account\Command\UpdateUserShopCommand;
 use PrestaShop\Module\PsAccounts\Account\Dto\UpdateShop;
 use PrestaShop\Module\PsAccounts\Adapter\Link;
+use PrestaShop\Module\PsAccounts\Provider\OAuth2\Oauth2Client;
 
 class ActionObjectShopUpdateAfter extends Hook
 {
@@ -49,6 +50,15 @@ class ActionObjectShopUpdateAfter extends Hook
         /** @var Link $link */
         $link = $this->module->getService(Link::class);
 
+        /** @var Oauth2Client $oAuth2Client */
+        $oAuth2Client = $this->module->getService(OAuth2Client::class);
+        $oAuth2Client->update(
+            $oAuth2Client->getClientId(),
+            $oAuth2Client->getClientSecret(),
+            $link->fixAdminLink($oAuth2Client->getRedirectUri(), $shop),
+            $link->fixAdminLink($oAuth2Client->getPostLogoutRedirectUri(), $shop)
+        );
+
         try {
             $response = $this->commandBus->handle(new UpdateUserShopCommand(new UpdateShop([
                 'shopId' => (string) $shop->id,
@@ -57,17 +67,7 @@ class ActionObjectShopUpdateAfter extends Hook
                 'sslDomain' => 'https://' . $shop->domain_ssl,
                 'physicalUri' => $shop->physical_uri,
                 'virtualUri' => $shop->virtual_uri,
-                'boBaseUrl' => $link->getAdminLinkWithCustomDomain(
-                    $shop->domain_ssl,
-                    $shop->domain,
-                    'AdminModules',
-                    false,
-                    [],
-                    [
-                        'configure' => $this->module->name,
-                        'setShopContext' => 's-' . $shop->id,
-                    ]
-                ),
+                'boBaseUrl' => $link->fixAdminLink($link->getDashboardLink($shop->id), $shop)
             ])));
 
             if (!$response) {

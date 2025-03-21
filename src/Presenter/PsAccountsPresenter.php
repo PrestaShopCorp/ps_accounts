@@ -21,7 +21,9 @@
 namespace PrestaShop\Module\PsAccounts\Presenter;
 
 use PrestaShop\Module\PsAccounts\Account\LinkShop;
+use PrestaShop\Module\PsAccounts\Adapter\Link;
 use PrestaShop\Module\PsAccounts\Installer\Installer;
+use PrestaShop\Module\PsAccounts\Provider\OAuth2\Oauth2Client;
 use PrestaShop\Module\PsAccounts\Provider\RsaKeysProvider;
 use PrestaShop\Module\PsAccounts\Provider\ShopProvider;
 use PrestaShop\Module\PsAccounts\Repository\ConfigurationRepository;
@@ -70,6 +72,11 @@ class PsAccountsPresenter implements PresenterInterface
     private $rsaKeysProvider;
 
     /**
+     * @var Oauth2Client
+     */
+    private $oAuth2Client;
+
+    /**
      * @param \Ps_accounts $module
      *
      * @throws \Exception
@@ -85,6 +92,7 @@ class PsAccountsPresenter implements PresenterInterface
         $this->installer = $module->getService(Installer::class);
         $this->configuration = $module->getService(ConfigurationRepository::class);
         $this->rsaKeysProvider = $module->getService(RsaKeysProvider::class);
+        $this->oAuth2Client = $module->getService(OAuth2Client::class);
 
         // FIXME: find a better place for this
         $this->configuration->fixMultiShopConfig();
@@ -118,7 +126,10 @@ class PsAccountsPresenter implements PresenterInterface
 
         try {
             $shopsTree = $this->shopProvider->getShopsTree($psxName);
+
             $this->generateAndSetPublicKeys($shopsTree);
+
+            $this->initOAuth2Client();
 
             return array_merge(
                 [
@@ -188,7 +199,7 @@ class PsAccountsPresenter implements PresenterInterface
      *
      * @return void
      */
-    public function generateAndSetPublicKeys(&$shopTree)
+    private function generateAndSetPublicKeys(& $shopTree)
     {
         foreach ($shopTree as &$group) {
             foreach ($group['shops'] as &$shop) {
@@ -196,6 +207,16 @@ class PsAccountsPresenter implements PresenterInterface
                     $shop['publicKey'] = $this->rsaKeysProvider->getOrGenerateAccountsRsaPublicKey();
                 });
             }
+        }
+    }
+
+    /**
+     * @return void
+     */
+    private function initOAuth2Client()
+    {
+        if (!$this->linkShop->exists()) {
+            $this->oAuth2Client->reset();
         }
     }
 }

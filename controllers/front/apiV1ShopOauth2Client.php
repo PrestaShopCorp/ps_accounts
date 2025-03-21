@@ -57,7 +57,12 @@ class ps_AccountsApiV1ShopOauth2ClientModuleFrontController extends AbstractShop
      */
     public function update(Shop $shop, UpdateShopOauth2ClientRequest $request)
     {
-        $this->oauth2Client->update($request->client_id, $request->client_secret);
+        $this->oauth2Client->update(
+            $request->client_id,
+            $request->client_secret,
+            $this->oauth2Client->getRedirectUri(),
+            $this->oauth2Client->getPostLogoutRedirectUri()
+        );
 
         try {
             $this->session->getValidToken();

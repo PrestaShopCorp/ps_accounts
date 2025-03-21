@@ -144,7 +144,7 @@ class OAuth2Controller extends FrameworkBundleAdminController
             /* @phpstan-ignore-next-line */
             'shopUrl' => $this->getContext()->shop->getBaseUrl(true),
             //'oauthRedirectUri' => $this->generateUrl('ps_accounts_oauth2'),
-            'oauthRedirectUri' => $provider->getRedirectUri(),
+            'oauthRedirectUri' => $provider->getOauth2Client()->getRedirectUri(),
             'legacyLoginUri' => $this->generateUrl('admin_login', [
                 'mode' => 'local',
             ]),

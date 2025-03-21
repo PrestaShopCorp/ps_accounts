@@ -124,6 +124,8 @@ class Link
      * @param array $params
      *
      * @return string
+     *
+     * @deprecated in favor of fixAdminLink
      */
     public function getAdminLinkWithCustomDomain($sslDomain, $domain, $controller, $withToken = true, $sfRouteParams = [], $params = [])
     {
@@ -139,6 +141,63 @@ class Link
         }
 
         return $boBaseUrl;
+    }
+
+    /**
+     * @param string $link
+     * @param \Shop $shop
+     *
+     * @return string
+     */
+    public function fixAdminLink($link, \Shop $shop)
+    {
+        $parsedUrl = parse_url($link);
+
+        // fix: domain
+        if ($parsedUrl && isset($parsedUrl['host']) && isset($parsedUrl['scheme'])) {
+            $link =  str_replace(
+                $parsedUrl['host'],
+                $parsedUrl['scheme'] === 'http' ? $shop->domain : $shop->domain_ssl,
+                $link
+            );
+        }
+
+        // fix: physical_uri + virtual_uri
+        if ($parsedUrl && isset($parsedUrl['path'])) {
+            $link = str_replace($parsedUrl['path'], $shop->getBaseURI(), $link);
+        }
+
+        return $link;
+    }
+
+    /**
+     * @param bool $withToken
+     *
+     * @return string
+     */
+    public function getDashboardLink($withToken=false)
+    {
+        return $this->getAdminLink('AdminDashboard', false);
+    }
+
+    /**
+     * @param int $shopId
+     * @param bool $withToken
+     * @param string $moduleName
+     *
+     * @return string
+     */
+    public function getModuleContentsLink($shopId, $withToken=false, $moduleName='ps_accounts')
+    {
+        return $this->getAdminLink(
+            'AdminModules',
+            $withToken,
+            [],
+            [
+                'configure' => $moduleName,
+                'setShopContext' => 's-' . $shopId,
+            ]
+        );
     }
 
     /**
