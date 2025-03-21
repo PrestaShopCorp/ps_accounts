@@ -79,7 +79,7 @@ class ShopProvider
             $shopId = $shopData['id_shop'];
 
             $shop = new Shop([
-                'id' => (string)$shopId,
+                'id' => (string) $shopId,
                 'name' => $shopData['name'],
                 'domain' => $shopData['domain'],
                 'domainSsl' => $shopData['domain_ssl'],

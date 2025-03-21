@@ -67,7 +67,7 @@ class ActionObjectShopUpdateAfter extends Hook
                 'sslDomain' => 'https://' . $shop->domain_ssl,
                 'physicalUri' => $shop->physical_uri,
                 'virtualUri' => $shop->virtual_uri,
-                'boBaseUrl' => $link->fixAdminLink($link->getDashboardLink($shop->id), $shop)
+                'boBaseUrl' => $link->fixAdminLink($link->getDashboardLink($shop->id), $shop),
             ])));
 
             if (!$response) {

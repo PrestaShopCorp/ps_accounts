@@ -155,7 +155,7 @@ class Link
 
         // fix: domain
         if ($parsedUrl && isset($parsedUrl['host']) && isset($parsedUrl['scheme'])) {
-            $link =  str_replace(
+            $link = str_replace(
                 $parsedUrl['host'],
                 $parsedUrl['scheme'] === 'http' ? $shop->domain : $shop->domain_ssl,
                 $link
@@ -175,7 +175,7 @@ class Link
      *
      * @return string
      */
-    public function getDashboardLink($withToken=false)
+    public function getDashboardLink($withToken = false)
     {
         return $this->getAdminLink('AdminDashboard', false);
     }
@@ -187,7 +187,7 @@ class Link
      *
      * @return string
      */
-    public function getModuleContentsLink($shopId, $withToken=false, $moduleName='ps_accounts')
+    public function getModuleContentsLink($shopId, $withToken = false, $moduleName = 'ps_accounts')
     {
         return $this->getAdminLink(
             'AdminModules',

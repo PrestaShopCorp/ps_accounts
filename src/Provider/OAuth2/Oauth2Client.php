@@ -103,7 +103,6 @@ class Oauth2Client
         return $this->cfRepos->getOauth2PostLogoutRedirectUri();
     }
 
-
     /**
      * @example http://my-shop.mydomain/admin-path/index.php?controller=AdminOAuth2PsAccounts
      * @example http://my-shop.mydomain/admin-path/modules/ps_accounts/oauth2
