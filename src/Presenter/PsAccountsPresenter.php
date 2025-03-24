@@ -216,7 +216,7 @@ class PsAccountsPresenter implements PresenterInterface
     private function initOAuth2Client()
     {
         if (!$this->linkShop->exists()) {
-            $this->oAuth2Client->generateUris();
+            $this->oAuth2Client->generateRedirectUris();
         }
     }
 }

@@ -53,6 +53,7 @@ class ActionObjectShopUpdateAfter extends Hook
         /** @var Oauth2Client $oAuth2Client */
         $oAuth2Client = $this->module->getService(OAuth2Client::class);
 
+        // FIXME: we have to do this because \Link::getAdminLink is still not aware of the new urls at that point
         $oAuth2Client->setRedirectUri(
             $link->fixAdminLink($oAuth2Client->getRedirectUri(), $shop)
         );

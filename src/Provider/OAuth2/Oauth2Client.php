@@ -189,7 +189,7 @@ class Oauth2Client
     /**
      * @return void
      */
-    public function generateUris()
+    public function generateRedirectUris()
     {
         $this->setRedirectUri($this->generateRedirectUri());
         $this->setPostLogoutRedirectUri($this->generatePostLogoutRedirectUri());

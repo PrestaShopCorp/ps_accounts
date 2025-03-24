@@ -37,10 +37,6 @@ class ActionObjectShopUrlUpdateAfter extends ActionObjectShopUpdateAfter
 
         if ($shopUrl->main) {
             // Mandatory to get up to date urls
-            // FIXME: \Link::getAdminLink is still not aware of the new urls
-            // TODO: Core issue: Cache::clean('Shop::setUrl_' . (int) $shopUrl->id); is necessary
-            // TODO: Core issue: \Link::getAdminLink is still not aware of the new urls
-            // TODO: Core issue: index.php en fonction du contexte
             // Cache::clear();
             Cache::clean('Shop::setUrl_' . (int) $shopUrl->id);
 
