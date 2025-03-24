@@ -15,6 +15,8 @@ fi
 # Définition des variables
 currentDate=$(date +%s)
 shopVersion=$1
+secondeShopVersion=$2
+profile=${3:-shop}
 psDomain="${currentDate}.${DOMAIN}"
 psAccountsVersion="${PS_ACCOUNTS_VERSION}"
 accountTag="${ACCOUNT_TAG}"
@@ -23,9 +25,19 @@ tunnelId="${TUNNEL_ID}"
 # Ping de l'URL
 appUrl="https://$psDomain"
 
+#Verifie qu'on a bien deux version de shop en multistore
+if [ "$profile" = "multistore" ]; then
+  if [ -z "$secondeShopVersion" ]; then
+    echo "❌ En mode multistore, tu dois fournir une deuxième version de shop."
+    exit 1
+  fi
+else
+  secondeShopVersion=""
+fi
+
 # Exécution de la commande make
 makeFilePath='./'
-makeCommand="make -C $makeFilePath docker-build PS_ACCOUNTS_VERSION=$psAccountsVersion PS_VERSION=$shopVersion PS_DOMAIN=$psDomain TUNNEL_ID=$tunnelId TUNNEL_SECRET=$tunnelSecret ACCOUNT_TAG=$accountTag"
+makeCommand="make -C $makeFilePath docker-build PS_ACCOUNTS_VERSION=$psAccountsVersion PS_VERSION=$shopVersion SECONDE_PS_VERSION=$secondeShopVersion PS_DOMAIN=$psDomain TUNNEL_ID=$tunnelId TUNNEL_SECRET=$tunnelSecret ACCOUNT_TAG=$accountTag PROFILE=$profile"
 eval $makeCommand
 
 # Fonction pour ping l'URL
@@ -74,6 +86,5 @@ BASE_URL=${appUrl}/admin-dev/
 sed -i '' "/^BASE_URL_FO=/c\\
 BASE_URL_FO=${appUrl}
 " .env
-
 
 echo "Tests environment is available at: $appUrl/admin-dev/"
