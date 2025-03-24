@@ -127,9 +127,7 @@ class PsAccountsPresenter implements PresenterInterface
         try {
             $shopsTree = $this->shopProvider->getShopsTree($psxName);
 
-            $this->generateAndSetPublicKeys($shopsTree);
-
-            $this->initOAuth2Client();
+            $this->initShops($shopsTree);
 
             return array_merge(
                 [
@@ -199,24 +197,17 @@ class PsAccountsPresenter implements PresenterInterface
      *
      * @return void
      */
-    private function generateAndSetPublicKeys(&$shopTree)
+    private function initShops(&$shopTree)
     {
         foreach ($shopTree as &$group) {
             foreach ($group['shops'] as &$shop) {
                 $this->shopProvider->getShopContext()->execInShopContext($shop['id'], function () use (&$shop) {
                     $shop['publicKey'] = $this->rsaKeysProvider->getOrGenerateAccountsRsaPublicKey();
+                    if (!$this->linkShop->exists()) {
+                        $this->oAuth2Client->generateRedirectUris();
+                    }
                 });
             }
-        }
-    }
-
-    /**
-     * @return void
-     */
-    private function initOAuth2Client()
-    {
-        if (!$this->linkShop->exists()) {
-            $this->oAuth2Client->generateRedirectUris();
         }
     }
 }
