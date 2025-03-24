@@ -61,13 +61,11 @@ class Oauth2Client
     {
         $this->cfRepos->updateOauth2ClientId('');
         $this->cfRepos->updateOauth2ClientSecret('');
-        $this->cfRepos->updateOauth2RedirectUri('');
-        $this->cfRepos->updateOauth2PostLogoutRedirectUri('');
+        $this->cfRepos->updateOauth2ClientRedirectUri('');
+        $this->cfRepos->updateOauth2ClientPostLogoutRedirectUri('');
     }
 
     /**
-     * FIXME: create individual accessors
-     *
      * @param string $clientId
      * @param string $clientSecret
      * @param string $redirectUri
@@ -77,10 +75,10 @@ class Oauth2Client
      */
     public function update($clientId, $clientSecret, $redirectUri, $postLogoutRedirectUri)
     {
-        $this->cfRepos->updateOauth2ClientId($clientId);
-        $this->cfRepos->updateOauth2ClientSecret($clientSecret);
-        $this->cfRepos->updateOauth2RedirectUri($redirectUri);
-        $this->cfRepos->updateOauth2PostLogoutRedirectUri($postLogoutRedirectUri);
+        $this->setClientId($clientId);
+        $this->setClientSecret($clientSecret);
+        $this->setRedirectUri($redirectUri);
+        $this->setPostLogoutRedirectUri($postLogoutRedirectUri);
     }
 
     /**
@@ -92,6 +90,16 @@ class Oauth2Client
     }
 
     /**
+     * @param string $clientId
+     *
+     * @return void
+     */
+    public function setClientId($clientId)
+    {
+        $this->cfRepos->updateOauth2ClientId($clientId);
+    }
+
+    /**
      * @return string
      */
     public function getClientSecret()
@@ -100,11 +108,31 @@ class Oauth2Client
     }
 
     /**
+     * @param string $clientSecret
+     *
+     * @return void
+     */
+    public function setClientSecret($clientSecret)
+    {
+        $this->cfRepos->updateOauth2ClientSecret($clientSecret);
+    }
+
+    /**
      * @return string
      */
     public function getRedirectUri()
     {
-        return $this->cfRepos->getOauth2RedirectUri();
+        return $this->cfRepos->getOauth2ClientRedirectUri();
+    }
+
+    /**
+     * @param string $redirectUri
+     *
+     * @return void
+     */
+    public function setRedirectUri($redirectUri)
+    {
+        $this->cfRepos->updateOauth2ClientRedirectUri($redirectUri);
     }
 
     /**
@@ -112,7 +140,17 @@ class Oauth2Client
      */
     public function getPostLogoutRedirectUri()
     {
-        return $this->cfRepos->getOauth2PostLogoutRedirectUri();
+        return $this->cfRepos->getOauth2ClientPostLogoutRedirectUri();
+    }
+
+    /**
+     * @param string $postLogoutRedirectUri
+     *
+     * @return void
+     */
+    public function setPostLogoutRedirectUri($postLogoutRedirectUri)
+    {
+        $this->cfRepos->updateOauth2ClientPostLogoutRedirectUri($postLogoutRedirectUri);
     }
 
     /**
@@ -151,13 +189,9 @@ class Oauth2Client
     /**
      * @return void
      */
-    public function reset()
+    public function generateUris()
     {
-        $this->update(
-            $this->getClientId(),
-            $this->getClientSecret(),
-            $this->generateRedirectUri(),
-            $this->generatePostLogoutRedirectUri()
-        );
+        $this->setRedirectUri($this->generateRedirectUri());
+        $this->setPostLogoutRedirectUri($this->generatePostLogoutRedirectUri());
     }
 }

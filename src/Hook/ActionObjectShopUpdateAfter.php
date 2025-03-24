@@ -52,10 +52,11 @@ class ActionObjectShopUpdateAfter extends Hook
 
         /** @var Oauth2Client $oAuth2Client */
         $oAuth2Client = $this->module->getService(OAuth2Client::class);
-        $oAuth2Client->update(
-            $oAuth2Client->getClientId(),
-            $oAuth2Client->getClientSecret(),
-            $link->fixAdminLink($oAuth2Client->getRedirectUri(), $shop),
+
+        $oAuth2Client->setRedirectUri(
+            $link->fixAdminLink($oAuth2Client->getRedirectUri(), $shop)
+        );
+        $oAuth2Client->setPostLogoutRedirectUri(
             $link->fixAdminLink($oAuth2Client->getPostLogoutRedirectUri(), $shop)
         );
 

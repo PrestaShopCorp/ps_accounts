@@ -341,42 +341,6 @@ class ConfigurationRepository
     }
 
     /**
-     * @param string $redirectUri
-     *
-     * @return void
-     */
-    public function updateOauth2RedirectUri($redirectUri)
-    {
-        $this->configuration->set(ConfigurationKeys::PS_ACCOUNTS_OAUTH2_REDIRECT_URI, $redirectUri);
-    }
-
-    /**
-     * @return mixed
-     */
-    public function getOauth2RedirectUri()
-    {
-        return $this->configuration->get(ConfigurationKeys::PS_ACCOUNTS_OAUTH2_REDIRECT_URI);
-    }
-
-    /**
-     * @param string $postLogoutRedirectUri
-     *
-     * @return void
-     */
-    public function updateOauth2PostLogoutRedirectUri($postLogoutRedirectUri)
-    {
-        $this->configuration->set(ConfigurationKeys::PS_ACCOUNTS_OAUTH2_POST_LOGOUT_REDIRECT_URI, $postLogoutRedirectUri);
-    }
-
-    /**
-     * @return mixed
-     */
-    public function getOauth2PostLogoutRedirectUri()
-    {
-        return $this->configuration->get(ConfigurationKeys::PS_ACCOUNTS_OAUTH2_POST_LOGOUT_REDIRECT_URI);
-    }
-
-    /**
      * @param string $secret
      *
      * @return void
@@ -384,6 +348,42 @@ class ConfigurationRepository
     public function updateOauth2ClientSecret($secret)
     {
         $this->configuration->set(ConfigurationKeys::PS_ACCOUNTS_OAUTH2_CLIENT_SECRET, $secret);
+    }
+
+    /**
+     * @param string $redirectUri
+     *
+     * @return void
+     */
+    public function updateOauth2ClientRedirectUri($redirectUri)
+    {
+        $this->configuration->set(ConfigurationKeys::PS_ACCOUNTS_OAUTH2_CLIENT_REDIRECT_URI, $redirectUri);
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getOauth2ClientRedirectUri()
+    {
+        return $this->configuration->get(ConfigurationKeys::PS_ACCOUNTS_OAUTH2_CLIENT_REDIRECT_URI);
+    }
+
+    /**
+     * @param string $postLogoutRedirectUri
+     *
+     * @return void
+     */
+    public function updateOauth2ClientPostLogoutRedirectUri($postLogoutRedirectUri)
+    {
+        $this->configuration->set(ConfigurationKeys::PS_ACCOUNTS_OAUTH2_CLIENT_POST_LOGOUT_REDIRECT_URI, $postLogoutRedirectUri);
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getOauth2ClientPostLogoutRedirectUri()
+    {
+        return $this->configuration->get(ConfigurationKeys::PS_ACCOUNTS_OAUTH2_CLIENT_POST_LOGOUT_REDIRECT_URI);
     }
 
     /**
