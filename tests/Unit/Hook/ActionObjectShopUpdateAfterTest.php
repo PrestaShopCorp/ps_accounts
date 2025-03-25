@@ -38,11 +38,6 @@ class ActionObjectShopUpdateAfterTest extends TestCase
      */
     protected $link;
 
-    protected function set_up()
-    {
-        parent::set_up();
-    }
-
     /**
      * @test
      */
