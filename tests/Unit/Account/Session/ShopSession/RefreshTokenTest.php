@@ -159,9 +159,7 @@ class RefreshTokenTest extends TestCase
             // OAuth2Client exists
             $this->oauth2Client->update(
                 $this->faker->uuid,
-                $this->faker->password,
-                $this->faker->url,
-                $this->faker->url
+                $this->faker->password
             );
 
             $this->shopSession->setOauth2ClientReceiptTimeout(1);

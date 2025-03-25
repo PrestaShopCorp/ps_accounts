@@ -24,9 +24,7 @@ class DeleteTest extends FeatureTestCase
     {
         $this->oauth2Client->update(
             $this->faker->slug,
-            $this->faker->password,
-            $this->faker->url,
-            $this->faker->url
+            $this->faker->password
         );
 
         $response = $this->client->delete('/module/ps_accounts/apiV1ShopOauth2Client', [
