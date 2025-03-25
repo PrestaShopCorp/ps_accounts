@@ -213,6 +213,7 @@ class Link
         if (preg_match('/^.*?([\w\-_]+\.php).*$/', $link, $matches)) {
             return $matches[1];
         }
+
         return '';
     }
 
