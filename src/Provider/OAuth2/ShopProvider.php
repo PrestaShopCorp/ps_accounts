@@ -131,7 +131,5 @@ class ShopProvider extends PrestaShop
     {
         $this->clientId = $this->getOauth2Client()->getClientId();
         $this->clientSecret = $this->getOauth2Client()->getClientSecret();
-        $this->redirectUri = $this->getOauth2Client()->getRedirectUri();
-        $this->postLogoutCallbackUri = $this->getOauth2Client()->getPostLogoutRedirectUri();
     }
 }
