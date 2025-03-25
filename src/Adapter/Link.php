@@ -165,8 +165,9 @@ class Link
         // fix: physical_uri + virtual_uri
         if ($parsedUrl && isset($parsedUrl['path'])) {
             $script = $this->getScript($link);
+            $endSlash = preg_match('/\/$/', $link) ? '/' : '';
             $adminPath = defined('_PS_ADMIN_DIR_') ? _PS_ADMIN_DIR_ : '';
-            $path = preg_replace('/\/+/', '/', $shop->physical_uri . $adminPath . '/' . $script);
+            $path = $this->cleanSlashes('/' . $shop->physical_uri . '/' . $adminPath . ($script ? '/' . $script : '') . $endSlash);
             $link = str_replace($parsedUrl['path'], $path, $link);
         }
 
@@ -215,6 +216,18 @@ class Link
         }
 
         return '';
+    }
+
+    /**
+     * @param string $link
+     *
+     * @return string
+     */
+    public function cleanSlashes($link)
+    {
+        $link = preg_replace('@^(http|https)://@', '\1:SCHEME_SLASHES', $link);
+        $link = preg_replace('/\/+/', '/', $link);
+        return preg_replace('@^(http|https):SCHEME_SLASHES@', '\1://', $link);
     }
 
     /**
