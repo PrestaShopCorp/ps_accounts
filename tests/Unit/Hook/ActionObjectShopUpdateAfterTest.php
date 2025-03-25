@@ -140,7 +140,7 @@ class ActionObjectShopUpdateAfterTest extends TestCase
         $parsedBoBaseUrl = parse_url($params->shop->boBaseUrl);
         $this->assertEquals($domain, $parsedBoBaseUrl['host']);
         $this->assertEquals(
-            preg_replace('/\/+/', '/', '/' . $physicalUri . _PS_ADMIN_DIR_ . ($index ? '/' . $index : '') . '/'),
+            preg_replace('/\/+/', '/', '/' . $physicalUri . _PS_ADMIN_DIR_ . ($index ? '/' . $index : '/')),
             $parsedBoBaseUrl['path']
         );
     }
