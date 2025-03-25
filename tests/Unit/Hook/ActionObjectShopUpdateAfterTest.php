@@ -137,11 +137,11 @@ class ActionObjectShopUpdateAfterTest extends TestCase
         $this->assertEquals($shopToken->getJwt()->claims()->get('sub'), $params->shopUid);
         $this->assertEquals($ownerToken->getJwt()->claims()->get('sub'), $params->ownerUid);
 
-        $parsedNewUrl = parse_url($params->shop->boBaseUrl);
-        $this->assertEquals($domain, $parsedNewUrl['host']);
+        $parsedBoBaseUrl = parse_url($params->shop->boBaseUrl);
+        $this->assertEquals($domain, $parsedBoBaseUrl['host']);
         $this->assertEquals(
-            '/' . $physicalUri . _PS_ADMIN_DIR_ . ($index ? '/' . $index : '') ,
-            $parsedNewUrl['path']
+            preg_replace('/\/+/', '/', '/' . $physicalUri . _PS_ADMIN_DIR_ . ($index ? '/' . $index : '') . '/'),
+            $parsedBoBaseUrl['path']
         );
     }
 

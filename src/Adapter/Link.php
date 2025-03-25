@@ -210,7 +210,10 @@ class Link
      */
     public function getScript($link)
     {
-        return preg_replace('/^.*?([\w\-_]+\.php).*$/', '\1', $link);
+        if (preg_match('/^.*?([\w\-_]+\.php).*$/', $link, $matches)) {
+            return $matches[1];
+        }
+        return '';
     }
 
     /**
