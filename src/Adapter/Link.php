@@ -164,7 +164,10 @@ class Link
 
         // fix: physical_uri + virtual_uri
         if ($parsedUrl && isset($parsedUrl['path'])) {
-            $link = str_replace($parsedUrl['path'], $shop->getBaseURI(), $link);
+            $script = $this->getScript($link);
+            $adminPath = defined('_PS_ADMIN_DIR_') ? _PS_ADMIN_DIR_ : '';
+            $path = preg_replace('/\/+/', '/', $shop->physical_uri . $adminPath . '/' . $script);
+            $link = str_replace($parsedUrl['path'], $path, $link);
         }
 
         return $link;
@@ -198,6 +201,16 @@ class Link
                 'setShopContext' => 's-' . $shopId,
             ]
         );
+    }
+
+    /**
+     * @param string $link
+     *
+     * @return string
+     */
+    public function getScript($link)
+    {
+        return preg_replace('/^.*?([\w\-_]+\.php).*$/', '\1', $link);
     }
 
     /**

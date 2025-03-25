@@ -61,24 +61,18 @@ class Oauth2Client
     {
         $this->cfRepos->updateOauth2ClientId('');
         $this->cfRepos->updateOauth2ClientSecret('');
-        $this->cfRepos->updateOauth2ClientRedirectUri('');
-        $this->cfRepos->updateOauth2ClientPostLogoutRedirectUri('');
     }
 
     /**
      * @param string $clientId
      * @param string $clientSecret
-     * @param string $redirectUri
-     * @param string $postLogoutRedirectUri
      *
      * @return void
      */
-    public function update($clientId, $clientSecret, $redirectUri, $postLogoutRedirectUri)
+    public function update($clientId, $clientSecret)
     {
         $this->setClientId($clientId);
         $this->setClientSecret($clientSecret);
-        $this->setRedirectUri($redirectUri);
-        $this->setPostLogoutRedirectUri($postLogoutRedirectUri);
     }
 
     /**
@@ -118,48 +112,12 @@ class Oauth2Client
     }
 
     /**
-     * @return string
-     */
-    public function getRedirectUri()
-    {
-        return $this->cfRepos->getOauth2ClientRedirectUri();
-    }
-
-    /**
-     * @param string $redirectUri
-     *
-     * @return void
-     */
-    public function setRedirectUri($redirectUri)
-    {
-        $this->cfRepos->updateOauth2ClientRedirectUri($redirectUri);
-    }
-
-    /**
-     * @return string
-     */
-    public function getPostLogoutRedirectUri()
-    {
-        return $this->cfRepos->getOauth2ClientPostLogoutRedirectUri();
-    }
-
-    /**
-     * @param string $postLogoutRedirectUri
-     *
-     * @return void
-     */
-    public function setPostLogoutRedirectUri($postLogoutRedirectUri)
-    {
-        $this->cfRepos->updateOauth2ClientPostLogoutRedirectUri($postLogoutRedirectUri);
-    }
-
-    /**
      * @example http://my-shop.mydomain/admin-path/index.php?controller=AdminOAuth2PsAccounts
      * @example http://my-shop.mydomain/admin-path/modules/ps_accounts/oauth2
      *
      * @return string
      */
-    public function generateRedirectUri()
+    public function getRedirectUri()
     {
         if (defined('_PS_VERSION_')
             && version_compare(_PS_VERSION_, '9', '>=')) {
@@ -178,20 +136,11 @@ class Oauth2Client
      *
      * @return string
      */
-    public function generatePostLogoutRedirectUri()
+    public function getPostLogoutRedirectUri()
     {
         return $this->link->getAdminLink('AdminLogin', false, [], [
             'logout' => 1,
             self::QUERY_LOGOUT_CALLBACK_PARAM => 1,
         ], true);
-    }
-
-    /**
-     * @return void
-     */
-    public function generateRedirectUris()
-    {
-        $this->setRedirectUri($this->generateRedirectUri());
-        $this->setPostLogoutRedirectUri($this->generatePostLogoutRedirectUri());
     }
 }
