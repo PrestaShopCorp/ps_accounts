@@ -121,10 +121,7 @@ class Oauth2Client
     {
         if (defined('_PS_VERSION_')
             && version_compare(_PS_VERSION_, '9', '>=')) {
-            //return $this->link->getAdminLink('SfAdminOAuth2PsAccounts', false);
-            return $this->link->getAdminLink('AdminOAuth2PsAccounts', false, [
-                'route' => 'ps_accounts_oauth2',
-            ]);
+            return $this->link->getAdminLink('SfAdminOAuth2PsAccounts', false);
         }
 
         return $this->link->getAdminLink('AdminOAuth2PsAccounts', false, [], [], true);

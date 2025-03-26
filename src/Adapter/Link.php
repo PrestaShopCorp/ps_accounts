@@ -114,6 +114,36 @@ class Link
     }
 
     /**
+     * @param bool $withToken
+     *
+     * @return string
+     */
+    public function getDashboardLink($withToken = false)
+    {
+        return $this->getAdminLink('AdminDashboard', false);
+    }
+
+    /**
+     * @param int $shopId
+     * @param bool $withToken
+     * @param string $moduleName
+     *
+     * @return string
+     */
+    public function getModuleContentsLink($shopId, $withToken = false, $moduleName = 'ps_accounts')
+    {
+        return $this->getAdminLink(
+            'AdminModules',
+            $withToken,
+            [],
+            [
+                'configure' => $moduleName,
+                'setShopContext' => 's-' . $shopId,
+            ]
+        );
+    }
+
+    /**
      * Adapter to get adminLink with custom domain
      *
      * @param string $sslDomain shop ssl domain
@@ -175,36 +205,6 @@ class Link
         }
 
         return $link;
-    }
-
-    /**
-     * @param bool $withToken
-     *
-     * @return string
-     */
-    public function getDashboardLink($withToken = false)
-    {
-        return $this->getAdminLink('AdminDashboard', false);
-    }
-
-    /**
-     * @param int $shopId
-     * @param bool $withToken
-     * @param string $moduleName
-     *
-     * @return string
-     */
-    public function getModuleContentsLink($shopId, $withToken = false, $moduleName = 'ps_accounts')
-    {
-        return $this->getAdminLink(
-            'AdminModules',
-            $withToken,
-            [],
-            [
-                'configure' => $moduleName,
-                'setShopContext' => 's-' . $shopId,
-            ]
-        );
     }
 
     /**

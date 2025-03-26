@@ -8,7 +8,6 @@ use PrestaShop\Module\PsAccounts\Account\Session\Firebase;
 use PrestaShop\Module\PsAccounts\Account\Token\Token;
 use PrestaShop\Module\PsAccounts\Adapter\Link;
 use PrestaShop\Module\PsAccounts\Api\Client\AccountsClient;
-use PrestaShop\Module\PsAccounts\Provider\OAuth2\Oauth2Client;
 use PrestaShop\Module\PsAccounts\Tests\TestCase;
 
 class Params {
@@ -142,12 +141,6 @@ class ActionObjectShopUpdateAfterTest extends TestCase
         $this->assertEquals($ownerToken->getJwt()->claims()->get('sub'), $params->ownerUid);
 
         $parsedBoBaseUrl = parse_url($params->shop->boBaseUrl);
-
-        echo             $this->link->cleanSlashes(
-            '/' . $physicalUri . _PS_ADMIN_DIR_ . ($index ? '/' . $index : '/') . $trailingSlash
-        ) . PHP_EOL;
-        echo $parsedBoBaseUrl['path'] . PHP_EOL;
-
         $this->assertEquals($domain, $parsedBoBaseUrl['host']);
         $this->assertEquals(
             $this->link->cleanSlashes(
