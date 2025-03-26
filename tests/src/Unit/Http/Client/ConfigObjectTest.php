@@ -1,6 +1,6 @@
 <?php
 
-namespace PrestaShop\Module\PsAccounts\Tests\Unit\Type;
+namespace PrestaShop\Module\PsAccounts\Tests\Unit\Http\Client;
 
 use PrestaShop\Module\PsAccounts\Http\Client\ConfigObject;
 use PrestaShop\Module\PsAccounts\Tests\TestCase;

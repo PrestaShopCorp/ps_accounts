@@ -82,7 +82,7 @@ class TestCase extends \PrestaShop\Module\PsAccounts\Tests\TestCase
      */
     protected function getTestBaseDir()
     {
-        return __DIR__ . DIRECTORY_SEPARATOR . '../../..';
+        return __DIR__ . DIRECTORY_SEPARATOR . '../../../..';
     }
 
     /**

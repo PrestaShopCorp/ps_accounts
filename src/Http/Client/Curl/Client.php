@@ -201,16 +201,16 @@ class Client
      */
     protected function initHeaders(Request $request)
     {
-        $assoc = $this->config->headers;
-        if (!empty($request->headers)) {
-            $assoc = array_merge($assoc, $request->headers);
-        }
+        $defaults = [];
         if (!empty($request->json)) {
-            $assoc['Content-Type'] = 'application/json';
+            $defaults['Content-Type'] = 'application/json';
+        } elseif (!empty($request->form)) {
+            $defaults['Content-Type'] = 'application/x-www-form-urlencoded';
         }
 
         $headers = [];
-        foreach ($assoc as $header => $value) {
+        foreach (array_merge($defaults, $this->config->headers, $request->headers)
+                 as $header => $value) {
             $headers[] = "$header: $value";
         }
 
