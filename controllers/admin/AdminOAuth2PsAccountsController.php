@@ -27,6 +27,7 @@ use PrestaShop\Module\PsAccounts\Log\Logger;
 use PrestaShop\Module\PsAccounts\Polyfill\Traits\AdminController\IsAnonymousAllowed;
 use PrestaShop\Module\PsAccounts\Service\AnalyticsService;
 use PrestaShop\Module\PsAccounts\Service\OAuth2\OAuth2Service;
+use PrestaShop\Module\PsAccounts\Service\OAuth2\Resource\AccessToken;
 use PrestaShop\Module\PsAccounts\Service\OAuth2\Resource\UserInfo;
 use PrestaShop\Module\PsAccounts\Service\PsAccountsService;
 use Symfony\Component\HttpFoundation\Session\SessionInterface;
@@ -105,16 +106,33 @@ class AdminOAuth2PsAccountsController extends \ModuleAdminController
     }
 
     /**
-     * @param UserInfo $user
+     * @param AccessToken $accessToken
      *
      * @return bool
      *
      * @throws EmailNotVerifiedException
      * @throws EmployeeNotFoundException
-     * @throws Exception
      */
-    protected function initUserSession(UserInfo $user)
+    protected function initUserSession(AccessToken $accessToken)
     {
+        $user = $this->getOAuth2Service()->getUserInfo($accessToken->access_token);
+
+        Logger::getInstance()->info(
+            '[OAuth2] ' . (string) json_encode($user->toArray(), JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE)
+        );
+
+        if ($this->getAction() === 'identifyPointOfContact') {
+            // Set point of contact
+            /** @var \PrestaShop\Module\PsAccounts\Adapter\Configuration $configStorage */
+            $configStorage = $this->module->getService(\PrestaShop\Module\PsAccounts\Adapter\Configuration::class);
+            $configStorage->set('PS_ACCOUNTS_CONTACT_EMAIL', $user->email);
+
+            return true;
+        }
+
+        $this->getOauth2Session()->setTokenProvider($accessToken);
+        //$user = $oauth2Session->getUserInfo();
+
         Logger::getInstance()->info(
             '[OAuth2] ' . (string) print_r($user, true)
         );
@@ -179,6 +197,16 @@ class AdminOAuth2PsAccountsController extends \ModuleAdminController
      */
     protected function redirectAfterLogin()
     {
+        if ($this->getAction() === 'identifyPointOfContact') {
+            // Refresh configuration page
+            echo <<<HTML
+<script type="text/javascript">
+window.opener.location.reload();
+window.close();
+</script>
+HTML;
+            die;
+        }
         $returnTo = $this->getSessionReturnTo() ?: 'AdminDashboard';
         if (preg_match('/^([A-Z][a-z0-9]+)+$/', $returnTo)) {
             $returnTo = $this->context->link->getAdminLink($returnTo);

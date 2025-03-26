@@ -32,6 +32,7 @@ use PrestaShop\Module\PsAccounts\Api\Client\ExternalAssetsClient;
 use PrestaShop\Module\PsAccounts\Log\Logger;
 use PrestaShop\Module\PsAccounts\Service\AnalyticsService;
 use PrestaShop\Module\PsAccounts\Service\OAuth2\OAuth2Service;
+use PrestaShop\Module\PsAccounts\Service\OAuth2\Resource\AccessToken;
 use PrestaShop\Module\PsAccounts\Service\OAuth2\Resource\UserInfo;
 use PrestaShop\Module\PsAccounts\Service\PsAccountsService;
 use PrestaShopBundle\Controller\Admin\FrameworkBundleAdminController;
@@ -177,18 +178,32 @@ class OAuth2Controller extends FrameworkBundleAdminController
     }
 
     /**
-     * @param UserInfo $user
+     * @param AccessToken $accessToken
      *
      * @return bool
      *
      * @throws EmailNotVerifiedException
      * @throws EmployeeNotFoundException
      */
-    protected function initUserSession(UserInfo $user)
+    protected function initUserSession(AccessToken $accessToken)
     {
+        $user = $this->getOAuth2Service()->getUserInfo($accessToken->access_token);
+
         Logger::getInstance()->info(
             '[OAuth2] ' . (string) json_encode($user->toArray(), JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE)
         );
+
+        if ($this->getAction() === 'identifyPointOfContact') {
+            // Set point of contact
+            /** @var \PrestaShop\Module\PsAccounts\Adapter\Configuration $configStorage */
+            $configStorage = $this->module->getService(\PrestaShop\Module\PsAccounts\Adapter\Configuration::class);
+            $configStorage->set('PS_ACCOUNTS_CONTACT_EMAIL', $user->email);
+
+            return true;
+        }
+
+        $this->getOauth2Session()->setTokenProvider($accessToken);
+        //$user = $oauth2Session->getUserInfo();
 
         //$context = $this->context;
         /** @var \Context $context */
@@ -227,11 +242,19 @@ class OAuth2Controller extends FrameworkBundleAdminController
     }
 
     /**
-     * @return RedirectResponse
+     * @return Response
      */
     protected function redirectAfterLogin()
     {
-        // FIXME: requires some testing
+        if ($this->getAction() === 'identifyPointOfContact') {
+            return (new Response())->setContent(<<<HTML
+<script type="text/javascript">
+window.opener.location.reload();
+window.close();
+</script>
+HTML
+            );
+        }
         return $this->redirectResponse;
     }
 

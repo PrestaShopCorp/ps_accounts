@@ -21,10 +21,12 @@
 namespace PrestaShop\Module\PsAccounts\Presenter;
 
 use PrestaShop\Module\PsAccounts\Account\LinkShop;
+use PrestaShop\Module\PsAccounts\Adapter\Configuration;
 use PrestaShop\Module\PsAccounts\Installer\Installer;
 use PrestaShop\Module\PsAccounts\Provider\RsaKeysProvider;
 use PrestaShop\Module\PsAccounts\Provider\ShopProvider;
 use PrestaShop\Module\PsAccounts\Repository\ConfigurationRepository;
+use PrestaShop\Module\PsAccounts\Service\OAuth2\OAuth2Service;
 use PrestaShop\Module\PsAccounts\Service\PsAccountsService;
 use PrestaShop\Module\PsAccounts\Service\SentryService;
 use PrestaShopException;
@@ -70,6 +72,11 @@ class PsAccountsPresenter implements PresenterInterface
     private $rsaKeysProvider;
 
     /**
+     * @var OAuth2Service
+     */
+    private $oAuth2Service;
+
+    /**
      * @param \Ps_accounts $module
      *
      * @throws \Exception
@@ -85,6 +92,7 @@ class PsAccountsPresenter implements PresenterInterface
         $this->installer = $module->getService(Installer::class);
         $this->configuration = $module->getService(ConfigurationRepository::class);
         $this->rsaKeysProvider = $module->getService(RsaKeysProvider::class);
+        $this->oAuth2Service = $module->getService(OAuth2Service::class);
 
         // FIXME: find a better place for this
         $this->configuration->fixMultiShopConfig();
@@ -173,6 +181,15 @@ class PsAccountsPresenter implements PresenterInterface
                     'adminAjaxLink' => $this->psAccountsService->getAdminAjaxUrl(),
 
                     'accountsUiUrl' => $this->module->getParameter('ps_accounts.accounts_ui_url'),
+
+                    // 1- open a popup
+                    // 2- callback inject JS close popup & refresh parent
+                    // OU ajax call parent to refresh state (from ajax call to BO state Polling or ??)
+                    'identifyUrl' => $this->oAuth2Service->getAuthRedirectUri([
+                        'action' => 'identifyPointOfContact'
+                    ]),
+                    'contactEmail' => $this->module->getService(Configuration::class)
+                        ->get('PS_ACCOUNTS_CONTACT_EMAIL', '')
                 ],
                 (new DependenciesPresenter())->present($psxName)
             );
