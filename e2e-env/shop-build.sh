@@ -15,7 +15,7 @@ fi
 # Définition des variables
 currentDate=$(date +%s)
 shopVersion=$1
-secondeShopVersion=$2
+shopVersionSecondeShop=$2
 profile=${3:-shop}
 psDomain="${currentDate}.${DOMAIN}"
 psAccountsVersion="${PS_ACCOUNTS_VERSION}"
@@ -27,17 +27,17 @@ appUrl="https://$psDomain"
 
 #Verifie qu'on a bien deux version de shop en multistore
 if [ "$profile" = "multistore" ]; then
-  if [ -z "$secondeShopVersion" ]; then
+  if [ -z "$shopVersionSecondeShop" ]; then
     echo "❌ En mode multistore, tu dois fournir une deuxième version de shop."
     exit 1
   fi
 else
-  secondeShopVersion=""
+  shopVersionSecondeShop=""
 fi
 
 # Exécution de la commande make
 makeFilePath='./'
-makeCommand="make -C $makeFilePath docker-build PS_ACCOUNTS_VERSION=$psAccountsVersion PS_VERSION=$shopVersion SECONDE_PS_VERSION=$secondeShopVersion PS_DOMAIN=$psDomain TUNNEL_ID=$tunnelId TUNNEL_SECRET=$tunnelSecret ACCOUNT_TAG=$accountTag PROFILE=$profile"
+makeCommand="make -C $makeFilePath docker-build PS_ACCOUNTS_VERSION=$psAccountsVersion PS_VERSION=$shopVersion SECONDE_PS_VERSION=$shopVersionSecondeShop PS_DOMAIN=$psDomain TUNNEL_ID=$tunnelId TUNNEL_SECRET=$tunnelSecret ACCOUNT_TAG=$accountTag PROFILE=$profile"
 eval $makeCommand
 
 # Fonction pour ping l'URL
