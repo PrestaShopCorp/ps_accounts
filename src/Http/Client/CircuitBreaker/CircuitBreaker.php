@@ -22,8 +22,6 @@ namespace PrestaShop\Module\PsAccounts\Http\Client\CircuitBreaker;
 
 use DateTime;
 use PrestaShop\Module\PsAccounts\Log\Logger;
-use PrestaShop\Module\PsAccounts\Vendor\GuzzleHttp\Exception\ConnectException;
-use PrestaShop\Module\PsAccounts\Vendor\GuzzleHttp\Exception\RequestException;
 
 abstract class CircuitBreaker
 {
@@ -37,7 +35,7 @@ abstract class CircuitBreaker
     protected $resourceId;
 
     /** @var mixed */
-    protected $defaultFallbackResponse;
+    protected $fallbackResponse;
 
     /**
      * @param string $resourceId
@@ -61,16 +59,15 @@ abstract class CircuitBreaker
                 $this->reset();
 
                 return $result;
-            } catch (ConnectException $e) {
-                // FIXME: CircuitBreak bound to GuzzleException
-                $this->setLastFailure();
-                Logger::getInstance()->error($e->getMessage());
-            } catch (RequestException $e) {
+            } catch (CircuitBreakerException $e) {
+                if ($e->isBreaking()) {
+                    $this->setLastFailure();
+                }
                 Logger::getInstance()->error($e->getMessage());
             }
         }
 
-        return isset($fallbackResponse) ? $fallbackResponse : $this->defaultFallbackResponse;
+        return isset($fallbackResponse) ? $fallbackResponse : $this->fallbackResponse;
     }
 
     /**
@@ -83,13 +80,21 @@ abstract class CircuitBreaker
     }
 
     /**
-     * @param mixed $defaultFallbackResponse
+     * @return mixed
+     */
+    public function getFallbackResponse()
+    {
+        return $this->fallbackResponse;
+    }
+
+    /**
+     * @param mixed $fallbackResponse
      *
      * @return void
      */
-    public function setDefaultFallbackResponse($defaultFallbackResponse)
+    public function setFallbackResponse($fallbackResponse)
     {
-        $this->defaultFallbackResponse = $defaultFallbackResponse;
+        $this->fallbackResponse = $fallbackResponse;
     }
 
     /**
