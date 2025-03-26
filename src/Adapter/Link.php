@@ -165,9 +165,12 @@ class Link
         // fix: physical_uri + virtual_uri
         if ($parsedUrl && isset($parsedUrl['path'])) {
             $script = $this->getScript($link);
-            $endSlash = preg_match('/\/$/', $link) ? '/' : '';
-            $adminPath = defined('_PS_ADMIN_DIR_') ? _PS_ADMIN_DIR_ : '';
-            $path = $this->cleanSlashes('/' . $shop->physical_uri . '/' . $adminPath . ($script ? '/' . $script : '') . $endSlash);
+            $path = $this->cleanSlashes(
+                '/' . $shop->physical_uri . '/' .
+                (defined('_PS_ADMIN_DIR_') ? _PS_ADMIN_DIR_ : '') .
+                ($script ? '/' . $script : '') .
+                $this->getTrailingSlash($link)
+            );
             $link = str_replace($parsedUrl['path'], $path, $link);
         }
 
@@ -227,7 +230,18 @@ class Link
     {
         $link = preg_replace('@^(http|https)://@', '\1:SCHEME_SLASHES', $link);
         $link = preg_replace('/\/+/', '/', $link);
+
         return preg_replace('@^(http|https):SCHEME_SLASHES@', '\1://', $link);
+    }
+
+    /**
+     * @param string $link
+     *
+     * @return string
+     */
+    public function getTrailingSlash($link)
+    {
+        return preg_match('/\/(\?|$)/', $link) ? '/' : '';
     }
 
     /**

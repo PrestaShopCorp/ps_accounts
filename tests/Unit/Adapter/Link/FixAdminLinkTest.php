@@ -15,8 +15,6 @@ class FixAdminLinkTest extends TestCase
      */
     protected $link;
 
-    // TODO: OAuth2ClientTest
-
     public function data()
     {
         return [
@@ -65,6 +63,15 @@ class FixAdminLinkTest extends TestCase
                 '',
                 '/',
             ],
+            [
+                'https://',
+                'www.donut.com/tata/' . _PS_ADMIN_DIR_ . '/?controller=AdminDash',
+                'foobar.com',
+                'foobar-ssl.com',
+                '',
+                '',
+                '/',
+            ],
         ];
     }
 
@@ -80,7 +87,7 @@ class FixAdminLinkTest extends TestCase
         $domainSsl,
         $physicalUri,
         $index,
-        $endSlash
+        $trailingSlash
     ) {
         $uri = $this->link->cleanSlashes($uri);
 
@@ -104,7 +111,7 @@ class FixAdminLinkTest extends TestCase
         );
         $this->assertEquals(
             $this->link->cleanSlashes(
-                '/' . $physicalUri . _PS_ADMIN_DIR_ . ($index ? '/' . $index : '') . $endSlash
+                '/' . $physicalUri . _PS_ADMIN_DIR_ . ($index ? '/' . $index : '') . $trailingSlash
             ),
             $parsed['path']
         );

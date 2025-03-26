@@ -107,7 +107,11 @@ class ActionObjectShopUpdateAfterTest extends TestCase
         $domainSsl = $this->faker->domainName;
         $physicalUri = $this->faker->slug(1);
         $virtualUri = $this->faker->slug(1);
-        $index = $this->link->getScript($this->link->getDashboardLink());
+        $dashboardLink = $this->link->getDashboardLink();
+        $trailingSlash = $this->link->getTrailingSlash($dashboardLink);
+        $index = $this->link->getScript($dashboardLink);
+
+        echo $dashboardLink . PHP_EOL;
 
         $shopUrl->domain = $domain;
         $shopUrl->domain_ssl = $domainSsl;
@@ -138,9 +142,17 @@ class ActionObjectShopUpdateAfterTest extends TestCase
         $this->assertEquals($ownerToken->getJwt()->claims()->get('sub'), $params->ownerUid);
 
         $parsedBoBaseUrl = parse_url($params->shop->boBaseUrl);
+
+        echo             $this->link->cleanSlashes(
+            '/' . $physicalUri . _PS_ADMIN_DIR_ . ($index ? '/' . $index : '/') . $trailingSlash
+        ) . PHP_EOL;
+        echo $parsedBoBaseUrl['path'] . PHP_EOL;
+
         $this->assertEquals($domain, $parsedBoBaseUrl['host']);
         $this->assertEquals(
-            $this->link->cleanSlashes('/' . $physicalUri . _PS_ADMIN_DIR_ . ($index ? '/' . $index : '/')),
+            $this->link->cleanSlashes(
+                '/' . $physicalUri . _PS_ADMIN_DIR_ . ($index ? '/' . $index : '/') . $trailingSlash
+            ),
             $parsedBoBaseUrl['path']
         );
     }
