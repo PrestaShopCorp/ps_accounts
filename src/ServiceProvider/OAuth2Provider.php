@@ -20,7 +20,6 @@
 
 namespace PrestaShop\Module\PsAccounts\ServiceProvider;
 
-use PrestaShop\Module\PsAccounts\AccountLogin\Middleware\Oauth2Middleware;
 use PrestaShop\Module\PsAccounts\AccountLogin\OAuth2Session;
 use PrestaShop\Module\PsAccounts\Adapter\Link;
 use PrestaShop\Module\PsAccounts\Http\Client\ClientConfig;
@@ -66,12 +65,6 @@ class OAuth2Provider implements IServiceProvider
         });
         $container->registerProvider(PrestaShopSession::class, static function () use ($container) {
             return $container->getService(OAuth2Session::class);
-        });
-        // Middleware
-        $container->registerProvider(Oauth2Middleware::class, static function () use ($container) {
-            return new Oauth2Middleware(
-                $container->get('ps_accounts.module')
-            );
         });
     }
 }

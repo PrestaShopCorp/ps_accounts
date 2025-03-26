@@ -158,7 +158,9 @@ trait OAuth2LoginTrait
             $state,
             $pkceCode,
             'S256',
-            $locale
+            $locale,
+            '',
+            'login'
         );
 
         // Redirect the user to the authorization URL.

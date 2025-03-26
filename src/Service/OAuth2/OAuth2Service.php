@@ -275,6 +275,7 @@ class OAuth2Service
      * @param string $pkceMethod
      * @param string $uiLocales
      * @param string $acrValues
+     * @param string $prompt
      *
      * @return string authorization flow uri
      *
@@ -285,7 +286,8 @@ class OAuth2Service
         $pkceCode = null,
         $pkceMethod = 'S256',
         $uiLocales = 'fr',
-        $acrValues = 'prompt:login'
+        $acrValues = 'prompt:login',
+        $prompt = 'none'
     ) {
         $this->assertClientExists();
 
@@ -299,6 +301,7 @@ class OAuth2Service
                 'redirect_uri' => $this->getAuthRedirectUri(),
                 'client_id' => $this->oAuth2Client->getClientId(),
                 'acr_values' => $acrValues,
+                'prompt' => $prompt,
             ], $pkceCode ? [
                 'code_challenge' => trim(strtr(base64_encode(hash('sha256', $pkceCode, true)), '+/', '-_'), '='),
                 'code_challenge_method' => $pkceMethod,
