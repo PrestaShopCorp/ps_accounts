@@ -20,7 +20,7 @@
 
 use PrestaShop\Module\PsAccounts\Api\Client\ExternalAssetsClient;
 use PrestaShop\Module\PsAccounts\Polyfill\Traits\AdminController\IsAnonymousAllowed;
-use PrestaShop\Module\PsAccounts\Provider\OAuth2\ShopProvider;
+use PrestaShop\Module\PsAccounts\Provider\OAuth2\Oauth2Client;
 
 class AdminLoginPsAccountsController extends \AdminController
 {
@@ -132,8 +132,8 @@ class AdminLoginPsAccountsController extends \AdminController
      */
     public function createTemplate($tpl_name)
     {
-        /** @var ShopProvider $provider */
-        $provider = $this->module->getService(ShopProvider::class);
+        /** @var Oauth2Client $oAuth2Client */
+        $oAuth2Client = $this->module->getService(Oauth2Client::class);
 
         $testimonials = $this->getTestimonials();
 
@@ -145,7 +145,7 @@ class AdminLoginPsAccountsController extends \AdminController
         $this->context->smarty->assign([
             /* @phpstan-ignore-next-line */
             'shopUrl' => $this->context->shop->getBaseUrl(true),
-            'oauthRedirectUri' => $provider->getRedirectUri(),
+            'oauthRedirectUri' => $oAuth2Client->getRedirectUri(),
             'legacyLoginUri' => $this->context->link->getAdminLink(
                 'AdminLogin', true, [], [
                 'mode' => self::PARAM_MODE_LOCAL,

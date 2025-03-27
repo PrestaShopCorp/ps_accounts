@@ -149,7 +149,10 @@ trait PrestaShopLoginTrait
         // Fetch the authorization URL from the provider; this returns the
         // urlAuthorize option and generates and applies any necessary parameters
         // (e.g. state).
-        $authorizationUrl = $provider->getAuthorizationUrl(['ui_locales' => $locale]);
+        $authorizationUrl = $provider->getAuthorizationUrl([
+            'ui_locales' => $locale,
+            'prompt' => 'login',
+        ]);
 
         // Store the PKCE code after the `getAuthorizationUrl()` call.
         //$_SESSION['oauth2pkceCode'] = $provider->getPkceCode();

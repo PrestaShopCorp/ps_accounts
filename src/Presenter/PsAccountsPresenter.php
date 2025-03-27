@@ -21,6 +21,7 @@
 namespace PrestaShop\Module\PsAccounts\Presenter;
 
 use PrestaShop\Module\PsAccounts\Account\LinkShop;
+use PrestaShop\Module\PsAccounts\Adapter\Link;
 use PrestaShop\Module\PsAccounts\Installer\Installer;
 use PrestaShop\Module\PsAccounts\Provider\RsaKeysProvider;
 use PrestaShop\Module\PsAccounts\Provider\ShopProvider;
@@ -118,7 +119,8 @@ class PsAccountsPresenter implements PresenterInterface
 
         try {
             $shopsTree = $this->shopProvider->getShopsTree($psxName);
-            $this->generateAndSetPublicKeys($shopsTree);
+
+            $this->initShops($shopsTree);
 
             return array_merge(
                 [
@@ -188,7 +190,7 @@ class PsAccountsPresenter implements PresenterInterface
      *
      * @return void
      */
-    public function generateAndSetPublicKeys(&$shopTree)
+    private function initShops(&$shopTree)
     {
         foreach ($shopTree as &$group) {
             foreach ($group['shops'] as &$shop) {
