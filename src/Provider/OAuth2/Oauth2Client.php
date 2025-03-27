@@ -71,8 +71,8 @@ class Oauth2Client
      */
     public function update($clientId, $clientSecret)
     {
-        $this->setClientId($clientId);
-        $this->setClientSecret($clientSecret);
+        $this->cfRepos->updateOauth2ClientId($clientId);
+        $this->cfRepos->updateOauth2ClientSecret($clientSecret);
     }
 
     /**
