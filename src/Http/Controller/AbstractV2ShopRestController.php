@@ -23,7 +23,7 @@ namespace PrestaShop\Module\PsAccounts\Http\Controller;
 use PrestaShop\Module\PsAccounts\Http\Exception\NotFoundException;
 use Shop;
 
-class AbstractShopRestController extends AbstractRestController
+class AbstractV2ShopRestController extends AbstractV2RestController
 {
     /**
      * @var string
