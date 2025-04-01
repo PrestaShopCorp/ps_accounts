@@ -114,6 +114,36 @@ class Link
     }
 
     /**
+     * @param bool $withToken
+     *
+     * @return string
+     */
+    public function getDashboardLink($withToken = false)
+    {
+        return $this->getAdminLink('AdminDashboard', false);
+    }
+
+    /**
+     * @param int $shopId
+     * @param bool $withToken
+     * @param string $moduleName
+     *
+     * @return string
+     */
+    public function getModuleContentsLink($shopId, $withToken = false, $moduleName = 'ps_accounts')
+    {
+        return $this->getAdminLink(
+            'AdminModules',
+            $withToken,
+            [],
+            [
+                'configure' => $moduleName,
+                'setShopContext' => 's-' . $shopId,
+            ]
+        );
+    }
+
+    /**
      * Adapter to get adminLink with custom domain
      *
      * @param string $sslDomain shop ssl domain
@@ -124,6 +154,8 @@ class Link
      * @param array $params
      *
      * @return string
+     *
+     * @deprecated in favor of fixAdminLink
      */
     public function getAdminLinkWithCustomDomain($sslDomain, $domain, $controller, $withToken = true, $sfRouteParams = [], $params = [])
     {
@@ -139,6 +171,77 @@ class Link
         }
 
         return $boBaseUrl;
+    }
+
+    /**
+     * @param string $link
+     * @param \Shop $shop
+     *
+     * @return string
+     */
+    public function fixAdminLink($link, \Shop $shop)
+    {
+        $parsedUrl = parse_url($link);
+
+        // fix: domain
+        if ($parsedUrl && isset($parsedUrl['host']) && isset($parsedUrl['scheme'])) {
+            $link = str_replace(
+                $parsedUrl['host'],
+                $parsedUrl['scheme'] === 'http' ? $shop->domain : $shop->domain_ssl,
+                $link
+            );
+        }
+
+        // fix: physical_uri + virtual_uri
+        if ($parsedUrl && isset($parsedUrl['path'])) {
+            $script = $this->getScript($link);
+            $path = $this->cleanSlashes(
+                '/' . $shop->physical_uri . '/' .
+                (defined('_PS_ADMIN_DIR_') ? _PS_ADMIN_DIR_ : '') .
+                ($script ? '/' . $script : '') .
+                $this->getTrailingSlash($link)
+            );
+            $link = str_replace($parsedUrl['path'], $path, $link);
+        }
+
+        return $link;
+    }
+
+    /**
+     * @param string $link
+     *
+     * @return string
+     */
+    public function getScript($link)
+    {
+        if (preg_match('/^.*?([\w\-_]+\.php).*$/', $link, $matches)) {
+            return $matches[1];
+        }
+
+        return '';
+    }
+
+    /**
+     * @param string $link
+     *
+     * @return string
+     */
+    public function cleanSlashes($link)
+    {
+        $link = preg_replace('@^(http|https)://@', '\1:SCHEME_SLASHES', $link);
+        $link = preg_replace('/\/+/', '/', $link);
+
+        return preg_replace('@^(http|https):SCHEME_SLASHES@', '\1://', $link);
+    }
+
+    /**
+     * @param string $link
+     *
+     * @return string
+     */
+    public function getTrailingSlash($link)
+    {
+        return preg_match('/\/(\?|$)/', $link) ? '/' : '';
     }
 
     /**

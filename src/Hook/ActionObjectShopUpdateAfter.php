@@ -24,9 +24,22 @@ use Exception;
 use PrestaShop\Module\PsAccounts\Account\Command\UpdateUserShopCommand;
 use PrestaShop\Module\PsAccounts\Account\Dto\UpdateShop;
 use PrestaShop\Module\PsAccounts\Adapter\Link;
+use Ps_accounts;
 
 class ActionObjectShopUpdateAfter extends Hook
 {
+    /**
+     * @var Link
+     */
+    private $link;
+
+    public function __construct(Ps_accounts $module)
+    {
+        parent::__construct($module);
+
+        $this->link = $this->module->getService(Link::class);
+    }
+
     /**
      * @param array $params
      *
@@ -46,9 +59,6 @@ class ActionObjectShopUpdateAfter extends Hook
      */
     protected function updateUserShop(\Shop $shop)
     {
-        /** @var Link $link */
-        $link = $this->module->getService(Link::class);
-
         try {
             $response = $this->commandBus->handle(new UpdateUserShopCommand(new UpdateShop([
                 'shopId' => (string) $shop->id,
@@ -57,17 +67,7 @@ class ActionObjectShopUpdateAfter extends Hook
                 'sslDomain' => 'https://' . $shop->domain_ssl,
                 'physicalUri' => $shop->physical_uri,
                 'virtualUri' => $shop->virtual_uri,
-                'boBaseUrl' => $link->getAdminLinkWithCustomDomain(
-                    $shop->domain_ssl,
-                    $shop->domain,
-                    'AdminModules',
-                    false,
-                    [],
-                    [
-                        'configure' => $this->module->name,
-                        'setShopContext' => 's-' . $shop->id,
-                    ]
-                ),
+                'boBaseUrl' => $this->link->fixAdminLink($this->link->getDashboardLink(), $shop),
             ])));
 
             if (!$response) {

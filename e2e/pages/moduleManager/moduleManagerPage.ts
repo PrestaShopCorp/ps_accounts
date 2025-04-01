@@ -3,8 +3,6 @@ import BasePage from '~/pages/basePage';
 import {modulePsAccount} from 'data/local/modules/modulePsAccount';
 import {moduleManagerPagesLocales} from '~/data/local/moduleManagerPageLocales/moduleManagerPageLocales';
 
-//BO Login Page
-
 export default class ModuleManagerPage extends BasePage {
   /* <<<<<<<<<<<<<<< Selectors Types >>>>>>>>>>>>>>>>>>>>>> */
   public readonly pageMainTitle: Locator;
@@ -82,5 +80,19 @@ export default class ModuleManagerPage extends BasePage {
         .locator('.text-muted');
       await expect(accountVersionOnOldPsVersion).toContainText(modulePsAccount.version);
     }
+  }
+
+  /**
+   *
+   * The page title check if the title All Store is visible
+   */
+  async isMultistoreVisible() {
+    const isMultiStoreVisible = await this.page.locator('h2.header-multishop-title');
+    expect(isMultiStoreVisible).toBeVisible();
+  }
+  async isMultistoreVisibleOldVersion() {
+    await this.page.locator('#header_shop').click();
+    const isMultiStoreVisible = await this.page.getByRole('link', {name: 'All shops'});
+    expect(isMultiStoreVisible).toBeVisible();
   }
 }
