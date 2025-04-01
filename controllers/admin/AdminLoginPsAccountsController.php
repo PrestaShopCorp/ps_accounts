@@ -20,7 +20,7 @@
 
 use PrestaShop\Module\PsAccounts\Api\Client\ExternalAssetsClient;
 use PrestaShop\Module\PsAccounts\Polyfill\Traits\AdminController\IsAnonymousAllowed;
-use PrestaShop\Module\PsAccounts\Provider\OAuth2\Oauth2Client;
+use PrestaShop\Module\PsAccounts\Service\OAuth2\OAuth2Client;
 
 class AdminLoginPsAccountsController extends \AdminController
 {

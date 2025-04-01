@@ -20,7 +20,6 @@
 
 namespace PrestaShop\Module\PsAccounts\Service\OAuth2;
 
-use PrestaShop\Module\PsAccounts\AccountLogin\OAuth2LogoutTrait;
 use PrestaShop\Module\PsAccounts\Adapter\Link;
 use PrestaShop\Module\PsAccounts\Http\Client\ClientConfig;
 use PrestaShop\Module\PsAccounts\Http\Client\Curl\Client as HttpClient;
@@ -72,11 +71,6 @@ class OAuth2Service
     private $oAuth2Client;
 
     /**
-     * @var Link
-     */
-    private $link;
-
-    /**
      * @var string[]
      */
     protected $defaultScopes = [
@@ -87,7 +81,6 @@ class OAuth2Service
     /**
      * @param array $config
      * @param OAuth2Client $oAuth2Client
-     * @param Link $link
      * @param string $cacheDir
      *
      * @throws \Exception
@@ -95,8 +88,7 @@ class OAuth2Service
     public function __construct(
         array $config,
         OAuth2Client $oAuth2Client,
-        Link $link,
-                     $cacheDir
+        $cacheDir
     ) {
         $this->clientConfig = array_merge([
             ClientConfig::NAME => static::class,
@@ -104,7 +96,6 @@ class OAuth2Service
         ], $config);
 
         $this->oAuth2Client = $oAuth2Client;
-        $this->link = $link;
 
         $this->cachedWellKnown = new CachedFile(
             $cacheDir . '/' . self::OPENID_CONFIGURATION_JSON,
@@ -252,7 +243,7 @@ class OAuth2Service
                     'client_secret' => $this->oAuth2Client->getClientSecret(),
                     'scope' => implode(' ', $scope),
                     'audience' => implode(' ', $audience),
-                    'redirect_uri' => $this->getAuthRedirectUri(),
+                    'redirect_uri' => $this->getOAuth2Client()->getRedirectUri(),
                 ],
             ]
         );
@@ -293,7 +284,7 @@ class OAuth2Service
                 'scope' => implode(' ', $this->defaultScopes),
                 'response_type' => 'code',
                 'approval_prompt' => 'auto',
-                'redirect_uri' => $this->getAuthRedirectUri(),
+                'redirect_uri' => $this->getOAuth2Client()->getRedirectUri(),
                 'client_id' => $this->oAuth2Client->getClientId(),
                 'acr_values' => $acrValues,
                 'prompt' => $prompt,
@@ -301,25 +292,6 @@ class OAuth2Service
                 'code_challenge' => trim(strtr(base64_encode(hash('sha256', $pkceCode, true)), '+/', '-_'), '='),
                 'code_challenge_method' => $pkceMethod,
             ] : []));
-    }
-
-    /**
-     * @example http://my-shop.mydomain/admin-path/index.php?controller=AdminOAuth2PsAccounts
-     * @example http://my-shop.mydomain/admin-path/modules/ps_accounts/oauth2
-     *
-     * @return string
-     */
-    public function getAuthRedirectUri()
-    {
-        if (defined('_PS_VERSION_')
-            && version_compare(_PS_VERSION_, '9', '>=')) {
-            return $this->link->getAdminLink('AdminOAuth2PsAccounts', false, [
-                'route' => 'ps_accounts_oauth2',
-            ]);
-            //return $link->getAdminLink('SfAdminOAuth2PsAccounts', false);
-        }
-
-        return $this->link->getAdminLink('AdminOAuth2PsAccounts', false, [], [], true);
     }
 
     /**
@@ -372,7 +344,7 @@ class OAuth2Service
                     'code' => $code,
                     'scope' => implode(' ', $scope),
                     'audience' => implode(' ', $audience),
-                    'redirect_uri' => $this->getAuthRedirectUri(),
+                    'redirect_uri' => $this->getOAuth2Client()->getRedirectUri(),
                 ], $pkceCode ? [
                     'code_verifier' => $pkceCode,
                 ] : []),
@@ -451,20 +423,6 @@ class OAuth2Service
                 'id_token_hint' => $idTokenHint,
                 'post_logout_redirect_uri' => $postLogoutRedirectUri,
             ]);
-    }
-
-    /**
-     * @example http://my-shop.mydomain/admin-path/index.php?controller=AdminLogin&logout=1&oauth2Callback=1
-     * @example http://my-shop.mydomain/admin-path/logout?oauth2Callback=1
-     *
-     * @return string
-     */
-    public function getPostLogoutRedirectUri()
-    {
-        return $this->link->getAdminLink('AdminLogin', false, [], [
-            'logout' => 1,
-            OAuth2LogoutTrait::getQueryLogoutCallbackParam() => 1,
-        ], true);
     }
 
     /**

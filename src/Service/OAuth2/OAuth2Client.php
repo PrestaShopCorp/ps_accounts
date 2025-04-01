@@ -25,8 +25,6 @@ use PrestaShop\Module\PsAccounts\Repository\ConfigurationRepository;
 
 class OAuth2Client
 {
-    const QUERY_LOGOUT_CALLBACK_PARAM = 'oauth2Callback';
-
     /**
      * @var ConfigurationRepository
      */
@@ -43,6 +41,14 @@ class OAuth2Client
     ) {
         $this->cfRepos = $configurationRepository;
         $this->link = $link;
+    }
+
+    /**
+     * @return string
+     */
+    public static function getQueryLogoutCallbackParam()
+    {
+        return 'oauth2Callback';
     }
 
     /**
@@ -137,7 +143,7 @@ class OAuth2Client
     {
         return $this->link->getAdminLink('AdminLogin', false, [], [
             'logout' => 1,
-            self::QUERY_LOGOUT_CALLBACK_PARAM => 1,
+            self::getQueryLogoutCallbackParam() => 1,
         ], true);
     }
 }

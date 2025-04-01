@@ -24,7 +24,7 @@ use Exception;
 use PrestaShop\Module\PsAccounts\AccountLogin\OAuth2LogoutTrait;
 use PrestaShop\Module\PsAccounts\AccountLogin\OAuth2Session;
 use PrestaShop\Module\PsAccounts\Log\Logger;
-use PrestaShop\Module\PsAccounts\Provider\OAuth2\Oauth2Client;
+use PrestaShop\Module\PsAccounts\Service\OAuth2\OAuth2Client;
 use PrestaShop\Module\PsAccounts\Service\OAuth2\OAuth2Service;
 use PrestaShop\Module\PsAccounts\Service\PsAccountsService;
 use Ps_accounts;
@@ -93,7 +93,7 @@ class Oauth2Middleware
     public function executeLogout()
     {
         if ($this->psAccountsService->getLoginActivated() &&
-            !isset($_GET[OAuth2LogoutTrait::getQueryLogoutCallbackParam()])) {
+            !isset($_GET[OAuth2Client::getQueryLogoutCallbackParam()])) {
             $this->oauth2Logout();
         }
         $this->getOauth2Session()->clear();

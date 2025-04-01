@@ -40,14 +40,6 @@ trait OAuth2LogoutTrait
     abstract protected function isOauth2LogoutEnabled();
 
     /**
-     * @return string
-     */
-    public static function getQueryLogoutCallbackParam()
-    {
-        return 'oauth2Callback';
-    }
-
-    /**
      * @return void
      *
      * @throws \Exception
@@ -64,10 +56,10 @@ trait OAuth2LogoutTrait
             return;
         }
 
-        $oauth2Client = $this->getOAuth2Service();
+        $OAuth2Service = $this->getOAuth2Service();
 
-        $logoutUrl = $oauth2Client->getLogoutUri(
-            $oauth2Client->getPostLogoutRedirectUri(),
+        $logoutUrl = $OAuth2Service->getLogoutUri(
+            $OAuth2Service->getOAuth2Client()->getPostLogoutRedirectUri(),
             $idToken
         );
 

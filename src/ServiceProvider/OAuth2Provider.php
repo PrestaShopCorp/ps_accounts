@@ -20,8 +20,8 @@
 
 namespace PrestaShop\Module\PsAccounts\ServiceProvider;
 
-use PrestaShop\Module\PsAccounts\Adapter\Link;
 use PrestaShop\Module\PsAccounts\AccountLogin\OAuth2Session;
+use PrestaShop\Module\PsAccounts\Adapter\Link;
 use PrestaShop\Module\PsAccounts\Http\Client\ClientConfig;
 use PrestaShop\Module\PsAccounts\Provider\OAuth2\PrestaShopSession;
 use PrestaShop\Module\PsAccounts\Repository\ConfigurationRepository;
@@ -47,7 +47,6 @@ class OAuth2Provider implements IServiceProvider
                     ClientConfig::SSL_CHECK => $container->getParameter('ps_accounts.check_api_ssl_cert'),
                 ],
                 $container->get(OAuth2Client::class),
-                $container->get(Link::class),
                 _PS_CACHE_DIR_ . DIRECTORY_SEPARATOR . 'ps_accounts'
             );
         });
