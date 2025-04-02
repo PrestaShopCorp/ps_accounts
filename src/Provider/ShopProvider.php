@@ -76,13 +76,17 @@ class ShopProvider
             /** @var RsaKeysProvider $rsaKeyProvider */
             $rsaKeyProvider = $module->getService(RsaKeysProvider::class);
 
+            $shopId = $shopData['id_shop'];
+
             $shop = new Shop([
-                'id' => (string) $shopData['id_shop'],
+                'id' => (string) $shopId,
                 'name' => $shopData['name'],
                 'domain' => $shopData['domain'],
                 'domainSsl' => $shopData['domain_ssl'],
-                'physicalUri' => $this->getShopPhysicalUri($shopData['id_shop']),
-                'virtualUri' => $this->getShopVirtualUri($shopData['id_shop']),
+                'physicalUri' => $this->getShopPhysicalUri($shopId),
+                'virtualUri' => $this->getShopVirtualUri($shopId),
+                // FIXME: we should probably use this :
+                //'frontUrl' => $this->link->getLink()->getBaseLink(),
                 'frontUrl' => $this->getShopUrl($shopData),
 
                 // LinkAccount
@@ -94,7 +98,7 @@ class ShopProvider
                     'uuid' => $linkShop->getOwnerUuid() ?: null,
                     'emailIsValidated' => null,
                 ],
-                'url' => $this->link->getAdminLink('AdminDashboard', false),
+                'url' => $this->link->getDashboardLink(),
                 'isLinkedV4' => null,
                 'unlinkedAuto' => !empty($linkShop->getUnlinkedOnError()),
             ]);

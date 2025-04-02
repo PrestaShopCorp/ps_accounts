@@ -63,7 +63,6 @@ JSON;
         $this->oAuth2Service = new OAuth2Service(
             [ClientConfig::BASE_URI => 'https://oauth.test.fr',],
             $this->oAuth2Client,
-            $this->link,
             $this->getTestCacheDir()
         );
 
@@ -142,7 +141,7 @@ JSON
 
         $this->assertEquals('openid offline_access', $query['scope']);
         $this->assertEquals($this->oAuth2Client->getClientId(), $query['client_id']);
-        $this->assertEquals($this->oAuth2Service->getAuthRedirectUri(), $query['redirect_uri']);
+        $this->assertEquals($this->oAuth2Client->getRedirectUri(), $query['redirect_uri']);
         $this->assertEquals('fr-CA en', $query['ui_locales']);
         $this->assertEquals('prompt:login', $query['acr_values']);
         $this->assertArrayHasKey('response_type', $query);

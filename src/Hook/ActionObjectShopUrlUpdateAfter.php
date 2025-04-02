@@ -36,6 +36,8 @@ class ActionObjectShopUrlUpdateAfter extends ActionObjectShopUpdateAfter
         $shopUrl = $params['object'];
 
         if ($shopUrl->main) {
+            // Mandatory to get up to date urls
+            // Cache::clear();
             Cache::clean('Shop::setUrl_' . (int) $shopUrl->id);
 
             $this->updateUserShop(new \Shop($shopUrl->id_shop));

@@ -6,6 +6,7 @@ use PrestaShop\Module\PsAccounts\Account\CommandHandler\UpdateUserShopHandler;
 use PrestaShop\Module\PsAccounts\Account\Dto\UpdateShop;
 use PrestaShop\Module\PsAccounts\Account\Session\Firebase;
 use PrestaShop\Module\PsAccounts\Account\Token\Token;
+use PrestaShop\Module\PsAccounts\Adapter\Link;
 use PrestaShop\Module\PsAccounts\Api\Client\AccountsClient;
 use PrestaShop\Module\PsAccounts\Tests\TestCase;
 
@@ -30,12 +31,17 @@ class ActionObjectShopUpdateAfterTest extends TestCase
     protected $updateUserShopHandler;
 
     /**
+     * @inject
+     *
+     * @var Link
+     */
+    protected $link;
+
+    /**
      * @test
      */
     public function itShouldAttemptToUpdateShop()
     {
-        $shop = new \Shop(1);
-
         /** @var Params $params */
         $params = null;
 
@@ -54,6 +60,7 @@ class ActionObjectShopUpdateAfterTest extends TestCase
 
         $newName = str_split($this->faker->slug(), 64)[0];
 
+        $shop = new \Shop(1);
         $shop->name = $newName;
         $shop->update();
 
@@ -74,8 +81,6 @@ class ActionObjectShopUpdateAfterTest extends TestCase
      */
     public function itShouldAttemptToUpdateShopOnUrlUpdate()
     {
-        $shop = new \Shop(1);
-
         $shopUrls = \ShopUrl::getShopUrls(1);
 
         /** @var \ShopUrl $shopUrl */
@@ -97,21 +102,52 @@ class ActionObjectShopUpdateAfterTest extends TestCase
         $this->initResponse($params, $updateUserShopResponse);
         $this->initTokens($shopToken, $ownerToken);
 
-        $newDomain = $this->faker->domainName;
+        $domain = $this->faker->domainName;
+        $domainSsl = $this->faker->domainName;
+        $physicalUri = $this->faker->slug(1);
+        $virtualUri = $this->faker->slug(1);
+        $dashboardLink = $this->link->getDashboardLink();
+        $trailingSlash = $this->link->getTrailingSlash($dashboardLink);
+        $index = $this->link->getScript($dashboardLink);
 
-        $shopUrl->domain = $newDomain;
+        echo $dashboardLink . PHP_EOL;
+
+        $shopUrl->domain = $domain;
+        $shopUrl->domain_ssl = $domainSsl;
+        $shopUrl->physical_uri = $physicalUri;
+        $shopUrl->virtual_uri = $virtualUri;
+
         $shopUrl->update();
+
+        #\Cache::clear();
+        #\Cache::clean('Shop::setUrl_' . (int) $shopUrl->id);
+        #$shopUrl->clearCache();
+        $shop = new \Shop(1);
 
         $this->module->getLogger()->info(json_encode($params));
 
         // FIXME: test data exhaustively
         $this->assertEquals($shop->id, $params->shop->shopId);
         $this->assertEquals($shop->name, $params->shop->name);
-        $this->assertEquals('http://' . $newDomain, $params->shop->domain);
-        $this->assertEquals('https://' . $shop->domain_ssl, $params->shop->sslDomain);
+
+        $this->assertEquals('/' . $physicalUri . '/', $params->shop->physicalUri);
+        $this->assertEquals($virtualUri . '/', $params->shop->virtualUri);
+
+        $this->assertEquals('http://' . $domain, $params->shop->domain);
+        $this->assertEquals('https://' . $domainSsl, $params->shop->sslDomain);
+
         $this->assertEquals((string) $ownerToken, $params->ownerToken);
         $this->assertEquals($shopToken->getJwt()->claims()->get('sub'), $params->shopUid);
         $this->assertEquals($ownerToken->getJwt()->claims()->get('sub'), $params->ownerUid);
+
+        $parsedBoBaseUrl = parse_url($params->shop->boBaseUrl);
+        $this->assertEquals($domain, $parsedBoBaseUrl['host']);
+        $this->assertEquals(
+            $this->link->cleanSlashes(
+                '/' . $physicalUri . _PS_ADMIN_DIR_ . ($index ? '/' . $index : '/') . $trailingSlash
+            ),
+            $parsedBoBaseUrl['path']
+        );
     }
 
     /**

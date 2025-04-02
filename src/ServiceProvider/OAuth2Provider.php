@@ -47,13 +47,13 @@ class OAuth2Provider implements IServiceProvider
                     ClientConfig::SSL_CHECK => $container->getParameter('ps_accounts.check_api_ssl_cert'),
                 ],
                 $container->get(OAuth2Client::class),
-                $container->get(Link::class),
                 _PS_CACHE_DIR_ . DIRECTORY_SEPARATOR . 'ps_accounts'
             );
         });
         $container->registerProvider(OAuth2Client::class, static function () use ($container) {
             return new OAuth2Client(
-                $container->get(ConfigurationRepository::class)
+                $container->get(ConfigurationRepository::class),
+                $container->get(Link::class)
             );
         });
         $container->registerProvider(OAuth2Session::class, static function () use ($container) {
