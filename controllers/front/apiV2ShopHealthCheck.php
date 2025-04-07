@@ -79,7 +79,9 @@ class ps_AccountsApiV2ShopHealthCheckModuleFrontController extends AbstractV2Sho
      */
     protected function getScope()
     {
-        return [];
+        return [
+            'shop.health',
+        ];
     }
 
     /**
@@ -87,7 +89,9 @@ class ps_AccountsApiV2ShopHealthCheckModuleFrontController extends AbstractV2Sho
      */
     protected function getAudience()
     {
-        return [];
+        return [
+            'ps_accounts/' . $this->linkShop->getShopUuid(),
+        ];
     }
 
     public function __construct()
@@ -120,12 +124,12 @@ class ps_AccountsApiV2ShopHealthCheckModuleFrontController extends AbstractV2Sho
      */
     public function show(Shop $shop, ShopHealthCheckRequest $request)
     {
-        $this->assertAudience([
-            'shop_' . $this->linkShop->getShopUuid(),
-        ]);
-        $this->assertScope([
-            'shop.health',
-        ]);
+//        $this->assertAudience([
+//            'ps_accounts/' . $this->linkShop->getShopUuid(),
+//        ]);
+//        $this->assertScope([
+//            'shop.health',
+//        ]);
 
         if ($request->autoheal) {
             try {
