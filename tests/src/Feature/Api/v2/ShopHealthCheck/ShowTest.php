@@ -156,17 +156,13 @@ JSON;
             'headers' => [
                 'Authorization' => 'Bearer ' . $this->makeBearer([
                         'aud' => [
-                            'shop_' . $shop->uuid,
+                            'ps_accounts/' . $shop->uuid,
                         ],
                         'scp' => [
                             'shop.health',
-//                            'admin.shop.health'
                         ]
                     ]),
             ],
-//            'query' => [
-//                'shop_id' => $shop->id,
-//            ],
         ]);
 
         $json = $this->getResponseJson($response);
@@ -223,7 +219,7 @@ JSON;
             'headers' => [
                 'Authorization' => 'Bearer ' . $this->makeBearer([
                         'aud' => [
-                            'shop_' . 'invalid_uid',
+                            'ps_accounts/' . 'invalid_uid',
                         ],
                     ]),
             ],
@@ -244,6 +240,38 @@ JSON;
      *
      * @throws \Exception
      */
+    public function itShouldFailWithInvalidScope()
+    {
+        $shop = $this->shopProvider->formatShopData((array) \Shop::getShop(1));
+
+        $response = $this->client->get('/module/ps_accounts/apiV2ShopHealthCheck', [
+            'headers' => [
+                'Authorization' => 'Bearer ' . $this->makeBearer([
+                        'aud' => [
+                            'ps_accounts/' . $shop->uuid,
+                        ],
+                        'scp' => [
+                            'shop.health-foo',
+                        ]
+                    ]),
+            ],
+        ]);
+
+        $json = $this->getResponseJson($response);
+
+        $this->assertResponseUnauthorized($response);
+
+        $this->assertArraySubset([
+            'error' => true,
+            'message' => 'Invalid scope',
+        ], $json);
+    }
+
+    /**
+     * @test
+     *
+     * @throws \Exception
+     */
     public function itShouldFailWithInvalidShopId()
     {
         $shop = $this->shopProvider->formatShopData((array) \Shop::getShop(1));
@@ -252,8 +280,11 @@ JSON;
             'headers' => [
                 'Authorization' => 'Bearer ' . $this->makeBearer([
                         'aud' => [
-                            'shop_' . $shop->uuid,
+                            'ps_accounts/' . $shop->uuid,
                         ],
+                        'scp' => [
+                            'shop.health',
+                        ]
                     ]),
             ],
             'query' => [

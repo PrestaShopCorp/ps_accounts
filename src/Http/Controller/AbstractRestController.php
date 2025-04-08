@@ -333,10 +333,12 @@ abstract class AbstractRestController extends ModuleFrontController
      */
     protected function getApacheHeader($header)
     {
-        $headers = getallheaders();
-        //$header = preg_replace('/PrestaShop/', 'Prestashop', $header);
-        if (array_key_exists($header, $headers)) {
-            return $headers[$header];
+        if (function_exists('apache_request_headers')) {
+            $headers = getallheaders();
+            //$header = preg_replace('/PrestaShop/', 'Prestashop', $header);
+            if (array_key_exists($header, $headers)) {
+                return $headers[$header];
+            }
         }
 
         return null;
