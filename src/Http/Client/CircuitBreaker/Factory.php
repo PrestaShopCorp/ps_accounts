@@ -70,8 +70,8 @@ class Factory
         );
         $instance->setFallbackResponse(
             new Response([
-                'error' => 'Circuit Breaker Open',
-                'error_description' => 'Circuit Breaker Open',
+                'error' => true,
+                'msg' => 'Circuit Breaker Open',
             ], 500)
         );
         $this->instances[$resourceId] = $instance;
