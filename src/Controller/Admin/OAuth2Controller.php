@@ -189,7 +189,7 @@ class OAuth2Controller extends FrameworkBundleAdminController
             '[OAuth2] ' . (string) json_encode($user->toArray(), JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE)
         );
 
-        if ($this->getAction() === 'identifyPointOfContact') {
+        if ($this->getOAuthAction() === 'identifyPointOfContact') {
             // Set point of contact
             /** @var \PrestaShop\Module\PsAccounts\Adapter\Configuration $configStorage */
             $configStorage = $this->module->getService(\PrestaShop\Module\PsAccounts\Adapter\Configuration::class);
@@ -242,7 +242,7 @@ class OAuth2Controller extends FrameworkBundleAdminController
      */
     protected function redirectAfterLogin()
     {
-        if ($this->getAction() === 'identifyPointOfContact') {
+        if ($this->getOAuthAction() === 'identifyPointOfContact') {
             return (new Response())->setContent(<<<HTML
 <script type="text/javascript">
 window.opener.location.reload();

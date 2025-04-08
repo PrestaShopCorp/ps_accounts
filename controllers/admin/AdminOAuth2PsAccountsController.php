@@ -120,7 +120,7 @@ class AdminOAuth2PsAccountsController extends \ModuleAdminController
             '[OAuth2] ' . (string) print_r($user, true)
         );
 
-        if ($this->getAction() === 'identifyPointOfContact') {
+        if ($this->getOAuthAction() === 'identifyPointOfContact') {
             // Set point of contact
             /** @var \PrestaShop\Module\PsAccounts\Adapter\Configuration $configStorage */
             $configStorage = $this->module->getService(\PrestaShop\Module\PsAccounts\Adapter\Configuration::class);
@@ -196,7 +196,7 @@ class AdminOAuth2PsAccountsController extends \ModuleAdminController
      */
     protected function redirectAfterLogin()
     {
-        if ($this->getAction() === 'identifyPointOfContact') {
+        if ($this->getOAuthAction() === 'identifyPointOfContact') {
             // Refresh configuration page
             echo <<<HTML
 <script type="text/javascript">

@@ -110,7 +110,7 @@ trait OAuth2LoginTrait
             // cleanup existing accessToken
             $oauth2Session->clear();
 
-            $this->setAction($action);
+            $this->setOAuthAction($action);
 
             $this->setSessionReturnTo(Tools::getValue($this->getReturnToParam()));
 
@@ -227,7 +227,7 @@ trait OAuth2LoginTrait
     /**
      * @return string
      */
-    private function getAction()
+    private function getOAuthAction()
     {
         return $this->getSession()->get('oauth2action');
     }
@@ -237,7 +237,7 @@ trait OAuth2LoginTrait
      *
      * @return void
      */
-    private function setAction($action)
+    private function setOAuthAction($action)
     {
         $this->getSession()->set('oauth2action', $action);
     }

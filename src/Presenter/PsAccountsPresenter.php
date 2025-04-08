@@ -187,7 +187,7 @@ class PsAccountsPresenter implements PresenterInterface
                     // 1- open a popup
                     // 2- callback inject JS close popup & refresh parent
                     // OU ajax call parent to refresh state (from ajax call to BO state Polling or ??)
-                    'identifyUrl' => $this->oAuth2Service->getAuthRedirectUri([
+                    'identifyUrl' => $this->oAuth2Service->getOAuth2Client()->getRedirectUri([
                         'action' => 'identifyPointOfContact',
                     ]),
                     'contactEmail' => $this->module->getService(Configuration::class)
