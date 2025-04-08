@@ -28,7 +28,6 @@ use PrestaShop\Module\PsAccounts\Polyfill\Traits\AdminController\IsAnonymousAllo
 use PrestaShop\Module\PsAccounts\Service\AnalyticsService;
 use PrestaShop\Module\PsAccounts\Service\OAuth2\OAuth2Service;
 use PrestaShop\Module\PsAccounts\Service\OAuth2\Resource\AccessToken;
-use PrestaShop\Module\PsAccounts\Service\OAuth2\Resource\UserInfo;
 use PrestaShop\Module\PsAccounts\Service\PsAccountsService;
 use Symfony\Component\HttpFoundation\Session\SessionInterface;
 
@@ -205,7 +204,7 @@ window.opener.location.reload();
 window.close();
 </script>
 HTML;
-            die;
+            exit;
         }
         $returnTo = $this->getSessionReturnTo() ?: 'AdminDashboard';
         if (preg_match('/^([A-Z][a-z0-9]+)+$/', $returnTo)) {

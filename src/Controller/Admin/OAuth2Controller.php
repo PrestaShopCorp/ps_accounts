@@ -33,7 +33,6 @@ use PrestaShop\Module\PsAccounts\Log\Logger;
 use PrestaShop\Module\PsAccounts\Service\AnalyticsService;
 use PrestaShop\Module\PsAccounts\Service\OAuth2\OAuth2Service;
 use PrestaShop\Module\PsAccounts\Service\OAuth2\Resource\AccessToken;
-use PrestaShop\Module\PsAccounts\Service\OAuth2\Resource\UserInfo;
 use PrestaShop\Module\PsAccounts\Service\PsAccountsService;
 use PrestaShopBundle\Controller\Admin\FrameworkBundleAdminController;
 use PrestaShopBundle\Entity\Employee\Employee as EmployeeEntity;
@@ -252,6 +251,7 @@ window.close();
 HTML
             );
         }
+
         return $this->redirectResponse;
     }
 

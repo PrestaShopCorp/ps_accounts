@@ -20,9 +20,6 @@
 
 namespace PrestaShop\Module\PsAccounts\ServiceProvider;
 
-use PrestaShop\Module\PsAccounts\Factory\PrestaShopSessionFactory;
-use PrestaShop\Module\PsAccounts\Middleware\Oauth2Middleware;
-use PrestaShop\Module\PsAccounts\Provider;
 use PrestaShop\Module\PsAccounts\Repository\ConfigurationRepository;
 use PrestaShop\Module\PsAccounts\Service\OAuth2\OAuth2Client;
 use PrestaShop\Module\PsAccounts\Service\OAuth2\OAuth2Service;
