@@ -18,16 +18,16 @@
  * @license   https://opensource.org/licenses/AFL-3.0 Academic Free License version 3.0
  */
 
+use PrestaShop\Module\PsAccounts\Account\Exception\RefreshTokenException;
 use PrestaShop\Module\PsAccounts\Account\Session\ShopSession;
-use PrestaShop\Module\PsAccounts\Api\Controller\AbstractShopRestController;
-use PrestaShop\Module\PsAccounts\Api\Controller\Request\UpdateShopOauth2ClientRequest;
-use PrestaShop\Module\PsAccounts\Exception\RefreshTokenException;
-use PrestaShop\Module\PsAccounts\Provider\OAuth2\Oauth2Client;
+use PrestaShop\Module\PsAccounts\Http\Controller\AbstractShopRestController;
+use PrestaShop\Module\PsAccounts\Http\Request\UpdateShopOauth2ClientRequest;
+use PrestaShop\Module\PsAccounts\Service\OAuth2\OAuth2Client;
 
 class ps_AccountsApiV1ShopOauth2ClientModuleFrontController extends AbstractShopRestController
 {
     /**
-     * @var Oauth2Client
+     * @var OAuth2Client
      */
     private $oauth2Client;
 
@@ -45,7 +45,7 @@ class ps_AccountsApiV1ShopOauth2ClientModuleFrontController extends AbstractShop
     {
         parent::__construct();
 
-        $this->oauth2Client = $this->module->getService(Oauth2Client::class);
+        $this->oauth2Client = $this->module->getService(OAuth2Client::class);
         $this->session = $this->module->getService(ShopSession::class);
     }
 

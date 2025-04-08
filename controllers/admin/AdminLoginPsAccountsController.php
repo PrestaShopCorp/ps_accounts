@@ -20,7 +20,7 @@
 
 use PrestaShop\Module\PsAccounts\Api\Client\ExternalAssetsClient;
 use PrestaShop\Module\PsAccounts\Polyfill\Traits\AdminController\IsAnonymousAllowed;
-use PrestaShop\Module\PsAccounts\Provider\OAuth2\Oauth2Client;
+use PrestaShop\Module\PsAccounts\Service\OAuth2\OAuth2Client;
 
 class AdminLoginPsAccountsController extends \AdminController
 {
@@ -135,8 +135,6 @@ class AdminLoginPsAccountsController extends \AdminController
         /** @var Oauth2Client $oAuth2Client */
         $oAuth2Client = $this->module->getService(Oauth2Client::class);
 
-        $testimonials = $this->getTestimonials();
-
         $session = $this->module->getSession();
 
         /* @phpstan-ignore-next-line */
@@ -152,7 +150,7 @@ class AdminLoginPsAccountsController extends \AdminController
             ]),
             'isoCode' => substr($isoCode, 0, 2),
             'defaultIsoCode' => 'en',
-            'testimonials' => $testimonials,
+            'testimonials' => $this->getTestimonials(),
             'loginError' => $session->remove('loginError'),
             'meta_title' => '',
             'ssoResendVerificationEmail' => $this->module->getParameter(

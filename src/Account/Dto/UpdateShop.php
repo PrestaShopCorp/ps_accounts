@@ -62,7 +62,7 @@ class UpdateShop extends Dto
     /**
      * @var string[]
      */
-    public $mandatory = [
+    public $required = [
         'shopId',
         'name',
         'virtualUri',

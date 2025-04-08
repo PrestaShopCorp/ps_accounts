@@ -20,11 +20,13 @@
 
 namespace PrestaShop\Module\PsAccounts\ServiceProvider;
 
+use PrestaShop\Module\PsAccounts\AccountLogin\OAuth2Session;
 use PrestaShop\Module\PsAccounts\Adapter\Link;
-use PrestaShop\Module\PsAccounts\Factory\PrestaShopSessionFactory;
-use PrestaShop\Module\PsAccounts\Middleware\Oauth2Middleware;
-use PrestaShop\Module\PsAccounts\Provider;
+use PrestaShop\Module\PsAccounts\Http\Client\ClientConfig;
+use PrestaShop\Module\PsAccounts\Provider\OAuth2\PrestaShopSession;
 use PrestaShop\Module\PsAccounts\Repository\ConfigurationRepository;
+use PrestaShop\Module\PsAccounts\Service\OAuth2\OAuth2Client;
+use PrestaShop\Module\PsAccounts\Service\OAuth2\OAuth2Service;
 use PrestaShop\Module\PsAccounts\Vendor\PrestaShopCorp\LightweightContainer\ServiceContainer\Contract\IServiceProvider;
 use PrestaShop\Module\PsAccounts\Vendor\PrestaShopCorp\LightweightContainer\ServiceContainer\ServiceContainer;
 
@@ -38,23 +40,31 @@ class OAuth2Provider implements IServiceProvider
     public function provide(ServiceContainer $container)
     {
         // OAuth2
-        $container->registerProvider(Provider\OAuth2\Oauth2Client::class, static function () use ($container) {
-            return new Provider\OAuth2\Oauth2Client(
+        $container->registerProvider(OAuth2Service::class, static function () use ($container) {
+            return new OAuth2Service(
+                [
+                    ClientConfig::BASE_URI => $container->getParameter('ps_accounts.oauth2_url'),
+                    ClientConfig::SSL_CHECK => $container->getParameter('ps_accounts.check_api_ssl_cert'),
+                ],
+                $container->get(OAuth2Client::class),
+                _PS_CACHE_DIR_ . DIRECTORY_SEPARATOR . 'ps_accounts'
+            );
+        });
+        $container->registerProvider(OAuth2Client::class, static function () use ($container) {
+            return new OAuth2Client(
                 $container->get(ConfigurationRepository::class),
                 $container->get(Link::class)
             );
         });
-        $container->registerProvider(Provider\OAuth2\PrestaShopSession::class, static function () {
-            return PrestaShopSessionFactory::create();
-        });
-        $container->registerProvider(Provider\OAuth2\ShopProvider::class, static function () {
-            return Provider\OAuth2\ShopProvider::create();
-        });
-        // Middleware
-        $container->registerProvider(Oauth2Middleware::class, static function () use ($container) {
-            return new Oauth2Middleware(
-                $container->get('ps_accounts.module')
+        $container->registerProvider(OAuth2Session::class, static function () use ($container) {
+            return new OAuth2Session(
+                $container->get('ps_accounts.module')->getSession(),
+                $container->getService(OAuth2Service::class),
+                $container->getService(OAuth2Client::class)
             );
+        });
+        $container->registerProvider(PrestaShopSession::class, static function () use ($container) {
+            return $container->getService(OAuth2Session::class);
         });
     }
 }

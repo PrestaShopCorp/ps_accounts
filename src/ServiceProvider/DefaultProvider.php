@@ -27,7 +27,7 @@ use PrestaShop\Module\PsAccounts\Adapter\Link;
 use PrestaShop\Module\PsAccounts\Api\Client\ServicesBillingClient;
 use PrestaShop\Module\PsAccounts\Context\ShopContext;
 use PrestaShop\Module\PsAccounts\Cqrs\CommandBus;
-use PrestaShop\Module\PsAccounts\Factory\CircuitBreakerFactory;
+use PrestaShop\Module\PsAccounts\Http\Client\CircuitBreaker;
 use PrestaShop\Module\PsAccounts\Installer\Installer;
 use PrestaShop\Module\PsAccounts\Presenter\PsAccountsPresenter;
 use PrestaShop\Module\PsAccounts\Provider;
@@ -127,8 +127,8 @@ class DefaultProvider implements IServiceProvider
             );
         });
         // Factories
-        $container->registerProvider(CircuitBreakerFactory::class, static function () use ($container) {
-            return new CircuitBreakerFactory(
+        $container->registerProvider(CircuitBreaker\Factory::class, static function () use ($container) {
+            return new CircuitBreaker\Factory(
                 $container->get(Configuration::class)
             );
         });

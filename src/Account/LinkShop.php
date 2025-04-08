@@ -173,6 +173,14 @@ class LinkShop
     }
 
     /**
+     * @return string|bool
+     */
+    public function getPublicKey()
+    {
+        return $this->configuration->getAccountsRsaPublicKey();
+    }
+
+    /**
      * @return string
      */
     public function getUnlinkedOnError()

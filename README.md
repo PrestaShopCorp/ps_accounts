@@ -104,7 +104,7 @@ $service = $module->getService(\PrestaShop\Module\PsAccounts\Service\PsAccountsS
 
 try {
     $jwtAccessToken = $service->getShopToken();
-} catch (\PrestaShop\Module\PsAccounts\Exception\RefreshTokenException $e) {
+} catch (\PrestaShop\Module\PsAccounts\Account\Exception\RefreshTokenException $e) {
     // 
 }
 ```
@@ -195,3 +195,12 @@ OR with multiple environments :
   cp config.dist.php config.myenv.php
   BUNDLE_ENV=myenv make
 ```
+
+# Deprecation Notices [WIP]
+
+### v7.2.0
+
+* PrestaShop\Module\PsAccounts\Api\Client\ServicesBillingClient
+* PrestaShop\Module\PsAccounts\Exception\RefreshTokenException
+* PrestaShop\Module\PsAccounts\Provider\OAuth2\PrestaShopSession
+

@@ -190,7 +190,7 @@ class PsAccountsPresenter implements PresenterInterface
      *
      * @return void
      */
-    private function initShops(&$shopTree)
+    private function initShops(& $shopTree)
     {
         foreach ($shopTree as &$group) {
             foreach ($group['shops'] as &$shop) {

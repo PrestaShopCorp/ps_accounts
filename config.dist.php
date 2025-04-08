@@ -44,5 +44,5 @@ return [
 
     // optional log level (defaults to ERROR)
     //ps_accounts.log_level' => !php/const PrestaShop\Module\PsAccounts\Log\Logger::ERROR
-    'ps_accounts.log_level' => 'ERROR',
+    'ps_accounts.log_level' => 'INFO',
 ];
