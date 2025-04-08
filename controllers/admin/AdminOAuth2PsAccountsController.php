@@ -118,7 +118,7 @@ class AdminOAuth2PsAccountsController extends \ModuleAdminController
         $user = $this->getOAuth2Service()->getUserInfo($accessToken->access_token);
 
         Logger::getInstance()->info(
-            '[OAuth2] ' . (string) json_encode($user->toArray(), JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE)
+            '[OAuth2] ' . (string) print_r($user, true)
         );
 
         if ($this->getAction() === 'identifyPointOfContact') {

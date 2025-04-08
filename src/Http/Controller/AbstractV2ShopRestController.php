@@ -37,7 +37,7 @@ class AbstractV2ShopRestController extends AbstractV2RestController
      */
     protected function buildResource($id)
     {
-        $shop = new Shop($id);
+        $shop = new Shop((int) $id);
 
         if (!$shop->id) {
             throw new NotFoundException('Shop not found [' . $id . ']');

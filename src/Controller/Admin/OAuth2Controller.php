@@ -138,9 +138,6 @@ class OAuth2Controller extends FrameworkBundleAdminController
      */
     public function displayLoginAction(Request $request)
     {
-        /** @var OAuth2Service $oAuth2Service */
-        $oAuth2Service = $this->module->getService(OAuth2Service::class);
-
         $isoCode = $this->getContext()->getCurrentLocale()->getCode();
 
         // FIXME: extends login layout
@@ -148,7 +145,7 @@ class OAuth2Controller extends FrameworkBundleAdminController
             /* @phpstan-ignore-next-line */
             'shopUrl' => $this->getContext()->shop->getBaseUrl(true),
             //'oauthRedirectUri' => $this->generateUrl('ps_accounts_oauth2'),
-            'oauthRedirectUri' => $oAuth2Service->getAuthRedirectUri(),
+            'oauthRedirectUri' => $this->getOAuth2Service()->getOAuth2Client()->getRedirectUri(),
             'legacyLoginUri' => $this->generateUrl('admin_login', [
                 'mode' => 'local',
             ]),

@@ -20,6 +20,7 @@
 
 namespace PrestaShop\Module\PsAccounts\Service\OAuth2;
 
+use PrestaShop\Module\PsAccounts\Adapter\Link;
 use PrestaShop\Module\PsAccounts\Repository\ConfigurationRepository;
 
 class OAuth2Client
@@ -29,9 +30,25 @@ class OAuth2Client
      */
     private $cfRepos;
 
-    public function __construct(ConfigurationRepository $configurationRepository)
-    {
+    /**
+     * @var Link
+     */
+    private $link;
+
+    public function __construct(
+        ConfigurationRepository $configurationRepository,
+        Link $link
+    ) {
         $this->cfRepos = $configurationRepository;
+        $this->link = $link;
+    }
+
+    /**
+     * @return string
+     */
+    public static function getQueryLogoutCallbackParam()
+    {
+        return 'oauth2Callback';
     }
 
     /**
@@ -73,10 +90,60 @@ class OAuth2Client
     }
 
     /**
+     * @param string $clientId
+     *
+     * @return void
+     */
+    public function setClientId($clientId)
+    {
+        $this->cfRepos->updateOauth2ClientId($clientId);
+    }
+
+    /**
      * @return string
      */
     public function getClientSecret()
     {
         return $this->cfRepos->getOauth2ClientSecret();
+    }
+
+    /**
+     * @param string $clientSecret
+     *
+     * @return void
+     */
+    public function setClientSecret($clientSecret)
+    {
+        $this->cfRepos->updateOauth2ClientSecret($clientSecret);
+    }
+
+    /**
+     * @example http://my-shop.mydomain/admin-path/index.php?controller=AdminOAuth2PsAccounts
+     * @example http://my-shop.mydomain/admin-path/modules/ps_accounts/oauth2
+     *
+     * @return string
+     */
+    public function getRedirectUri()
+    {
+        if (defined('_PS_VERSION_')
+            && version_compare(_PS_VERSION_, '9', '>=')) {
+            return $this->link->getAdminLink('SfAdminOAuth2PsAccounts', false);
+        }
+
+        return $this->link->getAdminLink('AdminOAuth2PsAccounts', false, [], [], true);
+    }
+
+    /**
+     * @example http://my-shop.mydomain/admin-path/index.php?controller=AdminLogin&logout=1&oauth2Callback=1
+     * @example http://my-shop.mydomain/admin-path/logout?oauth2Callback=1
+     *
+     * @return string
+     */
+    public function getPostLogoutRedirectUri()
+    {
+        return $this->link->getAdminLink('AdminLogin', false, [], [
+            'logout' => 1,
+            self::getQueryLogoutCallbackParam() => 1,
+        ], true);
     }
 }

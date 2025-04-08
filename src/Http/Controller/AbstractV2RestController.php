@@ -113,9 +113,8 @@ abstract class AbstractV2RestController extends AbstractRestController
         }
 
         if (in_array($_SERVER['REQUEST_METHOD'], ['POST', 'PUT', 'PATCH'], true)) {
-            // FIXME To avoid this warning set 'always_populate_raw_post_data' to '-1' in php.ini and use the php://input stream instead. in Unknown on line 0"
-            $json = file_get_contents('php://input');
-            $payload = !empty($json) ? json_decode($json, true) : [];
+            $decoded = json_decode(file_get_contents('php://input'), true);
+            $payload = json_last_error() === JSON_ERROR_NONE && is_array($decoded) ? $decoded : [];
         } else {
             $payload = $_GET;
         }
