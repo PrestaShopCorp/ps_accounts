@@ -3,12 +3,14 @@ services:
   prestashop:
     container_name: phpunit
 #    image: 'prestashop/prestashop-flashlight:1.7.6'
+#    image: prestashop/prestashop-flashlight:8.1.5-7.4
     image: ${PLATFORM_IMAGE}
     healthcheck:
       test: curl --fail http://localhost:80 || exit 1
       interval: 10s
       timeout: 10s
       retries: 5
+#    user: www-data
     user: root
     environment:
       - PS_DOMAIN=localhost
@@ -45,7 +47,7 @@ services:
       - MYSQL_ROOT_PASSWORD=prestashop
       - MYSQL_DATABASE=prestashop
       - MYSQL_PORT=3306
-    ports:
-      - 9906:3306
+#    ports:
+#      - 9906:3306
 
 

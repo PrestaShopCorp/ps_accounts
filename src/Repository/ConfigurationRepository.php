@@ -173,7 +173,8 @@ class ConfigurationRepository
             $entry = $this->configuration->getUncachedConfiguration(
                 ConfigurationKeys::PSX_UUID_V4,
                 $this->configuration->getIdShopGroup(),
-                $this->configuration->getIdShop());
+                $this->configuration->getIdShop()
+            );
 
             return $entry->date_upd;
         } catch (\Exception $e) {
@@ -215,11 +216,14 @@ class ConfigurationRepository
     }
 
     /**
+     * @param bool $cached
+     * @param bool|mixed $default
+     *
      * @return string|bool
      */
-    public function getAccountsRsaPublicKey()
+    public function getAccountsRsaPublicKey($default = false, $cached = true)
     {
-        return $this->configuration->get(ConfigurationKeys::PS_ACCOUNTS_RSA_PUBLIC_KEY);
+        return $this->configuration->get(ConfigurationKeys::PS_ACCOUNTS_RSA_PUBLIC_KEY, $default, $cached);
     }
 
     /**
@@ -371,8 +375,6 @@ class ConfigurationRepository
      */
     public function fixMultiShopConfig()
     {
-        Logger::getInstance()->info(__METHOD__);
-
         if ($this->isMultishopActive()) {
             $this->migrateToMultiShop();
         } else {

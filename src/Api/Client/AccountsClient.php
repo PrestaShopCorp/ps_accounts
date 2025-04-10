@@ -22,59 +22,43 @@ namespace PrestaShop\Module\PsAccounts\Api\Client;
 
 use PrestaShop\Module\PsAccounts\Account\Dto\UpdateShop;
 use PrestaShop\Module\PsAccounts\Account\Dto\UpgradeModule;
+use PrestaShop\Module\PsAccounts\Http\Client\ClientConfig;
+use PrestaShop\Module\PsAccounts\Http\Client\Curl\Client;
+use PrestaShop\Module\PsAccounts\Http\Client\Factory;
+use PrestaShop\Module\PsAccounts\Http\Client\Request;
 use PrestaShop\Module\PsAccounts\Account\ShopUrl;
-use PrestaShop\Module\PsAccounts\Http\Client\Guzzle\GuzzleClient;
-use PrestaShop\Module\PsAccounts\Http\Client\Guzzle\GuzzleClientFactory;
 use PrestaShop\Module\PsAccounts\Vendor\Ramsey\Uuid\Uuid;
 
 class AccountsClient
 {
     /**
-     * @var string
-     */
-    private $apiUrl;
-
-    /**
-     * @var GuzzleClient
+     * @var Client
      */
     private $client;
 
     /**
-     * @var int
+     * @var array
      */
-    private $defaultTimeout;
+    protected $clientConfig;
 
     /**
-     * ServicesAccountsClient constructor.
-     *
-     * @param string $apiUrl
-     * @param GuzzleClient|null $client
-     * @param int $defaultTimeout
-     *
-     * @throws \Exception
+     * @param array $config
      */
-    public function __construct(
-                     $apiUrl,
-        GuzzleClient $client = null,
-                     $defaultTimeout = 20
-    ) {
-        $this->apiUrl = $apiUrl;
-        $this->client = $client;
-        $this->defaultTimeout = $defaultTimeout;
+    public function __construct(array $config)
+    {
+        $this->clientConfig = array_merge([
+            ClientConfig::NAME => static::class,
+            ClientConfig::HEADERS => $this->getHeaders(),
+        ], $config);
     }
 
     /**
-     * @return GuzzleClient
+     * @return Client
      */
     private function getClient()
     {
         if (null === $this->client) {
-            $this->client = (new GuzzleClientFactory())->create([
-                'name' => static::class,
-                'base_uri' => $this->apiUrl,
-                'headers' => $this->getHeaders(),
-                'timeout' => $this->defaultTimeout,
-            ]);
+            $this->client = (new Factory())->create($this->clientConfig);
         }
 
         return $this->client;
@@ -102,37 +86,40 @@ class AccountsClient
      * @return array
      *
      * $response['body']['userToken']
+     * $response['body']['userRefreshToken']
      * $response['body']['shopToken']
+     * $response['body']['shopRefreshToken']
      */
     public function firebaseTokens($accessToken)
     {
-        $this->getClient()->setRoute('v2/shop/firebase/tokens');
-
-        return $this->getClient()->get([
-            'headers' => $this->getHeaders([
-                'Authorization' => 'Bearer ' . $accessToken,
-            ]),
-        ]);
+        return $this->getClient()->get(
+            'v2/shop/firebase/tokens',
+            [
+                Request::HEADERS => $this->getHeaders([
+                    'Authorization' => 'Bearer ' . $accessToken,
+                ]),
+            ])->toLegacy();
     }
 
     /**
      * @param string $refreshToken
      * @param string $cloudShopId
      *
-     * @return array response
+     * @return array
      */
     public function refreshShopToken($refreshToken, $cloudShopId)
     {
-        $this->getClient()->setRoute('v1/shop/token/refresh');
-
-        return $this->getClient()->post([
-            'headers' => $this->getHeaders([
-                'X-Shop-Id' => $cloudShopId,
-            ]),
-            'json' => [
-                'token' => $refreshToken,
-            ],
-        ]);
+        return $this->getClient()->post(
+            'v1/shop/token/refresh',
+            [
+                Request::HEADERS => $this->getHeaders([
+                    'X-Shop-Id' => $cloudShopId,
+                ]),
+                Request::JSON => [
+                    'token' => $refreshToken,
+                ],
+            ]
+        )->toLegacy();
     }
 
     /**
@@ -144,14 +131,15 @@ class AccountsClient
      */
     public function deleteUserShop($ownerUid, $cloudShopId, $ownerToken)
     {
-        $this->getClient()->setRoute('v1/user/' . $ownerUid . '/shop/' . $cloudShopId);
-
-        return $this->getClient()->delete([
-            'headers' => $this->getHeaders([
-                'Authorization' => 'Bearer ' . $ownerToken,
-                'X-Shop-Id' => $cloudShopId,
-            ]),
-        ]);
+        return $this->getClient()->delete(
+            'v1/user/' . $ownerUid . '/shop/' . $cloudShopId,
+            [
+                Request::HEADERS => $this->getHeaders([
+                    'Authorization' => 'Bearer ' . $ownerToken,
+                    'X-Shop-Id' => $cloudShopId,
+                ]),
+            ]
+        )->toLegacy();
     }
 
     /**
@@ -164,15 +152,17 @@ class AccountsClient
      */
     public function updateUserShop($ownerUid, $cloudShopId, $ownerToken, UpdateShop $shop)
     {
-        $this->getClient()->setRoute('v1/user/' . $ownerUid . '/shop/' . $cloudShopId);
-
-        return $this->getClient()->patch([
-            'headers' => $this->getHeaders([
-                'Authorization' => 'Bearer ' . $ownerToken,
-                'X-Shop-Id' => $cloudShopId,
-            ]),
-            'json' => $shop->jsonSerialize(),
-        ]);
+        return $this->getClient()->patch(
+            'v1/user/' . $ownerUid . '/shop/' . $cloudShopId,
+            [
+                Request::HEADERS => $this->getHeaders([
+                    // FIXME: use shop access token instead
+                    'Authorization' => 'Bearer ' . $ownerToken,
+                    'X-Shop-Id' => $cloudShopId,
+                ]),
+                Request::JSON => $shop->jsonSerialize(),
+            ]
+        )->toLegacy();
     }
 
     /**
@@ -184,15 +174,16 @@ class AccountsClient
      */
     public function upgradeShopModule($cloudShopId, $shopToken, UpgradeModule $data)
     {
-        $this->getClient()->setRoute('/v2/shop/module/update');
-
-        return $this->getClient()->post([
-            'headers' => $this->getHeaders([
-                'Authorization' => 'Bearer ' . $shopToken,
-                'X-Shop-Id' => $cloudShopId,
-            ]),
-            'json' => $data->jsonSerialize(),
-        ]);
+        return $this->getClient()->post(
+            '/v2/shop/module/update',
+            [
+                Request::HEADERS => $this->getHeaders([
+                    'Authorization' => 'Bearer ' . $shopToken,
+                    'X-Shop-Id' => $cloudShopId,
+                ]),
+                Request::JSON => $data->jsonSerialize(),
+            ]
+        )->toLegacy();
     }
 
     /**
@@ -200,17 +191,19 @@ class AccountsClient
      *
      * @param string $idToken
      *
-     * @return array response
+     * @return array
      */
     public function verifyToken($idToken)
     {
-        $this->getClient()->setRoute('/v1/shop/token/verify');
-
-        return $this->getClient()->post([
-            'json' => [
-                'token' => $idToken,
-            ],
-        ]);
+        return $this->getClient()->post(
+            '/v1/shop/token/verify',
+            [
+//                Request::HEADERS => $this->getHeaders(),
+                Request::JSON => [
+                    'token' => $idToken,
+                ],
+            ]
+        )->toLegacy();
     }
 
     /**
@@ -218,9 +211,7 @@ class AccountsClient
      */
     public function healthCheck()
     {
-        $this->getClient()->setRoute('/healthcheck');
-
-        return $this->getClient()->get();
+        return $this->getClient()->get('/healthcheck')->toLegacy();
     }
 
     /**
@@ -230,10 +221,9 @@ class AccountsClient
      */
     public function createShopIdentity(ShopUrl $shopUrl)
     {
-        $this->getClient()->setRoute('/v1/shop-identities');
-
         return $this->getClient()->post([
-            'json' => [
+            '/v1/shop-identities',
+            Request::JSON => [
                 'backOfficeUrl' => $shopUrl->getBackOfficeUrl(),
                 'frontendUrl' => $shopUrl->getFrontendUrl(),
                 'multiShopId' => $shopUrl->getMultiShopId(),
@@ -251,14 +241,13 @@ class AccountsClient
      */
     public function verifyShopProof($cloudShopId, $shopToken, ShopUrl $shopUrl, $proof)
     {
-        $this->getClient()->setRoute('/v1/shop-verifications/' . $cloudShopId);
-
         return $this->getClient()->put([
-            'headers' => $this->getHeaders([
+            '/v1/shop-verifications/' . $cloudShopId,
+            Request::HEADERS => $this->getHeaders([
                 'Authorization' => 'Bearer ' . $shopToken,
                 'X-Shop-Id' => $cloudShopId,
             ]),
-            'json' => [
+            Request::JSON => [
                 'backOfficeUrl' => $shopUrl->getBackOfficeUrl(),
                 'frontendUrl' => $shopUrl->getFrontendUrl(),
                 'multiShopId' => $shopUrl->getMultiShopId(),
@@ -272,10 +261,9 @@ class AccountsClient
      */
     public function shopStatus($cloudShopId, $shopToken)
     {
-        $this->getClient()->setRoute('/v1/shop-status');
-
         return $this->getClient()->get([
-            'headers' => $this->getHeaders([
+            '/v1/shop-status',
+            Request::HEADERS => $this->getHeaders([
                 'Authorization' => 'Bearer ' . $shopToken,
                 'X-Shop-Id' => $cloudShopId,
             ]),

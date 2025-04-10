@@ -1,7 +1,6 @@
 PHP = $(shell which php 2> /dev/null)
 DOCKER = $(shell docker ps 2> /dev/null)
 NPM = $(shell which npm 2> /dev/null)
-YARN = $(shell which yarn 2> /dev/null)
 COMPOSER = ${PHP} ./composer.phar
 DOCKER_COMPOSE := $(shell which docker) compose
 MODULE ?= $(shell basename ${PWD})
@@ -57,10 +56,8 @@ platform-stop:
 
 platform-restart: platform-stop platform-start
 
-.PHONY: config.php
 config.php:
-	@docker exec -w ${CONTAINER_INSTALL_DIR} phpunit \
-		sh -c "if [ ! -f ./config.php ]; then cp ./config.dist.php ./config.php; fi"
+	cp ./config.dist.php ./config.php
 
 platform-module-version:
 	@docker exec -w ${CONTAINER_INSTALL_DIR} phpunit \
@@ -79,6 +76,13 @@ platform-fix-permissions:
 	@docker exec phpunit sh -c "if [ -d ./var ]; then chown -R www-data:www-data ./var; fi"
 	@docker exec phpunit sh -c "if [ -d ./cache ]; then chown -R www-data:www-data ./cache; fi" # PS1.6
 	@docker exec phpunit sh -c "if [ -d ./log ]; then chown -R www-data:www-data ./log; fi" # PS1.6
+	#@docker exec -u root phpunit sh -c "chgrp -R www-data ${CONTAINER_INSTALL_DIR}"
+	#@docker exec -u root phpunit sh -c "find ${CONTAINER_INSTALL_DIR} -type d -exec chmod g+r,g+w,g+x {} \;"
+	#@docker exec -u root phpunit sh -c "find ${CONTAINER_INSTALL_DIR} -type f -exec chmod g+r,g+w {} \;"
+
+
+#platform-status:
+#	COMPOSER=composer71.json ./composer.phar outdated --locked -m --working-dir=./tests/
 
 #platform-status:
 #	COMPOSER=composer71.json ./composer.phar outdated --locked -m --working-dir=./tests/
@@ -124,11 +128,14 @@ platform-init: platform-pull platform-restart platform-is-alive platform-module-
 # PS80  | 7.4 - 8.0 | vendor71
 # PS90  | 8.O - *   | vendor80
 
-platform-1.6.1.24-5.6-fpm-stretch: phpunit-fix-compat-php56
+platform-1.6.1.24-5.6-fpm-stretch:
 	$(call build-platform,$@,,,composer56.json,phpstan\-PS\-1.6.neon)
 
 platform-1.6.1.24-7.1:
 	$(call build-platform,$@,,,composer71.json,phpstan\-PS\-1.6.neon)
+
+platform-1.7.5.2-7.1:
+	$(call build-platform,$@,,,composer71.json)
 
 platform-1.7.7.8-7.1:
 	$(call build-platform,$@,,,composer71.json)
@@ -164,19 +171,6 @@ phpunit-display-logs:
 
 phpunit: phpunit-run-unit phpunit-run-feature
 
-REGEX_COMPAT_VOID := "s/\(function \(setUp\|tearDown\)()\)\(: void\)\?/\1/"
-REGEX_COMPAT_TRAIT := "s/\#\?\(use \\\\DMS\\\\PHPUnitExtensions\\\\ArraySubset\\\\ArraySubsetAsserts;\)/\#\1/"
-phpunit-fix-compat-php56:
-	@echo "fixing compat for php56..."
-	find ./tests -type f -name "TestCase.php" -exec sed -i -e ${REGEX_COMPAT_TRAIT} {} \;
-	find ./tests -type f -name "TestCase.php" -exec sed -i -e ${REGEX_COMPAT_VOID} {} \;
-	find ./tests/Unit -type f -name "*.php" -exec sed -i -e ${REGEX_COMPAT_VOID} {} \;
-	find ./tests/Feature -type f -name "*.php" -exec sed -i -e ${REGEX_COMPAT_VOID} {} \;
-
-phpunit-reset-compat-php56: REGEX_COMPAT_VOID := "s/\(function \(setUp\|tearDown\)()\)\(: void\)\?/\1: void/"
-phpunit-reset-compat-php56: REGEX_COMPAT_TRAIT := "s/\#\?\(use \\\\DMS\\\\PHPUnitExtensions\\\\ArraySubset\\\\ArraySubsetAsserts;\)/\1/"
-phpunit-reset-compat-php56: phpunit-fix-compat-php56
-
 #########
 # PHPSTAN
 
@@ -191,20 +185,21 @@ phpstan:
 ##############
 # HEADER-STAMP
 
-header-stamp-test:
-	@docker exec -w ${CONTAINER_INSTALL_DIR} \
-	phpunit ./tests/vendor/bin/header-stamp \
-	--target="${WORKDIR}" \
-	--license=./tests/vendor/prestashop/header-stamp/assets/afl.txt \
-	--exclude=.github,node_modules,vendor,dist,tests,_dev \
-	--dry-run
-
-header-stamp:
-	@docker exec -w ${CONTAINER_INSTALL_DIR} \
-	phpunit ./tests/vendor/bin/header-stamp \
-	--target="${WORKDIR}" \
-	--license=./tests/vendor/prestashop/header-stamp/assets/afl.txt \
-	--exclude=.github,node_modules,vendor,dist,tests,_dev
+#header-stamp-test:
+#	@docker exec -w ${CONTAINER_INSTALL_DIR} \
+#	phpunit ./tests/vendor/bin/header-stamp \
+#	--target="${WORKDIR}" \
+#	--license=./tests/vendor/prestashop/header-stamp/assets/afl.txt \
+#	--exclude=.github,node_modules,vendor,dist,tests,e2e,e2e-env,_dev \
+#	--dry-run
+#
+## 1.6.1.24-5.6-fpm-stretch
+#header-stamp:
+#	@docker exec -w ${CONTAINER_INSTALL_DIR} \
+#	phpunit ./tests/vendor/bin/header-stamp \
+#	--target="${WORKDIR}" \
+#	--license=./tests/vendor/prestashop/header-stamp/assets/afl.txt \
+#	--exclude=.github,node_modules,vendor,dist,tests,e2e,e2e-env,_dev
 
 #phpstan16: NEON_FILE := phpstan-PS-1.6.neon
 #phpstan16: phpstan
@@ -232,8 +227,8 @@ phpunit-nightly:                  platform-nightly                  phpunit
 phpstan-1.6.1.24-7.1: platform-1.6.1.24-7.1 phpstan
 phpstan-8.1.5-7.4:    platform-8.1.5-7.4    phpstan
 
-php-cs-fixer-test-1.6.1.24-5.6-fpm-stretch: platform-1.6.1.24-5.6-fpm-stretch platform-php-cs-fixer-test
-php-cs-fixer-1.6.1.24-5.6-fpm-stretch: platform-1.6.1.24-5.6-fpm-stretch platform-php-cs-fixer
+#php-cs-fixer-test-1.6.1.24-5.6-fpm-stretch: platform-1.6.1.24-5.6-fpm-stretch platform-php-cs-fixer-test
+#php-cs-fixer-1.6.1.24-5.6-fpm-stretch: platform-1.6.1.24-5.6-fpm-stretch platform-php-cs-fixer
 
 ############
 # PHP-SCOPER
@@ -291,7 +286,7 @@ BUNDLE_ZIP ?= # ex: ps_accounts_flavor.zip
 BUNDLE_VERSION ?= $(shell grep "<version>" config.xml | sed 's/^.*\([0-9]\+\.[0-9]\+\.[0-9]\+\).*/\1/')
 BUNDLE_JS ?= views/js/app.${BUNDLE_VERSION}.js
 
-bundle: php-scoper build-front
+bundle: config.php php-scoper build-front
 	@./scripts/bundle-module.sh "${BUNDLE_ZIP}" "${BUNDLE_ENV}"
 
 bundle-prod: php-scoper config.php.prod build-front
@@ -301,8 +296,10 @@ bundle-preprod: php-scoper config.php.preprod build-front
 	@./scripts/bundle-module.sh "ps_accounts_preprod.zip" "preprod"
 
 define build_front
-	yarn --cwd ./_dev --frozen-lockfile
-	yarn --cwd ./_dev build
+	rm -f ./views/js/app.*.js
+	rm -f ./views/css/app.*.css
+	pnpm --filter ./_dev install --frozen-lockfile --ignore-scripts
+	pnpm --filter ./_dev build
 endef
 
 ${BUNDLE_JS}:
@@ -321,24 +318,40 @@ composer.phar:
 
 WORKDIR ?= ./
 
+#################
+# php-cs-fixer
+
+PHP_CS_FIXER_EXTRA_OPTS ?=
 php-cs-fixer: COMPOSER_FILE := composer56.json
 php-cs-fixer: tests/vendor
-	PHP_CS_FIXER_IGNORE_ENV=1 ${PHP} ./tests/vendor/bin/php-cs-fixer fix --using-cache=no
-#	vendor/bin/php-cs-fixer fix --dry-run --diff --using-cache=no --diff-format udiff
+	PHP_CS_FIXER_IGNORE_ENV=1 ${PHP} ./tests/vendor/bin/php-cs-fixer fix \
+		${PHP_CS_FIXER_EXTRA_OPTS} --using-cache=no
+
+php-cs-fixer-test: COMPOSER_FILE := composer56.json
+php-cs-fixer-test: PHP_CS_FIXER_EXTRA_OPTS := --dry-run --diff --diff-format udiff
+php-cs-fixer-test: tests/vendor php-cs-fixer
+
+#################
+# autoindex
 
 autoindex: COMPOSER_FILE := composer56.json
 autoindex: tests/vendor
 	${PHP} ./tests/vendor/bin/autoindex prestashop:add:index "${WORKDIR}"
 
-#HEADER_STAMP_DRY_RUN ?= ''
-#header-stamp: COMPOSER_FILE := composer56.json
-#header-stamp: tests/vendor
-#	${PHP} -d error_reporting=1 ./tests/vendor/bin/header-stamp --target="${WORKDIR}" ${HEADER_STAMP_DRY_RUN} \
-#		--license="assets/afl.txt" --exclude=".github,node_modules,vendor,vendor,tests,_dev"
-#
-#header-stamp-test: COMPOSER_FILE := composer56.json
-#header-stamp-test: HEADER_STAMP_DRY_RUN := '--dry-run'
-#header-stamp-test: tests/vendor header-stamp
+#################
+# header-stamp
+
+HEADER_STAMP_EXTRA_OPTS ?=
+header-stamp: COMPOSER_FILE := composer56.json
+header-stamp: tests/vendor
+	${PHP} -d error_reporting=0 ./tests/vendor/bin/header-stamp \
+		--target="${WORKDIR}" ${HEADER_STAMP_EXTRA_OPTS} \
+		--license="./tests/vendor/prestashop/header-stamp/assets/afl.txt" \
+		--exclude=".github,node_modules,vendor,dist,tests,e2e,e2e-env,_dev"
+
+header-stamp-test: COMPOSER_FILE := composer56.json
+header-stamp-test: HEADER_STAMP_EXTRA_OPTS := --dry-run
+header-stamp-test: tests/vendor header-stamp
 
 ##########################################################
 COMPOSER_OPTIONS ?= --prefer-dist -o --no-dev --quiet

@@ -30,7 +30,7 @@ return [
     'ps_accounts.check_api_ssl_cert' => false,
     'ps_accounts.verify_account_tokens' => false,
     'ps_accounts.accounts_vue_cdn_url' => 'https://unpkg.com/prestashop_accounts_vue_components@3/dist/psaccountsVue.umd.min.js',
-    'ps_accounts.accounts_cdn_url' => 'https://unpkg.com/prestashop_accounts_vue_components@4/dist/psaccountsVue.umd.min.js',
+    'ps_accounts.accounts_cdn_url' => 'https://unpkg.com/prestashop_accounts_vue_components@5',
     'ps_accounts.environment' => 'development',
 
     // a page to display "Update Your Module" message
@@ -44,5 +44,5 @@ return [
 
     // optional log level (defaults to ERROR)
     //ps_accounts.log_level' => !php/const PrestaShop\Module\PsAccounts\Log\Logger::ERROR
-    'ps_accounts.log_level' => 'ERROR',
+    'ps_accounts.log_level' => 'INFO',
 ];

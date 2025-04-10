@@ -8,6 +8,8 @@ parameters:
 		- ../../src
 		- ../../controllers
 		- ../../ps_accounts.php
+	excludePaths:
+		- ../../src/Controller
 	dynamicConstantNames:
 		- _PS_VERSION_
 	ignoreErrors:

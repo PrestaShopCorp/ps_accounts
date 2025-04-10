@@ -17,14 +17,15 @@
  * @copyright Since 2007 PrestaShop SA and Contributors
  * @license   https://opensource.org/licenses/AFL-3.0 Academic Free License version 3.0
  */
+require_once __DIR__ . '/../../src/Polyfill/Traits/Controller/AjaxRender.php';
 
 use PrestaShop\Module\PsAccounts\Account\Command\DeleteUserShopCommand;
 use PrestaShop\Module\PsAccounts\Account\Session\Firebase\ShopSession;
+use PrestaShop\Module\PsAccounts\AccountLogin\OAuth2Session;
 use PrestaShop\Module\PsAccounts\Cqrs\CommandBus;
 use PrestaShop\Module\PsAccounts\Hook\ActionShopAccountUnlinkAfter;
 use PrestaShop\Module\PsAccounts\Polyfill\Traits\Controller\AjaxRender;
 use PrestaShop\Module\PsAccounts\Presenter\PsAccountsPresenter;
-use PrestaShop\Module\PsAccounts\Provider\OAuth2\PrestaShopSession;
 use PrestaShop\Module\PsAccounts\Repository\ConfigurationRepository;
 use PrestaShop\Module\PsAccounts\Service\SentryService;
 
@@ -55,6 +56,9 @@ class AdminAjaxPsAccountsController extends \ModuleAdminController
         parent::__construct();
 
         $this->commandBus = $this->module->getService(CommandBus::class);
+
+        $this->ajax = true;
+        $this->content_only = true;
     }
 
     /**
@@ -88,7 +92,6 @@ class AdminAjaxPsAccountsController extends \ModuleAdminController
      *
      * @throws Exception
      */
-    //public function displayAjaxUnlinkShop()
     public function ajaxProcessUnlinkShop()
     {
         try {
@@ -166,14 +169,14 @@ class AdminAjaxPsAccountsController extends \ModuleAdminController
     public function ajaxProcessGetOrRefreshAccessToken()
     {
         try {
-            /** @var PrestaShopSession $oauthSession */
-            $oauthSession = $this->module->getService(PrestaShopSession::class);
+            /** @var OAuth2Session $oauth2Session */
+            $oauth2Session = $this->module->getService(OAuth2Session::class);
 
             header('Content-Type: text/json');
 
             $this->ajaxRender(
                 (string) json_encode([
-                    'token' => (string) $oauthSession->getOrRefreshAccessToken(),
+                    'token' => (string) $oauth2Session->getOrRefreshAccessToken(),
                 ])
             );
         } catch (Exception $e) {

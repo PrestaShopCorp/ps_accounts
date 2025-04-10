@@ -64,7 +64,7 @@ class ShopProvider
      */
     public function formatShopData(array $shopData, $psxName = '', $refreshTokens = true)
     {
-        return $this->getShopContext()->execInShopContext($shopData['id_shop'], function () use ($shopData, $psxName, $refreshTokens) {
+        return $this->getShopContext()->execInShopContext($shopData['id_shop'], function () use ($shopData, $refreshTokens) {
             /** @var \Ps_accounts $module */
             $module = \Module::getInstanceByName('ps_accounts');
 
@@ -74,13 +74,17 @@ class ShopProvider
             /** @var OwnerSession $ownerSession */
             $ownerSession = $module->getService(OwnerSession::class);
 
+            $shopId = $shopData['id_shop'];
+
             $shop = new Shop([
-                'id' => (string) $shopData['id_shop'],
+                'id' => (string) $shopId,
                 'name' => $shopData['name'],
                 'domain' => $shopData['domain'],
                 'domainSsl' => $shopData['domain_ssl'],
-                'physicalUri' => $this->getShopPhysicalUri($shopData['id_shop']),
-                'virtualUri' => $this->getShopVirtualUri($shopData['id_shop']),
+                'physicalUri' => $this->getShopPhysicalUri($shopId),
+                'virtualUri' => $this->getShopVirtualUri($shopId),
+                // FIXME: we should probably use this :
+                //'frontUrl' => $this->link->getLink()->getBaseLink(),
                 'frontUrl' => $this->getShopUrl($shopData),
 
                 // LinkAccount
@@ -92,17 +96,7 @@ class ShopProvider
                     'uuid' => $shopIdentity->getOwnerUuid() ?: null,
                     'emailIsValidated' => null,
                 ],
-                'url' => $this->link->getAdminLink(
-                    'AdminModules',
-                    true,
-                    [],
-                    [
-                        'module_name' => $psxName,
-                        'configure' => $psxName,
-                        'setShopContext' => 's-' . $shopData['id_shop'],
-                    ],
-                    true
-                ),
+                'url' => $this->link->getDashboardLink(),
                 'isLinkedV4' => null,
                 'unlinkedAuto' => false,
             ]);

@@ -2,10 +2,10 @@ name: Accounts Quality Control PHP
 
 on:
   pull_request:
-    types: [opened, reopened, synchronize, labeled]
+    types: [opened, reopened, synchronize]
 
 jobs:
-  php-linter:
+  php-syntax:
     name: PHP Syntax check 5.6|7.2|7.3|8.1|8.3
     runs-on: ubuntu-latest
     steps:
@@ -41,14 +41,20 @@ jobs:
         with:
           folder-to-exclude: "! -path \"./tests/*\" ! -path \"./vendor/symfony/polyfill-*\" ! path \"./vendor/segmentio/analytics-php/*\""
 
-  php-cs-fixer:
-    name: PHP-CS-FIXER
+  php-linter:
+    name: PHP Linter
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
         uses: actions/checkout@v3
-      - name: Run PHP-CS-Fixer
-        uses: prestashopcorp/github-action-php-cs-fixer@master
+
+      - name: php-cs-fixer
+        run: |
+          make php-cs-fixer-test
+
+      - name: header-stamp
+        run: |
+          make header-stamp-test
 
   phpunit:
     name: Testsuite for Prestashop ${{ matrix.presta-versions }}
@@ -72,6 +78,11 @@ jobs:
         run: |
           make platform-${{ matrix.presta-versions }}
 
+      - name: PHPStan
+        if: matrix.presta-versions == '1.6.1.24-7.1' || matrix.presta-versions == '8.1.5-7.4'
+        run: |
+          make phpstan
+
       - name: Feature tests
         run: |
           make phpunit-run-unit
@@ -84,38 +95,3 @@ jobs:
         if: "!success()"
         run: |
           make phpunit-display-logs
-
-      - name: PHPStan
-        if: matrix.presta-versions == '1.6.1.24-7.1' || matrix.presta-versions == '8.1.5-7.4'
-        run: |
-          make phpstan
-
-      - name: header-stamp
-        if: matrix.presta-versions == '1.6.1.24-5.6-fpm-stretch'
-        run: |
-          make header-stamp-test
-
-#  header-stamp:
-#    name: Check license headers
-#    runs-on: ubuntu-20.04
-#    steps:
-#      - name: Checkout
-#        uses: actions/checkout@v3
-#
-#      - run: make header-stamp-test
-
-  notify-earth:
-    if: ${{ github.event.action == 'labeled' && github.event.label.name == 'ready to review' }}
-    runs-on: ubuntu-latest
-    steps:
-      - name: Notify everyone when PR is ready to be reviewed
-        uses: rtCamp/action-slack-notify@v2
-        env:
-          SLACK_WEBHOOK: ${{ secrets.SLACK_WEBHOOK }}
-          SLACK_COLOR: 2986CC
-          SLACK_TITLE: 👀 it's review time!
-          SLACK_MESSAGE: "🥷 ${{ github.event.pull_request.title }}"
-          SLACK_FOOTER: "https://github.com/PrestaShopCorp/ps_accounts/pull/${{ github.event.pull_request.number }}"
-          SLACK_USERNAME: QABot
-          SLACK_CHANNEL: squad-account-dev
-          SLACK_ICON: https://avatars.githubusercontent.com/u/56089550?s=48&v=4

@@ -37,7 +37,7 @@ class UpgradeModule extends Dto
     /**
      * @var string[]
      */
-    public $mandatory = [
+    public $required = [
         'version',
         'shopId',
     ];

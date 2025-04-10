@@ -23,15 +23,11 @@ namespace PrestaShop\Module\PsAccounts\Account\Session;
 use PrestaShop\Module\PsAccounts\Account\ShopIdentity;
 use PrestaShop\Module\PsAccounts\Account\Token\Token;
 use PrestaShop\Module\PsAccounts\Cqrs\CommandBus;
-use PrestaShop\Module\PsAccounts\Exception\RefreshTokenException;
 use PrestaShop\Module\PsAccounts\Hook\ActionShopAccessTokenRefreshAfter;
-use PrestaShop\Module\PsAccounts\Log\Logger;
-use PrestaShop\Module\PsAccounts\Provider\OAuth2\ShopProvider;
 use PrestaShop\Module\PsAccounts\Repository\ConfigurationRepository;
-use PrestaShop\Module\PsAccounts\Vendor\League\OAuth2\Client\Grant\ClientCredentials;
-use PrestaShop\Module\PsAccounts\Vendor\League\OAuth2\Client\Provider\Exception\IdentityProviderException;
-use PrestaShop\Module\PsAccounts\Vendor\League\OAuth2\Client\Token\AccessToken;
-use PrestaShop\Module\PsAccounts\Vendor\League\OAuth2\Client\Token\AccessTokenInterface;
+use PrestaShop\Module\PsAccounts\Service\OAuth2\OAuth2Exception;
+use PrestaShop\Module\PsAccounts\Service\OAuth2\OAuth2Service;
+use PrestaShop\Module\PsAccounts\Service\OAuth2\Resource\AccessToken;
 
 class ShopSession extends Session implements SessionInterface
 {
@@ -46,9 +42,9 @@ class ShopSession extends Session implements SessionInterface
     protected $configurationRepository;
 
     /**
-     * @var ShopProvider
+     * @var OAuth2Service
      */
-    protected $oauth2ClientProvider;
+    protected $oAuth2Service;
 
     /**
      * @var ShopIdentity
@@ -57,17 +53,18 @@ class ShopSession extends Session implements SessionInterface
 
     /**
      * @param ConfigurationRepository $configurationRepository
-     * @param ShopProvider $oauth2ClientProvider
+     * @param OAuth2Service $oAuth2Service
+     * @param LinkShop $linkShop
      * @param CommandBus $commandBus
      */
     public function __construct(
         ConfigurationRepository $configurationRepository,
-        ShopProvider $oauth2ClientProvider,
+        OAuth2Service $oAuth2Service,
         ShopIdentity $shopIdentity,
         CommandBus $commandBus
     ) {
         $this->configurationRepository = $configurationRepository;
-        $this->oauth2ClientProvider = $oauth2ClientProvider;
+        $this->oAuth2Service = $oAuth2Service;
         $this->shopIdentity = $shopIdentity;
         $this->commandBus = $commandBus;
     }
@@ -85,10 +82,9 @@ class ShopSession extends Session implements SessionInterface
             $shopUuid = $this->getShopUuid();
             $accessToken = $this->getAccessToken($shopUuid);
 
-            //return new Token($accessToken->getToken(), $accessToken->getRefreshToken());
             $this->setToken(
-                $accessToken->getToken(),
-                $accessToken->getRefreshToken()
+                $accessToken->access_token,
+                $accessToken->refresh_token
             );
 
             $token = $this->getToken();
@@ -96,7 +92,7 @@ class ShopSession extends Session implements SessionInterface
             \Hook::exec(ActionShopAccessTokenRefreshAfter::getName(), ['token' => $token]);
 
             return $token;
-        } catch (IdentityProviderException $e) {
+        } catch (OAuth2Exception $e) {
         } catch (\Throwable $e) {
             /* @phpstan-ignore-next-line */
         } catch (\Exception $e) {
@@ -134,9 +130,9 @@ class ShopSession extends Session implements SessionInterface
     /**
      * @param string $shopUid
      *
-     * @return AccessToken|AccessTokenInterface
+     * @return AccessToken
      *
-     * @throws IdentityProviderException
+     * @throws OAuth2Exception
      */
     protected function getAccessToken($shopUid)
     {
@@ -145,13 +141,8 @@ class ShopSession extends Session implements SessionInterface
             //'https://accounts-api.distribution.prestashop.net/shops/' . $shopUid,
             //'another.audience'
         ];
-        $token = $this->oauth2ClientProvider->getAccessToken(new ClientCredentials(), [
-            //'scope' => 'read.all write.all',
-            'audience' => implode(' ', $audience),
-        ]);
-        Logger::getInstance()->debug(__METHOD__ . json_encode($token->jsonSerialize(), JSON_PRETTY_PRINT));
 
-        return $token;
+        return $this->oAuth2Service->getAccessTokenByClientCredentials([], $audience);
     }
 
     /**

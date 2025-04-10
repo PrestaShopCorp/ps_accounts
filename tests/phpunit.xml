@@ -11,15 +11,15 @@
 >
   <testsuites>
     <testsuite name="all">
-      <directory suffix="Test.php">./</directory>
+      <directory suffix="Test.php">./src</directory>
       <directory suffix="Test.php">../src</directory>
     </testsuite>
     <testsuite name="unit">
-      <directory suffix="Test.php">./Unit</directory>
+      <directory suffix="Test.php">./src/Unit</directory>
       <directory suffix="Test.php">../src</directory>
     </testsuite>
     <testsuite name="feature">
-      <directory suffix="Test.php">./Feature</directory>
+      <directory suffix="Test.php">./src/Feature</directory>
     </testsuite>
   </testsuites>
   <filter>
@@ -31,4 +31,7 @@
   <logging>
     <log type="coverage-text" target="php://stdout" />
   </logging>
+  <php>
+    <env name="SYMFONY_DEPRECATIONS_HELPER" value="weak" />
+  </php>
 </phpunit>
