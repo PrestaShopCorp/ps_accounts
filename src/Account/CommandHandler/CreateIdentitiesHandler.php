@@ -18,7 +18,6 @@
  * @license   https://opensource.org/licenses/AFL-3.0 Academic Free License version 3.0
  */
 
-<<<<<<<< HEAD:src/Account/CommandHandler/CreateIdentitiesHandler.php
 namespace PrestaShop\Module\PsAccounts\Account\CommandHandler;
 
 use PrestaShop\Module\PsAccounts\Account\Command\CreateIdentitiesCommand;
@@ -36,22 +35,5 @@ class CreateIdentitiesHandler extends MultiShopHandler
         $this->handleMulti(function ($multiShopId) {
             $this->commandBus->handle(new CreateIdentityCommand($multiShopId));
         });
-========
-namespace PrestaShop\Module\PsAccounts\ServiceProvider;
-
-class StaticProvider
-{
-    /**
-     * @param string $serviceName
-     *
-     * @return mixed
-     */
-    public static function provide($serviceName)
-    {
-        /** @var \Ps_accounts $module */
-        $module = \Module::getInstanceByName('ps_accounts');
-
-        return $module->getService($serviceName);
->>>>>>>> origin/main:src/ServiceProvider/StaticProvider.php
     }
 }
