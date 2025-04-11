@@ -4,9 +4,9 @@ namespace PrestaShop\Module\PsAccounts\Tests\Unit\Account\CommandHandler;
 
 use PrestaShop\Module\PsAccounts\Account\Command\CreateIdentityCommand;
 use PrestaShop\Module\PsAccounts\Account\CommandHandler\CreateIdentityHandler;
+use PrestaShop\Module\PsAccounts\Account\ShopIdentity;
 use PrestaShop\Module\PsAccounts\Api\Client\AccountsClient;
-use PrestaShop\Module\PsAccounts\Context\ShopContext;
-use PrestaShop\Module\PsAccounts\Service\OAuth2\Oauth2Client;
+use PrestaShop\Module\PsAccounts\Service\OAuth2\OAuth2Client;
 use PrestaShop\Module\PsAccounts\Provider\ShopProvider;
 use PrestaShop\Module\PsAccounts\Tests\TestCase;
 
@@ -36,15 +36,17 @@ class CreateIdentityHandlerTest extends TestCase
      */
     protected $shopId = 1;
 
-    public function setUp(): void
+    public function set_up()
     {
-        parent::setUp();
+        parent::set_up();
 
         $this->accountsClient = $this->createMock(AccountsClient::class);
 
         $this->shopId = $this->shopProvider->getShopContext()->getContext()->shop->id;
 
         $this->oauth2Client = $this->createMock(Oauth2Client::class);
+
+        $this->shopIdentity = $this->createMock(ShopIdentity::class);
     }
 
     /**
@@ -98,6 +100,9 @@ class CreateIdentityHandlerTest extends TestCase
 
         $this->oauth2Client->method('exists')->willReturn(true);
         $this->oauth2Client->method('update');
+
+        $this->shopIdentity->method('exists')->willReturn(true);
+        $this->shopIdentity->method('update');
 
 //        $this->accountsClient
 //            ->method('createShopIdentity')
