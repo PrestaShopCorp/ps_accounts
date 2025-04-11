@@ -4,7 +4,6 @@ namespace PrestaShop\Module\PsAccounts\Tests\Feature;
 
 use Db;
 use PrestaShop\Module\PsAccounts\Http\Client\Response;
-use PrestaShop\Module\PsAccounts\Provider\RsaKeysProvider;
 use PrestaShop\Module\PsAccounts\Repository\UserTokenRepository;
 use PrestaShop\Module\PsAccounts\Tests\HttpTestClient;
 use PrestaShop\Module\PsAccounts\Tests\TestCase;
@@ -24,11 +23,6 @@ class FeatureTestCase extends TestCase
      * @var HttpTestClient
      */
     protected $client;
-
-    /**
-     * @var RsaKeysProvider
-     */
-    protected $rsaKeysProvider;
 
     /**
      * @var UserTokenRepository
@@ -64,9 +58,6 @@ class FeatureTestCase extends TestCase
 
         $this->module->getLogger()->debug('Using ' . get_class($this->client));
 
-        $this->rsaKeysProvider = $this->module->getService(RsaKeysProvider::class);
-        $this->rsaKeysProvider->regenerateKeys();
-
         $this->userTokenRepository = $this->module->getService(UserTokenRepository::class);
         $this->userTokenRepository->cleanupCredentials();
     }
@@ -75,6 +66,8 @@ class FeatureTestCase extends TestCase
      * @param array $payload
      *
      * @return Token
+     *
+     * @depercated since v8.0.0
      */
     public function encodePayload(array $payload)
     {
@@ -87,8 +80,8 @@ class FeatureTestCase extends TestCase
         }
 
         return $builder->getToken(
-            new Sha256(),
-            new Key($this->rsaKeysProvider->getPublicKey())
+            new Sha256()
+            //new Key($this->rsaKeysProvider->getPublicKey())
         );
     }
 

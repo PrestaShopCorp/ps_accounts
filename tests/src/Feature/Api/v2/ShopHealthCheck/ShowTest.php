@@ -179,7 +179,6 @@ JSON;
         $this->assertIsString($json['cloudShopId']);
         $this->assertIsString($json['shopName']);
         $this->assertIsString($json['ownerEmail']);
-        $this->assertIsString($json['publicKey']);
     }
 
     /**
