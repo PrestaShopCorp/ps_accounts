@@ -49,9 +49,9 @@ class BaseTestCase extends \PHPUnit\Framework\TestCase
     /**
      * @inject
      *
-     * @var \PrestaShop\Module\PsAccounts\Account\LinkShop
+     * @var \PrestaShop\Module\PsAccounts\Account\ShopIdentity
      */
-    public $linkShop;
+    public $shopIdentity;
 
     /**
      * @var bool

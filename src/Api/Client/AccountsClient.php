@@ -22,6 +22,7 @@ namespace PrestaShop\Module\PsAccounts\Api\Client;
 
 use PrestaShop\Module\PsAccounts\Account\Dto\UpdateShop;
 use PrestaShop\Module\PsAccounts\Account\Dto\UpgradeModule;
+use PrestaShop\Module\PsAccounts\Account\ShopUrl;
 use PrestaShop\Module\PsAccounts\Http\Client\ClientConfig;
 use PrestaShop\Module\PsAccounts\Http\Client\Curl\Client;
 use PrestaShop\Module\PsAccounts\Http\Client\Factory;
@@ -74,6 +75,7 @@ class AccountsClient
             'Accept' => 'application/json',
             'X-Module-Version' => \Ps_accounts::VERSION,
             'X-Prestashop-Version' => _PS_VERSION_,
+            'X-Multishop-Enabled' => (bool) \Shop::isFeatureActive(),
             'X-Request-ID' => Uuid::uuid4()->toString(),
         ], $additionalHeaders);
     }
@@ -101,17 +103,17 @@ class AccountsClient
 
     /**
      * @param string $refreshToken
-     * @param string $shopUuid
+     * @param string $cloudShopId
      *
      * @return array
      */
-    public function refreshShopToken($refreshToken, $shopUuid)
+    public function refreshShopToken($refreshToken, $cloudShopId)
     {
         return $this->getClient()->post(
             'v1/shop/token/refresh',
             [
                 Request::HEADERS => $this->getHeaders([
-                    'X-Shop-Id' => $shopUuid,
+                    'X-Shop-Id' => $cloudShopId,
                 ]),
                 Request::JSON => [
                     'token' => $refreshToken,
@@ -122,19 +124,19 @@ class AccountsClient
 
     /**
      * @param string $ownerUid
-     * @param string $shopUid
+     * @param string $cloudShopId
      * @param string $ownerToken
      *
      * @return array
      */
-    public function deleteUserShop($ownerUid, $shopUid, $ownerToken)
+    public function deleteUserShop($ownerUid, $cloudShopId, $ownerToken)
     {
         return $this->getClient()->delete(
-            'v1/user/' . $ownerUid . '/shop/' . $shopUid,
+            'v1/user/' . $ownerUid . '/shop/' . $cloudShopId,
             [
                 Request::HEADERS => $this->getHeaders([
                     'Authorization' => 'Bearer ' . $ownerToken,
-                    'X-Shop-Id' => $shopUid,
+                    'X-Shop-Id' => $cloudShopId,
                 ]),
             ]
         )->toLegacy();
@@ -142,21 +144,21 @@ class AccountsClient
 
     /**
      * @param string $ownerUid
-     * @param string $shopUid
+     * @param string $cloudShopId
      * @param string $ownerToken
      * @param UpdateShop $shop
      *
      * @return array
      */
-    public function updateUserShop($ownerUid, $shopUid, $ownerToken, UpdateShop $shop)
+    public function updateUserShop($ownerUid, $cloudShopId, $ownerToken, UpdateShop $shop)
     {
         return $this->getClient()->patch(
-            'v1/user/' . $ownerUid . '/shop/' . $shopUid,
+            'v1/user/' . $ownerUid . '/shop/' . $cloudShopId,
             [
                 Request::HEADERS => $this->getHeaders([
                     // FIXME: use shop access token instead
                     'Authorization' => 'Bearer ' . $ownerToken,
-                    'X-Shop-Id' => $shopUid,
+                    'X-Shop-Id' => $cloudShopId,
                 ]),
                 Request::JSON => $shop->jsonSerialize(),
             ]
@@ -164,20 +166,20 @@ class AccountsClient
     }
 
     /**
-     * @param string $shopUid
+     * @param string $cloudShopId
      * @param string $shopToken
      * @param UpgradeModule $data
      *
      * @return array
      */
-    public function upgradeShopModule($shopUid, $shopToken, UpgradeModule $data)
+    public function upgradeShopModule($cloudShopId, $shopToken, UpgradeModule $data)
     {
         return $this->getClient()->post(
             '/v2/shop/module/update',
             [
                 Request::HEADERS => $this->getHeaders([
                     'Authorization' => 'Bearer ' . $shopToken,
-                    'X-Shop-Id' => $shopUid,
+                    'X-Shop-Id' => $cloudShopId,
                 ]),
                 Request::JSON => $data->jsonSerialize(),
             ]
@@ -196,7 +198,7 @@ class AccountsClient
         return $this->getClient()->post(
             '/v1/shop/token/verify',
             [
-                Request::HEADERS => $this->getHeaders(),
+//                Request::HEADERS => $this->getHeaders(),
                 Request::JSON => [
                     'token' => $idToken,
                 ],
@@ -210,5 +212,69 @@ class AccountsClient
     public function healthCheck()
     {
         return $this->getClient()->get('/healthcheck')->toLegacy();
+    }
+
+    /**
+     * @param ShopUrl $shopUrl
+     *
+     * @return array
+     */
+    public function createShopIdentity(ShopUrl $shopUrl)
+    {
+        return $this->getClient()->post(
+            '/v1/shop-identities',
+            [
+                Request::JSON => [
+                    'backOfficeUrl' => $shopUrl->getBackOfficeUrl(),
+                    'frontendUrl' => $shopUrl->getFrontendUrl(),
+                    'multiShopId' => $shopUrl->getMultiShopId(),
+                ],
+            ]
+        )->toLegacy();
+    }
+
+    /**
+     * @param string $cloudShopId
+     * @param string $shopToken
+     * @param ShopUrl $shopUrl
+     * @param string $proof
+     *
+     * @return array
+     */
+    public function verifyShopProof($cloudShopId, $shopToken, ShopUrl $shopUrl, $proof)
+    {
+        return $this->getClient()->put(
+            '/v1/shop-verifications/' . $cloudShopId, [
+                Request::HEADERS => $this->getHeaders([
+                    'Authorization' => 'Bearer ' . $shopToken,
+                    'X-Shop-Id' => $cloudShopId,
+                ]),
+                Request::JSON => [
+                    'backOfficeUrl' => $shopUrl->getBackOfficeUrl(),
+                    'frontendUrl' => $shopUrl->getFrontendUrl(),
+                    'multiShopId' => $shopUrl->getMultiShopId(),
+                    'proof' => $proof,
+                ],
+            ]
+        )->toLegacy();
+    }
+
+    /**
+     * @param string $cloudShopId
+     * @param string $shopToken
+     *
+     * @return array
+     */
+    public function shopStatus($cloudShopId, $shopToken)
+    {
+        return $this->getClient()->get(
+            '/v1/shop-status',
+            [
+                Request::HEADERS => $this->getHeaders([
+                    'Authorization' => 'Bearer ' . $shopToken,
+                    'X-Shop-Id' => $cloudShopId,
+                ]),
+            ]
+        )->toLegacy();
     }
 }
