@@ -4,9 +4,9 @@ namespace PrestaShop\Module\PsAccounts\Tests\Feature\Api\v1\ShopToken;
 
 use PrestaShop\Module\PsAccounts\Account\Session\Firebase\ShopSession;
 use PrestaShop\Module\PsAccounts\Http\Controller\AbstractRestController;
-use PrestaShop\Module\PsAccounts\Tests\Feature\FeatureTestCase;
+use PrestaShop\Module\PsAccounts\Tests\Feature\TestCase;
 
-class ShowTest extends FeatureTestCase
+class ShowTest extends TestCase
 {
     /**
      * @inject

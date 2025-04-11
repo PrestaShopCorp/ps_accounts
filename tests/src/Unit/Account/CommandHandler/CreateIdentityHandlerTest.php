@@ -127,6 +127,15 @@ class CreateIdentityHandlerTest extends TestCase
     }
 
     /**
+     * @test
+     *
+     * @throws \Exception
+     */
+    public function itShouldStoreIdentity()
+    {
+    }
+
+    /**
      * @return CreateIdentityHandler
      */
     private function getCreateIdentityHandler()

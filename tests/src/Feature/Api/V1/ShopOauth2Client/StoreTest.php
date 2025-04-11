@@ -7,10 +7,10 @@ use PrestaShop\Module\PsAccounts\Account\Session\Firebase\ShopSession;
 use PrestaShop\Module\PsAccounts\Service\OAuth2\OAuth2Client;
 use PrestaShop\Module\PsAccounts\Http\Controller\AbstractRestController;
 use PrestaShop\Module\PsAccounts\Adapter\ConfigurationKeys;
-use PrestaShop\Module\PsAccounts\Tests\Feature\FeatureTestCase;
+use PrestaShop\Module\PsAccounts\Tests\Feature\TestCase;
 use function GuzzleHttp\Psr7\str;
 
-class StoreTest extends FeatureTestCase
+class StoreTest extends TestCase
 {
     /**
      * @inject

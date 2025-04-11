@@ -2,16 +2,14 @@
 
 namespace PrestaShop\Module\PsAccounts\Tests\Feature\Api\v1\ShopLinkAccount;
 
-use PrestaShop\Module\PsAccounts\Account\ShopIdentity;
 use PrestaShop\Module\PsAccounts\Account\Session\Firebase\OwnerSession;
 use PrestaShop\Module\PsAccounts\Account\Session\Firebase\ShopSession;
 use PrestaShop\Module\PsAccounts\Account\Token\NullToken;
 use PrestaShop\Module\PsAccounts\Http\Controller\AbstractRestController;
 use PrestaShop\Module\PsAccounts\Adapter\ConfigurationKeys;
-use PrestaShop\Module\PsAccounts\Tests\Feature\FeatureTestCase;
-use PrestaShop\Module\PsAccounts\Vendor\GuzzleHttp\Cookie\CookieJar;
+use PrestaShop\Module\PsAccounts\Tests\Feature\TestCase;
 
-class DeleteTest extends FeatureTestCase
+class DeleteTest extends TestCase
 {
     /**
      * @inject

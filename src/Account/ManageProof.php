@@ -46,6 +46,7 @@ class ManageProof
      */
     public function generateProof()
     {
+        // FIXME: another way to generate a more secure proof ?
         $proof = Uuid::uuid4()->toString();
 
         $this->configuration->updateProof($proof);

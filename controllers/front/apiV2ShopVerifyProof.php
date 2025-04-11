@@ -45,7 +45,7 @@ class ps_AccountsApiV2ShopVerifyProofModuleFrontController extends AbstractV2Sho
     protected function getScope()
     {
         return [
-//            'shop.verify_proof',
+            'shop.verify_proof',
         ];
     }
 
@@ -54,7 +54,9 @@ class ps_AccountsApiV2ShopVerifyProofModuleFrontController extends AbstractV2Sho
      */
     protected function getAudience()
     {
-        return [];
+        return [
+            'ps_accounts/' . $this->shopIdentity->getShopUuid(),
+        ];
     }
 
     public function __construct()
@@ -73,12 +75,6 @@ class ps_AccountsApiV2ShopVerifyProofModuleFrontController extends AbstractV2Sho
      */
     public function show(Shop $shop, array $payload)
     {
-        $cloudShopId = $this->shopIdentity->getShopUuid();
-        $this->assertAudience([
-            'shop_' . $cloudShopId,
-            //'https://accounts-api.distribution.prestashop.net/shops/' . $cloudShopId,
-        ]);
-
         return [
             'proof' => $this->manageProof->getProof(),
         ];

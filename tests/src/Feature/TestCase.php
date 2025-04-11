@@ -6,13 +6,11 @@ use Db;
 use PrestaShop\Module\PsAccounts\Http\Client\Response;
 use PrestaShop\Module\PsAccounts\Repository\UserTokenRepository;
 use PrestaShop\Module\PsAccounts\Tests\HttpTestClient;
-use PrestaShop\Module\PsAccounts\Tests\TestCase;
 use PrestaShop\Module\PsAccounts\Vendor\Lcobucci\JWT\Builder;
 use PrestaShop\Module\PsAccounts\Vendor\Lcobucci\JWT\Signer\Hmac\Sha256;
-use PrestaShop\Module\PsAccounts\Vendor\Lcobucci\JWT\Signer\Key;
 use PrestaShop\Module\PsAccounts\Vendor\Lcobucci\JWT\Token;
 
-class FeatureTestCase extends TestCase
+class TestCase extends \PrestaShop\Module\PsAccounts\Tests\TestCase
 {
     /**
      * @var bool

@@ -4,9 +4,9 @@ namespace PrestaShop\Module\PsAccounts\Tests\Feature\Api\v1\ShopUrl;
 
 use PrestaShop\Module\PsAccounts\Http\Controller\AbstractRestController;
 use PrestaShop\Module\PsAccounts\Provider\ShopProvider;
-use PrestaShop\Module\PsAccounts\Tests\Feature\FeatureTestCase;
+use PrestaShop\Module\PsAccounts\Tests\Feature\TestCase;
 
-class ShowTest extends FeatureTestCase
+class ShowTest extends TestCase
 {
     /**
      * @inject
