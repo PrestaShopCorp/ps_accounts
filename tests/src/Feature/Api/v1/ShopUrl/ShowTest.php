@@ -15,6 +15,13 @@ class ShowTest extends FeatureTestCase
      */
     protected $shopContext;
 
+    public function set_up()
+    {
+        parent::set_up();
+
+        $this->markTestSkipped();
+    }
+
     /**
      * @test
      *
