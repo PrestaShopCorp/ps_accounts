@@ -33,9 +33,9 @@ class StoreTest extends FeatureTestCase
      */
     protected $ownerSession;
 
-    public function setUp(): void
+    public function set_up()
     {
-        parent::setUp();
+        parent::set_up();
 
         $this->markTestSkipped();
     }

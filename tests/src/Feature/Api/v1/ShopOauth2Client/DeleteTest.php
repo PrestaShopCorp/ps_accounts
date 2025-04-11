@@ -15,9 +15,9 @@ class DeleteTest extends FeatureTestCase
      */
     protected $oauth2Client;
 
-    public function setUp(): void
+    public function set_up()
     {
-        parent::setUp();
+        parent::set_up();
 
         $this->markTestSkipped();
     }

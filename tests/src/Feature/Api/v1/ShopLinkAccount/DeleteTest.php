@@ -34,9 +34,9 @@ class DeleteTest extends FeatureTestCase
      */
     protected $session;
 
-    public function setUp(): void
+    public function set_up()
     {
-        parent::setUp();
+        parent::set_up();
 
         $this->markTestSkipped();
     }
