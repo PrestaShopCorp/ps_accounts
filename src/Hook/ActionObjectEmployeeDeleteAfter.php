@@ -43,6 +43,7 @@ class ActionObjectEmployeeDeleteAfter extends Hook
                 $repository->delete($employeeAccount);
             }
         } catch (\Throwable $e) {
+            /* @phpstan-ignore-next-line */
         } catch (\Exception $e) {
         }
     }

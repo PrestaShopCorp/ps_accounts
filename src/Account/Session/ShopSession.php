@@ -20,6 +20,7 @@
 
 namespace PrestaShop\Module\PsAccounts\Account\Session;
 
+use PrestaShop\Module\PsAccounts\Account\Exception\RefreshTokenException;
 use PrestaShop\Module\PsAccounts\Account\ShopIdentity;
 use PrestaShop\Module\PsAccounts\Account\Token\Token;
 use PrestaShop\Module\PsAccounts\Cqrs\CommandBus;
@@ -54,7 +55,7 @@ class ShopSession extends Session implements SessionInterface
     /**
      * @param ConfigurationRepository $configurationRepository
      * @param OAuth2Service $oAuth2Service
-     * @param LinkShop $linkShop
+     * @param ShopIdentity $shopIdentity
      * @param CommandBus $commandBus
      */
     public function __construct(

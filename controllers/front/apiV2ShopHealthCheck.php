@@ -90,7 +90,7 @@ class ps_AccountsApiV2ShopHealthCheckModuleFrontController extends AbstractV2Sho
     protected function getAudience()
     {
         return [
-            'ps_accounts/' . $this->linkShop->getShopUuid(),
+            'ps_accounts/' . $this->shopIdentity->getShopUuid(),
         ];
     }
 
@@ -125,7 +125,7 @@ class ps_AccountsApiV2ShopHealthCheckModuleFrontController extends AbstractV2Sho
     public function show(Shop $shop, ShopHealthCheckRequest $request)
     {
 //        $this->assertAudience([
-//            'ps_accounts/' . $this->linkShop->getShopUuid(),
+//            'ps_accounts/' . $this->shopIdentity->getShopUuid(),
 //        ]);
 //        $this->assertScope([
 //            'shop.health',
@@ -173,10 +173,9 @@ class ps_AccountsApiV2ShopHealthCheckModuleFrontController extends AbstractV2Sho
                 'psVersion' => _PS_VERSION_,
                 'moduleVersion' => Ps_accounts::VERSION,
                 'phpVersion' => phpversion(),
-                'cloudShopId' => (string) $this->linkShop->getShopUuid(),
+                'cloudShopId' => (string) $this->shopIdentity->getShopUuid(),
                 'shopName' => $shop->name,
-                'ownerEmail' => (string) $this->linkShop->getOwnerEmail(),
-                'publicKey' => (string) $this->linkShop->getPublicKey(),
+                'ownerEmail' => (string) $this->shopIdentity->getOwnerEmail(),
             ]);
         }
 

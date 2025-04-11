@@ -33,7 +33,7 @@ class ShopUrl
     private $frontendUrl;
 
     /**
-     * @var string
+     * @var int
      */
     private $multiShopId;
 
@@ -42,7 +42,7 @@ class ShopUrl
      *
      * @param string $backOfficeUrl
      * @param string $frontendUrl
-     * @param string $multiShopId
+     * @param int $multiShopId
      */
     public function __construct($backOfficeUrl, $frontendUrl, $multiShopId)
     {
@@ -60,7 +60,7 @@ class ShopUrl
     {
         $backOfficeUrl = explode('/index.php', $shop['url'])[0];
         $frontendUrl = rtrim($shop['frontUrl'], '/');
-        $multiShopId = $shop['id'];
+        $multiShopId = (int) $shop['id'];
 
         return new ShopUrl($backOfficeUrl, $frontendUrl, $multiShopId);
     }

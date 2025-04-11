@@ -23,8 +23,8 @@ namespace PrestaShop\Module\PsAccounts\Account\CommandHandler;
 use PrestaShop\Module\PsAccounts\Account\Command\CreateIdentityCommand;
 use PrestaShop\Module\PsAccounts\Account\ShopIdentity;
 use PrestaShop\Module\PsAccounts\Api\Client\AccountsClient;
-use PrestaShop\Module\PsAccounts\Provider\OAuth2\Oauth2Client;
 use PrestaShop\Module\PsAccounts\Provider\ShopProvider;
+use PrestaShop\Module\PsAccounts\Service\OAuth2\OAuth2Client;
 
 class CreateIdentityHandler
 {
@@ -34,9 +34,9 @@ class CreateIdentityHandler
     private $accountsClient;
 
     /**
-     * @var Oauth2Client
+     * @var OAuth2Client
      */
-    private $oauth2Client;
+    private $oAuth2Client;
 
     /**
      * @var ShopProvider
@@ -51,18 +51,18 @@ class CreateIdentityHandler
     /**
      * @param AccountsClient $accountsClient
      * @param ShopProvider $shopProvider
-     * @param Oauth2Client $oauth2Client
+     * @param OAuth2Client $oauth2Client
      * @param ShopIdentity $shopIdentity
      */
     public function __construct(
         AccountsClient $accountsClient,
         ShopProvider $shopProvider,
-        Oauth2Client $oauth2Client,
+        OAuth2Client $oauth2Client,
         ShopIdentity $shopIdentity
     ) {
         $this->accountsClient = $accountsClient;
         $this->shopProvider = $shopProvider;
-        $this->oauth2Client = $oauth2Client;
+        $this->oAuth2Client = $oauth2Client;
         $this->shopIdentity = $shopIdentity;
     }
 
@@ -87,7 +87,7 @@ class CreateIdentityHandler
 
         if ($response['status'] === true && isset($response['body'])) {
             $body = $response['body'];
-            $this->oauth2Client->update($body['clientId'], $body['clientSecret']);
+            $this->oAuth2Client->update($body['clientId'], $body['clientSecret']);
             $this->shopIdentity->setShopUuid($body['cloudShopId']);
         }
     }
@@ -100,6 +100,6 @@ class CreateIdentityHandler
     private function isAlreadyCreated()
     {
         // FIXME: define where this code belongs
-        return $this->oauth2Client->exists() && $this->shopIdentity->exists();
+        return $this->oAuth2Client->exists() && $this->shopIdentity->exists();
     }
 }

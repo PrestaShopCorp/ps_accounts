@@ -289,7 +289,7 @@ class ShopProvider
     }
 
     /**
-     * @param string $shopId
+     * @param int $shopId
      *
      * @return ShopUrl
      */

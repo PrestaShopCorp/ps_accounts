@@ -89,7 +89,7 @@ class ShopIdentity
     }
 
     /**
-     * @return true
+     * @return bool
      */
     public function isVerified()
     {

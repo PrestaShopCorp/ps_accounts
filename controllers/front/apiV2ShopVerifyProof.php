@@ -20,9 +20,9 @@
 
 use PrestaShop\Module\PsAccounts\Account\ManageProof;
 use PrestaShop\Module\PsAccounts\Account\ShopIdentity;
-use PrestaShop\Module\PsAccounts\Api\Controller\AbstractShopRestController;
+use PrestaShop\Module\PsAccounts\Http\Controller\AbstractV2ShopRestController;
 
-class ps_AccountsApiV1ShopVerifyProofModuleFrontController extends AbstractShopRestController
+class ps_AccountsApiV2ShopVerifyProofModuleFrontController extends AbstractV2ShopRestController
 {
     /**
      * @var ManageProof

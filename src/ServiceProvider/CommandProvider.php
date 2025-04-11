@@ -35,8 +35,8 @@ use PrestaShop\Module\PsAccounts\Account\ShopIdentity;
 use PrestaShop\Module\PsAccounts\Api\Client\AccountsClient;
 use PrestaShop\Module\PsAccounts\Context\ShopContext;
 use PrestaShop\Module\PsAccounts\Cqrs\CommandBus;
-use PrestaShop\Module\PsAccounts\Provider\OAuth2\Oauth2Client;
 use PrestaShop\Module\PsAccounts\Provider\ShopProvider;
+use PrestaShop\Module\PsAccounts\Service\OAuth2\OAuth2Client;
 use PrestaShop\Module\PsAccounts\Vendor\PrestaShopCorp\LightweightContainer\ServiceContainer\Contract\IServiceProvider;
 use PrestaShop\Module\PsAccounts\Vendor\PrestaShopCorp\LightweightContainer\ServiceContainer\ServiceContainer;
 
@@ -77,7 +77,7 @@ class CommandProvider implements IServiceProvider
             return new CreateIdentityHandler(
                 $container->get(AccountsClient::class),
                 $container->get(ShopProvider::class),
-                $container->get(Oauth2Client::class),
+                $container->get(OAuth2Client::class),
                 $container->get(ShopIdentity::class)
             );
         });

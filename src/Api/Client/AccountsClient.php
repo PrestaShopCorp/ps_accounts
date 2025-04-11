@@ -221,14 +221,16 @@ class AccountsClient
      */
     public function createShopIdentity(ShopUrl $shopUrl)
     {
-        return $this->getClient()->post([
+        return $this->getClient()->post(
             '/v1/shop-identities',
-            Request::JSON => [
-                'backOfficeUrl' => $shopUrl->getBackOfficeUrl(),
-                'frontendUrl' => $shopUrl->getFrontendUrl(),
-                'multiShopId' => $shopUrl->getMultiShopId(),
-            ],
-        ]);
+            [
+                Request::JSON => [
+                    'backOfficeUrl' => $shopUrl->getBackOfficeUrl(),
+                    'frontendUrl' => $shopUrl->getFrontendUrl(),
+                    'multiShopId' => $shopUrl->getMultiShopId(),
+                ],
+            ]
+        )->toLegacy();
     }
 
     /**
@@ -241,32 +243,38 @@ class AccountsClient
      */
     public function verifyShopProof($cloudShopId, $shopToken, ShopUrl $shopUrl, $proof)
     {
-        return $this->getClient()->put([
-            '/v1/shop-verifications/' . $cloudShopId,
-            Request::HEADERS => $this->getHeaders([
-                'Authorization' => 'Bearer ' . $shopToken,
-                'X-Shop-Id' => $cloudShopId,
-            ]),
-            Request::JSON => [
-                'backOfficeUrl' => $shopUrl->getBackOfficeUrl(),
-                'frontendUrl' => $shopUrl->getFrontendUrl(),
-                'multiShopId' => $shopUrl->getMultiShopId(),
-                'proof' => $proof,
-            ],
-        ]);
+        return $this->getClient()->put(
+            '/v1/shop-verifications/' . $cloudShopId, [
+                Request::HEADERS => $this->getHeaders([
+                    'Authorization' => 'Bearer ' . $shopToken,
+                    'X-Shop-Id' => $cloudShopId,
+                ]),
+                Request::JSON => [
+                    'backOfficeUrl' => $shopUrl->getBackOfficeUrl(),
+                    'frontendUrl' => $shopUrl->getFrontendUrl(),
+                    'multiShopId' => $shopUrl->getMultiShopId(),
+                    'proof' => $proof,
+                ],
+            ]
+        )->toLegacy();
     }
 
     /**
+     * @param string $cloudShopId
+     * @param string $shopToken
+     *
      * @return array
      */
     public function shopStatus($cloudShopId, $shopToken)
     {
-        return $this->getClient()->get([
+        return $this->getClient()->get(
             '/v1/shop-status',
-            Request::HEADERS => $this->getHeaders([
-                'Authorization' => 'Bearer ' . $shopToken,
-                'X-Shop-Id' => $cloudShopId,
-            ]),
-        ]);
+            [
+                Request::HEADERS => $this->getHeaders([
+                    'Authorization' => 'Bearer ' . $shopToken,
+                    'X-Shop-Id' => $cloudShopId,
+                ]),
+            ]
+        )->toLegacy();
     }
 }
