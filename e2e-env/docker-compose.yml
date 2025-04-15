@@ -104,7 +104,7 @@ services:
       PS_INSTALL_DB: 1
       PS_INSTALL_AUTO: 1
       PS_FOLDER_ADMIN: admin-dev
-      PS_DEV_MODE: 1
+      PS_DEV_MODE: 0
       PS_ENABLE_SSL: 1
     ports:
       - "9000:80"
@@ -140,7 +140,7 @@ services:
       PS_INSTALL_DB: 1
       PS_INSTALL_AUTO: 1
       PS_FOLDER_ADMIN: admin-dev
-      PS_DEV_MODE: 1
+      PS_DEV_MODE: 1  
       PS_ENABLE_SSL: 1
     ports:
       - "9001:80"
