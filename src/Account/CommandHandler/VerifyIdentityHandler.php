@@ -21,24 +21,26 @@
 namespace PrestaShop\Module\PsAccounts\Account\CommandHandler;
 
 use PrestaShop\Module\PsAccounts\Account\Command\VerifyIdentityCommand;
-use PrestaShop\Module\PsAccounts\Account\ManageProof;
+use PrestaShop\Module\PsAccounts\Account\Exception\RefreshTokenException;
+use PrestaShop\Module\PsAccounts\Account\ProofManager;
 use PrestaShop\Module\PsAccounts\Account\Session\ShopSession;
-use PrestaShop\Module\PsAccounts\Account\ShopIdentity;
-use PrestaShop\Module\PsAccounts\Api\Client\AccountsClient;
-use PrestaShop\Module\PsAccounts\Exception\RefreshTokenException;
+use PrestaShop\Module\PsAccounts\Account\StatusManager;
 use PrestaShop\Module\PsAccounts\Provider\ShopProvider;
+use PrestaShop\Module\PsAccounts\Service\Accounts\AccountsException;
+use PrestaShop\Module\PsAccounts\Service\Accounts\AccountsService;
+use PrestaShop\Module\PsAccounts\Service\Accounts\Resource\ShopStatus;
 
 class VerifyIdentityHandler
 {
     /**
-     * @var AccountsClient
+     * @var AccountsService
      */
-    private $accountsClient;
+    private $accountsService;
 
     /**
-     * @var ShopIdentity
+     * @var StatusManager
      */
-    private $shopIdentity;
+    private $statusManager;
 
     /**
      * @var ShopProvider
@@ -51,27 +53,27 @@ class VerifyIdentityHandler
     private $shopSession;
 
     /**
-     * @var ManageProof
+     * @var ProofManager
      */
     private $manageProof;
 
     /**
-     * @param AccountsClient $accountsClient
+     * @param AccountsService $accountsService
      * @param ShopProvider $shopProvider
-     * @param ShopIdentity $shopIdentity
+     * @param StatusManager $shopStatus
      * @param ShopSession $shopSession
-     * @param ManageProof $manageProof
+     * @param ProofManager $manageProof
      */
     public function __construct(
-        AccountsClient $accountsClient,
+        AccountsService $accountsService,
         ShopProvider $shopProvider,
-        ShopIdentity $shopIdentity,
+        StatusManager $shopStatus,
         ShopSession $shopSession,
-        ManageProof $manageProof
+        ProofManager $manageProof
     ) {
-        $this->accountsClient = $accountsClient;
+        $this->accountsService = $accountsService;
         $this->shopProvider = $shopProvider;
-        $this->shopIdentity = $shopIdentity;
+        $this->statusManager = $shopStatus;
         $this->shopSession = $shopSession;
         $this->manageProof = $manageProof;
     }
@@ -79,30 +81,26 @@ class VerifyIdentityHandler
     /**
      * @param VerifyIdentityCommand $command
      *
-     * @return bool
+     * @return ShopStatus
+     *
+     * @throws AccountsException
+     * @throws RefreshTokenException
      */
     public function handle(VerifyIdentityCommand $command)
     {
-        try {
-            if ($this->shopIdentity->isVerified()) {
-                return true;
-            }
+        $status = $this->statusManager->getStatus();
 
-            $shopId = $command->shopId ?: \Shop::getContextShopID();
-
-            $response = $this->accountsClient->verifyShopProof(
-                $this->shopIdentity->getShopUuid(),
-                $this->shopSession->getValidToken(),
-                $this->shopProvider->getUrl($shopId),
-                $this->manageProof->generateProof()
-            );
-
-            if ($response['status'] === true) {
-                return true;
-            }
-        } catch (RefreshTokenException $e) {
+        if ($status->isVerified) {
+            return $status;
         }
 
-        return false;
+        $shopId = $command->shopId ?: \Shop::getContextShopID();
+
+        return $this->accountsService->verifyShopProof(
+            $status->cloudShopId,
+            $this->shopSession->getValidToken(),
+            $this->shopProvider->getUrl($shopId),
+            $this->manageProof->generateProof()
+        );
     }
 }

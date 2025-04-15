@@ -21,7 +21,7 @@
 namespace PrestaShop\Module\PsAccounts\Account\Session;
 
 use PrestaShop\Module\PsAccounts\Account\Exception\RefreshTokenException;
-use PrestaShop\Module\PsAccounts\Account\ShopIdentity;
+use PrestaShop\Module\PsAccounts\Account\StatusManager;
 use PrestaShop\Module\PsAccounts\Account\Token\Token;
 use PrestaShop\Module\PsAccounts\Cqrs\CommandBus;
 use PrestaShop\Module\PsAccounts\Hook\ActionShopAccessTokenRefreshAfter;
@@ -48,20 +48,20 @@ class ShopSession extends Session implements SessionInterface
     protected $oAuth2Service;
 
     /**
-     * @var ShopIdentity
+     * @var StatusManager
      */
     protected $shopIdentity;
 
     /**
      * @param ConfigurationRepository $configurationRepository
      * @param OAuth2Service $oAuth2Service
-     * @param ShopIdentity $shopIdentity
+     * @param StatusManager $shopIdentity
      * @param CommandBus $commandBus
      */
     public function __construct(
         ConfigurationRepository $configurationRepository,
         OAuth2Service $oAuth2Service,
-        ShopIdentity $shopIdentity,
+        StatusManager $shopIdentity,
         CommandBus $commandBus
     ) {
         $this->configurationRepository = $configurationRepository;

@@ -20,8 +20,8 @@
 
 namespace PrestaShop\Module\PsAccounts\ServiceProvider;
 
-use PrestaShop\Module\PsAccounts\Account\ManageProof;
-use PrestaShop\Module\PsAccounts\Account\ShopIdentity;
+use PrestaShop\Module\PsAccounts\Account\ProofManager;
+use PrestaShop\Module\PsAccounts\Account\StatusManager;
 use PrestaShop\Module\PsAccounts\Adapter;
 use PrestaShop\Module\PsAccounts\Adapter\Configuration;
 use PrestaShop\Module\PsAccounts\Adapter\Link;
@@ -59,9 +59,8 @@ class DefaultProvider implements IServiceProvider
             return \Module::getInstanceByName('ps_accounts');
         });
         // Entities ?
-        $container->registerProvider(ShopIdentity::class, static function () use ($container) {
-            return new ShopIdentity(
-                $container->get(ConfigurationRepository::class),
+        $container->registerProvider(StatusManager::class, static function () use ($container) {
+            return new StatusManager(
                 $container->get(CommandBus::class)
             );
         });
@@ -99,12 +98,12 @@ class DefaultProvider implements IServiceProvider
             return new SentryService(
                 $container->getParameter('ps_accounts.sentry_credentials'),
                 $container->getParameter('ps_accounts.environment'),
-                $container->get(ShopIdentity::class),
+                $container->get(StatusManager::class),
                 $container->get('ps_accounts.context')
             );
         });
-        $container->registerProvider(ManageProof::class, static function () use ($container) {
-            return new ManageProof(
+        $container->registerProvider(ProofManager::class, static function () use ($container) {
+            return new ProofManager(
                 $container->get(ConfigurationRepository::class)
             );
         });

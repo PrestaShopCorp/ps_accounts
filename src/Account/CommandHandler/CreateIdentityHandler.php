@@ -21,17 +21,19 @@
 namespace PrestaShop\Module\PsAccounts\Account\CommandHandler;
 
 use PrestaShop\Module\PsAccounts\Account\Command\CreateIdentityCommand;
-use PrestaShop\Module\PsAccounts\Account\ShopIdentity;
-use PrestaShop\Module\PsAccounts\Api\Client\AccountsClient;
+use PrestaShop\Module\PsAccounts\Account\StatusManager;
 use PrestaShop\Module\PsAccounts\Provider\ShopProvider;
+use PrestaShop\Module\PsAccounts\Service\Accounts\AccountsException;
+use PrestaShop\Module\PsAccounts\Service\Accounts\AccountsService;
+use PrestaShop\Module\PsAccounts\Service\Accounts\Resource\IdentityCreated;
 use PrestaShop\Module\PsAccounts\Service\OAuth2\OAuth2Client;
 
 class CreateIdentityHandler
 {
     /**
-     * @var AccountsClient
+     * @var AccountsService
      */
-    private $accountsClient;
+    private $accountsService;
 
     /**
      * @var OAuth2Client
@@ -44,62 +46,63 @@ class CreateIdentityHandler
     private $shopProvider;
 
     /**
-     * @var ShopIdentity
+     * @var StatusManager
      */
-    private $shopIdentity;
+    private $shopStatus;
 
     /**
-     * @param AccountsClient $accountsClient
+     * @param AccountsService $accountsService
      * @param ShopProvider $shopProvider
      * @param OAuth2Client $oauth2Client
-     * @param ShopIdentity $shopIdentity
+     * @param StatusManager $shopStatus
      */
     public function __construct(
-        AccountsClient $accountsClient,
+        AccountsService $accountsService,
         ShopProvider $shopProvider,
         OAuth2Client $oauth2Client,
-        ShopIdentity $shopIdentity
+        StatusManager $shopStatus
     ) {
-        $this->accountsClient = $accountsClient;
+        $this->accountsService = $accountsService;
         $this->shopProvider = $shopProvider;
         $this->oAuth2Client = $oauth2Client;
-        $this->shopIdentity = $shopIdentity;
+        $this->shopStatus = $shopStatus;
     }
 
     /**
      * @param CreateIdentityCommand $command
      *
-     * @return void
+     * @return IdentityCreated
      *
-     * @throws \Exception
+     * @throws AccountsException
      */
     public function handle(CreateIdentityCommand $command)
     {
-        if ($this->isAlreadyCreated()) {
-            return;
-        }
+//        if ($this->isAlreadyCreated()) {
+//            return;
+//        }
 
         $shopId = $command->shopId ?: \Shop::getContextShopID();
 
-        $response = $this->accountsClient->createShopIdentity(
+        $identityCreated = $this->accountsService->createShopIdentity(
             $this->shopProvider->getUrl($shopId)
         );
 
-        if ($response['status'] === true && isset($response['body'])) {
-            $body = $response['body'];
-            $this->oAuth2Client->update($body['clientId'], $body['clientSecret']);
-            $this->shopIdentity->setShopUuid($body['cloudShopId']);
-        }
+        $this->oAuth2Client->update(
+            $identityCreated->clientId,
+            $identityCreated->clientSecret
+        );
+
+        return $identityCreated;
     }
 
-    /**
-     * Idempotency check
-     *
-     * @return bool
-     */
-    private function isAlreadyCreated()
-    {
-        // FIXME: define where this code belongs
-        return $this->oAuth2Client->exists() && $this->shopIdentity->exists();
-    }
+//    /**
+//     * Idempotency check
+//     *
+//     * @return bool
+//     */
+//    private function isAlreadyCreated()
+//    {
+//        // FIXME: define where this code belongs
+//        return $this->oAuth2Client->exists() && $this->shopStatus->exists();
+//    }
 }

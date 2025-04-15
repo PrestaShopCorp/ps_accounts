@@ -23,7 +23,7 @@ namespace PrestaShop\Module\PsAccounts\Service;
 use PrestaShop\Module\PsAccounts\Account\Exception\RefreshTokenException;
 use PrestaShop\Module\PsAccounts\Account\Session\Firebase;
 use PrestaShop\Module\PsAccounts\Account\Session\ShopSession;
-use PrestaShop\Module\PsAccounts\Account\ShopIdentity;
+use PrestaShop\Module\PsAccounts\Account\StatusManager;
 use PrestaShop\Module\PsAccounts\Account\Token\Token;
 use PrestaShop\Module\PsAccounts\Adapter\Link;
 use PrestaShop\Module\PsAccounts\Entity\EmployeeAccount;
@@ -61,9 +61,9 @@ class PsAccountsService
     private $ownerSession;
 
     /**
-     * @var ShopIdentity
+     * @var StatusManager
      */
-    private $shopIdentity;
+    private $shopStatus;
 
     /**
      * @param \Ps_accounts $module
@@ -77,7 +77,7 @@ class PsAccountsService
         $this->shopSession = $this->module->getService(Firebase\ShopSession::class);
         $this->ownerSession = $this->module->getService(Firebase\OwnerSession::class);
         $this->link = $this->module->getService(Link::class);
-        $this->shopIdentity = $module->getService(ShopIdentity::class);
+        $this->shopStatus = $module->getService(StatusManager::class);
     }
 
     /**
@@ -103,7 +103,7 @@ class PsAccountsService
      */
     public function getShopUuid()
     {
-        return $this->shopIdentity->getShopUuid();
+        return $this->shopStatus->getShopUuid();
     }
 
     /**
@@ -180,7 +180,7 @@ class PsAccountsService
      */
     public function getUserUuid()
     {
-        return (string) $this->shopIdentity->getOwnerUuid();
+        return (string) $this->shopStatus->getOwnerUuid();
     }
 
     /**
@@ -198,27 +198,31 @@ class PsAccountsService
      */
     public function getEmail()
     {
-        return $this->shopIdentity->getOwnerEmail();
+        return $this->shopStatus->getOwnerEmail();
     }
 
     /**
      * @return bool
      *
      * @throws \Exception
+     *
+     * @deprecated since v8.0.0
      */
     public function isAccountLinked()
     {
-        return $this->shopIdentity->exists();
+        return $this->shopStatus->exists();
     }
 
     /**
      * @return bool
      *
      * @throws \Exception
+     *
+     * @depercated since v8.0.0
      */
     public function isAccountLinkedV4()
     {
-        return $this->shopIdentity->existsV4();
+        return false; //$this->shopIdentity->existsV4();
     }
 
     /**

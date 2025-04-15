@@ -25,17 +25,15 @@ use PrestaShop\Module\PsAccounts\Account\CommandHandler\CreateIdentitiesHandler;
 use PrestaShop\Module\PsAccounts\Account\CommandHandler\CreateIdentityHandler;
 use PrestaShop\Module\PsAccounts\Account\CommandHandler\DeleteUserShopHandler;
 use PrestaShop\Module\PsAccounts\Account\CommandHandler\UpdateUserShopHandler;
-use PrestaShop\Module\PsAccounts\Account\CommandHandler\UpgradeModuleHandler;
-use PrestaShop\Module\PsAccounts\Account\CommandHandler\UpgradeModulesHandler;
 use PrestaShop\Module\PsAccounts\Account\CommandHandler\VerifyIdentitiesHandler;
 use PrestaShop\Module\PsAccounts\Account\CommandHandler\VerifyIdentityHandler;
-use PrestaShop\Module\PsAccounts\Account\ManageProof;
+use PrestaShop\Module\PsAccounts\Account\ProofManager;
 use PrestaShop\Module\PsAccounts\Account\Session;
-use PrestaShop\Module\PsAccounts\Account\ShopIdentity;
-use PrestaShop\Module\PsAccounts\Api\Client\AccountsClient;
+use PrestaShop\Module\PsAccounts\Account\StatusManager;
 use PrestaShop\Module\PsAccounts\Context\ShopContext;
 use PrestaShop\Module\PsAccounts\Cqrs\CommandBus;
 use PrestaShop\Module\PsAccounts\Provider\ShopProvider;
+use PrestaShop\Module\PsAccounts\Service\Accounts\AccountsService;
 use PrestaShop\Module\PsAccounts\Service\OAuth2\OAuth2Client;
 use PrestaShop\Module\PsAccounts\Vendor\PrestaShopCorp\LightweightContainer\ServiceContainer\Contract\IServiceProvider;
 use PrestaShop\Module\PsAccounts\Vendor\PrestaShopCorp\LightweightContainer\ServiceContainer\ServiceContainer;
@@ -46,7 +44,7 @@ class CommandProvider implements IServiceProvider
     {
         $container->registerProvider(DeleteUserShopHandler::class, static function () use ($container) {
             return new DeleteUserShopHandler(
-                $container->get(AccountsClient::class),
+                $container->get(AccountsService::class),
                 $container->get(ShopContext::class),
                 $container->get(Session\Firebase\ShopSession::class),
                 $container->get(Session\Firebase\OwnerSession::class)
@@ -54,31 +52,18 @@ class CommandProvider implements IServiceProvider
         });
         $container->registerProvider(UpdateUserShopHandler::class, static function () use ($container) {
             return new UpdateUserShopHandler(
-                $container->get(AccountsClient::class),
+                $container->get(AccountsService::class),
                 $container->get(ShopContext::class),
                 $container->get(Session\Firebase\ShopSession::class),
                 $container->get(Session\Firebase\OwnerSession::class)
             );
         });
-        $container->registerProvider(UpgradeModuleHandler::class, static function () use ($container) {
-            return new UpgradeModuleHandler(
-                $container->get(AccountsClient::class),
-                $container->get(ShopIdentity::class),
-                $container->get(Session\ShopSession::class)
-            );
-        });
-        $container->registerProvider(UpgradeModulesHandler::class, static function () use ($container) {
-            return new UpgradeModulesHandler(
-                $container->get(ShopContext::class),
-                $container->get(CommandBus::class)
-            );
-        });
         $container->registerProvider(CreateIdentityHandler::class, static function () use ($container) {
             return new CreateIdentityHandler(
-                $container->get(AccountsClient::class),
+                $container->get(AccountsService::class),
                 $container->get(ShopProvider::class),
                 $container->get(OAuth2Client::class),
-                $container->get(ShopIdentity::class)
+                $container->get(StatusManager::class)
             );
         });
         $container->registerProvider(CreateIdentitiesHandler::class, static function () use ($container) {
@@ -89,11 +74,11 @@ class CommandProvider implements IServiceProvider
         });
         $container->registerProvider(VerifyIdentityHandler::class, static function () use ($container) {
             return new VerifyIdentityHandler(
-                $container->get(AccountsClient::class),
+                $container->get(AccountsService::class),
                 $container->get(ShopProvider::class),
-                $container->get(ShopIdentity::class),
+                $container->get(StatusManager::class),
                 $container->get(Session\ShopSession::class),
-                $container->get(ManageProof::class)
+                $container->get(ProofManager::class)
             );
         });
         $container->registerProvider(VerifyIdentitiesHandler::class, static function () use ($container) {
@@ -104,8 +89,8 @@ class CommandProvider implements IServiceProvider
         });
         $container->registerProvider(CheckStatusHandler::class, static function () use ($container) {
             return new CheckStatusHandler(
-                $container->get(AccountsClient::class),
-                $container->get(ShopIdentity::class),
+                $container->get(AccountsService::class),
+                $container->get(StatusManager::class),
                 $container->get(Session\ShopSession::class)
             );
         });

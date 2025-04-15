@@ -18,47 +18,24 @@
  * @license   https://opensource.org/licenses/AFL-3.0 Academic Free License version 3.0
  */
 
-namespace PrestaShop\Module\PsAccounts\Account;
+namespace PrestaShop\Module\PsAccounts\Service\Accounts\Resource;
 
-use PrestaShop\Module\PsAccounts\Repository\ConfigurationRepository;
-use PrestaShop\Module\PsAccounts\Vendor\Ramsey\Uuid\Uuid;
+use PrestaShop\Module\PsAccounts\Http\Resource\Resource;
 
-class ManageProof
+class IdentityCreated extends Resource
 {
     /**
-     * @var ConfigurationRepository
+     * @var string
      */
-    private $configuration;
+    public $cloudShopId;
 
     /**
-     * ManageProof constructor.
-     *
-     * @param ConfigurationRepository $configuration
+     * @var string
      */
-    public function __construct(
-        ConfigurationRepository $configuration
-    ) {
-        $this->configuration = $configuration;
-    }
+    public $clientId;
 
     /**
-     * @return string
+     * @var string
      */
-    public function generateProof()
-    {
-        // FIXME: another way to generate a more secure proof ?
-        $proof = Uuid::uuid4()->toString();
-
-        $this->configuration->updateProof($proof);
-
-        return $proof;
-    }
-
-    /**
-     * @return string|null
-     */
-    public function getProof()
-    {
-        return $this->configuration->getProof();
-    }
+    public $clientSecret;
 }

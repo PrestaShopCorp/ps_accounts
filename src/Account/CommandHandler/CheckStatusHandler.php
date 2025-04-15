@@ -21,24 +21,24 @@
 namespace PrestaShop\Module\PsAccounts\Account\CommandHandler;
 
 use PrestaShop\Module\PsAccounts\Account\Command\CheckStatusCommand;
-use PrestaShop\Module\PsAccounts\Account\Dto\ShopStatus;
+use PrestaShop\Module\PsAccounts\Account\Exception\RefreshTokenException;
 use PrestaShop\Module\PsAccounts\Account\Session\ShopSession;
-use PrestaShop\Module\PsAccounts\Account\ShopIdentity;
-use PrestaShop\Module\PsAccounts\Api\Client\AccountsClient;
-use PrestaShop\Module\PsAccounts\Exception\DtoException;
-use PrestaShop\Module\PsAccounts\Exception\RefreshTokenException;
+use PrestaShop\Module\PsAccounts\Account\StatusManager;
+use PrestaShop\Module\PsAccounts\Service\Accounts\AccountsException;
+use PrestaShop\Module\PsAccounts\Service\Accounts\AccountsService;
+use PrestaShop\Module\PsAccounts\Service\Accounts\Resource\ShopStatus;
 
 class CheckStatusHandler
 {
     /**
-     * @var AccountsClient
+     * @var AccountsService
      */
-    private $accountsClient;
+    private $accountsService;
 
     /**
-     * @var ShopIdentity
+     * @var StatusManager
      */
-    private $shopIdentity;
+    private $statusManager;
 
     /**
      * @var ShopSession
@@ -46,15 +46,17 @@ class CheckStatusHandler
     private $shopSession;
 
     /**
-     * @param AccountsClient $accountsClient
+     * @param AccountsService $accountsService
+     * @param StatusManager $statusManager
+     * @param ShopSession $shopSession
      */
     public function __construct(
-        AccountsClient $accountsClient,
-        ShopIdentity $shopIdentity,
+        AccountsService $accountsService,
+        StatusManager $statusManager,
         ShopSession $shopSession
     ) {
-        $this->accountsClient = $accountsClient;
-        $this->shopIdentity = $shopIdentity;
+        $this->accountsService = $accountsService;
+        $this->statusManager = $statusManager;
         $this->shopSession = $shopSession;
     }
 
@@ -63,7 +65,7 @@ class CheckStatusHandler
      *
      * @return ShopStatus
      *
-     * @throws DtoException
+     * @throws AccountsException
      * @throws RefreshTokenException
      */
     public function handle(CheckStatusCommand $command)
@@ -73,14 +75,15 @@ class CheckStatusHandler
 //
 //        return in_array('shop.verified', $scp);
 
-        $response = $this->accountsClient->shopStatus(
-            $this->shopIdentity->getShopUuid(),
+        // TODO: CircuitBreaker for that specific call with cached Response
+        // TODO: implement cache ?
+        ///** @var ConfigurationRepository $configuration */
+        //$configuration = null;
+        //if (time() - $configuration->getShopUuidDateUpd() > $command->cacheTtl) {
+        return $this->accountsService->shopStatus(
+            $this->statusManager->getShopUuid(),
             $this->shopSession->getValidToken()
         );
-        if ($response['status'] === true && is_array($response['body'])) {
-            return new ShopStatus($response['body']);
-        }
-
-        return new ShopStatus();
+        //}
     }
 }

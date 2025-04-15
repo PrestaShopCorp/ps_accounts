@@ -2,7 +2,7 @@
 
 namespace PrestaShop\Module\PsAccounts\Tests\Feature\Api\v2\ShopVerifyProof;
 
-use PrestaShop\Module\PsAccounts\Account\ManageProof;
+use PrestaShop\Module\PsAccounts\Account\ProofManager;
 use PrestaShop\Module\PsAccounts\Adapter\ConfigurationKeys;
 use PrestaShop\Module\PsAccounts\Provider\ShopProvider;
 use PrestaShop\Module\PsAccounts\Tests\Feature\Api\V2\TestCase;
@@ -19,7 +19,7 @@ class ShowTest extends TestCase
     /**
      * @inject
      *
-     * @var ManageProof
+     * @var ProofManager
      */
     protected $manageProof;
 

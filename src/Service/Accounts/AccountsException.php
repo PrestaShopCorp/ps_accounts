@@ -18,8 +18,8 @@
  * @license   https://opensource.org/licenses/AFL-3.0 Academic Free License version 3.0
  */
 
-namespace PrestaShop\Module\PsAccounts\Account\Exception;
+namespace PrestaShop\Module\PsAccounts\Service\Accounts;
 
-class InconsistentAssociationStateException extends \Exception
+class AccountsException extends \Exception
 {
 }

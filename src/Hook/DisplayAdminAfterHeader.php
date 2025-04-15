@@ -20,7 +20,7 @@
 
 namespace PrestaShop\Module\PsAccounts\Hook;
 
-use PrestaShop\Module\PsAccounts\Account\ShopIdentity;
+use PrestaShop\Module\PsAccounts\Account\StatusManager;
 
 class DisplayAdminAfterHeader extends Hook
 {
@@ -29,11 +29,11 @@ class DisplayAdminAfterHeader extends Hook
      */
     public function execute(array $params = [])
     {
-        /** @var ShopIdentity $shopIdentity */
-        $shopIdentity = $this->module->getService(ShopIdentity::class);
+        /** @var StatusManager $statusManager */
+        $statusManager = $this->module->getService(StatusManager::class);
 
         $html = '';
-        if (!$shopIdentity->isVerified()) {
+        if (!$statusManager->getStatus()->isVerified) {
             $html .= <<<HTML
 <div class="bootstrap">
     <div class="alert alert-warning">

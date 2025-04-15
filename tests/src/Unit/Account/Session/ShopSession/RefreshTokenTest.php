@@ -2,7 +2,7 @@
 
 namespace PrestaShop\Module\PsAccounts\Tests\Unit\Account\Session\ShopSession;
 
-use PrestaShop\Module\PsAccounts\Account\ShopIdentity;
+use PrestaShop\Module\PsAccounts\Account\StatusManager;
 use PrestaShop\Module\PsAccounts\Account\Session\ShopSession;
 use PrestaShop\Module\PsAccounts\Account\Token\Token;
 use PrestaShop\Module\PsAccounts\Service\OAuth2\Resource\AccessToken;
@@ -60,7 +60,7 @@ class RefreshTokenTest extends TestCase
         $this->shopSession = new ShopSession(
             $this->configurationRepository,
             $oAuth2Service,
-            $this->shopIdentity,
+            $this->shopStatus,
             $commandBus
         );
 
@@ -85,7 +85,7 @@ class RefreshTokenTest extends TestCase
         $e = null;
         try {
             // Shop is linked
-            $this->shopIdentity->update(new \PrestaShop\Module\PsAccounts\Account\Dto\LinkShop([
+            $this->shopStatus->update(new \PrestaShop\Module\PsAccounts\Account\Dto\ShopIdentity([
                 'shopId' => 1,
                 'uid' => $this->faker->uuid,
             ]));

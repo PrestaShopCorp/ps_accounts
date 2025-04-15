@@ -22,8 +22,8 @@ namespace PrestaShop\Module\PsAccounts\Provider;
 
 use PrestaShop\Module\PsAccounts\Account\Dto\Shop;
 use PrestaShop\Module\PsAccounts\Account\Session\Firebase\OwnerSession;
-use PrestaShop\Module\PsAccounts\Account\ShopIdentity;
 use PrestaShop\Module\PsAccounts\Account\ShopUrl;
+use PrestaShop\Module\PsAccounts\Account\StatusManager;
 use PrestaShop\Module\PsAccounts\Adapter\Link;
 use PrestaShop\Module\PsAccounts\Context\ShopContext;
 
@@ -68,8 +68,8 @@ class ShopProvider
             /** @var \Ps_accounts $module */
             $module = \Module::getInstanceByName('ps_accounts');
 
-            /** @var ShopIdentity $shopIdentity */
-            $shopIdentity = $module->getService(ShopIdentity::class);
+            /** @var StatusManager $shopStatus */
+            $shopStatus = $module->getService(StatusManager::class);
 
             /** @var OwnerSession $ownerSession */
             $ownerSession = $module->getService(OwnerSession::class);
@@ -88,12 +88,12 @@ class ShopProvider
                 'frontUrl' => $this->getShopUrl($shopData),
 
                 // LinkAccount
-                'uuid' => $shopIdentity->getShopUuid() ?: null,
+                'uuid' => $shopStatus->getShopUuid() ?: null,
                 'publicKey' => '[deprecated]',
-                'employeeId' => (int) $shopIdentity->getEmployeeId() ?: null,
+                'employeeId' => 0, //(int) $shopIdentity->getEmployeeId() ?: null,
                 'user' => [
-                    'email' => $shopIdentity->getOwnerEmail() ?: null,
-                    'uuid' => $shopIdentity->getOwnerUuid() ?: null,
+                    'email' => $shopStatus->getOwnerEmail() ?: null,
+                    'uuid' => $shopStatus->getOwnerUuid() ?: null,
                     'emailIsValidated' => null,
                 ],
                 'url' => $this->link->getDashboardLink(),
@@ -103,7 +103,7 @@ class ShopProvider
 
             if ($refreshTokens) {
                 $shop->user->emailIsValidated = $ownerSession->isEmailVerified();
-                $shop->isLinkedV4 = $shopIdentity->existsV4();
+                $shop->isLinkedV4 = false; //$shopIdentity->existsV4();
             }
 
             return $shop;

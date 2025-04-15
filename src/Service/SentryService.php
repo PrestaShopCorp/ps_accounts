@@ -22,7 +22,7 @@ namespace PrestaShop\Module\PsAccounts\Service;
 
 use Context;
 use Module;
-use PrestaShop\Module\PsAccounts\Account\ShopIdentity;
+use PrestaShop\Module\PsAccounts\Account\StatusManager;
 use PrestaShop\Module\PsAccounts\Service\Sentry\ModuleFilteredRavenClient;
 use Ps_accounts;
 use Raven_Client;
@@ -67,15 +67,15 @@ class SentryService
      *
      * @param string $sentryCredentials
      * @param string $environment
-     * @param ShopIdentity $shopIdentity
+     * @param StatusManager $shopIdentity
      * @param Context $context
      *
      * @throws \Raven_Exception
      */
     public function __construct(
-                     $sentryCredentials,
-                     $environment,
-        ShopIdentity $shopIdentity,
+        $sentryCredentials,
+        $environment,
+        StatusManager $shopIdentity,
         Context $context
     ) {
         $this->client = new ModuleFilteredRavenClient(

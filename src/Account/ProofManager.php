@@ -18,27 +18,47 @@
  * @license   https://opensource.org/licenses/AFL-3.0 Academic Free License version 3.0
  */
 
-namespace PrestaShop\Module\PsAccounts\Account\Dto;
+namespace PrestaShop\Module\PsAccounts\Account;
 
-use PrestaShop\Module\PsAccounts\Type\Dto;
+use PrestaShop\Module\PsAccounts\Repository\ConfigurationRepository;
+use PrestaShop\Module\PsAccounts\Vendor\Ramsey\Uuid\Uuid;
 
-class UpgradeModule extends Dto
+class ProofManager
 {
     /**
-     * @var string
+     * @var ConfigurationRepository
      */
-    public $version;
+    private $configuration;
 
     /**
-     * @var int
+     * ManageProof constructor.
+     *
+     * @param ConfigurationRepository $configuration
      */
-    public $shopId;
+    public function __construct(
+        ConfigurationRepository $configuration
+    ) {
+        $this->configuration = $configuration;
+    }
 
     /**
-     * @var string[]
+     * @return string
      */
-    public $required = [
-        'version',
-        'shopId',
-    ];
+    public function generateProof()
+    {
+        // FIXME: another way to generate a more secure proof ?
+        $proof = Uuid::uuid4()->toString();
+
+        $this->configuration->updateProof($proof);
+
+        return $proof;
+    }
+
+    /**
+     * @return string|null
+     */
+    public function getProof()
+    {
+        return $this->configuration->getProof();
+    }
 }

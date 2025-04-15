@@ -18,22 +18,29 @@
  * @license   https://opensource.org/licenses/AFL-3.0 Academic Free License version 3.0
  */
 
-namespace PrestaShop\Module\PsAccounts\Account\Command;
+namespace PrestaShop\Module\PsAccounts\Service\Accounts\Resource;
 
-use PrestaShop\Module\PsAccounts\Account\Dto;
+use PrestaShop\Module\PsAccounts\Http\Resource\Resource;
 
-class UpgradeModuleCommand
+class FirebaseTokens extends Resource
 {
     /**
-     * @var Dto\UpgradeModule
+     * @var string
      */
-    public $payload;
+    public $userToken;
 
     /**
-     * @param Dto\UpgradeModule $payload
+     * @var string
      */
-    public function __construct(Dto\UpgradeModule $payload)
-    {
-        $this->payload = $payload;
-    }
+    public $userRefreshToken;
+
+    /**
+     * @var string
+     */
+    public $shopToken;
+
+    /**
+     * @var string
+     */
+    public $shopRefreshToken;
 }

@@ -23,7 +23,16 @@ namespace PrestaShop\Module\PsAccounts\Account\Command;
 
 class CheckStatusCommand
 {
-    public function __construct()
+    /**
+     * @var int cache ttl in seconds
+     */
+    public $cacheTtl;
+
+    /**
+     * @param int $cacheTtl
+     */
+    public function __construct($cacheTtl = 0)
     {
+        $this->cacheTtl = $cacheTtl;
     }
 }

@@ -18,19 +18,19 @@
  * @license   https://opensource.org/licenses/AFL-3.0 Academic Free License version 3.0
  */
 
-use PrestaShop\Module\PsAccounts\Account\ManageProof;
-use PrestaShop\Module\PsAccounts\Account\ShopIdentity;
+use PrestaShop\Module\PsAccounts\Account\ProofManager;
+use PrestaShop\Module\PsAccounts\Account\StatusManager;
 use PrestaShop\Module\PsAccounts\Http\Controller\AbstractV2ShopRestController;
 
 class ps_AccountsApiV2ShopVerifyProofModuleFrontController extends AbstractV2ShopRestController
 {
     /**
-     * @var ManageProof
+     * @var ProofManager
      */
     private $manageProof;
 
     /**
-     * @var ShopIdentity
+     * @var StatusManager
      */
     private $shopIdentity;
 
@@ -63,8 +63,8 @@ class ps_AccountsApiV2ShopVerifyProofModuleFrontController extends AbstractV2Sho
     {
         parent::__construct();
 
-        $this->manageProof = $this->module->getService(ManageProof::class);
-        $this->shopIdentity = $this->module->getService(ShopIdentity::class);
+        $this->manageProof = $this->module->getService(ProofManager::class);
+        $this->shopIdentity = $this->module->getService(StatusManager::class);
     }
 
     /**

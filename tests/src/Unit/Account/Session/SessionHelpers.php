@@ -20,7 +20,7 @@ trait SessionHelpers
             ->setConstructorArgs([
                 $this->configurationRepository,
                 $this->oAuth2Service,
-                $this->shopIdentity,
+                $this->shopStatus,
                 $this->commandBus
             ])
             ->enableOriginalClone()

@@ -20,7 +20,7 @@
 
 use PrestaShop\Module\PsAccounts\Account\Session\Firebase\OwnerSession;
 use PrestaShop\Module\PsAccounts\Account\Session\Firebase\ShopSession;
-use PrestaShop\Module\PsAccounts\Account\ShopIdentity;
+use PrestaShop\Module\PsAccounts\Account\StatusManager;
 use PrestaShop\Module\PsAccounts\Service\PsAccountsService;
 
 class AdminDebugPsAccountsController extends \ModuleAdminController
@@ -47,13 +47,13 @@ class AdminDebugPsAccountsController extends \ModuleAdminController
         /** @var PsAccountsService $psAccountsService */
         $psAccountsService = $this->module->getService(PsAccountsService::class);
 
-        /** @var ShopIdentity $shopIdentity */
-        $shopIdentity = $this->module->getService(ShopIdentity::class);
+        /** @var StatusManager $statusManager */
+        $statusManager = $this->module->getService(StatusManager::class);
 
         $this->context->smarty->assign([
             'config' => [
                 'shopId' => (int) $this->context->shop->id,
-                'shopUuidV4' => $shopIdentity->getShopUuid(),
+                'shopUuidV4' => $statusManager->getStatus()->isVerified,
                 'moduleVersion' => \Ps_accounts::VERSION,
                 'psVersion' => _PS_VERSION_,
                 'phpVersion' => phpversion(),
