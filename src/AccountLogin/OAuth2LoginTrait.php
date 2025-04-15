@@ -280,7 +280,10 @@ trait OAuth2LoginTrait
         $this->oauth2ErrorLog($e->getMessage());
         $this->setLoginError($e->getType());
 
-        return $this->logout();
+        return $this->redirect(
+            $this->getSessionReturnTo() ?:
+                $this->link->getAdminLink('AdminDashboard')
+        );
     }
 
     /**
