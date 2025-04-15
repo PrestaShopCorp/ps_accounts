@@ -8,7 +8,7 @@ services:
       MYSQL_USER: prestashop
       MYSQL_PASSWORD: prestashop
       MYSQL_ROOT_PASSWORD: prestashop
-      MYSQL_PORT: 3306
+      MYSQL_PORT: 3307
       MYSQL_DATABASE: prestashop
     healthcheck:
       test:
@@ -21,7 +21,7 @@ services:
       timeout: 10s
       retries: 5
     ports:
-      - "3308:3306"
+      - "3307:3306"
     profiles:
       - all
       - shop
