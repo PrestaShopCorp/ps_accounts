@@ -61,6 +61,11 @@ trait OAuth2LoginTrait
     abstract protected function logout();
 
     /**
+     * @return mixed
+     */
+    abstract protected function onLoginFailedRedirect();
+
+    /**
      * @return SessionInterface
      */
     abstract protected function getSession();
@@ -280,10 +285,7 @@ trait OAuth2LoginTrait
         $this->oauth2ErrorLog($e->getMessage());
         $this->setLoginError($e->getType());
 
-        return $this->redirect(
-            $this->getSessionReturnTo() ?:
-                $this->link->getAdminLink('AdminDashboard')
-        );
+        return $this->onLoginFailedRedirect();
     }
 
     /**
