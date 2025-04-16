@@ -65,16 +65,15 @@ jobs:
           {
             echo "*Résultats des tests Account AUTOM :* \`${{ github.repository }}\`"
             echo
-            jq -r '.items[] | "• \(.labels[] | select(.name == \"parentSuite\") | .value) : ✅ \(.statistic.passed) / ❌ \(.statistic.failed) / ⚠️ \(.statistic.broken)"' suites.json
+            jq -r '.items[] | "• \(.name) : ✅ \(.statistic.passed) / ❌ \(.statistic.failed) / ⚠️ \(.statistic.broken)"' suites.json
             echo
             echo "🔗 <${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}|Voir le run GitHub Actions>"
           } > slack_message.txt
 
       - name: Prepare Slack payload
-        working-directory: ./e2e/allure-report/widgets
         run: |
-          message=$(cat slack_message.txt | jq -Rs .)
-          echo "{\"channel\": \"${{ secrets.SLACK_CHANNEL_ID }}\", \"text\": $message}" > slack_payload.json
+          message=$(cat ./e2e/allure-report/widgets/slack_message.txt | jq -Rs .)
+          echo "{\"channel\": \"${{ secrets.SLACK_CHANNEL_ID }}\", \"text\": $message}" > ./e2e/allure-report/widgets/slack_payload.json
 
       - name: Send Slack Notification
         if: always()
