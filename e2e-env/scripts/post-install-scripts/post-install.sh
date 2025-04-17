@@ -41,10 +41,5 @@ TARGET_ASSET="ps_accounts_preprod-${CLEANED_VERSION#v}.zip"
 echo "* [ps_accounts] downloading..."
 echo "https://github.com/${GITHUB_REPOSITORY}/releases/download/${TARGET_VERSION}/${TARGET_ASSET}"
 wget -q -O /tmp/ps_accounts.zip "https://github.com/${GITHUB_REPOSITORY}/releases/download/${TARGET_VERSION}/${TARGET_ASSET}"
-
 echo "* [ps_accounts] unziping..."
 unzip -qq /tmp/ps_accounts.zip -d /var/www/html/$PHYSICAL_URI/modules
-
-echo "* Fixing permissions..."
-chown -R www-data:www-data /var/www/html/$PHYSICAL_URI/modules/ps_accounts
-chmod -R 755 /var/www/html/$PHYSICAL_URI/modules/ps_accounts
