@@ -63,9 +63,14 @@ jobs:
         working-directory: ./e2e/allure-report/widgets
         run: |
           {
-            echo "*Résultats des tests Shipping AUTOM :* \`${{ github.repository }}\`"
+            echo "*Résultats des tests Account AUTOM :* \`${{ github.repository }}\`"
             echo
-            jq -r '.items[] | "• \(.name) : ✅ \(.statistic.passed) / ❌ \(.statistic.failed) / ⚠️ \(.statistic.broken)"' suites.json
+            echo '```'
+            jq -r '
+              .items[] |
+              "• Account Autom Tests - PS Version \(.labels[] | select(.name == \"parentSuite\") | .value) : ✅ \(.statistic.passed) / ❌ \(.statistic.failed) / ⚠️ \(.statistic.broken)"
+            ' suites.json
+            echo '```'            
             echo
             echo "🔗 <${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}|Voir le run GitHub Actions>"
           } > slack_message.txt
