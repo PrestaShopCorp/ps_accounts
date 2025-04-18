@@ -106,7 +106,7 @@ class Ps_accounts extends Module
 
         // Login/Logout OAuth
         // PS 1.6 - 1.7
-        'displayAdminAfterHeader',
+        //'displayAdminAfterHeader',
         'actionAdminLoginControllerSetMedia',
         // PS >= 8
         //'actionAdminControllerInitBefore',
@@ -136,10 +136,14 @@ class Ps_accounts extends Module
 
         parent::__construct();
 
-        $this->displayName = $this->l(
-            'PrestaShop Account'
-        );
-        $this->description = $this->l(
+        $cloudShopId = $this->getCloudShopId();
+        $verified = $this->getVerifiedStatus();
+
+        $statusText = ($cloudShopId ? ' ' . $cloudShopId : '') .
+            ($verified ? ' (verified)' : ' (NOT verified)');
+
+        $this->displayName = $this->l('PrestaShop Account');
+        $this->description = '<i><b>' . $statusText . '</b></i><br />' . $this->l(
             'Link your store to your PrestaShop account to activate and manage your subscriptions in your ' .
             'back office. Do not uninstall this module if you have a current subscription.'
         );
@@ -462,6 +466,36 @@ class Ps_accounts extends Module
         // Verification flow
         $commandBus->handle(new \PrestaShop\Module\PsAccounts\Account\Command\CreateIdentitiesCommand());
         $commandBus->handle(new \PrestaShop\Module\PsAccounts\Account\Command\VerifyIdentitiesCommand());
+    }
+
+    /**
+     * @return string
+     */
+    public function getCloudShopId()
+    {
+        /** @var \PrestaShop\Module\PsAccounts\Account\StatusManager $statusManager */
+        $statusManager = $this->getService(\PrestaShop\Module\PsAccounts\Account\StatusManager::class);
+
+        return $statusManager->getCloudShopId();
+    }
+
+    /**
+     * @return bool
+     */
+    public function getVerifiedStatus()
+    {
+        /** @var \PrestaShop\Module\PsAccounts\Account\StatusManager $statusManager */
+        $statusManager = $this->getService(\PrestaShop\Module\PsAccounts\Account\StatusManager::class);
+
+        try {
+            if ($statusManager->getCachedStatus()->isVerified) {
+                return true;
+            }
+        } catch (\PrestaShop\Module\PsAccounts\Account\Exception\UnknownStatusException $e) {
+        } catch (\PrestaShop\Module\PsAccounts\Account\Exception\RefreshTokenException $e) {
+        } catch (\PrestaShop\Module\PsAccounts\Service\Accounts\AccountsException $e) {
+        }
+        return false;
     }
 }
 //

@@ -119,7 +119,9 @@ class StatusManager
      */
     public function getCachedStatus()
     {
-        return new ShopStatus(json_decode($this->repository->getShopStatus(), true));
+        $json = $this->repository->getShopStatus();
+
+        return new ShopStatus(json_decode($status ? $status : '{}' , true));
     }
 
     /**

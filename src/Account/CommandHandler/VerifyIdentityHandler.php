@@ -22,6 +22,7 @@ namespace PrestaShop\Module\PsAccounts\Account\CommandHandler;
 
 use PrestaShop\Module\PsAccounts\Account\Command\VerifyIdentityCommand;
 use PrestaShop\Module\PsAccounts\Account\Exception\RefreshTokenException;
+use PrestaShop\Module\PsAccounts\Account\Exception\UnknownStatusException;
 use PrestaShop\Module\PsAccounts\Account\ProofManager;
 use PrestaShop\Module\PsAccounts\Account\Session\ShopSession;
 use PrestaShop\Module\PsAccounts\Account\StatusManager;
@@ -88,16 +89,21 @@ class VerifyIdentityHandler
      */
     public function handle(VerifyIdentityCommand $command)
     {
-        $status = $this->statusManager->getStatus();
+        try {
+            $status = $this->statusManager->getStatus();
 
-        if ($status->isVerified) {
-            return $status;
+            if ($status->isVerified) {
+                return $status;
+            }
+        } catch (UnknownStatusException $e) {
+        } catch (RefreshTokenException $e) {
+        } catch (AccountsException $e) {
         }
 
         $shopId = $command->shopId ?: \Shop::getContextShopID();
 
         return $this->accountsService->verifyShopProof(
-            $status->cloudShopId,
+            $this->statusManager->getCloudShopId(),
             $this->shopSession->getValidToken(),
             $this->shopProvider->getUrl($shopId),
             $this->proofManager->generateProof()

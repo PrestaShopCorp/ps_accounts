@@ -23,7 +23,6 @@ function upgrade_module_8_0_0($module)
         $commandBus = $module->getService(CommandBus::class);
         $commandBus->handle(new CreateIdentitiesCommand());
         $commandBus->handle(new VerifyIdentitiesCommand());
-        $commandBus->handle(new UpgradeModulesCommand());
         /* @phpstan-ignore-next-line */
     } catch (\Throwable $e) {
     } catch (\Exception $e) {
