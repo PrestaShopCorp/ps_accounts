@@ -20,6 +20,5 @@ wget -q -O /tmp/ps_accounts.zip "https://github.com/${GITHUB_REPOSITORY}/release
 echo "* [ps_accounts] unziping..."
 unzip -qq /tmp/ps_accounts.zip -d /var/www/html/modules
 echo "* [ps_accounts] installing the module..."
-# cd "$PS_FOLDER"
-cd "ps_accounts"
+cd "$PS_FOLDER"
 php -d memory_limit=-1 bin/console prestashop:module --no-interaction install "ps_accounts"

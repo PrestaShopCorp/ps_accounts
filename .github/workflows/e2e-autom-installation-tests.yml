@@ -54,12 +54,36 @@ jobs:
         run: npm run test-all-version
         continue-on-error: true
 
+      - name: Merge Allure Results
+        working-directory: ./e2e
+        run: npm run merge-allure-results
+
       - name: Generate Allure Report
         working-directory: ./e2e
         run: npm run generate-allure-report
 
-      - name: Upload Allure Report
-        uses: actions/upload-artifact@v4
+      - name: Extract versioned results from Allure suites.json
+        id: summary
+        working-directory: ./e2e/allure-report/widgets
+        run: |
+          {
+            echo "*Résultats des tests Account AUTOM :* \`${{ github.repository }}\`"
+            echo
+            jq -r '.items[] | "• \(.name) : ✅ \(.statistic.passed) / ❌ \(.statistic.failed) / ⚠️ \(.statistic.broken)"' suites.json
+            echo
+            echo "🔗 <${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}|Voir le run GitHub Actions>"
+          } > slack_message.txt
+
+      - name: Prepare Slack payload
+        run: |
+          message=$(cat ./e2e/allure-report/widgets/slack_message.txt | jq -Rs .)
+          echo "{\"channel\": \"${{ secrets.SLACK_CHANNEL_ID }}\", \"text\": $message}" > ./e2e/allure-report/widgets/slack_payload.json
+
+      - name: Send Slack Notification
+        if: always()
+        uses: slackapi/slack-github-action@v2.0.0
         with:
-          name: allure-report
-          path: ./e2e/allure-report/
+          method: chat.postMessage
+          token: ${{ secrets.SLACK_BOT_TOKEN }}
+          payload-file-path: ./e2e/allure-report/widgets/slack_payload.json
+
