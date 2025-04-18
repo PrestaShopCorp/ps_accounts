@@ -67,16 +67,16 @@ class SentryService
      *
      * @param string $sentryCredentials
      * @param string $environment
-     * @param StatusManager $shopIdentity
+     * @param StatusManager $statusManager
      * @param Context $context
      *
      * @throws \Raven_Exception
      */
     public function __construct(
-        $sentryCredentials,
-        $environment,
-        StatusManager $shopIdentity,
-        Context $context
+                      $sentryCredentials,
+                      $environment,
+        StatusManager $statusManager,
+        Context       $context
     ) {
         $this->client = new ModuleFilteredRavenClient(
             $sentryCredentials,
@@ -88,8 +88,8 @@ class SentryService
                     'ps_accounts_version' => \Ps_accounts::VERSION,
                     'prestashop_version' => _PS_VERSION_,
                     'ps_accounts_is_enabled' => \Module::isEnabled('ps_accounts'),
-                    'email' => $shopIdentity->getOwnerEmail(),
-                    'shop_uuid' => $shopIdentity->getShopUuid(),
+                    'email' => $statusManager->getOwnerEmail(),
+                    'shop_uuid' => $statusManager->getCloudShopId(),
                 ],
                 'error_types' => $this->errorTypes,
                 'sample_rate' => $this->isContextInFrontOffice($context) ?

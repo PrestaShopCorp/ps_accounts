@@ -70,7 +70,7 @@ class ShowTest extends TestCase
 
         \Db::getInstance()->execute(
             "DELETE FROM " . _DB_PREFIX_. "configuration " .
-            "WHERE name ='" . ConfigurationKeys::PS_ACCOUNTS_IDENTITY_VERIFICATION_PROOF. "'"
+            "WHERE name ='" . ConfigurationKeys::PS_ACCOUNTS_SHOP_PROOF. "'"
         );
 
         $response = $this->client->get('/module/ps_accounts/apiV2ShopVerifyProof', [

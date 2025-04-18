@@ -89,9 +89,7 @@ class CommandProvider implements IServiceProvider
         });
         $container->registerProvider(CheckStatusHandler::class, static function () use ($container) {
             return new CheckStatusHandler(
-                $container->get(AccountsService::class),
-                $container->get(StatusManager::class),
-                $container->get(Session\ShopSession::class)
+                $container->get(AccountsService::class)
             );
         });
     }

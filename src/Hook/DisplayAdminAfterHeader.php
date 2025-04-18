@@ -20,7 +20,10 @@
 
 namespace PrestaShop\Module\PsAccounts\Hook;
 
+use PrestaShop\Module\PsAccounts\Account\Exception\RefreshTokenException;
+use PrestaShop\Module\PsAccounts\Account\Exception\UnknownStatusException;
 use PrestaShop\Module\PsAccounts\Account\StatusManager;
+use PrestaShop\Module\PsAccounts\Service\Accounts\AccountsException;
 
 class DisplayAdminAfterHeader extends Hook
 {
@@ -32,19 +35,23 @@ class DisplayAdminAfterHeader extends Hook
         /** @var StatusManager $statusManager */
         $statusManager = $this->module->getService(StatusManager::class);
 
-        $html = '';
-        if (!$statusManager->getStatus()->isVerified) {
-            $html .= <<<HTML
+        try {
+            if ($statusManager->getStatus()->isVerified) {
+                return '';
+            }
+        } catch (UnknownStatusException $e) {
+        } catch (RefreshTokenException $e) {
+        } catch (AccountsException $e) {
+        }
+
+        return <<<HTML
 <div class="bootstrap">
     <div class="alert alert-warning">
         <button type="button" class="close" data-dismiss="alert">×</button>
         <!-- img width="57" alt="PrestaShop Account" title="PrestaShop Account" src="/modules/ps_accounts/logo.png"-->
-        Your shop has not been verified : <a>verify my shop</a>
+        Your shop has not been verified : <a>{$statusManager->getCloudShopId()}</a>
     </div>
 </div>
 HTML;
-        }
-
-        return $html;
     }
 }

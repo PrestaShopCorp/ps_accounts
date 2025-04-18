@@ -63,7 +63,7 @@ class PsAccountsService
     /**
      * @var StatusManager
      */
-    private $shopStatus;
+    private $statusManager;
 
     /**
      * @param \Ps_accounts $module
@@ -77,7 +77,7 @@ class PsAccountsService
         $this->shopSession = $this->module->getService(Firebase\ShopSession::class);
         $this->ownerSession = $this->module->getService(Firebase\OwnerSession::class);
         $this->link = $this->module->getService(Link::class);
-        $this->shopStatus = $module->getService(StatusManager::class);
+        $this->statusManager = $module->getService(StatusManager::class);
     }
 
     /**
@@ -103,7 +103,7 @@ class PsAccountsService
      */
     public function getShopUuid()
     {
-        return $this->shopStatus->getShopUuid();
+        return $this->statusManager->getCloudShopId();
     }
 
     /**
@@ -180,7 +180,7 @@ class PsAccountsService
      */
     public function getUserUuid()
     {
-        return (string) $this->shopStatus->getOwnerUuid();
+        return (string) $this->statusManager->getOwnerUuid();
     }
 
     /**
@@ -198,7 +198,7 @@ class PsAccountsService
      */
     public function getEmail()
     {
-        return $this->shopStatus->getOwnerEmail();
+        return $this->statusManager->getOwnerEmail();
     }
 
     /**
@@ -210,7 +210,7 @@ class PsAccountsService
      */
     public function isAccountLinked()
     {
-        return $this->shopStatus->exists();
+        return $this->statusManager->exists();
     }
 
     /**

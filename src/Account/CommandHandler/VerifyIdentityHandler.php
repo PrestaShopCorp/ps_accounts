@@ -55,27 +55,27 @@ class VerifyIdentityHandler
     /**
      * @var ProofManager
      */
-    private $manageProof;
+    private $proofManager;
 
     /**
      * @param AccountsService $accountsService
      * @param ShopProvider $shopProvider
-     * @param StatusManager $shopStatus
+     * @param StatusManager $statusManager
      * @param ShopSession $shopSession
-     * @param ProofManager $manageProof
+     * @param ProofManager $proofManager
      */
     public function __construct(
         AccountsService $accountsService,
-        ShopProvider $shopProvider,
-        StatusManager $shopStatus,
-        ShopSession $shopSession,
-        ProofManager $manageProof
+        ShopProvider    $shopProvider,
+        StatusManager   $statusManager,
+        ShopSession     $shopSession,
+        ProofManager $proofManager
     ) {
         $this->accountsService = $accountsService;
         $this->shopProvider = $shopProvider;
-        $this->statusManager = $shopStatus;
+        $this->statusManager = $statusManager;
         $this->shopSession = $shopSession;
-        $this->manageProof = $manageProof;
+        $this->proofManager = $proofManager;
     }
 
     /**
@@ -100,7 +100,7 @@ class VerifyIdentityHandler
             $status->cloudShopId,
             $this->shopSession->getValidToken(),
             $this->shopProvider->getUrl($shopId),
-            $this->manageProof->generateProof()
+            $this->proofManager->generateProof()
         );
     }
 }

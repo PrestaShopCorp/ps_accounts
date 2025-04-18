@@ -22,42 +22,25 @@ namespace PrestaShop\Module\PsAccounts\Account\CommandHandler;
 
 use PrestaShop\Module\PsAccounts\Account\Command\CheckStatusCommand;
 use PrestaShop\Module\PsAccounts\Account\Exception\RefreshTokenException;
-use PrestaShop\Module\PsAccounts\Account\Session\ShopSession;
+use PrestaShop\Module\PsAccounts\Account\Exception\UnknownStatusException;
 use PrestaShop\Module\PsAccounts\Account\StatusManager;
 use PrestaShop\Module\PsAccounts\Service\Accounts\AccountsException;
-use PrestaShop\Module\PsAccounts\Service\Accounts\AccountsService;
 use PrestaShop\Module\PsAccounts\Service\Accounts\Resource\ShopStatus;
 
 class CheckStatusHandler
 {
-    /**
-     * @var AccountsService
-     */
-    private $accountsService;
-
     /**
      * @var StatusManager
      */
     private $statusManager;
 
     /**
-     * @var ShopSession
-     */
-    private $shopSession;
-
-    /**
-     * @param AccountsService $accountsService
      * @param StatusManager $statusManager
-     * @param ShopSession $shopSession
      */
     public function __construct(
-        AccountsService $accountsService,
-        StatusManager $statusManager,
-        ShopSession $shopSession
+        $statusManager
     ) {
-        $this->accountsService = $accountsService;
         $this->statusManager = $statusManager;
-        $this->shopSession = $shopSession;
     }
 
     /**
@@ -67,23 +50,13 @@ class CheckStatusHandler
      *
      * @throws AccountsException
      * @throws RefreshTokenException
+     * @throws UnknownStatusException
      */
     public function handle(CheckStatusCommand $command)
     {
 //        $scp = $this->shopSession->getValidToken()->getJwt()->claims()->get('scp');
 //        $scp = is_array($scp) ? $scp : [];
-//
 //        return in_array('shop.verified', $scp);
-
-        // TODO: CircuitBreaker for that specific call with cached Response
-        // TODO: implement cache ?
-        ///** @var ConfigurationRepository $configuration */
-        //$configuration = null;
-        //if (time() - $configuration->getShopUuidDateUpd() > $command->cacheTtl) {
-        return $this->accountsService->shopStatus(
-            $this->statusManager->getShopUuid(),
-            $this->shopSession->getValidToken()
-        );
-        //}
+        return $this->statusManager->getStatus();
     }
 }

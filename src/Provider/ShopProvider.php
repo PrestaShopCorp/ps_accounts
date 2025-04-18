@@ -88,7 +88,7 @@ class ShopProvider
                 'frontUrl' => $this->getShopUrl($shopData),
 
                 // LinkAccount
-                'uuid' => $shopStatus->getShopUuid() ?: null,
+                'uuid' => $shopStatus->getCloudShopId() ?: null,
                 'publicKey' => '[deprecated]',
                 'employeeId' => 0, //(int) $shopIdentity->getEmployeeId() ?: null,
                 'user' => [

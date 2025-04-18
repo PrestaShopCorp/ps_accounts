@@ -48,7 +48,7 @@ class CreateIdentityHandler
     /**
      * @var StatusManager
      */
-    private $shopStatus;
+    private $statusManager;
 
     /**
      * @param AccountsService $accountsService
@@ -65,7 +65,7 @@ class CreateIdentityHandler
         $this->accountsService = $accountsService;
         $this->shopProvider = $shopProvider;
         $this->oAuth2Client = $oauth2Client;
-        $this->shopStatus = $shopStatus;
+        $this->statusManager = $shopStatus;
     }
 
     /**
@@ -87,6 +87,9 @@ class CreateIdentityHandler
             $this->shopProvider->getUrl($shopId)
         );
 
+        $this->statusManager->setCloudShopId(
+            $identityCreated->cloudShopId
+        );
         $this->oAuth2Client->update(
             $identityCreated->clientId,
             $identityCreated->clientSecret
@@ -95,14 +98,14 @@ class CreateIdentityHandler
         return $identityCreated;
     }
 
-//    /**
-//     * Idempotency check
-//     *
-//     * @return bool
-//     */
-//    private function isAlreadyCreated()
-//    {
-//        // FIXME: define where this code belongs
-//        return $this->oAuth2Client->exists() && $this->shopStatus->exists();
-//    }
+    /**
+     * Idempotency check
+     *
+     * @return bool
+     */
+    private function isAlreadyCreated()
+    {
+        // FIXME: define where this code belongs
+        return $this->oAuth2Client->exists() && $this->statusManager->exists();
+    }
 }

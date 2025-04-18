@@ -27,12 +27,12 @@ class ps_AccountsApiV2ShopVerifyProofModuleFrontController extends AbstractV2Sho
     /**
      * @var ProofManager
      */
-    private $manageProof;
+    private $proofManager;
 
     /**
      * @var StatusManager
      */
-    private $shopIdentity;
+    private $statusManager;
 
     /**
      * @var bool
@@ -55,7 +55,7 @@ class ps_AccountsApiV2ShopVerifyProofModuleFrontController extends AbstractV2Sho
     protected function getAudience()
     {
         return [
-            'ps_accounts/' . $this->shopIdentity->getShopUuid(),
+            'ps_accounts/' . $this->statusManager->getCloudShopId(),
         ];
     }
 
@@ -63,8 +63,8 @@ class ps_AccountsApiV2ShopVerifyProofModuleFrontController extends AbstractV2Sho
     {
         parent::__construct();
 
-        $this->manageProof = $this->module->getService(ProofManager::class);
-        $this->shopIdentity = $this->module->getService(StatusManager::class);
+        $this->proofManager = $this->module->getService(ProofManager::class);
+        $this->statusManager = $this->module->getService(StatusManager::class);
     }
 
     /**
@@ -76,7 +76,7 @@ class ps_AccountsApiV2ShopVerifyProofModuleFrontController extends AbstractV2Sho
     public function show(Shop $shop, array $payload)
     {
         return [
-            'proof' => $this->manageProof->getProof(),
+            'proof' => $this->proofManager->getProof(),
         ];
     }
 }

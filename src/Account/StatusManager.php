@@ -20,10 +20,12 @@
 
 namespace PrestaShop\Module\PsAccounts\Account;
 
-use PrestaShop\Module\PsAccounts\Account\Command\CheckStatusCommand;
 use PrestaShop\Module\PsAccounts\Account\Exception\RefreshTokenException;
-use PrestaShop\Module\PsAccounts\Cqrs\CommandBus;
+use PrestaShop\Module\PsAccounts\Account\Exception\UnknownStatusException;
+use PrestaShop\Module\PsAccounts\Account\Session\ShopSession;
+use PrestaShop\Module\PsAccounts\Repository\ConfigurationRepository;
 use PrestaShop\Module\PsAccounts\Service\Accounts\AccountsException;
+use PrestaShop\Module\PsAccounts\Service\Accounts\AccountsService;
 use PrestaShop\Module\PsAccounts\Service\Accounts\Resource\ShopStatus;
 
 class StatusManager
@@ -34,22 +36,33 @@ class StatusManager
     const STATUS_TTL = 10;
 
     /**
-     * @var CommandBus
+     * @var ConfigurationRepository
      */
-    private $commandBus;
+    private $repository;
 
     /**
-     * @var ShopStatus
+     * @var ShopSession
      */
-    private $shopStatus;
+    private $shopSession;
 
     /**
-     * @param CommandBus $commandBus
+     * @var AccountsService
+     */
+    private $accountsService;
+
+    /**
+     * @param ShopSession $shopSession
+     * @param AccountsService $accountsService
+     * @param ConfigurationRepository $repository
      */
     public function __construct(
-        CommandBus $commandBus
+        ShopSession             $shopSession,
+        AccountsService         $accountsService,
+        ConfigurationRepository $repository
     ) {
-        $this->commandBus = $commandBus;
+        $this->repository = $repository;
+        $this->shopSession = $shopSession;
+        $this->accountsService = $accountsService;
     }
 
     /**
@@ -57,67 +70,111 @@ class StatusManager
      */
     public function exists()
     {
-        return !empty($this->getStatus()->cloudShopId);
+        return !empty($this->getCloudShopId());
+    }
+
+    /**
+     * @param bool $refresh
+     *
+     * @return ShopStatus
+     *
+     * @throws RefreshTokenException
+     * @throws AccountsException
+     * @throws UnknownStatusException
+     */
+    public function getStatus($refresh=true)
+    {
+        // TODO: avoid recursive dependencies
+        // TODO: remove shop session ??
+        // FIXME: command call service or service call command ?
+        // CheckStatusCommand
+        // VerificationFlowCommand
+        if ($refresh) {
+
+            // TODO: CircuitBreaker for that specific call with cached Response
+            // TODO: implement cache ?
+            ///** @var ConfigurationRepository $configuration */
+            //$configuration = null;
+            //if (time() - $configuration->getShopUuidDateUpd() > $command->cacheTtl) {
+
+            $shopStatus = $this->accountsService->shopStatus(
+                // TODO: cloudShopId must be set first
+                $this->getCloudShopId(),
+                $this->shopSession->getValidToken()
+            );
+
+            $this->repository->updateShopStatus(json_encode($shopStatus->toArray()));
+
+            // TODO: maintain legacy configuration params
+            // $this->repository->updateUserFirebaseUuid($shopStatus->pointOdContactUid);
+        }
+
+        return $this->getCachedStatus();
     }
 
     /**
      * @return ShopStatus
      *
-     * @throws RefreshTokenException
-     * @throws AccountsException
+     *  @throws UnknownStatusException
      */
-    public function getStatus()
+    public function getCachedStatus()
     {
-        if (null === $this->shopStatus) {
-            $this->shopStatus = $this->commandBus->handle(
-                new CheckStatusCommand(self::STATUS_TTL)
-            );
-        }
-
-        return $this->shopStatus;
-    }
-
-    /**
-     * @return bool
-     *
-     * @throws RefreshTokenException
-     * @throws AccountsException
-     */
-    public function isVerified()
-    {
-        return $this->getStatus()->isVerified;
+        return new ShopStatus(json_decode($this->repository->getShopStatus(), true));
     }
 
     /**
      * @return string
-     *
-     * @throws RefreshTokenException
-     * @throws AccountsException
+     */
+    public function getCloudShopId()
+    {
+        return $this->repository->getShopUuid();
+    }
+
+    /**
+     * @param string $cloudShopId
+     */
+    public function setCloudShopId($cloudShopId)
+    {
+        $this->repository->updateShopUuid($cloudShopId);
+    }
+
+    /**
+     * @return string
      */
     public function getShopUuid()
     {
-        return $this->getStatus()->cloudShopId;
+        return $this->getCloudShopId(false);
     }
 
     /**
+     * @param bool $refresh
+     *
      * @return string
      *
-     * @throws RefreshTokenException
      * @throws AccountsException
+     * @throws RefreshTokenException
+     * @throws UnknownStatusException
      */
-    public function getOwnerUuid()
+    public function getOwnerUuid($refresh=true)
     {
-        return $this->getStatus()->pointOdContactUid;
+        // TODO
+        //return $this->getStatus($refresh)->pointOdContactUid;
+        return 'not-implemented';
     }
 
     /**
+     * @param bool $refresh
+     *
      * @return string
      *
-     * @throws RefreshTokenException
      * @throws AccountsException
+     * @throws RefreshTokenException
+     * @throws UnknownStatusException
      */
-    public function getOwnerEmail()
+    public function getOwnerEmail($refresh=true)
     {
-        return $this->getStatus()->pointOdContactEmail;
+        // TODO
+        //return $this->getStatus($refresh)->pointOdContactEmail;
+        return 'not@implemented.dev';
     }
 }

@@ -38,7 +38,7 @@ class ps_AccountsApiV2ShopHealthCheckModuleFrontController extends AbstractV2Sho
     /**
      * @var StatusManager
      */
-    private $shopIdentity;
+    private $statusManager;
 
     /**
      * @var OAuth2Client
@@ -91,7 +91,7 @@ class ps_AccountsApiV2ShopHealthCheckModuleFrontController extends AbstractV2Sho
     protected function getAudience()
     {
         return [
-            'ps_accounts/' . $this->shopIdentity->getShopUuid(),
+            'ps_accounts/' . $this->statusManager->getCloudShopId(),
         ];
     }
 
@@ -105,7 +105,7 @@ class ps_AccountsApiV2ShopHealthCheckModuleFrontController extends AbstractV2Sho
             $this->authenticated = true;
         }
 
-        $this->shopIdentity = $this->module->getService(StatusManager::class);
+        $this->statusManager = $this->module->getService(StatusManager::class);
         $this->oauth2Client = $this->module->getService(OAuth2Client::class);
         $this->shopSession = $this->module->getService(ShopSession::class);
         $this->firebaseShopSession = $this->module->getService(Firebase\ShopSession::class);
@@ -146,7 +146,7 @@ class ps_AccountsApiV2ShopHealthCheckModuleFrontController extends AbstractV2Sho
 
         $healthCheckMessage = [
             'oauth2Client' => $this->oauth2Client->exists(),
-            'shopLinked' => (bool) $this->shopIdentity->getShopUuid(),
+            'shopLinked' => (bool) $this->statusManager->getCloudShopId(),
             'isSsoEnabled' => $this->psAccountsService->getLoginActivated(),
             'oauthToken' => $this->tokenInfos($shopToken),
             'firebaseOwnerToken' => $this->tokenInfos($firebaseOwnerToken),
@@ -174,9 +174,9 @@ class ps_AccountsApiV2ShopHealthCheckModuleFrontController extends AbstractV2Sho
                 'psVersion' => _PS_VERSION_,
                 'moduleVersion' => Ps_accounts::VERSION,
                 'phpVersion' => phpversion(),
-                'cloudShopId' => (string) $this->shopIdentity->getShopUuid(),
+                'cloudShopId' => (string) $this->statusManager->getCloudShopId(),
                 'shopName' => $shop->name,
-                'ownerEmail' => (string) $this->shopIdentity->getOwnerEmail(),
+                'ownerEmail' => (string) $this->statusManager->getOwnerEmail(),
             ]);
         }
 

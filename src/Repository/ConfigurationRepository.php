@@ -198,45 +198,6 @@ class ConfigurationRepository
     }
 
     /**
-     * @return string
-     */
-    public function getAccountsRsaPrivateKey()
-    {
-        return $this->configuration->get(ConfigurationKeys::PS_ACCOUNTS_RSA_PRIVATE_KEY);
-    }
-
-    /**
-     * @param string $key
-     *
-     * @return void
-     */
-    public function updateAccountsRsaPrivateKey($key)
-    {
-        $this->configuration->set(ConfigurationKeys::PS_ACCOUNTS_RSA_PRIVATE_KEY, $key);
-    }
-
-    /**
-     * @param bool $cached
-     * @param bool|mixed $default
-     *
-     * @return string|bool
-     */
-    public function getAccountsRsaPublicKey($default = false, $cached = true)
-    {
-        return $this->configuration->get(ConfigurationKeys::PS_ACCOUNTS_RSA_PUBLIC_KEY, $default, $cached);
-    }
-
-    /**
-     * @param string $key
-     *
-     * @return void
-     */
-    public function updateAccountsRsaPublicKey($key)
-    {
-        $this->configuration->set(ConfigurationKeys::PS_ACCOUNTS_RSA_PUBLIC_KEY, $key);
-    }
-
-    /**
      * @return bool
      */
     public function sslEnabled()
@@ -434,9 +395,9 @@ class ConfigurationRepository
     /**
      * @return string|null
      */
-    public function getProof()
+    public function getShopProof()
     {
-        return $this->configuration->get(ConfigurationKeys::PS_ACCOUNTS_IDENTITY_VERIFICATION_PROOF);
+        return $this->configuration->get(ConfigurationKeys::PS_ACCOUNTS_SHOP_PROOF);
     }
 
     /**
@@ -444,9 +405,27 @@ class ConfigurationRepository
      *
      * @return void
      */
-    public function updateProof($proof)
+    public function updateShopProof($proof)
     {
-        $this->configuration->set(ConfigurationKeys::PS_ACCOUNTS_IDENTITY_VERIFICATION_PROOF, $proof);
+        $this->configuration->set(ConfigurationKeys::PS_ACCOUNTS_SHOP_PROOF, $proof);
+    }
+
+    /**
+     * @return string|null
+     */
+    public function getShopStatus()
+    {
+        return $this->configuration->get(ConfigurationKeys::PS_ACCOUNTS_SHOP_STATUS);
+    }
+
+    /**
+     * @param string|null $proof
+     *
+     * @return void
+     */
+    public function updateShopStatus($proof)
+    {
+        $this->configuration->set(ConfigurationKeys::PS_ACCOUNTS_SHOP_STATUS, $proof);
     }
 
     /**

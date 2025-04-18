@@ -21,9 +21,7 @@
 namespace PrestaShop\Module\PsAccounts\Account\Session;
 
 use PrestaShop\Module\PsAccounts\Account\Exception\RefreshTokenException;
-use PrestaShop\Module\PsAccounts\Account\StatusManager;
 use PrestaShop\Module\PsAccounts\Account\Token\Token;
-use PrestaShop\Module\PsAccounts\Cqrs\CommandBus;
 use PrestaShop\Module\PsAccounts\Hook\ActionShopAccessTokenRefreshAfter;
 use PrestaShop\Module\PsAccounts\Repository\ConfigurationRepository;
 use PrestaShop\Module\PsAccounts\Service\OAuth2\OAuth2Exception;
@@ -32,11 +30,6 @@ use PrestaShop\Module\PsAccounts\Service\OAuth2\Resource\AccessToken;
 
 class ShopSession extends Session implements SessionInterface
 {
-    /**
-     * @var CommandBus
-     */
-    protected $commandBus;
-
     /**
      * @var ConfigurationRepository
      */
@@ -48,26 +41,15 @@ class ShopSession extends Session implements SessionInterface
     protected $oAuth2Service;
 
     /**
-     * @var StatusManager
-     */
-    protected $shopIdentity;
-
-    /**
      * @param ConfigurationRepository $configurationRepository
      * @param OAuth2Service $oAuth2Service
-     * @param StatusManager $shopIdentity
-     * @param CommandBus $commandBus
      */
     public function __construct(
         ConfigurationRepository $configurationRepository,
-        OAuth2Service $oAuth2Service,
-        StatusManager $shopIdentity,
-        CommandBus $commandBus
+        OAuth2Service           $oAuth2Service
     ) {
         $this->configurationRepository = $configurationRepository;
         $this->oAuth2Service = $oAuth2Service;
-        $this->shopIdentity = $shopIdentity;
-        $this->commandBus = $commandBus;
     }
 
     /**
@@ -80,7 +62,7 @@ class ShopSession extends Session implements SessionInterface
     public function refreshToken($refreshToken = null)
     {
         try {
-            $shopUuid = $this->getShopUuid();
+            $shopUuid = $this->configurationRepository->getShopUuid();
             $accessToken = $this->getAccessToken($shopUuid);
 
             $this->setToken(
@@ -144,13 +126,5 @@ class ShopSession extends Session implements SessionInterface
         ];
 
         return $this->oAuth2Service->getAccessTokenByClientCredentials([], $audience);
-    }
-
-    /**
-     * @return string
-     */
-    private function getShopUuid()
-    {
-        return $this->shopIdentity->getShopUuid();
     }
 }

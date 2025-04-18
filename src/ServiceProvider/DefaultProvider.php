@@ -21,6 +21,7 @@
 namespace PrestaShop\Module\PsAccounts\ServiceProvider;
 
 use PrestaShop\Module\PsAccounts\Account\ProofManager;
+use PrestaShop\Module\PsAccounts\Account\Session\ShopSession;
 use PrestaShop\Module\PsAccounts\Account\StatusManager;
 use PrestaShop\Module\PsAccounts\Adapter;
 use PrestaShop\Module\PsAccounts\Adapter\Configuration;
@@ -34,6 +35,7 @@ use PrestaShop\Module\PsAccounts\Presenter\PsAccountsPresenter;
 use PrestaShop\Module\PsAccounts\Provider;
 use PrestaShop\Module\PsAccounts\Repository\ConfigurationRepository;
 use PrestaShop\Module\PsAccounts\Repository\ShopTokenRepository;
+use PrestaShop\Module\PsAccounts\Service\Accounts\AccountsService;
 use PrestaShop\Module\PsAccounts\Service\AnalyticsService;
 use PrestaShop\Module\PsAccounts\Service\PsAccountsService;
 use PrestaShop\Module\PsAccounts\Service\PsBillingService;
@@ -61,7 +63,9 @@ class DefaultProvider implements IServiceProvider
         // Entities ?
         $container->registerProvider(StatusManager::class, static function () use ($container) {
             return new StatusManager(
-                $container->get(CommandBus::class)
+                $container->get(ShopSession::class),
+                $container->get(AccountsService::class),
+                $container->get(ConfigurationRepository::class)
             );
         });
         // Adapter
