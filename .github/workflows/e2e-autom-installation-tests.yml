@@ -54,6 +54,10 @@ jobs:
         run: npm run test-all-version
         continue-on-error: true
 
+      - name: Merge Allure Results
+        working-directory: ./e2e
+        run: npm run merge-allure-results
+
       - name: Generate Allure Report
         working-directory: ./e2e
         run: npm run generate-allure-report
