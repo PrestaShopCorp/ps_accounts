@@ -20,12 +20,8 @@
 
 namespace PrestaShop\Module\PsAccounts\Account\Session;
 
-use PrestaShop\Module\PsAccounts\Account\Command\UnlinkShopCommand;
-use PrestaShop\Module\PsAccounts\Account\Exception\InconsistentAssociationStateException;
 use PrestaShop\Module\PsAccounts\Account\Exception\RefreshTokenException;
-use PrestaShop\Module\PsAccounts\Account\LinkShop;
 use PrestaShop\Module\PsAccounts\Account\Token\Token;
-use PrestaShop\Module\PsAccounts\Cqrs\CommandBus;
 use PrestaShop\Module\PsAccounts\Hook\ActionShopAccessTokenRefreshAfter;
 use PrestaShop\Module\PsAccounts\Repository\ConfigurationRepository;
 use PrestaShop\Module\PsAccounts\Service\OAuth2\OAuth2Exception;
@@ -34,11 +30,6 @@ use PrestaShop\Module\PsAccounts\Service\OAuth2\Resource\AccessToken;
 
 class ShopSession extends Session implements SessionInterface
 {
-    /**
-     * @var CommandBus
-     */
-    protected $commandBus;
-
     /**
      * @var ConfigurationRepository
      */
@@ -50,31 +41,15 @@ class ShopSession extends Session implements SessionInterface
     protected $oAuth2Service;
 
     /**
-     * @var LinkShop
-     */
-    protected $linkShop;
-
-    /**
-     * @var int
-     */
-    protected $oauth2ClientReceiptTimeout = 60;
-
-    /**
      * @param ConfigurationRepository $configurationRepository
      * @param OAuth2Service $oAuth2Service
-     * @param LinkShop $linkShop
-     * @param CommandBus $commandBus
      */
     public function __construct(
         ConfigurationRepository $configurationRepository,
-        OAuth2Service $oAuth2Service,
-        LinkShop $linkShop,
-        CommandBus $commandBus
+        OAuth2Service           $oAuth2Service
     ) {
         $this->configurationRepository = $configurationRepository;
         $this->oAuth2Service = $oAuth2Service;
-        $this->linkShop = $linkShop;
-        $this->commandBus = $commandBus;
     }
 
     /**
@@ -87,8 +62,7 @@ class ShopSession extends Session implements SessionInterface
     public function refreshToken($refreshToken = null)
     {
         try {
-            $this->assertAssociationState($this->oauth2ClientReceiptTimeout);
-            $shopUuid = $this->getShopUuid();
+            $shopUuid = $this->configurationRepository->getShopUuid();
             $accessToken = $this->getAccessToken($shopUuid);
 
             $this->setToken(
@@ -101,11 +75,6 @@ class ShopSession extends Session implements SessionInterface
             \Hook::exec(ActionShopAccessTokenRefreshAfter::getName(), ['token' => $token]);
 
             return $token;
-        } catch (InconsistentAssociationStateException $e) {
-            $this->commandBus->handle(new UnlinkShopCommand(
-                $this->configurationRepository->getShopId(),
-                $e->getMessage()
-            ));
         } catch (OAuth2Exception $e) {
         } catch (\Throwable $e) {
             /* @phpstan-ignore-next-line */
@@ -142,16 +111,6 @@ class ShopSession extends Session implements SessionInterface
     }
 
     /**
-     * @param int $oauth2ClientReceiptTimeout
-     *
-     * @return void
-     */
-    public function setOauth2ClientReceiptTimeout($oauth2ClientReceiptTimeout)
-    {
-        $this->oauth2ClientReceiptTimeout = $oauth2ClientReceiptTimeout;
-    }
-
-    /**
      * @param string $shopUid
      *
      * @return AccessToken
@@ -167,34 +126,5 @@ class ShopSession extends Session implements SessionInterface
         ];
 
         return $this->oAuth2Service->getAccessTokenByClientCredentials([], $audience);
-    }
-
-    /**
-     * @param int $oauth2ClientReceiptTimeout
-     *
-     * @return void
-     *
-     * @throws InconsistentAssociationStateException
-     */
-    protected function assertAssociationState($oauth2ClientReceiptTimeout = 60)
-    {
-        $linkedAtTs = $currentTs = time();
-        if ($this->linkShop->linkedAt()) {
-            $linkedAtTs = (new \DateTime($this->linkShop->linkedAt()))->getTimestamp();
-        }
-
-        if ($this->linkShop->exists() &&
-            $currentTs - $linkedAtTs > $oauth2ClientReceiptTimeout &&
-            !$this->oAuth2Service->getOAuth2Client()->exists()) {
-            throw new InconsistentAssociationStateException('Invalid OAuth2 client');
-        }
-    }
-
-    /**
-     * @return string
-     */
-    private function getShopUuid()
-    {
-        return $this->linkShop->getShopUuid();
     }
 }
