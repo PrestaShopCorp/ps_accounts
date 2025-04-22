@@ -119,9 +119,14 @@ class ShopSession extends Session implements SessionInterface
      */
     protected function getAccessToken($shopUid)
     {
+//        /** @var \Ps_accounts $module */
+//        $module = \Module::getInstanceByName('ps_accounts');
+
         $audience = [
             'shop_' . $shopUid,
-            //'https://accounts-api.distribution.prestashop.net/shops/' . $shopUid,
+            // FIXME: Requested audience 'shop/0d63bfb0-d371-4ae5-9a4c-68a2ff7995d9' has not been whitelisted by the OAuth 2.0 Client.)
+            //'shops/' . $shopUid,
+            //$module->getParameter('ps_accounts.accounts_api_url') . '/shops/' . $shopUid,
             //'another.audience'
         ];
 

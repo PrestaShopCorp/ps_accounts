@@ -71,15 +71,15 @@ class CreateIdentityHandler
     /**
      * @param CreateIdentityCommand $command
      *
-     * @return IdentityCreated
+     * @return void
      *
      * @throws AccountsException
      */
     public function handle(CreateIdentityCommand $command)
     {
-//        if ($this->isAlreadyCreated()) {
-//            return;
-//        }
+        if ($this->isAlreadyCreated()) {
+            return;
+        }
 
         $shopId = $command->shopId ?: \Shop::getContextShopID();
 
@@ -94,8 +94,6 @@ class CreateIdentityHandler
             $identityCreated->clientId,
             $identityCreated->clientSecret
         );
-
-        return $identityCreated;
     }
 
     /**

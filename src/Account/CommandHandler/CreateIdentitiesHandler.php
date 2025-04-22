@@ -23,6 +23,7 @@ namespace PrestaShop\Module\PsAccounts\Account\CommandHandler;
 use PrestaShop\Module\PsAccounts\Account\Command\CreateIdentitiesCommand;
 use PrestaShop\Module\PsAccounts\Account\Command\CreateIdentityCommand;
 use PrestaShop\Module\PsAccounts\Account\Exception\RefreshTokenException;
+use PrestaShop\Module\PsAccounts\Log\Logger;
 use PrestaShop\Module\PsAccounts\Service\Accounts\AccountsException;
 
 class CreateIdentitiesHandler extends MultiShopHandler
@@ -38,7 +39,9 @@ class CreateIdentitiesHandler extends MultiShopHandler
             try {
                 $this->commandBus->handle(new CreateIdentityCommand($multiShopId));
             } catch (RefreshTokenException $e) {
+                Logger::getInstance()->error($e->getMessage());
             } catch (AccountsException $e) {
+                Logger::getInstance()->error($e->getMessage());
             }
         });
     }

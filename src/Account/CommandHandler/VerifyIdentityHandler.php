@@ -82,7 +82,7 @@ class VerifyIdentityHandler
     /**
      * @param VerifyIdentityCommand $command
      *
-     * @return ShopStatus
+     * @return void
      *
      * @throws AccountsException
      * @throws RefreshTokenException
@@ -93,7 +93,7 @@ class VerifyIdentityHandler
             $status = $this->statusManager->getStatus();
 
             if ($status->isVerified) {
-                return $status;
+                return;
             }
         } catch (UnknownStatusException $e) {
         } catch (RefreshTokenException $e) {
@@ -102,7 +102,7 @@ class VerifyIdentityHandler
 
         $shopId = $command->shopId ?: \Shop::getContextShopID();
 
-        return $this->accountsService->verifyShopProof(
+        $this->accountsService->verifyShopProof(
             $this->statusManager->getCloudShopId(),
             $this->shopSession->getValidToken(),
             $this->shopProvider->getUrl($shopId),

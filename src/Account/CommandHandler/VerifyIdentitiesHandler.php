@@ -23,6 +23,7 @@ namespace PrestaShop\Module\PsAccounts\Account\CommandHandler;
 use PrestaShop\Module\PsAccounts\Account\Command\VerifyIdentitiesCommand;
 use PrestaShop\Module\PsAccounts\Account\Command\VerifyIdentityCommand;
 use PrestaShop\Module\PsAccounts\Account\Exception\RefreshTokenException;
+use PrestaShop\Module\PsAccounts\Log\Logger;
 use PrestaShop\Module\PsAccounts\Service\Accounts\AccountsException;
 
 class VerifyIdentitiesHandler extends MultiShopHandler
@@ -38,7 +39,9 @@ class VerifyIdentitiesHandler extends MultiShopHandler
             try {
                 $this->commandBus->handle(new VerifyIdentityCommand($multiShopId));
             } catch (RefreshTokenException $e) {
+                Logger::getInstance()->error($e->getMessage());
             } catch (AccountsException $e) {
+                Logger::getInstance()->error($e->getMessage());
             }
         });
     }
