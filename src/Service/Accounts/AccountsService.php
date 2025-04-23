@@ -266,10 +266,10 @@ class AccountsService
      *
      * @throws AccountsException
      */
-    public function verifyShopProof($cloudShopId, $shopToken, ShopUrl $shopUrl, $proof)
+    public function verifyShopIdentity($cloudShopId, $shopToken, ShopUrl $shopUrl, $proof)
     {
-        $response = $this->getClient()->put(
-            '/v1/shop-verifications/' . $cloudShopId, [
+        $response = $this->getClient()->post(
+            '/v1/shop-identities/' . $cloudShopId . '/verify', [
                 Request::HEADERS => $this->getHeaders([
                     'Authorization' => 'Bearer ' . $shopToken,
                     'X-Shop-Id' => $cloudShopId,
