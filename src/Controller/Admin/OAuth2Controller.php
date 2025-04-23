@@ -245,6 +245,17 @@ class OAuth2Controller extends FrameworkBundleAdminController
     }
 
     /**
+     * @return RedirectResponse
+     */
+    protected function onLoginFailedRedirect()
+    {
+        return $this->redirect(
+            $this->getSessionReturnTo() ?:
+                $this->link->getAdminLink('AdminDashboard')
+        );
+    }
+
+    /**
      * @return SessionInterface
      */
     protected function getSession()
