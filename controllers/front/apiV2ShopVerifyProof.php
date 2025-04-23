@@ -45,7 +45,7 @@ class ps_AccountsApiV2ShopVerifyProofModuleFrontController extends AbstractV2Sho
     protected function getScope()
     {
         return [
-            'shop.verify_proof',
+            //'shop.verify_proof',
         ];
     }
 
@@ -55,7 +55,7 @@ class ps_AccountsApiV2ShopVerifyProofModuleFrontController extends AbstractV2Sho
     protected function getAudience()
     {
         return [
-            'ps_accounts/' . $this->statusManager->getCloudShopId(),
+            //'ps_accounts/' . $this->statusManager->getCloudShopId(),
         ];
     }
 
