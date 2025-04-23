@@ -56,8 +56,8 @@ class StatusManager
      * @param ConfigurationRepository $repository
      */
     public function __construct(
-        ShopSession             $shopSession,
-        AccountsService         $accountsService,
+        ShopSession $shopSession,
+        AccountsService $accountsService,
         ConfigurationRepository $repository
     ) {
         $this->repository = $repository;
@@ -82,7 +82,7 @@ class StatusManager
      * @throws AccountsException
      * @throws UnknownStatusException
      */
-    public function getStatus($refresh=true)
+    public function getStatus($refresh = true)
     {
         // TODO: avoid recursive dependencies
         // TODO: remove shop session ??
@@ -90,7 +90,6 @@ class StatusManager
         // CheckStatusCommand
         // VerificationFlowCommand
         if ($refresh) {
-
             // TODO: CircuitBreaker for that specific call with cached Response
             // TODO: implement cache ?
             ///** @var ConfigurationRepository $configuration */
@@ -121,7 +120,7 @@ class StatusManager
     {
         $status = $this->repository->getShopStatus();
 
-        return new ShopStatus(json_decode($status ?: '{}' , true));
+        return new ShopStatus(json_decode($status ?: '{}', true));
     }
 
     /**
@@ -134,6 +133,8 @@ class StatusManager
 
     /**
      * @param string $cloudShopId
+     *
+     * @return void
      */
     public function setCloudShopId($cloudShopId)
     {
@@ -145,7 +146,7 @@ class StatusManager
      */
     public function getShopUuid()
     {
-        return $this->getCloudShopId(false);
+        return $this->getCloudShopId();
     }
 
     /**
@@ -157,7 +158,7 @@ class StatusManager
      * @throws RefreshTokenException
      * @throws UnknownStatusException
      */
-    public function getOwnerUuid($refresh=true)
+    public function getOwnerUuid($refresh = true)
     {
         // TODO
         //return $this->getStatus($refresh)->pointOdContactUid;
@@ -173,7 +174,7 @@ class StatusManager
      * @throws RefreshTokenException
      * @throws UnknownStatusException
      */
-    public function getOwnerEmail($refresh=true)
+    public function getOwnerEmail($refresh = true)
     {
         // TODO
         //return $this->getStatus($refresh)->pointOdContactEmail;

@@ -76,7 +76,7 @@ class SentryService
                       $sentryCredentials,
                       $environment,
         StatusManager $statusManager,
-        Context       $context
+        Context $context
     ) {
         $this->client = new ModuleFilteredRavenClient(
             $sentryCredentials,

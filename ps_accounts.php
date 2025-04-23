@@ -492,9 +492,8 @@ class Ps_accounts extends Module
                 return true;
             }
         } catch (\PrestaShop\Module\PsAccounts\Account\Exception\UnknownStatusException $e) {
-        } catch (\PrestaShop\Module\PsAccounts\Account\Exception\RefreshTokenException $e) {
-        } catch (\PrestaShop\Module\PsAccounts\Service\Accounts\AccountsException $e) {
         }
+
         return false;
     }
 }

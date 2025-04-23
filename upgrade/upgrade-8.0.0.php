@@ -1,7 +1,6 @@
 <?php
 
 use PrestaShop\Module\PsAccounts\Account\Command\CreateIdentitiesCommand;
-use PrestaShop\Module\PsAccounts\Account\Command\UpgradeModulesCommand;
 use PrestaShop\Module\PsAccounts\Account\Command\VerifyIdentitiesCommand;
 use PrestaShop\Module\PsAccounts\Cqrs\CommandBus;
 use PrestaShop\Module\PsAccounts\Log\Logger;

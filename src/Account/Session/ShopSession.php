@@ -52,7 +52,7 @@ class ShopSession extends Session implements SessionInterface
      */
     public function __construct(
         ConfigurationRepository $configurationRepository,
-        OAuth2Service           $oAuth2Service,
+        OAuth2Service $oAuth2Service,
                                 $accountsApiUrl
     ) {
         $this->configurationRepository = $configurationRepository;

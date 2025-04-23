@@ -29,7 +29,6 @@ use PrestaShop\Module\PsAccounts\Account\StatusManager;
 use PrestaShop\Module\PsAccounts\Provider\ShopProvider;
 use PrestaShop\Module\PsAccounts\Service\Accounts\AccountsException;
 use PrestaShop\Module\PsAccounts\Service\Accounts\AccountsService;
-use PrestaShop\Module\PsAccounts\Service\Accounts\Resource\ShopStatus;
 
 class VerifyIdentityHandler
 {
@@ -67,9 +66,9 @@ class VerifyIdentityHandler
      */
     public function __construct(
         AccountsService $accountsService,
-        ShopProvider    $shopProvider,
-        StatusManager   $statusManager,
-        ShopSession     $shopSession,
+        ShopProvider $shopProvider,
+        StatusManager $statusManager,
+        ShopSession $shopSession,
         ProofManager $proofManager
     ) {
         $this->accountsService = $accountsService;
