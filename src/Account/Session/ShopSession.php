@@ -41,15 +41,23 @@ class ShopSession extends Session implements SessionInterface
     protected $oAuth2Service;
 
     /**
+     * @var string
+     */
+    protected $accountsApiUrl;
+
+    /**
      * @param ConfigurationRepository $configurationRepository
      * @param OAuth2Service $oAuth2Service
+     * @param string $accountsApiUrl
      */
     public function __construct(
         ConfigurationRepository $configurationRepository,
-        OAuth2Service           $oAuth2Service
+        OAuth2Service           $oAuth2Service,
+                                $accountsApiUrl
     ) {
         $this->configurationRepository = $configurationRepository;
         $this->oAuth2Service = $oAuth2Service;
+        $this->accountsApiUrl = $accountsApiUrl;
     }
 
     /**
@@ -119,17 +127,11 @@ class ShopSession extends Session implements SessionInterface
      */
     protected function getAccessToken($shopUid)
     {
-//        /** @var \Ps_accounts $module */
-//        $module = \Module::getInstanceByName('ps_accounts');
-
         $audience = [
-            'shop_' . $shopUid,
-            // FIXME: Requested audience 'shop/0d63bfb0-d371-4ae5-9a4c-68a2ff7995d9' has not been whitelisted by the OAuth 2.0 Client.)
-            //'shops/' . $shopUid,
-            //$module->getParameter('ps_accounts.accounts_api_url') . '/shops/' . $shopUid,
-            //'another.audience'
+            'shop_' . $shopUid, // FIXME: remove that audience
+            $this->accountsApiUrl . '/shops/' . $shopUid,
         ];
 
-        return $this->oAuth2Service->getAccessTokenByClientCredentials([], $audience);
+        return $this->oAuth2Service->getAccessTokenByClientCredentials(['shop.verified'], $audience);
     }
 }

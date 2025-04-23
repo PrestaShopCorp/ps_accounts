@@ -42,7 +42,8 @@ class SessionProvider implements IServiceProvider
         $container->registerProvider(ShopSession::class, static function () use ($container) {
             return new ShopSession(
                 $container->get(ConfigurationRepository::class),
-                $container->get(OAuth2Service::class)
+                $container->get(OAuth2Service::class),
+                preg_replace('/\/$/', '', $container->getParameter('ps_accounts.accounts_api_url'))
             );
         });
         $container->registerProvider(Firebase\OwnerSession::class, static function () use ($container) {
