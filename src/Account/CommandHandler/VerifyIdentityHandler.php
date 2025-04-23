@@ -102,7 +102,7 @@ class VerifyIdentityHandler
 
         $shopId = $command->shopId ?: \Shop::getContextShopID();
 
-        $this->accountsService->verifyShopProof(
+        $this->accountsService->verifyShopIdentity(
             $this->statusManager->getCloudShopId(),
             $this->shopSession->getValidToken(),
             $this->shopProvider->getUrl($shopId),
