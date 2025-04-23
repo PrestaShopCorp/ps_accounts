@@ -35,6 +35,12 @@ use PrestaShop\Module\PsAccounts\Service\SentryService;
 abstract class AbstractV2RestController extends AbstractRestController
 {
     /**
+     * Header to retrieve bearer from
+     * FIXME: "Authorization" standard header might be filtered by server configuration
+     */
+    const HEADER_AUTHORIZATION = 'X-Authorization';
+
+    /**
      * @var object
      */
     protected $token;
@@ -173,7 +179,7 @@ abstract class AbstractV2RestController extends AbstractRestController
      */
     protected function checkAuthorization()
     {
-        $authorizationHeader = $this->getRequestHeader('Authorization');
+        $authorizationHeader = $this->getRequestHeader(self::HEADER_AUTHORIZATION);
         if (!isset($authorizationHeader)) {
             throw new UnauthorizedException('Authorization header is required.');
         }
