@@ -11,7 +11,7 @@ export default defineConfig({
   /* Opt out of parallel tests on CI. */
   workers: process.env.CI ? 1 : 1,
   /* Reporter to use. See https://playwright.dev/docs/test-reporters */
-  reporter: [['list'], ['allure-playwright']],
+  reporter: [['html', {open: 'never'}], ['list'], ['allure-playwright']],
   projects: [
     {
       // Look for test files in the "campaigns" directory, relative to this configuration file.
@@ -21,7 +21,7 @@ export default defineConfig({
   ],
   use: {
     trace: 'on-first-retry',
-    screenshot: 'on',
+    screenshot: 'only-on-failure',
     headless: process.env.HEADLESS !== 'false',
     userAgent: 'preston-qa-accounts-PTjQKh3uBIPP5PM6tovLLDRLcfMUZwnI0kzbCJf'
   }

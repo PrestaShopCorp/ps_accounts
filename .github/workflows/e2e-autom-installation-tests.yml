@@ -55,6 +55,13 @@ jobs:
         run: npm run test-all-version
         continue-on-error: true
 
+      - name: Upload Playwright Test Reports
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: playwright-report-account
+          path: playwright-report/
+
       - name: Merge Allure Results
         working-directory: ./e2e
         run: npm run merge-allure-results
