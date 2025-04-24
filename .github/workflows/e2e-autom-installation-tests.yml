@@ -39,15 +39,20 @@ jobs:
           npx playwright install
 
       - name: Generate .env file
+        working-directory: ./e2e-env
         run: |
-          echo "ACCOUNT_TAG=${{ secrets.ACCOUNT_TAG }}" >> e2e-env/.env
-          echo "TUNNEL_SECRET=${{ secrets.TUNNEL_SECRET }}" >> e2e-env/.env
-          echo "TUNNEL_ID=${{ secrets.TUNNEL_ID }}" >> e2e-env/.env
-          echo "PS_DOMAIN=${{ secrets.PS_DOMAIN }}" >> e2e-env/.env
-          echo "DOMAIN=${{ secrets.DOMAIN }}" >> e2e-env/.env
-          echo "DOWNLOADER_TOKEN=${{ secrets.DOWNLOADER_TOKEN }}" >> e2e-env/.env
-          echo "PS_VERSION=${{ secrets.PS_VERSION }}" >> e2e-env/.env
-          echo "PS_ACCOUNTS_VERSION=${{ secrets.PS_ACCOUNTS_VERSION }}" >> e2e-env/.env
+          echo "ACCOUNT_TAG=${{ secrets.ACCOUNT_TAG }}" >> .env
+          echo "TUNNEL_SECRET=${{ secrets.TUNNEL_SECRET }}" >> .env
+          echo "TUNNEL_ID=${{ secrets.TUNNEL_ID }}" >> .env
+          echo "PS_DOMAIN=${{ secrets.PS_DOMAIN }}" >> .env
+          echo "DOMAIN=${{ secrets.DOMAIN }}" >> .env
+          echo "DOWNLOADER_TOKEN=${{ secrets.DOWNLOADER_TOKEN }}" >> .env
+          echo "PS_VERSION=${{ secrets.PS_VERSION }}" >> .env
+          echo "PS_ACCOUNTS_VERSION=${{ secrets.PS_ACCOUNTS_VERSION }}" >> .env
+          
+      - name: Debug .env file
+        working-directory: ./e2e-env
+        run: cat .env
 
       - name: Run test
         working-directory: ./e2e
