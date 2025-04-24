@@ -22,7 +22,6 @@ namespace PrestaShop\Module\PsAccounts\Repository;
 
 use PrestaShop\Module\PsAccounts\Adapter\Configuration;
 use PrestaShop\Module\PsAccounts\Adapter\ConfigurationKeys;
-use PrestaShop\Module\PsAccounts\Log\Logger;
 
 class ConfigurationRepository
 {
@@ -165,23 +164,11 @@ class ConfigurationRepository
     }
 
     /**
-     * @return string|null
+     * @return \DateTime|null
      */
     public function getShopUuidDateUpd()
     {
-        try {
-            $entry = $this->configuration->getUncachedConfiguration(
-                ConfigurationKeys::PSX_UUID_V4,
-                $this->configuration->getIdShopGroup(),
-                $this->configuration->getIdShop()
-            );
-
-            return $entry->date_upd;
-        } catch (\Exception $e) {
-            Logger::getInstance()->error(__METHOD__ . ': ' . $e->getMessage());
-
-            return null;
-        }
+        return $this->configuration->getDateUpd(ConfigurationKeys::PSX_UUID_V4);
     }
 
     /**
@@ -416,6 +403,14 @@ class ConfigurationRepository
     public function getShopStatus()
     {
         return $this->configuration->get(ConfigurationKeys::PS_ACCOUNTS_SHOP_STATUS);
+    }
+
+    /**
+     * @return \DateTime|null
+     */
+    public function getShopStatusDateUpd()
+    {
+        return $this->configuration->getDateUpd(ConfigurationKeys::PS_ACCOUNTS_SHOP_STATUS);
     }
 
     /**

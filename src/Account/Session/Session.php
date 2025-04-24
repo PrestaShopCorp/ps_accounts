@@ -87,6 +87,8 @@ abstract class Session implements SessionInterface
 
     /**
      * @return bool
+     *
+     * @deprecated since v8.0.0
      */
     public function isEmailVerified()
     {

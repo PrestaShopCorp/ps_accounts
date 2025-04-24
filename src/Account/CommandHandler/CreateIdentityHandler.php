@@ -25,6 +25,7 @@ use PrestaShop\Module\PsAccounts\Account\StatusManager;
 use PrestaShop\Module\PsAccounts\Provider\ShopProvider;
 use PrestaShop\Module\PsAccounts\Service\Accounts\AccountsException;
 use PrestaShop\Module\PsAccounts\Service\Accounts\AccountsService;
+use PrestaShop\Module\PsAccounts\Service\Accounts\Resource\ShopStatus;
 use PrestaShop\Module\PsAccounts\Service\OAuth2\OAuth2Client;
 
 class CreateIdentityHandler
@@ -93,6 +94,10 @@ class CreateIdentityHandler
             $identityCreated->clientId,
             $identityCreated->clientSecret
         );
+        $this->statusManager->setCachedStatus(new ShopStatus([
+            'cloudShopId' => $identityCreated->cloudShopId,
+            'isVerified' => false,
+        ]));
     }
 
     /**

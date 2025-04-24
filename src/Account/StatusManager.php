@@ -74,38 +74,23 @@ class StatusManager
     }
 
     /**
-     * @param bool $refresh
+     * @param int $cacheTtl
      *
      * @return ShopStatus
      *
-     * @throws RefreshTokenException
-     * @throws AccountsException
      * @throws UnknownStatusException
      */
-    public function getStatus($refresh = true)
+    public function getStatus($cacheTtl = self::STATUS_TTL)
     {
-        // TODO: avoid recursive dependencies
-        // TODO: remove shop session ??
-        // FIXME: command call service or service call command ?
-        // CheckStatusCommand
-        // VerificationFlowCommand
-        if ($refresh) {
-            // TODO: CircuitBreaker for that specific call with cached Response
-            // TODO: implement cache ?
-            ///** @var ConfigurationRepository $configuration */
-            //$configuration = null;
-            //if (time() - $configuration->getShopUuidDateUpd() > $command->cacheTtl) {
-
-            $shopStatus = $this->accountsService->shopStatus(
-                // TODO: cloudShopId must be set first
-                $this->getCloudShopId(),
-                $this->shopSession->getValidToken()
-            );
-
-            $this->repository->updateShopStatus(json_encode($shopStatus->toArray()));
-
-            // TODO: maintain legacy configuration params
-            // $this->repository->updateUserFirebaseUuid($shopStatus->pointOdContactUid);
+        if (time() - $this->repository->getShopStatusDateUpd()->getTimestamp() > $cacheTtl) {
+            try {
+                $this->setCachedStatus($this->accountsService->shopStatus(
+                    $this->getCloudShopId(),
+                    $this->shopSession->getValidToken()
+                ));
+            } catch (AccountsException $e) {
+            } catch (RefreshTokenException $e) {
+            }
         }
 
         return $this->getCachedStatus();
@@ -114,13 +99,21 @@ class StatusManager
     /**
      * @return ShopStatus
      *
-     *  @throws UnknownStatusException
+     * @throws UnknownStatusException
      */
     public function getCachedStatus()
     {
         $status = $this->repository->getShopStatus();
 
         return new ShopStatus(json_decode($status ?: '{}', true));
+    }
+
+    /**
+     * @return void
+     */
+    public function setCachedStatus(ShopStatus $shopStatus)
+    {
+        $this->repository->updateShopStatus(json_encode($shopStatus->jsonSerialize()) ?: null);
     }
 
     /**

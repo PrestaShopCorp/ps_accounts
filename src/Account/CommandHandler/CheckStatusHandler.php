@@ -21,10 +21,8 @@
 namespace PrestaShop\Module\PsAccounts\Account\CommandHandler;
 
 use PrestaShop\Module\PsAccounts\Account\Command\CheckStatusCommand;
-use PrestaShop\Module\PsAccounts\Account\Exception\RefreshTokenException;
 use PrestaShop\Module\PsAccounts\Account\Exception\UnknownStatusException;
 use PrestaShop\Module\PsAccounts\Account\StatusManager;
-use PrestaShop\Module\PsAccounts\Service\Accounts\AccountsException;
 use PrestaShop\Module\PsAccounts\Service\Accounts\Resource\ShopStatus;
 
 class CheckStatusHandler
@@ -48,15 +46,10 @@ class CheckStatusHandler
      *
      * @return ShopStatus
      *
-     * @throws AccountsException
-     * @throws RefreshTokenException
      * @throws UnknownStatusException
      */
     public function handle(CheckStatusCommand $command)
     {
-//        $scp = $this->shopSession->getValidToken()->getJwt()->claims()->get('scp');
-//        $scp = is_array($scp) ? $scp : [];
-//        return in_array('shop.verified', $scp);
-        return $this->statusManager->getStatus();
+        return $this->statusManager->getStatus($command->cacheTtl);
     }
 }

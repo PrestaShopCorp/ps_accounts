@@ -38,7 +38,7 @@ abstract class AbstractV2RestController extends AbstractRestController
      * Header to retrieve bearer from
      * FIXME: "Authorization" standard header might be filtered by server configuration
      */
-    const HEADER_AUTHORIZATION = 'X-Authorization';
+    const HEADER_AUTHORIZATION = 'X-Prestashop-Authorization';
 
     /**
      * @var object

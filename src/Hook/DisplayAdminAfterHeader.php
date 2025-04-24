@@ -36,22 +36,22 @@ class DisplayAdminAfterHeader extends Hook
         $statusManager = $this->module->getService(StatusManager::class);
 
         try {
-            if ($statusManager->getStatus()->isVerified) {
-                return '';
-            }
+            $verifiedMsg = $statusManager->getStatus()->isVerified ? 'Verified' : 'NOT Verified';
+
+            return <<<HTML
+<div class="bootstrap">
+    <div class="alert alert-warning">
+        <button type="button" class="close" data-dismiss="alert">×</button>
+        <!-- img width="57" alt="PrestaShop Account" title="PrestaShop Account" src="/modules/ps_accounts/logo.png"-->
+        <a>{$statusManager->getCloudShopId()}</a> ({$verifiedMsg})
+    </div>
+</div>
+HTML;
         } catch (UnknownStatusException $e) {
         } catch (RefreshTokenException $e) {
         } catch (AccountsException $e) {
         }
 
-        return <<<HTML
-<div class="bootstrap">
-    <div class="alert alert-warning">
-        <button type="button" class="close" data-dismiss="alert">×</button>
-        <!-- img width="57" alt="PrestaShop Account" title="PrestaShop Account" src="/modules/ps_accounts/logo.png"-->
-        Your shop has not been verified : <a>{$statusManager->getCloudShopId()}</a>
-    </div>
-</div>
-HTML;
+        return '';
     }
 }

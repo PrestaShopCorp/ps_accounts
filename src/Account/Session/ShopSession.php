@@ -71,7 +71,11 @@ class ShopSession extends Session implements SessionInterface
     {
         try {
             $shopUuid = $this->configurationRepository->getShopUuid();
-            $accessToken = $this->getAccessToken($shopUuid);
+
+            $accessToken = $this->getAccessToken([], [
+                'shop_' . $shopUuid, // FIXME: remove that audience
+                $this->accountsApiUrl . '/shops/' . $shopUuid,
+            ]);
 
             $this->setToken(
                 $accessToken->access_token,
@@ -119,19 +123,15 @@ class ShopSession extends Session implements SessionInterface
     }
 
     /**
-     * @param string $shopUid
+     * @param array $scope
+     * @param array $audience
      *
      * @return AccessToken
      *
      * @throws OAuth2Exception
      */
-    protected function getAccessToken($shopUid)
+    protected function getAccessToken(array $scope = [], array $audience = [])
     {
-        $audience = [
-            'shop_' . $shopUid, // FIXME: remove that audience
-            $this->accountsApiUrl . '/shops/' . $shopUid,
-        ];
-
-        return $this->oAuth2Service->getAccessTokenByClientCredentials(['shop.verified'], $audience);
+        return $this->oAuth2Service->getAccessTokenByClientCredentials($scope, $audience);
     }
 }
