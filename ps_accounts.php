@@ -106,7 +106,7 @@ class Ps_accounts extends Module
 
         // Login/Logout OAuth
         // PS 1.6 - 1.7
-        //'displayAdminAfterHeader',
+        'displayAdminAfterHeader',
         'actionAdminLoginControllerSetMedia',
         // PS >= 8
         //'actionAdminControllerInitBefore',
