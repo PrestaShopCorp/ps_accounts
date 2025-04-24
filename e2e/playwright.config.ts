@@ -18,5 +18,10 @@ export default defineConfig({
       testMatch: 'tests/**/*spec.ts'
     }
   ],
-  use: {trace: 'on-first-retry', screenshot: 'on', headless: process.env.HEADLESS !== 'false'}
+  use: {
+    trace: 'on-first-retry',
+    screenshot: 'on',
+    headless: process.env.HEADLESS !== 'false',
+    userAgent: 'preston-qa-accounts-PTjQKh3uBIPP5PM6tovLLDRLcfMUZwnI0kzbCJf'
+  }
 });
