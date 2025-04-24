@@ -49,18 +49,19 @@ jobs:
           echo "DOWNLOADER_TOKEN=${{ secrets.DOWNLOADER_TOKEN }}" >> .env
           echo "PS_VERSION=${{ secrets.PS_VERSION }}" >> .env
           echo "PS_ACCOUNTS_VERSION=${{ secrets.PS_ACCOUNTS_VERSION }}" >> .env
+          
+      - name: Debug .env file
+        working-directory: ./e2e-env
+        run: cat .env
+
+      - name: Debug ENV before test
+        working-directory: ./e2e
+        run: env | grep PS_
 
       - name: Run test
         working-directory: ./e2e
         run: npm run test-all-version
         continue-on-error: true
-
-      - name: Upload Playwright Test Reports
-        uses: actions/upload-artifact@v4
-        if: always()
-        with:
-          name: playwright-report-account
-          path: playwright-report/
 
       - name: Merge Allure Results
         working-directory: ./e2e
