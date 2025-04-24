@@ -9,5 +9,6 @@ gotToModuleManagerPage('Check if module is installed', async ({gotToModuleManage
     await pm.fromModuleManagePage().getPageMainTitle();
     await pm.fromModuleManagePage().isAccountVisible();
     await pm.fromModuleManagePage().verifyAccountVersion();
+    await pm.fromModuleManagePage().openAccountPopup();
   });
 });
