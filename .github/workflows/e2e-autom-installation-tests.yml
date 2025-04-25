@@ -56,24 +56,13 @@ jobs:
         working-directory: ./e2e
         run: npm run test-all-version
         continue-on-error: true
-              
-      - name: 🔍 Search for all .env files
-        if: always()
-        run: |
-          echo "📂 Searching for .env files in the repo..."
-          find . -type f -name ".env" -exec ls -l {} \; -exec echo "📄 Found: {}" \; || echo "❌ No .env files found"
-      - name: 🧾 Show content of found .env files
-        if: always()
-        run: |
-          echo "📄 Contents of all .env files (if found):"
-          find . -type f -name ".env" -exec echo "--- {} ---" \; -exec cat {} \; || echo "❌ No .env files to show"
 
-      - name: 📤 Upload Playwright Test Reports 
+      - name: Upload Playwright Test Reports
         uses: actions/upload-artifact@v4
         if: ${{ always() }}
         with:
-          name: screenshot
-          path: ./e2e/screenshot.png
+          name: Rapport-Playwright-Account
+          path: ./e2e/playwright-report
 
       - name: Merge Allure Results
         working-directory: ./e2e

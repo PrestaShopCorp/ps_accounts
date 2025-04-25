@@ -3,7 +3,6 @@ import {Globals} from 'utils/globals';
 
 export default class HealthCheckApi {
   async getShopHealthStatus() {
-    console.log(Globals);
     const context = await request.newContext();
     const response = await context.get(
       `${Globals.base_url_fo}/index.php?fc=module&module=ps_accounts&controller=apiV2ShopHealthCheck`
