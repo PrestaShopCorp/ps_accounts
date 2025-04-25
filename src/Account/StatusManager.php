@@ -147,10 +147,6 @@ class StatusManager
      * @param bool $refresh
      *
      * @return string
-     *
-     * @throws AccountsException
-     * @throws RefreshTokenException
-     * @throws UnknownStatusException
      */
     public function getOwnerUuid($refresh = true)
     {
@@ -163,10 +159,6 @@ class StatusManager
      * @param bool $refresh
      *
      * @return string
-     *
-     * @throws AccountsException
-     * @throws RefreshTokenException
-     * @throws UnknownStatusException
      */
     public function getOwnerEmail($refresh = true)
     {
