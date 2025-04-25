@@ -23,6 +23,6 @@ export default defineConfig({
     trace: 'on-first-retry',
     screenshot: 'only-on-failure',
     headless: process.env.HEADLESS !== 'false',
-    // userAgent: 'preston-qa-accounts-PTjQKh3uBIPP5PM6tovLLDRLcfMUZwnI0kzbCJf'
+    userAgent: 'preston-qa-accounts-PTjQKh3uBIPP5PM6tovLLDRLcfMUZwnI0kzbCJf'
   }
 });

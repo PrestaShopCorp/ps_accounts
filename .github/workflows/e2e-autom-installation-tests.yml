@@ -55,6 +55,19 @@ jobs:
         run: npm run test-all-version
         continue-on-error: true
 
+      - name: Upload e2e-env/.env for inspection
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: e2e-env/env-debug
+          path: ./e2e-env/.env
+      - name: Upload e2e/.env for inspection
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: e2e/env-debug
+          path: ./e2e-env/.env
+
       - name: 📤 Upload Playwright Test Reports 
         uses: actions/upload-artifact@v4
         if: ${{ always() }}
