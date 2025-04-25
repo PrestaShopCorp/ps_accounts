@@ -14,8 +14,11 @@ services:
       test:
         [
           "CMD",
-          "healthcheck.sh",
-          "--connect",
+          "mysqladmin",
+          "ping",
+          "-h", "localhost",
+          "-u", "root",
+          "-pprestashop"
         ]
       interval: 5s
       timeout: 10s
