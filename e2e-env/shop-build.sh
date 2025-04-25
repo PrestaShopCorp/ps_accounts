@@ -16,7 +16,7 @@ fi
 currentDate=$(date +%s)
 shopVersion=$1
 shopVersionSecondeShop=$2
-profile=${3:-shop}
+profile=${3:-flashlight}
 psDomain="${currentDate}.${DOMAIN}"
 psAccountsVersion="${PS_ACCOUNTS_VERSION}"
 accountTag="${ACCOUNT_TAG}"
@@ -80,8 +80,7 @@ ping_url $appUrl
 
 cd ../e2e
 
-if [[ "$(uname)" == "Darwin" ]]; then
-# Ajouter ou écraser les variables dans le fichier .env
+if [[ "$OSTYPE" == "darwin"* ]]; then
 sed -i '' "/^BASE_URL=/c\\
 BASE_URL=${appUrl}/admin-dev/
 " .env
@@ -89,9 +88,8 @@ sed -i '' "/^BASE_URL_FO=/c\\
 BASE_URL_FO=${appUrl}
 " .env
 else
-# Ajouter ou écraser les variables dans le fichier .env dans la github action
-  sed -i "/^BASE_URL=/c\\BASE_URL=${appUrl}/admin-dev/" .env
-  sed -i "/^BASE_URL_FO=/c\\BASE_URL_FO=${appUrl}" .env
+sed -i "/^BASE_URL=/c\\BASE_URL=${appUrl}/admin-dev/" .env
+sed -i "/^BASE_URL_FO=/c\\BASE_URL_FO=${appUrl}" .env
 fi
 
 echo "Tests environment is available at: $appUrl/admin-dev/"

@@ -9,6 +9,9 @@ gotToModuleManagerPage('Check if module is installed', async ({gotToModuleManage
     await pm.fromModuleManagePage().getPageMainTitle();
     await pm.fromModuleManagePage().isAccountVisible();
     await pm.fromModuleManagePage().verifyAccountVersion();
-    await pm.fromModuleManagePage().openAccountPopup();
+  });
+  await test.step('check if cloudflare challange is not visible', async () => {
+    const popup = await pm.fromModuleManagePage().openAccountPopup();
+    await pm.fromModuleManagePage().accountPopupTiteleIsVisible(popup);
   });
 });

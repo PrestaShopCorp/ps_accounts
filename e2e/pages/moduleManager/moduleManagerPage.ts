@@ -101,8 +101,9 @@ export default class ModuleManagerPage extends BasePage {
    * Opens the PrestaShop Account configuration popup and verifies the redirection
    * Clicks the 'Configure' link, triggers a popup by clicking the 'Link' button, waits for the new page to load
    * Expect url and title
+   * @return {Promise<string>}
    */
-  async openAccountPopup() {
+  async openAccountPopup(): Promise<Page> {
     await this.page.locator('#modules-list-container-440').getByRole('link', {name: 'Configure'}).click();
     const [newPage] = await Promise.all([
       this.page.context().waitForEvent('page'),
@@ -110,9 +111,14 @@ export default class ModuleManagerPage extends BasePage {
     ]);
     await newPage.waitForLoadState('networkidle');
     expect(newPage.url()).toContain('authv2-preprod');
-
-    const pageTitle = await newPage.getByRole('img', { name: 'Prestashop logo' })
-    expect(pageTitle).toBeVisible({visible: true})
+    return newPage;
+  }
+  /**
+   * @param newPage {Page} The account popup
+   * Verifies that the page title is visible, indicating the Cloudflare challenge has been passed.
+   */
+  async accountPopupTiteleIsVisible(newPage: Page) {
+    const pageTitle = await newPage.getByRole('img', {name: 'Prestashop logo'});
+    expect(pageTitle).toBeVisible({visible: true});
   }
 }
-
