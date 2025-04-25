@@ -54,19 +54,17 @@ jobs:
         working-directory: ./e2e
         run: npm run test-all-version
         continue-on-error: true
-
-      - name: Upload e2e-env/.env for inspection
+              
+      - name: 🔍 Search for all .env files
         if: always()
-        uses: actions/upload-artifact@v4
-        with:
-          name: e2e-env/env-debug
-          path: ./e2e-env/.env
-      - name: Upload e2e/.env for inspection
+        run: |
+          echo "📂 Searching for .env files in the repo..."
+          find . -type f -name ".env" -exec ls -l {} \; -exec echo "📄 Found: {}" \; || echo "❌ No .env files found"
+      - name: 🧾 Show content of found .env files
         if: always()
-        uses: actions/upload-artifact@v4
-        with:
-          name: e2e/env-debug
-          path: ./e2e/.env
+        run: |
+          echo "📄 Contents of all .env files (if found):"
+          find . -type f -name ".env" -exec echo "--- {} ---" \; -exec cat {} \; || echo "❌ No .env files to show"
 
       - name: 📤 Upload Playwright Test Reports 
         uses: actions/upload-artifact@v4
