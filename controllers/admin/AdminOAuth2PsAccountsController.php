@@ -226,6 +226,14 @@ HTML;
     }
 
     /**
+     * @return mixed
+     */
+    protected function onLoginFailedRedirect()
+    {
+        $this->logout();
+    }
+
+    /**
      * @return SessionInterface
      */
     protected function getSession()

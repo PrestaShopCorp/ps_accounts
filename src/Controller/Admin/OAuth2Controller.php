@@ -268,6 +268,17 @@ HTML
     }
 
     /**
+     * @return RedirectResponse
+     */
+    protected function onLoginFailedRedirect()
+    {
+        return $this->redirect(
+            $this->getSessionReturnTo() ?:
+                $this->link->getAdminLink('AdminDashboard')
+        );
+    }
+
+    /**
      * @return SessionInterface
      */
     protected function getSession()
