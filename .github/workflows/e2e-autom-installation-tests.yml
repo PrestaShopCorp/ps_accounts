@@ -5,15 +5,6 @@ on:
   schedule:
     - cron: "0 10 * * 1-5"
 
-env:
-  BASE_URL: ${{secrets.BASE_URL}}
-  BASE_URL_FO: ${{secrets.BASE_URL_FO}}
-  ADMIN_EMAIL: ${{ secrets.ADMIN_EMAIL }}
-  ADMIN_PASSWORD: ${{ secrets.ADMIN_PASSWORD }}
-  OAUTH2URL: ${{ secrets.OAUTH2URL }}
-  ACCOUNTSAPIURL: ${{ secrets.ACCOUNTSAPIURL }}
-  ACCOUNTSUIURL: ${{ secrets.ACCOUNTSUIURL }}
-
 jobs:
   run-test:
     name: Run Account Back tests
@@ -38,7 +29,18 @@ jobs:
         run: |
           npx playwright install
 
-      - name: Generate .env file
+      - name: Generate .env in e2e file
+        working-directory: ./e2e
+        run: |
+          echo "BASE_URL=${{secrets.BASE_URL}}" >> .env
+          echo "BASE_URL_FO=${{secrets.BASE_URL_FO}}" >> .env
+          echo "ADMIN_EMAIL=${{ secrets.ADMIN_EMAIL }}" >> .env
+          echo "ADMIN_PASSWORD=${{ secrets.ADMIN_PASSWORD }}" >> .env
+          echo "OAUTH2URL=${{ secrets.OAUTH2URL }}" >> .env
+          echo "ACCOUNTSAPIURL=$${{ secrets.ACCOUNTSAPIURL }}" >> .env
+          echo "ACCOUNTSUIURL=${{ secrets.ACCOUNTSUIURL }}" >> .env
+
+      - name: Generate .env in e2e-env file
         working-directory: ./e2e-env
         run: |
           echo "ACCOUNT_TAG=${{ secrets.ACCOUNT_TAG }}" >> .env
