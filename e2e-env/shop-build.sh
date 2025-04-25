@@ -79,6 +79,8 @@ ping_url() {
 ping_url $appUrl
 
 cd ../e2e
+
+if [[ "$(uname)" == "Darwin" ]]; then
 # Ajouter ou écraser les variables dans le fichier .env
 sed -i '' "/^BASE_URL=/c\\
 BASE_URL=${appUrl}/admin-dev/
@@ -86,5 +88,10 @@ BASE_URL=${appUrl}/admin-dev/
 sed -i '' "/^BASE_URL_FO=/c\\
 BASE_URL_FO=${appUrl}
 " .env
+else
+# Ajouter ou écraser les variables dans le fichier .env dans la github action
+  sed -i "/^BASE_URL=/c\\BASE_URL=${appUrl}/admin-dev/" .env
+  sed -i "/^BASE_URL_FO=/c\\BASE_URL_FO=${appUrl}" .env
+fi
 
 echo "Tests environment is available at: $appUrl/admin-dev/"
