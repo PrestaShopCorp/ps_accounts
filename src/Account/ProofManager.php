@@ -46,7 +46,8 @@ class ProofManager
      */
     public function generateProof()
     {
-        // FIXME: another way to generate a more secure proof ?
+        // FIXME: best way to generate a unique proof ?
+        //$proof = base64_encode(\hash_hmac('sha512', Uuid::uuid4()->toString(), uniqid()));
         $proof = Uuid::uuid4()->toString();
 
         $this->configuration->updateShopProof($proof);

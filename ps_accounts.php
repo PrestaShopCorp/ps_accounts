@@ -136,14 +136,8 @@ class Ps_accounts extends Module
 
         parent::__construct();
 
-        $cloudShopId = $this->getCloudShopId();
-        $verified = $this->getVerifiedStatus();
-
-        $statusText = ($cloudShopId ? ' ' . $cloudShopId : '') .
-            ($verified ? ' (verified)' : ' (NOT verified)');
-
         $this->displayName = $this->l('PrestaShop Account');
-        $this->description = '<i><b>' . $statusText . '</b></i><br />' . $this->l(
+        $this->description = $this->l(
             'Link your store to your PrestaShop account to activate and manage your subscriptions in your ' .
             'back office. Do not uninstall this module if you have a current subscription.'
         );

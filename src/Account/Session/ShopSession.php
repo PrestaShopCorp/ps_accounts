@@ -53,7 +53,7 @@ class ShopSession extends Session implements SessionInterface
     public function __construct(
         ConfigurationRepository $configurationRepository,
         OAuth2Service $oAuth2Service,
-                                $accountsApiUrl
+        $accountsApiUrl
     ) {
         $this->configurationRepository = $configurationRepository;
         $this->oAuth2Service = $oAuth2Service;
@@ -72,9 +72,10 @@ class ShopSession extends Session implements SessionInterface
         try {
             $shopUuid = $this->configurationRepository->getShopUuid();
 
+            $shopAudience = preg_replace('/\/$/', '', $this->accountsApiUrl) . '/shops/' . $shopUuid;
             $accessToken = $this->getAccessToken([], [
                 'shop_' . $shopUuid, // FIXME: remove that audience
-                $this->accountsApiUrl . '/shops/' . $shopUuid,
+                $shopAudience,
             ]);
 
             $this->setToken(

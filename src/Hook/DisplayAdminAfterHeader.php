@@ -20,11 +20,6 @@
 
 namespace PrestaShop\Module\PsAccounts\Hook;
 
-use PrestaShop\Module\PsAccounts\Account\Exception\RefreshTokenException;
-use PrestaShop\Module\PsAccounts\Account\Exception\UnknownStatusException;
-use PrestaShop\Module\PsAccounts\Account\StatusManager;
-use PrestaShop\Module\PsAccounts\Service\Accounts\AccountsException;
-
 class DisplayAdminAfterHeader extends Hook
 {
     /**
@@ -32,26 +27,18 @@ class DisplayAdminAfterHeader extends Hook
      */
     public function execute(array $params = [])
     {
-        /** @var StatusManager $statusManager */
-        $statusManager = $this->module->getService(StatusManager::class);
+        $cloudShopId = $this->module->getCloudShopId();
+        $verified = $this->module->getVerifiedStatus();
+        $verifiedMsg = $verified ? 'verified' : 'NOT verified';
 
-        try {
-            $verifiedMsg = $statusManager->getStatus()->isVerified ? 'Verified' : 'NOT Verified';
-
-            return <<<HTML
+        return <<<HTML
 <div class="bootstrap">
-    <div class="alert alert-warning">
+    <div class="alert alert-info alert-dismissible">
         <button type="button" class="close" data-dismiss="alert">×</button>
         <!-- img width="57" alt="PrestaShop Account" title="PrestaShop Account" src="/modules/ps_accounts/logo.png"-->
-        <a>{$statusManager->getCloudShopId()}</a> ({$verifiedMsg})
+        <a>{$cloudShopId} ({$verifiedMsg})</a>
     </div>
 </div>
 HTML;
-        } catch (UnknownStatusException $e) {
-        } catch (RefreshTokenException $e) {
-        } catch (AccountsException $e) {
-        }
-
-        return '';
     }
 }
