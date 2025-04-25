@@ -8,6 +8,7 @@ use Faker\Generator;
 use Module;
 use PrestaShop\Module\PsAccounts\Account\Session\Firebase;
 use PrestaShop\Module\PsAccounts\Account\Session\ShopSession;
+use PrestaShop\Module\PsAccounts\Http\Client\Response;
 use PrestaShop\Module\PsAccounts\Vendor\Lcobucci\JWT\Builder;
 use PrestaShop\Module\PsAccounts\Vendor\Lcobucci\JWT\Configuration;
 use PrestaShop\Module\PsAccounts\Vendor\Lcobucci\JWT\Token;
@@ -51,7 +52,7 @@ class BaseTestCase extends \PHPUnit\Framework\TestCase
      *
      * @var \PrestaShop\Module\PsAccounts\Account\StatusManager
      */
-    public $shopStatus;
+    public $statusManager;
 
     /**
      * @var bool
@@ -207,6 +208,20 @@ class BaseTestCase extends \PHPUnit\Framework\TestCase
             'httpCode' => $httpCode,
             'body' => $body,
         ];
+    }
+
+    /**
+     * @param mixed $responseBody
+     * @param int $statusCode
+     *
+     * @return Response
+     */
+    protected function createResponse($responseBody, $statusCode = 200)
+    {
+        return new Response(
+            $responseBody,
+            $statusCode
+        );
     }
 
     /**

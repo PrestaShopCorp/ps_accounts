@@ -2,10 +2,14 @@
 
 namespace PrestaShop\Module\PsAccounts\Tests\Unit\Account\Session;
 
+use PHPUnit\Framework\MockObject\MockObject;
 use PrestaShop\Module\PsAccounts\Account\Session\Firebase\FirebaseSession;
 use PrestaShop\Module\PsAccounts\Account\Session\ShopSession;
 use PrestaShop\Module\PsAccounts\Account\Token\Token;
-use PrestaShop\Module\PsAccounts\Api\Client\AccountsClient;
+use PrestaShop\Module\PsAccounts\Http\Client\Curl\Client;
+use PrestaShop\Module\PsAccounts\Http\Client\Response;
+use PrestaShop\Module\PsAccounts\Service\Accounts\AccountsService;
+use PrestaShop\Module\PsAccounts\Service\Accounts\Resource\FirebaseTokens;
 
 trait SessionHelpers
 {
@@ -20,7 +24,7 @@ trait SessionHelpers
             ->setConstructorArgs([
                 $this->configurationRepository,
                 $this->oAuth2Service,
-                $this->shopStatus,
+                $this->statusManager,
                 $this->commandBus
             ])
             ->enableOriginalClone()
@@ -32,25 +36,39 @@ trait SessionHelpers
 
     /**
      * @param string $firebaseSessionClass
-     * @param array $response
+     * @param Response $response
      * @param ShopSession $shopSession
      *
-     * @return \PHPUnit_Framework_MockObject_MockObject|FirebaseSession
+     * @return FirebaseSession&MockObject
      */
-    protected function getMockedFirebaseSession($firebaseSessionClass, array $response, $shopSession)
+    protected function getMockedFirebaseSession($firebaseSessionClass, Response $response, $shopSession)
     {
-        $client = $this->createMock(AccountsClient::class);
-        $client->method('firebaseTokens')->willReturn($response);
+        $client = $this->createMock(Client::class);
 
+        /** @var AccountsService $accountsService */
+        $accountsService = $this->module->getService(AccountsService::class);
+        $accountsService->setClient($client);
+
+        $client->method('get')
+            ->willReturnCallback(function ($route) use ($response) {
+                if (preg_match('/v2\/shop\/firebase\/tokens$/', $route)) {
+                    return $response;
+                }
+                return $this->createResponse([], 500, true);
+            });
+
+        /** @var FirebaseSession&MockObject $firebaseSession */
         $firebaseSession = $this->getMockBuilder($firebaseSessionClass)
             ->setConstructorArgs([
                 $this->configurationRepository,
                 $shopSession,
             ])
             ->enableOriginalClone()
-            ->setMethods(['getAccountsClient'])
+            ->setMethods(['getAccountsService'])
             ->getMock();
-        $firebaseSession->method('getAccountsClient')->willReturn($client);
+        $firebaseSession->method('getAccountsService')
+            ->willReturn($accountsService);
+
         return $firebaseSession;
     }
 }

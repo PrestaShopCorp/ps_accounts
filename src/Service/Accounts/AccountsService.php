@@ -21,7 +21,6 @@
 namespace PrestaShop\Module\PsAccounts\Service\Accounts;
 
 use PrestaShop\Module\PsAccounts\Account\Dto\UpdateShop;
-use PrestaShop\Module\PsAccounts\Account\Dto\UpgradeModule;
 use PrestaShop\Module\PsAccounts\Account\ShopUrl;
 use PrestaShop\Module\PsAccounts\Http\Client\ClientConfig;
 use PrestaShop\Module\PsAccounts\Http\Client\Curl\Client;
@@ -59,13 +58,23 @@ class AccountsService
     /**
      * @return Client
      */
-    private function getClient()
+    public function getClient()
     {
         if (null === $this->client) {
             $this->client = (new Factory())->create($this->clientConfig);
         }
 
         return $this->client;
+    }
+
+    /**
+     * @param Client $client
+     *
+     * @return void
+     */
+    public function setClient(Client $client)
+    {
+        $this->client = $client;
     }
 
     /**

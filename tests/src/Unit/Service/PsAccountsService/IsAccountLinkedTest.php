@@ -21,10 +21,7 @@ class IsAccountLinkedTest extends TestCase
      */
     public function itShouldReturnTrue()
     {
-        $this->shopStatus->delete();
-
-        $this->shopStatus->setShopUuid($this->faker->uuid);
-        $this->shopStatus->setOwnerEmail($this->faker->safeEmail);
+        $this->statusManager->setCloudShopId($this->faker->uuid);
 
         $this->assertTrue($this->service->isAccountLinked());
     }
@@ -36,7 +33,7 @@ class IsAccountLinkedTest extends TestCase
      */
     public function itShouldReturnFalse()
     {
-        $this->shopStatus->delete();
+        $this->statusManager->setCloudShopId('');
 
         $this->assertFalse($this->service->isAccountLinked());
     }

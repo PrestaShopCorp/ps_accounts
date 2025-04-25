@@ -210,7 +210,7 @@ class PsAccountsService
      */
     public function isAccountLinked()
     {
-        return $this->statusManager->exists();
+        return $this->statusManager->identityExists();
     }
 
     /**

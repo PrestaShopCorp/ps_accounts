@@ -24,7 +24,6 @@ use PrestaShop\Module\PsAccounts\Account\Session\ShopSession;
 use PrestaShop\Module\PsAccounts\Account\StatusManager;
 use PrestaShop\Module\PsAccounts\Account\Token\NullToken;
 use PrestaShop\Module\PsAccounts\Account\Token\Token;
-use PrestaShop\Module\PsAccounts\Api\Client\AccountsClient;
 use PrestaShop\Module\PsAccounts\Http\Controller\AbstractV2ShopRestController;
 use PrestaShop\Module\PsAccounts\Http\Request\ShopHealthCheckRequest;
 use PrestaShop\Module\PsAccounts\Service\Accounts\AccountsService;
@@ -101,7 +100,7 @@ class ps_AccountsApiV2ShopHealthCheckModuleFrontController extends AbstractV2Sho
 
         // public healthcheck
         $this->authenticated = false;
-        if ($this->getRequestHeader('Authorization') !== null) {
+        if ($this->getRequestHeader(self::HEADER_AUTHORIZATION) !== null) {
             $this->authenticated = true;
         }
 
@@ -110,7 +109,7 @@ class ps_AccountsApiV2ShopHealthCheckModuleFrontController extends AbstractV2Sho
         $this->shopSession = $this->module->getService(ShopSession::class);
         $this->firebaseShopSession = $this->module->getService(Firebase\ShopSession::class);
         $this->firebaseOwnerSession = $this->module->getService(Firebase\OwnerSession::class);
-        $this->accountsService = $this->module->getService(AccountsClient::class);
+        $this->accountsService = $this->module->getService(AccountsService::class);
         $this->psAccountsService = $this->module->getService(PsAccountsService::class);
         $this->oauth2Service = $this->module->getService(OAuth2Service::class);
     }

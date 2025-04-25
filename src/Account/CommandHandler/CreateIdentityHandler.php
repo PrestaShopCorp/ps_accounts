@@ -108,6 +108,6 @@ class CreateIdentityHandler
     private function isAlreadyCreated()
     {
         // FIXME: define where this code belongs
-        return $this->oAuth2Client->exists() && $this->statusManager->exists();
+        return $this->oAuth2Client->exists() && $this->statusManager->identityExists();
     }
 }

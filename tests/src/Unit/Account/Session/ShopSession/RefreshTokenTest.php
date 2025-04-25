@@ -55,13 +55,10 @@ class RefreshTokenTest extends TestCase
         $oAuth2Service->method('getOAuth2Client')
             ->willReturn($this->oauth2Client);
 
-        $commandBus = $this->createMock(CommandBus::class);
-
         $this->shopSession = new ShopSession(
             $this->configurationRepository,
             $oAuth2Service,
-            $this->shopStatus,
-            $commandBus
+            $this->module->getParameter('ps_accounts.accounts_api_url')
         );
 
         $this->shopSession->cleanup();
@@ -85,17 +82,13 @@ class RefreshTokenTest extends TestCase
         $e = null;
         try {
             // Shop is linked
-            $this->shopStatus->update(new \PrestaShop\Module\PsAccounts\Account\Dto\ShopIdentity([
-                'shopId' => 1,
-                'uid' => $this->faker->uuid,
-            ]));
+            $this->statusManager->setCloudShopId($this->faker->uuid);
 
             // OAuth2Client exists
             $this->oauth2Client->update(
                 $this->faker->uuid,
                 $this->faker->password
             );
-
 
             $token = $this->shopSession->refreshToken();
         } catch (RefreshTokenException $e) {

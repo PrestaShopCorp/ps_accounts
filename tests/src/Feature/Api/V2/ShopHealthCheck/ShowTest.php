@@ -2,6 +2,7 @@
 
 namespace PrestaShop\Module\PsAccounts\Tests\Feature\Api\V2\ShopHealthCheck;
 
+use PrestaShop\Module\PsAccounts\Http\Controller\AbstractV2RestController;
 use PrestaShop\Module\PsAccounts\Provider\ShopProvider;
 use PrestaShop\Module\PsAccounts\Tests\Feature\Api\V2\TestCase;
 
@@ -67,7 +68,7 @@ class ShowTest extends TestCase
 
         $response = $this->client->get('/module/ps_accounts/apiV2ShopHealthCheck', [
             'headers' => [
-                'Authorization' => 'Bearer ' . $this->makeBearer([
+                AbstractV2RestController::HEADER_AUTHORIZATION => 'Bearer ' . $this->makeBearer([
                         'aud' => [
                             'ps_accounts/' . $shop->uuid,
                         ],
@@ -103,7 +104,7 @@ class ShowTest extends TestCase
     {
         $response = $this->client->get('/module/ps_accounts/apiV2ShopHealthCheck', [
             'headers' => [
-                'Authorization' => 'Bearer: ' . 'some-invalid-bearer',
+                AbstractV2RestController::HEADER_AUTHORIZATION => 'Bearer: ' . 'some-invalid-bearer',
             ],
             'query' => [
                 'shop_id' => 1,
@@ -129,7 +130,7 @@ class ShowTest extends TestCase
     {
         $response = $this->client->get('/module/ps_accounts/apiV2ShopHealthCheck', [
             'headers' => [
-                'Authorization' => 'Bearer ' . $this->makeBearer([
+                AbstractV2RestController::HEADER_AUTHORIZATION => 'Bearer ' . $this->makeBearer([
                         'aud' => [
                             'ps_accounts/' . 'invalid_uid',
                         ],
@@ -158,7 +159,7 @@ class ShowTest extends TestCase
 
         $response = $this->client->get('/module/ps_accounts/apiV2ShopHealthCheck', [
             'headers' => [
-                'Authorization' => 'Bearer ' . $this->makeBearer([
+                AbstractV2RestController::HEADER_AUTHORIZATION => 'Bearer ' . $this->makeBearer([
                         'aud' => [
                             'ps_accounts/' . $shop->uuid,
                         ],
@@ -190,7 +191,7 @@ class ShowTest extends TestCase
 
         $response = $this->client->get('/module/ps_accounts/apiV2ShopHealthCheck', [
             'headers' => [
-                'Authorization' => 'Bearer ' . $this->makeBearer([
+                AbstractV2RestController::HEADER_AUTHORIZATION => 'Bearer ' . $this->makeBearer([
                         'aud' => [
                             'ps_accounts/' . $shop->uuid,
                         ],

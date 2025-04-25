@@ -4,10 +4,10 @@ namespace PrestaShop\Module\PsAccounts\Tests\Feature\Account\CommandHandler;
 
 use PrestaShop\Module\PsAccounts\Adapter\ConfigurationKeys;
 use PrestaShop\Module\PsAccounts\Adapter\Link;
-use PrestaShop\Module\PsAccounts\Tests\Feature\ApiV2TestCase;
+use PrestaShop\Module\PsAccounts\Tests\Feature\TestCase;
 use PrestaShop\Module\PsAccounts\Vendor\GuzzleHttp\Cookie\CookieJar;
 
-class UpgradeModuleHandlerTest extends ApiV2TestCase
+class UpgradeModuleHandlerTest extends TestCase
 {
     /**
      * @inject

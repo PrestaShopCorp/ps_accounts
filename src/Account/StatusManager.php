@@ -68,7 +68,7 @@ class StatusManager
     /**
      * @return bool
      */
-    public function exists()
+    public function identityExists()
     {
         return !empty($this->getCloudShopId());
     }
@@ -82,7 +82,8 @@ class StatusManager
      */
     public function getStatus($cacheTtl = self::STATUS_TTL)
     {
-        if (time() - $this->repository->getShopStatusDateUpd()->getTimestamp() > $cacheTtl) {
+        $dateUpd = $this->repository->getShopStatusDateUpd();
+        if (!$dateUpd || time() - $dateUpd->getTimestamp() > $cacheTtl) {
             try {
                 $this->setCachedStatus($this->accountsService->shopStatus(
                     $this->getCloudShopId(),

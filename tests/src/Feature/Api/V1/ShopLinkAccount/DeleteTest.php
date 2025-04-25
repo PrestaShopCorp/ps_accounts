@@ -46,7 +46,7 @@ class DeleteTest extends TestCase
      */
     public function itShouldSucceed()
     {
-        $this->shopStatus->update(new \PrestaShop\Module\PsAccounts\Account\Dto\ShopIdentity([
+        $this->statusManager->update(new \PrestaShop\Module\PsAccounts\Account\Dto\ShopIdentity([
             'shopId' => $this->faker->numberBetween(),
             'uid' => $this->faker->uuid,
             'employeeId' => $this->faker->numberBetween()
@@ -77,12 +77,12 @@ class DeleteTest extends TestCase
         \Configuration::clearConfigurationCacheForTesting();
         \Configuration::loadConfiguration();
 
-        $this->assertFalse($this->shopStatus->exists());
+        $this->assertFalse($this->statusManager->identityExists());
 
-        $this->assertEmpty($this->shopStatus->getShopUuid());
-        $this->assertEmpty($this->shopStatus->getEmployeeId());
-        $this->assertEmpty($this->shopStatus->getOwnerUuid());
-        $this->assertEmpty($this->shopStatus->getOwnerEmail());
+        $this->assertEmpty($this->statusManager->getShopUuid());
+        $this->assertEmpty($this->statusManager->getEmployeeId());
+        $this->assertEmpty($this->statusManager->getOwnerUuid());
+        $this->assertEmpty($this->statusManager->getOwnerEmail());
 
         $this->assertInstanceOf(NullToken::class, $this->shopSession->getToken()->getJwt());
         $this->assertInstanceOf(NullToken::class, $this->ownerSession->getToken()->getJwt());
