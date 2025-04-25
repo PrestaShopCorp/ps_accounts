@@ -49,14 +49,6 @@ jobs:
           echo "DOWNLOADER_TOKEN=${{ secrets.DOWNLOADER_TOKEN }}" >> .env
           echo "PS_VERSION=${{ secrets.PS_VERSION }}" >> .env
           echo "PS_ACCOUNTS_VERSION=${{ secrets.PS_ACCOUNTS_VERSION }}" >> .env
-          
-      - name: Debug .env file e2e-env
-        working-directory: ./e2e-env
-        run: cat .env
-
-      - name: Debug .env file e2e
-        working-directory: ./e2e
-        run: env | grep PS_ || true
 
       - name: Run test
         working-directory: ./e2e
