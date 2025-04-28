@@ -82,6 +82,7 @@ jobs:
             jq -r '.items[] | "• \(.name) : ✅ \(.statistic.passed) / ❌ \(.statistic.failed) / ⚠️ \(.statistic.broken)"' suites.json
             echo
             echo "🔗 <${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}|Voir le run GitHub Actions>"
+            echo "📄 Détail des tests disponible ici : *Rapport-Playwright-Account*"
           } > slack_message.txt
 
       - name: Prepare Slack payload
