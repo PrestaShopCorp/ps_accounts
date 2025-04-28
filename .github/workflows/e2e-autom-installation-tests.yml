@@ -57,13 +57,6 @@ jobs:
         run: npm run test-all-version
         continue-on-error: true
 
-      - name: Upload Playwright Test Reports
-        uses: actions/upload-artifact@v4
-        if: ${{ always() }}
-        with:
-          name: Rapport-Playwright-Account
-          path: ./e2e/playwright-report
-
       - name: Merge Allure Results
         working-directory: ./e2e
         run: npm run merge-allure-results
@@ -71,6 +64,13 @@ jobs:
       - name: Generate Allure Report
         working-directory: ./e2e
         run: npm run generate-allure-report
+      
+      - name: Upload Allure Report
+        uses: actions/upload-artifact@v4
+        if: ${{ always() }}
+        with:
+          name: Rapport-Allure-Account
+          path: ./e2e/allure-report
 
       - name: Extract versioned results from Allure suites.json
         id: summary
@@ -82,7 +82,12 @@ jobs:
             jq -r '.items[] | "• \(.name) : ✅ \(.statistic.passed) / ❌ \(.statistic.failed) / ⚠️ \(.statistic.broken)"' suites.json
             echo
             echo "🔗 <${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}|Voir le run GitHub Actions>"
-            echo "📄 Détail des tests disponible ici : *Rapport-Playwright-Account*"
+            echo
+            echo "📄 Rapport Allure disponible dans les artifacts du run."
+            echo "Téléchargez l'archive, puis dans un terminal exécutez :"
+            echo "\`\`\`"
+            echo "allure open ./allure-report"
+            echo "\`\`\`"
           } > slack_message.txt
 
       - name: Prepare Slack payload
