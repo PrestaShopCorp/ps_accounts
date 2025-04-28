@@ -74,6 +74,7 @@ class StatusManager
     }
 
     /**
+     * @param bool $refresh
      * @param int $cacheTtl
      *
      * @return ShopStatus
@@ -162,7 +163,7 @@ class StatusManager
     public function setCloudShopId($cloudShopId)
     {
         $this->upsetCachedStatus(new ShopStatus([
-            'cloudShopId' => $cloudShopId
+            'cloudShopId' => $cloudShopId,
         ]));
     }
 

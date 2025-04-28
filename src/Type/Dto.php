@@ -72,13 +72,15 @@ abstract class Dto implements \JsonSerializable
     }
 
     /**
+     * @param bool $all
+     *
      * @return array
      */
     public function toArray($all = true)
     {
         return array_filter(get_object_vars($this), function ($attrValue, $attrName) use ($all) {
             return $all ?
-                ! in_array($attrName, ['properties', 'defaults', 'required', 'throwOnUnexpectedProperties']) :
+                !in_array($attrName, ['properties', 'defaults', 'required', 'throwOnUnexpectedProperties']) :
                 in_array($attrName, $this->properties);
         }, ARRAY_FILTER_USE_BOTH);
     }
