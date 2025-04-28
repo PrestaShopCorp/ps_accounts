@@ -7,7 +7,7 @@ on:
 
 jobs:
   run-test:
-    name: Run Account Back tests
+    name: Run Account tests
     runs-on: ubuntu-22.04
 
     steps:
