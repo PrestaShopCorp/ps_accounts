@@ -81,7 +81,7 @@ jobs:
             echo
             jq -r '.items[] | "• \(.name) : ✅ \(.statistic.passed) / ❌ \(.statistic.failed) / ⚠️ \(.statistic.broken)"' suites.json
             echo
-            echo "📄 Rapport Allure disponible dans les artifacts du run : 🔗 <${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}|Voir le run GitHub Actions>""
+            echo "📄 Rapport Allure disponible dans les artifacts du run : 🔗 <${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}|Voir le run GitHub Actions>"
             echo
             echo "1️⃣ Téléchargez l'archive du rapport Allure."
             echo "2️⃣ Installez l'outil Allure CLI si ce n'est pas déjà fait!"
