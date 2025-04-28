@@ -84,7 +84,7 @@ jobs:
             echo "📄 Rapport Allure disponible dans les artifacts du run : 🔗 <${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}|Voir le run GitHub Actions>""
             echo
             echo "1️⃣ Téléchargez l'archive du rapport Allure."
-            echo "2️⃣ Installez l'outil Allure CLI si ce n'est pas déjà fait"
+            echo "2️⃣ Installez l'outil Allure CLI si ce n'est pas déjà fait!"
             echo "3️⃣ Dans un terminal, placez-vous dans le dossier extrait du rapport, puis exécutez :"
             echo "\`\`\`"
             echo "allure open"
