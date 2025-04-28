@@ -265,6 +265,8 @@ abstract class AbstractRestController extends ModuleFrontController
      *
      * @return array
      *
+     * @throws UnauthorizedException
+     *
      * @deprecated since v8.0.0 in favor of AbstractV2RestController
      */
     protected function decodePayload($defaultShopId = null)
