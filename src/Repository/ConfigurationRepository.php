@@ -414,13 +414,13 @@ class ConfigurationRepository
     }
 
     /**
-     * @param string|null $proof
+     * @param string|null $status
      *
      * @return void
      */
-    public function updateShopStatus($proof)
+    public function updateShopStatus($status)
     {
-        $this->configuration->set(ConfigurationKeys::PS_ACCOUNTS_SHOP_STATUS, $proof);
+        $this->configuration->set(ConfigurationKeys::PS_ACCOUNTS_SHOP_STATUS, $status);
     }
 
     /**

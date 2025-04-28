@@ -77,7 +77,7 @@ class DeleteTest extends TestCase
         \Configuration::clearConfigurationCacheForTesting();
         \Configuration::loadConfiguration();
 
-        $this->assertFalse($this->statusManager->identityExists());
+        $this->assertFalse($this->statusManager->identityCreated());
 
         $this->assertEmpty($this->statusManager->getShopUuid());
         $this->assertEmpty($this->statusManager->getEmployeeId());

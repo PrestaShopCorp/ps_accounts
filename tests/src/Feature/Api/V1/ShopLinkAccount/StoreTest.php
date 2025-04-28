@@ -68,7 +68,7 @@ class StoreTest extends TestCase
         \Configuration::clearConfigurationCacheForTesting();
         \Configuration::loadConfiguration();
 
-        $this->assertTrue($this->statusManager->identityExists());
+        $this->assertTrue($this->statusManager->identityCreated());
         $this->assertEquals($payload['uid'], $this->statusManager->getShopUuid());
         $this->assertEquals($payload['employee_id'], $this->statusManager->getEmployeeId());
         $this->assertEquals($payload['owner_uid'], $this->statusManager->getOwnerUuid());
@@ -108,7 +108,7 @@ class StoreTest extends TestCase
         \Configuration::clearConfigurationCacheForTesting();
         \Configuration::loadConfiguration();
 
-        $this->assertTrue($this->statusManager->identityExists());
+        $this->assertTrue($this->statusManager->identityCreated());
         $this->assertEquals($shopUuid, $this->statusManager->getShopUuid());
         $this->assertEquals(null, $this->statusManager->getEmployeeId());
     }

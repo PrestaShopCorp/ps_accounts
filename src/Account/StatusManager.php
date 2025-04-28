@@ -68,7 +68,7 @@ class StatusManager
     /**
      * @return bool
      */
-    public function identityExists()
+    public function identityCreated()
     {
         return !empty($this->getCloudShopId());
     }
@@ -80,10 +80,11 @@ class StatusManager
      *
      * @throws UnknownStatusException
      */
-    public function getStatus($cacheTtl = self::STATUS_TTL)
+    public function getStatus($refresh = true, $cacheTtl = self::STATUS_TTL)
     {
         $dateUpd = $this->repository->getShopStatusDateUpd();
-        if (!$dateUpd || time() - $dateUpd->getTimestamp() > $cacheTtl) {
+
+        if ($refresh && (!$dateUpd || time() - $dateUpd->getTimestamp() >= $cacheTtl)) {
             try {
                 $this->setCachedStatus($this->accountsService->shopStatus(
                     $this->getCloudShopId(),
@@ -106,7 +107,11 @@ class StatusManager
     {
         $status = $this->repository->getShopStatus();
 
-        return new ShopStatus(json_decode($status ?: '{}', true));
+        if (!$status) {
+            throw new UnknownStatusException('Unknown status');
+        }
+
+        return new ShopStatus(json_decode($status, true));
     }
 
     /**
@@ -114,15 +119,39 @@ class StatusManager
      */
     public function setCachedStatus(ShopStatus $shopStatus)
     {
-        $this->repository->updateShopStatus(json_encode($shopStatus->jsonSerialize()) ?: null);
+        $this->repository->updateShopStatus(json_encode($shopStatus->toArray()) ?: null);
+
+        $this->repository->updateShopUuid($shopStatus->cloudShopId);
     }
 
     /**
-     * @return string
+     * @return void
      */
-    public function getCloudShopId()
+    public function upsetCachedStatus(ShopStatus $shopStatus)
     {
-        return $this->repository->getShopUuid();
+        try {
+            $actual = $this->getCachedStatus();
+            $this->setCachedStatus(new ShopStatus(array_merge(
+                $actual->toArray(false),
+                $shopStatus->toArray(false)
+            )));
+        } catch (UnknownStatusException $e) {
+            $this->setCachedStatus($shopStatus);
+        }
+    }
+
+    /**
+     * @param bool $refresh
+     *
+     * @return string|null
+     */
+    public function getCloudShopId($refresh = false)
+    {
+        try {
+            return $this->getStatus($refresh)->cloudShopId;
+        } catch (UnknownStatusException $e) {
+            return null;
+        }
     }
 
     /**
@@ -132,11 +161,13 @@ class StatusManager
      */
     public function setCloudShopId($cloudShopId)
     {
-        $this->repository->updateShopUuid($cloudShopId);
+        $this->upsetCachedStatus(new ShopStatus([
+            'cloudShopId' => $cloudShopId
+        ]));
     }
 
     /**
-     * @return string
+     * @return string|null
      */
     public function getShopUuid()
     {
@@ -146,24 +177,28 @@ class StatusManager
     /**
      * @param bool $refresh
      *
-     * @return string
+     * @return string|null
      */
-    public function getOwnerUuid($refresh = true)
+    public function getOwnerUuid($refresh = false)
     {
-        // TODO
-        //return $this->getStatus($refresh)->pointOdContactUid;
-        return 'not-implemented';
+        try {
+            return $this->getStatus($refresh)->pointOfContactUid;
+        } catch (UnknownStatusException $e) {
+            return null;
+        }
     }
 
     /**
      * @param bool $refresh
      *
-     * @return string
+     * @return string|null
      */
-    public function getOwnerEmail($refresh = true)
+    public function getOwnerEmail($refresh = false)
     {
-        // TODO
-        //return $this->getStatus($refresh)->pointOdContactEmail;
-        return 'not@implemented.dev';
+        try {
+            return $this->getStatus($refresh)->pointOfContactEmail;
+        } catch (UnknownStatusException $e) {
+            return null;
+        }
     }
 }

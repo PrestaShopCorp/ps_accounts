@@ -53,12 +53,12 @@ class ShopStatus extends Resource
     /**
      * @var string
      */
-    public $pointOdContactUid;
+    public $pointOfContactUid;
 
     /**
      * @var string
      */
-    public $pointOdContactEmail;
+    public $pointOfContactEmail;
 
     /**
      * @var DateTime
@@ -84,8 +84,12 @@ class ShopStatus extends Resource
     {
         foreach (['createdAt', 'updatedAt', 'verifiedAt', 'unverifiedAt'] as $dateField) {
             if (isset($values[$dateField])) {
-                $data[$dateField] = new DateTime($values[$dateField]);
+                $values[$dateField] = new DateTime($values[$dateField]);
             }
+        }
+        $boolField = 'isVerified';
+        if (isset($values[$boolField])) {
+            $values[$boolField] = (bool) $values[$boolField];
         }
         parent::__construct($values);
     }

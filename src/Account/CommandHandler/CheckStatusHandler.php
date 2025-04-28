@@ -50,6 +50,6 @@ class CheckStatusHandler
      */
     public function handle(CheckStatusCommand $command)
     {
-        return $this->statusManager->getStatus($command->cacheTtl);
+        return $this->statusManager->getStatus(true, $command->cacheTtl);
     }
 }

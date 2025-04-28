@@ -86,10 +86,6 @@ class CreateIdentityHandler
         $identityCreated = $this->accountsService->createShopIdentity(
             $this->shopProvider->getUrl($shopId)
         );
-
-        $this->statusManager->setCloudShopId(
-            $identityCreated->cloudShopId
-        );
         $this->oAuth2Client->update(
             $identityCreated->clientId,
             $identityCreated->clientSecret
@@ -108,6 +104,6 @@ class CreateIdentityHandler
     private function isAlreadyCreated()
     {
         // FIXME: define where this code belongs
-        return $this->oAuth2Client->exists() && $this->statusManager->identityExists();
+        return $this->oAuth2Client->exists() && $this->statusManager->identityCreated();
     }
 }
