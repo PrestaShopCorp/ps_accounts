@@ -69,7 +69,7 @@ jobs:
         uses: actions/upload-artifact@v4
         if: ${{ always() }}
         with:
-          name: Rapport-Allure-Account
+          name: allure-report
           path: ./e2e/allure-report
 
       - name: Extract versioned results from Allure suites.json
@@ -84,9 +84,12 @@ jobs:
             echo "🔗 <${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}|Voir le run GitHub Actions>"
             echo
             echo "📄 Rapport Allure disponible dans les artifacts du run."
-            echo "Téléchargez l'archive, puis dans un terminal exécutez :"
+            echo
+            echo "1️⃣ Téléchargez l'archive du rapport Allure."
+            echo "2️⃣ Installez l'outil Allure CLI si ce n'est pas déjà fait : https://allurereport.org/docs/install-for-nodejs/"
+            echo "3️⃣ Dans un terminal, placez-vous dans le dossier extrait du rapport, puis exécutez :"
             echo "\`\`\`"
-            echo "allure open ./allure-report"
+            echo "allure open"
             echo "\`\`\`"
           } > slack_message.txt
 
