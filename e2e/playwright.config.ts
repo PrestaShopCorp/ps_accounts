@@ -23,6 +23,6 @@ export default defineConfig({
     trace: 'on-first-retry',
     screenshot: 'only-on-failure',
     headless: process.env.HEADLESS !== 'false',
-    userAgent: process.env.USER_AGENT || 'default-ua-dev-mode'
+    userAgent: process.env.QA_USER_AGENT || 'default-ua-dev-mode'
   }
 });

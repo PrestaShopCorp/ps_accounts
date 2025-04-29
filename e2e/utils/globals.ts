@@ -11,7 +11,7 @@ export class Globals extends GlobalVars {
   public static admin_password = process.env.ADMIN_PASSWORD ?? 'password empty';
   public static account_email = process.env.ACCOUNT_EMAIL ?? 'email empty';
   public static account_password = process.env.ADMIN_PASSWORD ?? 'password empty';
-  public static user_agent = process.env.USER_AGENT ?? 'password empty';
+  public static qa_user_agent = process.env.QA_USER_AGENT ?? 'password empty';
 
   //Health Check Urls
   public static curl = {
