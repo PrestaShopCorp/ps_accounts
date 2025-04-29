@@ -20,7 +20,6 @@
 
 namespace PrestaShop\Module\PsAccounts\ServiceProvider;
 
-use PrestaShop\Module\PsAccounts\Account\CommandHandler\CheckStatusHandler;
 use PrestaShop\Module\PsAccounts\Account\CommandHandler\CreateIdentitiesHandler;
 use PrestaShop\Module\PsAccounts\Account\CommandHandler\CreateIdentityHandler;
 use PrestaShop\Module\PsAccounts\Account\CommandHandler\DeleteUserShopHandler;
@@ -85,11 +84,6 @@ class CommandProvider implements IServiceProvider
             return new VerifyIdentitiesHandler(
                 $container->get(ShopContext::class),
                 $container->get(CommandBus::class)
-            );
-        });
-        $container->registerProvider(CheckStatusHandler::class, static function () use ($container) {
-            return new CheckStatusHandler(
-                $container->get(AccountsService::class)
             );
         });
     }
