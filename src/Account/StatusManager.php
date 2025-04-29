@@ -183,7 +183,7 @@ class StatusManager
     public function getOwnerUuid($refresh = false)
     {
         try {
-            return $this->getStatus($refresh)->pointOfContactUid;
+            return $this->getStatus($refresh)->pointOfContactUuid;
         } catch (UnknownStatusException $e) {
             return null;
         }

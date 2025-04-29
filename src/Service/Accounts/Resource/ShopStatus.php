@@ -53,7 +53,7 @@ class ShopStatus extends Resource
     /**
      * @var string
      */
-    public $pointOfContactUid;
+    public $pointOfContactUuid;
 
     /**
      * @var string
