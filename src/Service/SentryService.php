@@ -88,7 +88,7 @@ class SentryService
                     'ps_accounts_version' => \Ps_accounts::VERSION,
                     'prestashop_version' => _PS_VERSION_,
                     'ps_accounts_is_enabled' => \Module::isEnabled('ps_accounts'),
-                    'email' => $statusManager->getOwnerEmail(),
+                    'email' => $statusManager->getPointOfContactEmail(),
                     'shop_uuid' => $statusManager->getCloudShopId(),
                 ],
                 'error_types' => $this->errorTypes,

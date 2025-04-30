@@ -168,19 +168,11 @@ class StatusManager
     }
 
     /**
-     * @return string|null
-     */
-    public function getShopUuid()
-    {
-        return $this->getCloudShopId();
-    }
-
-    /**
      * @param bool $refresh
      *
      * @return string|null
      */
-    public function getOwnerUuid($refresh = false)
+    public function getPointOfContactUuid($refresh = false)
     {
         try {
             return $this->getStatus($refresh)->pointOfContactUuid;
@@ -194,7 +186,7 @@ class StatusManager
      *
      * @return string|null
      */
-    public function getOwnerEmail($refresh = false)
+    public function getPointOfContactEmail($refresh = false)
     {
         try {
             return $this->getStatus($refresh)->pointOfContactEmail;

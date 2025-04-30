@@ -21,6 +21,7 @@
 namespace PrestaShop\Module\PsAccounts\Service;
 
 use PrestaShop\Module\PsAccounts\Account\Exception\RefreshTokenException;
+use PrestaShop\Module\PsAccounts\Account\Exception\UnknownStatusException;
 use PrestaShop\Module\PsAccounts\Account\Session\Firebase;
 use PrestaShop\Module\PsAccounts\Account\Session\ShopSession;
 use PrestaShop\Module\PsAccounts\Account\StatusManager;
@@ -180,7 +181,7 @@ class PsAccountsService
      */
     public function getUserUuid()
     {
-        return (string) $this->statusManager->getOwnerUuid();
+        return (string) $this->statusManager->getPointOfContactUuid();
     }
 
     /**
@@ -198,7 +199,7 @@ class PsAccountsService
      */
     public function getEmail()
     {
-        return $this->statusManager->getOwnerEmail();
+        return $this->statusManager->getPointOfContactEmail();
     }
 
     /**
@@ -210,7 +211,8 @@ class PsAccountsService
      */
     public function isAccountLinked()
     {
-        return $this->statusManager->identityCreated();
+        return $this->statusManager->identityCreated() &&
+            $this->statusManager->getPointOfContactUuid();
     }
 
     /**

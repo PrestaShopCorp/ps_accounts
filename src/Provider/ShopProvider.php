@@ -92,8 +92,8 @@ class ShopProvider
                 'publicKey' => '[deprecated]',
                 'employeeId' => 0, //(int) $shopIdentity->getEmployeeId() ?: null,
                 'user' => [
-                    'email' => $shopStatus->getOwnerEmail() ?: null,
-                    'uuid' => $shopStatus->getOwnerUuid() ?: null,
+                    'email' => $shopStatus->getPointOfContactEmail() ?: null,
+                    'uuid' => $shopStatus->getPointOfContactUuid() ?: null,
                     'emailIsValidated' => null,
                 ],
                 'url' => $this->link->getDashboardLink(),

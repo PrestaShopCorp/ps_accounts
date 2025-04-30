@@ -79,10 +79,10 @@ class DeleteTest extends TestCase
 
         $this->assertFalse($this->statusManager->identityCreated());
 
-        $this->assertEmpty($this->statusManager->getShopUuid());
+        $this->assertEmpty($this->statusManager->getCloudShopId());
         $this->assertEmpty($this->statusManager->getEmployeeId());
-        $this->assertEmpty($this->statusManager->getOwnerUuid());
-        $this->assertEmpty($this->statusManager->getOwnerEmail());
+        $this->assertEmpty($this->statusManager->getPointOfContactUuid());
+        $this->assertEmpty($this->statusManager->getPointOfContactEmail());
 
         $this->assertInstanceOf(NullToken::class, $this->shopSession->getToken()->getJwt());
         $this->assertInstanceOf(NullToken::class, $this->ownerSession->getToken()->getJwt());

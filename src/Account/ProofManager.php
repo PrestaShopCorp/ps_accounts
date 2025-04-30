@@ -62,4 +62,12 @@ class ProofManager
     {
         return $this->configuration->getShopProof();
     }
+
+    /**
+     * @return void
+     */
+    public function deleteProof()
+    {
+        $this->configuration->updateShopProof(null);
+    }
 }

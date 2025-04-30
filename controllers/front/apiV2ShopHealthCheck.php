@@ -175,7 +175,7 @@ class ps_AccountsApiV2ShopHealthCheckModuleFrontController extends AbstractV2Sho
                 'phpVersion' => phpversion(),
                 'cloudShopId' => (string) $this->statusManager->getCloudShopId(),
                 'shopName' => $shop->name,
-                'ownerEmail' => (string) $this->statusManager->getOwnerEmail(),
+                'ownerEmail' => (string) $this->statusManager->getPointOfContactEmail(),
             ]);
         }
 

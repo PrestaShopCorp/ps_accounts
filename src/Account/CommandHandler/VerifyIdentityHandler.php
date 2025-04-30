@@ -98,14 +98,16 @@ class VerifyIdentityHandler
 
         //try {
         $this->accountsService->verifyShopIdentity(
-                $this->statusManager->getCloudShopId(),
-                $this->shopSession->getValidToken(),
-                $this->shopProvider->getUrl($shopId),
-                $this->proofManager->generateProof()
-            );
+            $this->statusManager->getCloudShopId(),
+            $this->shopSession->getValidToken(),
+            $this->shopProvider->getUrl($shopId),
+            $this->proofManager->generateProof()
+        );
 
         $cachedStatus->isVerified = true;
         $this->statusManager->upsetCachedStatus($cachedStatus);
+
+        $this->proofManager->deleteProof();
         //} catch (AccountsException $e) {
         //    // Status not verified
         //}

@@ -69,10 +69,10 @@ class StoreTest extends TestCase
         \Configuration::loadConfiguration();
 
         $this->assertTrue($this->statusManager->identityCreated());
-        $this->assertEquals($payload['uid'], $this->statusManager->getShopUuid());
+        $this->assertEquals($payload['uid'], $this->statusManager->getCloudShopId());
         $this->assertEquals($payload['employee_id'], $this->statusManager->getEmployeeId());
-        $this->assertEquals($payload['owner_uid'], $this->statusManager->getOwnerUuid());
-        $this->assertEquals($payload['owner_email'], $this->statusManager->getOwnerEmail());
+        $this->assertEquals($payload['owner_uid'], $this->statusManager->getPointOfContactUuid());
+        $this->assertEquals($payload['owner_email'], $this->statusManager->getPointOfContactEmail());
     }
 
     /**
@@ -109,7 +109,7 @@ class StoreTest extends TestCase
         \Configuration::loadConfiguration();
 
         $this->assertTrue($this->statusManager->identityCreated());
-        $this->assertEquals($shopUuid, $this->statusManager->getShopUuid());
+        $this->assertEquals($shopUuid, $this->statusManager->getCloudShopId());
         $this->assertEquals(null, $this->statusManager->getEmployeeId());
     }
 
