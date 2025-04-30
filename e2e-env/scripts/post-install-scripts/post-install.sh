@@ -43,3 +43,11 @@ echo "https://github.com/${GITHUB_REPOSITORY}/releases/download/${TARGET_VERSION
 wget -q -O /tmp/ps_accounts.zip "https://github.com/${GITHUB_REPOSITORY}/releases/download/${TARGET_VERSION}/${TARGET_ASSET}"
 echo "* [ps_accounts] unziping..."
 unzip -qq /tmp/ps_accounts.zip -d /var/www/html/$PHYSICAL_URI/modules
+chown -R www-data:www-data /var/www/html/$PHYSICAL_URI/modules/ps_accounts
+chmod g+r -R /var/www/html/$PHYSICAL_URI/modules/ps_accounts
+cd /var/www/html/$PHYSICAL_URI/
+php -d memory_limit=-1 bin/console prestashop:module --no-interaction install "ps_accounts"
+chown -R www-data:www-data /var/www/html/$PHYSICAL_URI/var/logs
+chmod g+r -R /var/www/html/$PHYSICAL_URI/var/logs
+chown -R www-data:www-data /var/www/html/$PHYSICAL_URI/var/cache
+chmod g+r -R /var/www/html/$PHYSICAL_URI/var/cache
