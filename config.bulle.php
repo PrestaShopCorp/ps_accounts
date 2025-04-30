@@ -32,6 +32,7 @@ return [
     'ps_accounts.accounts_cdn_url' => 'https://unpkg.com/prestashop_accounts_vue_components@5',
     'ps_accounts.svc_accounts_ui_url' => 'https://accounts.psessentials-integration.net',
     'ps_accounts.oauth2_url' => 'https://oauth-integration.prestashop.com',
+    'ps_accounts.token_audience' => 'https://accounts-api.distribution-integration.prestashop.net',
     //ps_accounts.oauth2_url_authorize' => 'https://oauth-integration.prestashop.com/oauth2/auth'
     //ps_accounts.oauth2_url_access_token' => 'https://oauth-integration.prestashop.com/oauth2/token'
     //ps_accounts.oauth2_url_resource_owner_details' => 'https://oauth-integration.prestashop.com/userinfo'

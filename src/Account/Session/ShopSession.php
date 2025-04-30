@@ -43,21 +43,21 @@ class ShopSession extends Session implements SessionInterface
     /**
      * @var string
      */
-    protected $accountsApiUrl;
+    protected $tokenAudience;
 
     /**
      * @param ConfigurationRepository $configurationRepository
      * @param OAuth2Service $oAuth2Service
-     * @param string $accountsApiUrl
+     * @param string $tokenAudience
      */
     public function __construct(
         ConfigurationRepository $configurationRepository,
         OAuth2Service $oAuth2Service,
-        $accountsApiUrl
+        $tokenAudience
     ) {
         $this->configurationRepository = $configurationRepository;
         $this->oAuth2Service = $oAuth2Service;
-        $this->accountsApiUrl = $accountsApiUrl;
+        $this->tokenAudience = $tokenAudience;
     }
 
     /**
@@ -70,12 +70,9 @@ class ShopSession extends Session implements SessionInterface
     public function refreshToken($refreshToken = null)
     {
         try {
-            $shopUuid = $this->configurationRepository->getShopUuid();
-
-            $shopAudience = preg_replace('/\/$/', '', $this->accountsApiUrl) . '/shops/' . $shopUuid;
             $accessToken = $this->getAccessToken([], [
-                'shop_' . $shopUuid, // FIXME: remove that audience
-                $shopAudience,
+                //'shop_' . $shopUuid, // FIXME: remove that audience
+                $this->tokenAudience,
             ]);
 
             $this->setToken(
