@@ -21,7 +21,6 @@
 namespace PrestaShop\Module\PsAccounts\Presenter;
 
 use PrestaShop\Module\PsAccounts\Account\StatusManager;
-use PrestaShop\Module\PsAccounts\Adapter\Link;
 use PrestaShop\Module\PsAccounts\Installer\Installer;
 use PrestaShop\Module\PsAccounts\Provider\ShopProvider;
 use PrestaShop\Module\PsAccounts\Repository\ConfigurationRepository;
@@ -42,7 +41,7 @@ class PsAccountsPresenter implements PresenterInterface
     /**
      * @var StatusManager
      */
-    protected $shopIdentity;
+    protected $statusManager;
 
     /**
      * @var ConfigurationRepository
@@ -76,7 +75,7 @@ class PsAccountsPresenter implements PresenterInterface
 
         $this->psAccountsService = $module->getService(PsAccountsService::class);
         $this->shopProvider = $module->getService(ShopProvider::class);
-        $this->shopIdentity = $module->getService(StatusManager::class);
+        $this->statusManager = $module->getService(StatusManager::class);
         $this->installer = $module->getService(Installer::class);
         $this->configuration = $module->getService(ConfigurationRepository::class);
 
