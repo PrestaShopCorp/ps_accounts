@@ -49,11 +49,12 @@ class AccountsService
      */
     public function __construct(array $config)
     {
+        $config[ClientConfig::HEADERS] = $this->getHeaders(
+            isset($config[ClientConfig::HEADERS]) ? $config[ClientConfig::HEADERS] : []
+        );
+
         $this->clientConfig = array_merge([
             ClientConfig::NAME => static::class,
-            ClientConfig::HEADERS => $this->getHeaders(
-                isset($config[ClientConfig::HEADERS]) ? $config[ClientConfig::HEADERS] : []
-            ),
         ], $config);
     }
 
