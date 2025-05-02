@@ -20,8 +20,8 @@
 
 return [
     'ps_accounts.environment' => 'integration',
-    'ps_accounts.accounts_api_url' => 'https://accounts-api-prestabulle2.distribution-integration.prestashop.net/',
-    'ps_accounts.accounts_ui_url' => 'https://accounts-prestabulle2.distribution-integration.prestashop.net',
+    'ps_accounts.accounts_api_url' => 'https://accounts-api-prestabulle6.distribution-integration.prestashop.net/',
+    'ps_accounts.accounts_ui_url' => 'https://accounts-prestabulle6.distribution-integration.prestashop.net',
     'ps_accounts.sso_account_url' => 'https://prestashop-newsso-staging.appspot.com/login',
     'ps_accounts.sso_resend_verification_email_url' => 'https://prestashop-newsso-staging.appspot.com/account/send-verification-email',
     'ps_accounts.billing_api_url' => 'https://billing-api.distribution-preprod.prestashop.net/',
@@ -33,10 +33,6 @@ return [
     'ps_accounts.svc_accounts_ui_url' => 'https://accounts.psessentials-integration.net',
     'ps_accounts.oauth2_url' => 'https://oauth-integration.prestashop.com',
     'ps_accounts.token_audience' => 'https://accounts-api.distribution-integration.prestashop.net',
-    //ps_accounts.oauth2_url_authorize' => 'https://oauth-integration.prestashop.com/oauth2/auth'
-    //ps_accounts.oauth2_url_access_token' => 'https://oauth-integration.prestashop.com/oauth2/token'
-    //ps_accounts.oauth2_url_resource_owner_details' => 'https://oauth-integration.prestashop.com/userinfo'
-    //ps_accounts.oauth2_url_session_logout' => 'https://oauth-integration.prestashop.com/oauth2/sessions/logout'
 
     'ps_accounts.testimonials_url' => 'https://assets.prestashop3.com/dst/accounts/assets/testimonials.json',
 
