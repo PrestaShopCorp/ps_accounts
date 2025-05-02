@@ -276,7 +276,8 @@ php-scoper-dump-autoload:
 php-scoper-fix-autoload:
 	php fix-autoload.php
 
-php-scoper: php-scoper-add-prefix php-scoper-update-prefix php-scoper-dump-autoload php-scoper-fix-autoload
+#php-scoper: php-scoper-add-prefix php-scoper-update-prefix php-scoper-dump-autoload php-scoper-fix-autoload
+php-scoper: php-scoper-add-prefix php-scoper-dump-autoload php-scoper-fix-autoload
 
 ##########
 # BUNDLING
