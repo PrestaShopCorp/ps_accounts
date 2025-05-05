@@ -86,9 +86,8 @@ class VerifyIdentityHandlerTest extends TestCase
             ->willReturnCallback(function ($route) use ($cloudShopId) {
                 if (preg_match('/v1\/shop-identities\/' . $cloudShopId . '\/verify$/', $route)) {
                     return $this->createResponse([
-                        // FIXME: not returning status at the moment, just checking successful response
-//                        "cloudShopId" => $cloudShopId,
-//                        "isVerified" => true,
+                        "cloudShopId" => $cloudShopId,
+                        "isVerified" => true,
                     ], 200, true);
                 }
                 return $this->createResponse([], 500, true);
@@ -117,10 +116,10 @@ class VerifyIdentityHandlerTest extends TestCase
             ->willReturnCallback(function ($route) use ($cloudShopId) {
                 if (preg_match('/v1\/shop-identities\/' . $cloudShopId . '\/verify$/', $route)) {
                     return $this->createResponse([
-                        // FIXME: not returning status at the moment, just checking successful response
-//                        "cloudShopId" => $cloudShopId,
-//                        "isVerified" => true,
-                    ], 400, true);
+                        "cloudShopId" => $cloudShopId,
+                        "isVerified" => false,
+                        "shopVerificationErrorCode" => null,
+                    ], 200, true);
                 }
                 return $this->createResponse([], 500, true);
             });
