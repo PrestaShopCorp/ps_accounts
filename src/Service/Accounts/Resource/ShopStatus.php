@@ -46,7 +46,7 @@ class ShopStatus extends Resource
     public $backofficeUrl;
 
     /**
-     * @var int
+     * @var string
      */
     public $shopVerificationErrorCode;
 

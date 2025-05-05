@@ -97,14 +97,14 @@ class VerifyIdentityHandler
         $shopId = $command->shopId ?: \Shop::getContextShopID();
 
         //try {
-        $this->accountsService->verifyShopIdentity(
+        $shopStatus = $this->accountsService->verifyShopIdentity(
             $this->statusManager->getCloudShopId(),
             $this->shopSession->getValidToken(),
             $this->shopProvider->getUrl($shopId),
             $this->proofManager->generateProof()
         );
 
-        $cachedStatus->isVerified = true;
+        $cachedStatus->isVerified = $shopStatus->isVerified;
         $this->statusManager->upsetCachedStatus($cachedStatus);
 
         $this->proofManager->deleteProof();
