@@ -52,7 +52,7 @@ class AccountsService
         $this->clientConfig = array_merge([
             ClientConfig::NAME => static::class,
             ClientConfig::HEADERS => $this->getHeaders(
-                $config[ClientConfig::HEADERS] ? $config[ClientConfig::HEADERS] : []
+                isset($config[ClientConfig::HEADERS]) ? $config[ClientConfig::HEADERS] : []
             ),
         ], $config);
     }
