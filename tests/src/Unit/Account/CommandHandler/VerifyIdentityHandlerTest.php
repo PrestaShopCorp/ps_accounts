@@ -124,6 +124,37 @@ class VerifyIdentityHandlerTest extends TestCase
                 return $this->createResponse([], 500, true);
             });
 
+        $this->getHandler()->handle(new VerifyIdentityCommand(1));
+
+        $status = $this->statusManager->getStatus();
+
+        $this->assertFalse($status->isVerified);
+    }
+
+    /**
+     * @test
+     */
+    public function itShouldNotUpdateShopStatusOnHttpError()
+    {
+        $cloudShopId = $this->faker->uuid;
+
+        $this->statusManager->setCachedStatus(new ShopStatus([
+            'cloudShopId' => $cloudShopId,
+            'isVerified' => false,
+        ]));
+
+        $this->client->method('post')
+            ->willReturnCallback(function ($route) use ($cloudShopId) {
+                if (preg_match('/v1\/shop-identities\/' . $cloudShopId . '\/verify$/', $route)) {
+                    return $this->createResponse([
+//                        "cloudShopId" => $cloudShopId,
+//                        "isVerified" => false,
+//                        "shopVerificationErrorCode" => null,
+                    ], 500, true);
+                }
+                return $this->createResponse([], 500, true);
+            });
+
         try {
             $this->getHandler()->handle(new VerifyIdentityCommand(1));
         } catch (AccountsException $e) {
