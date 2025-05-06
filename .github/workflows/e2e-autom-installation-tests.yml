@@ -3,20 +3,11 @@ name: Account Module Installation autom tests
 on:
   workflow_dispatch:
   schedule:
-    - cron: "0 10 * * 1-5"
-
-env:
-  BASE_URL: ${{secrets.BASE_URL}}
-  BASE_URL_FO: ${{secrets.BASE_URL_FO}}
-  ADMIN_EMAIL: ${{ secrets.ADMIN_EMAIL }}
-  ADMIN_PASSWORD: ${{ secrets.ADMIN_PASSWORD }}
-  OAUTH2URL: ${{ secrets.OAUTH2URL }}
-  ACCOUNTSAPIURL: ${{ secrets.ACCOUNTSAPIURL }}
-  ACCOUNTSUIURL: ${{ secrets.ACCOUNTSUIURL }}
+    - cron: "0 7 * * 1-5"
 
 jobs:
   run-test:
-    name: Run Account Back tests
+    name: Run Account tests
     runs-on: ubuntu-22.04
 
     steps:
@@ -38,16 +29,29 @@ jobs:
         run: |
           npx playwright install
 
-      - name: Generate .env file
+      - name: Generate .env in e2e file
+        working-directory: ./e2e
         run: |
-          echo "ACCOUNT_TAG=${{ secrets.ACCOUNT_TAG }}" >> e2e-env/.env
-          echo "TUNNEL_SECRET=${{ secrets.TUNNEL_SECRET }}" >> e2e-env/.env
-          echo "TUNNEL_ID=${{ secrets.TUNNEL_ID }}" >> e2e-env/.env
-          echo "PS_DOMAIN=${{ secrets.PS_DOMAIN }}" >> e2e-env/.env
-          echo "DOMAIN=${{ secrets.DOMAIN }}" >> e2e-env/.env
-          echo "DOWNLOADER_TOKEN=${{ secrets.DOWNLOADER_TOKEN }}" >> e2e-env/.env
-          echo "PS_VERSION=${{ secrets.PS_VERSION }}" >> e2e-env/.env
-          echo "PS_ACCOUNTS_VERSION=${{ secrets.PS_ACCOUNTS_VERSION }}" >> e2e-env/.env
+          echo "BASE_URL=${{secrets.BASE_URL}}" >> .env
+          echo "BASE_URL_FO=${{secrets.BASE_URL_FO}}" >> .env
+          echo "ADMIN_EMAIL=${{ secrets.ADMIN_EMAIL }}" >> .env
+          echo "ADMIN_PASSWORD=${{ secrets.ADMIN_PASSWORD }}" >> .env
+          echo "OAUTH2URL=${{ secrets.OAUTH2URL }}" >> .env
+          echo "ACCOUNTSAPIURL=${{ secrets.ACCOUNTSAPIURL }}" >> .env
+          echo "ACCOUNTSUIURL=${{ secrets.ACCOUNTSUIURL }}" >> .env
+          echo "ACCOUNTSUIURL=${{ secrets.QA_USER_AGENT}}" >> .env
+
+      - name: Generate .env in e2e-env file
+        working-directory: ./e2e-env
+        run: |
+          echo "ACCOUNT_TAG=${{ secrets.ACCOUNT_TAG }}" >> .env
+          echo "TUNNEL_SECRET=${{ secrets.TUNNEL_SECRET }}" >> .env
+          echo "TUNNEL_ID=${{ secrets.TUNNEL_ID }}" >> .env
+          echo "PS_DOMAIN=${{ secrets.PS_DOMAIN }}" >> .env
+          echo "DOMAIN=${{ secrets.DOMAIN }}" >> .env
+          echo "DOWNLOADER_TOKEN=${{ secrets.DOWNLOADER_TOKEN }}" >> .env
+          echo "PS_VERSION=${{ secrets.PS_VERSION }}" >> .env
+          echo "PS_ACCOUNTS_VERSION=${{ secrets.PS_ACCOUNTS_VERSION }}" >> .env
 
       - name: Run test
         working-directory: ./e2e
@@ -61,6 +65,13 @@ jobs:
       - name: Generate Allure Report
         working-directory: ./e2e
         run: npm run generate-allure-report
+      
+      - name: Upload Allure Report
+        uses: actions/upload-artifact@v4
+        if: ${{ always() }}
+        with:
+          name: allure-report
+          path: ./e2e/allure-report
 
       - name: Extract versioned results from Allure suites.json
         id: summary
@@ -71,7 +82,14 @@ jobs:
             echo
             jq -r '.items[] | "• \(.name) : ✅ \(.statistic.passed) / ❌ \(.statistic.failed) / ⚠️ \(.statistic.broken)"' suites.json
             echo
-            echo "🔗 <${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}|Voir le run GitHub Actions>"
+            echo "📄 Rapport Allure disponible dans les artifacts du run : 🔗 <${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}|Voir le run GitHub Actions>"
+            echo
+            echo "1️⃣ Téléchargez l'archive du rapport Allure."
+            echo "2️⃣ Installez l'outil Allure CLI si ce n'est pas déjà fait!"
+            echo "3️⃣ Dans un terminal, placez-vous dans le dossier extrait du rapport, puis exécutez :"
+            echo "\`\`\`"
+            echo "allure open"
+            echo "\`\`\`"
           } > slack_message.txt
 
       - name: Prepare Slack payload

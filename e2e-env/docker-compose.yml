@@ -10,30 +10,17 @@ services:
       MYSQL_ROOT_PASSWORD: prestashop
       MYSQL_PORT: 3307
       MYSQL_DATABASE: prestashop
-    healthcheck:
-      test:
-        [
-          "CMD",
-          "healthcheck.sh",
-          "--connect",
-        ]
-      interval: 5s
-      timeout: 10s
-      retries: 5
     ports:
       - "3307:3306"
     profiles:
       - all
-      - shop
       - multistore
+      - flashlight
 
   prestashop:
     restart: unless-stopped
     image: prestashop/prestashop-flashlight:${PS_VERSION}
     env_file: .env
-    depends_on:
-      mysql:
-        condition: service_started
     environment:
       ADMIN_MAIL: "admin@prestashop.com"
       ADMIN_PASSWD: "prestashop"
@@ -47,13 +34,10 @@ services:
       - "8000:80"
     profiles:
       - all    
-      - shop
+      - flashlight
     
   phpmyadmin:
       image: phpmyadmin:latest
-      depends_on:
-        mysql:
-          condition: service_healthy
       ports:
         - 3006:80
       environment:
@@ -64,8 +48,8 @@ services:
         - MYSQL_ROOT_PASSWORD=prestashop
       profiles:
       - all
-      - shop
       - multistore
+      - flashlight
 
   mytun:
     restart: always
@@ -76,18 +60,14 @@ services:
     - ./myTun/config/mytun-credentials.json:/credentials.json:ro
     profiles:
       - all
-      - shop
       - multistore
-
+      - flashlight
 
   shop1:
     image: prestashop/prestashop:${PS_VERSION} 
     container_name: shop1
     restart: unless-stopped
     user: root
-    depends_on:
-      mysql:
-         condition: service_healthy
     environment:
       PS_ACCOUNTS_VERSION: ${PS_ACCOUNTS_VERSION}
       PS_DOMAIN: ${PS_DOMAIN}
@@ -120,9 +100,6 @@ services:
     container_name: shop2
     restart: unless-stopped
     user: root
-    depends_on:
-      mysql:
-       condition: service_healthy
     environment:
       PS_ACCOUNTS_VERSION: ${PS_ACCOUNTS_VERSION}
       PS_DOMAIN: ${PS_DOMAIN}
