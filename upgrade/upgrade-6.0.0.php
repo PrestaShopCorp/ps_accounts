@@ -17,7 +17,7 @@
  * @copyright Since 2007 PrestaShop SA and Contributors
  * @license   https://opensource.org/licenses/AFL-3.0 Academic Free License version 3.0
  */
-require_once __DIR__ . '/../src/Module/Install.php';
+
 /**
  * @param Ps_accounts $module
  *
@@ -27,6 +27,8 @@ require_once __DIR__ . '/../src/Module/Install.php';
  */
 function upgrade_module_6_0_0($module)
 {
+    require __DIR__ . '/../src/enforce_autoload.php';
+
     (new PrestaShop\Module\PsAccounts\Module\Install($module, Db::getInstance()))
         ->runMigration('create_employee_account_table');
 

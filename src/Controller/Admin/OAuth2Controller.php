@@ -317,6 +317,6 @@ HTML
     {
         $res = $this->externalAssetsClient->getTestimonials();
 
-        return $res['status'] ? $res['body'] : [];
+        return $res->isSuccessful ? $res->body : [];
     }
 }

@@ -21,8 +21,9 @@
 namespace PrestaShop\Module\PsAccounts\Provider;
 
 use PrestaShop\Module\PsAccounts\Account\Dto\Shop;
-use PrestaShop\Module\PsAccounts\Account\LinkShop;
 use PrestaShop\Module\PsAccounts\Account\Session\Firebase\OwnerSession;
+use PrestaShop\Module\PsAccounts\Account\ShopUrl;
+use PrestaShop\Module\PsAccounts\Account\StatusManager;
 use PrestaShop\Module\PsAccounts\Adapter\Link;
 use PrestaShop\Module\PsAccounts\Context\ShopContext;
 
@@ -67,14 +68,11 @@ class ShopProvider
             /** @var \Ps_accounts $module */
             $module = \Module::getInstanceByName('ps_accounts');
 
-            /** @var LinkShop $linkShop */
-            $linkShop = $module->getService(LinkShop::class);
+            /** @var StatusManager $shopStatus */
+            $shopStatus = $module->getService(StatusManager::class);
 
             /** @var OwnerSession $ownerSession */
             $ownerSession = $module->getService(OwnerSession::class);
-
-            /** @var RsaKeysProvider $rsaKeyProvider */
-            $rsaKeyProvider = $module->getService(RsaKeysProvider::class);
 
             $shopId = $shopData['id_shop'];
 
@@ -90,22 +88,22 @@ class ShopProvider
                 'frontUrl' => $this->getShopUrl($shopData),
 
                 // LinkAccount
-                'uuid' => $linkShop->getShopUuid() ?: null,
-                'publicKey' => $rsaKeyProvider->getPublicKey() ?: null,
-                'employeeId' => (int) $linkShop->getEmployeeId() ?: null,
+                'uuid' => $shopStatus->getCloudShopId() ?: null,
+                'publicKey' => '[deprecated]',
+                'employeeId' => 0, //(int) $shopIdentity->getEmployeeId() ?: null,
                 'user' => [
-                    'email' => $linkShop->getOwnerEmail() ?: null,
-                    'uuid' => $linkShop->getOwnerUuid() ?: null,
+                    'email' => $shopStatus->getPointOfContactEmail() ?: null,
+                    'uuid' => $shopStatus->getPointOfContactUuid() ?: null,
                     'emailIsValidated' => null,
                 ],
                 'url' => $this->link->getDashboardLink(),
                 'isLinkedV4' => null,
-                'unlinkedAuto' => !empty($linkShop->getUnlinkedOnError()),
+                'unlinkedAuto' => false,
             ]);
 
             if ($refreshTokens) {
                 $shop->user->emailIsValidated = $ownerSession->isEmailVerified();
-                $shop->isLinkedV4 = $linkShop->existsV4();
+                $shop->isLinkedV4 = false; //$shopIdentity->existsV4();
             }
 
             return $shop;
@@ -251,7 +249,7 @@ class ShopProvider
      */
     private function getShopUrl($shopData)
     {
-        if (!$shopData['domain']) {
+        if (!isset($shopData['domain'])) {
             return null;
         }
 
@@ -259,5 +257,47 @@ class ShopProvider
             ($shopData['domain_ssl'] ? 'https://' : 'http://') .
             ($shopData['domain_ssl'] ?: $shopData['domain']) .
             $shopData['uri'];
+    }
+
+    /**
+     * @param int $shopId
+     *
+     * @return string|null
+     */
+    public function getFrontendUrl($shopId)
+    {
+        return $this->getShopUrl((array) \Shop::getShop($shopId));
+    }
+
+    /**
+     * @param int $shopId
+     * @param string $psxName
+     *
+     * @return string
+     */
+    public function getBackendUrl($shopId, $psxName = 'ps_accounts')
+    {
+        return $this->link->getAdminLink(
+            'AdminModules',
+            true,
+            [],
+            [
+                'configure' => $psxName,
+                'setShopContext' => 's-' . $shopId,
+            ]
+        );
+    }
+
+    /**
+     * @param int $shopId
+     *
+     * @return ShopUrl
+     */
+    public function getUrl($shopId)
+    {
+        $backOfficeUrl = explode('/index.php', $this->getBackendUrl($shopId))[0];
+        $frontendUrl = rtrim($this->getFrontendUrl($shopId), '/');
+
+        return new ShopUrl($backOfficeUrl, $frontendUrl, $shopId);
     }
 }

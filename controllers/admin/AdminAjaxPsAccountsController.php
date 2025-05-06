@@ -20,13 +20,15 @@
 require_once __DIR__ . '/../../src/Polyfill/Traits/Controller/AjaxRender.php';
 
 use PrestaShop\Module\PsAccounts\Account\Command\DeleteUserShopCommand;
-use PrestaShop\Module\PsAccounts\Account\Command\UnlinkShopCommand;
 use PrestaShop\Module\PsAccounts\Account\Session\Firebase\ShopSession;
+use PrestaShop\Module\PsAccounts\Account\StatusManager;
 use PrestaShop\Module\PsAccounts\AccountLogin\OAuth2Session;
 use PrestaShop\Module\PsAccounts\Cqrs\CommandBus;
+use PrestaShop\Module\PsAccounts\Hook\ActionShopAccountUnlinkAfter;
 use PrestaShop\Module\PsAccounts\Polyfill\Traits\Controller\AjaxRender;
 use PrestaShop\Module\PsAccounts\Presenter\PsAccountsPresenter;
 use PrestaShop\Module\PsAccounts\Repository\ConfigurationRepository;
+use PrestaShop\Module\PsAccounts\Service\Accounts\Resource\ShopStatus;
 use PrestaShop\Module\PsAccounts\Service\SentryService;
 
 /**
@@ -120,12 +122,16 @@ class AdminAjaxPsAccountsController extends \ModuleAdminController
     public function ajaxProcessResetLinkAccount()
     {
         try {
-            /** @var ConfigurationRepository $configurationRepository */
-            $configurationRepository = $this->module->getService(ConfigurationRepository::class);
+            /** @var StatusManager $statusManager */
+            $statusManager = $this->module->getService(StatusManager::class);
 
-            $this->commandBus->handle(new UnlinkShopCommand(
-                $configurationRepository->getShopId()
-            ));
+            $status = $statusManager->getStatus();
+            $statusManager->upsetCachedStatus(new ShopStatus([]));
+
+            Hook::exec(ActionShopAccountUnlinkAfter::getName(), [
+                'cloudShopId' => $status->cloudShopId,
+                'shopId' => \Context::getContext()->shop->id,
+            ]);
 
             header('Content-Type: text/json');
 

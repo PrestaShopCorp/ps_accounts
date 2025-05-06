@@ -21,10 +21,11 @@ if (!defined('_PS_VERSION_')) {
     exit;
 }
 require_once __DIR__ . '/vendor/autoload.php';
+//require __DIR__ . '/src/autoload_module.php';
 
-if (!class_exists('\PrestaShop\Module\PsAccounts\Hook\HookableTrait')) {
-    ps_accounts_fix_upgrade();
-}
+//if (!class_exists('\PrestaShop\Module\PsAccounts\Hook\HookableTrait')) {
+//    ps_accounts_fix_upgrade();
+//}
 
 class Ps_accounts extends Module
 {
@@ -32,7 +33,7 @@ class Ps_accounts extends Module
 
     // Needed in order to retrieve the module version easier (in api call headers) than instanciate
     // the module each time to get the version
-    const VERSION = '7.2.0';
+    const VERSION = '8.0.0';
 
     /**
      * Admin tabs
@@ -105,7 +106,7 @@ class Ps_accounts extends Module
 
         // Login/Logout OAuth
         // PS 1.6 - 1.7
-        'displayBackOfficeHeader',
+        'displayAdminAfterHeader',  // FIXME: for alpha version only
         'actionAdminLoginControllerSetMedia',
         // PS >= 8
         //'actionAdminControllerInitBefore',
@@ -129,15 +130,13 @@ class Ps_accounts extends Module
 
         // We cannot use the const VERSION because the const is not computed by addons marketplace
         // when the zip is uploaded
-        $this->version = '7.2.0';
+        $this->version = '8.0.0';
 
         $this->module_key = 'abf2cd758b4d629b2944d3922ef9db73';
 
         parent::__construct();
 
-        $this->displayName = $this->l(
-            'PrestaShop Account'
-        );
+        $this->displayName = $this->l('PrestaShop Account');
         $this->description = $this->l(
             'Link your store to your PrestaShop account to activate and manage your subscriptions in your ' .
             'back office. Do not uninstall this module if you have a current subscription.'
@@ -454,22 +453,58 @@ class Ps_accounts extends Module
         // FIXME: this wont prevent from re-implanting override on reset of module
         $uninstaller = new PrestaShop\Module\PsAccounts\Module\Uninstall($this, Db::getInstance());
         $uninstaller->deleteAdminTab('AdminLogin');
+
+        /** @var \PrestaShop\Module\PsAccounts\Cqrs\CommandBus $commandBus */
+        $commandBus = $this->getService(\PrestaShop\Module\PsAccounts\Cqrs\CommandBus::class);
+
+        // Verification flow
+        $commandBus->handle(new \PrestaShop\Module\PsAccounts\Account\Command\CreateIdentitiesCommand());
+        $commandBus->handle(new \PrestaShop\Module\PsAccounts\Account\Command\VerifyIdentitiesCommand());
+    }
+
+    /**
+     * @return string
+     */
+    public function getCloudShopId()
+    {
+        /** @var \PrestaShop\Module\PsAccounts\Account\StatusManager $statusManager */
+        $statusManager = $this->getService(\PrestaShop\Module\PsAccounts\Account\StatusManager::class);
+
+        return $statusManager->getCloudShopId();
+    }
+
+    /**
+     * @return bool
+     */
+    public function getVerifiedStatus()
+    {
+        /** @var \PrestaShop\Module\PsAccounts\Account\StatusManager $statusManager */
+        $statusManager = $this->getService(\PrestaShop\Module\PsAccounts\Account\StatusManager::class);
+
+        try {
+            if ($statusManager->getCachedStatus()->isVerified) {
+                return true;
+            }
+        } catch (\PrestaShop\Module\PsAccounts\Account\Exception\UnknownStatusException $e) {
+        }
+
+        return false;
     }
 }
-
-/**
- * @return void
- */
-function ps_accounts_fix_upgrade()
-{
-    $root = __DIR__;
-    $requires = array_merge([
-        $root . '/src/Module/Install.php',
-//        $root . '/src/Hook/Hook.php',
-        $root . '/src/Hook/HookableTrait.php',
-    ], []/*, glob($root . '/src/Hook/*.php')*/);
-
-    foreach ($requires as $filename) {
-        require_once $filename;
-    }
-}
+//
+///**
+// * @return void
+// */
+//function ps_accounts_fix_upgrade()
+//{
+//    $root = __DIR__;
+//    $requires = array_merge([
+//        $root . '/src/Module/Install.php',
+////        $root . '/src/Hook/Hook.php',
+//        $root . '/src/Hook/HookableTrait.php',
+//    ], []/*, glob($root . '/src/Hook/*.php')*/);
+//
+//    foreach ($requires as $filename) {
+//        require_once $filename;
+//    }
+//}

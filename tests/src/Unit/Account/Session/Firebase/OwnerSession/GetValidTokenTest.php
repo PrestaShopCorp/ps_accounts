@@ -67,7 +67,7 @@ class GetValidTokenTest extends TestCase
 
         $session = $this->getMockedFirebaseSession(
             Firebase\OwnerSession::class,
-            $this->createApiResponse([
+            $this->createResponse([
                 'userToken' => (string) $userRefreshedToken,
                 'userRefreshToken' => $userRefreshToken,
                 'shopToken' => (string) $shopRefreshedToken,
@@ -108,7 +108,7 @@ class GetValidTokenTest extends TestCase
 
         $session = $this->getMockedFirebaseSession(
             Firebase\OwnerSession::class,
-            $this->createApiResponse([
+            $this->createResponse([
                 'userToken' => (string) $userRefreshedToken,
                 'userRefreshToken' => $userRefreshToken,
                 'shopToken' => (string) $shopRefreshedToken,
@@ -138,7 +138,7 @@ class GetValidTokenTest extends TestCase
 
         $session = $this->getMockedFirebaseSession(
             Firebase\OwnerSession::class,
-            $this->createApiResponse([
+            $this->createResponse([
                 'message' => 'Error !',
             ], 403, false),
             $this->getMockedShopSession(new Token($this->makeJwtToken(new \DateTimeImmutable())))
