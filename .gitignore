@@ -69,6 +69,7 @@ npm-debug.log*
 /e2e/test/reports/*
 /e2e/playwright-report
 .DS_Store
+/e2e/*.png
 
 # e2e-env ignore
 /e2e-env/myTun/config/mytun-credentials.json

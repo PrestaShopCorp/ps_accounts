@@ -22,6 +22,7 @@ if [ "$PHYSICAL_URI" ]; then
     -e "UPDATE ps_shop_url SET physical_uri='/$PHYSICAL_URI/'"
 fi
 
+#Install PS_ACCOUNTS
 set -eu
 cd "$(dirname $0)" || exit 1
 
@@ -41,5 +42,4 @@ echo "* [ps_accounts] downloading..."
 echo "https://github.com/${GITHUB_REPOSITORY}/releases/download/${TARGET_VERSION}/${TARGET_ASSET}"
 wget -q -O /tmp/ps_accounts.zip "https://github.com/${GITHUB_REPOSITORY}/releases/download/${TARGET_VERSION}/${TARGET_ASSET}"
 echo "* [ps_accounts] unziping..."
-unzip -qq /tmp/ps_accounts.zip -d /var/www/html/modules
-echo "* [ps_accounts] installing the module..."
+unzip -qq /tmp/ps_accounts.zip -d /var/www/html/$PHYSICAL_URI/modules

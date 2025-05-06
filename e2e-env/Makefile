@@ -1,4 +1,4 @@
-PROFILE ?= shop
+PROFILE ?= flashlight
 
 help: ## Show this help message
 	@echo "Usage: make [target]"
