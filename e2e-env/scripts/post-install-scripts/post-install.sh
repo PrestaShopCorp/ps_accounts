@@ -38,8 +38,25 @@ fi
 
 TARGET_ASSET="ps_accounts_preprod-${CLEANED_VERSION#v}.zip"
 
+# Définition des variables
+PS_ROOT="/var/www/html/${PHYSICAL_URI:-}"
+CHOWN_USER="www-data:www-data"
+# Download ps_accounts module
 echo "* [ps_accounts] downloading..."
 echo "https://github.com/${GITHUB_REPOSITORY}/releases/download/${TARGET_VERSION}/${TARGET_ASSET}"
 wget -q -O /tmp/ps_accounts.zip "https://github.com/${GITHUB_REPOSITORY}/releases/download/${TARGET_VERSION}/${TARGET_ASSET}"
-echo "* [ps_accounts] unziping..."
-unzip -qq /tmp/ps_accounts.zip -d /var/www/html/$PHYSICAL_URI/modules
+# Unzip ps_accounts module
+echo "* [ps_accounts] unzipping..."
+unzip -qq /tmp/ps_accounts.zip -d "$PS_ROOT/modules"
+# Change permission
+chown -R $CHOWN_USER "$PS_ROOT/modules/ps_accounts"
+chmod g+r -R "$PS_ROOT/modules/ps_accounts"
+# Install ps_accounts module
+cd "$PS_ROOT"
+php -d memory_limit=-1 bin/console prestashop:module --no-interaction install "ps_accounts"
+# Change logs file persmission
+chown -R $CHOWN_USER "$PS_ROOT/var/logs"
+chmod g+r -R "$PS_ROOT/var/logs"
+# Change cache file persmission
+chown -R $CHOWN_USER "$PS_ROOT/var/cache"
+chmod g+r -R "$PS_ROOT/var/cache"
