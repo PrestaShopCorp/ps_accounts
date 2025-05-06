@@ -58,8 +58,12 @@ abstract class Session implements SessionInterface
          * Avoid multiple refreshToken calls in the same runtime:
          * if it fails once, it will subsequently fail
          */
-        if ($this->getRefreshTokenErrors(static::class)) {
+        if ($message = $this->getRefreshTokenErrors(static::class)) {
             $this->setToken('');
+
+            if ($throw) {
+                throw new RefreshTokenException('Unable to refresh shop token : ' . $message);
+            }
 
             return $this->getToken();
         }
@@ -69,7 +73,7 @@ abstract class Session implements SessionInterface
                 $this->refreshToken(null);
             } catch (RefreshTokenException $e) {
                 $this->setToken('');
-                $this->setRefreshTokenErrors(static::class);
+                $this->setRefreshTokenErrors(static::class, $e->getMessage());
 
                 if ($throw) {
                     throw $e;
@@ -105,11 +109,11 @@ abstract class Session implements SessionInterface
     /**
      * @param string $refreshToken
      *
-     * @return bool
+     * @return string|false
      */
     public function getRefreshTokenErrors($refreshToken)
     {
-        return isset($this->refreshTokenErrors[$refreshToken]) && $this->refreshTokenErrors[$refreshToken];
+        return isset($this->refreshTokenErrors[$refreshToken]) ? $this->refreshTokenErrors[$refreshToken] : false;
     }
 
     /**
@@ -121,12 +125,13 @@ abstract class Session implements SessionInterface
     }
 
     /**
-     * @param string $refreshToken
+     * @param string $className
+     * @param string $message
      *
      * @return void
      */
-    protected function setRefreshTokenErrors($refreshToken)
+    protected function setRefreshTokenErrors($className, $message)
     {
-        $this->refreshTokenErrors[$refreshToken] = true;
+        $this->refreshTokenErrors[$className] = $message;
     }
 }
