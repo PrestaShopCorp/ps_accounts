@@ -114,14 +114,17 @@ class StatusManagerTest extends TestCase
         $pointOfContactEmail = $this->faker->email;
         $pointOfContactUid = $this->faker->uuid;
 
-        $this->configurationRepository->updateShopStatus(null);
+        $this->statusManager->setCachedStatus(new ShopStatus([
+            'cloudShopId' => $cloudShopId,
+            'isVerified' => false,
+        ]));
 
         $this->shopSession->method('getValidToken')
             ->willReturn($this->faker->uuid);
 
         $this->client->method('get')
             ->willReturnCallback(function ($route) use ($cloudShopId, $pointOfContactEmail, $pointOfContactUid) {
-                if (preg_match('/v1\/shop-status$/', $route)) {
+                if (preg_match('/v1\/shop-identities\/' . $cloudShopId . '\/status$/', $route)) {
                     return $this->createResponse([
                         "cloudShopId" => $cloudShopId,
                         "isVerified" => true,
@@ -153,7 +156,7 @@ class StatusManagerTest extends TestCase
 
         $this->client->method('get')
             ->willReturnCallback(function ($route) {
-                if (preg_match('/v1\/shop-status$/', $route)) {
+                if (preg_match('/v1\/shop-identities\/\d\/status$/', $route)) {
                     return $this->createResponse([
                         "msg" => "Invalid request",
                     ], 400, true);
@@ -164,8 +167,6 @@ class StatusManagerTest extends TestCase
         sleep(1);
 
         $cachedStatus = $this->statusManager->getStatus(true, 1);
-
-        var_export($cachedStatus->toArray());
 
         $this->assertNull($cachedStatus->cloudShopId);
         $this->assertFalse($cachedStatus->isVerified);
