@@ -2,12 +2,15 @@
 
 namespace PrestaShop\Module\PsAccounts\Tests\Unit\Hook;
 
+use PHPUnit\Framework\MockObject\MockObject;
 use PrestaShop\Module\PsAccounts\Account\CommandHandler\UpdateUserShopHandler;
 use PrestaShop\Module\PsAccounts\Account\Dto\UpdateShop;
 use PrestaShop\Module\PsAccounts\Account\Session\Firebase;
 use PrestaShop\Module\PsAccounts\Account\Token\Token;
 use PrestaShop\Module\PsAccounts\Adapter\Link;
 use PrestaShop\Module\PsAccounts\Api\Client\AccountsClient;
+use PrestaShop\Module\PsAccounts\Http\Client\Response;
+use PrestaShop\Module\PsAccounts\Service\Accounts\AccountsService;
 use PrestaShop\Module\PsAccounts\Tests\TestCase;
 
 class Params {
@@ -51,7 +54,7 @@ class ActionObjectShopUpdateAfterTest extends TestCase
         $ownerToken = new Token((string)$this->makeJwtToken(new \DateTimeImmutable('+1 hour'), [
             'sub' => $this->faker->uuid
         ]));
-        $updateUserShopResponse = $this->createApiResponse([
+        $updateUserShopResponse = $this->createResponse([
             'message' => 'all good !',
         ], 200, true);
 
@@ -95,7 +98,7 @@ class ActionObjectShopUpdateAfterTest extends TestCase
         $ownerToken = new Token((string)$this->makeJwtToken(new \DateTimeImmutable('+1 hour'), [
             'sub' => $this->faker->uuid
         ]));
-        $updateUserShopResponse = $this->createApiResponse([
+        $updateUserShopResponse = $this->createResponse([
             'message' => 'all good !',
         ], 200, true);
 
@@ -152,13 +155,16 @@ class ActionObjectShopUpdateAfterTest extends TestCase
 
     /**
      * @param Params|null $params
-     * @param array $response
+     * @param Response $response
      *
      * @return void
+     * @throws \ReflectionException
      */
-    private function initResponse(&$params, array $response)
+    private function initResponse(&$params, Response $response)
     {
-        $accountsClient = $this->createMock(AccountsClient::class);
+        /** @var AccountsService&MockObject $accountsClient */
+        $accountsClient = $this->createMock(AccountsService::class);
+
         $accountsClient->expects($this->once())->method('updateUserShop')->willReturnCallback(function (
             $ownerUid, $shopUid, $ownerToken, UpdateShop $shop
         ) use (&$params, $response) {
@@ -170,7 +176,8 @@ class ActionObjectShopUpdateAfterTest extends TestCase
             ];
             return $response;
         });
-        $this->replaceProperty($this->updateUserShopHandler, 'accountClient', $accountsClient);
+
+        $this->replaceProperty($this->updateUserShopHandler, 'accountsService', $accountsClient);
     }
 
     /**
