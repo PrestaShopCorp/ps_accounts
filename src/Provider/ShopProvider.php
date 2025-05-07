@@ -271,21 +271,16 @@ class ShopProvider
 
     /**
      * @param int $shopId
-     * @param string $psxName
      *
      * @return string
      */
-    public function getBackendUrl($shopId, $psxName = 'ps_accounts')
+    public function getBackendUrl($shopId)
     {
-        return $this->link->getAdminLink(
-            'AdminModules',
-            true,
-            [],
-            [
-                'configure' => $psxName,
-                'setShopContext' => 's-' . $shopId,
-            ]
-        );
+        // FIXME: throw exception in wrong context
+        // FIXME: unit tests
+        $adminPath = defined('_PS_ADMIN_DIR_') ? basename(_PS_ADMIN_DIR_) : '';
+
+        return rtrim($this->getFrontendUrl($shopId), '/') . '/' . $adminPath;
     }
 
     /**
@@ -295,7 +290,7 @@ class ShopProvider
      */
     public function getUrl($shopId)
     {
-        $backOfficeUrl = explode('/index.php', $this->getBackendUrl($shopId))[0];
+        $backOfficeUrl = $this->getBackendUrl($shopId);
         $frontendUrl = rtrim($this->getFrontendUrl($shopId), '/');
 
         return new ShopUrl($backOfficeUrl, $frontendUrl, $shopId);
