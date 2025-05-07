@@ -26,6 +26,7 @@ use PrestaShop\Module\PsAccounts\Api\Client\ServicesBillingClient;
 use PrestaShop\Module\PsAccounts\Http\Client\ClientConfig;
 use PrestaShop\Module\PsAccounts\Provider\ShopProvider;
 use PrestaShop\Module\PsAccounts\Service\Accounts\AccountsService;
+use PrestaShop\Module\PsAccounts\Service\AnalyticsService;
 use PrestaShop\Module\PsAccounts\Service\PsAccountsService;
 use PrestaShop\Module\PsAccounts\Vendor\PrestaShopCorp\LightweightContainer\ServiceContainer\Contract\IServiceProvider;
 use PrestaShop\Module\PsAccounts\Vendor\PrestaShopCorp\LightweightContainer\ServiceContainer\ServiceContainer;
@@ -46,6 +47,9 @@ class ApiClientProvider implements IServiceProvider
             return new AccountsService([
                 ClientConfig::BASE_URI => $container->getParameter('ps_accounts.accounts_api_url'),
                 ClientConfig::SSL_CHECK => $container->getParameter('ps_accounts.check_api_ssl_cert'),
+                ClientConfig::HEADERS => [
+                    'X-Anonymous-ID' => $container->get(AnalyticsService::class)->getAnonymousId(),
+                ],
             ]);
         });
         $container->registerProvider(ExternalAssetsClient::class, static function () {
