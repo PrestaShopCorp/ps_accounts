@@ -310,7 +310,7 @@ class AccountsService
     public function shopStatus($cloudShopId, $shopToken)
     {
         $response = $this->getClient()->get(
-            '/v1/shop-status',
+            '/v1/shop-identities/' . $cloudShopId . '/status',
             [
                 Request::HEADERS => $this->getHeaders([
                     'Authorization' => 'Bearer ' . $shopToken,
