@@ -278,6 +278,7 @@ class ShopProvider
     {
         // FIXME: throw exception in wrong context
         // FIXME: unit tests
+        // FIXME: remove virtual uri ?
         $adminPath = defined('_PS_ADMIN_DIR_') ? basename(_PS_ADMIN_DIR_) : '';
 
         return rtrim($this->getFrontendUrl($shopId), '/') . '/' . $adminPath;
