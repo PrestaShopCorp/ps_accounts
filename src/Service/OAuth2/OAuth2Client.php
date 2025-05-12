@@ -130,7 +130,7 @@ class OAuth2Client
         if (defined('_PS_VERSION_')
             && version_compare(_PS_VERSION_, '9', '>=')) {
             return $this->link->getAdminLink('SfAdminOAuth2PsAccounts', false, [
-                'route' => 'ps_accounts_oauth2'
+                'route' => 'ps_accounts_oauth2',
             ], $query, true);
         }
 
