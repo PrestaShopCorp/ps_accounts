@@ -61,30 +61,35 @@ class ShopStatus extends Resource
     public $pointOfContactEmail;
 
     /**
-     * @var DateTime
+     * @var DateTime|null
      */
     public $createdAt;
 
     /**
-     * @var DateTime
+     * @var DateTime|null
      */
     public $updatedAt;
 
     /**
-     * @var DateTime
+     * @var DateTime|null
      */
     public $verifiedAt;
 
     /**
-     * @var DateTime
+     * @var DateTime|null
      */
     public $unverifiedAt;
 
     public function __construct($values = [])
     {
-        foreach (['createdAt', 'updatedAt', 'verifiedAt', 'unverifiedAt'] as $dateField) {
-            if (isset($values[$dateField])) {
-                $values[$dateField] = new DateTime($values[$dateField]);
+        foreach ([
+                     'createdAt',
+                     'updatedAt',
+                     'verifiedAt',
+                     'unverifiedAt'
+                 ] as $dateField) {
+            if (!empty($values[$dateField])) {
+                $values[$dateField] = new Datetime($values[$dateField]);
             }
         }
         $boolField = 'isVerified';
