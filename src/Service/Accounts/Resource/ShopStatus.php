@@ -86,7 +86,7 @@ class ShopStatus extends Resource
                      'createdAt',
                      'updatedAt',
                      'verifiedAt',
-                     'unverifiedAt'
+                     'unverifiedAt',
                  ] as $dateField) {
             if (!empty($values[$dateField])) {
                 $values[$dateField] = new Datetime($values[$dateField]);
