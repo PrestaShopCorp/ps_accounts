@@ -26,8 +26,10 @@ use PrestaShop\Module\PsAccounts\Account\Session\Session;
 use PrestaShop\Module\PsAccounts\Account\Session\SessionInterface;
 use PrestaShop\Module\PsAccounts\Account\Session\ShopSession;
 use PrestaShop\Module\PsAccounts\Account\Token\Token;
-use PrestaShop\Module\PsAccounts\Api\Client\AccountsClient;
 use PrestaShop\Module\PsAccounts\Log\Logger;
+use PrestaShop\Module\PsAccounts\Service\Accounts\AccountsException;
+use PrestaShop\Module\PsAccounts\Service\Accounts\AccountsService;
+use PrestaShop\Module\PsAccounts\Service\Accounts\Resource\FirebaseTokens;
 
 abstract class FirebaseSession extends Session implements SessionInterface
 {
@@ -50,11 +52,11 @@ abstract class FirebaseSession extends Session implements SessionInterface
     }
 
     /**
-     * @return AccountsClient
+     * @return AccountsService
      */
-    public function getAccountsClient()
+    public function getAccountsService()
     {
-        return $this->module->getService(AccountsClient::class);
+        return $this->module->getService(AccountsService::class);
     }
 
     /**
@@ -103,10 +105,14 @@ abstract class FirebaseSession extends Session implements SessionInterface
      */
     protected function refreshFirebaseTokens($token)
     {
-        $response = $this->getAccountsClient()->firebaseTokens($token);
+        try {
+            $firebaseTokens = $this->getAccountsService()->firebaseTokens($token);
+        } catch (AccountsException $e) {
+            throw new RefreshTokenException($e->getMessage());
+        }
 
-        $shopToken = $this->getFirebaseTokenFromResponse($response, 'shopToken', 'shopRefreshToken');
-        $ownerToken = $this->getFirebaseTokenFromResponse($response, 'userToken', 'userRefreshToken');
+        $shopToken = $this->getFirebaseTokenFromResponse($firebaseTokens, 'shopToken', 'shopRefreshToken');
+        $ownerToken = $this->getFirebaseTokenFromResponse($firebaseTokens, 'userToken', 'userRefreshToken');
 
         // saving both tokens here
         $this->getShopSession()->setToken((string) $shopToken->getJwt(), $shopToken->getRefreshToken());
@@ -114,30 +120,20 @@ abstract class FirebaseSession extends Session implements SessionInterface
     }
 
     /**
-     * @param array $response
+     * @param FirebaseTokens $firebaseTokens
      * @param string $name
      * @param string $refreshName
      *
      * @return Token
-     *
-     * @throws RefreshTokenException
      */
     protected function getFirebaseTokenFromResponse(
-        array $response,
-              $name,
-              $refreshName
+        FirebaseTokens $firebaseTokens,
+                       $name,
+                       $refreshName
     ) {
-        if ($response && true === $response['status']) {
-            return new Token(
-                $response['body'][$name],
-                $response['body'][$refreshName]
-            );
-        }
-
-        $errorMsg = isset($response['body']['message']) ?
-            $response['body']['message'] :
-            '';
-
-        throw new RefreshTokenException('Unable to refresh firebase ' . $name . ' token : ' . $response['httpCode'] . ' ' . print_r($errorMsg, true));
+        return new Token(
+            $firebaseTokens->$name,
+            $firebaseTokens->$refreshName
+        );
     }
 }

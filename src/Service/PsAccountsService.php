@@ -21,10 +21,9 @@
 namespace PrestaShop\Module\PsAccounts\Service;
 
 use PrestaShop\Module\PsAccounts\Account\Exception\RefreshTokenException;
-use PrestaShop\Module\PsAccounts\Account\LinkShop;
 use PrestaShop\Module\PsAccounts\Account\Session\Firebase;
 use PrestaShop\Module\PsAccounts\Account\Session\ShopSession;
-use PrestaShop\Module\PsAccounts\Account\Token\Token;
+use PrestaShop\Module\PsAccounts\Account\StatusManager;
 use PrestaShop\Module\PsAccounts\Adapter\Link;
 use PrestaShop\Module\PsAccounts\Entity\EmployeeAccount;
 use PrestaShop\Module\PsAccounts\Repository\ConfigurationRepository;
@@ -61,9 +60,9 @@ class PsAccountsService
     private $ownerSession;
 
     /**
-     * @var LinkShop
+     * @var StatusManager
      */
-    private $linkShop;
+    private $statusManager;
 
     /**
      * @param \Ps_accounts $module
@@ -77,7 +76,7 @@ class PsAccountsService
         $this->shopSession = $this->module->getService(Firebase\ShopSession::class);
         $this->ownerSession = $this->module->getService(Firebase\OwnerSession::class);
         $this->link = $this->module->getService(Link::class);
-        $this->linkShop = $module->getService(LinkShop::class);
+        $this->statusManager = $module->getService(StatusManager::class);
     }
 
     /**
@@ -103,7 +102,7 @@ class PsAccountsService
      */
     public function getShopUuid()
     {
-        return $this->linkShop->getShopUuid();
+        return $this->statusManager->getCloudShopId();
     }
 
     /**
@@ -180,7 +179,7 @@ class PsAccountsService
      */
     public function getUserUuid()
     {
-        return (string) $this->linkShop->getOwnerUuid();
+        return (string) $this->statusManager->getPointOfContactUuid();
     }
 
     /**
@@ -198,27 +197,32 @@ class PsAccountsService
      */
     public function getEmail()
     {
-        return $this->linkShop->getOwnerEmail();
+        return $this->statusManager->getPointOfContactEmail();
     }
 
     /**
      * @return bool
      *
      * @throws \Exception
+     *
+     * @deprecated since v8.0.0
      */
     public function isAccountLinked()
     {
-        return $this->linkShop->exists();
+        return $this->statusManager->identityCreated() &&
+            $this->statusManager->getPointOfContactUuid();
     }
 
     /**
      * @return bool
      *
      * @throws \Exception
+     *
+     * @depercated since v8.0.0
      */
     public function isAccountLinkedV4()
     {
-        return $this->linkShop->existsV4();
+        return false; //$this->shopIdentity->existsV4();
     }
 
     /**
