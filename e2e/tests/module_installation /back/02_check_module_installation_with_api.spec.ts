@@ -21,11 +21,11 @@ test('Check the Oauth2Client Status', async () => {
 });
 test('Check the shop linked status', async () => {
   const moduleVersion = await dbRequest.checkModuleVersion();
-  const checkOauth2ClientStatus = await healthCheckApi.getShopLinkedStatus();
+  const checkShopLinkedStatus = await healthCheckApi.getShopLinkedStatus();
   if (moduleVersion < '8') {
-    expect(checkOauth2ClientStatus).toBeFalsy();
+    expect(checkShopLinkedStatus).toBeFalsy();
   } else {
-    expect(checkOauth2ClientStatus).toBeTruthy();
+    expect(checkShopLinkedStatus).toBeTruthy();
   }
 });
 test('Check oauth2 Url', async () => {
