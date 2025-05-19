@@ -2,7 +2,7 @@
 import {CommonPage} from '@prestashopcorp/tests-framework';
 import {expect, Locator, Page} from '@playwright/test';
 import {Globals} from '../utils/globals';
-import {modulePsAccount} from 'data/local/modules/modulePsAccount';
+import {modulePsAccount} from '~/data/local/modulesDbData/ps_configuration_data';
 
 export default class BasePage extends CommonPage {
   /* <<<<<<<<<<<<<<< MODULEMANAGER >>>>>>>>>>>>>>>>>>>>>> */
