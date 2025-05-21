@@ -40,6 +40,7 @@ class PsAccountsContainer extends ServiceContainer
         ServiceProvider\CommandProvider::class,
         ServiceProvider\DefaultProvider::class,
         ServiceProvider\OAuth2Provider::class,
+        ServiceProvider\QueryProvider::class,
         ServiceProvider\RepositoryProvider::class,
         ServiceProvider\SessionProvider::class,
     ];
