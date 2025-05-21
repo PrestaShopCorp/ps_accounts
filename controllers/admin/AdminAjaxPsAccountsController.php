@@ -20,10 +20,12 @@
 require_once __DIR__ . '/../../src/Polyfill/Traits/Controller/AjaxRender.php';
 
 use PrestaShop\Module\PsAccounts\Account\Command\DeleteUserShopCommand;
+use PrestaShop\Module\PsAccounts\Account\Query\GetContextQuery;
 use PrestaShop\Module\PsAccounts\Account\Session\Firebase\ShopSession;
 use PrestaShop\Module\PsAccounts\Account\StatusManager;
 use PrestaShop\Module\PsAccounts\AccountLogin\OAuth2Session;
 use PrestaShop\Module\PsAccounts\Cqrs\CommandBus;
+use PrestaShop\Module\PsAccounts\Cqrs\QueryBus;
 use PrestaShop\Module\PsAccounts\Hook\ActionShopAccountUnlinkAfter;
 use PrestaShop\Module\PsAccounts\Polyfill\Traits\Controller\AjaxRender;
 use PrestaShop\Module\PsAccounts\Presenter\PsAccountsPresenter;
@@ -179,6 +181,27 @@ class AdminAjaxPsAccountsController extends \ModuleAdminController
                 (string) json_encode([
                     'token' => (string) $oauth2Session->getOrRefreshAccessToken(),
                 ])
+            );
+        } catch (Exception $e) {
+            SentryService::captureAndRethrow($e);
+        }
+    }
+
+    /**
+     * @return void
+     *
+     * @throws Exception
+     */
+    public function ajaxProcessGetContextQuery()
+    {
+        try {
+            /** @var QueryBus $queryBus */
+            $queryBus = $this->module->getService(QueryBus::class);
+
+            header('Content-Type: text/json');
+
+            $this->ajaxRender(
+                (string) json_encode($queryBus->handle(new GetContextQuery()))
             );
         } catch (Exception $e) {
             SentryService::captureAndRethrow($e);
