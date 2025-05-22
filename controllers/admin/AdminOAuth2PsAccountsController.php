@@ -18,11 +18,13 @@
  * @license   https://opensource.org/licenses/AFL-3.0 Academic Free License version 3.0
  */
 
+use PrestaShop\Module\PsAccounts\Account\Command\IdentifyContactCommand;
 use PrestaShop\Module\PsAccounts\AccountLogin\Exception\AccountLoginException;
 use PrestaShop\Module\PsAccounts\AccountLogin\Exception\EmailNotVerifiedException;
 use PrestaShop\Module\PsAccounts\AccountLogin\Exception\EmployeeNotFoundException;
 use PrestaShop\Module\PsAccounts\AccountLogin\OAuth2LoginTrait;
 use PrestaShop\Module\PsAccounts\AccountLogin\OAuth2Session;
+use PrestaShop\Module\PsAccounts\Cqrs\CommandBus;
 use PrestaShop\Module\PsAccounts\Log\Logger;
 use PrestaShop\Module\PsAccounts\Polyfill\Traits\AdminController\IsAnonymousAllowed;
 use PrestaShop\Module\PsAccounts\Service\AnalyticsService;
@@ -121,10 +123,12 @@ class AdminOAuth2PsAccountsController extends \ModuleAdminController
         );
 
         if ($this->getOAuthAction() === 'identifyPointOfContact') {
-            // Set point of contact
-            /** @var \PrestaShop\Module\PsAccounts\Adapter\Configuration $configStorage */
-            $configStorage = $this->module->getService(\PrestaShop\Module\PsAccounts\Adapter\Configuration::class);
-            $configStorage->set('PS_ACCOUNTS_CONTACT_EMAIL', $user->email);
+
+            // Identify contact command
+            /** @var \PrestaShop\Module\PsAccounts\Cqrs\CommandBus $commandBus */
+            $commandBus = $this->module->getService(CommandBus::class);
+
+            $commandBus->handle(new IdentifyContactCommand($accessToken));
 
             return true;
         }

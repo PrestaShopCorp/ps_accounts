@@ -28,6 +28,7 @@ use PrestaShop\Module\PsAccounts\Http\Client\Factory;
 use PrestaShop\Module\PsAccounts\Http\Client\Request;
 use PrestaShop\Module\PsAccounts\Http\Client\Response;
 use PrestaShop\Module\PsAccounts\Service\Accounts\Resource\FirebaseTokens;
+use PrestaShop\Module\PsAccounts\Service\Accounts\Resource\IdentifyContact;
 use PrestaShop\Module\PsAccounts\Service\Accounts\Resource\IdentityCreated;
 use PrestaShop\Module\PsAccounts\Service\Accounts\Resource\ShopStatus;
 use PrestaShop\Module\PsAccounts\Vendor\Ramsey\Uuid\Uuid;
@@ -327,6 +328,37 @@ class AccountsService
         }
 
         return new ShopStatus($response->body);
+    }
+
+    /**
+     * @param string $cloudShopId
+     * @param string $shopToken
+     * @param string $userToken
+     *
+     * @return IdentifyContact
+     *
+     * @throws AccountsException
+     */
+    public function setPointOfContact($cloudShopId, $shopToken, $userToken)
+    {
+        $response = $this->getClient()->post(
+            '/v1/shop-identities/' . $cloudShopId . '/point-of-contact',
+            [
+                Request::HEADERS => $this->getHeaders([
+                    'Authorization' => 'Bearer ' . $shopToken,
+                    'X-Shop-Id' => $cloudShopId,
+                ]),
+                Request::JSON => [
+                    'pointOfContactJWT' => $userToken,
+                ],
+            ]
+        );
+
+        if (!$response->isSuccessful) {
+            throw new AccountsException($this->getResponseErrorMsg($response, 'Unable to set point of contact'));
+        }
+
+        return new IdentifyContact($response->body);
     }
 
     /**
