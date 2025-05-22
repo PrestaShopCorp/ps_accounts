@@ -89,7 +89,7 @@ class ShopStatus extends Resource
                      'unverifiedAt',
                  ] as $dateField) {
             if (!empty($values[$dateField])) {
-                $values[$dateField] = new Datetime($values[$dateField]);
+                $values[$dateField] = new DateTime($values[$dateField]);
             }
         }
         $boolField = 'isVerified';
@@ -97,5 +97,30 @@ class ShopStatus extends Resource
             $values[$boolField] = (bool) $values[$boolField];
         }
         parent::__construct($values);
+    }
+
+    /**
+     * @param bool $all
+     *
+     * @return array
+     */
+    public function toArray($all = true)
+    {
+        $array = parent::toArray($all);
+
+        foreach (
+            [
+                'createdAt',
+                'updatedAt',
+                'verifiedAt',
+                'unverifiedAt',
+            ] as $dateField
+        ) {
+            if (!empty($array[$dateField])) {
+                $array[$dateField] = $array[$dateField]->format(DateTime::ATOM);
+            }
+        }
+
+        return $array;
     }
 }

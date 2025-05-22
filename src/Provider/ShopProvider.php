@@ -40,17 +40,25 @@ class ShopProvider
     private $link;
 
     /**
+     * @var StatusManager
+     */
+    private $shopStatus;
+
+    /**
      * ShopProvider constructor.
      *
      * @param ShopContext $shopContext
      * @param Link $link
+     * @param StatusManager $shopStatus
      */
     public function __construct(
         ShopContext $shopContext,
-        Link $link
+        Link $link,
+        StatusManager $shopStatus
     ) {
         $this->shopContext = $shopContext;
         $this->link = $link;
+        $this->shopStatus = $shopStatus;
     }
 
     /**
@@ -295,5 +303,41 @@ class ShopProvider
         $frontendUrl = rtrim($this->getFrontendUrl($shopId), '/');
 
         return new ShopUrl($backOfficeUrl, $frontendUrl, $shopId);
+    }
+
+    /**
+     * @return array
+     *
+     * @throws \PrestaShopException
+     * @throws \Exception
+     */
+    public function getShops()
+    {
+        $shopList = [];
+
+        foreach (\Shop::getTree() as $groupId => $groupData) {
+            $shops = [];
+            foreach ($groupData['shops'] as $shopId => $shopData) {
+                $shopUrl = $this->getUrl($shopId);
+                $shopStatus = $this->shopStatus->getStatus($shopId);
+
+                $shops[] = [
+                    'id' => (string) $shopId,
+                    'name' => $shopData['name'],
+                    'backOfficeUrl' => $shopUrl->getBackOfficeUrl(),
+                    'frontendUrl' => $shopUrl->getFrontendUrl(),
+                    'oauthRedirectUri' => '', // TODO: add oauthRedirectUri here
+                    'shopStatus' => $shopStatus,
+                ];
+            }
+
+            $shopList[] = [
+                'id' => (string) $groupId,
+                'name' => $groupData['name'],
+                'shops' => $shops,
+            ];
+        }
+
+        return $shopList;
     }
 }
