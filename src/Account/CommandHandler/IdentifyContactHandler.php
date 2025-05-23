@@ -76,7 +76,7 @@ class IdentifyContactHandler
         $identifyContact = $this->accountsService->setPointOfContact(
             $this->statusManager->getCloudShopId(),
             $this->shopSession->getValidToken(),
-            $accessToken->access_token,
+            $accessToken->access_token
         );
 
         $cachedStatus = $this->statusManager->getStatus();
