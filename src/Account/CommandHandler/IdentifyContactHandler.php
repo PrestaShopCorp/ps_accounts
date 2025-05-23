@@ -66,8 +66,6 @@ class IdentifyContactHandler
      *
      * @return void
      *
-     * @throws RefreshTokenException
-     * @throws UnknownStatusException
      * @throws AccountsException
      */
     public function handle(IdentifyContactCommand $command)
@@ -75,15 +73,12 @@ class IdentifyContactHandler
         $identifyContact = null;
         $accessToken = $command->accessToken;
 
-        try {
-            $identifyContact = $this->accountsService->setPointOfContact(
-                $this->statusManager->getCloudShopId(),
-                $this->shopSession->getValidToken(),
-                $accessToken->access_token,
-            );
-        } catch (AccountsException $e) {
-            Logger::getInstance()->error($e->getMessage());
-        }
+        $identifyContact = $this->accountsService->setPointOfContact(
+            $this->statusManager->getCloudShopId(),
+            $this->shopSession->getValidToken(),
+            $accessToken->access_token,
+        );
+
         $cachedStatus = $this->statusManager->getStatus();
 
         if ($cachedStatus->isVerified) {
