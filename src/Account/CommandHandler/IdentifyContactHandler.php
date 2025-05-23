@@ -80,7 +80,7 @@ class IdentifyContactHandler
                 $this->statusManager->getCloudShopId(),
                 $this->shopSession->getValidToken(),
                 $accessToken->access_token,
-        );
+            );
         } catch (AccountsException $e) {
             Logger::getInstance()->error($e->getMessage());
         }
