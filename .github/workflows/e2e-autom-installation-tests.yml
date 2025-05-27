@@ -62,6 +62,13 @@ jobs:
           registry: ghcr.io
           username: prestashopcorp
           password: ${{ secrets.DOWNLOADER_TOKEN }}
+      - name: Check images (log)
+        run: |
+          echo "MYSQL IMAGE: $IMAGE_PREFIX"mariadb:latest
+          echo "PHPMYADMIN IMAGE: $IMAGE_PREFIX"phpmyadmin:latest
+          echo "FLASHLIGHT IMAGE: $IMAGE_PREFIX"prestashop/prestashop-flashlight:${PS_VERSION}
+          echo "CLOUDFLARE: $IMAGE_PREFIX"cloudflare/cloudflared:latest
+        
 
       - name: Run test
         working-directory: ./e2e
