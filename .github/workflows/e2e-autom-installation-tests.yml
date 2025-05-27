@@ -68,9 +68,6 @@ jobs:
         run: npm run test-all-version
         continue-on-error: true
 
-      - name: Liste toutes les images Docker utilisées
-        run: docker images
-
       - name: Merge Allure Results
         working-directory: ./e2e
         run: npm run merge-allure-results
