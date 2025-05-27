@@ -1,7 +1,7 @@
 services:
   mysql:
     restart: unless-stopped
-    image: mariadb:lts
+    image: mariadb:latest
     environment:
       TZ: Europe/Paris
       MYSQL_HOST: mysql
@@ -129,7 +129,7 @@ services:
       - multistore
 
   nginx_proxy:
-      image: nginx:alpine
+      image: nginx:latest
       container_name: nginx_proxy
       restart: unless-stopped
       depends_on:
