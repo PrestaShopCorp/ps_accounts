@@ -26,6 +26,7 @@ use PrestaShop\Module\PsAccounts\Account\ShopUrl;
 use PrestaShop\Module\PsAccounts\Account\StatusManager;
 use PrestaShop\Module\PsAccounts\Adapter\Link;
 use PrestaShop\Module\PsAccounts\Context\ShopContext;
+use PrestaShop\Module\PsAccounts\Service\OAuth2\OAuth2Service;
 
 class ShopProvider
 {
@@ -45,6 +46,11 @@ class ShopProvider
     private $shopStatus;
 
     /**
+     * @var OAuth2Service
+     */
+    private $oAuth2Service;
+
+    /**
      * ShopProvider constructor.
      *
      * @param ShopContext $shopContext
@@ -54,11 +60,13 @@ class ShopProvider
     public function __construct(
         ShopContext $shopContext,
         Link $link,
-        StatusManager $shopStatus
+        StatusManager $shopStatus,
+        OAuth2Service $oAuth2Service
     ) {
         $this->shopContext = $shopContext;
         $this->link = $link;
         $this->shopStatus = $shopStatus;
+        $this->oAuth2Service = $oAuth2Service;
     }
 
     /**
@@ -326,7 +334,9 @@ class ShopProvider
                     'name' => $shopData['name'],
                     'backOfficeUrl' => $shopUrl->getBackOfficeUrl(),
                     'frontendUrl' => $shopUrl->getFrontendUrl(),
-                    'oauthRedirectUri' => '', // TODO: add oauthRedirectUri here
+                    'identifyUrl' => $this->oAuth2Service->getOAuth2Client()->getRedirectUri([
+                        'action' => 'identifyPointOfContact',
+                    ]),
                     'shopStatus' => $shopStatus,
                 ];
             }

@@ -38,6 +38,7 @@ use PrestaShop\Module\PsAccounts\Repository\ConfigurationRepository;
 use PrestaShop\Module\PsAccounts\Repository\ShopTokenRepository;
 use PrestaShop\Module\PsAccounts\Service\Accounts\AccountsService;
 use PrestaShop\Module\PsAccounts\Service\AnalyticsService;
+use PrestaShop\Module\PsAccounts\Service\OAuth2\OAuth2Service;
 use PrestaShop\Module\PsAccounts\Service\PsAccountsService;
 use PrestaShop\Module\PsAccounts\Service\PsBillingService;
 use PrestaShop\Module\PsAccounts\Service\SentryService;
@@ -117,7 +118,8 @@ class DefaultProvider implements IServiceProvider
             return new Provider\ShopProvider(
                 $container->get(ShopContext::class),
                 $container->get(Link::class),
-                $container->get(StatusManager::class)
+                $container->get(StatusManager::class),
+                $container->get(OAuth2Service::class)
             );
         });
         // Context

@@ -50,10 +50,9 @@ class GetContextHandler
     public function handle(GetContextQuery $query)
     {
         return [
-            // TODO: add the real data
             'ps_accounts' => [
-                'last_succeeded_upgrade_version' => null,
-                'module_version_from_files' => null,
+                'last_succeeded_upgrade_version' => null, // TODO: get from database ?
+                'module_version_from_files' => \Ps_accounts::VERSION,
             ],
             'groups' => $this->shopProvider->getShops(), // TODO: pass param to force refresh status ?
         ];
