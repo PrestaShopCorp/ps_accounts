@@ -49,9 +49,11 @@ class GetContextHandler
      */
     public function handle(GetContextQuery $query)
     {
+        $psAccountsVersion = \Db::getInstance()->getValue('SELECT version FROM ' . _DB_PREFIX_ . 'module WHERE name = "ps_accounts"');
+
         return [
             'ps_accounts' => [
-                'last_succeeded_upgrade_version' => null, // TODO: get from database ?
+                'last_succeeded_upgrade_version' => $psAccountsVersion,
                 'module_version_from_files' => \Ps_accounts::VERSION,
             ],
             'groups' => $this->shopProvider->getShops(), // TODO: pass param to force refresh status ?
