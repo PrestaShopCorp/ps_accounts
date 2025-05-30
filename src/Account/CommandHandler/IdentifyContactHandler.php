@@ -72,14 +72,11 @@ class IdentifyContactHandler
             return;
         }
 
-        $accessToken = $command->accessToken;
-
         $this->accountsService->setPointOfContact(
             $this->statusManager->getCloudShopId(),
             $this->shopSession->getValidToken(),
-            $accessToken->access_token
+            $command->accessToken->access_token
         );
-
         $this->statusManager->getStatus();
     }
 }
