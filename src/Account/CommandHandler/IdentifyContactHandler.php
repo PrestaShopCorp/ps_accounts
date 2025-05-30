@@ -67,23 +67,19 @@ class IdentifyContactHandler
      */
     public function handle(IdentifyContactCommand $command)
     {
-        $identifyContact = null;
+        $cachedStatus = $this->statusManager->getCachedStatus();
+        if (!$cachedStatus->isVerified) {
+            return;
+        }
+
         $accessToken = $command->accessToken;
 
-        $identifyContact = $this->accountsService->setPointOfContact(
+        $this->accountsService->setPointOfContact(
             $this->statusManager->getCloudShopId(),
             $this->shopSession->getValidToken(),
             $accessToken->access_token
         );
 
-        $cachedStatus = $this->statusManager->getStatus();
-
-        if ($cachedStatus->isVerified) {
-            return;
-        }
-
-        $cachedStatus->pointOfContactEmail = $identifyContact->pointOfContactEmail;
-        $cachedStatus->pointOfContactUuid = $identifyContact->pointOfContactUuid;
-        $this->statusManager->upsetCachedStatus($cachedStatus);
+        $this->statusManager->getStatus();
     }
 }
