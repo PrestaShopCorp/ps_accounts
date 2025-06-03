@@ -182,7 +182,7 @@ class PsAccountsPresenter implements PresenterInterface
                         ->get('PS_ACCOUNTS_CONTACT_EMAIL', ''),
                     'component_params_init' => [
                         'mode' => \Shop::getContext(),
-                        'shopId' =>  \Shop::getContextShopID(),
+                        'shopId' => \Shop::getContextShopID(),
                         'groupId' => \Shop::getContextShopGroupID(),
                         'getContextUrl' => $this->psAccountsService->getContextUrl(),
                         'manageAccountLink' => $this->module->getAccountUrl(),

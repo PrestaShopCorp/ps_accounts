@@ -28,7 +28,6 @@ use PrestaShop\Module\PsAccounts\Cqrs\CommandBus;
 use PrestaShop\Module\PsAccounts\Cqrs\QueryBus;
 use PrestaShop\Module\PsAccounts\Hook\ActionShopAccountUnlinkAfter;
 use PrestaShop\Module\PsAccounts\Polyfill\Traits\Controller\AjaxRender;
-use PrestaShop\Module\PsAccounts\Presenter\PsAccountsPresenter;
 use PrestaShop\Module\PsAccounts\Repository\ConfigurationRepository;
 use PrestaShop\Module\PsAccounts\Service\Accounts\Resource\ShopStatus;
 use PrestaShop\Module\PsAccounts\Service\SentryService;
