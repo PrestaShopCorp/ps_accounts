@@ -1,16 +1,20 @@
 #!/bin/bash
 
+if [ -n "$1" ]; then
+  SHOP_VERSIONS=("$1")
+else
 SHOP_VERSIONS=(
-  # 1.7.8.7-7.4-fpm-alpine
-  # 1.6.1.24-7.1-fpm-alpine
-  # 1.7.8.11-7.4-fpm-alpine
-  # 1.7.8.8-7.4-fpm-alpine
-  # 8.1.0-8.1-fpm-alpine
-  # 8.1.1-8.1-fpm-alpine
-  # 8.1.5-8.1-fpm-alpine
+  1.7.8.7-7.4-fpm-alpine
+  1.6.1.24-7.1-fpm-alpine
+  1.7.8.11-7.4-fpm-alpine
+  1.7.8.8-7.4-fpm-alpine
+  8.1.0-8.1-fpm-alpine
+  8.1.1-8.1-fpm-alpine
+  8.1.5-8.1-fpm-alpine
   8.2.0-8.1-fpm-alpine
   nightly-nginx
 )
+fi
 
 for PS_VERSION in "${SHOP_VERSIONS[@]}"; do
 #Build the shop 
