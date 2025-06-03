@@ -65,7 +65,7 @@ jobs:
 
       - name: Run test
         working-directory: ./e2e
-        run: npm run test-all-version
+        run: npm run run-all-tests
         continue-on-error: true
 
       - name: Merge Allure Results
