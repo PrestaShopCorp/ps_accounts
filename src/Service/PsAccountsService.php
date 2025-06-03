@@ -244,6 +244,16 @@ class PsAccountsService
     /**
      * @return string
      *
+     * @throws \PrestaShopException
+     */
+    public function getContextUrl()
+    {
+        return $this->link->getAdminLink('AdminAjaxPsAccounts', true, [], ['ajax' => 1, 'action' => 'getContext']);
+    }
+
+    /**
+     * @return string
+     *
      * @throws \Exception
      */
     public function getAccountsVueCdn()

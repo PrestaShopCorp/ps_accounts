@@ -373,6 +373,14 @@ class Ps_accounts extends Module
     /**
      * @return string
      */
+    public function getAccountUrl()
+    {
+        return $this->getParameter('ps_accounts.accounts_ui_url');
+    }
+
+    /**
+     * @return string
+     */
     public function getSsoAccountUrl()
     {
         $url = $this->getParameter('ps_accounts.sso_account_url');
