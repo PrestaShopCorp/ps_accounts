@@ -53,7 +53,6 @@ class AdminOAuth2PsAccountsController extends \ModuleAdminController
      */
     private $psAccountsService;
 
-
     /**
      * @var CommandBus
      */
@@ -130,9 +129,9 @@ class AdminOAuth2PsAccountsController extends \ModuleAdminController
 
         if ($this->getOAuthAction() === 'identifyPointOfContact') {
             // Identify contact command
-            $commandBus = $this->module->getService(CommandBus::class);
+            $this->commandBus = $this->module->getService(CommandBus::class);
 
-            $commandBus->handle(new IdentifyContactCommand($accessToken));
+            $this->commandBus->handle(new IdentifyContactCommand($accessToken));
 
             return true;
         }
