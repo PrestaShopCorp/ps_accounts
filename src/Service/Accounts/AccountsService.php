@@ -335,7 +335,7 @@ class AccountsService
      * @param string $shopToken
      * @param string $userToken
      *
-     * @return IdentifyContact
+     * @return void
      *
      * @throws AccountsException
      */
@@ -357,8 +357,6 @@ class AccountsService
         if (!$response->isSuccessful) {
             throw new AccountsException($this->getResponseErrorMsg($response, 'Unable to set point of contact'));
         }
-
-        return new IdentifyContact($response->body);
     }
 
     /**
