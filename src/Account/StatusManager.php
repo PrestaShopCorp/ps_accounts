@@ -142,6 +142,15 @@ class StatusManager
     }
 
     /**
+     * @return void
+     */
+    public function clearCachedStatus()
+    {
+        $actual = $this->getCachedStatus();
+        $this->setCachedStatus(new ShopStatus(['cloudShopId' => $actual->cloudShopId]));
+    }
+
+    /**
      * @param bool $refresh
      *
      * @return string|null

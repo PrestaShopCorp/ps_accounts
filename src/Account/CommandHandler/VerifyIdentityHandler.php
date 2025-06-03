@@ -111,10 +111,7 @@ class VerifyIdentityHandler
 
             $this->proofManager->deleteProof();
         } catch (AccountsException $e) {
-            $cachedStatus->isVerified = false;
-            $cachedStatus->unverifiedAt = new DateTime('now');
-            $cachedStatus->shopVerificationErrorCode = $e->getMessage();
-            $this->statusManager->upsetCachedStatus($cachedStatus);
+            $this->statusManager->clearCachedStatus();
         }
     }
 }
