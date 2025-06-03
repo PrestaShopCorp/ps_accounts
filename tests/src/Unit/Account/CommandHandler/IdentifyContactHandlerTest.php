@@ -73,8 +73,7 @@ class IdentifyContactHandlerTest extends TestCase
             ->willReturnCallback(function ($route) use ($pointOfContactEmail, $pointOfContactUuid, $cloudShopId) {
                 if (preg_match('/v1\/shop-identities\/' . $cloudShopId . '\/point-of-contact$/', $route)) {
                     return $this->createResponse([
-                        'pointOfContactEmail' => $pointOfContactEmail,
-                        'pointOfContactUuid' => $pointOfContactUuid,
+                        'success' => true,
                     ], 200, true);
                 }
                 return $this->createResponse([], 500, true);
@@ -86,7 +85,7 @@ class IdentifyContactHandlerTest extends TestCase
             ->with(
                 $this->equalTo($cloudShopId),
                 $this->equalTo("valid_token"),
-                $this->equalTo(null)
+                $this->equalTo("valid_access_token")
             );
 
         $this->statusManager->setCachedStatus(new ShopStatus([
@@ -94,7 +93,11 @@ class IdentifyContactHandlerTest extends TestCase
             'isVerified' => true,
         ]));
 
-        $this->getHandler()->handle(new IdentifyContactCommand(new AccessToken()));
+        $this->getHandler()->handle(new IdentifyContactCommand(new AccessToken(
+            [
+                'access_token' => 'valid_access_token',
+            ]
+        )));
     }
 
     /**
@@ -102,24 +105,11 @@ class IdentifyContactHandlerTest extends TestCase
      */
     public function itShouldNotSaveIdentityContactOnShopNotVerified()
     {
-        $pointOfContactEmail = $this->faker->email;
-        $pointOfContactUuid = $this->faker->uuid;
         $cloudShopId = $this->faker->uuid;
 
         $this->statusManager->setCloudShopId($cloudShopId);
 
         $this->shopSession->method('getValidToken')->willReturn("valid_token");
-
-        $this->client->method('post')
-            ->willReturnCallback(function ($route) use ($pointOfContactEmail, $pointOfContactUuid, $cloudShopId) {
-                if (preg_match('/v1\/shop-identities\/' . $cloudShopId . '\/point-of-contact$/', $route)) {
-                    return $this->createResponse([
-                        'pointOfContactEmail' => $pointOfContactEmail,
-                        'pointOfContactUuid' => $pointOfContactUuid,
-                    ], 200, true);
-                }
-                return $this->createResponse([], 500, true);
-            });
 
         // Expected call to setPointOfContact with correct parameters
         $this->accountsService->expects($this->exactly(0))
@@ -127,7 +117,7 @@ class IdentifyContactHandlerTest extends TestCase
             ->with(
                 $this->equalTo($cloudShopId),
                 $this->equalTo("valid_token"),
-                $this->equalTo(null)
+                $this->equalTo("valid_access_token")
             );
 
         $this->statusManager->setCachedStatus(new ShopStatus([
@@ -135,7 +125,11 @@ class IdentifyContactHandlerTest extends TestCase
             'isVerified' => false,
         ]));
 
-        $this->getHandler()->handle(new IdentifyContactCommand(new AccessToken()));
+        $this->getHandler()->handle(new IdentifyContactCommand(new AccessToken(
+            [
+                'access_token' => 'valid_access_token',
+            ]
+        )));
     }
 
     /**
