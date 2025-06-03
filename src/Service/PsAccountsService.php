@@ -315,4 +315,21 @@ class PsAccountsService
             return null;
         }
     }
+
+    /**
+     * @param string $psxName
+     *
+     * @return array
+     */
+    public function getInitParams($psxName = 'ps_accounts')
+    {
+        return [
+            'mode' => \Shop::getContext(),
+            'shopId' => \Shop::getContextShopID(),
+            'groupId' => \Shop::getContextShopGroupID(),
+            'getContextUrl' => $this->getContextUrl(),
+            'manageAccountUrl' => $this->module->getAccountUrl(),
+            'psxName' => $psxName,
+        ];
+    }
 }
