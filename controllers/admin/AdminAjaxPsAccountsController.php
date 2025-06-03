@@ -148,27 +148,6 @@ class AdminAjaxPsAccountsController extends \ModuleAdminController
      *
      * @throws Exception
      */
-    public function ajaxProcessGetContext()
-    {
-        try {
-            $psxName = Tools::getValue('psx_name');
-
-            /** @var PsAccountsPresenter $presenter */
-            $presenter = $this->module->getService(PsAccountsPresenter::class);
-
-            header('Content-Type: text/json');
-
-            $this->ajaxRender((string) json_encode($presenter->present($psxName)));
-        } catch (Exception $e) {
-            SentryService::captureAndRethrow($e);
-        }
-    }
-
-    /**
-     * @return void
-     *
-     * @throws Exception
-     */
     public function ajaxProcessGetOrRefreshAccessToken()
     {
         try {
@@ -192,7 +171,7 @@ class AdminAjaxPsAccountsController extends \ModuleAdminController
      *
      * @throws Exception
      */
-    public function ajaxProcessGetContextQuery()
+    public function ajaxProcessGetContext()
     {
         try {
             /** @var QueryBus $queryBus */
