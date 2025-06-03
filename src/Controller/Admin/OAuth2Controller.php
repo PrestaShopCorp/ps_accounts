@@ -94,6 +94,11 @@ class OAuth2Controller extends FrameworkBundleAdminController
      */
     private $redirectResponse;
 
+    /**
+     * @var CommandBus
+     */
+    private $commandBus;
+
     public function __construct()
     {
         /** @var Ps_accounts $module */
@@ -193,7 +198,6 @@ class OAuth2Controller extends FrameworkBundleAdminController
 
         if ($this->getOAuthAction() === 'identifyPointOfContact') {
             // Identify contact command
-            /** @var \PrestaShop\Module\PsAccounts\Cqrs\CommandBus $commandBus */
             $commandBus = $this->module->getService(CommandBus::class);
 
             $commandBus->handle(new IdentifyContactCommand($accessToken));

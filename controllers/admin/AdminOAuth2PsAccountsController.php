@@ -53,6 +53,12 @@ class AdminOAuth2PsAccountsController extends \ModuleAdminController
      */
     private $psAccountsService;
 
+
+    /**
+     * @var CommandBus
+     */
+    private $commandBus;
+
     /**
      * @throws PrestaShopException
      * @throws Exception
@@ -124,7 +130,6 @@ class AdminOAuth2PsAccountsController extends \ModuleAdminController
 
         if ($this->getOAuthAction() === 'identifyPointOfContact') {
             // Identify contact command
-            /** @var \PrestaShop\Module\PsAccounts\Cqrs\CommandBus $commandBus */
             $commandBus = $this->module->getService(CommandBus::class);
 
             $commandBus->handle(new IdentifyContactCommand($accessToken));
