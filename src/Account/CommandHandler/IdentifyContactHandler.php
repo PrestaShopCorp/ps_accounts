@@ -67,8 +67,8 @@ class IdentifyContactHandler
      */
     public function handle(IdentifyContactCommand $command)
     {
-        $cachedStatus = $this->statusManager->getCachedStatus();
-        if (!$cachedStatus->isVerified) {
+        $status = $this->statusManager->getStatus();
+        if (!$status->isVerified) {
             return;
         }
 
