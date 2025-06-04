@@ -94,4 +94,29 @@ class ShopStatus extends Resource
 
         parent::__construct($values);
     }
+
+    /**
+     * @param bool $all
+     *
+     * @return array
+     */
+    public function toArray($all = true)
+    {
+        $array = parent::toArray($all);
+
+        foreach (
+            [
+                'createdAt',
+                'updatedAt',
+                'verifiedAt',
+                'unverifiedAt',
+            ] as $dateField
+        ) {
+            if (!empty($array[$dateField])) {
+                $array[$dateField] = $array[$dateField]->format(DateTime::ATOM);
+            }
+        }
+
+        return $array;
+    }
 }
