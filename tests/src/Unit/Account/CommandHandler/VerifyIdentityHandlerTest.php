@@ -3,6 +3,7 @@
 namespace PrestaShop\Module\PsAccounts\Tests\Unit\Account\CommandHandler;
 
 use PHPUnit\Framework\MockObject\MockObject;
+use PrestaShop\Module\PsAccounts\Account\CachedShopStatus;
 use PrestaShop\Module\PsAccounts\Account\Command\VerifyIdentityCommand;
 use PrestaShop\Module\PsAccounts\Account\CommandHandler\VerifyIdentityHandler;
 use PrestaShop\Module\PsAccounts\Account\ProofManager;
@@ -73,84 +74,50 @@ class VerifyIdentityHandlerTest extends TestCase
     /**
      * @test
      */
-    public function itShouldUpdateShopStatus()
+    public function itShouldInvalidateCachedStatus()
     {
         $cloudShopId = $this->faker->uuid;
 
-        $this->statusManager->setCachedStatus(new ShopStatus([
-            'cloudShopId' => $cloudShopId,
-            'isVerified' => false,
-        ]));
+        $this->configurationRepository->updateCachedShopStatus(json_encode((new CachedShopStatus([
+            'isValid' => true,
+            'shopStatus' => new ShopStatus([
+                'cloudShopId' => $cloudShopId,
+                'isVerified' => false,
+            ])
+        ]))->toArray()));
 
         $this->client->method('post')
             ->willReturnCallback(function ($route) use ($cloudShopId) {
                 if (preg_match('/v1\/shop-identities\/' . $cloudShopId . '\/verify$/', $route)) {
-                    return $this->createResponse([
-                        "cloudShopId" => $cloudShopId,
-                        "isVerified" => true,
-                    ], 200, true);
+                    return $this->createResponse([], 200, true);
                 }
                 return $this->createResponse([], 500, true);
             });
 
         $this->getHandler()->handle(new VerifyIdentityCommand(1));
 
-        $status = $this->statusManager->getStatus();
-
-        $this->assertTrue($status->isVerified);
+        $this->assertFalse($this->statusManager->isCacheValid());
     }
 
     /**
      * @test
      */
-    public function itShouldNotUpdateShopStatusOnError()
+    public function itShouldNotnvalidateCachedStatusOnHttpError()
     {
         $cloudShopId = $this->faker->uuid;
 
-        $this->statusManager->setCachedStatus(new ShopStatus([
-            'cloudShopId' => $cloudShopId,
-            'isVerified' => false,
-        ]));
+        $this->configurationRepository->updateCachedShopStatus(json_encode((new CachedShopStatus([
+            'isValid' => true,
+            'shopStatus' => new ShopStatus([
+                'cloudShopId' => $cloudShopId,
+                'isVerified' => false,
+            ])
+        ]))->toArray()));
 
         $this->client->method('post')
             ->willReturnCallback(function ($route) use ($cloudShopId) {
                 if (preg_match('/v1\/shop-identities\/' . $cloudShopId . '\/verify$/', $route)) {
-                    return $this->createResponse([
-                        "cloudShopId" => $cloudShopId,
-                        "isVerified" => false,
-                        "shopVerificationErrorCode" => null,
-                    ], 200, true);
-                }
-                return $this->createResponse([], 500, true);
-            });
-
-        $this->getHandler()->handle(new VerifyIdentityCommand(1));
-
-        $status = $this->statusManager->getStatus();
-
-        $this->assertFalse($status->isVerified);
-    }
-
-    /**
-     * @test
-     */
-    public function itShouldNotUpdateShopStatusOnHttpError()
-    {
-        $cloudShopId = $this->faker->uuid;
-
-        $this->statusManager->setCachedStatus(new ShopStatus([
-            'cloudShopId' => $cloudShopId,
-            'isVerified' => false,
-        ]));
-
-        $this->client->method('post')
-            ->willReturnCallback(function ($route) use ($cloudShopId) {
-                if (preg_match('/v1\/shop-identities\/' . $cloudShopId . '\/verify$/', $route)) {
-                    return $this->createResponse([
-//                        "cloudShopId" => $cloudShopId,
-//                        "isVerified" => false,
-//                        "shopVerificationErrorCode" => null,
-                    ], 500, true);
+                    return $this->createResponse([], 500, true);
                 }
                 return $this->createResponse([], 500, true);
             });
@@ -161,9 +128,7 @@ class VerifyIdentityHandlerTest extends TestCase
             //$this->assertInstanceOf(AccountsException::class, $e);
         }
 
-        $status = $this->statusManager->getStatus();
-
-        $this->assertFalse($status->isVerified);
+        $this->assertTrue($this->statusManager->isCacheValid());
     }
 
     /**
