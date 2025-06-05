@@ -20,7 +20,6 @@
 
 namespace PrestaShop\Module\PsAccounts\Hook;
 
-use Exception;
 use PrestaShop\Module\PsAccounts\Account\Command\UpdateUserShopCommand;
 use PrestaShop\Module\PsAccounts\Account\Dto\UpdateShop;
 use PrestaShop\Module\PsAccounts\Adapter\Link;
@@ -77,7 +76,10 @@ class ActionObjectShopUpdateAfter extends Hook
                     ' ' . print_r(isset($response->body['message']) ? $response->body['message'] : '', true)
                 );
             }
-        } catch (Exception $e) {
+        } catch (\Throwable $e) {
+            $this->module->getLogger()->error('Error trying to PATCH shop: ' . $e->getMessage());
+            /* @phpstan-ignore-next-line */
+        } catch (\Exception $e) {
             $this->module->getLogger()->error('Error trying to PATCH shop: ' . $e->getMessage());
         }
     }

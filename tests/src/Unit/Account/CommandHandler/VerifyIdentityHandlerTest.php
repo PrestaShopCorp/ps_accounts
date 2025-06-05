@@ -104,7 +104,7 @@ class VerifyIdentityHandlerTest extends TestCase
     /**
      * @test
      */
-    public function itShouldInvalidateCachedStatusOnVerifyError()
+    public function itShouldNotnvalidateCachedStatusOnHttpError()
     {
         $cloudShopId = $this->faker->uuid;
 
