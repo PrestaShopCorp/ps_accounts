@@ -77,6 +77,15 @@ ping_url() {
 }
 
 ping_url $appUrl
+echo "----- DEBUG: List modules in /modules -----"
+ls -l /var/www/html/modules/ps_accounts || echo "Module folder not found"
+
+echo "----- DEBUG: Version du module -----"
+grep version /var/www/html/modules/ps_accounts/ps_accounts.php || echo "ps_accounts.php not found"
+
+echo "----- DEBUG: Try HealthCheck in container -----"
+docker exec $(docker ps -qf "name=prestashop") curl -vk http://localhost/modules/ps_accounts/apiV2ShopHealthCheck || echo "API not found"
+
 ping_url "http://$psDomain/modules/ps_accounts/apiV2ShopHealthCheck"
 
 cd ../e2e
