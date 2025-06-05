@@ -330,7 +330,7 @@ class ShopProvider
                 $shopStatus = $this->shopStatus->getStatus($shopId);
 
                 $shops[] = [
-                    'id' => (string) $shopId,
+                    'id' => $shopId,
                     'name' => $shopData['name'],
                     'backOfficeUrl' => $shopUrl->getBackOfficeUrl(),
                     'frontendUrl' => $shopUrl->getFrontendUrl(),
@@ -342,7 +342,7 @@ class ShopProvider
             }
 
             $shopList[] = [
-                'id' => (string) $groupId,
+                'id' => $groupId,
                 'name' => $groupData['name'],
                 'shops' => $shops,
             ];
