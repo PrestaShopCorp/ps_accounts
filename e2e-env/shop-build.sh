@@ -77,7 +77,7 @@ ping_url() {
 }
 
 ping_url $appUrl
-ping_url "https://$psDomain/modules/ps_accounts/apiV2ShopHealthCheck"
+ping_url "http://$psDomain/modules/ps_accounts/apiV2ShopHealthCheck"
 
 cd ../e2e
 
