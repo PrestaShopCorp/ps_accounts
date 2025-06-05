@@ -181,7 +181,7 @@ class StatusManager
      *
      * @return string|null
      */
-    public function getPointOfContactEmail($cachedStatus = false)
+    public function getPointOfContactEmail($cachedStatus = true)
     {
         try {
             return $this->getStatus($cachedStatus)->pointOfContactEmail;
