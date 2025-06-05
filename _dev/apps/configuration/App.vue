@@ -37,7 +37,7 @@ import { init } from "prestashop_accounts_vue_components"
 
 onMounted(async () => {
   if (window?.psaccountsVue) {
-    return window?.psaccountsVue?.init(window.contextInitParams);
+    return window?.psaccountsVue?.init(window.contextInitParams, "Settings");
   }
   init();
 });
