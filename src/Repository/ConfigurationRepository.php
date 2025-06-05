@@ -400,17 +400,17 @@ class ConfigurationRepository
     /**
      * @return string|null
      */
-    public function getShopStatus()
+    public function getCachedShopStatus()
     {
-        return $this->configuration->get(ConfigurationKeys::PS_ACCOUNTS_SHOP_STATUS);
+        return $this->configuration->get(ConfigurationKeys::PS_ACCOUNTS_CACHED_SHOP_STATUS);
     }
 
     /**
      * @return \DateTime|null
      */
-    public function getShopStatusDateUpd()
+    public function getCachedShopStatusDateUpd()
     {
-        return $this->configuration->getDateUpd(ConfigurationKeys::PS_ACCOUNTS_SHOP_STATUS);
+        return $this->configuration->getDateUpd(ConfigurationKeys::PS_ACCOUNTS_CACHED_SHOP_STATUS);
     }
 
     /**
@@ -418,9 +418,9 @@ class ConfigurationRepository
      *
      * @return void
      */
-    public function updateShopStatus($status)
+    public function updateCachedShopStatus($status)
     {
-        $this->configuration->set(ConfigurationKeys::PS_ACCOUNTS_SHOP_STATUS, $status);
+        $this->configuration->set(ConfigurationKeys::PS_ACCOUNTS_CACHED_SHOP_STATUS, $status);
     }
 
     /**

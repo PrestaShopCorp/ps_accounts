@@ -28,7 +28,6 @@ use PrestaShop\Module\PsAccounts\Hook\ActionShopAccountUnlinkAfter;
 use PrestaShop\Module\PsAccounts\Polyfill\Traits\Controller\AjaxRender;
 use PrestaShop\Module\PsAccounts\Presenter\PsAccountsPresenter;
 use PrestaShop\Module\PsAccounts\Repository\ConfigurationRepository;
-use PrestaShop\Module\PsAccounts\Service\Accounts\Resource\ShopStatus;
 use PrestaShop\Module\PsAccounts\Service\SentryService;
 
 /**
@@ -126,7 +125,8 @@ class AdminAjaxPsAccountsController extends \ModuleAdminController
             $statusManager = $this->module->getService(StatusManager::class);
 
             $status = $statusManager->getStatus();
-            $statusManager->upsetCachedStatus(new ShopStatus([]));
+
+            $statusManager->invalidateCache();
 
             Hook::exec(ActionShopAccountUnlinkAfter::getName(), [
                 'cloudShopId' => $status->cloudShopId,
