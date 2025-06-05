@@ -20,7 +20,6 @@
 
 namespace PrestaShop\Module\PsAccounts\Account\CommandHandler;
 
-use DateTime;
 use PrestaShop\Module\PsAccounts\Account\Command\VerifyIdentityCommand;
 use PrestaShop\Module\PsAccounts\Account\Exception\RefreshTokenException;
 use PrestaShop\Module\PsAccounts\Account\Exception\UnknownStatusException;
@@ -86,7 +85,6 @@ class VerifyIdentityHandler
      *
      * @throws RefreshTokenException
      * @throws UnknownStatusException
-     * @throws AccountsException
      */
     public function handle(VerifyIdentityCommand $command)
     {
@@ -95,23 +93,22 @@ class VerifyIdentityHandler
         if ($cachedStatus->isVerified) {
             return;
         }
+
         $shopId = $command->shopId ?: \Shop::getContextShopID();
 
         try {
-            $success = $this->accountsService->verifyShopIdentity(
+            $this->accountsService->verifyShopIdentity(
                 $this->statusManager->getCloudShopId(),
                 $this->shopSession->getValidToken(),
                 $this->shopProvider->getUrl($shopId),
                 $this->proofManager->generateProof()
             );
-
-            $cachedStatus->isVerified = $success;
-            $cachedStatus->verifiedAt = new DateTime('now');
-            $this->statusManager->upsetCachedStatus($cachedStatus);
-
-            $this->proofManager->deleteProof();
         } catch (AccountsException $e) {
-            $this->statusManager->clearCachedStatus();
+            // log error ?
+        } finally {
+            $this->proofManager->deleteProof();
+
+            $this->statusManager->invalidateCache();
         }
     }
 }

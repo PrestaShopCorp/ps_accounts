@@ -3,6 +3,7 @@
 namespace PrestaShop\Module\PsAccounts\Tests\Unit\Account\CommandHandler;
 
 use PHPUnit\Framework\MockObject\MockObject;
+use PrestaShop\Module\PsAccounts\Account\CachedShopStatus;
 use PrestaShop\Module\PsAccounts\Account\Command\VerifyIdentityCommand;
 use PrestaShop\Module\PsAccounts\Account\CommandHandler\VerifyIdentityHandler;
 use PrestaShop\Module\PsAccounts\Account\ProofManager;
@@ -73,14 +74,17 @@ class VerifyIdentityHandlerTest extends TestCase
     /**
      * @test
      */
-    public function itShouldUpdateShopStatus()
+    public function itShouldInvalidateCachedStatusOnSuccess()
     {
         $cloudShopId = $this->faker->uuid;
 
-        $this->statusManager->setCachedStatus(new ShopStatus([
-            'cloudShopId' => $cloudShopId,
-            'isVerified' => false,
-        ]));
+        $this->configurationRepository->updateCachedShopStatus(json_encode((new CachedShopStatus([
+            'isValid' => true,
+            'shopStatus' => new ShopStatus([
+                'cloudShopId' => $cloudShopId,
+                'isVerified' => false,
+            ])
+        ]))->toArray()));
 
         $this->client->method('post')
             ->willReturnCallback(function ($route) use ($cloudShopId) {
@@ -94,22 +98,23 @@ class VerifyIdentityHandlerTest extends TestCase
 
         $this->getHandler()->handle(new VerifyIdentityCommand(1));
 
-        $status = $this->statusManager->getStatus();
-
-        $this->assertTrue($status->isVerified);
+        $this->assertTrue($this->statusManager->cacheInvalidated());
     }
 
     /**
      * @test
      */
-    public function itShouldHaveShopStatusUnverifiedOnHttpError()
+    public function itShouldInvalidateCachedStatusOnVerifyError()
     {
         $cloudShopId = $this->faker->uuid;
 
-        $this->statusManager->setCachedStatus(new ShopStatus([
-            'cloudShopId' => $cloudShopId,
-            'isVerified' => false,
-        ]));
+        $this->configurationRepository->updateCachedShopStatus(json_encode((new CachedShopStatus([
+            'isValid' => true,
+            'shopStatus' => new ShopStatus([
+                'cloudShopId' => $cloudShopId,
+                'isVerified' => false,
+            ])
+        ]))->toArray()));
 
         $this->client->method('post')
             ->willReturnCallback(function ($route) use ($cloudShopId) {
@@ -124,9 +129,7 @@ class VerifyIdentityHandlerTest extends TestCase
 
             $this->getHandler()->handle(new VerifyIdentityCommand(1));
 
-        $status = $this->statusManager->getStatus();
-
-        $this->assertFalse($status->isVerified);
+        $this->assertTrue($this->statusManager->cacheInvalidated());
     }
 
     /**

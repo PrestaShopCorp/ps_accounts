@@ -274,7 +274,7 @@ class AccountsService
      * @param ShopUrl $shopUrl
      * @param string $proof
      *
-     * @return bool
+     * @return void
      *
      * @throws AccountsException
      */
@@ -298,8 +298,6 @@ class AccountsService
         if (!$response->isSuccessful) {
             throw new AccountsException($this->getResponseErrorMsg($response, 'Unable to verify shop identity.'));
         }
-
-        return true;
     }
 
     /**
