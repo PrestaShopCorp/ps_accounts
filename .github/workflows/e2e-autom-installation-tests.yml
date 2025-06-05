@@ -87,7 +87,7 @@ jobs:
           path: ./e2e/allure-results-${{ matrix.shop_version }}
 
   merge-allure:
-    name: Merge Allure Results & Generate Allure Report
+    name: Merge Allure Results, Genreate Roprt & Send Slack notification
     needs: run-test
     runs-on: ubuntu-22.04
     steps:
