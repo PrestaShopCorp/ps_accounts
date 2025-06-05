@@ -77,22 +77,7 @@ ping_url() {
 }
 
 ping_url $appUrl
-
-echo "URL is reachable. Attente de 10 secondes supplémentaires pour que le module soit prêt…"
-sleep 10
-
-echo "DEBUG: .env e2e"
-cat ../e2e/.env
-
-echo "DEBUG: .env e2e-env"
-cat .env
-
-echo "DEBUG: Vérification HealthCheck API"
-curl -vk "${appUrl}/modules/ps_accounts/apiV2ShopHealthCheck" || echo "HealthCheck KO"
-
-# Facultatif: logs docker
-docker ps -a
-docker logs $(docker ps -alq --filter "name=prestashop") | tail -50
+ping_url "https://$psDomain/modules/ps_accounts/apiV2ShopHealthCheck"
 
 cd ../e2e
 
