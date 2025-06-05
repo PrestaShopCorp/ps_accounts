@@ -96,7 +96,7 @@ class VerifyIdentityHandlerTest extends TestCase
 
         $this->getHandler()->handle(new VerifyIdentityCommand(1));
 
-        $this->assertFalse($this->statusManager->isCacheValid());
+        $this->assertTrue($this->statusManager->cacheInvalidated());
     }
 
     /**
@@ -128,7 +128,7 @@ class VerifyIdentityHandlerTest extends TestCase
             //$this->assertInstanceOf(AccountsException::class, $e);
         }
 
-        $this->assertTrue($this->statusManager->isCacheValid());
+        $this->assertFalse($this->statusManager->cacheInvalidated());
     }
 
     /**

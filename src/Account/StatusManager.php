@@ -20,6 +20,7 @@
 
 namespace PrestaShop\Module\PsAccounts\Account;
 
+use DateTime;
 use PrestaShop\Module\PsAccounts\Account\Exception\RefreshTokenException;
 use PrestaShop\Module\PsAccounts\Account\Exception\UnknownStatusException;
 use PrestaShop\Module\PsAccounts\Account\Session\ShopSession;
@@ -89,9 +90,8 @@ class StatusManager
     public function getStatus($cachedStatus = false, $cacheTtl = self::CACHE_TTL)
     {
         if (!$cachedStatus) {
-            if (!$this->isCacheValid() ||
-                !($dateUpd = $this->repository->getCachedShopStatusDateUpd()) ||
-                $cacheTtl != self::CACHE_TTL_INFINITE && time() - $dateUpd->getTimestamp() >= $cacheTtl
+            if ($this->cacheInvalidated() ||
+                $this->cacheExpired($cacheTtl)
             ) {
                 try {
                     $this->upsetCachedStatus(new CachedShopStatus([
@@ -123,7 +123,7 @@ class StatusManager
     /**
      * @return bool
      */
-    public function isCacheValid()
+    public function cacheInvalidated()
     {
         try {
             $isValid = $this->getCachedStatus()->isValid;
@@ -131,7 +131,29 @@ class StatusManager
             $isValid = false;
         }
 
-        return $isValid;
+        return !$isValid;
+    }
+
+    /**
+     * @param int $cacheTtl
+     *
+     * @return bool
+     */
+    public function cacheExpired($cacheTtl = self::CACHE_TTL)
+    {
+        $dateUpd = $this->getCacheDateUpd();
+
+        return $dateUpd instanceof DateTime &&
+            $cacheTtl != self::CACHE_TTL_INFINITE &&
+            time() - $dateUpd->getTimestamp() >= $cacheTtl;
+    }
+
+    /**
+     * @return \DateTime|null
+     */
+    public function getCacheDateUpd()
+    {
+        return $this->repository->getCachedShopStatusDateUpd();
     }
 
     /**
