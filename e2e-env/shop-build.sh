@@ -77,6 +77,8 @@ ping_url() {
 }
 
 ping_url $appUrl
+sleep 10
+
 
 cd ../e2e
 
