@@ -18,78 +18,46 @@
  * @license   https://opensource.org/licenses/AFL-3.0 Academic Free License version 3.0
  */
 
-namespace PrestaShop\Module\PsAccounts\Service\Accounts\Resource;
+namespace PrestaShop\Module\PsAccounts\Account;
 
 use DateTime;
 use PrestaShop\Module\PsAccounts\Http\Resource\Resource;
+use PrestaShop\Module\PsAccounts\Service\Accounts\Resource\ShopStatus;
 
-class ShopStatus extends Resource
+class CachedShopStatus extends Resource
 {
     /**
-     * @var string
+     * @var ShopStatus
      */
-    public $cloudShopId;
+    public $shopStatus;
 
     /**
      * @var bool
      */
-    public $isVerified = false;
-
-    /**
-     * @var string
-     */
-    public $frontendUrl;
-
-    /**
-     * @var string
-     */
-    public $backofficeUrl;
-
-    /**
-     * @var string
-     */
-    public $shopVerificationErrorCode;
-
-    /**
-     * @var string
-     */
-    public $pointOfContactUuid;
-
-    /**
-     * @var string
-     */
-    public $pointOfContactEmail;
-
-    /**
-     * @var DateTime|null
-     */
-    public $createdAt;
+    public $isValid = false;
 
     /**
      * @var DateTime|null
      */
     public $updatedAt;
 
-    /**
-     * @var DateTime|null
-     */
-    public $verifiedAt;
-
-    /**
-     * @var DateTime|null
-     */
-    public $unverifiedAt;
+//    /**
+//     * @var string[]
+//     */
+//    protected $required = [
+//        'shopStatus',
+//    ];
 
     public function __construct($values = [])
     {
         $this->castDateTime($values, [
-            'createdAt',
             'updatedAt',
-            'verifiedAt',
-            'unverifiedAt',
         ]);
         $this->castBool($values, [
-            'isVerified',
+            'isValid',
+        ]);
+        $this->castChildResource($values, ShopStatus::class, [
+            'shopStatus',
         ]);
 
         parent::__construct($values);
@@ -102,21 +70,12 @@ class ShopStatus extends Resource
      */
     public function toArray($all = true)
     {
-        $array = parent::toArray($all);
+        $values = parent::toArray($all);
 
-        foreach (
-            [
-                'createdAt',
-                'updatedAt',
-                'verifiedAt',
-                'unverifiedAt',
-            ] as $dateField
-        ) {
-            if (!empty($array[$dateField])) {
-                $array[$dateField] = $array[$dateField]->format(DateTime::ATOM);
-            }
+        if (isset($values['shopStatus'])) {
+            $values['shopStatus'] = $this->shopStatus->toArray();
         }
 
-        return $array;
+        return $values;
     }
 }
