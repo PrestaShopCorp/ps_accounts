@@ -180,6 +180,7 @@ class PsAccountsPresenter implements PresenterInterface
                     ]),
                     'contactEmail' => $this->module->getService(Configuration::class)
                         ->get('PS_ACCOUNTS_CONTACT_EMAIL', ''),
+                    'component_params_init' => $this->psAccountsService->getInitParams($psxName),
                 ],
                 (new DependenciesPresenter())->present($psxName)
             );
