@@ -22,7 +22,6 @@ namespace PrestaShop\Module\PsAccounts\Repository;
 
 use PrestaShop\Module\PsAccounts\Adapter\Configuration;
 use PrestaShop\Module\PsAccounts\Adapter\ConfigurationKeys;
-use PrestaShop\Module\PsAccounts\Log\Logger;
 
 class ConfigurationRepository
 {
@@ -165,23 +164,11 @@ class ConfigurationRepository
     }
 
     /**
-     * @return string|null
+     * @return \DateTime|null
      */
     public function getShopUuidDateUpd()
     {
-        try {
-            $entry = $this->configuration->getUncachedConfiguration(
-                ConfigurationKeys::PSX_UUID_V4,
-                $this->configuration->getIdShopGroup(),
-                $this->configuration->getIdShop()
-            );
-
-            return $entry->date_upd;
-        } catch (\Exception $e) {
-            Logger::getInstance()->error(__METHOD__ . ': ' . $e->getMessage());
-
-            return null;
-        }
+        return $this->configuration->getDateUpd(ConfigurationKeys::PSX_UUID_V4);
     }
 
     /**
@@ -195,45 +182,6 @@ class ConfigurationRepository
             $this->configuration->set(ConfigurationKeys::PS_CHECKOUT_SHOP_UUID_V4, $uuid);
         }
         $this->configuration->set(ConfigurationKeys::PSX_UUID_V4, $uuid);
-    }
-
-    /**
-     * @return string
-     */
-    public function getAccountsRsaPrivateKey()
-    {
-        return $this->configuration->get(ConfigurationKeys::PS_ACCOUNTS_RSA_PRIVATE_KEY);
-    }
-
-    /**
-     * @param string $key
-     *
-     * @return void
-     */
-    public function updateAccountsRsaPrivateKey($key)
-    {
-        $this->configuration->set(ConfigurationKeys::PS_ACCOUNTS_RSA_PRIVATE_KEY, $key);
-    }
-
-    /**
-     * @param bool $cached
-     * @param bool|mixed $default
-     *
-     * @return string|bool
-     */
-    public function getAccountsRsaPublicKey($default = false, $cached = true)
-    {
-        return $this->configuration->get(ConfigurationKeys::PS_ACCOUNTS_RSA_PUBLIC_KEY, $default, $cached);
-    }
-
-    /**
-     * @param string $key
-     *
-     * @return void
-     */
-    public function updateAccountsRsaPublicKey($key)
-    {
-        $this->configuration->set(ConfigurationKeys::PS_ACCOUNTS_RSA_PUBLIC_KEY, $key);
     }
 
     /**
@@ -429,6 +377,50 @@ class ConfigurationRepository
     public function updateUnlinkedOnError($error)
     {
         $this->configuration->set(ConfigurationKeys::PS_ACCOUNTS_UNLINKED_ON_ERROR, $error);
+    }
+
+    /**
+     * @return string|null
+     */
+    public function getShopProof()
+    {
+        return $this->configuration->get(ConfigurationKeys::PS_ACCOUNTS_SHOP_PROOF);
+    }
+
+    /**
+     * @param string|null $proof
+     *
+     * @return void
+     */
+    public function updateShopProof($proof)
+    {
+        $this->configuration->set(ConfigurationKeys::PS_ACCOUNTS_SHOP_PROOF, $proof);
+    }
+
+    /**
+     * @return string|null
+     */
+    public function getCachedShopStatus()
+    {
+        return $this->configuration->get(ConfigurationKeys::PS_ACCOUNTS_CACHED_SHOP_STATUS);
+    }
+
+    /**
+     * @return \DateTime|null
+     */
+    public function getCachedShopStatusDateUpd()
+    {
+        return $this->configuration->getDateUpd(ConfigurationKeys::PS_ACCOUNTS_CACHED_SHOP_STATUS);
+    }
+
+    /**
+     * @param string|null $status
+     *
+     * @return void
+     */
+    public function updateCachedShopStatus($status)
+    {
+        $this->configuration->set(ConfigurationKeys::PS_ACCOUNTS_CACHED_SHOP_STATUS, $status);
     }
 
     /**

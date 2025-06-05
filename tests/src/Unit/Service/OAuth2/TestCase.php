@@ -14,38 +14,24 @@ class TestCase extends \PrestaShop\Module\PsAccounts\Tests\TestCase
     protected $oAuth2Service;
 
     /**
-     * @var \PHPUnit_Framework_MockObject_MockObject|Response|(Response&\PHPUnit_Framework_MockObject_MockObject)
+     * @var Response
      */
     protected $wellKnownResponse;
 
     /**
-     * @var \PHPUnit_Framework_MockObject_MockObject|Response|(Response&\PHPUnit_Framework_MockObject_MockObject)
+     * @var Response
      */
     protected $accessTokenResponse;
 
     /**
-     * @var \PHPUnit_Framework_MockObject_MockObject|Response|(Response&\PHPUnit_Framework_MockObject_MockObject)
+     * @var Response
      */
     protected $resourceOwnerResponse;
 
     /**
-     * @var \PHPUnit_Framework_MockObject_MockObject|(\PHPUnit_Framework_MockObject_MockObject&Response)|Response
+     * @var Response
      */
     protected $jwksResponse;
-
-    /**
-     * @param mixed $responseBody
-     * @param int $statusCode
-     *
-     * @return \PHPUnit_Framework_MockObject_MockObject|Response|(Response&\PHPUnit_Framework_MockObject_MockObject)
-     */
-    protected function createResponse($responseBody, $statusCode = 200)
-    {
-        return new Response(
-            \json_decode($responseBody, true),
-            $statusCode
-        );
-    }
 
     /**
      * @return Client|(Client&\PHPUnit_Framework_MockObject_MockObject)|\PHPUnit_Framework_MockObject_MockObject

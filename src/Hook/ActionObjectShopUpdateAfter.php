@@ -20,10 +20,10 @@
 
 namespace PrestaShop\Module\PsAccounts\Hook;
 
-use Exception;
 use PrestaShop\Module\PsAccounts\Account\Command\UpdateUserShopCommand;
 use PrestaShop\Module\PsAccounts\Account\Dto\UpdateShop;
 use PrestaShop\Module\PsAccounts\Adapter\Link;
+use PrestaShop\Module\PsAccounts\Http\Client\Response;
 use Ps_accounts;
 
 class ActionObjectShopUpdateAfter extends Hook
@@ -60,6 +60,7 @@ class ActionObjectShopUpdateAfter extends Hook
     protected function updateUserShop(\Shop $shop)
     {
         try {
+            /** @var Response $response */
             $response = $this->commandBus->handle(new UpdateUserShopCommand(new UpdateShop([
                 'shopId' => (string) $shop->id,
                 'name' => $shop->name,
@@ -70,14 +71,15 @@ class ActionObjectShopUpdateAfter extends Hook
                 'boBaseUrl' => $this->link->fixAdminLink($this->link->getDashboardLink(), $shop),
             ])));
 
-            if (!$response) {
-                $this->module->getLogger()->error('Error trying to PATCH shop : No $response object');
-            } elseif (true !== $response['status']) {
-                $this->module->getLogger()->error('Error trying to PATCH shop : ' . $response['httpCode'] .
-                    ' ' . print_r(isset($response['body']['message']) ? $response['body']['message'] : '', true)
+            if (!$response->isSuccessful) {
+                $this->module->getLogger()->error('Error trying to PATCH shop : ' . $response->statusCode .
+                    ' ' . print_r(isset($response->body['message']) ? $response->body['message'] : '', true)
                 );
             }
-        } catch (Exception $e) {
+        } catch (\Throwable $e) {
+            $this->module->getLogger()->error('Error trying to PATCH shop: ' . $e->getMessage());
+            /* @phpstan-ignore-next-line */
+        } catch (\Exception $e) {
             $this->module->getLogger()->error('Error trying to PATCH shop: ' . $e->getMessage());
         }
     }

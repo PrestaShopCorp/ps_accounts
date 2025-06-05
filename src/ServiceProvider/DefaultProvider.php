@@ -20,7 +20,9 @@
 
 namespace PrestaShop\Module\PsAccounts\ServiceProvider;
 
-use PrestaShop\Module\PsAccounts\Account\LinkShop;
+use PrestaShop\Module\PsAccounts\Account\ProofManager;
+use PrestaShop\Module\PsAccounts\Account\Session\ShopSession;
+use PrestaShop\Module\PsAccounts\Account\StatusManager;
 use PrestaShop\Module\PsAccounts\Adapter;
 use PrestaShop\Module\PsAccounts\Adapter\Configuration;
 use PrestaShop\Module\PsAccounts\Adapter\Link;
@@ -33,6 +35,7 @@ use PrestaShop\Module\PsAccounts\Presenter\PsAccountsPresenter;
 use PrestaShop\Module\PsAccounts\Provider;
 use PrestaShop\Module\PsAccounts\Repository\ConfigurationRepository;
 use PrestaShop\Module\PsAccounts\Repository\ShopTokenRepository;
+use PrestaShop\Module\PsAccounts\Service\Accounts\AccountsService;
 use PrestaShop\Module\PsAccounts\Service\AnalyticsService;
 use PrestaShop\Module\PsAccounts\Service\PsAccountsService;
 use PrestaShop\Module\PsAccounts\Service\PsBillingService;
@@ -58,8 +61,10 @@ class DefaultProvider implements IServiceProvider
             return \Module::getInstanceByName('ps_accounts');
         });
         // Entities ?
-        $container->registerProvider(LinkShop::class, static function () use ($container) {
-            return new LinkShop(
+        $container->registerProvider(StatusManager::class, static function () use ($container) {
+            return new StatusManager(
+                $container->get(ShopSession::class),
+                $container->get(AccountsService::class),
                 $container->get(ConfigurationRepository::class)
             );
         });
@@ -97,16 +102,16 @@ class DefaultProvider implements IServiceProvider
             return new SentryService(
                 $container->getParameter('ps_accounts.sentry_credentials'),
                 $container->getParameter('ps_accounts.environment'),
-                $container->get(LinkShop::class),
+                $container->get(StatusManager::class),
                 $container->get('ps_accounts.context')
             );
         });
-        // "Providers"
-        $container->registerProvider(Provider\RsaKeysProvider::class, static function () use ($container) {
-            return new Provider\RsaKeysProvider(
+        $container->registerProvider(ProofManager::class, static function () use ($container) {
+            return new ProofManager(
                 $container->get(ConfigurationRepository::class)
             );
         });
+        // "Providers"
         $container->registerProvider(Provider\ShopProvider::class, static function () use ($container) {
             return new Provider\ShopProvider(
                 $container->get(ShopContext::class),

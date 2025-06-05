@@ -26,12 +26,8 @@ use PrestaShop\Module\PsAccounts\Http\Exception\HttpException;
 use PrestaShop\Module\PsAccounts\Http\Exception\MethodNotAllowedException;
 use PrestaShop\Module\PsAccounts\Http\Exception\UnauthorizedException;
 use PrestaShop\Module\PsAccounts\Polyfill\Traits\Controller\AjaxRender;
-use PrestaShop\Module\PsAccounts\Provider\RsaKeysProvider;
 use PrestaShop\Module\PsAccounts\Repository\ConfigurationRepository;
 use PrestaShop\Module\PsAccounts\Service\SentryService;
-use PrestaShop\Module\PsAccounts\Vendor\Lcobucci\JWT\Parser;
-use PrestaShop\Module\PsAccounts\Vendor\Lcobucci\JWT\Signer\Hmac\Sha256;
-use PrestaShop\Module\PsAccounts\Vendor\Lcobucci\JWT\Signer\Key;
 use ReflectionException;
 use ReflectionParameter;
 
@@ -268,39 +264,13 @@ abstract class AbstractRestController extends ModuleFrontController
      * @param int $defaultShopId
      *
      * @return array
+     *
+     * @throws UnauthorizedException
+     *
+     * @deprecated since v8.0.0 in favor of AbstractV2RestController
      */
     protected function decodePayload($defaultShopId = null)
     {
-        /** @var RsaKeysProvider $shopKeysService */
-        $shopKeysService = $this->module->getService(RsaKeysProvider::class);
-
-        $jwtString = $this->getRequestHeader(self::TOKEN_HEADER);
-
-        if ($jwtString) {
-            $jwt = (new Parser())->parse($jwtString);
-
-            $shop = new \Shop((int) $jwt->claims()->get('shop_id', $defaultShopId));
-
-            if ($shop->id) {
-                $this->setContextShop($shop);
-                $publicKey = $shopKeysService->getPublicKey();
-
-                $this->module->getLogger()->debug('trying to verify token with pkey: ' . $publicKey);
-
-                if (
-                    null !== $publicKey &&
-                    true === $jwt->verify(new Sha256(), new Key((string) $publicKey))
-                ) {
-                    $this->module->getLogger()->debug('token verified: ' . $jwtString);
-
-                    return $jwt->claims()->all();
-                }
-                $this->module->getLogger()->error('Failed to verify token: ' . $jwtString);
-            }
-
-            $this->module->getLogger()->error('Failed to decode payload: ' . $jwtString);
-        }
-
         throw new UnauthorizedException();
     }
 
