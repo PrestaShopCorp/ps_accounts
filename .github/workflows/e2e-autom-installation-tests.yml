@@ -65,8 +65,9 @@ jobs:
         with:
           name: env-files
           path: |
-            e2e/.env
-            e2e-env/.env
+            pwd
+            ./e2e/.env
+            ./e2e-env/.env
 
   run-test:
     needs: setup-env
