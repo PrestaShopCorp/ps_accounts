@@ -56,13 +56,9 @@ jobs:
 
       - name: Debug
         run: |
-          echo "Listing ./e2e and ./e2e-env"
           ls -l ./e2e
           ls -l ./e2e-env
-          echo "Cat ./e2e/.env"
-          cat ./e2e/.env || echo "e2e/.env NOT FOUND"
-          echo "Cat ./e2e-env/.env"
-          cat ./e2e-env/.env || echo "e2e-env/.env NOT FOUND"
+    
   
       - name: Upload env files as artifact
         uses: actions/upload-artifact@v4
