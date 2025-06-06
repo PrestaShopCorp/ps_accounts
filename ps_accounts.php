@@ -377,7 +377,7 @@ class Ps_accounts extends Module
     /**
      * @return string
      */
-    public function getAccountUrl()
+    public function getAccountsUiUrl()
     {
         return $this->getParameter('ps_accounts.accounts_ui_url');
     }

@@ -315,9 +315,6 @@ class ShopProvider
 
     /**
      * @return array
-     *
-     * @throws \PrestaShopException
-     * @throws \Exception
      */
     public function getShops()
     {

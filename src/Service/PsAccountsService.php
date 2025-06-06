@@ -328,7 +328,7 @@ class PsAccountsService
             'shopId' => \Shop::getContextShopID(),
             'groupId' => \Shop::getContextShopGroupID(),
             'getContextUrl' => $this->getContextUrl(),
-            'manageAccountUrl' => $this->module->getAccountUrl(),
+            'manageAccountUrl' => $this->module->getAccountsUiUrl(),
             'psxName' => $psxName,
         ];
     }
