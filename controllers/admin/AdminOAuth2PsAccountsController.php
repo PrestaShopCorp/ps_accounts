@@ -68,6 +68,7 @@ class AdminOAuth2PsAccountsController extends \ModuleAdminController
 
         $this->analyticsService = $this->module->getService(AnalyticsService::class);
         $this->psAccountsService = $this->module->getService(PsAccountsService::class);
+        $this->commandBus = $this->module->getService(CommandBus::class);
 
         $this->ajax = true;
         $this->content_only = true;
@@ -128,9 +129,6 @@ class AdminOAuth2PsAccountsController extends \ModuleAdminController
         );
 
         if ($this->getOAuthAction() === 'identifyPointOfContact') {
-            // Identify contact command
-            $this->commandBus = $this->module->getService(CommandBus::class);
-
             $this->commandBus->handle(new IdentifyContactCommand($accessToken));
 
             return true;

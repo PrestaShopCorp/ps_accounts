@@ -108,6 +108,7 @@ class OAuth2Controller extends FrameworkBundleAdminController
         $this->analyticsService = $this->module->getService(AnalyticsService::class);
         $this->psAccountsService = $this->module->getService(PsAccountsService::class);
         $this->externalAssetsClient = $this->module->getService(ExternalAssetsClient::class);
+        $this->commandBus = $this->module->getService(CommandBus::class);
     }
 
     /**
@@ -197,9 +198,6 @@ class OAuth2Controller extends FrameworkBundleAdminController
         );
 
         if ($this->getOAuthAction() === 'identifyPointOfContact') {
-            // Identify contact command
-            $this->commandBus = $this->module->getService(CommandBus::class);
-
             $this->commandBus->handle(new IdentifyContactCommand($accessToken));
 
             return true;
