@@ -77,7 +77,6 @@ ping_url() {
 }
 
 ping_url $appUrl
-ping_url "http://$psDomain/index.php?fc=module&module=ps_accounts&controller=apiV2ShopHealthCheck"
 
 cd ../e2e
 
