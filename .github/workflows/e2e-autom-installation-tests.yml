@@ -59,6 +59,7 @@ jobs:
         if: ${{ always() }}
         with:
           name: env-files
+          include-hidden-files: true
           path: "**/.env"
 
 
