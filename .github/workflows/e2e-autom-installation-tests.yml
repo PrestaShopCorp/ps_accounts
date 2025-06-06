@@ -53,14 +53,22 @@ jobs:
           echo "DOWNLOADER_TOKEN=${{ secrets.DOWNLOADER_TOKEN }}" >> .env
           echo "PS_VERSION=${{ secrets.PS_VERSION }}" >> .env
           echo "PS_ACCOUNTS_VERSION=${{ secrets.PS_ACCOUNTS_VERSION }}" >> .env
+    
+      - name: Debug env files
+        run: |
+          echo "------ e2e/.env ------"
+          cat ./e2e/.env || echo "e2e/.env not found"
+          echo "------ e2e-env/.env ------"
+          cat ./e2e-env/.env || echo "e2e-env/.env not found"
+          ls -l ./e2e ./e2e-env
       
       - name: Upload env files as artifact
         uses: actions/upload-artifact@v4
         with:
           name: env-files
           path: |
-            ./e2e/.env
-            ./e2e-env/.env
+            e2e/.env
+            e2e-env/.env
 
   run-test:
     needs: setup-env
