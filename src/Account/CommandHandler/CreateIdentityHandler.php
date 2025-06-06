@@ -21,6 +21,7 @@
 namespace PrestaShop\Module\PsAccounts\Account\CommandHandler;
 
 use PrestaShop\Module\PsAccounts\Account\Command\CreateIdentityCommand;
+use PrestaShop\Module\PsAccounts\Account\ProofManager;
 use PrestaShop\Module\PsAccounts\Account\StatusManager;
 use PrestaShop\Module\PsAccounts\Provider\ShopProvider;
 use PrestaShop\Module\PsAccounts\Service\Accounts\AccountsException;
@@ -50,21 +51,29 @@ class CreateIdentityHandler
     private $statusManager;
 
     /**
+     * @var ProofManager
+     */
+    private $proofManager;
+
+    /**
      * @param AccountsService $accountsService
      * @param ShopProvider $shopProvider
      * @param OAuth2Client $oauth2Client
      * @param StatusManager $shopStatus
+     * @param ProofManager $proofManager
      */
     public function __construct(
         AccountsService $accountsService,
         ShopProvider $shopProvider,
         OAuth2Client $oauth2Client,
-        StatusManager $shopStatus
+        StatusManager $shopStatus,
+        ProofManager $proofManager
     ) {
         $this->accountsService = $accountsService;
         $this->shopProvider = $shopProvider;
         $this->oAuth2Client = $oauth2Client;
         $this->statusManager = $shopStatus;
+        $this->proofManager = $proofManager;
     }
 
     /**
@@ -83,7 +92,8 @@ class CreateIdentityHandler
         $shopId = $command->shopId ?: \Shop::getContextShopID();
 
         $identityCreated = $this->accountsService->createShopIdentity(
-            $this->shopProvider->getUrl($shopId)
+            $this->shopProvider->getUrl($shopId),
+            $this->proofManager->generateProof()
         );
         $this->oAuth2Client->update(
             $identityCreated->clientId,

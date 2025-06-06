@@ -5,6 +5,7 @@ namespace PrestaShop\Module\PsAccounts\Tests\Unit\Account\CommandHandler;
 use PHPUnit\Framework\MockObject\MockObject;
 use PrestaShop\Module\PsAccounts\Account\Command\CreateIdentityCommand;
 use PrestaShop\Module\PsAccounts\Account\CommandHandler\CreateIdentityHandler;
+use PrestaShop\Module\PsAccounts\Account\ProofManager;
 use PrestaShop\Module\PsAccounts\Account\StatusManager;
 use PrestaShop\Module\PsAccounts\Http\Client\Curl\Client;
 use PrestaShop\Module\PsAccounts\Service\Accounts\AccountsService;
@@ -41,6 +42,13 @@ class CreateIdentityHandlerTest extends TestCase
      * @var StatusManager
      */
     public $statusManager;
+
+    /**
+     * @inject
+     *
+     * @var ProofManager
+     */
+    public $proofManager;
 
     /**
      * @var Client&MockObject
@@ -147,7 +155,8 @@ class CreateIdentityHandlerTest extends TestCase
             $this->accountsService,
             $this->shopProvider,
             $this->oauth2Client,
-            $this->statusManager
+            $this->statusManager,
+            $this->proofManager
         );
     }
 }
