@@ -59,14 +59,8 @@ jobs:
         if: ${{ always() }}
         with:
           name: env-files
-          path: ./e2e/.env
-  
-      - name: Upload e2e-env files as artifact
-        uses: actions/upload-artifact@v4
-        if: ${{ always() }}
-        with:
-          name: e2e-env-files
-          path: ./e2e-env/.env
+          path: "**/.env"
+
 
   run-test:
     needs: setup-env
@@ -93,13 +87,7 @@ jobs:
         uses: actions/download-artifact@v4
         with:
           name: env-files
-          path: ./e2e/.env
-
-      - name: Download e2e-env files
-        uses: actions/download-artifact@v4
-        with:
-          name: e2e-env-files
-          path: ./e2e-env/.env
+          path: ./
 
       - name: Login to GHCR
         uses: docker/login-action@v3
