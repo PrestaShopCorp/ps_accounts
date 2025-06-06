@@ -77,6 +77,6 @@ class IdentifyContactHandler
             $this->shopSession->getValidToken(),
             $command->accessToken->access_token
         );
-        $this->statusManager->getStatus();
+        $this->statusManager->invalidateCache();
     }
 }
