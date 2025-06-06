@@ -8,6 +8,7 @@ on:
 env:
   IMAGE_PREFIX: ghcr.io/prestashopcorp/
 
+
 jobs:
   setup-env:
     runs-on: ubuntu-22.04
@@ -30,6 +31,28 @@ jobs:
         run: |
           npx playwright install
 
+
+  run-test:
+    needs: setup-env
+    name: Run Account tests
+    runs-on: ubuntu-22.04
+    strategy:
+      max-parallel: 3
+      matrix:
+        shop_version:
+          - 1.7.8.7-7.4-fpm-alpine
+          - 1.6.1.24-7.1-fpm-alpine
+          - 1.7.8.11-7.4-fpm-alpine
+          - 1.7.8.8-7.4-fpm-alpine
+          - 8.1.0-8.1-fpm-alpine
+          - 8.1.1-8.1-fpm-alpine
+          - 8.1.5-8.1-fpm-alpine
+          - 8.2.0-8.1-fpm-alpine
+          - nightly-nginx
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+        
       - name: Generate .env in e2e file
         working-directory: ./e2e
         run: |
@@ -53,42 +76,6 @@ jobs:
           echo "DOWNLOADER_TOKEN=${{ secrets.DOWNLOADER_TOKEN }}" >> .env
           echo "PS_VERSION=${{ secrets.PS_VERSION }}" >> .env
           echo "PS_ACCOUNTS_VERSION=${{ secrets.PS_ACCOUNTS_VERSION }}" >> .env
-
-      - name: Upload env files as artifact
-        uses: actions/upload-artifact@v4
-        if: ${{ always() }}
-        with:
-          name: env-files
-          include-hidden-files: true
-          path: "**/.env"
-
-
-  run-test:
-    needs: setup-env
-    name: Run Account tests
-    runs-on: ubuntu-22.04
-    strategy:
-      max-parallel: 3
-      matrix:
-        shop_version:
-          - 1.7.8.7-7.4-fpm-alpine
-          - 1.6.1.24-7.1-fpm-alpine
-          - 1.7.8.11-7.4-fpm-alpine
-          - 1.7.8.8-7.4-fpm-alpine
-          - 8.1.0-8.1-fpm-alpine
-          - 8.1.1-8.1-fpm-alpine
-          - 8.1.5-8.1-fpm-alpine
-          - 8.2.0-8.1-fpm-alpine
-          - nightly-nginx
-    steps:
-      - name: Checkout Repository
-        uses: actions/checkout@v4
-
-      - name: Download env files
-        uses: actions/download-artifact@v4
-        with:
-          name: env-files
-          path: ./
 
       - name: Login to GHCR
         uses: docker/login-action@v3
