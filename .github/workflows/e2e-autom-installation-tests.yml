@@ -7,34 +7,11 @@ on:
 
 env:
   IMAGE_PREFIX: ghcr.io/prestashopcorp/
-
-
+  
 jobs:
-  setup-env:
-    runs-on: ubuntu-22.04
-    steps:
-      - name: Checkout Repository
-        uses: "actions/checkout@v4"
-
-      - name: Set up Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: "node"
-
-      - name: Install dependencies
-        working-directory: ./e2e
-        run: |
-          npm install
-
-      - name: Install playwright browsers
-        working-directory: ./e2e
-        run: |
-          npx playwright install --with-deps chromium
-          
   run-test:
-    needs: setup-env
     name: Run Account tests
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-latest
     strategy:
       max-parallel: 3
       matrix:
@@ -51,6 +28,21 @@ jobs:
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "node"
+
+      - name: Install dependencies
+        working-directory: ./e2e
+        run: |
+          npm install
+
+      - name: Install playwright browsers
+        working-directory: ./e2e
+        run: |
+          npx playwright install --with-deps chromium
 
       - name: Generate .env in e2e file
         working-directory: ./e2e
@@ -97,7 +89,7 @@ jobs:
   merge-allure:
     name: Merge Allure Results, Genreate Roprt & Send Slack notification
     needs: run-test
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-latest
     steps:
       - name: Checkout Repository
         uses: "actions/checkout@v4"
