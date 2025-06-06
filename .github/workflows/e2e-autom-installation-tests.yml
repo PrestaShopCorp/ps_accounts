@@ -54,20 +54,19 @@ jobs:
           echo "PS_VERSION=${{ secrets.PS_VERSION }}" >> .env
           echo "PS_ACCOUNTS_VERSION=${{ secrets.PS_ACCOUNTS_VERSION }}" >> .env
 
-      - name: Debug
-        run: |
-          ls -la ./e2e
-          ls -la ./e2e-env
-    
-  
       - name: Upload env files as artifact
         uses: actions/upload-artifact@v4
+        if: ${{ always() }}
         with:
           name: env-files
-          path: |
-            pwd
-            ./e2e/.env
-            ./e2e-env/.env
+          path: ./e2e/.env
+  
+      - name: Upload e2e-env files as artifact
+        uses: actions/upload-artifact@v4
+        if: ${{ always() }}
+        with:
+          name: e2e-env-files
+          path: ./e2e-env/.env
 
   run-test:
     needs: setup-env
@@ -94,7 +93,13 @@ jobs:
         uses: actions/download-artifact@v4
         with:
           name: env-files
-          path: ./
+          path: ./e2e/.env
+
+      - name: Download e2e-env files
+        uses: actions/download-artifact@v4
+        with:
+          name: e2e-env-files
+          path: ./e2e-env/.env
 
       - name: Login to GHCR
         uses: docker/login-action@v3
