@@ -56,8 +56,8 @@ jobs:
 
       - name: Debug
         run: |
-          ls -l ./e2e
-          ls -l ./e2e-env
+          ls -la ./e2e
+          ls -la ./e2e-env
     
   
       - name: Upload env files as artifact
