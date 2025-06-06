@@ -20,6 +20,7 @@
 
 namespace PrestaShop\Module\PsAccounts\Account;
 
+use DateTime;
 use PrestaShop\Module\PsAccounts\Account\Exception\RefreshTokenException;
 use PrestaShop\Module\PsAccounts\Account\Exception\UnknownStatusException;
 use PrestaShop\Module\PsAccounts\Account\Session\ShopSession;
@@ -33,7 +34,12 @@ class StatusManager
     /**
      * Status Cache TTL in seconds
      */
-    const STATUS_TTL = 10;
+    const CACHE_TTL = 10;
+
+    /**
+     * Infinite Status Cache
+     */
+    const CACHE_TTL_INFINITE = -1;
 
     /**
      * @var ConfigurationRepository
@@ -74,82 +80,91 @@ class StatusManager
     }
 
     /**
-     * @param bool $refresh
+     * @param bool $cachedStatus
      * @param int $cacheTtl
      *
      * @return ShopStatus
      *
      * @throws UnknownStatusException
      */
-    public function getStatus($refresh = true, $cacheTtl = self::STATUS_TTL)
+    public function getStatus($cachedStatus = false, $cacheTtl = self::CACHE_TTL)
     {
-        $dateUpd = $this->repository->getShopStatusDateUpd();
-
-        if ($refresh && (!$dateUpd || time() - $dateUpd->getTimestamp() >= $cacheTtl)) {
-            try {
-                $this->setCachedStatus($this->accountsService->shopStatus(
-                    $this->getCloudShopId(),
-                    $this->shopSession->getValidToken()
-                ));
-            } catch (AccountsException $e) {
-            } catch (RefreshTokenException $e) {
+        if (!$cachedStatus) {
+            if ($this->cacheInvalidated() ||
+                $this->cacheExpired($cacheTtl)
+            ) {
+                try {
+                    $this->upsetCachedStatus(new CachedShopStatus([
+                        'isValid' => true,
+                        'shopStatus' => $this->accountsService->shopStatus(
+                            $this->getCloudShopId(),
+                            $this->shopSession->getValidToken()
+                        ),
+                    ]));
+                } catch (AccountsException $e) {
+                } catch (RefreshTokenException $e) {
+                }
             }
         }
 
-        return $this->getCachedStatus();
-    }
-
-    /**
-     * @return ShopStatus
-     *
-     * @throws UnknownStatusException
-     */
-    public function getCachedStatus()
-    {
-        $status = $this->repository->getShopStatus();
-
-        if (!$status) {
-            throw new UnknownStatusException('Unknown status');
-        }
-
-        return new ShopStatus(json_decode($status, true));
+        return $this->getCachedStatus()->shopStatus;
     }
 
     /**
      * @return void
      */
-    public function setCachedStatus(ShopStatus $shopStatus)
+    public function invalidateCache()
     {
-        $this->repository->updateShopStatus(json_encode($shopStatus->toArray()) ?: null);
-
-        $this->repository->updateShopUuid($shopStatus->cloudShopId);
+        $this->upsetCachedStatus(new CachedShopStatus([
+            'isValid' => false,
+        ]));
     }
 
     /**
-     * @return void
+     * @return bool
      */
-    public function upsetCachedStatus(ShopStatus $shopStatus)
+    public function cacheInvalidated()
     {
         try {
-            $actual = $this->getCachedStatus();
-            $this->setCachedStatus(new ShopStatus(array_merge(
-                $actual->toArray(false),
-                $shopStatus->toArray(false)
-            )));
+            $isValid = $this->getCachedStatus()->isValid;
         } catch (UnknownStatusException $e) {
-            $this->setCachedStatus($shopStatus);
+            $isValid = false;
         }
+
+        return !$isValid;
     }
 
     /**
-     * @param bool $refresh
+     * @param int $cacheTtl
+     *
+     * @return bool
+     */
+    public function cacheExpired($cacheTtl = self::CACHE_TTL)
+    {
+        $dateUpd = $this->getCacheDateUpd();
+
+        return $dateUpd instanceof DateTime &&
+            $cacheTtl != self::CACHE_TTL_INFINITE &&
+            time() - $dateUpd->getTimestamp() >= $cacheTtl;
+    }
+
+    /**
+     * @return \DateTime|null
+     */
+    public function getCacheDateUpd()
+    {
+        return $this->repository->getCachedShopStatusDateUpd();
+    }
+
+    /**
+     * @param bool $cachedStatus
      *
      * @return string|null
      */
-    public function getCloudShopId($refresh = false)
+    public function getCloudShopId($cachedStatus = true)
     {
         try {
-            return $this->getStatus($refresh)->cloudShopId;
+            return $this->getStatus($cachedStatus)->cloudShopId;
         } catch (UnknownStatusException $e) {
             return null;
         }
@@ -162,36 +177,79 @@ class StatusManager
      */
     public function setCloudShopId($cloudShopId)
     {
-        $this->upsetCachedStatus(new ShopStatus([
-            'cloudShopId' => $cloudShopId,
+        $this->upsetCachedStatus(new CachedShopStatus([
+            'shopStatus' => new ShopStatus([
+                'cloudShopId' => $cloudShopId,
+            ]),
         ]));
     }
 
     /**
-     * @param bool $refresh
+     * @param bool $cachedStatus
      *
      * @return string|null
      */
-    public function getPointOfContactUuid($refresh = false)
+    public function getPointOfContactUuid($cachedStatus = true)
     {
         try {
-            return $this->getStatus($refresh)->pointOfContactUuid;
+            return $this->getStatus($cachedStatus)->pointOfContactUuid;
         } catch (UnknownStatusException $e) {
             return null;
         }
     }
 
     /**
-     * @param bool $refresh
+     * @param bool $cachedStatus
      *
      * @return string|null
      */
-    public function getPointOfContactEmail($refresh = false)
+    public function getPointOfContactEmail($cachedStatus = true)
     {
         try {
-            return $this->getStatus($refresh)->pointOfContactEmail;
+            return $this->getStatus($cachedStatus)->pointOfContactEmail;
         } catch (UnknownStatusException $e) {
             return null;
+        }
+    }
+
+    /**
+     * @return CachedShopStatus
+     *
+     * @throws UnknownStatusException
+     */
+    protected function getCachedStatus()
+    {
+        $status = $this->repository->getCachedShopStatus();
+
+        if (!$status) {
+            throw new UnknownStatusException('Unknown status');
+        }
+
+        return new CachedShopStatus(json_decode($status, true));
+    }
+
+    /**
+     * @return void
+     */
+    protected function setCachedStatus(CachedShopStatus $cachedShopStatus)
+    {
+        $this->repository->updateCachedShopStatus(json_encode($cachedShopStatus->toArray()) ?: null);
+
+        $this->repository->updateShopUuid($cachedShopStatus->shopStatus->cloudShopId);
+    }
+
+    /**
+     * @return void
+     */
+    protected function upsetCachedStatus(CachedShopStatus $cachedShopStatus)
+    {
+        try {
+            $this->setCachedStatus(new CachedShopStatus(array_replace_recursive(
+                $this->getCachedStatus()->toArray(),
+                $cachedShopStatus->toArray(false)
+           )));
+        } catch (UnknownStatusException $e) {
+            $this->setCachedStatus($cachedShopStatus);
         }
     }
 }
