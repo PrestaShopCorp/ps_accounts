@@ -21,11 +21,9 @@
 namespace PrestaShop\Module\PsAccounts\Presenter;
 
 use PrestaShop\Module\PsAccounts\Account\StatusManager;
-use PrestaShop\Module\PsAccounts\Adapter\Configuration;
 use PrestaShop\Module\PsAccounts\Installer\Installer;
 use PrestaShop\Module\PsAccounts\Provider\ShopProvider;
 use PrestaShop\Module\PsAccounts\Repository\ConfigurationRepository;
-use PrestaShop\Module\PsAccounts\Service\OAuth2\OAuth2Service;
 use PrestaShop\Module\PsAccounts\Service\PsAccountsService;
 use PrestaShop\Module\PsAccounts\Service\SentryService;
 use PrestaShopException;
@@ -66,11 +64,6 @@ class PsAccountsPresenter implements PresenterInterface
     private $module;
 
     /**
-     * @var OAuth2Service
-     */
-    private $oAuth2Service;
-
-    /**
      * @param \Ps_accounts $module
      *
      * @throws \Exception
@@ -85,7 +78,6 @@ class PsAccountsPresenter implements PresenterInterface
         $this->statusManager = $module->getService(StatusManager::class);
         $this->installer = $module->getService(Installer::class);
         $this->configuration = $module->getService(ConfigurationRepository::class);
-        $this->oAuth2Service = $module->getService(OAuth2Service::class);
 
         // FIXME: find a better place for this
         $this->configuration->fixMultiShopConfig();
@@ -172,14 +164,6 @@ class PsAccountsPresenter implements PresenterInterface
 
                     'accountsUiUrl' => $this->module->getParameter('ps_accounts.accounts_ui_url'),
 
-                    // 1- open a popup
-                    // 2- callback inject JS close popup & refresh parent
-                    // OU ajax call parent to refresh state (from ajax call to BO state Polling or ??)
-                    'identifyUrl' => $this->oAuth2Service->getOAuth2Client()->getRedirectUri([
-                        'action' => 'identifyPointOfContact',
-                    ]),
-                    'contactEmail' => $this->module->getService(Configuration::class)
-                        ->get('PS_ACCOUNTS_CONTACT_EMAIL', ''),
                     'component_params_init' => $this->psAccountsService->getComponentInitParams($psxName),
                 ],
                 (new DependenciesPresenter())->present($psxName)
