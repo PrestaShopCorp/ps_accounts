@@ -59,7 +59,7 @@ class GetContextHandler
             'groups' => $this->shopProvider->getShops(
                 $query->groupId,
                 $query->shopId,
-                $query->refresh,
+                $query->refresh
             ),
         ];
     }

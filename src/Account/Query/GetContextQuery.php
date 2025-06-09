@@ -34,7 +34,7 @@ class GetContextQuery
     public $shopId;
 
     /**
-     * @var boolean
+     * @var bool
      */
     public $refresh;
 
