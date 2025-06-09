@@ -171,15 +171,6 @@ class PsAccountsPresenter implements PresenterInterface
                     'adminAjaxLink' => $this->psAccountsService->getAdminAjaxUrl(),
 
                     'accountsUiUrl' => $this->module->getParameter('ps_accounts.accounts_ui_url'),
-
-                    // 1- open a popup
-                    // 2- callback inject JS close popup & refresh parent
-                    // OU ajax call parent to refresh state (from ajax call to BO state Polling or ??)
-                    'identifyUrl' => $this->oAuth2Service->getOAuth2Client()->getRedirectUri([
-                        'action' => 'identifyPointOfContact',
-                    ]),
-                    'contactEmail' => $this->module->getService(Configuration::class)
-                        ->get('PS_ACCOUNTS_CONTACT_EMAIL', ''),
                 ],
                 (new DependenciesPresenter())->present($psxName)
             );
