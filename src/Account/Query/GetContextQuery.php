@@ -39,7 +39,9 @@ class GetContextQuery
     public $refresh;
 
     /**
-     * @param int|null $shopId
+     * @param string|null $groupId
+     * @param string|null $shopId
+     * @param bool $refresh
      */
     public function __construct($groupId = null, $shopId = null, $refresh = false)
     {
