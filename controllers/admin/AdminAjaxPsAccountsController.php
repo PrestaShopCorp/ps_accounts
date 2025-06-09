@@ -27,6 +27,7 @@ use PrestaShop\Module\PsAccounts\AccountLogin\OAuth2Session;
 use PrestaShop\Module\PsAccounts\Cqrs\CommandBus;
 use PrestaShop\Module\PsAccounts\Cqrs\QueryBus;
 use PrestaShop\Module\PsAccounts\Hook\ActionShopAccountUnlinkAfter;
+use PrestaShop\Module\PsAccounts\Log\Logger;
 use PrestaShop\Module\PsAccounts\Polyfill\Traits\Controller\AjaxRender;
 use PrestaShop\Module\PsAccounts\Repository\ConfigurationRepository;
 use PrestaShop\Module\PsAccounts\Service\Accounts\Resource\ShopStatus;
@@ -50,6 +51,11 @@ class AdminAjaxPsAccountsController extends \ModuleAdminController
     private $commandBus;
 
     /**
+     * @var QueryBus
+     */
+    private $queryBus;
+
+    /**
      * AdminAjaxPsAccountsController constructor.
      *
      * @throws Exception
@@ -59,6 +65,7 @@ class AdminAjaxPsAccountsController extends \ModuleAdminController
         parent::__construct();
 
         $this->commandBus = $this->module->getService(CommandBus::class);
+        $this->queryBus = $this->module->getService(QueryBus::class);
 
         $this->ajax = true;
         $this->content_only = true;
@@ -172,17 +179,29 @@ class AdminAjaxPsAccountsController extends \ModuleAdminController
      */
     public function ajaxProcessGetContext()
     {
-        try {
-            /** @var QueryBus $queryBus */
-            $queryBus = $this->module->getService(QueryBus::class);
+        header('Content-Type: text/json');
 
-            header('Content-Type: text/json');
+        try {
+            $command = new GetContextQuery(
+                Tools::getValue('group_id', null),
+                Tools::getValue('shop_id', null),
+                filter_var(Tools::getValue('refresh', false), FILTER_VALIDATE_BOOLEAN)
+            );
 
             $this->ajaxRender(
-                (string) json_encode($queryBus->handle(new GetContextQuery()))
+                (string) json_encode($this->queryBus->handle($command))
             );
         } catch (Exception $e) {
-            SentryService::captureAndRethrow($e);
+            Logger::getInstance()->error($e->getMessage());
+
+            http_response_code(500);
+
+            $this->ajaxRender(
+                (string) json_encode([
+                    'error' => true,
+                    'message' => $e->getMessage(),
+                ])
+            );
         }
     }
 }

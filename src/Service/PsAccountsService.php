@@ -321,7 +321,7 @@ class PsAccountsService
      *
      * @return array
      */
-    public function getInitParams($psxName = 'ps_accounts')
+    public function getComponentInitParams($psxName = 'ps_accounts')
     {
         return [
             'mode' => \Shop::getContext(),

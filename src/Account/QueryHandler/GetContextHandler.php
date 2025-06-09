@@ -56,7 +56,11 @@ class GetContextHandler
                 'last_succeeded_upgrade_version' => $psAccountsVersion,
                 'module_version_from_files' => \Ps_accounts::VERSION,
             ],
-            'groups' => $this->shopProvider->getShops(), // TODO: pass param to force refresh status ?
+            'groups' => $this->shopProvider->getShops(
+                $query->groupId,
+                $query->shopId,
+                $query->refresh,
+            ),
         ];
     }
 }

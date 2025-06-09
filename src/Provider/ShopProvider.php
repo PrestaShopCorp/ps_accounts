@@ -314,32 +314,45 @@ class ShopProvider
     }
 
     /**
+     * @param string|null $groupId
+     * @param string|null $shopId
+     * @param bool $refresh
+     *
      * @return array
      */
-    public function getShops()
+    public function getShops($groupId = null, $shopId = null, $refresh = false)
     {
         $shopList = [];
 
-        foreach (\Shop::getTree() as $groupId => $groupData) {
+        foreach (\Shop::getTree() as $groupData) {
+            if ($groupId !== null && $groupId !== $groupData['id']) {
+                continue;
+            }
+
             $shops = [];
-            foreach ($groupData['shops'] as $shopId => $shopData) {
-                $shopUrl = $this->getUrl($shopId);
-                $shopStatus = $this->shopStatus->getStatus($shopId);
+            foreach ($groupData['shops'] as $shopData) {
+                if ($shopId !== null && $shopId !== $shopData['id_shop']) {
+                    continue;
+                }
+
+                $shopUrl = $this->getUrl((int) $shopData['id_shop']);
+                $shopStatus = $this->shopStatus->getStatus($refresh);
+                $identifyUrl = $this->oAuth2Service->getOAuth2Client()->getRedirectUri([
+                    'action' => 'identifyPointOfContact',
+                ]);
 
                 $shops[] = [
-                    'id' => $shopId,
+                    'id' => (int) $shopData['id_shop'],
                     'name' => $shopData['name'],
                     'backOfficeUrl' => $shopUrl->getBackOfficeUrl(),
                     'frontendUrl' => $shopUrl->getFrontendUrl(),
-                    'identifyUrl' => $this->oAuth2Service->getOAuth2Client()->getRedirectUri([
-                        'action' => 'identifyPointOfContact',
-                    ]),
+                    'identifyUrl' => $identifyUrl,
                     'shopStatus' => $shopStatus,
                 ];
             }
 
             $shopList[] = [
-                'id' => $groupId,
+                'id' => (int) $groupData['id'],
                 'name' => $groupData['name'],
                 'shops' => $shops,
             ];

@@ -368,7 +368,7 @@ class Ps_accounts extends Module
 
         Media::addJsDef([
             'contextPsAccounts' => $psAccountsPresenter->present((string) $this->name),
-            'contextInitParams' => $psAccountsService->getInitParams((string) $this->name),
+            'psAccountsInitParams' => $psAccountsService->getComponentInitParams((string) $this->name),
         ]);
 
         return $this->display(__FILE__, 'views/templates/admin/app.tpl');
