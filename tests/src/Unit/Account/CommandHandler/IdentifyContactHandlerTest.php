@@ -3,6 +3,7 @@
 namespace PrestaShop\Module\PsAccounts\Tests\Unit\Account\CommandHandler;
 
 use PHPUnit\Framework\MockObject\MockObject;
+use PrestaShop\Module\PsAccounts\Account\CachedShopStatus;
 use PrestaShop\Module\PsAccounts\Account\Command\IdentifyContactCommand;
 use PrestaShop\Module\PsAccounts\Account\CommandHandler\IdentifyContactHandler;
 use PrestaShop\Module\PsAccounts\Account\Session\ShopSession;
@@ -88,10 +89,13 @@ class IdentifyContactHandlerTest extends TestCase
                 $this->equalTo("valid_access_token")
             );
 
-        $this->statusManager->setCachedStatus(new ShopStatus([
-            'cloudShopId' => $cloudShopId,
-            'isVerified' => true,
-        ]));
+        $this->configurationRepository->updateCachedShopStatus(json_encode((new CachedShopStatus([
+            'isValid' => true,
+            'shopStatus' => new ShopStatus([
+                'cloudShopId' => $cloudShopId,
+                'isVerified' => true,
+            ])
+        ]))->toArray()));
 
         $this->getHandler()->handle(new IdentifyContactCommand(new AccessToken(
             [
@@ -120,10 +124,13 @@ class IdentifyContactHandlerTest extends TestCase
                 $this->equalTo("valid_access_token")
             );
 
-        $this->statusManager->setCachedStatus(new ShopStatus([
-            'cloudShopId' => $cloudShopId,
-            'isVerified' => false,
-        ]));
+        $this->configurationRepository->updateCachedShopStatus(json_encode((new CachedShopStatus([
+            'isValid' => true,
+            'shopStatus' => new ShopStatus([
+                'cloudShopId' => $cloudShopId,
+                'isVerified' => false,
+            ])
+        ]))->toArray()));
 
         $this->getHandler()->handle(new IdentifyContactCommand(new AccessToken(
             [
