@@ -1,0 +1,59 @@
+name: Sync Docker Images to GHCR
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: '0 6 1,15 * *' 
+
+env:
+  GHCR_USER: prestashopcorp
+
+jobs:
+  sync-docker-images:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Login to GHCR
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: prestashopcorp
+          password: ${{ secrets.DOWNLOADER_TOKEN }}
+
+      - name: Pull & Push PrestaShop Flashlight images
+        run: |
+          FLASHLIGHT_VERSIONS=(
+            1.6.1.24-7.1-fpm-alpine
+            1.7.8.7-7.4-fpm-alpine
+            1.7.8.8-7.4-fpm-alpine
+            8.1.0-8.1-fpm-alpine
+            8.2.0-8.1-fpm-alpine
+            nightly-nginx
+          )
+
+          for version in "${FLASHLIGHT_VERSIONS[@]}"; do
+            echo "Pushing flashlight $version"
+            docker pull --platform=linux/amd64 prestashop/prestashop-flashlight:$version
+            docker tag prestashop/prestashop-flashlight:$version ghcr.io/${GHCR_USER}/prestashop/prestashop-flashlight:$version
+            docker push ghcr.io/${GHCR_USER}/prestashop/prestashop-flashlight:$version
+          done
+
+      - name: Pull & Push Generic Images
+        run: |
+          GENERIC_IMAGES=(
+            "mariadb:latest"
+            "phpmyadmin:latest"
+          )
+
+          for image in "${GENERIC_IMAGES[@]}"; do
+            echo "Pushing images $image"
+            docker pull --platform=linux/amd64 "$image"
+            docker tag "$image" "ghcr.io/${GHCR_USER}/$image"
+            docker push "ghcr.io/${GHCR_USER}/$image"
+          done
+
+      - name: Pull & Push Cloudflared
+        run: |
+          docker pull --platform=linux/amd64 cloudflare/cloudflared:latest
+          docker tag cloudflare/cloudflared:latest ghcr.io/${GHCR_USER}/cloudflare/cloudflared:latest
+          docker push ghcr.io/${GHCR_USER}/cloudflare/cloudflared:latest
