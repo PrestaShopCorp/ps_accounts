@@ -85,6 +85,7 @@ class VerifyIdentityHandler
      *
      * @throws RefreshTokenException
      * @throws UnknownStatusException
+     * @throws AccountsException
      */
     public function handle(VerifyIdentityCommand $command)
     {
@@ -96,19 +97,12 @@ class VerifyIdentityHandler
 
         $shopId = $command->shopId ?: \Shop::getContextShopID();
 
-        try {
-            $this->accountsService->verifyShopIdentity(
-                $this->statusManager->getCloudShopId(),
-                $this->shopSession->getValidToken(),
-                $this->shopProvider->getUrl($shopId),
-                $this->proofManager->generateProof()
-            );
-        } catch (AccountsException $e) {
-            // log error ?
-        } finally {
-            $this->proofManager->deleteProof();
-
-            $this->statusManager->invalidateCache();
-        }
+        $this->accountsService->verifyShopIdentity(
+            $this->statusManager->getCloudShopId(),
+            $this->shopSession->getValidToken(),
+            $this->shopProvider->getUrl($shopId),
+            $this->proofManager->generateProof()
+        );
+        $this->statusManager->invalidateCache();
     }
 }

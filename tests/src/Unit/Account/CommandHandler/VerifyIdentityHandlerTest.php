@@ -104,7 +104,7 @@ class VerifyIdentityHandlerTest extends TestCase
     /**
      * @test
      */
-    public function itShouldNotnvalidateCachedStatusOnHttpError()
+    public function itShouldNotInvalidateCachedStatusOnHttpError()
     {
         $cloudShopId = $this->faker->uuid;
 
@@ -129,7 +129,7 @@ class VerifyIdentityHandlerTest extends TestCase
 
             $this->getHandler()->handle(new VerifyIdentityCommand(1));
 
-        $this->assertTrue($this->statusManager->cacheInvalidated());
+        $this->assertFalse($this->statusManager->cacheInvalidated());
     }
 
     /**
