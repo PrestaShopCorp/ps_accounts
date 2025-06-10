@@ -70,8 +70,10 @@ class ShopSession extends Session implements SessionInterface
     public function refreshToken($refreshToken = null)
     {
         try {
+            $shopUuid = $this->configurationRepository->getShopUuid();
+
             $accessToken = $this->getAccessToken([], [
-                //'shop_' . $shopUuid, // FIXME: remove that audience
+                'store/' . $shopUuid,
                 $this->tokenAudience,
             ]);
 
