@@ -243,12 +243,13 @@ class AccountsService
 
     /**
      * @param ShopUrl $shopUrl
+     * @param string $proof
      *
      * @return IdentityCreated
      *
      * @throws AccountsException
      */
-    public function createShopIdentity(ShopUrl $shopUrl)
+    public function createShopIdentity(ShopUrl $shopUrl, $proof)
     {
         $response = $this->getClient()->post(
             '/v1/shop-identities',
@@ -257,6 +258,7 @@ class AccountsService
                     'backOfficeUrl' => $shopUrl->getBackOfficeUrl(),
                     'frontendUrl' => $shopUrl->getFrontendUrl(),
                     'multiShopId' => $shopUrl->getMultiShopId(),
+                    'proof' => $proof,
                 ],
             ]
         );

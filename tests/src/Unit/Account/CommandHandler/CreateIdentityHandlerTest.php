@@ -3,11 +3,16 @@
 namespace PrestaShop\Module\PsAccounts\Tests\Unit\Account\CommandHandler;
 
 use PHPUnit\Framework\MockObject\MockObject;
+use PrestaShop\Module\PsAccounts\Account\CachedShopStatus;
 use PrestaShop\Module\PsAccounts\Account\Command\CreateIdentityCommand;
+use PrestaShop\Module\PsAccounts\Account\Command\VerifyIdentityCommand;
 use PrestaShop\Module\PsAccounts\Account\CommandHandler\CreateIdentityHandler;
+use PrestaShop\Module\PsAccounts\Account\CommandHandler\VerifyIdentityHandler;
+use PrestaShop\Module\PsAccounts\Account\ProofManager;
 use PrestaShop\Module\PsAccounts\Account\StatusManager;
 use PrestaShop\Module\PsAccounts\Http\Client\Curl\Client;
 use PrestaShop\Module\PsAccounts\Service\Accounts\AccountsService;
+use PrestaShop\Module\PsAccounts\Service\Accounts\Resource\ShopStatus;
 use PrestaShop\Module\PsAccounts\Service\OAuth2\OAuth2Client;
 use PrestaShop\Module\PsAccounts\Provider\ShopProvider;
 use PrestaShop\Module\PsAccounts\Tests\TestCase;
@@ -43,9 +48,21 @@ class CreateIdentityHandlerTest extends TestCase
     public $statusManager;
 
     /**
+     * @inject
+     *
+     * @var ProofManager
+     */
+    public $proofManager;
+
+    /**
      * @var Client&MockObject
      */
     public $client;
+
+    /**
+     * @var VerifyIdentityHandler&MockObject
+     */
+    public $verifyIdentityHandler;
 
     /**
      * @var int
@@ -59,6 +76,9 @@ class CreateIdentityHandlerTest extends TestCase
         $this->shopId = $this->shopProvider->getShopContext()->getContext()->shop->id;
         $this->client = $this->createMock(Client::class);
         $this->accountsService->setClient($this->client);
+
+        $this->verifyIdentityHandler = $this->createMock(VerifyIdentityHandler::class);
+        $this->module->getServiceContainer()->set(VerifyIdentityHandler::class, $this->verifyIdentityHandler);
     }
 
     /**
@@ -115,7 +135,7 @@ class CreateIdentityHandlerTest extends TestCase
 
         $this->client
             ->method('post')
-            ->willReturnCallback(function ($route) use ($id1, $id2) {
+            ->willReturnCallback(function ($route) use ($id1, $id2, $cloudShopId) {
                 static $count = 1;
                 if (preg_match('/v1\/shop-identities$/', $route)) {
                     return $count++ === 1 ? $id1 : $id2;
@@ -139,6 +159,34 @@ class CreateIdentityHandlerTest extends TestCase
     }
 
     /**
+     * @test
+     */
+    public function itShouldTriggerVerifyIdentityIfAlreadyCreated()
+    {
+        $clientId = $this->faker->uuid;
+        $clientSecret = $this->faker->uuid;
+        $cloudShopId = $this->faker->uuid;
+
+        $this->configurationRepository->updateCachedShopStatus(json_encode((new CachedShopStatus([
+            'isValid' => true,
+            'shopStatus' => new ShopStatus([
+                'cloudShopId' => $cloudShopId,
+                'isVerified' => false,
+            ])
+        ]))->toArray()));
+
+        $this->oauth2Client->update($clientId, $clientSecret);
+
+        $this->verifyIdentityHandler->expects($this->once())
+            ->method('handle')
+            ->with(
+                $this->isInstanceOf(VerifyIdentityCommand::class)
+            );
+
+        $this->getHandler()->handle(new CreateIdentityCommand(1, []));
+    }
+
+    /**
      * @return CreateIdentityHandler
      */
     private function getHandler()
@@ -147,7 +195,9 @@ class CreateIdentityHandlerTest extends TestCase
             $this->accountsService,
             $this->shopProvider,
             $this->oauth2Client,
-            $this->statusManager
+            $this->statusManager,
+            $this->proofManager,
+            $this->commandBus
         );
     }
 }
