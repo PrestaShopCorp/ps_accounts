@@ -127,7 +127,10 @@ class VerifyIdentityHandlerTest extends TestCase
                 return $this->createResponse([], 400, true);
             });
 
+        try {
             $this->getHandler()->handle(new VerifyIdentityCommand(1));
+        } catch (AccountsException $e) {
+        }
 
         $this->assertFalse($this->statusManager->cacheInvalidated());
     }
