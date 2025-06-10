@@ -74,7 +74,7 @@ class VerifyIdentityHandlerTest extends TestCase
     /**
      * @test
      */
-    public function itShouldInvalidateCachedStatus()
+    public function itShouldInvalidateCachedStatusOnSuccess()
     {
         $cloudShopId = $this->faker->uuid;
 
@@ -89,7 +89,9 @@ class VerifyIdentityHandlerTest extends TestCase
         $this->client->method('post')
             ->willReturnCallback(function ($route) use ($cloudShopId) {
                 if (preg_match('/v1\/shop-identities\/' . $cloudShopId . '\/verify$/', $route)) {
-                    return $this->createResponse([], 200, true);
+                    return $this->createResponse([
+                        "success" => true,
+                    ], 200, true);
                 }
                 return $this->createResponse([], 500, true);
             });
@@ -102,7 +104,7 @@ class VerifyIdentityHandlerTest extends TestCase
     /**
      * @test
      */
-    public function itShouldNotnvalidateCachedStatusOnHttpError()
+    public function itShouldNotInvalidateCachedStatusOnHttpError()
     {
         $cloudShopId = $this->faker->uuid;
 
@@ -117,15 +119,17 @@ class VerifyIdentityHandlerTest extends TestCase
         $this->client->method('post')
             ->willReturnCallback(function ($route) use ($cloudShopId) {
                 if (preg_match('/v1\/shop-identities\/' . $cloudShopId . '\/verify$/', $route)) {
-                    return $this->createResponse([], 500, true);
+                    return $this->createResponse([
+                       "error" => 'store-identity/proof-invalid',
+                       "message" => 'Proof is invalid',
+                    ], 400, true);
                 }
-                return $this->createResponse([], 500, true);
+                return $this->createResponse([], 400, true);
             });
 
         try {
             $this->getHandler()->handle(new VerifyIdentityCommand(1));
         } catch (AccountsException $e) {
-            //$this->assertInstanceOf(AccountsException::class, $e);
         }
 
         $this->assertFalse($this->statusManager->cacheInvalidated());

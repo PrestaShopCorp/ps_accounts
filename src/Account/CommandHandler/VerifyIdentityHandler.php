@@ -94,21 +94,15 @@ class VerifyIdentityHandler
         if ($cachedStatus->isVerified) {
             return;
         }
+
         $shopId = $command->shopId ?: \Shop::getContextShopID();
 
-        //try {
         $this->accountsService->verifyShopIdentity(
             $this->statusManager->getCloudShopId(),
             $this->shopSession->getValidToken(),
             $this->shopProvider->getUrl($shopId),
             $this->proofManager->generateProof()
         );
-
         $this->statusManager->invalidateCache();
-
-        $this->proofManager->deleteProof();
-        //} catch (AccountsException $e) {
-        //    // Status not verified
-        //}
     }
 }
