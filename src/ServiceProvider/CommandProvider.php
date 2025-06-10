@@ -63,7 +63,8 @@ class CommandProvider implements IServiceProvider
                 $container->get(ShopProvider::class),
                 $container->get(OAuth2Client::class),
                 $container->get(StatusManager::class),
-                $container->get(ProofManager::class)
+                $container->get(ProofManager::class),
+                $container->get(CommandBus::class)
             );
         });
         $container->registerProvider(CreateIdentitiesHandler::class, static function () use ($container) {
