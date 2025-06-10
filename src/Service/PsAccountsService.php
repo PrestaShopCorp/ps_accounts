@@ -244,6 +244,16 @@ class PsAccountsService
     /**
      * @return string
      *
+     * @throws \PrestaShopException
+     */
+    public function getContextUrl()
+    {
+        return $this->link->getAdminLink('AdminAjaxPsAccounts', true, [], ['ajax' => 1, 'action' => 'getContext']);
+    }
+
+    /**
+     * @return string
+     *
      * @throws \Exception
      */
     public function getAccountsVueCdn()
@@ -304,5 +314,22 @@ class PsAccountsService
         } catch (\Exception $e) {
             return null;
         }
+    }
+
+    /**
+     * @param string $psxName
+     *
+     * @return array
+     */
+    public function getComponentInitParams($psxName = 'ps_accounts')
+    {
+        return [
+            'mode' => \Shop::getContext(),
+            'shopId' => \Shop::getContextShopID(),
+            'groupId' => \Shop::getContextShopGroupID(),
+            'getContextUrl' => $this->getContextUrl(),
+            'manageAccountUrl' => $this->module->getAccountsUiUrl(),
+            'psxName' => $psxName,
+        ];
     }
 }

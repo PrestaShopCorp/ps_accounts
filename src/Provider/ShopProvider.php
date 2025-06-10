@@ -26,6 +26,7 @@ use PrestaShop\Module\PsAccounts\Account\ShopUrl;
 use PrestaShop\Module\PsAccounts\Account\StatusManager;
 use PrestaShop\Module\PsAccounts\Adapter\Link;
 use PrestaShop\Module\PsAccounts\Context\ShopContext;
+use PrestaShop\Module\PsAccounts\Service\OAuth2\OAuth2Service;
 
 class ShopProvider
 {
@@ -40,17 +41,32 @@ class ShopProvider
     private $link;
 
     /**
+     * @var StatusManager
+     */
+    private $shopStatus;
+
+    /**
+     * @var OAuth2Service
+     */
+    private $oAuth2Service;
+
+    /**
      * ShopProvider constructor.
      *
      * @param ShopContext $shopContext
      * @param Link $link
+     * @param StatusManager $shopStatus
      */
     public function __construct(
         ShopContext $shopContext,
-        Link $link
+        Link $link,
+        StatusManager $shopStatus,
+        OAuth2Service $oAuth2Service
     ) {
         $this->shopContext = $shopContext;
         $this->link = $link;
+        $this->shopStatus = $shopStatus;
+        $this->oAuth2Service = $oAuth2Service;
     }
 
     /**
@@ -295,5 +311,53 @@ class ShopProvider
         $frontendUrl = rtrim($this->getFrontendUrl($shopId), '/');
 
         return new ShopUrl($backOfficeUrl, $frontendUrl, $shopId);
+    }
+
+    /**
+     * @param string|null $groupId
+     * @param string|null $shopId
+     * @param bool $refresh
+     *
+     * @return array
+     */
+    public function getShops($groupId = null, $shopId = null, $refresh = false)
+    {
+        $shopList = [];
+
+        foreach (\Shop::getTree() as $groupData) {
+            if ($groupId !== null && $groupId !== $groupData['id']) {
+                continue;
+            }
+
+            $shops = [];
+            foreach ($groupData['shops'] as $shopData) {
+                if ($shopId !== null && $shopId !== $shopData['id_shop']) {
+                    continue;
+                }
+
+                $shopUrl = $this->getUrl((int) $shopData['id_shop']);
+                $shopStatus = $this->shopStatus->getStatus($refresh);
+                $identifyUrl = $this->oAuth2Service->getOAuth2Client()->getRedirectUri([
+                    'action' => 'identifyPointOfContact',
+                ]);
+
+                $shops[] = [
+                    'id' => (int) $shopData['id_shop'],
+                    'name' => $shopData['name'],
+                    'backOfficeUrl' => $shopUrl->getBackOfficeUrl(),
+                    'frontendUrl' => $shopUrl->getFrontendUrl(),
+                    'identifyUrl' => $identifyUrl,
+                    'shopStatus' => $shopStatus,
+                ];
+            }
+
+            $shopList[] = [
+                'id' => (int) $groupData['id'],
+                'name' => $groupData['name'],
+                'shops' => $shops,
+            ];
+        }
+
+        return $shopList;
     }
 }

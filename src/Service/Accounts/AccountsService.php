@@ -330,6 +330,35 @@ class AccountsService
     }
 
     /**
+     * @param string $cloudShopId
+     * @param string $shopToken
+     * @param string $userToken
+     *
+     * @return void
+     *
+     * @throws AccountsException
+     */
+    public function setPointOfContact($cloudShopId, $shopToken, $userToken)
+    {
+        $response = $this->getClient()->post(
+            '/v1/shop-identities/' . $cloudShopId . '/point-of-contact',
+            [
+                Request::HEADERS => $this->getHeaders([
+                    'Authorization' => 'Bearer ' . $shopToken,
+                    'X-Shop-Id' => $cloudShopId,
+                ]),
+                Request::JSON => [
+                    'pointOfContactJWT' => $userToken,
+                ],
+            ]
+        );
+
+        if (!$response->isSuccessful) {
+            throw new AccountsException($this->getResponseErrorMsg($response, 'Unable to set point of contact'));
+        }
+    }
+
+    /**
      * @param Response $response
      * @param string $defaultMessage
      *

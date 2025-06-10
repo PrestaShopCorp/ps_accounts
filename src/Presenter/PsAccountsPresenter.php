@@ -163,6 +163,8 @@ class PsAccountsPresenter implements PresenterInterface
                     'adminAjaxLink' => $this->psAccountsService->getAdminAjaxUrl(),
 
                     'accountsUiUrl' => $this->module->getParameter('ps_accounts.accounts_ui_url'),
+
+                    'component_params_init' => $this->psAccountsService->getComponentInitParams($psxName),
                 ],
                 (new DependenciesPresenter())->present($psxName)
             );

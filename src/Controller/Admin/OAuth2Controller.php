@@ -22,6 +22,7 @@ namespace PrestaShop\Module\PsAccounts\Controller\Admin;
 
 //use PrestaShopBundle\Controller\Admin\PrestaShopAdminController;
 use Doctrine\ORM\EntityManagerInterface;
+use PrestaShop\Module\PsAccounts\Account\Command\IdentifyContactCommand;
 use PrestaShop\Module\PsAccounts\AccountLogin\Exception\AccountLoginException;
 use PrestaShop\Module\PsAccounts\AccountLogin\Exception\EmailNotVerifiedException;
 use PrestaShop\Module\PsAccounts\AccountLogin\Exception\EmployeeNotFoundException;
@@ -29,10 +30,11 @@ use PrestaShop\Module\PsAccounts\AccountLogin\OAuth2LoginTrait;
 use PrestaShop\Module\PsAccounts\AccountLogin\OAuth2Session;
 use PrestaShop\Module\PsAccounts\Adapter\Link;
 use PrestaShop\Module\PsAccounts\Api\Client\ExternalAssetsClient;
+use PrestaShop\Module\PsAccounts\Cqrs\CommandBus;
 use PrestaShop\Module\PsAccounts\Log\Logger;
 use PrestaShop\Module\PsAccounts\Service\AnalyticsService;
 use PrestaShop\Module\PsAccounts\Service\OAuth2\OAuth2Service;
-use PrestaShop\Module\PsAccounts\Service\OAuth2\Resource\UserInfo;
+use PrestaShop\Module\PsAccounts\Service\OAuth2\Resource\AccessToken;
 use PrestaShop\Module\PsAccounts\Service\PsAccountsService;
 use PrestaShopBundle\Controller\Admin\FrameworkBundleAdminController;
 use PrestaShopBundle\Entity\Employee\Employee as EmployeeEntity;
@@ -92,6 +94,11 @@ class OAuth2Controller extends FrameworkBundleAdminController
      */
     private $redirectResponse;
 
+    /**
+     * @var CommandBus
+     */
+    private $commandBus;
+
     public function __construct()
     {
         /** @var Ps_accounts $module */
@@ -101,6 +108,7 @@ class OAuth2Controller extends FrameworkBundleAdminController
         $this->analyticsService = $this->module->getService(AnalyticsService::class);
         $this->psAccountsService = $this->module->getService(PsAccountsService::class);
         $this->externalAssetsClient = $this->module->getService(ExternalAssetsClient::class);
+        $this->commandBus = $this->module->getService(CommandBus::class);
     }
 
     /**
@@ -174,18 +182,29 @@ class OAuth2Controller extends FrameworkBundleAdminController
     }
 
     /**
-     * @param UserInfo $user
+     * @param AccessToken $accessToken
      *
      * @return bool
      *
      * @throws EmailNotVerifiedException
      * @throws EmployeeNotFoundException
      */
-    protected function initUserSession(UserInfo $user)
+    protected function initUserSession(AccessToken $accessToken)
     {
+        $user = $this->getOAuth2Service()->getUserInfo($accessToken->access_token);
+
         Logger::getInstance()->info(
             '[OAuth2] ' . (string) json_encode($user->toArray(), JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE)
         );
+
+        if ($this->getOAuthAction() === 'identifyPointOfContact') {
+            $this->commandBus->handle(new IdentifyContactCommand($accessToken));
+
+            return true;
+        }
+
+        $this->getOauth2Session()->setTokenProvider($accessToken);
+        //$user = $oauth2Session->getUserInfo();
 
         //$context = $this->context;
         /** @var \Context $context */
@@ -224,11 +243,20 @@ class OAuth2Controller extends FrameworkBundleAdminController
     }
 
     /**
-     * @return RedirectResponse
+     * @return Response
      */
     protected function redirectAfterLogin()
     {
-        // FIXME: requires some testing
+        if ($this->getOAuthAction() === 'identifyPointOfContact') {
+            return (new Response())->setContent(<<<HTML
+<script type="text/javascript">
+window.opener.location.reload();
+window.close();
+</script>
+HTML
+            );
+        }
+
         return $this->redirectResponse;
     }
 
