@@ -1,4 +1,4 @@
-type PsAccountsInitParams = {
+type ContextParamsInit = {
     mode: 1 | 2 | 4;
     shopId: number;
     groupId: number;
@@ -11,5 +11,8 @@ interface Window {
     psaccountsVue: any;
     signInComponent: any;
     storePsAccounts: any;
-    psAccountsInitParams: PsAccountsInitParams;
+    contextPsAccounts: {
+      [key: string]: any;
+      component_params_init: ContextParamsInit;
+    };
 }

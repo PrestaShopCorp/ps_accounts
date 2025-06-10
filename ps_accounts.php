@@ -363,12 +363,8 @@ class Ps_accounts extends Module
         /** @var \PrestaShop\Module\PsAccounts\Presenter\PsAccountsPresenter $psAccountsPresenter */
         $psAccountsPresenter = $this->getService(\PrestaShop\Module\PsAccounts\Presenter\PsAccountsPresenter::class);
 
-        /** @var \PrestaShop\Module\PsAccounts\Service\PsAccountsService $psAccountsService */
-        $psAccountsService = $this->getService(\PrestaShop\Module\PsAccounts\Service\PsAccountsService::class);
-
         Media::addJsDef([
             'contextPsAccounts' => $psAccountsPresenter->present((string) $this->name),
-            'psAccountsInitParams' => $psAccountsService->getComponentInitParams((string) $this->name),
         ]);
 
         return $this->display(__FILE__, 'views/templates/admin/app.tpl');
