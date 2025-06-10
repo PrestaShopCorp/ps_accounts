@@ -29,6 +29,7 @@ use PrestaShop\Module\PsAccounts\Adapter\Link;
 use PrestaShop\Module\PsAccounts\Api\Client\ServicesBillingClient;
 use PrestaShop\Module\PsAccounts\Context\ShopContext;
 use PrestaShop\Module\PsAccounts\Cqrs\CommandBus;
+use PrestaShop\Module\PsAccounts\Cqrs\QueryBus;
 use PrestaShop\Module\PsAccounts\Http\Client\CircuitBreaker;
 use PrestaShop\Module\PsAccounts\Installer\Installer;
 use PrestaShop\Module\PsAccounts\Presenter\PsAccountsPresenter;
@@ -37,6 +38,7 @@ use PrestaShop\Module\PsAccounts\Repository\ConfigurationRepository;
 use PrestaShop\Module\PsAccounts\Repository\ShopTokenRepository;
 use PrestaShop\Module\PsAccounts\Service\Accounts\AccountsService;
 use PrestaShop\Module\PsAccounts\Service\AnalyticsService;
+use PrestaShop\Module\PsAccounts\Service\OAuth2\OAuth2Service;
 use PrestaShop\Module\PsAccounts\Service\PsAccountsService;
 use PrestaShop\Module\PsAccounts\Service\PsBillingService;
 use PrestaShop\Module\PsAccounts\Service\SentryService;
@@ -115,7 +117,9 @@ class DefaultProvider implements IServiceProvider
         $container->registerProvider(Provider\ShopProvider::class, static function () use ($container) {
             return new Provider\ShopProvider(
                 $container->get(ShopContext::class),
-                $container->get(Link::class)
+                $container->get(Link::class),
+                $container->get(StatusManager::class),
+                $container->get(OAuth2Service::class)
             );
         });
         // Context
@@ -128,6 +132,11 @@ class DefaultProvider implements IServiceProvider
         // CQRS
         $container->registerProvider(CommandBus::class, static function () use ($container) {
             return new CommandBus(
+                $container->get('ps_accounts.module')
+            );
+        });
+        $container->registerProvider(QueryBus::class, static function () use ($container) {
+            return new QueryBus(
                 $container->get('ps_accounts.module')
             );
         });
