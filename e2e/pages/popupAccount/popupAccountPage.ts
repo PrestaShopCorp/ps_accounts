@@ -35,7 +35,8 @@ export default class PopupAccountPage extends BasePage {
     expect(pageTitle).toBeVisible({visible: true});
   }
   /**
-   * Connected to account with MBE
+   * Connected to account
+   * @param newPage {Page} The account popup
    * @param email string
    * @param password string
    */
