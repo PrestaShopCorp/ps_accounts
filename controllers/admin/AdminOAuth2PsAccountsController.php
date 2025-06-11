@@ -18,16 +18,18 @@
  * @license   https://opensource.org/licenses/AFL-3.0 Academic Free License version 3.0
  */
 
+use PrestaShop\Module\PsAccounts\Account\Command\IdentifyContactCommand;
 use PrestaShop\Module\PsAccounts\AccountLogin\Exception\AccountLoginException;
 use PrestaShop\Module\PsAccounts\AccountLogin\Exception\EmailNotVerifiedException;
 use PrestaShop\Module\PsAccounts\AccountLogin\Exception\EmployeeNotFoundException;
 use PrestaShop\Module\PsAccounts\AccountLogin\OAuth2LoginTrait;
 use PrestaShop\Module\PsAccounts\AccountLogin\OAuth2Session;
+use PrestaShop\Module\PsAccounts\Cqrs\CommandBus;
 use PrestaShop\Module\PsAccounts\Log\Logger;
 use PrestaShop\Module\PsAccounts\Polyfill\Traits\AdminController\IsAnonymousAllowed;
 use PrestaShop\Module\PsAccounts\Service\AnalyticsService;
 use PrestaShop\Module\PsAccounts\Service\OAuth2\OAuth2Service;
-use PrestaShop\Module\PsAccounts\Service\OAuth2\Resource\UserInfo;
+use PrestaShop\Module\PsAccounts\Service\OAuth2\Resource\AccessToken;
 use PrestaShop\Module\PsAccounts\Service\PsAccountsService;
 use Symfony\Component\HttpFoundation\Session\SessionInterface;
 
@@ -52,6 +54,11 @@ class AdminOAuth2PsAccountsController extends \ModuleAdminController
     private $psAccountsService;
 
     /**
+     * @var CommandBus
+     */
+    private $commandBus;
+
+    /**
      * @throws PrestaShopException
      * @throws Exception
      */
@@ -61,6 +68,7 @@ class AdminOAuth2PsAccountsController extends \ModuleAdminController
 
         $this->analyticsService = $this->module->getService(AnalyticsService::class);
         $this->psAccountsService = $this->module->getService(PsAccountsService::class);
+        $this->commandBus = $this->module->getService(CommandBus::class);
 
         $this->ajax = true;
         $this->content_only = true;
@@ -105,16 +113,30 @@ class AdminOAuth2PsAccountsController extends \ModuleAdminController
     }
 
     /**
-     * @param UserInfo $user
+     * @param AccessToken $accessToken
      *
      * @return bool
      *
      * @throws EmailNotVerifiedException
      * @throws EmployeeNotFoundException
-     * @throws Exception
      */
-    protected function initUserSession(UserInfo $user)
+    protected function initUserSession(AccessToken $accessToken)
     {
+        $user = $this->getOAuth2Service()->getUserInfo($accessToken->access_token);
+
+        Logger::getInstance()->info(
+            '[OAuth2] ' . (string) print_r($user, true)
+        );
+
+        if ($this->getOAuthAction() === 'identifyPointOfContact') {
+            $this->commandBus->handle(new IdentifyContactCommand($accessToken));
+
+            return true;
+        }
+
+        $this->getOauth2Session()->setTokenProvider($accessToken);
+        //$user = $oauth2Session->getUserInfo();
+
         Logger::getInstance()->info(
             '[OAuth2] ' . (string) print_r($user, true)
         );
@@ -179,6 +201,16 @@ class AdminOAuth2PsAccountsController extends \ModuleAdminController
      */
     protected function redirectAfterLogin()
     {
+        if ($this->getOAuthAction() === 'identifyPointOfContact') {
+            // Refresh configuration page
+            echo <<<HTML
+<script type="text/javascript">
+window.opener.location.reload();
+window.close();
+</script>
+HTML;
+            exit;
+        }
         $returnTo = $this->getSessionReturnTo() ?: 'AdminDashboard';
         if (preg_match('/^([A-Z][a-z0-9]+)+$/', $returnTo)) {
             $returnTo = $this->context->link->getAdminLink($returnTo);
