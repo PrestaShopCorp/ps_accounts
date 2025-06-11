@@ -60,6 +60,7 @@ class RefreshTokenTest extends TestCase
             $oAuth2Service,
             $this->module->getParameter('ps_accounts.accounts_api_url')
         );
+        $this->shopSession->setStatusManager($this->statusManager);
 
         $this->shopSession->cleanup();
     }

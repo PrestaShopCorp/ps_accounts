@@ -72,6 +72,7 @@ class DefaultProvider implements IServiceProvider
                 $container->get(ConfigurationRepository::class)
             );
             $shopSession->setStatusManager($service);
+
             return $service;
         });
         // Adapter
