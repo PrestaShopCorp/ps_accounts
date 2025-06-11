@@ -1,5 +1,6 @@
 import {Page, Locator, expect} from '@playwright/test';
 import BasePage from '~/pages/basePage';
+import {Globals} from '~/utils/globals';
 
 export default class PopupAccountPage extends BasePage {
   /* <<<<<<<<<<<<<<< Selectors Types >>>>>>>>>>>>>>>>>>>>>> */
@@ -22,7 +23,7 @@ export default class PopupAccountPage extends BasePage {
       this.page.context().waitForEvent('page'),
       this.page.getByRole('button', {name: 'Link'}).click()
     ]);
-    await newPage.waitForLoadState('networkidle');
+    await newPage.waitForLoadState('networkidle', {timeout: 10000});
     expect(newPage.url()).toContain('authv2-preprod');
     return newPage;
   }
@@ -40,9 +41,9 @@ export default class PopupAccountPage extends BasePage {
    * @param email string
    * @param password string
    */
-  async connectToAccount(email: string, password: string) {
-    await this.page.locator('#email').fill(email);
-    await this.page.locator('#password').fill(password);
-    await this.page.getByRole('button', {name: 'Log in'}).click();
+  async connectToAccount(newPage: Page) {
+    await newPage.getByRole('textbox', {name: 'email'}).fill(Globals.account_email);
+    await newPage.getByRole('textbox', {name: 'password'}).fill(Globals.account_password);
+    await newPage.getByRole('button', {name: 'Log in'}).click();
   }
 }
