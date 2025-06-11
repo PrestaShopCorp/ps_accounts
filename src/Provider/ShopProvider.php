@@ -288,7 +288,7 @@ class ShopProvider
     /**
      * @param int $shopId
      *
-     * @return string
+     * @return string|null
      */
     public function getBackendUrl($shopId)
     {
