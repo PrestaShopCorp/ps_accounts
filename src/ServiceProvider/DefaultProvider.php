@@ -64,11 +64,15 @@ class DefaultProvider implements IServiceProvider
         });
         // Entities ?
         $container->registerProvider(StatusManager::class, static function () use ($container) {
-            return new StatusManager(
-                $container->get(ShopSession::class),
+            /** @var ShopSession $shopSession */
+            $shopSession = $container->get(ShopSession::class);
+            $service = new StatusManager(
+                $shopSession,
                 $container->get(AccountsService::class),
                 $container->get(ConfigurationRepository::class)
             );
+            $shopSession->setStatusManager($service);
+            return $service;
         });
         // Adapter
         $container->registerProvider(Adapter\Configuration::class, static function () use ($container) {

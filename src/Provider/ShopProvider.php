@@ -292,12 +292,20 @@ class ShopProvider
      */
     public function getBackendUrl($shopId)
     {
+        $shop = new \Shop($shopId);
+
+        if (!$shop->id) {
+            return null;
+        }
+
+        $boBaseUri = ($shop->domain_ssl ? 'https://' : 'http://') .
+            ($shop->domain_ssl ?: $shop->domain) . $shop->physical_uri;
+
         // FIXME: throw exception in wrong context
         // FIXME: unit tests
-        // FIXME: remove virtual uri ?
         $adminPath = defined('_PS_ADMIN_DIR_') ? basename(_PS_ADMIN_DIR_) : '';
 
-        return rtrim($this->getFrontendUrl($shopId), '/') . '/' . $adminPath;
+        return rtrim($boBaseUri, '/') . '/' . $adminPath;
     }
 
     /**
