@@ -248,13 +248,7 @@ class OAuth2Controller extends FrameworkBundleAdminController
     protected function redirectAfterLogin()
     {
         if ($this->getOAuthAction() === 'identifyPointOfContact') {
-            return (new Response())->setContent(<<<HTML
-<script type="text/javascript">
-window.opener.location.reload();
-window.close();
-</script>
-HTML
-            );
+            $this->closePopup();
         }
 
         return $this->redirectResponse;
@@ -277,6 +271,9 @@ HTML
      */
     protected function onLoginFailedRedirect()
     {
+        if ($this->getOAuthAction() === 'identifyPointOfContact') {
+            $this->closePopup(false);
+        }
         return $this->redirect(
             $this->getSessionReturnTo() ?:
                 $this->link->getAdminLink('AdminDashboard')
@@ -313,6 +310,21 @@ HTML
     protected function getPsAccountsService()
     {
         return $this->psAccountsService;
+    }
+
+    /**
+     * @param bool $refreshParent
+     *
+     * @return string
+     */
+    protected function closePopup($refreshParent = true)
+    {
+        return (new Response())->setContent('
+<script type="text/javascript">
+' . ($refreshParent ? 'window.opener.location.reload();' : '') . '
+window.close();
+</script>
+');
     }
 
     /**

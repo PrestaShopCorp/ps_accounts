@@ -30,7 +30,7 @@ return [
     'ps_accounts.segment_write_key' => 'eYODaH20rT1lMRTTUtAa15BKBlV1XUXQ',
     'ps_accounts.accounts_vue_cdn_url' => 'https://unpkg.com/prestashop_accounts_vue_components@3/dist/psaccountsVue.umd.min.js',
     //'ps_accounts.accounts_cdn_url' => 'https://unpkg.com/prestashop_accounts_vue_components@5',
-    'ps_accounts.accounts_cdn_url' => 'https://unpkg.com/@prestashopcorp/accounts-components@0.0.2-beta.1',
+    'ps_accounts.accounts_cdn_url' => 'https://unpkg.com/@prestashopcorp/accounts-components@0.0.2-beta.2',
     'ps_accounts.svc_accounts_ui_url' => 'https://accounts.psessentials-integration.net',
     'ps_accounts.oauth2_url' => 'https://oauth-integration.prestashop.com',
     'ps_accounts.token_audience' => 'https://accounts-api.distribution-integration.prestashop.net',
