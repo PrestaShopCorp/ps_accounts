@@ -202,14 +202,7 @@ class AdminOAuth2PsAccountsController extends \ModuleAdminController
     protected function redirectAfterLogin()
     {
         if ($this->getOAuthAction() === 'identifyPointOfContact') {
-            // Refresh configuration page
-            echo <<<HTML
-<script type="text/javascript">
-window.opener.location.reload();
-window.close();
-</script>
-HTML;
-            exit;
+            $this->closePopup();
         }
         $returnTo = $this->getSessionReturnTo() ?: 'AdminDashboard';
         if (preg_match('/^([A-Z][a-z0-9]+)+$/', $returnTo)) {
@@ -235,6 +228,9 @@ HTML;
      */
     protected function onLoginFailedRedirect()
     {
+        if ($this->getOAuthAction() === 'identifyPointOfContact') {
+            $this->closePopup(false);
+        }
         $this->logout();
     }
 
@@ -268,5 +264,21 @@ HTML;
     protected function getPsAccountsService()
     {
         return $this->psAccountsService;
+    }
+
+    /**
+     * @param bool $refreshParent
+     *
+     * @return void
+     */
+    protected function closePopup($refreshParent = true)
+    {
+        echo '
+<script type="text/javascript">
+' . ($refreshParent ? 'window.opener.location.reload();' : '') . '
+window.close();
+</script>
+';
+        exit;
     }
 }
