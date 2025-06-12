@@ -9,9 +9,8 @@ gotToModuleManagerPage('Check if module is installed', async ({gotToModuleManage
     await pm.fromModuleManagePage().getPageMainTitle();
     await pm.fromModuleManagePage().isAccountVisible();
     const popup = await pm.fromPopupAccountPage().openAccountPopup();
-    await popup.pause();
-
     await pm.fromPopupAccountPage().accountPopupTiteleIsVisible(popup);
+    // await popup.pause()
     await pm.fromPopupAccountPage().connectToAccount(popup);
   });
 });

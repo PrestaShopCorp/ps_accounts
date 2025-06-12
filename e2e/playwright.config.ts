@@ -16,7 +16,7 @@ export default defineConfig({
     {
       // Look for test files in the "campaigns" directory, relative to this configuration file.
       name: 'Account Autom Test',
-      testMatch: 'tests/**/*spec.ts'
+      testMatch: '**/*spec.ts'
     }
   ],
   use: {

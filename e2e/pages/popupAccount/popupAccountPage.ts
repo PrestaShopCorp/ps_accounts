@@ -23,7 +23,7 @@ export default class PopupAccountPage extends BasePage {
       this.page.context().waitForEvent('page'),
       this.page.getByRole('button', {name: 'Link'}).click()
     ]);
-    await newPage.waitForLoadState('networkidle', {timeout: 10000});
+    await newPage.waitForTimeout(5000)
     expect(newPage.url()).toContain('authv2-preprod');
     return newPage;
   }
@@ -33,7 +33,7 @@ export default class PopupAccountPage extends BasePage {
    */
   async accountPopupTiteleIsVisible(newPage: Page) {
     const pageTitle = await newPage.getByRole('img', {name: 'Prestashop logo'});
-    expect(pageTitle).toBeVisible({visible: true});
+    expect(pageTitle).toBeVisible();
   }
   /**
    * Connected to account
@@ -42,8 +42,11 @@ export default class PopupAccountPage extends BasePage {
    * @param password string
    */
   async connectToAccount(newPage: Page) {
-    await newPage.getByRole('textbox', {name: 'email'}).fill(Globals.account_email);
-    await newPage.getByRole('textbox', {name: 'password'}).fill(Globals.account_password);
-    await newPage.getByRole('button', {name: 'Log in'}).click();
+    await newPage.locator('#email').fill(Globals.account_email);
+    await newPage.locator('#password').fill(Globals.account_password);
+    await newPage.pause()
+    const logginBtn = await newPage.getByRole('button', {name: 'Log in'});
+    await logginBtn.isEnabled({timeout:2000});
+    await logginBtn.click()
   }
 }
