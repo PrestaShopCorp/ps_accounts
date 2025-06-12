@@ -29,6 +29,7 @@ use PrestaShop\Module\PsAccounts\Account\Session\ShopSession;
 use PrestaShop\Module\PsAccounts\Service\Accounts\AccountsException;
 use PrestaShop\Module\PsAccounts\Service\Accounts\AccountsService;
 use PrestaShop\Module\PsAccounts\Repository\ConfigurationRepository;
+use PrestaShop\Module\PsAccounts\Service\OAuth2\OAuth2Service;
 
 class MigrateShopIdentityHandler
 {
@@ -58,21 +59,32 @@ class MigrateShopIdentityHandler
     private $configurationRepository;
 
     /**
+     * @var OAuth2Service
+     */
+    protected $oAuth2Service;
+
+    /**
      * @param AccountsService $accountsService
      * @param ShopProvider $shopProvider
      * @param StatusManager $shopStatus
      * @param ShopSession $shopSession
+     * @param ConfigurationRepository $configurationRepository
+     * @param OAuth2Service $oAuth2Service
      */
     public function __construct(
         AccountsService $accountsService,
         ShopProvider $shopProvider,
         StatusManager $shopStatus,
         ShopSession $shopSession,
+        ConfigurationRepository $configurationRepository,
+        OAuth2Service $oAuth2Service
     ) {
         $this->accountsService = $accountsService;
         $this->shopProvider = $shopProvider;
         $this->statusManager = $shopStatus;
         $this->shopSession = $shopSession;
+        $this->configurationRepository = $configurationRepository;
+        $this->oAuth2Service = $oAuth2Service;
     }
 
     /**
@@ -89,9 +101,16 @@ class MigrateShopIdentityHandler
 
         $shopId = $command->shopId ?: \Shop::getContextShopID();
 
+        $shopUuid = $this->configurationRepository->getShopUuid();
+
+        $accessToken = $this->oAuth2Service->getAccessTokenByClientCredentials([], [
+                'store/' . $shopUuid,
+                $command->tokenAudience,
+            ]);
+
         $identityCreated = $this->accountsService->migrateShopIdentity(
-            $this->configurationRepository->getShopUuid(),
-            $this->shopSession->getValidToken(),
+            $shopUuid,
+            $accessToken->access_token,
             $this->shopProvider->getUrl($shopId),
         );
 

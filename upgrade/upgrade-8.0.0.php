@@ -21,7 +21,7 @@ function upgrade_module_8_0_0($module)
         /** @var CommandBus $commandBus */
         $commandBus = $module->getService(CommandBus::class);
 
-        $commandBus->handle(new MigrateShopIdentitiesCommand());
+        $commandBus->handle(new MigrateShopIdentitiesCommand($module->getParameter('ps_accounts.token_audience')));
 
         /* @phpstan-ignore-next-line */
     } catch (\Throwable $e) {
