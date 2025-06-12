@@ -20,7 +20,7 @@
 
 namespace PrestaShop\Module\PsAccounts\Account\CommandHandler;
 
-use PrestaShop\Module\PsAccounts\Account\Command\CreateIdentityCommand;
+use PrestaShop\Module\PsAccounts\Account\Command\MigrateShopIdentityCommand;
 use PrestaShop\Module\PsAccounts\Account\Exception\RefreshTokenException;
 use PrestaShop\Module\PsAccounts\Account\Exception\UnknownStatusException;
 use PrestaShop\Module\PsAccounts\Account\StatusManager;
@@ -28,6 +28,7 @@ use PrestaShop\Module\PsAccounts\Provider\ShopProvider;
 use PrestaShop\Module\PsAccounts\Account\Session\ShopSession;
 use PrestaShop\Module\PsAccounts\Service\Accounts\AccountsException;
 use PrestaShop\Module\PsAccounts\Service\Accounts\AccountsService;
+use PrestaShop\Module\PsAccounts\Repository\ConfigurationRepository;
 
 class MigrateShopIdentityHandler
 {
@@ -52,6 +53,11 @@ class MigrateShopIdentityHandler
     private $shopSession;
 
     /**
+     * @var ConfigurationRepository
+     */
+    private $configurationRepository;
+
+    /**
      * @param AccountsService $accountsService
      * @param ShopProvider $shopProvider
      * @param StatusManager $shopStatus
@@ -70,7 +76,7 @@ class MigrateShopIdentityHandler
     }
 
     /**
-     * @param CreateIdentityCommand $command
+     * @param MigrateShopIdentityCommand $command
      *
      * @return void
      *
@@ -78,13 +84,13 @@ class MigrateShopIdentityHandler
      * @throws UnknownStatusException
      * @throws AccountsException
      */
-    public function handle(CreateIdentityCommand $command)
+    public function handle(MigrateShopIdentityCommand $command)
     {
 
         $shopId = $command->shopId ?: \Shop::getContextShopID();
 
         $identityCreated = $this->accountsService->migrateShopIdentity(
-            $this->statusManager->getCloudShopId(),
+            $this->configurationRepository->getShopUuid(),
             $this->shopSession->getValidToken(),
             $this->shopProvider->getUrl($shopId),
         );
