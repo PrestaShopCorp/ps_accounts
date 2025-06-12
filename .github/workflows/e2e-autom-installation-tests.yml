@@ -39,7 +39,7 @@ jobs:
           echo "OAUTH2URL=${{ secrets.OAUTH2URL }}" >> .env
           echo "ACCOUNTSAPIURL=${{ secrets.ACCOUNTSAPIURL }}" >> .env
           echo "ACCOUNTSUIURL=${{ secrets.ACCOUNTSUIURL }}" >> .env
-          echo "ACCOUNTSUIURL=${{ secrets.QA_USER_AGENT}}" >> .env
+          echo "QA_USER_AGENT=${{ secrets.QA_USER_AGENT}}" >> .env
 
       - name: Generate .env in e2e-env file
         working-directory: ./e2e-env
