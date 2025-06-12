@@ -274,6 +274,7 @@ class OAuth2Controller extends FrameworkBundleAdminController
         if ($this->getOAuthAction() === 'identifyPointOfContact') {
             $this->closePopup(false);
         }
+
         return $this->redirect(
             $this->getSessionReturnTo() ?:
                 $this->link->getAdminLink('AdminDashboard')
