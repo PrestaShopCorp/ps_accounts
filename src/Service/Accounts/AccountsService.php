@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Copyright since 2007 PrestaShop SA and Contributors
  * PrestaShop is an International Registered Trademark & Property of PrestaShop SA
@@ -111,7 +112,8 @@ class AccountsService
                 Request::HEADERS => $this->getHeaders([
                     'Authorization' => 'Bearer ' . $accessToken,
                 ]),
-            ]);
+            ]
+        );
 
         if (!$response->isSuccessful) {
             throw new AccountsException($this->getResponseErrorMsg($response, 'Unable to refresh token.'));
@@ -192,26 +194,26 @@ class AccountsService
         );
     }
 
-//    /**
-//     * @param string $cloudShopId
-//     * @param string $shopToken
-//     * @param UpgradeModule $data
-//     *
-//     * @return Response
-//     */
-//    public function upgradeShopModule($cloudShopId, $shopToken, UpgradeModule $data)
-//    {
-//        return $this->getClient()->post(
-//            '/v2/shop/module/update',
-//            [
-//                Request::HEADERS => $this->getHeaders([
-//                    'Authorization' => 'Bearer ' . $shopToken,
-//                    'X-Shop-Id' => $cloudShopId,
-//                ]),
-//                Request::JSON => $data->jsonSerialize(),
-//            ]
-//        );
-//    }
+    //    /**
+    //     * @param string $cloudShopId
+    //     * @param string $shopToken
+    //     * @param UpgradeModule $data
+    //     *
+    //     * @return Response
+    //     */
+    //    public function upgradeShopModule($cloudShopId, $shopToken, UpgradeModule $data)
+    //    {
+    //        return $this->getClient()->post(
+    //            '/v2/shop/module/update',
+    //            [
+    //                Request::HEADERS => $this->getHeaders([
+    //                    'Authorization' => 'Bearer ' . $shopToken,
+    //                    'X-Shop-Id' => $cloudShopId,
+    //                ]),
+    //                Request::JSON => $data->jsonSerialize(),
+    //            ]
+    //        );
+    //    }
 
     /**
      * @param string $idToken
@@ -225,7 +227,7 @@ class AccountsService
         return $this->getClient()->post(
             '/v1/shop/token/verify',
             [
-//                Request::HEADERS => $this->getHeaders(),
+                //                Request::HEADERS => $this->getHeaders(),
                 Request::JSON => [
                     'token' => $idToken,
                 ],
@@ -283,7 +285,8 @@ class AccountsService
     public function verifyShopIdentity($cloudShopId, $shopToken, ShopUrl $shopUrl, $proof)
     {
         $response = $this->getClient()->post(
-            '/v1/shop-identities/' . $cloudShopId . '/verify', [
+            '/v1/shop-identities/' . $cloudShopId . '/verify',
+            [
                 Request::HEADERS => $this->getHeaders([
                     'Authorization' => 'Bearer ' . $shopToken,
                     'X-Shop-Id' => $cloudShopId,
@@ -368,12 +371,48 @@ class AccountsService
     {
         $msg = $defaultMessage;
         $body = $response->body;
-        if (isset($body['error']) &&
+        if (
+            isset($body['error']) &&
             isset($body['error_description'])
         ) {
             $msg = $body['error'] . ': ' . $body['error_description'];
         }
 
         return $response->statusCode . ' - ' . $msg;
+    }
+
+    /**
+     * @param string $cloudShopId
+     * @param string $shopToken
+     * @param string $frontendUrl
+     * @param string $backOfficeUrl
+     * @param int $multiShopId
+     *
+     * @return IdentityCreated
+     *
+     * @throws AccountsException
+     */
+    public function migrateShopIdentity($cloudShopId, $shopToken, ShopUrl $shopUrl)
+    {
+        $response = $this->getClient()->put(
+            '/v1/shop-identities/' . $cloudShopId . '/migration',
+            [
+                Request::HEADERS => $this->getHeaders([
+                    'Authorization' => 'Bearer ' . $shopToken,
+                    'X-Shop-Id' => $cloudShopId,
+                ]),
+                Request::JSON => [
+                    'backOfficeUrl' => $shopUrl->getBackOfficeUrl(),
+                    'frontendUrl' => $shopUrl->getFrontendUrl(),
+                    'multiShopId' => $shopUrl->getMultiShopId(),
+                ],
+            ]
+        );
+
+        if (!$response->isSuccessful) {
+            throw new AccountsException($this->getResponseErrorMsg($response, 'Unable to migrate shop identity.'));
+        }
+
+        return new IdentityCreated($response->body);
     }
 }

@@ -21,6 +21,18 @@
 
 namespace PrestaShop\Module\PsAccounts\Account\Command;
 
-class VerifyIdentitiesCommand
+class MigrateShopIdentityCommand
 {
+    /**
+     * @var int|null
+     */
+    public $shopId;
+
+    /**
+     * @param int|null $shopId
+     */
+    public function __construct($shopId)
+    {
+        $this->shopId = $shopId;
+    }
 }
