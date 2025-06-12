@@ -35,6 +35,7 @@ return [
     'ps_accounts.accounts_cdn_url' => 'https://unpkg.com/prestashop_accounts_vue_components@5',
     'ps_accounts.svc_accounts_ui_url' => 'https://accounts.psessentials.net',
     'ps_accounts.oauth2_url' => 'https://oauth.prestashop.com',
+    'ps_accounts.token_audience' => 'https://accounts-api.distribution.prestashop.net',
 
     'ps_accounts.testimonials_url' => 'https://assets.prestashop3.com/dst/accounts/assets/testimonials.json',
 ];

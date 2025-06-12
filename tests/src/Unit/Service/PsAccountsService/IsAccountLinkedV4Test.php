@@ -15,6 +15,8 @@ class IsAccountLinkedV4Test extends TestCase
      */
     public function itShouldReturnTrue()
     {
+        $this->markTestSkipped('Deprecated and considered FALSE');
+
         $token = $this->makeFirebaseToken(null, ['email_verified' => true]);
 
         /** @var ShopTokenRepository $tokenRepos */
@@ -37,6 +39,8 @@ class IsAccountLinkedV4Test extends TestCase
      */
     public function itShouldReturnFalse()
     {
+        $this->markTestSkipped('Deprecated and considered FALSE');
+
         $token = $this->makeFirebaseToken(null, ['email_verified' => true]);
 
         /** @var ShopTokenRepository $tokenRepos */

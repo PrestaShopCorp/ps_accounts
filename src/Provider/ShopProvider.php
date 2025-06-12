@@ -21,10 +21,12 @@
 namespace PrestaShop\Module\PsAccounts\Provider;
 
 use PrestaShop\Module\PsAccounts\Account\Dto\Shop;
-use PrestaShop\Module\PsAccounts\Account\LinkShop;
 use PrestaShop\Module\PsAccounts\Account\Session\Firebase\OwnerSession;
+use PrestaShop\Module\PsAccounts\Account\ShopUrl;
+use PrestaShop\Module\PsAccounts\Account\StatusManager;
 use PrestaShop\Module\PsAccounts\Adapter\Link;
 use PrestaShop\Module\PsAccounts\Context\ShopContext;
+use PrestaShop\Module\PsAccounts\Service\OAuth2\OAuth2Service;
 
 class ShopProvider
 {
@@ -39,17 +41,32 @@ class ShopProvider
     private $link;
 
     /**
+     * @var StatusManager
+     */
+    private $shopStatus;
+
+    /**
+     * @var OAuth2Service
+     */
+    private $oAuth2Service;
+
+    /**
      * ShopProvider constructor.
      *
      * @param ShopContext $shopContext
      * @param Link $link
+     * @param StatusManager $shopStatus
      */
     public function __construct(
         ShopContext $shopContext,
-        Link $link
+        Link $link,
+        StatusManager $shopStatus,
+        OAuth2Service $oAuth2Service
     ) {
         $this->shopContext = $shopContext;
         $this->link = $link;
+        $this->shopStatus = $shopStatus;
+        $this->oAuth2Service = $oAuth2Service;
     }
 
     /**
@@ -67,14 +84,11 @@ class ShopProvider
             /** @var \Ps_accounts $module */
             $module = \Module::getInstanceByName('ps_accounts');
 
-            /** @var LinkShop $linkShop */
-            $linkShop = $module->getService(LinkShop::class);
+            /** @var StatusManager $shopStatus */
+            $shopStatus = $module->getService(StatusManager::class);
 
             /** @var OwnerSession $ownerSession */
             $ownerSession = $module->getService(OwnerSession::class);
-
-            /** @var RsaKeysProvider $rsaKeyProvider */
-            $rsaKeyProvider = $module->getService(RsaKeysProvider::class);
 
             $shopId = $shopData['id_shop'];
 
@@ -90,22 +104,22 @@ class ShopProvider
                 'frontUrl' => $this->getShopUrl($shopData),
 
                 // LinkAccount
-                'uuid' => $linkShop->getShopUuid() ?: null,
-                'publicKey' => $rsaKeyProvider->getPublicKey() ?: null,
-                'employeeId' => (int) $linkShop->getEmployeeId() ?: null,
+                'uuid' => $shopStatus->getCloudShopId() ?: null,
+                'publicKey' => '[deprecated]',
+                'employeeId' => 0, //(int) $shopIdentity->getEmployeeId() ?: null,
                 'user' => [
-                    'email' => $linkShop->getOwnerEmail() ?: null,
-                    'uuid' => $linkShop->getOwnerUuid() ?: null,
+                    'email' => $shopStatus->getPointOfContactEmail() ?: null,
+                    'uuid' => $shopStatus->getPointOfContactUuid() ?: null,
                     'emailIsValidated' => null,
                 ],
                 'url' => $this->link->getDashboardLink(),
                 'isLinkedV4' => null,
-                'unlinkedAuto' => !empty($linkShop->getUnlinkedOnError()),
+                'unlinkedAuto' => false,
             ]);
 
             if ($refreshTokens) {
                 $shop->user->emailIsValidated = $ownerSession->isEmailVerified();
-                $shop->isLinkedV4 = $linkShop->existsV4();
+                $shop->isLinkedV4 = false; //$shopIdentity->existsV4();
             }
 
             return $shop;
@@ -251,7 +265,7 @@ class ShopProvider
      */
     private function getShopUrl($shopData)
     {
-        if (!$shopData['domain']) {
+        if (!isset($shopData['domain'])) {
             return null;
         }
 
@@ -259,5 +273,99 @@ class ShopProvider
             ($shopData['domain_ssl'] ? 'https://' : 'http://') .
             ($shopData['domain_ssl'] ?: $shopData['domain']) .
             $shopData['uri'];
+    }
+
+    /**
+     * @param int $shopId
+     *
+     * @return string|null
+     */
+    public function getFrontendUrl($shopId)
+    {
+        return $this->getShopUrl((array) \Shop::getShop($shopId));
+    }
+
+    /**
+     * @param int $shopId
+     *
+     * @return string|null
+     */
+    public function getBackendUrl($shopId)
+    {
+        $shop = new \Shop($shopId);
+
+        if (!$shop->id) {
+            return null;
+        }
+
+        $boBaseUri = ($shop->domain_ssl ? 'https://' : 'http://') .
+            ($shop->domain_ssl ?: $shop->domain) . $shop->physical_uri;
+
+        // FIXME: throw exception in wrong context
+        // FIXME: unit tests
+        $adminPath = defined('_PS_ADMIN_DIR_') ? basename(_PS_ADMIN_DIR_) : '';
+
+        return rtrim($boBaseUri, '/') . '/' . $adminPath;
+    }
+
+    /**
+     * @param int $shopId
+     *
+     * @return ShopUrl
+     */
+    public function getUrl($shopId)
+    {
+        $backOfficeUrl = $this->getBackendUrl($shopId);
+        $frontendUrl = rtrim($this->getFrontendUrl($shopId), '/');
+
+        return new ShopUrl($backOfficeUrl, $frontendUrl, $shopId);
+    }
+
+    /**
+     * @param string|null $groupId
+     * @param string|null $shopId
+     * @param bool $refresh
+     *
+     * @return array
+     */
+    public function getShops($groupId = null, $shopId = null, $refresh = false)
+    {
+        $shopList = [];
+
+        foreach (\Shop::getTree() as $groupData) {
+            if ($groupId !== null && $groupId !== $groupData['id']) {
+                continue;
+            }
+
+            $shops = [];
+            foreach ($groupData['shops'] as $shopData) {
+                if ($shopId !== null && $shopId !== $shopData['id_shop']) {
+                    continue;
+                }
+
+                $shopUrl = $this->getUrl((int) $shopData['id_shop']);
+                $shopStatus = $this->shopStatus->getStatus($refresh);
+                $identifyUrl = $this->oAuth2Service->getOAuth2Client()->getRedirectUri([
+                    'action' => 'identifyPointOfContact',
+                ]);
+
+                $shops[] = [
+                    'id' => (int) $shopData['id_shop'],
+                    'name' => $shopData['name'],
+                    'backOfficeUrl' => $shopUrl->getBackOfficeUrl(),
+                    'frontendUrl' => $shopUrl->getFrontendUrl(),
+                    'identifyUrl' => $identifyUrl,
+                    'shopStatus' => $shopStatus,
+                ];
+            }
+
+            $shopList[] = [
+                'id' => (int) $groupData['id'],
+                'name' => $groupData['name'],
+                'shops' => $shops,
+            ];
+        }
+
+        return $shopList;
     }
 }

@@ -20,20 +20,25 @@
 
 namespace PrestaShop\Module\PsAccounts\ServiceProvider;
 
-use PrestaShop\Module\PsAccounts\Account\LinkShop;
+use PrestaShop\Module\PsAccounts\Account\ProofManager;
+use PrestaShop\Module\PsAccounts\Account\Session\ShopSession;
+use PrestaShop\Module\PsAccounts\Account\StatusManager;
 use PrestaShop\Module\PsAccounts\Adapter;
 use PrestaShop\Module\PsAccounts\Adapter\Configuration;
 use PrestaShop\Module\PsAccounts\Adapter\Link;
 use PrestaShop\Module\PsAccounts\Api\Client\ServicesBillingClient;
 use PrestaShop\Module\PsAccounts\Context\ShopContext;
 use PrestaShop\Module\PsAccounts\Cqrs\CommandBus;
+use PrestaShop\Module\PsAccounts\Cqrs\QueryBus;
 use PrestaShop\Module\PsAccounts\Http\Client\CircuitBreaker;
 use PrestaShop\Module\PsAccounts\Installer\Installer;
 use PrestaShop\Module\PsAccounts\Presenter\PsAccountsPresenter;
 use PrestaShop\Module\PsAccounts\Provider;
 use PrestaShop\Module\PsAccounts\Repository\ConfigurationRepository;
 use PrestaShop\Module\PsAccounts\Repository\ShopTokenRepository;
+use PrestaShop\Module\PsAccounts\Service\Accounts\AccountsService;
 use PrestaShop\Module\PsAccounts\Service\AnalyticsService;
+use PrestaShop\Module\PsAccounts\Service\OAuth2\OAuth2Service;
 use PrestaShop\Module\PsAccounts\Service\PsAccountsService;
 use PrestaShop\Module\PsAccounts\Service\PsBillingService;
 use PrestaShop\Module\PsAccounts\Service\SentryService;
@@ -58,10 +63,17 @@ class DefaultProvider implements IServiceProvider
             return \Module::getInstanceByName('ps_accounts');
         });
         // Entities ?
-        $container->registerProvider(LinkShop::class, static function () use ($container) {
-            return new LinkShop(
+        $container->registerProvider(StatusManager::class, static function () use ($container) {
+            /** @var ShopSession $shopSession */
+            $shopSession = $container->get(ShopSession::class);
+            $service = new StatusManager(
+                $shopSession,
+                $container->get(AccountsService::class),
                 $container->get(ConfigurationRepository::class)
             );
+            $shopSession->setStatusManager($service);
+
+            return $service;
         });
         // Adapter
         $container->registerProvider(Adapter\Configuration::class, static function () use ($container) {
@@ -97,20 +109,22 @@ class DefaultProvider implements IServiceProvider
             return new SentryService(
                 $container->getParameter('ps_accounts.sentry_credentials'),
                 $container->getParameter('ps_accounts.environment'),
-                $container->get(LinkShop::class),
+                $container->get(StatusManager::class),
                 $container->get('ps_accounts.context')
             );
         });
-        // "Providers"
-        $container->registerProvider(Provider\RsaKeysProvider::class, static function () use ($container) {
-            return new Provider\RsaKeysProvider(
+        $container->registerProvider(ProofManager::class, static function () use ($container) {
+            return new ProofManager(
                 $container->get(ConfigurationRepository::class)
             );
         });
+        // "Providers"
         $container->registerProvider(Provider\ShopProvider::class, static function () use ($container) {
             return new Provider\ShopProvider(
                 $container->get(ShopContext::class),
-                $container->get(Link::class)
+                $container->get(Link::class),
+                $container->get(StatusManager::class),
+                $container->get(OAuth2Service::class)
             );
         });
         // Context
@@ -123,6 +137,11 @@ class DefaultProvider implements IServiceProvider
         // CQRS
         $container->registerProvider(CommandBus::class, static function () use ($container) {
             return new CommandBus(
+                $container->get('ps_accounts.module')
+            );
+        });
+        $container->registerProvider(QueryBus::class, static function () use ($container) {
+            return new QueryBus(
                 $container->get('ps_accounts.module')
             );
         });

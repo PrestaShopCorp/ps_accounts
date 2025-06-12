@@ -20,6 +20,7 @@
 
 namespace PrestaShop\Module\PsAccounts\Http\Resource;
 
+use DateTime;
 use PrestaShop\Module\PsAccounts\Type\Dto;
 
 abstract class Resource extends Dto
@@ -28,4 +29,50 @@ abstract class Resource extends Dto
      * @var bool
      */
     protected $throwOnUnexpectedProperties = false;
+
+    /**
+     * @param array $values
+     * @param string $className
+     * @param array $fields
+     *
+     * @return void
+     */
+    protected function castChildResource(array & $values, $className, array $fields)
+    {
+        foreach ($fields as $field) {
+            if (isset($values[$field]) && is_array($values[$field])) {
+                $values[$field] = new $className($values[$field]);
+            }
+        }
+    }
+
+    /**
+     * @param array $values
+     * @param array $fields
+     *
+     * @return void
+     */
+    protected function castBool(array & $values, array $fields)
+    {
+        foreach ($fields as $field) {
+            if (isset($values[$field])) {
+                $values[$field] = (bool) $values[$field];
+            }
+        }
+    }
+
+    /**
+     * @param array $values
+     * @param array $fields
+     *
+     * @return void
+     */
+    protected function castDateTime(array & $values, array $fields)
+    {
+        foreach ($fields as $field) {
+            if (!empty($values[$field])) {
+                $values[$field] = new Datetime($values[$field]);
+            }
+        }
+    }
 }
