@@ -21,6 +21,7 @@
 namespace PrestaShop\Module\PsAccounts\Account\Session;
 
 use PrestaShop\Module\PsAccounts\Account\Exception\RefreshTokenException;
+use PrestaShop\Module\PsAccounts\Account\StatusManager;
 use PrestaShop\Module\PsAccounts\Account\Token\Token;
 use PrestaShop\Module\PsAccounts\Hook\ActionShopAccessTokenRefreshAfter;
 use PrestaShop\Module\PsAccounts\Repository\ConfigurationRepository;
@@ -44,6 +45,11 @@ class ShopSession extends Session implements SessionInterface
      * @var string
      */
     protected $tokenAudience;
+
+    /**
+     * @var StatusManager
+     */
+    protected $statusManager;
 
     /**
      * @param ConfigurationRepository $configurationRepository
@@ -71,7 +77,7 @@ class ShopSession extends Session implements SessionInterface
     {
         try {
             $accessToken = $this->getAccessToken([], [
-                //'shop_' . $shopUuid, // FIXME: remove that audience
+                'store/' . $this->statusManager->getCloudShopId(),
                 $this->tokenAudience,
             ]);
 
@@ -118,6 +124,16 @@ class ShopSession extends Session implements SessionInterface
     public function cleanup()
     {
         $this->configurationRepository->updateAccessToken('');
+    }
+
+    /**
+     * @param StatusManager $statusManager
+     *
+     * @return void
+     */
+    public function setStatusManager(StatusManager $statusManager)
+    {
+        $this->statusManager = $statusManager;
     }
 
     /**
