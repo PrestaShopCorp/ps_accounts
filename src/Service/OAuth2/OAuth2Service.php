@@ -247,7 +247,7 @@ class OAuth2Service
                     'client_secret' => $this->oAuth2Client->getClientSecret(),
                     'scope' => implode(' ', $scope),
                     'audience' => implode(' ', $audience),
-                    'redirect_uri' => $this->getOAuth2Client()->getRedirectUri(),
+                    //'redirect_uri' => $this->getOAuth2Client()->getRedirectUri(),
                 ],
             ]
         );
