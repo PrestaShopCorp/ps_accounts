@@ -91,7 +91,6 @@ class CommandProvider implements IServiceProvider
                 $container->get(CommandBus::class)
             );
         });
-
         $container->registerProvider(IdentifyContactHandler::class, static function () use ($container) {
             return new IdentifyContactHandler(
                 $container->get(AccountsService::class),
@@ -99,14 +98,12 @@ class CommandProvider implements IServiceProvider
                 $container->get(Session\ShopSession::class)
             );
         });
-
         $container->registerProvider(MigrateShopIdentitiesHandler::class, static function () use ($container) {
             return new MigrateShopIdentitiesHandler(
                 $container->get(ShopContext::class),
                 $container->get(CommandBus::class)
             );
         });
-        
         $container->registerProvider(MigrateShopIdentityHandler::class, static function () use ($container) {
             return new MigrateShopIdentityHandler(
                 $container->get(AccountsService::class),
