@@ -24,7 +24,6 @@ namespace PrestaShop\Module\PsAccounts\Account\CommandHandler;
 use PrestaShop\Module\PsAccounts\Account\Command\MigrateShopIdentityCommand;
 use PrestaShop\Module\PsAccounts\Account\Exception\RefreshTokenException;
 use PrestaShop\Module\PsAccounts\Account\Exception\UnknownStatusException;
-use PrestaShop\Module\PsAccounts\Account\Session\ShopSession;
 use PrestaShop\Module\PsAccounts\Account\StatusManager;
 use PrestaShop\Module\PsAccounts\Provider\ShopProvider;
 use PrestaShop\Module\PsAccounts\Repository\ConfigurationRepository;
@@ -50,11 +49,6 @@ class MigrateShopIdentityHandler
     private $statusManager;
 
     /**
-     * @var ShopSession
-     */
-    private $shopSession;
-
-    /**
      * @var ConfigurationRepository
      */
     private $configurationRepository;
@@ -68,7 +62,6 @@ class MigrateShopIdentityHandler
      * @param AccountsService $accountsService
      * @param ShopProvider $shopProvider
      * @param StatusManager $shopStatus
-     * @param ShopSession $shopSession
      * @param ConfigurationRepository $configurationRepository
      * @param OAuth2Service $oAuth2Service
      */
@@ -76,14 +69,12 @@ class MigrateShopIdentityHandler
         AccountsService $accountsService,
         ShopProvider $shopProvider,
         StatusManager $shopStatus,
-        ShopSession $shopSession,
         ConfigurationRepository $configurationRepository,
         OAuth2Service $oAuth2Service
     ) {
         $this->accountsService = $accountsService;
         $this->shopProvider = $shopProvider;
         $this->statusManager = $shopStatus;
-        $this->shopSession = $shopSession;
         $this->configurationRepository = $configurationRepository;
         $this->oAuth2Service = $oAuth2Service;
     }

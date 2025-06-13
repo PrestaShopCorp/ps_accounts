@@ -384,9 +384,6 @@ class AccountsService
     /**
      * @param string $cloudShopId
      * @param string $shopToken
-     * @param string $frontendUrl
-     * @param string $backOfficeUrl
-     * @param int $multiShopId
      *
      * @return IdentityCreated
      *
