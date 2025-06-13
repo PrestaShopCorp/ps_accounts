@@ -402,6 +402,8 @@ class AccountsService
                     'backOfficeUrl' => $shopUrl->getBackOfficeUrl(),
                     'frontendUrl' => $shopUrl->getFrontendUrl(),
                     'multiShopId' => $shopUrl->getMultiShopId(),
+                    // FIXME: store last upgraded version
+                    'fromVersion' => '7.2.1',
                 ],
             ]
         );

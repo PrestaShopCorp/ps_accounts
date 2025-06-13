@@ -97,6 +97,7 @@ class MigrateShopIdentityHandler
 
         // TODO: reprise d'upgrade
         // FIXME: nettoyer les données à 'l'uninstall ?
+        // FIXME: clearer les tokens au reset ?
 
         try {
             $accessToken = $this->oAuth2Service->getAccessTokenByClientCredentials([], [
@@ -113,13 +114,24 @@ class MigrateShopIdentityHandler
             }*/
         }
 
+        // TODO: Plus de nécessité de fournir un bearer
+        // TODO: vérification de l'url enregistrée coté cloud SANS modification possible
+        // TODO: reprise d'upgrade: last_upgraded_version
+
         $identityCreated = $this->accountsService->migrateShopIdentity(
             $shopUuid,
             $accessToken->access_token,
             $this->shopProvider->getUrl($shopId)
         );
 
-        // TODO: clear les vieux tokens
+        // TODO: nettoyage des vieux tokens
+        $this->configurationRepository->updateAccessToken('');
+
+        // TODO
+//        $this->oAuth2Client->update(
+//            $identityCreated->clientId,
+//            $identityCreated->clientSecret
+//        );
 
         $this->statusManager->setCloudShopId($identityCreated->cloudShopId);
     }
