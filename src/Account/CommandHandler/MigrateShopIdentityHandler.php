@@ -31,7 +31,6 @@ use PrestaShop\Module\PsAccounts\Service\Accounts\AccountsException;
 use PrestaShop\Module\PsAccounts\Service\Accounts\AccountsService;
 use PrestaShop\Module\PsAccounts\Service\OAuth2\OAuth2Exception;
 use PrestaShop\Module\PsAccounts\Service\OAuth2\OAuth2Service;
-use Symfony\Component\OptionsResolver\Exception\AccessException;
 
 class MigrateShopIdentityHandler
 {
@@ -108,7 +107,7 @@ class MigrateShopIdentityHandler
             // IF audience invalide -> v5 OU v6 (ou bien déjà en v8 ??)
             /*try {
                 //$this->accountsService->refreshTokens
-            } catch (AccessException $e) {
+            } catch (AccountsException $e) {
                 // TODO ?? Création d'identité ??
                 // backup en amont en cas de crash
             }*/
