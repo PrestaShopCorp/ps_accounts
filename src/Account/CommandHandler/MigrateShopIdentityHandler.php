@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Copyright since 2007 PrestaShop SA and Contributors
  * PrestaShop is an International Registered Trademark & Property of PrestaShop SA
@@ -23,12 +24,12 @@ namespace PrestaShop\Module\PsAccounts\Account\CommandHandler;
 use PrestaShop\Module\PsAccounts\Account\Command\MigrateShopIdentityCommand;
 use PrestaShop\Module\PsAccounts\Account\Exception\RefreshTokenException;
 use PrestaShop\Module\PsAccounts\Account\Exception\UnknownStatusException;
+use PrestaShop\Module\PsAccounts\Account\Session\ShopSession;
 use PrestaShop\Module\PsAccounts\Account\StatusManager;
 use PrestaShop\Module\PsAccounts\Provider\ShopProvider;
-use PrestaShop\Module\PsAccounts\Account\Session\ShopSession;
+use PrestaShop\Module\PsAccounts\Repository\ConfigurationRepository;
 use PrestaShop\Module\PsAccounts\Service\Accounts\AccountsException;
 use PrestaShop\Module\PsAccounts\Service\Accounts\AccountsService;
-use PrestaShop\Module\PsAccounts\Repository\ConfigurationRepository;
 use PrestaShop\Module\PsAccounts\Service\OAuth2\OAuth2Service;
 
 class MigrateShopIdentityHandler
@@ -98,20 +99,19 @@ class MigrateShopIdentityHandler
      */
     public function handle(MigrateShopIdentityCommand $command)
     {
-
         $shopId = $command->shopId ?: \Shop::getContextShopID();
 
         $shopUuid = $this->configurationRepository->getShopUuid();
 
         $accessToken = $this->oAuth2Service->getAccessTokenByClientCredentials([], [
-                'store/' . $shopUuid,
-                $command->tokenAudience,
-            ]);
+            'store/' . $shopUuid,
+            $command->tokenAudience,
+        ]);
 
         $identityCreated = $this->accountsService->migrateShopIdentity(
             $shopUuid,
             $accessToken->access_token,
-            $this->shopProvider->getUrl($shopId),
+            $this->shopProvider->getUrl($shopId)
         );
 
         $this->statusManager->setCloudShopId($identityCreated->cloudShopId);

@@ -106,6 +106,7 @@ class CommandProvider implements IServiceProvider
                 $container->get(CommandBus::class)
             );
         });
+        
         $container->registerProvider(MigrateShopIdentityHandler::class, static function () use ($container) {
             return new MigrateShopIdentityHandler(
                 $container->get(AccountsService::class),

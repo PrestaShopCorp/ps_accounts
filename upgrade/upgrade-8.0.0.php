@@ -1,6 +1,5 @@
 <?php
 
-use PrestaShop\Module\PsAccounts\Account\Command\CreateIdentitiesCommand;
 use PrestaShop\Module\PsAccounts\Account\Command\MigrateShopIdentitiesCommand;
 use PrestaShop\Module\PsAccounts\Cqrs\CommandBus;
 use PrestaShop\Module\PsAccounts\Log\Logger;
