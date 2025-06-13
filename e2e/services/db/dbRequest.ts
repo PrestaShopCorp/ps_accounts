@@ -31,4 +31,10 @@ export default class DbRequest {
     const module = await this.getModuleDetails();
     expect(module.active).toBe(modulePsAccount.isActive);
   }
+
+  // Method to return the module version
+  async returnModuleVersion() {
+    const module = await this.getModuleDetails();
+    return module.version
+  }
 }

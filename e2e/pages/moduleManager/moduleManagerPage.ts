@@ -2,6 +2,7 @@ import {Page, Locator, expect} from '@playwright/test';
 import BasePage from '~/pages/basePage';
 import {modulePsAccount} from 'data/local/modules/modulePsAccount';
 import {moduleManagerPagesLocales} from '~/data/local/moduleManagerPageLocales/moduleManagerPageLocales';
+import path from 'path';
 
 export default class ModuleManagerPage extends BasePage {
   /* <<<<<<<<<<<<<<< Selectors Types >>>>>>>>>>>>>>>>>>>>>> */
@@ -94,5 +95,20 @@ export default class ModuleManagerPage extends BasePage {
     await this.page.locator('#header_shop').click();
     const isMultiStoreVisible = await this.page.getByRole('link', {name: 'All shops'});
     expect(isMultiStoreVisible).toBeVisible();
+  }
+
+  /**
+   *
+   * Upload a zip
+   */
+  async uploadZip() {
+    await this.page.locator('[data-target="#module-modal-import"]').click();
+    const fileChooserPromise = this.page.waitForEvent('filechooser');
+    await this.page.locator('.module-import-start-select-manual').click();
+    const fileChooser = await fileChooserPromise;
+    await fileChooser.setFiles(path.join(__dirname, '../../../e2e-env/modules/ps_accounts_preprod-7.2.0.zip'));
+    await this.page.waitForLoadState('networkidle');
+    await this.page.locator('#module-modal-import-closing-cross').click();
+    await this.page.reload()
   }
 }

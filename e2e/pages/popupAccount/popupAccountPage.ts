@@ -23,7 +23,7 @@ export default class PopupAccountPage extends BasePage {
       this.page.context().waitForEvent('page'),
       this.page.getByRole('button', {name: 'Link'}).click()
     ]);
-    await newPage.waitForTimeout(5000)
+    await newPage.waitForTimeout(5000);
     expect(newPage.url()).toContain('authv2-preprod');
     return newPage;
   }
@@ -41,12 +41,30 @@ export default class PopupAccountPage extends BasePage {
    * @param email string
    * @param password string
    */
-  async connectToAccount(newPage: Page) {
+  async connectToAccountWithMail(newPage: Page) {
     await newPage.locator('#email').fill(Globals.account_email);
     await newPage.locator('#password').fill(Globals.account_password);
-    await newPage.pause()
     const logginBtn = await newPage.getByRole('button', {name: 'Log in'});
-    await logginBtn.isEnabled({timeout:2000});
-    await logginBtn.click()
+    await logginBtn.isEnabled({timeout: 5000});
+    await this.waitForTimeout(500000);
+  }
+  /**
+   * Connected to account
+   * @param newPage {Page} The account popup
+   * @param email string
+   * @param password string
+   */
+  async connectToAccountWithGoogle(newPage: Page) {
+    const linkBtnVisible = await newPage.locator('[data-test="link-shop-button"]');
+    if (await linkBtnVisible.isVisible()) {
+      await linkBtnVisible.click();
+    } else {
+      await newPage.locator('.puik-button.puik-button--secondary').click();
+      await newPage.locator('#identifierId').fill('qa-autom+onboarding@prestashop.com');
+      await newPage.locator('#identifierNext').click();
+      await newPage.locator('[name="Passwd"]').fill('zWEufREWJ5FrpY3');
+      await newPage.locator('.VfPpkd-vQzf8d').nth(1).click()
+      
+    }
   }
 }

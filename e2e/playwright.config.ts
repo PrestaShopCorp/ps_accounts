@@ -14,15 +14,23 @@ export default defineConfig({
   reporter: [['html', {open: 'never'}], ['list'], ['allure-playwright']],
   projects: [
     {
-      // Look for test files in the "campaigns" directory, relative to this configuration file.
       name: 'Account Autom Test',
-      testMatch: '**/*spec.ts'
+      testMatch: '**/*spec.ts',
+      testIgnore: '**/01_front_check_association.spec.ts'
+    },
+    {
+      name: 'Association with google',
+      use: {browserName: 'webkit'},
+      testMatch: '**/01_front_check_association.spec.ts'
     }
   ],
   use: {
     trace: 'on-first-retry',
     screenshot: 'only-on-failure',
     headless: process.env.HEADLESS !== 'false',
-    userAgent: process.env.QA_USER_AGENT || 'default-ua-dev-mode'
+    userAgent: process.env.QA_USER_AGENT || 'default-ua-dev-mode',
+    launchOptions: {
+      args: ['--disable-blink-features=AutomationControlled']
+    }
   }
 });
