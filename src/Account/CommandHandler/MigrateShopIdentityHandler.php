@@ -106,12 +106,12 @@ class MigrateShopIdentityHandler
             ]);
         } catch (OAuth2Exception $e) {
             // IF audience invalide -> v5 OU v6 (ou bien déjà en v8 ??)
-            try {
+            /*try {
                 //$this->accountsService->refreshTokens
             } catch (AccessException $e) {
                 // TODO ?? Création d'identité ??
                 // backup en amont en cas de crash
-            }
+            }*/
         }
 
         $identityCreated = $this->accountsService->migrateShopIdentity(
