@@ -21,6 +21,18 @@
 
 namespace PrestaShop\Module\PsAccounts\Account\Command;
 
-class VerifyIdentitiesCommand
+class MigrateShopIdentitiesCommand
 {
+    /**
+     * @var string
+     */
+    public $tokenAudience;
+
+    /**
+     * @param string $tokenAudience
+     */
+    public function __construct($tokenAudience)
+    {
+        $this->tokenAudience = $tokenAudience;
+    }
 }
