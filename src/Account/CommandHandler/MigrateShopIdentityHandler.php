@@ -29,7 +29,9 @@ use PrestaShop\Module\PsAccounts\Provider\ShopProvider;
 use PrestaShop\Module\PsAccounts\Repository\ConfigurationRepository;
 use PrestaShop\Module\PsAccounts\Service\Accounts\AccountsException;
 use PrestaShop\Module\PsAccounts\Service\Accounts\AccountsService;
+use PrestaShop\Module\PsAccounts\Service\OAuth2\OAuth2Exception;
 use PrestaShop\Module\PsAccounts\Service\OAuth2\OAuth2Service;
+use Symfony\Component\OptionsResolver\Exception\AccessException;
 
 class MigrateShopIdentityHandler
 {
@@ -94,16 +96,31 @@ class MigrateShopIdentityHandler
 
         $shopUuid = $this->configurationRepository->getShopUuid();
 
-        $accessToken = $this->oAuth2Service->getAccessTokenByClientCredentials([], [
-            'store/' . $shopUuid,
-            $command->tokenAudience,
-        ]);
+        // TODO: reprise d'upgrade
+        // FIXME: nettoyer les données à 'l'uninstall ?
+
+        try {
+            $accessToken = $this->oAuth2Service->getAccessTokenByClientCredentials([], [
+                // audience v7
+                'shop_' . $shopUuid
+            ]);
+        } catch (OAuth2Exception $e) {
+            // IF audience invalide -> v5 OU v6 (ou bien déjà en v8 ??)
+            try {
+                //$this->accountsService->refreshTokens
+            } catch (AccessException $e) {
+                // TODO ?? Création d'identité ??
+                // backup en amont en cas de crash
+            }
+        }
 
         $identityCreated = $this->accountsService->migrateShopIdentity(
             $shopUuid,
             $accessToken->access_token,
             $this->shopProvider->getUrl($shopId)
         );
+
+        // TODO: clear les vieux tokens
 
         $this->statusManager->setCloudShopId($identityCreated->cloudShopId);
     }
