@@ -31,6 +31,7 @@ use PrestaShop\Module\PsAccounts\Http\Client\Response;
 use PrestaShop\Module\PsAccounts\Service\Accounts\Resource\FirebaseTokens;
 use PrestaShop\Module\PsAccounts\Service\Accounts\Resource\IdentityCreated;
 use PrestaShop\Module\PsAccounts\Service\Accounts\Resource\ShopStatus;
+use PrestaShop\Module\PsAccounts\Service\Accounts\Resource\FirebaseToken;
 use PrestaShop\Module\PsAccounts\Vendor\Ramsey\Uuid\Uuid;
 
 class AccountsService
@@ -126,7 +127,7 @@ class AccountsService
      * @param string $refreshToken
      * @param string $cloudShopId
      *
-     * @return FirebaseTokens
+     * @return FirebaseToken
      *
      * @throws AccountsException
      */
@@ -145,10 +146,10 @@ class AccountsService
         );
 
         if (!$response->isSuccessful) {
-            throw new AccountsException($this->getResponseErrorMsg($response, 'Unable to refresh token.'));
+            throw new AccountsException($this->getResponseErrorMsg($response, 'Unable to refresh shop token.'));
         }
 
-        return new FirebaseTokens($response->body);
+        return new FirebaseToken($response->body);
     }
 
     /**

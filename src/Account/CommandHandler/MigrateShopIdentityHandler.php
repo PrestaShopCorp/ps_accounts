@@ -95,44 +95,42 @@ class MigrateShopIdentityHandler
 
         $shopUuid = $this->configurationRepository->getShopUuid();
 
-        // TODO: reprise d'upgrade
-        // FIXME: nettoyer les données à 'l'uninstall ?
-        // FIXME: clearer les tokens au reset ?
-
         try {
-            $accessToken = $this->oAuth2Service->getAccessTokenByClientCredentials([], [
-                // audience v7
-                'shop_' . $shopUuid
-            ]);
+            if ($this->configurationRepository->getLastUpgrade()) {
+                $token = $this->oAuth2Service->getAccessTokenByClientCredentials([], [
+                    // audience v7
+                    'shop_' . $shopUuid,
+                ])->access_token;
+            } else {
+                $token = $this->accountsService->refreshShopToken(
+                    $this->configurationRepository->getFirebaseRefreshToken(),
+                    $shopUuid
+                )->token;
+            }
+
+            $identityCreated = $this->accountsService->migrateShopIdentity(
+                $shopUuid,
+                $token,
+                $this->shopProvider->getUrl($shopId)
+            );
+
+            $this->statusManager->setCloudShopId($identityCreated->cloudShopId);
+
+            // FIXME: remove test in production
+            if (!empty($identityCreated->clientId) &&
+                !empty($identityCreated->clientSecret)) {
+                $this->oAuth2Service->getOAuth2Client()->update(
+                    $identityCreated->clientId,
+                    $identityCreated->clientSecret
+                );
+            }
+
+            $this->configurationRepository->updateLastUpgrade(\Ps_accounts::VERSION);
+
+            // cleanup obsolete token
+            $this->configurationRepository->updateAccessToken('');
         } catch (OAuth2Exception $e) {
-            // IF audience invalide -> v5 OU v6 (ou bien déjà en v8 ??)
-            /*try {
-                //$this->accountsService->refreshTokens
-            } catch (AccountsException $e) {
-                // TODO ?? Création d'identité ??
-                // backup en amont en cas de crash
-            }*/
+        } catch (AccountsException $e) {
         }
-
-        // TODO: Plus de nécessité de fournir un bearer
-        // TODO: vérification de l'url enregistrée coté cloud SANS modification possible
-        // TODO: reprise d'upgrade: last_upgraded_version
-
-        $identityCreated = $this->accountsService->migrateShopIdentity(
-            $shopUuid,
-            $accessToken->access_token,
-            $this->shopProvider->getUrl($shopId)
-        );
-
-        // TODO: nettoyage des vieux tokens
-        $this->configurationRepository->updateAccessToken('');
-
-        // TODO
-//        $this->oAuth2Client->update(
-//            $identityCreated->clientId,
-//            $identityCreated->clientSecret
-//        );
-
-        $this->statusManager->setCloudShopId($identityCreated->cloudShopId);
     }
 }
