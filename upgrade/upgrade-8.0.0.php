@@ -3,6 +3,7 @@
 use PrestaShop\Module\PsAccounts\Account\Command\MigrateShopIdentitiesCommand;
 use PrestaShop\Module\PsAccounts\Cqrs\CommandBus;
 use PrestaShop\Module\PsAccounts\Log\Logger;
+use PrestaShop\Module\PsAccounts\Repository\ConfigurationRepository;
 
 /**
  * @param Ps_accounts $module
@@ -19,8 +20,11 @@ function upgrade_module_8_0_0($module)
     try {
         /** @var CommandBus $commandBus */
         $commandBus = $module->getService(CommandBus::class);
-
         $commandBus->handle(new MigrateShopIdentitiesCommand($module->getParameter('ps_accounts.token_audience')));
+
+        /** @var ConfigurationRepository $configurationRepository */
+        $configurationRepository = $module->getService(ConfigurationRepository::class);
+        $configurationRepository->updateLastUpgrade(\Ps_accounts::VERSION);
 
         /* @phpstan-ignore-next-line */
     } catch (\Throwable $e) {

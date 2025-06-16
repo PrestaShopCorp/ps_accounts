@@ -125,8 +125,6 @@ class MigrateShopIdentityHandler
                 );
             }
 
-            $this->configurationRepository->updateLastUpgrade(\Ps_accounts::VERSION);
-
             // cleanup obsolete token
             $this->configurationRepository->updateAccessToken('');
         } catch (OAuth2Exception $e) {
