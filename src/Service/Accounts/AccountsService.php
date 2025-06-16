@@ -194,27 +194,6 @@ class AccountsService
         );
     }
 
-    //    /**
-    //     * @param string $cloudShopId
-    //     * @param string $shopToken
-    //     * @param UpgradeModule $data
-    //     *
-    //     * @return Response
-    //     */
-    //    public function upgradeShopModule($cloudShopId, $shopToken, UpgradeModule $data)
-    //    {
-    //        return $this->getClient()->post(
-    //            '/v2/shop/module/update',
-    //            [
-    //                Request::HEADERS => $this->getHeaders([
-    //                    'Authorization' => 'Bearer ' . $shopToken,
-    //                    'X-Shop-Id' => $cloudShopId,
-    //                ]),
-    //                Request::JSON => $data->jsonSerialize(),
-    //            ]
-    //        );
-    //    }
-
     /**
      * @param string $idToken
      *
@@ -227,7 +206,7 @@ class AccountsService
         return $this->getClient()->post(
             '/v1/shop/token/verify',
             [
-                //                Request::HEADERS => $this->getHeaders(),
+                // Request::HEADERS => $this->getHeaders(),
                 Request::JSON => [
                     'token' => $idToken,
                 ],
@@ -362,26 +341,6 @@ class AccountsService
     }
 
     /**
-     * @param Response $response
-     * @param string $defaultMessage
-     *
-     * @return string
-     */
-    protected function getResponseErrorMsg(Response $response, $defaultMessage = '')
-    {
-        $msg = $defaultMessage;
-        $body = $response->body;
-        if (
-            isset($body['error']) &&
-            isset($body['error_description'])
-        ) {
-            $msg = $body['error'] . ': ' . $body['error_description'];
-        }
-
-        return $response->statusCode . ' - ' . $msg;
-    }
-
-    /**
      * @param string $cloudShopId
      * @param string $shopToken
      *
@@ -413,5 +372,25 @@ class AccountsService
         }
 
         return new IdentityCreated($response->body);
+    }
+
+    /**
+     * @param Response $response
+     * @param string $defaultMessage
+     *
+     * @return string
+     */
+    protected function getResponseErrorMsg(Response $response, $defaultMessage = '')
+    {
+        $msg = $defaultMessage;
+        $body = $response->body;
+        if (
+            isset($body['error']) &&
+            isset($body['error_description'])
+        ) {
+            $msg = $body['error'] . ': ' . $body['error_description'];
+        }
+
+        return $response->statusCode . ' - ' . $msg;
     }
 }
