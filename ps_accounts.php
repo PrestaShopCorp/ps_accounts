@@ -77,6 +77,7 @@ class Ps_accounts extends Module
         'actionObjectShopDeleteAfter',
         'actionShopAccessTokenRefreshAfter',
         'displayBackOfficeEmployeeMenu',
+        'displayHeader'
     ];
 
     /**
