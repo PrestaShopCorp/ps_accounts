@@ -22,8 +22,6 @@
 namespace PrestaShop\Module\PsAccounts\Account\CommandHandler;
 
 use PrestaShop\Module\PsAccounts\Account\Command\MigrateShopIdentityCommand;
-use PrestaShop\Module\PsAccounts\Account\Exception\RefreshTokenException;
-use PrestaShop\Module\PsAccounts\Account\Exception\UnknownStatusException;
 use PrestaShop\Module\PsAccounts\Account\StatusManager;
 use PrestaShop\Module\PsAccounts\Provider\ShopProvider;
 use PrestaShop\Module\PsAccounts\Repository\ConfigurationRepository;
@@ -84,16 +82,15 @@ class MigrateShopIdentityHandler
      * @param MigrateShopIdentityCommand $command
      *
      * @return void
-     *
-     * @throws RefreshTokenException
-     * @throws UnknownStatusException
-     * @throws AccountsException
      */
     public function handle(MigrateShopIdentityCommand $command)
     {
         $shopId = $command->shopId ?: \Shop::getContextShopID();
 
         $shopUuid = $this->configurationRepository->getShopUuid();
+
+        // TODO
+        //$this->statusManager->setCloudShopId($shopUuid);
 
         try {
             if ($this->configurationRepository->getLastUpgrade()) {
@@ -116,7 +113,6 @@ class MigrateShopIdentityHandler
 
             $this->statusManager->setCloudShopId($identityCreated->cloudShopId);
 
-            // FIXME: remove test in production
             if (!empty($identityCreated->clientId) &&
                 !empty($identityCreated->clientSecret)) {
                 $this->oAuth2Service->getOAuth2Client()->update(
