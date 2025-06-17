@@ -84,10 +84,6 @@ class MigrateShopIdentityHandler
      * @param MigrateShopIdentityCommand $command
      *
      * @return void
-     *
-     * @throws RefreshTokenException
-     * @throws UnknownStatusException
-     * @throws AccountsException
      */
     public function handle(MigrateShopIdentityCommand $command)
     {
