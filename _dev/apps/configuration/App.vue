@@ -18,25 +18,25 @@
  *-->
 <template>
   <PuikTabNavigation :name="args.name" :default-position="args.defaultPosition">
-    <PuikTabNavigationGroupTitles :ariaLabel="args.ariaLabel">
+    <!-- <PuikTabNavigationGroupTitles :ariaLabel="args.ariaLabel">
       <PuikTabNavigationTitle :position="1">
         Configuration
       </PuikTabNavigationTitle>
       <PuikTabNavigationTitle :position="2"> Help </PuikTabNavigationTitle>
-    </PuikTabNavigationGroupTitles>
+    </PuikTabNavigationGroupTitles> -->
     <PuikTabNavigationGroupPanels>
       <PuikTabNavigationPanel :position="1">
         <div class="panelContent">
           <prestashop-accounts></prestashop-accounts>
         </div>
       </PuikTabNavigationPanel>
-      <PuikTabNavigationPanel :position="2">
+      <!-- <PuikTabNavigationPanel :position="2">
         <div class="panelContent">
           Content for Profile tab goes here.
           <p>Profile content goes here.</p>
           <p>More profile content can be added here.</p>
         </div>
-      </PuikTabNavigationPanel>
+      </PuikTabNavigationPanel> -->
     </PuikTabNavigationGroupPanels>
   </PuikTabNavigation>
 </template>
