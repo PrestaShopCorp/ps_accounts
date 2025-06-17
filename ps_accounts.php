@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Copyright since 2007 PrestaShop SA and Contributors
  * PrestaShop is an International Registered Trademark & Property of PrestaShop SA
@@ -139,15 +140,15 @@ class Ps_accounts extends Module
         $this->displayName = $this->l('PrestaShop Account');
         $this->description = $this->l(
             'Link your store to your PrestaShop account to activate and manage your subscriptions in your ' .
-            'back office. Do not uninstall this module if you have a current subscription.'
+                'back office. Do not uninstall this module if you have a current subscription.'
         );
         $this->description_full = $this->l(
             'Link your store to your PrestaShop account to activate and manage your subscriptions in your ' .
-            'back office. Do not uninstall this module if you have a current subscription.'
+                'back office. Do not uninstall this module if you have a current subscription.'
         );
         $this->confirmUninstall = $this->l(
             'This action will prevent immediately your PrestaShop services and Community services from ' .
-            'working as they are using PrestaShop Accounts module for authentication.'
+                'working as they are using PrestaShop Accounts module for authentication.'
         );
 
         $this->ps_versions_compliancy = ['min' => '1.6.1', 'max' => _PS_VERSION_];
@@ -288,7 +289,7 @@ class Ps_accounts extends Module
     {
         return array_map(function ($className) {
             return preg_replace('/^.*?(\w+)Controller$/', '\1', $className);
-        //return preg_replace('/^(.*?)Controller$/', '\1', $className);
+            //return preg_replace('/^(.*?)Controller$/', '\1', $className);
         }, $this->adminControllers);
     }
 
