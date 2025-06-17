@@ -22,6 +22,7 @@
 namespace PrestaShop\Module\PsAccounts\Account\CommandHandler;
 
 use PrestaShop\Module\PsAccounts\Account\Command\MigrateShopIdentityCommand;
+use PrestaShop\Module\PsAccounts\Account\ProofManager;
 use PrestaShop\Module\PsAccounts\Account\StatusManager;
 use PrestaShop\Module\PsAccounts\Provider\ShopProvider;
 use PrestaShop\Module\PsAccounts\Repository\ConfigurationRepository;
@@ -58,24 +59,32 @@ class MigrateShopIdentityHandler
     protected $oAuth2Service;
 
     /**
+     * @var ProofManager
+     */
+    protected $proofManager;
+
+    /**
      * @param AccountsService $accountsService
      * @param ShopProvider $shopProvider
      * @param StatusManager $shopStatus
      * @param ConfigurationRepository $configurationRepository
      * @param OAuth2Service $oAuth2Service
+     * @param ProofManager $proofManager
      */
     public function __construct(
         AccountsService $accountsService,
         ShopProvider $shopProvider,
         StatusManager $shopStatus,
         ConfigurationRepository $configurationRepository,
-        OAuth2Service $oAuth2Service
+        OAuth2Service $oAuth2Service,
+        ProofManager $proofManager
     ) {
         $this->accountsService = $accountsService;
         $this->shopProvider = $shopProvider;
         $this->statusManager = $shopStatus;
         $this->configurationRepository = $configurationRepository;
         $this->oAuth2Service = $oAuth2Service;
+        $this->proofManager = $proofManager;
     }
 
     /**
@@ -90,7 +99,7 @@ class MigrateShopIdentityHandler
         $shopUuid = $this->configurationRepository->getShopUuid();
 
         // TODO
-        //$this->statusManager->setCloudShopId($shopUuid);
+        $this->statusManager->setCloudShopId($shopUuid);
 
         try {
             if ($this->configurationRepository->getLastUpgrade()) {
@@ -108,7 +117,8 @@ class MigrateShopIdentityHandler
             $identityCreated = $this->accountsService->migrateShopIdentity(
                 $shopUuid,
                 $token,
-                $this->shopProvider->getUrl($shopId)
+                $this->shopProvider->getUrl($shopId),
+                $this->proofManager->generateProof()
             );
 
             $this->statusManager->setCloudShopId($identityCreated->cloudShopId);
