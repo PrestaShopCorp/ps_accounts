@@ -95,6 +95,9 @@ class MigrateShopIdentityHandler
 
         $shopUuid = $this->configurationRepository->getShopUuid();
 
+        // TODO
+        //$this->statusManager->setCloudShopId($shopUuid);
+
         try {
             if ($this->configurationRepository->getLastUpgrade()) {
                 $token = $this->oAuth2Service->getAccessTokenByClientCredentials([], [
@@ -116,7 +119,6 @@ class MigrateShopIdentityHandler
 
             $this->statusManager->setCloudShopId($identityCreated->cloudShopId);
 
-            // FIXME: remove test in production
             if (!empty($identityCreated->clientId) &&
                 !empty($identityCreated->clientSecret)) {
                 $this->oAuth2Service->getOAuth2Client()->update(
