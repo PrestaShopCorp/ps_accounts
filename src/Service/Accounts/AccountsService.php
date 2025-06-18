@@ -345,6 +345,7 @@ class AccountsService
      * @param string $shopToken
      * @param ShopUrl $shopUrl
      * @param string $proof
+     * @param string $fromVersion
      *
      * @return IdentityCreated
      *
@@ -363,9 +364,8 @@ class AccountsService
                     'backOfficeUrl' => $shopUrl->getBackOfficeUrl(),
                     'frontendUrl' => $shopUrl->getFrontendUrl(),
                     'multiShopId' => $shopUrl->getMultiShopId(),
-                    // FIXME: store last upgraded version
-                    'fromVersion' => $fromVersion,
                     'proof' => $proof,
+                    'fromVersion' => $fromVersion,
                 ],
             ]
         );

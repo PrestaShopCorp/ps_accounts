@@ -118,11 +118,9 @@ class IdentifyContactHandlerTest extends TestCase
             ])
         ]))->toArray()));
 
-        $this->getHandler()->handle(new IdentifyContactCommand(new AccessToken(
-            [
-                'access_token' => 'valid_access_token',
-            ]
-        )));
+        $this->getHandler()->handle(new IdentifyContactCommand(new AccessToken([
+            'access_token' => 'valid_access_token',
+        ])));
     }
 
     /**

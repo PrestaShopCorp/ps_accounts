@@ -125,7 +125,7 @@ JSON;
             ->willReturn($this->wellKnownResponse);
 
         $this->oAuth2Client->method('post')
-            ->with($this->matchesRegularExpression('@' . $this->oAuth2Service->getWellKnown()->token_endpoint . '@'),)
+            ->with($this->matchesRegularExpression('@' . $this->oAuth2Service->getWellKnown()->token_endpoint . '@'))
             ->willReturn(
                 $this->createResponse([
                     'access_token' => $token,
@@ -302,7 +302,7 @@ JSON;
             ->willReturn($this->wellKnownResponse);
 
         $this->oAuth2Client->method('post')
-            ->with($this->matchesRegularExpression('@' . $this->oAuth2Service->getWellKnown()->token_endpoint . '@'),)
+            ->with($this->matchesRegularExpression('@' . $this->oAuth2Service->getWellKnown()->token_endpoint . '@'))
             ->willReturn(
                 $this->createResponse([
                     'access_token' => $token,
