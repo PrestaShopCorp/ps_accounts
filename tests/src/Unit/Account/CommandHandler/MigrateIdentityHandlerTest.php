@@ -110,6 +110,7 @@ JSON;
         $clientId = $this->faker->uuid;
         $clientSecret = $this->faker->uuid;
         $token = $this->faker->uuid;
+        $tokenAudience = 'shop_' . $cloudShopId;
 
         // introduced in v7
         $this->configurationRepository->updateLastUpgrade('7.2.0');
@@ -126,11 +127,14 @@ JSON;
 
         $this->oAuth2Client->method('post')
             ->with($this->matchesRegularExpression('@' . $this->oAuth2Service->getWellKnown()->token_endpoint . '@'))
-            ->willReturn(
-                $this->createResponse([
+            ->willReturnCallback(function ($route, $options) use ($cloudShopId, $clientId, $clientSecret, $token, $tokenAudience) {
+
+                $this->assertMatchesRegularExpression('/' . $tokenAudience . '/', $options[Request::FORM]['audience']);
+
+                return $this->createResponse([
                     'access_token' => $token,
-                ], 200, true)
-            );
+                ], 200, true);
+            });
 
         // FIXME: test AccountsClient in a dedicated Class
         $this->accountsClient->method('put')
@@ -287,6 +291,7 @@ JSON;
         $clientId = $this->faker->uuid;
         $clientSecret = $this->faker->uuid;
         $token =  $this->faker->uuid;
+        $tokenAudience = 'shop_' . $cloudShopId;
 
         // introduced in v7
         $this->configurationRepository->updateLastUpgrade('7.2.0');
@@ -303,11 +308,14 @@ JSON;
 
         $this->oAuth2Client->method('post')
             ->with($this->matchesRegularExpression('@' . $this->oAuth2Service->getWellKnown()->token_endpoint . '@'))
-            ->willReturn(
-                $this->createResponse([
+            ->willReturnCallback(function ($route, $options) use ($cloudShopId, $clientId, $clientSecret, $token, $tokenAudience) {
+
+                $this->assertMatchesRegularExpression('/'. $tokenAudience . '/', $options[Request::FORM]['audience']);
+
+                return $this->createResponse([
                     'access_token' => $token,
-                ], 200, true)
-            );
+                ], 200, true);
+            });
 
         // FIXME: test AccountsClient in a dedicated Class
         $this->accountsClient->method('put')
