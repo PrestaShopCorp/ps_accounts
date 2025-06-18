@@ -27,7 +27,7 @@ use PrestaShop\Module\PsAccounts\Account\Exception\UnknownStatusException;
 use PrestaShop\Module\PsAccounts\Log\Logger;
 use PrestaShop\Module\PsAccounts\Service\Accounts\AccountsException;
 
-class MigrateShopIdentitiesHandler extends MultiShopHandler
+class MigrateIdentitiesHandler extends MultiShopHandler
 {
     /**
      * @param MigrateIdentitiesCommand $command
