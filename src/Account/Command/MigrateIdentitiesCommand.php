@@ -21,25 +21,18 @@
 
 namespace PrestaShop\Module\PsAccounts\Account\Command;
 
-class MigrateShopIdentityCommand
+class MigrateIdentitiesCommand
 {
-    /**
-     * @var int|null
-     */
-    public $shopId;
-
     /**
      * @var string
      */
     public $tokenAudience;
 
     /**
-     * @param int|null $shopId
      * @param string $tokenAudience
      */
-    public function __construct($shopId, $tokenAudience)
+    public function __construct($tokenAudience)
     {
-        $this->shopId = $shopId;
         $this->tokenAudience = $tokenAudience;
     }
 }

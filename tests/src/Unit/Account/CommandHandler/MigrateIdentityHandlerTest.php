@@ -3,7 +3,7 @@
 namespace PrestaShop\Module\PsAccounts\Tests\Unit\Account\CommandHandler;
 
 use PHPUnit\Framework\MockObject\MockObject;
-use PrestaShop\Module\PsAccounts\Account\Command\MigrateShopIdentityCommand;
+use PrestaShop\Module\PsAccounts\Account\Command\MigrateIdentityCommand;
 use PrestaShop\Module\PsAccounts\Account\CommandHandler\MigrateIdentityHandler;
 use PrestaShop\Module\PsAccounts\Account\ProofManager;
 use PrestaShop\Module\PsAccounts\Account\StatusManager;
@@ -154,7 +154,7 @@ JSON;
                 ], 200, true);
             });
 
-        $this->getHandler()->handle(new MigrateShopIdentityCommand($this->shopId, ''));
+        $this->getHandler()->handle(new MigrateIdentityCommand($this->shopId, ''));
 
         $this->assertEmpty($this->configurationRepository->getAccessToken());
         $this->assertTrue($this->statusManager->cacheInvalidated());
@@ -270,7 +270,7 @@ JSON;
                 ], 200, true);
             });
 
-        $this->getHandler()->handle(new MigrateShopIdentityCommand($this->shopId, ''));
+        $this->getHandler()->handle(new MigrateIdentityCommand($this->shopId, ''));
 
         $this->assertTrue($this->statusManager->cacheInvalidated());
         $this->assertEquals($cloudShopId, $this->statusManager->getCloudShopId());
@@ -330,7 +330,7 @@ JSON;
                 ], 400, true);
             });
 
-        $this->getHandler()->handle(new MigrateShopIdentityCommand($this->shopId, ''));
+        $this->getHandler()->handle(new MigrateIdentityCommand($this->shopId, ''));
 
         $this->assertTrue($this->statusManager->cacheInvalidated());
         $this->assertEquals($cloudShopId, $this->statusManager->getCloudShopId());

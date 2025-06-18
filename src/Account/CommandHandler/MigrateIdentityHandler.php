@@ -20,7 +20,7 @@
 
 namespace PrestaShop\Module\PsAccounts\Account\CommandHandler;
 
-use PrestaShop\Module\PsAccounts\Account\Command\MigrateShopIdentityCommand;
+use PrestaShop\Module\PsAccounts\Account\Command\MigrateIdentityCommand;
 use PrestaShop\Module\PsAccounts\Account\ProofManager;
 use PrestaShop\Module\PsAccounts\Account\StatusManager;
 use PrestaShop\Module\PsAccounts\Provider\ShopProvider;
@@ -87,11 +87,11 @@ class MigrateIdentityHandler
     }
 
     /**
-     * @param MigrateShopIdentityCommand $command
+     * @param MigrateIdentityCommand $command
      *
      * @return void
      */
-    public function handle(MigrateShopIdentityCommand $command)
+    public function handle(MigrateIdentityCommand $command)
     {
         $shopId = $command->shopId ?: \Shop::getContextShopID();
 
