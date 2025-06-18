@@ -109,11 +109,11 @@ class CommandProvider implements IServiceProvider
         $container->registerProvider(MigrateShopIdentityHandler::class, static function () use ($container) {
             return new MigrateShopIdentityHandler(
                 $container->get(AccountsService::class),
+                $container->get(OAuth2Service::class),
                 $container->get(ShopProvider::class),
                 $container->get(StatusManager::class),
-                $container->get(ConfigurationRepository::class),
-                $container->get(OAuth2Service::class),
-                $container->get(ProofManager::class)
+                $container->get(ProofManager::class),
+                $container->get(ConfigurationRepository::class)
             );
         });
     }

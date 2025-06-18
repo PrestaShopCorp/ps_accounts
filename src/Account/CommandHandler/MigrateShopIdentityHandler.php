@@ -1,5 +1,4 @@
 <?php
-
 /**
  * Copyright since 2007 PrestaShop SA and Contributors
  * PrestaShop is an International Registered Trademark & Property of PrestaShop SA
@@ -39,6 +38,11 @@ class MigrateShopIdentityHandler
     private $accountsService;
 
     /**
+     * @var OAuth2Service
+     */
+    protected $oAuth2Service;
+
+    /**
      * @var ShopProvider
      */
     private $shopProvider;
@@ -49,42 +53,37 @@ class MigrateShopIdentityHandler
     private $statusManager;
 
     /**
-     * @var ConfigurationRepository
-     */
-    private $configurationRepository;
-
-    /**
-     * @var OAuth2Service
-     */
-    protected $oAuth2Service;
-
-    /**
      * @var ProofManager
      */
     protected $proofManager;
 
     /**
+     * @var ConfigurationRepository
+     */
+    private $configurationRepository;
+
+    /**
      * @param AccountsService $accountsService
+     * @param OAuth2Service $oAuth2Service
      * @param ShopProvider $shopProvider
      * @param StatusManager $shopStatus
-     * @param ConfigurationRepository $configurationRepository
-     * @param OAuth2Service $oAuth2Service
      * @param ProofManager $proofManager
+     * @param ConfigurationRepository $configurationRepository
      */
     public function __construct(
         AccountsService $accountsService,
+        OAuth2Service $oAuth2Service,
         ShopProvider $shopProvider,
         StatusManager $shopStatus,
-        ConfigurationRepository $configurationRepository,
-        OAuth2Service $oAuth2Service,
-        ProofManager $proofManager
+        ProofManager $proofManager,
+        ConfigurationRepository $configurationRepository
     ) {
         $this->accountsService = $accountsService;
+        $this->oAuth2Service = $oAuth2Service;
         $this->shopProvider = $shopProvider;
         $this->statusManager = $shopStatus;
-        $this->configurationRepository = $configurationRepository;
-        $this->oAuth2Service = $oAuth2Service;
         $this->proofManager = $proofManager;
+        $this->configurationRepository = $configurationRepository;
     }
 
     /**
@@ -98,7 +97,6 @@ class MigrateShopIdentityHandler
 
         $shopUuid = $this->configurationRepository->getShopUuid();
 
-        // TODO
         $this->statusManager->setCloudShopId($shopUuid);
 
         try {
@@ -120,8 +118,6 @@ class MigrateShopIdentityHandler
                 $this->shopProvider->getUrl($shopId),
                 $this->proofManager->generateProof()
             );
-
-            $this->statusManager->setCloudShopId($identityCreated->cloudShopId);
 
             if (!empty($identityCreated->clientId) &&
                 !empty($identityCreated->clientSecret)) {
