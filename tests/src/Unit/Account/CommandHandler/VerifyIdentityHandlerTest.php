@@ -10,6 +10,7 @@ use PrestaShop\Module\PsAccounts\Account\ProofManager;
 use PrestaShop\Module\PsAccounts\Account\Session\ShopSession;
 use PrestaShop\Module\PsAccounts\Account\StatusManager;
 use PrestaShop\Module\PsAccounts\Http\Client\Curl\Client;
+use PrestaShop\Module\PsAccounts\Http\Client\Request;
 use PrestaShop\Module\PsAccounts\Service\Accounts\AccountsException;
 use PrestaShop\Module\PsAccounts\Service\Accounts\AccountsService;
 use PrestaShop\Module\PsAccounts\Provider\ShopProvider;
@@ -87,13 +88,18 @@ class VerifyIdentityHandlerTest extends TestCase
         ]))->toArray()));
 
         $this->client->method('post')
-            ->willReturnCallback(function ($route) use ($cloudShopId) {
-                if (preg_match('/v1\/shop-identities\/' . $cloudShopId . '\/verify$/', $route)) {
-                    return $this->createResponse([
-                        "success" => true,
-                    ], 200, true);
-                }
-                return $this->createResponse([], 500, true);
+            ->with($this->matchesRegularExpression('/v1\/shop-identities\/' . $cloudShopId . '\/verify$/'))
+            ->willReturnCallback(function ($route, $options) use ($cloudShopId) {
+
+                $this->assertArrayHasKey('Authorization', $options[Request::HEADERS]);
+                $this->assertArrayHasKey('backOfficeUrl', $options[Request::JSON]);
+                $this->assertArrayHasKey('frontendUrl', $options[Request::JSON]);
+                $this->assertArrayHasKey('multiShopId', $options[Request::JSON]);
+                $this->assertEquals($this->proofManager->getProof(), $options[Request::JSON]['proof']);
+
+                return $this->createResponse([
+                    "success" => true,
+                ], 200, true);
             });
 
         $this->getHandler()->handle(new VerifyIdentityCommand(1));
