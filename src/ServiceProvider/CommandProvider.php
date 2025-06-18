@@ -25,7 +25,7 @@ use PrestaShop\Module\PsAccounts\Account\CommandHandler\CreateIdentityHandler;
 use PrestaShop\Module\PsAccounts\Account\CommandHandler\DeleteUserShopHandler;
 use PrestaShop\Module\PsAccounts\Account\CommandHandler\IdentifyContactHandler;
 use PrestaShop\Module\PsAccounts\Account\CommandHandler\MigrateShopIdentitiesHandler;
-use PrestaShop\Module\PsAccounts\Account\CommandHandler\MigrateShopIdentityHandler;
+use PrestaShop\Module\PsAccounts\Account\CommandHandler\MigrateIdentityHandler;
 use PrestaShop\Module\PsAccounts\Account\CommandHandler\UpdateUserShopHandler;
 use PrestaShop\Module\PsAccounts\Account\CommandHandler\VerifyIdentitiesHandler;
 use PrestaShop\Module\PsAccounts\Account\CommandHandler\VerifyIdentityHandler;
@@ -106,8 +106,8 @@ class CommandProvider implements IServiceProvider
                 $container->get(CommandBus::class)
             );
         });
-        $container->registerProvider(MigrateShopIdentityHandler::class, static function () use ($container) {
-            return new MigrateShopIdentityHandler(
+        $container->registerProvider(MigrateIdentityHandler::class, static function () use ($container) {
+            return new MigrateIdentityHandler(
                 $container->get(AccountsService::class),
                 $container->get(OAuth2Service::class),
                 $container->get(ShopProvider::class),

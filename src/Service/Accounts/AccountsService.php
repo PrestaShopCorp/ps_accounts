@@ -350,7 +350,7 @@ class AccountsService
      *
      * @throws AccountsException
      */
-    public function migrateShopIdentity($cloudShopId, $shopToken, ShopUrl $shopUrl, $proof)
+    public function migrateShopIdentity($cloudShopId, $shopToken, ShopUrl $shopUrl, $proof, $fromVersion = '7.2.1')
     {
         $response = $this->getClient()->put(
             '/v1/shop-identities/' . $cloudShopId . '/migration',
@@ -364,7 +364,7 @@ class AccountsService
                     'frontendUrl' => $shopUrl->getFrontendUrl(),
                     'multiShopId' => $shopUrl->getMultiShopId(),
                     // FIXME: store last upgraded version
-                    'fromVersion' => '7.2.1',
+                    'fromVersion' => $fromVersion,
                     'proof' => $proof,
                 ],
             ]

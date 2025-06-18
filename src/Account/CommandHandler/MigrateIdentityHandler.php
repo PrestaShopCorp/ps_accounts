@@ -30,7 +30,7 @@ use PrestaShop\Module\PsAccounts\Service\Accounts\AccountsService;
 use PrestaShop\Module\PsAccounts\Service\OAuth2\OAuth2Exception;
 use PrestaShop\Module\PsAccounts\Service\OAuth2\OAuth2Service;
 
-class MigrateShopIdentityHandler
+class MigrateIdentityHandler
 {
     /**
      * @var AccountsService
@@ -116,7 +116,8 @@ class MigrateShopIdentityHandler
                 $shopUuid,
                 $token,
                 $this->shopProvider->getUrl($shopId),
-                $this->proofManager->generateProof()
+                $this->proofManager->generateProof(),
+                (string) $this->configurationRepository->getLastUpgrade()
             );
 
             if (!empty($identityCreated->clientId) &&

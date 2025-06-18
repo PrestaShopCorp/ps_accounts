@@ -4,7 +4,7 @@ namespace PrestaShop\Module\PsAccounts\Tests\Unit\Account\CommandHandler;
 
 use PHPUnit\Framework\MockObject\MockObject;
 use PrestaShop\Module\PsAccounts\Account\Command\MigrateShopIdentityCommand;
-use PrestaShop\Module\PsAccounts\Account\CommandHandler\MigrateShopIdentityHandler;
+use PrestaShop\Module\PsAccounts\Account\CommandHandler\MigrateIdentityHandler;
 use PrestaShop\Module\PsAccounts\Account\ProofManager;
 use PrestaShop\Module\PsAccounts\Account\StatusManager;
 use PrestaShop\Module\PsAccounts\Http\Client\Curl\Client;
@@ -145,6 +145,7 @@ JSON;
                 $this->assertArrayHasKey('frontendUrl', $options[Request::JSON]);
                 $this->assertArrayHasKey('multiShopId', $options[Request::JSON]);
                 $this->assertEquals($this->proofManager->getProof(), $options[Request::JSON]['proof']);
+                $this->assertEquals((string) $this->configurationRepository->getLastUpgrade(), $options[Request::JSON]['fromVersion']);
 
                 return $this->createResponse([
                     'clientId' => $clientId,
@@ -260,6 +261,7 @@ JSON;
                 $this->assertArrayHasKey('frontendUrl', $options[Request::JSON]);
                 $this->assertArrayHasKey('multiShopId', $options[Request::JSON]);
                 $this->assertEquals($this->proofManager->getProof(), $options[Request::JSON]['proof']);
+                $this->assertEquals((string) $this->configurationRepository->getLastUpgrade(), $options[Request::JSON]['fromVersion']);
 
                 return $this->createResponse([
                     'clientId' => $clientId,
@@ -320,6 +322,7 @@ JSON;
                 $this->assertArrayHasKey('frontendUrl', $options[Request::JSON]);
                 $this->assertArrayHasKey('multiShopId', $options[Request::JSON]);
                 $this->assertEquals($this->proofManager->getProof(), $options[Request::JSON]['proof']);
+                $this->assertEquals((string) $this->configurationRepository->getLastUpgrade(), $options[Request::JSON]['fromVersion']);
 
                 return $this->createResponse([
                     "error" => 'store-identity/migration-failed',
@@ -336,11 +339,11 @@ JSON;
     }
 
     /**
-     * @return MigrateShopIdentityHandler
+     * @return MigrateIdentityHandler
      */
     private function getHandler()
     {
-        return new MigrateShopIdentityHandler(
+        return new MigrateIdentityHandler(
             $this->accountsService,
             $this->oAuth2Service,
             $this->shopProvider,
