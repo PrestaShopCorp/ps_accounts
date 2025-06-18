@@ -129,7 +129,7 @@ JSON;
             ->with($this->matchesRegularExpression('@' . $this->oAuth2Service->getWellKnown()->token_endpoint . '@'))
             ->willReturnCallback(function ($route, $options) use ($cloudShopId, $clientId, $clientSecret, $token, $tokenAudience) {
 
-                $this->assertMatchesRegularExpression('/' . $tokenAudience . '/', $options[Request::FORM]['audience']);
+                $this->assertTrue((bool) preg_match('/' . $tokenAudience . '/', $options[Request::FORM]['audience']));
 
                 return $this->createResponse([
                     'access_token' => $token,
@@ -310,7 +310,7 @@ JSON;
             ->with($this->matchesRegularExpression('@' . $this->oAuth2Service->getWellKnown()->token_endpoint . '@'))
             ->willReturnCallback(function ($route, $options) use ($cloudShopId, $clientId, $clientSecret, $token, $tokenAudience) {
 
-                $this->assertMatchesRegularExpression('/'. $tokenAudience . '/', $options[Request::FORM]['audience']);
+                $this->assertTrue((bool) preg_match('/' . $tokenAudience . '/', $options[Request::FORM]['audience']));
 
                 return $this->createResponse([
                     'access_token' => $token,
