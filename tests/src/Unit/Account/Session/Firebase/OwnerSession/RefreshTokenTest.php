@@ -73,10 +73,14 @@ class RefreshTokenTest extends TestCase
         $session = $this->getMockedFirebaseSession(
             Firebase\OwnerSession::class,
             $this->createResponse([
-                'userToken' => (string) $userRefreshedToken,
-                'userRefreshToken' => $userRefreshToken,
-                'shopToken' => (string) $shopRefreshedToken,
-                'shopRefreshToken' => $shopRefreshToken,
+                'shop' => [
+                    'token' => (string) $shopRefreshedToken,
+                    'refreshToken' => $shopRefreshToken,
+                ],
+                'pointOfContact' => [
+                    'token' => (string) $userRefreshedToken,
+                    'refreshToken' => $userRefreshToken,
+                ]
             ], 200, true),
             $this->getMockedShopSession(new Token($this->makeJwtToken(new \DateTimeImmutable())))
         );
