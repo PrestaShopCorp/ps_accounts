@@ -97,16 +97,17 @@ class AccountsService
     }
 
     /**
+     * @param string $cloudShopId
      * @param string $accessToken
      *
      * @return FirebaseTokens
      *
      * @throws AccountsException
      */
-    public function firebaseTokens($accessToken)
+    public function firebaseTokens($cloudShopId, $accessToken)
     {
         $response = $this->getClient()->get(
-            'v2/shop/firebase/tokens',
+            '/v1/shop-identities/' . $cloudShopId . '/tokens',
             [
                 Request::HEADERS => $this->getHeaders([
                     'Authorization' => 'Bearer ' . $accessToken,
