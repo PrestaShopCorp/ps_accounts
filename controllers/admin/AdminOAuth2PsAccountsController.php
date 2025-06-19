@@ -18,6 +18,9 @@
  * @license   https://opensource.org/licenses/AFL-3.0 Academic Free License version 3.0
  */
 
+require_once __DIR__ . '/../../src/AccountLogin/OAuth2LoginTrait.php';
+require_once __DIR__ . '/../../src/Polyfill/Traits/AdminController/IsAnonymousAllowed.php';
+
 use PrestaShop\Module\PsAccounts\Account\Command\IdentifyContactCommand;
 use PrestaShop\Module\PsAccounts\AccountLogin\Exception\AccountLoginException;
 use PrestaShop\Module\PsAccounts\AccountLogin\Exception\EmailNotVerifiedException;
@@ -109,6 +112,7 @@ class AdminOAuth2PsAccountsController extends \ModuleAdminController
         } catch (Exception $e) {
             $this->onLoginFailed(new AccountLoginException($e->getMessage(), null, $e));
         }
+        // why do this at the end of the method ?
         parent::init();
     }
 

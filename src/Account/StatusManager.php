@@ -24,6 +24,7 @@ use DateTime;
 use PrestaShop\Module\PsAccounts\Account\Exception\RefreshTokenException;
 use PrestaShop\Module\PsAccounts\Account\Exception\UnknownStatusException;
 use PrestaShop\Module\PsAccounts\Account\Session\ShopSession;
+use PrestaShop\Module\PsAccounts\Log\Logger;
 use PrestaShop\Module\PsAccounts\Repository\ConfigurationRepository;
 use PrestaShop\Module\PsAccounts\Service\Accounts\AccountsException;
 use PrestaShop\Module\PsAccounts\Service\Accounts\AccountsService;
@@ -142,6 +143,19 @@ class StatusManager
     public function cacheExpired($cacheTtl = self::CACHE_TTL)
     {
         $dateUpd = $this->getCacheDateUpd();
+
+        //$currentDateTime = new DateTime(\Db::getInstance()->getValue('SELECT CURRENT_DATE'));
+        $currentDateTime = new DateTime(date('Y-m-d H:i:s'));
+
+        // TODO: fix date not updated
+        // TODO: fix Unit Tests
+
+        Logger::getInstance()->error('########################### Expired :' .
+            time() . ' | ' . $dateUpd->getTimestamp()
+        );
+        Logger::getInstance()->error('########################### Expired :' .
+            $currentDateTime->getTimestamp() . ' | ' . $dateUpd->getTimestamp()
+        );
 
         return $dateUpd instanceof DateTime &&
             $cacheTtl != self::CACHE_TTL_INFINITE &&

@@ -436,7 +436,11 @@ class Ps_accounts extends Module
 
             return $session;
         }
-        throw new \Exception('Feature not available');
+
+        /** @var \Symfony\Component\HttpFoundation\Session\SessionInterface $fallback */
+        $fallback = $this->getService('\Symfony\Component\HttpFoundation\Session\SessionInterface');
+
+        return $fallback;
     }
 
     /**
