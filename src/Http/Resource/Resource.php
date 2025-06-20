@@ -48,6 +48,22 @@ abstract class Resource extends Dto
 
     /**
      * @param array $values
+     * @param string $className
+     * @param array $fields
+     *
+     * @return void
+     */
+    protected function uncastChildResource(array & $values, $className, array $fields)
+    {
+        foreach ($fields as $field) {
+            if (isset($values[$field]) && is_a($values[$field], Resource::class, true)) {
+                $values[$field] = $this->$field->toArray();
+            }
+        }
+    }
+
+    /**
+     * @param array $values
      * @param array $fields
      *
      * @return void
@@ -72,6 +88,22 @@ abstract class Resource extends Dto
         foreach ($fields as $field) {
             if (!empty($values[$field])) {
                 $values[$field] = new Datetime($values[$field]);
+            }
+        }
+    }
+
+    /**
+     * @param array $values
+     * @param array $fields
+     * @param string $format
+     *
+     * @return void
+     */
+    protected function uncastDateTime(array & $values, array $fields, $format = DateTime::ATOM)
+    {
+        foreach ($fields as $field) {
+            if (!empty($values[$field]) && $values[$field] instanceof DateTime) {
+                $values[$field] = $values[$field]->format($format);
             }
         }
     }

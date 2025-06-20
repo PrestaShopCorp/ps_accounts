@@ -24,7 +24,6 @@ use DateTime;
 use PrestaShop\Module\PsAccounts\Account\Exception\RefreshTokenException;
 use PrestaShop\Module\PsAccounts\Account\Exception\UnknownStatusException;
 use PrestaShop\Module\PsAccounts\Account\Session\ShopSession;
-use PrestaShop\Module\PsAccounts\Log\Logger;
 use PrestaShop\Module\PsAccounts\Repository\ConfigurationRepository;
 use PrestaShop\Module\PsAccounts\Service\Accounts\AccountsException;
 use PrestaShop\Module\PsAccounts\Service\Accounts\AccountsService;
@@ -35,7 +34,7 @@ class StatusManager
     /**
      * Status Cache TTL in seconds
      */
-    const CACHE_TTL = 10;
+    const CACHE_TTL = 30;
 
     /**
      * Infinite Status Cache
@@ -81,22 +80,30 @@ class StatusManager
     }
 
     /**
-     * @param bool $cachedStatus
+     * @param bool $cachedOnly
      * @param int $cacheTtl
      *
      * @return ShopStatus
      *
      * @throws UnknownStatusException
      */
-    public function getStatus($cachedStatus = false, $cacheTtl = self::CACHE_TTL)
+    public function getStatus($cachedOnly = false, $cacheTtl = self::CACHE_TTL)
     {
-        if (!$cachedStatus) {
-            if ($this->cacheInvalidated() ||
-                $this->cacheExpired($cacheTtl)
+        if (!$cachedOnly) {
+            try {
+                $cachedShopStatus = $this->getCachedStatus();
+            } catch (UnknownStatusException $e) {
+                $cachedShopStatus = null;
+            }
+
+            if (!$cachedShopStatus ||
+                $this->cacheInvalidated($cachedShopStatus) ||
+                $this->cacheExpired($cachedShopStatus, $cacheTtl)
             ) {
                 try {
                     $this->upsetCachedStatus(new CachedShopStatus([
                         'isValid' => true,
+                        'updatedAt' => date('Y-m-d H:i:s'),
                         'shopStatus' => $this->accountsService->shopStatus(
                             $this->getCloudShopId(),
                             $this->shopSession->getValidToken()
@@ -122,12 +129,15 @@ class StatusManager
     }
 
     /**
+     * @param CachedShopStatus $cachedStatus
+     *
      * @return bool
      */
-    public function cacheInvalidated()
+    public function cacheInvalidated(CachedShopStatus $cachedStatus = null)
     {
         try {
-            $isValid = $this->getCachedStatus()->isValid;
+            $cachedStatus = $cachedStatus ?: $this->getCachedStatus();
+            $isValid = $cachedStatus->isValid;
         } catch (UnknownStatusException $e) {
             $isValid = false;
         }
@@ -136,39 +146,33 @@ class StatusManager
     }
 
     /**
+     * @param CachedShopStatus $cachedStatus
      * @param int $cacheTtl
      *
      * @return bool
      */
-    public function cacheExpired($cacheTtl = self::CACHE_TTL)
+    public function cacheExpired(CachedShopStatus $cachedStatus = null, $cacheTtl = self::CACHE_TTL)
     {
-        $dateUpd = $this->getCacheDateUpd();
+        try {
+            //$dateUpd = $this->getCacheDateUpd();
+            $cachedStatus = $cachedStatus ?: $this->getCachedStatus();
+            $dateUpd = $cachedStatus->updatedAt;
 
-        //$currentDateTime = new DateTime(\Db::getInstance()->getValue('SELECT CURRENT_DATE'));
-        $currentDateTime = new DateTime(date('Y-m-d H:i:s'));
-
-        // TODO: fix date not updated
-        // TODO: fix Unit Tests
-
-        Logger::getInstance()->error('########################### Expired :' .
-            time() . ' | ' . $dateUpd->getTimestamp()
-        );
-        Logger::getInstance()->error('########################### Expired :' .
-            $currentDateTime->getTimestamp() . ' | ' . $dateUpd->getTimestamp()
-        );
-
-        return $dateUpd instanceof DateTime &&
-            $cacheTtl != self::CACHE_TTL_INFINITE &&
-            time() - $dateUpd->getTimestamp() >= $cacheTtl;
+            return $dateUpd instanceof DateTime &&
+                $cacheTtl != self::CACHE_TTL_INFINITE &&
+                time() - $dateUpd->getTimestamp() >= $cacheTtl;
+        } catch (UnknownStatusException $e) {
+            return true;
+        }
     }
 
-    /**
-     * @return \DateTime|null
-     */
-    public function getCacheDateUpd()
-    {
-        return $this->repository->getCachedShopStatusDateUpd();
-    }
+//    /**
+//     * @return \DateTime|null
+//     */
+//    public function getCacheDateUpd()
+//    {
+//        return $this->repository->getCachedShopStatusDateUpd();
+//    }
 
     /**
      * @param bool $cachedStatus
