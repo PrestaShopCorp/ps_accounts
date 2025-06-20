@@ -119,6 +119,7 @@ class StatusManagerTest extends TestCase
 
         $this->configurationRepository->updateCachedShopStatus(json_encode((new CachedShopStatus([
             'isValid' => true,
+            'updatedAt' => (new \DateTime())->format(\DateTime::ATOM),
             'shopStatus' => new ShopStatus([
                 'cloudShopId' => $cloudShopId,
                 'isVerified' => false,
@@ -129,17 +130,13 @@ class StatusManagerTest extends TestCase
             ->willReturn($this->faker->uuid);
 
         $this->client->method('get')
-            ->willReturnCallback(function ($route) use ($cloudShopId, $pointOfContactEmail, $pointOfContactUid) {
-                if (preg_match('/v1\/shop-identities\/' . $cloudShopId . '\/status$/', $route)) {
-                    return $this->createResponse([
-                        "cloudShopId" => $cloudShopId,
-                        "isVerified" => true,
-                        "pointOfContactEmail" => $pointOfContactEmail,
-                        "pointOfContactUid" => $pointOfContactUid,
-                    ], 200, true);
-                }
-                return $this->createResponse([], 500, true);
-            });
+            ->with($this->matchesRegularExpression('/v1\/shop-identities\/' . $cloudShopId . '\/status$/'))
+            ->willReturn($this->createResponse([
+                "cloudShopId" => $cloudShopId,
+                "isVerified" => true,
+                "pointOfContactEmail" => $pointOfContactEmail,
+                "pointOfContactUid" => $pointOfContactUid,
+            ], 200, true));
 
         sleep(1);
 
@@ -161,6 +158,7 @@ class StatusManagerTest extends TestCase
 
         $this->configurationRepository->updateCachedShopStatus(json_encode((new CachedShopStatus([
             'isValid' => true,
+            'updatedAt' => (new \DateTime())->format(\DateTime::ATOM),
             'shopStatus' => new ShopStatus([
                 'cloudShopId' => $cloudShopId,
                 'isVerified' => false,
@@ -198,6 +196,7 @@ class StatusManagerTest extends TestCase
     {
         $this->configurationRepository->updateCachedShopStatus(json_encode((new CachedShopStatus([
             'isValid' => true,
+            'updatedAt' => (new \DateTime())->format(\DateTime::ATOM),
             'shopStatus' => new ShopStatus(),
         ]))->toArray()));
 
@@ -228,6 +227,7 @@ class StatusManagerTest extends TestCase
     {
         $this->configurationRepository->updateCachedShopStatus(json_encode((new CachedShopStatus([
             'isValid' => true,
+            'updatedAt' => (new \DateTime())->format(\DateTime::ATOM),
             'shopStatus' => new ShopStatus(),
         ]))->toArray()));
 
