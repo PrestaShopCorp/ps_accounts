@@ -1,5 +1,6 @@
 <?php
 
+use PrestaShop\Module\PsAccounts\Account\Command\CreateIdentitiesCommand;
 use PrestaShop\Module\PsAccounts\Account\Command\MigrateIdentitiesCommand;
 use PrestaShop\Module\PsAccounts\Cqrs\CommandBus;
 use PrestaShop\Module\PsAccounts\Log\Logger;
@@ -20,10 +21,19 @@ function upgrade_module_8_0_0($module)
     try {
         /** @var CommandBus $commandBus */
         $commandBus = $module->getService(CommandBus::class);
-        $commandBus->handle(new MigrateIdentitiesCommand($module->getParameter('ps_accounts.token_audience')));
 
         /** @var ConfigurationRepository $configurationRepository */
         $configurationRepository = $module->getService(ConfigurationRepository::class);
+
+        $shopExists = $configurationRepository->getShopUuid();
+
+        if ($shopExists) {
+            $commandBus->handle(new MigrateIdentitiesCommand($module->getParameter('ps_accounts.token_audience')));
+        } else {
+            // TODO: how to verify if a shop is unintentionally dissociated?
+            $commandBus->handle(new CreateIdentitiesCommand());
+        }
+
         $configurationRepository->updateLastUpgrade(\Ps_accounts::VERSION);
 
         /* @phpstan-ignore-next-line */
