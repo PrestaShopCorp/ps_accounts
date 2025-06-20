@@ -17,7 +17,6 @@
  * @copyright Since 2007 PrestaShop SA and Contributors
  * @license   https://opensource.org/licenses/AFL-3.0 Academic Free License version 3.0
  */
-
 require_once __DIR__ . '/../../src/AccountLogin/OAuth2LoginTrait.php';
 require_once __DIR__ . '/../../src/Polyfill/Traits/AdminController/IsAnonymousAllowed.php';
 
