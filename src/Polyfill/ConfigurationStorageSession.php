@@ -31,6 +31,8 @@ class ConfigurationStorageSession
     public function start()
     {
         if (!$this->getId()) {
+            // FIXME: cleanup only current user sessions (employee_id)
+            $this->cleanupSessions();
             $this->setId(uniqid());
         }
 
@@ -254,6 +256,24 @@ class ConfigurationStorageSession
     }
 
     /**
+     * @return string
+     */
+    public function getConfigurationName()
+    {
+        return $this->getName() . '_' . $this->getId();
+    }
+
+    /**
+     * @return void
+     */
+    public function cleanupSessions()
+    {
+        \Db::getInstance()->query(
+            "DELETE FROM " . _DB_PREFIX_ . "configuration WHERE name LIKE '" . $this->name . "_%'"
+        );
+    }
+
+    /**
      * @return void
      *
      * @throws \Exception
@@ -261,13 +281,5 @@ class ConfigurationStorageSession
     private function notImplemented()
     {
         throw \Exception('Method not implemented : ' . __METHOD__);
-    }
-
-    /**
-     * @return string
-     */
-    public function getConfigurationName()
-    {
-        return $this->getName() . '_' . $this->getId();
     }
 }
