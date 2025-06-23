@@ -160,7 +160,7 @@ class MigrateIdentityV8Handler
     }
 
     /**
-     * @param $shopUuid
+     * @param string $shopUuid
      *
      * @return string
      *
@@ -175,7 +175,7 @@ class MigrateIdentityV8Handler
     }
 
     /**
-     * @param $shopUuid
+     * @param string $shopUuid
      *
      * @return string
      *
