@@ -89,10 +89,10 @@ abstract class FirebaseSession extends Session implements SessionInterface
      */
     public function refreshToken($refreshToken = null)
     {
-        $cloudShopId = $this->statusManager->getCloudShopId();
-        $token = $this->shopSession->getValidToken();
-
         try {
+            $token = $this->shopSession->getValidToken();
+            $cloudShopId = $this->statusManager->getCloudShopId();
+
             $this->refreshFirebaseTokens($cloudShopId, $token);
         } catch (RefreshTokenException $e) {
             Logger::getInstance()->error('Unable to get or refresh owner/shop token : ' . $e->getMessage());
