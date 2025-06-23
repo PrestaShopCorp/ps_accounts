@@ -351,7 +351,7 @@ class AccountsService
      *
      * @throws AccountsException
      */
-    public function migrateShopIdentity($cloudShopId, $shopToken, ShopUrl $shopUrl, $proof, $fromVersion = '7.2.1')
+    public function migrateShopIdentity($cloudShopId, $shopToken, ShopUrl $shopUrl, $proof, $fromVersion)
     {
         $response = $this->getClient()->put(
             '/v1/shop-identities/' . $cloudShopId . '/migration',

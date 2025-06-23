@@ -121,12 +121,13 @@ class MigrateIdentityV8Handler
                     $token = $this->getFirebaseTokenV6($shopUuid);
                 }
 
+                // FIXME getLastUpgradedVersion from PS Core ?
                 $identityCreated = $this->accountsService->migrateShopIdentity(
                     $shopUuid,
                     $token,
                     $this->shopProvider->getUrl($shopId),
                     $this->proofManager->generateProof(),
-                    (string) $this->configurationRepository->getLastUpgrade()
+                    (string) $lastUpgradedVersion
                 );
 
                 if (
