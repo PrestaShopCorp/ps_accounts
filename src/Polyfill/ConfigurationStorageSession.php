@@ -223,7 +223,7 @@ class ConfigurationStorageSession
      */
     public function isStarted()
     {
-        return true;
+        return !empty($this->getId());
     }
 
     /**
@@ -281,6 +281,6 @@ class ConfigurationStorageSession
      */
     private function notImplemented()
     {
-        throw \Exception('Method not implemented : ' . __METHOD__);
+        throw new \Exception('Method not implemented : ' . __METHOD__);
     }
 }
