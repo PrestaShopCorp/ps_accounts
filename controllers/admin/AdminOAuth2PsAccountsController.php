@@ -205,6 +205,7 @@ class AdminOAuth2PsAccountsController extends \ModuleAdminController
     protected function redirectAfterLogin()
     {
         if ($this->getOAuthAction() === 'identifyPointOfContact') {
+            $this->getSession()->clear();
             $this->closePopup();
         }
         $returnTo = $this->getSessionReturnTo() ?: 'AdminDashboard';

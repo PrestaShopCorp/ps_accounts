@@ -19,6 +19,8 @@ class ConfigurationStorageSession
     public function __construct(Configuration $configuration)
     {
         $this->configuration = $configuration;
+
+        $this->name .= '_' . \Context::getContext()->employee->id;
     }
 
     /**
@@ -31,8 +33,7 @@ class ConfigurationStorageSession
     public function start()
     {
         if (!$this->getId()) {
-            // FIXME: cleanup only current user sessions (employee_id)
-            $this->cleanupSessions();
+            $this->cleanup();
             $this->setId(uniqid());
         }
 
@@ -258,7 +259,7 @@ class ConfigurationStorageSession
     /**
      * @return string
      */
-    public function getConfigurationName()
+    private function getConfigurationName()
     {
         return $this->getName() . '_' . $this->getId();
     }
@@ -266,7 +267,7 @@ class ConfigurationStorageSession
     /**
      * @return void
      */
-    public function cleanupSessions()
+    private function cleanup()
     {
         \Db::getInstance()->query(
             "DELETE FROM " . _DB_PREFIX_ . "configuration WHERE name LIKE '" . $this->name . "_%'"
