@@ -466,7 +466,8 @@ class Ps_accounts extends Module
         $commandBus = $this->getService(\PrestaShop\Module\PsAccounts\Cqrs\CommandBus::class);
 
         // Verification flow
-        $commandBus->handle(new \PrestaShop\Module\PsAccounts\Account\Command\CreateIdentitiesCommand());
+        //$commandBus->handle(new \PrestaShop\Module\PsAccounts\Account\Command\CreateIdentitiesCommand());
+        $commandBus->handle(new \PrestaShop\Module\PsAccounts\Account\Command\MigrateIdentitiesV8Command());
     }
 
     /**

@@ -22,7 +22,7 @@
 namespace PrestaShop\Module\PsAccounts\Account\CommandHandler;
 
 use PrestaShop\Module\PsAccounts\Account\Command\CreateIdentitiesCommand;
-use PrestaShop\Module\PsAccounts\Account\Command\MigrateIdentityCommand;
+use PrestaShop\Module\PsAccounts\Account\Command\MigrateIdentityV8Command;
 use PrestaShop\Module\PsAccounts\Account\ProofManager;
 use PrestaShop\Module\PsAccounts\Account\StatusManager;
 use PrestaShop\Module\PsAccounts\Cqrs\CommandBus;
@@ -34,7 +34,7 @@ use PrestaShop\Module\PsAccounts\Service\Accounts\AccountsService;
 use PrestaShop\Module\PsAccounts\Service\OAuth2\OAuth2Exception;
 use PrestaShop\Module\PsAccounts\Service\OAuth2\OAuth2Service;
 
-class MigrateIdentityHandler
+class MigrateIdentityV8Handler
 {
     /**
      * @var AccountsService
@@ -99,17 +99,12 @@ class MigrateIdentityHandler
     }
 
     /**
-     * @param MigrateIdentityCommand $command
+     * @param MigrateIdentityV8Command $command
      *
      * @return void
      */
-    public function handle(MigrateIdentityCommand $command)
+    public function handle(MigrateIdentityV8Command $command)
     {
-        Logger::getInstance()->info(
-                    sprintf(
-                        'Migrating identity for shop'
-                    )
-                );
         $shopId = $command->shopId ?: \Shop::getContextShopID();
 
         $shopUuid = $this->configurationRepository->getShopUuid();
@@ -118,36 +113,12 @@ class MigrateIdentityHandler
 
         $this->statusManager->setCloudShopId($shopUuid);
 
-        Logger::getInstance()->info(
-                    sprintf(
-                        'Migrating identity for shop %s (%s)',
-                        $shopUuid,
-                        $lastUpgradedVersion
-                    )
-                );
-
         try {
-
             if ($shopUuid && version_compare($lastUpgradedVersion, '8', '<')) {
-
-                Logger::getInstance()->info(
-                    sprintf(
-                        'Migrating identity for shop %s (%s)',
-                        $shopUuid,
-                        $lastUpgradedVersion
-                    )
-                );
-
                 if ($this->configurationRepository->getLastUpgrade()) {
-                    $token = $this->oAuth2Service->getAccessTokenByClientCredentials([], [
-                        // audience v7
-                        'shop_' . $shopUuid,
-                    ])->access_token;
+                    $token = $this->getAccessTokenV7($shopUuid);
                 } else {
-                    $token = $this->accountsService->refreshShopToken(
-                        $this->configurationRepository->getFirebaseRefreshToken(),
-                        $shopUuid
-                    )->token;
+                    $token = $this->getFirebaseTokenV6($shopUuid);
                 }
 
                 $identityCreated = $this->accountsService->migrateShopIdentity(
@@ -174,13 +145,6 @@ class MigrateIdentityHandler
                 // update ps_accounts version
                 $this->configurationRepository->updateLastUpgrade(\Ps_accounts::VERSION);
             } else {
-                Logger::getInstance()->info(
-                    sprintf(
-                        'Create identity for shop %s (%s)',
-                        $shopUuid,
-                        $lastUpgradedVersion
-                    )
-                );
                 // TODO: how to verify if a shop is unintentionally dissociated?
                 $this->commandBus->handle(new CreateIdentitiesCommand());
             }
@@ -193,5 +157,35 @@ class MigrateIdentityHandler
                 $e->getMessage()
             );
         }
+    }
+
+    /**
+     * @param $shopUuid
+     *
+     * @return string
+     *
+     * @throws OAuth2Exception
+     */
+    protected function getAccessTokenV7($shopUuid)
+    {
+        return $this->oAuth2Service->getAccessTokenByClientCredentials([], [
+            // audience v7
+            'shop_' . $shopUuid,
+        ])->access_token;
+    }
+
+    /**
+     * @param $shopUuid
+     *
+     * @return string
+     *
+     * @throws AccountsException
+     */
+    protected function getFirebaseTokenV6($shopUuid)
+    {
+        return $this->accountsService->refreshShopToken(
+            $this->configurationRepository->getFirebaseRefreshToken(),
+            $shopUuid
+        )->token;
     }
 }
