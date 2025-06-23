@@ -113,7 +113,8 @@ class CommandProvider implements IServiceProvider
                 $container->get(ShopProvider::class),
                 $container->get(StatusManager::class),
                 $container->get(ProofManager::class),
-                $container->get(ConfigurationRepository::class)
+                $container->get(ConfigurationRepository::class),
+                $container->get(CommandBus::class)
             );
         });
     }
