@@ -28,11 +28,14 @@ function upgrade_module_8_0_0($module)
         $shopExists = $configurationRepository->getShopUuid();
 
         if ($shopExists) {
-            $commandBus->handle(new MigrateIdentitiesCommand($module->getParameter('ps_accounts.token_audience')));
+            $commandBus->handle(new MigrateIdentitiesCommand());
         } else {
             // TODO: how to verify if a shop is unintentionally dissociated?
             $commandBus->handle(new CreateIdentitiesCommand());
         }
+
+        // TODO: catch migration error
+        // TODO: replay migration on reset
 
         $configurationRepository->updateLastUpgrade(\Ps_accounts::VERSION);
 

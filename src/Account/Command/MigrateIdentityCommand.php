@@ -29,17 +29,10 @@ class MigrateIdentityCommand
     public $shopId;
 
     /**
-     * @var string
-     */
-    public $tokenAudience;
-
-    /**
      * @param int|null $shopId
-     * @param string $tokenAudience
      */
-    public function __construct($shopId, $tokenAudience)
+    public function __construct($shopId)
     {
         $this->shopId = $shopId;
-        $this->tokenAudience = $tokenAudience;
     }
 }

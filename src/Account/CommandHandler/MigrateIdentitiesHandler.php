@@ -38,7 +38,7 @@ class MigrateIdentitiesHandler extends MultiShopHandler
     {
         $this->handleMulti(function ($multiShopId) use ($command) {
             try {
-                $this->commandBus->handle(new MigrateIdentityCommand($multiShopId, $command->tokenAudience));
+                $this->commandBus->handle(new MigrateIdentityCommand($multiShopId));
             } catch (RefreshTokenException $e) {
                 Logger::getInstance()->error($e->getMessage());
             } catch (AccountsException $e) {
