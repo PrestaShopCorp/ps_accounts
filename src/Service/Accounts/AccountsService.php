@@ -111,6 +111,7 @@ class AccountsService
             [
                 Request::HEADERS => $this->getHeaders([
                     'Authorization' => 'Bearer ' . $accessToken,
+                    'X-Shop-ID' => $cloudShopId,
                 ]),
             ]);
 
