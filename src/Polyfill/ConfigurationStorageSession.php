@@ -270,7 +270,7 @@ class ConfigurationStorageSession
     private function cleanup()
     {
         \Db::getInstance()->query(
-            "DELETE FROM " . _DB_PREFIX_ . "configuration WHERE name LIKE '" . $this->name . "_%'"
+            'DELETE FROM ' . _DB_PREFIX_ . "configuration WHERE name LIKE '" . $this->name . "_%'"
         );
     }
 
