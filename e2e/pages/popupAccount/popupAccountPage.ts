@@ -44,13 +44,31 @@ export default class PopupAccountPage extends BasePage {
   async connectToAccountWithMail(newPage: Page) {
     await newPage.locator('#email').fill(Globals.account_email);
     await newPage.locator('#password').fill(Globals.account_password);
-    const logginBtn = await newPage.getByRole('button', {name: 'Log in'});
-    await logginBtn.isEnabled({timeout: 5000});
-    await this.waitForTimeout(500000);
+    const logginBtn = await newPage.locator('.puik-button.puik-button--primary');
+    await logginBtn.isEnabled();
+    await logginBtn.click()
+    const associateBtn = await newPage.locator('.puik-button.puik-button--primary')
+    await associateBtn.isVisible()
+    await associateBtn.click()
+    const boBtn = await newPage.locator('.puik-button.puik-button--primary')
+    await boBtn.isVisible({timeout:5000})
+    await boBtn.click()
   }
-  /**
+
+ /**
    * Connected to account
    * @param newPage {Page} The account popup
+   * @param email string
+   * @param password string
+   */
+ async checkIsLinked() {
+  await this.page.waitForSelector('[data-testid="account-shop-link-message-single-shop-linked"]');
+  const isLinked = await this.page.locator('[data-testid="account-shop-link-message-single-shop-linked"]');
+  expect(isLinked).toBeVisible()
+ }
+  /**
+   * Connected to account
+   * @param newPage {Page} The account popupÒ
    * @param email string
    * @param password string
    */

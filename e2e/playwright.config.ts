@@ -16,13 +16,13 @@ export default defineConfig({
     {
       name: 'Account Autom Test',
       testMatch: '**/*spec.ts',
-      testIgnore: '**/01_front_check_association.spec.ts'
+      // testIgnore: '**/01_front_check_association.spec.ts'
     },
-    {
-      name: 'Association with google',
-      use: {browserName: 'webkit'},
-      testMatch: '**/01_front_check_association.spec.ts'
-    }
+    // {
+    //   name: 'Association with google',
+    //   use: {browserName: 'webkit'},
+    //   testMatch: '**/01_front_check_association.spec.ts'
+    // }
   ],
   use: {
     trace: 'on-first-retry',
