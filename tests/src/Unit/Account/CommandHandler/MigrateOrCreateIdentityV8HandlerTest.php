@@ -3,8 +3,8 @@
 namespace PrestaShop\Module\PsAccounts\Tests\Unit\Account\CommandHandler;
 
 use PHPUnit\Framework\MockObject\MockObject;
-use PrestaShop\Module\PsAccounts\Account\Command\MigrateIdentityV8Command;
-use PrestaShop\Module\PsAccounts\Account\CommandHandler\MigrateIdentityV8Handler;
+use PrestaShop\Module\PsAccounts\Account\Command\MigrateOrCreateIdentityV8Command;
+use PrestaShop\Module\PsAccounts\Account\CommandHandler\MigrateOrCreateIdentityV8Handler;
 use PrestaShop\Module\PsAccounts\Account\ProofManager;
 use PrestaShop\Module\PsAccounts\Account\StatusManager;
 use PrestaShop\Module\PsAccounts\Http\Client\Curl\Client;
@@ -15,7 +15,7 @@ use PrestaShop\Module\PsAccounts\Provider\ShopProvider;
 use PrestaShop\Module\PsAccounts\Service\OAuth2\OAuth2Service;
 use PrestaShop\Module\PsAccounts\Tests\TestCase;
 
-class MigrateIdentityV8HandlerTest extends TestCase
+class MigrateOrCreateIdentityV8HandlerTest extends TestCase
 {
     /**
      * @inject
@@ -158,7 +158,7 @@ JSON;
                 ], 200, true);
             });
 
-        $this->getHandler()->handle(new MigrateIdentityV8Command($this->shopId));
+        $this->getHandler()->handle(new MigrateOrCreateIdentityV8Command($this->shopId));
 
         $this->assertEmpty($this->configurationRepository->getAccessToken());
         $this->assertTrue($this->statusManager->cacheInvalidated());
@@ -274,7 +274,7 @@ JSON;
                 ], 200, true);
             });
 
-        $this->getHandler()->handle(new MigrateIdentityV8Command($this->shopId));
+        $this->getHandler()->handle(new MigrateOrCreateIdentityV8Command($this->shopId));
 
         $this->assertTrue($this->statusManager->cacheInvalidated());
         $this->assertEquals($cloudShopId, $this->statusManager->getCloudShopId());
@@ -338,7 +338,7 @@ JSON;
                 ], 400, true);
             });
 
-        $this->getHandler()->handle(new MigrateIdentityV8Command($this->shopId));
+        $this->getHandler()->handle(new MigrateOrCreateIdentityV8Command($this->shopId));
 
         $this->assertTrue($this->statusManager->cacheInvalidated());
         $this->assertEquals($cloudShopId, $this->statusManager->getCloudShopId());
@@ -347,11 +347,11 @@ JSON;
     }
 
     /**
-     * @return MigrateIdentityV8Handler
+     * @return MigrateOrCreateIdentityV8Handler
      */
     private function getHandler()
     {
-        return new MigrateIdentityV8Handler(
+        return new MigrateOrCreateIdentityV8Handler(
             $this->accountsService,
             $this->oAuth2Service,
             $this->shopProvider,

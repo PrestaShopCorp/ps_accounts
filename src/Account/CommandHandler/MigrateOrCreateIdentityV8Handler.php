@@ -22,7 +22,7 @@
 namespace PrestaShop\Module\PsAccounts\Account\CommandHandler;
 
 use PrestaShop\Module\PsAccounts\Account\Command\CreateIdentityCommand;
-use PrestaShop\Module\PsAccounts\Account\Command\MigrateIdentityV8Command;
+use PrestaShop\Module\PsAccounts\Account\Command\MigrateOrCreateIdentityV8Command;
 use PrestaShop\Module\PsAccounts\Account\Exception\RefreshTokenException;
 use PrestaShop\Module\PsAccounts\Account\Exception\UnknownStatusException;
 use PrestaShop\Module\PsAccounts\Account\ProofManager;
@@ -36,7 +36,7 @@ use PrestaShop\Module\PsAccounts\Service\Accounts\AccountsService;
 use PrestaShop\Module\PsAccounts\Service\OAuth2\OAuth2Exception;
 use PrestaShop\Module\PsAccounts\Service\OAuth2\OAuth2Service;
 
-class MigrateIdentityV8Handler
+class MigrateOrCreateIdentityV8Handler
 {
     /**
      * @var AccountsService
@@ -101,15 +101,15 @@ class MigrateIdentityV8Handler
     }
 
     /**
-     * @param MigrateIdentityV8Command $command
+     * @param MigrateOrCreateIdentityV8Command $command
      *
      * @return void
      */
-    public function handle(MigrateIdentityV8Command $command)
+    public function handle(MigrateOrCreateIdentityV8Command $command)
     {
         $shopId = $command->shopId ?: \Shop::getContextShopID();
         $shopUuid = $this->configurationRepository->getShopUuid();
-        $lastUpgradedVersion = $this->configurationRepository->getLastUpgrade(false) ?: '0';
+        $lastUpgradedVersion = $this->configurationRepository->getLastUpgrade(false);
 
         $e = null;
         try {
