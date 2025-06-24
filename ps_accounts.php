@@ -412,31 +412,8 @@ class Ps_accounts extends Module
      */
     public function getSession()
     {
-        $container = $this->getCoreServiceContainer();
-        if ($container) {
-            try {
-                /**
-                 * @var \Symfony\Component\HttpFoundation\Session\SessionInterface $session
-                 * @phpstan-ignore-next-line
-                 */
-                $session = $container->get('session');
-                /* @phpstan-ignore-next-line */
-            } catch (\Symfony\Component\DependencyInjection\Exception\ServiceNotFoundException $e) {
-                try {
-                    // FIXME: fix for 1.7.7.x
-                    global $kernel;
-                    $session = $kernel->getContainer()->get('session');
-                    /* @phpstan-ignore-next-line */
-                } catch (\Symfony\Component\DependencyInjection\Exception\ServiceNotFoundException $e) {
-                    // FIXME: fix for 9.x
-                    global $request;
-                    $session = $request->getSession();
-                }
-            }
-
-            return $session;
-        }
-        throw new \Exception('Feature not available');
+        // Class name must be literal here in case interface is not present (PrestaShop 1.6)
+        return $this->getService('\Symfony\Component\HttpFoundation\Session\SessionInterface');
     }
 
     /**

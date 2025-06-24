@@ -104,18 +104,12 @@ class ShopStatus extends Resource
     {
         $array = parent::toArray($all);
 
-        foreach (
-            [
-                'createdAt',
-                'updatedAt',
-                'verifiedAt',
-                'unverifiedAt',
-            ] as $dateField
-        ) {
-            if (!empty($array[$dateField])) {
-                $array[$dateField] = $array[$dateField]->format(DateTime::ATOM);
-            }
-        }
+        $this->uncastDateTime($array, [
+            'createdAt',
+            'updatedAt',
+            'verifiedAt',
+            'unverifiedAt',
+        ]);
 
         return $array;
     }

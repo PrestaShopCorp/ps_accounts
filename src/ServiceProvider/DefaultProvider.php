@@ -24,7 +24,6 @@ use PrestaShop\Module\PsAccounts\Account\ProofManager;
 use PrestaShop\Module\PsAccounts\Account\Session\ShopSession;
 use PrestaShop\Module\PsAccounts\Account\StatusManager;
 use PrestaShop\Module\PsAccounts\Adapter;
-use PrestaShop\Module\PsAccounts\Adapter\Configuration;
 use PrestaShop\Module\PsAccounts\Adapter\Link;
 use PrestaShop\Module\PsAccounts\Api\Client\ServicesBillingClient;
 use PrestaShop\Module\PsAccounts\Context\ShopContext;
@@ -32,6 +31,7 @@ use PrestaShop\Module\PsAccounts\Cqrs\CommandBus;
 use PrestaShop\Module\PsAccounts\Cqrs\QueryBus;
 use PrestaShop\Module\PsAccounts\Http\Client\CircuitBreaker;
 use PrestaShop\Module\PsAccounts\Installer\Installer;
+use PrestaShop\Module\PsAccounts\Polyfill\ConfigurationStorageSession;
 use PrestaShop\Module\PsAccounts\Presenter\PsAccountsPresenter;
 use PrestaShop\Module\PsAccounts\Provider;
 use PrestaShop\Module\PsAccounts\Repository\ConfigurationRepository;
@@ -44,6 +44,8 @@ use PrestaShop\Module\PsAccounts\Service\PsBillingService;
 use PrestaShop\Module\PsAccounts\Service\SentryService;
 use PrestaShop\Module\PsAccounts\Vendor\PrestaShopCorp\LightweightContainer\ServiceContainer\Contract\IServiceProvider;
 use PrestaShop\Module\PsAccounts\Vendor\PrestaShopCorp\LightweightContainer\ServiceContainer\ServiceContainer;
+use Symfony\Component\DependencyInjection\Exception\ServiceNotFoundException;
+use Symfony\Component\HttpFoundation\Session\SessionInterface;
 
 class DefaultProvider implements IServiceProvider
 {
@@ -148,7 +150,7 @@ class DefaultProvider implements IServiceProvider
         // Factories
         $container->registerProvider(CircuitBreaker\Factory::class, static function () use ($container) {
             return new CircuitBreaker\Factory(
-                $container->get(Configuration::class)
+                $container->get(Adapter\Configuration::class)
             );
         });
         // Installer
@@ -164,5 +166,46 @@ class DefaultProvider implements IServiceProvider
                 $container->get('ps_accounts.module')
             );
         });
+        // PHP Session
+        $container->registerProvider(
+            '\Symfony\Component\HttpFoundation\Session\SessionInterface',
+            static function () use ($container) {
+                $module = $container->get('ps_accounts.module');
+
+                $core = $module->getCoreServiceContainer();
+                if ($core) {
+                    try {
+                        /**
+                         * @var SessionInterface $session
+                         * @phpstan-ignore-next-line
+                         */
+                        $session = $core->get('session');
+                        /* @phpstan-ignore-next-line */
+                    } catch (ServiceNotFoundException $e) {
+                        try {
+                            // FIXME: fix for 1.7.7.x
+                            global $kernel;
+                            $session = $kernel->getContainer()->get('session');
+                            /* @phpstan-ignore-next-line */
+                        } catch (ServiceNotFoundException $e) {
+                            // FIXME: fix for 9.x
+                            global $request;
+                            $session = $request->getSession();
+                        }
+                    }
+
+                    return $session;
+                }
+
+                // Fallback session object
+                // FIXME: create an interface for it
+                $session = new ConfigurationStorageSession(
+                    $container->get(Adapter\Configuration::class)
+                );
+                $session->start();
+
+                return $session;
+            }
+        );
     }
 }
