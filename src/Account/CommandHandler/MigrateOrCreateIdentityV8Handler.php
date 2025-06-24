@@ -129,7 +129,7 @@ class MigrateOrCreateIdentityV8Handler
                     $token,
                     $this->shopProvider->getUrl($shopId),
                     $this->proofManager->generateProof(),
-                    (string) $lastUpgradedVersion
+                    $lastUpgradedVersion
                 );
 
                 if (!empty($identityCreated->clientId) &&
