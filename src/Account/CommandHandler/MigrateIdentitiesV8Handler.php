@@ -22,9 +22,6 @@ namespace PrestaShop\Module\PsAccounts\Account\CommandHandler;
 
 use PrestaShop\Module\PsAccounts\Account\Command\MigrateIdentitiesV8Command;
 use PrestaShop\Module\PsAccounts\Account\Command\MigrateIdentityV8Command;
-use PrestaShop\Module\PsAccounts\Account\Exception\RefreshTokenException;
-use PrestaShop\Module\PsAccounts\Account\Exception\UnknownStatusException;
-use PrestaShop\Module\PsAccounts\Log\Logger;
 
 class MigrateIdentitiesV8Handler extends MultiShopHandler
 {
@@ -36,13 +33,7 @@ class MigrateIdentitiesV8Handler extends MultiShopHandler
     public function handle(MigrateIdentitiesV8Command $command)
     {
         $this->handleMulti(function ($multiShopId) {
-            try {
-                $this->commandBus->handle(new MigrateIdentityV8Command($multiShopId));
-            } catch (RefreshTokenException $e) {
-                Logger::getInstance()->error($e->getMessage());
-            } catch (UnknownStatusException $e) {
-                Logger::getInstance()->error($e->getMessage());
-            }
+            $this->commandBus->handle(new MigrateIdentityV8Command($multiShopId));
         });
     }
 }

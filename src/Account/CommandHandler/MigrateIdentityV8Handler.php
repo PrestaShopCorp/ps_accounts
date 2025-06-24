@@ -21,8 +21,10 @@
 
 namespace PrestaShop\Module\PsAccounts\Account\CommandHandler;
 
-use PrestaShop\Module\PsAccounts\Account\Command\CreateIdentitiesCommand;
+use PrestaShop\Module\PsAccounts\Account\Command\CreateIdentityCommand;
 use PrestaShop\Module\PsAccounts\Account\Command\MigrateIdentityV8Command;
+use PrestaShop\Module\PsAccounts\Account\Exception\RefreshTokenException;
+use PrestaShop\Module\PsAccounts\Account\Exception\UnknownStatusException;
 use PrestaShop\Module\PsAccounts\Account\ProofManager;
 use PrestaShop\Module\PsAccounts\Account\StatusManager;
 use PrestaShop\Module\PsAccounts\Cqrs\CommandBus;
@@ -106,16 +108,16 @@ class MigrateIdentityV8Handler
     public function handle(MigrateIdentityV8Command $command)
     {
         $shopId = $command->shopId ?: \Shop::getContextShopID();
-
         $shopUuid = $this->configurationRepository->getShopUuid();
+        $lastUpgradedVersion = $this->configurationRepository->getLastUpgrade(false) ?: '0';
 
-        $lastUpgradedVersion = $this->configurationRepository->getLastUpgrade();
-
-        $this->statusManager->setCloudShopId($shopUuid);
-
+        $e = null;
         try {
             if ($shopUuid && version_compare($lastUpgradedVersion, '8', '<')) {
-                if ($this->configurationRepository->getLastUpgrade()) {
+                // migrate cloudShopId locally
+                $this->statusManager->setCloudShopId($shopUuid);
+
+                if (version_compare($lastUpgradedVersion, '7', '>=')) {
                     $token = $this->getAccessTokenV7($shopUuid);
                 } else {
                     $token = $this->getFirebaseTokenV6($shopUuid);
@@ -130,10 +132,8 @@ class MigrateIdentityV8Handler
                     (string) $lastUpgradedVersion
                 );
 
-                if (
-                    !empty($identityCreated->clientId) &&
-                    !empty($identityCreated->clientSecret)
-                ) {
+                if (!empty($identityCreated->clientId) &&
+                    !empty($identityCreated->clientSecret)) {
                     $this->oAuth2Service->getOAuth2Client()->update(
                         $identityCreated->clientId,
                         $identityCreated->clientSecret
@@ -143,20 +143,19 @@ class MigrateIdentityV8Handler
                 // cleanup obsolete token
                 $this->configurationRepository->updateAccessToken('');
 
-                // update ps_accounts version
+                // update ps_accounts upgraded version
                 $this->configurationRepository->updateLastUpgrade(\Ps_accounts::VERSION);
             } else {
-                // TODO: how to verify if a shop is unintentionally dissociated?
-                $this->commandBus->handle(new CreateIdentitiesCommand());
+                $this->commandBus->handle(new CreateIdentityCommand($command->shopId));
             }
         } catch (OAuth2Exception $e) {
-            Logger::getInstance()->info(
-                $e->getMessage()
-            );
         } catch (AccountsException $e) {
-            Logger::getInstance()->info(
-                $e->getMessage()
-            );
+        } catch (RefreshTokenException $e) {
+        } catch (UnknownStatusException $e) {
+        }
+
+        if ($e) {
+            Logger::getInstance()->error($e->getMessage());
         }
     }
 
