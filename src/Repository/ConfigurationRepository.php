@@ -402,7 +402,7 @@ class ConfigurationRepository
      */
     public function getCachedShopStatus()
     {
-        return $this->configuration->get(ConfigurationKeys::PS_ACCOUNTS_CACHED_SHOP_STATUS);
+        return $this->configuration->getUncached(ConfigurationKeys::PS_ACCOUNTS_CACHED_SHOP_STATUS);
     }
 
     /**
