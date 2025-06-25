@@ -342,22 +342,25 @@ class ShopProvider
                     continue;
                 }
 
-                $this->getShopContext()->execInShopContext($shopData['id_shop'], function () use (&$shops, $shopData, $refresh) {
-                    $shopUrl = $this->getUrl((int) $shopData['id_shop']);
-                    $shopStatus = $this->shopStatus->getStatus($refresh);
-                    $identifyUrl = $this->oAuth2Service->getOAuth2Client()->getRedirectUri([
-                        'action' => 'identifyPointOfContact',
-                    ]);
+                $this->getShopContext()->execInShopContext(
+                    $shopData['id_shop'],
+                    function () use (&$shops, $shopData, $refresh) {
+                        $shopUrl = $this->getUrl((int) $shopData['id_shop']);
+                        $shopStatus = $this->shopStatus->getStatus($refresh);
+                        $identifyUrl = $this->oAuth2Service->getOAuth2Client()->getRedirectUri([
+                            'action' => 'identifyPointOfContact',
+                        ]);
 
-                    $shops[] = [
-                        'id' => (int) $shopData['id_shop'],
-                        'name' => $shopData['name'],
-                        'backOfficeUrl' => $shopUrl->getBackOfficeUrl(),
-                        'frontendUrl' => $shopUrl->getFrontendUrl(),
-                        'identifyUrl' => $identifyUrl,
-                        'shopStatus' => $shopStatus,
-                    ];
-                });
+                        $shops[] = [
+                            'id' => (int) $shopData['id_shop'],
+                            'name' => $shopData['name'],
+                            'backOfficeUrl' => $shopUrl->getBackOfficeUrl(),
+                            'frontendUrl' => $shopUrl->getFrontendUrl(),
+                            'identifyUrl' => $identifyUrl,
+                            'shopStatus' => $shopStatus,
+                        ];
+                    }
+                );
             }
 
             $shopList[] = [
