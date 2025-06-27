@@ -21,7 +21,6 @@
 namespace PrestaShop\Module\PsAccounts\Hook;
 
 use PrestaShop\Module\PsAccounts\Adapter\Link;
-use PrestaShop\Module\PsAccounts\Vendor\PrestaShopCorp\LightweightContainer\ServiceContainer\Exception\ParameterNotFoundException;
 
 class DisplayAdminAfterHeader extends Hook
 {
@@ -34,10 +33,7 @@ class DisplayAdminAfterHeader extends Hook
             if ('ERROR' === $this->module->getParameter('ps_accounts.log_level')) {
                 return '';
             }
-        } catch (ParameterNotFoundException $e) {
-        }
 
-        try {
             $cloudShopId = $this->module->getCloudShopId();
             $verified = $this->module->getVerifiedStatus();
             $verifiedMsg = $verified ? 'verified' : 'NOT verified';
