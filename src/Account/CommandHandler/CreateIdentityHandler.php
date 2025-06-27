@@ -111,6 +111,7 @@ class CreateIdentityHandler
                 $identityCreated->clientSecret
             );
             $this->statusManager->setCloudShopId($identityCreated->cloudShopId);
+            $this->statusManager->invalidateCache();
         } else {
             $this->commandBus->handle(new VerifyIdentityCommand($command->shopId));
         }

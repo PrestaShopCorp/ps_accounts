@@ -150,6 +150,8 @@ class MigrateOrCreateIdentityV8Handler
             // cleanup obsolete token
             $this->configurationRepository->updateAccessToken('');
 
+            $this->statusManager->invalidateCache();
+
             // update ps_accounts upgraded version
             $this->upgradeVersionNumber();
         } catch (OAuth2Exception $e) {
