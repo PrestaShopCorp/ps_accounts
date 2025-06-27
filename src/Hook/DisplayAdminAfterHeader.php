@@ -31,7 +31,7 @@ class DisplayAdminAfterHeader extends Hook
     public function execute(array $params = [])
     {
         try {
-            if ('ERROR' !== $this->module->getParameter('ps_accounts.log_level')) {
+            if ('ERROR' === $this->module->getParameter('ps_accounts.log_level')) {
                 return '';
             }
         } catch (ParameterNotFoundException $e) {
