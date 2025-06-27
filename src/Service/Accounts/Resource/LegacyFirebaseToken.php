@@ -22,15 +22,20 @@ namespace PrestaShop\Module\PsAccounts\Service\Accounts\Resource;
 
 use PrestaShop\Module\PsAccounts\Http\Resource\Resource;
 
-class FirebaseToken extends Resource
+class LegacyFirebaseToken extends Resource
 {
     /**
-     * @var string|null
+     * @var string
      */
     public $token;
 
     /**
-     * @var string|null
+     * @var string
      */
-    public $refreshToken;
+    public $refresh_token;
+
+    /**
+     * @var string
+     */
+    public $id_token;
 }

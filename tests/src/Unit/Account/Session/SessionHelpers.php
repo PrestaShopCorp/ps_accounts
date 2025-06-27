@@ -3,13 +3,14 @@
 namespace PrestaShop\Module\PsAccounts\Tests\Unit\Account\Session;
 
 use PHPUnit\Framework\MockObject\MockObject;
+use PrestaShop\Module\PsAccounts\Account\CachedShopStatus;
 use PrestaShop\Module\PsAccounts\Account\Session\Firebase\FirebaseSession;
 use PrestaShop\Module\PsAccounts\Account\Session\ShopSession;
 use PrestaShop\Module\PsAccounts\Account\Token\Token;
 use PrestaShop\Module\PsAccounts\Http\Client\Curl\Client;
 use PrestaShop\Module\PsAccounts\Http\Client\Response;
 use PrestaShop\Module\PsAccounts\Service\Accounts\AccountsService;
-use PrestaShop\Module\PsAccounts\Service\Accounts\Resource\FirebaseTokens;
+use PrestaShop\Module\PsAccounts\Service\Accounts\Resource\ShopStatus;
 
 trait SessionHelpers
 {
@@ -45,13 +46,22 @@ trait SessionHelpers
     {
         $client = $this->createMock(Client::class);
 
+        $cloudShopId = $this->faker->uuid;
+
+        $this->configurationRepository->updateCachedShopStatus(json_encode((new CachedShopStatus([
+            'isValid' => true,
+            'shopStatus' => new ShopStatus([
+                'cloudShopId' => $cloudShopId,
+            ])
+        ]))->toArray()));
+
         /** @var AccountsService $accountsService */
         $accountsService = $this->module->getService(AccountsService::class);
         $accountsService->setClient($client);
 
         $client->method('get')
             ->willReturnCallback(function ($route) use ($response) {
-                if (preg_match('/v2\/shop\/firebase\/tokens$/', $route)) {
+                if (preg_match('/v1\/shop-identities\/(.*)\/tokens$/', $route)) {
                     return $response;
                 }
                 return $this->createResponse([], 500, true);
@@ -68,6 +78,8 @@ trait SessionHelpers
             ->getMock();
         $firebaseSession->method('getAccountsService')
             ->willReturn($accountsService);
+
+        $firebaseSession->setStatusManager($this->statusManager);
 
         return $firebaseSession;
     }
