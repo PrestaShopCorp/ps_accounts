@@ -113,41 +113,43 @@ class MigrateOrCreateIdentityV8Handler
 
         $e = null;
         try {
-            if ($shopUuid && version_compare($lastUpgradedVersion, '8', '<')) {
-                // migrate cloudShopId locally
-                $this->statusManager->setCloudShopId($shopUuid);
-
-                if (version_compare($lastUpgradedVersion, '7', '>=')) {
-                    $token = $this->getAccessTokenV7($shopUuid);
-                } else {
-                    $token = $this->getFirebaseTokenV6($shopUuid);
-                }
-
-                // FIXME getLastUpgradedVersion from PS Core ?
-                $identityCreated = $this->accountsService->migrateShopIdentity(
-                    $shopUuid,
-                    $token,
-                    $this->shopProvider->getUrl($shopId),
-                    $this->proofManager->generateProof(),
-                    $lastUpgradedVersion
-                );
-
-                if (!empty($identityCreated->clientId) &&
-                    !empty($identityCreated->clientSecret)) {
-                    $this->oAuth2Service->getOAuth2Client()->update(
-                        $identityCreated->clientId,
-                        $identityCreated->clientSecret
-                    );
-                }
-
-                // cleanup obsolete token
-                $this->configurationRepository->updateAccessToken('');
-
-                // update ps_accounts upgraded version
-                $this->configurationRepository->updateLastUpgrade(\Ps_accounts::VERSION);
-            } else {
+            if (!$shopUuid || version_compare($lastUpgradedVersion, '8', '>=')) {
                 $this->commandBus->handle(new CreateIdentityCommand($command->shopId));
+
+                return;
             }
+
+            // migrate cloudShopId locally
+            $this->statusManager->setCloudShopId($shopUuid);
+
+            if (version_compare($lastUpgradedVersion, '7', '>=')) {
+                $token = $this->getAccessTokenV7($shopUuid);
+            } else {
+                $token = $this->getFirebaseTokenV6($shopUuid);
+            }
+
+            // FIXME getLastUpgradedVersion from PS Core ?
+            $identityCreated = $this->accountsService->migrateShopIdentity(
+                $shopUuid,
+                $token,
+                $this->shopProvider->getUrl($shopId),
+                $this->proofManager->generateProof(),
+                $lastUpgradedVersion
+            );
+
+            if (!empty($identityCreated->clientId) &&
+                !empty($identityCreated->clientSecret)) {
+                $this->oAuth2Service->getOAuth2Client()->update(
+                    $identityCreated->clientId,
+                    $identityCreated->clientSecret
+                );
+            }
+
+            // cleanup obsolete token
+            $this->configurationRepository->updateAccessToken('');
+
+            // update ps_accounts upgraded version
+            $this->configurationRepository->updateLastUpgrade(\Ps_accounts::VERSION);
         } catch (OAuth2Exception $e) {
         } catch (AccountsException $e) {
         } catch (RefreshTokenException $e) {
