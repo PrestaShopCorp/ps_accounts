@@ -139,7 +139,7 @@ JSON;
         // FIXME: test AccountsClient in a dedicated Class
         $this->accountsClient->method('put')
             ->with(
-                $this->matches('/v1/shop-identities/' . $cloudShopId . '/migration'),
+                $this->matches('/v1/shop-identities/' . $cloudShopId . '/migrate'),
                 $this->isType('array')
             )
             ->willReturnCallback(function ($route, $options) use ($cloudShopId, $clientId, $clientSecret, $token) {
@@ -255,7 +255,7 @@ JSON;
         // FIXME: test AccountsClient in a dedicated Class
         $this->accountsClient->method('put')
             ->with(
-                $this->matches('/v1/shop-identities/' . $cloudShopId . '/migration'),
+                $this->matches('/v1/shop-identities/' . $cloudShopId . '/migrate'),
                 $this->isType('array')
             )
             ->willReturnCallback(function ($route, $options) use ($cloudShopId, $clientId, $clientSecret, $token) {
@@ -320,7 +320,7 @@ JSON;
         // FIXME: test AccountsClient in a dedicated Class
         $this->accountsClient->method('put')
             ->with(
-                $this->matches('/v1/shop-identities/' . $cloudShopId . '/migration'),
+                $this->matches('/v1/shop-identities/' . $cloudShopId . '/migrate'),
                 $this->isType('array')
             )
             ->willReturnCallback(function ($route, $options) use ($cloudShopId, $clientId, $clientSecret, $token) {
