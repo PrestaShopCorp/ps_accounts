@@ -37,31 +37,35 @@ class DisplayAdminAfterHeader extends Hook
         } catch (ParameterNotFoundException $e) {
         }
 
-        $cloudShopId = $this->module->getCloudShopId();
-        $verified = $this->module->getVerifiedStatus();
-        $verifiedMsg = $verified ? 'verified' : 'NOT verified';
+        try {
+            $cloudShopId = $this->module->getCloudShopId();
+            $verified = $this->module->getVerifiedStatus();
+            $verifiedMsg = $verified ? 'verified' : 'NOT verified';
 
-        /** @var Link $link */
-        $link = $this->module->getService(Link::class);
-        $moduleLink = $link->getAdminLink('AdminModules', true, [], [
-            'configure' => 'ps_accounts',
-        ]);
-        $debugLink = $link->getAdminLink('AdminDebugPsAccounts');
-        $healthCheckLink = $link->getLink()->getPageLink('apiV2ShopHealthCheck', true, [], [
-            'fc' => 'module',
-            'module' => 'ps_accounts',
-        ]);
+            /** @var Link $link */
+            $link = $this->module->getService(Link::class);
+            $moduleLink = $link->getAdminLink('AdminModules', true, [], [
+                'configure' => 'ps_accounts',
+            ]);
+            $debugLink = $link->getAdminLink('AdminDebugPsAccounts');
+            $healthCheckLink = $link->getLink()->getModuleLink('ps_accounts', 'apiV2ShopHealthCheck');
 
-        return <<<HTML
+            return <<<HTML
 <div class="bootstrap">
     <div class="alert alert-info alert-dismissible">
         <button type="button" class="close" data-dismiss="alert">×</button>
         <!-- img width="57" alt="PrestaShop Account" title="PrestaShop Account" src="/modules/ps_accounts/logo.png"-->
         <a href="{$moduleLink}">{$cloudShopId} ({$verifiedMsg})</a> |
         <a href="{$debugLink}">Debug</a> |
-        <a href="{$healthCheckLink}">Health Check</a>
+        <a target="_blank" href="{$healthCheckLink}">Health Check</a>
     </div>
 </div>
 HTML;
+        } catch (\Throwable $e) {
+            /* @phpstan-ignore-next-line */
+        } catch (\Exception $e) {
+        }
+
+        return '';
     }
 }
