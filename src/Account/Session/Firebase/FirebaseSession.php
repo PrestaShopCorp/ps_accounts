@@ -25,11 +25,11 @@ use PrestaShop\Module\PsAccounts\Account\Session\Firebase;
 use PrestaShop\Module\PsAccounts\Account\Session\Session;
 use PrestaShop\Module\PsAccounts\Account\Session\SessionInterface;
 use PrestaShop\Module\PsAccounts\Account\Session\ShopSession;
+use PrestaShop\Module\PsAccounts\Account\StatusManager;
 use PrestaShop\Module\PsAccounts\Account\Token\Token;
 use PrestaShop\Module\PsAccounts\Log\Logger;
 use PrestaShop\Module\PsAccounts\Service\Accounts\AccountsException;
 use PrestaShop\Module\PsAccounts\Service\Accounts\AccountsService;
-use PrestaShop\Module\PsAccounts\Service\Accounts\Resource\FirebaseTokens;
 
 abstract class FirebaseSession extends Session implements SessionInterface
 {
@@ -42,6 +42,11 @@ abstract class FirebaseSession extends Session implements SessionInterface
      * @var \Ps_accounts
      */
     private $module;
+
+    /**
+     * @var StatusManager
+     */
+    protected $statusManager;
 
     public function __construct(ShopSession $shopSession)
     {
@@ -84,10 +89,11 @@ abstract class FirebaseSession extends Session implements SessionInterface
      */
     public function refreshToken($refreshToken = null)
     {
-        $token = $this->shopSession->getValidToken();
-
         try {
-            $this->refreshFirebaseTokens($token);
+            $token = $this->shopSession->getValidToken();
+            $cloudShopId = $this->statusManager->getCloudShopId();
+
+            $this->refreshFirebaseTokens($cloudShopId, $token);
         } catch (RefreshTokenException $e) {
             Logger::getInstance()->error('Unable to get or refresh owner/shop token : ' . $e->getMessage());
             throw $e;
@@ -97,43 +103,49 @@ abstract class FirebaseSession extends Session implements SessionInterface
     }
 
     /**
+     * @param string $cloudShopId
      * @param Token $token
      *
      * @return void
      *
      * @throws RefreshTokenException
      */
-    protected function refreshFirebaseTokens($token)
+    protected function refreshFirebaseTokens($cloudShopId, $token)
     {
         try {
-            $firebaseTokens = $this->getAccountsService()->firebaseTokens($token);
+            $firebaseTokens = $this->getAccountsService()->firebaseTokens($cloudShopId, $token);
         } catch (AccountsException $e) {
             throw new RefreshTokenException($e->getMessage());
         }
 
-        $shopToken = $this->getFirebaseTokenFromResponse($firebaseTokens, 'shopToken', 'shopRefreshToken');
-        $ownerToken = $this->getFirebaseTokenFromResponse($firebaseTokens, 'userToken', 'userRefreshToken');
+        $shopToken = new Token(
+            $firebaseTokens->shop->token,
+            $firebaseTokens->shop->refreshToken
+        );
+
+        $pointOfContactToken = null;
+        if (isset($firebaseTokens->pointOfContact->token) && isset($firebaseTokens->pointOfContact->refreshToken)) {
+            $pointOfContactToken = new Token(
+                $firebaseTokens->pointOfContact->token,
+                $firebaseTokens->pointOfContact->refreshToken
+            );
+        }
 
         // saving both tokens here
         $this->getShopSession()->setToken((string) $shopToken->getJwt(), $shopToken->getRefreshToken());
-        $this->getOwnerSession()->setToken((string) $ownerToken->getJwt(), $ownerToken->getRefreshToken());
+
+        if (isset($pointOfContactToken)) {
+            $this->getOwnerSession()->setToken((string) $pointOfContactToken->getJwt(), $pointOfContactToken->getRefreshToken());
+        }
     }
 
     /**
-     * @param FirebaseTokens $firebaseTokens
-     * @param string $name
-     * @param string $refreshName
+     * @param StatusManager $statusManager
      *
-     * @return Token
+     * @return void
      */
-    protected function getFirebaseTokenFromResponse(
-        FirebaseTokens $firebaseTokens,
-                       $name,
-                       $refreshName
-    ) {
-        return new Token(
-            $firebaseTokens->$name,
-            $firebaseTokens->$refreshName
-        );
+    public function setStatusManager(StatusManager $statusManager)
+    {
+        $this->statusManager = $statusManager;
     }
 }
