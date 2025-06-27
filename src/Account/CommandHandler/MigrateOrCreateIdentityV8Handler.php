@@ -114,6 +114,8 @@ class MigrateOrCreateIdentityV8Handler
         $e = null;
         try {
             if (!$shopUuid || version_compare($lastUpgradedVersion, '8', '>=')) {
+                $this->upgradeVersionNumber();
+
                 $this->commandBus->handle(new CreateIdentityCommand($command->shopId));
 
                 return;
@@ -149,7 +151,7 @@ class MigrateOrCreateIdentityV8Handler
             $this->configurationRepository->updateAccessToken('');
 
             // update ps_accounts upgraded version
-            $this->configurationRepository->updateLastUpgrade(\Ps_accounts::VERSION);
+            $this->upgradeVersionNumber();
         } catch (OAuth2Exception $e) {
         } catch (AccountsException $e) {
         } catch (RefreshTokenException $e) {
@@ -189,5 +191,13 @@ class MigrateOrCreateIdentityV8Handler
             $this->configurationRepository->getFirebaseRefreshToken(),
             $shopUuid
         )->token;
+    }
+
+    /**
+     * @return void
+     */
+    protected function upgradeVersionNumber()
+    {
+        $this->configurationRepository->updateLastUpgrade(\Ps_accounts::VERSION);
     }
 }
