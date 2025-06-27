@@ -27,7 +27,6 @@ use PrestaShop\Module\PsAccounts\Http\Client\Curl\Client;
 use PrestaShop\Module\PsAccounts\Http\Client\Factory;
 use PrestaShop\Module\PsAccounts\Http\Client\Request;
 use PrestaShop\Module\PsAccounts\Http\Client\Response;
-use PrestaShop\Module\PsAccounts\Service\Accounts\Resource\FirebaseToken;
 use PrestaShop\Module\PsAccounts\Service\Accounts\Resource\FirebaseTokens;
 use PrestaShop\Module\PsAccounts\Service\Accounts\Resource\IdentityCreated;
 use PrestaShop\Module\PsAccounts\Service\Accounts\Resource\LegacyFirebaseToken;
