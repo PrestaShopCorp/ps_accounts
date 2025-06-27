@@ -36,8 +36,12 @@ class FirebaseTokens extends Resource
 
     public function __construct($values = [])
     {
-        $values['shop'] = new FirebaseToken($values['shop']);
-        $values['pointOfContact'] = new FirebaseToken($values['pointOfContact']);
+        $this->castChildResource($values, FirebaseToken::class, [
+            'shop',
+        ]);
+        $this->castChildResource($values, FirebaseToken::class, [
+            'pointOfContact',
+        ]);
 
         parent::__construct($values);
     }
