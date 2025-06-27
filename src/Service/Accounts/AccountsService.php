@@ -354,7 +354,7 @@ class AccountsService
     public function migrateShopIdentity($cloudShopId, $shopToken, ShopUrl $shopUrl, $proof, $fromVersion)
     {
         $response = $this->getClient()->put(
-            '/v1/shop-identities/' . $cloudShopId . '/migration',
+            '/v1/shop-identities/' . $cloudShopId . '/migrate',
             [
                 Request::HEADERS => $this->getHeaders([
                     'Authorization' => 'Bearer ' . $shopToken,
