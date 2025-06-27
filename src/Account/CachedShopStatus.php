@@ -70,12 +70,16 @@ class CachedShopStatus extends Resource
      */
     public function toArray($all = true)
     {
-        $values = parent::toArray($all);
+        $array = parent::toArray($all);
 
-        if (isset($values['shopStatus'])) {
-            $values['shopStatus'] = $this->shopStatus->toArray();
-        }
+        $this->uncastChildResource($array, ShopStatus::class, [
+            'shopStatus',
+        ]);
 
-        return $values;
+        $this->uncastDateTime($array, [
+            'updatedAt',
+        ]);
+
+        return $array;
     }
 }

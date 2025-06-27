@@ -89,9 +89,10 @@ class UserInfo extends Resource
 
     public function __construct(array $data = [])
     {
-        if (isset($data['email_verified'])) {
-            $data['email_verified'] = (bool) $data['email_verified'];
-        }
+        $this->castBool($data, [
+            'email_verified',
+        ]);
+
         parent::__construct($data);
     }
 }
