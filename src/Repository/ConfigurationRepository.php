@@ -358,7 +358,7 @@ class ConfigurationRepository
      */
     public function getLastUpgrade($cached = true)
     {
-        return $this->configuration->get(ConfigurationKeys::PS_ACCOUNTS_LAST_UPGRADE, false, $cached);
+        return $this->configuration->get(ConfigurationKeys::PS_ACCOUNTS_LAST_UPGRADE, false, $cached) ?: '0';
     }
 
     /**
@@ -402,7 +402,7 @@ class ConfigurationRepository
      */
     public function getCachedShopStatus()
     {
-        return $this->configuration->getUncached(ConfigurationKeys::PS_ACCOUNTS_CACHED_SHOP_STATUS);
+        return $this->configuration->get(ConfigurationKeys::PS_ACCOUNTS_CACHED_SHOP_STATUS, false, false);
     }
 
     /**

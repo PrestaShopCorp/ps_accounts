@@ -174,7 +174,7 @@ class ConfigurationStorageSession
      */
     public function all()
     {
-        $all = json_decode($this->configuration->getUncached($this->getConfigurationName()), true);
+        $all = json_decode($this->configuration->get($this->getConfigurationName(), false, false), true);
 
         if (is_array($all)) {
             return $all;

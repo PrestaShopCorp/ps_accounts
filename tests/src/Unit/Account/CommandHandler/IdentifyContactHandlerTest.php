@@ -9,7 +9,9 @@ use PrestaShop\Module\PsAccounts\Account\CommandHandler\IdentifyContactHandler;
 use PrestaShop\Module\PsAccounts\Account\Session\ShopSession;
 use PrestaShop\Module\PsAccounts\Account\StatusManager;
 use PrestaShop\Module\PsAccounts\Http\Client\Curl\Client;
+use PrestaShop\Module\PsAccounts\Http\Client\Request;
 use PrestaShop\Module\PsAccounts\Service\Accounts\AccountsService;
+use PrestaShop\Module\PsAccounts\Service\Accounts\Resource\IdentityCreated;
 use PrestaShop\Module\PsAccounts\Service\Accounts\Resource\ShopStatus;
 use PrestaShop\Module\PsAccounts\Service\OAuth2\Resource\AccessToken;
 use PrestaShop\Module\PsAccounts\Tests\TestCase;
@@ -17,9 +19,7 @@ use PrestaShop\Module\PsAccounts\Tests\TestCase;
 class IdentifyContactHandlerTest extends TestCase
 {
     /**
-     * @inject
-     *
-     * @var AccountsService
+     * @var AccountsService&MockObject
      */
     protected $accountsService;
 
@@ -31,9 +31,7 @@ class IdentifyContactHandlerTest extends TestCase
     public $statusManager;
 
     /**
-     * @inject
-     *
-     * @var ShopSession
+     * @var ShopSession&MockObject
      */
     protected $shopSession;
 
@@ -62,23 +60,11 @@ class IdentifyContactHandlerTest extends TestCase
      */
     public function itShouldSaveIdentityContact()
     {
-        $pointOfContactEmail = $this->faker->email;
-        $pointOfContactUuid = $this->faker->uuid;
         $cloudShopId = $this->faker->uuid;
 
         $this->statusManager->setCloudShopId($cloudShopId);
 
         $this->shopSession->method('getValidToken')->willReturn("valid_token");
-
-        $this->client->method('post')
-            ->willReturnCallback(function ($route) use ($pointOfContactEmail, $pointOfContactUuid, $cloudShopId) {
-                if (preg_match('/v1\/shop-identities\/' . $cloudShopId . '\/point-of-contact$/', $route)) {
-                    return $this->createResponse([
-                        'success' => true,
-                    ], 200, true);
-                }
-                return $this->createResponse([], 500, true);
-            });
 
         // Expected call to setPointOfContact with correct parameters
         $this->accountsService->expects($this->once())
@@ -97,11 +83,11 @@ class IdentifyContactHandlerTest extends TestCase
             ])
         ]))->toArray()));
 
-        $this->getHandler()->handle(new IdentifyContactCommand(new AccessToken(
-            [
-                'access_token' => 'valid_access_token',
-            ]
-        )));
+        $this->getHandler()->handle(new IdentifyContactCommand(new AccessToken([
+            'access_token' => 'valid_access_token',
+        ])));
+
+        $this->assertTrue($this->statusManager->cacheInvalidated());
     }
 
     /**
@@ -132,11 +118,9 @@ class IdentifyContactHandlerTest extends TestCase
             ])
         ]))->toArray()));
 
-        $this->getHandler()->handle(new IdentifyContactCommand(new AccessToken(
-            [
-                'access_token' => 'valid_access_token',
-            ]
-        )));
+        $this->getHandler()->handle(new IdentifyContactCommand(new AccessToken([
+            'access_token' => 'valid_access_token',
+        ])));
     }
 
     /**

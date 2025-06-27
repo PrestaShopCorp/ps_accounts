@@ -21,6 +21,6 @@
 
 namespace PrestaShop\Module\PsAccounts\Account\Command;
 
-class VerifyIdentitiesCommand
+class MigrateOrCreateIdentitiesV8Command
 {
 }

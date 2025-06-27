@@ -20,6 +20,9 @@
 
 namespace PrestaShop\Module\PsAccounts\Hook;
 
+use PrestaShop\Module\PsAccounts\Adapter\Link;
+use PrestaShop\Module\PsAccounts\Vendor\PrestaShopCorp\LightweightContainer\ServiceContainer\Exception\ParameterNotFoundException;
+
 class DisplayAdminAfterHeader extends Hook
 {
     /**
@@ -27,18 +30,42 @@ class DisplayAdminAfterHeader extends Hook
      */
     public function execute(array $params = [])
     {
-        $cloudShopId = $this->module->getCloudShopId();
-        $verified = $this->module->getVerifiedStatus();
-        $verifiedMsg = $verified ? 'verified' : 'NOT verified';
+        try {
+            if ('ERROR' === $this->module->getParameter('ps_accounts.log_level')) {
+                return '';
+            }
+        } catch (ParameterNotFoundException $e) {
+        }
 
-        return <<<HTML
+        try {
+            $cloudShopId = $this->module->getCloudShopId();
+            $verified = $this->module->getVerifiedStatus();
+            $verifiedMsg = $verified ? 'verified' : 'NOT verified';
+
+            /** @var Link $link */
+            $link = $this->module->getService(Link::class);
+            $moduleLink = $link->getAdminLink('AdminModules', true, [], [
+                'configure' => 'ps_accounts',
+            ]);
+            $debugLink = $link->getAdminLink('AdminDebugPsAccounts');
+            $healthCheckLink = $link->getLink()->getModuleLink('ps_accounts', 'apiV2ShopHealthCheck');
+
+            return <<<HTML
 <div class="bootstrap">
     <div class="alert alert-info alert-dismissible">
         <button type="button" class="close" data-dismiss="alert">×</button>
         <!-- img width="57" alt="PrestaShop Account" title="PrestaShop Account" src="/modules/ps_accounts/logo.png"-->
-        <a>{$cloudShopId} ({$verifiedMsg})</a>
+        <a href="{$moduleLink}">{$cloudShopId} ({$verifiedMsg})</a> |
+        <a href="{$debugLink}">Debug</a> |
+        <a target="_blank" href="{$healthCheckLink}">Health Check</a>
     </div>
 </div>
 HTML;
+        } catch (\Throwable $e) {
+            /* @phpstan-ignore-next-line */
+        } catch (\Exception $e) {
+        }
+
+        return '';
     }
 }

@@ -11,6 +11,7 @@ use PrestaShop\Module\PsAccounts\Account\CommandHandler\VerifyIdentityHandler;
 use PrestaShop\Module\PsAccounts\Account\ProofManager;
 use PrestaShop\Module\PsAccounts\Account\StatusManager;
 use PrestaShop\Module\PsAccounts\Http\Client\Curl\Client;
+use PrestaShop\Module\PsAccounts\Http\Client\Request;
 use PrestaShop\Module\PsAccounts\Service\Accounts\AccountsService;
 use PrestaShop\Module\PsAccounts\Service\Accounts\Resource\ShopStatus;
 use PrestaShop\Module\PsAccounts\Service\OAuth2\OAuth2Client;
@@ -94,15 +95,19 @@ class CreateIdentityHandlerTest extends TestCase
         $this->statusManager->setCloudShopId('');
 
         $this->client->method('post')
-            ->willReturnCallback(function ($route) use ($clientId, $clientSecret, $cloudShopId) {
-                if (preg_match('/v1\/shop-identities$/', $route)) {
-                    return $this->createResponse([
-                        'clientId' => $clientId,
-                        'clientSecret' => $clientSecret,
-                        "cloudShopId" => $cloudShopId
-                    ], 200, true);
-                }
-                return $this->createResponse([], 500, true);
+            ->with($this->matchesRegularExpression('/v1\/shop-identities$/'))
+            ->willReturnCallback(function ($route, $options) use ($clientId, $clientSecret, $cloudShopId) {
+
+                $this->assertArrayHasKey('backOfficeUrl', $options[Request::JSON]);
+                $this->assertArrayHasKey('frontendUrl', $options[Request::JSON]);
+                $this->assertArrayHasKey('multiShopId', $options[Request::JSON]);
+                $this->assertEquals($this->proofManager->getProof(), $options[Request::JSON]['proof']);
+
+                return $this->createResponse([
+                    'clientId' => $clientId,
+                    'clientSecret' => $clientSecret,
+                    "cloudShopId" => $cloudShopId
+                ], 200, true);
             });
 
         $this->getHandler()->handle(new CreateIdentityCommand(1, []));
@@ -133,14 +138,17 @@ class CreateIdentityHandlerTest extends TestCase
             "cloudShopId" => $cloudShopId . 'Baz'
         ], 200, true);
 
-        $this->client
-            ->method('post')
-            ->willReturnCallback(function ($route) use ($id1, $id2, $cloudShopId) {
+        $this->client->method('post')
+            ->with($this->matchesRegularExpression('/v1\/shop-identities$/'))
+            ->willReturnCallback(function ($route, $options) use ($id1, $id2, $cloudShopId) {
+
+                $this->assertArrayHasKey('backOfficeUrl', $options[Request::JSON]);
+                $this->assertArrayHasKey('frontendUrl', $options[Request::JSON]);
+                $this->assertArrayHasKey('multiShopId', $options[Request::JSON]);
+                $this->assertEquals($this->proofManager->getProof(), $options[Request::JSON]['proof']);
+
                 static $count = 1;
-                if (preg_match('/v1\/shop-identities$/', $route)) {
-                    return $count++ === 1 ? $id1 : $id2;
-                }
-                return $this->createApiResponse([], 500, true);
+                return $count++ === 1 ? $id1 : $id2;
             });
 
         $this->oauth2Client->delete();

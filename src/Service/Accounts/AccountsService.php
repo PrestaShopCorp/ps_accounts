@@ -113,7 +113,8 @@ class AccountsService
                 Request::HEADERS => $this->getHeaders([
                     'Authorization' => 'Bearer ' . $accessToken,
                 ]),
-            ]);
+            ]
+        );
 
         if (!$response->isSuccessful) {
             throw new AccountsException($this->getResponseErrorMsg($response, 'Unable to refresh token.'));
@@ -145,7 +146,7 @@ class AccountsService
         );
 
         if (!$response->isSuccessful) {
-            throw new AccountsException($this->getResponseErrorMsg($response, 'Unable to refresh token.'));
+            throw new AccountsException($this->getResponseErrorMsg($response, 'Unable to refresh shop token.'));
         }
 
         return new LegacyFirebaseToken($response->body);
@@ -193,27 +194,6 @@ class AccountsService
             ]
         );
     }
-
-//    /**
-//     * @param string $cloudShopId
-//     * @param string $shopToken
-//     * @param UpgradeModule $data
-//     *
-//     * @return Response
-//     */
-//    public function upgradeShopModule($cloudShopId, $shopToken, UpgradeModule $data)
-//    {
-//        return $this->getClient()->post(
-//            '/v2/shop/module/update',
-//            [
-//                Request::HEADERS => $this->getHeaders([
-//                    'Authorization' => 'Bearer ' . $shopToken,
-//                    'X-Shop-Id' => $cloudShopId,
-//                ]),
-//                Request::JSON => $data->jsonSerialize(),
-//            ]
-//        );
-//    }
 
     /**
      * @param string $idToken
@@ -285,7 +265,8 @@ class AccountsService
     public function verifyShopIdentity($cloudShopId, $shopToken, ShopUrl $shopUrl, $proof)
     {
         $response = $this->getClient()->post(
-            '/v1/shop-identities/' . $cloudShopId . '/verify', [
+            '/v1/shop-identities/' . $cloudShopId . '/verify',
+            [
                 Request::HEADERS => $this->getHeaders([
                     'Authorization' => 'Bearer ' . $shopToken,
                     'X-Shop-Id' => $cloudShopId,
@@ -361,6 +342,43 @@ class AccountsService
     }
 
     /**
+     * @param string $cloudShopId
+     * @param string $shopToken
+     * @param ShopUrl $shopUrl
+     * @param string $proof
+     * @param string $fromVersion
+     *
+     * @return IdentityCreated
+     *
+     * @throws AccountsException
+     */
+    public function migrateShopIdentity($cloudShopId, $shopToken, ShopUrl $shopUrl, $proof, $fromVersion)
+    {
+        $response = $this->getClient()->put(
+            '/v1/shop-identities/' . $cloudShopId . '/migrate',
+            [
+                Request::HEADERS => $this->getHeaders([
+                    'Authorization' => 'Bearer ' . $shopToken,
+                    'X-Shop-Id' => $cloudShopId,
+                ]),
+                Request::JSON => [
+                    'backOfficeUrl' => $shopUrl->getBackOfficeUrl(),
+                    'frontendUrl' => $shopUrl->getFrontendUrl(),
+                    'multiShopId' => $shopUrl->getMultiShopId(),
+                    'proof' => $proof,
+                    'fromVersion' => $fromVersion,
+                ],
+            ]
+        );
+
+        if (!$response->isSuccessful) {
+            throw new AccountsException($this->getResponseErrorMsg($response, 'Unable to migrate shop identity.'));
+        }
+
+        return new IdentityCreated($response->body);
+    }
+
+    /**
      * @param Response $response
      * @param string $defaultMessage
      *
@@ -370,7 +388,8 @@ class AccountsService
     {
         $msg = $defaultMessage;
         $body = $response->body;
-        if (isset($body['error']) &&
+        if (
+            isset($body['error']) &&
             isset($body['error_description'])
         ) {
             $msg = $body['error'] . ': ' . $body['error_description'];

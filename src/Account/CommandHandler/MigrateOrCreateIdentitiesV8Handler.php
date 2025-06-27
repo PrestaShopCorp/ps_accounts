@@ -1,5 +1,4 @@
 <?php
-
 /**
  * Copyright since 2007 PrestaShop SA and Contributors
  * PrestaShop is an International Registered Trademark & Property of PrestaShop SA
@@ -19,8 +18,22 @@
  * @license   https://opensource.org/licenses/AFL-3.0 Academic Free License version 3.0
  */
 
-namespace PrestaShop\Module\PsAccounts\Account\Command;
+namespace PrestaShop\Module\PsAccounts\Account\CommandHandler;
 
-class VerifyIdentitiesCommand
+use PrestaShop\Module\PsAccounts\Account\Command\MigrateOrCreateIdentitiesV8Command;
+use PrestaShop\Module\PsAccounts\Account\Command\MigrateOrCreateIdentityV8Command;
+
+class MigrateOrCreateIdentitiesV8Handler extends MultiShopHandler
 {
+    /**
+     * @param MigrateOrCreateIdentitiesV8Command $command
+     *
+     * @return void
+     */
+    public function handle(MigrateOrCreateIdentitiesV8Command $command)
+    {
+        $this->handleMulti(function ($multiShopId) {
+            $this->commandBus->handle(new MigrateOrCreateIdentityV8Command($multiShopId));
+        });
+    }
 }

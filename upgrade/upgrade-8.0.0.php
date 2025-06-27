@@ -1,6 +1,6 @@
 <?php
 
-use PrestaShop\Module\PsAccounts\Account\Command\CreateIdentitiesCommand;
+use PrestaShop\Module\PsAccounts\Account\Command\MigrateOrCreateIdentitiesV8Command;
 use PrestaShop\Module\PsAccounts\Cqrs\CommandBus;
 use PrestaShop\Module\PsAccounts\Log\Logger;
 
@@ -19,9 +19,12 @@ function upgrade_module_8_0_0($module)
     try {
         /** @var CommandBus $commandBus */
         $commandBus = $module->getService(CommandBus::class);
-        $commandBus->handle(new CreateIdentitiesCommand());
+
+        $commandBus->handle(new MigrateOrCreateIdentitiesV8Command());
+
         /* @phpstan-ignore-next-line */
     } catch (\Throwable $e) {
+        Logger::getInstance()->error('error during upgrade : ' . $e->getMessage());
     } catch (\Exception $e) {
         Logger::getInstance()->error('error during upgrade : ' . $e->getMessage());
     }
