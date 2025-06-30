@@ -19,7 +19,6 @@
  */
 
 use PrestaShop\Module\PsAccounts\Account\ProofManager;
-use PrestaShop\Module\PsAccounts\Account\Session\ShopSession;
 use PrestaShop\Module\PsAccounts\Account\StatusManager;
 use PrestaShop\Module\PsAccounts\Http\Controller\AbstractV2ShopRestController;
 
@@ -34,11 +33,6 @@ class ps_AccountsApiV2ShopProofModuleFrontController extends AbstractV2ShopRestC
      * @var StatusManager
      */
     private $statusManager;
-
-    /**
-     * @var ShopSession
-     */
-    private $shopSession;
 
     /**
      * @var bool
@@ -71,7 +65,6 @@ class ps_AccountsApiV2ShopProofModuleFrontController extends AbstractV2ShopRestC
 
         $this->proofManager = $this->module->getService(ProofManager::class);
         $this->statusManager = $this->module->getService(StatusManager::class);
-        $this->shopSession = $this->module->getService(ShopSession::class);
     }
 
     /**
