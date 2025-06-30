@@ -24,6 +24,7 @@ class IsAccountLinkedTest extends TestCase
             'isValid' => true,
             'shopStatus' => new ShopStatus([
                 'cloudShopId' => $this->faker->uuid,
+                'isVerified' => true,
                 'pointOfContactUuid' => $this->faker->uuid,
             ])
         ]))->toArray()));
