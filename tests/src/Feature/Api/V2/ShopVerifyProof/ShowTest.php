@@ -31,7 +31,7 @@ class ShowTest extends TestCase
      */
     public function itShouldShowExpectedProof()
     {
-        $shop = $this->shopProvider->formatShopData((array) \Shop::getShop(1));
+        $shopUuid = $this->configurationRepository->getShopUuid();
 
         $proof = $this->manageProof->generateProof();
 
@@ -39,7 +39,7 @@ class ShowTest extends TestCase
             'headers' => [
                 AbstractV2RestController::HEADER_AUTHORIZATION => 'Bearer ' . $this->makeBearer([
                         'aud' => [
-                            'ps_accounts/' . $shop->uuid,
+                            'ps_accounts/' . $shopUuid,
                         ],
                         'scp' => [
                             'shop.proof.read',
@@ -47,7 +47,7 @@ class ShowTest extends TestCase
                     ]),
             ],
             'query' => [
-                'shop_id' => $shop->id,
+                'shop_id' => 1,
             ]
         ]);
 
@@ -65,7 +65,7 @@ class ShowTest extends TestCase
      */
     public function itShouldShowEmptyProof()
     {
-        $shop = $this->shopProvider->formatShopData((array) \Shop::getShop(1));
+        $shopUuid = $this->configurationRepository->getShopUuid();
 
         //$proof = $this->manageProof->generateProof();
 
@@ -78,7 +78,7 @@ class ShowTest extends TestCase
             'headers' => [
                 AbstractV2RestController::HEADER_AUTHORIZATION => 'Bearer ' . $this->makeBearer([
                         'aud' => [
-                            'ps_accounts/' . $shop->uuid,
+                            'ps_accounts/' . $shopUuid,
                         ],
                         'scp' => [
                             'shop.proof.read',
@@ -86,7 +86,7 @@ class ShowTest extends TestCase
                     ]),
             ],
             'query' => [
-                'shop_id' => $shop->id,
+                'shop_id' => 1,
             ]
         ]);
 
