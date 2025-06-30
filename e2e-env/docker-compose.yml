@@ -27,7 +27,6 @@ services:
       PS_DOMAIN: ${PS_DOMAIN}
       PS_ACCOUNTS_VERSION: ${PS_ACCOUNTS_VERSION}
       SSL_REDIRECT: false
-      INSTALL_MODULES_DIR: /modules/downloads/auto-install
     volumes:
       - ./init-scripts:/tmp/init-scripts:ro
       - ./modules:/modules

@@ -18,7 +18,13 @@ export default class PopupAccountPage extends BasePage {
    * @return {Promise<string>}
    */
   async openAccountPopup(): Promise<Page> {
-    await this.page.locator('#modules-list-container-440').getByRole('link', {name: 'Configure'}).click();
+    const moduleContainer = this.page.locator('#modules-list-container-440');
+    const dropdownBtn = moduleContainer.locator('.btn.btn-outline-primary');
+    const upgradeBtn = moduleContainer.getByRole('button', {name: 'Upgrade'})
+    if (await upgradeBtn.isVisible()) {
+      await dropdownBtn.click();
+    }
+    await moduleContainer.getByRole('link', {name: 'Configure'}).click();
     const [newPage] = await Promise.all([
       this.page.context().waitForEvent('page'),
       this.page.getByRole('button', {name: 'Link'}).click()
@@ -46,26 +52,23 @@ export default class PopupAccountPage extends BasePage {
     await newPage.locator('#password').fill(Globals.account_password);
     const logginBtn = await newPage.locator('.puik-button.puik-button--primary');
     await logginBtn.isEnabled();
-    await logginBtn.click()
-    const associateBtn = await newPage.locator('.puik-button.puik-button--primary')
-    await associateBtn.isVisible()
-    await associateBtn.click()
-    const boBtn = await newPage.locator('.puik-button.puik-button--primary')
-    await boBtn.isVisible({timeout:5000})
-    await boBtn.click()
+    await logginBtn.click();
+    const associateBtn = await newPage.locator('.puik-button.puik-button--primary');
+    await associateBtn.isVisible();
+    await associateBtn.click();
+    const boBtn = await newPage.locator('.puik-button.puik-button--primary');
+    await boBtn.isVisible({timeout: 5000});
+    await boBtn.click();
   }
 
- /**
-   * Connected to account
-   * @param newPage {Page} The account popup
-   * @param email string
-   * @param password string
+  /**
+   * Chek if the green Icon after association is visible
    */
- async checkIsLinked() {
-  await this.page.waitForSelector('[data-testid="account-shop-link-message-single-shop-linked"]');
-  const isLinked = await this.page.locator('[data-testid="account-shop-link-message-single-shop-linked"]');
-  expect(isLinked).toBeVisible()
- }
+  async checkIsLinked() {
+    await this.page.waitForSelector('[data-testid="account-shop-link-message-single-shop-linked"]');
+    const isLinked = await this.page.locator('[data-testid="account-shop-link-message-single-shop-linked"]');
+    expect(isLinked).toBeVisible();
+  }
   /**
    * Connected to account
    * @param newPage {Page} The account popupÒ
@@ -81,8 +84,23 @@ export default class PopupAccountPage extends BasePage {
       await newPage.locator('#identifierId').fill('qa-autom+onboarding@prestashop.com');
       await newPage.locator('#identifierNext').click();
       await newPage.locator('[name="Passwd"]').fill('zWEufREWJ5FrpY3');
-      await newPage.locator('.VfPpkd-vQzf8d').nth(1).click()
-      
+      await newPage.locator('.VfPpkd-vQzf8d').nth(1).click();
     }
+  }
+  /**
+   * Click back btn and return to module Manager page
+   */
+  async returnToModuleManager() {
+    const locators = [
+      this.page.locator('.process-icon-back'),
+      this.page.locator('#desc-module-back'),
+      this.page.locator('#page-header-desc-configuration-module-back')
+    ];
+    for (const locator of locators)
+      if (await locator.isVisible()) {
+        await locator.click();
+        await this.page.reload();
+        return;
+      }
   }
 }

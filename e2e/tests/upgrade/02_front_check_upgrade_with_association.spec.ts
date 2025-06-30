@@ -15,7 +15,16 @@ gotToModuleManagerPage('Check module is upgrade', async ({gotToModuleManagerPage
     console.log(moduleVersionBefore);
     expect(moduleVersionBefore).not.toBeNull();
   });
-  await test.step('check if module is installed and module version', async () => {
+  await test.step('association to ps_account', async () => {
+    await pm.fromModuleManagePage().getPageMainTitle();
+    await pm.fromModuleManagePage().isAccountVisible();
+    const popup = await pm.fromPopupAccountPage().openAccountPopup();
+    await pm.fromPopupAccountPage().accountPopupTiteleIsVisible(popup);
+    await pm.fromPopupAccountPage().connectToAccountWithMail(popup);
+    await pm.fromPopupAccountPage().checkIsLinked();
+  });
+  await test.step('return to Module Manager Page ', async () => {
+    await pm.fromPopupAccountPage().returnToModuleManager();
     await pm.fromModuleManagePage().getPageMainTitle();
     await pm.fromModuleManagePage().isAccountVisible();
   });

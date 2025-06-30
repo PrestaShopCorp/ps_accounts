@@ -107,8 +107,8 @@ export default class ModuleManagerPage extends BasePage {
     await this.page.locator('.module-import-start-select-manual').click();
     const fileChooser = await fileChooserPromise;
     await fileChooser.setFiles(path.join(__dirname, '../../../e2e-env/modules/ps_accounts_preprod-7.2.0.zip'));
-    await this.page.waitForLoadState('networkidle');
+    await this.page.waitForSelector('.module-import-success-icon');
     await this.page.locator('#module-modal-import-closing-cross').click();
-    await this.page.reload()
+    await this.page.reload({waitUntil: 'commit'})
   }
 }
