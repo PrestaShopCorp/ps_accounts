@@ -80,6 +80,20 @@ class StatusManager
     }
 
     /**
+     * @param bool $cachedStatus
+     *
+     * @return bool
+     */
+    public function identityVerified($cachedStatus = true)
+    {
+        try {
+            return $this->getStatus($cachedStatus)->isVerified;
+        } catch (UnknownStatusException $e) {
+            return false;
+        }
+    }
+
+    /**
      * @param bool $cachedOnly
      * @param int $cacheTtl
      *

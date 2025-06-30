@@ -210,6 +210,7 @@ class PsAccountsService
     public function isAccountLinked()
     {
         return $this->statusManager->identityCreated() &&
+            $this->statusManager->identityVerified() &&
             $this->statusManager->getPointOfContactUuid();
     }
 

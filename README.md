@@ -91,6 +91,36 @@ This module provides the following tokens:
 - **ShopAccessToken** (provided by [Prestashop OpenId Connect Provider](https://oauth.prestashop.com/.well-known/openid-configuration))  
   For machine to machine calls. (also used to keep up to date legacy Shop and Owner tokens
 
+### How to get shop status from backend (PsAccountsService)
+
+```php
+// /!\ TODO: Starting here you are responsible to check that the module is installed
+
+/** @var Ps_accounts $module */
+$module = \Module::getModuleIdByName('ps_accounts');
+
+/** @var \PrestaShop\Module\PsAccounts\Service\PsAccountsService $service */
+$service = $module->getService(\PrestaShop\Module\PsAccounts\Service\PsAccountsService::class);
+
+// <= v7 shop only has one status "linked" (DEPRECATED)
+$isShopLinked = $service->isAccountLinked();
+
+// starting v8 this has been split into 3 distinct states
+$service->isShopIdentityCreated();   // You can start generating access tokens with limited access
+$service->isShopIdentityVerified();  // You can generate tokens with full access
+$service->isShopPointOfContactSet();
+```
+
+#### Tokens legacy compatibility table
+
+|                         | PrestaShop AccessToken | Legacy<br/>Firebase Shop Id Token | Legacy<br/>Firebase User Id Token |
+|-------------------------|------------------------|-----------------------------------|-----------------------------------|
+| isShopIdentityCreated   | Yes (limited access)   | Yes                               | No                                |
+| isShopIdentityVerified  | Yes (full access)      | Yes                               | No                                |
+| isShopPointOfContactSet | Yes (full access)      | Yes                               | Yes                               |
+| ~~isAccountLinked~~     | Yes (full access)      | Yes                               | Yes                               |
+
+
 ### How to get up-to-date JWT Shop Access Tokens
 
 ```php
