@@ -203,8 +203,6 @@ class PsAccountsService
     /**
      * @return bool
      *
-     * @throws \Exception
-     *
      * @deprecated since v8.0.0
      */
     public function isAccountLinked()
@@ -212,6 +210,30 @@ class PsAccountsService
         return $this->statusManager->identityCreated() &&
             $this->statusManager->identityVerified() &&
             $this->statusManager->getPointOfContactUuid();
+    }
+
+    /**
+     * @return bool
+     */
+    public function isShopIdentityCreated()
+    {
+        return $this->statusManager->identityCreated();
+    }
+
+    /**
+     * @return bool
+     */
+    public function isShopIdentityVerified()
+    {
+        return $this->statusManager->identityVerified();
+    }
+
+    /**
+     * @return bool
+     */
+    public function isShopPointOfContactSet()
+    {
+        return (bool) $this->statusManager->getPointOfContactUuid();
     }
 
     /**
