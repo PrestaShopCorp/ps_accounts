@@ -91,6 +91,44 @@ This module provides the following tokens:
 - **ShopAccessToken** (provided by [Prestashop OpenId Connect Provider](https://oauth.prestashop.com/.well-known/openid-configuration))  
   For machine to machine calls. (also used to keep up to date legacy Shop and Owner tokens
 
+### How to get shop status
+
+#### Retrieving v8 Shop Status
+```php
+// /!\ TODO: Starting here you are responsible to check that the module is installed
+
+/** @var Ps_accounts $module */
+$module = \Module::getModuleIdByName('ps_accounts');
+
+/** @var \PrestaShop\Module\PsAccounts\Service\PsAccountsService $service */
+$service = $module->getService(\PrestaShop\Module\PsAccounts\Service\PsAccountsService::class);
+
+// Starting from v8 status has been split into 3 distinct information
+$service->isShopIdentityCreated();
+$service->isShopIdentityVerified();
+$service->isShopPointOfContactSet();
+```
+
+#### Shop status compatibility with v7
+```php
+
+// strictly equivalent to:
+//      service->isShopIdentityCreated() &&
+//      $service->isShopIdentityVerified() &&
+//      $service->isShopPointOfContactSet()
+$isShopLinked = $service->isAccountLinked();
+```
+
+#### Tokens legacy compatibility table
+
+|                         | PrestaShop AccessToken | Scopes        | Legacy<br/>Firebase Shop Id Token | Legacy<br/>Firebase User Id Token |
+|-------------------------|------------------------|---------------|-----------------------------------|-----------------------------------|
+| isShopIdentityCreated   | Yes                    |               | Yes                               | No                                |
+| isShopIdentityVerified  | Yes                    | shop.verified | Yes                               | No                                |
+| isShopPointOfContactSet | Yes                    | shop.verified | Yes                               | Yes                               |
+| isAccountLinked         | Yes                    | shop.verified | Yes                               | Yes                               |
+
+
 ### How to get up-to-date JWT Shop Access Tokens
 
 ```php

@@ -76,10 +76,16 @@ class ShopSession extends Session implements SessionInterface
     public function refreshToken($refreshToken = null)
     {
         try {
-            $accessToken = $this->getAccessToken([], [
+            $scopes = $this->statusManager->identityVerified() ? [
+                'shop.verified',
+            ] : [];
+
+            $audience = [
                 'store/' . $this->statusManager->getCloudShopId(),
                 $this->tokenAudience,
-            ]);
+            ];
+
+            $accessToken = $this->getAccessToken($scopes, $audience);
 
             $this->setToken(
                 $accessToken->access_token,

@@ -75,6 +75,8 @@ class ps_AccountsApiV2ShopProofModuleFrontController extends AbstractV2ShopRestC
      */
     public function show(Shop $shop, array $payload)
     {
+        $this->statusManager->invalidateCache();
+
         return [
             'proof' => $this->proofManager->getProof(),
         ];
