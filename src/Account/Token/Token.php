@@ -20,6 +20,7 @@
 
 namespace PrestaShop\Module\PsAccounts\Account\Token;
 
+use PrestaShop\Module\PsAccounts\Log\Logger;
 use PrestaShop\Module\PsAccounts\Vendor\Lcobucci\JWT\Parser;
 use PrestaShop\Module\PsAccounts\Vendor\Lcobucci\JWT\Token\InvalidTokenStructure;
 
@@ -71,6 +72,79 @@ class Token
         $token = $this->getJwt();
 
         return $token->isExpired(new \DateTime());
+    }
+
+    /**
+     * @param array $scope
+     *
+     * @return bool
+     */
+    public function hasScope(array $scope)
+    {
+        if ($scope === []) {
+            return true;
+        }
+
+        $claims = $this->getJwt()->claims();
+        if (!$claims->has('scp')) {
+            return false;
+        }
+        $scp = $claims->get('scp');
+
+        Logger::getInstance()->error('############################ All Claims ' . print_r($claims->all(), true));
+        Logger::getInstance()->error('############################ Requested Scoped ' . print_r($scope, true));
+        Logger::getInstance()->error('############################ Token Scopes ' . print_r($scp, true));
+
+        return count(array_intersect($scope, $scp)) == count($scope);
+    }
+
+    /**
+     * @param array $audience
+     *
+     * @return bool
+     */
+    public function hasAudience(array $audience)
+    {
+        if ($audience === []) {
+            return true;
+        }
+
+        $claims = $this->getJwt()->claims();
+        if (!$claims->has('aud')) {
+            return false;
+        }
+        $aud = $claims->get('aud');
+
+        Logger::getInstance()->error('############################ All Claims ' . print_r($claims->all(), true));
+        Logger::getInstance()->error('############################ Requested Audiences ' . print_r($audience, true));
+        Logger::getInstance()->error('############################ Token Audiences ' . print_r($aud, true));
+
+        return count(array_intersect($audience, $aud)) == count($audience);
+    }
+
+    /**
+     * @param array $scope
+     * @param array $audience
+     *
+     * @return bool
+     */
+    public function isValid(array $scope, array $audience)
+    {
+        $isValid = true;
+
+        if ($this->isExpired()) {
+            $isValid = false;
+        }
+
+        if ($isValid && !$this->hasScope($scope)) {
+            $isValid = false;
+        }
+
+        if ($isValid && !$this->hasAudience($audience)) {
+            $isValid = false;
+        }
+
+        return $isValid;
     }
 
     /**

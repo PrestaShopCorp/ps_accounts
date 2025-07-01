@@ -82,12 +82,14 @@ abstract class FirebaseSession extends Session implements SessionInterface
 
     /**
      * @param string $refreshToken
+     * @param array $scope
+     * @param array $audience
      *
      * @return Token
      *
      * @throws RefreshTokenException
      */
-    public function refreshToken($refreshToken = null)
+    public function refreshToken($refreshToken = null, array $scope = [], array $audience = [])
     {
         try {
             $token = $this->shopSession->getValidToken();
