@@ -23,7 +23,7 @@ export default class PopupAccountPage extends ModuleManagerPage {
     const pageTitleOldPsVersion = await this.getPageMainTitleOldPsVersion();
     if (pageTitle === moduleManagerPagesLocales.moduleManager.en_EN.title) {
       const moduleContainer = await this.page.locator('#modules-list-container-440');
-      const dropdownBtn = moduleContainer.locator('.btn.btn-outline-primary');
+      const dropdownBtn = moduleContainer.locator('.btn.btn-outline-primary.dropdown-toggle');
       const upgradeBtn = moduleContainer.getByRole('button', {name: 'Upgrade'});
       if (await upgradeBtn.isVisible()) {
         await dropdownBtn.click();
@@ -37,11 +37,12 @@ export default class PopupAccountPage extends ModuleManagerPage {
       expect(newPage.url()).toContain('authv2-preprod');
       return newPage;
     } else if (pageTitleOldPsVersion === moduleManagerPagesLocales.moduleManager.en_EN.titleOldPsVersion) {
-      const moduleContainer = await this.page.locator('#anchorPs_accounts');
-      const dropdownBtn = moduleContainer.locator('.btn.btn-default.dropdown-toggle');
-      const upgradeBtn = moduleContainer.getByRole('button', {name: ' Update it!'});
+      const moduleContainer = await this.page.locator('tr:not([style*="display: none"])');
+      const dropDownParent = moduleContainer.locator('.actions');
+      const dropdownBtn = dropDownParent.locator('.caret');
+      const upgradeBtn = dropDownParent.locator('.btn.btn-warning', {hasText:' Update it! '})
       if (await upgradeBtn.isVisible()) {
-        await dropdownBtn.click();
+        await dropdownBtn.click({force: true});
       }
       await moduleContainer.getByRole('link', {name: 'Configure'}).click();
       const [newPage] = await Promise.all([
@@ -84,7 +85,7 @@ export default class PopupAccountPage extends ModuleManagerPage {
   }
 
   /**
-   * Chek if the green Icon after association is visible
+   * Check if the green Icon after association is visible
    */
   async checkIsLinked() {
     await this.page.waitForSelector('[data-testid="account-shop-link-message-single-shop-linked"]');
