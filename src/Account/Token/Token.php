@@ -91,10 +91,6 @@ class Token
         }
         $scp = $claims->get('scp');
 
-        Logger::getInstance()->error('############################ All Claims ' . print_r($claims->all(), true));
-        Logger::getInstance()->error('############################ Requested Scoped ' . print_r($scope, true));
-        Logger::getInstance()->error('############################ Token Scopes ' . print_r($scp, true));
-
         return count(array_intersect($scope, $scp)) == count($scope);
     }
 
@@ -115,10 +111,6 @@ class Token
         }
         $aud = $claims->get('aud');
 
-        Logger::getInstance()->error('############################ All Claims ' . print_r($claims->all(), true));
-        Logger::getInstance()->error('############################ Requested Audiences ' . print_r($audience, true));
-        Logger::getInstance()->error('############################ Token Audiences ' . print_r($aud, true));
-
         return count(array_intersect($audience, $aud)) == count($audience);
     }
 
@@ -133,14 +125,17 @@ class Token
         $isValid = true;
 
         if ($this->isExpired()) {
+            Logger::getInstance()->error(__METHOD__ . ': token isExpired ');
             $isValid = false;
         }
 
         if ($isValid && !$this->hasScope($scope)) {
+            Logger::getInstance()->error(__METHOD__ . ': token scope invalid ');
             $isValid = false;
         }
 
         if ($isValid && !$this->hasAudience($audience)) {
+            Logger::getInstance()->error(__METHOD__ . ': token audience invalid ');
             $isValid = false;
         }
 
