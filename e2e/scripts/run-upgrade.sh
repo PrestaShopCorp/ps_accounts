@@ -4,9 +4,9 @@ if [ -n "$1" ]; then
   SHOP_VERSIONS=("$1")
 else
 SHOP_VERSIONS=(
-  8.2.0-8.1-fpm-alpine
   1.7.8.7-7.4-fpm-alpine
   8.1.0-8.1-fpm-alpine
+  8.2.0-8.1-fpm-alpine
   nightly-nginx
 )
 fi
@@ -14,10 +14,10 @@ if [ -n "$2" ]; then
   ACCOUNTS_VERSIONS=("$2")
 else
 ACCOUNTS_VERSIONS=(
-  v7.1.2
-  v7.1.1
+  v5.6.2
+  v6.3.1
   v7.1.0
-  v7.0.9
+  v7.1.2
 )
 fi
 

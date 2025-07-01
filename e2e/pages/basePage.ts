@@ -106,6 +106,7 @@ export default class BasePage extends CommonPage {
   async goToModulesManagerOldPsVersion() {
     await this.page.locator('.icon-AdminParentModules').hover();
     await this.page.locator('#subtab-AdminModules').filter({hasText: 'Modules and Services'}).click();
+    await this.page.waitForLoadState('domcontentloaded')
   }
   async goToPreferencesOldPsVersion() {
     await this.page.locator('.icon-AdminParentPreferences').hover();

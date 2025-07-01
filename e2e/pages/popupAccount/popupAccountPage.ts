@@ -1,8 +1,9 @@
 import {Page, Locator, expect} from '@playwright/test';
-import BasePage from '~/pages/basePage';
 import {Globals} from '~/utils/globals';
+import ModuleManagerPage from '~/pages/moduleManager/moduleManagerPage';
+import {moduleManagerPagesLocales} from '~/data/local/moduleManagerPageLocales/moduleManagerPageLocales';
 
-export default class PopupAccountPage extends BasePage {
+export default class PopupAccountPage extends ModuleManagerPage {
   /* <<<<<<<<<<<<<<< Selectors Types >>>>>>>>>>>>>>>>>>>>>> */
 
   constructor(page: Page) {
@@ -18,21 +19,42 @@ export default class PopupAccountPage extends BasePage {
    * @return {Promise<string>}
    */
   async openAccountPopup(): Promise<Page> {
-    const moduleContainer = this.page.locator('#modules-list-container-440');
-    const dropdownBtn = moduleContainer.locator('.btn.btn-outline-primary');
-    const upgradeBtn = moduleContainer.getByRole('button', {name: 'Upgrade'})
-    if (await upgradeBtn.isVisible()) {
-      await dropdownBtn.click();
+    const pageTitle = await this.getPageMainTitle();
+    const pageTitleOldPsVersion = await this.getPageMainTitleOldPsVersion();
+    if (pageTitle === moduleManagerPagesLocales.moduleManager.en_EN.title) {
+      const moduleContainer = await this.page.locator('#modules-list-container-440');
+      const dropdownBtn = moduleContainer.locator('.btn.btn-outline-primary');
+      const upgradeBtn = moduleContainer.getByRole('button', {name: 'Upgrade'});
+      if (await upgradeBtn.isVisible()) {
+        await dropdownBtn.click();
+      }
+      await moduleContainer.getByRole('link', {name: 'Configure'}).click();
+      const [newPage] = await Promise.all([
+        this.page.context().waitForEvent('page'),
+        this.page.getByRole('button', {name: 'Link'}).click()
+      ]);
+      await newPage.waitForTimeout(5000);
+      expect(newPage.url()).toContain('authv2-preprod');
+      return newPage;
+    } else if (pageTitleOldPsVersion === moduleManagerPagesLocales.moduleManager.en_EN.titleOldPsVersion) {
+      const moduleContainer = await this.page.locator('#anchorPs_accounts');
+      const dropdownBtn = moduleContainer.locator('.btn.btn-default.dropdown-toggle');
+      const upgradeBtn = moduleContainer.getByRole('button', {name: ' Update it!'});
+      if (await upgradeBtn.isVisible()) {
+        await dropdownBtn.click();
+      }
+      await moduleContainer.getByRole('link', {name: 'Configure'}).click();
+      const [newPage] = await Promise.all([
+        this.page.context().waitForEvent('page'),
+        this.page.getByRole('button', {name: 'Link'}).click()
+      ]);
+      await newPage.waitForTimeout(5000);
+      expect(newPage.url()).toContain('authv2-preprod');
+      return newPage;
     }
-    await moduleContainer.getByRole('link', {name: 'Configure'}).click();
-    const [newPage] = await Promise.all([
-      this.page.context().waitForEvent('page'),
-      this.page.getByRole('button', {name: 'Link'}).click()
-    ]);
-    await newPage.waitForTimeout(5000);
-    expect(newPage.url()).toContain('authv2-preprod');
-    return newPage;
+    throw new Error('Popup Account can not be open');
   }
+
   /**
    * @param newPage {Page} The account popup
    * Verifies that the page title is visible, indicating the Cloudflare challenge has been passed.

@@ -14,7 +14,7 @@ export default class ModuleManagerPage extends BasePage {
 
     /* <<<<<<<<<<<<<<< Selectors >>>>>>>>>>>>>>>>>>>>>> */
     this.pageMainTitle = page.locator('.title-row .title');
-    this.pageMainTitleOldPsVersion = page.locator('.page-title');
+    this.pageMainTitleOldPsVersion = page.locator('h2.page-title');
   }
 
   /* <<<<<<<<<<<<<<< Main Methods >>>>>>>>>>>>>>>>>>>>>> */
@@ -30,7 +30,7 @@ export default class ModuleManagerPage extends BasePage {
     }
   }
   async getPageMainTitleOldPsVersion() {
-    if (await this.page.locator('.page-title').isVisible()) {
+    if (await this.page.locator('h2.page-title').isVisible()) {
       return this.getTextContent(this.pageMainTitleOldPsVersion);
     }
   }
@@ -42,8 +42,9 @@ export default class ModuleManagerPage extends BasePage {
   async isAccountVisible() {
     const pageTitle = await this.getPageMainTitle();
     const pageTitleOldPsVersion = await this.getPageMainTitleOldPsVersion();
+    await this.page.pause();
     if (pageTitle === moduleManagerPagesLocales.moduleManager.en_EN.title) {
-      await this.page.locator('#search-input-group').getByRole('textbox').fill('Account');
+      await this.page.locator('#search-input-group').getByRole('textbox').fill('ps_account');
       await this.page.locator('#module-search-button').click();
       const isAccountVisible = this.page
         .locator('.module-item-wrapper-list')
@@ -51,8 +52,9 @@ export default class ModuleManagerPage extends BasePage {
         .isVisible();
       expect(isAccountVisible).toBeTruthy();
     } else if (pageTitleOldPsVersion === moduleManagerPagesLocales.moduleManager.en_EN.titleOldPsVersion) {
-      await this.page.locator('#filter_administration').click();
-      await this.page.locator('#moduleQuicksearch').fill('PrestaShop Account');
+      await this.page.waitForSelector('.icon-list-ul');
+      await this.page.locator('#moduleQuicksearch').fill('ps_account');
+      await this.page.locator('#moduleQuicksearch').press('Enter');
       const isAccountVisibleOnOldPsVersion = await this.page
         .locator('.module_name')
         .filter({hasText: 'PrestaShop Account'})
@@ -109,6 +111,6 @@ export default class ModuleManagerPage extends BasePage {
     await fileChooser.setFiles(path.join(__dirname, '../../../e2e-env/modules/ps_accounts_preprod-7.2.0.zip'));
     await this.page.waitForSelector('.module-import-success-icon');
     await this.page.locator('#module-modal-import-closing-cross').click();
-    await this.page.reload({waitUntil: 'commit'})
+    await this.page.reload({waitUntil: 'commit'});
   }
 }
