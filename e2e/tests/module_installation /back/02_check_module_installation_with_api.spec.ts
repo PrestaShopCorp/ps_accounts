@@ -1,4 +1,4 @@
-import {test} from '@playwright/test';
+import {test, expect} from '@playwright/test';
 import HealthCheckApi from '~/services/api/healthCheckApi';
 
 // Var
@@ -11,7 +11,8 @@ test('Check the shop is not Oauth2Client', async () => {
   await healthCheckApi.isOauth2Client();
 });
 test('Check the shop is not linked', async () => {
-  await healthCheckApi.isShopLinked();
+  const isLinked = await healthCheckApi.isShopLinked();
+  expect(isLinked).toBeFalsy();
 });
 test('Check oauth2 Url', async () => {
   await healthCheckApi.checkOauth2Url();

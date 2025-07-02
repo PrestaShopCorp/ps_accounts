@@ -9,6 +9,7 @@ import {modulePsAccount} from '~/data/local/modules/modulePsAccount';
 gotToModuleManagerPage('Check module is upgrade after association', async ({gotToModuleManagerPage}) => {
   let pm = new PageManager(gotToModuleManagerPage);
   let dbRequest = new DbRequest();
+  let healthCheckApi = new HealthCheckApi();
   let moduleVersionBefore: string;
   await test.step('check module module version in db', async () => {
     moduleVersionBefore = await dbRequest.returnModuleVersion();
@@ -22,6 +23,10 @@ gotToModuleManagerPage('Check module is upgrade after association', async ({gotT
     await pm.fromPopupAccountPage().accountPopupTiteleIsVisible(popup);
     await pm.fromPopupAccountPage().connectToAccountWithMail(popup);
     await pm.fromPopupAccountPage().checkIsLinked();
+  });
+  await test.step('check if linked in healthcheck', async () => {
+    const isLinked = await healthCheckApi.isShopLinked();
+    expect(isLinked).toBeTruthy();
   });
   await test.step('return to Module Manager Page ', async () => {
     await pm.fromPopupAccountPage().returnToModuleManager();
@@ -38,5 +43,8 @@ gotToModuleManagerPage('Check module is upgrade after association', async ({gotT
     console.log(moduleVersionAfter);
     expect(moduleVersionAfter).not.toBeNull;
     expect(moduleVersionAfter).not.toBe(moduleVersionBefore);
+
+    const isLinked = await healthCheckApi.isShopLinked();
+    expect(isLinked).toBeTruthy();
   });
 });
