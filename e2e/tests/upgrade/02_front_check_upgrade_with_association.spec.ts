@@ -6,7 +6,7 @@ import DbRequest from '~/services/db/dbRequest';
 import HealthCheckApi from '~/services/api/healthCheckApi';
 import {modulePsAccount} from '~/data/local/modules/modulePsAccount';
 
-gotToModuleManagerPage('Check module is upgrade', async ({gotToModuleManagerPage}) => {
+gotToModuleManagerPage('Check module is upgrade after association', async ({gotToModuleManagerPage}) => {
   let pm = new PageManager(gotToModuleManagerPage);
   let dbRequest = new DbRequest();
   let moduleVersionBefore: string;
