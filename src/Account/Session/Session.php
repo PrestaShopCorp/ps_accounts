@@ -47,12 +47,14 @@ abstract class Session implements SessionInterface
     /**
      * @param bool $forceRefresh
      * @param bool $throw
+     * @param array $scope
+     * @param array $audience
      *
      * @return Token
      *
      * @throws RefreshTokenException
      */
-    public function getValidToken($forceRefresh = false, $throw = true)
+    public function getValidToken($forceRefresh = false, $throw = true, array $scope = [], array $audience = [])
     {
         /*
          * Avoid multiple refreshToken calls in the same runtime:
@@ -68,9 +70,9 @@ abstract class Session implements SessionInterface
             return $this->getToken();
         }
 
-        if (true === $forceRefresh || $this->getToken()->isExpired()) {
+        if (true === $forceRefresh || false === $this->getToken()->isValid($scope, $audience)) {
             try {
-                $this->refreshToken(null);
+                $this->refreshToken(null, $scope, $audience);
             } catch (RefreshTokenException $e) {
                 $this->setToken('');
                 $this->setRefreshTokenErrors(static::class, $e->getMessage());

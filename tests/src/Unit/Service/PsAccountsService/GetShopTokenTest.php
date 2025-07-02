@@ -15,7 +15,7 @@ class GetShopTokenTest extends TestCase
      *
      * @var PsAccountsService
      */
-    protected $service;
+    protected $psAccountsService;
 
     /**
      * @inject
@@ -48,11 +48,20 @@ class GetShopTokenTest extends TestCase
      */
     public function itShouldReturnAValidToken()
     {
-        $validToken = $this->makeJwtToken(new \DateTimeImmutable('+1 hour'));
+        $cloudShopId = $this->faker->uuid;
+        $this->statusManager->setCloudShopId($cloudShopId);
+
+        $validToken = $this->makeJwtToken(new \DateTimeImmutable('+1 hour'), [
+            'scp' => [],
+            'aud' => [
+                $this->module->getParameter('ps_accounts.token_audience'),
+                'store/' . $cloudShopId,
+            ],
+        ]);
 
         $this->shopSession->setToken((string) $validToken);
 
-        $this->assertEquals($validToken, $this->service->getShopToken());
+        $this->assertEquals($validToken, $this->psAccountsService->getShopToken());
     }
 
     /**
@@ -67,6 +76,6 @@ class GetShopTokenTest extends TestCase
 
         $this->expectException(RefreshTokenException::class);
 
-        $this->service->getShopToken();
+        $this->psAccountsService->getShopToken();
     }
 }

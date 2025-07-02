@@ -67,25 +67,42 @@ class ShopSession extends Session implements SessionInterface
     }
 
     /**
-     * @param string $refreshToken
+     * @param bool $forceRefresh
+     * @param bool $throw
+     * @param array $scope
+     * @param array $audience
      *
      * @return Token
      *
      * @throws RefreshTokenException
      */
-    public function refreshToken($refreshToken = null)
+    public function getValidToken($forceRefresh = false, $throw = true, array $scope = [], array $audience = [])
+    {
+        $scp = $scope + ($this->statusManager->identityVerified() ? [
+            'shop.verified',
+        ] : []);
+
+        $aud = $audience + [
+            'store/' . $this->statusManager->getCloudShopId(),
+            $this->tokenAudience,
+        ];
+
+        return parent::getValidToken($forceRefresh, $throw, $scp, $aud);
+    }
+
+    /**
+     * @param string $refreshToken
+     * @param array $scope
+     * @param array $audience
+     *
+     * @return Token
+     *
+     * @throws RefreshTokenException
+     */
+    public function refreshToken($refreshToken = null, array $scope = [], array $audience = [])
     {
         try {
-            $scopes = $this->statusManager->identityVerified() ? [
-                'shop.verified',
-            ] : [];
-
-            $audience = [
-                'store/' . $this->statusManager->getCloudShopId(),
-                $this->tokenAudience,
-            ];
-
-            $accessToken = $this->getAccessToken($scopes, $audience);
+            $accessToken = $this->getAccessToken($scope, $audience);
 
             $this->setToken(
                 $accessToken->access_token,

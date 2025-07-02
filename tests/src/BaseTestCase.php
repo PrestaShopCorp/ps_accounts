@@ -129,6 +129,11 @@ class BaseTestCase extends \PHPUnit\Framework\TestCase
             unset($claims['sub']);
         }
 
+        if (isset($claims['aud'])) {
+            $builder->permittedFor(...is_array($claims['aud']) ? $claims['aud'] : [$claims['aud']]);
+            unset($claims['aud']);
+        }
+
         foreach ($claims as $claim => $value) {
             $builder->withClaim($claim, $value);
         }
