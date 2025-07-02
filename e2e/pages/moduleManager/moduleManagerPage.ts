@@ -42,7 +42,6 @@ export default class ModuleManagerPage extends BasePage {
   async isAccountVisible() {
     const pageTitle = await this.getPageMainTitle();
     const pageTitleOldPsVersion = await this.getPageMainTitleOldPsVersion();
-    await this.page.pause();
     if (pageTitle === moduleManagerPagesLocales.moduleManager.en_EN.title) {
       await this.page.locator('#search-input-group').getByRole('textbox').fill('ps_account');
       await this.page.locator('#module-search-button').click();
