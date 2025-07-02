@@ -44,7 +44,7 @@ trait AjaxRender
             if (method_exists($controllerBaseClass, 'ajaxRender')) {
                 /* @phpstan-ignore-next-line */
                 parent::ajaxRender($value, $controller, $method);
-            //exit;
+                exit;
             } else {
                 parent::ajaxDie($value, $controller, $method);
             }

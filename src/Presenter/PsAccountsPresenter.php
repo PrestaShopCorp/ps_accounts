@@ -20,10 +20,8 @@
 
 namespace PrestaShop\Module\PsAccounts\Presenter;
 
-use PrestaShop\Module\PsAccounts\Account\LinkShop;
-use PrestaShop\Module\PsAccounts\Adapter\Link;
+use PrestaShop\Module\PsAccounts\Account\StatusManager;
 use PrestaShop\Module\PsAccounts\Installer\Installer;
-use PrestaShop\Module\PsAccounts\Provider\RsaKeysProvider;
 use PrestaShop\Module\PsAccounts\Provider\ShopProvider;
 use PrestaShop\Module\PsAccounts\Repository\ConfigurationRepository;
 use PrestaShop\Module\PsAccounts\Service\PsAccountsService;
@@ -41,9 +39,9 @@ class PsAccountsPresenter implements PresenterInterface
     protected $shopProvider;
 
     /**
-     * @var LinkShop
+     * @var StatusManager
      */
-    protected $linkShop;
+    protected $statusManager;
 
     /**
      * @var ConfigurationRepository
@@ -66,11 +64,6 @@ class PsAccountsPresenter implements PresenterInterface
     private $module;
 
     /**
-     * @var RsaKeysProvider
-     */
-    private $rsaKeysProvider;
-
-    /**
      * @param \Ps_accounts $module
      *
      * @throws \Exception
@@ -82,10 +75,9 @@ class PsAccountsPresenter implements PresenterInterface
 
         $this->psAccountsService = $module->getService(PsAccountsService::class);
         $this->shopProvider = $module->getService(ShopProvider::class);
-        $this->linkShop = $module->getService(LinkShop::class);
+        $this->statusManager = $module->getService(StatusManager::class);
         $this->installer = $module->getService(Installer::class);
         $this->configuration = $module->getService(ConfigurationRepository::class);
-        $this->rsaKeysProvider = $module->getService(RsaKeysProvider::class);
 
         // FIXME: find a better place for this
         $this->configuration->fixMultiShopConfig();
@@ -118,10 +110,6 @@ class PsAccountsPresenter implements PresenterInterface
             . '?shops=' . $shopBase64;
 
         try {
-            $shopsTree = $this->shopProvider->getShopsTree($psxName);
-
-            $this->initShops($shopsTree);
-
             return array_merge(
                 [
                     'currentContext' => [
@@ -171,10 +159,12 @@ class PsAccountsPresenter implements PresenterInterface
 
                     'isOnboardedV4' => $this->psAccountsService->isAccountLinkedV4(),
 
-                    'shops' => $shopsTree,
+                    'shops' => $this->shopProvider->getShopsTree($psxName),
                     'adminAjaxLink' => $this->psAccountsService->getAdminAjaxUrl(),
 
                     'accountsUiUrl' => $this->module->getParameter('ps_accounts.accounts_ui_url'),
+
+                    'component_params_init' => $this->psAccountsService->getComponentInitParams($psxName),
                 ],
                 (new DependenciesPresenter())->present($psxName)
             );
@@ -183,21 +173,5 @@ class PsAccountsPresenter implements PresenterInterface
         }
 
         return [];
-    }
-
-    /**
-     * @param array $shopTree
-     *
-     * @return void
-     */
-    private function initShops(& $shopTree)
-    {
-        foreach ($shopTree as &$group) {
-            foreach ($group['shops'] as &$shop) {
-                $this->shopProvider->getShopContext()->execInShopContext($shop['id'], function () use (&$shop) {
-                    $shop['publicKey'] = $this->rsaKeysProvider->getOrGenerateAccountsRsaPublicKey();
-                });
-            }
-        }
     }
 }

@@ -20,25 +20,33 @@
 
 namespace PrestaShop\Module\PsAccounts\ServiceProvider;
 
-use PrestaShop\Module\PsAccounts\Account\LinkShop;
+use PrestaShop\Module\PsAccounts\Account\ProofManager;
+use PrestaShop\Module\PsAccounts\Account\Session\Firebase;
+use PrestaShop\Module\PsAccounts\Account\Session\ShopSession;
+use PrestaShop\Module\PsAccounts\Account\StatusManager;
 use PrestaShop\Module\PsAccounts\Adapter;
-use PrestaShop\Module\PsAccounts\Adapter\Configuration;
 use PrestaShop\Module\PsAccounts\Adapter\Link;
 use PrestaShop\Module\PsAccounts\Api\Client\ServicesBillingClient;
 use PrestaShop\Module\PsAccounts\Context\ShopContext;
 use PrestaShop\Module\PsAccounts\Cqrs\CommandBus;
+use PrestaShop\Module\PsAccounts\Cqrs\QueryBus;
 use PrestaShop\Module\PsAccounts\Http\Client\CircuitBreaker;
 use PrestaShop\Module\PsAccounts\Installer\Installer;
+use PrestaShop\Module\PsAccounts\Polyfill\ConfigurationStorageSession;
 use PrestaShop\Module\PsAccounts\Presenter\PsAccountsPresenter;
 use PrestaShop\Module\PsAccounts\Provider;
 use PrestaShop\Module\PsAccounts\Repository\ConfigurationRepository;
 use PrestaShop\Module\PsAccounts\Repository\ShopTokenRepository;
+use PrestaShop\Module\PsAccounts\Service\Accounts\AccountsService;
 use PrestaShop\Module\PsAccounts\Service\AnalyticsService;
+use PrestaShop\Module\PsAccounts\Service\OAuth2\OAuth2Service;
 use PrestaShop\Module\PsAccounts\Service\PsAccountsService;
 use PrestaShop\Module\PsAccounts\Service\PsBillingService;
 use PrestaShop\Module\PsAccounts\Service\SentryService;
 use PrestaShop\Module\PsAccounts\Vendor\PrestaShopCorp\LightweightContainer\ServiceContainer\Contract\IServiceProvider;
 use PrestaShop\Module\PsAccounts\Vendor\PrestaShopCorp\LightweightContainer\ServiceContainer\ServiceContainer;
+use Symfony\Component\DependencyInjection\Exception\ServiceNotFoundException;
+use Symfony\Component\HttpFoundation\Session\SessionInterface;
 
 class DefaultProvider implements IServiceProvider
 {
@@ -58,10 +66,21 @@ class DefaultProvider implements IServiceProvider
             return \Module::getInstanceByName('ps_accounts');
         });
         // Entities ?
-        $container->registerProvider(LinkShop::class, static function () use ($container) {
-            return new LinkShop(
+        $container->registerProvider(StatusManager::class, static function () use ($container) {
+            /** @var ShopSession $shopSession */
+            $shopSession = $container->get(ShopSession::class);
+            $firebaseOwnerSession = $container->get(Firebase\OwnerSession::class);
+            $firebaseShopSession = $container->get(Firebase\ShopSession::class);
+            $service = new StatusManager(
+                $shopSession,
+                $container->get(AccountsService::class),
                 $container->get(ConfigurationRepository::class)
             );
+            $shopSession->setStatusManager($service);
+            $firebaseOwnerSession->setStatusManager($service);
+            $firebaseShopSession->setStatusManager($service);
+
+            return $service;
         });
         // Adapter
         $container->registerProvider(Adapter\Configuration::class, static function () use ($container) {
@@ -97,20 +116,22 @@ class DefaultProvider implements IServiceProvider
             return new SentryService(
                 $container->getParameter('ps_accounts.sentry_credentials'),
                 $container->getParameter('ps_accounts.environment'),
-                $container->get(LinkShop::class),
+                $container->get(StatusManager::class),
                 $container->get('ps_accounts.context')
             );
         });
-        // "Providers"
-        $container->registerProvider(Provider\RsaKeysProvider::class, static function () use ($container) {
-            return new Provider\RsaKeysProvider(
+        $container->registerProvider(ProofManager::class, static function () use ($container) {
+            return new ProofManager(
                 $container->get(ConfigurationRepository::class)
             );
         });
+        // "Providers"
         $container->registerProvider(Provider\ShopProvider::class, static function () use ($container) {
             return new Provider\ShopProvider(
                 $container->get(ShopContext::class),
-                $container->get(Link::class)
+                $container->get(Link::class),
+                $container->get(StatusManager::class),
+                $container->get(OAuth2Service::class)
             );
         });
         // Context
@@ -126,10 +147,15 @@ class DefaultProvider implements IServiceProvider
                 $container->get('ps_accounts.module')
             );
         });
+        $container->registerProvider(QueryBus::class, static function () use ($container) {
+            return new QueryBus(
+                $container->get('ps_accounts.module')
+            );
+        });
         // Factories
         $container->registerProvider(CircuitBreaker\Factory::class, static function () use ($container) {
             return new CircuitBreaker\Factory(
-                $container->get(Configuration::class)
+                $container->get(Adapter\Configuration::class)
             );
         });
         // Installer
@@ -145,5 +171,46 @@ class DefaultProvider implements IServiceProvider
                 $container->get('ps_accounts.module')
             );
         });
+        // PHP Session
+        $container->registerProvider(
+            '\Symfony\Component\HttpFoundation\Session\SessionInterface',
+            static function () use ($container) {
+                $module = $container->get('ps_accounts.module');
+
+                $core = $module->getCoreServiceContainer();
+                if ($core) {
+                    try {
+                        /**
+                         * @var SessionInterface $session
+                         * @phpstan-ignore-next-line
+                         */
+                        $session = $core->get('session');
+                        /* @phpstan-ignore-next-line */
+                    } catch (ServiceNotFoundException $e) {
+                        try {
+                            // FIXME: fix for 1.7.7.x
+                            global $kernel;
+                            $session = $kernel->getContainer()->get('session');
+                            /* @phpstan-ignore-next-line */
+                        } catch (ServiceNotFoundException $e) {
+                            // FIXME: fix for 9.x
+                            global $request;
+                            $session = $request->getSession();
+                        }
+                    }
+
+                    return $session;
+                }
+
+                // Fallback session object
+                // FIXME: create an interface for it
+                $session = new ConfigurationStorageSession(
+                    $container->get(Adapter\Configuration::class)
+                );
+                $session->start();
+
+                return $session;
+            }
+        );
     }
 }

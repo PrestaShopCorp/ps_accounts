@@ -24,15 +24,16 @@ use PrestaShop\Module\PsAccounts\Account\Command\UpdateUserShopCommand;
 use PrestaShop\Module\PsAccounts\Account\Exception\RefreshTokenException;
 use PrestaShop\Module\PsAccounts\Account\Session\Firebase\OwnerSession;
 use PrestaShop\Module\PsAccounts\Account\Session\Firebase\ShopSession;
-use PrestaShop\Module\PsAccounts\Api\Client\AccountsClient;
 use PrestaShop\Module\PsAccounts\Context\ShopContext;
+use PrestaShop\Module\PsAccounts\Http\Client\Response;
+use PrestaShop\Module\PsAccounts\Service\Accounts\AccountsService;
 
 class UpdateUserShopHandler
 {
     /**
-     * @var AccountsClient
+     * @var AccountsService
      */
-    private $accountClient;
+    private $accountsService;
 
     /**
      * @var ShopContext
@@ -50,18 +51,18 @@ class UpdateUserShopHandler
     private $ownerSession;
 
     /**
-     * @param AccountsClient $accountClient
+     * @param AccountsService $accountsService
      * @param ShopContext $shopContext
      * @param ShopSession $shopSession
      * @param OwnerSession $ownerSession
      */
     public function __construct(
-        AccountsClient $accountClient,
+        AccountsService $accountsService,
         ShopContext $shopContext,
         ShopSession $shopSession,
         OwnerSession $ownerSession
     ) {
-        $this->accountClient = $accountClient;
+        $this->accountsService = $accountsService;
         $this->shopContext = $shopContext;
         $this->shopSession = $shopSession;
         $this->ownerSession = $ownerSession;
@@ -70,7 +71,7 @@ class UpdateUserShopHandler
     /**
      * @param UpdateUserShopCommand $command
      *
-     * @return array
+     * @return Response
      *
      * @throws RefreshTokenException
      */
@@ -80,7 +81,7 @@ class UpdateUserShopHandler
             $shopToken = $this->shopSession->getValidToken();
             $ownerToken = $this->ownerSession->getValidToken();
 
-            return $this->accountClient->updateUserShop(
+            return $this->accountsService->updateUserShop(
                 $ownerToken->getUuid(),
                 $shopToken->getUuid(),
                 $ownerToken->getJwt(),
