@@ -119,14 +119,16 @@ $service->isShopPointOfContactSet();
 $isShopLinked = $service->isAccountLinked();
 ```
 
-#### Tokens legacy compatibility table
+#### Tokens availability with legacy compatibility table
 
-|                         | PrestaShop AccessToken | Scopes        | Legacy<br/>Firebase Shop Id Token | Legacy<br/>Firebase User Id Token |
-|-------------------------|------------------------|---------------|-----------------------------------|-----------------------------------|
-| isShopIdentityCreated   | Yes                    |               | Yes                               | No                                |
-| isShopIdentityVerified  | Yes                    | shop.verified | Yes                               | No                                |
-| isShopPointOfContactSet | Yes                    | shop.verified | Yes                               | Yes                               |
-| isAccountLinked         | Yes                    | shop.verified | Yes                               | Yes                               |
+| Method Name             | PrestaShop AccessToken | Scopes        | **_Legacy_**<br/>Firebase Shop Id Token | **_Legacy_**<br/>Firebase User Id Token |
+|-------------------------|------------------------|---------------|-----------------------------------------|-----------------------------------------|
+| **_>= v8.0.0_**         |                        |               |                                         |                                         |
+| isShopIdentityCreated   | Yes                    |               | Yes                                     | No                                      |
+| isShopIdentityVerified  | Yes                    | shop.verified | Yes                                     | No                                      |
+| isShopPointOfContactSet | Yes                    | shop.verified | Yes                                     | Yes                                     |
+| **_< v8.0.0_**          |                        |               |                                         |                                         |
+| isAccountLinked         | Yes                    | shop.verified | Yes                                     | Yes                                     |
 
 
 ### How to get up-to-date JWT Shop Access Tokens
