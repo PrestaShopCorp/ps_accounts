@@ -24,9 +24,9 @@ gotToModuleManagerPage('Check module is upgrade after association', async ({gotT
     await pm.fromPopupAccountPage().connectToAccountWithMail(popup);
     await pm.fromPopupAccountPage().checkIsLinked();
   });
-  await test.step('check if linked in healthcheck', async () => {
-    const isLinked = await healthCheckApi.isShopLinked();
-    expect(isLinked).toBeTruthy();
+  await test.step('check if is linked', async () => {
+    const checkClientUuidValue = await dbRequest.getPsConfigurationData('PS_ACCOUNTS_USER_FIREBASE_UUID');
+    expect(checkClientUuidValue.value).not.toBeNull();
   });
   await test.step('return to Module Manager Page ', async () => {
     await pm.fromPopupAccountPage().returnToModuleManager();
@@ -43,8 +43,7 @@ gotToModuleManagerPage('Check module is upgrade after association', async ({gotT
     console.log(moduleVersionAfter);
     expect(moduleVersionAfter).not.toBeNull;
     expect(moduleVersionAfter).not.toBe(moduleVersionBefore);
-
-    const isLinked = await healthCheckApi.isShopLinked();
-    expect(isLinked).toBeTruthy();
+    const checkClientUuidValue = await dbRequest.getPsConfigurationData('PS_ACCOUNTS_USER_FIREBASE_UUID');
+    expect(checkClientUuidValue.value).not.toBeNull();
   });
 });

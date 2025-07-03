@@ -3,8 +3,6 @@ import {expect, test} from '@playwright/test';
 import {gotToModuleManagerPage} from '~/fixtures/goToModuleManagerPage.fixture';
 import {PageManager} from '~/pages/managerPage';
 import DbRequest from '~/services/db/dbRequest';
-import HealthCheckApi from '~/services/api/healthCheckApi';
-import {modulePsAccount} from '~/data/local/modules/modulePsAccount';
 
 gotToModuleManagerPage('Check module is upgrade', async ({gotToModuleManagerPage}) => {
   let pm = new PageManager(gotToModuleManagerPage);

@@ -35,6 +35,29 @@ export default class DbRequest {
   // Method to return the module version
   async returnModuleVersion() {
     const module = await this.getModuleDetails();
-    return module.version
+    return module.version;
+  }
+
+  /**
+   * Method to return details from the database ps_configuration
+   * @param name - the cell name
+   * @returns {Promise<RowDataPacket>} A promise that resolves to a `RowDataPacket` containing the 'ps_accounts' module details.
+   */
+  async getPsConfigurationData(name: string): Promise<RowDataPacket> {
+    const results = await dbHelper.getResultsCustomSelectQuery('ps_configuration', '*', `name = "${name}"`);
+    expect(results).not.toBeNull();
+    const module = (results as RowDataPacket[])[0];
+    return module;
+  }
+  /**
+   * Method to check if expected Name isvisible
+   * @param name - the cell name to verify
+   * @return boolean on value
+   */
+  async checkPsConfigurationData(name: string): Promise<boolean> {
+    const data = await this.getPsConfigurationData(name);
+    expect(data.name).toBeDefined;
+    expect(data.name).toBe(name);
+    return data.value;
   }
 }
