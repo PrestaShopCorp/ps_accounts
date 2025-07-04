@@ -22,6 +22,7 @@ gotToModuleManagerPage('Check module is upgrade after association', async ({gotT
     const popup = await pm.fromPopupAccountPage().openAccountPopup();
     await pm.fromPopupAccountPage().accountPopupTiteleIsVisible(popup);
     await pm.fromPopupAccountPage().connectToAccountWithMail(popup);
+    await pm.fromPopupAccountPage().associateAndClickBoBtn(popup);
     await pm.fromPopupAccountPage().checkIsLinked();
   });
   await test.step('check if is linked', async () => {
