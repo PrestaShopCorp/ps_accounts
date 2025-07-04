@@ -236,7 +236,7 @@ class Configuration
 
             return new \DateTime($entry->date_upd);
         } catch (\Exception $e) {
-            Logger::getInstance()->error(__METHOD__ . ': ' . $e->getMessage());
+            Logger::getInstance()->warn(__METHOD__ . ': ' . $e->getMessage());
 
             return null;
         }
