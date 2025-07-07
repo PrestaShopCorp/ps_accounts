@@ -83,19 +83,28 @@ export default class PopupAccountPage extends ModuleManagerPage {
   async associateAndClickBoBtn(newPage: Page) {
     const associateBtn = await newPage.locator('.puik-button.puik-button--primary');
     await associateBtn.isVisible();
-    await associateBtn.click(); 
+    await associateBtn.click();
     const boBtn = await newPage.locator('.puik-button.puik-button--primary');
     await boBtn.isVisible({timeout: 5000});
     await boBtn.click();
   }
 
   /**
-   * Check if the green Icon after association is visible
+   * Select de FO url and click Diassociate
+   */
+  async selectUrlAndDiassociate(newPage: Page) {
+    const card = newPage.getByRole('checkbox', {name: `PrestaShop language icon ${Globals.base_url_fo}`});
+    await card.locator('[data-test="shoplist-shop-unlink"]').click();
+    await newPage.locator('[data-test="confirm-unlink-shop"]').click({timeout: 5000});
+  }
+
+  /**
+   * Get the locator for the green icon after association
+   * @returns {Locator} The locator to check linked shop success message
    */
   async checkIsLinked() {
     await this.page.waitForSelector('[data-testid="account-shop-link-message-single-shop-linked"]');
-    const isLinked = await this.page.locator('[data-testid="account-shop-link-message-single-shop-linked"]');
-    expect(isLinked).toBeVisible();
+    return await this.page.locator('[data-testid="account-shop-link-message-single-shop-linked"]');
   }
   // /**
   //  * Connected to account

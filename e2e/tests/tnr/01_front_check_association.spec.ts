@@ -2,7 +2,6 @@
 import {test, expect} from '@playwright/test';
 import {gotToModuleManagerPage} from '~/fixtures/goToModuleManagerPage.fixture';
 import {PageManager} from '~/pages/managerPage';
-import HealthCheckApi from '~/services/api/healthCheckApi';
 import DbRequest from '~/services/db/dbRequest';
 
 gotToModuleManagerPage('Check module association', async ({gotToModuleManagerPage}) => {
@@ -15,9 +14,10 @@ gotToModuleManagerPage('Check module association', async ({gotToModuleManagerPag
     await pm.fromPopupAccountPage().accountPopupTiteleIsVisible(popup);
     await pm.fromPopupAccountPage().connectToAccountWithMail(popup);
     await pm.fromPopupAccountPage().associateAndClickBoBtn(popup);
-    await pm.fromPopupAccountPage().checkIsLinked();
+    const isLinked = await pm.fromPopupAccountPage().checkIsLinked();
+    expect(isLinked).toBeVisible()
   });
-  await test.step('check if linked in healthcheck', async () => {
+  await test.step('check if linked in DB', async () => {
     const checkClientUuidValue = await dbRequest.getPsConfigurationData('PS_ACCOUNTS_USER_FIREBASE_UUID');
     expect(checkClientUuidValue.value).not.toBeNull();
   });
