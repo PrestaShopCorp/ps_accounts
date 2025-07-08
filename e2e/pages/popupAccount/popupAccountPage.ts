@@ -90,13 +90,29 @@ export default class PopupAccountPage extends ModuleManagerPage {
   }
 
   /**
+   * Multistore Associate the shop and click btn to go to back to BO after association
+   */
+  async multisotreAssociateAndClickBoBtn(newPage: Page) {
+    const card = newPage.locator('[data-test="shop-card"]');
+    await card.isVisible()
+    const countCard = await card.count()
+    expect(countCard).toBeGreaterThan(1)
+    const associateBtn = await newPage.locator('.puik-button.puik-button--primary');
+    await associateBtn.isVisible();
+    await associateBtn.click();
+    const boBtn = await newPage.locator('.puik-button.puik-button--primary');
+    await boBtn.isVisible({timeout: 5000});
+    await boBtn.click();
+  }
+
+  /**
    * Select de FO url and click Diassociate
    */
   async selectUrlAndDiassociate(newPage: Page) {
     const card = newPage.getByRole('checkbox', {name: `PrestaShop language icon ${Globals.base_url_fo}`});
     await card.locator('[data-test="shoplist-shop-unlink"]').click();
-    await newPage.locator('[data-test="confirm-unlink-shop"]').click({timeout:5000});
-    await newPage.waitForLoadState('networkidle')
+    await newPage.locator('[data-test="confirm-unlink-shop"]').click({timeout: 5000});
+    await newPage.waitForLoadState('networkidle');
   }
 
   /**
@@ -105,7 +121,7 @@ export default class PopupAccountPage extends ModuleManagerPage {
    */
   async checkIsLinked() {
     const accountTitle = this.page.locator('.title', {hasText: ' PRESTASHOP '});
-    await accountTitle.isVisible()
+    await accountTitle.isVisible();
     return await this.page.locator('[data-testid="account-panel-linked-icon"]');
   }
   // /**
