@@ -13,10 +13,9 @@ gotToModuleManagerPage('Check module disassociation', async ({gotToModuleManager
     const popup = await pm.fromPopupAccountPage().openLinkedAccountPopup();
     await pm.fromPopupAccountPage().accountPopupTiteleIsVisible(popup);
     await pm.fromPopupAccountPage().connectToAccountWithMail(popup);
-
-    await pm.fromPopupAccountPage().selectUrlAndDiassociate(popup)
+    await pm.fromPopupAccountPage().selectUrlAndDiassociate(popup);
     const isUnLinked = await pm.fromPopupAccountPage().checkIsLinked();
-    expect(isUnLinked).not.toBeVisible();
+    expect(isUnLinked).toBeVisible({visible: false});
   });
   await test.step('check if unlinked in DB', async () => {
     const checkClientUuidValue = await dbRequest.getPsConfigurationData('PS_ACCOUNTS_USER_FIREBASE_UUID');

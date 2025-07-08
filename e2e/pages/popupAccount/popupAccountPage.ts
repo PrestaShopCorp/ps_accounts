@@ -95,7 +95,8 @@ export default class PopupAccountPage extends ModuleManagerPage {
   async selectUrlAndDiassociate(newPage: Page) {
     const card = newPage.getByRole('checkbox', {name: `PrestaShop language icon ${Globals.base_url_fo}`});
     await card.locator('[data-test="shoplist-shop-unlink"]').click();
-    await newPage.locator('[data-test="confirm-unlink-shop"]').click({timeout: 5000});
+    await newPage.locator('[data-test="confirm-unlink-shop"]').click({timeout:5000});
+    await newPage.waitForLoadState('networkidle')
   }
 
   /**
@@ -103,8 +104,9 @@ export default class PopupAccountPage extends ModuleManagerPage {
    * @returns {Locator} The locator to check linked shop success message
    */
   async checkIsLinked() {
-    await this.page.waitForSelector('[data-testid="account-shop-link-message-single-shop-linked"]');
-    return await this.page.locator('[data-testid="account-shop-link-message-single-shop-linked"]');
+    const accountTitle = this.page.locator('.title', {hasText: ' PRESTASHOP '});
+    await accountTitle.isVisible()
+    return await this.page.locator('[data-testid="account-panel-linked-icon"]');
   }
   // /**
   //  * Connected to account
