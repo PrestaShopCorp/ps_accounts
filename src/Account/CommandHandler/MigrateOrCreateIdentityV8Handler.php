@@ -35,6 +35,7 @@ use PrestaShop\Module\PsAccounts\Service\Accounts\AccountsException;
 use PrestaShop\Module\PsAccounts\Service\Accounts\AccountsService;
 use PrestaShop\Module\PsAccounts\Service\OAuth2\OAuth2Exception;
 use PrestaShop\Module\PsAccounts\Service\OAuth2\OAuth2Service;
+use PrestaShop\PrestaShop\Adapter\Module\Module;
 
 class MigrateOrCreateIdentityV8Handler
 {
@@ -109,7 +110,16 @@ class MigrateOrCreateIdentityV8Handler
     {
         $shopId = $command->shopId ?: \Shop::getContextShopID();
         $shopUuid = $this->configurationRepository->getShopUuid();
+
         $lastUpgradedVersion = $this->configurationRepository->getLastUpgrade(false);
+
+        if ($lastUpgradedVersion === '0') {
+            $lastUpgradedVersion = \Db::getInstance()->getValue(
+                'SELECT version FROM ' . _DB_PREFIX_ . 'module WHERE name = \'ps_accounts\''
+            );
+        }
+
+        Logger::getInstance()->error('########################## VERSION ' . $lastUpgradedVersion);
 
         $e = null;
         try {
