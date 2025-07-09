@@ -7,13 +7,19 @@ import DbRequest from '~/services/db/dbRequest';
 gotToModuleManagerPage('Check module disassociation', async ({gotToModuleManagerPage}) => {
   let pm = new PageManager(gotToModuleManagerPage);
   let dbRequest = new DbRequest();
-  await test.step('diassociate to account and check if linked', async () => {
+  await test.step('diassociate first shop to account and check if linked', async () => {
     await pm.fromModuleManagePage().getPageMainTitle();
     await pm.fromModuleManagePage().isAccountVisible();
     const popup = await pm.fromPopupAccountPage().openLinkedAccountPopup();
     await pm.fromPopupAccountPage().accountPopupTiteleIsVisible(popup);
     await pm.fromPopupAccountPage().connectToAccountWithMail(popup);
     await pm.fromPopupAccountPage().selectUrlAndDiassociate(popup);
+    await pm.fromPopupAccountPage().multiStoreCheckIsLinked()
+  });
+  await test.step('diassociate seconde shop to account and check if linked', async () => {
+    const popup = await pm.fromPopupAccountPage().multistoreOpenAccountPopupAfterDissociation();
+    await pm.fromPopupAccountPage().accountPopupTiteleIsVisible(popup);
+    await pm.fromPopupAccountPage().multistoreSelectUrlAndDiassociate(popup);
   });
   await test.step('check if unlinked in Shop', async () => {
     const isUnLinked = await pm.fromPopupAccountPage().checkIsLinked();

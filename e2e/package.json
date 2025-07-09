@@ -17,7 +17,7 @@
     "generate-allure-report": "allure generate allure-results --clean -o allure-report",
     "clean-test-results": "rm -rf allure-report allure-results allure-results-* test-results playwright-report",
     "installation": "HEADLESS=false npx playwright test module_installation",
-    "tnr": "HEADLESS=false npx playwright test 02_front_check_upgrade_with_association.spec.ts",
+    "tnr": "npm run build-shop -- nightly-nginx && HEADLESS=false npx playwright test 03_multistore_activation_and_associaiton.spec.ts",
     "upgrade": "./scripts/run-upgrade.sh"
   },
   "dependencies": {

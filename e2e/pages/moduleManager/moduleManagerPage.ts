@@ -90,12 +90,12 @@ export default class ModuleManagerPage extends BasePage {
    */
   async isMultistoreVisible() {
     const isMultiStoreVisible = await this.page.locator('h2.header-multishop-title');
-    expect(isMultiStoreVisible).toBeVisible();
+    expect(isMultiStoreVisible).toBeVisible({visible: true});
   }
   async isMultistoreVisibleOldVersion() {
     await this.page.locator('#header_shop').click();
     const isMultiStoreVisible = await this.page.getByRole('link', {name: 'All shops'});
-    expect(isMultiStoreVisible).toBeVisible();
+    expect(isMultiStoreVisible).toBeVisible({visible: true});
   }
 
   /**

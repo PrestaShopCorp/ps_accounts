@@ -8,14 +8,11 @@ gotToModuleManagerPage('Check module association', async ({gotToModuleManagerPag
   let pm = new PageManager(gotToModuleManagerPage);
   let dbRequest = new DbRequest();
   await test.step('associate to account and check if linked', async () => {
-    await pm.fromModuleManagePage().getPageMainTitle();
     await pm.fromModuleManagePage().isAccountVisible();
     const popup = await pm.fromPopupAccountPage().openAccountPopup();
     await pm.fromPopupAccountPage().accountPopupTiteleIsVisible(popup);
     await pm.fromPopupAccountPage().connectToAccountWithMail(popup);
-    await pm.fromPopupAccountPage().associateAndClickBoBtn(popup);
-  });
-  await test.step('check if linked in Shop', async () => {
+    await pm.fromPopupAccountPage().multisotreAssociateAndClickBoBtn(popup);
     const isLinked = await pm.fromPopupAccountPage().checkIsLinked();
     expect(isLinked).toBeVisible();
   });
