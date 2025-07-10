@@ -89,13 +89,16 @@ export default class ModuleManagerPage extends BasePage {
    * The page title check if the title All Store is visible
    */
   async isMultistoreVisible() {
-    const isMultiStoreVisible = await this.page.locator('h2.header-multishop-title');
-    expect(isMultiStoreVisible).toBeVisible({visible: true});
+    await this.page.locator('.header-multishop-button').click();
+    const isMultiStoreVisible = this.page.locator('.multishop-modal-all-name');
+    await isMultiStoreVisible.click();
+    expect(isMultiStoreVisible).toBeVisible({timeout: 3000});
   }
   async isMultistoreVisibleOldVersion() {
     await this.page.locator('#header_shop').click();
-    const isMultiStoreVisible = await this.page.getByRole('link', {name: 'All shops'});
-    expect(isMultiStoreVisible).toBeVisible({visible: true});
+    const isMultiStoreVisible = this.page.getByRole('link', {name: 'All shops'});
+    await isMultiStoreVisible.click();
+    expect(isMultiStoreVisible).toBeVisible({timeout: 3000});
   }
 
   /**

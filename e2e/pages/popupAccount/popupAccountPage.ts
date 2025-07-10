@@ -130,7 +130,7 @@ export default class PopupAccountPage extends ModuleManagerPage {
   async checkIsLinked() {
     const accountTitle = this.page.locator('.title', {hasText: ' PRESTASHOP '});
     await accountTitle.isVisible();
-
+    await this.waitForTimeout(4000);
     return await this.page.locator('[data-testid="account-panel-linked-icon"]');
   }
 
@@ -140,7 +140,7 @@ export default class PopupAccountPage extends ModuleManagerPage {
   async multiStoreCheckIsLinkedAllShopAssociate() {
     const accountTitle = this.page.locator('.title', {hasText: ' PRESTASHOP '});
     await accountTitle.isVisible();
-    await this.waitForTimeout(10000)
+    await this.waitForTimeout(4000);
     return this.page.locator('[data-testid="account-link-to-ui-manage-shops-button"]');
   }
 
@@ -224,7 +224,7 @@ export default class PopupAccountPage extends ModuleManagerPage {
     const card = newPage.getByRole('checkbox', {name: `PrestaShop language icon ${Globals.base_url_fo}`});
     await card.locator('[data-test="shoplist-shop-unlink"]').click();
     await newPage.locator('[data-test="confirm-unlink-shop"]').click({timeout: 5000});
-    await newPage.waitForLoadState('networkidle');
+    await newPage.waitForLoadState('load', {timeout: 2000});
   }
   async multistoreOpenAccountPopupAfterDissociation(): Promise<Page> {
     const [newPage] = await Promise.all([
@@ -244,6 +244,6 @@ export default class PopupAccountPage extends ModuleManagerPage {
     await card.isVisible();
     await card.locator('[data-test="shoplist-shop-unlink"]').click();
     await newPage.locator('[data-test="confirm-unlink-shop"]').click({timeout: 5000});
-    await newPage.waitForLoadState('networkidle');
+    await newPage.waitForLoadState('load', {timeout:2000});
   }
 }
