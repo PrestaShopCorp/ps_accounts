@@ -4,12 +4,13 @@
     "lint": "eslint . --ext .ts",
     "build-shop": "cd ../e2e-env && ./shop-build.sh",
     "installation-tests": "./scripts/run-installation-tests.sh",
+    "association-diassociaiton-tests": "./scripts/run-association-diassociation-tests.sh",
+    "multistore-association-diassociation-tests": "./scripts/run-multistore-association-diassociation-tests.sh",
     "upgrade-tests": "./scripts/run-upgrade-tests.sh",
     "merge-allure-results": "rm -rf allure-results && mkdir allure-results && for dir in allure-results-*; do cp -r \"$dir\"/* allure-results/; done && rm -rf allure-results-*",
     "generate-allure-report": "allure generate allure-results --clean -o allure-report",
     "clean-test-results": "rm -rf allure-report allure-results allure-results-* test-results playwright-report",
-    "installation": "HEADLESS=false npx playwright test module_installation",
-    "tnr": "npm run build-shop -- nightly-nginx && HEADLESS=false npx playwright test 03_multistore_activation_and_associaiton.spec.ts"
+    "tnr": "npm run installation-tests && npm run association-diassociaiton-tests && npm run multistore-association-diassociation-tests"
   },
   "dependencies": {
     "@prestashopcorp/tests-framework": "4.0.3",
