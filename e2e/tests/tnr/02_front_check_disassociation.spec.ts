@@ -7,7 +7,7 @@ import DbRequest from '~/services/db/dbRequest';
 gotToModuleManagerPage('Check module disassociation', async ({gotToModuleManagerPage}) => {
   let pm = new PageManager(gotToModuleManagerPage);
   let dbRequest = new DbRequest();
-  await test.step('diassociate to account and check if linked', async () => {
+  await test.step('diassociate to account and check if unlinked', async () => {
     await pm.fromModuleManagePage().getPageMainTitle();
     await pm.fromModuleManagePage().isAccountVisible();
     const popup = await pm.fromPopupAccountPage().openLinkedAccountPopup();
@@ -17,7 +17,7 @@ gotToModuleManagerPage('Check module disassociation', async ({gotToModuleManager
   });
   await test.step('check if unlinked in Shop', async () => {
     const isUnLinked = await pm.fromPopupAccountPage().checkIsLinked();
-    expect(isUnLinked).not.toBeVisible()
+    expect(isUnLinked).toBeHidden()
   });
   await test.step('check if unlinked in DB', async () => {
     const checkClientUuidValue = await dbRequest.getPsConfigurationData('PS_ACCOUNTS_USER_FIREBASE_UUID');

@@ -20,11 +20,9 @@ activeMultistoreAndCreateShop('Check Multisotre association', async ({activeMult
     await pm.fromPopupAccountPage().accountPopupTiteleIsVisible(popup);
     await pm.fromPopupAccountPage().connectToAccountWithMail(popup);
     await pm.fromPopupAccountPage().multisotreAssociateAndClickBoBtn(popup);
-    const isLinked = await pm.fromPopupAccountPage().checkIsLinked();
-    expect(isLinked).toBeVisible();
   });
   await test.step('check if linked in Shop', async () => {
-    const isLinked = await pm.fromPopupAccountPage().checkIsLinked();
+    const isLinked = await pm.fromPopupAccountPage().multiStoreCheckIsLinkedAllShopAssociate();
     expect(isLinked).toBeVisible();
   });
   await test.step('check if linked in DB', async () => {

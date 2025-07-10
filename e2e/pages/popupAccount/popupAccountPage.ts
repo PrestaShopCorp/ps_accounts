@@ -137,7 +137,17 @@ export default class PopupAccountPage extends ModuleManagerPage {
   /**
    * Check if Link bouton and manage shop bouton are visible
    */
-  async multiStoreCheckIsLinked() {
+  async multiStoreCheckIsLinkedAllShopAssociate() {
+    const accountTitle = this.page.locator('.title', {hasText: ' PRESTASHOP '});
+    await accountTitle.isVisible();
+    await this.waitForTimeout(10000)
+    return this.page.locator('[data-testid="account-link-to-ui-manage-shops-button"]');
+  }
+
+  /**
+   * Check if Link bouton and manage shop bouton are visible
+   */
+  async multiStoreCheckIsLinkedOneShopAssociate() {
     const accountTitle = this.page.locator('.title', {hasText: ' PRESTASHOP '});
     await accountTitle.isVisible();
     const btnLink = this.page.locator('[data-testid="account-link-to-ui-link-shop-button"]');
@@ -230,8 +240,8 @@ export default class PopupAccountPage extends ModuleManagerPage {
    * Select de FO/Shop2 url and click Diassociate
    */
   async multistoreSelectUrlAndDiassociate(newPage: Page) {
-    const card = newPage.getByRole('checkbox', {name: `PrestaShop language icon ${Globals.base_url_fo}/shop2`});
-    await card.isVisible()
+    const card = newPage.getByRole('checkbox', {name: `Shop2 language icon ${Globals.base_url_fo}/shop2`});
+    await card.isVisible();
     await card.locator('[data-test="shoplist-shop-unlink"]').click();
     await newPage.locator('[data-test="confirm-unlink-shop"]').click({timeout: 5000});
     await newPage.waitForLoadState('networkidle');

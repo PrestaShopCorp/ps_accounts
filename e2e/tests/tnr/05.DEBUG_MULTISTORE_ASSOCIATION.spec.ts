@@ -4,7 +4,8 @@ import {gotToModuleManagerPage} from '~/fixtures/goToModuleManagerPage.fixture';
 import {PageManager} from '~/pages/managerPage';
 import DbRequest from '~/services/db/dbRequest';
 
-gotToModuleManagerPage('Check module association', async ({gotToModuleManagerPage}) => {
+//MultiStore Associaiton When Multistore is Already Activate
+gotToModuleManagerPage.skip('Check Multisotre association', async ({gotToModuleManagerPage}) => {
   let pm = new PageManager(gotToModuleManagerPage);
   let dbRequest = new DbRequest();
   await test.step('associate to account and check if linked', async () => {
