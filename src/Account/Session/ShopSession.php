@@ -24,6 +24,7 @@ use PrestaShop\Module\PsAccounts\Account\Exception\RefreshTokenException;
 use PrestaShop\Module\PsAccounts\Account\StatusManager;
 use PrestaShop\Module\PsAccounts\Account\Token\Token;
 use PrestaShop\Module\PsAccounts\Hook\ActionShopAccessTokenRefreshAfter;
+use PrestaShop\Module\PsAccounts\Log\Logger;
 use PrestaShop\Module\PsAccounts\Repository\ConfigurationRepository;
 use PrestaShop\Module\PsAccounts\Service\OAuth2\OAuth2Exception;
 use PrestaShop\Module\PsAccounts\Service\OAuth2\OAuth2Service;
@@ -78,6 +79,15 @@ class ShopSession extends Session implements SessionInterface
      */
     public function getValidToken($forceRefresh = false, $throw = true, array $scope = [], array $audience = [])
     {
+        $logger = Logger::getInstance();
+        $logger->info('######################## ' . __METHOD__);
+        $logger->info('######################## ' . get_class($this->statusManager));
+
+        /** @var \Ps_accounts $ps_accounts */
+        $ps_accounts = \Module::getInstanceByName('ps_accounts');
+        //$this->statusManager = $ps_accounts->getService(StatusManager::class);
+        $ps_accounts->getService(StatusManager::class);
+
         $scp = $scope + ($this->statusManager->identityVerified() ? [
             'shop.verified',
         ] : []);
@@ -156,6 +166,10 @@ class ShopSession extends Session implements SessionInterface
      */
     public function setStatusManager(StatusManager $statusManager)
     {
+        $logger = Logger::getInstance();
+        $logger->info('########################' . __METHOD__);
+        $logger->info('######################## ' . get_class($statusManager));
+
         $this->statusManager = $statusManager;
     }
 

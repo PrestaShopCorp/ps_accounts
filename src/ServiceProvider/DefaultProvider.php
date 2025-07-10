@@ -69,16 +69,23 @@ class DefaultProvider implements IServiceProvider
         $container->registerProvider(StatusManager::class, static function () use ($container) {
             /** @var ShopSession $shopSession */
             $shopSession = $container->get(ShopSession::class);
-            $firebaseOwnerSession = $container->get(Firebase\OwnerSession::class);
-            $firebaseShopSession = $container->get(Firebase\ShopSession::class);
             $service = new StatusManager(
                 $shopSession,
                 $container->get(AccountsService::class),
                 $container->get(ConfigurationRepository::class)
             );
             $shopSession->setStatusManager($service);
+
+            /** @var Firebase\OwnerSession $firebaseOwnerSession */
+            $firebaseOwnerSession = $container->get(Firebase\OwnerSession::class);
             $firebaseOwnerSession->setStatusManager($service);
+
+            /** @var Firebase\ShopSession $firebaseShopSession */
+            $firebaseShopSession = $container->get(Firebase\ShopSession::class);
             $firebaseShopSession->setStatusManager($service);
+
+            $logger = $container->get('ps_accounts.logger');
+            $logger->info('######################## Status manager initialized');
 
             return $service;
         });
