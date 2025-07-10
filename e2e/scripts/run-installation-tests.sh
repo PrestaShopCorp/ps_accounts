@@ -18,7 +18,7 @@ for PS_VERSION in "${SHOP_VERSIONS[@]}"; do
 npm run build-shop -- "$PS_VERSION"
 
 #Run the tests
-npx playwright test back front || true 
+npx playwright test module_installation  || true 
 
 #Create the allure result directory
 mkdir -p "allure-results-$PS_VERSION"

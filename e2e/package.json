@@ -3,13 +3,13 @@
   "scripts": {
     "lint": "eslint . --ext .ts",
     "build-shop": "cd ../e2e-env && ./shop-build.sh",
-    "run-all-tests": "./run-test.sh",
+    "installation-tests": "./scripts/run-installation-tests.sh",
+    "upgrade-tests": "./scripts/run-upgrade-tests.sh",
     "merge-allure-results": "rm -rf allure-results && mkdir allure-results && for dir in allure-results-*; do cp -r \"$dir\"/* allure-results/; done && rm -rf allure-results-*",
     "generate-allure-report": "allure generate allure-results --clean -o allure-report",
     "clean-test-results": "rm -rf allure-report allure-results allure-results-* test-results playwright-report",
     "installation": "HEADLESS=false npx playwright test module_installation",
-    "tnr": "npm run build-shop -- nightly-nginx && HEADLESS=false npx playwright test 03_multistore_activation_and_associaiton.spec.ts",
-    "upgrade": "./scripts/run-upgrade.sh"
+    "tnr": "npm run build-shop -- nightly-nginx && HEADLESS=false npx playwright test 03_multistore_activation_and_associaiton.spec.ts"
   },
   "dependencies": {
     "@prestashopcorp/tests-framework": "4.0.3",
