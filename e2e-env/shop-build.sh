@@ -13,11 +13,11 @@ else
 fi
 
 # Définition des variables
-currentDate=$(date +%s)
+randomPart=$RANDOM
 shopVersion=$1
 shopVersionSecondeShop=$2
 profile=${3:-flashlight}
-psDomain="${currentDate}.${DOMAIN}"
+psDomain="${randomPart}.${DOMAIN}"
 psAccountsVersion="${PS_ACCOUNTS_VERSION}"
 accountTag="${ACCOUNT_TAG}"
 tunnelSecret="${TUNNEL_SECRET}"
@@ -43,7 +43,7 @@ eval $makeCommand
 # Fonction pour ping l'URL
 ping_url() {
   local url=$1
-  local timeout_duration=30
+  local timeout_duration=120
   local start_time=$(date +%s)
 
   if [ -z "$url" ]; then
