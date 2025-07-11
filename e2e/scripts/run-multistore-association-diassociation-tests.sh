@@ -18,7 +18,7 @@ for PS_VERSION in "${SHOP_VERSIONS[@]}"; do
 npm run build-shop -- "$PS_VERSION"
 
 #Run the tests
-npx playwright test 03_multistore_activation_and_associaiton.spec.ts || true && npx playwright test 04_multistore_disassociation.spec.ts || true
+HEADLESS=false npx playwright test 03_multistore_activation_and_associaiton.spec.ts || true && HEADLESS=false npx playwright test 04_multistore_disassociation.spec.ts || true
 
 #Create the allure result directory
 mkdir -p "allure-results-$PS_VERSION"

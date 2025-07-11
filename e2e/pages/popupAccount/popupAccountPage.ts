@@ -154,6 +154,7 @@ export default class PopupAccountPage extends ModuleManagerPage {
     await btnLink.isVisible();
     const manageShopBtn = this.page.locator('[data-testid="account-link-to-ui-manage-shops-button"]');
     await manageShopBtn.isVisible();
+    await this.page.waitForTimeout(5000)
   }
 
   /**
@@ -167,7 +168,7 @@ export default class PopupAccountPage extends ModuleManagerPage {
     for (const locator of locators)
       if (await locator.isVisible()) {
         await locator.click();
-        await this.page.waitForTimeout(5000)
+        await this.page.waitForTimeout(5000);
         await this.page.reload();
         return;
       }
@@ -226,34 +227,7 @@ export default class PopupAccountPage extends ModuleManagerPage {
     await newPage.locator('[data-test="confirm-unlink-shop"]').click({timeout: 5000});
     await newPage.waitForLoadState('load', {timeout: 2000});
   }
-  /**
-   * Select de FO url and click Diassociate
-   */
-  async diassociateFirstCard(newPage: Page) {
-    let page = newPage;
 
-    while (true) {
-      const card = page.locator('[data-test="shop-card"]');
-      await page.waitForTimeout(4000);
-      const countCard = await card.count();
-      console.log(`Number of Stores Linked: ${countCard}`);
-      if (countCard === 0) break;
-      await card.locator('[data-test="shoplist-shop-unlink"]').first().click();
-      await page.locator('[data-test="confirm-unlink-shop"]').click();
-      await page.waitForSelector('[data-test="shoplist-shop-unlink"]', {state: 'detached'});
-      await page.waitForEvent('close')
-      const [popup] = await Promise.all([
-        page.context().waitForEvent('page'),
-        page.locator('[data-testid="account-link-to-ui-manage-shops-button"]').click()
-      ]);
-      await popup.waitForLoadState('domcontentloaded');
-      await popup.waitForTimeout(1000);
-
-      page = popup;
-    }
-
-    return page;
-  }
   /**
    *
    * Opens the PrestaShop Account after dissociation
@@ -280,5 +254,34 @@ export default class PopupAccountPage extends ModuleManagerPage {
     await card.locator('[data-test="shoplist-shop-unlink"]').click();
     await newPage.locator('[data-test="confirm-unlink-shop"]').click({timeout: 5000});
     await newPage.waitForLoadState('load', {timeout: 2000});
+  }
+
+  /**
+   * Select de FO url and click Diassociate
+   */
+  async diassociateFirstCard(newPage: Page) {
+    let page = newPage;
+
+    while (true) {
+      const card = page.locator('[data-test="shop-card"]');
+      await page.waitForTimeout(4000);
+      const countCard = await card.count();
+      console.log(`Number of Stores Linked: ${countCard}`);
+      if (countCard === 0) break;
+      await card.locator('[data-test="shoplist-shop-unlink"]').first().click();
+      await page.locator('[data-test="confirm-unlink-shop"]').click();
+      await page.waitForSelector('[data-test="shoplist-shop-unlink"]', {state: 'detached'});
+      await page.waitForEvent('close');
+      const [popup] = await Promise.all([
+        page.context().waitForEvent('page'),
+        page.locator('[data-testid="account-link-to-ui-manage-shops-button"]').click()
+      ]);
+      await popup.waitForLoadState('domcontentloaded');
+      await popup.waitForTimeout(1000);
+
+      page = popup;
+    }
+
+    return page;
   }
 }

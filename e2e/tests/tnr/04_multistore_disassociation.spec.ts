@@ -21,8 +21,8 @@ gotToModuleManagerPage('Check module disassociation', async ({gotToModuleManager
     await pm.fromPopupAccountPage().multistoreSelectUrlAndDiassociate(popup);
   });
   await test.step('check if unlinked in Shop', async () => {
-    const isUnLinked = await pm.fromPopupAccountPage().multiStoreCheckIsLinkedAllShopAssociate();
-    expect(isUnLinked).toBeHidden()
+    const isUnLinked = await pm.fromPopupAccountPage().checkIsLinked();
+    expect(isUnLinked).toBeHidden();
   });
   await test.step('check if unlinked in DB', async () => {
     const checkClientUuidValue = await dbRequest.getPsConfigurationData('PS_ACCOUNTS_USER_FIREBASE_UUID');

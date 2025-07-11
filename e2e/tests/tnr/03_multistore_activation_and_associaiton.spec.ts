@@ -8,7 +8,6 @@ activeMultistoreAndCreateShop('Check Multisotre association', async ({activeMult
   const pm = new PageManager(activeMultistoreAndCreateShop);
   let dbRequest = new DbRequest();
   await test.step('check if multiStore is Created', async () => {
-    await activeMultistoreAndCreateShop.pause()
     if (await pm.fromDashboardPage().getShopVersion()) {
       await pm.fromModuleManagePage().isMultistoreVisibleOldVersion();
     } else {
