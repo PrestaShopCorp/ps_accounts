@@ -1,4 +1,4 @@
-name: Account Module TNR autom tests
+name: Account Module Installation autom tests
 
 on:
   workflow_dispatch:
