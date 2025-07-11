@@ -5,8 +5,8 @@ on:
   schedule:
     - cron: "0 7 * * 1-5"
 
-env:
-  IMAGE_PREFIX: ghcr.io/prestashopcorp/
+# env:
+#   IMAGE_PREFIX: ghcr.io/prestashopcorp/
 
 jobs:
   run-test:
@@ -81,16 +81,16 @@ jobs:
           echo "PS_VERSION=${{ secrets.PS_VERSION }}" >> .env
           echo "PS_ACCOUNTS_VERSION=${{ secrets.PS_ACCOUNTS_VERSION }}" >> .env
 
-      - name: Login to GHCR
-        uses: docker/login-action@v3
-        with:
-          registry: ghcr.io
-          username: prestashopcorp
-          password: ${{ secrets.DOWNLOADER_TOKEN }}
+      # - name: Login to GHCR
+      #   uses: docker/login-action@v3
+      #   with:
+      #     registry: ghcr.io
+      #     username: prestashopcorp
+      #     password: ${{ secrets.DOWNLOADER_TOKEN }}
 
       - name: Run test
         working-directory: ./e2e
-        run: npm run run-all-tests -- ${{ matrix.shop_version }}
+        run: npm run installation-tests -- ${{ matrix.shop_version }}
         continue-on-error: true
 
       - name: Upload Allure Results
