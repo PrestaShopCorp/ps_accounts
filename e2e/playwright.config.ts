@@ -14,11 +14,7 @@ export default defineConfig({
   /* Opt out of parallel tests on CI. */
   workers: process.env.CI ? 1 : 1,
   /* Reporter to use. See https://playwright.dev/docs/test-reporters */
-  reporter: [
-    ['html', {open: 'never'}],
-    ['list'],
-    //['allure-playwright', {outputFolder: path.join(__dirname, './e2e/allure-results')}]
-  ],
+  reporter: [['html', {open: 'never'}], ['list'], ['allure-playwright']],
   projects: [
     {
       name: 'Account Autom Test',

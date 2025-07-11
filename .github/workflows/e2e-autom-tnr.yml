@@ -1,4 +1,4 @@
-name: Account Module Installation autom tests
+name: Account Module TNR autom tests
 
 on:
   workflow_dispatch:
@@ -90,7 +90,7 @@ jobs:
 
       - name: Run test
         working-directory: ./e2e
-        run: npm run installation-tests -- ${{ matrix.shop_version }}
+        run: npm run tnr -- ${{ matrix.shop_version }}
         continue-on-error: true
 
       - name: Upload Allure Results
