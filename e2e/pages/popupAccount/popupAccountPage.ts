@@ -162,7 +162,7 @@ export default class PopupAccountPage extends ModuleManagerPage {
   async returnToModuleManager() {
     const locators = [
       this.page.locator('.process-icon-back'),
-      this.page.locator('#desc-module-back'),
+      this.page.getByRole('link', {name: ' Back'}),
       this.page.locator('#page-header-desc-configuration-module-back')
     ];
     for (const locator of locators)
@@ -226,6 +226,41 @@ export default class PopupAccountPage extends ModuleManagerPage {
     await newPage.locator('[data-test="confirm-unlink-shop"]').click({timeout: 5000});
     await newPage.waitForLoadState('load', {timeout: 2000});
   }
+  /**
+   * Select de FO url and click Diassociate
+   */
+  async diassociateFirstCard(newPage: Page) {
+    let page = newPage;
+
+    while (true) {
+      const card = page.locator('[data-test="shop-card"]');
+      await page.waitForTimeout(4000);
+      const countCard = await card.count();
+      console.log(`Number of Stores Linked: ${countCard}`);
+      if (countCard === 0) break;
+      await card.locator('[data-test="shoplist-shop-unlink"]').first().click();
+      await page.locator('[data-test="confirm-unlink-shop"]').click();
+      await page.waitForSelector('[data-test="shoplist-shop-unlink"]', {state: 'detached'});
+      await newPage.reload()
+      const [popup] = await Promise.all([
+        page.context().waitForEvent('page'),
+        page.locator('[data-testid="account-link-to-ui-manage-shops-button"]').click()
+      ]);
+      await popup.waitForLoadState('domcontentloaded');
+      await popup.waitForTimeout(1000);
+
+      page = popup;
+    }
+
+    return page;
+  }
+  /**
+   *
+   * Opens the PrestaShop Account after dissociation
+   * Clicks the 'manage linked store' link waits for the new page to load
+   * Expect url and title
+   * @return {Promise<Page>}
+   */
   async multistoreOpenAccountPopupAfterDissociation(): Promise<Page> {
     const [newPage] = await Promise.all([
       this.page.context().waitForEvent('page'),
@@ -244,6 +279,6 @@ export default class PopupAccountPage extends ModuleManagerPage {
     await card.isVisible();
     await card.locator('[data-test="shoplist-shop-unlink"]').click();
     await newPage.locator('[data-test="confirm-unlink-shop"]').click({timeout: 5000});
-    await newPage.waitForLoadState('load', {timeout:2000});
+    await newPage.waitForLoadState('load', {timeout: 2000});
   }
 }
