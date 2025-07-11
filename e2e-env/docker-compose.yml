@@ -1,7 +1,7 @@
 services:
   mysql:
     restart: unless-stopped
-    image: mariadb:latest
+    image: ${IMAGE_PREFIX:-}mariadb:latest
     environment:
       TZ: Europe/Paris
       MYSQL_HOST: mysql
@@ -19,7 +19,7 @@ services:
 
   prestashop:
     restart: unless-stopped
-    image: prestashop/prestashop-flashlight:${PS_VERSION}
+    image: ${IMAGE_PREFIX:-}prestashop/prestashop-flashlight:${PS_VERSION}
     env_file: .env
     environment:
       ADMIN_MAIL: "admin@prestashop.com"
@@ -37,7 +37,7 @@ services:
       - flashlight
     
   phpmyadmin:
-      image: phpmyadmin:latest
+      image: ${IMAGE_PREFIX:-}phpmyadmin:latest
       ports:
         - 3006:80
       environment:
@@ -53,7 +53,7 @@ services:
 
   mytun:
     restart: always
-    image: cloudflare/cloudflared:latest
+    image: ${IMAGE_PREFIX:-}cloudflare/cloudflared:latest
     command: tunnel --config /config.yml run
     volumes:
     - ./myTun/config/mytun-config.yml:/config.yml:ro
