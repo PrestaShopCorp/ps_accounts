@@ -161,13 +161,13 @@ export default class PopupAccountPage extends ModuleManagerPage {
    */
   async returnToModuleManager() {
     const locators = [
-      this.page.locator('.process-icon-back'),
-      this.page.getByRole('link', {name: ' Back'}),
+      this.page.getByRole('link', {name: ' Back '}),
       this.page.locator('#page-header-desc-configuration-module-back')
     ];
     for (const locator of locators)
       if (await locator.isVisible()) {
         await locator.click();
+        await this.page.waitForTimeout(5000)
         await this.page.reload();
         return;
       }
@@ -241,7 +241,7 @@ export default class PopupAccountPage extends ModuleManagerPage {
       await card.locator('[data-test="shoplist-shop-unlink"]').first().click();
       await page.locator('[data-test="confirm-unlink-shop"]').click();
       await page.waitForSelector('[data-test="shoplist-shop-unlink"]', {state: 'detached'});
-      await newPage.reload()
+      await page.waitForEvent('close')
       const [popup] = await Promise.all([
         page.context().waitForEvent('page'),
         page.locator('[data-testid="account-link-to-ui-manage-shops-button"]').click()

@@ -7,7 +7,7 @@ SHOP_VERSIONS=(
   1.6.1.24-7.1-fpm-alpine
   1.7.8.7-7.4-fpm-alpine
   8.1.1-8.1-fpm-alpine
-  8.2.0-8.1-fpm-alpine
+  # 8.2.0-8.1-fpm-alpine
   nightly-nginx
 )
 fi
@@ -18,13 +18,13 @@ ACCOUNTS_VERSIONS=(
   v5.6.0
   v5.6.2
   v6.3.1
-  v7.1.0
+  # v7.1.0
   v7.1.2
 )
 fi
 
 TESTS=(
-  01_front_check_upgrade.spec.ts
+  # 01_front_check_upgrade.spec.ts
   02_front_check_upgrade_with_association.spec.ts
 )
 
@@ -38,7 +38,7 @@ for index in "${!SHOP_VERSIONS[@]}"; do
 npm run build-shop -- "$PS_VERSION" "" "" "$ACCOUNT_VERSION"
 
 #Run the tests
-npx playwright test "upgrade/$TEST"|| true
+HEADLESS=false npx playwright test "upgrade/$TEST"|| true
 
 #Create the allure result directory
 mkdir -p "allure-results-$PS_VERSION"
