@@ -47,11 +47,6 @@ class ShopSession extends Session implements SessionInterface
     protected $tokenAudience;
 
     /**
-     * @var StatusManager
-     */
-    protected $statusManager;
-
-    /**
      * @param ConfigurationRepository $configurationRepository
      * @param OAuth2Service $oAuth2Service
      * @param string $tokenAudience
@@ -61,6 +56,8 @@ class ShopSession extends Session implements SessionInterface
         OAuth2Service $oAuth2Service,
         $tokenAudience
     ) {
+        parent::__construct();
+
         $this->configurationRepository = $configurationRepository;
         $this->oAuth2Service = $oAuth2Service;
         $this->tokenAudience = $tokenAudience;
@@ -78,12 +75,12 @@ class ShopSession extends Session implements SessionInterface
      */
     public function getValidToken($forceRefresh = false, $throw = true, array $scope = [], array $audience = [])
     {
-        $scp = $scope + ($this->statusManager->identityVerified() ? [
+        $scp = $scope + ($this->getStatusManager()->identityVerified() ? [
             'shop.verified',
         ] : []);
 
         $aud = $audience + [
-            'store/' . $this->statusManager->getCloudShopId(),
+            'store/' . $this->getStatusManager()->getCloudShopId(),
             $this->tokenAudience,
         ];
 
@@ -147,16 +144,6 @@ class ShopSession extends Session implements SessionInterface
     public function cleanup()
     {
         $this->configurationRepository->updateAccessToken('');
-    }
-
-    /**
-     * @param StatusManager $statusManager
-     *
-     * @return void
-     */
-    public function setStatusManager(StatusManager $statusManager)
-    {
-        $this->statusManager = $statusManager;
     }
 
     /**

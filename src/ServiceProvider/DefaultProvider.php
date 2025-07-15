@@ -67,20 +67,11 @@ class DefaultProvider implements IServiceProvider
         });
         // Entities ?
         $container->registerProvider(StatusManager::class, static function () use ($container) {
-            /** @var ShopSession $shopSession */
-            $shopSession = $container->get(ShopSession::class);
-            $firebaseOwnerSession = $container->get(Firebase\OwnerSession::class);
-            $firebaseShopSession = $container->get(Firebase\ShopSession::class);
-            $service = new StatusManager(
-                $shopSession,
+            return new StatusManager(
+                $container->get(ShopSession::class),
                 $container->get(AccountsService::class),
                 $container->get(ConfigurationRepository::class)
             );
-            $shopSession->setStatusManager($service);
-            $firebaseOwnerSession->setStatusManager($service);
-            $firebaseShopSession->setStatusManager($service);
-
-            return $service;
         });
         // Adapter
         $container->registerProvider(Adapter\Configuration::class, static function () use ($container) {
