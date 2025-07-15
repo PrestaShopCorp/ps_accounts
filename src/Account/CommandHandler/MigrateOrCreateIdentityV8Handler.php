@@ -119,14 +119,6 @@ class MigrateOrCreateIdentityV8Handler
             );
         }
 
-        // FIXME: 1. upgrade from v5.6.2 -> 8
-        // FIXME: 2. bug provider status manager null
-        // FIXME: 3. lastUpgradedVersion
-        // FIXME: 4. class AbstractOAuthController
-        // FIXME: 5. UpgradeCommand (specific upgrade cases ?)
-        // FIXME: 6. ob_end_clean
-        Logger::getInstance()->error('########################## VERSION ' . $lastUpgradedVersion);
-
         $e = null;
         try {
             if (!$shopUuid || version_compare($lastUpgradedVersion, '8', '>=')) {
