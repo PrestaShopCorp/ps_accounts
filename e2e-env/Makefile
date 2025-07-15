@@ -1,4 +1,5 @@
 PROFILE ?= flashlight
+PS_ACCOUNTS_VERSION ?= ${PS_ACCOUNTS_VERSION}
 
 help: ## Show this help message
 	@echo "Usage: make [target]"
