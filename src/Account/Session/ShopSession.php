@@ -24,7 +24,6 @@ use PrestaShop\Module\PsAccounts\Account\Exception\RefreshTokenException;
 use PrestaShop\Module\PsAccounts\Account\StatusManager;
 use PrestaShop\Module\PsAccounts\Account\Token\Token;
 use PrestaShop\Module\PsAccounts\Hook\ActionShopAccessTokenRefreshAfter;
-use PrestaShop\Module\PsAccounts\Log\Logger;
 use PrestaShop\Module\PsAccounts\Repository\ConfigurationRepository;
 use PrestaShop\Module\PsAccounts\Service\OAuth2\OAuth2Exception;
 use PrestaShop\Module\PsAccounts\Service\OAuth2\OAuth2Service;
@@ -48,11 +47,6 @@ class ShopSession extends Session implements SessionInterface
     protected $tokenAudience;
 
     /**
-     * @var StatusManager
-     */
-    protected $statusManager;
-
-    /**
      * @param ConfigurationRepository $configurationRepository
      * @param OAuth2Service $oAuth2Service
      * @param string $tokenAudience
@@ -62,6 +56,8 @@ class ShopSession extends Session implements SessionInterface
         OAuth2Service $oAuth2Service,
         $tokenAudience
     ) {
+        parent::__construct();
+
         $this->configurationRepository = $configurationRepository;
         $this->oAuth2Service = $oAuth2Service;
         $this->tokenAudience = $tokenAudience;
@@ -79,21 +75,17 @@ class ShopSession extends Session implements SessionInterface
      */
     public function getValidToken($forceRefresh = false, $throw = true, array $scope = [], array $audience = [])
     {
-        $logger = Logger::getInstance();
-        $logger->info('######################## ' . __METHOD__);
-        $logger->info('######################## ' . get_class($this->statusManager));
-
         /** @var \Ps_accounts $ps_accounts */
         $ps_accounts = \Module::getInstanceByName('ps_accounts');
         //$this->statusManager = $ps_accounts->getService(StatusManager::class);
         $ps_accounts->getService(StatusManager::class);
 
-        $scp = $scope + ($this->statusManager->identityVerified() ? [
+        $scp = $scope + ($this->getStatusManager()->identityVerified() ? [
             'shop.verified',
         ] : []);
 
         $aud = $audience + [
-            'store/' . $this->statusManager->getCloudShopId(),
+            'store/' . $this->getStatusManager()->getCloudShopId(),
             $this->tokenAudience,
         ];
 
@@ -157,20 +149,6 @@ class ShopSession extends Session implements SessionInterface
     public function cleanup()
     {
         $this->configurationRepository->updateAccessToken('');
-    }
-
-    /**
-     * @param StatusManager $statusManager
-     *
-     * @return void
-     */
-    public function setStatusManager(StatusManager $statusManager)
-    {
-        $logger = Logger::getInstance();
-        $logger->info('########################' . __METHOD__);
-        $logger->info('######################## ' . get_class($statusManager));
-
-        $this->statusManager = $statusManager;
     }
 
     /**
