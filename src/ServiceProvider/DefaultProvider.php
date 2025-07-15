@@ -21,7 +21,6 @@
 namespace PrestaShop\Module\PsAccounts\ServiceProvider;
 
 use PrestaShop\Module\PsAccounts\Account\ProofManager;
-use PrestaShop\Module\PsAccounts\Account\Session\Firebase;
 use PrestaShop\Module\PsAccounts\Account\Session\ShopSession;
 use PrestaShop\Module\PsAccounts\Account\StatusManager;
 use PrestaShop\Module\PsAccounts\Adapter;
