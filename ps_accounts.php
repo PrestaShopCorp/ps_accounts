@@ -479,6 +479,10 @@ class Ps_accounts extends Module
      */
     public function getRegisteredVersion()
     {
+//        /** @var \PrestaShop\Module\PsAccounts\Repository\ConfigurationRepository $repository */
+//        $repository = $this->getService(\PrestaShop\Module\PsAccounts\Repository\ConfigurationRepository::class);
+//        return $repository->getLastUpgrade(false);
+
         return \Db::getInstance()->getValue(
             'SELECT version FROM ' . _DB_PREFIX_ . 'module WHERE name = \'' . $this->name . '\''
         ) ?: '0';
@@ -491,6 +495,10 @@ class Ps_accounts extends Module
      */
     public function setRegisteredVersion($version = Ps_accounts::VERSION)
     {
+//        /** @var \PrestaShop\Module\PsAccounts\Repository\ConfigurationRepository $repository */
+//        $repository = $this->getService(\PrestaShop\Module\PsAccounts\Repository\ConfigurationRepository::class);
+//        $repository->updateLastUpgrade(\Ps_accounts::VERSION);
+
         \Db::getInstance()->execute(
             'UPDATE ' . _DB_PREFIX_ . 'module SET version = \'' . $version . '\' WHERE name = \'' . $this->name . '\''
         );

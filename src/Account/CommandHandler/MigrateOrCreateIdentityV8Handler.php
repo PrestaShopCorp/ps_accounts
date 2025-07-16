@@ -35,7 +35,6 @@ use PrestaShop\Module\PsAccounts\Service\Accounts\AccountsException;
 use PrestaShop\Module\PsAccounts\Service\Accounts\AccountsService;
 use PrestaShop\Module\PsAccounts\Service\OAuth2\OAuth2Exception;
 use PrestaShop\Module\PsAccounts\Service\OAuth2\OAuth2Service;
-use PrestaShop\PrestaShop\Adapter\Module\Module;
 use Ps_accounts;
 
 class MigrateOrCreateIdentityV8Handler
@@ -207,15 +206,5 @@ class MigrateOrCreateIdentityV8Handler
             $this->configurationRepository->getFirebaseRefreshToken(),
             $shopUuid
         )->token;
-    }
-
-    /**
-     * @return void
-     *
-     * FIXME: move this in a dedicated Service
-     */
-    protected function upgradeVersionNumber()
-    {
-        $this->configurationRepository->updateLastUpgrade(\Ps_accounts::VERSION);
     }
 }

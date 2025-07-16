@@ -17,10 +17,10 @@ function upgrade_module_8_0_0($module)
     require __DIR__ . '/../src/enforce_autoload.php';
 
 //    try {
-        /** @var CommandBus $commandBus */
-        $commandBus = $module->getService(CommandBus::class);
+    /** @var CommandBus $commandBus */
+    $commandBus = $module->getService(CommandBus::class);
 
-        $commandBus->handle(new MigrateOrCreateIdentitiesV8Command());
+    $commandBus->handle(new MigrateOrCreateIdentitiesV8Command());
 
 //        /* @phpstan-ignore-next-line */
 //    } catch (\Throwable $e) {
