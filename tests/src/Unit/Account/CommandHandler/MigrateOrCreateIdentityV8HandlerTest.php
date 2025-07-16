@@ -162,6 +162,7 @@ JSON;
 
         $this->getHandler()->handle(new MigrateOrCreateIdentityV8Command($this->shopId));
 
+        $this->assertEquals(\Ps_accounts::VERSION, $this->module->getRegisteredVersion());
         $this->assertEmpty($this->configurationRepository->getAccessToken());
         $this->assertTrue($this->statusManager->cacheInvalidated());
         $this->assertEquals($cloudShopId, $this->statusManager->getCloudShopId());
@@ -280,6 +281,7 @@ JSON;
 
         $this->getHandler()->handle(new MigrateOrCreateIdentityV8Command($this->shopId));
 
+        $this->assertEquals(\Ps_accounts::VERSION, $this->module->getRegisteredVersion());
         $this->assertTrue($this->statusManager->cacheInvalidated());
         $this->assertEquals($cloudShopId, $this->statusManager->getCloudShopId());
         $this->assertEquals($clientId, $this->oAuth2Service->getOAuth2Client()->getClientId());
@@ -299,7 +301,8 @@ JSON;
 
         // introduced in v7
         //$this->configurationRepository->updateLastUpgrade('7.2.0');
-        $this->module->setRegisteredVersion('7.2.0');
+        $fromVersion = '7.2.0';
+        $this->module->setRegisteredVersion($fromVersion);
 
         $this->configurationRepository->updateShopUuid($cloudShopId);
 
@@ -344,8 +347,13 @@ JSON;
                 ], 400, true);
             });
 
-        $this->getHandler()->handle(new MigrateOrCreateIdentityV8Command($this->shopId));
+        try {
+            $this->getHandler()->handle(new MigrateOrCreateIdentityV8Command($this->shopId));
+        } catch (\Exception $e) {
 
+        }
+
+        $this->assertEquals($fromVersion, $this->module->getRegisteredVersion());
         $this->assertTrue($this->statusManager->cacheInvalidated());
         $this->assertEquals($cloudShopId, $this->statusManager->getCloudShopId());
 

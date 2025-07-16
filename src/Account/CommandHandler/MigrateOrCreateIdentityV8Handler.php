@@ -35,6 +35,8 @@ use PrestaShop\Module\PsAccounts\Service\Accounts\AccountsException;
 use PrestaShop\Module\PsAccounts\Service\Accounts\AccountsService;
 use PrestaShop\Module\PsAccounts\Service\OAuth2\OAuth2Exception;
 use PrestaShop\Module\PsAccounts\Service\OAuth2\OAuth2Service;
+use PrestaShop\PrestaShop\Adapter\Module\Module;
+use Ps_accounts;
 
 class MigrateOrCreateIdentityV8Handler
 {
@@ -115,8 +117,11 @@ class MigrateOrCreateIdentityV8Handler
 //            $lastUpgradedVersion = $this->getLastRegisteredModuleVersion();
 //        }
 
+        /** @var \Ps_accounts $module */
+        $module = \Module::getInstanceByName('ps_accounts');
+
         // We can safely rely on the version registered by PrestaShop
-        $lastUpgradedVersion = $this->getLastRegisteredModuleVersion();
+        $lastUpgradedVersion = $module->getRegisteredVersion();
 
         $e = null;
         try {
@@ -159,7 +164,8 @@ class MigrateOrCreateIdentityV8Handler
             $this->statusManager->invalidateCache();
 
             // update ps_accounts upgraded version
-            $this->upgradeVersionNumber();
+            //$this->upgradeVersionNumber();
+            $module->setRegisteredVersion();
         } catch (OAuth2Exception $e) {
         } catch (AccountsException $e) {
         } catch (RefreshTokenException $e) {
@@ -168,6 +174,8 @@ class MigrateOrCreateIdentityV8Handler
 
         if ($e) {
             Logger::getInstance()->error($e->getMessage());
+
+            throw new \Exception('Unable to upgrade ps_accounts module to version ' . Ps_Accounts::VERSION);
         }
     }
 
@@ -209,17 +217,5 @@ class MigrateOrCreateIdentityV8Handler
     protected function upgradeVersionNumber()
     {
         $this->configurationRepository->updateLastUpgrade(\Ps_accounts::VERSION);
-    }
-
-    /**
-     * @return string
-     *
-     * FIXME: move this code in a dedicated Service
-     */
-    public function getLastRegisteredModuleVersion()
-    {
-        return \Db::getInstance()->getValue(
-            'SELECT version FROM ' . _DB_PREFIX_ . 'module WHERE name = \'ps_accounts\''
-        ) ?: '0';
     }
 }
