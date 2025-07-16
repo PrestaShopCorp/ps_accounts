@@ -35,7 +35,6 @@ use PrestaShop\Module\PsAccounts\Service\Accounts\AccountsException;
 use PrestaShop\Module\PsAccounts\Service\Accounts\AccountsService;
 use PrestaShop\Module\PsAccounts\Service\OAuth2\OAuth2Exception;
 use PrestaShop\Module\PsAccounts\Service\OAuth2\OAuth2Service;
-use PrestaShop\PrestaShop\Adapter\Module\Module;
 
 class MigrateOrCreateIdentityV8Handler
 {
@@ -111,14 +110,13 @@ class MigrateOrCreateIdentityV8Handler
         $shopId = $command->shopId ?: \Shop::getContextShopID();
         $shopUuid = $this->configurationRepository->getShopUuid();
 
-        $lastUpgradedVersion = $this->configurationRepository->getLastUpgrade(false);
+//        $lastUpgradedVersion = $this->configurationRepository->getLastUpgrade(false);
+//        if ($lastUpgradedVersion === '0') {
+//            $lastUpgradedVersion = $this->getLastRegisteredModuleVersion();
+//        }
 
-        // FIXME: is it safe to read lastUpgradedVersion in Core DB only ?
-        // - check if version is not updated when upgrade fails
-        // - throws UpgradeFailedException
-        if ($lastUpgradedVersion === '0') {
-            $lastUpgradedVersion = $this->getLastRegisteredModuleVersion();
-        }
+        // We can safely rely on the version registered by PrestaShop
+        $lastUpgradedVersion = $this->getLastRegisteredModuleVersion();
 
         $e = null;
         try {
@@ -205,6 +203,8 @@ class MigrateOrCreateIdentityV8Handler
 
     /**
      * @return void
+     *
+     * FIXME: move this in a dedicated Service
      */
     protected function upgradeVersionNumber()
     {
@@ -213,11 +213,13 @@ class MigrateOrCreateIdentityV8Handler
 
     /**
      * @return string
+     *
+     * FIXME: move this code in a dedicated Service
      */
     public function getLastRegisteredModuleVersion()
     {
         return \Db::getInstance()->getValue(
             'SELECT version FROM ' . _DB_PREFIX_ . 'module WHERE name = \'ps_accounts\''
-        );
+        ) ?: '0';
     }
 }
