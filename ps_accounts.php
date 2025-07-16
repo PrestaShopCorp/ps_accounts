@@ -20,12 +20,11 @@
 if (!defined('_PS_VERSION_')) {
     exit;
 }
-//require_once __DIR__ . '/vendor/autoload.php';
-require __DIR__ . '/src/enforce_autoload.php';
+require_once __DIR__ . '/vendor/autoload.php';
 
-//if (!class_exists('\PrestaShop\Module\PsAccounts\Hook\HookableTrait')) {
-//    ps_accounts_fix_upgrade();
-//}
+if (!class_exists('\PrestaShop\Module\PsAccounts\Hook\HookableTrait')) {
+    ps_accounts_fix_upgrade();
+}
 
 class Ps_accounts extends Module
 {
@@ -475,20 +474,20 @@ class Ps_accounts extends Module
         return false;
     }
 }
-//
-///**
-// * @return void
-// */
-//function ps_accounts_fix_upgrade()
-//{
-//    $root = __DIR__;
-//    $requires = array_merge([
-//        $root . '/src/Module/Install.php',
-////        $root . '/src/Hook/Hook.php',
-//        $root . '/src/Hook/HookableTrait.php',
-//    ], []/*, glob($root . '/src/Hook/*.php')*/);
-//
-//    foreach ($requires as $filename) {
-//        require_once $filename;
-//    }
-//}
+
+/**
+ * @return void
+ */
+function ps_accounts_fix_upgrade()
+{
+    $root = __DIR__;
+    $requires = array_merge([
+        $root . '/src/Module/Install.php',
+//        $root . '/src/Hook/Hook.php',
+        $root . '/src/Hook/HookableTrait.php',
+    ], []/*, glob($root . '/src/Hook/*.php')*/);
+
+    foreach ($requires as $filename) {
+        require_once $filename;
+    }
+}
