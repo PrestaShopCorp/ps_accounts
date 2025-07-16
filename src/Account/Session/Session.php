@@ -21,6 +21,7 @@
 namespace PrestaShop\Module\PsAccounts\Account\Session;
 
 use PrestaShop\Module\PsAccounts\Account\Exception\RefreshTokenException;
+use PrestaShop\Module\PsAccounts\Account\StatusManager;
 use PrestaShop\Module\PsAccounts\Account\Token\NullToken;
 use PrestaShop\Module\PsAccounts\Account\Token\Token;
 use PrestaShop\Module\PsAccounts\Log\Logger;
@@ -31,6 +32,17 @@ abstract class Session implements SessionInterface
      * @var array
      */
     protected $refreshTokenErrors = [];
+
+    /**
+     * @var \Ps_accounts
+     */
+    protected $module;
+
+    public function __construct()
+    {
+        /* @phpstan-ignore-next-line */
+        $this->module = \Module::getInstanceByName('ps_accounts');
+    }
 
     /**
      * @deprecated use getValidToken instead
@@ -137,5 +149,13 @@ abstract class Session implements SessionInterface
     protected function setRefreshTokenErrors($className, $message)
     {
         $this->refreshTokenErrors[$className] = $message;
+    }
+
+    /**
+     * @return StatusManager
+     */
+    protected function getStatusManager()
+    {
+        return $this->module->getService(StatusManager::class);
     }
 }

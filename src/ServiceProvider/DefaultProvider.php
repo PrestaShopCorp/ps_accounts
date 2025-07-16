@@ -21,7 +21,6 @@
 namespace PrestaShop\Module\PsAccounts\ServiceProvider;
 
 use PrestaShop\Module\PsAccounts\Account\ProofManager;
-use PrestaShop\Module\PsAccounts\Account\Session\Firebase;
 use PrestaShop\Module\PsAccounts\Account\Session\ShopSession;
 use PrestaShop\Module\PsAccounts\Account\StatusManager;
 use PrestaShop\Module\PsAccounts\Adapter;
@@ -67,27 +66,11 @@ class DefaultProvider implements IServiceProvider
         });
         // Entities ?
         $container->registerProvider(StatusManager::class, static function () use ($container) {
-            /** @var ShopSession $shopSession */
-            $shopSession = $container->get(ShopSession::class);
-            $service = new StatusManager(
-                $shopSession,
+            return new StatusManager(
+                $container->get(ShopSession::class),
                 $container->get(AccountsService::class),
                 $container->get(ConfigurationRepository::class)
             );
-            $shopSession->setStatusManager($service);
-
-            /** @var Firebase\OwnerSession $firebaseOwnerSession */
-            $firebaseOwnerSession = $container->get(Firebase\OwnerSession::class);
-            $firebaseOwnerSession->setStatusManager($service);
-
-            /** @var Firebase\ShopSession $firebaseShopSession */
-            $firebaseShopSession = $container->get(Firebase\ShopSession::class);
-            $firebaseShopSession->setStatusManager($service);
-
-            $logger = $container->get('ps_accounts.logger');
-            $logger->info('######################## Status manager initialized');
-
-            return $service;
         });
         // Adapter
         $container->registerProvider(Adapter\Configuration::class, static function () use ($container) {

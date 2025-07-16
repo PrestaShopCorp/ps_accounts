@@ -25,7 +25,6 @@ use PrestaShop\Module\PsAccounts\Account\Session\Firebase;
 use PrestaShop\Module\PsAccounts\Account\Session\Session;
 use PrestaShop\Module\PsAccounts\Account\Session\SessionInterface;
 use PrestaShop\Module\PsAccounts\Account\Session\ShopSession;
-use PrestaShop\Module\PsAccounts\Account\StatusManager;
 use PrestaShop\Module\PsAccounts\Account\Token\Token;
 use PrestaShop\Module\PsAccounts\Log\Logger;
 use PrestaShop\Module\PsAccounts\Service\Accounts\AccountsException;
@@ -38,22 +37,11 @@ abstract class FirebaseSession extends Session implements SessionInterface
      */
     protected $shopSession;
 
-    /**
-     * @var \Ps_accounts
-     */
-    private $module;
-
-    /**
-     * @var StatusManager
-     */
-    protected $statusManager;
-
     public function __construct(ShopSession $shopSession)
     {
-        $this->shopSession = $shopSession;
+        parent::__construct();
 
-        /* @phpstan-ignore-next-line */
-        $this->module = \Module::getInstanceByName('ps_accounts');
+        $this->shopSession = $shopSession;
     }
 
     /**
@@ -93,7 +81,7 @@ abstract class FirebaseSession extends Session implements SessionInterface
     {
         try {
             $token = $this->shopSession->getValidToken();
-            $cloudShopId = $this->statusManager->getCloudShopId();
+            $cloudShopId = $this->getStatusManager()->getCloudShopId();
 
             $this->refreshFirebaseTokens($cloudShopId, $token);
         } catch (RefreshTokenException $e) {
@@ -139,15 +127,5 @@ abstract class FirebaseSession extends Session implements SessionInterface
         if (isset($pointOfContactToken)) {
             $this->getOwnerSession()->setToken((string) $pointOfContactToken->getJwt(), $pointOfContactToken->getRefreshToken());
         }
-    }
-
-    /**
-     * @param StatusManager $statusManager
-     *
-     * @return void
-     */
-    public function setStatusManager(StatusManager $statusManager)
-    {
-        $this->statusManager = $statusManager;
     }
 }

@@ -79,8 +79,6 @@ trait SessionHelpers
         $firebaseSession->method('getAccountsService')
             ->willReturn($accountsService);
 
-        $firebaseSession->setStatusManager($this->statusManager);
-
         return $firebaseSession;
     }
 }
