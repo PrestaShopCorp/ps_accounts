@@ -120,13 +120,6 @@ class MigrateOrCreateIdentityV8Handler
             $lastUpgradedVersion = $this->getLastRegisteredModuleVersion();
         }
 
-        // FIXME: 1. upgrade from v5.6.2 -> 8
-        // FIXME: 2. lastUpgradedVersion
-        // FIXME: 3. class AbstractOAuthController
-        // FIXME: 4. UpgradeCommand (specific upgrade cases ?)
-        // FIXME: 5. ob_end_clean
-        // FIXME: 6. token invalide avec shipping après redirect
-
         $e = null;
         try {
             if (!$shopUuid || version_compare($lastUpgradedVersion, '8', '>=')) {
