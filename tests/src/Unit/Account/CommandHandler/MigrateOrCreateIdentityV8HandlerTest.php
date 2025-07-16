@@ -113,7 +113,8 @@ JSON;
         $tokenAudience = 'shop_' . $cloudShopId;
 
         // introduced in v7
-        $this->configurationRepository->updateLastUpgrade('7.2.0');
+        //$this->configurationRepository->updateLastUpgrade('7.2.0');
+        $this->module->setRegisteredVersion('7.2.0');
 
         $this->configurationRepository->updateShopUuid($cloudShopId);
 
@@ -149,7 +150,8 @@ JSON;
                 $this->assertArrayHasKey('frontendUrl', $options[Request::JSON]);
                 $this->assertArrayHasKey('multiShopId', $options[Request::JSON]);
                 $this->assertEquals($this->proofManager->getProof(), $options[Request::JSON]['proof']);
-                $this->assertEquals((string) $this->configurationRepository->getLastUpgrade(), $options[Request::JSON]['fromVersion']);
+                //$this->assertEquals((string) $this->configurationRepository->getLastUpgrade(), $options[Request::JSON]['fromVersion']);
+                $this->assertEquals((string) $this->module->getRegisteredVersion(), $options[Request::JSON]['fromVersion']);
 
                 return $this->createResponse([
                     'clientId' => $clientId,
@@ -237,7 +239,8 @@ JSON;
         $token = $this->faker->uuid;
 
         // introduced in v7
-        $this->configurationRepository->updateLastUpgrade(null);
+        //$this->configurationRepository->updateLastUpgrade(null);
+        $this->module->setRegisteredVersion(null);
 
         $this->configurationRepository->updateShopUuid($cloudShopId);
 
@@ -265,7 +268,8 @@ JSON;
                 $this->assertArrayHasKey('frontendUrl', $options[Request::JSON]);
                 $this->assertArrayHasKey('multiShopId', $options[Request::JSON]);
                 $this->assertEquals($this->proofManager->getProof(), $options[Request::JSON]['proof']);
-                $this->assertEquals((string) $this->configurationRepository->getLastUpgrade(), $options[Request::JSON]['fromVersion']);
+                //$this->assertEquals((string) $this->configurationRepository->getLastUpgrade(), $options[Request::JSON]['fromVersion']);
+                $this->assertEquals((string) $this->module->getRegisteredVersion(), $options[Request::JSON]['fromVersion']);
 
                 return $this->createResponse([
                     'clientId' => $clientId,
@@ -294,7 +298,8 @@ JSON;
         $tokenAudience = 'shop_' . $cloudShopId;
 
         // introduced in v7
-        $this->configurationRepository->updateLastUpgrade('7.2.0');
+        //$this->configurationRepository->updateLastUpgrade('7.2.0');
+        $this->module->setRegisteredVersion('7.2.0');
 
         $this->configurationRepository->updateShopUuid($cloudShopId);
 
@@ -330,7 +335,8 @@ JSON;
                 $this->assertArrayHasKey('frontendUrl', $options[Request::JSON]);
                 $this->assertArrayHasKey('multiShopId', $options[Request::JSON]);
                 $this->assertEquals($this->proofManager->getProof(), $options[Request::JSON]['proof']);
-                $this->assertEquals((string) $this->configurationRepository->getLastUpgrade(), $options[Request::JSON]['fromVersion']);
+                //$this->assertEquals((string) $this->configurationRepository->getLastUpgrade(), $options[Request::JSON]['fromVersion']);
+                $this->assertEquals((string) $this->module->getRegisteredVersion(), $options[Request::JSON]['fromVersion']);
 
                 return $this->createResponse([
                     "error" => 'store-identity/migration-failed',

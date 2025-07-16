@@ -473,6 +473,28 @@ class Ps_accounts extends Module
 
         return false;
     }
+
+    /**
+     * @return string
+     */
+    public function getRegisteredVersion()
+    {
+        return \Db::getInstance()->getValue(
+            'SELECT version FROM ' . _DB_PREFIX_ . 'module WHERE name = \'' . $this->name . '\''
+        ) ?: '0';
+    }
+
+    /**
+     * @param string $version
+     *
+     * @return void
+     */
+    public function setRegisteredVersion($version = Ps_accounts::VERSION)
+    {
+        \Db::getInstance()->execute(
+            'UPDATE ' . _DB_PREFIX_ . 'module SET version = \'' . $version . '\' WHERE name = \'' . $this->name . '\''
+        );
+    }
 }
 
 /**
