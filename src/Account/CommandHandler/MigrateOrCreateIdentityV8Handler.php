@@ -113,19 +113,19 @@ class MigrateOrCreateIdentityV8Handler
 
         $lastUpgradedVersion = $this->configurationRepository->getLastUpgrade(false);
 
+        // FIXME: is it safe to read lastUpgradedVersion in Core DB only ?
+        // - check if version is not updated when upgrade fails
+        // - throws UpgradeFailedException
         if ($lastUpgradedVersion === '0') {
-            $lastUpgradedVersion = \Db::getInstance()->getValue(
-                'SELECT version FROM ' . _DB_PREFIX_ . 'module WHERE name = \'ps_accounts\''
-            );
+            $lastUpgradedVersion = $this->getLastRegisteredModuleVersion();
         }
 
         // FIXME: 1. upgrade from v5.6.2 -> 8
-        // FIXME: 2. bug provider status manager null
-        // FIXME: 3. lastUpgradedVersion
-        // FIXME: 4. class AbstractOAuthController
-        // FIXME: 5. UpgradeCommand (specific upgrade cases ?)
-        // FIXME: 6. ob_end_clean
-        Logger::getInstance()->error('########################## VERSION ' . $lastUpgradedVersion);
+        // FIXME: 2. lastUpgradedVersion
+        // FIXME: 3. class AbstractOAuthController
+        // FIXME: 4. UpgradeCommand (specific upgrade cases ?)
+        // FIXME: 5. ob_end_clean
+        // FIXME: 6. token invalide avec shipping après redirect
 
         $e = null;
         try {
@@ -146,7 +146,6 @@ class MigrateOrCreateIdentityV8Handler
                 $token = $this->getFirebaseTokenV6($shopUuid);
             }
 
-            // FIXME getLastUpgradedVersion from PS Core ?
             $identityCreated = $this->accountsService->migrateShopIdentity(
                 $shopUuid,
                 $token,
@@ -217,5 +216,15 @@ class MigrateOrCreateIdentityV8Handler
     protected function upgradeVersionNumber()
     {
         $this->configurationRepository->updateLastUpgrade(\Ps_accounts::VERSION);
+    }
+
+    /**
+     * @return string
+     */
+    public function getLastRegisteredModuleVersion()
+    {
+        return \Db::getInstance()->getValue(
+            'SELECT version FROM ' . _DB_PREFIX_ . 'module WHERE name = \'ps_accounts\''
+        );
     }
 }
