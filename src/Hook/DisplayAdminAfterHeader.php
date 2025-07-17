@@ -46,10 +46,15 @@ class DisplayAdminAfterHeader extends Hook
             $debugLink = $link->getAdminLink('AdminDebugPsAccounts');
             $healthCheckLink = $link->getLink()->getModuleLink('ps_accounts', 'apiV2ShopHealthCheck');
 
+            $environment = $this->module->getParameter('ps_accounts.environment');
+
+            $alertLevel = $this->getAlertLevel($environment);
+
             return <<<HTML
 <div class="bootstrap">
-    <div class="alert alert-info alert-dismissible">
+    <div class="alert alert-{$alertLevel} alert-dismissible">
         <button type="button" class="close" data-dismiss="alert">×</button>
+        <b>{$environment}</b> |
         <!-- img width="57" alt="PrestaShop Account" title="PrestaShop Account" src="/modules/ps_accounts/logo.png"-->
         <a href="{$moduleLink}">{$cloudShopId} ({$verifiedMsg})</a> |
         <a href="{$debugLink}">Debug</a> |
@@ -63,5 +68,26 @@ HTML;
         }
 
         return '';
+    }
+
+    /**
+     * @param $environment
+     * @return string
+     */
+    private function getAlertLevel($environment)
+    {
+        $alertLevel = 'info';
+        switch ($environment) {
+            case 'production':
+                $alertLevel = 'info';
+                break;
+            case 'integration':
+                $alertLevel = 'warning';
+                break;
+            case 'development':
+                $alertLevel = 'danger';
+                break;
+        }
+        return $alertLevel;
     }
 }
