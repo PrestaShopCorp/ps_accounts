@@ -39,4 +39,5 @@ return [
 
     'ps_accounts.check_api_ssl_cert' => true,
     'ps_accounts.verify_account_tokens' => true,
+    'ps_accounts.log_level' => 'info',
 ];
