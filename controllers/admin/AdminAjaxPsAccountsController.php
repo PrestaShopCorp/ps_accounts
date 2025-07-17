@@ -20,6 +20,7 @@
 require_once __DIR__ . '/../../src/Polyfill/Traits/Controller/AjaxRender.php';
 
 use PrestaShop\Module\PsAccounts\Account\Command\DeleteUserShopCommand;
+use PrestaShop\Module\PsAccounts\Account\Command\VerifyIdentityCommand;
 use PrestaShop\Module\PsAccounts\Account\Query\GetContextQuery;
 use PrestaShop\Module\PsAccounts\Account\Session\Firebase\ShopSession;
 use PrestaShop\Module\PsAccounts\Account\StatusManager;
@@ -187,6 +188,39 @@ class AdminAjaxPsAccountsController extends \ModuleAdminController
                 Tools::getValue('shop_id', null),
                 filter_var(Tools::getValue('refresh', false), FILTER_VALIDATE_BOOLEAN)
             );
+
+            $this->ajaxRender(
+                (string) json_encode($this->queryBus->handle($command))
+            );
+        } catch (Exception $e) {
+            Logger::getInstance()->error($e->getMessage());
+
+            http_response_code(500);
+
+            $this->ajaxRender(
+                (string) json_encode([
+                    'error' => true,
+                    'message' => $e->getMessage(),
+                ])
+            );
+        }
+    }
+
+
+    /**
+     * @return void
+     *
+     * @throws Exception
+     */
+    public function ajaxProcessVerifyShop()
+    {
+        header('Content-Type: text/json');
+        $shopId = Tools::getValue('shop_id', null);
+        if (!$shopId) {
+            throw new Error('Shop ID is required for verification.');
+        }
+        try {
+            $command = new VerifyIdentityCommand($shopId);
 
             $this->ajaxRender(
                 (string) json_encode($this->queryBus->handle($command))

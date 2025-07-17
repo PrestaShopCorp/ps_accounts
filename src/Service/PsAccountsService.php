@@ -277,6 +277,16 @@ class PsAccountsService
     /**
      * @return string
      *
+     * @throws \PrestaShopException
+     */
+    public function verifyShopUrl()
+    {
+        return $this->link->getAdminLink('AdminAjaxPsAccounts', true, [], ['ajax' => 1, 'action' => 'verifyShop']);
+    }
+
+    /**
+     * @return string
+     *
      * @throws \Exception
      */
     public function getAccountsVueCdn()
@@ -352,6 +362,7 @@ class PsAccountsService
             'groupId' => \Shop::getContextShopGroupID(),
             'getContextUrl' => $this->getContextUrl(),
             'manageAccountUrl' => $this->module->getAccountsUiUrl(),
+            'verifyShopUrl' => $this->verifyShopUrl(),
             'psxName' => $psxName,
         ];
     }
