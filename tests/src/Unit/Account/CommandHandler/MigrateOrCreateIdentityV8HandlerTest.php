@@ -251,7 +251,8 @@ JSON;
 
         $fromVersion = '5.6.2';
         $this->upgradeService->setCoreRegisteredVersion($fromVersion);
-        $this->upgradeService->setRegisteredVersion(null);
+        // FIXME: not working with null on v9
+        $this->upgradeService->setRegisteredVersion('0');
 
         $this->configurationRepository->updateShopUuid($cloudShopId);
 
