@@ -71,7 +71,7 @@ HTML;
     }
 
     /**
-     * @param $environment
+     * @param string $environment
      *
      * @return string
      */
