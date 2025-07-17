@@ -72,6 +72,7 @@ HTML;
 
     /**
      * @param $environment
+     *
      * @return string
      */
     private function getAlertLevel($environment)
@@ -88,6 +89,7 @@ HTML;
                 $alertLevel = 'danger';
                 break;
         }
+
         return $alertLevel;
     }
 }
