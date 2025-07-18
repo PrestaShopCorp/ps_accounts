@@ -206,7 +206,6 @@ class AdminAjaxPsAccountsController extends \ModuleAdminController
         }
     }
 
-
     /**
      * @return void
      *
