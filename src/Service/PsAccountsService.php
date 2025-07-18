@@ -279,9 +279,9 @@ class PsAccountsService
      *
      * @throws \PrestaShopException
      */
-    public function verifyShopUrl()
+    public function migrateOrCreateIdentityV8Url()
     {
-        return $this->link->getAdminLink('AdminAjaxPsAccounts', true, [], ['ajax' => 1, 'action' => 'verifyShop']);
+        return $this->link->getAdminLink('AdminAjaxPsAccounts', true, [], ['ajax' => 1, 'action' => 'migrateOrCreateIdentityV8']);
     }
 
     /**
@@ -362,7 +362,7 @@ class PsAccountsService
             'groupId' => \Shop::getContextShopGroupID(),
             'getContextUrl' => $this->getContextUrl(),
             'manageAccountUrl' => $this->module->getAccountsUiUrl(),
-            'verifyShopUrl' => $this->verifyShopUrl(),
+            'migrateOrCreateIdentityV8Url' => $this->migrateOrCreateIdentityV8Url(),
             'psxName' => $psxName,
         ];
     }

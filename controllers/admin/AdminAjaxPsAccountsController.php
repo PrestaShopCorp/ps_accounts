@@ -20,7 +20,7 @@
 require_once __DIR__ . '/../../src/Polyfill/Traits/Controller/AjaxRender.php';
 
 use PrestaShop\Module\PsAccounts\Account\Command\DeleteUserShopCommand;
-use PrestaShop\Module\PsAccounts\Account\Command\VerifyIdentityCommand;
+use PrestaShop\Module\PsAccounts\Account\Command\MigrateOrCreateIdentityV8Command;
 use PrestaShop\Module\PsAccounts\Account\Query\GetContextQuery;
 use PrestaShop\Module\PsAccounts\Account\Session\Firebase\ShopSession;
 use PrestaShop\Module\PsAccounts\Account\StatusManager;
@@ -212,18 +212,19 @@ class AdminAjaxPsAccountsController extends \ModuleAdminController
      *
      * @throws Exception
      */
-    public function ajaxProcessVerifyShop()
+    public function ajaxProcessMigrateOrCreateIdentityV8()
     {
         header('Content-Type: text/json');
         $shopId = Tools::getValue('shop_id', null);
-        if (!$shopId) {
-            throw new Error('Shop ID is required for verification.');
-        }
+
         try {
-            $command = new VerifyIdentityCommand($shopId);
+            if (!$shopId) {
+                throw new Error('Shop ID is required for migration or creation.');
+            }
+            $command = new MigrateOrCreateIdentityV8Command($shopId);
 
             $this->ajaxRender(
-                (string) json_encode($this->queryBus->handle($command))
+                (string) json_encode($this->commandBus->handle($command))
             );
         } catch (Exception $e) {
             Logger::getInstance()->error($e->getMessage());
