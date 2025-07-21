@@ -75,7 +75,8 @@ class IdentifyContactHandler
         $this->accountsService->setPointOfContact(
             $this->statusManager->getCloudShopId(),
             $this->shopSession->getValidToken(),
-            $command->accessToken->access_token
+            $command->accessToken->access_token,
+            $command->source
         );
         $this->statusManager->invalidateCache();
     }
