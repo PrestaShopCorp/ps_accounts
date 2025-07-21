@@ -358,6 +358,7 @@ class ShopProvider
                             'frontendUrl' => $shopUrl->getFrontendUrl(),
                             'identifyUrl' => $identifyUrl,
                             'shopStatus' => $shopStatus,
+                            'migrateOrCreateIdentityV8Url' => $this->link->getAdminLink('AdminAjaxPsAccounts', true, [], ['ajax' => 1, 'action' => 'migrateOrCreateIdentityV8', 'shop_id' => $shopData['id_shop']]),
                         ];
                     }
                 );
