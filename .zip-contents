@@ -11,6 +11,7 @@ config.php
 config.local.php
 config.prod.php
 config.preprod.php
+config.bulle.php
 config.xml
 LICENSE
 logo.png
