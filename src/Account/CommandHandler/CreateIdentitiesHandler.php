@@ -35,9 +35,9 @@ class CreateIdentitiesHandler extends MultiShopHandler
      */
     public function handle(CreateIdentitiesCommand $command)
     {
-        $this->handleMulti(function ($multiShopId) {
+        $this->handleMulti(function ($multiShopId) use ($command) {
             try {
-                $this->commandBus->handle(new CreateIdentityCommand($multiShopId));
+                $this->commandBus->handle(new CreateIdentityCommand($multiShopId, $command->source));
             } catch (RefreshTokenException $e) {
                 Logger::getInstance()->error($e->getMessage());
             } catch (AccountsException $e) {

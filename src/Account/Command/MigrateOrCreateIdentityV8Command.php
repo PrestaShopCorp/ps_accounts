@@ -29,10 +29,17 @@ class MigrateOrCreateIdentityV8Command
     public $shopId;
 
     /**
-     * @param int|null $shopId
+     * @var string|null
      */
-    public function __construct($shopId)
+    public $source;
+
+    /**
+     * @param int|null $shopId
+     * @param string|null $source
+     */
+    public function __construct($shopId, $source = null)
     {
         $this->shopId = $shopId;
+        $this->source = $source;
     }
 }

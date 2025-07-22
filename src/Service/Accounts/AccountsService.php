@@ -226,16 +226,20 @@ class AccountsService
     /**
      * @param ShopUrl $shopUrl
      * @param string $proof
+     * @param string|null $source
      *
      * @return IdentityCreated
      *
      * @throws AccountsException
      */
-    public function createShopIdentity(ShopUrl $shopUrl, $proof)
+    public function createShopIdentity(ShopUrl $shopUrl, $proof, $source = null)
     {
         $response = $this->getClient()->post(
             '/v1/shop-identities',
             [
+                Request::HEADERS => $this->getHeaders([
+                    'X-Module-Source' => $source,
+                ]),
                 Request::JSON => [
                     'backOfficeUrl' => $shopUrl->getBackOfficeUrl(),
                     'frontendUrl' => $shopUrl->getFrontendUrl(),
@@ -257,12 +261,13 @@ class AccountsService
      * @param string $shopToken
      * @param ShopUrl $shopUrl
      * @param string $proof
+     * @param string|null $source
      *
      * @return void
      *
      * @throws AccountsException
      */
-    public function verifyShopIdentity($cloudShopId, $shopToken, ShopUrl $shopUrl, $proof)
+    public function verifyShopIdentity($cloudShopId, $shopToken, ShopUrl $shopUrl, $proof, $source = null)
     {
         $response = $this->getClient()->post(
             '/v1/shop-identities/' . $cloudShopId . '/verify',
@@ -270,6 +275,7 @@ class AccountsService
                 Request::HEADERS => $this->getHeaders([
                     'Authorization' => 'Bearer ' . $shopToken,
                     'X-Shop-Id' => $cloudShopId,
+                    'X-Module-Source' => $source,
                 ]),
                 Request::JSON => [
                     'backOfficeUrl' => $shopUrl->getBackOfficeUrl(),
@@ -316,12 +322,13 @@ class AccountsService
      * @param string $cloudShopId
      * @param string $shopToken
      * @param string $userToken
+     * @param string|null $source
      *
      * @return void
      *
      * @throws AccountsException
      */
-    public function setPointOfContact($cloudShopId, $shopToken, $userToken)
+    public function setPointOfContact($cloudShopId, $shopToken, $userToken, $source = null)
     {
         $response = $this->getClient()->post(
             '/v1/shop-identities/' . $cloudShopId . '/point-of-contact',
@@ -329,6 +336,7 @@ class AccountsService
                 Request::HEADERS => $this->getHeaders([
                     'Authorization' => 'Bearer ' . $shopToken,
                     'X-Shop-Id' => $cloudShopId,
+                    'X-Module-Source' => $source,
                 ]),
                 Request::JSON => [
                     'pointOfContactJWT' => $userToken,
@@ -347,12 +355,13 @@ class AccountsService
      * @param ShopUrl $shopUrl
      * @param string $proof
      * @param string $fromVersion
+     * @param string|null $source
      *
      * @return IdentityCreated
      *
      * @throws AccountsException
      */
-    public function migrateShopIdentity($cloudShopId, $shopToken, ShopUrl $shopUrl, $proof, $fromVersion)
+    public function migrateShopIdentity($cloudShopId, $shopToken, ShopUrl $shopUrl, $proof, $fromVersion, $source = null)
     {
         $response = $this->getClient()->put(
             '/v1/shop-identities/' . $cloudShopId . '/migrate',
@@ -360,6 +369,7 @@ class AccountsService
                 Request::HEADERS => $this->getHeaders([
                     'Authorization' => 'Bearer ' . $shopToken,
                     'X-Shop-Id' => $cloudShopId,
+                    'X-Module-Source' => $source,
                 ]),
                 Request::JSON => [
                     'backOfficeUrl' => $shopUrl->getBackOfficeUrl(),
