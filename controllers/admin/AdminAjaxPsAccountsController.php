@@ -211,7 +211,7 @@ class AdminAjaxPsAccountsController extends \ModuleAdminController
      *
      * @throws Exception
      */
-    public function ajaxProcessMigrateOrCreateIdentityV8()
+    public function ajaxProcessFallbackCreateIdentity()
     {
         header('Content-Type: text/json');
         $shopId = Tools::getValue('shop_id', null);
