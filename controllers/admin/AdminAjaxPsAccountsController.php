@@ -218,7 +218,7 @@ class AdminAjaxPsAccountsController extends \ModuleAdminController
 
         try {
             if (!$shopId) {
-                throw new Error('Shop ID is required for migration or creation.');
+                throw new Exception('Shop ID is required for migration or creation.');
             }
             $command = new MigrateOrCreateIdentityV8Command($shopId);
 
