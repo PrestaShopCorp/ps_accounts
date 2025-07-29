@@ -21,6 +21,7 @@ require_once __DIR__ . '/../../src/Polyfill/Traits/Controller/AjaxRender.php';
 
 use PrestaShop\Module\PsAccounts\Account\Command\DeleteUserShopCommand;
 use PrestaShop\Module\PsAccounts\Account\Command\MigrateOrCreateIdentityV8Command;
+use PrestaShop\Module\PsAccounts\Account\Exception\UnknownStatusException;
 use PrestaShop\Module\PsAccounts\Account\Query\GetContextQuery;
 use PrestaShop\Module\PsAccounts\Account\Session\Firebase\ShopSession;
 use PrestaShop\Module\PsAccounts\Account\StatusManager;
@@ -31,6 +32,8 @@ use PrestaShop\Module\PsAccounts\Hook\ActionShopAccountUnlinkAfter;
 use PrestaShop\Module\PsAccounts\Log\Logger;
 use PrestaShop\Module\PsAccounts\Polyfill\Traits\Controller\AjaxRender;
 use PrestaShop\Module\PsAccounts\Repository\ConfigurationRepository;
+use PrestaShop\Module\PsAccounts\Service\Accounts\AccountsException;
+use PrestaShop\Module\PsAccounts\Service\Accounts\AccountsService;
 use PrestaShop\Module\PsAccounts\Service\SentryService;
 
 /**
@@ -192,17 +195,8 @@ class AdminAjaxPsAccountsController extends \ModuleAdminController
             $this->ajaxRender(
                 (string) json_encode($this->queryBus->handle($command))
             );
-        } catch (Exception $e) {
-            Logger::getInstance()->error($e->getMessage());
-
-            http_response_code(500);
-
-            $this->ajaxRender(
-                (string) json_encode([
-                    'error' => true,
-                    'message' => $e->getMessage(),
-                ])
-            );
+        }  catch (Exception $e) {
+            $this->handleError($e);
         }
     }
 
@@ -226,16 +220,30 @@ class AdminAjaxPsAccountsController extends \ModuleAdminController
                 (string) json_encode($this->commandBus->handle($command))
             );
         } catch (Exception $e) {
-            Logger::getInstance()->error($e->getMessage());
+            $this->handleError($e);
+        }
+    }
 
-            http_response_code(500);
+    protected function handleError(Exception $e)
+    {
+        Logger::getInstance()->error($e);
 
-            $this->ajaxRender(
+        if ($e instanceof AccountsException) {
+            http_response_code(400);
+            return $this->ajaxRender(
                 (string) json_encode([
-                    'error' => true,
                     'message' => $e->getMessage(),
+                    'code' => $e->getErrorCode(),
                 ])
             );
         }
+
+        http_response_code(500);
+        $this->ajaxRender(
+            (string) json_encode([
+                'message' => $e->getMessage() ? $e->getMessage() : 'Unknown Error',
+                'code' => 'unknown-error',
+            ])
+        );
     }
 }
