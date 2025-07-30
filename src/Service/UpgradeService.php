@@ -6,15 +6,12 @@ use PrestaShop\Module\PsAccounts\Repository\ConfigurationRepository;
 
 class UpgradeService
 {
+    const MODULE_NAME = 'ps_accounts';
+
     /**
      * @var ConfigurationRepository
      */
     private $repository;
-
-    /**
-     * @var string
-     */
-    private $moduleName = 'ps_accounts';
 
     /**
      * @param ConfigurationRepository $configurationRepository
@@ -27,7 +24,21 @@ class UpgradeService
     /**
      * @return string
      */
-    public function getRegisteredVersion()
+    public function getVersion()
+    {
+        $version = $this->getRegisteredVersion();
+
+        if ($version === '0') {
+            $version = $this->getCoreRegisteredVersion();
+        }
+
+        return $version;
+    }
+
+    /**
+     * @return string
+     */
+    private function getRegisteredVersion()
     {
         return $this->repository->getLastUpgrade(false);
     }
@@ -37,7 +48,7 @@ class UpgradeService
      *
      * @return void
      */
-    public function setRegisteredVersion($version = \Ps_accounts::VERSION)
+    public function setVersion($version = \Ps_accounts::VERSION)
     {
         $this->repository->updateLastUpgrade($version);
     }
@@ -45,22 +56,10 @@ class UpgradeService
     /**
      * @return string
      */
-    public function getCoreRegisteredVersion()
+    private function getCoreRegisteredVersion()
     {
         return \Db::getInstance()->getValue(
-            'SELECT version FROM ' . _DB_PREFIX_ . 'module WHERE name = \'' . $this->moduleName . '\''
+            'SELECT version FROM ' . _DB_PREFIX_ . 'module WHERE name = \'' . self::MODULE_NAME . '\''
         ) ?: '0';
-    }
-
-    /**
-     * @param string $version
-     *
-     * @return void
-     */
-    public function setCoreRegisteredVersion($version = \Ps_accounts::VERSION)
-    {
-        \Db::getInstance()->execute(
-            'UPDATE ' . _DB_PREFIX_ . 'module SET version = \'' . $version . '\' WHERE name = \'' . $this->moduleName . '\''
-        );
     }
 }
