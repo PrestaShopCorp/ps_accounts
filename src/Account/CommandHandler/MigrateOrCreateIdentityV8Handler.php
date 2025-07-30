@@ -34,6 +34,7 @@ use PrestaShop\Module\PsAccounts\Service\Accounts\AccountsException;
 use PrestaShop\Module\PsAccounts\Service\Accounts\AccountsService;
 use PrestaShop\Module\PsAccounts\Service\OAuth2\OAuth2Exception;
 use PrestaShop\Module\PsAccounts\Service\OAuth2\OAuth2Service;
+use PrestaShop\Module\PsAccounts\Service\UpgradeService;
 
 class MigrateOrCreateIdentityV8Handler
 {
@@ -68,6 +69,11 @@ class MigrateOrCreateIdentityV8Handler
     private $configurationRepository;
 
     /**
+     * @var UpgradeService
+     */
+    private $upgradeService;
+
+    /**
      * @var CommandBus
      */
     private $commandBus;
@@ -97,6 +103,7 @@ class MigrateOrCreateIdentityV8Handler
         $this->proofManager = $proofManager;
         $this->configurationRepository = $configurationRepository;
         $this->commandBus = $commandBus;
+        $this->upgradeService = new UpgradeService($configurationRepository);
     }
 
     /**
@@ -113,10 +120,15 @@ class MigrateOrCreateIdentityV8Handler
     {
         $shopId = $command->shopId ?: \Shop::getContextShopID();
         $shopUuid = $this->configurationRepository->getShopUuid();
-        $lastUpgradedVersion = $this->configurationRepository->getLastUpgrade(false);
 
-        if (!$shopUuid || version_compare($lastUpgradedVersion, '8', '>=')) {
-            $this->upgradeVersionNumber();
+        $fromVersion = $this->upgradeService->getRegisteredVersion();
+        if ($fromVersion === '0') {
+            $fromVersion = $this->upgradeService->getCoreRegisteredVersion();
+        }
+
+        // FIXME: shouldn't this condition be a specific flag
+        if (!$shopUuid || version_compare($fromVersion, '8', '>=')) {
+            $this->upgradeService->setRegisteredVersion();
 
             $this->commandBus->handle(new CreateIdentityCommand($command->shopId));
 
@@ -125,22 +137,21 @@ class MigrateOrCreateIdentityV8Handler
 
         // migrate cloudShopId locally
         $this->statusManager->setCloudShopId($shopUuid);
-
-        if (version_compare($lastUpgradedVersion, '7', '>=')) {
+          
+        if (version_compare($fromVersion, '7', '>=')) {
             $token = $this->getAccessTokenV7($shopUuid);
         } else {
             $token = $this->getFirebaseTokenV6($shopUuid);
         }
 
-        // FIXME getLastUpgradedVersion from PS Core ?
         $identityCreated = $this->accountsService->migrateShopIdentity(
             $shopUuid,
             $token,
             $this->shopProvider->getUrl($shopId),
             $this->proofManager->generateProof(),
-            $lastUpgradedVersion
+            $fromVersion
         );
-
+              
         if (!empty($identityCreated->clientId) &&
             !empty($identityCreated->clientSecret)) {
             $this->oAuth2Service->getOAuth2Client()->update(
@@ -153,9 +164,8 @@ class MigrateOrCreateIdentityV8Handler
         $this->configurationRepository->updateAccessToken('');
 
         $this->statusManager->invalidateCache();
-
-        // update ps_accounts upgraded version
-        $this->upgradeVersionNumber();
+              
+        $this->upgradeService->setRegisteredVersion();
     }
 
     /**
@@ -186,13 +196,5 @@ class MigrateOrCreateIdentityV8Handler
             $this->configurationRepository->getFirebaseRefreshToken(),
             $shopUuid
         )->token;
-    }
-
-    /**
-     * @return void
-     */
-    protected function upgradeVersionNumber()
-    {
-        $this->configurationRepository->updateLastUpgrade(\Ps_accounts::VERSION);
     }
 }
