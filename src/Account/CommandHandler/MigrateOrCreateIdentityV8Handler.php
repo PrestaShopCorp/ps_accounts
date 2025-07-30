@@ -137,7 +137,7 @@ class MigrateOrCreateIdentityV8Handler
 
         // migrate cloudShopId locally
         $this->statusManager->setCloudShopId($shopUuid);
-          
+
         if (version_compare($fromVersion, '7', '>=')) {
             $token = $this->getAccessTokenV7($shopUuid);
         } else {
@@ -151,7 +151,7 @@ class MigrateOrCreateIdentityV8Handler
             $this->proofManager->generateProof(),
             $fromVersion
         );
-              
+
         if (!empty($identityCreated->clientId) &&
             !empty($identityCreated->clientSecret)) {
             $this->oAuth2Service->getOAuth2Client()->update(
@@ -164,7 +164,7 @@ class MigrateOrCreateIdentityV8Handler
         $this->configurationRepository->updateAccessToken('');
 
         $this->statusManager->invalidateCache();
-              
+
         $this->upgradeService->setRegisteredVersion();
     }
 

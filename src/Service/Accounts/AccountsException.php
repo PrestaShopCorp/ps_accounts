@@ -31,10 +31,11 @@ class AccountsException extends \Exception
 
     /**
      * @param Response $response
-     * @param string $errorCode
-     * @param int $code
+     * @param string $defaultMessage
+     * @param string $defaultErrorCode
      */
-    public function __construct($response, $defaultMessage = '', $defaultErrorCode = '') {
+    public function __construct($response, $defaultMessage = '', $defaultErrorCode = '')
+    {
         $this->errorCode = $this->getErrorCodeFromResponse($response, $defaultErrorCode);
 
         $message = $this->getErrorMessageFromResponse($response, $defaultMessage);
@@ -46,10 +47,10 @@ class AccountsException extends \Exception
      *
      * @return string
      */
-    public function getErrorCode() {
+    public function getErrorCode()
+    {
         return $this->errorCode;
     }
-
 
     /**
      * @param Response $response
@@ -68,7 +69,7 @@ class AccountsException extends \Exception
 
     /**
      * @param Response $response
-     * @param string $defaultMessage
+     * @param string $defaultCode
      *
      * @return string
      */

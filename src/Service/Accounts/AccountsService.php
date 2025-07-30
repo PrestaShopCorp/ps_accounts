@@ -281,7 +281,7 @@ class AccountsService
         );
 
         if (!$response->isSuccessful) {
-            throw new AccountsException($response, 'Unable to verify shop identity',  'store-identity/unable-to-verify-shop-identity');
+            throw new AccountsException($response, 'Unable to verify shop identity', 'store-identity/unable-to-verify-shop-identity');
         }
     }
 
