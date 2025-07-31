@@ -328,7 +328,7 @@ class ShopProvider
      *
      * @return array
      */
-    public function getShops($groupId = null, $shopId = null, $refresh = false)
+    public function getShops($source = null, $groupId = null, $shopId = null, $refresh = false)
     {
         $shopList = [];
         foreach (\Shop::getTree() as $groupData) {
@@ -344,9 +344,9 @@ class ShopProvider
 
                 $this->getShopContext()->execInShopContext(
                     $shopData['id_shop'],
-                    function () use (&$shops, $shopData, $refresh) {
+                    function () use (&$shops, $shopData, $source, $refresh) {
                         $shopUrl = $this->getUrl((int) $shopData['id_shop']);
-                        $shopStatus = $this->shopStatus->getStatus($refresh);
+                        $shopStatus = $this->shopStatus->getStatus($source, $refresh);
                         $identifyUrl = $this->oAuth2Service->getOAuth2Client()->getRedirectUri([
                             'action' => 'identifyPointOfContact',
                         ]);

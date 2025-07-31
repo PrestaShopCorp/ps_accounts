@@ -39,7 +39,7 @@ class IdentifyContactCommand
      * @param AccessToken $accessToken
      * @param string|null $source
      */
-    public function __construct($accessToken, $source = null)
+    public function __construct($accessToken, $source = 'ps_accounts/IdentifyContactCommand')
     {
         $this->accessToken = $accessToken;
         $this->source = $source;
