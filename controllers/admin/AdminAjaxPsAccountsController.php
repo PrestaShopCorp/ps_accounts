@@ -31,6 +31,7 @@ use PrestaShop\Module\PsAccounts\Hook\ActionShopAccountUnlinkAfter;
 use PrestaShop\Module\PsAccounts\Log\Logger;
 use PrestaShop\Module\PsAccounts\Polyfill\Traits\Controller\AjaxRender;
 use PrestaShop\Module\PsAccounts\Repository\ConfigurationRepository;
+use PrestaShop\Module\PsAccounts\Service\Accounts\AccountsException;
 use PrestaShop\Module\PsAccounts\Service\SentryService;
 
 /**
@@ -193,16 +194,7 @@ class AdminAjaxPsAccountsController extends \ModuleAdminController
                 (string) json_encode($this->queryBus->handle($command))
             );
         } catch (Exception $e) {
-            Logger::getInstance()->error($e->getMessage());
-
-            http_response_code(500);
-
-            $this->ajaxRender(
-                (string) json_encode([
-                    'error' => true,
-                    'message' => $e->getMessage(),
-                ])
-            );
+            $this->handleError($e);
         }
     }
 
@@ -226,16 +218,39 @@ class AdminAjaxPsAccountsController extends \ModuleAdminController
                 (string) json_encode($this->commandBus->handle($command))
             );
         } catch (Exception $e) {
-            Logger::getInstance()->error($e->getMessage());
+            $this->handleError($e);
+        }
+    }
 
-            http_response_code(500);
+    /**
+     * @param Exception $e
+     *
+     * @return void
+     */
+    protected function handleError(Exception $e)
+    {
+        Logger::getInstance()->error($e);
+
+        if ($e instanceof AccountsException) {
+            http_response_code(400);
 
             $this->ajaxRender(
                 (string) json_encode([
-                    'error' => true,
                     'message' => $e->getMessage(),
+                    'code' => $e->getErrorCode(),
                 ])
             );
+
+            return;
         }
+
+        http_response_code(500);
+
+        $this->ajaxRender(
+            (string) json_encode([
+                'message' => $e->getMessage() ? $e->getMessage() : 'Unknown Error',
+                'code' => 'unknown-error',
+            ])
+        );
     }
 }

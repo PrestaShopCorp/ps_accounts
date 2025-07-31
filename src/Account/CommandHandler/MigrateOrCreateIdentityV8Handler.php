@@ -28,7 +28,6 @@ use PrestaShop\Module\PsAccounts\Account\Exception\UnknownStatusException;
 use PrestaShop\Module\PsAccounts\Account\ProofManager;
 use PrestaShop\Module\PsAccounts\Account\StatusManager;
 use PrestaShop\Module\PsAccounts\Cqrs\CommandBus;
-use PrestaShop\Module\PsAccounts\Log\Logger;
 use PrestaShop\Module\PsAccounts\Provider\ShopProvider;
 use PrestaShop\Module\PsAccounts\Repository\ConfigurationRepository;
 use PrestaShop\Module\PsAccounts\Service\Accounts\AccountsException;
@@ -111,6 +110,11 @@ class MigrateOrCreateIdentityV8Handler
      * @param MigrateOrCreateIdentityV8Command $command
      *
      * @return void
+     *
+     * @throws OAuth2Exception
+     * @throws AccountsException
+     * @throws RefreshTokenException
+     * @throws UnknownStatusException
      */
     public function handle(MigrateOrCreateIdentityV8Command $command)
     {
@@ -122,57 +126,46 @@ class MigrateOrCreateIdentityV8Handler
             $fromVersion = $this->upgradeService->getCoreRegisteredVersion();
         }
 
-        $e = null;
-        try {
-            // FIXME: shouldn't this condition be a specific flag
-            if (!$shopUuid || version_compare($fromVersion, '8', '>=')) {
-                $this->upgradeService->setRegisteredVersion();
-
-                $this->commandBus->handle(new CreateIdentityCommand($command->shopId));
-
-                return;
-            }
-
-            // migrate cloudShopId locally
-            $this->statusManager->setCloudShopId($shopUuid);
-
-            if (version_compare($fromVersion, '7', '>=')) {
-                $token = $this->getAccessTokenV7($shopUuid);
-            } else {
-                $token = $this->getFirebaseTokenV6($shopUuid);
-            }
-
-            $identityCreated = $this->accountsService->migrateShopIdentity(
-                $shopUuid,
-                $token,
-                $this->shopProvider->getUrl($shopId),
-                $this->proofManager->generateProof(),
-                $fromVersion
-            );
-
-            if (!empty($identityCreated->clientId) &&
-                !empty($identityCreated->clientSecret)) {
-                $this->oAuth2Service->getOAuth2Client()->update(
-                    $identityCreated->clientId,
-                    $identityCreated->clientSecret
-                );
-            }
-
-            // cleanup obsolete token
-            $this->configurationRepository->updateAccessToken('');
-
-            $this->statusManager->invalidateCache();
-
+        // FIXME: shouldn't this condition be a specific flag
+        if (!$shopUuid || version_compare($fromVersion, '8', '>=')) {
             $this->upgradeService->setRegisteredVersion();
-        } catch (OAuth2Exception $e) {
-        } catch (AccountsException $e) {
-        } catch (RefreshTokenException $e) {
-        } catch (UnknownStatusException $e) {
+
+            $this->commandBus->handle(new CreateIdentityCommand($command->shopId));
+
+            return;
         }
 
-        if ($e) {
-            Logger::getInstance()->error($e->getMessage());
+        // migrate cloudShopId locally
+        $this->statusManager->setCloudShopId($shopUuid);
+
+        if (version_compare($fromVersion, '7', '>=')) {
+            $token = $this->getAccessTokenV7($shopUuid);
+        } else {
+            $token = $this->getFirebaseTokenV6($shopUuid);
         }
+
+        $identityCreated = $this->accountsService->migrateShopIdentity(
+            $shopUuid,
+            $token,
+            $this->shopProvider->getUrl($shopId),
+            $this->proofManager->generateProof(),
+            $fromVersion
+        );
+
+        if (!empty($identityCreated->clientId) &&
+            !empty($identityCreated->clientSecret)) {
+            $this->oAuth2Service->getOAuth2Client()->update(
+                $identityCreated->clientId,
+                $identityCreated->clientSecret
+            );
+        }
+
+        // cleanup obsolete token
+        $this->configurationRepository->updateAccessToken('');
+
+        $this->statusManager->invalidateCache();
+
+        $this->upgradeService->setRegisteredVersion();
     }
 
     /**
