@@ -23,4 +23,16 @@ namespace PrestaShop\Module\PsAccounts\Account\Command;
 
 class CreateIdentitiesCommand
 {
+    /**
+     * @var string|null
+     */
+    public $source;
+
+    /**
+     * @param string|null $source
+     */
+    public function __construct($source = null)
+    {
+        $this->source = $source;
+    }
 }
