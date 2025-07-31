@@ -20,8 +20,10 @@
 
 namespace PrestaShop\Module\PsAccounts\Account\CommandHandler;
 
+use Exception;
 use PrestaShop\Module\PsAccounts\Account\Command\MigrateOrCreateIdentitiesV8Command;
 use PrestaShop\Module\PsAccounts\Account\Command\MigrateOrCreateIdentityV8Command;
+use PrestaShop\Module\PsAccounts\Log\Logger;
 
 class MigrateOrCreateIdentitiesV8Handler extends MultiShopHandler
 {
@@ -33,7 +35,11 @@ class MigrateOrCreateIdentitiesV8Handler extends MultiShopHandler
     public function handle(MigrateOrCreateIdentitiesV8Command $command)
     {
         $this->handleMulti(function ($multiShopId) {
-            $this->commandBus->handle(new MigrateOrCreateIdentityV8Command($multiShopId));
+            try {
+                $this->commandBus->handle(new MigrateOrCreateIdentityV8Command($multiShopId));
+            } catch (Exception $e) {
+                Logger::getInstance()->error($e->getMessage());
+            }
         });
     }
 }
