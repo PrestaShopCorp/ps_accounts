@@ -39,6 +39,7 @@ use PrestaShop\Module\PsAccounts\Repository\ConfigurationRepository;
 use PrestaShop\Module\PsAccounts\Service\Accounts\AccountsService;
 use PrestaShop\Module\PsAccounts\Service\OAuth2\OAuth2Client;
 use PrestaShop\Module\PsAccounts\Service\OAuth2\OAuth2Service;
+use PrestaShop\Module\PsAccounts\Service\UpgradeService;
 use PrestaShop\Module\PsAccounts\Vendor\PrestaShopCorp\LightweightContainer\ServiceContainer\Contract\IServiceProvider;
 use PrestaShop\Module\PsAccounts\Vendor\PrestaShopCorp\LightweightContainer\ServiceContainer\ServiceContainer;
 
@@ -114,7 +115,8 @@ class CommandProvider implements IServiceProvider
                 $container->get(StatusManager::class),
                 $container->get(ProofManager::class),
                 $container->get(ConfigurationRepository::class),
-                $container->get(CommandBus::class)
+                $container->get(CommandBus::class),
+                $container->get(UpgradeService::class)
             );
         });
     }

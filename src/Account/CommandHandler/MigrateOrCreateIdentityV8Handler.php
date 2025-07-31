@@ -70,14 +70,14 @@ class MigrateOrCreateIdentityV8Handler
     private $configurationRepository;
 
     /**
-     * @var UpgradeService
-     */
-    private $upgradeService;
-
-    /**
      * @var CommandBus
      */
     private $commandBus;
+
+    /**
+     * @var UpgradeService
+     */
+    private $upgradeService;
 
     /**
      * @param AccountsService $accountsService
@@ -87,6 +87,7 @@ class MigrateOrCreateIdentityV8Handler
      * @param ProofManager $proofManager
      * @param ConfigurationRepository $configurationRepository
      * @param CommandBus $commandBus
+     * @param UpgradeService $upgradeService
      */
     public function __construct(
         AccountsService $accountsService,
@@ -95,7 +96,8 @@ class MigrateOrCreateIdentityV8Handler
         StatusManager $shopStatus,
         ProofManager $proofManager,
         ConfigurationRepository $configurationRepository,
-        CommandBus $commandBus
+        CommandBus $commandBus,
+        UpgradeService $upgradeService
     ) {
         $this->accountsService = $accountsService;
         $this->oAuth2Service = $oAuth2Service;
@@ -104,7 +106,7 @@ class MigrateOrCreateIdentityV8Handler
         $this->proofManager = $proofManager;
         $this->configurationRepository = $configurationRepository;
         $this->commandBus = $commandBus;
-        $this->upgradeService = new UpgradeService($configurationRepository);
+        $this->upgradeService = $upgradeService;
     }
 
     /**
@@ -117,16 +119,13 @@ class MigrateOrCreateIdentityV8Handler
         $shopId = $command->shopId ?: \Shop::getContextShopID();
         $shopUuid = $this->configurationRepository->getShopUuid();
 
-        $fromVersion = $this->upgradeService->getRegisteredVersion();
-        if ($fromVersion === '0') {
-            $fromVersion = $this->upgradeService->getCoreRegisteredVersion();
-        }
+        $fromVersion = $this->upgradeService->getVersion();
 
         $e = null;
         try {
             // FIXME: shouldn't this condition be a specific flag
             if (!$shopUuid || version_compare($fromVersion, '8', '>=')) {
-                $this->upgradeService->setRegisteredVersion();
+                $this->upgradeService->setVersion();
 
                 $this->commandBus->handle(new CreateIdentityCommand($command->shopId));
 
@@ -163,7 +162,7 @@ class MigrateOrCreateIdentityV8Handler
 
             $this->statusManager->invalidateCache();
 
-            $this->upgradeService->setRegisteredVersion();
+            $this->upgradeService->setVersion();
         } catch (OAuth2Exception $e) {
         } catch (AccountsException $e) {
         } catch (RefreshTokenException $e) {
