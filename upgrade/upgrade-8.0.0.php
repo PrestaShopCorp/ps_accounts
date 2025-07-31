@@ -20,13 +20,17 @@ function upgrade_module_8_0_0($module)
         /** @var CommandBus $commandBus */
         $commandBus = $module->getService(CommandBus::class);
 
-        $commandBus->handle(new MigrateOrCreateIdentitiesV8Command());
+        $commandBus->handle(new MigrateOrCreateIdentitiesV8Command($module->getRegisteredVersion()));
 
         /* @phpstan-ignore-next-line */
     } catch (\Throwable $e) {
         Logger::getInstance()->error('error during upgrade : ' . $e->getMessage());
+
+        return false;
     } catch (\Exception $e) {
         Logger::getInstance()->error('error during upgrade : ' . $e->getMessage());
+
+        return false;
     }
 
     return true;

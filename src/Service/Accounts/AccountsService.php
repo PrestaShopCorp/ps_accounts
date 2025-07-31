@@ -35,6 +35,14 @@ use PrestaShop\Module\PsAccounts\Vendor\Ramsey\Uuid\Uuid;
 
 class AccountsService
 {
+    const HEADER_AUTHORIZATION = 'Authorization';
+    const HEADER_MODULE_SOURCE = 'X-Module-Source';
+    const HEADER_MODULE_VERSION = 'X-Module-Version';
+    const HEADER_PRESTASHOP_VERSION = 'X-Prestashop-Version';
+    const HEADER_MULTISHOP_ENABLED = 'X-Multishop-Enabled';
+    const HEADER_REQUEST_ID = 'X-Request-ID';
+    const HEADER_SHOP_ID = 'X-Shop-Id';
+
     /**
      * @var Client
      */
@@ -90,10 +98,10 @@ class AccountsService
     {
         return array_merge([
             'Accept' => 'application/json',
-            'X-Module-Version' => \Ps_accounts::VERSION,
-            'X-Prestashop-Version' => _PS_VERSION_,
-            'X-Multishop-Enabled' => \Shop::isFeatureActive() ? 'true' : 'false',
-            'X-Request-ID' => Uuid::uuid4()->toString(),
+            self::HEADER_MODULE_VERSION => \Ps_accounts::VERSION,
+            self::HEADER_PRESTASHOP_VERSION => _PS_VERSION_,
+            self::HEADER_MULTISHOP_ENABLED => \Shop::isFeatureActive() ? 'true' : 'false',
+            self::HEADER_REQUEST_ID => Uuid::uuid4()->toString(),
         ], $additionalHeaders);
     }
 
@@ -111,7 +119,7 @@ class AccountsService
             '/v1/shop-identities/' . $cloudShopId . '/tokens',
             [
                 Request::HEADERS => $this->getHeaders([
-                    'Authorization' => 'Bearer ' . $accessToken,
+                    self::HEADER_AUTHORIZATION => 'Bearer ' . $accessToken,
                 ]),
             ]
         );
@@ -137,7 +145,7 @@ class AccountsService
             'v1/shop/token/refresh',
             [
                 Request::HEADERS => $this->getHeaders([
-                    'X-Shop-Id' => $cloudShopId,
+                    self::HEADER_SHOP_ID => $cloudShopId,
                 ]),
                 Request::JSON => [
                     'token' => $refreshToken,
@@ -165,8 +173,8 @@ class AccountsService
             'v1/user/' . $ownerUid . '/shop/' . $cloudShopId,
             [
                 Request::HEADERS => $this->getHeaders([
-                    'Authorization' => 'Bearer ' . $ownerToken,
-                    'X-Shop-Id' => $cloudShopId,
+                    self::HEADER_AUTHORIZATION => 'Bearer ' . $ownerToken,
+                    self::HEADER_SHOP_ID => $cloudShopId,
                 ]),
             ]
         );
@@ -187,8 +195,8 @@ class AccountsService
             [
                 Request::HEADERS => $this->getHeaders([
                     // FIXME: use shop access token instead
-                    'Authorization' => 'Bearer ' . $ownerToken,
-                    'X-Shop-Id' => $cloudShopId,
+                    self::HEADER_AUTHORIZATION => 'Bearer ' . $ownerToken,
+                    self::HEADER_SHOP_ID => $cloudShopId,
                 ]),
                 Request::JSON => $shop->jsonSerialize(),
             ]
@@ -238,7 +246,7 @@ class AccountsService
             '/v1/shop-identities',
             [
                 Request::HEADERS => $this->getHeaders([
-                    'X-Module-Source' => $source,
+                    self::HEADER_MODULE_SOURCE => $source,
                 ]),
                 Request::JSON => [
                     'backOfficeUrl' => $shopUrl->getBackOfficeUrl(),
@@ -273,9 +281,9 @@ class AccountsService
             '/v1/shop-identities/' . $cloudShopId . '/verify',
             [
                 Request::HEADERS => $this->getHeaders([
-                    'Authorization' => 'Bearer ' . $shopToken,
-                    'X-Shop-Id' => $cloudShopId,
-                    'X-Module-Source' => $source,
+                    self::HEADER_AUTHORIZATION => 'Bearer ' . $shopToken,
+                    self::HEADER_SHOP_ID => $cloudShopId,
+                    self::HEADER_MODULE_SOURCE => $source,
                 ]),
                 Request::JSON => [
                     'backOfficeUrl' => $shopUrl->getBackOfficeUrl(),
@@ -305,8 +313,8 @@ class AccountsService
             '/v1/shop-identities/' . $cloudShopId . '/status',
             [
                 Request::HEADERS => $this->getHeaders([
-                    'Authorization' => 'Bearer ' . $shopToken,
-                    'X-Shop-Id' => $cloudShopId,
+                    self::HEADER_AUTHORIZATION => 'Bearer ' . $shopToken,
+                    self::HEADER_SHOP_ID => $cloudShopId,
                 ]),
             ]
         );
@@ -334,9 +342,9 @@ class AccountsService
             '/v1/shop-identities/' . $cloudShopId . '/point-of-contact',
             [
                 Request::HEADERS => $this->getHeaders([
-                    'Authorization' => 'Bearer ' . $shopToken,
-                    'X-Shop-Id' => $cloudShopId,
-                    'X-Module-Source' => $source,
+                    self::HEADER_AUTHORIZATION => 'Bearer ' . $shopToken,
+                    self::HEADER_SHOP_ID => $cloudShopId,
+                    self::HEADER_MODULE_SOURCE => $source,
                 ]),
                 Request::JSON => [
                     'pointOfContactJWT' => $userToken,
@@ -367,9 +375,9 @@ class AccountsService
             '/v1/shop-identities/' . $cloudShopId . '/migrate',
             [
                 Request::HEADERS => $this->getHeaders([
-                    'Authorization' => 'Bearer ' . $shopToken,
-                    'X-Shop-Id' => $cloudShopId,
-                    'X-Module-Source' => $source,
+                    self::HEADER_AUTHORIZATION => 'Bearer ' . $shopToken,
+                    self::HEADER_SHOP_ID => $cloudShopId,
+                    self::HEADER_MODULE_SOURCE => $source,
                 ]),
                 Request::JSON => [
                     'backOfficeUrl' => $shopUrl->getBackOfficeUrl(),
