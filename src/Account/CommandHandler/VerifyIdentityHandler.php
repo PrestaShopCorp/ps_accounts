@@ -89,7 +89,7 @@ class VerifyIdentityHandler
      */
     public function handle(VerifyIdentityCommand $command)
     {
-        $cachedStatus = $this->statusManager->getStatus();
+        $cachedStatus = $this->statusManager->getStatus($command->source);
 
         if ($cachedStatus->isVerified) {
             return;

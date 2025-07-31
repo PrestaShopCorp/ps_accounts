@@ -49,6 +49,7 @@ class GetContextHandler
      */
     public function handle(GetContextQuery $query)
     {
+        // TODO: use UpgradeService here ?
         $psAccountsVersion = \Db::getInstance()->getValue('SELECT version FROM ' . _DB_PREFIX_ . 'module WHERE name = "ps_accounts"');
 
         return [
@@ -57,6 +58,7 @@ class GetContextHandler
                 'module_version_from_files' => \Ps_accounts::VERSION,
             ],
             'groups' => $this->shopProvider->getShops(
+                $query->source,
                 $query->groupId,
                 $query->shopId,
                 $query->refresh
