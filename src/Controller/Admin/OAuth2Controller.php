@@ -322,7 +322,6 @@ class OAuth2Controller extends FrameworkBundleAdminController
     {
         return (new Response())->setContent('
 <script type="text/javascript">
-' . ($refreshParent ? 'window.opener.location.reload();' : '') . '
 window.close();
 </script>
 ');

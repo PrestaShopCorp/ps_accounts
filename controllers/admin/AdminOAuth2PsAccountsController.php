@@ -279,7 +279,6 @@ class AdminOAuth2PsAccountsController extends \ModuleAdminController
     {
         echo '
 <script type="text/javascript">
-' . ($refreshParent ? 'window.opener.location.reload();' : '') . '
 window.close();
 </script>
 ';
