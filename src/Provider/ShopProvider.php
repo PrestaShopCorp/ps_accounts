@@ -322,31 +322,38 @@ class ShopProvider
     }
 
     /**
-     * @param string|null $groupId
-     * @param string|null $shopId
+     * @param int $contextType
+     * @param int|null $contextId
      * @param bool $refresh
      *
      * @return array
      */
-    public function getShops($groupId = null, $shopId = null, $refresh = false)
+    public function getShops($contextType = \Shop::CONTEXT_ALL, $contextId = null, $refresh = false)
     {
         $shopList = [];
+
         foreach (\Shop::getTree() as $groupData) {
-            if ($groupId !== null && $groupId !== $groupData['id']) {
+            if ($contextType === \Shop::CONTEXT_GROUP && $contextId != $groupData['id']) {
                 continue;
             }
 
             $shops = [];
             foreach ($groupData['shops'] as $shopData) {
-                if ($shopId !== null && $shopId !== $shopData['id_shop']) {
+                if ($contextType === \Shop::CONTEXT_SHOP && $contextId != $shopData['id_shop']) {
                     continue;
                 }
 
                 $this->getShopContext()->execInShopContext(
                     $shopData['id_shop'],
                     function () use (&$shops, $shopData, $refresh) {
+                        $status = null;
+                        try {
+                            $status = $this->shopStatus->getStatus($refresh);
+                        } catch (\Exception $e) {
+                        }
+
                         $shopUrl = $this->getUrl((int) $shopData['id_shop']);
-                        $shopStatus = $this->shopStatus->getStatus($refresh);
+                        $shopStatus = $status;
                         $identifyUrl = $this->oAuth2Service->getOAuth2Client()->getRedirectUri([
                             'action' => 'identifyPointOfContact',
                         ]);

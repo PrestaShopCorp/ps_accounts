@@ -20,7 +20,9 @@
 
 namespace PrestaShop\Module\PsAccounts\Presenter;
 
+use PrestaShop\Module\PsAccounts\Account\Query\GetContextQuery;
 use PrestaShop\Module\PsAccounts\Account\StatusManager;
+use PrestaShop\Module\PsAccounts\Cqrs\QueryBus;
 use PrestaShop\Module\PsAccounts\Installer\Installer;
 use PrestaShop\Module\PsAccounts\Provider\ShopProvider;
 use PrestaShop\Module\PsAccounts\Repository\ConfigurationRepository;
@@ -59,6 +61,11 @@ class PsAccountsPresenter implements PresenterInterface
     private $psAccountsService;
 
     /**
+     * @var QueryBus
+     */
+    private $queryBus;
+
+    /**
      * @var \Ps_accounts
      */
     private $module;
@@ -78,6 +85,7 @@ class PsAccountsPresenter implements PresenterInterface
         $this->statusManager = $module->getService(StatusManager::class);
         $this->installer = $module->getService(Installer::class);
         $this->configuration = $module->getService(ConfigurationRepository::class);
+        $this->queryBus = $this->module->getService(QueryBus::class);
 
         // FIXME: find a better place for this
         $this->configuration->fixMultiShopConfig();
@@ -165,6 +173,7 @@ class PsAccountsPresenter implements PresenterInterface
                     'accountsUiUrl' => $this->module->getParameter('ps_accounts.accounts_ui_url'),
 
                     'component_params_init' => $this->psAccountsService->getComponentInitParams($psxName),
+                    'context' => $this->queryBus->handle(new GetContextQuery($shopContext->getShopContext(), $shopContext->getShopContextId())),
                 ],
                 (new DependenciesPresenter())->present($psxName)
             );
