@@ -20,18 +20,13 @@
 require_once __DIR__ . '/../../src/Polyfill/Traits/Controller/AjaxRender.php';
 
 use PrestaShop\Module\PsAccounts\Account\Command\DeleteUserShopCommand;
-use PrestaShop\Module\PsAccounts\Account\Command\MigrateOrCreateIdentityV8Command;
-use PrestaShop\Module\PsAccounts\Account\Query\GetContextQuery;
 use PrestaShop\Module\PsAccounts\Account\Session\Firebase\ShopSession;
 use PrestaShop\Module\PsAccounts\Account\StatusManager;
 use PrestaShop\Module\PsAccounts\AccountLogin\OAuth2Session;
 use PrestaShop\Module\PsAccounts\Cqrs\CommandBus;
-use PrestaShop\Module\PsAccounts\Cqrs\QueryBus;
 use PrestaShop\Module\PsAccounts\Hook\ActionShopAccountUnlinkAfter;
-use PrestaShop\Module\PsAccounts\Log\Logger;
 use PrestaShop\Module\PsAccounts\Polyfill\Traits\Controller\AjaxRender;
 use PrestaShop\Module\PsAccounts\Repository\ConfigurationRepository;
-use PrestaShop\Module\PsAccounts\Service\Accounts\AccountsException;
 use PrestaShop\Module\PsAccounts\Service\SentryService;
 
 /**
@@ -52,11 +47,6 @@ class AdminAjaxPsAccountsController extends \ModuleAdminController
     private $commandBus;
 
     /**
-     * @var QueryBus
-     */
-    private $queryBus;
-
-    /**
      * AdminAjaxPsAccountsController constructor.
      *
      * @throws Exception
@@ -66,7 +56,6 @@ class AdminAjaxPsAccountsController extends \ModuleAdminController
         parent::__construct();
 
         $this->commandBus = $this->module->getService(CommandBus::class);
-        $this->queryBus = $this->module->getService(QueryBus::class);
 
         $this->ajax = true;
         $this->content_only = true;
@@ -172,85 +161,5 @@ class AdminAjaxPsAccountsController extends \ModuleAdminController
         } catch (Exception $e) {
             SentryService::captureAndRethrow($e);
         }
-    }
-
-    /**
-     * @return void
-     *
-     * @throws Exception
-     */
-    public function ajaxProcessGetContext()
-    {
-        header('Content-Type: text/json');
-
-        try {
-            $command = new GetContextQuery(
-                Tools::getValue('group_id', null),
-                Tools::getValue('shop_id', null),
-                filter_var(Tools::getValue('refresh', false), FILTER_VALIDATE_BOOLEAN)
-            );
-
-            $this->ajaxRender(
-                (string) json_encode($this->queryBus->handle($command))
-            );
-        } catch (Exception $e) {
-            $this->handleError($e);
-        }
-    }
-
-    /**
-     * @return void
-     *
-     * @throws Exception
-     */
-    public function ajaxProcessFallbackCreateIdentity()
-    {
-        header('Content-Type: text/json');
-        $shopId = Tools::getValue('shop_id', null);
-
-        try {
-            if (!$shopId) {
-                throw new Exception('Shop ID is required for migration or creation.');
-            }
-            $command = new MigrateOrCreateIdentityV8Command($shopId);
-
-            $this->ajaxRender(
-                (string) json_encode($this->commandBus->handle($command))
-            );
-        } catch (Exception $e) {
-            $this->handleError($e);
-        }
-    }
-
-    /**
-     * @param Exception $e
-     *
-     * @return void
-     */
-    protected function handleError(Exception $e)
-    {
-        Logger::getInstance()->error($e);
-
-        if ($e instanceof AccountsException) {
-            http_response_code(400);
-
-            $this->ajaxRender(
-                (string) json_encode([
-                    'message' => $e->getMessage(),
-                    'code' => $e->getErrorCode(),
-                ])
-            );
-
-            return;
-        }
-
-        http_response_code(500);
-
-        $this->ajaxRender(
-            (string) json_encode([
-                'message' => $e->getMessage() ? $e->getMessage() : 'Unknown Error',
-                'code' => 'unknown-error',
-            ])
-        );
     }
 }
