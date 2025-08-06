@@ -15,11 +15,11 @@ jobs:
     strategy:
       max-parallel: 1
       matrix:
-        shop_version:
-        - 9.0.0-8.1-fpm-alpine-nginx
-        - 8.2.0-8.1-fpm-alpine
-        - 1.7.8.8-7.4-fpm-alpine
-        - 1.6.1.24-7.1-fpm-alpine
+        test_run:
+        - installation-tests
+        - association-diassociaiton-tests
+        - multistore-association-diassociation-tests
+        - upgrade-tests
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v4
@@ -88,14 +88,14 @@ jobs:
 
       - name: Run test
         working-directory: ./e2e
-        run: npm run installation-tests -- ${{ matrix.shop_version }}
+        run: npm run installation-tests -- ${{ matrix.test_run }}
         continue-on-error: true
 
       - name: Upload Allure Results
         uses: actions/upload-artifact@v4
         with:
-          name: allure-results-${{ matrix.shop_version }}
-          path: ./e2e/allure-results-${{ matrix.shop_version }}
+          name: allure-results-${{ matrix.test_run }}
+          path: ./e2e/allure-results-${{ matrix.test_run }}
 
   merge-allure:
     name: Merge Allure Results, Genreate Roprt & Send Slack notification

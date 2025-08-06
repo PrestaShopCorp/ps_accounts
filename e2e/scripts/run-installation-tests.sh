@@ -4,7 +4,7 @@ if [ -n "$1" ]; then
   SHOP_VERSIONS=("$1")
 else
 SHOP_VERSIONS=(
-  9.0.0-8.1-fpm-alpine-nginx
+  nightly-nginx    
   8.2.0-8.1-fpm-alpine
   1.7.8.8-7.4-fpm-alpine
   1.6.1.24-7.1-fpm-alpine
