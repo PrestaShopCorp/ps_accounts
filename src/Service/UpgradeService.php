@@ -36,14 +36,6 @@ class UpgradeService
     }
 
     /**
-     * @return string
-     */
-    private function getRegisteredVersion()
-    {
-        return $this->repository->getLastUpgrade(false);
-    }
-
-    /**
      * @param string $version
      *
      * @return void
@@ -51,6 +43,14 @@ class UpgradeService
     public function setVersion($version = \Ps_accounts::VERSION)
     {
         $this->repository->updateLastUpgrade($version);
+    }
+
+    /**
+     * @return string
+     */
+    private function getRegisteredVersion()
+    {
+        return $this->repository->getLastUpgrade(false);
     }
 
     /**
