@@ -88,7 +88,7 @@ jobs:
 
       - name: Run test
         working-directory: ./e2e
-        run: npm run tnr -- ${{ matrix.shop_version }}
+        run: npm run installation-tests -- ${{ matrix.shop_version }}
         continue-on-error: true
 
       - name: Upload Allure Results
