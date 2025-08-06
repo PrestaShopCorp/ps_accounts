@@ -16,12 +16,10 @@ jobs:
       max-parallel: 1
       matrix:
         shop_version:
-        - 1.6.1.24-7.1-fpm-alpine
-        - 1.7.8.7-7.4-fpm-alpine
-        - 1.7.8.8-7.4-fpm-alpine
-        - 8.1.0-8.1-fpm-alpine
+        - 9.0.0-alpine-nginx
         - 8.2.0-8.1-fpm-alpine
-        - nightly-nginx
+        - 1.7.8.8-7.4-fpm-alpine
+        - 1.6.1.24-7.1-fpm-alpine
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v4
