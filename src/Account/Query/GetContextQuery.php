@@ -24,14 +24,14 @@ namespace PrestaShop\Module\PsAccounts\Account\Query;
 class GetContextQuery
 {
     /**
-     * @var string|null
+     * @var int
      */
-    public $groupId;
+    public $contextType;
 
     /**
-     * @var string|null
+     * @var int|null
      */
-    public $shopId;
+    public $contextId;
 
     /**
      * @var bool
@@ -39,14 +39,14 @@ class GetContextQuery
     public $refresh;
 
     /**
-     * @param string|null $groupId
-     * @param string|null $shopId
+     * @param int|null $contextType
+     * @param int|null $contextId
      * @param bool $refresh
      */
-    public function __construct($groupId = null, $shopId = null, $refresh = false)
+    public function __construct($contextType = \Shop::CONTEXT_ALL, $contextId = null, $refresh = false)
     {
-        $this->groupId = $groupId;
-        $this->shopId = $shopId;
+        $this->contextType = $contextType;
+        $this->contextId = $contextId;
         $this->refresh = $refresh;
     }
 }
