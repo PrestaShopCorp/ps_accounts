@@ -13,7 +13,7 @@ jobs:
     name: Run Account tests
     runs-on: ubuntu-latest
     strategy:
-      # max-parallel: 2
+      max-parallel: 1
       matrix:
         shop_version:
         - 1.6.1.24-7.1-fpm-alpine
