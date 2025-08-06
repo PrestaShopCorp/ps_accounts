@@ -68,7 +68,7 @@ class AdminAjaxV2PsAccountsController extends \ModuleAdminController
     }
 
     /**
-     * @return void
+     * @return ObjectModel|bool|void
      */
     public function postProcess()
     {
@@ -88,7 +88,7 @@ class AdminAjaxV2PsAccountsController extends \ModuleAdminController
         header('Content-Type: application/json');
 
         try {
-            parent::postProcess();
+            return parent::postProcess();
         } catch (Exception $e) {
             $this->handleError($e);
         }
