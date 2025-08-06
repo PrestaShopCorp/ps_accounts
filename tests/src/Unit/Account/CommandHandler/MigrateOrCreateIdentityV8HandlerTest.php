@@ -12,6 +12,7 @@ use PrestaShop\Module\PsAccounts\Http\Client\Request;
 use PrestaShop\Module\PsAccounts\Http\Client\Response;
 use PrestaShop\Module\PsAccounts\Service\Accounts\AccountsService;
 use PrestaShop\Module\PsAccounts\Provider\ShopProvider;
+use PrestaShop\Module\PsAccounts\Service\Accounts\AccountsException;
 use PrestaShop\Module\PsAccounts\Service\OAuth2\OAuth2Service;
 use PrestaShop\Module\PsAccounts\Service\UpgradeService;
 use PrestaShop\Module\PsAccounts\Tests\TestCase;
@@ -360,6 +361,8 @@ JSON;
                     "message" => 'Cannot migrate shop',
                 ], 400, true);
             });
+
+        $this->expectException(AccountsException::class);
 
         $this->getHandler()->handle(new MigrateOrCreateIdentityV8Command($this->shopId));
 
