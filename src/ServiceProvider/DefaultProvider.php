@@ -42,6 +42,7 @@ use PrestaShop\Module\PsAccounts\Service\OAuth2\OAuth2Service;
 use PrestaShop\Module\PsAccounts\Service\PsAccountsService;
 use PrestaShop\Module\PsAccounts\Service\PsBillingService;
 use PrestaShop\Module\PsAccounts\Service\SentryService;
+use PrestaShop\Module\PsAccounts\Service\UpgradeService;
 use PrestaShop\Module\PsAccounts\Vendor\PrestaShopCorp\LightweightContainer\ServiceContainer\Contract\IServiceProvider;
 use PrestaShop\Module\PsAccounts\Vendor\PrestaShopCorp\LightweightContainer\ServiceContainer\ServiceContainer;
 use Symfony\Component\DependencyInjection\Exception\ServiceNotFoundException;
@@ -108,6 +109,11 @@ class DefaultProvider implements IServiceProvider
                 $container->getParameter('ps_accounts.environment'),
                 $container->get(StatusManager::class),
                 $container->get('ps_accounts.context')
+            );
+        });
+        $container->registerProvider(UpgradeService::class, static function () use ($container) {
+            return new UpgradeService(
+                $container->get(ConfigurationRepository::class)
             );
         });
         $container->registerProvider(ProofManager::class, static function () use ($container) {
