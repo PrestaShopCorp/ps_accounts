@@ -349,7 +349,8 @@ class ShopProvider
                     function () use (&$shops, $shopData, $refresh) {
                         $shopUrl = $this->getUrl((int) $shopData['id_shop']);
                         try {
-                            $shopStatus = $this->shopStatus->getStatus($refresh);
+                            $cacheTtl = $refresh ? 0 : StatusManager::CACHE_TTL;
+                            $shopStatus = $this->shopStatus->getStatus(false, $cacheTtl);
                         } catch (UnknownStatusException $e) {
                             $shopStatus = new ShopStatus([
                                 'frontendUrl' => $shopUrl->getFrontendUrl(),
