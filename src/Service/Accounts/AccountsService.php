@@ -124,10 +124,7 @@ class AccountsService
         );
 
         if (!$response->isSuccessful) {
-            throw new AccountsException($response,
-                'Unable to get firebase tokens',
-                'store-identity/unable-to-get-deprecated-tokens'
-            );
+            throw new AccountsException($response, 'Unable to get firebase tokens', 'store-identity/unable-to-get-deprecated-tokens');
         }
 
         return new FirebaseTokens($response->body);
@@ -156,10 +153,7 @@ class AccountsService
         );
 
         if (!$response->isSuccessful) {
-            throw new AccountsException($response,
-                'Unable to refresh firebase shop token',
-                'store/unable-to-refresh-shop-token'
-            );
+            throw new AccountsException($response, 'Unable to refresh firebase shop token', 'store/unable-to-refresh-shop-token');
         }
 
         return new LegacyFirebaseToken($response->body);
@@ -259,10 +253,7 @@ class AccountsService
         );
 
         if (!$response->isSuccessful) {
-            throw new AccountsException($response,
-                'Unable to create shop identity',
-                'store-identity/unable-to-create-shop-identity'
-            );
+            throw new AccountsException($response, 'Unable to create shop identity', 'store-identity/unable-to-create-shop-identity');
         }
 
         return new IdentityCreated($response->body);
@@ -297,10 +288,7 @@ class AccountsService
         );
 
         if (!$response->isSuccessful) {
-            throw new AccountsException($response,
-                'Unable to verify shop identity',
-                'store-identity/unable-to-verify-shop-identity'
-            );
+            throw new AccountsException($response, 'Unable to verify shop identity', 'store-identity/unable-to-verify-shop-identity');
         }
     }
 
@@ -325,10 +313,7 @@ class AccountsService
         );
 
         if (!$response->isSuccessful) {
-            throw new AccountsException($response,
-                'Unable to retrieve shop status',
-                'store-identity/unable-to-retrieve-shop-status'
-            );
+            throw new AccountsException($response, 'Unable to retrieve shop status', 'store-identity/unable-to-retrieve-shop-status');
         }
 
         return new ShopStatus($response->body);
@@ -359,10 +344,7 @@ class AccountsService
         );
 
         if (!$response->isSuccessful) {
-            throw new AccountsException($response,
-                'Unable to set point of contact',
-                'store-identity/unable-to-set-point-of-contact'
-            );
+            throw new AccountsException($response, 'Unable to set point of contact', 'store-identity/unable-to-set-point-of-contact');
         }
     }
 
@@ -397,10 +379,7 @@ class AccountsService
         );
 
         if (!$response->isSuccessful) {
-            throw new AccountsException($response,
-                'Unable to migrate shop identity',
-                'store-identity/unable-to-migrate-shop-identity'
-            );
+            throw new AccountsException($response, 'Unable to migrate shop identity', 'store-identity/unable-to-migrate-shop-identity');
         }
 
         return new IdentityCreated($response->body);
