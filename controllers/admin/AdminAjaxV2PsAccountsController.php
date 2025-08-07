@@ -72,11 +72,13 @@ class AdminAjaxV2PsAccountsController extends \ModuleAdminController
      */
     public function postProcess()
     {
-        header('Access-Control-Allow-Origin: *'); // TODO: list authorized domains ?
+        if (in_array($_SERVER['HTTP_ORIGIN'], $this->module->getParameter('ps_accounts.cors_allowed_origins'))) {
+            header('Access-Control-Allow-Origin: ' . $_SERVER['HTTP_ORIGIN']);
+        }
 
         if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
-            header('Access-Control-Allow-Headers: Content-Type, Authorization, X-Requested-With'); // TODO: What headers are allowed ? Token ?
-            header('Access-Control-Allow-Private-Network: true');
+            // header('Access-Control-Allow-Headers: Content-Type, Authorization, X-Requested-With'); // TODO: What headers are allowed ?
+            // header('Access-Control-Allow-Private-Network: true');
             // header('Access-Control-Request-Credentials: true');
             header('Access-Control-Max-Age: 1728000');
             header('Content-Length: 0');
