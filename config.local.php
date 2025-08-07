@@ -22,8 +22,8 @@ return [
     'ps_accounts.environment' => 'development',
     'ps_accounts.accounts_api_url' => 'https://accounts-api.prestashop.local/',
     'ps_accounts.accounts_ui_url' => 'https://accounts.prestashop.local',
-    'ps_accounts.sso_api_url' => 'https://auth.prestashop.local/api/',
-    'ps_accounts.sso_account_url' => 'https://auth.prestashop.local/login',
+    'ps_accounts.sso_api_url' => 'https://auth2.prestashop.local/api/',
+    'ps_accounts.sso_account_url' => 'https://auth2.prestashop.local/login',
     'ps_accounts.sso_resend_verification_email_url' => 'https://auth.prestashop.local/account/send-verification-email',
     'ps_accounts.billing_api_url' => 'https://billing-api.psessentials-integration.net',
     'ps_accounts.indirect_channel_api_url' => 'https://indirect-channel-api-integration.prestashop.net',
@@ -33,15 +33,19 @@ return [
     'ps_accounts.check_api_ssl_cert' => false,
     'ps_accounts.verify_account_tokens' => false,
     'ps_accounts.accounts_vue_cdn_url' => 'http://prestashop8.docker.localhost/upload/psaccountsVue.umd.min.js',
-    //ps_accounts.accounts_cdn_url' => 'http://prestashop8.docker.localhost/upload/psaccountsVue.js'
-    //ps_accounts.accounts_cdn_url' => 'https://unpkg.com/prestashop_accounts_vue_components@5.1.0-test-1/dist/psaccountsVue.js'
+    // 'ps_accounts.accounts_cdn_url' => 'https://unpkg.com/@prestashopcorp/accounts-components@beta',
     'ps_accounts.accounts_cdn_url' => 'http://127.0.0.1:3010/psaccountsVue.js',
+    'ps_accounts.cors_allowed_origins' => [
+        'https://integration-assets.prestashop3.com',
+        'https://preproduction-assets.prestashop3.com',
+        'https://assets.prestashop3.com',
+    ],
 
     // a page to display "Update Your Module" message
     'ps_accounts.svc_accounts_ui_url' => 'https://accounts.prestashop.local/',
 
     // OAuth2 setup
-    'ps_accounts.oauth2_url' => 'https://oauth.prestashop.local',
+    'ps_accounts.oauth2_url' => 'https://oauth2.prestashop.local',
     'ps_accounts.token_audience' => 'https://accounts-api.prestashop.local',
 
     'ps_accounts.testimonials_url' => 'https://assets.prestashop3.com/dst/accounts/assets/testimonials.json',
