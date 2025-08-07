@@ -132,7 +132,7 @@ class AdminOAuth2PsAccountsController extends \ModuleAdminController
         );
 
         if ($this->getOAuthAction() === 'identifyPointOfContact') {
-            $this->commandBus->handle(new IdentifyContactCommand($accessToken));
+            $this->commandBus->handle(new IdentifyContactCommand($accessToken, $this->getSource()));
 
             return true;
         }

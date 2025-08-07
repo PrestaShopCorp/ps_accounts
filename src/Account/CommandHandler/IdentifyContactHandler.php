@@ -67,7 +67,7 @@ class IdentifyContactHandler
      */
     public function handle(IdentifyContactCommand $command)
     {
-        $status = $this->statusManager->getStatus();
+        $status = $this->statusManager->getStatus($command->source);
         if (!$status->isVerified) {
             return;
         }
@@ -75,7 +75,8 @@ class IdentifyContactHandler
         $this->accountsService->setPointOfContact(
             $this->statusManager->getCloudShopId(),
             $this->shopSession->getValidToken(),
-            $command->accessToken->access_token
+            $command->accessToken->access_token,
+            $command->source
         );
         $this->statusManager->invalidateCache();
     }

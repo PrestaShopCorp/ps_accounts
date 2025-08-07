@@ -20,7 +20,7 @@ function upgrade_module_8_0_0($module)
         /** @var CommandBus $commandBus */
         $commandBus = $module->getService(CommandBus::class);
 
-        $commandBus->handle(new MigrateOrCreateIdentitiesV8Command($module->getRegisteredVersion()));
+        $commandBus->handle(new MigrateOrCreateIdentitiesV8Command('ps_accounts/upgrade/' . $module->getRegisteredVersion()));
 
         /* @phpstan-ignore-next-line */
     } catch (\Throwable $e) {
