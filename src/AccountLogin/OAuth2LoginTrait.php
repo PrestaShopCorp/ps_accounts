@@ -106,6 +106,7 @@ trait OAuth2LoginTrait
         $state = Tools::getValue('state', '');
         $code = Tools::getValue('code', '');
         $action = Tools::getValue('action', 'login');
+        $source = Tools::getValue('source', 'ps_accounts/' . $action);
 
         if (!empty($error)) {
             // Got an error, probably user denied access
@@ -116,6 +117,7 @@ trait OAuth2LoginTrait
             $oauth2Session->clear();
 
             $this->setOAuthAction($action);
+            $this->setSource($source);
 
             $this->setSessionReturnTo(Tools::getValue($this->getReturnToParam()));
 
@@ -245,6 +247,24 @@ trait OAuth2LoginTrait
     private function setOAuthAction($action)
     {
         $this->getSession()->set('oauth2action', $action);
+    }
+
+    /**
+     * @return string
+     */
+    private function getSource()
+    {
+        return $this->getSession()->get('source');
+    }
+
+    /**
+     * @param string $source
+     *
+     * @return void
+     */
+    private function setSource($source)
+    {
+        $this->getSession()->set('source', $source);
     }
 
     /**
