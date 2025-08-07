@@ -322,13 +322,14 @@ class ShopProvider
     }
 
     /**
+     * @param string|null $source
      * @param string|null $groupId
      * @param string|null $shopId
      * @param bool $refresh
      *
      * @return array
      */
-    public function getShops($groupId = null, $shopId = null, $refresh = false)
+    public function getShops($source = null, $groupId = null, $shopId = null, $refresh = false)
     {
         $shopList = [];
         foreach (\Shop::getTree() as $groupData) {
@@ -344,11 +345,12 @@ class ShopProvider
 
                 $this->getShopContext()->execInShopContext(
                     $shopData['id_shop'],
-                    function () use (&$shops, $shopData, $refresh) {
+                    function () use (&$shops, $shopData, $source, $refresh) {
                         $shopUrl = $this->getUrl((int) $shopData['id_shop']);
                         $shopStatus = $this->shopStatus->getStatus($refresh);
                         $identifyPointOfContactUrl = $this->oAuth2Service->getOAuth2Client()->getRedirectUri([
                             'action' => 'identifyPointOfContact',
+                            'source' => $source,
                         ]);
 
                         $shops[] = [
@@ -358,7 +360,7 @@ class ShopProvider
                             'frontendUrl' => $shopUrl->getFrontendUrl(),
                             'identifyPointOfContactUrl' => $identifyPointOfContactUrl,
                             'shopStatus' => $shopStatus,
-                            'fallbackCreateIdentityUrl' => $this->link->getAdminLink('AdminAjaxPsAccounts', true, [], ['ajax' => 1, 'action' => 'fallbackCreateIdentity', 'shop_id' => $shopData['id_shop']]),
+                            'fallbackCreateIdentityUrl' => $this->link->getAdminLink('AdminAjaxPsAccounts', true, [], ['ajax' => 1, 'action' => 'fallbackCreateIdentity', 'shop_id' => $shopData['id_shop'], 'source' => $source]),
                         ];
                     }
                 );
