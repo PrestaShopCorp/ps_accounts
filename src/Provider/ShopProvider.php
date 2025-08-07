@@ -351,7 +351,9 @@ class ShopProvider
                         try {
                             $shopStatus = $this->shopStatus->getStatus($refresh);
                         } catch (UnknownStatusException $e) {
-                            $shopStatus = new ShopStatus();
+                            $shopStatus = new ShopStatus([
+                                'frontendUrl' => $shopUrl->getFrontendUrl(),
+                            ]);
                         }
                         $identifyPointOfContactUrl = $this->oAuth2Service->getOAuth2Client()->getRedirectUri([
                             'action' => 'identifyPointOfContact',
