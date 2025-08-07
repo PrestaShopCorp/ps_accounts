@@ -271,7 +271,7 @@ class PsAccountsService
      */
     public function getContextUrl()
     {
-        return $this->link->getAdminLink('AdminAjaxPsAccounts', true, [], ['ajax' => 1, 'action' => 'getContext']);
+        return $this->link->getAdminLink('AdminAjaxV2PsAccounts', true, [], ['ajax' => 1, 'action' => 'getContext']);
     }
 
     /**

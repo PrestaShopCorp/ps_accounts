@@ -63,8 +63,8 @@ class GetContextHandler
                 'module_version_from_files' => \Ps_accounts::VERSION,
             ],
             'groups' => $this->shopProvider->getShops(
-                $query->groupId,
-                $query->shopId,
+                $query->contextType,
+                $query->contextId,
                 $query->refresh
             ),
         ];
