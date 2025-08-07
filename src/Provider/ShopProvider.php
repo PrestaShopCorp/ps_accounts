@@ -347,7 +347,7 @@ class ShopProvider
                     $shopData['id_shop'],
                     function () use (&$shops, $shopData, $source, $refresh) {
                         $shopUrl = $this->getUrl((int) $shopData['id_shop']);
-                        $shopStatus = $this->shopStatus->getStatus($refresh);
+                        $shopStatus = $this->shopStatus->getStatus($source, $refresh);
                         $identifyPointOfContactUrl = $this->oAuth2Service->getOAuth2Client()->getRedirectUri([
                             'action' => 'identifyPointOfContact',
                             'source' => $source,
