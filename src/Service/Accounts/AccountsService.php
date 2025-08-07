@@ -124,7 +124,7 @@ class AccountsService
         );
 
         if (!$response->isSuccessful) {
-            throw new AccountsException($response, 'Unable to get deprecated tokens', 'store-identity/unable-to-get-deprecated-tokens');
+            throw new AccountsException($response, 'Unable to get firebase tokens', 'store-identity/unable-to-get-deprecated-tokens');
         }
 
         return new FirebaseTokens($response->body);
@@ -153,7 +153,7 @@ class AccountsService
         );
 
         if (!$response->isSuccessful) {
-            throw new AccountsException($response, 'Unable to refresh shop token', 'store/unable-to-refresh-shop-token');
+            throw new AccountsException($response, 'Unable to refresh firebase shop token', 'store/unable-to-refresh-shop-token');
         }
 
         return new LegacyFirebaseToken($response->body);
