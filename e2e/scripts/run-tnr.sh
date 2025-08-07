@@ -1,6 +1,7 @@
 #!/bin/bash
 
-#Build the shop 
+SHOP_VERSIONS=("$1")
+
 npm run build-shop -- "$PS_VERSION"
 
 #Run the tests
