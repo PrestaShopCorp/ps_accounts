@@ -347,9 +347,10 @@ class ShopProvider
                     $shopData['id_shop'],
                     function () use (&$shops, $shopData, $source, $refresh) {
                         $shopUrl = $this->getUrl((int) $shopData['id_shop']);
-                        $shopStatus = $this->shopStatus->getStatus($source, $refresh);
-                        $identifyUrl = $this->oAuth2Service->getOAuth2Client()->getRedirectUri([
+                        $shopStatus = $this->shopStatus->getStatus($refresh);
+                        $identifyPointOfContactUrl = $this->oAuth2Service->getOAuth2Client()->getRedirectUri([
                             'action' => 'identifyPointOfContact',
+                            'source' => $source,
                         ]);
 
                         $shops[] = [
@@ -357,8 +358,9 @@ class ShopProvider
                             'name' => $shopData['name'],
                             'backOfficeUrl' => $shopUrl->getBackOfficeUrl(),
                             'frontendUrl' => $shopUrl->getFrontendUrl(),
-                            'identifyUrl' => $identifyUrl,
+                            'identifyPointOfContactUrl' => $identifyPointOfContactUrl,
                             'shopStatus' => $shopStatus,
+                            'fallbackCreateIdentityUrl' => $this->link->getAdminLink('AdminAjaxPsAccounts', true, [], ['ajax' => 1, 'action' => 'fallbackCreateIdentity', 'shop_id' => $shopData['id_shop'], 'source' => $source]),
                         ];
                     }
                 );

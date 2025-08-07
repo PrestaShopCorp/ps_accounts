@@ -6,6 +6,7 @@ use PHPUnit\Framework\MockObject\MockObject;
 use PrestaShop\Module\PsAccounts\Account\Query\GetContextQuery;
 use PrestaShop\Module\PsAccounts\Account\QueryHandler\GetContextHandler;
 use PrestaShop\Module\PsAccounts\Provider\ShopProvider;
+use PrestaShop\Module\PsAccounts\Service\UpgradeService;
 use PrestaShop\Module\PsAccounts\Tests\TestCase;
 
 class GetContextHandlerTest extends TestCase
@@ -14,6 +15,13 @@ class GetContextHandlerTest extends TestCase
      * @var ShopProvider&MockObject
      */
     protected $shopProvider;
+
+    /**
+     * @inject
+     *
+     * @var UpgradeService
+     */
+    protected $upgradeService;
 
     /**
      * @test
@@ -63,7 +71,8 @@ class GetContextHandlerTest extends TestCase
     private function getHandler()
     {
         return new GetContextHandler(
-            $this->shopProvider
+            $this->shopProvider,
+            $this->upgradeService
         );
     }
 }
