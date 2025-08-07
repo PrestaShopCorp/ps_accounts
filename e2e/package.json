@@ -10,7 +10,7 @@
     "merge-allure-results": "rm -rf allure-results && mkdir allure-results && for dir in allure-results-*; do cp -r \"$dir\"/* allure-results/; done && rm -rf allure-results-*",
     "generate-allure-report": "allure generate allure-results --clean -o allure-report",
     "clean-test-results": "rm -rf allure-report allure-results allure-results-* test-results playwright-report",
-    "tnr": "run-tnr.sh"
+    "tnr": "./scripts/run-tnr.sh"
   },
   "dependencies": {
     "@prestashopcorp/tests-framework": "4.0.3",
