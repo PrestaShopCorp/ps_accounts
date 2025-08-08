@@ -30,10 +30,10 @@ export default defineConfig({
   use: {
     trace: 'on-first-retry',
     screenshot: 'only-on-failure',
-    headless: process.env.HEADLESS !== 'false',
+    headless: process.env.CI ? true : false,
     userAgent: process.env.QA_USER_AGENT || 'default-ua-dev-mode',
     launchOptions: {
-      args: ['--disable-blink-features=AutomationControlled']
+      slowMo: process.env.CI ? 250 : 0
     }
   }
 });
