@@ -12,7 +12,13 @@ else
     CLEANED_VERSION="${PS_ACCOUNTS_VERSION}" 
 fi
 
-TARGET_ASSET="ps_accounts_preprod-${CLEANED_VERSION#v}.zip"
+
+if echo "$PS_ACCOUNTS_VERSION" | grep -qE '^v[1-6]\.'; then
+    TARGET_ASSET="ps_accounts_preprod.zip"
+else
+    TARGET_ASSET="ps_accounts_preprod-${CLEANED_VERSION#v}.zip"
+fi
+
 
 echo "* [ps_accounts] downloading..."
 echo "https://github.com/${GITHUB_REPOSITORY}/releases/download/${TARGET_VERSION}/${TARGET_ASSET}"

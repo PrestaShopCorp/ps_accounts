@@ -14,11 +14,11 @@ fi
 
 # Définition des variables
 randomPart=$RANDOM
-shopVersion=$1
+shopVersion="${1:-$PS_VERSION}"
 shopVersionSecondeShop=$2
 profile=${3:-flashlight}
+psAccountsVersion="${4:-$PS_ACCOUNTS_VERSION}"
 psDomain="${randomPart}.${DOMAIN}"
-psAccountsVersion="${PS_ACCOUNTS_VERSION}"
 accountTag="${ACCOUNT_TAG}"
 tunnelSecret="${TUNNEL_SECRET}"
 tunnelId="${TUNNEL_ID}"
