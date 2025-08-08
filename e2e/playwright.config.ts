@@ -33,7 +33,7 @@ export default defineConfig({
     headless: process.env.CI ? true : false,
     userAgent: process.env.QA_USER_AGENT || 'default-ua-dev-mode',
     launchOptions: {
-      slowMo: process.env.CI ? 250 : 0
+      slowMo: process.env.CI ? 1000 : 0
     }
   }
 });
