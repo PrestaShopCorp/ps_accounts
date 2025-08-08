@@ -66,6 +66,8 @@ jobs:
           echo "ACCOUNTSAPIURL=${{ secrets.ACCOUNTSAPIURL }}" >> .env
           echo "ACCOUNTSUIURL=${{ secrets.ACCOUNTSUIURL }}" >> .env
           echo "QA_USER_AGENT=${{ secrets.QA_USER_AGENT}}" >> .env
+          echo "ACCOUNT_EMAIL=${{ secrets.ACCOUNT_EMAIL}}" >> .env
+          echo "ACCOUNT_PASSWORD=${{ secrets.ACCOUNT_PASSWORD}}" >> .env
 
       - name: Generate .env in e2e-env file
         working-directory: ./e2e-env
@@ -90,7 +92,7 @@ jobs:
         working-directory: ./e2e
         run: |
           npm run tnr -- ${{ matrix.shop_version  }}
-          npm upgrade-tests -- ${{ matrix.shop_version  }}
+          npm run upgrade-tests -- ${{ matrix.shop_version  }}
         continue-on-error: true
 
       - name: Upload Allure Results
@@ -132,8 +134,18 @@ jobs:
           name: allure-report
           path: ./e2e/allure-report
 
-      - name: Extract versioned results from Allure suites.json
-        id: summary
+  notify-slack-qa:
+    name: Send Slack Notification (qa channel)
+    needs: merge-allure
+    runs-on: ubuntu-latest
+    steps:
+      - name: Download Allure Report
+        uses: actions/download-artifact@v4
+        with:
+          name: allure-report
+          path: ./e2e/allure-report
+
+      - name: Build Slack message
         working-directory: ./e2e/allure-report/widgets
         run: |
           {
@@ -141,23 +153,59 @@ jobs:
             echo
             jq -r '.items[] | "• \(.name) : ✅ \(.statistic.passed) / ❌ \(.statistic.failed) / ⚠️ \(.statistic.broken)"' suites.json
             echo
-            echo "📄 Rapport Allure disponible dans les artifacts du run : 🔗 <${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}|Voir le run GitHub Actions>"
+            echo "📄 Rapport Allure (Artifacts run) : <${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}|Ouvrir le run>"
             echo
-            echo "1️⃣ Téléchargez l'archive du rapport Allure."
-            echo "2️⃣ Installez l'outil Allure CLI si ce n'est pas déjà fait!"
-            echo "3️⃣ Dans un terminal, placez-vous dans le dossier extrait du rapport, puis exécutez :"
-            echo "\`\`\`"
-            echo "allure open"
-            echo "\`\`\`"
+            echo "1️⃣ Téléchargez l'archive."
+            echo "2️⃣ Installez Allure CLI."
+            echo "3️⃣ \`allure open\`"
           } > slack_message.txt
 
-      - name: Prepare Slack payload
+      - name: Prepare payload
+        working-directory: ./e2e/allure-report/widgets
         run: |
-          message=$(cat ./e2e/allure-report/widgets/slack_message.txt | jq -Rs .)
-          echo "{\"channel\": \"${{ secrets.SLACK_CHANNEL_ID }}\", \"text\": $message}" > ./e2e/allure-report/widgets/slack_payload.json
+          msg=$(cat slack_message.txt | jq -Rs .)
+          echo "{\"channel\": \"${{ secrets.SLACK_CHANNEL_QA }}\", \"text\": $msg}" > slack_payload.json
 
       - name: Send Slack Notification
-        if: always()
+        uses: slackapi/slack-github-action@v2.0.0
+        with:
+          method: chat.postMessage
+          token: ${{ secrets.SLACK_BOT_TOKEN }}
+          payload-file-path: ./e2e/allure-report/widgets/slack_payload.json
+
+  notify-slack-account:
+    name: Send Slack Notification (account channel)
+    needs: merge-allure
+    runs-on: ubuntu-latest
+    steps:
+      - name: Download Allure Report
+        uses: actions/download-artifact@v4
+        with:
+          name: allure-report
+          path: ./e2e/allure-report
+
+      - name: Build Slack message
+        working-directory: ./e2e/allure-report/widgets
+        run: |
+          {
+            echo "*Résultats des tests Account AUTOM :* \`${{ github.repository }}\`"
+            echo
+            jq -r '.items[] | "• \(.name) : ✅ \(.statistic.passed) / ❌ \(.statistic.failed) / ⚠️ \(.statistic.broken)"' suites.json
+            echo
+            echo "📄 Rapport Allure (Artifacts run) : <${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}|Ouvrir le run>"
+            echo
+            echo "1️⃣ Téléchargez l'archive."
+            echo "2️⃣ Installez Allure CLI."
+            echo "3️⃣ \`allure open\`"
+          } > slack_message.txt
+
+      - name: Prepare payload
+        working-directory: ./e2e/allure-report/widgets
+        run: |
+          msg=$(cat slack_message.txt | jq -Rs .)
+          echo "{\"channel\": \"${{ secrets.SLACK_CHANNEL_ACCOUNT }}\", \"text\": $msg}" > slack_payload.json
+
+      - name: Send Slack Notification
         uses: slackapi/slack-github-action@v2.0.0
         with:
           method: chat.postMessage
