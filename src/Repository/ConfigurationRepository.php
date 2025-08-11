@@ -424,24 +424,6 @@ class ConfigurationRepository
     }
 
     /**
-     * @return string|null
-     */
-    public function getTokenSignature()
-    {
-        return $this->configuration->getGlobal(ConfigurationKeys::PS_ACCOUNTS_TOKEN_SIGNATURE);
-    }
-
-    /**
-     * @param string|null $tokenSignature
-     *
-     * @return void
-     */
-    public function updateTokenSignature($tokenSignature)
-    {
-        $this->configuration->setGlobal(ConfigurationKeys::PS_ACCOUNTS_TOKEN_SIGNATURE, $tokenSignature);
-    }
-
-    /**
      * specify id_shop & id_shop_group for shop
      *
      * @return void
