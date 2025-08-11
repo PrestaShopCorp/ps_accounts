@@ -65,6 +65,11 @@ class PsAccountsService
     private $statusManager;
 
     /**
+     * @var TokenService
+     */
+    private $tokenService;
+
+    /**
      * @param \Ps_accounts $module
      *
      * @throws \Exception
@@ -77,6 +82,7 @@ class PsAccountsService
         $this->ownerSession = $this->module->getService(Firebase\OwnerSession::class);
         $this->link = $this->module->getService(Link::class);
         $this->statusManager = $module->getService(StatusManager::class);
+        $this->tokenService = $module->getService(TokenService::class);
     }
 
     /**
@@ -352,6 +358,7 @@ class PsAccountsService
             'groupId' => \Shop::getContextShopGroupID(),
             'getContextUrl' => $this->getContextUrl(),
             'manageAccountUrl' => $this->module->getAccountsUiUrl(),
+            'token' => (string) $this->tokenService->getToken(),
             'psxName' => $psxName,
         ];
     }

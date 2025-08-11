@@ -23,24 +23,15 @@ use PrestaShop\Module\PsAccounts\Account\Command\MigrateOrCreateIdentityV8Comman
 use PrestaShop\Module\PsAccounts\Account\Query\GetContextQuery;
 use PrestaShop\Module\PsAccounts\Cqrs\CommandBus;
 use PrestaShop\Module\PsAccounts\Cqrs\QueryBus;
+use PrestaShop\Module\PsAccounts\Http\Controller\AbstractAdminAjaxController;
 use PrestaShop\Module\PsAccounts\Log\Logger;
-use PrestaShop\Module\PsAccounts\Polyfill\Traits\AdminController\IsAnonymousAllowed;
-use PrestaShop\Module\PsAccounts\Polyfill\Traits\Controller\AjaxRender;
 use PrestaShop\Module\PsAccounts\Service\Accounts\AccountsException;
 
 /**
  * Controller for all ajax calls.
  */
-class AdminAjaxV2PsAccountsController extends \ModuleAdminController
+class AdminAjaxV2PsAccountsController extends AbstractAdminAjaxController
 {
-    use AjaxRender;
-    use IsAnonymousAllowed;
-
-    /**
-     * @var Ps_accounts
-     */
-    public $module;
-
     /**
      * @var CommandBus
      */
@@ -62,38 +53,6 @@ class AdminAjaxV2PsAccountsController extends \ModuleAdminController
 
         $this->commandBus = $this->module->getService(CommandBus::class);
         $this->queryBus = $this->module->getService(QueryBus::class);
-
-        $this->ajax = true;
-        $this->content_only = true;
-    }
-
-    /**
-     * @return ObjectModel|bool|void
-     */
-    public function postProcess()
-    {
-        if (in_array($_SERVER['HTTP_ORIGIN'], $this->module->getParameter('ps_accounts.cors_allowed_origins'))) {
-            header('Access-Control-Allow-Origin: ' . $_SERVER['HTTP_ORIGIN']);
-        }
-
-        if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
-            // header('Access-Control-Allow-Headers: Content-Type, Authorization, X-Requested-With'); // TODO: What headers are allowed ?
-            // header('Access-Control-Allow-Private-Network: true');
-            // header('Access-Control-Request-Credentials: true');
-            header('Access-Control-Max-Age: 1728000');
-            header('Content-Length: 0');
-            header('Content-Type: text/plain');
-            http_response_code(204);
-            exit;
-        }
-
-        header('Content-Type: application/json');
-
-        try {
-            return parent::postProcess();
-        } catch (Exception $e) {
-            $this->handleError($e);
-        }
     }
 
     /**
@@ -127,6 +86,7 @@ class AdminAjaxV2PsAccountsController extends \ModuleAdminController
         if (!$shopId) {
             throw new Exception('Shop ID is required for migration or creation.');
         }
+
         $command = new MigrateOrCreateIdentityV8Command($shopId);
 
         $this->ajaxRender(
@@ -135,11 +95,11 @@ class AdminAjaxV2PsAccountsController extends \ModuleAdminController
     }
 
     /**
-     * @param Exception $e
+     * @param \Throwable|\Exception $e
      *
      * @return void
      */
-    protected function handleError(Exception $e)
+    protected function handleError($e)
     {
         Logger::getInstance()->error($e);
 
@@ -156,13 +116,6 @@ class AdminAjaxV2PsAccountsController extends \ModuleAdminController
             return;
         }
 
-        http_response_code(500);
-
-        $this->ajaxRender(
-            (string) json_encode([
-                'message' => $e->getMessage() ? $e->getMessage() : 'Unknown Error',
-                'code' => 'unknown-error',
-            ])
-        );
+        parent::handleError($e);
     }
 }
