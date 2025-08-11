@@ -34,7 +34,7 @@ class TokenService
     {
         $signature = $this->repository->getTokenSignature();
         if (!$signature) {
-            $signature = base64_encode(hash('sha256', mt_rand())); // TODO: use openssl ?
+            $signature = base64_encode(hash('sha256', (string) mt_rand())); // TODO: use openssl ?
             $this->repository->updateTokenSignature($signature);
         }
 

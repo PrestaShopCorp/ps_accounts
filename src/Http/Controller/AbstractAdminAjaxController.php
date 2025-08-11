@@ -59,7 +59,7 @@ abstract class AbstractAdminAjaxController extends ModuleAdminController
     }
 
     /**
-     * @return ObjectModel|bool|void
+     * @return \ObjectModel|bool|void
      */
     public function postProcess()
     {
@@ -88,6 +88,7 @@ abstract class AbstractAdminAjaxController extends ModuleAdminController
             return parent::postProcess();
         } catch (\Throwable $e) {
             $this->handleError($e);
+            /* @phpstan-ignore-next-line */
         } catch (\Exception $e) {
             $this->handleError($e);
         }
