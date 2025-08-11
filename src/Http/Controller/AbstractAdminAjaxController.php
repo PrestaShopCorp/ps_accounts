@@ -22,6 +22,7 @@ namespace PrestaShop\Module\PsAccounts\Http\Controller;
 
 use ModuleAdminController;
 use PrestaShop\Module\PsAccounts\Http\Exception\UnauthorizedException;
+use PrestaShop\Module\PsAccounts\Log\Logger;
 use PrestaShop\Module\PsAccounts\Polyfill\Traits\AdminController\IsAnonymousAllowed;
 use PrestaShop\Module\PsAccounts\Polyfill\Traits\Controller\AjaxRender;
 use PrestaShop\Module\PsAccounts\Service\TokenService;
@@ -115,6 +116,7 @@ abstract class AbstractAdminAjaxController extends ModuleAdminController
 
             return true;
         } catch (\Exception $e) {
+            Logger::getInstance()->error($e);
             throw new UnauthorizedException($errorMsg);
         }
     }

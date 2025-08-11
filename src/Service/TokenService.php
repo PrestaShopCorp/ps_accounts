@@ -2,6 +2,8 @@
 
 namespace PrestaShop\Module\PsAccounts\Service;
 
+use PrestaShop\Module\PsAccounts\Adapter\ConfigurationKeys;
+use PrestaShop\Module\PsAccounts\Log\Logger;
 use PrestaShop\Module\PsAccounts\Repository\ConfigurationRepository;
 use PrestaShop\Module\PsAccounts\Vendor\Lcobucci\Clock\FrozenClock;
 use PrestaShop\Module\PsAccounts\Vendor\Lcobucci\JWT\Builder;
@@ -14,6 +16,8 @@ use PrestaShop\Module\PsAccounts\Vendor\Lcobucci\JWT\Validation\Constraint\Valid
 
 class TokenService
 {
+    const PS_ACCOUNTS_TOKEN_SIGNATURE = 'PS_ACCOUNTS_TOKEN_SIGNATURE';
+
     /**
      * @var ConfigurationRepository
      */
@@ -32,11 +36,13 @@ class TokenService
      */
     public function getToken()
     {
-        $signature = $this->repository->getTokenSignature();
+        $signature = $this->getTokenSignature();
+        Logger::getInstance()->error('Token signature 1', ['signature' => $signature]);
         if (!$signature) {
             $signature = base64_encode(hash('sha256', (string) mt_rand())); // TODO: use openssl ?
-            $this->repository->updateTokenSignature($signature);
+            $this->setTokenSignature($signature);
         }
+        Logger::getInstance()->error('Token signature 2 ', ['signature' => $signature]);
 
         $configuration = Configuration::forSymmetricSigner(
             new Sha256(),
@@ -62,7 +68,7 @@ class TokenService
      */
     public function verifyToken($token)
     {
-        $signature = $this->repository->getTokenSignature();
+        $signature = $this->getTokenSignature();
 
         $configuration = Configuration::forSymmetricSigner(
             new Sha256(),
@@ -81,5 +87,23 @@ class TokenService
         $configuration->validator()->assert($token, ...$constraints);
 
         return true;
+    }
+
+    /**
+     * @return string
+     */
+    protected function getTokenSignature()
+    {
+        return \Configuration::getGlobalValue(self::PS_ACCOUNTS_TOKEN_SIGNATURE);
+    }
+
+    /**
+     * @param string $signature
+     *
+     * @return void
+     */
+    protected function setTokenSignature($signature)
+    {
+        \Configuration::updateGlobalValue(self::PS_ACCOUNTS_TOKEN_SIGNATURE, $signature);
     }
 }
