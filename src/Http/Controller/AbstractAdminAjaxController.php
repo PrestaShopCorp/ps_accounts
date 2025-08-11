@@ -1,0 +1,191 @@
+<?php
+/**
+ * Copyright since 2007 PrestaShop SA and Contributors
+ * PrestaShop is an International Registered Trademark & Property of PrestaShop SA
+ *
+ * NOTICE OF LICENSE
+ *
+ * This source file is subject to the Academic Free License version 3.0
+ * that is bundled with this package in the file LICENSE.md.
+ * It is also available through the world-wide-web at this URL:
+ * https://opensource.org/licenses/AFL-3.0
+ * If you did not receive a copy of the license and are unable to
+ * obtain it through the world-wide-web, please send an email
+ * to license@prestashop.com so we can send you a copy immediately.
+ *
+ * @author    PrestaShop SA and Contributors <contact@prestashop.com>
+ * @copyright Since 2007 PrestaShop SA and Contributors
+ * @license   https://opensource.org/licenses/AFL-3.0 Academic Free License version 3.0
+ */
+
+namespace PrestaShop\Module\PsAccounts\Http\Controller;
+
+use ModuleAdminController;
+use PrestaShop\Module\PsAccounts\Http\Exception\UnauthorizedException;
+use PrestaShop\Module\PsAccounts\Polyfill\Traits\AdminController\IsAnonymousAllowed;
+use PrestaShop\Module\PsAccounts\Polyfill\Traits\Controller\AjaxRender;
+use PrestaShop\Module\PsAccounts\Service\TokenService;
+
+abstract class AbstractAdminAjaxController extends ModuleAdminController
+{
+    use AjaxRender;
+    use IsAnonymousAllowed;
+
+    const HEADER_AUTHORIZATION = 'X-PrestaShop-Authorization';
+
+    /**
+     * @var \Ps_accounts
+     */
+    public $module;
+
+    /**
+     * @var TokenService
+     */
+    protected $tokenService;
+
+    /**
+     * @var bool
+     */
+    protected $authenticated = true;
+
+    public function __construct()
+    {
+        parent::__construct();
+
+        $this->tokenService = $this->module->getService(TokenService::class);
+
+        $this->ajax = true;
+        $this->content_only = true;
+    }
+
+    /**
+     * @return \ObjectModel|bool|void
+     */
+    public function postProcess()
+    {
+        try {
+            if ($this->authenticated) {
+                $this->checkAuthorization();
+            }
+
+            if (isset($_SERVER['HTTP_ORIGIN']) && in_array($_SERVER['HTTP_ORIGIN'], $this->module->getParameter('ps_accounts.cors_allowed_origins'))) {
+                header('Access-Control-Allow-Origin: ' . $_SERVER['HTTP_ORIGIN']);
+            }
+
+            if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
+                // header('Access-Control-Allow-Headers: Content-Type, Authorization, X-Requested-With'); // TODO: What headers are allowed ?
+                // header('Access-Control-Allow-Private-Network: true');
+                // header('Access-Control-Request-Credentials: true');
+                header('Access-Control-Max-Age: 1728000');
+                header('Content-Length: 0');
+                header('Content-Type: text/plain');
+                http_response_code(204);
+                exit;
+            }
+
+            header('Content-Type: application/json');
+
+            return parent::postProcess();
+        } catch (\Throwable $e) {
+            $this->handleError($e);
+            /* @phpstan-ignore-next-line */
+        } catch (\Exception $e) {
+            $this->handleError($e);
+        }
+    }
+
+    /**
+     * @return bool
+     *
+     * @throws UnauthorizedException
+     */
+    protected function checkAuthorization()
+    {
+        $authorizationHeader = $this->getRequestHeader(self::HEADER_AUTHORIZATION);
+        if (!isset($authorizationHeader)) {
+            throw new UnauthorizedException('Authorization header is required.');
+        }
+
+        $jwtString = trim(str_replace('Bearer', '', $authorizationHeader));
+
+        $errorMsg = 'Invalid token';
+
+        try {
+            $this->tokenService->verifyToken($jwtString);
+
+            return true;
+        } catch (\Exception $e) {
+            throw new UnauthorizedException($errorMsg);
+        }
+    }
+
+    /**
+     * @param string $header
+     *
+     * @return string|null
+     */
+    protected function getRequestHeader($header)
+    {
+        $headerValue = null;
+
+        $headerKey = 'HTTP_' . strtoupper(str_replace('-', '_', $header));
+
+        if (array_key_exists($headerKey, $_SERVER)) {
+            $headerValue = $_SERVER[$headerKey];
+        }
+
+        if (null === $headerValue) {
+            $headerValue = $this->getApacheHeader($header);
+        }
+
+        return $headerValue;
+    }
+
+    /**
+     * @param string $header
+     *
+     * @return string|null
+     */
+    protected function getApacheHeader($header)
+    {
+        if (function_exists('apache_request_headers')) {
+            $headers = getallheaders();
+            //$header = preg_replace('/PrestaShop/', 'Prestashop', $header);
+            if (array_key_exists($header, $headers)) {
+                return $headers[$header];
+            }
+        }
+
+        return null;
+    }
+
+    /**
+     * @param \Throwable|\Exception $e
+     *
+     * @return void
+     */
+    protected function handleError($e)
+    {
+        if ($e instanceof UnauthorizedException) {
+            http_response_code(401);
+
+            $this->ajaxRender(
+                (string) json_encode([
+                    'message' => $e->getMessage(),
+                    'code' => 'unauthorized',
+                ])
+            );
+
+            return;
+        }
+
+        http_response_code(500);
+
+        $this->ajaxRender(
+            (string) json_encode([
+                'message' => $e->getMessage() ? $e->getMessage() : 'Unknown Error',
+                'code' => 'unknown-error',
+            ])
+        );
+    }
+}
