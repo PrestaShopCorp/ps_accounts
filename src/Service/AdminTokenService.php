@@ -11,6 +11,8 @@ use PrestaShop\Module\PsAccounts\Vendor\Lcobucci\JWT\Signer\Key\InMemory;
 use PrestaShop\Module\PsAccounts\Vendor\Lcobucci\JWT\Token;
 use PrestaShop\Module\PsAccounts\Vendor\Lcobucci\JWT\Validation\Constraint\SignedWith;
 use PrestaShop\Module\PsAccounts\Vendor\Lcobucci\JWT\Validation\Constraint\ValidAt;
+use PrestaShop\Module\PsAccounts\Vendor\Lcobucci\JWT\Validation\NoConstraintsGiven;
+use PrestaShop\Module\PsAccounts\Vendor\Lcobucci\JWT\Validation\RequiredConstraintsViolated;
 
 class AdminTokenService
 {
@@ -61,6 +63,9 @@ class AdminTokenService
      * @param string $token
      *
      * @return bool
+     *
+     * @throws RequiredConstraintsViolated
+     * @throws NoConstraintsGiven
      */
     public function verifyToken($token)
     {
