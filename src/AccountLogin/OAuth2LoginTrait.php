@@ -106,7 +106,7 @@ trait OAuth2LoginTrait
         $state = Tools::getValue('state', '');
         $code = Tools::getValue('code', '');
         $action = Tools::getValue('action', 'login');
-        $source = Tools::getValue('source', 'ps_accounts/' . $action);
+        $source = Tools::getValue('source', 'ps_accounts');
 
         if (!empty($error)) {
             // Got an error, probably user denied access

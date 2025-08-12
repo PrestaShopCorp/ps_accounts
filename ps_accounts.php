@@ -442,7 +442,7 @@ class Ps_accounts extends Module
         $commandBus = $this->getService(\PrestaShop\Module\PsAccounts\Cqrs\CommandBus::class);
 
         // Verification flow
-        $commandBus->handle(new \PrestaShop\Module\PsAccounts\Account\Command\MigrateOrCreateIdentitiesV8Command('ps_accounts/reset'));
+        $commandBus->handle(new \PrestaShop\Module\PsAccounts\Account\Command\MigrateOrCreateIdentitiesV8Command('ps_accounts'));
     }
 
     /**
@@ -461,7 +461,7 @@ class Ps_accounts extends Module
      *
      * @return bool
      */
-    public function getVerifiedStatus($source = 'ps_accounts/getVerifiedStatus')
+    public function getVerifiedStatus($source = 'ps_accounts')
     {
         /** @var \PrestaShop\Module\PsAccounts\Account\StatusManager $statusManager */
         $statusManager = $this->getService(\PrestaShop\Module\PsAccounts\Account\StatusManager::class);

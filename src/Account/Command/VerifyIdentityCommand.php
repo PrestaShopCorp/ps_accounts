@@ -37,7 +37,7 @@ class VerifyIdentityCommand
      * @param int|null $shopId
      * @param string|null $source
      */
-    public function __construct($shopId, $source = 'ps_accounts/VerifyIdentityCommand')
+    public function __construct($shopId, $source = 'ps_accounts')
     {
         $this->shopId = $shopId;
         $this->source = $source;
