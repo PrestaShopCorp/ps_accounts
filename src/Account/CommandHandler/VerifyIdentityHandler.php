@@ -89,7 +89,7 @@ class VerifyIdentityHandler
      */
     public function handle(VerifyIdentityCommand $command)
     {
-        $cachedStatus = $this->statusManager->getStatus();
+        $cachedStatus = $this->statusManager->getStatus($command->source);
 
         if ($cachedStatus->isVerified) {
             return;
@@ -101,7 +101,8 @@ class VerifyIdentityHandler
             $this->statusManager->getCloudShopId(),
             $this->shopSession->getValidToken(),
             $this->shopProvider->getUrl($shopId),
-            $this->proofManager->generateProof()
+            $this->proofManager->generateProof(),
+            $command->source
         );
         $this->statusManager->invalidateCache();
     }

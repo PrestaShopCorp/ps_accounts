@@ -34,9 +34,9 @@ class MigrateOrCreateIdentitiesV8Handler extends MultiShopHandler
      */
     public function handle(MigrateOrCreateIdentitiesV8Command $command)
     {
-        $this->handleMulti(function ($multiShopId) {
+        $this->handleMulti(function ($multiShopId) use ($command) {
             try {
-                $this->commandBus->handle(new MigrateOrCreateIdentityV8Command($multiShopId));
+                $this->commandBus->handle(new MigrateOrCreateIdentityV8Command($multiShopId, $command->source));
             } catch (Exception $e) {
                 Logger::getInstance()->error($e->getMessage());
             }

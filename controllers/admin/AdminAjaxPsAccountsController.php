@@ -185,6 +185,7 @@ class AdminAjaxPsAccountsController extends \ModuleAdminController
 
         try {
             $command = new GetContextQuery(
+                Tools::getValue('source', 'ajax'),
                 Tools::getValue('group_id', null),
                 Tools::getValue('shop_id', null),
                 filter_var(Tools::getValue('refresh', false), FILTER_VALIDATE_BOOLEAN)
