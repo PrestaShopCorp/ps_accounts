@@ -9,36 +9,33 @@ env:
   IMAGE_PREFIX: ghcr.io/prestashopcorp/
 
 jobs:
-  run-test:
-    name: Run Account tests
+  setup:
+    name: Setup Playwright & Generate Envs
     runs-on: ubuntu-latest
-    strategy:
-      max-parallel: 1
-      matrix:
-        shop_version:
-        - nightly-nginx    
-        - 8.2.0-8.1-fpm-alpine
-        - 1.7.8.8-7.4-fpm-alpine
-        - 1.6.1.24-7.1-fpm-alpine
+    outputs:
+      cache-hit-node: ${{ steps.cache-node.outputs.cache-hit }}
+      cache-hit-pw: ${{ steps.cache-pw.outputs.cache-hit }}
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v4
 
-      # - name: Cache node_modules
-      #   uses: actions/cache@v4
-      #   with:
-      #     path: ./e2e/node_modules
-      #     key: node-modules-${{ runner.os }}-${{ hashFiles('e2e/package-lock.json') }}
-      #     restore-keys: |
-      #       node-modules-${{ runner.os }}-
-    
-      # - name: Cache Playwright browsers
-      #   uses: actions/cache@v4
-      #   with:
-      #     path: ~/.cache/ms-playwright
-      #     key: playwright-browsers-${{ runner.os }}-${{ hashFiles('e2e/package-lock.json') }}
-      #     restore-keys: |
-      #       playwright-browsers-${{ runner.os }}-
+      - name: Cache node_modules
+        id: cache-node
+        uses: actions/cache@v4
+        with:
+          path: ./e2e/node_modules
+          key: node-modules-${{ runner.os }}-${{ hashFiles('e2e/package-lock.json') }}
+          restore-keys: |
+            node-modules-${{ runner.os }}-
+
+      - name: Cache Playwright browsers
+        id: cache-pw
+        uses: actions/cache@v4
+        with:
+          path: ~/.cache/ms-playwright
+          key: playwright-browsers-${{ runner.os }}-${{ hashFiles('e2e/package-lock.json') }}
+          restore-keys: |
+            playwright-browsers-${{ runner.os }}-
 
       - name: Set up Node.js
         uses: actions/setup-node@v4
@@ -47,15 +44,13 @@ jobs:
 
       - name: Install dependencies
         working-directory: ./e2e
-        run: |
-          npm install
+        run: npm install
 
-      - name: Install playwright browsers
+      - name: Install Playwright Browsers
         working-directory: ./e2e
-        run: |
-          npx playwright install chromium
+        run: npx playwright install chromium
 
-      - name: Generate .env in e2e file
+      - name: Generate .env in e2e
         working-directory: ./e2e
         run: |
           echo "BASE_URL=${{secrets.BASE_URL}}" >> .env
@@ -69,7 +64,7 @@ jobs:
           echo "ACCOUNT_EMAIL=${{ secrets.ACCOUNT_EMAIL}}" >> .env
           echo "ACCOUNT_PASSWORD=${{ secrets.ACCOUNT_PASSWORD}}" >> .env
 
-      - name: Generate .env in e2e-env file
+      - name: Generate .env in e2e-env
         working-directory: ./e2e-env
         run: |
           echo "ACCOUNT_TAG=${{ secrets.ACCOUNT_TAG }}" >> .env
@@ -88,6 +83,22 @@ jobs:
           username: prestashopcorp
           password: ${{ secrets.DOWNLOADER_TOKEN }}
 
+  run-test:
+    name: Run Account tests
+    needs: setup
+    runs-on: ubuntu-latest
+    strategy:
+      max-parallel: 1
+      matrix:
+        shop_version:
+          - nightly-nginx
+          - 8.2.0-8.1-fpm-alpine
+          - 1.7.8.8-7.4-fpm-alpine
+          - 1.6.1.24-7.1-fpm-alpine
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
       - name: Run test
         working-directory: ./e2e
         run: |
@@ -98,8 +109,8 @@ jobs:
       - name: Upload Allure Results
         uses: actions/upload-artifact@v4
         with:
-          name: allure-results-${{ matrix.shop_version  }}
-          path: ./e2e/allure-results-${{ matrix.shop_version  }}
+          name: allure-results-${{ matrix.shop_version }}
+          path: ./e2e/allure-results-${{ matrix.shop_version }}
 
   merge-allure:
     name: Merge Allure Results, Genreate Roprt & Send Slack notification
