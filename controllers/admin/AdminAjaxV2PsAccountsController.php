@@ -80,7 +80,6 @@ class AdminAjaxV2PsAccountsController extends AbstractAdminAjaxController
      */
     public function ajaxProcessFallbackCreateIdentity()
     {
-        header('Content-Type: text/json');
         $shopId = Tools::getValue('shop_id', null);
 
         if (!$shopId) {
@@ -89,8 +88,12 @@ class AdminAjaxV2PsAccountsController extends AbstractAdminAjaxController
 
         $command = new MigrateOrCreateIdentityV8Command($shopId);
 
+        $this->commandBus->handle($command);
+
         $this->ajaxRender(
-            (string) json_encode($this->commandBus->handle($command))
+            (string) json_encode([
+                'success' => true,
+            ])
         );
     }
 
