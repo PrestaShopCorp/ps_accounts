@@ -21,11 +21,13 @@
 namespace PrestaShop\Module\PsAccounts\Provider;
 
 use PrestaShop\Module\PsAccounts\Account\Dto\Shop;
+use PrestaShop\Module\PsAccounts\Account\Exception\UnknownStatusException;
 use PrestaShop\Module\PsAccounts\Account\Session\Firebase\OwnerSession;
 use PrestaShop\Module\PsAccounts\Account\ShopUrl;
 use PrestaShop\Module\PsAccounts\Account\StatusManager;
 use PrestaShop\Module\PsAccounts\Adapter\Link;
 use PrestaShop\Module\PsAccounts\Context\ShopContext;
+use PrestaShop\Module\PsAccounts\Service\Accounts\Resource\ShopStatus;
 use PrestaShop\Module\PsAccounts\Service\OAuth2\OAuth2Service;
 
 class ShopProvider
@@ -347,7 +349,14 @@ class ShopProvider
                     $shopData['id_shop'],
                     function () use (&$shops, $shopData, $source, $refresh) {
                         $shopUrl = $this->getUrl((int) $shopData['id_shop']);
-                        $shopStatus = $this->shopStatus->getStatus($source, $refresh);
+                        try {
+                            $cacheTtl = $refresh ? 0 : StatusManager::CACHE_TTL;
+                            $shopStatus = $this->shopStatus->getStatus(false, $cacheTtl);
+                        } catch (UnknownStatusException $e) {
+                            $shopStatus = new ShopStatus([
+                                'frontendUrl' => $shopUrl->getFrontendUrl(),
+                            ]);
+                        }
                         $identifyPointOfContactUrl = $this->oAuth2Service->getOAuth2Client()->getRedirectUri([
                             'action' => 'identifyPointOfContact',
                             'source' => $source,
@@ -359,7 +368,7 @@ class ShopProvider
                             'backOfficeUrl' => $shopUrl->getBackOfficeUrl(),
                             'frontendUrl' => $shopUrl->getFrontendUrl(),
                             'identifyPointOfContactUrl' => $identifyPointOfContactUrl,
-                            'shopStatus' => $shopStatus,
+                            'shopStatus' => $shopStatus->toArray(),
                             'fallbackCreateIdentityUrl' => $this->link->getAdminLink('AdminAjaxPsAccounts', true, [], ['ajax' => 1, 'action' => 'fallbackCreateIdentity', 'shop_id' => $shopData['id_shop'], 'source' => $source]),
                         ];
                     }
