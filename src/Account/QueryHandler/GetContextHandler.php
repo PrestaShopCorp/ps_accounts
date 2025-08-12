@@ -64,8 +64,8 @@ class GetContextHandler
             ],
             'groups' => $this->shopProvider->getShops(
                 $query->source,
-                $query->groupId,
-                $query->shopId,
+                $query->contextType,
+                $query->contextId,
                 $query->refresh
             ),
         ];
