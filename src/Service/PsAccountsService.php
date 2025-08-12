@@ -271,13 +271,15 @@ class PsAccountsService
     }
 
     /**
+     * @param string|null $source
+     *
      * @return string
      *
      * @throws \PrestaShopException
      */
-    public function getContextUrl()
+    public function getContextUrl($source = null)
     {
-        return $this->link->getAdminLink('AdminAjaxV2PsAccounts', false, [], ['ajax' => 1, 'action' => 'getContext']);
+        return $this->link->getAdminLink('AdminAjaxV2PsAccounts', false, [], ['ajax' => 1, 'action' => 'getContext', 'source' => $source]);
     }
 
     /**
@@ -356,7 +358,7 @@ class PsAccountsService
             'mode' => \Shop::getContext(),
             'shopId' => \Shop::getContextShopID(),
             'groupId' => \Shop::getContextShopGroupID(),
-            'getContextUrl' => $this->getContextUrl(),
+            'getContextUrl' => $this->getContextUrl($psxName),
             'manageAccountUrl' => $this->module->getAccountsUiUrl(),
             'token' => (string) $this->tokenService->getToken(),
             'psxName' => $psxName,
