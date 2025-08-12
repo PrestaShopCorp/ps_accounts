@@ -2,7 +2,6 @@
 
 namespace PrestaShop\Module\PsAccounts\Service;
 
-use PrestaShop\Module\PsAccounts\Repository\ConfigurationRepository;
 use PrestaShop\Module\PsAccounts\Vendor\Lcobucci\Clock\FrozenClock;
 use PrestaShop\Module\PsAccounts\Vendor\Lcobucci\JWT\Builder;
 use PrestaShop\Module\PsAccounts\Vendor\Lcobucci\JWT\Configuration;
@@ -19,26 +18,13 @@ class AdminTokenService
     const PS_ACCOUNTS_TOKEN_SIGNATURE = 'PS_ACCOUNTS_TOKEN_SIGNATURE';
 
     /**
-     * @var ConfigurationRepository
-     */
-    private $repository;
-
-    /**
-     * @param ConfigurationRepository $configurationRepository
-     */
-    public function __construct(ConfigurationRepository $configurationRepository)
-    {
-        $this->repository = $configurationRepository;
-    }
-
-    /**
      * @return Token
      */
     public function getToken()
     {
         $signature = $this->getTokenSignature();
         if (!$signature) {
-            $signature = base64_encode(openssl_random_pseudo_bytes(32));
+            $signature = $this->generateSignature();
             $this->setTokenSignature($signature);
         }
 
@@ -88,6 +74,14 @@ class AdminTokenService
         $configuration->validator()->assert($token, ...$constraints);
 
         return true;
+    }
+
+    /**
+     * @return string
+     */
+    protected function generateSignature()
+    {
+        return base64_encode(openssl_random_pseudo_bytes(32));
     }
 
     /**
