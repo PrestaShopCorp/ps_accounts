@@ -37,12 +37,10 @@ class TokenService
     public function getToken()
     {
         $signature = $this->getTokenSignature();
-        Logger::getInstance()->error('Token signature 1', ['signature' => $signature]);
         if (!$signature) {
-            $signature = base64_encode(hash('sha256', (string) mt_rand())); // TODO: use openssl ?
+            $signature = base64_encode(openssl_random_pseudo_bytes(32));
             $this->setTokenSignature($signature);
         }
-        Logger::getInstance()->error('Token signature 2 ', ['signature' => $signature]);
 
         $configuration = Configuration::forSymmetricSigner(
             new Sha256(),

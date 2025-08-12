@@ -74,7 +74,7 @@ abstract class AbstractAdminAjaxController extends ModuleAdminController
             }
 
             if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
-                // header('Access-Control-Allow-Headers: Content-Type, Authorization, X-Requested-With'); // TODO: What headers are allowed ?
+                // header('Access-Control-Allow-Headers: Content-Type, Authorization, X-Requested-With, X-Prestashop-Authorization'); // TODO: What headers are allowed ?
                 // header('Access-Control-Allow-Private-Network: true');
                 // header('Access-Control-Request-Credentials: true');
                 header('Access-Control-Max-Age: 1728000');

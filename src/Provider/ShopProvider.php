@@ -366,8 +366,8 @@ class ShopProvider
                             'backOfficeUrl' => $shopUrl->getBackOfficeUrl(),
                             'frontendUrl' => $shopUrl->getFrontendUrl(),
                             'identifyPointOfContactUrl' => $identifyPointOfContactUrl,
-                            'shopStatus' => $shopStatus,
-                            'fallbackCreateIdentityUrl' => $this->link->getAdminLink('AdminAjaxV2PsAccounts', true, [], ['ajax' => 1, 'action' => 'fallbackCreateIdentity', 'shop_id' => $shopData['id_shop']]),
+                            'shopStatus' => $shopStatus->toArray(),
+                            'fallbackCreateIdentityUrl' => $this->link->getAdminLink('AdminAjaxV2PsAccounts', false, [], ['ajax' => 1, 'action' => 'fallbackCreateIdentity', 'shop_id' => $shopData['id_shop']]),
                         ];
                     }
                 );
