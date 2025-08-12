@@ -46,7 +46,7 @@ class ProofManager
      */
     public function generateProof()
     {
-        $proof = base64_encode(\hash_hmac('sha512', Uuid::uuid4()->toString(), uniqid()));
+        $proof = bin2hex(openssl_random_pseudo_bytes(32));
 
         $this->configuration->updateShopProof($proof);
 

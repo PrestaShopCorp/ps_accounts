@@ -30,7 +30,7 @@ class AdminTokenService
 
         $configuration = Configuration::forSymmetricSigner(
             new Sha256(),
-            InMemory::base64Encoded($signature)
+            InMemory::plainText($signature)
         );
 
         $issuedAt = new \DateTimeImmutable();
@@ -59,7 +59,7 @@ class AdminTokenService
 
         $configuration = Configuration::forSymmetricSigner(
             new Sha256(),
-            InMemory::base64Encoded($signature)
+            InMemory::plainText($signature)
         );
 
         $configuration->setValidationConstraints(
@@ -81,7 +81,7 @@ class AdminTokenService
      */
     protected function generateSignature()
     {
-        return base64_encode(openssl_random_pseudo_bytes(32));
+        return bin2hex(openssl_random_pseudo_bytes(32));
     }
 
     /**
