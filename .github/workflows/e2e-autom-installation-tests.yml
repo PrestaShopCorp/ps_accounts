@@ -16,67 +16,36 @@ jobs:
       - name: Checkout Repository
         uses: actions/checkout@v4
 
+      - name: Cache node_modules
+        id: cache-node
+        uses: actions/cache@v4
+        with:
+          path: ./e2e/node_modules
+          key: node-modules-${{ runner.os }}-${{ hashFiles('e2e/package-lock.json') }}
+          restore-keys: |
+            node-modules-${{ runner.os }}-
+
       - name: Set up Node.js
         uses: actions/setup-node@v4
         with:
           node-version: "node"
-          cache: "npm"
-          cache-dependency-path: e2e/package-lock.json
 
       - name: Install dependencies
         working-directory: ./e2e
         run: npm install
 
+      - name: Cache Playwright browsers
+        id: cache-pw
+        uses: actions/cache@v4
+        with:
+          path: ~/.cache/ms-playwright
+          key: pw-browsers-${{ runner.os }}-${{ hashFiles('e2e/package-lock.json') }}
+          restore-keys: |
+            pw-browsers-${{ runner.os }}-
+
       - name: Install Playwright Browsers
         working-directory: ./e2e
         run: npx playwright install chromium
-
-      - name: Upload node_modules
-        uses: actions/upload-artifact@v4
-        with:
-          name: node-modules
-          path: ./e2e/node_modules
-
-      - name: Upload Playwright browsers cache
-        uses: actions/upload-artifact@v4
-        with:
-          name: pw-browsers
-          path: ~/.cache/ms-playwright
-
-      - name: Login to GHCR
-        uses: docker/login-action@v3
-        with:
-          registry: ghcr.io
-          username: prestashopcorp
-          password: ${{ secrets.DOWNLOADER_TOKEN }}
-
-  run-test:
-    name: Run Account tests
-    needs: setup
-    runs-on: ubuntu-latest
-    strategy:
-      max-parallel: 1
-      matrix:
-        shop_version:
-          - nightly-nginx
-          - 8.2.0-8.1-fpm-alpine
-          - 1.7.8.8-7.4-fpm-alpine
-          - 1.6.1.24-7.1-fpm-alpine
-    steps:
-      - name: Checkout Repository
-        uses: actions/checkout@v4
-
-      - name: Download node_modules
-        uses: actions/download-artifact@v4
-        with:
-          name: node-modules
-          path: ./e2e/node_modules
-
-      - name: Download Playwright browsers cache
-        uses: actions/download-artifact@v4
-        with:
-          name: pw-browsers
-          path: ~/.cache/ms-playwright
 
       - name: Generate .env in e2e
         working-directory: ./e2e
@@ -103,6 +72,74 @@ jobs:
           echo "DOWNLOADER_TOKEN=${{ secrets.DOWNLOADER_TOKEN }}" >> .env
           echo "PS_VERSION=${{ secrets.PS_VERSION }}" >> .env
           echo "PS_ACCOUNTS_VERSION=${{ secrets.PS_ACCOUNTS_VERSION }}" >> .env
+
+      - name: Upload e2e .env
+        uses: actions/upload-artifact@v4
+        with:
+          name: env-e2e
+          path: ./e2e/.env
+
+      - name: Upload e2e-env .env
+        uses: actions/upload-artifact@v4
+        with:
+          name: env-e2e-env
+          path: ./e2e-env/.env
+
+      - name: Login to GHCR
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: prestashopcorp
+          password: ${{ secrets.DOWNLOADER_TOKEN }}
+
+  run-test:
+    name: Run Account tests
+    needs: setup
+    runs-on: ubuntu-latest
+    strategy:
+      max-parallel: 1
+      matrix:
+        shop_version:
+          - nightly-nginx
+          - 8.2.0-8.1-fpm-alpine
+          - 1.7.8.8-7.4-fpm-alpine
+          - 1.6.1.24-7.1-fpm-alpine
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Cache node_modules
+        uses: actions/cache@v4
+        with:
+          path: ./e2e/node_modules
+          key: node-modules-${{ runner.os }}-${{ hashFiles('e2e/package-lock.json') }}
+          restore-keys: |
+            node-modules-${{ runner.os }}-
+
+      - name: Cache Playwright browsers
+        uses: actions/cache@v4
+        with:
+          path: ~/.cache/ms-playwright
+          key: pw-browsers-${{ runner.os }}-${{ hashFiles('e2e/package-lock.json') }}
+          restore-keys: |
+            pw-browsers-${{ runner.os }}-
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "node"
+
+      - name: Download e2e .env 
+        uses: actions/download-artifact@v4
+        with:
+          name: env-e2e
+          path: ./e2e
+
+      - name: Download e2e-env .env 
+        uses: actions/download-artifact@v4
+        with:
+          name: env-e2e-env
+          path: ./e2e-env
 
       - name: Run test
         working-directory: ./e2e
