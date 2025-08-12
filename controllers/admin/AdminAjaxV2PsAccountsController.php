@@ -17,7 +17,7 @@
  * @copyright Since 2007 PrestaShop SA and Contributors
  * @license   https://opensource.org/licenses/AFL-3.0 Academic Free License version 3.0
  */
-require_once __DIR__ . '/../../src/Polyfill/Traits/Controller/AjaxRender.php';
+require_once __DIR__ . '/../../src/Http/Controller/AbstractAdminAjaxController.php';
 
 use PrestaShop\Module\PsAccounts\Account\Command\MigrateOrCreateIdentityV8Command;
 use PrestaShop\Module\PsAccounts\Account\Query\GetContextQuery;
@@ -80,7 +80,6 @@ class AdminAjaxV2PsAccountsController extends AbstractAdminAjaxController
      */
     public function ajaxProcessFallbackCreateIdentity()
     {
-        header('Content-Type: text/json');
         $shopId = Tools::getValue('shop_id', null);
 
         if (!$shopId) {
@@ -89,8 +88,12 @@ class AdminAjaxV2PsAccountsController extends AbstractAdminAjaxController
 
         $command = new MigrateOrCreateIdentityV8Command($shopId);
 
+        $this->commandBus->handle($command);
+
         $this->ajaxRender(
-            (string) json_encode($this->commandBus->handle($command))
+            (string) json_encode([
+                'success' => true,
+            ])
         );
     }
 

@@ -2,9 +2,6 @@
 
 namespace PrestaShop\Module\PsAccounts\Service;
 
-use PrestaShop\Module\PsAccounts\Adapter\ConfigurationKeys;
-use PrestaShop\Module\PsAccounts\Log\Logger;
-use PrestaShop\Module\PsAccounts\Repository\ConfigurationRepository;
 use PrestaShop\Module\PsAccounts\Vendor\Lcobucci\Clock\FrozenClock;
 use PrestaShop\Module\PsAccounts\Vendor\Lcobucci\JWT\Builder;
 use PrestaShop\Module\PsAccounts\Vendor\Lcobucci\JWT\Configuration;
@@ -13,23 +10,12 @@ use PrestaShop\Module\PsAccounts\Vendor\Lcobucci\JWT\Signer\Key\InMemory;
 use PrestaShop\Module\PsAccounts\Vendor\Lcobucci\JWT\Token;
 use PrestaShop\Module\PsAccounts\Vendor\Lcobucci\JWT\Validation\Constraint\SignedWith;
 use PrestaShop\Module\PsAccounts\Vendor\Lcobucci\JWT\Validation\Constraint\ValidAt;
+use PrestaShop\Module\PsAccounts\Vendor\Lcobucci\JWT\Validation\NoConstraintsGiven;
+use PrestaShop\Module\PsAccounts\Vendor\Lcobucci\JWT\Validation\RequiredConstraintsViolated;
 
-class TokenService
+class AdminTokenService
 {
     const PS_ACCOUNTS_TOKEN_SIGNATURE = 'PS_ACCOUNTS_TOKEN_SIGNATURE';
-
-    /**
-     * @var ConfigurationRepository
-     */
-    private $repository;
-
-    /**
-     * @param ConfigurationRepository $configurationRepository
-     */
-    public function __construct(ConfigurationRepository $configurationRepository)
-    {
-        $this->repository = $configurationRepository;
-    }
 
     /**
      * @return Token
@@ -38,7 +24,7 @@ class TokenService
     {
         $signature = $this->getTokenSignature();
         if (!$signature) {
-            $signature = base64_encode(openssl_random_pseudo_bytes(32));
+            $signature = $this->generateSignature();
             $this->setTokenSignature($signature);
         }
 
@@ -63,6 +49,9 @@ class TokenService
      * @param string $token
      *
      * @return bool
+     *
+     * @throws RequiredConstraintsViolated
+     * @throws NoConstraintsGiven
      */
     public function verifyToken($token)
     {
@@ -85,6 +74,14 @@ class TokenService
         $configuration->validator()->assert($token, ...$constraints);
 
         return true;
+    }
+
+    /**
+     * @return string
+     */
+    protected function generateSignature()
+    {
+        return base64_encode(openssl_random_pseudo_bytes(32));
     }
 
     /**
