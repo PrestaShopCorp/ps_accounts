@@ -63,6 +63,7 @@ class AdminAjaxV2PsAccountsController extends AbstractAdminAjaxController
     public function ajaxProcessGetContext()
     {
         $command = new GetContextQuery(
+            Tools::getValue('source', 'ps_accounts'),
             Tools::getValue('context_type', null),
             Tools::getValue('context_id', null),
             filter_var(Tools::getValue('refresh', false), FILTER_VALIDATE_BOOLEAN)

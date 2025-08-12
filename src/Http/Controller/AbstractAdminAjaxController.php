@@ -88,16 +88,12 @@ abstract class AbstractAdminAjaxController extends ModuleAdminController
     public function postProcess()
     {
         try {
-            if ($this->authenticated) {
-                $this->checkAuthorization();
-            }
-
             if (isset($_SERVER['HTTP_ORIGIN']) && in_array($_SERVER['HTTP_ORIGIN'], $this->module->getParameter('ps_accounts.cors_allowed_origins'))) {
                 header('Access-Control-Allow-Origin: ' . $_SERVER['HTTP_ORIGIN']);
             }
 
             if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
-                // header('Access-Control-Allow-Headers: Content-Type, Authorization, X-Requested-With, X-Prestashop-Authorization'); // TODO: What headers are allowed ?
+                header('Access-Control-Allow-Headers: Content-Type, X-Prestashop-Authorization');
                 // header('Access-Control-Allow-Private-Network: true');
                 // header('Access-Control-Request-Credentials: true');
                 header('Access-Control-Max-Age: 1728000');
@@ -108,6 +104,10 @@ abstract class AbstractAdminAjaxController extends ModuleAdminController
             }
 
             header('Content-Type: application/json');
+
+            if ($this->authenticated) {
+                $this->checkAuthorization();
+            }
 
             return parent::postProcess();
         } catch (\Throwable $e) {

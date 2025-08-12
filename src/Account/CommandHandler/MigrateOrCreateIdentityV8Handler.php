@@ -129,7 +129,7 @@ class MigrateOrCreateIdentityV8Handler
         if (!$shopUuid || version_compare($fromVersion, '8', '>=')) {
             $this->upgradeService->setVersion();
 
-            $this->commandBus->handle(new CreateIdentityCommand($command->shopId));
+            $this->commandBus->handle(new CreateIdentityCommand($command->shopId, $command->source));
 
             return;
         }
@@ -148,7 +148,8 @@ class MigrateOrCreateIdentityV8Handler
             $token,
             $this->shopProvider->getUrl($shopId),
             $this->proofManager->generateProof(),
-            $fromVersion
+            $fromVersion,
+            $command->source
         );
 
         if (!empty($identityCreated->clientId) &&

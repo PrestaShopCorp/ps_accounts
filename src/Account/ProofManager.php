@@ -21,7 +21,6 @@
 namespace PrestaShop\Module\PsAccounts\Account;
 
 use PrestaShop\Module\PsAccounts\Repository\ConfigurationRepository;
-use PrestaShop\Module\PsAccounts\Vendor\Ramsey\Uuid\Uuid;
 
 class ProofManager
 {

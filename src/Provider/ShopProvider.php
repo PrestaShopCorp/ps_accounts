@@ -324,13 +324,14 @@ class ShopProvider
     }
 
     /**
+     * @param string|null $source
      * @param int $contextType
      * @param int|null $contextId
      * @param bool $refresh
      *
      * @return array
      */
-    public function getShops($contextType = \Shop::CONTEXT_ALL, $contextId = null, $refresh = false)
+    public function getShops($source = null, $contextType = \Shop::CONTEXT_ALL, $contextId = null, $refresh = false)
     {
         $shopList = [];
         foreach (\Shop::getTree() as $groupData) {
@@ -346,11 +347,11 @@ class ShopProvider
 
                 $this->getShopContext()->execInShopContext(
                     $shopData['id_shop'],
-                    function () use (&$shops, $shopData, $refresh) {
+                    function () use (&$shops, $shopData, $source, $refresh) {
                         $shopUrl = $this->getUrl((int) $shopData['id_shop']);
                         try {
                             $cacheTtl = $refresh ? 0 : StatusManager::CACHE_TTL;
-                            $shopStatus = $this->shopStatus->getStatus(false, $cacheTtl);
+                            $shopStatus = $this->shopStatus->getStatus($source, false, $cacheTtl);
                         } catch (UnknownStatusException $e) {
                             $shopStatus = new ShopStatus([
                                 'frontendUrl' => $shopUrl->getFrontendUrl(),
@@ -358,6 +359,7 @@ class ShopProvider
                         }
                         $identifyPointOfContactUrl = $this->oAuth2Service->getOAuth2Client()->getRedirectUri([
                             'action' => 'identifyPointOfContact',
+                            'source' => $source,
                         ]);
 
                         $shops[] = [
@@ -367,7 +369,7 @@ class ShopProvider
                             'frontendUrl' => $shopUrl->getFrontendUrl(),
                             'identifyPointOfContactUrl' => $identifyPointOfContactUrl,
                             'shopStatus' => $shopStatus->toArray(),
-                            'fallbackCreateIdentityUrl' => $this->link->getAdminLink('AdminAjaxV2PsAccounts', false, [], ['ajax' => 1, 'action' => 'fallbackCreateIdentity', 'shop_id' => $shopData['id_shop']]),
+                            'fallbackCreateIdentityUrl' => $this->link->getAdminLink('AdminAjaxV2PsAccounts', false, [], ['ajax' => 1, 'action' => 'fallbackCreateIdentity', 'shop_id' => $shopData['id_shop'], 'source' => $source]),
                         ];
                     }
                 );

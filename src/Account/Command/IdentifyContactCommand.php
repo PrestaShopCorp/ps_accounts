@@ -31,10 +31,17 @@ class IdentifyContactCommand
     public $accessToken;
 
     /**
-     * @param AccessToken $accessToken
+     * @var string|null
      */
-    public function __construct($accessToken)
+    public $source;
+
+    /**
+     * @param AccessToken $accessToken
+     * @param string|null $source
+     */
+    public function __construct($accessToken, $source = 'ps_accounts')
     {
         $this->accessToken = $accessToken;
+        $this->source = $source;
     }
 }
