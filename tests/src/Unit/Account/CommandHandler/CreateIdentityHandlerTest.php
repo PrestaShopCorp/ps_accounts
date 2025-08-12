@@ -110,7 +110,7 @@ class CreateIdentityHandlerTest extends TestCase
                 ], 200, true);
             });
 
-        $this->getHandler()->handle(new CreateIdentityCommand(1, []));
+        $this->getHandler()->handle(new CreateIdentityCommand(1));
 
         $this->assertEquals($cloudShopId, $this->statusManager->getCloudShopId());
         $this->assertEquals($clientId, $this->oauth2Client->getClientId());
@@ -154,12 +154,12 @@ class CreateIdentityHandlerTest extends TestCase
         $this->oauth2Client->delete();
         $this->statusManager->setCloudShopId('');
 
-        $this->getHandler()->handle(new CreateIdentityCommand(1, []));
+        $this->getHandler()->handle(new CreateIdentityCommand(1));
 
 //        $this->oauth2Client->delete();
 //        $this->statusManager->setCloudShopId('');
 
-        $this->getHandler()->handle(new CreateIdentityCommand(1, []));
+        $this->getHandler()->handle(new CreateIdentityCommand(1));
 
         $this->assertEquals($cloudShopId, $this->statusManager->getCloudShopId());
         $this->assertEquals($clientId, $this->oauth2Client->getClientId());
@@ -191,7 +191,7 @@ class CreateIdentityHandlerTest extends TestCase
                 $this->isInstanceOf(VerifyIdentityCommand::class)
             );
 
-        $this->getHandler()->handle(new CreateIdentityCommand(1, []));
+        $this->getHandler()->handle(new CreateIdentityCommand(1));
     }
 
     /**

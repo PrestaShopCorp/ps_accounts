@@ -104,7 +104,8 @@ class CreateIdentityHandler
 
             $identityCreated = $this->accountsService->createShopIdentity(
                 $this->shopProvider->getUrl($shopId),
-                $this->proofManager->generateProof()
+                $this->proofManager->generateProof(),
+                $command->source
             );
             $this->oAuth2Client->update(
                 $identityCreated->clientId,
@@ -113,7 +114,7 @@ class CreateIdentityHandler
             $this->statusManager->setCloudShopId($identityCreated->cloudShopId);
             $this->statusManager->invalidateCache();
         } else {
-            $this->commandBus->handle(new VerifyIdentityCommand($command->shopId));
+            $this->commandBus->handle(new VerifyIdentityCommand($command->shopId, $command->source));
         }
     }
 

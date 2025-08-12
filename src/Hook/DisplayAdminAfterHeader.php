@@ -35,7 +35,7 @@ class DisplayAdminAfterHeader extends Hook
             }
 
             $cloudShopId = $this->module->getCloudShopId();
-            $verified = $this->module->getVerifiedStatus();
+            $verified = $this->module->getVerifiedStatus('ps_accounts');
             $verifiedMsg = $verified ? 'verified' : 'NOT verified';
 
             /** @var Link $link */
