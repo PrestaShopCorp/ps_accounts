@@ -17,6 +17,9 @@ function upgrade_module_8_0_0($module)
     require __DIR__ . '/../src/enforce_autoload.php';
 
     try {
+        $installer = new PrestaShop\Module\PsAccounts\Module\Install($module, Db::getInstance());
+        $installer->installInMenu();
+
         /** @var CommandBus $commandBus */
         $commandBus = $module->getService(CommandBus::class);
 
