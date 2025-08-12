@@ -117,7 +117,7 @@ class DefaultProvider implements IServiceProvider
                 $container->get(ConfigurationRepository::class)
             );
         });
-        $container->registerProvider(AdminTokenService::class, static function () use ($container) {
+        $container->registerProvider(AdminTokenService::class, static function () {
             return new AdminTokenService();
         });
         $container->registerProvider(ProofManager::class, static function () use ($container) {
