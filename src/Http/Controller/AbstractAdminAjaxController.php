@@ -25,7 +25,7 @@ use PrestaShop\Module\PsAccounts\Http\Exception\UnauthorizedException;
 use PrestaShop\Module\PsAccounts\Log\Logger;
 use PrestaShop\Module\PsAccounts\Polyfill\Traits\AdminController\IsAnonymousAllowed;
 use PrestaShop\Module\PsAccounts\Polyfill\Traits\Controller\AjaxRender;
-use PrestaShop\Module\PsAccounts\Service\TokenService;
+use PrestaShop\Module\PsAccounts\Service\AdminTokenService;
 
 abstract class AbstractAdminAjaxController extends ModuleAdminController
 {
@@ -40,7 +40,7 @@ abstract class AbstractAdminAjaxController extends ModuleAdminController
     public $module;
 
     /**
-     * @var TokenService
+     * @var AdminTokenService
      */
     protected $tokenService;
 
@@ -53,7 +53,7 @@ abstract class AbstractAdminAjaxController extends ModuleAdminController
     {
         parent::__construct();
 
-        $this->tokenService = $this->module->getService(TokenService::class);
+        $this->tokenService = $this->module->getService(AdminTokenService::class);
 
         $this->ajax = true;
         $this->content_only = true;

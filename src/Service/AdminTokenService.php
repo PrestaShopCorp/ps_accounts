@@ -2,8 +2,6 @@
 
 namespace PrestaShop\Module\PsAccounts\Service;
 
-use PrestaShop\Module\PsAccounts\Adapter\ConfigurationKeys;
-use PrestaShop\Module\PsAccounts\Log\Logger;
 use PrestaShop\Module\PsAccounts\Repository\ConfigurationRepository;
 use PrestaShop\Module\PsAccounts\Vendor\Lcobucci\Clock\FrozenClock;
 use PrestaShop\Module\PsAccounts\Vendor\Lcobucci\JWT\Builder;
@@ -14,7 +12,7 @@ use PrestaShop\Module\PsAccounts\Vendor\Lcobucci\JWT\Token;
 use PrestaShop\Module\PsAccounts\Vendor\Lcobucci\JWT\Validation\Constraint\SignedWith;
 use PrestaShop\Module\PsAccounts\Vendor\Lcobucci\JWT\Validation\Constraint\ValidAt;
 
-class TokenService
+class AdminTokenService
 {
     const PS_ACCOUNTS_TOKEN_SIGNATURE = 'PS_ACCOUNTS_TOKEN_SIGNATURE';
 

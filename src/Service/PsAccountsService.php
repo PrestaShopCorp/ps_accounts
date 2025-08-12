@@ -65,7 +65,7 @@ class PsAccountsService
     private $statusManager;
 
     /**
-     * @var TokenService
+     * @var AdminTokenService
      */
     private $tokenService;
 
@@ -82,7 +82,7 @@ class PsAccountsService
         $this->ownerSession = $this->module->getService(Firebase\OwnerSession::class);
         $this->link = $this->module->getService(Link::class);
         $this->statusManager = $module->getService(StatusManager::class);
-        $this->tokenService = $module->getService(TokenService::class);
+        $this->tokenService = $module->getService(AdminTokenService::class);
     }
 
     /**
