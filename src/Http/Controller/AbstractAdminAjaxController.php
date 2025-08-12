@@ -20,8 +20,8 @@
 
 namespace PrestaShop\Module\PsAccounts\Http\Controller;
 
-require_once __DIR__ . '/../../../src/Polyfill/Traits/AdminController/IsAnonymousAllowed.php';
-require_once __DIR__ . '/../../../src/Polyfill/Traits/Controller/AjaxRender.php';
+require_once __DIR__ . '/../../Polyfill/Traits/Controller/AjaxRender.php';
+require_once __DIR__ . '/../../Polyfill/Traits/AdminController/IsAnonymousAllowed.php';
 
 use ModuleAdminController;
 use PrestaShop\Module\PsAccounts\Http\Exception\UnauthorizedException;
@@ -60,6 +60,26 @@ abstract class AbstractAdminAjaxController extends ModuleAdminController
 
         $this->ajax = true;
         $this->content_only = true;
+    }
+
+    /**
+     * @return bool
+     */
+    public function checkToken()
+    {
+        return true;
+    }
+
+    /**
+     * All BO users can access the login page
+     *
+     * @param bool $disable
+     *
+     * @return bool
+     */
+    public function viewAccess($disable = false)
+    {
+        return true;
     }
 
     /**

@@ -45,7 +45,7 @@ return [
     'ps_accounts.svc_accounts_ui_url' => 'https://accounts.prestashop.local/',
 
     // OAuth2 setup
-    'ps_accounts.oauth2_url' => 'https://oauth2.prestashop.local',
+    'ps_accounts.oauth2_url' => 'https://oauth.prestashop.local',
     'ps_accounts.token_audience' => 'https://accounts-api.prestashop.local',
 
     'ps_accounts.testimonials_url' => 'https://assets.prestashop3.com/dst/accounts/assets/testimonials.json',
