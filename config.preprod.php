@@ -30,7 +30,12 @@ return [
     'ps_accounts.sso_resend_verification_email_url' => 'https://auth-preprod.prestashop.com/account/send-verification-email',
     'ps_accounts.sentry_credentials' => 'https://a065bd1f092f8c849e6076fe0640d049@o298402.ingest.us.sentry.io/5354585',
     'ps_accounts.accounts_vue_cdn_url' => 'https://unpkg.com/prestashop_accounts_vue_components/dist/psaccountsVue.js',
-    'ps_accounts.accounts_cdn_url' => 'https://unpkg.com/prestashop_accounts_vue_components/dist/psaccountsVue.js',
+    'ps_accounts.accounts_cdn_url' => 'https://unpkg.com/@prestashopcorp/accounts-components@beta',
+    'ps_accounts.cors_allowed_origins' => [
+        'https://integration-assets.prestashop3.com',
+        'https://preproduction-assets.prestashop3.com',
+        'https://assets.prestashop3.com',
+    ],
 
     'ps_accounts.environment' => 'preprod',
 

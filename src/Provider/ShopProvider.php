@@ -21,11 +21,13 @@
 namespace PrestaShop\Module\PsAccounts\Provider;
 
 use PrestaShop\Module\PsAccounts\Account\Dto\Shop;
+use PrestaShop\Module\PsAccounts\Account\Exception\UnknownStatusException;
 use PrestaShop\Module\PsAccounts\Account\Session\Firebase\OwnerSession;
 use PrestaShop\Module\PsAccounts\Account\ShopUrl;
 use PrestaShop\Module\PsAccounts\Account\StatusManager;
 use PrestaShop\Module\PsAccounts\Adapter\Link;
 use PrestaShop\Module\PsAccounts\Context\ShopContext;
+use PrestaShop\Module\PsAccounts\Service\Accounts\Resource\ShopStatus;
 use PrestaShop\Module\PsAccounts\Service\OAuth2\OAuth2Service;
 
 class ShopProvider
@@ -322,33 +324,42 @@ class ShopProvider
     }
 
     /**
-     * @param string|null $groupId
-     * @param string|null $shopId
+     * @param string|null $source
+     * @param int $contextType
+     * @param int|null $contextId
      * @param bool $refresh
      *
      * @return array
      */
-    public function getShops($groupId = null, $shopId = null, $refresh = false)
+    public function getShops($source = null, $contextType = \Shop::CONTEXT_ALL, $contextId = null, $refresh = false)
     {
         $shopList = [];
         foreach (\Shop::getTree() as $groupData) {
-            if ($groupId !== null && $groupId !== $groupData['id']) {
+            if ($contextType === \Shop::CONTEXT_GROUP && $contextId != $groupData['id']) {
                 continue;
             }
 
             $shops = [];
             foreach ($groupData['shops'] as $shopData) {
-                if ($shopId !== null && $shopId !== $shopData['id_shop']) {
+                if ($contextType === \Shop::CONTEXT_SHOP && $contextId != $shopData['id_shop']) {
                     continue;
                 }
 
                 $this->getShopContext()->execInShopContext(
                     $shopData['id_shop'],
-                    function () use (&$shops, $shopData, $refresh) {
+                    function () use (&$shops, $shopData, $source, $refresh) {
                         $shopUrl = $this->getUrl((int) $shopData['id_shop']);
-                        $shopStatus = $this->shopStatus->getStatus($refresh);
-                        $identifyUrl = $this->oAuth2Service->getOAuth2Client()->getRedirectUri([
+                        try {
+                            $cacheTtl = $refresh ? 0 : StatusManager::CACHE_TTL;
+                            $shopStatus = $this->shopStatus->getStatus($source, false, $cacheTtl);
+                        } catch (UnknownStatusException $e) {
+                            $shopStatus = new ShopStatus([
+                                'frontendUrl' => $shopUrl->getFrontendUrl(),
+                            ]);
+                        }
+                        $identifyPointOfContactUrl = $this->oAuth2Service->getOAuth2Client()->getRedirectUri([
                             'action' => 'identifyPointOfContact',
+                            'source' => $source,
                         ]);
 
                         $shops[] = [
@@ -356,8 +367,9 @@ class ShopProvider
                             'name' => $shopData['name'],
                             'backOfficeUrl' => $shopUrl->getBackOfficeUrl(),
                             'frontendUrl' => $shopUrl->getFrontendUrl(),
-                            'identifyUrl' => $identifyUrl,
-                            'shopStatus' => $shopStatus,
+                            'identifyPointOfContactUrl' => $identifyPointOfContactUrl,
+                            'shopStatus' => $shopStatus->toArray(),
+                            'fallbackCreateIdentityUrl' => $this->link->getAdminLink('AdminAjaxV2PsAccounts', true, [], ['ajax' => 1, 'action' => 'fallbackCreateIdentity', 'shop_id' => $shopData['id_shop'], 'source' => $source]),
                         ];
                     }
                 );

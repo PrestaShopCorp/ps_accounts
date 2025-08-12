@@ -12,7 +12,9 @@ use PrestaShop\Module\PsAccounts\Http\Client\Request;
 use PrestaShop\Module\PsAccounts\Http\Client\Response;
 use PrestaShop\Module\PsAccounts\Service\Accounts\AccountsService;
 use PrestaShop\Module\PsAccounts\Provider\ShopProvider;
+use PrestaShop\Module\PsAccounts\Service\Accounts\AccountsException;
 use PrestaShop\Module\PsAccounts\Service\OAuth2\OAuth2Service;
+use PrestaShop\Module\PsAccounts\Service\UpgradeService;
 use PrestaShop\Module\PsAccounts\Tests\TestCase;
 
 class MigrateOrCreateIdentityV8HandlerTest extends TestCase
@@ -54,6 +56,13 @@ class MigrateOrCreateIdentityV8HandlerTest extends TestCase
      * @var StatusManager
      */
     public $statusManager;
+
+    /**
+     * @inject
+     *
+     * @var UpgradeService
+     */
+    public $upgradeService;
 
     /**
      * @inject
@@ -113,7 +122,8 @@ JSON;
         $tokenAudience = 'shop_' . $cloudShopId;
 
         // introduced in v7
-        $this->configurationRepository->updateLastUpgrade('7.2.0');
+        //$this->configurationRepository->updateLastUpgrade('7.2.0');
+        $this->upgradeService->setVersion('7.2.0');
 
         $this->configurationRepository->updateShopUuid($cloudShopId);
 
@@ -149,7 +159,8 @@ JSON;
                 $this->assertArrayHasKey('frontendUrl', $options[Request::JSON]);
                 $this->assertArrayHasKey('multiShopId', $options[Request::JSON]);
                 $this->assertEquals($this->proofManager->getProof(), $options[Request::JSON]['proof']);
-                $this->assertEquals((string) $this->configurationRepository->getLastUpgrade(), $options[Request::JSON]['fromVersion']);
+                //$this->assertEquals((string) $this->configurationRepository->getLastUpgrade(), $options[Request::JSON]['fromVersion']);
+                $this->assertEquals((string) $this->upgradeService->getVersion(), $options[Request::JSON]['fromVersion']);
 
                 return $this->createResponse([
                     'clientId' => $clientId,
@@ -160,6 +171,7 @@ JSON;
 
         $this->getHandler()->handle(new MigrateOrCreateIdentityV8Command($this->shopId));
 
+        $this->assertEquals(\Ps_accounts::VERSION, $this->upgradeService->getVersion());
         $this->assertEmpty($this->configurationRepository->getAccessToken());
         $this->assertTrue($this->statusManager->cacheInvalidated());
         $this->assertEquals($cloudShopId, $this->statusManager->getCloudShopId());
@@ -237,7 +249,14 @@ JSON;
         $token = $this->faker->uuid;
 
         // introduced in v7
-        $this->configurationRepository->updateLastUpgrade(null);
+        //$this->configurationRepository->updateLastUpgrade(null);
+
+        $fromVersion = '5.6.2';
+        \Db::getInstance()->execute(
+            'UPDATE ' . _DB_PREFIX_ . 'module SET version = \'' . $fromVersion . '\' WHERE name = \'' . UpgradeService::MODULE_NAME . '\''
+        );
+        // FIXME: not working with null on v9
+        $this->upgradeService->setVersion('0');
 
         $this->configurationRepository->updateShopUuid($cloudShopId);
 
@@ -258,14 +277,15 @@ JSON;
                 $this->matches('/v1/shop-identities/' . $cloudShopId . '/migrate'),
                 $this->isType('array')
             )
-            ->willReturnCallback(function ($route, $options) use ($cloudShopId, $clientId, $clientSecret, $token) {
+            ->willReturnCallback(function ($route, $options) use ($cloudShopId, $clientId, $clientSecret, $token, $fromVersion) {
 
                 $this->assertEquals('Bearer ' . $token, $options[Request::HEADERS]['Authorization']);
                 $this->assertArrayHasKey('backOfficeUrl', $options[Request::JSON]);
                 $this->assertArrayHasKey('frontendUrl', $options[Request::JSON]);
                 $this->assertArrayHasKey('multiShopId', $options[Request::JSON]);
                 $this->assertEquals($this->proofManager->getProof(), $options[Request::JSON]['proof']);
-                $this->assertEquals((string) $this->configurationRepository->getLastUpgrade(), $options[Request::JSON]['fromVersion']);
+                //$this->assertEquals((string) $this->configurationRepository->getLastUpgrade(), $options[Request::JSON]['fromVersion']);
+                $this->assertEquals($fromVersion, $options[Request::JSON]['fromVersion']);
 
                 return $this->createResponse([
                     'clientId' => $clientId,
@@ -276,6 +296,7 @@ JSON;
 
         $this->getHandler()->handle(new MigrateOrCreateIdentityV8Command($this->shopId));
 
+        $this->assertEquals(\Ps_accounts::VERSION, $this->upgradeService->getVersion());
         $this->assertTrue($this->statusManager->cacheInvalidated());
         $this->assertEquals($cloudShopId, $this->statusManager->getCloudShopId());
         $this->assertEquals($clientId, $this->oAuth2Service->getOAuth2Client()->getClientId());
@@ -294,7 +315,9 @@ JSON;
         $tokenAudience = 'shop_' . $cloudShopId;
 
         // introduced in v7
-        $this->configurationRepository->updateLastUpgrade('7.2.0');
+        //$this->configurationRepository->updateLastUpgrade('7.2.0');
+        $fromVersion = '7.2.0';
+        $this->upgradeService->setVersion($fromVersion);
 
         $this->configurationRepository->updateShopUuid($cloudShopId);
 
@@ -330,7 +353,8 @@ JSON;
                 $this->assertArrayHasKey('frontendUrl', $options[Request::JSON]);
                 $this->assertArrayHasKey('multiShopId', $options[Request::JSON]);
                 $this->assertEquals($this->proofManager->getProof(), $options[Request::JSON]['proof']);
-                $this->assertEquals((string) $this->configurationRepository->getLastUpgrade(), $options[Request::JSON]['fromVersion']);
+                //$this->assertEquals((string) $this->configurationRepository->getLastUpgrade(), $options[Request::JSON]['fromVersion']);
+                $this->assertEquals((string) $this->upgradeService->getVersion(), $options[Request::JSON]['fromVersion']);
 
                 return $this->createResponse([
                     "error" => 'store-identity/migration-failed',
@@ -338,8 +362,11 @@ JSON;
                 ], 400, true);
             });
 
+        $this->expectException(AccountsException::class);
+
         $this->getHandler()->handle(new MigrateOrCreateIdentityV8Command($this->shopId));
 
+        $this->assertEquals($fromVersion, $this->upgradeService->getVersion());
         $this->assertTrue($this->statusManager->cacheInvalidated());
         $this->assertEquals($cloudShopId, $this->statusManager->getCloudShopId());
 
@@ -358,7 +385,8 @@ JSON;
             $this->statusManager,
             $this->proofManager,
             $this->configurationRepository,
-            $this->commandBus
+            $this->commandBus,
+            $this->upgradeService
         );
     }
 }

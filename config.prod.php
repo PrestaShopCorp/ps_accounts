@@ -32,7 +32,12 @@ return [
     'ps_accounts.check_api_ssl_cert' => true,
     'ps_accounts.verify_account_tokens' => true,
     'ps_accounts.accounts_vue_cdn_url' => 'https://unpkg.com/prestashop_accounts_vue_components@3/dist/psaccountsVue.umd.min.js',
-    'ps_accounts.accounts_cdn_url' => 'https://unpkg.com/prestashop_accounts_vue_components@5',
+    'ps_accounts.accounts_cdn_url' => 'https://unpkg.com/@prestashopcorp/accounts-components@beta',
+    'ps_accounts.cors_allowed_origins' => [
+        'https://integration-assets.prestashop3.com',
+        'https://preproduction-assets.prestashop3.com',
+        'https://assets.prestashop3.com',
+    ],
     'ps_accounts.svc_accounts_ui_url' => 'https://accounts.psessentials.net',
     'ps_accounts.oauth2_url' => 'https://oauth.prestashop.com',
     'ps_accounts.token_audience' => 'https://accounts-api.distribution.prestashop.net',

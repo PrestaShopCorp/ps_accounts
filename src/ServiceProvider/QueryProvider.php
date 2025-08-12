@@ -22,6 +22,7 @@ namespace PrestaShop\Module\PsAccounts\ServiceProvider;
 
 use PrestaShop\Module\PsAccounts\Account\QueryHandler\GetContextHandler;
 use PrestaShop\Module\PsAccounts\Provider\ShopProvider;
+use PrestaShop\Module\PsAccounts\Service\UpgradeService;
 use PrestaShop\Module\PsAccounts\Vendor\PrestaShopCorp\LightweightContainer\ServiceContainer\Contract\IServiceProvider;
 use PrestaShop\Module\PsAccounts\Vendor\PrestaShopCorp\LightweightContainer\ServiceContainer\ServiceContainer;
 
@@ -31,7 +32,8 @@ class QueryProvider implements IServiceProvider
     {
         $container->registerProvider(GetContextHandler::class, static function () use ($container) {
             return new GetContextHandler(
-                $container->get(ShopProvider::class)
+                $container->get(ShopProvider::class),
+                $container->get(UpgradeService::class)
             );
         });
     }

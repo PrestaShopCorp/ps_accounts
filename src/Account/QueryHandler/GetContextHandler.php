@@ -23,6 +23,7 @@ namespace PrestaShop\Module\PsAccounts\Account\QueryHandler;
 use PrestaShop\Module\PsAccounts\Account\Query\GetContextQuery;
 use PrestaShop\Module\PsAccounts\Provider\ShopProvider;
 use PrestaShop\Module\PsAccounts\Service\Accounts\AccountsException;
+use PrestaShop\Module\PsAccounts\Service\UpgradeService;
 
 class GetContextHandler
 {
@@ -32,12 +33,19 @@ class GetContextHandler
     private $shopProvider;
 
     /**
+     * @var UpgradeService
+     */
+    private $upgradeService;
+
+    /**
      * @param ShopProvider $shopProvider
      */
     public function __construct(
-        ShopProvider $shopProvider
+        ShopProvider $shopProvider,
+        UpgradeService $upgradeService
     ) {
         $this->shopProvider = $shopProvider;
+        $this->upgradeService = $upgradeService;
     }
 
     /**
@@ -49,16 +57,15 @@ class GetContextHandler
      */
     public function handle(GetContextQuery $query)
     {
-        $psAccountsVersion = \Db::getInstance()->getValue('SELECT version FROM ' . _DB_PREFIX_ . 'module WHERE name = "ps_accounts"');
-
         return [
             'ps_accounts' => [
-                'last_succeeded_upgrade_version' => $psAccountsVersion,
+                'last_succeeded_upgrade_version' => $this->upgradeService->getVersion(),
                 'module_version_from_files' => \Ps_accounts::VERSION,
             ],
             'groups' => $this->shopProvider->getShops(
-                $query->groupId,
-                $query->shopId,
+                $query->source,
+                $query->contextType,
+                $query->contextId,
                 $query->refresh
             ),
         ];

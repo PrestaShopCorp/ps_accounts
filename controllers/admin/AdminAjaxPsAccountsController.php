@@ -20,15 +20,11 @@
 require_once __DIR__ . '/../../src/Polyfill/Traits/Controller/AjaxRender.php';
 
 use PrestaShop\Module\PsAccounts\Account\Command\DeleteUserShopCommand;
-use PrestaShop\Module\PsAccounts\Account\Query\GetContextQuery;
 use PrestaShop\Module\PsAccounts\Account\Session\Firebase\ShopSession;
 use PrestaShop\Module\PsAccounts\Account\StatusManager;
 use PrestaShop\Module\PsAccounts\AccountLogin\OAuth2Session;
 use PrestaShop\Module\PsAccounts\Cqrs\CommandBus;
-use PrestaShop\Module\PsAccounts\Cqrs\QueryBus;
 use PrestaShop\Module\PsAccounts\Hook\ActionShopAccountUnlinkAfter;
-use PrestaShop\Module\PsAccounts\Log\Logger;
-use PrestaShop\Module\PsAccounts\Polyfill\Traits\AdminController\IsAnonymousAllowed;
 use PrestaShop\Module\PsAccounts\Polyfill\Traits\Controller\AjaxRender;
 use PrestaShop\Module\PsAccounts\Repository\ConfigurationRepository;
 use PrestaShop\Module\PsAccounts\Service\SentryService;
@@ -39,7 +35,6 @@ use PrestaShop\Module\PsAccounts\Service\SentryService;
 class AdminAjaxPsAccountsController extends \ModuleAdminController
 {
     use AjaxRender;
-    use IsAnonymousAllowed;
 
     /**
      * @var Ps_accounts
@@ -52,11 +47,6 @@ class AdminAjaxPsAccountsController extends \ModuleAdminController
     private $commandBus;
 
     /**
-     * @var QueryBus
-     */
-    private $queryBus;
-
-    /**
      * AdminAjaxPsAccountsController constructor.
      *
      * @throws Exception
@@ -66,55 +56,10 @@ class AdminAjaxPsAccountsController extends \ModuleAdminController
         parent::__construct();
 
         $this->commandBus = $this->module->getService(CommandBus::class);
-        $this->queryBus = $this->module->getService(QueryBus::class);
 
         $this->ajax = true;
         $this->content_only = true;
     }
-
-    /**
-     * @return bool
-     */
-    public function checkToken()
-    {
-        parent::checkToken();
-        // TODO: check token ici
-        return true;
-    }
-
-    /**
-     * All BO users can access the login page
-     *
-     * @param bool $disable
-     *
-     * @return bool
-     */
-    /*public function viewAccess($disable = false)
-    {
-        return true;
-    }*/
-
-    /**
-     * @return void|null
-     *
-     * @throws PrestaShopException
-     */
-//    public function init()
-//    {
-//        switch ($_SERVER['REQUEST_METHOD']) {
-//            case 'OPTIONS':
-//                // Handle OPTIONS request
-//                header('Access-Control-Allow-Origin: *'); // TODO: filter Origin with authorized domains
-//                header('Access-Control-Allow-Methods: POST, GET, DELETE, PUT, PATCH, OPTIONS');
-//                header('Access-Control-Allow-Headers: token, Content-Type');
-//                header('Access-Control-Max-Age: 1728000');
-//                header('Content-Length: 0');
-//                header('Content-Type: text/plain');
-//                die();
-//
-//        }
-//        parent::init();
-//    }
 
     /**
      * @return void
@@ -215,45 +160,6 @@ class AdminAjaxPsAccountsController extends \ModuleAdminController
             );
         } catch (Exception $e) {
             SentryService::captureAndRethrow($e);
-        }
-    }
-
-    /**
-     * @return void
-     *
-     * @throws Exception
-     */
-    public function ajaxProcessGetContext()
-    {
-        //sleep(1);
-
-        header('Access-Control-Allow-Origin: *');
-        header("Access-Control-Allow-Headers: Content-Type, Authorization, X-Requested-With");
-        header('Content-Type: application/json');
-
-        //header('Content-Type: text/json');
-
-        try {
-            $command = new GetContextQuery(
-                Tools::getValue('group_id', null),
-                Tools::getValue('shop_id', null),
-                filter_var(Tools::getValue('refresh', false), FILTER_VALIDATE_BOOLEAN)
-            );
-
-            $this->ajaxRender(
-                (string) json_encode($this->queryBus->handle($command))
-            );
-        } catch (Exception $e) {
-            Logger::getInstance()->error($e->getMessage());
-
-            http_response_code(500);
-
-            $this->ajaxRender(
-                (string) json_encode([
-                    'error' => true,
-                    'message' => $e->getMessage(),
-                ])
-            );
         }
     }
 }

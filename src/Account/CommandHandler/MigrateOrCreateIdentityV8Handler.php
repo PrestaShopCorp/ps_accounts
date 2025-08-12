@@ -28,13 +28,13 @@ use PrestaShop\Module\PsAccounts\Account\Exception\UnknownStatusException;
 use PrestaShop\Module\PsAccounts\Account\ProofManager;
 use PrestaShop\Module\PsAccounts\Account\StatusManager;
 use PrestaShop\Module\PsAccounts\Cqrs\CommandBus;
-use PrestaShop\Module\PsAccounts\Log\Logger;
 use PrestaShop\Module\PsAccounts\Provider\ShopProvider;
 use PrestaShop\Module\PsAccounts\Repository\ConfigurationRepository;
 use PrestaShop\Module\PsAccounts\Service\Accounts\AccountsException;
 use PrestaShop\Module\PsAccounts\Service\Accounts\AccountsService;
 use PrestaShop\Module\PsAccounts\Service\OAuth2\OAuth2Exception;
 use PrestaShop\Module\PsAccounts\Service\OAuth2\OAuth2Service;
+use PrestaShop\Module\PsAccounts\Service\UpgradeService;
 
 class MigrateOrCreateIdentityV8Handler
 {
@@ -74,6 +74,11 @@ class MigrateOrCreateIdentityV8Handler
     private $commandBus;
 
     /**
+     * @var UpgradeService
+     */
+    private $upgradeService;
+
+    /**
      * @param AccountsService $accountsService
      * @param OAuth2Service $oAuth2Service
      * @param ShopProvider $shopProvider
@@ -81,6 +86,7 @@ class MigrateOrCreateIdentityV8Handler
      * @param ProofManager $proofManager
      * @param ConfigurationRepository $configurationRepository
      * @param CommandBus $commandBus
+     * @param UpgradeService $upgradeService
      */
     public function __construct(
         AccountsService $accountsService,
@@ -89,7 +95,8 @@ class MigrateOrCreateIdentityV8Handler
         StatusManager $shopStatus,
         ProofManager $proofManager,
         ConfigurationRepository $configurationRepository,
-        CommandBus $commandBus
+        CommandBus $commandBus,
+        UpgradeService $upgradeService
     ) {
         $this->accountsService = $accountsService;
         $this->oAuth2Service = $oAuth2Service;
@@ -98,71 +105,67 @@ class MigrateOrCreateIdentityV8Handler
         $this->proofManager = $proofManager;
         $this->configurationRepository = $configurationRepository;
         $this->commandBus = $commandBus;
+        $this->upgradeService = $upgradeService;
     }
 
     /**
      * @param MigrateOrCreateIdentityV8Command $command
      *
      * @return void
+     *
+     * @throws OAuth2Exception
+     * @throws AccountsException
+     * @throws RefreshTokenException
+     * @throws UnknownStatusException
      */
     public function handle(MigrateOrCreateIdentityV8Command $command)
     {
         $shopId = $command->shopId ?: \Shop::getContextShopID();
         $shopUuid = $this->configurationRepository->getShopUuid();
-        $lastUpgradedVersion = $this->configurationRepository->getLastUpgrade(false);
 
-        $e = null;
-        try {
-            if (!$shopUuid || version_compare($lastUpgradedVersion, '8', '>=')) {
-                $this->upgradeVersionNumber();
+        $fromVersion = $this->upgradeService->getVersion();
 
-                $this->commandBus->handle(new CreateIdentityCommand($command->shopId));
+        // FIXME: shouldn't this condition be a specific flag
+        if (!$shopUuid || version_compare($fromVersion, '8', '>=')) {
+            $this->upgradeService->setVersion();
 
-                return;
-            }
+            $this->commandBus->handle(new CreateIdentityCommand($command->shopId, $command->source));
 
-            // migrate cloudShopId locally
-            $this->statusManager->setCloudShopId($shopUuid);
+            return;
+        }
 
-            if (version_compare($lastUpgradedVersion, '7', '>=')) {
-                $token = $this->getAccessTokenV7($shopUuid);
-            } else {
-                $token = $this->getFirebaseTokenV6($shopUuid);
-            }
+        // migrate cloudShopId locally
+        $this->statusManager->setCloudShopId($shopUuid);
 
-            // FIXME getLastUpgradedVersion from PS Core ?
-            $identityCreated = $this->accountsService->migrateShopIdentity(
-                $shopUuid,
-                $token,
-                $this->shopProvider->getUrl($shopId),
-                $this->proofManager->generateProof(),
-                $lastUpgradedVersion
+        if (version_compare($fromVersion, '7', '>=')) {
+            $token = $this->getAccessTokenV7($shopUuid);
+        } else {
+            $token = $this->getFirebaseTokenV6($shopUuid);
+        }
+
+        $identityCreated = $this->accountsService->migrateShopIdentity(
+            $shopUuid,
+            $token,
+            $this->shopProvider->getUrl($shopId),
+            $this->proofManager->generateProof(),
+            $fromVersion,
+            $command->source
+        );
+
+        if (!empty($identityCreated->clientId) &&
+            !empty($identityCreated->clientSecret)) {
+            $this->oAuth2Service->getOAuth2Client()->update(
+                $identityCreated->clientId,
+                $identityCreated->clientSecret
             );
-
-            if (!empty($identityCreated->clientId) &&
-                !empty($identityCreated->clientSecret)) {
-                $this->oAuth2Service->getOAuth2Client()->update(
-                    $identityCreated->clientId,
-                    $identityCreated->clientSecret
-                );
-            }
-
-            // cleanup obsolete token
-            $this->configurationRepository->updateAccessToken('');
-
-            $this->statusManager->invalidateCache();
-
-            // update ps_accounts upgraded version
-            $this->upgradeVersionNumber();
-        } catch (OAuth2Exception $e) {
-        } catch (AccountsException $e) {
-        } catch (RefreshTokenException $e) {
-        } catch (UnknownStatusException $e) {
         }
 
-        if ($e) {
-            Logger::getInstance()->error($e->getMessage());
-        }
+        // cleanup obsolete token
+        $this->configurationRepository->updateAccessToken('');
+
+        $this->statusManager->invalidateCache();
+
+        $this->upgradeService->setVersion();
     }
 
     /**
@@ -193,13 +196,5 @@ class MigrateOrCreateIdentityV8Handler
             $this->configurationRepository->getFirebaseRefreshToken(),
             $shopUuid
         )->token;
-    }
-
-    /**
-     * @return void
-     */
-    protected function upgradeVersionNumber()
-    {
-        $this->configurationRepository->updateLastUpgrade(\Ps_accounts::VERSION);
     }
 }

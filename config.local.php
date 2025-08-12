@@ -33,9 +33,13 @@ return [
     'ps_accounts.check_api_ssl_cert' => false,
     'ps_accounts.verify_account_tokens' => false,
     'ps_accounts.accounts_vue_cdn_url' => 'http://prestashop8.docker.localhost/upload/psaccountsVue.umd.min.js',
-    //ps_accounts.accounts_cdn_url' => 'http://prestashop8.docker.localhost/upload/psaccountsVue.js'
-    //ps_accounts.accounts_cdn_url' => 'https://unpkg.com/prestashop_accounts_vue_components@5.1.0-test-1/dist/psaccountsVue.js'
+    // 'ps_accounts.accounts_cdn_url' => 'https://unpkg.com/@prestashopcorp/accounts-components@beta',
     'ps_accounts.accounts_cdn_url' => 'http://127.0.0.1:3010/psaccountsVue.js',
+    'ps_accounts.cors_allowed_origins' => [
+        'https://integration-assets.prestashop3.com',
+        'https://preproduction-assets.prestashop3.com',
+        'https://assets.prestashop3.com',
+    ],
 
     // a page to display "Update Your Module" message
     'ps_accounts.svc_accounts_ui_url' => 'https://accounts.prestashop.local/',

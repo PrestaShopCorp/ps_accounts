@@ -20,6 +20,65 @@
 
 namespace PrestaShop\Module\PsAccounts\Service\Accounts;
 
+use PrestaShop\Module\PsAccounts\Http\Client\Response;
+
 class AccountsException extends \Exception
 {
+    /**
+     * @var string
+     */
+    protected $errorCode;
+
+    /**
+     * @param Response $response
+     * @param string $defaultMessage
+     * @param string $defaultErrorCode
+     */
+    public function __construct($response, $defaultMessage = '', $defaultErrorCode = '')
+    {
+        $this->errorCode = $this->getErrorCodeFromResponse($response, $defaultErrorCode);
+
+        $message = $this->getErrorMessageFromResponse($response, $defaultMessage);
+        parent::__construct($message);
+    }
+
+    /**
+     * Get the error code.
+     *
+     * @return string
+     */
+    public function getErrorCode()
+    {
+        return $this->errorCode;
+    }
+
+    /**
+     * @param Response $response
+     * @param string $defaultMessage
+     *
+     * @return string
+     */
+    protected function getErrorMessageFromResponse(Response $response, $defaultMessage = '')
+    {
+        if (!isset($response->body['message'])) {
+            return $defaultMessage;
+        }
+
+        return $response->body['message'];
+    }
+
+    /**
+     * @param Response $response
+     * @param string $defaultCode
+     *
+     * @return string
+     */
+    protected function getErrorCodeFromResponse(Response $response, $defaultCode = '')
+    {
+        if (!isset($response->body['error'])) {
+            return $defaultCode;
+        }
+
+        return $response->body['error'];
+    }
 }

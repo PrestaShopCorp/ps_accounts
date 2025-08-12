@@ -21,11 +21,10 @@ if (!defined('_PS_VERSION_')) {
     exit;
 }
 require_once __DIR__ . '/vendor/autoload.php';
-//require __DIR__ . '/src/autoload_module.php';
 
-//if (!class_exists('\PrestaShop\Module\PsAccounts\Hook\HookableTrait')) {
-//    ps_accounts_fix_upgrade();
-//}
+if (!class_exists('\PrestaShop\Module\PsAccounts\Hook\HookableTrait')) {
+    ps_accounts_fix_upgrade();
+}
 
 class Ps_accounts extends Module
 {
@@ -42,6 +41,7 @@ class Ps_accounts extends Module
      */
     private $adminControllers = [
         'AdminAjaxPsAccountsController',
+        'AdminAjaxV2PsAccountsController',
         'AdminDebugPsAccountsController',
         'AdminOAuth2PsAccountsController',
         'AdminLoginPsAccountsController',
@@ -443,7 +443,7 @@ class Ps_accounts extends Module
         $commandBus = $this->getService(\PrestaShop\Module\PsAccounts\Cqrs\CommandBus::class);
 
         // Verification flow
-        $commandBus->handle(new \PrestaShop\Module\PsAccounts\Account\Command\MigrateOrCreateIdentitiesV8Command());
+        $commandBus->handle(new \PrestaShop\Module\PsAccounts\Account\Command\MigrateOrCreateIdentitiesV8Command('ps_accounts'));
     }
 
     /**
@@ -458,15 +458,17 @@ class Ps_accounts extends Module
     }
 
     /**
+     * @param string $source
+     *
      * @return bool
      */
-    public function getVerifiedStatus()
+    public function getVerifiedStatus($source = 'ps_accounts')
     {
         /** @var \PrestaShop\Module\PsAccounts\Account\StatusManager $statusManager */
         $statusManager = $this->getService(\PrestaShop\Module\PsAccounts\Account\StatusManager::class);
 
         try {
-            if ($statusManager->getStatus()->isVerified) {
+            if ($statusManager->getStatus($source)->isVerified) {
                 return true;
             }
         } catch (\PrestaShop\Module\PsAccounts\Account\Exception\UnknownStatusException $e) {
@@ -475,20 +477,20 @@ class Ps_accounts extends Module
         return false;
     }
 }
-//
-///**
-// * @return void
-// */
-//function ps_accounts_fix_upgrade()
-//{
-//    $root = __DIR__;
-//    $requires = array_merge([
-//        $root . '/src/Module/Install.php',
-////        $root . '/src/Hook/Hook.php',
-//        $root . '/src/Hook/HookableTrait.php',
-//    ], []/*, glob($root . '/src/Hook/*.php')*/);
-//
-//    foreach ($requires as $filename) {
-//        require_once $filename;
-//    }
-//}
+
+/**
+ * @return void
+ */
+function ps_accounts_fix_upgrade()
+{
+    $root = __DIR__;
+    $requires = array_merge([
+        $root . '/src/Module/Install.php',
+//        $root . '/src/Hook/Hook.php',
+        $root . '/src/Hook/HookableTrait.php',
+    ], []/*, glob($root . '/src/Hook/*.php')*/);
+
+    foreach ($requires as $filename) {
+        require_once $filename;
+    }
+}

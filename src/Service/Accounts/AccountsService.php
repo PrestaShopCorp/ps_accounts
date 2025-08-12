@@ -35,6 +35,14 @@ use PrestaShop\Module\PsAccounts\Vendor\Ramsey\Uuid\Uuid;
 
 class AccountsService
 {
+    const HEADER_AUTHORIZATION = 'Authorization';
+    const HEADER_MODULE_SOURCE = 'X-Module-Source';
+    const HEADER_MODULE_VERSION = 'X-Module-Version';
+    const HEADER_PRESTASHOP_VERSION = 'X-Prestashop-Version';
+    const HEADER_MULTISHOP_ENABLED = 'X-Multishop-Enabled';
+    const HEADER_REQUEST_ID = 'X-Request-ID';
+    const HEADER_SHOP_ID = 'X-Shop-Id';
+
     /**
      * @var Client
      */
@@ -90,10 +98,10 @@ class AccountsService
     {
         return array_merge([
             'Accept' => 'application/json',
-            'X-Module-Version' => \Ps_accounts::VERSION,
-            'X-Prestashop-Version' => _PS_VERSION_,
-            'X-Multishop-Enabled' => \Shop::isFeatureActive() ? 'true' : 'false',
-            'X-Request-ID' => Uuid::uuid4()->toString(),
+            self::HEADER_MODULE_VERSION => \Ps_accounts::VERSION,
+            self::HEADER_PRESTASHOP_VERSION => _PS_VERSION_,
+            self::HEADER_MULTISHOP_ENABLED => \Shop::isFeatureActive() ? 'true' : 'false',
+            self::HEADER_REQUEST_ID => Uuid::uuid4()->toString(),
         ], $additionalHeaders);
     }
 
@@ -111,13 +119,13 @@ class AccountsService
             '/v1/shop-identities/' . $cloudShopId . '/tokens',
             [
                 Request::HEADERS => $this->getHeaders([
-                    'Authorization' => 'Bearer ' . $accessToken,
+                    self::HEADER_AUTHORIZATION => 'Bearer ' . $accessToken,
                 ]),
             ]
         );
 
         if (!$response->isSuccessful) {
-            throw new AccountsException($this->getResponseErrorMsg($response, 'Unable to refresh token.'));
+            throw new AccountsException($response, 'Unable to get firebase tokens', 'store-identity/unable-to-get-deprecated-tokens');
         }
 
         return new FirebaseTokens($response->body);
@@ -137,7 +145,7 @@ class AccountsService
             'v1/shop/token/refresh',
             [
                 Request::HEADERS => $this->getHeaders([
-                    'X-Shop-Id' => $cloudShopId,
+                    self::HEADER_SHOP_ID => $cloudShopId,
                 ]),
                 Request::JSON => [
                     'token' => $refreshToken,
@@ -146,7 +154,7 @@ class AccountsService
         );
 
         if (!$response->isSuccessful) {
-            throw new AccountsException($this->getResponseErrorMsg($response, 'Unable to refresh shop token.'));
+            throw new AccountsException($response, 'Unable to refresh firebase shop token', 'store/unable-to-refresh-shop-token');
         }
 
         return new LegacyFirebaseToken($response->body);
@@ -165,8 +173,8 @@ class AccountsService
             'v1/user/' . $ownerUid . '/shop/' . $cloudShopId,
             [
                 Request::HEADERS => $this->getHeaders([
-                    'Authorization' => 'Bearer ' . $ownerToken,
-                    'X-Shop-Id' => $cloudShopId,
+                    self::HEADER_AUTHORIZATION => 'Bearer ' . $ownerToken,
+                    self::HEADER_SHOP_ID => $cloudShopId,
                 ]),
             ]
         );
@@ -187,8 +195,8 @@ class AccountsService
             [
                 Request::HEADERS => $this->getHeaders([
                     // FIXME: use shop access token instead
-                    'Authorization' => 'Bearer ' . $ownerToken,
-                    'X-Shop-Id' => $cloudShopId,
+                    self::HEADER_AUTHORIZATION => 'Bearer ' . $ownerToken,
+                    self::HEADER_SHOP_ID => $cloudShopId,
                 ]),
                 Request::JSON => $shop->jsonSerialize(),
             ]
@@ -226,50 +234,19 @@ class AccountsService
     /**
      * @param ShopUrl $shopUrl
      * @param string $proof
+     * @param string|null $source
      *
      * @return IdentityCreated
      *
      * @throws AccountsException
      */
-    public function createShopIdentity(ShopUrl $shopUrl, $proof)
+    public function createShopIdentity(ShopUrl $shopUrl, $proof, $source = null)
     {
         $response = $this->getClient()->post(
             '/v1/shop-identities',
             [
-                Request::JSON => [
-                    'backOfficeUrl' => $shopUrl->getBackOfficeUrl(),
-                    'frontendUrl' => $shopUrl->getFrontendUrl(),
-                    'multiShopId' => $shopUrl->getMultiShopId(),
-                    'proof' => $proof,
-                ],
-            ]
-        );
-
-        if (!$response->isSuccessful) {
-            throw new AccountsException($this->getResponseErrorMsg($response, 'Unable to create shop identity.'));
-        }
-
-        return new IdentityCreated($response->body);
-    }
-
-    /**
-     * @param string $cloudShopId
-     * @param string $shopToken
-     * @param ShopUrl $shopUrl
-     * @param string $proof
-     *
-     * @return void
-     *
-     * @throws AccountsException
-     */
-    public function verifyShopIdentity($cloudShopId, $shopToken, ShopUrl $shopUrl, $proof)
-    {
-        $response = $this->getClient()->post(
-            '/v1/shop-identities/' . $cloudShopId . '/verify',
-            [
                 Request::HEADERS => $this->getHeaders([
-                    'Authorization' => 'Bearer ' . $shopToken,
-                    'X-Shop-Id' => $cloudShopId,
+                    self::HEADER_MODULE_SOURCE => $source,
                 ]),
                 Request::JSON => [
                     'backOfficeUrl' => $shopUrl->getBackOfficeUrl(),
@@ -281,7 +258,44 @@ class AccountsService
         );
 
         if (!$response->isSuccessful) {
-            throw new AccountsException($this->getResponseErrorMsg($response, 'Unable to verify shop identity.'));
+            throw new AccountsException($response, 'Unable to create shop identity', 'store-identity/unable-to-create-shop-identity');
+        }
+
+        return new IdentityCreated($response->body);
+    }
+
+    /**
+     * @param string $cloudShopId
+     * @param string $shopToken
+     * @param ShopUrl $shopUrl
+     * @param string $proof
+     * @param string|null $source
+     *
+     * @return void
+     *
+     * @throws AccountsException
+     */
+    public function verifyShopIdentity($cloudShopId, $shopToken, ShopUrl $shopUrl, $proof, $source = null)
+    {
+        $response = $this->getClient()->post(
+            '/v1/shop-identities/' . $cloudShopId . '/verify',
+            [
+                Request::HEADERS => $this->getHeaders([
+                    self::HEADER_AUTHORIZATION => 'Bearer ' . $shopToken,
+                    self::HEADER_SHOP_ID => $cloudShopId,
+                    self::HEADER_MODULE_SOURCE => $source,
+                ]),
+                Request::JSON => [
+                    'backOfficeUrl' => $shopUrl->getBackOfficeUrl(),
+                    'frontendUrl' => $shopUrl->getFrontendUrl(),
+                    'multiShopId' => $shopUrl->getMultiShopId(),
+                    'proof' => $proof,
+                ],
+            ]
+        );
+
+        if (!$response->isSuccessful) {
+            throw new AccountsException($response, 'Unable to verify shop identity', 'store-identity/unable-to-verify-shop-identity');
         }
     }
 
@@ -299,14 +313,14 @@ class AccountsService
             '/v1/shop-identities/' . $cloudShopId . '/status',
             [
                 Request::HEADERS => $this->getHeaders([
-                    'Authorization' => 'Bearer ' . $shopToken,
-                    'X-Shop-Id' => $cloudShopId,
+                    self::HEADER_AUTHORIZATION => 'Bearer ' . $shopToken,
+                    self::HEADER_SHOP_ID => $cloudShopId,
                 ]),
             ]
         );
 
         if (!$response->isSuccessful) {
-            throw new AccountsException($this->getResponseErrorMsg($response, 'Unable to retrieve shop status'));
+            throw new AccountsException($response, 'Unable to retrieve shop status', 'store-identity/unable-to-retrieve-shop-status');
         }
 
         return new ShopStatus($response->body);
@@ -316,19 +330,21 @@ class AccountsService
      * @param string $cloudShopId
      * @param string $shopToken
      * @param string $userToken
+     * @param string|null $source
      *
      * @return void
      *
      * @throws AccountsException
      */
-    public function setPointOfContact($cloudShopId, $shopToken, $userToken)
+    public function setPointOfContact($cloudShopId, $shopToken, $userToken, $source = null)
     {
         $response = $this->getClient()->post(
             '/v1/shop-identities/' . $cloudShopId . '/point-of-contact',
             [
                 Request::HEADERS => $this->getHeaders([
-                    'Authorization' => 'Bearer ' . $shopToken,
-                    'X-Shop-Id' => $cloudShopId,
+                    self::HEADER_AUTHORIZATION => 'Bearer ' . $shopToken,
+                    self::HEADER_SHOP_ID => $cloudShopId,
+                    self::HEADER_MODULE_SOURCE => $source,
                 ]),
                 Request::JSON => [
                     'pointOfContactJWT' => $userToken,
@@ -337,7 +353,7 @@ class AccountsService
         );
 
         if (!$response->isSuccessful) {
-            throw new AccountsException($this->getResponseErrorMsg($response, 'Unable to set point of contact'));
+            throw new AccountsException($response, 'Unable to set point of contact', 'store-identity/unable-to-set-point-of-contact');
         }
     }
 
@@ -347,19 +363,21 @@ class AccountsService
      * @param ShopUrl $shopUrl
      * @param string $proof
      * @param string $fromVersion
+     * @param string|null $source
      *
      * @return IdentityCreated
      *
      * @throws AccountsException
      */
-    public function migrateShopIdentity($cloudShopId, $shopToken, ShopUrl $shopUrl, $proof, $fromVersion)
+    public function migrateShopIdentity($cloudShopId, $shopToken, ShopUrl $shopUrl, $proof, $fromVersion, $source = null)
     {
         $response = $this->getClient()->put(
             '/v1/shop-identities/' . $cloudShopId . '/migrate',
             [
                 Request::HEADERS => $this->getHeaders([
-                    'Authorization' => 'Bearer ' . $shopToken,
-                    'X-Shop-Id' => $cloudShopId,
+                    self::HEADER_AUTHORIZATION => 'Bearer ' . $shopToken,
+                    self::HEADER_SHOP_ID => $cloudShopId,
+                    self::HEADER_MODULE_SOURCE => $source,
                 ]),
                 Request::JSON => [
                     'backOfficeUrl' => $shopUrl->getBackOfficeUrl(),
@@ -372,29 +390,9 @@ class AccountsService
         );
 
         if (!$response->isSuccessful) {
-            throw new AccountsException($this->getResponseErrorMsg($response, 'Unable to migrate shop identity.'));
+            throw new AccountsException($response, 'Unable to migrate shop identity', 'store-identity/unable-to-migrate-shop-identity');
         }
 
         return new IdentityCreated($response->body);
-    }
-
-    /**
-     * @param Response $response
-     * @param string $defaultMessage
-     *
-     * @return string
-     */
-    protected function getResponseErrorMsg(Response $response, $defaultMessage = '')
-    {
-        $msg = $defaultMessage;
-        $body = $response->body;
-        if (
-            isset($body['error']) &&
-            isset($body['error_description'])
-        ) {
-            $msg = $body['error'] . ': ' . $body['error_description'];
-        }
-
-        return $response->statusCode . ' - ' . $msg;
     }
 }
