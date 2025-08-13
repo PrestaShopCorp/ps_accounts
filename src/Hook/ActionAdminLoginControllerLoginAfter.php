@@ -35,7 +35,9 @@ class ActionAdminLoginControllerLoginAfter extends Hook
      */
     public function execute(array $params = [])
     {
-        $this->trackLoginEvent($params['employee']);
+        if ($this->module->isShopEdition()) {
+            $this->trackLoginEvent($params['employee']);
+        }
     }
 
     /**
@@ -47,25 +49,23 @@ class ActionAdminLoginControllerLoginAfter extends Hook
      */
     protected function trackLoginEvent(\Employee $employee)
     {
-        if ($this->module->isShopEdition()) {
-            /** @var AnalyticsService $analyticsService */
-            $analyticsService = $this->module->getService(AnalyticsService::class);
+        /** @var AnalyticsService $analyticsService */
+        $analyticsService = $this->module->getService(AnalyticsService::class);
 
-            /** @var PsAccountsService $psAccountsService */
-            $psAccountsService = $this->module->getService(PsAccountsService::class);
+        /** @var PsAccountsService $psAccountsService */
+        $psAccountsService = $this->module->getService(PsAccountsService::class);
 
-            $account = $psAccountsService->getEmployeeAccount();
+        $account = $psAccountsService->getEmployeeAccount();
 
-            $uid = null;
-            if ($account) {
-                $uid = $account->getUid();
-                $email = $account->getEmail();
-            } else {
-                $email = $employee->email;
-            }
-            $analyticsService->identify($uid, null, $email);
-            $analyticsService->group($uid, (string) $psAccountsService->getShopUuid());
-            $analyticsService->trackUserSignedIntoBackOfficeLocally($uid, $email);
+        $uid = null;
+        if ($account) {
+            $uid = $account->getUid();
+            $email = $account->getEmail();
+        } else {
+            $email = $employee->email;
         }
+        $analyticsService->identify($uid, null, $email);
+        $analyticsService->group($uid, (string) $psAccountsService->getShopUuid());
+        $analyticsService->trackUserSignedIntoBackOfficeLocally($uid, $email);
     }
 }

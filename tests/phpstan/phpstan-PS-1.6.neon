@@ -42,5 +42,6 @@ parameters:
 		- '#Call to static method getInstance\(\) on an unknown class PrestaShop\\PrestaShop\\Adapter\\SymfonyContainer.#'
 		- '#Call to an undefined method object::generate\(\).#'
 		- '#Symfony\\Component\\HttpFoundation\\Session\\SessionInterface#'
+		- '#Property PrestaShop\\Module\\PsAccounts\\Entity\\EmployeeAccount::\$id is never written, only read#'
 
 	level: 7
