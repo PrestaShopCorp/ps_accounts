@@ -1,4 +1,4 @@
-name: e2e Acounts TNRs
+name: Account Module Installation autom tests
 
 on:
   workflow_dispatch:
@@ -59,7 +59,7 @@ jobs:
     needs: setup
     runs-on: ubuntu-latest
     strategy:
-      max-parallel: 1
+      max-parallel: 2
       matrix:
         shop_version:
           - nightly-nginx
