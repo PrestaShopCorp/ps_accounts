@@ -1,4 +1,4 @@
-name: Account Module Installation autom tests
+name: e2e Acounts TNRs
 
 on:
   workflow_dispatch:
