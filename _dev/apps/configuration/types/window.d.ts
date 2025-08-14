@@ -4,6 +4,7 @@ type ContextParamsInit = {
     groupId: number;
     getContextUrl: string;
     manageAccountUrl: string;
+    token: string;
     psxName: string;
 }
 
