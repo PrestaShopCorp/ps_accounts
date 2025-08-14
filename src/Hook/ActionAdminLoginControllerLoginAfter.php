@@ -35,7 +35,9 @@ class ActionAdminLoginControllerLoginAfter extends Hook
      */
     public function execute(array $params = [])
     {
-        $this->trackLoginEvent($params['employee']);
+        if ($this->module->isShopEdition()) {
+            $this->trackLoginEvent($params['employee']);
+        }
     }
 
     /**
@@ -55,17 +57,15 @@ class ActionAdminLoginControllerLoginAfter extends Hook
 
         $account = $psAccountsService->getEmployeeAccount();
 
-        if ($this->module->isShopEdition()) {
-            $uid = null;
-            if ($account) {
-                $uid = $account->getUid();
-                $email = $account->getEmail();
-            } else {
-                $email = $employee->email;
-            }
-            $analyticsService->identify($uid, null, $email);
-            $analyticsService->group($uid, (string) $psAccountsService->getShopUuid());
-            $analyticsService->trackUserSignedIntoBackOfficeLocally($uid, $email);
+        $uid = null;
+        if ($account) {
+            $uid = $account->getUid();
+            $email = $account->getEmail();
+        } else {
+            $email = $employee->email;
         }
+        $analyticsService->identify($uid, null, $email);
+        $analyticsService->group($uid, (string) $psAccountsService->getShopUuid());
+        $analyticsService->trackUserSignedIntoBackOfficeLocally($uid, $email);
     }
 }
