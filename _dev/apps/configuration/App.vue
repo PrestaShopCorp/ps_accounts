@@ -51,7 +51,6 @@ import {
   PuikTabNavigationPanel,
 } from "@prestashopcorp/puik-components";
 import { onMounted, ref } from "vue";
-import { init } from "prestashop_accounts_vue_components";
 
 const args = {
   name: "PS-Accounts",
@@ -66,7 +65,6 @@ onMounted(async () => {
       "Settings",
     );
   }
-  init();
 });
 </script>
 <style lang="scss">

@@ -16,7 +16,6 @@
     "@prestashopcorp/puik-resolver": "^2.0.1",
     "@prestashopcorp/puik-tailwind-preset": "^2.2.0",
     "@splidejs/splide": "^4.1.4",
-    "prestashop_accounts_vue_components": "^5.3.0",
     "vue": "^3.5.13",
     "vue-i18n": "^11.1.0",
     "zoid": "9.0.86"
