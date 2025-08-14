@@ -82,12 +82,13 @@ class AdminAjaxV2PsAccountsController extends AbstractAdminAjaxController
     public function ajaxProcessFallbackCreateIdentity()
     {
         $shopId = Tools::getValue('shop_id', null);
+        $source = Tools::getValue('source', 'ps_accounts');
 
         if (!$shopId) {
             throw new Exception('Shop ID is required for migration or creation.');
         }
 
-        $command = new MigrateOrCreateIdentityV8Command($shopId);
+        $command = new MigrateOrCreateIdentityV8Command($shopId, $source);
 
         $this->commandBus->handle($command);
 
