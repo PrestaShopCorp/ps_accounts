@@ -105,7 +105,7 @@ class StatusManagerTest extends TestCase
 
         $this->expectException(UnknownStatusException::class);
 
-        $this->statusManager->getStatus();
+        $this->statusManager->getStatus(true);
     }
 
     /**
