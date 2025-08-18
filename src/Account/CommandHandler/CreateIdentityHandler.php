@@ -24,7 +24,6 @@ use PrestaShop\Module\PsAccounts\Account\Command\CreateIdentityCommand;
 use PrestaShop\Module\PsAccounts\Account\Command\VerifyIdentityCommand;
 use PrestaShop\Module\PsAccounts\Account\Exception\RefreshTokenException;
 use PrestaShop\Module\PsAccounts\Account\Exception\UnknownStatusException;
-use PrestaShop\Module\PsAccounts\Account\ProofManager;
 use PrestaShop\Module\PsAccounts\Account\StatusManager;
 use PrestaShop\Module\PsAccounts\Cqrs\CommandBus;
 use PrestaShop\Module\PsAccounts\Provider\ShopProvider;
@@ -55,11 +54,6 @@ class CreateIdentityHandler
     private $statusManager;
 
     /**
-     * @var ProofManager
-     */
-    private $proofManager;
-
-    /**
      * @var CommandBus
      */
     private $commandBus;
@@ -69,7 +63,6 @@ class CreateIdentityHandler
      * @param ShopProvider $shopProvider
      * @param OAuth2Client $oauth2Client
      * @param StatusManager $shopStatus
-     * @param ProofManager $proofManager
      * @param CommandBus $commandBus
      */
     public function __construct(
@@ -77,14 +70,12 @@ class CreateIdentityHandler
         ShopProvider $shopProvider,
         OAuth2Client $oauth2Client,
         StatusManager $shopStatus,
-        ProofManager $proofManager,
         CommandBus $commandBus
     ) {
         $this->accountsService = $accountsService;
         $this->shopProvider = $shopProvider;
         $this->oAuth2Client = $oauth2Client;
         $this->statusManager = $shopStatus;
-        $this->proofManager = $proofManager;
         $this->commandBus = $commandBus;
     }
 
@@ -104,7 +95,7 @@ class CreateIdentityHandler
 
             $identityCreated = $this->accountsService->createShopIdentity(
                 $this->shopProvider->getUrl($shopId),
-                $this->proofManager->generateProof(),
+                null,
                 $command->source
             );
             $this->oAuth2Client->update(
@@ -113,9 +104,8 @@ class CreateIdentityHandler
             );
             $this->statusManager->setCloudShopId($identityCreated->cloudShopId);
             $this->statusManager->invalidateCache();
-        } else {
-            $this->commandBus->handle(new VerifyIdentityCommand($command->shopId, $command->source));
         }
+        $this->commandBus->handle(new VerifyIdentityCommand($command->shopId, $command->source));
     }
 
     /**
