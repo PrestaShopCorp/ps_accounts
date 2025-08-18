@@ -18,8 +18,6 @@
  * @license   https://opensource.org/licenses/AFL-3.0 Academic Free License version 3.0
  */
 
-use PrestaShop\Module\PsAccounts\Account\StatusManager;
-
 if (!defined('_PS_VERSION_')) {
     exit;
 }
@@ -453,8 +451,8 @@ class Ps_accounts extends Module
      */
     public function getCloudShopId()
     {
-        /** @var StatusManager $statusManager */
-        $statusManager = $this->getService(StatusManager::class);
+        /** @var \PrestaShop\Module\PsAccounts\Account\StatusManager $statusManager */
+        $statusManager = $this->getService(\PrestaShop\Module\PsAccounts\Account\StatusManager::class);
 
         return $statusManager->getCloudShopId();
     }
@@ -466,11 +464,11 @@ class Ps_accounts extends Module
      */
     public function getVerifiedStatus($source = 'ps_accounts')
     {
-        /** @var StatusManager $statusManager */
-        $statusManager = $this->getService(StatusManager::class);
+        /** @var \PrestaShop\Module\PsAccounts\Account\StatusManager $statusManager */
+        $statusManager = $this->getService(\PrestaShop\Module\PsAccounts\Account\StatusManager::class);
 
         try {
-            if ($statusManager->getStatus(false, StatusManager::CACHE_TTL, $source)->isVerified) {
+            if ($statusManager->getStatus(false, \PrestaShop\Module\PsAccounts\Account\StatusManager::CACHE_TTL, $source)->isVerified) {
                 return true;
             }
         } catch (\PrestaShop\Module\PsAccounts\Account\Exception\UnknownStatusException $e) {
