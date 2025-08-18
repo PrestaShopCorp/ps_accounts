@@ -351,7 +351,7 @@ class ShopProvider
                         $shopUrl = $this->getUrl((int) $shopData['id_shop']);
                         try {
                             $cacheTtl = $refresh ? 0 : StatusManager::CACHE_TTL;
-                            $shopStatus = $this->shopStatus->getStatus(false, $cacheTtl);
+                            $shopStatus = $this->shopStatus->getStatus(false, $cacheTtl, null);
                         } catch (UnknownStatusException $e) {
                             $shopStatus = new ShopStatus([
                                 'frontendUrl' => $shopUrl->getFrontendUrl(),

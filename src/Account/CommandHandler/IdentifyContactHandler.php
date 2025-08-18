@@ -67,7 +67,7 @@ class IdentifyContactHandler
      */
     public function handle(IdentifyContactCommand $command)
     {
-        $status = $this->statusManager->getStatus($command->source);
+        $status = $this->statusManager->getStatus(false, StatusManager::CACHE_TTL, $command->source);
         if (!$status->isVerified) {
             return;
         }
