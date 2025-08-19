@@ -41,7 +41,6 @@ class Ps_accounts extends Module
      */
     private $adminControllers = [
         'AdminAjaxPsAccountsController',
-        'AdminDebugPsAccountsController',
         'AdminOAuth2PsAccountsController',
         'AdminLoginPsAccountsController',
     ];
@@ -467,7 +466,7 @@ class Ps_accounts extends Module
         $statusManager = $this->getService(\PrestaShop\Module\PsAccounts\Account\StatusManager::class);
 
         try {
-            if ($statusManager->getStatus($source)->isVerified) {
+            if ($statusManager->getStatus(false, \PrestaShop\Module\PsAccounts\Account\StatusManager::CACHE_TTL, $source)->isVerified) {
                 return true;
             }
         } catch (\PrestaShop\Module\PsAccounts\Account\Exception\UnknownStatusException $e) {
