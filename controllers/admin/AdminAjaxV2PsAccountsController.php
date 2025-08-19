@@ -23,14 +23,14 @@ use PrestaShop\Module\PsAccounts\Account\Command\MigrateOrCreateIdentityV8Comman
 use PrestaShop\Module\PsAccounts\Account\Query\GetContextQuery;
 use PrestaShop\Module\PsAccounts\Cqrs\CommandBus;
 use PrestaShop\Module\PsAccounts\Cqrs\QueryBus;
-use PrestaShop\Module\PsAccounts\Http\Controller\AbstractAdminAjaxController;
+use PrestaShop\Module\PsAccounts\Http\Controller\AbstractAdminAjaxCorsController;
 use PrestaShop\Module\PsAccounts\Log\Logger;
 use PrestaShop\Module\PsAccounts\Service\Accounts\AccountsException;
 
 /**
  * Controller for all ajax calls.
  */
-class AdminAjaxV2PsAccountsController extends AbstractAdminAjaxController
+class AdminAjaxV2PsAccountsController extends AbstractAdminAjaxCorsController
 {
     /**
      * @var CommandBus
