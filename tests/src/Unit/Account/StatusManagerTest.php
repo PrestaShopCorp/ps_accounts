@@ -105,7 +105,7 @@ class StatusManagerTest extends TestCase
 
         $this->expectException(UnknownStatusException::class);
 
-        $this->statusManager->getStatus(null, StatusManager::CACHE_TTL_INFINITE);
+        $this->statusManager->getStatus(true);
     }
 
     /**
@@ -140,7 +140,7 @@ class StatusManagerTest extends TestCase
 
         sleep(1);
 
-        $cachedStatus = $this->statusManager->getStatus(null, false, 1);
+        $cachedStatus = $this->statusManager->getStatus(false, 1);
 
         $this->assertEquals($cloudShopId, $cachedStatus->cloudShopId);
         $this->assertTrue($cachedStatus->isVerified);
@@ -207,7 +207,7 @@ class StatusManagerTest extends TestCase
                 "msg" => "Invalid request",
             ], 400));
 
-        $cachedStatus = $this->statusManager->getStatus(null, false);
+        $cachedStatus = $this->statusManager->getStatus();
 
         //$this->assertNull($cachedStatus->cloudShopId);
         $this->assertFalse($cachedStatus->isVerified);
@@ -238,7 +238,7 @@ class StatusManagerTest extends TestCase
 
         sleep(1);
 
-        $cachedStatus = $this->statusManager->getStatus(null, false, 1);
+        $cachedStatus = $this->statusManager->getStatus(false, 1);
 
         //$this->assertNull($cachedStatus->cloudShopId);
         $this->assertFalse($cachedStatus->isVerified);
