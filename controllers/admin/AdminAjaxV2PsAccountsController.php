@@ -17,7 +17,7 @@
  * @copyright Since 2007 PrestaShop SA and Contributors
  * @license   https://opensource.org/licenses/AFL-3.0 Academic Free License version 3.0
  */
-require_once __DIR__ . '/../../src/Http/Controller/AbstractAdminAjaxController.php';
+require_once __DIR__ . '/../../src/Http/Controller/AbstractAdminAjaxCorsController.php';
 
 use PrestaShop\Module\PsAccounts\Account\Command\MigrateOrCreateIdentityV8Command;
 use PrestaShop\Module\PsAccounts\Account\Query\GetContextQuery;
