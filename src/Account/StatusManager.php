@@ -87,22 +87,22 @@ class StatusManager
     public function identityVerified($cachedStatus = true)
     {
         try {
-            return $this->getStatus(null, $cachedStatus)->isVerified;
+            return $this->getStatus($cachedStatus)->isVerified;
         } catch (UnknownStatusException $e) {
             return false;
         }
     }
 
     /**
-     * @param string|null $source
      * @param bool $cachedOnly
      * @param int $cacheTtl
+     * @param string|null $source
      *
      * @return ShopStatus
      *
      * @throws UnknownStatusException
      */
-    public function getStatus($source = null, $cachedOnly = false, $cacheTtl = self::CACHE_TTL)
+    public function getStatus($cachedOnly = false, $cacheTtl = self::CACHE_TTL, $source = null)
     {
         if (!$cachedOnly) {
             try {
@@ -121,7 +121,8 @@ class StatusManager
                         'updatedAt' => date('Y-m-d H:i:s'),
                         'shopStatus' => $this->accountsService->shopStatus(
                             $this->getCloudShopId(),
-                            $this->shopSession->getValidToken()
+                            $this->shopSession->getValidToken(),
+                            $source
                         ),
                     ]));
                 } catch (AccountsException $e) {
@@ -197,7 +198,7 @@ class StatusManager
     public function getCloudShopId($cachedStatus = true)
     {
         try {
-            return $this->getStatus(null, $cachedStatus)->cloudShopId;
+            return $this->getStatus($cachedStatus)->cloudShopId;
         } catch (UnknownStatusException $e) {
             return null;
         }
@@ -225,7 +226,7 @@ class StatusManager
     public function getPointOfContactUuid($cachedStatus = true)
     {
         try {
-            return $this->getStatus(null, $cachedStatus)->pointOfContactUuid;
+            return $this->getStatus($cachedStatus)->pointOfContactUuid;
         } catch (UnknownStatusException $e) {
             return null;
         }
@@ -239,7 +240,7 @@ class StatusManager
     public function getPointOfContactEmail($cachedStatus = true)
     {
         try {
-            return $this->getStatus(null, $cachedStatus)->pointOfContactEmail;
+            return $this->getStatus($cachedStatus)->pointOfContactEmail;
         } catch (UnknownStatusException $e) {
             return null;
         }

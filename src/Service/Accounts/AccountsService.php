@@ -304,12 +304,13 @@ class AccountsService
     /**
      * @param string $cloudShopId
      * @param string $shopToken
+     * @param string|null $source
      *
      * @return ShopStatus
      *
      * @throws AccountsException
      */
-    public function shopStatus($cloudShopId, $shopToken)
+    public function shopStatus($cloudShopId, $shopToken, $source = null)
     {
         $response = $this->getClient()->get(
             '/v1/shop-identities/' . $cloudShopId . '/status',
@@ -317,6 +318,7 @@ class AccountsService
                 Request::HEADERS => $this->getHeaders([
                     self::HEADER_AUTHORIZATION => 'Bearer ' . $shopToken,
                     self::HEADER_SHOP_ID => $cloudShopId,
+                    self::HEADER_MODULE_SOURCE => $source,
                 ]),
             ]
         );
