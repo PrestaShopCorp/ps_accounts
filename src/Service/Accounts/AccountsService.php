@@ -240,7 +240,7 @@ class AccountsService
      *
      * @throws AccountsException
      */
-    public function createShopIdentity(ShopUrl $shopUrl, $proof, $source = null)
+    public function createShopIdentity(ShopUrl $shopUrl, $proof, $source = 'ps_accounts')
     {
         $response = $this->getClient()->post(
             '/v1/shop-identities',
@@ -275,7 +275,7 @@ class AccountsService
      *
      * @throws AccountsException
      */
-    public function verifyShopIdentity($cloudShopId, $shopToken, ShopUrl $shopUrl, $proof, $source = null)
+    public function verifyShopIdentity($cloudShopId, $shopToken, ShopUrl $shopUrl, $proof, $source = 'ps_accounts')
     {
         $response = $this->getClient()->post(
             '/v1/shop-identities/' . $cloudShopId . '/verify',
@@ -338,7 +338,7 @@ class AccountsService
      *
      * @throws AccountsException
      */
-    public function setPointOfContact($cloudShopId, $shopToken, $userToken, $source = null)
+    public function setPointOfContact($cloudShopId, $shopToken, $userToken, $source = 'ps_accounts')
     {
         $response = $this->getClient()->post(
             '/v1/shop-identities/' . $cloudShopId . '/point-of-contact',
@@ -371,7 +371,7 @@ class AccountsService
      *
      * @throws AccountsException
      */
-    public function migrateShopIdentity($cloudShopId, $shopToken, ShopUrl $shopUrl, $proof, $fromVersion, $source = null)
+    public function migrateShopIdentity($cloudShopId, $shopToken, ShopUrl $shopUrl, $proof, $fromVersion, $source = 'ps_accounts')
     {
         $response = $this->getClient()->put(
             '/v1/shop-identities/' . $cloudShopId . '/migrate',
