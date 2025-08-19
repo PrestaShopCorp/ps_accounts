@@ -43,7 +43,6 @@ class DisplayAdminAfterHeader extends Hook
             $moduleLink = $link->getAdminLink('AdminModules', true, [], [
                 'configure' => 'ps_accounts',
             ]);
-            $debugLink = $link->getAdminLink('AdminDebugPsAccounts');
             $healthCheckLink = $link->getLink()->getModuleLink('ps_accounts', 'apiV2ShopHealthCheck');
 
             $environment = $this->module->getParameter('ps_accounts.environment');
@@ -57,7 +56,6 @@ class DisplayAdminAfterHeader extends Hook
         <b>{$environment}</b> |
         <!-- img width="57" alt="PrestaShop Account" title="PrestaShop Account" src="/modules/ps_accounts/logo.png"-->
         <a href="{$moduleLink}">{$cloudShopId} ({$verifiedMsg})</a> |
-        <a href="{$debugLink}">Debug</a> |
         <a target="_blank" href="{$healthCheckLink}">Health Check</a>
     </div>
 </div>
