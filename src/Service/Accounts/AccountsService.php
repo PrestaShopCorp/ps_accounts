@@ -233,14 +233,14 @@ class AccountsService
 
     /**
      * @param ShopUrl $shopUrl
-     * @param string $proof
+     * @param string|null $proof
      * @param string|null $source
      *
      * @return IdentityCreated
      *
      * @throws AccountsException
      */
-    public function createShopIdentity(ShopUrl $shopUrl, $proof, $source = 'ps_accounts')
+    public function createShopIdentity(ShopUrl $shopUrl, $proof = null, $source = 'ps_accounts')
     {
         $response = $this->getClient()->post(
             '/v1/shop-identities',
@@ -248,12 +248,14 @@ class AccountsService
                 Request::HEADERS => $this->getHeaders([
                     self::HEADER_MODULE_SOURCE => $source,
                 ]),
-                Request::JSON => [
-                    'backOfficeUrl' => $shopUrl->getBackOfficeUrl(),
-                    'frontendUrl' => $shopUrl->getFrontendUrl(),
-                    'multiShopId' => $shopUrl->getMultiShopId(),
-                    'proof' => $proof,
-                ],
+                Request::JSON => array_merge(
+                    [
+                        'backOfficeUrl' => $shopUrl->getBackOfficeUrl(),
+                        'frontendUrl' => $shopUrl->getFrontendUrl(),
+                        'multiShopId' => $shopUrl->getMultiShopId(),
+                    ],
+                    $proof ? ['proof' => $proof] : []
+                ),
             ]
         );
 
@@ -363,15 +365,15 @@ class AccountsService
      * @param string $cloudShopId
      * @param string $shopToken
      * @param ShopUrl $shopUrl
-     * @param string $proof
      * @param string $fromVersion
+     * @param string|null $proof
      * @param string|null $source
      *
      * @return IdentityCreated
      *
      * @throws AccountsException
      */
-    public function migrateShopIdentity($cloudShopId, $shopToken, ShopUrl $shopUrl, $proof, $fromVersion, $source = 'ps_accounts')
+    public function migrateShopIdentity($cloudShopId, $shopToken, ShopUrl $shopUrl, $fromVersion, $proof = null, $source = 'ps_accounts')
     {
         $response = $this->getClient()->put(
             '/v1/shop-identities/' . $cloudShopId . '/migrate',
@@ -381,13 +383,15 @@ class AccountsService
                     self::HEADER_SHOP_ID => $cloudShopId,
                     self::HEADER_MODULE_SOURCE => $source,
                 ]),
-                Request::JSON => [
-                    'backOfficeUrl' => $shopUrl->getBackOfficeUrl(),
-                    'frontendUrl' => $shopUrl->getFrontendUrl(),
-                    'multiShopId' => $shopUrl->getMultiShopId(),
-                    'proof' => $proof,
-                    'fromVersion' => $fromVersion,
-                ],
+                Request::JSON => array_merge(
+                    [
+                        'backOfficeUrl' => $shopUrl->getBackOfficeUrl(),
+                        'frontendUrl' => $shopUrl->getFrontendUrl(),
+                        'multiShopId' => $shopUrl->getMultiShopId(),
+                        'fromVersion' => $fromVersion,
+                    ],
+                    $proof ? ['proof' => $proof] : []
+                ),
             ]
         );
 
