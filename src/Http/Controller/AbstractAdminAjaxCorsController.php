@@ -22,6 +22,7 @@ namespace PrestaShop\Module\PsAccounts\Http\Controller;
 
 require_once __DIR__ . '/../../Polyfill/Traits/Controller/AjaxRender.php';
 require_once __DIR__ . '/../../Polyfill/Traits/AdminController/IsAnonymousAllowed.php';
+require_once __DIR__ . '/../../Http/Controller/GetHeader.php';
 
 use ModuleAdminController;
 use PrestaShop\Module\PsAccounts\Http\Exception\UnauthorizedException;
