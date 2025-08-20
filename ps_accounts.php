@@ -97,6 +97,7 @@ class Ps_accounts extends Module
         'displayAccountUpdateWarning',
         'displayBackOfficeEmployeeMenu',
         'displayDashboardTop',
+        'displayHeader',
 
         // toggle single/multi-shop
         //'actionObjectShopAddAfter',
