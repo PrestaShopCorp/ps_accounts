@@ -85,6 +85,17 @@ abstract class AbstractAdminAjaxCorsController extends ModuleAdminController
     }
 
     /**
+     * @return void
+     */
+    public function init()
+    {
+        if (defined('_PS_VERSION_')
+            && version_compare(_PS_VERSION_, '1.7.0', '>=')) {
+            parent::init();
+        }
+    }
+
+    /**
      * @return \ObjectModel|bool|void
      */
     public function postProcess()

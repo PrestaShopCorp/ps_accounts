@@ -79,23 +79,29 @@ class GetContextTest extends TestCase
      */
     public function itShouldRespondWithValidContext()
     {
+        //$this->module->install();
+
         $shop = $this->shopProvider->formatShopData((array) \Shop::getShop(1));
 
-        $url = $this->psAccountsService->getContextUrl();
+        //$url = $this->psAccountsService->getContextUrl();
+        //$url = str_replace('http://', 'https://', $url);
         //$url = '/index.php?controller=AdminAjaxV2PsAccounts&ajax=1&action=getContext';
+        $url = '/admin-dev/?controller=AdminAjaxV2PsAccounts&ajax=1&action=getContext&source=ps_accounts';
         $token = (string)$this->tokenService->getToken();
 
         //echo $url . PHP_EOL;
 
         $response = $this->client->get($url, [
             Request::HEADERS => [
-                AbstractV2RestController::HEADER_AUTHORIZATION => $token
+                'User-Agent' => 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/133.0.0.0 Safari/537.36',
+                AbstractV2RestController::HEADER_AUTHORIZATION => 'Bearer ' . $token,
             ],
         ]);
 
         $json = $this->getResponseJson($response);
 
         //print_r($json);
+        // TEST Cors ? avec le header
 
         $this->assertResponseOk($response);
 
