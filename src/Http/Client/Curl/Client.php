@@ -169,10 +169,10 @@ class Client
         $header_size = curl_getinfo($request->handler, CURLINFO_HEADER_SIZE);
 
         // Extract the headers from the response string
-        $headers = $this->parseHeaders(substr($res, 0, $header_size));
+        $headers = $this->parseHeaders(substr((string) $res, 0, $header_size));
 
         // Extract the body from the response string
-        $body = substr($res, $header_size);
+        $body = substr((string) $res, $header_size);
 
         $statusCode = curl_getinfo($request->handler, CURLINFO_RESPONSE_CODE);
         $response = new Response(
