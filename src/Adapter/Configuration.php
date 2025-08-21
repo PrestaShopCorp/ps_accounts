@@ -168,6 +168,16 @@ class Configuration
 
     /**
      * @param string $key
+     *
+     * @return mixed
+     */
+    public function getGlobal($key)
+    {
+        return \Configuration::getGlobalValue($key);
+    }
+
+    /**
+     * @param string $key
      * @param string|array $values
      * @param bool $html
      *

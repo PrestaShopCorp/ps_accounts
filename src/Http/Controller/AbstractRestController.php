@@ -34,6 +34,7 @@ use ReflectionParameter;
 abstract class AbstractRestController extends ModuleFrontController
 {
     use AjaxRender;
+    use GetHeader;
 
     const TOKEN_HEADER = 'X-PrestaShop-Signature';
 
@@ -273,46 +274,6 @@ abstract class AbstractRestController extends ModuleFrontController
     protected function decodePayload($defaultShopId = null)
     {
         throw new UnauthorizedException();
-    }
-
-    /**
-     * @param string $header
-     *
-     * @return string|null
-     */
-    protected function getRequestHeader($header)
-    {
-        $headerValue = null;
-
-        $headerKey = 'HTTP_' . strtoupper(str_replace('-', '_', $header));
-
-        if (array_key_exists($headerKey, $_SERVER)) {
-            $headerValue = $_SERVER[$headerKey];
-        }
-
-        if (null === $headerValue) {
-            $headerValue = $this->getApacheHeader($header);
-        }
-
-        return $headerValue;
-    }
-
-    /**
-     * @param string $header
-     *
-     * @return string|null
-     */
-    protected function getApacheHeader($header)
-    {
-        if (function_exists('apache_request_headers')) {
-            $headers = getallheaders();
-            //$header = preg_replace('/PrestaShop/', 'Prestashop', $header);
-            if (array_key_exists($header, $headers)) {
-                return $headers[$header];
-            }
-        }
-
-        return null;
     }
 
     /**

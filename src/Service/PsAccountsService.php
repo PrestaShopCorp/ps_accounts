@@ -65,6 +65,11 @@ class PsAccountsService
     private $statusManager;
 
     /**
+     * @var AdminTokenService
+     */
+    private $tokenService;
+
+    /**
      * @param \Ps_accounts $module
      *
      * @throws \Exception
@@ -77,6 +82,7 @@ class PsAccountsService
         $this->ownerSession = $this->module->getService(Firebase\OwnerSession::class);
         $this->link = $this->module->getService(Link::class);
         $this->statusManager = $module->getService(StatusManager::class);
+        $this->tokenService = $module->getService(AdminTokenService::class);
     }
 
     /**
@@ -265,13 +271,15 @@ class PsAccountsService
     }
 
     /**
+     * @param string|null $source
+     *
      * @return string
      *
      * @throws \PrestaShopException
      */
-    public function getContextUrl()
+    public function getContextUrl($source = null)
     {
-        return $this->link->getAdminLink('AdminAjaxPsAccounts', true, [], ['ajax' => 1, 'action' => 'getContext']);
+        return $this->link->getAdminLink('AdminAjaxV2PsAccounts', false, [], ['ajax' => 1, 'action' => 'getContext', 'source' => $source]);
     }
 
     /**
@@ -350,8 +358,9 @@ class PsAccountsService
             'mode' => \Shop::getContext(),
             'shopId' => \Shop::getContextShopID(),
             'groupId' => \Shop::getContextShopGroupID(),
-            'getContextUrl' => $this->getContextUrl(),
+            'getContextUrl' => $this->getContextUrl($psxName),
             'manageAccountUrl' => $this->module->getAccountsUiUrl(),
+            'token' => (string) $this->tokenService->getToken(),
             'psxName' => $psxName,
         ];
     }

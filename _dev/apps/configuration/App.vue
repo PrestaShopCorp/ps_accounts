@@ -27,7 +27,11 @@
     <PuikTabNavigationGroupPanels>
       <PuikTabNavigationPanel :position="1">
         <div class="panelContent">
-          <prestashop-accounts></prestashop-accounts>
+          <prestashop-accounts>
+            <template v-if="!cdnIsLoaded">
+              <puik-alert variant="danger">Failed to load PrestaShop Account</puik-alert>
+            </template>
+          </prestashop-accounts>
         </div>
       </PuikTabNavigationPanel>
       <!-- <PuikTabNavigationPanel :position="2">
@@ -48,7 +52,7 @@ import {
   PuikTabNavigationGroupTitles,
   PuikTabNavigationTitle,
   PuikTabNavigationGroupPanels,
-  PuikTabNavigationPanel,
+  PuikTabNavigationPanel, PuikAlert,
 } from "@prestashopcorp/puik-components";
 import { onMounted, ref } from "vue";
 
@@ -58,8 +62,11 @@ const args = {
   ariaLabel: "PS-Accounts tabs",
 };
 
+const cdnIsLoaded = ref(false);
+
 onMounted(async () => {
   if (window?.psaccountsVue) {
+    cdnIsLoaded.value = true;
     return window?.psaccountsVue?.init(
       window.contextPsAccounts.component_params_init,
       "Settings",

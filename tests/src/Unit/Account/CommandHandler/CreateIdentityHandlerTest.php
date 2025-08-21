@@ -101,7 +101,7 @@ class CreateIdentityHandlerTest extends TestCase
                 $this->assertArrayHasKey('backOfficeUrl', $options[Request::JSON]);
                 $this->assertArrayHasKey('frontendUrl', $options[Request::JSON]);
                 $this->assertArrayHasKey('multiShopId', $options[Request::JSON]);
-                $this->assertEquals($this->proofManager->getProof(), $options[Request::JSON]['proof']);
+                //$this->assertEquals($this->proofManager->getProof(), $options[Request::JSON]['proof']);
 
                 return $this->createResponse([
                     'clientId' => $clientId,
@@ -145,7 +145,7 @@ class CreateIdentityHandlerTest extends TestCase
                 $this->assertArrayHasKey('backOfficeUrl', $options[Request::JSON]);
                 $this->assertArrayHasKey('frontendUrl', $options[Request::JSON]);
                 $this->assertArrayHasKey('multiShopId', $options[Request::JSON]);
-                $this->assertEquals($this->proofManager->getProof(), $options[Request::JSON]['proof']);
+                //$this->assertEquals($this->proofManager->getProof(), $options[Request::JSON]['proof']);
 
                 static $count = 1;
                 return $count++ === 1 ? $id1 : $id2;
@@ -204,7 +204,6 @@ class CreateIdentityHandlerTest extends TestCase
             $this->shopProvider,
             $this->oauth2Client,
             $this->statusManager,
-            $this->proofManager,
             $this->commandBus
         );
     }
