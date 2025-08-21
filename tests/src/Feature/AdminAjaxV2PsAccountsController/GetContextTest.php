@@ -74,36 +74,26 @@ class GetContextTest extends TestCase
 
     /**
      * @test
-     *
-     * @throws \Exception
      */
     public function itShouldRespondWithValidContext()
     {
-        //$this->module->install();
-
         $shop = $this->shopProvider->formatShopData((array) \Shop::getShop(1));
 
-        //$url = $this->psAccountsService->getContextUrl();
+        $url = $this->psAccountsService->getContextUrl();
         //$url = str_replace('http://', 'https://', $url);
         //$url = '/index.php?controller=AdminAjaxV2PsAccounts&ajax=1&action=getContext';
-        $url = '/admin-dev/?controller=AdminAjaxV2PsAccounts&ajax=1&action=getContext&source=ps_accounts';
+        //$url = '/admin-dev/?controller=AdminAjaxV2PsAccounts&ajax=1&action=getContext&source=ps_accounts';
         $token = (string)$this->tokenService->getToken();
-
-        //echo $url . PHP_EOL;
 
         $response = $this->client->get($url, [
             Request::HEADERS => [
-                'User-Agent' => 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/133.0.0.0 Safari/537.36',
                 AbstractV2RestController::HEADER_AUTHORIZATION => 'Bearer ' . $token,
             ],
         ]);
 
-        $json = $this->getResponseJson($response);
-
-        //print_r($json);
-        // TEST Cors ? avec le header
-
         $this->assertResponseOk($response);
+
+        $json = $this->getResponseJson($response);
 
         $this->assertIsArray($json['ps_accounts']);
 
@@ -114,5 +104,95 @@ class GetContextTest extends TestCase
 
         $this->assertEquals($shop->id, $shops['id']);
         $this->assertEquals($shop->name, $shops['name']);
+    }
+
+    /**
+     * @test
+     */
+    public function itShouldFailWithoutToken()
+    {
+        $url = $this->psAccountsService->getContextUrl();
+
+        $response = $this->client->get($url);
+
+        $this->assertResponseUnauthorized($response);
+    }
+
+    /**
+     * @test
+     */
+    public function itShouldFailWithWrongToken()
+    {
+        $url = $this->psAccountsService->getContextUrl();
+
+        $token = $this->makeJwtToken(new \DateTimeImmutable('+1 hour'));
+
+        $response = $this->client->get($url, [
+            Request::HEADERS => [
+                AbstractV2RestController::HEADER_AUTHORIZATION => 'Bearer ' . $token,
+            ],
+        ]);
+
+        $this->assertResponseUnauthorized($response);
+    }
+
+    /**
+     * @test
+     */
+    public function itShouldRespondWithAccessControlHeadersWithAllowedOrigin()
+    {
+        //$shop = $this->shopProvider->formatShopData((array) \Shop::getShop(1));
+
+        $url = $this->psAccountsService->getContextUrl();
+        $token = (string)$this->tokenService->getToken();
+        $allowedOrigin = $this->module->getParameter('ps_accounts.cors_allowed_origins')[0];
+
+        $response = $this->client->get($url, [
+            Request::HEADERS => [
+                "Origin" => $allowedOrigin,
+                //"Origin" => "https://foo.com",
+                AbstractV2RestController::HEADER_AUTHORIZATION => 'Bearer ' . $token,
+            ],
+        ]);
+
+        //print_r($response->headers);
+
+        $this->assertResponseOk($response);
+
+        $json = $this->getResponseJson($response);
+
+        $this->assertIsArray($json['ps_accounts']);
+
+        $this->assertEquals($allowedOrigin, $response->headers['Access-Control-Allow-Origin']);
+    }
+
+
+    /**
+     * @test
+     */
+    public function itShouldRespondWithoutAccessControlHeadersWithNotAllowedOrigin()
+    {
+        //$shop = $this->shopProvider->formatShopData((array) \Shop::getShop(1));
+
+        $url = $this->psAccountsService->getContextUrl();
+        $token = (string)$this->tokenService->getToken();
+        $NotAllowedOrigin = "https://foo.com";
+
+        $response = $this->client->get($url, [
+            Request::HEADERS => [
+                "Origin" => $NotAllowedOrigin,
+                AbstractV2RestController::HEADER_AUTHORIZATION => 'Bearer ' . $token,
+            ],
+        ]);
+
+        //print_r($response->headers);
+
+        $this->assertResponseOk($response);
+
+        $json = $this->getResponseJson($response);
+
+        $this->assertIsArray($json['ps_accounts']);
+
+        $this->assertArrayNotHasKey($NotAllowedOrigin, $response->headers);
     }
 }

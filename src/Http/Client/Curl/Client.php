@@ -165,16 +165,55 @@ class Client
 
         $this->handleError($request);
 
+        // Get the size of the header from the cURL info
+        $header_size = curl_getinfo($request->handler, CURLINFO_HEADER_SIZE);
+
+        // Extract the headers from the response string
+        $headers = $this->parseHeaders(substr($res, 0, $header_size));
+
+        // Extract the body from the response string
+        $body = substr($res, $header_size);
+
         $statusCode = curl_getinfo($request->handler, CURLINFO_RESPONSE_CODE);
         $response = new Response(
-            (string) $res,
-            $statusCode
+            (string) $body,
+            $statusCode,
+            $headers
         );
         $response->request = $request;
 
         curl_close($request->handler);
 
         return $response;
+    }
+
+    /**
+     * @param string $headers
+     *
+     * @return array
+     */
+    protected function parseHeaders($headers)
+    {
+        // Parse the header string into an array of lines
+        $headerLines = explode("\r\n", trim($headers));
+
+        // Initialize an empty array for the parsed headers
+        $parsedHeaders = [];
+
+        foreach ($headerLines as $line) {
+            // Skip the status line (e.g., HTTP/1.1 200 OK)
+            if (strpos($line, ':') === false) {
+                continue;
+            }
+
+            // Split the header line at the first colon
+            list($key, $value) = explode(':', $line, 2);
+
+            // Trim and store the key-value pair
+            $parsedHeaders[trim($key)] = trim($value);
+        }
+
+        return $parsedHeaders;
     }
 
     /**
@@ -316,6 +355,7 @@ class Client
         curl_setopt($request->handler, CURLOPT_FOLLOWLOCATION, $this->config->allowRedirects);
         curl_setopt($request->handler, CURLOPT_POSTREDIR, $this->config->allowRedirects ? 3 : 0);
         curl_setopt($request->handler, CURLINFO_HEADER_OUT, true);
+        curl_setopt($request->handler, CURLOPT_HEADER, true);
 
         if (!empty($this->config->userAgent)) {
             curl_setopt($request->handler, CURLOPT_USERAGENT, $this->config->userAgent);
