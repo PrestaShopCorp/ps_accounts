@@ -40,6 +40,7 @@ class Response extends ConfigObject
     /**
      * @param array|string $body
      * @param int $statusCode
+     * @param array $headers
      */
     public function __construct($body, $statusCode, $headers = [])
     {
