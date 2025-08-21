@@ -233,7 +233,7 @@ class AdminOAuth2PsAccountsController extends \ModuleAdminController
     protected function onLoginFailedRedirect()
     {
         if ($this->getOAuthAction() === 'identifyPointOfContact') {
-            $this->closePopup(false);
+            $this->closePopup();
         }
         $this->logout();
     }
@@ -271,15 +271,12 @@ class AdminOAuth2PsAccountsController extends \ModuleAdminController
     }
 
     /**
-     * @param bool $refreshParent
-     *
      * @return void
      */
-    protected function closePopup($refreshParent = true)
+    protected function closePopup()
     {
         echo '
 <script type="text/javascript">
-' . ($refreshParent ? 'window.opener.location.reload();' : '') . '
 window.close();
 </script>
 ';

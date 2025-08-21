@@ -41,6 +41,7 @@ class Ps_accounts extends Module
      */
     private $adminControllers = [
         'AdminAjaxPsAccountsController',
+        'AdminAjaxV2PsAccountsController',
         'AdminOAuth2PsAccountsController',
         'AdminLoginPsAccountsController',
     ];
