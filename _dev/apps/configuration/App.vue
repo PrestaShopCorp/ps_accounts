@@ -62,16 +62,16 @@ const args = {
   ariaLabel: "PS-Accounts tabs",
 };
 
-const cdnIsLoaded = ref(false);
+const cdnIsLoaded = ref(true);
 
 onMounted(async () => {
   if (window?.psaccountsVue) {
-    cdnIsLoaded.value = true;
     return window?.psaccountsVue?.init(
       window.contextPsAccounts.component_params_init,
       "Settings",
     );
   }
+  cdnIsLoaded.value = false;
 });
 </script>
 <style lang="scss">
