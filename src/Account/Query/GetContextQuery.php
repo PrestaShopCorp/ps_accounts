@@ -29,14 +29,14 @@ class GetContextQuery
     public $source;
 
     /**
-     * @var string|null
+     * @var int
      */
-    public $groupId;
+    public $contextType;
 
     /**
-     * @var string|null
+     * @var int|null
      */
-    public $shopId;
+    public $contextId;
 
     /**
      * @var bool
@@ -45,15 +45,15 @@ class GetContextQuery
 
     /**
      * @param string|null $source
-     * @param string|null $groupId
-     * @param string|null $shopId
+     * @param int|null $contextType
+     * @param int|null $contextId
      * @param bool $refresh
      */
-    public function __construct($source = null, $groupId = null, $shopId = null, $refresh = false)
+    public function __construct($source = null, $contextType = \Shop::CONTEXT_ALL, $contextId = null, $refresh = false)
     {
         $this->source = $source;
-        $this->groupId = $groupId;
-        $this->shopId = $shopId;
+        $this->contextType = $contextType;
+        $this->contextId = $contextId;
         $this->refresh = $refresh;
     }
 }
