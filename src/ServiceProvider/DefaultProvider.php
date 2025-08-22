@@ -202,6 +202,12 @@ class DefaultProvider implements IServiceProvider
                     return $session;
                 }
 
+                return $container->get(ConfigurationStorageSession::class);
+            }
+        );
+        $container->registerProvider(
+            ConfigurationStorageSession::class,
+            static function () use ($container) {
                 // Fallback session object
                 // FIXME: create an interface for it
                 $session = new ConfigurationStorageSession(
