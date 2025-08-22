@@ -18,54 +18,9 @@
  * @license   https://opensource.org/licenses/AFL-3.0 Academic Free License version 3.0
  */
 
-use PrestaShop\Module\PsAccounts\Account\LinkShop;
-use PrestaShop\Module\PsAccounts\Account\Session\Firebase\OwnerSession;
-use PrestaShop\Module\PsAccounts\Account\Session\Firebase\ShopSession;
-use PrestaShop\Module\PsAccounts\Service\PsAccountsService;
-
+/**
+ * @deprecated removed starting ps_accounts 8.0.0
+ */
 class AdminDebugPsAccountsController extends \ModuleAdminController
 {
-    /**
-     * @var Ps_accounts
-     */
-    public $module;
-
-    /**
-     * @return void
-     *
-     * @throws SmartyException
-     * @throws Exception
-     */
-    public function initContent()
-    {
-        /** @var OwnerSession $ownerSession */
-        $ownerSession = $this->module->getService(OwnerSession::class);
-
-        /** @var ShopSession $shopSession */
-        $shopSession = $this->module->getService(ShopSession::class);
-
-        /** @var PsAccountsService $psAccountsService */
-        $psAccountsService = $this->module->getService(PsAccountsService::class);
-
-        /** @var LinkShop $linkShop */
-        $linkShop = $this->module->getService(LinkShop::class);
-
-        $this->context->smarty->assign([
-            'config' => [
-                'shopId' => (int) $this->context->shop->id,
-                'shopUuidV4' => $linkShop->getShopUuid(),
-                'moduleVersion' => \Ps_accounts::VERSION,
-                'psVersion' => _PS_VERSION_,
-                'phpVersion' => phpversion(),
-                'firebase_email' => $ownerSession->getToken()->getEmail(),
-                'firebase_email_is_verified' => $ownerSession->isEmailVerified(),
-                'firebase_id_token' => (string) $shopSession->getToken(),
-                'firebase_refresh_token' => '',
-                'adminAjaxUrl' => $psAccountsService->getAdminAjaxUrl(),
-                'isShopLinked' => $psAccountsService->isAccountLinked(),
-            ],
-        ]);
-        $this->content = $this->context->smarty->fetch($this->module->getLocalPath() . '/views/templates/admin/debug.tpl');
-        parent::initContent();
-    }
 }

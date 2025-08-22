@@ -17,53 +17,88 @@
  * International Registered Trademark & Property of PrestaShop SA
  *-->
 <template>
-  <div id="settingsApp">
-    <div class="onboarding">
-      <section class="onboarding-header">
-        <ConfigInformation />
-      </section>
-
-      <section class="onboarding-content">
-        <prestashop-accounts></prestashop-accounts>
-      </section>
-    </div>
-  </div>
+  <PuikTabNavigation :name="args.name" :default-position="args.defaultPosition">
+    <!-- <PuikTabNavigationGroupTitles :ariaLabel="args.ariaLabel">
+      <PuikTabNavigationTitle :position="1">
+        Configuration
+      </PuikTabNavigationTitle>
+      <PuikTabNavigationTitle :position="2"> Help </PuikTabNavigationTitle>
+    </PuikTabNavigationGroupTitles> -->
+    <PuikTabNavigationGroupPanels>
+      <PuikTabNavigationPanel :position="1">
+        <div class="panelContent">
+          <prestashop-accounts>
+            <template v-if="!cdnIsLoaded">
+              <puik-alert variant="danger">Failed to load PrestaShop Account</puik-alert>
+            </template>
+          </prestashop-accounts>
+        </div>
+      </PuikTabNavigationPanel>
+      <!-- <PuikTabNavigationPanel :position="2">
+        <div class="panelContent">
+          Content for Profile tab goes here.
+          <p>Profile content goes here.</p>
+          <p>More profile content can be added here.</p>
+        </div>
+      </PuikTabNavigationPanel> -->
+    </PuikTabNavigationGroupPanels>
+  </PuikTabNavigation>
 </template>
 
 <script setup lang="ts">
 import ConfigInformation from "@/configuration/components/ConfigInformation.vue";
-import { onMounted } from "vue";
-import { init } from "prestashop_accounts_vue_components"
+import {
+  PuikTabNavigation,
+  PuikTabNavigationGroupTitles,
+  PuikTabNavigationTitle,
+  PuikTabNavigationGroupPanels,
+  PuikTabNavigationPanel, PuikAlert,
+} from "@prestashopcorp/puik-components";
+import { onMounted, ref } from "vue";
+
+const args = {
+  name: "PS-Accounts",
+  defaultPosition: 1,
+  ariaLabel: "PS-Accounts tabs",
+};
+
+const cdnIsLoaded = ref(true);
 
 onMounted(async () => {
   if (window?.psaccountsVue) {
-    return window?.psaccountsVue?.init();
+    return window?.psaccountsVue?.init(
+      window.contextPsAccounts.component_params_init,
+      "Settings",
+    );
   }
-  init();
+  cdnIsLoaded.value = false;
 });
 </script>
 <style lang="scss">
-#settingsApp {
-  font-family: Open Sans, Helvetica, Arial, sans-serif;
-}
 .nobootstrap {
-  background-color: unset !important;
-  padding: 100px 10px 100px;
+  background-color: #ffffff;
+  padding-top: 100px;
+  padding-right: 10px;
+  padding-left: 10px;
   min-width: unset !important;
+  min-height: calc(100vh - 100px) !important;
+}
+
+#main {
+  background-color: #ffffff;
 }
 .page-sidebar.mobile #content.nobootstrap {
   @apply psacc-ml-0;
 }
-.onboarding {
+
+/* .puik-tab-navigation__group-titles {
+  border-bottom: rgb(221 221 221) 1px solid;
+}
+ */
+.panelContent {
   @apply psacc-pt-24 psacc-max-w-screen-lg psacc-mx-auto;
-  &-header {
-    @apply psacc-mb-2;
-  }
   @screen md {
     @apply psacc-pt-4;
-    &-header {
-      @apply psacc-mb-4;
-    }
   }
 }
 </style>

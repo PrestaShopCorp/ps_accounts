@@ -72,11 +72,15 @@ class RefreshTokenTest extends TestCase
 
         $session = $this->getMockedFirebaseSession(
             Firebase\ShopSession::class,
-            $this->createApiResponse([
-                'userToken' => (string) $userRefreshedToken,
-                'userRefreshToken' => $userRefreshToken,
-                'shopToken' => (string) $shopRefreshedToken,
-                'shopRefreshToken' => $shopRefreshToken,
+            $this->createResponse([
+                'shop' => [
+                    'token' => (string) $shopRefreshedToken,
+                    'refreshToken' => $shopRefreshToken,
+                ],
+                'pointOfContact' => [
+                    'token' => (string) $userRefreshedToken,
+                    'refreshToken' => $userRefreshToken,
+                ]
             ], 200, true),
             $this->getMockedShopSession(new Token($this->makeJwtToken(new \DateTimeImmutable())))
         );
@@ -105,7 +109,7 @@ class RefreshTokenTest extends TestCase
 
         $session = $this->getMockedFirebaseSession(
             Firebase\ShopSession::class,
-            $this->createApiResponse([
+            $this->createResponse([
                 'message' => 'Error !',
             ], 403, false),
             $this->getMockedShopSession(new Token($this->makeJwtToken(new \DateTimeImmutable())))
