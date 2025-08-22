@@ -53,7 +53,7 @@ class DisplayAdminAfterHeader extends Hook
 <div class="bootstrap">
     <div class="alert alert-{$alertLevel} alert-dismissible">
         <button type="button" class="close" data-dismiss="alert">×</button>
-        <b>{$environment}</b> |
+        <b>PsAccount ({$environment})</b> |
         <!-- img width="57" alt="PrestaShop Account" title="PrestaShop Account" src="/modules/ps_accounts/logo.png"-->
         <a href="{$moduleLink}">{$cloudShopId} ({$verifiedMsg})</a> |
         <a target="_blank" href="{$healthCheckLink}">Health Check</a>

@@ -28,6 +28,7 @@ use PrestaShop\Module\PsAccounts\AccountLogin\OAuth2LoginTrait;
 use PrestaShop\Module\PsAccounts\AccountLogin\OAuth2Session;
 use PrestaShop\Module\PsAccounts\Cqrs\CommandBus;
 use PrestaShop\Module\PsAccounts\Log\Logger;
+use PrestaShop\Module\PsAccounts\Polyfill\ConfigurationStorageSession;
 use PrestaShop\Module\PsAccounts\Polyfill\Traits\AdminController\IsAnonymousAllowed;
 use PrestaShop\Module\PsAccounts\Service\AnalyticsService;
 use PrestaShop\Module\PsAccounts\Service\OAuth2\OAuth2Service;
@@ -243,7 +244,8 @@ class AdminOAuth2PsAccountsController extends \ModuleAdminController
      */
     protected function getSession()
     {
-        return $this->module->getSession();
+        //return $this->module->getSession();
+        return $this->module->getService(ConfigurationStorageSession::class);
     }
 
     /**
