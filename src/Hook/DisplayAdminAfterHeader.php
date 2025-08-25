@@ -24,6 +24,7 @@ use PrestaShop\Module\PsAccounts\Account\Exception\UnknownStatusException;
 use PrestaShop\Module\PsAccounts\Account\StatusManager;
 use PrestaShop\Module\PsAccounts\Adapter\Link;
 use PrestaShop\Module\PsAccounts\Provider\ShopProvider;
+use PrestaShop\Module\PsAccounts\Service\PsAccountsService;
 
 class DisplayAdminAfterHeader extends Hook
 {
@@ -33,6 +34,13 @@ class DisplayAdminAfterHeader extends Hook
     public function execute(array $params = [])
     {
         try {
+            /** @var PsAccountsService $psAccountsService */
+            $psAccountsService = $this->module->getService(PsAccountsService::class);
+
+            if (!$psAccountsService->isShopIdentityCreated()) {
+                return '';
+            }
+
             /** @var StatusManager $statusManager */
             $statusManager = $this->module->getService(StatusManager::class);
 
@@ -52,6 +60,7 @@ class DisplayAdminAfterHeader extends Hook
                 $moduleLink = $link->getAdminLink('AdminModules', true, [], [
                     'configure' => 'ps_accounts',
                 ]);
+
                 return
 <<<HTML
 <div class="bootstrap">
@@ -64,7 +73,9 @@ class DisplayAdminAfterHeader extends Hook
 </div>
 HTML;
             }
-        } catch(UnknownStatusException $e) {
+        } catch (UnknownStatusException $e) {
+        } catch (\Exception $e) {
+        } catch (\Throwable $e) {
         }
 
 //        try {
@@ -88,7 +99,7 @@ HTML;
 //            $alertLevel = $this->getAlertLevel($environment);
 //
 //            return <<<HTML
-//<div class="bootstrap">
+        //<div class="bootstrap">
 //    <div class="alert alert-{$alertLevel} alert-dismissible">
 //        <button type="button" class="close" data-dismiss="alert">×</button>
 //        <b>PsAccount ({$environment})</b> |
@@ -96,8 +107,8 @@ HTML;
 //        <a href="{$moduleLink}">{$cloudShopId} ({$verifiedMsg})</a> |
 //        <a target="_blank" href="{$healthCheckLink}">Health Check</a>
 //    </div>
-//</div>
-//HTML;
+        //</div>
+        //HTML;
 //        } catch (\Throwable $e) {
 //            /* @phpstan-ignore-next-line */
 //        } catch (\Exception $e) {
@@ -106,26 +117,26 @@ HTML;
         return '';
     }
 
-    /**
-     * @param string $environment
-     *
-     * @return string
-     */
-    private function getAlertLevel($environment)
-    {
-        $alertLevel = 'info';
-        switch ($environment) {
-            case 'production':
-                $alertLevel = 'info';
-                break;
-            case 'integration':
-                $alertLevel = 'warning';
-                break;
-            case 'development':
-                $alertLevel = 'danger';
-                break;
-        }
-
-        return $alertLevel;
-    }
+//    /**
+//     * @param string $environment
+//     *
+//     * @return string
+//     */
+//    private function getAlertLevel($environment)
+//    {
+//        $alertLevel = 'info';
+//        switch ($environment) {
+//            case 'production':
+//                $alertLevel = 'info';
+//                break;
+//            case 'integration':
+//                $alertLevel = 'warning';
+//                break;
+//            case 'development':
+//                $alertLevel = 'danger';
+//                break;
+//        }
+//
+//        return $alertLevel;
+//    }
 }
