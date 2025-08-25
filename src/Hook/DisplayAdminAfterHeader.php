@@ -20,7 +20,10 @@
 
 namespace PrestaShop\Module\PsAccounts\Hook;
 
+use PrestaShop\Module\PsAccounts\Account\Exception\UnknownStatusException;
+use PrestaShop\Module\PsAccounts\Account\StatusManager;
 use PrestaShop\Module\PsAccounts\Adapter\Link;
+use PrestaShop\Module\PsAccounts\Provider\ShopProvider;
 
 class DisplayAdminAfterHeader extends Hook
 {
@@ -30,40 +33,75 @@ class DisplayAdminAfterHeader extends Hook
     public function execute(array $params = [])
     {
         try {
-            if ('ERROR' === $this->module->getParameter('ps_accounts.log_level')) {
-                return '';
-            }
+            /** @var StatusManager $statusManager */
+            $statusManager = $this->module->getService(StatusManager::class);
 
-            $cloudShopId = $this->module->getCloudShopId();
-            $verified = $this->module->getVerifiedStatus('ps_accounts');
-            $verifiedMsg = $verified ? 'verified' : 'NOT verified';
+            /** @var ShopProvider $shopProvider */
+            $shopProvider = $this->module->getService(ShopProvider::class);
 
-            /** @var Link $link */
-            $link = $this->module->getService(Link::class);
-            $moduleLink = $link->getAdminLink('AdminModules', true, [], [
-                'configure' => 'ps_accounts',
-            ]);
-            $healthCheckLink = $link->getLink()->getModuleLink('ps_accounts', 'apiV2ShopHealthCheck');
+            $shopUrl = $shopProvider->getUrl((int) \Context::getContext()->shop->id);
 
-            $environment = $this->module->getParameter('ps_accounts.environment');
+            $status = $statusManager->getStatus();
 
-            $alertLevel = $this->getAlertLevel($environment);
+            $cloudFrontendURL = $status->frontendUrl;
+            $localFrontendURL = $shopUrl->getFrontendUrl();
 
-            return <<<HTML
+            if ($cloudFrontendURL !== $localFrontendURL) {
+                /** @var Link $link */
+                $link = $this->module->getService(Link::class);
+                $moduleLink = $link->getAdminLink('AdminModules', true, [], [
+                    'configure' => 'ps_accounts',
+                ]);
+                return
+<<<HTML
 <div class="bootstrap">
-    <div class="alert alert-{$alertLevel} alert-dismissible">
-        <button type="button" class="close" data-dismiss="alert">×</button>
-        <b>PsAccount ({$environment})</b> |
-        <!-- img width="57" alt="PrestaShop Account" title="PrestaShop Account" src="/modules/ps_accounts/logo.png"-->
-        <a href="{$moduleLink}">{$cloudShopId} ({$verifiedMsg})</a> |
-        <a target="_blank" href="{$healthCheckLink}">Health Check</a>
+    <div class="alert alert-danger alert-dismissible">
+        We detected a change in your shop URL.<br />
+        Cloud: {$cloudFrontendURL}<br />
+        Local: {$localFrontendURL}<br />
+        <a href="{$moduleLink}">Ps Accounts settings</a>
     </div>
 </div>
 HTML;
-        } catch (\Throwable $e) {
-            /* @phpstan-ignore-next-line */
-        } catch (\Exception $e) {
+            }
+        } catch(UnknownStatusException $e) {
         }
+
+//        try {
+//            if ('ERROR' === $this->module->getParameter('ps_accounts.log_level')) {
+//                return '';
+//            }
+//
+//            $cloudShopId = $this->module->getCloudShopId();
+//            $verified = $this->module->getVerifiedStatus('ps_accounts');
+//            $verifiedMsg = $verified ? 'verified' : 'NOT verified';
+//
+//            /** @var Link $link */
+//            $link = $this->module->getService(Link::class);
+//            $moduleLink = $link->getAdminLink('AdminModules', true, [], [
+//                'configure' => 'ps_accounts',
+//            ]);
+//            $healthCheckLink = $link->getLink()->getModuleLink('ps_accounts', 'apiV2ShopHealthCheck');
+//
+//            $environment = $this->module->getParameter('ps_accounts.environment');
+//
+//            $alertLevel = $this->getAlertLevel($environment);
+//
+//            return <<<HTML
+//<div class="bootstrap">
+//    <div class="alert alert-{$alertLevel} alert-dismissible">
+//        <button type="button" class="close" data-dismiss="alert">×</button>
+//        <b>PsAccount ({$environment})</b> |
+//        <!-- img width="57" alt="PrestaShop Account" title="PrestaShop Account" src="/modules/ps_accounts/logo.png"-->
+//        <a href="{$moduleLink}">{$cloudShopId} ({$verifiedMsg})</a> |
+//        <a target="_blank" href="{$healthCheckLink}">Health Check</a>
+//    </div>
+//</div>
+//HTML;
+//        } catch (\Throwable $e) {
+//            /* @phpstan-ignore-next-line */
+//        } catch (\Exception $e) {
+//        }
 
         return '';
     }
