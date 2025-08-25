@@ -34,6 +34,10 @@ class DisplayAdminAfterHeader extends Hook
     public function execute(array $params = [])
     {
         try {
+            if (preg_match('/controller=AdminModules&configure=ps_accounts/', $_SERVER['REQUEST_URI'])) {
+                return '';
+            }
+
             /** @var PsAccountsService $psAccountsService */
             $psAccountsService = $this->module->getService(PsAccountsService::class);
 
@@ -66,8 +70,10 @@ class DisplayAdminAfterHeader extends Hook
 <div class="bootstrap">
     <div class="alert alert-danger alert-dismissible">
         We detected a change in your shop URL.<br />
-        PrestaShop Account URL&nbsp;: {$cloudFrontendURL}<br />
-        Your Shop URL&nbsp;: {$localFrontendURL}<br />
+        <ul>
+            <li>PrestaShop Account URL&nbsp;: <em>{$cloudFrontendURL}</em></li>
+            <li>Your Shop URL&nbsp;: <em>{$localFrontendURL}</em></li>
+        </ul>
         Please review your <a href="{$moduleLink}">PrestaShop Account settings</a>
     </div>
 </div>
