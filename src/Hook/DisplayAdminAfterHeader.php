@@ -20,7 +20,11 @@
 
 namespace PrestaShop\Module\PsAccounts\Hook;
 
+use PrestaShop\Module\PsAccounts\Account\Exception\UnknownStatusException;
+use PrestaShop\Module\PsAccounts\Account\StatusManager;
 use PrestaShop\Module\PsAccounts\Adapter\Link;
+use PrestaShop\Module\PsAccounts\Provider\ShopProvider;
+use PrestaShop\Module\PsAccounts\Service\PsAccountsService;
 
 class DisplayAdminAfterHeader extends Hook
 {
@@ -30,64 +34,115 @@ class DisplayAdminAfterHeader extends Hook
     public function execute(array $params = [])
     {
         try {
-            if ('ERROR' === $this->module->getParameter('ps_accounts.log_level')) {
+            if (preg_match('/controller=AdminModules&configure=ps_accounts/', $_SERVER['REQUEST_URI'])) {
                 return '';
             }
 
-            $cloudShopId = $this->module->getCloudShopId();
-            $verified = $this->module->getVerifiedStatus('ps_accounts');
-            $verifiedMsg = $verified ? 'verified' : 'NOT verified';
+            /** @var PsAccountsService $psAccountsService */
+            $psAccountsService = $this->module->getService(PsAccountsService::class);
 
-            /** @var Link $link */
-            $link = $this->module->getService(Link::class);
-            $moduleLink = $link->getAdminLink('AdminModules', true, [], [
-                'configure' => 'ps_accounts',
-            ]);
-            $healthCheckLink = $link->getLink()->getModuleLink('ps_accounts', 'apiV2ShopHealthCheck');
+            if (!$psAccountsService->isShopIdentityCreated()) {
+                return '';
+            }
 
-            $environment = $this->module->getParameter('ps_accounts.environment');
+            /** @var StatusManager $statusManager */
+            $statusManager = $this->module->getService(StatusManager::class);
 
-            $alertLevel = $this->getAlertLevel($environment);
+            /** @var ShopProvider $shopProvider */
+            $shopProvider = $this->module->getService(ShopProvider::class);
 
-            return <<<HTML
+            $shopUrl = $shopProvider->getUrl((int) \Context::getContext()->shop->id);
+
+            $status = $statusManager->getStatus();
+
+            $cloudFrontendURL = $status->frontendUrl;
+            $localFrontendURL = $shopUrl->getFrontendUrl();
+
+            if ($cloudFrontendURL !== $localFrontendURL) {
+                /** @var Link $link */
+                $link = $this->module->getService(Link::class);
+                $moduleLink = $link->getAdminLink('AdminModules', true, [], [
+                    'configure' => 'ps_accounts',
+                ]);
+
+                return
+<<<HTML
 <div class="bootstrap">
-    <div class="alert alert-{$alertLevel} alert-dismissible">
-        <button type="button" class="close" data-dismiss="alert">×</button>
-        <b>PsAccount ({$environment})</b> |
-        <!-- img width="57" alt="PrestaShop Account" title="PrestaShop Account" src="/modules/ps_accounts/logo.png"-->
-        <a href="{$moduleLink}">{$cloudShopId} ({$verifiedMsg})</a> |
-        <a target="_blank" href="{$healthCheckLink}">Health Check</a>
+    <div class="alert alert-danger alert-dismissible">
+        We detected a change in your shop URL.<br />
+        <ul>
+            <li>PrestaShop Account URL&nbsp;: <em>{$cloudFrontendURL}</em></li>
+            <li>Your Shop URL&nbsp;: <em>{$localFrontendURL}</em></li>
+        </ul>
+        Please review your <a href="{$moduleLink}">PrestaShop Account settings</a>
     </div>
 </div>
 HTML;
-        } catch (\Throwable $e) {
-            /* @phpstan-ignore-next-line */
+            }
+        } catch (UnknownStatusException $e) {
         } catch (\Exception $e) {
+        } catch (\Throwable $e) {
         }
+
+//        try {
+//            if ('ERROR' === $this->module->getParameter('ps_accounts.log_level')) {
+//                return '';
+//            }
+//
+//            $cloudShopId = $this->module->getCloudShopId();
+//            $verified = $this->module->getVerifiedStatus('ps_accounts');
+//            $verifiedMsg = $verified ? 'verified' : 'NOT verified';
+//
+//            /** @var Link $link */
+//            $link = $this->module->getService(Link::class);
+//            $moduleLink = $link->getAdminLink('AdminModules', true, [], [
+//                'configure' => 'ps_accounts',
+//            ]);
+//            $healthCheckLink = $link->getLink()->getModuleLink('ps_accounts', 'apiV2ShopHealthCheck');
+//
+//            $environment = $this->module->getParameter('ps_accounts.environment');
+//
+//            $alertLevel = $this->getAlertLevel($environment);
+//
+//            return <<<HTML
+        //<div class="bootstrap">
+//    <div class="alert alert-{$alertLevel} alert-dismissible">
+//        <button type="button" class="close" data-dismiss="alert">×</button>
+//        <b>PsAccount ({$environment})</b> |
+//        <!-- img width="57" alt="PrestaShop Account" title="PrestaShop Account" src="/modules/ps_accounts/logo.png"-->
+//        <a href="{$moduleLink}">{$cloudShopId} ({$verifiedMsg})</a> |
+//        <a target="_blank" href="{$healthCheckLink}">Health Check</a>
+//    </div>
+        //</div>
+        //HTML;
+//        } catch (\Throwable $e) {
+//            /* @phpstan-ignore-next-line */
+//        } catch (\Exception $e) {
+//        }
 
         return '';
     }
 
-    /**
-     * @param string $environment
-     *
-     * @return string
-     */
-    private function getAlertLevel($environment)
-    {
-        $alertLevel = 'info';
-        switch ($environment) {
-            case 'production':
-                $alertLevel = 'info';
-                break;
-            case 'integration':
-                $alertLevel = 'warning';
-                break;
-            case 'development':
-                $alertLevel = 'danger';
-                break;
-        }
-
-        return $alertLevel;
-    }
+//    /**
+//     * @param string $environment
+//     *
+//     * @return string
+//     */
+//    private function getAlertLevel($environment)
+//    {
+//        $alertLevel = 'info';
+//        switch ($environment) {
+//            case 'production':
+//                $alertLevel = 'info';
+//                break;
+//            case 'integration':
+//                $alertLevel = 'warning';
+//                break;
+//            case 'development':
+//                $alertLevel = 'danger';
+//                break;
+//        }
+//
+//        return $alertLevel;
+//    }
 }

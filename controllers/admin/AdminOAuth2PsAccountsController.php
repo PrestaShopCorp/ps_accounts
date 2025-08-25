@@ -244,6 +244,13 @@ class AdminOAuth2PsAccountsController extends \ModuleAdminController
      */
     protected function getSession()
     {
+        // FIXME: detect anonymous OR logged in context
+        // FIXME: detect changement URL
+        // FIXME: test ux delay
+        // TODO: change URL vs detect changement ?
+        // TODO: MBO
+        // TODO: tests Checkout v8
+        // TODO: optimistic
         //return $this->module->getSession();
         return $this->module->getService(ConfigurationStorageSession::class);
     }
