@@ -66,9 +66,9 @@ class DisplayAdminAfterHeader extends Hook
 <div class="bootstrap">
     <div class="alert alert-danger alert-dismissible">
         We detected a change in your shop URL.<br />
-        Cloud: {$cloudFrontendURL}<br />
-        Local: {$localFrontendURL}<br />
-        <a href="{$moduleLink}">Ps Accounts settings</a>
+        PrestaShop Account URL&nbsp;: {$cloudFrontendURL}<br />
+        Your Shop URL&nbsp;: {$localFrontendURL}<br />
+        Please review your <a href="{$moduleLink}">PrestaShop Account settings</a>
     </div>
 </div>
 HTML;
