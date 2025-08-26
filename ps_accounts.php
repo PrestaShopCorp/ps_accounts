@@ -107,7 +107,7 @@ class Ps_accounts extends Module
         // PS 1.6 - 1.7
         'displayAdminAfterHeader',  // FIXME: for alpha version only
         'actionAdminLoginControllerSetMedia',
-        'actionAdminControllerSetMedia'
+        'actionAdminControllerSetMedia',
         // PS >= 8
         //'actionAdminControllerInitBefore',
     ];
