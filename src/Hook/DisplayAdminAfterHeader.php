@@ -23,6 +23,7 @@ namespace PrestaShop\Module\PsAccounts\Hook;
 use PrestaShop\Module\PsAccounts\Account\Exception\UnknownStatusException;
 use PrestaShop\Module\PsAccounts\Account\StatusManager;
 use PrestaShop\Module\PsAccounts\Adapter\Link;
+use PrestaShop\Module\PsAccounts\Log\Logger;
 use PrestaShop\Module\PsAccounts\Provider\ShopProvider;
 use PrestaShop\Module\PsAccounts\Service\PsAccountsService;
 
@@ -33,6 +34,8 @@ class DisplayAdminAfterHeader extends Hook
      */
     public function execute(array $params = [])
     {
+        $e = null;
+
         try {
             if (preg_match('/controller=AdminModules&configure=ps_accounts/', $_SERVER['REQUEST_URI'])) {
                 return '';
@@ -69,6 +72,7 @@ class DisplayAdminAfterHeader extends Hook
 <<<HTML
 <div class="bootstrap">
     <div class="alert alert-danger alert-dismissible">
+        <button type="button" class="close" data-dismiss="alert">×</button>
         We detected a change in your shop URL.<br />
         <ul>
             <li>PrestaShop Account URL&nbsp;: <em>{$cloudFrontendURL}</em></li>
@@ -82,6 +86,10 @@ HTML;
         } catch (UnknownStatusException $e) {
         } catch (\Exception $e) {
         } catch (\Throwable $e) {
+        }
+
+        if ($e) {
+            Logger::getInstance()->error('error rendering hook : ' . $e->getMessage());
         }
 
 //        try {
