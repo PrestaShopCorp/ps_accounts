@@ -1,4 +1,4 @@
-name: e2e Acounts TNRs
+name: e2e Acounts V7 TNRs
 
 on:
   workflow_dispatch:
