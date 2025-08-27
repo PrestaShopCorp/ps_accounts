@@ -18,6 +18,7 @@ function upgrade_module_8_0_0($module)
 
     try {
         $module->registerHook($module->getHooksToRegister());
+        $module->unregisterHook('displayBackOfficeHeader');
 
         $installer = new PrestaShop\Module\PsAccounts\Module\Install($module, Db::getInstance());
         $installer->installInMenu();
