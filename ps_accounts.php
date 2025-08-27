@@ -87,6 +87,7 @@ class Ps_accounts extends Module
     private $hooks = [
         //\PrestaShop\Module\PsAccounts\Hook\ActionAdminLoginControllerLoginAfter::class,
         'actionAdminLoginControllerLoginAfter',
+        'actionAdminControllerSetMedia',
         'actionObjectEmployeeDeleteAfter',
         'actionObjectShopAddAfter',
         'actionObjectShopDeleteAfter',
@@ -107,7 +108,6 @@ class Ps_accounts extends Module
         // PS 1.6 - 1.7
         //'displayAdminAfterHeader',  // FIXME: for alpha version only
         'actionAdminLoginControllerSetMedia',
-        'actionAdminControllerSetMedia',
         // PS >= 8
         //'actionAdminControllerInitBefore',
     ];

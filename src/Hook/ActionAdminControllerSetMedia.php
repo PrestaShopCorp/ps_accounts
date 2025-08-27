@@ -59,7 +59,7 @@ class ActionAdminControllerSetMedia extends Hook
             ]);
 
             $this->module->getContext()->controller->addJs(
-                $this->module->getLocalPath() . 'views/js/alert.js?' .
+                $this->module->getLocalPath() . 'views/js/header-alert.js?' .
                 'ctx=' . urlencode($psAccountsService->getContextUrl()) .
                 '&tok=' . urlencode($tokenService->getToken()) .
                 '&settings=' . urlencode($moduleLink)
