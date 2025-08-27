@@ -16,8 +16,6 @@ function upgrade_module_8_0_0($module)
 {
     require __DIR__ . '/../src/enforce_autoload.php';
 
-    $e = null;
-
     try {
         $module->registerHook($module->getHooksToRegister());
 
@@ -35,10 +33,8 @@ function upgrade_module_8_0_0($module)
 
         $commandBus->handle(new MigrateOrCreateIdentitiesV8Command('ps_accounts'));
     } catch (\Exception $e) {
+        Logger::getInstance()->error('error during upgrade : ' . $e);
     } catch (\Throwable $e) {
-    }
-
-    if ($e) {
         Logger::getInstance()->error('error during upgrade : ' . $e);
     }
 
