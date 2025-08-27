@@ -105,7 +105,7 @@ class Ps_accounts extends Module
 
         // Login/Logout OAuth
         // PS 1.6 - 1.7
-        'displayAdminAfterHeader',  // FIXME: for alpha version only
+        //'displayAdminAfterHeader',  // FIXME: for alpha version only
         'actionAdminLoginControllerSetMedia',
         'actionAdminControllerSetMedia',
         // PS >= 8
