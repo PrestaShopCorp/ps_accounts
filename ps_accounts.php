@@ -53,13 +53,6 @@ class Ps_accounts extends Module
      */
     private $customHooks = [
         [
-            'name' => 'displayAccountUpdateWarning',
-            'title' => 'Display account update warning',
-            'description' => 'Show a warning message when the user wants to'
-                . ' update his shop configuration',
-            'position' => 1,
-        ],
-        [
             'name' => 'actionShopAccountLinkAfter',
             'title' => 'Shop linked event',
             'description' => 'Shop linked with PrestaShop Account',
@@ -98,7 +91,6 @@ class Ps_accounts extends Module
         'actionShopAccountUnlinkAfter',
         'displayAccountUpdateWarning',
         'displayBackOfficeEmployeeMenu',
-        'displayDashboardTop',
 
         // toggle single/multi-shop
         //'actionObjectShopAddAfter',

@@ -37,39 +37,71 @@ class DisplayAdminAfterHeader extends Hook
         $e = null;
 
         try {
-            if (preg_match('/controller=AdminModules&configure=ps_accounts/', $_SERVER['REQUEST_URI'])) {
-                return '';
-            }
+            // TODO: check if module is correctly installed
+            //$tabId = (int) \Tab::getIdFromClassName('AdminAjaxV2PsAccountsController');
+            //return $this->displayUrlMismatchWarning();
 
-            /** @var PsAccountsService $psAccountsService */
-            $psAccountsService = $this->module->getService(PsAccountsService::class);
+        } catch (UnknownStatusException $e) {
+        } catch (\Exception $e) {
+        } catch (\Throwable $e) {
+        }
 
-            if (!$psAccountsService->isShopIdentityCreated()) {
-                return '';
-            }
+        if ($e) {
+            Logger::getInstance()->error('error rendering hook : ' . $e->getMessage());
+        }
+        return '';
+    }
 
-            /** @var StatusManager $statusManager */
-            $statusManager = $this->module->getService(StatusManager::class);
+    /**
+     * @return string
+     *
+     * @throws UnknownStatusException
+     */
+    private function displayUrlMismatchWarning()
+    {
+        /** @var PsAccountsService $psAccountsService */
+        $psAccountsService = $this->module->getService(PsAccountsService::class);
 
-            /** @var ShopProvider $shopProvider */
-            $shopProvider = $this->module->getService(ShopProvider::class);
+        if (preg_match('/controller=AdminModules/', $_SERVER['REQUEST_URI']) &&
+            preg_match('/configure=ps_accounts/', $_SERVER['REQUEST_URI']) ||
+            preg_match('@modules/manage/action/configure/ps_accounts@', $_SERVER['REQUEST_URI'])
+        ) {
+            return '';
+        }
 
-            $shopUrl = $shopProvider->getUrl((int) \Context::getContext()->shop->id);
+        if (!$psAccountsService->isShopIdentityCreated()) {
+            return '';
+        }
 
-            $status = $statusManager->getStatus();
+        /** @var StatusManager $statusManager */
+        $statusManager = $this->module->getService(StatusManager::class);
 
-            $cloudFrontendURL = $status->frontendUrl;
-            $localFrontendURL = $shopUrl->getFrontendUrl();
+        /** @var ShopProvider $shopProvider */
+        $shopProvider = $this->module->getService(ShopProvider::class);
 
-            if ($cloudFrontendURL !== $localFrontendURL) {
-                /** @var Link $link */
-                $link = $this->module->getService(Link::class);
-                $moduleLink = $link->getAdminLink('AdminModules', true, [], [
-                    'configure' => 'ps_accounts',
-                ]);
+        $shopUrl = $shopProvider->getUrl((int) \Context::getContext()->shop->id);
 
-                return
-<<<HTML
+        $status = $statusManager->getStatus();
+
+        $cloudFrontendURL = $status->frontendUrl;
+        $localFrontendURL = $shopUrl->getFrontendUrl();
+
+        if ($cloudFrontendURL !== $localFrontendURL) {
+            /** @var Link $link */
+            $link = $this->module->getService(Link::class);
+            $moduleLink = $link->getAdminLink('AdminModules', true, [], [
+                'configure' => 'ps_accounts',
+            ]);
+            //$healthCheckLink = $link->getLink()->getModuleLink('ps_accounts', 'apiV2ShopHealthCheck');
+
+//            $msg = $this->module->l(
+//                'This shop is linked to your PrestaShop account. ' .
+//                'Unlink your shop if you do not want to impact your live settings.',
+//                'ps_accounts'
+//            );
+
+            return
+                <<<HTML
 <div class="bootstrap">
     <div class="alert alert-danger alert-dismissible">
         <button type="button" class="close" data-dismiss="alert">×</button>
@@ -82,75 +114,7 @@ class DisplayAdminAfterHeader extends Hook
     </div>
 </div>
 HTML;
-            }
-        } catch (UnknownStatusException $e) {
-        } catch (\Exception $e) {
-        } catch (\Throwable $e) {
         }
-
-        if ($e) {
-            Logger::getInstance()->error('error rendering hook : ' . $e->getMessage());
-        }
-
-//        try {
-//            if ('ERROR' === $this->module->getParameter('ps_accounts.log_level')) {
-//                return '';
-//            }
-//
-//            $cloudShopId = $this->module->getCloudShopId();
-//            $verified = $this->module->getVerifiedStatus('ps_accounts');
-//            $verifiedMsg = $verified ? 'verified' : 'NOT verified';
-//
-//            /** @var Link $link */
-//            $link = $this->module->getService(Link::class);
-//            $moduleLink = $link->getAdminLink('AdminModules', true, [], [
-//                'configure' => 'ps_accounts',
-//            ]);
-//            $healthCheckLink = $link->getLink()->getModuleLink('ps_accounts', 'apiV2ShopHealthCheck');
-//
-//            $environment = $this->module->getParameter('ps_accounts.environment');
-//
-//            $alertLevel = $this->getAlertLevel($environment);
-//
-//            return <<<HTML
-        //<div class="bootstrap">
-//    <div class="alert alert-{$alertLevel} alert-dismissible">
-//        <button type="button" class="close" data-dismiss="alert">×</button>
-//        <b>PsAccount ({$environment})</b> |
-//        <!-- img width="57" alt="PrestaShop Account" title="PrestaShop Account" src="/modules/ps_accounts/logo.png"-->
-//        <a href="{$moduleLink}">{$cloudShopId} ({$verifiedMsg})</a> |
-//        <a target="_blank" href="{$healthCheckLink}">Health Check</a>
-//    </div>
-        //</div>
-        //HTML;
-//        } catch (\Throwable $e) {
-//            /* @phpstan-ignore-next-line */
-//        } catch (\Exception $e) {
-//        }
-
         return '';
     }
-
-//    /**
-//     * @param string $environment
-//     *
-//     * @return string
-//     */
-//    private function getAlertLevel($environment)
-//    {
-//        $alertLevel = 'info';
-//        switch ($environment) {
-//            case 'production':
-//                $alertLevel = 'info';
-//                break;
-//            case 'integration':
-//                $alertLevel = 'warning';
-//                break;
-//            case 'development':
-//                $alertLevel = 'danger';
-//                break;
-//        }
-//
-//        return $alertLevel;
-//    }
 }

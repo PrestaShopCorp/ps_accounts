@@ -19,16 +19,20 @@ function upgrade_module_8_0_0($module)
     $e = null;
 
     try {
+        $module->unregisterHook('displayAccountUpdateWarning');
+        $module->unregisterHook('displayDashboardTop');
+        $module->unregisterHook('actionObjectShopAddAfter');
+        $module->unregisterHook('actionObjectShopDeleteAfter');
         $module->registerHook($module->getHooksToRegister());
-
-        $installer = new PrestaShop\Module\PsAccounts\Module\Install($module, Db::getInstance());
-        $installer->installInMenu();
 
         $tabId = \Tab::getIdFromClassName('AdminDebugPsAccounts');
         if ($tabId) {
             $tab = new \Tab($tabId);
             $tab->delete();
         }
+
+        $installer = new PrestaShop\Module\PsAccounts\Module\Install($module, Db::getInstance());
+        $installer->installInMenu();
 
         /** @var CommandBus $commandBus */
         $commandBus = $module->getService(CommandBus::class);
