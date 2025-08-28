@@ -251,7 +251,7 @@ JSON;
         // introduced in v7
         //$this->configurationRepository->updateLastUpgrade(null);
 
-        $fromVersion = '5.6.2';
+        $fromVersion = '0';
         \Db::getInstance()->execute(
             'UPDATE ' . _DB_PREFIX_ . 'module SET version = \'' . $fromVersion . '\' WHERE name = \'' . UpgradeService::MODULE_NAME . '\''
         );
