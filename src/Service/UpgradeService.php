@@ -48,7 +48,7 @@ class UpgradeService
     /**
      * @return string
      */
-    private function getRegisteredVersion()
+    public function getRegisteredVersion()
     {
         return $this->repository->getLastUpgrade(false);
     }
@@ -56,7 +56,7 @@ class UpgradeService
     /**
      * @return string
      */
-    private function getCoreRegisteredVersion()
+    public function getCoreRegisteredVersion()
     {
         return \Db::getInstance()->getValue(
             'SELECT version FROM ' . _DB_PREFIX_ . 'module WHERE name = \'' . self::MODULE_NAME . '\''
