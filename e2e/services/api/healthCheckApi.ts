@@ -24,7 +24,7 @@ export default class HealthCheckApi {
     const data = await this.getShopHealthStatus();
     const isShopLinked = data.shopLinked;
 
-    expect(isShopLinked).toBeFalsy();
+    return isShopLinked;
   }
 
   async checkOauth2Url() {

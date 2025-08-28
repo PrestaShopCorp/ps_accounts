@@ -58,6 +58,7 @@ views/files/*
 npm-debug.log*
 
 # e2e ignore
+.act
 /e2e/allure-results
 /e2e/allure-report
 /e2e/test-results
