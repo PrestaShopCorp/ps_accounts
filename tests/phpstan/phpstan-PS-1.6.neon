@@ -9,6 +9,7 @@ parameters:
 		- ../../ps_accounts.php
 	excludePaths:
 		- ../../src/Controller
+		- ../../src/Polyfill/ConfigurationStorageSession.php
 	dynamicConstantNames:
 		- _PS_VERSION_
 	ignoreErrors:

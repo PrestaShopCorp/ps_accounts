@@ -31,6 +31,7 @@ use PrestaShop\Module\PsAccounts\Repository\EmployeeAccountRepository;
 use PrestaShop\Module\PsAccounts\Service\AnalyticsService;
 use PrestaShop\Module\PsAccounts\Service\OAuth2\OAuth2Exception;
 use PrestaShop\Module\PsAccounts\Service\OAuth2\OAuth2Service;
+use PrestaShop\Module\PsAccounts\Service\OAuth2\Resource\AccessToken;
 use PrestaShop\Module\PsAccounts\Service\OAuth2\Resource\UserInfo;
 use PrestaShop\Module\PsAccounts\Service\PsAccountsService;
 use Symfony\Component\HttpFoundation\Session\SessionInterface;
@@ -44,11 +45,11 @@ trait OAuth2LoginTrait
     abstract protected function getOAuth2Service();
 
     /**
-     * @param UserInfo $user
+     * @param AccessToken $accessToken
      *
      * @return bool
      */
-    abstract protected function initUserSession(UserInfo $user);
+    abstract protected function initUserSession(AccessToken $accessToken);
 
     /**
      * @return mixed
@@ -104,6 +105,8 @@ trait OAuth2LoginTrait
         $error = Tools::getValue('error', '');
         $state = Tools::getValue('state', '');
         $code = Tools::getValue('code', '');
+        $action = Tools::getValue('action', 'login');
+        $source = Tools::getValue('source', 'ps_accounts');
 
         if (!empty($error)) {
             // Got an error, probably user denied access
@@ -112,6 +115,9 @@ trait OAuth2LoginTrait
         } elseif (empty($code)) {
             // cleanup existing accessToken
             $oauth2Session->clear();
+
+            $this->setOAuthAction($action);
+            $this->setSource($source);
 
             $this->setSessionReturnTo(Tools::getValue($this->getReturnToParam()));
 
@@ -134,9 +140,7 @@ trait OAuth2LoginTrait
                 throw new Oauth2LoginException($e->getMessage(), null, $e);
             }
 
-            $oauth2Session->setTokenProvider($accessToken);
-
-            if ($this->initUserSession($oauth2Session->getUserInfo())) {
+            if ($this->initUserSession($accessToken)) {
                 return $this->redirectAfterLogin();
             }
         }
@@ -225,6 +229,42 @@ trait OAuth2LoginTrait
     private function getReturnToParam()
     {
         return 'return_to';
+    }
+
+    /**
+     * @return string
+     */
+    private function getOAuthAction()
+    {
+        return $this->getSession()->get('oauth2action');
+    }
+
+    /**
+     * @param string $action
+     *
+     * @return void
+     */
+    private function setOAuthAction($action)
+    {
+        $this->getSession()->set('oauth2action', $action);
+    }
+
+    /**
+     * @return string
+     */
+    private function getSource()
+    {
+        return $this->getSession()->get('source');
+    }
+
+    /**
+     * @param string $source
+     *
+     * @return void
+     */
+    private function setSource($source)
+    {
+        $this->getSession()->set('source', $source);
     }
 
     /**

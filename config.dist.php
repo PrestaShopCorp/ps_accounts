@@ -21,23 +21,29 @@
 return [
     'ps_accounts.accounts_api_url' => 'https://accounts-api.prestashop.localhost/',
     'ps_accounts.accounts_ui_url' => 'https://accounts.prestashop.localhost',
-    'ps_accounts.sso_api_url' => 'https://auth-preprod.prestashop.com/api/v1/',
-    'ps_accounts.sso_account_url' => 'https://authv2-preprod.prestashop.com/login',
-    'ps_accounts.sso_resend_verification_email_url' => 'https://auth-preprod.prestashop.com/account/send-verification-email',
-    'ps_accounts.billing_api_url' => 'https://billing-api.psessentials-integration.net',
-    'ps_accounts.sentry_credentials' => 'https://4c7f6c8dd5aa405b8401a35f5cf26ada@o298402.ingest.sentry.io/5354585',
+    /* deprecated */ 'ps_accounts.sso_api_url' => 'https://auth-preprod.prestashop.com/api/v1/',
+    /* deprecated */ 'ps_accounts.sso_account_url' => 'https://authv2-preprod.prestashop.com/login',
+    /* deprecated */ 'ps_accounts.sso_resend_verification_email_url' => 'https://auth-preprod.prestashop.com/account/send-verification-email',
+    /* deprecated */ 'ps_accounts.billing_api_url' => 'https://billing-api.psessentials-integration.net',
+    /* deprecated */ 'ps_accounts.sentry_credentials' => 'https://4c7f6c8dd5aa405b8401a35f5cf26ada@o298402.ingest.sentry.io/5354585',
     'ps_accounts.segment_write_key' => 'UITzSdsFTgYsXaiJG09hsCiupUPwgJQB',
     'ps_accounts.check_api_ssl_cert' => false,
     'ps_accounts.verify_account_tokens' => false,
-    'ps_accounts.accounts_vue_cdn_url' => 'https://unpkg.com/prestashop_accounts_vue_components@3/dist/psaccountsVue.umd.min.js',
-    'ps_accounts.accounts_cdn_url' => 'https://unpkg.com/prestashop_accounts_vue_components@5',
+    /* deprecated */ 'ps_accounts.accounts_vue_cdn_url' => 'https://unpkg.com/prestashop_accounts_vue_components@3/dist/psaccountsVue.umd.min.js',
+    'ps_accounts.accounts_cdn_url' => 'https://unpkg.com/@prestashopcorp/accounts-components@beta',
+    'ps_accounts.cors_allowed_origins' => [
+        'https://integration-assets.prestashop3.com',
+        'https://preproduction-assets.prestashop3.com',
+        'https://assets.prestashop3.com',
+    ],
     'ps_accounts.environment' => 'development',
 
     // a page to display "Update Your Module" message
-    'ps_accounts.svc_accounts_ui_url' => 'https://accounts.psessentials-integration.net',
+    /* deprecated */ 'ps_accounts.svc_accounts_ui_url' => 'https://accounts.psessentials-integration.net',
 
     // OAuth2 configuration url
     'ps_accounts.oauth2_url' => 'https://oauth.prestashop.localhost',
+    'ps_accounts.token_audience' => 'https://accounts-api.prestashop.localhost',
 
     // Login page testimonials url
     'ps_accounts.testimonials_url' => 'https://assets.prestashop3.com/dst/accounts/assets/testimonials.json',
