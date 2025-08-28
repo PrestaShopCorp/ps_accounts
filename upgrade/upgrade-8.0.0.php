@@ -17,6 +17,9 @@ function upgrade_module_8_0_0($module)
     require __DIR__ . '/../src/enforce_autoload.php';
 
     try {
+        $module->registerHook($module->getHooksToRegister());
+        $module->unregisterHook('displayBackOfficeHeader');
+
         $installer = new PrestaShop\Module\PsAccounts\Module\Install($module, Db::getInstance());
         $installer->installInMenu();
 
@@ -30,11 +33,9 @@ function upgrade_module_8_0_0($module)
         $commandBus = $module->getService(CommandBus::class);
 
         $commandBus->handle(new MigrateOrCreateIdentitiesV8Command('ps_accounts'));
-
-        /* @phpstan-ignore-next-line */
-    } catch (\Throwable $e) {
-        Logger::getInstance()->error('error during upgrade : ' . $e);
     } catch (\Exception $e) {
+        Logger::getInstance()->error('error during upgrade : ' . $e);
+    } catch (\Throwable $e) {
         Logger::getInstance()->error('error during upgrade : ' . $e);
     }
 
