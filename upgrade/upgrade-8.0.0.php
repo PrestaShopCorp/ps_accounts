@@ -16,8 +16,6 @@ function upgrade_module_8_0_0($module)
 {
     require __DIR__ . '/../src/enforce_autoload.php';
 
-    $e = null;
-
     try {
         $module->unregisterHook('actionObjectShopDeleteBefore');
         $module->unregisterHook('actionObjectShopUpdateAfter');
@@ -25,7 +23,6 @@ function upgrade_module_8_0_0($module)
         $module->unregisterHook('actionShopAccountLinkAfter');
         $module->unregisterHook('actionShopAccountUnlinkAfter');
         $module->unregisterHook('displayAccountUpdateWarning');
-        // $module->unregisterHook('displayBackOfficeHeader');
 
         $module->registerHook($module->getHooksToRegister());
 
@@ -45,10 +42,6 @@ function upgrade_module_8_0_0($module)
     } catch (\Exception $e) {
         Logger::getInstance()->error('error during upgrade : ' . $e);
     } catch (\Throwable $e) {
-        Logger::getInstance()->error('error during upgrade : ' . $e);
-    }
-
-    if ($e) {
         Logger::getInstance()->error('error during upgrade : ' . $e);
     }
 
