@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Copyright since 2007 PrestaShop SA and Contributors
  * PrestaShop is an International Registered Trademark & Property of PrestaShop SA
@@ -20,18 +21,25 @@
 
 namespace PrestaShop\Module\PsAccounts\Account\Command;
 
-class DeleteUserShopCommand
+class UpdateIdentityCommand
 {
     /**
-     * @var int
+     * @var int|null
      */
     public $shopId;
 
     /**
-     * @param int $shopId
+     * @var string|null
      */
-    public function __construct($shopId)
+    public $source;
+
+    /**
+     * @param int|null $shopId
+     * @param string|null $source
+     */
+    public function __construct($shopId, $source = null)
     {
         $this->shopId = $shopId;
+        $this->source = $source;
     }
 }

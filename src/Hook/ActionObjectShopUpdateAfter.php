@@ -20,26 +20,11 @@
 
 namespace PrestaShop\Module\PsAccounts\Hook;
 
-use PrestaShop\Module\PsAccounts\Account\Command\UpdateUserShopCommand;
-use PrestaShop\Module\PsAccounts\Account\Dto\UpdateShop;
-use PrestaShop\Module\PsAccounts\Adapter\Link;
-use PrestaShop\Module\PsAccounts\Http\Client\Response;
-use Ps_accounts;
-
+/**
+ * @deprecated
+ */
 class ActionObjectShopUpdateAfter extends Hook
 {
-    /**
-     * @var Link
-     */
-    private $link;
-
-    public function __construct(Ps_accounts $module)
-    {
-        parent::__construct($module);
-
-        $this->link = $this->module->getService(Link::class);
-    }
-
     /**
      * @param array $params
      *
@@ -47,40 +32,6 @@ class ActionObjectShopUpdateAfter extends Hook
      */
     public function execute(array $params = [])
     {
-        $this->updateUserShop($params['object']);
-
         return true;
-    }
-
-    /**
-     * @param \Shop $shop
-     *
-     * @return void
-     */
-    protected function updateUserShop(\Shop $shop)
-    {
-        try {
-            /** @var Response $response */
-            $response = $this->commandBus->handle(new UpdateUserShopCommand(new UpdateShop([
-                'shopId' => (string) $shop->id,
-                'name' => $shop->name,
-                'domain' => 'http://' . $shop->domain,
-                'sslDomain' => 'https://' . $shop->domain_ssl,
-                'physicalUri' => $shop->physical_uri,
-                'virtualUri' => $shop->virtual_uri,
-                'boBaseUrl' => $this->link->fixAdminLink($this->link->getDashboardLink(), $shop),
-            ])));
-
-            if (!$response->isSuccessful) {
-                $this->module->getLogger()->error('Error trying to PATCH shop : ' . $response->statusCode .
-                    ' ' . print_r(isset($response->body['message']) ? $response->body['message'] : '', true)
-                );
-            }
-        } catch (\Throwable $e) {
-            $this->module->getLogger()->error('Error trying to PATCH shop: ' . $e->getMessage());
-            /* @phpstan-ignore-next-line */
-        } catch (\Exception $e) {
-            $this->module->getLogger()->error('Error trying to PATCH shop: ' . $e->getMessage());
-        }
     }
 }

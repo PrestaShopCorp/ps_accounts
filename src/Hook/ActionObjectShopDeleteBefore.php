@@ -20,39 +20,18 @@
 
 namespace PrestaShop\Module\PsAccounts\Hook;
 
-use Exception;
-use PrestaShop\Module\PsAccounts\Account\Command\DeleteUserShopCommand;
-
+/**
+ * @deprecated
+ */
 class ActionObjectShopDeleteBefore extends Hook
 {
     /**
      * @param array $params
      *
      * @return bool
-     *
-     * @throws Exception
      */
     public function execute(array $params = [])
     {
-        try {
-            $response = $this->commandBus->handle(new DeleteUserShopCommand($params['object']->id));
-
-            if (!$response) {
-                $this->module->getLogger()->error(
-                    'Error trying to DELETE shop : No $response object'
-                );
-            } elseif (true !== $response['status']) {
-                $this->module->getLogger()->error(
-                    'Error trying to DELETE shop : ' . $response['httpCode'] .
-                    ' ' . print_r($response['body']['message'], true)
-                );
-            }
-        } catch (Exception $e) {
-            $this->module->getLogger()->error(
-                'Error while trying to DELETE shop : ' . print_r($e->getMessage(), true)
-            );
-        }
-
         return true;
     }
 }

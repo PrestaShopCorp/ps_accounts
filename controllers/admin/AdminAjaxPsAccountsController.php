@@ -19,15 +19,16 @@
  */
 require_once __DIR__ . '/../../src/Polyfill/Traits/Controller/AjaxRender.php';
 
-use PrestaShop\Module\PsAccounts\Account\Command\DeleteUserShopCommand;
+use PrestaShop\Module\PsAccounts\Account\Exception\UnknownStatusException;
 use PrestaShop\Module\PsAccounts\Account\Session\Firebase\ShopSession;
 use PrestaShop\Module\PsAccounts\Account\StatusManager;
 use PrestaShop\Module\PsAccounts\AccountLogin\OAuth2Session;
-use PrestaShop\Module\PsAccounts\Cqrs\CommandBus;
-use PrestaShop\Module\PsAccounts\Hook\ActionShopAccountUnlinkAfter;
+use PrestaShop\Module\PsAccounts\Adapter\Link as AccountsLink;
+use PrestaShop\Module\PsAccounts\Log\Logger;
 use PrestaShop\Module\PsAccounts\Polyfill\Traits\Controller\AjaxRender;
-use PrestaShop\Module\PsAccounts\Repository\ConfigurationRepository;
+use PrestaShop\Module\PsAccounts\Provider\ShopProvider;
 use PrestaShop\Module\PsAccounts\Service\SentryService;
+use PrestaShop\Module\PsAccounts\Service\UpgradeService;
 
 /**
  * Controller for all ajax calls.
@@ -42,11 +43,6 @@ class AdminAjaxPsAccountsController extends \ModuleAdminController
     public $module;
 
     /**
-     * @var CommandBus
-     */
-    private $commandBus;
-
-    /**
      * AdminAjaxPsAccountsController constructor.
      *
      * @throws Exception
@@ -54,8 +50,6 @@ class AdminAjaxPsAccountsController extends \ModuleAdminController
     public function __construct()
     {
         parent::__construct();
-
-        $this->commandBus = $this->module->getService(CommandBus::class);
 
         $this->ajax = true;
         $this->content_only = true;
@@ -92,59 +86,6 @@ class AdminAjaxPsAccountsController extends \ModuleAdminController
      *
      * @throws Exception
      */
-    public function ajaxProcessUnlinkShop()
-    {
-        try {
-            /** @var ConfigurationRepository $configurationRepository */
-            $configurationRepository = $this->module->getService(ConfigurationRepository::class);
-
-            $response = $this->commandBus->handle(new DeleteUserShopCommand(
-                $configurationRepository->getShopId()
-            ));
-
-            http_response_code($response['httpCode']);
-
-            header('Content-Type: text/json');
-
-            $this->ajaxRender((string) json_encode($response['body']));
-        } catch (Exception $e) {
-            SentryService::captureAndRethrow($e);
-        }
-    }
-
-    /**
-     * @return void
-     *
-     * @throws Exception
-     */
-    public function ajaxProcessResetLinkAccount()
-    {
-        try {
-            /** @var StatusManager $statusManager */
-            $statusManager = $this->module->getService(StatusManager::class);
-
-            $status = $statusManager->getStatus();
-
-            $statusManager->invalidateCache();
-
-            Hook::exec(ActionShopAccountUnlinkAfter::getName(), [
-                'cloudShopId' => $status->cloudShopId,
-                'shopId' => \Context::getContext()->shop->id,
-            ]);
-
-            header('Content-Type: text/json');
-
-            $this->ajaxRender((string) json_encode(['message' => 'success']));
-        } catch (Exception $e) {
-            SentryService::captureAndRethrow($e);
-        }
-    }
-
-    /**
-     * @return void
-     *
-     * @throws Exception
-     */
     public function ajaxProcessGetOrRefreshAccessToken()
     {
         try {
@@ -161,5 +102,105 @@ class AdminAjaxPsAccountsController extends \ModuleAdminController
         } catch (Exception $e) {
             SentryService::captureAndRethrow($e);
         }
+    }
+
+    /**
+     * @return void
+     *
+     * FIXME: test reset on v9
+     * FIXME: action=getNotifications
+     * FIXME: fix reset not working (1785 5.6.2 -> 8)
+     * FIXME: -> envoyer le vrai numéro de version
+     * FIXME: -> reprise d'identité
+     */
+    public function ajaxProcessGetNotifications()
+    {
+        $notifications = [];
+        try {
+            $notifications = array_merge(
+                $this->getNotificationsUpgradeFailed(),
+                $this->getNotificationsUrlMismatch()
+            );
+        } catch (\Exception $e) {
+            Logger::getInstance()->error($e->getMessage());
+        } catch (\Throwable $e) {
+            Logger::getInstance()->error($e->getMessage());
+        }
+        $this->ajaxRender(
+            (string) json_encode($notifications ? [$notifications] : [])
+        );
+    }
+
+    /**
+     * @return array|string[]
+     *
+     * @throws UnknownStatusException
+     */
+    protected function getNotificationsUrlMismatch()
+    {
+        /** @var StatusManager $statusManager */
+        $statusManager = $this->module->getService(StatusManager::class);
+
+        if (!$statusManager->identityCreated()) {
+            return [];
+        }
+
+        $status = $statusManager->getStatus();
+
+        /** @var ShopProvider $shopProvider */
+        $shopProvider = $this->module->getService(ShopProvider::class);
+        $shopUrl = $shopProvider->getUrl($this->context->shop->id);
+
+        $cloudFrontendUrl = $status->frontendUrl;
+        $localFrontendUrl = $shopUrl->getFrontendUrl();
+
+        if ($localFrontendUrl === $cloudFrontendUrl) {
+            return [];
+        }
+
+        /** @var AccountsLink $link */
+        $link = $this->module->getService(AccountsLink::class);
+        $moduleLink = $link->getAdminLink('AdminModules', true, [], [
+            'configure' => 'ps_accounts',
+        ]);
+
+        return [
+            'html' => '
+<div class="alert alert-warning alert-dismissible">
+    <button type="button" class="close" data-dismiss="alert">×</button>
+    <strong>Warning!</strong> We detected a change in your shop URL.
+    <br/>
+    <ul>
+        <li>PrestaShop Account URL&nbsp;: <em>' . $cloudFrontendUrl . '</em></li>
+        <li>Your Shop URL&nbsp;: <em>' . $localFrontendUrl . '</em></li>
+    </ul>
+    Please review your <a href="' . $moduleLink . '">PrestaShop Account settings</a>
+</div>
+',
+        ];
+    }
+
+    /**
+     * @return array|string[]
+     */
+    protected function getNotificationsUpgradeFailed()
+    {
+        /** @var UpgradeService $upgradeService */
+        $upgradeService = $this->module->getService(UpgradeService::class);
+
+        if ($upgradeService->getCoreRegisteredVersion() === \Ps_accounts::VERSION) {
+            return [];
+        }
+
+        return [
+            'html' => '
+<div class="alert alert-danger alert-dismissible">
+    <button type="button" class="close" data-dismiss="alert">×</button>
+    <strong>Warning!</strong> PrestaShop Account module wasn\'t upgraded properly.
+    <br />
+    Please reset the module
+</div>
+',
+        ];
     }
 }

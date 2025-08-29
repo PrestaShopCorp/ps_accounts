@@ -20,18 +20,17 @@
 
 namespace PrestaShop\Module\PsAccounts\Account\CommandHandler;
 
-use PrestaShop\Module\PsAccounts\Account\Command\CreateIdentityCommand;
-use PrestaShop\Module\PsAccounts\Account\Command\VerifyIdentityCommand;
+use PrestaShop\Module\PsAccounts\Account\Command\UpdateIdentityCommand;
 use PrestaShop\Module\PsAccounts\Account\Exception\RefreshTokenException;
 use PrestaShop\Module\PsAccounts\Account\Exception\UnknownStatusException;
+use PrestaShop\Module\PsAccounts\Account\ProofManager;
+use PrestaShop\Module\PsAccounts\Account\Session\ShopSession;
 use PrestaShop\Module\PsAccounts\Account\StatusManager;
-use PrestaShop\Module\PsAccounts\Cqrs\CommandBus;
 use PrestaShop\Module\PsAccounts\Provider\ShopProvider;
 use PrestaShop\Module\PsAccounts\Service\Accounts\AccountsException;
 use PrestaShop\Module\PsAccounts\Service\Accounts\AccountsService;
-use PrestaShop\Module\PsAccounts\Service\OAuth2\OAuth2Client;
 
-class CreateIdentityHandler
+class UpdateIdentityHandler
 {
     /**
      * @var AccountsService
@@ -39,9 +38,9 @@ class CreateIdentityHandler
     private $accountsService;
 
     /**
-     * @var OAuth2Client
+     * @var StatusManager
      */
-    private $oAuth2Client;
+    private $statusManager;
 
     /**
      * @var ShopProvider
@@ -49,73 +48,62 @@ class CreateIdentityHandler
     private $shopProvider;
 
     /**
-     * @var StatusManager
+     * @var ShopSession
      */
-    private $statusManager;
+    private $shopSession;
 
     /**
-     * @var CommandBus
+     * @var ProofManager
      */
-    private $commandBus;
+    private $proofManager;
 
     /**
      * @param AccountsService $accountsService
      * @param ShopProvider $shopProvider
-     * @param OAuth2Client $oauth2Client
-     * @param StatusManager $shopStatus
-     * @param CommandBus $commandBus
+     * @param StatusManager $statusManager
+     * @param ShopSession $shopSession
+     * @param ProofManager $proofManager
      */
     public function __construct(
         AccountsService $accountsService,
         ShopProvider $shopProvider,
-        OAuth2Client $oauth2Client,
-        StatusManager $shopStatus,
-        CommandBus $commandBus
+        StatusManager $statusManager,
+        ShopSession $shopSession,
+        ProofManager $proofManager
     ) {
         $this->accountsService = $accountsService;
         $this->shopProvider = $shopProvider;
-        $this->oAuth2Client = $oauth2Client;
-        $this->statusManager = $shopStatus;
-        $this->commandBus = $commandBus;
+        $this->statusManager = $statusManager;
+        $this->shopSession = $shopSession;
+        $this->proofManager = $proofManager;
     }
 
     /**
-     * @param CreateIdentityCommand $command
+     * @param UpdateIdentityCommand $command
      *
      * @return void
      *
+     * @throws AccountsException
      * @throws RefreshTokenException
      * @throws UnknownStatusException
-     * @throws AccountsException
      */
-    public function handle(CreateIdentityCommand $command)
+    public function handle(UpdateIdentityCommand $command)
     {
-        if ($command->renew || !$this->isAlreadyCreated()) {
-            $shopId = $command->shopId ?: \Shop::getContextShopID();
+        $cachedStatus = $this->statusManager->getStatus(false, StatusManager::CACHE_TTL, $command->source);
 
-            $identityCreated = $this->accountsService->createShopIdentity(
-                $this->shopProvider->getUrl($shopId),
-                null,
-                $command->source
-            );
-            $this->oAuth2Client->update(
-                $identityCreated->clientId,
-                $identityCreated->clientSecret
-            );
-            $this->statusManager->setCloudShopId($identityCreated->cloudShopId);
-            $this->statusManager->invalidateCache();
+        if ($cachedStatus->isVerified) {
+            return;
         }
-        $this->commandBus->handle(new VerifyIdentityCommand($command->shopId, $command->source));
-    }
 
-    /**
-     * Idempotency check
-     *
-     * @return bool
-     */
-    private function isAlreadyCreated()
-    {
-        // FIXME: define where this code belongs
-        return $this->oAuth2Client->exists() && $this->statusManager->identityCreated();
+        $shopId = $command->shopId ?: \Shop::getContextShopID();
+
+        $this->accountsService->updateShopIdentity(
+            $this->statusManager->getCloudShopId(),
+            $this->shopSession->getValidToken(),
+            $this->shopProvider->getUrl($shopId),
+            $this->proofManager->generateProof(),
+            $command->source
+        );
+        $this->statusManager->invalidateCache();
     }
 }
