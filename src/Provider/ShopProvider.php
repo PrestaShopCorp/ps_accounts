@@ -357,19 +357,34 @@ class ShopProvider
                                 'frontendUrl' => $shopUrl->getFrontendUrl(),
                             ]);
                         }
-                        $identifyPointOfContactUrl = $this->oAuth2Service->getOAuth2Client()->getRedirectUri([
-                            'action' => 'identifyPointOfContact',
-                            'source' => $source,
-                        ]);
-
                         $shops[] = [
                             'id' => (int) $shopData['id_shop'],
                             'name' => $shopData['name'],
                             'backOfficeUrl' => $shopUrl->getBackOfficeUrl(),
                             'frontendUrl' => $shopUrl->getFrontendUrl(),
-                            'identifyPointOfContactUrl' => $identifyPointOfContactUrl,
+                            'identifyPointOfContactUrl' => $this->oAuth2Service->getOAuth2Client()->getRedirectUri([
+                                'action' => 'identifyPointOfContact',
+                                'source' => $source,
+                            ]),
                             'shopStatus' => $shopStatus->toArray(),
-                            'fallbackCreateIdentityUrl' => $this->link->getAdminLink('AdminAjaxV2PsAccounts', false, [], ['ajax' => 1, 'action' => 'fallbackCreateIdentity', 'shop_id' => $shopData['id_shop'], 'source' => $source]),
+                            'fallbackCreateIdentityUrl' => $this->link->getAdminLink('AdminAjaxV2PsAccounts', false, [], [
+                                'ajax' => 1,
+                                'action' => 'fallbackCreateIdentity',
+                                'shop_id' => $shopData['id_shop'],
+                                'source' => $source,
+                            ]),
+                            'renewIdentityUrl' => $this->link->getAdminLink('AdminAjaxV2PsAccounts', false, [], [
+                                'ajax' => 1,
+                                'action' => 'renewIdentity',
+                                'shop_id' => $shopData['id_shop'],
+                                'source' => $source,
+                            ]),
+                            'updateIdentityUrl' => $this->link->getAdminLink('AdminAjaxV2PsAccounts', false, [], [
+                                'ajax' => 1,
+                                'action' => 'updateIdentity',
+                                'shop_id' => $shopData['id_shop'],
+                                'source' => $source,
+                            ]),
                         ];
                     }
                 );

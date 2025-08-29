@@ -19,10 +19,14 @@ function upgrade_module_8_0_0($module)
     $e = null;
 
     try {
+        $module->unregisterHook('actionObjectShopDeleteBefore');
+        $module->unregisterHook('actionObjectShopUpdateAfter');
+        $module->unregisterHook('actionObjectShopUrlUpdateAfter');
+        $module->unregisterHook('actionShopAccountLinkAfter');
+        $module->unregisterHook('actionShopAccountUnlinkAfter');
         $module->unregisterHook('displayAccountUpdateWarning');
-        $module->unregisterHook('displayDashboardTop');
-        $module->unregisterHook('actionObjectShopAddAfter');
-        $module->unregisterHook('actionObjectShopDeleteAfter');
+        // $module->unregisterHook('displayBackOfficeHeader');
+
         $module->registerHook($module->getHooksToRegister());
 
         $tabId = \Tab::getIdFromClassName('AdminDebugPsAccounts');

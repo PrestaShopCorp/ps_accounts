@@ -45,8 +45,8 @@ views/files/*
 /views/js/settings*.js.map
 /views/js/settingsOnBoarding*.js
 /views/js/settingsOnBoarding*.js.map
-/views/js/header-alert*.js
-/views/js/header-alert*.js.map
+/views/js/notifications*.js
+/views/js/notifications*.js.map
 /views/js/login*.js
 /views/js/login*.js.map
 /views/css/login*.css

@@ -304,6 +304,41 @@ class AccountsService
     /**
      * @param string $cloudShopId
      * @param string $shopToken
+     * @param ShopUrl $shopUrl
+     * @param string $proof
+     * @param string|null $source
+     *
+     * @return void
+     *
+     * @throws AccountsException
+     */
+    public function updateShopIdentity($cloudShopId, $shopToken, ShopUrl $shopUrl, $proof, $source = 'ps_accounts')
+    {
+        $response = $this->getClient()->post(
+            '/v1/shop-identities/' . $cloudShopId . '/update',
+            [
+                Request::HEADERS => $this->getHeaders([
+                    self::HEADER_AUTHORIZATION => 'Bearer ' . $shopToken,
+                    self::HEADER_SHOP_ID => $cloudShopId,
+                    self::HEADER_MODULE_SOURCE => $source,
+                ]),
+                Request::JSON => [
+                    'backOfficeUrl' => $shopUrl->getBackOfficeUrl(),
+                    'frontendUrl' => $shopUrl->getFrontendUrl(),
+                    'multiShopId' => $shopUrl->getMultiShopId(),
+                    'proof' => $proof,
+                ],
+            ]
+        );
+
+        if (!$response->isSuccessful) {
+            throw new AccountsException($response, 'Unable to update shop identity', 'store-identity/unable-to-verify-shop-identity');
+        }
+    }
+
+    /**
+     * @param string $cloudShopId
+     * @param string $shopToken
      * @param string|null $source
      *
      * @return ShopStatus

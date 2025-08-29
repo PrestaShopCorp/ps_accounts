@@ -18,20 +18,20 @@
  * @license   https://opensource.org/licenses/AFL-3.0 Academic Free License version 3.0
  */
 
-namespace PrestaShop\Module\PsAccounts\Account\Command;
+namespace PrestaShop\Module\PsAccounts\Hook;
 
-class DeleteUserShopCommand
+/**
+ * @deprecated
+ */
+class DisplayDashboardTop extends Hook
 {
     /**
-     * @var int
+     * @param array $params
+     *
+     * @return string
      */
-    public $shopId;
-
-    /**
-     * @param int $shopId
-     */
-    public function __construct($shopId)
+    public function execute(array $params = [])
     {
-        $this->shopId = $shopId;
+        return '';
     }
 }

@@ -80,28 +80,14 @@ class Ps_accounts extends Module
     private $hooks = [
         //\PrestaShop\Module\PsAccounts\Hook\ActionAdminLoginControllerLoginAfter::class,
         'actionAdminLoginControllerLoginAfter',
-        'actionAdminControllerSetMedia',
+        'actionAdminLoginControllerSetMedia',
+        //'actionAdminControllerSetMedia',
+        'displayBackOfficeHeader',
         'actionObjectEmployeeDeleteAfter',
         'actionObjectShopAddAfter',
         'actionObjectShopDeleteAfter',
-        'actionObjectShopDeleteBefore',
-        'actionObjectShopUpdateAfter',
-        'actionObjectShopUrlUpdateAfter',
-        'actionShopAccountLinkAfter',
-        'actionShopAccountUnlinkAfter',
-        'displayAccountUpdateWarning',
+        'actionShopAccessTokenRefreshAfter',
         'displayBackOfficeEmployeeMenu',
-
-        // toggle single/multi-shop
-        //'actionObjectShopAddAfter',
-        //'actionObjectShopDeleteAfter',
-
-        // Login/Logout OAuth
-        // PS 1.6 - 1.7
-        //'displayAdminAfterHeader',  // FIXME: for alpha version only
-        'actionAdminLoginControllerSetMedia',
-        // PS >= 8
-        //'actionAdminControllerInitBefore',
     ];
 
     /**
@@ -178,6 +164,7 @@ class Ps_accounts extends Module
             && $this->addCustomHooks($this->customHooks)
             && $this->registerHook($this->getHooksToRegister());
 
+        // FIXME: implement safe "reset" method
         $this->onModuleReset();
 
         return $status;

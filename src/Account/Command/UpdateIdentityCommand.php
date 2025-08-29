@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Copyright since 2007 PrestaShop SA and Contributors
  * PrestaShop is an International Registered Trademark & Property of PrestaShop SA
@@ -18,14 +19,27 @@
  * @license   https://opensource.org/licenses/AFL-3.0 Academic Free License version 3.0
  */
 
-namespace PrestaShop\Module\PsAccounts\Hook;
+namespace PrestaShop\Module\PsAccounts\Account\Command;
 
-class ActionAdminControllerSetMedia extends Hook
+class UpdateIdentityCommand
 {
     /**
-     * @return void
+     * @var int|null
      */
-    public function execute(array $params = [])
+    public $shopId;
+
+    /**
+     * @var string|null
+     */
+    public $source;
+
+    /**
+     * @param int|null $shopId
+     * @param string|null $source
+     */
+    public function __construct($shopId, $source = null)
     {
+        $this->shopId = $shopId;
+        $this->source = $source;
     }
 }

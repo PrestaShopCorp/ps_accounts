@@ -29,17 +29,24 @@ class CreateIdentityCommand
     public $shopId;
 
     /**
+     * @var bool
+     */
+    public $renew;
+
+    /**
      * @var string|null
      */
     public $source;
 
     /**
      * @param int|null $shopId
+     * @param bool $renew
      * @param string|null $source
      */
-    public function __construct($shopId, $source = null)
+    public function __construct($shopId, $renew = false, $source = null)
     {
         $this->shopId = $shopId;
+        $this->renew = $renew;
         $this->source = $source;
     }
 }

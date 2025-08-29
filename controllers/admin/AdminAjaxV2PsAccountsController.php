@@ -19,7 +19,9 @@
  */
 require_once __DIR__ . '/../../src/Http/Controller/AbstractAdminAjaxCorsController.php';
 
+use PrestaShop\Module\PsAccounts\Account\Command\CreateIdentityCommand;
 use PrestaShop\Module\PsAccounts\Account\Command\MigrateOrCreateIdentityV8Command;
+use PrestaShop\Module\PsAccounts\Account\Command\UpdateIdentityCommand;
 use PrestaShop\Module\PsAccounts\Account\Query\GetContextQuery;
 use PrestaShop\Module\PsAccounts\Cqrs\CommandBus;
 use PrestaShop\Module\PsAccounts\Cqrs\QueryBus;
@@ -89,6 +91,56 @@ class AdminAjaxV2PsAccountsController extends AbstractAdminAjaxCorsController
         }
 
         $command = new MigrateOrCreateIdentityV8Command($shopId, $source);
+
+        $this->commandBus->handle($command);
+
+        $this->ajaxRender(
+            (string) json_encode([
+                'success' => true,
+            ])
+        );
+    }
+
+    /**
+     * @return void
+     *
+     * @throws Exception
+     */
+    public function ajaxProcessRenewIdentity()
+    {
+        $shopId = Tools::getValue('shop_id', null);
+        $source = Tools::getValue('source', 'ps_accounts');
+
+        if (!$shopId) {
+            throw new Exception('Shop ID is required for renew.');
+        }
+
+        $command = new CreateIdentityCommand($shopId, true, $source);
+
+        $this->commandBus->handle($command);
+
+        $this->ajaxRender(
+            (string) json_encode([
+                'success' => true,
+            ])
+        );
+    }
+
+    /**
+     * @return void
+     *
+     * @throws Exception
+     */
+    public function ajaxProcessUpdateIdentity()
+    {
+        $shopId = Tools::getValue('shop_id', null);
+        $source = Tools::getValue('source', 'ps_accounts');
+
+        if (!$shopId) {
+            throw new Exception('Shop ID is required for update.');
+        }
+
+        $command = new UpdateIdentityCommand($shopId, $source);
 
         $this->commandBus->handle($command);
 

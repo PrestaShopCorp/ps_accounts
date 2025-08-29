@@ -4,10 +4,10 @@
   "private": true,
   "scripts": {
     "dev": "vite",
-    "build": "vue-tsc --noEmit && vite build && vite build --config=vite.login.config.ts && vite build --config=vite.header-alert.config.ts",
+    "build": "vue-tsc --noEmit && vite build && vite build --config=vite.login.config.ts && vite build --config=vite.notifications.config.ts",
     "build:vue": "vue-tsc --noEmit && vite build",
     "build:login": "vite build --config=vite.login.config.ts",
-    "build:header-alert": "vite build --config=vite.header-alert.config.ts",
+    "build:notifications": "vite build --config=vite.notifications.config.ts",
     "lint": "eslint --ext .js,.ts,.vue .",
     "lint:fix": "eslint --ext .js,.ts,.vue . --fix"
   },

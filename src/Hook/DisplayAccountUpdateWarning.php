@@ -20,12 +20,18 @@
 
 namespace PrestaShop\Module\PsAccounts\Hook;
 
-class ActionAdminControllerSetMedia extends Hook
+/**
+ * @deprecated
+ */
+class DisplayAccountUpdateWarning extends Hook
 {
     /**
-     * @return void
+     * @param array $params
+     *
+     * @return string
      */
     public function execute(array $params = [])
     {
+        return '';
     }
 }
