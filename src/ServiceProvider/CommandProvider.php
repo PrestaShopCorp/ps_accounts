@@ -25,8 +25,6 @@ use PrestaShop\Module\PsAccounts\Account\CommandHandler\CreateIdentityHandler;
 use PrestaShop\Module\PsAccounts\Account\CommandHandler\IdentifyContactHandler;
 use PrestaShop\Module\PsAccounts\Account\CommandHandler\MigrateOrCreateIdentitiesV8Handler;
 use PrestaShop\Module\PsAccounts\Account\CommandHandler\MigrateOrCreateIdentityV8Handler;
-use PrestaShop\Module\PsAccounts\Account\CommandHandler\UpdateIdentityHandler;
-use PrestaShop\Module\PsAccounts\Account\CommandHandler\UpdateUserShopHandler;
 use PrestaShop\Module\PsAccounts\Account\CommandHandler\VerifyIdentitiesHandler;
 use PrestaShop\Module\PsAccounts\Account\CommandHandler\VerifyIdentityHandler;
 use PrestaShop\Module\PsAccounts\Account\ProofManager;
@@ -47,14 +45,6 @@ class CommandProvider implements IServiceProvider
 {
     public function provide(ServiceContainer $container)
     {
-        $container->registerProvider(UpdateUserShopHandler::class, static function () use ($container) {
-            return new UpdateUserShopHandler(
-                $container->get(AccountsService::class),
-                $container->get(ShopContext::class),
-                $container->get(Session\Firebase\ShopSession::class),
-                $container->get(Session\Firebase\OwnerSession::class)
-            );
-        });
         $container->registerProvider(CreateIdentityHandler::class, static function () use ($container) {
             return new CreateIdentityHandler(
                 $container->get(AccountsService::class),
@@ -77,15 +67,6 @@ class CommandProvider implements IServiceProvider
                 $container->get(StatusManager::class),
                 $container->get(Session\ShopSession::class),
                 $container->get(ProofManager::class)
-            );
-        });
-        $container->registerProvider(UpdateIdentityHandler::class, static function () use ($container) {
-            return new UpdateIdentityHandler(
-                $container->get(AccountsService::class),
-                $container->get(ShopProvider::class),
-                $container->get(StatusManager::class),
-                $container->get(Session\ShopSession::class),
-                $container->get(CommandBus::class)
             );
         });
         $container->registerProvider(VerifyIdentitiesHandler::class, static function () use ($container) {

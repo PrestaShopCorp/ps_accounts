@@ -21,13 +21,14 @@ require_once __DIR__ . '/../../src/Http/Controller/AbstractAdminAjaxCorsControll
 
 use PrestaShop\Module\PsAccounts\Account\Command\CreateIdentityCommand;
 use PrestaShop\Module\PsAccounts\Account\Command\MigrateOrCreateIdentityV8Command;
-use PrestaShop\Module\PsAccounts\Account\Command\UpdateIdentityCommand;
+use PrestaShop\Module\PsAccounts\Account\Command\VerifyIdentityCommand;
 use PrestaShop\Module\PsAccounts\Account\Query\GetContextQuery;
 use PrestaShop\Module\PsAccounts\Cqrs\CommandBus;
 use PrestaShop\Module\PsAccounts\Cqrs\QueryBus;
 use PrestaShop\Module\PsAccounts\Http\Controller\AbstractAdminAjaxCorsController;
 use PrestaShop\Module\PsAccounts\Log\Logger;
 use PrestaShop\Module\PsAccounts\Service\Accounts\AccountsException;
+use PrestaShop\Module\PsAccounts\Service\Accounts\AccountsService;
 
 /**
  * Controller for all ajax calls.
@@ -90,7 +91,7 @@ class AdminAjaxV2PsAccountsController extends AbstractAdminAjaxCorsController
             throw new Exception('Shop ID is required for migration or creation.');
         }
 
-        $command = new MigrateOrCreateIdentityV8Command($shopId, true, $source);
+        $command = new MigrateOrCreateIdentityV8Command($shopId, AccountsService::ORIGIN_SETTINGS, $source);
 
         $this->commandBus->handle($command);
 
@@ -115,7 +116,7 @@ class AdminAjaxV2PsAccountsController extends AbstractAdminAjaxCorsController
             throw new Exception('Shop ID is required for renew.');
         }
 
-        $command = new CreateIdentityCommand($shopId, true, $source);
+        $command = new CreateIdentityCommand($shopId, true, AccountsService::ORIGIN_SETTINGS, $source);
 
         $this->commandBus->handle($command);
 
@@ -140,7 +141,7 @@ class AdminAjaxV2PsAccountsController extends AbstractAdminAjaxCorsController
             throw new Exception('Shop ID is required for update.');
         }
 
-        $command = new UpdateIdentityCommand($shopId, $source);
+        $command = new VerifyIdentityCommand($shopId, AccountsService::ORIGIN_SETTINGS, $source);
 
         $this->commandBus->handle($command);
 

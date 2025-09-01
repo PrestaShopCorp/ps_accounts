@@ -26,6 +26,7 @@ use PrestaShop\Module\PsAccounts\Account\Exception\RefreshTokenException;
 use PrestaShop\Module\PsAccounts\Account\Exception\UnknownStatusException;
 use PrestaShop\Module\PsAccounts\Log\Logger;
 use PrestaShop\Module\PsAccounts\Service\Accounts\AccountsException;
+use PrestaShop\Module\PsAccounts\Service\Accounts\AccountsService;
 
 class VerifyIdentitiesHandler extends MultiShopHandler
 {
@@ -38,7 +39,11 @@ class VerifyIdentitiesHandler extends MultiShopHandler
     {
         $this->handleMulti(function ($multiShopId) use ($command) {
             try {
-                $this->commandBus->handle(new VerifyIdentityCommand($multiShopId, false, $command->source));
+                $this->commandBus->handle(new VerifyIdentityCommand(
+                    $multiShopId,
+                    AccountsService::ORIGIN_INSTALL,
+                    $command->source
+                ));
             } catch (RefreshTokenException $e) {
                 Logger::getInstance()->error($e->getMessage());
             } catch (AccountsException $e) {

@@ -21,6 +21,8 @@
 
 namespace PrestaShop\Module\PsAccounts\Account\Command;
 
+use PrestaShop\Module\PsAccounts\Service\Accounts\AccountsService;
+
 class CreateIdentityCommand
 {
     /**
@@ -31,12 +33,12 @@ class CreateIdentityCommand
     /**
      * @var bool
      */
-    public $manualVerification;
+    public $renew;
 
     /**
-     * @var bool
+     * @var string
      */
-    public $renew;
+    public $origin;
 
     /**
      * @var string|null
@@ -45,19 +47,19 @@ class CreateIdentityCommand
 
     /**
      * @param int|null $shopId
-     * @param bool $manualVerification
      * @param bool $renew
-     * @param string|null $source
+     * @param string $origin
+     * @param string $source
      */
     public function __construct(
         $shopId,
-        $manualVerification = false,
         $renew = false,
-        $source = null
+        $origin = AccountsService::ORIGIN_INSTALL,
+        $source = 'ps_accounts'
     ) {
         $this->shopId = $shopId;
-        $this->manualVerification = $manualVerification;
         $this->renew = $renew;
+        $this->origin = $origin;
         $this->source = $source;
     }
 }
