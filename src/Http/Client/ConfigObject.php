@@ -24,6 +24,7 @@ use PrestaShop\Module\PsAccounts\Http\Client\Exception\RequiredPropertyException
 use PrestaShop\Module\PsAccounts\Http\Client\Exception\UndefinedPropertyException;
 use PrestaShop\Module\PsAccounts\Type\Enum;
 
+#[\AllowDynamicProperties]
 class ConfigObject extends Enum
 {
     /**
