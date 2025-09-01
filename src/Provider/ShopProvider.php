@@ -362,11 +362,12 @@ class ShopProvider
                             'name' => $shopData['name'],
                             'backOfficeUrl' => $shopUrl->getBackOfficeUrl(),
                             'frontendUrl' => $shopUrl->getFrontendUrl(),
+                            'shopStatus' => $shopStatus->toArray(),
                             'identifyPointOfContactUrl' => $this->oAuth2Service->getOAuth2Client()->getRedirectUri([
                                 'action' => 'identifyPointOfContact',
                                 'source' => $source,
                             ]),
-                            'shopStatus' => $shopStatus->toArray(),
+                            // FIXME: rename to "createIdentityUrl"
                             'fallbackCreateIdentityUrl' => $this->link->getAdminLink('AdminAjaxV2PsAccounts', false, [], [
                                 'ajax' => 1,
                                 'action' => 'fallbackCreateIdentity',
