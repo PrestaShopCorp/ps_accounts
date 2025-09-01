@@ -34,12 +34,19 @@ class VerifyIdentityCommand
     public $source;
 
     /**
+     * @var bool
+     */
+    public $manualVerification;
+
+    /**
      * @param int|null $shopId
      * @param string|null $source
+     * @param bool $manual
      */
-    public function __construct($shopId, $source = 'ps_accounts')
+    public function __construct($shopId, $source = 'ps_accounts', $manual = false)
     {
         $this->shopId = $shopId;
         $this->source = $source;
+        $this->manualVerification = $manual;
     }
 }
