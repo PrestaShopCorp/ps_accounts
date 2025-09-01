@@ -145,8 +145,8 @@ class AdminAjaxPsAccountsController extends \ModuleAdminController
         $shopProvider = $this->module->getService(ShopProvider::class);
         $shopUrl = $shopProvider->getUrl($this->context->shop->id);
 
-        $cloudFrontendUrl = $status->frontendUrl;
-        $localFrontendUrl = $shopUrl->getFrontendUrl();
+        $cloudFrontendUrl = rtrim($status->frontendUrl, '/');
+        $localFrontendUrl = rtrim($shopUrl->getFrontendUrl(), '/');
 
         if ($localFrontendUrl === $cloudFrontendUrl) {
             return [];
