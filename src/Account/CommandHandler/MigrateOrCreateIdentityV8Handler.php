@@ -123,7 +123,8 @@ class MigrateOrCreateIdentityV8Handler
         $shopId = $command->shopId ?: \Shop::getContextShopID();
         $shopUuid = $this->configurationRepository->getShopUuid();
 
-        $fromVersion = $this->upgradeService->getVersion();
+        // FIXME: command can hold that property depending on context
+        $fromVersion = $this->upgradeService->getRegisteredVersion();
 
         // FIXME: shouldn't this condition be a specific flag
         if (!$shopUuid || version_compare($fromVersion, '8', '>=')) {
