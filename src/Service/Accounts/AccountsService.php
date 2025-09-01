@@ -332,7 +332,7 @@ class AccountsService
         );
 
         if (!$response->isSuccessful) {
-            throw new AccountsException($response, 'Unable to update shop identity', 'store-identity/unable-to-verify-shop-identity');
+            throw new AccountsException($response, 'Unable to update shop identity', 'store-identity/unable-to-update-shop-identity');
         }
     }
 
