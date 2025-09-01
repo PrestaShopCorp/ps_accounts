@@ -21,11 +21,12 @@
 namespace PrestaShop\Module\PsAccounts\Account\CommandHandler;
 
 use PrestaShop\Module\PsAccounts\Account\Command\UpdateIdentityCommand;
+use PrestaShop\Module\PsAccounts\Account\Command\VerifyIdentityCommand;
 use PrestaShop\Module\PsAccounts\Account\Exception\RefreshTokenException;
 use PrestaShop\Module\PsAccounts\Account\Exception\UnknownStatusException;
-use PrestaShop\Module\PsAccounts\Account\ProofManager;
 use PrestaShop\Module\PsAccounts\Account\Session\ShopSession;
 use PrestaShop\Module\PsAccounts\Account\StatusManager;
+use PrestaShop\Module\PsAccounts\Cqrs\CommandBus;
 use PrestaShop\Module\PsAccounts\Provider\ShopProvider;
 use PrestaShop\Module\PsAccounts\Service\Accounts\AccountsException;
 use PrestaShop\Module\PsAccounts\Service\Accounts\AccountsService;
@@ -53,29 +54,29 @@ class UpdateIdentityHandler
     private $shopSession;
 
     /**
-     * @var ProofManager
+     * @var CommandBus
      */
-    private $proofManager;
+    private $commandBus;
 
     /**
      * @param AccountsService $accountsService
      * @param ShopProvider $shopProvider
      * @param StatusManager $statusManager
      * @param ShopSession $shopSession
-     * @param ProofManager $proofManager
+     * @param CommandBus $commandBus
      */
     public function __construct(
         AccountsService $accountsService,
         ShopProvider $shopProvider,
         StatusManager $statusManager,
         ShopSession $shopSession,
-        ProofManager $proofManager
+        CommandBus $commandBus
     ) {
         $this->accountsService = $accountsService;
         $this->shopProvider = $shopProvider;
         $this->statusManager = $statusManager;
         $this->shopSession = $shopSession;
-        $this->proofManager = $proofManager;
+        $this->commandBus = $commandBus;
     }
 
     /**
@@ -89,21 +90,17 @@ class UpdateIdentityHandler
      */
     public function handle(UpdateIdentityCommand $command)
     {
-        $cachedStatus = $this->statusManager->getStatus(false, StatusManager::CACHE_TTL, $command->source);
-
-        if ($cachedStatus->isVerified) {
-            return;
-        }
-
         $shopId = $command->shopId ?: \Shop::getContextShopID();
 
         $this->accountsService->updateShopIdentity(
             $this->statusManager->getCloudShopId(),
             $this->shopSession->getValidToken(),
             $this->shopProvider->getUrl($shopId),
-            $this->proofManager->generateProof(),
             $command->source
         );
+
+        $this->commandBus->handle(new VerifyIdentityCommand($command->shopId, $command->source));
+
         $this->statusManager->invalidateCache();
     }
 }

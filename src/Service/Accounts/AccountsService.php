@@ -305,14 +305,13 @@ class AccountsService
      * @param string $cloudShopId
      * @param string $shopToken
      * @param ShopUrl $shopUrl
-     * @param string $proof
      * @param string|null $source
      *
      * @return void
      *
      * @throws AccountsException
      */
-    public function updateShopIdentity($cloudShopId, $shopToken, ShopUrl $shopUrl, $proof, $source = 'ps_accounts')
+    public function updateShopIdentity($cloudShopId, $shopToken, ShopUrl $shopUrl, $source = 'ps_accounts')
     {
         $response = $this->getClient()->post(
             '/v1/shop-identities/' . $cloudShopId . '/update',
@@ -326,7 +325,6 @@ class AccountsService
                     'backOfficeUrl' => $shopUrl->getBackOfficeUrl(),
                     'frontendUrl' => $shopUrl->getFrontendUrl(),
                     'multiShopId' => $shopUrl->getMultiShopId(),
-                    'proof' => $proof,
                 ],
             ]
         );
