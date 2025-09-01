@@ -88,7 +88,7 @@ class AdminAjaxV2PsAccountsController extends AbstractAdminAjaxCorsController
             throw new Exception('Shop ID is required for migration or creation.');
         }
 
-        $command = new MigrateOrCreateIdentityV8Command($shopId, $source);
+        $command = new MigrateOrCreateIdentityV8Command($shopId, true, $source);
 
         $this->commandBus->handle($command);
 

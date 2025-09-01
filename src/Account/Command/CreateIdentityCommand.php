@@ -29,17 +29,24 @@ class CreateIdentityCommand
     public $shopId;
 
     /**
+     * @var bool
+     */
+    public $manualVerification;
+
+    /**
      * @var string|null
      */
     public $source;
 
     /**
      * @param int|null $shopId
+     * @param bool $manualVerification
      * @param string|null $source
      */
-    public function __construct($shopId, $source = null)
+    public function __construct($shopId, $manualVerification = false, $source = null)
     {
         $this->shopId = $shopId;
+        $this->manualVerification = $manualVerification;
         $this->source = $source;
     }
 }
