@@ -271,14 +271,21 @@ class AccountsService
      * @param string $shopToken
      * @param ShopUrl $shopUrl
      * @param string $proof
+     * @param bool $manualVerification
      * @param string|null $source
      *
      * @return void
      *
      * @throws AccountsException
      */
-    public function verifyShopIdentity($cloudShopId, $shopToken, ShopUrl $shopUrl, $proof, $source = 'ps_accounts')
-    {
+    public function verifyShopIdentity(
+        $cloudShopId,
+        $shopToken,
+        ShopUrl $shopUrl,
+        $proof,
+        $manualVerification = false,
+        $source = 'ps_accounts'
+    ) {
         $response = $this->getClient()->post(
             '/v1/shop-identities/' . $cloudShopId . '/verify',
             [
@@ -292,6 +299,7 @@ class AccountsService
                     'frontendUrl' => $shopUrl->getFrontendUrl(),
                     'multiShopId' => $shopUrl->getMultiShopId(),
                     'proof' => $proof,
+                    'manualVerification' => $manualVerification,
                 ],
             ]
         );
