@@ -38,7 +38,7 @@ class VerifyIdentitiesHandler extends MultiShopHandler
     {
         $this->handleMulti(function ($multiShopId) use ($command) {
             try {
-                $this->commandBus->handle(new VerifyIdentityCommand($multiShopId, $command->source));
+                $this->commandBus->handle(new VerifyIdentityCommand($multiShopId, false, $command->source));
             } catch (RefreshTokenException $e) {
                 Logger::getInstance()->error($e->getMessage());
             } catch (AccountsException $e) {

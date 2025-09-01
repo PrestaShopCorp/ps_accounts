@@ -102,6 +102,7 @@ class VerifyIdentityHandler
             $this->shopSession->getValidToken(),
             $this->shopProvider->getUrl($shopId),
             $this->proofManager->generateProof(),
+            $command->manualVerification,
             $command->source
         );
         $this->statusManager->invalidateCache();

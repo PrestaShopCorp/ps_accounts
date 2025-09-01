@@ -31,6 +31,11 @@ class CreateIdentityCommand
     /**
      * @var bool
      */
+    public $manualVerification;
+
+    /**
+     * @var bool
+     */
     public $renew;
 
     /**
@@ -40,12 +45,18 @@ class CreateIdentityCommand
 
     /**
      * @param int|null $shopId
+     * @param bool $manualVerification
      * @param bool $renew
      * @param string|null $source
      */
-    public function __construct($shopId, $renew = false, $source = null)
-    {
+    public function __construct(
+        $shopId,
+        $manualVerification = false,
+        $renew = false,
+        $source = null
+    ) {
         $this->shopId = $shopId;
+        $this->manualVerification = $manualVerification;
         $this->renew = $renew;
         $this->source = $source;
     }
