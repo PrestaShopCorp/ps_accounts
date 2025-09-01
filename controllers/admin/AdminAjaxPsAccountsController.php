@@ -106,12 +106,6 @@ class AdminAjaxPsAccountsController extends \ModuleAdminController
 
     /**
      * @return void
-     *
-     * FIXME: test reset on v9
-     * FIXME: action=getNotifications
-     * FIXME: fix reset not working (1785 5.6.2 -> 8)
-     * FIXME: -> envoyer le vrai numéro de version
-     * FIXME: -> reprise d'identité
      */
     public function ajaxProcessGetNotifications()
     {
