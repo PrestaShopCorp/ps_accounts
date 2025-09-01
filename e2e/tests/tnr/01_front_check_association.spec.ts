@@ -5,8 +5,8 @@ import {PageManager} from '~/pages/managerPage';
 import DbRequest from '~/services/db/dbRequest';
 
 gotToModuleManagerPage('Check module association', async ({gotToModuleManagerPage}) => {
-  let pm = new PageManager(gotToModuleManagerPage);
-  let dbRequest = new DbRequest();
+  const pm = new PageManager(gotToModuleManagerPage);
+  const dbRequest = new DbRequest();
   await test.step('associate to account and check if linked', async () => {
     await pm.fromModuleManagePage().getPageMainTitle();
     await pm.fromModuleManagePage().isAccountVisible();

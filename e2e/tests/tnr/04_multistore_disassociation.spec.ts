@@ -5,8 +5,8 @@ import {PageManager} from '~/pages/managerPage';
 import DbRequest from '~/services/db/dbRequest';
 
 gotToModuleManagerPage('Check module disassociation', async ({gotToModuleManagerPage}) => {
-  let pm = new PageManager(gotToModuleManagerPage);
-  let dbRequest = new DbRequest();
+  const pm = new PageManager(gotToModuleManagerPage);
+  const dbRequest = new DbRequest();
   await test.step('diassociate first shop to account and check if unlinked', async () => {
     await pm.fromModuleManagePage().getPageMainTitle();
     await pm.fromModuleManagePage().isAccountVisible();

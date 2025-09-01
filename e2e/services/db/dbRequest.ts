@@ -56,7 +56,7 @@ export default class DbRequest {
    */
   async checkPsConfigurationData(name: string): Promise<boolean> {
     const data = await this.getPsConfigurationData(name);
-    expect(data.name).toBeDefined;
+    expect(data.name).toBeDefined();
     expect(data.name).toBe(name);
     return data.value;
   }

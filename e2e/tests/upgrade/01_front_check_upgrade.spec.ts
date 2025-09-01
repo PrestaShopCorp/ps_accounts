@@ -5,8 +5,8 @@ import {PageManager} from '~/pages/managerPage';
 import DbRequest from '~/services/db/dbRequest';
 
 gotToModuleManagerPage('Check module is upgrade', async ({gotToModuleManagerPage}) => {
-  let pm = new PageManager(gotToModuleManagerPage);
-  let dbRequest = new DbRequest();
+  const pm = new PageManager(gotToModuleManagerPage);
+  const dbRequest = new DbRequest();
   let moduleVersionBefore: string;
   await test.step('check module module version in db', async () => {
     moduleVersionBefore = await dbRequest.returnModuleVersion();
@@ -25,7 +25,7 @@ gotToModuleManagerPage('Check module is upgrade', async ({gotToModuleManagerPage
   await test.step('check module version in db and if is linked', async () => {
     const moduleVersionAfter = await dbRequest.returnModuleVersion();
     console.log(moduleVersionAfter);
-    expect(moduleVersionAfter).not.toBeNull;
+    expect(moduleVersionAfter).not.toBeNull();
     expect(moduleVersionAfter).not.toBe(moduleVersionBefore);
   });
 });

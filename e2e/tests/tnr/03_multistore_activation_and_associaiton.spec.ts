@@ -6,7 +6,7 @@ import DbRequest from '~/services/db/dbRequest';
 
 activeMultistoreAndCreateShop('Check Multisotre association', async ({activeMultistoreAndCreateShop}) => {
   const pm = new PageManager(activeMultistoreAndCreateShop);
-  let dbRequest = new DbRequest();
+  const dbRequest = new DbRequest();
   await test.step('check if multiStore is Created', async () => {
     if (await pm.fromDashboardPage().getShopVersion()) {
       await pm.fromModuleManagePage().isMultistoreVisibleOldVersion();

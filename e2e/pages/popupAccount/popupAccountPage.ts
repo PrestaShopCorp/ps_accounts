@@ -1,4 +1,4 @@
-import {Page, Locator, expect} from '@playwright/test';
+import {Page, expect} from '@playwright/test';
 import {Globals} from '~/utils/globals';
 import ModuleManagerPage from '~/pages/moduleManager/moduleManagerPage';
 import {moduleManagerPagesLocales} from '~/data/local/moduleManagerPageLocales/moduleManagerPageLocales';
@@ -130,7 +130,7 @@ export default class PopupAccountPage extends ModuleManagerPage {
   async checkIsLinked() {
     const accountTitle = this.page.locator('.title', {hasText: ' PRESTASHOP '});
     await accountTitle.isVisible();
-    await this.waitForTimeout(4000);
+    await this.page.waitForTimeout(4000);
     return await this.page.locator('[data-testid="account-panel-linked-icon"]');
   }
 
@@ -140,7 +140,7 @@ export default class PopupAccountPage extends ModuleManagerPage {
   async multiStoreCheckIsLinkedAllShopAssociate() {
     const accountTitle = this.page.locator('.title', {hasText: ' PRESTASHOP '});
     await accountTitle.isVisible();
-    await this.waitForTimeout(4000);
+    await this.page.waitForTimeout(4000);
     return this.page.locator('[data-testid="account-link-to-ui-manage-shops-button"]');
   }
 

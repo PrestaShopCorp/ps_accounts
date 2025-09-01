@@ -1,7 +1,6 @@
-import {Page, Locator, expect} from '@playwright/test';
+import {Page, expect} from '@playwright/test';
 import BasePage from '~/pages/basePage';
 import {shopParametersPageLocales} from '~/data/local/shopParametersPageLocales/shopParametersPageLocales';
-import {is} from 'cypress/types/bluebird';
 export default class GeneralPage extends BasePage {
   /* <<<<<<<<<<<<<<< Selectors Types >>>>>>>>>>>>>>>>>>>>>> */
   constructor(page: Page) {

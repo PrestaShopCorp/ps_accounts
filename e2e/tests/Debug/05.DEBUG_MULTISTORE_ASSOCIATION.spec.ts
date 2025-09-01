@@ -6,8 +6,8 @@ import DbRequest from '~/services/db/dbRequest';
 
 //MultiStore Associaiton When Multistore is Already Activate
 gotToModuleManagerPage.skip('Check Multisotre association', async ({gotToModuleManagerPage}) => {
-  let pm = new PageManager(gotToModuleManagerPage);
-  let dbRequest = new DbRequest();
+  const pm = new PageManager(gotToModuleManagerPage);
+  const dbRequest = new DbRequest();
   await test.step('associate to account and check if linked', async () => {
     await pm.fromModuleManagePage().isAccountVisible();
     const popup = await pm.fromPopupAccountPage().openAccountPopup();

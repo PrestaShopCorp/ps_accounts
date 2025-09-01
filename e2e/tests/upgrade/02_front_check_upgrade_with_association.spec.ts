@@ -3,13 +3,10 @@ import {expect, test} from '@playwright/test';
 import {gotToModuleManagerPage} from '~/fixtures/goToModuleManagerPage.fixture';
 import {PageManager} from '~/pages/managerPage';
 import DbRequest from '~/services/db/dbRequest';
-import HealthCheckApi from '~/services/api/healthCheckApi';
-import {modulePsAccount} from '~/data/local/modules/modulePsAccount';
 
 gotToModuleManagerPage('Check module is upgrade after association', async ({gotToModuleManagerPage}) => {
-  let pm = new PageManager(gotToModuleManagerPage);
-  let dbRequest = new DbRequest();
-  let healthCheckApi = new HealthCheckApi();
+  const pm = new PageManager(gotToModuleManagerPage);
+  const dbRequest = new DbRequest();
   let moduleVersionBefore: string;
   await test.step('check module module version in db', async () => {
     moduleVersionBefore = await dbRequest.returnModuleVersion();
@@ -42,7 +39,7 @@ gotToModuleManagerPage('Check module is upgrade after association', async ({gotT
   await test.step('check module version in db and if is linked', async () => {
     const moduleVersionAfter = await dbRequest.returnModuleVersion();
     console.log(moduleVersionAfter);
-    expect(moduleVersionAfter).not.toBeNull;
+    expect(moduleVersionAfter).not.toBeNull();
     expect(moduleVersionAfter).not.toBe(moduleVersionBefore);
     const checkClientUuidValue = await dbRequest.getPsConfigurationData('PS_ACCOUNTS_USER_FIREBASE_UUID');
     expect(checkClientUuidValue.value).not.toBeNull();

@@ -1,4 +1,4 @@
-import {APIResponse, request, expect} from '@playwright/test';
+import {request, expect} from '@playwright/test';
 import {Globals} from 'utils/globals';
 
 export default class HealthCheckApi {

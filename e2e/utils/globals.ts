@@ -1,7 +1,6 @@
-import {GlobalVars} from '@prestashopcorp/tests-framework';
 import * as process from 'process';
 
-export class Globals extends GlobalVars {
+export class Globals {
   //URLs
   public static base_url = process.env.BASE_URL ?? 'http://localhost:8000/admin-dev/';
   public static base_url_fo = process.env.BASE_URL_FO ?? 'http://localhost:8000/';

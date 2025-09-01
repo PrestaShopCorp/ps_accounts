@@ -26,12 +26,16 @@ export default class ModuleManagerPage extends BasePage {
    */
   async getPageMainTitle() {
     if (await this.page.locator('.title-row .title').isVisible()) {
-      return this.getTextContent(this.pageMainTitle);
+      const titleText = await this.pageMainTitle.textContent();
+      console.log(titleText);
+      return titleText?.trim();
     }
   }
   async getPageMainTitleOldPsVersion() {
     if (await this.page.locator('h2.page-title').isVisible()) {
-      return this.getTextContent(this.pageMainTitleOldPsVersion);
+      const titleText = await this.pageMainTitleOldPsVersion.textContent();
+      console.log(titleText);
+      return titleText?.trim();
     }
   }
 
@@ -45,7 +49,7 @@ export default class ModuleManagerPage extends BasePage {
     if (pageTitle === moduleManagerPagesLocales.moduleManager.en_EN.title) {
       await this.page.locator('#search-input-group').getByRole('textbox').fill('ps_account');
       await this.page.locator('#module-search-button').click();
-      const isAccountVisible = this.page
+      const isAccountVisible = await this.page
         .locator('.module-item-wrapper-list')
         .filter({hasText: 'PrestaShop Account'})
         .isVisible();
@@ -58,7 +62,7 @@ export default class ModuleManagerPage extends BasePage {
         .locator('.module_name')
         .filter({hasText: 'PrestaShop Account'})
         .isVisible();
-      expect(isAccountVisibleOnOldPsVersion).toBeTruthy;
+      expect(isAccountVisibleOnOldPsVersion).toBeTruthy();
     }
   }
 

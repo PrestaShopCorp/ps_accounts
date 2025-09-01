@@ -2,7 +2,7 @@ import {test, expect} from '@playwright/test';
 import HealthCheckApi from '~/services/api/healthCheckApi';
 
 // Var
-let healthCheckApi = new HealthCheckApi();
+const healthCheckApi = new HealthCheckApi();
 
 test('Check that the Shop Health Check is returning information in json', async () => {
   await healthCheckApi.getShopHealthStatus();
