@@ -36,6 +36,7 @@ class AccountsService
 {
     // Common headers
     const HEADER_AUTHORIZATION = 'Authorization';
+    const HEADER_MODULE_ORIGIN = 'X-Module-Origin';
     const HEADER_MODULE_SOURCE = 'X-Module-Source';
     const HEADER_MODULE_VERSION = 'X-Module-Version';
     const HEADER_PRESTASHOP_VERSION = 'X-Prestashop-Version';
@@ -199,18 +200,24 @@ class AccountsService
     /**
      * @param ShopUrl $shopUrl
      * @param string|null $proof
-     * @param string|null $source
+     * @param string $origin UX origin triggering call
+     * @param string $source source module triggering call
      *
      * @return IdentityCreated
      *
      * @throws AccountsException
      */
-    public function createShopIdentity(ShopUrl $shopUrl, $proof = null, $source = 'ps_accounts')
-    {
+    public function createShopIdentity(
+        ShopUrl $shopUrl,
+        $proof = null,
+        $origin = self::ORIGIN_INSTALL,
+        $source = 'ps_accounts'
+    ) {
         $response = $this->getClient()->post(
             '/v1/shop-identities',
             [
                 Request::HEADERS => $this->getHeaders([
+                    self::HEADER_MODULE_ORIGIN => $origin,
                     self::HEADER_MODULE_SOURCE => $source,
                 ]),
                 Request::JSON => array_merge(
@@ -257,6 +264,7 @@ class AccountsService
                 Request::HEADERS => $this->getHeaders([
                     self::HEADER_AUTHORIZATION => 'Bearer ' . $shopToken,
                     self::HEADER_SHOP_ID => $cloudShopId,
+                    self::HEADER_MODULE_ORIGIN => $origin,
                     self::HEADER_MODULE_SOURCE => $source,
                 ]),
                 Request::JSON => [
@@ -264,8 +272,6 @@ class AccountsService
                     'frontendUrl' => $shopUrl->getFrontendUrl(),
                     'multiShopId' => $shopUrl->getMultiShopId(),
                     'proof' => $proof,
-                    'origin' => $origin,
-                    'source' => $source,
                 ],
             ]
         );

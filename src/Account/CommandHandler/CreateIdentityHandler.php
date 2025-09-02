@@ -96,6 +96,7 @@ class CreateIdentityHandler
             $identityCreated = $this->accountsService->createShopIdentity(
                 $this->shopProvider->getUrl($shopId),
                 null,
+                $command->origin,
                 $command->source
             );
             $this->oAuth2Client->update(
