@@ -52,9 +52,6 @@ document.addEventListener('DOMContentLoaded', async function() {
   const params = getParams();
   if (!params) return;
 
-  // FIXME: double triggered here
-  //if (context != null && !document.querySelector('#psacc-alert')) {
-  //}
   injectNotifications(await getNotifications(params.get('ctx') || ''), container);
 });
 
