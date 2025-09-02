@@ -3,6 +3,7 @@
 use PrestaShop\Module\PsAccounts\Account\Command\MigrateOrCreateIdentitiesV8Command;
 use PrestaShop\Module\PsAccounts\Cqrs\CommandBus;
 use PrestaShop\Module\PsAccounts\Log\Logger;
+use PrestaShop\Module\PsAccounts\Service\Accounts\AccountsService;
 
 /**
  * @param Ps_accounts $module
@@ -38,7 +39,10 @@ function upgrade_module_8_0_0($module)
         /** @var CommandBus $commandBus */
         $commandBus = $module->getService(CommandBus::class);
 
-        $commandBus->handle(new MigrateOrCreateIdentitiesV8Command('ps_accounts'));
+        $commandBus->handle(new MigrateOrCreateIdentitiesV8Command(
+            'ps_accounts',
+            AccountsService::ORIGIN_UPGRADE
+        ));
     } catch (\Exception $e) {
         Logger::getInstance()->error('error during upgrade : ' . $e);
     } catch (\Throwable $e) {

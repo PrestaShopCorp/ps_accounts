@@ -421,8 +421,16 @@ class Ps_accounts extends Module
         /** @var \PrestaShop\Module\PsAccounts\Cqrs\CommandBus $commandBus */
         $commandBus = $this->getService(\PrestaShop\Module\PsAccounts\Cqrs\CommandBus::class);
 
+        /** @var \PrestaShop\Module\PsAccounts\Service\UpgradeService $upgradeService */
+        $upgradeService = $this->getService(\PrestaShop\Module\PsAccounts\Service\UpgradeService::class);
+
         // Verification flow
-        $commandBus->handle(new \PrestaShop\Module\PsAccounts\Account\Command\MigrateOrCreateIdentitiesV8Command('ps_accounts'));
+        $commandBus->handle(new \PrestaShop\Module\PsAccounts\Account\Command\MigrateOrCreateIdentitiesV8Command(
+            'ps_accounts',
+            version_compare($upgradeService->getCoreRegisteredVersion(), '0', '>') ?
+                \PrestaShop\Module\PsAccounts\Service\Accounts\AccountsService::ORIGIN_RESET :
+                \PrestaShop\Module\PsAccounts\Service\Accounts\AccountsService::ORIGIN_INSTALL
+        ));
     }
 
     /**

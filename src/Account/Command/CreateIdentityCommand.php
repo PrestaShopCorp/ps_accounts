@@ -41,7 +41,7 @@ class CreateIdentityCommand
     public $origin;
 
     /**
-     * @var string|null
+     * @var string
      */
     public $source;
 

@@ -45,8 +45,11 @@ class AccountsService
 
     // tracking origin
     const ORIGIN_INSTALL = 'install';
-    const ORIGIN_SETTINGS = 'settings';
+    const ORIGIN_FALLBACK = 'fallback';
+    const ORIGIN_MISMATCH_CREATE = 'mismatch_create';
+    const ORIGIN_MISMATCH_UPDATE = 'mismatch_update';
     const ORIGIN_RESET = 'reset';
+    const ORIGIN_UPGRADE = 'upgrade';
 
     /**
      * @var Client
