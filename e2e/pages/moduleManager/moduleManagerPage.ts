@@ -27,14 +27,12 @@ export default class ModuleManagerPage extends BasePage {
   async getPageMainTitle() {
     if (await this.page.locator('.title-row .title').isVisible()) {
       const titleText = await this.pageMainTitle.textContent();
-      console.log(titleText);
       return titleText?.trim();
     }
   }
   async getPageMainTitleOldPsVersion() {
     if (await this.page.locator('h2.page-title').isVisible()) {
       const titleText = await this.pageMainTitleOldPsVersion.textContent();
-      console.log(titleText);
       return titleText?.trim();
     }
   }

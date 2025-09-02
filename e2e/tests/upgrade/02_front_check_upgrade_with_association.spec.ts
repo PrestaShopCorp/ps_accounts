@@ -10,6 +10,7 @@ gotToModuleManagerPage('Check module is upgrade after association', async ({gotT
   let moduleVersionBefore: string;
   await test.step('check module module version in db', async () => {
     moduleVersionBefore = await dbRequest.returnModuleVersion();
+    // eslint-disable-next-line no-console
     console.log(moduleVersionBefore);
     expect(moduleVersionBefore).not.toBeNull();
   });
@@ -38,6 +39,7 @@ gotToModuleManagerPage('Check module is upgrade after association', async ({gotT
   });
   await test.step('check module version in db and if is linked', async () => {
     const moduleVersionAfter = await dbRequest.returnModuleVersion();
+    // eslint-disable-next-line no-console
     console.log(moduleVersionAfter);
     expect(moduleVersionAfter).not.toBeNull();
     expect(moduleVersionAfter).not.toBe(moduleVersionBefore);

@@ -266,6 +266,7 @@ export default class PopupAccountPage extends ModuleManagerPage {
       const card = page.locator('[data-test="shop-card"]');
       await page.waitForTimeout(4000);
       const countCard = await card.count();
+      // eslint-disable-next-line no-console
       console.log(`Number of Stores Linked: ${countCard}`);
       if (countCard === 0) break;
       await card.locator('[data-test="shoplist-shop-unlink"]').first().click();
