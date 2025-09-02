@@ -26,7 +26,6 @@ async function getNotifications(uri: string) {
   })
     .then(response => response.json())
     .then(data => {
-      // console.log(data);
       return data;
     })
     .catch(error => {
