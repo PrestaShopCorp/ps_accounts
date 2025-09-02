@@ -78,6 +78,9 @@ class IdentifyContactHandler
             $command->accessToken->access_token,
             $command->source
         );
-        $this->statusManager->invalidateCache();
+
+        // optimistic update cached status
+        $this->statusManager->setPointOfContactUuid($command->userInfo->sub);
+        $this->statusManager->setPointOfContactEmail($command->userInfo->email);
     }
 }

@@ -233,6 +233,20 @@ class StatusManager
     }
 
     /**
+     * @param string $pointOfContactUuid
+     *
+     * @return void
+     */
+    public function setPointOfContactUuid($pointOfContactUuid)
+    {
+        $status = $this->getCachedStatus();
+        $status->pointOfContactUuid = $pointOfContactUuid;
+        $this->upsetCachedStatus(new CachedShopStatus([
+            'shopStatus' => $status,
+        ]));
+    }
+
+    /**
      * @param bool $cachedStatus
      *
      * @return string|null
@@ -244,6 +258,20 @@ class StatusManager
         } catch (UnknownStatusException $e) {
             return null;
         }
+    }
+
+    /**
+     * @param string $pointOfContactEmail
+     *
+     * @return void
+     */
+    public function setPointOfContactEmail($pointOfContactEmail)
+    {
+        $status = $this->getCachedStatus();
+        $status->pointOfContactEmail = $pointOfContactEmail;
+        $this->upsetCachedStatus(new CachedShopStatus([
+            'shopStatus' => $status,
+        ]));
     }
 
     /**
