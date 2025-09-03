@@ -203,7 +203,7 @@ class AdminAjaxPsAccountsController extends \ModuleAdminController
         </div>
         <p>' . $this->module->l("We've noticed that your store's URL no longer matches the one registered in your PrestaShop Account. For your services to function properly, you must either confirm this change or create a new identity for your store.") . '</p>
         <ul class="acc-list">
-            <li>- ' . $this->module->l('Current store URL') .': <a target="_blank" href="' . $localFrontendUrl . '">' . $localFrontendUrl . '</a></li>
+            <li>- ' . $this->module->l('Current store URL') . ': <a target="_blank" href="' . $localFrontendUrl . '">' . $localFrontendUrl . '</a></li>
             <li>- ' . $this->module->l('URL registered in PrestaShop Account') . ': <a target="_blank" href="' . $cloudFrontendUrl . '">' . $cloudFrontendUrl . '</a></li>
         </ul>
     </div>

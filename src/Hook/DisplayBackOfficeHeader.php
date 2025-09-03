@@ -54,6 +54,7 @@ class DisplayBackOfficeHeader extends Hook
         } catch (\Exception $e) {
         } catch (\Throwable $e) {
         }
+
         return '';
     }
 }
