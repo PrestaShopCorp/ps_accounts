@@ -26,7 +26,7 @@ use PrestaShop\Module\PsAccounts\Service\PsAccountsService;
 class DisplayBackOfficeHeader extends Hook
 {
     /**
-     * @return void
+     * @return string
      *
      * @throws Exception
      */
@@ -40,7 +40,7 @@ class DisplayBackOfficeHeader extends Hook
                 preg_match('/configure=ps_accounts/', $_SERVER['REQUEST_URI']) ||
                 preg_match('@modules/manage/action/configure/ps_accounts@', $_SERVER['REQUEST_URI'])
             ) {
-                return;
+                return '';
             }
 
 //            if (!$psAccountsService->isShopIdentityCreated()) {
@@ -54,5 +54,6 @@ class DisplayBackOfficeHeader extends Hook
         } catch (\Exception $e) {
         } catch (\Throwable $e) {
         }
+        return '';
     }
 }
