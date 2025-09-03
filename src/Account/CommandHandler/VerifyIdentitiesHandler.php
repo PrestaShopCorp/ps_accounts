@@ -40,6 +40,7 @@ class VerifyIdentitiesHandler extends MultiShopHandler
             try {
                 $this->commandBus->handle(new VerifyIdentityCommand(
                     $multiShopId,
+                    false,
                     $command->origin,
                     $command->source
                 ));

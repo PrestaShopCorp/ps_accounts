@@ -108,6 +108,7 @@ class CreateIdentityHandler
         }
         $this->commandBus->handle(new VerifyIdentityCommand(
             $command->shopId,
+            false,
             $command->origin,
             $command->source
         ));
