@@ -36,7 +36,7 @@ class AccountsService
 {
     // Common headers
     const HEADER_AUTHORIZATION = 'Authorization';
-    const HEADER_MODULE_ORIGIN = 'X-Module-Origin';
+    const HEADER_ACTION_ORIGIN = 'X-Action-Origin';
     const HEADER_MODULE_SOURCE = 'X-Module-Source';
     const HEADER_MODULE_VERSION = 'X-Module-Version';
     const HEADER_PRESTASHOP_VERSION = 'X-Prestashop-Version';
@@ -217,7 +217,7 @@ class AccountsService
             '/v1/shop-identities',
             [
                 Request::HEADERS => $this->getHeaders([
-                    self::HEADER_MODULE_ORIGIN => $origin,
+                    self::HEADER_ACTION_ORIGIN => $origin,
                     self::HEADER_MODULE_SOURCE => $source,
                 ]),
                 Request::JSON => array_merge(
@@ -264,7 +264,7 @@ class AccountsService
                 Request::HEADERS => $this->getHeaders([
                     self::HEADER_AUTHORIZATION => 'Bearer ' . $shopToken,
                     self::HEADER_SHOP_ID => $cloudShopId,
-                    self::HEADER_MODULE_ORIGIN => $origin,
+                    self::HEADER_ACTION_ORIGIN => $origin,
                     self::HEADER_MODULE_SOURCE => $source,
                 ]),
                 Request::JSON => [

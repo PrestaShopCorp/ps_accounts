@@ -91,7 +91,7 @@ class VerifyIdentityHandler
     {
         $cachedStatus = $this->statusManager->getStatus(false, StatusManager::CACHE_TTL, $command->source);
 
-        if ($cachedStatus->isVerified) {
+        if (!$command->force && $cachedStatus->isVerified) {
             return;
         }
 

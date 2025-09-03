@@ -31,6 +31,11 @@ class VerifyIdentityCommand
     public $shopId;
 
     /**
+     * @var bool
+     */
+    public $force;
+
+    /**
      * @var string
      */
     public $origin;
@@ -42,12 +47,14 @@ class VerifyIdentityCommand
 
     /**
      * @param int|null $shopId
+     * @param bool $force
      * @param string $origin
      * @param string $source
      */
-    public function __construct($shopId, $origin = AccountsService::ORIGIN_INSTALL, $source = 'ps_accounts')
+    public function __construct($shopId, $force = false, $origin = AccountsService::ORIGIN_INSTALL, $source = 'ps_accounts')
     {
         $this->shopId = $shopId;
+        $this->force = $force;
         $this->origin = $origin;
         $this->source = $source;
     }

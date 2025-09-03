@@ -116,7 +116,12 @@ class AdminAjaxV2PsAccountsController extends AbstractAdminAjaxCorsController
             throw new Exception('Shop ID is required for renew.');
         }
 
-        $command = new CreateIdentityCommand($shopId, true, AccountsService::ORIGIN_MISMATCH_CREATE, $source);
+        $command = new CreateIdentityCommand(
+            $shopId,
+            true,
+            AccountsService::ORIGIN_MISMATCH_CREATE,
+            $source
+        );
 
         $this->commandBus->handle($command);
 
@@ -141,7 +146,12 @@ class AdminAjaxV2PsAccountsController extends AbstractAdminAjaxCorsController
             throw new Exception('Shop ID is required for update.');
         }
 
-        $command = new VerifyIdentityCommand($shopId, AccountsService::ORIGIN_MISMATCH_UPDATE, $source);
+        $command = new VerifyIdentityCommand(
+            $shopId,
+            true,
+            AccountsService::ORIGIN_MISMATCH_UPDATE,
+            $source
+        );
 
         $this->commandBus->handle($command);
 
