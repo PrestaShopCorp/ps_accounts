@@ -199,17 +199,17 @@ class AdminAjaxPsAccountsController extends \ModuleAdminController
 <div class="alert alert-warning acc-flex">
     <div class="acc-flex-grow-1">
         <div class="acc-alert-title">
-            Action required: confirm your store URL
+            ' . $this->module->l('Action required: confirm your store URL') . '
         </div>
-        <p>We\'ve noticed that your store\'s URL no longer matches the one registered in your PrestaShop Account. For your services to function properly, you must either confirm this change or create a new identity for your store.</p>
+        <p>' . $this->module->l("We've noticed that your store's URL no longer matches the one registered in your PrestaShop Account. For your services to function properly, you must either confirm this change or create a new identity for your store.") . '</p>
         <ul class="acc-list">
-            <li>- Current store URL: <a target="_blank" href="' . $localFrontendUrl . '">' . $localFrontendUrl . '</a></li>
-            <li>- URL registered in PrestaShop Account: <a target="_blank" href="' . $cloudFrontendUrl . '">' . $cloudFrontendUrl . '</a></li>
+            <li>- ' . $this->module->l('Current store URL') .': <a target="_blank" href="' . $localFrontendUrl . '">' . $localFrontendUrl . '</a></li>
+            <li>- ' . $this->module->l('URL registered in PrestaShop Account') . ': <a target="_blank" href="' . $cloudFrontendUrl . '">' . $cloudFrontendUrl . '</a></li>
         </ul>
     </div>
     <div>
         <button class="btn btn-outline-warning btn-warning acc-btn-warning" onclick="document.location=\'' . $moduleLink . '\'">
-            Review settings
+            ' . $this->module->l('Review settings') . '
         </button>
     </div>
 </div>
@@ -234,9 +234,9 @@ class AdminAjaxPsAccountsController extends \ModuleAdminController
             'html' => '
 <div class="alert alert-danger alert-dismissible">
     <button type="button" class="close" data-dismiss="alert">×</button>
-    <strong>Warning!</strong> PrestaShop Account module wasn\'t upgraded properly.
+    <strong>' . $this->module->l('Warning!') . '</strong> ' . $this->module->l("PrestaShop Account module wasn't upgraded properly.") . '
     <br />
-    Please reset the module
+    ' . $this->module->l('Please reset the module') . '
 </div>
 ',
         ];
