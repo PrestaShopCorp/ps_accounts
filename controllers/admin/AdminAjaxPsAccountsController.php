@@ -160,16 +160,57 @@ class AdminAjaxPsAccountsController extends \ModuleAdminController
 
         return [
             'html' => '
-<div class="alert alert-warning alert-dismissible">
-    <button type="button" class="close" data-dismiss="alert">×</button>
-    <strong>Warning!</strong> We detected a change in your shop URL.
-    <br/>
-    <ul>
-        <li>PrestaShop Account URL&nbsp;: <em>' . $cloudFrontendUrl . '</em></li>
-        <li>Your Shop URL&nbsp;: <em>' . $localFrontendUrl . '</em></li>
+<style>
+    .acc-flex
+    {
+        display: flex !important;
+    }
+    @media(max-width: 768px)
+    {
+        .acc-flex {
+            flex-direction: column !important;
+        }
+    }
+    .acc-button-warning
+    {
+        border: solid 1px #ffa000 !important;
+        background-color: transparent !important;
+        width: max-content !important;
+    }
+    .acc-flex-grow-1
+    {
+        -webkit-box-flex: 1 !important;
+        -ms-flex-positive: 1 !important;
+        flex-grow: 1 !important;
+    }
+    .acc-h3
+    {
+        font-weight: bold !important;
+        background-color: transparent !important;
+        margin-bottom: .9375rem !important;
+    }
+    .acc-list
+    {
+        list-style-type: none;
+        padding-left: 0 !important;
+    }
+</style>
+<div class="alert alert-warning acc-flex">
+    <div class="acc-flex-grow-1">
+    <div class="acc-h3">Action required: confirm your store URL</div>
+    <p>We\'ve noticed that your store\'s URL no longer matches the one registered in your PrestaShop Account. For your services to function properly, you must either confirm this change or create a new identity for your store.</p>
+    <ul class="acc-list">
+        <li>- Current store URL: ' . $cloudFrontendUrl . '</li>
+        <li>- URL registered in PrestaShop Account: ' . $localFrontendUrl . '</li>
     </ul>
-    Please review your <a href="' . $moduleLink . '">PrestaShop Account settings</a>
+    </div>
+    <div>
+        <button class="btn btn-outline-warning acc-button-warning" onclick="document.location=\'' . $moduleLink . '\'">
+            Review settings
+        </button>
+    </div>
 </div>
+
 ',
         ];
     }
