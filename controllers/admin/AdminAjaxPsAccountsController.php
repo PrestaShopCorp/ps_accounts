@@ -165,17 +165,19 @@ class AdminAjaxPsAccountsController extends \ModuleAdminController
     {
         display: flex !important;
     }
+    .acc-btn-warning
+    {
+        width: max-content !important;
+    }
     @media(max-width: 768px)
     {
         .acc-flex {
             flex-direction: column !important;
         }
-    }
-    .acc-button-warning
-    {
-        border: solid 1px #ffa000 !important;
-        background-color: transparent !important;
-        width: max-content !important;
+        .acc-btn-warning
+        {
+            margin-top: 1em !important;
+        }
     }
     .acc-flex-grow-1
     {
@@ -183,10 +185,9 @@ class AdminAjaxPsAccountsController extends \ModuleAdminController
         -ms-flex-positive: 1 !important;
         flex-grow: 1 !important;
     }
-    .acc-h3
+    .acc-alert-title
     {
         font-weight: bold !important;
-        background-color: transparent !important;
         margin-bottom: .9375rem !important;
     }
     .acc-list
@@ -197,15 +198,17 @@ class AdminAjaxPsAccountsController extends \ModuleAdminController
 </style>
 <div class="alert alert-warning acc-flex">
     <div class="acc-flex-grow-1">
-    <div class="acc-h3">Action required: confirm your store URL</div>
-    <p>We\'ve noticed that your store\'s URL no longer matches the one registered in your PrestaShop Account. For your services to function properly, you must either confirm this change or create a new identity for your store.</p>
-    <ul class="acc-list">
-        <li>- Current store URL: ' . $cloudFrontendUrl . '</li>
-        <li>- URL registered in PrestaShop Account: ' . $localFrontendUrl . '</li>
-    </ul>
+        <div class="acc-alert-title">
+            Action required: confirm your store URL
+        </div>
+        <p>We\'ve noticed that your store\'s URL no longer matches the one registered in your PrestaShop Account. For your services to function properly, you must either confirm this change or create a new identity for your store.</p>
+        <ul class="acc-list">
+            <li>- Current store URL: <a target="_blank" href="' . $localFrontendUrl . '">' . $localFrontendUrl . '</a></li>
+            <li>- URL registered in PrestaShop Account: <a target="_blank" href="' . $cloudFrontendUrl . '">' . $cloudFrontendUrl . '</a></li>
+        </ul>
     </div>
     <div>
-        <button class="btn btn-outline-warning acc-button-warning" onclick="document.location=\'' . $moduleLink . '\'">
+        <button class="btn btn-outline-warning btn-warning acc-btn-warning" onclick="document.location=\'' . $moduleLink . '\'">
             Review settings
         </button>
     </div>
