@@ -122,12 +122,11 @@ class MigrateOrCreateIdentityV8Handler
     {
         $shopId = $command->shopId ?: \Shop::getContextShopID();
         $shopUuid = $this->configurationRepository->getShopUuid();
+        $fromVersion = $this->getFromVersion();
 
-        // FIXME: command can hold that property depending on context
-        $fromVersion = $this->upgradeService->getRegisteredVersion();
+//        if (!$shopUuid || version_compare($fromVersion, '8', '>=')) {
 
-        // FIXME: shouldn't this condition be a specific flag
-        if (!$shopUuid || version_compare($fromVersion, '8', '>=')) {
+        if ($this->needMigration()) {
             $this->upgradeService->setVersion();
 
             $this->commandBus->handle(new CreateIdentityCommand(
@@ -203,5 +202,33 @@ class MigrateOrCreateIdentityV8Handler
             $this->configurationRepository->getFirebaseRefreshToken(),
             $shopUuid
         )->token;
+    }
+
+    /**
+     * @return bool
+     */
+    protected function needMigration()
+    {
+        try {
+            $status = $this->statusManager->getStatus(true);
+
+            return ! empty($status->cloudShopId);
+        } catch (UnknownStatusException $e) {
+            return true;
+        }
+    }
+
+    /**
+     * @return string
+     */
+    protected function getFromVersion()
+    {
+        $fromVersion = $this->upgradeService->getRegisteredVersion();
+        $coreRegisteredVersion = $this->upgradeService->getCoreRegisteredVersion();
+
+        if (version_compare($coreRegisteredVersion, $fromVersion, '<')) {
+            $fromVersion = $coreRegisteredVersion;
+        }
+        return $fromVersion;
     }
 }
