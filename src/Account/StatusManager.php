@@ -275,6 +275,20 @@ class StatusManager
     }
 
     /**
+     * @param bool $isVerified
+     *
+     * @return void
+     */
+    public function setIsVerified($isVerified)
+    {
+        $this->upsetCachedStatus(new CachedShopStatus([
+            'shopStatus' => [
+                'isVerified' => (bool) $isVerified,
+            ],
+        ]));
+    }
+
+    /**
      * @return CachedShopStatus
      *
      * @throws UnknownStatusException
