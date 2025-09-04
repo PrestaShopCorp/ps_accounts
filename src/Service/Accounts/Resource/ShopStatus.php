@@ -43,7 +43,7 @@ class ShopStatus extends Resource
     /**
      * @var string
      */
-    public $backofficeUrl;
+    public $backOfficeUrl;
 
     /**
      * @var string

@@ -50,14 +50,15 @@ abstract class Resource extends Dto
      * @param array $values
      * @param string $className
      * @param array $fields
+     * @param bool $all
      *
      * @return void
      */
-    protected function uncastChildResource(array & $values, $className, array $fields)
+    protected function uncastChildResource(array & $values, $className, array $fields, $all = true)
     {
         foreach ($fields as $field) {
             if (isset($values[$field]) && is_a($values[$field], Resource::class, true)) {
-                $values[$field] = $this->$field->toArray();
+                $values[$field] = $this->$field->toArray($all);
             }
         }
     }

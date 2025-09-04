@@ -14,6 +14,7 @@ use PrestaShop\Module\PsAccounts\Service\Accounts\AccountsService;
 use PrestaShop\Module\PsAccounts\Service\Accounts\Resource\IdentityCreated;
 use PrestaShop\Module\PsAccounts\Service\Accounts\Resource\ShopStatus;
 use PrestaShop\Module\PsAccounts\Service\OAuth2\Resource\AccessToken;
+use PrestaShop\Module\PsAccounts\Service\OAuth2\Resource\UserInfo;
 use PrestaShop\Module\PsAccounts\Tests\TestCase;
 
 class IdentifyContactHandlerTest extends TestCase
@@ -83,11 +84,17 @@ class IdentifyContactHandlerTest extends TestCase
             ])
         ]))->toArray()));
 
+        $userInfo = new UserInfo([
+            'sub' => $this->faker->uuid,
+            'email' => $this->faker->safeEmail,
+        ]);
+
         $this->getHandler()->handle(new IdentifyContactCommand(new AccessToken([
             'access_token' => 'valid_access_token',
-        ])));
+        ]), $userInfo));
 
-        $this->assertTrue($this->statusManager->cacheInvalidated());
+        $this->assertEquals($userInfo->sub, $this->statusManager->getPointOfContactUuid());
+        $this->assertEquals($userInfo->email, $this->statusManager->getPointOfContactEmail());
     }
 
     /**
@@ -118,9 +125,14 @@ class IdentifyContactHandlerTest extends TestCase
             ])
         ]))->toArray()));
 
+        $userInfo = new UserInfo([
+            'sub' => $this->faker->uuid,
+            'email' => $this->faker->safeEmail,
+        ]);
+
         $this->getHandler()->handle(new IdentifyContactCommand(new AccessToken([
             'access_token' => 'valid_access_token',
-        ])));
+        ]), $userInfo));
     }
 
     /**
