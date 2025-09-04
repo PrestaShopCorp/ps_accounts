@@ -74,7 +74,7 @@ class CachedShopStatus extends Resource
 
         $this->uncastChildResource($array, ShopStatus::class, [
             'shopStatus',
-        ]);
+        ], $all);
 
         $this->uncastDateTime($array, [
             'updatedAt',
