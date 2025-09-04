@@ -101,6 +101,7 @@ class VerifyIdentityHandler
             $this->statusManager->getCloudShopId(),
             $this->shopSession->getValidToken(),
             $this->shopProvider->getUrl($shopId),
+            $this->shopProvider->getName($shopId),
             $this->proofManager->generateProof(),
             $command->manualVerification,
             $command->source
