@@ -20,31 +20,41 @@
 
 namespace PrestaShop\Module\PsAccounts\Hook;
 
-use PrestaShop\Module\PsAccounts\Repository\EmployeeAccountRepository;
+use Exception;
+use PrestaShop\Module\PsAccounts\Service\PsAccountsService;
 
-class ActionObjectEmployeeDeleteAfter extends Hook
+class DisplayBackOfficeHeader extends Hook
 {
     /**
-     * @param array $params
+     * @return string
      *
-     * @return void
-     *
-     * @throws \Exception
+     * @throws Exception
      */
     public function execute(array $params = [])
     {
         try {
-            /** @var \Employee $employee */
-            $employee = $params['object'];
+            /** @var PsAccountsService $psAccountsService */
+            $psAccountsService = $this->module->getService(PsAccountsService::class);
 
-            $repository = new EmployeeAccountRepository();
-
-            $employeeAccount = $repository->findByEmployeeId($employee->id);
-            if ($employeeAccount) {
-                $repository->delete($employeeAccount);
+            if (preg_match('/controller=AdminModules/', $_SERVER['REQUEST_URI']) &&
+                preg_match('/configure=ps_accounts/', $_SERVER['REQUEST_URI']) ||
+                preg_match('@modules/manage/action/configure/ps_accounts@', $_SERVER['REQUEST_URI'])
+            ) {
+                return '';
             }
+
+//            if (!$psAccountsService->isShopIdentityCreated()) {
+//                return;
+//            }
+
+            $this->module->getContext()->controller->addJs(
+                $this->module->getLocalPath() . 'views/js/notifications.js?' .
+                'ctx=' . urlencode($psAccountsService->getAdminAjaxUrl() . '&action=getNotifications')
+            );
         } catch (\Exception $e) {
         } catch (\Throwable $e) {
         }
+
+        return '';
     }
 }

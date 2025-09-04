@@ -20,7 +20,6 @@
 
 namespace PrestaShop\Module\PsAccounts\Service\Accounts;
 
-use PrestaShop\Module\PsAccounts\Account\Dto\UpdateShop;
 use PrestaShop\Module\PsAccounts\Account\ShopUrl;
 use PrestaShop\Module\PsAccounts\Http\Client\ClientConfig;
 use PrestaShop\Module\PsAccounts\Http\Client\Curl\Client;
@@ -35,13 +34,23 @@ use PrestaShop\Module\PsAccounts\Vendor\Ramsey\Uuid\Uuid;
 
 class AccountsService
 {
+    // Common headers
     const HEADER_AUTHORIZATION = 'Authorization';
+    const HEADER_ACTION_ORIGIN = 'X-Action-Origin';
     const HEADER_MODULE_SOURCE = 'X-Module-Source';
     const HEADER_MODULE_VERSION = 'X-Module-Version';
     const HEADER_PRESTASHOP_VERSION = 'X-Prestashop-Version';
     const HEADER_MULTISHOP_ENABLED = 'X-Multishop-Enabled';
     const HEADER_REQUEST_ID = 'X-Request-ID';
     const HEADER_SHOP_ID = 'X-Shop-Id';
+
+    // tracking origin
+    const ORIGIN_INSTALL = 'install';
+    const ORIGIN_FALLBACK = 'fallback';
+    const ORIGIN_MISMATCH_CREATE = 'mismatch_create';
+    const ORIGIN_MISMATCH_UPDATE = 'mismatch_update';
+    const ORIGIN_RESET = 'reset';
+    const ORIGIN_UPGRADE = 'upgrade';
 
     /**
      * @var Client
@@ -161,49 +170,6 @@ class AccountsService
     }
 
     /**
-     * @param string $ownerUid
-     * @param string $cloudShopId
-     * @param string $ownerToken
-     *
-     * @return Response
-     */
-    public function deleteUserShop($ownerUid, $cloudShopId, $ownerToken)
-    {
-        return $this->getClient()->delete(
-            'v1/user/' . $ownerUid . '/shop/' . $cloudShopId,
-            [
-                Request::HEADERS => $this->getHeaders([
-                    self::HEADER_AUTHORIZATION => 'Bearer ' . $ownerToken,
-                    self::HEADER_SHOP_ID => $cloudShopId,
-                ]),
-            ]
-        );
-    }
-
-    /**
-     * @param string $ownerUid
-     * @param string $cloudShopId
-     * @param string $ownerToken
-     * @param UpdateShop $shop
-     *
-     * @return Response
-     */
-    public function updateUserShop($ownerUid, $cloudShopId, $ownerToken, UpdateShop $shop)
-    {
-        return $this->getClient()->patch(
-            'v1/user/' . $ownerUid . '/shop/' . $cloudShopId,
-            [
-                Request::HEADERS => $this->getHeaders([
-                    // FIXME: use shop access token instead
-                    self::HEADER_AUTHORIZATION => 'Bearer ' . $ownerToken,
-                    self::HEADER_SHOP_ID => $cloudShopId,
-                ]),
-                Request::JSON => $shop->jsonSerialize(),
-            ]
-        );
-    }
-
-    /**
      * @param string $idToken
      *
      * @return Response
@@ -234,18 +200,24 @@ class AccountsService
     /**
      * @param ShopUrl $shopUrl
      * @param string|null $proof
-     * @param string|null $source
+     * @param string $origin UX origin triggering call
+     * @param string $source source module triggering call
      *
      * @return IdentityCreated
      *
      * @throws AccountsException
      */
-    public function createShopIdentity(ShopUrl $shopUrl, $proof = null, $source = 'ps_accounts')
-    {
+    public function createShopIdentity(
+        ShopUrl $shopUrl,
+        $proof = null,
+        $origin = self::ORIGIN_INSTALL,
+        $source = 'ps_accounts'
+    ) {
         $response = $this->getClient()->post(
             '/v1/shop-identities',
             [
                 Request::HEADERS => $this->getHeaders([
+                    self::HEADER_ACTION_ORIGIN => $origin,
                     self::HEADER_MODULE_SOURCE => $source,
                 ]),
                 Request::JSON => array_merge(
@@ -271,8 +243,8 @@ class AccountsService
      * @param string $shopToken
      * @param ShopUrl $shopUrl
      * @param string $proof
-     * @param bool $manualVerification
-     * @param string|null $source
+     * @param string $origin UX origin triggering call
+     * @param string $source source module triggering call
      *
      * @return void
      *
@@ -283,7 +255,7 @@ class AccountsService
         $shopToken,
         ShopUrl $shopUrl,
         $proof,
-        $manualVerification = false,
+        $origin = self::ORIGIN_INSTALL,
         $source = 'ps_accounts'
     ) {
         $response = $this->getClient()->post(
@@ -292,6 +264,7 @@ class AccountsService
                 Request::HEADERS => $this->getHeaders([
                     self::HEADER_AUTHORIZATION => 'Bearer ' . $shopToken,
                     self::HEADER_SHOP_ID => $cloudShopId,
+                    self::HEADER_ACTION_ORIGIN => $origin,
                     self::HEADER_MODULE_SOURCE => $source,
                 ]),
                 Request::JSON => [
@@ -299,7 +272,6 @@ class AccountsService
                     'frontendUrl' => $shopUrl->getFrontendUrl(),
                     'multiShopId' => $shopUrl->getMultiShopId(),
                     'proof' => $proof,
-                    'manualVerification' => $manualVerification,
                 ],
             ]
         );

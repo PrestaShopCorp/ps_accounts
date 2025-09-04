@@ -21,6 +21,8 @@
 
 namespace PrestaShop\Module\PsAccounts\Account\Command;
 
+use PrestaShop\Module\PsAccounts\Service\Accounts\AccountsService;
+
 class VerifyIdentityCommand
 {
     /**
@@ -31,7 +33,12 @@ class VerifyIdentityCommand
     /**
      * @var bool
      */
-    public $manualVerification;
+    public $force;
+
+    /**
+     * @var string
+     */
+    public $origin;
 
     /**
      * @var string|null
@@ -40,13 +47,15 @@ class VerifyIdentityCommand
 
     /**
      * @param int|null $shopId
-     * @param bool $manualVerification
-     * @param string|null $source
+     * @param bool $force
+     * @param string $origin
+     * @param string $source
      */
-    public function __construct($shopId, $manualVerification = false, $source = null)
+    public function __construct($shopId, $force = false, $origin = AccountsService::ORIGIN_INSTALL, $source = 'ps_accounts')
     {
         $this->shopId = $shopId;
-        $this->manualVerification = $manualVerification;
+        $this->force = $force;
+        $this->origin = $origin;
         $this->source = $source;
     }
 }

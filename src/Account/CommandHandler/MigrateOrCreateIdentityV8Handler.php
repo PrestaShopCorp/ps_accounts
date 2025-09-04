@@ -132,7 +132,8 @@ class MigrateOrCreateIdentityV8Handler
 
             $this->commandBus->handle(new CreateIdentityCommand(
                 $command->shopId,
-                $command->manualVerification,
+                false,
+                $command->origin,
                 $command->source
             ));
 
