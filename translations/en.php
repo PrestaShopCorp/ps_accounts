@@ -23,10 +23,12 @@ $_MODULE['<{ps_accounts}prestashop>ps_accounts_40047b296fb8a4952e0512c7184e1ca3'
 $_MODULE['<{ps_accounts}prestashop>ps_accounts_aa8c92c02e922a0fff679d9f66fce2d0'] = 'Link your store to your PrestaShop account to activate and manage your subscriptions in your \' . \'back office. Do not uninstall this module if you have a current subscription.';
 $_MODULE['<{ps_accounts}prestashop>ps_accounts_05eeaea4d4c380b44bbcca3b1341f811'] = 'This action will prevent immediately your PrestaShop services and Community services from \' . \'working as they are using PrestaShop Accounts module for authentication.';
 $_MODULE['<{ps_accounts}prestashop>adminajaxpsaccountscontroller_a6589b17d51617df13a46421dc86e004'] = 'Action required: confirm your store URL';
+$_MODULE['<{ps_accounts}prestashop>adminajaxpsaccountscontroller_950c32d1a4f7f717bb4b738cbbc54fe2'] = 'We\'ve noticed that your store\'s URL no longer matches the one registered in your PrestaShop Account. For your services to function properly, you must either confirm this change or create a new identity for your store.';
 $_MODULE['<{ps_accounts}prestashop>adminajaxpsaccountscontroller_bcabe16a516e2025713ad5af0adfd49a'] = 'Current store URL';
 $_MODULE['<{ps_accounts}prestashop>adminajaxpsaccountscontroller_5181e6b2ae79016706b1d18380a8059d'] = 'URL registered in PrestaShop Account';
 $_MODULE['<{ps_accounts}prestashop>adminajaxpsaccountscontroller_0dd9a339c52287eaa3280fb956a07324'] = 'Review settings';
 $_MODULE['<{ps_accounts}prestashop>adminajaxpsaccountscontroller_dc3fd488f03d423a04da27ce66274c1b'] = 'Warning!';
+$_MODULE['<{ps_accounts}prestashop>adminajaxpsaccountscontroller_a1183bc21e7a9a0dc3410b1e88497cce'] = 'PrestaShop Account module wasn\'t upgraded properly.';
 $_MODULE['<{ps_accounts}prestashop>adminajaxpsaccountscontroller_790360932d7b6d0f61cbd2611c9303b1'] = 'Please reset the module';
 $_MODULE['<{ps_accounts}prestashop>login_476ff05d1175f9a35d268828caf300f2'] = 'An error occured during login, please contact PrestaShop support';
 $_MODULE['<{ps_accounts}prestashop>login_1ab1f34b16d32fa54b90ee0f91f39dfd'] = 'Welcome,';

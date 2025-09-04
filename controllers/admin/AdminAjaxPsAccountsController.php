@@ -201,7 +201,7 @@ class AdminAjaxPsAccountsController extends \ModuleAdminController
         <div class="acc-alert-title">
             ' . $this->module->l('Action required: confirm your store URL') . '
         </div>
-        <p>' . $this->module->l("We've noticed that your store's URL no longer matches the one registered in your PrestaShop Account. For your services to function properly, you must either confirm this change or create a new identity for your store.") . '</p>
+        <p>' . $this->module->l('We\'ve noticed that your store\'s URL no longer matches the one registered in your PrestaShop Account. For your services to function properly, you must either confirm this change or create a new identity for your store.') . '</p>
         <ul class="acc-list">
             <li>- ' . $this->module->l('Current store URL') . ': <a target="_blank" href="' . $localFrontendUrl . '">' . $localFrontendUrl . '</a></li>
             <li>- ' . $this->module->l('URL registered in PrestaShop Account') . ': <a target="_blank" href="' . $cloudFrontendUrl . '">' . $cloudFrontendUrl . '</a></li>
@@ -234,7 +234,7 @@ class AdminAjaxPsAccountsController extends \ModuleAdminController
             'html' => '
 <div class="alert alert-danger alert-dismissible">
     <button type="button" class="close" data-dismiss="alert">×</button>
-    <strong>' . $this->module->l('Warning!') . '</strong> ' . $this->module->l("PrestaShop Account module wasn't upgraded properly.") . '
+    <strong>' . $this->module->l('Warning!') . '</strong> ' . $this->module->l('PrestaShop Account module wasn\'t upgraded properly.') . '
     <br />
     ' . $this->module->l('Please reset the module') . '
 </div>
