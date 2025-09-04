@@ -18,7 +18,7 @@
  * @license   https://opensource.org/licenses/AFL-3.0 Academic Free License version 3.0
  */
 global $_MODULE;
-$_MODULE = array();
+$_MODULE = [];
 $_MODULE['<{ps_accounts}prestashop>ps_accounts_40047b296fb8a4952e0512c7184e1ca3'] = 'PrestaShop Account';
 $_MODULE['<{ps_accounts}prestashop>ps_accounts_aa8c92c02e922a0fff679d9f66fce2d0'] = 'Link your store to your PrestaShop account to activate and manage your subscriptions in your \' . \'back office. Do not uninstall this module if you have a current subscription.';
 $_MODULE['<{ps_accounts}prestashop>ps_accounts_05eeaea4d4c380b44bbcca3b1341f811'] = 'This action will prevent immediately your PrestaShop services and Community services from \' . \'working as they are using PrestaShop Accounts module for authentication.';
