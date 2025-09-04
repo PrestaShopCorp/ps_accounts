@@ -101,6 +101,7 @@ class CreateIdentityHandlerTest extends TestCase
                 $this->assertArrayHasKey('backOfficeUrl', $options[Request::JSON]);
                 $this->assertArrayHasKey('frontendUrl', $options[Request::JSON]);
                 $this->assertArrayHasKey('multiShopId', $options[Request::JSON]);
+                $this->assertArrayHasKey('name', $options[Request::JSON]);
                 //$this->assertEquals($this->proofManager->getProof(), $options[Request::JSON]['proof']);
 
                 return $this->createResponse([
@@ -145,6 +146,7 @@ class CreateIdentityHandlerTest extends TestCase
                 $this->assertArrayHasKey('backOfficeUrl', $options[Request::JSON]);
                 $this->assertArrayHasKey('frontendUrl', $options[Request::JSON]);
                 $this->assertArrayHasKey('multiShopId', $options[Request::JSON]);
+                $this->assertArrayHasKey('name', $options[Request::JSON]);
                 //$this->assertEquals($this->proofManager->getProof(), $options[Request::JSON]['proof']);
 
                 static $count = 1;
@@ -192,6 +194,49 @@ class CreateIdentityHandlerTest extends TestCase
             );
 
         $this->getHandler()->handle(new CreateIdentityCommand(1));
+    }
+
+    /**
+     * @test
+     */
+    public function itShouldRenewExistingIdentity()
+    {
+        $clientId = $this->faker->uuid;
+        $clientSecret = $this->faker->uuid;
+        $cloudShopId = $this->faker->uuid;
+
+        $this->configurationRepository->updateCachedShopStatus(json_encode((new CachedShopStatus([
+            'isValid' => true,
+            'shopStatus' => new ShopStatus([
+                'cloudShopId' => $this->faker->uuid,
+                'isVerified' => true,
+            ])
+        ]))->toArray()));
+
+        $this->oauth2Client->update($this->faker->uuid, $this->faker->uuid);
+
+        $this->client->method('post')
+            ->with($this->matchesRegularExpression('/v1\/shop-identities$/'))
+            ->willReturnCallback(function ($route, $options) use ($clientId, $clientSecret, $cloudShopId) {
+
+                $this->assertArrayHasKey('backOfficeUrl', $options[Request::JSON]);
+                $this->assertArrayHasKey('frontendUrl', $options[Request::JSON]);
+                $this->assertArrayHasKey('multiShopId', $options[Request::JSON]);
+                $this->assertArrayHasKey('name', $options[Request::JSON]);
+                //$this->assertEquals($this->proofManager->getProof(), $options[Request::JSON]['proof']);
+
+                return $this->createResponse([
+                    'clientId' => $clientId,
+                    'clientSecret' => $clientSecret,
+                    "cloudShopId" => $cloudShopId
+                ], 200, true);
+            });
+
+        $this->getHandler()->handle(new CreateIdentityCommand(1, true));
+
+        $this->assertEquals($cloudShopId, $this->statusManager->getCloudShopId());
+        $this->assertEquals($clientId, $this->oauth2Client->getClientId());
+        $this->assertEquals($clientSecret, $this->oauth2Client->getClientSecret());
     }
 
     /**

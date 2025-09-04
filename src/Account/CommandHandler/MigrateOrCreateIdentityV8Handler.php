@@ -153,6 +153,7 @@ class MigrateOrCreateIdentityV8Handler
             $shopUuid,
             $token,
             $this->shopProvider->getUrl($shopId),
+            $this->shopProvider->getName($shopId),
             $fromVersion,
             $this->proofManager->generateProof(),
             $command->source

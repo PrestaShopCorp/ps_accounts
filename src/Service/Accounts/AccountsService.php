@@ -199,6 +199,7 @@ class AccountsService
 
     /**
      * @param ShopUrl $shopUrl
+     * @param string $shopName
      * @param string|null $proof
      * @param string $origin UX origin triggering call
      * @param string $source source module triggering call
@@ -209,6 +210,7 @@ class AccountsService
      */
     public function createShopIdentity(
         ShopUrl $shopUrl,
+        $shopName,
         $proof = null,
         $origin = self::ORIGIN_INSTALL,
         $source = 'ps_accounts'
@@ -225,6 +227,7 @@ class AccountsService
                         'backOfficeUrl' => $shopUrl->getBackOfficeUrl(),
                         'frontendUrl' => $shopUrl->getFrontendUrl(),
                         'multiShopId' => $shopUrl->getMultiShopId(),
+                        'name' => $shopName,
                     ],
                     $proof ? ['proof' => $proof] : []
                 ),
@@ -242,6 +245,7 @@ class AccountsService
      * @param string $cloudShopId
      * @param string $shopToken
      * @param ShopUrl $shopUrl
+     * @param string $shopName
      * @param string $proof
      * @param string $origin UX origin triggering call
      * @param string $source source module triggering call
@@ -254,6 +258,7 @@ class AccountsService
         $cloudShopId,
         $shopToken,
         ShopUrl $shopUrl,
+        $shopName,
         $proof,
         $origin = self::ORIGIN_INSTALL,
         $source = 'ps_accounts'
@@ -271,6 +276,7 @@ class AccountsService
                     'backOfficeUrl' => $shopUrl->getBackOfficeUrl(),
                     'frontendUrl' => $shopUrl->getFrontendUrl(),
                     'multiShopId' => $shopUrl->getMultiShopId(),
+                    'name' => $shopName,
                     'proof' => $proof,
                 ],
             ]
@@ -345,6 +351,7 @@ class AccountsService
      * @param string $cloudShopId
      * @param string $shopToken
      * @param ShopUrl $shopUrl
+     * @param string $shopName
      * @param string $fromVersion
      * @param string|null $proof
      * @param string|null $source
@@ -353,7 +360,7 @@ class AccountsService
      *
      * @throws AccountsException
      */
-    public function migrateShopIdentity($cloudShopId, $shopToken, ShopUrl $shopUrl, $fromVersion, $proof = null, $source = 'ps_accounts')
+    public function migrateShopIdentity($cloudShopId, $shopToken, ShopUrl $shopUrl, $shopName, $fromVersion, $proof = null, $source = 'ps_accounts')
     {
         $response = $this->getClient()->put(
             '/v1/shop-identities/' . $cloudShopId . '/migrate',
@@ -368,6 +375,7 @@ class AccountsService
                         'backOfficeUrl' => $shopUrl->getBackOfficeUrl(),
                         'frontendUrl' => $shopUrl->getFrontendUrl(),
                         'multiShopId' => $shopUrl->getMultiShopId(),
+                        'name' => $shopName,
                         'fromVersion' => $fromVersion,
                     ],
                     $proof ? ['proof' => $proof] : []

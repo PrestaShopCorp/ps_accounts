@@ -96,6 +96,7 @@ class CreateIdentityHandler
 
             $identityCreated = $this->accountsService->createShopIdentity(
                 $this->shopProvider->getUrl($shopId),
+                $this->shopProvider->getName($shopId),
                 null,
                 $command->origin,
                 $command->source

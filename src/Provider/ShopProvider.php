@@ -324,6 +324,18 @@ class ShopProvider
     }
 
     /**
+     * @param int $shopId
+     *
+     * @return string
+     */
+    public function getName($shopId)
+    {
+        $shop = (array) \Shop::getShop($shopId);
+
+        return $shop['name'];
+    }
+
+    /**
      * @param string|null $source
      * @param int $contextType
      * @param int|null $contextId
