@@ -95,6 +95,7 @@ class VerifyIdentityHandlerTest extends TestCase
                 $this->assertArrayHasKey('backOfficeUrl', $options[Request::JSON]);
                 $this->assertArrayHasKey('frontendUrl', $options[Request::JSON]);
                 $this->assertArrayHasKey('multiShopId', $options[Request::JSON]);
+                $this->assertArrayHasKey('name', $options[Request::JSON]);
                 $this->assertEquals($this->proofManager->getProof(), $options[Request::JSON]['proof']);
 
                 return $this->createResponse([
