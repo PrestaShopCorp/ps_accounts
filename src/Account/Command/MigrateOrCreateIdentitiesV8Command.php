@@ -21,18 +21,27 @@
 
 namespace PrestaShop\Module\PsAccounts\Account\Command;
 
+use PrestaShop\Module\PsAccounts\Service\Accounts\AccountsService;
+
 class MigrateOrCreateIdentitiesV8Command
 {
     /**
-     * @var string|null
+     * @var string
+     */
+    public $origin;
+
+    /**
+     * @var string
      */
     public $source;
 
     /**
-     * @param string|null $source
+     * @param string $origin
+     * @param string $source
      */
-    public function __construct($source = null)
+    public function __construct($origin = AccountsService::ORIGIN_INSTALL, $source = 'ps_accounts')
     {
+        $this->origin = $origin;
         $this->source = $source;
     }
 }

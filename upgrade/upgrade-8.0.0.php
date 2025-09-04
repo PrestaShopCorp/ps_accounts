@@ -3,6 +3,7 @@
 use PrestaShop\Module\PsAccounts\Account\Command\MigrateOrCreateIdentitiesV8Command;
 use PrestaShop\Module\PsAccounts\Cqrs\CommandBus;
 use PrestaShop\Module\PsAccounts\Log\Logger;
+use PrestaShop\Module\PsAccounts\Service\Accounts\AccountsService;
 
 /**
  * @param Ps_accounts $module
@@ -17,11 +18,14 @@ function upgrade_module_8_0_0($module)
     require __DIR__ . '/../src/enforce_autoload.php';
 
     try {
-        $module->registerHook($module->getHooksToRegister());
-        $module->unregisterHook('displayBackOfficeHeader');
+        $module->unregisterHook('actionObjectShopDeleteBefore');
+        $module->unregisterHook('actionObjectShopUpdateAfter');
+        $module->unregisterHook('actionObjectShopUrlUpdateAfter');
+        $module->unregisterHook('actionShopAccountLinkAfter');
+        $module->unregisterHook('actionShopAccountUnlinkAfter');
+        $module->unregisterHook('displayAccountUpdateWarning');
 
-        $installer = new PrestaShop\Module\PsAccounts\Module\Install($module, Db::getInstance());
-        $installer->installInMenu();
+        $module->registerHook($module->getHooksToRegister());
 
         $tabId = \Tab::getIdFromClassName('AdminDebugPsAccounts');
         if ($tabId) {
@@ -29,10 +33,16 @@ function upgrade_module_8_0_0($module)
             $tab->delete();
         }
 
+        $installer = new PrestaShop\Module\PsAccounts\Module\Install($module, Db::getInstance());
+        $installer->installInMenu();
+
         /** @var CommandBus $commandBus */
         $commandBus = $module->getService(CommandBus::class);
 
-        $commandBus->handle(new MigrateOrCreateIdentitiesV8Command('ps_accounts'));
+        $commandBus->handle(new MigrateOrCreateIdentitiesV8Command(
+            'ps_accounts',
+            AccountsService::ORIGIN_UPGRADE
+        ));
     } catch (\Exception $e) {
         Logger::getInstance()->error('error during upgrade : ' . $e);
     } catch (\Throwable $e) {

@@ -212,9 +212,9 @@ class StatusManager
     public function setCloudShopId($cloudShopId)
     {
         $this->upsetCachedStatus(new CachedShopStatus([
-            'shopStatus' => new ShopStatus([
+            'shopStatus' => [
                 'cloudShopId' => $cloudShopId,
-            ]),
+            ],
         ]));
     }
 
@@ -233,6 +233,20 @@ class StatusManager
     }
 
     /**
+     * @param string $pointOfContactUuid
+     *
+     * @return void
+     */
+    public function setPointOfContactUuid($pointOfContactUuid)
+    {
+        $this->upsetCachedStatus(new CachedShopStatus([
+            'shopStatus' => [
+                'pointOfContactUuid' => $pointOfContactUuid,
+            ],
+        ]));
+    }
+
+    /**
      * @param bool $cachedStatus
      *
      * @return string|null
@@ -244,6 +258,20 @@ class StatusManager
         } catch (UnknownStatusException $e) {
             return null;
         }
+    }
+
+    /**
+     * @param string $pointOfContactEmail
+     *
+     * @return void
+     */
+    public function setPointOfContactEmail($pointOfContactEmail)
+    {
+        $this->upsetCachedStatus(new CachedShopStatus([
+            'shopStatus' => [
+                'pointOfContactEmail' => $pointOfContactEmail,
+            ],
+        ]));
     }
 
     /**
@@ -263,6 +291,8 @@ class StatusManager
     }
 
     /**
+     * @param CachedShopStatus $cachedShopStatus
+     *
      * @return void
      */
     protected function setCachedStatus(CachedShopStatus $cachedShopStatus)
@@ -273,14 +303,17 @@ class StatusManager
     }
 
     /**
+     * @param CachedShopStatus $cachedShopStatus
+     * @param bool $all all fields or only explicitly initialized fields
+     *
      * @return void
      */
-    protected function upsetCachedStatus(CachedShopStatus $cachedShopStatus)
+    protected function upsetCachedStatus(CachedShopStatus $cachedShopStatus, $all = false)
     {
         try {
             $this->setCachedStatus(new CachedShopStatus(array_replace_recursive(
                 $this->getCachedStatus()->toArray(),
-                $cachedShopStatus->toArray(false)
+                $cachedShopStatus->toArray($all)
            )));
         } catch (UnknownStatusException $e) {
             $this->setCachedStatus($cachedShopStatus);

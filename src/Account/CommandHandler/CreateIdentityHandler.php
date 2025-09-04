@@ -90,13 +90,14 @@ class CreateIdentityHandler
      */
     public function handle(CreateIdentityCommand $command)
     {
-        if (!$this->isAlreadyCreated()) {
+        if ($command->renew || !$this->isAlreadyCreated()) {
             $shopId = $command->shopId ?: \Shop::getContextShopID();
 
             $identityCreated = $this->accountsService->createShopIdentity(
                 $this->shopProvider->getUrl($shopId),
                 $this->shopProvider->getName($shopId),
                 null,
+                $command->origin,
                 $command->source
             );
             $this->oAuth2Client->update(
@@ -108,7 +109,8 @@ class CreateIdentityHandler
         }
         $this->commandBus->handle(new VerifyIdentityCommand(
             $command->shopId,
-            $command->manualVerification,
+            false,
+            $command->origin,
             $command->source
         ));
     }

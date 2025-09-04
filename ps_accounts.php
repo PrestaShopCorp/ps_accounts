@@ -53,13 +53,6 @@ class Ps_accounts extends Module
      */
     private $customHooks = [
         [
-            'name' => 'displayAccountUpdateWarning',
-            'title' => 'Display account update warning',
-            'description' => 'Show a warning message when the user wants to'
-                . ' update his shop configuration',
-            'position' => 1,
-        ],
-        [
             'name' => 'actionShopAccountLinkAfter',
             'title' => 'Shop linked event',
             'description' => 'Shop linked with PrestaShop Account',
@@ -87,28 +80,14 @@ class Ps_accounts extends Module
     private $hooks = [
         //\PrestaShop\Module\PsAccounts\Hook\ActionAdminLoginControllerLoginAfter::class,
         'actionAdminLoginControllerLoginAfter',
+        'actionAdminLoginControllerSetMedia',
+        //'actionAdminControllerSetMedia',
+        'displayBackOfficeHeader',
         'actionObjectEmployeeDeleteAfter',
         'actionObjectShopAddAfter',
         'actionObjectShopDeleteAfter',
-        'actionObjectShopDeleteBefore',
-        'actionObjectShopUpdateAfter',
-        'actionObjectShopUrlUpdateAfter',
-        'actionShopAccountLinkAfter',
-        'actionShopAccountUnlinkAfter',
-        'displayAccountUpdateWarning',
+        'actionShopAccessTokenRefreshAfter',
         'displayBackOfficeEmployeeMenu',
-        'displayDashboardTop',
-
-        // toggle single/multi-shop
-        //'actionObjectShopAddAfter',
-        //'actionObjectShopDeleteAfter',
-
-        // Login/Logout OAuth
-        // PS 1.6 - 1.7
-        //'displayAdminAfterHeader',  // FIXME: for alpha version only
-        'actionAdminLoginControllerSetMedia',
-        // PS >= 8
-        //'actionAdminControllerInitBefore',
     ];
 
     /**
@@ -185,6 +164,7 @@ class Ps_accounts extends Module
             && $this->addCustomHooks($this->customHooks)
             && $this->registerHook($this->getHooksToRegister());
 
+        // FIXME: implement safe "reset" method
         $this->onModuleReset();
 
         return $status;
@@ -441,8 +421,16 @@ class Ps_accounts extends Module
         /** @var \PrestaShop\Module\PsAccounts\Cqrs\CommandBus $commandBus */
         $commandBus = $this->getService(\PrestaShop\Module\PsAccounts\Cqrs\CommandBus::class);
 
+        /** @var \PrestaShop\Module\PsAccounts\Service\UpgradeService $upgradeService */
+        $upgradeService = $this->getService(\PrestaShop\Module\PsAccounts\Service\UpgradeService::class);
+
         // Verification flow
-        $commandBus->handle(new \PrestaShop\Module\PsAccounts\Account\Command\MigrateOrCreateIdentitiesV8Command('ps_accounts'));
+        $commandBus->handle(new \PrestaShop\Module\PsAccounts\Account\Command\MigrateOrCreateIdentitiesV8Command(
+            'ps_accounts',
+            version_compare($upgradeService->getCoreRegisteredVersion(), '0', '>') ?
+                \PrestaShop\Module\PsAccounts\Service\Accounts\AccountsService::ORIGIN_RESET :
+                \PrestaShop\Module\PsAccounts\Service\Accounts\AccountsService::ORIGIN_INSTALL
+        ));
     }
 
     /**

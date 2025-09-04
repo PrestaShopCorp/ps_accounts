@@ -91,7 +91,7 @@ class VerifyIdentityHandler
     {
         $cachedStatus = $this->statusManager->getStatus(false, StatusManager::CACHE_TTL, $command->source);
 
-        if ($cachedStatus->isVerified) {
+        if (!$command->force && $cachedStatus->isVerified) {
             return;
         }
 
@@ -103,7 +103,7 @@ class VerifyIdentityHandler
             $this->shopProvider->getUrl($shopId),
             $this->shopProvider->getName($shopId),
             $this->proofManager->generateProof(),
-            $command->manualVerification,
+            $command->origin,
             $command->source
         );
         $this->statusManager->invalidateCache();

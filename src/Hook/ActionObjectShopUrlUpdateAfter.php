@@ -20,9 +20,9 @@
 
 namespace PrestaShop\Module\PsAccounts\Hook;
 
-use Cache;
-use ShopUrl;
-
+/**
+ * @deprecated
+ */
 class ActionObjectShopUrlUpdateAfter extends ActionObjectShopUpdateAfter
 {
     /**
@@ -32,17 +32,6 @@ class ActionObjectShopUrlUpdateAfter extends ActionObjectShopUpdateAfter
      */
     public function execute(array $params = [])
     {
-        /** @var ShopUrl $shopUrl */
-        $shopUrl = $params['object'];
-
-        if ($shopUrl->main) {
-            // Mandatory to get up to date urls
-            // Cache::clear();
-            Cache::clean('Shop::setUrl_' . (int) $shopUrl->id);
-
-            $this->updateUserShop(new \Shop($shopUrl->id_shop));
-        }
-
         return true;
     }
 }
