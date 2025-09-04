@@ -1,7 +1,6 @@
-import {Page, Locator, expect} from '@playwright/test';
+import {Page, expect} from '@playwright/test';
 import BasePage from '~/pages/basePage';
 import {advancedParametersPageLocales} from '~/data/local/advancedParametersPageLocales/advancedParametersPageLocales';
-import {text} from 'stream/consumers';
 
 export default class MultiStorePage extends BasePage {
   /* <<<<<<<<<<<<<<< Selectors Types >>>>>>>>>>>>>>>>>>>>>> */

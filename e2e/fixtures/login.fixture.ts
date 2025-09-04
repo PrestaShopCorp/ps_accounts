@@ -1,4 +1,4 @@
-import {test as base, expect} from '@playwright/test';
+import {test as base} from '@playwright/test';
 // import {MyFixtures} from 'types/fixture';
 import {PageManager} from '~/pages/managerPage';
 import {MyFixtures} from '~/types/fixture';
