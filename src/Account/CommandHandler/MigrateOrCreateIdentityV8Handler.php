@@ -212,7 +212,7 @@ class MigrateOrCreateIdentityV8Handler
         try {
             $status = $this->statusManager->getStatus(true);
 
-            return ! empty($status->cloudShopId);
+            return !empty($status->cloudShopId);
         } catch (UnknownStatusException $e) {
             return true;
         }
@@ -229,6 +229,7 @@ class MigrateOrCreateIdentityV8Handler
         if (version_compare($coreRegisteredVersion, $fromVersion, '<')) {
             $fromVersion = $coreRegisteredVersion;
         }
+
         return $fromVersion;
     }
 }
