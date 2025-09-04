@@ -126,7 +126,7 @@ class MigrateOrCreateIdentityV8Handler
 
 //        if (!$shopUuid || version_compare($fromVersion, '8', '>=')) {
 
-        if ($this->needMigration()) {
+        if (!$this->needMigration()) {
             $this->upgradeService->setVersion();
 
             $this->commandBus->handle(new CreateIdentityCommand(
