@@ -178,7 +178,6 @@ class AdminAjaxPsAccountsController extends \ModuleAdminController
         line-height: 1.5 !important;
         font-weight: 600 !important;
         border-width: 1px !important;
-        border-radius: 4px !important;
         transition: color .15s ease-in-out,background-color .15s ease-in-out,border-color .15s ease-in-out,box-shadow .15s ease-in-out !important;
         cursor: pointer !important;
     }
@@ -233,7 +232,6 @@ class AdminAjaxPsAccountsController extends \ModuleAdminController
         padding: 16px 15px 16px 56px !important;
         font-size: 14px !important;
         border: solid 1px #ffb000 !important;
-        border-radius: 8px !important;
         color: #1d1d1b !important;
     }
 </style>
