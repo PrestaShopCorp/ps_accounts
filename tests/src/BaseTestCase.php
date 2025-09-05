@@ -8,6 +8,7 @@ use Faker\Generator;
 use Module;
 use PrestaShop\Module\PsAccounts\Account\Session\Firebase;
 use PrestaShop\Module\PsAccounts\Account\Session\ShopSession;
+use PrestaShop\Module\PsAccounts\Http\Client\Response;
 use PrestaShop\Module\PsAccounts\Vendor\Lcobucci\JWT\Builder;
 use PrestaShop\Module\PsAccounts\Vendor\Lcobucci\JWT\Configuration;
 use PrestaShop\Module\PsAccounts\Vendor\Lcobucci\JWT\Token;
@@ -49,9 +50,9 @@ class BaseTestCase extends \PHPUnit\Framework\TestCase
     /**
      * @inject
      *
-     * @var \PrestaShop\Module\PsAccounts\Account\LinkShop
+     * @var \PrestaShop\Module\PsAccounts\Account\StatusManager
      */
-    public $linkShop;
+    public $statusManager;
 
     /**
      * @var bool
@@ -126,6 +127,11 @@ class BaseTestCase extends \PHPUnit\Framework\TestCase
         if (isset($claims['sub'])) {
             $builder->relatedTo($claims['sub']);
             unset($claims['sub']);
+        }
+
+        if (isset($claims['aud'])) {
+            $builder->permittedFor(...is_array($claims['aud']) ? $claims['aud'] : [$claims['aud']]);
+            unset($claims['aud']);
         }
 
         foreach ($claims as $claim => $value) {
@@ -207,6 +213,20 @@ class BaseTestCase extends \PHPUnit\Framework\TestCase
             'httpCode' => $httpCode,
             'body' => $body,
         ];
+    }
+
+    /**
+     * @param mixed $responseBody
+     * @param int $statusCode
+     *
+     * @return Response
+     */
+    protected function createResponse($responseBody, $statusCode = 200)
+    {
+        return new Response(
+            $responseBody,
+            $statusCode
+        );
     }
 
     /**

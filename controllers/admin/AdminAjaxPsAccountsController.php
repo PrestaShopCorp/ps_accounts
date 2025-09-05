@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Copyright since 2007 PrestaShop SA and Contributors
  * PrestaShop is an International Registered Trademark & Property of PrestaShop SA
@@ -19,15 +20,16 @@
  */
 require_once __DIR__ . '/../../src/Polyfill/Traits/Controller/AjaxRender.php';
 
-use PrestaShop\Module\PsAccounts\Account\Command\DeleteUserShopCommand;
-use PrestaShop\Module\PsAccounts\Account\Command\UnlinkShopCommand;
+use PrestaShop\Module\PsAccounts\Account\Exception\UnknownStatusException;
 use PrestaShop\Module\PsAccounts\Account\Session\Firebase\ShopSession;
+use PrestaShop\Module\PsAccounts\Account\StatusManager;
 use PrestaShop\Module\PsAccounts\AccountLogin\OAuth2Session;
-use PrestaShop\Module\PsAccounts\Cqrs\CommandBus;
+use PrestaShop\Module\PsAccounts\Adapter\Link as AccountsLink;
+use PrestaShop\Module\PsAccounts\Log\Logger;
 use PrestaShop\Module\PsAccounts\Polyfill\Traits\Controller\AjaxRender;
-use PrestaShop\Module\PsAccounts\Presenter\PsAccountsPresenter;
-use PrestaShop\Module\PsAccounts\Repository\ConfigurationRepository;
+use PrestaShop\Module\PsAccounts\Provider\ShopProvider;
 use PrestaShop\Module\PsAccounts\Service\SentryService;
+use PrestaShop\Module\PsAccounts\Service\UpgradeService;
 
 /**
  * Controller for all ajax calls.
@@ -42,11 +44,6 @@ class AdminAjaxPsAccountsController extends \ModuleAdminController
     public $module;
 
     /**
-     * @var CommandBus
-     */
-    private $commandBus;
-
-    /**
      * AdminAjaxPsAccountsController constructor.
      *
      * @throws Exception
@@ -54,8 +51,6 @@ class AdminAjaxPsAccountsController extends \ModuleAdminController
     public function __construct()
     {
         parent::__construct();
-
-        $this->commandBus = $this->module->getService(CommandBus::class);
 
         $this->ajax = true;
         $this->content_only = true;
@@ -92,75 +87,6 @@ class AdminAjaxPsAccountsController extends \ModuleAdminController
      *
      * @throws Exception
      */
-    public function ajaxProcessUnlinkShop()
-    {
-        try {
-            /** @var ConfigurationRepository $configurationRepository */
-            $configurationRepository = $this->module->getService(ConfigurationRepository::class);
-
-            $response = $this->commandBus->handle(new DeleteUserShopCommand(
-                $configurationRepository->getShopId()
-            ));
-
-            http_response_code($response['httpCode']);
-
-            header('Content-Type: text/json');
-
-            $this->ajaxRender((string) json_encode($response['body']));
-        } catch (Exception $e) {
-            SentryService::captureAndRethrow($e);
-        }
-    }
-
-    /**
-     * @return void
-     *
-     * @throws Exception
-     */
-    public function ajaxProcessResetLinkAccount()
-    {
-        try {
-            /** @var ConfigurationRepository $configurationRepository */
-            $configurationRepository = $this->module->getService(ConfigurationRepository::class);
-
-            $this->commandBus->handle(new UnlinkShopCommand(
-                $configurationRepository->getShopId()
-            ));
-
-            header('Content-Type: text/json');
-
-            $this->ajaxRender((string) json_encode(['message' => 'success']));
-        } catch (Exception $e) {
-            SentryService::captureAndRethrow($e);
-        }
-    }
-
-    /**
-     * @return void
-     *
-     * @throws Exception
-     */
-    public function ajaxProcessGetContext()
-    {
-        try {
-            $psxName = Tools::getValue('psx_name');
-
-            /** @var PsAccountsPresenter $presenter */
-            $presenter = $this->module->getService(PsAccountsPresenter::class);
-
-            header('Content-Type: text/json');
-
-            $this->ajaxRender((string) json_encode($presenter->present($psxName)));
-        } catch (Exception $e) {
-            SentryService::captureAndRethrow($e);
-        }
-    }
-
-    /**
-     * @return void
-     *
-     * @throws Exception
-     */
     public function ajaxProcessGetOrRefreshAccessToken()
     {
         try {
@@ -177,5 +103,181 @@ class AdminAjaxPsAccountsController extends \ModuleAdminController
         } catch (Exception $e) {
             SentryService::captureAndRethrow($e);
         }
+    }
+
+    /**
+     * @return void
+     */
+    public function ajaxProcessGetNotifications()
+    {
+        $notifications = [];
+        try {
+            $notifications = array_merge(
+                $this->getNotificationsUpgradeFailed(),
+                $this->getNotificationsUrlMismatch()
+            );
+        } catch (\Exception $e) {
+            Logger::getInstance()->error($e->getMessage());
+        } catch (\Throwable $e) {
+            Logger::getInstance()->error($e->getMessage());
+        }
+        $this->ajaxRender(
+            (string) json_encode($notifications ? [$notifications] : [])
+        );
+    }
+
+    /**
+     * @return array|string[]
+     *
+     * @throws UnknownStatusException
+     */
+    protected function getNotificationsUrlMismatch()
+    {
+        /** @var StatusManager $statusManager */
+        $statusManager = $this->module->getService(StatusManager::class);
+
+        if (!$statusManager->identityCreated()) {
+            return [];
+        }
+
+        $status = $statusManager->getStatus();
+
+        /** @var ShopProvider $shopProvider */
+        $shopProvider = $this->module->getService(ShopProvider::class);
+        $shopUrl = $shopProvider->getUrl($this->context->shop->id);
+
+        $cloudFrontendUrl = rtrim($status->frontendUrl, '/');
+        $localFrontendUrl = rtrim($shopUrl->getFrontendUrl(), '/');
+
+        if ($localFrontendUrl === $cloudFrontendUrl) {
+            return [];
+        }
+
+        /** @var AccountsLink $link */
+        $link = $this->module->getService(AccountsLink::class);
+        $moduleLink = $link->getAdminLink('AdminModules', true, [], [
+            'configure' => 'ps_accounts',
+        ]);
+
+        return [
+            'html' => '
+<style>
+    .acc-flex
+    {
+        display: flex !important;
+    }
+    .acc-btn
+    {
+        display: inline-block !important;
+        text-align: center !important;
+        vertical-align: middle !important;
+        user-select: none !important;
+        border: 1px solid transparent !important;
+        padding: .5rem 1rem !important;
+        font-size: .875rem !important;
+        line-height: 1.5 !important;
+        font-weight: 600 !important;
+        border-width: 1px !important;
+        transition: color .15s ease-in-out,background-color .15s ease-in-out,border-color .15s ease-in-out,box-shadow .15s ease-in-out !important;
+        cursor: pointer !important;
+    }
+    .acc-btn-warning
+    {
+        width: max-content !important;
+        color: #1d1d1b !important;
+        background-color: #FFF5E5 !important;
+        border-color: #ffb000 !important;
+    }
+    .acc-btn-warning:hover
+    {
+        background-color: #ffeccc !important;
+    }
+    .acc-btn-warning:focus, .acc-btn-warning.focus
+    {
+        background-color: #ffeccc !important;
+    }
+    @media(max-width: 768px)
+    {
+        .acc-flex {
+            flex-direction: column !important;
+        }
+        .acc-btn-warning
+        {
+            margin-top: 1em !important;
+        }
+    }
+    .acc-flex-grow-1
+    {
+        -webkit-box-flex: 1 !important;
+        -ms-flex-positive: 1 !important;
+        flex-grow: 1 !important;
+    }
+    .acc-alert-title
+    {
+        font-weight: bold !important;
+        margin-bottom: .9375rem !important;
+    }
+    .acc-list
+    {
+        list-style-type: none;
+        padding-left: 0 !important;
+    }
+    .acc-alert
+    {
+    }
+    .acc-alert-warning
+    {
+        background-color: #FFF5E5 !important;
+        position: relative !important;
+        padding: 16px 15px 16px 56px !important;
+        font-size: 14px !important;
+        border: solid 1px #ffb000 !important;
+        color: #1d1d1b !important;
+    }
+</style>
+<div class="alert alert-warning acc-alert acc-alert-warning acc-flex">
+    <div class="acc-flex-grow-1">
+        <div class="acc-alert-title">
+            ' . $this->module->l('Action required: confirm your store URL') . '
+        </div>
+        <p>' . $this->module->l('We\'ve noticed that your store\'s URL no longer matches the one registered in your PrestaShop Account.') . '<br>' . $this->module->l('For your services to function properly, you must either confirm this change or create a new identity for your store.') . '</p>
+        <ul class="acc-list">
+            <li>- ' . $this->module->l('Current store URL') . ': <em>' . $localFrontendUrl . '</em></li>
+            <li>- ' . $this->module->l('URL registered in PrestaShop Account') . ': <em>' . $cloudFrontendUrl . '</em></li>
+        </ul>
+    </div>
+    <div>
+        <button class="btn warning btn-outline-warning acc-btn btn-warning acc-btn-warning" onclick="document.location=\'' . $moduleLink . '\'">
+            ' . $this->module->l('Review settings') . '
+        </button>
+    </div>
+</div>
+
+',
+        ];
+    }
+
+    /**
+     * @return array|string[]
+     */
+    protected function getNotificationsUpgradeFailed()
+    {
+        /** @var UpgradeService $upgradeService */
+        $upgradeService = $this->module->getService(UpgradeService::class);
+
+        if ($upgradeService->getCoreRegisteredVersion() === \Ps_accounts::VERSION) {
+            return [];
+        }
+
+        return [
+            'html' => '
+<div class="alert alert-danger alert-dismissible">
+    <button type="button" class="close" data-dismiss="alert">×</button>
+    <strong>' . $this->module->l('Warning!') . '</strong> ' . $this->module->l('PrestaShop Account module wasn\'t upgraded properly.') . '
+    <br />
+    ' . $this->module->l('Please reset the module') . '
+</div>
+',
+        ];
     }
 }
