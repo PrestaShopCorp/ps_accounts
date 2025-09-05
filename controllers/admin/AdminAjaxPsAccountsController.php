@@ -253,7 +253,7 @@ class AdminAjaxPsAccountsController extends \ModuleAdminController
         </ul>
     </div>
     <div>
-        <button class="btn warning btn-outline-warning acc-btn btn-warning acc-btn-warning" onclick="document.location=' . $moduleLink . '">
+        <button class="btn warning btn-outline-warning acc-btn btn-warning acc-btn-warning" onclick="document.location=\'' . $moduleLink . '\'">
             ' . $this->module->l('Review settings') . '
         </button>
     </div>
