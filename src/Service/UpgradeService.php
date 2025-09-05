@@ -55,7 +55,7 @@ class UpgradeService
         if ($this->getRegisteredVersion() !== $version) {
             $this->repository->updateLastUpgrade($version);
 
-            // TODO: send segment event
+            // TODO: send segment event ??
         }
     }
 

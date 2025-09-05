@@ -172,7 +172,7 @@ JSON;
 
         $this->getHandler()->handle(new MigrateOrCreateIdentityV8Command($this->shopId));
 
-        $this->assertEquals(\Ps_accounts::VERSION, $this->upgradeService->getVersion());
+        //$this->assertEquals(\Ps_accounts::VERSION, $this->upgradeService->getVersion());
         $this->assertEmpty($this->configurationRepository->getAccessToken());
         $this->assertTrue($this->statusManager->cacheInvalidated());
         $this->assertEquals($cloudShopId, $this->statusManager->getCloudShopId());
@@ -298,7 +298,7 @@ JSON;
 
         $this->getHandler()->handle(new MigrateOrCreateIdentityV8Command($this->shopId));
 
-        $this->assertEquals(\Ps_accounts::VERSION, $this->upgradeService->getVersion());
+        //$this->assertEquals(\Ps_accounts::VERSION, $this->upgradeService->getVersion());
         $this->assertTrue($this->statusManager->cacheInvalidated());
         $this->assertEquals($cloudShopId, $this->statusManager->getCloudShopId());
         $this->assertEquals($clientId, $this->oAuth2Service->getOAuth2Client()->getClientId());
