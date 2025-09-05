@@ -431,6 +431,8 @@ class Ps_accounts extends Module
                 \PrestaShop\Module\PsAccounts\Service\Accounts\AccountsService::ORIGIN_RESET :
                 \PrestaShop\Module\PsAccounts\Service\Accounts\AccountsService::ORIGIN_INSTALL
         ));
+
+        $upgradeService->setAndNotifyVersionUpgrade();
     }
 
     /**

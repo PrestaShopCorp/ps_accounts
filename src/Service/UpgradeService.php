@@ -46,6 +46,20 @@ class UpgradeService
     }
 
     /**
+     * @param string $version
+     *
+     * @return void
+     */
+    public function setAndNotifyVersionUpgrade($version = \Ps_accounts::VERSION)
+    {
+        if ($this->getRegisteredVersion() !== $version) {
+            $this->repository->updateLastUpgrade($version);
+
+            // TODO: send segment event
+        }
+    }
+
+    /**
      * @return string
      */
     public function getRegisteredVersion()
