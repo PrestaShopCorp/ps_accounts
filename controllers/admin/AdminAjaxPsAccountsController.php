@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Copyright since 2007 PrestaShop SA and Contributors
  * PrestaShop is an International Registered Trademark & Property of PrestaShop SA
@@ -165,9 +166,40 @@ class AdminAjaxPsAccountsController extends \ModuleAdminController
     {
         display: flex !important;
     }
+    .acc-btn
+    {
+        display: inline-block !important;
+        text-align: center !important;
+        vertical-align: middle !important;
+        user-select: none !important;
+        border: 1px solid transparent !important;
+        padding: .5rem 1rem !important;
+        font-size: .875rem !important;
+        line-height: 1.5 !important;
+        font-weight: 600 !important;
+        border-width: 1px !important;
+        border-radius: 4px !important;
+        transition: color .15s ease-in-out,background-color .15s ease-in-out,border-color .15s ease-in-out,box-shadow .15s ease-in-out !important;
+        cursor: pointer !important;
+    }
     .acc-btn-warning
     {
         width: max-content !important;
+        color: #fff !important;
+        background-color: #fbbb22 !important;
+        border-color: #fbb309 !important;
+    }
+    .acc-btn-warning:hover
+    {
+        color: #fff !important;
+        background-color: #e6a304 !important;
+        border-color: #c38a04 !important;
+    }
+    .acc-btn-warning:focus, .acc-btn-warning.focus
+    {
+        color: #fff !important;
+        background-color: #e6a304 !important;
+        border-color: #c38a04 !important;
     }
     @media(max-width: 768px)
     {
@@ -195,20 +227,33 @@ class AdminAjaxPsAccountsController extends \ModuleAdminController
         list-style-type: none;
         padding-left: 0 !important;
     }
+    .acc-alert
+    {
+    }
+    .acc-alert-warning
+    {
+        background-color: #fffbd3 !important;
+        position: relative !important;
+        padding: 16px 15px 16px 56px !important;
+        font-size: 14px !important;
+        border: solid 1px #fab000 !important;
+        border-radius: 8px !important;
+        color: #363a41 !important;
+    }
 </style>
-<div class="alert alert-warning acc-flex">
+<div class="alert alert-warning acc-alert acc-alert-warning acc-flex">
     <div class="acc-flex-grow-1">
         <div class="acc-alert-title">
             ' . $this->module->l('Action required: confirm your store URL') . '
         </div>
         <p>' . $this->module->l('We\'ve noticed that your store\'s URL no longer matches the one registered in your PrestaShop Account. For your services to function properly, you must either confirm this change or create a new identity for your store.') . '</p>
         <ul class="acc-list">
-            <li>- ' . $this->module->l('Current store URL') . ': <a target="_blank" href="' . $localFrontendUrl . '">' . $localFrontendUrl . '</a></li>
-            <li>- ' . $this->module->l('URL registered in PrestaShop Account') . ': <a target="_blank" href="' . $cloudFrontendUrl . '">' . $cloudFrontendUrl . '</a></li>
+            <li>- ' . $this->module->l('Current store URL') . ': <em>' . $localFrontendUrl . '</em></li>
+            <li>- ' . $this->module->l('URL registered in PrestaShop Account') . ': <em>' . $cloudFrontendUrl . '</em></li>
         </ul>
     </div>
     <div>
-        <button class="btn btn-outline-warning btn-warning acc-btn-warning" onclick="document.location=\'' . $moduleLink . '\'">
+        <button class="btn warning btn-outline-warning acc-btn btn-warning acc-btn-warning" onclick="document.location=' . $moduleLink . '">
             ' . $this->module->l('Review settings') . '
         </button>
     </div>
