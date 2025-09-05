@@ -246,7 +246,7 @@ class AdminAjaxPsAccountsController extends \ModuleAdminController
         <div class="acc-alert-title">
             ' . $this->module->l('Action required: confirm your store URL') . '
         </div>
-        <p>' . $this->module->l('We\'ve noticed that your store\'s URL no longer matches the one registered in your PrestaShop Account. For your services to function properly, you must either confirm this change or create a new identity for your store.') . '</p>
+        <p>' . $this->module->l('We\'ve noticed that your store\'s URL no longer matches the one registered in your PrestaShop Account.') . '<br>' . $this->module->l('For your services to function properly, you must either confirm this change or create a new identity for your store.') . '</p>
         <ul class="acc-list">
             <li>- ' . $this->module->l('Current store URL') . ': <em>' . $localFrontendUrl . '</em></li>
             <li>- ' . $this->module->l('URL registered in PrestaShop Account') . ': <em>' . $cloudFrontendUrl . '</em></li>
