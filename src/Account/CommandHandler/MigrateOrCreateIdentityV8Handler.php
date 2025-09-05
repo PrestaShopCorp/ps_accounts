@@ -121,10 +121,6 @@ class MigrateOrCreateIdentityV8Handler
     public function handle(MigrateOrCreateIdentityV8Command $command)
     {
         $shopId = $command->shopId ?: \Shop::getContextShopID();
-        $shopUuid = $this->configurationRepository->getShopUuid();
-        $fromVersion = $this->getFromVersion();
-
-//        if (!$shopUuid || version_compare($fromVersion, '8', '>=')) {
 
         if (!$this->needMigration()) {
             $this->upgradeService->setVersion();
@@ -138,6 +134,9 @@ class MigrateOrCreateIdentityV8Handler
 
             return;
         }
+
+        $shopUuid = $this->configurationRepository->getShopUuid();
+        $fromVersion = $this->getFromVersion();
 
         // migrate cloudShopId locally
         $this->statusManager->setCloudShopId($shopUuid);
@@ -209,13 +208,8 @@ class MigrateOrCreateIdentityV8Handler
      */
     protected function needMigration()
     {
-        try {
-            $status = $this->statusManager->getStatus(true);
-
-            return !empty($status->cloudShopId);
-        } catch (UnknownStatusException $e) {
-            return true;
-        }
+        return $this->configurationRepository->getShopUuid() &&
+            version_compare($this->upgradeService->getRegisteredVersion(), '8', '<');
     }
 
     /**
