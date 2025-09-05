@@ -23,7 +23,8 @@ $_MODULE['<{ps_accounts}prestashop>ps_accounts_40047b296fb8a4952e0512c7184e1ca3'
 $_MODULE['<{ps_accounts}prestashop>ps_accounts_aa8c92c02e922a0fff679d9f66fce2d0'] = 'Link your store to your PrestaShop account to activate and manage your subscriptions in your \' . \'back office. Do not uninstall this module if you have a current subscription.';
 $_MODULE['<{ps_accounts}prestashop>ps_accounts_05eeaea4d4c380b44bbcca3b1341f811'] = 'This action will prevent immediately your PrestaShop services and Community services from \' . \'working as they are using PrestaShop Accounts module for authentication.';
 $_MODULE['<{ps_accounts}prestashop>adminajaxpsaccountscontroller_a6589b17d51617df13a46421dc86e004'] = 'Action required: confirm your store URL';
-$_MODULE['<{ps_accounts}prestashop>adminajaxpsaccountscontroller_950c32d1a4f7f717bb4b738cbbc54fe2'] = 'We\'ve noticed that your store\'s URL no longer matches the one registered in your PrestaShop Account. For your services to function properly, you must either confirm this change or create a new identity for your store.';
+$_MODULE['<{ps_accounts}prestashop>adminajaxpsaccountscontroller_97c826995e093d19f3c940c389515195'] = 'We\'ve noticed that your store\'s URL no longer matches the one registered in your PrestaShop Account.';
+$_MODULE['<{ps_accounts}prestashop>adminajaxpsaccountscontroller_33fba3aba5e5d575db9f041232e64d2b'] = 'For your services to function properly, you must either confirm this change or create a new identity for your store.';
 $_MODULE['<{ps_accounts}prestashop>adminajaxpsaccountscontroller_bcabe16a516e2025713ad5af0adfd49a'] = 'Current store URL';
 $_MODULE['<{ps_accounts}prestashop>adminajaxpsaccountscontroller_5181e6b2ae79016706b1d18380a8059d'] = 'URL registered in PrestaShop Account';
 $_MODULE['<{ps_accounts}prestashop>adminajaxpsaccountscontroller_0dd9a339c52287eaa3280fb956a07324'] = 'Review settings';
