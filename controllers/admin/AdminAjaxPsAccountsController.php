@@ -185,21 +185,17 @@ class AdminAjaxPsAccountsController extends \ModuleAdminController
     .acc-btn-warning
     {
         width: max-content !important;
-        color: #fff !important;
-        background-color: #fbbb22 !important;
-        border-color: #fbb309 !important;
+        color: #1d1d1b !important;
+        background-color: #FFF5E5 !important;
+        border-color: #ffb000 !important;
     }
     .acc-btn-warning:hover
     {
-        color: #fff !important;
-        background-color: #e6a304 !important;
-        border-color: #c38a04 !important;
+        background-color: #ffeccc !important;
     }
     .acc-btn-warning:focus, .acc-btn-warning.focus
     {
-        color: #fff !important;
-        background-color: #e6a304 !important;
-        border-color: #c38a04 !important;
+        background-color: #ffeccc !important;
     }
     @media(max-width: 768px)
     {
@@ -232,13 +228,13 @@ class AdminAjaxPsAccountsController extends \ModuleAdminController
     }
     .acc-alert-warning
     {
-        background-color: #fffbd3 !important;
+        background-color: #FFF5E5 !important;
         position: relative !important;
         padding: 16px 15px 16px 56px !important;
         font-size: 14px !important;
-        border: solid 1px #fab000 !important;
+        border: solid 1px #ffb000 !important;
         border-radius: 8px !important;
-        color: #363a41 !important;
+        color: #1d1d1b !important;
     }
 </style>
 <div class="alert alert-warning acc-alert acc-alert-warning acc-flex">
