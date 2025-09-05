@@ -52,8 +52,8 @@ class UpgradeService
      */
     public function setAndNotifyVersionUpgrade($version = \Ps_accounts::VERSION)
     {
-        if ($this->getRegisteredVersion() !== $version) {
-            $this->repository->updateLastUpgrade($version);
+        if (version_compare($version, $this->getRegisteredVersion(), '>')) {
+            $this->setVersion($version);
 
             // TODO: send segment event ??
         }

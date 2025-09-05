@@ -128,14 +128,14 @@ class MigrateOrCreateIdentityV8Handler
 
         // FIXME: shouldn't this condition be a specific flag
         if (!$shopUuid || version_compare($fromVersion, '8', '>=')) {
-            //$this->upgradeService->setVersion();
-
             $this->commandBus->handle(new CreateIdentityCommand(
                 $command->shopId,
                 false,
                 $command->origin,
                 $command->source
             ));
+
+            $this->upgradeService->setAndNotifyVersionUpgrade();
 
             return;
         }
@@ -172,7 +172,7 @@ class MigrateOrCreateIdentityV8Handler
 
         $this->statusManager->invalidateCache();
 
-        //$this->upgradeService->setVersion();
+        $this->upgradeService->setAndNotifyVersionUpgrade();
     }
 
     /**
