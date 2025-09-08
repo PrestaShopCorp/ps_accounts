@@ -244,8 +244,12 @@ class AdminOAuth2PsAccountsController extends \ModuleAdminController
      */
     protected function getSession()
     {
-        //return $this->module->getSession();
-        return $this->module->getService(ConfigurationStorageSession::class);
+        if (\Context::getContext()->employee->id) {
+            // FIXME: fallback only for setPointOfContact
+            return $this->module->getService(ConfigurationStorageSession::class);
+        }
+
+        return $this->module->getSession();
     }
 
     /**
