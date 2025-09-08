@@ -47,7 +47,7 @@ class ConfigurationStorageSession
      */
     public function getId()
     {
-        return \Context::getContext()->cookie->id_session;
+        return \Context::getContext()->cookie->id_fallback_session;
     }
 
     /**
@@ -57,7 +57,7 @@ class ConfigurationStorageSession
      */
     public function setId($id)
     {
-        \Context::getContext()->cookie->id_session = $id;
+        \Context::getContext()->cookie->id_fallback_session = $id;
     }
 
     /**
