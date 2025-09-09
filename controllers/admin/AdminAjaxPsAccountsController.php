@@ -229,7 +229,7 @@ class AdminAjaxPsAccountsController extends \ModuleAdminController
     }
 
     /**
-     * @return array|string[]
+     * @return array|array[]
      *
      * @throws UnknownStatusException
      */
@@ -288,7 +288,7 @@ class AdminAjaxPsAccountsController extends \ModuleAdminController
     }
 
     /**
-     * @return array|string[]
+     * @return array|array[]
      */
     protected function getNotificationsUpgradeFailed()
     {
