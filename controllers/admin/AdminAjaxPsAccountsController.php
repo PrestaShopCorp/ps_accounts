@@ -46,7 +46,7 @@ class AdminAjaxPsAccountsController extends \ModuleAdminController
     /**
      * @var string
      */
-    private  $alertCss = '
+    private $alertCss = '
 <style>
     .acc-flex
     {
