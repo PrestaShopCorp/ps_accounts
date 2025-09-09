@@ -46,7 +46,7 @@ class AdminAjaxPsAccountsController extends \ModuleAdminController
     /**
      * @var string
      */
-    protected $aletrtCss = '
+    private  $alertCss = '
 <style>
     .acc-flex
     {
@@ -268,7 +268,7 @@ class AdminAjaxPsAccountsController extends \ModuleAdminController
         ]);
 
         return [[
-            'html' => $this->aletrtCss . '
+            'html' => $this->alertCss . '
 <div class="alert alert-warning acc-alert acc-alert-warning acc-flex">
     <div class="acc-flex-grow-1">
         <div class="acc-alert-title">
@@ -307,7 +307,7 @@ class AdminAjaxPsAccountsController extends \ModuleAdminController
         $resetLink = $link->getAdminLink('AdminModules');
 
         return [[
-            'html' => $this->aletrtCss . '
+            'html' => $this->alertCss . '
 <div class="alert alert-danger acc-alert acc-alert-danger acc-flex">
     <div class="acc-flex-grow-1">
         <div class="acc-alert-title">
