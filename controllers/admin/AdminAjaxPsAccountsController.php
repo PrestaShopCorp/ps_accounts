@@ -216,7 +216,7 @@ class AdminAjaxPsAccountsController extends \ModuleAdminController
         try {
             $notifications = array_merge(
                 $this->getNotificationsUpgradeFailed(),
-                $this->getNotificationsUrlMismatch(),
+                $this->getNotificationsUrlMismatch()
             );
         } catch (\Exception $e) {
             Logger::getInstance()->error($e->getMessage());
@@ -300,7 +300,12 @@ class AdminAjaxPsAccountsController extends \ModuleAdminController
             return [];
         }
 
-        $resetLink = '';
+        // TODO
+        /** @var AccountsLink $link */
+        $link = $this->module->getService(AccountsLink::class);
+        $resetLink = $link->getAdminLink('AdminModules', true, [], [
+            'configure' => 'ps_accounts',
+        ]);
 
         return [[
             'html' =>
