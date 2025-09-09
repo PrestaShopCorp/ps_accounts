@@ -304,7 +304,7 @@ class AdminAjaxPsAccountsController extends \ModuleAdminController
 
         /** @var AccountsLink $link */
         $link = $this->module->getService(AccountsLink::class);
-        $resetLink = $link->getAdminLink('AdminModules');
+        $moduleManagerLink = $link->getAdminLink('AdminModules');
 
         return [[
             'html' => $this->alertCss . '
@@ -316,7 +316,7 @@ class AdminAjaxPsAccountsController extends \ModuleAdminController
         <p>' . $this->module->l('Please reset or reinstall the module') . '</p>
     </div>
     <div>
-        <button class="btn danger btn-outline-danger acc-btn btn-danger acc-btn-danger" onclick="document.location=\'' . $resetLink . '\'">
+        <button class="btn danger btn-outline-danger acc-btn btn-danger acc-btn-danger" onclick="document.location=\'' . $moduleManagerLink . '\'">
             ' . $this->module->l('Module manager') . '
         </button>
     </div>
