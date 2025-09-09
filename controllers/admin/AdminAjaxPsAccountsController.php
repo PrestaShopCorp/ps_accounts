@@ -298,7 +298,8 @@ class AdminAjaxPsAccountsController extends \ModuleAdminController
         /** @var UpgradeService $upgradeService */
         $upgradeService = $this->module->getService(UpgradeService::class);
 
-        if ($upgradeService->getCoreRegisteredVersion() === \Ps_accounts::VERSION) {
+        if ($upgradeService->getCoreRegisteredVersion() === \Ps_accounts::VERSION &&
+            $upgradeService->getRegisteredVersion() === \Ps_accounts::VERSION) {
             return [];
         }
 
