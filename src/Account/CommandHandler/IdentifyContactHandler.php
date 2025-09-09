@@ -21,6 +21,7 @@
 namespace PrestaShop\Module\PsAccounts\Account\CommandHandler;
 
 use PrestaShop\Module\PsAccounts\Account\Command\IdentifyContactCommand;
+use PrestaShop\Module\PsAccounts\Account\Session\Firebase\OwnerSession;
 use PrestaShop\Module\PsAccounts\Account\Session\ShopSession;
 use PrestaShop\Module\PsAccounts\Account\StatusManager;
 use PrestaShop\Module\PsAccounts\Service\Accounts\AccountsException;
@@ -44,18 +45,26 @@ class IdentifyContactHandler
     private $shopSession;
 
     /**
+     * @var OwnerSession
+     */
+    private $ownerSession;
+
+    /**
      * @param AccountsService $accountsService
      * @param StatusManager $statusManager
      * @param ShopSession $shopSession
+     * @param OwnerSession $ownerSession
      */
     public function __construct(
         AccountsService $accountsService,
         StatusManager $statusManager,
-        ShopSession $shopSession
+        ShopSession $shopSession,
+        OwnerSession $ownerSession
     ) {
         $this->accountsService = $accountsService;
         $this->statusManager = $statusManager;
         $this->shopSession = $shopSession;
+        $this->ownerSession = $ownerSession;
     }
 
     /**
@@ -78,6 +87,9 @@ class IdentifyContactHandler
             $command->accessToken->access_token,
             $command->source
         );
+
+        // cleanup user token
+        $this->ownerSession->cleanup();
 
         // optimistic update cached status
         $this->statusManager->setPointOfContactUuid($command->userInfo->sub);
