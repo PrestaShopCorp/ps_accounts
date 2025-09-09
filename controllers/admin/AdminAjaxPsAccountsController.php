@@ -43,6 +43,9 @@ class AdminAjaxPsAccountsController extends \ModuleAdminController
      */
     public $module;
 
+    /**
+     * @var string
+     */
     protected $aletrtCss = '
 <style>
     .acc-flex
