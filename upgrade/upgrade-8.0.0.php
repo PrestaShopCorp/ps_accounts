@@ -17,37 +17,37 @@ function upgrade_module_8_0_0($module)
 {
     require __DIR__ . '/../src/enforce_autoload.php';
 
-    try {
-        $module->unregisterHook('actionObjectShopDeleteBefore');
-        $module->unregisterHook('actionObjectShopUpdateAfter');
-        $module->unregisterHook('actionObjectShopUrlUpdateAfter');
-        $module->unregisterHook('actionShopAccountLinkAfter');
-        $module->unregisterHook('actionShopAccountUnlinkAfter');
-        $module->unregisterHook('displayAccountUpdateWarning');
-
-        $module->registerHook($module->getHooksToRegister());
-
-        $tabId = \Tab::getIdFromClassName('AdminDebugPsAccounts');
-        if ($tabId) {
-            $tab = new \Tab($tabId);
-            $tab->delete();
-        }
-
-        $installer = new PrestaShop\Module\PsAccounts\Module\Install($module, Db::getInstance());
-        $installer->installInMenu();
-
-        /** @var CommandBus $commandBus */
-        $commandBus = $module->getService(CommandBus::class);
-
-        $commandBus->handle(new MigrateOrCreateIdentitiesV8Command(
-            'ps_accounts',
-            AccountsService::ORIGIN_UPGRADE
-        ));
-    } catch (\Exception $e) {
-        Logger::getInstance()->error('error during upgrade : ' . $e);
-    } catch (\Throwable $e) {
-        Logger::getInstance()->error('error during upgrade : ' . $e);
-    }
+//    try {
+//        $module->unregisterHook('actionObjectShopDeleteBefore');
+//        $module->unregisterHook('actionObjectShopUpdateAfter');
+//        $module->unregisterHook('actionObjectShopUrlUpdateAfter');
+//        $module->unregisterHook('actionShopAccountLinkAfter');
+//        $module->unregisterHook('actionShopAccountUnlinkAfter');
+//        $module->unregisterHook('displayAccountUpdateWarning');
+//
+//        $module->registerHook($module->getHooksToRegister());
+//
+//        $tabId = \Tab::getIdFromClassName('AdminDebugPsAccounts');
+//        if ($tabId) {
+//            $tab = new \Tab($tabId);
+//            $tab->delete();
+//        }
+//
+//        $installer = new PrestaShop\Module\PsAccounts\Module\Install($module, Db::getInstance());
+//        $installer->installInMenu();
+//
+//        /** @var CommandBus $commandBus */
+//        $commandBus = $module->getService(CommandBus::class);
+//
+//        $commandBus->handle(new MigrateOrCreateIdentitiesV8Command(
+//            'ps_accounts',
+//            AccountsService::ORIGIN_UPGRADE
+//        ));
+//    } catch (\Exception $e) {
+//        Logger::getInstance()->error('error during upgrade : ' . $e);
+//    } catch (\Throwable $e) {
+//        Logger::getInstance()->error('error during upgrade : ' . $e);
+//    }
 
     return true;
 }

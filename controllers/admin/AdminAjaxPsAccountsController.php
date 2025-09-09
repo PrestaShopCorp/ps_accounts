@@ -43,6 +43,108 @@ class AdminAjaxPsAccountsController extends \ModuleAdminController
      */
     public $module;
 
+    protected $aletrtCss = '
+<style>
+    .acc-flex
+    {
+        display: flex !important;
+    }
+    .acc-btn
+    {
+        display: inline-block !important;
+        text-align: center !important;
+        vertical-align: middle !important;
+        user-select: none !important;
+        border: 1px solid transparent !important;
+        padding: .5rem 1rem !important;
+        font-size: .875rem !important;
+        line-height: 1.5 !important;
+        font-weight: 600 !important;
+        border-width: 1px !important;
+        transition: color .15s ease-in-out,background-color .15s ease-in-out,border-color .15s ease-in-out,box-shadow .15s ease-in-out !important;
+        cursor: pointer !important;
+    }
+    .acc-btn-warning
+    {
+        width: max-content !important;
+        color: #1d1d1b !important;
+        background-color: #FFF5E5 !important;
+        border-color: #ffb000 !important;
+    }
+    .acc-btn-warning:hover
+    {
+        background-color: #ffeccc !important;
+    }
+    .acc-btn-warning:focus, .acc-btn-warning.focus
+    {
+        background-color: #ffeccc !important;
+    }
+    .acc-btn-danger
+    {
+        width: max-content !important;
+        color: #1d1d1b !important;
+        background-color: #ffe4e6 !important;
+        border-color: #ba151a !important;
+    }
+    .acc-btn-danger:hover
+    {
+        background-color: #fdbfbf !important;
+    }
+    .acc-btn-danger:focus, .acc-btn-danger.focus
+    {
+        background-color: #fdbfbf !important;
+    }
+    @media(max-width: 768px)
+    {
+        .acc-flex {
+            flex-direction: column !important;
+        }
+        .acc-btn-warning,
+        .acc-btn-danger
+        {
+            margin-top: 1em !important;
+        }
+    }
+    .acc-flex-grow-1
+    {
+        -webkit-box-flex: 1 !important;
+        -ms-flex-positive: 1 !important;
+        flex-grow: 1 !important;
+    }
+    .acc-alert-title
+    {
+        font-weight: bold !important;
+        margin-bottom: .9375rem !important;
+    }
+    .acc-list
+    {
+        list-style-type: none;
+        padding-left: 0 !important;
+    }
+    .acc-alert
+    {
+    }
+    .acc-alert-warning
+    {
+        background-color: #FFF5E5 !important;
+        position: relative !important;
+        padding: 16px 15px 16px 56px !important;
+        font-size: 14px !important;
+        border: solid 1px #ffb000 !important;
+        color: #1d1d1b !important;
+    }
+    .acc-alert-danger
+    {
+        background-color: #ffe4e6 !important;
+        position: relative !important;
+        padding: 16px 15px 16px 56px !important;
+        font-size: 14px !important;
+        border: solid 1px #ba151a !important;
+        color: #1d1d1b !important;
+    }
+</style>
+';
+
     /**
      * AdminAjaxPsAccountsController constructor.
      *
@@ -114,7 +216,7 @@ class AdminAjaxPsAccountsController extends \ModuleAdminController
         try {
             $notifications = array_merge(
                 $this->getNotificationsUpgradeFailed(),
-                $this->getNotificationsUrlMismatch()
+                $this->getNotificationsUrlMismatch(),
             );
         } catch (\Exception $e) {
             Logger::getInstance()->error($e->getMessage());
@@ -122,7 +224,7 @@ class AdminAjaxPsAccountsController extends \ModuleAdminController
             Logger::getInstance()->error($e->getMessage());
         }
         $this->ajaxRender(
-            (string) json_encode($notifications ? [$notifications] : [])
+            (string) json_encode($notifications ?: [])
         );
     }
 
@@ -162,82 +264,9 @@ class AdminAjaxPsAccountsController extends \ModuleAdminController
             'configure' => 'ps_accounts',
         ]);
 
-        return [
-            'html' => '
-<style>
-    .acc-flex
-    {
-        display: flex !important;
-    }
-    .acc-btn
-    {
-        display: inline-block !important;
-        text-align: center !important;
-        vertical-align: middle !important;
-        user-select: none !important;
-        border: 1px solid transparent !important;
-        padding: .5rem 1rem !important;
-        font-size: .875rem !important;
-        line-height: 1.5 !important;
-        font-weight: 600 !important;
-        border-width: 1px !important;
-        transition: color .15s ease-in-out,background-color .15s ease-in-out,border-color .15s ease-in-out,box-shadow .15s ease-in-out !important;
-        cursor: pointer !important;
-    }
-    .acc-btn-warning
-    {
-        width: max-content !important;
-        color: #1d1d1b !important;
-        background-color: #FFF5E5 !important;
-        border-color: #ffb000 !important;
-    }
-    .acc-btn-warning:hover
-    {
-        background-color: #ffeccc !important;
-    }
-    .acc-btn-warning:focus, .acc-btn-warning.focus
-    {
-        background-color: #ffeccc !important;
-    }
-    @media(max-width: 768px)
-    {
-        .acc-flex {
-            flex-direction: column !important;
-        }
-        .acc-btn-warning
-        {
-            margin-top: 1em !important;
-        }
-    }
-    .acc-flex-grow-1
-    {
-        -webkit-box-flex: 1 !important;
-        -ms-flex-positive: 1 !important;
-        flex-grow: 1 !important;
-    }
-    .acc-alert-title
-    {
-        font-weight: bold !important;
-        margin-bottom: .9375rem !important;
-    }
-    .acc-list
-    {
-        list-style-type: none;
-        padding-left: 0 !important;
-    }
-    .acc-alert
-    {
-    }
-    .acc-alert-warning
-    {
-        background-color: #FFF5E5 !important;
-        position: relative !important;
-        padding: 16px 15px 16px 56px !important;
-        font-size: 14px !important;
-        border: solid 1px #ffb000 !important;
-        color: #1d1d1b !important;
-    }
-</style>
+        return [[
+            'html' =>
+                $this->aletrtCss . '
 <div class="alert alert-warning acc-alert acc-alert-warning acc-flex">
     <div class="acc-flex-grow-1">
         <div class="acc-alert-title">
@@ -255,9 +284,8 @@ class AdminAjaxPsAccountsController extends \ModuleAdminController
         </button>
     </div>
 </div>
-
 ',
-        ];
+        ]];
     }
 
     /**
@@ -272,15 +300,25 @@ class AdminAjaxPsAccountsController extends \ModuleAdminController
             return [];
         }
 
-        return [
-            'html' => '
-<div class="alert alert-danger alert-dismissible">
-    <button type="button" class="close" data-dismiss="alert">×</button>
-    <strong>' . $this->module->l('Warning!') . '</strong> ' . $this->module->l('PrestaShop Account module wasn\'t upgraded properly.') . '
-    <br />
-    ' . $this->module->l('Please reset the module') . '
+        $resetLink = '';
+
+        return [[
+            'html' =>
+                $this->aletrtCss . '
+<div class="alert alert-danger acc-alert acc-alert-danger acc-flex">
+    <div class="acc-flex-grow-1">
+        <div class="acc-alert-title">
+            ' . $this->module->l('PrestaShop Account module wasn\'t upgraded properly.') . '
+        </div>
+        <p>' . $this->module->l('Please reset the module') . '</p>
+    </div>
+    <div>
+        <button class="btn danger btn-outline-danger acc-btn btn-danger acc-btn-danger" onclick="document.location=\'' . $resetLink . '\'">
+            ' . $this->module->l('Reset module') . '
+        </button>
+    </div>
 </div>
 ',
-        ];
+        ]];
     }
 }
