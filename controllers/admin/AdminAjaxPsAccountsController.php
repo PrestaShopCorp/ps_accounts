@@ -265,8 +265,7 @@ class AdminAjaxPsAccountsController extends \ModuleAdminController
         ]);
 
         return [[
-            'html' =>
-                $this->aletrtCss . '
+            'html' => $this->aletrtCss . '
 <div class="alert alert-warning acc-alert acc-alert-warning acc-flex">
     <div class="acc-flex-grow-1">
         <div class="acc-alert-title">
@@ -300,26 +299,22 @@ class AdminAjaxPsAccountsController extends \ModuleAdminController
             return [];
         }
 
-        // TODO
         /** @var AccountsLink $link */
         $link = $this->module->getService(AccountsLink::class);
-        $resetLink = $link->getAdminLink('AdminModules', true, [], [
-            'configure' => 'ps_accounts',
-        ]);
+        $resetLink = $link->getAdminLink('AdminModules');
 
         return [[
-            'html' =>
-                $this->aletrtCss . '
+            'html' => $this->aletrtCss . '
 <div class="alert alert-danger acc-alert acc-alert-danger acc-flex">
     <div class="acc-flex-grow-1">
         <div class="acc-alert-title">
             ' . $this->module->l('PrestaShop Account module wasn\'t upgraded properly.') . '
         </div>
-        <p>' . $this->module->l('Please reset the module') . '</p>
+        <p>' . $this->module->l('Please reset or reinstall the module') . '</p>
     </div>
     <div>
         <button class="btn danger btn-outline-danger acc-btn btn-danger acc-btn-danger" onclick="document.location=\'' . $resetLink . '\'">
-            ' . $this->module->l('Reset module') . '
+            ' . $this->module->l('Module manager') . '
         </button>
     </div>
 </div>
