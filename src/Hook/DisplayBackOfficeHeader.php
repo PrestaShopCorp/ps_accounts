@@ -48,8 +48,9 @@ class DisplayBackOfficeHeader extends Hook
 //            }
 
             $this->module->getContext()->controller->addJs(
-                $this->module->getLocalPath() . 'views/js/notifications.js?' .
-                'ctx=' . urlencode($psAccountsService->getAdminAjaxUrl() . '&action=getNotifications')
+                $this->module->getLocalPath() . 'views/js/notifications.js' .
+                '?ctx=' . urlencode($psAccountsService->getAdminAjaxUrl() . '&action=getNotifications') .
+                '&v=' . urlencode($this->module->version)
             );
         } catch (\Exception $e) {
         } catch (\Throwable $e) {

@@ -25,6 +25,7 @@ use PrestaShop\Module\PsAccounts\Account\Session\Firebase\ShopSession;
 use PrestaShop\Module\PsAccounts\Account\StatusManager;
 use PrestaShop\Module\PsAccounts\AccountLogin\OAuth2Session;
 use PrestaShop\Module\PsAccounts\Adapter\Link as AccountsLink;
+use PrestaShop\Module\PsAccounts\Installer\Installer;
 use PrestaShop\Module\PsAccounts\Log\Logger;
 use PrestaShop\Module\PsAccounts\Polyfill\Traits\Controller\AjaxRender;
 use PrestaShop\Module\PsAccounts\Provider\ShopProvider;
@@ -295,17 +296,20 @@ class AdminAjaxPsAccountsController extends \ModuleAdminController
      */
     protected function getNotificationsUpgradeFailed()
     {
+        /** @var StatusManager $statusManager */
+        $statusManager = $this->module->getService(StatusManager::class);
+
         /** @var UpgradeService $upgradeService */
         $upgradeService = $this->module->getService(UpgradeService::class);
 
         if ($upgradeService->getCoreRegisteredVersion() === \Ps_accounts::VERSION &&
-            $upgradeService->getRegisteredVersion() === \Ps_accounts::VERSION) {
+            (!$statusManager->identityCreated() || $upgradeService->getRegisteredVersion() === \Ps_accounts::VERSION)) {
             return [];
         }
 
         /** @var AccountsLink $link */
         $link = $this->module->getService(AccountsLink::class);
-        $moduleManagerLink = $link->getAdminLink('AdminModules');
+        $resetLink = $link->getAdminLink('AdminAjaxPsAccounts', true, [], ['ajax' => 1, 'action' => 'resetModule']);
 
         return [[
             'html' => $this->alertCss . '
@@ -317,12 +321,35 @@ class AdminAjaxPsAccountsController extends \ModuleAdminController
         <p>' . $this->module->l('Please reset or reinstall the module') . '</p>
     </div>
     <div>
-        <button class="btn danger btn-outline-danger acc-btn btn-danger acc-btn-danger" onclick="document.location=\'' . $moduleManagerLink . '\'">
-            ' . $this->module->l('Module manager') . '
+        <button class="btn danger btn-outline-danger acc-btn btn-danger acc-btn-danger"
+            onclick="fetch(\'' . $resetLink . '\').then(response => {document.location.reload();})">
+            ' . $this->module->l('Reset module') . '
         </button>
     </div>
 </div>
 ',
         ]];
+    }
+
+    /**
+     * @return void
+     */
+    public function ajaxProcessResetModule()
+    {
+        $status = false;
+        try {
+            /** @var Installer $installer */
+            $installer = $this->module->getService(Installer::class);
+            $status = $installer->resetModule('ps_accounts');
+        } catch (\Exception $e) {
+            Logger::getInstance()->error($e->getMessage());
+        } catch (\Throwable $e) {
+            Logger::getInstance()->error($e->getMessage());
+        }
+        $this->ajaxRender(
+            (string) json_encode([
+                'status' => $status,
+            ])
+        );
     }
 }
