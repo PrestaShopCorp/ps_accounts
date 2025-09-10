@@ -71,7 +71,6 @@ Media::addJsDef([
 
 return $this->display(__FILE__, 'views/templates/admin/app.tpl');
 ```
-Alternatively you can still use : [PrestaShop Accounts Installer](http://github.com/PrestaShopCorp/prestashop-accounts-installer) for more details on how to setup Installer.
 
 ### Load and init the component on your page
 
