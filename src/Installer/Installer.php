@@ -92,6 +92,36 @@ class Installer
 
     /**
      * @param string $module
+     * @param bool $upgrade
+     *
+     * @return bool
+     *
+     * @throws \Exception
+     */
+    public function resetModule($module, $upgrade = true)
+    {
+        if (false === $this->shopContext->isShop17()) {
+            return true;
+        }
+
+        $moduleManager = ModuleManagerBuilder::getInstance()->build();
+
+        if (false === $upgrade && true === $moduleManager->isInstalled($module)) {
+            return true;
+        }
+
+        // install or upgrade module
+        $status = $moduleManager->reset($module);
+
+        if (false === $status) {
+            SentryService::capture(new \Exception('Module ' . $module . " can't be reset"));
+        }
+
+        return $status;
+    }
+
+    /**
+     * @param string $module
      * @param string $psxName
      *
      * @return string|null
