@@ -75,7 +75,7 @@ Alternatively you can still use : [PrestaShop Accounts Installer](http://github.
 
 ### Load and init the component on your page
 
-For detailed usage you can follow the component's documentation : [prestashop_accounts_vue_components](https://github.com/PrestaShopCorp/prestashop_accounts_vue_components)
+For detailed usage you can follow the component's documentation : [vue-components](https://github.com/PrestaShopCorp/accounts/tree/main/packages/vue-components#readme)
 
 ## How to retrieve tokens with PsAccounts
 
