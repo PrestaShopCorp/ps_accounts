@@ -23,7 +23,7 @@ namespace PrestaShop\Module\PsAccounts\Installer;
 use Module;
 use PrestaShop\Module\PsAccounts\Adapter\Link;
 use PrestaShop\Module\PsAccounts\Context\ShopContext;
-use PrestaShop\Module\PsAccounts\Service\SentryService;
+use PrestaShop\Module\PsAccounts\Log\Logger;
 use PrestaShop\PrestaShop\Adapter\SymfonyContainer;
 use PrestaShop\PrestaShop\Core\Addon\Module\ModuleManagerBuilder;
 use Tools;
@@ -84,7 +84,7 @@ class Installer
         $moduleIsInstalled = $moduleManager->install($module);
 
         if (false === $moduleIsInstalled) {
-            SentryService::capture(new \Exception('Module ' . $module . " can't be installed"));
+            Logger::getInstance()->error('Module ' . $module . " can't be installed");
         }
 
         return $moduleIsInstalled;
@@ -92,13 +92,12 @@ class Installer
 
     /**
      * @param string $module
-     * @param bool $upgrade
      *
      * @return bool
      *
      * @throws \Exception
      */
-    public function resetModule($module, $upgrade = true)
+    public function resetModule($module)
     {
         if (false === $this->shopContext->isShop17()) {
             return true;
@@ -106,15 +105,10 @@ class Installer
 
         $moduleManager = ModuleManagerBuilder::getInstance()->build();
 
-        if (false === $upgrade && true === $moduleManager->isInstalled($module)) {
-            return true;
-        }
-
-        // install or upgrade module
         $status = $moduleManager->reset($module);
 
         if (false === $status) {
-            SentryService::capture(new \Exception('Module ' . $module . " can't be reset"));
+            Logger::getInstance()->error('Module ' . $module . " can't be reset");
         }
 
         return $status;
