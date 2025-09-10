@@ -12,7 +12,7 @@ The module **ps_accounts** is the interface between your module and PrestaShop's
 - Providing tokens to communicate safely with PrestaShop services;
 - Synchronize basic informations about the shops (ex: shop URLs, name, ...).
 
-This module is a basis for other modules using PrestaShop services.
+This module is a base component for other modules using PrestaShop services.
 
 # Installation
 
