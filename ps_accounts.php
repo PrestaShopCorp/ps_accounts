@@ -53,18 +53,6 @@ class Ps_accounts extends Module
      */
     private $customHooks = [
         [
-            'name' => 'actionShopAccountLinkAfter',
-            'title' => 'Shop linked event',
-            'description' => 'Shop linked with PrestaShop Account',
-            'position' => 1,
-        ],
-        [
-            'name' => 'actionShopAccountUnlinkAfter',
-            'title' => 'Shop unlinked event',
-            'description' => 'Shop unlinked with PrestaShop Account',
-            'position' => 1,
-        ],
-        [
             'name' => 'actionShopAccessTokenRefreshAfter',
             'title' => 'Shop access token refreshed event',
             'description' => 'Shop access token refreshed event',

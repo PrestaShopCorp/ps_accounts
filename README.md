@@ -27,6 +27,7 @@ We aims to follow partially the Prestashop compatibility charts
 
 | ps_accounts version  | Prestashop Version   | PHP Version       |
 |----------------------|----------------------|-------------------|
+| ^8.0.0               | \>=1.6 && <= 9.x     | PHP 5.6 - 8       |
 | ^7.0.9               | \>=1.6 && <= 9.x     | PHP 5.6 - 8       |
 | 7.x                  | \>=1.6 && <9.x       | PHP 5.6 - 8       |
 | ~~6.x (deprecated)~~ | ~~\>=8.0.0~~         | ~~PHP 7.2 - 8~~   |
@@ -216,8 +217,6 @@ Here are listed custom hooks provided with this module:
 
 | hook                              | params           | description                                  |
 |-----------------------------------|------------------|----------------------------------------------|
-| actionShopAccountLinkAfter        | shopId, shopUuid | Triggered after link shop acknowledged       |
-| actionShopAccountUnlinkAfter      | shopId, shopUuid | Triggered after unlink shop acknowledged     |
 | actionShopAccessTokenRefreshAfter | token            | Triggered after OAuth access token refreshed |
 
 # Building the module locally
