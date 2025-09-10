@@ -296,11 +296,14 @@ class AdminAjaxPsAccountsController extends \ModuleAdminController
      */
     protected function getNotificationsUpgradeFailed()
     {
+        /** @var StatusManager $statusManager */
+        $statusManager = $this->module->getService(StatusManager::class);
+
         /** @var UpgradeService $upgradeService */
         $upgradeService = $this->module->getService(UpgradeService::class);
 
         if ($upgradeService->getCoreRegisteredVersion() === \Ps_accounts::VERSION &&
-            $upgradeService->getRegisteredVersion() === \Ps_accounts::VERSION) {
+            (!$statusManager->identityCreated() || $upgradeService->getRegisteredVersion() === \Ps_accounts::VERSION)) {
             return [];
         }
 
