@@ -18,28 +18,9 @@
  * @license   https://opensource.org/licenses/AFL-3.0 Academic Free License version 3.0
  */
 
-use PrestaShop\Module\PsAccounts\Account\Exception\RefreshTokenException;
-use PrestaShop\Module\PsAccounts\Account\Session\Firebase\ShopSession;
-use PrestaShop\Module\PsAccounts\Http\Controller\AbstractShopRestController;
-
-class ps_AccountsApiV1ShopTokenModuleFrontController extends AbstractShopRestController
+/**
+ * @deprecated starting nv8.0.0
+ */
+class ps_AccountsApiV1ShopTokenModuleFrontController
 {
-    /**
-     * @param Shop $shop
-     * @param array $payload
-     *
-     * @return string[]
-     *
-     * @throws RefreshTokenException
-     */
-    public function show(Shop $shop, array $payload)
-    {
-        /** @var ShopSession $shopSession */
-        $shopSession = $this->module->getService(ShopSession::class);
-
-        return [
-            'token' => (string) $shopSession->getValidToken(),
-            'refresh_token' => (string) $shopSession->getToken()->getRefreshToken(),
-        ];
-    }
 }
