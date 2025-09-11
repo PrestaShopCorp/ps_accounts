@@ -56,9 +56,11 @@ class RestoreIdentityCommand
     public $source;
 
     /**
-     * @param $cloudShopId
-     * @param $clientId
-     * @param $clientSecret
+     * @param string $cloudShopId
+     * @param string $clientId
+     * @param string $clientSecret
+     * @param string $origin
+     * @param string $source
      */
     public function __construct(
         $cloudShopId,
