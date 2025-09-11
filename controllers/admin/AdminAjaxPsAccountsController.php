@@ -322,8 +322,8 @@ class AdminAjaxPsAccountsController extends \ModuleAdminController
     </div>
     <div>
         <button class="btn danger btn-outline-danger acc-btn btn-danger acc-btn-danger"
-            onclick="fetch(\'' . $resetLink . '\').then(response => {document.location.reload();})">
-            ' . $this->module->l('Reset module') . '
+            onclick="this.innerHTML = \'' . $this->module->l('Resetting...') . '\'; fetch(\'' . $resetLink . '\').then(response => {this.innerHTML = \'' . $this->module->l('Reloading...') . '\'; document.location.reload();})">
+            ' . $this->module->l('Reset') . '
         </button>
     </div>
 </div>
