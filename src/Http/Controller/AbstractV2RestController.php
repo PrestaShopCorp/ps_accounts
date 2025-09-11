@@ -346,14 +346,6 @@ abstract class AbstractV2RestController extends ModuleFrontController
         return $method;
     }
 
-//    /**
-//     * @return bool
-//     */
-//    protected function displayMaintenancePage()
-//    {
-//        return false;
-//    }
-
     /**
      * @return true
      *
