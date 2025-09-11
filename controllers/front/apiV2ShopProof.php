@@ -25,6 +25,11 @@ use PrestaShop\Module\PsAccounts\Http\Controller\AbstractV2ShopRestController;
 class ps_AccountsApiV2ShopProofModuleFrontController extends AbstractV2ShopRestController
 {
     /**
+     * @var bool
+     */
+    protected $authenticated = true;
+
+    /**
      * @var ProofManager
      */
     private $proofManager;
@@ -35,14 +40,9 @@ class ps_AccountsApiV2ShopProofModuleFrontController extends AbstractV2ShopRestC
     private $statusManager;
 
     /**
-     * @var bool
-     */
-    protected $authenticated = true;
-
-    /**
      * @return array
      */
-    protected function getScope()
+    public function getScope()
     {
         return [
             'shop.proof.read',
@@ -52,7 +52,7 @@ class ps_AccountsApiV2ShopProofModuleFrontController extends AbstractV2ShopRestC
     /**
      * @return array
      */
-    protected function getAudience()
+    public function getAudience()
     {
         return [
             'ps_accounts/' . $this->statusManager->getCloudShopId(),

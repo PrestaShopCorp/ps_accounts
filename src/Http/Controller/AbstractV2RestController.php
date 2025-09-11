@@ -88,6 +88,20 @@ abstract class AbstractV2RestController extends ModuleFrontController
     }
 
     /**
+     * Controller level scopes
+     *
+     * @return array
+     */
+    abstract public function getScope();
+
+    /**
+     * Controller level audiences
+     *
+     * @return array
+     */
+    abstract public function getAudience();
+
+    /**
      * @return void
      */
     public function initContent()
@@ -267,26 +281,6 @@ abstract class AbstractV2RestController extends ModuleFrontController
         /** @var Context $context */
         $context = $this->module->getService('ps_accounts.context');
         $context->shop = $shop;
-    }
-
-    /**
-     * Controller level scopes
-     *
-     * @return array
-     */
-    protected function getScope()
-    {
-        return [];
-    }
-
-    /**
-     * Controller level audiences
-     *
-     * @return array
-     */
-    protected function getAudience()
-    {
-        return [];
     }
 
     /**
