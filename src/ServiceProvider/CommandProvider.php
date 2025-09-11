@@ -25,6 +25,7 @@ use PrestaShop\Module\PsAccounts\Account\CommandHandler\CreateIdentityHandler;
 use PrestaShop\Module\PsAccounts\Account\CommandHandler\IdentifyContactHandler;
 use PrestaShop\Module\PsAccounts\Account\CommandHandler\MigrateOrCreateIdentitiesV8Handler;
 use PrestaShop\Module\PsAccounts\Account\CommandHandler\MigrateOrCreateIdentityV8Handler;
+use PrestaShop\Module\PsAccounts\Account\CommandHandler\RestoreIdentityHandler;
 use PrestaShop\Module\PsAccounts\Account\CommandHandler\VerifyIdentitiesHandler;
 use PrestaShop\Module\PsAccounts\Account\CommandHandler\VerifyIdentityHandler;
 use PrestaShop\Module\PsAccounts\Account\ProofManager;
@@ -99,6 +100,13 @@ class CommandProvider implements IServiceProvider
                 $container->get(ConfigurationRepository::class),
                 $container->get(CommandBus::class),
                 $container->get(UpgradeService::class)
+            );
+        });
+        $container->registerProvider(RestoreIdentityHandler::class, static function () use ($container) {
+            return new RestoreIdentityHandler(
+                $container->get(OAuth2Client::class),
+                $container->get(StatusManager::class),
+                $container->get(CommandBus::class)
             );
         });
     }
