@@ -21,8 +21,12 @@
 namespace PrestaShop\Module\PsAccounts\Http\Controller;
 
 use Context;
+use ModuleFrontController;
 use PrestaShop\Module\PsAccounts\Http\Exception\HttpException;
+use PrestaShop\Module\PsAccounts\Http\Exception\MethodNotAllowedException;
 use PrestaShop\Module\PsAccounts\Http\Exception\UnauthorizedException;
+use PrestaShop\Module\PsAccounts\Polyfill\Traits\Controller\AjaxRender;
+use PrestaShop\Module\PsAccounts\Repository\ConfigurationRepository;
 use PrestaShop\Module\PsAccounts\Service\OAuth2\OAuth2Service;
 use PrestaShop\Module\PsAccounts\Service\OAuth2\Token\Validator\Exception\AudienceInvalidException;
 use PrestaShop\Module\PsAccounts\Service\OAuth2\Token\Validator\Exception\ScopeInvalidException;
@@ -31,14 +35,34 @@ use PrestaShop\Module\PsAccounts\Service\OAuth2\Token\Validator\Exception\TokenE
 use PrestaShop\Module\PsAccounts\Service\OAuth2\Token\Validator\Exception\TokenInvalidException;
 use PrestaShop\Module\PsAccounts\Service\OAuth2\Token\Validator\Validator;
 use PrestaShop\Module\PsAccounts\Service\SentryService;
+use ReflectionException;
+use ReflectionParameter;
 
-abstract class AbstractV2RestController extends AbstractRestController
+abstract class AbstractV2RestController extends ModuleFrontController
 {
+    use AjaxRender;
+    use GetHeader;
+
     /**
      * Header to retrieve bearer from
      * FIXME: "Authorization" standard header might be filtered by server configuration
      */
     const HEADER_AUTHORIZATION = 'X-Prestashop-Authorization';
+
+    /**
+     * @var string
+     */
+    public $resourceId = 'id';
+
+    /**
+     * @var \Ps_accounts
+     */
+    public $module;
+
+    /**
+     * @var bool
+     */
+    protected $authenticated = true;
 
     /**
      * @var object
@@ -54,6 +78,10 @@ abstract class AbstractV2RestController extends AbstractRestController
     {
         parent::__construct();
 
+        $this->ajax = true;
+        $this->content_only = true;
+        $this->controller_type = 'module';
+
         $this->validator = new Validator(
             $this->module->getService(OAuth2Service::class)
         );
@@ -64,19 +92,20 @@ abstract class AbstractV2RestController extends AbstractRestController
      *
      * @return array
      */
-    protected function getScope()
-    {
-        return [];
-    }
+    abstract public function getScope();
 
     /**
      * Controller level audiences
      *
      * @return array
      */
-    protected function getAudience()
+    abstract public function getAudience();
+
+    /**
+     * @return void
+     */
+    public function initContent()
     {
-        return [];
     }
 
     /**
@@ -105,6 +134,153 @@ abstract class AbstractV2RestController extends AbstractRestController
         } catch (\Exception $e) {
             $this->handleException($e);
         }
+    }
+
+    /**
+     * @param array $response
+     * @param int|null $httpResponseCode
+     *
+     * @return void
+     *
+     * @throws \PrestaShopException
+     */
+    public function dieWithResponseJson(array $response, $httpResponseCode = null)
+    {
+        @ob_end_flush();
+        @ob_end_clean();
+
+        if (is_integer($httpResponseCode)) {
+            http_response_code($httpResponseCode);
+        }
+
+        header('Content-Type: text/json');
+
+        $this->ajaxRender((string) json_encode($response));
+    }
+
+    /**
+     * @param string $httpMethod
+     * @param array $payload
+     *
+     * @return void
+     *
+     * @throws \Exception
+     */
+    protected function dispatchVerb($httpMethod, array $payload)
+    {
+        $id = array_key_exists($this->resourceId, $payload)
+            ? $payload[$this->resourceId]
+            : null;
+
+        $statusCode = 200;
+
+        switch ($httpMethod) {
+            case 'GET':
+                $method = null !== $id
+                    ? RestMethod::SHOW
+                    : RestMethod::INDEX;
+                break;
+            case 'POST':
+                list($method, $statusCode) = null !== $id
+                    ? [RestMethod::UPDATE, $statusCode]
+                    : [RestMethod::STORE, 201];
+                break;
+            case 'PUT':
+            case 'PATCH':
+                $method = RestMethod::UPDATE;
+                break;
+            case 'DELETE':
+                $statusCode = 204;
+                $method = RestMethod::DELETE;
+                break;
+            default:
+                throw new \Exception('Invalid Method : ' . $httpMethod);
+        }
+
+        $this->dieWithResponseJson($this->invokeMethod($method, $id, $payload), $statusCode);
+    }
+
+    /**
+     * @param string $method
+     * @param mixed $id
+     * @param mixed $payload
+     *
+     * @return mixed
+     */
+    protected function invokeMethod($method, $id, $payload)
+    {
+        try {
+            $method = new \ReflectionMethod($this, $method);
+            $params = $method->getParameters();
+
+            $args = [];
+
+            if (null !== $id) {
+                $args[] = $this->buildResource($id);
+            }
+
+            if (null !== $payload) {
+                $args[] = $this->buildArg($payload, $params[1]);
+            }
+
+            return $method->invokeArgs($this, $args);
+        } catch (ReflectionException $e) {
+            throw new MethodNotAllowedException();
+        }
+    }
+
+    /**
+     * @param mixed $id
+     *
+     * @return mixed
+     */
+    protected function buildResource($id)
+    {
+        return $id;
+    }
+
+    /**
+     * @param array $payload
+     * @param ReflectionParameter $reflectionParam
+     *
+     * @return array|object
+     *
+     * @throws ReflectionException
+     */
+    protected function buildArg(array $payload, ReflectionParameter $reflectionParam)
+    {
+//        if ($reflectionParam->getType()->isBuiltin()) {
+//            return $payload;
+//        } else {
+//            // Instantiate DTO like value bag
+//            return $reflectionParam->getClass()->newInstance($payload);
+//        }
+        if ($reflectionParam->getClass()) {
+            // Instantiate DTO like value bag
+            return $reflectionParam->getClass()->newInstance($payload);
+        }
+
+        return $payload;
+    }
+
+    /**
+     * Force shop context
+     *
+     * @param \Shop $shop
+     *
+     * @return void
+     *
+     * @throws \Exception
+     */
+    protected function setContextShop(\Shop $shop)
+    {
+        /** @var ConfigurationRepository $conf */
+        $conf = $this->module->getService(ConfigurationRepository::class);
+        $conf->setShopId($shop->id);
+
+        /** @var Context $context */
+        $context = $this->module->getService('ps_accounts.context');
+        $context->shop = $shop;
     }
 
     /**
@@ -163,14 +339,6 @@ abstract class AbstractV2RestController extends AbstractRestController
 
         return $method;
     }
-
-//    /**
-//     * @return bool
-//     */
-//    protected function displayMaintenancePage()
-//    {
-//        return false;
-//    }
 
     /**
      * @return true
@@ -275,5 +443,38 @@ abstract class AbstractV2RestController extends AbstractRestController
                 'message' => $message ?: 'Failed processing your request',
             ], 500);
         }
+    }
+
+    /**
+     * @return bool
+     */
+    protected function displayMaintenancePage()
+    {
+        return true;
+    }
+
+    /**
+     * Override displayRestrictedCountryPage to prevent page country is not allowed
+     *
+     * @see FrontController::displayRestrictedCountryPage()
+     *
+     * @return void
+     */
+    protected function displayRestrictedCountryPage()
+    {
+    }
+
+    /**
+     * Override geolocationManagement to prevent country GEOIP blocking
+     *
+     * @see FrontController::geolocationManagement()
+     *
+     * @param \Country $defaultCountry
+     *
+     * @return false
+     */
+    protected function geolocationManagement($defaultCountry)
+    {
+        return false;
     }
 }
