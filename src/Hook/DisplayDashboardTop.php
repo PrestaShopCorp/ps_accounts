@@ -20,121 +20,18 @@
 
 namespace PrestaShop\Module\PsAccounts\Hook;
 
-use PrestaShop\Module\PsAccounts\Context\ShopContext;
-use PrestaShop\Module\PsAccounts\Provider\ShopProvider;
-use PrestaShop\Module\PsAccounts\Service\PsAccountsService;
-
+/**
+ * @deprecated
+ */
 class DisplayDashboardTop extends Hook
 {
     /**
      * @param array $params
      *
-     * @return mixed
+     * @return string
      */
     public function execute(array $params = [])
     {
-        $shopContext = $this->module->getShopContext();
-
-        /** @var PsAccountsService $accountsService */
-        $accountsService = $this->module->getService(PsAccountsService::class);
-
-        $controller = isset($_GET['controller']) ? $_GET['controller'] : '';
-
-        if ('AdminShopUrl' === $controller) {
-            return $this->renderAdminShopUrlWarningIfLinked($shopContext, $accountsService);
-        }
-
-        if ('AdminShop' === $controller) {
-            return $this->renderAdminShopWarningIfLinked($shopContext, $accountsService);
-        }
-    }
-
-    /**
-     * @param ShopContext $shopContext
-     * @param PsAccountsService $accountsService
-     *
-     * @return string
-     */
-    protected function renderAdminShopWarningIfLinked($shopContext, $accountsService)
-    {
-        if (isset($_GET['addshop'])) {
-            return '';
-        }
-
-        if (isset($_GET['updateshop'])) {
-            return '';
-        }
-
-        /** @var ShopProvider $shopProvider */
-        $shopProvider = $this->module->getService(ShopProvider::class);
-
-        $shopsTree = $shopProvider->getShopsTree('ps_accounts');
-        foreach ($shopsTree as $shopGroup) {
-            foreach ($shopGroup['shops'] as $shop) {
-                $isLink = $shopContext->execInShopContext($shop['id'], function () use ($accountsService) {
-                    return $accountsService->isAccountLinked();
-                });
-                if ($isLink) {
-                    $msg = $this->module->l(
-                        'Some shops are linked to your PrestaShop account. ' .
-                        'Delete these shops will impact your live settings.',
-                        'Modules.ps_accounts'
-                    );
-
-                    return <<<HTML
-<div class="row">
-  <div class="col-sm">
-    <div class="alert alert-warning" role="alert">
-      <div class="alert-text">
-        $msg
-      </div>
-    </div>
-  </div>
-</div>
-HTML;
-                }
-            }
-        }
-
         return '';
-    }
-
-    /**
-     * @param ShopContext $shopContext
-     * @param PsAccountsService $accountsService
-     *
-     * @return string
-     */
-    protected function renderAdminShopUrlWarningIfLinked($shopContext, $accountsService)
-    {
-        if (!isset($_GET['updateshop_url'])) {
-            return '';
-        }
-
-        $shopId = $shopContext->getShopIdFromShopUrlId((int) $_GET['id_shop_url']);
-
-        return $shopContext->execInShopContext($shopId, function () use ($accountsService) {
-            if ($accountsService->isAccountLinked()) {
-                $msg = $this->module->l(
-                    'This shop is linked to your PrestaShop account. ' .
-                    'Unlink your shop if you do not want to impact your live settings.',
-                    'ps_accounts'
-                );
-
-                return <<<HTML
-<div class="row">
-  <div class="col-sm">
-    <div class="alert alert-warning" role="alert">
-      <div class="alert-text">
-        $msg
-      </div>
-    </div>
-  </div>
-</div>
-HTML;
-            }
-
-            return '';
-        });
     }
 }

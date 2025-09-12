@@ -23,6 +23,7 @@ namespace PrestaShop\Module\PsAccounts\Api\Client;
 use PrestaShop\Module\PsAccounts\Http\Client\ClientConfig;
 use PrestaShop\Module\PsAccounts\Http\Client\Curl\Client;
 use PrestaShop\Module\PsAccounts\Http\Client\Factory;
+use PrestaShop\Module\PsAccounts\Http\Client\Response;
 
 class ExternalAssetsClient
 {
@@ -81,12 +82,12 @@ class ExternalAssetsClient
     }
 
     /**
-     * @return array
+     * @return Response
      */
     public function getTestimonials()
     {
         return $this->getClient()->get(
             $this->module->getParameter('ps_accounts.testimonials_url')
-        )->toLegacy();
+        );
     }
 }

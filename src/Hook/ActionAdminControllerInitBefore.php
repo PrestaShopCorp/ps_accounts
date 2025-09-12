@@ -20,83 +20,18 @@
 
 namespace PrestaShop\Module\PsAccounts\Hook;
 
-use AdminLoginPsAccountsController;
-use Exception;
-use PrestaShop\Module\PsAccounts\Log\Logger;
-use PrestaShop\Module\PsAccounts\Service\AnalyticsService;
-use PrestaShop\Module\PsAccounts\Service\PsAccountsService;
-use Tools;
-
+/**
+ * @deprecated
+ */
 class ActionAdminControllerInitBefore extends Hook
 {
     /**
-     * @var PsAccountsService
-     */
-    private $accountsService;
-
-    /**
-     * @var AnalyticsService
-     */
-    private $analytics;
-
-    public function __construct(\Ps_accounts $module)
-    {
-        parent::__construct($module);
-
-        $this->accountsService = $this->module->getService(PsAccountsService::class);
-        $this->analytics = $this->module->getService(AnalyticsService::class);
-    }
-
-    /**
      * @param array $params
      *
-     * @return void
-     *
-     * @throws Exception
+     * @return string
      */
     public function execute(array $params = [])
     {
-//        $controller = $params['controller'];
-//
-//        $this->module->getOauth2Middleware()->execute();
-//
-//        $className = preg_replace('/^.*\\\\/', '', get_class($controller));
-////        Logger::getInstance()->error('########################### ' . __CLASS__ . ' ' . $className);
-//
-//        if ($className === 'AdminLoginController') {
-//            $local = Tools::getValue('mode') === AdminLoginPsAccountsController::PARAM_MODE_LOCAL ||
-//                !$this->accountsService->getLoginActivated();
-//
-//            $this->trackLoginPage($local);
-//
-//            if ($this->module->getShopContext()->isShop17() && !$local) {
-////                /** @var \PrestaShop\Module\PsAccounts\Adapter\Link $link */
-////                $link = $this->module->getService(\PrestaShop\Module\PsAccounts\Adapter\Link::class);
-////                Tools::redirectLink($link->getAdminLink('AdminLoginPsAccounts', false));
-//                (new AdminLoginPsAccountsController())->run();
-//                exit;
-//            }
-//        }
-    }
-
-    /**
-     * @param bool $local
-     *
-     * @return void
-     *
-     * @throws Exception
-     */
-    protected function trackLoginPage($local = false)
-    {
-        if ($this->module->isShopEdition()) {
-            $account = $this->accountsService->getEmployeeAccount();
-            $userId = $account ? $account->getUid() : null;
-
-            if (!$local) {
-                $this->analytics->pageAccountsBoLogin($userId);
-            } else {
-                $this->analytics->pageLocalBoLogin($userId);
-            }
-        }
+        return '';
     }
 }

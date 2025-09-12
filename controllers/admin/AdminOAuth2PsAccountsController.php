@@ -17,17 +17,22 @@
  * @copyright Since 2007 PrestaShop SA and Contributors
  * @license   https://opensource.org/licenses/AFL-3.0 Academic Free License version 3.0
  */
+require_once __DIR__ . '/../../src/AccountLogin/OAuth2LoginTrait.php';
+require_once __DIR__ . '/../../src/Polyfill/Traits/AdminController/IsAnonymousAllowed.php';
 
+use PrestaShop\Module\PsAccounts\Account\Command\IdentifyContactCommand;
 use PrestaShop\Module\PsAccounts\AccountLogin\Exception\AccountLoginException;
 use PrestaShop\Module\PsAccounts\AccountLogin\Exception\EmailNotVerifiedException;
 use PrestaShop\Module\PsAccounts\AccountLogin\Exception\EmployeeNotFoundException;
 use PrestaShop\Module\PsAccounts\AccountLogin\OAuth2LoginTrait;
 use PrestaShop\Module\PsAccounts\AccountLogin\OAuth2Session;
+use PrestaShop\Module\PsAccounts\Cqrs\CommandBus;
 use PrestaShop\Module\PsAccounts\Log\Logger;
+use PrestaShop\Module\PsAccounts\Polyfill\ConfigurationStorageSession;
 use PrestaShop\Module\PsAccounts\Polyfill\Traits\AdminController\IsAnonymousAllowed;
 use PrestaShop\Module\PsAccounts\Service\AnalyticsService;
 use PrestaShop\Module\PsAccounts\Service\OAuth2\OAuth2Service;
-use PrestaShop\Module\PsAccounts\Service\OAuth2\Resource\UserInfo;
+use PrestaShop\Module\PsAccounts\Service\OAuth2\Resource\AccessToken;
 use PrestaShop\Module\PsAccounts\Service\PsAccountsService;
 use Symfony\Component\HttpFoundation\Session\SessionInterface;
 
@@ -52,6 +57,11 @@ class AdminOAuth2PsAccountsController extends \ModuleAdminController
     private $psAccountsService;
 
     /**
+     * @var CommandBus
+     */
+    private $commandBus;
+
+    /**
      * @throws PrestaShopException
      * @throws Exception
      */
@@ -61,6 +71,7 @@ class AdminOAuth2PsAccountsController extends \ModuleAdminController
 
         $this->analyticsService = $this->module->getService(AnalyticsService::class);
         $this->psAccountsService = $this->module->getService(PsAccountsService::class);
+        $this->commandBus = $this->module->getService(CommandBus::class);
 
         $this->ajax = true;
         $this->content_only = true;
@@ -101,20 +112,35 @@ class AdminOAuth2PsAccountsController extends \ModuleAdminController
         } catch (Exception $e) {
             $this->onLoginFailed(new AccountLoginException($e->getMessage(), null, $e));
         }
+        // why do this at the end of the method ?
         parent::init();
     }
 
     /**
-     * @param UserInfo $user
+     * @param AccessToken $accessToken
      *
      * @return bool
      *
      * @throws EmailNotVerifiedException
      * @throws EmployeeNotFoundException
-     * @throws Exception
      */
-    protected function initUserSession(UserInfo $user)
+    protected function initUserSession(AccessToken $accessToken)
     {
+        $user = $this->getOAuth2Service()->getUserInfo($accessToken->access_token);
+
+        Logger::getInstance()->info(
+            '[OAuth2] ' . (string) print_r($user, true)
+        );
+
+        if ($this->getOAuthAction() === 'identifyPointOfContact') {
+            $this->commandBus->handle(new IdentifyContactCommand($accessToken, $user, $this->getSource()));
+
+            return true;
+        }
+
+        $this->getOauth2Session()->setTokenProvider($accessToken);
+        //$user = $oauth2Session->getUserInfo();
+
         Logger::getInstance()->info(
             '[OAuth2] ' . (string) print_r($user, true)
         );
@@ -179,6 +205,10 @@ class AdminOAuth2PsAccountsController extends \ModuleAdminController
      */
     protected function redirectAfterLogin()
     {
+        if ($this->getOAuthAction() === 'identifyPointOfContact') {
+            $this->getSession()->clear();
+            $this->closePopup();
+        }
         $returnTo = $this->getSessionReturnTo() ?: 'AdminDashboard';
         if (preg_match('/^([A-Z][a-z0-9]+)+$/', $returnTo)) {
             $returnTo = $this->context->link->getAdminLink($returnTo);
@@ -203,6 +233,9 @@ class AdminOAuth2PsAccountsController extends \ModuleAdminController
      */
     protected function onLoginFailedRedirect()
     {
+        if ($this->getOAuthAction() === 'identifyPointOfContact') {
+            $this->closePopup();
+        }
         $this->logout();
     }
 
@@ -211,6 +244,11 @@ class AdminOAuth2PsAccountsController extends \ModuleAdminController
      */
     protected function getSession()
     {
+        if (\Context::getContext()->employee->id) {
+            // FIXME: fallback only for setPointOfContact
+            return $this->module->getService(ConfigurationStorageSession::class);
+        }
+
         return $this->module->getSession();
     }
 
@@ -236,5 +274,18 @@ class AdminOAuth2PsAccountsController extends \ModuleAdminController
     protected function getPsAccountsService()
     {
         return $this->psAccountsService;
+    }
+
+    /**
+     * @return void
+     */
+    protected function closePopup()
+    {
+        echo '
+<script type="text/javascript">
+window.close();
+</script>
+';
+        exit;
     }
 }

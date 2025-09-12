@@ -20,8 +20,9 @@
 
 namespace PrestaShop\Module\PsAccounts\Hook;
 
-use PrestaShop\Module\PsAccounts\Service\PsAccountsService;
-
+/**
+ * @deprecated
+ */
 class DisplayAccountUpdateWarning extends Hook
 {
     /**
@@ -31,30 +32,6 @@ class DisplayAccountUpdateWarning extends Hook
      */
     public function execute(array $params = [])
     {
-        /** @var PsAccountsService $accountsService */
-        $accountsService = $this->module->getService(PsAccountsService::class);
-
-        if ($accountsService->isAccountLinked() &&
-            !$this->module->getShopContext()->isMultishopActive()) {
-            $msg = $this->module->l(
-                'This shop is linked to your PrestaShop account. ' .
-                'Unlink your shop if you do not want to impact your live settings.',
-                'ps_accounts'
-            );
-
-            return <<<HTML
-<div class="row">
-  <div class="col-sm">
-    <div class="alert alert-warning" role="alert">
-      <div class="alert-text">
-        $msg
-      </div>
-    </div>
-  </div>
-</div>
-HTML;
-        }
-
         return '';
     }
 }

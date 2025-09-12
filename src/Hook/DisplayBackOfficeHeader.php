@@ -20,20 +20,38 @@
 
 namespace PrestaShop\Module\PsAccounts\Hook;
 
-use PrestaShop\Module\PsAccounts\Account\Command\UpgradeModuleMultiCommand;
+use Exception;
+use PrestaShop\Module\PsAccounts\Service\PsAccountsService;
 
 class DisplayBackOfficeHeader extends Hook
 {
     /**
-     * @return void
+     * @return string
+     *
+     * @throws Exception
      */
     public function execute(array $params = [])
     {
         try {
-            $this->commandBus->handle(new UpgradeModuleMultiCommand());
+            if (preg_match('/controller=AdminModules/', $_SERVER['REQUEST_URI']) &&
+                preg_match('/configure=ps_accounts/', $_SERVER['REQUEST_URI']) ||
+                preg_match('@modules/manage/action/configure/ps_accounts@', $_SERVER['REQUEST_URI'])
+            ) {
+                return '';
+            }
+
+            /** @var PsAccountsService $psAccountsService */
+            $psAccountsService = $this->module->getService(PsAccountsService::class);
+
+            $this->module->getContext()->controller->addJs(
+                $this->module->getLocalPath() . 'views/js/notifications.js' .
+                '?ctx=' . urlencode($psAccountsService->getAdminAjaxUrl() . '&action=getNotifications') .
+                '&v=' . urlencode($this->module->version)
+            );
         } catch (\Exception $e) {
-            /* @phpstan-ignore-next-line */
-            $this->logger->error('error during upgrade : ' . $e->getMessage());
+        } catch (\Throwable $e) {
         }
+
+        return '';
     }
 }
