@@ -20,7 +20,6 @@
 
 namespace PrestaShop\Module\PsAccounts\Account\Session;
 
-use InvalidArgumentException;
 use PrestaShop\Module\PsAccounts\Account\Exception\RefreshTokenException;
 use PrestaShop\Module\PsAccounts\Account\Token\Token;
 use PrestaShop\Module\PsAccounts\Hook\ActionShopAccessTokenRefreshAfter;
