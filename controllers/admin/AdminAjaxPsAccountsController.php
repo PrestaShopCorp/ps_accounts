@@ -246,7 +246,7 @@ class AdminAjaxPsAccountsController extends \ModuleAdminController
             return [];
         }
 
-        $status = $statusManager->getStatus();
+        $status = $statusManager->getStatus(true);
 
         /** @var ShopProvider $shopProvider */
         $shopProvider = $this->module->getService(ShopProvider::class);
