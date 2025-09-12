@@ -28,9 +28,10 @@ $_MODULE['<{ps_accounts}prestashop>adminajaxpsaccountscontroller_33fba3aba5e5d57
 $_MODULE['<{ps_accounts}prestashop>adminajaxpsaccountscontroller_bcabe16a516e2025713ad5af0adfd49a'] = 'Current store URL';
 $_MODULE['<{ps_accounts}prestashop>adminajaxpsaccountscontroller_5181e6b2ae79016706b1d18380a8059d'] = 'URL registered in PrestaShop Account';
 $_MODULE['<{ps_accounts}prestashop>adminajaxpsaccountscontroller_0dd9a339c52287eaa3280fb956a07324'] = 'Review settings';
-$_MODULE['<{ps_accounts}prestashop>adminajaxpsaccountscontroller_dc3fd488f03d423a04da27ce66274c1b'] = 'Warning!';
-$_MODULE['<{ps_accounts}prestashop>adminajaxpsaccountscontroller_a1183bc21e7a9a0dc3410b1e88497cce'] = 'PrestaShop Account module wasn\'t upgraded properly.';
-$_MODULE['<{ps_accounts}prestashop>adminajaxpsaccountscontroller_790360932d7b6d0f61cbd2611c9303b1'] = 'Please reset the module';
+$_MODULE['<{ps_accounts}prestashop>adminajaxpsaccountscontroller_7285968d2690ae18df8ee5e1686f545d'] = 'Action required: reset your PS Account module';
+$_MODULE['<{ps_accounts}prestashop>adminajaxpsaccountscontroller_e1b80ece0a497aca4c753d437c288ca1'] = 'A simple reset is needed to finish the update and ensure all your modules are working correctly.';
+$_MODULE['<{ps_accounts}prestashop>adminajaxpsaccountscontroller_66949b1c09d857d4ecd2497a0734072b'] = 'Resetting module...';
+$_MODULE['<{ps_accounts}prestashop>adminajaxpsaccountscontroller_817ea9c22e6b11ecd69691c1dd47ef1a'] = 'Reset module';
 $_MODULE['<{ps_accounts}prestashop>login_476ff05d1175f9a35d268828caf300f2'] = 'An error occured during login, please contact PrestaShop support';
 $_MODULE['<{ps_accounts}prestashop>login_1ab1f34b16d32fa54b90ee0f91f39dfd'] = 'Welcome,';
 $_MODULE['<{ps_accounts}prestashop>login_474684646f833216fdaf79c606af208b'] = 'Access your back office to manage your store.';
