@@ -316,14 +316,14 @@ class AdminAjaxPsAccountsController extends \ModuleAdminController
 <div class="alert alert-danger acc-alert acc-alert-danger acc-flex">
     <div class="acc-flex-grow-1">
         <div class="acc-alert-title">
-            ' . $this->module->l('PrestaShop Account module wasn\'t upgraded properly.') . '
+            ' . $this->module->l('Action required: reset your PS Account module') . '
         </div>
-        <p>' . $this->module->l('Please reset or reinstall the module') . '</p>
+        <p>' . $this->module->l('A simple reset is needed to finish the update and ensure all your modules are working correctly.') . '</p>
     </div>
     <div>
         <button class="btn danger btn-outline-danger acc-btn btn-danger acc-btn-danger"
-            onclick="this.innerHTML = \'' . $this->module->l('Resetting...') . '\'; fetch(\'' . $resetLink . '\').then(response => {this.innerHTML = \'' . $this->module->l('Reloading...') . '\'; document.location.reload();})">
-            ' . $this->module->l('Reset') . '
+            onclick="this.disabled = true; this.innerHTML = \'' . $this->module->l('Resetting module...') . '\'; fetch(\'' . $resetLink . '\').then(response => {document.location.reload();})">
+            ' . $this->module->l('Reset module') . '
         </button>
     </div>
 </div>
