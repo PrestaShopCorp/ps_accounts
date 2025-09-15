@@ -65,6 +65,12 @@ abstract class AbstractV2RestController extends ModuleFrontController
     protected $authenticated = true;
 
     /**
+     * Header to retrieve bearer from
+     * FIXME: "Authorization" standard header might be filtered by server configuration
+     */
+    const HEADER_AUTHORIZATION = 'X-Prestashop-Authorization';
+
+    /**
      * @var object
      */
     protected $token;
