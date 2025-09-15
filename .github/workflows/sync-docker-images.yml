@@ -28,6 +28,8 @@ jobs:
             1.7.8.8-7.4-fpm-alpine
             8.1.0-8.1-fpm-alpine
             8.2.0-8.1-fpm-alpine
+            9.0.0-alpine-nginx
+            9.0.0-8.1-fpm-alpine-nginx
             nightly-nginx
           )
 

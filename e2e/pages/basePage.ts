@@ -1,11 +1,10 @@
 // Import pages
-import {CommonPage} from '@prestashopcorp/tests-framework';
-import {expect, Locator, Page} from '@playwright/test';
+import {Locator, Page} from '@playwright/test';
 import {Globals} from '../utils/globals';
-import {modulePsAccount} from 'data/local/modules/modulePsAccount';
 
-export default class BasePage extends CommonPage {
+export default class BasePage {
   /* <<<<<<<<<<<<<<< MODULEMANAGER >>>>>>>>>>>>>>>>>>>>>> */
+  public readonly page: Page;
   public readonly modulesParentLink: Locator;
   public readonly moduleManagerLink: Locator;
   public readonly shopParametersGeneralParentLink: Locator;
@@ -16,7 +15,7 @@ export default class BasePage extends CommonPage {
   public readonly openMenuSelector: (menuSelector: Locator) => Locator;
 
   constructor(page: Page) {
-    super(page);
+    this.page = page;
 
     /* <<<<<<<<<<<<<<< MODULEMANAGER >>>>>>>>>>>>>>>>>>>>>> */
     this.modulesParentLink = this.page.locator('#subtab-AdminParentModulesSf');
@@ -74,7 +73,7 @@ export default class BasePage extends CommonPage {
    * True if visible
    */
   isMenuOpen(parentLocator: Locator): Promise<boolean> {
-    return this.isVisible(this.openMenuSelector(parentLocator), 1000);
+    return this.openMenuSelector(parentLocator).isVisible();
   }
 
   /**
@@ -84,8 +83,9 @@ export default class BasePage extends CommonPage {
   async openMenu(parentLocator: Locator): Promise<void> {
     if (!(await this.isMenuOpen(parentLocator))) {
       await Promise.all([
-        this.waitForSelectorAndClick(parentLocator, 133000),
-        this.waitForVisibleSelector(this.openMenuSelector(parentLocator))
+        parentLocator.waitFor({state: 'visible'}),
+        parentLocator.click(),
+        this.openMenuSelector(parentLocator).waitFor({state: 'visible'})
       ]);
     }
   }
@@ -97,16 +97,19 @@ export default class BasePage extends CommonPage {
    */
   async goToSubMenu(parentLocator: Locator, linkLocator: Locator | null = null): Promise<void> {
     if (!linkLocator) {
-      await this.clickAndWaitForLoadState(parentLocator, 'domcontentloaded');
+      await parentLocator.click();
+      await this.page.waitForLoadState('domcontentloaded');
     } else {
       await this.openMenu(parentLocator);
-      await this.clickAndWaitForLoadState(linkLocator, 'domcontentloaded');
+      await linkLocator.click();
+      await this.page.waitForLoadState('domcontentloaded');
     }
   }
 
   async goToModulesManagerOldPsVersion() {
     await this.page.locator('.icon-AdminParentModules').hover();
     await this.page.locator('#subtab-AdminModules').filter({hasText: 'Modules and Services'}).click();
+    await this.page.waitForLoadState('domcontentloaded');
   }
   async goToPreferencesOldPsVersion() {
     await this.page.locator('.icon-AdminParentPreferences').hover();
