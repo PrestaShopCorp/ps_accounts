@@ -2,6 +2,7 @@ import {Page, Locator, expect} from '@playwright/test';
 import BasePage from '~/pages/basePage';
 import {modulePsAccount} from 'data/local/modules/modulePsAccount';
 import {moduleManagerPagesLocales} from '~/data/local/moduleManagerPageLocales/moduleManagerPageLocales';
+import path from 'path';
 
 export default class ModuleManagerPage extends BasePage {
   /* <<<<<<<<<<<<<<< Selectors Types >>>>>>>>>>>>>>>>>>>>>> */
@@ -13,7 +14,7 @@ export default class ModuleManagerPage extends BasePage {
 
     /* <<<<<<<<<<<<<<< Selectors >>>>>>>>>>>>>>>>>>>>>> */
     this.pageMainTitle = page.locator('.title-row .title');
-    this.pageMainTitleOldPsVersion = page.locator('.page-title');
+    this.pageMainTitleOldPsVersion = page.locator('h2.page-title');
   }
 
   /* <<<<<<<<<<<<<<< Main Methods >>>>>>>>>>>>>>>>>>>>>> */
@@ -25,12 +26,14 @@ export default class ModuleManagerPage extends BasePage {
    */
   async getPageMainTitle() {
     if (await this.page.locator('.title-row .title').isVisible()) {
-      return this.getTextContent(this.pageMainTitle);
+      const titleText = await this.pageMainTitle.textContent();
+      return titleText?.trim();
     }
   }
   async getPageMainTitleOldPsVersion() {
-    if (await this.page.locator('.page-title').isVisible()) {
-      return this.getTextContent(this.pageMainTitleOldPsVersion);
+    if (await this.page.locator('h2.page-title').isVisible()) {
+      const titleText = await this.pageMainTitleOldPsVersion.textContent();
+      return titleText?.trim();
     }
   }
 
@@ -42,21 +45,22 @@ export default class ModuleManagerPage extends BasePage {
     const pageTitle = await this.getPageMainTitle();
     const pageTitleOldPsVersion = await this.getPageMainTitleOldPsVersion();
     if (pageTitle === moduleManagerPagesLocales.moduleManager.en_EN.title) {
-      await this.page.locator('#search-input-group').getByRole('textbox').fill('Account');
+      await this.page.locator('#search-input-group').getByRole('textbox').fill('ps_account');
       await this.page.locator('#module-search-button').click();
-      const isAccountVisible = this.page
+      const isAccountVisible = await this.page
         .locator('.module-item-wrapper-list')
         .filter({hasText: 'PrestaShop Account'})
         .isVisible();
       expect(isAccountVisible).toBeTruthy();
     } else if (pageTitleOldPsVersion === moduleManagerPagesLocales.moduleManager.en_EN.titleOldPsVersion) {
-      await this.page.locator('#filter_administration').click();
-      await this.page.locator('#moduleQuicksearch').fill('PrestaShop Account');
+      await this.page.waitForSelector('.icon-list-ul');
+      await this.page.locator('#moduleQuicksearch').fill('ps_account');
+      await this.page.locator('#moduleQuicksearch').press('Enter');
       const isAccountVisibleOnOldPsVersion = await this.page
         .locator('.module_name')
         .filter({hasText: 'PrestaShop Account'})
         .isVisible();
-      expect(isAccountVisibleOnOldPsVersion).toBeTruthy;
+      expect(isAccountVisibleOnOldPsVersion).toBeTruthy();
     }
   }
 
@@ -87,38 +91,43 @@ export default class ModuleManagerPage extends BasePage {
    * The page title check if the title All Store is visible
    */
   async isMultistoreVisible() {
-    const isMultiStoreVisible = await this.page.locator('h2.header-multishop-title');
-    expect(isMultiStoreVisible).toBeVisible();
+    await this.page.locator('.header-multishop-button').click();
+    const isMultiStoreVisible = this.page.locator('.multishop-modal-all-name');
+    await isMultiStoreVisible.click();
+    expect(isMultiStoreVisible).toBeVisible({timeout: 3000});
   }
   async isMultistoreVisibleOldVersion() {
     await this.page.locator('#header_shop').click();
-    const isMultiStoreVisible = await this.page.getByRole('link', {name: 'All shops'});
-    expect(isMultiStoreVisible).toBeVisible();
+    const isMultiStoreVisible = this.page.getByRole('link', {name: 'All shops'});
+    await isMultiStoreVisible.click();
+    expect(isMultiStoreVisible).toBeVisible({timeout: 3000});
   }
 
   /**
    *
-   * Opens the PrestaShop Account configuration popup and verifies the redirection
-   * Clicks the 'Configure' link, triggers a popup by clicking the 'Link' button, waits for the new page to load
-   * Expect url and title
-   * @return {Promise<string>}
+   * Upload a zip
    */
-  async openAccountPopup(): Promise<Page> {
-    await this.page.locator('#modules-list-container-440').getByRole('link', {name: 'Configure'}).click();
-    const [newPage] = await Promise.all([
-      this.page.context().waitForEvent('page'),
-      this.page.getByRole('button', {name: 'Link'}).click()
-    ]);
-    await newPage.waitForLoadState('networkidle');
-    expect(newPage.url()).toContain('authv2-preprod');
-    return newPage;
-  }
-  /**
-   * @param newPage {Page} The account popup
-   * Verifies that the page title is visible, indicating the Cloudflare challenge has been passed.
-   */
-  async accountPopupTiteleIsVisible(newPage: Page) {
-    const pageTitle = await newPage.getByRole('img', {name: 'Prestashop logo'});
-    expect(pageTitle).toBeVisible({visible: true});
+  async uploadZip() {
+    const pageTitle = await this.getPageMainTitle();
+    const pageTitleOldPsVersion = await this.getPageMainTitleOldPsVersion();
+    if (pageTitle === moduleManagerPagesLocales.moduleManager.en_EN.title) {
+      await this.page.locator('[data-target="#module-modal-import"]').click();
+      const fileChooserPromise = this.page.waitForEvent('filechooser');
+      await this.page.locator('.module-import-start-select-manual').click();
+      const fileChooser = await fileChooserPromise;
+      await fileChooser.setFiles(path.join(__dirname, '../../../e2e-env/modules/ps_accounts_preprod-7.2.0.zip'));
+      await this.page.waitForSelector('.module-import-success-icon');
+      await this.page.locator('#module-modal-import-closing-cross').click();
+      await this.page.reload({waitUntil: 'commit'});
+    } else if (pageTitleOldPsVersion === moduleManagerPagesLocales.moduleManager.en_EN.titleOldPsVersion) {
+      await this.page.locator('#desc-module-new').click();
+      const fileChooserPromise = this.page.waitForEvent('filechooser');
+      await this.page.locator('#file-selectbutton').click();
+      const fileChooser = await fileChooserPromise;
+      await fileChooser.setFiles(path.join(__dirname, '../../../e2e-env/modules/ps_accounts_preprod-7.2.0.zip'));
+      await this.page.locator('[name="download"]').click();
+      await this.page.waitForSelector('.alert.alert-success');
+      await this.page.reload({waitUntil: 'commit'});
+    }
   }
 }

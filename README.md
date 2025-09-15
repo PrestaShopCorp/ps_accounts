@@ -8,11 +8,11 @@
 # Context
 
 The module **ps_accounts** is the interface between your module and PrestaShop's services. It manages:
-- Shop association/dissociation process;
+- Shop **Identification** and **Verification** process;
 - Providing tokens to communicate safely with PrestaShop services;
 - Synchronize basic informations about the shops (ex: shop URLs, name, ...).
 
-This module is a basis for other modules using PrestaShop services.
+This module is a base component for other modules using PrestaShop services.
 
 # Installation
 
@@ -27,6 +27,7 @@ We aims to follow partially the Prestashop compatibility charts
 
 | ps_accounts version  | Prestashop Version   | PHP Version       |
 |----------------------|----------------------|-------------------|
+| ^8.0.0               | \>=1.6 && <= 9.x     | PHP 5.6 - 8       |
 | ^7.0.9               | \>=1.6 && <= 9.x     | PHP 5.6 - 8       |
 | 7.x                  | \>=1.6 && <9.x       | PHP 5.6 - 8       |
 | ~~6.x (deprecated)~~ | ~~\>=8.0.0~~         | ~~PHP 7.2 - 8~~   |
@@ -70,11 +71,10 @@ Media::addJsDef([
 
 return $this->display(__FILE__, 'views/templates/admin/app.tpl');
 ```
-Alternatively you can still use : [PrestaShop Accounts Installer](http://github.com/PrestaShopCorp/prestashop-accounts-installer) for more details on how to setup Installer.
 
 ### Load and init the component on your page
 
-For detailed usage you can follow the component's documentation : [prestashop_accounts_vue_components](https://github.com/PrestaShopCorp/prestashop_accounts_vue_components)
+For detailed usage you can follow the component's documentation : [vue-components](https://github.com/PrestaShopCorp/accounts/tree/main/packages/vue-components#readme)
 
 ## How to retrieve tokens with PsAccounts
 
@@ -216,8 +216,6 @@ Here are listed custom hooks provided with this module:
 
 | hook                              | params           | description                                  |
 |-----------------------------------|------------------|----------------------------------------------|
-| actionShopAccountLinkAfter        | shopId, shopUuid | Triggered after link shop acknowledged       |
-| actionShopAccountUnlinkAfter      | shopId, shopUuid | Triggered after unlink shop acknowledged     |
 | actionShopAccessTokenRefreshAfter | token            | Triggered after OAuth access token refreshed |
 
 # Building the module locally

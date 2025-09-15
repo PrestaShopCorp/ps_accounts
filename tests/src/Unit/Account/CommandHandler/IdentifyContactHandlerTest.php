@@ -6,12 +6,12 @@ use PHPUnit\Framework\MockObject\MockObject;
 use PrestaShop\Module\PsAccounts\Account\CachedShopStatus;
 use PrestaShop\Module\PsAccounts\Account\Command\IdentifyContactCommand;
 use PrestaShop\Module\PsAccounts\Account\CommandHandler\IdentifyContactHandler;
+use PrestaShop\Module\PsAccounts\Account\Session\Firebase\OwnerSession;
 use PrestaShop\Module\PsAccounts\Account\Session\ShopSession;
 use PrestaShop\Module\PsAccounts\Account\StatusManager;
+use PrestaShop\Module\PsAccounts\Account\Token\NullToken;
 use PrestaShop\Module\PsAccounts\Http\Client\Curl\Client;
-use PrestaShop\Module\PsAccounts\Http\Client\Request;
 use PrestaShop\Module\PsAccounts\Service\Accounts\AccountsService;
-use PrestaShop\Module\PsAccounts\Service\Accounts\Resource\IdentityCreated;
 use PrestaShop\Module\PsAccounts\Service\Accounts\Resource\ShopStatus;
 use PrestaShop\Module\PsAccounts\Service\OAuth2\Resource\AccessToken;
 use PrestaShop\Module\PsAccounts\Service\OAuth2\Resource\UserInfo;
@@ -35,6 +35,13 @@ class IdentifyContactHandlerTest extends TestCase
      * @var ShopSession&MockObject
      */
     protected $shopSession;
+
+    /**
+     * @inject
+     *
+     * @var OwnerSession
+     */
+    protected $ownerSession;
 
     /**
      * @var Client&MockObject
@@ -67,6 +74,8 @@ class IdentifyContactHandlerTest extends TestCase
 
         $this->shopSession->method('getValidToken')->willReturn("valid_token");
 
+        $this->ownerSession->setToken($this->faker->uuid, $this->faker->uuid);
+
         // Expected call to setPointOfContact with correct parameters
         $this->accountsService->expects($this->once())
             ->method('setPointOfContact')
@@ -93,6 +102,7 @@ class IdentifyContactHandlerTest extends TestCase
             'access_token' => 'valid_access_token',
         ]), $userInfo));
 
+        $this->assertInstanceOf(NullToken::class, $this->ownerSession->getToken()->getJwt());
         $this->assertEquals($userInfo->sub, $this->statusManager->getPointOfContactUuid());
         $this->assertEquals($userInfo->email, $this->statusManager->getPointOfContactEmail());
     }
@@ -143,7 +153,8 @@ class IdentifyContactHandlerTest extends TestCase
         return new IdentifyContactHandler(
             $this->accountsService,
             $this->statusManager,
-            $this->shopSession
+            $this->shopSession,
+            $this->ownerSession
         );
     }
 }

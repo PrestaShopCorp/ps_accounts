@@ -77,7 +77,7 @@ class ps_AccountsApiV2ShopHealthCheckModuleFrontController extends AbstractV2Sho
     /**
      * @return array
      */
-    protected function getScope()
+    public function getScope()
     {
         return [
             'shop.health',
@@ -87,7 +87,7 @@ class ps_AccountsApiV2ShopHealthCheckModuleFrontController extends AbstractV2Sho
     /**
      * @return array
      */
-    protected function getAudience()
+    public function getAudience()
     {
         return [
             'ps_accounts/' . $this->statusManager->getCloudShopId(),

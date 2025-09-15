@@ -1,4 +1,4 @@
-import {APIResponse, request, expect} from '@playwright/test';
+import {request, expect} from '@playwright/test';
 import {Globals} from 'utils/globals';
 
 export default class HealthCheckApi {
@@ -24,7 +24,7 @@ export default class HealthCheckApi {
     const data = await this.getShopHealthStatus();
     const isShopLinked = data.shopLinked;
 
-    expect(isShopLinked).toBeFalsy();
+    return isShopLinked;
   }
 
   async checkOauth2Url() {

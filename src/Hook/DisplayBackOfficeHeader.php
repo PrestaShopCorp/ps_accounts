@@ -33,9 +33,6 @@ class DisplayBackOfficeHeader extends Hook
     public function execute(array $params = [])
     {
         try {
-            /** @var PsAccountsService $psAccountsService */
-            $psAccountsService = $this->module->getService(PsAccountsService::class);
-
             if (preg_match('/controller=AdminModules/', $_SERVER['REQUEST_URI']) &&
                 preg_match('/configure=ps_accounts/', $_SERVER['REQUEST_URI']) ||
                 preg_match('@modules/manage/action/configure/ps_accounts@', $_SERVER['REQUEST_URI'])
@@ -43,13 +40,13 @@ class DisplayBackOfficeHeader extends Hook
                 return '';
             }
 
-//            if (!$psAccountsService->isShopIdentityCreated()) {
-//                return;
-//            }
+            /** @var PsAccountsService $psAccountsService */
+            $psAccountsService = $this->module->getService(PsAccountsService::class);
 
             $this->module->getContext()->controller->addJs(
-                $this->module->getLocalPath() . 'views/js/notifications.js?' .
-                'ctx=' . urlencode($psAccountsService->getAdminAjaxUrl() . '&action=getNotifications')
+                $this->module->getLocalPath() . 'views/js/notifications.js' .
+                '?ctx=' . urlencode($psAccountsService->getAdminAjaxUrl() . '&action=getNotifications') .
+                '&v=' . urlencode($this->module->version)
             );
         } catch (\Exception $e) {
         } catch (\Throwable $e) {
