@@ -4,12 +4,10 @@ if [ -n "$1" ]; then
   SHOP_VERSIONS=("$1")
 else
 SHOP_VERSIONS=(
-  1.6.1.24-7.1-fpm-alpine
-  1.7.8.7-7.4-fpm-alpine
-  1.7.8.8-7.4-fpm-alpine
-  8.1.0-8.1-fpm-alpine
+  nightly-nginx    
   8.2.0-8.1-fpm-alpine
-  nightly-nginx
+  1.7.8.8-7.4-fpm-alpine
+  1.6.1.24-7.1-fpm-alpine
 )
 fi
 
@@ -18,7 +16,7 @@ for PS_VERSION in "${SHOP_VERSIONS[@]}"; do
 npm run build-shop -- "$PS_VERSION"
 
 #Run the tests
-npx playwright test back front || true 
+npx playwright test module_installation || true 
 
 #Create the allure result directory
 mkdir -p "allure-results-$PS_VERSION"

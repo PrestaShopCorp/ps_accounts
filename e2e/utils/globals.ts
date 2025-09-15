@@ -1,7 +1,6 @@
-import {GlobalVars} from '@prestashopcorp/tests-framework';
 import * as process from 'process';
 
-export class Globals extends GlobalVars {
+export class Globals {
   //URLs
   public static base_url = process.env.BASE_URL ?? 'http://localhost:8000/admin-dev/';
   public static base_url_fo = process.env.BASE_URL_FO ?? 'http://localhost:8000/';
@@ -10,7 +9,7 @@ export class Globals extends GlobalVars {
   public static admin_email = process.env.ADMIN_EMAIL ?? 'email empty';
   public static admin_password = process.env.ADMIN_PASSWORD ?? 'password empty';
   public static account_email = process.env.ACCOUNT_EMAIL ?? 'email empty';
-  public static account_password = process.env.ADMIN_PASSWORD ?? 'password empty';
+  public static account_password = process.env.ACCOUNT_PASSWORD ?? 'password empty';
   public static qa_user_agent = process.env.QA_USER_AGENT ?? 'password empty';
 
   //Health Check Urls
