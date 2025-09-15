@@ -21,6 +21,7 @@
 namespace PrestaShop\Module\PsAccounts\Account\Session;
 
 use PrestaShop\Module\PsAccounts\Account\Exception\RefreshTokenException;
+use PrestaShop\Module\PsAccounts\Account\StatusManager;
 use PrestaShop\Module\PsAccounts\Account\Token\NullToken;
 use PrestaShop\Module\PsAccounts\Account\Token\Token;
 use PrestaShop\Module\PsAccounts\Log\Logger;
@@ -31,6 +32,17 @@ abstract class Session implements SessionInterface
      * @var array
      */
     protected $refreshTokenErrors = [];
+
+    /**
+     * @var \Ps_accounts
+     */
+    protected $module;
+
+    public function __construct()
+    {
+        /* @phpstan-ignore-next-line */
+        $this->module = \Module::getInstanceByName('ps_accounts');
+    }
 
     /**
      * @deprecated use getValidToken instead
@@ -47,12 +59,14 @@ abstract class Session implements SessionInterface
     /**
      * @param bool $forceRefresh
      * @param bool $throw
+     * @param array $scope
+     * @param array $audience
      *
      * @return Token
      *
      * @throws RefreshTokenException
      */
-    public function getValidToken($forceRefresh = false, $throw = true)
+    public function getValidToken($forceRefresh = false, $throw = true, array $scope = [], array $audience = [])
     {
         /*
          * Avoid multiple refreshToken calls in the same runtime:
@@ -68,9 +82,9 @@ abstract class Session implements SessionInterface
             return $this->getToken();
         }
 
-        if (true === $forceRefresh || $this->getToken()->isExpired()) {
+        if (true === $forceRefresh || false === $this->getToken()->isValid($scope, $audience)) {
             try {
-                $this->refreshToken(null);
+                $this->refreshToken(null, $scope, $audience);
             } catch (RefreshTokenException $e) {
                 $this->setToken('');
                 $this->setRefreshTokenErrors(static::class, $e->getMessage());
@@ -87,6 +101,8 @@ abstract class Session implements SessionInterface
 
     /**
      * @return bool
+     *
+     * @deprecated since v8.0.0
      */
     public function isEmailVerified()
     {
@@ -133,5 +149,13 @@ abstract class Session implements SessionInterface
     protected function setRefreshTokenErrors($className, $message)
     {
         $this->refreshTokenErrors[$className] = $message;
+    }
+
+    /**
+     * @return StatusManager
+     */
+    protected function getStatusManager()
+    {
+        return $this->module->getService(StatusManager::class);
     }
 }

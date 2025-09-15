@@ -22,7 +22,7 @@ namespace PrestaShop\Module\PsAccounts\Service;
 
 use Context;
 use Module;
-use PrestaShop\Module\PsAccounts\Account\LinkShop;
+use PrestaShop\Module\PsAccounts\Account\StatusManager;
 use PrestaShop\Module\PsAccounts\Service\Sentry\ModuleFilteredRavenClient;
 use Ps_accounts;
 use Raven_Client;
@@ -67,15 +67,15 @@ class SentryService
      *
      * @param string $sentryCredentials
      * @param string $environment
-     * @param LinkShop $linkShop
+     * @param StatusManager $statusManager
      * @param Context $context
      *
      * @throws \Raven_Exception
      */
     public function __construct(
-        $sentryCredentials,
-        $environment,
-        LinkShop $linkShop,
+                      $sentryCredentials,
+                      $environment,
+        StatusManager $statusManager,
         Context $context
     ) {
         $this->client = new ModuleFilteredRavenClient(
@@ -88,8 +88,8 @@ class SentryService
                     'ps_accounts_version' => \Ps_accounts::VERSION,
                     'prestashop_version' => _PS_VERSION_,
                     'ps_accounts_is_enabled' => \Module::isEnabled('ps_accounts'),
-                    'email' => $linkShop->getOwnerEmail(),
-                    'shop_uuid' => $linkShop->getShopUuid(),
+                    'email' => $statusManager->getPointOfContactEmail(),
+                    'shop_uuid' => $statusManager->getCloudShopId(),
                 ],
                 'error_types' => $this->errorTypes,
                 'sample_rate' => $this->isContextInFrontOffice($context) ?

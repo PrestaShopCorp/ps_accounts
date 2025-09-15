@@ -20,21 +20,24 @@
 
 namespace PrestaShop\Module\PsAccounts\ServiceProvider;
 
-use PrestaShop\Module\PsAccounts\Account\CommandHandler\DeleteUserShopHandler;
-use PrestaShop\Module\PsAccounts\Account\CommandHandler\LinkShopHandler;
-use PrestaShop\Module\PsAccounts\Account\CommandHandler\UnlinkShopHandler;
-use PrestaShop\Module\PsAccounts\Account\CommandHandler\UpdateUserShopHandler;
-use PrestaShop\Module\PsAccounts\Account\CommandHandler\UpgradeModuleHandler;
-use PrestaShop\Module\PsAccounts\Account\CommandHandler\UpgradeModuleMultiHandler;
-use PrestaShop\Module\PsAccounts\Account\LinkShop;
-use PrestaShop\Module\PsAccounts\Account\Session\Firebase\OwnerSession;
-use PrestaShop\Module\PsAccounts\Account\Session\Firebase\ShopSession;
-use PrestaShop\Module\PsAccounts\Api\Client\AccountsClient;
+use PrestaShop\Module\PsAccounts\Account\CommandHandler\CreateIdentitiesHandler;
+use PrestaShop\Module\PsAccounts\Account\CommandHandler\CreateIdentityHandler;
+use PrestaShop\Module\PsAccounts\Account\CommandHandler\IdentifyContactHandler;
+use PrestaShop\Module\PsAccounts\Account\CommandHandler\MigrateOrCreateIdentitiesV8Handler;
+use PrestaShop\Module\PsAccounts\Account\CommandHandler\MigrateOrCreateIdentityV8Handler;
+use PrestaShop\Module\PsAccounts\Account\CommandHandler\VerifyIdentitiesHandler;
+use PrestaShop\Module\PsAccounts\Account\CommandHandler\VerifyIdentityHandler;
+use PrestaShop\Module\PsAccounts\Account\ProofManager;
+use PrestaShop\Module\PsAccounts\Account\Session;
+use PrestaShop\Module\PsAccounts\Account\StatusManager;
 use PrestaShop\Module\PsAccounts\Context\ShopContext;
 use PrestaShop\Module\PsAccounts\Cqrs\CommandBus;
 use PrestaShop\Module\PsAccounts\Provider\ShopProvider;
 use PrestaShop\Module\PsAccounts\Repository\ConfigurationRepository;
-use PrestaShop\Module\PsAccounts\Service\AnalyticsService;
+use PrestaShop\Module\PsAccounts\Service\Accounts\AccountsService;
+use PrestaShop\Module\PsAccounts\Service\OAuth2\OAuth2Client;
+use PrestaShop\Module\PsAccounts\Service\OAuth2\OAuth2Service;
+use PrestaShop\Module\PsAccounts\Service\UpgradeService;
 use PrestaShop\Module\PsAccounts\Vendor\PrestaShopCorp\LightweightContainer\ServiceContainer\Contract\IServiceProvider;
 use PrestaShop\Module\PsAccounts\Vendor\PrestaShopCorp\LightweightContainer\ServiceContainer\ServiceContainer;
 
@@ -42,48 +45,60 @@ class CommandProvider implements IServiceProvider
 {
     public function provide(ServiceContainer $container)
     {
-        $container->registerProvider(DeleteUserShopHandler::class, static function () use ($container) {
-            return new DeleteUserShopHandler(
-                $container->get(AccountsClient::class),
-                $container->get(ShopContext::class),
-                $container->get(ShopSession::class),
-                $container->get(OwnerSession::class)
-            );
-        });
-        $container->registerProvider(LinkShopHandler::class, static function () use ($container) {
-            return new LinkShopHandler(
-                $container->get(LinkShop::class)
-            );
-        });
-        $container->registerProvider(UnlinkShopHandler::class, static function () use ($container) {
-            return new UnlinkShopHandler(
-                $container->get(LinkShop::class),
-                $container->get(AnalyticsService::class),
-                $container->get(ShopProvider::class)
-            );
-        });
-        $container->registerProvider(UpdateUserShopHandler::class, static function () use ($container) {
-            return new UpdateUserShopHandler(
-                $container->get(AccountsClient::class),
-                $container->get(ShopContext::class),
-                $container->get(ShopSession::class),
-                $container->get(OwnerSession::class)
-            );
-        });
-        $container->registerProvider(UpgradeModuleHandler::class, static function () use ($container) {
-            return new UpgradeModuleHandler(
-                $container->get(AccountsClient::class),
-                $container->get(LinkShop::class),
-                $container->get(ShopSession::class),
-                $container->get(ShopContext::class),
-                $container->get(ConfigurationRepository::class),
+        $container->registerProvider(CreateIdentityHandler::class, static function () use ($container) {
+            return new CreateIdentityHandler(
+                $container->get(AccountsService::class),
+                $container->get(ShopProvider::class),
+                $container->get(OAuth2Client::class),
+                $container->get(StatusManager::class),
                 $container->get(CommandBus::class)
             );
         });
-        $container->registerProvider(UpgradeModuleMultiHandler::class, static function () use ($container) {
-            return new UpgradeModuleMultiHandler(
+        $container->registerProvider(CreateIdentitiesHandler::class, static function () use ($container) {
+            return new CreateIdentitiesHandler(
+                $container->get(ShopContext::class),
+                $container->get(CommandBus::class)
+            );
+        });
+        $container->registerProvider(VerifyIdentityHandler::class, static function () use ($container) {
+            return new VerifyIdentityHandler(
+                $container->get(AccountsService::class),
+                $container->get(ShopProvider::class),
+                $container->get(StatusManager::class),
+                $container->get(Session\ShopSession::class),
+                $container->get(ProofManager::class)
+            );
+        });
+        $container->registerProvider(VerifyIdentitiesHandler::class, static function () use ($container) {
+            return new VerifyIdentitiesHandler(
+                $container->get(ShopContext::class),
+                $container->get(CommandBus::class)
+            );
+        });
+        $container->registerProvider(IdentifyContactHandler::class, static function () use ($container) {
+            return new IdentifyContactHandler(
+                $container->get(AccountsService::class),
+                $container->get(StatusManager::class),
+                $container->get(Session\ShopSession::class),
+                $container->get(Session\Firebase\OwnerSession::class)
+            );
+        });
+        $container->registerProvider(MigrateOrCreateIdentitiesV8Handler::class, static function () use ($container) {
+            return new MigrateOrCreateIdentitiesV8Handler(
+                $container->get(ShopContext::class),
+                $container->get(CommandBus::class)
+            );
+        });
+        $container->registerProvider(MigrateOrCreateIdentityV8Handler::class, static function () use ($container) {
+            return new MigrateOrCreateIdentityV8Handler(
+                $container->get(AccountsService::class),
+                $container->get(OAuth2Service::class),
+                $container->get(ShopProvider::class),
+                $container->get(StatusManager::class),
+                $container->get(ProofManager::class),
+                $container->get(ConfigurationRepository::class),
                 $container->get(CommandBus::class),
-                $container->get(ConfigurationRepository::class)
+                $container->get(UpgradeService::class)
             );
         });
     }

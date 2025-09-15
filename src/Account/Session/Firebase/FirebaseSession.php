@@ -26,8 +26,9 @@ use PrestaShop\Module\PsAccounts\Account\Session\Session;
 use PrestaShop\Module\PsAccounts\Account\Session\SessionInterface;
 use PrestaShop\Module\PsAccounts\Account\Session\ShopSession;
 use PrestaShop\Module\PsAccounts\Account\Token\Token;
-use PrestaShop\Module\PsAccounts\Api\Client\AccountsClient;
 use PrestaShop\Module\PsAccounts\Log\Logger;
+use PrestaShop\Module\PsAccounts\Service\Accounts\AccountsException;
+use PrestaShop\Module\PsAccounts\Service\Accounts\AccountsService;
 
 abstract class FirebaseSession extends Session implements SessionInterface
 {
@@ -36,25 +37,19 @@ abstract class FirebaseSession extends Session implements SessionInterface
      */
     protected $shopSession;
 
-    /**
-     * @var \Ps_accounts
-     */
-    private $module;
-
     public function __construct(ShopSession $shopSession)
     {
-        $this->shopSession = $shopSession;
+        parent::__construct();
 
-        /* @phpstan-ignore-next-line */
-        $this->module = \Module::getInstanceByName('ps_accounts');
+        $this->shopSession = $shopSession;
     }
 
     /**
-     * @return AccountsClient
+     * @return AccountsService
      */
-    public function getAccountsClient()
+    public function getAccountsService()
     {
-        return $this->module->getService(AccountsClient::class);
+        return $this->module->getService(AccountsService::class);
     }
 
     /**
@@ -75,17 +70,20 @@ abstract class FirebaseSession extends Session implements SessionInterface
 
     /**
      * @param string $refreshToken
+     * @param array $scope
+     * @param array $audience
      *
      * @return Token
      *
      * @throws RefreshTokenException
      */
-    public function refreshToken($refreshToken = null)
+    public function refreshToken($refreshToken = null, array $scope = [], array $audience = [])
     {
-        $token = $this->shopSession->getValidToken();
-
         try {
-            $this->refreshFirebaseTokens($token);
+            $token = $this->shopSession->getValidToken();
+            $cloudShopId = $this->getStatusManager()->getCloudShopId();
+
+            $this->refreshFirebaseTokens($cloudShopId, $token);
         } catch (RefreshTokenException $e) {
             Logger::getInstance()->error('Unable to get or refresh owner/shop token : ' . $e->getMessage());
             throw $e;
@@ -95,49 +93,39 @@ abstract class FirebaseSession extends Session implements SessionInterface
     }
 
     /**
+     * @param string $cloudShopId
      * @param Token $token
      *
      * @return void
      *
      * @throws RefreshTokenException
      */
-    protected function refreshFirebaseTokens($token)
+    protected function refreshFirebaseTokens($cloudShopId, $token)
     {
-        $response = $this->getAccountsClient()->firebaseTokens($token);
+        try {
+            $firebaseTokens = $this->getAccountsService()->firebaseTokens($cloudShopId, $token);
+        } catch (AccountsException $e) {
+            throw new RefreshTokenException($e->getMessage());
+        }
 
-        $shopToken = $this->getFirebaseTokenFromResponse($response, 'shopToken', 'shopRefreshToken');
-        $ownerToken = $this->getFirebaseTokenFromResponse($response, 'userToken', 'userRefreshToken');
+        $shopToken = new Token(
+            $firebaseTokens->shop->token,
+            $firebaseTokens->shop->refreshToken
+        );
 
-        // saving both tokens here
-        $this->getShopSession()->setToken((string) $shopToken->getJwt(), $shopToken->getRefreshToken());
-        $this->getOwnerSession()->setToken((string) $ownerToken->getJwt(), $ownerToken->getRefreshToken());
-    }
-
-    /**
-     * @param array $response
-     * @param string $name
-     * @param string $refreshName
-     *
-     * @return Token
-     *
-     * @throws RefreshTokenException
-     */
-    protected function getFirebaseTokenFromResponse(
-        array $response,
-              $name,
-              $refreshName
-    ) {
-        if ($response && true === $response['status']) {
-            return new Token(
-                $response['body'][$name],
-                $response['body'][$refreshName]
+        $pointOfContactToken = null;
+        if (isset($firebaseTokens->pointOfContact->token) && isset($firebaseTokens->pointOfContact->refreshToken)) {
+            $pointOfContactToken = new Token(
+                $firebaseTokens->pointOfContact->token,
+                $firebaseTokens->pointOfContact->refreshToken
             );
         }
 
-        $errorMsg = isset($response['body']['message']) ?
-            $response['body']['message'] :
-            '';
+        // saving both tokens here
+        $this->getShopSession()->setToken((string) $shopToken->getJwt(), $shopToken->getRefreshToken());
 
-        throw new RefreshTokenException('Unable to refresh firebase ' . $name . ' token : ' . $response['httpCode'] . ' ' . print_r($errorMsg, true));
+        if (isset($pointOfContactToken)) {
+            $this->getOwnerSession()->setToken((string) $pointOfContactToken->getJwt(), $pointOfContactToken->getRefreshToken());
+        }
     }
 }

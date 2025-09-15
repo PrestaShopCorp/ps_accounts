@@ -10,6 +10,7 @@ parameters:
 		- ../../ps_accounts.php
 	excludePaths:
 		- ../../src/Controller
+		- ../../src/Polyfill/ConfigurationStorageSession.php
 	dynamicConstantNames:
 		- _PS_VERSION_
 	ignoreErrors:
@@ -45,5 +46,6 @@ parameters:
 		- '#no value type specified in iterable type array#'
 		- '#has Exception in PHPDoc @throws tag but it.s not thrown#'
 		- '#Property PrestaShop\\Module\\PsAccounts\\Entity\\EmployeeAccount::\$id is never written, only read#'
+		- '#Attribute class AllowDynamicProperties does not exist.#'
 
 	level: 7

@@ -21,10 +21,9 @@
 namespace PrestaShop\Module\PsAccounts\Service;
 
 use PrestaShop\Module\PsAccounts\Account\Exception\RefreshTokenException;
-use PrestaShop\Module\PsAccounts\Account\LinkShop;
 use PrestaShop\Module\PsAccounts\Account\Session\Firebase;
 use PrestaShop\Module\PsAccounts\Account\Session\ShopSession;
-use PrestaShop\Module\PsAccounts\Account\Token\Token;
+use PrestaShop\Module\PsAccounts\Account\StatusManager;
 use PrestaShop\Module\PsAccounts\Adapter\Link;
 use PrestaShop\Module\PsAccounts\Entity\EmployeeAccount;
 use PrestaShop\Module\PsAccounts\Repository\ConfigurationRepository;
@@ -61,9 +60,14 @@ class PsAccountsService
     private $ownerSession;
 
     /**
-     * @var LinkShop
+     * @var StatusManager
      */
-    private $linkShop;
+    private $statusManager;
+
+    /**
+     * @var AdminTokenService
+     */
+    private $tokenService;
 
     /**
      * @param \Ps_accounts $module
@@ -77,7 +81,8 @@ class PsAccountsService
         $this->shopSession = $this->module->getService(Firebase\ShopSession::class);
         $this->ownerSession = $this->module->getService(Firebase\OwnerSession::class);
         $this->link = $this->module->getService(Link::class);
-        $this->linkShop = $module->getService(LinkShop::class);
+        $this->statusManager = $module->getService(StatusManager::class);
+        $this->tokenService = $module->getService(AdminTokenService::class);
     }
 
     /**
@@ -103,7 +108,7 @@ class PsAccountsService
      */
     public function getShopUuid()
     {
-        return $this->linkShop->getShopUuid();
+        return $this->statusManager->getCloudShopId();
     }
 
     /**
@@ -180,7 +185,7 @@ class PsAccountsService
      */
     public function getUserUuid()
     {
-        return (string) $this->linkShop->getOwnerUuid();
+        return (string) $this->statusManager->getPointOfContactUuid();
     }
 
     /**
@@ -198,27 +203,55 @@ class PsAccountsService
      */
     public function getEmail()
     {
-        return $this->linkShop->getOwnerEmail();
+        return $this->statusManager->getPointOfContactEmail();
     }
 
     /**
      * @return bool
      *
-     * @throws \Exception
+     * @deprecated since v8.0.0
      */
     public function isAccountLinked()
     {
-        return $this->linkShop->exists();
+        return $this->statusManager->identityCreated() &&
+            $this->statusManager->identityVerified() &&
+            $this->statusManager->getPointOfContactUuid();
+    }
+
+    /**
+     * @return bool
+     */
+    public function isShopIdentityCreated()
+    {
+        return $this->statusManager->identityCreated();
+    }
+
+    /**
+     * @return bool
+     */
+    public function isShopIdentityVerified()
+    {
+        return $this->statusManager->identityVerified();
+    }
+
+    /**
+     * @return bool
+     */
+    public function isShopPointOfContactSet()
+    {
+        return (bool) $this->statusManager->getPointOfContactUuid();
     }
 
     /**
      * @return bool
      *
      * @throws \Exception
+     *
+     * @depercated since v8.0.0
      */
     public function isAccountLinkedV4()
     {
-        return $this->linkShop->existsV4();
+        return false; //$this->shopIdentity->existsV4();
     }
 
     /**
@@ -235,6 +268,18 @@ class PsAccountsService
     {
 //        Tools::getAdminTokenLite('AdminAjaxPsAccounts'));
         return $this->link->getAdminLink('AdminAjaxPsAccounts', true, [], ['ajax' => 1]);
+    }
+
+    /**
+     * @param string|null $source
+     *
+     * @return string
+     *
+     * @throws \PrestaShopException
+     */
+    public function getContextUrl($source = null)
+    {
+        return $this->link->getAdminLink('AdminAjaxV2PsAccounts', false, [], ['ajax' => 1, 'action' => 'getContext', 'source' => $source]);
     }
 
     /**
@@ -300,5 +345,23 @@ class PsAccountsService
         } catch (\Exception $e) {
             return null;
         }
+    }
+
+    /**
+     * @param string $psxName
+     *
+     * @return array
+     */
+    public function getComponentInitParams($psxName = 'ps_accounts')
+    {
+        return [
+            'mode' => \Shop::getContext(),
+            'shopId' => \Shop::getContextShopID(),
+            'groupId' => \Shop::getContextShopGroupID(),
+            'getContextUrl' => $this->getContextUrl($psxName),
+            'manageAccountUrl' => $this->module->getAccountsUiUrl(),
+            'token' => (string) $this->tokenService->getToken(),
+            'psxName' => $psxName,
+        ];
     }
 }

@@ -33,16 +33,18 @@ class ActionObjectEmployeeDeleteAfter extends Hook
      */
     public function execute(array $params = [])
     {
-        /** @var \Employee $employee */
-        $employee = $params['object'];
-
-        $repository = new EmployeeAccountRepository();
         try {
+            /** @var \Employee $employee */
+            $employee = $params['object'];
+
+            $repository = new EmployeeAccountRepository();
+
             $employeeAccount = $repository->findByEmployeeId($employee->id);
             if ($employeeAccount) {
                 $repository->delete($employeeAccount);
             }
         } catch (\Exception $e) {
+        } catch (\Throwable $e) {
         }
     }
 }

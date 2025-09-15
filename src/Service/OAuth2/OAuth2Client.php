@@ -121,16 +121,20 @@ class OAuth2Client
      * @example http://my-shop.mydomain/admin-path/index.php?controller=AdminOAuth2PsAccounts
      * @example http://my-shop.mydomain/admin-path/modules/ps_accounts/oauth2
      *
+     * @param array $query
+     *
      * @return string
      */
-    public function getRedirectUri()
+    public function getRedirectUri($query = [])
     {
         if (defined('_PS_VERSION_')
             && version_compare(_PS_VERSION_, '9', '>=')) {
-            return $this->link->getAdminLink('SfAdminOAuth2PsAccounts', false);
+            return $this->link->getAdminLink('SfAdminOAuth2PsAccounts', false, array_merge([
+                'route' => 'ps_accounts_oauth2',
+            ], $query), $query, true);
         }
 
-        return $this->link->getAdminLink('AdminOAuth2PsAccounts', false, [], [], true);
+        return $this->link->getAdminLink('AdminOAuth2PsAccounts', false, [], $query, true);
     }
 
     /**

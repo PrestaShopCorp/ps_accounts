@@ -9,6 +9,7 @@ parameters:
 		- ../../ps_accounts.php
 	excludePaths:
 		- ../../src/Controller
+		- ../../src/Polyfill/ConfigurationStorageSession.php
 	dynamicConstantNames:
 		- _PS_VERSION_
 	ignoreErrors:
@@ -43,5 +44,6 @@ parameters:
 		- '#Call to an undefined method object::generate\(\).#'
 		- '#Symfony\\Component\\HttpFoundation\\Session\\SessionInterface#'
 		- '#Property PrestaShop\\Module\\PsAccounts\\Entity\\EmployeeAccount::\$id is never written, only read#'
+		- '#Attribute class AllowDynamicProperties does not exist.#'
 
 	level: 7

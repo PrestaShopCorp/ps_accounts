@@ -20,6 +20,8 @@
 
 namespace PrestaShop\Module\PsAccounts\Adapter;
 
+use PrestaShop\Module\PsAccounts\Log\Logger;
+
 class Configuration
 {
     /**
@@ -166,6 +168,16 @@ class Configuration
 
     /**
      * @param string $key
+     *
+     * @return mixed
+     */
+    public function getGlobal($key)
+    {
+        return \Configuration::getGlobalValue($key);
+    }
+
+    /**
+     * @param string $key
      * @param string|array $values
      * @param bool $html
      *
@@ -216,6 +228,28 @@ class Configuration
         }
 
         throw new \Exception('Configuration entry not found: ' . $key . '|grp:' . $idShopGroup . '|shop:' . $idShop);
+    }
+
+    /**
+     * @param string $key
+     *
+     * @return \DateTime|null
+     */
+    public function getDateUpd($key)
+    {
+        try {
+            $entry = $this->getUncachedConfiguration(
+                $key,
+                $this->getIdShopGroup(),
+                $this->getIdShop()
+            );
+
+            return new \DateTime($entry->date_upd);
+        } catch (\Exception $e) {
+            Logger::getInstance()->error(__METHOD__ . ': ' . $e->getMessage());
+
+            return null;
+        }
     }
 
     /**

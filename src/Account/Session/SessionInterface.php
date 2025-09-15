@@ -42,12 +42,14 @@ interface SessionInterface
      * Refreshes and saves refreshed token
      *
      * @param string|null $refreshToken
+     * @param array $scope
+     * @param array $audience
      *
      * @return Token
      *
      * @throws RefreshTokenException
      */
-    public function refreshToken($refreshToken = null);
+    public function refreshToken($refreshToken = null, array $scope = [], array $audience = []);
 
     /**
      * @deprecated use getValidToken instead
@@ -65,12 +67,14 @@ interface SessionInterface
      *
      * @param bool $forceRefresh
      * @param bool $throw
+     * @param array $scope
+     * @param array $audience
      *
      * @return Token
      *
      * @throws RefreshTokenException
      */
-    public function getValidToken($forceRefresh = false, $throw = true);
+    public function getValidToken($forceRefresh = false, $throw = true, array $scope = [], array $audience = []);
 
     /**
      * @return void
