@@ -148,6 +148,10 @@ class AdminAjaxPsAccountsController extends \ModuleAdminController
     }
 </style>
 ';
+    /**
+     * @var string
+     */
+    private $translationClass;
 
     /**
      * AdminAjaxPsAccountsController constructor.
@@ -160,6 +164,7 @@ class AdminAjaxPsAccountsController extends \ModuleAdminController
 
         $this->ajax = true;
         $this->content_only = true;
+        $this->translationClass = self::class;
     }
 
     /**
@@ -273,17 +278,21 @@ class AdminAjaxPsAccountsController extends \ModuleAdminController
 <div class="alert alert-warning acc-alert acc-alert-warning acc-flex">
     <div class="acc-flex-grow-1">
         <div class="acc-alert-title">
-            ' . $this->module->l('Action required: confirm your store URL') . '
+            ' . $this->module->l('Action required: confirm your store URL', $this->translationClass) . '
         </div>
-        <p>' . $this->module->l('We\'ve noticed that your store\'s URL no longer matches the one registered in your PrestaShop Account.') . '<br>' . $this->module->l('For your services to function properly, you must either confirm this change or create a new identity for your store.') . '</p>
+        <p>
+            ' . $this->module->l('We\'ve noticed that your store\'s URL no longer matches the one registered in your PrestaShop Account.', $this->translationClass) . '
+            <br>
+            ' . $this->module->l('For your services to function properly, you must either confirm this change or create a new identity for your store.', $this->translationClass) . '
+        </p>
         <ul class="acc-list">
-            <li>- ' . $this->module->l('Current store URL') . ': <em>' . $localFrontendUrl . '</em></li>
-            <li>- ' . $this->module->l('URL registered in PrestaShop Account') . ': <em>' . $cloudFrontendUrl . '</em></li>
+            <li>- ' . $this->module->l('Current store URL', $this->translationClass) . ': <em>' . $localFrontendUrl . '</em></li>
+            <li>- ' . $this->module->l('URL registered in PrestaShop Account', $this->translationClass) . ': <em>' . $cloudFrontendUrl . '</em></li>
         </ul>
     </div>
     <div>
         <button class="btn warning btn-outline-warning acc-btn btn-warning acc-btn-warning" onclick="document.location=\'' . $moduleLink . '\'">
-            ' . $this->module->l('Review settings') . '
+            ' . $this->module->l('Review settings', $this->translationClass) . '
         </button>
     </div>
 </div>
@@ -316,14 +325,14 @@ class AdminAjaxPsAccountsController extends \ModuleAdminController
 <div class="alert alert-danger acc-alert acc-alert-danger acc-flex">
     <div class="acc-flex-grow-1">
         <div class="acc-alert-title">
-            ' . $this->module->l('PrestaShop Account module wasn\'t upgraded properly.') . '
+            ' . $this->module->l('Action required: reset your PS Account module', $this->translationClass) . '
         </div>
-        <p>' . $this->module->l('Please reset or reinstall the module') . '</p>
+        <p>' . $this->module->l('A simple reset is needed to finish the update and ensure all your modules are working correctly.', $this->translationClass) . '</p>
     </div>
     <div>
         <button class="btn danger btn-outline-danger acc-btn btn-danger acc-btn-danger"
-            onclick="fetch(\'' . $resetLink . '\').then(response => {document.location.reload();})">
-            ' . $this->module->l('Reset module') . '
+            onclick="this.disabled = true; this.innerHTML = \'' . $this->module->l('Resetting module...', $this->translationClass) . '\'; fetch(\'' . $resetLink . '\').then(response => {document.location.reload();})">
+            ' . $this->module->l('Reset module', $this->translationClass) . '
         </button>
     </div>
 </div>
