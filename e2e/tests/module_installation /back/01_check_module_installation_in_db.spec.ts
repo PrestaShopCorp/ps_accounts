@@ -2,7 +2,7 @@ import {test} from '@playwright/test';
 import DbRequest from 'services/db/dbRequest';
 
 // Var
-let dbRequest = new DbRequest();
+const dbRequest = new DbRequest();
 
 test('Check that the ps_accounts module is returning information from the database', async () => {
   await dbRequest.getModuleDetails();
