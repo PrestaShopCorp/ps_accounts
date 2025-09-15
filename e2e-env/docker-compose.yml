@@ -25,8 +25,8 @@ services:
       ADMIN_MAIL: "admin@prestashop.com"
       ADMIN_PASSWD: "prestashop"
       PS_DOMAIN: ${PS_DOMAIN}
-      SSL_REDIRECT: false
-      INSTALL_MODULES_DIR: /modules/downloads/auto-install
+      PS_ACCOUNTS_VERSION: ${PS_ACCOUNTS_VERSION}
+      SSL_REDIRECT: true
     volumes:
       - ./init-scripts:/tmp/init-scripts:ro
       - ./modules:/modules

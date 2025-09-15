@@ -1,5 +1,4 @@
-import {Globals} from '~/utils/globals';
-import {Page, Locator, expect} from '@playwright/test';
+import {Page, expect} from '@playwright/test';
 import BasePage from '~/pages/basePage';
 import {dashboardPagesLocales} from '~/data/local/dashoardPageLocales/dashboardLocales';
 
