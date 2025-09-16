@@ -385,7 +385,7 @@ class Ps_accounts extends Module
         $form = [
             'form' => [
                 'legend' => [
-                    'title' => $this->l('Store Identity Recovery Form'),
+                    'title' => $this->l('Store Identity - Recovery Form'),
                 ],
                 'input' => [
                     [
