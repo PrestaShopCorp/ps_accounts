@@ -106,6 +106,7 @@ class CommandProvider implements IServiceProvider
             return new RestoreIdentityHandler(
                 $container->get(OAuth2Client::class),
                 $container->get(StatusManager::class),
+                $container->get(UpgradeService::class),
                 $container->get(CommandBus::class)
             );
         });

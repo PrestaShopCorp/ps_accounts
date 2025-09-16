@@ -21,6 +21,7 @@
 
 namespace PrestaShop\Module\PsAccounts\Account\CommandHandler;
 
+use PrestaShop\Module\PsAccounts\Account\Command\MigrateOrCreateIdentityV8Command;
 use PrestaShop\Module\PsAccounts\Account\Command\RestoreIdentityCommand;
 use PrestaShop\Module\PsAccounts\Account\Command\VerifyIdentityCommand;
 use PrestaShop\Module\PsAccounts\Account\Exception\RefreshTokenException;
@@ -29,6 +30,7 @@ use PrestaShop\Module\PsAccounts\Account\StatusManager;
 use PrestaShop\Module\PsAccounts\Cqrs\CommandBus;
 use PrestaShop\Module\PsAccounts\Service\Accounts\AccountsException;
 use PrestaShop\Module\PsAccounts\Service\OAuth2\OAuth2Client;
+use PrestaShop\Module\PsAccounts\Service\UpgradeService;
 
 class RestoreIdentityHandler
 {
@@ -43,6 +45,11 @@ class RestoreIdentityHandler
     private $statusManager;
 
     /**
+     * @var UpgradeService
+     */
+    private $upgradeService;
+
+    /**
      * @var CommandBus
      */
     private $commandBus;
@@ -50,15 +57,18 @@ class RestoreIdentityHandler
     /**
      * @param OAuth2Client $oauth2Client
      * @param StatusManager $shopStatus
+     * @param UpgradeService $upgradeService
      * @param CommandBus $commandBus
      */
     public function __construct(
         OAuth2Client $oauth2Client,
         StatusManager $shopStatus,
+        UpgradeService $upgradeService,
         CommandBus $commandBus
     ) {
         $this->oAuth2Client = $oauth2Client;
         $this->statusManager = $shopStatus;
+        $this->upgradeService = $upgradeService;
         $this->commandBus = $commandBus;
     }
 
@@ -80,13 +90,14 @@ class RestoreIdentityHandler
         );
         $this->statusManager->setCloudShopId($command->cloudShopId);
         $this->statusManager->setIsVerified(false);
-        $this->statusManager->invalidateCache();
+        $this->upgradeService->setVersion();
 
-        $this->commandBus->handle(new VerifyIdentityCommand(
+        $this->commandBus->handle(new MigrateOrCreateIdentityV8Command(
             $shopId,
-            false,
             $command->origin,
             $command->source
         ));
+//
+//        $this->statusManager->invalidateCache();
     }
 }
