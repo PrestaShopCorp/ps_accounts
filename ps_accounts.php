@@ -320,7 +320,6 @@ class Ps_accounts extends Module
 
         // this part is executed only when the form is submitted
         if (Tools::isSubmit('submit' . $this->name)) {
-
             \PrestaShop\Module\PsAccounts\Log\Logger::getInstance()->error('################ SUBMIT');
 
             $PSX_UUID_V4 = \PrestaShop\Module\PsAccounts\Adapter\ConfigurationKeys::PSX_UUID_V4;
@@ -437,7 +436,6 @@ class Ps_accounts extends Module
 
         return $helper->generateForm([$form]);
     }
-
 
     /**
      * @return string

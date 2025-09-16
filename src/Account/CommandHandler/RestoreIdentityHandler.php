@@ -23,7 +23,6 @@ namespace PrestaShop\Module\PsAccounts\Account\CommandHandler;
 
 use PrestaShop\Module\PsAccounts\Account\Command\MigrateOrCreateIdentityV8Command;
 use PrestaShop\Module\PsAccounts\Account\Command\RestoreIdentityCommand;
-use PrestaShop\Module\PsAccounts\Account\Command\VerifyIdentityCommand;
 use PrestaShop\Module\PsAccounts\Account\Exception\RefreshTokenException;
 use PrestaShop\Module\PsAccounts\Account\Exception\UnknownStatusException;
 use PrestaShop\Module\PsAccounts\Account\StatusManager;
