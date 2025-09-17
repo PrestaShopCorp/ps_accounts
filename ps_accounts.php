@@ -342,7 +342,7 @@ class Ps_accounts extends Module
     }
 
     /**
-     * @return string|void
+     * @return string|null
      */
     public function displayIdentityRecovery()
     {
@@ -353,6 +353,8 @@ class Ps_accounts extends Module
         if (Tools::getValue('recover')) {
             return $this->displayIdentityRecoveryForm();
         }
+
+        return null;
     }
 
     /**
