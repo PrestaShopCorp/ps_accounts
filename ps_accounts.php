@@ -423,7 +423,11 @@ class Ps_accounts extends Module
         $helper->table = $this->table;
         $helper->name_controller = $this->name;
         $helper->token = Tools::getAdminTokenLite('AdminModules');
-        $helper->currentIndex = $this->context->link->getAdminLink('AdminModules', false, [], ['configure' => $this->name]);
+        if (version_compare(_PS_VERSION_, '1.7', '>')) {
+            $helper->currentIndex = $this->context->link->getAdminLink('AdminModules', false, [], ['configure' => $this->name]);
+        } else {
+            $helper->currentIndex = AdminController::$currentIndex . '&' . http_build_query(['configure' => $this->name]);
+        }
         $helper->submit_action = 'submit' . $this->name;
 
         // Default language
