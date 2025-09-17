@@ -316,37 +316,8 @@ class Ps_accounts extends Module
      */
     public function getContent()
     {
-        $output = '';
-
-        // this part is executed only when the form is submitted
-        if (Tools::isSubmit('submit' . $this->name)) {
-            \PrestaShop\Module\PsAccounts\Log\Logger::getInstance()->error('################ SUBMIT');
-
-            $PSX_UUID_V4 = \PrestaShop\Module\PsAccounts\Adapter\ConfigurationKeys::PSX_UUID_V4;
-            $PS_ACCOUNTS_OAUTH2_CLIENT_ID = \PrestaShop\Module\PsAccounts\Adapter\ConfigurationKeys::PS_ACCOUNTS_OAUTH2_CLIENT_ID;
-            $PS_ACCOUNTS_OAUTH2_CLIENT_SECRET = \PrestaShop\Module\PsAccounts\Adapter\ConfigurationKeys::PS_ACCOUNTS_OAUTH2_CLIENT_SECRET;
-
-            /** @var \PrestaShop\Module\PsAccounts\Cqrs\CommandBus $commandBus */
-            $commandBus = $this->getService(\PrestaShop\Module\PsAccounts\Cqrs\CommandBus::class);
-            $commandBus->handle(new \PrestaShop\Module\PsAccounts\Account\Command\RestoreIdentityCommand(
-                (string) Tools::getValue($PSX_UUID_V4),
-                (string) Tools::getValue($PS_ACCOUNTS_OAUTH2_CLIENT_ID),
-                (string) Tools::getValue($PS_ACCOUNTS_OAUTH2_CLIENT_SECRET)
-            ));
-
-//            // check that the value is valid
-//            if (empty($configValue) || !Validate::isGenericName($configValue)) {
-//                // invalid value, show an error
-//                $output = $this->displayError($this->l('Invalid Configuration value'));
-//            } else {
-//                // value is ok, update it and display a confirmation message
-//                Configuration::updateValue('MYMODULE_CONFIG', $configValue);
-//                $output = $this->displayConfirmation($this->l('Settings updated'));
-//            }
-        }
-
-        if (Tools::getValue('recover')) {
-            return $this->displayIdentityRecoveryForm();
+        if (!empty($output = $this->displayIdentityRecovery())) {
+            return $output;
         }
 
         //$this->context->smarty->assign('pathVendor', $this->_path . 'views/js/chunk-vendors.' . $this->version . '.js');
@@ -371,12 +342,28 @@ class Ps_accounts extends Module
     }
 
     /**
+     * @return string|void
+     */
+    public function displayIdentityRecovery()
+    {
+        if (Tools::isSubmit('submit' . $this->name)) {
+            $this->storeIdentityRecoveryForm();
+        }
+
+        if (Tools::getValue('recover')) {
+            return $this->displayIdentityRecoveryForm();
+        }
+    }
+
+    /**
      * Builds the Store Identity Recovery form
      *
      * @return string HTML code
      */
     public function displayIdentityRecoveryForm()
     {
+        $warning = $this->displayError($this->l('Warning! You should only modify those values according to the PrestaShop support.'));
+
         $PSX_UUID_V4 = \PrestaShop\Module\PsAccounts\Adapter\ConfigurationKeys::PSX_UUID_V4;
         $PS_ACCOUNTS_OAUTH2_CLIENT_ID = \PrestaShop\Module\PsAccounts\Adapter\ConfigurationKeys::PS_ACCOUNTS_OAUTH2_CLIENT_ID;
         $PS_ACCOUNTS_OAUTH2_CLIENT_SECRET = \PrestaShop\Module\PsAccounts\Adapter\ConfigurationKeys::PS_ACCOUNTS_OAUTH2_CLIENT_SECRET;
@@ -438,7 +425,53 @@ class Ps_accounts extends Module
             $helper->fields_value[$cfg_key] = Tools::getValue($cfg_key, Configuration::get($cfg_key));
         }
 
-        return $helper->generateForm([$form]);
+        return $warning . $helper->generateForm([$form]);
+    }
+
+    /**
+     * @return string|void
+     */
+    public function storeIdentityRecoveryForm()
+    {
+        $PSX_UUID_V4 = (string) Tools::getValue(
+            \PrestaShop\Module\PsAccounts\Adapter\ConfigurationKeys::PSX_UUID_V4
+        );
+        $PS_ACCOUNTS_OAUTH2_CLIENT_ID = (string) Tools::getValue(
+            \PrestaShop\Module\PsAccounts\Adapter\ConfigurationKeys::PS_ACCOUNTS_OAUTH2_CLIENT_ID
+        );
+        $PS_ACCOUNTS_OAUTH2_CLIENT_SECRET = (string) Tools::getValue(
+            \PrestaShop\Module\PsAccounts\Adapter\ConfigurationKeys::PS_ACCOUNTS_OAUTH2_CLIENT_SECRET
+        );
+
+        $error = false;
+        foreach ([$PSX_UUID_V4, $PS_ACCOUNTS_OAUTH2_CLIENT_ID, $PS_ACCOUNTS_OAUTH2_CLIENT_SECRET] as $value) {
+            if (empty($value) || !Validate::isGenericName($value)) {
+                $error = true;
+                break;
+            }
+        }
+
+        if ($error) {
+            return $this->displayError($this->l('The form contains incorrect values')) .
+                $this->displayIdentityRecoveryForm();
+        } else {
+            /** @var \PrestaShop\Module\PsAccounts\Cqrs\CommandBus $commandBus */
+            $commandBus = $this->getService(\PrestaShop\Module\PsAccounts\Cqrs\CommandBus::class);
+            $commandBus->handle(new \PrestaShop\Module\PsAccounts\Account\Command\RestoreIdentityCommand(
+                $PSX_UUID_V4,
+                $PS_ACCOUNTS_OAUTH2_CLIENT_ID,
+                $PS_ACCOUNTS_OAUTH2_CLIENT_SECRET
+            ));
+            // $output = $this->displayConfirmation($this->l('Identity recovered successfully'));
+
+            if (version_compare(_PS_VERSION_, '1.7', '>')) {
+                Tools::redirectAdmin($this->context->link->getAdminLink('AdminModules', true, [], ['configure' => $this->name]));
+            } else {
+                Tools::redirectAdmin(AdminController::$currentIndex .
+                    '&' . http_build_query(['configure' => $this->name])) .
+                    '&token=' . Tools::getAdminTokenLite('AdminModules');
+            }
+        }
     }
 
     /**

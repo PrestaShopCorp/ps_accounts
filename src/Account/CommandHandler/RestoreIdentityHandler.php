@@ -27,7 +27,9 @@ use PrestaShop\Module\PsAccounts\Account\Exception\RefreshTokenException;
 use PrestaShop\Module\PsAccounts\Account\Exception\UnknownStatusException;
 use PrestaShop\Module\PsAccounts\Account\StatusManager;
 use PrestaShop\Module\PsAccounts\Cqrs\CommandBus;
+use PrestaShop\Module\PsAccounts\Log\Logger;
 use PrestaShop\Module\PsAccounts\Service\Accounts\AccountsException;
+use PrestaShop\Module\PsAccounts\Service\Accounts\Resource\ShopStatus;
 use PrestaShop\Module\PsAccounts\Service\OAuth2\OAuth2Client;
 use PrestaShop\Module\PsAccounts\Service\UpgradeService;
 
@@ -75,28 +77,53 @@ class RestoreIdentityHandler
      * @param RestoreIdentityCommand $command
      *
      * @return void
-     *
-     * * @throws RefreshTokenException
-     * * @throws UnknownStatusException
-     * * @throws AccountsException
      */
     public function handle(RestoreIdentityCommand $command)
     {
-        $shopId = $command->shopId ?: \Shop::getContextShopID();
-        $this->oAuth2Client->update(
-            $command->clientId,
-            $command->clientSecret
-        );
-        $this->statusManager->setCloudShopId($command->cloudShopId);
-        $this->statusManager->setIsVerified(false);
-        $this->upgradeService->setVersion();
+        try {
+            $currentStatus = $this->statusManager->getStatus(true);
+        } catch (UnknownStatusException $e) {
+            $currentStatus = new ShopStatus();
+        }
 
-        $this->commandBus->handle(new MigrateOrCreateIdentityV8Command(
-            $shopId,
-            $command->origin,
-            $command->source
-        ));
-//
-//        $this->statusManager->invalidateCache();
+        try {
+            if ($this->isSameIdentity($currentStatus, $command)) {
+                return;
+            }
+
+            $shopId = $command->shopId ?: \Shop::getContextShopID();
+            $this->oAuth2Client->update(
+                $command->clientId,
+                $command->clientSecret
+            );
+            $this->statusManager->setCloudShopId($command->cloudShopId);
+            $this->statusManager->setIsVerified(false);
+            $this->upgradeService->setVersion();
+
+            $this->commandBus->handle(new MigrateOrCreateIdentityV8Command(
+                // FIXME: $cloudShopId (should not be necessary to read it from db)
+                $shopId,
+                $command->origin,
+                $command->source
+            ));
+            //$this->statusManager->invalidateCache();
+        } catch (AccountsException $e) {
+            $this->statusManager->restoreStatus($currentStatus);
+        } catch (RefreshTokenException $e) {
+            $this->statusManager->restoreStatus($currentStatus);
+        }
+    }
+
+    /**
+     * @param ShopStatus $currentStatus
+     * @param RestoreIdentityCommand $command
+     *
+     * @return bool
+     */
+    public function isSameIdentity(ShopStatus $currentStatus, RestoreIdentityCommand $command)
+    {
+        return $currentStatus->cloudShopId === $command->cloudShopId &&
+            $this->oAuth2Client->getClientId() === $command->clientId &&
+            $this->oAuth2Client->getClientSecret() === $command->clientSecret;
     }
 }
