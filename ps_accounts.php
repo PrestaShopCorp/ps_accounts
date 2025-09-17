@@ -467,9 +467,10 @@ class Ps_accounts extends Module
             if (version_compare(_PS_VERSION_, '1.7', '>')) {
                 Tools::redirectAdmin($this->context->link->getAdminLink('AdminModules', true, [], ['configure' => $this->name]));
             } else {
-                Tools::redirectAdmin(AdminController::$currentIndex .
-                    '&' . http_build_query(['configure' => $this->name])) .
-                    '&token=' . Tools::getAdminTokenLite('AdminModules');
+                Tools::redirectAdmin(AdminController::$currentIndex . '&' . http_build_query([
+                        'configure' => $this->name,
+                        'token' => Tools::getAdminTokenLite('AdminModules'),
+                    ]));
             }
         }
     }
