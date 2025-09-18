@@ -99,7 +99,8 @@ class Link
      */
     public function getAdminBaseLink($shopId = null, $ssl = null, $relativeProtocol = false)
     {
-        if ($this->shopContext->isShop17()) {
+        /* @phpstan-ignore-next-line */
+        if (method_exists($this->link, 'getAdminBaseLink')) {
             return $this->link->getAdminBaseLink($shopId, $ssl, $relativeProtocol);
         } else {
             return $this->getAdminBaseLink16($shopId, $ssl, $relativeProtocol);
