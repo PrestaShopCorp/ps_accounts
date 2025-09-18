@@ -261,16 +261,6 @@ class ShopProvider
     }
 
     /**
-     * @return false|string
-     */
-    private function getMainShopVirtualUri()
-    {
-        return \Db::getInstance()->getValue(
-            'SELECT virtual_uri FROM ' . _DB_PREFIX_ . 'shop_url WHERE main=1'
-        );
-    }
-
-    /**
      * @param array $shopData
      *
      * @return string|null
@@ -310,13 +300,11 @@ class ShopProvider
             return null;
         }
 
-        // FIX virtual uri sur la shop
-        // FIX mismatch bandeau (BO URL)
         $boBaseUri = ($shop->domain_ssl ? 'https://' : 'http://') .
             ($shop->domain_ssl ?: $shop->domain) . $shop->physical_uri;
 
         $adminPath = defined('_PS_ADMIN_DIR_') ? basename(_PS_ADMIN_DIR_) : '';
-        $virtualPath =  $shop->virtual_uri;
+        $virtualPath = $shop->virtual_uri;
 
         return rtrim($boBaseUri, '/') . ($virtualPath ? '/' . $virtualPath : '/') . $adminPath;
     }
