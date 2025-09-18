@@ -261,6 +261,16 @@ class ShopProvider
     }
 
     /**
+     * @return false|string
+     */
+    private function getMainShopVirtualUri()
+    {
+        return \Db::getInstance()->getValue(
+            'SELECT virtual_uri FROM ' . _DB_PREFIX_ . 'shop_url WHERE main=1'
+        );
+    }
+
+    /**
      * @param array $shopData
      *
      * @return string|null
@@ -300,14 +310,17 @@ class ShopProvider
             return null;
         }
 
+        // FIX virtual uri sur la shop
+        // FIX mismatch bandeau (BO URL)
         $boBaseUri = ($shop->domain_ssl ? 'https://' : 'http://') .
             ($shop->domain_ssl ?: $shop->domain) . $shop->physical_uri;
 
         // FIXME: throw exception in wrong context
         // FIXME: unit tests
-        $adminPath = defined('_PS_ADMIN_DIR_') ? basename(_PS_ADMIN_DIR_) : '';
+        //$adminPath = defined('_PS_ADMIN_DIR_') ? basename(_PS_ADMIN_DIR_) : '';
+        $adminPath = $shop->physical_uri;
 
-        return rtrim($boBaseUri, '/') . '/' . $adminPath;
+        return rtrim($boBaseUri, '/') . '/' . $adminPath . $this->getMainShopVirtualUri();
     }
 
     /**
