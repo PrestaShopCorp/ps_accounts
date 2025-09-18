@@ -128,14 +128,15 @@ class OAuth2Client
     public function getRedirectUri($query = [])
     {
         $shopId = \Context::getContext()->shop->id;
+
         if (defined('_PS_VERSION_')
             && version_compare(_PS_VERSION_, '9', '>=')) {
             return $this->link->getAdminLink('SfAdminOAuth2PsAccounts', false, array_merge([
                 'route' => 'ps_accounts_oauth2',
             ], $query), $query, $shopId);
-        } else {
-            return $this->link->getAdminLink('AdminOAuth2PsAccounts', false, [], $query, $shopId);
         }
+
+        return $this->link->getAdminLink('AdminOAuth2PsAccounts', false, [], $query, $shopId);
     }
 
     /**
