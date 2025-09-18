@@ -129,12 +129,18 @@ class OAuth2Client
     {
         if (defined('_PS_VERSION_')
             && version_compare(_PS_VERSION_, '9', '>=')) {
-            return $this->link->getAdminLink('SfAdminOAuth2PsAccounts', false, array_merge([
+            $uri = $this->link->getAdminLink('SfAdminOAuth2PsAccounts', false, array_merge([
                 'route' => 'ps_accounts_oauth2',
             ], $query), $query, true);
+        } else {
+            $uri = $this->link->getAdminLink('AdminOAuth2PsAccounts', false, [], $query, true);
         }
 
-        return $this->link->getAdminLink('AdminOAuth2PsAccounts', false, [], $query, true);
+        //
+        $shopBoBaseUri = $this->link->getLink()->getAdminBaseLink(\Context::getContext()->shop->id);
+        $currentBoBaseUri = $this->link->getLink()->getAdminBaseLink();
+
+        return str_replace($currentBoBaseUri, $shopBoBaseUri, $uri);
     }
 
     /**
