@@ -127,7 +127,7 @@ class OAuth2Client
      */
     public function getRedirectUri($query = [])
     {
-        $shopId = \Context::getContext()->shop->id;
+        $shopId = $this->getContextShopId();
 
         if (defined('_PS_VERSION_')
             && version_compare(_PS_VERSION_, '9', '>=')) {
@@ -147,11 +147,19 @@ class OAuth2Client
      */
     public function getPostLogoutRedirectUri()
     {
-        $shopId = \Context::getContext()->shop->id;
-
         return $this->link->getAdminLink('AdminLogin', false, [], [
             'logout' => 1,
             self::getQueryLogoutCallbackParam() => 1,
-        ], $shopId);
+        ], $this->getContextShopId());
+    }
+
+    /**
+     * @return int
+     */
+    protected function getContextShopId()
+    {
+        $shopId = \Context::getContext()->shop->id;
+
+        return $shopId;
     }
 }
