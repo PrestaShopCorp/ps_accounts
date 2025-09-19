@@ -303,11 +303,10 @@ class ShopProvider
         $boBaseUri = ($shop->domain_ssl ? 'https://' : 'http://') .
             ($shop->domain_ssl ?: $shop->domain) . $shop->physical_uri;
 
-        // FIXME: throw exception in wrong context
-        // FIXME: unit tests
         $adminPath = defined('_PS_ADMIN_DIR_') ? basename(_PS_ADMIN_DIR_) : '';
+        $virtualPath = $shop->virtual_uri;
 
-        return rtrim($boBaseUri, '/') . '/' . $adminPath;
+        return rtrim($boBaseUri, '/') . ($virtualPath ? '/' . $virtualPath : '/') . $adminPath;
     }
 
     /**
