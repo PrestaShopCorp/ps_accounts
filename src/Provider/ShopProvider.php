@@ -289,10 +289,11 @@ class ShopProvider
 
     /**
      * @param int $shopId
+     * @param bool $withVirtualUri
      *
      * @return string|null
      */
-    public function getBackendUrl($shopId)
+    public function getBackendUrl($shopId, $withVirtualUri = false)
     {
         $shop = new \Shop($shopId);
 
@@ -304,7 +305,7 @@ class ShopProvider
             ($shop->domain_ssl ?: $shop->domain) . $shop->physical_uri;
 
         $adminPath = defined('_PS_ADMIN_DIR_') ? basename(_PS_ADMIN_DIR_) : '';
-        $virtualPath = $shop->virtual_uri;
+        $virtualPath = $withVirtualUri ? $shop->virtual_uri : null;
 
         return rtrim($boBaseUri, '/') . ($virtualPath ? '/' . $virtualPath : '/') . $adminPath;
     }

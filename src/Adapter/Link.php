@@ -84,7 +84,7 @@ class Link
         }
 
         if ($shopId) {
-            $uri = $this->contextualizeUri($uri, $shopId);
+            $uri = $this->fixVirtualUri($uri, $shopId);
         }
 
         return $uri;
@@ -213,11 +213,14 @@ class Link
      *
      * @return string
      */
-    private function contextualizeUri($uri, $shopId)
+    private function fixVirtualUri($uri, $shopId)
     {
-        $shopBoBaseUri = $this->getAdminBaseLink($shopId);
-        $uriBoBaseUri = $this->getAdminBaseLink();
+        $shop = new \Shop($shopId);
 
-        return str_replace($uriBoBaseUri, $shopBoBaseUri, $uri);
+        return preg_replace(
+            '@' . $shop->physical_uri . '.*' . basename(_PS_ADMIN_DIR_) . '@',
+            $shop->physical_uri . basename(_PS_ADMIN_DIR_),
+            $uri
+        );
     }
 }
