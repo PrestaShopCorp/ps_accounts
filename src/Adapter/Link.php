@@ -218,8 +218,8 @@ class Link
         $shop = new \Shop($shopId);
 
         return preg_replace(
-            '@' . $shop->physical_uri . '.*' . basename(_PS_ADMIN_DIR_) . '@',
-            $shop->physical_uri . basename(_PS_ADMIN_DIR_),
+            '@^(https://[^/]+)' . $shop->physical_uri . '.*' . basename(_PS_ADMIN_DIR_) . '@',
+            '$1' . $shop->physical_uri . basename(_PS_ADMIN_DIR_),
             $uri
         );
     }

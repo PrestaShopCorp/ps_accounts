@@ -305,8 +305,10 @@ class ShopProvider
             ($shop->domain_ssl ?: $shop->domain) . $shop->physical_uri;
 
         $adminPath = defined('_PS_ADMIN_DIR_') ? basename(_PS_ADMIN_DIR_) : '';
+        // FIXME: $virtualPath = $withVirtualUri ? $shop->virtual_uri : '';
         $virtualPath = $withVirtualUri ? $shop->virtual_uri : null;
 
+        // FIXME: $boBaseUri . $virtualPath . $adminPath;
         return rtrim($boBaseUri, '/') . ($virtualPath ? '/' . $virtualPath : '/') . $adminPath;
     }
 
