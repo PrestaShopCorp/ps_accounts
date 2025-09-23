@@ -84,7 +84,7 @@ class IdentifyContactHandler
      */
     public function handle(IdentifyContactCommand $command)
     {
-        $this->shopContext->execInShopContext($command->shopId, function () use ($command) {
+        //$this->shopContext->execInShopContext($command->shopId, function () use ($command) {
             $status = $this->statusManager->getStatus(false, StatusManager::CACHE_TTL, $command->source);
             if (!$status->isVerified) {
                 return;
@@ -103,6 +103,6 @@ class IdentifyContactHandler
             // optimistic update cached status
             $this->statusManager->setPointOfContactUuid($command->userInfo->sub);
             $this->statusManager->setPointOfContactEmail($command->userInfo->email);
-        });
+        //});
     }
 }

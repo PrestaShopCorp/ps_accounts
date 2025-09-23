@@ -25,6 +25,7 @@ use PrestaShop\Module\PsAccounts\AccountLogin\Exception\AccountLoginException;
 use PrestaShop\Module\PsAccounts\AccountLogin\Exception\EmailNotVerifiedException;
 use PrestaShop\Module\PsAccounts\AccountLogin\Exception\EmployeeNotFoundException;
 use PrestaShop\Module\PsAccounts\AccountLogin\Exception\Oauth2LoginException;
+use PrestaShop\Module\PsAccounts\Context\ShopContext;
 use PrestaShop\Module\PsAccounts\Entity\EmployeeAccount;
 use PrestaShop\Module\PsAccounts\Log\Logger;
 use PrestaShop\Module\PsAccounts\Repository\EmployeeAccountRepository;
@@ -96,56 +97,66 @@ trait OAuth2LoginTrait
      */
     public function oauth2Login()
     {
-        $apiClient = $this->getOAuth2Service();
+        $shopId = Tools::getValue('shop_id', $this->getShopId() ?: \Context::getContext()->shop->id);
 
-        //$this->getSession()->start();
-        $session = $this->getSession();
-        $oauth2Session = $this->getOauth2Session();
+        /** @var ShopContext $shopContext */
+        $shopContext = $this->module->getService(ShopContext::class);
 
-        $error = Tools::getValue('error', '');
-        $state = Tools::getValue('state', '');
-        $code = Tools::getValue('code', '');
-        $action = Tools::getValue('action', 'login');
-        $source = Tools::getValue('source', 'ps_accounts');
-        $shopId = Tools::getValue('shop_id', null);
+        return $shopContext->execInShopContext($shopId, function () use ($shopId) {
 
-        if (!empty($error)) {
-            // Got an error, probably user denied access
-            throw new \Exception('Got error: ' . $error);
-        // If we don't have an authorization code then get one
-        } elseif (empty($code)) {
-            // cleanup existing accessToken
-            $oauth2Session->clear();
+            // FIXME: rework multishop context management
+            //\Shop::setContext(\Shop::CONTEXT_SHOP, $shopId);
 
-            $this->setOAuthAction($action);
-            $this->setSource($source);
-            $this->setShopId($shopId);
+            $apiClient = $this->getOAuth2Service();
 
-            $this->setSessionReturnTo(Tools::getValue($this->getReturnToParam()));
+            //$this->getSession()->start();
+            $session = $this->getSession();
+            $oauth2Session = $this->getOauth2Session();
 
-            $this->oauth2Redirect(Tools::getValue('locale', 'en'), $shopId);
+            $error = Tools::getValue('error', '');
+            $state = Tools::getValue('state', '');
+            $code = Tools::getValue('code', '');
+            $action = Tools::getValue('action', 'login');
+            $source = Tools::getValue('source', 'ps_accounts');
 
-        // Check given state against previously stored one to mitigate CSRF attack
-        } elseif (empty($state) || ($session->has('oauth2state') && $state !== $session->get('oauth2state'))) {
-            $session->remove('oauth2state');
+            if (!empty($error)) {
+                // Got an error, probably user denied access
+                throw new \Exception('Got error: ' . $error);
+                // If we don't have an authorization code then get one
+            } elseif (empty($code)) {
+                // cleanup existing accessToken
+                $oauth2Session->clear();
 
-            throw new \Exception('Invalid state');
-        } else {
-            $this->assertValidCode($code);
+                $this->setOAuthAction($action);
+                $this->setSource($source);
+                $this->setShopId($shopId);
 
-            try {
-                $accessToken = $apiClient->getAccessTokenByAuthorizationCode(
-                    $code,
-                    $this->getSession()->get('oauth2pkceCode')
-                );
-            } catch (OAuth2Exception $e) {
-                throw new Oauth2LoginException($e->getMessage(), null, $e);
+                $this->setSessionReturnTo(Tools::getValue($this->getReturnToParam()));
+
+                $this->oauth2Redirect(Tools::getValue('locale', 'en'), $shopId);
+
+                // Check given state against previously stored one to mitigate CSRF attack
+            } elseif (empty($state) || ($session->has('oauth2state') && $state !== $session->get('oauth2state'))) {
+                $session->remove('oauth2state');
+
+                throw new \Exception('Invalid state');
+            } else {
+                $this->assertValidCode($code);
+
+                try {
+                    $accessToken = $apiClient->getAccessTokenByAuthorizationCode(
+                        $code,
+                        $this->getSession()->get('oauth2pkceCode')
+                    );
+                } catch (OAuth2Exception $e) {
+                    throw new Oauth2LoginException($e->getMessage(), null, $e);
+                }
+
+                if ($this->initUserSession($accessToken)) {
+                    return $this->redirectAfterLogin();
+                }
             }
-
-            if ($this->initUserSession($accessToken)) {
-                return $this->redirectAfterLogin();
-            }
-        }
+        });
     }
 
     /**
