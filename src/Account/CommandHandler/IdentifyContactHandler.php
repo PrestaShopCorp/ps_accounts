@@ -51,11 +51,6 @@ class IdentifyContactHandler
     private $ownerSession;
 
     /**
-     * @var ShopContext
-     */
-    private $shopContext;
-
-    /**
      * @param AccountsService $accountsService
      * @param StatusManager $statusManager
      * @param ShopSession $shopSession
@@ -65,14 +60,12 @@ class IdentifyContactHandler
         AccountsService $accountsService,
         StatusManager $statusManager,
         ShopSession $shopSession,
-        OwnerSession $ownerSession,
-        ShopContext $shopContext
+        OwnerSession $ownerSession
     ) {
         $this->accountsService = $accountsService;
         $this->statusManager = $statusManager;
         $this->shopSession = $shopSession;
         $this->ownerSession = $ownerSession;
-        $this->shopContext = $shopContext;
     }
 
     /**
@@ -84,25 +77,23 @@ class IdentifyContactHandler
      */
     public function handle(IdentifyContactCommand $command)
     {
-        //$this->shopContext->execInShopContext($command->shopId, function () use ($command) {
-            $status = $this->statusManager->getStatus(false, StatusManager::CACHE_TTL, $command->source);
-            if (!$status->isVerified) {
-                return;
-            }
+        $status = $this->statusManager->getStatus(false, StatusManager::CACHE_TTL, $command->source);
+        if (!$status->isVerified) {
+            return;
+        }
 
-            $this->accountsService->setPointOfContact(
-                $this->statusManager->getCloudShopId(),
-                $this->shopSession->getValidToken(),
-                $command->accessToken->access_token,
-                $command->source
-            );
+        $this->accountsService->setPointOfContact(
+            $this->statusManager->getCloudShopId(),
+            $this->shopSession->getValidToken(),
+            $command->accessToken->access_token,
+            $command->source
+        );
 
-            // cleanup user token
-            $this->ownerSession->cleanup();
+        // cleanup user token
+        $this->ownerSession->cleanup();
 
-            // optimistic update cached status
-            $this->statusManager->setPointOfContactUuid($command->userInfo->sub);
-            $this->statusManager->setPointOfContactEmail($command->userInfo->email);
-        //});
+        // optimistic update cached status
+        $this->statusManager->setPointOfContactUuid($command->userInfo->sub);
+        $this->statusManager->setPointOfContactEmail($command->userInfo->email);
     }
 }
