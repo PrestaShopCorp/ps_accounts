@@ -103,7 +103,6 @@ trait OAuth2LoginTrait
         $shopContext = $this->module->getService(ShopContext::class);
 
         return $shopContext->execInShopContext($shopId, function () use ($shopId) {
-
             // FIXME: rework multishop context management
             //\Shop::setContext(\Shop::CONTEXT_SHOP, $shopId);
 
@@ -122,7 +121,7 @@ trait OAuth2LoginTrait
             if (!empty($error)) {
                 // Got an error, probably user denied access
                 throw new \Exception('Got error: ' . $error);
-                // If we don't have an authorization code then get one
+            // If we don't have an authorization code then get one
             } elseif (empty($code)) {
                 // cleanup existing accessToken
                 $oauth2Session->clear();
@@ -135,7 +134,7 @@ trait OAuth2LoginTrait
 
                 $this->oauth2Redirect(Tools::getValue('locale', 'en'), $shopId);
 
-                // Check given state against previously stored one to mitigate CSRF attack
+            // Check given state against previously stored one to mitigate CSRF attack
             } elseif (empty($state) || ($session->has('oauth2state') && $state !== $session->get('oauth2state'))) {
                 $session->remove('oauth2state');
 
