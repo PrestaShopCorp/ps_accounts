@@ -380,7 +380,9 @@ class ShopProvider
                             'identifyPointOfContactUrl' => $this->oAuth2Service->getOAuth2Client()->getRedirectUri([
                                 'action' => 'identifyPointOfContact',
                                 'source' => $source,
-                            ]),
+                                'shop_id' => $shopData['id_shop'],
+                                //'setShopContext' => 's-' . $shopData['id_shop'],
+                            ], $shopData['id_shop']),
                             // FIXME: rename to "createIdentityUrl"
                             'fallbackCreateIdentityUrl' => $this->link->getAdminLink('AdminAjaxV2PsAccounts', false, [], [
                                 'ajax' => 1,

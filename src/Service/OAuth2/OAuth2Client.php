@@ -122,13 +122,12 @@ class OAuth2Client
      * @example http://my-shop.mydomain/admin-path/modules/ps_accounts/oauth2
      *
      * @param array $query
+     * @param int $shopId
      *
      * @return string
      */
-    public function getRedirectUri($query = [])
+    public function getRedirectUri($query = [], $shopId = null)
     {
-        $shopId = $this->getContextShopId();
-
         if (defined('_PS_VERSION_')
             && version_compare(_PS_VERSION_, '9', '>=')) {
             return $this->link->getAdminLink('SfAdminOAuth2PsAccounts', false, array_merge([
@@ -143,23 +142,15 @@ class OAuth2Client
      * @example http://my-shop.mydomain/admin-path/index.php?controller=AdminLogin&logout=1&oauth2Callback=1
      * @example http://my-shop.mydomain/admin-path/logout?oauth2Callback=1
      *
+     * @param int $shopId
+     *
      * @return string
      */
-    public function getPostLogoutRedirectUri()
+    public function getPostLogoutRedirectUri($shopId = null)
     {
         return $this->link->getAdminLink('AdminLogin', false, [], [
             'logout' => 1,
             self::getQueryLogoutCallbackParam() => 1,
-        ], $this->getContextShopId());
-    }
-
-    /**
-     * @return int
-     */
-    protected function getContextShopId()
-    {
-        $shopId = \Context::getContext()->shop->id;
-
-        return $shopId;
+        ], $shopId);
     }
 }
