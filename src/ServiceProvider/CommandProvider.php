@@ -80,7 +80,8 @@ class CommandProvider implements IServiceProvider
                 $container->get(AccountsService::class),
                 $container->get(StatusManager::class),
                 $container->get(Session\ShopSession::class),
-                $container->get(Session\Firebase\OwnerSession::class)
+                $container->get(Session\Firebase\OwnerSession::class),
+                $container->get(ShopContext::class)
             );
         });
         $container->registerProvider(MigrateOrCreateIdentitiesV8Handler::class, static function () use ($container) {

@@ -32,24 +32,31 @@ class IdentifyContactCommand
     public $accessToken;
 
     /**
-     * @var string|null
-     */
-    public $source;
-
-    /**
      * @var UserInfo
      */
     public $userInfo;
 
     /**
+     * @var int|null
+     */
+    public $shopId;
+
+    /**
+     * @var string|null
+     */
+    public $source;
+
+    /**
      * @param AccessToken $accessToken
      * @param UserInfo $userInfo
+     * @param int|null $shopId
      * @param string $source
      */
-    public function __construct($accessToken, $userInfo, $source = 'ps_accounts')
+    public function __construct($accessToken, $userInfo, $shopId = null, $source = 'ps_accounts')
     {
         $this->accessToken = $accessToken;
         $this->userInfo = $userInfo;
+        $this->shopId = $shopId;
         $this->source = $source;
     }
 }

@@ -107,6 +107,7 @@ trait OAuth2LoginTrait
         $code = Tools::getValue('code', '');
         $action = Tools::getValue('action', 'login');
         $source = Tools::getValue('source', 'ps_accounts');
+        $shopId = Tools::getValue('shop_id', null);
 
         if (!empty($error)) {
             // Got an error, probably user denied access
@@ -118,10 +119,11 @@ trait OAuth2LoginTrait
 
             $this->setOAuthAction($action);
             $this->setSource($source);
+            $this->setShopId($shopId);
 
             $this->setSessionReturnTo(Tools::getValue($this->getReturnToParam()));
 
-            $this->oauth2Redirect(Tools::getValue('locale', 'en'));
+            $this->oauth2Redirect(Tools::getValue('locale', 'en'), $shopId);
 
         // Check given state against previously stored one to mitigate CSRF attack
         } elseif (empty($state) || ($session->has('oauth2state') && $state !== $session->get('oauth2state'))) {
@@ -148,12 +150,13 @@ trait OAuth2LoginTrait
 
     /**
      * @param string $locale
+     * @param int|null $shopId
      *
      * @return void
      *
      * @throws \Exception
      */
-    private function oauth2Redirect($locale)
+    private function oauth2Redirect($locale, $shopId)
     {
         $apiClient = $this->getOAuth2Service();
 
@@ -169,7 +172,8 @@ trait OAuth2LoginTrait
             'S256',
             $locale,
             '',
-            'login'
+            'login',
+            $shopId
         );
 
         // Redirect the user to the authorization URL.
@@ -265,6 +269,24 @@ trait OAuth2LoginTrait
     private function setSource($source)
     {
         $this->getSession()->set('source', $source);
+    }
+
+    /**
+     * @return string
+     */
+    private function getShopId()
+    {
+        return $this->getSession()->get('shopId');
+    }
+
+    /**
+     * @param string $shopId
+     *
+     * @return void
+     */
+    private function setShopId($shopId)
+    {
+        $this->getSession()->set('shopId', $shopId);
     }
 
     /**

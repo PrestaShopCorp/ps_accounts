@@ -24,6 +24,7 @@ use PrestaShop\Module\PsAccounts\Account\Command\IdentifyContactCommand;
 use PrestaShop\Module\PsAccounts\Account\Session\Firebase\OwnerSession;
 use PrestaShop\Module\PsAccounts\Account\Session\ShopSession;
 use PrestaShop\Module\PsAccounts\Account\StatusManager;
+use PrestaShop\Module\PsAccounts\Context\ShopContext;
 use PrestaShop\Module\PsAccounts\Service\Accounts\AccountsException;
 use PrestaShop\Module\PsAccounts\Service\Accounts\AccountsService;
 
@@ -50,6 +51,11 @@ class IdentifyContactHandler
     private $ownerSession;
 
     /**
+     * @var ShopContext
+     */
+    private $shopContext;
+
+    /**
      * @param AccountsService $accountsService
      * @param StatusManager $statusManager
      * @param ShopSession $shopSession
@@ -59,12 +65,14 @@ class IdentifyContactHandler
         AccountsService $accountsService,
         StatusManager $statusManager,
         ShopSession $shopSession,
-        OwnerSession $ownerSession
+        OwnerSession $ownerSession,
+        ShopContext $shopContext
     ) {
         $this->accountsService = $accountsService;
         $this->statusManager = $statusManager;
         $this->shopSession = $shopSession;
         $this->ownerSession = $ownerSession;
+        $this->shopContext = $shopContext;
     }
 
     /**
@@ -76,23 +84,25 @@ class IdentifyContactHandler
      */
     public function handle(IdentifyContactCommand $command)
     {
-        $status = $this->statusManager->getStatus(false, StatusManager::CACHE_TTL, $command->source);
-        if (!$status->isVerified) {
-            return;
-        }
+        $this->shopContext->execInShopContext($command->shopId, function () use ($command) {
+            $status = $this->statusManager->getStatus(false, StatusManager::CACHE_TTL, $command->source);
+            if (!$status->isVerified) {
+                return;
+            }
 
-        $this->accountsService->setPointOfContact(
-            $this->statusManager->getCloudShopId(),
-            $this->shopSession->getValidToken(),
-            $command->accessToken->access_token,
-            $command->source
-        );
+            $this->accountsService->setPointOfContact(
+                $this->statusManager->getCloudShopId(),
+                $this->shopSession->getValidToken(),
+                $command->accessToken->access_token,
+                $command->source
+            );
 
-        // cleanup user token
-        $this->ownerSession->cleanup();
+            // cleanup user token
+            $this->ownerSession->cleanup();
 
-        // optimistic update cached status
-        $this->statusManager->setPointOfContactUuid($command->userInfo->sub);
-        $this->statusManager->setPointOfContactEmail($command->userInfo->email);
+            // optimistic update cached status
+            $this->statusManager->setPointOfContactUuid($command->userInfo->sub);
+            $this->statusManager->setPointOfContactEmail($command->userInfo->email);
+        });
     }
 }

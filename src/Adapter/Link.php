@@ -219,7 +219,8 @@ class Link
 
         return preg_replace(
             '@^(https://[^/]+)' . $shop->physical_uri . '.*' . basename(_PS_ADMIN_DIR_) . '@',
-            '$1' . $shop->physical_uri . basename(_PS_ADMIN_DIR_),
+            //'$1' . $shop->physical_uri . basename(_PS_ADMIN_DIR_),
+            'https://' . $shop->domain_ssl . $shop->physical_uri . basename(_PS_ADMIN_DIR_),
             $uri
         );
     }
