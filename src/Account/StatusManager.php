@@ -121,7 +121,7 @@ class StatusManager
                         'updatedAt' => date('Y-m-d H:i:s'),
                         'shopStatus' => $this->accountsService->shopStatus(
                             $this->getCloudShopId(),
-                            $this->shopSession->getValidToken(),
+                            $this->shopSession->getValidToken(false, true, []),
                             $source
                         ),
                     ]));
