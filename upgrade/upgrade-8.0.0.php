@@ -40,8 +40,8 @@ function upgrade_module_8_0_0($module)
         $commandBus = $module->getService(CommandBus::class);
 
         $commandBus->handle(new MigrateOrCreateIdentitiesV8Command(
-            'ps_accounts',
-            AccountsService::ORIGIN_UPGRADE
+            AccountsService::ORIGIN_UPGRADE,
+            'ps_accounts'
         ));
     } catch (\Exception $e) {
         Logger::getInstance()->error('error during upgrade : ' . $e);
