@@ -22,6 +22,7 @@ namespace PrestaShop\Module\PsAccounts\Type;
 
 use PrestaShop\Module\PsAccounts\Exception\DtoException;
 
+#[\AllowDynamicProperties]
 abstract class Dto implements \JsonSerializable
 {
     /**
