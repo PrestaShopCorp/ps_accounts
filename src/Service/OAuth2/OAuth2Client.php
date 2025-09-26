@@ -127,14 +127,16 @@ class OAuth2Client
      */
     public function getRedirectUri($query = [])
     {
+        $shopId = $this->getContextShopId();
+
         if (defined('_PS_VERSION_')
             && version_compare(_PS_VERSION_, '9', '>=')) {
             return $this->link->getAdminLink('SfAdminOAuth2PsAccounts', false, array_merge([
                 'route' => 'ps_accounts_oauth2',
-            ], $query), $query, true);
+            ], $query), $query, $shopId);
         }
 
-        return $this->link->getAdminLink('AdminOAuth2PsAccounts', false, [], $query, true);
+        return $this->link->getAdminLink('AdminOAuth2PsAccounts', false, [], $query, $shopId);
     }
 
     /**
@@ -148,6 +150,16 @@ class OAuth2Client
         return $this->link->getAdminLink('AdminLogin', false, [], [
             'logout' => 1,
             self::getQueryLogoutCallbackParam() => 1,
-        ], true);
+        ], $this->getContextShopId());
+    }
+
+    /**
+     * @return int
+     */
+    protected function getContextShopId()
+    {
+        $shopId = \Context::getContext()->shop->id;
+
+        return $shopId;
     }
 }
