@@ -32,14 +32,14 @@ class IdentifyContactCommand
     public $accessToken;
 
     /**
-     * @var string|null
-     */
-    public $source;
-
-    /**
      * @var UserInfo
      */
     public $userInfo;
+
+    /**
+     * @var string|null
+     */
+    public $source;
 
     /**
      * @param AccessToken $accessToken

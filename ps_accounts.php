@@ -32,7 +32,7 @@ class Ps_accounts extends Module
 
     // Needed in order to retrieve the module version easier (in api call headers) than instanciate
     // the module each time to get the version
-    const VERSION = '8.0.0';
+    const VERSION = '8.0.1';
 
     /**
      * Admin tabs
@@ -96,7 +96,7 @@ class Ps_accounts extends Module
 
         // We cannot use the const VERSION because the const is not computed by addons marketplace
         // when the zip is uploaded
-        $this->version = '8.0.0';
+        $this->version = '8.0.1';
 
         $this->module_key = 'abf2cd758b4d629b2944d3922ef9db73';
 
@@ -409,16 +409,8 @@ class Ps_accounts extends Module
         /** @var \PrestaShop\Module\PsAccounts\Cqrs\CommandBus $commandBus */
         $commandBus = $this->getService(\PrestaShop\Module\PsAccounts\Cqrs\CommandBus::class);
 
-        /** @var \PrestaShop\Module\PsAccounts\Service\UpgradeService $upgradeService */
-        $upgradeService = $this->getService(\PrestaShop\Module\PsAccounts\Service\UpgradeService::class);
-
         // Verification flow
-        $commandBus->handle(new \PrestaShop\Module\PsAccounts\Account\Command\MigrateOrCreateIdentitiesV8Command(
-            'ps_accounts',
-            version_compare($upgradeService->getCoreRegisteredVersion(), '0', '>') ?
-                \PrestaShop\Module\PsAccounts\Service\Accounts\AccountsService::ORIGIN_RESET :
-                \PrestaShop\Module\PsAccounts\Service\Accounts\AccountsService::ORIGIN_INSTALL
-        ));
+        $commandBus->handle(new \PrestaShop\Module\PsAccounts\Account\Command\MigrateOrCreateIdentitiesV8Command());
     }
 
     /**

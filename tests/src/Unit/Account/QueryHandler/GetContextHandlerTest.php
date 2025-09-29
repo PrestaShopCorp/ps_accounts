@@ -42,8 +42,8 @@ class GetContextHandlerTest extends TestCase
         $this->assertArrayHasKey('groups', $result);
 
         $this->assertSame([
-            'last_succeeded_upgrade_version' => '8.0.0',
-            'module_version_from_files' => '8.0.0',
+            'last_succeeded_upgrade_version' => \Ps_accounts::VERSION,
+            'module_version_from_files' => \Ps_accounts::VERSION,
         ], $result['ps_accounts']);
 
         $this->assertSame($expectedShops, $result['groups']);

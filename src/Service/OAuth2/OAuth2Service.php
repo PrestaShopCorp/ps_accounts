@@ -266,6 +266,7 @@ class OAuth2Service
      * @param string $uiLocales
      * @param string $acrValues
      * @param string $prompt
+     * @param int|null $shopId
      *
      * @return string authorization flow uri
      *
@@ -277,7 +278,8 @@ class OAuth2Service
         $pkceMethod = 'S256',
         $uiLocales = 'fr',
         $acrValues = 'prompt:login',
-        $prompt = 'none'
+        $prompt = 'none',
+        $shopId = null
     ) {
         $this->assertClientExists();
 
@@ -288,7 +290,7 @@ class OAuth2Service
                 'scope' => implode(' ', $this->defaultScopes),
                 'response_type' => 'code',
                 'approval_prompt' => 'auto',
-                'redirect_uri' => $this->getOAuth2Client()->getRedirectUri(),
+                'redirect_uri' => $this->getOAuth2Client()->getRedirectUri([], $shopId),
                 'client_id' => $this->oAuth2Client->getClientId(),
                 'acr_values' => $acrValues,
                 'prompt' => $prompt,

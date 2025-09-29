@@ -29,7 +29,7 @@ return [
     'ps_accounts.sentry_credentials' => 'https://a065bd1f092f8c849e6076fe0640d049@o298402.ingest.us.sentry.io/5354585',
     'ps_accounts.segment_write_key' => 'eYODaH20rT1lMRTTUtAa15BKBlV1XUXQ',
     'ps_accounts.accounts_vue_cdn_url' => 'https://unpkg.com/prestashop_accounts_vue_components@3/dist/psaccountsVue.umd.min.js',
-    'ps_accounts.accounts_cdn_url' => 'https://unpkg.com/@prestashopcorp/accounts-components@beta',
+    'ps_accounts.accounts_cdn_url' => 'https://integration-assets.prestashop3.com/accounts-components/latest/psaccountsVue.js',
     'ps_accounts.cors_allowed_origins' => [
         'https://integration-assets.prestashop3.com',
         'https://preproduction-assets.prestashop3.com',

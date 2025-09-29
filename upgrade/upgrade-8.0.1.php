@@ -13,29 +13,11 @@ use PrestaShop\Module\PsAccounts\Service\Accounts\AccountsService;
  * @throws Exception
  * @throws Throwable
  */
-function upgrade_module_8_0_0($module)
+function upgrade_module_8_0_1($module)
 {
     require __DIR__ . '/../src/enforce_autoload.php';
 
     try {
-        $module->unregisterHook('actionObjectShopDeleteBefore');
-        $module->unregisterHook('actionObjectShopUpdateAfter');
-        $module->unregisterHook('actionObjectShopUrlUpdateAfter');
-        $module->unregisterHook('actionShopAccountLinkAfter');
-        $module->unregisterHook('actionShopAccountUnlinkAfter');
-        $module->unregisterHook('displayAccountUpdateWarning');
-
-        $module->registerHook($module->getHooksToRegister());
-
-        $tabId = \Tab::getIdFromClassName('AdminDebugPsAccounts');
-        if ($tabId) {
-            $tab = new \Tab($tabId);
-            $tab->delete();
-        }
-
-        $installer = new PrestaShop\Module\PsAccounts\Module\Install($module, Db::getInstance());
-        $installer->installInMenu();
-
         /** @var CommandBus $commandBus */
         $commandBus = $module->getService(CommandBus::class);
 

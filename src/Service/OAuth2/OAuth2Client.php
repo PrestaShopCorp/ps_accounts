@@ -122,32 +122,35 @@ class OAuth2Client
      * @example http://my-shop.mydomain/admin-path/modules/ps_accounts/oauth2
      *
      * @param array $query
+     * @param int $shopId
      *
      * @return string
      */
-    public function getRedirectUri($query = [])
+    public function getRedirectUri($query = [], $shopId = null)
     {
         if (defined('_PS_VERSION_')
             && version_compare(_PS_VERSION_, '9', '>=')) {
             return $this->link->getAdminLink('SfAdminOAuth2PsAccounts', false, array_merge([
                 'route' => 'ps_accounts_oauth2',
-            ], $query), $query, true);
+            ], $query), $query, $shopId);
         }
 
-        return $this->link->getAdminLink('AdminOAuth2PsAccounts', false, [], $query, true);
+        return $this->link->getAdminLink('AdminOAuth2PsAccounts', false, [], $query, $shopId);
     }
 
     /**
      * @example http://my-shop.mydomain/admin-path/index.php?controller=AdminLogin&logout=1&oauth2Callback=1
      * @example http://my-shop.mydomain/admin-path/logout?oauth2Callback=1
      *
+     * @param int $shopId
+     *
      * @return string
      */
-    public function getPostLogoutRedirectUri()
+    public function getPostLogoutRedirectUri($shopId = null)
     {
         return $this->link->getAdminLink('AdminLogin', false, [], [
             'logout' => 1,
             self::getQueryLogoutCallbackParam() => 1,
-        ], true);
+        ], $shopId);
     }
 }

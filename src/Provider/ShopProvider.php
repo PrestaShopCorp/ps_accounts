@@ -289,10 +289,11 @@ class ShopProvider
 
     /**
      * @param int $shopId
+     * @param bool $withVirtualUri
      *
      * @return string|null
      */
-    public function getBackendUrl($shopId)
+    public function getBackendUrl($shopId, $withVirtualUri = false)
     {
         $shop = new \Shop($shopId);
 
@@ -303,11 +304,12 @@ class ShopProvider
         $boBaseUri = ($shop->domain_ssl ? 'https://' : 'http://') .
             ($shop->domain_ssl ?: $shop->domain) . $shop->physical_uri;
 
-        // FIXME: throw exception in wrong context
-        // FIXME: unit tests
         $adminPath = defined('_PS_ADMIN_DIR_') ? basename(_PS_ADMIN_DIR_) : '';
+        // FIXME: $virtualPath = $withVirtualUri ? $shop->virtual_uri : '';
+        $virtualPath = $withVirtualUri ? $shop->virtual_uri : null;
 
-        return rtrim($boBaseUri, '/') . '/' . $adminPath;
+        // FIXME: $boBaseUri . $virtualPath . $adminPath;
+        return rtrim($boBaseUri, '/') . ($virtualPath ? '/' . $virtualPath : '/') . $adminPath;
     }
 
     /**
@@ -378,7 +380,9 @@ class ShopProvider
                             'identifyPointOfContactUrl' => $this->oAuth2Service->getOAuth2Client()->getRedirectUri([
                                 'action' => 'identifyPointOfContact',
                                 'source' => $source,
-                            ]),
+                                'shop_id' => $shopData['id_shop'],
+                                //'setShopContext' => 's-' . $shopData['id_shop'],
+                            ], $shopData['id_shop']),
                             // FIXME: rename to "createIdentityUrl"
                             'fallbackCreateIdentityUrl' => $this->link->getAdminLink('AdminAjaxV2PsAccounts', false, [], [
                                 'ajax' => 1,
