@@ -25,10 +25,12 @@ use PrestaShop\Module\PsAccounts\Account\Exception\RefreshTokenException;
 use PrestaShop\Module\PsAccounts\Account\Exception\UnknownStatusException;
 use PrestaShop\Module\PsAccounts\Account\ProofManager;
 use PrestaShop\Module\PsAccounts\Account\Session\ShopSession;
+use PrestaShop\Module\PsAccounts\Account\ShopUrl;
 use PrestaShop\Module\PsAccounts\Account\StatusManager;
 use PrestaShop\Module\PsAccounts\Provider\ShopProvider;
 use PrestaShop\Module\PsAccounts\Service\Accounts\AccountsException;
 use PrestaShop\Module\PsAccounts\Service\Accounts\AccountsService;
+use PrestaShop\Module\PsAccounts\Service\Accounts\Resource\ShopStatus;
 
 class VerifyIdentityHandler
 {
@@ -89,13 +91,17 @@ class VerifyIdentityHandler
      */
     public function handle(VerifyIdentityCommand $command)
     {
-        $cachedStatus = $this->statusManager->getStatus(false, StatusManager::CACHE_TTL, $command->source);
+        $status = $this->statusManager->getStatus(false, StatusManager::CACHE_TTL, $command->source);
 
-        if (!$command->force && $cachedStatus->isVerified) {
+        $shopId = $command->shopId ?: \Shop::getContextShopID();
+
+        if (!$command->force && $status->isVerified) {
             return;
         }
 
-        $shopId = $command->shopId ?: \Shop::getContextShopID();
+        if (!$command->force && $this->urlChanged($status, $shopId)) {
+            return;
+        }
 
         $this->accountsService->verifyShopIdentity(
             $this->statusManager->getCloudShopId(),
@@ -107,5 +113,33 @@ class VerifyIdentityHandler
             $command->source
         );
         $this->statusManager->invalidateCache();
+    }
+
+    /**
+     * @param ShopStatus $status
+     * @param int $shopId
+     *
+     * @return bool
+     */
+    public function urlChanged(ShopStatus $status, $shopId)
+    {
+        $shopUrl = $this->shopProvider->getUrl($shopId);
+
+        $cloudShopUrl = new ShopUrl(
+            rtrim($status->backOfficeUrl, '/'),
+            rtrim($status->frontendUrl, '/'),
+            $shopId
+        );
+        $localShopUrl = new ShopUrl(
+            rtrim($shopUrl->getBackOfficeUrl(), '/'),
+            rtrim($shopUrl->getFrontendUrl(), '/'),
+            $shopId
+        );
+
+        if (!$cloudShopUrl->equals($localShopUrl)) {
+            return true;
+        }
+
+        return false;
     }
 }
