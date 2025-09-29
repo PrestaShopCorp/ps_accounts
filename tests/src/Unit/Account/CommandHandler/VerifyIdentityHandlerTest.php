@@ -79,13 +79,19 @@ class VerifyIdentityHandlerTest extends TestCase
     {
         $cloudShopId = $this->faker->uuid;
 
-        $this->configurationRepository->updateCachedShopStatus(json_encode((new CachedShopStatus([
+        $shopUrl = $this->shopProvider->getUrl(1);
+
+        $cachedShopStatus = new CachedShopStatus([
             'isValid' => true,
             'shopStatus' => new ShopStatus([
                 'cloudShopId' => $cloudShopId,
                 'isVerified' => false,
+                'frontendUrl'  => $shopUrl->getFrontendUrl(),
+                'backOfficeUrl'  => $shopUrl->getBackOfficeUrl(),
             ])
-        ]))->toArray()));
+        ]);
+
+        $this->configurationRepository->updateCachedShopStatus(json_encode($cachedShopStatus->toArray()));
 
         $this->client->method('post')
             ->with($this->matchesRegularExpression('/v1\/shop-identities\/' . $cloudShopId . '\/verify$/'))
@@ -104,6 +110,90 @@ class VerifyIdentityHandlerTest extends TestCase
             });
 
         $this->getHandler()->handle(new VerifyIdentityCommand(1));
+
+        $this->assertTrue($this->statusManager->cacheInvalidated());
+    }
+
+    /**
+     * @test
+     */
+    public function itShouldNotInvalidateCachedStatusOnChangedUrl()
+    {
+        $cloudShopId = $this->faker->uuid;
+
+        $shopUrl = $this->shopProvider->getUrl(1);
+
+        $cachedShopStatus = new CachedShopStatus([
+            'isValid' => true,
+            'shopStatus' => new ShopStatus([
+                'cloudShopId' => $cloudShopId,
+                'isVerified' => false,
+                'frontendUrl'  => $shopUrl->getFrontendUrl() . 'toto',
+                'backOfficeUrl'  => $shopUrl->getBackOfficeUrl(),
+            ])
+        ]);
+
+        $this->configurationRepository->updateCachedShopStatus(json_encode($cachedShopStatus->toArray()));
+
+//        $this->client->method('post')
+//            ->with($this->matchesRegularExpression('/v1\/shop-identities\/' . $cloudShopId . '\/verify$/'))
+//            ->willReturnCallback(function ($route, $options) use ($cloudShopId) {
+//
+//                $this->assertArrayHasKey('Authorization', $options[Request::HEADERS]);
+//                $this->assertArrayHasKey('backOfficeUrl', $options[Request::JSON]);
+//                $this->assertArrayHasKey('frontendUrl', $options[Request::JSON]);
+//                $this->assertArrayHasKey('multiShopId', $options[Request::JSON]);
+//                $this->assertArrayHasKey('name', $options[Request::JSON]);
+//                $this->assertEquals($this->proofManager->getProof(), $options[Request::JSON]['proof']);
+//
+//                return $this->createResponse([
+//                    "success" => true,
+//                ], 200, true);
+//            });
+
+        $this->getHandler()->handle(new VerifyIdentityCommand(1));
+
+        $this->assertFalse($this->statusManager->cacheInvalidated());
+    }
+
+    /**
+     * @test
+     */
+    public function itShouldInvalidateCachedStatusOnChangedUrlWithForce()
+    {
+        $cloudShopId = $this->faker->uuid;
+
+        $shopUrl = $this->shopProvider->getUrl(1);
+
+        $cachedShopStatus = new CachedShopStatus([
+            'isValid' => true,
+            'shopStatus' => new ShopStatus([
+                'cloudShopId' => $cloudShopId,
+                'isVerified' => false,
+                'frontendUrl'  => $shopUrl->getFrontendUrl() . 'toto',
+                'backOfficeUrl'  => $shopUrl->getBackOfficeUrl(),
+            ])
+        ]);
+
+        $this->configurationRepository->updateCachedShopStatus(json_encode($cachedShopStatus->toArray()));
+
+        $this->client->method('post')
+            ->with($this->matchesRegularExpression('/v1\/shop-identities\/' . $cloudShopId . '\/verify$/'))
+            ->willReturnCallback(function ($route, $options) use ($cloudShopId) {
+
+                $this->assertArrayHasKey('Authorization', $options[Request::HEADERS]);
+                $this->assertArrayHasKey('backOfficeUrl', $options[Request::JSON]);
+                $this->assertArrayHasKey('frontendUrl', $options[Request::JSON]);
+                $this->assertArrayHasKey('multiShopId', $options[Request::JSON]);
+                $this->assertArrayHasKey('name', $options[Request::JSON]);
+                $this->assertEquals($this->proofManager->getProof(), $options[Request::JSON]['proof']);
+
+                return $this->createResponse([
+                    "success" => true,
+                ], 200, true);
+            });
+
+        $this->getHandler()->handle(new VerifyIdentityCommand(1, true));
 
         $this->assertTrue($this->statusManager->cacheInvalidated());
     }
