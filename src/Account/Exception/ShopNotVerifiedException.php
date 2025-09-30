@@ -18,8 +18,8 @@
  * @license   https://opensource.org/licenses/AFL-3.0 Academic Free License version 3.0
  */
 
-namespace PrestaShop\Module\PsAccounts\Service\OAuth2;
+namespace PrestaShop\Module\PsAccounts\Account\Exception;
 
-class OAuth2Exception extends \Exception
+class ShopNotVerifiedException extends RefreshTokenException
 {
 }

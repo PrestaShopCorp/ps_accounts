@@ -18,12 +18,15 @@
  * @license   https://opensource.org/licenses/AFL-3.0 Academic Free License version 3.0
  */
 
-namespace PrestaShop\Module\PsAccounts\Service\Accounts;
+namespace PrestaShop\Module\PsAccounts\Service\OAuth2;
 
 use PrestaShop\Module\PsAccounts\Http\Client\Response;
 
-class AccountsException extends \Exception
+class OAuth2ServerException extends OAuth2Exception
 {
+    const ERROR_INVALID_REQUEST = 'invalid_request';
+    const ERROR_INVALID_SCOPE = 'invalid_scope';
+
     /**
      * @var string
      */
@@ -38,7 +41,7 @@ class AccountsException extends \Exception
     {
         $this->errorCode = $this->getErrorCodeFromResponse($response, $defaultErrorCode);
 
-        parent::__construct($this->getErrorMessageFromResponse($response, $defaultMessage));
+        parent::__construct($response->statusCode . ': ' . $this->getErrorMessageFromResponse($response, $defaultMessage));
     }
 
     /**
@@ -59,11 +62,11 @@ class AccountsException extends \Exception
      */
     protected function getErrorMessageFromResponse(Response $response, $defaultMessage = '')
     {
-        if (!isset($response->body['message']) || !is_string($response->body['message'])) {
+        if (!isset($response->body['error_description']) || !is_string($response->body['error_description'])) {
             return $defaultMessage;
         }
 
-        return $response->body['message'];
+        return $response->body['error_description'];
     }
 
     /**
@@ -80,4 +83,23 @@ class AccountsException extends \Exception
 
         return $response->body['error'];
     }
+
+//    /**
+//     * @param Response $response
+//     * @param string $defaultMessage
+//     *
+//     * @return string
+//     */
+//    protected function getResponseErrorMsg(Response $response, $defaultMessage = '')
+//    {
+//        $msg = $defaultMessage;
+//        $body = $response->body;
+//        if (isset($body['error']) &&
+//            isset($body['error_description'])
+//        ) {
+//            $msg = $body['error'] . ': ' . $body['error_description'];
+//        }
+//
+//        return $response->statusCode . ' - ' . $msg;
+//    }
 }

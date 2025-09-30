@@ -21,10 +21,12 @@
 namespace PrestaShop\Module\PsAccounts\Account\Session;
 
 use PrestaShop\Module\PsAccounts\Account\Exception\RefreshTokenException;
+use PrestaShop\Module\PsAccounts\Account\Exception\ShopNotVerifiedException;
 use PrestaShop\Module\PsAccounts\Account\Token\Token;
 use PrestaShop\Module\PsAccounts\Hook\ActionShopAccessTokenRefreshAfter;
 use PrestaShop\Module\PsAccounts\Repository\ConfigurationRepository;
 use PrestaShop\Module\PsAccounts\Service\OAuth2\OAuth2Exception;
+use PrestaShop\Module\PsAccounts\Service\OAuth2\OAuth2ServerException;
 use PrestaShop\Module\PsAccounts\Service\OAuth2\OAuth2Service;
 use PrestaShop\Module\PsAccounts\Service\OAuth2\Resource\AccessToken;
 
@@ -98,6 +100,7 @@ class ShopSession extends Session implements SessionInterface
      * @return Token
      *
      * @throws RefreshTokenException
+     * @throws ShopNotVerifiedException
      */
     public function refreshToken($refreshToken = null, array $scope = [], array $audience = [])
     {
@@ -114,6 +117,10 @@ class ShopSession extends Session implements SessionInterface
             \Hook::exec(ActionShopAccessTokenRefreshAfter::getName(), ['token' => $token]);
 
             return $token;
+        } catch (OAuth2ServerException $e) {
+            if ($e->getErrorCode() == OAuth2ServerException::ERROR_INVALID_SCOPE && in_array('shop.verified', $scope)) {
+                throw new ShopNotVerifiedException('Unable to refresh shop token : ' . $e->getMessage());
+            }
         } catch (OAuth2Exception $e) {
         } catch (\Throwable $e) {
             /* @phpstan-ignore-next-line */

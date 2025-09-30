@@ -22,6 +22,7 @@ namespace PrestaShop\Module\PsAccounts\Account;
 
 use DateTime;
 use PrestaShop\Module\PsAccounts\Account\Exception\RefreshTokenException;
+use PrestaShop\Module\PsAccounts\Account\Exception\ShopNotVerifiedException;
 use PrestaShop\Module\PsAccounts\Account\Exception\UnknownStatusException;
 use PrestaShop\Module\PsAccounts\Account\Session\ShopSession;
 use PrestaShop\Module\PsAccounts\Repository\ConfigurationRepository;
@@ -116,16 +117,23 @@ class StatusManager
                 $this->cacheExpired($cachedShopStatus, $cacheTtl)
             ) {
                 try {
+                    try {
+                        $token = $this->shopSession->getValidToken(false, true, ['shop.toto']);
+                    } catch (ShopNotVerifiedException $e) {
+                        $this->setIsVerified(false);
+                        $token = $this->shopSession->getValidToken();
+                    }
+
                     $this->upsetCachedStatus(new CachedShopStatus([
                         'isValid' => true,
                         'updatedAt' => date('Y-m-d H:i:s'),
                         'shopStatus' => $this->accountsService->shopStatus(
                             $this->getCloudShopId(),
-                            $this->shopSession->getValidToken(false, true, ['shop.toto']),
+                            $token,
                             $source
                         ),
                     ]));
-                } catch (InvalidScopeException $e) {
+                } catch (ShopNotVerifiedException $e) {
                     $this->setIsVerified(false);
                 } catch (AccountsException $e) {
                 } catch (RefreshTokenException $e) {
