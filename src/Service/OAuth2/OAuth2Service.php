@@ -475,23 +475,4 @@ class OAuth2Service
             throw new OAuth2Exception('OAuth2 client not configured');
         }
     }
-
-    /**
-     * @param Response $response
-     * @param string $defaultMessage
-     *
-     * @return string
-     */
-    protected function getResponseErrorMsg(Response $response, $defaultMessage = '')
-    {
-        $msg = $defaultMessage;
-        $body = $response->body;
-        if (isset($body['error']) &&
-            isset($body['error_description'])
-        ) {
-            $msg = $body['error'] . ': ' . $body['error_description'];
-        }
-
-        return $response->statusCode . ' - ' . $msg;
-    }
 }

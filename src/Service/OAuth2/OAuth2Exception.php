@@ -20,6 +20,84 @@
 
 namespace PrestaShop\Module\PsAccounts\Service\OAuth2;
 
+use PrestaShop\Module\PsAccounts\Http\Client\Response;
+
 class OAuth2Exception extends \Exception
 {
+    /**
+     * @var string
+     */
+    protected $errorCode;
+
+    /**
+     * @param Response $response
+     * @param string $defaultMessage
+     * @param string $defaultErrorCode
+     */
+    public function __construct($response, $defaultMessage = '', $defaultErrorCode = '')
+    {
+        $this->errorCode = $this->getErrorCodeFromResponse($response, $defaultErrorCode);
+
+        parent::__construct($this->getErrorMessageFromResponse($response, $defaultMessage));
+    }
+
+    /**
+     * Get the error code.
+     *
+     * @return string
+     */
+    public function getErrorCode()
+    {
+        return $this->errorCode;
+    }
+
+    /**
+     * @param Response $response
+     * @param string $defaultMessage
+     *
+     * @return string
+     */
+    protected function getErrorMessageFromResponse(Response $response, $defaultMessage = '')
+    {
+        if (!isset($response->body['error_description']) || !is_string($response->body['error_description'])) {
+            return $defaultMessage;
+        }
+
+        return $response->body['error_description'];
+    }
+
+    /**
+     * @param Response $response
+     * @param string $defaultCode
+     *
+     * @return string
+     */
+    protected function getErrorCodeFromResponse(Response $response, $defaultCode = '')
+    {
+        if (!isset($response->body['error']) || !is_string($response->body['error'])) {
+            return $defaultCode;
+        }
+
+        return $response->body['error'];
+    }
+
+
+//    /**
+//     * @param Response $response
+//     * @param string $defaultMessage
+//     *
+//     * @return string
+//     */
+//    protected function getResponseErrorMsg(Response $response, $defaultMessage = '')
+//    {
+//        $msg = $defaultMessage;
+//        $body = $response->body;
+//        if (isset($body['error']) &&
+//            isset($body['error_description'])
+//        ) {
+//            $msg = $body['error'] . ': ' . $body['error_description'];
+//        }
+//
+//        return $response->statusCode . ' - ' . $msg;
+//    }
 }

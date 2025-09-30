@@ -38,8 +38,7 @@ class AccountsException extends \Exception
     {
         $this->errorCode = $this->getErrorCodeFromResponse($response, $defaultErrorCode);
 
-        $message = $this->getErrorMessageFromResponse($response, $defaultMessage);
-        parent::__construct($message);
+        parent::__construct($this->getErrorMessageFromResponse($response, $defaultMessage));
     }
 
     /**

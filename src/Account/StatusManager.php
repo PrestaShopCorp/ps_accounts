@@ -121,10 +121,12 @@ class StatusManager
                         'updatedAt' => date('Y-m-d H:i:s'),
                         'shopStatus' => $this->accountsService->shopStatus(
                             $this->getCloudShopId(),
-                            $this->shopSession->getValidToken(false, true, []),
+                            $this->shopSession->getValidToken(false, true, ['shop.toto']),
                             $source
                         ),
                     ]));
+                } catch (InvalidScopeException $e) {
+                    $this->setIsVerified(false);
                 } catch (AccountsException $e) {
                 } catch (RefreshTokenException $e) {
                 }
