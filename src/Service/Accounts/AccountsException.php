@@ -36,9 +36,9 @@ class AccountsException extends \Exception
      */
     public function __construct($response, $defaultMessage = '', $defaultErrorCode = '')
     {
-        $this->errorCode = $this->getErrorCodeFromResponse($response, $defaultErrorCode);
+        $this->errorCode = $response->getErrorCodeFromBody($defaultErrorCode, 'error');
 
-        parent::__construct($this->getErrorMessageFromResponse($response, $defaultMessage));
+        parent::__construct($response->getErrorMessageFromBody($defaultMessage, 'message'));
     }
 
     /**
@@ -49,35 +49,5 @@ class AccountsException extends \Exception
     public function getErrorCode()
     {
         return $this->errorCode;
-    }
-
-    /**
-     * @param Response $response
-     * @param string $defaultMessage
-     *
-     * @return string
-     */
-    protected function getErrorMessageFromResponse(Response $response, $defaultMessage = '')
-    {
-        if (!isset($response->body['message']) || !is_string($response->body['message'])) {
-            return $defaultMessage;
-        }
-
-        return $response->body['message'];
-    }
-
-    /**
-     * @param Response $response
-     * @param string $defaultCode
-     *
-     * @return string
-     */
-    protected function getErrorCodeFromResponse(Response $response, $defaultCode = '')
-    {
-        if (!isset($response->body['error']) || !is_string($response->body['error'])) {
-            return $defaultCode;
-        }
-
-        return $response->body['error'];
     }
 }

@@ -39,9 +39,9 @@ class OAuth2ServerException extends OAuth2Exception
      */
     public function __construct($response, $defaultMessage = '', $defaultErrorCode = '')
     {
-        $this->errorCode = $this->getErrorCodeFromResponse($response, $defaultErrorCode);
+        $this->errorCode = $response->getErrorCodeFromBody($defaultErrorCode, 'error');
 
-        parent::__construct($response->statusCode . ': ' . $this->getErrorMessageFromResponse($response, $defaultMessage));
+        parent::__construct($response->statusCode . ': ' . $response->getErrorMessageFromBody($defaultMessage, 'error_description'));
     }
 
     /**
@@ -53,53 +53,4 @@ class OAuth2ServerException extends OAuth2Exception
     {
         return $this->errorCode;
     }
-
-    /**
-     * @param Response $response
-     * @param string $defaultMessage
-     *
-     * @return string
-     */
-    protected function getErrorMessageFromResponse(Response $response, $defaultMessage = '')
-    {
-        if (!isset($response->body['error_description']) || !is_string($response->body['error_description'])) {
-            return $defaultMessage;
-        }
-
-        return $response->body['error_description'];
-    }
-
-    /**
-     * @param Response $response
-     * @param string $defaultCode
-     *
-     * @return string
-     */
-    protected function getErrorCodeFromResponse(Response $response, $defaultCode = '')
-    {
-        if (!isset($response->body['error']) || !is_string($response->body['error'])) {
-            return $defaultCode;
-        }
-
-        return $response->body['error'];
-    }
-
-//    /**
-//     * @param Response $response
-//     * @param string $defaultMessage
-//     *
-//     * @return string
-//     */
-//    protected function getResponseErrorMsg(Response $response, $defaultMessage = '')
-//    {
-//        $msg = $defaultMessage;
-//        $body = $response->body;
-//        if (isset($body['error']) &&
-//            isset($body['error_description'])
-//        ) {
-//            $msg = $body['error'] . ': ' . $body['error_description'];
-//        }
-//
-//        return $response->statusCode . ' - ' . $msg;
-//    }
 }
