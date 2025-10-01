@@ -66,6 +66,38 @@ class Response extends ConfigObject
     }
 
     /**
+     * @param string $key
+     * @param string $defaultMessage
+     *
+     * @return string
+     */
+    public function getErrorMessageFromBody($key, $defaultMessage = '')
+    {
+        if (!isset($this->body[$key]) ||
+            !is_string($this->body[$key])) {
+            return $defaultMessage;
+        }
+
+        return $this->body[$key];
+    }
+
+    /**
+     * @param string $key
+     * @param string $defaultCode
+     *
+     * @return string
+     */
+    public function getErrorCodeFromBody($key, $defaultCode = '')
+    {
+        if (!isset($this->body[$key]) ||
+            !is_string($this->body[$key])) {
+            return $defaultCode;
+        }
+
+        return $this->body[$key];
+    }
+
+    /**
      * @param array|string $body
      *
      * @return array

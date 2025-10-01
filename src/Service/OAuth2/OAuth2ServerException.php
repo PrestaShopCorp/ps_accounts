@@ -18,12 +18,15 @@
  * @license   https://opensource.org/licenses/AFL-3.0 Academic Free License version 3.0
  */
 
-namespace PrestaShop\Module\PsAccounts\Service\Accounts;
+namespace PrestaShop\Module\PsAccounts\Service\OAuth2;
 
 use PrestaShop\Module\PsAccounts\Http\Client\Response;
 
-class AccountsException extends \Exception
+class OAuth2ServerException extends OAuth2Exception
 {
+    const ERROR_INVALID_REQUEST = 'invalid_request';
+    const ERROR_INVALID_SCOPE = 'invalid_scope';
+
     /**
      * @var string
      */
@@ -38,7 +41,7 @@ class AccountsException extends \Exception
     {
         $this->errorCode = $response->getErrorCodeFromBody('error', $defaultErrorCode);
 
-        parent::__construct($response->getErrorMessageFromBody('message', $defaultMessage));
+        parent::__construct($response->statusCode . ': ' . $response->getErrorMessageFromBody('error_description', $defaultMessage));
     }
 
     /**

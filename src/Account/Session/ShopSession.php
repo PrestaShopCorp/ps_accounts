@@ -25,6 +25,7 @@ use PrestaShop\Module\PsAccounts\Account\Token\Token;
 use PrestaShop\Module\PsAccounts\Hook\ActionShopAccessTokenRefreshAfter;
 use PrestaShop\Module\PsAccounts\Repository\ConfigurationRepository;
 use PrestaShop\Module\PsAccounts\Service\OAuth2\OAuth2Exception;
+use PrestaShop\Module\PsAccounts\Service\OAuth2\OAuth2ServerException;
 use PrestaShop\Module\PsAccounts\Service\OAuth2\OAuth2Service;
 use PrestaShop\Module\PsAccounts\Service\OAuth2\Resource\AccessToken;
 
@@ -65,25 +66,29 @@ class ShopSession extends Session implements SessionInterface
     /**
      * @param bool $forceRefresh
      * @param bool $throw
-     * @param array $scope
-     * @param array $audience
+     * @param array|null $scope
+     * @param array|null $audience
      *
      * @return Token
      *
      * @throws RefreshTokenException
      */
-    public function getValidToken($forceRefresh = false, $throw = true, array $scope = [], array $audience = [])
+    public function getValidToken($forceRefresh = false, $throw = true, array $scope = null, array $audience = null)
     {
-        $scp = $scope + ($this->getStatusManager()->identityVerified() ? [
-            'shop.verified',
-        ] : []);
+        if ($scope === null) {
+            $scope = ($this->getStatusManager()->identityVerified() ? [
+                'shop.verified',
+            ] : []);
+        }
 
-        $aud = $audience + [
-            'store/' . $this->getStatusManager()->getCloudShopId(),
-            $this->tokenAudience,
-        ];
+        if ($audience === null) {
+            $audience = [
+                'store/' . $this->getStatusManager()->getCloudShopId(),
+                $this->tokenAudience,
+            ];
+        }
 
-        return parent::getValidToken($forceRefresh, $throw, $scp, $aud);
+        return parent::getValidToken($forceRefresh, $throw, $scope, $audience);
     }
 
     /**
@@ -98,7 +103,11 @@ class ShopSession extends Session implements SessionInterface
     public function refreshToken($refreshToken = null, array $scope = [], array $audience = [])
     {
         try {
-            $accessToken = $this->getAccessToken($scope, $audience);
+            try {
+                $accessToken = $this->getAccessToken($scope, $audience);
+            } catch (OAuth2ServerException $e) {
+                $accessToken = $this->fallbackRefresh($e, 'shop.verified', $scope, $audience);
+            }
 
             $this->setToken(
                 $accessToken->access_token,
@@ -111,9 +120,8 @@ class ShopSession extends Session implements SessionInterface
 
             return $token;
         } catch (OAuth2Exception $e) {
-        } catch (\Throwable $e) {
-            /* @phpstan-ignore-next-line */
         } catch (\Exception $e) {
+        } catch (\Throwable $e) {
         }
         throw new RefreshTokenException('Unable to refresh shop token : ' . $e->getMessage());
     }
@@ -156,5 +164,33 @@ class ShopSession extends Session implements SessionInterface
     protected function getAccessToken(array $scope = [], array $audience = [])
     {
         return $this->oAuth2Service->getAccessTokenByClientCredentials($scope, $audience);
+    }
+
+    /**
+     * @param OAuth2ServerException $e
+     * @param string $filterScope
+     * @param array $scope
+     * @param array $audience
+     *
+     * @return AccessToken
+     *
+     * @throws OAuth2Exception
+     */
+    protected function fallbackRefresh($e, $filterScope, array $scope, array $audience)
+    {
+        if ($e->getErrorCode() == OAuth2ServerException::ERROR_INVALID_SCOPE &&
+            in_array($filterScope, $scope) &&
+            str_contains($e->getMessage(), $filterScope)
+        ) {
+            $this->getStatusManager()->setIsVerified(false);
+            $this->resetRefreshTokenErrors();
+            $accessToken = $this->getAccessToken(array_filter($scope, function ($scp) use ($filterScope) {
+                return $scp !== $filterScope;
+            }), $audience);
+        } else {
+            throw $e;
+        }
+
+        return $accessToken;
     }
 }
