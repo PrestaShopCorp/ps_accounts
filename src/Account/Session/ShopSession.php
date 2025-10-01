@@ -75,6 +75,19 @@ class ShopSession extends Session implements SessionInterface
      */
     public function getValidToken($forceRefresh = false, $throw = true, array $scope = null, array $audience = null)
     {
+        if ($scope === null) {
+            $scope = ($this->getStatusManager()->identityVerified() ? [
+                'shop.verified',
+            ] : []);
+        }
+
+        if ($audience === null) {
+            $audience = [
+                'store/' . $this->getStatusManager()->getCloudShopId(),
+                $this->tokenAudience,
+            ];
+        }
+
         return parent::getValidToken($forceRefresh, $throw, $scope, $audience);
     }
 
@@ -141,28 +154,15 @@ class ShopSession extends Session implements SessionInterface
     }
 
     /**
-     * @param array|null $scope
-     * @param array|null $audience
+     * @param array $scope
+     * @param array $audience
      *
      * @return AccessToken
      *
      * @throws OAuth2Exception
      */
-    protected function getAccessToken(array $scope = null, array $audience = null)
+    protected function getAccessToken(array $scope = [], array $audience = [])
     {
-        if ($scope === null) {
-            $scope = ($this->getStatusManager()->identityVerified() ? [
-                'shop.verified',
-            ] : []);
-        }
-
-        if ($audience === null) {
-            $audience = [
-                'store/' . $this->getStatusManager()->getCloudShopId(),
-                $this->tokenAudience,
-            ];
-        }
-
         return $this->oAuth2Service->getAccessTokenByClientCredentials($scope, $audience);
     }
 
@@ -184,10 +184,9 @@ class ShopSession extends Session implements SessionInterface
         ) {
             $this->getStatusManager()->setIsVerified(false);
             $this->resetRefreshTokenErrors();
-//            $accessToken = $this->getAccessToken(array_filter($scope, function ($scp) use ($filterScope) {
-//                return $scp !== $filterScope;
-//            }), $audience);
-            $accessToken = $this->getAccessToken($scope, $audience);
+            $accessToken = $this->getAccessToken(array_filter($scope, function ($scp) use ($filterScope) {
+                return $scp !== $filterScope;
+            }), $audience);
         } else {
             throw $e;
         }
