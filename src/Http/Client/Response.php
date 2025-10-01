@@ -66,12 +66,12 @@ class Response extends ConfigObject
     }
 
     /**
-     * @param string $defaultMessage
      * @param string $key
+     * @param string $defaultMessage
      *
      * @return string
      */
-    public function getErrorMessageFromBody($defaultMessage = '', $key = 'error')
+    public function getErrorMessageFromBody($key, $defaultMessage = '')
     {
         if (!isset($this->body[$key]) ||
             !is_string($this->body[$key])) {
@@ -82,12 +82,12 @@ class Response extends ConfigObject
     }
 
     /**
-     * @param string $defaultCode
      * @param string $key
+     * @param string $defaultCode
      *
      * @return string
      */
-    public function getErrorCodeFromBody($defaultCode = '', $key = 'error_description')
+    public function getErrorCodeFromBody($key, $defaultCode = '')
     {
         if (!isset($this->body[$key]) ||
             !is_string($this->body[$key])) {

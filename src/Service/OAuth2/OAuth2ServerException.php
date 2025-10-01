@@ -39,9 +39,9 @@ class OAuth2ServerException extends OAuth2Exception
      */
     public function __construct($response, $defaultMessage = '', $defaultErrorCode = '')
     {
-        $this->errorCode = $response->getErrorCodeFromBody($defaultErrorCode, 'error');
+        $this->errorCode = $response->getErrorCodeFromBody('error', $defaultErrorCode);
 
-        parent::__construct($response->statusCode . ': ' . $response->getErrorMessageFromBody($defaultMessage, 'error_description'));
+        parent::__construct($response->statusCode . ': ' . $response->getErrorMessageFromBody('error_description', $defaultMessage));
     }
 
     /**
