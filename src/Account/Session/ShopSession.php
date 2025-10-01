@@ -21,7 +21,6 @@
 namespace PrestaShop\Module\PsAccounts\Account\Session;
 
 use PrestaShop\Module\PsAccounts\Account\Exception\RefreshTokenException;
-use PrestaShop\Module\PsAccounts\Account\Exception\ShopNotVerifiedException;
 use PrestaShop\Module\PsAccounts\Account\Token\Token;
 use PrestaShop\Module\PsAccounts\Hook\ActionShopAccessTokenRefreshAfter;
 use PrestaShop\Module\PsAccounts\Repository\ConfigurationRepository;
@@ -100,12 +99,15 @@ class ShopSession extends Session implements SessionInterface
      * @return Token
      *
      * @throws RefreshTokenException
-     * @throws ShopNotVerifiedException
      */
     public function refreshToken($refreshToken = null, array $scope = [], array $audience = [])
     {
         try {
-            $accessToken = $this->getAccessToken($scope, $audience);
+            try {
+                $accessToken = $this->getAccessToken($scope, $audience);
+            } catch (OAuth2ServerException $e) {
+                $accessToken = $this->fallbackRefresh($e, 'shop.verified', $scope, $audience);
+            }
 
             $this->setToken(
                 $accessToken->access_token,
@@ -117,14 +119,9 @@ class ShopSession extends Session implements SessionInterface
             \Hook::exec(ActionShopAccessTokenRefreshAfter::getName(), ['token' => $token]);
 
             return $token;
-        } catch (OAuth2ServerException $e) {
-            if ($e->getErrorCode() == OAuth2ServerException::ERROR_INVALID_SCOPE && in_array('shop.verified', $scope)) {
-                throw new ShopNotVerifiedException('Unable to refresh shop token : ' . $e->getMessage());
-            }
         } catch (OAuth2Exception $e) {
-        } catch (\Throwable $e) {
-            /* @phpstan-ignore-next-line */
         } catch (\Exception $e) {
+        } catch (\Throwable $e) {
         }
         throw new RefreshTokenException('Unable to refresh shop token : ' . $e->getMessage());
     }
@@ -167,5 +164,33 @@ class ShopSession extends Session implements SessionInterface
     protected function getAccessToken(array $scope = [], array $audience = [])
     {
         return $this->oAuth2Service->getAccessTokenByClientCredentials($scope, $audience);
+    }
+
+    /**
+     * @param OAuth2ServerException $e
+     * @param string $filterScope
+     * @param array $scope
+     * @param array $audience
+     *
+     * @return AccessToken
+     *
+     * @throws OAuth2Exception
+     */
+    protected function fallbackRefresh($e, $filterScope, array $scope, array $audience)
+    {
+        if ($e->getErrorCode() == OAuth2ServerException::ERROR_INVALID_SCOPE &&
+            in_array($filterScope, $scope) &&
+            str_contains($e->getMessage(), $filterScope)
+        ) {
+            $this->getStatusManager()->setIsVerified(false);
+            $this->resetRefreshTokenErrors();
+            $accessToken = $this->getAccessToken(array_filter($scope, function ($scp) use ($filterScope) {
+                return $scp !== $filterScope;
+            }), $audience);
+        } else {
+            throw $e;
+        }
+
+        return $accessToken;
     }
 }
