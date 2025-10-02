@@ -83,7 +83,8 @@ abstract class AbstractV2RestController extends ModuleFrontController
         $this->controller_type = 'module';
 
         $this->validator = new Validator(
-            $this->module->getService(OAuth2Service::class)
+            $this->module->getService(OAuth2Service::class),
+            $this->module->getParameter('ps_accounts.token_validator_leeway', 0)
         );
     }
 

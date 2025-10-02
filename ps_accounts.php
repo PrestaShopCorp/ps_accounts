@@ -230,12 +230,13 @@ class Ps_accounts extends Module
 
     /**
      * @param string $name
+     * @param mixed $default
      *
      * @return mixed
      */
-    public function getParameter($name)
+    public function getParameter($name, $default = null)
     {
-        return $this->getServiceContainer()->getParameter($name);
+        return $this->getServiceContainer()->getParameter($name, $default);
     }
 
     /**
