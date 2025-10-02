@@ -149,15 +149,28 @@ class MigrateOrCreateIdentityV8Handler
             $token = $this->getFirebaseTokenV6($shopUuid);
         }
 
-        $identityCreated = $this->accountsService->migrateShopIdentity(
-            $shopUuid,
-            $token,
-            $this->shopProvider->getUrl($shopId),
-            $this->shopProvider->getName($shopId),
-            $fromVersion,
-            $this->proofManager->generateProof(),
-            $command->source
-        );
+        try {
+            $identityCreated = $this->accountsService->migrateShopIdentity(
+                $shopUuid,
+                $token,
+                $this->shopProvider->getUrl($shopId),
+                $this->shopProvider->getName($shopId),
+                $fromVersion,
+                $this->proofManager->generateProof(),
+                $command->source
+            );
+        } catch (AccountsException $e) {
+            if ($e->getErrorCode() !== AccountsException::ERROR_STORE_LEGACY_NOT_FOUND) {
+                // Will trigger reset banner
+                $this->upgradeService->setVersion('');
+                // Will trigger new identity creation
+                $this->statusManager->setCloudShopId('');
+                // TODO: clear tokens using session
+                $this->configurationRepository->updateAccessToken('');
+            } else {
+                throw $e;
+            }
+        }
 
         if (!empty($identityCreated->clientId) &&
             !empty($identityCreated->clientSecret)) {
