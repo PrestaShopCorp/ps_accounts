@@ -165,6 +165,8 @@ class MigrateOrCreateIdentityV8Handler
                 $this->upgradeService->setVersion('');
                 // Will trigger new identity creation
                 $this->statusManager->setCloudShopId('');
+                $this->statusManager->setPointOfContactUuid('');
+                $this->statusManager->setPointOfContactEmail('');
                 // TODO: clear tokens using session
                 $this->configurationRepository->updateAccessToken('');
             } else {
