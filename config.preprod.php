@@ -49,7 +49,7 @@ return [
 
     'ps_accounts.oauth2_url' => 'https://oauth-preprod.prestashop.com',
     'ps_accounts.token_audience' => 'https://accounts-api.distribution-preprod.prestashop.net',
-    'ps_accounts.token_validator_leeway' => 60,
+    'ps_accounts.token_validator_leeway' => 900,
 
     'ps_accounts.testimonials_url' => 'https://assets.prestashop3.com/dst/accounts/assets/testimonials.json',
 
