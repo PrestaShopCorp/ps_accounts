@@ -34,7 +34,8 @@ return [
     'ps_accounts.verify_account_tokens' => false,
     'ps_accounts.accounts_vue_cdn_url' => 'http://prestashop8.docker.localhost/upload/psaccountsVue.umd.min.js',
     // 'ps_accounts.accounts_cdn_url' => 'https://unpkg.com/@prestashopcorp/accounts-components@beta',
-    'ps_accounts.accounts_cdn_url' => 'http://127.0.0.1:3010/psaccountsVue.js',
+    // 'ps_accounts.accounts_cdn_url' => 'http://127.0.0.1:3010/psaccountsVue.js',
+    'ps_accounts.accounts_cdn_url' => 'https://assets.prestashop3.com/accounts-components/1/psaccountsVue.js',
     'ps_accounts.cors_allowed_origins' => [
         'https://integration-assets.prestashop3.com',
         'https://preproduction-assets.prestashop3.com',
