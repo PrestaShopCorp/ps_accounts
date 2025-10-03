@@ -60,7 +60,8 @@ class AccountsException extends \Exception
      */
     protected function getErrorMessageFromResponse(Response $response, $defaultMessage = '')
     {
-        if (!isset($response->body['message'])) {
+        if (!isset($response->body['message']) ||
+            is_array($response->body['message'])) {
             return $defaultMessage;
         }
 
@@ -75,7 +76,8 @@ class AccountsException extends \Exception
      */
     protected function getErrorCodeFromResponse(Response $response, $defaultCode = '')
     {
-        if (!isset($response->body['error'])) {
+        if (!isset($response->body['error']) ||
+            is_array($response->body['error'])) {
             return $defaultCode;
         }
 

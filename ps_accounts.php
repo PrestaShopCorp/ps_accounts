@@ -92,7 +92,7 @@ class Ps_accounts extends Module
         $this->tab = 'administration';
         $this->author = 'PrestaShop';
         $this->need_instance = 0;
-        $this->bootstrap = false;
+        $this->bootstrap = true;
 
         // We cannot use the const VERSION because the const is not computed by addons marketplace
         // when the zip is uploaded
@@ -317,6 +317,10 @@ class Ps_accounts extends Module
      */
     public function getContent()
     {
+        if (!empty($output = $this->displayIdentityRecovery())) {
+            return $output;
+        }
+
         //$this->context->smarty->assign('pathVendor', $this->_path . 'views/js/chunk-vendors.' . $this->version . '.js');
         $this->context->smarty->assign('pathApp', $this->_path . 'views/js/app.' . $this->version . '.js');
         $this->context->smarty->assign('pathAppAssets', $this->_path . 'views/css/app.' . $this->version . '.css');
@@ -336,6 +340,142 @@ class Ps_accounts extends Module
         ]);
 
         return $this->display(__FILE__, 'views/templates/admin/app.tpl');
+    }
+
+    /**
+     * @return string|null
+     */
+    public function displayIdentityRecovery()
+    {
+        if (Tools::isSubmit('submit' . $this->name)) {
+            $this->storeIdentityRecoveryForm();
+        }
+
+        if (Tools::getValue('recover')) {
+            return $this->displayIdentityRecoveryForm();
+        }
+
+        return null;
+    }
+
+    /**
+     * Builds the Store Identity Recovery form
+     *
+     * @return string HTML code
+     */
+    public function displayIdentityRecoveryForm()
+    {
+        $warning = $this->displayError($this->l('Warning! You should only modify those values according to the PrestaShop support.'));
+
+        $PSX_UUID_V4 = \PrestaShop\Module\PsAccounts\Adapter\ConfigurationKeys::PSX_UUID_V4;
+        $PS_ACCOUNTS_OAUTH2_CLIENT_ID = \PrestaShop\Module\PsAccounts\Adapter\ConfigurationKeys::PS_ACCOUNTS_OAUTH2_CLIENT_ID;
+        $PS_ACCOUNTS_OAUTH2_CLIENT_SECRET = \PrestaShop\Module\PsAccounts\Adapter\ConfigurationKeys::PS_ACCOUNTS_OAUTH2_CLIENT_SECRET;
+
+        // Init Fields form array
+        $form = [
+            'form' => [
+                'legend' => [
+                    'title' => $this->l('Store Identity - Recovery Form'),
+                ],
+                'input' => [
+                    [
+                        'type' => 'text',
+                        'label' => $this->l('Cloud Shop Id'),
+                        'name' => $PSX_UUID_V4,
+                        'size' => 20,
+                        'required' => true,
+                    ],
+                    [
+                        'type' => 'text',
+                        'label' => $this->l('Client Id'),
+                        'name' => $PS_ACCOUNTS_OAUTH2_CLIENT_ID,
+                        'size' => 20,
+                        'required' => true,
+                    ],
+                    [
+                        'type' => 'text',
+                        'label' => $this->l('Client Secret'),
+                        'name' => $PS_ACCOUNTS_OAUTH2_CLIENT_SECRET,
+                        'size' => 20,
+                        'required' => true,
+                    ],
+                ],
+                'submit' => [
+                    'title' => $this->l('Restore Identity'),
+                    'class' => 'btn btn-default pull-right',
+                ],
+            ],
+        ];
+
+        $helper = new HelperForm();
+
+        // Module, token and currentIndex
+        $helper->table = $this->table;
+        $helper->name_controller = $this->name;
+        $helper->token = Tools::getAdminTokenLite('AdminModules');
+        if (version_compare(_PS_VERSION_, '1.7', '>')) {
+            $helper->currentIndex = $this->context->link->getAdminLink('AdminModules', false, [], ['configure' => $this->name]);
+        } else {
+            $helper->currentIndex = AdminController::$currentIndex . '&' . http_build_query(['configure' => $this->name]);
+        }
+        $helper->submit_action = 'submit' . $this->name;
+
+        // Default language
+        $helper->default_form_language = (int) Configuration::get('PS_LANG_DEFAULT');
+
+        // Load current value into the form
+        foreach ([$PSX_UUID_V4, $PS_ACCOUNTS_OAUTH2_CLIENT_ID, $PS_ACCOUNTS_OAUTH2_CLIENT_SECRET] as $cfg_key) {
+            $helper->fields_value[$cfg_key] = Tools::getValue($cfg_key, Configuration::get($cfg_key));
+        }
+
+        return $warning . $helper->generateForm([$form]);
+    }
+
+    /**
+     * @return string|void
+     */
+    public function storeIdentityRecoveryForm()
+    {
+        $PSX_UUID_V4 = (string) Tools::getValue(
+            \PrestaShop\Module\PsAccounts\Adapter\ConfigurationKeys::PSX_UUID_V4
+        );
+        $PS_ACCOUNTS_OAUTH2_CLIENT_ID = (string) Tools::getValue(
+            \PrestaShop\Module\PsAccounts\Adapter\ConfigurationKeys::PS_ACCOUNTS_OAUTH2_CLIENT_ID
+        );
+        $PS_ACCOUNTS_OAUTH2_CLIENT_SECRET = (string) Tools::getValue(
+            \PrestaShop\Module\PsAccounts\Adapter\ConfigurationKeys::PS_ACCOUNTS_OAUTH2_CLIENT_SECRET
+        );
+
+        $error = false;
+        foreach ([$PSX_UUID_V4, $PS_ACCOUNTS_OAUTH2_CLIENT_ID, $PS_ACCOUNTS_OAUTH2_CLIENT_SECRET] as $value) {
+            if (empty($value) || !Validate::isGenericName($value)) {
+                $error = true;
+                break;
+            }
+        }
+
+        if ($error) {
+            return $this->displayError($this->l('The form contains incorrect values')) .
+                $this->displayIdentityRecoveryForm();
+        } else {
+            /** @var \PrestaShop\Module\PsAccounts\Cqrs\CommandBus $commandBus */
+            $commandBus = $this->getService(\PrestaShop\Module\PsAccounts\Cqrs\CommandBus::class);
+            $commandBus->handle(new \PrestaShop\Module\PsAccounts\Account\Command\RestoreIdentityCommand(
+                $PSX_UUID_V4,
+                $PS_ACCOUNTS_OAUTH2_CLIENT_ID,
+                $PS_ACCOUNTS_OAUTH2_CLIENT_SECRET
+            ));
+            // $output = $this->displayConfirmation($this->l('Identity recovered successfully'));
+
+            if (version_compare(_PS_VERSION_, '1.7', '>')) {
+                Tools::redirectAdmin($this->context->link->getAdminLink('AdminModules', true, [], ['configure' => $this->name]));
+            } else {
+                Tools::redirectAdmin(AdminController::$currentIndex . '&' . http_build_query([
+                        'configure' => $this->name,
+                        'token' => Tools::getAdminTokenLite('AdminModules'),
+                    ]));
+            }
+        }
     }
 
     /**
