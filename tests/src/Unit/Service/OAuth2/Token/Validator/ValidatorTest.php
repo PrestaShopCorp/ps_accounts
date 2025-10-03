@@ -10,6 +10,8 @@ use PrestaShop\Module\PsAccounts\Service\OAuth2\Token\Validator\Exception\Audien
 use PrestaShop\Module\PsAccounts\Service\OAuth2\Token\Validator\Exception\KidInvalidException;
 use PrestaShop\Module\PsAccounts\Service\OAuth2\Token\Validator\Exception\ScopeInvalidException;
 use PrestaShop\Module\PsAccounts\Service\OAuth2\Token\Validator\Exception\SignatureInvalidException;
+use PrestaShop\Module\PsAccounts\Service\OAuth2\Token\Validator\Exception\TokenExpiredException;
+use PrestaShop\Module\PsAccounts\Service\OAuth2\Token\Validator\Exception\TokenInvalidException;
 use PrestaShop\Module\PsAccounts\Service\OAuth2\Token\Validator\Validator;
 use PrestaShop\Module\PsAccounts\Tests\Unit\Service\OAuth2\TestCase;
 use PrestaShop\Module\PsAccounts\Vendor\Firebase\JWT\JWT;
@@ -155,6 +157,11 @@ JSON;
     protected $link;
 
     /**
+     * @var int
+     */
+    private $leeway;
+
+    /**
      * @return void
      */
     protected function set_up()
@@ -174,7 +181,9 @@ JSON;
 
         $this->oAuth2Service->clearCache();
 
-        $this->validator = new Validator($this->oAuth2Service);
+        $this->leeway = (int) $this->module->getParameter('ps_accounts.token_validator_leeway');
+
+        $this->validator = new Validator($this->oAuth2Service, $this->leeway);
     }
 
     /**
@@ -396,6 +405,62 @@ JSON;
         ], [
             'https://mashop.net',
         ]);
+    }
+
+    /**
+     * @test
+     */
+    public function itShouldValidateNotExpiredToken()
+    {
+        $jwtString = $this->encodeToken([
+            'iat' => time(),
+            'exp' => time() + 3600,
+        ]);
+
+        $this->assertTrue(is_object($this->validator->validateToken($jwtString)));
+    }
+
+    /**
+     * @test
+     */
+    public function itShouldNotValidateExpiredToken()
+    {
+        $this->expectException(TokenExpiredException::class);
+
+        $jwtString = $this->encodeToken([
+            'iat' => time() - 3600,
+            'exp' => time() - $this->leeway,
+        ]);
+
+        $this->validator->validateToken($jwtString);
+    }
+
+    /**
+     * @test
+     */
+    public function itShouldNotValidateTokenNotYetValid()
+    {
+        $this->expectException(TokenInvalidException::class);
+
+        $jwtString = $this->encodeToken([
+            'iat' => time() + 3600,
+            'exp' => time() + 3600*2,
+        ]);
+
+        $this->validator->validateToken($jwtString);
+    }
+
+    /**
+     * @test
+     */
+    public function itShouldValidateTokenAccordingToLeeway()
+    {
+        $jwtString = $this->encodeToken([
+            'iat' => time() + $this->leeway - 1,
+            'exp' => time() + $this->leeway + 3600,
+        ]);
+
+        $this->assertTrue(is_object($this->validator->validateToken($jwtString)));
     }
 
     /**
