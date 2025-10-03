@@ -460,7 +460,7 @@ JSON;
             'exp' => time() + $this->leeway + 3600,
         ]);
 
-        $this->assertIsObject($this->validator->validateToken($jwtString));
+        $this->assertTrue(is_object($this->validator->validateToken($jwtString)));
     }
 
     /**
