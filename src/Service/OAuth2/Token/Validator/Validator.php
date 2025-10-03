@@ -34,11 +34,18 @@ class Validator
     private $oAuth2Service;
 
     /**
-     * @param OAuth2Service $oAuth2Service
+     * @var int
      */
-    public function __construct(OAuth2Service $oAuth2Service)
+    private $leeway;
+
+    /**
+     * @param OAuth2Service $oAuth2Service
+     * @param int $leeway
+     */
+    public function __construct(OAuth2Service $oAuth2Service, $leeway = 0)
     {
         $this->oAuth2Service = $oAuth2Service;
+        $this->leeway = $leeway;
     }
 
     /**
@@ -55,6 +62,7 @@ class Validator
     {
         // verify token signature & expiration (among others)
         try {
+            JWT::$leeway = $this->leeway;
             $token = JWT::decode($token, JWK::parseKeySet($this->oAuth2Service->getJwks($refreshJwks)));
         } catch (ExpiredException $e) {
             throw new Exception\TokenExpiredException($e->getMessage());
