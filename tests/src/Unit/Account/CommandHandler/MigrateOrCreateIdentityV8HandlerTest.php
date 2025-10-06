@@ -377,6 +377,133 @@ JSON;
     }
 
     /**
+     * @test
+     */
+    public function itShouldCreateIdentityOnShopNotFoundError()
+    {
+        $cloudShopId = $this->faker->uuid;
+        $newCloudShopId = $this->faker->uuid;
+        $clientId = $this->faker->uuid;
+        $clientSecret = $this->faker->uuid;
+        $token =  $this->faker->uuid;
+        $tokenAudience = 'shop_' . $cloudShopId;
+        $this->isVerified = false;
+
+        // introduced in v7
+        //$this->configurationRepository->updateLastUpgrade('7.2.0');
+        $fromVersion = '7.2.0';
+        $this->upgradeService->setVersion($fromVersion);
+
+        $this->configurationRepository->updateShopUuid($cloudShopId);
+
+        // FIXME: test OAuth2Service in a dedicated Class
+        // preliminary check to require refresh token
+        $this->oAuth2Service->getOAuth2Client()->update($clientId, $clientSecret);
+
+        $this->oAuth2Client->method('get')
+            ->with($this->matchesRegularExpression('/openid-configuration/'))
+            ->willReturn($this->wellKnownResponse);
+
+        $this->oAuth2Client->method('post')
+            ->with($this->matchesRegularExpression('@' . $this->oAuth2Service->getWellKnown()->token_endpoint . '@'))
+            ->willReturnCallback(function ($route, $options) use ($cloudShopId, $clientId, $clientSecret, $token, $tokenAudience) {
+
+                //$this->assertTrue((bool) preg_match('/' . $tokenAudience . '/', $options[Request::FORM]['audience']));
+
+                return $this->createResponse([
+                    'access_token' => $token,
+                ]);
+            });
+
+        $this->accountsClient->method('get')
+            ->with(
+                $this->matchesRegularExpression('@/v1/shop-identities/(' . $cloudShopId . '|' . $newCloudShopId . ')/status@'),
+                $this->isType('array')
+            )
+            ->willReturnCallback(function ($route, $options) use ($cloudShopId, $newCloudShopId, $clientId, $clientSecret, $token) {
+                $this->assertEquals('Bearer ' . $token, $options[Request::HEADERS]['Authorization']);
+
+                echo 'get is verified ' . ($this->isVerified ? '1' : '0');
+
+                return $this->createResponse([
+                    "cloudShopId" => $newCloudShopId,
+                    "isVerified" => $this->isVerified,
+                ]);
+            });
+
+        // FIXME: test AccountsClient in a dedicated Class
+        $this->accountsClient->method('put')
+            ->with(
+                $this->matches('/v1/shop-identities/' . $cloudShopId . '/migrate'),
+                $this->isType('array')
+            )
+            ->willReturnCallback(function ($route, $options) use ($cloudShopId, $clientId, $clientSecret, $token) {
+                $this->assertEquals('Bearer ' . $token, $options[Request::HEADERS]['Authorization']);
+                $this->assertArrayHasKey('backOfficeUrl', $options[Request::JSON]);
+                $this->assertArrayHasKey('frontendUrl', $options[Request::JSON]);
+                $this->assertArrayHasKey('multiShopId', $options[Request::JSON]);
+                $this->assertArrayHasKey('name', $options[Request::JSON]);
+                $this->assertEquals($this->proofManager->getProof(), $options[Request::JSON]['proof']);
+                //$this->assertEquals((string) $this->configurationRepository->getLastUpgrade(), $options[Request::JSON]['fromVersion']);
+                $this->assertEquals((string) $this->upgradeService->getVersion(), $options[Request::JSON]['fromVersion']);
+
+                return $this->createResponse([
+                    "error" => AccountsException::ERROR_STORE_LEGACY_NOT_FOUND,
+                    "message" => 'Cannot migrate shop',
+                ], 400);
+            });
+
+        $this->accountsClient->method('post')
+            ->willReturnCallback(function ($route, $options) use ($cloudShopId, $clientId, $clientSecret, $token) {
+                if (preg_match('@/v1/shop-identities@', $route)) {
+                    //$this->assertEquals('Bearer ' . $token, $options[Request::HEADERS]['Authorization']);
+                    $this->assertArrayHasKey('backOfficeUrl', $options[Request::JSON]);
+                    $this->assertArrayHasKey('frontendUrl', $options[Request::JSON]);
+                    $this->assertArrayHasKey('multiShopId', $options[Request::JSON]);
+                    $this->assertArrayHasKey('name', $options[Request::JSON]);
+                    //$this->assertEquals($this->proofManager->getProof(), $options[Request::JSON]['proof']);
+                    //$this->assertEquals((string) $this->configurationRepository->getLastUpgrade(), $options[Request::JSON]['fromVersion']);
+                    //$this->assertEquals((string) $this->upgradeService->getVersion(), $options[Request::JSON]['fromVersion']);
+
+                    return $this->createResponse([
+                        'clientId' => $clientId,
+                        'clientSecret' => $clientSecret,
+                        "cloudShopId" => $cloudShopId
+                    ]);
+                }
+                if (preg_match('@/v1/shop-identities/' . $cloudShopId . '/verify@', $route)) {
+                    $this->assertEquals('Bearer ' . $token, $options[Request::HEADERS]['Authorization']);
+                    $this->assertArrayHasKey('backOfficeUrl', $options[Request::JSON]);
+                    $this->assertArrayHasKey('frontendUrl', $options[Request::JSON]);
+                    $this->assertArrayHasKey('multiShopId', $options[Request::JSON]);
+                    $this->assertArrayHasKey('name', $options[Request::JSON]);
+                    $this->assertEquals($this->proofManager->getProof(), $options[Request::JSON]['proof']);
+                    //$this->assertEquals((string) $this->configurationRepository->getLastUpgrade(), $options[Request::JSON]['fromVersion']);
+                    //$this->assertEquals((string)$this->upgradeService->getVersion(), $options[Request::JSON]['fromVersion']);
+
+                    $this->isVerified = true;
+
+                    return $this->createResponse([
+                        'message' => 'OK'
+                    ]);
+                }
+                return $this->createResponse([
+                    "error" => 'store-identity/test-invalid-route',
+                    "message" => 'Test Route Not Found',
+                ], 404);
+            });
+
+        $this->getHandler()->handle(new MigrateOrCreateIdentityV8Command($this->shopId));
+
+        $this->assertEquals(\Ps_accounts::VERSION, $this->upgradeService->getRegisteredVersion());
+        $this->assertTrue($this->statusManager->cacheInvalidated());
+        $this->assertTrue($this->statusManager->getStatus()->isVerified);
+        $this->assertEquals($newCloudShopId, $this->statusManager->getCloudShopId());
+
+        // FIXME: test something relevant
+    }
+
+    /**
      * @return MigrateOrCreateIdentityV8Handler
      */
     private function getHandler()
