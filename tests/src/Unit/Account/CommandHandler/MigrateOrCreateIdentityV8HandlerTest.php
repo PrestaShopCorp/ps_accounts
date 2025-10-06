@@ -387,7 +387,7 @@ JSON;
         $clientSecret = $this->faker->uuid;
         $token =  $this->faker->uuid;
         $tokenAudience = 'shop_' . $cloudShopId;
-        $this->isVerified = false;
+        $isVerified = false;
 
         // introduced in v7
         //$this->configurationRepository->updateLastUpgrade('7.2.0');
@@ -416,19 +416,21 @@ JSON;
             });
 
         $this->accountsClient->method('get')
-            ->with(
-                $this->matchesRegularExpression('@/v1/shop-identities/(' . $cloudShopId . '|' . $newCloudShopId . ')/status@'),
-                $this->isType('array')
-            )
-            ->willReturnCallback(function ($route, $options) use ($cloudShopId, $newCloudShopId, $clientId, $clientSecret, $token) {
+            ->willReturnCallback(function ($route, $options) use ($cloudShopId, $newCloudShopId, $clientId, $clientSecret, $token, &$isVerified) {
                 $this->assertEquals('Bearer ' . $token, $options[Request::HEADERS]['Authorization']);
 
-                echo 'get is verified ' . ($this->isVerified ? '1' : '0');
-
-                return $this->createResponse([
-                    "cloudShopId" => $newCloudShopId,
-                    "isVerified" => $this->isVerified,
-                ]);
+                if (preg_match('@/v1/shop-identities/' . $cloudShopId . '/status@', $route)) {
+                    return $this->createResponse([
+                        "cloudShopId" => $cloudShopId,
+                        "isVerified" => $isVerified,
+                    ]);
+                }
+                if (preg_match('@/v1/shop-identities/' . $newCloudShopId . '/status@', $route)) {
+                    return $this->createResponse([
+                        "cloudShopId" => $newCloudShopId,
+                        "isVerified" => $isVerified,
+                    ]);
+                }
             });
 
         // FIXME: test AccountsClient in a dedicated Class
@@ -454,8 +456,8 @@ JSON;
             });
 
         $this->accountsClient->method('post')
-            ->willReturnCallback(function ($route, $options) use ($cloudShopId, $clientId, $clientSecret, $token) {
-                if (preg_match('@/v1/shop-identities@', $route)) {
+            ->willReturnCallback(function ($route, $options) use ($cloudShopId, $newCloudShopId, $clientId, $clientSecret, $token, &$isVerified) {
+                if (preg_match('@/v1/shop-identities$@', $route)) {
                     //$this->assertEquals('Bearer ' . $token, $options[Request::HEADERS]['Authorization']);
                     $this->assertArrayHasKey('backOfficeUrl', $options[Request::JSON]);
                     $this->assertArrayHasKey('frontendUrl', $options[Request::JSON]);
@@ -468,10 +470,10 @@ JSON;
                     return $this->createResponse([
                         'clientId' => $clientId,
                         'clientSecret' => $clientSecret,
-                        "cloudShopId" => $cloudShopId
+                        "cloudShopId" => $newCloudShopId
                     ]);
                 }
-                if (preg_match('@/v1/shop-identities/' . $cloudShopId . '/verify@', $route)) {
+                if (preg_match('@/v1/shop-identities/(' . $cloudShopId . '|' . $newCloudShopId . ')/verify@', $route)) {
                     $this->assertEquals('Bearer ' . $token, $options[Request::HEADERS]['Authorization']);
                     $this->assertArrayHasKey('backOfficeUrl', $options[Request::JSON]);
                     $this->assertArrayHasKey('frontendUrl', $options[Request::JSON]);
@@ -481,7 +483,7 @@ JSON;
                     //$this->assertEquals((string) $this->configurationRepository->getLastUpgrade(), $options[Request::JSON]['fromVersion']);
                     //$this->assertEquals((string)$this->upgradeService->getVersion(), $options[Request::JSON]['fromVersion']);
 
-                    $this->isVerified = true;
+                    $isVerified = true;
 
                     return $this->createResponse([
                         'message' => 'OK'
