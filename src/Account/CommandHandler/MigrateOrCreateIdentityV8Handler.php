@@ -161,7 +161,7 @@ class MigrateOrCreateIdentityV8Handler
             $this->statusManager->invalidateCache();
             $this->registerLatestVersion();
         } catch (AccountsException $e) {
-            if ($e->getErrorCode() !== AccountsException::ERROR_STORE_LEGACY_NOT_FOUND) {
+            if ($e->getErrorCode() === AccountsException::ERROR_STORE_LEGACY_NOT_FOUND) {
                 $this->registerLatestVersion();
                 $this->cleanupIdentity();
                 $this->createOrVerifyIdentity($command);
