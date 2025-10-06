@@ -1,8 +1,8 @@
 import {test, expect} from '@playwright/test';
-import DbRequest from 'services/db/dbRequest';
+import DbRequest from '~/services/db/dbRequest';
 
 // Var
-let dbRequest = new DbRequest();
+const dbRequest = new DbRequest();
 let shouldRun = false;
 
 test.beforeAll(async () => {

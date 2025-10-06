@@ -3,8 +3,8 @@ import HealthCheckApi from '~/services/api/healthCheckApi';
 import DbRequest from '~/services/db/dbRequest';
 
 // Var
-let healthCheckApi = new HealthCheckApi();
-let dbRequest = new DbRequest();
+const healthCheckApi = new HealthCheckApi();
+const dbRequest = new DbRequest();
 
 
 test('Check that the Shop Health Check is returning information in json', async () => {

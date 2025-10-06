@@ -18,28 +18,23 @@
     "clean-test-results": "rm -rf allure-report allure-results allure-results-* test-results"
   },
   "dependencies": {
-    "@prestashopcorp/tests-framework": "4.0.3",
+    "@playwright/test": "^1.55.0",
+    "dotenv": "^16.6.1",
     "mysql2": "^3.11.0"
   },
   "devDependencies": {
     "@faker-js/faker": "^8.0.2",
-    "@types/node": "20.4.1",
-    "@typescript-eslint/eslint-plugin": "^6.0.0",
-    "@typescript-eslint/parser": "^6.0.0",
+    "@types/node": "^24.3.0",
+    "jiti": "^2.5.1",
+    "eslint": "^9.34.0",
+    "eslint-config-prettier": "^10.1.8",
+    "eslint-plugin-unused-imports": "^4.2.0",
+    "typescript-eslint": "^8.42.0",
     "allure-commandline": "^2.27.0",
     "allure-playwright": "^3.0.5",
-    "eslint": "^8.44.0",
-    "eslint-config-prettier": "^8.8.0",
-    "eslint-import-resolver-typescript": "^3.5.5",
-    "eslint-plugin-deprecation": "^1.4.1",
-    "eslint-plugin-import": "^2.27.5",
-    "eslint-plugin-jsdoc": "^46.4.3",
-    "eslint-plugin-prettier": "^5.0.0",
-    "eslint-plugin-promise": "^6.1.1",
-    "playwright-ctrf-json-reporter": "^0.0.7",
-    "playwright-mocha": "^2.0.2",
-    "prettier": "^3.0.0",
+    "playwright-ctrf-json-reporter": "^0.0.23",
+    "prettier": "^3.6.2",
     "tsconfig-paths": "^4.2.0",
-    "typescript": "^5.1.6"
+    "typescript": "5.9.2"
   }
 }

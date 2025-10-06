@@ -3,9 +3,9 @@
     "esModuleInterop": true,
     "allowSyntheticDefaultImports": true,
     "isolatedModules": true,
-    "target": "es6",
-    "module": "commonjs",
-    "moduleResolution": "node",
+    "target": "ES2022",
+    "module": "NodeNext",
+    "moduleResolution": "NodeNext",
     "noImplicitAny": true,
     "noImplicitThis": true,
     "strict": true,
@@ -15,7 +15,6 @@
     "skipLibCheck": true,
     "skipDefaultLibCheck": true,
     "lib": ["dom", "dom.iterable", "esnext"],
-    "baseUrl": "./",
     "paths": {
       "~/*": ["./*"]
     }

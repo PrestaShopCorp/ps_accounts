@@ -2,7 +2,6 @@ import {expect} from '@playwright/test';
 import {dbHelper} from '~/utils/helper/dbHelper';
 import {modulePsAccount} from '~/data/local/modulesDbData/ps_module_data';
 import {RowDataPacket} from 'mysql2';
-import {config} from 'cypress/types/bluebird';
 
 export default class DbRequest {
   /**
@@ -52,7 +51,7 @@ export default class DbRequest {
    */
   async checkPsConfigurationData(name: string): Promise<boolean> {
     const data = await this.getPsConfigurationData(name);
-    expect(data.name).toBeDefined
+    expect(data.name).toBeDefined()
     expect(data.name).toBe(name);
     return data.value;
   }

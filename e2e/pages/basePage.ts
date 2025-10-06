@@ -1,9 +1,8 @@
 // Import pages
-import {CommonPage} from '@prestashopcorp/tests-framework';
-import {expect, Locator, Page} from '@playwright/test';
+import {Locator, Page} from '@playwright/test';
 import {Globals} from '../utils/globals';
 
-export default class BasePage extends CommonPage {
+export default class BasePage {
   /* <<<<<<<<<<<<<<< MODULEMANAGER >>>>>>>>>>>>>>>>>>>>>> */
   public readonly modulesParentLink: Locator;
   public readonly moduleManagerLink: Locator;
@@ -15,7 +14,6 @@ export default class BasePage extends CommonPage {
   public readonly openMenuSelector: (menuSelector: Locator) => Locator;
 
   constructor(page: Page) {
-    super(page);
 
     /* <<<<<<<<<<<<<<< MODULEMANAGER >>>>>>>>>>>>>>>>>>>>>> */
     this.modulesParentLink = this.page.locator('#subtab-AdminParentModulesSf');

@@ -56,7 +56,7 @@ export default class ModuleManagerPage extends BasePage {
         .locator('.module_name')
         .filter({hasText: 'PrestaShop Account'})
         .isVisible();
-      expect(isAccountVisibleOnOldPsVersion).toBeTruthy;
+      expect(isAccountVisibleOnOldPsVersion).toBeTruthy();
     }
   }
 
