@@ -14,7 +14,7 @@ fi
 
 # Définition des variables
 currentDate=$(date +%s)
-shopVersion=$1
+shopVersion="${1:-$PS_VERSION}"
 shopVersionSecondeShop=$2
 profile=${3:-flashlight}
 psDomain="${currentDate}.${DOMAIN}"
