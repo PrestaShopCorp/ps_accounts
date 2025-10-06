@@ -125,69 +125,52 @@ class MigrateOrCreateIdentityV8Handler
 
         // FIXME: command can hold that property depending on context
         $fromVersion = $this->upgradeService->getRegisteredVersion();
+        $migratedToV8 = version_compare($fromVersion, '8', '>=');
+        $notIdentified = !$shopUuid;
 
         // FIXME: shouldn't this condition be a specific flag
-        if (!$shopUuid || version_compare($fromVersion, '8', '>=')) {
-            $this->upgradeService->setVersion();
-
-            $this->commandBus->handle(new CreateIdentityCommand(
-                $command->shopId,
-                false,
-                $command->origin,
-                $command->source
-            ));
+        if ($notIdentified || $migratedToV8) {
+            $this->registerLatestVersion();
+            $this->createOrVerifyIdentity($command);
 
             return;
         }
 
-        // migrate cloudShopId locally
-        $this->statusManager->setCloudShopId($shopUuid);
-
-        if (version_compare($fromVersion, '7', '>=')) {
-            $token = $this->getAccessTokenV7($shopUuid);
-        } else {
-            $token = $this->getFirebaseTokenV6($shopUuid);
-        }
-
         try {
+            // Register cloudShopId locally
+            $this->statusManager->setCloudShopId($shopUuid);
+
             $identityCreated = $this->accountsService->migrateShopIdentity(
                 $shopUuid,
-                $token,
+                $this->getTokenV6OrV7($fromVersion, $shopUuid),
                 $this->shopProvider->getUrl($shopId),
                 $this->shopProvider->getName($shopId),
                 $fromVersion,
                 $this->proofManager->generateProof(),
                 $command->source
             );
+            if (!empty($identityCreated->clientId) &&
+                !empty($identityCreated->clientSecret)) {
+                $this->oAuth2Service->getOAuth2Client()->update(
+                    $identityCreated->clientId,
+                    $identityCreated->clientSecret
+                );
+            }
+
+            $this->clearTokens();
+            $this->statusManager->invalidateCache();
+            $this->registerLatestVersion();
         } catch (AccountsException $e) {
             if ($e->getErrorCode() !== AccountsException::ERROR_STORE_LEGACY_NOT_FOUND) {
-                // Will trigger reset banner
-                $this->upgradeService->setVersion('');
-                // Will trigger new identity creation
-                $this->statusManager->setCloudShopId('');
-                $this->statusManager->setPointOfContactUuid('');
-                $this->statusManager->setPointOfContactEmail('');
-                // TODO: clear tokens using session
-                $this->configurationRepository->updateAccessToken('');
+                $this->registerLatestVersion();
+                $this->cleanupIdentity();
+                $this->createOrVerifyIdentity($command);
+
+                return;
             } else {
                 throw $e;
             }
         }
-
-        if (!empty($identityCreated->clientId) &&
-            !empty($identityCreated->clientSecret)) {
-            $this->oAuth2Service->getOAuth2Client()->update(
-                $identityCreated->clientId,
-                $identityCreated->clientSecret
-            );
-        }
-
-        // cleanup obsolete token
-        $this->configurationRepository->updateAccessToken('');
-
-        $this->statusManager->invalidateCache();
-
-        $this->upgradeService->setVersion();
     }
 
     /**
@@ -197,7 +180,7 @@ class MigrateOrCreateIdentityV8Handler
      *
      * @throws OAuth2Exception
      */
-    protected function getAccessTokenV7($shopUuid)
+    private function getAccessTokenV7($shopUuid)
     {
         return $this->oAuth2Service->getAccessTokenByClientCredentials([], [
             // audience v7
@@ -212,11 +195,78 @@ class MigrateOrCreateIdentityV8Handler
      *
      * @throws AccountsException
      */
-    protected function getFirebaseTokenV6($shopUuid)
+    private function getFirebaseTokenV6($shopUuid)
     {
         return $this->accountsService->refreshShopToken(
             $this->configurationRepository->getFirebaseRefreshToken(),
             $shopUuid
         )->token;
+    }
+
+    /**
+     * @param string $fromVersion
+     * @param string $shopUuid
+     *
+     * @return string
+     *
+     * @throws AccountsException
+     * @throws OAuth2Exception
+     */
+    private function getTokenV6OrV7($fromVersion, $shopUuid)
+    {
+        if (version_compare($fromVersion, '7', '>=')) {
+            $token = $this->getAccessTokenV7($shopUuid);
+        } else {
+            $token = $this->getFirebaseTokenV6($shopUuid);
+        }
+
+        return $token;
+    }
+
+    /**
+     * @return void
+     */
+    private function cleanupIdentity()
+    {
+        // Will trigger reset banner
+        //$this->upgradeService->setVersion('');
+        $this->statusManager->clearIdentity();
+        $this->oAuth2Service->getOAuth2Client()->delete();
+        $this->clearTokens();
+    }
+
+    /**
+     * Create Or Verify Or Do Nothing
+     *
+     * @param MigrateOrCreateIdentityV8Command $command
+     *
+     * @return void
+     */
+    private function createOrVerifyIdentity(MigrateOrCreateIdentityV8Command $command)
+    {
+        $this->commandBus->handle(new CreateIdentityCommand(
+            $command->shopId,
+            false,
+            $command->origin,
+            $command->source
+        ));
+    }
+
+    /**
+     * @return void
+     */
+    private function clearTokens()
+    {
+        $this->configurationRepository->updateAccessToken('');
+        $this->configurationRepository->updateFirebaseIdAndRefreshTokens('', '');
+        $this->configurationRepository->updateUserFirebaseIdAndRefreshToken('', '');
+    }
+
+    /**
+     * @return void
+     */
+    private function registerLatestVersion()
+    {
+        $this->upgradeService->setVersion();
     }
 }
