@@ -32,8 +32,8 @@ export default tseslint.config(
           caughtErrorsIgnorePattern: '^_'
         }
       ],
-      'unused-imports/no-unused-imports': 'error'
-      // 'no-console': ['warn', {allow: ['warn', 'error']}]
+      'unused-imports/no-unused-imports': 'error',
+      'no-console': ['warn', {allow: ['warn', 'error']}]
     }
   },
   ...tseslint.configs.recommended.map((config) => ({
