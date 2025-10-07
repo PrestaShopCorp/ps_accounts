@@ -1,11 +1,11 @@
 import {expect} from '@playwright/test';
 import {dbHelper} from '~/utils/helper/dbHelper';
-import {modulePsAccount} from 'data/local/modules/modulePsAccount';
+import {modulePsAccount} from '~/data/local/modulesDbData/ps_module_data';
 import {RowDataPacket} from 'mysql2';
 
 export default class DbRequest {
   /**
-   * Method to Retrieves details of the 'ps_accounts' module from the database.
+   * Method to Retrieves details of the 'ps_accounts' module info from the database ps_module.
    * @returns {Promise<RowDataPacket>} A promise that resolves to a `RowDataPacket` containing the 'ps_accounts' module details.
    */
   async getModuleDetails(): Promise<RowDataPacket> {
@@ -24,18 +24,13 @@ export default class DbRequest {
   async checkModuleVersion() {
     const module = await this.getModuleDetails();
     expect(module.version).toContain(modulePsAccount.version);
+    return module.version;
   }
 
   // Method to check if the module is active
   async checkModuleIsActive() {
     const module = await this.getModuleDetails();
     expect(module.active).toBe(modulePsAccount.isActive);
-  }
-
-  // Method to return the module version
-  async returnModuleVersion() {
-    const module = await this.getModuleDetails();
-    return module.version;
   }
 
   /**
@@ -56,7 +51,7 @@ export default class DbRequest {
    */
   async checkPsConfigurationData(name: string): Promise<boolean> {
     const data = await this.getPsConfigurationData(name);
-    expect(data.name).toBeDefined();
+    expect(data.name).toBeDefined()
     expect(data.name).toBe(name);
     return data.value;
   }

@@ -1,6 +1,6 @@
 import {Page, Locator, expect} from '@playwright/test';
 import BasePage from '~/pages/basePage';
-import {modulePsAccount} from 'data/local/modules/modulePsAccount';
+import {modulePsAccount} from '~/data/local/modulesDbData/ps_module_data';
 import {moduleManagerPagesLocales} from '~/data/local/moduleManagerPageLocales/moduleManagerPageLocales';
 import path from 'path';
 

@@ -16,6 +16,7 @@ services:
       - all
       - multistore
       - flashlight
+      - imageoff
 
   prestashop:
     restart: unless-stopped
@@ -50,6 +51,7 @@ services:
       - all
       - multistore
       - flashlight
+      - imageoff
 
   mytun:
     restart: always
@@ -62,6 +64,7 @@ services:
       - all
       - multistore
       - flashlight
+      - imageoff
 
   shop1:
     image: prestashop/prestashop:${PS_VERSION} 
@@ -78,7 +81,7 @@ services:
       DB_NAME: prestashop
       DB_PASSWD: prestashop
       DB_PORT: 3306
-      PHYSICAL_URI: "shop1"
+      # PHYSICAL_URI: "shop1"
       PS_TRUSTED_PROXIES: 0.0.0.0/0
       PS_ERASE_DB: 1
       PS_INSTALL_DB: 1
@@ -94,6 +97,7 @@ services:
     profiles:
       - all
       - multistore
+      - imageoff
 
   shop2:
     image: prestashop/prestashop:${SECONDE_PS_VERSION} 
@@ -129,7 +133,7 @@ services:
       - multistore
 
   nginx_proxy:
-      image: nginx:alpine
+      image: nginx:latest
       container_name: nginx_proxy
       restart: unless-stopped
       depends_on:
