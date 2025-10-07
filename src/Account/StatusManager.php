@@ -289,6 +289,24 @@ class StatusManager
     }
 
     /**
+     * @return void
+     */
+    public function clearIdentity()
+    {
+        $this->upsetCachedStatus(new CachedShopStatus([
+            'shopStatus' => [
+                'isVerified' => false,
+                'cloudShopId' => '',
+                'pointOfContactUuid' => '',
+                'pointOfContactEmail' => '',
+                'frontendUrl' => '',
+                'backOfficeUrl' => '',
+                'shopVerificationErrorCode' => '',
+            ],
+        ]));
+    }
+
+    /**
      * @return CachedShopStatus
      *
      * @throws UnknownStatusException
