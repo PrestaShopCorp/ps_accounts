@@ -24,7 +24,6 @@ use DateTime;
 use PrestaShop\Module\PsAccounts\Account\Exception\RefreshTokenException;
 use PrestaShop\Module\PsAccounts\Account\Exception\UnknownStatusException;
 use PrestaShop\Module\PsAccounts\Account\Session\ShopSession;
-use PrestaShop\Module\PsAccounts\Exception\DtoException;
 use PrestaShop\Module\PsAccounts\Repository\ConfigurationRepository;
 use PrestaShop\Module\PsAccounts\Service\Accounts\AccountsException;
 use PrestaShop\Module\PsAccounts\Service\Accounts\AccountsService;
@@ -302,6 +301,24 @@ class StatusManager
             'isValid' => true,
             'updatedAt' => date('Y-m-d H:i:s'),
             'shopStatus' => $status,
+        ]));
+    }
+
+    /**
+     * @return void
+     */
+    public function clearIdentity()
+    {
+        $this->upsetCachedStatus(new CachedShopStatus([
+            'shopStatus' => [
+                'isVerified' => false,
+                'cloudShopId' => '',
+                'pointOfContactUuid' => '',
+                'pointOfContactEmail' => '',
+                'frontendUrl' => '',
+                'backOfficeUrl' => '',
+                'shopVerificationErrorCode' => '',
+            ],
         ]));
     }
 
