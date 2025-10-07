@@ -33,6 +33,12 @@ export default class DbRequest {
     expect(module.active).toBe(modulePsAccount.isActive);
   }
 
+  // Method to return the module version
+  async returnModuleVersion() {
+    const module = await this.getModuleDetails();
+    return module.version;
+  }
+
   /**
    * Method to return details from the database ps_configuration
    * @param name - the cell name
@@ -51,7 +57,7 @@ export default class DbRequest {
    */
   async checkPsConfigurationData(name: string): Promise<boolean> {
     const data = await this.getPsConfigurationData(name);
-    expect(data.name).toBeDefined()
+    expect(data.name).toBeDefined();
     expect(data.name).toBe(name);
     return data.value;
   }

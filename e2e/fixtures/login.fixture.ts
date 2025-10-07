@@ -1,5 +1,4 @@
 import {test as base} from '@playwright/test';
-// import {MyFixtures} from 'types/fixture';
 import {PageManager} from '~/pages/managerPage';
 import {MyFixtures} from '~/types/fixture';
 import {Globals} from '~/utils/globals';
