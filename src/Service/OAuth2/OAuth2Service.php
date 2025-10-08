@@ -327,7 +327,7 @@ class OAuth2Service
      * @param string|null $pkceCode
      * @param array $scope
      * @param array $audience
-     * @param string|null $shopId
+     * @param int|null $shopId
      *
      * @return AccessToken access token
      *
