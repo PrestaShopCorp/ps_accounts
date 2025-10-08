@@ -27,7 +27,6 @@ use PrestaShop\Module\PsAccounts\Http\Exception\MethodNotAllowedException;
 use PrestaShop\Module\PsAccounts\Http\Exception\UnauthorizedException;
 use PrestaShop\Module\PsAccounts\Polyfill\Traits\Controller\AjaxRender;
 use PrestaShop\Module\PsAccounts\Repository\ConfigurationRepository;
-use PrestaShop\Module\PsAccounts\Service\OAuth2\OAuth2Service;
 use PrestaShop\Module\PsAccounts\Service\OAuth2\Token\Validator\Exception\AudienceInvalidException;
 use PrestaShop\Module\PsAccounts\Service\OAuth2\Token\Validator\Exception\ScopeInvalidException;
 use PrestaShop\Module\PsAccounts\Service\OAuth2\Token\Validator\Exception\SignatureInvalidException;
@@ -81,11 +80,7 @@ abstract class AbstractV2RestController extends ModuleFrontController
         $this->ajax = true;
         $this->content_only = true;
         $this->controller_type = 'module';
-
-        $this->validator = new Validator(
-            $this->module->getService(OAuth2Service::class),
-            $this->module->getParameter('ps_accounts.token_validator_leeway', 0)
-        );
+        $this->validator = $this->module->getService(Validator::class);
     }
 
     /**

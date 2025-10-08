@@ -100,7 +100,6 @@ class RestoreIdentityHandler
             $this->statusManager->setCloudShopId($command->cloudShopId);
             $this->statusManager->setIsVerified(false);
 
-
             if ($command->migrate) {
                 // this will trigger migration anyways
                 $this->upgradeService->setVersion('');

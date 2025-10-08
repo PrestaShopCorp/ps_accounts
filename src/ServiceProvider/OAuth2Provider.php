@@ -27,6 +27,7 @@ use PrestaShop\Module\PsAccounts\Provider\OAuth2\PrestaShopSession;
 use PrestaShop\Module\PsAccounts\Repository\ConfigurationRepository;
 use PrestaShop\Module\PsAccounts\Service\OAuth2\OAuth2Client;
 use PrestaShop\Module\PsAccounts\Service\OAuth2\OAuth2Service;
+use PrestaShop\Module\PsAccounts\Service\OAuth2\Token\Validator\Validator;
 use PrestaShop\Module\PsAccounts\Vendor\PrestaShopCorp\LightweightContainer\ServiceContainer\Contract\IServiceProvider;
 use PrestaShop\Module\PsAccounts\Vendor\PrestaShopCorp\LightweightContainer\ServiceContainer\ServiceContainer;
 
@@ -65,6 +66,13 @@ class OAuth2Provider implements IServiceProvider
         });
         $container->registerProvider(PrestaShopSession::class, static function () use ($container) {
             return $container->getService(OAuth2Session::class);
+        });
+        $container->registerProvider(Validator::class, static function () use ($container) {
+            return new Validator(
+                $container->getService(OAuth2Service::class),
+                $container->getService(ConfigurationRepository::class),
+                $container->getParameter('ps_accounts.token_validator_leeway')
+            );
         });
     }
 }

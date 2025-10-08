@@ -32,7 +32,7 @@ class Ps_accounts extends Module
 
     // Needed in order to retrieve the module version easier (in api call headers) than instanciate
     // the module each time to get the version
-    const VERSION = '8.0.1';
+    const VERSION = '8.0.2';
 
     /**
      * Admin tabs
@@ -96,7 +96,7 @@ class Ps_accounts extends Module
 
         // We cannot use the const VERSION because the const is not computed by addons marketplace
         // when the zip is uploaded
-        $this->version = '8.0.1';
+        $this->version = '8.0.2';
 
         $this->module_key = 'abf2cd758b4d629b2944d3922ef9db73';
 
@@ -317,8 +317,8 @@ class Ps_accounts extends Module
      */
     public function getContent()
     {
-        if (!empty($output = $this->displayAdvancedSettings())) {
-            return $output;
+        if (!empty($settingsForm = (new \PrestaShop\Module\PsAccounts\Settings\SettingsForm($this))->render())) {
+            return $settingsForm;
         }
 
         //$this->context->smarty->assign('pathVendor', $this->_path . 'views/js/chunk-vendors.' . $this->version . '.js');
@@ -347,19 +347,28 @@ class Ps_accounts extends Module
      *
      * @return void
      */
-    public function redirectSettingsPage($params = [])
+    public function redirectSettingsPage(array $params = [])
+    {
+        Tools::redirectAdmin($this->getSettingsPageUrl($params));
+    }
+
+    /**
+     * @param array $params
+     *
+     * @return string
+     */
+    public function getSettingsPageUrl(array $params = [])
     {
         if (version_compare(_PS_VERSION_, '1.7', '>')) {
-            Tools::redirectAdmin($this->context->link->getAdminLink('AdminModules', true, [], array_merge($params, [
+            return $this->context->link->getAdminLink('AdminModules', true, [], array_merge($params, [
                     'configure' => $this->name,
                 ])
-            ));
+            );
         } else {
-            Tools::redirectAdmin(AdminController::$currentIndex . '&' . http_build_query(array_merge($params, [
+            return AdminController::$currentIndex . '&' . http_build_query(array_merge($params, [
                     'configure' => $this->name,
                     'token' => Tools::getAdminTokenLite('AdminModules'),
-                ]))
-            );
+                ]));
         }
     }
 
@@ -481,6 +490,7 @@ function ps_accounts_fix_upgrade()
         $root . '/src/Module/Install.php',
 //        $root . '/src/Hook/Hook.php',
         $root . '/src/Hook/HookableTrait.php',
+        $root . '/src/Settings/SettingsForm.php',
     ], []/*, glob($root . '/src/Hook/*.php')*/);
 
     foreach ($requires as $filename) {
