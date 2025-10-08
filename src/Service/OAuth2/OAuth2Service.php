@@ -327,6 +327,7 @@ class OAuth2Service
      * @param string|null $pkceCode
      * @param array $scope
      * @param array $audience
+     * @param int|null $shopId
      *
      * @return AccessToken access token
      *
@@ -336,7 +337,8 @@ class OAuth2Service
         $code,
         $pkceCode = null,
         array $scope = [],
-        array $audience = []
+        array $audience = [],
+        $shopId = null
     ) {
         $this->assertClientExists();
 
@@ -350,7 +352,7 @@ class OAuth2Service
                     'code' => $code,
                     'scope' => implode(' ', $scope),
                     'audience' => implode(' ', $audience),
-                    'redirect_uri' => $this->getOAuth2Client()->getRedirectUri(),
+                    'redirect_uri' => $this->getOAuth2Client()->getRedirectUri([], $shopId),
                 ], $pkceCode ? [
                     'code_verifier' => $pkceCode,
                 ] : []),
