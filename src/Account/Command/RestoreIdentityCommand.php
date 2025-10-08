@@ -46,6 +46,16 @@ class RestoreIdentityCommand
     public $clientSecret;
 
     /**
+     * @var bool
+     */
+    public $verify;
+
+    /**
+     * @var bool
+     */
+    public $migrate;
+
+    /**
      * @var string
      */
     public $origin;
@@ -59,6 +69,8 @@ class RestoreIdentityCommand
      * @param string $cloudShopId
      * @param string $clientId
      * @param string $clientSecret
+     * @param bool $verify
+     * @param bool $migrate
      * @param string $origin
      * @param string $source
      */
@@ -66,12 +78,16 @@ class RestoreIdentityCommand
         $cloudShopId,
         $clientId,
         $clientSecret,
+        $verify = false,
+        $migrate = false,
         $origin = AccountsService::ORIGIN_INSTALL,
         $source = 'ps_accounts'
     ) {
         $this->cloudShopId = $cloudShopId;
         $this->clientId = $clientId;
         $this->clientSecret = $clientSecret;
+        $this->verify = $verify;
+        $this->migrate = $migrate;
         $this->origin = $origin;
         $this->source = $source;
     }

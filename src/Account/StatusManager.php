@@ -292,8 +292,6 @@ class StatusManager
      * @param ShopStatus $status
      *
      * @return void
-     *
-     * @throws DtoException
      */
     public function restoreStatus(ShopStatus $status)
     {

@@ -23,6 +23,7 @@ namespace PrestaShop\Module\PsAccounts\Account\CommandHandler;
 
 use PrestaShop\Module\PsAccounts\Account\Command\MigrateOrCreateIdentityV8Command;
 use PrestaShop\Module\PsAccounts\Account\Command\RestoreIdentityCommand;
+use PrestaShop\Module\PsAccounts\Account\Command\VerifyIdentityCommand;
 use PrestaShop\Module\PsAccounts\Account\Exception\RefreshTokenException;
 use PrestaShop\Module\PsAccounts\Account\Exception\UnknownStatusException;
 use PrestaShop\Module\PsAccounts\Account\StatusManager;
@@ -85,6 +86,7 @@ class RestoreIdentityHandler
             $currentStatus = new ShopStatus();
         }
 
+        $registeredVersion = $this->upgradeService->getRegisteredVersion();
         try {
             if ($this->isSameIdentity($currentStatus, $command)) {
                 return;
@@ -93,11 +95,16 @@ class RestoreIdentityHandler
             $shopId = $command->shopId ?: \Shop::getContextShopID();
             $this->oAuth2Client->update(
                 $command->clientId,
-                $command->clientSecret
+                $command->clientSecret ?: $this->oAuth2Client->getClientSecret()
             );
             $this->statusManager->setCloudShopId($command->cloudShopId);
             $this->statusManager->setIsVerified(false);
-            $this->upgradeService->setVersion();
+
+
+            if ($command->migrate) {
+                // this will trigger migration anyways
+                $this->upgradeService->setVersion('');
+            }
 
             $this->commandBus->handle(new MigrateOrCreateIdentityV8Command(
                 // FIXME: $cloudShopId (should not be necessary to read it from db)
@@ -105,11 +112,23 @@ class RestoreIdentityHandler
                 $command->origin,
                 $command->source
             ));
+
+            if ($command->verify) {
+                // force verify
+                $this->commandBus->handle(new VerifyIdentityCommand(
+                    $shopId,
+                    true,
+                    $command->origin,
+                    $command->source
+                ));
+            }
             //$this->statusManager->invalidateCache();
         } catch (AccountsException $e) {
             $this->statusManager->restoreStatus($currentStatus);
+            $this->upgradeService->setVersion($registeredVersion);
         } catch (RefreshTokenException $e) {
             $this->statusManager->restoreStatus($currentStatus);
+            $this->upgradeService->setVersion($registeredVersion);
         }
     }
 

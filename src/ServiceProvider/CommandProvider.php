@@ -20,6 +20,7 @@
 
 namespace PrestaShop\Module\PsAccounts\ServiceProvider;
 
+use PrestaShop\Module\PsAccounts\Account\CommandHandler\CleanupIdentityHandler;
 use PrestaShop\Module\PsAccounts\Account\CommandHandler\CreateIdentitiesHandler;
 use PrestaShop\Module\PsAccounts\Account\CommandHandler\CreateIdentityHandler;
 use PrestaShop\Module\PsAccounts\Account\CommandHandler\IdentifyContactHandler;
@@ -108,6 +109,13 @@ class CommandProvider implements IServiceProvider
                 $container->get(StatusManager::class),
                 $container->get(UpgradeService::class),
                 $container->get(CommandBus::class)
+            );
+        });
+        $container->registerProvider(CleanupIdentityHandler::class, static function () use ($container) {
+            return new CleanupIdentityHandler(
+                $container->get(OAuth2Client::class),
+                $container->get(StatusManager::class),
+                $container->get(ConfigurationRepository::class)
             );
         });
     }
