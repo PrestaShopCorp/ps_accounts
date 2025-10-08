@@ -4,6 +4,7 @@
     "lint": "eslint . --ext .ts",
     "typecheck": "tsc -p tsconfig.json --noEmit",
     "build-shop": "cd ../e2e-env && ./shop-build.sh",
+    "kill-shop": "cd ../e2e-env && docker compose --profile all down -v",
     "installation-tests": "./scripts/run-installation-tests.sh",
     "association-diassociaiton-tests": "./scripts/run-association-diassociation-tests.sh",
     "multistore-association-diassociation-tests": "./scripts/run-multistore-association-diassociation-tests.sh",

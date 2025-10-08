@@ -22,7 +22,8 @@ export default defineConfig({
   projects: [
     {
       name: 'Account Autom Test',
-      testMatch: '**/*spec.ts'
+      testMatch: '**/*spec.ts',
+      use:{browserName: 'chromium'}
       // testIgnore: '**/01_front_check_association.spec.ts'
     }
     // {

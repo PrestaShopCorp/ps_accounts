@@ -43,8 +43,8 @@ test('Ps account Access Token is defined', async () => {
   const checkValue = await dbRequest.getPsConfigurationData('PS_ACCOUNTS_ACCESS_TOKEN');
   expect(checkValue.value).not.toBeNull();
 });
-test('Ps account Shop Proof is not defined', async () => {
+test('Ps account Shop Proof is defined', async () => {
   test.skip(!shouldRun, 'Version < 8');
   const checkValue = await dbRequest.getPsConfigurationData('PS_ACCOUNTS_SHOP_PROOF');
-  expect(checkValue.value).toBeNull();
+  expect(checkValue.value).not.toBeNull();
 });
