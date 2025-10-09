@@ -518,7 +518,7 @@ class SettingsForm
         if (method_exists(Validate::class, 'isPasswd')) {
             return Validate::isPasswd($password);
         }
+
         return false;
     }
-
 }
