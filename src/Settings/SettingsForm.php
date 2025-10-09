@@ -515,8 +515,15 @@ class SettingsForm
             /* @phpstan-ignore-next-line */
             return Validate::isPlaintextPassword($password);
         }
+        /* @phpstan-ignore-next-line */
         if (method_exists(Validate::class, 'isPasswd')) {
+            /* @phpstan-ignore-next-line */
             return Validate::isPasswd($password);
+        }
+        /* @phpstan-ignore-next-line */
+        if (method_exists(Validate::class, 'isAcceptablePasswordScore')) {
+            /* @phpstan-ignore-next-line */
+            return Validate::isAcceptablePasswordScore($password);
         }
 
         return false;
