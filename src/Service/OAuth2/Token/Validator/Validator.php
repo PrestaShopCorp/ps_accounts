@@ -20,7 +20,6 @@
 
 namespace PrestaShop\Module\PsAccounts\Service\OAuth2\Token\Validator;
 
-use PrestaShop\Module\PsAccounts\Log\Logger;
 use PrestaShop\Module\PsAccounts\Repository\ConfigurationRepository;
 use PrestaShop\Module\PsAccounts\Service\OAuth2\OAuth2Service;
 use PrestaShop\Module\PsAccounts\Vendor\Firebase\JWT\ExpiredException;
@@ -181,6 +180,7 @@ class Validator
     public function getLeeway()
     {
         $leeway = $this->repository->getValidationLeeway();
+
         return is_int($leeway) ? $leeway : $this->defaultLeeway;
     }
 }

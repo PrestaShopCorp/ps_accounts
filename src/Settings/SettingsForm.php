@@ -117,7 +117,7 @@ class SettingsForm
         }
 
         if (Tools::isSubmit($this->getSubmitCleanupIdentity())) {
-            return $this->storeCleanupIdentity();
+            $this->storeCleanupIdentity();
         }
 
         if (Tools::isSubmit($this->getSubmitSettings())) {
