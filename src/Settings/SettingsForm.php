@@ -409,7 +409,7 @@ class SettingsForm
         }
         $this->module->redirectSettingsPage([
             self::FORM_ACCESS_PARAM => 1,
-            'information' => $this->l('Noting to do'),
+            'information' => $this->l('Nothing to do'),
         ]);
     }
 
