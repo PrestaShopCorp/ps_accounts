@@ -97,14 +97,12 @@ class SettingsForm
 
     /**
      * @param string $string String to translate
-     * @param bool|string $specific filename to use in translation key
-     * @param string|null $locale Locale to translate to
      *
      * @return string Translation
      */
-    public function l($string, $specific = false, $locale = null)
+    public function l($string)
     {
-        return $this->module->l($string, $specific, $locale);
+        return $this->module->l($string);
     }
 
     /**
@@ -112,8 +110,10 @@ class SettingsForm
      */
     public function render()
     {
+        $res = null;
+
         if (Tools::isSubmit($this->getSubmitRestoreIdentity())) {
-            return $this->storeRestoreIdentity();
+            $res = $this->storeRestoreIdentity();
         }
 
         if (Tools::isSubmit($this->getSubmitCleanupIdentity())) {
@@ -121,14 +121,15 @@ class SettingsForm
         }
 
         if (Tools::isSubmit($this->getSubmitSettings())) {
-            return $this->storeSettings();
+            $res = $this->storeSettings();
         }
 
         if (Tools::getValue(self::FORM_ACCESS_PARAM)) {
-            return $this->generateForm();
+            $res = $this->generateForm();
         }
 
-        return null;
+        /* @phpstan-ignore-next-line */
+        return $res;
     }
 
     /**
@@ -364,7 +365,7 @@ class SettingsForm
             }
         }
         foreach ([$oAuth2ClientSecret] as $value) {
-            if (!empty($value) && !Validate::isPlaintextPassword($value)) {
+            if (!empty($value) && !$this->isPlaintextPassword($value)) {
                 $error = true;
                 break;
             }
@@ -488,7 +489,7 @@ class SettingsForm
     /**
      * @return array
      */
-    public function getBackButton()
+    protected function getBackButton()
     {
         return [
             'href' => $this->module->getSettingsPageUrl(),          // If this is set, the button will be an <a> tag
@@ -501,4 +502,23 @@ class SettingsForm
             'title' => $this->l('Back'),      // Button label
         ];
     }
+
+    /**
+     * @param string $password
+     *
+     * @return bool
+     */
+    protected function isPlaintextPassword($password)
+    {
+        /* @phpstan-ignore-next-line */
+        if (method_exists(Validate::class, 'isPlaintextPassword')) {
+            /* @phpstan-ignore-next-line */
+            return Validate::isPlaintextPassword($password);
+        }
+        if (method_exists(Validate::class, 'isPasswd')) {
+            return Validate::isPasswd($password);
+        }
+        return false;
+    }
+
 }
