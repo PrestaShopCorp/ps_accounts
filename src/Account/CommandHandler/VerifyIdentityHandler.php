@@ -131,7 +131,9 @@ class VerifyIdentityHandler
             $shopId
         );
         $localShopUrl = new ShopUrl(
-            rtrim($shopUrl->getBackOfficeUrl(), '/'),
+            //rtrim($shopUrl->getBackOfficeUrl(), '/'),
+            // FIXME: we don't consider backoffice url here
+            rtrim($status->backOfficeUrl, '/'),
             rtrim($shopUrl->getFrontendUrl(), '/'),
             $shopId
         );
