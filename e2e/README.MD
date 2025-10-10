@@ -22,7 +22,7 @@ Cette documentation explique comment lancer des créations de shop de le dossier
 
 ## 🛠️ Configuration
 
-Crée un fichier `.env` à la racine du dossier build-Shop_with_Mytun avec ce contenu (exemple dans le .env.dist) :
+Crée un fichier `.env` à la racine du dossier e2e avec ce contenu (exemple dans le .env.dist) :
 
 ```
 ACCOUNT_TAG="your account tag"
