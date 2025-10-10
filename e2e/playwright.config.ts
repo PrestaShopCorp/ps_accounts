@@ -21,16 +21,15 @@ export default defineConfig({
   ],
   projects: [
     {
-      name: 'Account Autom Test',
-      testMatch: '**/*spec.ts',
+      name: 'Account TNR V7',
+      testMatch: ['**/tnrV7/**/*.spec.ts'],
       use:{browserName: 'chromium'}
-      // testIgnore: '**/01_front_check_association.spec.ts'
+    },
+    {
+      name: 'Account TNR V8',
+      testMatch: ['**/tnrV8/**/*.spec.ts'],
+      use:{browserName: 'chromium'}
     }
-    // {
-    //   name: 'Association with google',
-    //   use: {browserName: 'webkit'},
-    //   testMatch: '**/01_front_check_association.spec.ts'
-    // }
   ],
   use: {
     trace: 'on-first-retry',
