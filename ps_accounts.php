@@ -32,7 +32,7 @@ class Ps_accounts extends Module
 
     // Needed in order to retrieve the module version easier (in api call headers) than instanciate
     // the module each time to get the version
-    const VERSION = '8.0.2';
+    const VERSION = '7.0.2';
 
     /**
      * Admin tabs
