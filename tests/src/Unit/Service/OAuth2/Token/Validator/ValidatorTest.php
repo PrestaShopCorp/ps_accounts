@@ -183,7 +183,11 @@ JSON;
 
         $this->leeway = (int) $this->module->getParameter('ps_accounts.token_validator_leeway');
 
-        $this->validator = new Validator($this->oAuth2Service, $this->leeway);
+        $this->validator = new Validator(
+            $this->oAuth2Service,
+            $this->configurationRepository,
+            $this->leeway
+        );
     }
 
     /**

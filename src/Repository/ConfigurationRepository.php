@@ -424,6 +424,29 @@ class ConfigurationRepository
     }
 
     /**
+     * @return int|null
+     */
+    public function getValidationLeeway()
+    {
+        $leeway = $this->configuration->get(ConfigurationKeys::PS_ACCOUNTS_VALIDATION_LEEWAY);
+        if (!empty($leeway) || $leeway === '0') {
+            return (int) $leeway;
+        }
+
+        return null;
+    }
+
+    /**
+     * @param int $leeway
+     *
+     * @return void
+     */
+    public function updateValidationLeeway($leeway)
+    {
+        $this->configuration->set(ConfigurationKeys::PS_ACCOUNTS_VALIDATION_LEEWAY, (string) $leeway);
+    }
+
+    /**
      * specify id_shop & id_shop_group for shop
      *
      * @return void

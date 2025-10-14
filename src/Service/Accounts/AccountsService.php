@@ -51,6 +51,7 @@ class AccountsService
     const ORIGIN_MISMATCH_UPDATE = 'mismatch_update';
     const ORIGIN_RESET = 'reset';
     const ORIGIN_UPGRADE = 'upgrade';
+    const ORIGIN_ADVANCED_SETTINGS = 'advanced_settings';
 
     /**
      * @var Client

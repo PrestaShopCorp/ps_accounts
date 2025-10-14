@@ -289,6 +289,20 @@ class StatusManager
     }
 
     /**
+     * @param ShopStatus $status
+     *
+     * @return void
+     */
+    public function restoreStatus(ShopStatus $status)
+    {
+        $this->upsetCachedStatus(new CachedShopStatus([
+            'isValid' => true,
+            'updatedAt' => date('Y-m-d H:i:s'),
+            'shopStatus' => $status,
+        ]));
+    }
+
+    /**
      * @return void
      */
     public function clearIdentity()
