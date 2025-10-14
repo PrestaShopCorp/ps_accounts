@@ -30,7 +30,7 @@
 
 <style>
   /** Hide native multistore module activation panel, because of visual regressions on non-bootstrap content */
-  #content.nobootstrap div.bootstrap.panel {
+  #content.bootstrap div.bootstrap.panel {
     display: none;
   }
 </style>
