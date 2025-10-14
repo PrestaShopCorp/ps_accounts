@@ -92,7 +92,7 @@ class Ps_accounts extends Module
         $this->tab = 'administration';
         $this->author = 'PrestaShop';
         $this->need_instance = 0;
-        $this->bootstrap = false;
+        $this->bootstrap = true;
 
         // We cannot use the const VERSION because the const is not computed by addons marketplace
         // when the zip is uploaded
@@ -317,6 +317,10 @@ class Ps_accounts extends Module
      */
     public function getContent()
     {
+        if (!empty($settingsForm = (new \PrestaShop\Module\PsAccounts\Settings\SettingsForm($this))->render())) {
+            return $settingsForm;
+        }
+
         //$this->context->smarty->assign('pathVendor', $this->_path . 'views/js/chunk-vendors.' . $this->version . '.js');
         $this->context->smarty->assign('pathApp', $this->_path . 'views/js/app.' . $this->version . '.js');
         $this->context->smarty->assign('pathAppAssets', $this->_path . 'views/css/app.' . $this->version . '.css');
@@ -336,6 +340,36 @@ class Ps_accounts extends Module
         ]);
 
         return $this->display(__FILE__, 'views/templates/admin/app.tpl');
+    }
+
+    /**
+     * @param array $params
+     *
+     * @return void
+     */
+    public function redirectSettingsPage(array $params = [])
+    {
+        Tools::redirectAdmin($this->getSettingsPageUrl($params));
+    }
+
+    /**
+     * @param array $params
+     *
+     * @return string
+     */
+    public function getSettingsPageUrl(array $params = [])
+    {
+        if (version_compare(_PS_VERSION_, '1.7', '>')) {
+            return $this->context->link->getAdminLink('AdminModules', true, [], array_merge($params, [
+                    'configure' => $this->name,
+                ])
+            );
+        } else {
+            return AdminController::$currentIndex . '&' . http_build_query(array_merge($params, [
+                    'configure' => $this->name,
+                    'token' => Tools::getAdminTokenLite('AdminModules'),
+                ]));
+        }
     }
 
     /**
@@ -456,6 +490,7 @@ function ps_accounts_fix_upgrade()
         $root . '/src/Module/Install.php',
 //        $root . '/src/Hook/Hook.php',
         $root . '/src/Hook/HookableTrait.php',
+        $root . '/src/Settings/SettingsForm.php',
     ], []/*, glob($root . '/src/Hook/*.php')*/);
 
     foreach ($requires as $filename) {
