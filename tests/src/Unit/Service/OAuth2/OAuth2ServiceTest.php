@@ -322,7 +322,7 @@ JSON
             , 403);
 
         $this->expectException(OAuth2Exception::class);
-        $this->expectExceptionMessage('403 - error_name: This is the description');
+        $this->expectExceptionMessage('403: This is the description');
         $this->oAuth2Service->getAccessTokenByAuthorizationCode($this->faker->sha256);
     }
 
@@ -334,7 +334,7 @@ JSON
         $this->accessTokenResponse = $this->createResponse('{}', 403);
 
         $this->expectException(OAuth2Exception::class);
-        $this->expectExceptionMessage('403 - Unable to get access token');
+        $this->expectExceptionMessage('403: Unable to get access token');
         $this->oAuth2Service->getAccessTokenByAuthorizationCode($this->faker->sha256);
     }
 }

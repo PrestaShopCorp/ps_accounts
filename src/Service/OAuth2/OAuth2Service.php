@@ -24,7 +24,6 @@ use PrestaShop\Module\PsAccounts\Http\Client\ClientConfig;
 use PrestaShop\Module\PsAccounts\Http\Client\Curl\Client as HttpClient;
 use PrestaShop\Module\PsAccounts\Http\Client\Factory;
 use PrestaShop\Module\PsAccounts\Http\Client\Request;
-use PrestaShop\Module\PsAccounts\Http\Client\Response;
 use PrestaShop\Module\PsAccounts\Service\OAuth2\Resource\AccessToken;
 use PrestaShop\Module\PsAccounts\Service\OAuth2\Resource\UserInfo;
 use PrestaShop\Module\PsAccounts\Service\OAuth2\Resource\WellKnown;
@@ -196,7 +195,7 @@ class OAuth2Service
         $response = $this->getHttpClient()->get('/.well-known/openid-configuration');
 
         if (!$response->isSuccessful) {
-            throw new OAuth2Exception($this->getResponseErrorMsg($response, 'Unable to get openid-configuration'));
+            throw new OAuth2ServerException($response, 'Unable to get openid-configuration');
         }
 
         return $response->body;
@@ -215,7 +214,7 @@ class OAuth2Service
             $response = $this->getHttpClient()->get($this->getWellKnown()->jwks_uri);
 
             if (!$response->isSuccessful) {
-                throw new OAuth2Exception($this->getResponseErrorMsg($response, 'Unable to get JWKS'));
+                throw new OAuth2ServerException($response, 'Unable to get JWKS');
             }
 
             $this->cachedJwks->write(
@@ -253,7 +252,7 @@ class OAuth2Service
         );
 
         if (!$response->isSuccessful) {
-            throw new OAuth2Exception($this->getResponseErrorMsg($response, 'Unable to get access token'));
+            throw new OAuth2ServerException($response, 'Unable to get access token');
         }
 
         return new AccessToken($response->body);
@@ -360,7 +359,7 @@ class OAuth2Service
         );
 
         if (!$response->isSuccessful) {
-            throw new OAuth2Exception($this->getResponseErrorMsg($response, 'Unable to get access token'));
+            throw new OAuth2ServerException($response, 'Unable to get access token');
         }
 
         return new AccessToken($response->body);
@@ -389,7 +388,7 @@ class OAuth2Service
         );
 
         if (!$response->isSuccessful) {
-            throw new OAuth2Exception($this->getResponseErrorMsg($response, 'Unable to refresh access token'));
+            throw new OAuth2ServerException($response, 'Unable to refresh access token');
         }
 
         return new AccessToken($response->body);
@@ -412,7 +411,7 @@ class OAuth2Service
         );
 
         if (!$response->isSuccessful) {
-            throw new OAuth2Exception($this->getResponseErrorMsg($response, 'Unable to get user infos'));
+            throw new OAuth2ServerException($response, 'Unable to get user infos');
         }
 
         return new UserInfo($response->body);
@@ -476,24 +475,5 @@ class OAuth2Service
         if (!$this->oAuth2Client->exists()) {
             throw new OAuth2Exception('OAuth2 client not configured');
         }
-    }
-
-    /**
-     * @param Response $response
-     * @param string $defaultMessage
-     *
-     * @return string
-     */
-    protected function getResponseErrorMsg(Response $response, $defaultMessage = '')
-    {
-        $msg = $defaultMessage;
-        $body = $response->body;
-        if (isset($body['error']) &&
-            isset($body['error_description'])
-        ) {
-            $msg = $body['error'] . ': ' . $body['error_description'];
-        }
-
-        return $response->statusCode . ' - ' . $msg;
     }
 }
