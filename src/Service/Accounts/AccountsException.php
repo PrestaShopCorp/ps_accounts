@@ -24,6 +24,8 @@ use PrestaShop\Module\PsAccounts\Http\Client\Response;
 
 class AccountsException extends \Exception
 {
+    const ERROR_STORE_LEGACY_NOT_FOUND = 'store-identity/store-legacy-not-found';
+
     /**
      * @var string
      */

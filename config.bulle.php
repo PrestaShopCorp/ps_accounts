@@ -38,6 +38,7 @@ return [
     'ps_accounts.svc_accounts_ui_url' => 'https://accounts.psessentials-integration.net',
     'ps_accounts.oauth2_url' => 'https://oauth-integration.prestashop.com',
     'ps_accounts.token_audience' => 'https://accounts-api.distribution-integration.prestashop.net',
+    'ps_accounts.token_validator_leeway' => 900,
 
     'ps_accounts.testimonials_url' => 'https://assets.prestashop3.com/dst/accounts/assets/testimonials.json',
 
