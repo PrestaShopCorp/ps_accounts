@@ -1,4 +1,4 @@
-import {MyFixtures} from 'types/fixture';
+import { MyFixtures } from '~/types/fixture';
 import {loginFixture} from '~/fixtures/login.fixture';
 import {PageManager} from '~/pages/managerPage';
 

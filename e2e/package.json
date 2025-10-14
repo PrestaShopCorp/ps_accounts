@@ -4,6 +4,7 @@
     "lint": "eslint . --ext .ts",
     "typecheck": "tsc -p tsconfig.json --noEmit",
     "build-shop": "cd ../e2e-env && ./shop-build.sh",
+    "kill-shop": "cd ../e2e-env && docker compose --profile all down -v",
     "installation-tests": "./scripts/run-installation-tests.sh",
     "association-diassociaiton-tests": "./scripts/run-association-diassociation-tests.sh",
     "multistore-association-diassociation-tests": "./scripts/run-multistore-association-diassociation-tests.sh",
@@ -19,18 +20,18 @@
     "mysql2": "^3.14.4"
   },
   "devDependencies": {
-    "@faker-js/faker": "^10.0.0",
-    "@types/node": "24.3.0",
-    "allure-commandline": "^2.34.1",
-    "allure-playwright": "^3.3.3",
+    "@faker-js/faker": "^8.0.2",
+    "@types/node": "^24.3.0",
+    "jiti": "^2.5.1",
+    "eslint": "^9.34.0",
+    "eslint-config-prettier": "^10.1.8",
+    "eslint-plugin-unused-imports": "^4.2.0",
+    "typescript-eslint": "^8.42.0",
+    "allure-commandline": "^2.27.0",
+    "allure-playwright": "^3.0.5",
     "playwright-ctrf-json-reporter": "^0.0.23",
     "prettier": "^3.6.2",
     "tsconfig-paths": "^4.2.0",
-    "typescript": "5.9.2",
-    "eslint": "^9.34.0",
-    "@eslint/js": "^9.34.0",
-    "jiti": "^2.5.1",
-    "typescript-eslint": "^8.41.0",
-    "eslint-config-prettier": "^10.1.8"
+    "typescript": "5.9.2"
   }
 }

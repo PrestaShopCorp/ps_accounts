@@ -14,8 +14,7 @@
     "allowJs": true,
     "skipLibCheck": true,
     "skipDefaultLibCheck": true,
-    "lib": ["dom", "dom.iterable", "ES2023"],
-    "baseUrl": "./",
+    "lib": ["dom", "dom.iterable", "esnext"],
     "paths": {
       "~/*": ["./*"]
     }

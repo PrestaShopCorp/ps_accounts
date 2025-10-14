@@ -1,4 +1,4 @@
-import {ModulePsAccount} from 'types/module';
+import {ModulePsAccount} from '~/types/dbInformation';
 import dotenv from 'dotenv';
 dotenv.config({path: '../e2e-env/.env'});
 

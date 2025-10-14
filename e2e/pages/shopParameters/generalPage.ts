@@ -1,6 +1,7 @@
 import {Page, expect} from '@playwright/test';
 import BasePage from '~/pages/basePage';
 import {shopParametersPageLocales} from '~/data/local/shopParametersPageLocales/shopParametersPageLocales';
+
 export default class GeneralPage extends BasePage {
   /* <<<<<<<<<<<<<<< Selectors Types >>>>>>>>>>>>>>>>>>>>>> */
   constructor(page: Page) {

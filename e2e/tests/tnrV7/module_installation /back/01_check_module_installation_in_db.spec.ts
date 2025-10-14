@@ -1,5 +1,5 @@
 import {test} from '@playwright/test';
-import DbRequest from 'services/db/dbRequest';
+import DbRequest from '~/services/db/dbRequest';
 
 // Var
 const dbRequest = new DbRequest();
