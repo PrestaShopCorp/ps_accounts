@@ -36,7 +36,7 @@ for index in "${!SHOP_VERSIONS[@]}"; do
 npm run build-shop -- "$PS_VERSION" "" "" "$ACCOUNT_VERSION"
 
 #Run the tests
-npx playwright test "upgrade/$TEST"|| true
+npx playwright test "upgrade/$TEST" --project="Upgrade TNR" || true
 
 #Create the allure result directory
 mkdir -p "allure-results-$PS_VERSION"
