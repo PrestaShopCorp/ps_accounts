@@ -16,7 +16,7 @@ for PS_VERSION in "${SHOP_VERSIONS[@]}"; do
 npm run build-shop -- "$PS_VERSION"
 
 #Run the tests
-npx playwright test --project="Account TNR V7" 01_front_check_association.spec.ts || true && npx playwright test 02_front_check_disassociation.spec.ts || true
+npx playwright test 01_front_check_association.spec.ts || true && npx playwright test 02_front_check_disassociation.spec.ts || true
 
 #Create the allure result directory
 mkdir -p "allure-results-$PS_VERSION"

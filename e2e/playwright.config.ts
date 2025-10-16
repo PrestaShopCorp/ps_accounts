@@ -23,12 +23,17 @@ export default defineConfig({
     {
       name: 'Account TNR V7',
       testMatch: ['**/tnrV7/**/*.spec.ts'],
-      use:{browserName: 'chromium'}
+      use: {browserName: 'chromium'}
     },
     {
       name: 'Account TNR V8',
       testMatch: ['**/tnrV8/**/*.spec.ts'],
-      use:{browserName: 'chromium'}
+      use: {browserName: 'chromium'}
+    },
+    {
+      name: 'Upgrade TNR',
+      testMatch: ['**/upgrade/*.spec.ts'],
+      use: {browserName: 'chromium'}
     }
   ],
   use: {
