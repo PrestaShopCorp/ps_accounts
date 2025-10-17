@@ -130,4 +130,39 @@ export default class ModuleManagerPage extends BasePage {
       await this.page.reload({waitUntil: 'commit'});
     }
   }
+
+  /**
+   * Navigate to the "Configure" page of PrestaShop Account module
+   * Handles both new and old PS versions
+   */
+  async goToAccountConfigurePage() {
+    const pageTitle = await this.getPageMainTitle();
+    const pageTitleOldPsVersion = await this.getPageMainTitleOldPsVersion();
+
+    if (pageTitle === moduleManagerPagesLocales.moduleManager.en_EN.title) {
+      const moduleContainer = this.page.locator('#modules-list-container-440');
+      const dropdownBtn = moduleContainer.locator('.btn.btn-outline-primary.dropdown-toggle');
+      const upgradeBtn = moduleContainer.getByRole('button', {name: 'Upgrade'});
+
+      if (await upgradeBtn.isVisible()) {
+        await dropdownBtn.click();
+      }
+      await moduleContainer.getByRole('link', {name: 'Configure'}).click();
+      await this.page.waitForLoadState('load');
+    } else if (pageTitleOldPsVersion === moduleManagerPagesLocales.moduleManager.en_EN.titleOldPsVersion) {
+      const moduleContainer = this.page.locator('tr:not([style*="display: none"])');
+      const dropDownParent = moduleContainer.locator('.actions');
+      // const dropdownBtn = dropDownParent.locator('.caret');
+      const dropdownBtn = dropDownParent.getByRole('cell', { name: ' Update it!' }).getByRole('button')
+      const upgradeBtn = dropDownParent.getByRole('button', {name: ' Update it! '});
+
+      if (await upgradeBtn.isVisible()) {
+        await dropdownBtn.click({force: true});
+      }
+      await moduleContainer.getByRole('link', {name: 'Configure'}).click();
+      await this.page.waitForLoadState('load');
+    } else {
+      throw new Error('Module Manager page title not recognized.');
+    }
+  }
 }

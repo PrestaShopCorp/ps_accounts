@@ -10,6 +10,7 @@ gotToModuleManagerPage('Check module association', async ({gotToModuleManagerPag
   await test.step('associate to account and check if linked', async () => {
     await pm.fromModuleManagePage().getPageMainTitle();
     await pm.fromModuleManagePage().isAccountVisible();
+    await pm.fromModuleManagePage().goToAccountConfigurePage();
     const popup = await pm.fromPopupAccountPage().openAccountPopup();
     await pm.fromPopupAccountPage().accountPopupTiteleIsVisible(popup);
     await pm.fromPopupAccountPage().connectToAccountWithMail(popup);

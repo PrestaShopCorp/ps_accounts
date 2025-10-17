@@ -8,10 +8,10 @@ services:
       MYSQL_USER: prestashop
       MYSQL_PASSWORD: prestashop
       MYSQL_ROOT_PASSWORD: prestashop
-      MYSQL_PORT: 3307
+      MYSQL_PORT: 3306
       MYSQL_DATABASE: prestashop
     ports:
-      - "3307:3306"
+      - "3305:3306"
     profiles:
       - all
       - multistore

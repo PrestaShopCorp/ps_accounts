@@ -10,6 +10,7 @@ gotToModuleManagerPage('Check module disassociation', async ({gotToModuleManager
   await test.step('diassociate first shop to account and check if unlinked', async () => {
     await pm.fromModuleManagePage().getPageMainTitle();
     await pm.fromModuleManagePage().isAccountVisible();
+    await pm.fromModuleManagePage().goToAccountConfigurePage();
     const popup = await pm.fromPopupAccountPage().openLinkedAccountPopup();
     await pm.fromPopupAccountPage().accountPopupTiteleIsVisible(popup);
     await pm.fromPopupAccountPage().connectToAccountWithMail(popup);
