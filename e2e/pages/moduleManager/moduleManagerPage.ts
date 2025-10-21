@@ -152,10 +152,8 @@ export default class ModuleManagerPage extends BasePage {
     } else if (pageTitleOldPsVersion === moduleManagerPagesLocales.moduleManager.en_EN.titleOldPsVersion) {
       const moduleContainer = this.page.locator('tr:not([style*="display: none"])');
       const dropDownParent = moduleContainer.locator('.actions');
-      // const dropdownBtn = dropDownParent.locator('.caret');
-      const dropdownBtn = dropDownParent.getByRole('cell', { name: ' Update it!' }).getByRole('button')
-      const upgradeBtn = dropDownParent.getByRole('button', {name: ' Update it! '});
-
+      const dropdownBtn = dropDownParent.locator('.caret');
+      const upgradeBtn = dropDownParent.getByRole('link', {name: ' Update it! '});
       if (await upgradeBtn.isVisible()) {
         await dropdownBtn.click({force: true});
       }
