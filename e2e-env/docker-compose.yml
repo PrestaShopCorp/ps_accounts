@@ -11,7 +11,7 @@ services:
       MYSQL_PORT: 3306
       MYSQL_DATABASE: prestashop
     ports:
-      - "3305:3306"
+      - "3307:3306"
     profiles:
       - all
       - multistore
