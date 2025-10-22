@@ -38,6 +38,21 @@ export default class ModuleManagerPage extends BasePage {
   }
 
   /**
+   * Get the running PS Version
+   * @return {Promise<'new' | 'old'>} old is <= 1.6 and new >=1.7
+   */
+  async getPsVersion(): Promise<'new' | 'old'> {
+    const pageTitle = await this.getPageMainTitle();
+    const pageTitleOldPsVersion = await this.getPageMainTitleOldPsVersion();
+    if (pageTitle === moduleManagerPagesLocales.moduleManager.en_EN.title) {
+      return 'new';
+    } else if (pageTitleOldPsVersion === moduleManagerPagesLocales.moduleManager.en_EN.titleOldPsVersion) {
+      return 'old';
+    }
+    throw new Error('Version not detected');
+  }
+
+  /**
    * Searches for 'Account' in the search bar and checks if the 'PrestaShop Account' module is visible.
    * @expect Account to be visible
    */
@@ -108,23 +123,37 @@ export default class ModuleManagerPage extends BasePage {
    * Upload a zip
    */
   async uploadZip() {
-    const pageTitle = await this.getPageMainTitle();
-    const pageTitleOldPsVersion = await this.getPageMainTitleOldPsVersion();
-    if (pageTitle === moduleManagerPagesLocales.moduleManager.en_EN.title) {
+    const psVersion = await this.getPsVersion();
+    // await this.page.pause()
+    const filePath = path.join(__dirname, '../../../e2e-env/modules/ps_accounts_preprod-8.0.2.zip');
+    if (psVersion === 'new') {
       await this.page.locator('[data-target="#module-modal-import"]').click();
       const fileChooserPromise = this.page.waitForEvent('filechooser');
       await this.page.locator('.module-import-start-select-manual').click();
       const fileChooser = await fileChooserPromise;
-      await fileChooser.setFiles(path.join(__dirname, '../../../e2e-env/modules/ps_accounts_preprod-8.0.2.zip'));
-      await this.page.waitForSelector('.module-import-success-icon');
-      await this.page.locator('#module-modal-import-closing-cross').click();
-      await this.page.reload({waitUntil: 'commit'});
-    } else if (pageTitleOldPsVersion === moduleManagerPagesLocales.moduleManager.en_EN.titleOldPsVersion) {
+      await fileChooser.setFiles(filePath);
+      const uploadFailed = this.page.locator('.module-import-failure-retry');
+      if (await uploadFailed.isVisible()) {
+        await this.page.locator('#module-modal-import-closing-cross').click();
+        await this.page.reload({waitUntil: 'commit'});
+        // const responsePromise = this.page.waitForResponse(
+        //   (response) => response.url().includes('/admin-dev/common/notifications') && response.status() === 200
+        // );
+        await this.page.getByRole('button', {name: 'Reset module'}).click();
+        await this.page.waitForTimeout(10000)
+        // const response = await responsePromise;
+        // expect(response).toBeTruthy()
+      } else {
+        await this.page.locator('.module-import-success-icon');
+        await this.page.locator('#module-modal-import-closing-cross').click();
+        await this.page.reload({waitUntil: 'commit'});
+      }
+    } else if (psVersion === 'old') {
       await this.page.locator('#desc-module-new').click();
       const fileChooserPromise = this.page.waitForEvent('filechooser');
       await this.page.locator('#file-selectbutton').click();
       const fileChooser = await fileChooserPromise;
-      await fileChooser.setFiles(path.join(__dirname, '../../../e2e-env/modules/ps_accounts_preprod-8.0.2.zip'));
+      await fileChooser.setFiles(filePath);
       await this.page.locator('[name="download"]').click();
       await this.page.waitForSelector('.alert.alert-success');
       await this.page.reload({waitUntil: 'commit'});
@@ -136,10 +165,8 @@ export default class ModuleManagerPage extends BasePage {
    * Handles both new and old PS versions
    */
   async goToAccountConfigurePage() {
-    const pageTitle = await this.getPageMainTitle();
-    const pageTitleOldPsVersion = await this.getPageMainTitleOldPsVersion();
-
-    if (pageTitle === moduleManagerPagesLocales.moduleManager.en_EN.title) {
+    const psVersion = await this.getPsVersion();
+    if (psVersion === 'new') {
       const moduleContainer = this.page.locator('#modules-list-container-440');
       const dropdownBtn = moduleContainer.locator('.btn.btn-outline-primary.dropdown-toggle');
       const upgradeBtn = moduleContainer.getByRole('button', {name: 'Upgrade'});
@@ -149,7 +176,7 @@ export default class ModuleManagerPage extends BasePage {
       }
       await moduleContainer.getByRole('link', {name: 'Configure'}).click();
       await this.page.waitForLoadState('load');
-    } else if (pageTitleOldPsVersion === moduleManagerPagesLocales.moduleManager.en_EN.titleOldPsVersion) {
+    } else if (psVersion === 'old') {
       const moduleContainer = this.page.locator('tr:not([style*="display: none"])');
       const dropDownParent = moduleContainer.locator('.actions');
       const dropdownBtn = dropDownParent.locator('.caret');

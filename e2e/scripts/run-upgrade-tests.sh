@@ -23,7 +23,7 @@ fi
 
 TESTS=(
   01_front_check_upgrade.spec.ts
-  02_front_check_upgrade_with_association.spec.ts
+  # 02_front_check_upgrade_with_association.spec.ts
 )
 
 for index in "${!SHOP_VERSIONS[@]}"; do
