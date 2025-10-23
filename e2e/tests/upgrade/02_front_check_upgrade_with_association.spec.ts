@@ -17,6 +17,7 @@ gotToModuleManagerPage('Check module is upgrade after association', async ({gotT
   await test.step('association to ps_account', async () => {
     await pm.fromModuleManagePage().getPageMainTitle();
     await pm.fromModuleManagePage().isAccountVisible();
+    await pm.fromModuleManagePage().goToAccountConfigurePage();
     const popup = await pm.fromPopupAccountPage().openAccountPopup();
     await pm.fromPopupAccountPage().accountPopupTiteleIsVisible(popup);
     await pm.fromPopupAccountPage().connectToAccountWithMail(popup);
