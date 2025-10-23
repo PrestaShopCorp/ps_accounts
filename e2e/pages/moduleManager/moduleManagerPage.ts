@@ -124,25 +124,19 @@ export default class ModuleManagerPage extends BasePage {
    */
   async uploadZip() {
     const psVersion = await this.getPsVersion();
-    // await this.page.pause()
-    const filePath = path.join(__dirname, '../../../e2e-env/modules/ps_accounts_preprod-8.0.2.zip');
+    const filePath = path.join(__dirname, '../../../e2e-env/modules/ps_accounts_preprod-8.0.4.zip');
     if (psVersion === 'new') {
       await this.page.locator('[data-target="#module-modal-import"]').click();
       const fileChooserPromise = this.page.waitForEvent('filechooser');
       await this.page.locator('.module-import-start-select-manual').click();
       const fileChooser = await fileChooserPromise;
       await fileChooser.setFiles(filePath);
-      const uploadFailed = this.page.locator('.module-import-failure-retry');
-      if (await uploadFailed.isVisible()) {
+      await this.page.waitForSelector('.module-import-processing-main-text', {state: 'hidden'});
+      if (await this.page.locator('.module-import-failure-retry').isVisible()) {
         await this.page.locator('#module-modal-import-closing-cross').click();
         await this.page.reload({waitUntil: 'commit'});
-        // const responsePromise = this.page.waitForResponse(
-        //   (response) => response.url().includes('/admin-dev/common/notifications') && response.status() === 200
-        // );
         await this.page.getByRole('button', {name: 'Reset module'}).click();
-        await this.page.waitForTimeout(10000)
-        // const response = await responsePromise;
-        // expect(response).toBeTruthy()
+        await this.page.getByRole('button', {name: 'Resetting module...'}).waitFor({state: 'hidden'});
       } else {
         await this.page.locator('.module-import-success-icon');
         await this.page.locator('#module-modal-import-closing-cross').click();
