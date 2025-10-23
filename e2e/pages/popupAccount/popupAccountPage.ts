@@ -77,24 +77,6 @@ export default class PopupAccountPage extends ModuleManagerPage {
     await logginBtn.isEnabled();
     await logginBtn.click();
   }
-  // /**
-  //  * Connected to account
-  //  * @param newPage {Page} The account popupÒ
-  //  * @param email string
-  //  * @param password string
-  //  */
-  // async connectToAccountWithGoogle(newPage: Page) {
-  //   const linkBtnVisible = await newPage.locator('[data-test="link-shop-button"]');
-  //   if (await linkBtnVisible.isVisible()) {
-  //     await linkBtnVisible.click();
-  //   } else {
-  //     await newPage.locator('.puik-button.puik-button--secondary').click();
-  //     await newPage.locator('#identifierId').fill('');
-  //     await newPage.locator('#identifierNext').click();
-  //     await newPage.locator('[name="Passwd"]').fill('');
-  //     await newPage.locator('.VfPpkd-vQzf8d').nth(1).click();
-  //   }
-  // }
   /**
    * Associate the shop and click btn to go to back to BO after association
    */
