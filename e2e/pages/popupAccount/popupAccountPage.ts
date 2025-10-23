@@ -1,7 +1,6 @@
 import {Page, expect} from '@playwright/test';
 import {Globals} from '~/utils/globals';
 import ModuleManagerPage from '~/pages/moduleManager/moduleManagerPage';
-import {moduleManagerPagesLocales} from '~/data/local/moduleManagerPageLocales/moduleManagerPageLocales';
 
 export default class PopupAccountPage extends ModuleManagerPage {
   /* <<<<<<<<<<<<<<< Selectors Types >>>>>>>>>>>>>>>>>>>>>> */
@@ -12,48 +11,33 @@ export default class PopupAccountPage extends ModuleManagerPage {
 
   /* <<<<<<<<<<<<<<< Main Methods >>>>>>>>>>>>>>>>>>>>>> */
   /**
-   *
-   * Opens the PrestaShop Account configuration popup and verifies the redirection
-   * Clicks the 'Configure' link, triggers a popup by clicking the 'Link' button, waits for the new page to load
-   * Expect url and title
-   * @return {Promise<Page>}
+   * Opens the Account popup
+   * @returns Promise<Page>
    */
   async openAccountPopup(): Promise<Page> {
-    const pageTitle = await this.getPageMainTitle();
-    const pageTitleOldPsVersion = await this.getPageMainTitleOldPsVersion();
-    if (pageTitle === moduleManagerPagesLocales.moduleManager.en_EN.title) {
-      const moduleContainer = await this.page.locator('#modules-list-container-440');
-      const dropdownBtn = moduleContainer.locator('.btn.btn-outline-primary.dropdown-toggle');
-      const upgradeBtn = moduleContainer.getByRole('button', {name: 'Upgrade'});
-      if (await upgradeBtn.isVisible()) {
-        await dropdownBtn.click();
-      }
-      await moduleContainer.getByRole('link', {name: 'Configure'}).click();
-      const [newPage] = await Promise.all([
-        this.page.context().waitForEvent('page'),
-        this.page.getByRole('button', {name: 'Link'}).click()
-      ]);
-      await newPage.waitForTimeout(5000);
-      expect(newPage.url()).toContain('authv2-preprod');
-      return newPage;
-    } else if (pageTitleOldPsVersion === moduleManagerPagesLocales.moduleManager.en_EN.titleOldPsVersion) {
-      const moduleContainer = await this.page.locator('tr:not([style*="display: none"])');
-      const dropDownParent = moduleContainer.locator('.actions');
-      const dropdownBtn = dropDownParent.locator('.caret');
-      const upgradeBtn = dropDownParent.locator('.btn.btn-warning', {hasText: ' Update it! '});
-      if (await upgradeBtn.isVisible()) {
-        await dropdownBtn.click({force: true});
-      }
-      await moduleContainer.getByRole('link', {name: 'Configure'}).click();
-      const [newPage] = await Promise.all([
-        this.page.context().waitForEvent('page'),
-        this.page.getByRole('button', {name: 'Link'}).click()
-      ]);
-      await newPage.waitForTimeout(5000);
-      expect(newPage.url()).toContain('authv2-preprod');
-      return newPage;
-    }
-    throw new Error('Popup Account can not be open');
+    const [newPage] = await Promise.all([
+      this.page.context().waitForEvent('page'),
+      this.page.getByRole('button', {name: 'Link'}).click()
+    ]);
+
+    await newPage.waitForTimeout(5000);
+    expect(newPage.url()).toContain('authv2-preprod');
+    return newPage;
+  }
+
+  /**
+   * Opens the Linked Account popup
+   * @returns Promise<Page>
+   */
+  async openLinkedAccountPopup(): Promise<Page> {
+    const [newPage] = await Promise.all([
+      this.page.context().waitForEvent('page'),
+      this.page.locator('[data-testid="account-link-to-ui-manage-shops-button"]').click()
+    ]);
+
+    await newPage.waitForTimeout(5000);
+    expect(newPage.url()).toContain('authv2-preprod');
+    return newPage;
   }
 
   /**
@@ -77,6 +61,7 @@ export default class PopupAccountPage extends ModuleManagerPage {
     await logginBtn.isEnabled();
     await logginBtn.click();
   }
+
   /**
    * Associate the shop and click btn to go to back to BO after association
    */
@@ -136,7 +121,7 @@ export default class PopupAccountPage extends ModuleManagerPage {
     await btnLink.isVisible();
     const manageShopBtn = this.page.locator('[data-testid="account-link-to-ui-manage-shops-button"]');
     await manageShopBtn.isVisible();
-    await this.page.waitForTimeout(5000)
+    await this.page.waitForTimeout(5000);
   }
 
   /**
@@ -154,50 +139,6 @@ export default class PopupAccountPage extends ModuleManagerPage {
         await this.page.reload();
         return;
       }
-  }
-  /**
-   *
-   * Opens the PrestaShop Account configuration popup and verifies the redirection
-   * Clicks the 'Configure' link, triggers a popup by clicking the 'Configure' button, waits for the new page to load
-   * Expect url and title
-   * @return {Promise<Page>}
-   */
-  async openLinkedAccountPopup(): Promise<Page> {
-    const pageTitle = await this.getPageMainTitle();
-    const pageTitleOldPsVersion = await this.getPageMainTitleOldPsVersion();
-    if (pageTitle === moduleManagerPagesLocales.moduleManager.en_EN.title) {
-      const moduleContainer = await this.page.locator('#modules-list-container-440');
-      const dropdownBtn = moduleContainer.locator('.btn.btn-outline-primary.dropdown-toggle');
-      const upgradeBtn = moduleContainer.getByRole('button', {name: 'Upgrade'});
-      if (await upgradeBtn.isVisible()) {
-        await dropdownBtn.click();
-      }
-      await moduleContainer.getByRole('link', {name: 'Configure'}).click();
-      const [newPage] = await Promise.all([
-        this.page.context().waitForEvent('page'),
-        this.page.locator('[data-testid="account-link-to-ui-manage-shops-button"]').click()
-      ]);
-      await newPage.waitForTimeout(5000);
-      expect(newPage.url()).toContain('authv2-preprod');
-      return newPage;
-    } else if (pageTitleOldPsVersion === moduleManagerPagesLocales.moduleManager.en_EN.titleOldPsVersion) {
-      const moduleContainer = await this.page.locator('tr:not([style*="display: none"])');
-      const dropDownParent = moduleContainer.locator('.actions');
-      const dropdownBtn = dropDownParent.locator('.caret');
-      const upgradeBtn = dropDownParent.locator('.btn.btn-warning', {hasText: ' Update it! '});
-      if (await upgradeBtn.isVisible()) {
-        await dropdownBtn.click({force: true});
-      }
-      await moduleContainer.getByRole('link', {name: 'Configure'}).click();
-      const [newPage] = await Promise.all([
-        this.page.context().waitForEvent('page'),
-        this.page.locator('[data-testid="account-link-to-ui-manage-shops-button"]').click()
-      ]);
-      await newPage.waitForTimeout(5000);
-      expect(newPage.url()).toContain('authv2-preprod');
-      return newPage;
-    }
-    throw new Error('Popup Account can not be open');
   }
 
   /**
@@ -266,5 +207,17 @@ export default class PopupAccountPage extends ModuleManagerPage {
     }
 
     return page;
+  }
+  /**
+   *
+   * The page title check if the title All Store is visible before Config
+   */
+  async isAllShopSelectedBeforeConfig() {
+    const isMultiStoreVisible = this.page.getByRole('link', {name: 'All shops'});
+    if (!await isMultiStoreVisible.isVisible()) {
+      await this.page.locator('#header_shop').click();
+      await isMultiStoreVisible.click();
+    }
+    expect(isMultiStoreVisible).toBeVisible({timeout: 3000});
   }
 }

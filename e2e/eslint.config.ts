@@ -33,7 +33,15 @@ export default tseslint.config(
         }
       ],
       'unused-imports/no-unused-imports': 'error',
-      'no-console': ['warn', {allow: ['warn', 'error']}]
+      'no-console': ['warn', {allow: ['warn', 'error']}],
+
+      'no-restricted-syntax': [
+      'error',
+      {
+        selector: 'CallExpression[callee.property.name="pause"]',
+        message: 'Ne pas laisser de .pause() dans le code !'
+      }
+    ]
     }
   },
   ...tseslint.configs.recommended.map((config) => ({
