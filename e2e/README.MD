@@ -117,7 +117,7 @@ URL d’accès à la boutique : https://ton_domaine/admin-dev
 
 Dans le terminal lancer la Commande = 
 
-```npm run build-shop -- "$PS_VERSION" "SECONDE_PS_VERSION" "multistore" "$ACCOUNT_VERSION"```
+```npm run build-shop -- "$PS_VERSION" "$SECONDE_PS_VERSION" "multistore" "$ACCOUNT_VERSION"```
 
 Cette commande :
    - Active deux boutiques PrestaShop (shop1 et shop2)

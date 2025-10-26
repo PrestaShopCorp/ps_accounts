@@ -1,4 +1,4 @@
-import {Page, expect} from '@playwright/test';
+import {Page} from '@playwright/test';
 import ModuleManagerPage from '~/pages/moduleManager/moduleManagerPage';
 
 export default class ConfigureAccountPage extends ModuleManagerPage {

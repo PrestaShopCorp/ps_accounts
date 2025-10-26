@@ -8,6 +8,7 @@ gotToModuleManagerPage('Check module is upgrade after association', async ({gotT
   await test.step('check module module version in db', async () => {
     await pm.fromModuleManagePage().getPageMainTitle();
     await pm.fromModuleManagePage().isAccountVisible();
-    await pm.fromModuleManagePage().
+    await pm.fromModuleManagePage().goToAccountConfigurePage()
+    
   });
 });

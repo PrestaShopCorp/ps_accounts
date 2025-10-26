@@ -15,7 +15,7 @@ fi
 # Définition des variables
 randomPart=$RANDOM
 shopVersion="${1:-$PS_VERSION}"
-shopVersionSecondeShop=$2
+shopVersionSecondeShop="${2:-$SECONDE_PS_VERSION}"
 profile=${3:-flashlight}
 psAccountsVersion="${4:-$PS_ACCOUNTS_VERSION}"
 psDomain="${randomPart}.${DOMAIN}"

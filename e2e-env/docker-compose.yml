@@ -16,7 +16,7 @@ services:
       - all
       - multistore
       - flashlight
-      - imageoff
+      - imageoffmake 
 
   prestashop:
     restart: unless-stopped
@@ -81,7 +81,7 @@ services:
       DB_NAME: prestashop
       DB_PASSWD: prestashop
       DB_PORT: 3306
-      # PHYSICAL_URI: "shop1"
+      PHYSICAL_URI: "shop1"
       PS_TRUSTED_PROXIES: 0.0.0.0/0
       PS_ERASE_DB: 1
       PS_INSTALL_DB: 1
@@ -100,7 +100,7 @@ services:
       - imageoff
 
   shop2:
-    image: prestashop/prestashop:${SECONDE_PS_VERSION} 
+    image: prestashop/prestashop:${SECONDE_PS_VERSION}
     container_name: shop2
     restart: unless-stopped
     user: root
@@ -121,7 +121,7 @@ services:
       PS_INSTALL_DB: 1
       PS_INSTALL_AUTO: 1
       PS_FOLDER_ADMIN: admin-dev
-      PS_DEV_MODE: 1  
+      PS_DEV_MODE: 0
       PS_ENABLE_SSL: 1
     ports:
       - "9001:80"
@@ -146,3 +146,4 @@ services:
       profiles:
         - all
         - multistore
+
