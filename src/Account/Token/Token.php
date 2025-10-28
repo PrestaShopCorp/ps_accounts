@@ -125,17 +125,17 @@ class Token
         $isValid = true;
 
         if ($this->isExpired()) {
-            Logger::getInstance()->error(__METHOD__ . ': token isExpired ');
+            Logger::getInstance()->info(__METHOD__ . ': token isExpired ');
             $isValid = false;
         }
 
         if ($isValid && !$this->hasScope($scope)) {
-            Logger::getInstance()->error(__METHOD__ . ': token scope invalid ');
+            Logger::getInstance()->info(__METHOD__ . ': token scope invalid ');
             $isValid = false;
         }
 
         if ($isValid && !$this->hasAudience($audience)) {
-            Logger::getInstance()->error(__METHOD__ . ': token audience invalid ');
+            Logger::getInstance()->info(__METHOD__ . ': token audience invalid ');
             $isValid = false;
         }
 
