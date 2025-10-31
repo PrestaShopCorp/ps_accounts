@@ -48,6 +48,7 @@ class ApiClientProvider implements IServiceProvider
                 ClientConfig::BASE_URI => $container->getParameter('ps_accounts.accounts_api_url'),
                 ClientConfig::SSL_CHECK => $container->getParameter('ps_accounts.check_api_ssl_cert'),
                 ClientConfig::HEADERS => [
+                    // FIXME: triggers SET cookie on AccountsService instantiation
                     'X-Anonymous-ID' => $container->get(AnalyticsService::class)->getAnonymousId(),
                 ],
             ]);
