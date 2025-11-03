@@ -339,6 +339,15 @@ class SettingsForm
             $helper->fields_value[$cfg_key] = Tools::getValue($cfg_key, Configuration::get($cfg_key));
         }
 
+        // Load current value into the form
+        foreach ([
+                     self::FIELD_FORCE_VERIFY,
+                     self::FIELD_FORCE_MIGRATE,
+                     self::FIELD_CLEANUP_IDENTITY
+                 ] as $cfg_key) {
+            $helper->fields_value[$cfg_key] = Tools::getValue($cfg_key, false);
+        }
+
         /** @var Validator $validator */
         $validator = $this->module->getService(Validator::class);
         $helper->fields_value[self::FIELD_VALIDATION_LEEWAY] = Tools::getValue($cfg_key, $validator->getLeeway());
