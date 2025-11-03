@@ -343,7 +343,7 @@ class SettingsForm
         foreach ([
                      self::FIELD_FORCE_VERIFY,
                      self::FIELD_FORCE_MIGRATE,
-                     self::FIELD_CLEANUP_IDENTITY
+                     self::FIELD_CLEANUP_IDENTITY,
                  ] as $cfg_key) {
             $helper->fields_value[$cfg_key] = Tools::getValue($cfg_key, false);
         }
