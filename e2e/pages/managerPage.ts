@@ -5,6 +5,7 @@ import BasePage from '~/pages/basePage';
 import GeneralPage from '~/pages/shopParameters/generalPage';
 import MultiStorePage from '~/pages/advancedParameters/multiStorePage';
 import PopupAccountPage from '~/pages/popupAccount/popupAccountPage';
+import ConfigureAccountPage from '~/pages/configureAccount/configureAccountPage';
 
 export class PageManager {
   private readonly page: Page;
@@ -14,6 +15,7 @@ export class PageManager {
   private readonly generalPage: GeneralPage;
   private readonly multiStorePage: MultiStorePage;
   private readonly popupAccountPage: PopupAccountPage;
+  private readonly configureAccountPage: ConfigureAccountPage;
 
   constructor(page: Page) {
     this.page = page;
@@ -22,7 +24,8 @@ export class PageManager {
     this.basePage = new BasePage(this.page);
     this.generalPage = new GeneralPage(this.page);
     this.multiStorePage = new MultiStorePage(this.page);
-    this.popupAccountPage = new PopupAccountPage(this.page)
+    this.popupAccountPage = new PopupAccountPage(this.page);
+    this.configureAccountPage = new ConfigureAccountPage(this.page);
   }
   /* <<<<<<<<<<<<<<< Dashboards Page >>>>>>>>>>>>>>>>>>>>>> */
 
@@ -56,5 +59,9 @@ export class PageManager {
 
   fromPopupAccountPage() {
     return this.popupAccountPage;
+  }
+
+  fromConfigureAccountPage() {
+    return this.configureAccountPage;
   }
 }
