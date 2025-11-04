@@ -302,17 +302,28 @@ class AnalyticsService
      */
     private function initAnonymousId()
     {
-        if (!isset(self::$anonymousId)) {
-            if (!isset($_COOKIE[self::COOKIE_ANONYMOUS_ID])) {
-                self::$anonymousId = Uuid::uuid4()->toString();
-                try {
-                    setcookie(self::COOKIE_ANONYMOUS_ID, self::$anonymousId, time() + 3600, '/');
-                } catch (\Exception $e) {
-                    $this->logger->error($e->getMessage());
+        if ($this->isAdminContext()) {
+            if (!isset(self::$anonymousId)) {
+                if (!isset($_COOKIE[self::COOKIE_ANONYMOUS_ID])) {
+                    self::$anonymousId = Uuid::uuid4()->toString();
+                    try {
+                        $path = __PS_BASE_URI__ . basename(_PS_ADMIN_DIR_);
+                        setcookie(self::COOKIE_ANONYMOUS_ID, self::$anonymousId, time() + 3600, $path);
+                    } catch (\Exception $e) {
+                        $this->logger->error('Cannot set cookie: ' . $e->getMessage());
+                    }
+                } else {
+                    self::$anonymousId = $_COOKIE[self::COOKIE_ANONYMOUS_ID];
                 }
-            } else {
-                self::$anonymousId = $_COOKIE[self::COOKIE_ANONYMOUS_ID];
             }
         }
+    }
+
+    /**
+     * @return bool
+     */
+    protected function isAdminContext()
+    {
+        return defined('_PS_ADMIN_DIR_');
     }
 }
