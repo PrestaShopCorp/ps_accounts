@@ -61,4 +61,26 @@ export default class DbRequest {
     expect(data.name).toBe(name);
     return data.value;
   }
+
+  /**
+   * Method to delete entries from ps_configuration
+   * @param names - list of configuration names to delete
+   * @returns {Promise<void>}
+   */
+  async deletePsConfigurationData(names: string[]): Promise<void> {
+    if (!names.length) return;
+
+    const condition = `name IN (${names.map((n) => `"${n}"`).join(', ')})`;
+    await dbHelper.executeCustomDeleteQuery('ps_configuration', condition);
+  }
+
+  async deleteAccountsInfo(){
+    await this.deletePsConfigurationData([
+      'PS_ACCOUNTS_ACCESS_TOKEN',
+      'PS_ACCOUNTS_OAUTH2_CLIENT_ID',
+      'PS_ACCOUNTS_OAUTH2_CLIENT_SECRET',
+      'PS_ACCOUNTS_SHOP_STATUS',
+      'PS_ACCOUNTS_SHOP_PROOF'
+    ]);
+  }
 }

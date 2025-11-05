@@ -5,7 +5,7 @@ import {PageManager} from '~/pages/managerPage';
 
 gotToModuleManagerPage('Check if you are verified', async ({gotToModuleManagerPage}) => {
   const pm = new PageManager(gotToModuleManagerPage);
-  await test.step('check module module version in db', async () => {
+  await test.step('check you verified and getshopstatus return verified:true', async () => {
     await pm.fromModuleManagePage().getPageMainTitle();
     await pm.fromModuleManagePage().isAccountVisible();
     await pm.fromModuleManagePage().goToAccountConfigurePage();

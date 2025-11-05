@@ -27,11 +27,16 @@ export default class ConfigureAccountPage extends ModuleManagerPage {
       (response) =>
         response.url().includes('AdminAjaxV2PsAccounts&ajax=1&action=getContext') && response.status() === 200
     );
-    await this.page.reload()
+    await this.page.reload();
     const response = await responsePromise;
     const data = await response.json();
     const isVerified = data?.groups?.[0]?.shops?.[0]?.shopStatus?.isVerified;
 
     return isVerified;
+  }
+
+  async verifyManualy() {
+    await this.page.getByRole('button', {name: 'Verify'}).click();
+    await this.page.getByRole('img', {name: 'check_circle icon'}).isEnabled()
   }
 }
