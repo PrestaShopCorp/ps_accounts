@@ -1,4 +1,4 @@
-import {Page} from '@playwright/test';
+import {expect, Page} from '@playwright/test';
 import ModuleManagerPage from '~/pages/moduleManager/moduleManagerPage';
 
 export default class ConfigureAccountPage extends ModuleManagerPage {
@@ -34,9 +34,21 @@ export default class ConfigureAccountPage extends ModuleManagerPage {
 
     return isVerified;
   }
-
+  /**
+   * Click on verify button and wait for confirmation
+   */
   async verifyManualy() {
     await this.page.getByRole('button', {name: 'Verify'}).click();
-    await this.page.getByRole('img', {name: 'check_circle icon'}).isEnabled()
+    await this.page.waitForLoadState('load')
+  }
+
+  async checkVerificationSucced() {
+    const isVisible = await this.page.getByRole('img', {name: 'check_circle icon'}).isEnabled();;
+    expect(isVisible).toBeTruthy();
+  }
+
+  async checkVerificationFailed() {
+    const isVisible = await this.page.locator('[data-test="description-verification-failed-alert"]');
+    expect(isVisible).toBeVisible();
   }
 }

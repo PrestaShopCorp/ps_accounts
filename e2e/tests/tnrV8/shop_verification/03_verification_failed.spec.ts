@@ -8,7 +8,7 @@ gotToModuleManagerPage('Check if you can verified manually', async ({gotToModule
   const pm = new PageManager(gotToModuleManagerPage);
   const db = new DbRequest();
   await test.step('check if you are unverified', async () => {
-    await db.deleteAccountsInfo();
+    await db.deleteAccountsInfoAndBlockReverification();
     await pm.fromModuleManagePage().getPageMainTitle();
     await pm.fromModuleManagePage().isAccountVisible();
     await pm.fromModuleManagePage().goToAccountConfigurePage();
@@ -19,10 +19,6 @@ gotToModuleManagerPage('Check if you can verified manually', async ({gotToModule
   });
   await test.step('verifiy manually and check if verified', async () => {
     await pm.fromConfigureAccountPage().verifyManualy();
-    await pm.fromConfigureAccountPage().checkVerificationSucced()
-    const status = await pm.fromConfigureAccountPage().getStoreInformation();
-    expect(status).toBeTruthy();
-    const apiStatus = await pm.fromConfigureAccountPage().getStoreInformationFromApi();
-    expect(apiStatus).toBeTruthy();
+    await pm.fromConfigureAccountPage().checkVerificationFailed()
   });
 });
