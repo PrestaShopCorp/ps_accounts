@@ -28,6 +28,7 @@ use PrestaShop\Module\PsAccounts\Account\Exception\UnknownStatusException;
 use PrestaShop\Module\PsAccounts\Account\ProofManager;
 use PrestaShop\Module\PsAccounts\Account\StatusManager;
 use PrestaShop\Module\PsAccounts\Cqrs\CommandBus;
+use PrestaShop\Module\PsAccounts\Http\Client\Response;
 use PrestaShop\Module\PsAccounts\Provider\ShopProvider;
 use PrestaShop\Module\PsAccounts\Repository\ConfigurationRepository;
 use PrestaShop\Module\PsAccounts\Service\Accounts\AccountsException;
@@ -197,8 +198,19 @@ class MigrateOrCreateIdentityV8Handler
      */
     private function getFirebaseTokenV6($shopUuid)
     {
+        $refresh = $this->configurationRepository->getFirebaseRefreshToken();
+
+        if (empty($refresh)) {
+            $response = new Response([
+                'message' => 'Missing legacy refresh token for V6 migration',
+                'error' => 'store/missing-legacy-refresh-token',
+            ], 400, []);
+
+            throw new AccountsException($response, 'Missing legacy refresh token for V6 migration', 'store/missing-legacy-refresh-token');
+        }
+
         return $this->accountsService->refreshShopToken(
-            $this->configurationRepository->getFirebaseRefreshToken(),
+            $refresh,
             $shopUuid
         )->token;
     }
@@ -214,13 +226,20 @@ class MigrateOrCreateIdentityV8Handler
      */
     private function getTokenV6OrV7($fromVersion, $shopUuid)
     {
-        if (version_compare($fromVersion, '7', '>=')) {
-            $token = $this->getAccessTokenV7($shopUuid);
-        } else {
-            $token = $this->getFirebaseTokenV6($shopUuid);
+        // Prefer V7 when version is unknown ("0" or empty), fallback to V6
+        if (empty($fromVersion) || $fromVersion === '0') {
+            try {
+                return $this->getAccessTokenV7($shopUuid);
+            } catch (\Throwable $e) {
+                return $this->getFirebaseTokenV6($shopUuid);
+            }
         }
 
-        return $token;
+        if (version_compare($fromVersion, '7', '>=')) {
+            return $this->getAccessTokenV7($shopUuid);
+        }
+
+        return $this->getFirebaseTokenV6($shopUuid);
     }
 
     /**
