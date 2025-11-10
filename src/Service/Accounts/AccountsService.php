@@ -151,6 +151,16 @@ class AccountsService
      */
     public function refreshShopToken($refreshToken, $cloudShopId)
     {
+        // Guard against empty refresh token to avoid 400 responses and unclear logs
+        if (empty($refreshToken)) {
+            $response = new Response([
+                'message' => 'Refresh token is empty',
+                'error' => 'store/empty-refresh-token',
+            ], 400, []);
+
+            throw new AccountsException($response, 'Refresh token is empty', 'store/empty-refresh-token');
+        }
+
         $response = $this->getClient()->post(
             'v1/shop/token/refresh',
             [
