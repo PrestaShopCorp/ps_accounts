@@ -39,11 +39,11 @@ export default class ConfigureAccountPage extends ModuleManagerPage {
    */
   async verifyManualy() {
     await this.page.getByRole('button', {name: 'Verify'}).click();
-    await this.page.waitForLoadState('load')
+    await this.page.waitForLoadState('load');
   }
 
   async checkVerificationSucced() {
-    const isVisible = await this.page.getByRole('img', {name: 'check_circle icon'}).isEnabled();;
+    const isVisible = await this.page.getByRole('img', {name: 'check_circle icon'}).isEnabled();
     expect(isVisible).toBeTruthy();
   }
 
