@@ -35,7 +35,7 @@ We aims to follow partially the Prestashop compatibility charts
 
 # Integration along with your Prestashop module
 
-If you are integrating a module, you should have a look on the [PrestaShop Integration Framework Documentation](https://docs.cloud.prestashop.com/).
+If you are integrating a module, you should have a look on the [PrestaShop Integration Framework Documentation](https://docs.cloud.prestashop.com/9-prestashop-integration-framework/0-introduction/).
 
 ## A preliminary note about PrestaShop modules ecosystem :
 
@@ -48,76 +48,6 @@ If you are integrating a module, you should have a look on the [PrestaShop Integ
 - ensure your vendor dependencies won't collide with existing ones.  
   (loaded by other modules OR coming from the PrestaShop Core)
 
-## Display the PrestaShop Account Component in your module :
-
-### Load PsAccountsPresenter
-
-The presenter will give basic informations to the components through `contextPsAccounts` object accessible on the page.
-
-```php
-// My_module.php
-
-// /!\ TODO: Starting here you are responsible to check that the module is installed
-
-/** @var Ps_accounts $module */
-$module = \Module::getModuleIdByName('ps_accounts');
-
-/** @var \PrestaShop\Module\PsAccounts\Presenter\PsAccountsPresenter $presenter */
-$presenter = $module->getService(\PrestaShop\Module\PsAccounts\Presenter\PsAccountsPresenter::class);
-
-Media::addJsDef([
-    'contextPsAccounts' => $presenter->present((string) $this->name),
-]);
-
-return $this->display(__FILE__, 'views/templates/admin/app.tpl');
-```
-
-### Load and init the component on your page
-
-For detailed usage you can follow the component's documentation : [vue-components](https://github.com/PrestaShopCorp/accounts/tree/main/packages/vue-components#readme)
-
-## How to retrieve tokens with PsAccounts
-
-### About tokens provided :
-
-All the [JWT](https://datatracker.ietf.org/doc/html/rfc7519) tokens exposed follow the OpenId Connect Token and Access Tokens [Specs](https://openid.net/specs/openid-connect-core-1_0.html#IDToken).
-
-This module provides the following tokens:
-
-- **ShopToken** _(legacy Firebase tokens)_  
-  This token can be used to act as the shop. It should be used only for machine to machine communication without user interaction
-- **OwnerToken** _(legacy Firebase tokens)_  
-  This token is created for the shop owner who associate the shop.
-- **ShopAccessToken** (provided by [Prestashop OpenId Connect Provider](https://oauth.prestashop.com/.well-known/openid-configuration))  
-  For machine to machine calls. (also used to keep up to date legacy Shop and Owner tokens
-
-### How to get shop status
-
-#### Retrieving v8 Shop Status
-```php
-// /!\ TODO: Starting here you are responsible to check that the module is installed
-
-/** @var Ps_accounts $module */
-$module = \Module::getModuleIdByName('ps_accounts');
-
-/** @var \PrestaShop\Module\PsAccounts\Service\PsAccountsService $service */
-$service = $module->getService(\PrestaShop\Module\PsAccounts\Service\PsAccountsService::class);
-
-// Starting from v8 status has been split into 3 distinct information
-$service->isShopIdentityCreated();
-$service->isShopIdentityVerified();
-$service->isShopPointOfContactSet();
-```
-
-#### Shop status compatibility with v7
-```php
-
-// strictly equivalent to:
-//      service->isShopIdentityCreated() &&
-//      $service->isShopIdentityVerified() &&
-//      $service->isShopPointOfContactSet()
-$isShopLinked = $service->isAccountLinked();
-```
 
 #### Tokens availability with legacy compatibility table
 
@@ -193,30 +123,6 @@ $jwtOwner = $service->getUserToken();
 
 [//]: # (```)
 
-### Calling AJAX controller in backend context (legacy shop token only)
-That way you will retrieve an up to date **Shop Token**
-```js
-const response = await fetch("https://<shop-admin-url>/index.php", {
-  ajax: true,
-  controller: 'AdminAjaxPsAccounts',
-  action: 'getOrRefreshAccessToken',
-  token: '<admin_token>',
-});
-```
-With the given response :
-```json
-{ 
-  "token": "<access_token>"
-}
-```
-
-## Provided hooks
-
-Here are listed custom hooks provided with this module:
-
-| hook                              | params           | description                                  |
-|-----------------------------------|------------------|----------------------------------------------|
-| actionShopAccessTokenRefreshAfter | token            | Triggered after OAuth access token refreshed |
 
 # Building the module locally
 
