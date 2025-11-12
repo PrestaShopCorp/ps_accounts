@@ -61,4 +61,50 @@ export default class DbRequest {
     expect(data.name).toBe(name);
     return data.value;
   }
+
+  /**
+   * Method to delete entries from ps_configuration
+   * @param names - list of configuration names to delete
+   * @returns {Promise<void>}
+   */
+  async deletePsConfigurationData(names: string[]): Promise<void> {
+    if (!names.length) return;
+
+    const condition = `name IN (${names.map((n) => `"${n}"`).join(', ')})`;
+    await dbHelper.executeCustomDeleteQuery('ps_configuration', condition);
+  }
+
+  /**
+   * Method to delete accounts informations to unverify the shop
+   */
+  async deleteAccountsInfo() {
+    await this.deletePsConfigurationData([
+      'PS_ACCOUNTS_ACCESS_TOKEN',
+      'PS_ACCOUNTS_OAUTH2_CLIENT_ID',
+      'PS_ACCOUNTS_OAUTH2_CLIENT_SECRET',
+      'PS_ACCOUNTS_SHOP_STATUS',
+      'PS_ACCOUNTS_SHOP_PROOF'
+    ]);
+  }
+
+  /**
+   * Method to delete accounts informations to unverify the shop and block the reverification
+   */
+  async deleteAccountsInfoAndBlockReverification() {
+    await this.deletePsConfigurationData([
+      'PS_ACCOUNTS_ACCOUNTS_CLIENT_FAILURE_COUNT',
+      'PS_ACCOUNTS_ACCOUNTS_CLIENT_LAST_FAILURE_TIME',
+      'PS_ACCOUNTS_OAUTH2_SERVICE_FAILURE_COUNT',
+      'PS_ACCOUNTS_OAUTH2_SERVICE_LAST_FAILURE_TIME',
+      'PS_ACCOUNTS_LAST_UPGRADE',
+      'PS_ACCOUNTS_ACCOUNTS_SERVICE_FAILURE_COUNT',
+      'PS_ACCOUNTS_ACCOUNTS_SERVICE_LAST_FAILURE_TIME',
+      'PS_ACCOUNTS_ACCESS_TOKEN',
+      'PS_ACCOUNTS_OAUTH2_CLIENT_ID',
+      'PS_ACCOUNTS_OAUTH2_CLIENT_SECRET',
+      'PS_ACCOUNTS_SHOP_STATUS',
+      'PS_ACCOUNTS_SHOP_PROOF',
+      'PS_ACCOUNTS_TOKEN_SIGNATURE'
+    ]);
+  }
 }

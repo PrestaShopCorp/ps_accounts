@@ -17,7 +17,7 @@ activeMultistoreAndCreateShop('Check Multisotre association', async ({activeMult
   await test.step('associate to account and check if linked', async () => {
     await pm.fromModuleManagePage().isAccountVisible();
     await pm.fromModuleManagePage().goToAccountConfigurePage();
-    await pm.fromPopupAccountPage().isAllShopSelectedBeforeConfig()
+    await pm.fromPopupAccountPage().isAllShopSelectedBeforeConfig();
     const popup = await pm.fromPopupAccountPage().openAccountPopup();
     await pm.fromPopupAccountPage().accountPopupTiteleIsVisible(popup);
     await pm.fromPopupAccountPage().connectToAccountWithMail(popup);

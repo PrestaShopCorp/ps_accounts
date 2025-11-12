@@ -75,6 +75,27 @@ class DbHelper {
   }
 
   /**
+   * Create a custom 'DELETE' query
+   * @param table {string} Name of the table
+   * @param conditions {?string} Conditions to add to the request
+   * @return {string}
+   */
+  createCustomDeleteQuery(table: string, conditions?: string): string {
+    return `DELETE FROM ${table} ${conditions ? `WHERE ${conditions}` : ''}`;
+  }
+
+  /**
+   * Execute a custom 'DELETE' query
+   * @param table {string} Name of the table
+   * @param conditions {?string} Conditions to add to the request
+   * @return {Promise<void>}
+   */
+  async executeCustomDeleteQuery(table: string, conditions?: string): Promise<void> {
+    const query = this.createCustomDeleteQuery(table, conditions);
+    await this.executeQuery(query);
+  }
+
+  /**
    * Destroy sql connection
    * @return {Promise<void>}
    */
