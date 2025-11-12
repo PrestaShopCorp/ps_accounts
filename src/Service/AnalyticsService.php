@@ -302,17 +302,37 @@ class AnalyticsService
      */
     private function initAnonymousId()
     {
+        if (!$this->isBoContext()) {
+            return;
+        }
+
         if (!isset(self::$anonymousId)) {
             if (!isset($_COOKIE[self::COOKIE_ANONYMOUS_ID])) {
                 self::$anonymousId = Uuid::uuid4()->toString();
                 try {
-                    setcookie(self::COOKIE_ANONYMOUS_ID, self::$anonymousId, time() + 3600, '/');
+                    setcookie(self::COOKIE_ANONYMOUS_ID, self::$anonymousId, time() + 3600, $this->getBoBasePath());
                 } catch (\Exception $e) {
-                    $this->logger->error($e->getMessage());
+                    $this->logger->error('Cannot set cookie: ' . $e->getMessage());
                 }
             } else {
                 self::$anonymousId = $_COOKIE[self::COOKIE_ANONYMOUS_ID];
             }
         }
+    }
+
+    /**
+     * @return bool
+     */
+    protected function isBoContext()
+    {
+        return defined('_PS_ADMIN_DIR_');
+    }
+
+    /**
+     * @return string
+     */
+    protected function getBoBasePath()
+    {
+        return __PS_BASE_URI__ . basename(_PS_ADMIN_DIR_);
     }
 }

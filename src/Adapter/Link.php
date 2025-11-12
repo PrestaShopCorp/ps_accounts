@@ -218,7 +218,7 @@ class Link
         $shop = new \Shop($shopId);
 
         return preg_replace(
-            '@^(https://[^/]+)' . $shop->physical_uri . '.*' . basename(_PS_ADMIN_DIR_) . '@',
+            '@^(https://[^/]+)' . preg_quote($shop->physical_uri, '@') . '.*' . preg_quote(basename(_PS_ADMIN_DIR_), '@') . '@',
             //'$1' . $shop->physical_uri . basename(_PS_ADMIN_DIR_),
             'https://' . $shop->domain_ssl . $shop->physical_uri . basename(_PS_ADMIN_DIR_),
             $uri
