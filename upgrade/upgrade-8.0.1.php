@@ -9,7 +9,7 @@
  */
 function upgrade_module_8_0_1($module)
 {
-    require_once './helpers.php';
+    require_once __DIR__ . '/helpers.php';
 
     migrate_or_create_identities_v8($module);
 

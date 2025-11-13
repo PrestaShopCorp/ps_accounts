@@ -12,7 +12,7 @@ use PrestaShop\Module\PsAccounts\Log\Logger;
  */
 function upgrade_module_8_0_0($module)
 {
-    require_once './helpers.php';
+    require_once __DIR__ . '/helpers.php';
 
     try {
         $module->unregisterHook('actionObjectShopDeleteBefore');
