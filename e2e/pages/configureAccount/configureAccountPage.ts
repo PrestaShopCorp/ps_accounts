@@ -41,14 +41,44 @@ export default class ConfigureAccountPage extends ModuleManagerPage {
     await this.page.getByRole('button', {name: 'Verify'}).click();
     await this.page.waitForLoadState('load');
   }
-
+  /**
+   * Check if Verification succed
+   * @expect element to be true
+   */
   async checkVerificationSucced() {
     const isVisible = await this.page.getByRole('img', {name: 'check_circle icon'}).isEnabled();
     expect(isVisible).toBeTruthy();
   }
-
+  /**
+   * Check if Verification failed
+   * @expect element to be vidible
+   */
   async checkVerificationFailed() {
     const isVisible = await this.page.locator('[data-test="description-verification-failed-alert"]');
     expect(isVisible).toBeVisible();
+  }
+
+  /**
+   * Check if point of contact is available
+   * @expect element to be true
+   */
+  async checkSignInisVisible() {
+    const isVisible = await this.page.locator('[data-test="define-poc-button"]').isEnabled();
+    expect(isVisible).toBeTruthy();
+  }
+
+  /**
+   * Opens the Account popup
+   * @returns Promise<Page>
+   */
+  async clickSignInAndOpenPopup(): Promise<Page> {
+    const [newPage] = await Promise.all([
+      this.page.context().waitForEvent('page'),
+      this.page.locator('[data-test="define-poc-button"]').click()
+    ]);
+
+    await newPage.waitForTimeout(5000);
+    expect(newPage.url()).toContain('authv2-preprod');
+    return newPage;
   }
 }
