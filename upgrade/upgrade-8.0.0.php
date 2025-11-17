@@ -1,9 +1,6 @@
 <?php
 
-use PrestaShop\Module\PsAccounts\Account\Command\MigrateOrCreateIdentitiesV8Command;
-use PrestaShop\Module\PsAccounts\Cqrs\CommandBus;
 use PrestaShop\Module\PsAccounts\Log\Logger;
-use PrestaShop\Module\PsAccounts\Service\Accounts\AccountsService;
 
 /**
  * @param Ps_accounts $module
@@ -15,7 +12,7 @@ use PrestaShop\Module\PsAccounts\Service\Accounts\AccountsService;
  */
 function upgrade_module_8_0_0($module)
 {
-    require __DIR__ . '/../src/enforce_autoload.php';
+    require_once __DIR__ . '/helpers.php';
 
     try {
         $module->unregisterHook('actionObjectShopDeleteBefore');
@@ -35,19 +32,13 @@ function upgrade_module_8_0_0($module)
 
         $installer = new PrestaShop\Module\PsAccounts\Module\Install($module, Db::getInstance());
         $installer->installInMenu();
-
-        /** @var CommandBus $commandBus */
-        $commandBus = $module->getService(CommandBus::class);
-
-        $commandBus->handle(new MigrateOrCreateIdentitiesV8Command(
-            AccountsService::ORIGIN_UPGRADE,
-            'ps_accounts'
-        ));
     } catch (\Exception $e) {
         Logger::getInstance()->error('error during upgrade : ' . $e);
     } catch (\Throwable $e) {
         Logger::getInstance()->error('error during upgrade : ' . $e);
     }
+
+    migrate_or_create_identities_v8($module);
 
     return true;
 }

@@ -7,7 +7,7 @@
  * @throws Exception
  * @throws Throwable
  */
-function upgrade_module_8_0_1($module)
+function upgrade_module_8_0_6($module)
 {
     require_once __DIR__ . '/helpers.php';
 
