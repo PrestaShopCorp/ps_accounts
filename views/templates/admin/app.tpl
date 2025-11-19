@@ -16,22 +16,43 @@
  * @copyright Since 2007 PrestaShop SA and Contributors
  * @license   https://opensource.org/licenses/AFL-3.0 Academic Free License version 3.0
  *}
+<div id="ps-accounts-container">
+ <prestashop-accounts></prestashop-accounts>
+</div>
 
-{** <link href="{$pathVendor|escape:'htmlall':'UTF-8'}" rel=preload as=script> *}
-<link href="{$pathApp|escape:'htmlall':'UTF-8'}" rel=preload as=script>
-<link href="{$urlAccountsCdn|escape:'htmlall':'UTF-8'}" rel=preload as=script>
-<link rel="stylesheet" href="{$pathAppAssets|escape:'htmlall':'UTF-8'}" type="text/css" media="all">
+<script src="{$urlAccountsCdn|escape:'htmlall':'UTF-8'}" type="text/javascript"></script>
 
-<div id="app"></div>
+<script>
+  (function() {
+    const componentInitParams = {$componentInitParams|json_encode};
 
-<script src="{$urlAccountsCdn|escape:'htmlall':'UTF-8'}" type="text/javascript" defer></script>
-{** <script src="{$pathVendor|escape:'htmlall':'UTF-8'}" type="module" defer></script> *}
-<script src="{$pathApp|escape:'htmlall':'UTF-8'}" type="module" defer></script>
+    function initPsAccounts() {
+      if (window?.psaccountsVue) {
+        window.psaccountsVue.init(componentInitParams, "Settings");
+      } else {
+        // Si le script n'est pas encore chargé, réessayer après un court délai
+        setTimeout(initPsAccounts, 100);
+      }
+    }
+
+    // Attendre que la page et tous les scripts soient complètement chargés
+    if (document.readyState === 'complete') {
+      initPsAccounts();
+    } else {
+      window.addEventListener('load', initPsAccounts);
+    }
+  })();
+</script>
 
 <style>
   /** Hide native multistore module activation panel, because of visual regressions on non-bootstrap content */
   #content.bootstrap div.bootstrap.panel {
     display: none;
+  }
+
+  #ps-accounts-container {
+    max-width: 1024px;
+    margin: auto;
   }
 </style>
 
