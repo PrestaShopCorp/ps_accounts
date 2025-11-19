@@ -20,7 +20,9 @@ gotToModuleManagerPage('Check if you are verified @1', async ({gotToModuleManage
     await pm.fromConfigureAccountPage().checkSignInisVisible();
     const popup = await pm.fromConfigureAccountPage().clickSignInAndOpenPopup();
     await pm.fromPopupAccountPage().accountPopupTiteleIsVisible(popup);
-    await pm.fromPopupAccountPage().connectToAccountWithMail(popup)
-
+    await pm.fromPopupAccountPage().connectToAccountWithMail(popup);
+  });
+  await test.step('Check if Sign In', async () => {
+    await pm.fromConfigureAccountPage().checkIsSigned();
   });
 });

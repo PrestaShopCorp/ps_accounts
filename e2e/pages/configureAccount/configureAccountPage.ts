@@ -1,5 +1,6 @@
 import {expect, Page} from '@playwright/test';
 import ModuleManagerPage from '~/pages/moduleManager/moduleManagerPage';
+import {Globals} from '~/utils/globals';
 
 export default class ConfigureAccountPage extends ModuleManagerPage {
   /* <<<<<<<<<<<<<<< Selectors Types >>>>>>>>>>>>>>>>>>>>>> */
@@ -80,5 +81,16 @@ export default class ConfigureAccountPage extends ModuleManagerPage {
     await newPage.waitForTimeout(5000);
     expect(newPage.url()).toContain('authv2-preprod');
     return newPage;
+  }
+
+  /**
+   * Check Point of contact
+   * @expect true ACCOUNT_EMAIL isVisible
+   */
+  async checkIsSigned() {
+    await this.page.waitForLoadState('load');
+    await this.page.locator('.page-title', {hasText: 'Configure'}).isVisible;
+    const isVisible = await this.page.getByText(Globals.account_email).isVisible();
+    expect(isVisible).toBeTruthy();
   }
 }
