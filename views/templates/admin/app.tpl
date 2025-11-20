@@ -54,5 +54,9 @@
     max-width: 1024px;
     margin: auto;
   }
+
+  #main {
+    background-color: white;
+  }
 </style>
 
