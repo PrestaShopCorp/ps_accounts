@@ -107,4 +107,34 @@ export default class DbRequest {
       'PS_ACCOUNTS_TOKEN_SIGNATURE'
     ]);
   }
+
+  /**
+   * Method to delete accounts informations to unverify the shop and block the reverification
+   */
+  async deleteTokens() {
+    await this.deletePsConfigurationData([
+      'PS_TOKEN_ENABLE',
+      'PS_SECURITY_TOKEN',
+      'PS_PSX_FIREBASE_ID_TOKEN',
+      'PS_PSX_FIREBASE_REFRESH_TOKEN',
+      'PS_ACCOUNTS_FIREBASE_ID_TOKEN',
+      'PS_ACCOUNTS_FIREBASE_REFRESH_TOKEN',
+      'PS_ACCOUNTS_ACCESS_TOKEN'
+    ]);
+  }
+
+  /**
+   * Method to update virtual uri from ps_shop_url
+   */
+  async updateUri() {
+    await this.deletePsConfigurationData([
+      'PS_TOKEN_ENABLE',
+      'PS_SECURITY_TOKEN',
+      'PS_PSX_FIREBASE_ID_TOKEN',
+      'PS_PSX_FIREBASE_REFRESH_TOKEN',
+      'PS_ACCOUNTS_FIREBASE_ID_TOKEN',
+      'PS_ACCOUNTS_FIREBASE_REFRESH_TOKEN',
+      'PS_ACCOUNTS_ACCESS_TOKEN'
+    ]);
+  }
 }
