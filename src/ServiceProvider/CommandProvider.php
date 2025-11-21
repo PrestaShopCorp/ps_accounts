@@ -112,11 +112,7 @@ class CommandProvider implements IServiceProvider
             );
         });
         $container->registerProvider(CleanupIdentityHandler::class, static function () use ($container) {
-            return new CleanupIdentityHandler(
-                $container->get(OAuth2Client::class),
-                $container->get(StatusManager::class),
-                $container->get(ConfigurationRepository::class)
-            );
+            return new CleanupIdentityHandler();
         });
     }
 }
