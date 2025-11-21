@@ -30,12 +30,12 @@
       if (window?.psaccountsVue) {
         window.psaccountsVue.init(componentInitParams, "Settings");
       } else {
-        // Si le script n'est pas encore chargé, réessayer après un court délai
+        // If the script is not yet loaded, retry after a short delay
         setTimeout(initPsAccounts, 100);
       }
     }
 
-    // Attendre que la page et tous les scripts soient complètement chargés
+    // Wait for the page and all scripts to be completely loaded
     if (document.readyState === 'complete') {
       initPsAccounts();
     } else {
