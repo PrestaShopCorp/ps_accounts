@@ -102,7 +102,11 @@ class RestoreIdentityHandler
 
             if ($command->migrate) {
                 // this will trigger migration anyways
+                // FIXME: add a "migration from" select
                 $this->upgradeService->setVersion('');
+            } else {
+                // Fix version number when not set
+                $this->upgradeService->setVersion();
             }
 
             $this->commandBus->handle(new MigrateOrCreateIdentityV8Command(
