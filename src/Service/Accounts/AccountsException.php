@@ -117,7 +117,7 @@ class AccountsException extends \Exception
     protected function getReasonFromResponseBody($key = 'reason')
     {
         return $this->response->getValueFromBody(
-            'reason',
+            $key,
             null,
             static function ($value) {
                 return is_string($value);
