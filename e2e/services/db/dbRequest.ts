@@ -2,7 +2,6 @@ import {expect} from '@playwright/test';
 import {dbHelper} from '~/utils/helper/dbHelper';
 import {modulePsAccount} from '~/data/local/modulesDbData/ps_module_data';
 import {RowDataPacket} from 'mysql2';
-import {M} from '~/playwright-report/trace/assets/defaultSettingsView-BA25Usqk';
 
 export default class DbRequest {
   /**
