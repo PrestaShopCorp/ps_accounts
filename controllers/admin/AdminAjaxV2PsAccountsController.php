@@ -178,6 +178,7 @@ class AdminAjaxV2PsAccountsController extends AbstractAdminAjaxCorsController
                 (string) json_encode([
                     'message' => $e->getMessage(),
                     'code' => $e->getErrorCode(),
+                    'details' => $e->getDetails(),
                 ])
             );
 
