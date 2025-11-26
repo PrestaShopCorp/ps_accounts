@@ -321,23 +321,11 @@ class Ps_accounts extends Module
             return $settingsForm;
         }
 
+        $psAccountsService = $this->getService(\PrestaShop\Module\PsAccounts\Service\PsAccountsService::class);
+
         //$this->context->smarty->assign('pathVendor', $this->_path . 'views/js/chunk-vendors.' . $this->version . '.js');
-        $this->context->smarty->assign('pathApp', $this->_path . 'views/js/app.' . $this->version . '.js');
-        $this->context->smarty->assign('pathAppAssets', $this->_path . 'views/css/app.' . $this->version . '.css');
         $this->context->smarty->assign('urlAccountsCdn', $this->getParameter('ps_accounts.accounts_cdn_url'));
-
-        $storePresenter = new PrestaShop\Module\PsAccounts\Presenter\Store\StorePresenter($this, $this->context);
-
-        Media::addJsDef([
-            'storePsAccounts' => $storePresenter->present(),
-        ]);
-
-        /** @var \PrestaShop\Module\PsAccounts\Presenter\PsAccountsPresenter $psAccountsPresenter */
-        $psAccountsPresenter = $this->getService(\PrestaShop\Module\PsAccounts\Presenter\PsAccountsPresenter::class);
-
-        Media::addJsDef([
-            'contextPsAccounts' => $psAccountsPresenter->present((string) $this->name),
-        ]);
+        $this->context->smarty->assign('componentInitParams', $psAccountsService->getComponentInitParams());
 
         return $this->display(__FILE__, 'views/templates/admin/app.tpl');
     }
