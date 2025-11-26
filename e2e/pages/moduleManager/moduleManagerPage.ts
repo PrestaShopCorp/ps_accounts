@@ -113,7 +113,7 @@ export default class ModuleManagerPage extends BasePage {
   }
   async isMultistoreVisibleOldVersion() {
     await this.page.locator('#header_shop').click();
-    const isMultiStoreVisible = this.page.getByRole('link', {name: 'All shops'});
+    const isMultiStoreVisible = await this.page.getByRole('link', {name: 'All stores'});
     await isMultiStoreVisible.click();
     expect(isMultiStoreVisible).toBeVisible({timeout: 3000});
   }
@@ -185,6 +185,3 @@ export default class ModuleManagerPage extends BasePage {
     }
   }
 }
-
-
-

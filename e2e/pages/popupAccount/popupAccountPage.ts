@@ -172,7 +172,7 @@ export default class PopupAccountPage extends ModuleManagerPage {
    * Select de FO/Shop2 url and click Diassociate
    */
   async multistoreSelectUrlAndDiassociate(newPage: Page) {
-    const card = newPage.getByRole('checkbox', {name: `Shop2 language icon ${Globals.base_url_fo}/shop2`});
+    const card = newPage.getByRole('checkbox', {name: `Shop2 language icon ${Globals.base_url_fo}/shop1`});
     await card.isVisible();
     await card.locator('[data-test="shoplist-shop-unlink"]').click();
     await newPage.locator('[data-test="confirm-unlink-shop"]').click({timeout: 5000});
@@ -213,8 +213,10 @@ export default class PopupAccountPage extends ModuleManagerPage {
    * The page title check if the title All Store is visible before Config
    */
   async isAllShopSelectedBeforeConfig() {
-    const isMultiStoreVisible = this.page.getByRole('link', {name: 'All shops'});
-    if (!await isMultiStoreVisible.isVisible()) {
+    // await this.page.pause()
+    const isMultiStoreVisible = this.page.getByRole('link', {name: 'All stores'});
+    // const isMultiStoreVisible = this.page.locator('a').filter({hasText: /^All stores$/});
+    if (!(await isMultiStoreVisible.isVisible())) {
       await this.page.locator('#header_shop').click();
       await isMultiStoreVisible.click();
     }

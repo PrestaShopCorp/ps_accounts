@@ -8,7 +8,8 @@ gotToModuleManagerPage('Check module still Linked after delete tokens and change
   const dbRequest = new DbRequest();
    await test.step('Delete Token and change physical uri', async () => {
     await dbRequest.deleteTokens();
-    await dbRequest.
+    await dbRequest.updateUri()
+    await dbRequest.getPsShopUrlUri();
   })
   await test.step('Go to Account Configuration page', async () => {
     await pm.fromModuleManagePage().getPageMainTitle();
