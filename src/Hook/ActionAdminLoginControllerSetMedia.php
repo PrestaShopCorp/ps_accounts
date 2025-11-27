@@ -169,11 +169,11 @@ class ActionAdminLoginControllerSetMedia extends Hook
             }
 
             $shopId = \Shop::getContextShopID();
-            if (ShopUrl::urlChanged($status, $shopProvider->getUrl($shopId))) {
-                // URL changed, trigger verification to update it
+            // Check if only backOfficeUrl changed
+            if (ShopUrl::urlChanged($status, $shopProvider->getUrl($shopId), ['backOfficeUrl'], true)) {
                 $this->commandBus->handle(new VerifyIdentityCommand(
                     $shopId,
-                    true, // force verification to update URL
+                    true,
                     AccountsService::ORIGIN_INSTALL,
                     'ps_accounts'
                 ));
