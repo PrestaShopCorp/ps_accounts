@@ -37,7 +37,7 @@ abstract class Resource extends Dto
      *
      * @return void
      */
-    protected function castChildResource(array &$values, $className, array $fields)
+    protected function castChildResource(array & $values, $className, array $fields)
     {
         foreach ($fields as $field) {
             if (isset($values[$field]) && is_array($values[$field])) {
@@ -54,7 +54,7 @@ abstract class Resource extends Dto
      *
      * @return void
      */
-    protected function uncastChildResource(array &$values, $className, array $fields, $all = true)
+    protected function uncastChildResource(array & $values, $className, array $fields, $all = true)
     {
         foreach ($fields as $field) {
             if (isset($values[$field]) && is_a($values[$field], Resource::class, true)) {
@@ -69,7 +69,7 @@ abstract class Resource extends Dto
      *
      * @return void
      */
-    protected function castBool(array &$values, array $fields)
+    protected function castBool(array & $values, array $fields)
     {
         foreach ($fields as $field) {
             if (isset($values[$field])) {
@@ -84,7 +84,7 @@ abstract class Resource extends Dto
      *
      * @return void
      */
-    protected function castDateTime(array &$values, array $fields)
+    protected function castDateTime(array & $values, array $fields)
     {
         foreach ($fields as $field) {
             if (!empty($values[$field])) {
@@ -100,7 +100,7 @@ abstract class Resource extends Dto
      *
      * @return void
      */
-    protected function uncastDateTime(array &$values, array $fields, $format = DateTime::ATOM)
+    protected function uncastDateTime(array & $values, array $fields, $format = DateTime::ATOM)
     {
         foreach ($fields as $field) {
             if (!empty($values[$field]) && $values[$field] instanceof DateTime) {
