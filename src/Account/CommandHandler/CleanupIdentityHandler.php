@@ -22,42 +22,9 @@
 namespace PrestaShop\Module\PsAccounts\Account\CommandHandler;
 
 use PrestaShop\Module\PsAccounts\Account\Command\CleanupIdentityCommand;
-use PrestaShop\Module\PsAccounts\Account\StatusManager;
-use PrestaShop\Module\PsAccounts\Repository\ConfigurationRepository;
-use PrestaShop\Module\PsAccounts\Service\OAuth2\OAuth2Client;
 
 class CleanupIdentityHandler
 {
-    /**
-     * @var OAuth2Client
-     */
-    private $oAuth2Client;
-
-    /**
-     * @var StatusManager
-     */
-    private $statusManager;
-
-    /**
-     * @var ConfigurationRepository
-     */
-    private $repository;
-
-    /**
-     * @param OAuth2Client $oauth2Client
-     * @param StatusManager $shopStatus
-     * @param ConfigurationRepository $repository
-     */
-    public function __construct(
-        OAuth2Client $oauth2Client,
-        StatusManager $shopStatus,
-        ConfigurationRepository $repository
-    ) {
-        $this->oAuth2Client = $oauth2Client;
-        $this->statusManager = $shopStatus;
-        $this->repository = $repository;
-    }
-
     /**
      * @param CleanupIdentityCommand $command
      *
@@ -65,18 +32,11 @@ class CleanupIdentityHandler
      */
     public function handle(CleanupIdentityCommand $command)
     {
-        $this->statusManager->clearIdentity();
-        $this->oAuth2Client->delete();
-        $this->clearTokens();
-    }
-
-    /**
-     * @return void
-     */
-    private function clearTokens()
-    {
-        $this->repository->updateAccessToken('');
-        $this->repository->updateFirebaseIdAndRefreshTokens('', '');
-        $this->repository->updateUserFirebaseIdAndRefreshToken('', '');
+        $id_shop = \Shop::getContextShopID(true);
+        \Db::getInstance()->execute(
+            'DELETE FROM `' . _DB_PREFIX_ . bqSQL('configuration') . '`'
+            . ' WHERE (name like \'PS_ACCOUNTS%\' or name = \'PSX_UUID_V4\' or name = \'PS_CHECKOUT_SHOP_UUID_V4\')'
+            . ' AND ' . ($id_shop ? 'id_shop = ' . (int) $id_shop : 'id_shop IS NULL')
+        );
     }
 }
