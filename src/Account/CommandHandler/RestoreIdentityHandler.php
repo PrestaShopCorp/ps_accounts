@@ -21,17 +21,18 @@
 
 namespace PrestaShop\Module\PsAccounts\Account\CommandHandler;
 
+use Exception;
 use PrestaShop\Module\PsAccounts\Account\Command\MigrateOrCreateIdentityV8Command;
 use PrestaShop\Module\PsAccounts\Account\Command\RestoreIdentityCommand;
 use PrestaShop\Module\PsAccounts\Account\Command\VerifyIdentityCommand;
-use PrestaShop\Module\PsAccounts\Account\Exception\RefreshTokenException;
 use PrestaShop\Module\PsAccounts\Account\Exception\UnknownStatusException;
 use PrestaShop\Module\PsAccounts\Account\StatusManager;
 use PrestaShop\Module\PsAccounts\Cqrs\CommandBus;
-use PrestaShop\Module\PsAccounts\Service\Accounts\AccountsException;
+use PrestaShop\Module\PsAccounts\Log\Logger;
 use PrestaShop\Module\PsAccounts\Service\Accounts\Resource\ShopStatus;
 use PrestaShop\Module\PsAccounts\Service\OAuth2\OAuth2Client;
 use PrestaShop\Module\PsAccounts\Service\UpgradeService;
+use Throwable;
 
 class RestoreIdentityHandler
 {
@@ -77,6 +78,8 @@ class RestoreIdentityHandler
      * @param RestoreIdentityCommand $command
      *
      * @return void
+     *
+     * @throws Exception|Throwable
      */
     public function handle(RestoreIdentityCommand $command)
     {
@@ -87,6 +90,7 @@ class RestoreIdentityHandler
         }
 
         $registeredVersion = $this->upgradeService->getRegisteredVersion();
+        $e = null;
         try {
             if ($this->isSameIdentity($currentStatus, $command)) {
                 return;
@@ -101,9 +105,8 @@ class RestoreIdentityHandler
             $this->statusManager->setIsVerified(false);
 
             if ($command->migrate) {
-                // this will trigger migration anyways
-                // FIXME: add a "migration from" select
-                $this->upgradeService->setVersion('');
+                // this will trigger migration
+                $this->upgradeService->setVersion($command->migrateFrom);
             } else {
                 // Fix version number when not set
                 $this->upgradeService->setVersion();
@@ -126,12 +129,12 @@ class RestoreIdentityHandler
                 ));
             }
             //$this->statusManager->invalidateCache();
-        } catch (AccountsException $e) {
-            $this->statusManager->restoreStatus($currentStatus);
-            $this->upgradeService->setVersion($registeredVersion);
-        } catch (RefreshTokenException $e) {
-            $this->statusManager->restoreStatus($currentStatus);
-            $this->upgradeService->setVersion($registeredVersion);
+        } catch (Exception $e) {
+        } catch (Throwable $e) {
+        }
+
+        if ($e) {
+            $this->handleError($currentStatus, $registeredVersion, $e);
         }
     }
 
@@ -141,10 +144,29 @@ class RestoreIdentityHandler
      *
      * @return bool
      */
-    public function isSameIdentity(ShopStatus $currentStatus, RestoreIdentityCommand $command)
+    private function isSameIdentity(ShopStatus $currentStatus, RestoreIdentityCommand $command)
     {
         return $currentStatus->cloudShopId === $command->cloudShopId &&
             $this->oAuth2Client->getClientId() === $command->clientId &&
             $this->oAuth2Client->getClientSecret() === $command->clientSecret;
+    }
+
+    /**
+     * @param ShopStatus $currentStatus
+     * @param string $registeredVersion
+     * @param Exception|Throwable $e
+     *
+     * @return void
+     *
+     * @throws Exception|Throwable
+     */
+    private function handleError(ShopStatus $currentStatus, $registeredVersion, $e)
+    {
+        $this->statusManager->restoreStatus($currentStatus);
+        $this->upgradeService->setVersion($registeredVersion);
+
+        Logger::getInstance()->error($e);
+
+        throw $e;
     }
 }
