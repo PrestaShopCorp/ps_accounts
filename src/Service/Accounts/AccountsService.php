@@ -20,6 +20,7 @@
 
 namespace PrestaShop\Module\PsAccounts\Service\Accounts;
 
+use InvalidArgumentException;
 use PrestaShop\Module\PsAccounts\Account\ShopUrl;
 use PrestaShop\Module\PsAccounts\Http\Client\ClientConfig;
 use PrestaShop\Module\PsAccounts\Http\Client\Curl\Client;
@@ -148,9 +149,14 @@ class AccountsService
      * @return LegacyFirebaseToken
      *
      * @throws AccountsException
+     * @throws InvalidArgumentException
      */
     public function refreshShopToken($refreshToken, $cloudShopId)
     {
+        if (empty($refreshToken)) {
+            throw new InvalidArgumentException('Refresh token cannot be empty');
+        }
+
         $response = $this->getClient()->post(
             'v1/shop/token/refresh',
             [
