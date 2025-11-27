@@ -23,6 +23,8 @@ namespace PrestaShop\Module\PsAccounts\Controller\Admin;
 //use PrestaShopBundle\Controller\Admin\PrestaShopAdminController;
 use Doctrine\ORM\EntityManagerInterface;
 use PrestaShop\Module\PsAccounts\Account\Command\IdentifyContactCommand;
+use PrestaShop\Module\PsAccounts\Account\Command\VerifyIdentityCommand;
+use PrestaShop\Module\PsAccounts\Account\ShopUrl;
 use PrestaShop\Module\PsAccounts\AccountLogin\Exception\AccountLoginException;
 use PrestaShop\Module\PsAccounts\AccountLogin\Exception\EmailNotVerifiedException;
 use PrestaShop\Module\PsAccounts\AccountLogin\Exception\EmployeeNotFoundException;

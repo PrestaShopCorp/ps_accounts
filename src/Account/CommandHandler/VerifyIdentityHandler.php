@@ -30,7 +30,6 @@ use PrestaShop\Module\PsAccounts\Account\StatusManager;
 use PrestaShop\Module\PsAccounts\Provider\ShopProvider;
 use PrestaShop\Module\PsAccounts\Service\Accounts\AccountsException;
 use PrestaShop\Module\PsAccounts\Service\Accounts\AccountsService;
-use PrestaShop\Module\PsAccounts\Service\Accounts\Resource\ShopStatus;
 
 class VerifyIdentityHandler
 {
@@ -99,7 +98,7 @@ class VerifyIdentityHandler
             return;
         }
 
-        if (!$command->force && $this->urlChanged($status, $shopId)) {
+        if (!$command->force && ShopUrl::urlChanged($status, $this->shopProvider->getUrl($shopId))) {
             return;
         }
 
@@ -113,35 +112,5 @@ class VerifyIdentityHandler
             $command->source
         );
         $this->statusManager->invalidateCache();
-    }
-
-    /**
-     * @param ShopStatus $status
-     * @param int $shopId
-     *
-     * @return bool
-     */
-    public function urlChanged(ShopStatus $status, $shopId)
-    {
-        $shopUrl = $this->shopProvider->getUrl($shopId);
-
-        $cloudShopUrl = new ShopUrl(
-            rtrim($status->backOfficeUrl, '/'),
-            rtrim($status->frontendUrl, '/'),
-            $shopId
-        );
-        $localShopUrl = new ShopUrl(
-            //rtrim($shopUrl->getBackOfficeUrl(), '/'),
-            // FIXME: we don't consider backoffice url here
-            rtrim($status->backOfficeUrl, '/'),
-            rtrim($shopUrl->getFrontendUrl(), '/'),
-            $shopId
-        );
-
-        if (!$cloudShopUrl->equals($localShopUrl)) {
-            return true;
-        }
-
-        return false;
     }
 }

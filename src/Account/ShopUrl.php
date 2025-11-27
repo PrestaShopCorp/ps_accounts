@@ -20,6 +20,8 @@
 
 namespace PrestaShop\Module\PsAccounts\Account;
 
+use PrestaShop\Module\PsAccounts\Service\Accounts\Resource\ShopStatus;
+
 class ShopUrl
 {
     /**
@@ -70,9 +72,9 @@ class ShopUrl
      *
      * @return bool
      */
-    public function equals(ShopUrl $shopUrl)
+    public function equals(ShopUrl $shopUrl, $checkBackOfficeUrl = true)
     {
-        return $this->backOfficeUrl === $shopUrl->backOfficeUrl
+        return ($checkBackOfficeUrl ? $this->backOfficeUrl === $shopUrl->backOfficeUrl : true)
             && $this->frontendUrl === $shopUrl->frontendUrl
             && $this->multiShopId === $shopUrl->multiShopId;
     }
@@ -99,5 +101,32 @@ class ShopUrl
     public function getMultiShopId()
     {
         return $this->multiShopId;
+    }
+
+    /**
+     * Check if the URL has changed compared to the remote status
+     *
+     * Note: If $checkBackOfficeUrl is false/null, only frontend URL is compared, backOfficeUrl is not considered
+     *
+     * @param ShopStatus $status
+     * @param ShopUrl $localShopUrl
+     * @param bool $checkBackOfficeUrl
+     *
+     * @return bool
+     */
+    public static function urlChanged(ShopStatus $status, ShopUrl $localShopUrl, $checkBackOfficeUrl = false)
+    {
+        $cloudShopUrl = new ShopUrl(
+            rtrim($status->backOfficeUrl, '/'),
+            rtrim($status->frontendUrl, '/'),
+            $localShopUrl->getMultiShopId()
+        );
+        $normalizedLocalShopUrl = new ShopUrl(
+            rtrim($localShopUrl->getBackOfficeUrl(), '/'),
+            rtrim($localShopUrl->getFrontendUrl(), '/'),
+            $localShopUrl->getMultiShopId()
+        );
+
+        return !$cloudShopUrl->equals($normalizedLocalShopUrl, $checkBackOfficeUrl);
     }
 }
