@@ -98,6 +98,7 @@ export default class PopupAccountPage extends ModuleManagerPage {
     const accountTitle = this.page.locator('.title', {hasText: ' PRESTASHOP '});
     await accountTitle.isVisible();
     await this.page.waitForTimeout(4000);
+    await this.page.reload();
     return await this.page.locator('[data-testid="account-panel-linked-icon"]');
   }
 
@@ -159,6 +160,7 @@ export default class PopupAccountPage extends ModuleManagerPage {
    * @return {Promise<Page>}
    */
   async multistoreOpenAccountPopupAfterDissociation(): Promise<Page> {
+    await this.page.reload();
     const [newPage] = await Promise.all([
       this.page.context().waitForEvent('page'),
       this.page.locator('[data-testid="account-link-to-ui-manage-shops-button"]').click()
