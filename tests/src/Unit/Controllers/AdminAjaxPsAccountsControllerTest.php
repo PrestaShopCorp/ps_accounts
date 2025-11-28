@@ -81,8 +81,8 @@ class AdminAjaxPsAccountsControllerTest extends TestCase
         $this->assertNotEmpty($result);
         $this->assertArrayHasKey(0, $result);
         $this->assertArrayHasKey('html', $result[0]);
-        $this->assertStringContainsString($cloudFrontendUrl, $result[0]['html']);
-        $this->assertStringContainsString($shopUrl->getFrontendUrl(), $result[0]['html']);
+        $this->assertContains($cloudFrontendUrl, $result[0]['html']);
+        $this->assertContains($shopUrl->getFrontendUrl(), $result[0]['html']);
     }
 
     /**
