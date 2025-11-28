@@ -40,7 +40,7 @@ class ActionAdminLoginControllerSetMedia extends Hook
      */
     public function execute(array $params = [])
     {
-        // Check and update URL if admin segment changed (before login)
+        // Check and update URL if admin url changed (before login)
         // Only check before login form is being submitted
         $this->checkAndUpdateUrlIfNeeded();
 
@@ -149,7 +149,7 @@ class ActionAdminLoginControllerSetMedia extends Hook
     }
 
     /**
-     * Check if admin URL segment changed and update if needed
+     * Check if admin URL changed and update if needed
      *
      * @return void
      */
@@ -163,13 +163,11 @@ class ActionAdminLoginControllerSetMedia extends Hook
 
             $status = $statusManager->getStatus(false, \PrestaShop\Module\PsAccounts\Account\StatusManager::CACHE_TTL, 'ps_accounts');
 
-            // Only check if shop is already verified
             if (!$status->isVerified) {
                 return;
             }
 
             $shopId = \Shop::getContextShopID();
-            // Check if only backOfficeUrl changed
             if (ShopUrl::onlyBackOfficeUrlChanged($status, $shopProvider->getUrl($shopId))) {
                 $this->commandBus->handle(new VerifyIdentityCommand(
                     $shopId,
