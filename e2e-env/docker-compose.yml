@@ -16,7 +16,7 @@ services:
       - all
       - multistore
       - flashlight
-      - imageoffmake 
+      - imageoff
 
   prestashop:
     restart: unless-stopped
