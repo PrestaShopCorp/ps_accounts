@@ -92,73 +92,39 @@ class ShopUrl
     }
 
     /**
-     * Check if the URL has changed compared to the remote status
-     *
-     * Note:
-     * - If $checkParts is empty, only frontendUrl is compared, backOfficeUrl and multiShopId are not considered
-     * - If $checkParts is an array, only the specified part(s) are checked: ['backOfficeUrl'], ['frontendUrl'], ['multiShopId']
-     * - Multiple parts can be checked: ['backOfficeUrl', 'frontendUrl']
-     * - If $exclusive is true, returns true only if the specified parts changed AND no other parts changed
+     * Check if the frontend URL has changed compared to the remote status
      *
      * @param ShopStatus $status
      * @param ShopUrl $localShopUrl
-     * @param array $checkParts Parts to check: array like ['backOfficeUrl'], ['frontendUrl'], ['multiShopId'] or ['backOfficeUrl', 'frontendUrl']
-     * @param bool $exclusive If true, returns true only if the specified parts changed and no other parts changed
      *
      * @return bool
      */
-    public static function urlChanged(ShopStatus $status, ShopUrl $localShopUrl, array $checkParts = ['frontendUrl'], $exclusive = false)
+    public static function frontendUrlChanged(ShopStatus $status, ShopUrl $localShopUrl)
     {
-        $cloudShopUrl = new ShopUrl(
-            rtrim($status->backOfficeUrl, '/'),
-            rtrim($status->frontendUrl, '/'),
-            $localShopUrl->getMultiShopId()
-        );
-        $normalizedLocalShopUrl = new ShopUrl(
-            rtrim($localShopUrl->getBackOfficeUrl(), '/'),
-            rtrim($localShopUrl->getFrontendUrl(), '/'),
-            $localShopUrl->getMultiShopId()
-        );
+        $cloudFrontendUrl = rtrim($status->frontendUrl, '/');
+        $localFrontendUrl = rtrim($localShopUrl->getFrontendUrl(), '/');
 
-        // Determine which parts to check based on $checkParts
-        $checkBackOfficeUrl = in_array('backOfficeUrl', $checkParts);
-        $checkFrontendUrl = in_array('frontendUrl', $checkParts);
-        $checkMultiShopId = in_array('multiShopId', $checkParts);
+        return $cloudFrontendUrl !== $localFrontendUrl;
+    }
 
-        // Check if any of the specified parts changed
-        $hasChanged = false;
+    /**
+     * Check if the backOffice URL has changed compared to the remote status
+     * Returns true only if backOfficeUrl changed AND frontendUrl did not change
+     *
+     * @param ShopStatus $status
+     * @param ShopUrl $localShopUrl
+     *
+     * @return bool
+     */
+    public static function onlyBackOfficeUrlChanged(ShopStatus $status, ShopUrl $localShopUrl)
+    {
+        $cloudBackOfficeUrl = rtrim($status->backOfficeUrl, '/');
+        $localBackOfficeUrl = rtrim($localShopUrl->getBackOfficeUrl(), '/');
+        $cloudFrontendUrl = rtrim($status->frontendUrl, '/');
+        $localFrontendUrl = rtrim($localShopUrl->getFrontendUrl(), '/');
 
-        if ($checkBackOfficeUrl && $cloudShopUrl->getBackOfficeUrl() !== $normalizedLocalShopUrl->getBackOfficeUrl()) {
-            $hasChanged = true;
-        }
-        if ($checkFrontendUrl && $cloudShopUrl->getFrontendUrl() !== $normalizedLocalShopUrl->getFrontendUrl()) {
-            $hasChanged = true;
-        }
-        if ($checkMultiShopId && $cloudShopUrl->getMultiShopId() !== $normalizedLocalShopUrl->getMultiShopId()) {
-            $hasChanged = true;
-        }
-
-        // If exclusive mode, verify that other parts haven't changed
-        if ($exclusive && $hasChanged) {
-            $allParts = ['backOfficeUrl', 'frontendUrl', 'multiShopId'];
-            $otherParts = array_diff($allParts, $checkParts);
-
-            foreach ($otherParts as $part) {
-                $partChanged = false;
-                if ($part === 'backOfficeUrl' && $cloudShopUrl->getBackOfficeUrl() !== $normalizedLocalShopUrl->getBackOfficeUrl()) {
-                    $partChanged = true;
-                } elseif ($part === 'frontendUrl' && $cloudShopUrl->getFrontendUrl() !== $normalizedLocalShopUrl->getFrontendUrl()) {
-                    $partChanged = true;
-                } elseif ($part === 'multiShopId' && $cloudShopUrl->getMultiShopId() !== $normalizedLocalShopUrl->getMultiShopId()) {
-                    $partChanged = true;
-                }
-
-                if ($partChanged) {
-                    return false; // Another part also changed, so not exclusive
-                }
-            }
-        }
-
-        return $hasChanged;
+        // Return true only if backOfficeUrl changed AND frontendUrl did not change
+        return $cloudBackOfficeUrl !== $localBackOfficeUrl
+            && $cloudFrontendUrl === $localFrontendUrl;
     }
 }

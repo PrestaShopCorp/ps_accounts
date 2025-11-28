@@ -170,7 +170,7 @@ class ActionAdminLoginControllerSetMedia extends Hook
 
             $shopId = \Shop::getContextShopID();
             // Check if only backOfficeUrl changed
-            if (ShopUrl::urlChanged($status, $shopProvider->getUrl($shopId), ['backOfficeUrl'], true)) {
+            if (ShopUrl::onlyBackOfficeUrlChanged($status, $shopProvider->getUrl($shopId))) {
                 $this->commandBus->handle(new VerifyIdentityCommand(
                     $shopId,
                     true,

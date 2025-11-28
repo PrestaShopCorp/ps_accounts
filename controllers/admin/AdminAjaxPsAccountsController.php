@@ -258,7 +258,7 @@ class AdminAjaxPsAccountsController extends \ModuleAdminController
         $shopProvider = $this->module->getService(ShopProvider::class);
         $shopUrl = $shopProvider->getUrl($this->context->shop->id);
 
-        if (!ShopUrl::urlChanged($status, $shopUrl)) {
+        if (!ShopUrl::frontendUrlChanged($status, $shopUrl)) {
             return [];
         }
         $cloudFrontendUrl = rtrim($status->frontendUrl, '/');

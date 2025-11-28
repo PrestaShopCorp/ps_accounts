@@ -98,7 +98,7 @@ class VerifyIdentityHandler
             return;
         }
 
-        if (!$command->force && ShopUrl::urlChanged($status, $this->shopProvider->getUrl($shopId))) {
+        if (!$command->force && ShopUrl::frontendUrlChanged($status, $this->shopProvider->getUrl($shopId))) {
             return;
         }
 
