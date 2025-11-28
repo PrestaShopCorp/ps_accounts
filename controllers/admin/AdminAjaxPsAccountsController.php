@@ -22,6 +22,7 @@ require_once __DIR__ . '/../../src/Polyfill/Traits/Controller/AjaxRender.php';
 
 use PrestaShop\Module\PsAccounts\Account\Exception\UnknownStatusException;
 use PrestaShop\Module\PsAccounts\Account\Session\Firebase\ShopSession;
+use PrestaShop\Module\PsAccounts\Account\ShopUrl;
 use PrestaShop\Module\PsAccounts\Account\StatusManager;
 use PrestaShop\Module\PsAccounts\AccountLogin\OAuth2Session;
 use PrestaShop\Module\PsAccounts\Adapter\Link as AccountsLink;
@@ -257,15 +258,11 @@ class AdminAjaxPsAccountsController extends \ModuleAdminController
         $shopProvider = $this->module->getService(ShopProvider::class);
         $shopUrl = $shopProvider->getUrl($this->context->shop->id);
 
-        $cloudFrontendUrl = rtrim($status->frontendUrl, '/');
-        $localFrontendUrl = rtrim($shopUrl->getFrontendUrl(), '/');
-
-        if (empty($localFrontendUrl) ||
-            empty($cloudFrontendUrl) ||
-            $localFrontendUrl === $cloudFrontendUrl
-        ) {
+        if (!ShopUrl::frontendUrlChanged($status, $shopUrl)) {
             return [];
         }
+        $cloudFrontendUrl = rtrim($status->frontendUrl, '/');
+        $localFrontendUrl = rtrim($shopUrl->getFrontendUrl(), '/');
 
         /** @var AccountsLink $link */
         $link = $this->module->getService(AccountsLink::class);

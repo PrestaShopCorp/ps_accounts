@@ -22,7 +22,11 @@ namespace PrestaShop\Module\PsAccounts\Hook;
 
 use AdminLoginPsAccountsController;
 use Exception;
+use PrestaShop\Module\PsAccounts\Account\Command\VerifyIdentityCommand;
+use PrestaShop\Module\PsAccounts\Account\ShopUrl;
 use PrestaShop\Module\PsAccounts\Adapter\Link;
+use PrestaShop\Module\PsAccounts\Log\Logger;
+use PrestaShop\Module\PsAccounts\Service\Accounts\AccountsService;
 use PrestaShop\Module\PsAccounts\Service\AnalyticsService;
 use PrestaShop\Module\PsAccounts\Service\PsAccountsService;
 use Tools;
@@ -36,6 +40,10 @@ class ActionAdminLoginControllerSetMedia extends Hook
      */
     public function execute(array $params = [])
     {
+        // Check and update URL if admin url changed (before login)
+        // Only check before login form is being submitted
+        $this->checkAndUpdateUrlIfNeeded();
+
         if (defined('_PS_VERSION_') &&
             version_compare(_PS_VERSION_, '8', '>=')) {
             if (version_compare(_PS_VERSION_, '9', '<')) {
@@ -137,6 +145,40 @@ class ActionAdminLoginControllerSetMedia extends Hook
             } else {
                 $analytics->pageLocalBoLogin($userId);
             }
+        }
+    }
+
+    /**
+     * Check if admin URL changed and update if needed
+     *
+     * @return void
+     */
+    protected function checkAndUpdateUrlIfNeeded()
+    {
+        try {
+            /** @var \PrestaShop\Module\PsAccounts\Account\StatusManager $statusManager */
+            $statusManager = $this->module->getService(\PrestaShop\Module\PsAccounts\Account\StatusManager::class);
+            /** @var \PrestaShop\Module\PsAccounts\Provider\ShopProvider $shopProvider */
+            $shopProvider = $this->module->getService(\PrestaShop\Module\PsAccounts\Provider\ShopProvider::class);
+
+            $status = $statusManager->getStatus(false, \PrestaShop\Module\PsAccounts\Account\StatusManager::CACHE_TTL, 'ps_accounts');
+
+            if (!$status->isVerified) {
+                return;
+            }
+
+            $shopId = \Shop::getContextShopID();
+            if (ShopUrl::onlyBackOfficeUrlChanged($status, $shopProvider->getUrl($shopId))) {
+                $this->commandBus->handle(new VerifyIdentityCommand(
+                    $shopId,
+                    true,
+                    AccountsService::ORIGIN_INSTALL,
+                    'ps_accounts'
+                ));
+            }
+        } catch (Exception $e) {
+            // Log error but don't block login
+            Logger::getInstance()->error('[ActionAdminLoginControllerSetMedia] Error checking/updating URL: ' . $e->getMessage());
         }
     }
 }

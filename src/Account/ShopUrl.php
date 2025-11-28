@@ -20,6 +20,8 @@
 
 namespace PrestaShop\Module\PsAccounts\Account;
 
+use PrestaShop\Module\PsAccounts\Service\Accounts\Resource\ShopStatus;
+
 class ShopUrl
 {
     /**
@@ -66,18 +68,6 @@ class ShopUrl
     }
 
     /**
-     * @param ShopUrl $shopUrl
-     *
-     * @return bool
-     */
-    public function equals(ShopUrl $shopUrl)
-    {
-        return $this->backOfficeUrl === $shopUrl->backOfficeUrl
-            && $this->frontendUrl === $shopUrl->frontendUrl
-            && $this->multiShopId === $shopUrl->multiShopId;
-    }
-
-    /**
      * @return string
      */
     public function getBackOfficeUrl()
@@ -99,5 +89,42 @@ class ShopUrl
     public function getMultiShopId()
     {
         return $this->multiShopId;
+    }
+
+    /**
+     * Check if the frontend URL has changed compared to the remote status
+     *
+     * @param ShopStatus $status
+     * @param ShopUrl $localShopUrl
+     *
+     * @return bool
+     */
+    public static function frontendUrlChanged(ShopStatus $status, ShopUrl $localShopUrl)
+    {
+        $cloudFrontendUrl = rtrim($status->frontendUrl, '/');
+        $localFrontendUrl = rtrim($localShopUrl->getFrontendUrl(), '/');
+
+        return $cloudFrontendUrl !== $localFrontendUrl;
+    }
+
+    /**
+     * Check if the backOffice URL has changed compared to the remote status
+     * Returns true only if backOfficeUrl changed AND frontendUrl did not change
+     *
+     * @param ShopStatus $status
+     * @param ShopUrl $localShopUrl
+     *
+     * @return bool
+     */
+    public static function onlyBackOfficeUrlChanged(ShopStatus $status, ShopUrl $localShopUrl)
+    {
+        $cloudBackOfficeUrl = rtrim($status->backOfficeUrl, '/');
+        $localBackOfficeUrl = rtrim($localShopUrl->getBackOfficeUrl(), '/');
+        $cloudFrontendUrl = rtrim($status->frontendUrl, '/');
+        $localFrontendUrl = rtrim($localShopUrl->getFrontendUrl(), '/');
+
+        // Return true only if backOfficeUrl changed AND frontendUrl did not change
+        return $cloudBackOfficeUrl !== $localBackOfficeUrl
+            && $cloudFrontendUrl === $localFrontendUrl;
     }
 }
