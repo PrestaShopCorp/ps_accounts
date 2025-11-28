@@ -257,7 +257,7 @@ class Ps_accounts extends Module
     {
         return array_map(function ($className) {
             return preg_replace('/^.*?(\w+)Controller$/', '\1', $className);
-            //return preg_replace('/^(.*?)Controller$/', '\1', $className);
+        //return preg_replace('/^(.*?)Controller$/', '\1', $className);
         }, $this->adminControllers);
     }
 
@@ -481,7 +481,7 @@ function ps_accounts_fix_upgrade()
     $root = __DIR__;
     $requires = array_merge([
         $root . '/src/Module/Install.php',
-        //        $root . '/src/Hook/Hook.php',
+        //$root . '/src/Hook/Hook.php',
         $root . '/src/Hook/HookableTrait.php',
         $root . '/src/Settings/SettingsForm.php',
     ], []/*, glob($root . '/src/Hook/*.php')*/);
