@@ -21,6 +21,7 @@
 
 namespace PrestaShop\Module\PsAccounts\Account\CommandHandler;
 
+use Exception;
 use PrestaShop\Module\PsAccounts\Account\Command\CreateIdentityCommand;
 use PrestaShop\Module\PsAccounts\Account\Command\MigrateOrCreateIdentityV8Command;
 use PrestaShop\Module\PsAccounts\Account\Exception\RefreshTokenException;
@@ -127,9 +128,11 @@ class MigrateOrCreateIdentityV8Handler
         $fromVersion = $this->upgradeService->getRegisteredVersion();
         $migratedToV8 = version_compare($fromVersion, '8', '>=');
         $notIdentified = !$shopUuid;
+        $token = $shopUuid ? $this->getAccessOrFirebaseToken($shopUuid) : null;
+
 
         // FIXME: shouldn't this condition be a specific flag
-        if ($notIdentified || $migratedToV8) {
+        if ($notIdentified || $token === null|| $migratedToV8) {
             $this->registerLatestVersion();
             $this->createOrVerifyIdentity($command);
 
@@ -142,7 +145,7 @@ class MigrateOrCreateIdentityV8Handler
 
             $identityCreated = $this->accountsService->migrateShopIdentity(
                 $shopUuid,
-                $this->getTokenV6OrV7($fromVersion, $shopUuid),
+                $this->getAccessOrFirebaseToken($shopUuid),
                 $this->shopProvider->getUrl($shopId),
                 $this->shopProvider->getName($shopId),
                 $fromVersion,
@@ -176,48 +179,48 @@ class MigrateOrCreateIdentityV8Handler
     /**
      * @param string $shopUuid
      *
-     * @return string
-     *
-     * @throws OAuth2Exception
+     * @return string|null
      */
-    private function getAccessTokenV7($shopUuid)
+    private function getAccessToken($shopUuid)
     {
-        return $this->oAuth2Service->getAccessTokenByClientCredentials([], [
+        try {
+            return $this->oAuth2Service->getAccessTokenByClientCredentials([], [
             // audience v7
             'shop_' . $shopUuid,
         ])->access_token;
+        } catch (OAuth2Exception $e) {
+            return null;
+        }
     }
 
     /**
      * @param string $shopUuid
      *
-     * @return string
-     *
-     * @throws AccountsException
+     * @return string|null
      */
-    private function getFirebaseTokenV6($shopUuid)
+    private function getFirebaseToken($shopUuid)
     {
-        return $this->accountsService->refreshShopToken(
+        try {
+            return $this->accountsService->refreshShopToken(
             $this->configurationRepository->getFirebaseRefreshToken(),
             $shopUuid
         )->token;
+        } catch (AccountsException $e) {
+            return null;
+        }
     }
 
     /**
-     * @param string $fromVersion
      * @param string $shopUuid
      *
-     * @return string
-     *
-     * @throws AccountsException
-     * @throws OAuth2Exception
+     * @return string|null
      */
-    private function getTokenV6OrV7($fromVersion, $shopUuid)
+    private function getAccessOrFirebaseToken($shopUuid)
     {
-        if (version_compare($fromVersion, '7', '>=')) {
-            $token = $this->getAccessTokenV7($shopUuid);
-        } else {
-            $token = $this->getFirebaseTokenV6($shopUuid);
+        $token = $this->getAccessToken($shopUuid);
+
+        if ($token === null) {
+            $token = $this->getFirebaseToken($shopUuid);
         }
 
         return $token;
