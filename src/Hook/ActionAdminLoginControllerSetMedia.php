@@ -23,9 +23,11 @@ namespace PrestaShop\Module\PsAccounts\Hook;
 use AdminLoginPsAccountsController;
 use Exception;
 use PrestaShop\Module\PsAccounts\Account\Command\VerifyIdentityCommand;
+use PrestaShop\Module\PsAccounts\Account\StatusManager;
 use PrestaShop\Module\PsAccounts\Account\ShopUrl;
 use PrestaShop\Module\PsAccounts\Adapter\Link;
 use PrestaShop\Module\PsAccounts\Log\Logger;
+use PrestaShop\Module\PsAccounts\Provider\ShopProvider;
 use PrestaShop\Module\PsAccounts\Service\Accounts\AccountsService;
 use PrestaShop\Module\PsAccounts\Service\AnalyticsService;
 use PrestaShop\Module\PsAccounts\Service\PsAccountsService;
@@ -156,12 +158,12 @@ class ActionAdminLoginControllerSetMedia extends Hook
     protected function checkAndUpdateUrlIfNeeded()
     {
         try {
-            /** @var \PrestaShop\Module\PsAccounts\Account\StatusManager $statusManager */
-            $statusManager = $this->module->getService(\PrestaShop\Module\PsAccounts\Account\StatusManager::class);
-            /** @var \PrestaShop\Module\PsAccounts\Provider\ShopProvider $shopProvider */
-            $shopProvider = $this->module->getService(\PrestaShop\Module\PsAccounts\Provider\ShopProvider::class);
+            /** @var StatusManager $statusManager */
+            $statusManager = $this->module->getService(StatusManager::class);
+            /** @var ShopProvider $shopProvider */
+            $shopProvider = $this->module->getService(ShopProvider::class);
 
-            $status = $statusManager->getStatus(false, \PrestaShop\Module\PsAccounts\Account\StatusManager::CACHE_TTL, 'ps_accounts');
+            $status = $statusManager->getStatus(false, StatusManager::CACHE_TTL, 'ps_accounts');
 
             if (!$status->isVerified) {
                 return;
