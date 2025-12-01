@@ -79,3 +79,7 @@ npm-debug.log*
 /e2e-env/myTun/config/mytun-credentials.json
 /e2e-env/myTun/config/mytun-config.yml
 php-scoper.phar
+
+# tests ignore
+tests/var/cache/
+tests/phpstan/phpstan.neon
