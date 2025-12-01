@@ -56,6 +56,11 @@ class RestoreIdentityCommand
     public $migrate;
 
     /**
+     * @var string|null
+     */
+    public $migrateFrom;
+
+    /**
      * @var string
      */
     public $origin;
@@ -71,6 +76,7 @@ class RestoreIdentityCommand
      * @param string $clientSecret
      * @param bool $verify
      * @param bool $migrate
+     * @param string $migrateFrom
      * @param string $origin
      * @param string $source
      */
@@ -80,6 +86,7 @@ class RestoreIdentityCommand
         $clientSecret,
         $verify = false,
         $migrate = false,
+        $migrateFrom = null,
         $origin = AccountsService::ORIGIN_INSTALL,
         $source = 'ps_accounts'
     ) {
@@ -88,6 +95,7 @@ class RestoreIdentityCommand
         $this->clientSecret = $clientSecret;
         $this->verify = $verify;
         $this->migrate = $migrate;
+        $this->migrateFrom = $migrateFrom;
         $this->origin = $origin;
         $this->source = $source;
     }
