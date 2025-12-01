@@ -130,7 +130,7 @@ class AccountsException extends \Exception
      *
      * @return Response|null
      */
-    protected function getStoreResponseFromResponseBody($key = 'storeResponse')
+    protected function getStoreResponseFromResponseBody($key = 'response')
     {
         $response = $this->response->getValueFromBody(
             $key,
