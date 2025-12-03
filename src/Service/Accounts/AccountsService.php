@@ -410,7 +410,7 @@ class AccountsService
                 ]),
                 Request::JSON => [
                     'backOfficeUrl' => $shopUrl->getBackOfficeUrl(),
-                    'multiShopId' => $shopUrl->getMultiShopId()
+                    'multiShopId' => $shopUrl->getMultiShopId(),
                 ],
             ]
         );

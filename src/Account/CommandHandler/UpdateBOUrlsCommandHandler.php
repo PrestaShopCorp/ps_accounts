@@ -21,8 +21,8 @@
 namespace PrestaShop\Module\PsAccounts\Account\CommandHandler;
 
 use Exception;
-use PrestaShop\Module\PsAccounts\Account\Command\UpdateBOUrlsCommand;
 use PrestaShop\Module\PsAccounts\Account\Command\UpdateBOUrlCommand;
+use PrestaShop\Module\PsAccounts\Account\Command\UpdateBOUrlsCommand;
 use PrestaShop\Module\PsAccounts\Log\Logger;
 
 class UpdateBOUrlsCommandHandler extends MultiShopHandler
@@ -34,7 +34,7 @@ class UpdateBOUrlsCommandHandler extends MultiShopHandler
      */
     public function handle(UpdateBOUrlsCommand $command)
     {
-        $this->handleMulti(function ($multiShopId) use ($command) {
+        $this->handleMulti(function ($multiShopId) {
             try {
                 $this->commandBus->handle(new UpdateBOUrlCommand(
                     $multiShopId,
