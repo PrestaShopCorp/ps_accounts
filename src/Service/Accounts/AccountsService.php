@@ -390,4 +390,29 @@ class AccountsService
 
         return new IdentityCreated($response->body);
     }
+
+    /**
+     * @param string $cloudShopId
+     * @param string $shopToken
+     * @param ShopUrl $shopUrl
+     *
+     * @return void
+     *
+     * @throws AccountsException
+     */
+    public function updateBOUrl($cloudShopId, $shopToken, $shopUrl)
+    {
+        $response = $this->getClient()->put(
+            '/v1/shop-identities/' . $cloudShopId . '/back-office-url',
+            [
+                Request::HEADERS => $this->getHeaders([
+                    self::HEADER_AUTHORIZATION => 'Bearer ' . $shopToken,
+                ]),
+                Request::JSON => [
+                    'backOfficeUrl' => $shopUrl->getBackOfficeUrl(),
+                    'multiShopId' => $shopUrl->getMultiShopId()
+                ],
+            ]
+        );
+    }
 }

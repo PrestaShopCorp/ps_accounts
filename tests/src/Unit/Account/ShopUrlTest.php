@@ -75,32 +75,35 @@ class ShopUrlTest extends TestCase
             'backOfficeUrl' => 'https://admin.example.com',
         ]);
 
+        $distantShopUrl = ShopUrl::createFromStatus($status, 1);
         $localShopUrl = new ShopUrl(
             'https://different-admin.example.com',
             'https://example.com',
             1
         );
 
-        $this->assertTrue(ShopUrl::onlyBackOfficeUrlChanged($status, $localShopUrl));
+        $this->assertTrue($distantShopUrl->backOfficeUrlChanged($localShopUrl));
     }
 
     /**
      * @test
      */
-    public function itShouldReturnFalseWhenBackOfficeUrlChangedButFrontendUrlAlsoChanged()
+    public function itShouldReturnTrueWhenBackOfficeUrlChangedButFrontendUrlAlsoChanged()
     {
         $status = new ShopStatus([
             'frontendUrl' => 'https://example.com',
             'backOfficeUrl' => 'https://admin.example.com',
         ]);
 
+        $distantShopUrl = ShopUrl::createFromStatus($status, 1);
         $localShopUrl = new ShopUrl(
             'https://different-admin.example.com',
             'https://different-example.com',
             1
         );
 
-        $this->assertFalse(ShopUrl::onlyBackOfficeUrlChanged($status, $localShopUrl));
+        // backOfficeUrlChanged only checks if BO URL changed, not if frontend also changed
+        $this->assertTrue($distantShopUrl->backOfficeUrlChanged($localShopUrl));
     }
 
     /**
@@ -113,13 +116,14 @@ class ShopUrlTest extends TestCase
             'backOfficeUrl' => 'https://admin.example.com',
         ]);
 
+        $distantShopUrl = ShopUrl::createFromStatus($status, 1);
         $localShopUrl = new ShopUrl(
             'https://admin.example.com',
             'https://example.com',
             1
         );
 
-        $this->assertFalse(ShopUrl::onlyBackOfficeUrlChanged($status, $localShopUrl));
+        $this->assertFalse($distantShopUrl->backOfficeUrlChanged($localShopUrl));
     }
 
     /**
@@ -132,13 +136,14 @@ class ShopUrlTest extends TestCase
             'backOfficeUrl' => 'https://admin.example.com/',
         ]);
 
+        $distantShopUrl = ShopUrl::createFromStatus($status, 1);
         $localShopUrl = new ShopUrl(
             'https://admin.example.com',
             'https://example.com',
             1
         );
 
-        $this->assertFalse(ShopUrl::onlyBackOfficeUrlChanged($status, $localShopUrl));
+        $this->assertFalse($distantShopUrl->backOfficeUrlChanged($localShopUrl));
     }
 
     /**
@@ -151,13 +156,14 @@ class ShopUrlTest extends TestCase
             'backOfficeUrl' => 'https://admin.example.com',
         ]);
 
+        $distantShopUrl = ShopUrl::createFromStatus($status, 1);
         $localShopUrl = new ShopUrl(
             'https://different-admin.example.com',
             'https://example.com',
             1
         );
 
-        $this->assertTrue(ShopUrl::onlyBackOfficeUrlChanged($status, $localShopUrl));
+        $this->assertTrue($distantShopUrl->backOfficeUrlChanged($localShopUrl));
     }
 
     /**
@@ -170,6 +176,7 @@ class ShopUrlTest extends TestCase
             'backOfficeUrl' => 'https://admin.example.com',
         ]);
 
+        $distantShopUrl = ShopUrl::createFromStatus($status, 1);
         $localShopUrl = new ShopUrl(
             'https://admin.example.com',
             'https://example.com',
@@ -177,7 +184,7 @@ class ShopUrlTest extends TestCase
         );
 
         $this->assertFalse(ShopUrl::frontendUrlChanged($status, $localShopUrl));
-        $this->assertFalse(ShopUrl::onlyBackOfficeUrlChanged($status, $localShopUrl));
+        $this->assertFalse($distantShopUrl->backOfficeUrlChanged($localShopUrl));
     }
 }
 

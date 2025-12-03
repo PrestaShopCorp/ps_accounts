@@ -109,22 +109,30 @@ class ShopUrl
 
     /**
      * Check if the backOffice URL has changed compared to the remote status
-     * Returns true only if backOfficeUrl changed AND frontendUrl did not change
+     * Returns true if backOfficeUrl changed
      *
      * @param ShopStatus $status
      * @param ShopUrl $localShopUrl
      *
      * @return bool
      */
-    public static function onlyBackOfficeUrlChanged(ShopStatus $status, ShopUrl $localShopUrl)
+    public function backOfficeUrlChanged(ShopUrl $localShopUrl)
     {
-        $cloudBackOfficeUrl = rtrim($status->backOfficeUrl, '/');
+        $cloudBackOfficeUrl = rtrim($this->getBackOfficeUrl(), '/');
         $localBackOfficeUrl = rtrim($localShopUrl->getBackOfficeUrl(), '/');
-        $cloudFrontendUrl = rtrim($status->frontendUrl, '/');
-        $localFrontendUrl = rtrim($localShopUrl->getFrontendUrl(), '/');
 
-        // Return true only if backOfficeUrl changed AND frontendUrl did not change
-        return $cloudBackOfficeUrl !== $localBackOfficeUrl
-            && $cloudFrontendUrl === $localFrontendUrl;
+        return $cloudBackOfficeUrl !== $localBackOfficeUrl;
+    }
+
+    /**
+     * Create a new ShopUrl from the status
+     *
+     * @param ShopStatus $status
+     *
+     * @return ShopUrl
+     */
+    public static function createFromStatus(ShopStatus $status, $multiShopId)
+    {
+        return new ShopUrl($status->backOfficeUrl, $status->frontendUrl, $multiShopId);
     }
 }

@@ -22,13 +22,9 @@ namespace PrestaShop\Module\PsAccounts\Hook;
 
 use AdminLoginPsAccountsController;
 use Exception;
-use PrestaShop\Module\PsAccounts\Account\Command\VerifyIdentityCommand;
-use PrestaShop\Module\PsAccounts\Account\ShopUrl;
-use PrestaShop\Module\PsAccounts\Account\StatusManager;
+use PrestaShop\Module\PsAccounts\Account\Command\UpdateBOUrlsCommand;
 use PrestaShop\Module\PsAccounts\Adapter\Link;
 use PrestaShop\Module\PsAccounts\Log\Logger;
-use PrestaShop\Module\PsAccounts\Provider\ShopProvider;
-use PrestaShop\Module\PsAccounts\Service\Accounts\AccountsService;
 use PrestaShop\Module\PsAccounts\Service\AnalyticsService;
 use PrestaShop\Module\PsAccounts\Service\PsAccountsService;
 use Tools;
@@ -158,26 +154,7 @@ class ActionAdminLoginControllerSetMedia extends Hook
     protected function checkAndUpdateUrlIfNeeded()
     {
         try {
-            /** @var StatusManager $statusManager */
-            $statusManager = $this->module->getService(StatusManager::class);
-            /** @var ShopProvider $shopProvider */
-            $shopProvider = $this->module->getService(ShopProvider::class);
-
-            $status = $statusManager->getStatus(false, StatusManager::CACHE_TTL, 'ps_accounts');
-
-            if (!$status->isVerified) {
-                return;
-            }
-
-            $shopId = \Shop::getContextShopID();
-            if (ShopUrl::onlyBackOfficeUrlChanged($status, $shopProvider->getUrl($shopId))) {
-                $this->commandBus->handle(new VerifyIdentityCommand(
-                    $shopId,
-                    true,
-                    AccountsService::ORIGIN_INSTALL,
-                    'ps_accounts'
-                ));
-            }
+            $this->commandBus->handle(new UpdateBOUrlsCommand());
         } catch (Exception $e) {
             // Log error but don't block login
             Logger::getInstance()->error('[ActionAdminLoginControllerSetMedia] Error checking/updating URL: ' . $e->getMessage());
