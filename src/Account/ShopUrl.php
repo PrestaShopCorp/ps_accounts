@@ -111,7 +111,6 @@ class ShopUrl
      * Check if the backOffice URL has changed compared to the remote status
      * Returns true if backOfficeUrl changed
      *
-     * @param ShopStatus $status
      * @param ShopUrl $localShopUrl
      *
      * @return bool
@@ -128,6 +127,7 @@ class ShopUrl
      * Create a new ShopUrl from the status
      *
      * @param ShopStatus $status
+     * @param int $multiShopId
      *
      * @return ShopUrl
      */

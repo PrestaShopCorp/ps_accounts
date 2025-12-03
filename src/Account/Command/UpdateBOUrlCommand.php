@@ -28,6 +28,9 @@ class UpdateBOUrlCommand
      */
     public $shopId;
 
+    /**
+     * @param int $shopId
+     */
     public function __construct($shopId)
     {
         $this->shopId = $shopId;
