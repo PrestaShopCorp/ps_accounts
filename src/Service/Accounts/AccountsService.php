@@ -414,5 +414,9 @@ class AccountsService
                 ],
             ]
         );
+
+        if (!$response->isSuccessful) {
+            throw new AccountsException($response, 'Unable to update back office URL', 'store-identity/unable-to-update-back-office-url');
+        }
     }
 }
