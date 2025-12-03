@@ -36,9 +36,8 @@ class UpdateBOUrlsCommandHandler extends MultiShopHandler
     {
         $this->handleMulti(function ($multiShopId) {
             try {
-                $this->commandBus->handle(new UpdateBOUrlCommand(
-                    $multiShopId,
-                ));
+                $command = new UpdateBOUrlCommand($multiShopId);
+                $this->commandBus->handle($command);
             } catch (Exception $e) {
                 Logger::getInstance()->error($e->getMessage());
             }
