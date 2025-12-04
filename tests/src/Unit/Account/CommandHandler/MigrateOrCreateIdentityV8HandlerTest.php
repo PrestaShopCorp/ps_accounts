@@ -260,6 +260,7 @@ JSON;
         $this->upgradeService->setVersion('0');
 
         $this->configurationRepository->updateShopUuid($cloudShopId);
+        $this->configurationRepository->updateFirebaseIdAndRefreshTokens('', $this->faker->uuid);
 
         // FIXME: test AccountsClient in a dedicated Class
         $this->accountsClient->method('post')
