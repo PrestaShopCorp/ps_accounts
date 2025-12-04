@@ -14,9 +14,17 @@ use PrestaShop\Module\PsAccounts\Provider\ShopProvider;
 use PrestaShop\Module\PsAccounts\Service\Accounts\AccountsService;
 use PrestaShop\Module\PsAccounts\Service\Accounts\Resource\ShopStatus;
 use PrestaShop\Module\PsAccounts\Tests\TestCase;
+use PrestaShop\Module\PsAccounts\Context\ShopContext;
 
 class UpdateBOUrlHandlerTest extends TestCase
 {
+    /**
+     * @inject
+     *
+     * @var ShopContext
+     */
+    protected $shopContext;
+
     /**
      * @inject
      *
