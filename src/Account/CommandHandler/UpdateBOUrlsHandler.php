@@ -25,7 +25,7 @@ use PrestaShop\Module\PsAccounts\Account\Command\UpdateBOUrlCommand;
 use PrestaShop\Module\PsAccounts\Account\Command\UpdateBOUrlsCommand;
 use PrestaShop\Module\PsAccounts\Log\Logger;
 
-class UpdateBOUrlsCommandHandler extends MultiShopHandler
+class UpdateBOUrlsHandler extends MultiShopHandler
 {
     /**
      * @param UpdateBOUrlsCommand $command

@@ -27,8 +27,8 @@ use PrestaShop\Module\PsAccounts\Account\CommandHandler\IdentifyContactHandler;
 use PrestaShop\Module\PsAccounts\Account\CommandHandler\MigrateOrCreateIdentitiesV8Handler;
 use PrestaShop\Module\PsAccounts\Account\CommandHandler\MigrateOrCreateIdentityV8Handler;
 use PrestaShop\Module\PsAccounts\Account\CommandHandler\RestoreIdentityHandler;
-use PrestaShop\Module\PsAccounts\Account\CommandHandler\UpdateBOUrlCommandHandler;
-use PrestaShop\Module\PsAccounts\Account\CommandHandler\UpdateBOUrlsCommandHandler;
+use PrestaShop\Module\PsAccounts\Account\CommandHandler\UpdateBOUrlHandler;
+use PrestaShop\Module\PsAccounts\Account\CommandHandler\UpdateBOUrlsHandler;
 use PrestaShop\Module\PsAccounts\Account\CommandHandler\VerifyIdentitiesHandler;
 use PrestaShop\Module\PsAccounts\Account\CommandHandler\VerifyIdentityHandler;
 use PrestaShop\Module\PsAccounts\Account\ProofManager;
@@ -120,8 +120,8 @@ class CommandProvider implements IServiceProvider
                 $container->get(ConfigurationRepository::class)
             );
         });
-        $container->registerProvider(UpdateBOUrlCommandHandler::class, static function () use ($container) {
-            return new UpdateBOUrlCommandHandler(
+        $container->registerProvider(UpdateBOUrlHandler::class, static function () use ($container) {
+            return new UpdateBOUrlHandler(
                 $container->get(ShopContext::class),
                 $container->get(CommandBus::class),
                 $container->get(AccountsService::class),
@@ -130,8 +130,8 @@ class CommandProvider implements IServiceProvider
                 $container->get(Session\ShopSession::class)
             );
         });
-        $container->registerProvider(UpdateBOUrlsCommandHandler::class, static function () use ($container) {
-            return new UpdateBOUrlsCommandHandler(
+        $container->registerProvider(UpdateBOUrlsHandler::class, static function () use ($container) {
+            return new UpdateBOUrlsHandler(
                 $container->get(ShopContext::class),
                 $container->get(CommandBus::class)
             );

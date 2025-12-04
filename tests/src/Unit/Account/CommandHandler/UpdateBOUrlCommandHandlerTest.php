@@ -4,7 +4,7 @@ namespace PrestaShop\Module\PsAccounts\Tests\Unit\Account\CommandHandler;
 
 use PHPUnit\Framework\MockObject\MockObject;
 use PrestaShop\Module\PsAccounts\Account\Command\UpdateBOUrlCommand;
-use PrestaShop\Module\PsAccounts\Account\CommandHandler\UpdateBOUrlCommandHandler;
+use PrestaShop\Module\PsAccounts\Account\CommandHandler\UpdateBOUrlHandler;
 use PrestaShop\Module\PsAccounts\Account\Session\ShopSession;
 use PrestaShop\Module\PsAccounts\Account\ShopUrl;
 use PrestaShop\Module\PsAccounts\Account\StatusManager;
@@ -15,7 +15,7 @@ use PrestaShop\Module\PsAccounts\Service\Accounts\AccountsService;
 use PrestaShop\Module\PsAccounts\Service\Accounts\Resource\ShopStatus;
 use PrestaShop\Module\PsAccounts\Tests\TestCase;
 
-class UpdateBOUrlCommandHandlerTest extends TestCase
+class UpdateBOUrlHandlerTest extends TestCase
 {
     /**
      * @inject
@@ -37,13 +37,6 @@ class UpdateBOUrlCommandHandlerTest extends TestCase
      * @var StatusManager
      */
     public $statusManager;
-
-    /**
-     * @inject
-     *
-     * @var \PrestaShop\Module\PsAccounts\Context\ShopContext
-     */
-    public $shopContext;
 
     /**
      * @var Client&MockObject
@@ -140,11 +133,11 @@ class UpdateBOUrlCommandHandlerTest extends TestCase
     }
 
     /**
-     * @return UpdateBOUrlCommandHandler
+     * @return UpdateBOUrlHandler
      */
     private function getHandler()
     {
-        return new UpdateBOUrlCommandHandler(
+        return new UpdateBOUrlHandler(
             $this->shopContext,
             $this->commandBus,
             $this->accountsService,

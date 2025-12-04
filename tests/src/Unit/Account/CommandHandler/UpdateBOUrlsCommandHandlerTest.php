@@ -4,12 +4,12 @@ namespace PrestaShop\Module\PsAccounts\Tests\Unit\Account\CommandHandler;
 
 use PrestaShop\Module\PsAccounts\Account\Command\UpdateBOUrlCommand;
 use PrestaShop\Module\PsAccounts\Account\Command\UpdateBOUrlsCommand;
-use PrestaShop\Module\PsAccounts\Account\CommandHandler\UpdateBOUrlsCommandHandler;
+use PrestaShop\Module\PsAccounts\Account\CommandHandler\UpdateBOUrlsHandler;
 use PrestaShop\Module\PsAccounts\Context\ShopContext;
 use PrestaShop\Module\PsAccounts\Cqrs\CommandBus;
 use PrestaShop\Module\PsAccounts\Tests\TestCase;
 
-class UpdateBOUrlsCommandHandlerTest extends TestCase
+class UpdateBOUrlsHandlerTest extends TestCase
 {
     /**
      * @inject
@@ -35,7 +35,7 @@ class UpdateBOUrlsCommandHandlerTest extends TestCase
                 return $command instanceof UpdateBOUrlCommand;
             }));
 
-        $handler = new UpdateBOUrlsCommandHandler(
+        $handler = new UpdateBOUrlsHandler(
             $this->shopContext,
             $commandBusMock
         );

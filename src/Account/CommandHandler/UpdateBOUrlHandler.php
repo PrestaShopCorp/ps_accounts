@@ -29,7 +29,7 @@ use PrestaShop\Module\PsAccounts\Cqrs\CommandBus;
 use PrestaShop\Module\PsAccounts\Provider\ShopProvider;
 use PrestaShop\Module\PsAccounts\Service\Accounts\AccountsService;
 
-class UpdateBOUrlCommandHandler extends MultiShopHandler
+class UpdateBOUrlHandler extends MultiShopHandler
 {
     /**
      * @var AccountsService
@@ -81,11 +81,13 @@ class UpdateBOUrlCommandHandler extends MultiShopHandler
      */
     public function handle(UpdateBOUrlCommand $command)
     {
+        $shopId = $command->shopId ?: \Shop::getContextShopID();
+
         $status = $this->statusManager->getStatus(false, StatusManager::CACHE_TTL, 'ps_accounts');
 
-        $distantShopUrl = ShopUrl::createFromStatus($status, $command->shopId);
+        $distantShopUrl = ShopUrl::createFromStatus($status, $shopId);
 
-        $localShopUrl = $this->shopProvider->getUrl($command->shopId);
+        $localShopUrl = $this->shopProvider->getUrl($shopId);
 
         if ($distantShopUrl->backOfficeUrlChanged($localShopUrl)) {
             $this->accountsService->updateBOUrl($status->cloudShopId, $this->shopSession->getValidToken(), $localShopUrl);
