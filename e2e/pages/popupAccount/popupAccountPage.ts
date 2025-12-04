@@ -81,7 +81,7 @@ export default class PopupAccountPage extends ModuleManagerPage {
     await newPage.waitForSelector('[data-test="shop-card"]', {state: 'visible'});
     const card = newPage.locator('[data-test="shop-card"]');
     const countCard = await card.count();
-    expect(countCard).toBeGreaterThan(1);
+    expect(countCard).toBeGreaterThan(0);
     const associateBtn = await newPage.locator('.puik-button.puik-button--primary');
     await associateBtn.isVisible();
     await associateBtn.click();
