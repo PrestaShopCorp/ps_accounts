@@ -3,7 +3,7 @@ import {createPool} from 'mysql2/promise';
 
 // Import types
 import type {FieldPacket, Pool, RowDataPacket, ResultSetHeader} from 'mysql2/promise';
-import { dbConfig } from '~/data/dbConfig/dbConfig';
+import {dbConfig} from '~/data/dbConfig/dbConfig';
 
 class DbHelper {
   /**
@@ -92,6 +92,29 @@ class DbHelper {
    */
   async executeCustomDeleteQuery(table: string, conditions?: string): Promise<void> {
     const query = this.createCustomDeleteQuery(table, conditions);
+    await this.executeQuery(query);
+  }
+
+  /**
+   * Create a custom 'UPDATE' query
+   * @param table {string} Name of the table
+   * @param updates {string} SET part of the query
+   * @param conditions {?string} Conditions to add to the request
+   * @return {string}
+   */
+  createCustomUpdateQuery(table: string, updates: string, conditions?: string): string {
+    return `UPDATE ${table} SET ${updates} ${conditions ? `WHERE ${conditions}` : ''}`;
+  }
+
+  /**
+   * Execute a custom 'UPDATE' query
+   * @param table {string} Name of the PS_TOKEN_ENABLE
+   * @param updates {string} SET part of the query
+   * @param conditions {?string} Conditions to add to the request
+   * @return {Promise<void>}
+   */
+  async executeCustomUpdateQuery(table: string, updates: string, conditions?: string): Promise<void> {
+    const query = this.createCustomUpdateQuery(table, updates, conditions);
     await this.executeQuery(query);
   }
 

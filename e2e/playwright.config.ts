@@ -10,7 +10,7 @@ export default defineConfig({
   /* Run tests in files in parallel */
   fullyParallel: true,
   /* Retry on CI only */
-  retries: process.env.CI ? 1 : 1,
+  retries: process.env.CI ? 0 : 0,
   /* Opt out of parallel tests on CI. */
   workers: process.env.CI ? 1 : 1,
   /* Reporter to use. See https://playwright.dev/docs/test-reporters */
@@ -39,7 +39,7 @@ export default defineConfig({
   use: {
     trace: 'on-first-retry',
     screenshot: 'only-on-failure',
-    headless: process.env.CI ? true : false,
+    headless: process.env.CI ? true : true,
     userAgent: process.env.QA_USER_AGENT || 'default-ua-dev-mode',
     launchOptions: {
       slowMo: process.env.CI ? 1000 : 0

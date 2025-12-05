@@ -29,7 +29,7 @@ export default class MultiStorePage extends BasePage {
     await this.page.locator('#name').fill('Shop2');
     await this.page.locator('#fieldset_0').getByRole('button', {name: 'Save'}).click();
     await this.page.locator('a.multishop_warning').click();
-    await this.page.locator('#virtual_uri').fill('shop2');
+    await this.page.locator('#virtual_uri').fill('shop1');
     await this.page.locator('#shop_url_form_submit_btn_1').click();
   }
 }

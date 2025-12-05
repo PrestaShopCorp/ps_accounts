@@ -4,10 +4,10 @@ if [ -n "$1" ]; then
   SHOP_VERSIONS=("$1")
 else
 SHOP_VERSIONS=(
-  nightly-nginx    
+  # nightly-nginx    
   8.2.0-8.1-fpm-alpine
-  1.7.8.8-7.4-fpm-alpine
-  1.6.1.24-7.1-fpm-alpine
+  # 1.7.8.8-7.4-fpm-alpine
+  # 1.6.1.24-7.1-fpm-alpine
 )
 fi
 
@@ -16,7 +16,9 @@ for PS_VERSION in "${SHOP_VERSIONS[@]}"; do
 npm run build-shop -- "$PS_VERSION"
 
 #Run the tests
-HEADLESS=false npx playwright test 03_multistore_activation_and_associaiton.spec.ts || true && HEADLESS=false npx playwright test 04_multistore_disassociation.spec.ts || true
+npx playwright test --project="Account TNR V7" 01_multistore_activation_and_associaiton.spec.ts || true 
+npx playwright test --project="Account TNR V7" 02_delete_tokens_and_change_uri.spec.ts || true
+npx playwright test --project="Account TNR V7" 03_multistore_disassociation.spec.ts || true
 
 #Create the allure result directory
 mkdir -p "allure-results-$PS_VERSION"

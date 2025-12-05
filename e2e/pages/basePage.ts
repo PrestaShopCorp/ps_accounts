@@ -102,6 +102,7 @@ export default class BasePage {
     } else {
       await this.openMenu(parentLocator);
       await linkLocator.click();
+      await this.page.waitForTimeout(3000)
       await this.page.waitForLoadState('domcontentloaded');
     }
   }
