@@ -400,7 +400,7 @@ class AccountsService
      *
      * @throws AccountsException
      */
-    public function updateBOUrl($cloudShopId, $shopToken, $shopUrl)
+    public function updateBackOfficeUrl($cloudShopId, $shopToken, $shopUrl)
     {
         $response = $this->getClient()->put(
             '/v1/shop-identities/' . $cloudShopId . '/back-office-url',

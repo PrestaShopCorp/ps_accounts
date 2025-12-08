@@ -74,7 +74,7 @@ class UpdateBackOfficeUrlHandlerTest extends TestCase
     /**
      * @test
      */
-    public function itShouldUpdateBOUrlWhenBackOfficeUrlChanged()
+    public function itShouldupdateBackOfficeUrlWhenBackOfficeUrlChanged()
     {
         $cloudShopId = $this->faker->uuid;
         $token = $this->faker->uuid;
@@ -117,7 +117,7 @@ class UpdateBackOfficeUrlHandlerTest extends TestCase
     /**
      * @test
      */
-    public function itShouldNotUpdateBOUrlWhenBackOfficeUrlNotChanged()
+    public function itShouldNotupdateBackOfficeUrlWhenBackOfficeUrlNotChanged()
     {
         $cloudShopId = $this->faker->uuid;
 
