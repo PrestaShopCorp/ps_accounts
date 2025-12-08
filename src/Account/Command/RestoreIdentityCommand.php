@@ -92,7 +92,7 @@ class RestoreIdentityCommand
         $this->verify = $verify;
         $this->migrate = $migrate;
         $this->migrateFrom = $migrateFrom;
-        $this->origin = AccountsService::ORIGIN_INSTALL;
+        $this->origin = AccountsService::ORIGIN_ADVANCED_SETTINGS;
         $this->source = 'ps_accounts';
     }
 }

@@ -412,7 +412,6 @@ class SettingsForm
             return $this->module->displayError($this->l('The form contains incorrect values')) .
                 $this->generateForm(false);
         } else {
-            $e = null;
             try {
                 $this->commandBus->handle(new RestoreIdentityCommand(
                     $cloudShopId,
@@ -420,15 +419,12 @@ class SettingsForm
                     $oAuth2ClientSecret,
                     $forceVerify,
                     $forceMigrate,
-                    $migrateFrom,
-                    AccountsService::ORIGIN_ADVANCED_SETTINGS,
-                    (string) $this->name
+                    $migrateFrom
                 ));
             } catch (Exception $e) {
+                return $this->module->displayError($this->l('An error occurred while restoring identity: ' . $e->getMessage())) .
+                    $this->generateForm(false);
             } catch (Throwable $e) {
-            }
-
-            if ($e) {
                 return $this->module->displayError($this->l('An error occurred while restoring identity: ' . $e->getMessage())) .
                     $this->generateForm(false);
             }
