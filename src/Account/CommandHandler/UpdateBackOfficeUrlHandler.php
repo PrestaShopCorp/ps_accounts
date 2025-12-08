@@ -20,7 +20,7 @@
 
 namespace PrestaShop\Module\PsAccounts\Account\CommandHandler;
 
-use PrestaShop\Module\PsAccounts\Account\Command\UpdateBOUrlCommand;
+use PrestaShop\Module\PsAccounts\Account\Command\UpdateBackOfficeUrlCommand;
 use PrestaShop\Module\PsAccounts\Account\Session\ShopSession;
 use PrestaShop\Module\PsAccounts\Account\ShopUrl;
 use PrestaShop\Module\PsAccounts\Account\StatusManager;
@@ -29,7 +29,7 @@ use PrestaShop\Module\PsAccounts\Cqrs\CommandBus;
 use PrestaShop\Module\PsAccounts\Provider\ShopProvider;
 use PrestaShop\Module\PsAccounts\Service\Accounts\AccountsService;
 
-class UpdateBOUrlHandler extends MultiShopHandler
+class UpdateBackOfficeUrlHandler extends MultiShopHandler
 {
     /**
      * @var AccountsService
@@ -75,11 +75,11 @@ class UpdateBOUrlHandler extends MultiShopHandler
     }
 
     /**
-     * @param UpdateBOUrlCommand $command
+     * @param UpdateBackOfficeUrlCommand $command
      *
      * @return void
      */
-    public function handle(UpdateBOUrlCommand $command)
+    public function handle(UpdateBackOfficeUrlCommand $command)
     {
         $shopId = $command->shopId ?: \Shop::getContextShopID();
 

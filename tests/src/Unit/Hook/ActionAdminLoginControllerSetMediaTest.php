@@ -2,7 +2,7 @@
 
 namespace PrestaShop\Module\PsAccounts\Tests\Unit\Hook;
 
-use PrestaShop\Module\PsAccounts\Account\Command\UpdateBOUrlsCommand;
+use PrestaShop\Module\PsAccounts\Account\Command\UpdateBackOfficeUrlsCommand;
 use PrestaShop\Module\PsAccounts\Hook\ActionAdminLoginControllerSetMedia;
 use PrestaShop\Module\PsAccounts\Tests\TestCase;
 
@@ -11,13 +11,13 @@ class ActionAdminLoginControllerSetMediaTest extends TestCase
     /**
      * @test
      */
-    public function itShouldCallUpdateBOUrlsCommand()
+    public function itShouldCallUpdateBackOfficeUrlsCommand()
     {
-        // Mock commandBus to verify it's called with UpdateBOUrlsCommand
+        // Mock commandBus to verify it's called with UpdateBackOfficeUrlsCommand
         $commandBusMock = $this->createMock(\PrestaShop\Module\PsAccounts\Cqrs\CommandBus::class);
         $commandBusMock->expects($this->once())
             ->method('handle')
-            ->with($this->isInstanceOf(UpdateBOUrlsCommand::class));
+            ->with($this->isInstanceOf(UpdateBackOfficeUrlsCommand::class));
 
         $hook = $this->createHookWithMocks($commandBusMock);
         $method = $this->getProtectedMethod($hook, 'checkAndUpdateUrlIfNeeded');

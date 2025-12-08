@@ -94,14 +94,13 @@ class ShopUrl
     /**
      * Check if the frontend URL has changed compared to the remote status
      *
-     * @param ShopStatus $status
      * @param ShopUrl $localShopUrl
      *
      * @return bool
      */
-    public static function frontendUrlChanged(ShopStatus $status, ShopUrl $localShopUrl)
+    public function frontendUrlChanged(ShopUrl $localShopUrl)
     {
-        $cloudFrontendUrl = rtrim($status->frontendUrl, '/');
+        $cloudFrontendUrl = rtrim($this->frontendUrl, '/');
         $localFrontendUrl = rtrim($localShopUrl->getFrontendUrl(), '/');
 
         return $cloudFrontendUrl !== $localFrontendUrl;

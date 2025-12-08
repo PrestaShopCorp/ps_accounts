@@ -3,8 +3,8 @@
 namespace PrestaShop\Module\PsAccounts\Tests\Unit\Account\CommandHandler;
 
 use PHPUnit\Framework\MockObject\MockObject;
-use PrestaShop\Module\PsAccounts\Account\Command\UpdateBOUrlCommand;
-use PrestaShop\Module\PsAccounts\Account\CommandHandler\UpdateBOUrlHandler;
+use PrestaShop\Module\PsAccounts\Account\Command\UpdateBackOfficeUrlCommand;
+use PrestaShop\Module\PsAccounts\Account\CommandHandler\UpdateBackOfficeUrlHandler;
 use PrestaShop\Module\PsAccounts\Account\Session\ShopSession;
 use PrestaShop\Module\PsAccounts\Account\ShopUrl;
 use PrestaShop\Module\PsAccounts\Account\StatusManager;
@@ -16,7 +16,7 @@ use PrestaShop\Module\PsAccounts\Service\Accounts\Resource\ShopStatus;
 use PrestaShop\Module\PsAccounts\Tests\TestCase;
 use PrestaShop\Module\PsAccounts\Context\ShopContext;
 
-class UpdateBOUrlHandlerTest extends TestCase
+class UpdateBackOfficeUrlHandlerTest extends TestCase
 {
     /**
      * @inject
@@ -111,7 +111,7 @@ class UpdateBOUrlHandlerTest extends TestCase
                 ], 200, true);
             });
 
-        $this->getHandler()->handle(new UpdateBOUrlCommand($this->shopId));
+        $this->getHandler()->handle(new UpdateBackOfficeUrlCommand($this->shopId));
     }
 
     /**
@@ -137,15 +137,15 @@ class UpdateBOUrlHandlerTest extends TestCase
 
         $this->client->expects($this->never())->method('put');
 
-        $this->getHandler()->handle(new UpdateBOUrlCommand($this->shopId));
+        $this->getHandler()->handle(new UpdateBackOfficeUrlCommand($this->shopId));
     }
 
     /**
-     * @return UpdateBOUrlHandler
+     * @return UpdateBackOfficeUrlHandler
      */
     private function getHandler()
     {
-        return new UpdateBOUrlHandler(
+        return new UpdateBackOfficeUrlHandler(
             $this->shopContext,
             $this->commandBus,
             $this->accountsService,

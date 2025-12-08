@@ -90,15 +90,15 @@ class VerifyIdentityHandler
      */
     public function handle(VerifyIdentityCommand $command)
     {
-        $status = $this->statusManager->getStatus(false, StatusManager::CACHE_TTL, $command->source);
-
         $shopId = $command->shopId ?: \Shop::getContextShopID();
+        $status = $this->statusManager->getStatus(false, StatusManager::CACHE_TTL, $command->source);
+        $distantShopUrl = ShopUrl::createFromStatus($status, $shopId);
 
         if (!$command->force && $status->isVerified) {
             return;
         }
 
-        if (!$command->force && ShopUrl::frontendUrlChanged($status, $this->shopProvider->getUrl($shopId))) {
+        if (!$command->force && $distantShopUrl->frontendUrlChanged($this->shopProvider->getUrl($shopId))) {
             return;
         }
 

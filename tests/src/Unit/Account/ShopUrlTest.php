@@ -23,8 +23,8 @@ class ShopUrlTest extends TestCase
             'https://different-example.com',
             1
         );
-
-        $this->assertTrue(ShopUrl::frontendUrlChanged($status, $localShopUrl));
+        $distantShopUrl = ShopUrl::createFromStatus($status, 1);
+        $this->assertTrue($distantShopUrl->frontendUrlChanged($localShopUrl));
     }
 
     /**
@@ -43,7 +43,8 @@ class ShopUrlTest extends TestCase
             1
         );
 
-        $this->assertFalse(ShopUrl::frontendUrlChanged($status, $localShopUrl));
+        $distantShopUrl = ShopUrl::createFromStatus($status, 1);
+        $this->assertFalse($distantShopUrl->frontendUrlChanged($localShopUrl));
     }
 
     /**
@@ -62,7 +63,8 @@ class ShopUrlTest extends TestCase
             1
         );
 
-        $this->assertFalse(ShopUrl::frontendUrlChanged($status, $localShopUrl));
+        $distantShopUrl = ShopUrl::createFromStatus($status, 1);
+        $this->assertFalse($distantShopUrl->frontendUrlChanged($localShopUrl));
     }
 
     /**
@@ -183,7 +185,7 @@ class ShopUrlTest extends TestCase
             1
         );
 
-        $this->assertFalse(ShopUrl::frontendUrlChanged($status, $localShopUrl));
+        $this->assertFalse($distantShopUrl->frontendUrlChanged($localShopUrl));
         $this->assertFalse($distantShopUrl->backOfficeUrlChanged($localShopUrl));
     }
 }

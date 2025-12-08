@@ -2,14 +2,14 @@
 
 namespace PrestaShop\Module\PsAccounts\Tests\Unit\Account\CommandHandler;
 
-use PrestaShop\Module\PsAccounts\Account\Command\UpdateBOUrlCommand;
-use PrestaShop\Module\PsAccounts\Account\Command\UpdateBOUrlsCommand;
-use PrestaShop\Module\PsAccounts\Account\CommandHandler\UpdateBOUrlsHandler;
+use PrestaShop\Module\PsAccounts\Account\Command\UpdateBackOfficeUrlCommand;
+use PrestaShop\Module\PsAccounts\Account\Command\UpdateBackOfficeUrlsCommand;
+use PrestaShop\Module\PsAccounts\Account\CommandHandler\UpdateBackOfficeUrlsHandler;
 use PrestaShop\Module\PsAccounts\Context\ShopContext;
 use PrestaShop\Module\PsAccounts\Cqrs\CommandBus;
 use PrestaShop\Module\PsAccounts\Tests\TestCase;
 
-class UpdateBOUrlsHandlerTest extends TestCase
+class UpdateBackOfficeUrlsHandlerTest extends TestCase
 {
     /**
      * @inject
@@ -21,7 +21,7 @@ class UpdateBOUrlsHandlerTest extends TestCase
     /**
      * @test
      */
-    public function itShouldCallUpdateBOUrlCommandForEachShop()
+    public function itShouldCallUpdateBackOfficeUrlCommandForEachShop()
     {
         $commandBusMock = $this->createMock(CommandBus::class);
 
@@ -32,15 +32,15 @@ class UpdateBOUrlsHandlerTest extends TestCase
         $commandBusMock->expects($this->exactly(count($shopIds)))
             ->method('handle')
             ->with($this->callback(function ($command) {
-                return $command instanceof UpdateBOUrlCommand;
+                return $command instanceof UpdateBackOfficeUrlCommand;
             }));
 
-        $handler = new UpdateBOUrlsHandler(
+        $handler = new UpdateBackOfficeUrlsHandler(
             $this->shopContext,
             $commandBusMock
         );
 
-        $handler->handle(new UpdateBOUrlsCommand());
+        $handler->handle(new UpdateBackOfficeUrlsCommand());
     }
 }
 

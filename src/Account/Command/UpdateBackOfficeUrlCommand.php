@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Copyright since 2007 PrestaShop SA and Contributors
  * PrestaShop is an International Registered Trademark & Property of PrestaShop SA
@@ -18,29 +19,20 @@
  * @license   https://opensource.org/licenses/AFL-3.0 Academic Free License version 3.0
  */
 
-namespace PrestaShop\Module\PsAccounts\Account\CommandHandler;
+namespace PrestaShop\Module\PsAccounts\Account\Command;
 
-use Exception;
-use PrestaShop\Module\PsAccounts\Account\Command\UpdateBOUrlCommand;
-use PrestaShop\Module\PsAccounts\Account\Command\UpdateBOUrlsCommand;
-use PrestaShop\Module\PsAccounts\Log\Logger;
-
-class UpdateBOUrlsHandler extends MultiShopHandler
+class UpdateBackOfficeUrlCommand
 {
     /**
-     * @param UpdateBOUrlsCommand $command
-     *
-     * @return void
+     * @var int
      */
-    public function handle(UpdateBOUrlsCommand $command)
+    public $shopId;
+
+    /**
+     * @param int $shopId
+     */
+    public function __construct($shopId)
     {
-        $this->handleMulti(function ($multiShopId) {
-            try {
-                $updateBOUrlCommand = new UpdateBOUrlCommand($multiShopId);
-                $this->commandBus->handle($updateBOUrlCommand);
-            } catch (Exception $e) {
-                Logger::getInstance()->error($e->getMessage());
-            }
-        });
+        $this->shopId = $shopId;
     }
 }

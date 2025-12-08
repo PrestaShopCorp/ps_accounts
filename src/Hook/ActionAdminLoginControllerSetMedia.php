@@ -22,7 +22,7 @@ namespace PrestaShop\Module\PsAccounts\Hook;
 
 use AdminLoginPsAccountsController;
 use Exception;
-use PrestaShop\Module\PsAccounts\Account\Command\UpdateBOUrlsCommand;
+use PrestaShop\Module\PsAccounts\Account\Command\UpdateBackOfficeUrlsCommand;
 use PrestaShop\Module\PsAccounts\Adapter\Link;
 use PrestaShop\Module\PsAccounts\Log\Logger;
 use PrestaShop\Module\PsAccounts\Service\AnalyticsService;
@@ -154,7 +154,7 @@ class ActionAdminLoginControllerSetMedia extends Hook
     protected function checkAndUpdateUrlIfNeeded()
     {
         try {
-            $this->commandBus->handle(new UpdateBOUrlsCommand());
+            $this->commandBus->handle(new UpdateBackOfficeUrlsCommand());
         } catch (Exception $e) {
             // Log error but don't block login
             Logger::getInstance()->error('[ActionAdminLoginControllerSetMedia] Error checking/updating URL: ' . $e->getMessage());
