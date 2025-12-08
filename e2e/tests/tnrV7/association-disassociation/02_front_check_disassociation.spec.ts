@@ -18,7 +18,7 @@ gotToModuleManagerPage('Check module disassociation', async ({gotToModuleManager
   });
   await test.step('check if unlinked in Shop', async () => {
     const isUnLinked = await pm.fromPopupAccountPage().checkIsLinked();
-    expect(isUnLinked).toBeHidden();
+    expect(isUnLinked).not.toBeVisible();
   });
   await test.step('check if unlinked in DB', async () => {
     const checkClientUuidValue = await dbRequest.getPsConfigurationData('PS_ACCOUNTS_USER_FIREBASE_UUID');
