@@ -156,6 +156,7 @@ class ActionAdminLoginControllerSetMedia extends Hook
         try {
             $this->commandBus->handle(new UpdateBackOfficeUrlsCommand());
         } catch (Exception $e) {
+        } catch (Throwable $e) {
             // Log error but don't block login
             Logger::getInstance()->error('[ActionAdminLoginControllerSetMedia] Error checking/updating URL: ' . $e->getMessage());
         }
