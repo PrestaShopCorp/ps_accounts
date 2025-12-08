@@ -36,8 +36,8 @@ class UpdateBackOfficeUrlsHandler extends MultiShopHandler
     {
         $this->handleMulti(function ($multiShopId) {
             try {
-                $UpdateBackOfficeUrlCommand = new UpdateBackOfficeUrlCommand($multiShopId);
-                $this->commandBus->handle($UpdateBackOfficeUrlCommand);
+                $updateBackOfficeUrlCommand = new UpdateBackOfficeUrlCommand($multiShopId);
+                $this->commandBus->handle($updateBackOfficeUrlCommand);
             } catch (Exception $e) {
                 Logger::getInstance()->error($e->getMessage());
             }
