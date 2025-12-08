@@ -21,6 +21,7 @@
 
 namespace PrestaShop\Module\PsAccounts\Account\CommandHandler;
 
+use InvalidArgumentException;
 use PrestaShop\Module\PsAccounts\Account\Command\CreateIdentityCommand;
 use PrestaShop\Module\PsAccounts\Account\Command\MigrateOrCreateIdentityV8Command;
 use PrestaShop\Module\PsAccounts\Account\Exception\RefreshTokenException;
@@ -113,7 +114,6 @@ class MigrateOrCreateIdentityV8Handler
      *
      * @return void
      *
-     * @throws OAuth2Exception
      * @throws AccountsException
      * @throws RefreshTokenException
      * @throws UnknownStatusException
@@ -142,7 +142,7 @@ class MigrateOrCreateIdentityV8Handler
 
             $identityCreated = $this->accountsService->migrateShopIdentity(
                 $shopUuid,
-                $this->getTokenV6OrV7($fromVersion, $shopUuid),
+                $this->getTokenV6OrV7($shopUuid),
                 $this->shopProvider->getUrl($shopId),
                 $this->shopProvider->getName($shopId),
                 $fromVersion,
@@ -194,6 +194,7 @@ class MigrateOrCreateIdentityV8Handler
      * @return string
      *
      * @throws AccountsException
+     * @throws InvalidArgumentException
      */
     private function getFirebaseTokenV6($shopUuid)
     {
@@ -204,23 +205,19 @@ class MigrateOrCreateIdentityV8Handler
     }
 
     /**
-     * @param string $fromVersion
      * @param string $shopUuid
      *
      * @return string
      *
      * @throws AccountsException
-     * @throws OAuth2Exception
      */
-    private function getTokenV6OrV7($fromVersion, $shopUuid)
+    private function getTokenV6OrV7($shopUuid)
     {
-        if (version_compare($fromVersion, '7', '>=')) {
-            $token = $this->getAccessTokenV7($shopUuid);
-        } else {
-            $token = $this->getFirebaseTokenV6($shopUuid);
+        try {
+            return $this->getAccessTokenV7($shopUuid);
+        } catch (OAuth2Exception $e) {
+            return $this->getFirebaseTokenV6($shopUuid);
         }
-
-        return $token;
     }
 
     /**
@@ -241,6 +238,10 @@ class MigrateOrCreateIdentityV8Handler
      * @param MigrateOrCreateIdentityV8Command $command
      *
      * @return void
+     *
+     * @throws RefreshTokenException
+     * @throws UnknownStatusException
+     * @throws AccountsException
      */
     private function createOrVerifyIdentity(MigrateOrCreateIdentityV8Command $command)
     {
