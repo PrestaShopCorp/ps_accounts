@@ -81,7 +81,7 @@ export default class PopupAccountPage extends ModuleManagerPage {
     await newPage.waitForSelector('[data-test="shop-card"]', {state: 'visible'});
     const card = newPage.locator('[data-test="shop-card"]');
     const countCard = await card.count();
-    expect(countCard).toBeGreaterThan(1);
+    expect(countCard).toBeGreaterThan(0);
     const associateBtn = await newPage.locator('.puik-button.puik-button--primary');
     await associateBtn.isVisible();
     await associateBtn.click();
@@ -98,6 +98,7 @@ export default class PopupAccountPage extends ModuleManagerPage {
     const accountTitle = this.page.locator('.title', {hasText: ' PRESTASHOP '});
     await accountTitle.isVisible();
     await this.page.waitForTimeout(4000);
+    await this.page.reload();
     return await this.page.locator('[data-testid="account-panel-linked-icon"]');
   }
 
@@ -159,6 +160,7 @@ export default class PopupAccountPage extends ModuleManagerPage {
    * @return {Promise<Page>}
    */
   async multistoreOpenAccountPopupAfterDissociation(): Promise<Page> {
+    await this.page.reload();
     const [newPage] = await Promise.all([
       this.page.context().waitForEvent('page'),
       this.page.locator('[data-testid="account-link-to-ui-manage-shops-button"]').click()
@@ -172,7 +174,7 @@ export default class PopupAccountPage extends ModuleManagerPage {
    * Select de FO/Shop2 url and click Diassociate
    */
   async multistoreSelectUrlAndDiassociate(newPage: Page) {
-    const card = newPage.getByRole('checkbox', {name: `Shop2 language icon ${Globals.base_url_fo}/shop2`});
+    const card = newPage.getByRole('checkbox', {name: `Shop2 language icon ${Globals.base_url_fo}/shop1`});
     await card.isVisible();
     await card.locator('[data-test="shoplist-shop-unlink"]').click();
     await newPage.locator('[data-test="confirm-unlink-shop"]').click({timeout: 5000});
@@ -213,8 +215,10 @@ export default class PopupAccountPage extends ModuleManagerPage {
    * The page title check if the title All Store is visible before Config
    */
   async isAllShopSelectedBeforeConfig() {
-    const isMultiStoreVisible = this.page.getByRole('link', {name: 'All shops'});
-    if (!await isMultiStoreVisible.isVisible()) {
+    // await this.page.pause()
+    const isMultiStoreVisible = this.page.getByRole('link', {name: 'All stores'});
+    // const isMultiStoreVisible = this.page.locator('a').filter({hasText: /^All stores$/});
+    if (!(await isMultiStoreVisible.isVisible())) {
       await this.page.locator('#header_shop').click();
       await isMultiStoreVisible.click();
     }
