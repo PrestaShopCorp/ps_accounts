@@ -92,7 +92,6 @@ class RestoreIdentityHandler
         $registeredVersion = $this->upgradeService->getRegisteredVersion();
         $shopId = $command->shopId ?: \Shop::getContextShopID();
 
-        $e = null;
         try {
             // Update OAuth client
             $this->oAuth2Client->update(
@@ -129,10 +128,8 @@ class RestoreIdentityHandler
             }
             //$this->statusManager->invalidateCache();
         } catch (Exception $e) {
+            $this->handleError($currentStatus, $registeredVersion, $e);
         } catch (Throwable $e) {
-        }
-
-        if ($e) {
             $this->handleError($currentStatus, $registeredVersion, $e);
         }
     }
