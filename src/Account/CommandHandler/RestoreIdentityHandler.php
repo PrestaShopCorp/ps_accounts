@@ -90,14 +90,17 @@ class RestoreIdentityHandler
         }
 
         $registeredVersion = $this->upgradeService->getRegisteredVersion();
+        $shopId = $command->shopId ?: \Shop::getContextShopID();
+
         $e = null;
         try {
-            $shopId = $command->shopId ?: \Shop::getContextShopID();
-
+            // Update OAuth client
             $this->oAuth2Client->update(
                 $command->clientId,
                 $command->clientSecret ?: $this->oAuth2Client->getClientSecret()
             );
+
+            // Update cloudShopId
             $this->statusManager->setCloudShopId($command->cloudShopId);
 
             // Fix version number when not set
@@ -108,7 +111,6 @@ class RestoreIdentityHandler
                 $this->upgradeService->setVersion($command->migrateFrom);
 
                 $this->commandBus->handle(new MigrateOrCreateIdentityV8Command(
-                    // FIXME: $cloudShopId (should not be necessary to read it from db)
                     $shopId,
                     $command->origin,
                     $command->source
@@ -146,6 +148,7 @@ class RestoreIdentityHandler
      */
     private function handleError(ShopStatus $currentStatus, $registeredVersion, $e)
     {
+        // Restore shop status and module version
         $this->statusManager->restoreStatus($currentStatus);
         $this->upgradeService->setVersion($registeredVersion);
 
