@@ -10,7 +10,6 @@ use PrestaShop\Module\PsAccounts\Account\Command\CleanupIdentityCommand;
 use PrestaShop\Module\PsAccounts\Account\Command\RestoreIdentityCommand;
 use PrestaShop\Module\PsAccounts\Cqrs\CommandBus;
 use PrestaShop\Module\PsAccounts\Repository\ConfigurationRepository;
-use PrestaShop\Module\PsAccounts\Service\Accounts\AccountsService;
 use PrestaShop\Module\PsAccounts\Service\OAuth2\Token\Validator\Validator;
 use Ps_accounts;
 use Throwable;
