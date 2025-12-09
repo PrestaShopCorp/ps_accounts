@@ -259,7 +259,7 @@ class AdminAjaxPsAccountsController extends \ModuleAdminController
 
         /** @var ShopProvider $shopProvider */
         $shopProvider = $this->module->getService(ShopProvider::class);
-        $shopUrl = $shopProvider->getUrl($shopId);
+        $localShopUrl = $shopProvider->getUrl($shopId);
 
         if (!$distantShopUrl->frontendUrlNotEquals($shopUrl)) {
             return [];
