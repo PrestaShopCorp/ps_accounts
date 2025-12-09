@@ -23,8 +23,8 @@ class ShopUrlTest extends TestCase
             'https://different-example.com',
             1
         );
-        $distantShopUrl = ShopUrl::createFromStatus($status, 1);
-        $this->assertTrue($distantShopUrl->frontendUrlNotEquals($localShopUrl));
+        $cloudShopUrl = ShopUrl::createFromStatus($status, 1);
+        $this->assertTrue($cloudShopUrl->frontendUrlNotEquals($localShopUrl));
     }
 
     /**
@@ -43,8 +43,8 @@ class ShopUrlTest extends TestCase
             1
         );
 
-        $distantShopUrl = ShopUrl::createFromStatus($status, 1);
-        $this->assertFalse($distantShopUrl->frontendUrlNotEquals($localShopUrl));
+        $cloudShopUrl = ShopUrl::createFromStatus($status, 1);
+        $this->assertFalse($cloudShopUrl->frontendUrlNotEquals($localShopUrl));
     }
 
     /**
@@ -63,8 +63,8 @@ class ShopUrlTest extends TestCase
             1
         );
 
-        $distantShopUrl = ShopUrl::createFromStatus($status, 1);
-        $this->assertFalse($distantShopUrl->frontendUrlNotEquals($localShopUrl));
+        $cloudShopUrl = ShopUrl::createFromStatus($status, 1);
+        $this->assertFalse($cloudShopUrl->frontendUrlNotEquals($localShopUrl));
     }
 
     /**
@@ -77,14 +77,14 @@ class ShopUrlTest extends TestCase
             'backOfficeUrl' => 'https://admin.example.com',
         ]);
 
-        $distantShopUrl = ShopUrl::createFromStatus($status, 1);
+        $cloudShopUrl = ShopUrl::createFromStatus($status, 1);
         $localShopUrl = new ShopUrl(
             'https://different-admin.example.com',
             'https://example.com',
             1
         );
 
-        $this->assertTrue($distantShopUrl->backOfficeUrlNotEquals($localShopUrl));
+        $this->assertTrue($cloudShopUrl->backOfficeUrlNotEquals($localShopUrl));
     }
 
     /**
@@ -97,7 +97,7 @@ class ShopUrlTest extends TestCase
             'backOfficeUrl' => 'https://admin.example.com',
         ]);
 
-        $distantShopUrl = ShopUrl::createFromStatus($status, 1);
+        $cloudShopUrl = ShopUrl::createFromStatus($status, 1);
         $localShopUrl = new ShopUrl(
             'https://different-admin.example.com',
             'https://different-example.com',
@@ -105,7 +105,7 @@ class ShopUrlTest extends TestCase
         );
 
         // backOfficeUrlNotEquals only checks if BO URL changed, not if frontend also changed
-        $this->assertTrue($distantShopUrl->backOfficeUrlNotEquals($localShopUrl));
+        $this->assertTrue($cloudShopUrl->backOfficeUrlNotEquals($localShopUrl));
     }
 
     /**
@@ -118,14 +118,14 @@ class ShopUrlTest extends TestCase
             'backOfficeUrl' => 'https://admin.example.com',
         ]);
 
-        $distantShopUrl = ShopUrl::createFromStatus($status, 1);
+        $cloudShopUrl = ShopUrl::createFromStatus($status, 1);
         $localShopUrl = new ShopUrl(
             'https://admin.example.com',
             'https://example.com',
             1
         );
 
-        $this->assertFalse($distantShopUrl->backOfficeUrlNotEquals($localShopUrl));
+        $this->assertFalse($cloudShopUrl->backOfficeUrlNotEquals($localShopUrl));
     }
 
     /**
@@ -138,14 +138,14 @@ class ShopUrlTest extends TestCase
             'backOfficeUrl' => 'https://admin.example.com/',
         ]);
 
-        $distantShopUrl = ShopUrl::createFromStatus($status, 1);
+        $cloudShopUrl = ShopUrl::createFromStatus($status, 1);
         $localShopUrl = new ShopUrl(
             'https://admin.example.com',
             'https://example.com',
             1
         );
 
-        $this->assertFalse($distantShopUrl->backOfficeUrlNotEquals($localShopUrl));
+        $this->assertFalse($cloudShopUrl->backOfficeUrlNotEquals($localShopUrl));
     }
 
     /**
@@ -158,14 +158,14 @@ class ShopUrlTest extends TestCase
             'backOfficeUrl' => 'https://admin.example.com',
         ]);
 
-        $distantShopUrl = ShopUrl::createFromStatus($status, 1);
+        $cloudShopUrl = ShopUrl::createFromStatus($status, 1);
         $localShopUrl = new ShopUrl(
             'https://different-admin.example.com',
             'https://example.com',
             1
         );
 
-        $this->assertTrue($distantShopUrl->backOfficeUrlNotEquals($localShopUrl));
+        $this->assertTrue($cloudShopUrl->backOfficeUrlNotEquals($localShopUrl));
     }
 
     /**
@@ -178,15 +178,15 @@ class ShopUrlTest extends TestCase
             'backOfficeUrl' => 'https://admin.example.com',
         ]);
 
-        $distantShopUrl = ShopUrl::createFromStatus($status, 1);
+        $cloudShopUrl = ShopUrl::createFromStatus($status, 1);
         $localShopUrl = new ShopUrl(
             'https://admin.example.com',
             'https://example.com',
             1
         );
 
-        $this->assertFalse($distantShopUrl->frontendUrlNotEquals($localShopUrl));
-        $this->assertFalse($distantShopUrl->backOfficeUrlNotEquals($localShopUrl));
+        $this->assertFalse($cloudShopUrl->frontendUrlNotEquals($localShopUrl));
+        $this->assertFalse($cloudShopUrl->backOfficeUrlNotEquals($localShopUrl));
     }
 }
 

@@ -85,11 +85,11 @@ class UpdateBackOfficeUrlHandler extends MultiShopHandler
 
         $status = $this->statusManager->getStatus(false, StatusManager::CACHE_TTL, 'ps_accounts');
 
-        $distantShopUrl = ShopUrl::createFromStatus($status, $shopId);
+        $cloudShopUrl = ShopUrl::createFromStatus($status, $shopId);
 
         $localShopUrl = $this->shopProvider->getUrl($shopId);
 
-        if ($distantShopUrl->backOfficeUrlNotEquals($localShopUrl)) {
+        if ($cloudShopUrl->backOfficeUrlNotEquals($localShopUrl)) {
             $this->accountsService->updateBackOfficeUrl($status->cloudShopId, $this->shopSession->getValidToken(), $localShopUrl);
         }
     }

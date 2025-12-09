@@ -255,17 +255,17 @@ class AdminAjaxPsAccountsController extends \ModuleAdminController
         $status = $statusManager->getStatus();
 
         $shopId = $this->context->shop->id;
-        $distantShopUrl = ShopUrl::createFromStatus($status, $shopId);
+        $cloudShopUrl = ShopUrl::createFromStatus($status, $shopId);
 
         /** @var ShopProvider $shopProvider */
         $shopProvider = $this->module->getService(ShopProvider::class);
         $localShopUrl = $shopProvider->getUrl($shopId);
 
-        if (!$distantShopUrl->frontendUrlNotEquals($shopUrl)) {
+        if (!$cloudShopUrl->frontendUrlNotEquals($localShopUrl)) {
             return [];
         }
         $cloudFrontendUrl = rtrim($status->frontendUrl, '/');
-        $localFrontendUrl = rtrim($shopUrl->getFrontendUrl(), '/');
+        $localFrontendUrl = rtrim($localShopUrl->getFrontendUrl(), '/');
 
         if (empty($localFrontendUrl) || empty($cloudFrontendUrl)) {
             return [];

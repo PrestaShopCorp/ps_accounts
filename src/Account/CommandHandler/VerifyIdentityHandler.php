@@ -92,13 +92,13 @@ class VerifyIdentityHandler
     {
         $shopId = $command->shopId ?: \Shop::getContextShopID();
         $status = $this->statusManager->getStatus(false, StatusManager::CACHE_TTL, $command->source);
-        $distantShopUrl = ShopUrl::createFromStatus($status, $shopId);
+        $cloudShopUrl = ShopUrl::createFromStatus($status, $shopId);
 
         if (!$command->force && $status->isVerified) {
             return;
         }
 
-        if (!$command->force && $distantShopUrl->frontendUrlNotEquals($this->shopProvider->getUrl($shopId))) {
+        if (!$command->force && $cloudShopUrl->frontendUrlNotEquals($this->shopProvider->getUrl($shopId))) {
             return;
         }
 
