@@ -98,7 +98,7 @@ class ShopUrl
      *
      * @return bool
      */
-    public function frontendUrlChanged(ShopUrl $localShopUrl)
+    public function frontendUrlNotEquals(ShopUrl $localShopUrl)
     {
         $cloudFrontendUrl = rtrim($this->frontendUrl, '/');
         $localFrontendUrl = rtrim($localShopUrl->getFrontendUrl(), '/');
@@ -114,7 +114,7 @@ class ShopUrl
      *
      * @return bool
      */
-    public function backOfficeUrlChanged(ShopUrl $localShopUrl)
+    public function backOfficeUrlNotEquals(ShopUrl $localShopUrl)
     {
         $cloudBackOfficeUrl = rtrim($this->getBackOfficeUrl(), '/');
         $localBackOfficeUrl = rtrim($localShopUrl->getBackOfficeUrl(), '/');

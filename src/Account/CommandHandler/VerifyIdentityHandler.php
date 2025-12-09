@@ -98,7 +98,7 @@ class VerifyIdentityHandler
             return;
         }
 
-        if (!$command->force && $distantShopUrl->frontendUrlChanged($this->shopProvider->getUrl($shopId))) {
+        if (!$command->force && $distantShopUrl->frontendUrlNotEquals($this->shopProvider->getUrl($shopId))) {
             return;
         }
 

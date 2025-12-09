@@ -24,7 +24,7 @@ class ShopUrlTest extends TestCase
             1
         );
         $distantShopUrl = ShopUrl::createFromStatus($status, 1);
-        $this->assertTrue($distantShopUrl->frontendUrlChanged($localShopUrl));
+        $this->assertTrue($distantShopUrl->frontendUrlNotEquals($localShopUrl));
     }
 
     /**
@@ -44,7 +44,7 @@ class ShopUrlTest extends TestCase
         );
 
         $distantShopUrl = ShopUrl::createFromStatus($status, 1);
-        $this->assertFalse($distantShopUrl->frontendUrlChanged($localShopUrl));
+        $this->assertFalse($distantShopUrl->frontendUrlNotEquals($localShopUrl));
     }
 
     /**
@@ -64,7 +64,7 @@ class ShopUrlTest extends TestCase
         );
 
         $distantShopUrl = ShopUrl::createFromStatus($status, 1);
-        $this->assertFalse($distantShopUrl->frontendUrlChanged($localShopUrl));
+        $this->assertFalse($distantShopUrl->frontendUrlNotEquals($localShopUrl));
     }
 
     /**
@@ -84,7 +84,7 @@ class ShopUrlTest extends TestCase
             1
         );
 
-        $this->assertTrue($distantShopUrl->backOfficeUrlChanged($localShopUrl));
+        $this->assertTrue($distantShopUrl->backOfficeUrlNotEquals($localShopUrl));
     }
 
     /**
@@ -104,8 +104,8 @@ class ShopUrlTest extends TestCase
             1
         );
 
-        // backOfficeUrlChanged only checks if BO URL changed, not if frontend also changed
-        $this->assertTrue($distantShopUrl->backOfficeUrlChanged($localShopUrl));
+        // backOfficeUrlNotEquals only checks if BO URL changed, not if frontend also changed
+        $this->assertTrue($distantShopUrl->backOfficeUrlNotEquals($localShopUrl));
     }
 
     /**
@@ -125,7 +125,7 @@ class ShopUrlTest extends TestCase
             1
         );
 
-        $this->assertFalse($distantShopUrl->backOfficeUrlChanged($localShopUrl));
+        $this->assertFalse($distantShopUrl->backOfficeUrlNotEquals($localShopUrl));
     }
 
     /**
@@ -145,7 +145,7 @@ class ShopUrlTest extends TestCase
             1
         );
 
-        $this->assertFalse($distantShopUrl->backOfficeUrlChanged($localShopUrl));
+        $this->assertFalse($distantShopUrl->backOfficeUrlNotEquals($localShopUrl));
     }
 
     /**
@@ -165,7 +165,7 @@ class ShopUrlTest extends TestCase
             1
         );
 
-        $this->assertTrue($distantShopUrl->backOfficeUrlChanged($localShopUrl));
+        $this->assertTrue($distantShopUrl->backOfficeUrlNotEquals($localShopUrl));
     }
 
     /**
@@ -185,8 +185,8 @@ class ShopUrlTest extends TestCase
             1
         );
 
-        $this->assertFalse($distantShopUrl->frontendUrlChanged($localShopUrl));
-        $this->assertFalse($distantShopUrl->backOfficeUrlChanged($localShopUrl));
+        $this->assertFalse($distantShopUrl->frontendUrlNotEquals($localShopUrl));
+        $this->assertFalse($distantShopUrl->backOfficeUrlNotEquals($localShopUrl));
     }
 }
 
