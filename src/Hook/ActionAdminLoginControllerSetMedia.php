@@ -22,9 +22,12 @@ namespace PrestaShop\Module\PsAccounts\Hook;
 
 use AdminLoginPsAccountsController;
 use Exception;
+use PrestaShop\Module\PsAccounts\Account\Command\UpdateBackOfficeUrlsCommand;
 use PrestaShop\Module\PsAccounts\Adapter\Link;
+use PrestaShop\Module\PsAccounts\Log\Logger;
 use PrestaShop\Module\PsAccounts\Service\AnalyticsService;
 use PrestaShop\Module\PsAccounts\Service\PsAccountsService;
+use Throwable;
 use Tools;
 
 class ActionAdminLoginControllerSetMedia extends Hook
@@ -36,6 +39,10 @@ class ActionAdminLoginControllerSetMedia extends Hook
      */
     public function execute(array $params = [])
     {
+        // Check and update URL if admin url changed (before login)
+        // Only check before login form is being submitted
+        $this->checkAndUpdateUrlIfNeeded();
+
         if (defined('_PS_VERSION_') &&
             version_compare(_PS_VERSION_, '8', '>=')) {
             if (version_compare(_PS_VERSION_, '9', '<')) {
@@ -137,6 +144,24 @@ class ActionAdminLoginControllerSetMedia extends Hook
             } else {
                 $analytics->pageLocalBoLogin($userId);
             }
+        }
+    }
+
+    /**
+     * Check if admin URL changed and update if needed
+     *
+     * @return void
+     */
+    protected function checkAndUpdateUrlIfNeeded()
+    {
+        try {
+            $this->commandBus->handle(new UpdateBackOfficeUrlsCommand());
+        } catch (Exception $e) {
+            // Log error but don't block login
+            Logger::getInstance()->error('[ActionAdminLoginControllerSetMedia] Error checking/updating URL: ' . $e->getMessage());
+        } catch (Throwable $e) {
+            // Log error but don't block login
+            Logger::getInstance()->error('[ActionAdminLoginControllerSetMedia] Error checking/updating URL: ' . $e->getMessage());
         }
     }
 }
