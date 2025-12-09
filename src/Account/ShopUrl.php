@@ -98,12 +98,12 @@ class ShopUrl
      *
      * @return bool
      */
-    public function frontendUrlNotEquals(ShopUrl $localShopUrl)
+    public function frontendUrlEquals(ShopUrl $localShopUrl)
     {
         $cloudFrontendUrl = rtrim($this->frontendUrl, '/');
         $localFrontendUrl = rtrim($localShopUrl->getFrontendUrl(), '/');
 
-        return $cloudFrontendUrl !== $localFrontendUrl;
+        return $cloudFrontendUrl === $localFrontendUrl;
     }
 
     /**
@@ -114,12 +114,12 @@ class ShopUrl
      *
      * @return bool
      */
-    public function backOfficeUrlNotEquals(ShopUrl $localShopUrl)
+    public function backOfficeUrlEquals(ShopUrl $localShopUrl)
     {
         $cloudBackOfficeUrl = rtrim($this->getBackOfficeUrl(), '/');
         $localBackOfficeUrl = rtrim($localShopUrl->getBackOfficeUrl(), '/');
 
-        return $cloudBackOfficeUrl !== $localBackOfficeUrl;
+        return $cloudBackOfficeUrl === $localBackOfficeUrl;
     }
 
     /**

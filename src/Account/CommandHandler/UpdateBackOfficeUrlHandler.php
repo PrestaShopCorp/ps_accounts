@@ -89,7 +89,7 @@ class UpdateBackOfficeUrlHandler extends MultiShopHandler
 
         $localShopUrl = $this->shopProvider->getUrl($shopId);
 
-        if ($cloudShopUrl->backOfficeUrlNotEquals($localShopUrl)) {
+        if (!$cloudShopUrl->backOfficeUrlEquals($localShopUrl)) {
             $this->accountsService->updateBackOfficeUrl($status->cloudShopId, $this->shopSession->getValidToken(), $localShopUrl);
         }
     }

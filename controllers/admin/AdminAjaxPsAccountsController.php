@@ -264,7 +264,10 @@ class AdminAjaxPsAccountsController extends \ModuleAdminController
         $cloudFrontendUrl = rtrim($status->frontendUrl, '/');
         $localFrontendUrl = rtrim($localShopUrl->getFrontendUrl(), '/');
 
-        if (!$cloudShopUrl->frontendUrlNotEquals($localShopUrl) || empty($localFrontendUrl) || empty($cloudFrontendUrl)) {
+        if ($cloudShopUrl->frontendUrlEquals($localShopUrl) ||
+            empty($localFrontendUrl) ||
+            empty($cloudFrontendUrl)
+        ) {
             return [];
         }
 

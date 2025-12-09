@@ -24,7 +24,7 @@ class ShopUrlTest extends TestCase
             1
         );
         $cloudShopUrl = ShopUrl::createFromStatus($status, 1);
-        $this->assertTrue($cloudShopUrl->frontendUrlNotEquals($localShopUrl));
+        $this->assertFalse($cloudShopUrl->frontendUrlEquals($localShopUrl));
     }
 
     /**
@@ -44,7 +44,7 @@ class ShopUrlTest extends TestCase
         );
 
         $cloudShopUrl = ShopUrl::createFromStatus($status, 1);
-        $this->assertFalse($cloudShopUrl->frontendUrlNotEquals($localShopUrl));
+        $this->assertTrue($cloudShopUrl->frontendUrlEquals($localShopUrl));
     }
 
     /**
@@ -64,7 +64,7 @@ class ShopUrlTest extends TestCase
         );
 
         $cloudShopUrl = ShopUrl::createFromStatus($status, 1);
-        $this->assertFalse($cloudShopUrl->frontendUrlNotEquals($localShopUrl));
+        $this->assertTrue($cloudShopUrl->frontendUrlEquals($localShopUrl));
     }
 
     /**
@@ -84,7 +84,7 @@ class ShopUrlTest extends TestCase
             1
         );
 
-        $this->assertTrue($cloudShopUrl->backOfficeUrlNotEquals($localShopUrl));
+        $this->assertFalse($cloudShopUrl->backOfficeUrlEquals($localShopUrl));
     }
 
     /**
@@ -104,8 +104,8 @@ class ShopUrlTest extends TestCase
             1
         );
 
-        // backOfficeUrlNotEquals only checks if BO URL changed, not if frontend also changed
-        $this->assertTrue($cloudShopUrl->backOfficeUrlNotEquals($localShopUrl));
+        // backOfficeUrlEquals returns false if BO URL changed, not if frontend also changed
+        $this->assertFalse($cloudShopUrl->backOfficeUrlEquals($localShopUrl));
     }
 
     /**
@@ -125,7 +125,7 @@ class ShopUrlTest extends TestCase
             1
         );
 
-        $this->assertFalse($cloudShopUrl->backOfficeUrlNotEquals($localShopUrl));
+        $this->assertTrue($cloudShopUrl->backOfficeUrlEquals($localShopUrl));
     }
 
     /**
@@ -145,7 +145,7 @@ class ShopUrlTest extends TestCase
             1
         );
 
-        $this->assertFalse($cloudShopUrl->backOfficeUrlNotEquals($localShopUrl));
+        $this->assertTrue($cloudShopUrl->backOfficeUrlEquals($localShopUrl));
     }
 
     /**
@@ -165,7 +165,7 @@ class ShopUrlTest extends TestCase
             1
         );
 
-        $this->assertTrue($cloudShopUrl->backOfficeUrlNotEquals($localShopUrl));
+        $this->assertFalse($cloudShopUrl->backOfficeUrlEquals($localShopUrl));
     }
 
     /**
@@ -185,8 +185,8 @@ class ShopUrlTest extends TestCase
             1
         );
 
-        $this->assertFalse($cloudShopUrl->frontendUrlNotEquals($localShopUrl));
-        $this->assertFalse($cloudShopUrl->backOfficeUrlNotEquals($localShopUrl));
+        $this->assertTrue($cloudShopUrl->frontendUrlEquals($localShopUrl));
+        $this->assertTrue($cloudShopUrl->backOfficeUrlEquals($localShopUrl));
     }
 }
 
