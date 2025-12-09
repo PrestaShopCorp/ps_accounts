@@ -20,18 +20,16 @@
 
 namespace PrestaShop\Module\PsAccounts\Account\CommandHandler;
 
-use PrestaShop\Module\PsAccounts\Account\Command\VerifyIdentityCommand;
-use PrestaShop\Module\PsAccounts\Account\Exception\RefreshTokenException;
-use PrestaShop\Module\PsAccounts\Account\Exception\UnknownStatusException;
-use PrestaShop\Module\PsAccounts\Account\ProofManager;
+use PrestaShop\Module\PsAccounts\Account\Command\UpdateBackOfficeUrlCommand;
 use PrestaShop\Module\PsAccounts\Account\Session\ShopSession;
 use PrestaShop\Module\PsAccounts\Account\ShopUrl;
 use PrestaShop\Module\PsAccounts\Account\StatusManager;
+use PrestaShop\Module\PsAccounts\Context\ShopContext;
+use PrestaShop\Module\PsAccounts\Cqrs\CommandBus;
 use PrestaShop\Module\PsAccounts\Provider\ShopProvider;
-use PrestaShop\Module\PsAccounts\Service\Accounts\AccountsException;
 use PrestaShop\Module\PsAccounts\Service\Accounts\AccountsService;
 
-class VerifyIdentityHandler
+class UpdateBackOfficeUrlHandler extends MultiShopHandler
 {
     /**
      * @var AccountsService
@@ -54,63 +52,45 @@ class VerifyIdentityHandler
     private $shopSession;
 
     /**
-     * @var ProofManager
-     */
-    private $proofManager;
-
-    /**
+     * @param ShopContext $shopContext
+     * @param CommandBus $commandBus
      * @param AccountsService $accountsService
-     * @param ShopProvider $shopProvider
      * @param StatusManager $statusManager
+     * @param ShopProvider $shopProvider
      * @param ShopSession $shopSession
-     * @param ProofManager $proofManager
      */
     public function __construct(
+        ShopContext $shopContext,
+        CommandBus $commandBus,
         AccountsService $accountsService,
-        ShopProvider $shopProvider,
         StatusManager $statusManager,
-        ShopSession $shopSession,
-        ProofManager $proofManager
+        ShopProvider $shopProvider,
+        ShopSession $shopSession
     ) {
+        parent::__construct($shopContext, $commandBus);
         $this->accountsService = $accountsService;
-        $this->shopProvider = $shopProvider;
         $this->statusManager = $statusManager;
+        $this->shopProvider = $shopProvider;
         $this->shopSession = $shopSession;
-        $this->proofManager = $proofManager;
     }
 
     /**
-     * @param VerifyIdentityCommand $command
+     * @param UpdateBackOfficeUrlCommand $command
      *
      * @return void
-     *
-     * @throws RefreshTokenException
-     * @throws UnknownStatusException
-     * @throws AccountsException
      */
-    public function handle(VerifyIdentityCommand $command)
+    public function handle(UpdateBackOfficeUrlCommand $command)
     {
         $shopId = $command->shopId ?: \Shop::getContextShopID();
-        $status = $this->statusManager->getStatus(false, StatusManager::CACHE_TTL, $command->source);
+
+        $status = $this->statusManager->getStatus(false, StatusManager::CACHE_TTL, 'ps_accounts');
+
         $cloudShopUrl = ShopUrl::createFromStatus($status, $shopId);
 
-        if (!$command->force && $status->isVerified) {
-            return;
-        }
+        $localShopUrl = $this->shopProvider->getUrl($shopId);
 
-        if (!$command->force && !$cloudShopUrl->frontendUrlEquals($this->shopProvider->getUrl($shopId))) {
-            return;
+        if (!$cloudShopUrl->backOfficeUrlEquals($localShopUrl)) {
+            $this->accountsService->updateBackOfficeUrl($status->cloudShopId, $this->shopSession->getValidToken(), $localShopUrl);
         }
-
-        $this->accountsService->verifyShopIdentity(
-            $this->statusManager->getCloudShopId(),
-            $this->shopSession->getValidToken(),
-            $this->shopProvider->getUrl($shopId),
-            $this->shopProvider->getName($shopId),
-            $this->proofManager->generateProof(),
-            $command->origin,
-            $command->source
-        );
-        $this->statusManager->invalidateCache();
     }
 }

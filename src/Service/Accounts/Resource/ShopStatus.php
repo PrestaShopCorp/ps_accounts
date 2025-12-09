@@ -80,6 +80,8 @@ class ShopStatus extends Resource
      */
     public $unverifiedAt;
 
+    //TODO: Add multipleShopId from the cloud
+
     public function __construct($values = [])
     {
         $this->castDateTime($values, [

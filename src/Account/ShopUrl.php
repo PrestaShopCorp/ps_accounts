@@ -20,6 +20,8 @@
 
 namespace PrestaShop\Module\PsAccounts\Account;
 
+use PrestaShop\Module\PsAccounts\Service\Accounts\Resource\ShopStatus;
+
 class ShopUrl
 {
     /**
@@ -66,18 +68,6 @@ class ShopUrl
     }
 
     /**
-     * @param ShopUrl $shopUrl
-     *
-     * @return bool
-     */
-    public function equals(ShopUrl $shopUrl)
-    {
-        return $this->backOfficeUrl === $shopUrl->backOfficeUrl
-            && $this->frontendUrl === $shopUrl->frontendUrl
-            && $this->multiShopId === $shopUrl->multiShopId;
-    }
-
-    /**
      * @return string
      */
     public function getBackOfficeUrl()
@@ -99,5 +89,49 @@ class ShopUrl
     public function getMultiShopId()
     {
         return $this->multiShopId;
+    }
+
+    /**
+     * Check if the frontend URL has changed compared to the remote status
+     *
+     * @param ShopUrl $localShopUrl
+     *
+     * @return bool
+     */
+    public function frontendUrlEquals(ShopUrl $localShopUrl)
+    {
+        $cloudFrontendUrl = rtrim($this->frontendUrl, '/');
+        $localFrontendUrl = rtrim($localShopUrl->getFrontendUrl(), '/');
+
+        return $cloudFrontendUrl === $localFrontendUrl;
+    }
+
+    /**
+     * Check if the backOffice URL has changed compared to the remote status
+     * Returns true if backOfficeUrl changed
+     *
+     * @param ShopUrl $localShopUrl
+     *
+     * @return bool
+     */
+    public function backOfficeUrlEquals(ShopUrl $localShopUrl)
+    {
+        $cloudBackOfficeUrl = rtrim($this->getBackOfficeUrl(), '/');
+        $localBackOfficeUrl = rtrim($localShopUrl->getBackOfficeUrl(), '/');
+
+        return $cloudBackOfficeUrl === $localBackOfficeUrl;
+    }
+
+    /**
+     * Create a new ShopUrl from the status
+     *
+     * @param ShopStatus $status
+     * @param int $multiShopId
+     *
+     * @return ShopUrl
+     */
+    public static function createFromStatus(ShopStatus $status, $multiShopId)
+    {
+        return new ShopUrl($status->backOfficeUrl, $status->frontendUrl, $multiShopId);
     }
 }
