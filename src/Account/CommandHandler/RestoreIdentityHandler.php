@@ -93,6 +93,8 @@ class RestoreIdentityHandler
         $shopId = $command->shopId ?: \Shop::getContextShopID();
 
         try {
+            $this->statusManager->clearStatus();
+
             // Update OAuth client
             $this->oAuth2Client->update(
                 $command->clientId,
@@ -117,7 +119,6 @@ class RestoreIdentityHandler
             }
 
             if ($command->verify) {
-                $this->statusManager->setIsVerified(false);
                 // force verify
                 $this->commandBus->handle(new VerifyIdentityCommand(
                     $shopId,
