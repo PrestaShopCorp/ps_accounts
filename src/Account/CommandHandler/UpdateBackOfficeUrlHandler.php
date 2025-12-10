@@ -27,6 +27,7 @@ use PrestaShop\Module\PsAccounts\Account\StatusManager;
 use PrestaShop\Module\PsAccounts\Context\ShopContext;
 use PrestaShop\Module\PsAccounts\Cqrs\CommandBus;
 use PrestaShop\Module\PsAccounts\Provider\ShopProvider;
+use PrestaShop\Module\PsAccounts\Repository\ConfigurationRepository;
 use PrestaShop\Module\PsAccounts\Service\Accounts\AccountsService;
 
 class UpdateBackOfficeUrlHandler extends MultiShopHandler
@@ -52,12 +53,18 @@ class UpdateBackOfficeUrlHandler extends MultiShopHandler
     private $shopSession;
 
     /**
+     * @var ConfigurationRepository
+     */
+    private $configurationRepository;
+
+    /**
      * @param ShopContext $shopContext
      * @param CommandBus $commandBus
      * @param AccountsService $accountsService
      * @param StatusManager $statusManager
      * @param ShopProvider $shopProvider
      * @param ShopSession $shopSession
+     * @param ConfigurationRepository $configurationRepository
      */
     public function __construct(
         ShopContext $shopContext,
@@ -65,13 +72,15 @@ class UpdateBackOfficeUrlHandler extends MultiShopHandler
         AccountsService $accountsService,
         StatusManager $statusManager,
         ShopProvider $shopProvider,
-        ShopSession $shopSession
-    ) {
+        ShopSession $shopSession,
+        ConfigurationRepository $configurationRepository
+     ) {
         parent::__construct($shopContext, $commandBus);
         $this->accountsService = $accountsService;
         $this->statusManager = $statusManager;
         $this->shopProvider = $shopProvider;
         $this->shopSession = $shopSession;
+        $this->configurationRepository = $configurationRepository;
     }
 
     /**
@@ -81,7 +90,7 @@ class UpdateBackOfficeUrlHandler extends MultiShopHandler
      */
     public function handle(UpdateBackOfficeUrlCommand $command)
     {
-        $shopId = $command->shopId ?: \Shop::getContextShopID();
+        $shopId = $command->shopId ?: \Shop::getContextShopID() ?? $this->configurationRepository->getMainShopId();
 
         $status = $this->statusManager->getStatus(false, StatusManager::CACHE_TTL, 'ps_accounts');
 
@@ -89,7 +98,14 @@ class UpdateBackOfficeUrlHandler extends MultiShopHandler
 
         $localShopUrl = $this->shopProvider->getUrl($shopId);
 
-        if (!$cloudShopUrl->backOfficeUrlEquals($localShopUrl)) {
+        $cloudFrontendUrl = rtrim($cloudShopUrl->getFrontendUrl(), '/');
+        $localFrontendUrl = rtrim($localShopUrl->getFrontendUrl(), '/');
+
+        // Check if BO url changed and urls aren't empty
+        if (!$cloudShopUrl->backOfficeUrlEquals($localShopUrl) &&
+            !empty($localFrontendUrl) &&
+            !empty($cloudFrontendUrl)
+        ) {
             $this->accountsService->updateBackOfficeUrl($status->cloudShopId, $this->shopSession->getValidToken(), $localShopUrl);
         }
     }

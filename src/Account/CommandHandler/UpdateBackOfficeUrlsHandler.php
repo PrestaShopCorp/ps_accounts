@@ -24,6 +24,7 @@ use Exception;
 use PrestaShop\Module\PsAccounts\Account\Command\UpdateBackOfficeUrlCommand;
 use PrestaShop\Module\PsAccounts\Account\Command\UpdateBackOfficeUrlsCommand;
 use PrestaShop\Module\PsAccounts\Log\Logger;
+use Throwable;
 
 class UpdateBackOfficeUrlsHandler extends MultiShopHandler
 {
@@ -39,6 +40,8 @@ class UpdateBackOfficeUrlsHandler extends MultiShopHandler
                 $updateBackOfficeUrlCommand = new UpdateBackOfficeUrlCommand($multiShopId);
                 $this->commandBus->handle($updateBackOfficeUrlCommand);
             } catch (Exception $e) {
+                Logger::getInstance()->error($e->getMessage());
+            } catch (Throwable $e) {
                 Logger::getInstance()->error($e->getMessage());
             }
         });

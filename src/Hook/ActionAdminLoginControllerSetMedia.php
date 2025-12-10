@@ -154,14 +154,6 @@ class ActionAdminLoginControllerSetMedia extends Hook
      */
     protected function checkAndUpdateUrlIfNeeded()
     {
-        try {
-            $this->commandBus->handle(new UpdateBackOfficeUrlsCommand());
-        } catch (Exception $e) {
-            // Log error but don't block login
-            Logger::getInstance()->error('[ActionAdminLoginControllerSetMedia] Error checking/updating URL: ' . $e->getMessage());
-        } catch (Throwable $e) {
-            // Log error but don't block login
-            Logger::getInstance()->error('[ActionAdminLoginControllerSetMedia] Error checking/updating URL: ' . $e->getMessage());
-        }
+        $this->commandBus->handle(new UpdateBackOfficeUrlsCommand());
     }
 }
