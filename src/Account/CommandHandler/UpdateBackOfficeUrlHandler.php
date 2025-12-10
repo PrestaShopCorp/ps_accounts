@@ -26,6 +26,7 @@ use PrestaShop\Module\PsAccounts\Account\ShopUrl;
 use PrestaShop\Module\PsAccounts\Account\StatusManager;
 use PrestaShop\Module\PsAccounts\Context\ShopContext;
 use PrestaShop\Module\PsAccounts\Cqrs\CommandBus;
+use PrestaShop\Module\PsAccounts\Log\Logger;
 use PrestaShop\Module\PsAccounts\Provider\ShopProvider;
 use PrestaShop\Module\PsAccounts\Repository\ConfigurationRepository;
 use PrestaShop\Module\PsAccounts\Service\Accounts\AccountsService;
@@ -90,23 +91,21 @@ class UpdateBackOfficeUrlHandler extends MultiShopHandler
      */
     public function handle(UpdateBackOfficeUrlCommand $command)
     {
+        // TODO: rework multishop management
         $shopId = $command->shopId ?: \Shop::getContextShopID() ?: $this->configurationRepository->getMainShopId();
 
         $status = $this->statusManager->getStatus(false, StatusManager::CACHE_TTL, 'ps_accounts');
 
         $cloudShopUrl = ShopUrl::createFromStatus($status, $shopId);
-
         $localShopUrl = $this->shopProvider->getUrl($shopId);
 
-        $cloudFrontendUrl = rtrim($cloudShopUrl->getFrontendUrl(), '/');
-        $localFrontendUrl = rtrim($localShopUrl->getFrontendUrl(), '/');
-
-        // Check if BO url changed and urls aren't empty
-        if (!$cloudShopUrl->backOfficeUrlEquals($localShopUrl) &&
-            !empty($localFrontendUrl) &&
-            !empty($cloudFrontendUrl)
-        ) {
-            $this->accountsService->updateBackOfficeUrl($status->cloudShopId, $this->shopSession->getValidToken(), $localShopUrl);
+        try {
+            // Check if BO url changed and urls aren't empty
+            if (!$cloudShopUrl->backOfficeUrlEquals($localShopUrl)) {
+                $this->accountsService->updateBackOfficeUrl($status->cloudShopId, $this->shopSession->getValidToken(), $localShopUrl);
+            }
+        } catch (\InvalidArgumentException $e) {
+            Logger::getInstance()->error($e->getMessage());
         }
     }
 }

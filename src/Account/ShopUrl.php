@@ -97,11 +97,17 @@ class ShopUrl
      * @param ShopUrl $localShopUrl
      *
      * @return bool
+     *
+     * @throws \InvalidArgumentException
      */
     public function frontendUrlEquals(ShopUrl $localShopUrl)
     {
         $cloudFrontendUrl = rtrim($this->frontendUrl, '/');
         $localFrontendUrl = rtrim($localShopUrl->getFrontendUrl(), '/');
+
+        if (empty($cloudFrontendUrl) || empty($localFrontendUrl)) {
+            throw new \InvalidArgumentException('Frontend URL cannot be empty');
+        }
 
         return $cloudFrontendUrl === $localFrontendUrl;
     }
@@ -113,13 +119,31 @@ class ShopUrl
      * @param ShopUrl $localShopUrl
      *
      * @return bool
+     *
+     * @throws \InvalidArgumentException
      */
     public function backOfficeUrlEquals(ShopUrl $localShopUrl)
     {
         $cloudBackOfficeUrl = rtrim($this->getBackOfficeUrl(), '/');
         $localBackOfficeUrl = rtrim($localShopUrl->getBackOfficeUrl(), '/');
 
+        if (empty($cloudBackOfficeUrl) || empty($localBackOfficeUrl)) {
+            throw new \InvalidArgumentException('BackOffice URL cannot be empty');
+        }
+
         return $cloudBackOfficeUrl === $localBackOfficeUrl;
+    }
+
+    /**
+     * @return ShopUrl
+     */
+    public function trimmed()
+    {
+        return new ShopUrl(
+            rtrim($this->getBackOfficeUrl(), '/'),
+            rtrim($this->getFrontendUrl(), '/'),
+            $this->getMultiShopId()
+        );
     }
 
     /**
