@@ -20,7 +20,7 @@ class ActionAdminLoginControllerSetMediaTest extends TestCase
             ->with($this->isInstanceOf(UpdateBackOfficeUrlsCommand::class));
 
         $hook = $this->createHookWithMocks($commandBusMock);
-        $method = $this->getProtectedMethod($hook, 'checkAndUpdateUrlIfNeeded');
+        $method = $this->getProtectedMethod($hook, 'checkAndUpdateBackofficeUrl');
 
         $method->invoke($hook);
     }
@@ -37,7 +37,7 @@ class ActionAdminLoginControllerSetMediaTest extends TestCase
             ->willThrowException(new \Exception('Test exception'));
 
         $hook = $this->createHookWithMocks($commandBusMock);
-        $method = $this->getProtectedMethod($hook, 'checkAndUpdateUrlIfNeeded');
+        $method = $this->getProtectedMethod($hook, 'checkAndUpdateBackofficeUrl');
 
         // Should not throw exception - it should be caught and logged
         $method->invoke($hook);
