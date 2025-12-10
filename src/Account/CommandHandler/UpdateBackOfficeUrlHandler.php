@@ -90,7 +90,7 @@ class UpdateBackOfficeUrlHandler extends MultiShopHandler
      */
     public function handle(UpdateBackOfficeUrlCommand $command)
     {
-        $shopId = $command->shopId ?: \Shop::getContextShopID() ?? $this->configurationRepository->getMainShopId();
+        $shopId = $command->shopId ?: \Shop::getContextShopID() ?: $this->configurationRepository->getMainShopId();
 
         $status = $this->statusManager->getStatus(false, StatusManager::CACHE_TTL, 'ps_accounts');
 
