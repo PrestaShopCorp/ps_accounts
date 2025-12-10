@@ -110,13 +110,13 @@ class RestoreIdentityHandler
             if ($command->migrate) {
                 // this will trigger migration
                 $this->upgradeService->setVersion($command->migrateFrom);
-
-                $this->commandBus->handle(new MigrateOrCreateIdentityV8Command(
-                    $shopId,
-                    $command->origin,
-                    $command->source
-                ));
             }
+
+            $this->commandBus->handle(new MigrateOrCreateIdentityV8Command(
+                $shopId,
+                $command->origin,
+                $command->source
+            ));
 
             if ($command->verify) {
                 // force verify
