@@ -115,6 +115,7 @@ class AdminAjaxPsAccountsControllerTest extends TestCase
     {
         // Create a mock shopUrl with empty frontendUrl
         $shopUrlMock = $this->createMock(\PrestaShop\Module\PsAccounts\Account\ShopUrl::class);
+        $shopUrlMock->method('trimmed')->willReturn($shopUrlMock);
         $shopUrlMock->method('getFrontendUrl')->willReturn('');
         $shopUrlMock->method('getBackOfficeUrl')->willReturn('https://admin.example.com');
 
