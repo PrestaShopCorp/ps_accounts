@@ -238,10 +238,18 @@ class ConfigurationRepository
      */
     public function getMainShop()
     {
-        $mainShopId = \Db::getInstance()->getValue('SELECT value FROM ' . _DB_PREFIX_ . "configuration WHERE name = 'PS_SHOP_DEFAULT'");
+        $mainShopId = $this->getMainShopId();
         $shop = new \Shop((int) $mainShopId);
 
         return $shop;
+    }
+
+    /**
+     * @return int
+     */
+    public function getMainShopId()
+    {
+        return (int) \Db::getInstance()->getValue('SELECT value FROM ' . _DB_PREFIX_ . "configuration WHERE name = 'PS_SHOP_DEFAULT'");
     }
 
     /**
