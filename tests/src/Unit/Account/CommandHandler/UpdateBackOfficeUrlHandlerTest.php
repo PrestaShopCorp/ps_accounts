@@ -151,7 +151,8 @@ class UpdateBackOfficeUrlHandlerTest extends TestCase
             $this->accountsService,
             $this->statusManager,
             $this->shopProvider,
-            $this->shopSession
+            $this->shopSession,
+            $this->configurationRepository
         );
     }
 }
