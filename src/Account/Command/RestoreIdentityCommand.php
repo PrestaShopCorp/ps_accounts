@@ -56,6 +56,11 @@ class RestoreIdentityCommand
     public $migrate;
 
     /**
+     * @var string|null
+     */
+    public $migrateFrom;
+
+    /**
      * @var string
      */
     public $origin;
@@ -71,8 +76,7 @@ class RestoreIdentityCommand
      * @param string $clientSecret
      * @param bool $verify
      * @param bool $migrate
-     * @param string $origin
-     * @param string $source
+     * @param string $migrateFrom
      */
     public function __construct(
         $cloudShopId,
@@ -80,15 +84,15 @@ class RestoreIdentityCommand
         $clientSecret,
         $verify = false,
         $migrate = false,
-        $origin = AccountsService::ORIGIN_INSTALL,
-        $source = 'ps_accounts'
+        $migrateFrom = null
     ) {
         $this->cloudShopId = $cloudShopId;
         $this->clientId = $clientId;
         $this->clientSecret = $clientSecret;
         $this->verify = $verify;
         $this->migrate = $migrate;
-        $this->origin = $origin;
-        $this->source = $source;
+        $this->migrateFrom = $migrateFrom;
+        $this->origin = AccountsService::ORIGIN_ADVANCED_SETTINGS;
+        $this->source = 'ps_accounts';
     }
 }

@@ -303,10 +303,8 @@ define build_front
 	pnpm --filter ./_dev build
 endef
 
-${BUNDLE_JS}:
+build-front:
 	$(call build_front)
-
-build-front: ${BUNDLE_JS}
 
 composer.phar:
 	./scripts/composer-install.sh
