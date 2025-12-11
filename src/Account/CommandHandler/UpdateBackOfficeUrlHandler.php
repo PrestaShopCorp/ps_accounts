@@ -83,7 +83,7 @@ class UpdateBackOfficeUrlHandler extends MultiShopHandler
     {
         $shopId = $command->shopId ?: \Shop::getContextShopID();
 
-        $status = $this->statusManager->getStatus(false, StatusManager::CACHE_TTL, 'ps_accounts');
+        $status = $this->statusManager->withSource('ps_accounts')->getStatus();
 
         $cloudShopUrl = ShopUrl::createFromStatus($status, $shopId);
 

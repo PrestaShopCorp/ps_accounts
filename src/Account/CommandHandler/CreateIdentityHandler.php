@@ -94,13 +94,13 @@ class CreateIdentityHandler
         if ($command->renew || !$this->isAlreadyCreated()) {
             $shopId = $command->shopId ?: \Shop::getContextShopID();
 
-            $identityCreated = $this->accountsService->createShopIdentity(
-                $this->shopProvider->getUrl($shopId),
-                $this->shopProvider->getName($shopId),
-                null,
-                $command->origin,
-                $command->source
-            );
+            $identityCreated = $this->accountsService
+                ->withSource($command->source)
+                ->withOrigin($command->origin)
+                ->createShopIdentity(
+                    $this->shopProvider->getUrl($shopId),
+                    $this->shopProvider->getName($shopId)
+                );
             $this->oAuth2Client->update(
                 $identityCreated->clientId,
                 $identityCreated->clientSecret
