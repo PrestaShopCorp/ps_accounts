@@ -88,9 +88,31 @@ export default class ConfigureAccountPage extends ModuleManagerPage {
    * @expect true ACCOUNT_EMAIL isVisible
    */
   async checkIsSigned() {
-    await this.page.waitForTimeout(5000)
+    await this.page.waitForTimeout(5000);
     await this.page.locator('.page-title', {hasText: 'Configure'}).isVisible;
     const isVisible = await this.page.getByText(Globals.account_email).isVisible();
     expect(isVisible).toBeTruthy();
+  }
+
+  /**
+   *
+   * In MultiStore Context dispaly all store informations
+   */
+  async displayAllStoreInformations() {
+    await this.page.locator('.shopname').click();
+    await this.page
+      .locator('a')
+      .filter({hasText: /^All stores$/})
+      .click();
+    await this.page.waitForLoadState('load');
+  }
+
+  /**
+   *
+   * In MultiStore Context when all all store is deplayed, show alert
+   */
+  async getMultistoreAlert() {
+    const alertBlock = await this.page.locator('.puik-alert.puik-alert--info').isVisible();
+    expect(alertBlock).toBeTruthy()
   }
 }

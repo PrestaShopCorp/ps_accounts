@@ -210,18 +210,5 @@ export default class PopupAccountPage extends ModuleManagerPage {
 
     return page;
   }
-  /**
-   *
-   * The page title check if the title All Store is visible before Config
-   */
-  async isAllShopSelectedBeforeConfig() {
-    // await this.page.pause()
-    const isMultiStoreVisible = this.page.getByRole('link', {name: 'All stores'});
-    // const isMultiStoreVisible = this.page.locator('a').filter({hasText: /^All stores$/});
-    if (!(await isMultiStoreVisible.isVisible())) {
-      await this.page.locator('#header_shop').click();
-      await isMultiStoreVisible.click();
-    }
-    expect(isMultiStoreVisible).toBeVisible({timeout: 3000});
-  }
+
 }
