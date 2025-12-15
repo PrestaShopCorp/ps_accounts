@@ -191,7 +191,7 @@ class ShopContext
     }
 
     /**
-     * @return array|null[]
+     * @return int[]
      */
     public function getMultiShopIds()
     {

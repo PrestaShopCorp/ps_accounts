@@ -58,7 +58,7 @@ abstract class MultiShopHandler
     }
 
     /**
-     * @return array|null[]
+     * @return int[]
      */
     protected function getShopIds()
     {
