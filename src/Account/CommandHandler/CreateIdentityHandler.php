@@ -92,7 +92,7 @@ class CreateIdentityHandler
     public function handle(CreateIdentityCommand $command)
     {
         if ($command->renew || !$this->isAlreadyCreated()) {
-            $shopId = $command->shopId ?: \Shop::getContextShopID();
+            $shopId = $command->shopId;
 
             $identityCreated = $this->accountsService->createShopIdentity(
                 $this->shopProvider->getUrl($shopId),
@@ -110,7 +110,7 @@ class CreateIdentityHandler
             $this->statusManager->invalidateCache();
 
             $this->commandBus->handle(new VerifyIdentityCommand(
-                $command->shopId,
+                $shopId,
                 true,
                 $command->origin,
                 $command->source

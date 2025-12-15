@@ -120,7 +120,7 @@ class MigrateOrCreateIdentityV8Handler
      */
     public function handle(MigrateOrCreateIdentityV8Command $command)
     {
-        $shopId = $command->shopId ?: \Shop::getContextShopID();
+        $shopId = $command->shopId;
         $shopUuid = $this->configurationRepository->getShopUuid();
 
         // FIXME: command can hold that property depending on context

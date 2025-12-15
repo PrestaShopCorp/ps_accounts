@@ -91,7 +91,7 @@ class VerifyIdentityHandler
      */
     public function handle(VerifyIdentityCommand $command)
     {
-        $shopId = $command->shopId ?: \Shop::getContextShopID();
+        $shopId = $command->shopId;
         $status = $this->statusManager->getStatus(false, StatusManager::CACHE_TTL, $command->source);
         $cloudShopUrl = ShopUrl::createFromStatus($status, $shopId);
 
