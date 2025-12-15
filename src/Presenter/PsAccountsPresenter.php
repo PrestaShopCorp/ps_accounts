@@ -78,9 +78,6 @@ class PsAccountsPresenter implements PresenterInterface
         $this->statusManager = $module->getService(StatusManager::class);
         $this->installer = $module->getService(Installer::class);
         $this->configuration = $module->getService(ConfigurationRepository::class);
-
-        // FIXME: find a better place for this
-        $this->configuration->fixMultiShopConfig();
     }
 
     /**
