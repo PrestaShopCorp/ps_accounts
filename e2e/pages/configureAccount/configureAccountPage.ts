@@ -23,7 +23,7 @@ export default class ConfigureAccountPage extends ModuleManagerPage {
    * Check the account status from api
    * @returns A promise that resolves to true if account Verified, otherwise false.
    */
-  async getStoreInformationFromApi(): Promise<boolean> {
+  async getStoreInformationFromApi(shopIndex: number): Promise<boolean> {
     const responsePromise = this.page.waitForResponse(
       (response) =>
         response.url().includes('AdminAjaxV2PsAccounts&ajax=1&action=getContext') && response.status() === 200
@@ -31,7 +31,7 @@ export default class ConfigureAccountPage extends ModuleManagerPage {
     await this.page.reload();
     const response = await responsePromise;
     const data = await response.json();
-    const isVerified = data?.groups?.[0]?.shops?.[0]?.shopStatus?.isVerified;
+    const isVerified = data?.groups?.[0]?.shops?.[shopIndex]?.shopStatus?.isVerified;
 
     return isVerified;
   }
@@ -104,7 +104,22 @@ export default class ConfigureAccountPage extends ModuleManagerPage {
       .locator('a')
       .filter({hasText: /^All stores$/})
       .click();
-    await this.page.waitForLoadState('load');
+  }
+  /**
+   *
+   * In MultiStore Context dispaly default shop informations
+   */
+  async displayDefaultStoreInformations() {
+    await this.page.locator('.shopname').click();
+    await this.page.getByRole('link', {name: 'PrestaShop'});
+  }
+  /**
+   *
+   * In MultiStore Context dispaly seconde shop informations
+   */
+  async displaySecondeStoreInformations() {
+    await this.page.locator('.shopname').click();
+    await this.page.getByRole('link', {name: 'shop1'});
   }
 
   /**
@@ -112,7 +127,8 @@ export default class ConfigureAccountPage extends ModuleManagerPage {
    * In MultiStore Context when all all store is deplayed, show alert
    */
   async getMultistoreAlert() {
-    const alertBlock = await this.page.locator('.puik-alert.puik-alert--info').isVisible();
-    expect(alertBlock).toBeTruthy()
+    const alertBlock = await this.page.waitForSelector('.puik-alert.puik-alert--info');
+    await alertBlock.isVisible();
+    expect(alertBlock).toBeTruthy();
   }
 }
