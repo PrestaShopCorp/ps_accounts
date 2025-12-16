@@ -27,6 +27,7 @@ use PrestaShop\Module\PsAccounts\Account\ProofManager;
 use PrestaShop\Module\PsAccounts\Account\Session\ShopSession;
 use PrestaShop\Module\PsAccounts\Account\ShopUrl;
 use PrestaShop\Module\PsAccounts\Account\StatusManager;
+use PrestaShop\Module\PsAccounts\Log\Logger;
 use PrestaShop\Module\PsAccounts\Provider\ShopProvider;
 use PrestaShop\Module\PsAccounts\Service\Accounts\AccountsException;
 use PrestaShop\Module\PsAccounts\Service\Accounts\AccountsService;
@@ -98,7 +99,13 @@ class VerifyIdentityHandler
             return;
         }
 
-        if (!$command->force && !$cloudShopUrl->frontendUrlEquals($this->shopProvider->getUrl($shopId))) {
+        try {
+            if (!$command->force && !$cloudShopUrl->frontendUrlEquals($this->shopProvider->getUrl($shopId))) {
+                return;
+            }
+        } catch (\InvalidArgumentException $e) {
+            Logger::getInstance()->error($e->getMessage());
+
             return;
         }
 
