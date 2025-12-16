@@ -2,8 +2,6 @@
 
 namespace PrestaShop\Module\PsAccounts;
 
-use PrestaShop\Module\PsAccounts\Log\Logger;
-
 trait WithTrait
 {
     /**
@@ -29,7 +27,6 @@ trait WithTrait
             $property = lcfirst(preg_replace('/^get/', '', $methodName));
 
             if (property_exists($this, $property)) {
-
                 $value = $this->$property;
 
                 $this->restoreDefault($property);

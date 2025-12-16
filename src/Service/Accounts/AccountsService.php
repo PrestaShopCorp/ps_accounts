@@ -37,7 +37,6 @@ use PrestaShop\Module\PsAccounts\WithTrait;
 /**
  * @method self withSource(string $source)
  * @method string getSource()
- *
  * @method self withOrigin(string $source)
  * @method string getOrigin()
  */
