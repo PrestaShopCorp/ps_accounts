@@ -31,8 +31,8 @@ use PrestaShop\Module\PsAccounts\Service\Accounts\Resource\FirebaseTokens;
 use PrestaShop\Module\PsAccounts\Service\Accounts\Resource\IdentityCreated;
 use PrestaShop\Module\PsAccounts\Service\Accounts\Resource\LegacyFirebaseToken;
 use PrestaShop\Module\PsAccounts\Service\Accounts\Resource\ShopStatus;
+use PrestaShop\Module\PsAccounts\Traits\WithPropertyTrait;
 use PrestaShop\Module\PsAccounts\Vendor\Ramsey\Uuid\Uuid;
-use PrestaShop\Module\PsAccounts\WithTrait;
 
 /**
  * @method self withSource(string $source)
@@ -42,7 +42,7 @@ use PrestaShop\Module\PsAccounts\WithTrait;
  */
 class AccountsService
 {
-    use WithTrait;
+    use WithPropertyTrait;
 
     // Common headers
     const HEADER_AUTHORIZATION = 'Authorization';

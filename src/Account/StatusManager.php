@@ -28,7 +28,7 @@ use PrestaShop\Module\PsAccounts\Repository\ConfigurationRepository;
 use PrestaShop\Module\PsAccounts\Service\Accounts\AccountsException;
 use PrestaShop\Module\PsAccounts\Service\Accounts\AccountsService;
 use PrestaShop\Module\PsAccounts\Service\Accounts\Resource\ShopStatus;
-use PrestaShop\Module\PsAccounts\WithTrait;
+use PrestaShop\Module\PsAccounts\Traits\WithPropertyTrait;
 
 /**
  * @method self withSource(string $source)
@@ -36,7 +36,7 @@ use PrestaShop\Module\PsAccounts\WithTrait;
  */
 class StatusManager
 {
-    use WithTrait;
+    use WithPropertyTrait;
 
     /**
      * Status Cache TTL in seconds
