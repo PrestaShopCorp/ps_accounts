@@ -111,7 +111,7 @@ export default class ConfigureAccountPage extends ModuleManagerPage {
    */
   async displayDefaultStoreInformations() {
     await this.page.locator('.shopname').click();
-    await this.page.getByRole('link', {name: 'PrestaShop'});
+    await this.page.getByRole('link', {name: 'PrestaShop'}).nth(1).click();
   }
   /**
    *
@@ -119,7 +119,7 @@ export default class ConfigureAccountPage extends ModuleManagerPage {
    */
   async displaySecondeStoreInformations() {
     await this.page.locator('.shopname').click();
-    await this.page.getByRole('link', {name: 'shop1'});
+    await this.page.getByRole('link', {name: 'shop1'}).click();
   }
 
   /**

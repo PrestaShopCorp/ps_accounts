@@ -29,25 +29,26 @@ services:
       PS_ACCOUNTS_VERSION: ${PS_ACCOUNTS_VERSION}
       SSL_REDIRECT: true
     volumes:
-      - ./init-scripts:/tmp/init-scripts:ro
+      # - ./init-scripts:/tmp/init-scripts:ro
+      - ./post-scripts:/tmp/post-scripts:ro
       - ./modules:/modules
     ports:
       - "8000:80"
     profiles:
-      - all    
+      - all
       - flashlight
-    
+
   phpmyadmin:
-      image: ${IMAGE_PREFIX:-}phpmyadmin:latest
-      ports:
-        - 3006:80
-      environment:
-        - PMA_HOST=mysql
-        - PMA_PORT=3306
-        - PMA_USER=prestashop
-        - PMA_PASSWORD=prestashop
-        - MYSQL_ROOT_PASSWORD=prestashop
-      profiles:
+    image: ${IMAGE_PREFIX:-}phpmyadmin:latest
+    ports:
+      - 3006:80
+    environment:
+      - PMA_HOST=mysql
+      - PMA_PORT=3306
+      - PMA_USER=prestashop
+      - PMA_PASSWORD=prestashop
+      - MYSQL_ROOT_PASSWORD=prestashop
+    profiles:
       - all
       - multistore
       - flashlight
@@ -58,8 +59,8 @@ services:
     image: ${IMAGE_PREFIX:-}cloudflare/cloudflared:latest
     command: tunnel --config /config.yml run
     volumes:
-    - ./myTun/config/mytun-config.yml:/config.yml:ro
-    - ./myTun/config/mytun-credentials.json:/credentials.json:ro
+      - ./myTun/config/mytun-config.yml:/config.yml:ro
+      - ./myTun/config/mytun-credentials.json:/credentials.json:ro
     profiles:
       - all
       - multistore
@@ -67,7 +68,7 @@ services:
       - imageoff
 
   shop1:
-    image: prestashop/prestashop:${PS_VERSION} 
+    image: prestashop/prestashop:${PS_VERSION}
     container_name: shop1
     restart: unless-stopped
     user: root
@@ -133,17 +134,16 @@ services:
       - multistore
 
   nginx_proxy:
-      image: nginx:latest
-      container_name: nginx_proxy
-      restart: unless-stopped
-      depends_on:
-        - shop1
-        - shop2
-      ports:
-        - "80:80"
-      volumes:
-        - ./nginx.conf:/etc/nginx/conf.d/default.conf:rw
-      profiles:
-        - all
-        - multistore
-
+    image: nginx:latest
+    container_name: nginx_proxy
+    restart: unless-stopped
+    depends_on:
+      - shop1
+      - shop2
+    ports:
+      - "80:80"
+    volumes:
+      - ./nginx.conf:/etc/nginx/conf.d/default.conf:rw
+    profiles:
+      - all
+      - multistore
