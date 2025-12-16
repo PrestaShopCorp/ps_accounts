@@ -4,6 +4,12 @@ namespace PrestaShop\Module\PsAccounts\Tests\Unit\Traits;
 
 use PrestaShop\Module\PsAccounts\Traits\WithPropertyTrait;
 
+/**
+ * @method self withProperty1(string $value)
+ * @method string getProperty1()
+ * @method self withProperty2(string $value)
+ * @method string getProperty2()
+ */
 class TraitTestClass
 {
     use WithPropertyTrait;
