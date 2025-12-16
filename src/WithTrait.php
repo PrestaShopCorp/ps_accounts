@@ -8,7 +8,7 @@ trait WithTrait
 {
     /**
      * @param string $methodName
-     * @param array $args
+     * @param mixed $args
      *
      * @return mixed|void
      */
@@ -16,12 +16,10 @@ trait WithTrait
     {
         if (strpos($methodName, 'with') === 0) {
             $property = lcfirst(preg_replace('/^with/', '', $methodName));
+
             $value = isset($args[0]) ? $args[0] : null;
 
             if (!empty($property) && property_exists($this, $property)) {
-
-                Logger::getInstance()->debug("[With] with : [{$property}={$value}]");
-
                 $this->$property = $value;
             }
 
@@ -33,8 +31,6 @@ trait WithTrait
             if (property_exists($this, $property)) {
 
                 $value = $this->$property;
-
-                Logger::getInstance()->debug("[With] get : [{$property}={$value}]");
 
                 $this->restoreDefault($property);
 
