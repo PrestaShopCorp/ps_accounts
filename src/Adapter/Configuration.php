@@ -232,8 +232,12 @@ class Configuration
 
         // mimic the condition of the original \Configuration::get method
         $id = \Configuration::getIdByName($key, 0, $idShop);
-        if (!$id) $id = \Configuration::getIdByName($key, $idShopGroup, 0);
-        if (!$id) $id = \Configuration::getIdByName($key, 0, 0);
+        if (!$id) {
+            $id = \Configuration::getIdByName($key, $idShopGroup, 0);
+        }
+        if (!$id) {
+            $id = \Configuration::getIdByName($key, 0, 0);
+        }
 
         if ($id > 0) {
             $found = (new \Configuration($id));

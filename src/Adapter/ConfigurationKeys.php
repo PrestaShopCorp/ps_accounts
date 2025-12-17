@@ -97,6 +97,7 @@ class ConfigurationKeys extends Enum
                 ])) {
                 return false;
             }
+
             return true;
         });
     }
