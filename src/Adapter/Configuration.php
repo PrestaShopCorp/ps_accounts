@@ -47,6 +47,8 @@ class Configuration
     public function __construct(\Context $context)
     {
         $this->setIdShop((int) $context->shop->id);
+        $this->setIdShopGroup((int) $context->shop->id_shop_group);
+        //$this->setIdLang((int) $context->language->id);
     }
 
     /**
@@ -219,7 +221,20 @@ class Configuration
         if (!$this->isMultishopActive()) {
             $idShopGroup = $idShop = null;
         }
-        $id = \Configuration::getIdByName($key, $idShopGroup, $idShop);
+
+//        if ($idShop && Configuration::hasKey($key, $idLang, null, $idShop)) {
+//            return self::$_new_cache_shop[$key][$idLang][$idShop];
+//        } elseif ($idShopGroup && Configuration::hasKey($key, $idLang, $idShopGroup)) {
+//            return self::$_new_cache_group[$key][$idLang][$idShopGroup];
+//        } elseif (Configuration::hasKey($key, $idLang)) {
+//            return self::$_new_cache_global[$key][$idLang];
+//        }
+
+        // mimic the condition of the original \Configuration::get method
+        $id = \Configuration::getIdByName($key, 0, $idShop);
+        if (!$id) $id = \Configuration::getIdByName($key, $idShopGroup, 0);
+        if (!$id) $id = \Configuration::getIdByName($key, 0, 0);
+
         if ($id > 0) {
             $found = (new \Configuration($id));
             $found->clearCache();

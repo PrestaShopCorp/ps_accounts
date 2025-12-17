@@ -328,6 +328,8 @@ class ConfigurationRepository
      * @return void
      *
      * @throws \Exception
+     *
+     * @deprecated since 8.0.9
      */
     public function fixMultiShopConfig()
     {
@@ -460,6 +462,8 @@ class ConfigurationRepository
      * @return void
      *
      * @throws \PrestaShopDatabaseException
+     *
+     * @deprecated since 8.0.9
      */
     protected function migrateToMultiShop()
     {
@@ -477,6 +481,8 @@ class ConfigurationRepository
      * @return void
      *
      * @throws \PrestaShopDatabaseException
+     *
+     * @deprecated since 8.0.9
      */
     protected function migrateToSingleShop()
     {
@@ -485,6 +491,25 @@ class ConfigurationRepository
             'UPDATE ' . _DB_PREFIX_ . 'configuration SET id_shop = NULL, id_shop_group = NULL' .
             " WHERE name IN('" . join("','", array_values(ConfigurationKeys::cases())) . "')" .
             ' AND id_shop = ' . (int) $shop->id . ';'
+        );
+    }
+
+    /**
+     * create default values for shop configuration
+     *
+     * @param \Shop $shop
+     *
+     * @return void
+     *
+     * @throws \PrestaShopDatabaseException
+     */
+    public function initDefaultConfiguration(\Shop $shop)
+    {
+        \Db::getInstance()->query(
+            'INSERT INTO ' . _DB_PREFIX_ . 'configuration (id_shop, id_shop_group, name, value, date_add, date_upd) VALUES ' .
+            join(',', array_map(function ($key) use ($shop) {
+                return '(' . (int) $shop->id . ', ' . (int) $shop->id_shop_group . ', \'' . $key . '\', \'\', NOW(), NOW())';
+            }, array_values(ConfigurationKeys::cases(false))))
         );
     }
 }

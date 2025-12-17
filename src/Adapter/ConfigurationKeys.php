@@ -78,4 +78,26 @@ class ConfigurationKeys extends Enum
     const PS_ACCOUNTS_CACHED_SHOP_STATUS = 'PS_ACCOUNTS_SHOP_STATUS';
 
     const PS_ACCOUNTS_VALIDATION_LEEWAY = 'PS_ACCOUNTS_VALIDATION_LEEWAY';
+
+    /**
+     * @param bool $withDeprecated
+     */
+    public static function cases($withDeprecated = true)
+    {
+        return array_filter(parent::cases(), function ($value) use ($withDeprecated) {
+            if (!$withDeprecated && in_array($value, [
+                    self::PS_ACCOUNTS_FIREBASE_REFRESH_TOKEN,
+                    self::PS_ACCOUNTS_USER_FIREBASE_REFRESH_TOKEN,
+                    self::PS_ACCOUNTS_FIREBASE_EMAIL,
+                    self::PS_CHECKOUT_SHOP_UUID_V4,
+                    self::PS_PSX_FIREBASE_ID_TOKEN,
+                    self::PS_PSX_FIREBASE_REFRESH_TOKEN,
+                    self::PS_PSX_FIREBASE_REFRESH_DATE,
+                    self::PS_PSX_FIREBASE_EMAIL,
+                ])) {
+                return false;
+            }
+            return true;
+        });
+    }
 }
