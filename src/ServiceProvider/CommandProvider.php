@@ -118,12 +118,11 @@ class CommandProvider implements IServiceProvider
         });
         $container->registerProvider(UpdateBackOfficeUrlHandler::class, static function () use ($container) {
             return new UpdateBackOfficeUrlHandler(
-                $container->get(ShopContext::class),
-                $container->get(CommandBus::class),
                 $container->get(AccountsService::class),
                 $container->get(StatusManager::class),
                 $container->get(ShopProvider::class),
-                $container->get(Session\ShopSession::class)
+                $container->get(Session\ShopSession::class),
+                $container->get(ConfigurationRepository::class)
             );
         });
         $container->registerProvider(UpdateBackOfficeUrlsHandler::class, static function () use ($container) {

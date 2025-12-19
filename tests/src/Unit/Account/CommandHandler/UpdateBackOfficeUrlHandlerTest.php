@@ -146,12 +146,11 @@ class UpdateBackOfficeUrlHandlerTest extends TestCase
     private function getHandler()
     {
         return new UpdateBackOfficeUrlHandler(
-            $this->shopContext,
-            $this->commandBus,
             $this->accountsService,
             $this->statusManager,
             $this->shopProvider,
-            $this->shopSession
+            $this->shopSession,
+            $this->configurationRepository
         );
     }
 }

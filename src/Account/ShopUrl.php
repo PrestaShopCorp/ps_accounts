@@ -94,14 +94,20 @@ class ShopUrl
     /**
      * Check if the frontend URL has changed compared to the remote status
      *
-     * @param ShopUrl $localShopUrl
+     * @param ShopUrl $shopUrl
      *
      * @return bool
+     *
+     * @throws \InvalidArgumentException
      */
-    public function frontendUrlEquals(ShopUrl $localShopUrl)
+    public function frontendUrlEquals(ShopUrl $shopUrl)
     {
         $cloudFrontendUrl = rtrim($this->frontendUrl, '/');
-        $localFrontendUrl = rtrim($localShopUrl->getFrontendUrl(), '/');
+        $localFrontendUrl = rtrim($shopUrl->getFrontendUrl(), '/');
+
+        if (empty($cloudFrontendUrl) || empty($localFrontendUrl)) {
+            throw new \InvalidArgumentException('Frontend URL cannot be empty');
+        }
 
         return $cloudFrontendUrl === $localFrontendUrl;
     }
@@ -110,16 +116,34 @@ class ShopUrl
      * Check if the backOffice URL has changed compared to the remote status
      * Returns true if backOfficeUrl changed
      *
-     * @param ShopUrl $localShopUrl
+     * @param ShopUrl $shopUrl
      *
      * @return bool
+     *
+     * @throws \InvalidArgumentException
      */
-    public function backOfficeUrlEquals(ShopUrl $localShopUrl)
+    public function backOfficeUrlEquals(ShopUrl $shopUrl)
     {
         $cloudBackOfficeUrl = rtrim($this->getBackOfficeUrl(), '/');
-        $localBackOfficeUrl = rtrim($localShopUrl->getBackOfficeUrl(), '/');
+        $localBackOfficeUrl = rtrim($shopUrl->getBackOfficeUrl(), '/');
+
+        if (empty($cloudBackOfficeUrl) || empty($localBackOfficeUrl)) {
+            throw new \InvalidArgumentException('BackOffice URL cannot be empty');
+        }
 
         return $cloudBackOfficeUrl === $localBackOfficeUrl;
+    }
+
+    /**
+     * @return ShopUrl
+     */
+    public function trimmed()
+    {
+        return new ShopUrl(
+            rtrim($this->getBackOfficeUrl(), '/'),
+            rtrim($this->getFrontendUrl(), '/'),
+            $this->getMultiShopId()
+        );
     }
 
     /**
