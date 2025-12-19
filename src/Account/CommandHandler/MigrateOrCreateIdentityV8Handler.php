@@ -227,7 +227,7 @@ class MigrateOrCreateIdentityV8Handler
     {
         // Will trigger reset banner
         //$this->upgradeService->setVersion('');
-        $this->statusManager->clearIdentity();
+        $this->statusManager->clearStatus();
         $this->oAuth2Service->getOAuth2Client()->delete();
         $this->clearTokens();
     }
