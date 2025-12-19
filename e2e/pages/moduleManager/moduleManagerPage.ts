@@ -125,7 +125,7 @@ export default class ModuleManagerPage extends BasePage {
    */
   async uploadZip() {
     const psVersion = await this.getPsVersion();
-    const filePath = path.join(__dirname, '../../../e2e-env/modules/ps_accounts_preprod-8.0.4.zip');
+    const filePath = path.join(__dirname, '../../../e2e-env/modules/ps_accounts_preprod-8.0.8.zip');
     if (psVersion === 'new') {
       await this.page.locator('[data-target="#module-modal-import"]').click();
       const fileChooserPromise = this.page.waitForEvent('filechooser');

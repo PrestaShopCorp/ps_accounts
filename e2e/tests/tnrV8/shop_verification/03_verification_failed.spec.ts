@@ -19,6 +19,6 @@ gotToModuleManagerPage('Check if you can verified manually', async ({gotToModule
   });
   await test.step('verifiy manually and check if verified', async () => {
     await pm.fromConfigureAccountPage().verifyManualy();
-    await pm.fromConfigureAccountPage().checkVerificationFailed()
+    await pm.fromConfigureAccountPage().checkVerificationFailed();
   });
 });

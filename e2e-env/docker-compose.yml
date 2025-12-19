@@ -29,8 +29,8 @@ services:
       PS_ACCOUNTS_VERSION: ${PS_ACCOUNTS_VERSION}
       SSL_REDIRECT: true
     volumes:
-      # - ./init-scripts:/tmp/init-scripts:ro
-      - ./post-scripts:/tmp/post-scripts:ro
+      - ./scripts-flashlight/init-scripts:/tmp/init-scripts:ro
+      - ./scripts-flashlight/post-scripts:/tmp/post-scripts:ro
       - ./modules:/modules
     ports:
       - "8000:80"
@@ -72,6 +72,8 @@ services:
     container_name: shop1
     restart: unless-stopped
     user: root
+    depends_on:
+      - mytun
     environment:
       PS_ACCOUNTS_VERSION: ${PS_ACCOUNTS_VERSION}
       PS_DOMAIN: ${PS_DOMAIN}
@@ -82,7 +84,7 @@ services:
       DB_NAME: prestashop
       DB_PASSWD: prestashop
       DB_PORT: 3306
-      PHYSICAL_URI: "shop1"
+      # PHYSICAL_URI: "shop1"
       PS_TRUSTED_PROXIES: 0.0.0.0/0
       PS_ERASE_DB: 1
       PS_INSTALL_DB: 1
@@ -93,8 +95,8 @@ services:
     ports:
       - "9000:80"
     volumes:
-      - ./scripts/pre-install-scripts:/tmp/pre-install-scripts
-      - ./scripts/post-install-scripts:/tmp/post-install-scripts
+      - ./scripts-imageoff/pre-install-scripts:/tmp/pre-install-scripts
+      - ./scripts-imageoff/post-install-scripts:/tmp/post-install-scripts
     profiles:
       - all
       - multistore
@@ -127,8 +129,8 @@ services:
     ports:
       - "9001:80"
     volumes:
-      - ./scripts/pre-install-scripts:/tmp/pre-install-scripts
-      - ./scripts/post-install-scripts:/tmp/post-install-scripts
+      - ./scripts-imageoff/pre-install-scripts:/tmp/pre-install-scripts
+      - ./scripts-imageoff/post-install-scripts:/tmp/post-install-scripts
     profiles:
       - all
       - multistore
