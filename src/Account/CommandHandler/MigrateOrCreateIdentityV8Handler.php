@@ -162,7 +162,7 @@ class MigrateOrCreateIdentityV8Handler
             $this->registerLatestVersion();
         } catch (AccountsException $e) {
             if ($e->getErrorCode() === AccountsException::ERROR_STORE_LEGACY_NOT_FOUND &&
-                $command->origin != AccountsService::ORIGIN_ADVANCED_SETTINGS
+                $command->origin !== AccountsService::ORIGIN_ADVANCED_SETTINGS
             ) {
                 $this->registerLatestVersion();
                 $this->cleanupIdentity();
