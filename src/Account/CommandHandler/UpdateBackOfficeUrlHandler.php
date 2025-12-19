@@ -24,14 +24,12 @@ use PrestaShop\Module\PsAccounts\Account\Command\UpdateBackOfficeUrlCommand;
 use PrestaShop\Module\PsAccounts\Account\Session\ShopSession;
 use PrestaShop\Module\PsAccounts\Account\ShopUrl;
 use PrestaShop\Module\PsAccounts\Account\StatusManager;
-use PrestaShop\Module\PsAccounts\Context\ShopContext;
-use PrestaShop\Module\PsAccounts\Cqrs\CommandBus;
 use PrestaShop\Module\PsAccounts\Log\Logger;
 use PrestaShop\Module\PsAccounts\Provider\ShopProvider;
 use PrestaShop\Module\PsAccounts\Repository\ConfigurationRepository;
 use PrestaShop\Module\PsAccounts\Service\Accounts\AccountsService;
 
-class UpdateBackOfficeUrlHandler extends MultiShopHandler
+class UpdateBackOfficeUrlHandler
 {
     /**
      * @var AccountsService
@@ -59,8 +57,6 @@ class UpdateBackOfficeUrlHandler extends MultiShopHandler
     private $configurationRepository;
 
     /**
-     * @param ShopContext $shopContext
-     * @param CommandBus $commandBus
      * @param AccountsService $accountsService
      * @param StatusManager $statusManager
      * @param ShopProvider $shopProvider
@@ -68,15 +64,12 @@ class UpdateBackOfficeUrlHandler extends MultiShopHandler
      * @param ConfigurationRepository $configurationRepository
      */
     public function __construct(
-        ShopContext $shopContext,
-        CommandBus $commandBus,
         AccountsService $accountsService,
         StatusManager $statusManager,
         ShopProvider $shopProvider,
         ShopSession $shopSession,
         ConfigurationRepository $configurationRepository
      ) {
-        parent::__construct($shopContext, $commandBus);
         $this->accountsService = $accountsService;
         $this->statusManager = $statusManager;
         $this->shopProvider = $shopProvider;
@@ -94,6 +87,7 @@ class UpdateBackOfficeUrlHandler extends MultiShopHandler
         // TODO: rework multishop management
         $shopId = $command->shopId ?: \Shop::getContextShopID() ?: $this->configurationRepository->getMainShopId();
 
+        // TODO: rework parameters priority
         $status = $this->statusManager->getStatus(false, StatusManager::CACHE_TTL, 'ps_accounts');
 
         $cloudShopUrl = ShopUrl::createFromStatus($status, $shopId);
@@ -102,7 +96,11 @@ class UpdateBackOfficeUrlHandler extends MultiShopHandler
         try {
             // Check if BO url changed and urls aren't empty
             if (!$cloudShopUrl->backOfficeUrlEquals($localShopUrl)) {
-                $this->accountsService->updateBackOfficeUrl($status->cloudShopId, $this->shopSession->getValidToken(), $localShopUrl);
+                $this->accountsService->updateBackOfficeUrl(
+                    $status->cloudShopId,
+                    $this->shopSession->getValidToken(),
+                    $localShopUrl
+                );
             }
         } catch (\InvalidArgumentException $e) {
             Logger::getInstance()->error($e->getMessage());
