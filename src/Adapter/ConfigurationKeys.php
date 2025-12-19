@@ -20,34 +20,35 @@
 
 namespace PrestaShop\Module\PsAccounts\Adapter;
 
+use PrestaShop\Module\PsAccounts\Service\Accounts\Resource\ShopStatus;
 use PrestaShop\Module\PsAccounts\Type\Enum;
 
 class ConfigurationKeys extends Enum
 {
     const PSX_UUID_V4 = 'PSX_UUID_V4';
+    const PS_ACCOUNTS_LOGIN_ENABLED = 'PS_ACCOUNTS_LOGIN_ENABLED';
+    const PS_ACCOUNTS_OAUTH2_CLIENT_ID = 'PS_ACCOUNTS_OAUTH2_CLIENT_ID';
+    const PS_ACCOUNTS_OAUTH2_CLIENT_SECRET = 'PS_ACCOUNTS_OAUTH2_CLIENT_SECRET';
+    const PS_ACCOUNTS_ACCESS_TOKEN = 'PS_ACCOUNTS_ACCESS_TOKEN';
+    const PS_ACCOUNTS_LAST_UPGRADE = 'PS_ACCOUNTS_LAST_UPGRADE';
+    const PS_ACCOUNTS_SHOP_PROOF = 'PS_ACCOUNTS_SHOP_PROOF';
+    const PS_ACCOUNTS_CACHED_SHOP_STATUS = 'PS_ACCOUNTS_SHOP_STATUS';
+    const PS_ACCOUNTS_VALIDATION_LEEWAY = 'PS_ACCOUNTS_VALIDATION_LEEWAY';
 
-    // PS Shop Account
+    /** @deprecated  */
     const PS_ACCOUNTS_FIREBASE_ID_TOKEN = 'PS_ACCOUNTS_FIREBASE_ID_TOKEN';
     /* @deprecated */
     const PS_ACCOUNTS_FIREBASE_REFRESH_TOKEN = 'PS_ACCOUNTS_FIREBASE_REFRESH_TOKEN';
-
-    // PS User Account
+    /* @deprecated */
     const PS_ACCOUNTS_USER_FIREBASE_ID_TOKEN = 'PS_ACCOUNTS_USER_FIREBASE_ID_TOKEN';
     /* @deprecated */
     const PS_ACCOUNTS_USER_FIREBASE_REFRESH_TOKEN = 'PS_ACCOUNTS_USER_FIREBASE_REFRESH_TOKEN';
-
+    /* @deprecated */
     const PS_ACCOUNTS_USER_FIREBASE_UUID = 'PS_ACCOUNTS_USER_FIREBASE_UUID';
     /* @deprecated */
     const PS_ACCOUNTS_FIREBASE_EMAIL = 'PS_ACCOUNTS_FIREBASE_EMAIL';
-
-    // PS Backend User
+    /* @deprecated */
     const PS_ACCOUNTS_EMPLOYEE_ID = 'PS_ACCOUNTS_EMPLOYEE_ID';
-
-    // API keys
-    const PS_ACCOUNTS_RSA_PUBLIC_KEY = 'PS_ACCOUNTS_RSA_PUBLIC_KEY';
-    const PS_ACCOUNTS_RSA_PRIVATE_KEY = 'PS_ACCOUNTS_RSA_PRIVATE_KEY';
-
-    // /!\ Compat with ps_checkout
     /* @deprecated  */
     const PS_CHECKOUT_SHOP_UUID_V4 = 'PS_CHECKOUT_SHOP_UUID_V4';
     /* @deprecated  */
@@ -59,46 +60,27 @@ class ConfigurationKeys extends Enum
     /* @deprecated */
     const PS_PSX_FIREBASE_EMAIL = 'PS_PSX_FIREBASE_EMAIL';
 
-    // PsAccounts SSO login enabled
-    const PS_ACCOUNTS_LOGIN_ENABLED = 'PS_ACCOUNTS_LOGIN_ENABLED';
-
-    // OAuth2 client setup
-    const PS_ACCOUNTS_OAUTH2_CLIENT_ID = 'PS_ACCOUNTS_OAUTH2_CLIENT_ID';
-    const PS_ACCOUNTS_OAUTH2_CLIENT_SECRET = 'PS_ACCOUNTS_OAUTH2_CLIENT_SECRET';
-
-    const PS_ACCOUNTS_ACCESS_TOKEN = 'PS_ACCOUNTS_ACCESS_TOKEN';
-
-    // Last version we call to update the version on accounts-api
-    const PS_ACCOUNTS_LAST_UPGRADE = 'PS_ACCOUNTS_LAST_UPGRADE';
-
-    const PS_ACCOUNTS_UNLINKED_ON_ERROR = 'PS_ACCOUNTS_UNLINKED_ON_ERROR';
-
-    const PS_ACCOUNTS_SHOP_PROOF = 'PS_ACCOUNTS_SHOP_PROOF';
-
-    const PS_ACCOUNTS_CACHED_SHOP_STATUS = 'PS_ACCOUNTS_SHOP_STATUS';
-
-    const PS_ACCOUNTS_VALIDATION_LEEWAY = 'PS_ACCOUNTS_VALIDATION_LEEWAY';
-
     /**
      * @param bool $withDeprecated
      */
     public static function cases($withDeprecated = true)
     {
-        return array_filter(parent::cases(), function ($value) use ($withDeprecated) {
-            if (!$withDeprecated && in_array($value, [
-                    self::PS_ACCOUNTS_FIREBASE_REFRESH_TOKEN,
-                    self::PS_ACCOUNTS_USER_FIREBASE_REFRESH_TOKEN,
-                    self::PS_ACCOUNTS_FIREBASE_EMAIL,
-                    self::PS_CHECKOUT_SHOP_UUID_V4,
-                    self::PS_PSX_FIREBASE_ID_TOKEN,
-                    self::PS_PSX_FIREBASE_REFRESH_TOKEN,
-                    self::PS_PSX_FIREBASE_REFRESH_DATE,
-                    self::PS_PSX_FIREBASE_EMAIL,
-                ])) {
-                return false;
-            }
-
-            return true;
+        if ($withDeprecated) {
+            return parent::cases();
+        }
+        return array_filter(parent::cases(), function ($value) {
+            return !in_array($value, [
+                self::PS_ACCOUNTS_USER_FIREBASE_ID_TOKEN,
+                self::PS_ACCOUNTS_USER_FIREBASE_REFRESH_TOKEN,
+                self::PS_ACCOUNTS_USER_FIREBASE_UUID,
+                self::PS_ACCOUNTS_FIREBASE_EMAIL,
+                self::PS_CHECKOUT_SHOP_UUID_V4,
+                self::PS_PSX_FIREBASE_ID_TOKEN,
+                self::PS_PSX_FIREBASE_REFRESH_TOKEN,
+                self::PS_PSX_FIREBASE_REFRESH_DATE,
+                self::PS_PSX_FIREBASE_EMAIL,
+                self::PS_ACCOUNTS_EMPLOYEE_ID,
+            ]);
         });
     }
 }

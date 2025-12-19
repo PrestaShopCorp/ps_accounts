@@ -34,9 +34,9 @@ class ActionObjectShopDeleteAfter extends Hook
      */
     public function execute(array $params = [])
     {
-//        /** @var ConfigurationRepository $configurationRepository */
-//        $configurationRepository = $this->module->getService(ConfigurationRepository::class);
-//        $configurationRepository->fixMultiShopConfig();
+        /** @var ConfigurationRepository $configurationRepository */
+        $configurationRepository = $this->module->getService(ConfigurationRepository::class);
+        $configurationRepository->fixMultiShopConfig();
 
         return true;
     }

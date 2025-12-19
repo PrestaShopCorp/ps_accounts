@@ -40,6 +40,11 @@ class Configuration
     private $idLang = null;
 
     /**
+     * @var int
+     */
+    private $idMainShop = null;
+
+    /**
      * Configuration constructor.
      *
      * @param \Context $context
@@ -90,6 +95,17 @@ class Configuration
     /**
      * @return int
      */
+    public function getIdMainShop()
+    {
+        if (null === $this->idMainShop) {
+            $this->idMainShop = $this->getMainShopId();
+        }
+        return $this->idMainShop;
+    }
+
+    /**
+     * @return int
+     */
     public function getIdLang()
     {
         return $this->idLang;
@@ -135,9 +151,13 @@ class Configuration
      *
      * @return mixed
      */
-    public function getRaw($key, $idLang = null, $idShopGroup = null, $idShop = null, $default = false)
+    protected function getRaw($key, $idLang = null, $idShopGroup = null, $idShop = null, $default = false)
     {
-        $value = \Configuration::get($key, $idLang, $idShopGroup, $idShop);
+        if ($idShop === $this->getIdMainShop()) {
+            $value = \Configuration::getGlobalValue($key, $idLang);
+        } else {
+            $value = \Configuration::get($key, $idLang, $idShopGroup, $idShop);
+        }
 
         return $value ?: ($default !== false ? $default : $value);
     }
@@ -161,11 +181,16 @@ class Configuration
      * @param int|null $idShopGroup
      * @param int|null $idShop
      *
-     * @return mixed
+     * @return bool
      */
-    public function setRaw($key, $values, $html = false, $idShopGroup = null, $idShop = null)
+    protected function setRaw($key, $values, $html = false, $idShopGroup = null, $idShop = null)
     {
-        return \Configuration::updateValue($key, $values, $html, $idShopGroup, $idShop);
+        if ((int) $idShop === (int) $this->getIdMainShop()) {
+            $this->setGlobal($key, $values, $html);
+            return true;
+        } else {
+            return \Configuration::updateValue($key, $values, $html, $idShopGroup, $idShop);
+        }
     }
 
     /**
@@ -195,14 +220,17 @@ class Configuration
      * @param int|null $idShopGroup
      * @param int|null $idShop
      * @param string|bool $default
+     * @param bool $forceContext
      *
      * @return mixed
      */
-    public function getUncached($key, $idShopGroup = null, $idShop = null, $default = false)
+    public function getUncached($key, $idShopGroup = null, $idShop = null, $default = false, $forceContext = true)
     {
         try {
-            return $this->getUncachedConfiguration($key, $idShopGroup, $idShop)->value;
+            return $this->getUncachedConfiguration($key, $idShopGroup, $idShop, $forceContext)->value;
         } catch (\Exception $e) {
+            Logger::getInstance()->error(__METHOD__ . ': ' . $e->getMessage());
+
             return $default;
         }
     }
@@ -211,17 +239,14 @@ class Configuration
      * @param string $key
      * @param int|null $idShopGroup
      * @param int|null $idShop
+     * @param bool $forceContext
      *
      * @return \Configuration
      *
      * @throw \Exception
      */
-    public function getUncachedConfiguration($key, $idShopGroup = null, $idShop = null)
+    public function getUncachedConfiguration($key, $idShopGroup = null, $idShop = null, $forceContext = true)
     {
-        if (!$this->isMultishopActive()) {
-            $idShopGroup = $idShop = null;
-        }
-
 //        if ($idShop && Configuration::hasKey($key, $idLang, null, $idShop)) {
 //            return self::$_new_cache_shop[$key][$idLang][$idShop];
 //        } elseif ($idShopGroup && Configuration::hasKey($key, $idLang, $idShopGroup)) {
@@ -230,13 +255,21 @@ class Configuration
 //            return self::$_new_cache_global[$key][$idLang];
 //        }
 
-        // mimic the condition of the original \Configuration::get method
-        $id = \Configuration::getIdByName($key, 0, $idShop);
-        if (!$id) {
-            $id = \Configuration::getIdByName($key, $idShopGroup, 0);
-        }
-        if (!$id) {
-            $id = \Configuration::getIdByName($key, 0, 0);
+        if ($forceContext && !$this->isMultishopActive()) {
+            $idShopGroup = $idShop = null;
+            $id = \Configuration::getIdByName($key, 0, $idShop);
+        } else if ($idShop === $this->getIdMainShop()) {
+            $idShopGroup = $idShop = 0;
+            $id = \Configuration::getIdByName($key, 0, $idShop);
+        } else {
+            // mimic the condition of the original \Configuration::get method
+            $id = \Configuration::getIdByName($key, 0, $idShop);
+            if (!$id) {
+                $id = \Configuration::getIdByName($key, $idShopGroup, 0);
+            }
+            if (!$id) {
+                $id = \Configuration::getIdByName($key, 0, 0);
+            }
         }
 
         if ($id > 0) {
@@ -281,5 +314,13 @@ class Configuration
         //return \Shop::isFeatureActive();
         return \Db::getInstance()->getValue('SELECT value FROM `' . _DB_PREFIX_ . 'configuration` WHERE `name` = "PS_MULTISHOP_FEATURE_ACTIVE"')
             && (\Db::getInstance()->getValue('SELECT COUNT(*) FROM ' . _DB_PREFIX_ . 'shop') > 1);
+    }
+
+    /**
+     * @return int
+     */
+    public function getMainShopId()
+    {
+        return (int) \Db::getInstance()->getValue('SELECT value FROM ' . _DB_PREFIX_ . "configuration WHERE name = 'PS_SHOP_DEFAULT'");
     }
 }

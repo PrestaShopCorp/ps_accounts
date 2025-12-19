@@ -36,10 +36,11 @@ class ActionObjectShopAddAfter extends Hook
     {
         /** @var ConfigurationRepository $configurationRepository */
         $configurationRepository = $this->module->getService(ConfigurationRepository::class);
+        $configurationRepository->fixMultiShopConfig();
 
-        // $configurationRepository->fixMultiShopConfig();
+        /** @var \Shop $shop */
         $shop = $params['object'];
-        $configurationRepository->initDefaultConfiguration($shop);
+        $configurationRepository->initDefaults($shop);
 
         return true;
     }

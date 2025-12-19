@@ -249,7 +249,7 @@ class ConfigurationRepository
      */
     public function getMainShopId()
     {
-        return (int) \Db::getInstance()->getValue('SELECT value FROM ' . _DB_PREFIX_ . "configuration WHERE name = 'PS_SHOP_DEFAULT'");
+        return $this->configuration->getMainShopId();
     }
 
     /**
@@ -328,16 +328,14 @@ class ConfigurationRepository
      * @return void
      *
      * @throws \Exception
-     *
-     * @deprecated since 8.0.9
      */
     public function fixMultiShopConfig()
     {
-        if ($this->isMultishopActive()) {
-            $this->migrateToMultiShop();
-        } else {
-            $this->migrateToSingleShop();
-        }
+//        if ($this->isMultishopActive()) {
+//            $this->migrateToMultiShop();
+//        } else {
+//            $this->migrateToSingleShop();
+//        }
     }
 
     /**
@@ -369,24 +367,6 @@ class ConfigurationRepository
     public function getLastUpgrade($cached = true)
     {
         return $this->configuration->get(ConfigurationKeys::PS_ACCOUNTS_LAST_UPGRADE, false, $cached) ?: '0';
-    }
-
-    /**
-     * @return string|null
-     */
-    public function getUnlinkedOnError()
-    {
-        return $this->configuration->get(ConfigurationKeys::PS_ACCOUNTS_UNLINKED_ON_ERROR);
-    }
-
-    /**
-     * @param string|null $error
-     *
-     * @return void
-     */
-    public function updateUnlinkedOnError($error)
-    {
-        $this->configuration->set(ConfigurationKeys::PS_ACCOUNTS_UNLINKED_ON_ERROR, $error);
     }
 
     /**
@@ -460,13 +440,12 @@ class ConfigurationRepository
      * specify id_shop & id_shop_group for shop
      *
      * @return void
-     *
-     * @throws \PrestaShopDatabaseException
-     *
-     * @deprecated since 8.0.9
      */
     protected function migrateToMultiShop()
     {
+        // TODO: emptied access_token
+        // TODO: filter shops without url in multi
+        // TODO: missing hooks to cover all cases
         $shop = $this->getMainShop();
         \Db::getInstance()->query(
             'UPDATE ' . _DB_PREFIX_ . 'configuration SET id_shop = ' . (int) $shop->id . ', id_shop_group = ' . (int) $shop->id_shop_group .
@@ -479,10 +458,6 @@ class ConfigurationRepository
      * nullify id_shop & id_shop_group for shop
      *
      * @return void
-     *
-     * @throws \PrestaShopDatabaseException
-     *
-     * @deprecated since 8.0.9
      */
     protected function migrateToSingleShop()
     {
@@ -500,11 +475,10 @@ class ConfigurationRepository
      * @param \Shop $shop
      *
      * @return void
-     *
-     * @throws \PrestaShopDatabaseException
      */
-    public function initDefaultConfiguration(\Shop $shop)
+    public function initDefaults(\Shop $shop)
     {
+        // TODO: key by key with defaults (leeway)
         \Db::getInstance()->query(
             'INSERT INTO ' . _DB_PREFIX_ . 'configuration (id_shop, id_shop_group, name, value, date_add, date_upd) VALUES ' .
             join(',', array_map(function ($key) use ($shop) {
