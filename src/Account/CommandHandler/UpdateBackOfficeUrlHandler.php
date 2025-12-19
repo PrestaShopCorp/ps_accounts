@@ -29,7 +29,7 @@ use PrestaShop\Module\PsAccounts\Provider\ShopProvider;
 use PrestaShop\Module\PsAccounts\Repository\ConfigurationRepository;
 use PrestaShop\Module\PsAccounts\Service\Accounts\AccountsService;
 
-class UpdateBackOfficeUrlHandler extends MultiShopHandler
+class UpdateBackOfficeUrlHandler
 {
     /**
      * @var AccountsService
