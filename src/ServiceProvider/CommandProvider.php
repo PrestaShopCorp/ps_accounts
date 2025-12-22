@@ -27,6 +27,8 @@ use PrestaShop\Module\PsAccounts\Account\CommandHandler\IdentifyContactHandler;
 use PrestaShop\Module\PsAccounts\Account\CommandHandler\MigrateOrCreateIdentitiesV8Handler;
 use PrestaShop\Module\PsAccounts\Account\CommandHandler\MigrateOrCreateIdentityV8Handler;
 use PrestaShop\Module\PsAccounts\Account\CommandHandler\RestoreIdentityHandler;
+use PrestaShop\Module\PsAccounts\Account\CommandHandler\UpdateBackOfficeUrlHandler;
+use PrestaShop\Module\PsAccounts\Account\CommandHandler\UpdateBackOfficeUrlsHandler;
 use PrestaShop\Module\PsAccounts\Account\CommandHandler\VerifyIdentitiesHandler;
 use PrestaShop\Module\PsAccounts\Account\CommandHandler\VerifyIdentityHandler;
 use PrestaShop\Module\PsAccounts\Account\ProofManager;
@@ -111,11 +113,22 @@ class CommandProvider implements IServiceProvider
                 $container->get(CommandBus::class)
             );
         });
-        $container->registerProvider(CleanupIdentityHandler::class, static function () use ($container) {
-            return new CleanupIdentityHandler(
-                $container->get(OAuth2Client::class),
+        $container->registerProvider(CleanupIdentityHandler::class, static function () {
+            return new CleanupIdentityHandler();
+        });
+        $container->registerProvider(UpdateBackOfficeUrlHandler::class, static function () use ($container) {
+            return new UpdateBackOfficeUrlHandler(
+                $container->get(AccountsService::class),
                 $container->get(StatusManager::class),
+                $container->get(ShopProvider::class),
+                $container->get(Session\ShopSession::class),
                 $container->get(ConfigurationRepository::class)
+            );
+        });
+        $container->registerProvider(UpdateBackOfficeUrlsHandler::class, static function () use ($container) {
+            return new UpdateBackOfficeUrlsHandler(
+                $container->get(ShopContext::class),
+                $container->get(CommandBus::class)
             );
         });
     }

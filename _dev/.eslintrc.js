@@ -1,8 +1,8 @@
 module.exports = {
-  extends: ['@vue/typescript/recommended', 'plugin:vue/vue3-recommended', 'prettier'],
+  extends: ['eslint:recommended', '@typescript-eslint/recommended'],
+  parser: '@typescript-eslint/parser',
+  plugins: ['@typescript-eslint'],
   rules: {
-    indent: ['error', 2],
-    'vue/multi-word-component-names': 'off',
     indent: [
       'error',
       2,

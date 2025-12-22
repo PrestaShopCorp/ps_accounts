@@ -107,4 +107,49 @@ export default class DbRequest {
       'PS_ACCOUNTS_TOKEN_SIGNATURE'
     ]);
   }
+
+  /**
+   * Method to delete accounts informations to unverify the shop and block the reverification
+   */
+  async deleteTokens() {
+    await this.deletePsConfigurationData([
+      'PS_TOKEN_ENABLE',
+      'PS_SECURITY_TOKEN',
+      'PS_PSX_FIREBASE_ID_TOKEN',
+      'PS_PSX_FIREBASE_REFRESH_TOKEN',
+      'PS_ACCOUNTS_FIREBASE_ID_TOKEN',
+      'PS_ACCOUNTS_FIREBASE_REFRESH_TOKEN',
+      'PS_ACCOUNTS_ACCESS_TOKEN'
+    ]);
+  }
+
+  /**
+   * Update virtual_uri in ps_shop_url for a given shop id
+   * @param shopId - id_shop in ps_shop_url
+   * @param newVirtualUri - new value for virtual_uri
+   */
+  async updatePsShopVirtualUri(shopId: number, newVirtualUri: string): Promise<void> {
+    const updates = `virtual_uri = "${newVirtualUri}"`;
+    const conditions = `id_shop = ${shopId}`;
+    await dbHelper.executeCustomUpdateQuery('ps_shop_url', updates, conditions);
+  }
+
+  /**
+   * Method to update virtual uri from ps_shop_url
+   */
+  async updateUri() {
+    await this.updatePsShopVirtualUri(2, 'shop2/');
+  }
+
+  /**
+   * Method to return details from the database ps_shop_url
+   * @expect Uri toBe 'shop2/'
+   */
+  async getPsShopUrlUri(){
+    const results = await dbHelper.getResultsCustomSelectQuery('ps_shop_url', 'virtual_uri', `id_shop = 2`);
+    expect(results).not.toBeNull();
+    const row = (results as RowDataPacket[])[0];
+    const uri = row.virtual_uri as string;
+    expect(uri).toBe('shop2/');
+  }
 }

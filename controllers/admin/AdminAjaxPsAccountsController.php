@@ -22,6 +22,7 @@ require_once __DIR__ . '/../../src/Polyfill/Traits/Controller/AjaxRender.php';
 
 use PrestaShop\Module\PsAccounts\Account\Exception\UnknownStatusException;
 use PrestaShop\Module\PsAccounts\Account\Session\Firebase\ShopSession;
+use PrestaShop\Module\PsAccounts\Account\ShopUrl;
 use PrestaShop\Module\PsAccounts\Account\StatusManager;
 use PrestaShop\Module\PsAccounts\AccountLogin\OAuth2Session;
 use PrestaShop\Module\PsAccounts\Adapter\Link as AccountsLink;
@@ -253,17 +254,20 @@ class AdminAjaxPsAccountsController extends \ModuleAdminController
 
         $status = $statusManager->getStatus();
 
+        $shopId = $this->context->shop->id;
+        $cloudShopUrl = ShopUrl::createFromStatus($status, $shopId)->trimmed();
+
         /** @var ShopProvider $shopProvider */
         $shopProvider = $this->module->getService(ShopProvider::class);
-        $shopUrl = $shopProvider->getUrl($this->context->shop->id);
+        $localShopUrl = $shopProvider->getUrl($shopId)->trimmed();
 
-        $cloudFrontendUrl = rtrim($status->frontendUrl, '/');
-        $localFrontendUrl = rtrim($shopUrl->getFrontendUrl(), '/');
+        try {
+            if ($cloudShopUrl->frontendUrlEquals($localShopUrl)) {
+                return [];
+            }
+        } catch (\InvalidArgumentException $e) {
+            Logger::getInstance()->error($e->getMessage());
 
-        if (empty($localFrontendUrl) ||
-            empty($cloudFrontendUrl) ||
-            $localFrontendUrl === $cloudFrontendUrl
-        ) {
             return [];
         }
 
@@ -286,8 +290,8 @@ class AdminAjaxPsAccountsController extends \ModuleAdminController
             ' . $this->module->l('For your services to function properly, you must either confirm this change or create a new identity for your store.', $this->translationClass) . '
         </p>
         <ul class="acc-list">
-            <li>- ' . $this->module->l('Current store URL', $this->translationClass) . ': <em>' . $localFrontendUrl . '</em></li>
-            <li>- ' . $this->module->l('URL registered in PrestaShop Account', $this->translationClass) . ': <em>' . $cloudFrontendUrl . '</em></li>
+            <li>- ' . $this->module->l('Current store URL', $this->translationClass) . ': <em>' . $localShopUrl->getFrontendUrl() . '</em></li>
+            <li>- ' . $this->module->l('URL registered in PrestaShop Account', $this->translationClass) . ': <em>' . $cloudShopUrl->getFrontendUrl() . '</em></li>
         </ul>
     </div>
     <div>

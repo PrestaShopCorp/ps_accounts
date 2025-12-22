@@ -3,7 +3,7 @@ import {expect, test} from '@playwright/test';
 import {gotToModuleManagerPage} from '~/fixtures/goToModuleManagerPage.fixture';
 import {PageManager} from '~/pages/managerPage';
 
-gotToModuleManagerPage('Check if you are verified @1', async ({gotToModuleManagerPage}) => {
+gotToModuleManagerPage('Check if you are verified', async ({gotToModuleManagerPage}) => {
   const pm = new PageManager(gotToModuleManagerPage);
   await test.step('check you verified', async () => {
     await pm.fromModuleManagePage().getPageMainTitle();

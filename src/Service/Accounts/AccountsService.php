@@ -20,6 +20,7 @@
 
 namespace PrestaShop\Module\PsAccounts\Service\Accounts;
 
+use InvalidArgumentException;
 use PrestaShop\Module\PsAccounts\Account\ShopUrl;
 use PrestaShop\Module\PsAccounts\Http\Client\ClientConfig;
 use PrestaShop\Module\PsAccounts\Http\Client\Curl\Client;
@@ -148,9 +149,14 @@ class AccountsService
      * @return LegacyFirebaseToken
      *
      * @throws AccountsException
+     * @throws InvalidArgumentException
      */
     public function refreshShopToken($refreshToken, $cloudShopId)
     {
+        if (empty($refreshToken)) {
+            throw new InvalidArgumentException('Refresh token cannot be empty');
+        }
+
         $response = $this->getClient()->post(
             'v1/shop/token/refresh',
             [
@@ -389,5 +395,34 @@ class AccountsService
         }
 
         return new IdentityCreated($response->body);
+    }
+
+    /**
+     * @param string $cloudShopId
+     * @param string $shopToken
+     * @param ShopUrl $shopUrl
+     *
+     * @return void
+     *
+     * @throws AccountsException
+     */
+    public function updateBackOfficeUrl($cloudShopId, $shopToken, $shopUrl)
+    {
+        $response = $this->getClient()->put(
+            '/v1/shop-identities/' . $cloudShopId . '/back-office-url',
+            [
+                Request::HEADERS => $this->getHeaders([
+                    self::HEADER_AUTHORIZATION => 'Bearer ' . $shopToken,
+                ]),
+                Request::JSON => [
+                    'backOfficeUrl' => $shopUrl->getBackOfficeUrl(),
+                    'multiShopId' => $shopUrl->getMultiShopId(),
+                ],
+            ]
+        );
+
+        if (!$response->isSuccessful) {
+            throw new AccountsException($response, 'Unable to update back office URL', 'store-identity/unable-to-update-back-office-url');
+        }
     }
 }

@@ -4,14 +4,15 @@ namespace PrestaShop\Module\PsAccounts\Settings;
 
 use AdminController;
 use Configuration;
+use Exception;
 use HelperForm;
 use PrestaShop\Module\PsAccounts\Account\Command\CleanupIdentityCommand;
 use PrestaShop\Module\PsAccounts\Account\Command\RestoreIdentityCommand;
 use PrestaShop\Module\PsAccounts\Cqrs\CommandBus;
 use PrestaShop\Module\PsAccounts\Repository\ConfigurationRepository;
-use PrestaShop\Module\PsAccounts\Service\Accounts\AccountsService;
 use PrestaShop\Module\PsAccounts\Service\OAuth2\Token\Validator\Validator;
 use Ps_accounts;
+use Throwable;
 use Tools;
 use Validate;
 
@@ -27,6 +28,7 @@ class SettingsForm
     const FIELD_OAUTH2_CLIENT_SECRET = 'PS_ACCOUNTS_OAUTH2_CLIENT_SECRET';
     const FIELD_FORCE_VERIFY = 'force_verify';
     const FIELD_FORCE_MIGRATE = 'force_migrate';
+    const FIELD_MIGRATE_FROM = 'migrate_from';
 
     /**
      * Cleanup Identity form
@@ -219,6 +221,29 @@ class SettingsForm
                         ],
                     ],
                 ],
+                [
+                    'type' => 'select',
+                    'label' => 'Migrate from',
+                    'name' => self::FIELD_MIGRATE_FROM,
+                    'options' => [
+                        'query' => [
+                            [
+                                'id' => '5.6.2',
+                                'name' => '5.6.2',
+                            ],
+                            [
+                                'id' => '6.3.2',
+                                'name' => '6.3.2',
+                            ],
+                            [
+                                'id' => '7.2.2',
+                                'name' => '7.2.3',
+                            ],
+                        ],
+                        'id' => 'id',
+                        'name' => 'name',
+                    ],
+                ],
             ],
             'buttons' => [
                 $this->getBackButton(),
@@ -344,6 +369,7 @@ class SettingsForm
                      self::FIELD_FORCE_VERIFY,
                      self::FIELD_FORCE_MIGRATE,
                      self::FIELD_CLEANUP_IDENTITY,
+                     self::FIELD_MIGRATE_FROM,
                  ] as $cfg_key) {
             $helper->fields_value[$cfg_key] = Tools::getValue($cfg_key, false);
         }
@@ -365,6 +391,7 @@ class SettingsForm
         $oAuth2ClientSecret = (string) Tools::getValue(self::FIELD_OAUTH2_CLIENT_SECRET);
         $forceVerify = (bool) Tools::getValue(self::FIELD_FORCE_VERIFY);
         $forceMigrate = (bool) Tools::getValue(self::FIELD_FORCE_MIGRATE);
+        $migrateFrom = (string) Tools::getValue(self::FIELD_MIGRATE_FROM);
 
         $error = false;
         foreach ([$cloudShopId, $oAuth2ClientId] as $value) {
@@ -384,15 +411,22 @@ class SettingsForm
             return $this->module->displayError($this->l('The form contains incorrect values')) .
                 $this->generateForm(false);
         } else {
-            $this->commandBus->handle(new RestoreIdentityCommand(
-                $cloudShopId,
-                $oAuth2ClientId,
-                $oAuth2ClientSecret,
-                $forceVerify,
-                $forceMigrate,
-                AccountsService::ORIGIN_ADVANCED_SETTINGS,
-                (string) $this->name
-            ));
+            try {
+                $this->commandBus->handle(new RestoreIdentityCommand(
+                    $cloudShopId,
+                    $oAuth2ClientId,
+                    $oAuth2ClientSecret,
+                    $forceVerify,
+                    $forceMigrate,
+                    $migrateFrom
+                ));
+            } catch (Exception $e) {
+                return $this->module->displayError($this->l('An error occurred while restoring identity: ' . $e->getMessage())) .
+                    $this->generateForm(false);
+            } catch (Throwable $e) {
+                return $this->module->displayError($this->l('An error occurred while restoring identity: ' . $e->getMessage())) .
+                    $this->generateForm(false);
+            }
 
             $this->module->redirectSettingsPage([
                 self::FORM_ACCESS_PARAM => 1,

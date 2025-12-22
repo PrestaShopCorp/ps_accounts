@@ -20,6 +20,8 @@
 
 namespace PrestaShop\Module\PsAccounts\Account;
 
+use PrestaShop\Module\PsAccounts\Service\Accounts\Resource\ShopStatus;
+
 class ShopUrl
 {
     /**
@@ -66,18 +68,6 @@ class ShopUrl
     }
 
     /**
-     * @param ShopUrl $shopUrl
-     *
-     * @return bool
-     */
-    public function equals(ShopUrl $shopUrl)
-    {
-        return $this->backOfficeUrl === $shopUrl->backOfficeUrl
-            && $this->frontendUrl === $shopUrl->frontendUrl
-            && $this->multiShopId === $shopUrl->multiShopId;
-    }
-
-    /**
      * @return string
      */
     public function getBackOfficeUrl()
@@ -99,5 +89,73 @@ class ShopUrl
     public function getMultiShopId()
     {
         return $this->multiShopId;
+    }
+
+    /**
+     * Check if the frontend URL has changed compared to the remote status
+     *
+     * @param ShopUrl $shopUrl
+     *
+     * @return bool
+     *
+     * @throws \InvalidArgumentException
+     */
+    public function frontendUrlEquals(ShopUrl $shopUrl)
+    {
+        $cloudFrontendUrl = rtrim($this->frontendUrl, '/');
+        $localFrontendUrl = rtrim($shopUrl->getFrontendUrl(), '/');
+
+        if (empty($cloudFrontendUrl) || empty($localFrontendUrl)) {
+            throw new \InvalidArgumentException('Frontend URL cannot be empty');
+        }
+
+        return $cloudFrontendUrl === $localFrontendUrl;
+    }
+
+    /**
+     * Check if the backOffice URL has changed compared to the remote status
+     * Returns true if backOfficeUrl changed
+     *
+     * @param ShopUrl $shopUrl
+     *
+     * @return bool
+     *
+     * @throws \InvalidArgumentException
+     */
+    public function backOfficeUrlEquals(ShopUrl $shopUrl)
+    {
+        $cloudBackOfficeUrl = rtrim($this->getBackOfficeUrl(), '/');
+        $localBackOfficeUrl = rtrim($shopUrl->getBackOfficeUrl(), '/');
+
+        if (empty($cloudBackOfficeUrl) || empty($localBackOfficeUrl)) {
+            throw new \InvalidArgumentException('BackOffice URL cannot be empty');
+        }
+
+        return $cloudBackOfficeUrl === $localBackOfficeUrl;
+    }
+
+    /**
+     * @return ShopUrl
+     */
+    public function trimmed()
+    {
+        return new ShopUrl(
+            rtrim($this->getBackOfficeUrl(), '/'),
+            rtrim($this->getFrontendUrl(), '/'),
+            $this->getMultiShopId()
+        );
+    }
+
+    /**
+     * Create a new ShopUrl from the status
+     *
+     * @param ShopStatus $status
+     * @param int $multiShopId
+     *
+     * @return ShopUrl
+     */
+    public static function createFromStatus(ShopStatus $status, $multiShopId)
+    {
+        return new ShopUrl($status->backOfficeUrl, $status->frontendUrl, $multiShopId);
     }
 }

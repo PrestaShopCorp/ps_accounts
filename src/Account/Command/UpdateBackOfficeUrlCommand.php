@@ -1,3 +1,5 @@
+<?php
+
 /**
  * Copyright since 2007 PrestaShop SA and Contributors
  * PrestaShop is an International Registered Trademark & Property of PrestaShop SA
@@ -16,3 +18,21 @@
  * @copyright Since 2007 PrestaShop SA and Contributors
  * @license   https://opensource.org/licenses/AFL-3.0 Academic Free License version 3.0
  */
+
+namespace PrestaShop\Module\PsAccounts\Account\Command;
+
+class UpdateBackOfficeUrlCommand
+{
+    /**
+     * @var int
+     */
+    public $shopId;
+
+    /**
+     * @param int $shopId
+     */
+    public function __construct($shopId)
+    {
+        $this->shopId = $shopId;
+    }
+}

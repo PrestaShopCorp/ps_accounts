@@ -22,6 +22,7 @@ namespace PrestaShop\Module\PsAccounts\Hook;
 
 use AdminLoginPsAccountsController;
 use Exception;
+use PrestaShop\Module\PsAccounts\Account\Command\UpdateBackOfficeUrlsCommand;
 use PrestaShop\Module\PsAccounts\Adapter\Link;
 use PrestaShop\Module\PsAccounts\Service\AnalyticsService;
 use PrestaShop\Module\PsAccounts\Service\PsAccountsService;
@@ -36,6 +37,10 @@ class ActionAdminLoginControllerSetMedia extends Hook
      */
     public function execute(array $params = [])
     {
+        // Check and update URL if admin url changed (before login)
+        // Only check before login form is being submitted
+        $this->checkAndUpdateBackofficeUrl();
+
         if (defined('_PS_VERSION_') &&
             version_compare(_PS_VERSION_, '8', '>=')) {
             if (version_compare(_PS_VERSION_, '9', '<')) {
@@ -138,5 +143,15 @@ class ActionAdminLoginControllerSetMedia extends Hook
                 $analytics->pageLocalBoLogin($userId);
             }
         }
+    }
+
+    /**
+     * Check if admin URL changed and update if needed
+     *
+     * @return void
+     */
+    protected function checkAndUpdateBackofficeUrl()
+    {
+        $this->commandBus->handle(new UpdateBackOfficeUrlsCommand());
     }
 }

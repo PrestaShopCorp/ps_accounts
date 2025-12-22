@@ -1,5 +1,4 @@
 <?php
-
 /**
  * Copyright since 2007 PrestaShop SA and Contributors
  * PrestaShop is an International Registered Trademark & Property of PrestaShop SA
@@ -21,22 +20,30 @@
 
 namespace PrestaShop\Module\PsAccounts\Account\CommandHandler;
 
-use PrestaShop\Module\PsAccounts\Account\Command\CleanupIdentityCommand;
+use Exception;
+use PrestaShop\Module\PsAccounts\Account\Command\UpdateBackOfficeUrlCommand;
+use PrestaShop\Module\PsAccounts\Account\Command\UpdateBackOfficeUrlsCommand;
+use PrestaShop\Module\PsAccounts\Log\Logger;
+use Throwable;
 
-class CleanupIdentityHandler
+class UpdateBackOfficeUrlsHandler extends MultiShopHandler
 {
     /**
-     * @param CleanupIdentityCommand $command
+     * @param UpdateBackOfficeUrlsCommand $command
      *
      * @return void
      */
-    public function handle(CleanupIdentityCommand $command)
+    public function handle(UpdateBackOfficeUrlsCommand $command)
     {
-        $id_shop = \Shop::getContextShopID(true);
-        \Db::getInstance()->execute(
-            'DELETE FROM `' . _DB_PREFIX_ . bqSQL('configuration') . '`'
-            . ' WHERE (name like \'PS_ACCOUNTS%\' or name = \'PSX_UUID_V4\' or name = \'PS_CHECKOUT_SHOP_UUID_V4\')'
-            . ' AND ' . ($id_shop ? 'id_shop = ' . (int) $id_shop : 'id_shop IS NULL')
-        );
+        $this->handleMulti(function ($multiShopId) {
+            try {
+                $updateBackOfficeUrlCommand = new UpdateBackOfficeUrlCommand($multiShopId);
+                $this->commandBus->handle($updateBackOfficeUrlCommand);
+            } catch (Exception $e) {
+                Logger::getInstance()->error($e->getMessage());
+            } catch (Throwable $e) {
+                Logger::getInstance()->error($e->getMessage());
+            }
+        });
     }
 }
