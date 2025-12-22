@@ -329,7 +329,7 @@ class ConfigurationRepository
      *
      * @return void
      */
-    public function fixMultishopConfig($force = false)
+    public function fixMultiShopConfig($force = false)
     {
         $isMultishopActive = $this->isMultishopActive();
         $defaultShop = $this->getMainShop();
@@ -444,23 +444,5 @@ class ConfigurationRepository
     public function updateValidationLeeway($leeway)
     {
         $this->configuration->set(ConfigurationKeys::PS_ACCOUNTS_VALIDATION_LEEWAY, (string) $leeway);
-    }
-
-    /**
-     * create default values for shop configuration
-     *
-     * @param \Shop $shop
-     *
-     * @return void
-     */
-    public function initDefaults(\Shop $shop)
-    {
-        // TODO: key by key with defaults (leeway)
-        \Db::getInstance()->query(
-            'INSERT INTO ' . _DB_PREFIX_ . 'configuration (id_shop, id_shop_group, name, value, date_add, date_upd) VALUES ' .
-            join(',', array_map(function ($key) use ($shop) {
-                return '(' . (int) $shop->id . ', ' . (int) $shop->id_shop_group . ', \'' . $key . '\', \'\', NOW(), NOW())';
-            }, array_values(ConfigurationKeys::cases(false))))
-        );
     }
 }

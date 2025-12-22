@@ -59,28 +59,4 @@ class ConfigurationKeys extends Enum
     const PS_PSX_FIREBASE_REFRESH_DATE = 'PS_PSX_FIREBASE_REFRESH_DATE';
     /* @deprecated */
     const PS_PSX_FIREBASE_EMAIL = 'PS_PSX_FIREBASE_EMAIL';
-
-    /**
-     * @param bool $withDeprecated
-     */
-    public static function cases($withDeprecated = true)
-    {
-        if ($withDeprecated) {
-            return parent::cases();
-        }
-        return array_filter(parent::cases(), function ($value) {
-            return !in_array($value, [
-                self::PS_ACCOUNTS_USER_FIREBASE_ID_TOKEN,
-                self::PS_ACCOUNTS_USER_FIREBASE_REFRESH_TOKEN,
-                self::PS_ACCOUNTS_USER_FIREBASE_UUID,
-                self::PS_ACCOUNTS_FIREBASE_EMAIL,
-                self::PS_CHECKOUT_SHOP_UUID_V4,
-                self::PS_PSX_FIREBASE_ID_TOKEN,
-                self::PS_PSX_FIREBASE_REFRESH_TOKEN,
-                self::PS_PSX_FIREBASE_REFRESH_DATE,
-                self::PS_PSX_FIREBASE_EMAIL,
-                self::PS_ACCOUNTS_EMPLOYEE_ID,
-            ]);
-        });
-    }
 }
