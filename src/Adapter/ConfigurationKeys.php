@@ -20,7 +20,6 @@
 
 namespace PrestaShop\Module\PsAccounts\Adapter;
 
-use PrestaShop\Module\PsAccounts\Service\Accounts\Resource\ShopStatus;
 use PrestaShop\Module\PsAccounts\Type\Enum;
 
 class ConfigurationKeys extends Enum
