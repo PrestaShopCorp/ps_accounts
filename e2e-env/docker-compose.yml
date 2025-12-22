@@ -97,6 +97,14 @@ services:
     volumes:
       - ./scripts-imageoff/pre-install-scripts:/tmp/pre-install-scripts
       - ./scripts-imageoff/post-install-scripts:/tmp/post-install-scripts
+      - ./scripts-imageoff/install-ps_accounts.sh:/install-ps_accounts.sh
+    command: >
+      bash -lc '
+        /tmp/docker_run.sh & pid=$!
+        until curl -fsS http://127.0.0.1/ >/dev/null 2>&1; do sleep 1; done       
+        bash /install-ps_accounts.sh
+        wait $$pid
+      '
     profiles:
       - all
       - multistore
@@ -131,6 +139,11 @@ services:
     volumes:
       - ./scripts-imageoff/pre-install-scripts:/tmp/pre-install-scripts
       - ./scripts-imageoff/post-install-scripts:/tmp/post-install-scripts
+      - ./scripts-imageoff/install-ps_accounts.sh:/install-ps_accounts.sh
+    command: >
+      bash -c "
+        bash /install-ps_accounts.sh
+      "
     profiles:
       - all
       - multistore
