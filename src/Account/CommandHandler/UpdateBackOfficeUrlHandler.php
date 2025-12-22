@@ -87,6 +87,7 @@ class UpdateBackOfficeUrlHandler
         // On disconnected context with single shop mode, the contextual shop id is not defined.
         $shopId = $command->shopId ?: $this->configurationRepository->getMainShopId();
 
+        // TODO: rework parameters priority
         $status = $this->statusManager->getStatus(false, StatusManager::CACHE_TTL, 'ps_accounts');
 
         $cloudShopUrl = ShopUrl::createFromStatus($status, $shopId);
