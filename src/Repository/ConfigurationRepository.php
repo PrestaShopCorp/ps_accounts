@@ -325,17 +325,27 @@ class ConfigurationRepository
     }
 
     /**
-     * @return void
+     * @param bool $force
      *
-     * @throws \Exception
+     * @return void
      */
-    public function fixMultiShopConfig()
+    public function fixMultishopConfig($force = false)
     {
-//        if ($this->isMultishopActive()) {
-//            $this->migrateToMultiShop();
-//        } else {
-//            $this->migrateToSingleShop();
-//        }
+        $isMultishopActive = $this->isMultishopActive();
+        $defaultShop = $this->getMainShop();
+
+        if (!$force && \Shop::isFeatureActive() === $isMultishopActive) {
+            return;
+        }
+
+        $shopIdCondition = $isMultishopActive ? (int) $defaultShop->id : 'NULL';
+        $shopGroupIdCondition = $isMultishopActive ? (int) $defaultShop->id_shop_group : 'NULL';
+
+        \Db::getInstance()->query(
+            'UPDATE ' . _DB_PREFIX_ . 'configuration SET id_shop = ' . $shopIdCondition . ', id_shop_group = ' . $shopGroupIdCondition .
+            " WHERE name IN('" . join("','", array_values(ConfigurationKeys::cases())) . "')" .
+            ' AND id_shop ' . ($isMultishopActive ? 'IS NULL' : '= ' . (int) $defaultShop->id)
+        );
     }
 
     /**
@@ -434,39 +444,6 @@ class ConfigurationRepository
     public function updateValidationLeeway($leeway)
     {
         $this->configuration->set(ConfigurationKeys::PS_ACCOUNTS_VALIDATION_LEEWAY, (string) $leeway);
-    }
-
-    /**
-     * specify id_shop & id_shop_group for shop
-     *
-     * @return void
-     */
-    protected function migrateToMultiShop()
-    {
-        // TODO: emptied access_token
-        // TODO: filter shops without url in multi
-        // TODO: missing hooks to cover all cases
-        $shop = $this->getMainShop();
-        \Db::getInstance()->query(
-            'UPDATE ' . _DB_PREFIX_ . 'configuration SET id_shop = ' . (int) $shop->id . ', id_shop_group = ' . (int) $shop->id_shop_group .
-            " WHERE name IN('" . join("','", array_values(ConfigurationKeys::cases())) . "')" .
-            ' AND id_shop IS NULL AND id_shop_group IS NULL;'
-        );
-    }
-
-    /**
-     * nullify id_shop & id_shop_group for shop
-     *
-     * @return void
-     */
-    protected function migrateToSingleShop()
-    {
-        $shop = $this->getMainShop();
-        \Db::getInstance()->query(
-            'UPDATE ' . _DB_PREFIX_ . 'configuration SET id_shop = NULL, id_shop_group = NULL' .
-            " WHERE name IN('" . join("','", array_values(ConfigurationKeys::cases())) . "')" .
-            ' AND id_shop = ' . (int) $shop->id . ';'
-        );
     }
 
     /**

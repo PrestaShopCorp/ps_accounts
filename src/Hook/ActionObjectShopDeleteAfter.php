@@ -36,7 +36,7 @@ class ActionObjectShopDeleteAfter extends Hook
     {
         /** @var ConfigurationRepository $configurationRepository */
         $configurationRepository = $this->module->getService(ConfigurationRepository::class);
-        $configurationRepository->fixMultiShopConfig();
+        $configurationRepository->fixMultishopConfig();
 
         return true;
     }

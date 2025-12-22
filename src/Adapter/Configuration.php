@@ -40,11 +40,6 @@ class Configuration
     private $idLang = null;
 
     /**
-     * @var int
-     */
-    private $idMainShop = null;
-
-    /**
      * Configuration constructor.
      *
      * @param \Context $context
@@ -90,17 +85,6 @@ class Configuration
     public function setIdShopGroup($idShopGroup)
     {
         $this->idShopGroup = $idShopGroup;
-    }
-
-    /**
-     * @return int
-     */
-    public function getIdMainShop()
-    {
-        if (null === $this->idMainShop) {
-            $this->idMainShop = $this->getMainShopId();
-        }
-        return $this->idMainShop;
     }
 
     /**
@@ -153,11 +137,7 @@ class Configuration
      */
     protected function getRaw($key, $idLang = null, $idShopGroup = null, $idShop = null, $default = false)
     {
-        if ($idShop === $this->getIdMainShop()) {
-            $value = \Configuration::getGlobalValue($key, $idLang);
-        } else {
-            $value = \Configuration::get($key, $idLang, $idShopGroup, $idShop);
-        }
+        $value = \Configuration::get($key, $idLang, $idShopGroup, $idShop);
 
         return $value ?: ($default !== false ? $default : $value);
     }
@@ -185,12 +165,7 @@ class Configuration
      */
     protected function setRaw($key, $values, $html = false, $idShopGroup = null, $idShop = null)
     {
-        if ((int) $idShop === (int) $this->getIdMainShop()) {
-            $this->setGlobal($key, $values, $html);
-            return true;
-        } else {
-            return \Configuration::updateValue($key, $values, $html, $idShopGroup, $idShop);
-        }
+        return \Configuration::updateValue($key, $values, $html, $idShopGroup, $idShop);
     }
 
     /**
@@ -257,10 +232,7 @@ class Configuration
 
         if ($forceContext && !$this->isMultishopActive()) {
             $idShopGroup = $idShop = null;
-            $id = \Configuration::getIdByName($key, 0, $idShop);
-        } else if ($idShop === $this->getIdMainShop()) {
-            $idShopGroup = $idShop = 0;
-            $id = \Configuration::getIdByName($key, 0, $idShop);
+            $id = \Configuration::getIdByName($key, $idShopGroup, $idShop);
         } else {
             // mimic the condition of the original \Configuration::get method
             $id = \Configuration::getIdByName($key, 0, $idShop);
