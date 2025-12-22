@@ -61,6 +61,16 @@ class ConfigurationRepository
     }
 
     /**
+     * @param int $shopId
+     *
+     * @return void
+     */
+    public function setShopGroupId($shopId)
+    {
+        $this->configuration->setIdShopGroup($shopId);
+    }
+
+    /**
      * @return string
      */
     public function getFirebaseIdToken()
