@@ -61,13 +61,21 @@ class ConfigurationRepository
     }
 
     /**
-     * @param int $shopId
+     * @return int
+     */
+    public function getShopGroupId()
+    {
+        return $this->configuration->getIdShopGroup();
+    }
+
+    /**
+     * @param int $groupId
      *
      * @return void
      */
-    public function setShopGroupId($shopId)
+    public function setShopGroupId($groupId)
     {
-        $this->configuration->setIdShopGroup($shopId);
+        $this->configuration->setIdShopGroup($groupId);
     }
 
     /**
