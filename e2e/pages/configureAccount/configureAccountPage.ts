@@ -40,7 +40,7 @@ export default class ConfigureAccountPage extends ModuleManagerPage {
    */
   async verifyManualy() {
     await this.page.getByRole('button', {name: 'Verify'}).click();
-    await this.page.waitForLoadState('networkidle');
+    await this.page.locator('[data-test="account-settings-panel"]').waitFor({state: 'hidden'});
   }
   /**
    * Check if Verification succed
@@ -100,10 +100,21 @@ export default class ConfigureAccountPage extends ModuleManagerPage {
    */
   async displayAllStoreInformations() {
     await this.page.locator('.shopname').click();
-    await this.page
-      .locator('a')
-      .filter({hasText: /^All stores$/})
-      .click();
+    // try {
+    //   await this.page
+    //     .locator('a')
+    //     .filter({hasText: /^All stores$/})
+    //     .click();
+    // } catch {
+    //   await this.page.getByRole('link', {name: 'All shops'}).click();
+    // }
+    const allStores = this.page.locator('a').filter({hasText: /^All stores$/});
+    const allShops = this.page.getByRole('link', {name: 'All shops'}).first();
+    if (await allStores.isVisible()) {
+      await allStores.click();
+    } else {
+      await allShops.click();
+    }
   }
   /**
    *

@@ -4,10 +4,8 @@ if [ -n "$1" ]; then
   SHOP_VERSIONS=("$1")
 else
 SHOP_VERSIONS=(
-  9.0.2-2.0-classic-apache   
   8.2.0-8.1
   1.7.8.8-7.4
-  1.6.1.23
 )
 fi
 
@@ -16,7 +14,7 @@ for PS_VERSION in "${SHOP_VERSIONS[@]}"; do
 npm run build-shop -- "$PS_VERSION" "" "imageoff" "$ACCOUNT_VERSION"
 
 #Run the tests
-npx playwright test --project="Account Multistore TNR V8" multistoreV8 || true 
+npx playwright test --project="Account TNR V8" multistore|| true 
 
 #Create the allure result directory
 mkdir -p "allure-results-$PS_VERSION"

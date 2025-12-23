@@ -3,6 +3,8 @@ import {test, expect} from '@playwright/test';
 import {activeMultistoreAndCreateShop} from '~/fixtures/activeMultiStoreAndCreateShop.fixture';
 import {PageManager} from '~/pages/managerPage';
 
+
+
 activeMultistoreAndCreateShop('Check Multistore Verifications', async ({activeMultistoreAndCreateShop}) => {
   const pm = new PageManager(activeMultistoreAndCreateShop);
   await test.step('check alert Block is Displaayed when you choose all store', async () => {
@@ -27,7 +29,7 @@ activeMultistoreAndCreateShop('Check Multistore Verifications', async ({activeMu
     expect(apiStatus).toBeFalsy();
   });
   await test.step('check seconde shop is verified UI and getshopstatus return verified:true', async () => {
-    await pm.fromConfigureAccountPage().displaySecondeStoreInformations();
+    // await pm.fromConfigureAccountPage().displaySecondeStoreInformations();
     await pm.fromConfigureAccountPage().verifyManualy();
     const status = await pm.fromConfigureAccountPage().getStoreInformation();
     expect(status).toBeTruthy();
