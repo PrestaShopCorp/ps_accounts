@@ -101,7 +101,7 @@ class AccountsException extends \Exception
     public function getDetails()
     {
         if ($storeResponse = $this->getStoreResponse()) {
-            return $storeResponse->statusCode . ' ' . $storeResponse->raw;
+            return $storeResponse->statusCode . ' ' . print_r($storeResponse->raw, true);
         } elseif ($reason = $this->getReason()) {
             return $reason;
         }
