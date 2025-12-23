@@ -40,7 +40,7 @@ export default class ConfigureAccountPage extends ModuleManagerPage {
    */
   async verifyManualy() {
     await this.page.getByRole('button', {name: 'Verify'}).click();
-    await this.page.waitForLoadState('load');
+    await this.page.waitForLoadState('networkidle');
   }
   /**
    * Check if Verification succed

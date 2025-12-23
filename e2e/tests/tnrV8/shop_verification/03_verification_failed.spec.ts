@@ -4,7 +4,7 @@ import {gotToModuleManagerPage} from '~/fixtures/goToModuleManagerPage.fixture';
 import {PageManager} from '~/pages/managerPage';
 import DbRequest from '~/services/db/dbRequest';
 
-gotToModuleManagerPage('Check if you can verified manually', async ({gotToModuleManagerPage}) => {
+gotToModuleManagerPage('Check if you have message error when try to verified manually', async ({gotToModuleManagerPage}) => {
   const pm = new PageManager(gotToModuleManagerPage);
   const db = new DbRequest();
   await test.step('check if you are unverified', async () => {
