@@ -185,4 +185,19 @@ export default class ModuleManagerPage extends BasePage {
       throw new Error('Module Manager page title not recognized.');
     }
   }
+
+  /**
+   * If ps_version => 9 delete préinstall ps_accounts module
+   */
+  async detetePreInstallPsAccount() {
+    const psVersion = await this.page.locator('#shop_version').first().textContent();
+    if (psVersion?.startsWith('9.')) {
+      const dropDownBtn = this.page.locator('.dropdown-toggle-split');
+      await dropDownBtn.click();
+      await this.page.getByRole('button', {name: 'Uninstall'}).click();
+      await this.page.getByRole('link', {name: 'Yes, uninstall it'}).click();
+      await dropDownBtn.click();
+      await this.page.getByRole('link', {name: 'Delete'}).click();
+    }
+  }
 }

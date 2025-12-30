@@ -85,7 +85,7 @@ services:
       DB_PASSWD: prestashop
       DB_PORT: 3306
       # PHYSICAL_URI: "shop1"
-      PS_TRUSTED_PROXIES: 0.0.0.0/0
+      PS_TRUSTED_PROXIES: 127.0.0.1,REMOTE_ADDR
       PS_ERASE_DB: 1
       PS_INSTALL_DB: 1
       PS_INSTALL_AUTO: 1
@@ -141,9 +141,12 @@ services:
       - ./scripts-imageoff/post-install-scripts:/tmp/post-install-scripts
       - ./scripts-imageoff/install-ps_accounts.sh:/install-ps_accounts.sh
     command: >
-      bash -c "
+      bash -lc '
+        /tmp/docker_run.sh & pid=$!
+        until curl -fsS http://127.0.0.1/ >/dev/null 2>&1; do sleep 1; done       
         bash /install-ps_accounts.sh
-      "
+        wait $$pid
+      '
     profiles:
       - all
       - multistore

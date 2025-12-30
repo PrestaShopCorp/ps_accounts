@@ -25,11 +25,11 @@ wget -q -O /tmp/ps_accounts.zip "https://github.com/${GITHUB_REPOSITORY}/release
 
 # Unzip ps_accounts module
 echo "* [ps_accounts] unzipping..."
-unzip -qq /tmp/ps_accounts.zip -d "$PS_ROOT/modules"
+unzip -o -qq /tmp/ps_accounts.zip -d "$PS_ROOT/modules"
 
 # Change permission
 chown -R $CHOWN_USER "$PS_ROOT/modules/ps_accounts"
-chmod g+r -R "$PS_ROOT/modules/ps_accounts"
+chmod -R 775 "$PS_ROOT/modules/ps_accounts"
 
 # Créer les répertoires de cache
 echo "* [ps_accounts] preparing cache directories..."
@@ -58,8 +58,8 @@ php -d memory_limit=-1 bin/console prestashop:module --no-interaction install "p
 
 # Vérifier et corriger les permissions après installation
 echo "* [ps_accounts] fixing permissions after installation..."
-chown -R $CHOWN_USER "$PS_ROOT/var/cache"
+chown -R $CHOWN_USER "$PS_ROOT/var/cache" "$PS_ROOT/var/logs" "$PS_ROOT/modules/ps_accounts"
 chmod -R 775 "$PS_ROOT/var/cache"
-chown -R $CHOWN_USER "$PS_ROOT/var/logs"
 chmod -R 775 "$PS_ROOT/var/logs"
+chmod -R 775 "$PS_ROOT/modules/ps_accounts"
 echo "* [ps_accounts] installation completed!"
