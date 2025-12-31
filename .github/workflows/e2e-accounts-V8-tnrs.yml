@@ -1,4 +1,4 @@
-name: e2e Acounts V7 TNRs
+name: e2e Acounts V8 TNRs
 
 on:
   workflow_dispatch:
@@ -62,10 +62,9 @@ jobs:
       max-parallel: 1
       matrix:
         shop_version:
-          - nightly-nginx
-          - 8.2.0-8.1-fpm-alpine
-          - 1.7.8.8-7.4-fpm-alpine
-          - 1.6.1.24-7.1-fpm-alpine
+          - 9.0.2-apache
+          - 8.2.0-8.1
+          - 1.7.8.8-7.4
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v4
@@ -120,8 +119,8 @@ jobs:
       - name: Run test
         working-directory: ./e2e
         run: |
-          npm run tnr-v7 -- ${{ matrix.shop_version  }}
-          npm run upgrade-tests -- ${{ matrix.shop_version  }}
+          npm run tnr-v8 -- ${{ matrix.shop_version  }}
+          npm run tnr-multistore-v8 -- ${{ matrix.shop_version  }}
         continue-on-error: true
 
       - name: Upload Allure Results
@@ -178,7 +177,7 @@ jobs:
         working-directory: ./e2e/allure-report/widgets
         run: |
           {
-            echo "*Résultats des TNR V7 Account :* \`${{ github.repository }}\`"
+            echo "*Résultats des TNR V8 Account :* \`${{ github.repository }}\`"
             echo
             jq -r '.items[] | "• \(.name) : ✅ \(.statistic.passed) / ❌ \(.statistic.failed) / ⚠️ \(.statistic.broken)"' suites.json
             echo
@@ -220,7 +219,7 @@ jobs:
         working-directory: ./e2e/allure-report/widgets
         run: |
           {
-            echo "*Résultats des TNR V7 Account :* \`${{ github.repository }}\`"
+            echo "*Résultats des TNR V8 Account :* \`${{ github.repository }}\`"
             echo
             jq -r '.items[] | "• \(.name) : ✅ \(.statistic.passed) / ❌ \(.statistic.failed) / ⚠️ \(.statistic.broken)"' suites.json
             echo
