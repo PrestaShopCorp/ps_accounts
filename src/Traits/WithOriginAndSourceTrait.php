@@ -5,9 +5,9 @@ namespace PrestaShop\Module\PsAccounts\Traits;
 use PrestaShop\Module\PsAccounts\Service\Accounts\AccountsService;
 
 /**
- * @method self withSource(string $source)
+ * @method $this withSource(string $source)
  * @method string getSource()
- * @method self withOrigin(string $source)
+ * @method $this withOrigin(string $source)
  * @method string getOrigin()
  */
 trait WithOriginAndSourceTrait
