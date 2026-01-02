@@ -31,18 +31,12 @@ use PrestaShop\Module\PsAccounts\Service\Accounts\Resource\FirebaseTokens;
 use PrestaShop\Module\PsAccounts\Service\Accounts\Resource\IdentityCreated;
 use PrestaShop\Module\PsAccounts\Service\Accounts\Resource\LegacyFirebaseToken;
 use PrestaShop\Module\PsAccounts\Service\Accounts\Resource\ShopStatus;
-use PrestaShop\Module\PsAccounts\Traits\WithPropertyTrait;
+use PrestaShop\Module\PsAccounts\Traits\WithOriginAndSourceTrait;
 use PrestaShop\Module\PsAccounts\Vendor\Ramsey\Uuid\Uuid;
 
-/**
- * @method self withSource(string $source)
- * @method string getSource()
- * @method self withOrigin(string $source)
- * @method string getOrigin()
- */
 class AccountsService
 {
-    use WithPropertyTrait;
+    use WithOriginAndSourceTrait;
 
     // Common headers
     const HEADER_AUTHORIZATION = 'Authorization';
@@ -74,20 +68,6 @@ class AccountsService
     protected $clientConfig;
 
     /**
-     * source module triggering call
-     *
-     * @var string|null
-     */
-    protected $source;
-
-    /**
-     * UX origin triggering call
-     *
-     * @var string|null
-     */
-    protected $origin;
-
-    /**
      * @param array $config
      */
     public function __construct(array $config)
@@ -101,17 +81,6 @@ class AccountsService
         ], $config);
 
         $this->initDefaults();
-    }
-
-    /**
-     * @return array
-     */
-    public function getDefaults()
-    {
-        return [
-            'source' => 'ps_accounts',
-            'origin' => self::ORIGIN_INSTALL,
-        ];
     }
 
     /**

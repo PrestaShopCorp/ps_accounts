@@ -246,12 +246,11 @@ class MigrateOrCreateIdentityV8Handler
      */
     private function createOrVerifyIdentity(MigrateOrCreateIdentityV8Command $command)
     {
-        $this->commandBus->handle(new CreateIdentityCommand(
-            $command->shopId,
-            false,
-            $command->origin,
-            $command->source
-        ));
+        $this->commandBus->handle(
+            (new CreateIdentityCommand($command->shopId, false))
+                ->withOrigin($command->origin)
+                ->withSource($command->source)
+        );
     }
 
     /**

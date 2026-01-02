@@ -109,19 +109,17 @@ class CreateIdentityHandler
             $this->statusManager->setIsVerified(false);
             $this->statusManager->invalidateCache();
 
-            $this->commandBus->handle(new VerifyIdentityCommand(
-                $command->shopId,
-                true,
-                $command->origin,
-                $command->source
-            ));
+            $this->commandBus->handle(
+                (new VerifyIdentityCommand($command->shopId, true))
+                    ->withOrigin($command->origin)
+                    ->withSource($command->source)
+            );
         } else {
-            $this->commandBus->handle(new VerifyIdentityCommand(
-                $command->shopId,
-                false,
-                $command->origin,
-                $command->source
-            ));
+            $this->commandBus->handle(
+                (new VerifyIdentityCommand($command->shopId))
+                    ->withOrigin($command->origin)
+                    ->withSource($command->source)
+            );
         }
     }
 

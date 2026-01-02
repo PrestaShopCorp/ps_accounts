@@ -384,15 +384,17 @@ class SettingsForm
             return $this->module->displayError($this->l('The form contains incorrect values')) .
                 $this->generateForm(false);
         } else {
-            $this->commandBus->handle(new RestoreIdentityCommand(
-                $cloudShopId,
-                $oAuth2ClientId,
-                $oAuth2ClientSecret,
-                $forceVerify,
-                $forceMigrate,
-                AccountsService::ORIGIN_ADVANCED_SETTINGS,
-                (string) $this->name
-            ));
+            $this->commandBus->handle(
+                (new RestoreIdentityCommand(
+                    $cloudShopId,
+                    $oAuth2ClientId,
+                    $oAuth2ClientSecret,
+                    $forceVerify,
+                    $forceMigrate
+                ))
+                    ->withOrigin(AccountsService::ORIGIN_ADVANCED_SETTINGS)
+                    ->withOrigin($this->name)
+            );
 
             $this->module->redirectSettingsPage([
                 self::FORM_ACCESS_PARAM => 1,

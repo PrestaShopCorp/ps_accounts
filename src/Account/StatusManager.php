@@ -28,15 +28,11 @@ use PrestaShop\Module\PsAccounts\Repository\ConfigurationRepository;
 use PrestaShop\Module\PsAccounts\Service\Accounts\AccountsException;
 use PrestaShop\Module\PsAccounts\Service\Accounts\AccountsService;
 use PrestaShop\Module\PsAccounts\Service\Accounts\Resource\ShopStatus;
-use PrestaShop\Module\PsAccounts\Traits\WithPropertyTrait;
+use PrestaShop\Module\PsAccounts\Traits\WithOriginAndSourceTrait;
 
-/**
- * @method self withSource(string $source)
- * @method string getSource()
- */
 class StatusManager
 {
-    use WithPropertyTrait;
+    use WithOriginAndSourceTrait;
 
     /**
      * Status Cache TTL in seconds
@@ -64,11 +60,6 @@ class StatusManager
     private $accountsService;
 
     /**
-     * @var string|null
-     */
-    private $source = 'ps_accounts';
-
-    /**
      * @param ShopSession $shopSession
      * @param AccountsService $accountsService
      * @param ConfigurationRepository $repository
@@ -81,17 +72,8 @@ class StatusManager
         $this->repository = $repository;
         $this->shopSession = $shopSession;
         $this->accountsService = $accountsService;
-        $this->initDefaults();
-    }
 
-    /**
-     * @return array
-     */
-    public function getDefaults()
-    {
-        return [
-            'source' => null,
-        ];
+        $this->initDefaults();
     }
 
     /**
