@@ -113,17 +113,11 @@ class CommandProvider implements IServiceProvider
                 $container->get(CommandBus::class)
             );
         });
-        $container->registerProvider(CleanupIdentityHandler::class, static function () use ($container) {
-            return new CleanupIdentityHandler(
-                $container->get(OAuth2Client::class),
-                $container->get(StatusManager::class),
-                $container->get(ConfigurationRepository::class)
-            );
+        $container->registerProvider(CleanupIdentityHandler::class, static function () {
+            return new CleanupIdentityHandler();
         });
         $container->registerProvider(UpdateBackOfficeUrlHandler::class, static function () use ($container) {
             return new UpdateBackOfficeUrlHandler(
-                $container->get(ShopContext::class),
-                $container->get(CommandBus::class),
                 $container->get(AccountsService::class),
                 $container->get(StatusManager::class),
                 $container->get(ShopProvider::class),

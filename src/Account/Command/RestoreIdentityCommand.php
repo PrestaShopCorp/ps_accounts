@@ -58,24 +58,32 @@ class RestoreIdentityCommand
     public $migrate;
 
     /**
+     * @var string|null
+     */
+    public $migrateFrom;
+
+    /**
      * @param string $cloudShopId
      * @param string $clientId
      * @param string $clientSecret
      * @param bool $verify
      * @param bool $migrate
+     * @param string $migrateFrom
      */
     public function __construct(
         $cloudShopId,
         $clientId,
         $clientSecret,
         $verify = false,
-        $migrate = false
+        $migrate = false,
+        $migrateFrom = null
     ) {
         $this->cloudShopId = $cloudShopId;
         $this->clientId = $clientId;
         $this->clientSecret = $clientSecret;
         $this->verify = $verify;
         $this->migrate = $migrate;
+        $this->migrateFrom = $migrateFrom;
 
         $this->initDefaults();
     }

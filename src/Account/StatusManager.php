@@ -310,7 +310,7 @@ class StatusManager
     /**
      * @return void
      */
-    public function clearIdentity()
+    public function clearStatus()
     {
         $this->upsetCachedStatus(new CachedShopStatus([
             'shopStatus' => [
@@ -323,6 +323,7 @@ class StatusManager
                 'shopVerificationErrorCode' => '',
             ],
         ]));
+        $this->invalidateCache();
     }
 
     /**
