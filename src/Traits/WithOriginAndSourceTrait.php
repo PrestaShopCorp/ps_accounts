@@ -19,14 +19,14 @@ trait WithOriginAndSourceTrait
      *
      * @var string|null
      */
-    protected $source;
+    public $source;
 
     /**
      * UX origin triggering call
      *
      * @var string|null
      */
-    protected $origin;
+    public $origin;
 
     /**
      * @return array
