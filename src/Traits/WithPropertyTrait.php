@@ -23,7 +23,7 @@ trait WithPropertyTrait
         }
         $get = 'get';
         if (strpos($methodName, $get) === 0) {
-            return $this->getProperty($methodName, $get);
+            return $this->getAndRestoreProperty($methodName, $get);
         }
     }
 
@@ -81,7 +81,7 @@ trait WithPropertyTrait
      *
      * @return mixed|null
      */
-    private function getProperty($methodName, $prefix = 'get')
+    private function getAndRestoreProperty($methodName, $prefix = 'get')
     {
         $property = $this->extractPropertyName($methodName, $prefix);
 
