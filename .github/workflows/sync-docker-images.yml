@@ -51,7 +51,7 @@ jobs:
           for version in "${OFFICIAL_VERSIONS[@]}"; do
             echo "Pushing Official $version"
             docker pull --platform=linux/amd64 prestashop/prestashop:$version
-            docker tag prestashop/prestashop-flashlight:$version ghcr.io/${GHCR_USER}/prestashop/prestashop:$version
+            docker tag prestashop/prestashop:$version ghcr.io/${GHCR_USER}/prestashop/prestashop:$version
             docker push ghcr.io/${GHCR_USER}/prestashop/prestashop:$version
           done
 
