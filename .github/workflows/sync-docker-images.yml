@@ -40,6 +40,21 @@ jobs:
             docker push ghcr.io/${GHCR_USER}/prestashop/prestashop-flashlight:$version
           done
 
+      - name: Pull & Push PrestaShop Official images
+        run: |
+          OFFICIAL_VERSIONS=(
+            9.0.2-apache
+            8.2.0-8.1
+            1.7.8.8-7.4
+          )
+
+          for version in "${OFFICIAL_VERSIONS[@]}"; do
+            echo "Pushing Official $version"
+            docker pull --platform=linux/amd64 prestashop/prestashop:$version
+            docker tag prestashop/prestashop-flashlight:$version ghcr.io/${GHCR_USER}/prestashop/prestashop:$version
+            docker push ghcr.io/${GHCR_USER}/prestashop/prestashop:$version
+          done
+
       - name: Pull & Push Generic Images
         run: |
           GENERIC_IMAGES=(

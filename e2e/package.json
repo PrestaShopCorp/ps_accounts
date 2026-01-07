@@ -7,12 +7,12 @@
     "kill-shop": "cd ../e2e-env && docker compose --profile all down -v",
     "installation-tests": "./scripts/run-installation-tests.sh",
     "association-diassociaiton-tests": "./scripts/run-association-diassociation-tests.sh",
-    "multistore-association-diassociation-tests": "./scripts/run-multistore-association-diassociation-tests.sh",
     "upgrade-tests": "./scripts/run-upgrade-tests.sh",
     "merge-allure-results": "rm -rf allure-results && mkdir allure-results && for dir in allure-results-*; do cp -r \"$dir\"/* allure-results/; done && rm -rf allure-results-*",
     "generate-allure-report": "allure generate allure-results --clean -o allure-report",
     "clean-test-results": "rm -rf allure-report allure-results allure-results-* test-results playwright-report",
     "tnr-v7": "./scripts/run-tnr-v7.sh",
+    "tnr-multistore-v7": "./scripts/run-multistore-association-diassociation-tests.sh",
     "tnr-v8": "./scripts/run-tnr-v8.sh",
     "tnr-multistore-v8": "./scripts/run-tnr-multistore-v8.sh"
   },

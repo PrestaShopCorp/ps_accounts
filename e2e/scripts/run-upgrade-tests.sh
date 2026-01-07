@@ -14,10 +14,10 @@ if [ -n "$2" ]; then
   ACCOUNTS_VERSIONS=("$2")
 else
 ACCOUNTS_VERSIONS=(
+  v8.0.6
   v7.2.2
   v6.3.1
   v5.6.2
-  v5.6.0
 )
 fi
 

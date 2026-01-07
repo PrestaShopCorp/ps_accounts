@@ -4,6 +4,7 @@ if [ -n "$1" ]; then
   SHOP_VERSIONS=("$1")
 else
 SHOP_VERSIONS=(
+  9.0.2-apache
   8.2.0-8.1
   1.7.8.8-7.4
 )
