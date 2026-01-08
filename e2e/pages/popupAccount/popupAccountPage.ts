@@ -174,7 +174,7 @@ export default class PopupAccountPage extends ModuleManagerPage {
    * Select de FO/Shop2 url and click Diassociate
    */
   async multistoreSelectUrlAndDiassociate(newPage: Page) {
-    const card = newPage.getByRole('checkbox', {name: `Shop2 language icon ${Globals.base_url_fo}/shop1`});
+    const card = newPage.getByRole('checkbox', {name: `Shop1 language icon ${Globals.base_url_fo}/shop1`});
     await card.isVisible();
     await card.locator('[data-test="shoplist-shop-unlink"]').click();
     await newPage.locator('[data-test="confirm-unlink-shop"]').click({timeout: 5000});
