@@ -247,78 +247,96 @@ jobs:
           payload-file-path: ./e2e/allure-report/widgets/slack_payload.json
 
   report-to-google-sheet:
-      name: Append results to Google Sheet
-      needs: run-test
-      runs-on: ubuntu-latest
-      if: always()
+    name: Append results to Google Sheet
+    needs: merge-allure
+    runs-on: ubuntu-latest
+    if: always()
 
-      steps:
-        - name: Authenticate to Google Cloud
-          uses: google-github-actions/auth@v2
-          with:
-            credentials_json: ${{ secrets.GCP_SA_KEY }}
+    steps:
+      - name: Download Allure Report
+        uses: actions/download-artifact@v4
+        with:
+          name: allure-report
+          path: ./e2e/allure-report
 
-        - name: Setup Node.js
-          uses: actions/setup-node@v4
-          with:
-            node-version: "20"
+      - name: Authenticate to Google Cloud
+        uses: google-github-actions/auth@v2
+        with:
+          credentials_json: ${{ secrets.GCP_SA_KEY }}
 
-        - name: Install Google APIs client
-          run: npm install googleapis
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
 
-        - name: Append data to Google Sheet
-          env:
-            SHEET_ID: ${{ secrets.GOOGLE_SHEET_ID }}
-            DASHBOARD_PASSED: ${{ needs.run-test.outputs.dashboard-passed }}
-            DASHBOARD_FAILED: ${{ needs.run-test.outputs.dashboard-failed }}
-            EXPLORE_PASSED: ${{ needs.run-test.outputs.explore-passed }}
-            EXPLORE_FAILED: ${{ needs.run-test.outputs.explore-failed }}
-            RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
-          run: |
-            node -e "
-              const { google } = require('googleapis');
+      - name: Install Google APIs client
+        run: npm install googleapis
+
+      - name: Append data to Google Sheet
+        env:
+          SHEET_ID: ${{ secrets.GOOGLE_SHEET_ID }}
+          RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+        run: |
+          node -e "
+            const fs = require('fs');
+            const path = require('path');
+            const { google } = require('googleapis');
+
+            const suitesPath = path.resolve('e2e/allure-report/widgets/suites.json');
+            if (!fs.existsSync(suitesPath)) {
+              console.error('suites.json introuvable:', suitesPath);
+              process.exit(1);
+            }
+
+            const suites = JSON.parse(fs.readFileSync(suitesPath, 'utf8'));
+            const items = Array.isArray(suites.items) ? suites.items : [];
+
+            const totals = items.reduce((acc, it) => {
+              const st = it && it.statistic ? it.statistic : {};
+              acc.passed += Number(st.passed || 0);
+              acc.failed += Number(st.failed || 0);
+              acc.broken += Number(st.broken || 0);
+              acc.skipped += Number(st.skipped || 0);
+              acc.unknown += Number(st.unknown || 0);
+              return acc;
+            }, { passed: 0, failed: 0, broken: 0, skipped: 0, unknown: 0 });
+
+            const totalConsidered = totals.passed + totals.failed + totals.broken; // généralement ce qu'on veut suivre
+            const successRate = totalConsidered > 0 ? (totals.passed / totalConsidered) * 100 : 100;
+            const formattedSuccessRate = successRate.toFixed(2) + '%';
+
+            const today = new Date().toLocaleDateString('fr-FR', { timeZone: 'Europe/Paris' });
+
+            // Colonnes: Date | Passed | Failed | Broken | Skipped | Total Passed | Total Failed(=failed+broken) | Success Rate | Run URL
+            const values = [[
+              today,
+              totals.passed,
+              totals.failed,
+              totals.broken,
+              totals.skipped,
+              totals.passed,
+              (totals.failed + totals.broken),
+              formattedSuccessRate,
+              process.env.RUN_URL
+            ]];
+
+            (async () => {
               const auth = new google.auth.GoogleAuth({
                 scopes: ['https://www.googleapis.com/auth/spreadsheets'],
               });
               const sheets = google.sheets({ version: 'v4', auth });
-              
-              const spreadsheetId = process.env.SHEET_ID;
-              const today = new Date().toLocaleDateString('fr-FR', { timeZone: 'Europe/Paris' }); 
-              const dashboardPassed = parseInt(process.env.DASHBOARD_PASSED) || 0;
-              const dashboardFailed = parseInt(process.env.DASHBOARD_FAILED) || 0;
-              const explorePassed = parseInt(process.env.EXPLORE_PASSED) || 0;
-              const exploreFailed = parseInt(process.env.EXPLORE_FAILED) || 0;
-              const totalPassed = dashboardPassed + explorePassed;
-              const totalFailed = dashboardFailed + exploreFailed;
-              const totalTests = totalPassed + totalFailed;
-              let successRate = 100; 
-              if (totalTests > 0) {
-                successRate = (totalPassed / totalTests) * 100;
-              }
-              const formattedSuccessRate = successRate.toFixed(2) + '%'; 
 
-              const values = [
-                [
-                  today,
-                  dashboardPassed,
-                  dashboardFailed,
-                  explorePassed,
-                  exploreFailed,
-                  totalPassed,
-                  totalFailed,
-                  formattedSuccessRate,
-                  process.env.RUN_URL
-                ]
-              ];
-              
-              sheets.spreadsheets.values.append({
-                spreadsheetId,
-                range: 'Upgrade!A:F', 
+              await sheets.spreadsheets.values.append({
+                spreadsheetId: process.env.SHEET_ID,
+                range: 'Upgrade!A:I',
                 valueInputOption: 'USER_ENTERED',
+                insertDataOption: 'INSERT_ROWS',
                 resource: { values },
-              }).then(res => console.log('Données ajoutées avec succès.'))
-                .catch(err => {
-                  console.error('Erreur lors de l\'ajout des données:', err);
-                  process.exit(1);
-                });
-            "
+              });
+
+              console.log('Données ajoutées avec succès:', values[0]);
+            })().catch(err => {
+              console.error('Erreur lors de l\\'ajout des données:', err);
+              process.exit(1);
+            });
+          "
