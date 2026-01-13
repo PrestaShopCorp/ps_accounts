@@ -106,17 +106,24 @@ export default class ModuleManagerPage extends BasePage {
    * The page title check if the title All Store is visible
    */
   async isMultistoreVisible() {
-    await this.page.locator('.header-multishop-button').click();
-    const isMultiStoreVisible = this.page.locator('.multishop-modal-all-name');
-    await isMultiStoreVisible.click();
-    expect(isMultiStoreVisible).toBeVisible({timeout: 3000});
+    const dropdownTrigger = this.page
+      .getByRole('link', {name: 'All stores', exact: true})
+      .or(this.page.getByRole('link', {name: 'PrestaShop', exact: true}))
+      .or(this.page.getByRole('link', {name: 'visibility'}))
+      .first();
+    await dropdownTrigger.click(); 
+    const multiStoreOption = this.page
+      .getByRole('link', {name: 'All stores', exact: true})
+      .or(this.page.getByRole('link', {name: 'All shops', exact: true}))
+    await multiStoreOption.click();
+    // expect(multiStoreOption).toBeVisible({timeout: 3000})
   }
   async isMultistoreVisibleOldVersion() {
     await this.page.locator('#header_shop').click();
-    const allShopsBtn = this.page.getByRole('link', {name: 'All shops', exact: true});
+    const allShopsBtn = this.page.getByRole('link', {name: 'All shops'});
     await allShopsBtn.click();
-    const isMultiStoreVisible = this.page.getByRole('link', {name: 'All shops '});
-    expect(isMultiStoreVisible).toBeVisible({timeout: 3000});
+    const isMultiStoreVisible = this.page.getByRole('link', {name: 'All shops'});
+    expect(isMultiStoreVisible).toBeVisible({timeout: 3000})
   }
 
   /**

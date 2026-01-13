@@ -177,7 +177,7 @@ jobs:
         working-directory: ./e2e/allure-report/widgets
         run: |
           {
-            echo "*Résultats des TNR V8 Account :* \`${{ github.repository }}\`"
+            echo "*Résultats des TNR Upgrade Account :* \`${{ github.repository }}\`"
             echo
             jq -r '.items[] | "• \(.name) : ✅ \(.statistic.passed) / ❌ \(.statistic.failed) / ⚠️ \(.statistic.broken)"' suites.json
             echo
@@ -219,7 +219,7 @@ jobs:
         working-directory: ./e2e/allure-report/widgets
         run: |
           {
-            echo "*Résultats des TNR V8 Account :* \`${{ github.repository }}\`"
+            echo "*Résultats des TNR Upgrade Account :* \`${{ github.repository }}\`"
             echo
             jq -r '.items[] | "• \(.name) : ✅ \(.statistic.passed) / ❌ \(.statistic.failed) / ⚠️ \(.statistic.broken)"' suites.json
             echo

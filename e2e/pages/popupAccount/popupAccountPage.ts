@@ -103,6 +103,18 @@ export default class PopupAccountPage extends ModuleManagerPage {
   }
 
   /**
+   * Get the locator for the link bouton
+   * @returns {Locator} The locator to check linked shop success message
+   */
+  async checkIsNotLinked() {
+    const accountTitle = this.page.locator('.title', {hasText: ' PRESTASHOP '});
+    await accountTitle.isVisible();
+    await this.page.waitForTimeout(4000);
+    await this.page.reload();
+    return await this.page.getByRole('button', {name: 'Link'});
+  }
+
+  /**
    * Check if Link bouton and manage shop bouton are visible
    */
   async multiStoreCheckIsLinkedAllShopAssociate() {
@@ -210,5 +222,4 @@ export default class PopupAccountPage extends ModuleManagerPage {
 
     return page;
   }
-
 }

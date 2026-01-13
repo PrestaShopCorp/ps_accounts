@@ -125,7 +125,7 @@ services:
       DB_NAME: prestashop2
       DB_PASSWD: prestashop
       DB_PORT: 3306
-      PHYSICAL_URI: "shop2"
+      # PHYSICAL_URI: "shop2"
       SSL_REDIRECT: "false"
       PS_TRUSTED_PROXIES: 0.0.0.0/0
       PS_ERASE_DB: 1

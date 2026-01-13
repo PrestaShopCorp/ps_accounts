@@ -124,6 +124,16 @@ export default class DbRequest {
   }
 
   /**
+   * Method to return details from the database ps_shop_url
+   * @returns A promise that containing the 'id_shop' details.
+   */
+  async getPsShopUrl(): Promise<RowDataPacket[]> {
+    const results = await dbHelper.getResultsCustomSelectQuery('ps_shop_url', 'id_shop');
+    expect(results).not.toBeNull();
+    return results as RowDataPacket[];
+  }
+
+  /**
    * Update virtual_uri in ps_shop_url for a given shop id
    * @param shopId - id_shop in ps_shop_url
    * @param newVirtualUri - new value for virtual_uri
@@ -145,7 +155,7 @@ export default class DbRequest {
    * Method to return details from the database ps_shop_url
    * @expect Uri toBe 'shop2/'
    */
-  async getPsShopUrlUri(){
+  async getPsShopUrlUri() {
     const results = await dbHelper.getResultsCustomSelectQuery('ps_shop_url', 'virtual_uri', `id_shop = 2`);
     expect(results).not.toBeNull();
     const row = (results as RowDataPacket[])[0];

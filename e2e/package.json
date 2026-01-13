@@ -12,7 +12,7 @@
     "generate-allure-report": "allure generate allure-results --clean -o allure-report",
     "clean-test-results": "rm -rf allure-report allure-results allure-results-* test-results playwright-report",
     "tnr-v7": "./scripts/run-tnr-v7.sh",
-    "tnr-multistore-v7": "./scripts/run-multistore-association-diassociation-tests.sh",
+    "tnr-multistore-v7": "./scripts/run-tnr-multistore-v7.sh",
     "tnr-v8": "./scripts/run-tnr-v8.sh",
     "tnr-multistore-v8": "./scripts/run-tnr-multistore-v8.sh"
   },
