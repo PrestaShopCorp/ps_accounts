@@ -14,15 +14,15 @@ gotToModuleManagerPage('Check if you can verified manually', async ({gotToModule
     await pm.fromModuleManagePage().goToAccountConfigurePage();
     const status = await pm.fromConfigureAccountPage().getStoreInformation();
     expect(status).toBeFalsy();
-    const apiStatus = await pm.fromConfigureAccountPage().getStoreInformationFromApi();
+    const apiStatus = await pm.fromConfigureAccountPage().getStoreInformationFromApi(0);
     expect(apiStatus).toBeFalsy();
   });
   await test.step('verifiy manually and check if verified', async () => {
     await pm.fromConfigureAccountPage().verifyManualy();
-    await pm.fromConfigureAccountPage().checkVerificationSucced()
+    await pm.fromConfigureAccountPage().checkVerificationSucced();
     const status = await pm.fromConfigureAccountPage().getStoreInformation();
     expect(status).toBeTruthy();
-    const apiStatus = await pm.fromConfigureAccountPage().getStoreInformationFromApi();
+    const apiStatus = await pm.fromConfigureAccountPage().getStoreInformationFromApi(0);
     expect(apiStatus).toBeTruthy();
   });
 });

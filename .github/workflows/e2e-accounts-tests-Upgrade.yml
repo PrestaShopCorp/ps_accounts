@@ -1,4 +1,4 @@
-name: e2e Acounts V7 TNRs
+name: e2e Acounts test Upgrade
 
 on:
   workflow_dispatch:
@@ -120,8 +120,7 @@ jobs:
       - name: Run test
         working-directory: ./e2e
         run: |
-          npm run tnr-v7 -- ${{ matrix.shop_version  }}
-          npm run tnr-multistore-v7 -- ${{ matrix.shop_version  }}
+          npm run upgrade-tests -- ${{ matrix.shop_version  }}
         continue-on-error: true
 
       - name: Upload Allure Results
@@ -178,7 +177,7 @@ jobs:
         working-directory: ./e2e/allure-report/widgets
         run: |
           {
-            echo "*Résultats des TNR V7 Account :* \`${{ github.repository }}\`"
+            echo "*Résultats des TNR Upgrade Account :* \`${{ github.repository }}\`"
             echo
             jq -r '.items[] | "• \(.name) : ✅ \(.statistic.passed) / ❌ \(.statistic.failed) / ⚠️ \(.statistic.broken)"' suites.json
             echo
@@ -220,7 +219,7 @@ jobs:
         working-directory: ./e2e/allure-report/widgets
         run: |
           {
-            echo "*Résultats des TNR V7 Account :* \`${{ github.repository }}\`"
+            echo "*Résultats des TNR Upgrade Account :* \`${{ github.repository }}\`"
             echo
             jq -r '.items[] | "• \(.name) : ✅ \(.statistic.passed) / ❌ \(.statistic.failed) / ⚠️ \(.statistic.broken)"' suites.json
             echo
@@ -314,7 +313,7 @@ jobs:
               
               sheets.spreadsheets.values.append({
                 spreadsheetId,
-                range: 'TNRV7!A:F', 
+                range: 'Upgrade!A:F', 
                 valueInputOption: 'USER_ENTERED',
                 resource: { values },
               }).then(res => console.log('Données ajoutées avec succès.'))

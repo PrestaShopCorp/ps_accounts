@@ -23,7 +23,7 @@ export default class ConfigureAccountPage extends ModuleManagerPage {
    * Check the account status from api
    * @returns A promise that resolves to true if account Verified, otherwise false.
    */
-  async getStoreInformationFromApi(): Promise<boolean> {
+  async getStoreInformationFromApi(shopIndex: number): Promise<boolean> {
     const responsePromise = this.page.waitForResponse(
       (response) =>
         response.url().includes('AdminAjaxV2PsAccounts&ajax=1&action=getContext') && response.status() === 200
@@ -31,7 +31,7 @@ export default class ConfigureAccountPage extends ModuleManagerPage {
     await this.page.reload();
     const response = await responsePromise;
     const data = await response.json();
-    const isVerified = data?.groups?.[0]?.shops?.[0]?.shopStatus?.isVerified;
+    const isVerified = data?.groups?.[0]?.shops?.[shopIndex]?.shopStatus?.isVerified;
 
     return isVerified;
   }
@@ -40,7 +40,7 @@ export default class ConfigureAccountPage extends ModuleManagerPage {
    */
   async verifyManualy() {
     await this.page.getByRole('button', {name: 'Verify'}).click();
-    await this.page.waitForLoadState('load');
+    await this.page.locator('[data-test="account-settings-panel"]').nth(1).waitFor({state: 'hidden'});
   }
   /**
    * Check if Verification succed
@@ -55,6 +55,7 @@ export default class ConfigureAccountPage extends ModuleManagerPage {
    * @expect element to be vidible
    */
   async checkVerificationFailed() {
+    await this.page.waitForTimeout(1000)
     const isVisible = await this.page.locator('[data-test="description-verification-failed-alert"]');
     expect(isVisible).toBeVisible();
   }
@@ -88,9 +89,58 @@ export default class ConfigureAccountPage extends ModuleManagerPage {
    * @expect true ACCOUNT_EMAIL isVisible
    */
   async checkIsSigned() {
-    await this.page.waitForTimeout(5000)
+    await this.page.waitForTimeout(5000);
     await this.page.locator('.page-title', {hasText: 'Configure'}).isVisible;
     const isVisible = await this.page.getByText(Globals.account_email).isVisible();
     expect(isVisible).toBeTruthy();
+  }
+
+  /**
+   *
+   * In MultiStore Context dispaly all store informations
+   */
+  async displayAllStoreInformations() {
+    await this.page.locator('.shopname').click();
+    // try {
+    //   await this.page
+    //     .locator('a')
+    //     .filter({hasText: /^All stores$/})
+    //     .click();
+    // } catch {
+    //   await this.page.getByRole('link', {name: 'All shops'}).click();
+    // }
+    const allStores = this.page.locator('a').filter({hasText: /^All stores$/});
+    const allShops = this.page.getByRole('link', {name: 'All shops'}).first();
+    if (await allStores.isVisible()) {
+      await allStores.click();
+    } else {
+      await allShops.click();
+    }
+  }
+  /**
+   *
+   * In MultiStore Context dispaly default shop informations
+   */
+  async displayDefaultStoreInformations() {
+    await this.page.locator('.shopname').click();
+    await this.page.getByRole('link', {name: 'PrestaShop'}).nth(1).click();
+  }
+  /**
+   *
+   * In MultiStore Context dispaly seconde shop informations
+   */
+  async displaySecondeStoreInformations() {
+    await this.page.locator('.shopname').click();
+    await this.page.getByRole('link', {name: 'shop1'}).click();
+  }
+
+  /**
+   *
+   * In MultiStore Context when all all store is deplayed, show alert
+   */
+  async getMultistoreAlert() {
+    const alertBlock = await this.page.waitForSelector('.puik-alert.puik-alert--info');
+    await alertBlock.isVisible();
+    expect(alertBlock).toBeTruthy();
   }
 }
