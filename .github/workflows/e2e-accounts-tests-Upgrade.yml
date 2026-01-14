@@ -3,7 +3,7 @@ name: e2e Acounts test Upgrade
 on:
   workflow_dispatch:
   schedule:
-    - cron: "0 7 * * 1-5"
+    - cron: "0 7 * * 1-5" 
 
 env:
   IMAGE_PREFIX: ghcr.io/prestashopcorp/
@@ -129,56 +129,56 @@ jobs:
           name: allure-results-${{ matrix.shop_version }}
           path: ./e2e/allure-results-${{ matrix.shop_version }}
 
-merge-allure:
-  name: Merge Allure Results, Generate Report & Send Slack notification
-  needs: run-test
-  runs-on: ubuntu-latest
-  outputs:
-    passed: ${{ steps.allureTotals.outputs.passed }}
-    failed: ${{ steps.allureTotals.outputs.failed }}
-    broken: ${{ steps.allureTotals.outputs.broken }}
-    skipped: ${{ steps.allureTotals.outputs.skipped }}
-  steps:
-    - name: Checkout Repository
-      uses: actions/checkout@v4
+  merge-allure:
+    name: Merge Allure Results, Generate Report & Send Slack notification
+    needs: run-test
+    runs-on: ubuntu-latest
+    outputs:
+      passed: ${{ steps.allureTotals.outputs.passed }}
+      failed: ${{ steps.allureTotals.outputs.failed }}
+      broken: ${{ steps.allureTotals.outputs.broken }}
+      skipped: ${{ steps.allureTotals.outputs.skipped }}
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
 
-    - name: Install dependencies
-      working-directory: ./e2e
-      run: npm install
+      - name: Install dependencies
+        working-directory: ./e2e
+        run: npm install
 
-    - name: Download all allure artifacts
-      uses: actions/download-artifact@v4
-      with:
-        path: ./e2e/
+      - name: Download all allure artifacts
+        uses: actions/download-artifact@v4
+        with:
+          path: ./e2e/
 
-    - name: Merge Allure Results
-      working-directory: ./e2e
-      run: npm run merge-allure-results
+      - name: Merge Allure Results
+        working-directory: ./e2e
+        run: npm run merge-allure-results
 
-    - name: Generate Allure Report
-      working-directory: ./e2e
-      run: npm run generate-allure-report
+      - name: Generate Allure Report
+        working-directory: ./e2e
+        run: npm run generate-allure-report
 
-    - name: Extract Allure totals (summary.json)
-      id: allureTotals
-      shell: bash
-      run: |
-        SUMMARY="e2e/allure-report/widgets/summary.json"
-        if [ ! -f "$SUMMARY" ]; then
-          echo "summary.json introuvable: $SUMMARY"
-          exit 1
-        fi
-        echo "passed=$(jq -r '.statistic.passed // 0' "$SUMMARY")" >> $GITHUB_OUTPUT
-        echo "failed=$(jq -r '.statistic.failed // 0' "$SUMMARY")" >> $GITHUB_OUTPUT
-        echo "broken=$(jq -r '.statistic.broken // 0' "$SUMMARY")" >> $GITHUB_OUTPUT
-        echo "skipped=$(jq -r '.statistic.skipped // 0' "$SUMMARY")" >> $GITHUB_OUTPUT
+      - name: Extract Allure totals (summary.json)
+        id: allureTotals
+        shell: bash
+        run: |
+          SUMMARY="e2e/allure-report/widgets/summary.json"
+          if [ ! -f "$SUMMARY" ]; then
+            echo "summary.json introuvable: $SUMMARY"
+            exit 1
+          fi
+          echo "passed=$(jq -r '.statistic.passed // 0' "$SUMMARY")" >> $GITHUB_OUTPUT
+          echo "failed=$(jq -r '.statistic.failed // 0' "$SUMMARY")" >> $GITHUB_OUTPUT
+          echo "broken=$(jq -r '.statistic.broken // 0' "$SUMMARY")" >> $GITHUB_OUTPUT
+          echo "skipped=$(jq -r '.statistic.skipped // 0' "$SUMMARY")" >> $GITHUB_OUTPUT
 
-    - name: Upload Allure Report
-      uses: actions/upload-artifact@v4
-      if: ${{ always() }}
-      with:
-        name: allure-report
-        path: ./e2e/allure-report
+      - name: Upload Allure Report
+        uses: actions/upload-artifact@v4
+        if: ${{ always() }}
+        with:
+          name: allure-report
+          path: ./e2e/allure-report
 
   notify-slack-qa:
     name: Send Slack Notification (qa channel)
