@@ -13,7 +13,7 @@ fi
 
 for PS_VERSION in "${SHOP_VERSIONS[@]}"; do
 #Build the shop 
-npm run build-shop -- "$PS_VERSION"
+npm run build-shop -- "$PS_VERSION" "" "imageoff" "$ACCOUNT_VERSION"
 
 #Run the tests
 # npx playwright test --project="Account TNR V8" module_installation || true
