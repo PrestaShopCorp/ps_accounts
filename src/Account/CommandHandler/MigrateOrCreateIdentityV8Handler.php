@@ -140,15 +140,16 @@ class MigrateOrCreateIdentityV8Handler
             // Register cloudShopId locally
             $this->statusManager->setCloudShopId($shopUuid);
 
-            $identityCreated = $this->accountsService->migrateShopIdentity(
-                $shopUuid,
-                $this->getTokenV6OrV7($shopUuid),
-                $this->shopProvider->getUrl($shopId),
-                $this->shopProvider->getName($shopId),
-                $fromVersion,
-                $this->proofManager->generateProof(),
-                $command->source
-            );
+            $identityCreated = $this->accountsService
+                ->withSource($command->source)
+                ->migrateShopIdentity(
+                    $shopUuid,
+                    $this->getTokenV6OrV7($shopUuid),
+                    $this->shopProvider->getUrl($shopId),
+                    $this->shopProvider->getName($shopId),
+                    $fromVersion,
+                    $this->proofManager->generateProof()
+                );
             if (!empty($identityCreated->clientId) &&
                 !empty($identityCreated->clientSecret)) {
                 $this->oAuth2Service->getOAuth2Client()->update(
@@ -247,12 +248,11 @@ class MigrateOrCreateIdentityV8Handler
      */
     private function createOrVerifyIdentity(MigrateOrCreateIdentityV8Command $command)
     {
-        $this->commandBus->handle(new CreateIdentityCommand(
-            $command->shopId,
-            false,
-            $command->origin,
-            $command->source
-        ));
+        $this->commandBus->handle(
+            (new CreateIdentityCommand($command->shopId, false))
+                ->withOrigin($command->origin)
+                ->withSource($command->source)
+        );
     }
 
     /**

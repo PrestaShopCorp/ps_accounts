@@ -21,10 +21,12 @@
 
 namespace PrestaShop\Module\PsAccounts\Account\Command;
 
-use PrestaShop\Module\PsAccounts\Service\Accounts\AccountsService;
+use PrestaShop\Module\PsAccounts\Traits\WithOriginAndSourceTrait;
 
 class RestoreIdentityCommand
 {
+    use WithOriginAndSourceTrait;
+
     /**
      * @var int|null
      */
@@ -61,16 +63,6 @@ class RestoreIdentityCommand
     public $migrateFrom;
 
     /**
-     * @var string
-     */
-    public $origin;
-
-    /**
-     * @var string
-     */
-    public $source;
-
-    /**
      * @param string $cloudShopId
      * @param string $clientId
      * @param string $clientSecret
@@ -92,7 +84,7 @@ class RestoreIdentityCommand
         $this->verify = $verify;
         $this->migrate = $migrate;
         $this->migrateFrom = $migrateFrom;
-        $this->origin = AccountsService::ORIGIN_ADVANCED_SETTINGS;
-        $this->source = 'ps_accounts';
+
+        $this->initDefaults();
     }
 }

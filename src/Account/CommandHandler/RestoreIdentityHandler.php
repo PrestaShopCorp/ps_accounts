@@ -112,20 +112,20 @@ class RestoreIdentityHandler
                 $this->upgradeService->setVersion($command->migrateFrom);
             }
 
-            $this->commandBus->handle(new MigrateOrCreateIdentityV8Command(
-                $shopId,
-                $command->origin,
-                $command->source
-            ));
+            $this->commandBus->handle(
+            // FIXME: $cloudShopId (should not be necessary to read it from db)
+                (new MigrateOrCreateIdentityV8Command($shopId))
+                    ->withOrigin($command->origin)
+                    ->withSource($command->source)
+            );
 
             if ($command->verify) {
                 // force verify
-                $this->commandBus->handle(new VerifyIdentityCommand(
-                    $shopId,
-                    true,
-                    $command->origin,
-                    $command->source
-                ));
+                $this->commandBus->handle(
+                    (new VerifyIdentityCommand($shopId, true))
+                        ->withOrigin($command->origin)
+                        ->withSource($command->source)
+                );
             }
             //$this->statusManager->invalidateCache();
         } catch (Exception $e) {

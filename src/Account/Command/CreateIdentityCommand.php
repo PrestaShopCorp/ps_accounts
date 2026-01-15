@@ -21,10 +21,12 @@
 
 namespace PrestaShop\Module\PsAccounts\Account\Command;
 
-use PrestaShop\Module\PsAccounts\Service\Accounts\AccountsService;
+use PrestaShop\Module\PsAccounts\Traits\WithOriginAndSourceTrait;
 
 class CreateIdentityCommand
 {
+    use WithOriginAndSourceTrait;
+
     /**
      * @var int|null
      */
@@ -36,30 +38,14 @@ class CreateIdentityCommand
     public $renew;
 
     /**
-     * @var string
-     */
-    public $origin;
-
-    /**
-     * @var string
-     */
-    public $source;
-
-    /**
      * @param int|null $shopId
      * @param bool $renew
-     * @param string $origin
-     * @param string $source
      */
-    public function __construct(
-        $shopId,
-        $renew = false,
-        $origin = AccountsService::ORIGIN_INSTALL,
-        $source = 'ps_accounts'
+    public function __construct($shopId, $renew = false
     ) {
         $this->shopId = $shopId;
         $this->renew = $renew;
-        $this->origin = $origin;
-        $this->source = $source;
+
+        $this->initDefaults();
     }
 }

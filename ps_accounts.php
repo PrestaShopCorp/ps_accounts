@@ -463,7 +463,7 @@ class Ps_accounts extends Module
         $statusManager = $this->getService(\PrestaShop\Module\PsAccounts\Account\StatusManager::class);
 
         try {
-            if ($statusManager->getStatus(false, \PrestaShop\Module\PsAccounts\Account\StatusManager::CACHE_TTL, $source)->isVerified) {
+            if ($statusManager->withSource($source)->getStatus()->isVerified) {
                 return true;
             }
         } catch (\PrestaShop\Module\PsAccounts\Account\Exception\UnknownStatusException $e) {

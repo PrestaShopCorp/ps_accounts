@@ -76,17 +76,18 @@ class IdentifyContactHandler
      */
     public function handle(IdentifyContactCommand $command)
     {
-        $status = $this->statusManager->getStatus(false, StatusManager::CACHE_TTL, $command->source);
+        $status = $this->statusManager->withSource($command->source)->getStatus();
         if (!$status->isVerified) {
             return;
         }
 
-        $this->accountsService->setPointOfContact(
-            $this->statusManager->getCloudShopId(),
-            $this->shopSession->getValidToken(),
-            $command->accessToken->access_token,
-            $command->source
-        );
+        $this->accountsService
+            ->withSource($command->source)
+            ->setPointOfContact(
+                $this->statusManager->getCloudShopId(),
+                $this->shopSession->getValidToken(),
+                $command->accessToken->access_token
+            );
 
         // cleanup user token
         $this->ownerSession->cleanup();

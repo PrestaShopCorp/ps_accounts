@@ -23,9 +23,12 @@ namespace PrestaShop\Module\PsAccounts\Account\Command;
 
 use PrestaShop\Module\PsAccounts\Service\OAuth2\Resource\AccessToken;
 use PrestaShop\Module\PsAccounts\Service\OAuth2\Resource\UserInfo;
+use PrestaShop\Module\PsAccounts\Traits\WithOriginAndSourceTrait;
 
 class IdentifyContactCommand
 {
+    use WithOriginAndSourceTrait;
+
     /**
      * @var AccessToken
      */
@@ -37,19 +40,14 @@ class IdentifyContactCommand
     public $userInfo;
 
     /**
-     * @var string|null
-     */
-    public $source;
-
-    /**
      * @param AccessToken $accessToken
      * @param UserInfo $userInfo
-     * @param string $source
      */
-    public function __construct($accessToken, $userInfo, $source = 'ps_accounts')
+    public function __construct($accessToken, $userInfo)
     {
         $this->accessToken = $accessToken;
         $this->userInfo = $userInfo;
-        $this->source = $source;
+
+        $this->initDefaults();
     }
 }
