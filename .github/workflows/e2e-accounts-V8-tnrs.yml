@@ -3,7 +3,7 @@ name: e2e Acounts V8 TNRs
 on:
   workflow_dispatch:
   schedule:
-    - cron: "0 7 * * 1-5"
+    - cron: "30 8 * * 1-5"
 
 env:
   IMAGE_PREFIX: ghcr.io/prestashopcorp/
