@@ -120,8 +120,8 @@ jobs:
       - name: Run test
         working-directory: ./e2e
         run: |
-          npm run tnr -- ${{ matrix.shop_version  }}
-          npm run upgrade-tests -- ${{ matrix.shop_version  }}
+          npm run tnr-v7 -- ${{ matrix.shop_version  }}
+          npm run tnr-multistore-v7 -- ${{ matrix.shop_version  }}
         continue-on-error: true
 
       - name: Upload Allure Results
@@ -155,7 +155,7 @@ jobs:
       - name: Generate Allure Report
         working-directory: ./e2e
         run: npm run generate-allure-report
-      
+
       - name: Upload Allure Report
         uses: actions/upload-artifact@v4
         if: ${{ always() }}
@@ -178,7 +178,7 @@ jobs:
         working-directory: ./e2e/allure-report/widgets
         run: |
           {
-            echo "*Résultats des TNR Account :* \`${{ github.repository }}\`"
+            echo "*Résultats des TNR V7 Account :* \`${{ github.repository }}\`"
             echo
             jq -r '.items[] | "• \(.name) : ✅ \(.statistic.passed) / ❌ \(.statistic.failed) / ⚠️ \(.statistic.broken)"' suites.json
             echo
@@ -220,7 +220,7 @@ jobs:
         working-directory: ./e2e/allure-report/widgets
         run: |
           {
-            echo "*Résultats des tests Account AUTOM :* \`${{ github.repository }}\`"
+            echo "*Résultats des TNR V7 Account :* \`${{ github.repository }}\`"
             echo
             jq -r '.items[] | "• \(.name) : ✅ \(.statistic.passed) / ❌ \(.statistic.failed) / ⚠️ \(.statistic.broken)"' suites.json
             echo
@@ -247,4 +247,79 @@ jobs:
           token: ${{ secrets.SLACK_BOT_TOKEN }}
           payload-file-path: ./e2e/allure-report/widgets/slack_payload.json
 
+  report-to-google-sheet:
+      name: Append results to Google Sheet
+      needs: run-test
+      runs-on: ubuntu-latest
+      if: always()
 
+      steps:
+        - name: Authenticate to Google Cloud
+          uses: google-github-actions/auth@v2
+          with:
+            credentials_json: ${{ secrets.GCP_SA_KEY }}
+
+        - name: Setup Node.js
+          uses: actions/setup-node@v4
+          with:
+            node-version: "20"
+
+        - name: Install Google APIs client
+          run: npm install googleapis
+
+        - name: Append data to Google Sheet
+          env:
+            SHEET_ID: ${{ secrets.GOOGLE_SHEET_ID }}
+            DASHBOARD_PASSED: ${{ needs.run-test.outputs.dashboard-passed }}
+            DASHBOARD_FAILED: ${{ needs.run-test.outputs.dashboard-failed }}
+            EXPLORE_PASSED: ${{ needs.run-test.outputs.explore-passed }}
+            EXPLORE_FAILED: ${{ needs.run-test.outputs.explore-failed }}
+            RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+          run: |
+            node -e "
+              const { google } = require('googleapis');
+              const auth = new google.auth.GoogleAuth({
+                scopes: ['https://www.googleapis.com/auth/spreadsheets'],
+              });
+              const sheets = google.sheets({ version: 'v4', auth });
+              
+              const spreadsheetId = process.env.SHEET_ID;
+              const today = new Date().toLocaleDateString('fr-FR', { timeZone: 'Europe/Paris' }); 
+              const dashboardPassed = parseInt(process.env.DASHBOARD_PASSED) || 0;
+              const dashboardFailed = parseInt(process.env.DASHBOARD_FAILED) || 0;
+              const explorePassed = parseInt(process.env.EXPLORE_PASSED) || 0;
+              const exploreFailed = parseInt(process.env.EXPLORE_FAILED) || 0;
+              const totalPassed = dashboardPassed + explorePassed;
+              const totalFailed = dashboardFailed + exploreFailed;
+              const totalTests = totalPassed + totalFailed;
+              let successRate = 100; 
+              if (totalTests > 0) {
+                successRate = (totalPassed / totalTests) * 100;
+              }
+              const formattedSuccessRate = successRate.toFixed(2) + '%'; 
+
+              const values = [
+                [
+                  today,
+                  dashboardPassed,
+                  dashboardFailed,
+                  explorePassed,
+                  exploreFailed,
+                  totalPassed,
+                  totalFailed,
+                  formattedSuccessRate,
+                  process.env.RUN_URL
+                ]
+              ];
+              
+              sheets.spreadsheets.values.append({
+                spreadsheetId,
+                range: 'TNRV7!A:F', 
+                valueInputOption: 'USER_ENTERED',
+                resource: { values },
+              }).then(res => console.log('Données ajoutées avec succès.'))
+                .catch(err => {
+                  console.error('Erreur lors de l\'ajout des données:', err);
+                  process.exit(1);
+                });
+            "

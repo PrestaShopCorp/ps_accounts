@@ -32,7 +32,7 @@ class CleanupIdentityHandler
      */
     public function handle(CleanupIdentityCommand $command)
     {
-        $id_shop = \Shop::getContextShopID(true);
+        $id_shop = $command->shopId;
         \Db::getInstance()->execute(
             'DELETE FROM `' . _DB_PREFIX_ . bqSQL('configuration') . '`'
             . ' WHERE (name like \'PS_ACCOUNTS%\' or name = \'PSX_UUID_V4\' or name = \'PS_CHECKOUT_SHOP_UUID_V4\')'

@@ -1,0 +1,324 @@
+name: e2e Acounts test Upgrade
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: "0 7 * * 1-5"
+
+env:
+  IMAGE_PREFIX: ghcr.io/prestashopcorp/
+
+jobs:
+  setup:
+    name: Setup Deps
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Cache node_modules
+        id: cache-node
+        uses: actions/cache@v4
+        with:
+          path: ./e2e/node_modules
+          key: node-modules-${{ runner.os }}-${{ hashFiles('e2e/package-lock.json') }}
+          restore-keys: |
+            node-modules-${{ runner.os }}-
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "node"
+
+      - name: Install dependencies
+        working-directory: ./e2e
+        run: npm install
+
+      - name: Cache Playwright browsers
+        id: cache-pw
+        uses: actions/cache@v4
+        with:
+          path: ~/.cache/ms-playwright
+          key: pw-browsers-${{ runner.os }}-${{ hashFiles('e2e/package-lock.json') }}
+          restore-keys: |
+            pw-browsers-${{ runner.os }}-
+
+      - name: Install Playwright Browsers
+        working-directory: ./e2e
+        run: npx playwright install chromium
+
+      - name: Login to GHCR
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: prestashopcorp
+          password: ${{ secrets.DOWNLOADER_TOKEN }}
+
+  run-test:
+    name: Run Account tests
+    needs: setup
+    runs-on: ubuntu-latest
+    strategy:
+      max-parallel: 1
+      matrix:
+        shop_version:
+          - nightly-nginx
+          - 8.2.0-8.1-fpm-alpine
+          - 1.7.8.8-7.4-fpm-alpine
+          - 1.6.1.24-7.1-fpm-alpine
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Cache node_modules
+        uses: actions/cache@v4
+        with:
+          path: ./e2e/node_modules
+          key: node-modules-${{ runner.os }}-${{ hashFiles('e2e/package-lock.json') }}
+          restore-keys: |
+            node-modules-${{ runner.os }}-
+
+      - name: Cache Playwright browsers
+        uses: actions/cache@v4
+        with:
+          path: ~/.cache/ms-playwright
+          key: pw-browsers-${{ runner.os }}-${{ hashFiles('e2e/package-lock.json') }}
+          restore-keys: |
+            pw-browsers-${{ runner.os }}-
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "node"
+
+      - name: Generate .env in e2e
+        working-directory: ./e2e
+        run: |
+          echo "BASE_URL=${{secrets.BASE_URL}}" >> .env
+          echo "BASE_URL_FO=${{secrets.BASE_URL_FO}}" >> .env
+          echo "ADMIN_EMAIL=${{ secrets.ADMIN_EMAIL }}" >> .env
+          echo "ADMIN_PASSWORD=${{ secrets.ADMIN_PASSWORD }}" >> .env
+          echo "OAUTH2URL=${{ secrets.OAUTH2URL }}" >> .env
+          echo "ACCOUNTSAPIURL=${{ secrets.ACCOUNTSAPIURL }}" >> .env
+          echo "ACCOUNTSUIURL=${{ secrets.ACCOUNTSUIURL }}" >> .env
+          echo "QA_USER_AGENT=${{ secrets.QA_USER_AGENT}}" >> .env
+          echo "ACCOUNT_EMAIL=${{ secrets.ACCOUNT_EMAIL}}" >> .env
+          echo "ACCOUNT_PASSWORD=${{ secrets.ACCOUNT_PASSWORD}}" >> .env
+
+      - name: Generate .env in e2e-env
+        working-directory: ./e2e-env
+        run: |
+          echo "ACCOUNT_TAG=${{ secrets.ACCOUNT_TAG }}" >> .env
+          echo "TUNNEL_SECRET=${{ secrets.TUNNEL_SECRET }}" >> .env
+          echo "TUNNEL_ID=${{ secrets.TUNNEL_ID }}" >> .env
+          echo "PS_DOMAIN=${{ secrets.PS_DOMAIN }}" >> .env
+          echo "DOMAIN=${{ secrets.DOMAIN }}" >> .env
+          echo "DOWNLOADER_TOKEN=${{ secrets.DOWNLOADER_TOKEN }}" >> .env
+          echo "PS_VERSION=${{ secrets.PS_VERSION }}" >> .env
+          echo "PS_ACCOUNTS_VERSION=${{ secrets.PS_ACCOUNTS_VERSION }}" >> .env
+
+      - name: Run test
+        working-directory: ./e2e
+        run: |
+          npm run upgrade-tests -- ${{ matrix.shop_version  }}
+        continue-on-error: true
+
+      - name: Upload Allure Results
+        uses: actions/upload-artifact@v4
+        with:
+          name: allure-results-${{ matrix.shop_version }}
+          path: ./e2e/allure-results-${{ matrix.shop_version }}
+
+  merge-allure:
+    name: Merge Allure Results, Genreate Roprt & Send Slack notification
+    needs: run-test
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Repository
+        uses: "actions/checkout@v4"
+
+      - name: Install dependencies
+        working-directory: ./e2e
+        run: |
+          npm install
+
+      - name: Download all allure artifacts
+        uses: actions/download-artifact@v4
+        with:
+          path: ./e2e/
+
+      - name: Merge Allure Results
+        working-directory: ./e2e
+        run: npm run merge-allure-results
+
+      - name: Generate Allure Report
+        working-directory: ./e2e
+        run: npm run generate-allure-report
+
+      - name: Upload Allure Report
+        uses: actions/upload-artifact@v4
+        if: ${{ always() }}
+        with:
+          name: allure-report
+          path: ./e2e/allure-report
+
+  notify-slack-qa:
+    name: Send Slack Notification (qa channel)
+    needs: merge-allure
+    runs-on: ubuntu-latest
+    steps:
+      - name: Download Allure Report
+        uses: actions/download-artifact@v4
+        with:
+          name: allure-report
+          path: ./e2e/allure-report
+
+      - name: Build Slack message
+        working-directory: ./e2e/allure-report/widgets
+        run: |
+          {
+            echo "*Résultats des TNR Upgrade Account :* \`${{ github.repository }}\`"
+            echo
+            jq -r '.items[] | "• \(.name) : ✅ \(.statistic.passed) / ❌ \(.statistic.failed) / ⚠️ \(.statistic.broken)"' suites.json
+            echo
+            echo "📄 Rapport Allure disponible dans les artifacts du run : <${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}|Ouvrir le run>"
+            echo
+            echo "1️⃣ Téléchargez l'archive du rapport Allure."
+            echo "2️⃣ Installez l'outil Allure CLI si ce n'est pas déjà fait : https://allurereport.org/docs/install-for-nodejs/"
+            echo "3️⃣ Dans un terminal, placez-vous dans le dossier extrait du rapport, puis exécutez :"
+            echo "\`\`\`"
+            echo "allure open"
+            echo "\`\`\`"
+          } > slack_message.txt
+
+      - name: Prepare payload
+        working-directory: ./e2e/allure-report/widgets
+        run: |
+          msg=$(cat slack_message.txt | jq -Rs .)
+          echo "{\"channel\": \"${{ secrets.SLACK_CHANNEL_QA }}\", \"text\": $msg}" > slack_payload.json
+
+      - name: Send Slack Notification
+        uses: slackapi/slack-github-action@v2.0.0
+        with:
+          method: chat.postMessage
+          token: ${{ secrets.SLACK_BOT_TOKEN }}
+          payload-file-path: ./e2e/allure-report/widgets/slack_payload.json
+
+  notify-slack-account:
+    name: Send Slack Notification (account channel)
+    needs: merge-allure
+    runs-on: ubuntu-latest
+    steps:
+      - name: Download Allure Report
+        uses: actions/download-artifact@v4
+        with:
+          name: allure-report
+          path: ./e2e/allure-report
+
+      - name: Build Slack message
+        working-directory: ./e2e/allure-report/widgets
+        run: |
+          {
+            echo "*Résultats des TNR Upgrade Account :* \`${{ github.repository }}\`"
+            echo
+            jq -r '.items[] | "• \(.name) : ✅ \(.statistic.passed) / ❌ \(.statistic.failed) / ⚠️ \(.statistic.broken)"' suites.json
+            echo
+            echo "📄 Rapport Allure disponible dans les artifacts du run : <${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}|Ouvrir le run>"
+            echo
+            echo "1️⃣ Téléchargez l'archive du rapport Allure."
+            echo "2️⃣ Installez l'outil Allure CLI si ce n'est pas déjà fait : https://allurereport.org/docs/install-for-nodejs/"
+            echo "3️⃣ Dans un terminal, placez-vous dans le dossier extrait du rapport, puis exécutez :"
+            echo "\`\`\`"
+            echo "allure open"
+            echo "\`\`\`"
+          } > slack_message.txt
+
+      - name: Prepare payload
+        working-directory: ./e2e/allure-report/widgets
+        run: |
+          msg=$(cat slack_message.txt | jq -Rs .)
+          echo "{\"channel\": \"${{ secrets.SLACK_CHANNEL_ACCOUNT }}\", \"text\": $msg}" > slack_payload.json
+
+      - name: Send Slack Notification
+        uses: slackapi/slack-github-action@v2.0.0
+        with:
+          method: chat.postMessage
+          token: ${{ secrets.SLACK_BOT_TOKEN }}
+          payload-file-path: ./e2e/allure-report/widgets/slack_payload.json
+
+  report-to-google-sheet:
+      name: Append results to Google Sheet
+      needs: run-test
+      runs-on: ubuntu-latest
+      if: always()
+
+      steps:
+        - name: Authenticate to Google Cloud
+          uses: google-github-actions/auth@v2
+          with:
+            credentials_json: ${{ secrets.GCP_SA_KEY }}
+
+        - name: Setup Node.js
+          uses: actions/setup-node@v4
+          with:
+            node-version: "20"
+
+        - name: Install Google APIs client
+          run: npm install googleapis
+
+        - name: Append data to Google Sheet
+          env:
+            SHEET_ID: ${{ secrets.GOOGLE_SHEET_ID }}
+            DASHBOARD_PASSED: ${{ needs.run-test.outputs.dashboard-passed }}
+            DASHBOARD_FAILED: ${{ needs.run-test.outputs.dashboard-failed }}
+            EXPLORE_PASSED: ${{ needs.run-test.outputs.explore-passed }}
+            EXPLORE_FAILED: ${{ needs.run-test.outputs.explore-failed }}
+            RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+          run: |
+            node -e "
+              const { google } = require('googleapis');
+              const auth = new google.auth.GoogleAuth({
+                scopes: ['https://www.googleapis.com/auth/spreadsheets'],
+              });
+              const sheets = google.sheets({ version: 'v4', auth });
+              
+              const spreadsheetId = process.env.SHEET_ID;
+              const today = new Date().toLocaleDateString('fr-FR', { timeZone: 'Europe/Paris' }); 
+              const dashboardPassed = parseInt(process.env.DASHBOARD_PASSED) || 0;
+              const dashboardFailed = parseInt(process.env.DASHBOARD_FAILED) || 0;
+              const explorePassed = parseInt(process.env.EXPLORE_PASSED) || 0;
+              const exploreFailed = parseInt(process.env.EXPLORE_FAILED) || 0;
+              const totalPassed = dashboardPassed + explorePassed;
+              const totalFailed = dashboardFailed + exploreFailed;
+              const totalTests = totalPassed + totalFailed;
+              let successRate = 100; 
+              if (totalTests > 0) {
+                successRate = (totalPassed / totalTests) * 100;
+              }
+              const formattedSuccessRate = successRate.toFixed(2) + '%'; 
+
+              const values = [
+                [
+                  today,
+                  dashboardPassed,
+                  dashboardFailed,
+                  explorePassed,
+                  exploreFailed,
+                  totalPassed,
+                  totalFailed,
+                  formattedSuccessRate,
+                  process.env.RUN_URL
+                ]
+              ];
+              
+              sheets.spreadsheets.values.append({
+                spreadsheetId,
+                range: 'Upgrade!A:F', 
+                valueInputOption: 'USER_ENTERED',
+                resource: { values },
+              }).then(res => console.log('Données ajoutées avec succès.'))
+                .catch(err => {
+                  console.error('Erreur lors de l\'ajout des données:', err);
+                  process.exit(1);
+                });
+            "

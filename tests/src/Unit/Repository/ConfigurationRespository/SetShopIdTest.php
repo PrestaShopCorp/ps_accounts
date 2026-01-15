@@ -15,6 +15,7 @@ class SetShopIdTest extends TestCase
     public function itShouldPassShopIdCallingGet()
     {
         $shopId = $this->faker->randomNumber();
+        $groupId = $this->faker->randomNumber();
 
         $configMock = $this->getMockBuilder(Configuration::class)
             ->setConstructorArgs([\Context::getContext()])
@@ -23,10 +24,11 @@ class SetShopIdTest extends TestCase
 
         $configMock->expects($this->once())
             ->method('getRaw')
-            ->with(ConfigurationKeys::PS_ACCOUNTS_FIREBASE_EMAIL, null, null, $shopId, false);
+            ->with(ConfigurationKeys::PS_ACCOUNTS_FIREBASE_EMAIL, null, $groupId, $shopId, false);
 
         $configuration = new ConfigurationRepository($configMock);
         $configuration->setShopId($shopId);
+        $configuration->setShopGroupId($groupId);
 
         $configuration->getFirebaseEmail();
     }
@@ -37,6 +39,7 @@ class SetShopIdTest extends TestCase
     public function itShouldPassShopIdCallingUpdate()
     {
         $shopId = $this->faker->randomNumber();
+        $groupId = $this->faker->randomNumber();
 
         $email = $this->faker->safeEmail;
         $configMock = $this->getMockBuilder(Configuration::class)
@@ -49,10 +52,11 @@ class SetShopIdTest extends TestCase
             ->with(ConfigurationKeys::PS_PSX_FIREBASE_EMAIL);
         $configMock->expects($this->once())
             ->method('setRaw')
-            ->with(ConfigurationKeys::PS_ACCOUNTS_FIREBASE_EMAIL, $email, false, null, $shopId);
+            ->with(ConfigurationKeys::PS_ACCOUNTS_FIREBASE_EMAIL, $email, false, $groupId, $shopId);
 
         $configuration = new ConfigurationRepository($configMock);
         $configuration->setShopId($shopId);
+        $configuration->setShopGroupId($groupId);
 
         $configuration->updateFirebaseEmail($email);
     }

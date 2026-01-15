@@ -91,7 +91,9 @@ class AdminAjaxV2PsAccountsController extends AbstractAdminAjaxCorsController
             throw new Exception('Shop ID is required for migration or creation.');
         }
 
-        $command = new MigrateOrCreateIdentityV8Command($shopId, AccountsService::ORIGIN_FALLBACK, $source);
+        $command = (new MigrateOrCreateIdentityV8Command($shopId))
+            ->withOrigin(AccountsService::ORIGIN_FALLBACK)
+            ->withSource($source);
 
         $this->commandBus->handle($command);
 
@@ -116,12 +118,9 @@ class AdminAjaxV2PsAccountsController extends AbstractAdminAjaxCorsController
             throw new Exception('Shop ID is required for renew.');
         }
 
-        $command = new CreateIdentityCommand(
-            $shopId,
-            true,
-            AccountsService::ORIGIN_MISMATCH_CREATE,
-            $source
-        );
+        $command = (new CreateIdentityCommand($shopId, true))
+            ->withOrigin(AccountsService::ORIGIN_MISMATCH_CREATE)
+            ->withSource($source);
 
         $this->commandBus->handle($command);
 
@@ -146,12 +145,9 @@ class AdminAjaxV2PsAccountsController extends AbstractAdminAjaxCorsController
             throw new Exception('Shop ID is required for update.');
         }
 
-        $command = new VerifyIdentityCommand(
-            $shopId,
-            true,
-            AccountsService::ORIGIN_MISMATCH_UPDATE,
-            $source
-        );
+        $command = (new VerifyIdentityCommand($shopId, true))
+            ->withOrigin(AccountsService::ORIGIN_MISMATCH_UPDATE)
+            ->withSource($source);
 
         $this->commandBus->handle($command);
 

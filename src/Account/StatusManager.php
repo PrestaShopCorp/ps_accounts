@@ -28,9 +28,12 @@ use PrestaShop\Module\PsAccounts\Repository\ConfigurationRepository;
 use PrestaShop\Module\PsAccounts\Service\Accounts\AccountsException;
 use PrestaShop\Module\PsAccounts\Service\Accounts\AccountsService;
 use PrestaShop\Module\PsAccounts\Service\Accounts\Resource\ShopStatus;
+use PrestaShop\Module\PsAccounts\Traits\WithOriginAndSourceTrait;
 
 class StatusManager
 {
+    use WithOriginAndSourceTrait;
+
     /**
      * Status Cache TTL in seconds
      */
@@ -69,6 +72,8 @@ class StatusManager
         $this->repository = $repository;
         $this->shopSession = $shopSession;
         $this->accountsService = $accountsService;
+
+        $this->initDefaults();
     }
 
     /**
@@ -96,13 +101,12 @@ class StatusManager
     /**
      * @param bool $cachedOnly
      * @param int $cacheTtl
-     * @param string|null $source
      *
      * @return ShopStatus
      *
      * @throws UnknownStatusException
      */
-    public function getStatus($cachedOnly = false, $cacheTtl = self::CACHE_TTL, $source = null)
+    public function getStatus($cachedOnly = false, $cacheTtl = self::CACHE_TTL)
     {
         if (!$cachedOnly) {
             try {
@@ -119,11 +123,12 @@ class StatusManager
                     $this->upsetCachedStatus(new CachedShopStatus([
                         'isValid' => true,
                         'updatedAt' => date('Y-m-d H:i:s'),
-                        'shopStatus' => $this->accountsService->shopStatus(
-                            $this->getCloudShopId(),
-                            $this->shopSession->getValidToken(),
-                            $source
-                        ),
+                        'shopStatus' => $this->accountsService
+                            ->withSource($this->getSource())
+                            ->shopStatus(
+                                $this->getCloudShopId(),
+                                $this->shopSession->getValidToken()
+                            ),
                     ]));
                 } catch (AccountsException $e) {
                 } catch (RefreshTokenException $e) {

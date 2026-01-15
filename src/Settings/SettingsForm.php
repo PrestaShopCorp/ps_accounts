@@ -10,6 +10,7 @@ use PrestaShop\Module\PsAccounts\Account\Command\CleanupIdentityCommand;
 use PrestaShop\Module\PsAccounts\Account\Command\RestoreIdentityCommand;
 use PrestaShop\Module\PsAccounts\Cqrs\CommandBus;
 use PrestaShop\Module\PsAccounts\Repository\ConfigurationRepository;
+use PrestaShop\Module\PsAccounts\Service\Accounts\AccountsService;
 use PrestaShop\Module\PsAccounts\Service\OAuth2\Token\Validator\Validator;
 use Ps_accounts;
 use Throwable;
@@ -412,14 +413,18 @@ class SettingsForm
                 $this->generateForm(false);
         } else {
             try {
-                $this->commandBus->handle(new RestoreIdentityCommand(
-                    $cloudShopId,
-                    $oAuth2ClientId,
-                    $oAuth2ClientSecret,
-                    $forceVerify,
-                    $forceMigrate,
-                    $migrateFrom
-                ));
+                $this->commandBus->handle(
+                    (new RestoreIdentityCommand(
+                        $cloudShopId,
+                        $oAuth2ClientId,
+                        $oAuth2ClientSecret,
+                        $forceVerify,
+                        $forceMigrate,
+                        $migrateFrom
+                    ))
+                        ->withOrigin(AccountsService::ORIGIN_ADVANCED_SETTINGS)
+                        ->withSource($this->name)
+                );
             } catch (Exception $e) {
                 return $this->module->displayError($this->l('An error occurred while restoring identity: ' . $e->getMessage())) .
                     $this->generateForm(false);

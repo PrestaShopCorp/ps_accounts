@@ -92,15 +92,15 @@ class CreateIdentityHandler
     public function handle(CreateIdentityCommand $command)
     {
         if ($command->renew || !$this->isAlreadyCreated()) {
-            $shopId = $command->shopId ?: \Shop::getContextShopID();
+            $shopId = $command->shopId;
 
-            $identityCreated = $this->accountsService->createShopIdentity(
-                $this->shopProvider->getUrl($shopId),
-                $this->shopProvider->getName($shopId),
-                null,
-                $command->origin,
-                $command->source
-            );
+            $identityCreated = $this->accountsService
+                ->withSource($command->source)
+                ->withOrigin($command->origin)
+                ->createShopIdentity(
+                    $this->shopProvider->getUrl($shopId),
+                    $this->shopProvider->getName($shopId)
+                );
             $this->oAuth2Client->update(
                 $identityCreated->clientId,
                 $identityCreated->clientSecret
@@ -109,19 +109,17 @@ class CreateIdentityHandler
             $this->statusManager->setIsVerified(false);
             $this->statusManager->invalidateCache();
 
-            $this->commandBus->handle(new VerifyIdentityCommand(
-                $command->shopId,
-                true,
-                $command->origin,
-                $command->source
-            ));
+            $this->commandBus->handle(
+                (new VerifyIdentityCommand($shopId, true))
+                    ->withOrigin($command->origin)
+                    ->withSource($command->source)
+            );
         } else {
-            $this->commandBus->handle(new VerifyIdentityCommand(
-                $command->shopId,
-                false,
-                $command->origin,
-                $command->source
-            ));
+            $this->commandBus->handle(
+                (new VerifyIdentityCommand($command->shopId))
+                    ->withOrigin($command->origin)
+                    ->withSource($command->source)
+            );
         }
     }
 

@@ -21,10 +21,10 @@ function migrate_or_create_identities_v8($module)
         /** @var CommandBus $commandBus */
         $commandBus = $module->getService(CommandBus::class);
 
-        $commandBus->handle(new MigrateOrCreateIdentitiesV8Command(
-            AccountsService::ORIGIN_UPGRADE,
-            'ps_accounts'
-        ));
+        $commandBus->handle(
+            (new MigrateOrCreateIdentitiesV8Command())
+                ->withOrigin(AccountsService::ORIGIN_UPGRADE)
+        );
     } catch (\Exception $e) {
         Logger::getInstance()->error('error during upgrade : ' . $e);
     } catch (\Throwable $e) {

@@ -84,11 +84,11 @@ class UpdateBackOfficeUrlHandler
      */
     public function handle(UpdateBackOfficeUrlCommand $command)
     {
-        // TODO: rework multishop management
-        $shopId = $command->shopId ?: \Shop::getContextShopID() ?: $this->configurationRepository->getMainShopId();
+        // On disconnected context with single shop mode, the contextual shop id is not defined.
+        $shopId = $command->shopId ?: $this->configurationRepository->getMainShopId();
 
         // TODO: rework parameters priority
-        $status = $this->statusManager->getStatus(false, StatusManager::CACHE_TTL, 'ps_accounts');
+        $status = $this->statusManager->withSource('ps_accounts')->getStatus();
 
         $cloudShopUrl = ShopUrl::createFromStatus($status, $shopId);
         $localShopUrl = $this->shopProvider->getUrl($shopId);

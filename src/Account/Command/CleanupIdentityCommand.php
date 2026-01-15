@@ -23,4 +23,16 @@ namespace PrestaShop\Module\PsAccounts\Account\Command;
 
 class CleanupIdentityCommand
 {
+    /**
+     * @var int|null
+     */
+    public $shopId;
+
+    /**
+     * @param int|null $shopId
+     */
+    public function __construct($shopId = null)
+    {
+        $this->shopId = $shopId ?: \Shop::getContextShopID(true);
+    }
 }

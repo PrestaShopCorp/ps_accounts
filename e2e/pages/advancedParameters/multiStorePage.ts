@@ -26,7 +26,7 @@ export default class MultiStorePage extends BasePage {
    */
   async createNewStore() {
     await this.page.locator('#page-header-desc-shop_group-new_2').click();
-    await this.page.locator('#name').fill('Shop2');
+    await this.page.locator('#name').fill('Shop1');
     await this.page.locator('#fieldset_0').getByRole('button', {name: 'Save'}).click();
     await this.page.locator('a.multishop_warning').click();
     await this.page.locator('#virtual_uri').fill('shop1');
