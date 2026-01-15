@@ -423,7 +423,7 @@ class SettingsForm
                         $migrateFrom
                     ))
                         ->withOrigin(AccountsService::ORIGIN_ADVANCED_SETTINGS)
-                        ->withOrigin($this->name)
+                        ->withSource($this->name)
                 );
             } catch (Exception $e) {
                 return $this->module->displayError($this->l('An error occurred while restoring identity: ' . $e->getMessage())) .

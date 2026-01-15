@@ -322,6 +322,7 @@ class Ps_accounts extends Module
             return $settingsForm;
         }
 
+        /** @var \PrestaShop\Module\PsAccounts\Service\PsAccountsService $psAccountsService */
         $psAccountsService = $this->getService(\PrestaShop\Module\PsAccounts\Service\PsAccountsService::class);
 
         //$this->context->smarty->assign('pathVendor', $this->_path . 'views/js/chunk-vendors.' . $this->version . '.js');
@@ -418,6 +419,10 @@ class Ps_accounts extends Module
      */
     public function onModuleReset()
     {
+        /** @var \PrestaShop\Module\PsAccounts\Repository\ConfigurationRepository $configurationRepository */
+        $configurationRepository = $this->getService(\PrestaShop\Module\PsAccounts\Repository\ConfigurationRepository::class);
+        $configurationRepository->fixMultiShopConfig(true);
+
         /** @var \PrestaShop\Module\PsAccounts\Http\Client\CircuitBreaker\Factory $circuitBreakerFactory */
         $circuitBreakerFactory = $this->getService(\PrestaShop\Module\PsAccounts\Http\Client\CircuitBreaker\Factory::class);
         $circuitBreakerFactory->resetAll();
@@ -425,10 +430,6 @@ class Ps_accounts extends Module
         /** @var \PrestaShop\Module\PsAccounts\Service\OAuth2\OAuth2Service $oAuth2Service */
         $oAuth2Service = $this->getService(\PrestaShop\Module\PsAccounts\Service\OAuth2\OAuth2Service::class);
         $oAuth2Service->clearCache();
-
-        /** @var \PrestaShop\Module\PsAccounts\Repository\ConfigurationRepository $configurationRepository */
-        $configurationRepository = $this->getService(\PrestaShop\Module\PsAccounts\Repository\ConfigurationRepository::class);
-        $configurationRepository->fixMultiShopConfig();
 
         // FIXME: this wont prevent from re-implanting override on reset of module
         $uninstaller = new PrestaShop\Module\PsAccounts\Module\Uninstall($this, Db::getInstance());

@@ -61,6 +61,24 @@ class ConfigurationRepository
     }
 
     /**
+     * @return int
+     */
+    public function getShopGroupId()
+    {
+        return $this->configuration->getIdShopGroup();
+    }
+
+    /**
+     * @param int $groupId
+     *
+     * @return void
+     */
+    public function setShopGroupId($groupId)
+    {
+        $this->configuration->setIdShopGroup($groupId);
+    }
+
+    /**
      * @return string
      */
     public function getFirebaseIdToken()
@@ -249,7 +267,7 @@ class ConfigurationRepository
      */
     public function getMainShopId()
     {
-        return (int) \Db::getInstance()->getValue('SELECT value FROM ' . _DB_PREFIX_ . "configuration WHERE name = 'PS_SHOP_DEFAULT'");
+        return $this->configuration->getMainShopId();
     }
 
     /**
@@ -325,17 +343,27 @@ class ConfigurationRepository
     }
 
     /**
-     * @return void
+     * @param bool $force
      *
-     * @throws \Exception
+     * @return void
      */
-    public function fixMultiShopConfig()
+    public function fixMultiShopConfig($force = false)
     {
-        if ($this->isMultishopActive()) {
-            $this->migrateToMultiShop();
-        } else {
-            $this->migrateToSingleShop();
+        $isMultishopActive = $this->isMultishopActive();
+        $defaultShop = $this->getMainShop();
+
+        if (!$force && \Shop::isFeatureActive() === $isMultishopActive) {
+            return;
         }
+
+        $shopIdCondition = $isMultishopActive ? (int) $defaultShop->id : 'NULL';
+        $shopGroupIdCondition = $isMultishopActive ? (int) $defaultShop->id_shop_group : 'NULL';
+
+        \Db::getInstance()->query(
+            'UPDATE ' . _DB_PREFIX_ . 'configuration SET id_shop = ' . $shopIdCondition . ', id_shop_group = ' . $shopGroupIdCondition .
+            " WHERE name IN('" . join("','", array_values(ConfigurationKeys::cases())) . "')" .
+            ' AND id_shop ' . ($isMultishopActive ? 'IS NULL' : '= ' . (int) $defaultShop->id)
+        );
     }
 
     /**
@@ -367,24 +395,6 @@ class ConfigurationRepository
     public function getLastUpgrade($cached = true)
     {
         return $this->configuration->get(ConfigurationKeys::PS_ACCOUNTS_LAST_UPGRADE, false, $cached) ?: '0';
-    }
-
-    /**
-     * @return string|null
-     */
-    public function getUnlinkedOnError()
-    {
-        return $this->configuration->get(ConfigurationKeys::PS_ACCOUNTS_UNLINKED_ON_ERROR);
-    }
-
-    /**
-     * @param string|null $error
-     *
-     * @return void
-     */
-    public function updateUnlinkedOnError($error)
-    {
-        $this->configuration->set(ConfigurationKeys::PS_ACCOUNTS_UNLINKED_ON_ERROR, $error);
     }
 
     /**
@@ -452,39 +462,5 @@ class ConfigurationRepository
     public function updateValidationLeeway($leeway)
     {
         $this->configuration->set(ConfigurationKeys::PS_ACCOUNTS_VALIDATION_LEEWAY, (string) $leeway);
-    }
-
-    /**
-     * specify id_shop & id_shop_group for shop
-     *
-     * @return void
-     *
-     * @throws \PrestaShopDatabaseException
-     */
-    protected function migrateToMultiShop()
-    {
-        $shop = $this->getMainShop();
-        \Db::getInstance()->query(
-            'UPDATE ' . _DB_PREFIX_ . 'configuration SET id_shop = ' . (int) $shop->id . ', id_shop_group = ' . (int) $shop->id_shop_group .
-            " WHERE name IN('" . join("','", array_values(ConfigurationKeys::cases())) . "')" .
-            ' AND id_shop IS NULL AND id_shop_group IS NULL;'
-        );
-    }
-
-    /**
-     * nullify id_shop & id_shop_group for shop
-     *
-     * @return void
-     *
-     * @throws \PrestaShopDatabaseException
-     */
-    protected function migrateToSingleShop()
-    {
-        $shop = $this->getMainShop();
-        \Db::getInstance()->query(
-            'UPDATE ' . _DB_PREFIX_ . 'configuration SET id_shop = NULL, id_shop_group = NULL' .
-            " WHERE name IN('" . join("','", array_values(ConfigurationKeys::cases())) . "')" .
-            ' AND id_shop = ' . (int) $shop->id . ';'
-        );
     }
 }
