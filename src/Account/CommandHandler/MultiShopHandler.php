@@ -58,14 +58,14 @@ abstract class MultiShopHandler
     }
 
     /**
-     * @return array|null[]
+     * @return int[]
      */
     protected function getShopIds()
     {
         if ($this->shopContext->isMultishopActive()) {
             return $this->shopContext->getMultiShopIds();
         }
-
-        return [null];
+        //return [\Shop::getContextShopID(true)];
+        return [\Shop::getContextShopID()];
     }
 }

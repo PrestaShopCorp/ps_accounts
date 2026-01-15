@@ -73,12 +73,7 @@ class Response extends ConfigObject
      */
     public function getErrorMessageFromBody($key, $defaultMessage = '')
     {
-        if (!isset($this->body[$key]) ||
-            !is_string($this->body[$key])) {
-            return $defaultMessage;
-        }
-
-        return $this->body[$key];
+        return $this->getValueFromBody($key, $defaultMessage, static function ($value) {return is_string($value); });
     }
 
     /**
@@ -89,9 +84,21 @@ class Response extends ConfigObject
      */
     public function getErrorCodeFromBody($key, $defaultCode = '')
     {
+        return $this->getValueFromBody($key, $defaultCode, static function ($value) {return is_string($value); });
+    }
+
+    /**
+     * @param string $key
+     * @param mixed $default
+     * @param callable $validator
+     *
+     * @return mixed
+     */
+    public function getValueFromBody($key, $default = null, $validator = null)
+    {
         if (!isset($this->body[$key]) ||
-            !is_string($this->body[$key])) {
-            return $defaultCode;
+            ($validator && !$validator($this->body[$key]))) {
+            return $default;
         }
 
         return $this->body[$key];

@@ -21,6 +21,7 @@
 namespace PrestaShop\Module\PsAccounts\Hook;
 
 use Exception;
+use PrestaShop\Module\PsAccounts\Account\Command\CleanupIdentityCommand;
 use PrestaShop\Module\PsAccounts\Repository\ConfigurationRepository;
 
 class ActionObjectShopDeleteAfter extends Hook
@@ -37,6 +38,8 @@ class ActionObjectShopDeleteAfter extends Hook
         /** @var ConfigurationRepository $configurationRepository */
         $configurationRepository = $this->module->getService(ConfigurationRepository::class);
         $configurationRepository->fixMultiShopConfig();
+
+        $this->commandBus->handle((new CleanupIdentityCommand($params['object']->id)));
 
         return true;
     }
