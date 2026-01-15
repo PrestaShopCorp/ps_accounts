@@ -37,5 +37,6 @@ function upgrade_module_8_0_0($module)
     } catch (\Throwable $e) {
         Logger::getInstance()->error('error during upgrade : ' . $e);
     }
+
     return true;
 }
