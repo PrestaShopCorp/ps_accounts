@@ -8,16 +8,17 @@ activeMultistoreAndCreateShop('Check Multisotre association', async ({activeMult
   const pm = new PageManager(activeMultistoreAndCreateShop);
   const dbRequest = new DbRequest();
   await test.step('check if multiStore is Created', async () => {
+    const checkUrl = await dbRequest.getPsShopUrl();
+    expect(checkUrl.length).toBeGreaterThan(1);
+  });
+  await test.step('associate to account and check if linked', async () => {
+    await pm.fromModuleManagePage().isAccountVisible();
+    await pm.fromModuleManagePage().goToAccountConfigurePage();
     if (await pm.fromDashboardPage().getShopVersion()) {
       await pm.fromModuleManagePage().isMultistoreVisibleOldVersion();
     } else {
       await pm.fromModuleManagePage().isMultistoreVisible();
     }
-  });
-  await test.step('associate to account and check if linked', async () => {
-    await pm.fromModuleManagePage().isAccountVisible();
-    await pm.fromModuleManagePage().goToAccountConfigurePage();
-    // await pm.fromPopupAccountPage().isAllShopSelectedBeforeConfig();
     const popup = await pm.fromPopupAccountPage().openAccountPopup();
     await pm.fromPopupAccountPage().accountPopupTiteleIsVisible(popup);
     await pm.fromPopupAccountPage().connectToAccountWithMail(popup);

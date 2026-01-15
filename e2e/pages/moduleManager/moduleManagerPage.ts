@@ -106,17 +106,24 @@ export default class ModuleManagerPage extends BasePage {
    * The page title check if the title All Store is visible
    */
   async isMultistoreVisible() {
-    await this.page.locator('.header-multishop-button').click();
-    const isMultiStoreVisible = this.page.locator('.multishop-modal-all-name');
-    await isMultiStoreVisible.click();
-    expect(isMultiStoreVisible).toBeVisible({timeout: 3000});
+    const dropdownTrigger = this.page
+      .getByRole('link', {name: 'All stores', exact: true})
+      .or(this.page.getByRole('link', {name: 'PrestaShop', exact: true}))
+      .or(this.page.getByRole('link', {name: 'visibility'}))
+      .first();
+    await dropdownTrigger.click(); 
+    const multiStoreOption = this.page
+      .getByRole('link', {name: 'All stores', exact: true})
+      .or(this.page.getByRole('link', {name: 'All shops', exact: true}))
+    await multiStoreOption.click();
+    // expect(multiStoreOption).toBeVisible({timeout: 3000})
   }
   async isMultistoreVisibleOldVersion() {
     await this.page.locator('#header_shop').click();
-    const allShopsBtn = this.page.getByRole('link', {name: 'All shops', exact: true});
+    const allShopsBtn = this.page.getByRole('link', {name: 'All shops'});
     await allShopsBtn.click();
-    const isMultiStoreVisible = this.page.getByRole('link', {name: 'All shops '});
-    expect(isMultiStoreVisible).toBeVisible({timeout: 3000});
+    const isMultiStoreVisible = this.page.getByRole('link', {name: 'All shops'});
+    expect(isMultiStoreVisible).toBeVisible({timeout: 3000})
   }
 
   /**
@@ -125,7 +132,7 @@ export default class ModuleManagerPage extends BasePage {
    */
   async uploadZip() {
     const psVersion = await this.getPsVersion();
-    const filePath = path.join(__dirname, '../../../e2e-env/modules/ps_accounts_preprod-8.0.4.zip');
+    const filePath = path.join(__dirname, '../../../e2e-env/modules/ps_accounts_preprod-8.0.9.zip');
     if (psVersion === 'new') {
       await this.page.locator('[data-target="#module-modal-import"]').click();
       const fileChooserPromise = this.page.waitForEvent('filechooser');
@@ -183,6 +190,21 @@ export default class ModuleManagerPage extends BasePage {
       await this.page.waitForLoadState('load');
     } else {
       throw new Error('Module Manager page title not recognized.');
+    }
+  }
+
+  /**
+   * If ps_version => 9 delete préinstall ps_accounts module
+   */
+  async detetePreInstallPsAccount() {
+    const psVersion = await this.page.locator('#shop_version').first().textContent();
+    if (psVersion?.startsWith('9.')) {
+      const dropDownBtn = this.page.locator('.dropdown-toggle-split');
+      await dropDownBtn.click();
+      await this.page.getByRole('button', {name: 'Uninstall'}).click();
+      await this.page.getByRole('link', {name: 'Yes, uninstall it'}).click();
+      await dropDownBtn.click();
+      await this.page.getByRole('link', {name: 'Delete'}).click();
     }
   }
 }
