@@ -16,6 +16,7 @@ else
 ACCOUNTS_VERSIONS=(
   v7.2.2
   v6.3.1
+  v7.2.2
   v5.6.2
 )
 fi
