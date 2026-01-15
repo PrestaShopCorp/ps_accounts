@@ -11,7 +11,7 @@ gotToModuleManagerPage('Check if you are verified', async ({gotToModuleManagerPa
     await pm.fromModuleManagePage().goToAccountConfigurePage();
     const status = await pm.fromConfigureAccountPage().getStoreInformation();
     expect(status).toBeTruthy();
-    const apiStatus = await pm.fromConfigureAccountPage().getStoreInformationFromApi();
-    expect(apiStatus).toBeTruthy()
+    const apiStatus = await pm.fromConfigureAccountPage().getStoreInformationFromApi(0);
+    expect(apiStatus).toBeTruthy();
   });
 });

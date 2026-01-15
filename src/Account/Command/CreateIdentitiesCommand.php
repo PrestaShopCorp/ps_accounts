@@ -21,27 +21,14 @@
 
 namespace PrestaShop\Module\PsAccounts\Account\Command;
 
-use PrestaShop\Module\PsAccounts\Service\Accounts\AccountsService;
+use PrestaShop\Module\PsAccounts\Traits\WithOriginAndSourceTrait;
 
 class CreateIdentitiesCommand
 {
-    /**
-     * @var string
-     */
-    public $origin;
+    use withOriginAndSourceTrait;
 
-    /**
-     * @var string
-     */
-    public $source;
-
-    /**
-     * @param string $origin
-     * @param string $source
-     */
-    public function __construct($origin = AccountsService::ORIGIN_INSTALL, $source = 'ps_accounts')
+    public function __construct()
     {
-        $this->origin = $origin;
-        $this->source = $source;
+        $this->initDefaults();
     }
 }

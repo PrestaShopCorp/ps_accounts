@@ -92,7 +92,7 @@ class VerifyIdentityHandler
     public function handle(VerifyIdentityCommand $command)
     {
         $shopId = $command->shopId;
-        $status = $this->statusManager->getStatus(false, StatusManager::CACHE_TTL, $command->source);
+        $status = $this->statusManager->withSource($command->source)->getStatus();
         $cloudShopUrl = ShopUrl::createFromStatus($status, $shopId);
 
         if (!$command->force && $status->isVerified) {
@@ -109,15 +109,16 @@ class VerifyIdentityHandler
             return;
         }
 
-        $this->accountsService->verifyShopIdentity(
-            $this->statusManager->getCloudShopId(),
-            $this->shopSession->getValidToken(),
-            $this->shopProvider->getUrl($shopId),
-            $this->shopProvider->getName($shopId),
-            $this->proofManager->generateProof(),
-            $command->origin,
-            $command->source
-        );
+        $this->accountsService
+            ->withOrigin($command->origin)
+            ->withSource($command->source)
+            ->verifyShopIdentity(
+                $this->statusManager->getCloudShopId(),
+                $this->shopSession->getValidToken(),
+                $this->shopProvider->getUrl($shopId),
+                $this->shopProvider->getName($shopId),
+                $this->proofManager->generateProof()
+            );
         $this->statusManager->invalidateCache();
     }
 }

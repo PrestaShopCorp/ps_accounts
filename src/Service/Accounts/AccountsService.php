@@ -31,10 +31,13 @@ use PrestaShop\Module\PsAccounts\Service\Accounts\Resource\FirebaseTokens;
 use PrestaShop\Module\PsAccounts\Service\Accounts\Resource\IdentityCreated;
 use PrestaShop\Module\PsAccounts\Service\Accounts\Resource\LegacyFirebaseToken;
 use PrestaShop\Module\PsAccounts\Service\Accounts\Resource\ShopStatus;
+use PrestaShop\Module\PsAccounts\Traits\WithOriginAndSourceTrait;
 use PrestaShop\Module\PsAccounts\Vendor\Ramsey\Uuid\Uuid;
 
 class AccountsService
 {
+    use WithOriginAndSourceTrait;
+
     // Common headers
     const HEADER_AUTHORIZATION = 'Authorization';
     const HEADER_ACTION_ORIGIN = 'X-Action-Origin';
@@ -76,6 +79,8 @@ class AccountsService
         $this->clientConfig = array_merge([
             ClientConfig::NAME => static::class,
         ], $config);
+
+        $this->initDefaults();
     }
 
     /**
@@ -208,8 +213,6 @@ class AccountsService
      * @param ShopUrl $shopUrl
      * @param string $shopName
      * @param string|null $proof
-     * @param string $origin UX origin triggering call
-     * @param string $source source module triggering call
      *
      * @return IdentityCreated
      *
@@ -218,16 +221,14 @@ class AccountsService
     public function createShopIdentity(
         ShopUrl $shopUrl,
         $shopName,
-        $proof = null,
-        $origin = self::ORIGIN_INSTALL,
-        $source = 'ps_accounts'
+        $proof = null
     ) {
         $response = $this->getClient()->post(
             '/v1/shop-identities',
             [
                 Request::HEADERS => $this->getHeaders([
-                    self::HEADER_ACTION_ORIGIN => $origin,
-                    self::HEADER_MODULE_SOURCE => $source,
+                    self::HEADER_ACTION_ORIGIN => $this->getOrigin(),
+                    self::HEADER_MODULE_SOURCE => $this->getSource(),
                 ]),
                 Request::JSON => array_merge(
                     [
@@ -254,8 +255,6 @@ class AccountsService
      * @param ShopUrl $shopUrl
      * @param string $shopName
      * @param string $proof
-     * @param string $origin UX origin triggering call
-     * @param string $source source module triggering call
      *
      * @return void
      *
@@ -266,9 +265,7 @@ class AccountsService
         $shopToken,
         ShopUrl $shopUrl,
         $shopName,
-        $proof,
-        $origin = self::ORIGIN_INSTALL,
-        $source = 'ps_accounts'
+        $proof
     ) {
         $response = $this->getClient()->post(
             '/v1/shop-identities/' . $cloudShopId . '/verify',
@@ -276,8 +273,8 @@ class AccountsService
                 Request::HEADERS => $this->getHeaders([
                     self::HEADER_AUTHORIZATION => 'Bearer ' . $shopToken,
                     self::HEADER_SHOP_ID => $cloudShopId,
-                    self::HEADER_ACTION_ORIGIN => $origin,
-                    self::HEADER_MODULE_SOURCE => $source,
+                    self::HEADER_ACTION_ORIGIN => $this->getOrigin(),
+                    self::HEADER_MODULE_SOURCE => $this->getSource(),
                 ]),
                 Request::JSON => [
                     'backOfficeUrl' => $shopUrl->getBackOfficeUrl(),
@@ -297,13 +294,12 @@ class AccountsService
     /**
      * @param string $cloudShopId
      * @param string $shopToken
-     * @param string|null $source
      *
      * @return ShopStatus
      *
      * @throws AccountsException
      */
-    public function shopStatus($cloudShopId, $shopToken, $source = null)
+    public function shopStatus($cloudShopId, $shopToken)
     {
         $response = $this->getClient()->get(
             '/v1/shop-identities/' . $cloudShopId . '/status',
@@ -311,7 +307,7 @@ class AccountsService
                 Request::HEADERS => $this->getHeaders([
                     self::HEADER_AUTHORIZATION => 'Bearer ' . $shopToken,
                     self::HEADER_SHOP_ID => $cloudShopId,
-                    self::HEADER_MODULE_SOURCE => $source,
+                    self::HEADER_MODULE_SOURCE => $this->getSource(),
                 ]),
             ]
         );
@@ -327,13 +323,12 @@ class AccountsService
      * @param string $cloudShopId
      * @param string $shopToken
      * @param string $userToken
-     * @param string|null $source
      *
      * @return void
      *
      * @throws AccountsException
      */
-    public function setPointOfContact($cloudShopId, $shopToken, $userToken, $source = 'ps_accounts')
+    public function setPointOfContact($cloudShopId, $shopToken, $userToken)
     {
         $response = $this->getClient()->post(
             '/v1/shop-identities/' . $cloudShopId . '/point-of-contact',
@@ -341,7 +336,7 @@ class AccountsService
                 Request::HEADERS => $this->getHeaders([
                     self::HEADER_AUTHORIZATION => 'Bearer ' . $shopToken,
                     self::HEADER_SHOP_ID => $cloudShopId,
-                    self::HEADER_MODULE_SOURCE => $source,
+                    self::HEADER_MODULE_SOURCE => $this->getSource(),
                 ]),
                 Request::JSON => [
                     'pointOfContactJWT' => $userToken,
@@ -361,13 +356,12 @@ class AccountsService
      * @param string $shopName
      * @param string $fromVersion
      * @param string|null $proof
-     * @param string|null $source
      *
      * @return IdentityCreated
      *
      * @throws AccountsException
      */
-    public function migrateShopIdentity($cloudShopId, $shopToken, ShopUrl $shopUrl, $shopName, $fromVersion, $proof = null, $source = 'ps_accounts')
+    public function migrateShopIdentity($cloudShopId, $shopToken, ShopUrl $shopUrl, $shopName, $fromVersion, $proof = null)
     {
         $response = $this->getClient()->put(
             '/v1/shop-identities/' . $cloudShopId . '/migrate',
@@ -375,7 +369,7 @@ class AccountsService
                 Request::HEADERS => $this->getHeaders([
                     self::HEADER_AUTHORIZATION => 'Bearer ' . $shopToken,
                     self::HEADER_SHOP_ID => $cloudShopId,
-                    self::HEADER_MODULE_SOURCE => $source,
+                    self::HEADER_MODULE_SOURCE => $this->getSource(),
                 ]),
                 Request::JSON => array_merge(
                     [

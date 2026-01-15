@@ -44,11 +44,6 @@ class IdentifyContactHandlerTest extends TestCase
     protected $ownerSession;
 
     /**
-     * @var Client&MockObject
-     */
-    public $client;
-
-    /**
      * @var int
      */
     protected $shopId = 1;
@@ -57,10 +52,20 @@ class IdentifyContactHandlerTest extends TestCase
     {
         parent::set_up();
 
-        $this->client = $this->createMock(Client::class);
         $this->shopSession = $this->createMock(ShopSession::class);
-        $this->accountsService = $this->createMock(AccountsService::class);
-        $this->accountsService->setClient($this->client);
+
+        $this->accountsService = $this->getMockBuilder(AccountsService::class)
+            ->setMethods(
+                ['withSource', 'withOrigin', 'setPointOfContact']
+            )
+            ->disableOriginalConstructor()
+            ->getMock();
+
+        $this->accountsService->method('withSource')
+            ->willReturn($this->accountsService);
+
+        $this->accountsService->method('withOrigin')
+            ->willReturn($this->accountsService);
     }
 
     /**

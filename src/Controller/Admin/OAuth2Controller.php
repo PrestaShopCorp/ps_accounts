@@ -200,7 +200,10 @@ class OAuth2Controller extends FrameworkBundleAdminController
         );
 
         if ($this->getOAuthAction() === 'identifyPointOfContact') {
-            $this->commandBus->handle(new IdentifyContactCommand($accessToken, $user, $this->getSource()));
+            $this->commandBus->handle(
+                (new IdentifyContactCommand($accessToken, $user))
+                    ->withSource($this->getSource())
+            );
 
             return true;
         }

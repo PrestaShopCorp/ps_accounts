@@ -103,6 +103,18 @@ export default class PopupAccountPage extends ModuleManagerPage {
   }
 
   /**
+   * Get the locator for the link bouton
+   * @returns {Locator} The locator to check linked shop success message
+   */
+  async checkIsNotLinked() {
+    const accountTitle = this.page.locator('.title', {hasText: ' PRESTASHOP '});
+    await accountTitle.isVisible();
+    await this.page.waitForTimeout(4000);
+    await this.page.reload();
+    return await this.page.getByRole('button', {name: 'Link'});
+  }
+
+  /**
    * Check if Link bouton and manage shop bouton are visible
    */
   async multiStoreCheckIsLinkedAllShopAssociate() {
@@ -174,7 +186,7 @@ export default class PopupAccountPage extends ModuleManagerPage {
    * Select de FO/Shop2 url and click Diassociate
    */
   async multistoreSelectUrlAndDiassociate(newPage: Page) {
-    const card = newPage.getByRole('checkbox', {name: `Shop2 language icon ${Globals.base_url_fo}/shop1`});
+    const card = newPage.getByRole('checkbox', {name: `Shop1 language icon ${Globals.base_url_fo}/shop1`});
     await card.isVisible();
     await card.locator('[data-test="shoplist-shop-unlink"]').click();
     await newPage.locator('[data-test="confirm-unlink-shop"]').click({timeout: 5000});
@@ -209,19 +221,5 @@ export default class PopupAccountPage extends ModuleManagerPage {
     }
 
     return page;
-  }
-  /**
-   *
-   * The page title check if the title All Store is visible before Config
-   */
-  async isAllShopSelectedBeforeConfig() {
-    // await this.page.pause()
-    const isMultiStoreVisible = this.page.getByRole('link', {name: 'All stores'});
-    // const isMultiStoreVisible = this.page.locator('a').filter({hasText: /^All stores$/});
-    if (!(await isMultiStoreVisible.isVisible())) {
-      await this.page.locator('#header_shop').click();
-      await isMultiStoreVisible.click();
-    }
-    expect(isMultiStoreVisible).toBeVisible({timeout: 3000});
   }
 }

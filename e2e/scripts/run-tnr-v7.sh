@@ -17,11 +17,8 @@ npm run build-shop -- "$PS_VERSION"
 
 #Run the tests
 npx playwright test --project="Account TNR V7" module_installation || true 
-npx playwright test --project="Account TNR V7" 01_front_check_association.spec.ts || true
-npx playwright test --project="Account TNR V7" 02_front_check_disassociation.spec.ts || true
-npx playwright test --project="Account TNR V7" 01_multistore_activation_and_associaiton.spec.ts || true 
-npx playwright test --project="Account TNR V7" 02_delete_tokens_and_change_uri.spec.ts || true
-npx playwright test --project="Account TNR V7" 03_multistore_disassociation.spec.ts || true
+npx playwright test --project="Account TNR V7" association-disassociation || true 
+
 
 #Create the allure result directory
 mkdir -p "allure-results-$PS_VERSION"

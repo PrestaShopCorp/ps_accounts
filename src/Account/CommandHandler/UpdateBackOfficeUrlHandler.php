@@ -88,7 +88,7 @@ class UpdateBackOfficeUrlHandler
         $shopId = $command->shopId ?: $this->configurationRepository->getMainShopId();
 
         // TODO: rework parameters priority
-        $status = $this->statusManager->getStatus(false, StatusManager::CACHE_TTL, 'ps_accounts');
+        $status = $this->statusManager->withSource('ps_accounts')->getStatus();
 
         $cloudShopUrl = ShopUrl::createFromStatus($status, $shopId);
         $localShopUrl = $this->shopProvider->getUrl($shopId);

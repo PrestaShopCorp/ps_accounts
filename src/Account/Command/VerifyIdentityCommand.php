@@ -21,10 +21,12 @@
 
 namespace PrestaShop\Module\PsAccounts\Account\Command;
 
-use PrestaShop\Module\PsAccounts\Service\Accounts\AccountsService;
+use PrestaShop\Module\PsAccounts\Traits\WithOriginAndSourceTrait;
 
 class VerifyIdentityCommand
 {
+    use WithOriginAndSourceTrait;
+
     /**
      * @var int|null
      */
@@ -36,26 +38,14 @@ class VerifyIdentityCommand
     public $force;
 
     /**
-     * @var string
-     */
-    public $origin;
-
-    /**
-     * @var string|null
-     */
-    public $source;
-
-    /**
      * @param int|null $shopId
      * @param bool $force
-     * @param string $origin
-     * @param string $source
      */
-    public function __construct($shopId, $force = false, $origin = AccountsService::ORIGIN_INSTALL, $source = 'ps_accounts')
+    public function __construct($shopId, $force = false)
     {
         $this->shopId = $shopId;
         $this->force = $force;
-        $this->origin = $origin;
-        $this->source = $source;
+
+        $this->initDefaults();
     }
 }
