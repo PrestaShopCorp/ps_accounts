@@ -19,11 +19,11 @@ trait WithPropertyTrait
     {
         $with = 'with';
         if (strpos($methodName, $with) === 0) {
-            return $this->withProperty($methodName, $args, $with);
+            return $this->withProperty($with, $methodName, ...$args);
         }
         $get = 'get';
         if (strpos($methodName, $get) === 0) {
-            return $this->getAndRestoreProperty($methodName, $get);
+            return $this->getProperty($get, $methodName, ...$args);
         }
     }
 
@@ -56,17 +56,15 @@ trait WithPropertyTrait
     /**
      * Fluent setter
      *
-     * @param string $methodName
-     * @param array $args
      * @param string $prefix
+     * @param string $methodName
+     * @param null $value
      *
      * @return $this
      */
-    private function withProperty($methodName, array $args, $prefix = 'with')
+    private function withProperty($prefix, $methodName, $value = null)
     {
         $property = $this->extractPropertyName($methodName, $prefix);
-
-        $value = isset($args[0]) ? $args[0] : null;
 
         $this->$property = $value;
 
@@ -76,18 +74,21 @@ trait WithPropertyTrait
     /**
      * Property getter
      *
-     * @param string $methodName
      * @param string $prefix
+     * @param string $methodName
+     * @param bool $restoreDefault
      *
      * @return mixed|null
      */
-    private function getAndRestoreProperty($methodName, $prefix = 'get')
+    private function getProperty($prefix, $methodName, $restoreDefault = true)
     {
         $property = $this->extractPropertyName($methodName, $prefix);
 
         $value = $this->$property;
 
-        $this->restoreDefault($property);
+        if ($restoreDefault) {
+            $this->restoreDefault($property);
+        }
 
         return $value;
     }

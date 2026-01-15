@@ -6,9 +6,9 @@ use PrestaShop\Module\PsAccounts\Service\Accounts\AccountsService;
 
 /**
  * @method $this withSource(string $source)
- * @method string getSource()
+ * @method string getSource(bool $restoreDefault = true)
  * @method $this withOrigin(string $source)
- * @method string getOrigin()
+ * @method string getOrigin(bool $restoreDefault = true)
  */
 trait WithOriginAndSourceTrait
 {

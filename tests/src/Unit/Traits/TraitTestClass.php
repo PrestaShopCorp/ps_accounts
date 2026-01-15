@@ -6,9 +6,9 @@ use PrestaShop\Module\PsAccounts\Traits\WithPropertyTrait;
 
 /**
  * @method self withProperty1(string $value)
- * @method string getProperty1()
+ * @method string getProperty1(bool $restoreDefault = true)
  * @method self withProperty2(string $value)
- * @method string getProperty2()
+ * @method string getProperty2(bool $restoreDefault = true)
  */
 class TraitTestClass
 {

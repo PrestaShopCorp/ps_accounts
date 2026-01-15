@@ -37,6 +37,19 @@ class WithPropertyTraitTest extends TestCase
     /**
      * @test
      */
+    public function itShouldNotRestoreAPropertyAfterGet()
+    {
+        $instance = new TraitTestClass();
+
+        $value = $this->faker->word;
+
+        $this->assertEquals($value, $instance->withProperty1($value)->getProperty1(false));
+        $this->assertEquals($value, $instance->getProperty1(false));
+    }
+
+    /**
+     * @test
+     */
     public function itShouldThrowExceptionIfPropertyDoesNotExist()
     {
         $instance = new TraitTestClass();
