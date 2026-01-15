@@ -195,14 +195,13 @@ class Configuration
      * @param int|null $idShopGroup
      * @param int|null $idShop
      * @param string|bool $default
-     * @param bool $forceContext
      *
      * @return mixed
      */
-    public function getUncached($key, $idShopGroup = null, $idShop = null, $default = false, $forceContext = true)
+    public function getUncached($key, $idShopGroup = null, $idShop = null, $default = false)
     {
         try {
-            return $this->getUncachedConfiguration($key, $idShopGroup, $idShop, $forceContext)->value;
+            return $this->getUncachedConfiguration($key, $idShopGroup, $idShop)->value;
         } catch (\Exception $e) {
             Logger::getInstance()->error(__METHOD__ . ': ' . $e->getMessage());
 
@@ -214,23 +213,15 @@ class Configuration
      * @param string $key
      * @param int|null $idShopGroup
      * @param int|null $idShop
-     * @param bool $forceContext
      *
      * @return \Configuration
      *
      * @throw \Exception
      */
-    public function getUncachedConfiguration($key, $idShopGroup = null, $idShop = null, $forceContext = true)
+    public function getUncachedConfiguration($key, $idShopGroup = null, $idShop = null)
     {
-//        if ($idShop && Configuration::hasKey($key, $idLang, null, $idShop)) {
-//            return self::$_new_cache_shop[$key][$idLang][$idShop];
-//        } elseif ($idShopGroup && Configuration::hasKey($key, $idLang, $idShopGroup)) {
-//            return self::$_new_cache_group[$key][$idLang][$idShopGroup];
-//        } elseif (Configuration::hasKey($key, $idLang)) {
-//            return self::$_new_cache_global[$key][$idLang];
-//        }
-
-        if ($forceContext && !$this->isMultishopActive()) {
+        if (!$this->isMultishopActive()) {
+            // To avoid making 3 calls to the database in the single shop context
             $idShopGroup = $idShop = null;
             $id = \Configuration::getIdByName($key, $idShopGroup, $idShop);
         } else {
