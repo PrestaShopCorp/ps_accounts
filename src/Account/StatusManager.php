@@ -24,6 +24,8 @@ use DateTime;
 use PrestaShop\Module\PsAccounts\Account\Exception\RefreshTokenException;
 use PrestaShop\Module\PsAccounts\Account\Exception\UnknownStatusException;
 use PrestaShop\Module\PsAccounts\Account\Session\ShopSession;
+use PrestaShop\Module\PsAccounts\Exception\DtoException;
+use PrestaShop\Module\PsAccounts\Log\Logger;
 use PrestaShop\Module\PsAccounts\Repository\ConfigurationRepository;
 use PrestaShop\Module\PsAccounts\Service\Accounts\AccountsException;
 use PrestaShop\Module\PsAccounts\Service\Accounts\AccountsService;
@@ -104,6 +106,8 @@ class StatusManager
      *
      * @return ShopStatus
      *
+     * @throws AccountsException
+     * @throws RefreshTokenException
      * @throws UnknownStatusException
      */
     public function getStatus($cachedOnly = false, $cacheTtl = self::CACHE_TTL)
@@ -119,7 +123,7 @@ class StatusManager
                 $this->cacheInvalidated($cachedShopStatus) ||
                 $this->cacheExpired($cachedShopStatus, $cacheTtl)
             ) {
-                try {
+//                try {
                     $this->upsetCachedStatus(new CachedShopStatus([
                         'isValid' => true,
                         'updatedAt' => date('Y-m-d H:i:s'),
@@ -130,13 +134,47 @@ class StatusManager
                                 $this->shopSession->getValidToken()
                             ),
                     ]));
-                } catch (AccountsException $e) {
-                } catch (RefreshTokenException $e) {
-                }
+//                } catch (AccountsException $e) {
+//                    Logger::getInstance()->error($e->getMessage());
+//                    throw $e;
+//                } catch (RefreshTokenException $e) {
+//                    Logger::getInstance()->error($e->getMessage());
+//                    throw $e;
+//                }
             }
         }
 
         return $this->getCachedStatus()->shopStatus;
+    }
+
+    /**
+     * @param bool $cachedOnly
+     * @param int $cacheTtl
+     *
+     * @return ShopStatus
+     */
+    public function getStatusSafe($cachedOnly = false, $cacheTtl = self::CACHE_TTL)
+    {
+        try {
+            try {
+                $status = $this->getStatus($cachedOnly, $cacheTtl);
+            } catch (AccountsException $e) {
+                $status = $this->getCachedStatus()->shopStatus;
+            } catch (RefreshTokenException $e) {
+                $status = $this->getCachedStatus()->shopStatus;
+            } finally {
+                Logger::getInstance()->error($e->getMessage());
+            }
+        } catch (UnknownStatusException $e) {
+            $shopUrl = $this->getUrl((int) $this->repository->getShopId());
+            $status = new ShopStatus([
+                'frontendUrl' => $shopUrl->getFrontendUrl(),
+                'backOfficeUrl' => $shopUrl->getBackOfficeUrl(),
+            ]);
+        } finally {
+            Logger::getInstance()->error($e->getMessage());
+            return $status;
+        }
     }
 
     /**
