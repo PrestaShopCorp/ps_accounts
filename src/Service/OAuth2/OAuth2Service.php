@@ -195,7 +195,7 @@ class OAuth2Service
         $response = $this->getHttpClient()->get('/.well-known/openid-configuration');
 
         if (!$response->isSuccessful) {
-            throw new OAuth2ServerException($response, 'Unable to get openid-configuration');
+            throw new OAuth2ServerException($response, 'Unable to get openid-configuration', OAuth2ServerException::ERROR_OPENID_CONFIG);
         }
 
         return $response->body;
@@ -214,7 +214,7 @@ class OAuth2Service
             $response = $this->getHttpClient()->get($this->getWellKnown()->jwks_uri);
 
             if (!$response->isSuccessful) {
-                throw new OAuth2ServerException($response, 'Unable to get JWKS');
+                throw new OAuth2ServerException($response, 'Unable to get JWKS', OAuth2ServerException::ERROR_JWKS);
             }
 
             $this->cachedJwks->write(
@@ -252,7 +252,7 @@ class OAuth2Service
         );
 
         if (!$response->isSuccessful) {
-            throw new OAuth2ServerException($response, 'Unable to get access token');
+            throw new OAuth2ServerException($response, 'Unable to get access token', OAuth2ServerException::ERROR_ACCESS_TOKEN);
         }
 
         return new AccessToken($response->body);
@@ -359,7 +359,7 @@ class OAuth2Service
         );
 
         if (!$response->isSuccessful) {
-            throw new OAuth2ServerException($response, 'Unable to get access token');
+            throw new OAuth2ServerException($response, 'Unable to get access token', OAuth2ServerException::ERROR_ACCESS_TOKEN);
         }
 
         return new AccessToken($response->body);
@@ -388,7 +388,7 @@ class OAuth2Service
         );
 
         if (!$response->isSuccessful) {
-            throw new OAuth2ServerException($response, 'Unable to refresh access token');
+            throw new OAuth2ServerException($response, 'Unable to refresh access token', OAuth2ServerException::ERROR_REFRESH_TOKEN);
         }
 
         return new AccessToken($response->body);
@@ -411,7 +411,7 @@ class OAuth2Service
         );
 
         if (!$response->isSuccessful) {
-            throw new OAuth2ServerException($response, 'Unable to get user infos');
+            throw new OAuth2ServerException($response, 'Unable to get user infos', OAuth2ServerException::ERROR_USER_INFO);
         }
 
         return new UserInfo($response->body);

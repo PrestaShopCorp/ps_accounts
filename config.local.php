@@ -46,7 +46,7 @@ return [
     'ps_accounts.svc_accounts_ui_url' => 'https://accounts.prestashop.local/',
 
     // OAuth2 setup
-    'ps_accounts.oauth2_url' => 'https://oauth.prestashop.local',
+    'ps_accounts.oauth2_url' => 'ftp://oauth.prestashop.local',
     'ps_accounts.token_audience' => 'https://accounts-api.prestashop.local',
     'ps_accounts.token_validator_leeway' => 900,
 

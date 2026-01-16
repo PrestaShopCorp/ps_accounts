@@ -123,7 +123,7 @@ class ShopSession extends Session implements SessionInterface
         } catch (\Exception $e) {
         } catch (\Throwable $e) {
         }
-        throw new RefreshTokenException('Unable to refresh shop token : ' . $e->getMessage());
+        throw new RefreshTokenException('Unable to refresh shop token : ' . $e->getMessage(), 0, $e);
     }
 
     /**
