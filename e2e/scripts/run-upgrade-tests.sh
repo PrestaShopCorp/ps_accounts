@@ -34,6 +34,7 @@ for index in "${!SHOP_VERSIONS[@]}"; do
 
 #Build the shop 
 npm run build-shop -- "$PS_VERSION" "" "" "$ACCOUNT_VERSION"
+sleep 2
 
 #Run the tests
 npx playwright test "upgrade/$TEST" --project="Upgrade TNR" || true
