@@ -14,9 +14,9 @@ if [ -n "$2" ]; then
   ACCOUNTS_VERSIONS=("$2")
 else
 ACCOUNTS_VERSIONS=(
-  v8.0.6
   v7.2.2
   v6.3.1
+  v7.2.2
   v5.6.2
 )
 fi
@@ -34,6 +34,7 @@ for index in "${!SHOP_VERSIONS[@]}"; do
 
 #Build the shop 
 npm run build-shop -- "$PS_VERSION" "" "" "$ACCOUNT_VERSION"
+sleep 2
 
 #Run the tests
 npx playwright test "upgrade/$TEST" --project="Upgrade TNR" || true

@@ -1,5 +1,7 @@
 #!/bin/bash
 
+export PS_ACCOUNTS_VERSION="v7.2.2"
+
 if [ -n "$1" ]; then
   SHOP_VERSIONS=("$1")
 else
@@ -13,7 +15,8 @@ fi
 
 for PS_VERSION in "${SHOP_VERSIONS[@]}"; do
 #Build the shop 
-npm run build-shop -- "$PS_VERSION"
+npm run build-shop -- "$PS_VERSION" "" "" "$PS_ACCOUNTS_VERSION"
+sleep 2
 
 #Run the tests
 npx playwright test --project="Account TNR V7" 01_multistore_activation_and_associaiton.spec.ts || true 
