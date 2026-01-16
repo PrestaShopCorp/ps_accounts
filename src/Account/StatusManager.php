@@ -24,15 +24,22 @@ use DateTime;
 use PrestaShop\Module\PsAccounts\Account\Exception\RefreshTokenException;
 use PrestaShop\Module\PsAccounts\Account\Exception\UnknownStatusException;
 use PrestaShop\Module\PsAccounts\Account\Session\ShopSession;
+use PrestaShop\Module\PsAccounts\Log\Logger;
 use PrestaShop\Module\PsAccounts\Repository\ConfigurationRepository;
 use PrestaShop\Module\PsAccounts\Service\Accounts\AccountsException;
 use PrestaShop\Module\PsAccounts\Service\Accounts\AccountsService;
 use PrestaShop\Module\PsAccounts\Service\Accounts\Resource\ShopStatus;
 use PrestaShop\Module\PsAccounts\Traits\WithOriginAndSourceTrait;
 
+/**
+ * @method $this withThrowException(bool $throwException)
+ * @method bool getThrowException(bool $restoreDefault = true)
+ */
 class StatusManager
 {
-    use WithOriginAndSourceTrait;
+    use WithOriginAndSourceTrait {
+        getDefaults as WithOriginAndSourceTrait_getDefaults;
+    }
 
     /**
      * Status Cache TTL in seconds
@@ -60,6 +67,11 @@ class StatusManager
     private $accountsService;
 
     /**
+     * @var bool
+     */
+    private $throwException;
+
+    /**
      * @param ShopSession $shopSession
      * @param AccountsService $accountsService
      * @param ConfigurationRepository $repository
@@ -74,6 +86,16 @@ class StatusManager
         $this->accountsService = $accountsService;
 
         $this->initDefaults();
+    }
+
+    /**
+     * @return array
+     */
+    public function getDefaults()
+    {
+        return array_merge($this->WithOriginAndSourceTrait_getDefaults(), [
+            'throwException' => false,
+        ]);
     }
 
     /**
@@ -104,10 +126,19 @@ class StatusManager
      *
      * @return ShopStatus
      *
+     * @throws AccountsException
+     * @throws RefreshTokenException
      * @throws UnknownStatusException
      */
     public function getStatus($cachedOnly = false, $cacheTtl = self::CACHE_TTL)
     {
+        $handleException = function ($e) {
+            Logger::getInstance()->error($e->getMessage());
+            if ($this->getThrowException(false)) {
+                throw $e;
+            }
+        };
+
         if (!$cachedOnly) {
             try {
                 $cachedShopStatus = $this->getCachedStatus();
@@ -131,7 +162,9 @@ class StatusManager
                             ),
                     ]));
                 } catch (AccountsException $e) {
+                    $handleException($e);
                 } catch (RefreshTokenException $e) {
+                    $handleException($e);
                 }
             }
         }

@@ -72,11 +72,11 @@ abstract class Session implements SessionInterface
          * Avoid multiple refreshToken calls in the same runtime:
          * if it fails once, it will subsequently fail
          */
-        if ($message = $this->getRefreshTokenErrors(static::class)) {
+        if ($e = $this->getRefreshTokenErrors(static::class)) {
             $this->setToken('');
 
-            if ($throw) {
-                throw new RefreshTokenException('Unable to refresh shop token : ' . $message);
+            if ($throw && $e instanceof RefreshTokenException) {
+                throw $e;
             }
 
             return $this->getToken();
@@ -87,7 +87,7 @@ abstract class Session implements SessionInterface
                 $this->refreshToken(null, $scope, $audience);
             } catch (RefreshTokenException $e) {
                 $this->setToken('');
-                $this->setRefreshTokenErrors(static::class, $e->getMessage());
+                $this->setRefreshTokenErrors(static::class, $e);
 
                 if ($throw) {
                     throw $e;
@@ -142,13 +142,13 @@ abstract class Session implements SessionInterface
 
     /**
      * @param string $className
-     * @param string $message
+     * @param RefreshTokenException $e
      *
      * @return void
      */
-    protected function setRefreshTokenErrors($className, $message)
+    protected function setRefreshTokenErrors($className, RefreshTokenException $e)
     {
-        $this->refreshTokenErrors[$className] = $message;
+        $this->refreshTokenErrors[$className] = $e;
     }
 
     /**
