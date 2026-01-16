@@ -23,6 +23,7 @@ use PrestaShop\Module\PsAccounts\Account\Command\CreateIdentityCommand;
 use PrestaShop\Module\PsAccounts\Account\Command\MigrateOrCreateIdentityV8Command;
 use PrestaShop\Module\PsAccounts\Account\Command\VerifyIdentityCommand;
 use PrestaShop\Module\PsAccounts\Account\Query\GetContextQuery;
+use PrestaShop\Module\PsAccounts\Account\StatusManager;
 use PrestaShop\Module\PsAccounts\Cqrs\CommandBus;
 use PrestaShop\Module\PsAccounts\Cqrs\QueryBus;
 use PrestaShop\Module\PsAccounts\Http\Controller\AbstractAdminAjaxCorsController;
@@ -91,11 +92,18 @@ class AdminAjaxV2PsAccountsController extends AbstractAdminAjaxCorsController
             throw new Exception('Shop ID is required for migration or creation.');
         }
 
+        /** @var StatusManager $statusManager */
+        $statusManager = $this->module->getService(AccountsService::class);
+        $statusManager->withThrowException(true);
+
         $command = (new MigrateOrCreateIdentityV8Command($shopId))
             ->withOrigin(AccountsService::ORIGIN_FALLBACK)
             ->withSource($source);
 
         $this->commandBus->handle($command);
+
+        // reset throwException flag
+        $statusManager->getThrowException();
 
         $this->ajaxRender(
             (string) json_encode([

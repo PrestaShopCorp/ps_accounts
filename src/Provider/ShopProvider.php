@@ -363,8 +363,15 @@ class ShopProvider
                     $shopData['id_shop'],
                     function () use (&$shops, $shopData, $source, $refresh) {
                         $shopUrl = $this->getUrl((int) $shopData['id_shop']);
-                        $cacheTtl = $refresh ? 0 : StatusManager::CACHE_TTL;
-                        $shopStatus = $this->shopStatus->withSource($source)->getStatusSafe(false, $cacheTtl);
+                        try {
+                            $cacheTtl = $refresh ? 0 : StatusManager::CACHE_TTL;
+                            $shopStatus = $this->shopStatus->withSource($source)->getStatus(false, $cacheTtl);
+                        } catch (UnknownStatusException $e) {
+                            $shopStatus = new ShopStatus([
+                                'frontendUrl' => $shopUrl->getFrontendUrl(),
+                                'backOfficeUrl' => $shopUrl->getBackOfficeUrl(),
+                            ]);
+                        }
                         $shops[] = [
                             'id' => (int) $shopData['id_shop'],
                             'name' => $shopData['name'],

@@ -24,7 +24,6 @@ use DateTime;
 use PrestaShop\Module\PsAccounts\Account\Exception\RefreshTokenException;
 use PrestaShop\Module\PsAccounts\Account\Exception\UnknownStatusException;
 use PrestaShop\Module\PsAccounts\Account\Session\ShopSession;
-use PrestaShop\Module\PsAccounts\Exception\DtoException;
 use PrestaShop\Module\PsAccounts\Log\Logger;
 use PrestaShop\Module\PsAccounts\Repository\ConfigurationRepository;
 use PrestaShop\Module\PsAccounts\Service\Accounts\AccountsException;
@@ -32,9 +31,15 @@ use PrestaShop\Module\PsAccounts\Service\Accounts\AccountsService;
 use PrestaShop\Module\PsAccounts\Service\Accounts\Resource\ShopStatus;
 use PrestaShop\Module\PsAccounts\Traits\WithOriginAndSourceTrait;
 
+/**
+ * @method $this withThrowException(bool $throwException)
+ * @method bool getThrowException(bool $restoreDefault = true)
+ */
 class StatusManager
 {
-    use WithOriginAndSourceTrait;
+    use WithOriginAndSourceTrait {
+        getDefaults as WithOriginAndSourceTrait_getDefaults;
+    }
 
     /**
      * Status Cache TTL in seconds
@@ -62,6 +67,11 @@ class StatusManager
     private $accountsService;
 
     /**
+     * @var bool
+     */
+    private $throwException;
+
+    /**
      * @param ShopSession $shopSession
      * @param AccountsService $accountsService
      * @param ConfigurationRepository $repository
@@ -76,6 +86,16 @@ class StatusManager
         $this->accountsService = $accountsService;
 
         $this->initDefaults();
+    }
+
+    /**
+     * @return array
+     */
+    public function getDefaults()
+    {
+        return array_merge($this->WithOriginAndSourceTrait_getDefaults(), [
+            'throwException' => false,
+        ]);
     }
 
     /**
@@ -112,6 +132,13 @@ class StatusManager
      */
     public function getStatus($cachedOnly = false, $cacheTtl = self::CACHE_TTL)
     {
+        $handleException = function ($e) {
+            Logger::getInstance()->error($e->getMessage());
+            if ($this->getThrowException(false)) {
+                throw $e;
+            }
+        };
+
         if (!$cachedOnly) {
             try {
                 $cachedShopStatus = $this->getCachedStatus();
@@ -123,7 +150,7 @@ class StatusManager
                 $this->cacheInvalidated($cachedShopStatus) ||
                 $this->cacheExpired($cachedShopStatus, $cacheTtl)
             ) {
-//                try {
+                try {
                     $this->upsetCachedStatus(new CachedShopStatus([
                         'isValid' => true,
                         'updatedAt' => date('Y-m-d H:i:s'),
@@ -134,47 +161,15 @@ class StatusManager
                                 $this->shopSession->getValidToken()
                             ),
                     ]));
-//                } catch (AccountsException $e) {
-//                    Logger::getInstance()->error($e->getMessage());
-//                    throw $e;
-//                } catch (RefreshTokenException $e) {
-//                    Logger::getInstance()->error($e->getMessage());
-//                    throw $e;
-//                }
+                } catch (AccountsException $e) {
+                    $handleException($e);
+                } catch (RefreshTokenException $e) {
+                    $handleException($e);
+                }
             }
         }
 
         return $this->getCachedStatus()->shopStatus;
-    }
-
-    /**
-     * @param bool $cachedOnly
-     * @param int $cacheTtl
-     *
-     * @return ShopStatus
-     */
-    public function getStatusSafe($cachedOnly = false, $cacheTtl = self::CACHE_TTL)
-    {
-        try {
-            try {
-                $status = $this->getStatus($cachedOnly, $cacheTtl);
-            } catch (AccountsException $e) {
-                $status = $this->getCachedStatus()->shopStatus;
-            } catch (RefreshTokenException $e) {
-                $status = $this->getCachedStatus()->shopStatus;
-            } finally {
-                Logger::getInstance()->error($e->getMessage());
-            }
-        } catch (UnknownStatusException $e) {
-            $shopUrl = $this->getUrl((int) $this->repository->getShopId());
-            $status = new ShopStatus([
-                'frontendUrl' => $shopUrl->getFrontendUrl(),
-                'backOfficeUrl' => $shopUrl->getBackOfficeUrl(),
-            ]);
-        } finally {
-            Logger::getInstance()->error($e->getMessage());
-            return $status;
-        }
     }
 
     /**
