@@ -38,7 +38,5 @@ function upgrade_module_8_0_0($module)
         Logger::getInstance()->error('error during upgrade : ' . $e);
     }
 
-    migrate_or_create_identities_v8($module);
-
     return true;
 }
