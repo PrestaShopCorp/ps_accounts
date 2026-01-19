@@ -29,11 +29,10 @@ use PrestaShop\Module\PsAccounts\Cqrs\CommandBus;
 use PrestaShop\Module\PsAccounts\Cqrs\QueryBus;
 use PrestaShop\Module\PsAccounts\Http\Controller\AbstractAdminAjaxCorsController;
 use PrestaShop\Module\PsAccounts\Log\Logger;
-use PrestaShop\Module\PsAccounts\Service\OAuth2;
 use PrestaShop\Module\PsAccounts\Service\Accounts;
 use PrestaShop\Module\PsAccounts\Service\Accounts\AccountsException;
 use PrestaShop\Module\PsAccounts\Service\Accounts\AccountsService;
-use PrestaShop\Module\PsAccounts\Service\OAuth2\OAuth2ServerException;
+use PrestaShop\Module\PsAccounts\Service\OAuth2;
 
 /**
  * Controller for all ajax calls.
