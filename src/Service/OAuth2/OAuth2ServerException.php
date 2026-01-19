@@ -25,22 +25,15 @@ use PrestaShop\Module\PsAccounts\Http\Client\Response;
 class OAuth2ServerException extends OAuth2Exception
 {
     // TODO: list codes from oauth2 server
+    // TODO: InvalidRequestException
+    // TODO: InvalidScopeException
+    // TODO: OAuth2ConnectException ?? + exception filter au niveau controller
     /*
      * Errors from OAuth2 server
      */
     const ERROR_INVALID_REQUEST = 'invalid_request';
     const ERROR_INVALID_SCOPE = 'invalid_scope';
-
-    /*
-     * TODO: better to have typed exception (<=> default code) + a specific code for each error
-     *
-     * Default errors
-     */
-    const ERROR_JWKS = 'oauth2/cannot-get-jwks';
-    const ERROR_OPENID_CONFIG = 'oauth2/cannot-get-openid-configuration';
-    const ERROR_ACCESS_TOKEN = 'oauth2/cannot-get-access-token';
-    const ERROR_REFRESH_TOKEN = 'oauth2/cannot-refresh-token';
-    const ERROR_USER_INFO = 'oauth2/cannot-get-user-info';
+    const ERROR_UNKNOWN = 'unknown_error';
 
 
     /**
@@ -53,7 +46,7 @@ class OAuth2ServerException extends OAuth2Exception
      * @param string $defaultMessage
      * @param string $defaultErrorCode
      */
-    public function __construct($response, $defaultMessage = '', $defaultErrorCode = '')
+    public function __construct($response, $defaultMessage = '', $defaultErrorCode = self::ERROR_UNKNOWN)
     {
         $this->errorCode = $response->getErrorCodeFromBody('error', $defaultErrorCode);
 

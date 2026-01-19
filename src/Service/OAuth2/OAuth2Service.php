@@ -252,6 +252,8 @@ class OAuth2Service
         );
 
         if (!$response->isSuccessful) {
+            // FIXME: exception method can be deducted from stack
+            // FIXME: extract error code first and instantiate exception type
             throw new OAuth2ServerException($response, 'Unable to get access token', OAuth2ServerException::ERROR_ACCESS_TOKEN);
         }
 

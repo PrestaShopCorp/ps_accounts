@@ -24,14 +24,13 @@ use PrestaShop\Module\PsAccounts\Http\Client\Response;
 
 class AccountsException extends \Exception
 {
+    // TODO: list codes from accounts-api
     /*
      * Errors from API
      */
     const ERROR_STORE_LEGACY_NOT_FOUND = 'store-identity/store-legacy-not-found';
 
     /*
-     * TODO: better to have typed exception (<=> default code) + a specific code for each error
-     *
      * Default errors
      */
     const ERROR_FIREBASE_TOKENS = 'store-identity/unable-to-get-deprecated-tokens';
