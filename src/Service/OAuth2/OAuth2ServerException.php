@@ -24,17 +24,13 @@ use PrestaShop\Module\PsAccounts\Http\Client\Response;
 
 class OAuth2ServerException extends OAuth2Exception
 {
-    // TODO: list codes from oauth2 server
-    // TODO: InvalidRequestException
-    // TODO: InvalidScopeException
-    // TODO: OAuth2ConnectException ?? + exception filter au niveau controller
     /*
      * Errors from OAuth2 server
      */
     const ERROR_INVALID_REQUEST = 'invalid_request';
     const ERROR_INVALID_SCOPE = 'invalid_scope';
     const ERROR_UNKNOWN = 'unknown_error';
-
+    const ERROR_CONNECT = 'connection_error';
 
     /**
      * @var string
@@ -42,15 +38,21 @@ class OAuth2ServerException extends OAuth2Exception
     protected $errorCode;
 
     /**
-     * @param Response $response
-     * @param string $defaultMessage
-     * @param string $defaultErrorCode
+     * @var Response
      */
-    public function __construct($response, $defaultMessage = '', $defaultErrorCode = self::ERROR_UNKNOWN)
-    {
-        $this->errorCode = $response->getErrorCodeFromBody('error', $defaultErrorCode);
+    protected $response;
 
-        parent::__construct($response->statusCode . ': ' . $response->getErrorMessageFromBody('error_description', $defaultMessage));
+    /**
+     * @param Response $response
+     * @param string $message
+     * @param string $errorCode
+     */
+    public function __construct($response, $message = '', $errorCode = self::ERROR_UNKNOWN)
+    {
+        $this->errorCode = $errorCode;
+        $this->response = $response;
+
+        parent::__construct($response->statusCode . ': ' . $response->getErrorMessageFromBody('error_description', $message));
     }
 
     /**
@@ -61,5 +63,13 @@ class OAuth2ServerException extends OAuth2Exception
     public function getErrorCode()
     {
         return $this->errorCode;
+    }
+
+    /**
+     * @return Response
+     */
+    public function getResponse()
+    {
+        return $this->response;
     }
 }

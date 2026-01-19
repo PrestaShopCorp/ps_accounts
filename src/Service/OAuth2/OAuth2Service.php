@@ -24,6 +24,10 @@ use PrestaShop\Module\PsAccounts\Http\Client\ClientConfig;
 use PrestaShop\Module\PsAccounts\Http\Client\Curl\Client as HttpClient;
 use PrestaShop\Module\PsAccounts\Http\Client\Factory;
 use PrestaShop\Module\PsAccounts\Http\Client\Request;
+use PrestaShop\Module\PsAccounts\Http\Client\Response;
+use PrestaShop\Module\PsAccounts\Service\OAuth2\Exception\ConnectException;
+use PrestaShop\Module\PsAccounts\Service\OAuth2\Exception\InvalidRequestException;
+use PrestaShop\Module\PsAccounts\Service\OAuth2\Exception\InvalidScopeException;
 use PrestaShop\Module\PsAccounts\Service\OAuth2\Resource\AccessToken;
 use PrestaShop\Module\PsAccounts\Service\OAuth2\Resource\UserInfo;
 use PrestaShop\Module\PsAccounts\Service\OAuth2\Resource\WellKnown;
@@ -119,6 +123,10 @@ class OAuth2Service
     {
         if (null === $this->httpClient) {
             $this->httpClient = (new Factory())->create($this->clientConfig);
+            $this->httpClient->getCircuitBreaker()->setFallbackResponse(new Response([
+                'error' => OAuth2ServerException::ERROR_CONNECT,
+                'error_description' => 'Circuit Breaker Open',
+            ], 500));
         }
 
         return $this->httpClient;
@@ -195,7 +203,7 @@ class OAuth2Service
         $response = $this->getHttpClient()->get('/.well-known/openid-configuration');
 
         if (!$response->isSuccessful) {
-            throw new OAuth2ServerException($response, 'Unable to get openid-configuration', OAuth2ServerException::ERROR_OPENID_CONFIG);
+            $this->handleError($response, 'Unable to get openid-configuration');
         }
 
         return $response->body;
@@ -214,7 +222,7 @@ class OAuth2Service
             $response = $this->getHttpClient()->get($this->getWellKnown()->jwks_uri);
 
             if (!$response->isSuccessful) {
-                throw new OAuth2ServerException($response, 'Unable to get JWKS', OAuth2ServerException::ERROR_JWKS);
+                $this->handleError($response, 'Unable to get JWKS');
             }
 
             $this->cachedJwks->write(
@@ -232,6 +240,8 @@ class OAuth2Service
      * @return AccessToken access token
      *
      * @throws OAuth2Exception
+     * @throws InvalidScopeException
+     * @throws InvalidRequestException
      */
     public function getAccessTokenByClientCredentials(array $scope = [], array $audience = [])
     {
@@ -252,9 +262,8 @@ class OAuth2Service
         );
 
         if (!$response->isSuccessful) {
-            // FIXME: exception method can be deducted from stack
-            // FIXME: extract error code first and instantiate exception type
-            throw new OAuth2ServerException($response, 'Unable to get access token', OAuth2ServerException::ERROR_ACCESS_TOKEN);
+            // throw new OAuth2ServerException($response, 'Unable to get access token');
+            $this->handleError($response, 'Unable to get access token');
         }
 
         return new AccessToken($response->body);
@@ -333,6 +342,8 @@ class OAuth2Service
      * @return AccessToken access token
      *
      * @throws OAuth2Exception
+     * @throws InvalidScopeException
+     * @throws InvalidRequestException
      */
     public function getAccessTokenByAuthorizationCode(
         $code,
@@ -361,7 +372,7 @@ class OAuth2Service
         );
 
         if (!$response->isSuccessful) {
-            throw new OAuth2ServerException($response, 'Unable to get access token', OAuth2ServerException::ERROR_ACCESS_TOKEN);
+            $this->handleError($response, 'Unable to get access token');
         }
 
         return new AccessToken($response->body);
@@ -390,7 +401,7 @@ class OAuth2Service
         );
 
         if (!$response->isSuccessful) {
-            throw new OAuth2ServerException($response, 'Unable to refresh access token', OAuth2ServerException::ERROR_REFRESH_TOKEN);
+            $this->handleError($response, 'Unable to refresh access token');
         }
 
         return new AccessToken($response->body);
@@ -413,7 +424,7 @@ class OAuth2Service
         );
 
         if (!$response->isSuccessful) {
-            throw new OAuth2ServerException($response, 'Unable to get user infos', OAuth2ServerException::ERROR_USER_INFO);
+            $this->handleError($response, 'Unable to get user infos');
         }
 
         return new UserInfo($response->body);
@@ -476,6 +487,32 @@ class OAuth2Service
     {
         if (!$this->oAuth2Client->exists()) {
             throw new OAuth2Exception('OAuth2 client not configured');
+        }
+    }
+
+    /**
+     * @param Response $response
+     * @param string $defaultErrorMessage
+     * @param string $defaultErrorCode
+     *
+     * @return void
+     *
+     * @throws OAuth2ServerException
+     */
+    protected function handleError(Response $response, $defaultErrorMessage = '', $defaultErrorCode = OAuth2ServerException::ERROR_UNKNOWN)
+    {
+        $errorCode = $response->getErrorCodeFromBody('error', $defaultErrorCode);
+        $errorMessage = $response->statusCode . ': ' . $response->getErrorMessageFromBody('error_description', $defaultErrorMessage);
+
+        switch ($errorCode) {
+            case OAuth2ServerException::ERROR_CONNECT:
+                throw new ConnectException($response, $errorMessage, $errorCode);
+            case OAuth2ServerException::ERROR_INVALID_REQUEST:
+                throw new InvalidRequestException($response, $errorMessage, $errorCode);
+            case OAuth2ServerException::ERROR_INVALID_SCOPE:
+                throw new InvalidScopeException($response, $errorMessage, $errorCode);
+            default:
+                throw new OAuth2ServerException($response, $errorMessage, $errorCode);
         }
     }
 }

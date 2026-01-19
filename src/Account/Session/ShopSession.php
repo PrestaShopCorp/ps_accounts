@@ -24,6 +24,7 @@ use PrestaShop\Module\PsAccounts\Account\Exception\RefreshTokenException;
 use PrestaShop\Module\PsAccounts\Account\Token\Token;
 use PrestaShop\Module\PsAccounts\Hook\ActionShopAccessTokenRefreshAfter;
 use PrestaShop\Module\PsAccounts\Repository\ConfigurationRepository;
+use PrestaShop\Module\PsAccounts\Service\OAuth2\Exception\InvalidScopeException;
 use PrestaShop\Module\PsAccounts\Service\OAuth2\OAuth2Exception;
 use PrestaShop\Module\PsAccounts\Service\OAuth2\OAuth2ServerException;
 use PrestaShop\Module\PsAccounts\Service\OAuth2\OAuth2Service;
@@ -105,7 +106,7 @@ class ShopSession extends Session implements SessionInterface
         try {
             try {
                 $accessToken = $this->getAccessToken($scope, $audience);
-            } catch (OAuth2ServerException $e) {
+            } catch (InvalidScopeException $e) {
                 $accessToken = $this->fallbackRefresh($e, 'shop.verified', $scope, $audience);
             }
 
@@ -178,8 +179,7 @@ class ShopSession extends Session implements SessionInterface
      */
     protected function fallbackRefresh($e, $filterScope, array $scope, array $audience)
     {
-        if ($e->getErrorCode() == OAuth2ServerException::ERROR_INVALID_SCOPE &&
-            in_array($filterScope, $scope) &&
+        if (in_array($filterScope, $scope) &&
             str_contains($e->getMessage(), $filterScope)
         ) {
             $this->getStatusManager()->setIsVerified(false);

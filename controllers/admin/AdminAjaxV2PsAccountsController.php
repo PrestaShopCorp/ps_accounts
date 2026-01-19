@@ -29,6 +29,8 @@ use PrestaShop\Module\PsAccounts\Cqrs\CommandBus;
 use PrestaShop\Module\PsAccounts\Cqrs\QueryBus;
 use PrestaShop\Module\PsAccounts\Http\Controller\AbstractAdminAjaxCorsController;
 use PrestaShop\Module\PsAccounts\Log\Logger;
+use PrestaShop\Module\PsAccounts\Service\OAuth2;
+use PrestaShop\Module\PsAccounts\Service\Accounts;
 use PrestaShop\Module\PsAccounts\Service\Accounts\AccountsException;
 use PrestaShop\Module\PsAccounts\Service\Accounts\AccountsService;
 use PrestaShop\Module\PsAccounts\Service\OAuth2\OAuth2ServerException;
@@ -181,13 +183,14 @@ class AdminAjaxV2PsAccountsController extends AbstractAdminAjaxCorsController
             $e = $e->getPrevious();
         }
 
-        if ($e instanceof OAuth2ServerException) {
+        if ($e instanceof OAuth2\Exception\ConnectException ||
+            $e instanceof Accounts\Exception\ConnectException) {
             http_response_code(400);
 
             $this->ajaxRender(
                 (string) json_encode([
                     'message' => $e->getMessage(),
-                    'code' => $e->getErrorCode(),
+                    'code' => 'connection_error',
                     //'details' => $e->getDetails(),
                 ])
             );

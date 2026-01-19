@@ -33,6 +33,7 @@ use PrestaShop\Module\PsAccounts\Provider\ShopProvider;
 use PrestaShop\Module\PsAccounts\Repository\ConfigurationRepository;
 use PrestaShop\Module\PsAccounts\Service\Accounts\AccountsException;
 use PrestaShop\Module\PsAccounts\Service\Accounts\AccountsService;
+use PrestaShop\Module\PsAccounts\Service\Accounts\Exception\StoreLegacyNotFoundException;
 use PrestaShop\Module\PsAccounts\Service\OAuth2\OAuth2Exception;
 use PrestaShop\Module\PsAccounts\Service\OAuth2\OAuth2Service;
 use PrestaShop\Module\PsAccounts\Service\UpgradeService;
@@ -161,10 +162,8 @@ class MigrateOrCreateIdentityV8Handler
             $this->clearTokens();
             $this->statusManager->invalidateCache();
             $this->registerLatestVersion();
-        } catch (AccountsException $e) {
-            if ($e->getErrorCode() === AccountsException::ERROR_STORE_LEGACY_NOT_FOUND &&
-                $command->origin !== AccountsService::ORIGIN_ADVANCED_SETTINGS
-            ) {
+        } catch (StoreLegacyNotFoundException $e) {
+            if ($command->origin !== AccountsService::ORIGIN_ADVANCED_SETTINGS) {
                 $this->registerLatestVersion();
                 $this->cleanupIdentity();
                 $this->createOrVerifyIdentity($command);

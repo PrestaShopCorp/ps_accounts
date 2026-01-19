@@ -27,6 +27,8 @@ use PrestaShop\Module\PsAccounts\Http\Client\Curl\Client;
 use PrestaShop\Module\PsAccounts\Http\Client\Factory;
 use PrestaShop\Module\PsAccounts\Http\Client\Request;
 use PrestaShop\Module\PsAccounts\Http\Client\Response;
+use PrestaShop\Module\PsAccounts\Service\Accounts\Exception\ConnectException;
+use PrestaShop\Module\PsAccounts\Service\Accounts\Exception\StoreLegacyNotFoundException;
 use PrestaShop\Module\PsAccounts\Service\Accounts\Resource\FirebaseTokens;
 use PrestaShop\Module\PsAccounts\Service\Accounts\Resource\IdentityCreated;
 use PrestaShop\Module\PsAccounts\Service\Accounts\Resource\LegacyFirebaseToken;
@@ -90,6 +92,10 @@ class AccountsService
     {
         if (null === $this->client) {
             $this->client = (new Factory())->create($this->clientConfig);
+            $this->client->getCircuitBreaker()->setFallbackResponse(new Response([
+                'error' => AccountsException::ERROR_CONNECT,
+                'message' => 'Circuit Breaker Open',
+            ], 500));
         }
 
         return $this->client;
@@ -141,7 +147,7 @@ class AccountsService
         );
 
         if (!$response->isSuccessful) {
-            throw new AccountsException($response, 'Unable to get firebase tokens', AccountsException::ERROR_FIREBASE_TOKENS);
+            $this->handleError($response, 'Unable to get firebase tokens');
         }
 
         return new FirebaseTokens($response->body);
@@ -175,7 +181,7 @@ class AccountsService
         );
 
         if (!$response->isSuccessful) {
-            throw new AccountsException($response, 'Unable to refresh firebase shop token', AccountsException::ERROR_REFRESH_SHOP_TOKENS);
+            $this->handleError($response, 'Unable to refresh firebase shop token');
         }
 
         return new LegacyFirebaseToken($response->body);
@@ -243,7 +249,7 @@ class AccountsService
         );
 
         if (!$response->isSuccessful) {
-            throw new AccountsException($response, 'Unable to create shop identity', AccountsException::ERROR_CREATE_SHOP_IDENTITY);
+            $this->handleError($response, 'Unable to create shop identity');
         }
 
         return new IdentityCreated($response->body);
@@ -287,7 +293,7 @@ class AccountsService
         );
 
         if (!$response->isSuccessful) {
-            throw new AccountsException($response, 'Unable to verify shop identity', AccountsException::ERROR_VERIFY_SHOP_IDENTITY);
+            $this->handleError($response, 'Unable to verify shop identity');
         }
     }
 
@@ -313,7 +319,7 @@ class AccountsService
         );
 
         if (!$response->isSuccessful) {
-            throw new AccountsException($response, 'Unable to retrieve shop status', AccountsException::ERROR_SHOP_STATUS);
+            $this->handleError($response, 'Unable to retrieve shop status');
         }
 
         return new ShopStatus($response->body);
@@ -345,7 +351,7 @@ class AccountsService
         );
 
         if (!$response->isSuccessful) {
-            throw new AccountsException($response, 'Unable to set point of contact', AccountsException::ERROR_SET_POINT_OF_CONTACT);
+            $this->handleError($response, 'Unable to set point of contact');
         }
     }
 
@@ -360,6 +366,7 @@ class AccountsService
      * @return IdentityCreated
      *
      * @throws AccountsException
+     * @throws StoreLegacyNotFoundException
      */
     public function migrateShopIdentity($cloudShopId, $shopToken, ShopUrl $shopUrl, $shopName, $fromVersion, $proof = null)
     {
@@ -385,7 +392,7 @@ class AccountsService
         );
 
         if (!$response->isSuccessful) {
-            throw new AccountsException($response, 'Unable to migrate shop identity', AccountsException::ERROR_MIGRATE_SHOP_IDENTITY);
+            $this->handleError($response, 'Unable to migrate shop identity');
         }
 
         return new IdentityCreated($response->body);
@@ -416,7 +423,31 @@ class AccountsService
         );
 
         if (!$response->isSuccessful) {
-            throw new AccountsException($response, 'Unable to update back office URL', AccountsException::ERROR_UPDATE_BACK_OFFICE_URL);
+            $this->handleError($response, 'Unable to update back office URL');
+        }
+    }
+
+    /**
+     * @param Response $response
+     * @param string $defaultErrorMessage
+     * @param string $defaultErrorCode
+     *
+     * @return void
+     *
+     * @throws AccountsException
+     */
+    protected function handleError(Response $response, $defaultErrorMessage = '', $defaultErrorCode = AccountsException::ERROR_UNKNOWN)
+    {
+        $errorCode = $response->getErrorCodeFromBody('error', $defaultErrorCode);
+        $errorMessage = $response->getErrorMessageFromBody('message', $defaultErrorMessage);
+
+        switch ($errorCode) {
+            case AccountsException::ERROR_CONNECT:
+                throw new ConnectException($response, $errorMessage, $errorCode);
+            case AccountsException::ERROR_STORE_LEGACY_NOT_FOUND:
+                throw new StoreLegacyNotFoundException($response, $errorMessage, $errorCode);
+            default:
+                throw new AccountsException($response, $errorMessage, $errorCode);
         }
     }
 }

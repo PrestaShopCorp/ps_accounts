@@ -29,18 +29,8 @@ class AccountsException extends \Exception
      * Errors from API
      */
     const ERROR_STORE_LEGACY_NOT_FOUND = 'store-identity/store-legacy-not-found';
-
-    /*
-     * Default errors
-     */
-    const ERROR_FIREBASE_TOKENS = 'store-identity/unable-to-get-deprecated-tokens';
-    const ERROR_REFRESH_SHOP_TOKENS = 'store/unable-to-refresh-shop-token';
-    const ERROR_CREATE_SHOP_IDENTITY = 'store-identity/unable-to-create-shop-identity';
-    const ERROR_VERIFY_SHOP_IDENTITY = 'store-identity/unable-to-verify-shop-identity';
-    const ERROR_SHOP_STATUS = 'store-identity/unable-to-retrieve-shop-status';
-    const ERROR_SET_POINT_OF_CONTACT = 'store-identity/unable-to-set-point-of-contact';
-    const ERROR_MIGRATE_SHOP_IDENTITY = 'store-identity/unable-to-migrate-shop-identity';
-    const ERROR_UPDATE_BACK_OFFICE_URL = 'store-identity/unable-to-update-back-office-url';
+    const ERROR_UNKNOWN = 'unknown-error';
+    const ERROR_CONNECT = 'connection-error';
 
     /**
      * @var Response
@@ -64,17 +54,18 @@ class AccountsException extends \Exception
 
     /**
      * @param Response $response
-     * @param string $defaultMessage
-     * @param string $defaultErrorCode
+     * @param string $message
+     * @param string $errorCode
      */
-    public function __construct($response, $defaultMessage = '', $defaultErrorCode = '')
+    public function __construct($response, $message = '', $errorCode = self::ERROR_UNKNOWN)
     {
         $this->response = $response;
-        $this->errorCode = $response->getErrorCodeFromBody('error', $defaultErrorCode);
+        $this->errorCode = $errorCode;
+
         $this->reason = $this->getReasonFromResponseBody();
         $this->storeResponse = $this->getStoreResponseFromResponseBody();
 
-        parent::__construct($response->getErrorMessageFromBody('message', $defaultMessage));
+        parent::__construct($message);
     }
 
     /**
