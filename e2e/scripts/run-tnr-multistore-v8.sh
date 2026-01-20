@@ -12,7 +12,7 @@ fi
 
 for PS_VERSION in "${SHOP_VERSIONS[@]}"; do
 #Build the shop 
-npm run build-shop -- "$PS_VERSION" "" "imageoff" "$ACCOUNT_VERSION"
+npm run build-shop -- "$PS_VERSION" "" "imageoff" "$PS_ACCOUNTS_VERSION"
 sleep 2
 
 #Run the tests

@@ -11,9 +11,9 @@ SHOP_VERSIONS=(
 )
 fi
 if [ -n "$2" ]; then
-  ACCOUNTS_VERSIONS=("$2")
+  PS_ACCOUNTS_VERSION=("$2")
 else
-ACCOUNTS_VERSIONS=(
+PS_ACCOUNTS_VERSION=(
   v7.2.2
   v6.3.1
   v7.2.2
@@ -28,12 +28,12 @@ TESTS=(
 
 for index in "${!SHOP_VERSIONS[@]}"; do
   PS_VERSION="${SHOP_VERSIONS[$index]}"
-  ACCOUNT_VERSION="${ACCOUNTS_VERSIONS[$index]}"
+  PS_ACCOUNTS_VERSION="${PS_ACCOUNTS_VERSION[$index]}"
 
   for TEST in "${TESTS[@]}"; do
 
 #Build the shop 
-npm run build-shop -- "$PS_VERSION" "" "" "$ACCOUNT_VERSION"
+npm run build-shop -- "$PS_VERSION" "" "" "$PS_ACCOUNTS_VERSION"
 sleep 2
 
 #Run the tests
