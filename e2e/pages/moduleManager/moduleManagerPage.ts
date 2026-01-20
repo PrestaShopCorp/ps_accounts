@@ -111,10 +111,10 @@ export default class ModuleManagerPage extends BasePage {
       .or(this.page.getByRole('link', {name: 'PrestaShop', exact: true}))
       .or(this.page.getByRole('link', {name: 'visibility'}))
       .first();
-    await dropdownTrigger.click(); 
+    await dropdownTrigger.click();
     const multiStoreOption = this.page
       .getByRole('link', {name: 'All stores', exact: true})
-      .or(this.page.getByRole('link', {name: 'All shops', exact: true}))
+      .or(this.page.getByRole('link', {name: 'All shops', exact: true}));
     await multiStoreOption.click();
     // expect(multiStoreOption).toBeVisible({timeout: 3000})
   }
@@ -123,7 +123,7 @@ export default class ModuleManagerPage extends BasePage {
     const allShopsBtn = this.page.getByRole('link', {name: 'All shops'});
     await allShopsBtn.click();
     const isMultiStoreVisible = this.page.getByRole('link', {name: 'All shops'});
-    expect(isMultiStoreVisible).toBeVisible({timeout: 3000})
+    expect(isMultiStoreVisible).toBeVisible({timeout: 3000});
   }
 
   /**
