@@ -3,7 +3,7 @@ name: e2e Acounts test Upgrade
 on:
   workflow_dispatch:
   schedule:
-    - cron: "0 7 * * 1-5"
+    - cron: "0 7 * * 1-5" 
 
 env:
   IMAGE_PREFIX: ghcr.io/prestashopcorp/
@@ -130,17 +130,21 @@ jobs:
           path: ./e2e/allure-results-${{ matrix.shop_version }}
 
   merge-allure:
-    name: Merge Allure Results, Genreate Roprt & Send Slack notification
+    name: Merge Allure Results, Generate Report & Send Slack notification
     needs: run-test
     runs-on: ubuntu-latest
+    outputs:
+      passed: ${{ steps.allureTotals.outputs.passed }}
+      failed: ${{ steps.allureTotals.outputs.failed }}
+      broken: ${{ steps.allureTotals.outputs.broken }}
+      skipped: ${{ steps.allureTotals.outputs.skipped }}
     steps:
       - name: Checkout Repository
-        uses: "actions/checkout@v4"
+        uses: actions/checkout@v4
 
       - name: Install dependencies
         working-directory: ./e2e
-        run: |
-          npm install
+        run: npm install
 
       - name: Download all allure artifacts
         uses: actions/download-artifact@v4
@@ -155,6 +159,20 @@ jobs:
         working-directory: ./e2e
         run: npm run generate-allure-report
 
+      - name: Extract Allure totals (summary.json)
+        id: allureTotals
+        shell: bash
+        run: |
+          SUMMARY="e2e/allure-report/widgets/summary.json"
+          if [ ! -f "$SUMMARY" ]; then
+            echo "summary.json introuvable: $SUMMARY"
+            exit 1
+          fi
+          echo "passed=$(jq -r '.statistic.passed // 0' "$SUMMARY")" >> $GITHUB_OUTPUT
+          echo "failed=$(jq -r '.statistic.failed // 0' "$SUMMARY")" >> $GITHUB_OUTPUT
+          echo "broken=$(jq -r '.statistic.broken // 0' "$SUMMARY")" >> $GITHUB_OUTPUT
+          echo "skipped=$(jq -r '.statistic.skipped // 0' "$SUMMARY")" >> $GITHUB_OUTPUT
+
       - name: Upload Allure Report
         uses: actions/upload-artifact@v4
         if: ${{ always() }}
@@ -162,163 +180,161 @@ jobs:
           name: allure-report
           path: ./e2e/allure-report
 
-  notify-slack-qa:
-    name: Send Slack Notification (qa channel)
-    needs: merge-allure
-    runs-on: ubuntu-latest
-    steps:
-      - name: Download Allure Report
-        uses: actions/download-artifact@v4
-        with:
-          name: allure-report
-          path: ./e2e/allure-report
+  # notify-slack-qa:
+  #   name: Send Slack Notification (qa channel)
+  #   needs: merge-allure
+  #   runs-on: ubuntu-latest
+  #   steps:
+  #     - name: Download Allure Report
+  #       uses: actions/download-artifact@v4
+  #       with:
+  #         name: allure-report
+  #         path: ./e2e/allure-report
 
-      - name: Build Slack message
-        working-directory: ./e2e/allure-report/widgets
-        run: |
-          {
-            echo "*Résultats des TNR Upgrade Account :* \`${{ github.repository }}\`"
-            echo
-            jq -r '.items[] | "• \(.name) : ✅ \(.statistic.passed) / ❌ \(.statistic.failed) / ⚠️ \(.statistic.broken)"' suites.json
-            echo
-            echo "📄 Rapport Allure disponible dans les artifacts du run : <${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}|Ouvrir le run>"
-            echo
-            echo "1️⃣ Téléchargez l'archive du rapport Allure."
-            echo "2️⃣ Installez l'outil Allure CLI si ce n'est pas déjà fait : https://allurereport.org/docs/install-for-nodejs/"
-            echo "3️⃣ Dans un terminal, placez-vous dans le dossier extrait du rapport, puis exécutez :"
-            echo "\`\`\`"
-            echo "allure open"
-            echo "\`\`\`"
-          } > slack_message.txt
+  #     - name: Build Slack message
+  #       working-directory: ./e2e/allure-report/widgets
+  #       run: |
+  #         {
+  #           echo "*Résultats des TNR Upgrade Account :* \`${{ github.repository }}\`"
+  #           echo
+  #           jq -r '.items[] | "• \(.name) : ✅ \(.statistic.passed) / ❌ \(.statistic.failed) / ⚠️ \(.statistic.broken)"' suites.json
+  #           echo
+  #           echo "📄 Rapport Allure disponible dans les artifacts du run : <${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}|Ouvrir le run>"
+  #           echo
+  #           echo "1️⃣ Téléchargez l'archive du rapport Allure."
+  #           echo "2️⃣ Installez l'outil Allure CLI si ce n'est pas déjà fait : https://allurereport.org/docs/install-for-nodejs/"
+  #           echo "3️⃣ Dans un terminal, placez-vous dans le dossier extrait du rapport, puis exécutez :"
+  #           echo "\`\`\`"
+  #           echo "allure open"
+  #           echo "\`\`\`"
+  #         } > slack_message.txt
 
-      - name: Prepare payload
-        working-directory: ./e2e/allure-report/widgets
-        run: |
-          msg=$(cat slack_message.txt | jq -Rs .)
-          echo "{\"channel\": \"${{ secrets.SLACK_CHANNEL_QA }}\", \"text\": $msg}" > slack_payload.json
+  #     - name: Prepare payload
+  #       working-directory: ./e2e/allure-report/widgets
+  #       run: |
+  #         msg=$(cat slack_message.txt | jq -Rs .)
+  #         echo "{\"channel\": \"${{ secrets.SLACK_CHANNEL_QA }}\", \"text\": $msg}" > slack_payload.json
 
-      - name: Send Slack Notification
-        uses: slackapi/slack-github-action@v2.0.0
-        with:
-          method: chat.postMessage
-          token: ${{ secrets.SLACK_BOT_TOKEN }}
-          payload-file-path: ./e2e/allure-report/widgets/slack_payload.json
+  #     - name: Send Slack Notification
+  #       uses: slackapi/slack-github-action@v2.0.0
+  #       with:
+  #         method: chat.postMessage
+  #         token: ${{ secrets.SLACK_BOT_TOKEN }}
+  #         payload-file-path: ./e2e/allure-report/widgets/slack_payload.json
 
-  notify-slack-account:
-    name: Send Slack Notification (account channel)
-    needs: merge-allure
-    runs-on: ubuntu-latest
-    steps:
-      - name: Download Allure Report
-        uses: actions/download-artifact@v4
-        with:
-          name: allure-report
-          path: ./e2e/allure-report
+  # notify-slack-account:
+  #   name: Send Slack Notification (account channel)
+  #   needs: merge-allure
+  #   runs-on: ubuntu-latest
+  #   steps:
+  #     - name: Download Allure Report
+  #       uses: actions/download-artifact@v4
+  #       with:
+  #         name: allure-report
+  #         path: ./e2e/allure-report
 
-      - name: Build Slack message
-        working-directory: ./e2e/allure-report/widgets
-        run: |
-          {
-            echo "*Résultats des TNR Upgrade Account :* \`${{ github.repository }}\`"
-            echo
-            jq -r '.items[] | "• \(.name) : ✅ \(.statistic.passed) / ❌ \(.statistic.failed) / ⚠️ \(.statistic.broken)"' suites.json
-            echo
-            echo "📄 Rapport Allure disponible dans les artifacts du run : <${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}|Ouvrir le run>"
-            echo
-            echo "1️⃣ Téléchargez l'archive du rapport Allure."
-            echo "2️⃣ Installez l'outil Allure CLI si ce n'est pas déjà fait : https://allurereport.org/docs/install-for-nodejs/"
-            echo "3️⃣ Dans un terminal, placez-vous dans le dossier extrait du rapport, puis exécutez :"
-            echo "\`\`\`"
-            echo "allure open"
-            echo "\`\`\`"
-          } > slack_message.txt
+  #     - name: Build Slack message
+  #       working-directory: ./e2e/allure-report/widgets
+  #       run: |
+  #         {
+  #           echo "*Résultats des TNR Upgrade Account :* \`${{ github.repository }}\`"
+  #           echo
+  #           jq -r '.items[] | "• \(.name) : ✅ \(.statistic.passed) / ❌ \(.statistic.failed) / ⚠️ \(.statistic.broken)"' suites.json
+  #           echo
+  #           echo "📄 Rapport Allure disponible dans les artifacts du run : <${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}|Ouvrir le run>"
+  #           echo
+  #           echo "1️⃣ Téléchargez l'archive du rapport Allure."
+  #           echo "2️⃣ Installez l'outil Allure CLI si ce n'est pas déjà fait : https://allurereport.org/docs/install-for-nodejs/"
+  #           echo "3️⃣ Dans un terminal, placez-vous dans le dossier extrait du rapport, puis exécutez :"
+  #           echo "\`\`\`"
+  #           echo "allure open"
+  #           echo "\`\`\`"
+  #         } > slack_message.txt
 
-      - name: Prepare payload
-        working-directory: ./e2e/allure-report/widgets
-        run: |
-          msg=$(cat slack_message.txt | jq -Rs .)
-          echo "{\"channel\": \"${{ secrets.SLACK_CHANNEL_ACCOUNT }}\", \"text\": $msg}" > slack_payload.json
+  #     - name: Prepare payload
+  #       working-directory: ./e2e/allure-report/widgets
+  #       run: |
+  #         msg=$(cat slack_message.txt | jq -Rs .)
+  #         echo "{\"channel\": \"${{ secrets.SLACK_CHANNEL_ACCOUNT }}\", \"text\": $msg}" > slack_payload.json
 
-      - name: Send Slack Notification
-        uses: slackapi/slack-github-action@v2.0.0
-        with:
-          method: chat.postMessage
-          token: ${{ secrets.SLACK_BOT_TOKEN }}
-          payload-file-path: ./e2e/allure-report/widgets/slack_payload.json
+  #     - name: Send Slack Notification
+  #       uses: slackapi/slack-github-action@v2.0.0
+  #       with:
+  #         method: chat.postMessage
+  #         token: ${{ secrets.SLACK_BOT_TOKEN }}
+  #         payload-file-path: ./e2e/allure-report/widgets/slack_payload.json
 
-  report-to-google-sheet:
-      name: Append results to Google Sheet
-      needs: run-test
-      runs-on: ubuntu-latest
-      if: always()
+  # report-to-google-sheet:
+  #   name: Append results to Google Sheet
+  #   needs: merge-allure
+  #   runs-on: ubuntu-latest
+  #   if: always()
 
-      steps:
-        - name: Authenticate to Google Cloud
-          uses: google-github-actions/auth@v2
-          with:
-            credentials_json: ${{ secrets.GCP_SA_KEY }}
+  #   steps:
+  #     - name: Authenticate to Google Cloud
+  #       uses: google-github-actions/auth@v2
+  #       with:
+  #         credentials_json: ${{ secrets.GCP_SA_KEY }}
 
-        - name: Setup Node.js
-          uses: actions/setup-node@v4
-          with:
-            node-version: "20"
+  #     - name: Setup Node.js
+  #       uses: actions/setup-node@v4
+  #       with:
+  #         node-version: "20"
 
-        - name: Install Google APIs client
-          run: npm install googleapis
+  #     - name: Install Google APIs client
+  #       run: npm install googleapis
 
-        - name: Append data to Google Sheet
-          env:
-            SHEET_ID: ${{ secrets.GOOGLE_SHEET_ID }}
-            DASHBOARD_PASSED: ${{ needs.run-test.outputs.dashboard-passed }}
-            DASHBOARD_FAILED: ${{ needs.run-test.outputs.dashboard-failed }}
-            EXPLORE_PASSED: ${{ needs.run-test.outputs.explore-passed }}
-            EXPLORE_FAILED: ${{ needs.run-test.outputs.explore-failed }}
-            RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
-          run: |
-            node -e "
-              const { google } = require('googleapis');
-              const auth = new google.auth.GoogleAuth({
-                scopes: ['https://www.googleapis.com/auth/spreadsheets'],
-              });
-              const sheets = google.sheets({ version: 'v4', auth });
-              
-              const spreadsheetId = process.env.SHEET_ID;
-              const today = new Date().toLocaleDateString('fr-FR', { timeZone: 'Europe/Paris' }); 
-              const dashboardPassed = parseInt(process.env.DASHBOARD_PASSED) || 0;
-              const dashboardFailed = parseInt(process.env.DASHBOARD_FAILED) || 0;
-              const explorePassed = parseInt(process.env.EXPLORE_PASSED) || 0;
-              const exploreFailed = parseInt(process.env.EXPLORE_FAILED) || 0;
-              const totalPassed = dashboardPassed + explorePassed;
-              const totalFailed = dashboardFailed + exploreFailed;
-              const totalTests = totalPassed + totalFailed;
-              let successRate = 100; 
-              if (totalTests > 0) {
-                successRate = (totalPassed / totalTests) * 100;
-              }
-              const formattedSuccessRate = successRate.toFixed(2) + '%'; 
+  #     - name: Append data to Google Sheet
+  #       env:
+  #         SHEET_ID: ${{ secrets.GOOGLE_SHEET_ID }}
+  #         PASSED: ${{ needs.merge-allure.outputs.passed }}
+  #         FAILED: ${{ needs.merge-allure.outputs.failed }}
+  #         BROKEN: ${{ needs.merge-allure.outputs.broken }}
+  #         SKIPPED: ${{ needs.merge-allure.outputs.skipped }}
+  #         RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+  #       run: |
+  #         node -e "
+  #           const { google } = require('googleapis');
+  #           const auth = new google.auth.GoogleAuth({
+  #             scopes: ['https://www.googleapis.com/auth/spreadsheets'],
+  #           });
+  #           const sheets = google.sheets({ version: 'v4', auth });
 
-              const values = [
-                [
-                  today,
-                  dashboardPassed,
-                  dashboardFailed,
-                  explorePassed,
-                  exploreFailed,
-                  totalPassed,
-                  totalFailed,
-                  formattedSuccessRate,
-                  process.env.RUN_URL
-                ]
-              ];
-              
-              sheets.spreadsheets.values.append({
-                spreadsheetId,
-                range: 'Upgrade!A:F', 
-                valueInputOption: 'USER_ENTERED',
-                resource: { values },
-              }).then(res => console.log('Données ajoutées avec succès.'))
-                .catch(err => {
-                  console.error('Erreur lors de l\'ajout des données:', err);
-                  process.exit(1);
-                });
-            "
+  #           const spreadsheetId = process.env.SHEET_ID;
+  #           const today = new Date().toLocaleDateString('fr-FR', { timeZone: 'Europe/Paris' });
+
+  #           const passed = parseInt(process.env.PASSED) || 0;
+  #           const failed = parseInt(process.env.FAILED) || 0;
+  #           const broken = parseInt(process.env.BROKEN) || 0;
+  #           const skipped = parseInt(process.env.SKIPPED) || 0;
+
+  #           const totalFailed = failed + broken;
+  #           const totalConsidered = passed + totalFailed; // exclut skipped
+  #           const successRate = totalConsidered > 0 ? (passed / totalConsidered) * 100 : 100;
+  #           const formattedSuccessRate = successRate.toFixed(2) + '%';
+
+  #           // Colonnes: Date | Passed | Failed | Broken | Skipped | Total Failed | Success Rate | Run URL
+  #           const values = [[
+  #             today,
+  #             passed,
+  #             failed,
+  #             broken,
+  #             skipped,
+  #             totalFailed,
+  #             formattedSuccessRate,
+  #             process.env.RUN_URL
+  #           ]];
+
+  #           sheets.spreadsheets.values.append({
+  #             spreadsheetId,
+  #             range: 'Upgrade!A:H',
+  #             valueInputOption: 'USER_ENTERED',
+  #             insertDataOption: 'INSERT_ROWS',
+  #             resource: { values },
+  #           }).then(() => console.log('Données ajoutées avec succès.'))
+  #             .catch(err => {
+  #               console.error('Erreur lors de l\\'ajout des données:', err);
+  #               process.exit(1);
+  #             });
+  #         "
+

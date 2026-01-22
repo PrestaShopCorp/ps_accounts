@@ -14,7 +14,8 @@
     "tnr-v7": "./scripts/run-tnr-v7.sh",
     "tnr-multistore-v7": "./scripts/run-tnr-multistore-v7.sh",
     "tnr-v8": "./scripts/run-tnr-v8.sh",
-    "tnr-multistore-v8": "./scripts/run-tnr-multistore-v8.sh"
+    "tnr-multistore-v8": "./scripts/run-tnr-multistore-v8.sh",
+    "TNR": "npm run upgrade-tests && npm run tnr-v7 && npm run tnr-multistore-v7 && npm run tnr-v8 && tnr-multistore-v8"
   },
   "dependencies": {
     "@playwright/test": "^1.55.0",

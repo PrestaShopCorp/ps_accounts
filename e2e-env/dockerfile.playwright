@@ -1,0 +1,33 @@
+FROM mcr.microsoft.com/playwright:v1.55.1-noble
+
+USER root
+
+RUN apt-get update && apt-get install -y bash \
+    ca-certificates curl gnupg iptables && \
+    install -m 0755 -d /etc/apt/keyrings && \
+    curl -fsSL https://download.docker.com/linux/ubuntu/gpg | \
+      gpg --dearmor -o /etc/apt/keyrings/docker.gpg && \
+    echo \
+      "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/docker.gpg] \
+      https://download.docker.com/linux/ubuntu \
+      $(. /etc/os-release && echo \"$VERSION_CODENAME\") stable" | \
+      tee /etc/apt/sources.list.d/docker.list > /dev/null && \
+    apt-get update && \
+    apt-get install -y docker-ce docker-ce-cli containerd.io docker-compose-plugin make && \
+    rm -rf /var/lib/apt/lists/*
+
+RUN mkdir -p /etc/docker && \
+    echo '{"storage-driver": "vfs"}' > /etc/docker/daemon.json
+
+WORKDIR /app
+COPY e2e ./e2e
+COPY e2e-env ./e2e-env
+
+WORKDIR /app/e2e
+RUN npm ci
+
+RUN mkdir -p /app/e2e-env/myTun/config && \
+    touch /app/e2e-env/myTun/config/mytun-config.yml && \
+    touch /app/e2e-env/myTun/config/mytun-credentials.json
+
+WORKDIR /app/e2e
