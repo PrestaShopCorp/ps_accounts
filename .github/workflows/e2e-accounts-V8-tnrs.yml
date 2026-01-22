@@ -114,6 +114,7 @@ jobs:
           echo "DOMAIN=${{ secrets.DOMAIN }}" >> .env
           echo "DOWNLOADER_TOKEN=${{ secrets.DOWNLOADER_TOKEN }}" >> .env
           echo "PS_VERSION=${{ secrets.PS_VERSION }}" >> .env
+          echo "PS_ACCOUNTS_VERSION=${{ secrets.   }}" >> .env
 
       - name: Run test
         working-directory: ./e2e
