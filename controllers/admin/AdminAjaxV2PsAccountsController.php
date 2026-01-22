@@ -182,14 +182,27 @@ class AdminAjaxV2PsAccountsController extends AbstractAdminAjaxCorsController
             $e = $e->getPrevious();
         }
 
-        if ($e instanceof OAuth2\Exception\ConnectException ||
-            $e instanceof Accounts\Exception\ConnectException) {
+        if ($e instanceof OAuth2\Exception\ConnectException) {
             http_response_code(400);
 
             $this->ajaxRender(
                 (string) json_encode([
                     'message' => $e->getMessage(),
-                    'code' => 'connection_error',
+                    'code' => 'oauth-server/connect-error',
+                    //'details' => $e->getDetails(),
+                ])
+            );
+
+            return;
+        }
+
+        if ($e instanceof Accounts\Exception\ConnectException) {
+            http_response_code(400);
+
+            $this->ajaxRender(
+                (string) json_encode([
+                    'message' => $e->getMessage(),
+                    'code' => 'accounts-api/connect-error',
                     //'details' => $e->getDetails(),
                 ])
             );
