@@ -1,22 +1,28 @@
 #!/bin/bash
 
+export PS_ACCOUNTS_VERSION="v8.0.9"
+
 if [ -n "$1" ]; then
   SHOP_VERSIONS=("$1")
 else
 SHOP_VERSIONS=(
-  nightly-nginx    
-  8.2.0-8.1-fpm-alpine
-  1.7.8.8-7.4-fpm-alpine
-  1.6.1.24-7.1-fpm-alpine
+  # nightly-nginx    
+  # 8.2.0-8.1-fpm-alpine
+  # 1.7.8.8-7.4-fpm-alpine
+  # 1.6.1.24-7.1-fpm-alpine
+  9.0.2-apache
+  8.2.0-8.1
+  1.7.8.8-7.4
 )
 fi
 
 for PS_VERSION in "${SHOP_VERSIONS[@]}"; do
 #Build the shop 
-npm run build-shop -- "$PS_VERSION"
+npm run build-shop -- "$PS_VERSION" "" "imageoff" "$PS_ACCOUNTS_VERSION"
+sleep 4
 
 #Run the tests
-# npx playwright test --project="Account TNR V8" module_installation || true
+npx playwright test --project="Account TNR V8" module_installation || true
 npx playwright test --project="Account TNR V8" 01_shop_verification.spec.ts || true
 npx playwright test --project="Account TNR V8" point_of_contact|| true
 npx playwright test --project="Account TNR V8" 02_manual_shop_verification.spec.ts|| true
