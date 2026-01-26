@@ -9,10 +9,6 @@ permissions:
   actions: write
   contents: read
 
-concurrency:
-  group: mytun-e2e-accounts
-  cancel-in-progress: false
-
 jobs:
   orchestrate:
     runs-on: ubuntu-latest
