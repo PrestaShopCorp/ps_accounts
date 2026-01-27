@@ -26,10 +26,8 @@ use PrestaShop\Module\PsAccounts\Account\Query\GetContextQuery;
 use PrestaShop\Module\PsAccounts\Cqrs\CommandBus;
 use PrestaShop\Module\PsAccounts\Cqrs\QueryBus;
 use PrestaShop\Module\PsAccounts\Http\Controller\AbstractAdminAjaxCorsController;
-use PrestaShop\Module\PsAccounts\Log\Logger;
 use PrestaShop\Module\PsAccounts\Service\Accounts\AccountsException;
 use PrestaShop\Module\PsAccounts\Service\Accounts\AccountsService;
-use PrestaShop\Module\PsAccounts\Service\SentryService;
 
 /**
  * Controller for all ajax calls.
@@ -166,8 +164,6 @@ class AdminAjaxV2PsAccountsController extends AbstractAdminAjaxCorsController
      */
     protected function handleError($e)
     {
-        SentryService::capture($e);
-
         if ($e instanceof AccountsException) {
             http_response_code(400);
 
