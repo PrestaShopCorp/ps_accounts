@@ -82,7 +82,7 @@ class AccountsService
             ClientConfig::NAME => static::class,
         ], $config);
 
-        $this->initDefaults();
+        $this->resetProperties();
     }
 
     /**

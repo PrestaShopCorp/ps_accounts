@@ -46,6 +46,6 @@ class CreateIdentityCommand
         $this->shopId = $shopId;
         $this->renew = $renew;
 
-        $this->initDefaults();
+        $this->resetProperties();
     }
 }

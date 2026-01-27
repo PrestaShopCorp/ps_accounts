@@ -105,8 +105,7 @@ class AdminAjaxV2PsAccountsController extends AbstractAdminAjaxCorsController
 
         $this->commandBus->handle($command);
 
-        // reset throwException flag
-        $statusManager->getThrowException();
+        $statusManager->resetThrowException();
 
         $this->ajaxRender(
             (string) json_encode([

@@ -34,6 +34,7 @@ use PrestaShop\Module\PsAccounts\Traits\WithOriginAndSourceTrait;
 /**
  * @method $this withThrowException(bool $throwException)
  * @method bool getThrowException(bool $restoreDefault = true)
+ * @method void resetThrowException()
  */
 class StatusManager
 {
@@ -85,7 +86,7 @@ class StatusManager
         $this->shopSession = $shopSession;
         $this->accountsService = $accountsService;
 
-        $this->initDefaults();
+        $this->resetProperties();
     }
 
     /**

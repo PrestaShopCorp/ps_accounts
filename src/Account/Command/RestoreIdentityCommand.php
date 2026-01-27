@@ -85,6 +85,6 @@ class RestoreIdentityCommand
         $this->migrate = $migrate;
         $this->migrateFrom = $migrateFrom;
 
-        $this->initDefaults();
+        $this->resetProperties();
     }
 }
