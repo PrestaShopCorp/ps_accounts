@@ -30,7 +30,7 @@ class AccountsException extends \Exception
      */
     const ERROR_STORE_LEGACY_NOT_FOUND = 'store-identity/store-legacy-not-found';
     const ERROR_UNKNOWN = 'unknown-error';
-    const ERROR_CONNECT = 'connection-error';
+    const ERROR_CONNECT = 'connect-error';
 
     /**
      * @var Response

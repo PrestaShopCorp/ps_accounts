@@ -30,7 +30,7 @@ class OAuth2ServerException extends OAuth2Exception
     const ERROR_INVALID_REQUEST = 'invalid_request';
     const ERROR_INVALID_SCOPE = 'invalid_scope';
     const ERROR_UNKNOWN = 'unknown_error';
-    const ERROR_CONNECT = 'connection_error';
+    const ERROR_CONNECT = 'connect_error';
 
     /**
      * @var string
