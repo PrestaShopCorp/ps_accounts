@@ -1,0 +1,75 @@
+name: e2e Accounts - main TNR
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: "0 6 * * 1-5"
+
+permissions:
+  actions: write
+  contents: read
+
+
+jobs:
+  run-tnr:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Run TNR
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          REPO: ${{ github.repository }}
+          REF: ${{ github.ref_name }}
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          trigger_and_wait() {
+            local wf_file="$1"
+            local label="$2"
+
+            local start_ts
+            start_ts="$(date -u +"%Y-%m-%dT%H:%M:%SZ")"
+
+            echo "Dispatch $label ($wf_file) on ref=$REF at $start_ts"
+            gh api -X POST "repos/$REPO/actions/workflows/$wf_file/dispatches" -f ref="$REF" >/dev/null
+
+            local run_id=""
+            for i in $(seq 1 60); do
+              runs_json="$(gh api "repos/$REPO/actions/workflows/$wf_file/runs?event=workflow_dispatch&per_page=20")"
+              run_id="$(echo "$runs_json" | jq -r --arg START "$start_ts" --arg REF "$REF" '
+                [.workflow_runs[]
+                  | select(.head_branch == $REF)
+                  | select(.created_at >= $START)
+                ][0].id // empty
+              ')"
+              if [ -n "$run_id" ]; then break; fi
+              sleep 5
+            done
+
+            if [ -z "$run_id" ]; then
+              echo "ERROR: impossible de retrouver le run déclenché pour $label ($wf_file)"
+              exit 1
+            fi
+
+            echo "$label run_id=$run_id"
+
+            while true; do
+              run_json="$(gh api "repos/$REPO/actions/runs/$run_id")"
+              status="$(echo "$run_json" | jq -r '.status')"
+              conclusion="$(echo "$run_json" | jq -r '.conclusion // empty')"
+              echo "$label: status=$status conclusion=$conclusion"
+
+              if [ "$status" = "completed" ]; then
+                if [ "$conclusion" != "success" ]; then
+                  echo "ERROR: $label terminé avec conclusion=$conclusion"
+                  exit 1
+                fi
+                break
+              fi
+              sleep 15
+            done
+          }
+
+          trigger_and_wait "e2e-accounts-tests-Upgrade.yml" "Upgrade"
+          trigger_and_wait "e2e-accounts-V7-tnrs.yml" "V7"
+          trigger_and_wait "e2e-accounts-V8-tnrs.yml" "V8"
