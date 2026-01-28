@@ -29,6 +29,6 @@ class CreateIdentitiesCommand
 
     public function __construct()
     {
-        $this->initDefaults();
+        $this->resetProperties();
     }
 }

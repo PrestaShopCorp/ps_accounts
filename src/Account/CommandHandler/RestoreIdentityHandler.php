@@ -86,7 +86,7 @@ class RestoreIdentityHandler
         try {
             $currentStatus = $this->statusManager->getStatus(true);
         } catch (UnknownStatusException $e) {
-            $currentStatus = new ShopStatus();
+            $currentStatus = null;
         }
 
         $registeredVersion = $this->upgradeService->getRegisteredVersion();
@@ -136,7 +136,7 @@ class RestoreIdentityHandler
     }
 
     /**
-     * @param ShopStatus $currentStatus
+     * @param ShopStatus|null $currentStatus
      * @param string $registeredVersion
      * @param Exception|Throwable $e
      *
@@ -144,10 +144,11 @@ class RestoreIdentityHandler
      *
      * @throws Exception|Throwable
      */
-    private function handleError(ShopStatus $currentStatus, $registeredVersion, $e)
+    private function handleError($currentStatus, $registeredVersion, $e)
     {
-        // Restore shop status and module version
-        $this->statusManager->restoreStatus($currentStatus);
+        if (isset($currentStatus)) {
+            $this->statusManager->restoreStatus($currentStatus);
+        }
         $this->upgradeService->setVersion($registeredVersion);
 
         Logger::getInstance()->error($e);

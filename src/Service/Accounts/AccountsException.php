@@ -24,7 +24,13 @@ use PrestaShop\Module\PsAccounts\Http\Client\Response;
 
 class AccountsException extends \Exception
 {
+    // TODO: list codes from accounts-api
+    /*
+     * Errors from API
+     */
     const ERROR_STORE_LEGACY_NOT_FOUND = 'store-identity/store-legacy-not-found';
+    const ERROR_UNKNOWN = 'unknown-error';
+    const ERROR_CONNECT = 'connect-error';
 
     /**
      * @var Response
@@ -48,17 +54,18 @@ class AccountsException extends \Exception
 
     /**
      * @param Response $response
-     * @param string $defaultMessage
-     * @param string $defaultErrorCode
+     * @param string $message
+     * @param string $errorCode
      */
-    public function __construct($response, $defaultMessage = '', $defaultErrorCode = '')
+    public function __construct($response, $message = '', $errorCode = self::ERROR_UNKNOWN)
     {
         $this->response = $response;
-        $this->errorCode = $response->getErrorCodeFromBody('error', $defaultErrorCode);
+        $this->errorCode = $errorCode;
+
         $this->reason = $this->getReasonFromResponseBody();
         $this->storeResponse = $this->getStoreResponseFromResponseBody();
 
-        parent::__construct($response->getErrorMessageFromBody('message', $defaultMessage));
+        parent::__construct($message);
     }
 
     /**

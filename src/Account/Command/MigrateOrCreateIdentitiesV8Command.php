@@ -29,6 +29,6 @@ class MigrateOrCreateIdentitiesV8Command
 
     public function __construct()
     {
-        $this->initDefaults();
+        $this->resetProperties();
     }
 }

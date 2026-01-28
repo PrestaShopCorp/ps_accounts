@@ -22,13 +22,17 @@ require_once __DIR__ . '/../../src/Http/Controller/AbstractAdminAjaxCorsControll
 use PrestaShop\Module\PsAccounts\Account\Command\CreateIdentityCommand;
 use PrestaShop\Module\PsAccounts\Account\Command\MigrateOrCreateIdentityV8Command;
 use PrestaShop\Module\PsAccounts\Account\Command\VerifyIdentityCommand;
+use PrestaShop\Module\PsAccounts\Account\Exception\RefreshTokenException;
 use PrestaShop\Module\PsAccounts\Account\Query\GetContextQuery;
+use PrestaShop\Module\PsAccounts\Account\StatusManager;
 use PrestaShop\Module\PsAccounts\Cqrs\CommandBus;
 use PrestaShop\Module\PsAccounts\Cqrs\QueryBus;
 use PrestaShop\Module\PsAccounts\Http\Controller\AbstractAdminAjaxCorsController;
 use PrestaShop\Module\PsAccounts\Log\Logger;
+use PrestaShop\Module\PsAccounts\Service\Accounts;
 use PrestaShop\Module\PsAccounts\Service\Accounts\AccountsException;
 use PrestaShop\Module\PsAccounts\Service\Accounts\AccountsService;
+use PrestaShop\Module\PsAccounts\Service\OAuth2;
 
 /**
  * Controller for all ajax calls.
@@ -91,11 +95,17 @@ class AdminAjaxV2PsAccountsController extends AbstractAdminAjaxCorsController
             throw new Exception('Shop ID is required for migration or creation.');
         }
 
+        /** @var StatusManager $statusManager */
+        $statusManager = $this->module->getService(StatusManager::class);
+        $statusManager->withThrowException(true);
+
         $command = (new MigrateOrCreateIdentityV8Command($shopId))
             ->withOrigin(AccountsService::ORIGIN_FALLBACK)
             ->withSource($source);
 
         $this->commandBus->handle($command);
+
+        $statusManager->resetThrowException();
 
         $this->ajaxRender(
             (string) json_encode([
@@ -166,6 +176,38 @@ class AdminAjaxV2PsAccountsController extends AbstractAdminAjaxCorsController
     protected function handleError($e)
     {
         Logger::getInstance()->error($e);
+
+        if ($e instanceof RefreshTokenException) {
+            $e = $e->getPrevious();
+        }
+
+        if ($e instanceof OAuth2\Exception\ConnectException) {
+            http_response_code(400);
+
+            $this->ajaxRender(
+                (string) json_encode([
+                    'message' => $e->getMessage(),
+                    'code' => 'oauth-server/connect-error',
+                    //'details' => $e->getDetails(),
+                ])
+            );
+
+            return;
+        }
+
+        if ($e instanceof Accounts\Exception\ConnectException) {
+            http_response_code(400);
+
+            $this->ajaxRender(
+                (string) json_encode([
+                    'message' => $e->getMessage(),
+                    'code' => 'accounts-api/connect-error',
+                    //'details' => $e->getDetails(),
+                ])
+            );
+
+            return;
+        }
 
         if ($e instanceof AccountsException) {
             http_response_code(400);

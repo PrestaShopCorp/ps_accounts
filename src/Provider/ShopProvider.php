@@ -369,6 +369,7 @@ class ShopProvider
                         } catch (UnknownStatusException $e) {
                             $shopStatus = new ShopStatus([
                                 'frontendUrl' => $shopUrl->getFrontendUrl(),
+                                'backOfficeUrl' => $shopUrl->getBackOfficeUrl(),
                             ]);
                         }
                         $shops[] = [

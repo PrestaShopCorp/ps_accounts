@@ -1,5 +1,4 @@
 <?php
-
 /**
  * Copyright since 2007 PrestaShop SA and Contributors
  * PrestaShop is an International Registered Trademark & Property of PrestaShop SA
@@ -19,35 +18,20 @@
  * @license   https://opensource.org/licenses/AFL-3.0 Academic Free License version 3.0
  */
 
-namespace PrestaShop\Module\PsAccounts\Account\Command;
+namespace PrestaShop\Module\PsAccounts\Service\Accounts\Exception;
 
-use PrestaShop\Module\PsAccounts\Service\OAuth2\Resource\AccessToken;
-use PrestaShop\Module\PsAccounts\Service\OAuth2\Resource\UserInfo;
-use PrestaShop\Module\PsAccounts\Traits\WithOriginAndSourceTrait;
+use PrestaShop\Module\PsAccounts\Http\Client\Response;
+use PrestaShop\Module\PsAccounts\Service\Accounts\AccountsException;
 
-class IdentifyContactCommand
+class StoreLegacyNotFoundException extends AccountsException
 {
-    use WithOriginAndSourceTrait;
-
     /**
-     * @var AccessToken
+     * @param Response $response
+     * @param string $message
+     * @param string $errorCode
      */
-    public $accessToken;
-
-    /**
-     * @var UserInfo
-     */
-    public $userInfo;
-
-    /**
-     * @param AccessToken $accessToken
-     * @param UserInfo $userInfo
-     */
-    public function __construct($accessToken, $userInfo)
+    public function __construct($response, $message = '', $errorCode = self::ERROR_STORE_LEGACY_NOT_FOUND)
     {
-        $this->accessToken = $accessToken;
-        $this->userInfo = $userInfo;
-
-        $this->resetProperties();
+        parent::__construct($response, $message, $errorCode);
     }
 }
