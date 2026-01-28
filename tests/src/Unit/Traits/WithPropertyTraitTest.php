@@ -9,7 +9,19 @@ class WithPropertyTraitTest extends TestCase
     /**
      * @test
      */
-    public function itShouldSetAProperty()
+    public function itShouldGetAProperty()
+    {
+        $instance = new TraitTestClass();
+
+        $value = $this->faker->word;
+
+        $this->assertEquals($value, $instance->withProperty('property1', $value)->getProperty('property1'));
+    }
+
+    /**
+     * @test
+     */
+    public function itShouldGetAMagicProperty()
     {
         $instance = new TraitTestClass();
 
@@ -27,11 +39,40 @@ class WithPropertyTraitTest extends TestCase
 
         $value = $this->faker->word;
 
+        $this->assertEquals($value, $instance->withProperty('property1', $value)->getProperty('property1'));
+
+        $defaults = $instance->getDefaults();
+
+        $this->assertEquals($defaults['property1'], $instance->getProperty('property1'));
+    }
+
+    /**
+     * @test
+     */
+    public function itShouldRestoreAPropertyAfterMagicGet()
+    {
+        $instance = new TraitTestClass();
+
+        $value = $this->faker->word;
+
         $this->assertEquals($value, $instance->withProperty1($value)->getProperty1());
 
         $defaults = $instance->getDefaults();
 
         $this->assertEquals($defaults['property1'], $instance->getProperty1());
+    }
+
+    /**
+     * @test
+     */
+    public function itShouldNotRestoreAPropertyAfterMagicGet()
+    {
+        $instance = new TraitTestClass();
+
+        $value = $this->faker->word;
+
+        $this->assertEquals($value, $instance->withProperty('property1', $value)->getProperty('property1', false));
+        $this->assertEquals($value, $instance->getProperty('property1', false));
     }
 
     /**
@@ -54,7 +95,19 @@ class WithPropertyTraitTest extends TestCase
     {
         $instance = new TraitTestClass();
 
-        $this->expectException(\InvalidArgumentException::class);
+        $this->expectError();
+
+        $instance->getProperty('fooBar');
+    }
+
+    /**
+     * @test
+     */
+    public function itShouldThrowExceptionIfMagicPropertyDoesNotExist()
+    {
+        $instance = new TraitTestClass();
+
+        $this->expectError();
 
         $instance->getFooBar();
     }

@@ -95,12 +95,6 @@ trait WithPropertyTrait
      */
     protected function extractPropertyName($methodName, $prefix)
     {
-        $property = lcfirst(preg_replace('/^' . $prefix . '/', '', $methodName));
-
-        if (empty($property) || !property_exists($this, $property)) {
-            throw new \InvalidArgumentException(sprintf('Property "%s" does not exist', $property));
-        }
-
-        return $property;
+        return lcfirst(preg_replace('/^' . $prefix . '/', '', $methodName));
     }
 }
