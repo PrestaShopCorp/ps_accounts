@@ -25,6 +25,7 @@ wget -q -O /tmp/ps_accounts.zip "https://github.com/${GITHUB_REPOSITORY}/release
 
 # Unzip ps_accounts module
 echo "* [ps_accounts] unzipping..."
+rm -rf "$PS_ROOT/modules/ps_accounts"
 unzip -o -qq /tmp/ps_accounts.zip -d "$PS_ROOT/modules"
 
 # Change permission
@@ -52,6 +53,7 @@ chmod 666 "$LOG_FILE"
 rm -f "$PS_ROOT/var/cache/prod/ps_accounts/openid-configuration.json" || true
 
 # Install ps_accounts module
+rm -rf "$PS_ROOT/var/cache/prod" "$PS_ROOT/var/cache/dev"
 echo "* [ps_accounts] installing module..."
 cd "$PS_ROOT"
 php -d memory_limit=-1 bin/console prestashop:module --no-interaction install "ps_accounts"

@@ -101,14 +101,6 @@ export default class ConfigureAccountPage extends ModuleManagerPage {
    */
   async displayAllStoreInformations() {
     await this.page.locator('.shopname').click();
-    // try {
-    //   await this.page
-    //     .locator('a')
-    //     .filter({hasText: /^All stores$/})
-    //     .click();
-    // } catch {
-    //   await this.page.getByRole('link', {name: 'All shops'}).click();
-    // }
     const allStores = this.page.locator('a').filter({hasText: /^All stores$/});
     const allShops = this.page.getByRole('link', {name: 'All shops'}).first();
     if (await allStores.isVisible()) {
