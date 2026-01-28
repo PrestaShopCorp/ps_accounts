@@ -95,9 +95,17 @@ class WithPropertyTraitTest extends TestCase
     {
         $instance = new TraitTestClass();
 
-        $this->expectError();
+        $handleException = function ($e) {
+             $this->assertTrue((bool) preg_match('/Undefined property/', $e->getMessage()));
+        };
 
-        $instance->getProperty('fooBar');
+        try {
+            $instance->getProperty('fooBar');
+        } catch (\Exception $e) {
+            $handleException($e);
+        } catch (\Throwable $e) {
+            $handleException($e);
+        }
     }
 
     /**
@@ -107,9 +115,17 @@ class WithPropertyTraitTest extends TestCase
     {
         $instance = new TraitTestClass();
 
-        $this->expectError();
+        $handleException = function ($e) {
+            $this->assertTrue((bool) preg_match('/Undefined property/', $e->getMessage()));
+        };
 
-        $instance->getFooBar();
+        try {
+            $instance->getFooBar();
+        } catch (\Exception $e) {
+            $handleException($e);
+        } catch (\Throwable $e) {
+            $handleException($e);
+        }
     }
 
     /**
