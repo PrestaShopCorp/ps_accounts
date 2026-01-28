@@ -111,4 +111,26 @@ class WithPropertyTraitTest extends TestCase
 
         $instance->getFooBar();
     }
+
+    /**
+     * @test
+     */
+    public function itShouldRestoreAProperty()
+    {
+        $instance = new TraitTestClass();
+
+        $value = $this->faker->word;
+
+        $instance->withProperty1($value);
+
+        $this->assertEquals($value, $instance->getProperty1(false));
+
+        $this->assertEquals($value, $instance->getProperty1(false));
+
+        $instance->resetProperty1();
+
+        $defaults = $instance->getDefaults();
+
+        $this->assertEquals($defaults['property1'], $instance->getProperty1());
+    }
 }
