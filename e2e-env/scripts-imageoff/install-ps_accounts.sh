@@ -1,4 +1,3 @@
-#Install PS_ACCOUNTS
 set -eu
 cd "$(dirname $0)" || exit 1
 
@@ -25,7 +24,7 @@ wget -q -O /tmp/ps_accounts.zip "https://github.com/${GITHUB_REPOSITORY}/release
 
 # Unzip ps_accounts module
 echo "* [ps_accounts] unzipping..."
-rm -rf "$PS_ROOT/modules/ps_accounts"
+rm -rf "$PS_ROOT/modules/ps_accounts"  # ✅ Supprimer l'ancien module
 unzip -o -qq /tmp/ps_accounts.zip -d "$PS_ROOT/modules"
 
 # Change permission
@@ -35,6 +34,7 @@ chmod -R 775 "$PS_ROOT/modules/ps_accounts"
 # Créer les répertoires de cache
 echo "* [ps_accounts] preparing cache directories..."
 mkdir -p "$PS_ROOT/var/cache/prod/ps_accounts"
+mkdir -p "$PS_ROOT/var/cache/dev/ps_accounts"
 mkdir -p "$PS_ROOT/var/logs"
 
 # Donner les permissions appropriées
@@ -49,19 +49,18 @@ touch "$LOG_FILE"
 chown $CHOWN_USER "$LOG_FILE"
 chmod 666 "$LOG_FILE"
 
-# Nettoyer le fichier de cache s'il existe
-rm -f "$PS_ROOT/var/cache/prod/ps_accounts/openid-configuration.json" || true
+# Nettoyer UNIQUEMENT le cache du module (pas tout!)
+rm -f "$PS_ROOT/var/cache/prod/ps_accounts/"* 2>/dev/null || true
+rm -f "$PS_ROOT/var/cache/dev/ps_accounts/"* 2>/dev/null || true
 
 # Install ps_accounts module
-rm -rf "$PS_ROOT/var/cache/prod" "$PS_ROOT/var/cache/dev"
 echo "* [ps_accounts] installing module..."
 cd "$PS_ROOT"
 php -d memory_limit=-1 bin/console prestashop:module --no-interaction install "ps_accounts"
 
 # Vérifier et corriger les permissions après installation
 echo "* [ps_accounts] fixing permissions after installation..."
-chown -R $CHOWN_USER "$PS_ROOT/var/cache" "$PS_ROOT/var/logs" "$PS_ROOT/modules/ps_accounts"
-chmod -R 775 "$PS_ROOT/var/cache"
-chmod -R 775 "$PS_ROOT/var/logs"
-chmod -R 775 "$PS_ROOT/modules/ps_accounts"
+chown -R $CHOWN_USER "$PS_ROOT"/{var,modules/ps_accounts}
+chmod -R 775 "$PS_ROOT"/{var,modules/ps_accounts}
+
 echo "* [ps_accounts] installation completed!"

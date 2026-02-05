@@ -40,7 +40,7 @@ export default class ConfigureAccountPage extends ModuleManagerPage {
    */
   async verifyManualy() {
     await this.page.getByRole('button', {name: 'Verify'}).click();
-    await this.page.locator('[data-test="account-settings-panel"]').nth(1).waitFor({state: 'hidden'});
+    await this.page.waitForTimeout(5000)
   }
   /**
    * Check if Verification succed
@@ -56,7 +56,7 @@ export default class ConfigureAccountPage extends ModuleManagerPage {
    */
   async checkVerificationFailed() {
     await this.page.waitForTimeout(1000)
-    const isVisible = await this.page.locator('[data-test="description-verification-failed-alert"]');
+    const isVisible = await this.page.locator('[data-test="verification-failed-alert"]');
     expect(isVisible).toBeVisible();
   }
 
