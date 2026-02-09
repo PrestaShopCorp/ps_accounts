@@ -13,7 +13,8 @@ SHOP_VERSIONS=(
 fi
 
 for PS_VERSION in "${SHOP_VERSIONS[@]}"; do
-#Build the shop 
+#Build the shop
+sleep 4
 npm run build-shop -- "$PS_VERSION" "" "imageoff" "$PS_ACCOUNTS_VERSION"
 sleep 4
 
