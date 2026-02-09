@@ -16,7 +16,7 @@ fi
 for PS_VERSION in "${SHOP_VERSIONS[@]}"; do
 #Build the shop 
 npm run build-shop -- "$PS_VERSION" "" "" "$PS_ACCOUNTS_VERSION"
-sleep 2
+sleep 4
 
 #Run the tests
 npx playwright test --project="Account TNR V7" module_installation || true 
