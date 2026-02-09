@@ -17,8 +17,8 @@ services:
       - multistore
       - flashlight
       - imageoff
-    networks:
-      - ps_accounts_net
+    # networks:
+    #   - ps_accounts_net
 
   prestashop:
     restart: unless-stopped
@@ -40,8 +40,8 @@ services:
     profiles:
       - all
       - flashlight
-    networks:
-      - ps_accounts_net
+    # networks:
+    #   - ps_accounts_net
 
   phpmyadmin:
     image: ${IMAGE_PREFIX:-}phpmyadmin:latest
@@ -58,8 +58,8 @@ services:
       - multistore
       - flashlight
       - imageoff
-    networks:
-      - ps_accounts_net
+    # networks:
+    #   - ps_accounts_net
 
   mytun:
     restart: always
@@ -73,8 +73,8 @@ services:
       - multistore
       - flashlight
       - imageoff
-    networks:
-      - ps_accounts_net
+    # networks:
+    #   - ps_accounts_net
 
   shop1:
     image: prestashop/prestashop:${PS_VERSION}
@@ -118,8 +118,8 @@ services:
       - all
       - multistore
       - imageoff
-    networks:
-      - ps_accounts_net
+    # networks:
+    #   - ps_accounts_net
 
   shop2:
     image: prestashop/prestashop:${SECONDE_PS_VERSION}
@@ -161,8 +161,8 @@ services:
     profiles:
       - all
       - multistore
-    networks:
-      - ps_accounts_net
+    # networks:
+    #   - ps_accounts_net
 
   nginx_proxy:
     image: nginx:latest
@@ -178,8 +178,8 @@ services:
     profiles:
       - all
       - multistore
-    networks:
-      - ps_accounts_net
-networks:
-  ps_accounts_net:
-    external: true
+#     networks:
+#       - ps_accounts_net
+# networks:
+#   ps_accounts_net:
+#     external: true
