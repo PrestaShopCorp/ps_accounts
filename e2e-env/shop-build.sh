@@ -65,7 +65,7 @@ ping_url() {
     fi
 
     # Tester l'URL
-    response=$(curl -o /dev/null -s -w '%{http_code}' "$url")
+    response=$(curl -k -o /dev/null -s -w '%{http_code}' "$url" || echo "000")
     if [ "$response" -eq 200 ] || [ "$response" -eq 302 ]; then
       echo "URL is reachable."
       return 0
@@ -76,7 +76,7 @@ ping_url() {
   done
 }
 
-ping_url $appUrl
+ping_url "${appUrl}/admin-dev/"
 
 cd ../e2e
 

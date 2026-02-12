@@ -30,7 +30,6 @@ services:
       PS_DOMAIN: ${PS_DOMAIN}
       PS_ACCOUNTS_VERSION: ${PS_ACCOUNTS_VERSION}
       SSL_REDIRECT: true
-      PS_PROTOC0L: https
     volumes:
       - ./scripts-flashlight/init-scripts:/tmp/init-scripts:ro
       - ./scripts-flashlight/post-scripts:/tmp/post-scripts:ro
