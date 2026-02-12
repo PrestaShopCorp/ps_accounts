@@ -16,7 +16,7 @@ for PS_VERSION in "${SHOP_VERSIONS[@]}"; do
 #Build the shop
 sleep 4
 npm run build-shop -- "$PS_VERSION" "" "imageoff" "$PS_ACCOUNTS_VERSION"
-sleep 4
+sleep 6
 
 #Run the tests
 npx playwright test --project="Account TNR V8" multistore|| true 
