@@ -25,13 +25,13 @@ export default class ModuleManagerPage extends BasePage {
    * The page title
    */
   async getPageMainTitle() {
-    if (await this.page.locator('.title-row .title').isVisible()) {
+    if (await this.pageMainTitle.isVisible()) {
       const titleText = await this.pageMainTitle.textContent();
       return titleText?.trim();
     }
   }
   async getPageMainTitleOldPsVersion() {
-    if (await this.page.locator('h2.page-title').isVisible()) {
+    if (await this.pageMainTitleOldPsVersion.isVisible()) {
       const titleText = await this.pageMainTitleOldPsVersion.textContent();
       return titleText?.trim();
     }
@@ -42,6 +42,10 @@ export default class ModuleManagerPage extends BasePage {
    * @return {Promise<'new' | 'old'>} old is <= 1.6 and new >=1.7
    */
   async getPsVersion(): Promise<'new' | 'old'> {
+      await Promise.race([
+        this.pageMainTitle.waitFor({state: 'visible', timeout: 30000}),
+        this.pageMainTitleOldPsVersion.waitFor({state: 'visible', timeout: 30000})
+      ]);
     const pageTitle = await this.getPageMainTitle();
     const pageTitleOldPsVersion = await this.getPageMainTitleOldPsVersion();
     if (pageTitle === moduleManagerPagesLocales.moduleManager.en_EN.title) {
