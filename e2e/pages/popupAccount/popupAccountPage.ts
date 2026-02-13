@@ -162,8 +162,6 @@ export default class PopupAccountPage extends ModuleManagerPage {
     await card.locator('[data-test="shoplist-shop-unlink"]').click();
     await newPage.locator('[data-test="confirm-unlink-shop"]').click({timeout: 5000});
     await newPage.waitForLoadState('networkidle', {timeout: 30000});
-    await newPage.waitForTimeout(2000);
-    await newPage.reload({waitUntil: 'networkidle', timeout: 30000});
   }
 
   /**
