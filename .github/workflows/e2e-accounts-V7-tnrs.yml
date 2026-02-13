@@ -13,6 +13,18 @@ jobs:
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v4
+        
+      - name: Tune kernel buffers
+        run: |
+          sysctl net.core.rmem_max || true
+          sysctl net.core.rmem_default || true
+
+          sudo sysctl -w net.core.rmem_max=2500000
+          sudo sysctl -w net.core.rmem_default=2500000
+
+          # verify
+          sysctl net.core.rmem_max
+          sysctl net.core.rmem_default
 
       - name: Cache node_modules
         id: cache-node
