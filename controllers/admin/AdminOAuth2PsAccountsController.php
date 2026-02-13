@@ -209,8 +209,9 @@ class AdminOAuth2PsAccountsController extends \ModuleAdminController
     protected function redirectAfterLogin()
     {
         if ($this->getOAuthAction() === 'identifyPointOfContact') {
+            $returnTo = $this->getSessionReturnTo();
             $this->getSession()->clear();
-            $this->closePopup();
+            $this->closePopup($returnTo);
         }
         $returnTo = $this->getSessionReturnTo() ?: 'AdminDashboard';
         if (preg_match('/^([A-Z][a-z0-9]+)+$/', $returnTo)) {
@@ -280,15 +281,27 @@ class AdminOAuth2PsAccountsController extends \ModuleAdminController
     }
 
     /**
+     * @param string|null $returnTo
      * @return void
      */
-    protected function closePopup()
+    protected function closePopup($returnTo = null)
     {
-        echo '
+        // TODO: créer un ticket
+        // TODO: trads Gemini
+        // --------------------------
+        // TODO: parametrize next redirect from ui (when initiating oauth flow)
+        // TODO: then UI manage close popup
+        // TODO: create a flow ?flow=module-signup-popup
+        if ($returnTo) {
+            Logger::getInstance()->error('######### Redirecting to ' . $returnTo);
+            Tools::redirect($returnTo);
+        } else {
+            echo '
 <script type="text/javascript">
 window.close();
 </script>
 ';
-        exit;
+            exit;
+        }
     }
 }

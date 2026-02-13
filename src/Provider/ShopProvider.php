@@ -347,6 +347,10 @@ class ShopProvider
      */
     public function getShops($source = null, $contextType = \Shop::CONTEXT_ALL, $contextId = null, $refresh = false)
     {
+        /** @var \Ps_accounts $module */
+        $module = \Module::getInstanceByName('ps_accounts');
+        $returnTo = $module->getParameter('ps_accounts.accounts_ui_url') . '?' . urldecode('signup-context=popup');
+
         $shopList = [];
         foreach (\Shop::getTree() as $groupData) {
             if ($contextType === \Shop::CONTEXT_GROUP && $contextId != $groupData['id']) {
@@ -361,7 +365,7 @@ class ShopProvider
 
                 $this->getShopContext()->execInShopContext(
                     $shopData['id_shop'],
-                    function () use (&$shops, $shopData, $source, $refresh) {
+                    function () use (&$shops, $shopData, $source, $refresh, $returnTo) {
                         $shopUrl = $this->getUrl((int) $shopData['id_shop']);
                         try {
                             $cacheTtl = $refresh ? 0 : StatusManager::CACHE_TTL;
@@ -378,8 +382,10 @@ class ShopProvider
                             'backOfficeUrl' => $shopUrl->getBackOfficeUrl(),
                             'frontendUrl' => $shopUrl->getFrontendUrl(),
                             'shopStatus' => $shopStatus->toArray(),
+                            'signupReturnTo' => $returnTo,
                             'identifyPointOfContactUrl' => $this->oAuth2Service->getOAuth2Client()->getRedirectUri([
                                 'action' => 'identifyPointOfContact',
+                                //'return_to' => $returnTo,
                                 'source' => $source,
                                 'shop_id' => $shopData['id_shop'],
                                 //'setShopContext' => 's-' . $shopData['id_shop'],
