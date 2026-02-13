@@ -286,14 +286,7 @@ class AdminOAuth2PsAccountsController extends \ModuleAdminController
      */
     protected function closePopup($returnTo = null)
     {
-        // TODO: créer un ticket
-        // TODO: trads Gemini
-        // --------------------------
-        // TODO: parametrize next redirect from ui (when initiating oauth flow)
-        // TODO: then UI manage close popup
-        // TODO: create a flow ?flow=module-signup-popup
         if ($returnTo) {
-            Logger::getInstance()->error('######### Redirecting to ' . $returnTo);
             Tools::redirect($returnTo);
         } else {
             echo '
