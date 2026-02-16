@@ -160,8 +160,14 @@ export default class PopupAccountPage extends ModuleManagerPage {
   async selectUrlAndDiassociate(newPage: Page) {
     const card = newPage.getByRole('checkbox', {name: `PrestaShop language icon ${Globals.base_url_fo}`});
     await card.locator('[data-test="shoplist-shop-unlink"]').click();
+    const closePromise = newPage.waitForEvent('close').catch(() => null);
     await newPage.locator('[data-test="confirm-unlink-shop"]').click({timeout: 5000});
     await newPage.waitForLoadState('networkidle', {timeout: 30000});
+      try {
+        await Promise.race([closePromise, newPage.waitForLoadState('networkidle', {timeout: 30000})]);
+      } catch (error) {
+        if (!newPage.isClosed()) throw error;
+      }
   }
 
   /**
