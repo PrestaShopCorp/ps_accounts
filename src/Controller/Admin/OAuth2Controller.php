@@ -253,7 +253,7 @@ class OAuth2Controller extends FrameworkBundleAdminController
     protected function redirectAfterLogin()
     {
         if ($this->getOAuthAction() === 'identifyPointOfContact') {
-            return $this->closePopup();
+            return $this->closePopup($this->getSessionReturnTo());
         }
 
         return $this->redirectResponse;
@@ -319,15 +319,21 @@ class OAuth2Controller extends FrameworkBundleAdminController
     }
 
     /**
+     * @param string|null $returnTo
+     *
      * @return Response
      */
-    protected function closePopup()
+    protected function closePopup($returnTo = null)
     {
-        return (new Response())->setContent('
+        if ($returnTo) {
+            return new RedirectResponse($returnTo);
+        } else {
+            return (new Response())->setContent('
 <script type="text/javascript">
 window.close();
 </script>
 ');
+        }
     }
 
     /**

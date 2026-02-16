@@ -208,12 +208,12 @@ class AdminOAuth2PsAccountsController extends \ModuleAdminController
      */
     protected function redirectAfterLogin()
     {
+        $returnTo = $this->getSessionReturnTo();
         if ($this->getOAuthAction() === 'identifyPointOfContact') {
-            $returnTo = $this->getSessionReturnTo();
             $this->getSession()->clear();
             $this->closePopup($returnTo);
         }
-        $returnTo = $this->getSessionReturnTo() ?: 'AdminDashboard';
+        $returnTo = $returnTo ?: 'AdminDashboard';
         if (preg_match('/^([A-Z][a-z0-9]+)+$/', $returnTo)) {
             $returnTo = $this->context->link->getAdminLink($returnTo);
         }
@@ -282,6 +282,7 @@ class AdminOAuth2PsAccountsController extends \ModuleAdminController
 
     /**
      * @param string|null $returnTo
+     *
      * @return void
      */
     protected function closePopup($returnTo = null)

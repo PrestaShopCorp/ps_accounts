@@ -347,10 +347,6 @@ class ShopProvider
      */
     public function getShops($source = null, $contextType = \Shop::CONTEXT_ALL, $contextId = null, $refresh = false)
     {
-        /** @var \Ps_accounts $module */
-        $module = \Module::getInstanceByName('ps_accounts');
-        $returnTo = $module->getParameter('ps_accounts.accounts_ui_url') . '?' . urldecode('signup-context=popup');
-
         $shopList = [];
         foreach (\Shop::getTree() as $groupData) {
             if ($contextType === \Shop::CONTEXT_GROUP && $contextId != $groupData['id']) {
@@ -365,7 +361,7 @@ class ShopProvider
 
                 $this->getShopContext()->execInShopContext(
                     $shopData['id_shop'],
-                    function () use (&$shops, $shopData, $source, $refresh, $returnTo) {
+                    function () use (&$shops, $shopData, $source, $refresh) {
                         $shopUrl = $this->getUrl((int) $shopData['id_shop']);
                         try {
                             $cacheTtl = $refresh ? 0 : StatusManager::CACHE_TTL;
@@ -382,7 +378,7 @@ class ShopProvider
                             'backOfficeUrl' => $shopUrl->getBackOfficeUrl(),
                             'frontendUrl' => $shopUrl->getFrontendUrl(),
                             'shopStatus' => $shopStatus->toArray(),
-                            'signupReturnTo' => $returnTo,
+                            'signupUrl' => $this->getSignupUrl(),
                             'identifyPointOfContactUrl' => $this->oAuth2Service->getOAuth2Client()->getRedirectUri([
                                 'action' => 'identifyPointOfContact',
                                 //'return_to' => $returnTo,
@@ -422,5 +418,17 @@ class ShopProvider
         }
 
         return $shopList;
+    }
+
+    /**
+     * @return string
+     */
+    public function getSignupUrl()
+    {
+        /** @var \Ps_accounts $module */
+        $module = \Module::getInstanceByName('ps_accounts');
+        $signupUrl = $module->getParameter('ps_accounts.accounts_ui_url') . '?' . urlencode('signup-context=popup');
+
+        return $signupUrl;
     }
 }
