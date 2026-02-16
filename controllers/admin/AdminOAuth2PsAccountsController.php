@@ -208,12 +208,11 @@ class AdminOAuth2PsAccountsController extends \ModuleAdminController
      */
     protected function redirectAfterLogin()
     {
-        $returnTo = $this->getSessionReturnTo();
         if ($this->getOAuthAction() === 'identifyPointOfContact') {
             $this->getSession()->clear();
-            $this->closePopup($returnTo);
+            $this->closePopup();
         }
-        $returnTo = $returnTo ?: 'AdminDashboard';
+        $returnTo = $this->getReturnTo() ?: 'AdminDashboard';
         if (preg_match('/^([A-Z][a-z0-9]+)+$/', $returnTo)) {
             $returnTo = $this->context->link->getAdminLink($returnTo);
         }
@@ -281,14 +280,12 @@ class AdminOAuth2PsAccountsController extends \ModuleAdminController
     }
 
     /**
-     * @param string|null $returnTo
-     *
      * @return void
      */
-    protected function closePopup($returnTo = null)
+    protected function closePopup()
     {
-        if ($returnTo) {
-            Tools::redirect($returnTo);
+        if ($this->getForceSignup()) {
+            Tools::redirect($this->getSignupUrl());
         } else {
             echo '
 <script type="text/javascript">
@@ -297,5 +294,14 @@ window.close();
 ';
             exit;
         }
+    }
+
+    /**
+     * @return string
+     */
+    protected function getSignupUrl()
+    {
+        return $this->module->getParameter('ps_accounts.accounts_ui_url') .
+            '?signupContext=popup';
     }
 }

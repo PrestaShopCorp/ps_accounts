@@ -378,7 +378,6 @@ class ShopProvider
                             'backOfficeUrl' => $shopUrl->getBackOfficeUrl(),
                             'frontendUrl' => $shopUrl->getFrontendUrl(),
                             'shopStatus' => $shopStatus->toArray(),
-                            'signupUrl' => $this->getSignupUrl(),
                             'identifyPointOfContactUrl' => $this->oAuth2Service->getOAuth2Client()->getRedirectUri([
                                 'action' => 'identifyPointOfContact',
                                 //'return_to' => $returnTo,
@@ -418,17 +417,5 @@ class ShopProvider
         }
 
         return $shopList;
-    }
-
-    /**
-     * @return string
-     */
-    public function getSignupUrl()
-    {
-        /** @var \Ps_accounts $module */
-        $module = \Module::getInstanceByName('ps_accounts');
-        $signupUrl = $module->getParameter('ps_accounts.accounts_ui_url') . '?' . urlencode('signup-context=popup');
-
-        return $signupUrl;
     }
 }
