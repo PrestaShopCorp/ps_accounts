@@ -38,6 +38,7 @@ export default defineConfig({
   ],
   use: {
     trace: 'on-first-retry',
+    video: 'on',
     screenshot: 'only-on-failure',
     headless: process.env.CI ? true : true,
     userAgent: process.env.QA_USER_AGENT || 'default-ua-dev-mode',
