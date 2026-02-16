@@ -41,27 +41,17 @@ export default class ModuleManagerPage extends BasePage {
    * Get the running PS Version
    * @return {Promise<'new' | 'old'>} old is <= 1.6 and new >=1.7
    */
-  // async getPsVersion(): Promise<'new' | 'old'> {
-  //   const pageTitle = await this.getPageMainTitle();
-  //   const pageTitleOldPsVersion = await this.getPageMainTitleOldPsVersion();
-  //   if (pageTitle === moduleManagerPagesLocales.moduleManager.en_EN.title) {
-  //     return 'new';
-  //   } else if (pageTitleOldPsVersion === moduleManagerPagesLocales.moduleManager.en_EN.titleOldPsVersion) {
-  //     return 'old';
-  //   }
-  //   throw new Error('Version not detected');
-  // }
   async getPsVersion(): Promise<'new' | 'old'> {
-    const isNewVersion = async (): Promise<boolean> =>
-      (await this.page.locator('#module-search-button').isVisible()) ||
-      (await this.page.locator('[data-target="#module-modal-import"]').isVisible());
-    const isOldVersion = async (): Promise<boolean> =>
-      (await this.page.locator('#moduleQuicksearch').isVisible()) ||
-      (await this.page.locator('#desc-module-new').isVisible());
-    await this.page.waitForTimeout(5000);
-    if (await isNewVersion()) return 'new';
-    if (await isOldVersion()) return 'old';
-
+    await Promise.race([
+      this.pageMainTitle.waitFor({state: 'visible', timeout: 30000}),
+      this.pageMainTitleOldPsVersion.waitFor({state: 'visible', timeout: 30000})
+    ]);
+    if (await this.pageMainTitle.isVisible()) {
+      return 'new';
+    }
+    if (await this.pageMainTitleOldPsVersion.isVisible()) {
+      return 'old';
+    }
     throw new Error('Version not detected');
   }
 
