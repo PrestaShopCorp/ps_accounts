@@ -83,8 +83,8 @@ export default class ModuleManagerPage extends BasePage {
       const isAccountVisibleOnOldPsVersion = this.page
         .locator('.module_name')
         .filter({hasText: 'PrestaShop Account'})
-        .isVisible({timeout: 10000});
-      await expect(isAccountVisibleOnOldPsVersion).toBeTruthy();
+        .first();
+      await expect(isAccountVisibleOnOldPsVersion).toBeVisible({timeout: 10000});
     }
   }
 
@@ -187,23 +187,15 @@ export default class ModuleManagerPage extends BasePage {
       await moduleContainer.getByRole('link', {name: 'Configure'}).click();
       await this.page.waitForLoadState('load');
     } else if (psVersion === 'old') {
-      await this.page.locator('#moduleQuicksearch').fill('ps_account');
-      await this.page.locator('#moduleQuicksearch').press('Enter');
-      const moduleContainer = this.page
-        .locator('tr')
-        .filter({has: this.page.locator('.module_name').filter({hasText: 'PrestaShop Account'})})
-        .first();
-      await moduleContainer.waitFor({state: 'visible', timeout: 10000});
-      const configureLink = moduleContainer.getByRole('link', {name: 'Configure'}).first();
-      if (!(await configureLink.isVisible())) {
-        const dropdownBtn = moduleContainer.locator('.actions .caret').first();
-        if (await dropdownBtn.isVisible()) {
-          await dropdownBtn.click({force: true});
-        }
+      const moduleContainer = this.page.locator('tr:not([style*="display: none"])');
+      const dropDownParent = moduleContainer.locator('.actions');
+      const dropdownBtn = dropDownParent.locator('.caret');
+      const upgradeBtn = dropDownParent.getByRole('link', {name: ' Update it! '});
+      if (await upgradeBtn.isVisible()) {
+        await dropdownBtn.click({force: true});
       }
-      await configureLink.waitFor({state: 'visible', timeout: 10000});
-      await configureLink.click();
-      await this.page.waitForLoadState('domcontentloaded');
+      await moduleContainer.getByRole('link', {name: 'Configure'}).click();
+      await this.page.waitForLoadState('load');
     } else {
       throw new Error('Module Manager page title not recognized.');
     }
