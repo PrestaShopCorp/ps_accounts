@@ -310,11 +310,11 @@ trait OAuth2LoginTrait
     }
 
     /**
-     * @return string
+     * @return bool
      */
     private function getForceSignup()
     {
-        return $this->getSession()->get('forceSignup', false);
+        return (bool) $this->getSession()->get('forceSignup', false);
     }
 
     /**
