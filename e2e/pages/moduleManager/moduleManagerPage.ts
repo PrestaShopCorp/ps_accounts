@@ -42,16 +42,22 @@ export default class ModuleManagerPage extends BasePage {
    * @return {Promise<'new' | 'old'>} old is <= 1.6 and new >=1.7
    */
   async getPsVersion(): Promise<'new' | 'old'> {
-    const isNewVersion = async (): Promise<boolean> =>
-      (await this.page.locator('#module-search-button').isVisible()) ||
-      (await this.page.locator('[data-target="#module-modal-import"]').isVisible());
-    const isOldVersion = async (): Promise<boolean> =>
-      (await this.page.locator('#moduleQuicksearch').isVisible()) ||
-      (await this.page.locator('#desc-module-new').isVisible());
-    await this.page.waitForTimeout(5000);
-    if (await isNewVersion()) return 'new';
-    if (await isOldVersion()) return 'old';
-
+    const detectVersion = async (): Promise<'new' | 'old' | null> => {
+      const isNew =
+        (await this.page.locator('#module-search-button').isVisible()) ||
+        (await this.page.locator('[data-target="#module-modal-import"]').isVisible());
+      if (isNew) return 'new';
+      const isOld =
+        (await this.page.locator('#moduleQuicksearch').isVisible()) ||
+        (await this.page.locator('#desc-module-new').isVisible());
+      if (isOld) return 'old';
+      return null;
+    };
+    for (let attempt = 0; attempt < 2; attempt++) {
+      const version = await detectVersion();
+      if (version) return version;
+      if (attempt === 0) await this.page.waitForTimeout(5000);
+    }
     throw new Error('Version not detected');
   }
 
