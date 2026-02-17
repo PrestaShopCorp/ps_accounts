@@ -195,7 +195,9 @@ export default class ModuleManagerPage extends BasePage {
       if (await upgradeBtn.isVisible()) {
         await dropdownBtn.click({force: true});
       }
-      await moduleContainer.getByRole('link', {name: 'Configure'}).click();
+      const configureLink = moduleContainer.getByRole('link', {name: 'Configure'});
+      await configureLink.scrollIntoViewIfNeeded();
+      await configureLink.click();
       await this.page.waitForLoadState('load');
     } else {
       throw new Error('Module Manager page title not recognized.');
