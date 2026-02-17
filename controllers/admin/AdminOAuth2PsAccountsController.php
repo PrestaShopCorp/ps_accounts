@@ -209,8 +209,9 @@ class AdminOAuth2PsAccountsController extends \ModuleAdminController
     protected function redirectAfterLogin()
     {
         if ($this->getOAuthAction() === 'identifyPointOfContact') {
+            $forceSignup = $this->getForceSignup();
             $this->getSession()->clear();
-            $this->closePopup();
+            $this->closePopup($forceSignup);
         }
         $returnTo = $this->getReturnTo() ?: 'AdminDashboard';
         if (preg_match('/^([A-Z][a-z0-9]+)+$/', $returnTo)) {
@@ -280,11 +281,13 @@ class AdminOAuth2PsAccountsController extends \ModuleAdminController
     }
 
     /**
+     * @param bool $forceSignup
+     *
      * @return void
      */
-    protected function closePopup()
+    protected function closePopup($forceSignup = false)
     {
-        if ($this->getForceSignup()) {
+        if ($forceSignup) {
             Tools::redirect($this->getSignupUrl());
         } else {
             echo '
