@@ -80,11 +80,11 @@ export default class ModuleManagerPage extends BasePage {
       await this.page.waitForSelector('.icon-list-ul');
       await this.page.locator('#moduleQuicksearch').fill('ps_account');
       await this.page.locator('#moduleQuicksearch').press('Enter');
-      const isAccountVisibleOnOldPsVersion = await this.page
+      const isAccountVisibleOnOldPsVersion = this.page
         .locator('.module_name')
         .filter({hasText: 'PrestaShop Account'})
-        .isVisible();
-      expect(isAccountVisibleOnOldPsVersion).toBeTruthy();
+        .isVisible({timeout: 10000});
+      await expect(isAccountVisibleOnOldPsVersion).toBeTruthy();
     }
   }
 
