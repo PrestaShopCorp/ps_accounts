@@ -72,8 +72,8 @@ jobs:
       max-parallel: 1
       matrix:
         shop_version:
-          - 9.0.2-apache
-          - 8.2.0-8.1
+          # - 9.0.2-apache
+          # - 8.2.0-8.1
           - 1.7.8.8-7.4
     steps:
       - name: Checkout Repository

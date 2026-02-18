@@ -45,6 +45,6 @@ export default class DashboardPage extends BasePage {
    * @param page {Page} The browser tab
    */
   async closePopup() {
-    await this.page.getByText('close').click();
+    await this.page.locator('.material-icons.onboarding-button-shut-down').click();
   }
 }
