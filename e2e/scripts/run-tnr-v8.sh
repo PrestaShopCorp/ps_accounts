@@ -6,16 +6,17 @@ if [ -n "$1" ]; then
   SHOP_VERSIONS=("$1")
 else
 SHOP_VERSIONS=(
-  9.0.2-apache
-  8.2.0-8.1
-  1.7.8.8-7.4
+  nightly-nginx    
+  8.2.0-8.1-fpm-alpine
+  1.7.8.8-7.4-fpm-alpine
+  1.6.1.24-7.1-fpm-alpine
 )
 fi
 
 for PS_VERSION in "${SHOP_VERSIONS[@]}"; do
 #Build the shop 
 sleep 4
-npm run build-shop -- "$PS_VERSION" "" "imageoff" "$PS_ACCOUNTS_VERSION"
+npm run build-shop -- "$PS_VERSION" "" "" "$PS_ACCOUNTS_VERSION"
 sleep 8
 
 #Run the tests

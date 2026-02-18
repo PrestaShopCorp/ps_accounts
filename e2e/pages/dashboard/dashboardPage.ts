@@ -37,7 +37,7 @@ export default class DashboardPage extends BasePage {
    * True if Popup Visible
    */
   async isPopupVisible(): Promise<boolean> {
-    return await this.page.locator('.onboarding-popup').isVisible();
+    return await this.page.locator('.onboarding-popup').isVisible({timeout: 5000});
   }
 
   /**
@@ -45,6 +45,7 @@ export default class DashboardPage extends BasePage {
    * @param page {Page} The browser tab
    */
   async closePopup() {
+    await this.page.waitForSelector('.material-icons.onboarding-button-shut-down', {state: 'visible'});
     await this.page.locator('.material-icons.onboarding-button-shut-down').click();
   }
 }
