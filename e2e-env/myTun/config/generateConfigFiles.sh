@@ -20,8 +20,7 @@ echo "credentials.json file created !"
 ############ Create config.yml file ###########
 touch "./myTun/config/mytun-config.yml"
 
-if [ "$PROFILE" = "imageoff" ]; then
-  config_yaml_content="tunnel: \"$TUNNEL_ID\"
+config_yaml_content="tunnel: \"$TUNNEL_ID\"
 credentials-file: /credentials.json
 ingress:
   - hostname: \"$PS_DOMAIN\"
@@ -29,25 +28,6 @@ ingress:
     originRequest:
       httpHostHeader: \"$PS_DOMAIN\"
   - service: http_status:404"
-elif [ "$PROFILE" = "multistore" ] || [ "$PROFILE" = "flashlight" ]; then
-  config_yaml_content="tunnel: \"$TUNNEL_ID\"
-credentials-file: /credentials.json
-ingress:
-  - hostname: \"$PS_DOMAIN\"
-    service: http://traefik:80
-    originRequest:
-      httpHostHeader: \"$PS_DOMAIN\"
-  - service: http_status:404"
-else
-  config_yaml_content="tunnel: \"$TUNNEL_ID\"
-credentials-file: /credentials.json
-ingress:
-  - hostname: \"$PS_DOMAIN\"
-    service: http://traefik:80
-    originRequest:
-      httpHostHeader: \"$PS_DOMAIN\"
-  - service: http_status:404"
-fi
 # Print in file
 echo "$config_yaml_content" > "./myTun/config/mytun-config.yml"
 echo "config.yml file created !"
