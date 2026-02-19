@@ -20,19 +20,21 @@ echo "credentials.json file created !"
 ############ Create config.yml file ###########
 touch "./myTun/config/mytun-config.yml"
 
-if [ "$PROFILE" = "multistore" ]; then
+if [ "$PROFILE" = "imageoff" ]; then
   config_yaml_content="tunnel: \"$TUNNEL_ID\"
 credentials-file: /credentials.json
 ingress:
   - hostname: \"$PS_DOMAIN\"
-    service: http://nginx_proxy:80
+    service: http://traefik:80
+    originRequest:
+      httpHostHeader: \"$PS_DOMAIN\"
   - service: http_status:404"
-elif [ "$PROFILE" = "imageoff" ]; then
+elif [ "$PROFILE" = "multistore" ] || [ "$PROFILE" = "flashlight" ]; then
   config_yaml_content="tunnel: \"$TUNNEL_ID\"
 credentials-file: /credentials.json
 ingress:
   - hostname: \"$PS_DOMAIN\"
-    service: http://shop1:80
+    service: http://traefik:80
     originRequest:
       httpHostHeader: \"$PS_DOMAIN\"
   - service: http_status:404"
@@ -41,7 +43,7 @@ else
 credentials-file: /credentials.json
 ingress:
   - hostname: \"$PS_DOMAIN\"
-    service: http://prestashop:80
+    service: http://traefik:80
     originRequest:
       httpHostHeader: \"$PS_DOMAIN\"
   - service: http_status:404"

@@ -55,8 +55,11 @@ rm -f "$PS_ROOT/var/cache/dev/ps_accounts/"* 2>/dev/null || true
 
 # Install ps_accounts module
 echo "* [ps_accounts] installing module..."
-cd "$PS_ROOT"
-php -d memory_limit=-1 bin/console prestashop:module --no-interaction install "ps_accounts"
+if command -v runuser >/dev/null 2>&1; then
+  runuser -u www-data -- php -d memory_limit=-1 "$PS_ROOT/bin/console" prestashop:module --no-interaction install "ps_accounts"
+else
+  su -s /bin/sh www-data -c "php -d memory_limit=-1 \"$PS_ROOT/bin/console\" prestashop:module --no-interaction install ps_accounts"
+fi
 
 # Vérifier et corriger les permissions après installation
 echo "* [ps_accounts] fixing permissions after installation..."
