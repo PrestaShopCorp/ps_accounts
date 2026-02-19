@@ -29,6 +29,7 @@ services:
       ADMIN_PASSWD: "prestashop"
       PS_DOMAIN: ${PS_DOMAIN}
       PS_ACCOUNTS_VERSION: ${PS_ACCOUNTS_VERSION}
+      SSL_REDIRECT: true
       PS_PROTOCOL: https
     volumes:
       - ./scripts-flashlight/init-scripts:/tmp/init-scripts:ro
