@@ -45,7 +45,11 @@ export default class DashboardPage extends BasePage {
    * @param page {Page} The browser tab
    */
   async closePopup() {
-    await this.page.waitForSelector('.material-icons.onboarding-button-shut-down', {state: 'visible'});
-    await this.page.locator('.material-icons.onboarding-button-shut-down').click();
+    const popup = this.page.locator('.onboarding-popup');
+    const closePopupBtn = this.page.locator('.material-icons.onboarding-button-shut-down');
+    await popup.waitFor({state: 'visible', timeout: 5000});
+    await closePopupBtn.waitFor({state: 'visible', timeout: 5000});
+    await closePopupBtn.click();
+    await popup.waitFor({state: 'hidden', timeout: 5000});
   }
 }
