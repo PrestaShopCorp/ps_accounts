@@ -19,7 +19,6 @@ else
     TARGET_ASSET="ps_accounts_preprod-${CLEANED_VERSION#v}.zip"
 fi
 
-
 echo "* [ps_accounts] downloading..."
 echo "https://github.com/${GITHUB_REPOSITORY}/releases/download/${TARGET_VERSION}/${TARGET_ASSET}"
 wget -q -O /tmp/ps_accounts.zip "https://github.com/${GITHUB_REPOSITORY}/releases/download/${TARGET_VERSION}/${TARGET_ASSET}"
