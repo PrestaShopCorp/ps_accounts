@@ -380,7 +380,6 @@ class ShopProvider
                             'shopStatus' => $shopStatus->toArray(),
                             'identifyPointOfContactUrl' => $this->oAuth2Service->getOAuth2Client()->getRedirectUri([
                                 'action' => 'identifyPointOfContact',
-                                //'return_to' => $returnTo,
                                 'source' => $source,
                                 'shop_id' => $shopData['id_shop'],
                                 //'setShopContext' => 's-' . $shopData['id_shop'],
