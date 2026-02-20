@@ -1,4 +1,5 @@
 #!/bin/bash
+set -euo pipefail
 
 export PS_ACCOUNTS_VERSION="v7.2.2"
 

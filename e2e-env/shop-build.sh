@@ -76,7 +76,7 @@ ping_url() {
   done
 }
 
-ping_url "${appUrl}/"
+ping_url "${appUrl}/admin-dev/"
 
 cd ../e2e
 

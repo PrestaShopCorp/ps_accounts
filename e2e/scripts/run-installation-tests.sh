@@ -1,4 +1,5 @@
 #!/bin/bash
+set -euo pipefail
 
 if [ -n "$1" ]; then
   SHOP_VERSIONS=("$1")
