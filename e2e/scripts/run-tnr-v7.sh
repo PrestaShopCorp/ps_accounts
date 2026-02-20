@@ -3,7 +3,7 @@ set -euo pipefail
 
 export PS_ACCOUNTS_VERSION="v7.2.2"
 
-if [ -n "$1" ]; then
+if [ -n "${1:-}" ]; then
   SHOP_VERSIONS=("$1")
 else
 SHOP_VERSIONS=(

@@ -10,7 +10,7 @@ build_shop() {
   sleep 4
 }
 
-if [ -n "$1" ]; then
+if [ -n "${1:-}" ]; then
   SHOP_VERSIONS=("$1")
 else
 SHOP_VERSIONS=(

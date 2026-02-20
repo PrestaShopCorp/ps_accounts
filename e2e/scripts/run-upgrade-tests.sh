@@ -1,7 +1,7 @@
 #!/bin/bash
 set -euo pipefail
 
-if [ -n "$1" ]; then
+if [ -n "${1:-}" ]; then
   SHOP_VERSIONS=("$1")
 else
 SHOP_VERSIONS=(
@@ -11,7 +11,7 @@ SHOP_VERSIONS=(
   1.6.1.24-7.1-fpm-alpine
 )
 fi
-if [ -n "$2" ]; then
+if [ -n "${2:-}" ]; then
   PS_ACCOUNTS_VERSION=("$2")
 else
 PS_ACCOUNTS_VERSION=(
