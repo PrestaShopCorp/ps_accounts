@@ -69,8 +69,10 @@ export default class ModuleManagerPage extends BasePage {
     const pageTitle = await this.getPageMainTitle();
     const pageTitleOldPsVersion = await this.getPageMainTitleOldPsVersion();
     if (pageTitle === moduleManagerPagesLocales.moduleManager.en_EN.title) {
-      await this.page.locator('#search-input-group').getByRole('textbox').fill('ps_account');
-      await this.page.locator('#module-search-button').click();
+      const moduleSearchInput = this.page.locator('#module-search-bar:visible').first();
+      await moduleSearchInput.waitFor({state: 'visible', timeout: 30000});
+      await moduleSearchInput.fill('ps_account');
+      await this.page.locator('#module-search-button:visible').first().click();
       const isAccountVisible = await this.page
         .locator('.module-item-wrapper-list')
         .filter({hasText: 'PrestaShop Account'})
