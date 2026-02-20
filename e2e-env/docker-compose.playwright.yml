@@ -17,6 +17,6 @@ services:
     networks:
       - ps_accounts_net
 
-# networks:
-#   ps_accounts_net:
-#     external: true
+networks:
+  ps_accounts_net:
+    external: true
