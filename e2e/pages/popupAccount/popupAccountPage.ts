@@ -161,7 +161,7 @@ export default class PopupAccountPage extends ModuleManagerPage {
     const card = newPage.getByRole('checkbox', {name: `PrestaShop language icon ${Globals.base_url_fo}`});
     await card.locator('[data-test="shoplist-shop-unlink"]').click();
     await newPage.locator('[data-test="confirm-unlink-shop"]').click({timeout: 5000});
-    await newPage.waitForLoadState('load', {timeout: 2000});
+    await newPage.waitForLoadState('load', {timeout: 5000});
   }
 
   /**

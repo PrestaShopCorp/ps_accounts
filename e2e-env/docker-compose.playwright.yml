@@ -6,16 +6,17 @@ services:
       context: ..
       dockerfile: e2e-env/dockerfile.playwright
     container_name: env-local-test-account
-    
-
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
       - /Users/eklicic/Desktop/Automation/ps_accounts:/Users/eklicic/Desktop/Automation/ps_accounts
-
     working_dir: /Users/eklicic/Desktop/Automation/ps_accounts/e2e
-    
     privileged: true
     init: true
     ipc: host
-    
     command: ["bash", "-lc", "tail -f /dev/null"]
+    networks:
+      - ps_accounts_net
+
+networks:
+  ps_accounts_net:
+    external: true

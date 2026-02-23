@@ -40,6 +40,13 @@ makeFilePath='./'
 makeCommand="make -C $makeFilePath docker-build PS_ACCOUNTS_VERSION=$psAccountsVersion PS_VERSION=$shopVersion SECONDE_PS_VERSION=$shopVersionSecondeShop PS_DOMAIN=$psDomain TUNNEL_ID=$tunnelId TUNNEL_SECRET=$tunnelSecret ACCOUNT_TAG=$accountTag PROFILE=$profile"
 eval $makeCommand
 
+dump_debug_logs() {
+  echo "----- docker compose ps ($profile) -----"
+  docker compose --profile "$profile" ps || true
+  echo "----- docker compose logs (mytun traefik prestashop shop1 mysql) -----"
+  docker compose --profile "$profile" logs --tail=120 mytun traefik prestashop shop1 mysql || true
+}
+
 # Fonction pour ping l'URL
 ping_url() {
   local url=$1
@@ -61,12 +68,13 @@ ping_url() {
     # Vérifier si le délai est dépassé
     if [ $elapsed_time -ge $timeout_duration ]; then
       echo "Timeout: The URL did not respond within $timeout_duration seconds. Exiting."
+      dump_debug_logs
       exit 1
     fi
 
     # Tester l'URL
-    response=$(curl -o /dev/null -s -w '%{http_code}' "$url")
-    if [ "$response" -eq 200 ] || [ "$response" -eq 302 ]; then
+    response=$(curl -k -o /dev/null -s -w '%{http_code}' "$url" || echo "000")
+    if [ "$response" -eq 200 ] || [ "$response" -eq 301 ] || [ "$response" -eq 302 ] || [ "$response" -eq 307 ] || [ "$response" -eq 308 ]; then
       echo "URL is reachable."
       return 0
     fi
@@ -76,7 +84,7 @@ ping_url() {
   done
 }
 
-ping_url $appUrl
+ping_url "${appUrl}/admin-dev/"
 
 cd ../e2e
 

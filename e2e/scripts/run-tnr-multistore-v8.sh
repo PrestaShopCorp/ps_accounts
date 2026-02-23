@@ -1,8 +1,9 @@
 #!/bin/bash
+set -euo pipefail
 
-export PS_ACCOUNTS_VERSION="v8.0.9"
+export PS_ACCOUNTS_VERSION="v8.0.10"
 
-if [ -n "$1" ]; then
+if [ -n "${1:-}" ]; then
   SHOP_VERSIONS=("$1")
 else
 SHOP_VERSIONS=(
@@ -13,9 +14,10 @@ SHOP_VERSIONS=(
 fi
 
 for PS_VERSION in "${SHOP_VERSIONS[@]}"; do
-#Build the shop 
-npm run build-shop -- "$PS_VERSION" "" "imageoff" "$PS_ACCOUNTS_VERSION"
+#Build the shop
 sleep 4
+npm run build-shop -- "$PS_VERSION" "" "imageoff" "$PS_ACCOUNTS_VERSION"
+sleep 8
 
 #Run the tests
 npx playwright test --project="Account TNR V8" multistore|| true 
