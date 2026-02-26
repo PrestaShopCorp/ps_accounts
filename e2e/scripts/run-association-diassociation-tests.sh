@@ -1,6 +1,7 @@
 #!/bin/bash
+set -euo pipefail
 
-if [ -n "$1" ]; then
+if [ -n "${1:-}" ]; then
   SHOP_VERSIONS=("$1")
 else
 SHOP_VERSIONS=(

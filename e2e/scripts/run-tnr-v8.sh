@@ -1,15 +1,12 @@
 #!/bin/bash
+set -euo pipefail
 
-export PS_ACCOUNTS_VERSION="v8.0.9"
+export PS_ACCOUNTS_VERSION="v8.0.10"
 
-if [ -n "$1" ]; then
+if [ -n "${1:-}" ]; then
   SHOP_VERSIONS=("$1")
 else
 SHOP_VERSIONS=(
-  # nightly-nginx    
-  # 8.2.0-8.1-fpm-alpine
-  # 1.7.8.8-7.4-fpm-alpine
-  # 1.6.1.24-7.1-fpm-alpine
   9.0.2-apache
   8.2.0-8.1
   1.7.8.8-7.4
@@ -18,8 +15,9 @@ fi
 
 for PS_VERSION in "${SHOP_VERSIONS[@]}"; do
 #Build the shop 
-npm run build-shop -- "$PS_VERSION" "" "imageoff" "$PS_ACCOUNTS_VERSION"
 sleep 4
+npm run build-shop -- "$PS_VERSION" "" "imageoff" "$PS_ACCOUNTS_VERSION"
+sleep 8
 
 #Run the tests
 npx playwright test --project="Account TNR V8" module_installation || true

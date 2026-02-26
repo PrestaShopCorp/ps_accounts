@@ -25,13 +25,13 @@ export default class ModuleManagerPage extends BasePage {
    * The page title
    */
   async getPageMainTitle() {
-    if (await this.page.locator('.title-row .title').isVisible()) {
+    if (await this.pageMainTitle.isVisible()) {
       const titleText = await this.pageMainTitle.textContent();
       return titleText?.trim();
     }
   }
   async getPageMainTitleOldPsVersion() {
-    if (await this.page.locator('h2.page-title').isVisible()) {
+    if (await this.pageMainTitleOldPsVersion.isVisible()) {
       const titleText = await this.pageMainTitleOldPsVersion.textContent();
       return titleText?.trim();
     }
@@ -42,12 +42,21 @@ export default class ModuleManagerPage extends BasePage {
    * @return {Promise<'new' | 'old'>} old is <= 1.6 and new >=1.7
    */
   async getPsVersion(): Promise<'new' | 'old'> {
-    const pageTitle = await this.getPageMainTitle();
-    const pageTitleOldPsVersion = await this.getPageMainTitleOldPsVersion();
-    if (pageTitle === moduleManagerPagesLocales.moduleManager.en_EN.title) {
-      return 'new';
-    } else if (pageTitleOldPsVersion === moduleManagerPagesLocales.moduleManager.en_EN.titleOldPsVersion) {
-      return 'old';
+    const detectVersion = async (): Promise<'new' | 'old' | null> => {
+      const isNew =
+        (await this.page.locator('#module-search-button').isVisible()) ||
+        (await this.page.locator('[data-target="#module-modal-import"]').isVisible());
+      if (isNew) return 'new';
+      const isOld =
+        (await this.page.locator('#moduleQuicksearch').isVisible()) ||
+        (await this.page.locator('#desc-module-new').isVisible());
+      if (isOld) return 'old';
+      return null;
+    };
+    for (let attempt = 0; attempt < 2; attempt++) {
+      const version = await detectVersion();
+      if (version) return version;
+      if (attempt === 0) await this.page.waitForTimeout(5000);
     }
     throw new Error('Version not detected');
   }
@@ -71,11 +80,11 @@ export default class ModuleManagerPage extends BasePage {
       await this.page.waitForSelector('.icon-list-ul');
       await this.page.locator('#moduleQuicksearch').fill('ps_account');
       await this.page.locator('#moduleQuicksearch').press('Enter');
-      const isAccountVisibleOnOldPsVersion = await this.page
+      const isAccountVisibleOnOldPsVersion = this.page
         .locator('.module_name')
         .filter({hasText: 'PrestaShop Account'})
-        .isVisible();
-      expect(isAccountVisibleOnOldPsVersion).toBeTruthy();
+        .first();
+      await expect(isAccountVisibleOnOldPsVersion).toBeVisible({timeout: 10000});
     }
   }
 
@@ -132,7 +141,7 @@ export default class ModuleManagerPage extends BasePage {
    */
   async uploadZip() {
     const psVersion = await this.getPsVersion();
-    const filePath = path.join(__dirname, '../../../e2e-env/modules/ps_accounts_preprod-8.0.9.zip');
+    const filePath = path.join(__dirname, '../../../e2e-env/modules/ps_accounts_preprod-8.0.10.zip');
     if (psVersion === 'new') {
       await this.page.locator('[data-target="#module-modal-import"]').click();
       const fileChooserPromise = this.page.waitForEvent('filechooser');
@@ -172,7 +181,6 @@ export default class ModuleManagerPage extends BasePage {
       const moduleContainer = this.page.locator('#modules-list-container-440');
       const dropdownBtn = moduleContainer.locator('.btn.btn-outline-primary.dropdown-toggle');
       const upgradeBtn = moduleContainer.getByRole('button', {name: 'Upgrade'});
-
       if (await upgradeBtn.isVisible()) {
         await dropdownBtn.click();
       }

@@ -9,7 +9,8 @@ help: ## Show this help message
 .PHONY: help
 
 docker-build: ## Build docker env 
-	docker compose --profile all down -v 
+	docker compose --profile all down -v
+	docker network inspect ps_accounts_net >/dev/null 2>&1 || docker network create ps_accounts_net
 	PS_DOMAIN=${PS_DOMAIN} ACCOUNT_TAG=${ACCOUNT_TAG} TUNNEL_SECRET=${TUNNEL_SECRET} TUNNEL_ID=${TUNNEL_ID} ./myTun/config/generateConfigFiles.sh $(PROFILE)
 	PS_VERSION=${PS_VERSION} SECONDE_PS_VERSION=${SECONDE_PS_VERSION} PS_DOMAIN=${PS_DOMAIN} PS_ACCOUNTS_VERSION=${PS_ACCOUNTS_VERSION} docker compose --profile $(PROFILE) up --build --force-recreate -d
 .PHONY: docker-build
