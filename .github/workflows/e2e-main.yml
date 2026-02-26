@@ -3,7 +3,7 @@ name: e2e Accounts - main TNR
 on:
   workflow_dispatch:
   schedule:
-    - cron: "0 6 * * 1-5"
+    - cron: "0 12 * * 1-5"
 
 permissions:
   actions: write
