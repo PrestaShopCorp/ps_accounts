@@ -191,6 +191,76 @@ jobs:
           name: allure-report
           path: ./e2e/allure-report
 
+  report-and-notify:
+    name: Report and Notify
+    needs: merge-allure
+    runs-on: ubuntu-latest
+    if: always()
+    steps:
+      - name: Download Allure Report
+        uses: actions/download-artifact@v4
+        with:
+          name: allure-report
+          path: ./e2e/allure-report
+
+      - name: Build GitHub Summary
+        shell: bash
+        run: |
+          SUMMARY="e2e/allure-report/widgets/summary.json"
+          SUITES="e2e/allure-report/widgets/suites.json"
+
+          if [ ! -f "$SUMMARY" ]; then
+            {
+              echo "# Upgrade Account test results"
+              echo
+              echo "Allure summary not found."
+            } >> "$GITHUB_STEP_SUMMARY"
+            exit 0
+          fi
+
+          PASSED=$(jq -r '.statistic.passed // 0' "$SUMMARY")
+          FAILED=$(jq -r '.statistic.failed // 0' "$SUMMARY")
+          BROKEN=$(jq -r '.statistic.broken // 0' "$SUMMARY")
+          SKIPPED=$(jq -r '.statistic.skipped // 0' "$SUMMARY")
+          TOTAL=$(jq -r '.statistic.total // 0' "$SUMMARY")
+          DURATION_MS=$(jq -r '.time.duration // 0' "$SUMMARY")
+
+          DURATION_FMT=$(node -e '
+            const ms = Number(process.argv[1] || 0);
+            const totalSeconds = Math.floor(ms / 1000);
+            const h = Math.floor(totalSeconds / 3600);
+            const m = Math.floor((totalSeconds % 3600) / 60);
+            const s = totalSeconds % 60;
+            const parts = [];
+            if (h) parts.push(`${h}h`);
+            if (m || h) parts.push(`${m}m`);
+            parts.push(`${s}s`);
+            console.log(parts.join(" "));
+          ' "$DURATION_MS")
+
+          {
+            echo "# Upgrade Account test results"
+            echo
+            echo "## Test Results"
+            echo
+            echo "- Failed: $FAILED"
+            echo "- Broken: $BROKEN"
+            echo "- Passed: $PASSED"
+            echo "- Skipped: $SKIPPED"
+            echo
+            echo "## Details"
+            echo
+            echo "- Total tests: $TOTAL"
+            echo "- Duration: $DURATION_FMT"
+            echo "- Workflow run: [view](${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }})"
+            echo
+            if [ -f "$SUITES" ]; then
+              echo "## Suites"
+              echo
+              jq -r '.items[] | "- \(.name): passed \(.statistic.passed // 0) / failed \(.statistic.failed // 0) / broken \(.statistic.broken // 0) / skipped \(.statistic.skipped // 0)"' "$SUITES"
+            fi
+          } >> "$GITHUB_STEP_SUMMARY"
+
   # notify-slack-qa:
   #   name: Send Slack Notification (qa channel)
   #   needs: merge-allure
@@ -348,4 +418,3 @@ jobs:
   #               process.exit(1);
   #             });
   #         "
-
