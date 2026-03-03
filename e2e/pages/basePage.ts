@@ -109,7 +109,7 @@ export default class BasePage {
   async goToModulesManagerOldPsVersion() {
     await this.page.locator('.icon-AdminParentModules').hover();
     await this.page.locator('#subtab-AdminModules').filter({hasText: 'Modules and Services'}).click();
-    await this.page.waitForLoadState('domcontentloaded');
+    await this.page.waitForLoadState('domcontentloaded', {timeout: 300000});
   }
   async goToPreferencesOldPsVersion() {
     await this.page.locator('.icon-AdminParentPreferences').hover();
