@@ -23,6 +23,7 @@ jobs:
       - name: Pull & Push PrestaShop Flashlight images
         run: |
           FLASHLIGHT_VERSIONS=(
+            1.6.1.24
             1.6.1.24-7.1-fpm-alpine
             1.6.1.24-alpine-nginx
             1.6.1.24-nginx
