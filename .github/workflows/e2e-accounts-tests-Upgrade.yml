@@ -207,7 +207,7 @@ jobs:
         shell: bash
         run: |
           SUMMARY="e2e/allure-report/widgets/summary.json"
-          SUITES="e2e/allure-report/widgets/suites.json"
+          TEST_CASES_DIR="e2e/allure-report/data/test-cases"
 
           if [ ! -f "$SUMMARY" ]; then
             {
@@ -224,6 +224,33 @@ jobs:
           SKIPPED=$(jq -r '.statistic.skipped // 0' "$SUMMARY")
           TOTAL=$(jq -r '.statistic.total // 0' "$SUMMARY")
           DURATION_MS=$(jq -r '.time.duration // 0' "$SUMMARY")
+
+          FAILED_TESTS=""
+          FLAKY_TESTS=""
+          FLAKY_COUNT=0
+
+          if [ -d "$TEST_CASES_DIR" ]; then
+            shopt -s nullglob
+            TEST_CASE_FILES=("$TEST_CASES_DIR"/*.json)
+            shopt -u nullglob
+
+            if [ ${#TEST_CASE_FILES[@]} -gt 0 ]; then
+              FAILED_TESTS=$(jq -r '
+                select((.status // "") == "failed" or (.status // "") == "broken")
+                | "- [" + (.status // "unknown") + "] " + (.fullName // .name // "Unnamed test")
+              ' "${TEST_CASE_FILES[@]}")
+
+              FLAKY_TESTS=$(jq -r '
+                select((.flaky // false) == true)
+                | "- " + (.fullName // .name // "Unnamed test")
+              ' "${TEST_CASE_FILES[@]}")
+
+              FLAKY_COUNT=$(jq -r '
+                select((.flaky // false) == true)
+                | 1
+              ' "${TEST_CASE_FILES[@]}" | wc -l | tr -d ' ')
+            fi
+          fi
 
           DURATION_FMT=$(node -e '
             const ms = Number(process.argv[1] || 0);
@@ -252,12 +279,18 @@ jobs:
             echo
             echo "- Total tests: $TOTAL"
             echo "- Duration: $DURATION_FMT"
-            echo "- Workflow run: [view](${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }})"
+            echo "- Flaky: $FLAKY_COUNT"
             echo
-            if [ -f "$SUITES" ]; then
-              echo "## Suites"
+            if [ -n "$FAILED_TESTS" ]; then
+              echo "## Failed Tests"
               echo
-              jq -r '.items[] | "- \(.name): passed \(.statistic.passed // 0) / failed \(.statistic.failed // 0) / broken \(.statistic.broken // 0) / skipped \(.statistic.skipped // 0)"' "$SUITES"
+              echo "$FAILED_TESTS"
+              echo
+            fi
+            if [ -n "$FLAKY_TESTS" ]; then
+              echo "## Flaky Tests"
+              echo
+              echo "$FLAKY_TESTS"
             fi
           } >> "$GITHUB_STEP_SUMMARY"
 
