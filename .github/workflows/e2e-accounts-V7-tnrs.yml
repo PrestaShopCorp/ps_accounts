@@ -41,8 +41,9 @@ jobs:
           node-version: "node"
 
       - name: Install dependencies
+        if: steps.cache-node.outputs.cache-hit != 'true'
         working-directory: ./e2e
-        run: npm install
+        run: npm ci
 
       - name: Cache Playwright browsers
         id: cache-pw
@@ -54,6 +55,7 @@ jobs:
             pw-browsers-${{ runner.os }}-
 
       - name: Install Playwright Browsers
+        if: steps.cache-pw.outputs.cache-hit != 'true'
         working-directory: ./e2e
         run: npx playwright install chromium
 
@@ -153,9 +155,19 @@ jobs:
       - name: Checkout Repository
         uses: actions/checkout@v4
 
+      - name: Cache node_modules
+        id: cache-node-merge
+        uses: actions/cache@v4
+        with:
+          path: ./e2e/node_modules
+          key: node-modules-${{ runner.os }}-${{ hashFiles('e2e/package-lock.json') }}
+          restore-keys: |
+            node-modules-${{ runner.os }}-
+
       - name: Install dependencies
+        if: steps.cache-node-merge.outputs.cache-hit != 'true'
         working-directory: ./e2e
-        run: npm install
+        run: npm ci
 
       - name: Download all allure artifacts
         uses: actions/download-artifact@v4
@@ -190,6 +202,109 @@ jobs:
         with:
           name: allure-report
           path: ./e2e/allure-report
+
+  report-and-notify:
+    name: Report and Notify
+    needs: merge-allure
+    runs-on: ubuntu-latest
+    if: always()
+    steps:
+      - name: Download Allure Report
+        uses: actions/download-artifact@v4
+        with:
+          name: allure-report
+          path: ./e2e/allure-report
+
+      - name: Build GitHub Summary
+        shell: bash
+        run: |
+          SUMMARY="e2e/allure-report/widgets/summary.json"
+          TEST_CASES_DIR="e2e/allure-report/data/test-cases"
+
+          if [ ! -f "$SUMMARY" ]; then
+            {
+              echo "# V7 Account test results"
+              echo
+              echo "Allure summary not found."
+            } >> "$GITHUB_STEP_SUMMARY"
+            exit 0
+          fi
+
+          PASSED=$(jq -r '.statistic.passed // 0' "$SUMMARY")
+          FAILED=$(jq -r '.statistic.failed // 0' "$SUMMARY")
+          BROKEN=$(jq -r '.statistic.broken // 0' "$SUMMARY")
+          SKIPPED=$(jq -r '.statistic.skipped // 0' "$SUMMARY")
+          TOTAL=$(jq -r '.statistic.total // 0' "$SUMMARY")
+          DURATION_MS=$(jq -r '.time.duration // 0' "$SUMMARY")
+
+          FAILED_TESTS=""
+          FLAKY_TESTS=""
+          FLAKY_COUNT=0
+
+          if [ -d "$TEST_CASES_DIR" ]; then
+            shopt -s nullglob
+            TEST_CASE_FILES=("$TEST_CASES_DIR"/*.json)
+            shopt -u nullglob
+
+            if [ ${#TEST_CASE_FILES[@]} -gt 0 ]; then
+              FAILED_TESTS=$(jq -r '
+                select((.status // "") == "failed" or (.status // "") == "broken")
+                | "- [" + (.status // "unknown") + "] " + (.fullName // .name // "Unnamed test")
+              ' "${TEST_CASE_FILES[@]}")
+
+              FLAKY_TESTS=$(jq -r '
+                select((.flaky // false) == true)
+                | "- " + (.fullName // .name // "Unnamed test")
+              ' "${TEST_CASE_FILES[@]}")
+
+              FLAKY_COUNT=$(jq -r '
+                select((.flaky // false) == true)
+                | 1
+              ' "${TEST_CASE_FILES[@]}" | wc -l | tr -d ' ')
+            fi
+          fi
+
+          DURATION_FMT=$(node -e '
+            const ms = Number(process.argv[1] || 0);
+            const totalSeconds = Math.floor(ms / 1000);
+            const h = Math.floor(totalSeconds / 3600);
+            const m = Math.floor((totalSeconds % 3600) / 60);
+            const s = totalSeconds % 60;
+            const parts = [];
+            if (h) parts.push(`${h}h`);
+            if (m || h) parts.push(`${m}m`);
+            parts.push(`${s}s`);
+            console.log(parts.join(" "));
+          ' "$DURATION_MS")
+
+          {
+            echo "# V7 Account test results"
+            echo
+            echo "## Test Results"
+            echo
+            echo "- Failed: $FAILED"
+            echo "- Broken: $BROKEN"
+            echo "- Passed: $PASSED"
+            echo "- Skipped: $SKIPPED"
+            echo
+            echo "## Details"
+            echo
+            echo "- Total tests: $TOTAL"
+            echo "- Duration: $DURATION_FMT"
+            echo "- Flaky: $FLAKY_COUNT"
+            echo
+            if [ -n "$FAILED_TESTS" ]; then
+              echo "## Failed Tests"
+              echo
+              echo "$FAILED_TESTS"
+              echo
+            fi
+            if [ -n "$FLAKY_TESTS" ]; then
+              echo "## Flaky Tests"
+              echo
+              echo "$FLAKY_TESTS"
+            fi
+          } >> "$GITHUB_STEP_SUMMARY"
 
   # notify-slack-qa:
   #   name: Send Slack Notification (qa channel)
@@ -348,4 +463,3 @@ jobs:
   #               process.exit(1);
   #             });
   #         "
-
