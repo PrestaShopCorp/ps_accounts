@@ -118,10 +118,10 @@ services:
       - ./scripts-imageoff/install-ps_accounts.sh:/install-ps_accounts.sh
     labels:
       - traefik.enable=true
-      - traefik.http.routers.shop1-root.rule=Host(`${PS_DOMAIN}`)
+      - traefik.http.routers.shop1-root.rule=Host(`${PS_DOMAIN}`) && Path(`/`)
       - traefik.http.routers.shop1-root.entrypoints=web
       - traefik.http.routers.shop1-root.priority=1
-      - traefik.http.routers.shop1-root.middlewares=shop1-https
+      - traefik.http.routers.shop1-root.middlewares=shop1-root-prefix,shop1-https
       - traefik.http.routers.shop1-root.service=shop1-svc
       - traefik.http.routers.shop1.rule=Host(`${PS_DOMAIN}`) && PathPrefix(`/shop1`)
       - traefik.http.routers.shop1.entrypoints=web
@@ -129,12 +129,27 @@ services:
       - traefik.http.routers.shop1.middlewares=shop1-https
       - traefik.http.routers.shop1.service=shop1-svc
       - traefik.http.services.shop1-svc.loadbalancer.server.port=80
+      - traefik.http.middlewares.shop1-root-prefix.addprefix.prefix=/shop1
       - traefik.http.middlewares.shop1-https.headers.customrequestheaders.X-Forwarded-Proto=https
       - traefik.http.middlewares.shop1-https.headers.customrequestheaders.X-Forwarded-Port=443
     command: >
       bash -lc '
-        /tmp/docker_run.sh & pid=$!
-        until curl -fsS http://127.0.0.1/ >/dev/null 2>&1; do sleep 1; done       
+        cp /tmp/docker_run.sh /tmp/docker_run_ps_accounts.sh
+        sed -i "s/rm \.\/install.lock/rm -f .\/install.lock/" /tmp/docker_run_ps_accounts.sh
+        /tmp/docker_run_ps_accounts.sh & pid=$!
+        cd /
+        WAIT_PREFIX=""
+        PS_ROOT="/var/www/html"
+        if [ -n "$${PHYSICAL_URI:-}" ]; then
+          WAIT_PREFIX="/$${PHYSICAL_URI}"
+          PS_ROOT="/var/www/html/$${PHYSICAL_URI}"
+        fi
+        until \
+          curl -fsSI "http://127.0.0.1$${WAIT_PREFIX}/admin-dev/index.php" >/dev/null 2>&1 && \
+          php -d memory_limit=-1 "$${PS_ROOT}/bin/console" prestashop:module --help >/dev/null 2>&1; \
+        do
+          sleep 2
+        done
         bash /install-ps_accounts.sh
         wait $$pid
       '
@@ -187,8 +202,22 @@ services:
       - traefik.http.middlewares.shop2-https.headers.customrequestheaders.X-Forwarded-Port=443
     command: >
       bash -lc '
-        /tmp/docker_run.sh & pid=$!
-        until curl -fsS http://127.0.0.1/ >/dev/null 2>&1; do sleep 1; done       
+        cp /tmp/docker_run.sh /tmp/docker_run_ps_accounts.sh
+        sed -i "s/rm \.\/install.lock/rm -f .\/install.lock/" /tmp/docker_run_ps_accounts.sh
+        /tmp/docker_run_ps_accounts.sh & pid=$!
+        cd /
+        WAIT_PREFIX=""
+        PS_ROOT="/var/www/html"
+        if [ -n "$${PHYSICAL_URI:-}" ]; then
+          WAIT_PREFIX="/$${PHYSICAL_URI}"
+          PS_ROOT="/var/www/html/$${PHYSICAL_URI}"
+        fi
+        until \
+          curl -fsSI "http://127.0.0.1$${WAIT_PREFIX}/admin-dev/index.php" >/dev/null 2>&1 && \
+          php -d memory_limit=-1 "$${PS_ROOT}/bin/console" prestashop:module --help >/dev/null 2>&1; \
+        do
+          sleep 2
+        done
         bash /install-ps_accounts.sh
         wait $$pid
       '
