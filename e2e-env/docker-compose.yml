@@ -102,7 +102,7 @@ services:
       DB_NAME: prestashop
       DB_PASSWD: prestashop
       DB_PORT: 3306
-      # PHYSICAL_URI: "shop1"
+      PHYSICAL_URI: "shop1"
       PS_TRUSTED_PROXIES: 0.0.0.0/0
       PS_ERASE_DB: 1
       PS_INSTALL_DB: 1
@@ -118,18 +118,12 @@ services:
       - ./scripts-imageoff/install-ps_accounts.sh:/install-ps_accounts.sh
     labels:
       - traefik.enable=true
-      - traefik.http.routers.shop1-root.rule=Host(`${PS_DOMAIN}`) && Path(`/`)
-      - traefik.http.routers.shop1-root.entrypoints=web
-      - traefik.http.routers.shop1-root.priority=1
-      - traefik.http.routers.shop1-root.middlewares=shop1-root-prefix,shop1-https
-      - traefik.http.routers.shop1-root.service=shop1-svc
       - traefik.http.routers.shop1.rule=Host(`${PS_DOMAIN}`) && PathPrefix(`/shop1`)
       - traefik.http.routers.shop1.entrypoints=web
       - traefik.http.routers.shop1.priority=100
       - traefik.http.routers.shop1.middlewares=shop1-https
       - traefik.http.routers.shop1.service=shop1-svc
       - traefik.http.services.shop1-svc.loadbalancer.server.port=80
-      - traefik.http.middlewares.shop1-root-prefix.addprefix.prefix=/shop1
       - traefik.http.middlewares.shop1-https.headers.customrequestheaders.X-Forwarded-Proto=https
       - traefik.http.middlewares.shop1-https.headers.customrequestheaders.X-Forwarded-Port=443
     command: >
@@ -175,7 +169,7 @@ services:
       DB_NAME: prestashop2
       DB_PASSWD: prestashop
       DB_PORT: 3306
-      # PHYSICAL_URI: "shop2"
+      PHYSICAL_URI: "shop2"
       SSL_REDIRECT: "true"
       PS_TRUSTED_PROXIES: 0.0.0.0/0
       PS_ERASE_DB: 1
