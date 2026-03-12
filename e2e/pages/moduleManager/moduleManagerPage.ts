@@ -2,7 +2,11 @@ import {Page, Locator, expect} from '@playwright/test';
 import BasePage from '~/pages/basePage';
 import {modulePsAccount} from '~/data/local/modulesDbData/ps_module_data';
 import {moduleManagerPagesLocales} from '~/data/local/moduleManagerPageLocales/moduleManagerPageLocales';
+import dotenv from 'dotenv';
+import fs from 'node:fs/promises';
+import os from 'node:os';
 import path from 'path';
+dotenv.config({path: path.resolve(__dirname, '../../../e2e-env/.env')});
 
 export default class ModuleManagerPage extends BasePage {
   /* <<<<<<<<<<<<<<< Selectors Types >>>>>>>>>>>>>>>>>>>>>> */
@@ -134,6 +138,31 @@ export default class ModuleManagerPage extends BasePage {
     const isMultiStoreVisible = this.page.getByRole('link', {name: 'All shops'});
     expect(isMultiStoreVisible).toBeVisible({timeout: 3000});
   }
+  /**
+   *
+   * Download the latest version of the zip
+   */
+  async downloadLatestZip() {
+    const token = process.env.DOWNLOADER_TOKEN;
+    const release = (await (
+      await fetch('https://api.github.com/repos/PrestaShopCorp/ps_accounts/releases/latest', {
+        headers: {Authorization: `token ${token}`}
+      })
+    ).json()) as {
+      assets: Array<{name: string; url: string}>;
+    };
+    const asset = release.assets.find(({name}) => name.startsWith('ps_accounts_preprod-') && name.endsWith('.zip'))!;
+    const zipPath = path.join(os.tmpdir(), 'ps_accounts_latest.zip');
+    const zipBuffer = Buffer.from(await (
+      await fetch(asset.url, {
+        headers: {Authorization: `token ${token}`, Accept: 'application/octet-stream'}
+      })
+    ).arrayBuffer());
+
+    await fs.writeFile(zipPath, zipBuffer);
+
+    return zipPath;
+  }
 
   /**
    *
@@ -141,7 +170,7 @@ export default class ModuleManagerPage extends BasePage {
    */
   async uploadZip() {
     const psVersion = await this.getPsVersion();
-    const filePath = path.join(__dirname, '../../../e2e-env/modules/ps_accounts_preprod-8.0.10.zip');
+    const filePath = await this.downloadLatestZip();
     if (psVersion === 'new') {
       await this.page.locator('[data-target="#module-modal-import"]').click();
       const fileChooserPromise = this.page.waitForEvent('filechooser');
