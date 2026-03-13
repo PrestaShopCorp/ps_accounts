@@ -137,13 +137,17 @@ services:
         if [ -n "$${PHYSICAL_URI:-}" ]; then
           WAIT_PREFIX="/$${PHYSICAL_URI}"
           PS_ROOT="/var/www/html/$${PHYSICAL_URI}"
+          until \
+            curl -fsSI "http://127.0.0.1$${WAIT_PREFIX}/admin-dev/" >/dev/null 2>&1 && \
+            php -d memory_limit=-1 "$${PS_ROOT}/bin/console" prestashop:module --help >/dev/null 2>&1; \
+          do
+            sleep 2
+          done
+        else
+          until curl -fsS "http://127.0.0.1/" >/dev/null 2>&1; do
+            sleep 1
+          done
         fi
-        until \
-          curl -fsSI "http://127.0.0.1$${WAIT_PREFIX}/admin-dev/" >/dev/null 2>&1 && \
-          php -d memory_limit=-1 "$${PS_ROOT}/bin/console" prestashop:module --help >/dev/null 2>&1; \
-        do
-          sleep 2
-        done
         bash /install-ps_accounts.sh
         wait $$pid
       '
