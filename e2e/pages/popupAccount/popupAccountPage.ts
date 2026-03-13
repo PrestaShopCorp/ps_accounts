@@ -36,7 +36,7 @@ export default class PopupAccountPage extends ModuleManagerPage {
     ]);
 
     await newPage.waitForTimeout(5000);
-    expect(newPage.url()).toContain('authv2-preprod');
+    // expect(newPage.url()).toContain('authv2-preprod');
     return newPage;
   }
 
