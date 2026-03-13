@@ -24,6 +24,8 @@ tunnelSecret="${TUNNEL_SECRET}"
 tunnelId="${TUNNEL_ID}"
 # Ping de l'URL
 appUrl="https://$psDomain"
+adminUrl="${appUrl}/admin-dev/"
+frontUrl="${appUrl}"
 
 #Verifie qu'on a bien deux version de shop en multistore
 if [ "$profile" = "multistore" ]; then
@@ -31,6 +33,8 @@ if [ "$profile" = "multistore" ]; then
     echo "❌ En mode multistore, tu dois fournir une deuxième version de shop."
     exit 1
   fi
+  adminUrl="${appUrl}/shop1/admin-dev/"
+  frontUrl="${appUrl}/shop1"
 else
   shopVersionSecondeShop=""
 fi
@@ -84,20 +88,20 @@ ping_url() {
   done
 }
 
-ping_url "${appUrl}/admin-dev/"
+ping_url "${adminUrl}"
 
 cd ../e2e
 
 if [[ "$OSTYPE" == "darwin"* ]]; then
 sed -i '' "/^BASE_URL=/c\\
-BASE_URL=${appUrl}/admin-dev/
+BASE_URL=${adminUrl}
 " .env
 sed -i '' "/^BASE_URL_FO=/c\\
-BASE_URL_FO=${appUrl}
+BASE_URL_FO=${frontUrl}
 " .env
 else
-sed -i "/^BASE_URL=/c\\BASE_URL=${appUrl}/admin-dev/" .env
-sed -i "/^BASE_URL_FO=/c\\BASE_URL_FO=${appUrl}" .env
+sed -i "/^BASE_URL=/c\\BASE_URL=${adminUrl}" .env
+sed -i "/^BASE_URL_FO=/c\\BASE_URL_FO=${frontUrl}" .env
 fi
 
-echo "Tests environment is available at: $appUrl/admin-dev/"
+echo "Tests environment is available at: $adminUrl"

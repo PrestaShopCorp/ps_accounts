@@ -102,7 +102,7 @@ services:
       DB_NAME: prestashop
       DB_PASSWD: prestashop
       DB_PORT: 3306
-      PHYSICAL_URI: "shop1"
+      PHYSICAL_URI: ${SHOP1_PHYSICAL_URI}
       PS_TRUSTED_PROXIES: 0.0.0.0/0
       PS_ERASE_DB: 1
       PS_INSTALL_DB: 1
@@ -118,7 +118,7 @@ services:
       - ./scripts-imageoff/install-ps_accounts.sh:/install-ps_accounts.sh
     labels:
       - traefik.enable=true
-      - traefik.http.routers.shop1.rule=Host(`${PS_DOMAIN}`) && PathPrefix(`/shop1`)
+      - traefik.http.routers.shop1.rule=${SHOP1_TRAEFIK_RULE}
       - traefik.http.routers.shop1.entrypoints=web
       - traefik.http.routers.shop1.priority=100
       - traefik.http.routers.shop1.middlewares=shop1-https
@@ -139,7 +139,7 @@ services:
           PS_ROOT="/var/www/html/$${PHYSICAL_URI}"
         fi
         until \
-          curl -fsSI "http://127.0.0.1$${WAIT_PREFIX}/admin-dev/index.php" >/dev/null 2>&1 && \
+          curl -fsSI "http://127.0.0.1$${WAIT_PREFIX}/admin-dev/" >/dev/null 2>&1 && \
           php -d memory_limit=-1 "$${PS_ROOT}/bin/console" prestashop:module --help >/dev/null 2>&1; \
         do
           sleep 2
@@ -169,7 +169,7 @@ services:
       DB_NAME: prestashop2
       DB_PASSWD: prestashop
       DB_PORT: 3306
-      PHYSICAL_URI: "shop2"
+      PHYSICAL_URI: ${SHOP2_PHYSICAL_URI}
       SSL_REDIRECT: "true"
       PS_TRUSTED_PROXIES: 0.0.0.0/0
       PS_ERASE_DB: 1
@@ -186,7 +186,7 @@ services:
       - ./scripts-imageoff/install-ps_accounts.sh:/install-ps_accounts.sh
     labels:
       - traefik.enable=true
-      - traefik.http.routers.shop2.rule=Host(`${PS_DOMAIN}`) && PathPrefix(`/shop2`)
+      - traefik.http.routers.shop2.rule=${SHOP2_TRAEFIK_RULE}
       - traefik.http.routers.shop2.entrypoints=web
       - traefik.http.routers.shop2.priority=100
       - traefik.http.routers.shop2.middlewares=shop2-https
@@ -207,7 +207,7 @@ services:
           PS_ROOT="/var/www/html/$${PHYSICAL_URI}"
         fi
         until \
-          curl -fsSI "http://127.0.0.1$${WAIT_PREFIX}/admin-dev/index.php" >/dev/null 2>&1 && \
+          curl -fsSI "http://127.0.0.1$${WAIT_PREFIX}/admin-dev/" >/dev/null 2>&1 && \
           php -d memory_limit=-1 "$${PS_ROOT}/bin/console" prestashop:module --help >/dev/null 2>&1; \
         do
           sleep 2
