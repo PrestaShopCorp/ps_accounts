@@ -12,7 +12,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout Repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
         
       - name: Tune kernel buffers
         run: |
@@ -28,7 +28,7 @@ jobs:
 
       - name: Cache node_modules
         id: cache-node
-        uses: actions/cache@v4
+        uses: actions/cache@v5
         with:
           path: ./e2e/node_modules
           key: node-modules-${{ runner.os }}-${{ hashFiles('e2e/package-lock.json') }}
@@ -36,7 +36,7 @@ jobs:
             node-modules-${{ runner.os }}-
 
       - name: Set up Node.js
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v5
         with:
           node-version: "node"
 
@@ -47,7 +47,7 @@ jobs:
 
       - name: Cache Playwright browsers
         id: cache-pw
-        uses: actions/cache@v4
+        uses: actions/cache@v5
         with:
           path: ~/.cache/ms-playwright
           key: pw-browsers-${{ runner.os }}-${{ hashFiles('e2e/package-lock.json') }}
@@ -80,10 +80,10 @@ jobs:
           - 1.6.1.24-nginx
     steps:
       - name: Checkout Repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
 
       - name: Cache node_modules
-        uses: actions/cache@v4
+        uses: actions/cache@v5
         with:
           path: ./e2e/node_modules
           key: node-modules-${{ runner.os }}-${{ hashFiles('e2e/package-lock.json') }}
@@ -91,7 +91,7 @@ jobs:
             node-modules-${{ runner.os }}-
 
       - name: Cache Playwright browsers
-        uses: actions/cache@v4
+        uses: actions/cache@v5
         with:
           path: ~/.cache/ms-playwright
           key: pw-browsers-${{ runner.os }}-${{ hashFiles('e2e/package-lock.json') }}
@@ -99,7 +99,7 @@ jobs:
             pw-browsers-${{ runner.os }}-
 
       - name: Set up Node.js
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v5
         with:
           node-version: "node"
 
@@ -153,11 +153,11 @@ jobs:
       skipped: ${{ steps.allureTotals.outputs.skipped }}
     steps:
       - name: Checkout Repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
 
       - name: Cache node_modules
         id: cache-node-merge
-        uses: actions/cache@v4
+        uses: actions/cache@v5
         with:
           path: ./e2e/node_modules
           key: node-modules-${{ runner.os }}-${{ hashFiles('e2e/package-lock.json') }}
