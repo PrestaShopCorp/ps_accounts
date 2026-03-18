@@ -1,216 +1,216 @@
 # Accounts — CLAUDE.md
 
-> Ce fichier est lu par Claude Code à chaque session. Il remplace toute configuration ad hoc.
+> This file is read by Claude Code at every session. It overrides any ad hoc configuration.
 
 ---
 
-## 1. Contexte de la squad
+## 1. Squad context
 
-**Squad :** Squad Account
-**Domaine fonctionnel :** Génération de tokens, flow d'authentification OAuth2, identification/vérification de boutiques, synchronisation avec PrestaShop Cloud
-**Stack principale :** PHP 5.6–8.3 / Node.js / TypeScript / Vue 3 / Vite / PrestaShop 1.6–9.x
-**Pattern d'architecture :** CQRS dans `src/Account/` · legacy controllers dans `controllers/`
+**Squad:** Squad Account
+**Functional domain:** Token generation, OAuth2 authentication flow, shop identification/verification, synchronization with PrestaShop Cloud
+**Main stack:** PHP 5.6–8.3 / Node.js / TypeScript / Vue 3 / Vite / PrestaShop 1.6–9.x
+**Architecture pattern:** CQRS in `src/Account/` · legacy controllers in `controllers/`
 
 ---
 
-## 2. Structure du projet
+## 2. Project structure
 
 | Path                                | Purpose                                                            |
 |-------------------------------------|--------------------------------------------------------------------|
-| `ps_accounts.php`                   | Point d'entrée du module, registration des hooks, bootstrap DI     |
-| `src/Service/PsAccountsService.php` | API publique principale consommée par les autres modules           |
-| `src/Service/OAuth2/`               | Flow OAuth2, refresh logic, stockage des tokens                    |
-| `src/Account/`                      | CQRS : commandes/queries pour l'état du compte et des sessions     |
-| `src/Account/Session/`              | Gestion des sessions Firebase shop/owner                           |
-| `src/Controller/Admin/`             | Contrôleurs du back-office                                         |
-| `src/Controller/Front/`             | Contrôleurs front-office / API                                     |
-| `src/Api/V2/`                       | Endpoints REST API v2                                              |
-| `src/Repository/`                   | Couche d'accès DB (PrestaShop ObjectModel)                         |
-| `src/Hook/`                         | Handlers de hooks PrestaShop                                       |
-| `src/Installer/`                    | Logique install/uninstall/upgrade du module                        |
-| `src/ServiceContainer/`             | Setup du conteneur DI et service providers                         |
-| `src/Http/`                         | Client HTTP interne basé sur curl                                  |
-| `sql/`                              | Scripts de migration SQL                                           |
-| `translations/`                     | Traductions du module                                              |
-| `views/`                            | Templates Smarty, assets, CSS, JS compilé                          |
-| `templates/`                        | Templates Twig                                                     |
-| `upgrade/`                          | Scripts d'upgrade du module                                        |
-| `controllers/`                      | Contrôleurs legacy                                                 |
-| `_dev/apps/`                        | Frontend TypeScript/Vue (compilé vers `views/`)                    |
-| `config/`                           | Définitions YAML services/routes (routing PrestaShop/Symfony)      |
-| `tests/src/Unit/`                   | Tests unitaires                                                    |
-| `tests/src/Feature/`                | Tests feature / intégration                                        |
+| `ps_accounts.php`                   | Module entry point, hook registration, DI bootstrap               |
+| `src/Service/PsAccountsService.php` | Main public API consumed by other modules                         |
+| `src/Service/OAuth2/`               | OAuth2 flow, refresh logic, token storage                         |
+| `src/Account/`                      | CQRS: commands/queries for account and session state              |
+| `src/Account/Session/`              | Firebase shop/owner session management                            |
+| `src/Controller/Admin/`             | Back-office controllers                                           |
+| `src/Controller/Front/`             | Front-office / API controllers                                    |
+| `src/Api/V2/`                       | REST API v2 endpoints                                             |
+| `src/Repository/`                   | DB access layer (PrestaShop ObjectModel)                          |
+| `src/Hook/`                         | PrestaShop hook handlers                                          |
+| `src/Installer/`                    | Module install/uninstall/upgrade logic                            |
+| `src/ServiceContainer/`             | DI container setup and service providers                          |
+| `src/Http/`                         | Internal curl-based HTTP client                                   |
+| `sql/`                              | SQL migration scripts                                             |
+| `translations/`                     | Module translations                                               |
+| `views/`                            | Smarty templates, assets, compiled CSS/JS                         |
+| `templates/`                        | Twig templates                                                    |
+| `upgrade/`                          | Module upgrade scripts                                            |
+| `controllers/`                      | Legacy controllers                                                |
+| `_dev/apps/`                        | TypeScript/Vue frontend (compiled to `views/`)                    |
+| `config/`                           | YAML service/route definitions (PrestaShop/Symfony routing)       |
+| `tests/src/Unit/`                   | Unit tests                                                        |
+| `tests/src/Feature/`                | Feature / integration tests                                       |
 
-**Point d'entrée principal :** `ps_accounts.php`
-**Fichiers de config critiques :** `config.php` (généré depuis `config.dist.php`, gitignored)
+**Main entry point:** `ps_accounts.php`
+**Critical config files:** `config.php` (generated from `config.dist.php`, gitignored)
 
-### Flux de données
+### Data flow
 
 ```
-Autres modules → PsAccountsService
+Other modules → PsAccountsService
                       ↓
-             OAuth2Service (gestion des tokens)
+             OAuth2Service (token management)
                       ↓
-             Repository (DB : shop UUID, tokens, refresh tokens)
+             Repository (DB: shop UUID, tokens, refresh tokens)
                       ↓
-             Externe : accounts-api / auth-hydra (serveur OAuth2)
+             External: accounts-api / auth-hydra (OAuth2 server)
 ```
 
 ---
 
-## 3. Conventions de code ⚡
+## 3. Code conventions ⚡
 
-**Nommage :**
-- Commandes CQRS : `[Action][Entité]Command` — ex: `CreateIdentityCommand`
-- Handlers CQRS : `[Action][Entité]Handler` — ex: `CreateIdentityHandler`
-- Tests : `[ClasseTestée]Test.php` — méthodes annotées `@test`, nommées `itShould[Action][Context]` (pas de préfixe `test`)
+**Naming:**
+- CQRS commands: `[Action][Entity]Command` — e.g. `CreateIdentityCommand`
+- CQRS handlers: `[Action][Entity]Handler` — e.g. `CreateIdentityHandler`
+- Tests: `[TestedClass]Test.php` — methods annotated with `@test`, named `itShould[Action][Context]` (no `test` prefix)
 
-**Contraintes PHP obligatoires :**
-- **PHP 5.6 compatible** pour tout le code `src/` — pas de typed properties, union types, named arguments, ni syntaxe PHP 7+
-- Toutes les dépendances vendor tierces sont scopées sous `PrestaShop\Module\PsAccounts\Vendor\*` via php-scoper — **ne jamais référencer des namespaces vendor non-scopés**
-- Tout nouveau fichier PHP doit porter le header de licence AFL-3.0 (vérifié par `header-stamp`)
+**Mandatory PHP constraints:**
+- **PHP 5.6 compatible** for all `src/` code — no typed properties, union types, named arguments, or PHP 7+ syntax
+- All third-party vendor dependencies are scoped under `PrestaShop\Module\PsAccounts\Vendor\*` via php-scoper — **never reference unscoped vendor namespaces**
+- Every new PHP file must carry the AFL-3.0 license header (enforced by `header-stamp`)
 
-**Patterns utilisés :**
-- Conteneur DI léger (`prestashopcorp/lightweight-container`) — services déclarés dans `config/services.yml`
-- Client HTTP : curl brut uniquement (pas de Guzzle, pas de PSR-18)
-- Accès DB exclusivement via les Repositories
+**Patterns in use:**
+- Lightweight DI container (`prestashopcorp/lightweight-container`) — services declared in `config/services.yml`
+- HTTP client: raw curl only (no Guzzle, no PSR-18)
+- DB access exclusively through Repositories
 
-**Anti-patterns à éviter :**
-- Pas de modification directe de `ps_configuration` — passer par les Repositories
-- Pas d'appels directs à la DB dans les handlers — passer par les Repositories
-- Pas de `use Symfony\` dans le code core du module
-- Pas de `use GuzzleHttp\` ni de PSR-18 — client curl interne uniquement
-- Ne pas référencer des namespaces vendor non-scopés
+**Anti-patterns to avoid:**
+- No direct modification of `ps_configuration` — go through Repositories
+- No direct DB calls in handlers — go through Repositories
+- No `use Symfony\` in the module core code
+- No `use GuzzleHttp\` or PSR-18 — internal curl client only
+- Never reference unscoped vendor namespaces
 
 ---
 
-## 4. Zones interdites 🚫
+## 4. Restricted areas 🚫
 
-- `src/Service/OAuth2/` et `src/Account/Session/` — authentification/sessions : toute modification = review obligatoire
-- `sql/` — migrations SQL : ne jamais générer automatiquement
-- `upgrade/` — scripts d'upgrade : risque de régression sur les boutiques existantes
-- `src/Service/PsAccountsService.php` — API publique consommée par des modules tiers, BC break interdit
-- `config/prod/` — configuration production
-- Vendors scopés (`vendor/`, `dist/`) — ne pas modifier manuellement
+- `src/Service/OAuth2/` and `src/Account/Session/` — authentication/sessions: any modification requires mandatory review
+- `sql/` — SQL migrations: never generate automatically
+- `upgrade/` — upgrade scripts: risk of regression on existing shops
+- `src/Service/PsAccountsService.php` — public API consumed by third-party modules, BC breaks forbidden
+- `config/prod/` — production configuration
+- Scoped vendors (`vendor/`, `dist/`) — do not modify manually
 
-**Si Claude propose de modifier une zone interdite :** lui demander d'expliquer l'alternative sans toucher à cette zone.
+**If Claude proposes modifying a restricted area:** ask it to explain the alternative without touching that area.
 
 ---
 
 ## 5. Tests 🧪
 
-**Framework :** PHPUnit (compatible PHP 5.6–8.x)
+**Framework:** PHPUnit (compatible PHP 5.6–8.x)
 
-**Prérequis :** Docker doit être lancé avec une plateforme de test active.
+**Prerequisites:** Docker must be running with an active test platform.
 
 ```bash
-# Démarrer une plateforme de test (Docker + PrestaShop + install module)
-make platform-8.1.5-7.4   # PS 8.1.5 sur PHP 7.4 (le plus courant)
-make platform-8.2.0-8.1   # PS 8.2.0 sur PHP 8.1
+# Start a test platform (Docker + PrestaShop + module install)
+make platform-8.1.5-7.4   # PS 8.1.5 on PHP 7.4 (most common)
+make platform-8.2.0-8.1   # PS 8.2.0 on PHP 8.1
 
-# Lancer tous les tests (unit + feature)
+# Run all tests (unit + feature)
 make phpunit
 
-# Tests unitaires uniquement
+# Unit tests only
 make phpunit-run-unit
 
-# Tests feature / intégration uniquement
+# Feature / integration tests only
 make phpunit-run-feature
 
-# Combo : démarrer la plateforme ET lancer les tests
+# Combo: start platform AND run tests
 make phpunit-8.1.5-7.4
 
-# Lancer un test ou une classe spécifique dans le container
+# Run a specific test or class inside the container
 docker exec -w /var/www/html/modules/ps_accounts/tests phpunit \
   ./vendor/bin/phpunit --filter TestClassName
 
-# Installer les dépendances de test
+# Install test dependencies
 env COMPOSER=composer56.json php ./composer.phar install --working-dir=./tests/
 ```
 
-**Localisation des tests :**
-- `tests/src/Unit/` — tests unitaires (miroir de `src/`)
-- `tests/src/Feature/` — tests feature/intégration
+**Test locations:**
+- `tests/src/Unit/` — unit tests (mirrors `src/`)
+- `tests/src/Feature/` — feature/integration tests
 
-**Convention de nommage des tests :** `[ClasseTestée]Test.php`, méthodes annotées `@test`, nommées `itShould[Action][Context]` (pas de préfixe `test`)
+**Test naming convention:** `[TestedClass]Test.php`, methods annotated with `@test`, named `itShould[Action][Context]` (no `test` prefix)
 
 ---
 
-## 6. Workflow de développement
+## 6. Development workflow
 
-**Branches :** `feature/[ticket-id]-description` · `fix/[ticket-id]-description` · pas de commit direct sur `main`
-**Format de commit :** `feat(scope): description` · `fix(scope): description` (conventional commits)
-**PR :** review obligatoire avant merge
+**Branches:** `feature/[ticket-id]-description` · `fix/[ticket-id]-description` · no direct commits to `main`
+**Commit format:** `feat(scope): description` · `fix(scope): description` (conventional commits)
+**PR:** mandatory review before merge
 
 ```bash
-# Qualité du code
-make php-cs-fixer-test    # Vérification style (dry-run)
-make php-cs-fixer         # Correction automatique du style
-make header-stamp-test    # Validation des headers de licence AFL
-make phpstan              # Analyse statique (tourne dans Docker)
+# Code quality
+make php-cs-fixer-test    # Style check (dry-run)
+make php-cs-fixer         # Auto-fix style
+make header-stamp-test    # Validate AFL license headers
+make phpstan              # Static analysis (runs in Docker)
 
-# Build frontend
+# Frontend build
 make build-front
-# Équivalent à :
+# Equivalent to:
 pnpm --filter ./_dev install --frozen-lockfile --ignore-scripts
 pnpm --filter ./_dev build
 
 # Bundling
-make bundle          # Bundle complet : php-scoper + config + front → ps_accounts.zip
-make bundle-prod     # Bundle production
-make bundle-preprod  # Bundle pré-production
+make bundle          # Full bundle: php-scoper + config + front → ps_accounts.zip
+make bundle-prod     # Production bundle
+make bundle-preprod  # Pre-production bundle
 
-# Dépendances PHP
-./scripts/composer-install.sh               # Installer composer si absent
-php ./composer.phar install --prefer-dist -o --no-dev  # Deps production
+# PHP dependencies
+./scripts/composer-install.sh               # Install composer if missing
+php ./composer.phar install --prefer-dist -o --no-dev  # Production deps
 ```
 
-**Avant de proposer un changement, Claude doit :**
-1. Lancer les tests unitaires de la zone modifiée
-2. Vérifier qu'aucune zone interdite n'est impactée
-3. Proposer le test correspondant si non existant
+**Before proposing a change, Claude must:**
+1. Run unit tests for the modified area
+2. Verify no restricted area is impacted
+3. Propose the corresponding test if it does not exist
 
 ---
 
-## 7. Glossaire métier
+## 7. Business glossary
 
-| Terme                   | Définition                                                                                                                                                   |
-|-------------------------|--------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| Shop UUID / CloudShopId | Identifiant unique de la boutique PrestaShop côté accounts-api                                                                                               |
-| TokenV2                 | Token OAuth2 shop émis par auth-hydra : JWT access_token + refresh_token opaque. Stocké en config (`PS_ACCOUNTS_ACCESS_TOKEN`) via `ConfigurationRepository` |
-| OAuth2Client            | Credentials de la boutique (clientId / clientSecret) utilisés pour obtenir un TokenV2 via client credentials flow                                            |
-| Owner token             | Token Firebase de l'administrateur propriétaire du compte — **déprécié**                                                                                     |
-| Shop token              | Token Firebase de la boutique (distinct de l'owner token) — **déprécié**, remplacé par `TokenV2`                                                             |
-| accounts-api            | API externe PrestaShop Cloud qui gère les comptes marchands                                                                                                  |
-| auth-hydra              | Serveur OAuth2 PrestaShop (Ory Hydra) qui émet les TokenV2                                                                                                   |
-| Identity                | Représentation d'une boutique identifiée côté accounts — voir `src/Account/`                                                                                 |
-| Proof                   | Mécanisme de vérification de propriété de la boutique (`ProofManager`)                                                                                       |
-| Session                 | Abstraction de session shop — `src/Account/Session/ShopSession.php` (OAuth2, active) · `src/Account/Session/Firebase/` (déprécié)                            |
-| Command                 | Commande CQRS (ne pas confondre avec les commandes PrestaShop)                                                                                               |
-| Scoped vendor           | Namespace vendor préfixé `PrestaShop\Module\PsAccounts\Vendor\*` via php-scoper                                                                              |
-
----
-
-## 8. Ce que Claude fait bien dans ce projet ✅
-
-- Générer des handlers CQRS à partir d'une Command existante (suivre le pattern `src/Account/CommandHandler/`)
-- Écrire des tests unitaires PHPUnit pour les repositories et services
-- Analyser le flow OAuth2 et expliquer les échanges de tokens
-- Identifier les impacts BC d'un changement sur `PsAccountsService`
-- Adapter le code pour maintenir la compatibilité PHP 5.6
+| Term                    | Definition                                                                                                                                                    |
+|-------------------------|---------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| Shop UUID / CloudShopId | Unique identifier of the PrestaShop shop on the accounts-api side                                                                                            |
+| TokenV2                 | Shop OAuth2 token issued by auth-hydra: JWT access_token + opaque refresh_token. Stored in config (`PS_ACCOUNTS_ACCESS_TOKEN`) via `ConfigurationRepository` |
+| OAuth2Client            | Shop credentials (clientId / clientSecret) used to obtain a TokenV2 via client credentials flow                                                              |
+| Owner token             | Firebase token of the account owner administrator — **deprecated**                                                                                           |
+| Shop token              | Firebase token of the shop (distinct from the owner token) — **deprecated**, replaced by `TokenV2`                                                           |
+| accounts-api            | External PrestaShop Cloud API that manages merchant accounts                                                                                                 |
+| auth-hydra              | PrestaShop OAuth2 server (Ory Hydra) that issues TokenV2s                                                                                                    |
+| Identity                | Representation of an identified shop on the accounts side — see `src/Account/`                                                                               |
+| Proof                   | Shop ownership verification mechanism (`ProofManager`)                                                                                                       |
+| Session                 | Shop session abstraction — `src/Account/Session/ShopSession.php` (OAuth2, active) · `src/Account/Session/Firebase/` (deprecated)                             |
+| Command                 | CQRS command (not to be confused with PrestaShop commands)                                                                                                   |
+| Scoped vendor           | Vendor namespace prefixed with `PrestaShop\Module\PsAccounts\Vendor\*` via php-scoper                                                                        |
 
 ---
 
-## 9. Ce qui demande toujours une validation humaine ⚠️
+## 8. What Claude does well in this project ✅
 
-- Toute modification d'interface publique de `PsAccountsService` (BC break potentiel pour les modules tiers)
-- Génération ou modification de migrations SQL (`sql/`)
-- Changements dans la gestion des sessions ou de l'authentification OAuth2
-- Modifications des scripts d'upgrade (`upgrade/`)
-- Tout changement de la configuration du conteneur DI (`config/services.yml`)
-- Mise à jour ou ajout de dépendances vendor (impacts sur le scope php-scoper)
+- Generate CQRS handlers from an existing Command (follow the pattern in `src/Account/CommandHandler/`)
+- Write PHPUnit unit tests for repositories and services
+- Analyze the OAuth2 flow and explain token exchanges
+- Identify BC impacts of a change on `PsAccountsService`
+- Adapt code to maintain PHP 5.6 compatibility
 
 ---
 
-*Dernière mise à jour : 2026-03-17 — Hervé SCHOENENBERGER*
-*Prochain review : 2026-06-17*
+## 9. What always requires human review ⚠️
+
+- Any public interface modification of `PsAccountsService` (potential BC break for third-party modules)
+- Generation or modification of SQL migrations (`sql/`)
+- Changes to session management or OAuth2 authentication
+- Modifications to upgrade scripts (`upgrade/`)
+- Any change to the DI container configuration (`config/services.yml`)
+- Updating or adding vendor dependencies (impacts on php-scoper scope)
+
+---
+
+*Last updated: 2026-03-18 — Hervé SCHOENENBERGER*
+*Next review: 2026-06-17*
