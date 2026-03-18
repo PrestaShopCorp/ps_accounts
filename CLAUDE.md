@@ -1,7 +1,5 @@
 # Accounts — CLAUDE.md
 
-> This file is read by Claude Code at every session. It overrides any ad hoc configuration.
-
 ---
 
 ## 1. Squad context
@@ -15,31 +13,31 @@
 
 ## 2. Project structure
 
-| Path                                | Purpose                                                            |
-|-------------------------------------|--------------------------------------------------------------------|
-| `ps_accounts.php`                   | Module entry point, hook registration, DI bootstrap               |
-| `src/Service/PsAccountsService.php` | Main public API consumed by other modules                         |
-| `src/Service/OAuth2/`               | OAuth2 flow, refresh logic, token storage                         |
-| `src/Account/`                      | CQRS: commands/queries for account and session state              |
-| `src/Account/Session/`              | Firebase shop/owner session management                            |
-| `src/Controller/Admin/`             | Back-office controllers                                           |
-| `src/Controller/Front/`             | Front-office / API controllers                                    |
-| `src/Api/V2/`                       | REST API v2 endpoints                                             |
-| `src/Repository/`                   | DB access layer (PrestaShop ObjectModel)                          |
-| `src/Hook/`                         | PrestaShop hook handlers                                          |
-| `src/Installer/`                    | Module install/uninstall/upgrade logic                            |
-| `src/ServiceContainer/`             | DI container setup and service providers                          |
-| `src/Http/`                         | Internal curl-based HTTP client                                   |
-| `sql/`                              | SQL migration scripts                                             |
-| `translations/`                     | Module translations                                               |
-| `views/`                            | Smarty templates, assets, compiled CSS/JS                         |
-| `templates/`                        | Twig templates                                                    |
-| `upgrade/`                          | Module upgrade scripts                                            |
-| `controllers/`                      | Legacy controllers                                                |
-| `_dev/apps/`                        | TypeScript/Vue frontend (compiled to `views/`)                    |
-| `config/`                           | YAML service/route definitions (PrestaShop/Symfony routing)       |
-| `tests/src/Unit/`                   | Unit tests                                                        |
-| `tests/src/Feature/`                | Feature / integration tests                                       |
+| Path                                | Purpose                                                              |
+|-------------------------------------|----------------------------------------------------------------------|
+| `ps_accounts.php`                   | Module entry point, hook registration, DI bootstrap                  |
+| `src/Service/PsAccountsService.php` | Main public API consumed by other modules                            |
+| `src/Service/OAuth2/`               | OAuth2 flow, refresh logic, token storage                            |
+| `src/Account/`                      | CQRS: commands/queries for account and session state                 |
+| `src/Account/Session/`              | Firebase shop/owner session management                               |
+| `src/Controller/Admin/`             | Back-office controllers                                              |
+| `src/Controller/Front/`             | Front-office / API controllers                                       |
+| `src/Api/V2/`                       | REST API v2 endpoints                                                |
+| `src/Repository/`                   | DB access layer (PrestaShop ObjectModel)                             |
+| `src/Hook/`                         | PrestaShop hook handlers                                             |
+| `src/Installer/`                    | Module install/uninstall/upgrade logic                               |
+| `src/ServiceContainer/`             | Lightweight-container service providers                              |
+| `src/Http/`                         | Internal curl-based HTTP client                                      |
+| `sql/`                              | SQL migration scripts                                                |
+| `translations/`                     | Module translations                                                  |
+| `views/`                            | Smarty templates, assets, compiled CSS/JS                            |
+| `templates/`                        | Twig templates                                                       |
+| `upgrade/`                          | Module upgrade scripts                                               |
+| `controllers/`                      | Legacy controllers                                                   |
+| `_dev/apps/`                        | TypeScript/Vue frontend (compiled to `views/`)                       |
+| `config/`                           | YAML definitions for PrestaShop core integration (routing, services) |
+| `tests/src/Unit/`                   | Unit tests                                                           |
+| `tests/src/Feature/`                | Feature / integration tests                                          |
 
 **Main entry point:** `ps_accounts.php`
 **Critical config files:** `config.php` (generated from `config.dist.php`, gitignored)
@@ -71,7 +69,7 @@ Other modules → PsAccountsService
 - Every new PHP file must carry the AFL-3.0 license header (enforced by `header-stamp`)
 
 **Patterns in use:**
-- Lightweight DI container (`prestashopcorp/lightweight-container`) — services declared in `config/services.yml`
+- Lightweight DI container (`prestashopcorp/lightweight-container`) — service providers declared in `src/ServiceContainer/`
 - HTTP client: raw curl only (no Guzzle, no PSR-18)
 - DB access exclusively through Repositories
 
@@ -174,8 +172,8 @@ php ./composer.phar install --prefer-dist -o --no-dev  # Production deps
 
 ## 7. Business glossary
 
-| Term                    | Definition                                                                                                                                                    |
-|-------------------------|---------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| Term                    | Definition                                                                                                                                                   |
+|-------------------------|--------------------------------------------------------------------------------------------------------------------------------------------------------------|
 | Shop UUID / CloudShopId | Unique identifier of the PrestaShop shop on the accounts-api side                                                                                            |
 | TokenV2                 | Shop OAuth2 token issued by auth-hydra: JWT access_token + opaque refresh_token. Stored in config (`PS_ACCOUNTS_ACCESS_TOKEN`) via `ConfigurationRepository` |
 | OAuth2Client            | Shop credentials (clientId / clientSecret) used to obtain a TokenV2 via client credentials flow                                                              |
@@ -207,7 +205,7 @@ php ./composer.phar install --prefer-dist -o --no-dev  # Production deps
 - Generation or modification of SQL migrations (`sql/`)
 - Changes to session management or OAuth2 authentication
 - Modifications to upgrade scripts (`upgrade/`)
-- Any change to the DI container configuration (`config/services.yml`)
+- Any change to the DI container service providers (`src/ServiceContainer/`)
 - Updating or adding vendor dependencies (impacts on php-scoper scope)
 
 ---
