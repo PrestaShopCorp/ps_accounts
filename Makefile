@@ -149,6 +149,9 @@ platform-8.1.5-7.4:
 platform-8.2.0-8.1:
 	$(call build-platform,$@)
 
+platform-9.1.0-8.5:
+	$(call build-platform,$@,"prestashop/prestashop")
+
 platform-nightly:
 	$(call build-platform,$@)
 
