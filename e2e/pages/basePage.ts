@@ -106,10 +106,23 @@ export default class BasePage {
     }
   }
 
+  async isCloudflareErrorPage(): Promise<boolean> {
+    const title = await this.page.title().catch(() => '');
+    const bodyText = await this.page.locator('body').textContent({timeout: 5000}).catch(() => '');
+    return /cloudflare|gateway time-out|error code\s*5\d\d|bad gateway/i.test(
+      `${title}\n${bodyText ?? ''}`
+    );
+  }
+
   async goToModulesManagerOldPsVersion() {
     await this.page.locator('.icon-AdminParentModules').hover();
     await this.page.locator('#subtab-AdminModules').filter({hasText: 'Modules and Services'}).click();
     await this.page.waitForLoadState('domcontentloaded', {timeout: 300000});
+    if (await this.isCloudflareErrorPage()) {
+      await this.page.goto(new URL('index.php?controller=AdminModules', Globals.base_url).toString(), {
+        waitUntil: 'domcontentloaded'
+      });
+    }
   }
   async goToPreferencesOldPsVersion() {
     await this.page.locator('.icon-AdminParentPreferences').hover();
