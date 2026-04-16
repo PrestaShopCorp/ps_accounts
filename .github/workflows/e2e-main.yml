@@ -7,6 +7,17 @@ on:
   push:
     branches:
       - main
+    paths-ignore:
+      - '**.md'
+      - '.github/**'
+      - 'doc/**'
+      - 'tests/**'
+      - 'translations/**'
+      - '.docker/**'
+
+concurrency:
+  group: e2e-main
+  cancel-in-progress: true
 
 permissions:
   actions: write
