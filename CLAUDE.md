@@ -21,8 +21,7 @@
 | `src/Account/`                      | CQRS: commands/queries for account and session state                 |
 | `src/Account/Session/`              | Firebase shop/owner session management                               |
 | `src/Controller/Admin/`             | Back-office controllers                                              |
-| `src/Controller/Front/`             | Front-office / API controllers                                       |
-| `src/Api/V2/`                       | REST API v2 endpoints                                                |
+| `src/Api/Client/`                   | HTTP clients for external APIs (accounts-api, billing)               |
 | `src/Repository/`                   | DB access layer (PrestaShop ObjectModel)                             |
 | `src/Hook/`                         | PrestaShop hook handlers                                             |
 | `src/Installer/`                    | Module install/uninstall/upgrade logic                               |
@@ -88,7 +87,6 @@ Other modules → PsAccountsService
 - `sql/` — SQL migrations: never generate automatically
 - `upgrade/` — upgrade scripts: risk of regression on existing shops
 - `src/Service/PsAccountsService.php` — public API consumed by third-party modules, BC breaks forbidden
-- `config/prod/` — production configuration
 - Scoped vendors (`vendor/`, `dist/`) — do not modify manually
 
 **If Claude proposes modifying a restricted area:** ask it to explain the alternative without touching that area.
@@ -138,7 +136,10 @@ env COMPOSER=composer56.json php ./composer.phar install --working-dir=./tests/
 
 **Branches:** `feature/[ticket-id]-description` · `fix/[ticket-id]-description` · no direct commits to `main`
 **Commit format:** `feat(scope): description` · `fix(scope): description` (conventional commits)
-**PR:** mandatory review before merge
+**PR:** 
+- name must be prefixed with `[ticket-id]` (e.g. `[ACC-1234] feat(scope): description`)
+- mandatory review before merge
+- NEVER create a PR for a security fix
 
 ```bash
 # Code quality
@@ -162,6 +163,11 @@ make bundle-preprod  # Pre-production bundle
 ./scripts/composer-install.sh               # Install composer if missing
 php ./composer.phar install --prefer-dist -o --no-dev  # Production deps
 ```
+
+### CI pipelines (`.github/workflows/`)
+
+- **accounts-qc-php.yml** — PHP quality checks: syntax (5.6, 7.2, 7.3, 8.1, 8.3), PHP-CS-Fixer, header-stamp, PHPStan, PHPUnit across multiple PS versions (1.6.1.24, 1.7.8.5, 8.1.5, nightly)
+- **build-release-publish.yml** — Version bump, php-scoper, front build, artifact creation, GCS upload (prod/preprod), marketplace publishing
 
 **Before proposing a change, Claude must:**
 1. Run unit tests for the modified area
@@ -210,5 +216,5 @@ php ./composer.phar install --prefer-dist -o --no-dev  # Production deps
 
 ---
 
-*Last updated: 2026-03-18 — Hervé SCHOENENBERGER*
-*Next review: 2026-06-17*
+*Last updated: 2026-04-14 — Hervé SCHOENENBERGER*
+*Next review: 2026-07-14*
