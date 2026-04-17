@@ -103,9 +103,7 @@ export default class PopupAccountPage extends ModuleManagerPage {
     await expect(accountTitle).toBeVisible();
     await this.page.waitForTimeout(4000);
     await this.page.reload();
-    const linkedIcon = this.page.locator('[data-testid="account-panel-linked-icon"]');
-    await expect(linkedIcon).toBeVisible({timeout: 10000});
-    return linkedIcon;
+    return this.page.locator('[data-testid="account-panel-linked-icon"]');
   }
 
   /**

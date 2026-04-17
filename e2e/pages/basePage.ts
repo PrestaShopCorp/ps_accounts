@@ -115,14 +115,24 @@ export default class BasePage {
   }
 
   async goToModulesManagerOldPsVersion() {
+    const adminModulesUrl = new URL('index.php?controller=AdminModules', Globals.base_url).toString();
     await this.page.locator('.icon-AdminParentModules').hover();
-    await this.page.locator('#subtab-AdminModules').filter({hasText: 'Modules and Services'}).click();
-    await this.page.waitForLoadState('domcontentloaded', {timeout: 300000});
-    if (await this.isCloudflareErrorPage()) {
-      await this.page.goto(new URL('index.php?controller=AdminModules', Globals.base_url).toString(), {
-        waitUntil: 'domcontentloaded'
-      });
+    await this.page.locator('#subtab-AdminModules').filter({hasText: 'Modules and Services'}).click({
+      noWaitAfter: true
+    });
+
+    await Promise.race([
+      this.page.waitForURL(/controller=AdminModules/, {timeout: 8000}).catch(() => null),
+      this.page.getByRole('heading', {name: /Gateway time-out/i}).waitFor({state: 'visible', timeout: 8000}).catch(() => null),
+      this.page.waitForTimeout(8000)
+    ]);
+
+    if ((await this.isCloudflareErrorPage()) || !this.page.url().includes('controller=AdminModules')) {
+      await this.page.goto(adminModulesUrl, {waitUntil: 'domcontentloaded'});
+      return;
     }
+
+    await this.page.waitForLoadState('domcontentloaded', {timeout: 10000}).catch(() => null);
   }
   async goToPreferencesOldPsVersion() {
     await this.page.locator('.icon-AdminParentPreferences').hover();
