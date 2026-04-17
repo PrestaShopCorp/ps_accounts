@@ -25,6 +25,7 @@ gotToModuleManagerPage('Check module is upgrade after association', async ({gotT
     await pm.fromPopupAccountPage().checkIsLinked();
   });
   await test.step('check if is linked', async () => {
+    await gotToModuleManagerPage.waitForTimeout(2000);
     const checkClientUuidValue = await dbRequest.getPsConfigurationData('PS_ACCOUNTS_USER_FIREBASE_UUID');
     expect(checkClientUuidValue.value).not.toBeNull();
   });

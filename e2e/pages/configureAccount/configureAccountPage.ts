@@ -91,7 +91,7 @@ export default class ConfigureAccountPage extends ModuleManagerPage {
   async checkIsSigned() {
     await this.page.waitForTimeout(5000);
     await this.page.locator('.page-title', {hasText: 'Configure'}).isVisible();
-    const isVisible = await this.page.getByText(Globals.account_email).isVisible();
+    const isVisible = await this.page.getByText(Globals.account_email).isVisible({timeout: 20000});
     expect(isVisible).toBeTruthy();
   }
 
