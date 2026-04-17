@@ -100,10 +100,12 @@ export default class PopupAccountPage extends ModuleManagerPage {
    */
   async checkIsLinked() {
     const accountTitle = this.page.locator('.title', {hasText: ' PRESTASHOP '});
-    await accountTitle.isVisible();
+    await expect(accountTitle).toBeVisible();
     await this.page.waitForTimeout(4000);
     await this.page.reload();
-    return await this.page.locator('[data-testid="account-panel-linked-icon"]');
+    const linkedIcon = this.page.locator('[data-testid="account-panel-linked-icon"]');
+    await expect(linkedIcon).toBeVisible({timeout: 10000});
+    return linkedIcon;
   }
 
   /**

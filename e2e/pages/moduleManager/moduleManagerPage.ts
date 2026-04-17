@@ -2,6 +2,7 @@ import {Page, Locator, expect} from '@playwright/test';
 import BasePage from '~/pages/basePage';
 import {modulePsAccount} from '~/data/local/modulesDbData/ps_module_data';
 import {moduleManagerPagesLocales} from '~/data/local/moduleManagerPageLocales/moduleManagerPageLocales';
+import {Globals} from '~/utils/globals';
 import dotenv from 'dotenv';
 import fs from 'node:fs/promises';
 import os from 'node:os';
@@ -197,6 +198,11 @@ export default class ModuleManagerPage extends BasePage {
       await this.page.locator('[name="download"]').click();
       await this.page.waitForSelector('.alert.alert-success');
       await this.page.reload({waitUntil: 'commit'});
+      if (await this.isCloudflareErrorPage()) {
+        await this.page.goto(new URL('index.php?controller=AdminModules', Globals.base_url).toString(), {
+          waitUntil: 'domcontentloaded'
+        });
+      }
     }
   }
 

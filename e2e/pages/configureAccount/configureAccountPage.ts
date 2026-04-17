@@ -89,10 +89,19 @@ export default class ConfigureAccountPage extends ModuleManagerPage {
    * @expect true ACCOUNT_EMAIL isVisible
    */
   async checkIsSigned() {
-    await this.page.waitForTimeout(5000);
-    await this.page.locator('.page-title', {hasText: 'Configure'}).isVisible;
-    const isVisible = await this.page.getByText(Globals.account_email).isVisible();
-    expect(isVisible).toBeTruthy();
+    const responsePromise = this.page
+      .waitForResponse(
+        (response) =>
+          response.url().includes('AdminAjaxV2PsAccounts&ajax=1&action=getContext') && response.status() === 200,
+        {timeout: 10000}
+      )
+      .catch(() => null);
+
+    await this.page.reload({waitUntil: 'domcontentloaded'});
+    await responsePromise;
+    await expect(this.page.locator('.page-title', {hasText: 'Configure'})).toBeVisible();
+    await expect(this.page.getByRole('button', {name: 'Go to my account'})).toBeVisible({timeout: 10000});
+    await expect(this.page.getByText(Globals.account_email)).toBeVisible({timeout: 10000});
   }
 
   /**
