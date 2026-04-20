@@ -47,14 +47,21 @@ platform-pull:
 	docker pull ${PLATFORM_IMAGE}
 
 platform-start:
-	@HOST_UID=${CURRENT_UID} HOST_GID=${CURRENT_GID} PLATFORM_IMAGE=${PLATFORM_IMAGE} ${DOCKER_COMPOSE} -f ${PLATFORM_COMPOSE_FILE} up -d --wait
+	@PLATFORM_IMAGE=${PLATFORM_IMAGE} ${DOCKER_COMPOSE} -f ${PLATFORM_COMPOSE_FILE} up -d --wait
 	@echo phpunit started
 
 platform-stop:
-	@HOST_UID=${CURRENT_UID} HOST_GID=${CURRENT_GID} PLATFORM_IMAGE=${PLATFORM_IMAGE} ${DOCKER_COMPOSE} -f ${PLATFORM_COMPOSE_FILE} down
+	@PLATFORM_IMAGE=${PLATFORM_IMAGE} ${DOCKER_COMPOSE} -f ${PLATFORM_COMPOSE_FILE} down
 	@echo phpunit stopped
 
 platform-restart: platform-stop platform-start
+
+# Restore host ownership on files the docker entrypoint chowned to www-data.
+# Runs as root inside a minimal container, so no sudo password prompt.
+platform-fix-host-ownership:
+	@echo "Restoring host ownership on $(PWD) to ${CURRENT_UID}:${CURRENT_GID}..."
+	@docker run --rm -v "$(PWD):/mnt" alpine chown -R ${CURRENT_UID}:${CURRENT_GID} /mnt
+	@echo done
 
 config.php:
 	cp ./config.dist.php ./config.php
