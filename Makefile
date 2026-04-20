@@ -47,11 +47,11 @@ platform-pull:
 	docker pull ${PLATFORM_IMAGE}
 
 platform-start:
-	@PLATFORM_IMAGE=${PLATFORM_IMAGE} ${DOCKER_COMPOSE} -f ${PLATFORM_COMPOSE_FILE} up -d --wait
+	@HOST_UID=${CURRENT_UID} HOST_GID=${CURRENT_GID} PLATFORM_IMAGE=${PLATFORM_IMAGE} ${DOCKER_COMPOSE} -f ${PLATFORM_COMPOSE_FILE} up -d --wait
 	@echo phpunit started
 
 platform-stop:
-	@PLATFORM_IMAGE=${PLATFORM_IMAGE} ${DOCKER_COMPOSE} -f ${PLATFORM_COMPOSE_FILE} down
+	@HOST_UID=${CURRENT_UID} HOST_GID=${CURRENT_GID} PLATFORM_IMAGE=${PLATFORM_IMAGE} ${DOCKER_COMPOSE} -f ${PLATFORM_COMPOSE_FILE} down
 	@echo phpunit stopped
 
 platform-restart: platform-stop platform-start

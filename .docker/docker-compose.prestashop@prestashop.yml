@@ -3,6 +3,7 @@ services:
   prestashop:
     container_name: phpunit
     image: ${PLATFORM_IMAGE}
+    entrypoint: /tmp/entrypoint-wrapper.sh
     depends_on:
       mysql:
         condition: service_healthy
@@ -14,6 +15,8 @@ services:
 #    user: www-data
     user: root
     environment:
+      - HOST_UID=${HOST_UID:-1000}
+      - HOST_GID=${HOST_GID:-1000}
       - PS_DOMAIN=localhost
       - DB_SERVER=mysql
       - DB_USER=prestashop
@@ -35,6 +38,7 @@ services:
 #      - XDEBUG_ENABLED=1
     volumes:
       - ../:/var/www/html/modules/ps_accounts
+      - "./prestashop/entrypoint-wrapper.sh:/tmp/entrypoint-wrapper.sh:ro"
       - "./prestashop/pre-install-scripts:/tmp/pre-install-scripts"
       - "./prestashop/init-scripts:/tmp/init-scripts"
 
