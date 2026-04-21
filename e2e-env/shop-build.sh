@@ -44,6 +44,46 @@ makeFilePath='./'
 makeCommand="make -C $makeFilePath docker-build PS_ACCOUNTS_VERSION=$psAccountsVersion PS_VERSION=$shopVersion SECONDE_PS_VERSION=$shopVersionSecondeShop PS_DOMAIN=$psDomain TUNNEL_ID=$tunnelId TUNNEL_SECRET=$tunnelSecret ACCOUNT_TAG=$accountTag PROFILE=$profile"
 eval $makeCommand
 
+increase_nginx_fastcgi_timeout_for_ps16() {
+  local version="$1"
+  local compose_profile="$2"
+  local attempts_left=30
+
+  if [[ "$version" != 1.6.* ]] || [ "$compose_profile" != "flashlight" ]; then
+    return 0
+  fi
+
+  echo "Increasing Nginx FastCGI timeouts for PrestaShop $version"
+
+  while [ "$attempts_left" -gt 0 ]; do
+    if docker compose --profile "$compose_profile" exec -T -u root prestashop sh -lc '
+      set -eu
+
+      conf="/etc/nginx/nginx.conf"
+      [ -f "$conf" ] || exit 2
+
+      sed -i "s/fastcgi_read_timeout .*/fastcgi_read_timeout 120s;/" "$conf"
+      sed -i "s/fastcgi_send_timeout .*/fastcgi_send_timeout 120s;/" "$conf"
+
+      nginx -t
+      nginx -s reload 2>/dev/null || true
+    '; then
+      echo "Nginx FastCGI timeouts increased for PrestaShop $version"
+      return 0
+    fi
+
+    sleep 1
+    attempts_left=$((attempts_left - 1))
+  done
+
+  echo "Unable to increase Nginx FastCGI timeouts for PrestaShop $version"
+  return 1
+}
+
+if ! increase_nginx_fastcgi_timeout_for_ps16 "$shopVersion" "$profile"; then
+  exit 1
+fi
+
 dump_debug_logs() {
   echo "----- docker compose ps ($profile) -----"
   docker compose --profile "$profile" ps || true
