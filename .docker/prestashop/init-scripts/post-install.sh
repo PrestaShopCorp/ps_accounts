@@ -11,7 +11,7 @@ fi
 ################################
 # SSL setup
 
-if [ "$PS_ENABLE_SSL" ]; then
+if [ "$PS_ENABLE_SSL" = "1" ]; then
   # FIXME: PS_VERSION <= v1.6
   if [ "$PS_VERSION" ]; then
     mysql -h $DB_SERVER -P $DB_PORT -u $DB_USER -p$DB_PASSWD $DB_NAME \
