@@ -47,7 +47,6 @@ export default class ModuleManagerPage extends BasePage {
    * @return {Promise<'new' | 'old'>} old is <= 1.6 and new >=1.7
    */
   async getPsVersion(): Promise<'new' | 'old'> {
-    const adminModulesUrl = new URL('index.php?controller=AdminModules', Globals.base_url).toString();
     const detectVersion = async (): Promise<'new' | 'old' | null> => {
       const isNew =
         (await this.page.locator('#module-search-button').isVisible()) ||
@@ -62,9 +61,6 @@ export default class ModuleManagerPage extends BasePage {
     for (let attempt = 0; attempt < 2; attempt++) {
       const version = await detectVersion();
       if (version) return version;
-      if (await this.isCloudflareErrorPage()) {
-        await this.page.goto(adminModulesUrl, {waitUntil: 'domcontentloaded'});
-      }
       if (attempt === 0) await this.page.waitForTimeout(5000);
     }
     throw new Error('Version not detected');
