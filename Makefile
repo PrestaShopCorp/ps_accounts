@@ -162,10 +162,6 @@ platform-9.1.0-8.5:
 platform-nightly:
 	$(call build-platform,$@)
 
-platform-internal-1.6:
-	@docker container stop ps_accounts_mysql_1
-	$(call build-platform,$@,"prestashop/docker-internal-images",,composer71.json)
-
 #########
 # PHPUNIT
 
