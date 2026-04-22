@@ -10,6 +10,9 @@ export const gotToModuleManagerPage = loginFixture.extend<MyFixtures>({
     } else {
       await pm.fromBasePage().goToSubMenu(pm.fromBasePage().modulesParentLink, pm.fromBasePage().moduleManagerLink);
     }
+    if (await pm.fromDashboardPage().isPopupVisible()) {
+      await pm.fromDashboardPage().closePopup();
+    }
     await use(page);
   }
 });
