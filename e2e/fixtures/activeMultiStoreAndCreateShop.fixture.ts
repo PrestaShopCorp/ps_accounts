@@ -12,6 +12,9 @@ export const activeMultistoreAndCreateShop = loginFixture.extend<MyFixtures>({
       await pm.fromMultiStorePage().createNewStore();
       await pm.fromBasePage().goToModulesManagerOldPsVersion();
     } else {
+      if (await pm.fromDashboardPage().isPopupVisible()) {
+        await pm.fromDashboardPage().closePopup();
+      }
       await pm
         .fromBasePage()
         .goToSubMenu(pm.fromBasePage().shopParametersGeneralParentLink, pm.fromBasePage().shopParametersGeneralLink);
@@ -26,9 +29,6 @@ export const activeMultistoreAndCreateShop = loginFixture.extend<MyFixtures>({
       await pm.fromMultiStorePage().getPageMainTitle();
       await pm.fromMultiStorePage().createNewStore();
       await pm.fromBasePage().goToSubMenu(pm.fromBasePage().modulesParentLink, pm.fromBasePage().moduleManagerLink);
-    }
-    if (await pm.fromDashboardPage().isPopupVisible()) {
-      await pm.fromDashboardPage().closePopup();
     }
     await use(page);
   }

@@ -76,6 +76,9 @@ export default class PopupAccountPage extends ModuleManagerPage {
     }
     await expect(boBtn).toBeVisible({timeout: 5000});
     await boBtn.click();
+    await this.page.waitForTimeout(5000);
+    await this.page.reload({waitUntil: 'domcontentloaded'});
+    await expect(this.page.locator('[data-testid="account-panel-linked-icon"]')).toBeVisible({timeout: 20000});
   }
 
   /**
