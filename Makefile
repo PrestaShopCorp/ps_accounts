@@ -56,6 +56,13 @@ platform-stop:
 
 platform-restart: platform-stop platform-start
 
+# Restore host ownership on files the docker entrypoint chowned to www-data.
+# Runs as root inside a minimal container, so no sudo password prompt.
+platform-fix-host-ownership:
+	@echo "Restoring host ownership on $(PWD) to ${CURRENT_UID}:${CURRENT_GID}..."
+	@docker run --rm -v "$(PWD):/mnt" alpine chown -R ${CURRENT_UID}:${CURRENT_GID} /mnt
+	@echo done
+
 config.php:
 	cp ./config.dist.php ./config.php
 
@@ -149,12 +156,11 @@ platform-8.1.5-7.4:
 platform-8.2.0-8.1:
 	$(call build-platform,$@)
 
+platform-9.1.0-8.5:
+	$(call build-platform,$@,"prestashop/prestashop")
+
 platform-nightly:
 	$(call build-platform,$@)
-
-platform-internal-1.6:
-	@docker container stop ps_accounts_mysql_1
-	$(call build-platform,$@,"prestashop/docker-internal-images",,composer71.json)
 
 #########
 # PHPUNIT
