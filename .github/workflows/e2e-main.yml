@@ -8,6 +8,21 @@ on:
 
     # Summer Time
     - cron: "0 6 * 4-10 1-5"
+    - cron: "0 12 * * 1-5"
+  push:
+    branches:
+      - main
+    paths-ignore:
+      - '**.md'
+      - '.github/**'
+      - 'doc/**'
+      - 'tests/**'
+      - 'translations/**'
+      - '.docker/**'
+
+concurrency:
+  group: e2e-main
+  cancel-in-progress: true
 
 permissions:
   actions: write

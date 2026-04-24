@@ -37,6 +37,10 @@ class Response extends ConfigObject
     const IS_SUCCESSFUL = 'isSuccessful';
     const REQUEST = 'request';
 
+    protected $defaults = [
+        self::REQUEST => null,
+    ];
+
     /**
      * @param array|string $body
      * @param int $statusCode

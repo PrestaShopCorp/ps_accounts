@@ -3,7 +3,7 @@ name: Sync Docker Images to GHCR
 on:
   workflow_dispatch:
   schedule:
-    - cron: '0 6 1,15 * *' 
+    - cron: '0 6 1,15 * *'
 
 env:
   GHCR_USER: prestashopcorp

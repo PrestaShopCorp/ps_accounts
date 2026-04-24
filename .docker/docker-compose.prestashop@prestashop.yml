@@ -1,0 +1,59 @@
+version: "3.7"
+services:
+  prestashop:
+    container_name: phpunit
+    image: ${PLATFORM_IMAGE}
+    depends_on:
+      mysql:
+        condition: service_healthy
+    healthcheck:
+      test: curl --fail http://localhost:80 || exit 1
+      interval: 10s
+      timeout: 10s
+      retries: 5
+#    user: www-data
+    user: root
+    environment:
+      - PS_DOMAIN=localhost
+      - DB_SERVER=mysql
+      - DB_USER=prestashop
+      - DB_NAME=prestashop1
+      - DB_PASSWD=prestashop
+      - PS_ERASE_DB=1
+      - PS_INSTALL_DB=1
+      - PS_INSTALL_AUTO=1
+      - PS_FOLDER_ADMIN=admin-dev
+#      - PS_DEV_MODE=1
+      - PS_ENABLE_SSL=0
+      - PS_TRUSTED_PROXIES=0.0.0.0/0
+      - ADMIN_MAIL=admin@prestashop.com
+      - ADMIN_PASSWD=prestashop
+      - PHYSICAL_URI=${PS_SHOP1_PHYSICAL_URI}
+#      - PS_ENABLE_SSL=0
+##      - PS_DEV_MODE=0
+#      - XDEBUG_MODE=coverage
+#      - XDEBUG_ENABLED=1
+    volumes:
+      - ../:/var/www/html/modules/ps_accounts
+      - "./prestashop/pre-install-scripts:/tmp/pre-install-scripts"
+      - "./prestashop/init-scripts:/tmp/init-scripts"
+
+  # Maria DB
+  mysql:
+    image: "mariadb:lts"
+    healthcheck:
+      test: [ "CMD", "healthcheck.sh", "--connect" ]
+      interval: 10s
+      timeout: 10s
+      retries: 5
+    environment:
+      - TZ=UTC
+      - MYSQL_HOST=mysql
+      - MYSQL_USER=prestashop
+      - MYSQL_PASSWORD=prestashop
+      - MYSQL_ROOT_PASSWORD=prestashop
+      - MYSQL_PORT=3306
+      - MYSQL_DATABASE=prestashop
+    restart: unless-stopped
+#    ports:
+#      - 9906:3306
