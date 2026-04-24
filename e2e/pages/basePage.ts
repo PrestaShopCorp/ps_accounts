@@ -114,25 +114,46 @@ export default class BasePage {
     );
   }
 
+  async waitForModuleManagerNavigation(adminModulesUrl: string, urlPattern: RegExp): Promise<void> {
+    await Promise.race([
+      this.page.waitForURL(urlPattern, {timeout: 3000}).catch(() => null),
+      this.page
+        .getByRole('heading', {name: /Gateway time-out/i})
+        .waitFor({state: 'visible', timeout: 3000})
+        .catch(() => null),
+      this.page.waitForTimeout(3000)
+    ]);
+
+    if ((await this.isCloudflareErrorPage()) || !urlPattern.test(this.page.url())) {
+      await this.page.goto(adminModulesUrl, {waitUntil: 'domcontentloaded'});
+      return;
+    }
+
+    await this.page.waitForLoadState('domcontentloaded', {timeout: 5000}).catch(() => null);
+  }
+
+  async goToModulesManagerNewPsVersion() {
+    const moduleManagerHref = await this.moduleManagerLink.getAttribute('href');
+
+    if (!moduleManagerHref) {
+      await this.goToSubMenu(this.modulesParentLink, this.moduleManagerLink);
+      return;
+    }
+
+    const adminModulesUrl = new URL(moduleManagerHref, Globals.base_url).toString();
+
+    await this.openMenu(this.modulesParentLink);
+    await this.moduleManagerLink.click({noWaitAfter: true});
+    await this.waitForModuleManagerNavigation(adminModulesUrl, /modules\/manage|controller=AdminModules/);
+  }
+
   async goToModulesManagerOldPsVersion() {
     const adminModulesUrl = new URL('index.php?controller=AdminModules', Globals.base_url).toString();
     await this.page.locator('.icon-AdminParentModules').hover();
     await this.page.locator('#subtab-AdminModules').filter({hasText: 'Modules and Services'}).click({
       noWaitAfter: true
     });
-
-    await Promise.race([
-      this.page.waitForURL(/controller=AdminModules/, {timeout: 8000}).catch(() => null),
-      this.page.getByRole('heading', {name: /Gateway time-out/i}).waitFor({state: 'visible', timeout: 8000}).catch(() => null),
-      this.page.waitForTimeout(8000)
-    ]);
-
-    if ((await this.isCloudflareErrorPage()) || !this.page.url().includes('controller=AdminModules')) {
-      await this.page.goto(adminModulesUrl, {waitUntil: 'domcontentloaded'});
-      return;
-    }
-
-    await this.page.waitForLoadState('domcontentloaded', {timeout: 10000}).catch(() => null);
+    await this.waitForModuleManagerNavigation(adminModulesUrl, /controller=AdminModules/);
   }
   async goToPreferencesOldPsVersion() {
     await this.page.locator('.icon-AdminParentPreferences').hover();

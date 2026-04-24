@@ -11,7 +11,7 @@ export const gotToModuleManagerPage = loginFixture.extend<MyFixtures>({
     if (await pm.fromDashboardPage().getShopVersion()) {
       await pm.fromBasePage().goToModulesManagerOldPsVersion();
     } else {
-      await pm.fromBasePage().goToSubMenu(pm.fromBasePage().modulesParentLink, pm.fromBasePage().moduleManagerLink);
+      await pm.fromBasePage().goToModulesManagerNewPsVersion();
     }
     await use(page);
   }
