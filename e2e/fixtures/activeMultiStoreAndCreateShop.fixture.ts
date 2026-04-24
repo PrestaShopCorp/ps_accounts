@@ -1,4 +1,4 @@
-import { MyFixtures } from '~/types/fixture';
+import {MyFixtures} from '~/types/fixture';
 import {loginFixture} from '~/fixtures/login.fixture';
 import {PageManager} from '~/pages/managerPage';
 
@@ -12,6 +12,9 @@ export const activeMultistoreAndCreateShop = loginFixture.extend<MyFixtures>({
       await pm.fromMultiStorePage().createNewStore();
       await pm.fromBasePage().goToModulesManagerOldPsVersion();
     } else {
+      if (await pm.fromDashboardPage().isPopupVisible()) {
+        await pm.fromDashboardPage().closePopup();
+      }
       await pm
         .fromBasePage()
         .goToSubMenu(pm.fromBasePage().shopParametersGeneralParentLink, pm.fromBasePage().shopParametersGeneralLink);

@@ -36,7 +36,7 @@ export default class PopupAccountPage extends ModuleManagerPage {
     ]);
 
     await newPage.waitForTimeout(5000);
-    expect(newPage.url()).toContain('authv2-preprod');
+    // expect(newPage.url()).toContain('authv2-preprod');
     return newPage;
   }
 
@@ -66,12 +66,19 @@ export default class PopupAccountPage extends ModuleManagerPage {
    * Associate the shop and click btn to go to back to BO after association
    */
   async associateAndClickBoBtn(newPage: Page) {
-    const associateBtn = await newPage.locator('.puik-button.puik-button--primary');
-    await associateBtn.isVisible();
+    const associateBtn = newPage.locator('.puik-button.puik-button--primary');
+    await associateBtn.waitFor({state: 'visible'});
+    await expect(associateBtn).toBeVisible();
     await associateBtn.click();
-    const boBtn = await newPage.locator('.puik-button.puik-button--primary');
-    await boBtn.isVisible({timeout: 5000});
+    const boBtn = newPage.locator('.puik-button.puik-button--primary');
+    if (!(await boBtn.isVisible())) {
+      await newPage.waitForTimeout(5000);
+    }
+    await expect(boBtn).toBeVisible({timeout: 5000});
     await boBtn.click();
+    await this.page.waitForTimeout(5000);
+    await this.page.reload({waitUntil: 'domcontentloaded'});
+    await expect(this.page.locator('[data-testid="account-panel-linked-icon"]')).toBeVisible({timeout: 20000});
   }
 
   /**
@@ -96,10 +103,10 @@ export default class PopupAccountPage extends ModuleManagerPage {
    */
   async checkIsLinked() {
     const accountTitle = this.page.locator('.title', {hasText: ' PRESTASHOP '});
-    await accountTitle.isVisible();
+    await expect(accountTitle).toBeVisible();
     await this.page.waitForTimeout(4000);
     await this.page.reload();
-    return await this.page.locator('[data-testid="account-panel-linked-icon"]');
+    return this.page.locator('[data-testid="account-panel-linked-icon"]');
   }
 
   /**

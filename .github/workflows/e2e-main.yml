@@ -3,7 +3,11 @@ name: e2e Accounts - main TNR
 on:
   workflow_dispatch:
   schedule:
-    - cron: "0 12 * * 1-5"
+    # Winter Time
+    - cron: "0 7 * 1-3,11-12 1-5"
+
+    # Summer Time
+    - cron: "0 6 * 4-10 1-5"
   push:
     branches:
       - main
@@ -22,7 +26,6 @@ concurrency:
 permissions:
   actions: write
   contents: read
-
 
 jobs:
   run-tnr:

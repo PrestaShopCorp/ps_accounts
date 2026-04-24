@@ -50,6 +50,7 @@ export default class DashboardPage extends BasePage {
     await popup.waitFor({state: 'visible', timeout: 5000});
     await closePopupBtn.waitFor({state: 'visible', timeout: 5000});
     await closePopupBtn.click();
+    await this.page.waitForLoadState('load')
     await popup.waitFor({state: 'hidden', timeout: 5000});
   }
 }

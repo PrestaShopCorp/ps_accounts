@@ -29,6 +29,7 @@ activeMultistoreAndCreateShop('Check Multisotre association', async ({activeMult
     expect(isLinked).toBeVisible();
   });
   await test.step('check if linked in DB', async () => {
+    await activeMultistoreAndCreateShop.waitForTimeout(2000);
     const checkClientUuidValue = await dbRequest.getPsConfigurationData('PS_ACCOUNTS_USER_FIREBASE_UUID');
     expect(checkClientUuidValue.value).not.toBeNull();
   });
