@@ -180,7 +180,11 @@ abstract class AbstractAdminAjaxCorsController extends ModuleAdminController
         }
 
         // trace unhandled exceptions
-        SentryService::capture($e);
+        try {
+            SentryService::capture($e);
+        } catch (\Exception $captureException) {
+            Logger::getInstance()->error($captureException);
+        }
 
         http_response_code(500);
 
