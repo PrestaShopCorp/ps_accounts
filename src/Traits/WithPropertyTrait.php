@@ -17,26 +17,48 @@ trait WithPropertyTrait
      */
     public function __call($methodName, array $args)
     {
-        $with = 'with';
-        if (strpos($methodName, $with) === 0) {
-            return $this->withProperty($with, $methodName, ...$args);
+        foreach (['with', 'get', 'reset'] as $prefix) {
+            if (strpos($methodName, $prefix) === 0) {
+                $property = $this->extractPropertyName($methodName, $prefix);
+
+                return $this->{$prefix . 'Property'}($property, ...$args);
+            }
         }
-        $get = 'get';
-        if (strpos($methodName, $get) === 0) {
-            return $this->getProperty($get, $methodName, ...$args);
-        }
+        throw new \BadMethodCallException(sprintf('Call to undefined method %s::%s()', static::class, $methodName));
     }
 
     /**
-     * @return void
+     * Fluent setter
+     *
+     * @param string $property
+     * @param null $value
+     *
+     * @return $this
      */
-    protected function initDefaults()
+    public function withProperty($property, $value = null)
     {
-        foreach ($this->getDefaults() as $property => $value) {
-            if (property_exists($this, $property)) {
-                $this->$property = $value;
-            }
+        $this->$property = $value;
+
+        return $this;
+    }
+
+    /**
+     * Property getter
+     *
+     * @param string $property
+     * @param bool $restoreDefault
+     *
+     * @return mixed|null
+     */
+    public function getProperty($property, $restoreDefault = true)
+    {
+        $value = $this->$property;
+
+        if ($restoreDefault) {
+            $this->resetProperty($property);
         }
+
+        return $value;
     }
 
     /**
@@ -44,7 +66,7 @@ trait WithPropertyTrait
      *
      * @return void
      */
-    protected function restoreDefault($property)
+    public function resetProperty($property)
     {
         $defaults = $this->getDefaults();
 
@@ -54,43 +76,15 @@ trait WithPropertyTrait
     }
 
     /**
-     * Fluent setter
-     *
-     * @param string $prefix
-     * @param string $methodName
-     * @param null $value
-     *
-     * @return $this
+     * @return void
      */
-    private function withProperty($prefix, $methodName, $value = null)
+    protected function resetProperties()
     {
-        $property = $this->extractPropertyName($methodName, $prefix);
-
-        $this->$property = $value;
-
-        return $this;
-    }
-
-    /**
-     * Property getter
-     *
-     * @param string $prefix
-     * @param string $methodName
-     * @param bool $restoreDefault
-     *
-     * @return mixed|null
-     */
-    private function getProperty($prefix, $methodName, $restoreDefault = true)
-    {
-        $property = $this->extractPropertyName($methodName, $prefix);
-
-        $value = $this->$property;
-
-        if ($restoreDefault) {
-            $this->restoreDefault($property);
+        foreach ($this->getDefaults() as $property => $value) {
+            if (property_exists($this, $property)) {
+                $this->$property = $value;
+            }
         }
-
-        return $value;
     }
 
     /**
@@ -99,14 +93,8 @@ trait WithPropertyTrait
      *
      * @return string
      */
-    public function extractPropertyName($methodName, $prefix)
+    protected function extractPropertyName($methodName, $prefix)
     {
-        $property = lcfirst(preg_replace('/^' . $prefix . '/', '', $methodName));
-
-        if (empty($property) || !property_exists($this, $property)) {
-            throw new \InvalidArgumentException(sprintf('Property "%s" does not exist', $property));
-        }
-
-        return $property;
+        return lcfirst(preg_replace('/^' . $prefix . '/', '', $methodName));
     }
 }

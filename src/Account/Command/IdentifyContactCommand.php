@@ -48,6 +48,6 @@ class IdentifyContactCommand
         $this->accessToken = $accessToken;
         $this->userInfo = $userInfo;
 
-        $this->initDefaults();
+        $this->resetProperties();
     }
 }

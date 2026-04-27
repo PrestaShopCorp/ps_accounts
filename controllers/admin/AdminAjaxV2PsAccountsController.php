@@ -22,13 +22,18 @@ require_once __DIR__ . '/../../src/Http/Controller/AbstractAdminAjaxCorsControll
 use PrestaShop\Module\PsAccounts\Account\Command\CreateIdentityCommand;
 use PrestaShop\Module\PsAccounts\Account\Command\MigrateOrCreateIdentityV8Command;
 use PrestaShop\Module\PsAccounts\Account\Command\VerifyIdentityCommand;
+use PrestaShop\Module\PsAccounts\Account\Exception\RefreshTokenException;
 use PrestaShop\Module\PsAccounts\Account\Query\GetContextQuery;
+use PrestaShop\Module\PsAccounts\Account\StatusManager;
+use PrestaShop\Module\PsAccounts\Context\ShopContext;
 use PrestaShop\Module\PsAccounts\Cqrs\CommandBus;
 use PrestaShop\Module\PsAccounts\Cqrs\QueryBus;
 use PrestaShop\Module\PsAccounts\Http\Controller\AbstractAdminAjaxCorsController;
 use PrestaShop\Module\PsAccounts\Log\Logger;
+use PrestaShop\Module\PsAccounts\Service\Accounts;
 use PrestaShop\Module\PsAccounts\Service\Accounts\AccountsException;
 use PrestaShop\Module\PsAccounts\Service\Accounts\AccountsService;
+use PrestaShop\Module\PsAccounts\Service\OAuth2;
 
 /**
  * Controller for all ajax calls.
@@ -46,6 +51,11 @@ class AdminAjaxV2PsAccountsController extends AbstractAdminAjaxCorsController
     private $queryBus;
 
     /**
+     * @var ShopContext
+     */
+    private $shopContext;
+
+    /**
      * AdminAjaxV2PsAccountsController constructor.
      *
      * @throws Exception
@@ -56,6 +66,7 @@ class AdminAjaxV2PsAccountsController extends AbstractAdminAjaxCorsController
 
         $this->commandBus = $this->module->getService(CommandBus::class);
         $this->queryBus = $this->module->getService(QueryBus::class);
+        $this->shopContext = $this->module->getService(ShopContext::class);
     }
 
     /**
@@ -91,11 +102,19 @@ class AdminAjaxV2PsAccountsController extends AbstractAdminAjaxCorsController
             throw new Exception('Shop ID is required for migration or creation.');
         }
 
-        $command = (new MigrateOrCreateIdentityV8Command($shopId))
-            ->withOrigin(AccountsService::ORIGIN_FALLBACK)
-            ->withSource($source);
+        $this->shopContext->execInShopContext($shopId, function () use ($shopId, $source) {
+            /** @var StatusManager $statusManager */
+            $statusManager = $this->module->getService(StatusManager::class);
+            $statusManager->withThrowException(true);
 
-        $this->commandBus->handle($command);
+            $command = (new MigrateOrCreateIdentityV8Command($shopId))
+                ->withOrigin(AccountsService::ORIGIN_FALLBACK)
+                ->withSource($source);
+
+            $this->commandBus->handle($command);
+
+            $statusManager->resetThrowException();
+        });
 
         $this->ajaxRender(
             (string) json_encode([
@@ -118,11 +137,13 @@ class AdminAjaxV2PsAccountsController extends AbstractAdminAjaxCorsController
             throw new Exception('Shop ID is required for renew.');
         }
 
-        $command = (new CreateIdentityCommand($shopId, true))
-            ->withOrigin(AccountsService::ORIGIN_MISMATCH_CREATE)
-            ->withSource($source);
+        $this->shopContext->execInShopContext($shopId, function () use ($shopId, $source) {
+            $command = (new CreateIdentityCommand($shopId, true))
+                ->withOrigin(AccountsService::ORIGIN_MISMATCH_CREATE)
+                ->withSource($source);
 
-        $this->commandBus->handle($command);
+            $this->commandBus->handle($command);
+        });
 
         $this->ajaxRender(
             (string) json_encode([
@@ -145,11 +166,13 @@ class AdminAjaxV2PsAccountsController extends AbstractAdminAjaxCorsController
             throw new Exception('Shop ID is required for update.');
         }
 
-        $command = (new VerifyIdentityCommand($shopId, true))
-            ->withOrigin(AccountsService::ORIGIN_MISMATCH_UPDATE)
-            ->withSource($source);
+        $this->shopContext->execInShopContext($shopId, function () use ($shopId, $source) {
+            $command = (new VerifyIdentityCommand($shopId, true))
+                ->withOrigin(AccountsService::ORIGIN_MISMATCH_UPDATE)
+                ->withSource($source);
 
-        $this->commandBus->handle($command);
+            $this->commandBus->handle($command);
+        });
 
         $this->ajaxRender(
             (string) json_encode([
@@ -166,6 +189,38 @@ class AdminAjaxV2PsAccountsController extends AbstractAdminAjaxCorsController
     protected function handleError($e)
     {
         Logger::getInstance()->error($e);
+
+        if ($e instanceof RefreshTokenException) {
+            $e = $e->getPrevious();
+        }
+
+        if ($e instanceof OAuth2\Exception\ConnectException) {
+            http_response_code(400);
+
+            $this->ajaxRender(
+                (string) json_encode([
+                    'message' => $e->getMessage(),
+                    'code' => 'oauth-server/connect-error',
+                    //'details' => $e->getDetails(),
+                ])
+            );
+
+            return;
+        }
+
+        if ($e instanceof Accounts\Exception\ConnectException) {
+            http_response_code(400);
+
+            $this->ajaxRender(
+                (string) json_encode([
+                    'message' => $e->getMessage(),
+                    'code' => 'accounts-api/connect-error',
+                    //'details' => $e->getDetails(),
+                ])
+            );
+
+            return;
+        }
 
         if ($e instanceof AccountsException) {
             http_response_code(400);

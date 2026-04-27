@@ -4,21 +4,24 @@ import {gotToModuleManagerPage} from '~/fixtures/goToModuleManagerPage.fixture';
 import {PageManager} from '~/pages/managerPage';
 import DbRequest from '~/services/db/dbRequest';
 
-gotToModuleManagerPage('Check if you have message error when try to verified manually', async ({gotToModuleManagerPage}) => {
-  const pm = new PageManager(gotToModuleManagerPage);
-  const db = new DbRequest();
-  await test.step('check if you are unverified', async () => {
-    await db.deleteAccountsInfoAndBlockReverification();
-    await pm.fromModuleManagePage().getPageMainTitle();
-    await pm.fromModuleManagePage().isAccountVisible();
-    await pm.fromModuleManagePage().goToAccountConfigurePage();
-    const status = await pm.fromConfigureAccountPage().getStoreInformation();
-    expect(status).toBeFalsy();
-    const apiStatus = await pm.fromConfigureAccountPage().getStoreInformationFromApi(0);
-    expect(apiStatus).toBeFalsy();
-  });
-  await test.step('verifiy manually and check if verified', async () => {
-    await pm.fromConfigureAccountPage().verifyManualy();
-    await pm.fromConfigureAccountPage().checkVerificationFailed();
-  });
-});
+gotToModuleManagerPage(
+  'Check if you have message error when try to verified manually',
+  async ({gotToModuleManagerPage}) => {
+    const pm = new PageManager(gotToModuleManagerPage);
+    const db = new DbRequest();
+    await test.step('check if you are unverified', async () => {
+      await db.deleteAccountsInfoAndBlockReverification();
+      await pm.fromModuleManagePage().getPageMainTitle();
+      await pm.fromModuleManagePage().isAccountVisible();
+      await pm.fromModuleManagePage().goToAccountConfigurePage();
+      const status = await pm.fromConfigureAccountPage().getStoreInformation();
+      expect(status).toBeFalsy();
+      const apiStatus = await pm.fromConfigureAccountPage().getStoreInformationFromApi(0);
+      expect(apiStatus).toBeFalsy();
+    });
+    await test.step('verifiy manually and check if verified', async () => {
+      await pm.fromConfigureAccountPage().verifyManualy();
+      await pm.fromConfigureAccountPage().checkVerificationFailed();
+    });
+  }
+);

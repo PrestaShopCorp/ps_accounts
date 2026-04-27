@@ -2,7 +2,12 @@ import {Page, Locator, expect} from '@playwright/test';
 import BasePage from '~/pages/basePage';
 import {modulePsAccount} from '~/data/local/modulesDbData/ps_module_data';
 import {moduleManagerPagesLocales} from '~/data/local/moduleManagerPageLocales/moduleManagerPageLocales';
+import {Globals} from '~/utils/globals';
+import dotenv from 'dotenv';
+import fs from 'node:fs/promises';
+import os from 'node:os';
 import path from 'path';
+dotenv.config({path: path.resolve(__dirname, '../../../e2e-env/.env')});
 
 export default class ModuleManagerPage extends BasePage {
   /* <<<<<<<<<<<<<<< Selectors Types >>>>>>>>>>>>>>>>>>>>>> */
@@ -25,13 +30,13 @@ export default class ModuleManagerPage extends BasePage {
    * The page title
    */
   async getPageMainTitle() {
-    if (await this.page.locator('.title-row .title').isVisible()) {
+    if (await this.pageMainTitle.isVisible()) {
       const titleText = await this.pageMainTitle.textContent();
       return titleText?.trim();
     }
   }
   async getPageMainTitleOldPsVersion() {
-    if (await this.page.locator('h2.page-title').isVisible()) {
+    if (await this.pageMainTitleOldPsVersion.isVisible()) {
       const titleText = await this.pageMainTitleOldPsVersion.textContent();
       return titleText?.trim();
     }
@@ -42,12 +47,21 @@ export default class ModuleManagerPage extends BasePage {
    * @return {Promise<'new' | 'old'>} old is <= 1.6 and new >=1.7
    */
   async getPsVersion(): Promise<'new' | 'old'> {
-    const pageTitle = await this.getPageMainTitle();
-    const pageTitleOldPsVersion = await this.getPageMainTitleOldPsVersion();
-    if (pageTitle === moduleManagerPagesLocales.moduleManager.en_EN.title) {
-      return 'new';
-    } else if (pageTitleOldPsVersion === moduleManagerPagesLocales.moduleManager.en_EN.titleOldPsVersion) {
-      return 'old';
+    const detectVersion = async (): Promise<'new' | 'old' | null> => {
+      const isNew =
+        (await this.page.locator('#module-search-button').isVisible()) ||
+        (await this.page.locator('[data-target="#module-modal-import"]').isVisible());
+      if (isNew) return 'new';
+      const isOld =
+        (await this.page.locator('#moduleQuicksearch').isVisible()) ||
+        (await this.page.locator('#desc-module-new').isVisible());
+      if (isOld) return 'old';
+      return null;
+    };
+    for (let attempt = 0; attempt < 2; attempt++) {
+      const version = await detectVersion();
+      if (version) return version;
+      if (attempt === 0) await this.page.waitForTimeout(5000);
     }
     throw new Error('Version not detected');
   }
@@ -71,11 +85,11 @@ export default class ModuleManagerPage extends BasePage {
       await this.page.waitForSelector('.icon-list-ul');
       await this.page.locator('#moduleQuicksearch').fill('ps_account');
       await this.page.locator('#moduleQuicksearch').press('Enter');
-      const isAccountVisibleOnOldPsVersion = await this.page
+      const isAccountVisibleOnOldPsVersion = this.page
         .locator('.module_name')
         .filter({hasText: 'PrestaShop Account'})
-        .isVisible();
-      expect(isAccountVisibleOnOldPsVersion).toBeTruthy();
+        .first();
+      await expect(isAccountVisibleOnOldPsVersion).toBeVisible({timeout: 10000});
     }
   }
 
@@ -111,10 +125,10 @@ export default class ModuleManagerPage extends BasePage {
       .or(this.page.getByRole('link', {name: 'PrestaShop', exact: true}))
       .or(this.page.getByRole('link', {name: 'visibility'}))
       .first();
-    await dropdownTrigger.click(); 
+    await dropdownTrigger.click();
     const multiStoreOption = this.page
       .getByRole('link', {name: 'All stores', exact: true})
-      .or(this.page.getByRole('link', {name: 'All shops', exact: true}))
+      .or(this.page.getByRole('link', {name: 'All shops', exact: true}));
     await multiStoreOption.click();
     // expect(multiStoreOption).toBeVisible({timeout: 3000})
   }
@@ -123,7 +137,32 @@ export default class ModuleManagerPage extends BasePage {
     const allShopsBtn = this.page.getByRole('link', {name: 'All shops'});
     await allShopsBtn.click();
     const isMultiStoreVisible = this.page.getByRole('link', {name: 'All shops'});
-    expect(isMultiStoreVisible).toBeVisible({timeout: 3000})
+    expect(isMultiStoreVisible).toBeVisible({timeout: 3000});
+  }
+  /**
+   *
+   * Download the latest version of the zip
+   */
+  async downloadLatestZip() {
+    const token = process.env.DOWNLOADER_TOKEN;
+    const release = (await (
+      await fetch('https://api.github.com/repos/PrestaShopCorp/ps_accounts/releases/latest', {
+        headers: {Authorization: `token ${token}`}
+      })
+    ).json()) as {
+      assets: Array<{name: string; url: string}>;
+    };
+    const asset = release.assets.find(({name}) => name.startsWith('ps_accounts_preprod-') && name.endsWith('.zip'))!;
+    const zipPath = path.join(os.tmpdir(), 'ps_accounts_latest.zip');
+    const zipBuffer = Buffer.from(await (
+      await fetch(asset.url, {
+        headers: {Authorization: `token ${token}`, Accept: 'application/octet-stream'}
+      })
+    ).arrayBuffer());
+
+    await fs.writeFile(zipPath, zipBuffer);
+
+    return zipPath;
   }
 
   /**
@@ -132,7 +171,7 @@ export default class ModuleManagerPage extends BasePage {
    */
   async uploadZip() {
     const psVersion = await this.getPsVersion();
-    const filePath = path.join(__dirname, '../../../e2e-env/modules/ps_accounts_preprod-8.0.9.zip');
+    const filePath = await this.downloadLatestZip();
     if (psVersion === 'new') {
       await this.page.locator('[data-target="#module-modal-import"]').click();
       const fileChooserPromise = this.page.waitForEvent('filechooser');
@@ -159,6 +198,11 @@ export default class ModuleManagerPage extends BasePage {
       await this.page.locator('[name="download"]').click();
       await this.page.waitForSelector('.alert.alert-success');
       await this.page.reload({waitUntil: 'commit'});
+      if (await this.isCloudflareErrorPage()) {
+        await this.page.goto(new URL('index.php?controller=AdminModules', Globals.base_url).toString(), {
+          waitUntil: 'domcontentloaded'
+        });
+      }
     }
   }
 
@@ -172,7 +216,6 @@ export default class ModuleManagerPage extends BasePage {
       const moduleContainer = this.page.locator('#modules-list-container-440');
       const dropdownBtn = moduleContainer.locator('.btn.btn-outline-primary.dropdown-toggle');
       const upgradeBtn = moduleContainer.getByRole('button', {name: 'Upgrade'});
-
       if (await upgradeBtn.isVisible()) {
         await dropdownBtn.click();
       }

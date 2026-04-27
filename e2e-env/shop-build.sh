@@ -24,6 +24,8 @@ tunnelSecret="${TUNNEL_SECRET}"
 tunnelId="${TUNNEL_ID}"
 # Ping de l'URL
 appUrl="https://$psDomain"
+adminUrl="${appUrl}/admin-dev/"
+frontUrl="${appUrl}"
 
 #Verifie qu'on a bien deux version de shop en multistore
 if [ "$profile" = "multistore" ]; then
@@ -31,6 +33,8 @@ if [ "$profile" = "multistore" ]; then
     echo "❌ En mode multistore, tu dois fournir une deuxième version de shop."
     exit 1
   fi
+  adminUrl="${appUrl}/shop1/admin-dev/"
+  frontUrl="${appUrl}/shop1"
 else
   shopVersionSecondeShop=""
 fi
@@ -39,6 +43,13 @@ fi
 makeFilePath='./'
 makeCommand="make -C $makeFilePath docker-build PS_ACCOUNTS_VERSION=$psAccountsVersion PS_VERSION=$shopVersion SECONDE_PS_VERSION=$shopVersionSecondeShop PS_DOMAIN=$psDomain TUNNEL_ID=$tunnelId TUNNEL_SECRET=$tunnelSecret ACCOUNT_TAG=$accountTag PROFILE=$profile"
 eval $makeCommand
+
+dump_debug_logs() {
+  echo "----- docker compose ps ($profile) -----"
+  docker compose --profile "$profile" ps || true
+  echo "----- docker compose logs (mytun traefik prestashop shop1 mysql) -----"
+  docker compose --profile "$profile" logs --tail=120 mytun traefik prestashop shop1 mysql || true
+}
 
 # Fonction pour ping l'URL
 ping_url() {
@@ -61,12 +72,13 @@ ping_url() {
     # Vérifier si le délai est dépassé
     if [ $elapsed_time -ge $timeout_duration ]; then
       echo "Timeout: The URL did not respond within $timeout_duration seconds. Exiting."
+      dump_debug_logs
       exit 1
     fi
 
     # Tester l'URL
-    response=$(curl -o /dev/null -s -w '%{http_code}' "$url")
-    if [ "$response" -eq 200 ] || [ "$response" -eq 302 ]; then
+    response=$(curl -k -o /dev/null -s -w '%{http_code}' "$url" || echo "000")
+    if [ "$response" -eq 200 ] || [ "$response" -eq 301 ] || [ "$response" -eq 302 ] || [ "$response" -eq 307 ] || [ "$response" -eq 308 ]; then
       echo "URL is reachable."
       return 0
     fi
@@ -76,20 +88,20 @@ ping_url() {
   done
 }
 
-ping_url $appUrl
+ping_url "${adminUrl}"
 
 cd ../e2e
 
 if [[ "$OSTYPE" == "darwin"* ]]; then
 sed -i '' "/^BASE_URL=/c\\
-BASE_URL=${appUrl}/admin-dev/
+BASE_URL=${adminUrl}
 " .env
 sed -i '' "/^BASE_URL_FO=/c\\
-BASE_URL_FO=${appUrl}
+BASE_URL_FO=${frontUrl}
 " .env
 else
-sed -i "/^BASE_URL=/c\\BASE_URL=${appUrl}/admin-dev/" .env
-sed -i "/^BASE_URL_FO=/c\\BASE_URL_FO=${appUrl}" .env
+sed -i "/^BASE_URL=/c\\BASE_URL=${adminUrl}" .env
+sed -i "/^BASE_URL_FO=/c\\BASE_URL_FO=${frontUrl}" .env
 fi
 
-echo "Tests environment is available at: $appUrl/admin-dev/"
+echo "Tests environment is available at: $adminUrl"

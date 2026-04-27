@@ -152,6 +152,14 @@ class Client
     }
 
     /**
+     * @return CircuitBreaker\CircuitBreaker
+     */
+    public function getCircuitBreaker()
+    {
+        return $this->circuitBreaker;
+    }
+
+    /**
      * @param Request $request
      *
      * @return Response

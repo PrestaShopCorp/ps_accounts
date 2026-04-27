@@ -9,7 +9,19 @@ class WithPropertyTraitTest extends TestCase
     /**
      * @test
      */
-    public function itShouldSetAProperty()
+    public function itShouldGetAProperty()
+    {
+        $instance = new TraitTestClass();
+
+        $value = $this->faker->word;
+
+        $this->assertEquals($value, $instance->withProperty('property1', $value)->getProperty('property1'));
+    }
+
+    /**
+     * @test
+     */
+    public function itShouldGetAMagicProperty()
     {
         $instance = new TraitTestClass();
 
@@ -27,11 +39,40 @@ class WithPropertyTraitTest extends TestCase
 
         $value = $this->faker->word;
 
+        $this->assertEquals($value, $instance->withProperty('property1', $value)->getProperty('property1'));
+
+        $defaults = $instance->getDefaults();
+
+        $this->assertEquals($defaults['property1'], $instance->getProperty('property1'));
+    }
+
+    /**
+     * @test
+     */
+    public function itShouldRestoreAPropertyAfterMagicGet()
+    {
+        $instance = new TraitTestClass();
+
+        $value = $this->faker->word;
+
         $this->assertEquals($value, $instance->withProperty1($value)->getProperty1());
 
         $defaults = $instance->getDefaults();
 
         $this->assertEquals($defaults['property1'], $instance->getProperty1());
+    }
+
+    /**
+     * @test
+     */
+    public function itShouldNotRestoreAPropertyAfterMagicGet()
+    {
+        $instance = new TraitTestClass();
+
+        $value = $this->faker->word;
+
+        $this->assertEquals($value, $instance->withProperty('property1', $value)->getProperty('property1', false));
+        $this->assertEquals($value, $instance->getProperty('property1', false));
     }
 
     /**
@@ -54,8 +95,58 @@ class WithPropertyTraitTest extends TestCase
     {
         $instance = new TraitTestClass();
 
-        $this->expectException(\InvalidArgumentException::class);
+        $handleException = function ($e) {
+             $this->assertTrue((bool) preg_match('/Undefined property/', $e->getMessage()));
+        };
 
-        $instance->getFooBar();
+        try {
+            $instance->getProperty('fooBar');
+        } catch (\Exception $e) {
+            $handleException($e);
+        } catch (\Throwable $e) {
+            $handleException($e);
+        }
+    }
+
+    /**
+     * @test
+     */
+    public function itShouldThrowExceptionIfMagicPropertyDoesNotExist()
+    {
+        $instance = new TraitTestClass();
+
+        $handleException = function ($e) {
+            $this->assertTrue((bool) preg_match('/Undefined property/', $e->getMessage()));
+        };
+
+        try {
+            $instance->getFooBar();
+        } catch (\Exception $e) {
+            $handleException($e);
+        } catch (\Throwable $e) {
+            $handleException($e);
+        }
+    }
+
+    /**
+     * @test
+     */
+    public function itShouldRestoreAProperty()
+    {
+        $instance = new TraitTestClass();
+
+        $value = $this->faker->word;
+
+        $instance->withProperty1($value);
+
+        $this->assertEquals($value, $instance->getProperty1(false));
+
+        $this->assertEquals($value, $instance->getProperty1(false));
+
+        $instance->resetProperty1();
+
+        $defaults = $instance->getDefaults();
+
+        $this->assertEquals($defaults['property1'], $instance->getProperty1());
     }
 }

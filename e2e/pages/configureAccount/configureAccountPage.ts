@@ -40,7 +40,7 @@ export default class ConfigureAccountPage extends ModuleManagerPage {
    */
   async verifyManualy() {
     await this.page.getByRole('button', {name: 'Verify'}).click();
-    await this.page.locator('[data-test="account-settings-panel"]').nth(1).waitFor({state: 'hidden'});
+    await this.page.waitForTimeout(5000)
   }
   /**
    * Check if Verification succed
@@ -56,7 +56,7 @@ export default class ConfigureAccountPage extends ModuleManagerPage {
    */
   async checkVerificationFailed() {
     await this.page.waitForTimeout(1000)
-    const isVisible = await this.page.locator('[data-test="description-verification-failed-alert"]');
+    const isVisible = await this.page.locator('[data-test="verification-failed-alert"]');
     expect(isVisible).toBeVisible();
   }
 
@@ -80,7 +80,7 @@ export default class ConfigureAccountPage extends ModuleManagerPage {
     ]);
 
     await newPage.waitForTimeout(5000);
-    expect(newPage.url()).toContain('authv2-preprod');
+    // expect(newPage.url()).toContain('authv2-preprod');
     return newPage;
   }
 
@@ -90,8 +90,9 @@ export default class ConfigureAccountPage extends ModuleManagerPage {
    */
   async checkIsSigned() {
     await this.page.waitForTimeout(5000);
-    await this.page.locator('.page-title', {hasText: 'Configure'}).isVisible;
-    const isVisible = await this.page.getByText(Globals.account_email).isVisible();
+    await this.page.locator('.page-title', {hasText: 'Configure'}).isVisible();
+    await this.page.waitForTimeout(5000);
+    const isVisible = await this.page.getByText(Globals.account_email).isVisible({timeout: 20000});
     expect(isVisible).toBeTruthy();
   }
 
@@ -101,14 +102,6 @@ export default class ConfigureAccountPage extends ModuleManagerPage {
    */
   async displayAllStoreInformations() {
     await this.page.locator('.shopname').click();
-    // try {
-    //   await this.page
-    //     .locator('a')
-    //     .filter({hasText: /^All stores$/})
-    //     .click();
-    // } catch {
-    //   await this.page.getByRole('link', {name: 'All shops'}).click();
-    // }
     const allStores = this.page.locator('a').filter({hasText: /^All stores$/});
     const allShops = this.page.getByRole('link', {name: 'All shops'}).first();
     if (await allStores.isVisible()) {

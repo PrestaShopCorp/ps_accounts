@@ -1,23 +1,29 @@
 #!/bin/bash
+set -euo pipefail
 
-if [ -n "$1" ]; then
+export PS_ACCOUNTS_VERSION="v7.2.2"
+
+if [ -n "${1:-}" ]; then
   SHOP_VERSIONS=("$1")
 else
 SHOP_VERSIONS=(
   nightly-nginx    
   8.2.0-8.1-fpm-alpine
-  1.7.8.8-7.4-fpm-alpine
+  1.7.8.8-7.2-fpm-alpine-nginx
   1.6.1.24-7.1-fpm-alpine
 )
 fi
 
 for PS_VERSION in "${SHOP_VERSIONS[@]}"; do
-#Build the shop 
-npm run build-shop -- "$PS_VERSION"
+#Build the shop
+sleep 4
+npm run build-shop -- "$PS_VERSION" "" "" "$PS_ACCOUNTS_VERSION"
+sleep 4
 
 #Run the tests
 npx playwright test --project="Account TNR V7" module_installation || true 
-npx playwright test --project="Account TNR V7" association-disassociation || true 
+npx playwright test --project="Account TNR V7" 01_front_check_association.spec.ts || true 
+npx playwright test --project="Account TNR V7" 02_front_check_disassociation.spec.ts|| true 
 
 
 #Create the allure result directory

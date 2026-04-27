@@ -253,7 +253,7 @@ class OAuth2Controller extends FrameworkBundleAdminController
     protected function redirectAfterLogin()
     {
         if ($this->getOAuthAction() === 'identifyPointOfContact') {
-            return $this->closePopup();
+            return $this->closePopup($this->getForceSignup());
         }
 
         return $this->redirectResponse;
@@ -281,7 +281,7 @@ class OAuth2Controller extends FrameworkBundleAdminController
         }
 
         return $this->redirect(
-            $this->getSessionReturnTo() ?:
+            $this->getReturnTo() ?:
                 $this->link->getAdminLink('AdminDashboard')
         );
     }
@@ -319,15 +319,30 @@ class OAuth2Controller extends FrameworkBundleAdminController
     }
 
     /**
+     * @param bool $forceSignup
+     *
      * @return Response
      */
-    protected function closePopup()
+    protected function closePopup($forceSignup = false)
     {
-        return (new Response())->setContent('
+        if ($forceSignup) {
+            return new RedirectResponse($this->getSignupUrl());
+        } else {
+            return (new Response())->setContent('
 <script type="text/javascript">
 window.close();
 </script>
 ');
+        }
+    }
+
+    /**
+     * @return string
+     */
+    protected function getSignupUrl()
+    {
+        return $this->module->getParameter('ps_accounts.accounts_ui_url') .
+            '?signupContext=popup';
     }
 
     /**

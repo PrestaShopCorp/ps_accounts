@@ -1,6 +1,7 @@
 #!/bin/bash
+set -euo pipefail
 
-if [ -n "$1" ]; then
+if [ -n "${1:-}" ]; then
   SHOP_VERSIONS=("$1")
 else
 SHOP_VERSIONS=(
@@ -10,13 +11,13 @@ SHOP_VERSIONS=(
   1.6.1.24-7.1-fpm-alpine
 )
 fi
-if [ -n "$2" ]; then
-  ACCOUNTS_VERSIONS=("$2")
+if [ -n "${2:-}" ]; then
+  PS_ACCOUNTS_VERSION=("$2")
 else
-ACCOUNTS_VERSIONS=(
-  v8.0.6
+PS_ACCOUNTS_VERSION=(
   v7.2.2
   v6.3.1
+  v7.2.2
   v5.6.2
 )
 fi
@@ -28,12 +29,14 @@ TESTS=(
 
 for index in "${!SHOP_VERSIONS[@]}"; do
   PS_VERSION="${SHOP_VERSIONS[$index]}"
-  ACCOUNT_VERSION="${ACCOUNTS_VERSIONS[$index]}"
+  PS_ACCOUNTS_VERSION="${PS_ACCOUNTS_VERSION[$index]}"
 
   for TEST in "${TESTS[@]}"; do
 
 #Build the shop 
-npm run build-shop -- "$PS_VERSION" "" "" "$ACCOUNT_VERSION"
+sleep 4
+npm run build-shop -- "$PS_VERSION" "" "" "$PS_ACCOUNTS_VERSION"
+sleep 4
 
 #Run the tests
 npx playwright test "upgrade/$TEST" --project="Upgrade TNR" || true

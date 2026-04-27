@@ -25,7 +25,9 @@ if [ "$PROFILE" = "multistore" ]; then
 credentials-file: /credentials.json
 ingress:
   - hostname: \"$PS_DOMAIN\"
-    service: http://nginx_proxy:80
+    service: http://traefik:80
+    originRequest:
+      httpHostHeader: \"$PS_DOMAIN\"
   - service: http_status:404"
 elif [ "$PROFILE" = "imageoff" ]; then
   config_yaml_content="tunnel: \"$TUNNEL_ID\"

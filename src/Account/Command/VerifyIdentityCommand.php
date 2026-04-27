@@ -46,6 +46,6 @@ class VerifyIdentityCommand
         $this->shopId = $shopId;
         $this->force = $force;
 
-        $this->initDefaults();
+        $this->resetProperties();
     }
 }

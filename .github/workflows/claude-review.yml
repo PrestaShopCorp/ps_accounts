@@ -1,0 +1,280 @@
+---
+name: Claude PR Review
+
+# ─────────────────────────────────────────────────────────────────────
+# Automated code review by Claude.
+#
+# Trigger: label "need-claude-review" on a PR.
+#   - First labeling  → review initiale (full diff)
+#   - Second labeling → re-review (new commits only, max 1)
+#
+# The label is removed after each review so it can be re-added.
+# Limits: max 2 reviews per PR (initial + one re-review).
+#
+# Pre-requisites (manual, one-time):
+#   - Create repo secret ACCOUNT_ANTHROPIC_API_KEY
+#   - Create label "need-claude-review" in the repository
+# ─────────────────────────────────────────────────────────────────────
+
+on:
+  pull_request:
+    types: [labeled]
+
+concurrency:
+  group: claude-review-${{ github.event.pull_request.number }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+  pull-requests: write
+  id-token: write
+
+jobs:
+  claude-review:
+    if: >-
+      github.event.label.name == 'need-claude-review'
+      && github.event.pull_request.draft == false
+      && github.event.pull_request.head.repo.full_name == github.repository
+    runs-on: ubuntu-latest
+    steps:
+      # ── Step 1: Resolve PR context + enforce review limits ──
+      - name: Resolve context
+        id: ctx
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const MARKER_RE = /<!-- claude-review-done:([a-f0-9]+) -->/;
+            const prNumber = context.payload.pull_request.number;
+
+            // Fetch existing reviews and find Claude markers
+            const { data: reviews } = await github.rest.pulls.listReviews({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              pull_number: prNumber,
+              per_page: 100,
+            });
+
+            const markers = reviews
+              .filter(r => r.body && MARKER_RE.test(r.body))
+              .map(r => ({ sha: r.body.match(MARKER_RE)[1] }));
+
+            const reviewCount = markers.length;
+            const isReReview = reviewCount > 0;
+
+            // ── Quota reached: block ──
+            if (reviewCount >= 2) {
+              await github.rest.issues.createComment({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: prNumber,
+                body: '> **Claude review** — le nombre maximum de reviews (2) a ete atteint pour cette PR.',
+              });
+              core.setOutput('skip', 'true');
+              return;
+            }
+
+            // Fetch PR head info
+            const { data: pr } = await github.rest.pulls.get({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              pull_number: prNumber,
+            });
+
+            // ── Re-review: block if no new commits since last review ──
+            if (isReReview && markers[markers.length - 1].sha === pr.head.sha) {
+              await github.rest.issues.createComment({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: prNumber,
+                body: '> **Claude review** — aucun nouveau commit depuis la derniere review. Poussez des corrections avant de re-ajouter le label.',
+              });
+              core.setOutput('skip', 'true');
+              return;
+            }
+
+            if (isReReview) {
+              core.setOutput('since_sha', markers[markers.length - 1].sha);
+            }
+
+            core.setOutput('skip', 'false');
+            core.setOutput('pr_number', String(prNumber));
+            core.setOutput('is_re_review', String(isReReview));
+            core.setOutput('head_sha', pr.head.sha);
+            core.setOutput('head_ref', pr.head.ref);
+
+      # ── Step 2: Checkout PR branch ──
+      - name: Checkout repository
+        if: steps.ctx.outputs.skip != 'true'
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ steps.ctx.outputs.head_ref }}
+          fetch-depth: 0
+
+      # ── Step 3: Run Claude review ──
+      - name: Run Claude Code review
+        if: steps.ctx.outputs.skip != 'true'
+        uses: anthropics/claude-code-action@b47fd721da662d48c5680e154ad16a73ed74d2e0 # v1
+        with:
+          anthropic_api_key: ${{ secrets.ACCOUNT_ANTHROPIC_API_KEY }}
+          claude_args: >-
+            --allowedTools
+            "Bash(gh pr review:*),Bash(gh pr diff:*),Bash(gh pr view:*),Bash(git diff:*),Bash(git log:*),Read,Glob,Grep,Write"
+          prompt: |
+            Tu es un reviewer senior pour le module PrestaShop ps_accounts.
+            Reponds ENTIEREMENT en francais.
+
+            Ce module PHP gere :
+            - L'authentification OAuth2 et la generation de tokens (TokenV2)
+            - L'identification et la verification des shops PrestaShop
+            - La synchronisation avec PrestaShop Cloud (accounts-api, auth-hydra)
+            - Les sessions shop/owner (Firebase deprecie, OAuth2 actif)
+
+            Structure du projet :
+            - `ps_accounts.php` — point d'entree du module, hooks, bootstrap DI
+            - `src/Account/` — CQRS : commands/queries pour l'etat du compte et des sessions
+            - `src/Account/Session/` — gestion des sessions shop/owner (Firebase deprecie)
+            - `src/Service/OAuth2/` — flow OAuth2, refresh logic, stockage des tokens
+            - `src/Service/PsAccountsService.php` — API publique consommee par les autres modules
+            - `src/Controller/Admin/` — controleurs back-office
+            - `src/Controller/Front/` — controleurs front-office / API
+            - `src/Api/V2/` — endpoints REST API v2
+            - `src/Repository/` — couche d'acces DB (PrestaShop ObjectModel)
+            - `src/Hook/` — handlers de hooks PrestaShop
+            - `src/Installer/` — logique install/uninstall/upgrade
+            - `src/ServiceContainer/` — service providers (lightweight-container)
+            - `src/Http/` — client HTTP interne (curl uniquement)
+            - `sql/` — scripts de migration SQL
+            - `upgrade/` — scripts d'upgrade du module
+            - `_dev/apps/` — frontend TypeScript/Vue 3 (compile dans views/)
+            - `config/` — definitions YAML pour l'integration PrestaShop core
+
+            Mode : ${{ steps.ctx.outputs.is_re_review == 'true' && 'RE-REVIEW' || 'REVIEW INITIALE' }}
+            ${{ steps.ctx.outputs.is_re_review == 'true' && format('SHA de la review precedente : {0}', steps.ctx.outputs.since_sha) || '' }}
+            PR number (pour les commandes gh uniquement, NE PAS inclure dans le titre) : ${{ steps.ctx.outputs.pr_number }}
+
+            ## Methode de travail (OBLIGATOIRE)
+
+            ${{ steps.ctx.outputs.is_re_review == 'true' && format('1. Lance `git log {0}..HEAD --oneline` pour voir les commits ajoutes depuis la derniere review
+            2. Lance `git diff {0}..HEAD` pour obtenir UNIQUEMENT le diff des nouveaux changements
+            3. Concentre-toi sur ces changements et verifie si les remarques de la review precedente ont ete corrigees
+            4. Lis la review precedente avec `gh pr view {1} --comments` pour comprendre ce qui avait ete signale', steps.ctx.outputs.since_sha, steps.ctx.outputs.pr_number) || format('1. Lance `gh pr diff {0}` pour obtenir le diff complet', steps.ctx.outputs.pr_number) }}
+
+            ## Lecture du contexte (OBLIGATOIRE)
+
+            1. Lis le fichier `CLAUDE.md` a la racine pour les conventions du projet
+            2. Identifie quelles zones sont modifiees dans le diff
+            3. AVANT de signaler un bug ou un probleme de design,
+               LIS le fichier source complet avec Read pour VERIFIER ton hypothese
+            4. Ne signale QUE les problemes que tu as CONFIRMES dans le code
+            5. Ne specule JAMAIS sur le comportement du code — verifie-le
+
+            ## Criteres de review (par priorite)
+
+            1. **ZONES RESTREINTES** : modifications dans les zones restreintes definies dans CLAUDE.md :
+               - `src/Service/OAuth2/` et `src/Account/Session/` — auth/sessions : review humaine obligatoire
+               - `sql/` — migrations SQL : jamais de generation automatique
+               - `upgrade/` — scripts d'upgrade : risque de regression
+               - `src/Service/PsAccountsService.php` — API publique : BC breaks interdits
+               - `config/prod/` — configuration de production
+               - Vendors scopes (`vendor/`, `dist/`) — ne pas modifier manuellement
+               → CRITIQUE immediat si modifie sans justification
+
+            2. **COMPATIBILITE PHP 5.6** : le code dans `src/` DOIT etre compatible PHP 5.6.
+               Pas de typed properties, union types, named arguments, nullable types (`?Type`),
+               return type declarations, `void` return type, `iterable`, spread operator dans les arrays,
+               constantes de visibilite, ou toute syntaxe PHP 7+.
+               → CRITIQUE si violation
+
+            3. **SECURITE** : secrets dans le code, injections (SQL, XSS, commandes),
+               endpoints non proteges, tokens exposes dans les logs
+
+            4. **NAMESPACES VENDORS** : les dependances tierces doivent etre referencees
+               sous `PrestaShop\Module\PsAccounts\Vendor\*` (php-scoper).
+               Jamais de `use GuzzleHttp\`, `use Symfony\`, ou namespace vendor non scope.
+               → CRITIQUE si violation
+
+            5. **ARCHITECTURE** :
+               - CQRS dans `src/Account/` : separation command/query, handlers dans `CommandHandler/`
+               - Nommage : `[Action][Entity]Command`, `[Action][Entity]Handler`
+               - Acces DB exclusivement via `src/Repository/` (pas de requetes directes)
+               - Pas de modification directe de `ps_configuration`
+               - Client HTTP : curl interne uniquement (pas de Guzzle, pas de PSR-18)
+
+            6. **BC BREAKS** : toute modification de l'interface publique de `PsAccountsService`
+               est un BC break potentiel pour les modules tiers → CRITIQUE
+
+            7. **TESTS** : les fichiers modifies ont-ils des tests correspondants ?
+               Convention : `[TestedClass]Test.php`, methodes `itShould[Action][Context]` avec `@test`
+
+            8. **REVIEW HUMAINE** : signale les changements qui necessitent une review humaine
+               selon les sections "always requires human review" du CLAUDE.md
+
+            ## Regles
+
+            - MAX 15 issues — mais ne cherche PAS a atteindre ce chiffre
+            - Remonte uniquement les problemes qui le meritent vraiment
+            - La limite de 15 sert pour les grosses PR ; pour les petites, 2-3 retours suffisent
+            - Ne review QUE le code MODIFIE dans le diff (pas le code existant inchange)
+            - Un choix de design delibere n'est PAS un bug
+            - Ne classe en Critique que les bugs PROUVES ou failles de securite CONFIRMEES
+            - Si tu n'es pas sur a >90%, ne le signale pas
+            - NE PAS signaler les problemes de formatage/style — php-cs-fixer s'en charge
+            - Concentre-toi sur l'architecture, la logique metier et la compatibilite PHP
+
+            ## Classification
+
+            | Niveau | Label | Quand l'utiliser |
+            |--------|-------|------------------|
+            | CRITIQUE | `[CRITIQUE]` | Bug confirme, faille de securite prouvee, zone restreinte modifiee, syntaxe PHP 7+, vendor non scope |
+            | MAJEUR | `[MAJEUR]` | Violation de convention du projet, BC break potentiel, test manquant sur handler |
+            | MINEUR | `[MINEUR]` | Lisibilite, bonne pratique, nommage |
+            | SUGGESTION | `[SUGGESTION]` | Amelioration optionnelle (max 2) |
+
+            ## Mise en forme
+
+            Lis le fichier `.github/claude-review-template.md` avec Read pour connaitre
+            le format exact de sortie. Respecte-le strictement.
+            En mode RE-REVIEW : utilise le template "Re-review" (AVEC le message de quota atteint).
+            En mode REVIEW INITIALE : utilise le template standard (AVEC le footer re-review via label).
+
+            ## Action finale (OBLIGATOIRE)
+
+            Tu DOIS terminer en soumettant une review GitHub avec `gh pr review`.
+            Ne poste JAMAIS un simple commentaire.
+
+            **Procedure (2 etapes) :**
+
+            1. **Ecris** le body Markdown complet de la review dans le fichier `/tmp/review.md`
+               en utilisant l'outil Write. Le contenu DOIT respecter le template
+               `.github/claude-review-template.md` lu plus tot et se terminer par la balise :
+               `<!-- claude-review-done:${{ steps.ctx.outputs.head_sha }} -->`
+
+            2. **Poste** la review avec `--body-file` (JAMAIS `--body`) :
+
+            - 0 CRITIQUE + 0 MAJEUR :
+              `gh pr review ${{ steps.ctx.outputs.pr_number }} --approve --body-file /tmp/review.md`
+            - MAJEUR sans CRITIQUE :
+              `gh pr review ${{ steps.ctx.outputs.pr_number }} --comment --body-file /tmp/review.md`
+            - Au moins 1 CRITIQUE :
+              `gh pr review ${{ steps.ctx.outputs.pr_number }} --request-changes --body-file /tmp/review.md`
+
+            NE PASSE JAMAIS le body via `--body` — utilise TOUJOURS `--body-file /tmp/review.md`.
+            Ceci garantit que le Markdown (headings, tableaux, blocs de code, separateurs) est
+            preserve integralement sur GitHub.
+
+      # ── Step 4: Always remove label so it can be re-added for re-review ──
+      - name: Remove need-claude-review label
+        if: always()
+        uses: actions/github-script@v7
+        with:
+          script: |
+            try {
+              await github.rest.issues.removeLabel({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: context.payload.pull_request.number,
+                name: 'need-claude-review',
+              });
+            } catch (e) {
+              // Label already removed — ignore
+            }

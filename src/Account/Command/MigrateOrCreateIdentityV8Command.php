@@ -39,6 +39,6 @@ class MigrateOrCreateIdentityV8Command
     {
         $this->shopId = $shopId;
 
-        $this->initDefaults();
+        $this->resetProperties();
     }
 }

@@ -26,7 +26,7 @@ class TraitTestClass
 
     public function __construct()
     {
-        $this->initDefaults();
+        $this->resetProperties();
     }
 
     public function getDefaults()

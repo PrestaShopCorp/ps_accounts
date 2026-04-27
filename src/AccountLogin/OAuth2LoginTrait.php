@@ -88,6 +88,11 @@ trait OAuth2LoginTrait
     abstract protected function getPsAccountsService();
 
     /**
+     * @return string
+     */
+    abstract protected function getSignupUrl();
+
+    /**
      * @return mixed
      *
      * @throws EmailNotVerifiedException
@@ -112,11 +117,13 @@ trait OAuth2LoginTrait
             $session = $this->getSession();
             $oauth2Session = $this->getOauth2Session();
 
+            $returnTo = Tools::getValue($this->getReturnToParam());
             $error = Tools::getValue('error', '');
             $state = Tools::getValue('state', '');
             $code = Tools::getValue('code', '');
             $action = Tools::getValue('action', 'login');
             $source = Tools::getValue('source', 'ps_accounts');
+            $forceSignup = Tools::getValue('forceSignup', false);
 
             if (!empty($error)) {
                 // Got an error, probably user denied access
@@ -126,11 +133,11 @@ trait OAuth2LoginTrait
                 // cleanup existing accessToken
                 $oauth2Session->clear();
 
+                $this->setReturnTo($returnTo);
                 $this->setOAuthAction($action);
                 $this->setSource($source);
                 $this->setShopId($shopId);
-
-                $this->setSessionReturnTo(Tools::getValue($this->getReturnToParam()));
+                $this->setForceSignup($forceSignup);
 
                 $this->oauth2Redirect(Tools::getValue('locale', 'en'), $shopId);
 
@@ -223,7 +230,7 @@ trait OAuth2LoginTrait
      *
      * @throws \Exception
      */
-    private function getSessionReturnTo()
+    private function getReturnTo()
     {
         return $this->getSession()->get($this->getReturnToParam(), '');
     }
@@ -235,7 +242,7 @@ trait OAuth2LoginTrait
      *
      * @throws \Exception
      */
-    private function setSessionReturnTo($returnTo)
+    private function setReturnTo($returnTo)
     {
         $this->getSession()->set($this->getReturnToParam(), $returnTo);
     }
@@ -300,6 +307,24 @@ trait OAuth2LoginTrait
     private function setShopId($shopId)
     {
         $this->getSession()->set('shopId', $shopId);
+    }
+
+    /**
+     * @return bool
+     */
+    private function getForceSignup()
+    {
+        return (bool) $this->getSession()->get('forceSignup', false);
+    }
+
+    /**
+     * @param bool $forceSignup
+     *
+     * @return void
+     */
+    private function setForceSignup($forceSignup)
+    {
+        $this->getSession()->set('forceSignup', $forceSignup);
     }
 
     /**

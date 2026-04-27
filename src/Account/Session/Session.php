@@ -72,11 +72,11 @@ abstract class Session implements SessionInterface
          * Avoid multiple refreshToken calls in the same runtime:
          * if it fails once, it will subsequently fail
          */
-        if ($message = $this->getRefreshTokenErrors(static::class)) {
+        if ($e = $this->getRefreshTokenError(static::class)) {
             $this->setToken('');
 
             if ($throw) {
-                throw new RefreshTokenException('Unable to refresh shop token : ' . $message);
+                throw $e;
             }
 
             return $this->getToken();
@@ -87,7 +87,7 @@ abstract class Session implements SessionInterface
                 $this->refreshToken(null, $scope, $audience);
             } catch (RefreshTokenException $e) {
                 $this->setToken('');
-                $this->setRefreshTokenErrors(static::class, $e->getMessage());
+                $this->setRefreshTokenError(static::class, $e);
 
                 if ($throw) {
                     throw $e;
@@ -123,13 +123,13 @@ abstract class Session implements SessionInterface
     }
 
     /**
-     * @param string $refreshToken
+     * @param string $className
      *
-     * @return string|false
+     * @return RefreshTokenException|false
      */
-    public function getRefreshTokenErrors($refreshToken)
+    public function getRefreshTokenError($className)
     {
-        return isset($this->refreshTokenErrors[$refreshToken]) ? $this->refreshTokenErrors[$refreshToken] : false;
+        return isset($this->refreshTokenErrors[$className]) ? $this->refreshTokenErrors[$className] : false;
     }
 
     /**
@@ -142,13 +142,13 @@ abstract class Session implements SessionInterface
 
     /**
      * @param string $className
-     * @param string $message
+     * @param RefreshTokenException $e
      *
      * @return void
      */
-    protected function setRefreshTokenErrors($className, $message)
+    protected function setRefreshTokenError($className, RefreshTokenException $e)
     {
-        $this->refreshTokenErrors[$className] = $message;
+        $this->refreshTokenErrors[$className] = $e;
     }
 
     /**

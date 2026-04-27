@@ -61,6 +61,7 @@ npm-debug.log*
 
 # e2e ignore
 .act
+.playwright-cli
 /e2e/allure-results
 /e2e/allure-report
 /e2e/test-results
@@ -76,6 +77,7 @@ npm-debug.log*
 /.act
 /e2e/tests/Debug/
 /e2e/tests/tnrV8/multistore/Debug_multistore_verifications.spec.ts
+/doc/tests-documentation.md
 
 
 # e2e-env ignore

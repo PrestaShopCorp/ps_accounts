@@ -34,6 +34,7 @@ activeMultistoreAndCreateShop('Check Multistore Verifications', async ({activeMu
   });
   await test.step('check seconde shop is verified UI and getshopstatus return verified:true', async () => {
     await pm.fromConfigureAccountPage().verifyManualy();
+    await pm.fromConfigureAccountPage().checkVerificationSucced();
     const status = await pm.fromConfigureAccountPage().getStoreInformation();
     expect(status).toBeTruthy();
     const apiStatus = await pm.fromConfigureAccountPage().getStoreInformationFromApi(1);

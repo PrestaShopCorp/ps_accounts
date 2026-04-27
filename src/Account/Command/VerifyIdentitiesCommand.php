@@ -29,6 +29,6 @@ class VerifyIdentitiesCommand
 
     public function __construct()
     {
-        $this->initDefaults();
+        $this->resetProperties();
     }
 }
