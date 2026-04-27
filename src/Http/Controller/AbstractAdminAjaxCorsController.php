@@ -30,6 +30,7 @@ use PrestaShop\Module\PsAccounts\Log\Logger;
 use PrestaShop\Module\PsAccounts\Polyfill\Traits\AdminController\IsAnonymousAllowed;
 use PrestaShop\Module\PsAccounts\Polyfill\Traits\Controller\AjaxRender;
 use PrestaShop\Module\PsAccounts\Service\AdminTokenService;
+use PrestaShop\Module\PsAccounts\Service\SentryService;
 
 abstract class AbstractAdminAjaxCorsController extends ModuleAdminController
 {
@@ -176,6 +177,13 @@ abstract class AbstractAdminAjaxCorsController extends ModuleAdminController
             );
 
             return;
+        }
+
+        // trace unhandled exceptions
+        try {
+            SentryService::capture($e);
+        } catch (\Exception $captureException) {
+            Logger::getInstance()->error($captureException);
         }
 
         http_response_code(500);
