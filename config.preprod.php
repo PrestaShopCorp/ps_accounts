@@ -47,7 +47,7 @@ return [
     // a page to display "Update Your Module" message
     'ps_accounts.svc_accounts_ui_url' => 'https://accounts.psessentials-integration.net',
 
-    'ps_accounts.oauth2_url' => 'https://oauth-preprod.prestashop.com',
+    'ps_accounts.oauth2_url' => 'https://oauth.preproduction.prestashop.com',
     'ps_accounts.token_audience' => 'https://accounts-api.distribution-preprod.prestashop.net',
     'ps_accounts.token_validator_leeway' => 900,
 
