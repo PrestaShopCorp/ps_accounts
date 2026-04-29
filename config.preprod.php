@@ -20,9 +20,8 @@
 
 return [
     'ps_accounts.segment_write_key' => 'eYODaH20rT1lMRTTUtAa15BKBlV1XUXQ',
-    'ps_accounts.accounts_api_url' => 'https://accounts-api.distribution-preprod.prestashop.net/',
-'ps_accounts.accounts_api_url' => 'https://accounts-api.preproduction.prestashop.com/',
-'ps_accounts.accounts_ui_url' => 'https://accounts.preproduction.prestashop.com',
+    'ps_accounts.accounts_api_url' => 'https://accounts-api.preproduction.prestashop.com/',
+    'ps_accounts.accounts_ui_url' => 'https://accounts.preproduction.prestashop.com',
     'ps_accounts.billing_api_url' => 'https://billing-api.distribution-preprod.prestashop.net/',
     'ps_accounts.sso_api_url' => 'https://auth-preprod.prestashop.com/api/v1/',
     'ps_accounts.sso_account_url' => 'https://authv2-preprod.prestashop.com/login',
