@@ -20,11 +20,11 @@
 
 return [
     'ps_accounts.segment_write_key' => 'eYODaH20rT1lMRTTUtAa15BKBlV1XUXQ',
-    'ps_accounts.accounts_api_url' => 'https://accounts-api.distribution-preprod.prestashop.net/',
-    'ps_accounts.accounts_ui_url' => 'https://accounts.distribution-preprod.prestashop.net',
+    'ps_accounts.accounts_api_url' => 'https://accounts-api.preproduction.prestashop.com/',
+    'ps_accounts.accounts_ui_url' => 'https://accounts.preproduction.prestashop.com',
     'ps_accounts.billing_api_url' => 'https://billing-api.distribution-preprod.prestashop.net/',
-    'ps_accounts.sso_api_url' => 'https://auth-preprod.prestashop.com/api/v1/',
-    'ps_accounts.sso_account_url' => 'https://authv2-preprod.prestashop.com/login',
+    'ps_accounts.sso_api_url' => 'https://auth.preproduction.prestashop.com/api/v1/',
+    'ps_accounts.sso_account_url' => 'https://authv2.preproduction.prestashop.com/login',
     'ps_accounts.indirect_channel_api_url' => 'https://indirect-channel-api-preprod.prestashop.net',
     'ps_accounts.segment_api_key' => 'yO1sKx3Xe9upW4bRDoRXEB0TZEXQm2y3',
     'ps_accounts.sso_resend_verification_email_url' => 'https://auth-preprod.prestashop.com/account/send-verification-email',
@@ -47,7 +47,7 @@ return [
     // a page to display "Update Your Module" message
     'ps_accounts.svc_accounts_ui_url' => 'https://accounts.psessentials-integration.net',
 
-    'ps_accounts.oauth2_url' => 'https://oauth-preprod.prestashop.com',
+    'ps_accounts.oauth2_url' => 'https://oauth.preproduction.prestashop.com',
     'ps_accounts.token_audience' => 'https://accounts-api.distribution-preprod.prestashop.net',
     'ps_accounts.token_validator_leeway' => 900,
 
