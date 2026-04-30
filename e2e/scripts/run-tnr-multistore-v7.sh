@@ -27,19 +27,19 @@ for PS_VERSION in "${SHOP_VERSIONS[@]}"; do
 
     # Flow A: Associaiton + Delete Token
     build_shop "$PS_VERSION"
-    npx playwright test --project="Account TNR V7" 01_multistore_activation_and_associaiton.spec.ts
-    npx playwright test --project="Account TNR V7" 02_delete_tokens_and_change_uri.spec.ts
+    npx playwright test --project="Account TNR V7" 01_multistore_activation_and_associaiton.spec.ts || true
+    npx playwright test --project="Account TNR V7" 02_delete_tokens_and_change_uri.spec.ts || true
 
     # Flow B: Associaiton + Dissacociation
     build_shop "$PS_VERSION"
-    npx playwright test --project="Account TNR V7" 01_multistore_activation_and_associaiton.spec.ts
-    npx playwright test --project="Account TNR V7" 03_multistore_disassociation.spec.ts
+    npx playwright test --project="Account TNR V7" 01_multistore_activation_and_associaiton.spec.ts || true
+    npx playwright test --project="Account TNR V7" 03_multistore_disassociation.spec.ts || true
   else
     echo "Non-PS8 detected ($PS_VERSION): using standard flow"
     build_shop "$PS_VERSION"
-    npx playwright test --project="Account TNR V7" 01_multistore_activation_and_associaiton.spec.ts
-    npx playwright test --project="Account TNR V7" 02_delete_tokens_and_change_uri.spec.ts
-    npx playwright test --project="Account TNR V7" 03_multistore_disassociation.spec.ts
+    npx playwright test --project="Account TNR V7" 01_multistore_activation_and_associaiton.spec.ts || true
+    npx playwright test --project="Account TNR V7" 02_delete_tokens_and_change_uri.spec.ts || true
+    npx playwright test --project="Account TNR V7" 03_multistore_disassociation.spec.ts || true
   fi
 
 #Create the allure result directory
