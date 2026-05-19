@@ -144,8 +144,18 @@ class ShopSession extends Session implements SessionInterface
         return new Token(
             $this->configurationRepository->getAccessToken(),
             null,
-            $this->tokenExpirationLeeway
+            $this->resolveTokenExpirationLeeway()
         );
+    }
+
+    /**
+     * @return int
+     */
+    protected function resolveTokenExpirationLeeway()
+    {
+        $leeway = $this->configurationRepository->getTokenExpirationLeeway();
+
+        return is_int($leeway) ? $leeway : $this->tokenExpirationLeeway;
     }
 
     /**

@@ -61,8 +61,18 @@ class ShopSession extends FirebaseSession implements SessionInterface
         return new Token(
             $this->configurationRepository->getFirebaseIdToken(),
             $this->configurationRepository->getFirebaseRefreshToken(),
-            $this->tokenExpirationLeeway
+            $this->resolveTokenExpirationLeeway()
         );
+    }
+
+    /**
+     * @return int
+     */
+    protected function resolveTokenExpirationLeeway()
+    {
+        $leeway = $this->configurationRepository->getTokenExpirationLeeway();
+
+        return is_int($leeway) ? $leeway : $this->tokenExpirationLeeway;
     }
 
     /**

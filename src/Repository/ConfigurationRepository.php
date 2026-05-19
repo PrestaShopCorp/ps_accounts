@@ -463,4 +463,27 @@ class ConfigurationRepository
     {
         $this->configuration->set(ConfigurationKeys::PS_ACCOUNTS_VALIDATION_LEEWAY, (string) $leeway);
     }
+
+    /**
+     * @return int|null
+     */
+    public function getTokenExpirationLeeway()
+    {
+        $leeway = $this->configuration->get(ConfigurationKeys::PS_ACCOUNTS_TOKEN_EXPIRATION_LEEWAY);
+        if (!empty($leeway) || $leeway === '0') {
+            return (int) $leeway;
+        }
+
+        return null;
+    }
+
+    /**
+     * @param int $leeway
+     *
+     * @return void
+     */
+    public function updateTokenExpirationLeeway($leeway)
+    {
+        $this->configuration->set(ConfigurationKeys::PS_ACCOUNTS_TOKEN_EXPIRATION_LEEWAY, (string) $leeway);
+    }
 }

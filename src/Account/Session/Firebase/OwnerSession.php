@@ -61,8 +61,18 @@ class OwnerSession extends FirebaseSession implements SessionInterface
         return new Token(
             $this->configurationRepository->getUserFirebaseIdToken(),
             $this->configurationRepository->getUserFirebaseRefreshToken(),
-            $this->tokenExpirationLeeway
+            $this->resolveTokenExpirationLeeway()
         );
+    }
+
+    /**
+     * @return int
+     */
+    protected function resolveTokenExpirationLeeway()
+    {
+        $leeway = $this->configurationRepository->getTokenExpirationLeeway();
+
+        return is_int($leeway) ? $leeway : $this->tokenExpirationLeeway;
     }
 
     /**
