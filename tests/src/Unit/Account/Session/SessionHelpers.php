@@ -25,13 +25,14 @@ trait SessionHelpers
             ->setConstructorArgs([
                 $this->configurationRepository,
                 $this->oAuth2Service,
-                $this->statusManager,
-                $this->commandBus
+                '',
+                0,
             ])
             ->enableOriginalClone()
             ->setMethods(['getValidToken'])
             ->getMock();
         $shopSession->method('getValidToken')->willReturn($token);
+
         return $shopSession;
     }
 
@@ -52,7 +53,7 @@ trait SessionHelpers
             'isValid' => true,
             'shopStatus' => new ShopStatus([
                 'cloudShopId' => $cloudShopId,
-            ])
+            ]),
         ]))->toArray()));
 
         /** @var AccountsService $accountsService */
@@ -64,6 +65,7 @@ trait SessionHelpers
                 if (preg_match('/v1\/shop-identities\/(.*)\/tokens$/', $route)) {
                     return $response;
                 }
+
                 return $this->createResponse([], 500, true);
             });
 
