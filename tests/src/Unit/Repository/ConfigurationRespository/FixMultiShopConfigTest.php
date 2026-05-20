@@ -112,6 +112,34 @@ class FixMultiShopConfigTest extends TestCase
      *
      * @throws \Exception
      */
+    public function itShouldNotTouchNonTokenModuleKeysEvenWhenShadowedInMultishop()
+    {
+        if (!\Shop::isFeatureActive()) {
+            $this->markTestSkipped('multishop branch requires Shop::isFeatureActive()');
+        }
+
+        /** @var ConfigurationRepository $repo */
+        $repo = $this->module->getService(ConfigurationRepository::class);
+        $idShop = $this->probeShopId();
+        $idShopGroup = $this->probeShopGroupId($idShop);
+        $nonTokenKey = ConfigurationKeys::PS_ACCOUNTS_OAUTH2_CLIENT_ID;
+
+        // exact pathological shape — but the helpers must skip this key because credentials
+        // are not recoverable through a refresh cycle the way tokens are
+        $this->seedRow($nonTokenKey, '', $idShop, null);
+        $this->seedRow($nonTokenKey, 'recoverable-client-id', $idShop, $idShopGroup);
+
+        $repo->fixMultiShopConfig(true);
+
+        $this->assertSame('', (string) $this->fetchValue($nonTokenKey, $idShop, null), 'non-token shadow row must remain (helpers must not touch it)');
+        $this->assertSame('recoverable-client-id', $this->fetchValue($nonTokenKey, $idShop, $idShopGroup), 'non-token populated row remains intact');
+    }
+
+    /**
+     * @test
+     *
+     * @throws \Exception
+     */
     public function itShouldNotRunMultishopHelpersWhenShopFeatureInactive()
     {
         if (\Shop::isFeatureActive()) {

@@ -367,8 +367,9 @@ class ConfigurationRepository
         );
 
         if ($isMultishopActive) {
-            $this->cleanupShadowedConfigurationRows($keysList);
-            $this->normalizeOrphanShopGroupRows($keysList);
+            $tokenKeysList = "'" . join("','", ConfigurationKeys::TOKEN_KEYS) . "'";
+            $this->cleanupShadowedConfigurationRows($tokenKeysList);
+            $this->normalizeOrphanShopGroupRows($tokenKeysList);
         }
     }
 
