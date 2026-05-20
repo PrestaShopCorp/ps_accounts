@@ -1,7 +1,5 @@
 <?php
 
-use PrestaShop\Module\PsAccounts\Repository\ConfigurationRepository;
-
 /**
  * @param Ps_accounts $module
  *
