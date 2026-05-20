@@ -10,7 +10,7 @@ use PrestaShop\Module\PsAccounts\Repository\ConfigurationRepository;
  * @throws Exception
  * @throws Throwable
  */
-function upgrade_module_8_0_15($module)
+function upgrade_module_8_0_14($module)
 {
     /** @var ConfigurationRepository $configurationRepository */
     $configurationRepository = $module->getService(ConfigurationRepository::class);
