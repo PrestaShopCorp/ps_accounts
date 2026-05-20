@@ -57,7 +57,9 @@ class ServicesBillingClient
     ) {
         $shopId = $shopProvider->getCurrentShop()['id'];
 
-        $token = $psAccountsService->getOrRefreshToken();
+        $token = $shopProvider->getShopContext()->execInShopContext($shopId, function () use ($psAccountsService) {
+            return $psAccountsService->getOrRefreshToken();
+        });
 
         // Client can be provided for tests
         if (null === $client) {
