@@ -197,6 +197,6 @@ class Token
     protected function getNullToken()
     {
         //return new \Lcobucci\JWT\Token([], ['exp' => new \DateTime()]);
-        return new NullToken([], ['exp' => new \DateTime()]);
+        return new NullToken([], ['exp' => new \DateTime('@0')]);
     }
 }

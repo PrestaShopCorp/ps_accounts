@@ -71,4 +71,21 @@ class TokenTest extends TestCase
         $this->assertFalse((new Token((string) $jwt))->isExpired());
         $this->assertFalse((new Token((string) $jwt, null, 30))->isExpired());
     }
+
+    /**
+     * @test
+     */
+    public function itShouldBeExpiredWhenTokenStringIsEmptyEvenWithLeeway()
+    {
+        $this->assertTrue((new Token(''))->isExpired());
+        $this->assertTrue((new Token('', null, 60))->isExpired());
+    }
+
+    /**
+     * @test
+     */
+    public function itShouldBeExpiredWhenTokenStringIsInvalidEvenWithLeeway()
+    {
+        $this->assertTrue((new Token('not-a-jwt', null, 60))->isExpired());
+    }
 }
