@@ -150,15 +150,23 @@ class FixMultiShopConfigTest extends TestCase
         $repo = $this->module->getService(ConfigurationRepository::class);
         $idShop = $this->probeShopId();
 
-        // Shape that the multishop branch would normally fix — but it must not fire here.
+        // Shape the multishop helpers would otherwise clean up. The single-shop branch
+        // does run the inherited UPDATE from #605 (rewriting matching rows toward NULL/NULL),
+        // so we can't assert on (id_shop, id_shop_group) coordinates — we only assert that
+        // no row is *deleted*, which is what cleanupShadowedConfigurationRows would do if
+        // it ran.
+        $countBefore = $this->countRowsForName(self::KEY);
         $this->seedRow(self::KEY, '', $idShop, null);
         $this->seedRow(self::KEY, 'populated', $idShop, 1);
+        $this->assertSame($countBefore + 2, $this->countRowsForName(self::KEY), 'sanity: both rows are seeded');
 
         $repo->fixMultiShopConfig(true);
 
-        // single-shop branch only touches rows with id_shop = defaultShop.id and resets them to NULL/NULL
-        // it does NOT call cleanupShadowedConfigurationRows nor normalizeOrphanShopGroupRows
-        $this->assertNotNull($this->fetchValue(self::KEY, $idShop, 1), 'shadow row should remain since the multishop helpers do not run');
+        $this->assertSame(
+            $countBefore + 2,
+            $this->countRowsForName(self::KEY),
+            'cleanupShadowedConfigurationRows must not run in single-shop mode'
+        );
     }
 
     /**
@@ -200,6 +208,18 @@ class FixMultiShopConfigTest extends TestCase
             'INSERT INTO ' . _DB_PREFIX_ . 'configuration' .
             ' (name, value, id_shop, id_shop_group, date_add, date_upd)' .
             ' VALUES ("' . pSQL($name) . '", "' . pSQL($value) . '", ' . $shopExpr . ', ' . $groupExpr . ', NOW(), NOW())'
+        );
+    }
+
+    /**
+     * @param string $name
+     *
+     * @return int
+     */
+    private function countRowsForName($name)
+    {
+        return (int) \Db::getInstance()->getValue(
+            'SELECT COUNT(*) FROM ' . _DB_PREFIX_ . 'configuration WHERE name = "' . pSQL($name) . '"'
         );
     }
 
