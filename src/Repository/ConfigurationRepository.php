@@ -358,11 +358,64 @@ class ConfigurationRepository
 
         $shopIdCondition = $isMultishopActive ? (int) $defaultShop->id : 'NULL';
         $shopGroupIdCondition = $isMultishopActive ? (int) $defaultShop->id_shop_group : 'NULL';
+        $keysList = "'" . join("','", array_values(ConfigurationKeys::cases())) . "'";
 
         \Db::getInstance()->query(
             'UPDATE ' . _DB_PREFIX_ . 'configuration SET id_shop = ' . $shopIdCondition . ', id_shop_group = ' . $shopGroupIdCondition .
-            " WHERE name IN('" . join("','", array_values(ConfigurationKeys::cases())) . "')" .
+            ' WHERE name IN(' . $keysList . ')' .
             ' AND id_shop ' . ($isMultishopActive ? 'IS NULL' : '= ' . (int) $defaultShop->id)
+        );
+
+        if ($isMultishopActive) {
+            $tokenKeysList = "'" . join("','", ConfigurationKeys::TOKEN_KEYS) . "'";
+            $this->cleanupShadowedConfigurationRows($tokenKeysList);
+            $this->normalizeOrphanShopGroupRows($tokenKeysList);
+        }
+    }
+
+    /**
+     * Remove rows with an empty value that duplicate a populated row for the same (name, id_shop).
+     *
+     * Writes performed before PR #605 could persist a row with id_shop_group NULL because the
+     * Configuration adapter constructor did not capture id_shop_group at the time. Subsequent
+     * writes — after the capture was fixed — created a second row with id_shop_group set. The
+     * legacy \Configuration::get cascade matches on (id_shop) first and returns the empty row,
+     * never falling back to the populated one with id_shop_group set.
+     *
+     * @param string $keysList SQL-quoted, comma-separated configuration key names
+     *
+     * @return void
+     */
+    private function cleanupShadowedConfigurationRows($keysList)
+    {
+        \Db::getInstance()->query(
+            'DELETE c1 FROM ' . _DB_PREFIX_ . 'configuration c1' .
+            ' INNER JOIN ' . _DB_PREFIX_ . 'configuration c2' .
+            '   ON c1.name = c2.name' .
+            '   AND c1.id_shop = c2.id_shop' .
+            '   AND (c1.value IS NULL OR c1.value = \'\')' .
+            '   AND c2.value IS NOT NULL AND c2.value != \'\'' .
+            ' WHERE c1.name IN(' . $keysList . ')'
+        );
+    }
+
+    /**
+     * Align id_shop_group on the actual ps_shop value for rows that have id_shop defined
+     * but id_shop_group NULL — residues of writes performed before PR #605.
+     *
+     * @param string $keysList SQL-quoted, comma-separated configuration key names
+     *
+     * @return void
+     */
+    private function normalizeOrphanShopGroupRows($keysList)
+    {
+        \Db::getInstance()->query(
+            'UPDATE ' . _DB_PREFIX_ . 'configuration c' .
+            ' INNER JOIN ' . _DB_PREFIX_ . 'shop s ON c.id_shop = s.id_shop' .
+            ' SET c.id_shop_group = s.id_shop_group' .
+            ' WHERE c.name IN(' . $keysList . ')' .
+            ' AND c.id_shop_group IS NULL' .
+            ' AND c.id_shop IS NOT NULL'
         );
     }
 
