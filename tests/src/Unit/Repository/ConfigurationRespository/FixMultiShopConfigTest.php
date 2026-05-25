@@ -35,7 +35,7 @@ class FixMultiShopConfigTest extends TestCase
      *
      * @throws \Exception
      */
-    public function itShouldDeleteShadowRowsWithEmptyValueDuplicatingAPopulatedRow()
+    public function itShouldDeleteGroupRowsForTokenKeys()
     {
         if (!\Shop::isFeatureActive()) {
             $this->markTestSkipped('multishop branch requires Shop::isFeatureActive()');
@@ -46,39 +46,12 @@ class FixMultiShopConfigTest extends TestCase
         $idShop = $this->probeShopId();
         $idShopGroup = $this->probeShopGroupId($idShop);
 
-        // shadow row (empty value, id_shop_group NULL)
-        $this->seedRow(self::KEY, '', $idShop, null);
-        // populated row (same shop, id_shop_group set)
+        // row written by #605/#636 with a real id_shop_group
         $this->seedRow(self::KEY, 'populated-jwt-value', $idShop, $idShopGroup);
 
         $repo->fixMultiShopConfig(true);
 
-        $this->assertNull($this->fetchValue(self::KEY, $idShop, null), 'shadow row should be deleted');
-        $this->assertSame('populated-jwt-value', $this->fetchValue(self::KEY, $idShop, $idShopGroup), 'populated row remains intact');
-    }
-
-    /**
-     * @test
-     *
-     * @throws \Exception
-     */
-    public function itShouldNormalizeOrphanShopGroupIdToPsShopValue()
-    {
-        if (!\Shop::isFeatureActive()) {
-            $this->markTestSkipped('multishop branch requires Shop::isFeatureActive()');
-        }
-
-        /** @var ConfigurationRepository $repo */
-        $repo = $this->module->getService(ConfigurationRepository::class);
-        $idShop = $this->probeShopId();
-        $expectedGroupId = $this->probeShopGroupId($idShop);
-
-        $this->seedRow(self::KEY, 'populated-jwt-value', $idShop, null);
-
-        $repo->fixMultiShopConfig(true);
-
-        $this->assertNull($this->fetchValue(self::KEY, $idShop, null), 'orphan row no longer matches id_shop_group=NULL');
-        $this->assertSame('populated-jwt-value', $this->fetchValue(self::KEY, $idShop, $expectedGroupId), 'row was migrated to actual ps_shop.id_shop_group');
+        $this->assertNull($this->fetchValue(self::KEY, $idShop, $idShopGroup), 'group row should be deleted');
     }
 
     /**

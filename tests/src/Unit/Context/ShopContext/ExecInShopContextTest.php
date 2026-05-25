@@ -56,63 +56,17 @@ class ExecInShopContextTest extends TestCase
      *
      * @throws \Exception
      */
-    public function itShouldSetAndRestoreShopGroupContext()
+    public function itShouldKeepShopGroupAlwaysZero()
     {
         /** @var ShopContext $shopContext */
         $shopContext = $this->module->getService(ShopContext::class);
 
-        $origShopGroupId = $this->configuration->getIdShopGroup();
         $shopId = (int) \Shop::getContextShopID(true) ?: 1;
-        $expectedGroupId = (int) (new \Shop($shopId))->id_shop_group;
 
-        $shopContext->execInShopContext($shopId, function () use ($expectedGroupId) {
-            $this->assertEquals($expectedGroupId, $this->configuration->getIdShopGroup());
+        $shopContext->execInShopContext($shopId, function () {
+            $this->assertEquals(0, $this->configuration->getIdShopGroup());
         });
 
-        $this->assertEquals($origShopGroupId, $this->configuration->getIdShopGroup());
-    }
-
-    /**
-     * @test
-     *
-     * @throws \Exception
-     */
-    public function itShouldRestoreShopGroupContextOnException()
-    {
-        /** @var ShopContext $shopContext */
-        $shopContext = $this->module->getService(ShopContext::class);
-
-        $origShopGroupId = $this->configuration->getIdShopGroup();
-        $shopId = (int) \Shop::getContextShopID(true) ?: 1;
-
-        try {
-            $shopContext->execInShopContext($shopId, function () {
-                throw new \Exception('closure failed');
-            });
-        } catch (\Exception $e) {
-        }
-
-        $this->assertEquals($origShopGroupId, $this->configuration->getIdShopGroup());
-    }
-
-    /**
-     * @test
-     *
-     * @throws \Exception
-     */
-    public function itShouldResolveShopGroupIdFromPsShopNotFromCurrentContext()
-    {
-        /** @var ShopContext $shopContext */
-        $shopContext = $this->module->getService(ShopContext::class);
-
-        // simulate a CONTEXT_ALL caller: id_shop_group unset on the adapter
-        $this->configuration->setIdShopGroup(null);
-
-        $shopId = (int) \Shop::getContextShopID(true) ?: 1;
-        $expectedGroupId = (int) (new \Shop($shopId))->id_shop_group;
-
-        $shopContext->execInShopContext($shopId, function () use ($expectedGroupId) {
-            $this->assertEquals($expectedGroupId, $this->configuration->getIdShopGroup());
-        });
+        $this->assertEquals(0, $this->configuration->getIdShopGroup());
     }
 }
