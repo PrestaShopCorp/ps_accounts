@@ -348,26 +348,47 @@ class ConfigurationRepository
         );
 
         if ($isMultishopActive) {
-            $tokenKeysList = "'" . join("','", ConfigurationKeys::TOKEN_KEYS) . "'";
-            $this->deleteGroupRows($tokenKeysList);
+            $this->normalizeGroupRows($keysList);
         }
     }
 
     /**
-     * Delete token rows that still carry a non-null id_shop_group — residues of writes
-     * performed by #605/#636 before this module switched to always-null group storage.
-     * Token values are recoverable through a normal refresh cycle.
+     * Normalize group-scoped rows for all module keys:
+     * 1. Copy the group row value to the NULL row when the group row is more recent.
+     * 2. Drop group rows that have a NULL counterpart — NULL row is now authoritative.
+     * 3. Promote remaining orphan group rows (no NULL counterpart) to NULL.
+     *
+     * Covers all module keys (not just token keys) to prevent the silent-staleness
+     * issue where MySQL returns a stale group row because getIdByName has no ORDER BY.
      *
      * @param string $keysList SQL-quoted, comma-separated configuration key names
      *
      * @return void
      */
-    private function deleteGroupRows($keysList)
+    private function normalizeGroupRows($keysList)
     {
         \Db::getInstance()->query(
-            'DELETE FROM ' . _DB_PREFIX_ . 'configuration' .
+            'UPDATE ' . _DB_PREFIX_ . 'configuration n' .
+            ' INNER JOIN ' . _DB_PREFIX_ . 'configuration g' .
+            ' ON g.name = n.name AND g.id_shop = n.id_shop AND g.id_shop_group IS NOT NULL' .
+            ' SET n.value = g.value' .
+            ' WHERE n.name IN(' . $keysList . ')' .
+            ' AND n.id_shop_group IS NULL' .
+            ' AND g.date_upd > n.date_upd'
+        );
+
+        \Db::getInstance()->query(
+            'DELETE g FROM ' . _DB_PREFIX_ . 'configuration g' .
+            ' INNER JOIN ' . _DB_PREFIX_ . 'configuration n' .
+            ' ON n.name = g.name AND n.id_shop = g.id_shop AND n.id_shop_group IS NULL' .
+            ' WHERE g.name IN(' . $keysList . ')' .
+            ' AND g.id_shop_group IS NOT NULL'
+        );
+
+        \Db::getInstance()->query(
+            'UPDATE ' . _DB_PREFIX_ . 'configuration' .
+            ' SET id_shop_group = NULL' .
             ' WHERE name IN(' . $keysList . ')' .
-            ' AND id_shop IS NOT NULL' .
             ' AND id_shop_group IS NOT NULL'
         );
     }
