@@ -168,8 +168,11 @@ class ShopContext
      */
     public function execInShopContext($shopId, $closure)
     {
-        $backup = $this->configuration->getShopId();
+        $backupShopId = $this->configuration->getShopId();
+        $backupShopGroupId = $this->configuration->getShopGroupId();
+
         $this->configuration->setShopId($shopId);
+        $this->configuration->setShopGroupId($this->resolveShopGroupId($shopId));
 
         $exception = null;
         $result = null;
@@ -181,13 +184,35 @@ class ShopContext
         } catch (\Exception $exception) {
         }
 
-        $this->configuration->setShopId($backup);
+        $this->configuration->setShopId($backupShopId);
+        $this->configuration->setShopGroupId($backupShopGroupId);
 
         if (null !== $exception) {
             throw $exception;
         }
 
         return $result;
+    }
+
+    /**
+     * Resolve the id_shop_group for a given $shopId by reading ps_shop. Without this,
+     * configuration writes performed inside the closure persist with id_shop_group taken
+     * from the surrounding context (often NULL when the caller is in CONTEXT_ALL), which
+     * desynchronises (id_shop, id_shop_group) tuples in ps_configuration and breaks the
+     * \Configuration::get cascade on subsequent reads.
+     *
+     * @param int|null $shopId
+     *
+     * @return int|null
+     */
+    private function resolveShopGroupId($shopId)
+    {
+        if (null === $shopId) {
+            return null;
+        }
+        $shop = new \Shop((int) $shopId);
+
+        return null === $shop->id_shop_group ? null : (int) $shop->id_shop_group;
     }
 
     /**

@@ -1,5 +1,10 @@
 <?php
 
+<<<<<<< fix/account-leeway-shop-token-expiration
+=======
+use PrestaShop\Module\PsAccounts\Repository\ConfigurationRepository;
+
+>>>>>>> main
 /**
  * @param Ps_accounts $module
  *
@@ -14,5 +19,12 @@ function upgrade_module_8_0_14($module)
 
     migrate_or_create_identities_v8($module);
 
+<<<<<<< fix/account-leeway-shop-token-expiration
+=======
+    /** @var ConfigurationRepository $configurationRepository */
+    $configurationRepository = $module->getService(ConfigurationRepository::class);
+    $configurationRepository->fixMultiShopConfig(true);
+
+>>>>>>> main
     return true;
 }
