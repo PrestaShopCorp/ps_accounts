@@ -61,24 +61,6 @@ class ConfigurationRepository
     }
 
     /**
-     * @return int
-     */
-    public function getShopGroupId()
-    {
-        return $this->configuration->getIdShopGroup();
-    }
-
-    /**
-     * @param int $groupId
-     *
-     * @return void
-     */
-    public function setShopGroupId($groupId)
-    {
-        $this->configuration->setIdShopGroup($groupId);
-    }
-
-    /**
      * @return string
      */
     public function getFirebaseIdToken()
@@ -357,65 +339,57 @@ class ConfigurationRepository
         }
 
         $shopIdCondition = $isMultishopActive ? (int) $defaultShop->id : 'NULL';
-        $shopGroupIdCondition = $isMultishopActive ? (int) $defaultShop->id_shop_group : 'NULL';
         $keysList = "'" . join("','", array_values(ConfigurationKeys::cases())) . "'";
 
         \Db::getInstance()->query(
-            'UPDATE ' . _DB_PREFIX_ . 'configuration SET id_shop = ' . $shopIdCondition . ', id_shop_group = ' . $shopGroupIdCondition .
+            'UPDATE ' . _DB_PREFIX_ . 'configuration SET id_shop = ' . $shopIdCondition . ', id_shop_group = NULL' .
             ' WHERE name IN(' . $keysList . ')' .
             ' AND id_shop ' . ($isMultishopActive ? 'IS NULL' : '= ' . (int) $defaultShop->id)
         );
 
         if ($isMultishopActive) {
-            $tokenKeysList = "'" . join("','", ConfigurationKeys::TOKEN_KEYS) . "'";
-            $this->cleanupShadowedConfigurationRows($tokenKeysList);
-            $this->normalizeOrphanShopGroupRows($tokenKeysList);
+            $this->normalizeGroupRows($keysList);
         }
     }
 
     /**
-     * Remove rows with an empty value that duplicate a populated row for the same (name, id_shop).
+     * Normalize group-scoped rows for all module keys:
+     * 1. Copy the group row value to the NULL row when the group row is more recent.
+     * 2. Drop group rows that have a NULL counterpart — NULL row is now authoritative.
+     * 3. Promote remaining orphan group rows (no NULL counterpart) to NULL.
      *
-     * Writes performed before PR #605 could persist a row with id_shop_group NULL because the
-     * Configuration adapter constructor did not capture id_shop_group at the time. Subsequent
-     * writes — after the capture was fixed — created a second row with id_shop_group set. The
-     * legacy \Configuration::get cascade matches on (id_shop) first and returns the empty row,
-     * never falling back to the populated one with id_shop_group set.
+     * Covers all module keys (not just token keys) to prevent the silent-staleness
+     * issue where MySQL returns a stale group row because getIdByName has no ORDER BY.
      *
      * @param string $keysList SQL-quoted, comma-separated configuration key names
      *
      * @return void
      */
-    private function cleanupShadowedConfigurationRows($keysList)
+    private function normalizeGroupRows($keysList)
     {
         \Db::getInstance()->query(
-            'DELETE c1 FROM ' . _DB_PREFIX_ . 'configuration c1' .
-            ' INNER JOIN ' . _DB_PREFIX_ . 'configuration c2' .
-            '   ON c1.name = c2.name' .
-            '   AND c1.id_shop = c2.id_shop' .
-            '   AND (c1.value IS NULL OR c1.value = \'\')' .
-            '   AND c2.value IS NOT NULL AND c2.value != \'\'' .
-            ' WHERE c1.name IN(' . $keysList . ')'
+            'UPDATE ' . _DB_PREFIX_ . 'configuration n' .
+            ' INNER JOIN ' . _DB_PREFIX_ . 'configuration g' .
+            ' ON g.name = n.name AND g.id_shop = n.id_shop AND g.id_shop_group IS NOT NULL' .
+            ' SET n.value = g.value' .
+            ' WHERE n.name IN(' . $keysList . ')' .
+            ' AND n.id_shop_group IS NULL' .
+            ' AND g.date_upd > n.date_upd'
         );
-    }
 
-    /**
-     * Align id_shop_group on the actual ps_shop value for rows that have id_shop defined
-     * but id_shop_group NULL — residues of writes performed before PR #605.
-     *
-     * @param string $keysList SQL-quoted, comma-separated configuration key names
-     *
-     * @return void
-     */
-    private function normalizeOrphanShopGroupRows($keysList)
-    {
         \Db::getInstance()->query(
-            'UPDATE ' . _DB_PREFIX_ . 'configuration c' .
-            ' INNER JOIN ' . _DB_PREFIX_ . 'shop s ON c.id_shop = s.id_shop' .
-            ' SET c.id_shop_group = s.id_shop_group' .
-            ' WHERE c.name IN(' . $keysList . ')' .
-            ' AND c.id_shop_group IS NULL' .
-            ' AND c.id_shop IS NOT NULL'
+            'DELETE g FROM ' . _DB_PREFIX_ . 'configuration g' .
+            ' INNER JOIN ' . _DB_PREFIX_ . 'configuration n' .
+            ' ON n.name = g.name AND n.id_shop = g.id_shop AND n.id_shop_group IS NULL' .
+            ' WHERE g.name IN(' . $keysList . ')' .
+            ' AND g.id_shop_group IS NOT NULL'
+        );
+
+        \Db::getInstance()->query(
+            'UPDATE ' . _DB_PREFIX_ . 'configuration' .
+            ' SET id_shop_group = NULL' .
+            ' WHERE name IN(' . $keysList . ')' .
+            ' AND id_shop_group IS NOT NULL'
         );
     }
 

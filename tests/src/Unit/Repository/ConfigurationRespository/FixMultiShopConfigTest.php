@@ -35,7 +35,7 @@ class FixMultiShopConfigTest extends TestCase
      *
      * @throws \Exception
      */
-    public function itShouldDeleteShadowRowsWithEmptyValueDuplicatingAPopulatedRow()
+    public function itShouldPromoteOrphanGroupRowToNullForTokenKeys()
     {
         if (!\Shop::isFeatureActive()) {
             $this->markTestSkipped('multishop branch requires Shop::isFeatureActive()');
@@ -46,39 +46,13 @@ class FixMultiShopConfigTest extends TestCase
         $idShop = $this->probeShopId();
         $idShopGroup = $this->probeShopGroupId($idShop);
 
-        // shadow row (empty value, id_shop_group NULL)
-        $this->seedRow(self::KEY, '', $idShop, null);
-        // populated row (same shop, id_shop_group set)
+        // orphan group row (no NULL counterpart) — must be promoted, not deleted
         $this->seedRow(self::KEY, 'populated-jwt-value', $idShop, $idShopGroup);
 
         $repo->fixMultiShopConfig(true);
 
-        $this->assertNull($this->fetchValue(self::KEY, $idShop, null), 'shadow row should be deleted');
-        $this->assertSame('populated-jwt-value', $this->fetchValue(self::KEY, $idShop, $idShopGroup), 'populated row remains intact');
-    }
-
-    /**
-     * @test
-     *
-     * @throws \Exception
-     */
-    public function itShouldNormalizeOrphanShopGroupIdToPsShopValue()
-    {
-        if (!\Shop::isFeatureActive()) {
-            $this->markTestSkipped('multishop branch requires Shop::isFeatureActive()');
-        }
-
-        /** @var ConfigurationRepository $repo */
-        $repo = $this->module->getService(ConfigurationRepository::class);
-        $idShop = $this->probeShopId();
-        $expectedGroupId = $this->probeShopGroupId($idShop);
-
-        $this->seedRow(self::KEY, 'populated-jwt-value', $idShop, null);
-
-        $repo->fixMultiShopConfig(true);
-
-        $this->assertNull($this->fetchValue(self::KEY, $idShop, null), 'orphan row no longer matches id_shop_group=NULL');
-        $this->assertSame('populated-jwt-value', $this->fetchValue(self::KEY, $idShop, $expectedGroupId), 'row was migrated to actual ps_shop.id_shop_group');
+        $this->assertNull($this->fetchValue(self::KEY, $idShop, $idShopGroup), 'group coordinate should be gone');
+        $this->assertSame('populated-jwt-value', $this->fetchValue(self::KEY, $idShop, null), 'value preserved at NULL coordinate');
     }
 
     /**
@@ -112,7 +86,7 @@ class FixMultiShopConfigTest extends TestCase
      *
      * @throws \Exception
      */
-    public function itShouldNotTouchNonTokenModuleKeysEvenWhenShadowedInMultishop()
+    public function itShouldDeleteShadowedGroupRowWhenNullRowIsNewer()
     {
         if (!\Shop::isFeatureActive()) {
             $this->markTestSkipped('multishop branch requires Shop::isFeatureActive()');
@@ -124,15 +98,67 @@ class FixMultiShopConfigTest extends TestCase
         $idShopGroup = $this->probeShopGroupId($idShop);
         $nonTokenKey = ConfigurationKeys::PS_ACCOUNTS_OAUTH2_CLIENT_ID;
 
-        // exact pathological shape — but the helpers must skip this key because credentials
-        // are not recoverable through a refresh cycle the way tokens are
-        $this->seedRow($nonTokenKey, '', $idShop, null);
-        $this->seedRow($nonTokenKey, 'recoverable-client-id', $idShop, $idShopGroup);
+        // NULL row is newer: its value must be preserved, group row deleted
+        $this->seedRow($nonTokenKey, 'stale-client-id', $idShop, $idShopGroup, '2020-01-01 00:00:00');
+        $this->seedRow($nonTokenKey, 'current-client-id', $idShop, null, '2021-01-01 00:00:00');
 
         $repo->fixMultiShopConfig(true);
 
-        $this->assertSame('', (string) $this->fetchValue($nonTokenKey, $idShop, null), 'non-token shadow row must remain (helpers must not touch it)');
-        $this->assertSame('recoverable-client-id', $this->fetchValue($nonTokenKey, $idShop, $idShopGroup), 'non-token populated row remains intact');
+        $this->assertSame('current-client-id', $this->fetchValue($nonTokenKey, $idShop, null), 'NULL row value preserved');
+        $this->assertNull($this->fetchValue($nonTokenKey, $idShop, $idShopGroup), 'shadowed group row deleted');
+    }
+
+    /**
+     * @test
+     *
+     * @throws \Exception
+     */
+    public function itShouldPreserveGroupRowValueWhenGroupRowIsNewer()
+    {
+        if (!\Shop::isFeatureActive()) {
+            $this->markTestSkipped('multishop branch requires Shop::isFeatureActive()');
+        }
+
+        /** @var ConfigurationRepository $repo */
+        $repo = $this->module->getService(ConfigurationRepository::class);
+        $idShop = $this->probeShopId();
+        $idShopGroup = $this->probeShopGroupId($idShop);
+        $nonTokenKey = ConfigurationKeys::PS_ACCOUNTS_OAUTH2_CLIENT_ID;
+
+        // Group row is newer: its value must win, copied to NULL row before group row is deleted
+        $this->seedRow($nonTokenKey, 'stale-client-id', $idShop, null, '2020-01-01 00:00:00');
+        $this->seedRow($nonTokenKey, 'current-client-id', $idShop, $idShopGroup, '2021-01-01 00:00:00');
+
+        $repo->fixMultiShopConfig(true);
+
+        $this->assertSame('current-client-id', $this->fetchValue($nonTokenKey, $idShop, null), 'newer group value copied to NULL row');
+        $this->assertNull($this->fetchValue($nonTokenKey, $idShop, $idShopGroup), 'group row deleted after value copied');
+    }
+
+    /**
+     * @test
+     *
+     * @throws \Exception
+     */
+    public function itShouldPromoteOrphanGroupRowForNonTokenModuleKeysInMultishop()
+    {
+        if (!\Shop::isFeatureActive()) {
+            $this->markTestSkipped('multishop branch requires Shop::isFeatureActive()');
+        }
+
+        /** @var ConfigurationRepository $repo */
+        $repo = $this->module->getService(ConfigurationRepository::class);
+        $idShop = $this->probeShopId();
+        $idShopGroup = $this->probeShopGroupId($idShop);
+        $nonTokenKey = ConfigurationKeys::PS_ACCOUNTS_OAUTH2_CLIENT_ID;
+
+        // orphan group row (no NULL counterpart) — must be promoted to NULL, not deleted
+        $this->seedRow($nonTokenKey, 'client-id-value', $idShop, $idShopGroup);
+
+        $repo->fixMultiShopConfig(true);
+
+        $this->assertNull($this->fetchValue($nonTokenKey, $idShop, $idShopGroup), 'group coordinate gone after promotion');
+        $this->assertSame('client-id-value', $this->fetchValue($nonTokenKey, $idShop, null), 'value preserved at NULL coordinate');
     }
 
     /**
@@ -197,17 +223,19 @@ class FixMultiShopConfigTest extends TestCase
      * @param string $value
      * @param int|null $idShop
      * @param int|null $idShopGroup
+     * @param string|null $dateUpd
      *
      * @return void
      */
-    private function seedRow($name, $value, $idShop, $idShopGroup)
+    private function seedRow($name, $value, $idShop, $idShopGroup, $dateUpd = null)
     {
         $shopExpr = null === $idShop ? 'NULL' : (int) $idShop;
         $groupExpr = null === $idShopGroup ? 'NULL' : (int) $idShopGroup;
+        $dateExpr = null === $dateUpd ? 'NOW()' : '"' . pSQL($dateUpd) . '"';
         \Db::getInstance()->execute(
             'INSERT INTO ' . _DB_PREFIX_ . 'configuration' .
             ' (name, value, id_shop, id_shop_group, date_add, date_upd)' .
-            ' VALUES ("' . pSQL($name) . '", "' . pSQL($value) . '", ' . $shopExpr . ', ' . $groupExpr . ', NOW(), NOW())'
+            ' VALUES ("' . pSQL($name) . '", "' . pSQL($value) . '", ' . $shopExpr . ', ' . $groupExpr . ', NOW(), ' . $dateExpr . ')'
         );
     }
 
