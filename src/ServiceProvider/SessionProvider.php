@@ -41,19 +41,22 @@ class SessionProvider implements IServiceProvider
             return new ShopSession(
                 $container->get(ConfigurationRepository::class),
                 $container->get(OAuth2Service::class),
-                $container->getParameter('ps_accounts.token_audience')
+                $container->getParameter('ps_accounts.token_audience'),
+                $container->getParameter('ps_accounts.token_expiration_leeway', 60)
             );
         });
         $container->registerProvider(Firebase\OwnerSession::class, static function () use ($container) {
             return new Firebase\OwnerSession(
                 $container->get(ConfigurationRepository::class),
-                $container->get(ShopSession::class)
+                $container->get(ShopSession::class),
+                $container->getParameter('ps_accounts.token_expiration_leeway', 60)
             );
         });
         $container->registerProvider(Firebase\ShopSession::class, static function () use ($container) {
             return new Firebase\ShopSession(
                 $container->get(ConfigurationRepository::class),
-                $container->get(ShopSession::class)
+                $container->get(ShopSession::class),
+                $container->getParameter('ps_accounts.token_expiration_leeway', 60)
             );
         });
     }

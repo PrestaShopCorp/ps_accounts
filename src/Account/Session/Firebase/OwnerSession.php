@@ -32,14 +32,23 @@ class OwnerSession extends FirebaseSession implements SessionInterface
     protected $configurationRepository;
 
     /**
+     * @var int
+     */
+    protected $tokenExpirationLeeway;
+
+    /**
      * @param ConfigurationRepository $configurationRepository
      * @param \PrestaShop\Module\PsAccounts\Account\Session\ShopSession $shopSession
+     * @param int $tokenExpirationLeeway tolerance in seconds when checking
+     *                                   the local token expiration before deciding to refresh it
      */
     public function __construct(
         ConfigurationRepository $configurationRepository,
-        \PrestaShop\Module\PsAccounts\Account\Session\ShopSession $shopSession
+        \PrestaShop\Module\PsAccounts\Account\Session\ShopSession $shopSession,
+        $tokenExpirationLeeway = 0
     ) {
         $this->configurationRepository = $configurationRepository;
+        $this->tokenExpirationLeeway = (int) $tokenExpirationLeeway;
 
         parent::__construct($shopSession);
     }
@@ -51,8 +60,19 @@ class OwnerSession extends FirebaseSession implements SessionInterface
     {
         return new Token(
             $this->configurationRepository->getUserFirebaseIdToken(),
-            $this->configurationRepository->getUserFirebaseRefreshToken()
+            $this->configurationRepository->getUserFirebaseRefreshToken(),
+            $this->resolveTokenExpirationLeeway()
         );
+    }
+
+    /**
+     * @return int
+     */
+    protected function resolveTokenExpirationLeeway()
+    {
+        $leeway = $this->configurationRepository->getTokenExpirationLeeway();
+
+        return is_int($leeway) ? $leeway : $this->tokenExpirationLeeway;
     }
 
     /**

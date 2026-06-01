@@ -48,20 +48,29 @@ class ShopSession extends Session implements SessionInterface
     protected $tokenAudience;
 
     /**
+     * @var int
+     */
+    protected $tokenExpirationLeeway;
+
+    /**
      * @param ConfigurationRepository $configurationRepository
      * @param OAuth2Service $oAuth2Service
      * @param string $tokenAudience
+     * @param int $tokenExpirationLeeway tolerance in seconds when checking
+     *                                   the local access token expiration before deciding to refresh it
      */
     public function __construct(
         ConfigurationRepository $configurationRepository,
         OAuth2Service $oAuth2Service,
-        $tokenAudience
+        $tokenAudience,
+        $tokenExpirationLeeway = 0
     ) {
         parent::__construct();
 
         $this->configurationRepository = $configurationRepository;
         $this->oAuth2Service = $oAuth2Service;
         $this->tokenAudience = $tokenAudience;
+        $this->tokenExpirationLeeway = (int) $tokenExpirationLeeway;
     }
 
     /**
@@ -132,7 +141,21 @@ class ShopSession extends Session implements SessionInterface
      */
     public function getToken()
     {
-        return new Token($this->configurationRepository->getAccessToken());
+        return new Token(
+            $this->configurationRepository->getAccessToken(),
+            null,
+            $this->resolveTokenExpirationLeeway()
+        );
+    }
+
+    /**
+     * @return int
+     */
+    protected function resolveTokenExpirationLeeway()
+    {
+        $leeway = $this->configurationRepository->getTokenExpirationLeeway();
+
+        return is_int($leeway) ? $leeway : $this->tokenExpirationLeeway;
     }
 
     /**

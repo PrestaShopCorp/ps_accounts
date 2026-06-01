@@ -39,13 +39,20 @@ class Token
     private $refreshToken;
 
     /**
+     * @var int
+     */
+    private $leeway;
+
+    /**
      * @param string $token
      * @param string $refreshToken
+     * @param int $leeway tolerance in seconds applied to expiration check
      */
-    public function __construct($token, $refreshToken = null)
+    public function __construct($token, $refreshToken = null, $leeway = 0)
     {
         $this->token = $token;
         $this->refreshToken = $refreshToken;
+        $this->leeway = (int) $leeway;
     }
 
     /**
@@ -69,9 +76,12 @@ class Token
      */
     public function isExpired()
     {
-        $token = $this->getJwt();
+        $now = new \DateTime();
+        if ($this->leeway > 0) {
+            $now = $now->modify('-' . $this->leeway . ' seconds');
+        }
 
-        return $token->isExpired(new \DateTime());
+        return $this->getJwt()->isExpired($now);
     }
 
     /**
@@ -187,6 +197,6 @@ class Token
     protected function getNullToken()
     {
         //return new \Lcobucci\JWT\Token([], ['exp' => new \DateTime()]);
-        return new NullToken([], ['exp' => new \DateTime()]);
+        return new NullToken([], ['exp' => new \DateTime('@0')]);
     }
 }

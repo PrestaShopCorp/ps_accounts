@@ -49,6 +49,7 @@ return [
     'ps_accounts.oauth2_url' => 'https://oauth.prestashop.local',
     'ps_accounts.token_audience' => 'https://accounts-api.prestashop.local',
     'ps_accounts.token_validator_leeway' => 900,
+    'ps_accounts.token_expiration_leeway' => 60,
 
     'ps_accounts.testimonials_url' => 'https://assets.prestashop3.com/dst/accounts/assets/testimonials.json',
     'ps_accounts.log_level' => 'DEBUG',
