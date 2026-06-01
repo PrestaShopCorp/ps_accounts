@@ -30,9 +30,16 @@ class Configuration
     private $idShop = null;
 
     /**
+     * Always 0 — we never scope configuration reads/writes by shop group.
+     * PrestaShop's \Configuration::updateValue and getIdByName treat 0 as
+     * "no group constraint": writes store id_shop_group = NULL in the DB,
+     * reads use sqlRestriction which with a truthy id_shop generates
+     * "AND id_shop = X" only (no group filter). Keeping a single row per
+     * (name, id_shop) avoids the duplicate-row problem introduced by #605.
+     *
      * @var int
      */
-    private $idShopGroup = null;
+    private $idShopGroup = 0;
 
     /**
      * @var int
@@ -47,7 +54,6 @@ class Configuration
     public function __construct(\Context $context)
     {
         $this->setIdShop((int) $context->shop->id);
-        $this->setIdShopGroup((int) $context->shop->id_shop_group);
         //$this->setIdLang((int) $context->language->id);
     }
 
@@ -120,8 +126,6 @@ class Configuration
         if ($cached) {
             return $this->getRaw($key, $this->idLang, $this->idShopGroup, $this->idShop, $default);
         } else {
-            // FIXME: idLang ??
-            // FIXME: beware in single shop context idShop must be set
             return $this->getUncached($key, $this->idShopGroup, $this->idShop, $default);
         }
     }
@@ -198,7 +202,7 @@ class Configuration
      *
      * @return mixed
      */
-    public function getUncached($key, $idShopGroup = null, $idShop = null, $default = false)
+    public function getUncached($key, $idShopGroup = 0, $idShop = null, $default = false)
     {
         try {
             return $this->getUncachedConfiguration($key, $idShopGroup, $idShop)->value;
@@ -218,18 +222,14 @@ class Configuration
      *
      * @throw \Exception
      */
-    public function getUncachedConfiguration($key, $idShopGroup = null, $idShop = null)
+    public function getUncachedConfiguration($key, $idShopGroup = 0, $idShop = null)
     {
         if (!$this->isMultishopActive()) {
             // To avoid making 3 calls to the database in the single shop context
             $idShopGroup = $idShop = null;
             $id = \Configuration::getIdByName($key, $idShopGroup, $idShop);
         } else {
-            // mimic the condition of the original \Configuration::get method
-            $id = \Configuration::getIdByName($key, 0, $idShop);
-            if (!$id) {
-                $id = \Configuration::getIdByName($key, $idShopGroup, 0);
-            }
+            $id = \Configuration::getIdByName($key, $idShopGroup, $idShop);
             if (!$id) {
                 $id = \Configuration::getIdByName($key, 0, 0);
             }
@@ -242,7 +242,7 @@ class Configuration
             return $found;
         }
 
-        throw new \Exception('Configuration entry not found: ' . $key . '|grp:' . $idShopGroup . '|shop:' . $idShop);
+        throw new \Exception('Configuration entry not found: ' . $key . '|shop:' . $idShop);
     }
 
     /**
@@ -253,11 +253,7 @@ class Configuration
     public function getDateUpd($key)
     {
         try {
-            $entry = $this->getUncachedConfiguration(
-                $key,
-                $this->getIdShopGroup(),
-                $this->getIdShop()
-            );
+            $entry = $this->getUncachedConfiguration($key, $this->idShopGroup, $this->getIdShop());
 
             return new \DateTime($entry->date_upd);
         } catch (\Exception $e) {
