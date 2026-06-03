@@ -309,14 +309,17 @@ class AdminAjaxPsAccountsController extends \ModuleAdminController
      */
     protected function getNotificationsUpgradeFailed()
     {
-        /** @var StatusManager $statusManager */
-        $statusManager = $this->module->getService(StatusManager::class);
-
         /** @var UpgradeService $upgradeService */
         $upgradeService = $this->module->getService(UpgradeService::class);
 
+        // Show the "reset to finish update" banner whenever PrestaShop core recorded the current
+        // module version but our own migration flag (PS_ACCOUNTS_LAST_UPGRADE) is still behind it:
+        // the migration did not complete. A fresh / never-associated install writes the flag = VERSION
+        // (via onModuleReset), so this does not fire on healthy installs. We intentionally no longer
+        // gate on identityCreated(): a failed v7->v8 migration aborts *before* the identity is created,
+        // which is exactly the case where the merchant must be prompted to reset and finish the update.
         if ($upgradeService->getCoreRegisteredVersion() === \Ps_accounts::VERSION &&
-            (!$statusManager->identityCreated() || $upgradeService->getRegisteredVersion() === \Ps_accounts::VERSION)) {
+            $upgradeService->getRegisteredVersion() === \Ps_accounts::VERSION) {
             return [];
         }
 
