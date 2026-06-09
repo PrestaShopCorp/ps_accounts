@@ -23,9 +23,24 @@ namespace PrestaShop\Module\PsAccounts\Account\Command;
 
 use PrestaShop\Module\PsAccounts\Traits\WithOriginAndSourceTrait;
 
+/**
+ * @method $this withVersion(string|null $version)
+ * @method string|null getVersion(bool $restoreDefault = true)
+ */
 class MigrateOrCreateIdentitiesV8Command
 {
     use WithOriginAndSourceTrait;
+
+    /**
+     * Explicit target version to register once the migration succeeds.
+     *
+     * Sourced from the upgrade script (always-fresh code) so we do not rely on the
+     * possibly-stale \Ps_accounts::VERSION const during a zip upgrade. Null falls back
+     * to the const downstream (BC).
+     *
+     * @var string|null
+     */
+    public $version;
 
     public function __construct()
     {

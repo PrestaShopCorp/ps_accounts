@@ -131,7 +131,7 @@ class MigrateOrCreateIdentityV8Handler
 
         // FIXME: shouldn't this condition be a specific flag
         if ($notIdentified || $migratedToV8) {
-            $this->registerLatestVersion();
+            $this->registerLatestVersion($command->version);
             $this->createOrVerifyIdentity($command);
 
             return;
@@ -161,10 +161,10 @@ class MigrateOrCreateIdentityV8Handler
 
             $this->clearTokens();
             $this->statusManager->invalidateCache();
-            $this->registerLatestVersion();
+            $this->registerLatestVersion($command->version);
         } catch (StoreLegacyNotFoundException $e) {
             if ($command->origin !== AccountsService::ORIGIN_ADVANCED_SETTINGS) {
-                $this->registerLatestVersion();
+                $this->registerLatestVersion($command->version);
                 $this->cleanupIdentity();
                 $this->createOrVerifyIdentity($command);
 
@@ -265,10 +265,24 @@ class MigrateOrCreateIdentityV8Handler
     }
 
     /**
+     * Register the version reached by this migration.
+     *
+     * Prefer the explicit $version threaded from the upgrade script (fresh code) over
+     * the \Ps_accounts::VERSION const, which is stale on PS9 zip upgrades (the old main
+     * class stays resident in memory). Null keeps the legacy const-based behaviour.
+     *
+     * @param string|null $version
+     *
      * @return void
      */
-    private function registerLatestVersion()
+    private function registerLatestVersion($version = null)
     {
+        if ($version) {
+            $this->upgradeService->setVersion($version);
+
+            return;
+        }
+
         $this->upgradeService->setVersion();
     }
 }
