@@ -265,11 +265,7 @@ class MigrateOrCreateIdentityV8Handler
     }
 
     /**
-     * Register the version reached by this migration.
-     *
-     * Prefer the explicit $version threaded from the upgrade script (fresh code) over
-     * the \Ps_accounts::VERSION const, which is stale on PS9 zip upgrades (the old main
-     * class stays resident in memory). Null keeps the legacy const-based behaviour.
+     * Prefer $version from the upgrade script (always fresh) over \Ps_accounts::VERSION (stale on PS9).
      *
      * @param string|null $version
      *
