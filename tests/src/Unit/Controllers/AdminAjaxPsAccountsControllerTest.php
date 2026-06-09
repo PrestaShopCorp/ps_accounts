@@ -5,6 +5,7 @@ namespace PrestaShop\Module\PsAccounts\Tests\Unit\Controllers;
 use PrestaShop\Module\PsAccounts\Account\StatusManager;
 use PrestaShop\Module\PsAccounts\Provider\ShopProvider;
 use PrestaShop\Module\PsAccounts\Service\Accounts\Resource\ShopStatus;
+use PrestaShop\Module\PsAccounts\Service\UpgradeService;
 use PrestaShop\Module\PsAccounts\Tests\TestCase;
 
 class AdminAjaxPsAccountsControllerTest extends TestCase
@@ -145,6 +146,7 @@ class AdminAjaxPsAccountsControllerTest extends TestCase
                 if ($class === \PrestaShop\Module\PsAccounts\Adapter\Link::class) {
                     return $this->module->getService(\PrestaShop\Module\PsAccounts\Adapter\Link::class);
                 }
+
                 return $this->module->getService($class);
             });
         $moduleMock->method('l')->willReturnCallback(function ($string, $class) {
@@ -171,6 +173,110 @@ class AdminAjaxPsAccountsControllerTest extends TestCase
         $result = $method->invoke($controller);
 
         $this->assertEquals([], $result);
+    }
+
+    /**
+     * @test
+     */
+    public function itShouldReturnEmptyArrayWhenUpgradeVersionsMatch()
+    {
+        $upgradeServiceMock = $this->createMock(UpgradeService::class);
+        $upgradeServiceMock->method('getCoreRegisteredVersion')->willReturn(\Ps_accounts::VERSION);
+        $upgradeServiceMock->method('getRegisteredVersion')->willReturn(\Ps_accounts::VERSION);
+
+        $controller = $this->createControllerMockWithUpgradeService($upgradeServiceMock);
+        $method = $this->getProtectedMethod($controller, 'getNotificationsUpgradeFailed');
+
+        $result = $method->invoke($controller);
+
+        $this->assertEquals([], $result);
+    }
+
+    /**
+     * @test
+     *
+     * Ticket scenario (v7.2.2 -> v8 failed migration): core recorded the new version but our own
+     * PS_ACCOUNTS_LAST_UPGRADE flag is still stale. The banner MUST show so the merchant can reset
+     * and finish the update -- regardless of whether an identity was ever created.
+     */
+    public function itShouldReturnUpgradeBannerWhenRegisteredVersionStale()
+    {
+        $upgradeServiceMock = $this->createMock(UpgradeService::class);
+        $upgradeServiceMock->method('getCoreRegisteredVersion')->willReturn(\Ps_accounts::VERSION);
+        $upgradeServiceMock->method('getRegisteredVersion')->willReturn('7.2.2');
+
+        $controller = $this->createControllerMockWithUpgradeService($upgradeServiceMock);
+        $method = $this->getProtectedMethod($controller, 'getNotificationsUpgradeFailed');
+
+        $result = $method->invoke($controller);
+
+        $this->assertIsArray($result);
+        $this->assertNotEmpty($result);
+        $this->assertArrayHasKey(0, $result);
+        $this->assertArrayHasKey('html', $result[0]);
+        $this->assertStringContainsString('Action required', $result[0]['html']);
+        $this->assertStringContainsString('resetModule', $result[0]['html']);
+    }
+
+    /**
+     * @test
+     */
+    public function itShouldReturnUpgradeBannerWhenCoreVersionMismatch()
+    {
+        $upgradeServiceMock = $this->createMock(UpgradeService::class);
+        $upgradeServiceMock->method('getCoreRegisteredVersion')->willReturn('7.2.2');
+        $upgradeServiceMock->method('getRegisteredVersion')->willReturn(\Ps_accounts::VERSION);
+
+        $controller = $this->createControllerMockWithUpgradeService($upgradeServiceMock);
+        $method = $this->getProtectedMethod($controller, 'getNotificationsUpgradeFailed');
+
+        $result = $method->invoke($controller);
+
+        $this->assertIsArray($result);
+        $this->assertNotEmpty($result);
+        $this->assertArrayHasKey('html', $result[0]);
+        $this->assertStringContainsString('Action required', $result[0]['html']);
+    }
+
+    /**
+     * @param UpgradeService $upgradeServiceMock
+     *
+     * @return \AdminAjaxPsAccountsController
+     */
+    private function createControllerMockWithUpgradeService($upgradeServiceMock)
+    {
+        $moduleMock = $this->createMock(\Ps_accounts::class);
+        $moduleMock->method('getService')
+            ->willReturnCallback(function ($class) use ($upgradeServiceMock) {
+                if ($class === UpgradeService::class) {
+                    return $upgradeServiceMock;
+                }
+                if ($class === \PrestaShop\Module\PsAccounts\Adapter\Link::class) {
+                    return $this->module->getService(\PrestaShop\Module\PsAccounts\Adapter\Link::class);
+                }
+                // Fallback to real service
+                return $this->module->getService($class);
+            });
+        $moduleMock->method('l')->willReturnCallback(function ($string, $class) {
+            return $this->module->l($string, $class);
+        });
+
+        $controller = new \AdminAjaxPsAccountsController();
+        $controller->module = $moduleMock;
+
+        $reflection = new \ReflectionClass($controller);
+        if ($reflection->hasProperty('context')) {
+            $contextProperty = $reflection->getProperty('context');
+            $contextProperty->setAccessible(true);
+            $contextProperty->setValue($controller, $this->module->getContext());
+        }
+        if ($reflection->hasProperty('translationClass')) {
+            $translationProperty = $reflection->getProperty('translationClass');
+            $translationProperty->setAccessible(true);
+            $translationProperty->setValue($controller, 'AdminAjaxPsAccountsController');
+        }
+
+        return $controller;
     }
 
     /**
@@ -237,6 +343,4 @@ class AdminAjaxPsAccountsControllerTest extends TestCase
 
         return $method;
     }
-
 }
-
