@@ -7,6 +7,7 @@ use PrestaShop\Module\PsAccounts\Account\Command\MigrateOrCreateIdentityV8Comman
 use PrestaShop\Module\PsAccounts\Account\CommandHandler\MigrateOrCreateIdentityV8Handler;
 use PrestaShop\Module\PsAccounts\Account\ProofManager;
 use PrestaShop\Module\PsAccounts\Account\StatusManager;
+use PrestaShop\Module\PsAccounts\Cqrs\CommandBus;
 use PrestaShop\Module\PsAccounts\Http\Client\Curl\Client;
 use PrestaShop\Module\PsAccounts\Http\Client\Request;
 use PrestaShop\Module\PsAccounts\Http\Client\Response;
@@ -509,6 +510,44 @@ JSON;
         $this->assertEquals($newCloudShopId, $this->statusManager->getCloudShopId());
 
         // FIXME: test something relevant
+    }
+
+    /**
+     * Bug 2 (PS9 zip upgrade): the version registered in PS_ACCOUNTS_LAST_UPGRADE must come from the
+     * explicit version threaded by the upgrade script, NOT from \Ps_accounts::VERSION (which is stale
+     * in-memory during a PS9 zip upgrade). Here the threaded version differs from the const, and we
+     * assert the threaded one wins.
+     *
+     * @test
+     */
+    public function itShouldRegisterThreadedVersionRatherThanTheConst()
+    {
+        // already-v8 + identified shop -> takes the registerLatestVersion() branch (the 8.0.x -> 8.0.x case)
+        $this->upgradeService->setVersion('8.0.13');
+        $this->configurationRepository->updateShopUuid($this->faker->uuid);
+
+        $threadedVersion = '9.9.9';
+        $this->assertNotEquals($threadedVersion, \Ps_accounts::VERSION);
+
+        // stub the downstream createOrVerifyIdentity dispatch so the test stays focused on version registration
+        $commandBus = $this->createMock(CommandBus::class);
+
+        $handler = new MigrateOrCreateIdentityV8Handler(
+            $this->accountsService,
+            $this->oAuth2Service,
+            $this->shopProvider,
+            $this->statusManager,
+            $this->proofManager,
+            $this->configurationRepository,
+            $commandBus,
+            $this->upgradeService
+        );
+
+        $handler->handle(
+            (new MigrateOrCreateIdentityV8Command($this->shopId))->withVersion($threadedVersion)
+        );
+
+        $this->assertEquals($threadedVersion, $this->upgradeService->getRegisteredVersion());
     }
 
     /**

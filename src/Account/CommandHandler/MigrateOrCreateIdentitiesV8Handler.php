@@ -40,6 +40,7 @@ class MigrateOrCreateIdentitiesV8Handler extends MultiShopHandler
                     (new MigrateOrCreateIdentityV8Command($multiShopId))
                         ->withOrigin($command->origin)
                         ->withSource($command->source)
+                        ->withVersion($command->version)
                 );
             } catch (Exception $e) {
                 Logger::getInstance()->error($e->getMessage());
