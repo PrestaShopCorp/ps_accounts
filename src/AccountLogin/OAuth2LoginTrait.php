@@ -142,7 +142,8 @@ trait OAuth2LoginTrait
                 $this->oauth2Redirect(Tools::getValue('locale', 'en'), $shopId);
 
             // Check given state against previously stored one to mitigate CSRF attack
-            } elseif (empty($state) || ($session->has('oauth2state') && $state !== $session->get('oauth2state'))) {
+            // Also reject when oauth2state is absent: missing session = missing pkceCode = invalid_grant on token exchange
+            } elseif (empty($state) || !$session->has('oauth2state') || $state !== $session->get('oauth2state')) {
                 $session->remove('oauth2state');
 
                 throw new \Exception('Invalid state');
