@@ -94,8 +94,8 @@ function upgrade_8_0_15_fix_multishop_config()
             );
         }
     } catch (\Exception $e) {
-        Logger::getInstance()->error('error during upgrade fixMultiShopConfig : ' . $e);
+        Logger::getInstance()->error('error during upgrade upgrade_8_0_15_fix_multishop_config : ' . $e);
     } catch (\Throwable $e) {
-        Logger::getInstance()->error('error during upgrade fixMultiShopConfig : ' . $e);
+        Logger::getInstance()->error('error during upgrade upgrade_8_0_15_fix_multishop_config : ' . $e);
     }
 }
