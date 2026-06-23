@@ -158,7 +158,6 @@ trait OAuth2LoginTrait
                 $session->remove('oauth2state');
 
                 throw new \Exception('Invalid state');
-
             // Session lost on the callback: oauth2state (and pkceCode) are gone.
             // The most common cause is PS_COOKIE_SAMESITE=Strict — the browser
             // withholds the admin cookie on the cross-site redirect back from
@@ -172,7 +171,6 @@ trait OAuth2LoginTrait
                 // Already bounced once and the session is still missing: this is
                 // a genuine session loss (expired, cookies disabled, ...), fail clean.
                 throw new \Exception('Invalid state');
-
             // Check given state against previously stored one to mitigate CSRF attack
             } elseif ($state !== $session->get('oauth2state')) {
                 $session->remove('oauth2state');
