@@ -281,6 +281,17 @@ class AdminOAuth2PsAccountsController extends \ModuleAdminController
     }
 
     /**
+     * @param string $url
+     *
+     * @return void
+     */
+    protected function renderSameSiteBounce($url)
+    {
+        echo $this->buildBounceHtml($url);
+        exit;
+    }
+
+    /**
      * @param bool $forceSignup
      *
      * @return void

@@ -23,12 +23,27 @@ class OAuth2LoginTraitTestClass
 
     private $oauth2Session;
 
+    /**
+     * Records the URL passed to renderSameSiteBounce() so tests can assert on it
+     * (the real controllers echo+exit / return a Response instead).
+     *
+     * @var string|null
+     */
+    public $bouncedUrl = null;
+
     public function __construct($module, $session, $oauth2Service, $oauth2Session)
     {
         $this->module = $module;
         $this->session = $session;
         $this->oauth2Service = $oauth2Service;
         $this->oauth2Session = $oauth2Session;
+    }
+
+    protected function renderSameSiteBounce($url)
+    {
+        $this->bouncedUrl = $url;
+
+        return 'same-site-bounce';
     }
 
     protected function getOAuth2Service()

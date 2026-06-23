@@ -22,20 +22,22 @@ class OAuth2LoginTraitTest extends TestCase
     public function tear_down()
     {
         // Tools::getValue reads $_POST + $_GET: clean up so other tests aren't polluted
-        unset($_GET['shop_id'], $_GET['code'], $_GET['state']);
-        unset($_POST['shop_id'], $_POST['code'], $_POST['state']);
+        unset($_GET['shop_id'], $_GET['code'], $_GET['state'], $_GET['__ps_oauth_retry']);
+        unset($_POST['shop_id'], $_POST['code'], $_POST['state'], $_POST['__ps_oauth_retry']);
+        unset($_SERVER['REQUEST_URI']);
 
         parent::tear_down();
     }
 
     /**
      * A callback carrying a valid code + state but landing on a request whose session lost
-     * the stored oauth2state must be rejected before any token exchange: a missing session
-     * means a missing pkceCode, which would otherwise trigger a cryptic invalid_grant.
+     * the stored oauth2state is the PS_COOKIE_SAMESITE=Strict symptom: instead of failing,
+     * the flow must emit a same-site bounce (re-navigation) to recover the cookie, without
+     * ever attempting the token exchange (which would lack the pkceCode).
      *
      * @test
      */
-    public function itShouldRejectCallbackWhenSessionIsMissing()
+    public function itShouldBounceWhenSessionIsMissing()
     {
         $session = $this->createSessionDouble(false, null);
 
@@ -43,11 +45,41 @@ class OAuth2LoginTraitTest extends TestCase
 
         $instance = $this->createInstance($session, $this->createOAuth2ServiceNeverCalled());
 
-        $session->expects($this->once())->method('remove')->with('oauth2state');
-        $this->expectException(\Exception::class);
-        $this->expectExceptionMessage('Invalid state');
+        $result = $instance->oauth2Login();
 
-        $instance->oauth2Login();
+        $this->assertSame('same-site-bounce', $result);
+        $this->assertNotNull($instance->bouncedUrl);
+        $this->assertStringContainsString('code=somevalidcode', $instance->bouncedUrl);
+        $this->assertStringContainsString('state=state-from-callback', $instance->bouncedUrl);
+        $this->assertStringContainsString('__ps_oauth_retry=1', $instance->bouncedUrl);
+    }
+
+    /**
+     * If the session is still missing after a bounce already happened (__ps_oauth_retry=1),
+     * this is a genuine session loss: reject before any token exchange instead of looping.
+     *
+     * @test
+     */
+    public function itShouldRejectCallbackWhenSessionStillMissingAfterBounce()
+    {
+        $session = $this->createSessionDouble(false, null);
+
+        $this->whenCallbackReceives('somevalidcode', 'state-from-callback');
+        $_GET['__ps_oauth_retry'] = '1';
+
+        $instance = $this->createInstance($session, $this->createOAuth2ServiceNeverCalled());
+
+        $thrown = null;
+        try {
+            $instance->oauth2Login();
+        } catch (\Exception $e) {
+            $thrown = $e;
+        }
+
+        $this->assertInstanceOf(\Exception::class, $thrown);
+        $this->assertSame('Invalid state', $thrown->getMessage());
+        // No second bounce was emitted: the guard turned the retry into a clean failure.
+        $this->assertNull($instance->bouncedUrl);
     }
 
     /**
@@ -82,6 +114,9 @@ class OAuth2LoginTraitTest extends TestCase
         $_GET['shop_id'] = \Context::getContext()->shop->id;
         $_GET['code'] = $code;
         $_GET['state'] = $state;
+
+        // buildBounceUrl() rebuilds the current callback URL from REQUEST_URI + $_GET
+        $_SERVER['REQUEST_URI'] = '/admin/index.php?controller=AdminOAuth2PsAccounts';
     }
 
     /**

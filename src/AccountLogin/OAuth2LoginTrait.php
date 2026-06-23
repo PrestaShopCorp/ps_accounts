@@ -93,6 +93,18 @@ trait OAuth2LoginTrait
     abstract protected function getSignupUrl();
 
     /**
+     * Output a same-origin HTML page that immediately re-navigates to the given
+     * URL. Used to recover from a lost session on the OAuth2 callback when
+     * PS_COOKIE_SAMESITE=Strict prevents the cookie from being sent on the
+     * cross-site return (see buildBounceUrl()).
+     *
+     * @param string $url
+     *
+     * @return mixed
+     */
+    abstract protected function renderSameSiteBounce($url);
+
+    /**
      * @return mixed
      *
      * @throws EmailNotVerifiedException
@@ -141,9 +153,28 @@ trait OAuth2LoginTrait
 
                 $this->oauth2Redirect(Tools::getValue('locale', 'en'), $shopId);
 
+            // No state at all in the callback: nothing to validate against, reject.
+            } elseif (empty($state)) {
+                $session->remove('oauth2state');
+
+                throw new \Exception('Invalid state');
+
+            // Session lost on the callback: oauth2state (and pkceCode) are gone.
+            // The most common cause is PS_COOKIE_SAMESITE=Strict — the browser
+            // withholds the admin cookie on the cross-site redirect back from
+            // auth-hydra, so the session arrives empty. Re-issuing the very same
+            // callback as a SAME-SITE navigation makes the browser send the
+            // cookie, which restores the session and lets the flow complete.
+            } elseif (!$session->has('oauth2state')) {
+                if (!$this->hasAlreadyBounced()) {
+                    return $this->renderSameSiteBounce($this->buildBounceUrl());
+                }
+                // Already bounced once and the session is still missing: this is
+                // a genuine session loss (expired, cookies disabled, ...), fail clean.
+                throw new \Exception('Invalid state');
+
             // Check given state against previously stored one to mitigate CSRF attack
-            // Also reject when oauth2state is absent: missing session = missing pkceCode = invalid_grant on token exchange
-            } elseif (empty($state) || !$session->has('oauth2state') || $state !== $session->get('oauth2state')) {
+            } elseif ($state !== $session->get('oauth2state')) {
                 $session->remove('oauth2state');
 
                 throw new \Exception('Invalid state');
@@ -167,6 +198,54 @@ trait OAuth2LoginTrait
                 }
             }
         });
+    }
+
+    /**
+     * Whether the current callback is already the result of a same-site bounce.
+     * Guards against an infinite redirect loop when the session is genuinely lost.
+     *
+     * @return bool
+     */
+    private function hasAlreadyBounced()
+    {
+        return (bool) Tools::getValue('__ps_oauth_retry');
+    }
+
+    /**
+     * Rebuild the current callback URL, preserving every query param (code,
+     * state, action, ...) and adding the one-shot bounce marker. The returned
+     * URL is same-origin, so navigating to it client-side is a same-site
+     * request that carries the (Strict) admin cookie.
+     *
+     * @return string
+     */
+    private function buildBounceUrl()
+    {
+        $params = $_GET;
+        $params['__ps_oauth_retry'] = '1';
+
+        $path = strtok($_SERVER['REQUEST_URI'], '?');
+
+        return $path . '?' . http_build_query($params);
+    }
+
+    /**
+     * Minimal same-origin HTML page that re-navigates to $url. location.replace
+     * avoids polluting the history; the <noscript> meta-refresh is a fallback.
+     * $url is escaped for both the JS string and the HTML attribute contexts
+     * because it carries attacker-influenceable query params (code/state).
+     *
+     * @param string $url
+     *
+     * @return string
+     */
+    private function buildBounceHtml($url)
+    {
+        return '<!DOCTYPE html><html><head><meta charset="utf-8">'
+            . '<noscript><meta http-equiv="refresh" content="0;url='
+            . htmlspecialchars($url, ENT_QUOTES) . '"></noscript>'
+            . '<script type="text/javascript">window.location.replace('
+            . json_encode($url) . ');</script></head><body></body></html>';
     }
 
     /**
