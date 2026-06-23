@@ -283,7 +283,7 @@ class AdminOAuth2PsAccountsController extends \ModuleAdminController
     /**
      * @param string $url
      *
-     * @return void
+     * @return mixed
      */
     protected function renderSameSiteBounce($url)
     {
