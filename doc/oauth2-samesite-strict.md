@@ -58,6 +58,17 @@ Si le marqueur `__ps_oauth_retry=1` est **déjà** présent et que la session es
 c'est une perte de session réelle (session expirée, cookies désactivés…) : le module échoue
 proprement sur `Invalid state`, sans boucler. **Au plus un hop supplémentaire.**
 
+### Préservation du cookie (Symfony, PS < 9)
+
+Sur Symfony (PS 1.7/8), `Ps_accounts::getSession()` renvoie la **session cœur** (service
+`session`). Au premier accès (`getShopId()`, puis `has('oauth2state')`), `session_start()` est
+appelé : sur le retour cross-site sans cookie, il **crée une session vide et émet aussitôt un
+`Set-Cookie`** (nouvel id) qui **écraserait le cookie d'origine** → le rebond same-site repartirait
+alors avec un cookie vide. Pour l'éviter, `AdminOAuth2PsAccountsController::renderSameSiteBounce()`
+**purge tout `Set-Cookie` en attente** (`header_remove('Set-Cookie')`) avant d'émettre la page de
+rebond : c'est une page cul-de-sac qui ne doit poser aucun cookie, donc le navigateur conserve ses
+cookies d'origine et les renvoie au replay. PS 9 (réponse Symfony) n'est pas concerné.
+
 ### Sécurité
 
 - Le `code` n'est **jamais** échangé sans un `oauth2state` de session correspondant.
@@ -73,28 +84,61 @@ proprement sur `Invalid state`, sans boucler. **Au plus un hop supplémentaire.*
 | Fichier | Rôle |
 |---------|------|
 | `src/AccountLogin/OAuth2LoginTrait.php` | Détection (`oauth2Login()`), `hasAlreadyBounced()`, `buildBounceUrl()`, `buildBounceHtml()`, abstrait `renderSameSiteBounce()` |
-| `controllers/admin/AdminOAuth2PsAccountsController.php` (PS < 9) | `renderSameSiteBounce()` → `echo … ; exit;` |
+| `controllers/admin/AdminOAuth2PsAccountsController.php` (PS < 9) | `renderSameSiteBounce()` → `header_remove('Set-Cookie')` + `echo … ; exit;` |
 | `src/Controller/Admin/OAuth2Controller.php` (PS 9+) | `renderSameSiteBounce()` → `Response` |
 
-## Validation & point d'attention
+## État par flux et par version (`Strict`, validé E2E)
 
-Le correctif repose sur une hypothèse : **le cookie de session d'origine survit dans le
-navigateur et est renvoyé sur le rebond same-site.** Sur Symfony, le callback lit la session
-(`getShopId()`, `has('oauth2state')`) **avant** de décider de rebondir, ce qui démarre une session
-vide ; le risque théorique était qu'un `Set-Cookie` parasite écrase le cookie d'origine et fasse
-échouer le rebond.
+| Flux | PS 9 | PS 8 / 1.7 | PS 1.6 |
+|------|------|------------|--------|
+| **Login BO** | ✅ | ✅ (rebond + purge `Set-Cookie`) | à valider |
+| **Point de contact** | ✅ | ❌ **non résolu** (voir ci-dessous) | à valider |
 
-➡️ **Validé en E2E sur PrestaShop 9 + `Strict` : le flux aboutit.** PrestaShop ne réémet pas de
-`Set-Cookie` destructeur sur la session vide lue au premier passage, donc le cookie d'origine est
-bien renvoyé sur le rebond.
+- **Login** : OK sur PS 9, 8 et 1.7. L'état OAuth vit dans la session cœur ; le rebond + la purge
+  du `Set-Cookie` préservent le cookie de session, qui repart au replay same-site.
+- **Point de contact** : OK sur PS 9 ; **toujours KO sur PS 8 / 1.7** malgré le rebond — à cause de
+  la fallback `ConfigurationStorageSession` (cf. section suivante).
 
-Lors de la revue, sanity-check rapide possible sur les autres versions (legacy PS 1.6 a priori
-sûr : pas de `$cookie->write()` avant `exit`). Si un jour un écrasement apparaissait sur une
-version, la parade serait de rebondir **avant** de toucher la session (PS9 :
-`$request->hasPreviousSession()`).
+## Limitation connue : point de contact sur PS 8 / 1.7
+
+### Pourquoi le rebond ne suffit pas
+
+En mode **connecté**, `AdminOAuth2PsAccountsController::getSession()` renvoie
+`ConfigurationStorageSession` (store DB) **dès que `Context::employee->id` est défini** — et non la
+session cœur. Cette fallback est **forcée pour le point de contact, pas seulement en PS 1.6**.
+
+Au retour cross-site `Strict`, le cookie employé n'est pas envoyé → `employee->id == 0` →
+`getSession()` retombe sur la session cœur (pas sur `ConfigurationStorageSession`) → rebond. Même
+avec la purge du `Set-Cookie`, la **récupération du point de contact n'aboutit pas** sur PS 8 / 1.7
+(mécanisme exact encore à confirmer ; l'état transitoire est indexé par `id_fallback_session`, porté
+par le cookie employé — l'interaction avec le retour cross-site reste à élucider).
+
+### Le compromis (et pourquoi on ne peut pas juste « ignorer la fallback »)
+
+Si l'on **force la session cœur** pour le point de contact (au lieu de `ConfigurationStorageSession`),
+le rebond **récupère bien** le point de contact sur PS 8 / 1.7 — **mais le marchand est déconnecté
+à la page suivante** (le set point de contact passe, puis on retombe sur le login).
+
+Cause : `redirectAfterLogin()` appelle `$this->getSession()->clear()` en fin de point de contact
+(`controllers/admin/AdminOAuth2PsAccountsController.php:213`). Avec la session cœur, ce `clear()`
+**vide la session BO de l'employé** → déconnexion. C'est précisément **la raison d'être de la
+fallback `ConfigurationStorageSession`** : isoler l'état OAuth transitoire dans un store DB séparé
+pour que le `clear()` final ne détruise pas la session BO (`getSession()` L249-257 + commentaire
+`// FIXME: fallback only for setPointOfContact` L252).
+
+### Conséquence
+
+Tant que cette tension n'est pas levée, sur PS 8 / 1.7 :
+- soit on garde la fallback → BO préservé mais **point de contact KO en `Strict`** ;
+- soit on l'ignore → point de contact OK en `Strict` mais **régression d'auth BO** (déconnexion).
+
+Pistes pour une vraie solution (non implémentées) : ne `clear()` que l'état OAuth transitoire sans
+toucher la session BO ; ou stocker l'état transitoire dans un store indépendant du cookie employé,
+réhydratable au replay sans dépendre de `employee->id`.
 
 ## Recommandation marchand
 
-`Lax` reste le réglage **recommandé** (et le défaut PrestaShop). `Strict` est désormais
-**supporté** grâce au rebond, au prix d'une redirection supplémentaire invisible pour
-l'utilisateur.
+`Lax` reste le réglage **recommandé** (et le défaut PrestaShop). En `Strict` : le **login** est
+désormais supporté (rebond same-site, redirection invisible) ; le **point de contact** n'est **pas
+encore supporté sur PS 8 / 1.7** (OK sur PS 9). À documenter côté support tant que la limitation
+n'est pas levée.
