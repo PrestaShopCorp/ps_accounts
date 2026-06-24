@@ -28,7 +28,6 @@ use PrestaShop\Module\PsAccounts\AccountLogin\OAuth2LoginTrait;
 use PrestaShop\Module\PsAccounts\AccountLogin\OAuth2Session;
 use PrestaShop\Module\PsAccounts\Cqrs\CommandBus;
 use PrestaShop\Module\PsAccounts\Log\Logger;
-use PrestaShop\Module\PsAccounts\Polyfill\ConfigurationStorageSession;
 use PrestaShop\Module\PsAccounts\Polyfill\Traits\AdminController\IsAnonymousAllowed;
 use PrestaShop\Module\PsAccounts\Service\AnalyticsService;
 use PrestaShop\Module\PsAccounts\Service\OAuth2\OAuth2Service;
@@ -210,7 +209,10 @@ class AdminOAuth2PsAccountsController extends \ModuleAdminController
     {
         if ($this->getOAuthAction() === 'identifyPointOfContact') {
             $forceSignup = $this->getForceSignup();
-            $this->getSession()->clear();
+            // Clear only our transient OAuth keys, NOT the whole session: on PS 1.7+
+            // getSession() is the core BO session and a full clear() would log the
+            // employee out on the next page.
+            $this->clearOAuth2SessionState();
             $this->closePopup($forceSignup);
         }
         $returnTo = $this->getReturnTo() ?: 'AdminDashboard';
@@ -248,11 +250,13 @@ class AdminOAuth2PsAccountsController extends \ModuleAdminController
      */
     protected function getSession()
     {
-        if (\Context::getContext()->employee->id) {
-            // FIXME: fallback only for setPointOfContact
-            return $this->module->getService(ConfigurationStorageSession::class);
-        }
-
+        // module->getSession() already returns the ConfigurationStorageSession
+        // fallback on PS 1.6 (no core Symfony session) and the core session on
+        // PS 1.7+. We use it for both login AND point of contact so the same-site
+        // bounce can recover a session lost under Cookie SameSite=Strict. The
+        // point-of-contact flow no longer needs a dedicated store: redirectAfterLogin()
+        // clears only the transient OAuth keys (clearOAuth2SessionState()) instead
+        // of the whole session, so the logged-in employee is kept signed in.
         return $this->module->getSession();
     }
 

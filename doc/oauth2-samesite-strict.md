@@ -87,58 +87,56 @@ cookies d'origine et les renvoie au replay. PS 9 (réponse Symfony) n'est pas co
 | `controllers/admin/AdminOAuth2PsAccountsController.php` (PS < 9) | `renderSameSiteBounce()` → `header_remove('Set-Cookie')` + `echo … ; exit;` |
 | `src/Controller/Admin/OAuth2Controller.php` (PS 9+) | `renderSameSiteBounce()` → `Response` |
 
-## État par flux et par version (`Strict`, validé E2E)
+## État par flux et par version (`Strict`)
 
 | Flux | PS 9 | PS 8 / 1.7 | PS 1.6 |
 |------|------|------------|--------|
 | **Login BO** | ✅ | ✅ (rebond + purge `Set-Cookie`) | à valider |
-| **Point de contact** | ✅ | ❌ **non résolu** (voir ci-dessous) | à valider |
+| **Point de contact** | ✅ | ✅ (session cœur + clear ciblé) — **à valider en E2E** | à valider |
 
-- **Login** : OK sur PS 9, 8 et 1.7. L'état OAuth vit dans la session cœur ; le rebond + la purge
-  du `Set-Cookie` préservent le cookie de session, qui repart au replay same-site.
-- **Point de contact** : OK sur PS 9 ; **toujours KO sur PS 8 / 1.7** malgré le rebond — à cause de
-  la fallback `ConfigurationStorageSession` (cf. section suivante).
+- **Login** : l'état OAuth vit dans la session cœur ; le rebond + la purge du `Set-Cookie`
+  préservent le cookie de session, qui repart au replay same-site.
+- **Point de contact** : voir la section suivante.
 
-## Limitation connue : point de contact sur PS 8 / 1.7
+## Point de contact : session cœur + clear ciblé (PS 1.7+)
 
-### Pourquoi le rebond ne suffit pas
+### Le problème historique
 
-En mode **connecté**, `AdminOAuth2PsAccountsController::getSession()` renvoie
-`ConfigurationStorageSession` (store DB) **dès que `Context::employee->id` est défini** — et non la
-session cœur. Cette fallback est **forcée pour le point de contact, pas seulement en PS 1.6**.
+`AdminOAuth2PsAccountsController::getSession()` renvoyait `ConfigurationStorageSession` (store DB,
+indexé par `id_fallback_session` porté par le cookie employé) **dès que `Context::employee->id`
+était défini** — sur **toutes** les versions, pas seulement PS 1.6. Cette fallback était la
+**raison d'être** du bon fonctionnement du point de contact malgré le `clear()` final :
+`redirectAfterLogin()` appelait `$this->getSession()->clear()` en fin de flux ; avec la session
+cœur, ce `clear()` aurait **vidé la session BO de l'employé** → déconnexion à la page suivante. La
+fallback isolait donc l'état OAuth dans un store séparé pour protéger la session BO.
 
-Au retour cross-site `Strict`, le cookie employé n'est pas envoyé → `employee->id == 0` →
-`getSession()` retombe sur la session cœur (pas sur `ConfigurationStorageSession`) → rebond. Même
-avec la purge du `Set-Cookie`, la **récupération du point de contact n'aboutit pas** sur PS 8 / 1.7
-(mécanisme exact encore à confirmer ; l'état transitoire est indexé par `id_fallback_session`, porté
-par le cookie employé — l'interaction avec le retour cross-site reste à élucider).
+Mais sous `Strict`, cette fallback **empêche le rebond** : au retour cross-site le cookie employé
+n'est pas envoyé → `employee->id == 0` → `getSession()` ne retombe pas sur le store DB, et la
+récupération n'aboutit pas (le point de contact restait KO sur PS 8 / 1.7).
 
-### Le compromis (et pourquoi on ne peut pas juste « ignorer la fallback »)
+### La solution
 
-Si l'on **force la session cœur** pour le point de contact (au lieu de `ConfigurationStorageSession`),
-le rebond **récupère bien** le point de contact sur PS 8 / 1.7 — **mais le marchand est déconnecté
-à la page suivante** (le set point de contact passe, puis on retombe sur le login).
+Découpler les deux responsabilités :
 
-Cause : `redirectAfterLogin()` appelle `$this->getSession()->clear()` en fin de point de contact
-(`controllers/admin/AdminOAuth2PsAccountsController.php:213`). Avec la session cœur, ce `clear()`
-**vide la session BO de l'employé** → déconnexion. C'est précisément **la raison d'être de la
-fallback `ConfigurationStorageSession`** : isoler l'état OAuth transitoire dans un store DB séparé
-pour que le `clear()` final ne détruise pas la session BO (`getSession()` L249-257 + commentaire
-`// FIXME: fallback only for setPointOfContact` L252).
+1. **Clear ciblé** — `redirectAfterLogin()` appelle désormais `clearOAuth2SessionState()`
+   (`OAuth2LoginTrait`) au lieu de `getSession()->clear()`. Cette méthode ne retire **que** les clés
+   transitoires OAuth (`oauth2state`, `oauth2pkceCode`, `oauth2action`, `source`, `shopId`,
+   `forceSignup`, `return_to`) et laisse le reste de la session intact → la session BO survit, même
+   quand `getSession()` est la session cœur.
+2. **Fallback re-scopée à PS 1.6** — `getSession()` renvoie simplement `module->getSession()`, qui
+   rend `ConfigurationStorageSession` **uniquement sur PS 1.6** (pas de conteneur cœur) et la session
+   cœur sur PS 1.7+. Le point de contact utilise donc la **même** session que le login sur PS 1.7+,
+   ce qui rend le **rebond opérant** pour les deux flux. PS 1.6 n'est pas concerné par SameSite=Strict.
 
-### Conséquence
+Effet de bord corrigé au passage : `ConfigurationStorageSession::remove()` écrivait dans une clé de
+configuration nommée d'après l'attribut au lieu de la ligne de session (`getConfigurationName()`) —
+corrigé pour que le clear ciblé fonctionne aussi sur PS 1.6.
 
-Tant que cette tension n'est pas levée, sur PS 8 / 1.7 :
-- soit on garde la fallback → BO préservé mais **point de contact KO en `Strict`** ;
-- soit on l'ignore → point de contact OK en `Strict` mais **régression d'auth BO** (déconnexion).
-
-Pistes pour une vraie solution (non implémentées) : ne `clear()` que l'état OAuth transitoire sans
-toucher la session BO ; ou stocker l'état transitoire dans un store indépendant du cookie employé,
-réhydratable au replay sans dépendre de `employee->id`.
+> PS 9 (`OAuth2Controller`) ne fait pas de `clear()` final et n'utilise pas la fallback : inchangé.
 
 ## Recommandation marchand
 
-`Lax` reste le réglage **recommandé** (et le défaut PrestaShop). En `Strict` : le **login** est
-désormais supporté (rebond same-site, redirection invisible) ; le **point de contact** n'est **pas
-encore supporté sur PS 8 / 1.7** (OK sur PS 9). À documenter côté support tant que la limitation
-n'est pas levée.
+`Lax` reste le réglage **recommandé** (et le défaut PrestaShop). En `Strict`, **login** et
+**point de contact** sont désormais supportés via le rebond same-site (redirection invisible). À
+**valider en E2E** sur PS 8 / 1.7 (les deux flux, point de contact dans la popup) avant de
+communiquer le support de `Strict`.

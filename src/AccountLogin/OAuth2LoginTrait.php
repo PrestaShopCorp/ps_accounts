@@ -449,6 +449,27 @@ trait OAuth2LoginTrait
     }
 
     /**
+     * Remove only the transient OAuth2 keys from the session, leaving every other
+     * attribute untouched. On PS 1.7+ getSession() is the core BO session, so a
+     * full clear() would sign the employee out at the end of the point-of-contact
+     * flow; clearing just our own keys avoids that.
+     *
+     * @return void
+     */
+    private function clearOAuth2SessionState()
+    {
+        $session = $this->getSession();
+
+        $session->remove('oauth2state');
+        $session->remove('oauth2pkceCode');
+        $session->remove('oauth2action');
+        $session->remove('source');
+        $session->remove('shopId');
+        $session->remove('forceSignup');
+        $session->remove($this->getReturnToParam());
+    }
+
+    /**
      * @param string $uid
      * @param string $email
      *
