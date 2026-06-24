@@ -24,6 +24,7 @@ use Employee;
 use PrestaShop\Module\PsAccounts\AccountLogin\Exception\AccountLoginException;
 use PrestaShop\Module\PsAccounts\AccountLogin\Exception\EmailNotVerifiedException;
 use PrestaShop\Module\PsAccounts\AccountLogin\Exception\EmployeeNotFoundException;
+use PrestaShop\Module\PsAccounts\AccountLogin\Exception\InvalidOAuth2StateException;
 use PrestaShop\Module\PsAccounts\AccountLogin\Exception\Oauth2LoginException;
 use PrestaShop\Module\PsAccounts\Context\ShopContext;
 use PrestaShop\Module\PsAccounts\Entity\EmployeeAccount;
@@ -152,50 +153,92 @@ trait OAuth2LoginTrait
                 $this->setForceSignup($forceSignup);
 
                 $this->oauth2Redirect(Tools::getValue('locale', 'en'), $shopId);
-
-            // No state at all in the callback: nothing to validate against, reject.
-            } elseif (empty($state)) {
-                $session->remove('oauth2state');
-
-                throw new \Exception('Invalid state');
-            // Session lost on the callback: oauth2state (and pkceCode) are gone.
-            // The most common cause is PS_COOKIE_SAMESITE=Strict — the browser
-            // withholds the admin cookie on the cross-site redirect back from
-            // auth-hydra, so the session arrives empty. Re-issuing the very same
-            // callback as a SAME-SITE navigation makes the browser send the
-            // cookie, which restores the session and lets the flow complete.
-            } elseif (!$session->has('oauth2state')) {
-                if (!$this->hasAlreadyBounced()) {
-                    return $this->renderSameSiteBounce($this->buildBounceUrl());
-                }
-                // Already bounced once and the session is still missing: this is
-                // a genuine session loss (expired, cookies disabled, ...), fail clean.
-                throw new \Exception('Invalid state');
-            // Check given state against previously stored one to mitigate CSRF attack
-            } elseif ($state !== $session->get('oauth2state')) {
-                $session->remove('oauth2state');
-
-                throw new \Exception('Invalid state');
             } else {
-                $this->assertValidCode($code);
-
-                try {
-                    $accessToken = $apiClient->getAccessTokenByAuthorizationCode(
-                        $code,
-                        $this->getSession()->get('oauth2pkceCode'),
-                        [],
-                        [],
-                        $shopId
-                    );
-                } catch (OAuth2Exception $e) {
-                    throw new Oauth2LoginException($e->getMessage(), null, $e);
-                }
-
-                if ($this->initUserSession($accessToken)) {
-                    return $this->redirectAfterLogin();
-                }
+                // We have an authorization code: validate the callback state and
+                // exchange it for a token (or recover a lost session via bounce).
+                return $this->handleAuthorizationCode($apiClient, $session, $state, $code, $shopId);
             }
         });
+    }
+
+    /**
+     * Validate the OAuth2 callback state then exchange the authorization code.
+     *
+     * @param OAuth2Service $apiClient
+     * @param SessionInterface $session
+     * @param string $state
+     * @param string $code
+     * @param int|null $shopId
+     *
+     * @return mixed bounce response, post-login redirect, or null
+     *
+     * @throws InvalidOAuth2StateException
+     * @throws Oauth2LoginException
+     * @throws EmailNotVerifiedException
+     * @throws EmployeeNotFoundException
+     */
+    private function handleAuthorizationCode($apiClient, $session, $state, $code, $shopId)
+    {
+        // No state at all in the callback: nothing to validate against, reject.
+        if (empty($state)) {
+            $this->rejectInvalidState($session);
+        }
+
+        // Session lost on the callback: oauth2state (and pkceCode) are gone. The
+        // most common cause is PS_COOKIE_SAMESITE=Strict — the browser withholds
+        // the admin cookie on the cross-site redirect back from auth-hydra, so the
+        // session arrives empty. Re-issuing the very same callback as a SAME-SITE
+        // navigation makes the browser send the cookie and restores the session.
+        if (!$session->has('oauth2state')) {
+            if (!$this->hasAlreadyBounced()) {
+                return $this->renderSameSiteBounce($this->buildBounceUrl());
+            }
+            // Already bounced once and the session is still missing: this is a
+            // genuine session loss (expired, cookies disabled, ...), fail clean.
+            $this->rejectInvalidState($session);
+        }
+
+        // Check given state against previously stored one to mitigate CSRF attack.
+        if ($state !== $session->get('oauth2state')) {
+            $this->rejectInvalidState($session);
+        }
+
+        $this->assertValidCode($code);
+
+        try {
+            $accessToken = $apiClient->getAccessTokenByAuthorizationCode(
+                $code,
+                $session->get('oauth2pkceCode'),
+                [],
+                [],
+                $shopId
+            );
+        } catch (OAuth2Exception $e) {
+            throw new Oauth2LoginException($e->getMessage(), null, $e);
+        }
+
+        if ($this->initUserSession($accessToken)) {
+            return $this->redirectAfterLogin();
+        }
+
+        return null;
+    }
+
+    /**
+     * Drop the stored state and reject the callback. Removing an absent key is a
+     * no-op, so this is safe to call when the session was already lost.
+     *
+     * @param SessionInterface $session
+     *
+     * @return void
+     *
+     * @throws InvalidOAuth2StateException
+     */
+    private function rejectInvalidState($session)
+    {
+        $session->remove('oauth2state');
+
+        throw new InvalidOAuth2StateException();
     }
 
     /**
