@@ -60,14 +60,25 @@ proprement sur `Invalid state`, sans boucler. **Au plus un hop supplémentaire.*
 
 ### Préservation du cookie (Symfony, PS < 9)
 
-Sur Symfony (PS 1.7/8), `Ps_accounts::getSession()` renvoie la **session cœur** (service
-`session`). Au premier accès (`getShopId()`, puis `has('oauth2state')`), `session_start()` est
-appelé : sur le retour cross-site sans cookie, il **crée une session vide et émet aussitôt un
-`Set-Cookie`** (nouvel id) qui **écraserait le cookie d'origine** → le rebond same-site repartirait
-alors avec un cookie vide. Pour l'éviter, `AdminOAuth2PsAccountsController::renderSameSiteBounce()`
-**purge tout `Set-Cookie` en attente** (`header_remove('Set-Cookie')`) avant d'émettre la page de
-rebond : c'est une page cul-de-sac qui ne doit poser aucun cookie, donc le navigateur conserve ses
-cookies d'origine et les renvoie au replay. PS 9 (réponse Symfony) n'est pas concerné.
+Le rebond est une page **cul-de-sac qui ne doit poser aucun cookie** : le navigateur doit conserver
+ses cookies d'origine et les renvoyer au replay same-site. Sur le retour cross-site sans cookie,
+deux écritures de cookie parasites doivent être neutralisées dans
+`AdminOAuth2PsAccountsController::renderSameSiteBounce()` :
+
+1. **Cookie de session Symfony** — `Ps_accounts::getSession()` renvoie la session cœur ; le premier
+   accès (`getShopId()`, puis `has('oauth2state')`) déclenche `session_start()`, qui crée une
+   session vide et émet aussitôt un `Set-Cookie` (nouvel id). On le retire avec
+   `header_remove('Set-Cookie')`.
+2. **Cookie admin (employé)** — le cookie employé n'étant pas envoyé, PrestaShop construit un
+   `Cookie` **anonyme** dont le `write()` s'exécute sur `__destruct` (donc pendant `exit`, **après**
+   `header_remove`, et avec l'output buffering du BO `headers_sent()` est encore faux → le
+   `setcookie()` réussit) : il **réémet un cookie admin anonyme qui écrase le vrai** → employé
+   déconnecté à la page suivante. On bloque cette écriture avec
+   `Context::cookie->disallowWriting()` (méthode cœur, gardée par `method_exists`).
+
+Sans (2), le **login** s'en remettait (il réécrit un cookie employé neuf via `$cookie->write()`),
+mais le **point de contact** restait déconnecté (il ne réécrit jamais le cookie employé). PS 9
+(réponse Symfony, pas d'`exit`) n'est pas concerné.
 
 ### Sécurité
 
@@ -84,7 +95,7 @@ cookies d'origine et les renvoie au replay. PS 9 (réponse Symfony) n'est pas co
 | Fichier | Rôle |
 |---------|------|
 | `src/AccountLogin/OAuth2LoginTrait.php` | Détection (`oauth2Login()`), `hasAlreadyBounced()`, `buildBounceUrl()`, `buildBounceHtml()`, abstrait `renderSameSiteBounce()` |
-| `controllers/admin/AdminOAuth2PsAccountsController.php` (PS < 9) | `renderSameSiteBounce()` → `header_remove('Set-Cookie')` + `echo … ; exit;` |
+| `controllers/admin/AdminOAuth2PsAccountsController.php` (PS < 9) | `renderSameSiteBounce()` → `disallowWriting()` + `header_remove('Set-Cookie')` + `echo … ; exit;` |
 | `src/Controller/Admin/OAuth2Controller.php` (PS 9+) | `renderSameSiteBounce()` → `Response` |
 
 ## État par flux et par version (`Strict`)

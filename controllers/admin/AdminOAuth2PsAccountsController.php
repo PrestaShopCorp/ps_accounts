@@ -291,13 +291,22 @@ class AdminOAuth2PsAccountsController extends \ModuleAdminController
      */
     protected function renderSameSiteBounce($url)
     {
-        // On the cross-site (SameSite=Strict) return, the admin/session cookie was
-        // not sent, so the first session access started an empty session and PHP
-        // already queued a Set-Cookie with a brand-new id. Left in place, that
-        // header would overwrite the browser's original cookie, and the same-site
-        // replay would still land on an empty session. The bounce is a dead-end
-        // page that must set no cookie at all: drop every queued Set-Cookie so the
-        // browser keeps its original cookies and re-sends them on the replay.
+        // The bounce is a dead-end page that must set NO cookie: the browser has to
+        // keep its original cookies and re-send them on the same-site replay.
+        //
+        // On the cross-site (SameSite=Strict) return the admin cookie isn't sent, so
+        // PrestaShop builds an anonymous Cookie. Its write() runs on __destruct (i.e.
+        // during exit, after header_remove() below, and with output buffering on
+        // headers_sent() is still false) and would re-emit an anonymous admin cookie
+        // that overwrites the real one in the browser -> employee logged out on the
+        // next page. disallowWriting() neutralizes that destructor write.
+        $cookie = \Context::getContext()->cookie;
+        if (method_exists($cookie, 'disallowWriting')) {
+            $cookie->disallowWriting();
+        }
+
+        // Also drop any Set-Cookie already queued (e.g. the empty Symfony session id
+        // minted by the first session access) so it can't clobber the session cookie.
         if (!headers_sent()) {
             header_remove('Set-Cookie');
         }
