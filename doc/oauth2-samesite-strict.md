@@ -102,12 +102,15 @@ mais le **point de contact** restait déconnecté (il ne réécrit jamais le coo
 
 | Flux | PS 9 | PS 8 / 1.7 | PS 1.6 |
 |------|------|------------|--------|
-| **Login BO** | ✅ | ✅ (rebond + purge `Set-Cookie`) | à valider |
-| **Point de contact** | ✅ | ✅ (session cœur + clear ciblé) — **à valider en E2E** | à valider |
+| **Login BO** | ✅ validé E2E | ✅ validé E2E | à valider |
+| **Point de contact** | ✅ validé E2E | ✅ validé E2E | à valider |
 
 - **Login** : l'état OAuth vit dans la session cœur ; le rebond + la purge du `Set-Cookie`
   préservent le cookie de session, qui repart au replay same-site.
-- **Point de contact** : voir la section suivante.
+- **Point de contact** : voir la section suivante (session cœur + clear ciblé + `disallowWriting`).
+- **PS 8 / 1.7** validés E2E (les deux flux, point de contact dans la popup). **PS 1.6** reste à
+  valider (pas de SameSite Strict en pratique sur ces versions ; `getSession()` y rend la
+  `ConfigurationStorageSession` comme avant).
 
 ## Point de contact : session cœur + clear ciblé (PS 1.7+)
 
@@ -148,6 +151,6 @@ corrigé pour que le clear ciblé fonctionne aussi sur PS 1.6.
 ## Recommandation marchand
 
 `Lax` reste le réglage **recommandé** (et le défaut PrestaShop). En `Strict`, **login** et
-**point de contact** sont désormais supportés via le rebond same-site (redirection invisible). À
-**valider en E2E** sur PS 8 / 1.7 (les deux flux, point de contact dans la popup) avant de
-communiquer le support de `Strict`.
+**point de contact** sont désormais supportés via le rebond same-site (redirection invisible),
+**validés E2E sur PS 9, 8 et 1.7**. PS 1.6 reste à confirmer (non concerné par SameSite Strict en
+pratique).
