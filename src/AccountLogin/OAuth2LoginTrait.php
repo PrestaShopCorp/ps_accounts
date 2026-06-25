@@ -189,7 +189,7 @@ trait OAuth2LoginTrait
         // the admin cookie on the cross-site redirect back from auth-hydra, so the
         // session arrives empty. Re-issuing the very same callback as a SAME-SITE
         // navigation makes the browser send the cookie and restores the session.
-        if (!$session->has('oauth2state')) {
+        if (!$session->has(OAuth2SessionKeys::STATE)) {
             if (!$this->hasAlreadyBounced()) {
                 return $this->renderSameSiteBounce($this->buildBounceUrl());
             }
@@ -199,7 +199,7 @@ trait OAuth2LoginTrait
         }
 
         // Check given state against previously stored one to mitigate CSRF attack.
-        if ($state !== $session->get('oauth2state')) {
+        if ($state !== $session->get(OAuth2SessionKeys::STATE)) {
             $this->rejectInvalidState($session);
         }
 
@@ -208,7 +208,7 @@ trait OAuth2LoginTrait
         try {
             $accessToken = $apiClient->getAccessTokenByAuthorizationCode(
                 $code,
-                $session->get('oauth2pkceCode'),
+                $session->get(OAuth2SessionKeys::PKCE_CODE),
                 [],
                 [],
                 $shopId
@@ -236,7 +236,7 @@ trait OAuth2LoginTrait
      */
     private function rejectInvalidState($session)
     {
-        $session->remove('oauth2state');
+        $session->remove(OAuth2SessionKeys::STATE);
 
         throw new InvalidOAuth2StateException();
     }
@@ -304,8 +304,8 @@ trait OAuth2LoginTrait
         $state = $apiClient->getRandomState();
         $pkceCode = $apiClient->getRandomPkceCode();
 
-        $this->getSession()->set('oauth2state', $state);
-        $this->getSession()->set('oauth2pkceCode', $pkceCode);
+        $this->getSession()->set(OAuth2SessionKeys::STATE, $state);
+        $this->getSession()->set(OAuth2SessionKeys::PKCE_CODE, $pkceCode);
 
         $authorizationUrl = $apiClient->getAuthorizationUri(
             $state,
@@ -373,7 +373,7 @@ trait OAuth2LoginTrait
      */
     private function getReturnToParam()
     {
-        return 'return_to';
+        return OAuth2SessionKeys::RETURN_TO;
     }
 
     /**
@@ -381,7 +381,7 @@ trait OAuth2LoginTrait
      */
     private function getOAuthAction()
     {
-        return $this->getSession()->get('oauth2action');
+        return $this->getSession()->get(OAuth2SessionKeys::ACTION);
     }
 
     /**
@@ -391,7 +391,7 @@ trait OAuth2LoginTrait
      */
     private function setOAuthAction($action)
     {
-        $this->getSession()->set('oauth2action', $action);
+        $this->getSession()->set(OAuth2SessionKeys::ACTION, $action);
     }
 
     /**
@@ -399,7 +399,7 @@ trait OAuth2LoginTrait
      */
     private function getSource()
     {
-        return $this->getSession()->get('source');
+        return $this->getSession()->get(OAuth2SessionKeys::SOURCE);
     }
 
     /**
@@ -409,7 +409,7 @@ trait OAuth2LoginTrait
      */
     private function setSource($source)
     {
-        $this->getSession()->set('source', $source);
+        $this->getSession()->set(OAuth2SessionKeys::SOURCE, $source);
     }
 
     /**
@@ -417,7 +417,7 @@ trait OAuth2LoginTrait
      */
     private function getShopId()
     {
-        return $this->getSession()->get('shopId');
+        return $this->getSession()->get(OAuth2SessionKeys::SHOP_ID);
     }
 
     /**
@@ -427,7 +427,7 @@ trait OAuth2LoginTrait
      */
     private function setShopId($shopId)
     {
-        $this->getSession()->set('shopId', $shopId);
+        $this->getSession()->set(OAuth2SessionKeys::SHOP_ID, $shopId);
     }
 
     /**
@@ -435,7 +435,7 @@ trait OAuth2LoginTrait
      */
     private function getForceSignup()
     {
-        return (bool) $this->getSession()->get('forceSignup', false);
+        return (bool) $this->getSession()->get(OAuth2SessionKeys::FORCE_SIGNUP, false);
     }
 
     /**
@@ -445,7 +445,7 @@ trait OAuth2LoginTrait
      */
     private function setForceSignup($forceSignup)
     {
-        $this->getSession()->set('forceSignup', $forceSignup);
+        $this->getSession()->set(OAuth2SessionKeys::FORCE_SIGNUP, $forceSignup);
     }
 
     /**
@@ -460,13 +460,9 @@ trait OAuth2LoginTrait
     {
         $session = $this->getSession();
 
-        $session->remove('oauth2state');
-        $session->remove('oauth2pkceCode');
-        $session->remove('oauth2action');
-        $session->remove('source');
-        $session->remove('shopId');
-        $session->remove('forceSignup');
-        $session->remove($this->getReturnToParam());
+        foreach (OAuth2SessionKeys::values() as $key) {
+            $session->remove($key);
+        }
     }
 
     /**
