@@ -24,6 +24,7 @@ use Employee;
 use PrestaShop\Module\PsAccounts\AccountLogin\Exception\AccountLoginException;
 use PrestaShop\Module\PsAccounts\AccountLogin\Exception\EmailNotVerifiedException;
 use PrestaShop\Module\PsAccounts\AccountLogin\Exception\EmployeeNotFoundException;
+use PrestaShop\Module\PsAccounts\AccountLogin\Exception\InvalidOAuth2StateException;
 use PrestaShop\Module\PsAccounts\AccountLogin\Exception\Oauth2LoginException;
 use PrestaShop\Module\PsAccounts\Context\ShopContext;
 use PrestaShop\Module\PsAccounts\Entity\EmployeeAccount;
@@ -93,6 +94,18 @@ trait OAuth2LoginTrait
     abstract protected function getSignupUrl();
 
     /**
+     * Output a same-origin HTML page that immediately re-navigates to the given
+     * URL. Used to recover from a lost session on the OAuth2 callback when
+     * PS_COOKIE_SAMESITE=Strict prevents the cookie from being sent on the
+     * cross-site return (see buildBounceUrl()).
+     *
+     * @param string $url
+     *
+     * @return mixed
+     */
+    abstract protected function renderSameSiteBounce($url);
+
+    /**
      * @return mixed
      *
      * @throws EmailNotVerifiedException
@@ -140,32 +153,140 @@ trait OAuth2LoginTrait
                 $this->setForceSignup($forceSignup);
 
                 $this->oauth2Redirect(Tools::getValue('locale', 'en'), $shopId);
-
-            // Check given state against previously stored one to mitigate CSRF attack
-            } elseif (empty($state) || ($session->has('oauth2state') && $state !== $session->get('oauth2state'))) {
-                $session->remove('oauth2state');
-
-                throw new \Exception('Invalid state');
             } else {
-                $this->assertValidCode($code);
-
-                try {
-                    $accessToken = $apiClient->getAccessTokenByAuthorizationCode(
-                        $code,
-                        $this->getSession()->get('oauth2pkceCode'),
-                        [],
-                        [],
-                        $shopId
-                    );
-                } catch (OAuth2Exception $e) {
-                    throw new Oauth2LoginException($e->getMessage(), null, $e);
-                }
-
-                if ($this->initUserSession($accessToken)) {
-                    return $this->redirectAfterLogin();
-                }
+                // We have an authorization code: validate the callback state and
+                // exchange it for a token (or recover a lost session via bounce).
+                return $this->handleAuthorizationCode($apiClient, $session, $state, $code, $shopId);
             }
         });
+    }
+
+    /**
+     * Validate the OAuth2 callback state then exchange the authorization code.
+     *
+     * @param OAuth2Service $apiClient
+     * @param SessionInterface $session
+     * @param string $state
+     * @param string $code
+     * @param int|null $shopId
+     *
+     * @return mixed bounce response, post-login redirect, or null
+     *
+     * @throws InvalidOAuth2StateException
+     * @throws Oauth2LoginException
+     * @throws EmailNotVerifiedException
+     * @throws EmployeeNotFoundException
+     */
+    private function handleAuthorizationCode($apiClient, $session, $state, $code, $shopId)
+    {
+        // No state at all in the callback: nothing to validate against, reject.
+        if (empty($state)) {
+            $this->rejectInvalidState($session);
+        }
+
+        // Session lost on the callback: oauth2state (and pkceCode) are gone. The
+        // most common cause is PS_COOKIE_SAMESITE=Strict — the browser withholds
+        // the admin cookie on the cross-site redirect back from auth-hydra, so the
+        // session arrives empty. Re-issuing the very same callback as a SAME-SITE
+        // navigation makes the browser send the cookie and restores the session.
+        if (!$session->has(OAuth2SessionKeys::STATE)) {
+            if (!$this->hasAlreadyBounced()) {
+                return $this->renderSameSiteBounce($this->buildBounceUrl());
+            }
+            // Already bounced once and the session is still missing: this is a
+            // genuine session loss (expired, cookies disabled, ...), fail clean.
+            $this->rejectInvalidState($session);
+        }
+
+        // Check given state against previously stored one to mitigate CSRF attack.
+        if ($state !== $session->get(OAuth2SessionKeys::STATE)) {
+            $this->rejectInvalidState($session);
+        }
+
+        $this->assertValidCode($code);
+
+        try {
+            $accessToken = $apiClient->getAccessTokenByAuthorizationCode(
+                $code,
+                $session->get(OAuth2SessionKeys::PKCE_CODE),
+                [],
+                [],
+                $shopId
+            );
+        } catch (OAuth2Exception $e) {
+            throw new Oauth2LoginException($e->getMessage(), null, $e);
+        }
+
+        if ($this->initUserSession($accessToken)) {
+            return $this->redirectAfterLogin();
+        }
+
+        return null;
+    }
+
+    /**
+     * Drop the stored state and reject the callback. Removing an absent key is a
+     * no-op, so this is safe to call when the session was already lost.
+     *
+     * @param SessionInterface $session
+     *
+     * @return void
+     *
+     * @throws InvalidOAuth2StateException
+     */
+    private function rejectInvalidState($session)
+    {
+        $session->remove(OAuth2SessionKeys::STATE);
+
+        throw new InvalidOAuth2StateException();
+    }
+
+    /**
+     * Whether the current callback is already the result of a same-site bounce.
+     * Guards against an infinite redirect loop when the session is genuinely lost.
+     *
+     * @return bool
+     */
+    private function hasAlreadyBounced()
+    {
+        return (bool) Tools::getValue('__ps_oauth_retry');
+    }
+
+    /**
+     * Rebuild the current callback URL, preserving every query param (code,
+     * state, action, ...) and adding the one-shot bounce marker. The returned
+     * URL is same-origin, so navigating to it client-side is a same-site
+     * request that carries the (Strict) admin cookie.
+     *
+     * @return string
+     */
+    private function buildBounceUrl()
+    {
+        $params = $_GET;
+        $params['__ps_oauth_retry'] = '1';
+
+        $path = strtok($_SERVER['REQUEST_URI'], '?');
+
+        return $path . '?' . http_build_query($params);
+    }
+
+    /**
+     * Minimal same-origin HTML page that re-navigates to $url. location.replace
+     * avoids polluting the history; the <noscript> meta-refresh is a fallback.
+     * $url is escaped for both the JS string and the HTML attribute contexts
+     * because it carries attacker-influenceable query params (code/state).
+     *
+     * @param string $url
+     *
+     * @return string
+     */
+    private function buildBounceHtml($url)
+    {
+        return '<!DOCTYPE html><html><head><meta charset="utf-8">'
+            . '<noscript><meta http-equiv="refresh" content="0;url='
+            . htmlspecialchars($url, ENT_QUOTES) . '"></noscript>'
+            . '<script type="text/javascript">window.location.replace('
+            . json_encode($url) . ');</script></head><body></body></html>';
     }
 
     /**
@@ -183,8 +304,8 @@ trait OAuth2LoginTrait
         $state = $apiClient->getRandomState();
         $pkceCode = $apiClient->getRandomPkceCode();
 
-        $this->getSession()->set('oauth2state', $state);
-        $this->getSession()->set('oauth2pkceCode', $pkceCode);
+        $this->getSession()->set(OAuth2SessionKeys::STATE, $state);
+        $this->getSession()->set(OAuth2SessionKeys::PKCE_CODE, $pkceCode);
 
         $authorizationUrl = $apiClient->getAuthorizationUri(
             $state,
@@ -252,7 +373,7 @@ trait OAuth2LoginTrait
      */
     private function getReturnToParam()
     {
-        return 'return_to';
+        return OAuth2SessionKeys::RETURN_TO;
     }
 
     /**
@@ -260,7 +381,7 @@ trait OAuth2LoginTrait
      */
     private function getOAuthAction()
     {
-        return $this->getSession()->get('oauth2action');
+        return $this->getSession()->get(OAuth2SessionKeys::ACTION);
     }
 
     /**
@@ -270,7 +391,7 @@ trait OAuth2LoginTrait
      */
     private function setOAuthAction($action)
     {
-        $this->getSession()->set('oauth2action', $action);
+        $this->getSession()->set(OAuth2SessionKeys::ACTION, $action);
     }
 
     /**
@@ -278,7 +399,7 @@ trait OAuth2LoginTrait
      */
     private function getSource()
     {
-        return $this->getSession()->get('source');
+        return $this->getSession()->get(OAuth2SessionKeys::SOURCE);
     }
 
     /**
@@ -288,7 +409,7 @@ trait OAuth2LoginTrait
      */
     private function setSource($source)
     {
-        $this->getSession()->set('source', $source);
+        $this->getSession()->set(OAuth2SessionKeys::SOURCE, $source);
     }
 
     /**
@@ -296,7 +417,7 @@ trait OAuth2LoginTrait
      */
     private function getShopId()
     {
-        return $this->getSession()->get('shopId');
+        return $this->getSession()->get(OAuth2SessionKeys::SHOP_ID);
     }
 
     /**
@@ -306,7 +427,7 @@ trait OAuth2LoginTrait
      */
     private function setShopId($shopId)
     {
-        $this->getSession()->set('shopId', $shopId);
+        $this->getSession()->set(OAuth2SessionKeys::SHOP_ID, $shopId);
     }
 
     /**
@@ -314,7 +435,7 @@ trait OAuth2LoginTrait
      */
     private function getForceSignup()
     {
-        return (bool) $this->getSession()->get('forceSignup', false);
+        return (bool) $this->getSession()->get(OAuth2SessionKeys::FORCE_SIGNUP, false);
     }
 
     /**
@@ -324,7 +445,24 @@ trait OAuth2LoginTrait
      */
     private function setForceSignup($forceSignup)
     {
-        $this->getSession()->set('forceSignup', $forceSignup);
+        $this->getSession()->set(OAuth2SessionKeys::FORCE_SIGNUP, $forceSignup);
+    }
+
+    /**
+     * Remove only the transient OAuth2 keys from the session, leaving every other
+     * attribute untouched. On PS 1.7+ getSession() is the core BO session, so a
+     * full clear() would sign the employee out at the end of the point-of-contact
+     * flow; clearing just our own keys avoids that.
+     *
+     * @return void
+     */
+    private function clearOAuth2SessionState()
+    {
+        $session = $this->getSession();
+
+        foreach (OAuth2SessionKeys::values() as $key) {
+            $session->remove($key);
+        }
     }
 
     /**

@@ -319,6 +319,16 @@ class OAuth2Controller extends FrameworkBundleAdminController
     }
 
     /**
+     * @param string $url
+     *
+     * @return Response
+     */
+    protected function renderSameSiteBounce($url)
+    {
+        return (new Response())->setContent($this->buildBounceHtml($url));
+    }
+
+    /**
      * @param bool $forceSignup
      *
      * @return Response

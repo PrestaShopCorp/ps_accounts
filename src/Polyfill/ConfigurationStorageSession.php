@@ -205,7 +205,7 @@ class ConfigurationStorageSession
         $session = $this->all();
         unset($session[$name]);
 
-        $this->configuration->set($name, json_encode($session));
+        $this->configuration->set($this->getConfigurationName(), json_encode($session));
     }
 
     /**

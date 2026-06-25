@@ -28,7 +28,6 @@ use PrestaShop\Module\PsAccounts\AccountLogin\OAuth2LoginTrait;
 use PrestaShop\Module\PsAccounts\AccountLogin\OAuth2Session;
 use PrestaShop\Module\PsAccounts\Cqrs\CommandBus;
 use PrestaShop\Module\PsAccounts\Log\Logger;
-use PrestaShop\Module\PsAccounts\Polyfill\ConfigurationStorageSession;
 use PrestaShop\Module\PsAccounts\Polyfill\Traits\AdminController\IsAnonymousAllowed;
 use PrestaShop\Module\PsAccounts\Service\AnalyticsService;
 use PrestaShop\Module\PsAccounts\Service\OAuth2\OAuth2Service;
@@ -210,7 +209,10 @@ class AdminOAuth2PsAccountsController extends \ModuleAdminController
     {
         if ($this->getOAuthAction() === 'identifyPointOfContact') {
             $forceSignup = $this->getForceSignup();
-            $this->getSession()->clear();
+            // Clear only our transient OAuth keys, NOT the whole session: on PS 1.7+
+            // getSession() is the core BO session and a full clear() would log the
+            // employee out on the next page.
+            $this->clearOAuth2SessionState();
             $this->closePopup($forceSignup);
         }
         $returnTo = $this->getReturnTo() ?: 'AdminDashboard';
@@ -248,11 +250,13 @@ class AdminOAuth2PsAccountsController extends \ModuleAdminController
      */
     protected function getSession()
     {
-        if (\Context::getContext()->employee->id) {
-            // FIXME: fallback only for setPointOfContact
-            return $this->module->getService(ConfigurationStorageSession::class);
-        }
-
+        // module->getSession() already returns the ConfigurationStorageSession
+        // fallback on PS 1.6 (no core Symfony session) and the core session on
+        // PS 1.7+. We use it for both login AND point of contact so the same-site
+        // bounce can recover a session lost under Cookie SameSite=Strict. The
+        // point-of-contact flow no longer needs a dedicated store: redirectAfterLogin()
+        // clears only the transient OAuth keys (clearOAuth2SessionState()) instead
+        // of the whole session, so the logged-in employee is kept signed in.
         return $this->module->getSession();
     }
 
@@ -278,6 +282,37 @@ class AdminOAuth2PsAccountsController extends \ModuleAdminController
     protected function getPsAccountsService()
     {
         return $this->psAccountsService;
+    }
+
+    /**
+     * @param string $url
+     *
+     * @return mixed
+     */
+    protected function renderSameSiteBounce($url)
+    {
+        // The bounce is a dead-end page that must set NO cookie: the browser has to
+        // keep its original cookies and re-send them on the same-site replay.
+        //
+        // On the cross-site (SameSite=Strict) return the admin cookie isn't sent, so
+        // PrestaShop builds an anonymous Cookie. Its write() runs on __destruct (i.e.
+        // during exit, after header_remove() below, and with output buffering on
+        // headers_sent() is still false) and would re-emit an anonymous admin cookie
+        // that overwrites the real one in the browser -> employee logged out on the
+        // next page. disallowWriting() neutralizes that destructor write.
+        $cookie = \Context::getContext()->cookie;
+        if (method_exists($cookie, 'disallowWriting')) {
+            $cookie->disallowWriting();
+        }
+
+        // Also drop any Set-Cookie already queued (e.g. the empty Symfony session id
+        // minted by the first session access) so it can't clobber the session cookie.
+        if (!headers_sent()) {
+            header_remove('Set-Cookie');
+        }
+
+        echo $this->buildBounceHtml($url);
+        exit;
     }
 
     /**

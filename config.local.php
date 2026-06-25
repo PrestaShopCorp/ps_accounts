@@ -52,5 +52,5 @@ return [
     'ps_accounts.token_expiration_leeway' => 60,
 
     'ps_accounts.testimonials_url' => 'https://assets.prestashop3.com/dst/accounts/assets/testimonials.json',
-    'ps_accounts.log_level' => 'DEBUG',
+    'ps_accounts.log_level' => 'ERROR',
 ];
