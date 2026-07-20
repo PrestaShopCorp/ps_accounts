@@ -225,6 +225,101 @@ class GetValidTokenTest extends TestCase
     /**
      * @test
      */
+    public function itShouldApplyDefaultScopeAndAudienceWhenNoneProvided()
+    {
+        $this->configurationRepository->updateCachedShopStatus(json_encode((new CachedShopStatus([
+            'isValid' => true,
+            'updatedAt' => (new \DateTime())->format(\DateTime::ATOM),
+            'shopStatus' => new ShopStatus([
+                'cloudShopId' => $this->cloudShopId,
+                'isVerified' => true,
+            ])
+        ]))->toArray()));
+
+        list($shopSession, $tokenAudience, $capture) = $this->makeCapturingShopSession();
+
+        // no scope/audience provided + forced refresh => defaults must be resolved
+        $shopSession->getValidToken(true);
+
+        $this->assertEquals(['shop.verified'], $capture->scope);
+        $this->assertEquals([
+            'store/' . $this->cloudShopId,
+            $tokenAudience,
+        ], $capture->audience);
+
+        $shopSession->cleanup();
+    }
+
+    /**
+     * @test
+     */
+    public function itShouldForwardExplicitScopeAndAudienceUnchanged()
+    {
+        $this->configurationRepository->updateCachedShopStatus(json_encode((new CachedShopStatus([
+            'isValid' => true,
+            'updatedAt' => (new \DateTime())->format(\DateTime::ATOM),
+            'shopStatus' => new ShopStatus([
+                'cloudShopId' => $this->cloudShopId,
+                'isVerified' => true,
+            ])
+        ]))->toArray()));
+
+        list($shopSession, $tokenAudience, $capture) = $this->makeCapturingShopSession();
+
+        $scope = ['custom.scope'];
+        $audience = ['store/custom-audience'];
+
+        // explicit non-empty scope/audience must be forwarded as-is (no default override)
+        $shopSession->getValidToken(true, true, $scope, $audience);
+
+        $this->assertEquals($scope, $capture->scope);
+        $this->assertEquals($audience, $capture->audience);
+
+        $shopSession->cleanup();
+    }
+
+    /**
+     * Builds a ShopSession whose OAuth2Service captures the scope/audience
+     * actually forwarded to getAccessTokenByClientCredentials().
+     *
+     * @return array [ShopSession, string $tokenAudience, object $capture]
+     */
+    private function makeCapturingShopSession()
+    {
+        $capture = new \stdClass();
+        $capture->scope = null;
+        $capture->audience = null;
+
+        $accessToken = new AccessToken([
+            'access_token' => (string) $this->validAccessToken,
+        ]);
+
+        $oAuth2Service = $this->createMock(OAuth2Service::class);
+        $oAuth2Service->method('getOAuth2Client')
+            ->willReturn($this->oauth2Client);
+        $oAuth2Service->method('getAccessTokenByClientCredentials')
+            ->willReturnCallback(function ($scope, $audience) use ($capture, $accessToken) {
+                $capture->scope = $scope;
+                $capture->audience = $audience;
+
+                return $accessToken;
+            });
+
+        $tokenAudience = $this->module->getParameter('ps_accounts.accounts_api_url');
+
+        $shopSession = new ShopSession(
+            $this->configurationRepository,
+            $oAuth2Service,
+            $tokenAudience
+        );
+        $shopSession->cleanup();
+
+        return [$shopSession, $tokenAudience, $capture];
+    }
+
+    /**
+     * @test
+     */
     public function itShouldThrowRefreshTokenExceptionOnOAuthClientError()
     {
         //$this->statusManager->setCloudShopId($cloudShopId);
