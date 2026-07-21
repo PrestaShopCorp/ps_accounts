@@ -184,7 +184,7 @@ class StatusManager
     }
 
     /**
-     * @param CachedShopStatus $cachedStatus
+     * @param CachedShopStatus|null $cachedStatus
      *
      * @return bool
      */
@@ -201,7 +201,7 @@ class StatusManager
     }
 
     /**
-     * @param CachedShopStatus $cachedStatus
+     * @param CachedShopStatus|null $cachedStatus
      * @param int $cacheTtl
      *
      * @return bool

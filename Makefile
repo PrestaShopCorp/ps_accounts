@@ -285,10 +285,11 @@ php-scoper-fix-autoload:
 # segmentio/analytics-php is a non-scoped (psr0) lib shipped as-is: rewrite the
 # deprecated "${var}" string interpolation (deprecated PHP 8.2, fatal PHP 9.0)
 # into "{$var}". Runs on the freshly installed vendor, before bundling.
+# Executed inside the container so the GNU sed "-i -E" form is portable (a bare
+# "sed -i" on a macOS/BSD host would need a backup suffix and misbehave).
 vendor-patch-segmentio:
 	@echo "patching segmentio interpolation deprecations (PHP 8.2+/9.0)..."
-	find ./vendor/segmentio/analytics-php/lib -type f -name '*.php' -exec \
-		sed -i -E 's/\$$\{([a-zA-Z_][a-zA-Z0-9_]*)\}/{$$\1}/g' {} \;
+	$(call in_docker,find ./vendor/segmentio/analytics-php/lib -type f -name '*.php' -exec sed -i -E 's/\$$\{([a-zA-Z_][a-zA-Z0-9_]*)\}/{$$\1}/g' {} \;)
 
 #php-scoper: php-scoper-add-prefix php-scoper-update-prefix php-scoper-dump-autoload php-scoper-fix-autoload
 php-scoper: php-scoper-add-prefix vendor-patch-segmentio php-scoper-dump-autoload php-scoper-fix-autoload

@@ -53,7 +53,7 @@ class ServicesBillingClient
         $apiUrl,
         PsAccountsService $psAccountsService,
         ShopProvider $shopProvider,
-        Client $client = null
+        $client = null
     ) {
         $shopId = $shopProvider->getCurrentShop()['id'];
 
