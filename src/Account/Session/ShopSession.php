@@ -74,10 +74,21 @@ class ShopSession extends Session implements SessionInterface
     }
 
     /**
+     * When $scope / $audience are omitted, shop-specific defaults are resolved
+     * (verified scope + store audience). When passed explicitly — including an
+     * empty array — they are forwarded as-is, so a caller can force an empty
+     * scope/audience independently of the shop verified state.
+     *
+     * Note: func_num_args() is used (rather than a null default) to tell an
+     * omitted argument apart from an explicit "[]" while keeping the array type
+     * hint. This avoids both the PHP 8.4 implicitly-nullable deprecation (removed
+     * in PHP 9.0) and the pre-7.2 "Declaration should be compatible" variance
+     * warning against the parent/interface signature (array $scope = []).
+     *
      * @param bool $forceRefresh
      * @param bool $throw
-     * @param array $scope
-     * @param array $audience
+     * @param array $scope omit for shop defaults; pass (even []) to force it
+     * @param array $audience omit for shop defaults; pass (even []) to force it
      *
      * @return Token
      *
@@ -85,13 +96,15 @@ class ShopSession extends Session implements SessionInterface
      */
     public function getValidToken($forceRefresh = false, $throw = true, array $scope = [], array $audience = [])
     {
-        if (empty($scope)) {
+        $argc = func_num_args();
+
+        if ($argc < 3) {
             $scope = ($this->getStatusManager()->identityVerified() ? [
                 'shop.verified',
             ] : []);
         }
 
-        if (empty($audience)) {
+        if ($argc < 4) {
             $audience = [
                 'store/' . $this->getStatusManager()->getCloudShopId(),
                 $this->tokenAudience,

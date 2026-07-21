@@ -279,6 +279,60 @@ class GetValidTokenTest extends TestCase
     }
 
     /**
+     * @test
+     */
+    public function itShouldForwardExplicitEmptyScopeAndAudience()
+    {
+        $this->configurationRepository->updateCachedShopStatus(json_encode((new CachedShopStatus([
+            'isValid' => true,
+            'updatedAt' => (new \DateTime())->format(\DateTime::ATOM),
+            'shopStatus' => new ShopStatus([
+                'cloudShopId' => $this->cloudShopId,
+                'isVerified' => true,
+            ])
+        ]))->toArray()));
+
+        list($shopSession, $tokenAudience, $capture) = $this->makeCapturingShopSession();
+
+        // explicit empty scope/audience must be forwarded as-is (force empty),
+        // NOT replaced by the shop defaults even though the shop is verified
+        $shopSession->getValidToken(true, true, [], []);
+
+        $this->assertSame([], $capture->scope);
+        $this->assertSame([], $capture->audience);
+
+        $shopSession->cleanup();
+    }
+
+    /**
+     * @test
+     */
+    public function itShouldForceEmptyScopeButDefaultAudienceWhenAudienceOmitted()
+    {
+        $this->configurationRepository->updateCachedShopStatus(json_encode((new CachedShopStatus([
+            'isValid' => true,
+            'updatedAt' => (new \DateTime())->format(\DateTime::ATOM),
+            'shopStatus' => new ShopStatus([
+                'cloudShopId' => $this->cloudShopId,
+                'isVerified' => true,
+            ])
+        ]))->toArray()));
+
+        list($shopSession, $tokenAudience, $capture) = $this->makeCapturingShopSession();
+
+        // scope explicitly forced empty, audience omitted => audience defaults resolved
+        $shopSession->getValidToken(true, true, []);
+
+        $this->assertSame([], $capture->scope);
+        $this->assertEquals([
+            'store/' . $this->cloudShopId,
+            $tokenAudience,
+        ], $capture->audience);
+
+        $shopSession->cleanup();
+    }
+
+    /**
      * Builds a ShopSession whose OAuth2Service captures the scope/audience
      * actually forwarded to getAccessTokenByClientCredentials().
      *
