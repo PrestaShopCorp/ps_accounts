@@ -51,14 +51,14 @@ If you are integrating a module, you should have a look on the [PrestaShop Integ
 
 #### Tokens availability with legacy compatibility table
 
-| Method Name             | PrestaShop AccessToken | Scopes        | **_Legacy_**<br/>Firebase Shop Id Token | **_Legacy_**<br/>Firebase User Id Token |
-|-------------------------|------------------------|---------------|-----------------------------------------|-----------------------------------------|
-| **_>= v8.0.0_**         |                        |               |                                         |                                         |
-| isShopIdentityCreated   | Yes                    |               | Yes                                     | No                                      |
-| isShopIdentityVerified  | Yes                    | shop.verified | Yes                                     | No                                      |
-| isShopPointOfContactSet | Yes                    | shop.verified | Yes                                     | Yes                                     |
-| **_< v8.0.0_**          |                        |               |                                         |                                         |
-| isAccountLinked         | Yes                    | shop.verified | Yes                                     | Yes                                     |
+| Method Name             | PrestaShop AccessToken | Scopes | **_Legacy_**<br/>Firebase Shop Id Token | **_Legacy_**<br/>Firebase User Id Token |
+|-------------------------|------------------------|--------|-----------------------------------------|-----------------------------------------|
+| **_>= v8.0.0_**         |                        |        |                                         |                                         |
+| isShopIdentityCreated   | Yes                    |        | Yes                                     | No                                      |
+| isShopIdentityVerified  | Yes                    |        | Yes                                     | No                                      |
+| isShopPointOfContactSet | Yes                    |        | Yes                                     | Yes                                     |
+| **_< v8.0.0_**          |                        |        |                                         |                                         |
+| isAccountLinked         | Yes                    |        | Yes                                     | Yes                                     |
 
 
 ### How to get up-to-date JWT Shop Access Tokens

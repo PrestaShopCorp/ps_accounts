@@ -158,6 +158,39 @@ class GetValidTokenTest extends TestCase
         $this->assertEquals((string) $validAccessToken, (string) $this->shopSession->getValidToken());
     }
 
+    /**
+     * @test
+     *
+     * The shop.verified scope machinery has been removed: a verified shop no longer
+     * forces a refresh just to obtain a token bearing the shop.verified claim. A valid
+     * scopeless token must be accepted as-is.
+     */
+    public function itShouldNotRefreshScopelessTokenWhenVerified()
+    {
+        $this->configurationRepository->updateCachedShopStatus(json_encode((new CachedShopStatus([
+            'isValid' => true,
+            'updatedAt' => (new \DateTime())->format(\DateTime::ATOM),
+            'shopStatus' => new ShopStatus([
+                'cloudShopId' => $this->cloudShopId,
+                'isVerified' => true,
+            ])
+        ]))->toArray()));
+
+        $scopelessToken = $this->makeJwtToken(new \DateTimeImmutable('+1 hour'), [
+            'scp' => [
+                //'shop.verified',
+            ],
+            'aud' => [
+                $this->module->getParameter('ps_accounts.token_audience') . '/',
+                'store/' . $this->cloudShopId,
+            ],
+        ]);
+
+        $this->shopSession->setToken((string) $scopelessToken);
+
+        $this->assertEquals((string) $scopelessToken, (string) $this->shopSession->getValidToken());
+    }
+
     public function provideInvalidTokens()
     {
         $module = $this->getModuleInstance();
@@ -167,17 +200,6 @@ class GetValidTokenTest extends TestCase
                 $this->makeJwtToken(new \DateTimeImmutable('yesterday'), [
                     'scp' => [
                         'shop.verified',
-                    ],
-                    'aud' => [
-                        $module->getParameter('ps_accounts.token_audience'),
-                        'store/' . $this->cloudShopId,
-                    ]
-                ]),
-            ],
-            'invalid scope' => [
-                $this->makeJwtToken(new \DateTimeImmutable('tomorrow'), [
-                    'scp' => [
-                        //'shop.verified',
                     ],
                     'aud' => [
                         $module->getParameter('ps_accounts.token_audience'),
