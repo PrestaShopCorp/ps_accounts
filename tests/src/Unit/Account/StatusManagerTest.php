@@ -244,4 +244,66 @@ class StatusManagerTest extends TestCase
         $this->assertFalse($cachedStatus->isVerified);
         $this->assertNull($cachedStatus->pointOfContactEmail);
     }
+
+    /**
+     * @test
+     */
+    public function itShouldExposeOrganizationAndEnvironmentFromCache()
+    {
+        $organizationId = $this->faker->uuid;
+        $organizationName = $this->faker->company;
+        $pointOfContactRole = 'owner';
+        $shopEnvironment = 'Test';
+
+        $this->configurationRepository->updateCachedShopStatus(json_encode((new CachedShopStatus([
+            'isValid' => true,
+            'updatedAt' => (new \DateTime())->format(\DateTime::ATOM),
+            'shopStatus' => new ShopStatus([
+                'cloudShopId' => $this->faker->uuid,
+                'organizationId' => $organizationId,
+                'organizationName' => $organizationName,
+                'pointOfContactRole' => $pointOfContactRole,
+                'shopEnvironment' => $shopEnvironment,
+            ]),
+        ]))->toArray()));
+
+        $this->assertEquals($organizationId, $this->statusManager->getOrganizationId());
+        $this->assertEquals($organizationName, $this->statusManager->getOrganizationName());
+        $this->assertEquals($pointOfContactRole, $this->statusManager->getPointOfContactRole());
+        $this->assertEquals($shopEnvironment, $this->statusManager->getShopEnvironment());
+    }
+
+    /**
+     * @test
+     */
+    public function itShouldReturnNullOrgAndEnvironmentWhenStatusUnknown()
+    {
+        $this->configurationRepository->updateCachedShopStatus(null);
+
+        $this->assertNull($this->statusManager->getOrganizationId());
+        $this->assertNull($this->statusManager->getOrganizationName());
+        $this->assertNull($this->statusManager->getPointOfContactRole());
+        $this->assertNull($this->statusManager->getShopEnvironment());
+    }
+
+    /**
+     * @test
+     */
+    public function itShouldRoundTripOrgAndEnvironmentThroughCacheSerialization()
+    {
+        $values = [
+            'cloudShopId' => $this->faker->uuid,
+            'organizationId' => $this->faker->uuid,
+            'organizationName' => $this->faker->company,
+            'pointOfContactRole' => 'member',
+            'shopEnvironment' => 'Prod',
+        ];
+
+        $restored = new ShopStatus((new ShopStatus($values))->toArray());
+
+        $this->assertEquals($values['organizationId'], $restored->organizationId);
+        $this->assertEquals($values['organizationName'], $restored->organizationName);
+        $this->assertEquals($values['pointOfContactRole'], $restored->pointOfContactRole);
+        $this->assertEquals($values['shopEnvironment'], $restored->shopEnvironment);
+    }
 }

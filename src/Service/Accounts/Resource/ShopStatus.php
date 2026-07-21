@@ -61,6 +61,26 @@ class ShopStatus extends Resource
     public $pointOfContactEmail;
 
     /**
+     * @var string
+     */
+    public $organizationId;
+
+    /**
+     * @var string
+     */
+    public $organizationName;
+
+    /**
+     * @var string
+     */
+    public $pointOfContactRole;
+
+    /**
+     * @var string
+     */
+    public $shopEnvironment;
+
+    /**
      * @var DateTime|null
      */
     public $createdAt;
