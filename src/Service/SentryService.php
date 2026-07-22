@@ -159,9 +159,11 @@ class SentryService
     }
 
     /**
+     * @param Context|null $context
+     *
      * @return bool
      */
-    private function isContextInFrontOffice(Context $context = null)
+    private function isContextInFrontOffice($context = null)
     {
         /*
         Some shops have trouble to refresh the cache of the service container.

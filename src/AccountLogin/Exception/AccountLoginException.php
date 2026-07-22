@@ -37,12 +37,12 @@ class AccountLoginException extends \Exception
     /**
      * @param string $message
      * @param UserInfo|null $user
-     * @param \Exception $previous
+     * @param \Exception|null $previous
      */
     public function __construct(
         $message = '',
-        UserInfo $user = null,
-        \Exception $previous = null
+        $user = null,
+        $previous = null
     ) {
         parent::__construct($message, 0, $previous);
 

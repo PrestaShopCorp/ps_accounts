@@ -37,7 +37,7 @@ class ConfigurationRepository
      *
      * @throws \Exception
      */
-    public function __construct(Configuration $configuration = null)
+    public function __construct($configuration = null)
     {
         $this->configuration = $configuration;
     }
