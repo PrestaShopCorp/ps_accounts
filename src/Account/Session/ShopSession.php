@@ -72,21 +72,23 @@ class ShopSession extends Session implements SessionInterface
     }
 
     /**
-     * When $scope / $audience are omitted, shop-specific defaults are resolved
-     * (verified scope + store audience). When passed explicitly — including an
-     * empty array — they are forwarded as-is, so a caller can force an empty
-     * scope/audience independently of the shop verified state.
+     * When $audience is omitted, the shop-specific default is resolved (store
+     * audience). When passed explicitly — including an empty array — it is
+     * forwarded as-is, so a caller can force an empty audience.
+     *
+     * $scope has no shop-specific default: the shop.verified scope machinery was
+     * removed (ACC-3465), so an omitted scope forwards the empty default unchanged.
      *
      * Note: func_num_args() is used (rather than a null default) to tell an
      * omitted argument apart from an explicit "[]" while keeping the array type
      * hint. This avoids both the PHP 8.4 implicitly-nullable deprecation (removed
      * in PHP 9.0) and the pre-7.2 "Declaration should be compatible" variance
-     * warning against the parent/interface signature (array $scope = []).
+     * warning against the parent/interface signature (array $audience = []).
      *
      * @param bool $forceRefresh
      * @param bool $throw
-     * @param array $scope omit for shop defaults; pass (even []) to force it
-     * @param array $audience omit for shop defaults; pass (even []) to force it
+     * @param array $scope
+     * @param array $audience omit for shop default; pass (even []) to force it
      *
      * @return Token
      *
@@ -94,13 +96,7 @@ class ShopSession extends Session implements SessionInterface
      */
     public function getValidToken($forceRefresh = false, $throw = true, array $scope = [], array $audience = [])
     {
-        $argc = func_num_args();
-
-        if ($argc < 3) {
-            $scope = [];
-        }
-
-        if ($argc < 4) {
+        if (func_num_args() < 4) {
             $audience = [
                 'store/' . $this->getStatusManager()->getCloudShopId(),
                 $this->tokenAudience,

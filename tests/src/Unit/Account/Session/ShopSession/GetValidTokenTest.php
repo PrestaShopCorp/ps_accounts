@@ -260,10 +260,11 @@ class GetValidTokenTest extends TestCase
 
         list($shopSession, $tokenAudience, $capture) = $this->makeCapturingShopSession();
 
-        // no scope/audience provided + forced refresh => defaults must be resolved
+        // no scope/audience provided + forced refresh => defaults must be resolved.
+        // shop.verified scope machinery removed (ACC-3465): default scope is now empty.
         $shopSession->getValidToken(true);
 
-        $this->assertEquals(['shop.verified'], $capture->scope);
+        $this->assertEquals([], $capture->scope);
         $this->assertEquals([
             'store/' . $this->cloudShopId,
             $tokenAudience,
