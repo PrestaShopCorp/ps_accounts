@@ -440,8 +440,8 @@ class StatusManager
         }
 
         $this->fireOnBeforeStatusUpsert(
-            ($current && $current->shopStatus instanceof ShopStatus) ? $current->shopStatus : null,
-            ($new->shopStatus instanceof ShopStatus) ? $new->shopStatus : null
+            $current ? $current->shopStatus : null,
+            $new->shopStatus
         );
 
         $this->setCachedStatus($new);
