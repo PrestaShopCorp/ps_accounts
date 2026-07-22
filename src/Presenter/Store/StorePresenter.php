@@ -50,7 +50,7 @@ class StorePresenter implements PresenterInterface
      * @param Context $context
      * @param array|null $store
      */
-    public function __construct(\Ps_accounts $module, Context $context, array $store = null)
+    public function __construct(\Ps_accounts $module, Context $context, $store = null)
     {
         // Allow to set a custom store for tests purpose
         if (null !== $store) {

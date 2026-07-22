@@ -32,7 +32,7 @@ class InvalidOAuth2StateException extends \Exception
      * @param int $code
      * @param \Exception|null $previous
      */
-    public function __construct($message = 'Invalid state', $code = 0, \Exception $previous = null)
+    public function __construct($message = 'Invalid state', $code = 0, $previous = null)
     {
         parent::__construct($message, $code, $previous);
     }

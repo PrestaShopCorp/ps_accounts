@@ -184,11 +184,11 @@ class StatusManager
     }
 
     /**
-     * @param CachedShopStatus $cachedStatus
+     * @param CachedShopStatus|null $cachedStatus
      *
      * @return bool
      */
-    public function cacheInvalidated(CachedShopStatus $cachedStatus = null)
+    public function cacheInvalidated($cachedStatus = null)
     {
         try {
             $cachedStatus = $cachedStatus ?: $this->getCachedStatus();
@@ -201,12 +201,12 @@ class StatusManager
     }
 
     /**
-     * @param CachedShopStatus $cachedStatus
+     * @param CachedShopStatus|null $cachedStatus
      * @param int $cacheTtl
      *
      * @return bool
      */
-    public function cacheExpired(CachedShopStatus $cachedStatus = null, $cacheTtl = self::CACHE_TTL)
+    public function cacheExpired($cachedStatus = null, $cacheTtl = self::CACHE_TTL)
     {
         try {
             //$dateUpd = $this->getCacheDateUpd();

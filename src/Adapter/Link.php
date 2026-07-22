@@ -45,7 +45,7 @@ class Link
      */
     public function __construct(
         ShopContext $shopContext,
-        \Link $link = null
+        $link = null
     ) {
         if (null === $link) {
             $link = new \Link();
