@@ -72,15 +72,12 @@ class ShopSession extends Session implements SessionInterface
     }
 
     /**
-     * When $audience is omitted, the shop-specific default is resolved (store
-     * audience). When passed explicitly — including an empty array — it is
-     * forwarded as-is, so a caller can force an empty audience.
-     *
-     * $scope has no shop-specific default: the shop.verified scope machinery was
-     * removed (ACC-3465), so an omitted scope forwards the empty default unchanged.
+     * Resolves the shop store audience when $audience is omitted. When passed
+     * explicitly — including an empty array — it is forwarded as-is, so a caller
+     * can force an empty audience. $scope is always forwarded unchanged.
      *
      * Note: func_num_args() is used (rather than a null default) to tell an
-     * omitted argument apart from an explicit "[]" while keeping the array type
+     * omitted $audience apart from an explicit "[]" while keeping the array type
      * hint. This avoids both the PHP 8.4 implicitly-nullable deprecation (removed
      * in PHP 9.0) and the pre-7.2 "Declaration should be compatible" variance
      * warning against the parent/interface signature (array $audience = []).
@@ -88,7 +85,7 @@ class ShopSession extends Session implements SessionInterface
      * @param bool $forceRefresh
      * @param bool $throw
      * @param array $scope
-     * @param array $audience omit for shop default; pass (even []) to force it
+     * @param array $audience omit to resolve the shop store audience; pass (even []) to force it
      *
      * @return Token
      *
