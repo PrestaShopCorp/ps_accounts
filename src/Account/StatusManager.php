@@ -73,6 +73,18 @@ class StatusManager
     private $throwException;
 
     /**
+     * @var callable[]
+     */
+    private $onBeforeStatusUpsertListeners = [];
+
+    /**
+     * Re-entrancy guard: a listener that calls getStatus() would re-trigger upsetCachedStatus.
+     *
+     * @var bool
+     */
+    private $firingOnBeforeStatusUpsert = false;
+
+    /**
      * @param ShopSession $shopSession
      * @param AccountsService $accountsService
      * @param ConfigurationRepository $repository
@@ -97,6 +109,26 @@ class StatusManager
         return array_merge($this->WithOriginAndSourceTrait_getDefaults(), [
             'throwException' => false,
         ]);
+    }
+
+    /**
+     * Register a callback invoked right before each status write.
+     *
+     * Signature: function (ShopStatus|null $current, ShopStatus $new): void
+     *
+     * The callback is called on every upsert (including cache refreshes), so it is up to the
+     * consumer to compare $current and $new and decide whether a meaningful change occurred.
+     * A callback that throws is logged and swallowed: it must never break status/token persistence.
+     *
+     * @param callable $listener
+     *
+     * @return $this
+     */
+    public function addOnBeforeStatusUpsert($listener)
+    {
+        $this->onBeforeStatusUpsertListeners[] = $listener;
+
+        return $this;
     }
 
     /**
@@ -397,12 +429,56 @@ class StatusManager
     protected function upsetCachedStatus(CachedShopStatus $cachedShopStatus, $all = false)
     {
         try {
-            $this->setCachedStatus(new CachedShopStatus(array_replace_recursive(
-                $this->getCachedStatus()->toArray(),
+            $current = $this->getCachedStatus();
+            $new = new CachedShopStatus(array_replace_recursive(
+                $current->toArray(),
                 $cachedShopStatus->toArray($all)
-           )));
+            ));
         } catch (UnknownStatusException $e) {
-            $this->setCachedStatus($cachedShopStatus);
+            $current = null; // first write / identity not created yet
+            $new = $cachedShopStatus;
+        }
+
+        $this->fireOnBeforeStatusUpsert(
+            ($current && $current->shopStatus instanceof ShopStatus) ? $current->shopStatus : null,
+            ($new->shopStatus instanceof ShopStatus) ? $new->shopStatus : null
+        );
+
+        $this->setCachedStatus($new);
+    }
+
+    /**
+     * @param ShopStatus|null $current
+     * @param ShopStatus|null $new
+     *
+     * @return void
+     */
+    private function fireOnBeforeStatusUpsert($current, $new)
+    {
+        // nothing to notify about when there is no new status
+        if (!($new instanceof ShopStatus) || empty($this->onBeforeStatusUpsertListeners)) {
+            return;
+        }
+        // avoid recursion if a listener reads/writes the status again
+        if ($this->firingOnBeforeStatusUpsert) {
+            return;
+        }
+
+        $this->firingOnBeforeStatusUpsert = true;
+        try {
+            foreach ($this->onBeforeStatusUpsertListeners as $listener) {
+                try {
+                    call_user_func($listener, $current, $new);
+                } catch (\Exception $e) {
+                    // a third-party callback that fails must NEVER break status/token persistence
+                    Logger::getInstance()->error('onBeforeStatusUpsert listener error: ' . $e->getMessage());
+                } catch (\Throwable $e) {
+                    // PHP 7+: Error types (TypeError, etc.) implement Throwable but not Exception
+                    Logger::getInstance()->error('onBeforeStatusUpsert listener error: ' . $e->getMessage());
+                }
+            }
+        } finally {
+            $this->firingOnBeforeStatusUpsert = false;
         }
     }
 }

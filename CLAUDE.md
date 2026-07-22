@@ -91,6 +91,7 @@ The module ships **one codebase** that must run from **PS 1.6 (PHP 5.6, no Symfo
 - **Never assume Symfony exists.** PS 1.6 has no Symfony container, router, or session. Core code goes through the module's own lightweight container, not the PS core container (see below).
 - **Branch on version explicitly, never implicitly.** Use `version_compare(_PS_VERSION_, 'X', '>=')`. Don't rely on a class/method merely existing unless you `method_exists()`/`class_exists()`-guard it.
 - **Test the edges, not just the middle.** A change that works on PS 8.1 can break PS 1.6 (syntax/Symfony) or PS 9 (upgrade/AST). Run the relevant platform presets.
+- **Catch both `\Exception` and `\Throwable`.** When wrapping code in a defensive `try/catch`, use two catch blocks — `catch (\Exception $e)` **then** `catch (\Throwable $e)`. On PHP 5.6 only `Exception` exists (the `Throwable` block is inert); on PHP 7+ `Error` types (TypeError, etc.) implement `Throwable` but **not** `Exception`, so a single `Exception` catch would let them escape. Established pattern — e.g. `src/Account/CommandHandler/UpdateBackOfficeUrlsHandler.php:42-46`, `src/Account/CommandHandler/RestoreIdentityHandler.php`, `src/Http/Controller/AbstractV2RestController.php`.
 
 ### Version detection — where & how
 
