@@ -344,4 +344,82 @@ class StatusManagerTest extends TestCase
 
         $this->assertEquals(1, $calls);
     }
+
+    /**
+     * @test
+     */
+    public function itShouldCallOnAfterStatusUpsertListenerWithCurrentAndNewStatus()
+    {
+        $this->configurationRepository->updateCachedShopStatus(json_encode((new CachedShopStatus([
+            'isValid' => true,
+            'updatedAt' => (new \DateTime())->format(\DateTime::ATOM),
+            'shopStatus' => new ShopStatus([
+                'cloudShopId' => $this->faker->uuid,
+                'isVerified' => false,
+            ]),
+        ]))->toArray()));
+
+        $received = [];
+        $this->statusManager->addOnAfterStatusUpsert(function ($current, $new) use (&$received) {
+            $received[] = ['current' => $current, 'new' => $new];
+        });
+
+        $this->statusManager->setIsVerified(true);
+
+        $this->assertCount(1, $received);
+        $this->assertInstanceOf(ShopStatus::class, $received[0]['current']);
+        $this->assertInstanceOf(ShopStatus::class, $received[0]['new']);
+        $this->assertFalse($received[0]['current']->isVerified);
+        $this->assertTrue($received[0]['new']->isVerified);
+    }
+
+    /**
+     * @test
+     */
+    public function itShouldFireOnAfterStatusUpsertOnlyAfterPersist()
+    {
+        $this->configurationRepository->updateCachedShopStatus(json_encode((new CachedShopStatus([
+            'isValid' => true,
+            'updatedAt' => (new \DateTime())->format(\DateTime::ATOM),
+            'shopStatus' => new ShopStatus([
+                'cloudShopId' => $this->faker->uuid,
+                'isVerified' => false,
+            ]),
+        ]))->toArray()));
+
+        $verifiedWhenListenerRan = null;
+        $this->statusManager->addOnAfterStatusUpsert(function ($current, $new) use (&$verifiedWhenListenerRan) {
+            // the new status must already be persisted by the time the after-hook fires
+            $verifiedWhenListenerRan = $this->statusManager->getStatus(true)->isVerified;
+        });
+
+        $this->statusManager->setIsVerified(true);
+
+        $this->assertTrue($verifiedWhenListenerRan);
+    }
+
+    /**
+     * @test
+     */
+    public function itShouldNotBreakUpsertWhenAfterListenerThrows()
+    {
+        $this->configurationRepository->updateCachedShopStatus(json_encode((new CachedShopStatus([
+            'isValid' => true,
+            'updatedAt' => (new \DateTime())->format(\DateTime::ATOM),
+            'shopStatus' => new ShopStatus([
+                'cloudShopId' => $this->faker->uuid,
+                'isVerified' => false,
+            ]),
+        ]))->toArray()));
+
+        $this->statusManager->addOnAfterStatusUpsert(function ($current, $new) {
+            throw new \RuntimeException('after listener boom');
+        });
+
+        // must not propagate the listener exception
+        $this->statusManager->setIsVerified(true);
+
+        // and the status must still have been persisted
+        $this->assertTrue($this->statusManager->getStatus(true)->isVerified);
+    }
 }
