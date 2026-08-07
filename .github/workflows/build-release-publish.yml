@@ -48,7 +48,7 @@ jobs:
         run: make php-scoper
 
       - name: Build front
-        run: pnpm --filter ./_dev build
+        run: pnpm -C ./_dev run build
 
       - name: Clean-up project 🧹
         run: |
