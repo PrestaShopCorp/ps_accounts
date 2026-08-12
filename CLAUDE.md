@@ -214,7 +214,10 @@ make phpstan              # Static analysis (runs in Docker)
 make build-front
 # Equivalent to:
 pnpm --filter ./_dev install --frozen-lockfile --ignore-scripts
-pnpm --filter ./_dev build
+pnpm -C ./_dev run build
+# Do NOT use `pnpm --filter ./_dev build` from the repo root: since pnpm 11 the
+# dependency-freshness check (verify-deps-before-run) runs `pnpm install` in the
+# CWD first, and the repo root has no package.json → ERR_PNPM_NO_PKG_MANIFEST.
 
 # Bundling
 make bundle          # Full bundle: php-scoper + config + front → ps_accounts.zip
