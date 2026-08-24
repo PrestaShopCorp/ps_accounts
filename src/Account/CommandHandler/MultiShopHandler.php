@@ -66,6 +66,6 @@ abstract class MultiShopHandler
             return $this->shopContext->getMultiShopIds();
         }
         //return [\Shop::getContextShopID(true)];
-        return [\Shop::getContextShopID()];
+        return [(int) \Shop::getContextShopID()];
     }
 }
