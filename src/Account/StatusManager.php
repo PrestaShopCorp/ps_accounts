@@ -300,6 +300,62 @@ class StatusManager
     }
 
     /**
+     * @param bool $cachedStatus
+     *
+     * @return string|null
+     */
+    public function getOrganizationId($cachedStatus = true)
+    {
+        try {
+            return $this->getStatus($cachedStatus)->organizationId;
+        } catch (UnknownStatusException $e) {
+            return null;
+        }
+    }
+
+    /**
+     * @param bool $cachedStatus
+     *
+     * @return string|null
+     */
+    public function getOrganizationName($cachedStatus = true)
+    {
+        try {
+            return $this->getStatus($cachedStatus)->organizationName;
+        } catch (UnknownStatusException $e) {
+            return null;
+        }
+    }
+
+    /**
+     * @param bool $cachedStatus
+     *
+     * @return string|null
+     */
+    public function getPointOfContactRole($cachedStatus = true)
+    {
+        try {
+            return $this->getStatus($cachedStatus)->pointOfContactRole;
+        } catch (UnknownStatusException $e) {
+            return null;
+        }
+    }
+
+    /**
+     * @param bool $cachedStatus
+     *
+     * @return string|null
+     */
+    public function getShopEnvironment($cachedStatus = true)
+    {
+        try {
+            return $this->getStatus($cachedStatus)->shopEnvironment;
+        } catch (UnknownStatusException $e) {
+            return null;
+        }
+    }
+
+    /**
      * @param string $pointOfContactEmail
      *
      * @return void

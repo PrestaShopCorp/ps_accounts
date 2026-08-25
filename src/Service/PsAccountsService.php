@@ -207,6 +207,38 @@ class PsAccountsService
     }
 
     /**
+     * @return string|null
+     */
+    public function getOrganizationId()
+    {
+        return $this->statusManager->getOrganizationId();
+    }
+
+    /**
+     * @return string|null
+     */
+    public function getOrganizationName()
+    {
+        return $this->statusManager->getOrganizationName();
+    }
+
+    /**
+     * @return string|null
+     */
+    public function getPointOfContactRole()
+    {
+        return $this->statusManager->getPointOfContactRole();
+    }
+
+    /**
+     * @return string|null
+     */
+    public function getShopEnvironment()
+    {
+        return $this->statusManager->getShopEnvironment();
+    }
+
+    /**
      * @return bool
      *
      * @deprecated since v8.0.0

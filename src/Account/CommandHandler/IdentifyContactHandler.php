@@ -76,11 +76,6 @@ class IdentifyContactHandler
      */
     public function handle(IdentifyContactCommand $command)
     {
-        $status = $this->statusManager->withSource($command->source)->getStatus();
-        if (!$status->isVerified) {
-            return;
-        }
-
         $this->accountsService
             ->withSource($command->source)
             ->setPointOfContact(

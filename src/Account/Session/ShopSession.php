@@ -24,9 +24,7 @@ use PrestaShop\Module\PsAccounts\Account\Exception\RefreshTokenException;
 use PrestaShop\Module\PsAccounts\Account\Token\Token;
 use PrestaShop\Module\PsAccounts\Hook\ActionShopAccessTokenRefreshAfter;
 use PrestaShop\Module\PsAccounts\Repository\ConfigurationRepository;
-use PrestaShop\Module\PsAccounts\Service\OAuth2\Exception\InvalidScopeException;
 use PrestaShop\Module\PsAccounts\Service\OAuth2\OAuth2Exception;
-use PrestaShop\Module\PsAccounts\Service\OAuth2\OAuth2ServerException;
 use PrestaShop\Module\PsAccounts\Service\OAuth2\OAuth2Service;
 use PrestaShop\Module\PsAccounts\Service\OAuth2\Resource\AccessToken;
 
@@ -74,21 +72,20 @@ class ShopSession extends Session implements SessionInterface
     }
 
     /**
-     * When $scope / $audience are omitted, shop-specific defaults are resolved
-     * (verified scope + store audience). When passed explicitly — including an
-     * empty array — they are forwarded as-is, so a caller can force an empty
-     * scope/audience independently of the shop verified state.
+     * Resolves the shop store audience when $audience is omitted. When passed
+     * explicitly — including an empty array — it is forwarded as-is, so a caller
+     * can force an empty audience. $scope is always forwarded unchanged.
      *
      * Note: func_num_args() is used (rather than a null default) to tell an
-     * omitted argument apart from an explicit "[]" while keeping the array type
+     * omitted $audience apart from an explicit "[]" while keeping the array type
      * hint. This avoids both the PHP 8.4 implicitly-nullable deprecation (removed
      * in PHP 9.0) and the pre-7.2 "Declaration should be compatible" variance
-     * warning against the parent/interface signature (array $scope = []).
+     * warning against the parent/interface signature (array $audience = []).
      *
      * @param bool $forceRefresh
      * @param bool $throw
-     * @param array $scope omit for shop defaults; pass (even []) to force it
-     * @param array $audience omit for shop defaults; pass (even []) to force it
+     * @param array $scope
+     * @param array $audience omit to resolve the shop store audience; pass (even []) to force it
      *
      * @return Token
      *
@@ -96,15 +93,7 @@ class ShopSession extends Session implements SessionInterface
      */
     public function getValidToken($forceRefresh = false, $throw = true, array $scope = [], array $audience = [])
     {
-        $argc = func_num_args();
-
-        if ($argc < 3) {
-            $scope = ($this->getStatusManager()->identityVerified() ? [
-                'shop.verified',
-            ] : []);
-        }
-
-        if ($argc < 4) {
+        if (func_num_args() < 4) {
             $audience = [
                 'store/' . $this->getStatusManager()->getCloudShopId(),
                 $this->tokenAudience,
@@ -126,11 +115,7 @@ class ShopSession extends Session implements SessionInterface
     public function refreshToken($refreshToken = null, array $scope = [], array $audience = [])
     {
         try {
-            try {
-                $accessToken = $this->getAccessToken($scope, $audience);
-            } catch (InvalidScopeException $e) {
-                $accessToken = $this->fallbackRefresh($e, 'shop.verified', $scope, $audience);
-            }
+            $accessToken = $this->getAccessToken($scope, $audience);
 
             $this->setToken(
                 $accessToken->access_token,
@@ -201,32 +186,5 @@ class ShopSession extends Session implements SessionInterface
     protected function getAccessToken(array $scope = [], array $audience = [])
     {
         return $this->oAuth2Service->getAccessTokenByClientCredentials($scope, $audience);
-    }
-
-    /**
-     * @param OAuth2ServerException $e
-     * @param string $filterScope
-     * @param array $scope
-     * @param array $audience
-     *
-     * @return AccessToken
-     *
-     * @throws OAuth2Exception
-     */
-    protected function fallbackRefresh($e, $filterScope, array $scope, array $audience)
-    {
-        if (in_array($filterScope, $scope) &&
-            str_contains($e->getMessage(), $filterScope)
-        ) {
-            $this->getStatusManager()->setIsVerified(false);
-            $this->resetRefreshTokenErrors();
-            $accessToken = $this->getAccessToken(array_filter($scope, function ($scp) use ($filterScope) {
-                return $scp !== $filterScope;
-            }), $audience);
-        } else {
-            throw $e;
-        }
-
-        return $accessToken;
     }
 }

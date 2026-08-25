@@ -115,7 +115,7 @@ class IdentifyContactHandlerTest extends TestCase
     /**
      * @test
      */
-    public function itShouldNotSaveIdentityContactOnShopNotVerified()
+    public function itShouldSaveIdentityContactEvenWhenShopNotVerified()
     {
         $cloudShopId = $this->faker->uuid;
 
@@ -123,8 +123,10 @@ class IdentifyContactHandlerTest extends TestCase
 
         $this->shopSession->method('getValidToken')->willReturn("valid_token");
 
-        // Expected call to setPointOfContact with correct parameters
-        $this->accountsService->expects($this->exactly(0))
+        $this->ownerSession->setToken($this->faker->uuid, $this->faker->uuid);
+
+        // POC must be set regardless of verification status (guard removed)
+        $this->accountsService->expects($this->once())
             ->method('setPointOfContact')
             ->with(
                 $this->equalTo($cloudShopId),
@@ -148,6 +150,12 @@ class IdentifyContactHandlerTest extends TestCase
         $this->getHandler()->handle(new IdentifyContactCommand(new AccessToken([
             'access_token' => 'valid_access_token',
         ]), $userInfo));
+
+        // POC persisted and verification state left untouched (still not verified)
+        $this->assertInstanceOf(NullToken::class, $this->ownerSession->getToken()->getJwt());
+        $this->assertEquals($userInfo->sub, $this->statusManager->getPointOfContactUuid());
+        $this->assertEquals($userInfo->email, $this->statusManager->getPointOfContactEmail());
+        $this->assertFalse($this->statusManager->identityVerified());
     }
 
     /**
