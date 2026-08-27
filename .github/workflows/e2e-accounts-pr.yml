@@ -5,6 +5,9 @@ on:
     types: [labeled, synchronize, reopened]
   workflow_dispatch:
 
+env:
+  IMAGE_PREFIX: ghcr.io/prestashopcorp/
+
 # Le compte de test et le tunnel sont des ressources UNIQUES et partagées :
 # jamais deux runs e2e en même temps, toutes PR confondues.
 concurrency:
@@ -15,6 +18,7 @@ jobs:
   build-module:
     name: Build the PR module zip
     runs-on: ubuntu-latest
+    timeout-minutes: 20
     # PR de fork : pas d'accès aux secrets. On ne tente pas.
     if: >-
       github.event_name == 'workflow_dispatch' ||
@@ -64,19 +68,49 @@ jobs:
     name: Run Account tests (PR build)
     needs: build-module
     runs-on: ubuntu-latest
+    timeout-minutes: 40
     steps:
       - uses: actions/checkout@v5
+
+      # Sans ça, le téléchargement des navigateurs Playwright se bloque
+      # indéfiniment sur les runners (cf. le job setup du TNR V8).
+      - name: Tune kernel buffers
+        run: |
+          sudo sysctl -w net.core.rmem_max=2500000
+          sudo sysctl -w net.core.rmem_default=2500000
+
+      # Mêmes clés que le TNR V8 : on réutilise ses entrées de cache.
+      - name: Cache node_modules
+        id: cache-node
+        uses: actions/cache@v5
+        with:
+          path: ./e2e/node_modules
+          key: node-modules-${{ runner.os }}-${{ hashFiles('e2e/package-lock.json') }}
+          restore-keys: |
+            node-modules-${{ runner.os }}-
+
+      - name: Cache Playwright browsers
+        id: cache-pw
+        uses: actions/cache@v5
+        with:
+          path: ~/.cache/ms-playwright
+          key: pw-browsers-${{ runner.os }}-${{ hashFiles('e2e/package-lock.json') }}
+          restore-keys: |
+            pw-browsers-${{ runner.os }}-
 
       - uses: actions/setup-node@v5
         with:
           node-version: "node"
 
       - name: Install dependencies
+        if: steps.cache-node.outputs.cache-hit != 'true'
         working-directory: ./e2e
         run: npm ci
 
       - name: Install Playwright Browsers
+        if: steps.cache-pw.outputs.cache-hit != 'true'
         working-directory: ./e2e
+        timeout-minutes: 10
         run: npx playwright install chromium
 
       # C'est ici que le workflow diverge du TNR : le module testé est celui
@@ -100,6 +134,13 @@ jobs:
           echo "QA_USER_AGENT=${{ secrets.QA_USER_AGENT }}" >> .env
           echo "ACCOUNT_EMAIL=${{ secrets.ACCOUNT_EMAIL }}" >> .env
           echo "ACCOUNT_PASSWORD=${{ secrets.ACCOUNT_PASSWORD }}" >> .env
+
+      - name: Login to GHCR
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: prestashopcorp
+          password: ${{ secrets.DOWNLOADER_TOKEN }}
 
       - name: Generate .env in e2e-env
         working-directory: ./e2e-env
