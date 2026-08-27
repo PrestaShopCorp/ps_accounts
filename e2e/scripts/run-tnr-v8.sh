@@ -1,7 +1,7 @@
 #!/bin/bash
 set -euo pipefail
 
-export PS_ACCOUNTS_VERSION="v8.0.10"
+export PS_ACCOUNTS_VERSION="v8.0.17"
 
 if [ -n "${1:-}" ]; then
   SHOP_VERSIONS=("$1")
