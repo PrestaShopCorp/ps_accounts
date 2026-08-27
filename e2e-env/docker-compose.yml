@@ -116,6 +116,9 @@ services:
       - ./scripts-imageoff/pre-install-scripts:/tmp/pre-install-scripts
       - ./scripts-imageoff/post-install-scripts:/tmp/post-install-scripts
       - ./scripts-imageoff/install-ps_accounts.sh:/install-ps_accounts.sh
+      # Flux PR : zip construit depuis la branche. Absent en flux TNR, le
+      # bind mount est alors un dossier vide et l'install retombe sur wget.
+      - ./local-module:/local-module:ro
     labels:
       - traefik.enable=true
       - traefik.http.routers.shop1.rule=${SHOP1_TRAEFIK_RULE}
@@ -188,6 +191,9 @@ services:
       - ./scripts-imageoff/pre-install-scripts:/tmp/pre-install-scripts
       - ./scripts-imageoff/post-install-scripts:/tmp/post-install-scripts
       - ./scripts-imageoff/install-ps_accounts.sh:/install-ps_accounts.sh
+      # Flux PR : zip construit depuis la branche. Absent en flux TNR, le
+      # bind mount est alors un dossier vide et l'install retombe sur wget.
+      - ./local-module:/local-module:ro
     labels:
       - traefik.enable=true
       - traefik.http.routers.shop2.rule=${SHOP2_TRAEFIK_RULE}
