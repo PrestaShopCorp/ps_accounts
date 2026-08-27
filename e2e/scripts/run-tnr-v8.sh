@@ -1,7 +1,8 @@
 #!/bin/bash
 set -euo pipefail
 
-export PS_ACCOUNTS_VERSION="v8.0.17"
+source "$(dirname "$0")/resolve-module-version.sh"
+resolve_module_version
 
 if [ -n "${1:-}" ]; then
   SHOP_VERSIONS=("$1")
