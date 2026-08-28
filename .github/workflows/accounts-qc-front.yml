@@ -10,7 +10,7 @@ on:
 
 jobs:
   eslint:
-    name: ESLint
+    name: ESLint & typecheck
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
@@ -39,3 +39,8 @@ jobs:
 
       - name: Lint
         run: pnpm -C ./_dev run lint
+
+      # tsc, not ESLint, is what caught `innerHTML = string | undefined` once
+      # the masking `any` was removed — the linter alone would not see it.
+      - name: Typecheck
+        run: pnpm -C ./_dev run typecheck

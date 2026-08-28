@@ -8,7 +8,8 @@
     "build:login": "vite build --config=vite.login.config.ts",
     "build:notifications": "vite build --config=vite.notifications.config.ts",
     "lint": "eslint .",
-    "lint:fix": "eslint . --fix"
+    "lint:fix": "eslint . --fix",
+    "typecheck": "tsc --noEmit -p tsconfig.json && tsc --noEmit -p tsconfig.node.json"
   },
   "dependencies": {
     "@prestashopcorp/puik-tailwind-preset": "^2.2.0",
