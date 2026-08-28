@@ -14,25 +14,31 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
+      # pnpm must be set up before setup-node: `cache: 'pnpm'` needs the pnpm
+      # binary on PATH to resolve the store directory.
       - name: Install pnpm
         uses: pnpm/action-setup@v4
         with:
           version: 10
-          run_install: |
-            - cwd: _dev/
-              package_json_file: _dev/package.json
-              args: [--frozen-lockfile, --ignore-scripts]
-        env:
-          NPM_AUTH_TOKEN: ${{ secrets.NPM_TOKEN_RO }}
 
       - name: Setup node env 🏗
+        # No registry-url/scope here: setup-node would point NPM_CONFIG_USERCONFIG
+        # at its own npmrc holding an unwired NODE_AUTH_TOKEN, which shadows the
+        # NPM_AUTH_TOKEN interpolated by _dev/.npmrc and 404s @prestashopcorp/*.
         uses: actions/setup-node@v4
         with:
-          node-version: 20
-          registry-url: 'https://registry.npmjs.org'
-          scope: '@prestashopcorp'
+          node-version-file: '.nvmrc'
           cache: 'pnpm'
           cache-dependency-path: '_dev/pnpm-lock.yaml'
+
+      # Installed after setup-node so the install runs on the Node version from
+      # .nvmrc, not on the runner's default Node (which is undeclared and drifts
+      # with the runner image). Previously this ran via action-setup's run_install,
+      # i.e. before setup-node, so only the build step used the pinned Node.
+      - name: Install front dependencies
+        run: pnpm -C ./_dev install --frozen-lockfile --ignore-scripts
+        env:
+          NPM_AUTH_TOKEN: ${{ secrets.NPM_TOKEN_RO }}
 
       - name: Set version
         id: set_version
