@@ -1,0 +1,41 @@
+name: Accounts Quality Control Front
+
+on:
+  pull_request:
+    types: [opened, reopened, synchronize]
+    paths:
+      - '_dev/**'
+      - '.nvmrc'
+      - '.github/workflows/accounts-qc-front.yml'
+
+jobs:
+  eslint:
+    name: ESLint
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      # pnpm must be set up before setup-node: `cache: 'pnpm'` needs the pnpm
+      # binary on PATH to resolve the store directory.
+      - name: Install pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 10
+
+      - name: Setup node env 🏗
+        uses: actions/setup-node@v4
+        with:
+          node-version-file: '.nvmrc'
+          cache: 'pnpm'
+          cache-dependency-path: '_dev/pnpm-lock.yaml'
+
+      # Installed after setup-node so the install runs on the Node version from
+      # .nvmrc, not on the runner's default Node.
+      - name: Install front dependencies
+        run: pnpm -C ./_dev install --frozen-lockfile --ignore-scripts
+        env:
+          NPM_AUTH_TOKEN: ${{ secrets.NPM_TOKEN_RO }}
+
+      - name: Lint
+        run: pnpm -C ./_dev run lint
