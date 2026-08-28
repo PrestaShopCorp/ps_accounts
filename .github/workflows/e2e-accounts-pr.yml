@@ -174,50 +174,50 @@ jobs:
           npm run tnr-v8 -- 8.2.0-8.1
           npm run tnr-multistore-v8 -- 8.2.0-8.1
 
-      - name: Generate Allure Report
-        if: always()
-        working-directory: ./e2e
-        run: |
-          cp -r allure-results-8.2.0-8.1/. allure-results/ 2>/dev/null || true
-          npm run generate-allure-report
-
-      - uses: actions/upload-artifact@v4
-        if: always()
-        with:
-          name: allure-report-pr
-          path: ./e2e/allure-report
-
-      # La gate. Le rapport reste le canal d'analyse ; la CI ne fait que
-      # traduire ses compteurs en statut de check.
+      # La gate. Pas de rapport ni de notification : le statut du check et
+      # le step summary suffisent.
       - name: Fail on test failures
         if: always()
         shell: bash
         run: |
           set -euo pipefail
-          SUMMARY="e2e/allure-report/widgets/summary.json"
-          if [ ! -f "$SUMMARY" ]; then
-            echo "::error::rapport Allure introuvable — les tests n'ont pas produit de résultat"
+
+          # Les résultats bruts d'Allure : un fichier par test, champ .status.
+          # Aucun rapport à générer pour les lire. On les concatène en un seul
+          # flux plutôt que de passer N chemins en arguments.
+          results=$(find ./e2e -maxdepth 2 -path '*allure-results*' -name '*-result.json' -exec cat {} +)
+          total=$(printf '%s' "$results" | jq -s 'length')
+
+          if [ "$total" -eq 0 ]; then
+            echo "::error::aucun test exécuté — les tests n'ont produit aucun résultat"
+            echo "### TNR V8 — build de la PR : aucun test exécuté" >> "$GITHUB_STEP_SUMMARY"
             exit 1
           fi
-          read -r passed failed broken skipped total < <(jq -r '.statistic |
-            "\(.passed // 0) \(.failed // 0) \(.broken // 0) \(.skipped // 0) \(.total // 0)"' "$SUMMARY")
+
+          ko=$(printf '%s' "$results" | jq -s '[.[] | select(.status == "failed" or .status == "broken")] | length')
+          ok=$(( total - ko ))
 
           {
             echo "### TNR V8 — build de la PR (PS 8.2.0-8.1)"
             echo ""
-            echo "| passed | failed | broken | skipped | total |"
-            echo "|---:|---:|---:|---:|---:|"
-            echo "| $passed | $failed | $broken | $skipped | $total |"
+            echo "$ok/$total tests OK"
           } >> "$GITHUB_STEP_SUMMARY"
 
-          # `total == 0` est volontaire : sans ça, un run où rien n'a tourné
-          # passerait au vert.
-          if [ "$total" -eq 0 ]; then
-            echo "::error::aucun test exécuté"
+          if [ "$ko" -gt 0 ]; then
+            failures=$(printf '%s' "$results" | jq -r 'select(.status == "failed" or .status == "broken")
+              | "\(.fullName // .name) — \((.statusDetails.message // "") | split("\n")[0])"')
+
+            {
+              echo ""
+              echo "#### Échecs"
+              echo ""
+              printf '%s\n' "$failures" | sed 's/^/- /'
+            } >> "$GITHUB_STEP_SUMMARY"
+
+            printf '%s\n' "$failures" | sed 's/^/::error::/'
+
+            echo "::error::$ko échec(s) sur $total tests"
             exit 1
           fi
-          if [ "$failed" -gt 0 ] || [ "$broken" -gt 0 ]; then
-            echo "::error::$failed échec(s), $broken cassé(s) sur $total tests"
-            exit 1
-          fi
-          echo "$passed/$total tests OK"
+
+          echo "$ok/$total tests OK"
