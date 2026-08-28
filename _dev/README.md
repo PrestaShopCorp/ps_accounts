@@ -37,9 +37,10 @@ pnpm run build:notifications
 
 ```
 pnpm run lint
+pnpm run lint:fix
 ```
 
-> ⚠️ `lint` et `lint:fix` sont actuellement inopérants : ESLint 9 attend une
-> « flat config » (`eslint.config.js`) alors que le projet n'a qu'un
-> `.eslintrc.js` hérité, et l'option `--ext` a été supprimée. La migration est
-> à faire.
+Configuration dans `eslint.config.mjs` (ESLint 9, « flat config »). Elle
+partitionne le périmètre en trois : les sources `apps/**/*.ts` en contexte
+navigateur, les `*.config.ts` de Vite en contexte Node (elles utilisent
+`__dirname`), et les `*.js` de configuration en CommonJS.
