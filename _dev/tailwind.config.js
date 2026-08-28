@@ -7,7 +7,7 @@ module.exports = {
   },
   prefix: 'psacc-',
   presets: [puikTailwindPreset],
-  content: ["./apps/**/*.vue", "./apps/**/*.css", "../views/templates/admin/**/*.tpl"],
+  content: ["./apps/**/*.ts", "./apps/**/*.css", "../views/templates/admin/**/*.tpl"],
   theme: {
     extend: {
       colors: {

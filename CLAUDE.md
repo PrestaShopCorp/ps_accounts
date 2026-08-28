@@ -6,7 +6,7 @@
 
 **Squad:** Squad Account
 **Functional domain:** Token generation, OAuth2 authentication flow, shop identification/verification, synchronization with PrestaShop Cloud
-**Main stack:** PHP 5.6–8.3 / Node.js / TypeScript / Vue 3 / Vite / PrestaShop 1.6–9.x
+**Main stack:** PHP 5.6–8.3 / Node.js 24 / TypeScript / Vite / PrestaShop 1.6–9.x
 **Architecture pattern:** CQRS in `src/Account/` · legacy controllers in `controllers/`
 
 ---
@@ -33,7 +33,7 @@
 | `templates/`                        | Twig templates                                                       |
 | `upgrade/`                          | Module upgrade scripts                                               |
 | `controllers/`                      | Legacy controllers                                                   |
-| `_dev/apps/`                        | TypeScript/Vue frontend (compiled to `views/`)                       |
+| `_dev/apps/`                        | TypeScript frontend, Vite lib builds (compiled to `views/`)          |
 | `config/`                           | YAML definitions for PrestaShop core integration (routing, services) |
 | `tests/src/Unit/`                   | Unit tests                                                           |
 | `tests/src/Feature/`                | Feature / integration tests                                          |

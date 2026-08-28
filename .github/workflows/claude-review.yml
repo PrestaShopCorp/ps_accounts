@@ -145,7 +145,7 @@ jobs:
             - `src/Http/` — client HTTP interne (curl uniquement)
             - `sql/` — scripts de migration SQL
             - `upgrade/` — scripts d'upgrade du module
-            - `_dev/apps/` — frontend TypeScript/Vue 3 (compile dans views/)
+            - `_dev/apps/` — frontend TypeScript, builds lib Vite (compile dans views/)
             - `config/` — definitions YAML pour l'integration PrestaShop core
 
             Mode : ${{ steps.ctx.outputs.is_re_review == 'true' && 'RE-REVIEW' || 'REVIEW INITIALE' }}
