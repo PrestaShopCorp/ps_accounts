@@ -19,6 +19,8 @@ jobs:
     name: Build the PR module zip
     runs-on: ubuntu-latest
     timeout-minutes: 20
+    outputs:
+      version: ${{ steps.module_version.outputs.version }}
     # PR de fork : pas d'accès aux secrets. On ne tente pas.
     if: >-
       github.event_name == 'workflow_dispatch' ||
@@ -57,6 +59,14 @@ jobs:
         run: |
           cp ./config.dist.php ./config.php   # gitignoré, absent d'un checkout frais
           sh ./scripts/bundle-module.sh 'ps_accounts.zip' 'preprod'
+
+      # Les tests comparent la version en base à PS_ACCOUNTS_VERSION. Ici le
+      # module ne vient pas d'une release : la référence est le config.xml
+      # de la PR.
+      - name: Read the built module version
+        id: module_version
+        run: |
+          echo "version=v$(sed -n 's/.*<version><!\[CDATA\[\(.*\)\]\]><\/version>.*/\1/p' config.xml)" >> "$GITHUB_OUTPUT"
 
       - uses: actions/upload-artifact@v4
         with:
@@ -158,6 +168,8 @@ jobs:
       # échec de build du shop doit casser le job.
       - name: Run test
         working-directory: ./e2e
+        env:
+          PS_ACCOUNTS_VERSION: ${{ needs.build-module.outputs.version }}
         run: |
           npm run tnr-v8 -- 8.2.0-8.1
           npm run tnr-multistore-v8 -- 8.2.0-8.1
