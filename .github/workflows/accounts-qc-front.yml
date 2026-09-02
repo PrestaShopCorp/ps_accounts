@@ -1,0 +1,49 @@
+name: Accounts Quality Control Front
+
+on:
+  pull_request:
+    types: [opened, reopened, synchronize]
+    paths:
+      - '_dev/**'
+      - '.nvmrc'
+      - '.github/workflows/accounts-qc-front.yml'
+
+jobs:
+  eslint:
+    name: ESLint & typecheck
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      # pnpm must be set up before setup-node: `cache: 'pnpm'` needs the pnpm
+      # binary on PATH to resolve the store directory.
+      # Pinned to a commit SHA rather than @v4: SonarCloud's githubactions:S7637
+      # requires it for third-party actions (actions/* are exempt). This is the
+      # exact commit @v4 currently resolves to, so behaviour is unchanged.
+      - name: Install pnpm
+        uses: pnpm/action-setup@b906affcce14559ad1aafd4ab0e942779e9f58b1 # v4.3.0
+        with:
+          version: 10
+
+      - name: Setup node env 🏗
+        uses: actions/setup-node@v4
+        with:
+          node-version-file: '.nvmrc'
+          cache: 'pnpm'
+          cache-dependency-path: '_dev/pnpm-lock.yaml'
+
+      # Installed after setup-node so the install runs on the Node version from
+      # .nvmrc, not on the runner's default Node.
+      - name: Install front dependencies
+        run: pnpm -C ./_dev install --frozen-lockfile --ignore-scripts
+        env:
+          NPM_AUTH_TOKEN: ${{ secrets.NPM_TOKEN_RO }}
+
+      - name: Lint
+        run: pnpm -C ./_dev run lint
+
+      # tsc, not ESLint, is what caught `innerHTML = string | undefined` once
+      # the masking `any` was removed — the linter alone would not see it.
+      - name: Typecheck
+        run: pnpm -C ./_dev run typecheck

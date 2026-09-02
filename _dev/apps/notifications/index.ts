@@ -34,11 +34,21 @@ document.addEventListener('DOMContentLoaded', async function() {
       });
   }
 
-  function injectNotifications(notifications: [], container: Element)
+  // not named `Notification`: that is a DOM global (Web Notifications API)
+  type NotificationPayload = { html?: string };
+
+  function injectNotifications(notifications: NotificationPayload[]|null, container: Element)
   {
-    notifications.forEach((notif: any) => {
+    // getNotifications() resolves to null when the fetch fails
+    if (!notifications) return;
+
+    notifications.forEach((notif) => {
+      // skip entries without markup: assigning undefined here used to render
+      // the literal string "undefined"
+      if (!notif?.html) return;
+
       const alert = document.createElement('div');
-      alert.innerHTML = notif?.html;
+      alert.innerHTML = notif.html;
       container.prepend(alert);
     });
   }

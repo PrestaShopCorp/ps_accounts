@@ -1,9 +1,12 @@
 {
     "compilerOptions": {
-      "composite": true,
       "module": "ESNext",
-      "moduleResolution": "Node",
-      "allowSyntheticDefaultImports": true
+      "moduleResolution": "bundler",
+      "allowSyntheticDefaultImports": true,
+      "strict": true,
+      "skipLibCheck": true,
+      "noEmit": true,
+      "types": ["node"]
     },
     "include": ["vite.login.config.ts", "vite.notifications.config.ts"]
   }
