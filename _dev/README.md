@@ -1,29 +1,45 @@
-# ps_accounts
+# ps_accounts — front
 
-## Project setup
+Sources TypeScript des deux apps front du module (`apps/login`, `apps/notifications`),
+compilées par Vite en librairies ES vers `../views/js/` et `../views/css/`.
+
+## Prérequis
+
+Node **24** (voir `.nvmrc` à la racine du dépôt) et pnpm **10+**.
 
 ```
-npm install
+nvm use
 ```
 
-### Compiles and hot-reloads for development
+## Installation
 
 ```
-pnpm run serve
+pnpm install --frozen-lockfile
 ```
 
-### Compiles and minifies for production
+## Build de production
+
+Compile les deux apps. C'est ce que lance la CI de release et `make build-front`
+depuis la racine.
 
 ```
 pnpm run build
 ```
 
-### Lints and fixes files
+Chaque app peut être construite séparément :
+
+```
+pnpm run build:login
+pnpm run build:notifications
+```
+
+## Lint
 
 ```
 pnpm run lint
 ```
 
-### Customize configuration
-
-See [Configuration Reference](https://cli.vuejs.org/config/).
+> ⚠️ `lint` et `lint:fix` sont actuellement inopérants : ESLint 9 attend une
+> « flat config » (`eslint.config.js`) alors que le projet n'a qu'un
+> `.eslintrc.js` hérité, et l'option `--ext` a été supprimée. La migration est
+> à faire.
