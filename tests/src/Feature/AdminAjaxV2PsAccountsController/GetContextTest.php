@@ -96,6 +96,7 @@ class GetContextTest extends TestCase
         $json = $this->getResponseJson($response);
 
         $this->assertIsArray($json['ps_accounts']);
+        $this->assertContains('poc-before-verification', $json['ps_accounts']['capabilities']);
 
         $this->assertIsArray($json['groups']);
         $this->assertNotEmpty($json['groups']);
