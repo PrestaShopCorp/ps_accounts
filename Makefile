@@ -1,6 +1,5 @@
 PHP = $(shell which php 2> /dev/null)
 DOCKER = $(shell docker ps 2> /dev/null)
-NPM = $(shell which npm 2> /dev/null)
 COMPOSER = ${PHP} ./composer.phar
 DOCKER_COMPOSE := $(shell which docker) compose
 MODULE ?= $(shell basename ${PWD})

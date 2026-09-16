@@ -54,7 +54,8 @@ views/files/*
 /views/css/chunk-vendors.css
 /views/favicon.ico
 /views/index.html
-./_dev/.npmrc
+_dev/.npmrc2
+_dev/.npmrc.local
 
 # Log files
 npm-debug.log*
