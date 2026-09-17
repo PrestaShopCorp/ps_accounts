@@ -20,6 +20,7 @@
 
 namespace PrestaShop\Module\PsAccounts\Account\QueryHandler;
 
+use PrestaShop\Module\PsAccounts\Account\CommandHandler\IdentifyContactHandler;
 use PrestaShop\Module\PsAccounts\Account\Query\GetContextQuery;
 use PrestaShop\Module\PsAccounts\Provider\ShopProvider;
 use PrestaShop\Module\PsAccounts\Service\Accounts\AccountsException;
@@ -49,6 +50,28 @@ class GetContextHandler
     }
 
     /**
+     * What this module can do, for the shared front component to gate its features
+     * on instead of comparing module versions. The component is loaded from a
+     * floating CDN path (latest of the major), so it runs against every module
+     * version in the field: a feature that needs module-side support must be hidden
+     * until the module says it has it.
+     *
+     * Rules:
+     *  - a capability names a behaviour, not a ticket;
+     *  - it is declared next to the code that implements it and listed here;
+     *  - absence means "not supported" (a module predating this key sends nothing);
+     *  - a capability is never removed once shipped.
+     *
+     * @return string[]
+     */
+    public static function capabilities()
+    {
+        return [
+            IdentifyContactHandler::CAPABILITY_POC_BEFORE_VERIFICATION,
+        ];
+    }
+
+    /**
      * @param GetContextQuery $query
      *
      * @return array
@@ -61,6 +84,7 @@ class GetContextHandler
             'ps_accounts' => [
                 'last_succeeded_upgrade_version' => $this->upgradeService->getVersion(),
                 'module_version_from_files' => \Ps_accounts::VERSION,
+                'capabilities' => self::capabilities(),
             ],
             'groups' => $this->shopProvider->getShops(
                 $query->source,
