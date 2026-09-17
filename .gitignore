@@ -89,3 +89,14 @@ php-scoper.phar
 # tests ignore
 tests/var/cache/
 tests/phpstan/phpstan.neon
+
+# graft's local graph cache — regenerable, not committed (run `graft build`).
+/graft/
+
+# graft also writes a root .ignore to keep graft/ greppable by ripgrep —
+# local-only, not imposed on the team.
+/.ignore
+
+### Claude Code ###
+.claude/settings.local.json
+.claude/worktrees/
