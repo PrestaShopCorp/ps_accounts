@@ -1,23 +1,8 @@
 name: e2e Accounts - main TNR
 
 on:
+  # Manual only: no cron, no push-on-main.
   workflow_dispatch:
-  schedule:
-    # Winter Time
-    - cron: "0 7 * 1-3,11-12 1-5"
-
-    # Summer Time
-    - cron: "0 6 * 4-10 1-5"
-  push:
-    branches:
-      - main
-    paths-ignore:
-      - '**.md'
-      - '.github/**'
-      - 'doc/**'
-      - 'tests/**'
-      - 'translations/**'
-      - '.docker/**'
 
 concurrency:
   group: e2e-main
