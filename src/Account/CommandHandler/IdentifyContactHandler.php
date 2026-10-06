@@ -30,6 +30,21 @@ use PrestaShop\Module\PsAccounts\Service\Accounts\AccountsService;
 class IdentifyContactHandler
 {
     /**
+     * Module capability advertised to the shared front component (accounts-components)
+     * through GetContextHandler: this module accepts a point of contact on a store
+     * whose identity exists but is not verified yet (the isVerified guard was
+     * removed in 8.0.18, ACC-3465). The component only shows the point-of-contact
+     * block on an unverified store when it reads this capability, so a merchant on
+     * an older module is never offered a sign-in the module would silently refuse.
+     *
+     * Capabilities are additive: absence means "not supported". This constant is
+     * never removed, old module versions are never decommissioned.
+     *
+     * @var string
+     */
+    const CAPABILITY_POC_BEFORE_VERIFICATION = 'poc-before-verification';
+
+    /**
      * @var AccountsService
      */
     private $accountsService;

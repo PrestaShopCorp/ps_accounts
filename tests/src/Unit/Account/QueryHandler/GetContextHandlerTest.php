@@ -44,6 +44,7 @@ class GetContextHandlerTest extends TestCase
         $this->assertSame([
             'last_succeeded_upgrade_version' => \Ps_accounts::VERSION,
             'module_version_from_files' => \Ps_accounts::VERSION,
+            'capabilities' => ['poc-before-verification'],
         ], $result['ps_accounts']);
 
         $this->assertSame($expectedShops, $result['groups']);
