@@ -23,6 +23,7 @@ namespace PrestaShop\Module\PsAccounts\Account\Session;
 use PrestaShop\Module\PsAccounts\Account\Exception\RefreshTokenException;
 use PrestaShop\Module\PsAccounts\Account\Token\Token;
 use PrestaShop\Module\PsAccounts\Hook\ActionShopAccessTokenRefreshAfter;
+use PrestaShop\Module\PsAccounts\Log\Logger;
 use PrestaShop\Module\PsAccounts\Repository\ConfigurationRepository;
 use PrestaShop\Module\PsAccounts\Service\OAuth2\OAuth2Exception;
 use PrestaShop\Module\PsAccounts\Service\OAuth2\OAuth2Service;
@@ -30,6 +31,17 @@ use PrestaShop\Module\PsAccounts\Service\OAuth2\Resource\AccessToken;
 
 class ShopSession extends Session implements SessionInterface
 {
+    /**
+     * Clock offsets below this value (in seconds) are measurement noise: "iat" is
+     * truncated to the second and the token reaches the shop after a network round trip.
+     */
+    const CLOCK_OFFSET_THRESHOLD = 5;
+
+    /**
+     * Clock offsets beyond this value (in seconds) are considered bogus and ignored.
+     */
+    const CLOCK_OFFSET_MAX = 86400;
+
     /**
      * @var ConfigurationRepository
      */
@@ -117,6 +129,8 @@ class ShopSession extends Session implements SessionInterface
         try {
             $accessToken = $this->getAccessToken($scope, $audience);
 
+            $this->updateClockOffset(new Token($accessToken->access_token));
+
             $this->setToken(
                 $accessToken->access_token,
                 $accessToken->refresh_token
@@ -142,8 +156,43 @@ class ShopSession extends Session implements SessionInterface
         return new Token(
             $this->configurationRepository->getAccessToken(),
             null,
-            $this->resolveTokenExpirationLeeway()
+            $this->resolveTokenExpirationLeeway(),
+            $this->configurationRepository->getClockOffset()
         );
+    }
+
+    /**
+     * Measures the offset between the local clock and the authorization server clock on a
+     * freshly issued token, so that expiration checks rely on the authorization server time.
+     *
+     * @param Token $freshToken
+     *
+     * @return void
+     */
+    protected function updateClockOffset(Token $freshToken)
+    {
+        $offset = $freshToken->measureClockOffset();
+        if (null === $offset || abs($offset) > self::CLOCK_OFFSET_MAX) {
+            return;
+        }
+
+        if (abs($offset) < self::CLOCK_OFFSET_THRESHOLD) {
+            $offset = 0;
+        }
+
+        if (abs($offset - $this->configurationRepository->getClockOffset()) < self::CLOCK_OFFSET_THRESHOLD) {
+            return;
+        }
+
+        $this->configurationRepository->updateClockOffset($offset);
+
+        if (0 !== $offset) {
+            Logger::getInstance()->warning(sprintf(
+                'Server clock is %d seconds %s the authorization server: token expiration checks are corrected, please synchronize the server clock (NTP)',
+                abs($offset),
+                $offset > 0 ? 'behind' : 'ahead of'
+            ));
+        }
     }
 
     /**

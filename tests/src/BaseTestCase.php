@@ -113,15 +113,14 @@ class BaseTestCase extends \PHPUnit\Framework\TestCase
     /**
      * @param \DateTimeImmutable|null $expiresAt
      * @param array $claims
+     * @param \DateTimeImmutable|null $issuedAt defaults to now
      *
      * @return Token
      */
-    public function makeJwtToken(\DateTimeImmutable $expiresAt = null, array $claims = [])
+    public function makeJwtToken(\DateTimeImmutable $expiresAt = null, array $claims = [], \DateTimeImmutable $issuedAt = null)
     {
-        $issuedAt = new \DateTimeImmutable();
-
         $builder = (new Builder())
-            ->issuedAt($issuedAt)
+            ->issuedAt($issuedAt ?: new \DateTimeImmutable())
             ->expiresAt($expiresAt);
 
         if (isset($claims['sub'])) {

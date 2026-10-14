@@ -513,4 +513,24 @@ class ConfigurationRepository
     {
         $this->configuration->set(ConfigurationKeys::PS_ACCOUNTS_TOKEN_EXPIRATION_LEEWAY, (string) $leeway);
     }
+
+    /**
+     * Seconds to add to the local clock to get the authorization server clock
+     *
+     * @return int
+     */
+    public function getClockOffset()
+    {
+        return (int) $this->configuration->get(ConfigurationKeys::PS_ACCOUNTS_CLOCK_OFFSET);
+    }
+
+    /**
+     * @param int $offset
+     *
+     * @return void
+     */
+    public function updateClockOffset($offset)
+    {
+        $this->configuration->set(ConfigurationKeys::PS_ACCOUNTS_CLOCK_OFFSET, (string) $offset);
+    }
 }

@@ -117,4 +117,66 @@ class TokenTest extends TestCase
     {
         $this->assertTrue((new Token('not-a-jwt', null, 60))->isExpired());
     }
+
+    /**
+     * Local clock 2 minutes behind (ACC-3611): the token expires in 90 s by the local
+     * clock but in 90 - 120 < 0 s by the authorization server clock.
+     *
+     * @test
+     */
+    public function itShouldBeExpiredWhenLocalClockIsBehind()
+    {
+        $jwt = $this->makeJwtToken(new \DateTimeImmutable('+90 seconds'));
+
+        $this->assertFalse((new Token((string) $jwt, null, 60))->isExpired());
+        $this->assertTrue((new Token((string) $jwt, null, 60, 120))->isExpired());
+    }
+
+    /**
+     * Local clock 2 hours ahead: a fresh 1 hour token looks expired by the local clock,
+     * which used to trigger a refresh loop.
+     *
+     * @test
+     */
+    public function itShouldNotBeExpiredWhenLocalClockIsAhead()
+    {
+        $jwt = $this->makeJwtToken(new \DateTimeImmutable('-1 hour'));
+
+        $this->assertTrue((new Token((string) $jwt, null, 60))->isExpired());
+        $this->assertFalse((new Token((string) $jwt, null, 60, -7200))->isExpired());
+    }
+
+    /**
+     * @test
+     */
+    public function itShouldBeExpiredWhenTokenStringIsEmptyEvenWithNegativeClockOffset()
+    {
+        $this->assertTrue((new Token('', null, 60, -86400))->isExpired());
+    }
+
+    /**
+     * @test
+     */
+    public function itShouldMeasureClockOffsetFromIssuedAt()
+    {
+        $jwt = $this->makeJwtToken(
+            new \DateTimeImmutable('+2 hours'),
+            [],
+            new \DateTimeImmutable('+120 seconds')
+        );
+
+        $offset = (new Token((string) $jwt))->measureClockOffset();
+
+        $this->assertGreaterThanOrEqual(119, $offset);
+        $this->assertLessThanOrEqual(120, $offset);
+    }
+
+    /**
+     * @test
+     */
+    public function itShouldNotMeasureClockOffsetOnInvalidToken()
+    {
+        $this->assertNull((new Token(''))->measureClockOffset());
+        $this->assertNull((new Token('not-a-jwt'))->measureClockOffset());
+    }
 }
