@@ -40,9 +40,21 @@ class TokenTest extends TestCase
     /**
      * @test
      */
-    public function itShouldNotBeExpiredWithinLeeway()
+    public function itShouldBeExpiredWhenExpiringWithinLeeway()
     {
-        $jwt = $this->makeJwtToken(new \DateTimeImmutable('-10 seconds'));
+        $jwt = $this->makeJwtToken(new \DateTimeImmutable('+10 seconds'));
+
+        $token = new Token((string) $jwt, null, 30);
+
+        $this->assertTrue($token->isExpired());
+    }
+
+    /**
+     * @test
+     */
+    public function itShouldNotBeExpiredWhenExpiringBeyondLeeway()
+    {
+        $jwt = $this->makeJwtToken(new \DateTimeImmutable('+60 seconds'));
 
         $token = new Token((string) $jwt, null, 30);
 
@@ -50,15 +62,32 @@ class TokenTest extends TestCase
     }
 
     /**
+     * ACC-3675: an expired token must never be reused, whatever the leeway.
+     *
      * @test
      */
-    public function itShouldStillBeExpiredBeyondLeeway()
+    public function itShouldBeExpiredAfterExpirationWithLeeway()
     {
-        $jwt = $this->makeJwtToken(new \DateTimeImmutable('-60 seconds'));
+        $jwt = $this->makeJwtToken(new \DateTimeImmutable('-5 seconds'));
 
-        $token = new Token((string) $jwt, null, 30);
+        $token = new Token((string) $jwt, null, 60);
 
         $this->assertTrue($token->isExpired());
+    }
+
+    /**
+     * Shop clock 58 minutes ahead of the auth server: a freshly issued 1 hour
+     * token is seen as expiring in 2 minutes and must not trigger a refresh loop.
+     *
+     * @test
+     */
+    public function itShouldNotBeExpiredWhenFreshTokenIsSeenFromShopClockAhead()
+    {
+        $jwt = $this->makeJwtToken(new \DateTimeImmutable('+2 minutes'));
+
+        $token = new Token((string) $jwt, null, 60);
+
+        $this->assertFalse($token->isExpired());
     }
 
     /**
