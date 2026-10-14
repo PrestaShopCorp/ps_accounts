@@ -46,7 +46,8 @@ class Token
     /**
      * @param string $token
      * @param string $refreshToken
-     * @param int $leeway tolerance in seconds applied to expiration check
+     * @param int $leeway seconds before expiration from which the token is
+     *                    considered expired, so that it is refreshed ahead of time
      */
     public function __construct($token, $refreshToken = null, $leeway = 0)
     {
@@ -78,7 +79,7 @@ class Token
     {
         $now = new \DateTime();
         if ($this->leeway > 0) {
-            $now = $now->modify('-' . $this->leeway . ' seconds');
+            $now = $now->modify('+' . $this->leeway . ' seconds');
         }
 
         return $this->getJwt()->isExpired($now);
