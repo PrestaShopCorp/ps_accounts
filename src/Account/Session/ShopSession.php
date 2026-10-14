@@ -162,8 +162,8 @@ class ShopSession extends Session implements SessionInterface
     }
 
     /**
-     * Measures the offset between the local clock and the authorization server clock on a
-     * freshly issued token, so that expiration checks rely on the authorization server time.
+     * Measures the local clock error against the authorization server on a freshly issued
+     * token, so that expiration checks of every session rely on the real time.
      *
      * @param Token $freshToken
      *

@@ -53,8 +53,8 @@ class Token
      * @param string $refreshToken
      * @param int $leeway seconds before expiration from which the token is
      *                    considered expired, so that it is refreshed ahead of time
-     * @param int $clockOffset seconds to add to the local clock to get the clock
-     *                         of the server that issued the token
+     * @param int $clockOffset seconds to add to the local clock to get the real time,
+     *                         see ConfigurationRepository::getClockOffset()
      */
     public function __construct($token, $refreshToken = null, $leeway = 0, $clockOffset = 0)
     {
