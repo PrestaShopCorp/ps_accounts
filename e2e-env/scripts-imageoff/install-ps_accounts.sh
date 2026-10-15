@@ -1,14 +1,16 @@
 set -eu
 cd "$(dirname $0)" || exit 1
 
-# Download and install the module's zip
+# Le zip du module : celui construit localement s'il est monté (flux PR,
+# on teste le code de la branche), sinon la release publiée (flux TNR).
+LOCAL_ZIP="/local-module/ps_accounts.zip"
 GITHUB_REPOSITORY="PrestaShopCorp/ps_accounts"
-TARGET_VERSION=${PS_ACCOUNTS_VERSION}
+TARGET_VERSION=${PS_ACCOUNTS_VERSION:-}
 
-if echo "$PS_ACCOUNTS_VERSION" | grep -q "beta"; then
-    CLEANED_VERSION="${PS_ACCOUNTS_VERSION%-beta*}" 
+if echo "$TARGET_VERSION" | grep -q "beta"; then
+    CLEANED_VERSION="${TARGET_VERSION%-beta*}"
 else
-    CLEANED_VERSION="${PS_ACCOUNTS_VERSION}" 
+    CLEANED_VERSION="${TARGET_VERSION}"
 fi
 
 TARGET_ASSET="ps_accounts_preprod-${CLEANED_VERSION#v}.zip"
@@ -17,10 +19,15 @@ TARGET_ASSET="ps_accounts_preprod-${CLEANED_VERSION#v}.zip"
 PS_ROOT="/var/www/html/${PHYSICAL_URI:-}"
 CHOWN_USER="www-data:www-data"
 
-# Download ps_accounts module
-echo "* [ps_accounts] downloading..."
-echo "https://github.com/${GITHUB_REPOSITORY}/releases/download/${TARGET_VERSION}/${TARGET_ASSET}"
-wget -q -O /tmp/ps_accounts.zip "https://github.com/${GITHUB_REPOSITORY}/releases/download/${TARGET_VERSION}/${TARGET_ASSET}"
+# Fetch ps_accounts module
+if [ -f "$LOCAL_ZIP" ]; then
+  echo "* [ps_accounts] using locally built zip [${LOCAL_ZIP}]"
+  cp "$LOCAL_ZIP" /tmp/ps_accounts.zip
+else
+  echo "* [ps_accounts] downloading..."
+  echo "https://github.com/${GITHUB_REPOSITORY}/releases/download/${TARGET_VERSION}/${TARGET_ASSET}"
+  wget -q -O /tmp/ps_accounts.zip "https://github.com/${GITHUB_REPOSITORY}/releases/download/${TARGET_VERSION}/${TARGET_ASSET}"
+fi
 
 # Unzip ps_accounts module
 echo "* [ps_accounts] unzipping..."
