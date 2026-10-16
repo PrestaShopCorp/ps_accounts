@@ -94,6 +94,38 @@ class GetValidTokenTest extends TestCase
         parent::tear_down();
 
         $this->shopSession->cleanup();
+        $this->configurationRepository->updateClockOffset(0);
+    }
+
+    /**
+     * A negative offset left in configuration (e.g. the clock was ahead, then resynchronized)
+     * must not keep an expired token.
+     *
+     * @test
+     */
+    public function itShouldRefreshExpiredTokenDespiteNegativeStoredClockOffset()
+    {
+        $this->configurationRepository->updateCachedShopStatus(json_encode((new CachedShopStatus([
+            'isValid' => true,
+            'updatedAt' => (new \DateTime())->format(\DateTime::ATOM),
+            'shopStatus' => new ShopStatus([
+                'cloudShopId' => $this->cloudShopId,
+                'isVerified' => true,
+            ])
+        ]))->toArray()));
+        $this->configurationRepository->updateClockOffset(-7200);
+
+        $this->shopSession->setToken((string) $this->makeJwtToken(new \DateTimeImmutable('-10 seconds'), [
+            'scp' => [
+                'shop.verified',
+            ],
+            'aud' => [
+                $this->module->getParameter('ps_accounts.token_audience') . '/',
+                'store/' . $this->cloudShopId,
+            ],
+        ]));
+
+        $this->assertEquals((string) $this->validAccessToken, (string) $this->shopSession->getValidToken());
     }
 
     /**

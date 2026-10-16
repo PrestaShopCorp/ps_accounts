@@ -32,10 +32,16 @@ use PrestaShop\Module\PsAccounts\Service\OAuth2\Resource\AccessToken;
 class ShopSession extends Session implements SessionInterface
 {
     /**
-     * Clock offsets below this value (in seconds) are measurement noise: "iat" is
-     * truncated to the second and the token reaches the shop after a network round trip.
+     * Clock offsets below this value (in seconds) are measurement noise ("iat" is
+     * truncated to the second) and stored as 0.
      */
-    const CLOCK_OFFSET_THRESHOLD = 5;
+    const CLOCK_OFFSET_DEAD_ZONE = 5;
+
+    /**
+     * The stored clock offset is only rewritten when it changes by at least this value
+     * (in seconds), larger than the dead zone so that a drift close to it does not flap.
+     */
+    const CLOCK_OFFSET_WRITE_THRESHOLD = 10;
 
     /**
      * Clock offsets beyond this value (in seconds) are considered bogus and ignored.
@@ -127,13 +133,18 @@ class ShopSession extends Session implements SessionInterface
     public function refreshToken($refreshToken = null, array $scope = [], array $audience = [])
     {
         try {
+            $requestedAt = microtime(true);
             $accessToken = $this->getAccessToken($scope, $audience);
-
-            $this->updateClockOffset(new Token($accessToken->access_token));
+            $receivedAt = microtime(true);
 
             $this->setToken(
                 $accessToken->access_token,
                 $accessToken->refresh_token
+            );
+
+            $this->updateClockOffset(
+                new Token($accessToken->access_token),
+                ($requestedAt + $receivedAt) / 2
             );
 
             $token = $this->getToken();
@@ -162,36 +173,46 @@ class ShopSession extends Session implements SessionInterface
     }
 
     /**
-     * Measures the local clock error against the authorization server on a freshly issued
-     * token, so that expiration checks of every session rely on the real time.
+     * Measures how far the local clock is behind the authorization server on a freshly
+     * issued token, so that the shop token is refreshed before its real expiration.
+     *
+     * A clock ahead is not corrected: it only makes the token refresh earlier, while a
+     * negative offset left stale by a clock resynchronization would keep expired tokens.
+     * A stale positive offset heals itself: it triggers an early refresh, which measures again.
+     *
+     * The measurement is a side task: it never makes the refresh fail.
      *
      * @param Token $freshToken
+     * @param float $referenceTime local time at which the token is considered issued
      *
      * @return void
      */
-    protected function updateClockOffset(Token $freshToken)
+    protected function updateClockOffset(Token $freshToken, $referenceTime)
     {
-        $offset = $freshToken->measureClockOffset();
-        if (null === $offset || abs($offset) > self::CLOCK_OFFSET_MAX) {
-            return;
-        }
+        try {
+            $offset = $freshToken->measureClockOffset($referenceTime);
+            if (null === $offset || $offset > self::CLOCK_OFFSET_MAX) {
+                return;
+            }
 
-        if (abs($offset) < self::CLOCK_OFFSET_THRESHOLD) {
-            $offset = 0;
-        }
+            if ($offset < self::CLOCK_OFFSET_DEAD_ZONE) {
+                $offset = 0;
+            }
 
-        if (abs($offset - $this->configurationRepository->getClockOffset()) < self::CLOCK_OFFSET_THRESHOLD) {
-            return;
-        }
+            if (abs($offset - $this->configurationRepository->getClockOffset()) < self::CLOCK_OFFSET_WRITE_THRESHOLD) {
+                return;
+            }
 
-        $this->configurationRepository->updateClockOffset($offset);
+            $this->configurationRepository->updateClockOffset($offset);
 
-        if (0 !== $offset) {
-            Logger::getInstance()->warning(sprintf(
-                'Server clock is %d seconds %s the authorization server: token expiration checks are corrected, please synchronize the server clock (NTP)',
-                abs($offset),
-                $offset > 0 ? 'behind' : 'ahead of'
-            ));
+            if (0 !== $offset) {
+                Logger::getInstance()->error(sprintf(
+                    'Server clock is %d seconds behind the authorization server: token expiration checks are corrected, please synchronize the server clock (NTP)',
+                    $offset
+                ));
+            }
+        } catch (\Exception $e) {
+        } catch (\Throwable $e) {
         }
     }
 

@@ -133,24 +133,16 @@ class TokenTest extends TestCase
     }
 
     /**
-     * Local clock 2 hours ahead: a fresh 1 hour token looks expired by the local clock,
-     * which used to trigger a refresh loop.
+     * A negative offset, e.g. left stale after a clock resynchronization, must never
+     * keep an expired token.
      *
      * @test
      */
-    public function itShouldNotBeExpiredWhenLocalClockIsAhead()
+    public function itShouldIgnoreNegativeClockOffset()
     {
-        $jwt = $this->makeJwtToken(new \DateTimeImmutable('-1 hour'));
+        $jwt = $this->makeJwtToken(new \DateTimeImmutable('-10 seconds'));
 
-        $this->assertTrue((new Token((string) $jwt, null, 60))->isExpired());
-        $this->assertFalse((new Token((string) $jwt, null, 60, -7200))->isExpired());
-    }
-
-    /**
-     * @test
-     */
-    public function itShouldBeExpiredWhenTokenStringIsEmptyEvenWithNegativeClockOffset()
-    {
+        $this->assertTrue((new Token((string) $jwt, null, 60, -7200))->isExpired());
         $this->assertTrue((new Token('', null, 60, -86400))->isExpired());
     }
 
@@ -159,16 +151,15 @@ class TokenTest extends TestCase
      */
     public function itShouldMeasureClockOffsetFromIssuedAt()
     {
+        $now = time();
         $jwt = $this->makeJwtToken(
             new \DateTimeImmutable('+2 hours'),
             [],
-            new \DateTimeImmutable('+120 seconds')
+            new \DateTimeImmutable('@' . ($now + 120))
         );
 
-        $offset = (new Token((string) $jwt))->measureClockOffset();
-
-        $this->assertGreaterThanOrEqual(119, $offset);
-        $this->assertLessThanOrEqual(120, $offset);
+        $this->assertSame(120, (new Token((string) $jwt))->measureClockOffset($now));
+        $this->assertSame(118, (new Token((string) $jwt))->measureClockOffset($now + 2.4));
     }
 
     /**

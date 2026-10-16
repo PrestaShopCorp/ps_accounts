@@ -53,8 +53,8 @@ class Token
      * @param string $refreshToken
      * @param int $leeway seconds before expiration from which the token is
      *                    considered expired, so that it is refreshed ahead of time
-     * @param int $clockOffset seconds to add to the local clock to get the real time,
-     *                         see ConfigurationRepository::getClockOffset()
+     * @param int $clockOffset seconds the local clock is behind the server that issued
+     *                         the token, negative values are ignored
      */
     public function __construct($token, $refreshToken = null, $leeway = 0, $clockOffset = 0)
     {
@@ -85,11 +85,11 @@ class Token
      */
     public function isExpired()
     {
-        $shift = max(0, $this->leeway) + $this->clockOffset;
+        $shift = max(0, $this->leeway) + max(0, $this->clockOffset);
 
         $now = new \DateTime();
-        if ($shift !== 0) {
-            $now = $now->modify(sprintf('%+d seconds', $shift));
+        if ($shift > 0) {
+            $now = $now->modify('+' . $shift . ' seconds');
         }
 
         return $this->getJwt()->isExpired($now);
@@ -99,9 +99,12 @@ class Token
      * Offset between the clock of the server that issued the token and the local clock,
      * read from the "iat" claim: only meaningful right after the token has been issued.
      *
+     * @param float|null $referenceTime local time at which the token is considered issued,
+     *                                  ideally the midpoint of the token request; defaults to now
+     *
      * @return int|null seconds to add to the local clock, null when unknown
      */
-    public function measureClockOffset()
+    public function measureClockOffset($referenceTime = null)
     {
         $jwt = $this->getJwt();
         if ($jwt instanceof NullToken || !$jwt->claims()->has('iat')) {
@@ -113,7 +116,7 @@ class Token
             $issuedAt = $issuedAt->getTimestamp();
         }
 
-        return (int) $issuedAt - time();
+        return (int) round($issuedAt - (null === $referenceTime ? microtime(true) : $referenceTime));
     }
 
     /**

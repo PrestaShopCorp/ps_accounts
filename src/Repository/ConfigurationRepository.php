@@ -515,9 +515,8 @@ class ConfigurationRepository
     }
 
     /**
-     * Error of the local clock, in seconds to add to it to get the real time. Measured against
-     * the authorization server, it applies to every token issuer (Hydra, Firebase): they are all
-     * NTP-synchronized, so they differ by milliseconds while a shop clock can drift by minutes.
+     * Seconds the local clock is behind the authorization server, measured on each shop token
+     * refresh (0 when the clock is on time or ahead)
      *
      * @return int
      */

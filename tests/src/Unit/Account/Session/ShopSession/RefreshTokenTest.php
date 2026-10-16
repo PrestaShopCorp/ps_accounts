@@ -5,6 +5,7 @@ namespace PrestaShop\Module\PsAccounts\Tests\Unit\Account\Session\ShopSession;
 use PrestaShop\Module\PsAccounts\Account\StatusManager;
 use PrestaShop\Module\PsAccounts\Account\Session\ShopSession;
 use PrestaShop\Module\PsAccounts\Account\Token\Token;
+use PrestaShop\Module\PsAccounts\Repository\ConfigurationRepository;
 use PrestaShop\Module\PsAccounts\Service\OAuth2\Resource\AccessToken;
 use PrestaShop\Module\PsAccounts\Service\OAuth2\OAuth2Service;
 use PrestaShop\Module\PsAccounts\Cqrs\CommandBus;
@@ -145,6 +146,84 @@ class RefreshTokenTest extends TestCase
         $this->makeShopSession($accessToken)->refreshToken();
 
         $this->assertSame(0, $this->configurationRepository->getClockOffset());
+    }
+
+    /**
+     * Local clock 2 hours ahead: not corrected, a negative offset could go stale.
+     *
+     * @test
+     */
+    public function itShouldNotCorrectLocalClockAhead()
+    {
+        $this->configurationRepository->updateClockOffset(120);
+        $accessToken = $this->makeJwtToken(
+            new \DateTimeImmutable('-1 hour'),
+            [],
+            new \DateTimeImmutable('-2 hours')
+        );
+
+        $this->makeShopSession($accessToken)->refreshToken();
+
+        $this->assertSame(0, $this->configurationRepository->getClockOffset());
+    }
+
+    /**
+     * @test
+     */
+    public function itShouldNotRewriteClockOffsetWithinWriteThreshold()
+    {
+        $this->configurationRepository->updateClockOffset(120);
+        $this->makeShopSession($this->makeJwtToken(
+            new \DateTimeImmutable('+2 hours'),
+            [],
+            new \DateTimeImmutable('+115 seconds')
+        ))->refreshToken();
+
+        $this->assertSame(120, $this->configurationRepository->getClockOffset());
+
+        $this->configurationRepository->updateClockOffset(0);
+        $this->makeShopSession($this->makeJwtToken(
+            new \DateTimeImmutable('+2 hours'),
+            [],
+            new \DateTimeImmutable('+7 seconds')
+        ))->refreshToken();
+
+        $this->assertSame(0, $this->configurationRepository->getClockOffset());
+    }
+
+    /**
+     * @test
+     */
+    public function itShouldNotFailRefreshWhenClockOffsetCannotBeStored()
+    {
+        $accessToken = $this->makeJwtToken(
+            new \DateTimeImmutable('+2 hours'),
+            [],
+            new \DateTimeImmutable('+300 seconds')
+        );
+
+        $configurationRepository = $this->createMock(ConfigurationRepository::class);
+        $configurationRepository->method('getClockOffset')->willReturn(0);
+        $configurationRepository->method('updateClockOffset')
+            ->willThrowException(new \Exception('Unable to write configuration'));
+        $configurationRepository->expects($this->once())
+            ->method('updateAccessToken')
+            ->with((string) $accessToken);
+        $configurationRepository->method('getAccessToken')->willReturn((string) $accessToken);
+
+        $oAuth2Service = $this->createMock(OAuth2Service::class);
+        $oAuth2Service->method('getAccessTokenByClientCredentials')
+            ->willReturn(new AccessToken([
+                'access_token' => (string) $accessToken,
+            ]));
+
+        $shopSession = new ShopSession(
+            $configurationRepository,
+            $oAuth2Service,
+            $this->module->getParameter('ps_accounts.accounts_api_url')
+        );
+
+        $this->assertInstanceOf(Token::class, $shopSession->refreshToken());
     }
 
     /**
