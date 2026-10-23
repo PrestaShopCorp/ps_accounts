@@ -23,6 +23,7 @@ namespace PrestaShop\Module\PsAccounts\Account\Session;
 use PrestaShop\Module\PsAccounts\Account\Exception\RefreshTokenException;
 use PrestaShop\Module\PsAccounts\Account\Token\Token;
 use PrestaShop\Module\PsAccounts\Hook\ActionShopAccessTokenRefreshAfter;
+use PrestaShop\Module\PsAccounts\Log\Logger;
 use PrestaShop\Module\PsAccounts\Repository\ConfigurationRepository;
 use PrestaShop\Module\PsAccounts\Service\OAuth2\OAuth2Exception;
 use PrestaShop\Module\PsAccounts\Service\OAuth2\OAuth2Service;
@@ -30,6 +31,23 @@ use PrestaShop\Module\PsAccounts\Service\OAuth2\Resource\AccessToken;
 
 class ShopSession extends Session implements SessionInterface
 {
+    /**
+     * Clock offsets below this value (in seconds) are measurement noise ("iat" is
+     * truncated to the second) and stored as 0.
+     */
+    const CLOCK_OFFSET_DEAD_ZONE = 5;
+
+    /**
+     * The stored clock offset is only rewritten when it changes by at least this value
+     * (in seconds), larger than the dead zone so that a drift close to it does not flap.
+     */
+    const CLOCK_OFFSET_WRITE_THRESHOLD = 10;
+
+    /**
+     * Clock offsets beyond this value (in seconds) are considered bogus and ignored.
+     */
+    const CLOCK_OFFSET_MAX = 86400;
+
     /**
      * @var ConfigurationRepository
      */
@@ -115,11 +133,18 @@ class ShopSession extends Session implements SessionInterface
     public function refreshToken($refreshToken = null, array $scope = [], array $audience = [])
     {
         try {
+            $requestedAt = microtime(true);
             $accessToken = $this->getAccessToken($scope, $audience);
+            $receivedAt = microtime(true);
 
             $this->setToken(
                 $accessToken->access_token,
                 $accessToken->refresh_token
+            );
+
+            $this->updateClockOffset(
+                new Token($accessToken->access_token),
+                ($requestedAt + $receivedAt) / 2
             );
 
             $token = $this->getToken();
@@ -142,8 +167,53 @@ class ShopSession extends Session implements SessionInterface
         return new Token(
             $this->configurationRepository->getAccessToken(),
             null,
-            $this->resolveTokenExpirationLeeway()
+            $this->resolveTokenExpirationLeeway(),
+            $this->configurationRepository->getClockOffset()
         );
+    }
+
+    /**
+     * Measures how far the local clock is behind the authorization server on a freshly
+     * issued token, so that the shop token is refreshed before its real expiration.
+     *
+     * A clock ahead is not corrected: it only makes the token refresh earlier, while a
+     * negative offset left stale by a clock resynchronization would keep expired tokens.
+     * A stale positive offset heals itself: it triggers an early refresh, which measures again.
+     *
+     * The measurement is a side task: it never makes the refresh fail.
+     *
+     * @param Token $freshToken
+     * @param float $referenceTime local time at which the token is considered issued
+     *
+     * @return void
+     */
+    protected function updateClockOffset(Token $freshToken, $referenceTime)
+    {
+        try {
+            $offset = $freshToken->measureClockOffset($referenceTime);
+            if (null === $offset || $offset > self::CLOCK_OFFSET_MAX) {
+                return;
+            }
+
+            if ($offset < self::CLOCK_OFFSET_DEAD_ZONE) {
+                $offset = 0;
+            }
+
+            if (abs($offset - $this->configurationRepository->getClockOffset()) < self::CLOCK_OFFSET_WRITE_THRESHOLD) {
+                return;
+            }
+
+            $this->configurationRepository->updateClockOffset($offset);
+
+            if (0 !== $offset) {
+                Logger::getInstance()->error(sprintf(
+                    'Server clock is %d seconds behind the authorization server: token expiration checks are corrected, please synchronize the server clock (NTP)',
+                    $offset
+                ));
+            }
+        } catch (\Exception $e) {
+        } catch (\Throwable $e) {
+        }
     }
 
     /**
