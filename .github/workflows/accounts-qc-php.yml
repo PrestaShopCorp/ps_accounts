@@ -56,6 +56,10 @@ jobs:
         run: |
           make header-stamp-test
 
+      - name: upgrade script
+        run: |
+          sh ./scripts/check-upgrade-script.sh
+
   phpunit:
     name: Testsuite for Prestashop ${{ matrix.presta-versions }}
     runs-on: ubuntu-latest

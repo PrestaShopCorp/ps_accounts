@@ -45,6 +45,12 @@ jobs:
         run: |
           echo "version=$(echo "${{ github.event.release.tag_name }}" | sed 's/^v//' | cut -d'-' -f1)" >> "$GITHUB_OUTPUT"
 
+      # Before `make version` rewrites the version: the tagged commit must already
+      # carry the bump and its upgrade script, or upgraded shops keep a stale
+      # PS_ACCOUNTS_LAST_UPGRADE and show the reset banner (ACC-3701, 8.0.19).
+      - name: Check upgrade script
+        run: sh ./scripts/check-upgrade-script.sh ${{ steps.set_version.outputs.version }}
+
       - name: Bump version
         run: |
           VERSION=${{ steps.set_version.outputs.version }} \
