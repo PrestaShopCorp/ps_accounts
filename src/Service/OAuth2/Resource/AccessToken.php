@@ -67,7 +67,8 @@ class AccessToken extends Resource
     public function __construct(array $data = [])
     {
         if (isset($data['expires_in']) && !isset($data['expires'])) {
-            $data['expires'] = time() + (int) $data['expires_in'];
+            $dt = new \DateTime('+' . $data['expires_in'] . ' seconds');
+            $data['expires'] = $dt->getTimestamp();
         }
         parent::__construct($data);
     }
