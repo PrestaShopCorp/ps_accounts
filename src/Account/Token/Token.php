@@ -77,12 +77,25 @@ class Token
      */
     public function isExpired()
     {
-        $now = new \DateTime();
+        return $this->isExpiredAt(time());
+    }
+
+    /**
+     * Computed on Unix timestamps: DateTime::modify() on a local time adds
+     * one more hour during the DST fall-back.
+     *
+     * @param int $time Unix timestamp
+     *
+     * @return bool
+     */
+    public function isExpiredAt($time)
+    {
+        $time = (int) $time;
         if ($this->leeway > 0) {
-            $now = $now->modify('+' . $this->leeway . ' seconds');
+            $time += $this->leeway;
         }
 
-        return $this->getJwt()->isExpired($now);
+        return $this->getJwt()->isExpired(new \DateTime('@' . $time));
     }
 
     /**

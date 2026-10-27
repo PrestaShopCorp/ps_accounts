@@ -117,4 +117,45 @@ class TokenTest extends TestCase
     {
         $this->assertTrue((new Token('not-a-jwt', null, 60))->isExpired());
     }
+
+    /**
+     * Instants in the repeated hour of the Europe/Paris DST fall-back
+     * (2026-10-25 02:00-03:00 CEST): DateTime::modify('+60 seconds') on a
+     * local time used to add 3660 seconds (PHP < 8.1 for the whole hour,
+     * PHP >= 8.1 during its last minute).
+     *
+     * @return array
+     */
+    public function dstFallBackInstants()
+    {
+        return [
+            'middle of the repeated hour' => ['2026-10-25T00:30:00Z'],
+            'last minute of the repeated hour' => ['2026-10-25T00:59:30Z'],
+        ];
+    }
+
+    /**
+     * @test
+     *
+     * @dataProvider dstFallBackInstants
+     *
+     * @param string $instant
+     */
+    public function itShouldApplyLeewayInElapsedSecondsAcrossDstFallBack($instant)
+    {
+        $timezone = date_default_timezone_get();
+        date_default_timezone_set('Europe/Paris');
+
+        try {
+            $time = strtotime($instant);
+
+            $freshJwt = $this->makeJwtToken(new \DateTimeImmutable('@' . ($time + 120)));
+            $this->assertFalse((new Token((string) $freshJwt, null, 60))->isExpiredAt($time));
+
+            $expiringJwt = $this->makeJwtToken(new \DateTimeImmutable('@' . ($time + 30)));
+            $this->assertTrue((new Token((string) $expiringJwt, null, 60))->isExpiredAt($time));
+        } finally {
+            date_default_timezone_set($timezone);
+        }
+    }
 }

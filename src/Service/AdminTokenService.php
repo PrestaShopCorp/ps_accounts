@@ -33,11 +33,11 @@ class AdminTokenService
             InMemory::plainText($signature)
         );
 
-        $issuedAt = new \DateTimeImmutable();
+        $now = time();
 
         $builder = (new Builder())
-            ->issuedAt($issuedAt)
-            ->expiresAt($issuedAt->modify('+1 hour'));
+            ->issuedAt(new \DateTimeImmutable('@' . $now))
+            ->expiresAt(new \DateTimeImmutable('@' . ($now + 3600)));
 
         return $builder->getToken(
             $configuration->signer(),
