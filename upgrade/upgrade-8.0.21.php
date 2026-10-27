@@ -9,7 +9,7 @@
  * AdminLoginController (e.g. 2FA / back-office security modules) is bypassed.
  * This tab is re-created by PrestaShop's module tab auto-registration as long
  * as controllers/admin/AdminLoginController.php ships with the module
- * (see the FIXME in upgrade-7.0.0.php).
+ * (see the comment in upgrade-7.0.0.php).
  *
  * @param Ps_accounts $module
  *
