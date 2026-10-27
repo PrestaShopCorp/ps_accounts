@@ -149,11 +149,21 @@ class TokenTest extends TestCase
         try {
             $time = strtotime($instant);
 
-            $freshJwt = $this->makeJwtToken(new \DateTimeImmutable('@' . ($time + 120)));
-            $this->assertFalse((new Token((string) $freshJwt, null, 60))->isExpiredAt($time));
+            $freshToken = new TokenTestClass(
+                (string) $this->makeJwtToken(new \DateTimeImmutable('@' . ($time + 120))),
+                null,
+                60
+            );
+            $freshToken->currentTime = $time;
+            $this->assertFalse($freshToken->isExpired());
 
-            $expiringJwt = $this->makeJwtToken(new \DateTimeImmutable('@' . ($time + 30)));
-            $this->assertTrue((new Token((string) $expiringJwt, null, 60))->isExpiredAt($time));
+            $expiringToken = new TokenTestClass(
+                (string) $this->makeJwtToken(new \DateTimeImmutable('@' . ($time + 30))),
+                null,
+                60
+            );
+            $expiringToken->currentTime = $time;
+            $this->assertTrue($expiringToken->isExpired());
         } finally {
             date_default_timezone_set($timezone);
         }

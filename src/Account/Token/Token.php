@@ -77,25 +77,11 @@ class Token
      */
     public function isExpired()
     {
-        return $this->isExpiredAt(time());
-    }
-
-    /**
-     * Computed on Unix timestamps: DateTime::modify() on a local time adds
-     * one more hour during the DST fall-back.
-     *
-     * @param int $time Unix timestamp
-     *
-     * @return bool
-     */
-    public function isExpiredAt($time)
-    {
-        $time = (int) $time;
-        if ($this->leeway > 0) {
-            $time += $this->leeway;
-        }
-
-        return $this->getJwt()->isExpired(new \DateTime('@' . $time));
+        // Computed on Unix timestamps: DateTime::modify() on a local time
+        // adds one more hour during the DST fall-back.
+        return $this->getJwt()->isExpired(
+            new \DateTime('@' . ($this->getCurrentTime() + max(0, $this->leeway)))
+        );
     }
 
     /**
@@ -212,5 +198,13 @@ class Token
     {
         //return new \Lcobucci\JWT\Token([], ['exp' => new \DateTime()]);
         return new NullToken([], ['exp' => new \DateTime('@0')]);
+    }
+
+    /**
+     * @return int Unix timestamp
+     */
+    protected function getCurrentTime()
+    {
+        return time();
     }
 }
