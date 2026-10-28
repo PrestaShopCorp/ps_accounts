@@ -74,6 +74,7 @@ npm-debug.log*
 /e2e/test/reports/*
 /e2e/playwright-report
 .DS_Store
+._*
 /e2e/*.png
 /.act
 /e2e/tests/Debug/
