@@ -26,7 +26,7 @@ les sessions shop/owner. Il est consommé par d'autres modules via `PsAccountsSe
 | Entrée reçue | Mode | Diff à reviewer | Sortie |
 |---|---|---|---|
 | Un numéro de PR (+ éventuellement un SHA de review précédente) | `PR` | `gh pr diff <n>`, ou `git diff <sha>..HEAD` en re-review | `gh pr review --comment` (§7) |
-| Rien, ou un nom de branche | `LOCAL` | `git diff main...HEAD` (+ modifications non commitées) | réponse dans le chat (§8) |
+| Rien, ou un nom de branche | `LOCAL` | `git fetch origin main` puis `git diff origin/main...<branche>` ; sans argument, `git diff origin/main...HEAD` + modifications non commitées | réponse dans le chat (§8) |
 
 Arrête-toi si le diff est vide.
 
@@ -80,14 +80,20 @@ décrit un enchaînement rare ou une seule version de PS. La question n'est pas 
 supportée, et si oui l'état résultant est-il récupérable ? ». Si tu n'as pas pu lire un
 fichier nécessaire, dis-le dans le finding au lieu de deviner ou de te taire.
 
-**Tout finding CRITIQUE ou MAJEUR porte une ligne `Scénario :`** — version PS/PHP + entrées /
-état initial → enchaînement → état final faux, avec les `fichier:ligne` traversés. Un finding
-sans scénario atteignable n'est pas un CRITIQUE ni un MAJEUR : reclasse-le ou supprime-le.
+**Tout bug classé CRITIQUE ou MAJEUR porte une ligne `Scénario :`** — version PS/PHP +
+entrées / état initial → enchaînement → état final faux, avec les `fichier:ligne` traversés.
+Un bug sans scénario atteignable n'est pas un CRITIQUE ni un MAJEUR : reclasse-le ou
+supprime-le.
+
+Les **findings de règle** — zone restreinte, BC break, vendor non scopé, syntaxe PHP 7+,
+périmètre, convention, test manquant — n'ont pas de scénario d'échec par nature : ils portent
+une ligne `Règle :` citant la règle violée (`CLAUDE.md` §x, critère ou point de checklist) à
+la place. N'invente pas de pseudo-scénario pour eux.
 
 ## 4. Critères de review (par priorité)
 
 1. **ZONES RESTREINTES** — `CLAUDE.md` §5 : `src/Service/OAuth2/`, `src/Account/Session/`,
-   `sql/`, `upgrade/`, `src/Service/PsAccountsService.php`, `config/prod/`, vendors scopés
+   `sql/`, `upgrade/`, `src/Service/PsAccountsService.php`, vendors scopés
    (`vendor/`, `dist/`). Modifiée sans justification dans la description → CRITIQUE.
    Modifiée avec justification → section « Revue humaine requise ».
 2. **COMPATIBILITÉ** — la checklist du §5, sur tout diff touchant du PHP.
@@ -187,7 +193,7 @@ une seule phrase de 700 caractères dépasse.
 |---|---|
 | `**Verdict**` | 1 ligne |
 | `**Scope**` | 200 car. — zones touchées (ou plage de commits), rien de plus |
-| Un finding `### [NIVEAU]` | 500 car., ligne `Scénario :` et bloc ` ```diff ` (6 lignes max) inclus |
+| Un finding `### [NIVEAU]` | 500 car., ligne `Scénario :` (ou `Règle :`) et bloc ` ```diff ` (6 lignes max) inclus |
 | `### Remarques precedentes` | 1 ligne par item : statut + `[NIVEAU]` + titre SANS suffixe `file:line`, zéro justification (200 car.). EXCEPTION : un `☐` CRITIQUE ou MAJEUR encore ouvert garde `file:line` + 1 ligne rappelant le fix attendu (300 car. de plus) — le body doit rester actionnable seul |
 | `### Revue humaine requise` | 400 car. ; en re-review, 1 ligne si inchangée |
 | `### Resume` | le tableau seul |
@@ -196,7 +202,7 @@ une seule phrase de 700 caractères dépasse.
 plafonds par section : 15 findings à 500 car. le dépassent, donc plus il y a de findings,
 plus chacun doit être court. S'il est atteint, coupe dans cet ordre : les SUGGESTION, puis
 les MINEUR, puis les justifications des findings restants. Ne sacrifie **jamais** un
-CRITIQUE, un MAJEUR, sa ligne `Scénario :`, le tableau `### Resume`, le footer ou la balise.
+CRITIQUE, un MAJEUR, sa ligne `Scénario :` ou `Règle :`, le tableau `### Resume`, le footer ou la balise.
 
 Aucune autre section : pas d'intro, pas de conclusion, pas de transition. EXCEPTION — ce ne
 sont pas des conclusions, ne les supprime jamais : le footer du template (re-review via
@@ -207,7 +213,7 @@ La balise pilote le comptage des reviews : sans elle, le quota et la re-review s
 → « X est faux (Z) ») ; 2. coupe les aveux (« j'ai vérifié que… ») sauf le flag du critère 9 ;
 3. montre le fix dans le bloc ` ```diff ` au lieu de le décrire ; 4. références entre
 parenthèses (`(CLAUDE.md §4)`), jamais dans une phrase dédiée ; 5. ne répète pas un fait déjà
-posé ailleurs. La ligne `Scénario :` n'est pas du raisonnement à couper : c'est la preuve du
+posé ailleurs. Les lignes `Scénario :` et `Règle :` ne sont pas du raisonnement à couper : c'est la preuve du
 finding.
 
 ## 7. Sortie — mode `PR`

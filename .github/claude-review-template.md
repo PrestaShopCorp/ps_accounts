@@ -18,7 +18,7 @@
   - Checklists : `☐` / `☑`
 - Chaque issue a son propre heading `###` suivi d'un separateur `---`.
 - **Description compacte** : voir la section `### Limite par section (OBLIGATOIRE)` de `.claude/agents/code-review.md` — source unique de la regle.
-- Tout finding CRITIQUE ou MAJEUR porte une ligne `Scenario :` (version PS/PHP + etat initial → enchainement → etat final faux). Voir le paragraphe 3 de l'agent.
+- Tout bug CRITIQUE ou MAJEUR porte une ligne `Scenario :` (version PS/PHP + etat initial → enchainement → etat final faux) ; un finding de regle (zone restreinte, BC break, convention, perimetre, test manquant) porte une ligne `Regle :` a la place. Voir le paragraphe 3 de l'agent.
 - Le chemin du fichier peut etre inline dans le heading (`### [NIVEAU] Titre — \`file:line\``) ou sur une ligne `**Fichier** :` separee.
 - Quand c'est pertinent, proposer un fix concret dans un bloc ` ```diff `.
 - Le tableau recapitulatif est **toujours** present en fin de review.
@@ -57,9 +57,9 @@ Scenario : PS/PHP concernes, etat initial → enchainement (avec les `fichier:li
 
 ### [MAJEUR] Titre court — `chemin/fichier.ext:ligne`
 
-≤ 500 car., ligne `Scenario` et bloc `diff` inclus — reference de convention entre parentheses (`CLAUDE.md` §3).
+≤ 500 car., ligne `Scenario` (ou `Regle`) et bloc `diff` inclus.
 
-Scenario : idem — obligatoire aussi en MAJEUR.
+Scenario : idem pour un bug — ou, pour un finding de regle : `Regle : CLAUDE.md §3 — nommage des handlers`.
 
 ---
 

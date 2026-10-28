@@ -143,7 +143,9 @@ jobs:
             format et action finale). Ce prompt ne fournit que le contexte d'execution ci-dessous.
             En cas de divergence entre ce prompt et l'agent, l'agent gagne.
             Si le fichier est absent (branche partie de `main` avant son introduction),
-            lis-le sur main : `git show origin/main:.claude/agents/code-review.md`.
+            lis-le sur main : `git show origin/main:.claude/agents/code-review.md`, et lis
+            aussi le gabarit sur main (`git show origin/main:.github/claude-review-template.md`)
+            au lieu de celui du checkout, qui serait l'ancienne version.
 
             Tu tournes en **mode PR** au sens du paragraphe 1 de l'agent.
 
