@@ -44,15 +44,24 @@ class Token
     private $leeway;
 
     /**
+     * @var int
+     */
+    private $clockOffset;
+
+    /**
      * @param string $token
      * @param string $refreshToken
-     * @param int $leeway tolerance in seconds applied to expiration check
+     * @param int $leeway seconds before expiration from which the token is
+     *                    considered expired, so that it is refreshed ahead of time
+     * @param int $clockOffset seconds the local clock is behind the server that issued
+     *                         the token, negative values are ignored
      */
-    public function __construct($token, $refreshToken = null, $leeway = 0)
+    public function __construct($token, $refreshToken = null, $leeway = 0, $clockOffset = 0)
     {
         $this->token = $token;
         $this->refreshToken = $refreshToken;
         $this->leeway = (int) $leeway;
+        $this->clockOffset = (int) $clockOffset;
     }
 
     /**
@@ -76,12 +85,38 @@ class Token
      */
     public function isExpired()
     {
+        $shift = max(0, $this->leeway) + max(0, $this->clockOffset);
+
         $now = new \DateTime();
-        if ($this->leeway > 0) {
-            $now = $now->modify('-' . $this->leeway . ' seconds');
+        if ($shift > 0) {
+            $now = $now->modify('+' . $shift . ' seconds');
         }
 
         return $this->getJwt()->isExpired($now);
+    }
+
+    /**
+     * Offset between the clock of the server that issued the token and the local clock,
+     * read from the "iat" claim: only meaningful right after the token has been issued.
+     *
+     * @param float|null $referenceTime local time at which the token is considered issued,
+     *                                  ideally the midpoint of the token request; defaults to now
+     *
+     * @return int|null seconds to add to the local clock, null when unknown
+     */
+    public function measureClockOffset($referenceTime = null)
+    {
+        $jwt = $this->getJwt();
+        if ($jwt instanceof NullToken || !$jwt->claims()->has('iat')) {
+            return null;
+        }
+
+        $issuedAt = $jwt->claims()->get('iat');
+        if ($issuedAt instanceof \DateTimeInterface) {
+            $issuedAt = $issuedAt->getTimestamp();
+        }
+
+        return (int) round($issuedAt - (null === $referenceTime ? microtime(true) : $referenceTime));
     }
 
     /**

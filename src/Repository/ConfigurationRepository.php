@@ -513,4 +513,25 @@ class ConfigurationRepository
     {
         $this->configuration->set(ConfigurationKeys::PS_ACCOUNTS_TOKEN_EXPIRATION_LEEWAY, (string) $leeway);
     }
+
+    /**
+     * Seconds the local clock is behind the authorization server, measured on each shop token
+     * refresh (0 when the clock is on time or ahead)
+     *
+     * @return int
+     */
+    public function getClockOffset()
+    {
+        return (int) $this->configuration->get(ConfigurationKeys::PS_ACCOUNTS_CLOCK_OFFSET);
+    }
+
+    /**
+     * @param int $offset
+     *
+     * @return void
+     */
+    public function updateClockOffset($offset)
+    {
+        $this->configuration->set(ConfigurationKeys::PS_ACCOUNTS_CLOCK_OFFSET, (string) $offset);
+    }
 }
