@@ -87,12 +87,9 @@ class Token
     {
         $shift = max(0, $this->leeway) + max(0, $this->clockOffset);
 
-        $now = new \DateTime();
-        if ($shift > 0) {
-            $now = $now->modify('+' . $shift . ' seconds');
-        }
-
-        return $this->getJwt()->isExpired($now);
+        // Computed on Unix timestamps: DateTime::modify() on a local time
+        // adds one more hour during the DST fall-back.
+        return $this->getJwt()->isExpired(new \DateTime('@' . ($this->getCurrentTime() + $shift)));
     }
 
     /**
@@ -233,5 +230,13 @@ class Token
     {
         //return new \Lcobucci\JWT\Token([], ['exp' => new \DateTime()]);
         return new NullToken([], ['exp' => new \DateTime('@0')]);
+    }
+
+    /**
+     * @return int Unix timestamp
+     */
+    protected function getCurrentTime()
+    {
+        return time();
     }
 }
