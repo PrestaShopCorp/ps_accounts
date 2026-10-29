@@ -44,9 +44,10 @@
 
 ### [CRITIQUE] Titre court — `chemin/fichier.ext:ligne`
 
-≤ 500 car., ligne `Scenario` et bloc `diff` inclus — le probleme et la correction attendue.
+≤ 500 car., ligne `Scenario` (ou `Regle`) et bloc `diff` inclus — le probleme et la correction attendue.
 
 Scenario : PS/PHP concernes, etat initial → enchainement (avec les `fichier:ligne` traverses) → etat final faux.
+— ou, pour un finding de regle : `Regle : CLAUDE.md §4 — syntaxe PHP 5.6 dans src/`.
 
 ```diff
 - ancien code problematique
