@@ -41,6 +41,30 @@ foreach (['T_NAME_QUALIFIED', 'T_NAME_FULLY_QUALIFIED', 'T_NAME_RELATIVE'] as $n
         $typeTokens[] = constant($name);
     }
 }
+// PHP 8.1+ tokenizes the by-reference "&" of a parameter instead of returning a bare "&"
+$byRefTokens = ['&'];
+foreach (['T_AMPERSAND_FOLLOWED_BY_VAR_OR_VARARG', 'T_AMPERSAND_NOT_FOLLOWED_BY_VAR_OR_VARARG'] as $name) {
+    if (defined($name)) {
+        $byRefTokens[] = constant($name);
+    }
+}
+
+/**
+ * @param array $tokens
+ * @param int $i
+ * @param array $expected token ids and/or single-char tokens
+ *
+ * @return bool
+ */
+function tokenIs(array $tokens, $i, array $expected)
+{
+    if (!isset($tokens[$i])) {
+        return false;
+    }
+    $token = $tokens[$i];
+
+    return in_array(is_array($token) ? $token[0] : $token, $expected, true);
+}
 
 /**
  * @param array $tokens
@@ -52,7 +76,7 @@ foreach (['T_NAME_QUALIFIED', 'T_NAME_FULLY_QUALIFIED', 'T_NAME_RELATIVE'] as $n
 function skipBlanks(array $tokens, $i, $step)
 {
     for ($i += $step; isset($tokens[$i]); $i += $step) {
-        if (!is_array($tokens[$i]) || !in_array($tokens[$i][0], [T_WHITESPACE, T_COMMENT, T_DOC_COMMENT], true)) {
+        if (!tokenIs($tokens, $i, [T_WHITESPACE, T_COMMENT, T_DOC_COMMENT])) {
             return $i;
         }
     }
@@ -61,94 +85,133 @@ function skipBlanks(array $tokens, $i, $step)
 }
 
 /**
- * @param string $code
+ * @param array $tokens
+ * @param int $function index of a T_FUNCTION token
+ *
+ * @return int[] indexes of the parameter variables of that function
+ */
+function parameterVariables(array $tokens, $function)
+{
+    // skip the function name / by-reference marker; `use function Foo\bar;` has no parameters
+    $i = $function;
+    do {
+        $i = skipBlanks($tokens, $i, 1);
+        if (tokenIs($tokens, $i, [';', '{'])) {
+            return [];
+        }
+    } while ($i !== -1 && $tokens[$i] !== '(');
+
+    $variables = [];
+    for ($depth = 0; isset($tokens[$i]); ++$i) {
+        if ($tokens[$i] === '(') {
+            ++$depth;
+        } elseif ($tokens[$i] === ')' && --$depth === 0) {
+            break;
+        } elseif ($depth === 1 && tokenIs($tokens, $i, [T_VARIABLE])) {
+            $variables[] = $i;
+        }
+    }
+
+    return $variables;
+}
+
+/**
+ * @param array $tokens
+ * @param int $variable
+ *
+ * @return bool whether the parameter default value is exactly `null`
+ */
+function hasNullDefault(array $tokens, $variable)
+{
+    $equal = skipBlanks($tokens, $variable, 1);
+    if (!tokenIs($tokens, $equal, ['='])) {
+        return false;
+    }
+    $value = skipBlanks($tokens, $equal, 1);
+
+    return tokenIs($tokens, $value, [T_STRING])
+        && strtolower($tokens[$value][1]) === 'null'
+        && tokenIs($tokens, skipBlanks($tokens, $value, 1), [',', ')']);
+}
+
+/**
+ * @param array $tokens
+ * @param int $variable
  * @param array $typeTokens
- * @param int $count
+ * @param array $byRefTokens
+ *
+ * @return array|null [first, last] token indexes of the parameter's implicit nullable type, null if none
+ */
+function typeRange(array $tokens, $variable, array $typeTokens, array $byRefTokens)
+{
+    $end = skipBlanks($tokens, $variable, -1);
+    if (tokenIs($tokens, $end, $byRefTokens)) {
+        $end = skipBlanks($tokens, $end, -1);
+    }
+    if (!tokenIs($tokens, $end, $typeTokens)) {
+        return null; // untyped
+    }
+    $start = $end;
+    while (tokenIs($tokens, $start - 1, $typeTokens)) {
+        --$start;
+    }
+    if (tokenIs($tokens, skipBlanks($tokens, $start, -1), ['?', '|'])) {
+        return null; // already explicit (?Type) or union type
+    }
+
+    return [$start, $end];
+}
+
+/**
+ * @param array $tokens
+ * @param array $typeTokens
+ * @param array $byRefTokens
+ *
+ * @return array [first, last] token indexes of each implicit nullable type
+ */
+function implicitNullableTypes(array $tokens, array $typeTokens, array $byRefTokens)
+{
+    $types = [];
+    foreach (array_keys($tokens) as $i) {
+        if (!tokenIs($tokens, $i, [T_FUNCTION])) {
+            continue;
+        }
+        foreach (parameterVariables($tokens, $i) as $variable) {
+            $type = hasNullDefault($tokens, $variable) ? typeRange($tokens, $variable, $typeTokens, $byRefTokens) : null;
+            if ($type !== null) {
+                $types[] = $type;
+            }
+        }
+    }
+
+    return $types;
+}
+
+/**
+ * @param array $tokens
+ * @param array $types [first, last] token indexes to drop, with the blank that follows each
  *
  * @return string
  */
-function patchCode($code, array $typeTokens, & $count)
+function removeTypes(array $tokens, array $types)
 {
-    $tokens = token_get_all($code);
     $remove = [];
-    $inParams = false;
-    $depth = 0;
-
-    foreach ($tokens as $i => $token) {
-        if (!$inParams) {
-            if (is_array($token) && $token[0] === T_FUNCTION) {
-                $open = skipBlanks($tokens, $i, 1);
-                // skip the function name / by-reference marker
-                while ($open !== -1 && $tokens[$open] !== '(') {
-                    $open = skipBlanks($tokens, $open, 1);
-                }
-                if ($open !== -1) {
-                    $inParams = true;
-                    $depth = 0;
-                }
-            }
-            continue;
+    foreach ($types as $type) {
+        list($start, $end) = $type;
+        if (tokenIs($tokens, $end + 1, [T_WHITESPACE])) {
+            ++$end;
         }
-
-        if ($token === '(') {
-            ++$depth;
-        } elseif ($token === ')') {
-            if (--$depth === 0) {
-                $inParams = false;
-            }
-        } elseif ($depth === 1 && is_array($token) && $token[0] === T_VARIABLE) {
-            $eq = skipBlanks($tokens, $i, 1);
-            $null = $eq === -1 ? -1 : skipBlanks($tokens, $eq, 1);
-            if ($eq === -1 || $tokens[$eq] !== '='
-                || $null === -1 || !is_array($tokens[$null]) || strtolower($tokens[$null][1]) !== 'null'
-            ) {
-                continue;
-            }
-            $next = skipBlanks($tokens, $null, 1);
-            if ($next === -1 || ($tokens[$next] !== ',' && $tokens[$next] !== ')')) {
-                continue;
-            }
-
-            // walk back over the type (by-ref / variadic markers sit between type and variable)
-            $end = skipBlanks($tokens, $i, -1);
-            while ($end !== -1 && ($tokens[$end] === '&' || (is_array($tokens[$end]) && $tokens[$end][0] === T_ELLIPSIS))) {
-                $end = skipBlanks($tokens, $end, -1);
-            }
-            $start = $end;
-            while ($start >= 0 && is_array($tokens[$start]) && in_array($tokens[$start][0], $typeTokens, true)) {
-                --$start;
-            }
-            ++$start;
-            if ($start > $end) {
-                continue; // untyped
-            }
-            $before = skipBlanks($tokens, $start, -1);
-            if ($before !== -1 && ($tokens[$before] === '?' || $tokens[$before] === '|')) {
-                continue; // already explicit (?Type) or union type
-            }
-            // drop the type and the blank that follows it
-            for ($k = $start; $k <= $end + 1; ++$k) {
-                if ($k > $end && !(is_array($tokens[$k]) && $tokens[$k][0] === T_WHITESPACE)) {
-                    break;
-                }
-                $remove[$k] = true;
-            }
-            ++$count;
-        }
+        $remove += array_fill_keys(range($start, $end), true);
     }
 
-    if (!$remove) {
-        return $code;
-    }
-
-    $out = '';
+    $code = '';
     foreach ($tokens as $i => $token) {
         if (!isset($remove[$i])) {
-            $out .= is_array($token) ? $token[1] : $token;
+            $code .= is_array($token) ? $token[1] : $token;
         }
     }
 
-    return $out;
+    return $code;
 }
 
 $total = 0;
@@ -159,13 +222,12 @@ foreach (array_slice($argv, 1) as $dir) {
     );
     foreach ($files as $file) {
         $path = $file->getPathname();
-        $code = file_get_contents($path);
-        $count = 0;
-        $patched = patchCode($code, $typeTokens, $count);
-        if ($count > 0) {
-            file_put_contents($path, $patched);
-            echo "  {$path}: {$count} parameter(s)\n";
-            $total += $count;
+        $tokens = token_get_all(file_get_contents($path));
+        $types = implicitNullableTypes($tokens, $typeTokens, $byRefTokens);
+        if ($types) {
+            file_put_contents($path, removeTypes($tokens, $types));
+            echo '  ' . $path . ': ' . count($types) . " parameter(s)\n";
+            $total += count($types);
         }
     }
 }
