@@ -22,7 +22,6 @@ namespace PrestaShop\Module\PsAccounts\Account\Session;
 
 use PrestaShop\Module\PsAccounts\Account\Exception\RefreshTokenException;
 use PrestaShop\Module\PsAccounts\Account\StatusManager;
-use PrestaShop\Module\PsAccounts\Account\Token\NullToken;
 use PrestaShop\Module\PsAccounts\Account\Token\Token;
 use PrestaShop\Module\PsAccounts\Log\Logger;
 
@@ -106,20 +105,10 @@ abstract class Session implements SessionInterface
      */
     public function isEmailVerified()
     {
-        try {
-            $jwt = $this->getToken()->getJwt();
-
-            // FIXME : just query sso api and don't refresh token everytime
-            if (!$jwt instanceof NullToken &&
-                !$jwt->claims()->get('email_verified')
-            ) {
-                $jwt = $this->getValidToken(true)->getJwt();
-            }
-
-            return (bool) $jwt->claims()->get('email_verified');
-        } catch (RefreshTokenException $e) {
-            return false;
-        }
+        // Read the claim of the current token, never force a refresh: an unverified email
+        // would otherwise trigger a token call on every call (i.e. every back-office display).
+        // A newly verified email shows up when the token is renewed.
+        return (bool) $this->getValidToken(false, false)->getJwt()->claims()->get('email_verified');
     }
 
     /**

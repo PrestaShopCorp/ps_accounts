@@ -37,6 +37,7 @@ class GetValidTokenTest extends TestCase
             'email' => $this->faker->safeEmail,
         ]);
 
+        $this->statusManager->setPointOfContactUuid($this->faker->uuid);
         $this->session->setToken((string) $idToken);
 
         $this->assertEquals((string) $idToken, (string) $this->session->getValidToken());
@@ -132,6 +133,103 @@ class GetValidTokenTest extends TestCase
         $this->assertEquals((string) $notExpired, (string) $session->getValidToken());
         $this->assertEquals((string) $notExpired, (string) $session->getOrRefreshToken());
         $this->assertEquals($notExpiredRefresh, $session->getToken()->getRefreshToken());
+    }
+
+    /**
+     * @test
+     */
+    public function itShouldNotRefreshTokenWithoutPointOfContact()
+    {
+        $expiredToken = $this->makeJwtToken(new \DateTimeImmutable('yesterday'), [
+            'sub' => $this->faker->uuid,
+            'email' => $this->faker->safeEmail,
+        ]);
+
+        $session = $this->getMockedFirebaseSession(
+            Firebase\OwnerSession::class,
+            $this->createResponse([
+                'shop' => [
+                    'token' => (string) $this->makeJwtToken(new \DateTimeImmutable('tomorrow')),
+                    'refreshToken' => $this->faker->regexify('[a-zA-Z\d]{40}'),
+                ],
+                'pointOfContact' => [
+                    'token' => (string) $this->makeJwtToken(new \DateTimeImmutable('tomorrow')),
+                    'refreshToken' => $this->faker->regexify('[a-zA-Z\d]{40}'),
+                ]
+            ], 200, true),
+            $this->getMockedShopSession(new Token($this->makeJwtToken(new \DateTimeImmutable()))),
+            false
+        );
+
+        $session->setToken((string) $expiredToken, $this->faker->regexify('[a-zA-Z\d]{40}'));
+
+        $this->assertEquals('', (string) $session->getValidToken());
+        $this->assertEquals('', (string) $session->getValidToken(true));
+        $this->assertEquals('', $session->getToken()->getRefreshToken());
+        $this->assertFalse($session->isEmailVerified());
+    }
+
+    /**
+     * @test
+     */
+    public function itShouldCleanupTokenWhenRefreshReturnsNoPointOfContact()
+    {
+        $expiredToken = $this->makeJwtToken(new \DateTimeImmutable('yesterday'), [
+            'sub' => $this->faker->uuid,
+            'email' => $this->faker->safeEmail,
+        ]);
+
+        $session = $this->getMockedFirebaseSession(
+            Firebase\OwnerSession::class,
+            $this->createResponse([
+                'shop' => [
+                    'token' => (string) $this->makeJwtToken(new \DateTimeImmutable('tomorrow')),
+                    'refreshToken' => $this->faker->regexify('[a-zA-Z\d]{40}'),
+                ],
+                'pointOfContact' => null,
+            ], 200, true),
+            $this->getMockedShopSession(new Token($this->makeJwtToken(new \DateTimeImmutable())))
+        );
+
+        $session->setToken((string) $expiredToken, $this->faker->regexify('[a-zA-Z\d]{40}'));
+
+        $this->assertEquals('', (string) $session->getValidToken());
+        $this->assertEquals('', $session->getToken()->getRefreshToken());
+    }
+
+    /**
+     * @test
+     */
+    public function itShouldNotForceRefreshWhenEmailIsNotVerified()
+    {
+        $unverifiedToken = $this->makeJwtToken(new \DateTimeImmutable('+1 hour'), [
+            'sub' => $this->faker->uuid,
+            'email' => $this->faker->safeEmail,
+            'email_verified' => false,
+        ]);
+
+        $session = $this->getMockedFirebaseSession(
+            Firebase\OwnerSession::class,
+            $this->createResponse([
+                'shop' => [
+                    'token' => (string) $this->makeJwtToken(new \DateTimeImmutable('tomorrow')),
+                    'refreshToken' => $this->faker->regexify('[a-zA-Z\d]{40}'),
+                ],
+                'pointOfContact' => [
+                    'token' => (string) $this->makeJwtToken(new \DateTimeImmutable('tomorrow'), [
+                        'email_verified' => true,
+                    ]),
+                    'refreshToken' => $this->faker->regexify('[a-zA-Z\d]{40}'),
+                ]
+            ], 200, true),
+            $this->getMockedShopSession(new Token($this->makeJwtToken(new \DateTimeImmutable())))
+        );
+
+        $session->setToken((string) $unverifiedToken);
+
+        $this->assertFalse($session->isEmailVerified());
+        $this->assertFalse($session->isEmailVerified());
+        $this->assertEquals((string) $unverifiedToken, (string) $session->getToken());
     }
 
     /**

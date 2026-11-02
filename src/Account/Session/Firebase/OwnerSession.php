@@ -20,6 +20,7 @@
 
 namespace PrestaShop\Module\PsAccounts\Account\Session\Firebase;
 
+use PrestaShop\Module\PsAccounts\Account\Exception\RefreshTokenException;
 use PrestaShop\Module\PsAccounts\Account\Session\SessionInterface;
 use PrestaShop\Module\PsAccounts\Account\Token\Token;
 use PrestaShop\Module\PsAccounts\Repository\ConfigurationRepository;
@@ -66,6 +67,32 @@ class OwnerSession extends FirebaseSession implements SessionInterface
     }
 
     /**
+     * Without a point of contact there is no user token to get:
+     * don't call accounts-api, it can't return one.
+     *
+     * @param bool $forceRefresh
+     * @param bool $throw
+     * @param array $scope
+     * @param array $audience
+     *
+     * @return Token
+     *
+     * @throws RefreshTokenException
+     */
+    public function getValidToken($forceRefresh = false, $throw = true, array $scope = [], array $audience = [])
+    {
+        if (!$this->getStatusManager()->getPointOfContactUuid()) {
+            if ('' !== (string) $this->getToken()) {
+                $this->cleanup();
+            }
+
+            return $this->getToken();
+        }
+
+        return parent::getValidToken($forceRefresh, $throw, $scope, $audience);
+    }
+
+    /**
      * @return int
      */
     protected function resolveTokenExpirationLeeway()
@@ -80,7 +107,7 @@ class OwnerSession extends FirebaseSession implements SessionInterface
      */
     public function cleanup()
     {
-        $this->configurationRepository->updateUserFirebaseIdToken('');
+        $this->configurationRepository->updateUserFirebaseIdAndRefreshToken('', '');
     }
 
     /**

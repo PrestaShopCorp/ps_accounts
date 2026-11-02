@@ -126,6 +126,9 @@ abstract class FirebaseSession extends Session implements SessionInterface
 
         if (isset($pointOfContactToken)) {
             $this->getOwnerSession()->setToken((string) $pointOfContactToken->getJwt(), $pointOfContactToken->getRefreshToken());
+        } else {
+            // no point of contact anymore: never keep serving the previous one's token
+            $this->getOwnerSession()->cleanup();
         }
     }
 }

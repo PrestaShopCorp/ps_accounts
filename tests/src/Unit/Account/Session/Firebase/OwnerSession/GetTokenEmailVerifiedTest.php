@@ -29,6 +29,7 @@ class GetTokenEmailVerifiedTest extends TestCase
 
         $refreshToken = $this->makeJwtToken(new \DateTimeImmutable('+1 year'));
 
+        $this->statusManager->setPointOfContactUuid($this->faker->uuid);
         $this->session->setToken((string) $idToken, (string) $refreshToken);
 
         $this->assertTrue($this->session->isEmailVerified());

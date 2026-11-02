@@ -40,21 +40,15 @@ trait SessionHelpers
      * @param string $firebaseSessionClass
      * @param Response $response
      * @param ShopSession $shopSession
+     * @param bool $withPointOfContact
      *
      * @return FirebaseSession&MockObject
      */
-    protected function getMockedFirebaseSession($firebaseSessionClass, Response $response, $shopSession)
+    protected function getMockedFirebaseSession($firebaseSessionClass, Response $response, $shopSession, $withPointOfContact = true)
     {
         $client = $this->createMock(Client::class);
 
-        $cloudShopId = $this->faker->uuid;
-
-        $this->configurationRepository->updateCachedShopStatus(json_encode((new CachedShopStatus([
-            'isValid' => true,
-            'shopStatus' => new ShopStatus([
-                'cloudShopId' => $cloudShopId,
-            ]),
-        ]))->toArray()));
+        $this->setCachedShopStatus($this->faker->uuid, $withPointOfContact ? $this->faker->uuid : null);
 
         /** @var AccountsService $accountsService */
         $accountsService = $this->module->getService(AccountsService::class);
@@ -82,5 +76,24 @@ trait SessionHelpers
             ->willReturn($accountsService);
 
         return $firebaseSession;
+    }
+
+    /**
+     * Writes the cached status directly: going through the StatusManager would purge the user tokens
+     *
+     * @param string $cloudShopId
+     * @param string|null $pointOfContactUuid
+     *
+     * @return void
+     */
+    protected function setCachedShopStatus($cloudShopId, $pointOfContactUuid = null)
+    {
+        $this->configurationRepository->updateCachedShopStatus(json_encode((new CachedShopStatus([
+            'isValid' => true,
+            'shopStatus' => new ShopStatus([
+                'cloudShopId' => $cloudShopId,
+                'pointOfContactUuid' => $pointOfContactUuid,
+            ]),
+        ]))->toArray()));
     }
 }
