@@ -6,6 +6,7 @@ use PHPUnit\Framework\MockObject\MockObject;
 use PrestaShop\Module\PsAccounts\Account\CachedShopStatus;
 use PrestaShop\Module\PsAccounts\Account\Session\Firebase\FirebaseSession;
 use PrestaShop\Module\PsAccounts\Account\Session\ShopSession;
+use PrestaShop\Module\PsAccounts\Account\StatusManager;
 use PrestaShop\Module\PsAccounts\Account\Token\Token;
 use PrestaShop\Module\PsAccounts\Http\Client\Curl\Client;
 use PrestaShop\Module\PsAccounts\Http\Client\Response;
@@ -37,31 +38,58 @@ trait SessionHelpers
     }
 
     /**
+     * @var string[] routes called on accounts-api
+     */
+    protected $apiCalls = [];
+
+    /**
      * @param string $firebaseSessionClass
-     * @param Response $response
+     * @param Response $response /tokens response
      * @param ShopSession $shopSession
-     * @param bool $withPointOfContact
+     * @param string|null $pointOfContactUuid point of contact of the cached status
+     * @param Response|null $statusResponse /status response (error by default)
      *
      * @return FirebaseSession&MockObject
      */
-    protected function getMockedFirebaseSession($firebaseSessionClass, Response $response, $shopSession, $withPointOfContact = true)
-    {
+    protected function getMockedFirebaseSession(
+        $firebaseSessionClass,
+        Response $response,
+        $shopSession,
+        $pointOfContactUuid = null,
+        Response $statusResponse = null
+    ) {
         $client = $this->createMock(Client::class);
 
-        $this->setCachedShopStatus($this->faker->uuid, $withPointOfContact ? $this->faker->uuid : null);
+        $this->configurationRepository->updateCachedShopStatus(json_encode((new CachedShopStatus([
+            'isValid' => true,
+            'shopStatus' => new ShopStatus([
+                'cloudShopId' => $this->faker->uuid,
+                'pointOfContactUuid' => $pointOfContactUuid,
+            ]),
+        ]))->toArray()));
 
         /** @var AccountsService $accountsService */
         $accountsService = $this->module->getService(AccountsService::class);
         $accountsService->setClient($client);
 
+        $this->apiCalls = [];
         $client->method('get')
-            ->willReturnCallback(function ($route) use ($response) {
+            ->willReturnCallback(function ($route) use ($response, $statusResponse) {
                 if (preg_match('/v1\/shop-identities\/(.*)\/tokens$/', $route)) {
+                    $this->apiCalls[] = 'tokens';
+
                     return $response;
+                }
+                if (preg_match('/v1\/shop-identities\/(.*)\/status$/', $route)) {
+                    $this->apiCalls[] = 'status';
+
+                    return $statusResponse ?: $this->createResponse([], 500, true);
                 }
 
                 return $this->createResponse([], 500, true);
             });
+
+        $statusManager = new StatusManager($shopSession, $accountsService, $this->configurationRepository);
 
         /** @var FirebaseSession&MockObject $firebaseSession */
         $firebaseSession = $this->getMockBuilder($firebaseSessionClass)
@@ -70,30 +98,25 @@ trait SessionHelpers
                 $shopSession,
             ])
             ->enableOriginalClone()
-            ->setMethods(['getAccountsService'])
+            ->setMethods(['getAccountsService', 'getStatusManager'])
             ->getMock();
         $firebaseSession->method('getAccountsService')
             ->willReturn($accountsService);
+        $firebaseSession->method('getStatusManager')
+            ->willReturn($statusManager);
 
         return $firebaseSession;
     }
 
     /**
-     * Writes the cached status directly: going through the StatusManager would purge the user tokens
+     * @param string $route
      *
-     * @param string $cloudShopId
-     * @param string|null $pointOfContactUuid
-     *
-     * @return void
+     * @return int
      */
-    protected function setCachedShopStatus($cloudShopId, $pointOfContactUuid = null)
+    protected function countApiCalls($route)
     {
-        $this->configurationRepository->updateCachedShopStatus(json_encode((new CachedShopStatus([
-            'isValid' => true,
-            'shopStatus' => new ShopStatus([
-                'cloudShopId' => $cloudShopId,
-                'pointOfContactUuid' => $pointOfContactUuid,
-            ]),
-        ]))->toArray()));
+        return count(array_filter($this->apiCalls, function ($call) use ($route) {
+            return $call === $route;
+        }));
     }
 }

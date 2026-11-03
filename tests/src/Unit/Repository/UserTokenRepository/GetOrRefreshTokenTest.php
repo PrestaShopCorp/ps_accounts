@@ -28,7 +28,7 @@ class GetOrRefreshTokenTest extends TestCase
 
         $refreshToken = $this->makeJwtToken(new \DateTimeImmutable('+1 year'));
 
-        $this->statusManager->setPointOfContactUuid($this->faker->uuid);
+        $this->statusManager->setPointOfContactUuid($idToken->claims()->get('sub'));
         $this->repository->updateCredentials((string) $idToken, (string) $refreshToken);
 
         $refreshed = $this->repository->getOrRefreshToken();

@@ -105,8 +105,13 @@ abstract class Session implements SessionInterface
      */
     public function isEmailVerified()
     {
-        // Read the claim of the current token, never force a refresh: an unverified email
-        // would otherwise trigger a token call on every call (i.e. every back-office display).
+        // A verified email stays verified: no network call, even with an expired token
+        if ($this->getToken()->getJwt()->claims()->get('email_verified')) {
+            return true;
+        }
+
+        // Otherwise read the claim of a valid token, never forcing a refresh: an unverified email
+        // would trigger a token call on every call (i.e. every back-office display).
         // A newly verified email shows up when the token is renewed.
         return (bool) $this->getValidToken(false, false)->getJwt()->claims()->get('email_verified');
     }

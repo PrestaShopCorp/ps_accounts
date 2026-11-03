@@ -453,41 +453,12 @@ class StatusManager
     protected function upsetCachedStatus(CachedShopStatus $cachedShopStatus, $all = false)
     {
         try {
-            $previousStatus = $this->getCachedStatus();
-            $newStatus = new CachedShopStatus(array_replace_recursive(
-                $previousStatus->toArray(),
+            $this->setCachedStatus(new CachedShopStatus(array_replace_recursive(
+                $this->getCachedStatus()->toArray(),
                 $cachedShopStatus->toArray($all)
-            ));
+           )));
         } catch (UnknownStatusException $e) {
-            $previousStatus = null;
-            $newStatus = $cachedShopStatus;
+            $this->setCachedStatus($cachedShopStatus);
         }
-
-        $this->setCachedStatus($newStatus);
-
-        if ($this->pointOfContactUuidOf($previousStatus) !== $this->pointOfContactUuidOf($newStatus)) {
-            $this->cleanupUserTokens();
-        }
-    }
-
-    /**
-     * @param CachedShopStatus|null $cachedShopStatus
-     *
-     * @return string empty when there is no point of contact
-     */
-    protected function pointOfContactUuidOf($cachedShopStatus)
-    {
-        return $cachedShopStatus ? (string) $cachedShopStatus->shopStatus->pointOfContactUuid : '';
-    }
-
-    /**
-     * The user tokens belong to the previous point of contact:
-     * they must never be served for the new one (or when there is none)
-     *
-     * @return void
-     */
-    protected function cleanupUserTokens()
-    {
-        $this->repository->updateUserFirebaseIdAndRefreshToken('', '');
     }
 }
