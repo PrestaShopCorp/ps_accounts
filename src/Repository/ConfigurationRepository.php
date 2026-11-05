@@ -232,42 +232,6 @@ class ConfigurationRepository
     }
 
     /**
-     * @return mixed
-     */
-    public function getUserTokenOwner()
-    {
-        return $this->configuration->get(ConfigurationKeys::PS_ACCOUNTS_USER_TOKEN_OWNER);
-    }
-
-    /**
-     * @param string $pointOfContactUuid
-     *
-     * @return void
-     */
-    public function updateUserTokenOwner($pointOfContactUuid)
-    {
-        $this->configuration->set(ConfigurationKeys::PS_ACCOUNTS_USER_TOKEN_OWNER, $pointOfContactUuid);
-    }
-
-    /**
-     * @return mixed
-     */
-    public function getUserTokenUnavailable()
-    {
-        return $this->configuration->get(ConfigurationKeys::PS_ACCOUNTS_USER_TOKEN_UNAVAILABLE);
-    }
-
-    /**
-     * @param string $marker
-     *
-     * @return void
-     */
-    public function updateUserTokenUnavailable($marker)
-    {
-        $this->configuration->set(ConfigurationKeys::PS_ACCOUNTS_USER_TOKEN_UNAVAILABLE, $marker);
-    }
-
-    /**
      *   Get shop who is defined as main in the prestashop
      *
      *   @return \Shop

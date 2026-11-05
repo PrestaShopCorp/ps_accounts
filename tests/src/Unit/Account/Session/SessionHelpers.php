@@ -43,10 +43,16 @@ trait SessionHelpers
     protected $apiCalls = [];
 
     /**
+     * @var StatusManager status manager of the last mocked Firebase session
+     */
+    protected $mockedStatusManager;
+
+    /**
      * @param string $firebaseSessionClass
      * @param Response $response /tokens response
      * @param ShopSession $shopSession
      * @param string|null $pointOfContactUuid point of contact of the cached status
+     * @param Response|null $statusResponse /status response (error by default)
      *
      * @return FirebaseSession&MockObject
      */
@@ -54,7 +60,8 @@ trait SessionHelpers
         $firebaseSessionClass,
         Response $response,
         $shopSession,
-        $pointOfContactUuid = null
+        $pointOfContactUuid = null,
+        Response $statusResponse = null
     ) {
         $client = $this->createMock(Client::class);
 
@@ -72,7 +79,7 @@ trait SessionHelpers
 
         $this->apiCalls = [];
         $client->method('get')
-            ->willReturnCallback(function ($route) use ($response) {
+            ->willReturnCallback(function ($route) use ($response, $statusResponse) {
                 if (preg_match('/v1\/shop-identities\/(.*)\/tokens$/', $route)) {
                     $this->apiCalls[] = 'tokens';
 
@@ -81,13 +88,14 @@ trait SessionHelpers
                 if (preg_match('/v1\/shop-identities\/(.*)\/status$/', $route)) {
                     $this->apiCalls[] = 'status';
 
-                    return $this->createResponse([], 500, true);
+                    return $statusResponse ?: $this->createResponse([], 500, true);
                 }
 
                 return $this->createResponse([], 500, true);
             });
 
         $statusManager = new StatusManager($shopSession, $accountsService, $this->configurationRepository);
+        $this->mockedStatusManager = $statusManager;
 
         /** @var FirebaseSession&MockObject $firebaseSession */
         $firebaseSession = $this->getMockBuilder($firebaseSessionClass)

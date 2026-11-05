@@ -127,14 +127,31 @@ abstract class FirebaseSession extends Session implements SessionInterface
         if (isset($pointOfContactToken)) {
             $this->getOwnerSession()->setToken((string) $pointOfContactToken->getJwt(), $pointOfContactToken->getRefreshToken());
         } else {
-            // no token for the point of contact: never keep serving a previous one
-            // and don't ask again on every call (see OwnerSession::getValidToken)
+            // accounts-api has no point of contact for this shop: never keep serving a previous one's token
             $this->getOwnerSession()->cleanup();
 
-            $pointOfContactUuid = $this->getStatusManager()->getPointOfContactUuid();
-            if ($pointOfContactUuid) {
-                $this->getOwnerSession()->setTokenUnavailable($pointOfContactUuid);
+            // a cached point of contact is stale: refresh it, so that no user token is asked for again
+            if ($this->getStatusManager()->getPointOfContactUuid()) {
+                $this->fetchPointOfContactUuid();
             }
         }
+    }
+
+    /**
+     * @return string|null point of contact from a fresh status, null when it can't be fetched
+     */
+    protected function fetchPointOfContactUuid()
+    {
+        $statusManager = $this->getStatusManager();
+        $statusManager->invalidateCache();
+
+        try {
+            $pointOfContactUuid = (string) $statusManager->getPointOfContactUuid(false);
+        } catch (\Exception $e) {
+            return null;
+        }
+
+        // the cache stays invalidated when the status couldn't be fetched
+        return $statusManager->cacheInvalidated() ? null : $pointOfContactUuid;
     }
 }

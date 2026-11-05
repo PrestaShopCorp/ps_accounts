@@ -28,12 +28,6 @@ use PrestaShop\Module\PsAccounts\Repository\ConfigurationRepository;
 class OwnerSession extends FirebaseSession implements SessionInterface
 {
     /**
-     * Delay in seconds before asking accounts-api again for a user token it didn't return:
-     * about a user token lifetime, so no more calls than with a valid token
-     */
-    const TOKEN_UNAVAILABLE_DELAY = 3600;
-
-    /**
      * @var ConfigurationRepository
      */
     protected $configurationRepository;
@@ -73,10 +67,10 @@ class OwnerSession extends FirebaseSession implements SessionInterface
     }
 
     /**
-     * The user token always belongs to the current point of contact:
-     * - without a point of contact, or while accounts-api has no token for it (unless forced),
-     *   there is no user token to get: don't call accounts-api;
-     * - a token obtained for a previous point of contact is never served.
+     * The user token always belongs to the current point of contact
+     * (accounts-api issues it with the point of contact uuid as subject):
+     * - without a point of contact, there is no user token to get: don't call accounts-api;
+     * - a token of another point of contact is never served.
      *
      * @param bool $forceRefresh
      * @param bool $throw
@@ -89,21 +83,15 @@ class OwnerSession extends FirebaseSession implements SessionInterface
      */
     public function getValidToken($forceRefresh = false, $throw = true, array $scope = [], array $audience = [])
     {
-        $pointOfContactUuid = (string) $this->getStatusManager()->getPointOfContactUuid();
-
-        if (!$pointOfContactUuid || (!$forceRefresh && $this->isTokenUnavailable($pointOfContactUuid))) {
-            if ($this->hasStoredToken()) {
-                $this->cleanup();
-            }
-
-            return $this->getToken();
+        $pointOfContactUuid = $this->resolvePointOfContactUuid();
+        if (!$pointOfContactUuid) {
+            return new Token('');
         }
 
-        if (!$this->tokenBelongsTo($pointOfContactUuid)) {
-            $this->cleanup();
-        }
+        $token = parent::getValidToken($forceRefresh, $throw, $scope, $audience);
 
-        return parent::getValidToken($forceRefresh, $throw, $scope, $audience);
+        // accounts-api may still be returning the token of the previous point of contact
+        return $this->tokenBelongsTo($token, $pointOfContactUuid) ? $token : new Token('');
     }
 
     /**
@@ -111,87 +99,53 @@ class OwnerSession extends FirebaseSession implements SessionInterface
      */
     public function isEmailVerified()
     {
+        if (!$this->resolvePointOfContactUuid()) {
+            return false;
+        }
+
+        return parent::isEmailVerified();
+    }
+
+    /**
+     * Point of contact the stored token, if any, belongs to. When the token belongs to someone else,
+     * either the token or the cached status is stale: the status is fetched again to tell,
+     * and the token of a previous point of contact is cleaned up.
+     *
+     * @return string empty when there is no point of contact, or when it can't be told
+     */
+    protected function resolvePointOfContactUuid()
+    {
         $pointOfContactUuid = (string) $this->getStatusManager()->getPointOfContactUuid();
 
-        // the stored token may only be trusted once known to belong to the current point of contact
-        if ($pointOfContactUuid && $this->tokenBelongsTo($pointOfContactUuid)) {
-            return parent::isEmailVerified();
+        // without point of contact the stored token is kept but not served:
+        // the cached status may only be transiently empty (identity migration or restore)
+        if (!$pointOfContactUuid || $this->tokenBelongsTo($this->getToken(), $pointOfContactUuid)) {
+            return $pointOfContactUuid;
         }
 
-        return (bool) $this->getValidToken(false, false)->getJwt()->claims()->get('email_verified');
-    }
-
-    /**
-     * accounts-api returned no token for this point of contact:
-     * don't ask again before the delay is over.
-     *
-     * @param string $pointOfContactUuid
-     *
-     * @return void
-     */
-    public function setTokenUnavailable($pointOfContactUuid)
-    {
-        $this->configurationRepository->updateUserTokenUnavailable((string) json_encode([
-            'pointOfContactUuid' => (string) $pointOfContactUuid,
-            'until' => time() + static::TOKEN_UNAVAILABLE_DELAY,
-        ]));
-    }
-
-    /**
-     * @return void
-     */
-    public function clearTokenUnavailable()
-    {
-        $this->configurationRepository->updateUserTokenUnavailable('');
-    }
-
-    /**
-     * @param string $pointOfContactUuid
-     *
-     * @return bool
-     */
-    protected function isTokenUnavailable($pointOfContactUuid)
-    {
-        $marker = json_decode((string) $this->configurationRepository->getUserTokenUnavailable(), true);
-
-        return is_array($marker)
-            && isset($marker['pointOfContactUuid'], $marker['until'])
-            && $marker['pointOfContactUuid'] === $pointOfContactUuid
-            && time() < (int) $marker['until'];
-    }
-
-    /**
-     * The owner is the point of contact the token was obtained for, recorded when it was stored:
-     * comparing it needs no call and settles after one token call, even if accounts-api
-     * returns a token whose subject differs from the point of contact.
-     *
-     * @param string $pointOfContactUuid
-     *
-     * @return bool true when there is no stored token to compare
-     */
-    protected function tokenBelongsTo($pointOfContactUuid)
-    {
-        if (!$this->hasStoredToken()) {
-            return true;
+        $pointOfContactUuid = $this->fetchPointOfContactUuid();
+        if (null === $pointOfContactUuid) {
+            return '';
         }
 
-        $tokenOwnerUuid = (string) $this->configurationRepository->getUserTokenOwner();
-        if ('' === $tokenOwnerUuid) {
-            // token stored before its owner was recorded
-            $tokenOwnerUuid = (string) $this->getToken()->getUuid();
+        if (!$this->tokenBelongsTo($this->getToken(), $pointOfContactUuid)) {
+            $this->cleanup();
         }
 
-        return $tokenOwnerUuid === $pointOfContactUuid;
+        return $pointOfContactUuid;
     }
 
     /**
-     * @return bool
+     * @param Token $token
+     * @param string $pointOfContactUuid
+     *
+     * @return bool true for an empty token
      */
-    protected function hasStoredToken()
+    protected function tokenBelongsTo(Token $token, $pointOfContactUuid)
     {
-        $token = $this->getToken();
+        $tokenOwnerUuid = (string) $token->getUuid();
 
-        return '' !== (string) $token || '' !== (string) $token->getRefreshToken();
+        return '' === $tokenOwnerUuid || $tokenOwnerUuid === $pointOfContactUuid;
     }
 
     /**
@@ -210,12 +164,9 @@ class OwnerSession extends FirebaseSession implements SessionInterface
     public function cleanup()
     {
         $this->configurationRepository->updateUserFirebaseIdAndRefreshToken('', '');
-        $this->configurationRepository->updateUserTokenOwner('');
     }
 
     /**
-     * A stored token belongs to the current point of contact, and ends any unavailability.
-     *
      * @param string $token
      * @param string $refreshToken
      *
@@ -224,12 +175,5 @@ class OwnerSession extends FirebaseSession implements SessionInterface
     public function setToken($token, $refreshToken = null)
     {
         $this->configurationRepository->updateUserFirebaseIdAndRefreshToken($token, $refreshToken);
-
-        $tokenOwnerUuid = '';
-        if ($token) {
-            $tokenOwnerUuid = (string) $this->getStatusManager()->getPointOfContactUuid();
-            $this->clearTokenUnavailable();
-        }
-        $this->configurationRepository->updateUserTokenOwner($tokenOwnerUuid);
     }
 }
