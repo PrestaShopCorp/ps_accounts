@@ -67,6 +67,8 @@ trait SessionHelpers
 
         $this->configurationRepository->updateCachedShopStatus(json_encode((new CachedShopStatus([
             'isValid' => true,
+            // expired: a status call is allowed when needed
+            'updatedAt' => date('Y-m-d H:i:s', strtotime('-1 hour')),
             'shopStatus' => new ShopStatus([
                 'cloudShopId' => $this->faker->uuid,
                 'pointOfContactUuid' => $pointOfContactUuid,

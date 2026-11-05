@@ -132,26 +132,26 @@ abstract class FirebaseSession extends Session implements SessionInterface
 
             // a cached point of contact is stale: refresh it, so that no user token is asked for again
             if ($this->getStatusManager()->getPointOfContactUuid()) {
-                $this->fetchPointOfContactUuid();
+                $this->refreshPointOfContactUuid();
             }
         }
     }
 
     /**
-     * @return string|null point of contact from a fresh status, null when it can't be fetched
+     * Point of contact from the status, fetched again once its cache has expired:
+     * at most one status call per cache lifetime while accounts-api answers.
+     *
+     * @return string empty when there is no point of contact
      */
-    protected function fetchPointOfContactUuid()
+    protected function refreshPointOfContactUuid()
     {
         $statusManager = $this->getStatusManager();
-        $statusManager->invalidateCache();
 
         try {
-            $pointOfContactUuid = (string) $statusManager->getPointOfContactUuid(false);
+            return (string) $statusManager->getPointOfContactUuid(false);
         } catch (\Exception $e) {
-            return null;
+            // keep to the cached status
+            return (string) $statusManager->getPointOfContactUuid();
         }
-
-        // the cache stays invalidated when the status couldn't be fetched
-        return $statusManager->cacheInvalidated() ? null : $pointOfContactUuid;
     }
 }

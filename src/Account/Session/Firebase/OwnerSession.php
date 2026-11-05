@@ -83,15 +83,36 @@ class OwnerSession extends FirebaseSession implements SessionInterface
      */
     public function getValidToken($forceRefresh = false, $throw = true, array $scope = [], array $audience = [])
     {
-        $pointOfContactUuid = $this->resolvePointOfContactUuid();
+        // without point of contact the stored token is kept but not served:
+        // the cached status may only be transiently empty (identity migration or restore)
+        $pointOfContactUuid = (string) $this->getStatusManager()->getPointOfContactUuid();
         if (!$pointOfContactUuid) {
             return new Token('');
         }
 
+        if (!$this->tokenBelongsTo($this->getToken(), $pointOfContactUuid)) {
+            // either the stored token or the cached status is stale
+            $pointOfContactUuid = $this->refreshPointOfContactUuid();
+            if (!$this->tokenBelongsTo($this->getToken(), $pointOfContactUuid)) {
+                $this->cleanup();
+            }
+            if (!$pointOfContactUuid) {
+                return new Token('');
+            }
+        }
+
         $token = parent::getValidToken($forceRefresh, $throw, $scope, $audience);
 
-        // accounts-api may still be returning the token of the previous point of contact
-        return $this->tokenBelongsTo($token, $pointOfContactUuid) ? $token : new Token('');
+        if (!$this->tokenBelongsTo($token, $pointOfContactUuid) &&
+            !$this->tokenBelongsTo($token, $this->refreshPointOfContactUuid())
+        ) {
+            // accounts-api still returns the previous point of contact's token: neither serve nor keep it
+            $this->cleanup();
+
+            return new Token('');
+        }
+
+        return $token;
     }
 
     /**
@@ -99,43 +120,22 @@ class OwnerSession extends FirebaseSession implements SessionInterface
      */
     public function isEmailVerified()
     {
-        if (!$this->resolvePointOfContactUuid()) {
+        $pointOfContactUuid = (string) $this->getStatusManager()->getPointOfContactUuid();
+        if (!$pointOfContactUuid) {
             return false;
+        }
+
+        // never read the claim of another point of contact's token
+        if (!$this->tokenBelongsTo($this->getToken(), $pointOfContactUuid)) {
+            $this->getValidToken(false, false);
         }
 
         return parent::isEmailVerified();
     }
 
     /**
-     * Point of contact the stored token, if any, belongs to. When the token belongs to someone else,
-     * either the token or the cached status is stale: the status is fetched again to tell,
-     * and the token of a previous point of contact is cleaned up.
+     * accounts-api issues the user token with the point of contact uuid as subject.
      *
-     * @return string empty when there is no point of contact, or when it can't be told
-     */
-    protected function resolvePointOfContactUuid()
-    {
-        $pointOfContactUuid = (string) $this->getStatusManager()->getPointOfContactUuid();
-
-        // without point of contact the stored token is kept but not served:
-        // the cached status may only be transiently empty (identity migration or restore)
-        if (!$pointOfContactUuid || $this->tokenBelongsTo($this->getToken(), $pointOfContactUuid)) {
-            return $pointOfContactUuid;
-        }
-
-        $pointOfContactUuid = $this->fetchPointOfContactUuid();
-        if (null === $pointOfContactUuid) {
-            return '';
-        }
-
-        if (!$this->tokenBelongsTo($this->getToken(), $pointOfContactUuid)) {
-            $this->cleanup();
-        }
-
-        return $pointOfContactUuid;
-    }
-
-    /**
      * @param Token $token
      * @param string $pointOfContactUuid
      *
