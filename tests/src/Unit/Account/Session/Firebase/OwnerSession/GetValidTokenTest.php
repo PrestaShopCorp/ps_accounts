@@ -151,24 +151,51 @@ class GetValidTokenTest extends TestCase
             Firebase\OwnerSession::class,
             $this->createTokensResponse($newToken),
             $this->getMockedShopSession(new Token($this->makeJwtToken(new \DateTimeImmutable()))),
-            $pointOfContactUuid,
-            $this->createStatusResponse($pointOfContactUuid)
+            $previousPointOfContactUuid
         );
 
         $session->setToken((string) $this->makeUserToken($previousPointOfContactUuid, '+1 hour'));
+        $this->statusManager->setPointOfContactUuid($pointOfContactUuid);
 
         $this->assertEquals((string) $newToken, (string) $session->getValidToken());
         $this->assertEquals((string) $newToken, (string) $session->getValidToken());
-        $this->assertEquals(1, $this->countApiCalls('status'));
+        $this->assertEquals(0, $this->countApiCalls('status'));
         $this->assertEquals(1, $this->countApiCalls('tokens'));
     }
 
     /**
      * @test
      */
-    public function itShouldKeepTokenWhenCachedStatusIsStale()
+    public function itShouldNotAskAgainWhenTokenSubjectDiffersFromPointOfContact()
     {
-        $previousPointOfContactUuid = $this->faker->uuid;
+        $pointOfContactUuid = $this->faker->uuid;
+        $returnedToken = $this->makeUserToken($this->faker->uuid, 'tomorrow');
+
+        $session = $this->getMockedFirebaseSession(
+            Firebase\OwnerSession::class,
+            $this->createTokensResponse($returnedToken),
+            $this->getMockedShopSession(new Token($this->makeJwtToken(new \DateTimeImmutable()))),
+            $pointOfContactUuid
+        );
+
+        // token stored before its owner was recorded, issued to another subject
+        $this->configurationRepository->updateUserFirebaseIdAndRefreshToken(
+            (string) $this->makeUserToken($this->faker->uuid, '+1 hour'),
+            $this->faker->regexify('[a-zA-Z\d]{40}')
+        );
+
+        $this->assertEquals((string) $returnedToken, (string) $session->getValidToken());
+        $this->assertEquals((string) $returnedToken, (string) $session->getValidToken());
+        $this->assertEquals((string) $returnedToken, (string) $session->getValidToken());
+        $this->assertEquals(0, $this->countApiCalls('status'));
+        $this->assertEquals(1, $this->countApiCalls('tokens'));
+    }
+
+    /**
+     * @test
+     */
+    public function itShouldKeepLegacyTokenOfPointOfContact()
+    {
         $pointOfContactUuid = $this->faker->uuid;
         $token = $this->makeUserToken($pointOfContactUuid, '+1 hour');
 
@@ -176,16 +203,14 @@ class GetValidTokenTest extends TestCase
             Firebase\OwnerSession::class,
             $this->createTokensResponse($this->makeUserToken($pointOfContactUuid, 'tomorrow')),
             $this->getMockedShopSession(new Token($this->makeJwtToken(new \DateTimeImmutable()))),
-            $previousPointOfContactUuid,
-            $this->createStatusResponse($pointOfContactUuid)
+            $pointOfContactUuid
         );
 
-        $session->setToken((string) $token);
+        // token stored before its owner was recorded
+        $this->configurationRepository->updateUserFirebaseIdAndRefreshToken((string) $token, '');
 
         $this->assertEquals((string) $token, (string) $session->getValidToken());
-        $this->assertEquals((string) $token, (string) $session->getValidToken());
-        $this->assertEquals(1, $this->countApiCalls('status'));
-        $this->assertEquals(0, $this->countApiCalls('tokens'));
+        $this->assertEquals([], $this->apiCalls);
     }
 
     /**
@@ -233,6 +258,74 @@ class GetValidTokenTest extends TestCase
             'pointOfContactUuid' => $pointOfContactUuid,
             'until' => time() - 1,
         ]));
+
+        $this->assertEquals((string) $userRefreshedToken, (string) $session->getValidToken());
+        $this->assertEquals(1, $this->countApiCalls('tokens'));
+    }
+
+    /**
+     * @test
+     */
+    public function itShouldServeTokenStoredAfterUnavailability()
+    {
+        $pointOfContactUuid = $this->faker->uuid;
+        $token = $this->makeUserToken($pointOfContactUuid, '+1 hour');
+
+        $session = $this->getMockedFirebaseSession(
+            Firebase\OwnerSession::class,
+            $this->createTokensResponse(null),
+            $this->getMockedShopSession(new Token($this->makeJwtToken(new \DateTimeImmutable()))),
+            $pointOfContactUuid
+        );
+
+        $session->setTokenUnavailable($pointOfContactUuid);
+        // e.g. stored by a Firebase shop token refresh
+        $session->setToken((string) $token);
+
+        $this->assertEquals((string) $token, (string) $session->getValidToken());
+        $this->assertEquals((string) $token, (string) $session->getValidToken());
+        $this->assertEquals([], $this->apiCalls);
+    }
+
+    /**
+     * @test
+     */
+    public function itShouldAskAgainOnForcedRefreshDespiteUnavailability()
+    {
+        $pointOfContactUuid = $this->faker->uuid;
+        $userRefreshedToken = $this->makeUserToken($pointOfContactUuid, 'tomorrow');
+
+        $session = $this->getMockedFirebaseSession(
+            Firebase\OwnerSession::class,
+            $this->createTokensResponse($userRefreshedToken),
+            $this->getMockedShopSession(new Token($this->makeJwtToken(new \DateTimeImmutable()))),
+            $pointOfContactUuid
+        );
+
+        $session->setTokenUnavailable($pointOfContactUuid);
+
+        $this->assertEquals('', (string) $session->getValidToken());
+        $this->assertEquals((string) $userRefreshedToken, (string) $session->getValidToken(true));
+        $this->assertEquals((string) $userRefreshedToken, (string) $session->getValidToken());
+        $this->assertEquals(1, $this->countApiCalls('tokens'));
+    }
+
+    /**
+     * @test
+     */
+    public function itShouldAskAgainForAnotherPointOfContact()
+    {
+        $pointOfContactUuid = $this->faker->uuid;
+        $userRefreshedToken = $this->makeUserToken($pointOfContactUuid, 'tomorrow');
+
+        $session = $this->getMockedFirebaseSession(
+            Firebase\OwnerSession::class,
+            $this->createTokensResponse($userRefreshedToken),
+            $this->getMockedShopSession(new Token($this->makeJwtToken(new \DateTimeImmutable()))),
+            $pointOfContactUuid
+        );
+
+        $session->setTokenUnavailable($this->faker->uuid);
 
         $this->assertEquals((string) $userRefreshedToken, (string) $session->getValidToken());
         $this->assertEquals(1, $this->countApiCalls('tokens'));
@@ -346,21 +439,6 @@ class GetValidTokenTest extends TestCase
                 'token' => $userToken ? (string) $userToken : null,
                 'refreshToken' => $userToken ? ($userRefreshToken ?: $this->faker->regexify('[a-zA-Z\d]{40}')) : null,
             ],
-        ], 200);
-    }
-
-    /**
-     * @param string $pointOfContactUuid
-     *
-     * @return \PrestaShop\Module\PsAccounts\Http\Client\Response
-     */
-    private function createStatusResponse($pointOfContactUuid)
-    {
-        return $this->createResponse([
-            'cloudShopId' => $this->faker->uuid,
-            'isVerified' => true,
-            'pointOfContactUuid' => $pointOfContactUuid,
-            'pointOfContactEmail' => $this->faker->safeEmail,
         ], 200);
     }
 }

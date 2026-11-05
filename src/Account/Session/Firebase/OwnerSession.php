@@ -74,9 +74,9 @@ class OwnerSession extends FirebaseSession implements SessionInterface
 
     /**
      * The user token always belongs to the current point of contact:
-     * - without a point of contact, or while accounts-api has no token for it,
+     * - without a point of contact, or while accounts-api has no token for it (unless forced),
      *   there is no user token to get: don't call accounts-api;
-     * - a token issued to a previous point of contact is never served.
+     * - a token obtained for a previous point of contact is never served.
      *
      * @param bool $forceRefresh
      * @param bool $throw
@@ -89,9 +89,9 @@ class OwnerSession extends FirebaseSession implements SessionInterface
      */
     public function getValidToken($forceRefresh = false, $throw = true, array $scope = [], array $audience = [])
     {
-        $pointOfContactUuid = $this->resolvePointOfContactUuid();
+        $pointOfContactUuid = (string) $this->getStatusManager()->getPointOfContactUuid();
 
-        if (!$pointOfContactUuid || $this->isTokenUnavailable($pointOfContactUuid)) {
+        if (!$pointOfContactUuid || (!$forceRefresh && $this->isTokenUnavailable($pointOfContactUuid))) {
             if ($this->hasStoredToken()) {
                 $this->cleanup();
             }
@@ -138,6 +138,14 @@ class OwnerSession extends FirebaseSession implements SessionInterface
     }
 
     /**
+     * @return void
+     */
+    public function clearTokenUnavailable()
+    {
+        $this->configurationRepository->updateUserTokenUnavailable('');
+    }
+
+    /**
      * @param string $pointOfContactUuid
      *
      * @return bool
@@ -153,34 +161,27 @@ class OwnerSession extends FirebaseSession implements SessionInterface
     }
 
     /**
-     * Point of contact from the cached status. When the stored token belongs to someone else,
-     * either the token or the cached status is stale: the status is fetched again to tell.
+     * The owner is the point of contact the token was obtained for, recorded when it was stored:
+     * comparing it needs no call and settles after one token call, even if accounts-api
+     * returns a token whose subject differs from the point of contact.
      *
-     * @return string empty when there is no point of contact
-     */
-    protected function resolvePointOfContactUuid()
-    {
-        $statusManager = $this->getStatusManager();
-        $pointOfContactUuid = (string) $statusManager->getPointOfContactUuid();
-
-        if ($pointOfContactUuid && !$this->tokenBelongsTo($pointOfContactUuid)) {
-            $statusManager->invalidateCache();
-            $pointOfContactUuid = (string) $statusManager->getPointOfContactUuid(false);
-        }
-
-        return $pointOfContactUuid;
-    }
-
-    /**
      * @param string $pointOfContactUuid
      *
      * @return bool true when there is no stored token to compare
      */
     protected function tokenBelongsTo($pointOfContactUuid)
     {
-        $tokenOwnerUuid = (string) $this->getToken()->getUuid();
+        if (!$this->hasStoredToken()) {
+            return true;
+        }
 
-        return '' === $tokenOwnerUuid || $tokenOwnerUuid === $pointOfContactUuid;
+        $tokenOwnerUuid = (string) $this->configurationRepository->getUserTokenOwner();
+        if ('' === $tokenOwnerUuid) {
+            // token stored before its owner was recorded
+            $tokenOwnerUuid = (string) $this->getToken()->getUuid();
+        }
+
+        return $tokenOwnerUuid === $pointOfContactUuid;
     }
 
     /**
@@ -209,9 +210,12 @@ class OwnerSession extends FirebaseSession implements SessionInterface
     public function cleanup()
     {
         $this->configurationRepository->updateUserFirebaseIdAndRefreshToken('', '');
+        $this->configurationRepository->updateUserTokenOwner('');
     }
 
     /**
+     * A stored token belongs to the current point of contact, and ends any unavailability.
+     *
      * @param string $token
      * @param string $refreshToken
      *
@@ -220,5 +224,12 @@ class OwnerSession extends FirebaseSession implements SessionInterface
     public function setToken($token, $refreshToken = null)
     {
         $this->configurationRepository->updateUserFirebaseIdAndRefreshToken($token, $refreshToken);
+
+        $tokenOwnerUuid = '';
+        if ($token) {
+            $tokenOwnerUuid = (string) $this->getStatusManager()->getPointOfContactUuid();
+            $this->clearTokenUnavailable();
+        }
+        $this->configurationRepository->updateUserTokenOwner($tokenOwnerUuid);
     }
 }

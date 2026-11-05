@@ -100,8 +100,10 @@ class IdentifyContactHandler
             );
 
         // the point of contact may have changed: drop the previous one's user token right away
-        // (OwnerSession would otherwise detect it on next use, at the cost of a status call)
+        // (OwnerSession would otherwise detect it on next use only once the cached status is refreshed),
+        // and ask accounts-api again for the user token even if it had none lately
         $this->ownerSession->cleanup();
+        $this->ownerSession->clearTokenUnavailable();
 
         // optimistic update cached status
         $this->statusManager->setPointOfContactUuid($command->userInfo->sub);

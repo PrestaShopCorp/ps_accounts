@@ -47,7 +47,6 @@ trait SessionHelpers
      * @param Response $response /tokens response
      * @param ShopSession $shopSession
      * @param string|null $pointOfContactUuid point of contact of the cached status
-     * @param Response|null $statusResponse /status response (error by default)
      *
      * @return FirebaseSession&MockObject
      */
@@ -55,8 +54,7 @@ trait SessionHelpers
         $firebaseSessionClass,
         Response $response,
         $shopSession,
-        $pointOfContactUuid = null,
-        Response $statusResponse = null
+        $pointOfContactUuid = null
     ) {
         $client = $this->createMock(Client::class);
 
@@ -74,7 +72,7 @@ trait SessionHelpers
 
         $this->apiCalls = [];
         $client->method('get')
-            ->willReturnCallback(function ($route) use ($response, $statusResponse) {
+            ->willReturnCallback(function ($route) use ($response) {
                 if (preg_match('/v1\/shop-identities\/(.*)\/tokens$/', $route)) {
                     $this->apiCalls[] = 'tokens';
 
@@ -83,7 +81,7 @@ trait SessionHelpers
                 if (preg_match('/v1\/shop-identities\/(.*)\/status$/', $route)) {
                     $this->apiCalls[] = 'status';
 
-                    return $statusResponse ?: $this->createResponse([], 500, true);
+                    return $this->createResponse([], 500, true);
                 }
 
                 return $this->createResponse([], 500, true);

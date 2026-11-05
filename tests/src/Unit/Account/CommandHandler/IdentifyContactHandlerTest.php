@@ -80,6 +80,7 @@ class IdentifyContactHandlerTest extends TestCase
         $this->shopSession->method('getValidToken')->willReturn("valid_token");
 
         $this->ownerSession->setToken($this->faker->uuid, $this->faker->uuid);
+        $this->ownerSession->setTokenUnavailable($this->faker->uuid);
 
         // Expected call to setPointOfContact with correct parameters
         $this->accountsService->expects($this->once())
@@ -109,6 +110,7 @@ class IdentifyContactHandlerTest extends TestCase
 
         $this->assertInstanceOf(NullToken::class, $this->ownerSession->getToken()->getJwt());
         $this->assertEquals('', $this->ownerSession->getToken()->getRefreshToken());
+        $this->assertEmpty($this->configurationRepository->getUserTokenUnavailable());
         $this->assertEquals($userInfo->sub, $this->statusManager->getPointOfContactUuid());
         $this->assertEquals($userInfo->email, $this->statusManager->getPointOfContactEmail());
     }
