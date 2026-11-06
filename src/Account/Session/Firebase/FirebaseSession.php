@@ -37,6 +37,11 @@ abstract class FirebaseSession extends Session implements SessionInterface
      */
     protected $shopSession;
 
+    /**
+     * @var bool the status couldn't be fetched in this runtime: don't ask again before the next one
+     */
+    protected $statusUnavailable = false;
+
     public function __construct(ShopSession $shopSession)
     {
         parent::__construct();
@@ -139,7 +144,8 @@ abstract class FirebaseSession extends Session implements SessionInterface
 
     /**
      * Point of contact from the status, fetched again once its cache has expired:
-     * at most one status call per cache lifetime while accounts-api answers.
+     * at most one status call per cache lifetime while accounts-api answers,
+     * and one per runtime while it doesn't (the cached status is then kept to).
      *
      * @return string empty when there is no point of contact
      */
@@ -147,11 +153,16 @@ abstract class FirebaseSession extends Session implements SessionInterface
     {
         $statusManager = $this->getStatusManager();
 
-        try {
-            return (string) $statusManager->getPointOfContactUuid(false);
-        } catch (\Exception $e) {
-            // keep to the cached status
-            return (string) $statusManager->getPointOfContactUuid();
+        if (!$this->statusUnavailable) {
+            try {
+                $statusManager->getStatus(false);
+            } catch (\Exception $e) {
+                // thrown when withThrowException is on: the cached status is kept to below
+            }
+            // the cache stays expired when the status couldn't be fetched
+            $this->statusUnavailable = $statusManager->cacheExpired();
         }
+
+        return (string) $statusManager->getPointOfContactUuid();
     }
 }

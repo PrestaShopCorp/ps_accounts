@@ -290,6 +290,46 @@ class GetValidTokenTest extends TestCase
     /**
      * @test
      */
+    public function itShouldNotRetryUnreachableStatusInRuntimeWhenTokenOfAnotherPointOfContactIsReturned()
+    {
+        $session = $this->getMockedFirebaseSession(
+            Firebase\OwnerSession::class,
+            $this->createTokensResponse($this->makeUserToken($this->faker->uuid, 'tomorrow')),
+            $this->getMockedShopSession(new Token($this->makeJwtToken(new \DateTimeImmutable()))),
+            $this->faker->uuid
+        );
+
+        $this->assertEquals('', (string) $session->getValidToken(false, false));
+        $this->assertEquals('', (string) $session->getValidToken(false, false));
+        $this->assertEquals('', (string) $session->getValidToken(false, false));
+        $this->assertEquals('', (string) $session->getToken());
+        // one token call per call, as without token on main; one failed status call per runtime
+        $this->assertEquals(3, $this->countApiCalls('tokens'));
+        $this->assertEquals(1, $this->countApiCalls('status'));
+    }
+
+    /**
+     * @test
+     */
+    public function itShouldNotRetryUnreachableStatusInRuntimeWhenNoTokenIsReturnedForPointOfContact()
+    {
+        $session = $this->getMockedFirebaseSession(
+            Firebase\OwnerSession::class,
+            $this->createTokensResponse(null),
+            $this->getMockedShopSession(new Token($this->makeJwtToken(new \DateTimeImmutable()))),
+            $this->faker->uuid
+        );
+
+        $this->assertEquals('', (string) $session->getValidToken(false, false));
+        $this->assertEquals('', (string) $session->getValidToken(false, false));
+        $this->assertEquals('', (string) $session->getValidToken(false, false));
+        $this->assertEquals(3, $this->countApiCalls('tokens'));
+        $this->assertEquals(1, $this->countApiCalls('status'));
+    }
+
+    /**
+     * @test
+     */
     public function itShouldNotReadEmailVerifiedOfPreviousPointOfContact()
     {
         $pointOfContactUuid = $this->faker->uuid;
