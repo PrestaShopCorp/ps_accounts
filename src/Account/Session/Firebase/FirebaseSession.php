@@ -37,6 +37,11 @@ abstract class FirebaseSession extends Session implements SessionInterface
      */
     protected $shopSession;
 
+    /**
+     * @var bool the status couldn't be fetched in this runtime: don't ask again before the next one
+     */
+    protected $statusUnavailable = false;
+
     public function __construct(ShopSession $shopSession)
     {
         parent::__construct();
@@ -126,6 +131,38 @@ abstract class FirebaseSession extends Session implements SessionInterface
 
         if (isset($pointOfContactToken)) {
             $this->getOwnerSession()->setToken((string) $pointOfContactToken->getJwt(), $pointOfContactToken->getRefreshToken());
+        } else {
+            // accounts-api has no point of contact for this shop: never keep serving a previous one's token
+            $this->getOwnerSession()->cleanup();
+
+            // a cached point of contact is stale: refresh it, so that no user token is asked for again
+            if ($this->getStatusManager()->getPointOfContactUuid()) {
+                $this->refreshPointOfContactUuid();
+            }
         }
+    }
+
+    /**
+     * Point of contact from the status, fetched again once its cache has expired:
+     * at most one status call per cache lifetime while accounts-api answers,
+     * and one per runtime while it doesn't (the cached status is then kept to).
+     *
+     * @return string empty when there is no point of contact
+     */
+    protected function refreshPointOfContactUuid()
+    {
+        $statusManager = $this->getStatusManager();
+
+        if (!$this->statusUnavailable) {
+            try {
+                $statusManager->getStatus(false);
+            } catch (\Exception $e) {
+                // thrown when withThrowException is on: the cached status is kept to below
+            }
+            // the cache stays expired when the status couldn't be fetched
+            $this->statusUnavailable = $statusManager->cacheExpired();
+        }
+
+        return (string) $statusManager->getPointOfContactUuid();
     }
 }

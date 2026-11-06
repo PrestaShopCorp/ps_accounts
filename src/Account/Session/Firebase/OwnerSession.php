@@ -20,6 +20,7 @@
 
 namespace PrestaShop\Module\PsAccounts\Account\Session\Firebase;
 
+use PrestaShop\Module\PsAccounts\Account\Exception\RefreshTokenException;
 use PrestaShop\Module\PsAccounts\Account\Session\SessionInterface;
 use PrestaShop\Module\PsAccounts\Account\Token\Token;
 use PrestaShop\Module\PsAccounts\Repository\ConfigurationRepository;
@@ -66,6 +67,91 @@ class OwnerSession extends FirebaseSession implements SessionInterface
     }
 
     /**
+     * The user token always belongs to the current point of contact
+     * (accounts-api issues it with the point of contact uuid as subject):
+     * - without a point of contact, there is no user token to get: don't call accounts-api;
+     * - a token of another point of contact is never served.
+     *
+     * @param bool $forceRefresh
+     * @param bool $throw
+     * @param array $scope
+     * @param array $audience
+     *
+     * @return Token
+     *
+     * @throws RefreshTokenException
+     */
+    public function getValidToken($forceRefresh = false, $throw = true, array $scope = [], array $audience = [])
+    {
+        $pointOfContactUuid = $this->resolvePointOfContactUuid();
+        if (!$pointOfContactUuid) {
+            return new Token('');
+        }
+
+        $token = parent::getValidToken($forceRefresh, $throw, $scope, $audience);
+
+        if (!$this->tokenBelongsTo($token, $pointOfContactUuid) &&
+            !$this->tokenBelongsTo($token, $this->refreshPointOfContactUuid())
+        ) {
+            // accounts-api still returns the previous point of contact's token: neither serve nor keep it
+            $this->cleanup();
+            $token = new Token('');
+        }
+
+        return $token;
+    }
+
+    /**
+     * @return bool
+     */
+    public function isEmailVerified()
+    {
+        // never read the claim of another point of contact's token
+        if (!$this->resolvePointOfContactUuid()) {
+            return false;
+        }
+
+        return parent::isEmailVerified();
+    }
+
+    /**
+     * Point of contact, after cleaning up a stored token that belongs to someone else.
+     *
+     * @return string empty when there is no point of contact
+     */
+    protected function resolvePointOfContactUuid()
+    {
+        // without point of contact the stored token is kept but not served:
+        // the cached status may only be transiently empty (identity migration or restore)
+        $pointOfContactUuid = (string) $this->getStatusManager()->getPointOfContactUuid();
+
+        if ($pointOfContactUuid && !$this->tokenBelongsTo($this->getToken(), $pointOfContactUuid)) {
+            // either the stored token or the cached status is stale
+            $pointOfContactUuid = $this->refreshPointOfContactUuid();
+            if (!$this->tokenBelongsTo($this->getToken(), $pointOfContactUuid)) {
+                $this->cleanup();
+            }
+        }
+
+        return $pointOfContactUuid;
+    }
+
+    /**
+     * accounts-api issues the user token with the point of contact uuid as subject.
+     *
+     * @param Token $token
+     * @param string $pointOfContactUuid
+     *
+     * @return bool true for an empty token
+     */
+    protected function tokenBelongsTo(Token $token, $pointOfContactUuid)
+    {
+        $tokenOwnerUuid = (string) $token->getUuid();
+
+        return '' === $tokenOwnerUuid || $tokenOwnerUuid === $pointOfContactUuid;
+    }
+
+    /**
      * @return int
      */
     protected function resolveTokenExpirationLeeway()
@@ -80,7 +166,7 @@ class OwnerSession extends FirebaseSession implements SessionInterface
      */
     public function cleanup()
     {
-        $this->configurationRepository->updateUserFirebaseIdToken('');
+        $this->configurationRepository->updateUserFirebaseIdAndRefreshToken('', '');
     }
 
     /**
