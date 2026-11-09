@@ -37,11 +37,26 @@ abstract class FirebaseSession extends Session implements SessionInterface
      */
     protected $shopSession;
 
+    /**
+     * Shared by the owner and shop sessions, which both refresh the point of contact
+     *
+     * @var bool the status couldn't be fetched in this runtime: don't ask again before the next one
+     */
+    protected static $statusUnavailable = false;
+
     public function __construct(ShopSession $shopSession)
     {
         parent::__construct();
 
         $this->shopSession = $shopSession;
+    }
+
+    /**
+     * @return void
+     */
+    public static function resetStatusUnavailable()
+    {
+        self::$statusUnavailable = false;
     }
 
     /**
@@ -126,6 +141,38 @@ abstract class FirebaseSession extends Session implements SessionInterface
 
         if (isset($pointOfContactToken)) {
             $this->getOwnerSession()->setToken((string) $pointOfContactToken->getJwt(), $pointOfContactToken->getRefreshToken());
+        } else {
+            // accounts-api has no point of contact for this shop: never keep serving a previous one's token
+            $this->getOwnerSession()->cleanup();
+
+            // a cached point of contact is stale: refresh it, so that no user token is asked for again
+            if ($this->getStatusManager()->getPointOfContactUuid()) {
+                $this->refreshPointOfContactUuid();
+            }
         }
+    }
+
+    /**
+     * Point of contact from the status, fetched again once its cache has expired:
+     * at most one status call per cache lifetime while accounts-api answers,
+     * and one per runtime while it doesn't (the cached status is then kept to).
+     *
+     * @return string empty when there is no point of contact
+     */
+    protected function refreshPointOfContactUuid()
+    {
+        $statusManager = $this->getStatusManager();
+
+        if (!self::$statusUnavailable) {
+            try {
+                $statusManager->getStatus(false);
+            } catch (\Exception $e) {
+                // thrown when withThrowException is on: the cached status is kept to below
+            }
+            // the cache stays invalidated or expired when the status couldn't be fetched
+            self::$statusUnavailable = $statusManager->cacheInvalidated() || $statusManager->cacheExpired();
+        }
+
+        return (string) $statusManager->getPointOfContactUuid();
     }
 }

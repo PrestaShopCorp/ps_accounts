@@ -46,6 +46,88 @@ class GetValidTokenTest extends TestCase
     /**
      * @test
      */
+    public function itShouldCleanupUserTokenWhenNoPointOfContactIsReturned()
+    {
+        $pointOfContactUuid = $this->faker->uuid;
+        $shopRefreshedToken = $this->makeJwtToken(new \DateTimeImmutable('tomorrow'), [
+            'sub' => $this->faker->uuid,
+        ]);
+
+        $session = $this->getMockedFirebaseSession(
+            Firebase\ShopSession::class,
+            $this->createResponse([
+                'shop' => [
+                    'token' => (string) $shopRefreshedToken,
+                    'refreshToken' => $this->faker->regexify('[a-zA-Z\d]{40}'),
+                ],
+                'pointOfContact' => [
+                    'token' => null,
+                    'refreshToken' => null,
+                ],
+            ], 200, true),
+            $this->getMockedShopSession(new Token($this->makeJwtToken(new \DateTimeImmutable()))),
+            $pointOfContactUuid,
+            $this->createResponse([
+                'cloudShopId' => $this->faker->uuid,
+                'isVerified' => true,
+                'pointOfContactUuid' => null,
+            ], 200)
+        );
+
+        $this->configurationRepository->updateUserFirebaseIdAndRefreshToken(
+            (string) $this->makeJwtToken(new \DateTimeImmutable('+1 hour'), ['sub' => $pointOfContactUuid]),
+            $this->faker->regexify('[a-zA-Z\d]{40}')
+        );
+
+        $this->assertEquals((string) $shopRefreshedToken, (string) $session->getValidToken(true));
+        $this->assertEquals('', $this->configurationRepository->getUserFirebaseIdToken());
+        $this->assertEquals('', $this->configurationRepository->getUserFirebaseRefreshToken());
+        $this->assertEmpty($this->mockedStatusManager->getPointOfContactUuid());
+        $this->assertEquals(1, $this->countApiCalls('status'));
+    }
+
+    /**
+     * @test
+     */
+    public function itShouldShareUnreachableStatusWithOwnerSessionInRuntime()
+    {
+        $pointOfContactUuid = $this->faker->uuid;
+        $noPointOfContactTokensResponse = $this->createResponse([
+            'shop' => [
+                'token' => (string) $this->makeJwtToken(new \DateTimeImmutable('tomorrow')),
+                'refreshToken' => $this->faker->regexify('[a-zA-Z\d]{40}'),
+            ],
+            'pointOfContact' => [
+                'token' => null,
+                'refreshToken' => null,
+            ],
+        ], 200, true);
+
+        // status unreachable (default /status response)
+        $shopSession = $this->getMockedFirebaseSession(
+            Firebase\ShopSession::class,
+            $noPointOfContactTokensResponse,
+            $this->getMockedShopSession(new Token($this->makeJwtToken(new \DateTimeImmutable()))),
+            $pointOfContactUuid
+        );
+        $shopSession->getValidToken(true);
+        $this->assertEquals(1, $this->countApiCalls('status'));
+
+        $ownerSession = $this->getMockedFirebaseSession(
+            Firebase\OwnerSession::class,
+            $noPointOfContactTokensResponse,
+            $this->getMockedShopSession(new Token($this->makeJwtToken(new \DateTimeImmutable()))),
+            $pointOfContactUuid
+        );
+
+        $this->assertEquals('', (string) $ownerSession->getValidToken(false, false));
+        $this->assertEquals(1, $this->countApiCalls('tokens'));
+        $this->assertEquals(0, $this->countApiCalls('status'));
+    }
+
+    /**
+     * @test
+     */
     public function itShouldRefreshExpiredToken()
     {
         $expiredToken = $this->makeJwtToken(new \DateTimeImmutable('yesterday'), [
