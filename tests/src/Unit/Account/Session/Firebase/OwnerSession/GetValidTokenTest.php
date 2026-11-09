@@ -2,10 +2,12 @@
 
 namespace PrestaShop\Module\PsAccounts\Tests\Unit\Account\Session\Firebase\OwnerSession;
 
+use PrestaShop\Module\PsAccounts\Account\CachedShopStatus;
 use PrestaShop\Module\PsAccounts\Account\Session\Firebase;
 use PrestaShop\Module\PsAccounts\Account\Token\NullToken;
 use PrestaShop\Module\PsAccounts\Account\Token\Token;
 use PrestaShop\Module\PsAccounts\Account\Exception\RefreshTokenException;
+use PrestaShop\Module\PsAccounts\Service\Accounts\Resource\ShopStatus;
 use PrestaShop\Module\PsAccounts\Service\OAuth2\OAuth2Service;
 use PrestaShop\Module\PsAccounts\Tests\TestCase;
 
@@ -319,6 +321,37 @@ class GetValidTokenTest extends TestCase
             $this->getMockedShopSession(new Token($this->makeJwtToken(new \DateTimeImmutable()))),
             $this->faker->uuid
         );
+
+        $this->assertEquals('', (string) $session->getValidToken(false, false));
+        $this->assertEquals('', (string) $session->getValidToken(false, false));
+        $this->assertEquals('', (string) $session->getValidToken(false, false));
+        $this->assertEquals(3, $this->countApiCalls('tokens'));
+        $this->assertEquals(1, $this->countApiCalls('status'));
+    }
+
+    /**
+     * @test
+     */
+    public function itShouldNotRetryUnreachableStatusInRuntimeWhenCachedStatusIsInvalidated()
+    {
+        $pointOfContactUuid = $this->faker->uuid;
+
+        $session = $this->getMockedFirebaseSession(
+            Firebase\OwnerSession::class,
+            $this->createTokensResponse(null),
+            $this->getMockedShopSession(new Token($this->makeJwtToken(new \DateTimeImmutable()))),
+            $pointOfContactUuid
+        );
+
+        // invalidated (e.g. after an identity verification) while not expired yet
+        $this->configurationRepository->updateCachedShopStatus(json_encode((new CachedShopStatus([
+            'isValid' => false,
+            'updatedAt' => date('Y-m-d H:i:s'),
+            'shopStatus' => new ShopStatus([
+                'cloudShopId' => $this->faker->uuid,
+                'pointOfContactUuid' => $pointOfContactUuid,
+            ]),
+        ]))->toArray()));
 
         $this->assertEquals('', (string) $session->getValidToken(false, false));
         $this->assertEquals('', (string) $session->getValidToken(false, false));

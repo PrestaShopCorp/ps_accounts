@@ -89,6 +89,45 @@ class GetValidTokenTest extends TestCase
     /**
      * @test
      */
+    public function itShouldShareUnreachableStatusWithOwnerSessionInRuntime()
+    {
+        $pointOfContactUuid = $this->faker->uuid;
+        $noPointOfContactTokensResponse = $this->createResponse([
+            'shop' => [
+                'token' => (string) $this->makeJwtToken(new \DateTimeImmutable('tomorrow')),
+                'refreshToken' => $this->faker->regexify('[a-zA-Z\d]{40}'),
+            ],
+            'pointOfContact' => [
+                'token' => null,
+                'refreshToken' => null,
+            ],
+        ], 200, true);
+
+        // status unreachable (default /status response)
+        $shopSession = $this->getMockedFirebaseSession(
+            Firebase\ShopSession::class,
+            $noPointOfContactTokensResponse,
+            $this->getMockedShopSession(new Token($this->makeJwtToken(new \DateTimeImmutable()))),
+            $pointOfContactUuid
+        );
+        $shopSession->getValidToken(true);
+        $this->assertEquals(1, $this->countApiCalls('status'));
+
+        $ownerSession = $this->getMockedFirebaseSession(
+            Firebase\OwnerSession::class,
+            $noPointOfContactTokensResponse,
+            $this->getMockedShopSession(new Token($this->makeJwtToken(new \DateTimeImmutable()))),
+            $pointOfContactUuid
+        );
+
+        $this->assertEquals('', (string) $ownerSession->getValidToken(false, false));
+        $this->assertEquals(1, $this->countApiCalls('tokens'));
+        $this->assertEquals(0, $this->countApiCalls('status'));
+    }
+
+    /**
+     * @test
+     */
     public function itShouldRefreshExpiredToken()
     {
         $expiredToken = $this->makeJwtToken(new \DateTimeImmutable('yesterday'), [
