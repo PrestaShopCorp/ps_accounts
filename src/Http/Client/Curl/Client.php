@@ -190,7 +190,9 @@ class Client
         );
         $response->request = $request;
 
-        curl_close($request->handler);
+        if (PHP_VERSION_ID < 80000) {
+            curl_close($request->handler);
+        }
 
         return $response;
     }
@@ -391,7 +393,9 @@ class Client
 
             Logger::getInstance()->error($message);
 
-            curl_close($request->handler);
+            if (PHP_VERSION_ID < 80000) {
+                curl_close($request->handler);
+            }
 
             switch ($curlErrno) {
                 case CURLE_OPERATION_TIMEDOUT:
