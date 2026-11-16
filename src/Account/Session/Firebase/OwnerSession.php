@@ -28,6 +28,14 @@ use PrestaShop\Module\PsAccounts\Repository\ConfigurationRepository;
 class OwnerSession extends FirebaseSession implements SessionInterface
 {
     /**
+     * Per shop (cloud shop id), accounts-api returned no token of the point of contact in this runtime:
+     * it isn't asked again before the next one.
+     *
+     * @var array<string, bool>
+     */
+    protected static $noTokenReturned = [];
+
+    /**
      * @var ConfigurationRepository
      */
     protected $configurationRepository;
@@ -88,7 +96,9 @@ class OwnerSession extends FirebaseSession implements SessionInterface
      */
     public function getValidToken($forceRefresh = false, $throw = true, array $scope = [], array $audience = [])
     {
-        if (!$this->resolvePointOfContactUuid()) {
+        if (!$this->resolvePointOfContactUuid() ||
+            isset(self::$noTokenReturned[(string) $this->getStatusManager()->getCloudShopId()])
+        ) {
             return new Token('');
         }
 
@@ -108,13 +118,21 @@ class OwnerSession extends FirebaseSession implements SessionInterface
     {
         $token = parent::refreshToken($refreshToken, $scope, $audience);
 
-        // no token of the point of contact was returned: as for any refresh error,
-        // don't ask again in this runtime (see Session::getValidToken)
+        // no token of the point of contact was returned: don't ask again for this shop in this runtime
+        // (unlike Session's refresh errors, this one is per shop: multistore iterates over shops)
         if ('' === (string) $token) {
-            throw new RefreshTokenException('No user token returned for the point of contact');
+            self::$noTokenReturned[(string) $this->getStatusManager()->getCloudShopId()] = true;
         }
 
         return $token;
+    }
+
+    /**
+     * @return void
+     */
+    public static function resetNoTokenReturned()
+    {
+        self::$noTokenReturned = [];
     }
 
     /**
@@ -129,8 +147,10 @@ class OwnerSession extends FirebaseSession implements SessionInterface
             return false;
         }
 
+        // the previous point of contact's token was just cleaned up: read the new one's claim.
+        // Without stored token, no call as on main: e.g. after IdentifyContactHandler's cleanup,
+        // the new point of contact's token is only got by the next getValidToken()
         if ($hadStoredToken && '' === (string) $this->getStoredToken()) {
-            // the previous point of contact's token was just cleaned up: read the new one's claim
             return (bool) $this->getValidToken(false, false)->getJwt()->claims()->get('email_verified');
         }
 

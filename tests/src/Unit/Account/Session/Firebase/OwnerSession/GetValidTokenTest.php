@@ -238,7 +238,7 @@ class GetValidTokenTest extends TestCase
         $this->assertEquals(1, $this->countApiCalls('status'));
 
         // next runtime
-        $session->resetRefreshTokenErrors();
+        Firebase\OwnerSession::resetNoTokenReturned();
         $this->assertEquals('', (string) $session->getValidToken(false, false));
         $this->assertEquals(2, $this->countApiCalls('tokens'));
         $this->assertEquals(1, $this->countApiCalls('status'));
@@ -296,7 +296,7 @@ class GetValidTokenTest extends TestCase
         $this->assertEquals(1, $this->countApiCalls('status'));
 
         // next runtime: the status is still fresh
-        $session->resetRefreshTokenErrors();
+        Firebase\OwnerSession::resetNoTokenReturned();
         $this->assertEquals('', (string) $session->getValidToken(false, false));
         $this->assertEquals(2, $this->countApiCalls('tokens'));
         $this->assertEquals(1, $this->countApiCalls('status'));
@@ -432,7 +432,7 @@ class GetValidTokenTest extends TestCase
         $property = new \ReflectionProperty(Firebase\FirebaseSession::class, 'statusUnavailableUntil');
         $property->setAccessible(true);
         $property->setValue(null, [$this->getMockedCloudShopId() => time() - 1]);
-        $session->resetRefreshTokenErrors();
+        Firebase\OwnerSession::resetNoTokenReturned();
 
         $this->assertEquals('', (string) $session->getValidToken(false, false));
         $this->assertEquals(2, $this->countApiCalls('status'));
@@ -462,6 +462,38 @@ class GetValidTokenTest extends TestCase
         );
         $this->assertEquals('', (string) $session->getValidToken(false, false));
         $this->assertEquals(1, $this->countApiCalls('status'));
+    }
+
+    /**
+     * @test
+     */
+    public function itShouldNotShareNoTokenReturnedBetweenShops()
+    {
+        $session = $this->getMockedFirebaseSession(
+            Firebase\OwnerSession::class,
+            $this->createTokensResponse(null),
+            $this->getMockedShopSession(new Token($this->makeJwtToken(new \DateTimeImmutable()))),
+            $this->faker->uuid
+        );
+        // shop 1: a point of contact in the status, but no token returned (ACC-3736)
+        $this->assertEquals('', (string) $session->getValidToken(false, false));
+
+        // shop 2 of a multistore, same session in the same runtime (e.g. ShopProvider)
+        $pointOfContactUuid = $this->faker->uuid;
+        $token = $this->makeUserToken($pointOfContactUuid, '+1 hour');
+        $this->configurationRepository->updateCachedShopStatus(json_encode((new CachedShopStatus([
+            'isValid' => true,
+            'updatedAt' => date('Y-m-d H:i:s'),
+            'shopStatus' => new ShopStatus([
+                'cloudShopId' => $this->faker->uuid,
+                'pointOfContactUuid' => $pointOfContactUuid,
+            ]),
+        ]))->toArray()));
+        $session->setToken((string) $token);
+
+        $this->assertEquals((string) $token, (string) $session->getValidToken(false, false));
+        $this->assertEquals((string) $token, $this->configurationRepository->getUserFirebaseIdToken());
+        $this->assertEquals(1, $this->countApiCalls('tokens'));
     }
 
     /**
