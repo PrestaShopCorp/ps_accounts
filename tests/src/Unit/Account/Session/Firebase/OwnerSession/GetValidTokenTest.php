@@ -116,8 +116,9 @@ class GetValidTokenTest extends TestCase
         $this->assertEquals('', (string) $session->getValidToken(true));
         $this->assertFalse($session->isEmailVerified());
         $this->assertEquals([], $this->apiCalls);
-        // kept: the status may only be transiently empty
-        $this->assertEquals((string) $storedToken, (string) $session->getToken());
+        // kept but not served: the status may only be transiently empty
+        $this->assertEquals('', (string) $session->getToken());
+        $this->assertEquals((string) $storedToken, $this->configurationRepository->getUserFirebaseIdToken());
     }
 
     /**
@@ -229,10 +230,16 @@ class GetValidTokenTest extends TestCase
             $this->createStatusResponse($pointOfContactUuid)
         );
 
-        $this->assertEquals('', (string) $session->getValidToken());
-        $this->assertEquals('', (string) $session->getValidToken());
-        $this->assertEquals('', (string) $session->getToken());
-        // one token call per call, as without token on main; the status is read once per cache lifetime
+        $this->assertEquals('', (string) $session->getValidToken(false, false));
+        $this->assertEquals('', (string) $session->getValidToken(false, false));
+        $this->assertEquals('', $this->configurationRepository->getUserFirebaseIdToken());
+        // one token call per runtime; the status is read once per cache lifetime
+        $this->assertEquals(1, $this->countApiCalls('tokens'));
+        $this->assertEquals(1, $this->countApiCalls('status'));
+
+        // next runtime
+        $session->resetRefreshTokenErrors();
+        $this->assertEquals('', (string) $session->getValidToken(false, false));
         $this->assertEquals(2, $this->countApiCalls('tokens'));
         $this->assertEquals(1, $this->countApiCalls('status'));
     }
@@ -257,7 +264,7 @@ class GetValidTokenTest extends TestCase
             $this->faker->regexify('[a-zA-Z\d]{40}')
         );
 
-        $this->assertEquals('', (string) $session->getValidToken());
+        $this->assertEquals('', (string) $session->getValidToken(false, false));
         $this->assertEquals('', (string) $session->getValidToken());
         $this->assertFalse($session->isEmailVerified());
         $this->assertEquals('', (string) $session->getToken());
@@ -284,8 +291,14 @@ class GetValidTokenTest extends TestCase
         $this->assertEquals('', (string) $session->getValidToken(false, false));
         $this->assertEquals('', (string) $session->getValidToken(false, false));
         $this->assertEquals('', (string) $session->getValidToken(false, false));
-        // one token call per call, as on main, until accounts-api is consistent (ACC-3736)
-        $this->assertEquals(3, $this->countApiCalls('tokens'));
+        // one token call per runtime until accounts-api is consistent (ACC-3736)
+        $this->assertEquals(1, $this->countApiCalls('tokens'));
+        $this->assertEquals(1, $this->countApiCalls('status'));
+
+        // next runtime: the status is still fresh
+        $session->resetRefreshTokenErrors();
+        $this->assertEquals('', (string) $session->getValidToken(false, false));
+        $this->assertEquals(2, $this->countApiCalls('tokens'));
         $this->assertEquals(1, $this->countApiCalls('status'));
     }
 
@@ -305,8 +318,8 @@ class GetValidTokenTest extends TestCase
         $this->assertEquals('', (string) $session->getValidToken(false, false));
         $this->assertEquals('', (string) $session->getValidToken(false, false));
         $this->assertEquals('', (string) $session->getToken());
-        // one token call per call, as without token on main; one failed status call per runtime
-        $this->assertEquals(3, $this->countApiCalls('tokens'));
+        // one token call and one failed status call per runtime
+        $this->assertEquals(1, $this->countApiCalls('tokens'));
         $this->assertEquals(1, $this->countApiCalls('status'));
     }
 
@@ -325,7 +338,7 @@ class GetValidTokenTest extends TestCase
         $this->assertEquals('', (string) $session->getValidToken(false, false));
         $this->assertEquals('', (string) $session->getValidToken(false, false));
         $this->assertEquals('', (string) $session->getValidToken(false, false));
-        $this->assertEquals(3, $this->countApiCalls('tokens'));
+        $this->assertEquals(1, $this->countApiCalls('tokens'));
         $this->assertEquals(1, $this->countApiCalls('status'));
     }
 
@@ -348,7 +361,7 @@ class GetValidTokenTest extends TestCase
             'isValid' => false,
             'updatedAt' => date('Y-m-d H:i:s'),
             'shopStatus' => new ShopStatus([
-                'cloudShopId' => $this->faker->uuid,
+                'cloudShopId' => $this->getMockedCloudShopId(),
                 'pointOfContactUuid' => $pointOfContactUuid,
             ]),
         ]))->toArray()));
@@ -356,7 +369,98 @@ class GetValidTokenTest extends TestCase
         $this->assertEquals('', (string) $session->getValidToken(false, false));
         $this->assertEquals('', (string) $session->getValidToken(false, false));
         $this->assertEquals('', (string) $session->getValidToken(false, false));
-        $this->assertEquals(3, $this->countApiCalls('tokens'));
+        $this->assertEquals(1, $this->countApiCalls('tokens'));
+        $this->assertEquals(1, $this->countApiCalls('status'));
+    }
+
+    /**
+     * @test
+     */
+    public function itShouldNotServeStoredTokenOfAnotherPointOfContactToReaders()
+    {
+        $session = $this->getMockedFirebaseSession(
+            Firebase\OwnerSession::class,
+            $this->createTokensResponse(null),
+            $this->getMockedShopSession(new Token($this->makeJwtToken(new \DateTimeImmutable()))),
+            $this->faker->uuid
+        );
+
+        $session->setToken((string) $this->makeUserToken($this->faker->uuid, '+1 hour'));
+
+        // e.g. UserTokenRepository::getToken(), the health check report
+        $this->assertEquals('', (string) $session->getToken());
+        $this->assertEquals([], $this->apiCalls);
+    }
+
+    /**
+     * @test
+     */
+    public function itShouldReadEmailVerifiedOfNewPointOfContact()
+    {
+        $pointOfContactUuid = $this->faker->uuid;
+
+        $session = $this->getMockedFirebaseSession(
+            Firebase\OwnerSession::class,
+            $this->createTokensResponse($this->makeUserToken($pointOfContactUuid, 'tomorrow', ['email_verified' => true])),
+            $this->getMockedShopSession(new Token($this->makeJwtToken(new \DateTimeImmutable()))),
+            $pointOfContactUuid,
+            $this->createStatusResponse($pointOfContactUuid)
+        );
+
+        $session->setToken((string) $this->makeUserToken($this->faker->uuid, '+1 hour', ['email_verified' => false]));
+
+        $this->assertTrue($session->isEmailVerified());
+        $this->assertEquals(1, $this->countApiCalls('tokens'));
+    }
+
+    /**
+     * @test
+     */
+    public function itShouldRetryUnreachableStatusOnceItsDelayIsOver()
+    {
+        $session = $this->getMockedFirebaseSession(
+            Firebase\OwnerSession::class,
+            $this->createTokensResponse(null),
+            $this->getMockedShopSession(new Token($this->makeJwtToken(new \DateTimeImmutable()))),
+            $this->faker->uuid
+        );
+
+        $this->assertEquals('', (string) $session->getValidToken(false, false));
+        $this->assertEquals(1, $this->countApiCalls('status'));
+
+        // e.g. a long-running worker, 30 s later
+        $property = new \ReflectionProperty(Firebase\FirebaseSession::class, 'statusUnavailableUntil');
+        $property->setAccessible(true);
+        $property->setValue(null, [$this->getMockedCloudShopId() => time() - 1]);
+        $session->resetRefreshTokenErrors();
+
+        $this->assertEquals('', (string) $session->getValidToken(false, false));
+        $this->assertEquals(2, $this->countApiCalls('status'));
+    }
+
+    /**
+     * @test
+     */
+    public function itShouldNotShareUnreachableStatusBetweenShops()
+    {
+        $session = $this->getMockedFirebaseSession(
+            Firebase\OwnerSession::class,
+            $this->createTokensResponse(null),
+            $this->getMockedShopSession(new Token($this->makeJwtToken(new \DateTimeImmutable()))),
+            $this->faker->uuid
+        );
+        $this->assertEquals('', (string) $session->getValidToken(false, false));
+        $this->assertEquals(1, $this->countApiCalls('status'));
+
+        // another shop of a multistore, in the same runtime
+        $this->mockedCloudShopId = null;
+        $session = $this->getMockedFirebaseSession(
+            Firebase\OwnerSession::class,
+            $this->createTokensResponse(null),
+            $this->getMockedShopSession(new Token($this->makeJwtToken(new \DateTimeImmutable()))),
+            $this->faker->uuid
+        );
+        $this->assertEquals('', (string) $session->getValidToken(false, false));
         $this->assertEquals(1, $this->countApiCalls('status'));
     }
 
@@ -446,56 +550,5 @@ class GetValidTokenTest extends TestCase
         $this->assertInstanceOf(RefreshTokenException::class, $e);
         $this->assertEquals('', (string) $session->getToken());
         $this->assertInstanceOf(NullToken::class, $session->getToken()->getJwt());
-    }
-
-    /**
-     * @param string $pointOfContactUuid
-     * @param string $expiresAt
-     * @param array $claims
-     *
-     * @return \PrestaShop\Module\PsAccounts\Vendor\Lcobucci\JWT\Token
-     */
-    private function makeUserToken($pointOfContactUuid, $expiresAt, array $claims = [])
-    {
-        return $this->makeJwtToken(new \DateTimeImmutable($expiresAt), array_merge([
-            'sub' => $pointOfContactUuid,
-            'email' => $this->faker->safeEmail,
-        ], $claims));
-    }
-
-    /**
-     * @param \PrestaShop\Module\PsAccounts\Vendor\Lcobucci\JWT\Token|null $userToken
-     * @param string|null $userRefreshToken
-     *
-     * @return \PrestaShop\Module\PsAccounts\Http\Client\Response
-     */
-    private function createTokensResponse($userToken, $userRefreshToken = null)
-    {
-        return $this->createResponse([
-            'shop' => [
-                'token' => (string) $this->makeJwtToken(new \DateTimeImmutable('tomorrow')),
-                'refreshToken' => $this->faker->regexify('[a-zA-Z\d]{40}'),
-            ],
-            // what accounts-api returns for a shop without point of contact
-            'pointOfContact' => [
-                'token' => $userToken ? (string) $userToken : null,
-                'refreshToken' => $userToken ? ($userRefreshToken ?: $this->faker->regexify('[a-zA-Z\d]{40}')) : null,
-            ],
-        ], 200);
-    }
-
-    /**
-     * @param string|null $pointOfContactUuid
-     *
-     * @return \PrestaShop\Module\PsAccounts\Http\Client\Response
-     */
-    private function createStatusResponse($pointOfContactUuid)
-    {
-        return $this->createResponse([
-            'cloudShopId' => $this->faker->uuid,
-            'isVerified' => true,
-            'pointOfContactUuid' => $pointOfContactUuid,
-            'pointOfContactEmail' => $pointOfContactUuid ? $this->faker->safeEmail : null,
-        ], 200);
     }
 }

@@ -25,6 +25,7 @@ use PrestaShop\Module\PsAccounts\Account\Session\Firebase;
 use PrestaShop\Module\PsAccounts\Account\Session\Session;
 use PrestaShop\Module\PsAccounts\Account\Session\SessionInterface;
 use PrestaShop\Module\PsAccounts\Account\Session\ShopSession;
+use PrestaShop\Module\PsAccounts\Account\StatusManager;
 use PrestaShop\Module\PsAccounts\Account\Token\Token;
 use PrestaShop\Module\PsAccounts\Log\Logger;
 use PrestaShop\Module\PsAccounts\Service\Accounts\AccountsException;
@@ -38,11 +39,12 @@ abstract class FirebaseSession extends Session implements SessionInterface
     protected $shopSession;
 
     /**
-     * Shared by the owner and shop sessions, which both refresh the point of contact
+     * Per shop (cloud shop id), time before which a status that couldn't be fetched isn't asked for again.
+     * Shared by the owner and shop sessions, which both refresh the point of contact.
      *
-     * @var bool the status couldn't be fetched in this runtime: don't ask again before the next one
+     * @var array<string, int>
      */
-    protected static $statusUnavailable = false;
+    protected static $statusUnavailableUntil = [];
 
     public function __construct(ShopSession $shopSession)
     {
@@ -56,7 +58,7 @@ abstract class FirebaseSession extends Session implements SessionInterface
      */
     public static function resetStatusUnavailable()
     {
-        self::$statusUnavailable = false;
+        self::$statusUnavailableUntil = [];
     }
 
     /**
@@ -139,38 +141,63 @@ abstract class FirebaseSession extends Session implements SessionInterface
         // saving both tokens here
         $this->getShopSession()->setToken((string) $shopToken->getJwt(), $shopToken->getRefreshToken());
 
-        if (isset($pointOfContactToken)) {
+        if (isset($pointOfContactToken) && $this->isTokenOfPointOfContact($pointOfContactToken)) {
             $this->getOwnerSession()->setToken((string) $pointOfContactToken->getJwt(), $pointOfContactToken->getRefreshToken());
         } else {
-            // accounts-api has no point of contact for this shop: never keep serving a previous one's token
+            // no token of the point of contact: never keep serving a previous one's
             $this->getOwnerSession()->cleanup();
 
-            // a cached point of contact is stale: refresh it, so that no user token is asked for again
-            if ($this->getStatusManager()->getPointOfContactUuid()) {
+            // accounts-api has no point of contact while one is cached: refresh the stale status,
+            // so that no user token is asked for again
+            if (!isset($pointOfContactToken) && $this->getStatusManager()->getPointOfContactUuid()) {
                 $this->refreshPointOfContactUuid();
             }
         }
     }
 
     /**
+     * accounts-api issues the user token with the point of contact uuid as subject,
+     * but may still return the previous one's right after a change.
+     *
+     * @param Token $token
+     *
+     * @return bool
+     */
+    protected function isTokenOfPointOfContact(Token $token)
+    {
+        $tokenOwnerUuid = (string) $token->getUuid();
+
+        return '' !== $tokenOwnerUuid && (
+            $tokenOwnerUuid === (string) $this->getStatusManager()->getPointOfContactUuid() ||
+            $tokenOwnerUuid === $this->refreshPointOfContactUuid()
+        );
+    }
+
+    /**
      * Point of contact from the status, fetched again once its cache has expired:
      * at most one status call per cache lifetime while accounts-api answers,
-     * and one per runtime while it doesn't (the cached status is then kept to).
+     * and per shop one per cache lifetime while it doesn't (the cached status is then kept to).
      *
      * @return string empty when there is no point of contact
      */
     protected function refreshPointOfContactUuid()
     {
         $statusManager = $this->getStatusManager();
+        $cloudShopId = (string) $statusManager->getCloudShopId();
 
-        if (!self::$statusUnavailable) {
+        if (!isset(self::$statusUnavailableUntil[$cloudShopId]) || time() >= self::$statusUnavailableUntil[$cloudShopId]) {
             try {
                 $statusManager->getStatus(false);
             } catch (\Exception $e) {
-                // thrown when withThrowException is on: the cached status is kept to below
+                Logger::getInstance()->error('Unable to refresh the shop status: ' . $e->getMessage());
             }
+
             // the cache stays invalidated or expired when the status couldn't be fetched
-            self::$statusUnavailable = $statusManager->cacheInvalidated() || $statusManager->cacheExpired();
+            if ($statusManager->cacheInvalidated() || $statusManager->cacheExpired()) {
+                self::$statusUnavailableUntil[$cloudShopId] = time() + StatusManager::CACHE_TTL;
+            } else {
+                unset(self::$statusUnavailableUntil[$cloudShopId]);
+            }
         }
 
         return (string) $statusManager->getPointOfContactUuid();

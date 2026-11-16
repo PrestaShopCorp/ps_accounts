@@ -55,15 +55,20 @@ class OwnerSession extends FirebaseSession implements SessionInterface
     }
 
     /**
+     * The stored token, served only to its point of contact: a token kept without point of contact,
+     * or for a previous one, is not served.
+     *
      * @return Token
      */
     public function getToken()
     {
-        return new Token(
-            $this->configurationRepository->getUserFirebaseIdToken(),
-            $this->configurationRepository->getUserFirebaseRefreshToken(),
-            $this->resolveTokenExpirationLeeway()
-        );
+        $token = $this->getStoredToken();
+
+        if (!$this->tokenBelongsTo($token, (string) $this->getStatusManager()->getPointOfContactUuid())) {
+            return new Token('');
+        }
+
+        return $token;
     }
 
     /**
@@ -83,19 +88,30 @@ class OwnerSession extends FirebaseSession implements SessionInterface
      */
     public function getValidToken($forceRefresh = false, $throw = true, array $scope = [], array $audience = [])
     {
-        $pointOfContactUuid = $this->resolvePointOfContactUuid();
-        if (!$pointOfContactUuid) {
+        if (!$this->resolvePointOfContactUuid()) {
             return new Token('');
         }
 
-        $token = parent::getValidToken($forceRefresh, $throw, $scope, $audience);
+        return parent::getValidToken($forceRefresh, $throw, $scope, $audience);
+    }
 
-        if (!$this->tokenBelongsTo($token, $pointOfContactUuid) &&
-            !$this->tokenBelongsTo($token, $this->refreshPointOfContactUuid())
-        ) {
-            // accounts-api still returns the previous point of contact's token: neither serve nor keep it
-            $this->cleanup();
-            $token = new Token('');
+    /**
+     * @param string $refreshToken
+     * @param array $scope
+     * @param array $audience
+     *
+     * @return Token
+     *
+     * @throws RefreshTokenException
+     */
+    public function refreshToken($refreshToken = null, array $scope = [], array $audience = [])
+    {
+        $token = parent::refreshToken($refreshToken, $scope, $audience);
+
+        // no token of the point of contact was returned: as for any refresh error,
+        // don't ask again in this runtime (see Session::getValidToken)
+        if ('' === (string) $token) {
+            throw new RefreshTokenException('No user token returned for the point of contact');
         }
 
         return $token;
@@ -106,9 +122,16 @@ class OwnerSession extends FirebaseSession implements SessionInterface
      */
     public function isEmailVerified()
     {
-        // never read the claim of another point of contact's token
-        if (!$this->resolvePointOfContactUuid()) {
+        $hadStoredToken = '' !== (string) $this->getStoredToken();
+
+        $pointOfContactUuid = $this->resolvePointOfContactUuid();
+        if (!$pointOfContactUuid) {
             return false;
+        }
+
+        if ($hadStoredToken && '' === (string) $this->getStoredToken()) {
+            // the previous point of contact's token was just cleaned up: read the new one's claim
+            return (bool) $this->getValidToken(false, false)->getJwt()->claims()->get('email_verified');
         }
 
         return parent::isEmailVerified();
@@ -125,15 +148,27 @@ class OwnerSession extends FirebaseSession implements SessionInterface
         // the cached status may only be transiently empty (identity migration or restore)
         $pointOfContactUuid = (string) $this->getStatusManager()->getPointOfContactUuid();
 
-        if ($pointOfContactUuid && !$this->tokenBelongsTo($this->getToken(), $pointOfContactUuid)) {
+        if ($pointOfContactUuid && !$this->tokenBelongsTo($this->getStoredToken(), $pointOfContactUuid)) {
             // either the stored token or the cached status is stale
             $pointOfContactUuid = $this->refreshPointOfContactUuid();
-            if (!$this->tokenBelongsTo($this->getToken(), $pointOfContactUuid)) {
+            if (!$this->tokenBelongsTo($this->getStoredToken(), $pointOfContactUuid)) {
                 $this->cleanup();
             }
         }
 
         return $pointOfContactUuid;
+    }
+
+    /**
+     * @return Token
+     */
+    protected function getStoredToken()
+    {
+        return new Token(
+            $this->configurationRepository->getUserFirebaseIdToken(),
+            $this->configurationRepository->getUserFirebaseRefreshToken(),
+            $this->resolveTokenExpirationLeeway()
+        );
     }
 
     /**

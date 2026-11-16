@@ -48,6 +48,11 @@ trait SessionHelpers
     protected $mockedStatusManager;
 
     /**
+     * @var string|null cloud shop id of the mocked Firebase sessions, the same within a test
+     */
+    protected $mockedCloudShopId;
+
+    /**
      * @param string $firebaseSessionClass
      * @param Response $response /tokens response
      * @param ShopSession $shopSession
@@ -70,7 +75,7 @@ trait SessionHelpers
             // expired: a status call is allowed when needed
             'updatedAt' => date('Y-m-d H:i:s', strtotime('-1 hour')),
             'shopStatus' => new ShopStatus([
-                'cloudShopId' => $this->faker->uuid,
+                'cloudShopId' => $this->getMockedCloudShopId(),
                 'pointOfContactUuid' => $pointOfContactUuid,
             ]),
         ]))->toArray()));
@@ -114,6 +119,70 @@ trait SessionHelpers
             ->willReturn($statusManager);
 
         return $firebaseSession;
+    }
+
+    /**
+     * @return string
+     */
+    protected function getMockedCloudShopId()
+    {
+        if (!$this->mockedCloudShopId) {
+            $this->mockedCloudShopId = $this->faker->uuid;
+        }
+
+        return $this->mockedCloudShopId;
+    }
+
+    /**
+     * @param string $pointOfContactUuid
+     * @param string $expiresAt
+     * @param array $claims
+     *
+     * @return \PrestaShop\Module\PsAccounts\Vendor\Lcobucci\JWT\Token
+     */
+    protected function makeUserToken($pointOfContactUuid, $expiresAt, array $claims = [])
+    {
+        return $this->makeJwtToken(new \DateTimeImmutable($expiresAt), array_merge([
+            'sub' => $pointOfContactUuid,
+            'email' => $this->faker->safeEmail,
+        ], $claims));
+    }
+
+    /**
+     * @param \PrestaShop\Module\PsAccounts\Vendor\Lcobucci\JWT\Token|null $userToken
+     * @param string|null $userRefreshToken
+     * @param \PrestaShop\Module\PsAccounts\Vendor\Lcobucci\JWT\Token|null $shopToken
+     *
+     * @return Response
+     */
+    protected function createTokensResponse($userToken, $userRefreshToken = null, $shopToken = null)
+    {
+        return $this->createResponse([
+            'shop' => [
+                'token' => (string) ($shopToken ?: $this->makeJwtToken(new \DateTimeImmutable('tomorrow'))),
+                'refreshToken' => $this->faker->regexify('[a-zA-Z\d]{40}'),
+            ],
+            // what accounts-api returns for a shop without point of contact
+            'pointOfContact' => [
+                'token' => $userToken ? (string) $userToken : null,
+                'refreshToken' => $userToken ? ($userRefreshToken ?: $this->faker->regexify('[a-zA-Z\d]{40}')) : null,
+            ],
+        ], 200);
+    }
+
+    /**
+     * @param string|null $pointOfContactUuid
+     *
+     * @return Response
+     */
+    protected function createStatusResponse($pointOfContactUuid)
+    {
+        return $this->createResponse([
+            'cloudShopId' => $this->getMockedCloudShopId(),
+            'isVerified' => true,
+            'pointOfContactUuid' => $pointOfContactUuid,
+            'pointOfContactEmail' => $pointOfContactUuid ? $this->faker->safeEmail : null,
+        ], 200);
     }
 
     /**
