@@ -2,7 +2,8 @@
 
 namespace PrestaShop\Module\PsAccounts\Service;
 
-use PrestaShop\Module\PsAccounts\Vendor\Lcobucci\Clock\FrozenClock;
+use PrestaShop\Module\PsAccounts\Vendor\Lcobucci\Clock\Clock;
+use PrestaShop\Module\PsAccounts\Vendor\Lcobucci\Clock\SystemClock;
 use PrestaShop\Module\PsAccounts\Vendor\Lcobucci\JWT\Builder;
 use PrestaShop\Module\PsAccounts\Vendor\Lcobucci\JWT\Configuration;
 use PrestaShop\Module\PsAccounts\Vendor\Lcobucci\JWT\Signer\Hmac\Sha256;
@@ -16,6 +17,19 @@ use PrestaShop\Module\PsAccounts\Vendor\Lcobucci\JWT\Validation\RequiredConstrai
 class AdminTokenService
 {
     const PS_ACCOUNTS_TOKEN_SIGNATURE = 'PS_ACCOUNTS_TOKEN_SIGNATURE';
+
+    /**
+     * @var Clock
+     */
+    private $clock;
+
+    /**
+     * @param Clock|null $clock the system clock by default
+     */
+    public function __construct($clock = null)
+    {
+        $this->clock = $clock ?: SystemClock::fromUTC();
+    }
 
     /**
      * @return Token
@@ -33,7 +47,7 @@ class AdminTokenService
             InMemory::plainText($signature)
         );
 
-        $now = time();
+        $now = $this->clock->now()->getTimestamp();
 
         $builder = (new Builder())
             ->issuedAt(new \DateTimeImmutable('@' . $now))
@@ -64,7 +78,7 @@ class AdminTokenService
 
         $configuration->setValidationConstraints(
             new SignedWith($configuration->signer(), $configuration->signingKey()),
-            new ValidAt(new FrozenClock(new \DateTimeImmutable()))
+            new ValidAt($this->clock)
         );
 
         $token = $configuration->parser()->parse($token);

@@ -21,6 +21,8 @@
 namespace PrestaShop\Module\PsAccounts\Account\Token;
 
 use PrestaShop\Module\PsAccounts\Log\Logger;
+use PrestaShop\Module\PsAccounts\Vendor\Lcobucci\Clock\Clock;
+use PrestaShop\Module\PsAccounts\Vendor\Lcobucci\Clock\SystemClock;
 use PrestaShop\Module\PsAccounts\Vendor\Lcobucci\JWT\Parser;
 use PrestaShop\Module\PsAccounts\Vendor\Lcobucci\JWT\Token\InvalidTokenStructure;
 
@@ -49,19 +51,26 @@ class Token
     private $clockOffset;
 
     /**
+     * @var Clock
+     */
+    private $clock;
+
+    /**
      * @param string $token
      * @param string $refreshToken
      * @param int $leeway seconds before expiration from which the token is
      *                    considered expired, so that it is refreshed ahead of time
      * @param int $clockOffset seconds the local clock is behind the server that issued
      *                         the token, negative values are ignored
+     * @param Clock|null $clock local clock, the system clock by default
      */
-    public function __construct($token, $refreshToken = null, $leeway = 0, $clockOffset = 0)
+    public function __construct($token, $refreshToken = null, $leeway = 0, $clockOffset = 0, $clock = null)
     {
         $this->token = $token;
         $this->refreshToken = $refreshToken;
         $this->leeway = (int) $leeway;
         $this->clockOffset = (int) $clockOffset;
+        $this->clock = $clock ?: SystemClock::fromUTC();
     }
 
     /**
@@ -89,7 +98,9 @@ class Token
 
         // Computed on Unix timestamps: DateTime::modify() on a local time
         // adds one more hour during the DST fall-back.
-        return $this->getJwt()->isExpired(new \DateTime('@' . ($this->getCurrentTime() + $shift)));
+        return $this->getJwt()->isExpired(
+            new \DateTime('@' . ($this->clock->now()->getTimestamp() + $shift))
+        );
     }
 
     /**
@@ -113,7 +124,7 @@ class Token
             $issuedAt = $issuedAt->getTimestamp();
         }
 
-        return (int) round($issuedAt - (null === $referenceTime ? microtime(true) : $referenceTime));
+        return (int) round($issuedAt - (null === $referenceTime ? (float) $this->clock->now()->format('U.u') : $referenceTime));
     }
 
     /**
@@ -230,13 +241,5 @@ class Token
     {
         //return new \Lcobucci\JWT\Token([], ['exp' => new \DateTime()]);
         return new NullToken([], ['exp' => new \DateTime('@0')]);
-    }
-
-    /**
-     * @return int Unix timestamp
-     */
-    protected function getCurrentTime()
-    {
-        return time();
     }
 }
