@@ -108,6 +108,7 @@ class IdentifyContactHandlerTest extends TestCase
         ]), $userInfo));
 
         $this->assertInstanceOf(NullToken::class, $this->ownerSession->getToken()->getJwt());
+        $this->assertEquals('', $this->ownerSession->getToken()->getRefreshToken());
         $this->assertEquals($userInfo->sub, $this->statusManager->getPointOfContactUuid());
         $this->assertEquals($userInfo->email, $this->statusManager->getPointOfContactEmail());
     }

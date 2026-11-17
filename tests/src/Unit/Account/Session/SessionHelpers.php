@@ -6,6 +6,7 @@ use PHPUnit\Framework\MockObject\MockObject;
 use PrestaShop\Module\PsAccounts\Account\CachedShopStatus;
 use PrestaShop\Module\PsAccounts\Account\Session\Firebase\FirebaseSession;
 use PrestaShop\Module\PsAccounts\Account\Session\ShopSession;
+use PrestaShop\Module\PsAccounts\Account\StatusManager;
 use PrestaShop\Module\PsAccounts\Account\Token\Token;
 use PrestaShop\Module\PsAccounts\Http\Client\Curl\Client;
 use PrestaShop\Module\PsAccounts\Http\Client\Response;
@@ -37,22 +38,45 @@ trait SessionHelpers
     }
 
     /**
+     * @var string[] routes called on accounts-api
+     */
+    protected $apiCalls = [];
+
+    /**
+     * @var StatusManager status manager of the last mocked Firebase session
+     */
+    protected $mockedStatusManager;
+
+    /**
+     * @var string|null cloud shop id of the mocked Firebase sessions, the same within a test
+     */
+    protected $mockedCloudShopId;
+
+    /**
      * @param string $firebaseSessionClass
-     * @param Response $response
+     * @param Response $response /tokens response
      * @param ShopSession $shopSession
+     * @param string|null $pointOfContactUuid point of contact of the cached status
+     * @param Response|null $statusResponse /status response (error by default)
      *
      * @return FirebaseSession&MockObject
      */
-    protected function getMockedFirebaseSession($firebaseSessionClass, Response $response, $shopSession)
-    {
+    protected function getMockedFirebaseSession(
+        $firebaseSessionClass,
+        Response $response,
+        $shopSession,
+        $pointOfContactUuid = null,
+        Response $statusResponse = null
+    ) {
         $client = $this->createMock(Client::class);
-
-        $cloudShopId = $this->faker->uuid;
 
         $this->configurationRepository->updateCachedShopStatus(json_encode((new CachedShopStatus([
             'isValid' => true,
+            // expired: a status call is allowed when needed
+            'updatedAt' => date('Y-m-d H:i:s', strtotime('-1 hour')),
             'shopStatus' => new ShopStatus([
-                'cloudShopId' => $cloudShopId,
+                'cloudShopId' => $this->getMockedCloudShopId(),
+                'pointOfContactUuid' => $pointOfContactUuid,
             ]),
         ]))->toArray()));
 
@@ -60,14 +84,25 @@ trait SessionHelpers
         $accountsService = $this->module->getService(AccountsService::class);
         $accountsService->setClient($client);
 
+        $this->apiCalls = [];
         $client->method('get')
-            ->willReturnCallback(function ($route) use ($response) {
+            ->willReturnCallback(function ($route) use ($response, $statusResponse) {
                 if (preg_match('/v1\/shop-identities\/(.*)\/tokens$/', $route)) {
+                    $this->apiCalls[] = 'tokens';
+
                     return $response;
+                }
+                if (preg_match('/v1\/shop-identities\/(.*)\/status$/', $route)) {
+                    $this->apiCalls[] = 'status';
+
+                    return $statusResponse ?: $this->createResponse([], 500, true);
                 }
 
                 return $this->createResponse([], 500, true);
             });
+
+        $statusManager = new StatusManager($shopSession, $accountsService, $this->configurationRepository);
+        $this->mockedStatusManager = $statusManager;
 
         /** @var FirebaseSession&MockObject $firebaseSession */
         $firebaseSession = $this->getMockBuilder($firebaseSessionClass)
@@ -76,11 +111,89 @@ trait SessionHelpers
                 $shopSession,
             ])
             ->enableOriginalClone()
-            ->setMethods(['getAccountsService'])
+            ->setMethods(['getAccountsService', 'getStatusManager'])
             ->getMock();
         $firebaseSession->method('getAccountsService')
             ->willReturn($accountsService);
+        $firebaseSession->method('getStatusManager')
+            ->willReturn($statusManager);
 
         return $firebaseSession;
+    }
+
+    /**
+     * @return string
+     */
+    protected function getMockedCloudShopId()
+    {
+        if (!$this->mockedCloudShopId) {
+            $this->mockedCloudShopId = $this->faker->uuid;
+        }
+
+        return $this->mockedCloudShopId;
+    }
+
+    /**
+     * @param string $pointOfContactUuid
+     * @param string $expiresAt
+     * @param array $claims
+     *
+     * @return \PrestaShop\Module\PsAccounts\Vendor\Lcobucci\JWT\Token
+     */
+    protected function makeUserToken($pointOfContactUuid, $expiresAt, array $claims = [])
+    {
+        return $this->makeJwtToken(new \DateTimeImmutable($expiresAt), array_merge([
+            'sub' => $pointOfContactUuid,
+            'email' => $this->faker->safeEmail,
+        ], $claims));
+    }
+
+    /**
+     * @param \PrestaShop\Module\PsAccounts\Vendor\Lcobucci\JWT\Token|null $userToken
+     * @param string|null $userRefreshToken
+     * @param \PrestaShop\Module\PsAccounts\Vendor\Lcobucci\JWT\Token|null $shopToken
+     *
+     * @return Response
+     */
+    protected function createTokensResponse($userToken, $userRefreshToken = null, $shopToken = null)
+    {
+        return $this->createResponse([
+            'shop' => [
+                'token' => (string) ($shopToken ?: $this->makeJwtToken(new \DateTimeImmutable('tomorrow'))),
+                'refreshToken' => $this->faker->regexify('[a-zA-Z\d]{40}'),
+            ],
+            // what accounts-api returns for a shop without point of contact
+            'pointOfContact' => [
+                'token' => $userToken ? (string) $userToken : null,
+                'refreshToken' => $userToken ? ($userRefreshToken ?: $this->faker->regexify('[a-zA-Z\d]{40}')) : null,
+            ],
+        ], 200);
+    }
+
+    /**
+     * @param string|null $pointOfContactUuid
+     *
+     * @return Response
+     */
+    protected function createStatusResponse($pointOfContactUuid)
+    {
+        return $this->createResponse([
+            'cloudShopId' => $this->getMockedCloudShopId(),
+            'isVerified' => true,
+            'pointOfContactUuid' => $pointOfContactUuid,
+            'pointOfContactEmail' => $pointOfContactUuid ? $this->faker->safeEmail : null,
+        ], 200);
+    }
+
+    /**
+     * @param string $route
+     *
+     * @return int
+     */
+    protected function countApiCalls($route)
+    {
+        return count(array_filter($this->apiCalls, function ($call) use ($route) {
+            return $call === $route;
+        }));
     }
 }

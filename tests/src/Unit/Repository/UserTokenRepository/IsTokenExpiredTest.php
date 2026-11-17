@@ -28,6 +28,7 @@ class IsTokenExpiredTest extends TestCase
 
         $refreshToken = $this->makeJwtToken(new \DateTimeImmutable('+1 year'));
 
+        $this->statusManager->setPointOfContactUuid($idToken->claims()->get('sub'));
         $this->repository->updateCredentials((string) $idToken, (string) $refreshToken);
 
         $this->assertTrue($this->repository->isTokenExpired());
@@ -47,6 +48,7 @@ class IsTokenExpiredTest extends TestCase
 
         $refreshToken = $this->makeJwtToken(new \DateTimeImmutable('+1 year'));
 
+        $this->statusManager->setPointOfContactUuid($idToken->claims()->get('sub'));
         $this->repository->updateCredentials((string) $idToken, (string) $refreshToken);
 
         $this->assertFalse($this->repository->isTokenExpired());
