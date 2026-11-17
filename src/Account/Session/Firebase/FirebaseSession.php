@@ -141,65 +141,86 @@ abstract class FirebaseSession extends Session implements SessionInterface
         // saving both tokens here
         $this->getShopSession()->setToken((string) $shopToken->getJwt(), $shopToken->getRefreshToken());
 
-        if (isset($pointOfContactToken) && $this->isTokenOfPointOfContact($pointOfContactToken)) {
-            $this->getOwnerSession()->setToken((string) $pointOfContactToken->getJwt(), $pointOfContactToken->getRefreshToken());
+        if (isset($pointOfContactToken)) {
+            $pointOfContactUuid = (string) $this->getStatusManager()->getPointOfContactUuid();
+            if (!$this->tokenBelongsTo($pointOfContactToken, $pointOfContactUuid)) {
+                // either the token or the cached status is stale: tell from the status read again
+                $pointOfContactUuid = $this->refreshPointOfContactUuid();
+            }
+
+            // when the status couldn't be read, whose token it is can't be told: the stored one is kept
+            if (null !== $pointOfContactUuid) {
+                if ($this->tokenBelongsTo($pointOfContactToken, $pointOfContactUuid)) {
+                    $this->getOwnerSession()->setToken((string) $pointOfContactToken->getJwt(), $pointOfContactToken->getRefreshToken());
+                } else {
+                    // accounts-api still returns the previous point of contact's token: keep none
+                    $this->getOwnerSession()->cleanup();
+                }
+            }
         } else {
-            // no token of the point of contact: never keep serving a previous one's
+            // accounts-api has no point of contact for this shop (it always returns the field, empty then):
+            // never keep serving a previous one's token
             $this->getOwnerSession()->cleanup();
 
-            // accounts-api has no point of contact while one is cached: refresh the stale status,
+            // a cached point of contact is then likely stale: read the status again once its cache has expired,
             // so that no user token is asked for again
-            if (!isset($pointOfContactToken) && $this->getStatusManager()->getPointOfContactUuid()) {
-                $this->refreshPointOfContactUuid();
+            if ($this->getStatusManager()->getPointOfContactUuid()) {
+                $this->refreshPointOfContactUuid(false);
             }
         }
     }
 
     /**
-     * accounts-api issues the user token with the point of contact uuid as subject,
-     * but may still return the previous one's right after a change.
+     * accounts-api issues the user token with the point of contact uuid as subject.
      *
      * @param Token $token
+     * @param string $pointOfContactUuid
      *
-     * @return bool
+     * @return bool true for an empty token (nothing to compare), false for a token without subject
      */
-    protected function isTokenOfPointOfContact(Token $token)
+    protected function tokenBelongsTo(Token $token, $pointOfContactUuid)
     {
+        if ('' === (string) $token) {
+            return true;
+        }
+
         $tokenOwnerUuid = (string) $token->getUuid();
 
-        return '' !== $tokenOwnerUuid && (
-            $tokenOwnerUuid === (string) $this->getStatusManager()->getPointOfContactUuid() ||
-            $tokenOwnerUuid === $this->refreshPointOfContactUuid()
-        );
+        return '' !== $tokenOwnerUuid && $tokenOwnerUuid === (string) $pointOfContactUuid;
     }
 
     /**
-     * Point of contact from the status, fetched again once its cache has expired:
-     * at most one status call per cache lifetime while accounts-api answers,
-     * and per shop one per cache lifetime while it doesn't (the cached status is then kept to).
+     * Point of contact from the status read again from accounts-api: whatever its cache when the cached one
+     * disagrees with a token, once its cache has expired otherwise.
+     * After a failure, the status isn't asked for again for this shop before a cache lifetime.
      *
-     * @return string empty when there is no point of contact
+     * @param bool $force
+     *
+     * @return string|null empty when there is no point of contact, null when the status couldn't be read
      */
-    protected function refreshPointOfContactUuid()
+    protected function refreshPointOfContactUuid($force = true)
     {
         $statusManager = $this->getStatusManager();
         $cloudShopId = (string) $statusManager->getCloudShopId();
 
-        if (!isset(self::$statusUnavailableUntil[$cloudShopId]) || time() >= self::$statusUnavailableUntil[$cloudShopId]) {
-            try {
-                $statusManager->getStatus(false);
-            } catch (\Exception $e) {
-                Logger::getInstance()->error('Unable to refresh the shop status: ' . $e->getMessage());
-            }
-
-            // the cache stays invalidated or expired when the status couldn't be fetched
-            if ($statusManager->cacheInvalidated() || $statusManager->cacheExpired()) {
-                self::$statusUnavailableUntil[$cloudShopId] = time() + StatusManager::CACHE_TTL;
-            } else {
-                unset(self::$statusUnavailableUntil[$cloudShopId]);
-            }
+        if (isset(self::$statusUnavailableUntil[$cloudShopId]) && time() < self::$statusUnavailableUntil[$cloudShopId]) {
+            return null;
         }
 
-        return (string) $statusManager->getPointOfContactUuid();
+        // the caller's setting is restored below
+        $throwException = $statusManager->getThrowException(false);
+        try {
+            $pointOfContactUuid = (string) $statusManager->withThrowException(true)
+                ->getStatus(false, $force ? 0 : StatusManager::CACHE_TTL)
+                ->pointOfContactUuid;
+            unset(self::$statusUnavailableUntil[$cloudShopId]);
+        } catch (\Exception $e) {
+            Logger::getInstance()->error('Unable to refresh the shop status: ' . $e->getMessage());
+            self::$statusUnavailableUntil[$cloudShopId] = time() + StatusManager::CACHE_TTL;
+            $pointOfContactUuid = null;
+        }
+        $statusManager->withThrowException($throwException);
+
+        return $pointOfContactUuid;
     }
 }

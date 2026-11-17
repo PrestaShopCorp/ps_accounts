@@ -22,18 +22,19 @@ namespace PrestaShop\Module\PsAccounts\Account\Session\Firebase;
 
 use PrestaShop\Module\PsAccounts\Account\Exception\RefreshTokenException;
 use PrestaShop\Module\PsAccounts\Account\Session\SessionInterface;
+use PrestaShop\Module\PsAccounts\Account\StatusManager;
 use PrestaShop\Module\PsAccounts\Account\Token\Token;
 use PrestaShop\Module\PsAccounts\Repository\ConfigurationRepository;
 
 class OwnerSession extends FirebaseSession implements SessionInterface
 {
     /**
-     * Per shop (cloud shop id), accounts-api returned no token of the point of contact in this runtime:
-     * it isn't asked again before the next one.
+     * Per shop (cloud shop id), time before which accounts-api isn't asked again for a user token
+     * after it returned none of the point of contact.
      *
-     * @var array<string, bool>
+     * @var array<string, int>
      */
-    protected static $noTokenReturned = [];
+    protected static $noTokenReturnedUntil = [];
 
     /**
      * @var ConfigurationRepository
@@ -85,6 +86,9 @@ class OwnerSession extends FirebaseSession implements SessionInterface
      * - without a point of contact, there is no user token to get: don't call accounts-api;
      * - a token of another point of contact is never served.
      *
+     * In both cases an empty token is returned without exception, whatever $throw:
+     * as on main, where accounts-api returned no token of the point of contact.
+     *
      * @param bool $forceRefresh
      * @param bool $throw
      * @param array $scope
@@ -96,9 +100,7 @@ class OwnerSession extends FirebaseSession implements SessionInterface
      */
     public function getValidToken($forceRefresh = false, $throw = true, array $scope = [], array $audience = [])
     {
-        if (!$this->resolvePointOfContactUuid() ||
-            isset(self::$noTokenReturned[(string) $this->getStatusManager()->getCloudShopId()])
-        ) {
+        if (!$this->resolvePointOfContactUuid()) {
             return new Token('');
         }
 
@@ -116,12 +118,19 @@ class OwnerSession extends FirebaseSession implements SessionInterface
      */
     public function refreshToken($refreshToken = null, array $scope = [], array $audience = [])
     {
+        // accounts-api returned no token of the point of contact lately: don't ask again before a cache lifetime
+        // (unlike Session's refresh errors, this one is per shop: multistore iterates over shops)
+        $cloudShopId = (string) $this->getStatusManager()->getCloudShopId();
+        if (isset(self::$noTokenReturnedUntil[$cloudShopId]) && time() < self::$noTokenReturnedUntil[$cloudShopId]) {
+            return $this->getToken();
+        }
+
         $token = parent::refreshToken($refreshToken, $scope, $audience);
 
-        // no token of the point of contact was returned: don't ask again for this shop in this runtime
-        // (unlike Session's refresh errors, this one is per shop: multistore iterates over shops)
         if ('' === (string) $token) {
-            self::$noTokenReturned[(string) $this->getStatusManager()->getCloudShopId()] = true;
+            self::$noTokenReturnedUntil[$cloudShopId] = time() + StatusManager::CACHE_TTL;
+        } else {
+            unset(self::$noTokenReturnedUntil[$cloudShopId]);
         }
 
         return $token;
@@ -132,7 +141,7 @@ class OwnerSession extends FirebaseSession implements SessionInterface
      */
     public static function resetNoTokenReturned()
     {
-        self::$noTokenReturned = [];
+        self::$noTokenReturnedUntil = [];
     }
 
     /**
@@ -147,11 +156,11 @@ class OwnerSession extends FirebaseSession implements SessionInterface
             return false;
         }
 
-        // the previous point of contact's token was just cleaned up: read the new one's claim.
+        // the previous point of contact's token was just cleaned up: get the new one's, then read it as usual.
         // Without stored token, no call as on main: e.g. after IdentifyContactHandler's cleanup,
         // the new point of contact's token is only got by the next getValidToken()
         if ($hadStoredToken && '' === (string) $this->getStoredToken()) {
-            return (bool) $this->getValidToken(false, false)->getJwt()->claims()->get('email_verified');
+            $this->getValidToken(false, false);
         }
 
         return parent::isEmailVerified();
@@ -169,9 +178,13 @@ class OwnerSession extends FirebaseSession implements SessionInterface
         $pointOfContactUuid = (string) $this->getStatusManager()->getPointOfContactUuid();
 
         if ($pointOfContactUuid && !$this->tokenBelongsTo($this->getStoredToken(), $pointOfContactUuid)) {
-            // either the stored token or the cached status is stale
+            // either the stored token or the cached status is stale: tell from the status read again
             $pointOfContactUuid = $this->refreshPointOfContactUuid();
-            if (!$this->tokenBelongsTo($this->getStoredToken(), $pointOfContactUuid)) {
+
+            if (null === $pointOfContactUuid) {
+                // the status couldn't be read: the stored token is kept, but not served
+                $pointOfContactUuid = '';
+            } elseif (!$this->tokenBelongsTo($this->getStoredToken(), $pointOfContactUuid)) {
                 $this->cleanup();
             }
         }
@@ -189,21 +202,6 @@ class OwnerSession extends FirebaseSession implements SessionInterface
             $this->configurationRepository->getUserFirebaseRefreshToken(),
             $this->resolveTokenExpirationLeeway()
         );
-    }
-
-    /**
-     * accounts-api issues the user token with the point of contact uuid as subject.
-     *
-     * @param Token $token
-     * @param string $pointOfContactUuid
-     *
-     * @return bool true for an empty token
-     */
-    protected function tokenBelongsTo(Token $token, $pointOfContactUuid)
-    {
-        $tokenOwnerUuid = (string) $token->getUuid();
-
-        return '' === $tokenOwnerUuid || $tokenOwnerUuid === $pointOfContactUuid;
     }
 
     /**
