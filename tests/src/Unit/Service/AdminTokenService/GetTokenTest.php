@@ -59,7 +59,9 @@ class GetTokenTest extends TestCase
 
         try {
             $now = strtotime('2026-10-25T00:30:00Z');
-            $service = new AdminTokenServiceTestClass(new FrozenClock(new \DateTimeImmutable('@' . $now)));
+            $service = new AdminTokenServiceTestClass(new FrozenClock(
+                (new \DateTimeImmutable('@' . $now))->setTimezone(new \DateTimeZone('Europe/Paris'))
+            ));
 
             $token = $service->getToken();
 

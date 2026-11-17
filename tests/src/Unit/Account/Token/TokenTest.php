@@ -203,7 +203,10 @@ class TokenTest extends TestCase
         try {
             $time = strtotime($instant);
 
-            $clock = new FrozenClock(new \DateTimeImmutable('@' . $time));
+            // Local time, as a system clock in the shop timezone would give it
+            $clock = new FrozenClock(
+                (new \DateTimeImmutable('@' . $time))->setTimezone(new \DateTimeZone('Europe/Paris'))
+            );
 
             $freshToken = new Token(
                 (string) $this->makeJwtToken(new \DateTimeImmutable('@' . ($time + 120))),

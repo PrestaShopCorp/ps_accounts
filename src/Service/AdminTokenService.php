@@ -2,8 +2,8 @@
 
 namespace PrestaShop\Module\PsAccounts\Service;
 
+use PrestaShop\Module\PsAccounts\Polyfill\UtcClock;
 use PrestaShop\Module\PsAccounts\Vendor\Lcobucci\Clock\Clock;
-use PrestaShop\Module\PsAccounts\Vendor\Lcobucci\Clock\SystemClock;
 use PrestaShop\Module\PsAccounts\Vendor\Lcobucci\JWT\Builder;
 use PrestaShop\Module\PsAccounts\Vendor\Lcobucci\JWT\Configuration;
 use PrestaShop\Module\PsAccounts\Vendor\Lcobucci\JWT\Signer\Hmac\Sha256;
@@ -24,11 +24,13 @@ class AdminTokenService
     private $clock;
 
     /**
-     * @param Clock|null $clock the system clock by default
+     * @param Clock|null $clock the shared UTC system clock by default
+     *
+     * @throws \InvalidArgumentException when $clock is neither null nor a Clock
      */
     public function __construct($clock = null)
     {
-        $this->clock = $clock ?: SystemClock::fromUTC();
+        $this->clock = UtcClock::orDefault($clock);
     }
 
     /**
@@ -47,7 +49,9 @@ class AdminTokenService
             InMemory::plainText($signature)
         );
 
-        $now = $this->clock->now()->getTimestamp();
+        // format('U'): getTimestamp() is one hour off during the DST fall-back
+        // on PHP < 8.1 for a clock in a local timezone
+        $now = (int) $this->clock->now()->format('U');
 
         $builder = (new Builder())
             ->issuedAt(new \DateTimeImmutable('@' . $now))
