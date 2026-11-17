@@ -21,6 +21,8 @@
 namespace PrestaShop\Module\PsAccounts\Account\Token;
 
 use PrestaShop\Module\PsAccounts\Log\Logger;
+use PrestaShop\Module\PsAccounts\Polyfill\UtcClock;
+use PrestaShop\Module\PsAccounts\Vendor\Lcobucci\Clock\Clock;
 use PrestaShop\Module\PsAccounts\Vendor\Lcobucci\JWT\Parser;
 use PrestaShop\Module\PsAccounts\Vendor\Lcobucci\JWT\Token\InvalidTokenStructure;
 
@@ -49,19 +51,28 @@ class Token
     private $clockOffset;
 
     /**
+     * @var Clock
+     */
+    private $clock;
+
+    /**
      * @param string $token
      * @param string $refreshToken
      * @param int $leeway seconds before expiration from which the token is
      *                    considered expired, so that it is refreshed ahead of time
      * @param int $clockOffset seconds the local clock is behind the server that issued
      *                         the token, negative values are ignored
+     * @param Clock|null $clock local clock, the shared UTC system clock by default
+     *
+     * @throws \InvalidArgumentException when $clock is neither null nor a Clock
      */
-    public function __construct($token, $refreshToken = null, $leeway = 0, $clockOffset = 0)
+    public function __construct($token, $refreshToken = null, $leeway = 0, $clockOffset = 0, $clock = null)
     {
         $this->token = $token;
         $this->refreshToken = $refreshToken;
         $this->leeway = (int) $leeway;
         $this->clockOffset = (int) $clockOffset;
+        $this->clock = UtcClock::orDefault($clock);
     }
 
     /**
@@ -87,12 +98,13 @@ class Token
     {
         $shift = max(0, $this->leeway) + max(0, $this->clockOffset);
 
-        $now = new \DateTime();
-        if ($shift > 0) {
-            $now = $now->modify('+' . $shift . ' seconds');
-        }
-
-        return $this->getJwt()->isExpired($now);
+        // Computed on Unix timestamps: DateTime::modify() on a local time
+        // adds one more hour during the DST fall-back. format('U') rather than
+        // getTimestamp(), which is one hour off there on PHP < 8.1 for a
+        // clock in a local timezone.
+        return $this->getJwt()->isExpired(
+            new \DateTime('@' . ((int) $this->clock->now()->format('U') + $shift))
+        );
     }
 
     /**
@@ -116,7 +128,7 @@ class Token
             $issuedAt = $issuedAt->getTimestamp();
         }
 
-        return (int) round($issuedAt - (null === $referenceTime ? microtime(true) : $referenceTime));
+        return (int) round($issuedAt - (null === $referenceTime ? (float) $this->clock->now()->format('U.u') : $referenceTime));
     }
 
     /**

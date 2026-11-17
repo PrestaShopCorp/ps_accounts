@@ -2,7 +2,8 @@
 
 namespace PrestaShop\Module\PsAccounts\Service;
 
-use PrestaShop\Module\PsAccounts\Vendor\Lcobucci\Clock\FrozenClock;
+use PrestaShop\Module\PsAccounts\Polyfill\UtcClock;
+use PrestaShop\Module\PsAccounts\Vendor\Lcobucci\Clock\Clock;
 use PrestaShop\Module\PsAccounts\Vendor\Lcobucci\JWT\Builder;
 use PrestaShop\Module\PsAccounts\Vendor\Lcobucci\JWT\Configuration;
 use PrestaShop\Module\PsAccounts\Vendor\Lcobucci\JWT\Signer\Hmac\Sha256;
@@ -16,6 +17,21 @@ use PrestaShop\Module\PsAccounts\Vendor\Lcobucci\JWT\Validation\RequiredConstrai
 class AdminTokenService
 {
     const PS_ACCOUNTS_TOKEN_SIGNATURE = 'PS_ACCOUNTS_TOKEN_SIGNATURE';
+
+    /**
+     * @var Clock
+     */
+    private $clock;
+
+    /**
+     * @param Clock|null $clock the shared UTC system clock by default
+     *
+     * @throws \InvalidArgumentException when $clock is neither null nor a Clock
+     */
+    public function __construct($clock = null)
+    {
+        $this->clock = UtcClock::orDefault($clock);
+    }
 
     /**
      * @return Token
@@ -33,11 +49,13 @@ class AdminTokenService
             InMemory::plainText($signature)
         );
 
-        $issuedAt = new \DateTimeImmutable();
+        // format('U'): getTimestamp() is one hour off during the DST fall-back
+        // on PHP < 8.1 for a clock in a local timezone
+        $now = (int) $this->clock->now()->format('U');
 
         $builder = (new Builder())
-            ->issuedAt($issuedAt)
-            ->expiresAt($issuedAt->modify('+1 hour'));
+            ->issuedAt(new \DateTimeImmutable('@' . $now))
+            ->expiresAt(new \DateTimeImmutable('@' . ($now + 3600)));
 
         return $builder->getToken(
             $configuration->signer(),
@@ -64,7 +82,7 @@ class AdminTokenService
 
         $configuration->setValidationConstraints(
             new SignedWith($configuration->signer(), $configuration->signingKey()),
-            new ValidAt(new FrozenClock(new \DateTimeImmutable()))
+            new ValidAt($this->clock)
         );
 
         $token = $configuration->parser()->parse($token);
