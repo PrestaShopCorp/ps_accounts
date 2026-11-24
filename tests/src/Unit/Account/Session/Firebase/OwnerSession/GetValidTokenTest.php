@@ -200,6 +200,53 @@ class GetValidTokenTest extends TestCase
     /**
      * @test
      */
+    public function itShouldCleanupTokenWithoutReadingStatusWhenShopIsNotIdentified()
+    {
+        $session = $this->getMockedFirebaseSession(
+            Firebase\OwnerSession::class,
+            $this->createTokensResponse($this->makeUserToken($this->faker->uuid, 'tomorrow')),
+            $this->getMockedShopSession(new Token($this->makeJwtToken(new \DateTimeImmutable()))),
+            null,
+            $this->createStatusResponse(null)
+        );
+        $this->mockedStatusManager->clearStatus();
+
+        $session->setToken((string) $this->makeUserToken($this->faker->uuid, '+1 hour'), $this->faker->regexify('[a-zA-Z\d]{40}'));
+
+        $this->assertEquals('', (string) $session->getValidToken());
+        $this->assertEquals('', (string) $session->getValidToken(true));
+        $this->assertFalse($session->isEmailVerified());
+        $this->assertEquals([], $this->apiCalls);
+        $this->assertEquals('', $this->configurationRepository->getUserFirebaseIdToken());
+        $this->assertEquals('', $this->configurationRepository->getUserFirebaseRefreshToken());
+    }
+
+    /**
+     * @test
+     */
+    public function itShouldServeRefreshedTokenWhateverTheLocalClock()
+    {
+        $pointOfContactUuid = $this->faker->uuid;
+        // valid for accounts-api, already expired for a shop clock ahead of it
+        $refreshedToken = $this->makeUserToken($pointOfContactUuid, '-1 hour');
+
+        $session = $this->getMockedFirebaseSession(
+            Firebase\OwnerSession::class,
+            $this->createTokensResponse($refreshedToken),
+            $this->getMockedShopSession(new Token($this->makeJwtToken(new \DateTimeImmutable()))),
+            $pointOfContactUuid
+        );
+
+        $session->setToken((string) $this->makeUserToken($pointOfContactUuid, '-2 hours'), $this->faker->regexify('[a-zA-Z\d]{40}'));
+
+        $this->assertEquals((string) $refreshedToken, (string) $session->getValidToken());
+        $this->assertEquals((string) $refreshedToken, $this->configurationRepository->getUserFirebaseIdToken());
+        $this->assertEquals(1, $this->countApiCalls('tokens'));
+    }
+
+    /**
+     * @test
+     */
     public function itShouldReplaceTokenOfPreviousPointOfContact()
     {
         $pointOfContactUuid = $this->faker->uuid;

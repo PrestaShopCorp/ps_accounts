@@ -29,13 +29,13 @@ use PrestaShop\Module\PsAccounts\Repository\ConfigurationRepository;
 class OwnerSession extends FirebaseSession implements SessionInterface
 {
     /**
-     * Per shop (cloud shop id), time before which accounts-api isn't asked again for a user token
-     * after it returned no valid one of the point of contact.
+     * Per shop (cloud shop id), after a refresh that stored no new user token: time before which accounts-api
+     * isn't asked again for one, and the stored token that refresh left in place (not served until then).
      * Kept in memory: it only lasts as long as the PHP process (a request, or a CLI worker), at most a cache lifetime.
      *
-     * @var array<string, int>
+     * @var array<string, array{until: int, token: string}>
      */
-    protected static $noTokenReturnedUntil = [];
+    protected static $noTokenReturned = [];
 
     /**
      * @var ConfigurationRepository
@@ -89,8 +89,8 @@ class OwnerSession extends FirebaseSession implements SessionInterface
      *
      * In both cases an empty token is returned without exception, whatever $throw:
      * as on main, where accounts-api returned no token of the point of contact.
-     * A token still expired after a refresh (e.g. the previous point of contact's one,
-     * kept while the status can't be read) isn't served either.
+     * A stored token a refresh left in place (e.g. the previous point of contact's one,
+     * kept while the status can't be read) isn't served either: whose token it is can't be told.
      *
      * @param bool $forceRefresh
      * @param bool $throw
@@ -109,7 +109,7 @@ class OwnerSession extends FirebaseSession implements SessionInterface
 
         $token = parent::getValidToken($forceRefresh, $throw, $scope, $audience);
 
-        return '' !== (string) $token && $token->isExpired() ? new Token('') : $token;
+        return $this->leftInPlaceByRefresh($token) ? new Token('') : $token;
     }
 
     /**
@@ -123,22 +123,43 @@ class OwnerSession extends FirebaseSession implements SessionInterface
      */
     public function refreshToken($refreshToken = null, array $scope = [], array $audience = [])
     {
-        // accounts-api returned no valid token of the point of contact lately: don't ask again before a cache lifetime
+        // a refresh stored no new token lately: don't ask accounts-api again before a cache lifetime
         // (unlike Session's refresh errors, this one is per shop: multistore iterates over shops)
         $cloudShopId = (string) $this->getStatusManager()->getCloudShopId();
-        if (isset(self::$noTokenReturnedUntil[$cloudShopId]) && time() < self::$noTokenReturnedUntil[$cloudShopId]) {
+        if (isset(self::$noTokenReturned[$cloudShopId]) && time() < self::$noTokenReturned[$cloudShopId]['until']) {
             return $this->getToken();
         }
 
+        $previousToken = (string) $this->getStoredToken();
         $token = parent::refreshToken($refreshToken, $scope, $audience);
+        $storedToken = (string) $this->getStoredToken();
 
-        if ('' === (string) $token || $token->isExpired()) {
-            self::$noTokenReturnedUntil[$cloudShopId] = time() + StatusManager::CACHE_TTL;
+        // judged on what was stored, not on the local clock, which may be off
+        if ('' === $storedToken || $previousToken === $storedToken) {
+            self::$noTokenReturned[$cloudShopId] = [
+                'until' => time() + StatusManager::CACHE_TTL,
+                'token' => $storedToken,
+            ];
         } else {
-            unset(self::$noTokenReturnedUntil[$cloudShopId]);
+            unset(self::$noTokenReturned[$cloudShopId]);
         }
 
         return $token;
+    }
+
+    /**
+     * @param Token $token
+     *
+     * @return bool
+     */
+    protected function leftInPlaceByRefresh(Token $token)
+    {
+        $cloudShopId = (string) $this->getStatusManager()->getCloudShopId();
+
+        return '' !== (string) $token
+            && isset(self::$noTokenReturned[$cloudShopId])
+            && time() < self::$noTokenReturned[$cloudShopId]['until']
+            && (string) $token === self::$noTokenReturned[$cloudShopId]['token'];
     }
 
     /**
@@ -146,7 +167,7 @@ class OwnerSession extends FirebaseSession implements SessionInterface
      */
     public static function resetNoTokenReturned()
     {
-        self::$noTokenReturnedUntil = [];
+        self::$noTokenReturned = [];
     }
 
     /**
@@ -180,17 +201,24 @@ class OwnerSession extends FirebaseSession implements SessionInterface
     {
         $pointOfContactUuid = (string) $this->getStatusManager()->getPointOfContactUuid();
 
-        // a stored token of another point of contact, or while the cached status names none:
-        // either the stored token or the cached status is stale, tell from the status read again
-        // (at most once per stored token: it is then either confirmed or cleaned up)
         if (!$this->tokenBelongsTo($this->getStoredToken(), $pointOfContactUuid)) {
-            $pointOfContactUuid = $this->refreshPointOfContactUuid();
-
-            if (null === $pointOfContactUuid) {
-                // the status couldn't be read: the stored token is kept, but not served
-                $pointOfContactUuid = '';
-            } elseif (!$this->tokenBelongsTo($this->getStoredToken(), $pointOfContactUuid)) {
+            if ('' === (string) $this->getStatusManager()->getCloudShopId()) {
+                // unknown or cleared status: the shop isn't identified, there is neither status to read
+                // nor point of contact, the stored token is someone's from before
                 $this->cleanup();
+                $pointOfContactUuid = '';
+            } else {
+                // a stored token of another point of contact, or while the cached status names none:
+                // either the stored token or the cached status is stale, tell from the status read again
+                // (at most once per stored token: it is then either confirmed or cleaned up)
+                $pointOfContactUuid = $this->refreshPointOfContactUuid();
+
+                if (null === $pointOfContactUuid) {
+                    // the status couldn't be read: the stored token is kept, but not served
+                    $pointOfContactUuid = '';
+                } elseif (!$this->tokenBelongsTo($this->getStoredToken(), $pointOfContactUuid)) {
+                    $this->cleanup();
+                }
             }
         }
 
