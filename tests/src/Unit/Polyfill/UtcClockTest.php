@@ -20,9 +20,7 @@
 
 namespace PrestaShop\Module\PsAccounts\Tests\Unit\Polyfill;
 
-use PrestaShop\Module\PsAccounts\Account\Token\Token;
 use PrestaShop\Module\PsAccounts\Polyfill\UtcClock;
-use PrestaShop\Module\PsAccounts\Service\AdminTokenService;
 use PrestaShop\Module\PsAccounts\Tests\TestCase;
 use PrestaShop\Module\PsAccounts\Vendor\Lcobucci\Clock\FrozenClock;
 
@@ -67,16 +65,6 @@ class UtcClockTest extends TestCase
     {
         $this->expectException(\InvalidArgumentException::class);
 
-        new Token('', null, 0, 0, new \DateTimeImmutable());
-    }
-
-    /**
-     * @test
-     */
-    public function itShouldRejectAnythingElseThanAClockInAdminTokenService()
-    {
-        $this->expectException(\InvalidArgumentException::class);
-
-        new AdminTokenService('now');
+        UtcClock::orDefault(new \DateTimeImmutable());
     }
 }

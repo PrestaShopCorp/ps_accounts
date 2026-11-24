@@ -18,14 +18,17 @@
  * @license   https://opensource.org/licenses/AFL-3.0 Academic Free License version 3.0
  */
 
-namespace PrestaShop\Module\PsAccounts\Tests\Unit;
+namespace PrestaShop\Module\PsAccounts\Tests\Unit\Lint;
 
 use PrestaShop\Module\PsAccounts\Tests\TestCase;
 
 /**
- * Relative date arithmetic on a local time is wall-clock arithmetic: across a
- * DST fall-back, '+60 seconds' can add 3660 s (ACC-3716). Expiry times must be
- * computed on Unix timestamps.
+ * Source lint, not a class test: relative date arithmetic on a local time is
+ * wall-clock arithmetic, so across a DST fall-back '+60 seconds' can add
+ * 3660 s (ACC-3716). Expiry times must be computed on Unix timestamps.
+ *
+ * Best effort: it reads source lines, so a relative date built at runtime
+ * (new \DateTime($relative)) goes unnoticed.
  */
 class RelativeDateArithmeticTest extends TestCase
 {
@@ -44,10 +47,9 @@ class RelativeDateArithmeticTest extends TestCase
      */
     public function itShouldNotUseRelativeDateArithmeticInSources()
     {
-        $pattern = '/->modify\(|\bdate_modify\(|\bDateInterval\b|'
-            . '(new\s+\\\\?DateTime(Immutable)?|\bdate_create(_immutable)?|\bstrtotime)\(\s*[\'"][+-]/';
+        $pattern = $this->getPattern();
 
-        $srcDir = realpath(__DIR__ . '/../../../src');
+        $srcDir = realpath(__DIR__ . '/../../../../src');
         $this->assertNotFalse($srcDir);
 
         $offenders = [];
@@ -75,14 +77,57 @@ class RelativeDateArithmeticTest extends TestCase
      */
     public function itShouldStillMatchTheAllowedOccurrences()
     {
-        $pattern = '/(new\s+\\\\?DateTime(Immutable)?)\(\s*[\'"][+-]/';
-
         foreach ($this->allowed as $relativePath) {
             $this->assertSame(
                 1,
-                preg_match($pattern, (string) file_get_contents(__DIR__ . '/../../../src/' . $relativePath)),
+                preg_match($this->getPattern(), (string) file_get_contents(__DIR__ . '/../../../../src/' . $relativePath)),
                 $relativePath . ' no longer needs to be allowed'
             );
         }
+    }
+
+    /**
+     * @test
+     */
+    public function itShouldMatchRelativeDateArithmetic()
+    {
+        $relative = [
+            '$date->modify(\'+1 hour\');',
+            'date_modify($date, "+1 hour");',
+            '$date->add(new \\DateInterval(\'PT1H\'));',
+            'new \\DateTime(\'+\' . $seconds . \' seconds\');',
+            'new DateTimeImmutable("-5 seconds");',
+            'new \\DateTime(\'now +1 hour\');',
+            'new \\DateTime(sprintf(\'+%d seconds\', $seconds));',
+            'date_create(\'next monday\');',
+            'strtotime(\'tomorrow\');',
+            'strtotime(\'1 day ago\');',
+        ];
+        foreach ($relative as $line) {
+            $this->assertSame(1, preg_match($this->getPattern(), $line), $line);
+        }
+
+        $absolute = [
+            'new \\DateTime(\'@\' . ($now + 60));',
+            'new \\DateTimeImmutable(\'now\', $utc);',
+            'new \\DateTime($entry->date_upd);',
+            '(new \\DateTime())->format(\'Uv\');',
+            '// DateTime::modify() on a local time',
+            'strtotime($instant);',
+        ];
+        foreach ($absolute as $line) {
+            $this->assertSame(0, preg_match($this->getPattern(), $line), $line);
+        }
+    }
+
+    /**
+     * @return string
+     */
+    private function getPattern()
+    {
+        $dateCall = '(new\s+\\\\?DateTime(Immutable)?|\bdate_create(_immutable)?|\bstrtotime)\(\s*(sprintf\(\s*)?';
+        $relativeLiteral = '[\'"]\s*([+-]|[^\'"]*\b(now\s*[+-]|tomorrow|yesterday|next|last|ago)\b)';
+
+        return '/->modify\(|\bdate_modify\(|\bDateInterval\b|' . $dateCall . $relativeLiteral . '/i';
     }
 }

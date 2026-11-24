@@ -173,10 +173,21 @@ class TokenTest extends TestCase
     }
 
     /**
+     * @test
+     */
+    public function itShouldRejectAnythingElseThanAClock()
+    {
+        $this->expectException(\InvalidArgumentException::class);
+
+        new Token('', null, 0, 0, new \DateTimeImmutable());
+    }
+
+    /**
      * Instants in the repeated hour of the Europe/Paris DST fall-back
-     * (2026-10-25 02:00-03:00 CEST): DateTime::modify('+60 seconds') on a
-     * local time used to add 3660 seconds (PHP < 8.1 for the whole hour,
-     * PHP >= 8.1 during its last minute).
+     * (2026-10-25 02:00-03:00, first pass CEST, second pass CET):
+     * DateTime::modify('+60 seconds') on a local time used to add 3660 seconds
+     * in the first pass (PHP < 8.1 for the whole hour, PHP >= 8.1 during its
+     * last minute).
      *
      * @return array
      */
@@ -185,6 +196,7 @@ class TokenTest extends TestCase
         return [
             'middle of the repeated hour' => ['2026-10-25T00:30:00Z'],
             'last minute of the repeated hour' => ['2026-10-25T00:59:30Z'],
+            'second pass of the repeated hour' => ['2026-10-25T01:30:00Z'],
         ];
     }
 

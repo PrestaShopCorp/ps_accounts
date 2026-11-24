@@ -46,19 +46,34 @@ class GetTokenTest extends TestCase
     }
 
     /**
-     * Issued during the repeated hour of the Europe/Paris DST fall-back
-     * (2026-10-25 02:30 CEST, first pass): DateTimeImmutable::modify('+1 hour') on a local
-     * time adds 7200 seconds there.
+     * 02:30 local time in both passes of the repeated hour of the Europe/Paris
+     * DST fall-back (2026-10-25): DateTimeImmutable::modify('+1 hour') on a
+     * local time adds 7200 seconds in the first pass (CEST).
      *
-     * @test
+     * @return array
      */
-    public function itShouldExpireOneHourAfterIssuanceAcrossDstFallBack()
+    public function dstFallBackInstants()
+    {
+        return [
+            'first pass of the repeated hour' => ['2026-10-25T00:30:00Z'],
+            'second pass of the repeated hour' => ['2026-10-25T01:30:00Z'],
+        ];
+    }
+
+    /**
+     * @test
+     *
+     * @dataProvider dstFallBackInstants
+     *
+     * @param string $instant
+     */
+    public function itShouldExpireOneHourAfterIssuanceAcrossDstFallBack($instant)
     {
         $timezone = date_default_timezone_get();
         date_default_timezone_set('Europe/Paris');
 
         try {
-            $now = strtotime('2026-10-25T00:30:00Z');
+            $now = strtotime($instant);
             $service = new AdminTokenServiceTestClass(new FrozenClock(
                 (new \DateTimeImmutable('@' . $now))->setTimezone(new \DateTimeZone('Europe/Paris'))
             ));
