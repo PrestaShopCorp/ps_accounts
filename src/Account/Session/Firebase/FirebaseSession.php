@@ -41,6 +41,7 @@ abstract class FirebaseSession extends Session implements SessionInterface
     /**
      * Per shop (cloud shop id), time before which a status that couldn't be fetched isn't asked for again.
      * Shared by the owner and shop sessions, which both refresh the point of contact.
+     * Kept in memory: it only lasts as long as the PHP process (a request, or a CLI worker), at most a cache lifetime.
      *
      * @var array<string, int>
      */
@@ -207,7 +208,6 @@ abstract class FirebaseSession extends Session implements SessionInterface
             return null;
         }
 
-        // the caller's setting is restored below
         $throwException = $statusManager->getThrowException(false);
         try {
             $pointOfContactUuid = (string) $statusManager->withThrowException(true)
@@ -218,8 +218,10 @@ abstract class FirebaseSession extends Session implements SessionInterface
             Logger::getInstance()->error('Unable to refresh the shop status: ' . $e->getMessage());
             self::$statusUnavailableUntil[$cloudShopId] = time() + StatusManager::CACHE_TTL;
             $pointOfContactUuid = null;
+        } finally {
+            // the caller's setting is restored, whatever is raised
+            $statusManager->withThrowException($throwException);
         }
-        $statusManager->withThrowException($throwException);
 
         return $pointOfContactUuid;
     }

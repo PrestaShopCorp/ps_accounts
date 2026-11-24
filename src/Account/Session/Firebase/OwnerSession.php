@@ -30,7 +30,8 @@ class OwnerSession extends FirebaseSession implements SessionInterface
 {
     /**
      * Per shop (cloud shop id), time before which accounts-api isn't asked again for a user token
-     * after it returned none of the point of contact.
+     * after it returned no valid one of the point of contact.
+     * Kept in memory: it only lasts as long as the PHP process (a request, or a CLI worker), at most a cache lifetime.
      *
      * @var array<string, int>
      */
@@ -88,6 +89,8 @@ class OwnerSession extends FirebaseSession implements SessionInterface
      *
      * In both cases an empty token is returned without exception, whatever $throw:
      * as on main, where accounts-api returned no token of the point of contact.
+     * A token still expired after a refresh (e.g. the previous point of contact's one,
+     * kept while the status can't be read) isn't served either.
      *
      * @param bool $forceRefresh
      * @param bool $throw
@@ -104,7 +107,9 @@ class OwnerSession extends FirebaseSession implements SessionInterface
             return new Token('');
         }
 
-        return parent::getValidToken($forceRefresh, $throw, $scope, $audience);
+        $token = parent::getValidToken($forceRefresh, $throw, $scope, $audience);
+
+        return '' !== (string) $token && $token->isExpired() ? new Token('') : $token;
     }
 
     /**
@@ -118,7 +123,7 @@ class OwnerSession extends FirebaseSession implements SessionInterface
      */
     public function refreshToken($refreshToken = null, array $scope = [], array $audience = [])
     {
-        // accounts-api returned no token of the point of contact lately: don't ask again before a cache lifetime
+        // accounts-api returned no valid token of the point of contact lately: don't ask again before a cache lifetime
         // (unlike Session's refresh errors, this one is per shop: multistore iterates over shops)
         $cloudShopId = (string) $this->getStatusManager()->getCloudShopId();
         if (isset(self::$noTokenReturnedUntil[$cloudShopId]) && time() < self::$noTokenReturnedUntil[$cloudShopId]) {
@@ -127,7 +132,7 @@ class OwnerSession extends FirebaseSession implements SessionInterface
 
         $token = parent::refreshToken($refreshToken, $scope, $audience);
 
-        if ('' === (string) $token) {
+        if ('' === (string) $token || $token->isExpired()) {
             self::$noTokenReturnedUntil[$cloudShopId] = time() + StatusManager::CACHE_TTL;
         } else {
             unset(self::$noTokenReturnedUntil[$cloudShopId]);
@@ -173,12 +178,12 @@ class OwnerSession extends FirebaseSession implements SessionInterface
      */
     protected function resolvePointOfContactUuid()
     {
-        // without point of contact the stored token is kept but not served:
-        // the cached status may only be transiently empty (identity migration or restore)
         $pointOfContactUuid = (string) $this->getStatusManager()->getPointOfContactUuid();
 
-        if ($pointOfContactUuid && !$this->tokenBelongsTo($this->getStoredToken(), $pointOfContactUuid)) {
-            // either the stored token or the cached status is stale: tell from the status read again
+        // a stored token of another point of contact, or while the cached status names none:
+        // either the stored token or the cached status is stale, tell from the status read again
+        // (at most once per stored token: it is then either confirmed or cleaned up)
+        if (!$this->tokenBelongsTo($this->getStoredToken(), $pointOfContactUuid)) {
             $pointOfContactUuid = $this->refreshPointOfContactUuid();
 
             if (null === $pointOfContactUuid) {
