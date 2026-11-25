@@ -290,8 +290,16 @@ vendor-patch-segmentio:
 	@echo "patching segmentio interpolation deprecations (PHP 8.2+/9.0)..."
 	$(call in_docker,find ./vendor/segmentio/analytics-php/lib -type f -name '*.php' -exec sed -i -E 's/\$$\{([a-zA-Z_][a-zA-Z0-9_]*)\}/{$$\1}/g' {} \;)
 
+# Implicitly nullable parameters ("Type $x = null") are deprecated since PHP 8.4
+# and the explicit "?Type" form is PHP 7.1+: drop the native type from the
+# bundled libs (lcobucci/jwt, ramsey/uuid, monolog, sentry...) so they stay
+# PHP 5.6 compatible without the deprecation notices.
+vendor-patch-implicit-nullable:
+	@echo "patching implicitly nullable parameters (PHP 8.4+)..."
+	php scripts/patch-implicit-nullable.php ./vendor
+
 #php-scoper: php-scoper-add-prefix php-scoper-update-prefix php-scoper-dump-autoload php-scoper-fix-autoload
-php-scoper: php-scoper-add-prefix vendor-patch-segmentio php-scoper-dump-autoload php-scoper-fix-autoload
+php-scoper: php-scoper-add-prefix vendor-patch-segmentio vendor-patch-implicit-nullable php-scoper-dump-autoload php-scoper-fix-autoload
 
 ##########
 # BUNDLING
