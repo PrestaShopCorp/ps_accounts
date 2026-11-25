@@ -22,6 +22,7 @@ namespace PrestaShop\Module\PsAccounts\Tests\Unit\Account\Token;
 
 use PrestaShop\Module\PsAccounts\Account\Token\Token;
 use PrestaShop\Module\PsAccounts\Tests\TestCase;
+use PrestaShop\Module\PsAccounts\Vendor\Lcobucci\Clock\FrozenClock;
 
 class TokenTest extends TestCase
 {
@@ -30,7 +31,7 @@ class TokenTest extends TestCase
      */
     public function itShouldBeExpiredWithoutLeeway()
     {
-        $jwt = $this->makeJwtToken(new \DateTimeImmutable('-10 seconds'));
+        $jwt = $this->makeJwtToken(new \DateTimeImmutable('@' . (time() - 10)));
 
         $token = new Token((string) $jwt);
 
@@ -42,7 +43,7 @@ class TokenTest extends TestCase
      */
     public function itShouldBeExpiredWhenExpiringWithinLeeway()
     {
-        $jwt = $this->makeJwtToken(new \DateTimeImmutable('+10 seconds'));
+        $jwt = $this->makeJwtToken(new \DateTimeImmutable('@' . (time() + 10)));
 
         $token = new Token((string) $jwt, null, 30);
 
@@ -54,7 +55,7 @@ class TokenTest extends TestCase
      */
     public function itShouldNotBeExpiredWhenExpiringBeyondLeeway()
     {
-        $jwt = $this->makeJwtToken(new \DateTimeImmutable('+60 seconds'));
+        $jwt = $this->makeJwtToken(new \DateTimeImmutable('@' . (time() + 60)));
 
         $token = new Token((string) $jwt, null, 30);
 
@@ -68,7 +69,7 @@ class TokenTest extends TestCase
      */
     public function itShouldBeExpiredAfterExpirationWithLeeway()
     {
-        $jwt = $this->makeJwtToken(new \DateTimeImmutable('-5 seconds'));
+        $jwt = $this->makeJwtToken(new \DateTimeImmutable('@' . (time() - 5)));
 
         $token = new Token((string) $jwt, null, 60);
 
@@ -83,7 +84,7 @@ class TokenTest extends TestCase
      */
     public function itShouldNotBeExpiredWhenFreshTokenIsSeenFromShopClockAhead()
     {
-        $jwt = $this->makeJwtToken(new \DateTimeImmutable('+2 minutes'));
+        $jwt = $this->makeJwtToken(new \DateTimeImmutable('@' . (time() + 120)));
 
         $token = new Token((string) $jwt, null, 60);
 
@@ -95,7 +96,7 @@ class TokenTest extends TestCase
      */
     public function itShouldNotBeExpiredWhenFreshRegardlessOfLeeway()
     {
-        $jwt = $this->makeJwtToken(new \DateTimeImmutable('+1 hour'));
+        $jwt = $this->makeJwtToken(new \DateTimeImmutable('@' . (time() + 3600)));
 
         $this->assertFalse((new Token((string) $jwt))->isExpired());
         $this->assertFalse((new Token((string) $jwt, null, 30))->isExpired());
@@ -126,7 +127,7 @@ class TokenTest extends TestCase
      */
     public function itShouldBeExpiredWhenLocalClockIsBehind()
     {
-        $jwt = $this->makeJwtToken(new \DateTimeImmutable('+90 seconds'));
+        $jwt = $this->makeJwtToken(new \DateTimeImmutable('@' . (time() + 90)));
 
         $this->assertFalse((new Token((string) $jwt, null, 60))->isExpired());
         $this->assertTrue((new Token((string) $jwt, null, 60, 120))->isExpired());
@@ -140,7 +141,7 @@ class TokenTest extends TestCase
      */
     public function itShouldIgnoreNegativeClockOffset()
     {
-        $jwt = $this->makeJwtToken(new \DateTimeImmutable('-10 seconds'));
+        $jwt = $this->makeJwtToken(new \DateTimeImmutable('@' . (time() - 10)));
 
         $this->assertTrue((new Token((string) $jwt, null, 60, -7200))->isExpired());
         $this->assertTrue((new Token('', null, 60, -86400))->isExpired());
@@ -153,7 +154,7 @@ class TokenTest extends TestCase
     {
         $now = time();
         $jwt = $this->makeJwtToken(
-            new \DateTimeImmutable('+2 hours'),
+            new \DateTimeImmutable('@' . (time() + 7200)),
             [],
             new \DateTimeImmutable('@' . ($now + 120))
         );
@@ -169,5 +170,85 @@ class TokenTest extends TestCase
     {
         $this->assertNull((new Token(''))->measureClockOffset());
         $this->assertNull((new Token('not-a-jwt'))->measureClockOffset());
+    }
+
+    /**
+     * @test
+     */
+    public function itShouldRejectAnythingElseThanAClock()
+    {
+        $this->expectException(\InvalidArgumentException::class);
+
+        new Token('', null, 0, 0, new \DateTimeImmutable());
+    }
+
+    /**
+     * Instants in the repeated hour of the Europe/Paris DST fall-back
+     * (2026-10-25 02:00-03:00, first pass CEST, second pass CET):
+     * DateTime::modify('+60 seconds') on a local time used to add 3660 seconds
+     * in the first pass (PHP < 8.1 for the whole hour, PHP >= 8.1 during its
+     * last minute).
+     *
+     * @return array
+     */
+    public function dstFallBackInstants()
+    {
+        return [
+            'middle of the repeated hour' => ['2026-10-25T00:30:00Z'],
+            'last minute of the repeated hour' => ['2026-10-25T00:59:30Z'],
+            'second pass of the repeated hour' => ['2026-10-25T01:30:00Z'],
+        ];
+    }
+
+    /**
+     * @test
+     *
+     * @dataProvider dstFallBackInstants
+     *
+     * @param string $instant
+     */
+    public function itShouldApplyLeewayInElapsedSecondsAcrossDstFallBack($instant)
+    {
+        $timezone = date_default_timezone_get();
+        date_default_timezone_set('Europe/Paris');
+
+        try {
+            $time = strtotime($instant);
+
+            // Local time, as a system clock in the shop timezone would give it
+            $clock = new FrozenClock(
+                (new \DateTimeImmutable('@' . $time))->setTimezone(new \DateTimeZone('Europe/Paris'))
+            );
+
+            $freshToken = new Token(
+                (string) $this->makeJwtToken(new \DateTimeImmutable('@' . ($time + 120))),
+                null,
+                60,
+                0,
+                $clock
+            );
+            $this->assertFalse($freshToken->isExpired());
+
+            $expiringToken = new Token(
+                (string) $this->makeJwtToken(new \DateTimeImmutable('@' . ($time + 30))),
+                null,
+                60,
+                0,
+                $clock
+            );
+            $this->assertTrue($expiringToken->isExpired());
+
+            // Leeway plus a 120 s clock offset: 180 s ahead, not one hour.
+            $offsetToken = new Token(
+                (string) $this->makeJwtToken(new \DateTimeImmutable('@' . ($time + 200))),
+                null,
+                60,
+                120,
+                $clock
+            );
+            $this->assertFalse($offsetToken->isExpired());
+        } finally {
+            date_default_timezone_set($timezone);
+        }
     }
 }
