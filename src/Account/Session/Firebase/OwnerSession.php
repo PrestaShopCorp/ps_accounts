@@ -38,6 +38,14 @@ class OwnerSession extends FirebaseSession implements SessionInterface
     protected static $noTokenReturned = [];
 
     /**
+     * Number of user token writes in this PHP process: tells whether a refresh stored anything
+     * (the owner session that refreshes may not be the instance that writes).
+     *
+     * @var int
+     */
+    protected static $tokenWrites = 0;
+
+    /**
      * @var ConfigurationRepository
      */
     protected $configurationRepository;
@@ -66,7 +74,8 @@ class OwnerSession extends FirebaseSession implements SessionInterface
 
     /**
      * The stored token, served only to its point of contact: a token kept without point of contact,
-     * or for a previous one, is not served.
+     * or for a previous one, is not served; nor is a token a refresh left in place lately
+     * (e.g. the previous point of contact's one, kept while the status can't be read).
      *
      * @return Token
      */
@@ -74,7 +83,9 @@ class OwnerSession extends FirebaseSession implements SessionInterface
     {
         $token = $this->getStoredToken();
 
-        if (!$this->tokenBelongsTo($token, (string) $this->getStatusManager()->getPointOfContactUuid())) {
+        if (!$this->tokenBelongsTo($token, (string) $this->getStatusManager()->getPointOfContactUuid())
+            || $this->leftInPlaceByRefresh($token)
+        ) {
             return new Token('');
         }
 
@@ -89,8 +100,7 @@ class OwnerSession extends FirebaseSession implements SessionInterface
      *
      * In both cases an empty token is returned without exception, whatever $throw:
      * as on main, where accounts-api returned no token of the point of contact.
-     * A stored token a refresh left in place (e.g. the previous point of contact's one,
-     * kept while the status can't be read) isn't served either: whose token it is can't be told.
+     * A stored token a refresh left in place isn't served either (see getToken()): whose token it is can't be told.
      *
      * @param bool $forceRefresh
      * @param bool $throw
@@ -107,9 +117,7 @@ class OwnerSession extends FirebaseSession implements SessionInterface
             return new Token('');
         }
 
-        $token = parent::getValidToken($forceRefresh, $throw, $scope, $audience);
-
-        return $this->leftInPlaceByRefresh($token) ? new Token('') : $token;
+        return parent::getValidToken($forceRefresh, $throw, $scope, $audience);
     }
 
     /**
@@ -130,12 +138,13 @@ class OwnerSession extends FirebaseSession implements SessionInterface
             return $this->getToken();
         }
 
-        $previousToken = (string) $this->getStoredToken();
+        $tokenWrites = self::$tokenWrites;
         $token = parent::refreshToken($refreshToken, $scope, $audience);
         $storedToken = (string) $this->getStoredToken();
 
-        // judged on what was stored, not on the local clock, which may be off
-        if ('' === $storedToken || $previousToken === $storedToken) {
+        // judged on whether a token was written, not on the local clock, which may be off,
+        // nor on its value: an ID token issued twice within a second is the same
+        if ('' === $storedToken || $tokenWrites === self::$tokenWrites) {
             self::$noTokenReturned[$cloudShopId] = [
                 'until' => time() + StatusManager::CACHE_TTL,
                 'token' => $storedToken,
@@ -252,6 +261,7 @@ class OwnerSession extends FirebaseSession implements SessionInterface
      */
     public function cleanup()
     {
+        ++self::$tokenWrites;
         $this->configurationRepository->updateUserFirebaseIdAndRefreshToken('', '');
     }
 
@@ -263,6 +273,7 @@ class OwnerSession extends FirebaseSession implements SessionInterface
      */
     public function setToken($token, $refreshToken = null)
     {
+        ++self::$tokenWrites;
         $this->configurationRepository->updateUserFirebaseIdAndRefreshToken($token, $refreshToken);
     }
 }

@@ -177,7 +177,7 @@ class GetValidTokenTest extends TestCase
     public function itShouldNeitherServeNorRefreshAgainExpiredTokenWhenOwnerCannotBeTold()
     {
         $previousPointOfContactUuid = $this->faker->uuid;
-        $storedToken = $this->makeUserToken($previousPointOfContactUuid, 'yesterday');
+        $storedToken = $this->makeUserToken($previousPointOfContactUuid, 'yesterday', ['email_verified' => true]);
 
         // accounts-api returns the new point of contact's token, the status can't be read
         $session = $this->getMockedFirebaseSession(
@@ -194,7 +194,35 @@ class GetValidTokenTest extends TestCase
         $this->assertEquals('', (string) $session->getValidToken());
         $this->assertEquals(1, $this->countApiCalls('tokens'));
         $this->assertEquals(1, $this->countApiCalls('status'));
+        // nor read
+        $this->assertEquals('', (string) $session->getToken());
+        $this->assertFalse($session->isEmailVerified());
+        $this->assertEquals(1, $this->countApiCalls('tokens'));
         $this->assertEquals((string) $storedToken, $this->configurationRepository->getUserFirebaseIdToken());
+    }
+
+    /**
+     * @test
+     */
+    public function itShouldServeTokenRewrittenIdenticalByRefresh()
+    {
+        $pointOfContactUuid = $this->faker->uuid;
+        // an ID token issued twice within the same second is the same
+        $refreshedToken = $this->makeUserToken($pointOfContactUuid, 'tomorrow');
+
+        $session = $this->getMockedFirebaseSession(
+            Firebase\OwnerSession::class,
+            $this->createTokensResponse($refreshedToken),
+            $this->getMockedShopSession(new Token($this->makeJwtToken(new \DateTimeImmutable()))),
+            $pointOfContactUuid
+        );
+
+        $session->setToken((string) $this->makeUserToken($pointOfContactUuid, 'yesterday'), $this->faker->regexify('[a-zA-Z\d]{40}'));
+
+        $this->assertEquals((string) $refreshedToken, (string) $session->getValidToken(true));
+        $this->assertEquals((string) $refreshedToken, (string) $session->getValidToken(true));
+        $this->assertEquals((string) $refreshedToken, (string) $session->getToken());
+        $this->assertEquals(2, $this->countApiCalls('tokens'));
     }
 
     /**
