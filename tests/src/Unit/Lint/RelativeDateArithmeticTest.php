@@ -32,7 +32,8 @@ use PrestaShop\Module\PsAccounts\Tests\TestCase;
  * is a string literal holding a relative date ('+1 hour', '1 day ago',
  * 'tomorrow', "$date +1 day"...) passed as an argument of a DateTime /
  * DateTimeImmutable constructor, date_create() or strtotime(), directly or
- * through sprintf(). Literals of other nested calls and array keys are ignored.
+ * through sprintf() or grouping parentheses. Literals of other nested calls
+ * and array keys are ignored.
  *
  * Best effort, it misses:
  * - a relative date reaching these calls through a variable, a constant or
@@ -114,6 +115,11 @@ class RelativeDateArithmeticTest extends TestCase
             'strtotime(\'2026-10-25 -1 day\');',
             '$date->add(date_interval_create_from_date_string(\'1 hour\'));',
             'new \DateTime(\'@\' . strtotime(\'+1 hour\'));',
+            'new \DateTime(($ttl > 0 ? \'+\' : \'-\') . abs($ttl) . \' seconds\');',
+            'strtotime(($base . \' +1 day\'));',
+            'new \DateTime(sprintf(\'%s +%d seconds\', $date, $seconds));',
+            'strtotime(\'+2 weekdays\');',
+            'new \DateTime(\'500 msec\');',
         ];
         foreach ($relative as $code) {
             $this->assertNotEmpty($this->findRelativeDateArithmetic('<?php ' . $code), $code);
@@ -134,6 +140,9 @@ class RelativeDateArithmeticTest extends TestCase
             'new \DateTime(\'now\', new \DateTimeZone(\'+02:00\'));',
             'new \DateTime(\'2026-10-25 00:30:00 +0200\');',
             'new \DateTime($row[\'last\']);',
+            'new \DateTime(($date));',
+            'new \DateTime(sprintf(\'%04d-%02d-%02d\', $y, $m, $d));',
+            'new \DateTime($format(\'+1 hour\'));',
         ];
         foreach ($absolute as $code) {
             $this->assertSame([], $this->findRelativeDateArithmetic('<?php ' . $code), $code);
@@ -184,15 +193,22 @@ class RelativeDateArithmeticTest extends TestCase
      */
     private function hasRelativeLiteral(array $tokens, $open)
     {
+        // a number may be a sprintf placeholder: '%s +%d seconds'
         $relative = '/^\s*[+-]|\bnow\s*[+-]|\b(tomorrow|yesterday|next|last|ago)\b'
-            . '|\b\d+\s*(sec|second|min|minute|hour|day|week|fortnight|month|year)s?\b/i';
+            . '|(\b\d+|%[\d$]*d)\s*(sec|second|msec|millisecond|usec|microsecond|min|minute|hour|day|weekday|week'
+            . '|fortnight|month|year)s?\b/i';
 
         // one entry per open parenthesis: are its string literals arguments of the date call?
         $checked = [];
         for ($i = $open, $count = count($tokens); $i < $count; ++$i) {
             $token = $tokens[$i];
             if ($token === '(') {
-                $checked[] = $i === $open || (end($checked) && $this->isNameIn($tokens[$i - 1], ['sprintf', 'vsprintf']));
+                $checked[] = $i === $open
+                    || (end($checked) && (
+                        $this->isNameIn($tokens[$i - 1], ['sprintf', 'vsprintf'])
+                        // grouping parenthesis, not a call: ($ttl > 0 ? '+' : '-')
+                        || !$this->isCallable($tokens[$i - 1])
+                    ));
             } elseif ($token === ')') {
                 array_pop($checked);
                 if (!$checked) {
@@ -209,6 +225,17 @@ class RelativeDateArithmeticTest extends TestCase
         }
 
         return false;
+    }
+
+    /**
+     * @param mixed $token token before an opening parenthesis
+     *
+     * @return bool whether the parenthesis opens a call
+     */
+    private function isCallable($token)
+    {
+        return in_array($token, [')', ']', '}'], true)
+            || (is_array($token) && ($this->isName($token) || in_array($token[0], [T_VARIABLE, T_ARRAY], true)));
     }
 
     /**
