@@ -104,6 +104,8 @@ class BaseTestCase extends \PHPUnit\Framework\TestCase
                  ] as $class) {
             $this->module->getService($class)->resetRefreshTokenErrors();
         }
+        Firebase\FirebaseSession::resetStatusUnavailable();
+        Firebase\OwnerSession::resetNoTokenReturned();
 
         $this->restoreProperties();
 

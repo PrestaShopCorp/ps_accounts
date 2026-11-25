@@ -31,6 +31,7 @@ class IsEmailValidatedTest extends TestCase
     {
         $token = $this->makeFirebaseToken(null, ['email_verified' => true]);
 
+        $this->statusManager->setPointOfContactUuid($token->claims()->get('sub'));
         $this->ownerSession->setToken($token);
 
         $this->assertTrue($this->service->isEmailValidated());

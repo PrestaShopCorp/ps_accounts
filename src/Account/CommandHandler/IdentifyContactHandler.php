@@ -99,8 +99,11 @@ class IdentifyContactHandler
                 $command->accessToken->access_token
             );
 
-        // cleanup user token
+        // the point of contact may have changed: drop the previous one's user token right away
+        // (OwnerSession would otherwise detect it on next use, at the cost of a status call)
         $this->ownerSession->cleanup();
+        // nor keep the previous one's "no token returned": the new one's token can be asked for right away
+        OwnerSession::resetNoTokenReturned();
 
         // optimistic update cached status
         $this->statusManager->setPointOfContactUuid($command->userInfo->sub);

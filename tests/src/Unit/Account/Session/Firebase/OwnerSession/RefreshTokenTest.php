@@ -53,14 +53,15 @@ class RefreshTokenTest extends TestCase
      */
     public function itShouldRefreshExpiredToken()
     {
+        $pointOfContactUuid = $this->faker->uuid;
         $expiredToken = $this->makeJwtToken(new \DateTimeImmutable('yesterday'), [
-            'sub' => $this->faker->uuid,
+            'sub' => $pointOfContactUuid,
             'email' => $this->faker->safeEmail,
         ]);
         $refreshToken = $this->makeJwtToken(new \DateTimeImmutable('+1 year'));
 
         $userRefreshedToken = $this->makeJwtToken(new \DateTimeImmutable('tomorrow'), [
-            'sub' => $this->faker->uuid,
+            'sub' => $pointOfContactUuid,
             'email' => $this->faker->safeEmail,
         ]);
         $shopRefreshedToken = $this->makeJwtToken(new \DateTimeImmutable('tomorrow'), [
@@ -82,7 +83,8 @@ class RefreshTokenTest extends TestCase
                     'refreshToken' => $userRefreshToken,
                 ]
             ], 200, true),
-            $this->getMockedShopSession(new Token($this->makeJwtToken(new \DateTimeImmutable())))
+            $this->getMockedShopSession(new Token($this->makeJwtToken(new \DateTimeImmutable()))),
+            $pointOfContactUuid
         );
 
         //$shopSession->setToken((string) $expired);

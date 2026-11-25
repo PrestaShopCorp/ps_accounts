@@ -81,6 +81,11 @@ class IdentifyContactHandlerTest extends TestCase
 
         $this->ownerSession->setToken($this->faker->uuid, $this->faker->uuid);
 
+        // accounts-api returned no token of the previous point of contact lately
+        $noTokenReturned = new \ReflectionProperty(OwnerSession::class, 'noTokenReturned');
+        $noTokenReturned->setAccessible(true);
+        $noTokenReturned->setValue(null, [$cloudShopId => ['until' => time() + 30, 'token' => '']]);
+
         // Expected call to setPointOfContact with correct parameters
         $this->accountsService->expects($this->once())
             ->method('setPointOfContact')
@@ -108,8 +113,11 @@ class IdentifyContactHandlerTest extends TestCase
         ]), $userInfo));
 
         $this->assertInstanceOf(NullToken::class, $this->ownerSession->getToken()->getJwt());
+        $this->assertEquals('', $this->ownerSession->getToken()->getRefreshToken());
         $this->assertEquals($userInfo->sub, $this->statusManager->getPointOfContactUuid());
         $this->assertEquals($userInfo->email, $this->statusManager->getPointOfContactEmail());
+        // the new point of contact's token can be asked for right away
+        $this->assertEquals([], $noTokenReturned->getValue());
     }
 
     /**
