@@ -1,0 +1,223 @@
+name: e2e Accounts PR
+
+on:
+  pull_request:
+    types: [labeled, synchronize, reopened]
+  workflow_dispatch:
+
+env:
+  IMAGE_PREFIX: ghcr.io/prestashopcorp/
+
+# Le compte de test et le tunnel sont des ressources UNIQUES et partagées :
+# jamais deux runs e2e en même temps, toutes PR confondues.
+concurrency:
+  group: e2e-shared-account
+  cancel-in-progress: false
+
+jobs:
+  build-module:
+    name: Build the PR module zip
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    outputs:
+      version: ${{ steps.module_version.outputs.version }}
+    # PR de fork : pas d'accès aux secrets. On ne tente pas.
+    if: >-
+      github.event_name == 'workflow_dispatch' ||
+      (github.event.pull_request.head.repo.full_name == github.repository &&
+       contains(github.event.pull_request.labels.*.name, 'e2e'))
+    steps:
+      - uses: actions/checkout@v5
+
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 10
+          run_install: |
+            - cwd: _dev/
+              package_json_file: _dev/package.json
+              args: [--frozen-lockfile, --ignore-scripts]
+        env:
+          NPM_AUTH_TOKEN: ${{ secrets.NPM_TOKEN_RO }}
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          registry-url: 'https://registry.npmjs.org'
+          scope: '@prestashopcorp'
+          cache: 'pnpm'
+          cache-dependency-path: '_dev/pnpm-lock.yaml'
+
+      # Même recette que build-release-publish.yml (`make bundle-preprod` est
+      # cassé : la cible `config.php.preprod` n'existe pas dans le Makefile).
+      - name: Scoped dependencies
+        run: make php-scoper
+
+      - name: Build front
+        run: pnpm -C ./_dev run build
+
+      - name: Bundle the preprod zip
+        run: |
+          cp ./config.dist.php ./config.php   # gitignoré, absent d'un checkout frais
+          sh ./scripts/bundle-module.sh 'ps_accounts.zip' 'preprod'
+
+      # Les tests comparent la version en base à PS_ACCOUNTS_VERSION. Ici le
+      # module ne vient pas d'une release : la référence est le config.xml
+      # de la PR.
+      - name: Read the built module version
+        id: module_version
+        run: |
+          echo "version=v$(sed -n 's/.*<version><!\[CDATA\[\(.*\)\]\]><\/version>.*/\1/p' config.xml)" >> "$GITHUB_OUTPUT"
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: pr-module-zip
+          path: dist/ps_accounts.zip
+          retention-days: 3
+
+  run-test:
+    name: Run Account tests (PR build)
+    needs: build-module
+    runs-on: ubuntu-latest
+    timeout-minutes: 40
+    steps:
+      - uses: actions/checkout@v5
+
+      # Sans ça, le téléchargement des navigateurs Playwright se bloque
+      # indéfiniment sur les runners (cf. le job setup du TNR V8).
+      - name: Tune kernel buffers
+        run: |
+          sudo sysctl -w net.core.rmem_max=2500000
+          sudo sysctl -w net.core.rmem_default=2500000
+
+      # Mêmes clés que le TNR V8 : on réutilise ses entrées de cache.
+      - name: Cache node_modules
+        id: cache-node
+        uses: actions/cache@v5
+        with:
+          path: ./e2e/node_modules
+          key: node-modules-${{ runner.os }}-${{ hashFiles('e2e/package-lock.json') }}
+          restore-keys: |
+            node-modules-${{ runner.os }}-
+
+      - name: Cache Playwright browsers
+        id: cache-pw
+        uses: actions/cache@v5
+        with:
+          path: ~/.cache/ms-playwright
+          key: pw-browsers-${{ runner.os }}-${{ hashFiles('e2e/package-lock.json') }}
+          restore-keys: |
+            pw-browsers-${{ runner.os }}-
+
+      - uses: actions/setup-node@v5
+        with:
+          node-version: "node"
+
+      - name: Install dependencies
+        if: steps.cache-node.outputs.cache-hit != 'true'
+        working-directory: ./e2e
+        run: npm ci
+
+      - name: Install Playwright Browsers
+        if: steps.cache-pw.outputs.cache-hit != 'true'
+        working-directory: ./e2e
+        timeout-minutes: 10
+        run: npx playwright install chromium
+
+      # C'est ici que le workflow diverge du TNR : le module testé est celui
+      # de la PR, pas une release publiée.
+      - name: Download the PR module zip
+        uses: actions/download-artifact@v4
+        with:
+          name: pr-module-zip
+          path: ./e2e-env/local-module
+
+      - name: Generate .env in e2e
+        working-directory: ./e2e
+        run: |
+          echo "BASE_URL=${{ secrets.BASE_URL }}" >> .env
+          echo "BASE_URL_FO=${{ secrets.BASE_URL_FO }}" >> .env
+          echo "ADMIN_EMAIL=${{ secrets.ADMIN_EMAIL }}" >> .env
+          echo "ADMIN_PASSWORD=${{ secrets.ADMIN_PASSWORD }}" >> .env
+          echo "OAUTH2URL=${{ secrets.OAUTH2URL }}" >> .env
+          echo "ACCOUNTSAPIURL=${{ secrets.ACCOUNTSAPIURL }}" >> .env
+          echo "ACCOUNTSUIURL=${{ secrets.ACCOUNTSUIURL }}" >> .env
+          echo "QA_USER_AGENT=${{ secrets.QA_USER_AGENT }}" >> .env
+          echo "ACCOUNT_EMAIL=${{ secrets.ACCOUNT_EMAIL }}" >> .env
+          echo "ACCOUNT_PASSWORD=${{ secrets.ACCOUNT_PASSWORD }}" >> .env
+
+      - name: Login to GHCR
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: prestashopcorp
+          password: ${{ secrets.DOWNLOADER_TOKEN }}
+
+      - name: Generate .env in e2e-env
+        working-directory: ./e2e-env
+        run: |
+          echo "ACCOUNT_TAG=${{ secrets.ACCOUNT_TAG }}" >> .env
+          echo "TUNNEL_SECRET=${{ secrets.TUNNEL_SECRET }}" >> .env
+          echo "TUNNEL_ID=${{ secrets.TUNNEL_ID }}" >> .env
+          echo "PS_DOMAIN=${{ secrets.PS_DOMAIN }}" >> .env
+          echo "DOMAIN=${{ secrets.DOMAIN }}" >> .env
+          echo "DOWNLOADER_TOKEN=${{ secrets.DOWNLOADER_TOKEN }}" >> .env
+          echo "PS_VERSION=${{ secrets.PS_VERSION }}" >> .env
+
+      # Une seule version PS sur PR (~12 min). La matrice complète reste au
+      # TNR en workflow_dispatch / nightly. Pas de continue-on-error : un
+      # échec de build du shop doit casser le job.
+      - name: Run test
+        working-directory: ./e2e
+        env:
+          PS_ACCOUNTS_VERSION: ${{ needs.build-module.outputs.version }}
+        run: |
+          npm run tnr-v8 -- 8.2.0-8.1
+          npm run tnr-multistore-v8 -- 8.2.0-8.1
+
+      # La gate. Pas de rapport ni de notification : le statut du check et
+      # le step summary suffisent.
+      - name: Fail on test failures
+        if: always()
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          # Les résultats bruts d'Allure : un fichier par test, champ .status.
+          # Aucun rapport à générer pour les lire. On les concatène en un seul
+          # flux plutôt que de passer N chemins en arguments.
+          results=$(find ./e2e -maxdepth 2 -path '*allure-results*' -name '*-result.json' -exec cat {} +)
+          total=$(printf '%s' "$results" | jq -s 'length')
+
+          if [ "$total" -eq 0 ]; then
+            echo "::error::aucun test exécuté — les tests n'ont produit aucun résultat"
+            echo "### TNR V8 — build de la PR : aucun test exécuté" >> "$GITHUB_STEP_SUMMARY"
+            exit 1
+          fi
+
+          ko=$(printf '%s' "$results" | jq -s '[.[] | select(.status == "failed" or .status == "broken")] | length')
+          ok=$(( total - ko ))
+
+          {
+            echo "### TNR V8 — build de la PR (PS 8.2.0-8.1)"
+            echo ""
+            echo "$ok/$total tests OK"
+          } >> "$GITHUB_STEP_SUMMARY"
+
+          if [ "$ko" -gt 0 ]; then
+            failures=$(printf '%s' "$results" | jq -r 'select(.status == "failed" or .status == "broken")
+              | "\(.fullName // .name) — \((.statusDetails.message // "") | split("\n")[0])"')
+
+            {
+              echo ""
+              echo "#### Échecs"
+              echo ""
+              printf '%s\n' "$failures" | sed 's/^/- /'
+            } >> "$GITHUB_STEP_SUMMARY"
+
+            printf '%s\n' "$failures" | sed 's/^/::error::/'
+
+            echo "::error::$ko échec(s) sur $total tests"
+            exit 1
+          fi
+
+          echo "$ok/$total tests OK"
