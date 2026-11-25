@@ -123,6 +123,11 @@ class RelativeDateArithmeticTest extends TestCase
             'new \DateTime($n . \' seconds\');',
             'new \DateTime($x->ttl() . \' seconds\');',
             'new \DateTime("$n seconds");',
+            'new \DateTime(sprintf(\'%s seconds\', $n));',
+            'new \DateTime(sprintf(\'%u seconds\', $n));',
+            'new \DateTime(sprintf(\'%1$s minutes\', $n));',
+            'strtotime(\'+1 \' . $unit);',
+            'strtotime(\'+\' . \'hour\');',
         ];
         foreach ($relative as $code) {
             $this->assertNotEmpty($this->findRelativeDateArithmetic('<?php ' . $code), $code);
@@ -146,6 +151,11 @@ class RelativeDateArithmeticTest extends TestCase
             'new \DateTime(($date));',
             'new \DateTime(sprintf(\'%04d-%02d-%02d\', $y, $m, $d));',
             'new \DateTime($format(\'+1 hour\'));',
+            'new \DateTime($y . \'-\' . $m . \'-\' . $d);',
+            'new \DateTime($y . \'-\' . $m . \'-01\');',
+            'new \DateTime($date . \' +0200\');',
+            'new \DateTime($y . sprintf(\'-%02d\', $m));',
+            'new \DateTime(sprintf(\'%s %s\', $date, $time));',
         ];
         foreach ($absolute as $code) {
             $this->assertSame([], $this->findRelativeDateArithmetic('<?php ' . $code), $code);
@@ -197,11 +207,15 @@ class RelativeDateArithmeticTest extends TestCase
     private function hasRelativeLiteral(array $tokens, $open)
     {
         $units = '(sec|second|msec|millisecond|usec|microsecond|min|minute|hour|day|weekday|week|fortnight|month|year)s?\b';
-        // a number may be a sprintf placeholder ('%s +%d seconds') or come from
-        // outside the literal ($ttl . ' seconds', "$ttl seconds"): now + N
-        $relative = '/^\s*[+-]|\bnow\s*[+-]|\b(tomorrow|yesterday|next|last|ago)\b'
-            . '|(\b\d+|%[\d$]*d)\s*' . $units
-            . '|^\s*' . $units . '/i';
+        // a number may be a sprintf placeholder ('%s +%d seconds', '%s seconds')
+        // or come from outside the literal ($ttl . ' seconds', "$ttl seconds"):
+        // now + N. A leading sign counts only when a number and a space follow
+        // ('+1 ' . $unit), not as a bare separator ($y . '-' . $m . '-01') or
+        // a UTC offset (' +0200').
+        $number = '(\b\d+|%[\d$.]*[dsuf])';
+        $relative = '/^\s*[+-]\s*' . $number . '\s|\bnow\s*[+-]|\b(tomorrow|yesterday|next|last|ago)\b'
+            . '|' . $number . '\s*' . $units
+            . '|^\s*[+-]?\s*' . $units . '/i';
 
         // one entry per open parenthesis: are its string literals arguments of the date call?
         $checked = [];
