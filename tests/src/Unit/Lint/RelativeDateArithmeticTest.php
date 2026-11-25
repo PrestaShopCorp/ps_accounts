@@ -120,6 +120,9 @@ class RelativeDateArithmeticTest extends TestCase
             'new \DateTime(sprintf(\'%s +%d seconds\', $date, $seconds));',
             'strtotime(\'+2 weekdays\');',
             'new \DateTime(\'500 msec\');',
+            'new \DateTime($n . \' seconds\');',
+            'new \DateTime($x->ttl() . \' seconds\');',
+            'new \DateTime("$n seconds");',
         ];
         foreach ($relative as $code) {
             $this->assertNotEmpty($this->findRelativeDateArithmetic('<?php ' . $code), $code);
@@ -193,10 +196,12 @@ class RelativeDateArithmeticTest extends TestCase
      */
     private function hasRelativeLiteral(array $tokens, $open)
     {
-        // a number may be a sprintf placeholder: '%s +%d seconds'
+        $units = '(sec|second|msec|millisecond|usec|microsecond|min|minute|hour|day|weekday|week|fortnight|month|year)s?\b';
+        // a number may be a sprintf placeholder ('%s +%d seconds') or come from
+        // outside the literal ($ttl . ' seconds', "$ttl seconds"): now + N
         $relative = '/^\s*[+-]|\bnow\s*[+-]|\b(tomorrow|yesterday|next|last|ago)\b'
-            . '|(\b\d+|%[\d$]*d)\s*(sec|second|msec|millisecond|usec|microsecond|min|minute|hour|day|weekday|week'
-            . '|fortnight|month|year)s?\b/i';
+            . '|(\b\d+|%[\d$]*d)\s*' . $units
+            . '|^\s*' . $units . '/i';
 
         // one entry per open parenthesis: are its string literals arguments of the date call?
         $checked = [];
